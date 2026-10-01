@@ -978,7 +978,7 @@
     check-cast v0, [I
 
     .line 182
-    if-eqz v0, :cond_12
+    if-eqz v0, :cond_14
 
     aget v0, v0, v2
 
@@ -991,6 +991,11 @@
 
     :cond_12
     move v0, v2
+
+    goto :goto_11
+
+    :cond_14
+    iget-boolean v0, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->builtIn:Z
 
     goto :goto_11
 .end method

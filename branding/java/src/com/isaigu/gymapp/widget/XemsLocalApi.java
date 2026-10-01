@@ -76,15 +76,10 @@ public final class XemsLocalApi {
 
     // ================================================================ programs
 
-    /** Programs; like {@link #getUserCustomers} (cloud asked once after start in the setup). */
+    /** Programs: the tablet's only. The vendor's cloud programs are not taken in any more (owner, 1.1.263: the
+     *  home screen shows the demo and the studio's own; XemsLocalStore put the old cloud ones aside). */
     public static OKHttpUtils.HttpResponseCallback getUserProgramTrainDataList(long coachId, OKHttpUtils.HttpResponseCallback cb) {
-        if (syncPrograms && cb != null && XemsLocalStore.isAdminSession()) {
-            syncPrograms = false;
-            OKHttpUtils.HttpResponseCallback merge = CloudMerge.wrap(cb, CloudMerge.PROGRAMS);
-            if (merge != null) {
-                return merge;
-            }
-        }
+        syncPrograms = false;
         answerPrograms(cb);
         return null;
     }

@@ -32,6 +32,9 @@ public final class Workout {
     public static final int PW_MAX = 400;
     public static final int ON_MAX = 10;
     public static final int OFF_MAX = 10;
+    /** The suit's ramp range (ms, ProgramDataBean.inputRamp / outputRamp). */
+    public static final int RAMP_MAX_MS = 3000;
+    public static final int RAMP_STEP_MS = 100;
     /** With the AI's rests one repetition takes ≈ 24 s of session time (AiExSim measures it); warm-up + cool-down
      *  ≈ 6 min. */
     static final int REP_S = 24;
@@ -49,6 +52,14 @@ public final class Workout {
         public int off;
         /** Strength share of the trainer's strength, %; 0 = rest (no current). */
         public int rel;
+        /** Double impulse: the OFF time carries a second impulse (the suit's active pause) instead of silence. */
+        public boolean dbl;
+        /** The second impulse: its frequency and its strength as % of the first (the suit has one pulse width). */
+        public int hz2 = 7;
+        public int str2 = 45;
+        /** Ramp of every impulse, ms: rising at its start, falling at its end (0 = sharp). */
+        public int rampIn = 500;
+        public int rampOut = 500;
 
         public Block() {}
 
@@ -84,7 +95,17 @@ public final class Workout {
             b.on = on;
             b.off = off;
             b.rel = rel;
+            b.dbl = dbl;
+            b.hz2 = hz2;
+            b.str2 = str2;
+            b.rampIn = rampIn;
+            b.rampOut = rampOut;
             return b;
+        }
+
+        /** The second impulse's time, s (its OFF part; the device keeps ≥ 1 s). */
+        public int off2() {
+            return Math.max(1, off);
         }
 
         /** Keep every value in range (after editing). */
@@ -95,6 +116,13 @@ public final class Workout {
             off = clamp(off, 0, OFF_MAX);
             rel = clamp(rel, 0, 100);
             reps = isRest() ? clamp(reps, REST_MIN_S, REST_MAX_S) : clamp(reps, REPS_MIN, REPS_MAX);
+            hz2 = clamp(hz2, HZ_MIN, HZ_MAX);
+            str2 = clamp(str2, 5, 100);
+            rampIn = clamp(Math.round(rampIn / (float) RAMP_STEP_MS) * RAMP_STEP_MS, 0, RAMP_MAX_MS);
+            rampOut = clamp(Math.round(rampOut / (float) RAMP_STEP_MS) * RAMP_STEP_MS, 0, RAMP_MAX_MS);
+            if (dbl && off < 1) {
+                off = 1;                                       // a second impulse needs its own time
+            }
         }
     }
 
@@ -144,10 +172,16 @@ public final class Workout {
             return new Block(ex, 5, 70, 300, 6, 4, 100);
         }
         if ("cardio".equals(p) || "plyo".equals(p)) {
-            return new Block(ex, 8, 40, 300, 3, 3, 85);
+            Block b = new Block(ex, 8, 40, 300, 3, 3, 85);
+            b.rampIn = 300;                                    // quick moves: a short rise
+            b.rampOut = 300;
+            return b;
         }
         if ("stretch".equals(p)) {
-            return new Block(ex, 6, 10, 250, 6, 2, 60);
+            Block b = new Block(ex, 6, 10, 250, 6, 2, 60);
+            b.rampIn = 1000;                                   // stretching: a slow rise
+            b.rampOut = 1000;
+            return b;
         }
         if (isSmall(p)) {
             return new Block(ex, 8, 85, 300, 4, 4, 100);
@@ -456,6 +490,18 @@ public final class Workout {
                         int cyc = Math.max(1, s.onS + s.offS);
                         Block b = new Block(null, Math.max(REPS_MIN, ph.durationS / n / cyc), s.hz, s.pwUs,
                                 Math.max(1, s.onS), s.offS, (int) Math.round(Math.max(0.3, Math.min(1.0, s.sigma)) * 100));
+                        b.dbl = s.pauseHz > 0 && s.pauseSigma > 0;     // the program's active pause
+                        if (b.dbl) {
+                            b.hz2 = s.pauseHz;
+                            b.str2 = (int) Math.round(s.pauseSigma * 100);
+                        }
+                        if (s.rampUpMs > 0) {
+                            b.rampIn = s.rampUpMs;
+                        }
+                        if (s.rampDownMs > 0) {
+                            b.rampOut = s.rampDownMs;
+                        }
+                        b.clampAll();
                         w.blocks.add(b);
                     }
                 }

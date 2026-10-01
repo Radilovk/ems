@@ -10,11 +10,14 @@ import android.view.ViewConfiguration;
 
 /**
  * The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green →
- * amber → magenta → red high), height = pulse width (deeper = taller); rest blocks are a thin grey bar. An exercise
- * block carries its still figure on top. Touch: tap selects; drag the selected block's right edge to make it longer
- * or shorter (repetitions / rest seconds); long-press and drag moves a block; the round + and − above the selected
- * block clone and remove it. Read-only (compact) in lists and the run card, with a playhead.
- * docs/xems-workouts.md
+ * amber → magenta → red high), height = pulse width (deeper = taller); a ramp leans the block's side (a trapezoid:
+ * the longer the ramp, the flatter the side); rest blocks are low and grey. An exercise block carries its still
+ * figure on top. In the editor every block shows its values with symbols ({@link ImpulseGlyph}: wave Hz, clock
+ * seconds, pulse+pause or two pulses ON:OFF, arrow µs); the selected one has − and + inside (remove / clone), as
+ * bare symbols in the theme's ink (white on dark, black on light). Touch: tap selects; drag the selected block's
+ * right edge to make it longer or shorter; long-press and drag moves a block. Blocks keep a readable width: a long
+ * map is wider than the screen and scrolls (the editor wraps it in a HorizontalScrollView). Read-only (compact) in
+ * lists and the run card, with a playhead. docs/xems-workouts.md
  */
 public final class ImpulseMapView extends View {
     public interface Listener {
@@ -37,6 +40,8 @@ public final class ImpulseMapView extends View {
     private final Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fig = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint axis = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint ink = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final android.graphics.Path shape = new android.graphics.Path();
 
     // layout (px): left edge and width of each block, frozen during a drag
     private float[] left = new float[0];
@@ -76,7 +81,35 @@ public final class ImpulseMapView extends View {
         axis.setStrokeWidth(Math.max(1, d));
         axis.setTextSize(10 * d);
         touchSlop = ViewConfiguration.get(c).getScaledTouchSlop();
+        ink.setStrokeWidth(1.6f * d);
+        ink.setStrokeCap(Paint.Cap.ROUND);
+        ink.setStrokeJoin(Paint.Join.ROUND);
+        ink.setFakeBoldText(true);
+        fill.setPathEffect(new android.graphics.CornerPathEffect(6 * d));
+        stroke.setPathEffect(new android.graphics.CornerPathEffect(6 * d));
         ExerciseFigure.preload(c);
+    }
+
+    /** The editor's narrowest block (dp): room for the values and the − / +; a rest is narrower. */
+    static final float MIN_W_DP = 104;
+    static final float MIN_REST_DP = 92;
+
+    private float minWidth(Workout.Block b) {
+        return editable ? (b.isRest() ? MIN_REST_DP : MIN_W_DP) * d : 6 * d;
+    }
+
+    /** In the editor a long map is as wide as its blocks need (the parent scrolls); else the given width. */
+    @Override
+    protected void onMeasure(int ws, int hs) {
+        int w = MeasureSpec.getSize(ws);
+        if (editable && map != null) {
+            float need = 16 * d;
+            for (Workout.Block b : map.blocks) {
+                need += minWidth(b) + 3 * d;
+            }
+            w = Math.max(w, (int) Math.ceil(need));
+        }
+        setMeasuredDimension(w, getDefaultSize(getSuggestedMinimumHeight(), hs));
     }
 
     public void setMap(Workout w, boolean editable) {
@@ -140,10 +173,27 @@ public final class ImpulseMapView extends View {
 
     private float heightFor(Workout.Block b) {
         if (b.isRest()) {
-            return 8 * d;
+            return editable ? 58 * d : 8 * d;
         }
-        float k = (b.pw - Workout.PW_MIN) / (float) (Workout.PW_MAX - Workout.PW_MIN);
-        return maxH * (0.35f + 0.65f * Math.max(0, Math.min(1, k)));
+        float k = Math.max(0, Math.min(1, (b.pw - Workout.PW_MIN) / (float) (Workout.PW_MAX - Workout.PW_MIN)));
+        return editable ? maxH * (0.55f + 0.45f * k) : maxH * (0.35f + 0.65f * k);
+    }
+
+    /** The ramp's lean (px) for a side: 1 s of ramp leans it 24 dp, at most a third of the block. */
+    private float lean(int rampMs, float w, float h) {
+        if (rampMs <= 0) {
+            return 0;
+        }
+        return Math.min(Math.min(w * 0.3f, h * 0.9f), rampMs / 1000f * (editable ? 24 : 6) * d);
+    }
+
+    /** The theme's ink for symbols inside blocks: white on dark, black on light. */
+    private static int ink() {
+        return com.isaigu.gymapp.widget.XemsUi.dark ? 0xFFFFFFFF : 0xFF111111;
+    }
+
+    private static int restColor() {
+        return com.isaigu.gymapp.widget.XemsUi.dark ? 0xFF5A5F6B : 0xFFC9CED6;
     }
 
     // ------------------------------------------------------------------ layout
@@ -157,7 +207,6 @@ public final class ImpulseMapView extends View {
         width = new float[n];
         float pad = 8 * d;
         float avail = getWidth() - 2 * pad - Math.max(0, n - 1) * 3 * d;
-        float minW = editable ? 30 * d : 6 * d;
         int total = 0;
         for (Workout.Block b : map != null ? map.blocks : new java.util.ArrayList<Workout.Block>()) {
             total += b.seconds();
@@ -168,8 +217,8 @@ public final class ImpulseMapView extends View {
             float fixed = 0;
             int free = 0;
             for (Workout.Block b : map.blocks) {
-                if (b.seconds() * s < minW) {
-                    fixed += minW;
+                if (b.seconds() * s < minWidth(b)) {
+                    fixed += minWidth(b);
                 } else {
                     free += b.seconds();
                 }
@@ -179,13 +228,13 @@ public final class ImpulseMapView extends View {
         scale = s;
         float x = pad;
         for (int i = 0; i < n; i++) {
-            width[i] = Math.max(minW, map.blocks.get(i).seconds() * s);
+            width[i] = Math.max(minWidth(map.blocks.get(i)), map.blocks.get(i).seconds() * s);
             left[i] = x;
             x += width[i] + 3 * d;
         }
-        float top = editable ? 64 * d : 4 * d;             // room for the figures and the + / − buttons
+        float top = editable ? 62 * d : 4 * d;             // room for the figures above the blocks
         baseY = getHeight() - (editable ? 20 * d : 4 * d);
-        maxH = Math.max(10 * d, baseY - top - (editable ? 34 * d : 0));
+        maxH = Math.max(10 * d, baseY - top);
     }
 
     @Override
@@ -202,58 +251,34 @@ public final class ImpulseMapView extends View {
         }
         layoutBlocks();
         boolean waiting = false;
+        plusBtn.setEmpty();
+        minusBtn.setEmpty();
         for (int i = 0; i < map.blocks.size(); i++) {
             Workout.Block b = map.blocks.get(i);
             float h = heightFor(b);
             float lift = lifted && i == selected ? 8 * d : 0;
             RectF r = new RectF(left[i], baseY - h - lift, left[i] + width[i], baseY - lift);
-            int col = b.isRest() ? 0xFF5A5F6B : colorFor(b.hz);
+            int col = b.isRest() ? restColor() : colorFor(b.hz);
             boolean sel = i == selected;
+            // the block: a trapezoid when the impulse ramps (the side leans by the ramp's length)
+            float li = b.isRest() ? 0 : lean(b.rampIn, r.width(), r.height());
+            float lo = b.isRest() ? 0 : lean(b.rampOut, r.width(), r.height());
+            shape.reset();
+            shape.moveTo(r.left, r.bottom);
+            shape.lineTo(r.left + li, r.top);
+            shape.lineTo(r.right - lo, r.top);
+            shape.lineTo(r.right, r.bottom);
+            shape.close();
             fill.setColor(col);
-            fill.setAlpha(b.isRest() ? 200 : Math.round(80 + 150 * Math.max(0.2f, b.rel / 100f)));
-            float rad = Math.min(8 * d, width[i] / 3);
-            c.drawRoundRect(r, rad, rad, fill);
+            fill.setAlpha(b.isRest() ? 220 : Math.round(90 + 150 * Math.max(0.2f, b.rel / 100f)));
+            c.drawPath(shape, fill);
             if (sel) {
-                stroke.setColor(0xFFFFFFFF);
+                stroke.setColor(ink());
                 stroke.setStrokeWidth(2.5f * d);
-                c.drawRoundRect(r, rad, rad, stroke);
+                c.drawPath(shape, stroke);
             }
-            if (editable && width[i] > 26 * d && !b.isRest()) {
-                String t = "×" + b.reps;
-                text.setTextSize(12 * d);
-                c.drawText(t, r.centerX() - text.measureText(t) / 2, r.bottom - 7 * d, text);
-                if (h > 42 * d) {
-                    String hz = b.hz + " Hz";
-                    text.setTextSize(10 * d);
-                    c.drawText(hz, r.centerX() - text.measureText(hz) / 2, r.top + 14 * d, text);
-                }
-            } else if (editable && b.isRest() && width[i] > 34 * d) {
-                String t = b.reps + "s";
-                axis.setColor(0xAAFFFFFF);
-                c.drawText(t, r.centerX() - axis.measureText(t) / 2, r.top - 4 * d, axis);
-            }
-            if (b.hasExercise() && editable) {
-                float fs = Math.min(56 * d, Math.max(22 * d, width[i] - 4 * d));
-                RectF box = new RectF(r.centerX() - fs / 2, r.top - fs - 4 * d, r.centerX() + fs / 2, r.top - 4 * d);
-                fig.setColor(sel ? 0xFFFFFFFF : col);
-                if (!ExerciseFigure.drawStill(c, b.ex, box, fig)) {
-                    waiting = true;
-                }
-            }
-            if (sel && editable) {
-                // the resize grip on the right edge
-                handle.set(r.right - 7 * d, r.top + 4 * d, r.right + 7 * d, r.bottom - 4 * d);
-                fill.setColor(0xFFFFFFFF);
-                fill.setAlpha(230);
-                c.drawRoundRect(new RectF(r.right - 2.5f * d, r.centerY() - 12 * d, r.right + 2.5f * d,
-                        r.centerY() + 12 * d), 3 * d, 3 * d, fill);
-                // + clone and − remove above the block
-                float cy = 18 * d;                                 // the top strip, above the figures
-                float cx = Math.max(40 * d, Math.min(getWidth() - 40 * d, r.centerX()));
-                plusBtn.set(cx - 38 * d, cy - 15 * d, cx - 8 * d, cy + 15 * d);
-                minusBtn.set(cx + 8 * d, cy - 15 * d, cx + 38 * d, cy + 15 * d);
-                drawRound(c, plusBtn, 0xFF43A047, "+");
-                drawRound(c, minusBtn, 0xFFEF5350, "−");
+            if (editable) {
+                waiting |= drawInside(c, i, b, r, li, sel, col);
             }
         }
         if (editable) {
@@ -289,12 +314,73 @@ public final class ImpulseMapView extends View {
         }
     }
 
-    private void drawRound(Canvas c, RectF r, int color, String t) {
-        fill.setColor(color);
-        fill.setAlpha(255);
-        c.drawOval(r, fill);
-        text.setTextSize(20 * d);
-        c.drawText(t, r.centerX() - text.measureText(t) / 2, r.centerY() + 7 * d, text);
+    /** Inside a block (editor): the values with their symbols, the figure above, and on the selected one the
+     *  resize grip and the − / + as bare symbols. True while a figure is still loading. */
+    private boolean drawInside(Canvas c, int i, Workout.Block b, RectF r, float lean, boolean sel, int col) {
+        boolean waiting = false;
+        int k = ink();
+        ink.setColor(k);
+        text.setColor(k);
+        float row = 18 * d;
+        float gs = 12 * d;
+        float x = r.left + Math.max(8 * d, lean * 0.5f + 6 * d);
+        float bottomRoom = sel ? 34 * d : 6 * d;           // the − / + live at the bottom of the selected block
+        if (b.isRest()) {
+            String t = b.reps + AiText.t(" сек", " s");
+            text.setTextSize(12 * d);
+            float tw = gs + 4 * d + text.measureText(t);
+            float tx = r.centerX() - tw / 2;
+            float ty = sel ? r.top + 8 * d : r.centerY() - gs / 2;
+            ImpulseGlyph.draw(c, ImpulseGlyph.TIME, tx, ty, gs, ink);
+            c.drawText(t, tx + gs + 4 * d, ty + gs - 1.5f * d, text);
+        } else {
+            String[] v = {b.hz + " Hz", b.seconds() + AiText.t(" сек", " s"),
+                    b.dbl ? b.on + "/" + b.off2() + " · " + b.hz2 + " Hz" : b.on + ":" + Math.max(1, b.off) + AiText.t(" сек", " s"),
+                    b.pw + " µs"};
+            int[] g = {ImpulseGlyph.HZ, ImpulseGlyph.TIME, b.dbl ? ImpulseGlyph.DOUBLE : ImpulseGlyph.PULSE_PAUSE,
+                    ImpulseGlyph.DEPTH};
+            text.setTextSize(11.5f * d);
+            float y = r.top + 9 * d;
+            for (int n = 0; n < v.length; n++) {
+                if (y + gs > r.bottom - bottomRoom) {
+                    break;                                     // a shallow block shows what fits
+                }
+                ImpulseGlyph.draw(c, g[n], x, y, gs, ink);
+                c.drawText(v[n], x + gs + 5 * d, y + gs - 1.5f * d, text);
+                y += row;
+            }
+        }
+        if (b.hasExercise()) {
+            float fs = Math.min(56 * d, Math.max(22 * d, width[i] - 4 * d));
+            RectF box = new RectF(r.centerX() - fs / 2, r.top - fs - 4 * d, r.centerX() + fs / 2, r.top - 4 * d);
+            fig.setColor(sel ? k : col);
+            if (!ExerciseFigure.drawStill(c, b.ex, box, fig)) {
+                waiting = true;
+            }
+        }
+        if (sel) {
+            // the resize grip on the right edge, above the − / + row
+            float gb = r.bottom - 38 * d;
+            handle.set(r.right - 7 * d, r.top + 4 * d, r.right + 7 * d, Math.max(r.top + 12 * d, gb));
+            float gc = (handle.top + handle.bottom) / 2;
+            float gh = Math.min(12 * d, (handle.bottom - handle.top) / 2);
+            fill.setColor(k);
+            fill.setAlpha(230);
+            c.drawRoundRect(new RectF(r.right - 2.5f * d, gc - gh, r.right + 2.5f * d, gc + gh), 3 * d, 3 * d, fill);
+            // − removes (left), + clones (right): bare symbols in the ink, a 44 dp touch area each
+            float cy = r.bottom - 17 * d;
+            float arm = 7 * d;
+            ink.setStrokeWidth(2.6f * d);
+            float mx = r.left + Math.max(18 * d, lean + 12 * d);
+            float px = r.right - 22 * d;
+            c.drawLine(mx - arm, cy, mx + arm, cy, ink);
+            c.drawLine(px - arm, cy, px + arm, cy, ink);
+            c.drawLine(px, cy - arm, px, cy + arm, ink);
+            ink.setStrokeWidth(1.6f * d);
+            minusBtn.set(mx - 22 * d, cy - 22 * d, mx + 22 * d, cy + 22 * d);
+            plusBtn.set(px - 22 * d, cy - 22 * d, px + 22 * d, cy + 22 * d);
+        }
+        return waiting;
     }
 
     // ------------------------------------------------------------------ touch
@@ -323,8 +409,9 @@ public final class ImpulseMapView extends View {
                 gesture = NONE;
                 lifted = false;
                 downIndex = indexAt(x);
-                if (selected >= 0 && selected < map.blocks.size()) {
-                    RectF grip = new RectF(handle.left - 12 * d, handle.top - 8 * d, handle.right + 12 * d, handle.bottom + 8 * d);
+                if (selected >= 0 && selected < map.blocks.size()
+                        && !plusBtn.contains(x, y) && !minusBtn.contains(x, y)) {      // − / + win over the grip
+                    RectF grip = new RectF(handle.left - 12 * d, handle.top - 8 * d, handle.right + 12 * d, handle.bottom + 4 * d);
                     if (grip.contains(x, y)) {
                         gesture = RESIZE;
                         frozen = true;
@@ -346,7 +433,7 @@ public final class ImpulseMapView extends View {
                     } else {
                         b.reps = Workout.clamp(Math.round(secs / Math.max(1, b.on + Math.max(1, b.off))), Workout.REPS_MIN, Workout.REPS_MAX);
                     }
-                    width[selected] = Math.max(30 * d, b.seconds() * scale);
+                    width[selected] = Math.max(minWidth(b), b.seconds() * scale);
                     for (int i = selected + 1; i < left.length; i++) {
                         left[i] = left[i - 1] + width[i - 1] + 3 * d;
                     }
@@ -386,11 +473,13 @@ public final class ImpulseMapView extends View {
                         map.blocks.add(selected + 1, map.blocks.get(selected).copy());
                         selected++;
                         frozen = false;
+                        requestLayout();                       // one block wider: the scroll width grows
                         changed();
                     } else if (selected >= 0 && minusBtn.contains(x, y)) {
                         map.blocks.remove(selected);
                         selected = Math.min(selected, map.blocks.size() - 1);
                         frozen = false;
+                        requestLayout();
                         changed();
                     } else {
                         selected = downIndex;

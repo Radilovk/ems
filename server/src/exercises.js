@@ -27,13 +27,13 @@ export function picksPayload(rows) {
   return { v, picks };
 }
 
-/** Which exercises a tablet offers: only the ones the admin switched on (nothing is on by default — the owner). */
+/** Which exercises a tablet offers: built-ins unless switched off, others only when switched on. */
 export function enabledIds(library, picks) {
   const byId = new Map((picks || []).map((p) => [p.id, p]));
   const out = [];
   for (const e of library.exercises) {
     const p = byId.get(e.id);
-    if (p && p.on) out.push(e.id);
+    if (p ? p.on : e.b) out.push(e.id);
   }
   return out;
 }

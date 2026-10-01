@@ -17,7 +17,9 @@ Gestalt grouping, Krug ("Don't make me think"), Norman (affordances, feedback, m
    backend, and every step adapts to it dynamically. A question is asked only when nothing can decide it.
 5. **Fewest steps.** Merge steps that hold one decision each; a confirmation that is required anyway becomes the
    step's primary button ("✓ Добре е днес · към плана"), not a separate toggle plus a Next.
-6. **No options that make no sense in the context.** (A workout is a workout — no "procedure" goal in it; a
+6. **Landscape first.** The tablet app is always landscape (wide and short): place things side by side, keep
+   the key content above the fold, let long rows scroll sideways; never design for portrait height.
+7. **No options that make no sense in the context.** (A workout is a workout — no "procedure" goal in it; a
    procedure is its own kind.) Every option must be meaningful for *this* object, *this* client, *this* moment.
 
 ## 2. Structure and flow
@@ -66,4 +68,5 @@ Gestalt grouping, Krug ("Don't make me think"), Norman (affordances, feedback, m
 4. One primary action? Back/✕ lose nothing?
 5. Same colours/states as the rest of the kit (on / selected / off)?
 6. Targets ≥ 48 dp, contrast OK in light and dark?
-7. Screenshot checked on the tablet (and band 212×520 where relevant).
+7. Laid out for landscape (wide, short)? Nothing needs portrait height?
+8. Screenshot checked on the tablet (and band 212×520 where relevant).

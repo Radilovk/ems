@@ -30,180 +30,185 @@
 .method private constructor <init>(Ljava/lang/reflect/Type;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;I)V
     .registers 4
 
-    .line 219
+    .prologue
+    .line 214
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;-><init>(Ljava/lang/reflect/Type;)V
 
-    .line 220
+    .line 215
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->original:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
 
-    .line 221
+    .line 216
     iput p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->kind:I
 
-    .line 222
+    .line 217
     return-void
 .end method
 
 .method static wrap(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;I)Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
-    .registers 5
+    .registers 6
 
-    .line 227
-    const/4 v0, 0x0
+    .prologue
+    const/4 v1, 0x0
 
+    .line 222
     :try_start_1
-    const-class v1, Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
+    const-class v0, Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
 
     const-string v2, "targetType"
 
-    invoke-virtual {v1, v2}, Ljava/lang/Class;->getDeclaredField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+    invoke-virtual {v0, v2}, Ljava/lang/Class;->getDeclaredField(Ljava/lang/String;)Ljava/lang/reflect/Field;
 
-    move-result-object v1
+    move-result-object v0
 
-    .line 228
+    .line 223
     const/4 v2, 0x1
 
-    invoke-virtual {v1, v2}, Ljava/lang/reflect/Field;->setAccessible(Z)V
+    invoke-virtual {v0, v2}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 229
-    invoke-virtual {v1, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    .line 224
+    invoke-virtual {v0, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
-    move-result-object v1
+    move-result-object v0
 
-    check-cast v1, Ljava/lang/reflect/Type;
+    check-cast v0, Ljava/lang/reflect/Type;
 
-    .line 230
-    if-nez v1, :cond_16
+    .line 225
+    if-nez v0, :cond_17
 
-    goto :goto_1c
+    move-object v0, v1
 
-    :cond_16
+    .line 228
+    :goto_16
+    return-object v0
+
+    .line 225
+    :cond_17
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;
 
-    invoke-direct {v2, v1, p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;-><init>(Ljava/lang/reflect/Type;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;I)V
-    :try_end_1b
-    .catchall {:try_start_1 .. :try_end_1b} :catchall_1d
+    invoke-direct {v2, v0, p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;-><init>(Ljava/lang/reflect/Type;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;I)V
+    :try_end_1c
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1c} :catch_1e
 
     move-object v0, v2
 
-    :goto_1c
-    return-object v0
+    goto :goto_16
 
-    .line 231
-    :catchall_1d
-    move-exception p0
+    .line 226
+    :catch_1e
+    move-exception v0
 
-    .line 232
-    const-string p1, "xems_local"
+    .line 227
+    const-string v2, "xems_local"
 
-    const-string v1, "cloud merge"
+    const-string v3, "cloud merge"
 
-    invoke-static {p1, v1, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    invoke-static {v2, v3, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 233
-    return-object v0
+    move-object v0, v1
+
+    .line 228
+    goto :goto_16
 .end method
 
 
 # virtual methods
 .method public httpResponse(ZLjava/lang/String;Ljava/lang/Object;)V
-    .registers 4
+    .registers 7
 
-    .line 240
-    const/4 p2, 0x0
+    .prologue
+    .line 235
+    const/4 v0, 0x0
 
-    .line 241
-    if-eqz p1, :cond_1e
+    .line 236
+    if-eqz p1, :cond_1d
 
     :try_start_3
-    instance-of p1, p3, Lcom/isaigu/gymapp/bean/vo/ResponseData;
+    instance-of v1, p3, Lcom/isaigu/gymapp/bean/vo/ResponseData;
 
-    if-eqz p1, :cond_1e
+    if-eqz v1, :cond_1d
 
-    .line 242
+    .line 237
     check-cast p3, Lcom/isaigu/gymapp/bean/vo/ResponseData;
 
-    .line 243
+    .line 238
     invoke-virtual {p3}, Lcom/isaigu/gymapp/bean/vo/ResponseData;->getCode()I
 
-    move-result p1
+    move-result v1
 
-    if-nez p1, :cond_1e
+    if-nez v1, :cond_1d
 
     invoke-virtual {p3}, Lcom/isaigu/gymapp/bean/vo/ResponseData;->getData()Ljava/lang/Object;
 
-    move-result-object p1
+    move-result-object v1
 
-    instance-of p1, p1, Ljava/util/List;
+    instance-of v1, v1, Ljava/util/List;
 
-    if-eqz p1, :cond_1e
+    if-eqz v1, :cond_1d
 
-    .line 244
+    .line 239
     invoke-virtual {p3}, Lcom/isaigu/gymapp/bean/vo/ResponseData;->getData()Ljava/lang/Object;
 
-    move-result-object p1
+    move-result-object v0
 
-    move-object p2, p1
+    check-cast v0, Ljava/util/List;
 
-    check-cast p2, Ljava/util/List;
+    .line 242
+    :cond_1d
+    iget v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->kind:I
 
-    .line 247
-    :cond_1e
-    iget p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->kind:I
+    const/4 v2, 0x1
 
-    const/4 p3, 0x1
+    if-ne v1, v2, :cond_30
 
-    if-ne p1, p3, :cond_31
-
-    .line 248
+    .line 243
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadUsers()V
 
-    .line 249
-    if-eqz p2, :cond_2b
+    .line 244
+    if-eqz v0, :cond_2a
 
-    .line 250
-    invoke-static {p2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->mergeCloudUsers(Ljava/util/List;)V
+    .line 245
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->mergeCloudUsers(Ljava/util/List;)V
 
-    .line 252
-    :cond_2b
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->original:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
+    .line 247
+    :cond_2a
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->original:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answerUsers(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-
-    goto :goto_3e
-
-    .line 254
-    :cond_31
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadPrograms()V
-
-    .line 255
-    if-eqz p2, :cond_39
-
-    .line 256
-    invoke-static {p2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->mergeCloudPrograms(Ljava/util/List;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answerUsers(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
 
     .line 258
-    :cond_39
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->original:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
-
-    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answerPrograms(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-    :try_end_3e
-    .catchall {:try_start_3 .. :try_end_3e} :catchall_3f
-
-    .line 262
-    :goto_3e
-    goto :goto_47
-
-    .line 260
-    :catchall_3f
-    move-exception p1
-
-    .line 261
-    const-string p2, "xems_local"
-
-    const-string p3, "cloud merge"
-
-    invoke-static {p2, p3, p1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-
-    .line 263
-    :goto_47
+    :goto_2f
     return-void
+
+    .line 249
+    :cond_30
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadPrograms()V
+
+    .line 250
+    if-eqz v0, :cond_38
+
+    .line 251
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->mergeCloudPrograms(Ljava/util/List;)V
+
+    .line 253
+    :cond_38
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->original:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answerPrograms(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
+    :try_end_3d
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_3d} :catch_3e
+
+    goto :goto_2f
+
+    .line 255
+    :catch_3e
+    move-exception v0
+
+    .line 256
+    const-string v1, "xems_local"
+
+    const-string v2, "cloud merge"
+
+    invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    goto :goto_2f
 .end method

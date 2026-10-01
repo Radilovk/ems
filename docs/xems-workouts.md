@@ -26,9 +26,8 @@ the name field says what it is for. Changes save by themselves (header "✓ За
 ## Admin (server)
 - `/admin/exercises` (button "Упражнения ↗" in the admin panel): the 302 exercises with moving figures, search, zone
   and state filters; per exercise **В приложението** on/off and **кадри** 3 / 2 (first + last) / 1 (still).
-- D1 `exercise_picks(id, on_app, frames, zone, updated_at)` (migrations 0010, 0011). **Nothing is on by default**
-  (1.1.260, owner: what the admin did not switch on is not seen on a tablet — built-ins included; the ready programs
-  still use their own exercises). `GET /v1/exercises` (public, 5 min cache) → `{v, picks:[{id,on,frames,zone?}]}`.
+- D1 `exercise_picks(id, on_app, frames, zone, updated_at)` (migrations 0010, 0011). Built-ins are on by default,
+  the rest off; the admin switches either way. `GET /v1/exercises` (public, 5 min cache) → `{v, picks:[{id,on,frames,zone?}]}`.
 - **Group** (picker zone): the blue tag ▾ on each card → one tap opens the groups, one tap saves (green = the admin's
   own, overriding the library's). Groups: Корем, Седалище, Бедра, Гръб, Гърди, Ръце, Рамене, **Функционални**
   (whole-body moves with no one target: burpee, swing, deadlift, carry…), Кардио, Разтягане. The tablet applies it
@@ -49,6 +48,22 @@ A workout **is** an impulse map: a line of blocks (merged with the exercises for
   figure above its block, minute marks, legend. Touch: tap = select (panel below with − / + for every value), drag
   the right edge = length (repetitions / rest seconds in 5 s steps), long-press + drag = move, round **+** above =
   clone, **−** = remove. Buttons: + Упражнение (picker; a 30 s rest is put before a new set), + Почивка, + Нов блок.
+- **1.1.261 — values in the blocks, full impulse control, picker cards** (owner):
+  - Block also `{dbl, hz2, s2, ri, ro}`: **double impulse** = the OFF time carries a second impulse (the suit's active
+    pause: its own Hz, strength as % of the first; the suit has **one pulse width** for both, so no µs for impulse 2);
+    **ramp** in / out of every impulse 0–3 s (`inputRamp` / `outputRamp`; default 0.5 s, cardio 0.3, stretching 1.0;
+    passive presets take the program's active pause). MapRunner writes all of it per block.
+  - In the editor every block shows its values with vector symbols (`ai/ImpulseGlyph`): sharp wave = Hz, clock =
+    seconds, pulse + flat = impulse : pause, two pulses = double impulse (ON/OFF · Hz 2), arrow down = µs. A ramp
+    leans the block's side (trapezoid; 1 s ≈ 24 dp, at most a third of the block). The selected block has − (left) and
+    + (right) inside as bare symbols in the theme's ink (white on dark, black on light); the resize grip sits above
+    them. Blocks keep ≥ 104 dp (rest 92), a long map scrolls sideways.
+  - Panel "Импулс ▸": Импулс + пауза | Двоен импулс; impulse 1 Hz · сек · µs · сила %; pause сек or impulse 2 Hz ·
+    сек · сила %; ramp start / end сек. Each caption carries its symbol.
+  - Legend (catalog list and editor): colour = frequency with Hz bands, and every block symbol.
+  - Exercise picker cards: − / + at the two ends of the picture (one set less / more; a new set goes right after the
+    exercise's last one, so the order holds), the place in the program top-left, picked = green frame + glow + raised;
+    a tap on the card picks it or takes it out entirely; the top slot animates the exercise picked last with how-to.
 - **Starting impulse by movement** (`Workout.forExercise`, design values): big-muscle strength 85 Hz / 350 µs / 4+4;
   small muscles and core flexion 85 / 300; holds 70 / 300 / 6+4; cardio & jumps 40 / 300 / 3+3 at 85 %; stretching
   10 / 250 / 6+2 at 60 %. Pattern from `library.json` (`pat`) / `AutoTemplateData.PAT`.

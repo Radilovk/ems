@@ -60,8 +60,8 @@ input[type=search]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;pad
 </head>
 <body>
 <h1><a href="/admin">← Админ</a> Упражнения</h1>
-<p class="sub">Каталогът за програмите на таблетите. На таблета се вижда само това, което включиш тук — таблетите го
-изтеглят сами. <b>Група</b> (синият етикет) — докосни, за да я смениш. <b>Кадри</b>: 3 — пълно движение, 2 — крайните
+<p class="sub">Каталогът за програмите на таблетите. Вградените са включени по подразбиране; включи още, които искаш —
+таблетите ги изтеглят сами. <b>Група</b> (синият етикет) — докосни, за да я смениш. <b>Кадри</b>: 3 — пълно движение, 2 — крайните
 пози, 1 — неподвижно. Клик върху фигурата — описание.</p>
 <div class="gate" id="gate"><h2>Код за достъп</h2><p>Въведи кода за каталога с упражнения.</p>
 <input id="code" autocomplete="off" placeholder="XXXX-XXXX-XXXX"><button id="go">Влез</button><div class="bad" id="bad"></div></div>
@@ -81,7 +81,7 @@ const $=s=>document.querySelector(s);
 let CODE='';try{CODE=localStorage.getItem('xems_ex_code')||'';}catch(e){}
 function H(extra){return Object.assign({'X-Access-Code':CODE},extra||{});}
 function err(m){const e=$('#err');e.textContent=m;e.style.display=m?'block':'none';}
-function isOn(e){const p=PICKS[e.id];return !!(p&&p.on);}
+function isOn(e){const p=PICKS[e.id];return p?!!p.on:!!e.b;}
 // the admin's own group wins over the library's guess
 function zoneOf(e){const p=PICKS[e.id];return p&&p.zone?p.zone:e.zone;}
 function framesOf(e){const p=PICKS[e.id];return p&&p.frames?p.frames:e.n;}

@@ -27,13 +27,14 @@ export function picksPayload(rows) {
   return { v, picks };
 }
 
-/** Which exercises a tablet offers: built-ins unless switched off, others only when switched on. */
+/** Which exercises a tablet offers: the owner's selection (library "d"; older libraries: built-ins) unless switched
+ *  off, the others only when switched on. */
 export function enabledIds(library, picks) {
   const byId = new Map((picks || []).map((p) => [p.id, p]));
   const out = [];
   for (const e of library.exercises) {
     const p = byId.get(e.id);
-    if (p ? p.on : e.b) out.push(e.id);
+    if (p ? p.on : (e.d ?? e.b)) out.push(e.id);
   }
   return out;
 }

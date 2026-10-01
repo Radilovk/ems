@@ -79,9 +79,13 @@ const STATES={all:'Всички',on:'В приложението',off:'Изкл�
 let LIB=null,PICKS={},FIXED=new Set(),zone='all',state='all',q='';
 const $=s=>document.querySelector(s);
 let CODE='';try{CODE=localStorage.getItem('xems_ex_code')||'';}catch(e){}
-function H(extra){return Object.assign({'X-Access-Code':CODE},extra||{});}
+// opened from a tablet's Settings: its license in the address fragment (never sent to a server), no code asked
+let TAB=null;try{const m=/[#&]tab=([^&]+)/.exec(location.hash);if(m){TAB=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,'+').replace(/_/g,'/')))));
+  sessionStorage.setItem('xems_ex_tab',JSON.stringify(TAB));history.replaceState(null,'',location.pathname);}
+  else TAB=JSON.parse(sessionStorage.getItem('xems_ex_tab')||'null');}catch(e){TAB=null;}
+function H(extra){const h=TAB&&TAB.t?{'X-Tablet-Token':TAB.t,'X-Device-Id':TAB.d}:{'X-Access-Code':CODE};return Object.assign(h,extra||{});}
 function err(m){const e=$('#err');e.textContent=m;e.style.display=m?'block':'none';}
-function isOn(e){const p=PICKS[e.id];return p?!!p.on:!!e.b;}
+function isOn(e){const p=PICKS[e.id];return p?!!p.on:!!(e.d??e.b);}
 // the admin's own group wins over the library's guess
 function zoneOf(e){const p=PICKS[e.id];return p&&p.zone?p.zone:e.zone;}
 function framesOf(e){const p=PICKS[e.id];return p&&p.frames?p.frames:e.n;}
@@ -90,7 +94,7 @@ function url(e,n){if(FIXED.has(e.id+'/'+n))return LIB.fixedUrl.replace('{id}',e.
 function frameList(e){const f=framesOf(e);if(f>=3&&e.n>=3)return[1,2,3];if(f===1)return[1];return[1,e.n];}
 function chips(el,map,cur,set){el.innerHTML='';for(const k in map){const c=document.createElement('span');c.className='chip'+(k===cur?' on':'');c.textContent=map[k];c.onclick=()=>{set(k);render();};el.appendChild(c);}}
 function fig(e){const d=document.createElement('div');d.className='fig';const fl=frameList(e);
-  if(e.b){const b=document.createElement('span');b.className='b';b.textContent='вградено';d.appendChild(b);}
+  if(e.d??e.b){const b=document.createElement('span');b.className='b';b.textContent='вградено';d.appendChild(b);}
   fl.forEach((n,i)=>{const im=document.createElement('img');im.loading='lazy';im.alt='';im.src=url(e,n);if(i===0)im.className='f0';d.appendChild(im);});
   if(fl.length>1)d.classList.add('run');
   return d;}
@@ -136,7 +140,7 @@ function card(e){const c=document.createElement('div');c.className='card'+(isOn(
   row.appendChild(sw);row.appendChild(lbl);row.appendChild(mark);b.appendChild(row);f.appendChild(fr);fr.onclick=ev=>ev.stopPropagation();
   showZone();c.appendChild(b);return c;}
 function match(e){if(zone!=='all'&&zoneOf(e)!==zone)return false;
-  if(state==='on'&&!isOn(e))return false;if(state==='off'&&isOn(e))return false;if(state==='b'&&!e.b)return false;
+  if(state==='on'&&!isOn(e))return false;if(state==='off'&&isOn(e))return false;if(state==='b'&&!(e.d??e.b))return false;
   if(q){const s=(e.bg+' '+e.en+' '+e.tg+' '+e.eq).toLowerCase();return q.split(/\s+/).every(w=>s.includes(w));}
   return true;}
 function counts(){const on=LIB.exercises.filter(isOn).length;$('#count').innerHTML=`<b>${on}</b> в приложението от ${LIB.exercises.length}`;}
@@ -154,7 +158,9 @@ async function start(){
       fetch('/admin/api/exercises',{headers:H()}).then(r=>{if(r.status===401)throw new Error('code');return r.json();})]);
     gate(false);
     LIB=l;FIXED=new Set(l.fixed||[]);for(const x of p.picks||[])PICKS[x.id]=x;render();}
-  catch(x){if(x.message==='code'){gate(true,CODE?'Грешен код — опитай пак.':'');return;}err('Не се зареди: '+x.message);}
+  catch(x){if(x.message==='code'){
+      if(TAB){TAB=null;try{sessionStorage.removeItem('xems_ex_tab');}catch(e){}gate(true,'Таблетът не е разпознат — въведи кода.');return;}
+      gate(true,CODE?'Грешен код — опитай пак.':'');return;}err('Не се зареди: '+x.message);}
 }
 start();
 </script>

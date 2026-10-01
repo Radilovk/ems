@@ -166,6 +166,19 @@ public final class XemsLicenseSection {
             }
         });
 
+        // the exercise catalog for the programs: opens here, the tablet's license lets it in (no code)
+        LinearLayout exRow = XemsUi.horizontal(a);
+        exRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout exText = XemsUi.vertical(a);
+        exText.addView(XemsUi.text(a, tr("Каталог с упражнения", "Exercise catalog"), 15, XemsUi.TEXT, true));
+        exText.addView(XemsUi.text(a, tr("Кои упражнения влизат в програмите — без код, с лиценза на таблета.",
+                "Which exercises go into the programs — no code, with this tablet's license."), 12, XemsUi.HINT, false));
+        exRow.addView(exText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView exBtn = XemsUi.button(a, tr("Отвори  ↗", "Open  ↗"), XemsUi.SECONDARY);
+        exBtn.setOnClickListener(new OpenExercises(a));
+        exRow.addView(exBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, XemsUi.dp(a, 48)));
+        card.addView(exRow, XemsUi.matchWrap(a, 16));
+
         // server address (advanced, folded)
         final TextView adv = XemsUi.text(a, tr("Сървър ›", "Server ›"), 13, XemsUi.HINT, false);
         adv.setPadding(0, XemsUi.dp(a, 14), 0, XemsUi.dp(a, 4));
@@ -203,6 +216,20 @@ public final class XemsLicenseSection {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = XemsUi.dp(a, 28);
         parent.addView(card, lp);
+    }
+
+    static final class OpenExercises implements View.OnClickListener {
+        private final Activity a;
+
+        OpenExercises(Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            XemsExercisePage.open(a);
+        }
     }
 
     static void onActivated(Activity a, View root, TextView result, boolean ok, String msg) {

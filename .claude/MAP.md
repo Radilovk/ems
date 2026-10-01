@@ -7,7 +7,7 @@ Big file? `python3 scripts/repo-map.py outline <file>` → symbols with line num
 ## scripts/
 build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] = inside `if` on that env var
 (BETA_MUSIC default 1, DESIGN_PIPELINE default 0, SKIP_JAVA_RECOMPILE default 0). NOT-IN-BUILD = dead/manual patch.
-- `scripts/add-builtin-exercise.py` (63L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
+- `scripts/add-builtin-exercise.py` (64L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
 - `scripts/ai-sim/AiExSim.java` (331L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
 - `scripts/ai-sim/AiSim.java` (369L) — Offline scenarios for the Smart Session engine.
 - `scripts/ai-sim/AutoSim.java` (490L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
@@ -99,7 +99,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L70[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-channel-scale-java.sh` (57L, build:L71[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L102[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
-- `scripts/compile-music-sync-java.sh` (211L, build:L92[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
+- `scripts/compile-music-sync-java.sh` (213L, build:L92[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-wearable-java.sh` (202L, build:L107[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (64L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (83L, build:L115[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
@@ -111,7 +111,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/fit-sim/SearchSim.java` (30L) — Offline check of the client search: Cyrillic ↔ Latin phonetic matches (XemsSearch.matches).
 - `scripts/fit-sim/run.sh` (15L) — Offline test of wearable/ProgramFit (saved program = base, hand changes as reference) and the
 - `scripts/gen-card-art.py` (244L) — Client card figures from the illustrated art in branding/report/figures/.
-- `scripts/gen-exercise-library.py` (114L) — branding/exercises/library-src.json (all 302 exercises: names, steps, muscles, pattern) → library.json, the library the…
+- `scripts/gen-exercise-library.py` (117L) — branding/exercises/library-src.json (all 302 exercises: names, steps, muscles, pattern) → library.json, the library the…
 - `scripts/gen-exercises.py` (97L) — branding/exercises/{programs,exercises}.json → ai/AutoTemplateData.java (the template data as plain Java, so the logic …
 - `scripts/gen-program-art.py` (126L) — Program pictures for the tablet (ai/ProgramArt): branding/programs/src/*.webp (full resolution, transparent) → branding…
 - `scripts/install_interval_timer_smali.py` (77L) — Install interval timer stack smali (helper, presets, block program) into decompiled APK.
@@ -162,7 +162,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiScreening.java` (86L, compile:music-sync*,wearable) — §1.1, §1.2, G11 — input validation and pre-session questionnaire.
 - `AiSession.java` (1188L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
 - `AiText.java` (181L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
-- `AiUi.java` (2218L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
+- `AiUi.java` (2226L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoCatalog.java` (684L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
 - `AutoCues.java` (133L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
@@ -178,7 +178,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AutoTemplates.java` (528L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
 - `AutoUi.java` (1237L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
-- `ExerciseLibrary.java` (374L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
+- `ExerciseLibrary.java` (377L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `ImpulseGlyph.java` (121L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (539L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (106L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -187,7 +187,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ProgramArt.java` (129L, compile:music-sync*,wearable) — The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile — in the lig…
 - `Workout.java` (519L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
 - `WorkoutStore.java` (241L, compile:music-sync*,wearable) — The studio's own workouts on this tablet (files/xems_workouts.json) plus the ready programs ({@link Workout#presets}).
-- `WorkoutsUi.java` (1493L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
+- `WorkoutsUi.java` (1502L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `BlockProgramEditor.java` (234L, compile:interval-timer,music-sync*) — Block list editor (opened from the interval timer): one card per block with steppers for cycles, strength, frequency an…
@@ -308,13 +308,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsClientMatch.java` (55L, compile:music-sync*,xems-license) — Finding a client on the tablet list by e-mail, else by the phone's last 9 digits (profiles and dossiers).
 - `XemsClientSync.java` (398L, compile:music-sync,xems-local) — The clients' own profiles (filled in the studio's booking PWA) → the tablet's client list.
 - `XemsDossier.java` (437L, compile:music-sync*,xems-license) — The client dossier on the server (stage 1): the studio's client list is kept on the licence server, one record per pers…
+- `XemsExercisePage.java` (124L, compile:music-sync*) — Settings → "Каталог с упражнения": the server's exercise selector (/admin/exercises) full screen inside the app, withou…
 - `XemsFullscreen.java` (109L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
 - `XemsIcon.java` (233L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (441L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
 - `XemsLicenseClient.java` (598L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
-- `XemsLicenseSection.java` (330L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
+- `XemsLicenseSection.java` (357L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (283L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
 - `XemsLocalAvatar.java` (737L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
@@ -323,7 +324,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalStore.java` (1207L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (973L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (940L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (1345L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (674L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -372,9 +373,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/clients.js` (106L) — One pushed record: {key (tablet id), cid?, ek?, pk?, t, deleted?, data?}; null when unusable.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/exercises.js` (52L) — The picker groups the admin may give an exercise ('' = the library's own).
+- `server/src/exercises.js` (53L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1100L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1120L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (28L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
@@ -386,7 +387,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/crypto-verify.test.js` (24L) — 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
 - `server/test/ems.test.js` (15L) — 
-- `server/test/exercises.test.js` (48L) — 
+- `server/test/exercises.test.js` (52L) — 
 - `server/test/history.test.js` (95L) — D1-shaped wrapper over node:sqlite with the real migration.
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (53L) — 
@@ -614,15 +615,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
   - L28 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
 
-`docs/xems-client-list.md` (46L)
+`docs/xems-client-list.md` (49L)
   - L1 # Списък с клиенти, търсене, избор (1.1.243-ai)
   - L6 ## Редът на клиента
   - L15 ## Обновяване
   - L19 ## Търсене — наша клавиатура (`SearchPad`)
   - L25 ## Клавиатурата според полето (1.1.244-ai)
   - L30 ## Меню
-  - L34 ## Тъмна тема и фонове
-  - L41 ## Програмите на началния екран (1.1.263-ai)
+  - L37 ## Тъмна тема и фонове
+  - L44 ## Програмите на началния екран (1.1.263-ai)
 
 `docs/xems-client-sync.md` (106L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
@@ -799,15 +800,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-workouts.md` (113L)
+`docs/xems-workouts.md` (119L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library
   - L12 ## The library (302 exercises)
   - L26 ## Admin (server)
-  - L41 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
-  - L78 ## Running a map
-  - L90 ## Audit 1.1.256 — the backend decides, the screen stays quiet
-  - L103 ## Tests
-  - L110 ## Not yet
+  - L47 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
+  - L84 ## Running a map
+  - L96 ## Audit 1.1.256 — the backend decides, the screen stays quiet
+  - L109 ## Tests
+  - L116 ## Not yet
 
 `docs/xiaomi-band-integration.md` (630L)
   - L1 # Интеграция XEMS ↔ Xiaomi Smart Band 8 / 10

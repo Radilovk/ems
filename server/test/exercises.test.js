@@ -32,6 +32,10 @@ test('enabled: built-ins by default, the admin switches either way', () => {
   const lib = { exercises: [{ id: 'squat', b: 1 }, { id: 'plank', b: 1 }, { id: 'row', b: 0 }] };
   assert.deepEqual(enabledIds(lib, []), ['squat', 'plank']);
   assert.deepEqual(enabledIds(lib, [{ id: 'plank', on: 0 }, { id: 'row', on: 1 }]), ['squat', 'row']);
+  // a built-in shipped for a program but not in the owner's selection stays off until switched on
+  const lib2 = { exercises: [{ id: 'squat', b: 1, d: 1 }, { id: 'push-up', b: 1, d: 0 }] };
+  assert.deepEqual(enabledIds(lib2, []), ['squat']);
+  assert.deepEqual(enabledIds(lib2, [{ id: 'push-up', on: 1 }]), ['squat', 'push-up']);
 });
 
 test('access code: matches its SHA-256, trims and ignores case; nothing else passes', async () => {

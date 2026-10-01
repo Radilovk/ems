@@ -501,9 +501,12 @@ final class AiUi {
             row.addView(card, lp);
             cards.add(card);
         }
-        col.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 150)));
+        // as tall as their content (no empty lower half); siblings share the tallest height
+        col.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
         LinearLayout opts = horizontal(a);
+        opts.setGravity(Gravity.CENTER_VERTICAL);
         // Mode only when the goal allows both (massage, drainage, cellulite are passive only).
         boolean modeChoice = AiModel.isAllowed(in.goal, Mode.ACTIVE) && AiModel.isAllowed(in.goal, Mode.PASSIVE);
         if (modeChoice) {
@@ -515,10 +518,13 @@ final class AiUi {
                             in.mode = i == 0 ? Mode.ACTIVE : Mode.PASSIVE;
                             go(STEP_GOAL);
                         }
-                    }), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                    }), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         }
         final int total = in.totalSeconds != null ? in.totalSeconds : AiPlanner.defaultSeconds(in.goal);
-        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        // the minutes: a compact control as tall as the switch beside it, "20 минути" on one line
+        LinearLayout.LayoutParams dlp = modeChoice
+                ? new LinearLayout.LayoutParams(dp(a, 280), ViewGroup.LayoutParams.MATCH_PARENT)
+                : new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         if (modeChoice) {
             dlp.leftMargin = dp(a, 16);
         }
@@ -530,8 +536,8 @@ final class AiUi {
             }
         }), dlp);
         LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        olp.topMargin = dp(a, 22);
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 58));
+        olp.topMargin = dp(a, 18);
         col.addView(opts, olp);
 
         // Double impulse (active pause): only where the AI can program it; one switch, the
@@ -1834,7 +1840,7 @@ final class AiUi {
                     }
                 });
             }
-            row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         }
         return row;
     }
@@ -1843,7 +1849,7 @@ final class AiUi {
         LinearLayout row = horizontal(a);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setBackgroundDrawable(rounded(AiViews.CARD, dp(a, 16), AiViews.STROKE, 1));
-        row.setPadding(dp(a, 8), dp(a, 8), dp(a, 8), dp(a, 8));
+        row.setPadding(dp(a, 5), dp(a, 5), dp(a, 5), dp(a, 5));
         TextView minus = roundKey(a, "−");
         minus.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1858,21 +1864,23 @@ final class AiUi {
                 cb.onDelta(+1);
             }
         });
-        LinearLayout mid = vertical(a);
+        // the value and its unit on one line ("20 минути"): the control stays as low as a switch
+        LinearLayout mid = horizontal(a);
         mid.setGravity(Gravity.CENTER);
-        TextView v = text(a, value, 34, AiViews.TEXT, true);
-        v.setGravity(Gravity.CENTER);
+        TextView v = text(a, value, 24, AiViews.TEXT, true);
         mid.addView(v);
-        mid.addView(centered(text(a, unit, 12, AiViews.MUTED, false)));
-        row.addView(minus, new LinearLayout.LayoutParams(dp(a, 60), dp(a, 60)));
+        TextView u = text(a, " " + unit, 14, AiViews.MUTED, false);
+        mid.addView(u);
+        row.addView(minus, new LinearLayout.LayoutParams(dp(a, 46), dp(a, 46)));
         row.addView(mid, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        row.addView(plus, new LinearLayout.LayoutParams(dp(a, 60), dp(a, 60)));
+        row.addView(plus, new LinearLayout.LayoutParams(dp(a, 46), dp(a, 46)));
         return row;
     }
 
     private static TextView roundKey(Context a, String label) {
-        TextView t = text(a, label, 26, AiViews.TEXT, true);
+        TextView t = text(a, label, 22, AiViews.TEXT, true);
         t.setGravity(Gravity.CENTER);
+        t.setIncludeFontPadding(false);
         GradientDrawable g = new GradientDrawable();
         g.setShape(GradientDrawable.OVAL);
         g.setColor(AiViews.CARD2);

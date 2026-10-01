@@ -926,10 +926,30 @@ async function adminApi(request, env, path) {
 
 const EXERCISE_IDS = new Set(exerciseLibrary.exercises.map((e) => e.id));
 
-/** The exercise picker's API: the admin login, or the page's own access code (header X-Access-Code). */
+/** A tablet's signed license token for its own device, the license and the activation both still active. */
+async function tabletAllowed(env, token, device) {
+  try {
+    const deviceId = normDevice(device);
+    const body = parseTokenBody(token);
+    const licId = body?.lic;
+    if (!licId || !deviceId || normDevice(body.dev) !== deviceId) return false;
+    if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, token))) return false;
+    const lic = await env.DB.prepare('SELECT status FROM licenses WHERE id = ?').bind(licId).first();
+    if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return false;
+    const act = await env.DB.prepare('SELECT status FROM activations WHERE license_id = ? AND device_id = ?')
+      .bind(licId, deviceId).first();
+    return !!act && act.status === 'active';
+  } catch (e) {
+    return false;
+  }
+}
+
+/** The exercise picker's API: the admin login, the page's own access code (header X-Access-Code), or a licensed
+ *  tablet (opened from its Settings, no code: X-Tablet-Token + X-Device-Id, checked like the tablet's own calls). */
 async function exercisesApi(request, env, path) {
   const ok = checkAdmin(request, env)
-    || await codeMatches(request.headers.get('X-Access-Code'), env.EXERCISES_CODE_SHA256);
+    || await codeMatches(request.headers.get('X-Access-Code'), env.EXERCISES_CODE_SHA256)
+    || await tabletAllowed(env, request.headers.get('X-Tablet-Token'), request.headers.get('X-Device-Id'));
   if (!ok) {
     await new Promise((r) => setTimeout(r, 400));          // slow down guessing
     return json({ ok: false, error: 'code' }, 401);        // no Basic prompt: the page asks for the code

@@ -2,7 +2,8 @@
 """Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready
 programs (programs.json stations) can use them on any tablet without a download.
 
-Takes the library entry (library-src.json: names, steps; library.json: position, cost, muscles, view box) and the
+Added ones are marked "extra": their frames ship, but they are not in the owner's selection (not switched on by
+default on the selector page or the tablet — library.json "d"). Takes the library entry (library-src.json: names, steps; library.json: position, cost, muscles, view box) and the
 first + last source frame (the working and the rest pose; the middle one confuses), the redrawn copy from
 branding/exercises/fixed/ when there is one, normalized to M/L/C/Z. Then run scripts/gen-exercise-library.py and
 scripts/gen-exercises.py.
@@ -52,7 +53,7 @@ def main() -> None:
         doc["exercises"].append({
             "id": ex_id, "bg": s["bg"], "en": s["en"], "muscle": s["tg"], "equip": s["eq"], "how": s["how"],
             "pos": m["pos"], "gear": gear, "vb": m["vb"], "paths": [frame(lib, ex_id, k) for k in frames],
-            "met": m["met"], "mus": m["mus"]})
+            "met": m["met"], "mus": m["mus"], "extra": 1})   # shipped for a program, not the owner's pick
         print(f"{ex_id}: built in ({len(frames)} frames)")
     doc["exercises"].sort(key=lambda e: e["id"])
     (EX / "exercises.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

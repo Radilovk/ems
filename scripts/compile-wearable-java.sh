@@ -125,6 +125,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/MapRunner.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/MapClock.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/ImpulseMapView.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/ImpulseGlyph.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/WorkoutsUi.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/WorkoutStore.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/Workout.java"

@@ -162,6 +162,13 @@ public final class WorkoutStore {
             x.put("on", b.on);
             x.put("off", b.off);
             x.put("rel", b.rel);
+            if (b.dbl) {
+                x.put("dbl", 1);
+            }
+            x.put("hz2", b.hz2);
+            x.put("s2", b.str2);
+            x.put("ri", b.rampIn);
+            x.put("ro", b.rampOut);
             bl.put(x);
         }
         o.put("blocks", bl);
@@ -193,6 +200,11 @@ public final class WorkoutStore {
                     b.on = x.optInt("on", 4);
                     b.off = x.optInt("off", 4);
                     b.rel = x.optInt("rel", 100);
+                    b.dbl = x.optInt("dbl", 0) == 1;
+                    b.hz2 = x.optInt("hz2", b.hz2);
+                    b.str2 = x.optInt("s2", b.str2);
+                    b.rampIn = x.optInt("ri", b.rampIn);
+                    b.rampOut = x.optInt("ro", b.rampOut);
                     b.clampAll();
                     w.blocks.add(b);
                 }

@@ -52,6 +52,8 @@ public final class MapRunner {
     private static int swapped;
     /** Each row's strength at 100 % of a block (trainer's value). */
     private static final Map<TrainItem, Integer> base = new HashMap<TrainItem, Integer>();
+    /** Each row's own impulse before the map (Hz, µs, ON, OFF, active pause, its Hz and %, ramps): put back on stop. */
+    private static final Map<TrainItem, int[]> own = new HashMap<TrainItem, int[]>();
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable ticker = new Ticker();
 
@@ -105,9 +107,14 @@ public final class MapRunner {
         clock = new MapClock(map);
         idleS = 0;
         base.clear();
+        own.clear();
         for (TrainItem it : rows) {
             ProgramDataBean b = bean(it);
             base.put(it, b != null ? b.strenth : 0);
+            if (b != null) {
+                own.put(it, new int[] {b.hz, b.pulseWidth, b.pulseContinue, b.pulsePause, b.activePause ? 1 : 0,
+                        b.pauseHz, b.pauseStrenthPercent, b.inputRamp, b.outputRamp});
+            }
         }
         lastIndex = -1;
         apply(true);
@@ -183,6 +190,18 @@ public final class MapRunner {
         for (TrainItem it : rows()) {
             ProgramDataBean b = bean(it);
             Integer s = base.get(it);
+            int[] o = own.get(it);
+            if (b != null && o != null) {                       // the row's own impulse back
+                b.hz = o[0];
+                b.pulseWidth = o[1];
+                b.pulseContinue = o[2];
+                b.pulsePause = o[3];
+                b.activePause = o[4] == 1;
+                b.pauseHz = o[5];
+                b.pauseStrenthPercent = o[6];
+                b.inputRamp = o[7];
+                b.outputRamp = o[8];
+            }
             if (b != null && s != null) {
                 b.strenth = s;                                   // the trainer's strength back
                 try {
@@ -203,6 +222,7 @@ public final class MapRunner {
         map = null;
         clock = null;
         base.clear();
+        own.clear();
         AiEnergy.exerciseMet = 0;
         hideCard();
     }
@@ -295,8 +315,15 @@ public final class MapRunner {
                 bean.pulseWidth = b.pw;
                 bean.pulseContinue = Math.max(1, b.on);
                 bean.pulsePause = Math.max(1, b.off);
-                bean.activePause = false;
                 bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
+                // the second impulse rides the suit's active pause (its own Hz, its strength a share of the first)
+                bean.activePause = b.dbl;
+                if (b.dbl) {
+                    bean.pauseHz = b.hz2;
+                    bean.pauseStrenthPercent = Math.max(1, Math.round(bean.strenth * b.str2 / 100f));
+                }
+                bean.inputRamp = b.rampIn;
+                bean.outputRamp = b.rampOut;
             }
             if (it.data != null && it.data.inStart) {
                 it.data.secondValue = bean.pulseContinue;

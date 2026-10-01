@@ -14,7 +14,36 @@ public final class MapSim {
         }
     }
 
+    /** The block's impulse settings: double impulse, second impulse, ramps — copied, kept in range. */
+    static void impulseSettings() {
+        Workout.Block b = Workout.forExercise("bodyweight-squat", "squat", false);
+        check(b.rampIn == 500 && b.rampOut == 500 && !b.dbl, "exercise block default ramps 0.5 s, single impulse");
+        b.dbl = true;
+        b.off = 0;
+        b.hz2 = 500;
+        b.str2 = 0;
+        b.rampIn = 3549;
+        b.rampOut = -20;
+        b.clampAll();
+        check(b.off >= 1, "a double impulse keeps its second impulse ≥ 1 s");
+        check(b.hz2 == Workout.HZ_MAX && b.str2 == 5, "second impulse Hz / strength clamped");
+        check(b.rampIn == Workout.RAMP_MAX_MS && b.rampOut == 0, "ramps clamped to 0–3 s in 0.1 s steps");
+        Workout.Block k = b.copy();
+        check(k.dbl && k.hz2 == b.hz2 && k.str2 == b.str2 && k.rampIn == b.rampIn && k.rampOut == b.rampOut,
+                "copy keeps the impulse settings");
+        boolean anyDouble = false;
+        for (Workout w : Workout.presets()) {
+            for (Workout.Block x : w.blocks) {
+                anyDouble |= x.dbl;
+                check(!x.dbl || (x.hz2 >= 1 && x.str2 >= 5 && x.off >= 1), "preset double impulse valid: " + w.id);
+                check(x.rampIn >= 0 && x.rampIn <= Workout.RAMP_MAX_MS, "preset ramp in range: " + w.id);
+            }
+        }
+        check(anyDouble, "a passive program's active pause becomes a double impulse");
+    }
+
     public static void main(String[] args) {
+        impulseSettings();
         java.util.List<Workout> maps = new java.util.ArrayList<Workout>(Workout.presets());
         Workout w = new Workout();
         w.id = "drawn";

@@ -436,7 +436,7 @@ public final class AiEngine {
         if (ph.blockMode == BlockMode.FATIGUE_DRIVEN) {
             if (!inBlock) {
                 beginBlock(nowMs);
-            } else if (fatigue >= fMaxEff || endBlockRequested || setDone
+            } else if (fatigue + (blockQ > 0 ? nextGain(ph) : 0) > fMaxEff || endBlockRequested || setDone
                     || (nowMs - blockStartMs) / 1000.0 >= AiPlanner.T_BLOCK_MAX_S) {
                 endBlock(nowMs);
                 return silent(nowMs);
@@ -471,12 +471,16 @@ public final class AiEngine {
             c.pauseHz = spec.pauseHz;
             c.pauseSigma = spec.pauseSigma;
         }
+        if (ph.blockMode == BlockMode.CONTINUOUS && c.frac > 0) {
+            // no blocks, no rests: the output itself keeps the fatigue below the block limit
+            c.frac = Math.min(c.frac, AiPlanner.continuousCap(fMaxEff, plan.tauR, spec, c.offS, c.pauseHz > 0));
+        }
         applyRamps(c, spec);
 
         // G6 dose budget: never start a cycle that would exceed it; go to cool-down instead.
         double dose = AiPlanner.cycleDose(spec, c.frac)
                 + (c.pauseHz > 0 ? AiPlanner.pauseDose(spec, c.frac, c.offS) : 0);
-        if (ph.id != PhaseId.COOLDOWN && qUsed + dose > qBudget) {
+        if (ph.id != PhaseId.COOLDOWN && qUsed + dose + plan.qCool > qBudget) {
             flags.add("BUDGET");
             action("budget_cooldown", nowMs);
             jumpToCooldown(nowMs);
@@ -624,6 +628,21 @@ public final class AiEngine {
     }
 
     // ================================================================= rest / blocks
+
+    /**
+     * Fatigue the next cycle adds (its impulse, plus the active pause). A block ends before the cycle that
+     * would cross F_max, not after it: the limit was checked only at a cycle start, so a 6 s impulse took
+     * the block 30–50 % over its own limit.
+     */
+    private double nextGain(Phase ph) {
+        CycleSpec spec = (ph.b != null && useB) ? ph.b : ph.a;
+        double rho = current != null && current.frac > 0 ? current.frac : Math.min(ph.phiStart, plan.phiMax);
+        double g = AiPlanner.fatigueWeight(spec.hz) * rho * spec.onS;
+        if (pauseOn && spec.hasActivePause()) {
+            g += AiPlanner.fatigueWeight(spec.pauseHz) * rho * spec.pauseSigma * AiPlanner.deviceOffS(spec.offS);
+        }
+        return g;
+    }
 
     private void beginBlock(long nowMs) {
         inBlock = true;
@@ -781,8 +800,9 @@ public final class AiEngine {
     }
 
     private void blockLevelControl(BlockStat b, long nowMs) {
-        // NON_RESPONDER (§8.4) after the first two MAIN blocks.
-        if (mainBlocks == 2 && prof.hrAvailable && !prof.safetyOnly
+        // NON_RESPONDER (§8.4) from the second MAIN block on, once a quarter of the dose is in
+        // (the warm-up no longer brings most of it, so block 2 can come before that).
+        if (mainBlocks >= 2 && cResp > 0 && !flags.contains("NON_RESPONDER") && prof.hrAvailable && !prof.safetyOnly
                 && sessionMaxX < 0.10 && qUsed >= 0.25 * plan.qPlan) {
             cResp = 0;
             flags.add("NON_RESPONDER");

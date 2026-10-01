@@ -194,6 +194,8 @@ public final class AiModel {
         /** Q_plan with the double impulse on / off (the budget follows a live switch). */
         public double qPlanPauseOn;
         public double qPlanPauseOff;
+        /** Planned dose of the cool-down: the G6 budget keeps room for it (it is never cut). */
+        public double qCool;
         /** What the client's focus zones and state changed (AiPersonal); never null after build. */
         public AiPersonal.Effect personal;
     }

@@ -238,6 +238,7 @@ public final class AiPlanner {
         plan.qPlanPauseOn = simulateDose(plan, true);
         plan.qPlanPauseOff = simulateDose(plan, false);
         plan.qPlan = plan.pauseOn ? plan.qPlanPauseOn : plan.qPlanPauseOff;
+        plan.qCool = simulateDose(plan, false, PhaseId.COOLDOWN);
         plan.qBudget = plan.qPlan * (1.0 + (self ? 0.0 : BUDGET_BETA));
         return plan;
     }
@@ -368,9 +369,33 @@ public final class AiPlanner {
         return new double[] {15, 5, 30};
     }
 
-    /** w(f) = (f/85)^0.5 (§6.3). */
+    /**
+     * w(f) = (f/85)^0.5 for tetanic work (§6.3); below 20 Hz the muscle relaxes between single twitches,
+     * so the weight is linear (f/85) — a 5 Hz cool-down or a 2 Hz massage is not a contraction. [D]
+     */
     public static double fatigueWeight(int hz) {
-        return Math.sqrt(Math.max(0, hz) / 85.0);
+        double r = Math.max(0, hz) / 85.0;
+        return hz >= 20 ? Math.sqrt(r) : r;
+    }
+
+    /** Continuous phases (warm-up, cool-down, massage, drainage) keep their fatigue peak below this share of F_max. */
+    public static final double CONT_F_SHARE = 0.75;
+    /** …but never go below this output just for that (a warm-up still has to be felt). [D] */
+    public static final double CONT_FLOOR = 0.3;
+
+    /**
+     * Highest output of a continuous phase's cycle whose steady-state fatigue peak stays at CONT_F_SHARE · F_max.
+     * A continuous phase has no blocks and no rests, so nothing else stops the fatigue: with the old model a
+     * 4 s / 4 s warm-up at full strength settled at 2–3 × F_max and the main part started already "exhausted".
+     * Steady state of f → (f + a)·d + p per cycle: peak = (a·d + p) / (1 − d) + a, all linear in the output ρ.
+     */
+    public static double continuousCap(double fMax, double tauR, CycleSpec c, int offS, boolean pause) {
+        double a = fatigueWeight(c.hz) * c.onS;
+        double d = Math.exp(-Math.max(1, offS) / Math.max(1.0, tauR));
+        double p = pause && c.hasActivePause() ? fatigueWeight(c.pauseHz) * c.pauseSigma * offS : 0;
+        double k = (a * d + p) / Math.max(1e-6, 1 - d) + a;
+        double cap = k > 1e-9 ? CONT_F_SHARE * fMax / k : 1.0;
+        return Math.max(CONT_FLOOR, cap);
     }
 
     /** Relative dose of one ON period: ρ·pw·f·t, ×2 for biphasic (§6.2). */
@@ -391,8 +416,16 @@ public final class AiPlanner {
     }
 
     public static double simulateDose(Plan plan, boolean pauseOn) {
+        return simulateDose(plan, pauseOn, null);
+    }
+
+    /** @param only just this phase (each phase starts fresh, so phases add up), or null for all */
+    public static double simulateDose(Plan plan, boolean pauseOn, PhaseId only) {
         double q = 0;
         for (Phase ph : plan.phases) {
+            if (only != null && ph.id != only) {
+                continue;
+            }
             double t = 0;
             double f = 0;
             boolean useB = false;
@@ -412,6 +445,20 @@ public final class AiPlanner {
                 }
                 CycleSpec c = (ph.b != null && useB) ? ph.b : ph.a;
                 double rho = ph.phiAt(t / Math.max(1.0, ph.durationS)) * c.sigma;
+                if (ph.blockMode == BlockMode.FATIGUE_DRIVEN && blockT > 0) {
+                    // the engine ends a block before the cycle that would cross F_max
+                    double g = fatigueWeight(c.hz) * rho * c.onS
+                            + (pauseOn && c.hasActivePause()
+                            ? fatigueWeight(c.pauseHz) * rho * c.pauseSigma * deviceOffS(c.offS) : 0);
+                    if (f + g > plan.fMax) {
+                        rest = true;
+                        restT = 0;
+                        continue;
+                    }
+                }
+                if (ph.blockMode == BlockMode.CONTINUOUS) {
+                    rho = Math.min(rho, continuousCap(plan.fMax, plan.tauR, c, deviceOffS(c.offS), pauseOn));
+                }
                 q += cycleDose(c, rho);
                 f += fatigueWeight(c.hz) * rho * c.onS;
                 int off = deviceOffS(c.offS);

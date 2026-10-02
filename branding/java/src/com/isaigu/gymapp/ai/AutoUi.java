@@ -56,6 +56,8 @@ public final class AutoUi {
     private static final int A_DOUBLE = 19;
     private static final int A_CALIB_ROW = 21;
     private static final int A_HOW = 40;
+    /** ⏭ — the next exercise (or, without exercises, the next phase); never past the recovery. */
+    private static final int A_SKIP = 41;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
     private static final int A_HEALTH_OPEN = 31;
@@ -936,6 +938,13 @@ public final class AutoUi {
         runNextStage.addView(runNextFig, nfp);
         runNextStage.addView(runNextRing, new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // the next exercise is the ⏭ key itself: a tap goes to it (the set ends → its rest; in a rest: it comes next)
+        TextView skip = skipBadge(c);
+        runNextStage.addView(skip, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, 26), XemsUi.dp(c, 26),
+                Gravity.BOTTOM | Gravity.END));
+        runNextStage.setOnClickListener(new Act(A_SKIP, 0));
+        runNextStage.setContentDescription(AiText.t("Към следващото упражнение", "To the next exercise"));
+        XemsUi.pressable(runNextStage);
         rings.addView(runNextStage, new LinearLayout.LayoutParams(XemsUi.dp(c, 84), XemsUi.dp(c, 84)));
         exLeft.addView(rings, XemsUi.matchWrap(c, 0));
         exRow.addView(exLeft, new LinearLayout.LayoutParams(XemsUi.dp(c, 290), ViewGroup.LayoutParams.MATCH_PARENT));
@@ -1013,6 +1022,15 @@ public final class AutoUi {
         refreshRun();
     }
 
+    /** The small ⏭ mark on the next exercise (and the next-phase chip): a round key in the Auto teal. */
+    private static TextView skipBadge(Context c) {
+        TextView b = XemsUi.text(c, "⏭", 11, AUTO_TEAL, true);
+        b.setGravity(Gravity.CENTER);
+        b.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, AUTO_TEAL, 0.18f), XemsUi.dp(c, 13),
+                XemsUi.alpha(AUTO_TEAL, 0xCC), XemsUi.dp(c, 1.4f)));
+        return b;
+    }
+
     /** A card exactly like the training screen's own rows (the app's ui_card_background), else the kit's card. */
     static LinearLayout nativeCard(Context c) {
         LinearLayout card = XemsUi.card(c);
@@ -1060,6 +1078,15 @@ public final class AutoUi {
             lp.rightMargin = XemsUi.dp(c, 6);
             row.addView(chip, lp);
         }
+        AutoModel.Phase cur = e.phase();
+        if (cur != null && !cur.isCooldown() && e.getPhaseIndex() + 1 < plan.phases.size()) {
+            TextView next = skipBadge(c);
+            next.setTextSize(13);
+            next.setOnClickListener(new Act(A_SKIP, 0));
+            next.setContentDescription(AiText.t("Към следващата фаза", "To the next phase"));
+            XemsUi.pressable(next);
+            row.addView(next, new LinearLayout.LayoutParams(XemsUi.dp(c, 30), XemsUi.dp(c, 30)));
+        }
         android.widget.HorizontalScrollView hs = new android.widget.HorizontalScrollView(c);
         hs.setHorizontalScrollBarEnabled(false);
         hs.addView(row);
@@ -1099,13 +1126,15 @@ public final class AutoUi {
                         + "След серията импулсите спират сами. Почивката е колкото мускулите искат, за да възстановят "
                         + "енергията си (по натоварването и кондицията), и пулсът да спадне. Тогава ▶ светва.\n"
                         + "Всеки старт брои 3 s: три къси сигнала и дълъг с първия импулс.\n"
-                        + "Последните 10 s: → следващото упражнение. В почивката допир на упражнението дава друго.\n"
+                        + "Сивото вдясно е следващото; последните 10 s се оцветява. Допир върху него (⏭) — към него: "
+                        + "серията свършва и почивката е преди него.\n"
                         + "Управление — с главните ▶ / ❚❚ и ■: ■ работи от пауза; първият — към възстановяване, вторият — край.",
                         "The ring is the set: 30–40 s, the dots are the impulses.\n"
                         + "After the set the impulses stop by themselves. The rest lasts as long as the muscles need to "
                         + "refill (by the load and fitness) and the HR to come down; then ▶ lights up.\n"
                         + "Every start counts 3 s: three short beeps and a long one with the first impulse.\n"
-                        + "Last 10 s: → the next exercise. In the rest a tap on the exercise gives another one.\n"
+                        + "The grey one on the right is the next; it lights up in the last 10 s. A tap on it (⏭) goes to it: "
+                        + "the set ends and the rest comes before it.\n"
                         + "Control — the main ▶ / ❚❚ and ■: ■ works from a pause; the first goes to the recovery, the second ends.");
             case INFO_BODY:
                 return AiText.t("Цветът на зона е натрупаното ѝ натоварване: синьо — леко, червено — границата на тежка серия.\n"
@@ -1542,6 +1571,18 @@ public final class AutoUi {
                 AutoSession.adjustCalibration(arg / 100, arg % 100 - 50);
                 refreshCalib();
                 return;
+            case A_SKIP: {
+                AutoEngine e = AutoSession.getEngine();
+                String to = e != null ? e.getNextExercise() : null;
+                if (AutoSession.next()) {
+                    AutoSession.notice(to != null && to.length() > 0
+                                    ? AiText.t("⏭ Към „" + AutoTemplates.name(to) + "“", "⏭ To " + AutoTemplates.name(to))
+                                    : AiText.t("⏭ Следващата фаза", "⏭ The next phase"),
+                            AutoSession.INFO, System.currentTimeMillis());
+                }
+                refreshRun();
+                return;
+            }
             case A_HOW: {
                 // the steps are always on screen; in the rest a tap on the exercise gives the next one instead
                 AutoEngine e = AutoSession.getEngine();

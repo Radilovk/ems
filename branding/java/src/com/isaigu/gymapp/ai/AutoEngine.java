@@ -805,7 +805,7 @@ public final class AutoEngine {
         if (c == null || c.frac <= 0) {
             return g;
         }
-        double rho = liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale);
+        double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
         double w = AiPlanner.fatigueWeight(c.hz);
         double wp = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma : 0;
         int[] z = liveZones != null && c == current ? liveZones : c.zones != null ? c.zones : plan.zones;
@@ -893,6 +893,8 @@ public final class AutoEngine {
     /** Brings the channel values to {@code now} (before any change of state or cycle). */
     private void settle(long now) {
         double[][] g = chCmd != null ? rates(chCmd) : null;
+        doseDone += doseAdded(now, g);
+        stepMeta(now, chCmd);
         for (int k = 0; k < chF.length; k++) {
             chF[k] = fAt(k, now, g);
         }
@@ -930,50 +932,231 @@ public final class AutoEngine {
         return clamp((h - plan.hrRest) / (double) (plan.hrCap - plan.hrRest), 0, 1.25);
     }
 
-    /**
-     * Stimulated muscle mass per suit channel (kg, 75-kg man): the muscle's mass × the share the surface current
-     * reaches — the same table as the energy model ({@code AiEnergy.CH_MASS × CH_DEPTH}, docs/xems-pulse-control.md).
-     */
-    static final double[] ZONE_MASS = {1.0 * 0.5, 1.6 * 0.5, 4.8 * 0.35, 2.2 * 0.45, 2.0 * 0.5, 0.9 * 0.5,
-            2.2 * 0.45, 1.0 * 0.4, 2.6 * 0.35, 2.4 * 0.4};
-    /** Weights of the muscular and the cardiac part of the total load (peripheral vs central strain). [D] */
-    static final double W_MUSCLE = 0.6;
-    static final double W_HEART = 0.4;
+    // ---------------------------------------------------------------- total load (the "Натоварване" scale)
+    // docs/xems-auto-mode-spec.md §12.4. Three parts, each 0…1 (1 = that system at its limit), every input live:
+    //   local    L_k = F_k / F_max                         impulse f, ρ, pulse width, on/off, double impulse, zone
+    //                                                       share, the exercise's muscles; τ, F_max by fitness
+    //   muscles  M   = ½·max_k L_k + ½·Σ a_k·L_k / Σ a_k   a_k = muscle mass × share the current reaches
+    //                                                       (pulse width, body fat from BMI / age / sex)
+    //   central  V   = (VO2_EMS + VO2_exercise) / (VO2max − VO2rest)  — oxygen the contractions and the movement
+    //                                                       cost, lagged τ 40 s; VO2max/rest by sex, age, weight,
+    //                                                       fitness, measured HR_rest (AiEnergy)
+    //            X   = 0.6·C + 0.4·V with a pulse,  V without (C = (HR − HR_rest) / (HR_cap − HR_rest))
+    //   dose     D   = work done / work the plan holds (Σ a_k·dF_k⁺ integrated; the session's own forecast)
+    //   total    L   = √((0.45·M² + 0.35·X² + 0.20·D²) / Σ weights used)          [D] weights
+    // RMS: the highest part leads, the others still count; nothing here sets a limit — the HR ceiling and the rest
+    // minimum are enforced separately.
 
-    /** Whole-body muscular load: the zones' F / F_max averaged by their stimulated mass (switched-off zones out). */
+    /** Shares of the total load: local muscles, central (heart / oxygen), the session's dose so far. [D] */
+    static final double W_MUSCLE = 0.45;
+    static final double W_CENTRAL = 0.35;
+    static final double W_DOSE = 0.20;
+    /** Measured heart vs the oxygen model in the central part (HR is real but lags; the model is instant). [D] */
+    static final double HR_SHARE = 0.6;
+    /** Oxygen uptake follows the demand with this time constant (s), on and off. */
+    static final double VO2_TAU_S = 40.0;
+    /** Pulse width the calibration and the reach table refer to (µs). */
+    static final double PW_REF = 350.0;
+    /** Body fat at which the reach table holds, and the fat change that cuts the reach by e. [D] */
+    static final double FAT_REF = 25.0;
+    static final double FAT_SCALE = 35.0;
+
+    private double metaV;
+    private long metaMs = -1;
+    private double doseDone;
+    private double doseBudget;
+    private double fatPct = Double.NaN;
+    private double[] vo2Ref;
+
+    /** Charge of the running step against the program's own: the person / AI widened or narrowed the pulse. */
+    static double pwFactor(Cmd c) {
+        int base = c.base != null && c.base.pwUs > 0 ? c.base.pwUs : c.pwUs;
+        return c.pwUs > 0 && base > 0 ? clamp(c.pwUs / (double) base, 0.5, 1.6) : 1.0;
+    }
+
+    /** Body fat % (Deurenberg 1991: 1.2·BMI + 0.23·age − 10.8·male − 5.4); −1 without the height. */
+    double fatPct() {
+        if (Double.isNaN(fatPct)) {
+            AutoModel.Input in = plan.input;
+            double bmi = in != null ? in.bmi() : 0;
+            fatPct = bmi > 10 ? clamp(1.2 * bmi + 0.23 * in.age - (in.sex == AiModel.Sex.MALE ? 10.8 : 0) - 5.4, 5, 55)
+                    : -1;
+        }
+        return fatPct;
+    }
+
+    /**
+     * Share of zone k's muscle the current reaches: the surface table (AiEnergy.CH_DEPTH) × √(pw / 350 µs) (a
+     * longer pulse reaches deeper fibres at a tolerable current) × e^(−(fat − 25 %) / 35) (fat insulates). [D]
+     */
+    double reach(int k, int pwUs) {
+        double d = AiEnergy.CH_DEPTH[k] * Math.sqrt(clamp((pwUs > 0 ? pwUs : PW_REF) / PW_REF, 0.3, 1.3));
+        double fat = fatPct();
+        if (fat >= 0) {
+            d *= clamp(Math.exp(-(fat - FAT_REF) / FAT_SCALE), 0.6, 1.3);
+        }
+        return clamp(d, 0.05, 0.7);
+    }
+
+    /** Weight of each zone in the whole body: muscle mass × reach at the pulse width now. */
+    private double[] zoneMass() {
+        Cmd c = current != null ? current : chCmd;
+        int pw = c != null ? c.pwUs : (int) PW_REF;
+        double[] a = new double[AutoModel.CHANNELS];
+        for (int k = 0; k < a.length; k++) {
+            a[k] = AiEnergy.CH_MASS[k] * reach(k, pw);
+        }
+        return a;
+    }
+
+    /** Whole-body muscular load: every zone's F / F_max averaged by its reached mass (an off zone counts its 0 —
+     *  unless the exercise works it). */
     public double getMuscleMeanLoad(long now) {
         double[] l = getChannelLoad(now);
-        int[] z = liveZones != null ? liveZones : plan.zones;
+        double[] a = zoneMass();
         double sum = 0;
         double w = 0;
         for (int k = 0; k < l.length; k++) {
-            if (z != null && k < z.length && z[k] <= 0) {
-                continue;
-            }
-            sum += ZONE_MASS[k] * l[k];
-            w += ZONE_MASS[k];
+            sum += a[k] * l[k];
+            w += a[k];
         }
         return w > 0 ? sum / w : 0;
     }
 
-    /**
-     * The total load (the "Натоварване" scale, owner 1.1.282): not "which is nearest its limit" but how loaded the
-     * body is as a whole.
-     * <pre>
-     *   muscular  M = ½ · peak zone + ½ · mass-weighted mean of the zones      (local + whole body)
-     *   heart     C = (HR − HR_rest) / (HR_cap − HR_rest)                       (central)
-     *   total     L = √(0.6·M² + 0.4·C²)  with a pulse,  L = M  without one
-     * </pre>
-     * The root-mean-square keeps the higher part dominant but lets both count; 1 ≈ both at their limits.
-     * The limits themselves (HR ceiling, rest minimum) are enforced separately and do not depend on this number.
-     */
-    public double getSystemLoad(long now) {
-        double m = 0.5 * getPeakLoad(now) + 0.5 * getMuscleMeanLoad(now);
-        double c = getCardioLoad(now);
-        if (c < 0) {
-            return m;
+    /** M — the muscles: the most loaded zone and the body as a whole. */
+    public double getMuscularLoad(long now) {
+        return 0.5 * getPeakLoad(now) + 0.5 * getMuscleMeanLoad(now);
+    }
+
+    /** {VO2max − VO2rest (L/min), skeletal-muscle scale, weight kg} of this person. */
+    private double[] vo2Ref() {
+        if (vo2Ref == null) {
+            AutoModel.Input in = plan.input;
+            AiModel.Sex sex = in != null ? in.sex : AiModel.Sex.FEMALE;
+            int age = in != null && in.age > 0 ? in.age : 35;
+            double w = in != null && in.weightKg >= 30 && in.weightKg <= 250 ? in.weightKg : AiEnergy.DEFAULT_WEIGHT_KG;
+            double rest = AiEnergy.restingVo2(sex, age, w);
+            double max = AiEnergy.fitnessVo2max(in != null ? in.fitness : AiModel.Fitness.MID, sex, age);
+            boolean med = in != null && in.screening != null && in.screening.hrLoweringMedication;
+            if (plan.hrRestMeasured && plan.hrRest >= 35 && plan.hrMax > plan.hrRest + 20 && !med) {
+                max = 0.5 * max + 0.5 * clamp(15.3 * plan.hrMax / plan.hrRest, 18, 75);   // Uth 2004
+            }
+            max = Math.max(max, rest + 10);
+            vo2Ref = new double[] {(max - rest) * w / 1000.0, (sex == AiModel.Sex.FEMALE ? 0.31 : 0.38) * w
+                    / AiEnergy.SM_REF_KG, w};
         }
-        return Math.sqrt(W_MUSCLE * m * m + W_HEART * c * c);
+        return vo2Ref;
+    }
+
+    /**
+     * Oxygen demand (share of the reserve) of cycle c, averaged over its impulse and pause: per zone mass ×
+     * muscle scale × reach × recruited share r(q) (q = ρ·z_k·pw-charge against the calibration) × k(f) × R_max,
+     * plus the exercise's own (MET − 1)·3.5 ml/kg/min (AiEnergy, the same physiology as the kcal).
+     */
+    double metaDemand(Cmd c) {
+        if (c == null || c.frac <= 0) {
+            return 0;
+        }
+        double[] ref = vo2Ref();
+        double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
+        double s = Math.max(1, c.onS) / (double) (Math.max(1, c.onS) + Math.max(1, c.offS));
+        boolean dbl = doublePulse && c.pauseHz > 0 && c.pauseSigma > 0;
+        int[] z = liveZones != null && c == current ? liveZones : c.zones != null ? c.zones : plan.zones;
+        double ml = 0;
+        for (int k = 0; k < AutoModel.CHANNELS; k++) {
+            double zk = z != null && k < z.length ? Math.max(0, z[k]) / 100.0 : 1.0;
+            double part = s * AiEnergy.recruited(rho * zk, 1.0) * AiEnergy.freqFactor(c.hz);
+            if (dbl) {
+                part += (1 - s) * AiEnergy.recruited(rho * zk * c.pauseSigma, 1.0) * AiEnergy.freqFactor(c.pauseHz);
+            }
+            ml += AiEnergy.CH_MASS[k] * ref[1] * reach(k, c.pwUs) * part * AiEnergy.R_MAX;
+        }
+        double ex = 0;
+        if (c.phaseIndex == stationPhase && isStationPhase(c.phaseIndex)) {
+            String id = getExercise();
+            int ix = id != null ? AutoTemplates.index(id) : -1;
+            ex = ix >= 0 ? AiEnergy.exerciseVo2(AutoTemplates.met(ix), ref[2], s) : 0;
+        }
+        return ref[0] > 0 ? (ml / 1000.0 + ex) / ref[0] : 0;
+    }
+
+    /** Brings the lagged oxygen share to {@code now} under the cycle that ran since metaMs (state change, tick). */
+    private void stepMeta(long now, Cmd c) {
+        if (metaMs >= 0 && now > metaMs) {
+            double target = metaDemand(c);
+            metaV = target + (metaV - target) * Math.exp(-(now - metaMs) / 1000.0 / VO2_TAU_S);
+        }
+        metaMs = now;
+    }
+
+    /** V — the oxygen the contractions and the movement cost now, as a share of the person's reserve (lagged). */
+    public double getMetabolicLoad(long now) {
+        if (metaMs < 0 || now <= metaMs) {
+            return clamp(metaV, 0, 1.25);
+        }
+        double target = metaDemand(chCmd);
+        return clamp(target + (metaV - target) * Math.exp(-(now - metaMs) / 1000.0 / VO2_TAU_S), 0, 1.25);
+    }
+
+    /** X — the central part: the measured heart and the oxygen model, or the model alone without a pulse. */
+    public double getCentralLoad(long now) {
+        double v = getMetabolicLoad(now);
+        double c = getCardioLoad(now);
+        return c < 0 ? v : HR_SHARE * c + (1 - HR_SHARE) * v;
+    }
+
+    /** Work added since chFMs under g (impulse / pause of chCmd): Σ a_k · ∫ g_k dt over the reached mass. */
+    private double doseAdded(long now, double[][] g) {
+        if (chCmd == null || g == null || now <= chFMs) {
+            return 0;
+        }
+        double[] a = zoneMass();
+        double sa = 0;
+        double g0 = 0;
+        double g1 = 0;
+        for (int k = 0; k < a.length; k++) {
+            sa += a[k];
+            g0 += a[k] * g[0][k];
+            g1 += a[k] * g[1][k];
+        }
+        if (sa <= 0) {
+            return 0;
+        }
+        double on = Math.max(0, chCmd.onS);
+        double dur = chCmd.durationMs() / 1000.0;
+        double pos = (chFMs - chCmd.startMs) / 1000.0;
+        double end = Math.min(dur, (now - chCmd.startMs) / 1000.0);
+        double inOn = Math.max(0, Math.min(end, on) - pos);
+        double inOff = Math.max(0, end - Math.max(pos, on));
+        return (g0 * inOn + g1 * inOff) / sa;
+    }
+
+    /** The work the whole plan holds (the first forecast); ≤ 0 = unknown, D left out. */
+    public void setDoseBudget(double budget) {
+        doseBudget = budget;
+    }
+
+    public double getDoseDone(long now) {
+        return doseDone + (chCmd != null ? doseAdded(now, rates(chCmd)) : 0);
+    }
+
+    /** D — the share of the planned work already done (−1 without a plan budget). */
+    public double getDoseLoad(long now) {
+        return doseBudget > 0 ? clamp(getDoseDone(now) / doseBudget, 0, 1.25) : -1;
+    }
+
+    /** The total load L (see the block comment): the "Натоварване" scale, 1 ≈ the body at its limit. */
+    public double getSystemLoad(long now) {
+        double m = getMuscularLoad(now);
+        double x = getCentralLoad(now);
+        double d = getDoseLoad(now);
+        double sum = W_MUSCLE * m * m + W_CENTRAL * x * x;
+        double w = W_MUSCLE + W_CENTRAL;
+        if (d >= 0) {
+            sum += W_DOSE * d * d;
+            w += W_DOSE;
+        }
+        return Math.sqrt(sum / w);
     }
 
     /** True when the heart, not a muscle, is nearer its limit now. */
@@ -998,7 +1181,7 @@ public final class AutoEngine {
         if (c == null || c.frac <= 0) {
             return 0;
         }
-        double rho = liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale);
+        double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
         double on = Math.max(1, c.onS);
         double off = Math.max(1, c.offS);
         double p = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma * off : 0;
@@ -1125,6 +1308,8 @@ public final class AutoEngine {
         public double[] phaseStartS;
         public double totalS;
         public double maxLoad;
+        /** The work the plan holds (Σ reached-mass-weighted fatigue input; the D part of the total load). */
+        public double dose;
 
         /** Session time in the forecast when {@code impulseS} of impulses are done. */
         public double sessionAt(double impulseS) {
@@ -1181,6 +1366,7 @@ public final class AutoEngine {
         }
         f.points.addAll(e.trace);
         f.totalS = e.getSessionS(t);
+        f.dose = e.getDoseDone(t);
         for (int i = 1; i < f.phaseStartS.length; i++) {
             if (f.phaseStartS[i] < 0) {
                 f.phaseStartS[i] = f.totalS;

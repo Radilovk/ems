@@ -15,6 +15,8 @@
 
 
 # instance fields
+.field public dose:D
+
 .field public maxLoad:D
 
 .field public phaseStartS:[D
@@ -36,10 +38,10 @@
     .registers 2
 
     .prologue
-    .line 1121
+    .line 1304
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1123
+    .line 1306
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -59,10 +61,10 @@
 
     const/4 v8, 0x1
 
-    .line 1131
+    .line 1316
     const/4 v0, 0x0
 
-    .line 1132
+    .line 1317
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -84,7 +86,7 @@
 
     check-cast v0, [F
 
-    .line 1133
+    .line 1318
     aget v3, v0, v8
 
     float-to-double v4, v3
@@ -93,7 +95,7 @@
 
     if-ltz v3, :cond_44
 
-    .line 1134
+    .line 1319
     if-eqz v1, :cond_27
 
     aget v2, v0, v8
@@ -104,17 +106,17 @@
 
     if-gtz v2, :cond_2b
 
-    .line 1135
+    .line 1320
     :cond_27
     aget v0, v0, v6
 
     float-to-double v0, v0
 
-    .line 1141
+    .line 1326
     :goto_2a
     return-wide v0
 
-    .line 1137
+    .line 1322
     :cond_2b
     aget v2, v1, v6
 
@@ -153,10 +155,10 @@
     :cond_44
     move-object v1, v0
 
-    .line 1140
+    .line 1325
     goto :goto_a
 
-    .line 1141
+    .line 1326
     :cond_46
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->totalS:D
 

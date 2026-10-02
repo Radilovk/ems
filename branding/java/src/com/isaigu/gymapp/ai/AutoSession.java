@@ -615,6 +615,7 @@ public final class AutoSession {
             forecastDouble = plan.doublePulseAllowed && plan.input.doublePulse;
             forecastScale = 1.0;
             forecast = AutoEngine.forecast(plan, script, forecastDouble);
+            engine.setDoseBudget(forecast.dose);             // D of the total load: the plan's own work
         } catch (Throwable t) {
             forecast = null;
             WearableBleDiagLog.log("auto", "forecast: " + t);

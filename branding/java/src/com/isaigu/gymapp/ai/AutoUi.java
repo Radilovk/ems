@@ -1111,13 +1111,13 @@ public final class AutoUi {
                         + "Control — the main ▶ / ❚❚ and ■: ■ works from a pause; the first goes to the recovery, the second ends.");
             case INFO_BODY:
                 return AiText.t("Цветът на зона е натрупаното ѝ натоварване: синьо — леко, червено — границата на тежка серия.\n"
-                        + "Сметка: сила × честота × % на зоната + работата на упражнението; спада с почивката.\n"
+                        + "Сметка: сила × ширина на импулса × честота × % на зоната + работата на упражнението; спада с почивката.\n"
                         + "Сърцето бие с пулса, цветът е пулсовата зона.\n"
-                        + "Натоварване — общото: най-натоварената зона и средното за тялото, а с гривна и сърцето.",
+                        + "Натоварване — цялото тяло: мускулите по импулса и упражнението, кислородът и пулсът, свършената работа; по данните на клиента.",
                         "A zone's colour is its accumulated load: blue — light, red — the limit of a hard set.\n"
-                        + "Sum: strength × frequency × zone % + the exercise's work; it falls in the rest.\n"
+                        + "Sum: strength × pulse width × frequency × zone % + the exercise's work; it falls in the rest.\n"
                         + "The heart beats with the HR, its colour is the HR zone.\n"
-                        + "Load — the total: the most loaded zone and the body's average, and with a band the heart too.");
+                        + "Load — the whole body: the muscles by impulse and exercise, oxygen and HR, the work done; by the client's data.");
             default:
                 return AiText.t("Цялата тренировка: височина — силата на импулсите, цвят — натоварването.\n"
                         + "Миналото е ярко, предстоящото — прогноза. Дълбока долина — пауза над 45 s или спиране по пулса.\n"

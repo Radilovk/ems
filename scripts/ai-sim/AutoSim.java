@@ -53,6 +53,7 @@ public final class AutoSim {
         cues();
         setsAndStops();
         liveModel();
+        totalLoad();
         scenarios();
         System.out.println((fails == 0 ? "OK" : "FAIL") + " — " + checks + " checks, " + fails + " failures");
         if (fails > 0) {
@@ -714,6 +715,124 @@ public final class AutoSim {
         check(longest > AutoEngine.REST_FLOOR_TETANIC_S, "the fatigue model lengthens the rest (" + longest + ")");
     }
 
+    /** Engine at the 3rd cycle of the first main-part set, mid-impulse; t[0] = that time. */
+    static AutoEngine mainSet(AutoModel.Plan plan, AutoTemplates.Script sc, long[] t, double budget) {
+        AutoEngine e = new AutoEngine(plan);
+        e.setScript(sc);
+        e.setDoseBudget(budget);
+        long tt = 0;
+        e.startAt(tt, tt);
+        tt = e.getGoMs();
+        e.tick(tt);
+        int cyc = 0;
+        int guard = 0;
+        while (guard++ < 800) {
+            if (e.getState() == AutoEngine.State.REST) {
+                tt += e.getRestMinS() * 1000L;
+                e.requestGo(tt, tt);
+                tt = e.getGoMs();
+                e.tick(tt);
+                continue;
+            }
+            if (!"WARMUP".equals(e.phase().id) && ++cyc >= 3) {
+                break;
+            }
+            tt += e.getCurrent().durationMs();
+            e.tick(tt - 1);
+            e.onCycle(tt);
+        }
+        tt += Math.max(1, e.getCurrent().onS) * 500L;
+        e.tick(tt);
+        t[0] = tt;
+        return e;
+    }
+
+    static AutoModel.Plan legs(AutoModel.Input in) {
+        in.goal = AutoModel.Goal.TONE;
+        in.kind = AutoModel.Kind.ACTIVE;
+        in.programId = AutoCatalog.GLUTES_LEGS;
+        return AutoPlanner.build(in, 66);
+    }
+
+    /** Owner (1.1.283): the total load takes every input — impulse, pulse width, exercise, HR, the client. */
+    static void totalLoad() {
+        long[] t = new long[1];
+        AutoModel.Plan base = legs(input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200));
+        AutoTemplates.Script sc = AutoTemplates.script(base, null);
+        AutoEngine.Forecast f = AutoEngine.forecast(base, sc, false);
+        check(f.dose > 0, "the plan holds work (" + f.dose + ")");
+        AutoEngine e = mainSet(base, sc, t, f.dose);
+        double v = e.getMetabolicLoad(t[0]);
+        check(v > 0.05 && v < 1.0, "oxygen share in a main set is a plausible part of the reserve (" + v + ")");
+        double d = e.getDoseLoad(t[0]);
+        check(d > 0.02 && d < 0.6, "dose early in the main part (" + d + ")");
+        double l = e.getSystemLoad(t[0]);
+        double m = e.getMuscularLoad(t[0]);
+        check(Math.abs(l - Math.sqrt((0.45 * m * m + 0.35 * v * v + 0.2 * d * d) / 1.0)) < 1e-9,
+                "total = weighted RMS of muscles, oxygen and dose without a pulse");
+
+        // the client: fat (same weight, shorter → higher BMI) insulates → less reached → less oxygen
+        AutoModel.Plan fat = legs(input(AiModel.Sex.MALE, 35, 82, 160, AiModel.Fitness.MID, 8, 200));
+        AutoEngine ef = mainSet(fat, AutoTemplates.script(fat, null), t, f.dose);
+        check(ef.getMetabolicLoad(t[0]) < v, "more body fat → the current reaches less muscle");
+        // fitness: the same work is a larger share of a smaller reserve
+        AutoModel.Plan low = legs(input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.LOW, 8, 200));
+        AutoTemplates.Script scl = AutoTemplates.script(low, null);
+        AutoEngine el = mainSet(low, scl, t, AutoEngine.forecast(low, scl, false).dose);
+        AutoModel.Plan high = legs(input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.HIGH, 8, 200));
+        AutoTemplates.Script sch = AutoTemplates.script(high, null);
+        AutoEngine eh = mainSet(high, sch, t, AutoEngine.forecast(high, sch, false).dose);
+        // stronger output → the muscles and the oxygen rise
+        AutoEngine e0 = mainSet(base, sc, t, f.dose);
+        AutoEngine e1 = mainSet(base, sc, t, f.dose);
+        e0.setLive(0.6, null, t[0]);
+        e1.setLive(0.9, null, t[0]);
+        long ts = t[0] + 3000;
+        check(e1.getMetabolicLoad(ts) > e0.getMetabolicLoad(ts) && e1.getMuscularLoad(ts) > e0.getMuscularLoad(ts)
+                && e1.getSystemLoad(ts) > e0.getSystemLoad(ts), "+strength → more muscle load, oxygen and total");
+        // in the rest the oxygen part decays (τ 40 s) and the dose holds
+        AutoEngine r = mainSet(base, sc, t, f.dose);
+        int guard = 0;
+        long tr = t[0];
+        while (r.getState() == AutoEngine.State.RUN && guard++ < 50) {
+            tr += r.getCurrent().durationMs();
+            r.tick(tr - 1);
+            r.onCycle(tr);
+        }
+        check(r.getState() == AutoEngine.State.REST, "set → rest");
+        double v0 = r.getMetabolicLoad(tr);
+        double d0 = r.getDoseLoad(tr);
+        check(r.getMetabolicLoad(tr + 40000) < v0 * 0.45, "oxygen part falls in the rest (e⁻¹ in 40 s)");
+        check(Math.abs(r.getDoseLoad(tr + 40000) - d0) < 1e-9, "the work done does not fall in the rest");
+        // the whole session: the dose reaches ≈ the plan
+        AutoEngine w = new AutoEngine(base);
+        w.setScript(sc);
+        w.setDoseBudget(f.dose);
+        long tw = 0;
+        w.startAt(tw, tw);
+        tw = w.getGoMs();
+        w.tick(tw);
+        guard = 0;
+        while (w.getState() != AutoEngine.State.DONE && guard++ < 8000) {
+            if (w.getState() == AutoEngine.State.REST) {
+                tw += w.getRestMinS() * 1000L;
+                w.requestGo(tw, tw);
+                tw = w.getGoMs();
+                w.tick(tw);
+                continue;
+            }
+            tw += w.getCurrent().durationMs();
+            w.tick(tw - 1);
+            w.onCycle(tw);
+        }
+        check(Math.abs(w.getDoseLoad(tw) - 1) < 0.02, "the planned session ends at dose ≈ 1 (" + w.getDoseLoad(tw) + ")");
+        if (verbose) {
+            System.out.println("  total load: M=" + m + " V=" + v + " D=" + d + " L=" + l
+                    + " | fat V=" + ef.getMetabolicLoad(t[0]) + " | LOW V=" + el.getMetabolicLoad(t[0])
+                    + " HIGH V=" + eh.getMetabolicLoad(t[0]));
+        }
+    }
+
     /** Owner (1.1.271): the live board's numbers — session clock, forecast, zone loads, ⏭ Next. */
     static void liveModel() {
         AutoModel.Input in = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
@@ -838,11 +957,15 @@ public final class AutoSim {
         check(h.getCardioLoad(t) < 0, "no HR → no cardio load");
         h.onHr(t, plan.hrRest + (plan.hrCap - plan.hrRest) / 2);
         check(Math.abs(h.getCardioLoad(t) - 0.5) < 0.05, "cardio load = %HR range to the cap");
-        double m0 = 0.5 * h.getPeakLoad(t) + 0.5 * h.getMuscleMeanLoad(t);
-        double c0 = h.getCardioLoad(t);
-        check(Math.abs(h.getSystemLoad(t) - Math.sqrt(0.6 * m0 * m0 + 0.4 * c0 * c0)) < 1e-9
-                && h.getSystemLoad(t) <= Math.max(m0, c0) + 1e-9 && h.getSystemLoad(t) >= Math.min(m0, c0) - 1e-9,
-                "total load = RMS of the muscular and the cardiac part (between the two)");
+        double m0 = h.getMuscularLoad(t);
+        double x0 = h.getCentralLoad(t);
+        check(Math.abs(m0 - (0.5 * h.getPeakLoad(t) + 0.5 * h.getMuscleMeanLoad(t))) < 1e-12, "M = ½ peak + ½ body mean");
+        check(Math.abs(x0 - (0.6 * h.getCardioLoad(t) + 0.4 * h.getMetabolicLoad(t))) < 1e-12,
+                "central = 0.6·HR share + 0.4·oxygen model with a pulse");
+        check(h.getDoseLoad(t) < 0, "no plan budget → no dose part");
+        check(Math.abs(h.getSystemLoad(t) - Math.sqrt((0.45 * m0 * m0 + 0.35 * x0 * x0) / 0.8)) < 1e-9
+                && h.getSystemLoad(t) <= Math.max(m0, x0) + 1e-9 && h.getSystemLoad(t) >= Math.min(m0, x0) - 1e-9,
+                "total load = weighted RMS of the parts (between them)");
         check(h.getMuscleMeanLoad(t) <= h.getPeakLoad(t) + 1e-9, "whole-body mean ≤ the peak zone");
         for (int i = 0; i < 2 && h.getState() == AutoEngine.State.RUN; i++) {
             t += h.getCurrent().durationMs();

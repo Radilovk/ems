@@ -104,27 +104,40 @@ public class AiSim {
     }
 
     /**
-     * Pulse module: 30 s calibration, then 20 min of a trainer program (85 Hz / 350 µs / 4:4 / 60 %),
-     * HR = rest + gain · load (lag 25 s up, 40 s down) + drift 0.4 bpm/min.
+     * Pulse module: 30 s calibration, then 20 min of a trainer program (85 Hz / 350 µs / 4:4 / 60 %, optional
+     * double impulse 6 Hz / 45 %), HR = rest + gain · load (lag 25 s up, 40 s down) + drift 0.4 bpm/min.
+     * Load = strength · width · frequency weight · duty (+ the double impulse in the pause).
      */
     static void guard(String name, double gain, int trainerUpper, boolean twitch, boolean print) {
+        guard(name, gain, trainerUpper, twitch, false, print);
+    }
+
+    static void guard(String name, double gain, int trainerUpper, boolean twitch, boolean dbl, boolean print) {
         HrGuardCore g = new HrGuardCore();
         g.setMaxStepPct(10);
         if (trainerUpper > 0) g.setManualUpper(trainerUpper);
         long t = 0; double hr = 66, target; Random rnd = new Random(7);
         g.startCalibration(t);
-        int baseS = 60, basePw = 350, baseHz = twitch ? 5 : 85;
-        double maxHr = 0, minS = 1, maxS = 0, maxPw = 0, maxHz = 0; int holds = 0, firstLever = -1;
-        String prev = ""; List<String> log = new ArrayList<>();
+        int baseS = 60, basePw = 350, baseHz = twitch ? 5 : 85, baseOn = 4, baseOff = 4, basePause = 45;
+        double maxHr = 0, minS = 1, maxS = 0; int holds = 0; String firstLever = null; double firstHr = -1;
+        double lateMax = 0;
+        String prev = ""; List<String> log = new ArrayList<>(); java.util.Set<String> levers = new java.util.TreeSet<>();
         for (int sec = 0; sec < 30 + 20 * 60 + 240; sec++) {
             t = sec * 1000L;
             boolean run = sec >= 40 && sec < 40 + 20 * 60;
             HrGuardCore.Stim st = new HrGuardCore.Stim();
-            st.running = run; st.onS = 4; st.offS = 4;
+            st.running = run;
+            st.baseHz = baseHz; st.baseOnS = baseOn; st.baseOffS = baseOff; st.basePause = dbl;
+            st.onS = Math.max(1, baseOn - g.getOnCut()); st.offS = baseOff + g.getOffAdd();
             st.strength = (int) Math.round(baseS * g.getStrengthFactor());
             st.pwUs = (int) Math.round(basePw * g.getWidthFactor());
             st.hz = (int) Math.round(baseHz * g.getFreqFactor());
-            double load = run ? (st.strength / 100.0) * (st.pwUs / 350.0) * Math.sqrt(st.hz / 85.0) * (twitch ? 0.3 : 1) : 0;
+            st.activePause = dbl && g.getPauseFactor() > 0;
+            st.pauseHz = 6; st.pauseStrength = st.activePause ? (int) Math.round(basePause * g.getPauseFactor()) : 0;
+            double duty = st.onS / (double) (st.onS + st.offS);
+            double kf = (st.hz / (st.hz + 25.0)) / (85 / 110.0);
+            double load = run ? (st.strength / 100.0) * (st.pwUs / 350.0) * kf * duty * 2 * (twitch ? 0.3 : 1) : 0;
+            if (run && st.activePause) load += (st.pauseStrength / 100.0) * (6 / 31.0) / (85 / 110.0) * (1 - duty) * 2 * 1.5;
             target = 66 + gain * load + (run ? 0.4 * (sec - 40) / 60.0 : 0);
             hr += (target - hr) / (target > hr ? 25.0 : 40.0);
             if (sec % 3 == 0) g.onHr(t, (int) Math.round(hr + rnd.nextGaussian()), false);
@@ -132,26 +145,42 @@ public class AiSim {
             if (sec == 35) check(!g.isCalibrating() && Math.abs(g.getRestHr() - 66) <= 2, name + " calibration 30 s → rest " + g.getRestHr());
             if (run) {
                 maxHr = Math.max(maxHr, hr);
+                if (sec > 40 + 5 * 60) lateMax = Math.max(lateMax, hr);
                 minS = Math.min(minS, g.getStrengthFactor());
-                check(g.getStrengthFactor() <= 1 && g.getWidthFactor() <= 1 && g.getFreqFactor() <= 1, name + " above trainer values");
+                check(g.getStrengthFactor() <= 1 && g.getWidthFactor() <= 1 && g.getFreqFactor() <= 1
+                        && g.getPauseFactor() <= 1 && g.getOffAdd() >= 0 && g.getOnCut() >= 0, name + " above trainer values");
+                check(st.onS >= 2 && g.getOffAdd() <= HrGuardCore.OFF_MAX_ADD_S, name + " impulse ≥ 2 s, pause ≤ +8 s");
+                check(baseHz < 20 || st.hz >= 20, name + " a fused program stays fused");
                 if (g.isHold()) { holds++; check(g.getStrengthFactor() == 0, name + " hold must be zero output"); }
             }
             maxS = Math.max(maxS, g.getStrengthFactor());
             String act = g.getLastAction();
             if (!act.equals(prev) || (g.getLastActionMs() == t && !act.isEmpty())) {
                 if (g.getLastActionMs() == t) {
-                    log.add(sec + "s " + act + String.format(Locale.US, " hr=%.0f fc=%.0f s=%.2f pw=%.2f hz=%.2f", g.getHr(), g.getForecast(), g.getStrengthFactor(), g.getWidthFactor(), g.getFreqFactor()));
-                    if (firstLever < 0 && act.endsWith("_down")) firstLever = act.startsWith("strength") ? 0 : 1;
+                    log.add(sec + "s " + act + String.format(Locale.US, " hr=%.0f fc=%.0f s=%.2f pw=%.2f hz=%.2f p=%.2f on-%d off+%d",
+                            g.getHr(), g.getForecast(), g.getStrengthFactor(), g.getWidthFactor(), g.getFreqFactor(),
+                            g.getPauseFactor(), g.getOnCut(), g.getOffAdd()));
+                    if (act.endsWith("_down") || act.endsWith("_up") || act.equals("pause_off")) {
+                        levers.add(act);
+                        if (firstLever == null) { firstLever = act; firstHr = g.getHr(); }
+                    }
                 }
                 prev = act;
             }
         }
-        long downs = log.stream().filter(x -> x.contains("_down")).count();
+        long downs = log.stream().filter(x -> !x.contains("restore") && !x.contains("calibrated") && !x.contains("cap") && !x.contains("resume")).count();
         long ups = log.stream().filter(x -> x.contains("restore")).count();
-        System.out.printf("%-22s rest=%d upper=%d%s cap=%d maxHR=%.0f minS=%.2f downs=%d restores=%d holds=%ds kcal=%.0f%n",
-            name, g.getRestHr(), g.getUpper(), g.isManualUpper() ? "(trainer)" : "(auto)", g.getCap(), maxHr, minS, downs, ups, holds, g.getKcal());
-        check(firstLever <= 0, name + " first lever must be strength");
+        System.out.printf("%-22s rest=%d zone=%d target=%d upper=%d%s cap=%d maxHR=%.0f late=%.0f first=%s@%.0f minS=%.2f steps=%d restores=%d holds=%ds levers=%s kcal=%.0f%n",
+            name, g.getRestHr(), g.getZoneStart(), g.getTarget(), g.getUpper(), g.isManualUpper() ? "(trainer)" : "(auto)", g.getCap(), maxHr,
+            lateMax, firstLever, firstHr, minS, downs, ups, holds, levers, g.getKcal());
+        if (firstLever != null) {
+            check(firstHr < g.getUpper(), name + " control starts before the upper limit (" + firstHr + ")");
+            check(twitch ? firstLever.startsWith("freq") : firstLever.startsWith("strength"),
+                    name + " first lever: " + (twitch ? "frequency (twitch)" : "strength (tetanic)") + ", got " + firstLever);
+        }
         check(maxHr <= g.getCap() + 10, name + " HR far above cap");
+        check(holds == 0 || gain >= 200, name + " no stop at the cap below extreme load");
+        check(lateMax <= g.getUpper() + 3 || gain < 100, name + " HR held at the upper limit after the first 5 min (" + lateMax + ")");
         check(g.getKcal() > 0, name + " kcal");
         if (print) log.forEach(x -> System.out.println("    " + x));
     }
@@ -374,6 +403,8 @@ public class AiSim {
         guard("PULSE extreme", 200, 0, false, v);
         guard("PULSE trainer 150", 110, 150, false, v);
         guard("PULSE twitch 5 Hz", 110, 0, true, v);
+        guard("PULSE twitch hard", 1800, 0, true, v);
+        guard("PULSE double impulse", 140, 0, false, true, v);
         energy("M 40y 80kg MID rest 65", Sex.MALE, 40, 80, Fitness.MID, 65, false);
         energy("F 30y 60kg HIGH rest 55", Sex.FEMALE, 30, 60, Fitness.HIGH, 55, false);
         energy("M 60y 95kg LOW rest 78 med", Sex.MALE, 60, 95, Fitness.LOW, 78, true);

@@ -115,6 +115,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoSession.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoCues.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoHints.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoBeep.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/FloatCard.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoUi.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoLook.java"

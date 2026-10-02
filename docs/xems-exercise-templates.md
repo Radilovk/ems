@@ -7,7 +7,7 @@
 | Who leads | the program and its limits; the trainer sets strength inside them | the system (pulse, fatigue, the client's signals) |
 | Pulse | optional (required only by cardio) | required |
 | Clients | group: one program for all rows | one client (the leader) |
-| Exercises | **example only**: a figure at its own tempo + "Пример: …", rotates every 12 s, no "next" | **part of the plan**: station per block / cycle, easier when tired, "Следва" |
+| Exercises | **sets** (1.1.270): one exercise per 30–40 s set, automatic pause after it, ▶ to go on, "Следва" in the rest; figure at its own tempo | **part of the plan**: station per block / cycle, easier when tired, "Следва" |
 | kcal / load / zones | current + pulse only | current + exercise + pulse (the pulse wins when higher) |
 | Level of exercises | from the profile, no history | profile + history of this program |
 
@@ -64,9 +64,10 @@ a group session would force the leader's exercises on everyone.
 - Band: `BandRemote` state `ex` (now) / `exn` (next, in the rest) → `pages/ai` label under the time, home card.
 
 ## Auto (`AutoHints`)
-Example figure 140×104 dp beside the exercise name (21 sp) in the hint card, "пример · <phase hint>" under it, own
-2 s / 2 s tempo, rotates through the phase's list every 12 s; without an example the phase hint is the headline.
-No record, no kcal, no history.
+Figure 140×104 dp beside the exercise name (21 sp) in the hint card, own 2 s / 2 s tempo. Owner (1.1.270): the
+exercises run as **sets** — one exercise per 30–40 s of work (`AutoEngine` stations), then an automatic pause; the card
+shows "Следва: …" and the ▶ key (docs/xems-auto-mode-spec.md §11). The list of the phase is walked in order, set by set.
+Phases without sets (none today) keep the 12 s rotating example. Still no record, no kcal, no history.
 
 ## Energy, load and muscle map
 Smart Session only. The exercise done each second is recorded (`SessionRec.ex` = index + 1, `exs` = {id, met, mus}),

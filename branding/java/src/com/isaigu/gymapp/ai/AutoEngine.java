@@ -16,7 +16,12 @@ import java.util.Locale;
  * Pure Java: time comes in as milliseconds, nothing here touches Android.
  */
 public final class AutoEngine {
-    public enum State { READY, RUN, USER_PAUSE, HR_PAUSE, DONE, STOPPED }
+    /**
+     * REST: the automatic pause after an exercise (owner, 1.1.270): the impulses stop, the next set starts only by
+     * hand, and not before the rest the fatigue model asks for ({@link #getRestLeftS}). COUNTDOWN: every start
+     * waits 3 s (three short beeps and a long one as the impulse starts — AutoSession plays them).
+     */
+    public enum State { READY, RUN, USER_PAUSE, HR_PAUSE, REST, COUNTDOWN, DONE, STOPPED }
 
     /** One cycle as it goes to the rows. */
     public static final class Cmd {
@@ -48,6 +53,21 @@ public final class AutoEngine {
             return (onS + Math.max(1, offS)) * 1000;
         }
     }
+
+    /** One exercise (station) = whole impulse cycles adding up to 30–40 s of work (owner, 1.1.270). */
+    public static final int STATION_MIN_S = 30;
+    public static final int STATION_MAX_S = 40;
+    /** A station cut short by a phase change still gets its rest when it ran this long. */
+    public static final int STATION_REST_FROM_S = 10;
+    /** Rest after an exercise: floor (tetanic / twitch work), ceiling. [D] */
+    public static final int REST_FLOOR_TETANIC_S = 15;
+    public static final int REST_FLOOR_S = 8;
+    public static final int REST_MAX_S = 120;
+    /** A rest this long starts the next set a little softer (muscles cooled down). */
+    public static final int REST_SOFT_FROM_S = 180;
+    public static final long COUNTDOWN_MS = 3000L;
+    /** Next set only when the HR is this far under the ceiling (or inside the corridor). */
+    public static final int REST_HR_BELOW_CAP = 15;
 
     private static final long HR_STALE_MS = 10000L;
     private static final long HR_RESUME_HOLD_MS = 20000L;
@@ -96,6 +116,30 @@ public final class AutoEngine {
     private double userScale = 1.0;
     private double userScaleMax = 1.0;
 
+    // exercises: sets of 30–40 s with a rest after each (phases that have exercises)
+    private boolean[] stationPhases;
+    private int stationPhase = -1;
+    private int stationIndex;
+    private double stationS;
+    private int stationsDone;
+    private Cmd counted;
+    private int restMinS;
+    private long restStartMs;
+    private boolean restBeforeCooldown;
+    private int restCount;
+    private double restSumS;
+
+    // muscle fatigue (docs/xems-ems-physiology.md §3): decides the shortest rest
+    private final double fMax;
+    private final double fRec;
+    private final double tauR;
+    private double fatigue;
+
+    // countdown before every start
+    private long goMs;
+    private State countFrom = State.READY;
+    private int manualStops;
+
     private long startMs;
     private long endMs;
     private final List<String> log = new ArrayList<String>();
@@ -103,6 +147,22 @@ public final class AutoEngine {
     public AutoEngine(Plan plan) {
         this.plan = plan;
         this.doublePulse = plan.doublePulseAllowed && plan.input.doublePulse;
+        double[] fp = AiPlanner.fatigueParams(plan.input.fitness);
+        fMax = fp[0];
+        fRec = fp[1];
+        tauR = fp[2];
+    }
+
+    /**
+     * The phases with exercises (true = run as sets of 30–40 s with a rest after each). Without it the
+     * phases run continuously (passive programs, the tests of the plain clock).
+     */
+    public void setStations(boolean[] phases) {
+        stationPhases = phases != null ? phases.clone() : null;
+    }
+
+    public boolean isStationPhase(int idx) {
+        return stationPhases != null && idx >= 0 && idx < stationPhases.length && stationPhases[idx];
     }
 
     // ================================================================ control
@@ -119,12 +179,150 @@ public final class AutoEngine {
         nextCycle(now);
     }
 
+    /** Start with the 3 s countdown: the impulses begin at {@code goAt} (≥ now + 3 s). */
+    public void startAt(long now, long goAt) {
+        startMs = now;
+        lastTickMs = now;
+        phaseIndex = 0;
+        stepIndex = 0;
+        elapsedS = 0;
+        log(now, "start " + plan.program.id + " T=" + plan.totalS + "s active=" + plan.activeS + "s φmax="
+                + fmt(plan.phiMax) + " E=" + fmt(plan.envMax) + " cap=" + plan.hrCap);
+        countdown(now, goAt, State.READY);
+    }
+
+    private void countdown(long now, long goAt, State from) {
+        countFrom = from;
+        goMs = Math.max(now + COUNTDOWN_MS, goAt);
+        state = State.COUNTDOWN;
+        log(now, "countdown from " + from + " → " + Math.round((goMs - now) / 1000.0) + "s");
+    }
+
+    /** Countdown over: the impulses start (one cycle now). */
+    private void go(long now) {
+        State from = countFrom;
+        if (from != State.READY) {
+            double pauseS = Math.max(0, (now - pauseStartMs) / 1000.0);
+            totalPauseS += pauseS;
+            fatigue *= Math.exp(-pauseS / tauR);
+            if (from == State.REST) {
+                restSumS += pauseS;
+                restCount++;
+                if (pauseS >= REST_SOFT_FROM_S) {
+                    reentry = Math.min(reentry, 0.9);
+                }
+            } else {
+                // Muscles and heart cooled down: first pulses softer, +0.1 per cycle back to 1 (AI §5).
+                reentry = pauseS >= 30 ? clamp(1.0 - pauseS / 600.0, 0.6, 0.9) : Math.min(reentry, 1.0);
+                if (from == State.HR_PAUSE) {
+                    reentry = Math.min(reentry, 0.8);
+                }
+            }
+            log(now, "go after " + Math.round(pauseS) + "s (" + from + ") r=" + fmt(reentry) + " F=" + fmt(fatigue));
+        } else {
+            log(now, "go");
+        }
+        state = State.RUN;
+        resumeNeedsConfirm = false;
+        lastTickMs = now;
+        nextCycle(now);
+    }
+
+    /**
+     * ▶ Start pressed (after an exercise, a pause, the HR pause that waits for a tap): true = the countdown runs
+     * and the impulses begin at {@code goAt} (≥ now + 3 s). False = not yet: {@link #getRestLeftS} /
+     * {@link #isRestHrHigh} say why.
+     */
+    public boolean requestGo(long now, long goAt) {
+        if (state == State.REST) {
+            if (getRestLeftS(now) > 0 || isRestHrHigh(now)) {
+                return false;
+            }
+        } else if (!canResume()) {
+            return false;
+        }
+        countdown(now, goAt, state);
+        return true;
+    }
+
+    /**
+     * ■ STOP (owner, 1.1.270): never ends the session at once. In the active part it moves to the passive
+     * recovery (cool-down, its own 10 min) and waits for ▶; in the recovery it ends. Returns true when ended.
+     */
+    public boolean stopPress(long now) {
+        if (state == State.DONE || state == State.STOPPED) {
+            return true;
+        }
+        Phase ph = phase();
+        int cool = cooldownIndex();
+        boolean inRecovery = ph != null && ph.isCooldown();
+        if (cool < 0 || inRecovery || state == State.READY) {
+            manualStops++;
+            stop(now);
+            return true;
+        }
+        manualStops++;
+        log(now, "stop pressed → recovery");
+        enterRecoveryRest(now, cool);
+        return false;
+    }
+
+    public int getManualStops() {
+        return manualStops;
+    }
+
+    /** The active part is over (or stopped): straight to the cool-down's start, waiting for ▶. */
+    private void enterRecoveryRest(long now, int cool) {
+        boolean paused = state == State.USER_PAUSE || state == State.HR_PAUSE || state == State.REST
+                || state == State.COUNTDOWN;
+        if (phaseIndex != cool) {
+            jumpTo(cool, now);
+        }
+        stationPhase = cool;
+        stationS = 0;
+        counted = current;
+        if (!paused) {
+            pauseStartMs = now;
+        }
+        state = State.REST;
+        restStartMs = now;
+        restMinS = 0;
+        restBeforeCooldown = true;
+    }
+
+    private int cooldownIndex() {
+        for (int i = plan.phases.size() - 1; i >= 0; i--) {
+            if (plan.phases.get(i).isCooldown()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void stop(long now) {
         if (state != State.DONE) {
             state = State.STOPPED;
             endMs = now;
             log(now, "stop");
         }
+    }
+
+    /** Pause pressed during the countdown: back to where it came from (the start → a plain pause). */
+    public void cancelCountdown(long now) {
+        if (state != State.COUNTDOWN) {
+            return;
+        }
+        State from = countFrom;
+        if (from == State.READY) {
+            state = State.USER_PAUSE;
+            pauseStartMs = now;
+        } else {
+            state = from;
+            if (from == State.HR_PAUSE) {
+                resumeNeedsConfirm = true;
+            }
+        }
+        log(now, "countdown cancelled → " + state);
     }
 
     public void userPause(long now) {
@@ -159,28 +357,28 @@ public final class AutoEngine {
 
     /** Straight to the cool-down (never past it). */
     public void skipToCooldown(long now) {
-        int idx = -1;
-        for (int i = 0; i < plan.phases.size(); i++) {
-            if (plan.phases.get(i).isCooldown()) {
-                idx = i;
-            }
-        }
+        int idx = cooldownIndex();
         if (idx < 0) {
             idx = plan.phases.size() - 1;      // no cool-down: the last (calmest) phase
         }
         if (idx < 0 || idx <= phaseIndex) {
             return;
         }
-        double t = 0;
-        for (int i = 0; i < idx; i++) {
-            t += plan.phases.get(i).durationS;
-        }
-        elapsedS = t;
-        enterPhase(idx, now);
+        jumpTo(idx, now);
         log(now, "skip → cool-down");
         if (state == State.RUN) {
             nextCycle(now);
         }
+    }
+
+    /** The plan clock jumps to the start of phase {@code idx}. */
+    private void jumpTo(int idx, long now) {
+        double t = 0;
+        for (int i = 0; i < idx; i++) {
+            t += plan.phases.get(i).durationS;
+        }
+        elapsedS = Math.max(elapsedS, t);
+        enterPhase(idx, now);
     }
 
     public boolean isDoublePulseAvailable() {
@@ -275,6 +473,10 @@ public final class AutoEngine {
 
     /** The device starts an ON phase: the next cycle (a double hook inside a cycle is ignored). */
     public Cmd onCycle(long now) {
+        if (state == State.COUNTDOWN && now >= goMs - 800) {
+            go(now);                           // the device's own impulse starts: begin with it
+            return state == State.RUN ? current : null;
+        }
         if (state != State.RUN) {
             return null;
         }
@@ -289,6 +491,13 @@ public final class AutoEngine {
     }
 
     public void tick(long now) {
+        if (state == State.COUNTDOWN) {
+            lastTickMs = now;
+            if (now >= goMs) {
+                go(now);
+            }
+            return;
+        }
         double dt = Math.max(0, (now - lastTickMs) / 1000.0);
         lastTickMs = now;
         boolean fresh = hr > 0 && now - hrMs <= HR_STALE_MS;
@@ -304,11 +513,9 @@ public final class AutoEngine {
                 if (hrOkSinceMs == 0) {
                     hrOkSinceMs = now;
                 } else if (now - hrOkSinceMs >= HR_RESUME_HOLD_MS) {
-                    if (plan.input.solo()) {
-                        resumeNeedsConfirm = true;     // SOLO: a person confirms
-                    } else {
-                        resumeNeedsConfirm = true;
-                        resume(now);
+                    resumeNeedsConfirm = true;
+                    if (!plan.input.solo()) {          // SOLO: a person confirms
+                        countdown(now, now + COUNTDOWN_MS, State.HR_PAUSE);
                     }
                 }
             } else {
@@ -336,7 +543,9 @@ public final class AutoEngine {
             return;
         }
         int idx = phaseAt(elapsedS);
-        if (idx != phaseIndex) {
+        // A set is never cut by the next exercise phase: that change waits for the set's end (the rest).
+        // The recovery is not waited for: the active part never passes its 20 min.
+        if (idx != phaseIndex && !(isStationPhase(phaseIndex) && !plan.phases.get(idx).isCooldown())) {
             enterPhase(idx, now);
         }
         // Engine clock: the device hook did not come → the next cycle anyway.
@@ -358,24 +567,51 @@ public final class AutoEngine {
         if (ph == null) {
             return null;
         }
-        // dose of the finished cycle
-        if (current != null && current.base != null && current.frac > 0) {
-            boolean pause = doublePulse && current.pauseHz > 0;
-            qUsed += AutoPlanner.cycleDose(current.base, current.frac * userScale, pause);
-            qPlanned += AutoPlanner.cycleDose(current.base, current.frac / Math.max(0.01, reentry), pause);
-            double ratio = qPlanned > 0 ? qUsed / qPlanned : 0;
-            if (ratio > 1.1) {
-                doseExt = Math.min(doseExt + 1, Math.max(1, current.base.offS / 2));
-            } else if (ratio < 1.05 && doseExt > 0) {
-                doseExt--;
+        // the finished cycle (once): station time, fatigue, dose
+        boolean fresh = current != null && current != counted;
+        if (fresh) {
+            counted = current;
+            if (current.phaseIndex == stationPhase) {
+                stationS += current.durationMs() / 1000.0;
             }
-            raiseLocked = ratio > 1.2;
+            integrateFatigue(current);
+            if (current.base != null && current.frac > 0) {
+                boolean pause = doublePulse && current.pauseHz > 0;
+                qUsed += AutoPlanner.cycleDose(current.base, current.frac * userScale, pause);
+                qPlanned += AutoPlanner.cycleDose(current.base, current.frac / Math.max(0.01, reentry), pause);
+                double ratio = qPlanned > 0 ? qUsed / qPlanned : 0;
+                if (ratio > 1.1) {
+                    doseExt = Math.min(doseExt + 1, Math.max(1, current.base.offS / 2));
+                } else if (ratio < 1.05 && doseExt > 0) {
+                    doseExt--;
+                }
+                raiseLocked = ratio > 1.2;
+            }
         }
-        if (qUsed >= plan.qBudget && !ph.isCooldown() && plan.qBudget > 0) {
+        if (qUsed >= plan.qBudget && !ph.isCooldown() && plan.qBudget > 0 && cooldownIndex() > phaseIndex) {
             log(now, "dose budget reached → cool-down");
             doseStopped = true;
-            skipToCooldown(now);
+            jumpTo(cooldownIndex(), now);
             ph = phase();
+        }
+        // exercises: a set ends after 30–40 s of work, or with its phase → the automatic pause
+        if (stationPhase != phaseIndex) {
+            boolean cutShort = isStationPhase(stationPhase) && stationS >= STATION_REST_FROM_S;
+            boolean toRecovery = ph.isCooldown() && isStationPhase(stationPhase) && stationS > 0;
+            int prev = stationPhase;
+            stationPhase = phaseIndex;
+            stationIndex = 0;
+            if (prev >= 0 && (cutShort || toRecovery)) {
+                stationS = 0;
+                enterRest(now, ph.isCooldown());
+                return null;
+            }
+            stationS = 0;
+        } else if (isStationPhase(phaseIndex) && stationS >= STATION_MIN_S) {
+            stationS = 0;
+            stationIndex++;
+            enterRest(now, false);
+            return null;
         }
         // corridor: above → longer pause, back below → shorter again
         if (plan.hrUse == HrUse.CORRIDOR && hr > 0 && now - hrMs <= HR_STALE_MS && !ph.isCooldown()
@@ -388,6 +624,13 @@ public final class AutoEngine {
             }
         }
         Cmd c = build(ph, stepIndex, now);
+        if (isStationPhase(phaseIndex) && stationS > 0 && stationS + c.durationMs() / 1000.0 > STATION_MAX_S
+                && stationS >= STATION_MIN_S - c.durationMs() / 1000.0) {
+            stationS = 0;                      // one more cycle would pass 40 s: the set ends here
+            stationIndex++;
+            enterRest(now, false);
+            return null;
+        }
         c.startMs = now;
         current = c;
         stepIndex++;
@@ -395,6 +638,139 @@ public final class AutoEngine {
             reentry = Math.min(1.0, reentry + 0.1);
         }
         return c;
+    }
+
+    /**
+     * The automatic pause after an exercise. Shortest rest = the time the fatigue model needs to bring the
+     * muscle back to F_rec (F_max / 3, the level the Smart Session starts a block from): t = τ·ln(F / F_rec),
+     * τ from the phosphocreatine recovery (LOW 50 s, MID 40 s, HIGH 30 s); at least 15 s after tetanic work
+     * (≥ 20 Hz), 8 s after twitches; at most 2 min. Before the recovery part: no minimum.
+     */
+    private void enterRest(long now, boolean beforeCooldown) {
+        if (!beforeCooldown) {
+            int idx = phaseAt(elapsedS);
+            int cool = cooldownIndex();
+            if (cool >= 0 && (idx == cool || plan.activeS - elapsedS < STATION_MIN_S / 2.0)) {
+                beforeCooldown = true;         // no room for another set: the recovery is next
+                if (phaseIndex != cool) {
+                    jumpTo(cool, now);
+                }
+                stationPhase = cool;
+                stationIndex = 0;
+            } else if (idx != phaseIndex) {
+                enterPhase(idx, now);          // the phase change the set waited for
+                stationPhase = idx;
+                stationIndex = 0;
+            }
+        }
+        state = State.REST;
+        pauseStartMs = now;
+        restStartMs = now;
+        restBeforeCooldown = beforeCooldown;
+        stationsDone++;
+        if (beforeCooldown) {
+            restMinS = 0;
+        } else {
+            boolean tet = current != null && current.hz >= 20;
+            double t = fatigue > fRec ? tauR * Math.log(fatigue / fRec) : 0;
+            int floor = tet ? REST_FLOOR_TETANIC_S : REST_FLOOR_S;
+            restMinS = (int) Math.round(clamp(Math.max(floor, t), floor, REST_MAX_S));
+        }
+        log(now, "set done → rest ≥ " + restMinS + "s F=" + fmt(fatigue) + "/" + fmt(fMax));
+    }
+
+    /** Fatigue after one cycle (§3.1): dF/dt = w(f)·ρ − F/τ; the double impulse loads the pause. */
+    private void integrateFatigue(Cmd c) {
+        if (c == null || c.frac <= 0) {
+            return;
+        }
+        double rho = c.frac * Math.max(0.1, userScale);
+        double e1 = Math.exp(-Math.max(0, c.onS) / tauR);
+        fatigue = fatigue * e1 + AiPlanner.fatigueWeight(c.hz) * rho * tauR * (1 - e1);
+        double e2 = Math.exp(-Math.max(1, c.offS) / tauR);
+        double g = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * rho * c.pauseSigma * tauR : 0;
+        fatigue = fatigue * e2 + g * (1 - e2);
+    }
+
+    /** Seconds until ▶ is allowed after an exercise (0 = now). */
+    public int getRestLeftS(long now) {
+        if (state != State.REST) {
+            return 0;
+        }
+        return (int) Math.max(0, Math.ceil(restMinS - (now - restStartMs) / 1000.0));
+    }
+
+    public int getRestMinS() {
+        return restMinS;
+    }
+
+    public double getRestS(long now) {
+        return state == State.REST ? (now - restStartMs) / 1000.0 : 0;
+    }
+
+    /** The HR is still too high for the next set (≥ cap − 15, or above the corridor). */
+    public boolean isRestHrHigh(long now) {
+        if (state != State.REST || restBeforeCooldown || plan.hrUse == HrUse.NONE) {
+            return false;
+        }
+        int h = getHr(now);
+        if (h <= 0) {
+            return false;
+        }
+        int lim = plan.hrCap - REST_HR_BELOW_CAP;
+        if (plan.hrUse == HrUse.CORRIDOR && plan.corridorHiHr() > 0) {
+            lim = Math.min(lim, plan.corridorHiHr());
+        }
+        return h > lim;
+    }
+
+    /** The HR the next set waits for (see {@link #isRestHrHigh}). */
+    public int getRestHrLimit() {
+        int lim = plan.hrCap - REST_HR_BELOW_CAP;
+        if (plan.hrUse == HrUse.CORRIDOR && plan.corridorHiHr() > 0) {
+            lim = Math.min(lim, plan.corridorHiHr());
+        }
+        return lim;
+    }
+
+    public boolean isRestBeforeCooldown() {
+        return state == State.REST && restBeforeCooldown;
+    }
+
+    /** The exercise of the running phase: 0, 1, 2 … (in a rest: the next one). */
+    public int getStationIndex() {
+        return stationIndex;
+    }
+
+    /** Work done in the running set, seconds. */
+    public double getStationS() {
+        return stationS + (state == State.RUN && current != null && current != counted && current.phaseIndex == stationPhase
+                ? Math.min(current.durationMs() / 1000.0, (lastTickMs - current.startMs) / 1000.0) : 0);
+    }
+
+    public int getStationsDone() {
+        return stationsDone;
+    }
+
+    public double getFatigueShare() {
+        return fMax > 0 ? fatigue / fMax : 0;
+    }
+
+    public int getRestCount() {
+        return restCount;
+    }
+
+    public double getRestAvgS() {
+        return restCount > 0 ? restSumS / restCount : 0;
+    }
+
+    /** When the countdown ends (the impulses begin). */
+    public long getGoMs() {
+        return goMs;
+    }
+
+    public int getCountdownLeftS(long now) {
+        return state == State.COUNTDOWN ? (int) Math.max(0, Math.ceil((goMs - now) / 1000.0)) : 0;
     }
 
     private Cmd build(Phase ph, int step, long now) {

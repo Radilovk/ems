@@ -236,7 +236,12 @@ public final class AutoModel {
         public AutoCatalog.Program program;
         public Input input;
         public final List<Phase> phases = new ArrayList<Phase>();
+        /** Whole session: the active part + the passive recovery (cool-down). */
         public int totalS;
+        /** The active part (everything before the cool-down), ≤ 20 min of impulses (owner, 1.1.270). */
+        public int activeS;
+        /** The passive recovery at the end (10 min), 0 = the program has none. */
+        public int recoveryS;
         /** Hard ceiling of the planned strength factor (adaptation, age, SOLO …). */
         public double phiMax = 1.0;
         /** Ceiling of the envelope (how far above the calibration a person may go). */

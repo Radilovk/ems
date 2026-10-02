@@ -17,9 +17,9 @@ import com.isaigu.gymapp.widget.XemsUi;
 
 /**
  * Hint card on the training screen during an automatic session: a small floating card at the
- * top (not modal — the screen under it stays usable) with an example exercise of the phase at its own calm tempo
- * (not tied to the impulse: the client moves as they like, nothing is counted), the phase's hint, what comes next,
- * and the latest limit notice. One finger moves it, two fingers size it ({@link FloatCard}).
+ * top (not modal — the screen under it stays usable) with the exercise of the running set (30–40 s; the figure
+ * at its own calm tempo, not tied to the impulse), the phase's hint, what comes next, the latest limit notice,
+ * and — after each exercise — the ▶ Start key with the rest still needed (owner, 1.1.270). One finger moves it, two fingers size it ({@link FloatCard}).
  * Hidden while the Auto board is open. Tap = open the board. Floating window as in the interval
  * timer overlay (branding/UI-PITFALLS.md §3): transparent, NOT_FOCUSABLE | NOT_TOUCH_MODAL.
  */
@@ -37,6 +37,8 @@ public final class AutoHints {
     private static TextView hint;
     private static TextView next;
     private static TextView notice;
+    /** ▶ Start after an exercise / a pause; the countdown 3 · 2 · 1 on it. */
+    private static TextView startKey;
     /** An example exercise for the program (template programs): its own tempo, not tied to the impulse —
      *  the Smart Session is the mode that follows exercises. It changes every EXAMPLE_S. */
     private static LinearLayout exBox;
@@ -56,7 +58,7 @@ public final class AutoHints {
             boolean want = AutoSession.getStage() == AutoSession.Stage.RUNNING && e != null
                     && e.getState() != AutoEngine.State.DONE && e.getState() != AutoEngine.State.STOPPED
                     && !AutoUi.isShowing() && com.isaigu.gymapp.widget.XemsNav.isTrainingPage()
-                    && (AutoSession.tipsOn() || alertActive(System.currentTimeMillis()));
+                    && (AutoSession.tipsOn() || alertActive(System.currentTimeMillis()) || waits(e));
             if (!want) {
                 hide();
                 return;
@@ -71,6 +73,12 @@ public final class AutoHints {
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoHints.refresh", t);
         }
+    }
+
+    /** The session waits for ▶ or counts down: the card is needed even with the tips off. */
+    static boolean waits(AutoEngine e) {
+        AutoEngine.State st = e.getState();
+        return st == AutoEngine.State.REST || st == AutoEngine.State.COUNTDOWN || e.canResume();
     }
 
     /** A limit or safety hint is on (shown even with the tips off). */
@@ -139,6 +147,14 @@ public final class AutoHints {
         next = XemsUi.text(a, "", 13, XemsUi.GO_TEXT, false);
         col.addView(next, XemsUi.matchWrap(a, 4));
         mid.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        // picture | text | control (landscape): the start key on the right, only when it is needed
+        startKey = XemsUi.button(a, "", XemsUi.ACCENT_BTN);
+        startKey.setGravity(Gravity.CENTER);
+        startKey.setOnClickListener(new Start());
+        startKey.setVisibility(View.GONE);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(XemsUi.dp(a, 150), XemsUi.dp(a, 88));
+        slp.leftMargin = XemsUi.dp(a, 12);
+        mid.addView(startKey, slp);
         card.addView(mid, XemsUi.matchWrap(a, 8));
 
         notice = XemsUi.text(a, "", 14, XemsUi.DANGER, true);
@@ -202,22 +218,45 @@ public final class AutoHints {
                     ? AiText.t("Пулсът спадна — „Продължи“ в Авто", "HR is down — Resume in Auto")
                     : AiText.t("Пауза: пулсът е висок — почини", "Paused: HR high — rest");
         } else if (state == AutoEngine.State.USER_PAUSE) {
-            st = AiText.t("Пауза — „Продължи“ в Авто", "Paused — Resume in Auto");
+            st = AiText.t("Пауза — „▶“ продължава", "Paused — ▶ resumes");
+        } else if (state == AutoEngine.State.REST) {
+            int left = e.getRestLeftS(now);
+            st = e.isRestBeforeCooldown()
+                    ? AiText.t("Следва възстановяване — легни / седни удобно", "Recovery next — get comfortable")
+                    : AiText.t("Почивка ", "Rest ") + AiText.mmss(e.getRestS(now))
+                    + (left > 0 ? AiText.t(" · старт след ", " · start in ") + AiText.mmss(left)
+                    : e.isRestHrHigh(now) ? AiText.t(" · чака пулса ≤ ", " · waits for HR ≤ ") + e.getRestHrLimit()
+                    : AiText.t(" · готово за старт", " · ready to start"));
+        } else if (state == AutoEngine.State.COUNTDOWN) {
+            st = AiText.t("Старт след ", "Start in ") + e.getCountdownLeftS(now) + " …";
+        }
+        boolean key = waits(e);
+        startKey.setVisibility(key ? View.VISIBLE : View.GONE);
+        if (key) {
+            startKey.setText(state == AutoEngine.State.COUNTDOWN ? "" + Math.max(1, e.getCountdownLeftS(now))
+                    : AutoUi.startLabel(e, now));
+            startKey.setTextSize(state == AutoEngine.State.COUNTDOWN ? 40 : 16);
+            startKey.setAlpha(state == AutoEngine.State.REST && !AutoSession.startReady() ? 0.55f : 1f);
         }
         boolean tips = AutoSession.tipsOn();
-        mid.setVisibility(tips || st.length() > 0 ? View.VISIBLE : View.GONE);
+        mid.setVisibility(tips || st.length() > 0 || key ? View.VISIBLE : View.GONE);
         status.setText(st);
         status.setVisibility(st.length() > 0 ? View.VISIBLE : View.GONE);
 
-        // an example exercise of this phase (a suggestion only: own tempo, rotates every EXAMPLE_S)
+        // the exercise of the running set (in a rest: the next one); phases without sets keep a rotating example
         String ex = null;
+        boolean sets = e.isStationPhase(e.getPhaseIndex());
+        boolean nextOne = state == AutoEngine.State.REST || state == AutoEngine.State.COUNTDOWN;
         AutoTemplates.Script sc = AutoSession.getScript();
         int pi = e.getPhaseIndex();
-        if (sc != null && pi >= 0 && pi < sc.phase.length && sc.phase[pi] != null && sc.phase[pi].length > 0) {
+        if (e.isRestBeforeCooldown()) {
+            ex = null;
+        } else if (sc != null && pi >= 0 && pi < sc.phase.length && sc.phase[pi] != null && sc.phase[pi].length > 0) {
             String[] l = sc.phase[pi];
-            ex = l[(int) (((now - EXAMPLE_T0) / 1000 / EXAMPLE_S) % l.length)];
+            ex = sets ? l[e.getStationIndex() % l.length]
+                    : l[(int) (((now - EXAMPLE_T0) / 1000 / EXAMPLE_S) % l.length)];
         }
-        exBox.setVisibility(tips && ex != null ? View.VISIBLE : View.GONE);
+        exBox.setVisibility((tips || sets) && ex != null ? View.VISIBLE : View.GONE);
         if (ex != null) {
             AutoModel.Input lead = AutoSession.getInput();
             figure.setColor(ExerciseFigure.colorFor(lead != null ? lead.sex : null));
@@ -231,7 +270,10 @@ public final class AutoHints {
             h = h + "\n" + AutoCues.feeling(plan);
         }
         // with an example the exercise is the headline and the phase's hint goes under it; without one the hint leads
-        if (tips && ex != null) {
+        if (sets && ex != null) {
+            exName.setText((nextOne ? AiText.t("Следва: ", "Next: ") : "") + AutoTemplates.name(ex));
+            hint.setText(tips ? h : "");
+        } else if (tips && ex != null) {
             exName.setText(AutoTemplates.name(ex));
             hint.setText(AiText.t("пример · ", "example · ") + h);
         } else {
@@ -258,6 +300,19 @@ public final class AutoHints {
                     XemsUi.alpha(color, 0x77), XemsUi.dp(c, 1)));
         }
         notice.setVisibility(showNotice ? View.VISIBLE : View.GONE);
+    }
+
+    /** ▶ on the card: the next set (or why not yet), resume, or cancel the countdown. */
+    static final class Start implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            try {
+                AutoSession.togglePause();
+                refresh();
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("AutoHints.start", t);
+            }
+        }
     }
 
     static final class Open implements View.OnClickListener {

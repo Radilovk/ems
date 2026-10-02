@@ -23,13 +23,16 @@ public final class AutoPlanner {
     private AutoPlanner() {}
 
     public static final int MIN_SECONDS = 600;
+    /**
+     * Owner (1.1.270): the active part collects at most 20 min of impulses (the pauses between exercises do not
+     * count); the passive recovery after it is a fixed 10 min on top. Both are set before the start.
+     */
+    public static final int ACTIVE_MAX_S = 1200;
+    public static final int RECOVERY_S = 600;
 
-    /** Longest session this client may have in this program (after adaptation / recovery). */
+    /** Longest active part this client may have in this program (after adaptation / recovery), ≤ 20 min. */
     public static int maxSeconds(Program p, Goal goal, Input in) {
-        int t = AutoCatalog.baseSeconds(p, goal, in);
-        if (goal == Goal.SLIM && in.bmi() >= 30 && t >= 1500 && p.isActive()) {
-            t = Math.min(1800, t + 300);
-        }
+        int t = Math.min(ACTIVE_MAX_S, AutoCatalog.baseSeconds(p, goal, in));
         if (AutoCatalog.SENIOR.equals(p.id) && in.sessions < 3) {
             t = Math.min(t, 900);
         }
@@ -69,8 +72,8 @@ public final class AutoPlanner {
         plan.program = p;
         plan.input = in;
         int max = maxSeconds(p, in.goal, in);
-        plan.totalS = in.totalSeconds != null ? clampSeconds(p, in.goal, in, in.totalSeconds) : max;
-        if (plan.totalS < AutoCatalog.baseSeconds(p, in.goal, in)) {
+        plan.activeS = in.totalSeconds != null ? clampSeconds(p, in.goal, in, in.totalSeconds) : max;
+        if (plan.activeS < Math.min(ACTIVE_MAX_S, AutoCatalog.baseSeconds(p, in.goal, in))) {
             plan.note("Времето е съкратено: адаптация / възстановяване",
                     "Shortened: adaptation / recovery");
         }
@@ -116,7 +119,15 @@ public final class AutoPlanner {
         plan.envMax = env;
 
         // ---- phases
-        List<Phase> phases = AutoCatalog.phases(p, in.goal, in, plan.totalS);
+        List<Phase> phases = AutoCatalog.phases(p, in.goal, in, plan.activeS);
+        plan.totalS = 0;
+        plan.recoveryS = 0;
+        for (Phase ph : phases) {
+            plan.totalS += ph.durationS;
+            if (ph.isCooldown()) {
+                plan.recoveryS += ph.durationS;
+            }
+        }
         if (in.intensity == Intensity.INTENSE && !intenseAllowed(p, in)) {
             in.intensity = Intensity.STANDARD;
         }

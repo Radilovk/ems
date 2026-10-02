@@ -37,6 +37,9 @@ public final class XemsPanel {
     private static XemsIcon startIcon;
     private static TextView startLabel;
     private static View startButton;
+    private static View nextButton;
+    /** The Auto module's colour (its tile in the module bar). */
+    private static final int AUTO_TEAL = 0xFF26A69A;
     private static boolean shownRunning;
     private static LinearLayout sidebarRef;
     private static View panelRootRef;
@@ -139,6 +142,21 @@ public final class XemsPanel {
         startButton = start;
         col.addView(start, weighted(gap));
 
+        // ⏭ — only while Auto runs (between ▶ and +): the set ends / the next exercise comes / the next phase
+        FrameLayout next = tall(c);
+        next.addView(icon(c, XemsIcon.NEXT, XemsUi.ON_ACCENT, null), centered(c, 0.46f));
+        TextView nl = XemsUi.text(c, XemsLang.tr("Следващо", "Next"), 12, XemsUi.ON_ACCENT, true);
+        FrameLayout.LayoutParams nlp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        nlp.bottomMargin = XemsUi.dp(c, 12);
+        next.addView(nl, nlp);
+        style(next, AUTO_TEAL, true);
+        next.setOnClickListener(new NextClick());
+        next.setContentDescription(XemsLang.tr("Следващо упражнение", "Next exercise"));
+        next.setVisibility(View.GONE);
+        nextButton = next;
+        col.addView(next, weighted(gap));
+
         FrameLayout plus = tall(c);
         plus.addView(icon(c, XemsIcon.PLUS, XemsUi.TEXT, null), centered(c, 0.5f));
         style(plus, XemsUi.SURFACE, false);
@@ -187,6 +205,16 @@ public final class XemsPanel {
                 if (!TAG.equals(ch.getTag()) && ch.getVisibility() != View.GONE) {
                     ch.setVisibility(View.GONE);
                 }
+            }
+        }
+        // ⏭ exists only while Auto runs; dimmed when there is nothing to skip to (the recovery)
+        if (nextButton != null) {
+            boolean owned = com.isaigu.gymapp.ai.AutoSession.mainKeysOwned();
+            nextButton.setVisibility(owned ? View.VISIBLE : View.GONE);
+            if (owned) {
+                boolean can = com.isaigu.gymapp.ai.AutoSession.canNext();
+                nextButton.setAlpha(can ? 1f : 0.4f);
+                nextButton.setEnabled(can);
             }
         }
         // during Auto the tile shows Auto's state (its pauses keep the device on, at 0)
@@ -323,6 +351,19 @@ public final class XemsPanel {
         public void onClick(View v) {
             delegate.onClick(v);
             v.postDelayed(new Refresh(), 250);
+        }
+    }
+
+    static final class NextClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            try {
+                XemsUi.haptic(v);
+                com.isaigu.gymapp.ai.AutoSession.nextFromPanel();
+                refresh();
+            } catch (Throwable t) {
+                XemsGuard.report("XemsPanel.next", t);
+            }
         }
     }
 

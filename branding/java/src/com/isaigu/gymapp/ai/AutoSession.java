@@ -752,6 +752,32 @@ public final class AutoSession {
                 && engine.getState() != AutoEngine.State.STOPPED;
     }
 
+    /** ⏭ can do something now: a set or a rest of exercises, or a phase that is not the recovery. */
+    public static boolean canNext() {
+        if (!mainKeysOwned()) {
+            return false;
+        }
+        AutoModel.Phase ph = engine.phase();
+        AutoEngine.State st = engine.getState();
+        return ph != null && !ph.isCooldown() && !engine.isRestBeforeCooldown()
+                && (st == AutoEngine.State.RUN || st == AutoEngine.State.REST);
+    }
+
+    /** The right panel's ⏭ (between ▶ and +): on to the next exercise / phase, with a short notice. */
+    public static void nextFromPanel() {
+        if (!canNext()) {
+            return;
+        }
+        String to = engine.getNextExercise();
+        if (next()) {
+            notice(to != null && to.length() > 0
+                            ? AiText.t("⏭ Към „" + AutoTemplates.name(to) + "“", "⏭ To " + AutoTemplates.name(to))
+                            : AiText.t("⏭ Следващата фаза", "⏭ The next phase"),
+                    INFO, System.currentTimeMillis());
+        }
+        AutoUi.refresh();
+    }
+
     /** For the right panel's start tile: −1 = not Auto, 1 = impulses run (show ❚❚), 0 = it waits (show ▶). */
     public static int mainKeyState() {
         if (!mainKeysOwned()) {

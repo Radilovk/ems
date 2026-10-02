@@ -1232,25 +1232,34 @@ public final class AutoSession {
             }
         }
         AutoEngine.Cmd c = engine.getCurrent();
-        if (lead == null || engine.getState() != AutoEngine.State.RUN || c == null) {
-            return;
-        }
-        engine.setLive(Math.max(0, lead.writtenStrength) / (double) lead.cal, lead.writtenZones, now);
-        AutoModel.Plan rp = lead.plan != null ? lead.plan : plan;
-        double planned = AutoEngine.rowFrac(c, rp.phiMax);
-        double scale = planned > 0 ? Math.max(0, lead.writtenStrength) / (lead.cal * planned) : 1.0;
-        boolean dbl = engine.isDoublePulseOn();
-        if (now - forecastMs > 5000L && (Math.abs(scale - forecastScale) > 0.05 || dbl != forecastDouble)) {
-            forecastMs = now;
+        boolean changed = false;
+        if (lead != null && engine.getState() == AutoEngine.State.RUN && c != null) {
+            engine.setLive(Math.max(0, lead.writtenStrength) / (double) lead.cal, lead.writtenZones, now);
+            AutoModel.Plan rp = lead.plan != null ? lead.plan : plan;
+            double planned = AutoEngine.rowFrac(c, rp.phiMax);
+            double scale = planned > 0 ? Math.max(0, lead.writtenStrength) / (lead.cal * planned) : 1.0;
+            boolean dbl = engine.isDoublePulseOn();
+            changed = Math.abs(scale - forecastScale) > 0.03 || dbl != forecastDouble;
             forecastScale = scale;
             forecastDouble = dbl;
+        }
+        // the timeline's future runs on from the live state (strength, zones, µs, fatigue, dose, HR) — every
+        // FORECAST_MS, at once (≥ 1 s) after a change of the output
+        if (now - forecastMs >= FORECAST_MS || (changed && now - forecastMs >= 1000L)) {
+            forecastMs = now;
             try {
-                forecast = AutoEngine.forecast(plan, script, dbl, scale);
+                AutoEngine.Forecast f = engine.forecastFrom(now);
+                if (f != null) {
+                    forecast = f;
+                }
             } catch (Throwable t) {
                 WearableBleDiagLog.log("auto", "forecast: " + t);
             }
         }
     }
+
+    /** How often the live forecast is rebuilt (ms). */
+    static final long FORECAST_MS = 5000L;
 
     private static void writeRows(AutoEngine.Cmd c, boolean calib) {
         if (c == null) {

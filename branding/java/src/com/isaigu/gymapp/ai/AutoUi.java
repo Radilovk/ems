@@ -1119,12 +1119,12 @@ public final class AutoUi {
                         + "The heart beats with the HR, its colour is the HR zone.\n"
                         + "Load — the whole body: the muscles by impulse and exercise, oxygen and HR, the work done; by the client's data.");
             default:
-                return AiText.t("Цялата тренировка: височина — силата на импулсите, цвят — натоварването.\n"
-                        + "Миналото е ярко, предстоящото — прогноза. Дълбока долина — пауза над 45 s или спиране по пулса.\n"
+                return AiText.t("Цялата тренировка: височина и цвят — общото натоварване (горе = границата).\n"
+                        + "Миналото е ярко, предстоящото — прогноза от сегашното състояние, преизчислява се при всяка промяна на силата и пулса. Дълбока долина — пауза над 45 s или спиране по пулса.\n"
                         + "Червена линия — пулсът, пунктир — таванът.\n"
                         + "Часовникът брои импулсите и задължителните почивки; ръчната пауза не се брои.",
-                        "The whole session: height — the impulse strength, colour — the load.\n"
-                        + "The past is bright, what comes is the forecast. A deep valley — a pause over 45 s or an HR stop.\n"
+                        "The whole session: height and colour — the total load (top = the limit).\n"
+                        + "The past is bright, what comes is forecast from the state now, redone on every change of strength and HR. A deep valley — a pause over 45 s or an HR stop.\n"
                         + "Red line — the HR, dashed — the ceiling.\n"
                         + "The clock counts impulses and the required rests; a manual pause does not count.");
         }
@@ -1387,7 +1387,7 @@ public final class AutoUi {
         AutoEngine.Forecast f = AutoSession.getForecast();
         runTimeline.setHrScale(plan.hrRest, hrUsed ? plan.hrCap : 0);
         runTimeline.set(e.getTrace(), f, e.getElapsedS(), sNow, names);
-        double left = f != null ? Math.max(0, f.totalS - f.sessionAt(e.getElapsedS())) : e.getRemainingS();
+        double left = f != null ? f.leftS(sNow, e.getElapsedS()) : e.getRemainingS();
         runClock.setText(AiText.mmss(sNow) + "  /  " + AiText.mmss(sNow + left));
         if (boardSub != null) {
             boardSub.setText(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn)) : "");

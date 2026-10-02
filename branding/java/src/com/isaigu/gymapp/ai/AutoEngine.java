@@ -514,6 +514,7 @@ public final class AutoEngine {
         if (bpm < 30 || bpm > 220) {
             return;
         }
+        learnHr(now, bpm);
         hr = bpm;
         hrMs = now;
         hrMaxSeen = Math.max(hrMaxSeen, bpm);
@@ -585,7 +586,7 @@ public final class AutoEngine {
             pauseStartMs = now;
             hrOkSinceMs = 0;
             capHits++;
-            trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getFatigueShare(), phaseIndex,
+            trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getSystemLoad(now), phaseIndex,
                     Math.max(0, getHr(now)), TRACE_HR_PAUSE});
             log(now, "HR " + hr + " ≥ cap " + plan.hrCap + " → pause");
             return;
@@ -699,7 +700,8 @@ public final class AutoEngine {
         current = c;
         chCmd = c;
         chFMs = now;
-        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, (float) cycleLoad(c), (float) getFatigueShare(),
+        double peak = getSystemLoad(now + Math.max(1, c.onS) * 1000L);   // the total load at the impulse's end
+        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, (float) peak, (float) peak,
                 phaseIndex, Math.max(0, getHr(now)), TRACE_CYCLE});
         if (trace.size() > 4000) {
             trace.remove(0);
@@ -1189,7 +1191,7 @@ public final class AutoEngine {
     }
 
     private void traceRest(long now) {
-        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getFatigueShare(), phaseIndex,
+        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getSystemLoad(now), phaseIndex,
                 Math.max(0, getHr(now)), TRACE_REST});
     }
 
@@ -1206,7 +1208,8 @@ public final class AutoEngine {
     public static final int CRITICAL_PAUSE_S = 45;
 
     /**
-     * Samples so far: {session s, impulse s, cycle load, peak load, phase, HR (0 = none), kind} at each cycle start,
+     * Samples so far: {session s, impulse s, height (the total load at the impulse's end, 0 in a pause), total load, phase,
+     * HR (0 = none), kind} at each cycle start,
      * rest start and HR pause.
      */
     public List<float[]> getTrace() {
@@ -1302,7 +1305,7 @@ public final class AutoEngine {
 
     /** The whole session planned ahead (no HR, ▶ pressed as soon as allowed): the timeline's profile. */
     public static final class Forecast {
-        /** Per point: session s, impulse s, load, peak load (as {@link #getTrace}). */
+        /** Per point as {@link #getTrace}: session s, impulse s, height, total load, phase, HR, kind. */
         public final List<float[]> points = new ArrayList<float[]>();
         /** Session second where each phase begins. */
         public double[] phaseStartS;
@@ -1310,6 +1313,19 @@ public final class AutoEngine {
         public double maxLoad;
         /** The work the plan holds (Σ reached-mass-weighted fatigue input; the D part of the total load). */
         public double dose;
+        /** Session s the forecast runs on from (a live forecast, points in the session's own clock); −1 = the plan
+         *  from its start (points mapped by impulse time). */
+        public double fromS = -1;
+
+        /** Session time at {@code sessionNow} on this forecast's clock. */
+        public double anchor(double sessionNow, double elapsedImpulse) {
+            return fromS >= 0 ? sessionNow : sessionAt(elapsedImpulse);
+        }
+
+        /** Seconds left after {@code sessionNow}. */
+        public double leftS(double sessionNow, double elapsedImpulse) {
+            return Math.max(0, totalS - anchor(sessionNow, elapsedImpulse));
+        }
 
         /** Session time in the forecast when {@code impulseS} of impulses are done. */
         public double sessionAt(double impulseS) {
@@ -1375,6 +1391,166 @@ public final class AutoEngine {
         for (float[] p : f.points) {
             f.maxLoad = Math.max(f.maxLoad, p[2]);
         }
+        return f;
+    }
+
+    // ---------------------------------------------------------------- live forecast (owner, 1.1.284)
+    // The timeline's future is not the plan replayed: it runs on from the state now — every zone's fatigue, the
+    // dose done, the oxygen part, the strength / zones / pulse width / double impulse as they are set, the
+    // phase, the set and the rest — with the same rules as the real run (rest minimum, set end and rest gate by
+    // HR, HR stop). Rebuilt every few seconds, so a stronger current or a rising pulse shows other peaks, more
+    // or longer valleys and a later end. The bounds of Auto hold by construction: impulses ≤ the plan's active
+    // part (≤ 20 min), then its own recovery; only the imposed waits move the end.
+
+    /** Heart response: (HR − HR_rest) / (HR_max − HR_rest) per unit of the oxygen share V, learned live. [D] */
+    private double hrGain = 1.0;
+    /** The learned response starts from the population value (%HRR ≈ %VO2R, Swain) and follows the client. */
+    static final double HR_GAIN_LEARN = 0.08;
+    /** The gap between the measured HR and the model fades with this time constant (s) in the forecast. */
+    static final double HR_GAP_TAU_S = 60.0;
+    private double hrGap;
+    private long hrGapMs = -1;
+    /** A forecast copy: its HR samples are predictions and teach nothing. */
+    private boolean forecasting;
+
+    private double hrModel(long now) {
+        double v = getMetabolicLoad(now);
+        return plan.hrRest + hrGain * v * Math.max(20, plan.hrMax - plan.hrRest);
+    }
+
+    /** A real HR sample teaches the gain (only while the oxygen share is clear enough to divide by). */
+    private void learnHr(long now, int bpm) {
+        double v = getMetabolicLoad(now);
+        if (!forecasting && state == State.RUN && v > 0.08 && plan.hrMax > plan.hrRest + 20) {
+            double g = clamp((bpm - plan.hrRest) / (double) (plan.hrMax - plan.hrRest) / v, 0.4, 3.0);
+            hrGain += HR_GAIN_LEARN * (g - hrGain);
+        }
+    }
+
+    public double getHrGain() {
+        return hrGain;
+    }
+
+    /** The HR the forecast expects at {@code now}: the model plus the measured gap fading out. */
+    int predictHr(long now) {
+        double gap = hrGapMs >= 0 ? hrGap * Math.exp(-Math.max(0, now - hrGapMs) / 1000.0 / HR_GAP_TAU_S) : 0;
+        return (int) Math.round(clamp(hrModel(now) + gap, 35, 220));
+    }
+
+    /** A copy of this engine for the forecast (no trace, no log): every non-final field, arrays cloned. */
+    AutoEngine fork() {
+        AutoEngine e = new AutoEngine(plan);
+        try {
+            for (java.lang.reflect.Field fl : AutoEngine.class.getDeclaredFields()) {
+                int mod = fl.getModifiers();
+                if (java.lang.reflect.Modifier.isStatic(mod) || java.lang.reflect.Modifier.isFinal(mod)) {
+                    continue;
+                }
+                fl.setAccessible(true);
+                Object v = fl.get(this);
+                if (v instanceof double[]) {
+                    v = ((double[]) v).clone();
+                } else if (v instanceof int[]) {
+                    v = ((int[]) v).clone();
+                } else if (v instanceof boolean[]) {
+                    v = ((boolean[]) v).clone();
+                }
+                fl.set(e, v);
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+        System.arraycopy(chF, 0, e.chF, 0, chF.length);
+        e.forecasting = true;
+        return e;
+    }
+
+    /** The rest of the session from the live state at {@code now} (points in this session's own clock). */
+    public Forecast forecastFrom(long now) {
+        AutoEngine e = fork();
+        if (e == null) {
+            return null;
+        }
+        boolean hrOn = plan.hrUse != HrUse.NONE && getHr(now) > 0;
+        if (hrOn) {
+            // the HR now is evidence of this client's response: half of it goes into the gain (it persists), the
+            // rest is a gap that fades — a high pulse now means higher pulses in the sets to come
+            double v = getMetabolicLoad(now);
+            if (v > 0.08 && plan.hrMax > plan.hrRest + 20) {
+                double g = clamp((getHr(now) - plan.hrRest) / (double) (plan.hrMax - plan.hrRest) / v, 0.4, 3.0);
+                e.hrGain = 0.5 * hrGain + 0.5 * g;
+            }
+            e.hrGap = getHr(now) - e.hrModel(now);
+            e.hrGapMs = now;
+        }
+        Forecast f = new Forecast();
+        f.fromS = getSessionS(now);
+        f.phaseStartS = new double[plan.phases.size()];
+        java.util.Arrays.fill(f.phaseStartS, -1);
+        long t = now;
+        int guard = 0;
+        while (e.state != State.DONE && e.state != State.STOPPED && guard++ < 12000) {
+            if (e.phaseIndex < f.phaseStartS.length && f.phaseStartS[e.phaseIndex] < 0) {
+                f.phaseStartS[e.phaseIndex] = e.getSessionS(t);
+            }
+            if (hrOn) {
+                e.onHr(t, e.predictHr(t));
+            }
+            switch (e.state) {
+                case READY:
+                    e.startAt(t, t);
+                    break;
+                case COUNTDOWN:
+                    t = Math.max(t, e.goMs);
+                    e.tick(t);
+                    break;
+                case USER_PAUSE:
+                    e.resume(t);                         // what comes if ▶ is pressed now
+                    break;
+                case REST:
+                    if (e.getRestLeftS(t) > 0) {
+                        t += e.getRestLeftS(t) * 1000L;
+                    } else if (!e.requestGo(t, t)) {
+                        t += 5000L;                      // the HR has to come down first
+                    }
+                    break;
+                case HR_PAUSE:
+                    if (e.canResume()) {
+                        e.resume(t);
+                    } else {
+                        t += 5000L;
+                        e.tick(t);
+                    }
+                    break;
+                default:
+                    if (e.current == null) {
+                        t += 1000L;
+                        e.tick(t);
+                        break;
+                    }
+                    long end = e.current.startMs + e.current.durationMs();
+                    t = Math.max(t + 1, end);
+                    if (hrOn) {
+                        e.onHr(t - 1, e.predictHr(t - 1));
+                    }
+                    e.tick(t - 1);
+                    if (e.state == State.RUN) {
+                        e.onCycle(t);
+                    }
+                    break;
+            }
+        }
+        f.points.addAll(e.trace);
+        f.totalS = e.getSessionS(t);
+        for (int i = 0; i < f.phaseStartS.length; i++) {
+            if (f.phaseStartS[i] < 0) {
+                f.phaseStartS[i] = i < phaseIndex ? 0 : f.totalS;
+            }
+        }
+        for (float[] p : f.points) {
+            f.maxLoad = Math.max(f.maxLoad, p[2]);
+        }
+        f.dose = e.getDoseDone(t);
         return f;
     }
 

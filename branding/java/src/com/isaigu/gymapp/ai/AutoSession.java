@@ -713,6 +713,7 @@ public final class AutoSession {
         AiRamp.clear();
         AutoLook.restore();
         AutoLook.unbindMainKeys(leaderRunning());
+        AutoBoard.detach();
         stage = Stage.IDLE;
         written = null;
         engine = null;
@@ -978,6 +979,7 @@ public final class AutoSession {
     private static void finishToReport() {
         stage = Stage.REPORT;
         AutoLook.unbindMainKeys(false);
+        AutoBoard.detach();
         AutoHints.hide();
         AutoLook.restore();
         // The board closes and the client's report opens (after this tick).
@@ -1022,6 +1024,7 @@ public final class AutoSession {
             } else {
                 AutoLook.restore();
             }
+            AutoBoard.sync(panelRoot);
             if (stage == Stage.RUNNING && engine != null) {
                 AutoEngine.State es = engine.getState();
                 AutoLook.bindMainKeys(panelRoot, es == AutoEngine.State.RUN || es == AutoEngine.State.COUNTDOWN);

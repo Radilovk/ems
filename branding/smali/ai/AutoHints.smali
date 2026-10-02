@@ -998,9 +998,9 @@
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
-    if-ne v0, v2, :cond_4d
+    if-ne v0, v2, :cond_53
 
-    if-eqz v1, :cond_4d
+    if-eqz v1, :cond_53
 
     .line 59
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
@@ -1009,7 +1009,7 @@
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoEngine$State;->DONE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
-    if-eq v0, v2, :cond_4d
+    if-eq v0, v2, :cond_53
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
@@ -1017,27 +1017,33 @@
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoEngine$State;->STOPPED:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
-    if-eq v0, v2, :cond_4d
+    if-eq v0, v2, :cond_53
 
     .line 60
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->isShowing()Z
 
     move-result v0
 
-    if-nez v0, :cond_4d
+    if-nez v0, :cond_53
+
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->isAttached()Z
+
+    move-result v0
+
+    if-nez v0, :cond_53
 
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->isTrainingPage()Z
 
     move-result v0
 
-    if-eqz v0, :cond_4d
+    if-eqz v0, :cond_53
 
     .line 61
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->tipsOn()Z
 
     move-result v0
 
-    if-nez v0, :cond_46
+    if-nez v0, :cond_4c
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -1047,46 +1053,46 @@
 
     move-result v0
 
-    if-nez v0, :cond_46
+    if-nez v0, :cond_4c
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AutoHints;->waits(Lcom/isaigu/gymapp/ai/AutoEngine;)Z
 
     move-result v0
 
-    if-nez v0, :cond_46
+    if-nez v0, :cond_4c
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AutoHints;->nextSoon(Lcom/isaigu/gymapp/ai/AutoEngine;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_4d
+    if-eqz v0, :cond_53
 
-    :cond_46
+    :cond_4c
     const/4 v0, 0x1
 
     .line 62
-    :goto_47
-    if-nez v0, :cond_4f
+    :goto_4d
+    if-nez v0, :cond_55
 
     .line 63
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoHints;->hide()V
 
     .line 76
-    :cond_4c
-    :goto_4c
+    :cond_52
+    :goto_52
     return-void
 
     .line 61
-    :cond_4d
+    :cond_53
     const/4 v0, 0x0
 
-    goto :goto_47
+    goto :goto_4d
 
     .line 66
-    :cond_4f
+    :cond_55
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoHints;->dialog:Landroid/app/Dialog;
 
-    if-eqz v0, :cond_5b
+    if-eqz v0, :cond_61
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoHints;->dialog:Landroid/app/Dialog;
 
@@ -1094,10 +1100,10 @@
 
     move-result v0
 
-    if-nez v0, :cond_71
+    if-nez v0, :cond_77
 
     .line 67
-    :cond_5b
+    :cond_61
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPanelRoot()Landroid/view/View;
 
     move-result-object v0
@@ -1107,34 +1113,34 @@
     move-result-object v0
 
     .line 68
-    if-eqz v0, :cond_4c
+    if-eqz v0, :cond_52
 
     invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
 
     move-result v2
 
-    if-nez v2, :cond_4c
+    if-nez v2, :cond_52
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoHints;->build(Landroid/app/Activity;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_4c
+    if-eqz v0, :cond_52
 
     .line 72
-    :cond_71
+    :cond_77
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/ai/AutoHints;->update(Lcom/isaigu/gymapp/ai/AutoEngine;J)V
-    :try_end_78
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_78} :catch_79
+    :try_end_7e
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7e} :catch_7f
 
-    goto :goto_4c
+    goto :goto_52
 
     .line 73
-    :catch_79
+    :catch_7f
     move-exception v0
 
     .line 74
@@ -1142,7 +1148,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_4c
+    goto :goto_52
 .end method
 
 .method private static update(Lcom/isaigu/gymapp/ai/AutoEngine;J)V

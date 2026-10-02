@@ -92,14 +92,16 @@ public final class AutoUi {
     private static AutoViews.PeakBar runPeak;
     private static AutoViews.Vital runVital;
     private static TextView runClient;
+    private static TextView boardSub;
+    private static LinearLayout runPhases;
+    private static int phasesShownFor = -2;
+    private static final int INFO_BOARD = 3;
     private static AutoViews.Dots runDots;
     private static View runArt;
     private static ExerciseFigure runNextFig;
     private static android.widget.FrameLayout runNextStage;
     private static AutoViews.SetRing runNextRing;
     private static TextView runArrow;
-    /** Height of the two top cards: the exercise needs room for both figures, the name and every step. */
-    private static final int CARD_H = 492;
     private static View runStage;
     private static LinearLayout runHow;
     /** The steps on screen are for this exercise ("" = none). */
@@ -166,6 +168,13 @@ public final class AutoUi {
 
     private static void show(Activity a, int s) {
         AutoHints.hide();
+        if (s == STEP_RUN) {
+            // the running session is the board built into the training screen, not a sheet
+            dismiss();
+            host = a;
+            AutoBoard.sync(AutoSession.getPanelRoot() != null ? AutoSession.getPanelRoot() : a.getWindow().getDecorView());
+            return;
+        }
         if (shell == null || !shell.dialog.isShowing()) {
             host = a;
             shell = XemsUi.shell(a, "", "", 1180);
@@ -185,7 +194,12 @@ public final class AutoUi {
             }
         }
         shell = null;
+    }
+
+    /** The board left the screen: drop its views. */
+    static void onBoardDetached() {
         runPhase = null;
+        boardSub = null;
     }
 
     /** The run ended (time, STOP, or from the main screen): close the board, open the client's report. */
@@ -204,13 +218,18 @@ public final class AutoUi {
     }
 
     static void refresh() {
+        try {
+            if (AutoBoard.isAttached()) {
+                refreshRun();
+            }
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AutoUi.refreshRun", t);
+        }
         if (shell == null || !shell.dialog.isShowing()) {
             return;
         }
         try {
-            if (step == STEP_RUN) {
-                refreshRun();
-            } else if (step == STEP_CALIB) {
+            if (step == STEP_CALIB) {
                 refreshCalib();
             }
         } catch (Throwable t) {
@@ -237,7 +256,7 @@ public final class AutoUi {
             case STEP_PROGRAM: screenProgram(c); break;
             case STEP_CLIENT: screenClient(c); break;
             case STEP_CALIB: screenCalib(c); break;
-            default: screenRun(c); break;
+            default: break;                                   // the run lives in the training screen (AutoBoard)
         }
         stepTip(c, s);
         shell.info.setVisibility(stepTipText(s) != null ? View.VISIBLE : View.GONE);
@@ -836,89 +855,122 @@ public final class AutoUi {
     // ================================================================ live board (from the tile)
 
     /**
-     * The live board (owner, 1.1.276; docs/xems-auto-mode-spec.md §12), landscape, built only for Auto:
-     * two equal cards — the exercise (the priority: ring | the set's timer and impulses; the name and every step of
-     * how it is done) and the body (zones in their load colour; the client, the pulse and the "Натоварване" scale) —
-     * and the whole session as a timeline from edge to edge. No keys: the main panel's ▶/❚❚ and ■ drive Auto
-     * ({@link AutoSession#mainStartPause}, {@link AutoSession#mainStop}).
+     * The live board (owner, 1.1.278; docs/xems-auto-mode-spec.md §12), built into the training screen itself by
+     * {@link AutoBoard}: under the client's own row (channels, avatar, settings), in place of the rows for adding
+     * participants, down to the module bar. Wide and short (≈ 1170 × 440 dp), so everything sits side by side:
+     * <pre>
+     *  program · phase                                                         ⓘ
+     *  ┌ exercise ─────────────────────────────────┐┌ body ───────────────────────┐
+     *  │ [goal]   0:23 ● ● ○ ○  │ Name              ││ front | back    client       │
+     *  │  ◯ active  →  ◯ next   │ ① … ⑥ steps       ││                 ♥ 151        │
+     *  │                        │ (or the phases)   ││                 Натоварване ▽│
+     *  └───────────────────────────────────────────┘└──────────────────────────────┘
+     *  ┌ the whole session, edge to edge ─────────────────────────────────────────┐
+     * </pre>
+     * No keys: the main panel's ▶/❚❚ and ■ drive Auto.
      */
-    private static void screenRun(Context c) {
+    static void buildBoard(Context c, LinearLayout body) {
+        XemsUi.init(c);
+        host = c instanceof Activity ? (Activity) c : host;
         AutoModel.Plan plan = AutoSession.getPlan();
         AutoModel.Input lead = AutoSession.getInput();
-        shell.title.setText(plan.program.name());
-        subtitle("");
-        LinearLayout body = shell.body;
+        rowLabels.clear();
 
-        // ---- top: exercise | body, equal
+        // ---- header: program · phase, the board's ⓘ
+        LinearLayout head = XemsUi.horizontal(c);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        TextView title = XemsUi.text(c, plan.program.name(), 18, XemsUi.TEXT, true);
+        head.addView(title);
+        boardSub = XemsUi.text(c, "", 14, XemsUi.MUTED, false);
+        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        sp.leftMargin = XemsUi.dp(c, 12);
+        head.addView(boardSub, sp);
+        TextView hi = XemsUi.text(c, "i", 13, XemsUi.MUTED, true);
+        hi.setGravity(Gravity.CENTER);
+        hi.setBackgroundDrawable(XemsUi.rounded(0x00000000, XemsUi.dp(c, 12), XemsUi.alpha(XemsUi.MUTED, 0x99), XemsUi.dp(c, 1.2f)));
+        hi.setOnClickListener(new InfoTap(INFO_BOARD));
+        XemsUi.pressable(hi);
+        head.addView(hi, new LinearLayout.LayoutParams(XemsUi.dp(c, 24), XemsUi.dp(c, 24)));
+        body.addView(head, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 30)));
+
+        // ---- the two cards
         LinearLayout top = XemsUi.horizontal(c);
-        LinearLayout left = XemsUi.card(c);
-        // the card's head: the goal (left) and the set's timer with its impulses (centre)
+        LinearLayout ex = XemsUi.card(c);
+        LinearLayout exRow = XemsUi.horizontal(c);
+        // left half of the exercise card: goal + timer on top, the rings under them
+        LinearLayout exLeft = XemsUi.vertical(c);
         android.widget.FrameLayout headBar = new android.widget.FrameLayout(c);
         TextView goal = XemsUi.badge(c, goalName(plan.input.goal), goalColor(plan.input.goal));
         headBar.addView(goal, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL));
         LinearLayout clock = XemsUi.horizontal(c);
         clock.setGravity(Gravity.CENTER_VERTICAL);
-        runTime = XemsUi.text(c, "", 52, XemsUi.TEXT, true);
+        runTime = XemsUi.text(c, "", 44, XemsUi.TEXT, true);
         runTime.setTypeface(android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD));
         runTime.setIncludeFontPadding(false);
         clock.addView(runTime);
         runDots = new AutoViews.Dots(c);
-        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 96), XemsUi.dp(c, 22));
-        dlp.leftMargin = XemsUi.dp(c, 14);
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 90), XemsUi.dp(c, 22));
+        dlp.leftMargin = XemsUi.dp(c, 10);
         clock.addView(runDots, dlp);
         headBar.addView(clock, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        left.addView(headBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 66)));
-
-        // the active exercise (big, in colour) → the next one (smaller, grey: it waits)
-        LinearLayout figs2 = XemsUi.horizontal(c);
-        figs2.setGravity(Gravity.CENTER);
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END | Gravity.CENTER_VERTICAL));
+        exLeft.addView(headBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 52)));
+        LinearLayout rings = XemsUi.horizontal(c);
+        rings.setGravity(Gravity.CENTER);
         android.widget.FrameLayout stage = new android.widget.FrameLayout(c);
         runFigure = new ExerciseFigure(c);
         runFigure.setCycle(System.currentTimeMillis(), 2, 2);
         android.widget.FrameLayout.LayoutParams flp = new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        int inset = XemsUi.dp(c, 38);
+        int inset = XemsUi.dp(c, 32);
         flp.setMargins(inset, inset, inset, inset);
         stage.addView(runFigure, flp);
-        runArt = ProgramArt.tile(c, plan.program.id, plan.program.isActive(), lead != null ? lead.sex : null, 128, 96);
-        stage.addView(runArt, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, 128), XemsUi.dp(c, 96),
+        runArt = ProgramArt.tile(c, plan.program.id, plan.program.isActive(), lead != null ? lead.sex : null, 112, 84);
+        stage.addView(runArt, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, 112), XemsUi.dp(c, 84),
                 Gravity.CENTER));
         runRing = new AutoViews.SetRing(c);
         stage.addView(runRing, new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         stage.setOnClickListener(new Act(A_HOW, 0));
-        figs2.addView(stage, new LinearLayout.LayoutParams(XemsUi.dp(c, 228), XemsUi.dp(c, 228)));
-        runArrow = XemsUi.text(c, "→", 30, XemsUi.MUTED, false);
+        rings.addView(stage, new LinearLayout.LayoutParams(XemsUi.dp(c, 196), XemsUi.dp(c, 196)));
+        runArrow = XemsUi.text(c, "→", 26, XemsUi.MUTED, false);
         runArrow.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(XemsUi.dp(c, 44), ViewGroup.LayoutParams.WRAP_CONTENT);
-        alp.leftMargin = XemsUi.dp(c, 4);
-        alp.rightMargin = XemsUi.dp(c, 4);
-        figs2.addView(runArrow, alp);
+        rings.addView(runArrow, new LinearLayout.LayoutParams(XemsUi.dp(c, 34), ViewGroup.LayoutParams.WRAP_CONTENT));
         runNextStage = new android.widget.FrameLayout(c);
         runNextRing = new AutoViews.SetRing(c);
         runNextFig = new ExerciseFigure(c);
         runNextFig.setCycle(System.currentTimeMillis(), 2, 2);
         android.widget.FrameLayout.LayoutParams nfp = new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        int ni = XemsUi.dp(c, 26);
+        int ni = XemsUi.dp(c, 22);
         nfp.setMargins(ni, ni, ni, ni);
         runNextStage.addView(runNextFig, nfp);
         runNextStage.addView(runNextRing, new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        figs2.addView(runNextStage, new LinearLayout.LayoutParams(XemsUi.dp(c, 140), XemsUi.dp(c, 140)));
-        left.addView(figs2, XemsUi.matchWrap(c, 0));
-
-        runPhase = XemsUi.text(c, "", 22, XemsUi.TEXT, true);
+        rings.addView(runNextStage, new LinearLayout.LayoutParams(XemsUi.dp(c, 116), XemsUi.dp(c, 116)));
+        exLeft.addView(rings, XemsUi.matchWrap(c, 4));
+        exRow.addView(exLeft, new LinearLayout.LayoutParams(XemsUi.dp(c, 360), ViewGroup.LayoutParams.MATCH_PARENT));
+        // right half: the name and every step (or the program's phases when it has no exercises)
+        LinearLayout exRight = XemsUi.vertical(c);
+        runPhase = XemsUi.text(c, "", 21, XemsUi.TEXT, true);
         runPhase.setMaxLines(2);
         runPhase.setEllipsize(android.text.TextUtils.TruncateAt.END);
         runPhase.setOnClickListener(new Act(A_HOW, 0));
-        left.addView(runPhase, XemsUi.matchWrap(c, 8));
+        exRight.addView(runPhase, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         runHow = XemsUi.vertical(c);
-        left.addView(runHow, XemsUi.matchWrap(c, 8));
+        exRight.addView(runHow, XemsUi.matchWrap(c, 10));
+        runPhases = XemsUi.vertical(c);
+        exRight.addView(runPhases, XemsUi.matchWrap(c, 12));
+        LinearLayout.LayoutParams erp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        erp.leftMargin = XemsUi.dp(c, 18);
+        erp.rightMargin = XemsUi.dp(c, 26);
+        exRow.addView(exRight, erp);
+        ex.addView(exRow, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         howShownFor = "-";
-        top.addView(infoCorner(c, left, INFO_SET), new LinearLayout.LayoutParams(0, XemsUi.dp(c, CARD_H), 1f));
+        phasesShownFor = -2;
+        top.addView(infoCorner(c, ex, INFO_SET), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.75f));
 
         LinearLayout right = XemsUi.card(c);
         LinearLayout figs = XemsUi.horizontal(c);
@@ -933,38 +985,74 @@ public final class AutoUi {
         side.addView(runClient, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         runVital = new AutoViews.Vital(c);
-        side.addView(runVital, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 104)));
+        side.addView(runVital, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 92)));
         TextView loadLabel = XemsUi.text(c, AiText.t("Натоварване", "Load"), 12, XemsUi.MUTED, true);
         loadLabel.setGravity(Gravity.CENTER);
-        side.addView(loadLabel, XemsUi.matchWrap(c, 6));
+        side.addView(loadLabel, XemsUi.matchWrap(c, 4));
         runPeak = new AutoViews.PeakBar(c);
         side.addView(runPeak, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(XemsUi.dp(c, 104), ViewGroup.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(XemsUi.dp(c, 100), ViewGroup.LayoutParams.MATCH_PARENT);
         slp.leftMargin = XemsUi.dp(c, 6);
         figs.addView(side, slp);
         right.addView(figs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, CARD_H), 1f);
-        rlp.leftMargin = XemsUi.dp(c, 12);
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        rlp.leftMargin = XemsUi.dp(c, 10);
         top.addView(infoCorner(c, right, INFO_BODY), rlp);
-        body.addView(top, XemsUi.matchWrap(c, 2));
+        body.addView(top, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         runNotice = hint(c, "");
-        body.addView(runNotice, XemsUi.matchWrap(c, 8));
+        body.addView(runNotice, XemsUi.matchWrap(c, 6));
 
-        // ---- bottom: the whole session, edge to edge
+        // ---- the whole session, edge to edge
         LinearLayout tl = XemsUi.card(c);
         runTimeline = new AutoViews.Timeline(c);
-        tl.addView(runTimeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 100)));
-        runClock = XemsUi.text(c, "", 15, XemsUi.TEXT, true);
+        tl.addView(runTimeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 78)));
+        runClock = XemsUi.text(c, "", 14, XemsUi.TEXT, true);
         ImpulseGlyph glyph = new ImpulseGlyph(ImpulseGlyph.TIME, XemsUi.MUTED, XemsUi.dp(c, 1.8f));
-        glyph.setBounds(0, 0, XemsUi.dp(c, 16), XemsUi.dp(c, 16));
+        glyph.setBounds(0, 0, XemsUi.dp(c, 15), XemsUi.dp(c, 15));
         runClock.setCompoundDrawables(glyph, null, null, null);
         runClock.setCompoundDrawablePadding(XemsUi.dp(c, 8));
-        tl.addView(runClock, XemsUi.matchWrap(c, 6));
+        tl.addView(runClock, XemsUi.matchWrap(c, 4));
         body.addView(infoCorner(c, tl, INFO_TIMELINE), XemsUi.matchWrap(c, 8));
-
-        shell.footer.setVisibility(View.GONE);                 // no keys here: the main panel drives Auto
         refreshRun();
+    }
+
+    /** The program's phases as a line of chips (programs without exercises): done dimmed, now bright, next plain. */
+    private static void showPhases(AutoEngine e, boolean on) {
+        int key = on ? e.getPhaseIndex() : -1;
+        if (key == phasesShownFor) {
+            return;
+        }
+        phasesShownFor = key;
+        runPhases.removeAllViews();
+        runPhases.setVisibility(on ? View.VISIBLE : View.GONE);
+        if (!on) {
+            return;
+        }
+        Context c = runPhases.getContext();
+        AutoModel.Plan plan = e.getPlan();
+        LinearLayout row = XemsUi.horizontal(c);
+        for (int i = 0; i < plan.phases.size(); i++) {
+            AutoModel.Phase p = plan.phases.get(i);
+            boolean now = i == e.getPhaseIndex();
+            boolean done = i < e.getPhaseIndex();
+            int col = p.isCooldown() ? AutoViews.HEAT_COL[1] : now ? XemsUi.GO : XemsUi.MUTED;
+            TextView chip = XemsUi.text(c, (p.isCooldown() ? AiText.t("Възстановяване", "Recovery")
+                    : AiText.t(p.nameBg, p.nameEn)) + "  " + Math.round(p.durationS / 60.0) + "′", 13,
+                    now ? XemsUi.TEXT : XemsUi.MUTED, now);
+            chip.setPadding(XemsUi.dp(c, 10), XemsUi.dp(c, 5), XemsUi.dp(c, 10), XemsUi.dp(c, 5));
+            chip.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(col, now ? 0x30 : 0x14), XemsUi.dp(c, 14),
+                    now ? col : 0, now ? XemsUi.dp(c, 1.2f) : 0));
+            chip.setAlpha(done ? 0.45f : 1f);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = XemsUi.dp(c, 6);
+            row.addView(chip, lp);
+        }
+        android.widget.HorizontalScrollView hs = new android.widget.HorizontalScrollView(c);
+        hs.setHorizontalScrollBarEnabled(false);
+        hs.addView(row);
+        runPhases.addView(hs);
     }
 
     /**
@@ -992,6 +1080,8 @@ public final class AutoUi {
 
     static String infoText(int which) {
         switch (which) {
+            case INFO_BOARD:
+                return stepTipText(STEP_RUN);
             case INFO_SET:
                 return AiText.t("Пръстенът е серията: 30–40 s, точките са импулсите.\n"
                         + "След серията импулсите спират сами. Почивката е колкото мускулите искат, за да възстановят "
@@ -1284,7 +1374,10 @@ public final class AutoUi {
         runTimeline.set(e.getTrace(), f, e.getElapsedS(), sNow, names);
         double left = f != null ? Math.max(0, f.totalS - f.sessionAt(e.getElapsedS())) : e.getRemainingS();
         runClock.setText(AiText.mmss(sNow) + "  /  " + AiText.mmss(sNow + left));
-        subtitle(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn)) : "");
+        if (boardSub != null) {
+            boardSub.setText(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn)) : "");
+        }
+        showPhases(e, !fig && !e.isStationPhase(e.getPhaseIndex()));
 
         String n = AutoSession.getLastNotice();
         boolean fresh = n != null && n.length() > 0 && now - AutoSession.getLastNoticeMs() < 12000L;

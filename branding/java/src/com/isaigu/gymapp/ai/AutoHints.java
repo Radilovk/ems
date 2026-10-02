@@ -57,7 +57,7 @@ public final class AutoHints {
             AutoEngine e = AutoSession.getEngine();
             boolean want = AutoSession.getStage() == AutoSession.Stage.RUNNING && e != null
                     && e.getState() != AutoEngine.State.DONE && e.getState() != AutoEngine.State.STOPPED
-                    && !AutoUi.isShowing() && com.isaigu.gymapp.widget.XemsNav.isTrainingPage()
+                    && !AutoUi.isShowing() && !AutoBoard.isAttached() && com.isaigu.gymapp.widget.XemsNav.isTrainingPage()
                     && (AutoSession.tipsOn() || alertActive(System.currentTimeMillis()) || waits(e) || nextSoon(e));
             if (!want) {
                 hide();

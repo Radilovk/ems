@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 257
+    .line 276
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 258
+    .line 277
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoUi$ScrollTo;->y:I
 
-    .line 259
+    .line 278
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 263
+    .line 282
     # getter for: Lcom/isaigu/gymapp/ai/AutoUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -50,7 +50,7 @@
 
     if-eqz v0, :cond_12
 
-    .line 264
+    .line 283
     # getter for: Lcom/isaigu/gymapp/ai/AutoUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -64,7 +64,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/ScrollView;->scrollTo(II)V
 
-    .line 266
+    .line 285
     :cond_12
     return-void
 .end method

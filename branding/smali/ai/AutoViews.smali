@@ -7,6 +7,8 @@
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/isaigu/gymapp/ai/AutoViews$Timeline;,
+        Lcom/isaigu/gymapp/ai/AutoViews$Dots;,
+        Lcom/isaigu/gymapp/ai/AutoViews$Vital;,
         Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;,
         Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;,
         Lcom/isaigu/gymapp/ai/AutoViews$SetRing;

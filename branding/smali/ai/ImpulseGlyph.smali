@@ -8,6 +8,8 @@
 
 .field public static final DOUBLE:I = 0x3
 
+.field public static final HEART:I = 0x7
+
 .field public static final HZ:I = 0x0
 
 .field public static final PULSE_PAUSE:I = 0x2
@@ -30,10 +32,10 @@
     .registers 6
 
     .prologue
-    .line 30
+    .line 31
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 28
+    .line 29
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -42,255 +44,450 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
-    .line 31
+    .line 32
     iput p1, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->type:I
 
-    .line 32
+    .line 33
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 33
+    .line 34
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 34
+    .line 35
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 35
+    .line 36
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 36
+    .line 37
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 37
+    .line 38
     return-void
 .end method
 
 .method public static draw(Landroid/graphics/Canvas;IFFFLandroid/graphics/Paint;)V
-    .registers 12
+    .registers 14
 
     .prologue
-    const/16 v2, 0xc
-
-    const/4 v5, 0x6
-
-    const/high16 v4, 0x3f000000    # 0.5f
-
-    const/4 v3, 0x4
-
-    .line 41
+    .line 42
     invoke-virtual {p5}, Landroid/graphics/Paint;->getStyle()Landroid/graphics/Paint$Style;
 
-    move-result-object v0
-
-    .line 42
-    sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
-
-    invoke-virtual {p5, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+    move-result-object v7
 
     .line 43
-    new-instance v1, Landroid/graphics/Path;
+    sget-object v0, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
-    invoke-direct {v1}, Landroid/graphics/Path;-><init>()V
-
-    .line 44
-    packed-switch p1, :pswitch_data_b8
-
-    .line 79
-    new-array v2, v3, [F
-
-    fill-array-data v2, :array_c8
-
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
-
-    .line 80
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
-
-    .line 81
-    invoke-virtual {v1}, Landroid/graphics/Path;->reset()V
-
-    .line 82
-    new-array v2, v3, [F
-
-    fill-array-data v2, :array_d4
-
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
-
-    .line 83
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
-
-    .line 84
-    invoke-virtual {v1}, Landroid/graphics/Path;->reset()V
-
-    .line 85
-    new-array v2, v3, [F
-
-    fill-array-data v2, :array_e0
-
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
-
-    .line 86
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
-
-    .line 89
-    :goto_3e
     invoke-virtual {p5, v0}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
+    .line 44
+    new-instance v0, Landroid/graphics/Path;
+
+    invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
+
+    .line 45
+    packed-switch p1, :pswitch_data_156
+
     .line 90
+    :pswitch_11
+    const/4 v1, 0x4
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_16a
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 91
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    .line 92
+    invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
+
+    .line 93
+    const/4 v1, 0x4
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_176
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 94
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    .line 95
+    invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
+
+    .line 96
+    const/4 v1, 0x4
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_182
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 97
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    .line 100
+    :goto_3b
+    invoke-virtual {p5, v7}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+
+    .line 101
     return-void
 
-    .line 46
-    :pswitch_42
-    new-array v2, v2, [F
-
-    fill-array-data v2, :array_ec
-
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
-
     .line 47
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    :pswitch_3f
+    const/16 v1, 0xc
 
-    goto :goto_3e
+    new-array v1, v1, [F
 
-    .line 50
-    :pswitch_4e
-    mul-float v2, p4, v4
+    fill-array-data v1, :array_18e
 
-    add-float/2addr v2, p2
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
 
-    mul-float v3, p4, v4
+    .line 48
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    add-float/2addr v3, p3
+    goto :goto_3b
 
-    const v4, 0x3ee147ae    # 0.44f
+    .line 51
+    :pswitch_4d
+    const/high16 v1, 0x3f000000    # 0.5f
+
+    mul-float/2addr v1, p4
+
+    add-float/2addr v1, p2
+
+    const/high16 v2, 0x3f000000    # 0.5f
+
+    mul-float/2addr v2, p4
+
+    add-float/2addr v2, p3
+
+    const v3, 0x3ee147ae    # 0.44f
+
+    mul-float/2addr v3, p4
+
+    invoke-virtual {p0, v1, v2, v3, p5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+
+    .line 52
+    const/4 v1, 0x6
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_1aa
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 53
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    goto :goto_3b
+
+    .line 57
+    :pswitch_69
+    const/16 v1, 0xc
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_1ba
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 58
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    goto :goto_3b
+
+    .line 61
+    :pswitch_77
+    const/16 v1, 0x14
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_1d6
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 63
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    goto :goto_3b
+
+    .line 66
+    :pswitch_85
+    const/4 v1, 0x4
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_202
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 67
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    .line 68
+    invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
+
+    .line 69
+    const/4 v1, 0x6
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_20e
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 70
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    .line 71
+    invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
+
+    .line 72
+    const/4 v1, 0x4
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_21e
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 73
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    goto :goto_3b
+
+    .line 76
+    :pswitch_b0
+    const/16 v1, 0x8
+
+    new-array v1, v1, [F
+
+    fill-array-data v1, :array_22a
+
+    invoke-static {v0, p2, p3, p4, v1}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+
+    .line 77
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    goto/16 :goto_3b
+
+    .line 80
+    :pswitch_bf
+    const/high16 v1, 0x3f000000    # 0.5f
+
+    mul-float/2addr v1, p4
+
+    add-float/2addr v1, p2
+
+    const v2, 0x3f666666    # 0.9f
+
+    mul-float/2addr v2, p4
+
+    add-float/2addr v2, p3
+
+    invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
+
+    .line 81
+    const v1, 0x3dcccccd    # 0.1f
+
+    mul-float/2addr v1, p4
+
+    add-float/2addr v1, p2
+
+    const v2, 0x3f1eb852    # 0.62f
+
+    mul-float/2addr v2, p4
+
+    add-float/2addr v2, p3
+
+    const v3, 0x3ca3d70a    # 0.02f
+
+    mul-float/2addr v3, p4
+
+    sub-float v3, p2, v3
+
+    const v4, 0x3eae147b    # 0.34f
 
     mul-float/2addr v4, p4
 
-    invoke-virtual {p0, v2, v3, v4, p5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+    add-float/2addr v4, p3
 
-    .line 51
-    new-array v2, v5, [F
+    const v5, 0x3e4ccccd    # 0.2f
 
-    fill-array-data v2, :array_108
+    mul-float/2addr v5, p4
 
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+    add-float/2addr v5, p2
 
-    .line 52
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    const v6, 0x3e23d70a    # 0.16f
 
-    goto :goto_3e
+    mul-float/2addr v6, p4
 
-    .line 56
-    :pswitch_67
-    new-array v2, v2, [F
+    add-float/2addr v6, p3
 
-    fill-array-data v2, :array_118
+    invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
 
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+    .line 82
+    const v1, 0x3eae147b    # 0.34f
 
-    .line 57
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    mul-float/2addr v1, p4
 
-    goto :goto_3e
+    add-float/2addr v1, p2
 
-    .line 60
-    :pswitch_73
-    const/16 v2, 0x14
+    const v2, 0x3d4ccccd    # 0.05f
 
-    new-array v2, v2, [F
+    mul-float/2addr v2, p4
 
-    fill-array-data v2, :array_134
+    add-float/2addr v2, p3
 
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+    const v3, 0x3ef0a3d7    # 0.47f
 
-    .line 62
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    mul-float/2addr v3, p4
 
-    goto :goto_3e
+    add-float/2addr v3, p2
 
-    .line 65
-    :pswitch_81
-    new-array v2, v3, [F
+    const v4, 0x3e0f5c29    # 0.14f
 
-    fill-array-data v2, :array_160
+    mul-float/2addr v4, p4
 
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+    add-float/2addr v4, p3
 
-    .line 66
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    const/high16 v5, 0x3f000000    # 0.5f
 
-    .line 67
-    invoke-virtual {v1}, Landroid/graphics/Path;->reset()V
+    mul-float/2addr v5, p4
 
-    .line 68
-    new-array v2, v5, [F
+    add-float/2addr v5, p2
 
-    fill-array-data v2, :array_16c
+    const v6, 0x3e8a3d71    # 0.27f
 
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+    mul-float/2addr v6, p4
 
-    .line 69
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    add-float/2addr v6, p3
 
-    .line 70
-    invoke-virtual {v1}, Landroid/graphics/Path;->reset()V
+    invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
 
-    .line 71
-    new-array v2, v3, [F
+    .line 83
+    const v1, 0x3f07ae14    # 0.53f
 
-    fill-array-data v2, :array_17c
+    mul-float/2addr v1, p4
 
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+    add-float/2addr v1, p2
 
-    .line 72
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    const v2, 0x3e0f5c29    # 0.14f
 
-    goto :goto_3e
+    mul-float/2addr v2, p4
 
-    .line 75
-    :pswitch_a9
-    const/16 v2, 0x8
+    add-float/2addr v2, p3
 
-    new-array v2, v2, [F
+    const v3, 0x3f28f5c3    # 0.66f
 
-    fill-array-data v2, :array_188
+    mul-float/2addr v3, p4
 
-    invoke-static {v1, p2, p3, p4, v2}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->pts(Landroid/graphics/Path;FFF[F)V
+    add-float/2addr v3, p2
 
-    .line 76
-    invoke-virtual {p0, v1, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+    const v4, 0x3d4ccccd    # 0.05f
 
-    goto :goto_3e
+    mul-float/2addr v4, p4
 
-    .line 44
-    nop
+    add-float/2addr v4, p3
 
-    :pswitch_data_b8
+    const v5, 0x3f4ccccd    # 0.8f
+
+    mul-float/2addr v5, p4
+
+    add-float/2addr v5, p2
+
+    const v6, 0x3e23d70a    # 0.16f
+
+    mul-float/2addr v6, p4
+
+    add-float/2addr v6, p3
+
+    invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
+
+    .line 84
+    const v1, 0x3f828f5c    # 1.02f
+
+    mul-float/2addr v1, p4
+
+    add-float/2addr v1, p2
+
+    const v2, 0x3eae147b    # 0.34f
+
+    mul-float/2addr v2, p4
+
+    add-float/2addr v2, p3
+
+    const v3, 0x3f666666    # 0.9f
+
+    mul-float/2addr v3, p4
+
+    add-float/2addr v3, p2
+
+    const v4, 0x3f1eb852    # 0.62f
+
+    mul-float/2addr v4, p4
+
+    add-float/2addr v4, p3
+
+    const/high16 v5, 0x3f000000    # 0.5f
+
+    mul-float/2addr v5, p4
+
+    add-float/2addr v5, p2
+
+    const v6, 0x3f666666    # 0.9f
+
+    mul-float/2addr v6, p4
+
+    add-float/2addr v6, p3
+
+    invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
+
+    .line 85
+    invoke-virtual {v0}, Landroid/graphics/Path;->close()V
+
+    .line 86
+    invoke-virtual {p0, v0, p5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    goto/16 :goto_3b
+
+    .line 45
+    :pswitch_data_156
     .packed-switch 0x0
-        :pswitch_42
-        :pswitch_4e
-        :pswitch_67
-        :pswitch_73
-        :pswitch_81
-        :pswitch_a9
+        :pswitch_3f
+        :pswitch_4d
+        :pswitch_69
+        :pswitch_77
+        :pswitch_85
+        :pswitch_b0
+        :pswitch_11
+        :pswitch_bf
     .end packed-switch
 
-    .line 79
-    :array_c8
+    .line 90
+    :array_16a
     .array-data 4
         0x3e3851ec    # 0.18f
         0x3f666666    # 0.9f
@@ -298,8 +495,8 @@
         0x3f23d70a    # 0.64f
     .end array-data
 
-    .line 82
-    :array_d4
+    .line 93
+    :array_176
     .array-data 4
         0x3f000000    # 0.5f
         0x3f666666    # 0.9f
@@ -307,8 +504,8 @@
         0x3ecccccd    # 0.4f
     .end array-data
 
-    .line 85
-    :array_e0
+    .line 96
+    :array_182
     .array-data 4
         0x3f51eb85    # 0.82f
         0x3f666666    # 0.9f
@@ -316,8 +513,8 @@
         0x3df5c28f    # 0.12f
     .end array-data
 
-    .line 46
-    :array_ec
+    .line 47
+    :array_18e
     .array-data 4
         0x0
         0x3f1eb852    # 0.62f
@@ -333,8 +530,8 @@
         0x3ec28f5c    # 0.38f
     .end array-data
 
-    .line 51
-    :array_108
+    .line 52
+    :array_1aa
     .array-data 4
         0x3f000000    # 0.5f
         0x3e75c28f    # 0.24f
@@ -344,8 +541,8 @@
         0x3f1eb852    # 0.62f
     .end array-data
 
-    .line 56
-    :array_118
+    .line 57
+    :array_1ba
     .array-data 4
         0x0
         0x3f47ae14    # 0.78f
@@ -361,8 +558,8 @@
         0x3f47ae14    # 0.78f
     .end array-data
 
-    .line 60
-    :array_134
+    .line 61
+    :array_1d6
     .array-data 4
         0x0
         0x3f47ae14    # 0.78f
@@ -386,8 +583,8 @@
         0x3f47ae14    # 0.78f
     .end array-data
 
-    .line 65
-    :array_160
+    .line 66
+    :array_202
     .array-data 4
         0x3f000000    # 0.5f
         0x3d75c28f    # 0.06f
@@ -395,8 +592,8 @@
         0x3f3d70a4    # 0.74f
     .end array-data
 
-    .line 68
-    :array_16c
+    .line 69
+    :array_20e
     .array-data 4
         0x3e8a3d71    # 0.27f
         0x3f051eb8    # 0.52f
@@ -406,8 +603,8 @@
         0x3f051eb8    # 0.52f
     .end array-data
 
-    .line 71
-    :array_17c
+    .line 72
+    :array_21e
     .array-data 4
         0x3df5c28f    # 0.12f
         0x3f70a3d7    # 0.94f
@@ -415,8 +612,8 @@
         0x3f70a3d7    # 0.94f
     .end array-data
 
-    .line 75
-    :array_188
+    .line 76
+    :array_22a
     .array-data 4
         0x0
         0x3f570a3d    # 0.84f
@@ -433,7 +630,7 @@
     .registers 8
 
     .prologue
-    .line 93
+    .line 104
     const/4 v0, 0x0
 
     aget v0, p4, v0
@@ -452,7 +649,7 @@
 
     invoke-virtual {p0, v0, v1}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 94
+    .line 105
     const/4 v0, 0x2
 
     :goto_e
@@ -462,7 +659,7 @@
 
     if-ge v1, v2, :cond_23
 
-    .line 95
+    .line 106
     aget v1, p4, v0
 
     mul-float/2addr v1, p3
@@ -479,12 +676,12 @@
 
     invoke-virtual {p0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 94
+    .line 105
     add-int/lit8 v0, v0, 0x2
 
     goto :goto_e
 
-    .line 97
+    .line 108
     :cond_23
     return-void
 .end method
@@ -497,12 +694,12 @@
     .prologue
     const/high16 v5, 0x40000000    # 2.0f
 
-    .line 101
+    .line 112
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v0
 
-    .line 102
+    .line 113
     invoke-virtual {v0}, Landroid/graphics/Rect;->width()I
 
     move-result v1
@@ -525,7 +722,7 @@
 
     sub-float v4, v1, v2
 
-    .line 103
+    .line 114
     iget v1, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->type:I
 
     iget v2, v0, Landroid/graphics/Rect;->left:I
@@ -566,7 +763,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->draw(Landroid/graphics/Canvas;IFFFLandroid/graphics/Paint;)V
 
-    .line 104
+    .line 115
     return-void
 .end method
 
@@ -574,7 +771,7 @@
     .registers 2
 
     .prologue
-    .line 118
+    .line 129
     const/4 v0, -0x3
 
     return v0
@@ -584,12 +781,12 @@
     .registers 3
 
     .prologue
-    .line 108
+    .line 119
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 109
+    .line 120
     return-void
 .end method
 
@@ -597,11 +794,11 @@
     .registers 3
 
     .prologue
-    .line 113
+    .line 124
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColorFilter(Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
-    .line 114
+    .line 125
     return-void
 .end method

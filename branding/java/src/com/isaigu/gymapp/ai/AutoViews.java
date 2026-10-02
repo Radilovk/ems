@@ -74,27 +74,6 @@ public final class AutoViews {
         private int count;
         private int lastW;
         private int lastMode = -1;
-        private final Paint small = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private String centerBig;
-        private String centerSmall;
-        private int centerColor;
-
-        /**
-         * What sits in the ring when there is no exercise figure: the HR (big, zone colour) for a program with a
-         * pulse, else the phase's time. null = nothing (the figure is there).
-         */
-        public void setCenter(String bigText, String smallText, int color) {
-            boolean same = bigText == null ? centerBig == null : bigText.equals(centerBig);
-            boolean same2 = smallText == null ? centerSmall == null : smallText.equals(centerSmall);
-            if (same && same2 && color == centerColor) {
-                return;
-            }
-            centerBig = bigText;
-            centerSmall = smallText;
-            centerColor = color;
-            invalidate();
-        }
-
         public SetRing(Context c) {
             super(c);
             track.setStyle(Paint.Style.STROKE);
@@ -104,8 +83,6 @@ public final class AutoViews {
             glow.setStrokeCap(Paint.Cap.ROUND);
             big.setTextAlign(Paint.Align.CENTER);
             big.setFakeBoldText(true);
-            small.setTextAlign(Paint.Align.CENTER);
-            small.setFakeBoldText(true);
         }
 
         /** progress 0…1, mode WORK / REST / READY / RECOVERY / IDLE, countdown seconds (0 = none). */
@@ -136,21 +113,21 @@ public final class AutoViews {
                 int a;
                 int b;
                 switch (mode) {
-                    case WORK:
-                        a = 0xFFFFA726;
-                        b = 0xFFFF3D2E;
+                    case WORK:                    // the kit's impulse colours: orange → accent red
+                        a = XemsUi.ORANGE;
+                        b = XemsUi.ACCENT;
                         break;
                     case READY:
-                        a = 0xFF34D399;
-                        b = 0xFF22C55E;
+                        a = XemsUi.GO_TEXT;
+                        b = XemsUi.GO;
                         break;
                     case REST:
-                        a = 0xFFFACC15;
-                        b = 0xFFF59E0B;
+                        a = XemsUi.AMBER;
+                        b = XemsUi.mix(XemsUi.AMBER, XemsUi.ORANGE, 0.5f);
                         break;
                     case RECOVERY:
-                        a = 0xFF60A5FA;
-                        b = 0xFF22D3EE;
+                        a = HEAT_COL[1];
+                        b = HEAT_COL[0];
                         break;
                     default:
                         a = XemsUi.MUTED;
@@ -172,20 +149,10 @@ public final class AutoViews {
                 arc.setStrokeWidth(sw);
                 c.drawArc(box, -90, sweep, false, arc);
             }
-            if (count <= 0 && centerBig != null) {
-                big.setColor(centerColor);
-                big.setTextSize(s * 0.26f);
-                c.drawText(centerBig, w / 2f, h / 2f + s * 0.06f, big);
-                if (centerSmall != null) {
-                    small.setColor(XemsUi.MUTED);
-                    small.setTextSize(s * 0.075f);
-                    c.drawText(centerSmall, w / 2f, h / 2f + s * 0.2f, small);
-                }
-            }
             if (count > 0) {
                 scrim.setColor(XemsUi.alpha(XemsUi.CARD, 0xC8));
                 c.drawCircle(w / 2f, h / 2f, s / 2f - sw * 2.5f, scrim);
-                big.setColor(0xFF22C55E);
+                big.setColor(XemsUi.GO_TEXT);
                 big.setTextSize(s * 0.42f);
                 Paint.FontMetrics fm = big.getFontMetrics();
                 c.drawText(String.valueOf(count), w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, big);
@@ -200,7 +167,6 @@ public final class AutoViews {
         private static final String[] SIDES = {"front", "back"};
         private final Fig[] figs = new Fig[2];
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
-        private final Paint label = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Rect src = new Rect();
         private final RectF dst = new RectF();
         private final double[] load = new double[AutoModel.CHANNELS];
@@ -220,8 +186,6 @@ public final class AutoViews {
 
         public BodyHeat(Context c) {
             super(c);
-            label.setTextAlign(Paint.Align.CENTER);
-            label.setTextSize(dp(this, 12));
         }
 
         /** Loads (F / F_max) per channel; off = the channel is switched off for every row (drawn plain). */
@@ -353,8 +317,8 @@ public final class AutoViews {
                 repaint(figs[0]);
                 repaint(figs[1]);
             }
-            float lh = dp(this, 20);
-            float gap = dp(this, 18);
+            float lh = 0;
+            float gap = dp(this, 22);
             float h = getHeight() - lh;
             float totalW = 0;
             for (Fig f : figs) {
@@ -367,8 +331,6 @@ public final class AutoViews {
                 scale = (getWidth() - gap) / Math.max(1f, totalW);
             }
             float x = (getWidth() - (totalW * scale + gap)) / 2f;
-            label.setColor(XemsUi.MUTED);
-            String[] names = {AiText.t("Отпред", "Front"), AiText.t("Отзад", "Back")};
             for (int i = 0; i < 2; i++) {
                 Fig f = figs[i];
                 if (f == null || f.art == null) {
@@ -383,7 +345,6 @@ public final class AutoViews {
                 if (f.over != null) {
                     c.drawBitmap(f.over, src, dst, paint);
                 }
-                c.drawText(names[i], x + fw / 2f, getHeight() - dp(this, 4), label);
                 x += fw + gap;
             }
         }
@@ -399,6 +360,7 @@ public final class AutoViews {
         private final Paint txt = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Path tri = new Path();
         private float value;
+        private boolean cardio;
         private int lastH;
 
         public PeakBar(Context c) {
@@ -410,10 +372,12 @@ public final class AutoViews {
             txt.setTextSize(dp(this, 13));
         }
 
-        public void set(double v) {
+        /** v = the system load; heart = the heart, not a muscle, is what is nearest its limit (a ♥ at the mark). */
+        public void set(double v, boolean heart) {
             float f = (float) Math.max(0, Math.min(1.25, v));
-            if (Math.abs(f - value) > 0.005f) {
+            if (Math.abs(f - value) > 0.005f || heart != cardio) {
                 value = f;
+                cardio = heart;
                 invalidate();
             }
         }
@@ -422,9 +386,9 @@ public final class AutoViews {
         protected void onDraw(Canvas c) {
             int w = getWidth();
             int h = getHeight();
-            float top = dp(this, 22);
-            float bottom = h - dp(this, 8);
-            float half = Math.min(w / 2f - dp(this, 4), dp(this, 16));
+            float top = dp(this, 6);
+            float bottom = h - dp(this, 6);
+            float half = Math.min(w / 2f - dp(this, 12), dp(this, 15));
             if (h != lastH) {
                 lastH = h;
                 // top = 1.25 (beyond the limit), bottom = 0
@@ -449,8 +413,124 @@ public final class AutoViews {
             hw = half - hw + dp(this, 6);
             line.setColor(XemsUi.TEXT);
             c.drawLine(w / 2f - hw, y, w / 2f + hw, y, line);
-            txt.setColor(heat(value));
-            c.drawText(Math.round(value * 100) + "%", w / 2f, dp(this, 14), txt);
+            if (cardio) {
+                float g = dp(this, 13);
+                line.setColor(heat(value));
+                ImpulseGlyph.draw(c, ImpulseGlyph.HEART, w / 2f + hw + dp(this, 2), y - g / 2f, g, line);
+            }
+        }
+    }
+
+    // ================================================================ the pulse
+
+    /**
+     * The pulse beside the body: a heart that beats at the HR, in the colour of its zone (the kit's HR zones,
+     * as on the dial), the number under it. Gone without a band.
+     */
+    public static final class Vital extends View {
+        private final Paint heart = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint num = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private int hr;
+        private int color;
+
+        public Vital(Context c) {
+            super(c);
+            heart.setStrokeWidth(dp(this, 2.2f));
+            heart.setStrokeJoin(Paint.Join.ROUND);
+            num.setTextAlign(Paint.Align.CENTER);
+            num.setFakeBoldText(true);
+        }
+
+        /** hr ≤ 0 = no fresh value (an outline heart, "—"). */
+        public void set(int bpm, int zoneColor) {
+            if (bpm != hr || zoneColor != color) {
+                hr = bpm;
+                color = zoneColor;
+                invalidate();
+            }
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            int w = getWidth();
+            float s = Math.min(w * 0.62f, getHeight() * 0.5f);
+            float beat = 1f;
+            if (hr > 0) {
+                long period = 60000L / Math.max(30, hr);
+                float ph = (System.currentTimeMillis() % period) / (float) period;
+                beat = 1f + 0.12f * (float) Math.exp(-ph * 9f);        // a quick swell on each beat
+                postInvalidateDelayed(40);
+            }
+            float g = s * beat;
+            heart.setColor(hr > 0 ? color : XemsUi.MUTED);
+            ImpulseGlyph.draw(c, ImpulseGlyph.HEART, (w - g) / 2f, s * 0.55f - g / 2f, g, heart);
+            if (hr > 0) {
+                heart.setStyle(Paint.Style.FILL);
+                heart.setAlpha(70);
+                c.drawPath(heartPath((w - g) / 2f, s * 0.55f - g / 2f, g), heart);
+                heart.setAlpha(255);
+                heart.setStyle(Paint.Style.STROKE);
+            }
+            num.setColor(hr > 0 ? color : XemsUi.MUTED);
+            num.setTextSize(s * 0.62f);
+            c.drawText(hr > 0 ? String.valueOf(hr) : "—", w / 2f, s * 1.1f + s * 0.62f, num);
+        }
+
+        private static Path heartPath(float x, float y, float s) {
+            Path p = new Path();
+            p.moveTo(x + .5f * s, y + .9f * s);
+            p.cubicTo(x + .1f * s, y + .62f * s, x - .02f * s, y + .34f * s, x + .2f * s, y + .16f * s);
+            p.cubicTo(x + .34f * s, y + .05f * s, x + .47f * s, y + .14f * s, x + .5f * s, y + .27f * s);
+            p.cubicTo(x + .53f * s, y + .14f * s, x + .66f * s, y + .05f * s, x + .8f * s, y + .16f * s);
+            p.cubicTo(x + 1.02f * s, y + .34f * s, x + .9f * s, y + .62f * s, x + .5f * s, y + .9f * s);
+            p.close();
+            return p;
+        }
+    }
+
+    /** The impulses of the set as dots: done filled, the running one bright, the rest hollow — no words. */
+    public static final class Dots extends View {
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private int done;
+        private int all;
+
+        public Dots(Context c) {
+            super(c);
+            p.setStrokeWidth(dp(this, 1.6f));
+        }
+
+        public void set(int now, int count) {
+            if (now != done || count != all) {
+                done = now;
+                all = count;
+                invalidate();
+            }
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            if (all <= 0) {
+                return;
+            }
+            float r = dp(this, 5);
+            float gap = dp(this, 9);
+            float total = all * 2 * r + (all - 1) * gap;
+            float x = (getWidth() - total) / 2f + r;
+            float y = getHeight() / 2f;
+            for (int i = 1; i <= all; i++) {
+                if (i < done) {
+                    p.setStyle(Paint.Style.FILL);
+                    p.setColor(XemsUi.ORANGE);
+                } else if (i == done) {
+                    p.setStyle(Paint.Style.FILL);
+                    p.setColor(XemsUi.ACCENT);
+                } else {
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setColor(XemsUi.alpha(XemsUi.TEXT, 0x66));
+                }
+                c.drawCircle(x, y, i == done ? r * 1.25f : r, p);
+                x += 2 * r + gap;
+            }
         }
     }
 

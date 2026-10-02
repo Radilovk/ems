@@ -15,6 +15,8 @@
 
 
 # static fields
+.field private static final AHEAD_MS:J = 0x2bcL
+
 .field public static final IDLE:I = 0x4
 
 .field public static final READY:I = 0x2
@@ -33,562 +35,1037 @@
 
 .field private final box:Landroid/graphics/RectF;
 
+.field private colA:I
+
+.field private colB:I
+
 .field private count:I
 
 .field private final glow:Landroid/graphics/Paint;
-
-.field private lastMode:I
-
-.field private lastW:I
 
 .field private mode:I
 
 .field private progress:F
 
+.field private rate:F
+
+.field private final rot:Landroid/graphics/Matrix;
+
 .field private final scrim:Landroid/graphics/Paint;
+
+.field private setMs:J
+
+.field private shown:F
 
 .field private final track:Landroid/graphics/Paint;
 
 
 # direct methods
 .method public constructor <init>(Landroid/content/Context;)V
-    .registers 5
+    .registers 6
 
     .prologue
+    const/4 v3, 0x4
+
     const/4 v2, 0x1
 
-    .line 78
+    .line 101
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 66
+    .line 85
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
 
-    .line 67
+    .line 86
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
 
-    .line 68
+    .line 87
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
 
-    .line 69
+    .line 88
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->scrim:Landroid/graphics/Paint;
 
-    .line 70
+    .line 89
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
 
-    .line 71
+    .line 90
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
 
-    .line 73
-    const/4 v0, 0x4
+    .line 91
+    new-instance v0, Landroid/graphics/Matrix;
 
-    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
+    invoke-direct {v0}, Landroid/graphics/Matrix;-><init>()V
 
-    .line 76
-    const/4 v0, -0x1
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rot:Landroid/graphics/Matrix;
 
-    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->lastMode:I
+    .line 96
+    iput v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
 
-    .line 79
+    .line 102
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 80
+    .line 103
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 81
+    .line 104
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 82
+    .line 105
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 83
+    .line 106
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 84
+    .line 107
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 85
+    .line 108
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 86
+    .line 109
+    invoke-direct {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colors(I)V
+
+    .line 110
     return-void
+.end method
+
+.method private colors(I)V
+    .registers 5
+
+    .prologue
+    .line 139
+    packed-switch p1, :pswitch_data_3e
+
+    .line 157
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    .line 158
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    .line 161
+    :goto_b
+    return-void
+
+    .line 141
+    :pswitch_c
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ORANGE:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    .line 142
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    goto :goto_b
+
+    .line 145
+    :pswitch_15
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    .line 146
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    goto :goto_b
+
+    .line 149
+    :pswitch_1e
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    .line 150
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->ORANGE:I
+
+    const/high16 v2, 0x3f000000    # 0.5f
+
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    goto :goto_b
+
+    .line 153
+    :pswitch_2f
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    const/4 v1, 0x1
+
+    aget v0, v0, v1
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    .line 154
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    const/4 v1, 0x0
+
+    aget v0, v0, v1
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    goto :goto_b
+
+    .line 139
+    :pswitch_data_3e
+    .packed-switch 0x0
+        :pswitch_c
+        :pswitch_1e
+        :pswitch_15
+        :pswitch_2f
+    .end packed-switch
+.end method
+
+.method private now()F
+    .registers 9
+
+    .prologue
+    .line 165
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->progress:F
+
+    .line 166
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rate:F
+
+    const/4 v2, 0x0
+
+    cmpl-float v1, v1, v2
+
+    if-lez v1, :cond_24
+
+    .line 167
+    const-wide/16 v2, 0x2bc
+
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
+
+    move-result-wide v4
+
+    iget-wide v6, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->setMs:J
+
+    sub-long/2addr v4, v6
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->min(JJ)J
+
+    move-result-wide v2
+
+    .line 168
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    iget v4, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rate:F
+
+    long-to-float v2, v2
+
+    mul-float/2addr v2, v4
+
+    const/high16 v3, 0x447a0000    # 1000.0f
+
+    div-float/2addr v2, v3
+
+    add-float/2addr v0, v2
+
+    invoke-static {v1, v0}, Ljava/lang/Math;->min(FF)F
+
+    move-result v0
+
+    .line 170
+    :cond_24
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->shown:F
+
+    cmpg-float v1, v0, v1
+
+    if-gez v1, :cond_2c
+
+    .line 171
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->shown:F
+
+    .line 173
+    :cond_2c
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->shown:F
+
+    .line 174
+    return v0
 .end method
 
 
 # virtual methods
 .method protected onDraw(Landroid/graphics/Canvas;)V
-    .registers 16
+    .registers 21
 
     .prologue
-    const/4 v13, 0x1
+    .line 179
+    invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->getWidth()I
 
-    const/high16 v2, -0x3d4c0000    # -90.0f
+    move-result v8
 
-    const/4 v4, 0x0
-
-    const/high16 v11, 0x3fc00000    # 1.5f
-
-    const/high16 v12, 0x40000000    # 2.0f
-
-    .line 102
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->getWidth()I
-
-    move-result v6
-
-    .line 103
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->getHeight()I
-
-    move-result v7
-
-    .line 104
-    invoke-static {v6, v7}, Ljava/lang/Math;->min(II)I
-
-    move-result v0
-
-    int-to-float v8, v0
-
-    .line 105
-    const/high16 v0, 0x41100000    # 9.0f
-
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+    .line 180
+    invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->getHeight()I
 
     move-result v9
 
-    .line 106
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
+    .line 181
+    invoke-static {v8, v9}, Ljava/lang/Math;->min(II)I
 
-    int-to-float v1, v6
+    move-result v2
 
-    sub-float/2addr v1, v8
+    int-to-float v10, v2
 
-    div-float/2addr v1, v12
+    .line 182
+    const/high16 v2, 0x40e00000    # 7.0f
 
-    mul-float v3, v9, v11
+    move-object/from16 v0, p0
 
-    add-float/2addr v1, v3
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
-    int-to-float v3, v7
+    move-result v2
 
-    sub-float/2addr v3, v8
+    const v3, 0x3d6147ae    # 0.055f
 
-    div-float/2addr v3, v12
+    mul-float/2addr v3, v10
 
-    mul-float v5, v9, v11
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(FF)F
 
-    add-float/2addr v3, v5
+    move-result v11
 
-    int-to-float v5, v6
+    .line 183
+    const/high16 v2, 0x3fc00000    # 1.5f
 
-    add-float/2addr v5, v8
+    mul-float/2addr v2, v11
 
-    div-float/2addr v5, v12
+    .line 184
+    move-object/from16 v0, p0
 
-    mul-float v10, v9, v11
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
+
+    int-to-float v4, v8
+
+    sub-float/2addr v4, v10
+
+    const/high16 v5, 0x40000000    # 2.0f
+
+    div-float/2addr v4, v5
+
+    add-float/2addr v4, v2
+
+    int-to-float v5, v9
 
     sub-float/2addr v5, v10
 
-    int-to-float v10, v7
+    const/high16 v6, 0x40000000    # 2.0f
 
-    add-float/2addr v10, v8
+    div-float/2addr v5, v6
 
-    div-float/2addr v10, v12
+    add-float/2addr v5, v2
 
-    mul-float/2addr v11, v9
+    int-to-float v6, v8
 
-    sub-float/2addr v10, v11
+    add-float/2addr v6, v10
 
-    invoke-virtual {v0, v1, v3, v5, v10}, Landroid/graphics/RectF;->set(FFFF)V
+    const/high16 v7, 0x40000000    # 2.0f
 
-    .line 107
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
+    div-float/2addr v6, v7
 
-    invoke-virtual {v0, v9}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+    sub-float/2addr v6, v2
 
-    .line 108
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
+    int-to-float v7, v9
 
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+    add-float/2addr v7, v10
 
-    const/16 v3, 0x1e
+    const/high16 v12, 0x40000000    # 2.0f
 
-    invoke-static {v1, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+    div-float/2addr v7, v12
 
-    move-result v1
+    sub-float v2, v7, v2
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {v3, v4, v5, v6, v2}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 109
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
+    .line 185
+    move-object/from16 v0, p0
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
 
-    invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawOval(Landroid/graphics/RectF;Landroid/graphics/Paint;)V
+    invoke-virtual {v2, v11}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 110
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->lastW:I
+    .line 186
+    move-object/from16 v0, p0
 
-    if-ne v6, v0, :cond_5a
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
 
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->lastMode:I
+    const/16 v4, 0x1e
 
-    if-eq v0, v1, :cond_9b
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
-    .line 111
-    :cond_5a
-    iput v6, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->lastW:I
+    move-result v3
 
-    .line 112
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->lastMode:I
+    .line 187
+    move-object/from16 v0, p0
 
-    .line 115
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
 
-    packed-switch v0, :pswitch_data_148
+    move-object/from16 v0, p0
 
-    .line 133
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->track:Landroid/graphics/Paint;
 
-    .line 134
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+    move-object/from16 v0, p1
 
-    .line 137
-    :goto_69
-    new-instance v3, Landroid/graphics/SweepGradient;
+    invoke-virtual {v0, v2, v3}, Landroid/graphics/Canvas;->drawOval(Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    int-to-float v5, v6
+    .line 188
+    invoke-direct/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->now()F
 
-    div-float/2addr v5, v12
+    move-result v12
 
-    int-to-float v10, v7
+    .line 189
+    const v2, 0x3a83126f    # 0.001f
 
-    div-float/2addr v10, v12
+    cmpl-float v2, v12, v2
 
-    const/4 v11, 0x3
+    if-lez v2, :cond_146
 
-    new-array v11, v11, [I
+    .line 190
+    move-object/from16 v0, p0
 
-    aput v1, v11, v4
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
 
-    aput v0, v11, v13
+    invoke-virtual {v2}, Landroid/graphics/RectF;->width()F
 
-    const/4 v1, 0x2
+    move-result v2
 
-    aput v0, v11, v1
+    const/high16 v3, 0x40000000    # 2.0f
 
-    const/4 v0, 0x3
+    div-float/2addr v2, v3
+
+    .line 193
+    const v3, 0x3fa66666    # 1.3f
+
+    mul-float/2addr v3, v11
+
+    const/high16 v4, 0x3f800000    # 1.0f
+
+    invoke-static {v4, v2}, Ljava/lang/Math;->max(FF)F
+
+    move-result v2
+
+    div-float v2, v3, v2
+
+    float-to-double v2, v2
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->toDegrees(D)D
+
+    move-result-wide v2
+
+    double-to-float v3, v2
+
+    .line 194
+    const v2, 0x3f7fbe77    # 0.999f
+
+    cmpl-float v2, v12, v2
+
+    if-ltz v2, :cond_1d5
+
+    const/4 v2, 0x1
+
+    move v4, v2
+
+    .line 195
+    :goto_94
+    if-eqz v4, :cond_1d9
+
+    const/high16 v5, 0x43b40000    # 360.0f
+
+    .line 196
+    :goto_98
+    const/high16 v2, 0x3f800000    # 1.0f
+
+    const/high16 v6, 0x40000000    # 2.0f
+
+    mul-float/2addr v6, v3
+
+    add-float/2addr v6, v5
+
+    const/high16 v7, 0x43b40000    # 360.0f
+
+    div-float/2addr v6, v7
+
+    invoke-static {v2, v6}, Ljava/lang/Math;->min(FF)F
+
+    move-result v6
+
+    .line 197
+    const v2, 0x3f7fbe77    # 0.999f
+
+    const/high16 v7, 0x3f800000    # 1.0f
+
+    sub-float/2addr v7, v6
+
+    const/high16 v13, 0x3f000000    # 0.5f
+
+    mul-float/2addr v7, v13
+
+    add-float/2addr v7, v6
+
+    invoke-static {v2, v7}, Ljava/lang/Math;->min(FF)F
+
+    move-result v7
+
+    .line 198
+    if-eqz v4, :cond_1df
+
+    .line 199
+    new-instance v2, Landroid/graphics/SweepGradient;
+
+    int-to-float v6, v8
+
+    const/high16 v7, 0x40000000    # 2.0f
+
+    div-float/2addr v6, v7
+
+    int-to-float v7, v9
+
+    const/high16 v13, 0x40000000    # 2.0f
+
+    div-float/2addr v7, v13
+
+    const/4 v13, 0x3
+
+    new-array v13, v13, [I
+
+    const/4 v14, 0x0
+
+    move-object/from16 v0, p0
+
+    iget v15, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    aput v15, v13, v14
+
+    const/4 v14, 0x1
+
+    move-object/from16 v0, p0
+
+    iget v15, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    aput v15, v13, v14
+
+    const/4 v14, 0x2
+
+    move-object/from16 v0, p0
+
+    iget v15, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    aput v15, v13, v14
+
+    const/4 v14, 0x3
+
+    new-array v14, v14, [F
+
+    fill-array-data v14, :array_264
+
+    invoke-direct {v2, v6, v7, v13, v14}, Landroid/graphics/SweepGradient;-><init>(FF[I[F)V
+
+    .line 202
+    :goto_e0
+    move-object/from16 v0, p0
+
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rot:Landroid/graphics/Matrix;
+
+    const/high16 v7, -0x3d4c0000    # -90.0f
+
+    if-eqz v4, :cond_e9
+
+    const/4 v3, 0x0
+
+    :cond_e9
+    sub-float v3, v7, v3
+
+    int-to-float v7, v8
+
+    const/high16 v13, 0x40000000    # 2.0f
+
+    div-float/2addr v7, v13
+
+    int-to-float v13, v9
+
+    const/high16 v14, 0x40000000    # 2.0f
+
+    div-float/2addr v13, v14
+
+    invoke-virtual {v6, v3, v7, v13}, Landroid/graphics/Matrix;->setRotate(FFF)V
+
+    .line 203
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rot:Landroid/graphics/Matrix;
+
+    invoke-virtual {v2, v3}, Landroid/graphics/SweepGradient;->setLocalMatrix(Landroid/graphics/Matrix;)V
+
+    .line 204
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
+
+    invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
+
+    .line 205
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+
+    invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
+
+    .line 206
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+
+    const v3, 0x4019999a    # 2.4f
+
+    mul-float/2addr v3, v11
+
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 207
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+
+    sget-boolean v2, Lcom/isaigu/gymapp/widget/XemsUi;->dark:Z
+
+    if-eqz v2, :cond_23e
+
+    const/16 v2, 0x46
+
+    :goto_120
+    invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setAlpha(I)V
+
+    .line 208
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
+
+    invoke-virtual {v2, v11}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 209
+    if-eqz v4, :cond_242
+
+    .line 210
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
+
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    invoke-virtual {v0, v2, v3}, Landroid/graphics/Canvas;->drawOval(Landroid/graphics/RectF;Landroid/graphics/Paint;)V
+
+    .line 211
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
+
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    invoke-virtual {v0, v2, v3}, Landroid/graphics/Canvas;->drawOval(Landroid/graphics/RectF;Landroid/graphics/Paint;)V
+
+    .line 217
+    :cond_146
+    :goto_146
+    move-object/from16 v0, p0
+
+    iget v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->count:I
+
+    if-lez v2, :cond_1b3
+
+    .line 218
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->scrim:Landroid/graphics/Paint;
+
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->CARD:I
+
+    const/16 v4, 0xc8
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v3
+
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 219
+    int-to-float v2, v8
+
+    const/high16 v3, 0x40000000    # 2.0f
+
+    div-float/2addr v2, v3
+
+    int-to-float v3, v9
+
+    const/high16 v4, 0x40000000    # 2.0f
+
+    div-float/2addr v3, v4
+
+    const/high16 v4, 0x40000000    # 2.0f
+
+    div-float v4, v10, v4
+
+    const/high16 v5, 0x40200000    # 2.5f
+
+    mul-float/2addr v5, v11
+
+    sub-float/2addr v4, v5
+
+    move-object/from16 v0, p0
+
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->scrim:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    invoke-virtual {v0, v2, v3, v4, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+
+    .line 220
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
+
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
+
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 221
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
+
+    const v3, 0x3ed70a3d    # 0.42f
+
+    mul-float/2addr v3, v10
+
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextSize(F)V
+
+    .line 222
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
+
+    invoke-virtual {v2}, Landroid/graphics/Paint;->getFontMetrics()Landroid/graphics/Paint$FontMetrics;
+
+    move-result-object v2
+
+    .line 223
+    move-object/from16 v0, p0
+
+    iget v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->count:I
+
+    invoke-static {v3}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v3
+
+    int-to-float v4, v8
+
+    const/high16 v5, 0x40000000    # 2.0f
+
+    div-float/2addr v4, v5
+
+    int-to-float v5, v9
+
+    const/high16 v6, 0x40000000    # 2.0f
+
+    div-float/2addr v5, v6
+
+    iget v6, v2, Landroid/graphics/Paint$FontMetrics;->ascent:F
+
+    iget v2, v2, Landroid/graphics/Paint$FontMetrics;->descent:F
+
+    add-float/2addr v2, v6
+
+    const/high16 v6, 0x40000000    # 2.0f
+
+    div-float/2addr v2, v6
+
+    sub-float v2, v5, v2
+
+    move-object/from16 v0, p0
+
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    invoke-virtual {v0, v3, v4, v2, v5}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 225
+    :cond_1b3
+    move-object/from16 v0, p0
+
+    iget v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rate:F
+
+    const/4 v3, 0x0
+
+    cmpl-float v2, v2, v3
+
+    if-lez v2, :cond_1d4
+
+    const/high16 v2, 0x3f800000    # 1.0f
+
+    cmpg-float v2, v12, v2
+
+    if-gez v2, :cond_1d4
+
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
+
+    move-result-wide v2
+
+    move-object/from16 v0, p0
+
+    iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->setMs:J
+
+    sub-long/2addr v2, v4
+
+    const-wide/16 v4, 0x2bc
+
+    cmp-long v2, v2, v4
+
+    if-gez v2, :cond_1d4
+
+    .line 226
+    invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->postInvalidateOnAnimation()V
+
+    .line 228
+    :cond_1d4
+    return-void
+
+    .line 194
+    :cond_1d5
+    const/4 v2, 0x0
+
+    move v4, v2
+
+    goto/16 :goto_94
+
+    .line 195
+    :cond_1d9
+    const/high16 v2, 0x43b40000    # 360.0f
+
+    mul-float v5, v2, v12
+
+    goto/16 :goto_98
+
+    .line 200
+    :cond_1df
+    new-instance v2, Landroid/graphics/SweepGradient;
+
+    int-to-float v13, v8
+
+    const/high16 v14, 0x40000000    # 2.0f
+
+    div-float/2addr v13, v14
+
+    int-to-float v14, v9
+
+    const/high16 v15, 0x40000000    # 2.0f
+
+    div-float/2addr v14, v15
+
+    const/4 v15, 0x4
+
+    new-array v15, v15, [I
+
+    const/16 v16, 0x0
+
+    move-object/from16 v0, p0
+
+    iget v0, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    move/from16 v17, v0
+
+    aput v17, v15, v16
+
+    const/16 v16, 0x1
+
+    move-object/from16 v0, p0
+
+    iget v0, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    move/from16 v17, v0
+
+    aput v17, v15, v16
+
+    const/16 v16, 0x2
+
+    move-object/from16 v0, p0
+
+    iget v0, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
+
+    move/from16 v17, v0
+
+    aput v17, v15, v16
+
+    const/16 v16, 0x3
+
+    move-object/from16 v0, p0
+
+    iget v0, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
+
+    move/from16 v17, v0
+
+    aput v17, v15, v16
+
+    const/16 v16, 0x4
+
+    move/from16 v0, v16
 
     new-array v0, v0, [F
 
-    fill-array-data v0, :array_154
+    move-object/from16 v16, v0
 
-    invoke-direct {v3, v5, v10, v11, v0}, Landroid/graphics/SweepGradient;-><init>(FF[I[F)V
+    const/16 v17, 0x0
 
-    .line 138
-    new-instance v0, Landroid/graphics/Matrix;
+    const/16 v18, 0x0
 
-    invoke-direct {v0}, Landroid/graphics/Matrix;-><init>()V
+    aput v18, v16, v17
 
-    .line 139
-    int-to-float v1, v6
+    const/16 v17, 0x1
 
-    div-float/2addr v1, v12
+    const v18, 0x3f7f7cee    # 0.998f
 
-    int-to-float v5, v7
+    .line 201
+    move/from16 v0, v18
 
-    div-float/2addr v5, v12
+    invoke-static {v0, v6}, Ljava/lang/Math;->min(FF)F
 
-    invoke-virtual {v0, v2, v1, v5}, Landroid/graphics/Matrix;->setRotate(FFF)V
+    move-result v6
 
-    .line 140
-    invoke-virtual {v3, v0}, Landroid/graphics/SweepGradient;->setLocalMatrix(Landroid/graphics/Matrix;)V
+    aput v6, v16, v17
 
-    .line 141
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
+    const/4 v6, 0x2
 
-    invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
+    aput v7, v16, v6
 
-    .line 142
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+    const/4 v6, 0x3
 
-    invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
+    const/high16 v7, 0x3f800000    # 1.0f
 
-    .line 144
-    :cond_9b
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->progress:F
+    aput v7, v16, v6
 
-    const/4 v1, 0x0
+    move-object/from16 v0, v16
 
-    cmpl-float v0, v0, v1
+    invoke-direct {v2, v13, v14, v15, v0}, Landroid/graphics/SweepGradient;-><init>(FF[I[F)V
 
-    if-lez v0, :cond_d1
+    goto/16 :goto_e0
 
-    .line 145
-    const/high16 v0, 0x43b40000    # 360.0f
+    .line 207
+    :cond_23e
+    const/16 v2, 0x28
 
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->progress:F
+    goto/16 :goto_120
 
-    mul-float v3, v0, v1
+    .line 213
+    :cond_242
+    move-object/from16 v0, p0
 
-    .line 146
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
 
-    const v1, 0x40266666    # 2.6f
+    const/high16 v4, -0x3d4c0000    # -90.0f
 
-    mul-float/2addr v1, v9
+    const/4 v6, 0x0
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+    move-object/from16 v0, p0
 
-    .line 147
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+    iget-object v7, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
 
-    sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsUi;->dark:Z
+    move-object/from16 v2, p1
 
-    if-eqz v0, :cond_143
+    invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    const/16 v0, 0x46
+    .line 214
+    move-object/from16 v0, p0
 
-    :goto_b9
-    invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setAlpha(I)V
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
 
-    .line 148
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
+    const/high16 v4, -0x3d4c0000    # -90.0f
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->glow:Landroid/graphics/Paint;
+    const/4 v6, 0x0
 
-    move-object v0, p1
+    move-object/from16 v0, p0
 
-    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
+    iget-object v7, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
 
-    .line 149
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
+    move-object/from16 v2, p1
 
-    invoke-virtual {v0, v9}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+    invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 150
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
+    goto/16 :goto_146
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->arc:Landroid/graphics/Paint;
-
-    move-object v0, p1
-
-    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
-
-    .line 152
-    :cond_d1
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->count:I
-
-    if-lez v0, :cond_11e
-
-    .line 153
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->scrim:Landroid/graphics/Paint;
-
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->CARD:I
-
-    const/16 v2, 0xc8
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
-
-    move-result v1
-
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 154
-    int-to-float v0, v6
-
-    div-float/2addr v0, v12
-
-    int-to-float v1, v7
-
-    div-float/2addr v1, v12
-
-    div-float v2, v8, v12
-
-    const/high16 v3, 0x40200000    # 2.5f
-
-    mul-float/2addr v3, v9
-
-    sub-float/2addr v2, v3
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->scrim:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
-
-    .line 155
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
-
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
-
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 156
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
-
-    const v1, 0x3ed70a3d    # 0.42f
-
-    mul-float/2addr v1, v8
-
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
-
-    .line 157
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
-
-    invoke-virtual {v0}, Landroid/graphics/Paint;->getFontMetrics()Landroid/graphics/Paint$FontMetrics;
-
-    move-result-object v0
-
-    .line 158
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->count:I
-
-    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-
-    move-result-object v1
-
-    int-to-float v2, v6
-
-    div-float/2addr v2, v12
-
-    int-to-float v3, v7
-
-    div-float/2addr v3, v12
-
-    iget v4, v0, Landroid/graphics/Paint$FontMetrics;->ascent:F
-
-    iget v0, v0, Landroid/graphics/Paint$FontMetrics;->descent:F
-
-    add-float/2addr v0, v4
-
-    div-float/2addr v0, v12
-
-    sub-float v0, v3, v0
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->big:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v1, v2, v0, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
-
-    .line 160
-    :cond_11e
-    return-void
-
-    .line 117
-    :pswitch_11f
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->ORANGE:I
-
-    .line 118
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
-
-    goto/16 :goto_69
-
-    .line 121
-    :pswitch_125
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
-
-    .line 122
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
-
-    goto/16 :goto_69
-
-    .line 125
-    :pswitch_12b
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
-
-    .line 126
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
-
-    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->ORANGE:I
-
-    const/high16 v5, 0x3f000000    # 0.5f
-
-    invoke-static {v0, v3, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
-
-    move-result v0
-
-    goto/16 :goto_69
-
-    .line 129
-    :pswitch_139
-    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
-
-    aget v1, v0, v13
-
-    .line 130
-    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
-
-    aget v0, v0, v4
-
-    goto/16 :goto_69
-
-    .line 147
-    :cond_143
-    const/16 v0, 0x28
-
-    goto/16 :goto_b9
-
-    .line 115
-    nop
-
-    :pswitch_data_148
-    .packed-switch 0x0
-        :pswitch_11f
-        :pswitch_12b
-        :pswitch_125
-        :pswitch_139
-    .end packed-switch
-
-    .line 137
-    :array_154
+    .line 199
+    :array_264
     .array-data 4
         0x0
         0x3f59999a    # 0.85f
@@ -597,61 +1074,91 @@
 .end method
 
 .method public set(FII)V
-    .registers 7
+    .registers 5
 
     .prologue
-    .line 90
+    .line 113
     const/4 v0, 0x0
 
-    const/high16 v1, 0x3f800000    # 1.0f
+    invoke-virtual {p0, p1, p2, p3, v0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->set(FIIF)V
 
-    invoke-static {v1, p1}, Ljava/lang/Math;->min(FF)F
+    .line 114
+    return-void
+.end method
 
-    move-result v1
+.method public set(FIIF)V
+    .registers 11
 
-    invoke-static {v0, v1}, Ljava/lang/Math;->max(FF)F
+    .prologue
+    const/4 v5, 0x0
+
+    .line 122
+    const/high16 v0, 0x3f800000    # 1.0f
+
+    invoke-static {v0, p1}, Ljava/lang/Math;->min(FF)F
 
     move-result v0
 
-    .line 91
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->progress:F
+    invoke-static {v5, v0}, Ljava/lang/Math;->max(FF)F
 
-    sub-float v1, v0, v1
+    move-result v0
 
-    invoke-static {v1}, Ljava/lang/Math;->abs(F)F
+    .line 123
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
-    move-result v1
+    move-result-wide v2
 
-    const v2, 0x3b03126f    # 0.002f
-
-    cmpg-float v1, v1, v2
-
-    if-gez v1, :cond_23
-
+    .line 124
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
 
-    if-ne p2, v1, :cond_23
+    if-ne p2, v1, :cond_1d
 
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->count:I
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->shown:F
 
-    if-ne p3, v1, :cond_23
+    const v4, 0x3cf5c28f    # 0.03f
 
-    .line 98
-    :goto_22
-    return-void
+    sub-float/2addr v1, v4
 
-    .line 94
-    :cond_23
+    cmpg-float v1, v0, v1
+
+    if-gez v1, :cond_1f
+
+    .line 125
+    :cond_1d
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->shown:F
+
+    .line 127
+    :cond_1f
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
+
+    if-eq p2, v1, :cond_26
+
+    .line 128
+    invoke-direct {p0, p2}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colors(I)V
+
+    .line 130
+    :cond_26
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->progress:F
 
-    .line 95
+    .line 131
+    invoke-static {v5, p4}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rate:F
+
+    .line 132
+    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->setMs:J
+
+    .line 133
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->mode:I
 
-    .line 96
+    .line 134
     iput p3, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->count:I
 
-    .line 97
+    .line 135
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->invalidate()V
 
-    goto :goto_22
+    .line 136
+    return-void
 .end method

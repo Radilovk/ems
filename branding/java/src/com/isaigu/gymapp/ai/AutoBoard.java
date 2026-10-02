@@ -19,11 +19,15 @@ public final class AutoBoard {
     private static ViewGroup.LayoutParams listParams;
     private static View board;
     private static int heightPx = -1;
-    /** Reference size of the board (dp): the shape of the two "Добави" rows on the training screen. */
+    /** Reference width of the board (dp); its height follows the real space (never below DESIGN_H). */
     static final int DESIGN_W = 1160;
     static final int DESIGN_H = 290;
 
-    /** Scales the board evenly to the space it got, centred (touches follow the scale). */
+    /**
+     * Scales the board to the width it got and gives it all the height there is (owner, 1.1.285: the board fills
+     * the whole space from the client's row down to the bottom dock — the cards grow taller, the ring and the body
+     * grow with them). Only a space flatter than DESIGN_W × DESIGN_H scales by the height and is centred.
+     */
     static final class Fit implements View.OnLayoutChangeListener {
         private final View content;
 
@@ -35,12 +39,22 @@ public final class AutoBoard {
         public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
             int w = r - l;
             int h = b - t;
-            int dw = content.getLayoutParams().width;
-            int dh = content.getLayoutParams().height;
-            if (w <= 0 || h <= 0 || dw <= 0 || dh <= 0) {
+            ViewGroup.LayoutParams lp = content.getLayoutParams();
+            int dw = lp.width;
+            if (w <= 0 || h <= 0 || dw <= 0) {
                 return;
             }
-            float k = Math.min(w / (float) dw, h / (float) dh);
+            int minH = XemsUi.dp(v.getContext(), DESIGN_H);
+            float k = w / (float) dw;
+            int dh = Math.round(h / k);
+            if (dh < minH) {
+                dh = minH;
+                k = h / (float) dh;
+            }
+            if (lp.height != dh) {
+                lp.height = dh;
+                content.setLayoutParams(lp);
+            }
             content.setPivotX(0);
             content.setPivotY(0);
             content.setScaleX(k);
@@ -101,9 +115,9 @@ public final class AutoBoard {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rowH);
         rv.setLayoutParams(lp);
 
-        // The place of the two "Добави" rows: wide and short (≈ 4 : 1). The board is laid out once at a reference
-        // size with that shape and scaled evenly to the real space, so it fits exactly on every tablet — no scrolling,
-        // nothing cut, the same proportions everywhere.
+        // The place of the "Добави" rows down to the dock: the board is laid out at a reference width and scaled
+        // evenly to the real width; its height is whatever is left (Fit), so it fills the space on every tablet —
+        // no scrolling, nothing cut, no empty band above or below.
         LinearLayout content = XemsUi.vertical(c);
         AutoUi.buildBoard(c, content);
         android.widget.FrameLayout sv = new android.widget.FrameLayout(c);

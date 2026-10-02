@@ -769,9 +769,44 @@ public final class AutoSim {
         check(d > 0.02 && d < 0.6, "dose early in the main part (" + d + ")");
         double l = e.getSystemLoad(t[0]);
         double m = e.getMuscularLoad(t[0]);
-        check(Math.abs(l - Math.sqrt((0.45 * m * m + 0.35 * v * v + 0.2 * d * d) / 1.0)) < 1e-9,
-                "total = weighted RMS of muscles, oxygen and dose without a pulse");
+        check(Math.abs(l - (1 - (1 - m) * (1 - v)) * (1 + 0.15 * d)) < 1e-9,
+                "total = muscles OR oxygen (1 − (1−M)(1−V)), × (1 + 0.15·dose) without a pulse");
+        check(l >= Math.max(m, v) - 1e-9, "a light part never dilutes the harder one (" + l + " vs M " + m + ")");
 
+        // owner (1.1.285): the passive recovery never reads higher than the work; a main set is clearly loaded
+        double[] sum = new double[base.phases.size()];
+        int[] cnt = new int[sum.length];
+        for (float[] p : f.points) {
+            if (p[6] == AutoEngine.TRACE_CYCLE && p[2] > 0) {
+                sum[(int) p[4]] += p[2];
+                cnt[(int) p[4]]++;
+            }
+        }
+        double work = 0;
+        double rec = -1;
+        StringBuilder ph = new StringBuilder();
+        for (int i = 0; i < sum.length; i++) {
+            double avg = cnt[i] > 0 ? sum[i] / cnt[i] : 0;
+            ph.append(String.format(" %s=%.2f", base.phases.get(i).id, avg));
+            if (base.phases.get(i).isCooldown()) {
+                rec = avg;
+            } else {
+                work = Math.max(work, avg);
+            }
+        }
+        check(rec < 0 || rec < 0.75 * work, "recovery below the work on the timeline (" + ph + ")");
+        check(l > 0.45, "a main set reads as real work, not blue (" + l + ")");
+        AutoEngine half = mainSet(base, sc, t, f.dose);
+        AutoEngine all = mainSet(base, sc, t, f.dose);
+        int[] z = base.zones.clone();
+        for (int k = 0; k < 5; k++) {
+            z[k] = 0;
+        }
+        half.setLive(0.9, z, t[0]);
+        all.setLive(0.9, base.zones, t[0]);
+        long tz = t[0] + 8000;
+        check(half.getSystemLoad(tz) < all.getSystemLoad(tz) - 0.01, "fewer zones on → lower total ("
+                + half.getSystemLoad(tz) + " vs " + all.getSystemLoad(tz) + ")");
         // the client: fat (same weight, shorter → higher BMI) insulates → less reached → less oxygen
         AutoModel.Plan fat = legs(input(AiModel.Sex.MALE, 35, 82, 160, AiModel.Fitness.MID, 8, 200));
         AutoEngine ef = mainSet(fat, AutoTemplates.script(fat, null), t, f.dose);
@@ -1063,9 +1098,9 @@ public final class AutoSim {
         check(Math.abs(x0 - (0.6 * h.getCardioLoad(t) + 0.4 * h.getMetabolicLoad(t))) < 1e-12,
                 "central = 0.6·HR share + 0.4·oxygen model with a pulse");
         check(h.getDoseLoad(t) < 0, "no plan budget → no dose part");
-        check(Math.abs(h.getSystemLoad(t) - Math.sqrt((0.45 * m0 * m0 + 0.35 * x0 * x0) / 0.8)) < 1e-9
-                && h.getSystemLoad(t) <= Math.max(m0, x0) + 1e-9 && h.getSystemLoad(t) >= Math.min(m0, x0) - 1e-9,
-                "total load = weighted RMS of the parts (between them)");
+        check(Math.abs(h.getSystemLoad(t) - (1 - (1 - m0) * (1 - x0))) < 1e-9
+                && h.getSystemLoad(t) >= Math.max(m0, x0) - 1e-9 && h.getSystemLoad(t) <= 1.0 + 1e-9,
+                "total load = either system at its limit is the limit (≥ the higher part)");
         check(h.getMuscleMeanLoad(t) <= h.getPeakLoad(t) + 1e-9, "whole-body mean ≤ the peak zone");
         for (int i = 0; i < 2 && h.getState() == AutoEngine.State.RUN; i++) {
             t += h.getCurrent().durationMs();

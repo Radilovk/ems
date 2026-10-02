@@ -947,6 +947,9 @@ public final class AutoSession {
     private static void onStateChange(AutoEngine.State before, long now) {
         AutoEngine.State after = engine.getState();
         if (after == AutoEngine.State.REST && before != AutoEngine.State.REST) {
+            if (before == AutoEngine.State.RUN) {
+                AutoBeep.end();                          // one long tone: the exercise is over, rest
+            }
             if (engine.isRestBeforeCooldown()) {
                 notice(AiText.t("Активната част свърши. Следва възстановяване " + plan.recoveryS / 60
                                 + " мин — легни / седни удобно и натисни „▶ Старт“.",

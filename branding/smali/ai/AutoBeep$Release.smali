@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 68
+    .line 94
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 69
+    .line 95
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoBeep$Release;->track:Landroid/media/AudioTrack;
 
-    .line 70
+    .line 96
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 75
+    .line 101
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoBeep$Release;->track:Landroid/media/AudioTrack;
 
@@ -50,7 +50,7 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_d
 
-    .line 79
+    .line 105
     :goto_5
     :try_start_5
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoBeep$Release;->track:Landroid/media/AudioTrack;
@@ -59,17 +59,17 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_a} :catch_b
 
-    .line 82
+    .line 108
     :goto_a
     return-void
 
-    .line 80
+    .line 106
     :catch_b
     move-exception v0
 
     goto :goto_a
 
-    .line 76
+    .line 102
     :catch_d
     move-exception v0
 

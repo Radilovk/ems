@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 55
+    .line 81
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 56
+    .line 82
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/AutoBeep$Beep;->longOne:Z
 
-    .line 57
+    .line 83
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 2
 
     .prologue
-    .line 61
+    .line 87
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoBeep$Beep;->longOne:Z
 
     # invokes: Lcom/isaigu/gymapp/ai/AutoBeep;->play(Z)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoBeep;->access$000(Z)V
 
-    .line 62
+    .line 88
     return-void
 .end method

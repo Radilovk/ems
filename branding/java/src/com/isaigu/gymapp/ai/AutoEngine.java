@@ -945,14 +945,16 @@ public final class AutoEngine {
     //                                                       fitness, measured HR_rest (AiEnergy)
     //            X   = 0.6·C + 0.4·V with a pulse,  V without (C = (HR − HR_rest) / (HR_cap − HR_rest))
     //   dose     D   = work done / work the plan holds (Σ a_k·dF_k⁺ integrated; the session's own forecast)
-    //   total    L   = √((0.45·M² + 0.35·X² + 0.20·D²) / Σ weights used)          [D] weights
-    // RMS: the highest part leads, the others still count; nothing here sets a limit — the HR ceiling and the rest
-    // minimum are enforced separately.
+    //   now      S   = 1 − (1 − M)(1 − X)  (+ the overshoot of the higher part past 1)
+    //   total    L   = S · (1 + 0.15·D)
+    // Owner (1.1.285): the parts are not averaged — a light part must not dilute a hard one (the old weighted RMS
+    // sat in the blue in a hard set, and the growing dose lifted the passive recovery above the main part).
+    // S rises with either system and is 1 when one of them is at its limit; the dose done only makes the same
+    // stimulus count a bit more late in the session (accumulated fatigue), it never makes a light phase hard.
+    // Nothing here sets a limit — the HR ceiling and the rest minimum are enforced separately.
 
-    /** Shares of the total load: local muscles, central (heart / oxygen), the session's dose so far. [D] */
-    static final double W_MUSCLE = 0.45;
-    static final double W_CENTRAL = 0.35;
-    static final double W_DOSE = 0.20;
+    /** How much the session's dose done (0…1) adds to the same stimulus at its end (accumulated fatigue). [D] */
+    static final double DOSE_GAIN = 0.15;
     /** Measured heart vs the oxygen model in the central part (HR is real but lags; the model is instant). [D] */
     static final double HR_SHARE = 0.6;
     /** Oxygen uptake follows the demand with this time constant (s), on and off. */
@@ -1149,16 +1151,15 @@ public final class AutoEngine {
 
     /** The total load L (see the block comment): the "Натоварване" scale, 1 ≈ the body at its limit. */
     public double getSystemLoad(long now) {
-        double m = getMuscularLoad(now);
-        double x = getCentralLoad(now);
-        double d = getDoseLoad(now);
-        double sum = W_MUSCLE * m * m + W_CENTRAL * x * x;
-        double w = W_MUSCLE + W_CENTRAL;
-        if (d >= 0) {
-            sum += W_DOSE * d * d;
-            w += W_DOSE;
-        }
-        return Math.sqrt(sum / w);
+        return totalLoad(getMuscularLoad(now), getCentralLoad(now), getDoseLoad(now));
+    }
+
+    /** L from the parts: either system at its limit is the limit; the dose done adds up to DOSE_GAIN. */
+    static double totalLoad(double m, double x, double d) {
+        double mc = clamp(m, 0, 1);
+        double xc = clamp(x, 0, 1);
+        double s = 1 - (1 - mc) * (1 - xc) + Math.max(0, Math.max(m, x) - 1);
+        return clamp(s * (1 + DOSE_GAIN * Math.max(0, d)), 0, 1.25);
     }
 
     /** True when the heart, not a muscle, is nearer its limit now. */

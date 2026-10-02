@@ -290,10 +290,22 @@ public final class AutoSim {
         AutoModel.Plan plan = AutoPlanner.build(in, 70);
         int[] want = plan.zones.clone();
         want[AutoModel.ABS] = 100;
-        want[AutoModel.LOWER_BACK] = 50;           // −40: clamped to −20 → 70 → abs ≤ 91
+        want[AutoModel.LOWER_BACK] = 50;           // −40: down is free (1.1.286) → 50 → abs ≤ 65
         int[] z = AutoLimits.clampZones(want, plan);
-        check(z[AutoModel.LOWER_BACK] == 70, "zones: ±20 of the program (" + z[AutoModel.LOWER_BACK] + ")");
-        check(z[AutoModel.ABS] <= 91, "zones: L7 abs ≤ 1.3 × lower back (" + z[AutoModel.ABS] + ")");
+        check(z[AutoModel.LOWER_BACK] == 50, "zones: a channel goes down freely (" + z[AutoModel.LOWER_BACK] + ")");
+        check(z[AutoModel.ABS] <= 65, "zones: L7 abs ≤ 1.3 × lower back (" + z[AutoModel.ABS] + ")");
+        want = plan.zones.clone();
+        want[AutoModel.CALF] = 0;
+        want[AutoModel.GLUTES] = plan.zones[AutoModel.GLUTES] + 40;
+        z = AutoLimits.clampZones(want, plan);
+        check(z[AutoModel.CALF] == 0, "zones: a channel can be switched off");
+        check(z[AutoModel.GLUTES] <= plan.zones[AutoModel.GLUTES] + plan.zoneDelta, "zones: up at most +zoneDelta");
+        int[] wave = new int[AutoModel.CHANNELS];
+        java.util.Arrays.fill(wave, 60);
+        want = wave.clone();
+        want[AutoModel.CALF] = 30;
+        z = AutoLimits.clampZones(want, wave, plan);
+        check(z[AutoModel.CALF] == 30, "zones: a wave / even step can be lowered per channel");
         want = plan.zones.clone();
         want[AutoModel.CHEST] = 75;
         want[AutoModel.BACK] = 55;

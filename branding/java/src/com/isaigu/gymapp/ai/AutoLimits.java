@@ -116,18 +116,24 @@ public final class AutoLimits {
     }
 
     /**
-     * Zones a person set, brought back into the limits: ±zoneDelta of the program, the
-     * per-zone maximum and locks, then the balance rules L7–L9 (the agonist gives way).
+     * Zones a person set, brought back into the limits (owner, 1.1.286 — every channel is the trainer's to set):
+     * down freely to 0, up at most +zoneDelta over the step's own value and the per-zone maximum; locks hold;
+     * then the balance rules L7–L9 (the agonist gives way).
      */
     public static int[] clampZones(int[] wanted, Plan plan) {
+        return clampZones(wanted, plan.zones, plan);
+    }
+
+    /** As above against {@code base} — the zones the running step asks for (a wave, an even step, the plan). */
+    public static int[] clampZones(int[] wanted, int[] base, Plan plan) {
         int[] z = new int[CHANNELS];
         for (int i = 0; i < CHANNELS; i++) {
-            int base = plan.zones[i];
-            int v = wanted != null && i < wanted.length ? wanted[i] : base;
+            int b = base != null && i < base.length ? base[i] : plan.zones[i];
+            int v = wanted != null && i < wanted.length ? wanted[i] : b;
             if (plan.zoneLocked[i]) {
-                v = base;
+                v = Math.min(b, plan.zones[i]);
             } else {
-                v = clamp(v, base - plan.zoneDelta, base + plan.zoneDelta);
+                v = Math.min(v, b + plan.zoneDelta);
             }
             z[i] = clamp(v, 0, Math.min(100, plan.zoneMax[i]));
         }

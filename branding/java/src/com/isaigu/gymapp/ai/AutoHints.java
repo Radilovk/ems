@@ -57,8 +57,8 @@ public final class AutoHints {
             AutoEngine e = AutoSession.getEngine();
             boolean want = AutoSession.getStage() == AutoSession.Stage.RUNNING && e != null
                     && e.getState() != AutoEngine.State.DONE && e.getState() != AutoEngine.State.STOPPED
-                    && !AutoUi.isShowing() && com.isaigu.gymapp.widget.XemsNav.isTrainingPage()
-                    && (AutoSession.tipsOn() || alertActive(System.currentTimeMillis()) || waits(e));
+                    && !AutoUi.isShowing() && !AutoBoard.isAttached() && com.isaigu.gymapp.widget.XemsNav.isTrainingPage()
+                    && (AutoSession.tipsOn() || alertActive(System.currentTimeMillis()) || waits(e) || nextSoon(e));
             if (!want) {
                 hide();
                 return;
@@ -73,6 +73,11 @@ public final class AutoHints {
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoHints.refresh", t);
         }
+    }
+
+    /** The set's last seconds with another exercise (or the recovery) next: shown even with the tips off. */
+    static boolean nextSoon(AutoEngine e) {
+        return e.getNextExercise() != null && e.getState() == AutoEngine.State.RUN && e.getSetLeftS() <= 10;
     }
 
     /** The session waits for ▶ or counts down: the card is needed even with the tips off. */
@@ -230,8 +235,8 @@ public final class AutoHints {
         } else if (state == AutoEngine.State.COUNTDOWN) {
             st = AiText.t("Старт след ", "Start in ") + e.getCountdownLeftS(now) + " …";
         }
-        boolean key = waits(e);
-        startKey.setVisibility(key ? View.VISIBLE : View.GONE);
+        boolean key = false;                                   // the main panel's ▶ drives Auto (1.1.276)
+        startKey.setVisibility(View.GONE);
         if (key) {
             startKey.setText(state == AutoEngine.State.COUNTDOWN ? "" + Math.max(1, e.getCountdownLeftS(now))
                     : AutoUi.startLabel(e, now));
@@ -239,7 +244,7 @@ public final class AutoHints {
             startKey.setAlpha(state == AutoEngine.State.REST && !AutoSession.startReady() ? 0.55f : 1f);
         }
         boolean tips = AutoSession.tipsOn();
-        mid.setVisibility(tips || st.length() > 0 || key ? View.VISIBLE : View.GONE);
+        mid.setVisibility(tips || st.length() > 0 || key || nextSoon(e) ? View.VISIBLE : View.GONE);
         status.setText(st);
         status.setVisibility(st.length() > 0 ? View.VISIBLE : View.GONE);
 
@@ -253,7 +258,7 @@ public final class AutoHints {
             ex = null;
         } else if (sc != null && pi >= 0 && pi < sc.phase.length && sc.phase[pi] != null && sc.phase[pi].length > 0) {
             String[] l = sc.phase[pi];
-            ex = sets ? l[e.getStationIndex() % l.length]
+            ex = sets ? e.getExercise()
                     : l[(int) (((now - EXAMPLE_T0) / 1000 / EXAMPLE_S) % l.length)];
         }
         exBox.setVisibility((tips || sets) && ex != null ? View.VISIBLE : View.GONE);
@@ -271,8 +276,18 @@ public final class AutoHints {
         }
         // with an example the exercise is the headline and the phase's hint goes under it; without one the hint leads
         if (sets && ex != null) {
-            exName.setText((nextOne ? AiText.t("Следва: ", "Next: ") : "") + AutoTemplates.name(ex));
-            hint.setText(tips ? h : "");
+            exName.setText((nextOne ? "→  " : "") + AutoTemplates.name(ex));
+            // in the rest: how the coming exercise is done (the library's steps)
+            String[] steps = nextOne ? AutoUi.howSteps(c, ex) : new String[0];
+            if (steps.length > 0) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < steps.length; i++) {
+                    sb.append(i > 0 ? "\n" : "").append(i + 1).append("  ").append(steps[i]);
+                }
+                hint.setText(sb.toString());
+            } else {
+                hint.setText(tips ? h : "");
+            }
         } else if (tips && ex != null) {
             exName.setText(AutoTemplates.name(ex));
             hint.setText(AiText.t("пример · ", "example · ") + h);
@@ -284,8 +299,12 @@ public final class AutoHints {
         hint.setVisibility(hint.getText().length() > 0 ? View.VISIBLE : View.GONE);
 
         String n = AutoCues.next(plan, e.getPhaseIndex(), e.phaseRemainingS());
+        String nx = e.getNextExercise();
+        if (nextSoon(e)) {                                   // the set's last seconds: get ready for the next one
+            n = "→  " + (nx.length() > 0 ? AutoTemplates.name(nx) : AiText.t("Възстановяване", "Recovery"));
+        }
         next.setText(n);
-        next.setVisibility(tips && n.length() > 0 ? View.VISIBLE : View.GONE);
+        next.setVisibility((tips || n.startsWith("→")) && n.length() > 0 ? View.VISIBLE : View.GONE);
 
         String msg = AutoSession.getLastNotice();
         int kind = Math.max(0, Math.min(2, AutoSession.getLastNoticeKind()));

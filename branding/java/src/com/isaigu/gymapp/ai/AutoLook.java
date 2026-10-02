@@ -65,6 +65,105 @@ public final class AutoLook {
         }
     }
 
+    // ---- the main control panel during Auto (owner, 1.1.276): its ▶/❚❚ and ■ drive the automatic session
+    private static final java.util.Set<View> MAIN_KEYS = java.util.Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
+    private static View mainStart;
+
+    /**
+     * The training screen's own start/pause and stop keys take over Auto's controls while it runs (the board
+     * has none): a touch listener consumes them, so the vendor's handler never runs; the start key's icon follows
+     * Auto (▶ when it waits, ❚❚ while the impulses run). Undone by {@link #unbindMainKeys}.
+     */
+    static void bindMainKeys(View any, boolean running) {
+        if (any == null) {
+            return;
+        }
+        try {
+            View root = any.getRootView();
+            Context c = root.getContext();
+            int startId = c.getResources().getIdentifier("allStartPause", "id", c.getPackageName());
+            int stopId = c.getResources().getIdentifier("allStop", "id", c.getPackageName());
+            View st = startId != 0 ? root.findViewById(startId) : null;
+            View sp = stopId != 0 ? root.findViewById(stopId) : null;
+            if (st != null && !MAIN_KEYS.contains(st)) {
+                st.setOnTouchListener(new MainKey(true));
+                MAIN_KEYS.add(st);
+            }
+            if (sp != null && !MAIN_KEYS.contains(sp)) {
+                sp.setOnTouchListener(new MainKey(false));
+                MAIN_KEYS.add(sp);
+            }
+            if (st != null) {
+                mainStart = st;
+                icon(st, running);
+            }
+        } catch (Throwable t) {
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("auto", "main keys: " + t);
+        }
+    }
+
+    /** The vendor's icons: mipmap/start (▶) and mipmap/stop2 (❚❚). */
+    private static void icon(View st, boolean running) {
+        Context c = st.getContext();
+        int res = c.getResources().getIdentifier(running ? "stop2" : "start", "mipmap", c.getPackageName());
+        Integer was = (Integer) st.getTag(TAG_ICON);
+        if (res != 0 && (was == null || was != res)) {
+            st.setBackgroundResource(res);
+            st.setTag(TAG_ICON, res);
+        }
+    }
+
+    private static final int TAG_ICON = 0x7f7a0001;
+
+    static void unbindMainKeys(boolean deviceRunning) {
+        for (View v : new ArrayList<View>(MAIN_KEYS)) {
+            if (v != null) {
+                v.setOnTouchListener(null);
+                v.setAlpha(1f);
+            }
+        }
+        MAIN_KEYS.clear();
+        if (mainStart != null) {
+            try {
+                mainStart.setTag(TAG_ICON, null);
+                icon(mainStart, deviceRunning);
+            } catch (Throwable ignored) {
+            }
+        }
+        mainStart = null;
+    }
+
+    static final class MainKey implements View.OnTouchListener {
+        private final boolean start;
+
+        MainKey(boolean start) {
+            this.start = start;
+        }
+
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            int a = e.getActionMasked();
+            if (a == android.view.MotionEvent.ACTION_DOWN) {
+                v.setAlpha(0.6f);
+            } else if (a == android.view.MotionEvent.ACTION_UP || a == android.view.MotionEvent.ACTION_CANCEL) {
+                v.setAlpha(1f);
+                boolean inside = e.getX() >= 0 && e.getY() >= 0 && e.getX() <= v.getWidth() && e.getY() <= v.getHeight();
+                if (a == android.view.MotionEvent.ACTION_UP && inside) {
+                    try {
+                        if (start) {
+                            AutoSession.mainStartPause();
+                        } else {
+                            AutoSession.mainStop();
+                        }
+                    } catch (Throwable t) {
+                        com.isaigu.gymapp.widget.XemsGuard.report("AutoLook.mainKey", t);
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
     static void restore() {
         if (!on) {
             return;

@@ -102,6 +102,10 @@ public final class AutoSession {
     private static long lastHookMs;
     /** Countdowns already announced (beeps scheduled) — by their go time. */
     private static long beepsForGoMs;
+    private static AutoEngine.Forecast forecast;
+    private static double forecastScale = 1.0;
+    private static boolean forecastDouble;
+    private static long forecastMs;
 
     private AutoSession() {}
 
@@ -606,7 +610,16 @@ public final class AutoSession {
         } catch (Throwable t) {
             WearableBleDiagLog.log("auto", "template: " + t);
         }
-        engine.setStations(stationPhases(plan, script));
+        engine.setScript(script);
+        try {
+            forecastDouble = plan.doublePulseAllowed && plan.input.doublePulse;
+            forecastScale = 1.0;
+            forecast = AutoEngine.forecast(plan, script, forecastDouble);
+            engine.setDoseBudget(forecast.dose);             // D of the total load: the plan's own work
+        } catch (Throwable t) {
+            forecast = null;
+            WearableBleDiagLog.log("auto", "forecast: " + t);
+        }
         seenCorridorExt = 0;
         seenDoseExt = 0;
         seenRaiseLocked = false;
@@ -627,17 +640,26 @@ public final class AutoSession {
         startTicker();
     }
 
-    /** Phases run as exercise sets (30–40 s, rest after each): the active program's phases with exercises. */
-    static boolean[] stationPhases(AutoModel.Plan p, AutoTemplates.Script sc) {
-        boolean[] out = new boolean[p.phases.size()];
-        if (sc == null || !p.program.isActive()) {
-            return out;
+    /** The whole session planned ahead (the live board's timeline), null before the start. */
+    static AutoEngine.Forecast getForecast() {
+        return forecast;
+    }
+
+    /** ⏭ Next: the set ends now / the next exercise / the next phase (never past the recovery). */
+    public static boolean next() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return false;
         }
-        for (int i = 0; i < out.length; i++) {
-            out[i] = !p.phases.get(i).isCooldown() && !p.phases.get(i).wave && i < sc.phase.length
-                    && sc.phase[i] != null && sc.phase[i].length > 0;
+        long now = System.currentTimeMillis();
+        AutoEngine.State before = engine.getState();
+        if (!engine.next(now)) {
+            return false;
         }
-        return out;
+        if (engine.getState() != AutoEngine.State.RUN) {
+            zeroOutput();
+        }
+        onStateChange(before, now);
+        return true;
     }
 
     /**
@@ -691,6 +713,8 @@ public final class AutoSession {
         AutoHints.hide();
         AiRamp.clear();
         AutoLook.restore();
+        AutoLook.unbindMainKeys(leaderRunning());
+        AutoBoard.detach();
         stage = Stage.IDLE;
         written = null;
         engine = null;
@@ -717,6 +741,102 @@ public final class AutoSession {
             engine.userPause(now);
             zeroOutput();
         }
+    }
+
+    /**
+     * The main panel's ▶/❚❚ during Auto (owner, 1.1.276 — the board has no keys): pause while the impulses run,
+     * the next set / resume when it waits (too early → the notice says why), cancel during the countdown.
+     */
+    /** True while Auto runs: the right panel's ▶ and ■ belong to it (XemsPanel routes them here). */
+    public static boolean mainKeysOwned() {
+        return stage == Stage.RUNNING && engine != null && engine.getState() != AutoEngine.State.DONE
+                && engine.getState() != AutoEngine.State.STOPPED;
+    }
+
+    /** ⏭ can do something now: a set or a rest of exercises, or a phase that is not the recovery. */
+    public static boolean canNext() {
+        if (!mainKeysOwned()) {
+            return false;
+        }
+        AutoModel.Phase ph = engine.phase();
+        AutoEngine.State st = engine.getState();
+        return ph != null && !ph.isCooldown() && !engine.isRestBeforeCooldown()
+                && (st == AutoEngine.State.RUN || st == AutoEngine.State.REST);
+    }
+
+    /** The right panel's ⏭ (between ▶ and +): on to the next exercise / phase, with a short notice. */
+    public static void nextFromPanel() {
+        if (!canNext()) {
+            return;
+        }
+        String to = engine.getNextExercise();
+        if (next()) {
+            notice(to != null && to.length() > 0
+                            ? AiText.t("⏭ Към „" + AutoTemplates.name(to) + "“", "⏭ To " + AutoTemplates.name(to))
+                            : AiText.t("⏭ Следващата фаза", "⏭ The next phase"),
+                    INFO, System.currentTimeMillis());
+        }
+        AutoUi.refresh();
+    }
+
+    /** For the right panel's start tile: −1 = not Auto, 1 = impulses run (show ❚❚), 0 = it waits (show ▶). */
+    public static int mainKeyState() {
+        if (!mainKeysOwned()) {
+            return -1;
+        }
+        AutoEngine.State st = engine.getState();
+        return st == AutoEngine.State.RUN || st == AutoEngine.State.COUNTDOWN ? 1 : 0;
+    }
+
+    public static void mainStartPause() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.RUN) {
+            engine.userPause(now);
+            zeroOutput();
+            notice(AiText.t("Пауза. ▶ продължава, ■ — към възстановяване.", "Paused. ▶ resumes, ■ — to the recovery."),
+                    INFO, now);
+        } else if (st == AutoEngine.State.HR_PAUSE && !engine.canResume()) {
+            notice(AiText.t("Пулсът е висок — ▶ се отключва, когато спадне.", "HR is high — ▶ unlocks when it drops."),
+                    LIMIT, now);
+        } else {
+            togglePause();
+        }
+        AutoUi.refresh();
+    }
+
+    /**
+     * The main panel's ■ during Auto: while the impulses run it only pauses (■ works from a pause — never one press
+     * to the end); in a pause or a rest it is the Auto STOP (active part → recovery, recovery → end).
+     */
+    public static void mainStop() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.RUN || st == AutoEngine.State.COUNTDOWN) {
+            if (st == AutoEngine.State.COUNTDOWN) {
+                engine.cancelCountdown(now);
+                AutoBeep.cancel();
+                handler.removeCallbacks(goNow);
+                beepsForGoMs = 0;
+            }
+            if (engine.getState() == AutoEngine.State.RUN) {
+                engine.userPause(now);
+            }
+            zeroOutput();
+            notice(AiText.t("Пауза. ■ още веднъж — " + (engine.phase() != null && engine.phase().isCooldown()
+                            ? "край." : "към възстановяване."),
+                    "Paused. ■ again — " + (engine.phase() != null && engine.phase().isCooldown() ? "end." : "to the recovery.")),
+                    LIMIT, now);
+        } else {
+            stop();
+        }
+        AutoUi.refresh();
     }
 
     /** True when ▶ may be pressed now (the next set, a pause, a confirmed HR resume). */
@@ -893,8 +1013,15 @@ public final class AutoSession {
     }
 
 
+    private static boolean leaderRunning() {
+        TrainItem l = leader();
+        return l != null && l.data != null && l.data.start;
+    }
+
     private static void finishToReport() {
         stage = Stage.REPORT;
+        AutoLook.unbindMainKeys(false);
+        AutoBoard.detach();
         AutoHints.hide();
         AutoLook.restore();
         // The board closes and the client's report opens (after this tick).
@@ -939,6 +1066,13 @@ public final class AutoSession {
             } else {
                 AutoLook.restore();
             }
+            AutoBoard.sync(panelRoot);
+            if (stage == Stage.RUNNING && engine != null) {
+                AutoEngine.State es = engine.getState();
+                AutoLook.bindMainKeys(panelRoot, es == AutoEngine.State.RUN || es == AutoEngine.State.COUNTDOWN);
+            } else {
+                AutoLook.unbindMainKeys(leaderRunning());
+            }
             AutoUi.refresh();
             AutoHints.refresh();
         }
@@ -980,6 +1114,7 @@ public final class AutoSession {
         } catch (Throwable ignored) {
         }
         guard(now);
+        feedLive(now);
         AutoEngine.State before = engine.getState();
         engine.tick(now);
         AutoEngine.State after = engine.getState();
@@ -1080,6 +1215,43 @@ public final class AutoSession {
         return AutoLimits.clampZones(want, rp);
     }
 
+    /**
+     * The lead row's real output → the engine (strength / calibration, zones as set), so the fatigue, the rests,
+     * the heat map and the timeline follow every manual change. Then, at most every 5 s, the forecast is rebuilt
+     * when the person's strength factor or the double impulse has moved (the remaining time and the profile).
+     */
+    private static void feedLive(long now) {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        Row lead = null;
+        for (Row r : rows) {
+            if (r.block == null && r.cal > 0) {
+                lead = r;
+                break;
+            }
+        }
+        AutoEngine.Cmd c = engine.getCurrent();
+        if (lead == null || engine.getState() != AutoEngine.State.RUN || c == null) {
+            return;
+        }
+        engine.setLive(Math.max(0, lead.writtenStrength) / (double) lead.cal, lead.writtenZones, now);
+        AutoModel.Plan rp = lead.plan != null ? lead.plan : plan;
+        double planned = AutoEngine.rowFrac(c, rp.phiMax);
+        double scale = planned > 0 ? Math.max(0, lead.writtenStrength) / (lead.cal * planned) : 1.0;
+        boolean dbl = engine.isDoublePulseOn();
+        if (now - forecastMs > 5000L && (Math.abs(scale - forecastScale) > 0.05 || dbl != forecastDouble)) {
+            forecastMs = now;
+            forecastScale = scale;
+            forecastDouble = dbl;
+            try {
+                forecast = AutoEngine.forecast(plan, script, dbl, scale);
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("auto", "forecast: " + t);
+            }
+        }
+    }
+
     private static void writeRows(AutoEngine.Cmd c, boolean calib) {
         if (c == null) {
             return;
@@ -1123,6 +1295,9 @@ public final class AutoSession {
         try {
             MasterStrengthControl.resetApplied();
         } catch (Throwable ignored) {
+        }
+        if (!calib) {
+            feedLive(System.currentTimeMillis());
         }
     }
 

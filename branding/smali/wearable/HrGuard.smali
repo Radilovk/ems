@@ -198,7 +198,7 @@
     .registers 3
 
     .prologue
-    .line 293
+    .line 298
     const-string v0, "strength_down"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -215,11 +215,11 @@
 
     move-result-object v0
 
-    .line 304
+    .line 309
     :goto_10
     return-object v0
 
-    .line 294
+    .line 299
     :cond_11
     const-string v0, "width_down"
 
@@ -239,7 +239,7 @@
 
     goto :goto_10
 
-    .line 295
+    .line 300
     :cond_22
     const-string v0, "freq_down"
 
@@ -259,7 +259,7 @@
 
     goto :goto_10
 
-    .line 296
+    .line 301
     :cond_33
     const-string v0, "pause_down"
 
@@ -279,7 +279,7 @@
 
     goto :goto_10
 
-    .line 297
+    .line 302
     :cond_44
     const-string v0, "pause_off"
 
@@ -299,7 +299,7 @@
 
     goto :goto_10
 
-    .line 298
+    .line 303
     :cond_55
     const-string v0, "off_up"
 
@@ -319,7 +319,7 @@
 
     goto :goto_10
 
-    .line 299
+    .line 304
     :cond_66
     const-string v0, "on_down"
 
@@ -339,7 +339,7 @@
 
     goto :goto_10
 
-    .line 300
+    .line 305
     :cond_77
     const-string v0, "restore"
 
@@ -359,7 +359,7 @@
 
     goto :goto_10
 
-    .line 301
+    .line 306
     :cond_88
     const-string v0, "cap"
 
@@ -379,7 +379,7 @@
 
     goto/16 :goto_10
 
-    .line 302
+    .line 307
     :cond_9a
     const-string v0, "resume"
 
@@ -399,7 +399,7 @@
 
     goto/16 :goto_10
 
-    .line 303
+    .line 308
     :cond_ac
     const-string v0, "calibrated"
 
@@ -419,7 +419,7 @@
 
     goto/16 :goto_10
 
-    .line 304
+    .line 309
     :cond_be
     const-string v0, ""
 
@@ -1931,4 +1931,26 @@
 
     .line 282
     goto :goto_3d
+.end method
+
+.method public static zoneColor(II)I
+    .registers 4
+
+    .prologue
+    .line 292
+    const/4 v0, 0x1
+
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->zoneFor(II)I
+
+    move-result v1
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableUi;->zoneColor(I)I
+
+    move-result v0
+
+    return v0
 .end method

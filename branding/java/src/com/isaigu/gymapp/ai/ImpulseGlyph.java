@@ -11,7 +11,7 @@ import android.graphics.drawable.Drawable;
 /**
  * The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave,
  * time = a clock, impulse + pause = one pulse then a flat line, double impulse = two pulses (the second lower),
- * depth (pulse width) = an arrow down to a line, ramp = a trapezoid. Used inside the map's blocks
+ * depth (pulse width) = an arrow down to a line, ramp = a trapezoid, the pulse = a heart. Used inside the map's blocks
  * ({@link ImpulseMapView}), in the legend and on the block panel ({@link WorkoutsUi}), so one symbol means one thing
  * everywhere. As a Drawable it sits next to a TextView's text.
  */
@@ -23,6 +23,7 @@ public final class ImpulseGlyph extends Drawable {
     public static final int DEPTH = 4;
     public static final int RAMP = 5;
     public static final int STRENGTH = 6;
+    public static final int HEART = 7;
 
     private final int type;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -75,6 +76,16 @@ public final class ImpulseGlyph extends Drawable {
                 pts(path, x, y, s, new float[] {0f, .84f, .3f, .2f, .7f, .2f, 1f, .84f});
                 c.drawPath(path, p);
                 break;
+            case HEART: {                                      // the pulse: a heart
+                path.moveTo(x + .5f * s, y + .9f * s);
+                path.cubicTo(x + .1f * s, y + .62f * s, x - .02f * s, y + .34f * s, x + .2f * s, y + .16f * s);
+                path.cubicTo(x + .34f * s, y + .05f * s, x + .47f * s, y + .14f * s, x + .5f * s, y + .27f * s);
+                path.cubicTo(x + .53f * s, y + .14f * s, x + .66f * s, y + .05f * s, x + .8f * s, y + .16f * s);
+                path.cubicTo(x + 1.02f * s, y + .34f * s, x + .9f * s, y + .62f * s, x + .5f * s, y + .9f * s);
+                path.close();
+                c.drawPath(path, p);
+                break;
+            }
             default:                                           // strength: three rising bars
                 pts(path, x, y, s, new float[] {.18f, .9f, .18f, .64f});
                 c.drawPath(path, p);

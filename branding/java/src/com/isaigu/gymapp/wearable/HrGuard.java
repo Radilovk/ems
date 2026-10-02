@@ -287,6 +287,11 @@ public final class HrGuard {
         }
     }
 
+    /** The HR's zone colour as on the dial and the HR panel (zone 1–5 of the maximum HR) — for other screens. */
+    public static int zoneColor(int hr, int hrMax) {
+        return WearableUi.zoneColor(Math.max(1, WearableUi.zoneFor(hr, hrMax)));
+    }
+
     // ================================================================ dial text
 
     static String actionText(String code) {

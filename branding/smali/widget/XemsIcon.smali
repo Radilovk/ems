@@ -20,6 +20,8 @@
 
 .field public static final MINUS:I = 0xa
 
+.field public static final NEXT:I = 0x11
+
 .field public static final PAUSE:I = 0x8
 
 .field public static final PERSON:I = 0x2
@@ -56,72 +58,72 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 45
+    .line 47
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 39
+    .line 41
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
-    .line 40
+    .line 42
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
 
-    .line 41
+    .line 43
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
-    .line 42
+    .line 44
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
-    .line 46
+    .line 48
     iput p1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->type:I
 
-    .line 47
+    .line 49
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 48
+    .line 50
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 49
+    .line 51
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 50
+    .line 52
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 51
+    .line 53
     invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/widget/XemsIcon;->setColor(I)V
 
-    .line 52
+    .line 54
     return-void
 .end method
 
@@ -131,57 +133,57 @@
     .registers 12
 
     .prologue
-    const/high16 v4, 0x40800000    # 4.0f
+    const/high16 v9, 0x40400000    # 3.0f
 
     const/high16 v8, 0x3fc00000    # 1.5f
 
-    const/high16 v9, 0x40400000    # 3.0f
-
     const/high16 v6, 0x41a00000    # 20.0f
+
+    const/high16 v3, 0x40a00000    # 5.0f
 
     const/high16 v2, 0x41400000    # 12.0f
 
-    .line 69
+    .line 71
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsIcon;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v0
 
-    .line 70
+    .line 72
     invoke-virtual {v0}, Landroid/graphics/Rect;->width()I
 
     move-result v1
 
     invoke-virtual {v0}, Landroid/graphics/Rect;->height()I
 
-    move-result v3
+    move-result v4
 
-    invoke-static {v1, v3}, Ljava/lang/Math;->min(II)I
+    invoke-static {v1, v4}, Ljava/lang/Math;->min(II)I
 
     move-result v1
 
     int-to-float v1, v1
 
-    .line 71
-    const/4 v3, 0x0
+    .line 73
+    const/4 v4, 0x0
 
-    cmpg-float v3, v1, v3
+    cmpg-float v4, v1, v4
 
-    if-gtz v3, :cond_21
+    if-gtz v4, :cond_21
 
-    .line 214
+    .line 228
     :goto_20
     return-void
 
-    .line 74
+    .line 76
     :cond_21
-    const/high16 v3, 0x41c00000    # 24.0f
+    const/high16 v4, 0x41c00000    # 24.0f
 
-    div-float v3, v1, v3
+    div-float v4, v1, v4
 
-    .line 75
+    .line 77
     invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
 
-    .line 76
+    .line 78
     invoke-virtual {v0}, Landroid/graphics/Rect;->exactCenterX()F
 
     move-result v5
@@ -204,29 +206,29 @@
 
     invoke-virtual {p1, v5, v0}, Landroid/graphics/Canvas;->translate(FF)V
 
-    .line 77
-    invoke-virtual {p1, v3, v3}, Landroid/graphics/Canvas;->scale(FF)V
+    .line 79
+    invoke-virtual {p1, v4, v4}, Landroid/graphics/Canvas;->scale(FF)V
 
-    .line 78
+    .line 80
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     const/high16 v1, 0x40000000    # 2.0f
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 79
+    .line 81
     iget v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->type:I
 
-    packed-switch v0, :pswitch_data_40e
+    packed-switch v0, :pswitch_data_45c
 
-    .line 213
+    .line 227
     :cond_4b
     :goto_4b
     invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
 
     goto :goto_20
 
-    .line 81
+    .line 83
     :pswitch_4f
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
@@ -235,26 +237,6 @@
     const/high16 v3, 0x41000000    # 8.0f
 
     const/high16 v4, 0x40d00000    # 6.5f
-
-    const/high16 v5, 0x41800000    # 16.0f
-
-    invoke-virtual {v0, v1, v3, v4, v5}, Landroid/graphics/RectF;->set(FFFF)V
-
-    .line 82
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v8, v8, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
-
-    .line 83
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
-
-    const/high16 v1, 0x418c0000    # 17.5f
-
-    const/high16 v3, 0x41000000    # 8.0f
-
-    const/high16 v4, 0x41ac0000    # 21.5f
 
     const/high16 v5, 0x41800000    # 16.0f
 
@@ -270,35 +252,31 @@
     .line 85
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
-    const/high16 v1, 0x40d00000    # 6.5f
+    const/high16 v1, 0x418c0000    # 17.5f
 
-    const/high16 v3, 0x40c00000    # 6.0f
+    const/high16 v3, 0x41000000    # 8.0f
 
-    const/high16 v4, 0x41100000    # 9.0f
+    const/high16 v4, 0x41ac0000    # 21.5f
 
-    const/high16 v5, 0x41900000    # 18.0f
+    const/high16 v5, 0x41800000    # 16.0f
 
     invoke-virtual {v0, v1, v3, v4, v5}, Landroid/graphics/RectF;->set(FFFF)V
 
     .line 86
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
-    const v1, 0x3f99999a    # 1.2f
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
-    const v3, 0x3f99999a    # 1.2f
-
-    iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v1, v3, v4}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+    invoke-virtual {p1, v0, v8, v8, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
     .line 87
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
-    const/high16 v1, 0x41700000    # 15.0f
+    const/high16 v1, 0x40d00000    # 6.5f
 
     const/high16 v3, 0x40c00000    # 6.0f
 
-    const/high16 v4, 0x418c0000    # 17.5f
+    const/high16 v4, 0x41100000    # 9.0f
 
     const/high16 v5, 0x41900000    # 18.0f
 
@@ -316,6 +294,30 @@
     invoke-virtual {p1, v0, v1, v3, v4}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
     .line 89
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
+
+    const/high16 v1, 0x41700000    # 15.0f
+
+    const/high16 v3, 0x40c00000    # 6.0f
+
+    const/high16 v4, 0x418c0000    # 17.5f
+
+    const/high16 v5, 0x41900000    # 18.0f
+
+    invoke-virtual {v0, v1, v3, v4, v5}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 90
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
+
+    const v1, 0x3f99999a    # 1.2f
+
+    const v3, 0x3f99999a    # 1.2f
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v0, v1, v3, v4}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+
+    .line 91
     const/high16 v1, 0x41100000    # 9.0f
 
     const/high16 v3, 0x41700000    # 15.0f
@@ -330,13 +332,13 @@
 
     goto :goto_4b
 
-    .line 92
+    .line 94
     :pswitch_b7
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 93
+    .line 95
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41580000    # 13.5f
@@ -345,16 +347,14 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 94
+    .line 96
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
-    const/high16 v1, 0x40a00000    # 5.0f
+    const/high16 v1, 0x41580000    # 13.5f
 
-    const/high16 v2, 0x41580000    # 13.5f
+    invoke-virtual {v0, v3, v1}, Landroid/graphics/Path;->lineTo(FF)V
 
-    invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
-
-    .line 95
+    .line 97
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41300000    # 11.0f
@@ -363,7 +363,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 96
+    .line 98
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41200000    # 10.0f
@@ -372,7 +372,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 97
+    .line 99
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41980000    # 19.0f
@@ -381,7 +381,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 98
+    .line 100
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41500000    # 13.0f
@@ -390,12 +390,12 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 99
+    .line 101
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
-    .line 100
+    .line 102
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
@@ -404,15 +404,17 @@
 
     goto/16 :goto_4b
 
-    .line 103
-    :pswitch_100
+    .line 105
+    :pswitch_fe
     const/high16 v0, 0x41000000    # 8.0f
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+    const/high16 v1, 0x40800000    # 4.0f
 
-    invoke-virtual {p1, v2, v0, v4, v1}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
-    .line 104
+    invoke-virtual {p1, v2, v0, v1, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+
+    .line 106
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40900000    # 4.5f
@@ -425,7 +427,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 105
+    .line 107
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v2, 0x43340000    # 180.0f
@@ -442,20 +444,20 @@
 
     goto/16 :goto_4b
 
-    .line 108
+    .line 110
     :pswitch_123
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v2, v2, v9, v0}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 109
+    .line 111
     const/high16 v0, 0x40e00000    # 7.0f
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v2, v2, v0, v1}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 110
+    .line 112
     const/4 v0, 0x0
 
     :goto_130
@@ -463,7 +465,7 @@
 
     if-ge v0, v1, :cond_4b
 
-    .line 111
+    .line 113
     const-wide v4, 0x400921fb54442d18L    # Math.PI
 
     int-to-double v6, v0
@@ -474,7 +476,7 @@
 
     div-double v8, v4, v6
 
-    .line 112
+    .line 114
     invoke-static {v8, v9}, Ljava/lang/Math;->cos(D)D
 
     move-result-wide v4
@@ -487,7 +489,7 @@
 
     add-float v4, v2, v1
 
-    .line 113
+    .line 115
     invoke-static {v8, v9}, Ljava/lang/Math;->sin(D)D
 
     move-result-wide v6
@@ -500,7 +502,7 @@
 
     add-float v5, v2, v1
 
-    .line 114
+    .line 116
     invoke-static {v8, v9}, Ljava/lang/Math;->cos(D)D
 
     move-result-wide v6
@@ -513,7 +515,7 @@
 
     add-float v6, v2, v1
 
-    .line 115
+    .line 117
     invoke-static {v8, v9}, Ljava/lang/Math;->sin(D)D
 
     move-result-wide v8
@@ -526,39 +528,41 @@
 
     add-float v7, v2, v1
 
-    .line 116
+    .line 118
     iget-object v8, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     move-object v3, p1
 
     invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 110
+    .line 112
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_130
 
-    .line 120
+    .line 122
     :pswitch_172
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
-    const/high16 v1, 0x41a80000    # 21.0f
+    const/high16 v1, 0x40800000    # 4.0f
 
-    invoke-virtual {v0, v9, v4, v1, v6}, Landroid/graphics/RectF;->set(FFFF)V
+    const/high16 v3, 0x41a80000    # 21.0f
 
-    .line 121
+    invoke-virtual {v0, v9, v1, v3, v6}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 123
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v9, v9, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 122
+    .line 124
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 123
+    .line 125
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41200000    # 10.0f
@@ -567,14 +571,14 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 124
+    .line 126
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41780000    # 15.5f
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 125
+    .line 127
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41200000    # 10.0f
@@ -583,12 +587,12 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 126
+    .line 128
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
-    .line 127
+    .line 129
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
@@ -597,13 +601,11 @@
 
     goto/16 :goto_4b
 
-    .line 130
-    :pswitch_1ac
+    .line 132
+    :pswitch_1ae
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40600000    # 3.5f
-
-    const/high16 v3, 0x40a00000    # 5.0f
 
     const/high16 v4, 0x41a40000    # 20.5f
 
@@ -611,14 +613,14 @@
 
     invoke-virtual {v0, v1, v3, v4, v5}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 131
+    .line 133
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v9, v9, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 132
+    .line 134
     const/high16 v4, 0x40600000    # 3.5f
 
     const/high16 v5, 0x41200000    # 10.0f
@@ -633,7 +635,7 @@
 
     invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 133
+    .line 135
     const/high16 v4, 0x41000000    # 8.0f
 
     const/high16 v6, 0x41000000    # 8.0f
@@ -648,7 +650,7 @@
 
     invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 134
+    .line 136
     const/high16 v4, 0x41800000    # 16.0f
 
     const/high16 v6, 0x41800000    # 16.0f
@@ -663,7 +665,7 @@
 
     invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 135
+    .line 137
     const/high16 v0, 0x41080000    # 8.5f
 
     const/high16 v1, 0x41680000    # 14.5f
@@ -674,7 +676,7 @@
 
     invoke-virtual {p1, v0, v1, v3, v4}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 136
+    .line 138
     const/high16 v0, 0x41680000    # 14.5f
 
     const v1, 0x3f8ccccd    # 1.1f
@@ -683,7 +685,7 @@
 
     invoke-virtual {p1, v2, v0, v1, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 137
+    .line 139
     const/high16 v0, 0x41780000    # 15.5f
 
     const/high16 v1, 0x41680000    # 14.5f
@@ -696,7 +698,7 @@
 
     goto/16 :goto_4b
 
-    .line 140
+    .line 142
     :pswitch_20c
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
@@ -710,7 +712,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 141
+    .line 143
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40200000    # 2.5f
@@ -723,13 +725,13 @@
 
     goto/16 :goto_4b
 
-    .line 144
+    .line 146
     :pswitch_226
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 145
+    .line 147
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x40f00000    # 7.5f
@@ -738,14 +740,14 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 146
+    .line 148
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x419c0000    # 19.5f
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 147
+    .line 149
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x40f00000    # 7.5f
@@ -754,24 +756,24 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 148
+    .line 150
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
-    .line 149
+    .line 151
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v8}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 150
+    .line 152
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 151
+    .line 153
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
@@ -780,41 +782,110 @@
 
     goto/16 :goto_4b
 
-    .line 154
+    .line 156
     :pswitch_25e
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
+
+    invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
+
+    .line 157
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
+
+    invoke-virtual {v0, v3, v3}, Landroid/graphics/Path;->moveTo(FF)V
+
+    .line 158
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
+
+    const/high16 v1, 0x41700000    # 15.0f
+
+    invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
+
+    .line 159
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
+
+    const/high16 v1, 0x41980000    # 19.0f
+
+    invoke-virtual {v0, v3, v1}, Landroid/graphics/Path;->lineTo(FF)V
+
+    .line 160
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
+
+    invoke-virtual {v0}, Landroid/graphics/Path;->close()V
+
+    .line 161
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+
+    invoke-virtual {v0, v8}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 162
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    .line 163
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
+
+    .line 164
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
+
+    const/high16 v1, 0x41840000    # 16.5f
+
+    const/high16 v2, 0x419c0000    # 19.5f
+
+    const/high16 v4, 0x41980000    # 19.0f
+
+    invoke-virtual {v0, v1, v3, v2, v4}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 165
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
+
+    const v1, 0x3f99999a    # 1.2f
+
+    const v2, 0x3f99999a    # 1.2f
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+
+    goto/16 :goto_4b
+
+    .line 168
+    :pswitch_2a8
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40c00000    # 6.0f
 
-    const/high16 v2, 0x40a00000    # 5.0f
-
-    const/high16 v3, 0x41200000    # 10.0f
+    const/high16 v2, 0x41200000    # 10.0f
 
     const/high16 v4, 0x41980000    # 19.0f
 
-    invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
+    invoke-virtual {v0, v1, v3, v2, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 155
+    .line 169
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v8, v8, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 156
+    .line 170
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x41600000    # 14.0f
 
-    const/high16 v2, 0x40a00000    # 5.0f
-
-    const/high16 v3, 0x41900000    # 18.0f
+    const/high16 v2, 0x41900000    # 18.0f
 
     const/high16 v4, 0x41980000    # 19.0f
 
-    invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
+    invoke-virtual {v0, v1, v3, v2, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 157
+    .line 171
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
@@ -823,17 +894,15 @@
 
     goto/16 :goto_4b
 
-    .line 160
-    :pswitch_288
+    .line 174
+    :pswitch_2ce
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     const v1, 0x40266666    # 2.6f
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 161
-    const/high16 v3, 0x40a00000    # 5.0f
-
+    .line 175
     const/high16 v5, 0x41980000    # 19.0f
 
     iget-object v6, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
@@ -844,46 +913,52 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 162
-    const/high16 v1, 0x40a00000    # 5.0f
+    .line 176
+    const/high16 v7, 0x41980000    # 19.0f
 
-    const/high16 v3, 0x41980000    # 19.0f
+    iget-object v9, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+    move-object v4, p1
 
-    move-object v0, p1
+    move v5, v3
 
-    move v4, v2
+    move v6, v2
 
-    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+    move v8, v2
+
+    invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
     goto/16 :goto_4b
 
-    .line 165
-    :pswitch_2a8
+    .line 179
+    :pswitch_2ec
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     const v1, 0x40266666    # 2.6f
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 166
-    const/high16 v1, 0x40a00000    # 5.0f
+    .line 180
+    const/high16 v7, 0x41980000    # 19.0f
 
-    const/high16 v3, 0x41980000    # 19.0f
+    iget-object v9, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+    move-object v4, p1
 
-    move-object v0, p1
+    move v5, v3
 
-    move v4, v2
+    move v6, v2
 
-    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+    move v8, v2
+
+    invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
     goto/16 :goto_4b
 
-    .line 169
-    :pswitch_2bd
+    .line 183
+    :pswitch_301
+    const/high16 v4, 0x40800000    # 4.0f
+
     const/high16 v5, 0x40e00000    # 7.0f
 
     const/high16 v7, 0x40e00000    # 7.0f
@@ -894,18 +969,22 @@
 
     invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 170
-    iget-object v8, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+    .line 184
+    const/high16 v1, 0x40800000    # 4.0f
 
-    move-object v3, p1
+    iget-object v5, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
-    move v5, v2
+    move-object v0, p1
 
-    move v7, v2
+    move v3, v6
 
-    invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+    move v4, v2
 
-    .line 171
+    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+
+    .line 185
+    const/high16 v4, 0x40800000    # 4.0f
+
     const/high16 v5, 0x41880000    # 17.0f
 
     const/high16 v7, 0x41880000    # 17.0f
@@ -916,7 +995,7 @@
 
     invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 172
+    .line 186
     const/high16 v0, 0x41700000    # 15.0f
 
     const/high16 v1, 0x40e00000    # 7.0f
@@ -927,7 +1006,7 @@
 
     invoke-virtual {p1, v0, v1, v3, v4}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 173
+    .line 187
     const/high16 v0, 0x41100000    # 9.0f
 
     const v1, 0x400ccccd    # 2.2f
@@ -936,7 +1015,7 @@
 
     invoke-virtual {p1, v0, v2, v1, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 174
+    .line 188
     const/high16 v0, 0x41500000    # 13.0f
 
     const/high16 v1, 0x41880000    # 17.0f
@@ -949,24 +1028,26 @@
 
     goto/16 :goto_4b
 
-    .line 177
-    :pswitch_2fd
-    iget-object v8, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
+    .line 191
+    :pswitch_347
+    const/high16 v5, 0x40800000    # 4.0f
 
-    move-object v3, p1
+    iget-object v9, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
-    move v5, v6
+    move-object v4, p1
 
     move v7, v6
 
-    invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+    move v8, v6
 
-    .line 178
+    invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+
+    .line 192
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 179
+    .line 193
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x40900000    # 4.5f
@@ -975,7 +1056,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 180
+    .line 194
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41180000    # 9.5f
@@ -984,7 +1065,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 181
+    .line 195
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x41500000    # 13.0f
@@ -993,7 +1074,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 182
+    .line 196
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const/high16 v1, 0x419c0000    # 19.5f
@@ -1002,14 +1083,14 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 183
+    .line 197
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 184
+    .line 198
     const/high16 v0, 0x419c0000    # 19.5f
 
     const/high16 v1, 0x40d00000    # 6.5f
@@ -1022,28 +1103,26 @@
 
     goto/16 :goto_4b
 
-    .line 187
-    :pswitch_343
+    .line 201
+    :pswitch_38f
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40600000    # 3.5f
 
-    const/high16 v2, 0x40a00000    # 5.0f
-
-    const/high16 v3, 0x41a40000    # 20.5f
+    const/high16 v2, 0x41a40000    # 20.5f
 
     const/high16 v4, 0x41980000    # 19.0f
 
-    invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
+    invoke-virtual {v0, v1, v3, v2, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 188
+    .line 202
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v9, v9, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 189
+    .line 203
     const/high16 v0, 0x41080000    # 8.5f
 
     const/high16 v1, 0x41280000    # 10.5f
@@ -1054,7 +1133,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 190
+    .line 204
     const/high16 v1, 0x40c00000    # 6.0f
 
     const/high16 v2, 0x41780000    # 15.5f
@@ -1069,7 +1148,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 191
+    .line 205
     const/high16 v1, 0x41580000    # 13.5f
 
     const/high16 v2, 0x41180000    # 9.5f
@@ -1084,7 +1163,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 192
+    .line 206
     const/high16 v1, 0x41580000    # 13.5f
 
     const/high16 v2, 0x41500000    # 13.0f
@@ -1099,7 +1178,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 193
+    .line 207
     const/high16 v1, 0x41580000    # 13.5f
 
     const v2, 0x41826666    # 16.3f
@@ -1116,13 +1195,17 @@
 
     goto/16 :goto_4b
 
-    .line 196
-    :pswitch_39e
+    .line 210
+    :pswitch_3e8
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
-    invoke-virtual {v0, v4, v4, v6, v6}, Landroid/graphics/RectF;->set(FFFF)V
+    const/high16 v1, 0x40800000    # 4.0f
 
-    .line 197
+    const/high16 v3, 0x40800000    # 4.0f
+
+    invoke-virtual {v0, v1, v3, v6, v6}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 211
     iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->r:Landroid/graphics/RectF;
 
     const/high16 v5, 0x43480000    # 200.0f
@@ -1137,12 +1220,12 @@
 
     invoke-virtual/range {v3 .. v8}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 198
+    .line 212
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 199
+    .line 213
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const v1, 0x404ccccd    # 3.2f
@@ -1151,7 +1234,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 200
+    .line 214
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const v1, 0x40933333    # 4.6f
@@ -1160,7 +1243,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 201
+    .line 215
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     const v1, 0x41066666    # 8.4f
@@ -1169,14 +1252,14 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 202
+    .line 216
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 203
+    .line 217
     const/high16 v3, 0x41000000    # 8.0f
 
     const/high16 v5, 0x41480000    # 12.5f
@@ -1189,7 +1272,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 204
+    .line 218
     const/high16 v3, 0x41480000    # 12.5f
 
     const/high16 v4, 0x41700000    # 15.0f
@@ -1204,8 +1287,8 @@
 
     goto/16 :goto_4b
 
-    .line 207
-    :pswitch_3f6
+    .line 221
+    :pswitch_444
     const/high16 v0, 0x41280000    # 10.5f
 
     const/high16 v1, 0x41280000    # 10.5f
@@ -1216,7 +1299,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 208
+    .line 222
     const/high16 v4, 0x41700000    # 15.0f
 
     const/high16 v5, 0x41700000    # 15.0f
@@ -1231,25 +1314,26 @@
 
     goto/16 :goto_4b
 
-    .line 79
-    :pswitch_data_40e
+    .line 81
+    :pswitch_data_45c
     .packed-switch 0x1
         :pswitch_b7
-        :pswitch_100
+        :pswitch_fe
         :pswitch_123
         :pswitch_172
-        :pswitch_1ac
+        :pswitch_1ae
         :pswitch_20c
         :pswitch_226
-        :pswitch_25e
-        :pswitch_288
         :pswitch_2a8
-        :pswitch_2bd
-        :pswitch_2fd
-        :pswitch_343
-        :pswitch_39e
-        :pswitch_3f6
+        :pswitch_2ce
+        :pswitch_2ec
+        :pswitch_301
+        :pswitch_347
+        :pswitch_38f
+        :pswitch_3e8
+        :pswitch_444
         :pswitch_4f
+        :pswitch_25e
     .end packed-switch
 .end method
 
@@ -1257,7 +1341,7 @@
     .registers 2
 
     .prologue
-    .line 230
+    .line 244
     const/4 v0, -0x3
 
     return v0
@@ -1267,17 +1351,17 @@
     .registers 3
 
     .prologue
-    .line 218
+    .line 232
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 219
+    .line 233
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 220
+    .line 234
     return-void
 .end method
 
@@ -1285,20 +1369,20 @@
     .registers 3
 
     .prologue
-    .line 62
+    .line 64
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 63
+    .line 65
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 64
+    .line 66
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsIcon;->invalidateSelf()V
 
-    .line 65
+    .line 67
     return-void
 .end method
 
@@ -1306,17 +1390,17 @@
     .registers 3
 
     .prologue
-    .line 224
+    .line 238
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->stroke:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColorFilter(Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
-    .line 225
+    .line 239
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColorFilter(Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
-    .line 226
+    .line 240
     return-void
 .end method
 
@@ -1324,18 +1408,18 @@
     .registers 3
 
     .prologue
-    .line 55
+    .line 57
     iget v0, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->type:I
 
     if-eq p1, v0, :cond_9
 
-    .line 56
+    .line 58
     iput p1, p0, Lcom/isaigu/gymapp/widget/XemsIcon;->type:I
 
-    .line 57
+    .line 59
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsIcon;->invalidateSelf()V
 
-    .line 59
+    .line 61
     :cond_9
     return-void
 .end method

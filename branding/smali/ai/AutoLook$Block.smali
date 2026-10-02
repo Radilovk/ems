@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 198
+    .line 297
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 4
 
     .prologue
-    .line 201
+    .line 300
     const/4 v0, 0x1
 
     return v0

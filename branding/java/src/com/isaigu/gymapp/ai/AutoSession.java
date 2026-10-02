@@ -712,6 +712,7 @@ public final class AutoSession {
         AutoHints.hide();
         AiRamp.clear();
         AutoLook.restore();
+        AutoLook.unbindMainKeys(leaderRunning());
         stage = Stage.IDLE;
         written = null;
         engine = null;
@@ -738,6 +739,61 @@ public final class AutoSession {
             engine.userPause(now);
             zeroOutput();
         }
+    }
+
+    /**
+     * The main panel's ▶/❚❚ during Auto (owner, 1.1.276 — the board has no keys): pause while the impulses run,
+     * the next set / resume when it waits (too early → the notice says why), cancel during the countdown.
+     */
+    static void mainStartPause() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.RUN) {
+            engine.userPause(now);
+            zeroOutput();
+            notice(AiText.t("Пауза. ▶ продължава, ■ — към възстановяване.", "Paused. ▶ resumes, ■ — to the recovery."),
+                    INFO, now);
+        } else if (st == AutoEngine.State.HR_PAUSE && !engine.canResume()) {
+            notice(AiText.t("Пулсът е висок — ▶ се отключва, когато спадне.", "HR is high — ▶ unlocks when it drops."),
+                    LIMIT, now);
+        } else {
+            togglePause();
+        }
+        AutoUi.refresh();
+    }
+
+    /**
+     * The main panel's ■ during Auto: while the impulses run it only pauses (■ works from a pause — never one press
+     * to the end); in a pause or a rest it is the Auto STOP (active part → recovery, recovery → end).
+     */
+    static void mainStop() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.RUN || st == AutoEngine.State.COUNTDOWN) {
+            if (st == AutoEngine.State.COUNTDOWN) {
+                engine.cancelCountdown(now);
+                AutoBeep.cancel();
+                handler.removeCallbacks(goNow);
+                beepsForGoMs = 0;
+            }
+            if (engine.getState() == AutoEngine.State.RUN) {
+                engine.userPause(now);
+            }
+            zeroOutput();
+            notice(AiText.t("Пауза. ■ още веднъж — " + (engine.phase() != null && engine.phase().isCooldown()
+                            ? "край." : "към възстановяване."),
+                    "Paused. ■ again — " + (engine.phase() != null && engine.phase().isCooldown() ? "end." : "to the recovery.")),
+                    LIMIT, now);
+        } else {
+            stop();
+        }
+        AutoUi.refresh();
     }
 
     /** True when ▶ may be pressed now (the next set, a pause, a confirmed HR resume). */
@@ -914,8 +970,14 @@ public final class AutoSession {
     }
 
 
+    private static boolean leaderRunning() {
+        TrainItem l = leader();
+        return l != null && l.data != null && l.data.start;
+    }
+
     private static void finishToReport() {
         stage = Stage.REPORT;
+        AutoLook.unbindMainKeys(false);
         AutoHints.hide();
         AutoLook.restore();
         // The board closes and the client's report opens (after this tick).
@@ -959,6 +1021,12 @@ public final class AutoSession {
                 AutoLook.apply(panelRoot, plan.program.name());
             } else {
                 AutoLook.restore();
+            }
+            if (stage == Stage.RUNNING && engine != null) {
+                AutoEngine.State es = engine.getState();
+                AutoLook.bindMainKeys(panelRoot, es == AutoEngine.State.RUN || es == AutoEngine.State.COUNTDOWN);
+            } else {
+                AutoLook.unbindMainKeys(leaderRunning());
             }
             AutoUi.refresh();
             AutoHints.refresh();

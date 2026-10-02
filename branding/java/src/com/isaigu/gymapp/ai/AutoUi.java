@@ -55,12 +55,6 @@ public final class AutoUi {
     private static final int A_VARIANT = 18;
     private static final int A_DOUBLE = 19;
     private static final int A_CALIB_ROW = 21;
-    private static final int A_PAUSE = 22;
-    private static final int A_REDUCE = 23;
-    private static final int A_RAISE = 24;
-    private static final int A_DOUBLE_LIVE = 25;
-    private static final int A_STOP = 27;
-    private static final int A_NEXT_SET = 39;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -91,20 +85,13 @@ public final class AutoUi {
     private static TextView runPhase;
     private static TextView runTime;
     private static TextView runNotice;
-    private static TextView runPause;
-    private static TextView runDouble;
-    private static TextView runStop;
-    private static TextView runPauseLabel;
-    private static TextView runNextLabel;
-    private static TextView runStopLabel;
-    private static TextView runNext;
     private static TextView runClock;
-    private static TextView runRows;
     private static ExerciseFigure runFigure;
     private static AutoViews.SetRing runRing;
     private static AutoViews.BodyHeat runBody;
     private static AutoViews.PeakBar runPeak;
     private static AutoViews.Vital runVital;
+    private static TextView runClient;
     private static AutoViews.Dots runDots;
     private static View runArt;
     private static ExerciseFigure runNextFig;
@@ -112,8 +99,6 @@ public final class AutoUi {
     private static LinearLayout runHow;
     /** The steps on screen are for this exercise ("" = none). */
     private static String howShownFor = "";
-    /** The trainer tapped the exercise: steps stay open for it during the set. */
-    private static String howPinnedFor = "";
     private static android.widget.PopupWindow infoPop;
     /** The next exercise shows this long before the set ends. */
     private static final double NEXT_SOON_S = 10;
@@ -239,6 +224,7 @@ public final class AutoUi {
         Context c = shell.dialog.getContext();
         shell.body.removeAllViews();
         shell.footer.removeAllViews();
+        shell.footer.setVisibility(View.VISIBLE);
         rowLabels.clear();
         runPhase = null;
         calibRowsInfo = null;
@@ -305,11 +291,11 @@ public final class AutoUi {
                 return AiText.t("Качи силата на всеки клиент до целевото усещане. „Старт“ започва от загрявката с 60 % от нея.",
                         "Raise each client's strength to the target feeling. Start begins with the warm-up at 60 % of it.");
             case STEP_RUN:
-                return AiText.t("▶ / ❚❚ — старт и пауза. ■ е само при пауза: първият стоп минава към 10 мин възстановяване, "
-                        + "вторият приключва. Импулсите са най-много 20 мин. „Скрий“ или ✕ скрива таблото — сесията продължава. "
+                return AiText.t("Управлява се с главните ▶ / ❚❚ и ■. ■ действа от пауза: първият — към 10 мин възстановяване, "
+                        + "вторият — край. Импулсите са най-много 20 мин. ✕ скрива таблото — сесията продължава. "
                         + "ⓘ на всяка част казва какво показва.",
-                        "▶ / ❚❚ — start and pause. ■ only while paused: the first stop goes to the 10 min recovery, the "
-                        + "second ends. Impulses at most 20 min. Hide or ✕ hides the board — the session goes on. "
+                        "Driven by the main ▶ / ❚❚ and ■. ■ works from a pause: the first — to the 10 min recovery, the "
+                        + "second — the end. Impulses at most 20 min. ✕ hides the board — the session goes on. "
                         + "Each part's ⓘ says what it shows.");
             default:
                 return null;
@@ -845,11 +831,11 @@ public final class AutoUi {
     // ================================================================ live board (from the tile)
 
     /**
-     * The live board (owner, 1.1.271–272; docs/xems-auto-mode-spec.md §12), landscape, three levels, few words:
-     * left — the exercise (or the program's picture) in the ring of its set, impulses as dots; right — the body,
-     * each zone in its load colour, and beside it the pulse (a heart beating at the HR in its zone colour, only with
-     * a band) over the system-load triangle; bottom — the whole session as a mountain and the dock ▶ / ❚❚ · ⏭ ·
-     * ■ (■ only while paused). Secondary keys in one slim strip.
+     * The live board (owner, 1.1.276; docs/xems-auto-mode-spec.md §12), landscape, built only for Auto:
+     * two equal cards — the exercise (the priority: ring | the set's timer and impulses; the name and every step of
+     * how it is done) and the body (zones in their load colour; the client, the pulse and the "Натоварване" scale) —
+     * and the whole session as a timeline from edge to edge. No keys: the main panel's ▶/❚❚ and ■ drive Auto
+     * ({@link AutoSession#mainStartPause}, {@link AutoSession#mainStop}).
      */
     private static void screenRun(Context c) {
         AutoModel.Plan plan = AutoSession.getPlan();
@@ -858,61 +844,55 @@ public final class AutoUi {
         subtitle("");
         LinearLayout body = shell.body;
 
-        // ---- top: exercise | body + pulse
+        // ---- top: exercise | body, equal
         LinearLayout top = XemsUi.horizontal(c);
         LinearLayout left = XemsUi.card(c);
-        left.setGravity(Gravity.CENTER_HORIZONTAL);
+        LinearLayout head = XemsUi.horizontal(c);
+        head.setGravity(Gravity.CENTER_VERTICAL);
         android.widget.FrameLayout stage = new android.widget.FrameLayout(c);
         runFigure = new ExerciseFigure(c);
         runFigure.setCycle(System.currentTimeMillis(), 2, 2);
         android.widget.FrameLayout.LayoutParams flp = new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        int inset = XemsUi.dp(c, 42);
+        int inset = XemsUi.dp(c, 36);
         flp.setMargins(inset, inset, inset, inset);
         stage.addView(runFigure, flp);
-        runArt = ProgramArt.tile(c, plan.program.id, plan.program.isActive(), lead != null ? lead.sex : null, 128, 96);
-        stage.addView(runArt, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, 128), XemsUi.dp(c, 96),
+        runArt = ProgramArt.tile(c, plan.program.id, plan.program.isActive(), lead != null ? lead.sex : null, 112, 84);
+        stage.addView(runArt, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, 112), XemsUi.dp(c, 84),
                 Gravity.CENTER));
         runRing = new AutoViews.SetRing(c);
         stage.addView(runRing, new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        left.addView(stage, new LinearLayout.LayoutParams(XemsUi.dp(c, 244), XemsUi.dp(c, 244)));
-        runStage = stage;
-        howShownFor = "-";                                     // a new screen: draw the steps again
-        stage.setOnClickListener(new Act(A_HOW, 0));          // a tap on the exercise: how it is done
-        android.animation.LayoutTransition lt = new android.animation.LayoutTransition();
-        lt.enableTransitionType(android.animation.LayoutTransition.CHANGING);
-        lt.setDuration(220);
-        left.setLayoutTransition(lt);
+        stage.setOnClickListener(new Act(A_HOW, 0));
+        head.addView(stage, new LinearLayout.LayoutParams(XemsUi.dp(c, 200), XemsUi.dp(c, 200)));
+        // the set's timer: the second most important number, right beside the ring
+        LinearLayout clock = XemsUi.vertical(c);
+        clock.setGravity(Gravity.CENTER);
+        runTime = XemsUi.text(c, "", 60, XemsUi.TEXT, true);
+        runTime.setGravity(Gravity.CENTER);
+        runTime.setTypeface(android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD));
+        clock.addView(runTime);
+        runDots = new AutoViews.Dots(c);
+        clock.addView(runDots, new LinearLayout.LayoutParams(XemsUi.dp(c, 150), XemsUi.dp(c, 22)));
+        head.addView(clock, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        left.addView(head);
         LinearLayout nameRow = XemsUi.horizontal(c);
-        nameRow.setGravity(Gravity.CENTER);
+        nameRow.setGravity(Gravity.CENTER_VERTICAL);
         runNextFig = new ExerciseFigure(c);
         runNextFig.setStill(true);
         LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 30));
         nlp.rightMargin = XemsUi.dp(c, 8);
         nameRow.addView(runNextFig, nlp);
-        runPhase = XemsUi.text(c, "", 21, XemsUi.TEXT, true);
-        runPhase.setGravity(Gravity.CENTER);
-        runPhase.setMaxLines(1);
+        runPhase = XemsUi.text(c, "", 22, XemsUi.TEXT, true);
+        runPhase.setMaxLines(2);
         runPhase.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        nameRow.addView(runPhase);
+        nameRow.addView(runPhase, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         nameRow.setOnClickListener(new Act(A_HOW, 0));
-        left.addView(nameRow, XemsUi.matchWrap(c, 4));
-        LinearLayout meta = XemsUi.horizontal(c);
-        meta.setGravity(Gravity.CENTER);
-        runDots = new AutoViews.Dots(c);
-        meta.addView(runDots, new LinearLayout.LayoutParams(XemsUi.dp(c, 120), XemsUi.dp(c, 20)));
-        runTime = XemsUi.text(c, "", 15, XemsUi.MUTED, true);
-        meta.addView(runTime);
-        left.addView(meta, XemsUi.matchWrap(c, 6));
-        // how the exercise is done: numbered steps from the exercise library (shown in the rest, or on a tap)
+        left.addView(nameRow, XemsUi.matchWrap(c, 6));
         runHow = XemsUi.vertical(c);
-        runHow.setVisibility(View.GONE);
-        LinearLayout.LayoutParams hlp = XemsUi.matchWrap(c, 10);
-        hlp.leftMargin = XemsUi.dp(c, 6);
-        hlp.rightMargin = XemsUi.dp(c, 6);
-        left.addView(runHow, hlp);
-        top.addView(infoCorner(c, left, INFO_SET), new LinearLayout.LayoutParams(0, XemsUi.dp(c, 352), 1f));
+        left.addView(runHow, XemsUi.matchWrap(c, 10));
+        howShownFor = "-";
+        top.addView(infoCorner(c, left, INFO_SET), new LinearLayout.LayoutParams(0, XemsUi.dp(c, 400), 1f));
 
         LinearLayout right = XemsUi.card(c);
         LinearLayout figs = XemsUi.horizontal(c);
@@ -920,15 +900,24 @@ public final class AutoUi {
         figs.addView(runBody, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         LinearLayout side = XemsUi.vertical(c);
         side.setGravity(Gravity.CENTER_HORIZONTAL);
+        runClient = XemsUi.text(c, "", 15, XemsUi.TEXT, true);
+        runClient.setGravity(Gravity.END);
+        runClient.setMaxLines(2);
+        runClient.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        side.addView(runClient, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         runVital = new AutoViews.Vital(c);
-        side.addView(runVital, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 112)));
+        side.addView(runVital, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 104)));
+        TextView loadLabel = XemsUi.text(c, AiText.t("Натоварване", "Load"), 12, XemsUi.MUTED, true);
+        loadLabel.setGravity(Gravity.CENTER);
+        side.addView(loadLabel, XemsUi.matchWrap(c, 6));
         runPeak = new AutoViews.PeakBar(c);
         side.addView(runPeak, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(XemsUi.dp(c, 92), ViewGroup.LayoutParams.MATCH_PARENT);
-        slp.leftMargin = XemsUi.dp(c, 8);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(XemsUi.dp(c, 104), ViewGroup.LayoutParams.MATCH_PARENT);
+        slp.leftMargin = XemsUi.dp(c, 6);
         figs.addView(side, slp);
         right.addView(figs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 352), 1.35f);
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 400), 1f);
         rlp.leftMargin = XemsUi.dp(c, 12);
         top.addView(infoCorner(c, right, INFO_BODY), rlp);
         body.addView(top, XemsUi.matchWrap(c, 2));
@@ -936,60 +925,19 @@ public final class AutoUi {
         runNotice = hint(c, "");
         body.addView(runNotice, XemsUi.matchWrap(c, 8));
 
-        // ---- bottom: timeline | dock
-        LinearLayout bottom = XemsUi.horizontal(c);
-        bottom.setGravity(Gravity.CENTER_VERTICAL);
+        // ---- bottom: the whole session, edge to edge
         LinearLayout tl = XemsUi.card(c);
         runTimeline = new AutoViews.Timeline(c);
-        tl.addView(runTimeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 112)));
+        tl.addView(runTimeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 118)));
         runClock = XemsUi.text(c, "", 15, XemsUi.TEXT, true);
-        ImpulseGlyph clock = new ImpulseGlyph(ImpulseGlyph.TIME, XemsUi.MUTED, XemsUi.dp(c, 1.8f));
-        clock.setBounds(0, 0, XemsUi.dp(c, 16), XemsUi.dp(c, 16));
-        runClock.setCompoundDrawables(clock, null, null, null);
+        ImpulseGlyph glyph = new ImpulseGlyph(ImpulseGlyph.TIME, XemsUi.MUTED, XemsUi.dp(c, 1.8f));
+        glyph.setBounds(0, 0, XemsUi.dp(c, 16), XemsUi.dp(c, 16));
+        runClock.setCompoundDrawables(glyph, null, null, null);
         runClock.setCompoundDrawablePadding(XemsUi.dp(c, 8));
         tl.addView(runClock, XemsUi.matchWrap(c, 6));
-        bottom.addView(infoCorner(c, tl, INFO_TIMELINE), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        body.addView(infoCorner(c, tl, INFO_TIMELINE), XemsUi.matchWrap(c, 8));
 
-        LinearLayout dock = XemsUi.horizontal(c);
-        dock.setGravity(Gravity.CENTER);
-        runPause = neon(c, A_PAUSE);
-        runPauseLabel = dockKey(c, dock, runPause);
-        runNext = neon(c, A_NEXT_SET);
-        runNextLabel = dockKey(c, dock, runNext);
-        runStop = neon(c, A_STOP);
-        runStopLabel = dockKey(c, dock, runStop);
-        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 330), ViewGroup.LayoutParams.WRAP_CONTENT);
-        dlp.leftMargin = XemsUi.dp(c, 12);
-        bottom.addView(dock, dlp);
-        body.addView(bottom, XemsUi.matchWrap(c, 8));
-
-        // ---- slim strip: rows, −10 %, +5 %, double impulse
-        LinearLayout strip = XemsUi.horizontal(c);
-        strip.setGravity(Gravity.CENTER_VERTICAL);
-        runRows = XemsUi.text(c, "", 14, XemsUi.MUTED, true);
-        runRows.setMaxLines(1);
-        runRows.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        strip.addView(runRows, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView minus = XemsUi.button(c, "− 10 %", XemsUi.SECONDARY);
-        minus.setOnClickListener(new Act(A_REDUCE, 0));
-        strip.addView(minus, XemsUi.weight(0, 8, c));
-        TextView plus = XemsUi.button(c, "+ 5 %", XemsUi.SECONDARY);
-        plus.setOnClickListener(new Act(A_RAISE, 0));
-        strip.addView(plus, XemsUi.weight(0, 8, c));
-        runDouble = XemsUi.button(c, "", XemsUi.SECONDARY);
-        ImpulseGlyph dbl = new ImpulseGlyph(ImpulseGlyph.DOUBLE, XemsUi.TEXT, XemsUi.dp(c, 1.8f));
-        dbl.setBounds(0, 0, XemsUi.dp(c, 22), XemsUi.dp(c, 16));
-        runDouble.setCompoundDrawables(dbl, null, null, null);
-        runDouble.setCompoundDrawablePadding(XemsUi.dp(c, 8));
-        runDouble.setOnClickListener(new Act(A_DOUBLE_LIVE, 0));
-        strip.addView(runDouble, XemsUi.weight(0, 8, c));
-        body.addView(strip, XemsUi.matchWrap(c, 10));
-
-        TextView hide = XemsUi.button(c, AiText.t("Скрий", "Hide"), XemsUi.GHOST);
-        hide.setOnClickListener(new Act(A_HIDE, 0));
-        shell.footer.addView(hide);
-        shell.footer.addView(XemsUi.spacer(c));
-        shell.footer.addView(tipsToggle(c));
+        shell.footer.setVisibility(View.GONE);                 // no keys here: the main panel drives Auto
         refreshRun();
     }
 
@@ -1023,14 +971,14 @@ public final class AutoUi {
                         + "След серията импулсите спират сами. Почивката е колкото мускулите искат, за да възстановят "
                         + "енергията си (по натоварването и кондицията), и пулсът да спадне. Тогава ▶ светва.\n"
                         + "Всеки старт брои 3 s: три къси сигнала и дълъг с първия импулс.\n"
-                        + "Последните 10 s: → следващото упражнение. ⏭ приключва серията или сменя следващото.\n"
-                        + "В почивката: стъпките на следващото. Допир на упражнението ги показва и в серията.",
+                        + "Последните 10 s: → следващото упражнение. В почивката допир на упражнението дава друго.\n"
+                        + "Управление — с главните ▶ / ❚❚ и ■: ■ работи от пауза; първият — към възстановяване, вторият — край.",
                         "The ring is the set: 30–40 s, the dots are the impulses.\n"
                         + "After the set the impulses stop by themselves. The rest lasts as long as the muscles need to "
                         + "refill (by the load and fitness) and the HR to come down; then ▶ lights up.\n"
                         + "Every start counts 3 s: three short beeps and a long one with the first impulse.\n"
-                        + "Last 10 s: → the next exercise. ⏭ ends the set or changes the next one.\n"
-                        + "In the rest: the steps of the next one. A tap on the exercise shows them in the set too.");
+                        + "Last 10 s: → the next exercise. In the rest a tap on the exercise gives another one.\n"
+                        + "Control — the main ▶ / ❚❚ and ■: ■ works from a pause; the first goes to the recovery, the second ends.");
             case INFO_BODY:
                 return AiText.t("Цветът на зона е натрупаното ѝ натоварване: синьо — леко, червено — границата на тежка серия.\n"
                         + "Сметка: сила × честота × % на зоната + работата на упражнението; спада с почивката.\n"
@@ -1088,43 +1036,54 @@ public final class AutoUi {
         }
     }
 
-    /** The steps of the exercise's "how" (library text, split into sentences), numbered; null hides them. */
-    private static void showHow(String id) {
-        String key = id != null ? id : "";
-        if (key.equals(howShownFor)) {
+    /** Every step of how the exercise (or the phase) is done, numbered; null hides them. */
+    private static void showHow(String key, String[] steps) {
+        String k = key != null ? key : "";
+        if (k.equals(howShownFor)) {
             return;
         }
-        howShownFor = key;
+        howShownFor = k;
         Context c = runHow.getContext();
         runHow.removeAllViews();
-        String[] steps = id != null ? howSteps(c, id) : new String[0];
-        boolean on = steps.length > 0;
-        runHow.setVisibility(on ? View.VISIBLE : View.GONE);
-        runPhase.setMaxLines(on ? 2 : 1);                      // the smaller ring leaves room for a long name
-        // the ring makes room for the steps, smoothly (LayoutTransition on the card)
-        ViewGroup.LayoutParams lp = runStage.getLayoutParams();
-        lp.width = XemsUi.dp(c, on ? 150 : 244);
-        lp.height = lp.width;
-        runStage.setLayoutParams(lp);
+        if (steps == null) {
+            steps = new String[0];
+        }
         for (int i = 0; i < steps.length; i++) {
             LinearLayout row = XemsUi.horizontal(c);
             row.setGravity(Gravity.TOP);
             TextView n = XemsUi.text(c, String.valueOf(i + 1), 12, XemsUi.GO_TEXT, true);
             n.setGravity(Gravity.CENTER);
-            n.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x26), XemsUi.dp(c, 10), 0, 0));
-            LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 20), XemsUi.dp(c, 20));
-            nlp.rightMargin = XemsUi.dp(c, 10);
-            nlp.topMargin = XemsUi.dp(c, 1);
+            n.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x26), XemsUi.dp(c, 11), 0, 0));
+            LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 22), XemsUi.dp(c, 22));
+            nlp.rightMargin = XemsUi.dp(c, 12);
             row.addView(n, nlp);
-            TextView t = XemsUi.text(c, steps[i], 14, XemsUi.TEXT, false);
-            t.setMaxLines(2);
-            t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            TextView t = XemsUi.text(c, steps[i], 15, XemsUi.TEXT, false);
+            t.setLineSpacing(XemsUi.dp(c, 2), 1f);
             row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            runHow.addView(row, XemsUi.matchWrap(c, i == 0 ? 0 : 6));
+            runHow.addView(row, XemsUi.matchWrap(c, i == 0 ? 0 : 8));
         }
+        runHow.setAlpha(0f);
+        runHow.animate().alpha(1f).setDuration(220).start();
     }
 
-    /** The library's "how" of an exercise as at most 4 steps (one sentence each). */
+    /** A phase's hint as steps (programs without exercises, the recovery). */
+    private static String[] hintSteps(AutoModel.Plan plan, AutoModel.Phase ph) {
+        String h = ph != null ? AutoCues.phaseHint(plan, ph) : null;
+        if (h == null || h.trim().length() == 0) {
+            return new String[0];
+        }
+        String[] parts = h.split("\\s+—\\s+|(?<=[.!?])\\s+");
+        java.util.List<String> out = new java.util.ArrayList<String>();
+        for (String p : parts) {
+            String q = p.trim();
+            if (q.length() > 0) {
+                out.add(Character.toUpperCase(q.charAt(0)) + q.substring(1));
+            }
+        }
+        return out.toArray(new String[0]);
+    }
+
+    /** The library's "how" of an exercise as at most 6 steps (one sentence each). */
     static String[] howSteps(Context c, String id) {
         try {
             ExerciseLibrary.Entry e = ExerciseLibrary.get(c, id);
@@ -1143,63 +1102,13 @@ public final class AutoUi {
                     out.add(q);
                 }
             }
-            while (out.size() > 4) {                            // keep 4: the last ones join
-                out.set(2, out.get(2) + ". " + out.remove(3));
+            while (out.size() > 6) {                            // keep 6: the last ones join
+                out.set(4, out.get(4) + ". " + out.remove(5));
             }
             return out.toArray(new String[0]);
         } catch (Throwable t) {
             return new String[0];
         }
-    }
-
-    /** A dock key: an outline circle in the kit's colour (no heavy fill), the symbol inside. */
-    private static TextView neon(Context c, int action) {
-        TextView k = XemsUi.text(c, "", 30, XemsUi.TEXT, true);
-        k.setGravity(Gravity.CENTER);
-        k.setOnClickListener(new Act(action, 0));
-        XemsUi.pressable(k);
-        return k;
-    }
-
-    /** The key and, under it, a short value only when it matters (the rest still to wait). */
-    private static TextView dockKey(Context c, LinearLayout dock, TextView key) {
-        LinearLayout col = XemsUi.vertical(c);
-        col.setGravity(Gravity.CENTER_HORIZONTAL);
-        col.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 84), XemsUi.dp(c, 84)));
-        TextView l = XemsUi.text(c, "", 14, XemsUi.MUTED, true);
-        l.setGravity(Gravity.CENTER);
-        col.addView(l, new LinearLayout.LayoutParams(XemsUi.dp(c, 96), XemsUi.dp(c, 22)));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.leftMargin = XemsUi.dp(c, 6);
-        lp.rightMargin = XemsUi.dp(c, 6);
-        dock.addView(col, lp);
-        return l;
-    }
-
-    /** glyph in the key, value under it ("" = none), the action's name for TalkBack. */
-    private static void styleKey(TextView k, TextView label, String glyph, String value, String name, int color,
-                                 boolean enabled, boolean visible) {
-        View col = (View) k.getParent();
-        col.setVisibility(visible ? View.VISIBLE : View.GONE);
-        if (!visible) {
-            return;
-        }
-        Context c = k.getContext();
-        if (!glyph.equals(k.getText().toString()) || k.getTag() == null || (Integer) k.getTag() != color) {
-            k.setText(glyph);
-            k.setTag(color);
-            android.graphics.drawable.GradientDrawable d = new android.graphics.drawable.GradientDrawable();
-            d.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-            d.setColor(XemsUi.alpha(color, 0x1C));
-            d.setStroke(XemsUi.dp(c, 2.5f), color);
-            k.setBackgroundDrawable(d);
-            k.setTextColor(color);
-        }
-        k.setContentDescription(name);
-        k.setAlpha(enabled ? 1f : 0.42f);
-        label.setText(value);
-        label.setTextColor(color);
     }
 
     private static void refreshRun() {
@@ -1214,24 +1123,23 @@ public final class AutoUi {
         boolean recovery = ph != null && ph.isCooldown();
         boolean beforeRecovery = e.isRestBeforeCooldown();
         AutoModel.Input lead = AutoSession.getInput();
-
-        // ---- left: the exercise (or the program's picture) in its ring
-        String ex = e.getExercise();
         boolean rest = st == AutoEngine.State.REST;
         int cd = st == AutoEngine.State.COUNTDOWN ? Math.max(1, e.getCountdownLeftS(now)) : 0;
+
+        // ---- the exercise: figure (or the program's picture), name, every step
+        String ex = e.getExercise();
         boolean fig = ex != null && !beforeRecovery;
-        // the set's last seconds: what comes next (the client gets ready); in the rest the ring already shows it
+        int figColor = ExerciseFigure.colorFor(lead != null ? lead.sex : null);
+        runFigure.setVisibility(fig ? View.VISIBLE : View.INVISIBLE);
+        runArt.setVisibility(fig ? View.GONE : View.VISIBLE);
+        runArt.setAlpha(st == AutoEngine.State.RUN ? 1f : 0.6f);
         String nx = e.getNextExercise();
         boolean soon = nx != null && e.getSetLeftS() <= NEXT_SOON_S;
-        int figColor = ExerciseFigure.colorFor(lead != null ? lead.sex : null);
         runNextFig.setVisibility(soon && nx.length() > 0 ? View.VISIBLE : View.GONE);
         if (soon && nx.length() > 0) {
             runNextFig.setColor(figColor);
             runNextFig.setExercise(nx);
         }
-        runFigure.setVisibility(fig ? View.VISIBLE : View.INVISIBLE);
-        runArt.setVisibility(fig ? View.GONE : View.VISIBLE);
-        runArt.setAlpha(st == AutoEngine.State.RUN ? 1f : 0.6f);
         if (fig) {
             runFigure.setColor(figColor);
             runFigure.setExercise(ex);
@@ -1243,43 +1151,65 @@ public final class AutoUi {
                 runPhase.setText((rest || cd > 0 ? "→  " : "") + AutoTemplates.name(ex));
                 runPhase.setTextColor(XemsUi.TEXT);
             }
+            showHow(ex, howSteps(runHow.getContext(), ex));
         } else {
+            AutoModel.Phase about = beforeRecovery ? plan.phases.get(plan.phases.size() - 1) : ph;
             runPhase.setText(beforeRecovery ? "→  " + AiText.t("Възстановяване", "Recovery")
                     : recovery ? AiText.t("Възстановяване", "Recovery") : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
             runPhase.setTextColor(XemsUi.TEXT);
+            showHow("phase:" + (about != null ? about.id : ""), hintSteps(plan, about));
         }
-        String line;
+
+        // ---- the ring and the timer beside it
         float prog;
         int mode;
         int[] dots = {0, 0};
+        String time;
+        int timeColor = XemsUi.TEXT;
         if (rest) {
             int min = Math.max(1, e.getRestMinS());
+            int left = e.getRestLeftS(now);
+            boolean ok = AutoSession.startReady();
             prog = beforeRecovery ? 1f : (float) Math.min(1.0, e.getRestS(now) / min);
-            mode = AutoSession.startReady() ? AutoViews.SetRing.READY : AutoViews.SetRing.REST;
-            line = beforeRecovery ? plan.recoveryS / 60 + AiText.t(" мин", " min") : AiText.mmss(e.getRestS(now));
+            mode = ok ? AutoViews.SetRing.READY : AutoViews.SetRing.REST;
+            if (beforeRecovery) {
+                time = AiText.mmss(plan.recoveryS);
+                timeColor = XemsUi.GO_TEXT;
+            } else if (left > 0) {
+                time = AiText.mmss(left);                       // the rest still needed
+                timeColor = XemsUi.AMBER;
+            } else {
+                time = ok ? "▶" : "♥";                          // ready: the main ▶; or the pulse is still high
+                timeColor = ok ? XemsUi.GO_TEXT : XemsUi.AMBER;
+            }
         } else if (recovery) {
             prog = ph.durationS > 0 ? (float) (e.phaseElapsed() / ph.durationS) : 0;
             mode = AutoViews.SetRing.RECOVERY;
-            line = AiText.mmss(e.phaseRemainingS());
+            time = AiText.mmss(e.phaseRemainingS());
         } else if (e.isStationPhase(e.getPhaseIndex())) {
             prog = (float) (e.getStationS() / Math.max(1, e.getSetTargetS()));
             mode = st == AutoEngine.State.RUN ? AutoViews.SetRing.WORK : AutoViews.SetRing.IDLE;
             dots = e.getSetImpulses();
-            line = AiText.mmss(Math.max(0, e.getSetTargetS() - e.getStationS()));
+            time = AiText.mmss(Math.max(0, e.getSetTargetS() - e.getStationS()));
+            if (soon) {
+                timeColor = XemsUi.GO_TEXT;
+            }
         } else {
             prog = ph != null && ph.durationS > 0 ? (float) (e.phaseElapsed() / ph.durationS) : 0;
             mode = st == AutoEngine.State.RUN ? AutoViews.SetRing.WORK : AutoViews.SetRing.IDLE;
-            line = AiText.mmss(e.phaseRemainingS());
+            time = AiText.mmss(e.phaseRemainingS());
+        }
+        if (st == AutoEngine.State.USER_PAUSE || (st == AutoEngine.State.HR_PAUSE)) {
+            timeColor = XemsUi.AMBER;
+            time = st == AutoEngine.State.HR_PAUSE && !e.canResume() ? "♥" : "❚❚";
         }
         runRing.set(prog, mode, cd);
-        // how it is done: in the rest / countdown for the coming exercise, in a set only when tapped
-        boolean howOn = fig && (rest || cd > 0 || ex.equals(howPinnedFor));
-        showHow(howOn ? ex : null);
         runDots.set(dots[0], dots[1]);
-        runDots.setVisibility(dots[1] > 0 ? View.VISIBLE : View.GONE);
-        runTime.setText((dots[1] > 0 ? "   " : "") + line);
+        runDots.setVisibility(dots[1] > 0 ? View.VISIBLE : View.INVISIBLE);
+        runTime.setText(time);
+        runTime.setTextColor(timeColor);
 
-        // ---- right: the body, the pulse, the system load
+        // ---- the body: zones, the client, the pulse, the load scale
         int[] lz = e.getLiveZones();
         boolean[] off = new boolean[AutoModel.CHANNELS];
         for (int k = 0; k < off.length; k++) {
@@ -1290,12 +1220,26 @@ public final class AutoUi {
         runPeak.set(e.getSystemLoad(now), cardio >= 0 && e.isCardioLimiting(now));
         boolean hrUsed = plan.hrUse != AutoModel.HrUse.NONE && AutoSession.isBandConfigured(host);
         runVital.setVisibility(hrUsed ? View.VISIBLE : View.GONE);
-        int hrNow = e.getHr(now);
         if (hrUsed) {
+            int hrNow = e.getHr(now);
             runVital.set(hrNow, com.isaigu.gymapp.wearable.HrGuard.zoneColor(hrNow, plan.hrMax));
         }
+        List<AutoSession.Row> rows = AutoSession.getRows();
+        String who = "";
+        int more = 0;
+        for (AutoSession.Row r : rows) {
+            if (r.block != null) {
+                continue;
+            }
+            if (who.length() == 0) {
+                who = r.name;
+            } else {
+                more++;
+            }
+        }
+        runClient.setText(who + (more > 0 ? "  +" + more : ""));
 
-        // ---- bottom: timeline and clock
+        // ---- the session
         String[] names = new String[plan.phases.size()];
         for (int i = 0; i < names.length; i++) {
             AutoModel.Phase p = plan.phases.get(i);
@@ -1307,51 +1251,12 @@ public final class AutoUi {
         runTimeline.set(e.getTrace(), f, e.getElapsedS(), sNow, names);
         double left = f != null ? Math.max(0, f.totalS - f.sessionAt(e.getElapsedS())) : e.getRemainingS();
         runClock.setText(AiText.mmss(sNow) + "  /  " + AiText.mmss(sNow + left));
-
-        // ---- dock: ▶ / ❚❚ · ⏭ · ■ (■ only while paused); a value under a key only when it matters
-        boolean paused = st != AutoEngine.State.RUN && st != AutoEngine.State.COUNTDOWN;
-        if (st == AutoEngine.State.RUN) {
-            styleKey(runPause, runPauseLabel, "❚❚", "", AiText.t("Пауза", "Pause"), XemsUi.AMBER, true, true);
-        } else if (st == AutoEngine.State.COUNTDOWN) {
-            styleKey(runPause, runPauseLabel, "" + cd, "", AiText.t("Отказ", "Cancel"), XemsUi.GO, true, true);
-        } else if (rest) {
-            boolean ok = AutoSession.startReady();
-            int lft = e.getRestLeftS(now);
-            styleKey(runPause, runPauseLabel, "▶", ok ? "" : lft > 0 ? AiText.mmss(lft) : "♥ ≤ " + e.getRestHrLimit(),
-                    AiText.t("Старт", "Start"), XemsUi.GO, ok, true);
-        } else if (e.canResume()) {
-            styleKey(runPause, runPauseLabel, "▶", "", AiText.t("Продължи", "Resume"), XemsUi.GO, true, true);
-        } else {
-            styleKey(runPause, runPauseLabel, "▶", "♥ ↓", AiText.t("Пулсът спада", "HR coming down"), XemsUi.AMBER,
-                    false, true);
-        }
-        boolean canNext = !recovery && !beforeRecovery && (st == AutoEngine.State.RUN || rest);
-        styleKey(runNext, runNextLabel, "⏭", "", AiText.t("Следващо", "Next"), XemsUi.MUTED, canNext, true);
-        styleKey(runStop, runStopLabel, "■", "", recovery || beforeRecovery ? AiText.t("Край", "End")
-                : AiText.t("Към възстановяване", "To recovery"), XemsUi.ACCENT, true, paused);
-
         subtitle(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn)) : "");
 
-        // ---- strip: rows (name and strength), notice, double impulse
-        List<AutoSession.Row> rows = AutoSession.getRows();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < rows.size(); i++) {
-            AutoSession.Row r = rows.get(i);
-            if (sb.length() > 0) {
-                sb.append("    ");
-            }
-            String n = r.name.length() > 0 ? r.name : "" + (i + 1);
-            sb.append(n).append("  ").append(r.block != null ? "⊘" : r.cal <= 0 ? "—" : "" + Math.max(0, r.writtenStrength));
-        }
-        runRows.setText(sb.toString());
         String n = AutoSession.getLastNotice();
         boolean fresh = n != null && n.length() > 0 && now - AutoSession.getLastNoticeMs() < 12000L;
         runNotice.setText(fresh ? n : "");
         runNotice.setVisibility(fresh ? View.VISIBLE : View.GONE);
-        boolean dp = e.isDoublePulseAvailable();
-        runDouble.setVisibility(dp ? View.VISIBLE : View.GONE);
-        runDouble.setText(e.isDoublePulseOn() ? AiText.t("вкл.", "on") : AiText.t("изкл.", "off"));
-        runDouble.setTextColor(e.isDoublePulseOn() ? XemsUi.AMBER : XemsUi.MUTED);
     }
 
     /** The ▶ / ❚❚ key: what pressing it does now (after an exercise: how long the rest still is). */
@@ -1497,38 +1402,15 @@ public final class AutoUi {
                 AutoSession.adjustCalibration(arg / 100, arg % 100 - 50);
                 refreshCalib();
                 return;
-            case A_PAUSE:
-                AutoSession.tip("btn_pause", AiText.t("Пауза: изходът е 0 и часовникът на плана спира. След пауза над 30 s импулсите тръгват по-меко.",
-                        "Pause: output 0 and the plan clock stops. After more than 30 s the pulses restart softer."), now);
-                AutoSession.togglePause();
-                refreshRun();
-                return;
-            case A_REDUCE: AutoSession.reduceAll(); return;
-            case A_RAISE: AutoSession.raiseAll(); return;
-            case A_DOUBLE_LIVE: {
-                AutoSession.tip("btn_double", AiText.t("Двоен импулс: лек нискочестотен импулс в паузата — само във фазите, където програмата го има.",
-                        "Double impulse: a light low-frequency pulse in the pause — only in the phases where the program has it."), now);
+            case A_HOW: {
+                // the steps are always on screen; in the rest a tap on the exercise gives the next one instead
                 AutoEngine e = AutoSession.getEngine();
-                if (e != null) {
-                    AutoSession.setDoublePulse(!e.isDoublePulseOn());
+                if (e != null && e.getState() == AutoEngine.State.REST) {
+                    AutoSession.next();
                 }
                 refreshRun();
                 return;
             }
-            case A_HOW: {
-                AutoEngine e = AutoSession.getEngine();
-                String id = e != null ? e.getExercise() : null;
-                howPinnedFor = id != null && !id.equals(howPinnedFor) ? id : "";
-                refreshRun();
-                return;
-            }
-            case A_NEXT_SET:
-                AutoSession.next();
-                refreshRun();
-                return;
-            case A_STOP:
-                AutoSession.stop();             // → report stage → onFinished
-                return;
             default:
                 return;
         }

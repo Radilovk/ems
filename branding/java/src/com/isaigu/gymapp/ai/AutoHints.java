@@ -235,8 +235,8 @@ public final class AutoHints {
         } else if (state == AutoEngine.State.COUNTDOWN) {
             st = AiText.t("Старт след ", "Start in ") + e.getCountdownLeftS(now) + " …";
         }
-        boolean key = waits(e);
-        startKey.setVisibility(key ? View.VISIBLE : View.GONE);
+        boolean key = false;                                   // the main panel's ▶ drives Auto (1.1.276)
+        startKey.setVisibility(View.GONE);
         if (key) {
             startKey.setText(state == AutoEngine.State.COUNTDOWN ? "" + Math.max(1, e.getCountdownLeftS(now))
                     : AutoUi.startLabel(e, now));

@@ -3637,9 +3637,9 @@
 
     .line 1122
     :pswitch_3
-    const-string v0, "\u0426\u044f\u043b\u0430\u0442\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430: \u0432\u0438\u0441\u043e\u0447\u0438\u043d\u0430 \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441\u0438\u0442\u0435, \u0446\u0432\u044f\u0442 \u2014 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435\u0442\u043e.\n\u041c\u0438\u043d\u0430\u043b\u043e\u0442\u043e \u0435 \u044f\u0440\u043a\u043e, \u043f\u0440\u0435\u0434\u0441\u0442\u043e\u044f\u0449\u043e\u0442\u043e \u2014 \u043f\u0440\u043e\u0433\u043d\u043e\u0437\u0430. \u0414\u044a\u043b\u0431\u043e\u043a\u0430 \u0434\u043e\u043b\u0438\u043d\u0430 \u2014 \u043f\u0430\u0443\u0437\u0430 \u043d\u0430\u0434 45 s \u0438\u043b\u0438 \u0441\u043f\u0438\u0440\u0430\u043d\u0435 \u043f\u043e \u043f\u0443\u043b\u0441\u0430.\n\u0427\u0435\u0440\u0432\u0435\u043d\u0430 \u043b\u0438\u043d\u0438\u044f \u2014 \u043f\u0443\u043b\u0441\u044a\u0442, \u043f\u0443\u043d\u043a\u0442\u0438\u0440 \u2014 \u0442\u0430\u0432\u0430\u043d\u044a\u0442.\n\u0427\u0430\u0441\u043e\u0432\u043d\u0438\u043a\u044a\u0442 \u0431\u0440\u043e\u0438 \u0438\u043c\u043f\u0443\u043b\u0441\u0438\u0442\u0435 \u0438 \u0437\u0430\u0434\u044a\u043b\u0436\u0438\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u043f\u043e\u0447\u0438\u0432\u043a\u0438; \u0440\u044a\u0447\u043d\u0430\u0442\u0430 \u043f\u0430\u0443\u0437\u0430 \u043d\u0435 \u0441\u0435 \u0431\u0440\u043e\u0438."
+    const-string v0, "\u0426\u044f\u043b\u0430\u0442\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430: \u0432\u0438\u0441\u043e\u0447\u0438\u043d\u0430 \u0438 \u0446\u0432\u044f\u0442 \u2014 \u043e\u0431\u0449\u043e\u0442\u043e \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435 (\u0433\u043e\u0440\u0435 = \u0433\u0440\u0430\u043d\u0438\u0446\u0430\u0442\u0430).\n\u041c\u0438\u043d\u0430\u043b\u043e\u0442\u043e \u0435 \u044f\u0440\u043a\u043e, \u043f\u0440\u0435\u0434\u0441\u0442\u043e\u044f\u0449\u043e\u0442\u043e \u2014 \u043f\u0440\u043e\u0433\u043d\u043e\u0437\u0430 \u043e\u0442 \u0441\u0435\u0433\u0430\u0448\u043d\u043e\u0442\u043e \u0441\u044a\u0441\u0442\u043e\u044f\u043d\u0438\u0435, \u043f\u0440\u0435\u0438\u0437\u0447\u0438\u0441\u043b\u044f\u0432\u0430 \u0441\u0435 \u043f\u0440\u0438 \u0432\u0441\u044f\u043a\u0430 \u043f\u0440\u043e\u043c\u044f\u043d\u0430 \u043d\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u0438 \u043f\u0443\u043b\u0441\u0430. \u0414\u044a\u043b\u0431\u043e\u043a\u0430 \u0434\u043e\u043b\u0438\u043d\u0430 \u2014 \u043f\u0430\u0443\u0437\u0430 \u043d\u0430\u0434 45 s \u0438\u043b\u0438 \u0441\u043f\u0438\u0440\u0430\u043d\u0435 \u043f\u043e \u043f\u0443\u043b\u0441\u0430.\n\u0427\u0435\u0440\u0432\u0435\u043d\u0430 \u043b\u0438\u043d\u0438\u044f \u2014 \u043f\u0443\u043b\u0441\u044a\u0442, \u043f\u0443\u043d\u043a\u0442\u0438\u0440 \u2014 \u0442\u0430\u0432\u0430\u043d\u044a\u0442.\n\u0427\u0430\u0441\u043e\u0432\u043d\u0438\u043a\u044a\u0442 \u0431\u0440\u043e\u0438 \u0438\u043c\u043f\u0443\u043b\u0441\u0438\u0442\u0435 \u0438 \u0437\u0430\u0434\u044a\u043b\u0436\u0438\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u043f\u043e\u0447\u0438\u0432\u043a\u0438; \u0440\u044a\u0447\u043d\u0430\u0442\u0430 \u043f\u0430\u0443\u0437\u0430 \u043d\u0435 \u0441\u0435 \u0431\u0440\u043e\u0438."
 
-    const-string v1, "The whole session: height \u2014 the impulse strength, colour \u2014 the load.\nThe past is bright, what comes is the forecast. A deep valley \u2014 a pause over 45 s or an HR stop.\nRed line \u2014 the HR, dashed \u2014 the ceiling.\nThe clock counts impulses and the required rests; a manual pause does not count."
+    const-string v1, "The whole session: height and colour \u2014 the total load (top = the limit).\nThe past is bright, what comes is forecast from the state now, redone on every change of strength and HR. A deep valley \u2014 a pause over 45 s or an HR stop.\nRed line \u2014 the HR, dashed \u2014 the ceiling.\nThe clock counts impulses and the required rests; a manual pause does not count."
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -6020,7 +6020,7 @@
 
     new-array v7, v2, [I
 
-    fill-array-data v7, :array_516
+    fill-array-data v7, :array_50a
 
     .line 1307
     sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -6685,7 +6685,7 @@
     move-result-object v6
 
     .line 1333
-    if-eqz v8, :cond_512
+    if-eqz v8, :cond_506
 
     .line 1334
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
@@ -7076,7 +7076,7 @@
 
     iget v6, v15, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrRest:I
 
-    if-eqz v3, :cond_4f4
+    if-eqz v3, :cond_4e8
 
     iget v2, v15, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrCap:I
 
@@ -7097,30 +7097,18 @@
     invoke-virtual/range {v3 .. v10}, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->set(Ljava/util/List;Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;DD[Ljava/lang/String;)V
 
     .line 1390
-    if-eqz v5, :cond_4f7
-
-    const-wide/16 v2, 0x0
-
-    iget-wide v6, v5, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->totalS:D
+    if-eqz v5, :cond_4eb
 
     invoke-virtual {v14}, Lcom/isaigu/gymapp/ai/AutoEngine;->getElapsedS()D
 
-    move-result-wide v18
+    move-result-wide v2
 
-    move-wide/from16 v0, v18
-
-    invoke-virtual {v5, v0, v1}, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->sessionAt(D)D
-
-    move-result-wide v4
-
-    sub-double v4, v6, v4
-
-    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D
+    invoke-virtual {v5, v8, v9, v2, v3}, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->leftS(DD)D
 
     move-result-wide v2
 
     .line 1391
-    :goto_480
+    :goto_474
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoUi;->runClock:Landroid/widget/TextView;
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -7160,14 +7148,14 @@
     .line 1392
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoUi;->boardSub:Landroid/widget/TextView;
 
-    if-eqz v2, :cond_4ba
+    if-eqz v2, :cond_4ae
 
     .line 1393
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoUi;->boardSub:Landroid/widget/TextView;
 
-    if-eqz v12, :cond_505
+    if-eqz v12, :cond_4f9
 
-    if-eqz v11, :cond_4fc
+    if-eqz v11, :cond_4f0
 
     const-string v2, "\u0412\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435"
 
@@ -7177,12 +7165,12 @@
 
     move-result-object v2
 
-    :goto_4b7
+    :goto_4ab
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 1395
-    :cond_4ba
-    if-nez v13, :cond_508
+    :cond_4ae
+    if-nez v13, :cond_4fc
 
     invoke-virtual {v14}, Lcom/isaigu/gymapp/ai/AutoEngine;->getPhaseIndex()I
 
@@ -7192,11 +7180,11 @@
 
     move-result v2
 
-    if-nez v2, :cond_508
+    if-nez v2, :cond_4fc
 
     const/4 v2, 0x1
 
-    :goto_4c7
+    :goto_4bb
     invoke-static {v14, v2}, Lcom/isaigu/gymapp/ai/AutoUi;->showPhases(Lcom/isaigu/gymapp/ai/AutoEngine;Z)V
 
     .line 1397
@@ -7205,13 +7193,13 @@
     move-result-object v3
 
     .line 1398
-    if-eqz v3, :cond_50a
+    if-eqz v3, :cond_4fe
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v2
 
-    if-lez v2, :cond_50a
+    if-lez v2, :cond_4fe
 
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getLastNoticeMs()J
 
@@ -7223,47 +7211,47 @@
 
     cmp-long v2, v4, v6
 
-    if-gez v2, :cond_50a
+    if-gez v2, :cond_4fe
 
     const/4 v2, 0x1
 
     .line 1399
-    :goto_4e3
+    :goto_4d7
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoUi;->runNotice:Landroid/widget/TextView;
 
-    if-eqz v2, :cond_50c
+    if-eqz v2, :cond_500
 
-    :goto_4e7
+    :goto_4db
     invoke-virtual {v4, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 1400
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoUi;->runNotice:Landroid/widget/TextView;
 
-    if-eqz v2, :cond_50f
+    if-eqz v2, :cond_503
 
     const/4 v2, 0x0
 
-    :goto_4ef
+    :goto_4e3
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
     goto/16 :goto_a
 
     .line 1388
-    :cond_4f4
+    :cond_4e8
     const/4 v2, 0x0
 
     goto/16 :goto_45a
 
     .line 1390
-    :cond_4f7
+    :cond_4eb
     invoke-virtual {v14}, Lcom/isaigu/gymapp/ai/AutoEngine;->getRemainingS()D
 
     move-result-wide v2
 
-    goto :goto_480
+    goto :goto_474
 
     .line 1393
-    :cond_4fc
+    :cond_4f0
     iget-object v2, v12, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->nameBg:Ljava/lang/String;
 
     iget-object v4, v12, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->nameEn:Ljava/lang/String;
@@ -7272,38 +7260,38 @@
 
     move-result-object v2
 
-    goto :goto_4b7
+    goto :goto_4ab
 
-    :cond_505
+    :cond_4f9
     const-string v2, ""
 
-    goto :goto_4b7
+    goto :goto_4ab
 
     .line 1395
-    :cond_508
+    :cond_4fc
     const/4 v2, 0x0
 
-    goto :goto_4c7
+    goto :goto_4bb
 
     .line 1398
-    :cond_50a
+    :cond_4fe
     const/4 v2, 0x0
+
+    goto :goto_4d7
+
+    .line 1399
+    :cond_500
+    const-string v3, ""
+
+    goto :goto_4db
+
+    .line 1400
+    :cond_503
+    const/16 v2, 0x8
 
     goto :goto_4e3
 
-    .line 1399
-    :cond_50c
-    const-string v3, ""
-
-    goto :goto_4e7
-
-    .line 1400
-    :cond_50f
-    const/16 v2, 0x8
-
-    goto :goto_4ef
-
-    :cond_512
+    :cond_506
     move v8, v2
 
     goto/16 :goto_163
@@ -7311,7 +7299,7 @@
     .line 1305
     nop
 
-    :array_516
+    :array_50a
     .array-data 4
         0x0
         0x0

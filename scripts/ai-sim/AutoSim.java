@@ -54,6 +54,7 @@ public final class AutoSim {
         setsAndStops();
         liveModel();
         totalLoad();
+        liveForecast();
         scenarios();
         System.out.println((fails == 0 ? "OK" : "FAIL") + " — " + checks + " checks, " + fails + " failures");
         if (fails > 0) {
@@ -830,6 +831,105 @@ public final class AutoSim {
             System.out.println("  total load: M=" + m + " V=" + v + " D=" + d + " L=" + l
                     + " | fat V=" + ef.getMetabolicLoad(t[0]) + " | LOW V=" + el.getMetabolicLoad(t[0])
                     + " HIGH V=" + eh.getMetabolicLoad(t[0]));
+        }
+    }
+
+    static double meanHr(AutoEngine.Forecast f) {
+        double s = 0;
+        int n = 0;
+        for (float[] p : f.points) {
+            if (p[5] > 0) {
+                s += p[5];
+                n++;
+            }
+        }
+        return n > 0 ? s / n : 0;
+    }
+
+    static double peakOf(AutoEngine.Forecast f) {
+        double m = 0;
+        for (float[] p : f.points) {
+            m = Math.max(m, p[2]);
+        }
+        return m;
+    }
+
+    /** Owner (1.1.284): the timeline's future runs on from the live state — strength, HR — within Auto's bounds. */
+    static void liveForecast() {
+        long[] t = new long[1];
+        AutoModel.Plan plan = legs(input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200));
+        check(plan.hrUse != AutoModel.HrUse.NONE, "legs: the program uses the HR");
+        AutoTemplates.Script sc = AutoTemplates.script(plan, null);
+        AutoEngine.Forecast p0 = AutoEngine.forecast(plan, sc, false);
+        AutoEngine e = mainSet(plan, sc, t, p0.dose);
+        double now = e.getSessionS(t[0]);
+        AutoEngine.Forecast f = e.forecastFrom(t[0]);
+        check(f != null && Math.abs(f.fromS - now) < 1e-6 && f.totalS > now, "live forecast runs on from now");
+        check(Math.abs(f.totalS - p0.totalS) < 120, "unchanged output → the end the plan had (" + Math.round(f.totalS)
+                + " vs " + Math.round(p0.totalS) + ")");
+        float[] last = f.points.get(f.points.size() - 1);
+        check(last[1] <= plan.totalS + 1, "forecast impulses ≤ the plan (20 min active + its recovery)");
+        check(Math.abs(f.leftS(now, e.getElapsedS()) - (f.totalS - now)) < 1e-6, "time left on the live clock");
+        check(e.getState() == AutoEngine.State.RUN && e.getSessionS(t[0]) == now, "the forecast does not touch the run");
+
+        // stronger current now → higher peaks ahead, and not an earlier end
+        AutoEngine s1 = mainSet(plan, sc, t, p0.dose);
+        AutoEngine s2 = mainSet(plan, sc, t, p0.dose);
+        s1.setLive(0.6, null, t[0]);
+        s2.setLive(1.0, null, t[0]);
+        AutoEngine.Forecast fs1 = s1.forecastFrom(t[0] + 1000);
+        AutoEngine.Forecast fs2 = s2.forecastFrom(t[0] + 1000);
+        check(peakOf(fs2) > peakOf(fs1), "+strength → higher peaks on the timeline (" + peakOf(fs1) + " → " + peakOf(fs2) + ")");
+        check(fs2.totalS >= fs1.totalS - 1, "+strength → the end does not come earlier (longer rests)");
+
+        // a high pulse now → this set ends early in the forecast, the HR ahead is higher; a pulse that stays high
+        // (the learned response) → the rests wait for it and the end moves later
+        AutoEngine h1 = mainSet(plan, sc, t, p0.dose);
+        AutoEngine h2 = mainSet(plan, sc, t, p0.dose);
+        long th = t[0];
+        for (int i = 0; i < 40; i++) {
+            th += 1000;
+            h1.onHr(th, plan.hrRest + 40);
+            h2.onHr(th, plan.hrCap - 2);
+            h1.tick(th);
+            h2.tick(th);
+        }
+        AutoEngine.Forecast fh1 = h1.forecastFrom(th);
+        AutoEngine.Forecast fh2 = h2.forecastFrom(th);
+        check(fh2.points.get(0)[6] != AutoEngine.TRACE_CYCLE || h2.getState() != AutoEngine.State.RUN,
+                "HR at the cap → the running set ends in the forecast");
+        check(meanHr(fh2) > meanHr(fh1) + 10, "higher HR now → higher HR ahead (" + Math.round(meanHr(fh1)) + " → "
+                + Math.round(meanHr(fh2)) + ")");
+        check(fh2.totalS > fh1.totalS, "a pulse that stays high → the forecast ends later (" + Math.round(fh1.totalS)
+                + " → " + Math.round(fh2.totalS) + ")");
+        float[] lh = fh2.points.get(fh2.points.size() - 1);
+        check(lh[1] <= plan.totalS + 1, "…the impulses still keep the plan's bounds");
+        boolean hrLine = false;
+        for (float[] q : fh2.points) {
+            hrLine |= q[5] > 0;
+        }
+        check(hrLine, "the forecast carries the predicted HR");
+
+        // the heart's response is learned from real samples
+        AutoEngine g = mainSet(plan, sc, t, p0.dose);
+        double g0 = g.getHrGain();
+        long tg = t[0];
+        for (int i = 0; i < 20; i++) {
+            tg += 1000;
+            g.onHr(tg, plan.hrCap - 8);
+            g.tick(tg);
+        }
+        check(g.getHrGain() > g0, "a client whose HR runs high → a larger learned gain (" + g0 + " → " + g.getHrGain() + ")");
+        long n0 = System.nanoTime();
+        for (int i = 0; i < 20; i++) {
+            e.forecastFrom(t[0]);
+        }
+        double ms = (System.nanoTime() - n0) / 20e6;
+        check(ms < 60, "a live forecast is cheap (" + ms + " ms on the JVM)");
+        if (verbose) {
+            System.out.println("  live forecast " + Math.round(ms) + " ms: plan end " + Math.round(p0.totalS) + " s, live " + Math.round(f.totalS)
+                    + " s; peaks " + peakOf(fs1) + " → " + peakOf(fs2) + "; HR end " + Math.round(fh1.totalS) + " → "
+                    + Math.round(fh2.totalS));
         }
     }
 

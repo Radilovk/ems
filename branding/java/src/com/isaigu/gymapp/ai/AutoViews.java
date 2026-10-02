@@ -594,15 +594,16 @@ public final class AutoViews {
         public void set(List<float[]> past, AutoEngine.Forecast f, double elapsedImpulse, double sessionNow,
                         String[] phaseNames) {
             names = phaseNames;
-            double anchor = f != null ? f.sessionAt(elapsedImpulse) : sessionNow;
+            double anchor = f != null ? f.anchor(sessionNow, elapsedImpulse) : sessionNow;
             double total = f != null ? sessionNow + Math.max(0, f.totalS - anchor) : sessionNow;
             totalS = (float) Math.max(60, total);
             nowS = (float) sessionNow;
+            // absolute: the top is the total load 1 (the limit) — a stronger current or a higher pulse shows higher
             double max = f != null ? f.maxLoad : 0;
             for (float[] p : past) {
                 max = Math.max(max, p[2]);
             }
-            max = Math.max(0.05, max);
+            max = Math.max(1.0, max);
             float[] raw = new float[N];
             float[] col = new float[N];
             boolean[] crit = new boolean[N];

@@ -27,10 +27,10 @@
     .registers 4
 
     .prologue
-    .line 498
+    .line 491
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 493
+    .line 486
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -39,7 +39,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
-    .line 499
+    .line 492
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
     const v1, 0x3fcccccd    # 1.6f
@@ -50,7 +50,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 500
+    .line 493
     return-void
 .end method
 
@@ -62,16 +62,16 @@
     .prologue
     const/high16 v8, 0x40000000    # 2.0f
 
-    .line 512
+    .line 505
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->all:I
 
     if-gtz v0, :cond_7
 
-    .line 534
+    .line 527
     :cond_6
     return-void
 
-    .line 515
+    .line 508
     :cond_7
     const/high16 v0, 0x40a00000    # 5.0f
 
@@ -79,14 +79,14 @@
 
     move-result v3
 
-    .line 516
+    .line 509
     const/high16 v0, 0x41100000    # 9.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
     move-result v4
 
-    .line 517
+    .line 510
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->all:I
 
     mul-int/lit8 v0, v0, 0x2
@@ -105,7 +105,7 @@
 
     add-float/2addr v0, v1
 
-    .line 518
+    .line 511
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->getWidth()I
 
     move-result v1
@@ -118,7 +118,7 @@
 
     add-float v1, v0, v3
 
-    .line 519
+    .line 512
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->getHeight()I
 
     move-result v0
@@ -127,7 +127,7 @@
 
     div-float v5, v0, v8
 
-    .line 520
+    .line 513
     const/4 v0, 0x1
 
     :goto_32
@@ -135,26 +135,26 @@
 
     if-gt v0, v2, :cond_6
 
-    .line 521
+    .line 514
     iget v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->done:I
 
     if-ge v0, v2, :cond_5b
 
-    .line 522
+    .line 515
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
     sget-object v6, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 523
+    .line 516
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
     sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->ORANGE:I
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 531
+    .line 524
     :goto_48
     iget v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->done:I
 
@@ -169,32 +169,32 @@
 
     invoke-virtual {p1, v1, v5, v2, v6}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 532
+    .line 525
     mul-float v2, v8, v3
 
     add-float/2addr v2, v4
 
     add-float/2addr v1, v2
 
-    .line 520
+    .line 513
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_32
 
-    .line 524
+    .line 517
     :cond_5b
     iget v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->done:I
 
     if-ne v0, v2, :cond_6e
 
-    .line 525
+    .line 518
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
     sget-object v6, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 526
+    .line 519
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
     sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
@@ -203,7 +203,7 @@
 
     goto :goto_48
 
-    .line 528
+    .line 521
     :cond_6e
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
@@ -211,7 +211,7 @@
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 529
+    .line 522
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
     sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -229,7 +229,7 @@
     :cond_83
     move v2, v3
 
-    .line 531
+    .line 524
     goto :goto_4f
 .end method
 
@@ -237,7 +237,7 @@
     .registers 4
 
     .prologue
-    .line 503
+    .line 496
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->done:I
 
     if-ne p1, v0, :cond_8
@@ -246,17 +246,17 @@
 
     if-eq p2, v0, :cond_f
 
-    .line 504
+    .line 497
     :cond_8
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->done:I
 
-    .line 505
+    .line 498
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->all:I
 
-    .line 506
+    .line 499
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->invalidate()V
 
-    .line 508
+    .line 501
     :cond_f
     return-void
 .end method

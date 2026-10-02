@@ -352,15 +352,14 @@ public final class AutoViews {
 
     // ================================================================ peak triangle
 
-    /** Inverted triangle: wide (red, peak) at the top, the point (blue, light) at the bottom; a marker at the
-     *  most loaded zone now, with the value. */
+    /** Inverted triangle: wide (red, high) at the top, the point (blue, light) at the bottom; a marker at the
+     *  total load now. */
     public static final class PeakBar extends View {
         private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint line = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint txt = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Path tri = new Path();
         private float value;
-        private boolean cardio;
         private int lastH;
 
         public PeakBar(Context c) {
@@ -372,12 +371,11 @@ public final class AutoViews {
             txt.setTextSize(dp(this, 13));
         }
 
-        /** v = the system load; heart = the heart, not a muscle, is what is nearest its limit (a ♥ at the mark). */
-        public void set(double v, boolean heart) {
+        /** v = the total load ({@link AutoEngine#getSystemLoad}). */
+        public void set(double v) {
             float f = (float) Math.max(0, Math.min(1.25, v));
-            if (Math.abs(f - value) > 0.005f || heart != cardio) {
+            if (Math.abs(f - value) > 0.005f) {
                 value = f;
-                cardio = heart;
                 invalidate();
             }
         }
@@ -413,11 +411,6 @@ public final class AutoViews {
             hw = half - hw + dp(this, 6);
             line.setColor(XemsUi.TEXT);
             c.drawLine(w / 2f - hw, y, w / 2f + hw, y, line);
-            if (cardio) {
-                float g = dp(this, 13);
-                line.setColor(heat(value));
-                ImpulseGlyph.draw(c, ImpulseGlyph.HEART, w / 2f + hw + dp(this, 2), y - g / 2f, g, line);
-            }
         }
     }
 

@@ -838,7 +838,12 @@ public final class AutoSim {
         check(h.getCardioLoad(t) < 0, "no HR → no cardio load");
         h.onHr(t, plan.hrRest + (plan.hrCap - plan.hrRest) / 2);
         check(Math.abs(h.getCardioLoad(t) - 0.5) < 0.05, "cardio load = %HR range to the cap");
-        check(h.getSystemLoad(t) >= h.getCardioLoad(t) && h.isCardioLimiting(t), "system load = the higher one");
+        double m0 = 0.5 * h.getPeakLoad(t) + 0.5 * h.getMuscleMeanLoad(t);
+        double c0 = h.getCardioLoad(t);
+        check(Math.abs(h.getSystemLoad(t) - Math.sqrt(0.6 * m0 * m0 + 0.4 * c0 * c0)) < 1e-9
+                && h.getSystemLoad(t) <= Math.max(m0, c0) + 1e-9 && h.getSystemLoad(t) >= Math.min(m0, c0) - 1e-9,
+                "total load = RMS of the muscular and the cardiac part (between the two)");
+        check(h.getMuscleMeanLoad(t) <= h.getPeakLoad(t) + 1e-9, "whole-body mean ≤ the peak zone");
         for (int i = 0; i < 2 && h.getState() == AutoEngine.State.RUN; i++) {
             t += h.getCurrent().durationMs();
             h.onHr(t, plan.hrCap - 3);

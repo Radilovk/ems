@@ -1113,11 +1113,11 @@ public final class AutoUi {
                 return AiText.t("Цветът на зона е натрупаното ѝ натоварване: синьо — леко, червено — границата на тежка серия.\n"
                         + "Сметка: сила × честота × % на зоната + работата на упражнението; спада с почивката.\n"
                         + "Сърцето бие с пулса, цветът е пулсовата зона.\n"
-                        + "Триъгълникът — каквото е по-близо до границата си: мускул или сърцето (♥).",
+                        + "Натоварване — общото: най-натоварената зона и средното за тялото, а с гривна и сърцето.",
                         "A zone's colour is its accumulated load: blue — light, red — the limit of a hard set.\n"
                         + "Sum: strength × frequency × zone % + the exercise's work; it falls in the rest.\n"
                         + "The heart beats with the HR, its colour is the HR zone.\n"
-                        + "The triangle — whatever is nearer its limit: a muscle or the heart (♥).");
+                        + "Load — the total: the most loaded zone and the body's average, and with a band the heart too.");
             default:
                 return AiText.t("Цялата тренировка: височина — силата на импулсите, цвят — натоварването.\n"
                         + "Миналото е ярко, предстоящото — прогноза. Дълбока долина — пауза над 45 s или спиране по пулса.\n"
@@ -1355,8 +1355,7 @@ public final class AutoUi {
             off[k] = (lz != null && k < lz.length ? lz[k] : plan.zones[k]) <= 0;
         }
         runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getChannelLoad(now), off);
-        double cardio = e.getCardioLoad(now);
-        runPeak.set(e.getSystemLoad(now), cardio >= 0 && e.isCardioLimiting(now));
+        runPeak.set(e.getSystemLoad(now));                     // the total load: muscles (peak + body) and heart
         boolean hrUsed = plan.hrUse != AutoModel.HrUse.NONE && AutoSession.isBandConfigured(host);
         runVital.setVisibility(hrUsed ? View.VISIBLE : View.GONE);
         if (hrUsed) {

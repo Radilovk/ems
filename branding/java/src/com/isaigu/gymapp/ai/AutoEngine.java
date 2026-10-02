@@ -931,11 +931,49 @@ public final class AutoEngine {
     }
 
     /**
-     * System load (the triangle): the higher of the local (most tired muscle zone, F / F_max) and the central
-     * (heart, {@link #getCardioLoad}) strain — whichever is nearer its limit decides the rest and the set's end.
+     * Stimulated muscle mass per suit channel (kg, 75-kg man): the muscle's mass × the share the surface current
+     * reaches — the same table as the energy model ({@code AiEnergy.CH_MASS × CH_DEPTH}, docs/xems-pulse-control.md).
+     */
+    static final double[] ZONE_MASS = {1.0 * 0.5, 1.6 * 0.5, 4.8 * 0.35, 2.2 * 0.45, 2.0 * 0.5, 0.9 * 0.5,
+            2.2 * 0.45, 1.0 * 0.4, 2.6 * 0.35, 2.4 * 0.4};
+    /** Weights of the muscular and the cardiac part of the total load (peripheral vs central strain). [D] */
+    static final double W_MUSCLE = 0.6;
+    static final double W_HEART = 0.4;
+
+    /** Whole-body muscular load: the zones' F / F_max averaged by their stimulated mass (switched-off zones out). */
+    public double getMuscleMeanLoad(long now) {
+        double[] l = getChannelLoad(now);
+        int[] z = liveZones != null ? liveZones : plan.zones;
+        double sum = 0;
+        double w = 0;
+        for (int k = 0; k < l.length; k++) {
+            if (z != null && k < z.length && z[k] <= 0) {
+                continue;
+            }
+            sum += ZONE_MASS[k] * l[k];
+            w += ZONE_MASS[k];
+        }
+        return w > 0 ? sum / w : 0;
+    }
+
+    /**
+     * The total load (the "Натоварване" scale, owner 1.1.282): not "which is nearest its limit" but how loaded the
+     * body is as a whole.
+     * <pre>
+     *   muscular  M = ½ · peak zone + ½ · mass-weighted mean of the zones      (local + whole body)
+     *   heart     C = (HR − HR_rest) / (HR_cap − HR_rest)                       (central)
+     *   total     L = √(0.6·M² + 0.4·C²)  with a pulse,  L = M  without one
+     * </pre>
+     * The root-mean-square keeps the higher part dominant but lets both count; 1 ≈ both at their limits.
+     * The limits themselves (HR ceiling, rest minimum) are enforced separately and do not depend on this number.
      */
     public double getSystemLoad(long now) {
-        return Math.max(getPeakLoad(now), getCardioLoad(now));
+        double m = 0.5 * getPeakLoad(now) + 0.5 * getMuscleMeanLoad(now);
+        double c = getCardioLoad(now);
+        if (c < 0) {
+            return m;
+        }
+        return Math.sqrt(W_MUSCLE * m * m + W_HEART * c * c);
     }
 
     /** True when the heart, not a muscle, is nearer its limit now. */

@@ -746,7 +746,22 @@ public final class AutoSession {
      * The main panel's ▶/❚❚ during Auto (owner, 1.1.276 — the board has no keys): pause while the impulses run,
      * the next set / resume when it waits (too early → the notice says why), cancel during the countdown.
      */
-    static void mainStartPause() {
+    /** True while Auto runs: the right panel's ▶ and ■ belong to it (XemsPanel routes them here). */
+    public static boolean mainKeysOwned() {
+        return stage == Stage.RUNNING && engine != null && engine.getState() != AutoEngine.State.DONE
+                && engine.getState() != AutoEngine.State.STOPPED;
+    }
+
+    /** For the right panel's start tile: −1 = not Auto, 1 = impulses run (show ❚❚), 0 = it waits (show ▶). */
+    public static int mainKeyState() {
+        if (!mainKeysOwned()) {
+            return -1;
+        }
+        AutoEngine.State st = engine.getState();
+        return st == AutoEngine.State.RUN || st == AutoEngine.State.COUNTDOWN ? 1 : 0;
+    }
+
+    public static void mainStartPause() {
         if (engine == null || stage != Stage.RUNNING) {
             return;
         }
@@ -770,7 +785,7 @@ public final class AutoSession {
      * The main panel's ■ during Auto: while the impulses run it only pauses (■ works from a pause — never one press
      * to the end); in a pause or a rest it is the Auto STOP (active part → recovery, recovery → end).
      */
-    static void mainStop() {
+    public static void mainStop() {
         if (engine == null || stage != Stage.RUNNING) {
             return;
         }

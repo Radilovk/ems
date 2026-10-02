@@ -683,7 +683,7 @@ public final class AutoViews {
         protected void onDraw(Canvas c) {
             int w = getWidth();
             int h = getHeight();
-            float top = dp(this, 22);
+            float top = dp(this, 16);
             float base = h - dp(this, 4);
             float dx = w / (float) N;
             int[] cols = new int[N];

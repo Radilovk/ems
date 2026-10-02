@@ -299,7 +299,7 @@
     move-result v8
 
     .line 686
-    const/high16 v0, 0x41b00000    # 22.0f
+    const/high16 v0, 0x41800000    # 16.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 

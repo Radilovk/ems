@@ -3,7 +3,19 @@
 .source "AutoBoard.java"
 
 
+# annotations
+.annotation system Ldalvik/annotation/MemberClasses;
+    value = {
+        Lcom/isaigu/gymapp/ai/AutoBoard$Fit;
+    }
+.end annotation
+
+
 # static fields
+.field static final DESIGN_H:I = 0x122
+
+.field static final DESIGN_W:I = 0x488
+
 .field private static board:Landroid/view/View;
 
 .field private static heightPx:I
@@ -18,7 +30,7 @@
     .registers 1
 
     .prologue
-    .line 22
+    .line 21
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/ai/AutoBoard;->heightPx:I
@@ -30,7 +42,7 @@
     .registers 1
 
     .prologue
-    .line 24
+    .line 53
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -40,38 +52,36 @@
     .registers 11
 
     .prologue
-    const/high16 v4, 0x40c00000    # 6.0f
-
-    const/high16 v8, 0x3f800000    # 1.0f
+    const/4 v8, 0x0
 
     const/4 v7, -0x1
 
-    const/4 v6, 0x0
+    const/high16 v6, 0x3f800000    # 1.0f
 
-    .line 60
+    .line 89
     invoke-virtual {p1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 61
+    .line 90
     sput-object p1, Lcom/isaigu/gymapp/ai/AutoBoard;->list:Landroid/view/View;
 
-    .line 62
+    .line 91
     invoke-virtual {p1}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object v1
 
     sput-object v1, Lcom/isaigu/gymapp/ai/AutoBoard;->listParams:Landroid/view/ViewGroup$LayoutParams;
 
-    .line 63
+    .line 92
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AutoBoard;->scrollTop(Landroid/view/View;)V
 
-    .line 65
+    .line 94
     instance-of v1, p1, Landroid/view/ViewGroup;
 
-    if-eqz v1, :cond_b9
+    if-eqz v1, :cond_ac
 
     move-object v1, p1
 
@@ -81,33 +91,33 @@
 
     move-result v1
 
-    if-lez v1, :cond_b9
+    if-lez v1, :cond_ac
 
     move-object v1, p1
 
     check-cast v1, Landroid/view/ViewGroup;
 
-    invoke-virtual {v1, v6}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+    invoke-virtual {v1, v8}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 66
-    :goto_2b
-    if-eqz v1, :cond_bc
+    .line 95
+    :goto_29
+    if-eqz v1, :cond_af
 
     invoke-virtual {v1}, Landroid/view/View;->getHeight()I
 
     move-result v2
 
-    if-lez v2, :cond_bc
+    if-lez v2, :cond_af
 
     invoke-virtual {v1}, Landroid/view/View;->getHeight()I
 
     move-result v2
 
-    .line 67
-    :goto_37
-    if-eqz v1, :cond_c4
+    .line 96
+    :goto_35
+    if-eqz v1, :cond_b6
 
     invoke-virtual {v1}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
@@ -115,16 +125,16 @@
 
     instance-of v3, v3, Landroid/view/ViewGroup$MarginLayoutParams;
 
-    if-eqz v3, :cond_c4
+    if-eqz v3, :cond_b6
 
-    .line 68
+    .line 97
     invoke-virtual {v1}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object v1
 
     check-cast v1, Landroid/view/ViewGroup$MarginLayoutParams;
 
-    .line 69
+    .line 98
     iget v3, v1, Landroid/view/ViewGroup$MarginLayoutParams;->topMargin:I
 
     iget v1, v1, Landroid/view/ViewGroup$MarginLayoutParams;->bottomMargin:I
@@ -133,109 +143,96 @@
 
     add-int/2addr v1, v2
 
-    .line 71
-    :goto_4d
+    .line 100
+    :goto_4b
     sput v1, Lcom/isaigu/gymapp/ai/AutoBoard;->heightPx:I
 
-    .line 72
+    .line 101
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v2, v7, v1}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 73
+    .line 102
     invoke-virtual {p1, v2}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 75
+    .line 107
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 76
-    invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    .line 108
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/AutoUi;->buildBoard(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 
-    move-result v2
+    .line 109
+    new-instance v2, Landroid/widget/FrameLayout;
 
-    const/high16 v3, 0x40800000    # 4.0f
+    invoke-direct {v2, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    .line 110
+    new-instance v3, Landroid/widget/FrameLayout$LayoutParams;
 
-    move-result v3
+    const/high16 v4, 0x44910000    # 1160.0f
 
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
-    const/high16 v5, 0x41000000    # 8.0f
+    const/high16 v5, 0x43910000    # 290.0f
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
 
-    invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    invoke-direct {v3, v4, v5}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
-    .line 77
-    invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/AutoUi;->buildBoard(Landroid/content/Context;Landroid/widget/LinearLayout;)V
+    invoke-virtual {v2, v1, v3}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 78
-    new-instance v2, Landroid/widget/ScrollView;
+    .line 111
+    new-instance v3, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;
 
-    invoke-direct {v2, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
+    invoke-direct {v3, v1}, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;-><init>(Landroid/view/View;)V
 
-    .line 79
-    const/4 v3, 0x1
+    invoke-virtual {v2, v3}, Landroid/widget/FrameLayout;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
 
-    invoke-virtual {v2, v3}, Landroid/widget/ScrollView;->setFillViewport(Z)V
-
-    .line 80
-    invoke-virtual {v2, v6}, Landroid/widget/ScrollView;->setVerticalScrollBarEnabled(Z)V
-
-    .line 81
-    new-instance v3, Landroid/widget/FrameLayout$LayoutParams;
-
-    const/high16 v4, 0x43d70000    # 430.0f
-
-    .line 82
-    invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v4
-
-    invoke-static {v4, v6}, Ljava/lang/Math;->max(II)I
-
-    move-result v4
-
-    invoke-direct {v3, v7, v4}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
-
-    .line 81
-    invoke-virtual {v2, v1, v3}, Landroid/widget/ScrollView;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 83
+    .line 112
     sput-object v2, Lcom/isaigu/gymapp/ai/AutoBoard;->board:Landroid/view/View;
 
-    .line 84
+    .line 113
     invoke-virtual {v0, p1}, Landroid/widget/LinearLayout;->indexOfChild(Landroid/view/View;)I
 
     move-result v1
 
     add-int/lit8 v1, v1, 0x1
 
-    .line 85
+    .line 114
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
-    invoke-direct {v3, v7, v6, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+    invoke-direct {v3, v7, v8, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
+    .line 115
+    const/high16 v4, 0x40800000    # 4.0f
+
+    invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v4
+
+    .line 116
+    invoke-virtual {v3, v4, v4, v4, v4}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
+
+    .line 117
     invoke-virtual {v0, v2, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;ILandroid/view/ViewGroup$LayoutParams;)V
 
-    .line 86
+    .line 118
     const/4 v0, 0x0
 
-    invoke-virtual {v2, v0}, Landroid/widget/ScrollView;->setAlpha(F)V
+    invoke-virtual {v2, v0}, Landroid/widget/FrameLayout;->setAlpha(F)V
 
-    .line 87
-    invoke-virtual {v2}, Landroid/widget/ScrollView;->animate()Landroid/view/ViewPropertyAnimator;
+    .line 119
+    invoke-virtual {v2}, Landroid/widget/FrameLayout;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
-    invoke-virtual {v0, v8}, Landroid/view/ViewPropertyAnimator;->alpha(F)Landroid/view/ViewPropertyAnimator;
+    invoke-virtual {v0, v6}, Landroid/view/ViewPropertyAnimator;->alpha(F)Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
@@ -247,29 +244,29 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 88
+    .line 120
     return-void
 
-    .line 65
-    :cond_b9
+    .line 94
+    :cond_ac
     const/4 v1, 0x0
 
-    goto/16 :goto_2b
+    goto/16 :goto_29
 
-    .line 66
-    :cond_bc
+    .line 95
+    :cond_af
     const/high16 v2, 0x432a0000    # 170.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    goto/16 :goto_37
+    goto :goto_35
 
-    :cond_c4
+    :cond_b6
     move v1, v2
 
-    goto :goto_4d
+    goto :goto_4b
 .end method
 
 .method static detach()V
@@ -278,7 +275,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 109
+    .line 141
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoBoard;->board:Landroid/view/View;
 
     if-eqz v0, :cond_1c
@@ -293,7 +290,7 @@
 
     if-eqz v0, :cond_1c
 
-    .line 110
+    .line 142
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoBoard;->board:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
@@ -306,11 +303,11 @@
 
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
 
-    .line 112
+    .line 144
     :cond_1c
     sput-object v2, Lcom/isaigu/gymapp/ai/AutoBoard;->board:Landroid/view/View;
 
-    .line 113
+    .line 145
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoBoard;->list:Landroid/view/View;
 
     if-eqz v0, :cond_2d
@@ -319,24 +316,24 @@
 
     if-eqz v0, :cond_2d
 
-    .line 114
+    .line 146
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoBoard;->list:Landroid/view/View;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoBoard;->listParams:Landroid/view/ViewGroup$LayoutParams;
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 116
+    .line 148
     :cond_2d
     sput-object v2, Lcom/isaigu/gymapp/ai/AutoBoard;->list:Landroid/view/View;
 
-    .line 117
+    .line 149
     sput-object v2, Lcom/isaigu/gymapp/ai/AutoBoard;->listParams:Landroid/view/ViewGroup$LayoutParams;
 
-    .line 118
+    .line 150
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->onBoardDetached()V
 
-    .line 119
+    .line 151
     return-void
 .end method
 
@@ -344,7 +341,7 @@
     .registers 1
 
     .prologue
-    .line 27
+    .line 56
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoBoard;->board:Landroid/view/View;
 
     if-eqz v0, :cond_e
@@ -372,7 +369,7 @@
     .registers 4
 
     .prologue
-    .line 93
+    .line 125
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -396,7 +393,7 @@
 
     move-result-object v0
 
-    .line 94
+    .line 126
     instance-of v1, v0, Ljava/lang/Integer;
 
     if-eqz v1, :cond_23
@@ -409,17 +406,17 @@
 
     if-eqz v0, :cond_23
 
-    .line 95
+    .line 127
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AutoBoard;->scrollTop(Landroid/view/View;)V
     :try_end_23
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_23} :catch_24
 
-    .line 99
+    .line 131
     :cond_23
     :goto_23
     return-void
 
-    .line 97
+    .line 129
     :catch_24
     move-exception v0
 
@@ -430,7 +427,7 @@
     .registers 6
 
     .prologue
-    .line 103
+    .line 135
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -470,11 +467,11 @@
     :try_end_20
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_20} :catch_21
 
-    .line 106
+    .line 138
     :goto_20
     return-void
 
-    .line 104
+    .line 136
     :catch_21
     move-exception v0
 
@@ -487,7 +484,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 32
+    .line 61
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     move-result-object v0
@@ -504,26 +501,26 @@
 
     const/4 v0, 0x1
 
-    .line 34
+    .line 63
     :goto_10
     if-nez v0, :cond_18
 
-    .line 35
+    .line 64
     :try_start_12
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->detach()V
 
-    .line 57
+    .line 86
     :cond_15
     :goto_15
     return-void
 
-    .line 32
+    .line 61
     :cond_16
     const/4 v0, 0x0
 
     goto :goto_10
 
-    .line 38
+    .line 67
     :cond_18
     if-eqz p0, :cond_59
 
@@ -531,16 +528,16 @@
 
     move-result-object v0
 
-    .line 39
+    .line 68
     :goto_1e
     if-eqz v0, :cond_15
 
-    .line 42
+    .line 71
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
-    .line 43
+    .line 72
     invoke-virtual {v2}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v3
@@ -557,14 +554,14 @@
 
     move-result v3
 
-    .line 44
+    .line 73
     if-eqz v3, :cond_5b
 
     invoke-virtual {v0, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 45
+    .line 74
     :goto_3a
     if-eqz v0, :cond_15
 
@@ -576,7 +573,7 @@
 
     if-eqz v1, :cond_15
 
-    .line 48
+    .line 77
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->isAttached()Z
 
     move-result v1
@@ -587,18 +584,18 @@
 
     if-ne v0, v1, :cond_5d
 
-    .line 49
+    .line 78
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoBoard;->keepFirstRow(Landroid/view/View;)V
     :try_end_51
     .catch Ljava/lang/Throwable; {:try_start_12 .. :try_end_51} :catch_52
 
     goto :goto_15
 
-    .line 54
+    .line 83
     :catch_52
     move-exception v0
 
-    .line 55
+    .line 84
     const-string v1, "AutoBoard.sync"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -608,21 +605,21 @@
     :cond_59
     move-object v0, v1
 
-    .line 38
+    .line 67
     goto :goto_1e
 
     :cond_5b
     move-object v0, v1
 
-    .line 44
+    .line 73
     goto :goto_3a
 
-    .line 52
+    .line 81
     :cond_5d
     :try_start_5d
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->detach()V
 
-    .line 53
+    .line 82
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/ai/AutoBoard;->attach(Landroid/content/Context;Landroid/view/View;)V
     :try_end_63
     .catch Ljava/lang/Throwable; {:try_start_5d .. :try_end_63} :catch_52

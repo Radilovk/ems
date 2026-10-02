@@ -54,6 +54,14 @@ public final class XemsPanel {
         }
         int id = which == PRESS_PLUS ? ID_ADD : which == PRESS_MINUS ? ID_MINUS
                 : which == PRESS_STOP ? ID_STOP : ID_START;
+        if ((id == ID_START || id == ID_STOP) && com.isaigu.gymapp.ai.AutoSession.mainKeysOwned()) {
+            if (id == ID_START) {
+                com.isaigu.gymapp.ai.AutoSession.mainStartPause();
+            } else {
+                com.isaigu.gymapp.ai.AutoSession.mainStop();
+            }
+            return true;
+        }
         View target = root.findViewById(id);
         if (target == null) {
             return false;
@@ -181,7 +189,9 @@ public final class XemsPanel {
                 }
             }
         }
-        boolean running = isTrainingRunning();
+        // during Auto the tile shows Auto's state (its pauses keep the device on, at 0)
+        int auto = com.isaigu.gymapp.ai.AutoSession.mainKeyState();
+        boolean running = auto >= 0 ? auto == 1 : isTrainingRunning();
         if (running == shownRunning) {
             return;
         }
@@ -282,6 +292,16 @@ public final class XemsPanel {
         public void onClick(View v) {
             try {
                 XemsUi.haptic(v);
+                // an automatic session owns ▶ and ■ (docs/xems-auto-mode-spec.md §12): they drive it, not the device
+                if ((id == ID_START || id == ID_STOP) && com.isaigu.gymapp.ai.AutoSession.mainKeysOwned()) {
+                    if (id == ID_START) {
+                        com.isaigu.gymapp.ai.AutoSession.mainStartPause();
+                    } else {
+                        com.isaigu.gymapp.ai.AutoSession.mainStop();
+                    }
+                    refresh();
+                    return;
+                }
                 View target = root.findViewById(id);
                 if (target != null) {
                     target.performClick();

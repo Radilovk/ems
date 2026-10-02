@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 import com.isaigu.gymapp.widget.XemsUi;
 
@@ -20,6 +19,36 @@ public final class AutoBoard {
     private static ViewGroup.LayoutParams listParams;
     private static View board;
     private static int heightPx = -1;
+    /** Reference size of the board (dp): the shape of the two "Добави" rows on the training screen. */
+    static final int DESIGN_W = 1160;
+    static final int DESIGN_H = 290;
+
+    /** Scales the board evenly to the space it got, centred (touches follow the scale). */
+    static final class Fit implements View.OnLayoutChangeListener {
+        private final View content;
+
+        Fit(View content) {
+            this.content = content;
+        }
+
+        @Override
+        public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
+            int w = r - l;
+            int h = b - t;
+            int dw = content.getLayoutParams().width;
+            int dh = content.getLayoutParams().height;
+            if (w <= 0 || h <= 0 || dw <= 0 || dh <= 0) {
+                return;
+            }
+            float k = Math.min(w / (float) dw, h / (float) dh);
+            content.setPivotX(0);
+            content.setPivotY(0);
+            content.setScaleX(k);
+            content.setScaleY(k);
+            content.setTranslationX((w - dw * k) / 2f);
+            content.setTranslationY((h - dh * k) / 2f);
+        }
+    }
 
     private AutoBoard() {}
 
@@ -72,17 +101,20 @@ public final class AutoBoard {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rowH);
         rv.setLayoutParams(lp);
 
+        // The place of the two "Добави" rows: wide and short (≈ 4 : 1). The board is laid out once at a reference
+        // size with that shape and scaled evenly to the real space, so it fits exactly on every tablet — no scrolling,
+        // nothing cut, the same proportions everywhere.
         LinearLayout content = XemsUi.vertical(c);
-        content.setPadding(XemsUi.dp(c, 6), XemsUi.dp(c, 4), XemsUi.dp(c, 6), XemsUi.dp(c, 8));
         AutoUi.buildBoard(c, content);
-        ScrollView sv = new ScrollView(c);                  // a shorter screen scrolls instead of cutting
-        sv.setFillViewport(true);
-        sv.setVerticalScrollBarEnabled(false);
-        sv.addView(content, new ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                Math.max(XemsUi.dp(c, 430), 0)));
+        android.widget.FrameLayout sv = new android.widget.FrameLayout(c);
+        sv.addView(content, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, DESIGN_W), XemsUi.dp(c, DESIGN_H)));
+        sv.addOnLayoutChangeListener(new Fit(content));
         board = sv;
         int at = parent.indexOfChild(rv) + 1;
-        parent.addView(sv, at, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        int m = XemsUi.dp(c, 4);                            // the rows' own margin (ui_card_margin)
+        blp.setMargins(m, m, m, m);
+        parent.addView(sv, at, blp);
         sv.setAlpha(0f);
         sv.animate().alpha(1f).setDuration(260).start();
     }

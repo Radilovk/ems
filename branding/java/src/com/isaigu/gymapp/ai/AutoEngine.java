@@ -771,15 +771,16 @@ public final class AutoEngine {
     public static final String NEXT_RECOVERY = "";
 
     /**
-     * What comes after the running set: the next exercise of this phase, the first one of the next phase when the
+     * What comes after the running (in a rest: the coming) set: the next exercise of this phase, the first one of the next phase when the
      * set ends past the phase boundary, {@link #NEXT_RECOVERY} when the active part ends with it, null outside sets.
      * Shown in the set's last seconds so the client can get ready.
      */
     public String getNextExercise() {
-        if (script == null || !isStationPhase(phaseIndex) || state == State.REST) {
+        if (script == null || !isStationPhase(phaseIndex) || (state == State.REST && restBeforeCooldown)) {
             return null;
         }
-        double end = elapsedS + Math.max(0, getSetTargetS() - stationS);
+        // in a rest the coming set has not started: "next" is the one after it
+        double end = elapsedS + Math.max(0, getSetTargetS() - (state == State.REST ? 0 : stationS));
         int cool = cooldownIndex();
         int idx = phaseAt(end);
         if (cool >= 0 && (idx >= cool || plan.activeS - end < STATION_MIN_S / 2.0)) {

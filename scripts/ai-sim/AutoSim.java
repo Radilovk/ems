@@ -752,6 +752,38 @@ public final class AutoSim {
             e.onCycle(t);
         }
         check(e.getState() == AutoEngine.State.REST, "reached a main-part rest");
+        // the "next" shown in a set's last seconds is the exercise the next set really has
+        {
+            AutoEngine q = new AutoEngine(plan);
+            q.setScript(sc);
+            long tq = 0;
+            q.startAt(tq, tq);
+            tq = q.getGoMs();
+            q.tick(tq);
+            int ok = 0;
+            int bad = 0;
+            String promised = null;
+            for (int i = 0; i < 2500 && q.getState() != AutoEngine.State.DONE; i++) {
+                if (q.getState() == AutoEngine.State.RUN) {
+                    String nx = q.getNextExercise();
+                    if (nx != null) {
+                        promised = nx;
+                    }
+                }
+                if (q.getState() == AutoEngine.State.REST && promised != null) {
+                    String real = q.isRestBeforeCooldown() ? AutoEngine.NEXT_RECOVERY : q.getExercise();
+                    if (promised.equals(real)) {
+                        ok++;
+                    } else {
+                        bad++;
+                    }
+                    promised = null;
+                }
+                step(q, new long[] {tq}, 0);
+                tq = q.getState() == AutoEngine.State.RUN && q.getCurrent() != null ? q.getCurrent().startMs : tq + 1000;
+            }
+            check(ok > 10 && bad == 0, "next exercise announced = the one that comes (" + ok + " ok, " + bad + " wrong)");
+        }
         double[] load = e.getChannelLoad(t);
         check(load[AutoModel.GLUTES] > load[AutoModel.CHEST] && load[AutoModel.GLUTES] > 0.2,
                 "glutes program loads the glutes more than the chest (" + load[AutoModel.GLUTES] + " / " + load[AutoModel.CHEST] + ")");

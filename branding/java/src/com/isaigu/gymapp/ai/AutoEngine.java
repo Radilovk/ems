@@ -767,6 +767,37 @@ public final class AutoEngine {
         return l == null || l.length == 0 ? null : l[stationIndex % l.length];
     }
 
+    /** {@link #getNextExercise} when the recovery comes next instead of another set. */
+    public static final String NEXT_RECOVERY = "";
+
+    /**
+     * What comes after the running set: the next exercise of this phase, the first one of the next phase when the
+     * set ends past the phase boundary, {@link #NEXT_RECOVERY} when the active part ends with it, null outside sets.
+     * Shown in the set's last seconds so the client can get ready.
+     */
+    public String getNextExercise() {
+        if (script == null || !isStationPhase(phaseIndex) || state == State.REST) {
+            return null;
+        }
+        double end = elapsedS + Math.max(0, getSetTargetS() - stationS);
+        int cool = cooldownIndex();
+        int idx = phaseAt(end);
+        if (cool >= 0 && (idx >= cool || plan.activeS - end < STATION_MIN_S / 2.0)) {
+            return NEXT_RECOVERY;
+        }
+        if (idx != phaseIndex) {
+            return isStationPhase(idx) && idx < script.phase.length && script.phase[idx] != null
+                    && script.phase[idx].length > 0 ? script.phase[idx][0] : null;
+        }
+        String[] l = script.phase[phaseIndex];
+        return l == null || l.length == 0 ? null : l[(stationIndex + 1) % l.length];
+    }
+
+    /** Seconds left in the running set (0 outside a set). */
+    public double getSetLeftS() {
+        return state == State.RUN && isStationPhase(phaseIndex) ? Math.max(0, getSetTargetS() - getStationS()) : 0;
+    }
+
     /** Load rates of one cycle per channel: [0] in the impulse, [1] in the pause (units of F per second · τ⁻¹). */
     private double[][] rates(Cmd c) {
         double[][] g = new double[2][AutoModel.CHANNELS];

@@ -58,7 +58,7 @@ public final class AutoHints {
             boolean want = AutoSession.getStage() == AutoSession.Stage.RUNNING && e != null
                     && e.getState() != AutoEngine.State.DONE && e.getState() != AutoEngine.State.STOPPED
                     && !AutoUi.isShowing() && com.isaigu.gymapp.widget.XemsNav.isTrainingPage()
-                    && (AutoSession.tipsOn() || alertActive(System.currentTimeMillis()) || waits(e));
+                    && (AutoSession.tipsOn() || alertActive(System.currentTimeMillis()) || waits(e) || nextSoon(e));
             if (!want) {
                 hide();
                 return;
@@ -73,6 +73,11 @@ public final class AutoHints {
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoHints.refresh", t);
         }
+    }
+
+    /** The set's last seconds with another exercise (or the recovery) next: shown even with the tips off. */
+    static boolean nextSoon(AutoEngine e) {
+        return e.getNextExercise() != null && e.getState() == AutoEngine.State.RUN && e.getSetLeftS() <= 10;
     }
 
     /** The session waits for ▶ or counts down: the card is needed even with the tips off. */
@@ -239,7 +244,7 @@ public final class AutoHints {
             startKey.setAlpha(state == AutoEngine.State.REST && !AutoSession.startReady() ? 0.55f : 1f);
         }
         boolean tips = AutoSession.tipsOn();
-        mid.setVisibility(tips || st.length() > 0 || key ? View.VISIBLE : View.GONE);
+        mid.setVisibility(tips || st.length() > 0 || key || nextSoon(e) ? View.VISIBLE : View.GONE);
         status.setText(st);
         status.setVisibility(st.length() > 0 ? View.VISIBLE : View.GONE);
 
@@ -284,8 +289,12 @@ public final class AutoHints {
         hint.setVisibility(hint.getText().length() > 0 ? View.VISIBLE : View.GONE);
 
         String n = AutoCues.next(plan, e.getPhaseIndex(), e.phaseRemainingS());
+        String nx = e.getNextExercise();
+        if (nextSoon(e)) {                                   // the set's last seconds: get ready for the next one
+            n = "→  " + (nx.length() > 0 ? AutoTemplates.name(nx) : AiText.t("Възстановяване", "Recovery"));
+        }
         next.setText(n);
-        next.setVisibility(tips && n.length() > 0 ? View.VISIBLE : View.GONE);
+        next.setVisibility((tips || n.startsWith("→")) && n.length() > 0 ? View.VISIBLE : View.GONE);
 
         String msg = AutoSession.getLastNotice();
         int kind = Math.max(0, Math.min(2, AutoSession.getLastNoticeKind()));

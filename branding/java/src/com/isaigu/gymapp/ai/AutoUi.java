@@ -106,6 +106,13 @@ public final class AutoUi {
     private static AutoViews.Vital runVital;
     private static AutoViews.Dots runDots;
     private static View runArt;
+    private static ExerciseFigure runNextFig;
+    private static android.widget.PopupWindow infoPop;
+    /** The next exercise shows this long before the set ends. */
+    private static final double NEXT_SOON_S = 10;
+    private static final int INFO_SET = 0;
+    private static final int INFO_BODY = 1;
+    private static final int INFO_TIMELINE = 2;
     private static AutoViews.Timeline runTimeline;
     private static TextView calibRowsInfo;
     private static TextView primary;
@@ -291,8 +298,12 @@ public final class AutoUi {
                 return AiText.t("Качи силата на всеки клиент до целевото усещане. „Старт“ започва от загрявката с 60 % от нея.",
                         "Raise each client's strength to the target feeling. Start begins with the warm-up at 60 % of it.");
             case STEP_RUN:
-                return AiText.t("„Скрий“ или ✕ скрива таблото — сесията продължава. Лимитите и защитите се показват винаги.",
-                        "Hide or ✕ hides the board — the session goes on. Limits and safety always show.");
+                return AiText.t("▶ / ❚❚ — старт и пауза. ■ е само при пауза: първият стоп минава към 10 мин възстановяване, "
+                        + "вторият приключва. Импулсите са най-много 20 мин. „Скрий“ или ✕ скрива таблото — сесията продължава. "
+                        + "ⓘ на всяка част казва какво показва.",
+                        "▶ / ❚❚ — start and pause. ■ only while paused: the first stop goes to the 10 min recovery, the "
+                        + "second ends. Impulses at most 20 min. Hide or ✕ hides the board — the session goes on. "
+                        + "Each part's ⓘ says what it shows.");
             default:
                 return null;
         }
@@ -859,11 +870,19 @@ public final class AutoUi {
         stage.addView(runRing, new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         left.addView(stage, new LinearLayout.LayoutParams(XemsUi.dp(c, 244), XemsUi.dp(c, 244)));
+        LinearLayout nameRow = XemsUi.horizontal(c);
+        nameRow.setGravity(Gravity.CENTER);
+        runNextFig = new ExerciseFigure(c);
+        runNextFig.setStill(true);
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 30));
+        nlp.rightMargin = XemsUi.dp(c, 8);
+        nameRow.addView(runNextFig, nlp);
         runPhase = XemsUi.text(c, "", 21, XemsUi.TEXT, true);
         runPhase.setGravity(Gravity.CENTER);
         runPhase.setMaxLines(1);
         runPhase.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        left.addView(runPhase, XemsUi.matchWrap(c, 4));
+        nameRow.addView(runPhase);
+        left.addView(nameRow, XemsUi.matchWrap(c, 4));
         LinearLayout meta = XemsUi.horizontal(c);
         meta.setGravity(Gravity.CENTER);
         runDots = new AutoViews.Dots(c);
@@ -871,7 +890,7 @@ public final class AutoUi {
         runTime = XemsUi.text(c, "", 15, XemsUi.MUTED, true);
         meta.addView(runTime);
         left.addView(meta, XemsUi.matchWrap(c, 6));
-        top.addView(left, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 340), 1f));
+        top.addView(infoCorner(c, left, INFO_SET), new LinearLayout.LayoutParams(0, XemsUi.dp(c, 340), 1f));
 
         LinearLayout right = XemsUi.card(c);
         LinearLayout figs = XemsUi.horizontal(c);
@@ -889,7 +908,7 @@ public final class AutoUi {
         right.addView(figs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 340), 1.35f);
         rlp.leftMargin = XemsUi.dp(c, 12);
-        top.addView(right, rlp);
+        top.addView(infoCorner(c, right, INFO_BODY), rlp);
         body.addView(top, XemsUi.matchWrap(c, 2));
 
         runNotice = hint(c, "");
@@ -907,7 +926,7 @@ public final class AutoUi {
         runClock.setCompoundDrawables(clock, null, null, null);
         runClock.setCompoundDrawablePadding(XemsUi.dp(c, 8));
         tl.addView(runClock, XemsUi.matchWrap(c, 6));
-        bottom.addView(tl, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        bottom.addView(infoCorner(c, tl, INFO_TIMELINE), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         LinearLayout dock = XemsUi.horizontal(c);
         dock.setGravity(Gravity.CENTER);
@@ -950,6 +969,99 @@ public final class AutoUi {
         shell.footer.addView(XemsUi.spacer(c));
         shell.footer.addView(tipsToggle(c));
         refreshRun();
+    }
+
+    /**
+     * A card with its own ⓘ in the top-right corner: a tap shows what this part means and how it is worked out —
+     * a few lines next to it, gone with the next tap anywhere (docs/xems-ux-golden-rules.md: info behind ⓘ).
+     */
+    private static View infoCorner(Context c, LinearLayout card, int which) {
+        android.widget.FrameLayout f = new android.widget.FrameLayout(c);
+        f.addView(card, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        TextView i = XemsUi.text(c, "i", 13, XemsUi.MUTED, true);
+        i.setGravity(Gravity.CENTER);
+        i.setBackgroundDrawable(XemsUi.rounded(0x00000000, XemsUi.dp(c, 12), XemsUi.alpha(XemsUi.MUTED, 0x99), XemsUi.dp(c, 1.2f)));
+        i.setContentDescription(AiText.t("Как работи", "How it works"));
+        i.setOnClickListener(new InfoTap(which));
+        XemsUi.pressable(i);
+        // the body card has the pulse column on the right: its ⓘ sits in the empty top-left corner
+        boolean leftSide = which == INFO_BODY;
+        android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, 24),
+                XemsUi.dp(c, 24), Gravity.TOP | (leftSide ? Gravity.START : Gravity.END));
+        lp.setMargins(leftSide ? XemsUi.dp(c, 10) : 0, XemsUi.dp(c, 10), leftSide ? 0 : XemsUi.dp(c, 10), 0);
+        f.addView(i, lp);
+        return f;
+    }
+
+    static String infoText(int which) {
+        switch (which) {
+            case INFO_SET:
+                return AiText.t("Пръстенът е серията: 30–40 s, точките са импулсите.\n"
+                        + "След серията импулсите спират сами. Почивката е колкото мускулите искат, за да възстановят "
+                        + "енергията си (по натоварването и кондицията), и пулсът да спадне. Тогава ▶ светва.\n"
+                        + "Всеки старт брои 3 s: три къси сигнала и дълъг с първия импулс.\n"
+                        + "Последните 10 s: → следващото упражнение. ⏭ приключва серията или сменя следващото.",
+                        "The ring is the set: 30–40 s, the dots are the impulses.\n"
+                        + "After the set the impulses stop by themselves. The rest lasts as long as the muscles need to "
+                        + "refill (by the load and fitness) and the HR to come down; then ▶ lights up.\n"
+                        + "Every start counts 3 s: three short beeps and a long one with the first impulse.\n"
+                        + "Last 10 s: → the next exercise. ⏭ ends the set or changes the next one.");
+            case INFO_BODY:
+                return AiText.t("Цветът на зона е натрупаното ѝ натоварване: синьо — леко, червено — границата на тежка серия.\n"
+                        + "Сметка: сила × честота × % на зоната + работата на упражнението; спада с почивката.\n"
+                        + "Сърцето бие с пулса, цветът е пулсовата зона.\n"
+                        + "Триъгълникът — каквото е по-близо до границата си: мускул или сърцето (♥).",
+                        "A zone's colour is its accumulated load: blue — light, red — the limit of a hard set.\n"
+                        + "Sum: strength × frequency × zone % + the exercise's work; it falls in the rest.\n"
+                        + "The heart beats with the HR, its colour is the HR zone.\n"
+                        + "The triangle — whatever is nearer its limit: a muscle or the heart (♥).");
+            default:
+                return AiText.t("Цялата тренировка: височина — силата на импулсите, цвят — натоварването.\n"
+                        + "Миналото е ярко, предстоящото — прогноза. Дълбока долина — пауза над 45 s или спиране по пулса.\n"
+                        + "Червена линия — пулсът, пунктир — таванът.\n"
+                        + "Часовникът брои импулсите и задължителните почивки; ръчната пауза не се брои.",
+                        "The whole session: height — the impulse strength, colour — the load.\n"
+                        + "The past is bright, what comes is the forecast. A deep valley — a pause over 45 s or an HR stop.\n"
+                        + "Red line — the HR, dashed — the ceiling.\n"
+                        + "The clock counts impulses and the required rests; a manual pause does not count.");
+        }
+    }
+
+    static final class InfoTap implements View.OnClickListener {
+        private final int which;
+
+        InfoTap(int which) {
+            this.which = which;
+        }
+
+        @Override
+        public void onClick(View v) {
+            showInfo(v, which);
+        }
+    }
+
+    private static void showInfo(View anchor, int which) {
+        try {
+            if (infoPop != null && infoPop.isShowing()) {
+                infoPop.dismiss();
+                infoPop = null;
+                return;
+            }
+            Context c = anchor.getContext();
+            TextView t = XemsUi.text(c, infoText(which), 14, XemsUi.TEXT, false);
+            t.setLineSpacing(XemsUi.dp(c, 3), 1f);
+            t.setPadding(XemsUi.dp(c, 16), XemsUi.dp(c, 12), XemsUi.dp(c, 16), XemsUi.dp(c, 12));
+            t.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, 0xFF42A5F5, 0.16f), XemsUi.dp(c, 14),
+                    0xFF42A5F5, XemsUi.dp(c, 1)));
+            infoPop = new android.widget.PopupWindow(t, XemsUi.dp(c, 380), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            infoPop.setOutsideTouchable(true);
+            infoPop.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
+            infoPop.setElevation(XemsUi.dp(c, 8));
+            infoPop.showAsDropDown(anchor, which == INFO_BODY ? 0 : -XemsUi.dp(c, 356), XemsUi.dp(c, 6));
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AutoUi.info", t);
+        }
     }
 
     /** A dock key: an outline circle in the kit's colour (no heavy fill), the symbol inside. */
@@ -1020,18 +1132,32 @@ public final class AutoUi {
         boolean rest = st == AutoEngine.State.REST;
         int cd = st == AutoEngine.State.COUNTDOWN ? Math.max(1, e.getCountdownLeftS(now)) : 0;
         boolean fig = ex != null && !beforeRecovery;
+        // the set's last seconds: what comes next (the client gets ready); in the rest the ring already shows it
+        String nx = e.getNextExercise();
+        boolean soon = nx != null && e.getSetLeftS() <= NEXT_SOON_S;
+        int figColor = ExerciseFigure.colorFor(lead != null ? lead.sex : null);
+        runNextFig.setVisibility(soon && nx.length() > 0 ? View.VISIBLE : View.GONE);
+        if (soon && nx.length() > 0) {
+            runNextFig.setColor(figColor);
+            runNextFig.setExercise(nx);
+        }
         runFigure.setVisibility(fig ? View.VISIBLE : View.INVISIBLE);
         runArt.setVisibility(fig ? View.GONE : View.VISIBLE);
         runArt.setAlpha(st == AutoEngine.State.RUN ? 1f : 0.6f);
         if (fig) {
-            runFigure.setColor(ExerciseFigure.colorFor(lead != null ? lead.sex : null));
+            runFigure.setColor(figColor);
             runFigure.setExercise(ex);
             runFigure.setAlpha(st == AutoEngine.State.RUN ? 1f : 0.5f);
-            runPhase.setText(AutoTemplates.name(ex));
-            runPhase.setTextColor(rest || cd > 0 ? XemsUi.MUTED : XemsUi.TEXT);
+            if (soon) {
+                runPhase.setText("→  " + (nx.length() > 0 ? AutoTemplates.name(nx) : AiText.t("Възстановяване", "Recovery")));
+                runPhase.setTextColor(XemsUi.GO_TEXT);
+            } else {
+                runPhase.setText((rest || cd > 0 ? "→  " : "") + AutoTemplates.name(ex));
+                runPhase.setTextColor(XemsUi.TEXT);
+            }
         } else {
-            runPhase.setText(beforeRecovery || recovery ? AiText.t("Възстановяване", "Recovery")
-                    : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
+            runPhase.setText(beforeRecovery ? "→  " + AiText.t("Възстановяване", "Recovery")
+                    : recovery ? AiText.t("Възстановяване", "Recovery") : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
             runPhase.setTextColor(XemsUi.TEXT);
         }
         String line;

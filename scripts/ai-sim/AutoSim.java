@@ -52,6 +52,8 @@ public final class AutoSim {
         drainWave();
         cues();
         setsAndStops();
+        liveModel();
+        scenarios();
         System.out.println((fails == 0 ? "OK" : "FAIL") + " — " + checks + " checks, " + fails + " failures");
         if (fails > 0) {
             System.exit(1);
@@ -125,8 +127,9 @@ public final class AutoSim {
         check(plan.qPlan > 0, tag + ": dose > 0");
 
         AutoEngine e = new AutoEngine(plan);
-        boolean[] sp = stationPhases(plan);
-        e.setStations(sp);
+        AutoTemplates.Script sc = AutoTemplates.script(plan, null);
+        boolean[] sp = AutoEngine.stationPhases(plan, sc);
+        e.setScript(sc);
         long t = 1000000L;
         e.startAt(t, t);
         check(e.getState() == AutoEngine.State.COUNTDOWN && e.getGoMs() - t == AutoEngine.COUNTDOWN_MS,
@@ -172,6 +175,9 @@ public final class AutoSim {
                 continue;
             }
             AutoEngine.Cmd c = e.getCurrent();
+            for (double v : e.getChannelLoad(t + 1000)) {
+                check(v >= 0 && v < 2.0, tag + ": zone load in range (" + v + ")");
+            }
             if (e.isStationPhase(c.phaseIndex)) {
                 setWork += c.durationMs() / 1000.0;
             }
@@ -706,6 +712,320 @@ public final class AutoSim {
             }
         }
         check(longest > AutoEngine.REST_FLOOR_TETANIC_S, "the fatigue model lengthens the rest (" + longest + ")");
+    }
+
+    /** Owner (1.1.271): the live board's numbers — session clock, forecast, zone loads, ⏭ Next. */
+    static void liveModel() {
+        AutoModel.Input in = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
+        in.goal = AutoModel.Goal.TONE;
+        in.kind = AutoModel.Kind.ACTIVE;
+        in.programId = AutoCatalog.GLUTES_LEGS;
+        AutoModel.Plan plan = AutoPlanner.build(in, 66);
+        AutoTemplates.Script sc = AutoTemplates.script(plan, null);
+        AutoEngine.Forecast f = AutoEngine.forecast(plan, sc, false);
+        check(f.points.size() > 50 && f.maxLoad > 0, "forecast has a profile (" + f.points.size() + ")");
+        check(f.totalS > plan.totalS + 60 && f.totalS < plan.totalS + 1800,
+                "forecast = impulses + the imposed rests (" + Math.round(f.totalS) + " vs " + plan.totalS + ")");
+        for (int i = 1; i < f.phaseStartS.length; i++) {
+            check(f.phaseStartS[i] > f.phaseStartS[i - 1], "phases in order on the timeline");
+        }
+        check(Math.abs(f.sessionAt(0)) < 1 && f.sessionAt(1e9) == f.totalS, "forecast lookup ends");
+
+        AutoEngine e = new AutoEngine(plan);
+        e.setScript(sc);
+        long t = 0;
+        e.startAt(t, t);
+        t = e.getGoMs();
+        e.tick(t);
+        int guard = 0;
+        // to the first rest in the main part (legs work: front thigh / glutes must glow)
+        while (guard++ < 600 && !(e.getState() == AutoEngine.State.REST && !"WARMUP".equals(e.phase().id))) {
+            if (e.getState() == AutoEngine.State.REST) {
+                t += e.getRestMinS() * 1000L;
+                e.requestGo(t, t);
+                t = e.getGoMs();
+                e.tick(t);
+                continue;
+            }
+            t += e.getCurrent().durationMs();
+            e.tick(t - 1);
+            e.onCycle(t);
+        }
+        check(e.getState() == AutoEngine.State.REST, "reached a main-part rest");
+        double[] load = e.getChannelLoad(t);
+        check(load[AutoModel.GLUTES] > load[AutoModel.CHEST] && load[AutoModel.GLUTES] > 0.2,
+                "glutes program loads the glutes more than the chest (" + load[AutoModel.GLUTES] + " / " + load[AutoModel.CHEST] + ")");
+        check(e.getPeakLoad(t + 60000) < e.getPeakLoad(t), "the load decays in the rest");
+        // waiting longer than the rest minimum is not training time
+        double s0 = e.getSessionS(t);
+        int min = e.getRestMinS();
+        long late = t + (min + 40) * 1000L;
+        check(Math.abs(e.getSessionS(late) - (s0 + min + 3)) < 0.01, "the clock counts the rest minimum + countdown only ("
+                + (e.getSessionS(late) - s0) + ")");
+        String before = e.getExercise();
+        check(e.next(late) && !before.equals(e.getExercise()), "⏭ in the rest: the next exercise");
+        e.requestGo(late, late);
+        t = e.getGoMs();
+        e.tick(t);
+        double s1 = e.getSessionS(t);
+        check(Math.abs(s1 - (s0 + min + 3)) < 0.6, "after ▶ the clock went on from the counted rest (" + (s1 - s0) + ")");
+        int[] imp = e.getSetImpulses();
+        check(imp[0] == 1 && imp[1] >= 3 && imp[1] * e.getCurrent().durationMs() / 1000.0 <= AutoEngine.STATION_MAX_S,
+                "set impulses " + imp[0] + " / " + imp[1]);
+        for (int i = 0; i < 2 && e.getState() == AutoEngine.State.RUN; i++) {
+            t += e.getCurrent().durationMs();
+            e.tick(t - 1);
+            e.onCycle(t);
+        }
+        t += 1000;
+        e.tick(t);
+        check(e.getState() == AutoEngine.State.RUN && e.next(t) && e.getState() == AutoEngine.State.REST
+                && e.getRestMinS() >= AutoEngine.REST_FLOOR_TETANIC_S,
+                "⏭ in a set: the set ends, the rest still follows the fatigue");
+        // user pause is not training time
+        e.requestGo(t + e.getRestMinS() * 1000L, 0);
+        t = e.getGoMs();
+        e.tick(t);
+        e.userPause(t);
+        double p0 = e.getSessionS(t);
+        check(e.getSessionS(t + 120000) - p0 <= 3.01, "a manual pause does not count");
+        // in the recovery Next does nothing
+        e.stopPress(t);
+        e.requestGo(t, t);
+        t = e.getGoMs();
+        e.tick(t);
+        check(e.phase().isCooldown() && !e.next(t), "⏭ never skips the recovery");
+
+        // with a pulse: the heart counts in the system load and ends a set before the HR stop
+        AutoEngine h = new AutoEngine(plan);
+        h.setScript(sc);
+        t = 0;
+        h.startAt(t, t);
+        t = h.getGoMs();
+        h.tick(t);
+        check(h.getCardioLoad(t) < 0, "no HR → no cardio load");
+        h.onHr(t, plan.hrRest + (plan.hrCap - plan.hrRest) / 2);
+        check(Math.abs(h.getCardioLoad(t) - 0.5) < 0.05, "cardio load = %HR range to the cap");
+        check(h.getSystemLoad(t) >= h.getCardioLoad(t) && h.isCardioLimiting(t), "system load = the higher one");
+        for (int i = 0; i < 2 && h.getState() == AutoEngine.State.RUN; i++) {
+            t += h.getCurrent().durationMs();
+            h.onHr(t, plan.hrCap - 3);
+            h.tick(t - 1);
+            h.onCycle(t);
+        }
+        check(h.getState() == AutoEngine.State.REST && h.getHrEndedSets() == 1, "HR near the cap → the set ends early, rest");
+        check(h.isRestHrHigh(t), "…and the next set waits for the HR");
+    }
+
+    // ================================================================ practical situations (audit, 1.1.271)
+
+    static AutoEngine fresh(AutoModel.Plan plan, AutoTemplates.Script sc, long[] t) {
+        AutoEngine e = new AutoEngine(plan);
+        e.setScript(sc);
+        e.startAt(t[0], t[0]);
+        t[0] = e.getGoMs();
+        e.tick(t[0]);
+        return e;
+    }
+
+    /** One cycle with the device hook; rests are taken at their minimum + extra seconds. */
+    static void step(AutoEngine e, long[] t, int extraRestS) {
+        if (e.getState() == AutoEngine.State.REST) {
+            t[0] += (e.getRestMinS() + extraRestS) * 1000L;
+            e.requestGo(t[0], t[0]);
+            t[0] = e.getGoMs();
+            e.tick(t[0]);
+            return;
+        }
+        if (e.getState() == AutoEngine.State.COUNTDOWN) {
+            t[0] = e.getGoMs();
+            e.tick(t[0]);
+            return;
+        }
+        t[0] += e.getCurrent().durationMs();
+        e.tick(t[0] - 1);
+        e.onCycle(t[0]);
+    }
+
+    static void toMainSet(AutoEngine e, long[] t) {
+        int g = 0;
+        while (g++ < 400 && !(e.getState() == AutoEngine.State.RUN && "MAIN".equals(e.phase().id)
+                && e.getStationS() == 0)) {
+            step(e, t, 0);
+        }
+    }
+
+    static void scenarios() {
+        AutoModel.Input in = input(AiModel.Sex.FEMALE, 42, 68, 166, AiModel.Fitness.MID, 10, 200);
+        in.goal = AutoModel.Goal.TONE;
+        in.kind = AutoModel.Kind.ACTIVE;
+        in.programId = AutoCatalog.GENERAL;
+        AutoModel.Plan plan = AutoPlanner.build(in, 66);
+        AutoTemplates.Script sc = AutoTemplates.script(plan, null);
+        double frac;
+
+        // S1 · the trainer takes the strength down 30 % in the middle of a set → less load, shorter rest, shorter forecast
+        long[] t = {0};
+        AutoEngine a = fresh(plan, sc, t);
+        toMainSet(a, t);
+        AutoEngine b = fresh(plan, sc, new long[] {0});
+        long[] tb = {0};
+        b = fresh(plan, sc, tb);
+        toMainSet(b, tb);
+        frac = a.getCurrent().frac;
+        for (int i = 0; i < 6 && a.getState() == AutoEngine.State.RUN; i++) {
+            a.setLive(frac * 0.7, null, t[0]);
+            b.setLive(frac, null, tb[0]);
+            step(a, t, 0);
+            step(b, tb, 0);
+        }
+        check(a.getState() == AutoEngine.State.REST && b.getState() == AutoEngine.State.REST, "S1 both sets ended");
+        check(a.getPeakLoad(t[0]) < b.getPeakLoad(tb[0]), "S1 −30 % strength → lower zone load");
+        check(a.getRestMinS() <= b.getRestMinS(), "S1 −30 % strength → rest not longer");
+        AutoEngine.Forecast f1 = AutoEngine.forecast(plan, sc, false, 1.0);
+        AutoEngine.Forecast f07 = AutoEngine.forecast(plan, sc, false, 0.7);
+        AutoEngine.Forecast f12 = AutoEngine.forecast(plan, sc, false, 1.2);
+        // weaker → shorter rests; stronger → longer rests, but the dose budget (§3.4) may end the work earlier
+        check(f07.totalS < f1.totalS && f12.maxLoad > f1.maxLoad, "S1 forecast follows the strength ("
+                + Math.round(f07.totalS / 60) + " / " + Math.round(f1.totalS / 60) + " / " + Math.round(f12.totalS / 60) + " min)");
+        if (verbose) {
+            System.out.println("  S1 rest " + a.getRestMinS() + " vs " + b.getRestMinS() + " s; forecast 0.7/1/1.2 = "
+                    + Math.round(f07.totalS / 60) + "/" + Math.round(f1.totalS / 60) + "/" + Math.round(f12.totalS / 60) + " min");
+        }
+
+        // S2 · a zone switched off mid-set → that zone stops loading at once
+        t[0] = 0;
+        AutoEngine z = fresh(plan, sc, t);
+        toMainSet(z, t);
+        step(z, t, 0);
+        double before = z.getChannelLoad(t[0])[AutoModel.CHEST];
+        int[] zones = plan.zones.clone();
+        zones[AutoModel.CHEST] = 0;
+        z.setLive(z.getCurrent().frac, zones, t[0]);
+        step(z, t, 0);
+        check(z.getChannelLoad(t[0])[AutoModel.CHEST] < before, "S2 a zone set to 0 % → its load falls");
+
+        // S3 · the double impulse switched on mid-cycle → the pause loads too (only where the program has it)
+        AutoModel.Input sl = input(AiModel.Sex.FEMALE, 42, 68, 166, AiModel.Fitness.MID, 10, 200);
+        sl.goal = AutoModel.Goal.SLIM;
+        sl.kind = AutoModel.Kind.ACTIVE;
+        sl.programId = AutoCatalog.GENERAL;
+        AutoModel.Plan sp = AutoPlanner.build(sl, 66);
+        AutoTemplates.Script ss = AutoTemplates.script(sp, null);
+        t[0] = 0;
+        AutoEngine d0 = fresh(sp, ss, t);
+        d0.setDoublePulse(false, t[0]);
+        toMainSet(d0, t);
+        long[] t2 = {0};
+        AutoEngine d1 = fresh(sp, ss, t2);
+        d1.setDoublePulse(false, t2[0]);
+        toMainSet(d1, t2);
+        d1.setDoublePulse(true, t2[0]);
+        d1.refresh(t2[0]);
+        for (int i = 0; i < 3; i++) {
+            step(d0, t, 0);
+            step(d1, t2, 0);
+        }
+        check(!sp.doublePulseAllowed || d1.getPeakLoad(t2[0]) > d0.getPeakLoad(t[0]), "S3 double impulse on → more load");
+
+        // S4 · manual pause 2 min in the middle of a set → the set goes on where it was; the pause is not training time
+        t[0] = 0;
+        AutoEngine p = fresh(plan, sc, t);
+        toMainSet(p, t);
+        step(p, t, 0);
+        double setBefore = p.getStationS();
+        double clk = p.getSessionS(t[0]);
+        p.userPause(t[0]);
+        t[0] += 120000;
+        check(p.requestGo(t[0], t[0]), "S4 ▶ after a pause");
+        t[0] = p.getGoMs();
+        p.tick(t[0]);
+        check(p.getStationS() >= setBefore - 1e-9 && p.getState() == AutoEngine.State.RUN, "S4 the set continues");
+        check(p.getSessionS(t[0]) - clk <= 3.5, "S4 the 2 min pause is not counted (" + (p.getSessionS(t[0]) - clk) + ")");
+
+        // S5 · the HR jumps straight over the cap mid-cycle → output stops (L11); comes down → counts down by itself
+        AutoModel.Plan hp = AutoPlanner.build(in, 66);
+        t[0] = 0;
+        AutoEngine h = fresh(hp, sc, t);
+        toMainSet(h, t);
+        h.onHr(t[0] + 500, hp.hrCap + 2);
+        h.tick(t[0] + 1000);
+        check(h.getState() == AutoEngine.State.HR_PAUSE, "S5 HR over the cap → HR pause");
+        long tt = t[0] + 1000;
+        for (int i = 0; i < 40; i++) {
+            tt += 1000;
+            h.onHr(tt, hp.hrCap - 20);
+            h.tick(tt);
+        }
+        check(h.getState() == AutoEngine.State.COUNTDOWN || h.getState() == AutoEngine.State.RUN,
+                "S5 HR down 20 s → countdown by itself (" + h.getState() + ")");
+        check(h.getSessionS(tt) > 0, "S5 clock");
+
+        // S6 · the band drops in the rest (no fresh HR) → ▶ follows the fatigue only, the tile shows ♥ —
+        t[0] = 0;
+        AutoEngine n = fresh(hp, sc, t);
+        toMainSet(n, t);
+        while (n.getState() == AutoEngine.State.RUN) {
+            n.onHr(t[0], hp.hrCap - 6);
+            step(n, t, 0);
+        }
+        check(n.isRestHrHigh(t[0]), "S6 high HR holds the next set");
+        long late = t[0] + 15000;
+        check(!n.isRestHrHigh(late) && n.getHr(late) < 0, "S6 band silent 15 s → no HR gate (known: fatigue only)");
+
+        // S7 · STOP during the countdown → recovery (waiting for ▶); STOP again → end
+        t[0] = 0;
+        AutoEngine c7 = fresh(plan, sc, t);
+        toMainSet(c7, t);
+        c7.userPause(t[0]);
+        c7.requestGo(t[0], t[0]);
+        check(c7.getState() == AutoEngine.State.COUNTDOWN, "S7 counting down");
+        check(!c7.stopPress(t[0] + 1000) && c7.isRestBeforeCooldown(), "S7 stop in the countdown → recovery");
+        check(c7.stopPress(t[0] + 2000), "S7 second stop → end");
+
+        // S8 · ⏭ right after a set starts → no 15 s floor (no work was done); ⏭ in the rest walks the exercises
+        t[0] = 0;
+        AutoEngine k = fresh(plan, sc, t);
+        toMainSet(k, t);
+        k.next(t[0] + 500);
+        check(k.getState() == AutoEngine.State.REST && k.getRestMinS() < AutoEngine.REST_FLOOR_TETANIC_S,
+                "S8 ⏭ at the set start → rest only by fatigue (" + k.getRestMinS() + " s)");
+        java.util.Set<String> seen = new java.util.HashSet<String>();
+        for (int i = 0; i < 12; i++) {
+            seen.add(k.getExercise());
+            k.next(t[0] + 600 + i);
+        }
+        check(seen.size() >= 3, "S8 ⏭ in the rest goes through the exercises (" + seen.size() + ")");
+
+        // S9 · natural end: 20 min of impulses → recovery waits ▶ → 10 min → DONE; impulses never pass 20 min
+        t[0] = 0;
+        AutoEngine full = fresh(plan, sc, t);
+        int g = 0;
+        double maxActive = 0;
+        while (full.getState() != AutoEngine.State.DONE && g++ < 8000) {
+            if (!full.phase().isCooldown()) {
+                maxActive = Math.max(maxActive, full.getElapsedS());
+            }
+            step(full, t, 5);
+        }
+        check(full.getState() == AutoEngine.State.DONE, "S9 ends by itself");
+        check(maxActive <= plan.activeS + 1e-6, "S9 impulses of the active part ≤ 20 min (" + maxActive + ")");
+        double counted = full.getSessionS(t[0]);
+        AutoEngine.Forecast fc = AutoEngine.forecast(plan, sc, false);
+        check(Math.abs(counted - fc.totalS) < 60 + 1, "S9 clock without the extra 5 s per rest ≈ forecast ("
+                + Math.round(counted) + " vs " + Math.round(fc.totalS) + ")");
+        if (verbose) {
+            System.out.println("  S9 sets " + full.getStationsDone() + " · clock " + Math.round(counted / 60) + " min · wall "
+                    + Math.round(t[0] / 60000.0) + " min");
+        }
+
+        // S10 · Hz / impulse changed in the phase window mid-cycle → load follows the new cycle at once
+        t[0] = 0;
+        AutoEngine w = fresh(plan, sc, t);
+        toMainSet(w, t);
+        double l0 = w.cycleLoad(w.getCurrent());
+        AutoEngine.Cmd c10 = w.userParams(-1, w.getCurrent().onS + 1, -1, -1, t[0] + 500);
+        check(w.getCurrent() == c10 && w.cycleLoad(c10) >= l0 - 1e-9, "S10 longer impulse → the cycle's load follows");
     }
 
     static void check(boolean ok, String what) {

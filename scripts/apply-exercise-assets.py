@@ -61,6 +61,15 @@ def main() -> int:
         shutil.copy2(p, out / p.name)
         size += p.stat().st_size
     print(f"assets/xems/programs/ ({len(have)} pictures, {size} B)")
+    body = ROOT / "branding" / "body"                # Auto live board figures (scripts/gen-body-figures.py)
+    figs = sorted(body.glob("*.webp"))
+    if len(figs) != 8:
+        raise SystemExit("branding/body: expected 8 figures — run scripts/gen-body-figures.py")
+    bout = DEST.parent / "body"
+    bout.mkdir(parents=True, exist_ok=True)
+    for p in figs:
+        shutil.copy2(p, bout / p.name)
+    print(f"assets/xems/body/ ({len(figs)} files, {sum(p.stat().st_size for p in figs)} B)")
     return 0
 
 

@@ -129,16 +129,34 @@ public final class AutoEngine {
     private int restCount;
     private double restSumS;
 
-    // muscle fatigue (docs/xems-ems-physiology.md §3): decides the shortest rest
+    // muscle fatigue per suit channel (docs/xems-ems-physiology.md §3, docs/xems-auto-mode-spec.md §12):
+    // dF_k/dt = (w(f)·ρ·z_k + e·m_k) − F_k/τ in the impulse, (w(f_p)·ρ·σ_p·z_k + 0.3·e·m_k) − F_k/τ in the pause,
+    // −F_k/τ at rest. z_k = the zone's share, m_k = the exercise's work on the channel (0…1), e = EX_LOAD.
+    // Decides the shortest rest (the most tired zone) and paints the body heat map and the timeline.
     private final double fMax;
     private final double fRec;
     private final double tauR;
-    private double fatigue;
+    private final double[] chF = new double[AutoModel.CHANNELS];
+    private long chFMs;
+    /** The cycle the channel values integrate from chFMs (null = decaying: rest / pause). */
+    private Cmd chCmd;
+    /** What actually goes out on the lead row now (AutoSession, every tick): ρ = strength / calibration and the
+     *  zones as set — manual +/−, −10 % / +5 %, the ceilings, zone moves. −1 / null = the plan's values. */
+    private double liveRho = -1;
+    private int[] liveZones;
+    private AutoTemplates.Script script;
+    // session clock: impulses + the waits the program imposes (rest minimum, countdown, HR pause) — a longer
+    // wait for ▶ and a manual pause do not count (owner, 1.1.271)
+    private double imposedS;
+    private final List<float[]> trace = new ArrayList<float[]>();
 
     // countdown before every start
     private long goMs;
     private State countFrom = State.READY;
     private int manualStops;
+    private int hrEndedSets;
+    /** Work in the set that just ended (⏭ right after a start = 0). */
+    private double lastSetS = STATION_MAX_S;
 
     private long startMs;
     private long endMs;
@@ -159,6 +177,25 @@ public final class AutoEngine {
      */
     public void setStations(boolean[] phases) {
         stationPhases = phases != null ? phases.clone() : null;
+    }
+
+    /** The session's exercises: the phases that have them run as sets, the set's muscles load the heat map. */
+    public void setScript(AutoTemplates.Script sc) {
+        script = sc;
+        stationPhases = stationPhases(plan, sc);
+    }
+
+    /** Phases run as exercise sets: the active program's phases with exercises (not the recovery, not a wave). */
+    public static boolean[] stationPhases(Plan p, AutoTemplates.Script sc) {
+        boolean[] out = new boolean[p.phases.size()];
+        if (sc == null || !p.program.isActive()) {
+            return out;
+        }
+        for (int i = 0; i < out.length; i++) {
+            out[i] = !p.phases.get(i).isCooldown() && !p.phases.get(i).wave && i < sc.phase.length
+                    && sc.phase[i] != null && sc.phase[i].length > 0;
+        }
+        return out;
     }
 
     public boolean isStationPhase(int idx) {
@@ -201,10 +238,11 @@ public final class AutoEngine {
     /** Countdown over: the impulses start (one cycle now). */
     private void go(long now) {
         State from = countFrom;
+        settle(now);
         if (from != State.READY) {
             double pauseS = Math.max(0, (now - pauseStartMs) / 1000.0);
             totalPauseS += pauseS;
-            fatigue *= Math.exp(-pauseS / tauR);
+            imposedS += imposedOf(from, pauseS);
             if (from == State.REST) {
                 restSumS += pauseS;
                 restCount++;
@@ -218,7 +256,7 @@ public final class AutoEngine {
                     reentry = Math.min(reentry, 0.8);
                 }
             }
-            log(now, "go after " + Math.round(pauseS) + "s (" + from + ") r=" + fmt(reentry) + " F=" + fmt(fatigue));
+            log(now, "go after " + Math.round(pauseS) + "s (" + from + ") r=" + fmt(reentry) + " F=" + fmt(peakF()));
         } else {
             log(now, "go");
         }
@@ -281,6 +319,7 @@ public final class AutoEngine {
         stationPhase = cool;
         stationS = 0;
         counted = current;
+        settle(now);
         if (!paused) {
             pauseStartMs = now;
         }
@@ -288,6 +327,7 @@ public final class AutoEngine {
         restStartMs = now;
         restMinS = 0;
         restBeforeCooldown = true;
+        traceRest(now);
     }
 
     private int cooldownIndex() {
@@ -327,6 +367,7 @@ public final class AutoEngine {
 
     public void userPause(long now) {
         if (state == State.RUN) {
+            settle(now);
             state = State.USER_PAUSE;
             pauseStartMs = now;
             log(now, "pause");
@@ -341,8 +382,10 @@ public final class AutoEngine {
         if (!canResume()) {
             return;
         }
+        settle(now);
         double pauseS = (now - pauseStartMs) / 1000.0;
         totalPauseS += pauseS;
+        imposedS += imposedOf(state, pauseS);
         // Muscles and heart cooled down: first pulses softer, +0.1 per cycle back to 1 (AI §5).
         reentry = pauseS >= 30 ? clamp(1.0 - pauseS / 600.0, 0.6, 0.9) : Math.min(reentry, 1.0);
         if (state == State.HR_PAUSE) {
@@ -403,6 +446,7 @@ public final class AutoEngine {
         if (!plan.doublePulseAllowed) {
             return;
         }
+        rebase(now);
         doublePulse = on;
         log(now, "double pulse " + (on ? "on" : "off"));
     }
@@ -441,9 +485,14 @@ public final class AutoEngine {
         if (ph == null || current == null) {
             return current;
         }
+        settle(now);
         Cmd c = build(ph, current.stepIndex, now);
         c.startMs = current.startMs;
         current = c;
+        if (state == State.RUN) {
+            chCmd = c;
+            chFMs = now;
+        }
         return c;
     }
 
@@ -454,6 +503,9 @@ public final class AutoEngine {
 
     /** Highest of the rows' own factors (strength / (calibration × plan)) — for the dose. */
     public void setUserScale(double s) {
+        if (Math.abs(s - userScale) > 0.005 && liveRho < 0) {
+            rebase(lastTickMs);
+        }
         userScale = Math.max(0, s);
         userScaleMax = Math.max(userScaleMax, userScale);
     }
@@ -528,6 +580,7 @@ public final class AutoEngine {
         }
         // L11: heart rate at the ceiling → the output stops.
         if (plan.hrUse != HrUse.NONE && fresh && hr >= plan.hrCap) {
+            settle(now);
             state = State.HR_PAUSE;
             pauseStartMs = now;
             hrOkSinceMs = 0;
@@ -574,7 +627,7 @@ public final class AutoEngine {
             if (current.phaseIndex == stationPhase) {
                 stationS += current.durationMs() / 1000.0;
             }
-            integrateFatigue(current);
+            settle(now);
             if (current.base != null && current.frac > 0) {
                 boolean pause = doublePulse && current.pauseHz > 0;
                 qUsed += AutoPlanner.cycleDose(current.base, current.frac * userScale, pause);
@@ -612,6 +665,14 @@ public final class AutoEngine {
             stationIndex++;
             enterRest(now, false);
             return null;
+        } else if (isStationPhase(phaseIndex) && stationS >= STATION_REST_FROM_S && hrNearCap(now)) {
+            // the heart nears its ceiling: end the set now and rest, rather than run into the HR stop (L11)
+            log(now, "HR " + hr + " near cap " + plan.hrCap + " → set ends early");
+            stationS = 0;
+            stationIndex++;
+            hrEndedSets++;
+            enterRest(now, false);
+            return null;
         }
         // corridor: above → longer pause, back below → shorter again
         if (plan.hrUse == HrUse.CORRIDOR && hr > 0 && now - hrMs <= HR_STALE_MS && !ph.isCooldown()
@@ -632,7 +693,15 @@ public final class AutoEngine {
             return null;
         }
         c.startMs = now;
+        settle(now);
         current = c;
+        chCmd = c;
+        chFMs = now;
+        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, (float) cycleLoad(c), (float) getFatigueShare(),
+                phaseIndex, Math.max(0, getHr(now))});
+        if (trace.size() > 4000) {
+            trace.remove(0);
+        }
         stepIndex++;
         if (reentry < 1.0) {
             reentry = Math.min(1.0, reentry + 0.1);
@@ -663,33 +732,377 @@ public final class AutoEngine {
                 stationIndex = 0;
             }
         }
+        settle(now);
         state = State.REST;
         pauseStartMs = now;
         restStartMs = now;
         restBeforeCooldown = beforeCooldown;
         stationsDone++;
+        traceRest(now);
         if (beforeCooldown) {
             restMinS = 0;
         } else {
             boolean tet = current != null && current.hz >= 20;
-            double t = fatigue > fRec ? tauR * Math.log(fatigue / fRec) : 0;
-            int floor = tet ? REST_FLOOR_TETANIC_S : REST_FLOOR_S;
+            double f = peakF();
+            double t = f > fRec ? tauR * Math.log(f / fRec) : 0;
+            // a set skipped right after its start (⏭) did no work: only the fatigue decides, no floor
+            int floor = lastSetS < STATION_REST_FROM_S ? 0 : tet ? REST_FLOOR_TETANIC_S : REST_FLOOR_S;
             restMinS = (int) Math.round(clamp(Math.max(floor, t), floor, REST_MAX_S));
+            lastSetS = STATION_MAX_S;
         }
-        log(now, "set done → rest ≥ " + restMinS + "s F=" + fmt(fatigue) + "/" + fmt(fMax));
+        log(now, "set done → rest ≥ " + restMinS + "s F=" + fmt(peakF()) + "/" + fmt(fMax));
     }
 
-    /** Fatigue after one cycle (§3.1): dF/dt = w(f)·ρ − F/τ; the double impulse loads the pause. */
-    private void integrateFatigue(Cmd c) {
+    /** Share of a full channel the exercise's own movement adds in the impulse (30 % of it in the pause). [D] */
+    public static final double EX_LOAD = 0.25;
+
+    /** The exercise of the running set (or the next one in a rest); null outside the sets. */
+    public String getExercise() {
+        if (script == null || !isStationPhase(phaseIndex) || phaseIndex >= script.phase.length) {
+            return null;
+        }
+        String[] l = script.phase[phaseIndex];
+        return l == null || l.length == 0 ? null : l[stationIndex % l.length];
+    }
+
+    /** Load rates of one cycle per channel: [0] in the impulse, [1] in the pause (units of F per second · τ⁻¹). */
+    private double[][] rates(Cmd c) {
+        double[][] g = new double[2][AutoModel.CHANNELS];
         if (c == null || c.frac <= 0) {
+            return g;
+        }
+        double rho = liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale);
+        double w = AiPlanner.fatigueWeight(c.hz);
+        double wp = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma : 0;
+        int[] z = liveZones != null && c == current ? liveZones : c.zones != null ? c.zones : plan.zones;
+        int[] m = null;
+        if (c.phaseIndex == stationPhase && isStationPhase(c.phaseIndex)) {
+            String ex = getExercise();
+            int ix = ex != null ? AutoTemplates.index(ex) : -1;
+            m = ix >= 0 ? AutoTemplates.muscles(ix) : null;
+        }
+        for (int k = 0; k < AutoModel.CHANNELS; k++) {
+            double zk = z != null && k < z.length ? Math.max(0, z[k]) / 100.0 : 1.0;
+            double mk = m != null && k < m.length ? Math.max(0, m[k]) / 100.0 : 0;
+            g[0][k] = w * rho * zk + EX_LOAD * mk;
+            g[1][k] = wp * rho * zk + 0.3 * EX_LOAD * mk;
+        }
+        return g;
+    }
+
+    /**
+     * F of channel k at {@code now} (no state change): from chFMs along the running cycle's impulse / pause
+     * (chFMs may be anywhere inside it — a change mid-cycle re-bases there), then decay.
+     */
+    private double fAt(int k, long now, double[][] g) {
+        double f = chF[k];
+        if (now <= chFMs) {
+            return f;
+        }
+        if (chCmd == null || g == null) {
+            return f * Math.exp(-(now - chFMs) / 1000.0 / tauR);
+        }
+        double on = Math.max(0, chCmd.onS);
+        double dur = chCmd.durationMs() / 1000.0;
+        double pos = (chFMs - chCmd.startMs) / 1000.0;
+        double end = (now - chCmd.startMs) / 1000.0;
+        if (pos < on && end > pos) {
+            double e = Math.exp(-(Math.min(end, on) - pos) / tauR);
+            f = f * e + g[0][k] * tauR * (1 - e);
+            pos = Math.min(end, on);
+        }
+        if (pos < dur && end > pos) {
+            double e = Math.exp(-(Math.min(end, dur) - pos) / tauR);
+            f = f * e + g[1][k] * tauR * (1 - e);
+            pos = Math.min(end, dur);
+        }
+        if (end > pos) {
+            f *= Math.exp(-(end - pos) / tauR);
+        }
+        return f;
+    }
+
+    /** A setting changed mid-cycle: integrate up to now with the old one, go on with the new one. */
+    private void rebase(long now) {
+        settle(now);
+        if (state == State.RUN && current != null) {
+            chCmd = current;
+            chFMs = now;
+        }
+    }
+
+    /**
+     * The lead row's real output now (AutoSession, every tick): its strength / calibration and its zones.
+     * Every change re-bases the fatigue model, so the rests, the heat map and the timeline follow what the
+     * person really gets, not only the plan.
+     */
+    public void setLive(double rho, int[] zones, long now) {
+        boolean same = Math.abs(rho - liveRho) < 0.005
+                && (zones == null ? liveZones == null : liveZones != null && java.util.Arrays.equals(zones, liveZones));
+        if (same) {
             return;
         }
-        double rho = c.frac * Math.max(0.1, userScale);
-        double e1 = Math.exp(-Math.max(0, c.onS) / tauR);
-        fatigue = fatigue * e1 + AiPlanner.fatigueWeight(c.hz) * rho * tauR * (1 - e1);
-        double e2 = Math.exp(-Math.max(1, c.offS) / tauR);
-        double g = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * rho * c.pauseSigma * tauR : 0;
-        fatigue = fatigue * e2 + g * (1 - e2);
+        rebase(now);
+        liveRho = rho;
+        liveZones = zones != null ? zones.clone() : null;
+    }
+
+    /** The zones the lead row really has (null = the plan's). */
+    public int[] getLiveZones() {
+        return liveZones;
+    }
+
+    public double getLiveRho() {
+        return liveRho;
+    }
+
+    /** Brings the channel values to {@code now} (before any change of state or cycle). */
+    private void settle(long now) {
+        double[][] g = chCmd != null ? rates(chCmd) : null;
+        for (int k = 0; k < chF.length; k++) {
+            chF[k] = fAt(k, now, g);
+        }
+        chFMs = now;
+        chCmd = null;
+    }
+
+    private double peakF() {
+        double m = 0;
+        for (double f : chF) {
+            m = Math.max(m, f);
+        }
+        return m;
+    }
+
+    /** Live load of each channel, F_k / F_max (1 = the limit of a hard set; the body heat map). */
+    public double[] getChannelLoad(long now) {
+        double[][] g = chCmd != null ? rates(chCmd) : null;
+        double[] out = new double[chF.length];
+        for (int k = 0; k < out.length; k++) {
+            out[k] = fMax > 0 ? fAt(k, now, g) / fMax : 0;
+        }
+        return out;
+    }
+
+    /**
+     * The heart's share of its allowed range now: (HR − HR_rest) / (HR_cap − HR_rest) — 1 at the ceiling where the
+     * output stops (L11). −1 without a fresh HR or when the program does not use it.
+     */
+    public double getCardioLoad(long now) {
+        int h = getHr(now);
+        if (h <= 0 || plan.hrUse == HrUse.NONE || plan.hrCap <= plan.hrRest) {
+            return -1;
+        }
+        return clamp((h - plan.hrRest) / (double) (plan.hrCap - plan.hrRest), 0, 1.25);
+    }
+
+    /**
+     * System load (the triangle): the higher of the local (most tired muscle zone, F / F_max) and the central
+     * (heart, {@link #getCardioLoad}) strain — whichever is nearer its limit decides the rest and the set's end.
+     */
+    public double getSystemLoad(long now) {
+        return Math.max(getPeakLoad(now), getCardioLoad(now));
+    }
+
+    /** True when the heart, not a muscle, is nearer its limit now. */
+    public boolean isCardioLimiting(long now) {
+        return getCardioLoad(now) > getPeakLoad(now);
+    }
+
+    /** The most loaded channel now (the peak bar). */
+    public double getPeakLoad(long now) {
+        double m = 0;
+        for (double v : getChannelLoad(now)) {
+            m = Math.max(m, v);
+        }
+        return m;
+    }
+
+    /**
+     * Intensity of one cycle for the timeline: the stimulus per second the program asks for,
+     * ρ·(w(f)·on + w(f_p)·σ_p·off) / (on + off) — 0.5 for 85 Hz 4 / 4 at the full calibration.
+     */
+    public double cycleLoad(Cmd c) {
+        if (c == null || c.frac <= 0) {
+            return 0;
+        }
+        double rho = liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale);
+        double on = Math.max(1, c.onS);
+        double off = Math.max(1, c.offS);
+        double p = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma * off : 0;
+        return rho * (AiPlanner.fatigueWeight(c.hz) * on + p) / (on + off);
+    }
+
+    private void traceRest(long now) {
+        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getFatigueShare(), phaseIndex,
+                Math.max(0, getHr(now))});
+    }
+
+    /** Samples so far: {session s, impulse s, cycle load, peak load, phase, HR (0 = none)} at each cycle and rest start. */
+    public List<float[]> getTrace() {
+        return trace;
+    }
+
+    /** The part of a wait the program imposed: the rest minimum + the countdown, the whole HR pause. */
+    private double imposedOf(State from, double pauseS) {
+        if (from == State.REST) {
+            return Math.min(pauseS, restMinS + COUNTDOWN_MS / 1000.0);
+        }
+        if (from == State.HR_PAUSE) {
+            return pauseS;
+        }
+        return Math.min(pauseS, COUNTDOWN_MS / 1000.0);
+    }
+
+    /**
+     * Training time (owner, 1.1.271): the impulses plus the waits the program imposes; the time a person
+     * takes beyond the rest minimum before ▶, and a manual pause, are not counted.
+     */
+    public double getSessionS(long now) {
+        double s = elapsedS + imposedS;
+        if (state == State.REST || state == State.HR_PAUSE || state == State.USER_PAUSE
+                || (state == State.COUNTDOWN && countFrom != State.READY)) {
+            State from = state == State.COUNTDOWN ? countFrom : state;
+            s += imposedOf(from, Math.max(0, (now - pauseStartMs) / 1000.0));
+        }
+        return s;
+    }
+
+    /** Planned length of one set now: whole cycles making 30–40 s (as {@link #nextCycle} ends them). */
+    public double getSetTargetS() {
+        double d = current != null ? current.durationMs() / 1000.0 : 8;
+        int n = (int) Math.ceil(STATION_MIN_S / d);
+        if (n * d > STATION_MAX_S && n > 1) {
+            n--;
+        }
+        return n * d;
+    }
+
+    /** Impulses in the set: {this one (1-based), all}. */
+    public int[] getSetImpulses() {
+        double d = current != null ? current.durationMs() / 1000.0 : 8;
+        int all = (int) Math.round(getSetTargetS() / d);
+        int done = (int) Math.round(stationS / d) + (state == State.RUN ? 1 : 0);
+        return new int[] {Math.max(1, Math.min(all, done)), all};
+    }
+
+    /**
+     * ⏭ Next (owner, 1.1.271): in a set — it ends now (the rest still follows the fatigue); in the rest — the next
+     * exercise instead of the one shown; in a phase without sets — on to the next phase (the recovery is reached,
+     * never skipped). Returns true when something changed.
+     */
+    public boolean next(long now) {
+        Phase ph = phase();
+        if (ph == null || ph.isCooldown() || state == State.DONE || state == State.STOPPED) {
+            return false;
+        }
+        if (state == State.RUN && isStationPhase(phaseIndex)) {
+            settle(now);
+            if (current != null && current != counted && current.phaseIndex == stationPhase) {
+                stationS += Math.min(current.durationMs(), Math.max(0, now - current.startMs)) / 1000.0;
+                counted = current;
+            }
+            lastSetS = stationS;
+            stationS = 0;
+            stationIndex++;
+            log(now, "next → set ended early");
+            enterRest(now, false);
+            return true;
+        }
+        if (state == State.REST && !restBeforeCooldown && isStationPhase(phaseIndex)) {
+            stationIndex++;
+            log(now, "next → exercise " + getExercise());
+            return true;
+        }
+        if (state == State.RUN) {
+            int idx = phaseIndex + 1;
+            if (idx < plan.phases.size() && plan.phases.get(idx).isCooldown()) {
+                log(now, "next → recovery");
+                enterRecoveryRest(now, idx);
+                return true;
+            }
+            if (idx < plan.phases.size()) {
+                jumpTo(idx, now);
+                log(now, "next → phase " + phase().id);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** The whole session planned ahead (no HR, ▶ pressed as soon as allowed): the timeline's profile. */
+    public static final class Forecast {
+        /** Per point: session s, impulse s, load, peak load (as {@link #getTrace}). */
+        public final List<float[]> points = new ArrayList<float[]>();
+        /** Session second where each phase begins. */
+        public double[] phaseStartS;
+        public double totalS;
+        public double maxLoad;
+
+        /** Session time in the forecast when {@code impulseS} of impulses are done. */
+        public double sessionAt(double impulseS) {
+            float[] prev = null;
+            for (float[] p : points) {
+                if (p[1] >= impulseS) {
+                    if (prev == null || p[1] <= prev[1]) {
+                        return p[0];
+                    }
+                    return prev[0] + (p[0] - prev[0]) * (impulseS - prev[1]) / (p[1] - prev[1]);
+                }
+                prev = p;
+            }
+            return totalS;
+        }
+    }
+
+    public static Forecast forecast(Plan plan, AutoTemplates.Script sc, boolean doublePulse) {
+        return forecast(plan, sc, doublePulse, 1.0);
+    }
+
+    /** As above, with the person's strength factor (actual ρ / planned, e.g. after −10 %) for every cycle. */
+    public static Forecast forecast(Plan plan, AutoTemplates.Script sc, boolean doublePulse, double scale) {
+        Forecast f = new Forecast();
+        AutoEngine e = new AutoEngine(plan);
+        e.userScale = Math.max(0.1, scale);
+        e.setScript(sc);
+        e.setDoublePulse(doublePulse, 0);
+        long t = 0;
+        e.startAt(t, t);
+        t = e.getGoMs();
+        e.tick(t);
+        f.phaseStartS = new double[plan.phases.size()];
+        java.util.Arrays.fill(f.phaseStartS, -1);
+        f.phaseStartS[0] = 0;
+        int guard = 0;
+        while (e.getState() != State.DONE && e.getState() != State.STOPPED && guard++ < 8000) {
+            if (f.phaseStartS[e.phaseIndex] < 0) {
+                f.phaseStartS[e.phaseIndex] = e.getSessionS(t);
+            }
+            if (e.getState() == State.REST) {
+                t += e.getRestMinS() * 1000L;
+                e.requestGo(t, t);
+                t = e.getGoMs();
+                e.tick(t);
+                continue;
+            }
+            if (e.getState() != State.RUN || e.current == null) {
+                break;
+            }
+            t += e.current.durationMs();
+            e.tick(t - 1);
+            e.onCycle(t);
+        }
+        f.points.addAll(e.trace);
+        f.totalS = e.getSessionS(t);
+        for (int i = 1; i < f.phaseStartS.length; i++) {
+            if (f.phaseStartS[i] < 0) {
+                f.phaseStartS[i] = f.totalS;
+            }
+        }
+        for (float[] p : f.points) {
+            f.maxLoad = Math.max(f.maxLoad, p[2]);
+        }
+        return f;
     }
 
     /** Seconds until ▶ is allowed after an exercise (0 = now). */
@@ -724,6 +1137,18 @@ public final class AutoEngine {
         return h > lim;
     }
 
+    /** A set ends early when the HR comes this close to the ceiling. */
+    public static final int SET_END_HR_BELOW_CAP = 5;
+
+    private boolean hrNearCap(long now) {
+        int h = getHr(now);
+        return plan.hrUse != HrUse.NONE && h > 0 && h >= plan.hrCap - SET_END_HR_BELOW_CAP;
+    }
+
+    public int getHrEndedSets() {
+        return hrEndedSets;
+    }
+
     /** The HR the next set waits for (see {@link #isRestHrHigh}). */
     public int getRestHrLimit() {
         int lim = plan.hrCap - REST_HR_BELOW_CAP;
@@ -753,7 +1178,7 @@ public final class AutoEngine {
     }
 
     public double getFatigueShare() {
-        return fMax > 0 ? fatigue / fMax : 0;
+        return fMax > 0 ? peakF() / fMax : 0;
     }
 
     public int getRestCount() {

@@ -1444,10 +1444,10 @@
 
     if-nez v7, :cond_12b
 
-    if-eqz v6, :cond_3a8
+    if-eqz v6, :cond_3a4
 
     :cond_12b
-    if-eqz v1, :cond_3a8
+    if-eqz v1, :cond_3a4
 
     const/4 v2, 0x0
 
@@ -1465,7 +1465,7 @@
     .line 262
     sget-object v8, Lcom/isaigu/gymapp/ai/AutoHints;->figure:Lcom/isaigu/gymapp/ai/ExerciseFigure;
 
-    if-eqz v2, :cond_3ac
+    if-eqz v2, :cond_3a8
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
@@ -1488,7 +1488,7 @@
     move-result-object v2
 
     .line 267
-    if-eqz v3, :cond_3af
+    if-eqz v3, :cond_3ab
 
     const-string v8, "WARMUP"
 
@@ -1498,17 +1498,17 @@
 
     move-result v8
 
-    if-nez v8, :cond_3af
+    if-nez v8, :cond_3ab
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->isCooldown()Z
 
     move-result v8
 
-    if-nez v8, :cond_3af
+    if-nez v8, :cond_3ab
 
     iget-boolean v3, v3, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->wave:Z
 
-    if-nez v3, :cond_3af
+    if-nez v3, :cond_3ab
 
     sget-wide v8, Lcom/isaigu/gymapp/ai/AutoHints;->phaseStartMs:J
 
@@ -1518,7 +1518,7 @@
 
     cmp-long v3, v8, v10
 
-    if-gez v3, :cond_3af
+    if-gez v3, :cond_3ab
 
     .line 268
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getPhaseIndex()I
@@ -1527,7 +1527,7 @@
 
     const/4 v8, 0x2
 
-    if-gt v3, v8, :cond_3af
+    if-gt v3, v8, :cond_3ab
 
     const/4 v3, 0x1
 
@@ -1564,9 +1564,9 @@
 
     .line 273
     :cond_192
-    if-eqz v6, :cond_3ba
+    if-eqz v6, :cond_3b6
 
-    if-eqz v1, :cond_3ba
+    if-eqz v1, :cond_3b6
 
     .line 274
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoHints;->exName:Landroid/widget/TextView;
@@ -1575,7 +1575,7 @@
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-eqz v0, :cond_3b2
+    if-eqz v0, :cond_3ae
 
     const-string v0, "\u0421\u043b\u0435\u0434\u0432\u0430: "
 
@@ -1607,7 +1607,7 @@
     .line 275
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoHints;->hint:Landroid/widget/TextView;
 
-    if-eqz v7, :cond_3b6
+    if-eqz v7, :cond_3b2
 
     move-object v0, v2
 
@@ -1628,7 +1628,7 @@
 
     move-result v0
 
-    if-lez v0, :cond_3fa
+    if-lez v0, :cond_3f6
 
     const/4 v0, 0x0
 
@@ -1648,7 +1648,7 @@
 
     move-result v0
 
-    if-lez v0, :cond_3fe
+    if-lez v0, :cond_3fa
 
     const/4 v0, 0x0
 
@@ -1676,13 +1676,13 @@
     .line 288
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoHints;->next:Landroid/widget/TextView;
 
-    if-eqz v7, :cond_402
+    if-eqz v7, :cond_3fe
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    if-lez v0, :cond_402
+    if-lez v0, :cond_3fe
 
     const/4 v0, 0x0
 
@@ -1717,13 +1717,13 @@
     move-result-wide v0
 
     .line 293
-    if-eqz v3, :cond_406
+    if-eqz v3, :cond_402
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v2
 
-    if-lez v2, :cond_406
+    if-lez v2, :cond_402
 
     sub-long v0, p1, v0
 
@@ -1733,7 +1733,7 @@
 
     cmp-long v0, v0, v6
 
-    if-gez v0, :cond_406
+    if-gez v0, :cond_402
 
     const/4 v0, 0x1
 
@@ -1746,7 +1746,7 @@
     .line 295
     const/4 v0, 0x2
 
-    if-ne v5, v0, :cond_40a
+    if-ne v5, v0, :cond_406
 
     const-string v0, "\u26d4 "
 
@@ -1756,7 +1756,7 @@
     :goto_237
     const/4 v0, 0x2
 
-    if-ne v5, v0, :cond_417
+    if-ne v5, v0, :cond_413
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
@@ -1828,7 +1828,7 @@
     :cond_279
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoHints;->notice:Landroid/widget/TextView;
 
-    if-eqz v2, :cond_422
+    if-eqz v2, :cond_41e
 
     const/4 v0, 0x0
 
@@ -2147,22 +2147,16 @@
     aget-object v1, v1, v8
 
     .line 256
-    if-eqz v6, :cond_396
+    if-eqz v6, :cond_392
 
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getStationIndex()I
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getExercise()Ljava/lang/String;
 
-    move-result v2
-
-    array-length v8, v1
-
-    rem-int/2addr v2, v8
-
-    aget-object v1, v1, v2
+    move-result-object v1
 
     goto/16 :goto_125
 
     .line 257
-    :cond_396
+    :cond_392
     sget-wide v8, Lcom/isaigu/gymapp/ai/AutoHints;->EXAMPLE_T0:J
 
     sub-long v8, p1, v8
@@ -2188,40 +2182,40 @@
     goto/16 :goto_125
 
     .line 259
-    :cond_3a8
+    :cond_3a4
     const/16 v2, 0x8
 
     goto/16 :goto_12e
 
     .line 262
-    :cond_3ac
+    :cond_3a8
     const/4 v2, 0x0
 
     goto/16 :goto_13d
 
     .line 268
-    :cond_3af
+    :cond_3ab
     const/4 v3, 0x0
 
     goto/16 :goto_175
 
     .line 274
-    :cond_3b2
+    :cond_3ae
     const-string v0, ""
 
     goto/16 :goto_1a7
 
     .line 275
-    :cond_3b6
+    :cond_3b2
     const-string v0, ""
 
     goto/16 :goto_1bf
 
     .line 276
-    :cond_3ba
-    if-eqz v7, :cond_3e7
+    :cond_3b6
+    if-eqz v7, :cond_3e3
 
-    if-eqz v1, :cond_3e7
+    if-eqz v1, :cond_3e3
 
     .line 277
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoHints;->exName:Landroid/widget/TextView;
@@ -2264,12 +2258,12 @@
     goto/16 :goto_1c2
 
     .line 280
-    :cond_3e7
+    :cond_3e3
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoHints;->exName:Landroid/widget/TextView;
 
-    if-eqz v7, :cond_3f7
+    if-eqz v7, :cond_3f3
 
-    :goto_3eb
+    :goto_3e7
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 281
@@ -2282,31 +2276,31 @@
     goto/16 :goto_1c2
 
     .line 280
-    :cond_3f7
+    :cond_3f3
     const-string v2, ""
 
-    goto :goto_3eb
+    goto :goto_3e7
 
     .line 283
-    :cond_3fa
+    :cond_3f6
     const/16 v0, 0x8
 
     goto/16 :goto_1d1
 
     .line 284
-    :cond_3fe
+    :cond_3fa
     const/16 v0, 0x8
 
     goto/16 :goto_1e3
 
     .line 288
-    :cond_402
+    :cond_3fe
     const/16 v0, 0x8
 
     goto/16 :goto_202
 
     .line 293
-    :cond_406
+    :cond_402
     const/4 v0, 0x0
 
     move v2, v0
@@ -2314,10 +2308,10 @@
     goto/16 :goto_22f
 
     .line 295
-    :cond_40a
+    :cond_406
     const/4 v0, 0x1
 
-    if-ne v5, v0, :cond_412
+    if-ne v5, v0, :cond_40e
 
     const-string v0, "\u26a0 "
 
@@ -2325,7 +2319,7 @@
 
     goto/16 :goto_237
 
-    :cond_412
+    :cond_40e
     const-string v0, "\u2713 "
 
     move-object v1, v0
@@ -2333,22 +2327,22 @@
     goto/16 :goto_237
 
     .line 296
-    :cond_417
+    :cond_413
     const/4 v0, 0x1
 
-    if-ne v5, v0, :cond_41e
+    if-ne v5, v0, :cond_41a
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
     goto/16 :goto_23c
 
-    :cond_41e
+    :cond_41a
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     goto/16 :goto_23c
 
     .line 302
-    :cond_422
+    :cond_41e
     const/16 v0, 0x8
 
     goto/16 :goto_27e

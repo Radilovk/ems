@@ -102,6 +102,10 @@ public final class AutoSession {
     private static long lastHookMs;
     /** Countdowns already announced (beeps scheduled) — by their go time. */
     private static long beepsForGoMs;
+    private static AutoEngine.Forecast forecast;
+    private static double forecastScale = 1.0;
+    private static boolean forecastDouble;
+    private static long forecastMs;
 
     private AutoSession() {}
 
@@ -606,7 +610,15 @@ public final class AutoSession {
         } catch (Throwable t) {
             WearableBleDiagLog.log("auto", "template: " + t);
         }
-        engine.setStations(stationPhases(plan, script));
+        engine.setScript(script);
+        try {
+            forecastDouble = plan.doublePulseAllowed && plan.input.doublePulse;
+            forecastScale = 1.0;
+            forecast = AutoEngine.forecast(plan, script, forecastDouble);
+        } catch (Throwable t) {
+            forecast = null;
+            WearableBleDiagLog.log("auto", "forecast: " + t);
+        }
         seenCorridorExt = 0;
         seenDoseExt = 0;
         seenRaiseLocked = false;
@@ -627,17 +639,26 @@ public final class AutoSession {
         startTicker();
     }
 
-    /** Phases run as exercise sets (30–40 s, rest after each): the active program's phases with exercises. */
-    static boolean[] stationPhases(AutoModel.Plan p, AutoTemplates.Script sc) {
-        boolean[] out = new boolean[p.phases.size()];
-        if (sc == null || !p.program.isActive()) {
-            return out;
+    /** The whole session planned ahead (the live board's timeline), null before the start. */
+    static AutoEngine.Forecast getForecast() {
+        return forecast;
+    }
+
+    /** ⏭ Next: the set ends now / the next exercise / the next phase (never past the recovery). */
+    public static boolean next() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return false;
         }
-        for (int i = 0; i < out.length; i++) {
-            out[i] = !p.phases.get(i).isCooldown() && !p.phases.get(i).wave && i < sc.phase.length
-                    && sc.phase[i] != null && sc.phase[i].length > 0;
+        long now = System.currentTimeMillis();
+        AutoEngine.State before = engine.getState();
+        if (!engine.next(now)) {
+            return false;
         }
-        return out;
+        if (engine.getState() != AutoEngine.State.RUN) {
+            zeroOutput();
+        }
+        onStateChange(before, now);
+        return true;
     }
 
     /**
@@ -980,6 +1001,7 @@ public final class AutoSession {
         } catch (Throwable ignored) {
         }
         guard(now);
+        feedLive(now);
         AutoEngine.State before = engine.getState();
         engine.tick(now);
         AutoEngine.State after = engine.getState();
@@ -1080,6 +1102,43 @@ public final class AutoSession {
         return AutoLimits.clampZones(want, rp);
     }
 
+    /**
+     * The lead row's real output → the engine (strength / calibration, zones as set), so the fatigue, the rests,
+     * the heat map and the timeline follow every manual change. Then, at most every 5 s, the forecast is rebuilt
+     * when the person's strength factor or the double impulse has moved (the remaining time and the profile).
+     */
+    private static void feedLive(long now) {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        Row lead = null;
+        for (Row r : rows) {
+            if (r.block == null && r.cal > 0) {
+                lead = r;
+                break;
+            }
+        }
+        AutoEngine.Cmd c = engine.getCurrent();
+        if (lead == null || engine.getState() != AutoEngine.State.RUN || c == null) {
+            return;
+        }
+        engine.setLive(Math.max(0, lead.writtenStrength) / (double) lead.cal, lead.writtenZones, now);
+        AutoModel.Plan rp = lead.plan != null ? lead.plan : plan;
+        double planned = AutoEngine.rowFrac(c, rp.phiMax);
+        double scale = planned > 0 ? Math.max(0, lead.writtenStrength) / (lead.cal * planned) : 1.0;
+        boolean dbl = engine.isDoublePulseOn();
+        if (now - forecastMs > 5000L && (Math.abs(scale - forecastScale) > 0.05 || dbl != forecastDouble)) {
+            forecastMs = now;
+            forecastScale = scale;
+            forecastDouble = dbl;
+            try {
+                forecast = AutoEngine.forecast(plan, script, dbl, scale);
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("auto", "forecast: " + t);
+            }
+        }
+    }
+
     private static void writeRows(AutoEngine.Cmd c, boolean calib) {
         if (c == null) {
             return;
@@ -1123,6 +1182,9 @@ public final class AutoSession {
         try {
             MasterStrengthControl.resetApplied();
         } catch (Throwable ignored) {
+        }
+        if (!calib) {
+            feedLive(System.currentTimeMillis());
         }
     }
 

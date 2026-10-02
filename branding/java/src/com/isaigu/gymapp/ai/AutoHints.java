@@ -253,7 +253,7 @@ public final class AutoHints {
             ex = null;
         } else if (sc != null && pi >= 0 && pi < sc.phase.length && sc.phase[pi] != null && sc.phase[pi].length > 0) {
             String[] l = sc.phase[pi];
-            ex = sets ? l[e.getStationIndex() % l.length]
+            ex = sets ? e.getExercise()
                     : l[(int) (((now - EXAMPLE_T0) / 1000 / EXAMPLE_S) % l.length)];
         }
         exBox.setVisibility((tips || sets) && ex != null ? View.VISIBLE : View.GONE);

@@ -60,6 +60,7 @@ public final class AutoUi {
     private static final int A_RAISE = 24;
     private static final int A_DOUBLE_LIVE = 25;
     private static final int A_STOP = 27;
+    private static final int A_NEXT_SET = 39;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
     private static final int A_HEALTH_OPEN = 31;
@@ -93,7 +94,21 @@ public final class AutoUi {
     private static TextView runPause;
     private static TextView runDouble;
     private static TextView runStop;
-    private static View runBar;
+    private static TextView runPauseLabel;
+    private static TextView runNextLabel;
+    private static TextView runStopLabel;
+    private static TextView runNext;
+    private static TextView runClock;
+    private static TextView runRows;
+    private static ExerciseFigure runFigure;
+    private static AutoViews.SetRing runRing;
+    private static AutoViews.BodyHeat runBody;
+    private static AutoViews.PeakBar runPeak;
+    private static LinearLayout runHrBox;
+    private static TextView runHrBig;
+    private static TextView runHrSmall;
+    private static TextView runPeakWho;
+    private static AutoViews.Timeline runTimeline;
     private static TextView calibRowsInfo;
     private static TextView primary;
     private static final List<TextView> rowLabels = new ArrayList<TextView>();
@@ -813,69 +828,174 @@ public final class AutoUi {
 
     // ================================================================ live board (from the tile)
 
+    /**
+     * The live board (owner, 1.1.271; docs/xems-auto-mode-spec.md §12), landscape, three levels:
+     * left — the exercise now, in the ring of its set (impulses, rest, countdown); right — the body: the load of each
+     * zone (channel fatigue) front | back and the peak triangle; bottom — the whole session as a mountain (load,
+     * phases, now) and the dock: ▶ / ❚❚, ⏭, and ■ only while paused. Secondary keys (−10 %, +5 %, double impulse,
+     * rows) in one slim strip.
+     */
     private static void screenRun(Context c) {
         AutoModel.Plan plan = AutoSession.getPlan();
         shell.title.setText(plan.program.name());
-        subtitle(null);
+        subtitle("");
         LinearLayout body = shell.body;
 
-        LinearLayout top = XemsUi.card(c);
-        LinearLayout head = XemsUi.horizontal(c);
-        runPhase = XemsUi.text(c, "", 22, XemsUi.TEXT, true);
-        head.addView(runPhase, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        runTime = XemsUi.text(c, "", 22, XemsUi.GO_TEXT, true);
-        head.addView(runTime);
-        top.addView(head);
-        LinearLayout track = XemsUi.horizontal(c);
-        track.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(c, 4), 0, 0));
-        runBar = new View(c);
-        runBar.setBackgroundDrawable(XemsUi.rounded(XemsUi.GO, XemsUi.dp(c, 4), 0, 0));
-        track.addView(runBar, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 8), 0f));
-        track.addView(new View(c), new LinearLayout.LayoutParams(0, XemsUi.dp(c, 8), 1f));
-        top.addView(track, XemsUi.matchWrap(c, 10));
-        runHr = XemsUi.text(c, "", 15, XemsUi.TEXT, true);
-        top.addView(runHr, XemsUi.matchWrap(c, 8));
-        List<AutoSession.Row> rows = AutoSession.getRows();
-        for (int i = 0; i < rows.size(); i++) {
-            AutoSession.Row r = rows.get(i);
-            LinearLayout line = XemsUi.horizontal(c);
-            line.addView(XemsUi.text(c, r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (i + 1),
-                    15, XemsUi.MUTED, false), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            TextView v = XemsUi.text(c, "", 15, XemsUi.TEXT, true);
-            rowLabels.add(v);
-            line.addView(v);
-            top.addView(line, XemsUi.matchWrap(c, 6));
-        }
-        body.addView(top, XemsUi.matchWrap(c, 4));
+        // ---- top: exercise | body
+        LinearLayout top = XemsUi.horizontal(c);
+        LinearLayout left = XemsUi.card(c);
+        left.setGravity(Gravity.CENTER_HORIZONTAL);
+        android.widget.FrameLayout stage = new android.widget.FrameLayout(c);
+        runFigure = new ExerciseFigure(c);
+        runFigure.setCycle(System.currentTimeMillis(), 2, 2);
+        android.widget.FrameLayout.LayoutParams flp = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        int inset = XemsUi.dp(c, 44);
+        flp.setMargins(inset, inset, inset, inset);
+        stage.addView(runFigure, flp);
+        runRing = new AutoViews.SetRing(c);
+        stage.addView(runRing, new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        left.addView(stage, new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 250)));
+        runPhase = XemsUi.text(c, "", 21, XemsUi.TEXT, true);
+        runPhase.setGravity(Gravity.CENTER);
+        runPhase.setMaxLines(2);
+        left.addView(runPhase, XemsUi.matchWrap(c, 6));
+        runTime = XemsUi.text(c, "", 15, XemsUi.MUTED, true);
+        runTime.setGravity(Gravity.CENTER);
+        left.addView(runTime, XemsUi.matchWrap(c, 2));
+        top.addView(left, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 340), 1f));
+
+        LinearLayout right = XemsUi.card(c);
+        LinearLayout figs = XemsUi.horizontal(c);
+        runBody = new AutoViews.BodyHeat(c);
+        figs.addView(runBody, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        // the column right of the body: the pulse (when there is one) over the system-load triangle
+        LinearLayout side = XemsUi.vertical(c);
+        side.setGravity(Gravity.CENTER_HORIZONTAL);
+        runHrBox = XemsUi.vertical(c);
+        runHrBox.setGravity(Gravity.CENTER_HORIZONTAL);
+        runHrBig = XemsUi.text(c, "", 30, XemsUi.TEXT, true);
+        runHrBig.setGravity(Gravity.CENTER);
+        runHrBox.addView(runHrBig);
+        runHrSmall = XemsUi.text(c, "", 12, XemsUi.MUTED, true);
+        runHrSmall.setGravity(Gravity.CENTER);
+        runHrBox.addView(runHrSmall);
+        side.addView(runHrBox, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        runPeak = new AutoViews.PeakBar(c);
+        side.addView(runPeak, new LinearLayout.LayoutParams(XemsUi.dp(c, 46), 0, 1f));
+        runPeakWho = XemsUi.text(c, "", 12, XemsUi.MUTED, true);
+        runPeakWho.setGravity(Gravity.CENTER);
+        side.addView(runPeakWho);
+        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(XemsUi.dp(c, 104), ViewGroup.LayoutParams.MATCH_PARENT);
+        plp.leftMargin = XemsUi.dp(c, 6);
+        figs.addView(side, plp);
+        right.addView(figs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        top.addView(right, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 340), 1.35f));
+        ((LinearLayout.LayoutParams) right.getLayoutParams()).leftMargin = XemsUi.dp(c, 12);
+        body.addView(top, XemsUi.matchWrap(c, 2));
 
         runNotice = hint(c, "");
         body.addView(runNotice, XemsUi.matchWrap(c, 8));
 
-        LinearLayout keys = XemsUi.horizontal(c);
-        runPause = XemsUi.button(c, "", XemsUi.SECONDARY);
-        runPause.setOnClickListener(new Act(A_PAUSE, 0));
-        keys.addView(runPause, XemsUi.weight(1, 0, c));
-        TextView minus = XemsUi.button(c, AiText.t("− 10 %", "− 10 %"), XemsUi.SECONDARY);
+        // ---- bottom: timeline | dock
+        LinearLayout bottom = XemsUi.horizontal(c);
+        LinearLayout tl = XemsUi.card(c);
+        runTimeline = new AutoViews.Timeline(c);
+        tl.addView(runTimeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 112)));
+        LinearLayout times = XemsUi.horizontal(c);
+        runClock = XemsUi.text(c, "", 14, XemsUi.TEXT, true);
+        times.addView(runClock, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        runHr = XemsUi.text(c, "", 14, XemsUi.TEXT, true);
+        times.addView(runHr);
+        tl.addView(times, XemsUi.matchWrap(c, 6));
+        bottom.addView(tl, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        LinearLayout dock = XemsUi.horizontal(c);
+        dock.setGravity(Gravity.CENTER);
+        runPause = neon(c, A_PAUSE);
+        runPauseLabel = dockKey(c, dock, runPause);
+        runNext = neon(c, A_NEXT_SET);
+        runNextLabel = dockKey(c, dock, runNext);
+        runStop = neon(c, A_STOP);
+        runStopLabel = dockKey(c, dock, runStop);
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 330), ViewGroup.LayoutParams.WRAP_CONTENT);
+        dlp.leftMargin = XemsUi.dp(c, 12);
+        bottom.addView(dock, dlp);
+        body.addView(bottom, XemsUi.matchWrap(c, 8));
+
+        // ---- slim strip: rows, −10 %, +5 %, double impulse
+        LinearLayout strip = XemsUi.horizontal(c);
+        strip.setGravity(Gravity.CENTER_VERTICAL);
+        runRows = XemsUi.text(c, "", 13, XemsUi.MUTED, false);
+        runRows.setMaxLines(2);
+        strip.addView(runRows, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView minus = XemsUi.button(c, "− 10 %", XemsUi.SECONDARY);
         minus.setOnClickListener(new Act(A_REDUCE, 0));
-        keys.addView(minus, XemsUi.weight(1, 8, c));
-        TextView plus = XemsUi.button(c, AiText.t("+ 5 %", "+ 5 %"), XemsUi.SECONDARY);
+        strip.addView(minus, XemsUi.weight(0, 8, c));
+        TextView plus = XemsUi.button(c, "+ 5 %", XemsUi.SECONDARY);
         plus.setOnClickListener(new Act(A_RAISE, 0));
-        keys.addView(plus, XemsUi.weight(1, 8, c));
-        body.addView(keys, XemsUi.matchWrap(c, 12));
+        strip.addView(plus, XemsUi.weight(0, 8, c));
         runDouble = XemsUi.button(c, "", XemsUi.SECONDARY);
         runDouble.setOnClickListener(new Act(A_DOUBLE_LIVE, 0));
-        body.addView(runDouble, XemsUi.matchWrap(c, 8));
-        body.addView(tipsToggle(c), XemsUi.matchWrap(c, 12));
+        strip.addView(runDouble, XemsUi.weight(0, 8, c));
+        body.addView(strip, XemsUi.matchWrap(c, 10));
 
         TextView hide = XemsUi.button(c, AiText.t("Скрий", "Hide"), XemsUi.GHOST);
         hide.setOnClickListener(new Act(A_HIDE, 0));
         shell.footer.addView(hide);
         shell.footer.addView(XemsUi.spacer(c));
-        // STOP never ends at once (owner): active part → recovery; in the recovery → end. The label says which.
-        runStop = XemsUi.button(c, AiText.t("■ СТОП", "■ STOP"), XemsUi.ACCENT_BTN);
-        runStop.setOnClickListener(new Act(A_STOP, 0));
-        shell.footer.addView(runStop, new LinearLayout.LayoutParams(XemsUi.dp(c, 320), ViewGroup.LayoutParams.WRAP_CONTENT));
+        shell.footer.addView(tipsToggle(c));
         refreshRun();
+    }
+
+    /** A dock key: neon outline circle (no heavy fill), glyph inside, a short label under it. */
+    private static TextView neon(Context c, int action) {
+        TextView k = XemsUi.text(c, "", 30, XemsUi.TEXT, true);
+        k.setGravity(Gravity.CENTER);
+        k.setOnClickListener(new Act(action, 0));
+        XemsUi.pressable(k);
+        return k;
+    }
+
+    private static TextView dockKey(Context c, LinearLayout dock, TextView key) {
+        LinearLayout col = XemsUi.vertical(c);
+        col.setGravity(Gravity.CENTER_HORIZONTAL);
+        col.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 84), XemsUi.dp(c, 84)));
+        TextView l = XemsUi.text(c, "", 13, XemsUi.MUTED, true);
+        l.setGravity(Gravity.CENTER);
+        l.setMaxLines(2);
+        col.addView(l, new LinearLayout.LayoutParams(XemsUi.dp(c, 104), ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = XemsUi.dp(c, 4);
+        lp.rightMargin = XemsUi.dp(c, 4);
+        dock.addView(col, lp);
+        return l;
+    }
+
+    private static void styleKey(TextView k, TextView label, String glyph, String text, int color, boolean enabled,
+                                 boolean visible) {
+        View col = (View) k.getParent();
+        col.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (!visible) {
+            return;
+        }
+        Context c = k.getContext();
+        if (!glyph.equals(k.getText().toString()) || k.getTag() == null || (Integer) k.getTag() != color) {
+            k.setText(glyph);
+            k.setTag(color);
+            android.graphics.drawable.GradientDrawable d = new android.graphics.drawable.GradientDrawable();
+            d.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            d.setColor(XemsUi.alpha(color, 0x1C));
+            d.setStroke(XemsUi.dp(c, 2.5f), color);
+            k.setBackgroundDrawable(d);
+            k.setTextColor(color);
+        }
+        k.setAlpha(enabled ? 1f : 0.42f);
+        label.setText(text);
+        label.setTextColor(enabled ? color : XemsUi.MUTED);
     }
 
     private static void refreshRun() {
@@ -887,60 +1007,168 @@ public final class AutoUi {
         AutoModel.Plan plan = e.getPlan();
         AutoModel.Phase ph = e.phase();
         AutoEngine.State st = e.getState();
-        String state = "";
-        if (st == AutoEngine.State.USER_PAUSE) {
-            state = AiText.t(" · пауза", " · paused");
-        } else if (st == AutoEngine.State.REST) {
-            state = AiText.t(" · почивка ", " · rest ") + AiText.mmss(e.getRestS(now));
-        } else if (st == AutoEngine.State.COUNTDOWN) {
-            state = AiText.t(" · старт след ", " · start in ") + e.getCountdownLeftS(now);
-        } else if (st == AutoEngine.State.HR_PAUSE) {
-            state = e.isResumeWaiting() ? AiText.t(" · пулсът спадна", " · HR down")
-                    : AiText.t(" · пауза: пулс", " · paused: HR");
-        }
         boolean recovery = ph != null && ph.isCooldown();
-        runPhase.setText((recovery ? AiText.t("Възстановяване", "Recovery")
-                : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "") + state);
-        runTime.setText(AiText.mmss(e.getRemainingS()));
-        float share = plan.totalS > 0 ? (float) (e.getElapsedS() / plan.totalS) : 0;
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) runBar.getLayoutParams();
-        lp.weight = Math.max(0.001f, share);
-        View rest = ((ViewGroup) runBar.getParent()).getChildAt(1);
-        ((LinearLayout.LayoutParams) rest.getLayoutParams()).weight = Math.max(0.001f, 1 - share);
-        runBar.requestLayout();
-        int hr = e.getHr(now);
-        String hrText = "";
-        if (plan.hrUse != AutoModel.HrUse.NONE && hr > 0) {
-            hrText = plan.hrUse == AutoModel.HrUse.CORRIDOR
-                    ? "♥ " + hr + AiText.t(" · зона ", " · zone ") + plan.corridorLoHr() + "–" + plan.corridorHiHr()
-                    : "♥ " + hr + AiText.t(" · до ", " · up to ") + plan.hrCap;
+        boolean beforeRecovery = e.isRestBeforeCooldown();
+        AutoModel.Input lead = AutoSession.getInput();
+
+        // ---- left: the exercise in its ring
+        String ex = e.getExercise();
+        boolean rest = st == AutoEngine.State.REST;
+        int cd = st == AutoEngine.State.COUNTDOWN ? Math.max(1, e.getCountdownLeftS(now)) : 0;
+        if (ex != null && !beforeRecovery) {
+            runFigure.setVisibility(View.VISIBLE);
+            runFigure.setColor(ExerciseFigure.colorFor(lead != null ? lead.sex : null));
+            runFigure.setExercise(ex);
+            runFigure.setAlpha(st == AutoEngine.State.RUN ? 1f : 0.55f);
+            runPhase.setText((rest || cd > 0 ? AiText.t("Следва: ", "Next: ") : "") + AutoTemplates.name(ex));
+        } else {
+            runFigure.setVisibility(View.INVISIBLE);
+            runPhase.setText(beforeRecovery || recovery ? AiText.t("Възстановяване · легни и се отпусни", "Recovery · lie down and relax")
+                    : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
         }
-        runHr.setText(hrText);
-        runHr.setVisibility(hrText.length() > 0 ? View.VISIBLE : View.GONE);
-        runHr.setTextColor(hr > 0 && hr >= plan.hrCap - 5 ? XemsUi.DANGER : XemsUi.TEXT);
+        String line;
+        float prog;
+        int mode;
+        if (rest) {
+            int left = e.getRestLeftS(now);
+            int min = Math.max(1, e.getRestMinS());
+            boolean ok = AutoSession.startReady();
+            prog = beforeRecovery ? 1f : (float) Math.min(1.0, e.getRestS(now) / min);
+            mode = ok ? AutoViews.SetRing.READY : AutoViews.SetRing.REST;
+            line = beforeRecovery ? AiText.t("Следва възстановяване " + plan.recoveryS / 60 + " мин", "Recovery " + plan.recoveryS / 60 + " min next")
+                    : AiText.t("Почивка ", "Rest ") + AiText.mmss(e.getRestS(now))
+                    + (left > 0 ? AiText.t(" · ▶ след ", " · ▶ in ") + AiText.mmss(left)
+                    : e.isRestHrHigh(now) ? AiText.t(" · пулсът ≤ ", " · HR ≤ ") + e.getRestHrLimit()
+                    : AiText.t(" · готово", " · ready"));
+        } else if (recovery) {
+            prog = ph.durationS > 0 ? (float) (e.phaseElapsed() / ph.durationS) : 0;
+            mode = AutoViews.SetRing.RECOVERY;
+            line = AiText.t("Остава ", "Left ") + AiText.mmss(e.phaseRemainingS());
+        } else if (e.isStationPhase(e.getPhaseIndex())) {
+            prog = (float) (e.getStationS() / Math.max(1, e.getSetTargetS()));
+            mode = st == AutoEngine.State.RUN ? AutoViews.SetRing.WORK : AutoViews.SetRing.IDLE;
+            int[] imp = e.getSetImpulses();
+            line = AiText.t("Импулс ", "Impulse ") + imp[0] + " / " + imp[1] + " · "
+                    + AiText.mmss(Math.max(0, e.getSetTargetS() - e.getStationS()));
+        } else {
+            prog = ph != null && ph.durationS > 0 ? (float) (e.phaseElapsed() / ph.durationS) : 0;
+            mode = AutoViews.SetRing.WORK;
+            line = AiText.t("Остава ", "Left ") + AiText.mmss(e.phaseRemainingS());
+        }
+        if (st == AutoEngine.State.USER_PAUSE) {
+            line = AiText.t("Пауза", "Paused");
+        } else if (st == AutoEngine.State.HR_PAUSE) {
+            line = e.isResumeWaiting() ? AiText.t("Пулсът спадна — ▶", "HR is down — ▶")
+                    : AiText.t("Пауза: пулсът е висок", "Paused: HR high");
+        }
+        runRing.set(prog, mode, cd);
+        // no exercise figure: the pulse is the centre (when there is one), else the phase's time
+        int hrNow = e.getHr(now);
+        boolean hrUsed = plan.hrUse != AutoModel.HrUse.NONE && AutoSession.isBandConfigured(host);
+        if (runFigure.getVisibility() == View.VISIBLE) {
+            runRing.setCenter(null, null, 0);
+        } else if (hrUsed) {
+            runRing.setCenter(hrNow > 0 ? "♥ " + hrNow : "♥ —", AiText.t("до ", "up to ") + plan.hrCap,
+                    hrNow > 0 ? AutoViews.heat(e.getCardioLoad(now)) : XemsUi.MUTED);
+        } else {
+            runRing.setCenter(AiText.mmss(recovery || ph == null ? e.phaseRemainingS() : e.phaseRemainingS()),
+                    ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "", XemsUi.TEXT);
+        }
+        runTime.setText(line);
+
+        // ---- right: the body
+        boolean[] off = new boolean[AutoModel.CHANNELS];
+        int[] lz = e.getLiveZones();
+        for (int k = 0; k < off.length; k++) {
+            off[k] = (lz != null && k < lz.length ? lz[k] : plan.zones[k]) <= 0;
+        }
+        runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getChannelLoad(now), off);
+        // the triangle: the system load — the higher of the most tired zone and the heart
+        runPeak.set(e.getSystemLoad(now));
+        double cardio = e.getCardioLoad(now);
+        runPeakWho.setText(cardio >= 0 && e.isCardioLimiting(now) ? AiText.t("сърце", "heart") : AiText.t("мускули", "muscles"));
+        // the pulse tile: only with a band in a program that uses the pulse; the ring shows it when there is no figure
+        boolean hrTile = hrUsed && runFigure.getVisibility() == View.VISIBLE;
+        runHrBox.setVisibility(hrTile ? View.VISIBLE : View.GONE);
+        if (hrTile) {
+            runHrBig.setText(hrNow > 0 ? "♥ " + hrNow : "♥ —");
+            runHrBig.setTextColor(hrNow > 0 ? AutoViews.heat(cardio) : XemsUi.MUTED);
+            runHrSmall.setText(plan.hrUse == AutoModel.HrUse.CORRIDOR
+                    ? AiText.t("зона ", "zone ") + plan.corridorLoHr() + "–" + plan.corridorHiHr()
+                    : AiText.t("до ", "up to ") + plan.hrCap);
+        }
+
+        // ---- bottom: timeline, clock, HR
+        String[] names = new String[plan.phases.size()];
+        for (int i = 0; i < names.length; i++) {
+            AutoModel.Phase p = plan.phases.get(i);
+            names[i] = p.isCooldown() ? AiText.t("Възстановяване", "Recovery") : AiText.t(p.nameBg, p.nameEn);
+        }
+        double sNow = e.getSessionS(now);
+        AutoEngine.Forecast f = AutoSession.getForecast();
+        runTimeline.setHrScale(plan.hrRest, hrUsed ? plan.hrCap : 0);
+        runTimeline.set(e.getTrace(), f, e.getElapsedS(), sNow, names);
+        double left = f != null ? Math.max(0, f.totalS - f.sessionAt(e.getElapsedS())) : e.getRemainingS();
+        runClock.setText(AiText.t("Изминало ", "Elapsed ") + AiText.mmss(sNow) + AiText.t("   ·   остава ", "   ·   left ")
+                + AiText.mmss(left) + AiText.t("   ·   импулси ", "   ·   impulses ") + AiText.mmss(Math.min(e.getElapsedS(), plan.activeS))
+                + " / " + plan.activeS / 60 + AiText.t(" мин", " min"));
+        runHr.setText(hrUsed ? AiText.t("♥ линия · таван ", "♥ line · cap ") + plan.hrCap : "");
+
+        // ---- dock: ▶ / ❚❚ · ⏭ · ■ (only while paused)
+        int go = 0xFF22C55E;
+        boolean paused = st != AutoEngine.State.RUN && st != AutoEngine.State.COUNTDOWN;
+        if (st == AutoEngine.State.RUN) {
+            styleKey(runPause, runPauseLabel, "❚❚", AiText.t("Пауза", "Pause"), XemsUi.AMBER, true, true);
+        } else if (st == AutoEngine.State.COUNTDOWN) {
+            styleKey(runPause, runPauseLabel, "" + cd, AiText.t("Отказ", "Cancel"), go, true, true);
+        } else if (rest) {
+            boolean ok = AutoSession.startReady();
+            int lft = e.getRestLeftS(now);
+            styleKey(runPause, runPauseLabel, "▶", ok ? (beforeRecovery ? AiText.t("Възстановяване", "Recovery")
+                    : AiText.t("Старт", "Start")) : lft > 0 ? AiText.t("след ", "in ") + AiText.mmss(lft)
+                    : AiText.t("пулсът", "HR"), go, ok, true);
+        } else if (e.canResume()) {
+            styleKey(runPause, runPauseLabel, "▶", AiText.t("Продължи", "Resume"), go, true, true);
+        } else {
+            styleKey(runPause, runPauseLabel, "♥", AiText.t("пулсът спада", "HR coming down"), XemsUi.AMBER, false, true);
+        }
+        boolean canNext = !recovery && !beforeRecovery && (st == AutoEngine.State.RUN || rest);
+        styleKey(runNext, runNextLabel, "⏭", rest ? AiText.t("Друго упражнение", "Other exercise")
+                : e.isStationPhase(e.getPhaseIndex()) ? AiText.t("Край на серията", "End the set")
+                : AiText.t("Следваща фаза", "Next phase"), XemsUi.MUTED, canNext, true);
+        styleKey(runStop, runStopLabel, "■", recovery || beforeRecovery ? AiText.t("Край", "End")
+                : AiText.t("Към възстановяване", "To recovery"), XemsUi.DANGER, true, paused);
+
+        subtitle((ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn)) : "")
+                + (e.getStationsDone() > 0 ? AiText.t(" · серия ", " · set ") + (e.getStationsDone() + (rest ? 0 : 1)) : ""));
+
+        // ---- strip: rows, notice, double impulse
         AutoEngine.Cmd c = e.getCurrent();
         List<AutoSession.Row> rows = AutoSession.getRows();
-        for (int i = 0; i < rowLabels.size() && i < rows.size(); i++) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < rows.size(); i++) {
             AutoSession.Row r = rows.get(i);
+            if (sb.length() > 0) {
+                sb.append("   ·   ");
+            }
+            String n = r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (i + 1);
             if (r.block != null || r.cal <= 0) {
-                rowLabels.get(i).setText(r.block != null ? "⊘" : "—");
+                sb.append(n).append(r.block != null ? " ⊘" : " —");
                 continue;
             }
             AutoModel.Plan rp = r.plan != null ? r.plan : plan;
             int limit = c != null ? (int) Math.floor(r.cal * e.rowCeiling(c, rp.phiMax, rp.envMax) + 1e-9) : 0;
-            rowLabels.get(i).setText(Math.max(0, r.writtenStrength) + AiText.t(" · до ", " · up to ") + limit);
+            sb.append(n).append(" ").append(Math.max(0, r.writtenStrength)).append(AiText.t(" · до ", " · up to ")).append(limit);
         }
+        runRows.setText(sb.toString());
         String n = AutoSession.getLastNotice();
-        runNotice.setText(n != null ? n : "");
-        runNotice.setVisibility(n != null && n.length() > 0 ? View.VISIBLE : View.GONE);
-        runPause.setText(startLabel(e, now));
+        boolean fresh = n != null && n.length() > 0 && now - AutoSession.getLastNoticeMs() < 12000L;
+        runNotice.setText(fresh ? n : "");
+        runNotice.setVisibility(fresh ? View.VISIBLE : View.GONE);
         boolean dp = e.isDoublePulseAvailable();
         runDouble.setVisibility(dp ? View.VISIBLE : View.GONE);
-        runDouble.setText(AiText.t("Двоен импулс: ", "Double impulse: ") + (e.isDoublePulseOn()
+        runDouble.setText(AiText.t("2× импулс: ", "2× impulse: ") + (e.isDoublePulseOn()
                 ? AiText.t("вкл.", "on") : AiText.t("изкл.", "off")));
-        boolean toEnd = recovery || e.isRestBeforeCooldown();
-        runStop.setText(toEnd ? AiText.t("■ СТОП · край", "■ STOP · end")
-                : AiText.t("■ СТОП · към възстановяване", "■ STOP · to recovery"));
     }
 
     /** The ▶ / ❚❚ key: what pressing it does now (after an exercise: how long the rest still is). */
@@ -1104,6 +1332,10 @@ public final class AutoUi {
                 refreshRun();
                 return;
             }
+            case A_NEXT_SET:
+                AutoSession.next();
+                refreshRun();
+                return;
             case A_STOP:
                 AutoSession.stop();             // → report stage → onFinished
                 return;

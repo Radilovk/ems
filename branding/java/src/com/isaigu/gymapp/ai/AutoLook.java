@@ -32,6 +32,12 @@ public final class AutoLook {
     private static final Map<ViewGroup, TextView> SIGNS = new WeakHashMap<ViewGroup, TextView>();
     private static int[] modeIds;
     private static int[] hideIds;
+    /** The avatar's top-right index button (2nd impulse %): the current's parameters are shown in its place. */
+    private static int cornerId;
+    private static String paramText = "";
+    private static boolean paramLive;
+    /** Avatar block → the parameter chip we put there. */
+    private static final Map<ViewGroup, TextView> BADGES = new WeakHashMap<ViewGroup, TextView>();
     private static boolean on;
     private static String signLabel = "";
 
@@ -56,6 +62,8 @@ public final class AutoLook {
             if (modeIds == null) {
                 modeIds = ids(root.getContext(), MODE_IDS);
                 hideIds = ids(root.getContext(), HIDE_IDS);
+                cornerId = root.getContext().getResources().getIdentifier("pauseMaValue", "id",
+                        root.getContext().getPackageName());
             }
             on = true;
             signLabel = label;
@@ -183,6 +191,13 @@ public final class AutoLook {
                     v.setVisibility(e.getValue());
                 }
             }
+            List<ViewGroup> bs = new ArrayList<ViewGroup>(BADGES.keySet());
+            for (int i = 0; i < bs.size(); i++) {
+                TextView b = BADGES.get(bs.get(i));
+                if (bs.get(i) != null && b != null) {
+                    bs.get(i).removeView(b);
+                }
+            }
             List<ViewGroup> cols = new ArrayList<ViewGroup>(SIGNS.keySet());
             for (int i = 0; i < cols.size(); i++) {
                 ViewGroup col = cols.get(i);
@@ -197,6 +212,8 @@ public final class AutoLook {
         SAVED.clear();
         VEILED.clear();
         SIGNS.clear();
+        BADGES.clear();
+        paramText = "";
     }
 
     private static int[] ids(Context c, String[] names) {
@@ -265,9 +282,18 @@ public final class AutoLook {
         return null;
     }
 
+    /** What the chip at the avatar says (empty = no chip); live = the impulses run now (else it is dimmed). */
+    static void params(String text, boolean live) {
+        paramText = text != null ? text : "";
+        paramLive = live;
+    }
+
     private static void hideIn(View v) {
         if (in(v.getId(), hideIds)) {
             veil(v);
+            if (v.getId() == cornerId && cornerId != 0) {
+                badge(v);
+            }
             return;
         }
         if (v instanceof ViewGroup) {
@@ -311,6 +337,53 @@ public final class AutoLook {
         }
         if (v.getVisibility() != visibility) {
             v.setVisibility(visibility);
+        }
+    }
+
+    /**
+     * The current's parameters at the avatar's top-right corner (owner, 1.1.287), in place of the veiled 2nd-impulse
+     * button: Hz · µs, impulse / pause s, the 2nd impulse. Read-only — Auto sets them.
+     */
+    private static void badge(View anchor) {
+        if (!(anchor.getParent() instanceof android.widget.RelativeLayout)) {
+            return;
+        }
+        android.widget.RelativeLayout p = (android.widget.RelativeLayout) anchor.getParent();
+        TextView t = BADGES.get(p);
+        if (t == null || t.getParent() != p) {
+            Context c = p.getContext();
+            t = XemsUi.text(c, "", 11, XemsUi.TEXT, true);
+            t.setGravity(Gravity.END);
+            t.setMaxLines(3);
+            t.setIncludeFontPadding(false);
+            t.setLineSpacing(XemsUi.dp(c, 2), 1f);
+            int ph = XemsUi.dp(c, 7);
+            int pv = XemsUi.dp(c, 4);
+            t.setPadding(ph, pv, ph, pv);
+            t.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.CARD, 0xE6), XemsUi.dp(c, 8),
+                    XemsUi.alpha(XemsUi.GO, 0x88), XemsUi.dp(c, 1)));
+            android.widget.RelativeLayout.LayoutParams lp = new android.widget.RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (anchor.getId() != View.NO_ID) {
+                lp.addRule(android.widget.RelativeLayout.ALIGN_TOP, anchor.getId());
+                lp.addRule(android.widget.RelativeLayout.ALIGN_RIGHT, anchor.getId());
+            } else {
+                lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_TOP);
+                lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_RIGHT);
+            }
+            p.addView(t, lp);
+            BADGES.put(p, t);
+        }
+        if (!paramText.contentEquals(t.getText())) {
+            t.setText(paramText);
+        }
+        int vis = paramText.length() > 0 ? View.VISIBLE : View.GONE;
+        if (t.getVisibility() != vis) {
+            t.setVisibility(vis);
+        }
+        float a = paramLive ? 1f : 0.6f;
+        if (t.getAlpha() != a) {
+            t.setAlpha(a);
         }
     }
 

@@ -88,6 +88,8 @@ public final class AutoUi {
     private static TextView runClock;
     private static ExerciseFigure runFigure;
     private static AutoViews.SetRing runRing;
+    /** Amber frame over the exercise card: flashes when a set ends (with the long tone). */
+    private static View runFlash;
     private static AutoViews.BodyHeat runBody;
     private static AutoViews.PeakBar runPeak;
     private static AutoViews.Vital runVital;
@@ -201,7 +203,23 @@ public final class AutoUi {
     /** The board left the screen: drop its views. */
     static void onBoardDetached() {
         runPhase = null;
+        runFlash = null;
         boardSub = null;
+    }
+
+    /** A set ended (the rest begins): the exercise card flashes amber twice — seen even when the music is loud. */
+    static void flashSetEnd() {
+        View f = runFlash;
+        if (f == null) {
+            return;
+        }
+        try {
+            android.animation.ObjectAnimator a = android.animation.ObjectAnimator.ofFloat(f, "alpha", 0f, 1f, 0.2f, 1f, 0f);
+            a.setDuration(1400);
+            a.start();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AutoUi.flash", t);
+        }
     }
 
     /** The run ended (time, STOP, or from the main screen): close the board, open the client's report. */
@@ -948,7 +966,15 @@ public final class AutoUi {
         ex.addView(exRow, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         howShownFor = "-";
         phasesShownFor = -2;
-        top.addView(infoCorner(c, ex, INFO_SET), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.75f));
+        View exFrame = infoCorner(c, ex, INFO_SET);
+        runFlash = new View(c);
+        runFlash.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.AMBER, 0x2E), XemsUi.dp(c, 12), XemsUi.AMBER,
+                XemsUi.dp(c, 3)));
+        runFlash.setAlpha(0f);
+        runFlash.setClickable(false);
+        ((android.widget.FrameLayout) exFrame).addView(runFlash, new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        top.addView(exFrame, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.75f));
 
         LinearLayout right = nativeCard(c);
         LinearLayout figs = XemsUi.horizontal(c);
@@ -1100,12 +1126,18 @@ public final class AutoUi {
                         + "(between ▶ and +) goes to it: the set ends and the rest comes before it.\n"
                         + "Control — the main ▶ / ❚❚ and ■: ■ works from a pause; the first goes to the recovery, the second ends.");
             case INFO_BODY:
-                return AiText.t("Цветът на зона е натрупаното ѝ натоварване: синьо — леко, червено — границата на тежка серия.\n"
-                        + "Сметка: сила × ширина на импулса × честота × % на зоната + работата на упражнението; спада с почивката.\n"
+                return AiText.t("Всяка зона се оцветява постепенно с работата, която тази тренировка трябва да ѝ даде: "
+                        + "бледа в началото, в пълния цвят (жена — magenta, мъж — cyan) в края на плана, заедно с пасивната част "
+                        + "и възстановяването. Целта е на тази тренировка, не абсолютна. Над целта цветът става оранжев, после червен. "
+                        + "Зона, която работи в момента, светва малко по-ярко.\n"
+                        + "Сметка: сила × ширина на импулса × честота × % на зоната + работата на упражнението.\n"
                         + "Сърцето бие с пулса, цветът е пулсовата зона.\n"
                         + "Натоварване — цялото тяло: мускулите по импулса и упражнението, кислородът и пулсът, свършената работа; по данните на клиента.",
-                        "A zone's colour is its accumulated load: blue — light, red — the limit of a hard set.\n"
-                        + "Sum: strength × pulse width × frequency × zone % + the exercise's work; it falls in the rest.\n"
+                        "Each zone fills in with the work this session is meant to give it: faint at the start, full colour "
+                        + "(woman — magenta, man — cyan) at the end of the plan, the passive part and the recovery included. "
+                        + "The target is this session's, not absolute. Past it the colour turns orange, then red. "
+                        + "A zone working now glows a little brighter.\n"
+                        + "Sum: strength × pulse width × frequency × zone % + the exercise's work.\n"
                         + "The heart beats with the HR, its colour is the HR zone.\n"
                         + "Load — the whole body: the muscles by impulse and exercise, oxygen and HR, the work done; by the client's data.");
             default:
@@ -1188,21 +1220,42 @@ public final class AutoUi {
         runHow.animate().alpha(1f).setDuration(220).start();
     }
 
-    /** A phase's hint as steps (programs without exercises, the recovery). */
-    private static String[] hintSteps(AutoModel.Plan plan, AutoModel.Phase ph) {
-        String h = ph != null ? AutoCues.phaseHint(plan, ph) : null;
-        if (h == null || h.trim().length() == 0) {
-            return new String[0];
+    /**
+     * Labelled lines in the exercise card's place (programs without exercises, the recovery): Goal · Effect · You.
+     * Empty texts are left out; same key = no rebuild.
+     */
+    private static void showLabelled(String key, String[] labels, String[] texts) {
+        if (key.equals(howShownFor)) {
+            return;
         }
-        String[] parts = h.split("\\s+—\\s+|(?<=[.!?])\\s+");
-        java.util.List<String> out = new java.util.ArrayList<String>();
-        for (String p : parts) {
-            String q = p.trim();
-            if (q.length() > 0) {
-                out.add(Character.toUpperCase(q.charAt(0)) + q.substring(1));
+        howShownFor = key;
+        Context c = runHow.getContext();
+        runHow.removeAllViews();
+        int[] cols = {AUTO_TEAL, XemsUi.AMBER, XemsUi.GO_TEXT};
+        int n = 0;
+        for (int i = 0; i < texts.length; i++) {
+            if (texts[i] == null || texts[i].trim().length() == 0) {
+                continue;
             }
+            LinearLayout row = XemsUi.horizontal(c);
+            row.setGravity(Gravity.TOP);
+            int col = cols[i % cols.length];
+            TextView l = XemsUi.text(c, labels[i], 11, col, true);
+            l.setGravity(Gravity.CENTER);
+            l.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(col, 0x22), XemsUi.dp(c, 10), 0, 0));
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(XemsUi.dp(c, 54), XemsUi.dp(c, 22));
+            llp.rightMargin = XemsUi.dp(c, 12);
+            row.addView(l, llp);
+            TextView t = XemsUi.text(c, texts[i], 14, XemsUi.TEXT, false);
+            t.setLineSpacing(XemsUi.dp(c, 2), 1f);
+            t.setMaxLines(4);
+            t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            runHow.addView(row, XemsUi.matchWrap(c, n == 0 ? 2 : 10));
+            n++;
         }
-        return out.toArray(new String[0]);
+        runHow.setAlpha(0f);
+        runHow.animate().alpha(1f).setDuration(220).start();
     }
 
     /** The library's "how" of an exercise as at most 6 steps (one sentence each). */
@@ -1271,22 +1324,31 @@ public final class AutoUi {
         if (fig) {
             runFigure.setColor(figColor);
             runFigure.setExercise(ex);
-            runFigure.setAlpha(st == AutoEngine.State.RUN ? 1f : 0.5f);
+            // in the rest the coming exercise is the big one, full colour, moving — what the client needs now
+            boolean comingUp = rest || cd > 0;
+            runFigure.setAlpha(st == AutoEngine.State.RUN || comingUp ? 1f : 0.5f);
             // the name stays the running exercise; the next one is the grey figure beside (coloured near the end);
             // the recovery coming next is said in the name in the last seconds
             if (soon && nx.length() == 0) {
                 runPhase.setText(AutoTemplates.name(ex) + "   →  " + AiText.t("Възстановяване", "Recovery"));
             } else {
-                runPhase.setText((rest || cd > 0 ? "→  " : "") + AutoTemplates.name(ex));
+                runPhase.setText((comingUp ? AiText.t("Следва:  ", "Next:  ") : "") + AutoTemplates.name(ex));
             }
-            runPhase.setTextColor(XemsUi.TEXT);
+            runPhase.setTextColor(comingUp ? XemsUi.GO_TEXT : XemsUi.TEXT);
             showHow(ex, howSteps(runHow.getContext(), ex));
         } else {
             AutoModel.Phase about = beforeRecovery ? plan.phases.get(plan.phases.size() - 1) : ph;
             runPhase.setText(beforeRecovery ? "→  " + AiText.t("Възстановяване", "Recovery")
                     : recovery ? AiText.t("Възстановяване", "Recovery") : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
             runPhase.setTextColor(XemsUi.TEXT);
-            showHow("phase:" + (about != null ? about.id : ""), hintSteps(plan, about));
+            // no exercise (passive program, recovery): what this part is for and what the current does now
+            AutoEngine.Cmd now1 = beforeRecovery ? null : AutoSession.getWritten();
+            String goal = AutoCues.phaseGoal(plan, about);
+            String eff = now1 != null ? AutoCues.effect(about, now1, e.isDoublePulseOn()) : "";
+            String hint = about != null ? AutoCues.phaseHint(plan, about) : "";
+            showLabelled("phase:" + (about != null ? about.id : "") + ":" + (now1 != null ? now1.hz + ":" + (now1.frac > 0)
+                    + ":" + now1.pauseHz : "-"), new String[] {AiText.t("Цел", "Goal"), AiText.t("Ефект", "Effect"),
+                    AiText.t("Ти", "You")}, new String[] {goal, eff, hint});
         }
 
         // ---- the ring and the timer beside it
@@ -1350,7 +1412,7 @@ public final class AutoUi {
         for (int k = 0; k < off.length; k++) {
             off[k] = (lz != null && k < lz.length ? lz[k] : plan.zones[k]) <= 0;
         }
-        runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getChannelLoad(now), off);
+        runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getZoneProgress(now), e.getChannelLoad(now), off);
         runPeak.set(e.getSystemLoad(now));                     // the total load: muscles (peak + body) and heart
         boolean hrUsed = plan.hrUse != AutoModel.HrUse.NONE && AutoSession.isBandConfigured(host);
         runVital.setVisibility(hrUsed ? View.VISIBLE : View.GONE);

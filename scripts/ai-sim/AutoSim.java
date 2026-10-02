@@ -44,6 +44,7 @@ public final class AutoSim {
         todayStates();
         blocks();
         zones();
+        passiveTexts();
         windows();
         hrCap();
         corridor();
@@ -328,6 +329,29 @@ public final class AutoSim {
         z = AutoLimits.clampZones(want, plan);
         check(z[AutoModel.CHEST] == 0, "zones: L10 breastfeeding chest stays 0");
         check(z[AutoModel.ABS] <= 40, "zones: diastasis abs ≤ 40");
+    }
+
+    /** Owner (1.1.287): a passive session says the goal of every phase and what the current does. */
+    static void passiveTexts() {
+        String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
+                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY};
+        for (String id : ids) {
+            AutoModel.Input in = input(AiModel.Sex.FEMALE, 35, 62, 166, AiModel.Fitness.MID, 6, -1);
+            in.programId = id;
+            if (AutoCatalog.POSTPARTUM.equals(id)) {
+                in.extra.weeksSinceBirth = 12;
+            }
+            AutoModel.Plan plan = AutoPlanner.build(in, 70);
+            for (AutoModel.Phase ph : plan.phases) {
+                String g = AutoCues.phaseGoal(plan, ph);
+                check(g != null && g.length() > 10, id + "/" + ph.id + ": the goal is said");
+                AutoEngine.Cmd c = new AutoEngine.Cmd();
+                c.hz = ph.steps.isEmpty() ? 5 : ph.steps.get(0).hz;
+                c.frac = 0.5;
+                String e = AutoCues.effect(ph, c, false);
+                check(e != null && e.length() > 10, id + "/" + ph.id + ": the effect is said");
+            }
+        }
     }
 
     static void windows() {
@@ -819,6 +843,51 @@ public final class AutoSim {
         long tz = t[0] + 8000;
         check(half.getSystemLoad(tz) < all.getSystemLoad(tz) - 0.01, "fewer zones on → lower total ("
                 + half.getSystemLoad(tz) + " vs " + all.getSystemLoad(tz) + ")");
+        // owner (1.1.287): each zone's colour reaches its target (1) exactly at the end of the plan, not before
+        {
+            AutoEngine run = new AutoEngine(base);
+            run.setScript(sc);
+            run.setZoneBudget(f.zoneDose);
+            long tt = 0;
+            run.startAt(tt, tt);
+            tt = run.getGoMs();
+            run.tick(tt);
+            double halfMax = 0;
+            boolean halfSeen = false;
+            int g2 = 0;
+            while (run.getState() != AutoEngine.State.DONE && run.getState() != AutoEngine.State.STOPPED && g2++ < 8000) {
+                if (!halfSeen && run.getSessionS(tt) > f.totalS / 2) {
+                    halfSeen = true;
+                    for (double zp : run.getZoneProgress(tt)) {
+                        halfMax = Math.max(halfMax, zp);
+                    }
+                }
+                if (run.getState() == AutoEngine.State.REST) {
+                    tt += run.getRestMinS() * 1000L;
+                    run.requestGo(tt, tt);
+                    tt = run.getGoMs();
+                    run.tick(tt);
+                    continue;
+                }
+                if (run.getState() != AutoEngine.State.RUN || run.getCurrent() == null) {
+                    break;
+                }
+                tt += run.getCurrent().durationMs();
+                run.tick(tt - 1);
+                run.onCycle(tt);
+            }
+            double lo = 9;
+            double hi = -9;
+            for (int k = 0; k < AutoModel.CHANNELS; k++) {
+                double zp = run.getZoneProgress(tt)[k];
+                if (base.zones[k] > 0) {
+                    lo = Math.min(lo, zp);
+                    hi = Math.max(hi, zp);
+                }
+            }
+            check(lo > 0.97 && hi < 1.03, "every zone reaches its target colour at the end (" + lo + "…" + hi + ")");
+            check(halfSeen && halfMax < 0.9, "half way no zone is at its target yet (" + halfMax + ")");
+        }
         // the client: fat (same weight, shorter → higher BMI) insulates → less reached → less oxygen
         AutoModel.Plan fat = legs(input(AiModel.Sex.MALE, 35, 82, 160, AiModel.Fitness.MID, 8, 200));
         AutoEngine ef = mainSet(fat, AutoTemplates.script(fat, null), t, f.dose);

@@ -47,20 +47,25 @@ public final class AutoViews {
     }
 
     /**
-     * Colour of a body zone (owner, 1.1.285): the client's own colour — magenta for a woman, cyan for a man, the same
-     * as the exercise figure — that grows brighter with the load; near the limit it turns amber, at the limit red.
+     * Colour of a body zone (owner, 1.1.287): the client's colour — magenta for a woman, cyan for a man — fills in
+     * smoothly as the zone gets the work this session is meant to give it; at the target (p = 1, the end of the plan,
+     * the passive part and the recovery included) it is full. The target is the session's own, not an absolute
+     * scale. Past it the colour warms: +15 % amber, +30 % red.
      */
-    public static int bodyHeat(int sexCol, double v) {
-        if (v <= 0.6) {
+    public static int bodyHeat(int sexCol, double p) {
+        if (p <= 1.0) {
             return sexCol;
         }
-        if (v <= 0.85) {
-            return XemsUi.mix(sexCol, HEAT_COL[3], (float) ((v - 0.6) / 0.25));
+        if (p <= 1.15) {
+            return XemsUi.mix(sexCol, HEAT_COL[3], (float) ((p - 1.0) / 0.15));
         }
-        if (v <= 1.0) {
-            return XemsUi.mix(HEAT_COL[3], HEAT_COL[4], (float) ((v - 0.85) / 0.15));
-        }
-        return XemsUi.mix(HEAT_COL[4], HEAT_COL[5], (float) Math.min(1.0, (v - 1.0) / 0.25));
+        return XemsUi.mix(HEAT_COL[3], HEAT_COL[4], (float) Math.min(1.0, (p - 1.15) / 0.15));
+    }
+
+    /** How strongly a zone shows at progress p: faint at the start, full at the target (smoothstep). */
+    static float bodyFill(double p) {
+        double x = Math.max(0, Math.min(1, p));
+        return (float) (0.12 + 0.88 * x * x * (3 - 2 * x));
     }
 
     static float dp(View v, float d) {
@@ -294,6 +299,7 @@ public final class AutoViews {
         private final Rect src = new Rect();
         private final RectF dst = new RectF();
         private final double[] load = new double[AutoModel.CHANNELS];
+        private final double[] live = new double[AutoModel.CHANNELS];
         private final boolean[] off = new boolean[AutoModel.CHANNELS];
         private String sexKey = "";
         private int sexCol = ExerciseFigure.COLOR;
@@ -313,8 +319,11 @@ public final class AutoViews {
             super(c);
         }
 
-        /** Loads (F / F_max) per channel; off = the channel is switched off for every row (drawn plain). */
-        public void set(AiModel.Sex sex, double[] l, boolean[] disabled) {
+        /**
+         * progress = each zone's work done / the work the plan holds for it ({@link AutoEngine#getZoneProgress});
+         * live = F / F_max now (a zone working now glows a little lighter); off = switched off for every row.
+         */
+        public void set(AiModel.Sex sex, double[] progress, double[] liveLoad, boolean[] disabled) {
             String key = sex == AiModel.Sex.FEMALE ? "female" : "male";
             if (!key.equals(sexKey)) {
                 sexKey = key;
@@ -325,11 +334,13 @@ public final class AutoViews {
                 dirty = true;
             }
             for (int k = 0; k < load.length; k++) {
-                // 1/40 steps: the figure is repainted only when a zone visibly changes
-                double v = l != null && k < l.length ? Math.round(l[k] * 40) / 40.0 : 0;
-                boolean o = disabled != null && k < disabled.length && disabled[k];
-                if (v != load[k] || o != off[k]) {
+                // 1/80 steps: the colour creeps in smoothly, the figure is repainted only when a zone changes
+                double v = progress != null && k < progress.length ? Math.round(progress[k] * 80) / 80.0 : 0;
+                double lv = liveLoad != null && k < liveLoad.length ? Math.round(Math.min(1.0, liveLoad[k]) * 10) / 10.0 : 0;
+                boolean o = disabled != null && k < disabled.length && disabled[k] || v < 0;
+                if (v != load[k] || lv != live[k] || o != off[k]) {
                     load[k] = v;
+                    live[k] = lv;
                     off[k] = o;
                     dirty = true;
                 }
@@ -404,8 +415,9 @@ public final class AutoViews {
             int[] col = new int[AutoModel.CHANNELS];
             float[] op = new float[AutoModel.CHANNELS];
             for (int k = 0; k < col.length; k++) {
-                col[k] = bodyHeat(sexCol, load[k]);
-                op[k] = off[k] ? 0f : 0.25f + 0.75f * (float) Math.min(1.0, load[k] / 0.6);
+                // working now: up to 25 % lighter (the zone "breathes" with the impulse)
+                col[k] = XemsUi.mix(bodyHeat(sexCol, load[k]), 0xFFFFFFFF, (float) (0.25 * live[k]));
+                op[k] = off[k] ? 0f : bodyFill(load[k]);
             }
             int[] px = f.px;
             java.util.Arrays.fill(px, 0);

@@ -616,6 +616,7 @@ public final class AutoSession {
             forecastScale = 1.0;
             forecast = AutoEngine.forecast(plan, script, forecastDouble);
             engine.setDoseBudget(forecast.dose);             // D of the total load: the plan's own work
+            engine.setZoneBudget(forecast.zoneDose);         // each zone's target colour = the plan's work on it
         } catch (Throwable t) {
             forecast = null;
             WearableBleDiagLog.log("auto", "forecast: " + t);
@@ -949,6 +950,7 @@ public final class AutoSession {
         if (after == AutoEngine.State.REST && before != AutoEngine.State.REST) {
             if (before == AutoEngine.State.RUN) {
                 AutoBeep.end();                          // one long tone: the exercise is over, rest
+                AutoUi.flashSetEnd();                    // and the card flashes amber
             }
             if (engine.isRestBeforeCooldown()) {
                 notice(AiText.t("Активната част свърши. Следва възстановяване " + plan.recoveryS / 60
@@ -960,6 +962,33 @@ public final class AutoSession {
                         "Set done — rest at least " + engine.getRestMinS() + " s, then ▶ Start."), INFO, now);
             }
         }
+    }
+
+    /**
+     * The current the suits get now, for the corner of the avatar (owner, 1.1.287): frequency · pulse width,
+     * impulse / pause seconds, the second impulse in the pause. The last cycle written (also in the rest: what ran).
+     */
+    /** The last cycle written to the suits (null before the first). */
+    static AutoEngine.Cmd getWritten() {
+        return written;
+    }
+
+    static String paramsText() {
+        AutoEngine.Cmd c = written;
+        if (c == null) {
+            return "";
+        }
+        if (c.frac <= 0) {
+            return AiText.t("без ток", "no current");
+        }
+        StringBuilder b = new StringBuilder();
+        b.append(c.hz).append(" Hz · ").append(c.pwUs).append(" µs\n");
+        b.append(Math.max(1, c.onS)).append(" s / ").append(Math.max(1, c.offS)).append(" s");
+        if (c.pauseHz > 0 && c.pauseSigma > 0 && engine != null && engine.isDoublePulseOn()) {
+            b.append(AiText.t("\n2-ри ", "\n2nd ")).append(c.pauseHz).append(" Hz · ")
+                    .append(Math.round(100 * c.pauseSigma)).append(" %");
+        }
+        return b.toString();
     }
 
     /** −10 % on every row (the "reduce" button; never automatically given back). */
@@ -1065,6 +1094,7 @@ public final class AutoSession {
                 handler.postDelayed(this, TICK_MS);
             }
             if ((stage == Stage.CALIB || stage == Stage.RUNNING) && plan != null) {
+                AutoLook.params(paramsText(), engine != null && engine.getState() == AutoEngine.State.RUN);
                 AutoLook.apply(panelRoot, plan.program.name());
             } else {
                 AutoLook.restore();

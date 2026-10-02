@@ -896,6 +896,9 @@ public final class AutoEngine {
     private void settle(long now) {
         double[][] g = chCmd != null ? rates(chCmd) : null;
         doseDone += doseAdded(now, g);
+        for (int k = 0; k < zoneDone.length; k++) {
+            zoneDone[k] += zoneAdded(now, g, k);
+        }
         stepMeta(now, chCmd);
         for (int k = 0; k < chF.length; k++) {
             chF[k] = fAt(k, now, g);
@@ -969,6 +972,8 @@ public final class AutoEngine {
     private long metaMs = -1;
     private double doseDone;
     private double doseBudget;
+    private double[] zoneDone = new double[AutoModel.CHANNELS];
+    private double[] zoneBudget;
     private double fatPct = Double.NaN;
     private double[] vo2Ref;
 
@@ -1133,6 +1138,52 @@ public final class AutoEngine {
         double inOn = Math.max(0, Math.min(end, on) - pos);
         double inOff = Math.max(0, end - Math.max(pos, on));
         return (g0 * inOn + g1 * inOff) / sa;
+    }
+
+    /** Work added to zone k since chFMs under g: ∫ g_k dt over the impulse and the pause (the body's colour). */
+    private double zoneAdded(long now, double[][] g, int k) {
+        if (chCmd == null || g == null || now <= chFMs) {
+            return 0;
+        }
+        double on = Math.max(0, chCmd.onS);
+        double dur = chCmd.durationMs() / 1000.0;
+        double pos = (chFMs - chCmd.startMs) / 1000.0;
+        double end = Math.min(dur, (now - chCmd.startMs) / 1000.0);
+        double inOn = Math.max(0, Math.min(end, on) - pos);
+        double inOff = Math.max(0, end - Math.max(pos, on));
+        return g[0][k] * inOn + g[1][k] * inOff;
+    }
+
+    /** Work done per zone so far (every phase, the passive ones and the recovery too). */
+    public double[] getZoneDone(long now) {
+        double[] out = zoneDone.clone();
+        if (chCmd != null) {
+            double[][] g = rates(chCmd);
+            for (int k = 0; k < out.length; k++) {
+                out[k] += zoneAdded(now, g, k);
+            }
+        }
+        return out;
+    }
+
+    /** The work the plan holds per zone (the first forecast): the target of each zone's colour. */
+    public void setZoneBudget(double[] budget) {
+        zoneBudget = budget != null ? budget.clone() : null;
+    }
+
+    /**
+     * Each zone's way to its target (owner, 1.1.287): work done / the work the plan holds for it — 1 = the load
+     * this session is meant to give that zone, reached at the end of the plan (the recovery included). Relative to
+     * the session's own context, not an absolute scale; −1 = the plan gives the zone nothing.
+     */
+    public double[] getZoneProgress(long now) {
+        double[] d = getZoneDone(now);
+        double[] out = new double[d.length];
+        for (int k = 0; k < d.length; k++) {
+            double b = zoneBudget != null && k < zoneBudget.length ? zoneBudget[k] : 0;
+            out[k] = b > 1e-6 ? d[k] / b : -1;
+        }
+        return out;
     }
 
     /** The work the whole plan holds (the first forecast); ≤ 0 = unknown, D left out. */
@@ -1314,6 +1365,8 @@ public final class AutoEngine {
         public double maxLoad;
         /** The work the plan holds (Σ reached-mass-weighted fatigue input; the D part of the total load). */
         public double dose;
+        /** The same per zone (the target of each zone's colour on the body). */
+        public double[] zoneDose;
         /** Session s the forecast runs on from (a live forecast, points in the session's own clock); −1 = the plan
          *  from its start (points mapped by impulse time). */
         public double fromS = -1;
@@ -1384,6 +1437,7 @@ public final class AutoEngine {
         f.points.addAll(e.trace);
         f.totalS = e.getSessionS(t);
         f.dose = e.getDoseDone(t);
+        f.zoneDose = e.getZoneDone(t);
         for (int i = 1; i < f.phaseStartS.length; i++) {
             if (f.phaseStartS[i] < 0) {
                 f.phaseStartS[i] = f.totalS;
@@ -1552,6 +1606,7 @@ public final class AutoEngine {
             f.maxLoad = Math.max(f.maxLoad, p[2]);
         }
         f.dose = e.getDoseDone(t);
+        f.zoneDose = e.getZoneDone(t);
         return f;
     }
 

@@ -276,8 +276,18 @@ public final class AutoHints {
         }
         // with an example the exercise is the headline and the phase's hint goes under it; without one the hint leads
         if (sets && ex != null) {
-            exName.setText((nextOne ? AiText.t("Следва: ", "Next: ") : "") + AutoTemplates.name(ex));
-            hint.setText(tips ? h : "");
+            exName.setText((nextOne ? "→  " : "") + AutoTemplates.name(ex));
+            // in the rest: how the coming exercise is done (the library's steps)
+            String[] steps = nextOne ? AutoUi.howSteps(c, ex) : new String[0];
+            if (steps.length > 0) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < steps.length; i++) {
+                    sb.append(i > 0 ? "\n" : "").append(i + 1).append("  ").append(steps[i]);
+                }
+                hint.setText(sb.toString());
+            } else {
+                hint.setText(tips ? h : "");
+            }
         } else if (tips && ex != null) {
             exName.setText(AutoTemplates.name(ex));
             hint.setText(AiText.t("пример · ", "example · ") + h);

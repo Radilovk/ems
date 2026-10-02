@@ -61,6 +61,7 @@ public final class AutoUi {
     private static final int A_DOUBLE_LIVE = 25;
     private static final int A_STOP = 27;
     private static final int A_NEXT_SET = 39;
+    private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
     private static final int A_HEALTH_OPEN = 31;
@@ -107,6 +108,12 @@ public final class AutoUi {
     private static AutoViews.Dots runDots;
     private static View runArt;
     private static ExerciseFigure runNextFig;
+    private static View runStage;
+    private static LinearLayout runHow;
+    /** The steps on screen are for this exercise ("" = none). */
+    private static String howShownFor = "";
+    /** The trainer tapped the exercise: steps stay open for it during the set. */
+    private static String howPinnedFor = "";
     private static android.widget.PopupWindow infoPop;
     /** The next exercise shows this long before the set ends. */
     private static final double NEXT_SOON_S = 10;
@@ -870,6 +877,13 @@ public final class AutoUi {
         stage.addView(runRing, new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         left.addView(stage, new LinearLayout.LayoutParams(XemsUi.dp(c, 244), XemsUi.dp(c, 244)));
+        runStage = stage;
+        howShownFor = "-";                                     // a new screen: draw the steps again
+        stage.setOnClickListener(new Act(A_HOW, 0));          // a tap on the exercise: how it is done
+        android.animation.LayoutTransition lt = new android.animation.LayoutTransition();
+        lt.enableTransitionType(android.animation.LayoutTransition.CHANGING);
+        lt.setDuration(220);
+        left.setLayoutTransition(lt);
         LinearLayout nameRow = XemsUi.horizontal(c);
         nameRow.setGravity(Gravity.CENTER);
         runNextFig = new ExerciseFigure(c);
@@ -882,6 +896,7 @@ public final class AutoUi {
         runPhase.setMaxLines(1);
         runPhase.setEllipsize(android.text.TextUtils.TruncateAt.END);
         nameRow.addView(runPhase);
+        nameRow.setOnClickListener(new Act(A_HOW, 0));
         left.addView(nameRow, XemsUi.matchWrap(c, 4));
         LinearLayout meta = XemsUi.horizontal(c);
         meta.setGravity(Gravity.CENTER);
@@ -890,7 +905,14 @@ public final class AutoUi {
         runTime = XemsUi.text(c, "", 15, XemsUi.MUTED, true);
         meta.addView(runTime);
         left.addView(meta, XemsUi.matchWrap(c, 6));
-        top.addView(infoCorner(c, left, INFO_SET), new LinearLayout.LayoutParams(0, XemsUi.dp(c, 340), 1f));
+        // how the exercise is done: numbered steps from the exercise library (shown in the rest, or on a tap)
+        runHow = XemsUi.vertical(c);
+        runHow.setVisibility(View.GONE);
+        LinearLayout.LayoutParams hlp = XemsUi.matchWrap(c, 10);
+        hlp.leftMargin = XemsUi.dp(c, 6);
+        hlp.rightMargin = XemsUi.dp(c, 6);
+        left.addView(runHow, hlp);
+        top.addView(infoCorner(c, left, INFO_SET), new LinearLayout.LayoutParams(0, XemsUi.dp(c, 352), 1f));
 
         LinearLayout right = XemsUi.card(c);
         LinearLayout figs = XemsUi.horizontal(c);
@@ -906,7 +928,7 @@ public final class AutoUi {
         slp.leftMargin = XemsUi.dp(c, 8);
         figs.addView(side, slp);
         right.addView(figs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 340), 1.35f);
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 352), 1.35f);
         rlp.leftMargin = XemsUi.dp(c, 12);
         top.addView(infoCorner(c, right, INFO_BODY), rlp);
         body.addView(top, XemsUi.matchWrap(c, 2));
@@ -1001,12 +1023,14 @@ public final class AutoUi {
                         + "След серията импулсите спират сами. Почивката е колкото мускулите искат, за да възстановят "
                         + "енергията си (по натоварването и кондицията), и пулсът да спадне. Тогава ▶ светва.\n"
                         + "Всеки старт брои 3 s: три къси сигнала и дълъг с първия импулс.\n"
-                        + "Последните 10 s: → следващото упражнение. ⏭ приключва серията или сменя следващото.",
+                        + "Последните 10 s: → следващото упражнение. ⏭ приключва серията или сменя следващото.\n"
+                        + "В почивката: стъпките на следващото. Допир на упражнението ги показва и в серията.",
                         "The ring is the set: 30–40 s, the dots are the impulses.\n"
                         + "After the set the impulses stop by themselves. The rest lasts as long as the muscles need to "
                         + "refill (by the load and fitness) and the HR to come down; then ▶ lights up.\n"
                         + "Every start counts 3 s: three short beeps and a long one with the first impulse.\n"
-                        + "Last 10 s: → the next exercise. ⏭ ends the set or changes the next one.");
+                        + "Last 10 s: → the next exercise. ⏭ ends the set or changes the next one.\n"
+                        + "In the rest: the steps of the next one. A tap on the exercise shows them in the set too.");
             case INFO_BODY:
                 return AiText.t("Цветът на зона е натрупаното ѝ натоварване: синьо — леко, червено — границата на тежка серия.\n"
                         + "Сметка: сила × честота × % на зоната + работата на упражнението; спада с почивката.\n"
@@ -1061,6 +1085,70 @@ public final class AutoUi {
             infoPop.showAsDropDown(anchor, which == INFO_BODY ? 0 : -XemsUi.dp(c, 356), XemsUi.dp(c, 6));
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoUi.info", t);
+        }
+    }
+
+    /** The steps of the exercise's "how" (library text, split into sentences), numbered; null hides them. */
+    private static void showHow(String id) {
+        String key = id != null ? id : "";
+        if (key.equals(howShownFor)) {
+            return;
+        }
+        howShownFor = key;
+        Context c = runHow.getContext();
+        runHow.removeAllViews();
+        String[] steps = id != null ? howSteps(c, id) : new String[0];
+        boolean on = steps.length > 0;
+        runHow.setVisibility(on ? View.VISIBLE : View.GONE);
+        runPhase.setMaxLines(on ? 2 : 1);                      // the smaller ring leaves room for a long name
+        // the ring makes room for the steps, smoothly (LayoutTransition on the card)
+        ViewGroup.LayoutParams lp = runStage.getLayoutParams();
+        lp.width = XemsUi.dp(c, on ? 150 : 244);
+        lp.height = lp.width;
+        runStage.setLayoutParams(lp);
+        for (int i = 0; i < steps.length; i++) {
+            LinearLayout row = XemsUi.horizontal(c);
+            row.setGravity(Gravity.TOP);
+            TextView n = XemsUi.text(c, String.valueOf(i + 1), 12, XemsUi.GO_TEXT, true);
+            n.setGravity(Gravity.CENTER);
+            n.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x26), XemsUi.dp(c, 10), 0, 0));
+            LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 20), XemsUi.dp(c, 20));
+            nlp.rightMargin = XemsUi.dp(c, 10);
+            nlp.topMargin = XemsUi.dp(c, 1);
+            row.addView(n, nlp);
+            TextView t = XemsUi.text(c, steps[i], 14, XemsUi.TEXT, false);
+            t.setMaxLines(2);
+            t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            runHow.addView(row, XemsUi.matchWrap(c, i == 0 ? 0 : 6));
+        }
+    }
+
+    /** The library's "how" of an exercise as at most 4 steps (one sentence each). */
+    static String[] howSteps(Context c, String id) {
+        try {
+            ExerciseLibrary.Entry e = ExerciseLibrary.get(c, id);
+            String how = e != null ? e.howText() : null;
+            if (how == null || how.trim().length() == 0) {
+                return new String[0];
+            }
+            String[] parts = how.trim().split("(?<=[.!?])\\s+");
+            java.util.List<String> out = new java.util.ArrayList<String>();
+            for (String p : parts) {
+                String q = p.trim();
+                if (q.endsWith(".")) {
+                    q = q.substring(0, q.length() - 1);
+                }
+                if (q.length() > 0) {
+                    out.add(q);
+                }
+            }
+            while (out.size() > 4) {                            // keep 4: the last ones join
+                out.set(2, out.get(2) + ". " + out.remove(3));
+            }
+            return out.toArray(new String[0]);
+        } catch (Throwable t) {
+            return new String[0];
         }
     }
 
@@ -1184,6 +1272,9 @@ public final class AutoUi {
             line = AiText.mmss(e.phaseRemainingS());
         }
         runRing.set(prog, mode, cd);
+        // how it is done: in the rest / countdown for the coming exercise, in a set only when tapped
+        boolean howOn = fig && (rest || cd > 0 || ex.equals(howPinnedFor));
+        showHow(howOn ? ex : null);
         runDots.set(dots[0], dots[1]);
         runDots.setVisibility(dots[1] > 0 ? View.VISIBLE : View.GONE);
         runTime.setText((dots[1] > 0 ? "   " : "") + line);
@@ -1421,6 +1512,13 @@ public final class AutoUi {
                 if (e != null) {
                     AutoSession.setDoublePulse(!e.isDoublePulseOn());
                 }
+                refreshRun();
+                return;
+            }
+            case A_HOW: {
+                AutoEngine e = AutoSession.getEngine();
+                String id = e != null ? e.getExercise() : null;
+                howPinnedFor = id != null && !id.equals(howPinnedFor) ? id : "";
                 refreshRun();
                 return;
             }

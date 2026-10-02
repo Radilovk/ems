@@ -97,6 +97,11 @@ public final class AutoSession {
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable ticker = new Ticker();
+    private static final Runnable goNow = new GoNow();
+    /** The leader row's last impulse hook: the countdown ends with the device's next impulse when it can. */
+    private static long lastHookMs;
+    /** Countdowns already announced (beeps scheduled) — by their go time. */
+    private static long beepsForGoMs;
 
     private AutoSession() {}
 
@@ -112,9 +117,17 @@ public final class AutoSession {
             if (item == null || item != leader() || stage != Stage.RUNNING || engine == null) {
                 return;
             }
-            AutoEngine.Cmd c = engine.onCycle(System.currentTimeMillis());
-            if (c != null && c != written) {
+            long now = System.currentTimeMillis();
+            lastHookMs = now;
+            AutoEngine.State before = engine.getState();
+            AutoEngine.Cmd c = engine.onCycle(now);
+            if (before == AutoEngine.State.COUNTDOWN && engine.getState() == AutoEngine.State.RUN) {
+                onGo(now);
+            } else if (c != null && c != written) {
                 applyCycle(c);
+            } else if (before == AutoEngine.State.RUN && engine.getState() != AutoEngine.State.RUN) {
+                zeroOutput();                    // the set ended on this impulse: nothing more goes out
+                onStateChange(before, now);
             }
         } catch (Throwable t) {
             WearableBleDiagLog.log("auto", "onPulseCycle: " + t);
@@ -458,12 +471,12 @@ public final class AutoSession {
         }
         int hrRest = restHrEstimate();
         plan = AutoPlanner.build(input, hrRest);
-        if (cap != Integer.MAX_VALUE && plan.totalS > cap) {
+        if (cap != Integer.MAX_VALUE && plan.activeS > cap) {
             input.totalSeconds = cap;
             plan = AutoPlanner.build(input, hrRest);
         }
         for (Row r : rows) {
-            r.input.totalSeconds = plan.totalS;
+            r.input.totalSeconds = plan.activeS;
             r.plan = r == rows.get(0) ? plan : AutoPlanner.build(r.input, -1);
         }
     }
@@ -582,7 +595,6 @@ public final class AutoSession {
         }
         engine = new AutoEngine(plan);
         long now = System.currentTimeMillis();
-        engine.start(now);
         script = null;
         ExerciseFigure.preload(c);
         try {
@@ -594,6 +606,7 @@ public final class AutoSession {
         } catch (Throwable t) {
             WearableBleDiagLog.log("auto", "template: " + t);
         }
+        engine.setStations(stationPhases(plan, script));
         seenCorridorExt = 0;
         seenDoseExt = 0;
         seenRaiseLocked = false;
@@ -601,19 +614,66 @@ public final class AutoSession {
         hrNearMs = 0;
         lastNotice = "";
         lastNoticeKind = INFO;
-        setWorkLengthAll(plan.totalS + 1800);
+        beepsForGoMs = 0;
+        // impulse time ≤ plan.totalS; the rests between exercises come on top of it
+        setWorkLengthAll(plan.totalS + 3600);
         stage = Stage.RUNNING;
-        applyCycle(engine.getCurrent());
+        zeroOutput();                            // calibration impulses off: the start counts down first
         ensureDeviceRunning();
+        engine.startAt(now, goTime(now));
+        onCountdown(now);
         WearableBleDiagLog.log("auto", "run " + plan.program.id + " goal=" + input.goal + " T=" + plan.totalS
                 + " rows=" + rows.size() + " cap=" + plan.hrCap);
         startTicker();
     }
 
+    /** Phases run as exercise sets (30–40 s, rest after each): the active program's phases with exercises. */
+    static boolean[] stationPhases(AutoModel.Plan p, AutoTemplates.Script sc) {
+        boolean[] out = new boolean[p.phases.size()];
+        if (sc == null || !p.program.isActive()) {
+            return out;
+        }
+        for (int i = 0; i < out.length; i++) {
+            out[i] = !p.phases.get(i).isCooldown() && !p.phases.get(i).wave && i < sc.phase.length
+                    && sc.phase[i] != null && sc.phase[i].length > 0;
+        }
+        return out;
+    }
+
+    /**
+     * ■ STOP (owner, 1.1.270): the session never ends on one stop. In the active part it goes to the passive
+     * recovery (10 min, waits for ▶); in the recovery — or before the session started — it ends.
+     */
     public static void stop() {
+        if (stage == Stage.CALIB) {
+            end();
+            return;
+        }
+        if (stage != Stage.RUNNING || engine == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoBeep.cancel();
+        handler.removeCallbacks(goNow);
+        if (engine.stopPress(now)) {
+            end();
+            return;
+        }
+        zeroOutput();
+        notice(AiText.t("Активната част е спряна → възстановяване " + plan.recoveryS / 60
+                        + " мин. „▶ Старт“ го пуска; второ СТОП приключва тренировката.",
+                "Active part stopped → recovery " + plan.recoveryS / 60 + " min. ▶ Start runs it; a second STOP ends the session."),
+                SAFETY, now);
+        AutoUi.show();
+    }
+
+    /** Ends at once (closing Auto, the second stop): impulses off, the device stops, the report opens. */
+    static void end() {
         if (engine != null) {
             engine.stop(System.currentTimeMillis());
         }
+        AutoBeep.cancel();
+        handler.removeCallbacks(goNow);
         zeroOutput();
         stopDevice();
         if (stage == Stage.RUNNING) {
@@ -625,7 +685,7 @@ public final class AutoSession {
 
     public static void close() {
         if (stage == Stage.RUNNING || stage == Stage.CALIB) {
-            stop();
+            end();
         }
         stopTicker();
         AutoHints.hide();
@@ -639,19 +699,143 @@ public final class AutoSession {
         releaseBand();
     }
 
+    /** Pause during the work, ▶ in a pause or after an exercise, cancel during the countdown. */
     public static void togglePause() {
         if (engine == null) {
             return;
         }
         long now = System.currentTimeMillis();
-        if (engine.canResume()) {
-            engine.resume(now);
-            zeroed = false;
-            applyCycle(engine.getCurrent());
-            ensureDeviceRunning();
-        } else if (engine.getState() == AutoEngine.State.RUN) {
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.COUNTDOWN) {
+            engine.cancelCountdown(now);
+            AutoBeep.cancel();
+            handler.removeCallbacks(goNow);
+            beepsForGoMs = 0;
+        } else if (st == AutoEngine.State.REST || engine.canResume()) {
+            startNext();
+        } else if (st == AutoEngine.State.RUN) {
             engine.userPause(now);
             zeroOutput();
+        }
+    }
+
+    /** True when ▶ may be pressed now (the next set, a pause, a confirmed HR resume). */
+    public static boolean startReady() {
+        if (engine == null) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        if (engine.getState() == AutoEngine.State.REST) {
+            return engine.getRestLeftS(now) == 0 && !engine.isRestHrHigh(now);
+        }
+        return engine.canResume();
+    }
+
+    /**
+     * ▶ Start: the countdown begins (3 short beeps, the impulse with the long one). Too early after an exercise →
+     * nothing starts and the notice says why (the physiological rest, or the HR). Returns true when started.
+     */
+    public static boolean startNext() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        if (engine.getState() == AutoEngine.State.REST && !startReady()) {
+            notice(waitReason(now), LIMIT, now);
+            return false;
+        }
+        ensureDeviceRunning();
+        if (!engine.requestGo(now, goTime(now))) {
+            return false;
+        }
+        onCountdown(now);
+        return true;
+    }
+
+    /** Why the next set cannot start yet (shown when ▶ is pressed too early). */
+    static String waitReason(long now) {
+        int left = engine.getRestLeftS(now);
+        if (left > 0) {
+            return AiText.t("Още " + left + " s почивка. След тази серия мускулите трябва ~" + engine.getRestMinS()
+                            + " s, за да възстановят енергията си (фосфокреатин) — иначе следващата серия тръгва уморена,"
+                            + " силата пада и натоварването става опасно.",
+                    left + " s more rest. After this set the muscles need ~" + engine.getRestMinS()
+                            + " s to refill their energy (phosphocreatine) — otherwise the next set starts tired.");
+        }
+        if (engine.isRestHrHigh(now)) {
+            return AiText.t("Пулсът е " + engine.getHr(now) + " — следващата серия тръгва при " + engine.getRestHrLimit()
+                            + " или по-малко. Почини още малко.",
+                    "HR is " + engine.getHr(now) + " — the next set starts at " + engine.getRestHrLimit() + " or less.");
+        }
+        return "";
+    }
+
+    /** Countdown end: 3 s from now, or the device's next impulse when it comes within 4 s more. */
+    private static long goTime(long now) {
+        long go = now + AutoEngine.COUNTDOWN_MS;
+        AutoEngine.Cmd w = written;
+        if (w != null && lastHookMs > 0 && now - lastHookMs < 30000L) {
+            long period = (Math.max(1, w.onS) + Math.max(1, w.offS)) * 1000L;
+            long next = lastHookMs;
+            while (next < go) {
+                next += period;
+            }
+            if (next - go <= 4000L) {
+                go = next;
+            }
+        }
+        return go;
+    }
+
+    /** A countdown started (by ▶, the start, the HR resume): the short beeps and the exact go time. */
+    private static void onCountdown(long now) {
+        long go = engine.getGoMs();
+        if (go == beepsForGoMs) {
+            return;
+        }
+        beepsForGoMs = go;
+        AutoBeep.countdown(go);
+        handler.removeCallbacks(goNow);
+        handler.postDelayed(goNow, Math.max(0, go - now));
+        AutoHints.refresh();
+    }
+
+    /** The impulses start: the long beep and the first cycle. */
+    private static void onGo(long now) {
+        AutoBeep.go();
+        beepsForGoMs = 0;
+        handler.removeCallbacks(goNow);
+        AutoEngine.Cmd c = engine.getCurrent();
+        if (c != null) {
+            applyCycle(c);
+        }
+        ensureDeviceRunning();
+    }
+
+    static final class GoNow implements Runnable {
+        @Override
+        public void run() {
+            try {
+                tick();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("auto", "go: " + t);
+            }
+        }
+    }
+
+    /** After an exercise / at the end of the active part: say what comes and when ▶ is allowed. */
+    private static void onStateChange(AutoEngine.State before, long now) {
+        AutoEngine.State after = engine.getState();
+        if (after == AutoEngine.State.REST && before != AutoEngine.State.REST) {
+            if (engine.isRestBeforeCooldown()) {
+                notice(AiText.t("Активната част свърши. Следва възстановяване " + plan.recoveryS / 60
+                                + " мин — легни / седни удобно и натисни „▶ Старт“.",
+                        "The active part is done. Recovery " + plan.recoveryS / 60 + " min next — get comfortable and press ▶ Start."),
+                        INFO, now);
+            } else {
+                notice(AiText.t("Серията свърши — почивка поне " + engine.getRestMinS() + " s, после „▶ Старт“.",
+                        "Set done — rest at least " + engine.getRestMinS() + " s, then ▶ Start."), INFO, now);
+            }
         }
     }
 
@@ -708,14 +892,6 @@ public final class AutoSession {
         }
     }
 
-    public static void skipToCooldown() {
-        if (engine != null) {
-            engine.skipToCooldown(System.currentTimeMillis());
-            if (engine.getState() == AutoEngine.State.RUN) {
-                applyCycle(engine.getCurrent());
-            }
-        }
-    }
 
     private static void finishToReport() {
         stage = Stage.REPORT;
@@ -808,6 +984,14 @@ public final class AutoSession {
         engine.tick(now);
         AutoEngine.State after = engine.getState();
         engineEvents(now);
+        if (before == AutoEngine.State.COUNTDOWN && after == AutoEngine.State.RUN) {
+            onGo(now);
+        } else if (after == AutoEngine.State.COUNTDOWN) {
+            onCountdown(now);                    // e.g. the HR came down: the engine counts down by itself
+        }
+        if (before != after) {
+            onStateChange(before, now);
+        }
         if (after == AutoEngine.State.RUN) {
             AutoEngine.Cmd c = engine.getCurrent();
             if (c != null && c != lastApplied) {
@@ -820,6 +1004,7 @@ public final class AutoSession {
             zeroOutput();
             stopDevice();
             finishToReport();
+            AutoBeep.cancel();
             WearableBleDiagLog.log("auto", "end " + after);
         }
         if (before != after) {
@@ -827,7 +1012,7 @@ public final class AutoSession {
             if (after == AutoEngine.State.HR_PAUSE) {
                 notice(AiText.t("Пулсът стигна тавана (" + plan.hrCap + ") — импулсите спират, докато спадне",
                         "HR at the ceiling (" + plan.hrCap + ") — pulses stop until it drops"), SAFETY, now);
-            } else if (before == AutoEngine.State.HR_PAUSE && after == AutoEngine.State.RUN) {
+            } else if (before == AutoEngine.State.HR_PAUSE && after == AutoEngine.State.COUNTDOWN) {
                 notice(AiText.t("Пулсът спадна — продължаваме по-меко (" + Math.round(engine.getCurrent() != null
                         ? 100 * engine.getReentry() : 80) + " %, +10 % на импулс)",
                         "HR is down — resuming softer (+10 % per pulse)"), LIMIT, now);

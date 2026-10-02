@@ -101,6 +101,8 @@ reach very high values in the unaccustomed [E:R3]. Guidelines: ≥ 4 days betwee
 | EMS load S / metabolic M, modes, goal zones | `branding/report/session-report.html` (`kF`, `kf`, `GOALS`) |
 | energy | `ai/AiEnergy`, report `kcal` |
 | rest between sessions | `wearable/NextPlan` |
+| rest after an Auto set: τ·ln(F / F_rec), 15 s floor tetanic | `ai/AutoEngine.enterRest` (docs/xems-auto-mode-spec.md §11) |
+| pulse module lever order (k(f) above / below fusion, pressor reflex) | `wearable/HrGuardCore.ladder` (docs/xems-pulse-control.md) |
 | resting HR | `ai/AiRestHr`, `AiUi.screenRest` |
 | tests | `scripts/ai-sim/run.sh` (REST_HR, PAUSE, scenarios), `run-auto.sh` |
 

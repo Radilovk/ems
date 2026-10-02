@@ -59,7 +59,6 @@ public final class AutoUi {
     private static final int A_REDUCE = 23;
     private static final int A_RAISE = 24;
     private static final int A_DOUBLE_LIVE = 25;
-    private static final int A_FINISH_EARLY = 26;
     private static final int A_STOP = 27;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -93,7 +92,7 @@ public final class AutoUi {
     private static TextView runNotice;
     private static TextView runPause;
     private static TextView runDouble;
-    private static TextView runFinish;
+    private static TextView runStop;
     private static View runBar;
     private static TextView calibRowsInfo;
     private static TextView primary;
@@ -424,7 +423,8 @@ public final class AutoUi {
             if (p == rec) {
                 head.addView(XemsUi.badge(c, AiText.t("Препоръчана", "Recommended"), XemsUi.GO_TEXT));
             }
-            head.addView(XemsUi.text(c, "  " + AutoPlanner.maxSeconds(p, in.goal, in) / 60 + AiText.t(" мин", " min"),
+            head.addView(XemsUi.text(c, "  " + AutoPlanner.maxSeconds(p, in.goal, in) / 60 + " + "
+                    + AutoPlanner.RECOVERY_S / 60 + AiText.t(" мин", " min"),
                     14, XemsUi.MUTED, false));
             card.addView(head);
             TextView d = XemsUi.text(c, p.desc(), 13, XemsUi.MUTED, false);
@@ -575,7 +575,9 @@ public final class AutoUi {
             return;
         }
         LinearLayout tiles = XemsUi.horizontal(c);
-        tile(c, tiles, AiText.t("Време", "Time"), (plan.totalS / 60) + AiText.t(" мин", " min"), 0);
+        // the active part (≤ 20 min of impulses) + the passive recovery (10 min)
+        tile(c, tiles, AiText.t("Време", "Time"), (plan.activeS / 60) + (plan.recoveryS > 0 ? " + " + plan.recoveryS / 60 : "")
+                + AiText.t(" мин", " min"), 0);
         tile(c, tiles, AiText.t("Усещане", "Feeling"), plan.cr10Lo + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "")
                 + AiText.t(" от 10", " of 10"), 10);
         boolean band = AutoSession.isBandConfigured(host);
@@ -587,7 +589,8 @@ public final class AutoUi {
         LinearLayout opt = XemsUi.card(c);
         LinearLayout r1 = XemsUi.horizontal(c);
         r1.setGravity(Gravity.CENTER_VERTICAL);
-        r1.addView(XemsUi.stepper(c, "" + (plan.totalS / 60), AiText.t("мин", "min"), 20, new Act(A_MINUTES, 0)).view);
+        r1.addView(XemsUi.stepper(c, "" + (plan.activeS / 60), AiText.t("мин активни", "min active"), 20,
+                new Act(A_MINUTES, 0)).view);
         String[] levels = AutoPlanner.intenseAllowed(plan.program, in)
                 ? new String[] {AiText.t("Мек", "Soft"), AiText.t("Стандартен", "Standard"), AiText.t("Интензивен", "Intense")}
                 : new String[] {AiText.t("Мек", "Soft"), AiText.t("Стандартен", "Standard")};
@@ -862,20 +865,16 @@ public final class AutoUi {
         runDouble = XemsUi.button(c, "", XemsUi.SECONDARY);
         runDouble.setOnClickListener(new Act(A_DOUBLE_LIVE, 0));
         body.addView(runDouble, XemsUi.matchWrap(c, 8));
-        // Finish early: the program goes straight into its recovery (cool-down) part.
-        runFinish = XemsUi.button(c, AiText.t("Приключи по-рано · към възстановяване", "Finish early · to recovery"),
-                XemsUi.SECONDARY);
-        runFinish.setOnClickListener(new Act(A_FINISH_EARLY, 0));
-        body.addView(runFinish, XemsUi.matchWrap(c, 8));
         body.addView(tipsToggle(c), XemsUi.matchWrap(c, 12));
 
         TextView hide = XemsUi.button(c, AiText.t("Скрий", "Hide"), XemsUi.GHOST);
         hide.setOnClickListener(new Act(A_HIDE, 0));
         shell.footer.addView(hide);
         shell.footer.addView(XemsUi.spacer(c));
-        TextView stop = XemsUi.button(c, AiText.t("■ СТОП", "■ STOP"), XemsUi.ACCENT_BTN);
-        stop.setOnClickListener(new Act(A_STOP, 0));
-        shell.footer.addView(stop, new LinearLayout.LayoutParams(XemsUi.dp(c, 260), ViewGroup.LayoutParams.WRAP_CONTENT));
+        // STOP never ends at once (owner): active part → recovery; in the recovery → end. The label says which.
+        runStop = XemsUi.button(c, AiText.t("■ СТОП", "■ STOP"), XemsUi.ACCENT_BTN);
+        runStop.setOnClickListener(new Act(A_STOP, 0));
+        shell.footer.addView(runStop, new LinearLayout.LayoutParams(XemsUi.dp(c, 320), ViewGroup.LayoutParams.WRAP_CONTENT));
         refreshRun();
     }
 
@@ -891,6 +890,10 @@ public final class AutoUi {
         String state = "";
         if (st == AutoEngine.State.USER_PAUSE) {
             state = AiText.t(" · пауза", " · paused");
+        } else if (st == AutoEngine.State.REST) {
+            state = AiText.t(" · почивка ", " · rest ") + AiText.mmss(e.getRestS(now));
+        } else if (st == AutoEngine.State.COUNTDOWN) {
+            state = AiText.t(" · старт след ", " · start in ") + e.getCountdownLeftS(now);
         } else if (st == AutoEngine.State.HR_PAUSE) {
             state = e.isResumeWaiting() ? AiText.t(" · пулсът спадна", " · HR down")
                     : AiText.t(" · пауза: пулс", " · paused: HR");
@@ -930,14 +933,37 @@ public final class AutoUi {
         String n = AutoSession.getLastNotice();
         runNotice.setText(n != null ? n : "");
         runNotice.setVisibility(n != null && n.length() > 0 ? View.VISIBLE : View.GONE);
-        runPause.setText(e.canResume() ? AiText.t("▶ Продължи", "▶ Resume")
-                : st == AutoEngine.State.HR_PAUSE ? AiText.t("… пулсът спада", "… HR coming down")
-                : AiText.t("❚❚ Пауза", "❚❚ Pause"));
+        runPause.setText(startLabel(e, now));
         boolean dp = e.isDoublePulseAvailable();
         runDouble.setVisibility(dp ? View.VISIBLE : View.GONE);
         runDouble.setText(AiText.t("Двоен импулс: ", "Double impulse: ") + (e.isDoublePulseOn()
                 ? AiText.t("вкл.", "on") : AiText.t("изкл.", "off")));
-        runFinish.setVisibility(recovery ? View.GONE : View.VISIBLE);
+        boolean toEnd = recovery || e.isRestBeforeCooldown();
+        runStop.setText(toEnd ? AiText.t("■ СТОП · край", "■ STOP · end")
+                : AiText.t("■ СТОП · към възстановяване", "■ STOP · to recovery"));
+    }
+
+    /** The ▶ / ❚❚ key: what pressing it does now (after an exercise: how long the rest still is). */
+    static String startLabel(AutoEngine e, long now) {
+        AutoEngine.State st = e.getState();
+        if (st == AutoEngine.State.REST) {
+            String what = e.isRestBeforeCooldown() ? AiText.t("възстановяване", "recovery")
+                    : AiText.t("следваща серия", "next set");
+            int left = e.getRestLeftS(now);
+            if (left > 0) {
+                return AiText.t("▶ Старт след ", "▶ Start in ") + AiText.mmss(left);
+            }
+            return e.isRestHrHigh(now) ? AiText.t("▶ Старт · чака пулса ≤ ", "▶ Start · waits for HR ≤ ") + e.getRestHrLimit()
+                    : AiText.t("▶ Старт · ", "▶ Start · ") + what;
+        }
+        if (st == AutoEngine.State.COUNTDOWN) {
+            return e.getCountdownLeftS(now) + AiText.t(" …  (отказ)", " …  (cancel)");
+        }
+        if (e.canResume()) {
+            return AiText.t("▶ Продължи", "▶ Resume");
+        }
+        return st == AutoEngine.State.HR_PAUSE ? AiText.t("… пулсът спада", "… HR coming down")
+                : AiText.t("❚❚ Пауза", "❚❚ Pause");
     }
 
     // ================================================================ actions
@@ -1031,7 +1057,7 @@ public final class AutoUi {
             case A_WEEKS: in.extra.weeksSinceBirth = Math.max(0, Math.min(104, in.extra.weeksSinceBirth + value)); break;
             case A_MINUTES: {
                 AutoModel.Plan plan = AutoSession.getPlan();
-                int cur = plan != null ? plan.totalS : 1200;
+                int cur = plan != null ? plan.activeS : AutoPlanner.ACTIVE_MAX_S;
                 in.totalSeconds = AutoPlanner.clampSeconds(AutoCatalog.get(in.programId), in.goal, in, cur + 60 * value);
                 AutoSession.buildPlan();
                 break;
@@ -1078,12 +1104,6 @@ public final class AutoUi {
                 refreshRun();
                 return;
             }
-            case A_FINISH_EARLY:
-                AutoSession.tip("btn_cool", AiText.t("Приключи по-рано: работната част се прескача, възстановяването (охлаждането) не. Назад не се връща.",
-                        "Finish early: the work part is skipped, the recovery (cool-down) is not. There is no way back."), now);
-                AutoSession.skipToCooldown();
-                refreshRun();
-                return;
             case A_STOP:
                 AutoSession.stop();             // → report stage → onFinished
                 return;

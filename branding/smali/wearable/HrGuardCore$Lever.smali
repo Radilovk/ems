@@ -28,6 +28,12 @@
 
 .field public static final enum FREQ:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
+.field public static final enum OFF:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+.field public static final enum ON:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+.field public static final enum PAUSE:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
 .field public static final enum STRENGTH:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
 .field public static final enum WIDTH:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
@@ -38,8 +44,8 @@
     .registers 3
 
     .prologue
-    .line 57
-    const/4 v0, 0x3
+    .line 76
+    const/4 v0, 0x6
 
     new-array v0, v0, [Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
@@ -61,6 +67,24 @@
 
     aput-object v2, v0, v1
 
+    const/4 v1, 0x3
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->PAUSE:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x4
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->OFF:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x5
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->ON:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    aput-object v2, v0, v1
+
     return-object v0
 .end method
 
@@ -68,7 +92,7 @@
     .registers 3
 
     .prologue
-    .line 57
+    .line 76
     new-instance v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
     const-string v1, "STRENGTH"
@@ -99,6 +123,36 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->FREQ:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
+    new-instance v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    const-string v1, "PAUSE"
+
+    const/4 v2, 0x3
+
+    invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;-><init>(Ljava/lang/String;I)V
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->PAUSE:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    new-instance v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    const-string v1, "OFF"
+
+    const/4 v2, 0x4
+
+    invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;-><init>(Ljava/lang/String;I)V
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->OFF:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    new-instance v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
+    const-string v1, "ON"
+
+    const/4 v2, 0x5
+
+    invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;-><init>(Ljava/lang/String;I)V
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->ON:Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
+
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->$values()[Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
     move-result-object v0
@@ -117,7 +171,7 @@
     .end annotation
 
     .prologue
-    .line 57
+    .line 76
     invoke-direct {p0, p1, p2}, Ljava/lang/Enum;-><init>(Ljava/lang/String;I)V
 
     return-void
@@ -127,7 +181,7 @@
     .registers 2
 
     .prologue
-    .line 57
+    .line 76
     const-class v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
     invoke-static {v0, p0}, Ljava/lang/Enum;->valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
@@ -143,7 +197,7 @@
     .registers 1
 
     .prologue
-    .line 57
+    .line 76
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->$VALUES:[Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
 
     invoke-virtual {v0}, [Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;->clone()Ljava/lang/Object;

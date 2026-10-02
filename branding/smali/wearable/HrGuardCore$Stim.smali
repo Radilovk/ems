@@ -17,6 +17,14 @@
 # instance fields
 .field public activePause:Z
 
+.field public baseHz:I
+
+.field public baseOffS:I
+
+.field public baseOnS:I
+
+.field public basePause:Z
+
 .field public channels:[I
 
 .field public disabled:[Z
@@ -43,7 +51,7 @@
     .registers 1
 
     .prologue
-    .line 60
+    .line 93
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void

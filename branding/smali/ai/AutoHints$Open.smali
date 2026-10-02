@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 263
+    .line 318
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,21 +34,21 @@
     .registers 3
 
     .prologue
-    .line 266
+    .line 321
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoHints;->hide()V
 
-    .line 267
+    .line 322
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 268
+    .line 323
     if-eqz v0, :cond_c
 
-    .line 269
+    .line 324
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoUi;->open(Landroid/app/Activity;)V
 
-    .line 271
+    .line 326
     :cond_c
     return-void
 .end method

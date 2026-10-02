@@ -320,7 +320,7 @@ public final class AutoCatalog {
 
     // ================================================================ phases
 
-    /** Program length before the client's limits (spec §6). */
+    /** Length of the active part before the client's limits (spec §6); AutoPlanner caps it at 20 min. */
     public static int baseSeconds(Program p, Goal goal, Input in) {
         boolean slim = goal == Goal.SLIM;
         switch (p.id) {
@@ -527,6 +527,7 @@ public final class AutoCatalog {
                 m.steps.add(tet(80, 300, 4, 8));
                 Phase e = phase(out, "RELIEF", "Обезболяване", "Relief", 0.25, total, 0.7, 0.7);
                 e.steps.add(twitch(2, 200, 10, 1, 1.0));
+                cooldown(out, total, 0.10, 2);
                 break;
             }
             case POSTPARTUM: {
@@ -591,15 +592,30 @@ public final class AutoCatalog {
         return c;
     }
 
-    /** Rounding: the phases add up to exactly the total. */
-    private static void fixDurations(List<Phase> out, int total) {
+    /**
+     * The active phases share exactly {@code active} seconds (their shares rescaled); the cool-down is the
+     * passive recovery: a fixed {@link AutoPlanner#RECOVERY_S} on top (owner, 1.1.270).
+     */
+    private static void fixDurations(List<Phase> out, int active) {
+        int shares = 0;
+        Phase lastActive = null;
+        for (Phase p : out) {
+            if (!p.isCooldown()) {
+                shares += p.durationS;
+                lastActive = p;
+            }
+        }
         int sum = 0;
         for (Phase p : out) {
-            sum += p.durationS;
+            if (p.isCooldown()) {
+                p.durationS = AutoPlanner.RECOVERY_S;
+            } else {
+                p.durationS = shares > 0 ? (int) Math.round(p.durationS * (double) active / shares) : 0;
+                sum += p.durationS;
+            }
         }
-        if (!out.isEmpty()) {
-            Phase last = out.get(out.size() - 1);
-            last.durationS = Math.max(30, last.durationS + total - sum);
+        if (lastActive != null) {
+            lastActive.durationS = Math.max(30, lastActive.durationS + active - sum);
         }
     }
 

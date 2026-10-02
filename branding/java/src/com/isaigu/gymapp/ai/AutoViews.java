@@ -538,11 +538,15 @@ public final class AutoViews {
 
     /**
      * The whole session on one line: height = the stimulus the program gives (cycle load), colour = the peak zone
-     * load at that time, valleys = the rests. The past is what happened (bright), the future is the forecast moved
-     * to now (faded); phase separators with their names above; the "now" line.
+     * load at that time. Smoothed over time (σ ≈ 40 s), so the usual short rests between sets melt into one
+     * profile; a critical pause — a rest of {@link AutoEngine#CRITICAL_PAUSE_S} s or more, or an HR stop — is kept
+     * out of the smoothing and goes down to the base, as wide as it lasts, with soft walls. The past is what
+     * happened (bright), the future the forecast moved to now (faded); phase separators, the HR line, "now".
      */
     public static final class Timeline extends View {
-        private static final int N = 240;
+        private static final int N = 360;
+        /** Time constant of the smoothing (seconds). */
+        private static final double SMOOTH_S = 40.0;
         private final Paint area = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint sep = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint now = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -583,6 +587,13 @@ public final class AutoViews {
             hrCapY = (cap - hrLo) / (hrHi - hrLo);
         }
 
+        /** True for a pause that stays deep on the timeline: an HR stop, or a rest of ≥ CRITICAL_PAUSE_S. */
+        static boolean critical(float[] p, double durationS) {
+            float kind = p.length > 6 ? p[6] : (p[2] <= 0 ? AutoEngine.TRACE_REST : AutoEngine.TRACE_CYCLE);
+            return kind == AutoEngine.TRACE_HR_PAUSE
+                    || (kind == AutoEngine.TRACE_REST && durationS >= AutoEngine.CRITICAL_PAUSE_S);
+        }
+
         /**
          * past: the engine's trace; f: the forecast; elapsedImpulse: impulse seconds done; sessionNow: the clock;
          * phaseNames: the plan's phases.
@@ -601,39 +612,69 @@ public final class AutoViews {
             max = Math.max(0.05, max);
             float[] raw = new float[N];
             float[] col = new float[N];
+            boolean[] crit = new boolean[N];
             int pi = 0;
             int fi = 0;
             for (int i = 0; i < N; i++) {
                 double t = (i + 0.5) * totalS / N;
                 float[] p = null;
+                double dur = 0;
                 if (t <= sessionNow) {
                     while (pi + 1 < past.size() && past.get(pi + 1)[0] <= t) {
                         pi++;
                     }
-                    p = past.isEmpty() ? null : past.get(pi);
+                    if (!past.isEmpty()) {
+                        p = past.get(pi);
+                        dur = (pi + 1 < past.size() ? past.get(pi + 1)[0] : sessionNow) - p[0];
+                    }
                 } else if (f != null) {
                     double ft = anchor + (t - sessionNow);
                     while (fi + 1 < f.points.size() && f.points.get(fi + 1)[0] <= ft) {
                         fi++;
                     }
-                    p = f.points.isEmpty() ? null : f.points.get(fi);
+                    if (!f.points.isEmpty()) {
+                        p = f.points.get(fi);
+                        dur = (fi + 1 < f.points.size() ? f.points.get(fi + 1)[0] : f.totalS) - p[0];
+                    }
                 }
                 raw[i] = p != null ? (float) (p[2] / max) : 0;
-                hrv[i] = t <= sessionNow && p != null && p.length > 5 ? p[5] : 0;
                 col[i] = p != null ? p[3] : 0;
                 phase[i] = p != null && p.length > 4 ? (int) p[4] : 0;
+                hrv[i] = t <= sessionNow && p != null && p.length > 5 ? p[5] : 0;
+                crit[i] = p != null && critical(p, dur);
             }
-            for (int i = 0; i < N; i++) {           // soften the steps into a profile (rests stay valleys)
-                float s = 0;
-                float cs = 0;
-                int n = 0;
-                for (int j = Math.max(0, i - 2); j <= Math.min(N - 1, i + 2); j++) {
-                    s += raw[j];
-                    cs += col[j];
-                    n++;
+            // Gaussian over time, without the critical pauses (they must not be filled in by their neighbours)
+            double sig = Math.max(0.6, SMOOTH_S * N / totalS);
+            int rad = (int) Math.ceil(3 * sig);
+            float[] sh = new float[N];
+            float[] sc = new float[N];
+            for (int i = 0; i < N; i++) {
+                if (crit[i]) {
+                    sh[i] = 0;
+                    sc[i] = 0;
+                    continue;
                 }
-                hv[i] = s / n;
-                cv[i] = cs / n;
+                double ws = 0;
+                double hs = 0;
+                double cs = 0;
+                for (int j = Math.max(0, i - rad); j <= Math.min(N - 1, i + rad); j++) {
+                    if (crit[j]) {
+                        continue;
+                    }
+                    double wgt = Math.exp(-0.5 * (i - j) * (i - j) / (sig * sig));
+                    ws += wgt;
+                    hs += wgt * raw[j];
+                    cs += wgt * col[j];
+                }
+                sh[i] = ws > 0 ? (float) (hs / ws) : 0;
+                sc[i] = ws > 0 ? (float) (cs / ws) : 0;
+            }
+            // soft walls into a critical pause (one light pass over everything)
+            for (int i = 0; i < N; i++) {
+                float a = sh[Math.max(0, i - 1)];
+                float b = sh[Math.min(N - 1, i + 1)];
+                hv[i] = crit[i] ? (a + b) * 0.12f : 0.25f * a + 0.5f * sh[i] + 0.25f * b;
+                cv[i] = sc[i];
             }
             invalidate();
         }

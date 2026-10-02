@@ -585,6 +585,8 @@ public final class AutoEngine {
             pauseStartMs = now;
             hrOkSinceMs = 0;
             capHits++;
+            trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getFatigueShare(), phaseIndex,
+                    Math.max(0, getHr(now)), TRACE_HR_PAUSE});
             log(now, "HR " + hr + " ≥ cap " + plan.hrCap + " → pause");
             return;
         }
@@ -698,7 +700,7 @@ public final class AutoEngine {
         chCmd = c;
         chFMs = now;
         trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, (float) cycleLoad(c), (float) getFatigueShare(),
-                phaseIndex, Math.max(0, getHr(now))});
+                phaseIndex, Math.max(0, getHr(now)), TRACE_CYCLE});
         if (trace.size() > 4000) {
             trace.remove(0);
         }
@@ -935,10 +937,25 @@ public final class AutoEngine {
 
     private void traceRest(long now) {
         trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getFatigueShare(), phaseIndex,
-                Math.max(0, getHr(now))});
+                Math.max(0, getHr(now)), TRACE_REST});
     }
 
-    /** Samples so far: {session s, impulse s, cycle load, peak load, phase, HR (0 = none)} at each cycle and rest start. */
+    /** Kinds of a trace sample (index 6). */
+    public static final float TRACE_CYCLE = 0f;
+    public static final float TRACE_REST = 1f;
+    /** The output stopped because the HR reached the ceiling (always a critical pause on the timeline). */
+    public static final float TRACE_HR_PAUSE = 2f;
+    /**
+     * A rest this long is a critical pause on the timeline (deep and wide); the usual rests between sets (≈ 15–35 s,
+     * the phosphocreatine refill) are smoothed into the profile. 45 s ≈ the floor of a rest the fatigue model asks
+     * only after a hard, accumulated load (τ·ln(F / F_rec) with F ≥ 3 F_rec at τ 40 s). [D]
+     */
+    public static final int CRITICAL_PAUSE_S = 45;
+
+    /**
+     * Samples so far: {session s, impulse s, cycle load, peak load, phase, HR (0 = none), kind} at each cycle start,
+     * rest start and HR pause.
+     */
     public List<float[]> getTrace() {
         return trace;
     }

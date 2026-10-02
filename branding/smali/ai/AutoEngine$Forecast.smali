@@ -36,10 +36,10 @@
     .registers 2
 
     .prologue
-    .line 1034
+    .line 1051
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1036
+    .line 1053
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -59,10 +59,10 @@
 
     const/4 v8, 0x1
 
-    .line 1044
+    .line 1061
     const/4 v0, 0x0
 
-    .line 1045
+    .line 1062
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -84,7 +84,7 @@
 
     check-cast v0, [F
 
-    .line 1046
+    .line 1063
     aget v3, v0, v8
 
     float-to-double v4, v3
@@ -93,7 +93,7 @@
 
     if-ltz v3, :cond_44
 
-    .line 1047
+    .line 1064
     if-eqz v1, :cond_27
 
     aget v2, v0, v8
@@ -104,17 +104,17 @@
 
     if-gtz v2, :cond_2b
 
-    .line 1048
+    .line 1065
     :cond_27
     aget v0, v0, v6
 
     float-to-double v0, v0
 
-    .line 1054
+    .line 1071
     :goto_2a
     return-wide v0
 
-    .line 1050
+    .line 1067
     :cond_2b
     aget v2, v1, v6
 
@@ -153,10 +153,10 @@
     :cond_44
     move-object v1, v0
 
-    .line 1053
+    .line 1070
     goto :goto_a
 
-    .line 1054
+    .line 1071
     :cond_46
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->totalS:D
 

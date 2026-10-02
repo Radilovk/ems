@@ -951,6 +951,9 @@ public final class AutoSim {
         h.onHr(t[0] + 500, hp.hrCap + 2);
         h.tick(t[0] + 1000);
         check(h.getState() == AutoEngine.State.HR_PAUSE, "S5 HR over the cap → HR pause");
+        float[] lastT = h.getTrace().get(h.getTrace().size() - 1);
+        check(lastT.length > 6 && lastT[6] == AutoEngine.TRACE_HR_PAUSE && lastT[2] == 0f,
+                "S5 the HR stop is marked on the timeline (a critical pause)");
         long tt = t[0] + 1000;
         for (int i = 0; i < 40; i++) {
             tt += 1000;

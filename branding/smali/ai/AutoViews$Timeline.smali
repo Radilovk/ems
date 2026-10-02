@@ -15,7 +15,9 @@
 
 
 # static fields
-.field private static final N:I = 0xf0
+.field private static final N:I = 0x168
+
+.field private static final SMOOTH_S:D = 40.0
 
 
 # instance fields
@@ -61,100 +63,100 @@
     .prologue
     const/high16 v3, 0x40000000    # 2.0f
 
-    const/16 v1, 0xf0
+    const/16 v1, 0x168
 
     const/4 v2, 0x1
 
-    .line 565
+    .line 569
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 546
+    .line 550
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->area:Landroid/graphics/Paint;
 
-    .line 547
+    .line 551
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->sep:Landroid/graphics/Paint;
 
-    .line 548
+    .line 552
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->now:Landroid/graphics/Paint;
 
-    .line 549
+    .line 553
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->txt:Landroid/graphics/Paint;
 
-    .line 550
+    .line 554
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
-    .line 551
+    .line 555
     new-array v0, v1, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hv:[F
 
-    .line 552
+    .line 556
     new-array v0, v1, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->cv:[F
 
-    .line 553
+    .line 557
     new-array v0, v1, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->phase:[I
 
-    .line 555
+    .line 559
     const/high16 v0, 0x3f800000    # 1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->totalS:F
 
-    .line 556
+    .line 560
     const/4 v0, 0x0
 
     new-array v0, v0, [Ljava/lang/String;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->names:[Ljava/lang/String;
 
-    .line 557
+    .line 561
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
-    .line 558
+    .line 562
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrPath:Landroid/graphics/Path;
 
-    .line 559
+    .line 563
     new-array v0, v1, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrv:[F
 
-    .line 562
+    .line 566
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrCapY:F
 
-    .line 566
+    .line 570
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->sep:Landroid/graphics/Paint;
 
     const/high16 v1, 0x3fc00000    # 1.5f
@@ -165,7 +167,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 567
+    .line 571
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->now:Landroid/graphics/Paint;
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
@@ -174,7 +176,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 568
+    .line 572
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->txt:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41400000    # 12.0f
@@ -185,19 +187,19 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 569
+    .line 573
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->txt:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 570
+    .line 574
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 571
+    .line 575
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
@@ -206,15 +208,78 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 572
+    .line 576
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 573
+    .line 577
     return-void
+.end method
+
+.method static critical([FD)Z
+    .registers 8
+
+    .prologue
+    const/4 v3, 0x6
+
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    const/4 v0, 0x0
+
+    .line 592
+    array-length v2, p0
+
+    if-le v2, v3, :cond_1e
+
+    aget v0, p0, v3
+
+    .line 593
+    :cond_9
+    :goto_9
+    const/high16 v2, 0x40000000    # 2.0f
+
+    cmpl-float v2, v0, v2
+
+    if-eqz v2, :cond_1c
+
+    cmpl-float v0, v0, v1
+
+    if-nez v0, :cond_27
+
+    const-wide v0, 0x4046800000000000L    # 45.0
+
+    cmpl-double v0, p1, v0
+
+    if-ltz v0, :cond_27
+
+    :cond_1c
+    const/4 v0, 0x1
+
+    :goto_1d
+    return v0
+
+    .line 592
+    :cond_1e
+    const/4 v2, 0x2
+
+    aget v2, p0, v2
+
+    cmpg-float v2, v2, v0
+
+    if-gtz v2, :cond_9
+
+    move v0, v1
+
+    goto :goto_9
+
+    .line 593
+    :cond_27
+    const/4 v0, 0x0
+
+    goto :goto_1d
 .end method
 
 
@@ -223,24 +288,24 @@
     .registers 16
 
     .prologue
-    .line 643
+    .line 684
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->getWidth()I
 
     move-result v9
 
-    .line 644
+    .line 685
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->getHeight()I
 
     move-result v8
 
-    .line 645
+    .line 686
     const/high16 v0, 0x41b00000    # 22.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
     move-result v10
 
-    .line 646
+    .line 687
     int-to-float v0, v8
 
     const/high16 v1, 0x40800000    # 4.0f
@@ -251,32 +316,32 @@
 
     sub-float v11, v0, v1
 
-    .line 647
+    .line 688
     int-to-float v0, v9
 
-    const/high16 v1, 0x43700000    # 240.0f
+    const/high16 v1, 0x43b40000    # 360.0f
 
     div-float v12, v0, v1
 
-    .line 648
-    const/16 v0, 0xf0
+    .line 689
+    const/16 v0, 0x168
 
     new-array v5, v0, [I
 
-    .line 649
-    const/16 v0, 0xf0
+    .line 690
+    const/16 v0, 0x168
 
     new-array v6, v0, [F
 
-    .line 650
+    .line 691
     const/4 v0, 0x0
 
     :goto_25
-    const/16 v1, 0xf0
+    const/16 v1, 0x168
 
-    if-ge v0, v1, :cond_3d
+    if-ge v0, v1, :cond_3e
 
-    .line 651
+    .line 692
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->cv:[F
 
     aget v1, v1, v0
@@ -289,22 +354,22 @@
 
     aput v1, v5, v0
 
-    .line 652
+    .line 693
     int-to-float v1, v0
 
-    const/high16 v2, 0x436f0000    # 239.0f
+    const v2, 0x43b38000    # 359.0f
 
     div-float/2addr v1, v2
 
     aput v1, v6, v0
 
-    .line 650
+    .line 691
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_25
 
-    .line 654
-    :cond_3d
+    .line 695
+    :cond_3e
     iget-object v13, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->area:Landroid/graphics/Paint;
 
     new-instance v0, Landroid/graphics/LinearGradient;
@@ -323,27 +388,27 @@
 
     invoke-virtual {v13, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 655
+    .line 696
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 656
+    .line 697
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1, v11}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 657
+    .line 698
     const/4 v0, 0x0
 
-    :goto_59
-    const/16 v1, 0xf0
+    :goto_5a
+    const/16 v1, 0x168
 
-    if-ge v0, v1, :cond_7b
+    if-ge v0, v1, :cond_7c
 
-    .line 658
+    .line 699
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
     int-to-float v2, v0
@@ -374,25 +439,25 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 657
+    .line 698
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_59
+    goto :goto_5a
 
-    .line 660
-    :cond_7b
+    .line 701
+    :cond_7c
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
     int-to-float v1, v9
 
     invoke-virtual {v0, v1, v11}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 661
+    .line 702
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
-    .line 662
+    .line 703
     int-to-float v0, v9
 
     const/high16 v1, 0x3f800000    # 1.0f
@@ -409,10 +474,10 @@
 
     mul-float v13, v0, v1
 
-    .line 663
+    .line 704
     invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
 
-    .line 664
+    .line 705
     const/4 v0, 0x0
 
     const/4 v1, 0x0
@@ -421,27 +486,27 @@
 
     invoke-virtual {p1, v0, v1, v13, v2}, Landroid/graphics/Canvas;->clipRect(FFFF)Z
 
-    .line 665
+    .line 706
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->area:Landroid/graphics/Paint;
 
     const/16 v1, 0xff
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 666
+    .line 707
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->area:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 667
+    .line 708
     invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
 
-    .line 668
+    .line 709
     invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
 
-    .line 669
+    .line 710
     const/4 v0, 0x0
 
     int-to-float v1, v9
@@ -450,29 +515,29 @@
 
     invoke-virtual {p1, v13, v0, v1, v2}, Landroid/graphics/Canvas;->clipRect(FFFF)Z
 
-    .line 670
+    .line 711
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->area:Landroid/graphics/Paint;
 
     sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsUi;->dark:Z
 
-    if-eqz v0, :cond_160
+    if-eqz v0, :cond_161
 
     const/16 v0, 0x5a
 
-    :goto_bf
+    :goto_c0
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 671
+    .line 712
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->area:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 672
+    .line 713
     invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
 
-    .line 674
+    .line 715
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->sep:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -485,7 +550,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 675
+    .line 716
     const/4 v1, 0x0
 
     int-to-float v3, v9
@@ -500,43 +565,43 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 677
+    .line 718
     const/4 v1, -0x1
 
-    .line 678
+    .line 719
     const/high16 v6, -0x40800000    # -1.0f
 
-    .line 679
+    .line 720
     const/4 v0, 0x0
 
     move v8, v0
 
-    :goto_e8
-    const/16 v0, 0xf0
+    :goto_e9
+    const/16 v0, 0x168
 
-    if-ge v8, v0, :cond_167
+    if-ge v8, v0, :cond_168
 
-    .line 680
+    .line 721
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->phase:[I
 
     aget v0, v0, v8
 
-    if-eq v0, v1, :cond_249
+    if-eq v0, v1, :cond_24a
 
-    .line 681
+    .line 722
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->phase:[I
 
     aget v7, v0, v8
 
-    .line 682
+    .line 723
     int-to-float v0, v8
 
     mul-float v1, v0, v12
 
-    .line 683
-    if-lez v8, :cond_118
+    .line 724
+    if-lez v8, :cond_119
 
-    .line 684
+    .line 725
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->sep:Landroid/graphics/Paint;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -549,7 +614,7 @@
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 685
+    .line 726
     const/high16 v0, 0x40c00000    # 6.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
@@ -568,22 +633,22 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 687
-    :cond_118
-    if-ltz v7, :cond_164
+    .line 728
+    :cond_119
+    if-ltz v7, :cond_165
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->names:[Ljava/lang/String;
 
     array-length v0, v0
 
-    if-ge v7, v0, :cond_164
+    if-ge v7, v0, :cond_165
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->names:[Ljava/lang/String;
 
     aget-object v0, v0, v7
 
-    .line 689
-    :goto_123
+    .line 730
+    :goto_124
     const/high16 v2, 0x40800000    # 4.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
@@ -604,7 +669,7 @@
 
     move-result v1
 
-    .line 690
+    .line 731
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->txt:Landroid/graphics/Paint;
 
     invoke-virtual {v2, v0}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
@@ -617,16 +682,16 @@
 
     cmpg-float v2, v2, v3
 
-    if-gtz v2, :cond_245
+    if-gtz v2, :cond_246
 
-    .line 691
+    .line 732
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->txt:Landroid/graphics/Paint;
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 692
+    .line 733
     const/high16 v2, 0x41500000    # 13.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
@@ -637,7 +702,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 693
+    .line 734
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->txt:Landroid/graphics/Paint;
 
     invoke-virtual {v2, v0}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
@@ -648,55 +713,55 @@
 
     move v1, v7
 
-    .line 679
-    :goto_15b
+    .line 720
+    :goto_15c
     add-int/lit8 v2, v8, 0x1
 
     move v8, v2
 
     move v6, v0
 
-    goto :goto_e8
+    goto :goto_e9
 
-    .line 670
-    :cond_160
+    .line 711
+    :cond_161
     const/16 v0, 0x6e
 
-    goto/16 :goto_bf
+    goto/16 :goto_c0
 
-    .line 687
-    :cond_164
+    .line 728
+    :cond_165
     const-string v0, ""
 
-    goto :goto_123
+    goto :goto_124
 
-    .line 698
-    :cond_167
+    .line 739
+    :cond_168
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrHi:F
 
     const/4 v1, 0x0
 
     cmpl-float v0, v0, v1
 
-    if-lez v0, :cond_219
+    if-lez v0, :cond_21a
 
-    .line 699
+    .line 740
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrPath:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 700
+    .line 741
     const/4 v0, 0x0
 
-    .line 701
+    .line 742
     const/4 v1, 0x0
 
-    :goto_175
-    const/16 v2, 0xf0
+    :goto_176
+    const/16 v2, 0x168
 
-    if-ge v1, v2, :cond_1c0
+    if-ge v1, v2, :cond_1c1
 
-    .line 702
+    .line 743
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrv:[F
 
     aget v2, v2, v1
@@ -705,19 +770,19 @@
 
     cmpg-float v2, v2, v3
 
-    if-gtz v2, :cond_186
+    if-gtz v2, :cond_187
 
-    .line 703
+    .line 744
     const/4 v0, 0x0
 
-    .line 701
-    :goto_183
+    .line 742
+    :goto_184
     add-int/lit8 v1, v1, 0x1
 
-    goto :goto_175
+    goto :goto_176
 
-    .line 706
-    :cond_186
+    .line 747
+    :cond_187
     sub-float v2, v11, v10
 
     const/4 v3, 0x0
@@ -752,10 +817,10 @@
 
     sub-float v2, v11, v2
 
-    .line 707
-    if-eqz v0, :cond_1b2
+    .line 748
+    if-eqz v0, :cond_1b3
 
-    .line 708
+    .line 749
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrPath:Landroid/graphics/Path;
 
     int-to-float v4, v1
@@ -770,10 +835,10 @@
 
     invoke-virtual {v3, v4, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    goto :goto_183
+    goto :goto_184
 
-    .line 710
-    :cond_1b2
+    .line 751
+    :cond_1b3
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrPath:Landroid/graphics/Path;
 
     int-to-float v3, v1
@@ -788,34 +853,34 @@
 
     invoke-virtual {v0, v3, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 711
+    .line 752
     const/4 v0, 0x1
 
-    goto :goto_183
+    goto :goto_184
 
-    .line 714
-    :cond_1c0
+    .line 755
+    :cond_1c1
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     const v1, -0xb293
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 715
+    .line 756
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 716
+    .line 757
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrPath:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 717
+    .line 758
     sub-float v0, v11, v10
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrCapY:F
@@ -824,7 +889,7 @@
 
     sub-float v2, v11, v0
 
-    .line 718
+    .line 759
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     const v1, -0xb293
@@ -837,7 +902,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 719
+    .line 760
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     new-instance v1, Landroid/graphics/DashPathEffect;
@@ -872,7 +937,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 720
+    .line 761
     const/4 v1, 0x0
 
     int-to-float v3, v9
@@ -885,22 +950,22 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 721
+    .line 762
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLine:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 723
-    :cond_219
+    .line 764
+    :cond_21a
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->now:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 724
+    .line 765
     const/high16 v0, 0x41000000    # 8.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
@@ -921,7 +986,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 725
+    .line 766
     const/high16 v0, 0x41000000    # 8.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
@@ -940,24 +1005,24 @@
 
     invoke-virtual {p1, v13, v0, v1, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 726
+    .line 767
     return-void
 
-    :cond_245
+    :cond_246
     move v0, v6
 
     move v1, v7
 
-    goto/16 :goto_15b
+    goto/16 :goto_15c
 
-    :cond_249
+    :cond_24a
     move v0, v6
 
-    goto/16 :goto_15b
+    goto/16 :goto_15c
 .end method
 
 .method public set(Ljava/util/List;Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;DD[Ljava/lang/String;)V
-    .registers 29
+    .registers 33
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -971,23 +1036,23 @@
     .end annotation
 
     .prologue
-    .line 592
+    .line 603
     move-object/from16 v0, p7
 
     move-object/from16 v1, p0
 
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->names:[Ljava/lang/String;
 
-    .line 593
+    .line 604
     if-eqz p2, :cond_4f
 
     invoke-virtual/range {p2 .. p4}, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->sessionAt(D)D
 
     move-result-wide v2
 
-    move-wide v8, v2
+    move-wide v10, v2
 
-    .line 594
+    .line 605
     :goto_d
     if-eqz p2, :cond_52
 
@@ -997,7 +1062,7 @@
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->totalS:D
 
-    sub-double/2addr v4, v8
+    sub-double/2addr v4, v10
 
     invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D
 
@@ -1005,7 +1070,7 @@
 
     add-double v2, v2, p5
 
-    .line 595
+    .line 606
     :goto_1c
     const-wide/high16 v4, 0x404e000000000000L    # 60.0
 
@@ -1019,7 +1084,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->totalS:F
 
-    .line 596
+    .line 607
     move-wide/from16 v0, p5
 
     double-to-float v2, v0
@@ -1028,14 +1093,14 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->nowS:F
 
-    .line 597
+    .line 608
     if-eqz p2, :cond_55
 
     move-object/from16 v0, p2
 
     iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->maxLoad:D
 
-    .line 598
+    .line 609
     :goto_34
     invoke-interface/range {p1 .. p1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -1056,7 +1121,7 @@
 
     check-cast v2, [F
 
-    .line 599
+    .line 610
     const/4 v3, 0x2
 
     aget v2, v2, v3
@@ -1069,101 +1134,109 @@
 
     move-wide v4, v2
 
-    .line 600
+    .line 611
     goto :goto_39
 
     :cond_4f
-    move-wide/from16 v8, p5
+    move-wide/from16 v10, p5
 
-    .line 593
+    .line 604
     goto :goto_d
 
     :cond_52
     move-wide/from16 v2, p5
 
-    .line 594
+    .line 605
     goto :goto_1c
 
-    .line 597
+    .line 608
     :cond_55
     const-wide/16 v2, 0x0
 
     goto :goto_34
 
-    .line 601
+    .line 612
     :cond_58
     const-wide v2, 0x3fa999999999999aL    # 0.05
 
     invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D
 
-    move-result-wide v10
+    move-result-wide v12
 
-    .line 602
-    const/16 v2, 0xf0
+    .line 613
+    const/16 v2, 0x168
 
-    new-array v7, v2, [F
+    new-array v14, v2, [F
 
-    .line 603
-    const/16 v2, 0xf0
+    .line 614
+    const/16 v2, 0x168
 
-    new-array v12, v2, [F
+    new-array v15, v2, [F
 
-    .line 604
-    const/4 v3, 0x0
+    .line 615
+    const/16 v2, 0x168
 
-    .line 605
+    new-array v0, v2, [Z
+
+    move-object/from16 v16, v0
+
+    .line 616
     const/4 v4, 0x0
 
-    .line 606
+    .line 617
+    const/4 v5, 0x0
+
+    .line 618
     const/4 v2, 0x0
 
-    move v6, v2
+    move v8, v2
 
-    :goto_6d
-    const/16 v2, 0xf0
+    :goto_73
+    const/16 v2, 0x168
 
-    if-ge v6, v2, :cond_142
+    if-ge v8, v2, :cond_1a9
 
-    .line 607
-    int-to-double v14, v6
+    .line 619
+    int-to-double v2, v8
 
-    const-wide/high16 v16, 0x3fe0000000000000L    # 0.5
+    const-wide/high16 v6, 0x3fe0000000000000L    # 0.5
 
-    add-double v14, v14, v16
+    add-double/2addr v2, v6
 
     move-object/from16 v0, p0
 
-    iget v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->totalS:F
+    iget v6, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->totalS:F
 
-    float-to-double v0, v2
+    float-to-double v6, v6
 
-    move-wide/from16 v16, v0
+    mul-double/2addr v2, v6
 
-    mul-double v14, v14, v16
+    const-wide v6, 0x4076800000000000L    # 360.0
 
-    const-wide/high16 v16, 0x406e000000000000L    # 240.0
+    div-double v18, v2, v6
 
-    div-double v14, v14, v16
+    .line 620
+    const/4 v3, 0x0
 
-    .line 608
-    const/4 v2, 0x0
+    .line 621
+    const-wide/16 v6, 0x0
 
-    .line 609
-    cmpg-double v5, v14, p5
+    .line 622
+    cmpg-double v2, v18, p5
 
-    if-gtz v5, :cond_f6
+    if-gtz v2, :cond_12e
 
-    .line 610
-    :goto_88
-    add-int/lit8 v2, v3, 0x1
+    .line 623
+    :goto_8f
+    add-int/lit8 v2, v4, 0x1
 
     invoke-interface/range {p1 .. p1}, Ljava/util/List;->size()I
 
-    move-result v5
+    move-result v9
 
-    if-ge v2, v5, :cond_a8
+    if-ge v2, v9, :cond_af
 
-    add-int/lit8 v2, v3, 0x1
+    add-int/lit8 v2, v4, 0x1
 
     move-object/from16 v0, p1
 
@@ -1173,190 +1246,245 @@
 
     check-cast v2, [F
 
-    const/4 v5, 0x0
+    const/4 v9, 0x0
 
-    aget v2, v2, v5
+    aget v2, v2, v9
 
     float-to-double v0, v2
 
-    move-wide/from16 v16, v0
+    move-wide/from16 v20, v0
 
-    cmpg-double v2, v16, v14
+    cmpg-double v2, v20, v18
 
-    if-gtz v2, :cond_a8
+    if-gtz v2, :cond_af
 
-    .line 611
-    add-int/lit8 v2, v3, 0x1
+    .line 624
+    add-int/lit8 v2, v4, 0x1
 
-    move v3, v2
+    move v4, v2
 
-    goto :goto_88
+    goto :goto_8f
 
-    .line 613
-    :cond_a8
+    .line 626
+    :cond_af
     invoke-interface/range {p1 .. p1}, Ljava/util/List;->isEmpty()Z
 
     move-result v2
 
-    if-eqz v2, :cond_ed
+    if-nez v2, :cond_dc
 
-    const/4 v2, 0x0
-
-    :goto_af
-    move-object v5, v2
-
-    .line 621
-    :goto_b0
-    if-eqz v5, :cond_13a
-
-    const/4 v2, 0x2
-
-    aget v2, v5, v2
-
-    float-to-double v0, v2
-
-    move-wide/from16 v16, v0
-
-    div-double v16, v16, v10
-
-    move-wide/from16 v0, v16
-
-    double-to-float v2, v0
-
-    :goto_bd
-    aput v2, v7, v6
-
-    .line 622
-    move-object/from16 v0, p0
-
-    iget-object v13, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrv:[F
-
-    cmpg-double v2, v14, p5
-
-    if-gtz v2, :cond_13c
-
-    if-eqz v5, :cond_13c
-
-    array-length v2, v5
-
-    const/4 v14, 0x5
-
-    if-le v2, v14, :cond_13c
-
-    const/4 v2, 0x5
-
-    aget v2, v5, v2
-
-    :goto_d0
-    aput v2, v13, v6
-
-    .line 623
-    if-eqz v5, :cond_13e
-
-    const/4 v2, 0x3
-
-    aget v2, v5, v2
-
-    :goto_d7
-    aput v2, v12, v6
-
-    .line 624
-    move-object/from16 v0, p0
-
-    iget-object v13, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->phase:[I
-
-    if-eqz v5, :cond_140
-
-    array-length v2, v5
-
-    const/4 v14, 0x4
-
-    if-le v2, v14, :cond_140
-
-    const/4 v2, 0x4
-
-    aget v2, v5, v2
-
-    float-to-int v2, v2
-
-    :goto_e7
-    aput v2, v13, v6
-
-    .line 606
-    add-int/lit8 v2, v6, 0x1
-
-    move v6, v2
-
-    goto :goto_6d
-
-    .line 613
-    :cond_ed
+    .line 627
     move-object/from16 v0, p1
 
-    invoke-interface {v0, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    invoke-interface {v0, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, [F
 
-    goto :goto_af
+    .line 628
+    add-int/lit8 v3, v4, 0x1
 
-    .line 614
-    :cond_f6
-    if-eqz p2, :cond_180
+    invoke-interface/range {p1 .. p1}, Ljava/util/List;->size()I
 
-    .line 615
-    sub-double v16, v14, p5
+    move-result v6
 
-    add-double v16, v16, v8
+    if-ge v3, v6, :cond_12b
 
-    .line 616
-    :goto_fc
-    add-int/lit8 v2, v4, 0x1
+    add-int/lit8 v3, v4, 0x1
+
+    move-object/from16 v0, p1
+
+    invoke-interface {v0, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v3
+
+    check-cast v3, [F
+
+    const/4 v6, 0x0
+
+    aget v3, v3, v6
+
+    float-to-double v6, v3
+
+    :goto_d3
+    const/4 v3, 0x0
+
+    aget v3, v2, v3
+
+    float-to-double v0, v3
+
+    move-wide/from16 v20, v0
+
+    sub-double v6, v6, v20
+
+    move-object v3, v2
+
+    .line 640
+    :cond_dc
+    :goto_dc
+    if-eqz v3, :cond_19a
+
+    const/4 v2, 0x2
+
+    aget v2, v3, v2
+
+    float-to-double v0, v2
+
+    move-wide/from16 v20, v0
+
+    div-double v20, v20, v12
+
+    move-wide/from16 v0, v20
+
+    double-to-float v2, v0
+
+    :goto_e9
+    aput v2, v14, v8
+
+    .line 641
+    if-eqz v3, :cond_19d
+
+    const/4 v2, 0x3
+
+    aget v2, v3, v2
+
+    :goto_f0
+    aput v2, v15, v8
+
+    .line 642
+    move-object/from16 v0, p0
+
+    iget-object v9, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->phase:[I
+
+    if-eqz v3, :cond_1a0
+
+    array-length v2, v3
+
+    const/16 v17, 0x4
+
+    move/from16 v0, v17
+
+    if-le v2, v0, :cond_1a0
+
+    const/4 v2, 0x4
+
+    aget v2, v3, v2
+
+    float-to-int v2, v2
+
+    :goto_103
+    aput v2, v9, v8
+
+    .line 643
+    move-object/from16 v0, p0
+
+    iget-object v9, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrv:[F
+
+    cmpg-double v2, v18, p5
+
+    if-gtz v2, :cond_1a3
+
+    if-eqz v3, :cond_1a3
+
+    array-length v2, v3
+
+    const/16 v17, 0x5
+
+    move/from16 v0, v17
+
+    if-le v2, v0, :cond_1a3
+
+    const/4 v2, 0x5
+
+    aget v2, v3, v2
+
+    :goto_119
+    aput v2, v9, v8
+
+    .line 644
+    if-eqz v3, :cond_1a6
+
+    invoke-static {v3, v6, v7}, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->critical([FD)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1a6
+
+    const/4 v2, 0x1
+
+    :goto_124
+    aput-boolean v2, v16, v8
+
+    .line 618
+    add-int/lit8 v2, v8, 0x1
+
+    move v8, v2
+
+    goto/16 :goto_73
+
+    :cond_12b
+    move-wide/from16 v6, p5
+
+    .line 628
+    goto :goto_d3
+
+    .line 630
+    :cond_12e
+    if-eqz p2, :cond_dc
+
+    .line 631
+    sub-double v20, v18, p5
+
+    add-double v20, v20, v10
+
+    .line 632
+    :goto_134
+    add-int/lit8 v2, v5, 0x1
 
     move-object/from16 v0, p2
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
+    iget-object v9, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
-    invoke-interface {v5}, Ljava/util/List;->size()I
+    invoke-interface {v9}, Ljava/util/List;->size()I
 
-    move-result v5
+    move-result v9
 
-    if-ge v2, v5, :cond_122
+    if-ge v2, v9, :cond_15a
 
     move-object/from16 v0, p2
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
-    add-int/lit8 v5, v4, 0x1
+    add-int/lit8 v9, v5, 0x1
 
-    invoke-interface {v2, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    invoke-interface {v2, v9}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, [F
 
-    const/4 v5, 0x0
+    const/4 v9, 0x0
 
-    aget v2, v2, v5
+    aget v2, v2, v9
 
     float-to-double v0, v2
 
-    move-wide/from16 v18, v0
+    move-wide/from16 v22, v0
 
-    cmpg-double v2, v18, v16
+    cmpg-double v2, v22, v20
 
-    if-gtz v2, :cond_122
+    if-gtz v2, :cond_15a
 
-    .line 617
-    add-int/lit8 v2, v4, 0x1
+    .line 633
+    add-int/lit8 v2, v5, 0x1
 
-    move v4, v2
+    move v5, v2
 
-    goto :goto_fc
+    goto :goto_134
 
-    .line 619
-    :cond_122
+    .line 635
+    :cond_15a
     move-object/from16 v0, p2
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
@@ -1365,183 +1493,454 @@
 
     move-result v2
 
-    if-eqz v2, :cond_12f
+    if-nez v2, :cond_dc
 
-    const/4 v2, 0x0
-
-    :goto_12d
-    move-object v5, v2
-
-    goto :goto_b0
-
-    :cond_12f
+    .line 636
     move-object/from16 v0, p2
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
-    invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    invoke-interface {v2, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, [F
 
-    goto :goto_12d
+    .line 637
+    add-int/lit8 v3, v5, 0x1
 
-    .line 621
-    :cond_13a
-    const/4 v2, 0x0
+    move-object/from16 v0, p2
 
-    goto :goto_bd
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
-    .line 622
-    :cond_13c
-    const/4 v2, 0x0
+    invoke-interface {v6}, Ljava/util/List;->size()I
 
-    goto :goto_d0
+    move-result v6
 
-    .line 623
-    :cond_13e
-    const/4 v2, 0x0
+    if-ge v3, v6, :cond_195
 
-    goto :goto_d7
+    move-object/from16 v0, p2
 
-    .line 624
-    :cond_140
-    const/4 v2, 0x0
+    iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
-    goto :goto_e7
+    add-int/lit8 v6, v5, 0x1
 
-    .line 626
-    :cond_142
-    const/4 v2, 0x0
+    invoke-interface {v3, v6}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    move v6, v2
+    move-result-object v3
 
-    :goto_144
-    const/16 v2, 0xf0
+    check-cast v3, [F
 
-    if-ge v6, v2, :cond_17c
+    const/4 v6, 0x0
 
-    .line 627
-    const/4 v5, 0x0
+    aget v3, v3, v6
 
-    .line 628
-    const/4 v4, 0x0
+    float-to-double v6, v3
 
-    .line 629
+    :goto_18a
     const/4 v3, 0x0
 
-    .line 630
+    aget v3, v2, v3
+
+    float-to-double v0, v3
+
+    move-wide/from16 v20, v0
+
+    sub-double v6, v6, v20
+
+    move-object v3, v2
+
+    goto/16 :goto_dc
+
+    :cond_195
+    move-object/from16 v0, p2
+
+    iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->totalS:D
+
+    goto :goto_18a
+
+    .line 640
+    :cond_19a
     const/4 v2, 0x0
 
-    add-int/lit8 v8, v6, -0x2
+    goto/16 :goto_e9
 
-    invoke-static {v2, v8}, Ljava/lang/Math;->max(II)I
+    .line 641
+    :cond_19d
+    const/4 v2, 0x0
+
+    goto/16 :goto_f0
+
+    .line 642
+    :cond_1a0
+    const/4 v2, 0x0
+
+    goto/16 :goto_103
+
+    .line 643
+    :cond_1a3
+    const/4 v2, 0x0
+
+    goto/16 :goto_119
+
+    .line 644
+    :cond_1a6
+    const/4 v2, 0x0
+
+    goto/16 :goto_124
+
+    .line 647
+    :cond_1a9
+    const-wide v2, 0x3fe3333333333333L    # 0.6
+
+    const-wide v4, 0x40cc200000000000L    # 14400.0
+
+    move-object/from16 v0, p0
+
+    iget v6, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->totalS:F
+
+    float-to-double v6, v6
+
+    div-double/2addr v4, v6
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v10
+
+    .line 648
+    const-wide/high16 v2, 0x4008000000000000L    # 3.0
+
+    mul-double/2addr v2, v10
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->ceil(D)D
+
+    move-result-wide v2
+
+    double-to-int v12, v2
+
+    .line 649
+    const/16 v2, 0x168
+
+    new-array v13, v2, [F
+
+    .line 650
+    const/16 v2, 0x168
+
+    new-array v0, v2, [F
+
+    move-object/from16 v17, v0
+
+    .line 651
+    const/4 v2, 0x0
+
+    move v3, v2
+
+    :goto_1d1
+    const/16 v2, 0x168
+
+    if-ge v3, v2, :cond_253
+
+    .line 652
+    aget-boolean v2, v16, v3
+
+    if-eqz v2, :cond_1e3
+
+    .line 653
+    const/4 v2, 0x0
+
+    aput v2, v13, v3
+
+    .line 654
+    const/4 v2, 0x0
+
+    aput v2, v17, v3
+
+    .line 651
+    :goto_1df
+    add-int/lit8 v2, v3, 0x1
+
+    move v3, v2
+
+    goto :goto_1d1
+
+    .line 657
+    :cond_1e3
+    const-wide/16 v8, 0x0
+
+    .line 658
+    const-wide/16 v6, 0x0
+
+    .line 659
+    const-wide/16 v4, 0x0
+
+    .line 660
+    const/4 v2, 0x0
+
+    sub-int v18, v3, v12
+
+    move/from16 v0, v18
+
+    invoke-static {v2, v0}, Ljava/lang/Math;->max(II)I
 
     move-result v2
 
-    :goto_152
-    const/16 v8, 0xef
+    :goto_1f2
+    const/16 v18, 0x167
 
-    add-int/lit8 v9, v6, 0x2
+    add-int v19, v3, v12
 
-    invoke-static {v8, v9}, Ljava/lang/Math;->min(II)I
+    invoke-static/range {v18 .. v19}, Ljava/lang/Math;->min(II)I
 
-    move-result v8
+    move-result v18
 
-    if-gt v2, v8, :cond_167
+    move/from16 v0, v18
 
-    .line 631
-    aget v8, v7, v2
+    if-gt v2, v0, :cond_23a
 
-    add-float/2addr v5, v8
+    .line 661
+    aget-boolean v18, v16, v2
 
-    .line 632
-    aget v8, v12, v2
+    if-eqz v18, :cond_205
 
-    add-float/2addr v4, v8
-
-    .line 633
-    add-int/lit8 v3, v3, 0x1
-
-    .line 630
+    .line 660
+    :goto_202
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_152
+    goto :goto_1f2
 
-    .line 635
-    :cond_167
+    .line 664
+    :cond_205
+    const-wide/high16 v18, -0x4020000000000000L    # -0.5
+
+    sub-int v20, v3, v2
+
+    move/from16 v0, v20
+
+    int-to-double v0, v0
+
+    move-wide/from16 v20, v0
+
+    mul-double v18, v18, v20
+
+    sub-int v20, v3, v2
+
+    move/from16 v0, v20
+
+    int-to-double v0, v0
+
+    move-wide/from16 v20, v0
+
+    mul-double v18, v18, v20
+
+    mul-double v20, v10, v10
+
+    div-double v18, v18, v20
+
+    invoke-static/range {v18 .. v19}, Ljava/lang/Math;->exp(D)D
+
+    move-result-wide v18
+
+    .line 665
+    add-double v8, v8, v18
+
+    .line 666
+    aget v20, v14, v2
+
+    move/from16 v0, v20
+
+    float-to-double v0, v0
+
+    move-wide/from16 v20, v0
+
+    mul-double v20, v20, v18
+
+    add-double v6, v6, v20
+
+    .line 667
+    aget v20, v15, v2
+
+    move/from16 v0, v20
+
+    float-to-double v0, v0
+
+    move-wide/from16 v20, v0
+
+    mul-double v18, v18, v20
+
+    add-double v4, v4, v18
+
+    goto :goto_202
+
+    .line 669
+    :cond_23a
+    const-wide/16 v18, 0x0
+
+    cmpl-double v2, v8, v18
+
+    if-lez v2, :cond_24f
+
+    div-double/2addr v6, v8
+
+    double-to-float v2, v6
+
+    :goto_242
+    aput v2, v13, v3
+
+    .line 670
+    const-wide/16 v6, 0x0
+
+    cmpl-double v2, v8, v6
+
+    if-lez v2, :cond_251
+
+    div-double/2addr v4, v8
+
+    double-to-float v2, v4
+
+    :goto_24c
+    aput v2, v17, v3
+
+    goto :goto_1df
+
+    .line 669
+    :cond_24f
+    const/4 v2, 0x0
+
+    goto :goto_242
+
+    .line 670
+    :cond_251
+    const/4 v2, 0x0
+
+    goto :goto_24c
+
+    .line 673
+    :cond_253
+    const/4 v2, 0x0
+
+    move v3, v2
+
+    :goto_255
+    const/16 v2, 0x168
+
+    if-ge v3, v2, :cond_295
+
+    .line 674
+    const/4 v2, 0x0
+
+    add-int/lit8 v4, v3, -0x1
+
+    invoke-static {v2, v4}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    aget v2, v13, v2
+
+    .line 675
+    const/16 v4, 0x167
+
+    add-int/lit8 v5, v3, 0x1
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->min(II)I
+
+    move-result v4
+
+    aget v4, v13, v4
+
+    .line 676
     move-object/from16 v0, p0
 
-    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hv:[F
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hv:[F
 
-    int-to-float v8, v3
+    aget-boolean v6, v16, v3
 
-    div-float/2addr v5, v8
+    if-eqz v6, :cond_287
 
-    aput v5, v2, v6
+    add-float/2addr v2, v4
 
-    .line 636
+    const v4, 0x3df5c28f    # 0.12f
+
+    mul-float/2addr v2, v4
+
+    :goto_279
+    aput v2, v5, v3
+
+    .line 677
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->cv:[F
 
-    int-to-float v3, v3
+    aget v4, v17, v3
 
-    div-float v3, v4, v3
+    aput v4, v2, v3
 
-    aput v3, v2, v6
+    .line 673
+    add-int/lit8 v2, v3, 0x1
 
-    .line 626
-    add-int/lit8 v2, v6, 0x1
+    move v3, v2
 
-    move v6, v2
+    goto :goto_255
 
-    goto :goto_144
+    .line 676
+    :cond_287
+    const/high16 v6, 0x3e800000    # 0.25f
 
-    .line 638
-    :cond_17c
+    mul-float/2addr v2, v6
+
+    const/high16 v6, 0x3f000000    # 0.5f
+
+    aget v7, v13, v3
+
+    mul-float/2addr v6, v7
+
+    add-float/2addr v2, v6
+
+    const/high16 v6, 0x3e800000    # 0.25f
+
+    mul-float/2addr v4, v6
+
+    add-float/2addr v2, v4
+
+    goto :goto_279
+
+    .line 679
+    :cond_295
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->invalidate()V
 
-    .line 639
+    .line 680
     return-void
-
-    :cond_180
-    move-object v5, v2
-
-    goto/16 :goto_b0
 .end method
 
 .method public setHrScale(II)V
     .registers 6
 
     .prologue
-    .line 577
+    .line 581
     if-gt p2, p1, :cond_6
 
-    .line 578
+    .line 582
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrHi:F
 
-    .line 584
+    .line 588
     :goto_5
     return-void
 
-    .line 581
+    .line 585
     :cond_6
     int-to-float v0, p1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLo:F
 
-    .line 582
+    .line 586
     add-int/lit8 v0, p2, 0x8
 
     int-to-float v0, v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrHi:F
 
-    .line 583
+    .line 587
     int-to-float v0, p2
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Timeline;->hrLo:F

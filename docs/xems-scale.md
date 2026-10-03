@@ -172,6 +172,17 @@ two by two, **narrow** one column; the bar splits into switch / Анализ·О
 figure card · one key card (4 numbers, readiness — the dial only with a verdict, before that one line "from the second
 measurement" — body type) · zones · current per channel. Drawn text follows the system font size (`ScaleViews.sp`,
 ×1.12, font scale capped 1.3).
+**Nothing cut, plain wording** (1.1.302-ai, owner: labels and blocks cut on some devices / after a turn; wording
+unprofessional, "in development", odd Bulgarian): `Columns.apply` gives columns a **minimum** height (screen high in
+landscape, `tallDp` upright) instead of a fixed one — content taller than the screen grows and the page scrolls
+(the stage theatre alone keeps a set height: its picture would ask for its pixel size); every drawn label goes
+through `ScaleViews.drawFit` (shrunk to its column / band, kept inside the view; long channel names on two lines);
+explanation popups via `ScaleScreen.pop` (screen-wide at most, above or below the anchor, scrolling inside); the
+analysis tiles go two a line on narrow screens; readiness reasons one per line; the analysis focus status on its own
+line; the sources' filter chips scroll sideways. Copy: one register — standard terms (измерване, мускулна маса,
+телосложение, сегментен анализ, възраст на тялото, проводимост по канали), polite form for the client on the stage
+("Стъпете боси на кантара"), one short sentence per ⓘ, no "not yet checked / for now / our rule / honestly" in the
+UI (the honest limits live in `docs/xems-scale-audit.md`; the sources sheet says "Точност" in three sentences).
 **No "is this X?"** (1.1.300-ai): the page is the client's, so a measurement made on it is theirs; a wrong one is
 removed in Tracking (✕).
 **Анализ** (1.1.296-ai, `ScaleAnalysis`; Fitdays' list of values = the checklist, not the design): left — what the

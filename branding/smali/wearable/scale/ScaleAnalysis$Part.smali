@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 588
+    .line 597
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 589
+    .line 598
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$Part;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
 
-    .line 590
+    .line 599
     return-void
 .end method
 
@@ -46,7 +46,7 @@
 
     const/4 v4, 0x0
 
-    .line 594
+    .line 603
     const/4 v0, 0x4
 
     new-array v0, v0, [Ljava/lang/String;
@@ -71,7 +71,7 @@
 
     aput-object v1, v0, v3
 
-    .line 595
+    .line 604
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$Part;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$Part;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
@@ -92,6 +92,6 @@
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;->focusMetric(I)V
 
-    .line 596
+    .line 605
     return-void
 .end method

@@ -657,10 +657,10 @@ public final class ScaleSim {
             System.out.println("  [" + x.prio + "] " + x.titleBg + " — " + x.textBg);
             all.append(x.titleBg).append('|');
         }
-        ok("first = softer today", adv.get(0).titleBg.startsWith("Днес по-леко"));
-        ok("athletic noted", all.indexOf("Атлетично тяло") >= 0);
-        ok("recomposition noted", all.indexOf("преобразява") >= 0);
-        ok("no fat warning for 17.8 %", all.indexOf("Мазнини над") < 0);
+        ok("first = softer today", adv.get(0).titleBg.startsWith("Интензитет днес"));
+        ok("athletic noted", all.indexOf("Атлетично телосложение") >= 0);
+        ok("recomposition noted", all.indexOf("Подобрен състав") >= 0);
+        ok("no fat warning for 17.8 %", all.indexOf("Повишени мазнини") < 0);
         // a heavy woman with little muscle and low water
         org.json.JSONObject o = comp(88, 41, 30);
         o.put("water", 41.0);
@@ -672,12 +672,12 @@ public final class ScaleSim {
         for (ScaleInsight.Advice x : ScaleInsight.advice(one, 0, false, 45, 165)) {
             w.append(x.titleBg).append('|');
         }
-        ok("woman: obese + kg to normal (" + w + ")", w.indexOf("Затлъстяване: −") >= 0);
+        ok("woman: obese + kg to normal (" + w + ")", w.indexOf("Високи мазнини: −") >= 0);
         // 88 kg at 41 %, the norm's edge 34 %: the weight falls with the fat → (36.08 − 29.92) / 0.66 = 9.3 kg
         ok("woman: kg to normal counts the weight falling too (9.3, not 6.2)", w.indexOf("−9.3 кг") >= 0);
-        ok("woman: water", w.indexOf("Вода преди") >= 0);
+        ok("woman: water", w.indexOf("Хидратация под нормата") >= 0);
         ok("woman: visceral", w.indexOf("Висцерални мазнини: 12") >= 0);
-        ok("woman: baseline hint", w.indexOf("Мерене преди всяка") >= 0);
+        ok("woman: baseline hint", w.indexOf("Измерване преди всяка") >= 0);
     }
 
     /** The scale's numbers reach the algorithms: energy (muscle, resting burn), channels, focus. */

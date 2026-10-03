@@ -264,9 +264,7 @@ final class ScaleStage {
             addQ(tr("Тяло", "Trunk"), q != null && q.full && q.trunk);
         }
         int n = s.count();
-        round.setText(n <= 1 ? tr("1 отчитане", "1 sweep")
-                : tr(n + " отчитания · " + (s.spread() ? "разминават се — осреднени" : "осреднени"),
-                        n + " sweeps · " + (s.spread() ? "they differ — averaged" : "averaged")));
+        round.setText(n <= 1 ? "" : tr(n + " отчитания · осреднени", n + " readings · averaged"));
     }
 
     void addQ(String name, boolean ok) {
@@ -288,14 +286,13 @@ final class ScaleStage {
     void finished(String line, boolean full) {
         phase(P_DONE);
         if (full) {
-            title.setText(tr("✓ Готово", "✓ Done"));
+            title.setText(tr("Готово", "Done"));
             sub.setText(line);
         } else {
             title.setText(tr("Само тегло", "Weight only"));
-            sub.setText(tr("Ръцете не бяха на дръжката, затова няма състав. Хвани дръжката с цели длани — ако "
-                    + "кантарът не премери сам, натисни „Мери пак“.", "The hands were off the handle, so there is no "
-                    + "composition. Hold the handle with whole palms — if the scale does not measure again, tap "
-                    + "\"Measure again\"."));
+            sub.setText(tr("Няма контакт с дръжката. Хванете я с цели длани и останете на кантара или "
+                    + "започнете ново измерване.", "No contact with the handle. Hold it with whole palms and stay on "
+                    + "the scale, or start a new measurement."));
         }
     }
 
@@ -323,33 +320,32 @@ final class ScaleStage {
         int cc;
         switch (p) {
             case P_WAIT:
-                title.setText(tr("Стъпи бос на кантара", "Step on barefoot"));
-                sub.setText(tr("Петите върху задните електроди, двете ръце на дръжката, ръцете отпуснати надолу. "
-                        + "Кантарът се събужда и таблетът го намира сам.", "Heels on the back electrodes, both hands "
-                        + "on the handle, arms relaxed down. The scale wakes up and the tablet finds it by itself."));
-                c = tr("ЧАКАМ", "WAITING");
+                title.setText(tr("Стъпете боси на кантара", "Step on the scale barefoot"));
+                sub.setText(tr("Петите върху задните електроди, двете ръце на дръжката, ръцете изпънати надолу.",
+                        "Heels on the rear electrodes, both hands on the handle, arms straight down."));
+                c = tr("ИЗЧАКВАНЕ", "WAITING");
                 cc = accent;
                 steps.at(0);
                 break;
             case P_LINK:
-                title.setText(tr("Свързвам се — остани на кантара", "Connecting — stay on the scale"));
-                sub.setText(tr("Хвани дръжката с цели длани и стой спокойно.",
+                title.setText(tr("Свързване…", "Connecting…"));
+                sub.setText(tr("Хванете дръжката с цели длани и стойте неподвижно.",
                         "Hold the handle with whole palms and stand still."));
                 c = tr("ВРЪЗКА", "LINK");
                 cc = 0xFF94A3B8;
                 steps.at(1);
                 break;
             case P_SETTLE:
-                title.setText(tr("Стой спокойно…", "Stand still…"));
-                sub.setText(tr("Теглото се успокоява — без движение, без говорене.", "The weight settles — no moving, no talking."));
+                title.setText(tr("Стойте неподвижно", "Stand still"));
+                sub.setText(tr("Теглото се стабилизира.", "The weight is stabilising."));
                 c = tr("ТЕГЛО", "WEIGHT");
                 cc = 0xFFF59E0B;
                 steps.at(2);
                 break;
             case P_SCAN:
-                title.setText(tr("Мери — не пускай дръжката", "Measuring — keep holding"));
-                sub.setText(tr("Слаб ток минава през ръцете, тялото и краката на две честоти. Не се усеща.",
-                        "A faint current passes through arms, trunk and legs at two frequencies. It is not felt."));
+                title.setText(tr("Измерване…", "Measuring…"));
+                sub.setText(tr("Не пускайте дръжката. Измервателният ток не се усеща.",
+                        "Keep holding the handle. The measuring current cannot be felt."));
                 c = tr("АНАЛИЗ", "ANALYSIS");
                 cc = 0xFF22C55E;
                 steps.at(3);
@@ -363,8 +359,8 @@ final class ScaleStage {
                 steps.at(4);
                 break;
             default:
-                title.setText(tr("Включи Bluetooth", "Turn Bluetooth on"));
-                sub.setText(tr("Без Bluetooth таблетът не чува кантара.", "Without Bluetooth the tablet cannot hear the scale."));
+                title.setText(tr("Включете Bluetooth", "Turn Bluetooth on"));
+                sub.setText(tr("Bluetooth е нужен за връзка с кантара.", "Bluetooth is needed to connect to the scale."));
                 c = "BLUETOOTH";
                 cc = 0xFFEF4444;
                 steps.at(0);
@@ -388,10 +384,10 @@ final class ScaleStage {
 
     void stable(int p) {
         if (p == P_SETTLE) {
-            stableChip.setText(tr("● успокоява се", "● settling"));
+            stableChip.setText(tr("● стабилизиране", "● stabilising"));
             stableChip.setTextColor(0xFFF59E0B);
         } else if (p == P_SCAN || p == P_DONE) {
-            stableChip.setText(tr("✓ стабилно", "✓ steady"));
+            stableChip.setText(tr("✓ стабилно", "✓ stable"));
             stableChip.setTextColor(0xFF22C55E);
         } else {
             stableChip.setText("");
@@ -661,7 +657,7 @@ final class ScaleStage {
 
         @Override
         protected void onDraw(Canvas c) {
-            String[] n = {tr("Стъпи", "Step on"), tr("Връзка", "Link"), tr("Тегло", "Weight"),
+            String[] n = {tr("Стъпване", "Step on"), tr("Връзка", "Link"), tr("Тегло", "Weight"),
                     tr("Анализ", "Analysis"), tr("Готово", "Done")};
             float pulse = (now() % 1.2f) / 1.2f;
             float l = d(24), w = getWidth() - 2 * l, y = d(22);
@@ -687,7 +683,7 @@ final class ScaleStage {
                 p.setFakeBoldText(i == at);
                 p.setTextSize(d(12));
                 p.setColor(i == at ? XemsUi.TEXT : XemsUi.MUTED);
-                c.drawText(n[i], x, y + d(36), p);
+                ScaleViews.drawFit(c, p, n[i], x, y + d(36), w / 4 - d(4), this);
             }
             p.setFakeBoldText(false);
             if (at < 4) {
@@ -790,7 +786,7 @@ final class ScaleStage {
                 p.setColor(XemsUi.MUTED);
                 p.setTextAlign(Paint.Align.CENTER);
                 p.setTextSize(d(13));
-                c.drawText(tr("тук се вижда как теглото се успокоява", "here the weight settles"), lw / 2, h / 2 + d(4), p);
+                ScaleViews.drawFit(c, p, tr("живо тегло", "live weight"), lw / 2, h / 2 + d(4), lw - d(16), this);
             }
             // the scan ring
             float cx = w - rs / 2 - d(4), cy = h / 2, rad = rs / 2 - d(8);

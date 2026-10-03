@@ -45,6 +45,32 @@ public final class ScaleViews {
     }
 
     /**
+     * A drawn label that is never cut: shrunk to {@code maxW} (≤ 0 = the view's width) and moved back inside the
+     * view when its alignment would push it past an edge (narrow screens, long Bulgarian words).
+     */
+    static void drawFit(Canvas c, Paint p, String s, float x, float y, float maxW, View v) {
+        if (s == null || s.length() == 0) {
+            return;
+        }
+        float size = p.getTextSize();
+        float pad = dp(v, 2);
+        float lim = v.getWidth() - 2 * pad;
+        if (maxW > 0) {
+            lim = Math.min(lim, maxW);
+        }
+        float w = p.measureText(s);
+        if (lim > 0 && w > lim) {
+            p.setTextSize(size * lim / w);
+            w = p.measureText(s);
+        }
+        Paint.Align al = p.getTextAlign();
+        float left = al == Paint.Align.CENTER ? x - w / 2 : al == Paint.Align.RIGHT ? x - w : x;
+        float fixed = Math.max(pad, Math.min(v.getWidth() - pad - w, left));
+        c.drawText(s, x + (fixed - left), y, p);
+        p.setTextSize(size);
+    }
+
+    /**
      * Drawn text: a notch above the dp size (labels on a tablet at arm's length) and following the system's font
      * size like the page's TextViews do (capped, so a big font setting does not break the drawings).
      */
@@ -326,8 +352,8 @@ public final class ScaleViews {
                 label.setTextSize(sp(this, 12));
                 float ly = dst[i].top + dst[i].height() * 0.07f;
                 String l = tr("Л", "L"), r = tr("Д", "R");
-                c.drawText(i == 0 ? r : l, dst[i].left + dp(this, 6), ly, label);
-                c.drawText(i == 0 ? l : r, dst[i].right - dp(this, 6), ly, label);
+                drawFit(c, label, i == 0 ? r : l, dst[i].left + dp(this, 6), ly, -1, this);
+                drawFit(c, label, i == 0 ? l : r, dst[i].right - dp(this, 6), ly, -1, this);
                 x += fw + gap;
             }
         }
@@ -416,8 +442,8 @@ public final class ScaleViews {
         static final int[] AXES = {ScaleProtocol.TRUNK, ScaleProtocol.LEFT_ARM, ScaleProtocol.LEFT_LEG,
                 ScaleProtocol.RIGHT_LEG, ScaleProtocol.RIGHT_ARM};
         static String[] names() {
-            return new String[] {tr("Торс", "Trunk"), tr("Л. ръка", "L arm"), tr("Л. крак", "L leg"),
-                    tr("Д. крак", "R leg"), tr("Д. ръка", "R arm")};
+            return new String[] {tr("Торс", "Trunk"), tr("Лява ръка", "Left arm"), tr("Ляв крак", "Left leg"),
+                    tr("Десен крак", "Right leg"), tr("Дясна ръка", "Right arm")};
         }
 
         final String[] names = names();
@@ -544,13 +570,12 @@ public final class ScaleViews {
                 p.setFakeBoldText(s == selected);
                 p.setTextSize(sp(this, 12));
                 p.setColor(s == selected ? XemsUi.TEXT : XemsUi.MUTED);
-                c.drawText(names[i], lx, ly - dp(this, 2), p);
+                drawFit(c, p, names[i], lx, ly - dp(this, 2), -1, this);
                 p.setFakeBoldText(true);
                 p.setTextSize(sp(this, 14));
                 p.setColor(vc);
-                c.drawText(layer == LAYER_READY ? signed((v - 100) / READY_K) + "%"
-                        : layer == LAYER_FAT ? Math.round(v * fatMid / 100) + "%" : Math.round(v) + "%", lx,
-                        ly + dp(this, 14), p);
+                drawFit(c, p, layer == LAYER_READY ? signed((v - 100) / READY_K) + "%"
+                        : layer == LAYER_FAT ? Math.round(v * fatMid / 100) + "%" : Math.round(v) + "%", lx, ly + dp(this, 14), -1, this);
                 p.setFakeBoldText(false);
             }
         }
@@ -692,19 +717,19 @@ public final class ScaleViews {
             p.setFakeBoldText(true);
             p.setColor(score >= 0 ? XemsUi.TEXT : XemsUi.MUTED);
             p.setTextSize(size * 0.3f);
-            c.drawText(score >= 0 ? String.valueOf(Math.round(shown)) : "—", cx, r.centerY() + size * 0.1f, p);
+            drawFit(c, p, score >= 0 ? String.valueOf(Math.round(shown)) : "—", cx, r.centerY() + size * 0.1f, -1, this);
             p.setFakeBoldText(false);
             p.setTextSize(sp(this, 12));
             p.setColor(XemsUi.MUTED);
-            c.drawText(tr("готовност", "readiness"), cx, r.centerY() + size * 0.24f, p);
+            drawFit(c, p, tr("готовност", "readiness"), cx, r.centerY() + size * 0.24f, -1, this);
             p.setFakeBoldText(true);
             p.setTextSize(sp(this, 17));
             p.setColor(colr);
-            c.drawText(verdict, cx, top + size + dp(this, 8), p);
+            drawFit(c, p, verdict, cx, top + size + dp(this, 8), -1, this);
             p.setFakeBoldText(false);
             p.setTextSize(sp(this, 12));
             p.setColor(XemsUi.MUTED);
-            c.drawText(sub, cx, top + size + dp(this, 10) + sp(this, 17), p);
+            drawFit(c, p, sub, cx, top + size + dp(this, 10) + sp(this, 17), -1, this);
         }
     }
 
@@ -769,7 +794,7 @@ public final class ScaleViews {
                     p.setColor(XemsUi.MUTED);
                     p.setTextSize(sp(this, 13));
                     p.setTextAlign(Paint.Align.CENTER);
-                    c.drawText(tr("графиката тръгва от второто мерене", "the chart starts with the second measurement"), getWidth() / 2f, getHeight() / 2f, p);
+                    drawFit(c, p, tr("Графиката се показва след второто измерване", "The chart is shown after the second measurement"), getWidth() / 2f, getHeight() / 2f, -1, this);
                 }
                 return;
             }
@@ -836,17 +861,16 @@ public final class ScaleViews {
                 p.setTextSize(sp(this, 15));
                 p.setFakeBoldText(true);
                 p.setTextAlign(Paint.Align.LEFT);
-                c.drawText(String.format(Locale.US, "%.1f", v[v.length - 1]) + unit, lastX + dp(this, 9),
-                        lastY + dp(this, 5), p);
+                drawFit(c, p, String.format(Locale.US, "%.1f", v[v.length - 1]) + unit, lastX + dp(this, 9), lastY + dp(this, 5), -1, this);
                 p.setFakeBoldText(false);
                 p.setTextSize(sp(this, 11));
                 p.setColor(XemsUi.MUTED);
                 java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("d.MM", Locale.US);
                 if (t.length > 0) {
                     p.setTextAlign(Paint.Align.LEFT);
-                    c.drawText(f.format(new java.util.Date(t[0])), padL, getHeight() - dp(this, 4), p);
+                    drawFit(c, p, f.format(new java.util.Date(t[0])), padL, getHeight() - dp(this, 4), -1, this);
                     p.setTextAlign(Paint.Align.RIGHT);
-                    c.drawText(f.format(new java.util.Date(t[t.length - 1])), padL + w, getHeight() - dp(this, 4), p);
+                    drawFit(c, p, f.format(new java.util.Date(t[t.length - 1])), padL + w, getHeight() - dp(this, 4), -1, this);
                 }
             }
         }
@@ -860,9 +884,9 @@ public final class ScaleViews {
      * the zone needs more strength or a longer pulse.
      */
     public static final class Reach extends View {
-        final String[] names = {tr("Гърди", "Chest"), tr("Корем", "Abs"), tr("Бедра", "Thighs"),
+        final String[] names = {tr("Гърди", "Chest"), tr("Корем", "Abs"), tr("Предно бедро", "Quads"),
                 tr("Прасци", "Calves"), tr("Ръце", "Arms"), tr("Трапец", "Traps"), tr("Гръб", "Back"),
-                tr("Кръст", "L. back"), tr("Седал.", "Glutes"), tr("Задно б.", "Hamstr.")};
+                tr("Кръст", "Lower back"), tr("Седалище", "Glutes"), tr("Задно бедро", "Hamstrings")};
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final RectF r = new RectF();
         double[] fat;
@@ -887,7 +911,7 @@ public final class ScaleViews {
                 return;
             }
             int n = fat.length;
-            float labelH = dp(this, 30);
+            float labelH = dp(this, 42);
             float top = dp(this, 18);
             float h = getHeight() - labelH - top;
             float colW = getWidth() / (float) n;
@@ -913,13 +937,21 @@ public final class ScaleViews {
                 p.setFakeBoldText(true);
                 p.setTextSize(sp(this, 12));
                 int pct = (int) Math.round((rel - 1) * 100);
-                c.drawText(pct == 0 ? "0" : (pct > 0 ? "+" : "−") + Math.abs(pct), x + colW / 2, r.top - dp(this, 4), p);
+                drawFit(c, p, pct == 0 ? "0" : (pct > 0 ? "+" : "−") + Math.abs(pct), x + colW / 2, r.top - dp(this, 4), colW - dp(this, 2), this);
                 p.setFakeBoldText(false);
                 p.setColor(XemsUi.MUTED);
                 p.setTextSize(sp(this, 11));
-                c.drawText(names[i], x + colW / 2, getHeight() - dp(this, 14), p);
+                // a name too wide for its column goes on two lines rather than shrinking to nothing
+                String nm = names[i];
+                int sp = nm.indexOf(' ');
+                if (sp > 0 && p.measureText(nm) > colW - dp(this, 2)) {
+                    drawFit(c, p, nm.substring(0, sp), x + colW / 2, getHeight() - dp(this, 27), colW - dp(this, 2), this);
+                    drawFit(c, p, nm.substring(sp + 1), x + colW / 2, getHeight() - dp(this, 14), colW - dp(this, 2), this);
+                } else {
+                    drawFit(c, p, nm, x + colW / 2, getHeight() - dp(this, 14), colW - dp(this, 2), this);
+                }
                 p.setTextSize(sp(this, 10));
-                c.drawText(String.format(Locale.US, "%.0f%%", fat[i]), x + colW / 2, getHeight() - dp(this, 2), p);
+                drawFit(c, p, String.format(Locale.US, "%.0f%%", fat[i]), x + colW / 2, getHeight() - dp(this, 2), colW - dp(this, 2), this);
             }
             float my = top + h - (float) (h * Math.max(0.08, Math.min(1, (mean - 0.55) / 0.8)));
             p.setStyle(Paint.Style.STROKE);
@@ -968,13 +1000,13 @@ public final class ScaleViews {
             float h = getHeight() / 2f;
             double[] mEdges = male ? new double[] {14, 17, 20, 23, 26} : new double[] {11, 14, 17, 19.5, 22};
             double[] fEdges = male ? new double[] {0, 1.5, 6, 9, 13} : new double[] {0, 3, 9, 13, 18};
-            String[] mNames = {tr("малко", "low"), tr("норма", "normal"), tr("атлетични", "athletic"),
-                    tr("много", "very high")};
-            String[] fNames = {tr("много ниски", "very low"), tr("норма", "normal"), tr("излишни", "excess"),
-                    tr("затлъстяване", "obese")};
+            String[] mNames = {tr("ниска", "low"), tr("норма", "normal"), tr("атлетична", "athletic"),
+                    tr("много висока", "very high")};
+            String[] fNames = {tr("ниски", "low"), tr("норма", "normal"), tr("повишени", "elevated"),
+                    tr("високи", "high")};
             int[] mCols = {0xFFF59E0B, 0xFF84CC16, 0xFF22C55E, 0xFF06B6D4};
             int[] fCols = {0xFF38BDF8, 0xFF22C55E, 0xFFF59E0B, 0xFFEF4444};
-            row(c, 0, h, tr("Мускули", "Muscle"), mEdges, mNames, mCols, ffmi, ffmiBefore);
+            row(c, 0, h, tr("Мускулна маса", "Muscle mass"), mEdges, mNames, mCols, ffmi, ffmiBefore);
             row(c, h, h, tr("Мазнини", "Fat"), fEdges, fNames, fCols, fmi, fmiBefore);
         }
 
@@ -1007,13 +1039,13 @@ public final class ScaleViews {
             p.setTextSize(sp(this, 13));
             p.setColor(XemsUi.MUTED);
             float ty = top + dp(this, 16);
-            c.drawText(title, l, ty, p);
+            drawFit(c, p, title, l, ty, -1, this);
             if (now >= 0) {
                 p.setTextAlign(Paint.Align.RIGHT);
                 p.setFakeBoldText(true);
                 p.setTextSize(sp(this, 17));
                 p.setColor(cols[now]);
-                c.drawText(names[now], rr, ty + dp(this, 1), p);
+                drawFit(c, p, names[now], rr, ty + dp(this, 1), -1, this);
             }
             float by = top + dp(this, 28), bh = dp(this, 12);
             for (int i = 0; i < n; i++) {
@@ -1027,7 +1059,7 @@ public final class ScaleViews {
                 p.setTextAlign(Paint.Align.CENTER);
                 p.setTextSize(sp(this, 11));
                 p.setColor(i == now ? XemsUi.TEXT : XemsUi.MUTED);
-                c.drawText(names[i], (x0 + x1) / 2, by + bh + dp(this, 15), p);
+                drawFit(c, p, names[i], (x0 + x1) / 2, by + bh + dp(this, 15), x1 - x0 - dp(this, 4), this);
             }
             if (!Double.isNaN(before)) {
                 float bx = xOf(before, e, l, w);
@@ -1106,8 +1138,7 @@ public final class ScaleViews {
                 p.setColor(XemsUi.MUTED);
                 p.setTextSize(sp(this, 13));
                 p.setTextAlign(Paint.Align.CENTER);
-                c.drawText(tr("промяната идва от второто мерене", "the change starts with the second measurement"),
-                        getWidth() / 2f, getHeight() / 2f, p);
+                drawFit(c, p, tr("Промяната се показва след второто измерване", "The change is shown after the second measurement"), getWidth() / 2f, getHeight() / 2f, -1, this);
                 return;
             }
             double[] dm = new double[n], df = new double[n];
@@ -1139,8 +1170,7 @@ public final class ScaleViews {
                 p.setPathEffect(null);
                 p.setStyle(Paint.Style.FILL);
                 p.setColor(XemsUi.MUTED);
-                c.drawText(k == 0 ? tr("старт", "start") : (k > 0 ? "+" : "−") + Math.abs(k), padL - dp(this, 6),
-                        y + dp(this, 4), p);
+                drawFit(c, p, k == 0 ? tr("начало", "start") : (k > 0 ? "+" : "−") + Math.abs(k), padL - dp(this, 6), y + dp(this, 4), -1, this);
             }
             float y0 = (float) (padT + hi / (hi - lo) * h);
             series(c, dm, n, t0, t1, padL, padT, w, h, lo, hi, y0, 0xFF22C55E, true);
@@ -1149,9 +1179,9 @@ public final class ScaleViews {
             p.setTextSize(sp(this, 11));
             p.setColor(XemsUi.MUTED);
             p.setTextAlign(Paint.Align.LEFT);
-            c.drawText(f.format(new java.util.Date(t0)), padL, getHeight() - dp(this, 4), p);
+            drawFit(c, p, f.format(new java.util.Date(t0)), padL, getHeight() - dp(this, 4), -1, this);
             p.setTextAlign(Paint.Align.RIGHT);
-            c.drawText(f.format(new java.util.Date(t1)), padL + w, getHeight() - dp(this, 4), p);
+            drawFit(c, p, f.format(new java.util.Date(t1)), padL + w, getHeight() - dp(this, 4), -1, this);
         }
 
         void series(Canvas c, double[] d, int n, long t0, long t1, float padL, float padT, float w, float h,
@@ -1198,11 +1228,11 @@ public final class ScaleViews {
             p.setTextSize(sp(this, 16));
             p.setColor(col);
             String v = (last >= 0 ? "+" : "−") + String.format(Locale.US, "%.1f", Math.abs(last)) + tr(" кг", " kg");
-            c.drawText(v, lx + dp(this, 12), ly + dp(this, 2), p);
+            drawFit(c, p, v, lx + dp(this, 12), ly + dp(this, 2), -1, this);
             p.setFakeBoldText(false);
             p.setTextSize(sp(this, 11));
             p.setColor(good ? XemsUi.GO_TEXT : XemsUi.AMBER);
-            c.drawText(upGood ? tr("мускули", "muscle") : tr("мазнини", "fat"), lx + dp(this, 12), ly + dp(this, 16), p);
+            drawFit(c, p, upGood ? tr("мускулна маса", "muscle mass") : tr("мазнини", "fat"), lx + dp(this, 12), ly + dp(this, 16), -1, this);
         }
     }
 
@@ -1283,13 +1313,12 @@ public final class ScaleViews {
                 p.setFakeBoldText(i == now || i == 2);
                 p.setTextSize(sp(this, 12));
                 p.setColor(i == now ? XemsUi.TEXT : i == 2 ? XemsUi.alpha(XemsUi.TEXT, 200) : XemsUi.MUTED);
-                c.drawText(n.names[i], (x0 + x1) / 2, by + bh + dp(this, 34), p);
+                drawFit(c, p, n.names[i], (x0 + x1) / 2, by + bh + dp(this, 34), x1 - x0 - dp(this, 4), this);
                 if (i > 0) {
                     p.setFakeBoldText(false);
                     p.setTextSize(sp(this, 11));
                     p.setColor(XemsUi.MUTED);
-                    c.drawText(num(n.edges[i], n.edges[i] == Math.rint(n.edges[i]) ? 0 : 1), l + w * i / 5,
-                            by + bh + dp(this, 16), p);
+                    drawFit(c, p, num(n.edges[i], n.edges[i] == Math.rint(n.edges[i]) ? 0 : 1), l + w * i / 5, by + bh + dp(this, 16), -1, this);
                 }
             }
             // the norm's bracket over the middle sector
@@ -1322,7 +1351,7 @@ public final class ScaleViews {
             c.drawRoundRect(r, dp(this, 12), dp(this, 12), p);
             p.setColor(0xFF111111);
             p.setTextAlign(Paint.Align.CENTER);
-            c.drawText(v, r.centerX(), r.bottom - dp(this, 7), p);
+            drawFit(c, p, v, r.centerX(), r.bottom - dp(this, 7), -1, this);
             p.setFakeBoldText(false);
         }
     }
@@ -1502,13 +1531,13 @@ public final class ScaleViews {
                 p.setTextSize(sp(this, 15));
                 p.setFakeBoldText(true);
                 p.setColor(lit ? XemsUi.TEXT : XemsUi.MUTED);
-                c.drawText((Math.round(kg[i] * 10) / 10.0) + tr(" кг", " kg"), cx + dp(this, 14), ty, p);
+                drawFit(c, p, (Math.round(kg[i] * 10) / 10.0) + tr(" кг", " kg"), cx + dp(this, 14), ty, -1, this);
                 p.setFakeBoldText(false);
                 p.setTextSize(sp(this, 12));
                 p.setColor(lit ? COL[i] : XemsUi.alpha(COL[i], 150));
-                c.drawText(names[i], cx + dp(this, 14), ty + dp(this, 16), p);
+                drawFit(c, p, names[i], cx + dp(this, 14), ty + dp(this, 16), -1, this);
                 p.setColor(XemsUi.MUTED);
-                c.drawText(Math.round(kg[i] / sum * 100) + " %", cx + dp(this, 14), ty + dp(this, 31), p);
+                drawFit(c, p, Math.round(kg[i] / sum * 100) + " %", cx + dp(this, 14), ty + dp(this, 31), -1, this);
             }
         }
 
@@ -1622,7 +1651,7 @@ public final class ScaleViews {
             p.setTextAlign(Paint.Align.CENTER);
             p.setTextSize(sp(this, 13));
             p.setFakeBoldText(true);
-            c.drawText(Math.round(target * 10) / 10.0 + tr(" кг", " kg"), xt, y + dp(this, 28), p);
+            drawFit(c, p, Math.round(target * 10) / 10.0 + tr(" кг", " kg"), xt, y + dp(this, 28), -1, this);
             // now
             p.setColor(XemsUi.TEXT);
             c.drawCircle(xn, y, dp(this, 11), p);
@@ -1630,8 +1659,8 @@ public final class ScaleViews {
             c.drawCircle(xn, y, dp(this, 6), p);
             p.setColor(XemsUi.TEXT);
             p.setTextSize(sp(this, 15));
-            c.drawText(Math.round(now * 10) / 10.0 + tr(" кг · сега", " kg · now"), Math.max(l + dp(this, 50),
-                    Math.min(rr - dp(this, 50), xn)), y - dp(this, 18), p);
+            drawFit(c, p, Math.round(now * 10) / 10.0 + tr(" кг · сега", " kg · now"), Math.max(l + dp(this, 50),
+                    Math.min(rr - dp(this, 50), xn)), y - dp(this, 18), -1, this);
             p.setFakeBoldText(false);
             // what the gap is
             p.setTextAlign(Paint.Align.LEFT);
@@ -1639,7 +1668,7 @@ public final class ScaleViews {
             float ty = y + dp(this, 56);
             String t;
             if (on) {
-                t = tr("✓ В здравословното тегло", "✓ At the healthy weight");
+                t = tr("✓ В здравословни граници", "✓ Within a healthy range");
                 p.setColor(0xFF22C55E);
             } else {
                 StringBuilder b = new StringBuilder();
@@ -1649,12 +1678,12 @@ public final class ScaleViews {
                 }
                 if (muscle >= 0.5) {
                     b.append(b.length() > 0 ? "   " : "").append("+").append(Math.round(muscle * 10) / 10.0)
-                            .append(tr(" кг мускули", " kg muscle"));
+                            .append(tr(" кг мускулна маса", " kg muscle mass"));
                 }
                 t = b.toString();
                 p.setColor(XemsUi.TEXT);
             }
-            c.drawText(t, l, ty, p);
+            drawFit(c, p, t, l, ty, -1, this);
             if (selected) {
                 p.setStyle(Paint.Style.STROKE);
                 p.setStrokeWidth(dp(this, 2));

@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 573
+    .line 582
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 574
+    .line 583
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$Pick;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
 
-    .line 575
+    .line 584
     iput p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$Pick;->i:I
 
-    .line 576
+    .line 585
     return-void
 .end method
 
@@ -47,16 +47,16 @@
     .registers 4
 
     .prologue
-    .line 580
+    .line 589
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 581
+    .line 590
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$Pick;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$Pick;->i:I
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;->focusMetric(I)V
 
-    .line 582
+    .line 591
     return-void
 .end method

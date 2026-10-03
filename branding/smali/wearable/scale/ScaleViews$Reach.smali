@@ -31,10 +31,10 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 871
+    .line 895
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 863
+    .line 887
     const/16 v0, 0xa
 
     new-array v0, v0, [Ljava/lang/String;
@@ -63,9 +63,9 @@
 
     const/4 v1, 0x2
 
-    const-string v2, "\u0411\u0435\u0434\u0440\u0430"
+    const-string v2, "\u041f\u0440\u0435\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
 
-    const-string v3, "Thighs"
+    const-string v3, "Quads"
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -79,7 +79,7 @@
 
     const-string v3, "Calves"
 
-    .line 864
+    .line 888
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -126,9 +126,9 @@
 
     const-string v2, "\u041a\u0440\u044a\u0441\u0442"
 
-    const-string v3, "L. back"
+    const-string v3, "Lower back"
 
-    .line 865
+    .line 889
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -137,7 +137,7 @@
 
     const/16 v1, 0x8
 
-    const-string v2, "\u0421\u0435\u0434\u0430\u043b."
+    const-string v2, "\u0421\u0435\u0434\u0430\u043b\u0438\u0449\u0435"
 
     const-string v3, "Glutes"
 
@@ -149,9 +149,9 @@
 
     const/16 v1, 0x9
 
-    const-string v2, "\u0417\u0430\u0434\u043d\u043e \u0431."
+    const-string v2, "\u0417\u0430\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
 
-    const-string v3, "Hamstr."
+    const-string v3, "Hamstrings"
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -161,21 +161,21 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->names:[Ljava/lang/String;
 
-    .line 866
+    .line 890
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v4}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
 
-    .line 867
+    .line 891
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->r:Landroid/graphics/RectF;
 
-    .line 872
+    .line 896
     return-void
 .end method
 
@@ -183,7 +183,7 @@
     .registers 10
 
     .prologue
-    .line 881
+    .line 905
     const-wide v0, 0x3fe3333333333333L    # 0.6
 
     const-wide v2, 0x3ff4cccccccccccdL    # 1.3
@@ -219,18 +219,18 @@
     .registers 24
 
     .prologue
-    .line 886
+    .line 910
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->fat:[D
 
     if-nez v2, :cond_7
 
-    .line 931
+    .line 963
     :goto_6
     return-void
 
-    .line 889
+    .line 913
     :cond_7
     move-object/from16 v0, p0
 
@@ -238,8 +238,8 @@
 
     array-length v11, v2
 
-    .line 890
-    const/high16 v2, 0x41f00000    # 30.0f
+    .line 914
+    const/high16 v2, 0x42280000    # 42.0f
 
     move-object/from16 v0, p0
 
@@ -247,7 +247,7 @@
 
     move-result v2
 
-    .line 891
+    .line 915
     const/high16 v3, 0x41900000    # 18.0f
 
     move-object/from16 v0, p0
@@ -256,7 +256,7 @@
 
     move-result v12
 
-    .line 892
+    .line 916
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->getHeight()I
 
     move-result v3
@@ -267,7 +267,7 @@
 
     sub-float v13, v2, v12
 
-    .line 893
+    .line 917
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->getWidth()I
 
     move-result v2
@@ -278,10 +278,10 @@
 
     div-float v14, v2, v3
 
-    .line 894
+    .line 918
     const-wide/16 v4, 0x0
 
-    .line 895
+    .line 919
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->fat:[D
@@ -295,25 +295,25 @@
 
     aget-wide v8, v3, v2
 
-    .line 896
+    .line 920
     invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->factor(D)D
 
     move-result-wide v8
 
     add-double/2addr v4, v8
 
-    .line 895
+    .line 919
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_35
 
-    .line 898
+    .line 922
     :cond_41
     int-to-double v2, v11
 
     div-double v16, v4, v2
 
-    .line 899
+    .line 923
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -322,15 +322,15 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 900
+    .line 924
     const/4 v2, 0x0
 
     move v10, v2
 
     :goto_4f
-    if-ge v10, v11, :cond_1fd
+    if-ge v10, v11, :cond_2a9
 
-    .line 901
+    .line 925
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->fat:[D
@@ -341,10 +341,10 @@
 
     move-result-wide v2
 
-    .line 902
+    .line 926
     div-double v18, v2, v16
 
-    .line 903
+    .line 927
     float-to-double v4, v13
 
     const-wide v6, 0x3fb47ae147ae147bL    # 0.08
@@ -371,12 +371,12 @@
 
     double-to-float v2, v2
 
-    .line 904
+    .line 928
     int-to-float v3, v10
 
     mul-float v15, v3, v14
 
-    .line 905
+    .line 929
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->r:Landroid/graphics/RectF;
@@ -401,16 +401,16 @@
 
     invoke-virtual {v3, v4, v2, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 906
+    .line 930
     const-wide v2, 0x3fef5c28f5c28f5cL    # 0.98
 
     cmpl-double v2, v18, v2
 
-    if-ltz v2, :cond_1cc
+    if-ltz v2, :cond_24b
 
     const v7, -0xdd3aa2
 
-    .line 907
+    .line 931
     :goto_a3
     move-object/from16 v0, p0
 
@@ -420,7 +420,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 908
+    .line 932
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -459,7 +459,7 @@
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 910
+    .line 934
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->r:Landroid/graphics/RectF;
@@ -488,7 +488,7 @@
 
     invoke-virtual {v0, v2, v3, v4, v5}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 911
+    .line 935
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -497,14 +497,14 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 912
+    .line 936
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v2, v7}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 913
+    .line 937
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -513,7 +513,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 914
+    .line 938
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -528,7 +528,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 915
+    .line 939
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     sub-double v2, v18, v2
@@ -541,45 +541,57 @@
 
     move-result-wide v2
 
-    long-to-int v3, v2
+    long-to-int v4, v2
 
-    .line 916
-    if-nez v3, :cond_1df
+    .line 940
+    move-object/from16 v0, p0
 
-    const-string v2, "0"
+    iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
 
-    :goto_125
-    const/high16 v3, 0x40000000    # 2.0f
+    if-nez v4, :cond_25e
 
-    div-float v3, v14, v3
+    const-string v4, "0"
 
-    add-float/2addr v3, v15
+    :goto_129
+    const/high16 v2, 0x40000000    # 2.0f
+
+    div-float v2, v14, v2
+
+    add-float v5, v15, v2
 
     move-object/from16 v0, p0
 
-    iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->r:Landroid/graphics/RectF;
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->r:Landroid/graphics/RectF;
 
-    iget v4, v4, Landroid/graphics/RectF;->top:F
+    iget v2, v2, Landroid/graphics/RectF;->top:F
 
-    const/high16 v5, 0x40800000    # 4.0f
-
-    move-object/from16 v0, p0
-
-    invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
-
-    move-result v5
-
-    sub-float/2addr v4, v5
+    const/high16 v6, 0x40800000    # 4.0f
 
     move-object/from16 v0, p0
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
 
-    move-object/from16 v0, p1
+    move-result v6
 
-    invoke-virtual {v0, v2, v3, v4, v5}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    sub-float v6, v2, v6
 
-    .line 917
+    const/high16 v2, 0x40000000    # 2.0f
+
+    move-object/from16 v0, p0
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v2
+
+    sub-float v7, v14, v2
+
+    move-object/from16 v2, p1
+
+    move-object/from16 v8, p0
+
+    invoke-static/range {v2 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
+
+    .line 941
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -588,7 +600,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 918
+    .line 942
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -597,7 +609,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 919
+    .line 943
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -612,44 +624,147 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 920
+    .line 945
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->names:[Ljava/lang/String;
 
-    aget-object v2, v2, v10
+    aget-object v9, v2, v10
+
+    .line 946
+    const/16 v2, 0x20
+
+    invoke-virtual {v9, v2}, Ljava/lang/String;->indexOf(I)I
+
+    move-result v18
+
+    .line 947
+    if-lez v18, :cond_27c
+
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+
+    invoke-virtual {v2, v9}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
+
+    move-result v2
 
     const/high16 v3, 0x40000000    # 2.0f
 
-    div-float v3, v14, v3
+    move-object/from16 v0, p0
 
-    add-float/2addr v3, v15
+    invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v3
+
+    sub-float v3, v14, v3
+
+    cmpl-float v2, v2, v3
+
+    if-lez v2, :cond_27c
+
+    .line 948
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+
+    const/4 v2, 0x0
+
+    move/from16 v0, v18
+
+    invoke-virtual {v9, v2, v0}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v4
+
+    const/high16 v2, 0x40000000    # 2.0f
+
+    div-float v2, v14, v2
+
+    add-float v5, v15, v2
 
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->getHeight()I
 
-    move-result v4
+    move-result v2
 
-    int-to-float v4, v4
+    int-to-float v2, v2
 
-    const/high16 v5, 0x41600000    # 14.0f
-
-    move-object/from16 v0, p0
-
-    invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
-
-    move-result v5
-
-    sub-float/2addr v4, v5
+    const/high16 v6, 0x41d80000    # 27.0f
 
     move-object/from16 v0, p0
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
 
-    move-object/from16 v0, p1
+    move-result v6
 
-    invoke-virtual {v0, v2, v3, v4, v5}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    sub-float v6, v2, v6
 
-    .line 921
+    const/high16 v2, 0x40000000    # 2.0f
+
+    move-object/from16 v0, p0
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v2
+
+    sub-float v7, v14, v2
+
+    move-object/from16 v2, p1
+
+    move-object/from16 v8, p0
+
+    invoke-static/range {v2 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
+
+    .line 949
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+
+    add-int/lit8 v2, v18, 0x1
+
+    invoke-virtual {v9, v2}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object v4
+
+    const/high16 v2, 0x40000000    # 2.0f
+
+    div-float v2, v14, v2
+
+    add-float v5, v15, v2
+
+    invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->getHeight()I
+
+    move-result v2
+
+    int-to-float v2, v2
+
+    const/high16 v6, 0x41600000    # 14.0f
+
+    move-object/from16 v0, p0
+
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v6
+
+    sub-float v6, v2, v6
+
+    const/high16 v2, 0x40000000    # 2.0f
+
+    move-object/from16 v0, p0
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v2
+
+    sub-float v7, v14, v2
+
+    move-object/from16 v2, p1
+
+    move-object/from16 v8, p0
+
+    invoke-static/range {v2 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
+
+    .line 953
+    :goto_1f5
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -664,123 +779,183 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 922
+    .line 954
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+
     sget-object v2, Ljava/util/Locale;->US:Ljava/util/Locale;
 
-    const-string v3, "%.0f%%"
+    const-string v4, "%.0f%%"
 
-    const/4 v4, 0x1
+    const/4 v5, 0x1
 
-    new-array v4, v4, [Ljava/lang/Object;
+    new-array v5, v5, [Ljava/lang/Object;
 
-    const/4 v5, 0x0
+    const/4 v6, 0x0
 
     move-object/from16 v0, p0
 
-    iget-object v6, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->fat:[D
+    iget-object v7, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->fat:[D
 
-    aget-wide v6, v6, v10
+    aget-wide v8, v7, v10
 
-    invoke-static {v6, v7}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+    invoke-static {v8, v9}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
 
-    move-result-object v6
+    move-result-object v7
 
-    aput-object v6, v4, v5
+    aput-object v7, v5, v6
 
-    invoke-static {v2, v3, v4}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    invoke-static {v2, v4, v5}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v4
 
-    const/high16 v3, 0x40000000    # 2.0f
+    const/high16 v2, 0x40000000    # 2.0f
 
-    div-float v3, v14, v3
+    div-float v2, v14, v2
 
-    add-float/2addr v3, v15
+    add-float v5, v15, v2
 
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->getHeight()I
 
-    move-result v4
+    move-result v2
 
-    int-to-float v4, v4
+    int-to-float v2, v2
 
-    const/high16 v5, 0x40000000    # 2.0f
-
-    move-object/from16 v0, p0
-
-    invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
-
-    move-result v5
-
-    sub-float/2addr v4, v5
+    const/high16 v6, 0x40000000    # 2.0f
 
     move-object/from16 v0, p0
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
 
-    move-object/from16 v0, p1
+    move-result v6
 
-    invoke-virtual {v0, v2, v3, v4, v5}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    sub-float v6, v2, v6
 
-    .line 900
+    const/high16 v2, 0x40000000    # 2.0f
+
+    move-object/from16 v0, p0
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v2
+
+    sub-float v7, v14, v2
+
+    move-object/from16 v2, p1
+
+    move-object/from16 v8, p0
+
+    invoke-static/range {v2 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
+
+    .line 924
     add-int/lit8 v2, v10, 0x1
 
     move v10, v2
 
     goto/16 :goto_4f
 
-    .line 906
-    :cond_1cc
+    .line 930
+    :cond_24b
     const-wide v2, 0x3feccccccccccccdL    # 0.9
 
     cmpl-double v2, v18, v2
 
-    if-ltz v2, :cond_1da
+    if-ltz v2, :cond_259
 
     const v7, -0x154cf8
 
     goto/16 :goto_a3
 
-    :cond_1da
+    :cond_259
     const v7, -0x68cea
 
     goto/16 :goto_a3
 
-    .line 916
-    :cond_1df
-    new-instance v4, Ljava/lang/StringBuilder;
+    .line 940
+    :cond_25e
+    new-instance v5, Ljava/lang/StringBuilder;
 
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-lez v3, :cond_1fa
+    if-lez v4, :cond_279
 
     const-string v2, "+"
 
-    :goto_1e8
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    :goto_267
+    invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
-    invoke-static {v3}, Ljava/lang/Math;->abs(I)I
+    invoke-static {v4}, Ljava/lang/Math;->abs(I)I
 
-    move-result v3
+    move-result v4
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v4
 
-    goto/16 :goto_125
+    goto/16 :goto_129
 
-    :cond_1fa
+    :cond_279
     const-string v2, "\u2212"
 
-    goto :goto_1e8
+    goto :goto_267
 
-    .line 924
-    :cond_1fd
+    .line 951
+    :cond_27c
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
+
+    const/high16 v2, 0x40000000    # 2.0f
+
+    div-float v2, v14, v2
+
+    add-float v5, v15, v2
+
+    invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->getHeight()I
+
+    move-result v2
+
+    int-to-float v2, v2
+
+    const/high16 v4, 0x41600000    # 14.0f
+
+    move-object/from16 v0, p0
+
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v4
+
+    sub-float v6, v2, v4
+
+    const/high16 v2, 0x40000000    # 2.0f
+
+    move-object/from16 v0, p0
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v2
+
+    sub-float v7, v14, v2
+
+    move-object/from16 v2, p1
+
+    move-object v4, v9
+
+    move-object/from16 v8, p0
+
+    invoke-static/range {v2 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
+
+    goto/16 :goto_1f5
+
+    .line 956
+    :cond_2a9
     add-float v2, v12, v13
 
     float-to-double v4, v13
@@ -811,7 +986,7 @@
 
     sub-float v4, v2, v3
 
-    .line 925
+    .line 957
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -820,7 +995,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 926
+    .line 958
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -835,7 +1010,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 927
+    .line 959
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -850,7 +1025,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 928
+    .line 960
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -891,7 +1066,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 929
+    .line 961
     const/4 v3, 0x0
 
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->getWidth()I
@@ -910,7 +1085,7 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 930
+    .line 962
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->p:Landroid/graphics/Paint;
@@ -926,12 +1101,12 @@
     .registers 2
 
     .prologue
-    .line 875
+    .line 899
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->fat:[D
 
-    .line 876
+    .line 900
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;->invalidate()V
 
-    .line 877
+    .line 901
     return-void
 .end method

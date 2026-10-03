@@ -52,21 +52,21 @@
     .registers 15
 
     .prologue
-    .line 92
+    .line 118
     invoke-static {p0, p1}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v0
 
     if-eqz v0, :cond_8
 
-    .line 93
+    .line 119
     const/4 v0, 0x0
 
-    .line 100
+    .line 126
     :goto_7
     return v0
 
-    .line 95
+    .line 121
     :cond_8
     invoke-static {p0, p1}, Ljava/lang/Math;->abs(D)D
 
@@ -76,12 +76,12 @@
 
     if-gez v0, :cond_14
 
-    .line 96
+    .line 122
     const v0, -0x6b5c48
 
     goto :goto_7
 
-    .line 98
+    .line 124
     :cond_14
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
@@ -107,7 +107,7 @@
 
     double-to-float v1, v0
 
-    .line 99
+    .line 125
     const-wide/16 v2, 0x0
 
     cmpl-double v0, p0, v2
@@ -121,7 +121,7 @@
 
     const/4 v0, 0x1
 
-    .line 100
+    .line 126
     :goto_36
     const v2, -0x6b5c48
 
@@ -144,7 +144,7 @@
 
     goto :goto_7
 
-    .line 99
+    .line 125
     :cond_4b
     const/4 v0, 0x0
 
@@ -155,7 +155,7 @@
 
     goto :goto_36
 
-    .line 100
+    .line 126
     :cond_4f
     const v0, -0xa61f5
 
@@ -182,13 +182,162 @@
     return v0
 .end method
 
+.method static drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
+    .registers 13
+
+    .prologue
+    const/4 v4, 0x0
+
+    const/high16 v5, 0x40000000    # 2.0f
+
+    .line 52
+    if-eqz p2, :cond_b
+
+    invoke-virtual {p2}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-nez v0, :cond_c
+
+    .line 71
+    :cond_b
+    :goto_b
+    return-void
+
+    .line 55
+    :cond_c
+    invoke-virtual {p1}, Landroid/graphics/Paint;->getTextSize()F
+
+    move-result v2
+
+    .line 56
+    invoke-static {p6, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
+
+    move-result v3
+
+    .line 57
+    invoke-virtual {p6}, Landroid/view/View;->getWidth()I
+
+    move-result v0
+
+    int-to-float v0, v0
+
+    mul-float v1, v5, v3
+
+    sub-float/2addr v0, v1
+
+    .line 58
+    cmpl-float v1, p5, v4
+
+    if-lez v1, :cond_24
+
+    .line 59
+    invoke-static {v0, p5}, Ljava/lang/Math;->min(FF)F
+
+    move-result v0
+
+    .line 61
+    :cond_24
+    invoke-virtual {p1, p2}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
+
+    move-result v1
+
+    .line 62
+    cmpl-float v4, v0, v4
+
+    if-lez v4, :cond_67
+
+    cmpl-float v4, v1, v0
+
+    if-lez v4, :cond_67
+
+    .line 63
+    mul-float/2addr v0, v2
+
+    div-float/2addr v0, v1
+
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setTextSize(F)V
+
+    .line 64
+    invoke-virtual {p1, p2}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
+
+    move-result v0
+
+    .line 66
+    :goto_39
+    invoke-virtual {p1}, Landroid/graphics/Paint;->getTextAlign()Landroid/graphics/Paint$Align;
+
+    move-result-object v1
+
+    .line 67
+    sget-object v4, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
+
+    if-ne v1, v4, :cond_5e
+
+    div-float v1, v0, v5
+
+    sub-float v1, p3, v1
+
+    .line 68
+    :goto_45
+    invoke-virtual {p6}, Landroid/view/View;->getWidth()I
+
+    move-result v4
+
+    int-to-float v4, v4
+
+    sub-float/2addr v4, v3
+
+    sub-float v0, v4, v0
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(FF)F
+
+    move-result v0
+
+    invoke-static {v3, v0}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    .line 69
+    sub-float/2addr v0, v1
+
+    add-float/2addr v0, p3
+
+    invoke-virtual {p0, p2, v0, p4, p1}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 70
+    invoke-virtual {p1, v2}, Landroid/graphics/Paint;->setTextSize(F)V
+
+    goto :goto_b
+
+    .line 67
+    :cond_5e
+    sget-object v4, Landroid/graphics/Paint$Align;->RIGHT:Landroid/graphics/Paint$Align;
+
+    if-ne v1, v4, :cond_65
+
+    sub-float v1, p3, v0
+
+    goto :goto_45
+
+    :cond_65
+    move v1, p3
+
+    goto :goto_45
+
+    :cond_67
+    move v0, v1
+
+    goto :goto_39
+.end method
+
 .method public static fatCol(D)I
     .registers 4
 
     .prologue
     const/4 v1, 0x4
 
-    .line 80
+    .line 106
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10
@@ -224,7 +373,7 @@
     .registers 4
 
     .prologue
-    .line 110
+    .line 136
     if-nez p0, :cond_7
 
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->muscleCol(D)I
@@ -259,21 +408,21 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 58
+    .line 84
     invoke-static {p2, p3}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v0
 
     if-eqz v0, :cond_b
 
-    .line 59
+    .line 85
     const v0, -0x948d80
 
-    .line 69
+    .line 95
     :goto_a
     return v0
 
-    .line 61
+    .line 87
     :cond_b
     aget v0, p0, v2
 
@@ -283,12 +432,12 @@
 
     if-gtz v0, :cond_15
 
-    .line 62
+    .line 88
     aget v0, p1, v2
 
     goto :goto_a
 
-    .line 64
+    .line 90
     :cond_15
     const/4 v0, 0x1
 
@@ -297,7 +446,7 @@
 
     if-ge v0, v1, :cond_40
 
-    .line 65
+    .line 91
     aget v1, p0, v0
 
     float-to-double v2, v1
@@ -306,7 +455,7 @@
 
     if-gtz v1, :cond_3d
 
-    .line 66
+    .line 92
     add-int/lit8 v1, v0, -0x1
 
     aget v1, p1, v1
@@ -341,13 +490,13 @@
 
     goto :goto_a
 
-    .line 64
+    .line 90
     :cond_3d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_16
 
-    .line 69
+    .line 95
     :cond_40
     array-length v0, p1
 
@@ -364,7 +513,7 @@
     .prologue
     const/4 v1, 0x5
 
-    .line 74
+    .line 100
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10
@@ -404,7 +553,7 @@
     .prologue
     const/4 v1, 0x3
 
-    .line 105
+    .line 131
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10
@@ -438,7 +587,7 @@
     .registers 10
 
     .prologue
-    .line 636
+    .line 661
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -502,7 +651,7 @@
     .prologue
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 52
+    .line 78
     invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -511,7 +660,7 @@
 
     move-result-object v1
 
-    .line 53
+    .line 79
     iget v2, v1, Landroid/util/DisplayMetrics;->density:F
 
     const/4 v3, 0x0
@@ -536,7 +685,7 @@
 
     move-result v0
 
-    .line 54
+    .line 80
     :cond_21
     const v2, 0x3f8f5c29    # 1.12f
 
@@ -557,7 +706,7 @@
     .prologue
     const/4 v1, 0x3
 
-    .line 86
+    .line 112
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10

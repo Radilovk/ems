@@ -20,7 +20,7 @@ public final class ScaleDetail {
     public static String statusBg(int s) {
         switch (s) {
             case S_LOW: return "Ниско";
-            case S_STD: return "Стандартно";
+            case S_STD: return "Норма";
             case S_HIGH: return "Високо";
             case S_VERY_HIGH: return "Много високо";
             case S_GOOD: return "Отлично";
@@ -31,7 +31,7 @@ public final class ScaleDetail {
     public static String statusEn(int s) {
         switch (s) {
             case S_LOW: return "Low";
-            case S_STD: return "Standard";
+            case S_STD: return "Normal";
             case S_HIGH: return "High";
             case S_VERY_HIGH: return "Very high";
             case S_GOOD: return "Excellent";
@@ -177,13 +177,13 @@ public final class ScaleDetail {
                 new int[] {S_LOW, S_GOOD, S_STD, S_HIGH, S_VERY_HIGH});
         out.add(new Row("fat", "Телесни мазнини", "Body fat", fat, " %", 1, fs));
         out.add(new Row("fatKg", "Мазнини", "Fat mass", m.optDouble("fatKg", Double.NaN), " кг", 1, fs));
-        out.add(new Row("lean", "Без мазнини", "Fat-free mass", lean, " кг", 1, S_NONE));
+        out.add(new Row("lean", "Безмазнена маса", "Fat-free mass", lean, " кг", 1, S_NONE));
         ScaleInsight.Body b = ScaleInsight.body(m, male, heightCm);
         int ms = bySector(ScaleInsight.muscleNorm(b.ffmi, male, n5).sector(),
                 new int[] {S_LOW, S_LOW, S_STD, S_GOOD, S_GOOD});
         double muscle = m.optDouble("muscle", Double.NaN);
         out.add(new Row("muscle", "Мускулна маса", "Muscle mass", muscle, " кг", 1, ms));
-        out.add(new Row("musclePct", "Мускули от теглото", "Muscle rate", muscle / w * 100, " %", 1, ms));
+        out.add(new Row("musclePct", "Мускулна маса, %", "Muscle rate", muscle / w * 100, " %", 1, ms));
         double skel = m.optDouble("skel", Double.NaN);
         double lo = male ? 33.3 : 25.1, hi = male ? 43.5 : 36.1;
         out.add(new Row("skel", "Скелетни мускули", "Skeletal muscle", skel, " %", 1, Double.isNaN(skel) ? S_NONE
@@ -194,12 +194,12 @@ public final class ScaleDetail {
         double prot = m.optDouble("prot", Double.NaN);
         int ps = Double.isNaN(prot) ? S_NONE : prot < 16 ? S_LOW : prot <= 20 ? S_STD : S_GOOD;
         out.add(new Row("protKg", "Белтък", "Protein", w * prot / 100, " кг", 1, ps));
-        out.add(new Row("prot", "Белтък от теглото", "Protein rate", prot, " %", 1, ps));
+        out.add(new Row("prot", "Белтък, %", "Protein rate", prot, " %", 1, ps));
         double water = m.optDouble("water", Double.NaN);
         int wt = bySector(ScaleInsight.waterNorm(water, male, n5).sector(),
                 new int[] {S_LOW, S_LOW, S_STD, S_GOOD, S_GOOD});
         out.add(new Row("waterKg", "Вода", "Body water", w * water / 100, " кг", 1, wt));
-        out.add(new Row("water", "Вода от теглото", "Water rate", water, " %", 1, wt));
+        out.add(new Row("water", "Вода, %", "Water rate", water, " %", 1, wt));
         double subc = m.optDouble("subc", Double.NaN);
         double slo = male ? 8.6 : 18.5, shi = male ? 16.7 : 26.7;
         out.add(new Row("subc", "Подкожни мазнини", "Subcutaneous fat", subc, " %", 1, Double.isNaN(subc) ? S_NONE
@@ -211,7 +211,7 @@ public final class ScaleDetail {
         out.add(new Row("bmr", "Базов метаболизъм", "BMR", bmr, " kcal", 0, Double.isNaN(bmr) ? S_NONE
                 : bmr >= mifflin(male, w, heightCm, age) ? S_GOOD : S_STD));
         double pa = b.physicalAge;
-        out.add(new Row("page", "Физическа възраст", "Physical age", pa, "", 0, Double.isNaN(pa) ? S_NONE
+        out.add(new Row("page", "Възраст на тялото", "Body age", pa, "", 0, Double.isNaN(pa) ? S_NONE
                 : pa <= age - 2 ? S_GOOD : pa <= age + 2 ? S_STD : S_HIGH));
         out.add(new Row("target", "Здравословно тегло", "Healthy weight", c.target, " кг", 1, S_NONE));
         Row t = new Row("type", "Тип тяло", "Body type", Double.NaN, "", 0, S_NONE);
@@ -302,11 +302,11 @@ public final class ScaleDetail {
     public static final int G_FAT = 0, G_MUSCLE = 1, G_BUILD = 2, G_BODY = 3;
 
     public static String groupBg(int g) {
-        return g == G_FAT ? "Мазнини" : g == G_MUSCLE ? "Мускули" : g == G_BUILD ? "Вода и опора" : "Тяло и енергия";
+        return g == G_FAT ? "Мазнини" : g == G_MUSCLE ? "Мускулатура" : g == G_BUILD ? "Вода, белтък, кости" : "Общи показатели";
     }
 
     public static String groupEn(int g) {
-        return g == G_FAT ? "Fat" : g == G_MUSCLE ? "Muscle" : g == G_BUILD ? "Water and frame" : "Body and energy";
+        return g == G_FAT ? "Fat" : g == G_MUSCLE ? "Muscle" : g == G_BUILD ? "Water, protein, bone" : "General";
     }
 
     /** One tile of the analysis: its value on a 5-sector norm, the status word that matches the sector, a line. */
@@ -339,12 +339,12 @@ public final class ScaleDetail {
 
     static final String[] N_BOTH_BG = {"много ниско", "ниско", "норма", "високо", "много високо"};
     static final String[] N_BOTH_EN = {"very low", "low", "normal", "high", "very high"};
-    static final String[] N_MORE_BG = {"много малко", "малко", "норма", "добре", "отлично"};
+    static final String[] N_MORE_BG = {"много ниско", "ниско", "норма", "добро", "отлично"};
     static final String[] N_MORE_EN = {"very low", "low", "normal", "good", "excellent"};
-    static final String[] N_FAT_BG = {"много ниски", "стегнато", "норма", "наднормено", "затлъстяване"};
-    static final String[] N_FAT_EN = {"very low", "lean", "normal", "overweight", "obese"};
-    static final String[] N_AGE_BG = {"много млад", "по-млад", "като годините", "по-стар", "много по-стар"};
-    static final String[] N_AGE_EN = {"much younger", "younger", "as the years", "older", "much older"};
+    static final String[] N_FAT_BG = {"много ниски", "ниски", "норма", "повишени", "високи"};
+    static final String[] N_FAT_EN = {"very low", "low", "normal", "elevated", "high"};
+    static final String[] N_AGE_BG = {"много по-ниска", "по-ниска", "отговаря", "по-висока", "много по-висока"};
+    static final String[] N_AGE_EN = {"much younger", "younger", "matches", "older", "much older"};
 
     static final int[] M_BOTH = {S_LOW, S_LOW, S_STD, S_HIGH, S_VERY_HIGH};
     static final int[] M_MORE = {S_LOW, S_LOW, S_STD, S_GOOD, S_GOOD};
@@ -396,10 +396,8 @@ public final class ScaleDetail {
         f.subEn = kg(false, m.optDouble("fatKg"));
         f.dir = -1;
         put(f, ScaleInsight.fatNorm(f.value, male, age, pick(bg, N_FAT_BG, N_FAT_EN)), M_FATS);
-        f.whatBg = "Частта от теглото, която е мазнина. Нормата е по пол и възраст; под нея — стегнато тяло. "
-                + "Пада с дефицит на калории и силова работа.";
-        f.whatEn = "The share of the weight that is fat. The norm is by sex and age; below it — lean. Falls with a "
-                + "calorie deficit and strength work.";
+        f.whatBg = "Делът на мазнините в теглото. Нормата зависи от пола и възрастта.";
+        f.whatEn = "The share of fat in the weight. The norm depends on sex and age.";
         out.add(f);
         Metric sc = new Metric("subc", G_FAT, "Подкожни мазнини", "Subcutaneous fat");
         sc.value = m.optDouble("subc", Double.NaN);
@@ -408,20 +406,16 @@ public final class ScaleDetail {
         double[] se = male ? new double[] {0, 5, 8.6, 16.7, 22, 35} : new double[] {0, 12, 18.5, 26.7, 32, 45};
         put(sc, ScaleInsight.norm(se, ScaleInsight.LESS, pick(bg, N_FAT_BG, N_FAT_EN), sc.value, " %", 1,
                 "WLA25 / Fitdays"), M_FATS);
-        sc.whatBg = "Мазнините под кожата — тези, които се хващат с пръсти. Те изолират и тока: повече подкожни "
-                + "мазнини — малко повече сила за същото усещане.";
-        sc.whatEn = "Fat under the skin — the kind you can pinch. It also insulates the current: more of it — a little "
-                + "more strength for the same feel.";
+        sc.whatBg = "Мазнините под кожата. Повече подкожни мазнини изискват по-висока сила на тока.";
+        sc.whatEn = "Fat under the skin. More of it needs a higher current strength.";
         out.add(sc);
         Metric vf = new Metric("visc", G_FAT, "Висцерални мазнини", "Visceral fat");
         vf.value = m.has("visc") ? m.optInt("visc") : Double.NaN;
         vf.decimals = 0;
         vf.dir = -1;
         put(vf, ScaleInsight.visceralNorm(vf.value, both), M_VISC);
-        vf.whatBg = "Мазнините около органите в корема — най-важните за здравето. До 9 е нормата; 10 и нагоре "
-                + "е рисково. Падат първи при движение и по-малко захар.";
-        vf.whatEn = "Fat around the organs in the belly — the one that matters most for health. Up to 9 is normal; "
-                + "10 and up is a risk. It goes first with activity and less sugar.";
+        vf.whatBg = "Мазнините около вътрешните органи. Стойност до 9 е в нормата; от 10 нагоре повишава здравния риск.";
+        vf.whatEn = "Fat around the internal organs. Up to 9 is normal; 10 and above raises the health risk.";
         out.add(vf);
 
         // muscle
@@ -432,10 +426,8 @@ public final class ScaleDetail {
         mu.subEn = Math.round(mu.value / w * 1000) / 10.0 + " % of the weight";
         mu.dir = 1;
         put(mu, scaled(ScaleInsight.muscleNorm(Double.NaN, male, more), h2 * 0.933, mu.value, u, 1), M_MORE);
-        mu.whatBg = "Всичко меко без мазнини: мускули, органи, вода в тях. Нормата е за ръста — повече е по-добре, "
-                + "тежко от мускули тяло не е наднормено.";
-        mu.whatEn = "Everything soft that is not fat: muscle, organs, their water. The norm is for the height — more "
-                + "is better; a body heavy with muscle is not overweight.";
+        mu.whatBg = "Мекотъканна маса без мазнини — мускули заедно с водата в тях. Оценява се спрямо ръста.";
+        mu.whatEn = "Soft lean mass — muscle together with its water, rated for the height.";
         out.add(mu);
         Metric sk = new Metric("skel", G_MUSCLE, "Скелетни мускули", "Skeletal muscle");
         sk.value = m.optDouble("skel", Double.NaN);
@@ -445,22 +437,18 @@ public final class ScaleDetail {
         sk.dir = 1;
         double[] ke = male ? new double[] {20, 28, 33.3, 43.5, 48, 60} : new double[] {15, 21, 25.1, 36.1, 40, 50};
         put(sk, ScaleInsight.norm(ke, ScaleInsight.MORE, more, sk.value, " %", 1, "Janssen 2000 (MRI)"), M_MORE);
-        sk.whatBg = "Мускулите, които движат тялото — тези, които EMS тренира. Растат със силова работа и белтък "
-                + "(1.6 г на кг тегло).";
-        sk.whatEn = "The muscles that move the body — the ones EMS trains. They grow with strength work and protein "
-                + "(1.6 g per kg of weight).";
+        sk.whatBg = "Мускулите, които движат тялото и които EMS тренира. Растат при силово натоварване и достатъчно белтък.";
+        sk.whatEn = "The muscles that move the body and that EMS trains. They grow with strength work and enough protein.";
         out.add(sk);
-        Metric le = new Metric("lean", G_MUSCLE, "Без мазнини", "Fat-free mass");
+        Metric le = new Metric("lean", G_MUSCLE, "Безмазнена маса", "Fat-free mass");
         le.value = m.optDouble("lean", Double.NaN);
         le.unit = u;
         le.subBg = "FFMI " + Math.round(b.ffmi * 10) / 10.0;
         le.subEn = le.subBg;
         le.dir = 1;
         put(le, scaled(ScaleInsight.muscleNorm(Double.NaN, male, more), h2, le.value, u, 1), M_MORE);
-        le.whatBg = "Теглото без мазнините: мускули, кости, вода, органи. Спрямо ръста казва колко „силно“ е тялото "
-                + "— по-точно от ИТМ.";
-        le.whatEn = "The weight without the fat: muscle, bone, water, organs. Against the height it tells how strong "
-                + "the body is — better than BMI.";
+        le.whatBg = "Цялото тегло без мазнините: мускули, кости, вода и органи. Индексът спрямо ръста (FFMI) е по-точен от ИТМ.";
+        le.whatEn = "All of the weight except fat: muscle, bone, water and organs. The index for the height (FFMI) is more accurate than BMI.";
         out.add(le);
 
         // water and frame
@@ -472,12 +460,10 @@ public final class ScaleDetail {
         wa.dir = 1;
         ScaleInsight.Norm wn = ScaleInsight.waterNorm(wa.value, male, both);
         put(wa, ScaleInsight.norm(wn.edges, ScaleInsight.MORE, pick(bg, new String[] {"много ниско", "ниско",
-                "норма", "добре", "много"}, new String[] {"very low", "low", "normal", "good", "very high"}),
+                "норма", "добро", "много високо"}, new String[] {"very low", "low", "normal", "good", "very high"}),
                 wa.value, " %", 1, wn.source), M_MORE);
-        wa.whatBg = "Водата в тялото, най-вече в мускулите. Ток минава по вода: ниско — нека пие 2–3 чаши преди "
-                + "тренировката.";
-        wa.whatEn = "The water in the body, mostly in the muscles. Current travels through water: low — have 2–3 "
-                + "glasses before the training.";
+        wa.whatBg = "Общото количество вода в тялото. Добрата хидратация подобрява провеждането на тока.";
+        wa.whatEn = "Total body water. Good hydration improves current conduction.";
         out.add(wa);
         Metric pr = new Metric("prot", G_BUILD, "Белтък", "Protein");
         pr.value = m.optDouble("prot", Double.NaN);
@@ -487,8 +473,8 @@ public final class ScaleDetail {
         pr.dir = 1;
         put(pr, ScaleInsight.norm(new double[] {8, 12, 16, 20, 22, 26}, ScaleInsight.MORE, more, pr.value, " %", 1,
                 "WLA25 / Fitdays"), M_MORE);
-        pr.whatBg = "Строителният материал на мускулите. Ниско — повече месо, риба, яйца, извара след тренировка.";
-        pr.whatEn = "The building material of muscle. Low — more meat, fish, eggs, cottage cheese after the training.";
+        pr.whatBg = "Белтъкът в тялото — основен градивен материал на мускулите.";
+        pr.whatEn = "Body protein — the main building material of muscle.";
         out.add(pr);
         Metric bo = new Metric("bone", G_BUILD, "Костна маса", "Bone mass");
         bo.value = m.optDouble("bone", Double.NaN);
@@ -497,10 +483,8 @@ public final class ScaleDetail {
         double bs = boneStd(male, w);
         put(bo, ScaleInsight.norm(new double[] {bs - 1.4, bs - 0.7, bs - 0.2, bs + 0.2, bs + 0.9, bs + 2.2},
                 ScaleInsight.MORE, more, bo.value, u, 1, "Tanita / Fitdays"), M_MORE);
-        bo.whatBg = "Минералите в костите, оценени от безмазнената маса. Пазят се с натоварване — EMS и ходене — "
-                + "и с калций и витамин D.";
-        bo.whatEn = "The minerals in the bones, estimated from the fat-free mass. Kept with load — EMS and walking — "
-                + "and calcium and vitamin D.";
+        bo.whatBg = "Минералното съдържание на костите, оценено от безмазнената маса.";
+        bo.whatEn = "The bone mineral content, estimated from the fat-free mass.";
         out.add(bo);
 
         // body and energy
@@ -508,7 +492,7 @@ public final class ScaleDetail {
         Metric we = new Metric("w", G_BODY, "Тегло", "Weight");
         we.value = w;
         we.unit = u;
-        we.subBg = Double.isNaN(c.target) ? "" : "здравословно " + kg(true, c.target);
+        we.subBg = Double.isNaN(c.target) ? "" : "здравословно: " + kg(true, c.target);
         we.subEn = Double.isNaN(c.target) ? "" : "healthy " + kg(false, c.target);
         we.dir = 0;
         if (!Double.isNaN(c.target)) {
@@ -516,20 +500,17 @@ public final class ScaleDetail {
             put(we, ScaleInsight.norm(new double[] {0.7 * t, 0.82 * t, 0.92 * t, 1.08 * t, 1.2 * t, 1.45 * t},
                     ScaleInsight.BOTH, both, w, u, 1, "XEMS"), M_BOTH);
         }
-        we.whatBg = "Здравословното тегло е за собствените мускули на клиента при здравословни мазнини — не по ИТМ. "
-                + "Докосни „Път до здравословното“ вляво.";
-        we.whatEn = "The healthy weight is for the client's own muscle at a healthy fat % — not by BMI. Tap the path "
-                + "to the healthy weight on the left.";
+        we.whatBg = "Здравословното тегло се определя от собствената мускулна маса при здравословен процент мазнини.";
+        we.whatEn = "The healthy weight is derived from the client's own muscle mass at a healthy fat percentage.";
         out.add(we);
         Metric bm = new Metric("bmi", G_BODY, "ИТМ", "BMI");
         bm.value = m.optDouble("bmi", Double.NaN);
         bm.dir = 0;
         put(bm, ScaleInsight.bmiNorm(bm.value, both), M_BOTH);
-        bm.whatBg = "Само теглото спрямо ръста — не знае какво е теглото. При много мускули лъже: виж мазнините.";
-        bm.whatEn = "Only the weight against the height — it does not know what the weight is. With much muscle it "
-                + "misleads: look at the fat.";
+        bm.whatBg = "Съотношение тегло/ръст. Не различава мускули от мазнини и при атлетично телосложение надценява.";
+        bm.whatEn = "Weight relative to height. It does not tell muscle from fat and overrates athletic builds.";
         out.add(bm);
-        Metric me = new Metric("bmr", G_BODY, "Метаболизъм", "Resting energy");
+        Metric me = new Metric("bmr", G_BODY, "Базов метаболизъм", "Basal metabolic rate");
         me.value = m.optDouble("bmr", Double.NaN);
         me.unit = " kcal";
         me.decimals = 0;
@@ -537,23 +518,19 @@ public final class ScaleDetail {
         double mf = mifflin(male, w, heightCm, age);
         put(me, ScaleInsight.norm(new double[] {0.72 * mf, 0.85 * mf, 0.95 * mf, 1.05 * mf, 1.15 * mf, 1.35 * mf},
                 ScaleInsight.MORE, more, me.value, " kcal", 0, "Katch–McArdle · Mifflin"), M_MORE);
-        me.whatBg = "Колко изгаря тялото в покой за ден — от безмазнената маса. Над обичайното за теглото и годините "
-                + "е добре: повече мускули — повече изгаряне.";
-        me.whatEn = "What the body burns at rest in a day — from the fat-free mass. Above the usual for the weight and "
-                + "age is good: more muscle — more burnt.";
+        me.whatBg = "Енергията, която тялото изразходва в покой за едно денонощие.";
+        me.whatEn = "The energy the body uses at rest in a day.";
         out.add(me);
-        Metric pa = new Metric("page", G_BODY, "Физическа възраст", "Physical age");
+        Metric pa = new Metric("page", G_BODY, "Възраст на тялото", "Body age");
         pa.value = b.physicalAge;
         pa.decimals = 0;
-        pa.subBg = "паспорт " + age;
-        pa.subEn = "passport " + age;
+        pa.subBg = "реална " + age;
+        pa.subEn = "actual " + age;
         pa.dir = -1;
         ScaleInsight.Norm an = ScaleInsight.ageNorm(pa.value, age, pick(bg, N_AGE_BG, N_AGE_EN));
         put(pa, an, M_AGE);
-        pa.whatBg = "Годините, на които отговарят мускулите на ръцете и краката и мазнините (DXA, 3 327 души). "
-                + "Мускулите я свалят най-бързо.";
-        pa.whatEn = "The age the arm and leg muscle and the fat match (DXA, 3,327 adults). Muscle brings it down "
-                + "fastest.";
+        pa.whatBg = "Възрастта, на която съответстват мускулатурата и мазнините, според референтни DXA данни.";
+        pa.whatEn = "The age the muscle and fat correspond to, from DXA reference data.";
         out.add(pa);
         return out;
     }
@@ -571,7 +548,7 @@ public final class ScaleDetail {
     /** The zone's fat (% of standard) and muscle (% of standard) on their bars. */
     public static ScaleInsight.Norm zoneFatNorm(double pct, boolean bg) {
         return ScaleInsight.norm(new double[] {20, 50, 80, 160, 220, 300}, ScaleInsight.LESS,
-                pick(bg, new String[] {"много малко", "малко", "стандарт", "високо", "много високо"},
+                pick(bg, new String[] {"много ниско", "ниско", "норма", "високо", "много високо"},
                         new String[] {"very low", "low", "standard", "high", "very high"}), pct, " %", 0,
                 "WLA25 / Fitdays");
     }

@@ -11,6 +11,7 @@ export const LIMITS = {
   profilePerMinutePerIp: 10,
   inboxPerMinutePerDevice: 6,
   sessionPerMinutePerDevice: 20,
+  measuresPerMinutePerDevice: 20,
   clientsPerMinutePerDevice: 20,
   historyPerMinutePerIp: 60,
   rateLimitRetentionSec: 7 * 86400,

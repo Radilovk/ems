@@ -95,6 +95,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleStore.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleViews.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleShare.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleUploader.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleLink.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleScreen.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/SearchPad.java"

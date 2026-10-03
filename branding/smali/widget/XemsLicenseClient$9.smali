@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 590
+    .line 610
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -53,7 +53,7 @@
     .registers 4
 
     .prologue
-    .line 593
+    .line 613
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -62,6 +62,6 @@
 
     invoke-interface {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;->done(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
 
-    .line 594
+    .line 614
     return-void
 .end method

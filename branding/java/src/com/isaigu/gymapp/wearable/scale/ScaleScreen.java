@@ -210,6 +210,7 @@ public final class ScaleScreen {
 
             hist = ScaleStore.list(a, userId);
             at = hist.length() - 1;
+            ScaleUploader.schedule(a, userId, male, age, heightCm);   // anything not on the client's card yet
             build();
             render(false);
             s.dialog.setOnDismissListener(new Dismissed(this));
@@ -1388,6 +1389,7 @@ public final class ScaleScreen {
             lastKg = r.weightKg;
             again.setVisibility(View.VISIBLE);
             hist = ScaleStore.list(a, userId);
+            ScaleUploader.schedule(a, userId, male, age, heightCm);
             at = hist.length() - 1;
             if (mode != MODE_DAY) {
                 mode = MODE_DAY;

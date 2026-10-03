@@ -473,6 +473,26 @@ public final class XemsLicenseClient {
         }
     }
 
+    /**
+     * The client's scale measurements (compact results, a JSON array of weigh-ins) → POST /v1/measures, filed
+     * under the client's dossier id like the trainings; the client's card shows them.
+     */
+    public static void postMeasures(Context c, String clientKey, String itemsJson) throws Exception {
+        String token = XemsLicense.token();
+        if (!serverConfigured() || token == null || token.length() == 0) {
+            throw new IllegalStateException("no license server");
+        }
+        if (itemsJson == null || !itemsJson.trim().startsWith("[")) {
+            throw new IllegalArgumentException("measures");
+        }
+        String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token)
+                + ",\"client_key\":" + XemsLicenseToken.quote(clientKey) + ",\"items\":" + itemsJson + "}";
+        Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/measures", body));
+        if (!Boolean.TRUE.equals(r.get("ok"))) {
+            throw new Exception("measures: " + r.get("error"));
+        }
+    }
+
     // ================================================================ plumbing
 
     /** Fields every request carries (the server's input data). */

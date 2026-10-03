@@ -1,8 +1,9 @@
 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
 
 Status: implemented in 1.1.285-ai (`wearable/scale/`), tested offline only — **not yet on the real P1**.
-The tablet reads the scale itself, stores the measurement per client on the tablet (server sync to
-`(license_id, cid)`, see `xems-client-sync.md`, is the next step) and a fresh measurement replaces the
+The tablet reads the scale itself, stores the measurement per client on the tablet and (1.1.294-ai,
+`ScaleUploader` → `POST /v1/measures` → D1 `body_measures`) on the server under `(license_id, cid)`; the client's
+card shows a "Тяло" block from `GET /v1/history/<cardId>` → `body` (see `xems-client-sync.md`) and a fresh measurement replaces the
 Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight in `AiProfile`).
 
 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)

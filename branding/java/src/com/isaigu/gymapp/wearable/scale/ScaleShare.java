@@ -352,6 +352,9 @@ public final class ScaleShare {
                 if (r.has("sfat")) {
                     o.put("sfat", r.optDouble("sfat"));
                 }
+                if (r.optInt("f1") == 1) {
+                    o.put("f1", 1);
+                }
                 o.put("male", male).put("age", age).put("h", heightCm).put("v", r.optInt("v"));
             } catch (Exception ignored) {
             }

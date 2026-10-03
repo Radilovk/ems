@@ -109,6 +109,9 @@ public final class ScaleStore {
         if (!Double.isNaN(r.scaleFatPct)) {
             o.put("sfat", r.scaleFatPct);
         }
+        if (r.single) {
+            o.put("f1", 1);
+        }
         if (b != null) {
             o.put("fat", b.fatPct);
             o.put("fatKg", b.fatKg);

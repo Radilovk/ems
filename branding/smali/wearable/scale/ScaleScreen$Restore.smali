@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2109
+    .line 2143
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2110
+    .line 2144
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Restore;->a:Landroid/app/Activity;
 
-    .line 2111
+    .line 2145
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 2116
+    .line 2150
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Restore;->a:Landroid/app/Activity;
 
@@ -54,22 +54,22 @@
 
     move-result-object v0
 
-    .line 2117
+    .line 2151
     sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDensity:F
 
     iput v1, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 2118
+    .line 2152
     sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oScaled:F
 
     iput v1, v0, Landroid/util/DisplayMetrics;->scaledDensity:F
 
-    .line 2119
+    .line 2153
     sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDpi:I
 
     iput v1, v0, Landroid/util/DisplayMetrics;->densityDpi:I
 
-    .line 2120
+    .line 2154
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Restore;->a:Landroid/app/Activity;
 
     invoke-virtual {v0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
@@ -84,33 +84,33 @@
 
     move-result-object v0
 
-    .line 2121
+    .line 2155
     sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aDensity:F
 
     iput v1, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 2122
+    .line 2156
     sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aScaled:F
 
     iput v1, v0, Landroid/util/DisplayMetrics;->scaledDensity:F
 
-    .line 2123
+    .line 2157
     sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aDpi:I
 
     iput v1, v0, Landroid/util/DisplayMetrics;->densityDpi:I
 
-    .line 2124
+    .line 2158
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDensity:F
     :try_end_33
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_33} :catch_34
 
-    .line 2127
+    .line 2161
     :goto_33
     return-void
 
-    .line 2125
+    .line 2159
     :catch_34
     move-exception v0
 

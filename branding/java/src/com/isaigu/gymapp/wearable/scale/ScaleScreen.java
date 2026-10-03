@@ -210,6 +210,7 @@ public final class ScaleScreen {
             leftCard = leftColumn();
             grid = XemsUi.vertical(a);
             stage = new ScaleStage(a, !male);
+            stage.chip.setOnLongClickListener(new ShareLog(a));
             stage.results.setOnClickListener(new ToResults(this));
             s.body.addView(stage.view(), XemsUi.matchWrap(a, 12));
             s.body.addView(grid, XemsUi.matchWrap(a, 14));
@@ -262,6 +263,7 @@ public final class ScaleScreen {
             LinearLayout line = XemsUi.horizontal(a);
             line.setGravity(Gravity.CENTER_VERTICAL);
             status = XemsUi.text(a, "", 15, XemsUi.TEXT, true);
+            status.setOnLongClickListener(new ShareLog(a));
             line.addView(status, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             col.addView(line, XemsUi.matchWrap(a, 2));
             typeChip = XemsUi.text(a, "", 16, XemsUi.TEXT, true);
@@ -1861,6 +1863,38 @@ public final class ScaleScreen {
             } catch (Throwable t) {
                 XemsGuard.report("ScaleScreen.start", t);
             }
+        }
+    }
+
+    /** Long press on the state line: the scale's connection log (every frame) to send for a new scale model. */
+    static final class ShareLog implements View.OnLongClickListener {
+        final Activity a;
+
+        ShareLog(Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            XemsUi.haptic(v);
+            String all = com.isaigu.gymapp.wearable.WearableBleDiagLog.readTail(a, "wearable-ble.log", 200000);
+            StringBuilder b = new StringBuilder();
+            for (String line : all.split("\n")) {
+                if (line.contains("scale")) {
+                    b.append(line).append('\n');
+                }
+            }
+            android.content.Intent send = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            send.setType("text/plain");
+            send.putExtra(android.content.Intent.EXTRA_SUBJECT, "XEMS scale log");
+            send.putExtra(android.content.Intent.EXTRA_TEXT, b.length() > 0 ? b.toString()
+                    : tr("Няма запис от кантара", "No scale record"));
+            try {
+                a.startActivity(android.content.Intent.createChooser(send, tr("Изпрати лога на кантара",
+                        "Send the scale log")));
+            } catch (Throwable ignored) {
+            }
+            return true;
         }
     }
 

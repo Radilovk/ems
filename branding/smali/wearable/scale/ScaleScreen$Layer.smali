@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2317
+    .line 2351
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2318
+    .line 2352
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Layer;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2319
+    .line 2353
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 2323
+    .line 2357
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Layer;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->setLayer(I)V
 
-    .line 2324
+    .line 2358
     return-void
 .end method

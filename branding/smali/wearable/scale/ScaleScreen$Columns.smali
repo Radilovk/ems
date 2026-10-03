@@ -36,25 +36,25 @@
     .registers 6
 
     .prologue
-    .line 1849
+    .line 1900
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1850
+    .line 1901
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->a:Landroid/app/Activity;
 
-    .line 1851
+    .line 1902
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->row:Landroid/widget/LinearLayout;
 
-    .line 1852
+    .line 1903
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->weights:[F
 
-    .line 1853
+    .line 1904
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->tallDp:[I
 
-    .line 1854
+    .line 1905
     iput p5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->offsetDp:I
 
-    .line 1855
+    .line 1906
     return-void
 .end method
 
@@ -66,7 +66,7 @@
 
     const/4 v1, 0x0
 
-    .line 1873
+    .line 1924
     if-eqz p2, :cond_36
 
     const/4 v0, 0x1
@@ -76,7 +76,7 @@
 
     move v0, v1
 
-    .line 1874
+    .line 1925
     :goto_a
     invoke-virtual {p1}, Landroid/widget/LinearLayout;->getChildCount()I
 
@@ -84,15 +84,15 @@
 
     if-ge v0, v2, :cond_4f
 
-    .line 1876
+    .line 1927
     if-eqz p2, :cond_3c
 
-    .line 1877
+    .line 1928
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v4, -0x1
 
-    .line 1878
+    .line 1929
     aget v2, p4, v0
 
     if-lez v2, :cond_38
@@ -108,7 +108,7 @@
     :goto_20
     invoke-direct {v3, v4, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 1879
+    .line 1930
     if-lez v0, :cond_3a
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -120,7 +120,7 @@
 
     move-object v2, v3
 
-    .line 1884
+    .line 1935
     :goto_2c
     invoke-virtual {p1, v0}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
@@ -128,7 +128,7 @@
 
     invoke-virtual {v3, v2}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1874
+    .line 1925
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_a
@@ -136,10 +136,10 @@
     :cond_36
     move v0, v1
 
-    .line 1873
+    .line 1924
     goto :goto_6
 
-    .line 1878
+    .line 1929
     :cond_38
     const/4 v2, -0x2
 
@@ -148,10 +148,10 @@
     :cond_3a
     move v2, v1
 
-    .line 1879
+    .line 1930
     goto :goto_29
 
-    .line 1881
+    .line 1932
     :cond_3c
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -159,7 +159,7 @@
 
     invoke-direct {v3, v1, p5, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 1882
+    .line 1933
     if-lez v0, :cond_4d
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -178,7 +178,7 @@
 
     goto :goto_49
 
-    .line 1886
+    .line 1937
     :cond_4f
     return-void
 .end method
@@ -187,7 +187,7 @@
     .registers 13
 
     .prologue
-    .line 1890
+    .line 1941
     new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;
 
     move-object v1, p0
@@ -202,14 +202,14 @@
 
     invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;-><init>(Landroid/app/Activity;Landroid/widget/LinearLayout;[F[II)V
 
-    .line 1891
+    .line 1942
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->portrait(Landroid/app/Activity;)Z
 
     move-result v1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->portrait:Z
 
-    .line 1892
+    .line 1943
     iget-boolean v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->portrait:Z
 
     invoke-static {p0, p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->landH(Landroid/app/Activity;I)I
@@ -226,7 +226,7 @@
 
     invoke-static/range {v1 .. v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->apply(Landroid/app/Activity;Landroid/widget/LinearLayout;Z[F[II)V
 
-    .line 1893
+    .line 1944
     iget-object v1, p1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v1}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
@@ -235,7 +235,7 @@
 
     if-eqz v1, :cond_32
 
-    .line 1894
+    .line 1945
     iget-object v1, p1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v1}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
@@ -248,7 +248,7 @@
 
     invoke-virtual {v1, v0}, Landroid/view/View;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
 
-    .line 1896
+    .line 1947
     :cond_32
     return-void
 .end method
@@ -257,7 +257,7 @@
     .registers 5
 
     .prologue
-    .line 1869
+    .line 1920
     const/high16 v0, 0x43dc0000    # 440.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -293,7 +293,7 @@
     .registers 4
 
     .prologue
-    .line 1864
+    .line 1915
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -302,7 +302,7 @@
 
     move-result-object v0
 
-    .line 1865
+    .line 1916
     iget v1, v0, Landroid/util/DisplayMetrics;->widthPixels:I
 
     int-to-float v1, v1
@@ -338,7 +338,7 @@
     .registers 3
 
     .prologue
-    .line 1858
+    .line 1909
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -347,7 +347,7 @@
 
     move-result-object v0
 
-    .line 1859
+    .line 1910
     iget v1, v0, Landroid/util/DisplayMetrics;->heightPixels:I
 
     iget v0, v0, Landroid/util/DisplayMetrics;->widthPixels:I
@@ -371,7 +371,7 @@
     .registers 12
 
     .prologue
-    .line 1900
+    .line 1951
     sub-int v0, p5, p3
 
     sub-int v1, p4, p2
@@ -380,7 +380,7 @@
 
     const/4 v0, 0x1
 
-    .line 1901
+    .line 1952
     :goto_7
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->portrait:Z
 
@@ -390,15 +390,15 @@
 
     if-lez v1, :cond_20
 
-    .line 1902
+    .line 1953
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->portrait:Z
 
-    .line 1903
+    .line 1954
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->hold(Landroid/app/Activity;)V
 
-    .line 1904
+    .line 1955
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->row:Landroid/widget/LinearLayout;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relayout;
@@ -407,11 +407,11 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->post(Ljava/lang/Runnable;)Z
 
-    .line 1906
+    .line 1957
     :cond_20
     return-void
 
-    .line 1900
+    .line 1951
     :cond_21
     const/4 v0, 0x0
 

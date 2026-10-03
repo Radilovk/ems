@@ -600,9 +600,10 @@ public final class ScaleInsight {
         Readiness r = readiness(hist, at);
         if (!r.known()) {
             out.add(new Advice(3, K_HABIT, TONE_INFO, "Мерене преди всяка тренировка",
-                    "След 2–3 мерения кантарът ще казва дали тялото е готово за пълна сила.",
+                    "От следващото мерене (поне 6 ч по-късно) кантарът казва дали тялото е готово за пълна сила.",
                     "Measure before every session",
-                    "After 2–3 measurements the scale tells whether the body is ready for full strength."));
+                    "From the next measurement (at least 6 h later) the scale tells whether the body is ready for "
+                            + "full strength."));
         } else if (r.factor < 1) {
             int pct = (int) Math.round((1 - r.factor) * 100);
             boolean swollen = r.worst >= 0 && r.swell[r.worst] >= SWELL_AMBER;
@@ -632,8 +633,10 @@ public final class ScaleInsight {
         Norm fn = fatNorm(fat, male, age, n5);
         int fs = fn.sector();
         if (fs >= 3) {
-            double target = w * fn.edges[3] / 100;
-            double over = Math.max(0, m.optDouble("fatKg", w * fat / 100) - target);
+            // fat to lose to reach the norm's upper edge p: the weight falls with it (lean kept), so
+            // (F − x) / (W − x) = p → x = (F − p·W) / (1 − p) — not F − p·W, which undercounts by the factor 1 / (1 − p)
+            double p = fn.edges[3] / 100;
+            double over = Math.max(0, (m.optDouble("fatKg", w * fat / 100) - p * w) / (1 - p));
             out.add(new Advice(1, K_BODY, fs == 4 ? TONE_ALERT : TONE_WARN,
                     (fs == 4 ? "Затлъстяване" : "Мазнини над нормата") + ": −" + f1(over) + " кг до нормата",
                     "Цел „Отслабване“ в EMS 2× седмично + умерен хранителен дефицит; мускулите да се пазят — "
@@ -733,8 +736,8 @@ public final class ScaleInsight {
             double df = m.optDouble("fatKg") - first.optDouble("fatKg");
             if (dm >= 0.2 && df <= -0.2) {
                 out.add(new Advice(4, K_BODY, TONE_GOOD, "Тялото се преобразява ✓",
-                        "+" + f1(dm) + " кг мускули и −" + f1(-df) + " кг мазнини от първото мерене.",
-                        "The body is recomposing ✓", "+" + f1(dm) + " kg muscle and −" + f1(-df)
+                        "+" + f1(dm) + " кг мускулна маса и −" + f1(-df) + " кг мазнини от първото мерене.",
+                        "The body is recomposing ✓", "+" + f1(dm) + " kg muscle mass and −" + f1(-df)
                                 + " kg fat since the first measurement."));
             } else if (df >= 1.0) {
                 out.add(new Advice(1, K_BODY, TONE_WARN, "Мазнините растат: +" + f1(df) + " кг",
@@ -742,7 +745,7 @@ public final class ScaleInsight {
                         "Fat is growing: +" + f1(df) + " kg", "Since the first measurement — check the food and how "
                                 + "often they train."));
             } else if (dm <= -0.8) {
-                out.add(new Advice(1, K_BODY, TONE_WARN, "Мускулите намаляват: −" + f1(-dm) + " кг",
+                out.add(new Advice(1, K_BODY, TONE_WARN, "Мускулната маса намалява: −" + f1(-dm) + " кг",
                         "Повече белтък и силова EMS; при отслабване — по-малък дефицит.",
                         "Muscle is going down: −" + f1(-dm) + " kg", "More protein and strength EMS; when losing "
                                 + "weight — a smaller deficit."));

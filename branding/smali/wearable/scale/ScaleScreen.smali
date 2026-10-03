@@ -29,7 +29,6 @@
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Reveal;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relink;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ToResults;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Again;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Start;

@@ -1,5 +1,6 @@
 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
 
+Audit (1.1.301-ai, owner-facing, Bulgarian): `docs/xems-scale-audit.md`.
 Status: implemented in 1.1.285-ai (`wearable/scale/`), tested offline only — **not yet on the real P1**.
 The tablet reads the scale itself, stores the measurement per client on the tablet and (1.1.294-ai,
 `ScaleUploader` → `POST /v1/measures` → D1 `body_measures`) on the server under `(license_id, cid)`; the client's
@@ -13,11 +14,11 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleBody` | Pure: WLA25 (float32 + half-up rounding as the vendor binary) → fat, muscle, water, visceral, BMR, body age, 5 segments; `withFat` = the same chain from another fat % |
 | `ScaleModel` | Pure (1.1.295-ai): **the numbers we show** — sex-aware fat (Sun 2003 + the scale's own / WLA25), skeletal muscle (Janssen 2000), Kalman smoothing of lean between weigh-ins, rebuild of older history from raw impedances (see "XEMS model") |
 | `ScaleDetail` | Pure (1.1.295-ai): all values with a status word (`rows`), the analysis tiles with their 5-sector norms and texts (`metrics`), 5 zones fat / muscle (kg, % of standard), weight control to the client's own healthy weight |
-| `ScaleSession` | Pure (1.1.297-ai): one measurement = 1–3 step-ons; contact quality per step, when to ask another, the merge (see "Measuring") |
-| `ScaleStage` | The measuring stage (1.1.297-ai): figure / scan film, 5 steps, instruction, live weight settling, scan ring, step-on count and contact chips. Film (1.1.300-ai): runs from "someone stands on" to the results — gen A sends no stable flag, so it never played before; steadiness is also seen locally (±0.15 kg for 1.5 s); the TextureView stays drawn under an opaque cover (alpha 0 may never get a surface) |
+| `ScaleSession` | Pure (1.1.301-ai): one measurement = **one standing**; every new sweep while the client stays is merged, a repeated sweep (same impedances) is ignored, contact quality per sweep; nobody is asked to step off (see "Measuring") |
+| `ScaleStage` | The measuring stage (1.1.301-ai): figure + drawn scan (`ScanFx`, time-driven) / scan film, 5 steps (step on · link · weight · analysis · done), instruction, live weight settling, scan ring, sweep count and contact chips (see "Measuring") |
 | `ScaleSources` | "Научна основа" (1.1.298-ai): every source of the module with its tier (study · standard · maker · XEMS), what we take, who was measured, DOI (tap → the paper); data also in the shared HTML |
 | `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
-| `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
+| `ScaleLink` | Android BLE for as long as the page is open: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks; every result delivered, the link **stays** while the client stands; the scale's own disconnect (sleep) → scan again (1.1.301-ai) |
 | `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days); `save` (through `ScaleModel`), `upgrade` (older model / other sex·age·height → rebuilt), `delete` (+ server), `unlike` (weight jump → "is this X?") |
 | `ScaleInsight` | Pure: readiness (ρ = Z100/Z20 per segment and legs' Z20 vs the client's own baseline), segments as % of WLA25 normal, fat per suit channel, L/R asymmetry |
 | `ScaleViews` | Drawn: `Body` (project figures painted by segment, tap = select), `Radar` (5 segments vs normal, ghost = last), `Gauge` (readiness), `Trend`, `Reach` (current's reach per channel) |
@@ -114,34 +115,44 @@ Owner's colour-coded anatomical art (`branding/body/scale/src/{male,female}.png`
 → grey art with full definition + map (R = segment, G = suit channel by colour). Layers: segment colour modulated by
 the art's light (muscles stay drawn); **Ток** = per muscle group (channel) by reach.
 
-## Measuring — the stage and the session (1.1.297-ai)
-**Why**: the scale makes **one** impedance sweep per step-on (~8–10 s after the weight settles; repeats on the same
-step reuse it), so "several measurements, the bad ones out" = several step-ons, and only when they add something.
-`ScaleSession` decides by itself:
-- **Contact** per step (`quality`): all four limbs 120–1200 Ω with 20 → 100 kHz dispersion (ratio 0.70–0.98), left
-  vs right ≤ 15 % for arms and for legs, trunk 5–100 Ω when sent; a weight-only result = no handle contact.
-- Another step when: poor contact (`NEED_CONTACT`, with the fix: palms on the metal / dry bare feet, heels back);
-  the client's **first** full measurement (`NEED_BASELINE` — two set the starting point); a good reading > 3 σ from
-  the client's filter (`NEED_CONFIRM` — the body does not change that fast); two good ones apart by > 3 % whole-body
-  resistance or > 2 fat points (`NEED_DISAGREE` → a third). At most 3.
-- **Merge**: the good steps only (all if none was good); per segment and frequency the mean of two, the median of
-  three; weight the mean; stored once with `"n"` = steps. Then the usual model + Kalman smoothing.
-**Stage** (`ScaleStage`, shown when the page opens and whenever someone steps on while the results are open; "Резултати ›"
-skips to them): left a dark theatre — the client's figure on the scale by sex (`branding/body/scale/measure/*-hero.webp`,
-owner's art, black → alpha) breathing while waiting, the scan film (`male.mp4` / `female.mp4`, owner's clips → 640 px
-H.264, no sound, ~480 KB, looped, starts from 0 when the weight settles) while the scale sweeps; right — steps
-link · step on · steady · scan · done (current pulsing), the instruction now (30 sp) with one line why, the live
-weight with its settling line into the ±0.1 kg band, the scan ring (~9 s, seconds left), "● ○ стъпване 1 от 2" and
-the contact chips (✓ Ръце · ✓ Крака · ✓ Тяло / ! …); between steps "Слез за момент" → "Стъпи пак" (the link is
-reopened by itself); at the end "✓ Готово" with fat and muscle, then the results fade in. Previews (HTML mocks):
-`docs/scale/preview-stage-wait.png`, `docs/scale/preview-stage-scan.png`.
+## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
+**One standing = one measurement.** The scale makes one impedance sweep per step-on (~8–10 s after the weight
+settles); the 1.1.297 session therefore asked for more step-ons (first measurement, poor contact, far from history,
+disagreement) — the owner rejected that, and it also kept the results from appearing ("done" never came). Now:
+- `ScaleLink` stays connected after a result while the client stands; every result frame is delivered. A sweep the
+  scale sends again with the same impedances (only the weight moved) is a **repeat** (`ScaleSession.same`) — ignored;
+  a really new sweep (a scale that re-measures while you stand) is **added** and the merge refines the same stored
+  entry (`ScaleStore.save(…, replaceT)` keeps its "t", the server row is overwritten — `INSERT OR REPLACE`).
+- **Contact** per sweep (`quality`): all four limbs 120–1200 Ω with 20 → 100 kHz dispersion (ratio 0.70–0.98), left
+  vs right ≤ 15 % for arms and for legs, trunk 5–100 Ω when sent; a weight-only result = no handle contact. Shown as
+  chips; nothing is demanded. **Merge**: the good sweeps (all if none was good); per segment and frequency the mean
+  of two, the median of three or more; weight the mean; `"n"` = sweeps; `spread()` says when two differ (> 3 % R or
+  > 2 fat points).
+- **Results at once**: the first full sweep → "✓ Готово" with fat and muscle mass → the results fade in after 1.4 s.
+  Weight only → the stage stays with what to do ("Мери пак" visible). While the results are open, the client may
+  stay on; a refined sweep updates them in place ("✓ Записано · HH:mm · 2 отчитания" on the figure card).
+- **Next person**: the page keeps listening. Weight < 5 kg after a result, or the scale dropping the link (it sleeps
+  when nobody is on) = the scale is free; the next connection / weight on it opens a new measurement with the stage.
+**Stage** (`ScaleStage`): left a dark theatre — the client's figure on the scale by sex
+(`branding/body/scale/measure/*-hero.webp`), with **`ScanFx`** drawn over it: waiting = the plate glows where the feet
+go; from the link on (the scale only wakes when someone stands on it — gen A sends no "stable" flag and possibly no
+live weight, so the 1.1.297 film that waited for "stable" never played) a bright line sweeps the body up and down,
+scan lines, the frame pulsing; done = a green flash. All drawn from `SystemClock` with `postInvalidateOnAnimation`
+— it moves even with the system animator scale at 0 (which stops every `ValueAnimator`; the steps bar is time-driven
+too). The film (`male.mp4` / `female.mp4`, 640 px H.264, looped) plays from the link on; the opaque cover comes off
+only with its **first frame on screen** (`onSurfaceTextureUpdated`), so a film that cannot play leaves the drawn scan,
+never a black box. Film events go to `WearableBleDiagLog` tag `scale` ("stage film ready / on screen / error"), as do
+unknown gen A live frames ("live frame N B: hex"). Right — steps step on · link · weight · analysis · done, the
+instruction now (30 sp), the live weight with its settling line into the ±0.1 kg band, the scan ring (~9 s), the
+sweep count and the contact chips. Previews (HTML mocks, 1.1.297): `docs/scale/preview-stage-wait.png`,
+`docs/scale/preview-stage-scan.png`.
 
 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
 Behind the page's ⓘ (button at its foot), the Analysis ⓘ and the footers of Анализ / Обобщение; also a folded
 section of the shared HTML. 19 sources in four honest tiers — **Проучване** (peer-reviewed: Sun 2003, Janssen 2000,
 Gallagher 2000, Schutz 2002, Kelly 2009, Imboden 2017, Wang 1999, Mifflin 1990, Kyle 2004 ESPEN, Kemmler 2016,
 Kalman 1960), **Стандарт** (Katch–McArdle, WHO TRS 894), **Производител** (WLA25 zones / bone / visceral, vendor
-ranges — no published validation), **XEMS** (readiness thresholds, scale geometry factor, the step-on session,
+ranges — no published validation), **XEMS** (readiness thresholds, scale geometry factor, the one-standing session,
 healthy weight — how each was derived). Top: 11 studies (the equations and norms come from them) · over 13 000
 people measured in those studies (not our database) · DXA / MRI / 4C; "how it is built" in 4 levels (measuring ·
 published equations · published norms · XEMS rules); filter chips by tier; a "limits, honestly" note (1.1.299-ai:
@@ -161,8 +172,8 @@ two by two, **narrow** one column; the bar splits into switch / Анализ·О
 figure card · one key card (4 numbers, readiness — the dial only with a verdict, before that one line "from the second
 measurement" — body type) · zones · current per channel. Drawn text follows the system font size (`ScaleViews.sp`,
 ×1.12, font scale capped 1.3).
-**No "is this X?"** (1.1.300-ai): the page is the client's, so a measurement made on it is theirs; a reading far from
-the last ones still gets a second step-on from `ScaleSession` (NEED_CONFIRM), a wrong one is removed in Tracking (✕).
+**No "is this X?"** (1.1.300-ai): the page is the client's, so a measurement made on it is theirs; a wrong one is
+removed in Tracking (✕).
 **Анализ** (1.1.296-ai, `ScaleAnalysis`; Fitdays' list of values = the checklist, not the design): left — what the
 weight is made of (fat · water · protein · minerals, one bar, tap a part), the figure painted by zone status (fat or
 muscle by the focus; tap a zone), the way to the client's own healthy weight (track, now → healthy, fat − / muscle +);

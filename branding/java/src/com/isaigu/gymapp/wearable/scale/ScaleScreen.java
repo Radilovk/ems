@@ -84,7 +84,6 @@ public final class ScaleScreen {
         TextView weight;
         TextView weightDelta;
         TextView status;
-        TextView saved;
         TextView heightValue;
         LinearLayout heightRow;
         TextView typeChip;
@@ -114,7 +113,6 @@ public final class ScaleScreen {
         LinearLayout history;
         /** The measuring stage (shown first and whenever someone steps on) and the step-ons of this measurement. */
         ScaleStage stage;
-        ScaleSession session;
         boolean staging;
         final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
 
@@ -266,9 +264,6 @@ public final class ScaleScreen {
             line.setGravity(Gravity.CENTER_VERTICAL);
             status = XemsUi.text(a, "", 15, XemsUi.TEXT, true);
             line.addView(status, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            saved = XemsUi.badge(a, tr("✓ Запазено", "✓ Saved"), XemsUi.GO_TEXT);
-            saved.setVisibility(View.GONE);
-            line.addView(saved);
             col.addView(line, XemsUi.matchWrap(a, 2));
             typeChip = XemsUi.text(a, "", 16, XemsUi.TEXT, true);
             typeChip.setPadding(dp(14), dp(8), dp(14), dp(8));
@@ -411,8 +406,8 @@ public final class ScaleScreen {
          */
         void buildDay() {
             LinearLayout key = XemsUi.card(a);
-            String[] names = {tr("Мазнини", "Body fat"), tr("Мускули", "Muscle"), tr("Вода", "Water"),
-                    tr("Възраст", "Age")};
+            String[] names = {tr("Мазнини", "Body fat"), tr("Мускулна маса", "Muscle mass"), tr("Вода", "Water"),
+                    tr("Физ. възраст", "Physical age")};
             for (int r = 0; r < 2; r++) {
                 LinearLayout line = XemsUi.horizontal(a);
                 for (int c = 0; c < 2; c++) {
@@ -617,11 +612,14 @@ public final class ScaleScreen {
                             + "— lean; far below only the essential fat is left. Above — overweight, then obese.");
                     bars.add(ScaleInsight.fatNorm(fat, male, age, names(FAT_N, FAT_E)));
                 } else if ("muscle".equals(key)) {
-                    title = tr("Мускули", "Muscle");
-                    text = tr("Мускулите и всичко без мазнини, спрямо ръста. В средата е обичайното за възрастни; "
-                            + "вдясно — атлетично. Тук повече е по-добре: тежко от мускули тяло не е наднормено.",
-                            "Muscle and everything that is not fat, for the height. The middle is usual for adults; "
-                                    + "to the right athletic. More is better here: weight from muscle is not overweight.");
+                    title = tr("Мускулна маса", "Muscle mass");
+                    text = tr("Мускулната маса е всичко без мазнини и кости — мускули с водата и органите в тях (така "
+                            + "я дава и Fitdays); скелетните мускули са отделно в „Анализ“. Скалата е спрямо ръста: в "
+                            + "средата е обичайното за възрастни, вдясно — атлетично. Тук повече е по-добре.",
+                            "Muscle mass is everything but fat and bone — muscle with its water and the organs (as "
+                                    + "Fitdays gives it); skeletal muscle is separate in \"Analysis\". The scale is for "
+                                    + "the height: the middle is usual for adults, to the right athletic. More is "
+                                    + "better here.");
                     bars.add(ScaleInsight.muscleNorm(b.ffmi, male, names(
                             new String[] {"много малко", "малко", "норма", "атлетично", "много"},
                             new String[] {"very low", "low", "normal", "athletic", "very high"})));
@@ -1129,7 +1127,7 @@ public final class ScaleScreen {
                 lp.rightMargin = dp(6);
                 metricHolder.addView(c, lp);
             }
-            String[] titles = {tr("Мазнини · %", "Body fat · %"), tr("Мускули · кг", "Muscle · kg"),
+            String[] titles = {tr("Мазнини · %", "Body fat · %"), tr("Мускулна маса · кг", "Muscle mass · kg"),
                     tr("Вода · %", "Water · %"), tr("Физическа възраст", "Physical age"), tr("Тегло · кг", "Weight · kg")};
             trendTitle.setText(titles[metric]);
             int fromI = Math.max(0, fi);
@@ -1551,6 +1549,8 @@ public final class ScaleScreen {
             stage.results.setVisibility(hasFull() ? View.VISIBLE : View.GONE);
             if (on) {
                 again.setVisibility(View.INVISIBLE);
+                stage.fx.invalidate();
+                stage.steps.invalidate();
                 XemsUi.enter(stage.view());
             } else {
                 stage.showFilm(false);
@@ -1570,9 +1570,13 @@ public final class ScaleScreen {
             return false;
         }
 
-        /** A new measurement: a fresh session and stage, the link searching. */
+        /**
+         * "Мери пак": a fresh standing — the stage back, the link restarted (it keeps listening anyway: the next
+         * step-on is found without this button).
+         */
         void measureAgain() {
             session = null;
+            off = true;
             stage.reset();
             showStage(true);
             startLink();
@@ -1582,30 +1586,51 @@ public final class ScaleScreen {
             if (link != null) {
                 link.close();
             }
-            saved.setVisibility(View.GONE);
-            again.setVisibility(View.INVISIBLE);
             link = new ScaleLink(a, userId, male, age, heightCm, lastKg, this);
             link.start();
         }
 
         // ================================================================ the link
 
+        /**
+         * One standing = one measurement, refined by every new sweep while the client stays on. {@link #off}: the
+         * scale is free (stepped off, or it slept and dropped the link) — the next weight on it is a new standing.
+         */
+        ScaleSession session;
+        boolean off = true;
+        /** The entry this standing was saved as ("t"), 0 = not saved yet. */
+        long sessionT;
+        /** The last sweep heard — the scale repeating it after a reconnect is not a new measurement. */
+        ScaleProtocol.Reading lastSweep;
+
         @Override
         public void onState(int st) {
-            stage.linkState(st);
+            if (staging) {
+                stage.linkState(st);
+            }
             switch (st) {
                 case ScaleLink.SEARCHING:
+                    if (session != null) {
+                        off = true;       // the scale slept: whoever steps on next is a new measurement
+                    }
                     say(tr("Стъпи бос на кантара", "Step on the scale barefoot"), XemsUi.TEXT);
                     break;
                 case ScaleLink.CONNECTING:
+                    if (off && session != null && !staging) {
+                        // the scale woke up again (it sleeps when nobody is on): the next person — show the stage
+                        newStanding();
+                        stage.linkState(st);
+                    }
                     say(tr("Свързвам се…", "Connecting…"), XemsUi.MUTED);
                     break;
                 case ScaleLink.READY:
-                case ScaleLink.MEASURING:
+                    if (session != null && sessionT > 0) {
+                        off = true;       // stepped off after a result
+                    }
                     say(tr("Хвани дръжката и задръж", "Hold the handle and stay still"), XemsUi.AMBER);
                     break;
-                case ScaleLink.DONE:
-                    say(tr("✓ Готово — може да слезе", "✓ Done — step off"), XemsUi.GO_TEXT);
+                case ScaleLink.MEASURING:
+                    say(tr("Хвани дръжката и задръж", "Hold the handle and stay still"), XemsUi.AMBER);
                     break;
                 case ScaleLink.NO_BLUETOOTH:
                     say(tr("Включи Bluetooth на таблета", "Turn Bluetooth on"), XemsUi.DANGER);
@@ -1615,63 +1640,84 @@ public final class ScaleScreen {
             }
         }
 
+        /** The status line of the figure card: the link while measuring; after a save it keeps "✓ Записано". */
         void say(String text, int color) {
+            if (sessionT > 0 && !staging) {
+                return;
+            }
             status.setText(text);
             status.setTextColor(color);
         }
 
+        /** A new standing: a fresh session and the stage in front. */
+        void newStanding() {
+            session = null;
+            sessionT = 0;
+            off = false;
+            stage.reset();
+            showStage(true);
+        }
+
         @Override
         public void onLive(double kg, boolean stable) {
-            weight.setText(one(kg));
-            weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
-            if (!staging && kg > 5) {
-                // someone stepped on while the results were open: the stage comes back
-                stage.reset();
-                showStage(true);
+            if (kg < 5) {
+                if (session != null) {
+                    off = true;           // stepped off
+                }
+                if (staging) {
+                    stage.liveWeight(kg, stable);
+                }
+                return;
             }
-            stage.liveWeight(kg, stable);
+            if (off && (session != null || !staging)) {
+                newStanding();            // someone stepped on (again): a new measurement
+            }
+            off = false;
+            if (staging) {
+                weight.setText(one(kg));
+                weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
+                stage.liveWeight(kg, stable);
+            }
         }
 
         @Override
         public void onResult(ScaleProtocol.Reading r) {
-            weight.setText(one(r.weightKg));
-            weight.setTextColor(XemsUi.TEXT);
-            if (session == null) {
-                session = new ScaleSession(hist, male, age, heightCm);
+            if (off || session == null) {
+                if (lastSweep != null && !Double.isNaN(lastSweep.z20[ScaleProtocol.LEFT_ARM])
+                        && ScaleSession.same(lastSweep, r)) {
+                    return;               // the scale sending its last result again (same impedances)
+                }
+                if (session != null || !staging) {
+                    newStanding();
+                }
+                session = new ScaleSession(male, age, heightCm);
+                sessionT = 0;
+                off = false;
             }
-            if (!staging) {
-                showStage(true);
-            }
-            int need = session.add(r);
-            stage.stepResult(r, session);
-            if (need != ScaleSession.NEED_NONE) {
-                // one more step-on: listen again once this link has let the scale go
-                main.postDelayed(new Relink(this), 2600);
+            if (session.add(r) == ScaleSession.REPEAT) {
                 return;
             }
-            steps = session.count();
+            lastSweep = r;
+            if (staging) {
+                stage.sweep(r, session);
+            }
             ScaleProtocol.Reading m = session.merged();
-            session = null;
-            if (m == null) {
-                return;
+            if (m != null) {
+                // the page is this client's: what is measured here is theirs — no "is this X?" (a wrong one is
+                // removed in Tracking ✕)
+                keep(m, session.count());
             }
-            // the page is this client's: what is measured here is theirs — no "is this X?" (a reading far from the
-            // last ones already gets a second step-on from the session; a wrong one is removed in Tracking ✕)
-            keep(m);
         }
 
-        int steps = 1;
-
-        void keep(ScaleProtocol.Reading r) {
-            ScaleBody b = ScaleBody.of(r, male, age, heightCm);
-            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, steps);
+        /**
+         * Save the standing's merged reading: the first sweep adds the measurement and the results come in at once;
+         * every further sweep (the client still on) refines the same entry and the open results follow.
+         */
+        void keep(ScaleProtocol.Reading r, int n) {
+            boolean first = sessionT <= 0;
+            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, n, sessionT);
             if (o != null) {
-                saved.setVisibility(View.VISIBLE);
-                XemsUi.enter(saved);
-            }
-            if (b == null) {
-                say(tr("Само тегло — хвани дръжката с двете ръце", "Weight only — hold the handle with both hands"),
-                        XemsUi.AMBER);
+                sessionT = o.optLong("t");
             }
             lastKg = r.weightKg;
             again.setVisibility(View.VISIBLE);
@@ -1682,11 +1728,31 @@ public final class ScaleScreen {
                 mode = MODE_DAY;
                 build();
             }
+            weight.setText(one(r.weightKg));
+            weight.setTextColor(XemsUi.TEXT);
             JSONObject m = cur();
-            stage.finished(m != null && m.has("fat") ? tr("Мазнини ", "Fat ") + one(m.optDouble("fat")) + " %  ·  "
-                    + tr("Мускули ", "Muscle ") + one(m.optDouble("muscle")) + tr(" кг", " kg")
-                    : tr("Само тегло — без дръжката няма състав", "Weight only — no composition without the handle"));
-            main.postDelayed(new Reveal(this), 1800);
+            boolean comp = m != null && m.has("fat");
+            String when = new SimpleDateFormat("HH:mm", Locale.US).format(new Date(sessionT > 0 ? sessionT
+                    : System.currentTimeMillis()));
+            status.setText((comp ? tr("✓ Записано · ", "✓ Saved · ") : tr("Само тегло · ", "Weight only · ")) + when
+                    + (n > 1 ? tr(" · " + n + " отчитания", " · " + n + " sweeps") : ""));
+            status.setTextColor(comp ? XemsUi.GO_TEXT : XemsUi.AMBER);
+            if (staging) {
+                stage.finished(comp ? tr("Мазнини ", "Fat ") + one(m.optDouble("fat")) + " %  ·  "
+                        + tr("Мускулна маса ", "Muscle mass ") + one(m.optDouble("muscle")) + tr(" кг", " kg")
+                        + tr("\nМоже да слезе — или да остане: ново отчитане само уточнява.",
+                        "\nThey may step off — or stay: another sweep only refines it.") : "", comp);
+                stage.results.setVisibility(hasFull() ? View.VISIBLE : View.GONE);
+                if (comp && first) {
+                    main.postDelayed(new Reveal(this), 1400);
+                } else if (comp) {
+                    main.postDelayed(new Reveal(this), 900);
+                }
+            } else {
+                // refined while the results are open
+                render(false);
+                XemsUi.enter(status);
+            }
         }
 
         /** After the ✓: the results come in. */
@@ -1803,21 +1869,6 @@ public final class ScaleScreen {
             XemsUi.haptic(b);
             v.showStage(false);
             v.render(false);
-        }
-    }
-
-    static final class Relink implements Runnable {
-        final Page v;
-
-        Relink(Page v) {
-            this.v = v;
-        }
-
-        @Override
-        public void run() {
-            if (v.session != null && v.s.dialog.isShowing()) {
-                v.startLink();
-            }
         }
     }
 

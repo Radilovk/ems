@@ -37,18 +37,18 @@
     .registers 4
 
     .prologue
-    .line 527
+    .line 545
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 528
+    .line 546
     iput p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->kind:I
 
-    .line 529
+    .line 547
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->desc:Landroid/bluetooth/BluetoothGattDescriptor;
 
-    .line 530
+    .line 548
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->data:[B
 
-    .line 531
+    .line 549
     return-void
 .end method

@@ -162,11 +162,11 @@ public final class ScaleSources {
                         + "them. For now it is set on one real measurement (a man); DXA of clients will refine it.",
                 "XEMS · калибриране спрямо WLA25", "1 калибровъчно мерене · предстои проверка с DXA",
                 "1 calibration measurement · a DXA check is next", 0, ""));
-        s.add(new Source(T_XEMS, "Едно мерене от няколко стъпвания", "One measurement from several step-ons",
-                "При лош контакт, първо мерене, резултат далеч от последните дни или разминаване — още едно "
-                        + "стъпване; лошите отпадат, от две — средното, от три — медианата.",
-                "On poor contact, a first measurement, a result far from the last days or a disagreement — one more "
-                        + "step-on; the bad ones out, the mean of two, the median of three.",
+        s.add(new Source(T_XEMS, "Едно мерене — едно стъпване", "One measurement — one step-on",
+                "Клиентът стъпва веднъж и остава; всяко ново отчитане, докато стои, се добавя — лошите отпадат, от "
+                        + "две — средното, от три и повече — медианата. Никой не трябва да слиза.",
+                "The client steps on once and stays; every new sweep while they stand is added — the bad ones out, "
+                        + "the mean of two, the median of three or more. Nobody is asked to step off.",
                 "XEMS · правила на сесията", "проверено в симулация, още не върху клиенти",
                 "checked in simulation, not yet on clients", 0, ""));
         s.add(new Source(T_XEMS, "Здравословно тегло", "Healthy weight",
@@ -181,12 +181,12 @@ public final class ScaleSources {
             "Кантарът мери: тегло и съпротивление на тялото на две честоти, по 5 зони.",
             "Публикувани уравнения превръщат това в мазнини, мускули и вода — отделно за мъже и жени.",
             "Публикувани норми казват къде стои човекът спрямо хиляди сверени с DXA и ЯМР хора.",
-            "Наши правила изглаждат между мерения, искат повторно стъпване и дават готовност за тренировка."};
+            "Наши правила изглаждат между мерения, осредняват отчитанията и дават готовност за тренировка."};
     public static final String[] HOW_EN = {
             "The scale measures: weight and the body's resistance at two frequencies, in 5 zones.",
             "Published equations turn that into fat, muscle and water — separately for men and women.",
             "Published norms say where the person stands against thousands checked with DXA and MRI.",
-            "Our rules smooth between weigh-ins, ask for another step-on and give the readiness for training."};
+            "Our rules smooth between weigh-ins, average the sweeps and give the readiness for training."};
 
     public static final String LIMITS_BG = "Не сме обучавали модел върху бази с мерения: взели сме готовите формули и "
             + "норми от проучванията горе, правени върху общо над 13 000 души, сверени с DXA, ЯМР и 4-компонентен "

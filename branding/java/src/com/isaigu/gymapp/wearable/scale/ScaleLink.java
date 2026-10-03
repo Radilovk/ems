@@ -23,9 +23,11 @@ import java.util.Set;
 import java.util.TimeZone;
 
 /**
- * One weigh-in with the body-composition scale, straight over BLE (no Fitdays, no cloud): find the scale when the
- * client steps on (it only advertises then), connect, subscribe, play the handshake of its generation
- * ({@link ScaleProtocol}), stream the live weight, deliver the result, disconnect. Every callback runs on the main
+ * The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the
+ * scale when someone steps on (it only advertises then), connect, subscribe, play the handshake of its generation
+ * ({@link ScaleProtocol}), stream the live weight, deliver every result — and stay connected while the client
+ * stands (a scale that measures again is heard; nobody has to step off). When the scale sleeps it drops the link;
+ * the search starts again by itself, so the next step-on is found without a tap. Every callback runs on the main
  * thread. The suit's BLE is left alone: a scan and one GATT link run next to it.
  */
 public final class ScaleLink {
@@ -34,7 +36,7 @@ public final class ScaleLink {
 
         void onLive(double kg, boolean stable);
 
-        /** The finished measurement (impedances in), then the link closes by itself. */
+        /** A finished sweep (impedances in); more may follow while the client stands. */
         void onResult(ScaleProtocol.Reading r);
     }
 
@@ -59,7 +61,10 @@ public final class ScaleLink {
     BluetoothGattCharacteristic write;
     final Set<String> notScales = new HashSet<String>();
     boolean closed;
-    boolean done;
+    /** Results delivered on this connection. */
+    int results;
+    /** Live frames on FFB2 that were not the 12-byte weight (logged once: an unknown scale variant). */
+    boolean oddLive;
     int state;
 
     /** 'A' (FFB4 present, framed messages) or 'B' (20-byte frames). */
@@ -107,7 +112,7 @@ public final class ScaleLink {
     }
 
     void startScan() {
-        if (closed || done) {
+        if (closed) {
             return;
         }
         setState(SEARCHING);
@@ -204,7 +209,7 @@ public final class ScaleLink {
     }
 
     void found(BluetoothDevice d) {
-        if (closed || done || gatt != null) {
+        if (closed || gatt != null) {
             return;
         }
         stopScan();
@@ -233,6 +238,7 @@ public final class ScaleLink {
         usersSent = false;
         liveKg = 0;
         liveStable = false;
+        results = 0;
         ops.clear();
         busy = false;
         write = null;
@@ -254,8 +260,8 @@ public final class ScaleLink {
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             log("disconnected " + status);
             closeGatt();
-            if (!done && !closed) {
-                main.postDelayed(new Retry(this), 600);      // the scale sleeps between weigh-ins
+            if (!closed) {
+                main.postDelayed(new Retry(this), 600);      // the scale sleeps between weigh-ins: listen again
             }
         }
     }
@@ -301,7 +307,7 @@ public final class ScaleLink {
     }
 
     void onChanged(java.util.UUID uuid, byte[] data) {
-        if (data == null || done) {
+        if (data == null) {
             return;
         }
         if (gen == 'A') {
@@ -348,6 +354,11 @@ public final class ScaleLink {
             double kg = ScaleProtocol.liveWeightA(data);
             if (kg > 0) {
                 live(kg, false);
+            } else if (Double.isNaN(kg) && !oddLive) {
+                oddLive = true;
+                log("live frame " + data.length + " B: " + hex(data));
+            } else if (kg == 0 && liveKg > 5) {
+                live(0, false);       // stepped off
             }
             return;
         }
@@ -385,7 +396,7 @@ public final class ScaleLink {
         heard = true;
         if (r.result) {
             finish(r);
-        } else if (r.weightKg > 0) {
+        } else if (r.weightKg > 0 || liveKg > 5) {
             live(r.weightKg, r.stable);
         }
     }
@@ -399,7 +410,7 @@ public final class ScaleLink {
 
     /** The BA heartbeat that keeps the scale's composition screen unlocked; BB + BD once. */
     void beat(int token) {
-        if (token != beatToken || done || closed || gatt == null || gen != 'B') {
+        if (token != beatToken || closed || gatt == null || gen != 'B') {
             return;
         }
         double kg = liveKg > 0 ? liveKg : 0;
@@ -419,21 +430,28 @@ public final class ScaleLink {
     void live(double kg, boolean stable) {
         liveKg = kg;
         liveStable = stable;
-        if (state != MEASURING && kg > 5) {
+        if (state != MEASURING && state != DONE && kg > 5) {
             setState(MEASURING);
+        } else if (state == DONE && kg < 2) {
+            setState(READY);          // stepped off after a result: the next one on is a new measurement
         }
         listener.onLive(kg, stable);
     }
 
+    /** A result: delivered every time (the page drops a repeat); the link stays while the client stands. */
     void finish(ScaleProtocol.Reading r) {
-        if (done) {
-            return;
-        }
-        done = true;
-        log("result " + r.weightKg + " kg");
+        results++;
+        log("result " + results + ": " + r.weightKg + " kg, z20 " + java.util.Arrays.toString(r.z20));
         setState(DONE);
         listener.onResult(r);
-        main.postDelayed(new Close(this), 1500);        // let the ack reach the scale first
+    }
+
+    static String hex(byte[] d) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < d.length && i < 24; i++) {
+            b.append(String.format(Locale.US, "%02x", d[i] & 0xFF));
+        }
+        return b.toString();
     }
 
     void setState(int s) {
@@ -686,7 +704,7 @@ public final class ScaleLink {
         @Override
         public void run() {
             // the hello may have gone out before we subscribed: start the handshake ourselves
-            if (!link.heard && link.gatt != null && !link.done) {
+            if (!link.heard && link.gatt != null && link.results == 0) {
                 link.handshakeA();
             }
         }
@@ -704,20 +722,6 @@ public final class ScaleLink {
         @Override
         public void run() {
             link.beat(token);
-        }
-    }
-
-    static final class Close implements Runnable {
-        final ScaleLink link;
-
-        Close(ScaleLink link) {
-            this.link = link;
-        }
-
-        @Override
-        public void run() {
-            link.stopScan();
-            link.closeGatt();
         }
     }
 }

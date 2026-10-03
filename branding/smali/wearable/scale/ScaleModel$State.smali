@@ -31,10 +31,10 @@
     .prologue
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
-    .line 128
+    .line 129
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 129
+    .line 130
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
@@ -52,7 +52,7 @@
     .registers 3
 
     .prologue
-    .line 133
+    .line 134
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z

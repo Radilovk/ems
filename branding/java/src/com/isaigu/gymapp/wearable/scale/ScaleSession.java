@@ -1,26 +1,24 @@
 package com.isaigu.gymapp.wearable.scale;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * One measuring session: the scale takes one impedance sweep per step-on (~8–10 s after the weight settles), so
- * "several measurements" means several step-ons. The session decides by itself whether one more is worth it and
- * then merges them — the bad ones out, the rest averaged (median of three). Pure Java.
+ * One measuring session = one time on the scale. The client steps on once and stays; every sweep the scale sends
+ * while they stand (or a re-measure the tablet hears) is added, and the session's reading is the merge of the good
+ * ones — the bad ones out, the rest averaged (mean of two, median of three or more). Nobody is asked to step off
+ * (owner, 1.1.301-ai: "why does it make me step off?"). A sweep the scale sends again unchanged (same impedances —
+ * some scales repeat the last result) is not a new reading. Pure Java.
  *
- * <p>Another step is asked when: the contact was poor (hands or feet — an arm or leg far off its pair, a segment
- * out of the body's range, no dispersion between 20 and 100 kHz); it is the client's first full measurement (two
- * steps set the baseline); the reading is far (3 σ) from what this body was days ago; two steps disagree (whole-body
- * resistance > 3 % or fat > 2 points apart). At most {@link #MAX} steps; then the best ones count.
+ * <p>Contact quality per sweep (hands · feet · trunk) is only shown: an arm or leg far off its pair, a segment out of
+ * the body's range, no dispersion between 20 and 100 kHz.
  */
 public final class ScaleSession {
-    public static final int MAX = 3;
-    /** Why one more step: nothing (done), contact, first time, far from the history, two steps disagree. */
-    public static final int NEED_NONE = 0, NEED_CONTACT = 1, NEED_BASELINE = 2, NEED_CONFIRM = 3, NEED_DISAGREE = 4;
+    /** More sweeps than this in one standing are not kept (the merge is steady long before). */
+    public static final int MAX = 6;
+    /** {@link #add}: a new sweep (the reading changed) / the same sweep again (nothing new). */
+    public static final int NEW = 1, REPEAT = 0;
 
     /** What one step-on's contact looks like. */
     public static final class Quality {
@@ -64,14 +62,10 @@ public final class ScaleSession {
     final boolean male;
     final int age;
     final int heightCm;
-    final JSONArray hist;
     final List<ScaleProtocol.Reading> steps = new ArrayList<ScaleProtocol.Reading>();
     final List<Quality> quals = new ArrayList<Quality>();
-    /** Why the last step asked for another (NEED_*). */
-    public int need = NEED_NONE;
 
-    public ScaleSession(JSONArray hist, boolean male, int age, int heightCm) {
-        this.hist = hist != null ? hist : new JSONArray();
+    public ScaleSession(boolean male, int age, int heightCm) {
         this.male = male;
         this.age = age;
         this.heightCm = heightCm;
@@ -85,16 +79,6 @@ public final class ScaleSession {
         return quals.isEmpty() ? null : quals.get(quals.size() - 1);
     }
 
-    boolean hasHistory() {
-        for (int i = 0; i < hist.length(); i++) {
-            JSONObject m = hist.optJSONObject(i);
-            if (m != null && m.has("fat")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     int good() {
         int n = 0;
         for (Quality q : quals) {
@@ -105,34 +89,43 @@ public final class ScaleSession {
         return n;
     }
 
-    /** One step-on's reading in; returns what is needed next (NEED_NONE = done, save {@link #merged()}). */
+    /** One sweep in: {@link #NEW} when it changes the reading, {@link #REPEAT} for the same sweep sent again. */
     public int add(ScaleProtocol.Reading r) {
+        if (r == null) {
+            return REPEAT;
+        }
+        for (ScaleProtocol.Reading o : steps) {
+            if (same(o, r)) {
+                return REPEAT;
+            }
+        }
+        if (steps.size() >= MAX) {
+            return REPEAT;
+        }
         steps.add(r);
-        Quality q = quality(r);
-        quals.add(q);
-        need = decide();
-        return need;
+        quals.add(quality(r));
+        return NEW;
     }
 
-    int decide() {
-        int n = steps.size();
-        if (n >= MAX) {
-            return NEED_NONE;
-        }
-        Quality q = quals.get(n - 1);
-        if (!q.ok()) {
-            return NEED_CONTACT;
-        }
-        List<ScaleProtocol.Reading> g = goodSteps();
-        if (g.size() == 1) {
-            if (!hasHistory()) {
-                return NEED_BASELINE;
+    /** The same sweep: every impedance equal (both missing counts as equal). Weight alone does not make it new. */
+    public static boolean same(ScaleProtocol.Reading a, ScaleProtocol.Reading b) {
+        boolean any = false;
+        for (int i = 0; i < 5; i++) {
+            if (!eq(a.z20[i], b.z20[i]) || !eq(a.z100[i], b.z100[i])) {
+                return false;
             }
-            return far(g.get(0)) ? NEED_CONFIRM : NEED_NONE;
+            any |= !Double.isNaN(a.z20[i]);
         }
-        // two or more good: do the last two agree?
-        ScaleProtocol.Reading a = g.get(g.size() - 2), b = g.get(g.size() - 1);
-        return agree(a, b) ? NEED_NONE : NEED_DISAGREE;
+        return any || Math.abs(a.weightKg - b.weightKg) < 0.05;
+    }
+
+    static boolean eq(double x, double y) {
+        return Double.isNaN(x) ? Double.isNaN(y) : !Double.isNaN(y) && Math.abs(x - y) < 0.05;
+    }
+
+    /** The full sweeps in it (hands and feet on). */
+    public int full() {
+        return good();
     }
 
     List<ScaleProtocol.Reading> goodSteps() {
@@ -145,30 +138,16 @@ public final class ScaleSession {
         return g;
     }
 
-    /** Two step-ons agree: whole-body resistance within 3 %, the model's fat within 2 points. */
-    boolean agree(ScaleProtocol.Reading a, ScaleProtocol.Reading b) {
+    /** The last two good sweeps differ more than the body does (resistance > 3 % or fat > 2 points): say so. */
+    public boolean spread() {
+        List<ScaleProtocol.Reading> g = goodSteps();
+        if (g.size() < 2) {
+            return false;
+        }
+        ScaleProtocol.Reading a = g.get(g.size() - 2), b = g.get(g.size() - 1);
         double ra = ScaleModel.r50(a.z20, a.z100), rb = ScaleModel.r50(b.z20, b.z100);
         double fa = ScaleModel.fatPct(a, male, age, heightCm), fb = ScaleModel.fatPct(b, male, age, heightCm);
-        return gap(ra, rb) <= 3 && Math.abs(fa - fb) <= 2;
-    }
-
-    /** This reading's lean is more than 3 σ from where the client's filter expects it. */
-    boolean far(ScaleProtocol.Reading r) {
-        ScaleModel.State s = ScaleModel.stateOf(hist);
-        if (!s.on()) {
-            return false;
-        }
-        double fr = ScaleModel.fatPct(r, male, age, heightCm);
-        if (Double.isNaN(fr)) {
-            return false;
-        }
-        double days = Math.max(0, (System.currentTimeMillis() - s.t) / 86400000.0);
-        if (days > 60 || Math.abs(r.weightKg - s.w) > ScaleModel.jump(r.weightKg)) {
-            return false;
-        }
-        double x = s.lean + (0.3 + 0.45 * Math.exp(-days / 3)) * (r.weightKg - s.w);
-        double sd = Math.sqrt(Math.min(4 * ScaleModel.R, s.var + ScaleModel.Q * days) + ScaleModel.R);
-        return Math.abs(r.weightKg * (1 - fr / 100) - x) > 3 * sd;
+        return gap(ra, rb) > 3 || Math.abs(fa - fb) > 2;
     }
 
     /**
@@ -222,10 +201,5 @@ public final class ScaleSession {
         v = Arrays.copyOf(v, n);
         Arrays.sort(v);
         return n % 2 == 1 ? v[n / 2] : (v[n / 2 - 1] + v[n / 2]) / 2;
-    }
-
-    /** How many step-ons are planned now (for "1 от 2"). */
-    public int planned() {
-        return need == NEED_NONE ? steps.size() : Math.min(MAX, steps.size() + 1);
     }
 }

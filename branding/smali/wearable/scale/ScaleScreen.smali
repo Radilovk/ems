@@ -8,6 +8,7 @@
     value = {
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$MetricPick;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CardInfo;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Range;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Mode;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Layer;,

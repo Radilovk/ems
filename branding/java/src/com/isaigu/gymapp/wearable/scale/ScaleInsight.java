@@ -368,4 +368,119 @@ public final class ScaleInsight {
     static double clampAge(double a) {
         return Math.max(18, Math.min(85, a));
     }
+
+    // ================================================================ norms: a 5-sector scale per value
+
+    /**
+     * One value on its norm: five sectors — far below · below · the norm in the middle · above · far above —
+     * with their edges (6 numbers, the outer two only bound the drawing), the colour of each sector (by what the
+     * direction means for this value: more muscle is good, more fat is not) and the client's value.
+     */
+    public static final class Norm {
+        public final double[] edges = new double[6];
+        public final int[] colors = new int[5];
+        public final String[] names = new String[5];
+        public double value = Double.NaN;
+        public String unit = "";
+        public int decimals = 1;
+        /** Where the numbers come from (shown small under the scale). */
+        public String source = "";
+
+        public int sector() {
+            if (Double.isNaN(value)) {
+                return -1;
+            }
+            for (int i = 1; i < 5; i++) {
+                if (value < edges[i]) {
+                    return i - 1;
+                }
+            }
+            return 4;
+        }
+    }
+
+    static final int RED = 0xFFEF4444, ORANGE = 0xFFF97316, AMBER = 0xFFF59E0B, GREEN = 0xFF22C55E,
+            TEAL = 0xFF10B981, CYAN = 0xFF06B6D4, BLUE = 0xFF38BDF8;
+    /** Too little and too much both matter: red · amber · green · amber · red. */
+    static final int[] BOTH = {RED, AMBER, GREEN, AMBER, RED};
+    /** More is better (muscle): red · amber · green · teal · cyan. */
+    static final int[] MORE = {RED, AMBER, GREEN, TEAL, CYAN};
+    /** Less is better down to a floor (fat): blue · green-ish · green · amber · red. */
+    static final int[] LESS = {BLUE, TEAL, GREEN, AMBER, RED};
+
+    static Norm norm(double[] e, int[] cols, String[] names, double v, String unit, int dec, String source) {
+        Norm n = new Norm();
+        System.arraycopy(e, 0, n.edges, 0, 6);
+        System.arraycopy(cols, 0, n.colors, 0, 5);
+        System.arraycopy(names, 0, n.names, 0, 5);
+        n.value = v;
+        n.unit = unit;
+        n.decimals = dec;
+        n.source = source;
+        return n;
+    }
+
+    /**
+     * Body fat % by sex and age: the healthy range (Gallagher et al. 2000, Am J Clin Nutr 72:694 — from DXA and
+     * four-compartment models, by BMI 18.5–25 equivalence) in the middle; below it lean down to essential fat
+     * (men 5 %, women 12 %); above it "overweight", then "obese".
+     */
+    public static Norm fatNorm(double fatPct, boolean male, int age, String[] names) {
+        double[] e;
+        if (male) {
+            e = age < 40 ? new double[] {0, 5, 8, 20, 25, 40} : age < 60 ? new double[] {0, 5, 11, 22, 28, 42}
+                    : new double[] {0, 5, 13, 25, 30, 44};
+        } else {
+            e = age < 40 ? new double[] {0, 12, 21, 33, 39, 50} : age < 60 ? new double[] {0, 12, 23, 34, 40, 52}
+                    : new double[] {0, 12, 24, 36, 42, 54};
+        }
+        return norm(e, LESS, names, fatPct, " %", 1, "Gallagher 2000 · AJCN");
+    }
+
+    /**
+     * Muscle by fat-free mass per height² (FFMI): men 17–20 / women 14–17 is the usual adult range; above it
+     * athletic, then very muscular; below 17 / 14 low, below 16 / 13 very low (Schutz et al. 2002, Int J Obes 26:953;
+     * Kelly 2009 NHANES DXA).
+     */
+    public static Norm muscleNorm(double ffmi, boolean male, String[] names) {
+        double[] e = male ? new double[] {13, 16, 17, 20, 23, 27} : new double[] {10, 13, 14, 17, 19.5, 23};
+        return norm(e, MORE, names, ffmi, "", 1, "FFMI · Schutz 2002 · Kelly 2009 (NHANES)");
+    }
+
+    /** Body water % of the weight: men 50–65, women 45–60 (adult reference ranges of BIA / dilution). */
+    public static Norm waterNorm(double waterPct, boolean male, String[] names) {
+        double[] e = male ? new double[] {35, 45, 50, 65, 70, 80} : new double[] {30, 40, 45, 60, 65, 75};
+        return norm(e, BOTH, names, waterPct, " %", 1, "BIA reference ranges");
+    }
+
+    /** Physical age against the passport: ±3 years is "as the age", younger is good, older is not. */
+    public static Norm ageNorm(double physical, int passport, String[] names) {
+        double p = passport;
+        double[] e = {p - 25, p - 10, p - 3, p + 3, p + 10, p + 25};
+        return norm(e, new int[] {CYAN, TEAL, GREEN, AMBER, RED}, names, physical, "", 0, "Imboden 2017 (DXA, 3 327)");
+    }
+
+    /** Visceral fat grade (the scale's 1–20): up to 9 normal, 10–14 high, 15+ very high (vendor scale). */
+    public static Norm visceralNorm(double grade, String[] names) {
+        double[] e = {0, 2, 4, 10, 15, 21};
+        return norm(e, new int[] {TEAL, GREEN, GREEN, AMBER, RED}, names, grade, "", 0, "WLA25 / Fitdays");
+    }
+
+    /** BMI (WHO): 18.5–25 normal — weight only: dense muscle moves it up without fat. */
+    public static Norm bmiNorm(double bmi, String[] names) {
+        double[] e = {12, 16, 18.5, 25, 30, 40};
+        return norm(e, BOTH, names, bmi, "", 1, "WHO");
+    }
+
+    /** A zone's muscle, % of normal (the segmental standard of the vendor: 90–110 normal). */
+    public static Norm zoneNorm(double pct, String[] names) {
+        double[] e = {60, 80, 90, 110, 120, 150};
+        return norm(e, MORE, names, pct, " %", 0, "WLA25 / Fitdays segment standard");
+    }
+
+    /** Readiness 0–100 against the client's own baseline. */
+    public static Norm readyNorm(double score, String[] names) {
+        double[] e = {0, 40, 60, 80, 90, 100};
+        return norm(e, new int[] {RED, ORANGE, AMBER, GREEN, GREEN}, names, score, "", 0, "XEMS");
+    }
 }

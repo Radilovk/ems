@@ -64,6 +64,11 @@ as kg from one dashed start line + "+0.6 кг мускули · −2.2 кг ма
 (muscle low · normal · athletic · very; fat very low · normal · excess · obese — from FFMI / FMI, no kg/m² on
 screen; tick = last time). The FFMI × FMI scatter ("path of the body") was dropped in 1.1.289-ai: unclear to clients. Previews (HTML mocks from the real Java numbers, not device screenshots):
 `docs/scale/preview-today.png`, `docs/scale/preview-tracking.png`.
+**ⓘ on every card and tile** (1.1.290-ai, `ScaleScreen.cardInfo`): what the value means in plain words + the value
+on a **5-sector norm bar** (`ScaleViews.NormBar`, `ScaleInsight.*Norm`: far below · below · norm · above · far above,
+coloured by what the direction means) with the client's marker and the source: fat % by sex/age (Gallagher 2000),
+muscle FFMI (Schutz 2002, Kelly 2009), water %, physical age vs passport (±3 y), visceral (WLA25), BMI (WHO, with the
+"weight is not fat" caveat), zone muscle % of normal (90–110), readiness. Preview: `docs/scale/preview-info.png`.
 Landscape, three columns: (1) weight live + what to do now; figure front/back painted in the chosen layer
 (Мускули / Мазнини / Възстановяване); (2) readiness gauge + verdict + reason chips; radar of the 5 segments
 (100 = normal, normal band 90–110, dashed = last time), the tapped segment's numbers or the L/R balance;

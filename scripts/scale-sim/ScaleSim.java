@@ -404,6 +404,15 @@ public final class ScaleSim {
         ok("P1 owner = athletic (FFMI " + Math.round(t.ffmi * 10) / 10.0 + ", FMI " + Math.round(t.fmi * 10) / 10.0
                 + ")", t.type == ScaleInsight.T_ATHLETIC);
         eq("P1 ASMI as Fitdays", t.almi, 9.8, 0.1);
+        String[] n5 = {"a", "b", "c", "d", "e"};
+        eq("P1 fat 17.8 % = norm sector", ScaleInsight.fatNorm(17.8, true, 31, n5).sector(), 2, 0);
+        eq("P1 FFMI = athletic sector", ScaleInsight.muscleNorm(t.ffmi, true, n5).sector(), 3, 0);
+        eq("P1 water = norm", ScaleInsight.waterNorm(b.waterPct, true, n5).sector(), 2, 0);
+        eq("P1 BMI 26.6 = above (weight only)", ScaleInsight.bmiNorm(26.6, n5).sector(), 3, 0);
+        eq("P1 visceral 4 = norm", ScaleInsight.visceralNorm(4, n5).sector(), 2, 0);
+        eq("woman 41 % at 45 = obese", ScaleInsight.fatNorm(41, false, 45, n5).sector(), 4, 0);
+        eq("lean woman 19 % = lean, not deficit", ScaleInsight.fatNorm(19, false, 30, n5).sector(), 1, 0);
+        eq("age as the years", ScaleInsight.ageNorm(33, 31, n5).sector(), 2, 0);
         System.out.println("  P1 physical age " + Math.round(t.physicalAge) + " (muscle " + Math.round(t.ageFromMuscle)
                 + ", fat " + Math.round(t.ageFromFat) + "; Fitdays 29, passport 31)");
     }

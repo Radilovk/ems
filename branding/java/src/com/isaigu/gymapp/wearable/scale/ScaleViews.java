@@ -1209,4 +1209,125 @@ public final class ScaleViews {
             v.invalidate();
         }
     }
+
+    // ================================================================ a value on its 5-sector norm
+
+    /**
+     * The norm as a linear bar: five coloured sectors of equal width — the norm in the middle, two degrees of
+     * deviation to each side — the edges' numbers under the joins, each sector's name, and the client's marker with
+     * its value in a bubble above. The sector the marker sits in is lit, the others muted.
+     */
+    public static final class NormBar extends View {
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF r = new RectF();
+        ScaleInsight.Norm n;
+        float grow = 1f;
+
+        public NormBar(Context c) {
+            super(c);
+        }
+
+        public void set(ScaleInsight.Norm norm) {
+            n = norm;
+            ValueAnimator va = ValueAnimator.ofFloat(0f, 1f);
+            va.setDuration(650);
+            va.setInterpolator(new DecelerateInterpolator(1.6f));
+            va.addUpdateListener(new NormGrow(this));
+            va.start();
+        }
+
+        float xOf(double v, float l, float w) {
+            double[] e = n.edges;
+            double cl = Math.max(e[0], Math.min(e[5], v));
+            int b = 4;
+            for (int i = 1; i < 6; i++) {
+                if (cl < e[i]) {
+                    b = i - 1;
+                    break;
+                }
+            }
+            double t = (cl - e[b]) / Math.max(1e-9, e[b + 1] - e[b]);
+            return l + (float) ((b + t) / 5 * w);
+        }
+
+        static String num(double v, int dec) {
+            return dec == 0 ? String.valueOf(Math.round(v)) : String.format(Locale.US, "%." + dec + "f", v);
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            if (n == null) {
+                return;
+            }
+            float l = dp(this, 6), rr = getWidth() - dp(this, 6), w = rr - l;
+            float by = dp(this, 40), bh = dp(this, 14);
+            int now = n.sector();
+            for (int i = 0; i < 5; i++) {
+                float x0 = l + w * i / 5 + (i == 0 ? 0 : dp(this, 1.5f));
+                float x1 = l + w * (i + 1) / 5 - (i == 4 ? 0 : dp(this, 1.5f));
+                r.set(x0, by, x1, by + bh);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(i == now ? n.colors[i] : XemsUi.alpha(n.colors[i], 80));
+                c.drawRoundRect(r, bh / 2, bh / 2, p);
+                p.setTextAlign(Paint.Align.CENTER);
+                p.setFakeBoldText(i == now || i == 2);
+                p.setTextSize(dp(this, 12));
+                p.setColor(i == now ? XemsUi.TEXT : i == 2 ? XemsUi.alpha(XemsUi.TEXT, 200) : XemsUi.MUTED);
+                c.drawText(n.names[i], (x0 + x1) / 2, by + bh + dp(this, 34), p);
+                if (i > 0) {
+                    p.setFakeBoldText(false);
+                    p.setTextSize(dp(this, 11));
+                    p.setColor(XemsUi.MUTED);
+                    c.drawText(num(n.edges[i], n.edges[i] == Math.rint(n.edges[i]) ? 0 : 1), l + w * i / 5,
+                            by + bh + dp(this, 16), p);
+                }
+            }
+            // the norm's bracket over the middle sector
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(dp(this, 1.2f));
+            p.setColor(XemsUi.alpha(XemsUi.TEXT, 110));
+            float m0 = l + w * 2 / 5, m1 = l + w * 3 / 5;
+            c.drawLine(m0, by - dp(this, 4), m1, by - dp(this, 4), p);
+            if (Double.isNaN(n.value)) {
+                return;
+            }
+            float x = l + (xOf(n.value, l, w) - l) * grow;
+            float cy = by + bh / 2;
+            p.setStyle(Paint.Style.FILL);
+            p.setColor(0x66000000);
+            c.drawCircle(x, cy + dp(this, 1.5f), dp(this, 11), p);
+            p.setColor(XemsUi.TEXT);
+            c.drawCircle(x, cy, dp(this, 10.5f), p);
+            int col = now >= 0 ? n.colors[now] : XemsUi.MUTED;
+            p.setColor(col);
+            c.drawCircle(x, cy, dp(this, 6.5f), p);
+            // the value in a bubble above the marker
+            String v = num(n.value, n.decimals) + n.unit;
+            p.setFakeBoldText(true);
+            p.setTextSize(dp(this, 15));
+            float tw = p.measureText(v) + dp(this, 16);
+            float bx = Math.max(l, Math.min(rr - tw, x - tw / 2));
+            r.set(bx, dp(this, 2), bx + tw, dp(this, 26));
+            p.setColor(col);
+            c.drawRoundRect(r, dp(this, 12), dp(this, 12), p);
+            p.setColor(0xFF111111);
+            p.setTextAlign(Paint.Align.CENTER);
+            c.drawText(v, r.centerX(), r.bottom - dp(this, 7), p);
+            p.setFakeBoldText(false);
+        }
+    }
+
+    static final class NormGrow implements ValueAnimator.AnimatorUpdateListener {
+        final NormBar v;
+
+        NormGrow(NormBar v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator a) {
+            v.grow = (Float) a.getAnimatedValue();
+            v.invalidate();
+        }
+    }
 }

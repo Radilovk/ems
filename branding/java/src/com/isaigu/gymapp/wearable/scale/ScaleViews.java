@@ -622,10 +622,6 @@ public final class ScaleViews {
         }
     }
 
-    static float clampF(float v, float lo, float hi) {
-        return Math.max(lo, Math.min(hi, v));
-    }
-
     static String signed(double v) {
         return (v >= 0 ? "+" : "−") + String.format(Locale.US, "%.1f", Math.abs(v));
     }
@@ -925,135 +921,292 @@ public final class ScaleViews {
         }
     }
 
-    // ================================================================ body type map (FFMI × FMI)
+    // ================================================================ body type: two band scales
 
     /**
-     * Muscle (FFMI, →) against fat (FMI, ↑), per height², in the client's sex's zones: athletic bottom-right,
-     * low muscle left, excess fat up. The history is a fading trail, today a big dot — the path the training takes.
+     * Where the body sits, in two plain scales one above the other: muscle (low · normal · athletic · very) and fat
+     * (very low · normal · excess · obese), each a bar of coloured bands with the client's marker — the band the
+     * marker sits in is lit, the others muted, a small tick is the previous measurement. Bands from FFMI / FMI
+     * (ScaleInsight.body); no kg/m² on screen.
      */
-    public static final class TypeMap extends View {
+    public static final class BandMeter extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final RectF r = new RectF();
-        double[] ffmi = new double[0];
-        double[] fmi = new double[0];
         boolean male = true;
+        double ffmi = Double.NaN, fmi = Double.NaN, ffmiBefore = Double.NaN, fmiBefore = Double.NaN;
+        float grow = 1f;
 
-        public TypeMap(Context c) {
+        public BandMeter(Context c) {
             super(c);
         }
 
-        public void set(boolean male, double[] ffmi, double[] fmi) {
+        public void set(boolean male, double ffmi, double fmi, double ffmiBefore, double fmiBefore) {
             this.male = male;
-            this.ffmi = ffmi != null ? ffmi : new double[0];
-            this.fmi = fmi != null ? fmi : new double[0];
-            invalidate();
+            this.ffmi = ffmi;
+            this.fmi = fmi;
+            this.ffmiBefore = ffmiBefore;
+            this.fmiBefore = fmiBefore;
+            ValueAnimator va = ValueAnimator.ofFloat(0f, 1f);
+            va.setDuration(700);
+            va.setInterpolator(new DecelerateInterpolator(1.6f));
+            va.addUpdateListener(new MeterGrow(this));
+            va.start();
         }
 
         @Override
         protected void onDraw(Canvas c) {
-            float l = dp(this, 4), t = dp(this, 4), rr = getWidth() - dp(this, 4), b = getHeight() - dp(this, 16);
-            // zoomed on the client's own points (at least 2.5 × 2.5 kg/m²), so a few months' path is visible
-            double lx = Double.MAX_VALUE, hx = -Double.MAX_VALUE, ly = Double.MAX_VALUE, hy = -Double.MAX_VALUE;
-            for (int i = 0; i < Math.min(ffmi.length, fmi.length); i++) {
-                if (!Double.isNaN(ffmi[i]) && !Double.isNaN(fmi[i])) {
-                    lx = Math.min(lx, ffmi[i]);
-                    hx = Math.max(hx, ffmi[i]);
-                    ly = Math.min(ly, fmi[i]);
-                    hy = Math.max(hy, fmi[i]);
+            float h = getHeight() / 2f;
+            double[] mEdges = male ? new double[] {14, 17, 20, 23, 26} : new double[] {11, 14, 17, 19.5, 22};
+            double[] fEdges = male ? new double[] {0, 1.5, 6, 9, 13} : new double[] {0, 3, 9, 13, 18};
+            String[] mNames = {tr("малко", "low"), tr("норма", "normal"), tr("атлетични", "athletic"),
+                    tr("много", "very high")};
+            String[] fNames = {tr("много ниски", "very low"), tr("норма", "normal"), tr("излишни", "excess"),
+                    tr("затлъстяване", "obese")};
+            int[] mCols = {0xFFF59E0B, 0xFF84CC16, 0xFF22C55E, 0xFF06B6D4};
+            int[] fCols = {0xFF38BDF8, 0xFF22C55E, 0xFFF59E0B, 0xFFEF4444};
+            row(c, 0, h, tr("Мускули", "Muscle"), mEdges, mNames, mCols, ffmi, ffmiBefore);
+            row(c, h, h, tr("Мазнини", "Fat"), fEdges, fNames, fCols, fmi, fmiBefore);
+        }
+
+        static int band(double v, double[] e) {
+            for (int i = 1; i < e.length - 1; i++) {
+                if (v < e[i]) {
+                    return i - 1;
                 }
             }
-            double x0 = male ? 14 : 11, x1 = male ? 27 : 23, y0 = 0, y1 = male ? 14 : 18;
-            if (lx <= hx) {
-                double sx = Math.max(2.5, (hx - lx) * 1.8 + 1), sy = Math.max(2.5, (hy - ly) * 1.8 + 1);
-                double cxv = (lx + hx) / 2, cyv = (ly + hy) / 2;
-                x0 = cxv - sx / 2;
-                x1 = cxv + sx / 2;
-                y0 = Math.max(0, cyv - sy / 2);
-                y1 = y0 + sy;
-            }
-            double[] xs = male ? new double[] {17, 20, 23} : new double[] {14, 17, 19.5};
-            double[] ys = male ? new double[] {6, 9} : new double[] {9, 13};
-            float w = rr - l, h = b - t;
-            // fat bands: normal (green), excess (amber), obese (red) — muscle low strip greyed
-            float yN = clampF((float) (b - (ys[0] - y0) / (y1 - y0) * h), t, b);
-            float yE = clampF((float) (b - (ys[1] - y0) / (y1 - y0) * h), t, b);
-            float xLow = clampF((float) (l + (xs[0] - x0) / (x1 - x0) * w), l, rr);
-            float xAth = clampF((float) (l + (xs[1] - x0) / (x1 - x0) * w), l, rr);
-            p.setStyle(Paint.Style.FILL);
-            p.setColor(XemsUi.alpha(0xFF22C55E, 34));
-            r.set(l, yN, rr, b);
-            c.drawRoundRect(r, dp(this, 6), dp(this, 6), p);
-            p.setColor(XemsUi.alpha(0xFF22C55E, 40));
-            r.set(xAth, yN, rr, b);
-            c.drawRect(r, p);
-            p.setColor(XemsUi.alpha(0xFFF59E0B, 34));
-            r.set(l, yE, rr, yN);
-            c.drawRect(r, p);
-            p.setColor(XemsUi.alpha(0xFFEF4444, 34));
-            r.set(l, t, rr, yE);
-            c.drawRoundRect(r, dp(this, 6), dp(this, 6), p);
-            p.setColor(XemsUi.alpha(XemsUi.MUTED, 40));
-            r.set(l, t, xLow, b);
-            c.drawRect(r, p);
-            p.setTextSize(dp(this, 11));
-            p.setFakeBoldText(true);
-            p.setTextAlign(Paint.Align.RIGHT);
-            float band = dp(this, 18);
-            if (b - yN > band && rr - xAth > dp(this, 70)) {
-                p.setColor(XemsUi.GO_TEXT);
-                c.drawText(tr("атлетичен", "athletic"), rr - dp(this, 6), b - dp(this, 6), p);
-            } else if (b - yN > band) {
-                p.setColor(XemsUi.GO_TEXT);
-                c.drawText(tr("норма", "normal"), rr - dp(this, 6), b - dp(this, 6), p);
-            }
-            if (yN - yE > band) {
-                p.setColor(0xFFF59E0B);
-                c.drawText(tr("излишни мазнини", "excess fat"), rr - dp(this, 6), yN - dp(this, 6), p);
-            }
-            if (yE - t > band) {
-                p.setColor(0xFFEF4444);
-                c.drawText(tr("затлъстяване", "obese"), rr - dp(this, 6), t + dp(this, 14), p);
-            }
-            if (xLow - l > dp(this, 80)) {
-                p.setTextAlign(Paint.Align.LEFT);
-                p.setColor(XemsUi.MUTED);
-                c.drawText(tr("малко мускули", "low muscle"), l + dp(this, 6), b - dp(this, 6), p);
-            }
+            return e.length - 2;
+        }
+
+        float xOf(double v, double[] e, float l, float w) {
+            int n = e.length - 1;
+            // equal width per band (readable), linear inside each band
+            double cl = Math.max(e[0], Math.min(e[n], v));
+            int b = band(cl, e);
+            double t = (cl - e[b]) / (e[b + 1] - e[b]);
+            return l + (float) ((b + t) / n * w);
+        }
+
+        void row(Canvas c, float top, float h, String title, double[] e, String[] names, int[] cols, double v,
+                double before) {
+            float l = dp(this, 2), rr = getWidth() - dp(this, 2), w = rr - l;
+            int n = e.length - 1;
+            int now = Double.isNaN(v) ? -1 : band(v, e);
+            // title + the band's name, big
+            p.setTextAlign(Paint.Align.LEFT);
             p.setFakeBoldText(false);
-            p.setTextAlign(Paint.Align.CENTER);
-            p.setTextSize(dp(this, 10));
-            c.drawText(tr("мускули →", "muscle →"), (l + rr) / 2, getHeight() - dp(this, 2), p);
-            // trail
-            int n = Math.min(ffmi.length, fmi.length);
-            float px = 0, py = 0;
-            boolean have = false;
+            p.setTextSize(dp(this, 13));
+            p.setColor(XemsUi.MUTED);
+            float ty = top + dp(this, 16);
+            c.drawText(title, l, ty, p);
+            if (now >= 0) {
+                p.setTextAlign(Paint.Align.RIGHT);
+                p.setFakeBoldText(true);
+                p.setTextSize(dp(this, 17));
+                p.setColor(cols[now]);
+                c.drawText(names[now], rr, ty + dp(this, 1), p);
+            }
+            float by = top + dp(this, 28), bh = dp(this, 12);
             for (int i = 0; i < n; i++) {
-                if (Double.isNaN(ffmi[i]) || Double.isNaN(fmi[i])) {
+                float x0 = l + w * i / n + (i == 0 ? 0 : dp(this, 1.5f));
+                float x1 = l + w * (i + 1) / n - (i == n - 1 ? 0 : dp(this, 1.5f));
+                r.set(x0, by, x1, by + bh);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(i == now ? cols[i] : XemsUi.alpha(cols[i], 70));
+                c.drawRoundRect(r, bh / 2, bh / 2, p);
+                p.setFakeBoldText(i == now);
+                p.setTextAlign(Paint.Align.CENTER);
+                p.setTextSize(dp(this, 11));
+                p.setColor(i == now ? XemsUi.TEXT : XemsUi.MUTED);
+                c.drawText(names[i], (x0 + x1) / 2, by + bh + dp(this, 15), p);
+            }
+            if (!Double.isNaN(before)) {
+                float bx = xOf(before, e, l, w);
+                p.setColor(XemsUi.alpha(XemsUi.TEXT, 150));
+                p.setStrokeWidth(dp(this, 2));
+                c.drawLine(bx, by - dp(this, 5), bx, by + bh + dp(this, 2), p);
+            }
+            if (!Double.isNaN(v)) {
+                float x = xOf(v, e, l, w);
+                float from = Double.isNaN(before) ? l : xOf(before, e, l, w);
+                x = from + (x - from) * grow;
+                float cy = by + bh / 2;
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(0x66000000);
+                c.drawCircle(x, cy + dp(this, 1.5f), dp(this, 10), p);
+                p.setColor(XemsUi.TEXT);
+                c.drawCircle(x, cy, dp(this, 9.5f), p);
+                p.setColor(now >= 0 ? cols[now] : XemsUi.MUTED);
+                c.drawCircle(x, cy, dp(this, 6), p);
+            }
+        }
+    }
+
+    static final class MeterGrow implements ValueAnimator.AnimatorUpdateListener {
+        final BandMeter v;
+
+        MeterGrow(BandMeter v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator a) {
+            v.grow = (Float) a.getAnimatedValue();
+            v.invalidate();
+        }
+    }
+
+    // ================================================================ change since the start (kg)
+
+    /**
+     * Muscle and fat as kilograms gained or lost since the first measurement of the range — two lines from one
+     * dashed "start" line, muscle green, fat amber, each ending in its change. The gap that opens between them is
+     * the recomposition: weight can stay while fat goes down and muscle up.
+     */
+    public static final class Change extends View {
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final Path line = new Path();
+        final Path area = new Path();
+        double[] muscle = new double[0];
+        double[] fat = new double[0];
+        long[] t = new long[0];
+        float grow = 1f;
+
+        public Change(Context c) {
+            super(c);
+        }
+
+        /** Absolute kg per measurement (oldest first); drawn as the change from the first. */
+        public void set(double[] muscleKg, double[] fatKg, long[] times) {
+            muscle = muscleKg != null ? muscleKg : new double[0];
+            fat = fatKg != null ? fatKg : new double[0];
+            t = times != null ? times : new long[0];
+            ValueAnimator va = ValueAnimator.ofFloat(0f, 1f);
+            va.setDuration(800);
+            va.setInterpolator(new DecelerateInterpolator(1.5f));
+            va.addUpdateListener(new ChangeGrow(this));
+            va.start();
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            int n = Math.min(Math.min(muscle.length, fat.length), t.length);
+            float padL = dp(this, 34), padR = dp(this, 96), padT = dp(this, 12), padB = dp(this, 20);
+            float w = getWidth() - padL - padR, h = getHeight() - padT - padB;
+            if (n < 2 || w <= 0 || h <= 0) {
+                p.setColor(XemsUi.MUTED);
+                p.setTextSize(dp(this, 13));
+                p.setTextAlign(Paint.Align.CENTER);
+                c.drawText(tr("промяната идва от второто мерене", "the change starts with the second measurement"),
+                        getWidth() / 2f, getHeight() / 2f, p);
+                return;
+            }
+            double[] dm = new double[n], df = new double[n];
+            double lo = -1, hi = 1;
+            for (int i = 0; i < n; i++) {
+                dm[i] = muscle[i] - muscle[0];
+                df[i] = fat[i] - fat[0];
+                lo = Math.min(lo, Math.min(dm[i], df[i]));
+                hi = Math.max(hi, Math.max(dm[i], df[i]));
+            }
+            double span = hi - lo;
+            lo -= span * 0.12;
+            hi += span * 0.12;
+            long t0 = t[0], t1 = t[n - 1];
+            // grid: whole kilograms
+            p.setTextAlign(Paint.Align.RIGHT);
+            p.setTextSize(dp(this, 11));
+            int step = span > 8 ? 2 : 1;
+            for (int k = (int) Math.ceil(lo); k <= Math.floor(hi); k++) {
+                if (k % step != 0) {
                     continue;
                 }
-                float x = (float) (l + (Math.max(x0, Math.min(x1, ffmi[i])) - x0) / (x1 - x0) * w);
-                float y = (float) (b - (Math.max(y0, Math.min(y1, fmi[i])) - y0) / (y1 - y0) * h);
-                float k = n == 1 ? 1f : 0.25f + 0.75f * i / (float) (n - 1);
-                if (have) {
-                    p.setStyle(Paint.Style.STROKE);
-                    p.setStrokeWidth(dp(this, 2));
-                    p.setColor(XemsUi.alpha(XemsUi.TEXT, (int) (160 * k)));
-                    c.drawLine(px, py, x, y, p);
-                }
+                float y = (float) (padT + (hi - k) / (hi - lo) * h);
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(dp(this, k == 0 ? 1.4f : 0.7f));
+                p.setColor(k == 0 ? XemsUi.alpha(XemsUi.TEXT, 130) : XemsUi.alpha(XemsUi.MUTED, 45));
+                p.setPathEffect(k == 0 ? new DashPathEffect(new float[] {dp(this, 5), dp(this, 4)}, 0) : null);
+                c.drawLine(padL, y, padL + w, y, p);
+                p.setPathEffect(null);
                 p.setStyle(Paint.Style.FILL);
-                boolean last = i == n - 1;
-                p.setColor(last ? XemsUi.TEXT : XemsUi.alpha(XemsUi.TEXT, (int) (200 * k)));
-                c.drawCircle(x, y, dp(this, last ? 7 : 3.5f), p);
-                if (last) {
-                    p.setStyle(Paint.Style.STROKE);
-                    p.setStrokeWidth(dp(this, 2.5f));
-                    p.setColor(0xFF38BDF8);
-                    c.drawCircle(x, y, dp(this, 12), p);
-                }
-                px = x;
-                py = y;
-                have = true;
+                p.setColor(XemsUi.MUTED);
+                c.drawText(k == 0 ? tr("старт", "start") : (k > 0 ? "+" : "−") + Math.abs(k), padL - dp(this, 6),
+                        y + dp(this, 4), p);
             }
+            float y0 = (float) (padT + hi / (hi - lo) * h);
+            series(c, dm, n, t0, t1, padL, padT, w, h, lo, hi, y0, 0xFF22C55E, true);
+            series(c, df, n, t0, t1, padL, padT, w, h, lo, hi, y0, 0xFFF59E0B, false);
+            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("d.MM", Locale.US);
+            p.setTextSize(dp(this, 11));
+            p.setColor(XemsUi.MUTED);
+            p.setTextAlign(Paint.Align.LEFT);
+            c.drawText(f.format(new java.util.Date(t0)), padL, getHeight() - dp(this, 4), p);
+            p.setTextAlign(Paint.Align.RIGHT);
+            c.drawText(f.format(new java.util.Date(t1)), padL + w, getHeight() - dp(this, 4), p);
+        }
+
+        void series(Canvas c, double[] d, int n, long t0, long t1, float padL, float padT, float w, float h,
+                double lo, double hi, float y0, int col, boolean upGood) {
+            line.reset();
+            area.reset();
+            float lx = 0, ly = 0;
+            for (int i = 0; i < n; i++) {
+                float x = padL + (t1 > t0 ? (float) ((t[i] - t0) / (double) (t1 - t0)) : i / (float) (n - 1)) * w;
+                float y = (float) (padT + (hi - d[i] * grow) / (hi - lo) * h);
+                if (i == 0) {
+                    line.moveTo(x, y);
+                    area.moveTo(x, y0);
+                }
+                line.lineTo(x, y);
+                area.lineTo(x, y);
+                lx = x;
+                ly = y;
+            }
+            area.lineTo(lx, y0);
+            area.close();
+            p.setStyle(Paint.Style.FILL);
+            p.setColor(XemsUi.alpha(col, 46));
+            c.drawPath(area, p);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(dp(this, 3));
+            p.setStrokeJoin(Paint.Join.ROUND);
+            p.setStrokeCap(Paint.Cap.ROUND);
+            p.setColor(col);
+            c.drawPath(line, p);
+            p.setStyle(Paint.Style.FILL);
+            for (int i = 0; i < n; i++) {
+                float x = padL + (t1 > t0 ? (float) ((t[i] - t0) / (double) (t1 - t0)) : i / (float) (n - 1)) * w;
+                float y = (float) (padT + (hi - d[i] * grow) / (hi - lo) * h);
+                p.setColor(XemsUi.CARD);
+                c.drawCircle(x, y, dp(this, i == n - 1 ? 7 : 4.5f), p);
+                p.setColor(col);
+                c.drawCircle(x, y, dp(this, i == n - 1 ? 5 : 3), p);
+            }
+            double last = d[n - 1];
+            boolean good = Math.abs(last) < 0.05 || (last > 0) == upGood;
+            p.setTextAlign(Paint.Align.LEFT);
+            p.setFakeBoldText(true);
+            p.setTextSize(dp(this, 16));
+            p.setColor(col);
+            String v = (last >= 0 ? "+" : "−") + String.format(Locale.US, "%.1f", Math.abs(last)) + tr(" кг", " kg");
+            c.drawText(v, lx + dp(this, 12), ly + dp(this, 2), p);
+            p.setFakeBoldText(false);
+            p.setTextSize(dp(this, 11));
+            p.setColor(good ? XemsUi.GO_TEXT : XemsUi.AMBER);
+            c.drawText(upGood ? tr("мускули", "muscle") : tr("мазнини", "fat"), lx + dp(this, 12), ly + dp(this, 16), p);
+        }
+    }
+
+    static final class ChangeGrow implements ValueAnimator.AnimatorUpdateListener {
+        final Change v;
+
+        ChangeGrow(Change v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator a) {
+            v.grow = (Float) a.getAnimatedValue();
+            v.invalidate();
         }
     }
 }

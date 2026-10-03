@@ -108,7 +108,9 @@ public final class ScaleScreen {
         final TextView[] tileValue = new TextView[4];
         final TextView[] tileDelta = new TextView[4];
         ScaleViews.Reach reach;
-        ScaleViews.TypeMap typeMap;
+        ScaleViews.BandMeter meter;
+        ScaleViews.Change change;
+        TextView changeHead;
         // track
         LinearLayout metricHolder;
         TextView trendTitle;
@@ -317,9 +319,9 @@ public final class ScaleScreen {
                 right.addView(line, XemsUi.matchWrap(a, r == 0 ? 0 : 10));
             }
             LinearLayout mc = XemsUi.card(a);
-            mc.addView(XemsUi.label(a, tr("Тип тяло · мускули → / мазнини ↑", "Body type · muscle → / fat ↑")));
-            typeMap = new ScaleViews.TypeMap(a);
-            mc.addView(typeMap, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            mc.addView(XemsUi.label(a, tr("Тип тяло · спрямо ръста", "Body type · for the height")));
+            meter = new ScaleViews.BandMeter(a);
+            mc.addView(meter, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
             right.addView(mc, flex(12));
             LinearLayout rc = XemsUi.card(a);
             rc.addView(XemsUi.label(a, tr("Ток до мускула · по канали", "Current to the muscle · per channel")));
@@ -350,10 +352,11 @@ public final class ScaleScreen {
             right.addView(dc, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
             LinearLayout mc = XemsUi.card(a);
-            mc.addView(XemsUi.label(a, tr("Пътят на тялото · мускули → / мазнини ↑",
-                    "The body's path · muscle → / fat ↑")));
-            typeMap = new ScaleViews.TypeMap(a);
-            mc.addView(typeMap, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            mc.addView(XemsUi.label(a, tr("Промяна от старта", "Change since the start")));
+            changeHead = XemsUi.text(a, "", 22, XemsUi.TEXT, true);
+            mc.addView(changeHead, XemsUi.matchWrap(a, 4));
+            change = new ScaleViews.Change(a);
+            mc.addView(change, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
             right.addView(mc, flex(12));
         }
 
@@ -491,7 +494,10 @@ public final class ScaleScreen {
                     setDelta(tileDelta[i], m, p, M_KEY[i], "", upGood[i], false);
                 }
             }
-            typeMap.set(male, last2("ffmi"), last2("fmi"));
+            double[] ff = series("ffmi"), fm = series("fmi");
+            int n = ff.length;
+            meter.set(male, n > 0 ? ff[n - 1] : Double.NaN, n > 0 ? fm[n - 1] : Double.NaN,
+                    n > 1 ? ff[n - 2] : Double.NaN, n > 1 ? fm[n - 2] : Double.NaN);
             reach.set(m != null && m.has("fat") ? ScaleInsight.channelFat(m) : null);
         }
 
@@ -528,7 +534,32 @@ public final class ScaleScreen {
             trend.set(slice(series(M_KEY[metric]), fromI), sliceT(times(), fromI), M_COL[metric], "");
             radarZones(m, fi < at ? f : null, trackLayer == T_MUSCLE ? ScaleViews.LAYER_MUSCLE : ScaleViews.LAYER_FAT);
             deltaTable(f, m, fi < at);
-            typeMap.set(male, slice(series("ffmi"), fromI), slice(series("fmi"), fromI));
+            double[] mk = slice(series("muscle"), fromI), fk = slice(series("fatKg"), fromI);
+            change.set(mk, fk, sliceT(times(), fromI));
+            changeHead(mk, fk);
+        }
+
+        /** "+0.6 кг мускули · −2.2 кг мазнини", each coloured by its good direction. */
+        void changeHead(double[] mk, double[] fk) {
+            if (mk.length < 2) {
+                changeHead.setText("");
+                return;
+            }
+            double dm = mk[mk.length - 1] - mk[0], df = fk[fk.length - 1] - fk[0];
+            android.text.SpannableStringBuilder b = new android.text.SpannableStringBuilder();
+            part(b, (dm >= 0 ? "+" : "−") + one(Math.abs(dm)) + tr(" кг мускули", " kg muscle"),
+                    Math.abs(dm) < 0.05 ? XemsUi.MUTED : dm > 0 ? XemsUi.GO_TEXT : XemsUi.AMBER);
+            b.append("   ");
+            part(b, (df >= 0 ? "+" : "−") + one(Math.abs(df)) + tr(" кг мазнини", " kg fat"),
+                    Math.abs(df) < 0.05 ? XemsUi.MUTED : df < 0 ? XemsUi.GO_TEXT : XemsUi.AMBER);
+            changeHead.setText(b);
+        }
+
+        static void part(android.text.SpannableStringBuilder b, String t, int color) {
+            int st = b.length();
+            b.append(t);
+            b.setSpan(new android.text.style.ForegroundColorSpan(color), st, b.length(),
+                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         int radarLayer() {
@@ -800,12 +831,6 @@ public final class ScaleScreen {
                 }
             }
             return v;
-        }
-
-        /** Today and the one before — the day view's map shows where the body is, not its whole path. */
-        double[] last2(String key) {
-            double[] s = series(key);
-            return slice(s, Math.max(0, s.length - 2));
         }
 
         long[] times() {

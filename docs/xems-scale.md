@@ -59,8 +59,10 @@ the art's light (muscles stay drawn); **Ток** = per muscle group (channel) by
 
 ## Result page (`ScaleScreen`) — two views
 **Днес** (this measurement) | **Проследяване** (from: last time / 3 back / the first → now: figure by change per
-segment, big trend of one metric, radar then vs now, from → to table, body-type map with its trail — auto-zoomed
-on the client's points). Previews (HTML mocks from the real Java numbers, not device screenshots):
+segment, big trend of one metric, radar then vs now, from → to table, **change since the start**: muscle and fat
+as kg from one dashed start line + "+0.6 кг мускули · −2.2 кг мазнини"). Day view: **body type as two band scales**
+(muscle low · normal · athletic · very; fat very low · normal · excess · obese — from FFMI / FMI, no kg/m² on
+screen; tick = last time). The FFMI × FMI scatter ("path of the body") was dropped in 1.1.289-ai: unclear to clients. Previews (HTML mocks from the real Java numbers, not device screenshots):
 `docs/scale/preview-today.png`, `docs/scale/preview-tracking.png`.
 Landscape, three columns: (1) weight live + what to do now; figure front/back painted in the chosen layer
 (Мускули / Мазнини / Възстановяване); (2) readiness gauge + verdict + reason chips; radar of the 5 segments

@@ -6,7 +6,10 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$TypeMap;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$ChangeGrow;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Change;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MeterGrow;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;,
@@ -37,22 +40,6 @@
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
-.end method
-
-.method static clampF(FFF)F
-    .registers 4
-
-    .prologue
-    .line 626
-    invoke-static {p2, p0}, Ljava/lang/Math;->min(FF)F
-
-    move-result v0
-
-    invoke-static {p1, v0}, Ljava/lang/Math;->max(FF)F
-
-    move-result v0
-
-    return v0
 .end method
 
 .method public static deltaCol(DZDD)I
@@ -445,7 +432,7 @@
     .registers 10
 
     .prologue
-    .line 630
+    .line 626
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V

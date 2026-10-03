@@ -44,6 +44,16 @@ public final class ScaleViews {
         return d * v.getResources().getDisplayMetrics().density;
     }
 
+    /**
+     * Drawn text: a notch above the dp size (labels on a tablet at arm's length) and following the system's font
+     * size like the page's TextViews do (capped, so a big font setting does not break the drawings).
+     */
+    static float sp(View v, float d) {
+        android.util.DisplayMetrics dm = v.getResources().getDisplayMetrics();
+        float font = dm.density > 0 ? Math.max(1f, Math.min(1.3f, dm.scaledDensity / dm.density)) : 1f;
+        return d * 1.12f * font * dm.density;
+    }
+
     static int lerp(float[] at, int[] col, double v) {
         if (Double.isNaN(v)) {
             return 0xFF6B7280;
@@ -313,7 +323,7 @@ public final class ScaleViews {
                 }
                 // the client's own sides: on the front view their right is on the image's left
                 label.setColor(XemsUi.MUTED);
-                label.setTextSize(dp(this, 12));
+                label.setTextSize(sp(this, 12));
                 float ly = dst[i].top + dst[i].height() * 0.07f;
                 String l = tr("Л", "L"), r = tr("Д", "R");
                 c.drawText(i == 0 ? r : l, dst[i].left + dp(this, 6), ly, label);
@@ -532,11 +542,11 @@ public final class ScaleViews {
                 float ly = cy + (float) Math.sin(axisAngle[i]) * (rMax + dp(this, 22));
                 p.setStyle(Paint.Style.FILL);
                 p.setFakeBoldText(s == selected);
-                p.setTextSize(dp(this, 12));
+                p.setTextSize(sp(this, 12));
                 p.setColor(s == selected ? XemsUi.TEXT : XemsUi.MUTED);
                 c.drawText(names[i], lx, ly - dp(this, 2), p);
                 p.setFakeBoldText(true);
-                p.setTextSize(dp(this, 14));
+                p.setTextSize(sp(this, 14));
                 p.setColor(vc);
                 c.drawText(layer == LAYER_READY ? signed((v - 100) / READY_K) + "%"
                         : layer == LAYER_FAT ? Math.round(v * fatMid / 100) + "%" : Math.round(v) + "%", lx,
@@ -660,7 +670,7 @@ public final class ScaleViews {
 
         @Override
         protected void onDraw(Canvas c) {
-            float size = Math.min(getWidth(), getHeight() - dp(this, 34));
+            float size = Math.min(getWidth(), getHeight() - dp(this, 12) - sp(this, 32));
             float sw = dp(this, 14);
             float cx = getWidth() / 2f;
             float top = dp(this, 4);
@@ -684,17 +694,17 @@ public final class ScaleViews {
             p.setTextSize(size * 0.3f);
             c.drawText(score >= 0 ? String.valueOf(Math.round(shown)) : "—", cx, r.centerY() + size * 0.1f, p);
             p.setFakeBoldText(false);
-            p.setTextSize(dp(this, 12));
+            p.setTextSize(sp(this, 12));
             p.setColor(XemsUi.MUTED);
             c.drawText(tr("готовност", "readiness"), cx, r.centerY() + size * 0.24f, p);
             p.setFakeBoldText(true);
-            p.setTextSize(dp(this, 17));
+            p.setTextSize(sp(this, 17));
             p.setColor(colr);
             c.drawText(verdict, cx, top + size + dp(this, 8), p);
             p.setFakeBoldText(false);
-            p.setTextSize(dp(this, 12));
+            p.setTextSize(sp(this, 12));
             p.setColor(XemsUi.MUTED);
-            c.drawText(sub, cx, top + size + dp(this, 26), p);
+            c.drawText(sub, cx, top + size + dp(this, 10) + sp(this, 17), p);
         }
     }
 
@@ -757,7 +767,7 @@ public final class ScaleViews {
             if (n == 0 || w <= 0 || h <= 0) {
                 if (!compact) {
                     p.setColor(XemsUi.MUTED);
-                    p.setTextSize(dp(this, 13));
+                    p.setTextSize(sp(this, 13));
                     p.setTextAlign(Paint.Align.CENTER);
                     c.drawText(tr("графиката тръгва от второто мерене", "the chart starts with the second measurement"), getWidth() / 2f, getHeight() / 2f, p);
                 }
@@ -823,13 +833,13 @@ public final class ScaleViews {
             p.setColor(color);
             c.drawCircle(lastX, lastY, dp(this, compact ? 2.8f : 6), p);
             if (!compact) {
-                p.setTextSize(dp(this, 15));
+                p.setTextSize(sp(this, 15));
                 p.setFakeBoldText(true);
                 p.setTextAlign(Paint.Align.LEFT);
                 c.drawText(String.format(Locale.US, "%.1f", v[v.length - 1]) + unit, lastX + dp(this, 9),
                         lastY + dp(this, 5), p);
                 p.setFakeBoldText(false);
-                p.setTextSize(dp(this, 11));
+                p.setTextSize(sp(this, 11));
                 p.setColor(XemsUi.MUTED);
                 java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("d.MM", Locale.US);
                 if (t.length > 0) {
@@ -901,14 +911,14 @@ public final class ScaleViews {
                 p.setShader(null);
                 p.setColor(col);
                 p.setFakeBoldText(true);
-                p.setTextSize(dp(this, 12));
+                p.setTextSize(sp(this, 12));
                 int pct = (int) Math.round((rel - 1) * 100);
                 c.drawText(pct == 0 ? "0" : (pct > 0 ? "+" : "−") + Math.abs(pct), x + colW / 2, r.top - dp(this, 4), p);
                 p.setFakeBoldText(false);
                 p.setColor(XemsUi.MUTED);
-                p.setTextSize(dp(this, 11));
+                p.setTextSize(sp(this, 11));
                 c.drawText(names[i], x + colW / 2, getHeight() - dp(this, 14), p);
-                p.setTextSize(dp(this, 10));
+                p.setTextSize(sp(this, 10));
                 c.drawText(String.format(Locale.US, "%.0f%%", fat[i]), x + colW / 2, getHeight() - dp(this, 2), p);
             }
             float my = top + h - (float) (h * Math.max(0.08, Math.min(1, (mean - 0.55) / 0.8)));
@@ -994,14 +1004,14 @@ public final class ScaleViews {
             // title + the band's name, big
             p.setTextAlign(Paint.Align.LEFT);
             p.setFakeBoldText(false);
-            p.setTextSize(dp(this, 13));
+            p.setTextSize(sp(this, 13));
             p.setColor(XemsUi.MUTED);
             float ty = top + dp(this, 16);
             c.drawText(title, l, ty, p);
             if (now >= 0) {
                 p.setTextAlign(Paint.Align.RIGHT);
                 p.setFakeBoldText(true);
-                p.setTextSize(dp(this, 17));
+                p.setTextSize(sp(this, 17));
                 p.setColor(cols[now]);
                 c.drawText(names[now], rr, ty + dp(this, 1), p);
             }
@@ -1015,7 +1025,7 @@ public final class ScaleViews {
                 c.drawRoundRect(r, bh / 2, bh / 2, p);
                 p.setFakeBoldText(i == now);
                 p.setTextAlign(Paint.Align.CENTER);
-                p.setTextSize(dp(this, 11));
+                p.setTextSize(sp(this, 11));
                 p.setColor(i == now ? XemsUi.TEXT : XemsUi.MUTED);
                 c.drawText(names[i], (x0 + x1) / 2, by + bh + dp(this, 15), p);
             }
@@ -1094,7 +1104,7 @@ public final class ScaleViews {
             float w = getWidth() - padL - padR, h = getHeight() - padT - padB;
             if (n < 2 || w <= 0 || h <= 0) {
                 p.setColor(XemsUi.MUTED);
-                p.setTextSize(dp(this, 13));
+                p.setTextSize(sp(this, 13));
                 p.setTextAlign(Paint.Align.CENTER);
                 c.drawText(tr("промяната идва от второто мерене", "the change starts with the second measurement"),
                         getWidth() / 2f, getHeight() / 2f, p);
@@ -1114,7 +1124,7 @@ public final class ScaleViews {
             long t0 = t[0], t1 = t[n - 1];
             // grid: whole kilograms
             p.setTextAlign(Paint.Align.RIGHT);
-            p.setTextSize(dp(this, 11));
+            p.setTextSize(sp(this, 11));
             int step = span > 8 ? 2 : 1;
             for (int k = (int) Math.ceil(lo); k <= Math.floor(hi); k++) {
                 if (k % step != 0) {
@@ -1136,7 +1146,7 @@ public final class ScaleViews {
             series(c, dm, n, t0, t1, padL, padT, w, h, lo, hi, y0, 0xFF22C55E, true);
             series(c, df, n, t0, t1, padL, padT, w, h, lo, hi, y0, 0xFFF59E0B, false);
             java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("d.MM", Locale.US);
-            p.setTextSize(dp(this, 11));
+            p.setTextSize(sp(this, 11));
             p.setColor(XemsUi.MUTED);
             p.setTextAlign(Paint.Align.LEFT);
             c.drawText(f.format(new java.util.Date(t0)), padL, getHeight() - dp(this, 4), p);
@@ -1185,12 +1195,12 @@ public final class ScaleViews {
             boolean good = Math.abs(last) < 0.05 || (last > 0) == upGood;
             p.setTextAlign(Paint.Align.LEFT);
             p.setFakeBoldText(true);
-            p.setTextSize(dp(this, 16));
+            p.setTextSize(sp(this, 16));
             p.setColor(col);
             String v = (last >= 0 ? "+" : "−") + String.format(Locale.US, "%.1f", Math.abs(last)) + tr(" кг", " kg");
             c.drawText(v, lx + dp(this, 12), ly + dp(this, 2), p);
             p.setFakeBoldText(false);
-            p.setTextSize(dp(this, 11));
+            p.setTextSize(sp(this, 11));
             p.setColor(good ? XemsUi.GO_TEXT : XemsUi.AMBER);
             c.drawText(upGood ? tr("мускули", "muscle") : tr("мазнини", "fat"), lx + dp(this, 12), ly + dp(this, 16), p);
         }
@@ -1271,12 +1281,12 @@ public final class ScaleViews {
                 c.drawRoundRect(r, bh / 2, bh / 2, p);
                 p.setTextAlign(Paint.Align.CENTER);
                 p.setFakeBoldText(i == now || i == 2);
-                p.setTextSize(dp(this, 12));
+                p.setTextSize(sp(this, 12));
                 p.setColor(i == now ? XemsUi.TEXT : i == 2 ? XemsUi.alpha(XemsUi.TEXT, 200) : XemsUi.MUTED);
                 c.drawText(n.names[i], (x0 + x1) / 2, by + bh + dp(this, 34), p);
                 if (i > 0) {
                     p.setFakeBoldText(false);
-                    p.setTextSize(dp(this, 11));
+                    p.setTextSize(sp(this, 11));
                     p.setColor(XemsUi.MUTED);
                     c.drawText(num(n.edges[i], n.edges[i] == Math.rint(n.edges[i]) ? 0 : 1), l + w * i / 5,
                             by + bh + dp(this, 16), p);
@@ -1304,7 +1314,7 @@ public final class ScaleViews {
             // the value in a bubble above the marker
             String v = num(n.value, n.decimals) + n.unit;
             p.setFakeBoldText(true);
-            p.setTextSize(dp(this, 15));
+            p.setTextSize(sp(this, 15));
             float tw = p.measureText(v) + dp(this, 16);
             float bx = Math.max(l, Math.min(rr - tw, x - tw / 2));
             r.set(bx, dp(this, 2), bx + tw, dp(this, 26));
@@ -1489,12 +1499,12 @@ public final class ScaleViews {
                 p.setColor(COL[i]);
                 c.drawCircle(cx + dp(this, 5), ty - dp(this, 5), dp(this, 4.5f), p);
                 p.setTextAlign(Paint.Align.LEFT);
-                p.setTextSize(dp(this, 15));
+                p.setTextSize(sp(this, 15));
                 p.setFakeBoldText(true);
                 p.setColor(lit ? XemsUi.TEXT : XemsUi.MUTED);
                 c.drawText((Math.round(kg[i] * 10) / 10.0) + tr(" кг", " kg"), cx + dp(this, 14), ty, p);
                 p.setFakeBoldText(false);
-                p.setTextSize(dp(this, 12));
+                p.setTextSize(sp(this, 12));
                 p.setColor(lit ? COL[i] : XemsUi.alpha(COL[i], 150));
                 c.drawText(names[i], cx + dp(this, 14), ty + dp(this, 16), p);
                 p.setColor(XemsUi.MUTED);
@@ -1610,7 +1620,7 @@ public final class ScaleViews {
             p.setColor(0xFF22C55E);
             c.drawCircle(xt, y, dp(this, 8), p);
             p.setTextAlign(Paint.Align.CENTER);
-            p.setTextSize(dp(this, 13));
+            p.setTextSize(sp(this, 13));
             p.setFakeBoldText(true);
             c.drawText(Math.round(target * 10) / 10.0 + tr(" кг", " kg"), xt, y + dp(this, 28), p);
             // now
@@ -1619,13 +1629,13 @@ public final class ScaleViews {
             p.setColor(on ? 0xFF22C55E : gap);
             c.drawCircle(xn, y, dp(this, 6), p);
             p.setColor(XemsUi.TEXT);
-            p.setTextSize(dp(this, 15));
+            p.setTextSize(sp(this, 15));
             c.drawText(Math.round(now * 10) / 10.0 + tr(" кг · сега", " kg · now"), Math.max(l + dp(this, 50),
                     Math.min(rr - dp(this, 50), xn)), y - dp(this, 18), p);
             p.setFakeBoldText(false);
             // what the gap is
             p.setTextAlign(Paint.Align.LEFT);
-            p.setTextSize(dp(this, 14));
+            p.setTextSize(sp(this, 14));
             float ty = y + dp(this, 56);
             String t;
             if (on) {

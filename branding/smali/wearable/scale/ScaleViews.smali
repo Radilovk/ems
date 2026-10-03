@@ -52,21 +52,21 @@
     .registers 15
 
     .prologue
-    .line 82
+    .line 92
     invoke-static {p0, p1}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v0
 
     if-eqz v0, :cond_8
 
-    .line 83
+    .line 93
     const/4 v0, 0x0
 
-    .line 90
+    .line 100
     :goto_7
     return v0
 
-    .line 85
+    .line 95
     :cond_8
     invoke-static {p0, p1}, Ljava/lang/Math;->abs(D)D
 
@@ -76,12 +76,12 @@
 
     if-gez v0, :cond_14
 
-    .line 86
+    .line 96
     const v0, -0x6b5c48
 
     goto :goto_7
 
-    .line 88
+    .line 98
     :cond_14
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
@@ -107,7 +107,7 @@
 
     double-to-float v1, v0
 
-    .line 89
+    .line 99
     const-wide/16 v2, 0x0
 
     cmpl-double v0, p0, v2
@@ -121,7 +121,7 @@
 
     const/4 v0, 0x1
 
-    .line 90
+    .line 100
     :goto_36
     const v2, -0x6b5c48
 
@@ -144,7 +144,7 @@
 
     goto :goto_7
 
-    .line 89
+    .line 99
     :cond_4b
     const/4 v0, 0x0
 
@@ -155,7 +155,7 @@
 
     goto :goto_36
 
-    .line 90
+    .line 100
     :cond_4f
     const v0, -0xa61f5
 
@@ -188,7 +188,7 @@
     .prologue
     const/4 v1, 0x4
 
-    .line 70
+    .line 80
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10
@@ -224,7 +224,7 @@
     .registers 4
 
     .prologue
-    .line 100
+    .line 110
     if-nez p0, :cond_7
 
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->muscleCol(D)I
@@ -259,21 +259,21 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 48
+    .line 58
     invoke-static {p2, p3}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v0
 
     if-eqz v0, :cond_b
 
-    .line 49
+    .line 59
     const v0, -0x948d80
 
-    .line 59
+    .line 69
     :goto_a
     return v0
 
-    .line 51
+    .line 61
     :cond_b
     aget v0, p0, v2
 
@@ -283,12 +283,12 @@
 
     if-gtz v0, :cond_15
 
-    .line 52
+    .line 62
     aget v0, p1, v2
 
     goto :goto_a
 
-    .line 54
+    .line 64
     :cond_15
     const/4 v0, 0x1
 
@@ -297,7 +297,7 @@
 
     if-ge v0, v1, :cond_40
 
-    .line 55
+    .line 65
     aget v1, p0, v0
 
     float-to-double v2, v1
@@ -306,7 +306,7 @@
 
     if-gtz v1, :cond_3d
 
-    .line 56
+    .line 66
     add-int/lit8 v1, v0, -0x1
 
     aget v1, p1, v1
@@ -341,13 +341,13 @@
 
     goto :goto_a
 
-    .line 54
+    .line 64
     :cond_3d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_16
 
-    .line 59
+    .line 69
     :cond_40
     array-length v0, p1
 
@@ -364,7 +364,7 @@
     .prologue
     const/4 v1, 0x5
 
-    .line 64
+    .line 74
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10
@@ -404,7 +404,7 @@
     .prologue
     const/4 v1, 0x3
 
-    .line 95
+    .line 105
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10
@@ -438,7 +438,7 @@
     .registers 10
 
     .prologue
-    .line 626
+    .line 636
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -496,13 +496,68 @@
     goto :goto_d
 .end method
 
+.method static sp(Landroid/view/View;F)F
+    .registers 7
+
+    .prologue
+    const/high16 v0, 0x3f800000    # 1.0f
+
+    .line 52
+    invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v1
+
+    .line 53
+    iget v2, v1, Landroid/util/DisplayMetrics;->density:F
+
+    const/4 v3, 0x0
+
+    cmpl-float v2, v2, v3
+
+    if-lez v2, :cond_21
+
+    const v2, 0x3fa66666    # 1.3f
+
+    iget v3, v1, Landroid/util/DisplayMetrics;->scaledDensity:F
+
+    iget v4, v1, Landroid/util/DisplayMetrics;->density:F
+
+    div-float/2addr v3, v4
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(FF)F
+
+    move-result v2
+
+    invoke-static {v0, v2}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    .line 54
+    :cond_21
+    const v2, 0x3f8f5c29    # 1.12f
+
+    mul-float/2addr v2, p1
+
+    mul-float/2addr v0, v2
+
+    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
+
+    mul-float/2addr v0, v1
+
+    return v0
+.end method
+
 .method public static swellCol(D)I
     .registers 4
 
     .prologue
     const/4 v1, 0x3
 
-    .line 76
+    .line 86
     new-array v0, v1, [F
 
     fill-array-data v0, :array_10

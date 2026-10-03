@@ -65,6 +65,7 @@ final class ScaleStage {
     final FrameLayout theatre;
     final ImageView hero;
     final TextureView film;
+    final View cover;
     final TextView chip;
     final StepsBar steps;
     final TextView title, sub, weight, unit, stableChip, round;
@@ -74,6 +75,13 @@ final class ScaleStage {
     final Handler main = new Handler(Looper.getMainLooper());
     MediaPlayer player;
     boolean filmReady;
+    /** The film is meant to be on (someone stands on the scale) — it starts as soon as the player is ready. */
+    boolean filmOn;
+    /** Steadiness seen here too: generation A sends no "stable" flag with the live weight. */
+    double anchorKg;
+    long anchorT;
+    static final double STEADY_KG = 0.15;
+    static final long STEADY_MS = 1500;
     int phase = -1;
     long scanStart;
     boolean needOff;
@@ -95,10 +103,15 @@ final class ScaleStage {
         theatre.setBackgroundDrawable(XemsUi.rounded(0xFF05070B, dp(22), XemsUi.alpha(female ? 0xFFFF3EC8 : 0xFF38BDF8,
                 90), dp(1)));
         theatre.setClipToOutline(true);
+        // the film is always drawn (a TextureView kept at alpha 0 may never get its surface) under an opaque cover
+        // and the figure; showing the film = fading both out
         film = new TextureView(a);
-        film.setAlpha(0f);
         film.setSurfaceTextureListener(new FilmSurface(this));
         theatre.addView(film, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        cover = new View(a);
+        cover.setBackgroundColor(0xFF05070B);
+        theatre.addView(cover, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         hero = new ImageView(a);
         hero.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -196,6 +209,13 @@ final class ScaleStage {
         weight.setText(String.valueOf(Math.round(kg * 10) / 10.0));
         weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
         live.add(kg, stable);
+        long now = System.currentTimeMillis();
+        if (Math.abs(kg - anchorKg) > STEADY_KG) {
+            anchorKg = kg;
+            anchorT = now;
+        } else if (kg >= 5 && now - anchorT >= STEADY_MS) {
+            stable = true;
+        }
         if (needOff) {
             if (kg < 5) {
                 needOff = false;
@@ -387,13 +407,13 @@ final class ScaleStage {
         chip.setText(c);
         chip.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(cc, 70), dp(16), XemsUi.alpha(cc, 200), dp(1)));
         stable(p);
-        boolean film = p == P_SCAN || p == P_REVIEW;
-        showFilm(film);
         if (p == P_STEP_ON || p == P_CONNECT) {
             breathe(true);
         } else {
             breathe(false);
         }
+        // the film runs from the moment someone stands on the scale until the results come in
+        showFilm(p == P_SETTLE || p == P_SCAN || p == P_REVIEW || p == P_DONE);
         if (p != P_SCAN) {
             main.removeCallbacks(tick);
             if (p != P_REVIEW) {
@@ -443,20 +463,25 @@ final class ScaleStage {
     }
 
     void showFilm(boolean on) {
+        boolean was = filmOn;
+        filmOn = on;
         if (on) {
             if (player != null && filmReady) {
                 try {
-                    if (phase == P_SCAN) {
-                        player.seekTo(0);
+                    if (!was || !player.isPlaying()) {
+                        if (!was) {
+                            player.seekTo(0);
+                        }
+                        player.start();
                     }
-                    player.start();
-                } catch (Throwable ignored) {
+                } catch (Throwable t) {
+                    XemsGuard.report("ScaleStage.play", t);
                 }
+                cover.animate().alpha(0f).setDuration(500).start();
+                hero.animate().alpha(0f).setDuration(500).start();
             }
-            film.animate().alpha(filmReady ? 1f : 0f).setDuration(500).start();
-            hero.animate().alpha(filmReady ? 0f : 1f).setDuration(500).start();
         } else {
-            film.animate().alpha(0f).setDuration(400).start();
+            cover.animate().alpha(1f).setDuration(400).start();
             hero.animate().alpha(1f).setDuration(400).start();
             if (player != null) {
                 try {
@@ -502,6 +527,7 @@ final class ScaleStage {
     void release() {
         main.removeCallbacksAndMessages(null);
         breathe(false);
+        filmReady = false;
         if (player != null) {
             try {
                 player.release();
@@ -841,7 +867,8 @@ final class ScaleStage {
         public void onPrepared(MediaPlayer mp) {
             v.filmReady = true;
             v.fit(mp.getVideoWidth(), mp.getVideoHeight());
-            if (v.phase == P_SCAN || v.phase == P_REVIEW) {
+            if (v.filmOn) {
+                v.filmOn = false;   // so it starts from the top
                 v.showFilm(true);
             }
         }

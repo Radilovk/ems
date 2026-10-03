@@ -14,7 +14,7 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleModel` | Pure (1.1.295-ai): **the numbers we show** — sex-aware fat (Sun 2003 + the scale's own / WLA25), skeletal muscle (Janssen 2000), Kalman smoothing of lean between weigh-ins, rebuild of older history from raw impedances (see "XEMS model") |
 | `ScaleDetail` | Pure (1.1.295-ai): all values with a status word (`rows`), the analysis tiles with their 5-sector norms and texts (`metrics`), 5 zones fat / muscle (kg, % of standard), weight control to the client's own healthy weight |
 | `ScaleSession` | Pure (1.1.297-ai): one measurement = 1–3 step-ons; contact quality per step, when to ask another, the merge (see "Measuring") |
-| `ScaleStage` | The measuring stage (1.1.297-ai): figure / scan film, 5 steps, instruction, live weight settling, scan ring, step-on count and contact chips |
+| `ScaleStage` | The measuring stage (1.1.297-ai): figure / scan film, 5 steps, instruction, live weight settling, scan ring, step-on count and contact chips. Film (1.1.300-ai): runs from "someone stands on" to the results — gen A sends no stable flag, so it never played before; steadiness is also seen locally (±0.15 kg for 1.5 s); the TextureView stays drawn under an opaque cover (alpha 0 may never get a surface) |
 | `ScaleSources` | "Научна основа" (1.1.298-ai): every source of the module with its tier (study · standard · maker · XEMS), what we take, who was measured, DOI (tap → the paper); data also in the shared HTML |
 | `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
 | `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
@@ -150,9 +150,19 @@ DXA of clients) (a guide, not a medical test; a few points off DXA for one
 person → re-measure, smooth, read the trend). Preview (HTML mock): `docs/scale/preview-science.png`.
 
 ## Result page (`ScaleScreen`) — two views
-**Portrait too** (1.1.295-ai): the page unlocks rotation while open (restored on close, like the report); landscape =
-three columns one screen high, portrait = the same cards stacked (the page scrolls, comparison chips on their own
-line); the summary and analysis sheets follow the turn (`ScaleScreen.Columns`).
+**Portrait too** (1.1.295-ai): the page unlocks rotation while open (restored on close, like the report); the summary
+and analysis sheets follow the turn (`ScaleScreen.Columns`).
+**One scrolling page, sized for any screen** (1.1.300-ai, owner: "on a big board it is insane", fonts mixed, phone
+unreadable): the app runs on AutoSize (design 1280 × 720 dp across the landscape width), so upright the page was again
+1280 dp wide — everything at ~45 %, and only the cards rebuilt after the turn shrank. `ScaleScreen.Dens` holds the
+landscape dp while the page is open (re-set on every turn) → upright ≈ 600–800 dp wide, same text size as across.
+Nothing is tied to the screen height any more: the figure card first, then the view's cards — **wide (≥ 960 dp)**
+two by two, **narrow** one column; the bar splits into switch / Анализ·Обобщение / chips lines when narrow. Today =
+figure card · one key card (4 numbers, readiness — the dial only with a verdict, before that one line "from the second
+measurement" — body type) · zones · current per channel. Drawn text follows the system font size (`ScaleViews.sp`,
+×1.12, font scale capped 1.3).
+**No "is this X?"** (1.1.300-ai): the page is the client's, so a measurement made on it is theirs; a reading far from
+the last ones still gets a second step-on from `ScaleSession` (NEED_CONFIRM), a wrong one is removed in Tracking (✕).
 **Анализ** (1.1.296-ai, `ScaleAnalysis`; Fitdays' list of values = the checklist, not the design): left — what the
 weight is made of (fat · water · protein · minerals, one bar, tap a part), the figure painted by zone status (fat or
 muscle by the focus; tap a zone), the way to the client's own healthy weight (track, now → healthy, fat − / muscle +);

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1759
+    .line 1812
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1760
+    .line 1813
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relink;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 1761
+    .line 1814
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 1765
+    .line 1818
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relink;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->session:Lcom/isaigu/gymapp/wearable/scale/ScaleSession;
@@ -61,12 +61,12 @@
 
     if-eqz v0, :cond_17
 
-    .line 1766
+    .line 1819
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relink;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->startLink()V
 
-    .line 1768
+    .line 1821
     :cond_17
     return-void
 .end method

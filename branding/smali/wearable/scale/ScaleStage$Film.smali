@@ -27,13 +27,13 @@
     .registers 2
 
     .prologue
-    .line 836
+    .line 862
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 837
+    .line 863
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    .line 838
+    .line 864
     return-void
 .end method
 
@@ -45,12 +45,12 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 842
+    .line 868
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iput-boolean v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->filmReady:Z
 
-    .line 843
+    .line 869
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {p1}, Landroid/media/MediaPlayer;->getVideoWidth()I
@@ -63,31 +63,27 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->fit(II)V
 
-    .line 844
+    .line 870
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->filmOn:Z
 
-    const/4 v1, 0x3
+    if-eqz v0, :cond_22
 
-    if-eq v0, v1, :cond_20
-
+    .line 871
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
+    const/4 v1, 0x0
 
-    const/4 v1, 0x4
+    iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->filmOn:Z
 
-    if-ne v0, v1, :cond_25
-
-    .line 845
-    :cond_20
+    .line 872
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->showFilm(Z)V
 
-    .line 847
-    :cond_25
+    .line 874
+    :cond_22
     return-void
 .end method
 
@@ -95,11 +91,11 @@
     .registers 5
 
     .prologue
-    .line 851
+    .line 878
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0, p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->fit(II)V
 
-    .line 852
+    .line 879
     return-void
 .end method

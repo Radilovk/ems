@@ -230,6 +230,17 @@ public final class NextPlan {
 
     // ================================================================ recommendation
 
+    static String segName(int seg, boolean bg) {
+        switch (seg) {
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.LEFT_ARM: return bg ? "в лявата ръка" : "left arm";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.RIGHT_ARM: return bg ? "в дясната ръка" : "right arm";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.LEFT_LEG: return bg ? "в левия крак" : "left leg";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.RIGHT_LEG: return bg ? "в десния крак" : "right leg";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.TRUNK: return bg ? "в торса" : "trunk";
+            default: return bg ? "в тялото" : "body";
+        }
+    }
+
     static String tr(String bg, String en) {
         return XemsLang.tr(bg, en);
     }
@@ -295,6 +306,23 @@ public final class NextPlan {
         } else if (!last.assisted && last.planS > 0 && last.activeS >= 0.9 * last.planS && hist.size() >= 2) {
             k *= 1.05;
             rec.why.add(tr("Последната е изкарана докрай — +5 % сила.", "The last one was completed — +5% strength."));
+        }
+        // 1b. the scale this morning (wearable/scale): swelling or less water against the client's own baseline.
+        //     The stronger of the two cuts wins — the time rule and the measurement are not added up.
+        double timeK = Math.min(1.0, k);
+        com.isaigu.gymapp.wearable.scale.ScaleInsight.Readiness ready = c != null && u != null
+                ? com.isaigu.gymapp.wearable.scale.ScaleStore.readinessToday(c, u.id) : null;
+        if (ready != null && ready.factor < timeK - 0.001) {
+            k *= ready.factor / timeK;
+            int pct = (int) Math.round((1 - ready.factor) * 100);
+            boolean swollen = ready.worst >= 0 && ready.swell[ready.worst] >= 1.2;
+            rec.why.add(swollen
+                    ? tr("Кантарът днес: подуване " + segName(ready.worst, true) + " — не е възстановен: −" + pct + " %.",
+                         "Scale today: swelling in the " + segName(ready.worst, false) + " — not recovered: −" + pct + "%.")
+                    : tr("Кантарът днес: по-малко вода в тялото — −" + pct + " %, нека пие вода.",
+                         "Scale today: less body water — −" + pct + "%, have them drink."));
+        } else if (ready != null && ready.factor >= 1.0 && days < 4) {
+            rec.why.add(tr("Кантарът днес: възстановен ✓", "Scale today: recovered ✓"));
         }
         // 2. the next appointment
         if (nextApptMs > 0 && apptMs > 0) {

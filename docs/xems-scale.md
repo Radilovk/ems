@@ -12,7 +12,27 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleBody` | Pure: WLA25 (float32 + half-up rounding as the vendor binary) → fat, muscle, water, visceral, BMR, body age, 5 segments |
 | `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
 | `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days) |
-| `ScaleScreen` | Sheet from the client row (purple scale icon): live weight left, result right with change since last, 5 zones; ⓘ = how to measure |
+| `ScaleInsight` | Pure: readiness (ρ = Z100/Z20 per segment and legs' Z20 vs the client's own baseline), segments as % of WLA25 normal, fat per suit channel, L/R asymmetry |
+| `ScaleViews` | Drawn: `Body` (project figures painted by segment, tap = select), `Radar` (5 segments vs normal, ghost = last), `Gauge` (readiness), `Trend`, `Reach` (current's reach per channel) |
+| `ScaleScreen` | Full-screen page from the client row (purple scale icon): body · today · trend & EMS (see "Result page") |
+
+## EMS use (1.1.286-ai)
+1. **Readiness → today's strength.** `ScaleInsight.readiness`: per segment Δρ = ρ / median(ρ of up to 8 earlier
+   measurements ≥ 6 h before) − 1; arms weigh 0.7 (they get a fraction of the current). Worst ≥ 1.2 % → ×0.85,
+   ≥ 2.5 % → ×0.7; legs' Z20 ≥ +5 % (drier) → ×0.85. Score = 100 − 22·(worst − 0.4) − 5·(dry − 2). [D] — validate
+   on repeated measurements (day-to-day noise, the days after hard sessions). No baseline (first measurement) → no
+   verdict. Used when the measurement is ≤ 12 h old: `AutoPlanner` (phiMax ×, note) and `NextPlan.recommend`
+   (the stronger of rest-days and scale wins, never both).
+2. **Fat per suit channel → reach.** `ScaleInsight.channelFat`: whole-body fat % × (segment fat share / body
+   share); channels → trunk / arms / legs (glutes half trunk, half legs). `AutoEngine.reach(k)` uses it instead of
+   the one whole-body value.
+
+## Result page (`ScaleScreen`)
+Landscape, three columns: (1) weight live + what to do now; figure front/back painted in the chosen layer
+(Мускули / Мазнини / Възстановяване); (2) readiness gauge + verdict + reason chips; radar of the 5 segments
+(100 = normal, normal band 90–110, dashed = last time), the tapped segment's numbers or the L/R balance;
+(3) fat / muscle / water / visceral tiles with change + sparkline (tap = big trend), the current's reach per
+channel. Segment maps: `scripts/gen-scale-segments.py` → `branding/body/*-seg.webp`.
 
 Test: `bash scripts/scale-sim/run.sh` — 121 checks against the published captures and expected values
 (sacoma DISPLAY/EXACT/PROFILES = Fitdays; Fitman A7 frame + formulas). Generation is chosen by FFB4.

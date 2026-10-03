@@ -18,21 +18,21 @@
 
 
 # instance fields
-.field final v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;
+.field final v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;)V
+.method constructor <init>(Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;)V
     .registers 2
 
     .prologue
-    .line 506
+    .line 757
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 507
-    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$HeightHold;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;
+    .line 758
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$HeightHold;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 508
+    .line 759
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 512
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$HeightHold;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;
+    .line 763
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$HeightHold;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;->stepHeight(I)V
+    invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->stepHeight(I)V
 
-    .line 513
+    .line 764
     return-void
 .end method

@@ -17,6 +17,8 @@
 # instance fields
 .field public age:I
 
+.field public channelFat:[D
+
 .field public cond:Ljava/util/Set;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -60,6 +62,8 @@
 .field public operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
 .field public programId:Ljava/lang/String;
+
+.field public readiness:D
 
 .field public screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
@@ -128,64 +132,69 @@
     .line 88
     iput-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->fatPct:D
 
-    .line 89
+    .line 92
+    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->readiness:D
+
+    .line 93
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->MID:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    .line 91
+    .line 95
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sessions:I
 
-    .line 93
+    .line 97
     iput-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->hoursSinceActive:D
 
-    .line 94
+    .line 98
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Operator;->TRAINER:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
-    .line 95
+    .line 99
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->STANDARD:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    .line 97
+    .line 101
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->variant:I
 
-    .line 98
+    .line 102
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->doublePulse:Z
 
-    .line 101
+    .line 105
     new-instance v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiModel$Screening;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    .line 102
+    .line 106
     new-instance v0, Lcom/isaigu/gymapp/ai/AutoModel$Extra;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AutoModel$Extra;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->extra:Lcom/isaigu/gymapp/ai/AutoModel$Extra;
 
-    .line 104
+    .line 108
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->focus:Ljava/util/Set;
 
-    .line 105
+    .line 109
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->cond:Ljava/util/Set;
 
-    .line 107
+    .line 111
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
@@ -201,19 +210,19 @@
     .registers 5
 
     .prologue
-    .line 110
+    .line 114
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
 
     if-gtz v0, :cond_7
 
-    .line 111
+    .line 115
     const-wide/16 v0, 0x0
 
-    .line 114
+    .line 118
     :goto_6
     return-wide v0
 
-    .line 113
+    .line 117
     :cond_7
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
 
@@ -223,7 +232,7 @@
 
     div-double/2addr v0, v2
 
-    .line 114
+    .line 118
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->weightKg:D
 
     mul-double/2addr v0, v0
@@ -237,7 +246,7 @@
     .registers 3
 
     .prologue
-    .line 118
+    .line 122
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Operator;->SELF:Lcom/isaigu/gymapp/ai/AiModel$Operator;

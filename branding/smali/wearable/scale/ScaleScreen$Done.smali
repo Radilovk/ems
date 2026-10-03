@@ -18,21 +18,21 @@
 
 
 # instance fields
-.field final v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;
+.field final v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;)V
+.method constructor <init>(Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;)V
     .registers 2
 
     .prologue
-    .line 460
+    .line 711
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 461
-    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Done;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;
+    .line 712
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Done;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 462
+    .line 713
     return-void
 .end method
 
@@ -42,14 +42,14 @@
     .registers 3
 
     .prologue
-    .line 466
+    .line 717
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 468
+    .line 719
     :try_start_3
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Done;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Done;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$View_;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
@@ -57,11 +57,11 @@
     :try_end_c
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_c} :catch_d
 
-    .line 471
+    .line 722
     :goto_c
     return-void
 
-    .line 469
+    .line 720
     :catch_d
     move-exception v0
 

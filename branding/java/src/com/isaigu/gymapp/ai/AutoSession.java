@@ -355,6 +355,8 @@ public final class AutoSession {
                 if (p.fatPct != null) {
                     r.input.fatPct = p.fatPct;
                 }
+                r.input.channelFat = p.channelFat;
+                r.input.readiness = p.readiness;
                 if (p.fitness != null) {
                     r.input.fitness = p.fitness;
                 }
@@ -409,6 +411,8 @@ public final class AutoSession {
         to.weightKg = from.weightKg;
         to.heightCm = from.heightCm;
         to.fatPct = from.fatPct;
+        to.channelFat = from.channelFat;
+        to.readiness = from.readiness;
         to.fitness = from.fitness;
         to.sessions = from.sessions;
         to.hoursSinceActive = from.hoursSinceActive;

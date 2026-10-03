@@ -86,6 +86,10 @@ public final class AutoModel {
         public int heightCm = 0;
         /** Body fat % measured by the scale; &lt; 0 = not measured (then estimated from the BMI). */
         public double fatPct = -1;
+        /** Body fat % per suit channel from the scale's segments; null = the whole-body value everywhere. */
+        public double[] channelFat;
+        /** Today's scale readiness (1 / 0.85 / 0.7): swelling or less water against the client's own baseline. */
+        public double readiness = 1.0;
         public AiModel.Fitness fitness = AiModel.Fitness.MID;
         /** Finished sessions of this client (history + automatic sessions). */
         public int sessions = 0;

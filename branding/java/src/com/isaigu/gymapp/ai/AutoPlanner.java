@@ -100,6 +100,12 @@ public final class AutoPlanner {
             phiMax *= 0.8;
             plan.note("Под 72 ч от последната активна: −20 %", "Under 72 h since the last active: −20 %");
         }
+        if (p.isActive() && in.readiness < 0.99) {
+            // the scale this morning: swelling / less water against the client's own baseline (wearable/scale)
+            phiMax *= in.readiness;
+            int pct = (int) Math.round((1 - in.readiness) * 100);
+            plan.note("Кантарът: не е възстановен — −" + pct + " %", "Scale: not recovered — −" + pct + " %");
+        }
         if (in.solo()) {
             phiMax = Math.min(phiMax, 0.9);
         }

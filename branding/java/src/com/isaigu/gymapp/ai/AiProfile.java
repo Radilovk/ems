@@ -32,6 +32,11 @@ public final class AiProfile {
     public int heightCm;
     /** Body fat % of a fresh scale measurement (wearable/scale); null = none. */
     public Double fatPct;
+    /** Body fat % per suit channel from the scale's segments; null = none. */
+    public double[] channelFat;
+    /** Today's scale readiness: strength factor (1 / 0.85 / 0.7) and the segment behind it (-1 = none). */
+    public double readiness = 1.0;
+    public int readinessSeg = -1;
     public AiModel.Fitness fitness;
     public AiModel.Goal goal;
     public final Set<String> contraindications = new HashSet<String>();
@@ -93,6 +98,13 @@ public final class AiProfile {
             double fat = com.isaigu.gymapp.wearable.scale.ScaleStore.freshFatPct(c, u.id);
             if (!Double.isNaN(fat)) {
                 p.fatPct = fat;
+            }
+            p.channelFat = com.isaigu.gymapp.wearable.scale.ScaleStore.freshChannelFat(c, u.id);
+            com.isaigu.gymapp.wearable.scale.ScaleInsight.Readiness ready =
+                    com.isaigu.gymapp.wearable.scale.ScaleStore.readinessToday(c, u.id);
+            if (ready != null) {
+                p.readiness = ready.factor;
+                p.readinessSeg = ready.worst;
             }
             double kg = com.isaigu.gymapp.wearable.scale.ScaleStore.freshWeight(c, u.id);
             if (!Double.isNaN(kg)) {

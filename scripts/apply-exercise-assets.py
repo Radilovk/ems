@@ -62,9 +62,10 @@ def main() -> int:
         size += p.stat().st_size
     print(f"assets/xems/programs/ ({len(have)} pictures, {size} B)")
     body = ROOT / "branding" / "body"                # Auto live board figures (scripts/gen-body-figures.py)
-    figs = sorted(body.glob("*.webp"))
-    if len(figs) != 8:
-        raise SystemExit("branding/body: expected 8 figures — run scripts/gen-body-figures.py")
+    figs = sorted(body.glob("*.webp"))                # + the scale's segment maps (scripts/gen-scale-segments.py)
+    if len(figs) != 12:
+        raise SystemExit("branding/body: expected 12 figures — run scripts/gen-body-figures.py "
+                         "and scripts/gen-scale-segments.py")
     bout = DEST.parent / "body"
     bout.mkdir(parents=True, exist_ok=True)
     for p in figs:

@@ -41,15 +41,15 @@
     .registers 3
 
     .prologue
-    .line 164
+    .line 168
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 156
+    .line 160
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->sigma:D
 
-    .line 164
+    .line 168
     return-void
 .end method
 
@@ -57,27 +57,27 @@
     .registers 7
 
     .prologue
-    .line 166
+    .line 170
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 156
+    .line 160
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->sigma:D
 
-    .line 167
+    .line 171
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
-    .line 168
+    .line 172
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pwUs:I
 
-    .line 169
+    .line 173
     iput p3, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
-    .line 170
+    .line 174
     iput p4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    .line 171
+    .line 175
     return-void
 .end method
 
@@ -87,7 +87,7 @@
     .registers 6
 
     .prologue
-    .line 174
+    .line 178
     new-instance v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
@@ -100,12 +100,12 @@
 
     invoke-direct {v1, v0, v2, v3, v4}, Lcom/isaigu/gymapp/ai/AutoModel$Step;-><init>(IIII)V
 
-    .line 175
+    .line 179
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->sigma:D
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->sigma:D
 
-    .line 176
+    .line 180
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->zones:[I
 
     if-eqz v0, :cond_30
@@ -121,30 +121,30 @@
     :goto_1d
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->zones:[I
 
-    .line 177
+    .line 181
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
-    .line 178
+    .line 182
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
 
-    .line 179
+    .line 183
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    .line 180
+    .line 184
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampDownMs:I
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampDownMs:I
 
-    .line 181
+    .line 185
     return-object v1
 
-    .line 176
+    .line 180
     :cond_30
     const/4 v0, 0x0
 
@@ -155,7 +155,7 @@
     .registers 4
 
     .prologue
-    .line 189
+    .line 193
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
     const/4 v1, 0x1
@@ -175,7 +175,7 @@
     .registers 3
 
     .prologue
-    .line 185
+    .line 189
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
     const/16 v1, 0x14

@@ -1001,6 +1001,10 @@ public final class AutoEngine {
     double reach(int k, int pwUs) {
         double d = AiEnergy.CH_DEPTH[k] * Math.sqrt(clamp((pwUs > 0 ? pwUs : PW_REF) / PW_REF, 0.3, 1.3));
         double fat = fatPct();
+        double[] cf = plan.input != null ? plan.input.channelFat : null;
+        if (cf != null && k >= 0 && k < cf.length && cf[k] > 2) {
+            fat = cf[k];          // the scale's segments: glutes and thighs insulate more than the arms
+        }
         if (fat >= 0) {
             d *= clamp(Math.exp(-(fat - FAT_REF) / FAT_SCALE), 0.6, 1.3);
         }

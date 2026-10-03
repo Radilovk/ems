@@ -63,6 +63,29 @@ public final class ScaleStore {
         return w >= 20 && w <= 250 ? w : Double.NaN;
     }
 
+    /** Readiness of today's measurement (at most 12 h old) against the client's baseline; null without one. */
+    public static ScaleInsight.Readiness readinessToday(Context c, long userId) {
+        JSONArray a = c != null ? list(c, userId) : new JSONArray();
+        if (a.length() == 0) {
+            return null;
+        }
+        JSONObject m = a.optJSONObject(a.length() - 1);
+        if (m == null || System.currentTimeMillis() - m.optLong("t") > ScaleInsight.TODAY_MS) {
+            return null;
+        }
+        ScaleInsight.Readiness r = ScaleInsight.readiness(a, a.length() - 1);
+        return r.known() ? r : null;
+    }
+
+    /** Body fat % per suit channel from a fresh measurement; null without one. */
+    public static double[] freshChannelFat(Context c, long userId) {
+        JSONObject m = c != null ? latest(c, userId) : null;
+        if (m == null || System.currentTimeMillis() - m.optLong("t") > FRESH_MS) {
+            return null;
+        }
+        return ScaleInsight.channelFat(m);
+    }
+
     static JSONArray arr(double[] v) throws org.json.JSONException {
         JSONArray a = new JSONArray();
         for (double d : v) {

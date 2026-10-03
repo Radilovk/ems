@@ -261,10 +261,77 @@ public final class ScaleSim {
         return r;
     }
 
-    public static void main(String[] a) {
+    /** A stored measurement with limb impedances (LA, RA, LL, RL) and the A-generation segments. */
+    static org.json.JSONObject meas(long t, double[] z20, double[] z100) throws Exception {
+        ScaleProtocol.Reading r = new ScaleProtocol.Reading();
+        r.result = true;
+        r.weightKg = 72.5;
+        r.scaleFatPct = 18.5;
+        for (int i = 1; i < 5; i++) {
+            r.z20[i] = z20[i - 1];
+            r.z100[i] = z100[i - 1];
+        }
+        return ScaleStore.toJson(r, ScaleBody.of(r, true, 40, 170), t);
+    }
+
+    static void insight() throws Exception {
+        long day = 24L * 3600 * 1000;
+        double[] z20 = {350, 340, 255, 260};
+        double[] z100 = {320, 310, 230, 235};
+        org.json.JSONArray h = new org.json.JSONArray();
+        h.put(meas(0, z20, z100));
+        ScaleInsight.Readiness r0 = ScaleInsight.readiness(h, 0);
+        ok("first: no baseline", !r0.known() && r0.factor == 1.0);
+        h.put(meas(4 * day, z20, z100));
+        h.put(meas(8 * day, new double[] {351, 339, 256, 259}, new double[] {321, 309, 231, 234}));
+        ScaleInsight.Readiness same = ScaleInsight.readiness(h, 2);
+        ok("as usual: full strength", same.known() && same.factor == 1.0 && same.score >= 95);
+        eq("baseline count", same.base, 2, 0);
+        // day 2 after a hard session: the legs swell — Z20 falls more than Z100, ρ rises ≈ +1.6 %
+        h.put(meas(10 * day, new double[] {350, 340, 249, 254}, new double[] {320, 310, 228, 233}));
+        ScaleInsight.Readiness sw = ScaleInsight.readiness(h, 3);
+        ok("swollen legs: −15 %", sw.factor == 0.85);
+        ok("worst is a leg", sw.worst == ScaleProtocol.LEFT_LEG || sw.worst == ScaleProtocol.RIGHT_LEG);
+        ok("score drops", sw.score < 80 && sw.score > 40);
+        h.put(meas(11 * day, new double[] {350, 340, 244, 249}, new double[] {320, 310, 229, 234}));
+        ok("strong swelling: −30 %", ScaleInsight.readiness(h, 4).factor == 0.7);
+        // drier: every impedance up ~6 %, ratio unchanged
+        org.json.JSONArray d = new org.json.JSONArray();
+        d.put(meas(0, z20, z100));
+        d.put(meas(day * 5, z20, z100));
+        d.put(meas(day * 9, new double[] {371, 360, 270, 276}, new double[] {339, 329, 244, 249}));
+        ScaleInsight.Readiness dr = ScaleInsight.readiness(d, 2);
+        ok("drier: −15 %", dr.factor == 0.85 && dr.dry > 5);
+        // a measurement 2 h later does not count as its own baseline
+        org.json.JSONArray q = new org.json.JSONArray();
+        q.put(meas(0, z20, z100));
+        q.put(meas(2 * 3600 * 1000L, z20, z100));
+        ok("baseline ignores the same morning", !ScaleInsight.readiness(q, 1).known());
+
+        // % of normal: muscle and fat by segment, in a plausible band
+        double[][] n = ScaleInsight.ofNormal(h.optJSONObject(0), true, 170);
+        for (int i = 0; i < 5; i++) {
+            ok("muscle % of normal " + i + " = " + Math.round(n[0][i]), n[0][i] > 60 && n[0][i] < 160);
+            ok("fat % of normal " + i + " = " + Math.round(n[1][i]), n[1][i] > 40 && n[1][i] < 250);
+        }
+        // fat per channel: averages near the whole body, glutes between trunk and legs
+        double[] cf = ScaleInsight.channelFat(h.optJSONObject(0));
+        ok("10 channels", cf != null && cf.length == 10);
+        eq("arms channel ≠ trunk", Math.signum(cf[4] - cf[1]) != 0 ? 1 : 0, 1, 0);
+        ok("glutes between", cf[8] >= Math.min(cf[1], cf[2]) - 1e-9 && cf[8] <= Math.max(cf[1], cf[2]) + 1e-9);
+        double mean = 0;
+        for (double v : cf) {
+            mean += v;
+        }
+        eq("channel fat near the whole body", mean / 10, 18.5, 3.0);
+        eq("asymmetry", ScaleInsight.asymmetry(new org.json.JSONArray("[0, 3.2, 3.0, 9, 9]"), 1, 2), 6.45, 0.01);
+    }
+
+    public static void main(String[] a) throws Exception {
         genB();
         genA();
         misc();
+        insight();
         System.out.println((fails == 0 ? "OK" : "FAILED") + " scale-sim: " + (checks - fails) + "/" + checks);
         if (fails > 0) {
             System.exit(1);

@@ -25,10 +25,10 @@
     .registers 4
 
     .prologue
-    .line 646
+    .line 552
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 642
+    .line 548
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -37,7 +37,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
 
-    .line 647
+    .line 553
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 2
 
     .prologue
-    .line 650
+    .line 556
     iput p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at:I
 
-    .line 651
+    .line 557
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->invalidate()V
 
-    .line 652
+    .line 558
     return-void
 .end method
 
@@ -61,7 +61,7 @@
     .registers 3
 
     .prologue
-    .line 655
+    .line 561
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -81,7 +81,7 @@
     .registers 18
 
     .prologue
-    .line 660
+    .line 566
     const/4 v1, 0x5
 
     new-array v12, v1, [Ljava/lang/String;
@@ -128,7 +128,7 @@
 
     const-string v3, "Analysis"
 
-    .line 661
+    .line 567
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -147,7 +147,7 @@
 
     aput-object v2, v12, v1
 
-    .line 662
+    .line 568
     invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->now()F
 
     move-result v1
@@ -160,7 +160,7 @@
 
     div-float v13, v1, v2
 
-    .line 663
+    .line 569
     const/high16 v1, 0x41c00000    # 24.0f
 
     move-object/from16 v0, p0
@@ -189,7 +189,7 @@
 
     move-result v3
 
-    .line 664
+    .line 570
     const/4 v1, 0x0
 
     move v11, v1
@@ -199,7 +199,7 @@
 
     if-ge v11, v1, :cond_1eb
 
-    .line 665
+    .line 571
     int-to-float v1, v11
 
     mul-float/2addr v1, v15
@@ -210,12 +210,12 @@
 
     add-float v7, v14, v1
 
-    .line 666
+    .line 572
     const/4 v1, 0x4
 
     if-ge v11, v1, :cond_b5
 
-    .line 667
+    .line 573
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -230,7 +230,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 668
+    .line 574
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -246,7 +246,7 @@
     :goto_8c
     invoke-virtual {v2, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 669
+    .line 575
     const/high16 v1, 0x41600000    # 14.0f
 
     move-object/from16 v0, p0
@@ -289,7 +289,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 671
+    .line 577
     :cond_b5
     move-object/from16 v0, p0
 
@@ -299,7 +299,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 672
+    .line 578
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at:I
@@ -314,7 +314,7 @@
 
     if-ge v1, v2, :cond_fb
 
-    .line 673
+    .line 579
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -337,7 +337,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 674
+    .line 580
     const/high16 v1, 0x41400000    # 12.0f
 
     move-object/from16 v0, p0
@@ -366,7 +366,7 @@
 
     invoke-virtual {v0, v7, v3, v1, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 676
+    .line 582
     :cond_fb
     move-object/from16 v0, p0
 
@@ -383,7 +383,7 @@
     :goto_108
     invoke-virtual {v2, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 677
+    .line 583
     const/high16 v1, 0x41400000    # 12.0f
 
     move-object/from16 v0, p0
@@ -400,7 +400,7 @@
 
     invoke-virtual {v0, v7, v3, v1, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 678
+    .line 584
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -416,7 +416,7 @@
     :goto_129
     invoke-virtual {v2, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 679
+    .line 585
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -425,7 +425,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 680
+    .line 586
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -434,7 +434,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 681
+    .line 587
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -449,7 +449,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 682
+    .line 588
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at:I
@@ -490,7 +490,7 @@
 
     invoke-virtual {v0, v1, v7, v2, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 683
+    .line 589
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -506,7 +506,7 @@
     :goto_17b
     invoke-virtual {v2, v1}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 684
+    .line 590
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -521,7 +521,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 685
+    .line 591
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -537,7 +537,7 @@
     :goto_199
     invoke-virtual {v2, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 686
+    .line 592
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->p:Landroid/graphics/Paint;
@@ -574,14 +574,14 @@
 
     invoke-static/range {v4 .. v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 664
+    .line 570
     add-int/lit8 v1, v11, 0x1
 
     move v11, v1
 
     goto/16 :goto_63
 
-    .line 668
+    .line 574
     :cond_1c6
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
@@ -593,7 +593,7 @@
 
     goto/16 :goto_8c
 
-    .line 676
+    .line 582
     :cond_1d0
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
@@ -605,13 +605,13 @@
 
     goto/16 :goto_108
 
-    .line 678
+    .line 584
     :cond_1da
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto/16 :goto_129
 
-    .line 682
+    .line 588
     :cond_1de
     add-int/lit8 v1, v11, 0x1
 
@@ -621,19 +621,19 @@
 
     goto/16 :goto_15e
 
-    .line 683
+    .line 589
     :cond_1e6
     const/4 v1, 0x0
 
     goto :goto_17b
 
-    .line 685
+    .line 591
     :cond_1e8
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto :goto_199
 
-    .line 688
+    .line 594
     :cond_1eb
     move-object/from16 v0, p0
 
@@ -643,7 +643,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 689
+    .line 595
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at:I
@@ -652,10 +652,10 @@
 
     if-ge v1, v2, :cond_1fd
 
-    .line 690
+    .line 596
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->postInvalidateOnAnimation()V
 
-    .line 692
+    .line 598
     :cond_1fd
     return-void
 .end method

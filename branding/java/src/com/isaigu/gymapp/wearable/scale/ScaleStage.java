@@ -6,19 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.SurfaceTexture;
-import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Gravity;
-import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -31,10 +26,7 @@ import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsLang;
 import com.isaigu.gymapp.widget.XemsUi;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,10 +34,10 @@ import java.util.List;
  * The measuring stage — what the client sees from "step on" to "done", one standing, no step-off:
  *
  * <ul>
- *   <li><b>Left</b> — a dark theatre: the client's figure on the scale (by sex); from the moment the scale is heard
- *       (it only wakes when someone stands on it) a scan sweeps over the figure — drawn here, time-driven, so it
- *       moves even when the tablet's animations are switched off or the film cannot play — and the scan film plays
- *       over it as soon as its first frame is really on the screen.</li>
+ *   <li><b>Left</b> — a dark theatre: the client's figure on the scale (by sex), a still picture that breathes;
+ *       from the moment the scale is heard (it only wakes when someone stands on it) a scan sweeps over it — drawn
+ *       here, time-driven, so it moves even when the tablet's animations are switched off. A tap on the figure
+ *       sends a ripple. No video.</li>
  *   <li><b>Right</b> — the five steps (step on · link · weight · analysis · done), the instruction now (big), the
  *       live weight with its settling line, the scan ring with seconds, how many sweeps and how the contact was
  *       (hands · feet · trunk).</li>
@@ -74,8 +66,6 @@ final class ScaleStage {
     final LinearLayout root;
     final FrameLayout theatre;
     final ImageView hero;
-    final TextureView film;
-    final View cover;
     final ScanFx fx;
     final TextView chip;
     final StepsBar steps;
@@ -84,12 +74,6 @@ final class ScaleStage {
     final LinearLayout quality;
     final TextView results;
     final Handler main = new Handler(Looper.getMainLooper());
-    MediaPlayer player;
-    boolean filmReady;
-    /** The film is meant to be on (someone stands on the scale). */
-    boolean filmOn;
-    /** Its frames are really on the screen (the cover is off). */
-    boolean filmShown;
     int phase = -1;
     long scanStart;
     double anchorKg;
@@ -107,19 +91,10 @@ final class ScaleStage {
         root.setGravity(Gravity.TOP);
         int accent = female ? 0xFFFF3EC8 : 0xFF38BDF8;
 
-        // the theatre: film (always drawn — a TextureView kept at alpha 0 may never get its surface) · opaque cover ·
-        // the figure · the drawn scan · chip and caption
+        // the theatre: the figure (a still picture) · the drawn effects · chip and caption
         theatre = new FrameLayout(a);
         theatre.setBackgroundDrawable(XemsUi.rounded(0xFF05070B, dp(22), XemsUi.alpha(accent, 90), dp(1)));
         theatre.setClipToOutline(true);
-        film = new TextureView(a);
-        film.setSurfaceTextureListener(new FilmSurface(this));
-        theatre.addView(film, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        cover = new View(a);
-        cover.setBackgroundColor(0xFF05070B);
-        theatre.addView(cover, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
         hero = new ImageView(a);
         hero.setScaleType(ImageView.ScaleType.FIT_CENTER);
         hero.setPadding(dp(18), dp(40), dp(18), dp(18));
@@ -372,7 +347,7 @@ final class ScaleStage {
         // someone is on the scale from the link on: the scan runs until the results come in
         boolean on = p == P_LINK || p == P_SETTLE || p == P_SCAN || p == P_DONE;
         fx.mode(p == P_WAIT ? ScanFx.IDLE : p == P_DONE ? ScanFx.DONE : on ? ScanFx.SCAN : ScanFx.OFF);
-        showFilm(on);
+        breath(on);
         if (p != P_SCAN) {
             main.removeCallbacks(tick);
             live.ring(p == P_DONE ? 1f : 0f, p == P_DONE ? "✓" : "");
@@ -400,124 +375,23 @@ final class ScaleStage {
         live.ring(f, Math.max(0, Math.round(SCAN_S - t)) + tr(" с", " s"));
     }
 
-    // ================================================================ the theatre: figure ↔ film
+    // ================================================================ the theatre: a still figure with live effects
 
-    void showFilm(boolean on) {
-        boolean was = filmOn;
-        filmOn = on;
+    /** The figure breathes (time-driven, so it moves even with animations off) while someone is on the scale. */
+    void breath(boolean on) {
+        main.removeCallbacks(breather);
         if (on) {
-            if (player != null && filmReady) {
-                try {
-                    if (!was) {
-                        player.seekTo(0);
-                    }
-                    if (!player.isPlaying()) {
-                        player.start();
-                    }
-                } catch (Throwable t) {
-                    log("play: " + t);
-                }
-            }
-            // the cover comes off only with the film's first frame (FilmSurface.onSurfaceTextureUpdated)
+            main.post(breather);
         } else {
-            filmShown = false;
-            cover.animate().cancel();
-            cover.setAlpha(1f);
-            hero.animate().cancel();
-            hero.setAlpha(1f);
-            if (player != null) {
-                try {
-                    player.pause();
-                } catch (Throwable ignored) {
-                }
-            }
+            hero.setScaleX(1f);
+            hero.setScaleY(1f);
         }
     }
 
-    /** A frame of the film reached the screen: now it may show (once per standing). */
-    void frame() {
-        if (filmOn && !filmShown) {
-            filmShown = true;
-            log("film on screen");
-            cover.animate().alpha(0f).setDuration(450).start();
-            hero.animate().alpha(0f).setDuration(450).start();
-        }
-    }
-
-    void openFilm(SurfaceTexture st) {
-        try {
-            File f = videoFile(a, female);
-            if (f == null) {
-                log("film: no file");
-                return;
-            }
-            player = new MediaPlayer();
-            player.setSurface(new Surface(st));
-            player.setDataSource(f.getAbsolutePath());
-            player.setLooping(true);
-            player.setVolume(0f, 0f);
-            Film l = new Film(this);
-            player.setOnPreparedListener(l);
-            player.setOnVideoSizeChangedListener(l);
-            player.setOnErrorListener(l);
-            player.prepareAsync();
-        } catch (Throwable t) {
-            log("film: " + t);
-            XemsGuard.report("ScaleStage.film", t);
-        }
-    }
-
-    /** Fit the film into the theatre without stretching. */
-    void fit(int vw, int vh) {
-        int w = film.getWidth(), h = film.getHeight();
-        if (vw <= 0 || vh <= 0 || w <= 0 || h <= 0) {
-            return;
-        }
-        float s = Math.min(w / (float) vw, h / (float) vh);
-        Matrix m = new Matrix();
-        m.setScale(vw * s / w, vh * s / h, w / 2f, h / 2f);
-        film.setTransform(m);
-    }
+    final Runnable breather = new Breather(this);
 
     void release() {
         main.removeCallbacksAndMessages(null);
-        filmReady = false;
-        filmShown = false;
-        if (player != null) {
-            try {
-                player.release();
-            } catch (Throwable ignored) {
-            }
-            player = null;
-        }
-    }
-
-    /** The film from the APK's assets (stored compressed), copied once to the cache — whole, or not at all. */
-    static File videoFile(Context c, boolean female) {
-        String name = (female ? "female" : "male") + ".mp4";
-        File f = new File(c.getCacheDir(), "xems_scale_v2_" + name);
-        if (f.isFile() && f.length() > 10000) {
-            return f;
-        }
-        File tmp = new File(c.getCacheDir(), "xems_scale_v2_" + name + ".part");
-        try {
-            InputStream in = c.getAssets().open("xems/body/scale/measure/" + name);
-            OutputStream out = new FileOutputStream(tmp);
-            try {
-                byte[] buf = new byte[32768];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    out.write(buf, 0, n);
-                }
-            } finally {
-                out.close();
-                in.close();
-            }
-            return tmp.renameTo(f) ? f : tmp;
-        } catch (Throwable t) {
-            XemsGuard.report("ScaleStage.videoFile", t);
-            return null;
-        }
     }
 
     static Bitmap load(Context c, String asset) {
@@ -551,6 +425,8 @@ final class ScaleStage {
         final int accent;
         int mode = OFF;
         long since;
+        float rx, ry;
+        long rt;
 
         ScanFx(Context c, int accent) {
             super(c);
@@ -559,6 +435,35 @@ final class ScaleStage {
 
         float d(float v) {
             return v * getResources().getDisplayMetrics().density;
+        }
+
+        @Override
+        public boolean onTouchEvent(android.view.MotionEvent e) {
+            if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) {
+                rx = e.getX();
+                ry = e.getY();
+                rt = SystemClock.uptimeMillis();
+                XemsUi.haptic(this);
+                invalidate();
+                return true;
+            }
+            return super.onTouchEvent(e);
+        }
+
+        /** A ripple where the figure was touched. */
+        void ripple(Canvas c) {
+            float e = (SystemClock.uptimeMillis() - rt) / 900f;
+            if (rt == 0 || e >= 1) {
+                return;
+            }
+            p.setShader(null);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(d(3));
+            p.setColor(XemsUi.alpha(accent, (int) (200 * (1 - e))));
+            c.drawCircle(rx, ry, d(14) + d(90) * e, p);
+            p.setColor(XemsUi.alpha(0xFFFFFFFF, (int) (90 * (1 - e))));
+            c.drawCircle(rx, ry, d(6) + d(55) * e, p);
+            postInvalidateOnAnimation();
         }
 
         void mode(int m) {
@@ -572,6 +477,7 @@ final class ScaleStage {
         @Override
         protected void onDraw(Canvas c) {
             float w = getWidth(), h = getHeight();
+            ripple(c);
             if (mode == OFF || w <= 0 || h <= 0) {
                 return;
             }
@@ -829,67 +735,19 @@ final class ScaleStage {
         }
     }
 
-    static final class FilmSurface implements TextureView.SurfaceTextureListener {
+    static final class Breather implements Runnable {
         final ScaleStage v;
 
-        FilmSurface(ScaleStage v) {
+        Breather(ScaleStage v) {
             this.v = v;
         }
 
         @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture st, int w, int h) {
-            v.openFilm(st);
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture st, int w, int h) {
-            if (v.player != null) {
-                v.fit(v.player.getVideoWidth(), v.player.getVideoHeight());
-            }
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture st) {
-            v.release();
-            return true;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture st) {
-            v.frame();
-        }
-    }
-
-    static final class Film implements MediaPlayer.OnPreparedListener, MediaPlayer.OnVideoSizeChangedListener,
-            MediaPlayer.OnErrorListener {
-        final ScaleStage v;
-
-        Film(ScaleStage v) {
-            this.v = v;
-        }
-
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            v.filmReady = true;
-            log("film ready " + mp.getVideoWidth() + "x" + mp.getVideoHeight());
-            v.fit(mp.getVideoWidth(), mp.getVideoHeight());
-            if (v.filmOn) {
-                v.filmOn = false;   // so it starts from the top
-                v.showFilm(true);
-            }
-        }
-
-        @Override
-        public void onVideoSizeChanged(MediaPlayer mp, int w, int h) {
-            v.fit(w, h);
-        }
-
-        @Override
-        public boolean onError(MediaPlayer mp, int what, int extra) {
-            // the drawn scan stays; the film is simply not shown
-            log("film error " + what + "/" + extra);
-            v.filmReady = false;
-            return true;
+        public void run() {
+            float k = 1f + 0.012f * (float) Math.sin(now() * Math.PI / 1.4);
+            v.hero.setScaleX(k);
+            v.hero.setScaleY(k);
+            v.main.postDelayed(this, 40);
         }
     }
 }

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1797
+    .line 1873
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1798
+    .line 1874
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareLog;->a:Landroid/app/Activity;
 
-    .line 1799
+    .line 1875
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 8
 
     .prologue
-    .line 1803
+    .line 1879
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1804
+    .line 1880
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareLog;->a:Landroid/app/Activity;
 
     const-string v1, "wearable-ble.log"
@@ -56,12 +56,12 @@
 
     move-result-object v0
 
-    .line 1805
+    .line 1881
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 1806
+    .line 1882
     const-string v2, "\n"
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -77,7 +77,7 @@
 
     aget-object v4, v2, v0
 
-    .line 1807
+    .line 1883
     const-string v5, "scale"
 
     invoke-virtual {v4, v5}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -86,7 +86,7 @@
 
     if-eqz v5, :cond_30
 
-    .line 1808
+    .line 1884
     invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -95,13 +95,13 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 1806
+    .line 1882
     :cond_30
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1b
 
-    .line 1811
+    .line 1887
     :cond_33
     new-instance v2, Landroid/content/Intent;
 
@@ -109,19 +109,19 @@
 
     invoke-direct {v2, v0}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 1812
+    .line 1888
     const-string v0, "text/plain"
 
     invoke-virtual {v2, v0}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1813
+    .line 1889
     const-string v0, "android.intent.extra.SUBJECT"
 
     const-string v3, "XEMS scale log"
 
     invoke-virtual {v2, v0, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1814
+    .line 1890
     const-string v3, "android.intent.extra.TEXT"
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
@@ -137,7 +137,7 @@
     :goto_52
     invoke-virtual {v2, v3, v0}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1817
+    .line 1893
     :try_start_55
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareLog;->a:Landroid/app/Activity;
 
@@ -157,13 +157,13 @@
     :try_end_66
     .catch Ljava/lang/Throwable; {:try_start_55 .. :try_end_66} :catch_71
 
-    .line 1821
+    .line 1897
     :goto_66
     const/4 v0, 0x1
 
     return v0
 
-    .line 1815
+    .line 1891
     :cond_68
     const-string v0, "\u041d\u044f\u043c\u0430 \u0437\u0430\u043f\u0438\u0441 \u043e\u0442 \u043a\u0430\u043d\u0442\u0430\u0440\u0430"
 
@@ -175,7 +175,7 @@
 
     goto :goto_52
 
-    .line 1819
+    .line 1895
     :catch_71
     move-exception v0
 

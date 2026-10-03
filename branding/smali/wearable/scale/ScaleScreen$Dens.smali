@@ -15,9 +15,21 @@
 
 
 # static fields
+.field static aDensity:F
+
+.field static aDpi:I
+
+.field static aScaled:F
+
 .field static density:F
 
 .field static dpi:I
+
+.field static oDensity:F
+
+.field static oDpi:I
+
+.field static oScaled:F
 
 .field static scaled:F
 
@@ -27,7 +39,7 @@
     .registers 1
 
     .prologue
-    .line 1998
+    .line 2074
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -37,7 +49,7 @@
     .registers 5
 
     .prologue
-    .line 2004
+    .line 2083
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -46,21 +58,64 @@
 
     move-result-object v1
 
-    .line 2005
+    .line 2084
+    invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v0
+
+    .line 2085
+    iget v2, v1, Landroid/util/DisplayMetrics;->density:F
+
+    sput v2, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDensity:F
+
+    .line 2086
+    iget v2, v1, Landroid/util/DisplayMetrics;->scaledDensity:F
+
+    sput v2, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oScaled:F
+
+    .line 2087
+    iget v2, v1, Landroid/util/DisplayMetrics;->densityDpi:I
+
+    sput v2, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDpi:I
+
+    .line 2088
+    iget v2, v0, Landroid/util/DisplayMetrics;->density:F
+
+    sput v2, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aDensity:F
+
+    .line 2089
+    iget v2, v0, Landroid/util/DisplayMetrics;->scaledDensity:F
+
+    sput v2, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aScaled:F
+
+    .line 2090
+    iget v0, v0, Landroid/util/DisplayMetrics;->densityDpi:I
+
+    sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aDpi:I
+
+    .line 2091
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 2006
+    .line 2092
     iget v2, v1, Landroid/util/DisplayMetrics;->heightPixels:I
 
     iget v3, v1, Landroid/util/DisplayMetrics;->widthPixels:I
 
-    if-le v2, v3, :cond_1b
+    if-le v2, v3, :cond_3f
 
     iget v2, v1, Landroid/util/DisplayMetrics;->widthPixels:I
 
-    if-lez v2, :cond_1b
+    if-lez v2, :cond_3f
 
-    .line 2007
+    .line 2093
     iget v0, v1, Landroid/util/DisplayMetrics;->widthPixels:I
 
     int-to-float v0, v0
@@ -71,22 +126,22 @@
 
     div-float/2addr v0, v2
 
-    .line 2009
-    :cond_1b
+    .line 2095
+    :cond_3f
     iget v2, v1, Landroid/util/DisplayMetrics;->density:F
 
     mul-float/2addr v2, v0
 
     sput v2, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
-    .line 2010
+    .line 2096
     iget v1, v1, Landroid/util/DisplayMetrics;->scaledDensity:F
 
     mul-float/2addr v0, v1
 
     sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->scaled:F
 
-    .line 2011
+    .line 2097
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
     const/high16 v1, 0x43200000    # 160.0f
@@ -99,28 +154,123 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->dpi:I
 
-    .line 2012
+    .line 2098
     return-void
 .end method
 
-.method static end()V
-    .registers 1
+.method static end(Landroid/app/Activity;)V
+    .registers 5
 
     .prologue
-    .line 2033
-    const/4 v0, 0x0
+    const/4 v1, 0x0
 
-    sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
+    .line 2119
+    sput v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
-    .line 2034
+    .line 2120
+    sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDensity:F
+
+    cmpg-float v0, v0, v1
+
+    if-gtz v0, :cond_a
+
+    .line 2137
+    :goto_9
     return-void
+
+    .line 2124
+    :cond_a
+    :try_start_a
+    invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v0
+
+    .line 2125
+    sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDensity:F
+
+    iput v1, v0, Landroid/util/DisplayMetrics;->density:F
+
+    .line 2126
+    sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oScaled:F
+
+    iput v1, v0, Landroid/util/DisplayMetrics;->scaledDensity:F
+
+    .line 2127
+    sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->oDpi:I
+
+    iput v1, v0, Landroid/util/DisplayMetrics;->densityDpi:I
+
+    .line 2128
+    invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v0
+
+    .line 2129
+    sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aDensity:F
+
+    iput v1, v0, Landroid/util/DisplayMetrics;->density:F
+
+    .line 2130
+    sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aScaled:F
+
+    iput v1, v0, Landroid/util/DisplayMetrics;->scaledDensity:F
+
+    .line 2131
+    sget v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->aDpi:I
+
+    iput v1, v0, Landroid/util/DisplayMetrics;->densityDpi:I
+    :try_end_36
+    .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_36} :catch_4a
+
+    .line 2136
+    :goto_36
+    new-instance v0, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v1
+
+    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Restore;
+
+    invoke-direct {v1, p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Restore;-><init>(Landroid/app/Activity;)V
+
+    const-wide/16 v2, 0x2bc
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    goto :goto_9
+
+    .line 2132
+    :catch_4a
+    move-exception v0
+
+    .line 2133
+    const-string v1, "ScaleScreen.densEnd"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_36
 .end method
 
 .method static hold(Landroid/app/Activity;)V
     .registers 3
 
     .prologue
-    .line 2015
+    .line 2101
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
     const/4 v1, 0x0
@@ -129,11 +279,11 @@
 
     if-gtz v0, :cond_8
 
-    .line 2024
+    .line 2110
     :goto_7
     return-void
 
-    .line 2019
+    .line 2105
     :cond_8
     :try_start_8
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
@@ -146,7 +296,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->set(Landroid/util/DisplayMetrics;)V
 
-    .line 2020
+    .line 2106
     invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -165,11 +315,11 @@
 
     goto :goto_7
 
-    .line 2021
+    .line 2107
     :catch_23
     move-exception v0
 
-    .line 2022
+    .line 2108
     const-string v1, "ScaleScreen.dens"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -181,21 +331,21 @@
     .registers 2
 
     .prologue
-    .line 2027
+    .line 2113
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
     iput v0, p0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 2028
+    .line 2114
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->scaled:F
 
     iput v0, p0, Landroid/util/DisplayMetrics;->scaledDensity:F
 
-    .line 2029
+    .line 2115
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->dpi:I
 
     iput v0, p0, Landroid/util/DisplayMetrics;->densityDpi:I
 
-    .line 2030
+    .line 2116
     return-void
 .end method

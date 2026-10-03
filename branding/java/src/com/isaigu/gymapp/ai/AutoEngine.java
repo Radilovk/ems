@@ -131,7 +131,7 @@ public final class AutoEngine {
 
     // muscle fatigue per suit channel (docs/xems-ems-physiology.md §3, docs/xems-auto-mode-spec.md §12):
     // dF_k/dt = (w(f)·ρ·z_k + e·m_k) − F_k/τ in the impulse, (w(f_p)·ρ·σ_p·z_k + 0.3·e·m_k) − F_k/τ in the pause,
-    // −F_k/τ at rest. z_k = the zone's share, m_k = the exercise's work on the channel (0…1), e = EX_LOAD.
+    // −F_k/τ at rest. z_k = the recommended zone share ({@link #zonesOf}: 0 only when the channel is off), m_k = the exercise's work on the channel (0…1), e = EX_LOAD.
     // Decides the shortest rest (the most tired zone) and paints the body heat map and the timeline.
     private final double fMax;
     private final double fRec;
@@ -801,6 +801,25 @@ public final class AutoEngine {
         return state == State.RUN && isStationPhase(phaseIndex) ? Math.max(0, getSetTargetS() - getStationS()) : 0;
     }
 
+    /**
+     * The zones the calculations use (owner, 1.1.288): always the program's recommendation (the step's zones or the
+     * plan's) — a channel set higher or lower is the person's sensitivity and the suit's contact, not more or less
+     * work, so it changes nothing here. Only a channel set to 0 is out: the zone then gets only the exercise's work.
+     */
+    int[] zonesOf(Cmd c) {
+        int[] rec = c.zones != null ? c.zones : plan.zones;
+        if (liveZones == null || c != current) {
+            return rec;
+        }
+        int[] z = rec.clone();
+        for (int k = 0; k < z.length && k < liveZones.length; k++) {
+            if (liveZones[k] <= 0) {
+                z[k] = 0;
+            }
+        }
+        return z;
+    }
+
     /** Load rates of one cycle per channel: [0] in the impulse, [1] in the pause (units of F per second · τ⁻¹). */
     private double[][] rates(Cmd c) {
         double[][] g = new double[2][AutoModel.CHANNELS];
@@ -810,7 +829,7 @@ public final class AutoEngine {
         double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
         double w = AiPlanner.fatigueWeight(c.hz);
         double wp = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma : 0;
-        int[] z = liveZones != null && c == current ? liveZones : c.zones != null ? c.zones : plan.zones;
+        int[] z = zonesOf(c);
         int[] m = null;
         if (c.phaseIndex == stationPhase && isStationPhase(c.phaseIndex)) {
             String ex = getExercise();
@@ -896,6 +915,9 @@ public final class AutoEngine {
     private void settle(long now) {
         double[][] g = chCmd != null ? rates(chCmd) : null;
         doseDone += doseAdded(now, g);
+        for (int k = 0; k < zoneDone.length; k++) {
+            zoneDone[k] += zoneAdded(now, g, k);
+        }
         stepMeta(now, chCmd);
         for (int k = 0; k < chF.length; k++) {
             chF[k] = fAt(k, now, g);
@@ -945,14 +967,16 @@ public final class AutoEngine {
     //                                                       fitness, measured HR_rest (AiEnergy)
     //            X   = 0.6·C + 0.4·V with a pulse,  V without (C = (HR − HR_rest) / (HR_cap − HR_rest))
     //   dose     D   = work done / work the plan holds (Σ a_k·dF_k⁺ integrated; the session's own forecast)
-    //   total    L   = √((0.45·M² + 0.35·X² + 0.20·D²) / Σ weights used)          [D] weights
-    // RMS: the highest part leads, the others still count; nothing here sets a limit — the HR ceiling and the rest
-    // minimum are enforced separately.
+    //   now      S   = 1 − (1 − M)(1 − X)  (+ the overshoot of the higher part past 1)
+    //   total    L   = S · (1 + 0.15·D)
+    // Owner (1.1.285): the parts are not averaged — a light part must not dilute a hard one (the old weighted RMS
+    // sat in the blue in a hard set, and the growing dose lifted the passive recovery above the main part).
+    // S rises with either system and is 1 when one of them is at its limit; the dose done only makes the same
+    // stimulus count a bit more late in the session (accumulated fatigue), it never makes a light phase hard.
+    // Nothing here sets a limit — the HR ceiling and the rest minimum are enforced separately.
 
-    /** Shares of the total load: local muscles, central (heart / oxygen), the session's dose so far. [D] */
-    static final double W_MUSCLE = 0.45;
-    static final double W_CENTRAL = 0.35;
-    static final double W_DOSE = 0.20;
+    /** How much the session's dose done (0…1) adds to the same stimulus at its end (accumulated fatigue). [D] */
+    static final double DOSE_GAIN = 0.15;
     /** Measured heart vs the oxygen model in the central part (HR is real but lags; the model is instant). [D] */
     static final double HR_SHARE = 0.6;
     /** Oxygen uptake follows the demand with this time constant (s), on and off. */
@@ -967,6 +991,8 @@ public final class AutoEngine {
     private long metaMs = -1;
     private double doseDone;
     private double doseBudget;
+    private double[] zoneDone = new double[AutoModel.CHANNELS];
+    private double[] zoneBudget;
     private double fatPct = Double.NaN;
     private double[] vo2Ref;
 
@@ -1080,7 +1106,7 @@ public final class AutoEngine {
         double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
         double s = Math.max(1, c.onS) / (double) (Math.max(1, c.onS) + Math.max(1, c.offS));
         boolean dbl = doublePulse && c.pauseHz > 0 && c.pauseSigma > 0;
-        int[] z = liveZones != null && c == current ? liveZones : c.zones != null ? c.zones : plan.zones;
+        int[] z = zonesOf(c);
         double ml = 0;
         for (int k = 0; k < AutoModel.CHANNELS; k++) {
             double zk = z != null && k < z.length ? Math.max(0, z[k]) / 100.0 : 1.0;
@@ -1150,6 +1176,52 @@ public final class AutoEngine {
         return (g0 * inOn + g1 * inOff) / sa;
     }
 
+    /** Work added to zone k since chFMs under g: ∫ g_k dt over the impulse and the pause (the body's colour). */
+    private double zoneAdded(long now, double[][] g, int k) {
+        if (chCmd == null || g == null || now <= chFMs) {
+            return 0;
+        }
+        double on = Math.max(0, chCmd.onS);
+        double dur = chCmd.durationMs() / 1000.0;
+        double pos = (chFMs - chCmd.startMs) / 1000.0;
+        double end = Math.min(dur, (now - chCmd.startMs) / 1000.0);
+        double inOn = Math.max(0, Math.min(end, on) - pos);
+        double inOff = Math.max(0, end - Math.max(pos, on));
+        return g[0][k] * inOn + g[1][k] * inOff;
+    }
+
+    /** Work done per zone so far (every phase, the passive ones and the recovery too). */
+    public double[] getZoneDone(long now) {
+        double[] out = zoneDone.clone();
+        if (chCmd != null) {
+            double[][] g = rates(chCmd);
+            for (int k = 0; k < out.length; k++) {
+                out[k] += zoneAdded(now, g, k);
+            }
+        }
+        return out;
+    }
+
+    /** The work the plan holds per zone (the first forecast): the target of each zone's colour. */
+    public void setZoneBudget(double[] budget) {
+        zoneBudget = budget != null ? budget.clone() : null;
+    }
+
+    /**
+     * Each zone's way to its target (owner, 1.1.287): work done / the work the plan holds for it — 1 = the load
+     * this session is meant to give that zone, reached at the end of the plan (the recovery included). Relative to
+     * the session's own context, not an absolute scale; −1 = the plan gives the zone nothing.
+     */
+    public double[] getZoneProgress(long now) {
+        double[] d = getZoneDone(now);
+        double[] out = new double[d.length];
+        for (int k = 0; k < d.length; k++) {
+            double b = zoneBudget != null && k < zoneBudget.length ? zoneBudget[k] : 0;
+            out[k] = b > 1e-6 ? d[k] / b : -1;
+        }
+        return out;
+    }
+
     /** The work the whole plan holds (the first forecast); ≤ 0 = unknown, D left out. */
     public void setDoseBudget(double budget) {
         doseBudget = budget;
@@ -1166,16 +1238,15 @@ public final class AutoEngine {
 
     /** The total load L (see the block comment): the "Натоварване" scale, 1 ≈ the body at its limit. */
     public double getSystemLoad(long now) {
-        double m = getMuscularLoad(now);
-        double x = getCentralLoad(now);
-        double d = getDoseLoad(now);
-        double sum = W_MUSCLE * m * m + W_CENTRAL * x * x;
-        double w = W_MUSCLE + W_CENTRAL;
-        if (d >= 0) {
-            sum += W_DOSE * d * d;
-            w += W_DOSE;
-        }
-        return Math.sqrt(sum / w);
+        return totalLoad(getMuscularLoad(now), getCentralLoad(now), getDoseLoad(now));
+    }
+
+    /** L from the parts: either system at its limit is the limit; the dose done adds up to DOSE_GAIN. */
+    static double totalLoad(double m, double x, double d) {
+        double mc = clamp(m, 0, 1);
+        double xc = clamp(x, 0, 1);
+        double s = 1 - (1 - mc) * (1 - xc) + Math.max(0, Math.max(m, x) - 1);
+        return clamp(s * (1 + DOSE_GAIN * Math.max(0, d)), 0, 1.25);
     }
 
     /** True when the heart, not a muscle, is nearer its limit now. */
@@ -1330,6 +1401,8 @@ public final class AutoEngine {
         public double maxLoad;
         /** The work the plan holds (Σ reached-mass-weighted fatigue input; the D part of the total load). */
         public double dose;
+        /** The same per zone (the target of each zone's colour on the body). */
+        public double[] zoneDose;
         /** Session s the forecast runs on from (a live forecast, points in the session's own clock); −1 = the plan
          *  from its start (points mapped by impulse time). */
         public double fromS = -1;
@@ -1400,6 +1473,7 @@ public final class AutoEngine {
         f.points.addAll(e.trace);
         f.totalS = e.getSessionS(t);
         f.dose = e.getDoseDone(t);
+        f.zoneDose = e.getZoneDone(t);
         for (int i = 1; i < f.phaseStartS.length; i++) {
             if (f.phaseStartS[i] < 0) {
                 f.phaseStartS[i] = f.totalS;
@@ -1568,6 +1642,7 @@ public final class AutoEngine {
             f.maxLoad = Math.max(f.maxLoad, p[2]);
         }
         f.dose = e.getDoseDone(t);
+        f.zoneDose = e.getZoneDone(t);
         return f;
     }
 

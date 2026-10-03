@@ -638,6 +638,7 @@ public final class AutoSession {
             forecastScale = 1.0;
             forecast = AutoEngine.forecast(plan, script, forecastDouble);
             engine.setDoseBudget(forecast.dose);             // D of the total load: the plan's own work
+            engine.setZoneBudget(forecast.zoneDose);         // each zone's target colour = the plan's work on it
         } catch (Throwable t) {
             forecast = null;
             WearableBleDiagLog.log("auto", "forecast: " + t);
@@ -969,6 +970,10 @@ public final class AutoSession {
     private static void onStateChange(AutoEngine.State before, long now) {
         AutoEngine.State after = engine.getState();
         if (after == AutoEngine.State.REST && before != AutoEngine.State.REST) {
+            if (before == AutoEngine.State.RUN) {
+                AutoBeep.end();                          // one long tone: the exercise is over, rest
+                AutoUi.flashSetEnd();                    // and the card flashes amber
+            }
             if (engine.isRestBeforeCooldown()) {
                 notice(AiText.t("Активната част свърши. Следва възстановяване " + plan.recoveryS / 60
                                 + " мин — легни / седни удобно и натисни „▶ Старт“.",
@@ -979,6 +984,26 @@ public final class AutoSession {
                         "Set done — rest at least " + engine.getRestMinS() + " s, then ▶ Start."), INFO, now);
             }
         }
+    }
+
+    /** The last cycle written to the suits (null before the first). */
+    static AutoEngine.Cmd getWritten() {
+        return written;
+    }
+
+    /**
+     * The current the suits get now, for the column under the row's time (owner, 1.1.288): {Hz, µs, impulse s,
+     * pause s, 2nd-impulse Hz (0 = none), 2nd-impulse %}. The last cycle written (in the rest: what ran); null
+     * before the first or on a step without output.
+     */
+    static int[] paramsNow() {
+        AutoEngine.Cmd c = written;
+        if (c == null || c.frac <= 0) {
+            return null;
+        }
+        boolean dbl = c.pauseHz > 0 && c.pauseSigma > 0 && engine != null && engine.isDoublePulseOn();
+        return new int[] {c.hz, c.pwUs, Math.max(1, c.onS), Math.max(1, c.offS), dbl ? c.pauseHz : 0,
+                dbl ? (int) Math.round(100 * c.pauseSigma) : 0};
     }
 
     /** −10 % on every row (the "reduce" button; never automatically given back). */
@@ -1084,6 +1109,7 @@ public final class AutoSession {
                 handler.postDelayed(this, TICK_MS);
             }
             if ((stage == Stage.CALIB || stage == Stage.RUNNING) && plan != null) {
+                AutoLook.params(paramsNow(), engine != null && engine.getState() == AutoEngine.State.RUN);
                 AutoLook.apply(panelRoot, plan.program.name());
             } else {
                 AutoLook.restore();
@@ -1218,23 +1244,39 @@ public final class AutoSession {
         return v;
     }
 
+    /** The zones the running step asks for on this row (a wave / even step, else the plan), before the person's moves. */
+    private static int[] stepZones(Row r, AutoEngine.Cmd c) {
+        AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+        if (c == null || c.zones == null) {
+            return rp.zones.clone();
+        }
+        int[] z = c.zones.clone();
+        for (int i = 0; i < z.length; i++) {
+            if (rp.zoneLocked[i] && rp.zones[i] == 0) {
+                z[i] = 0;
+            }
+            z[i] = Math.min(z[i], rp.zoneMax[i]);
+        }
+        return z;
+    }
+
+    /**
+     * The step's zones + the person's own move per channel (owner, 1.1.286: every channel is set individually —
+     * on a wave and an even step too; the move stays with the row for the rest of the session).
+     */
     private static int[] rowZones(Row r, AutoEngine.Cmd c) {
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
-        if (c.zones != null) {
-            int[] z = c.zones.clone();
-            for (int i = 0; i < z.length; i++) {
-                if (rp.zoneLocked[i] && rp.zones[i] == 0) {
-                    z[i] = 0;
-                }
-                z[i] = Math.min(z[i], rp.zoneMax[i]);
-            }
-            return z;
-        }
+        int[] base = stepZones(r, c);
+        boolean moved = false;
         int[] want = new int[AutoModel.CHANNELS];
         for (int i = 0; i < want.length; i++) {
-            want[i] = rp.zones[i] + r.zoneOffset[i];
+            want[i] = base[i] + r.zoneOffset[i];
+            moved |= r.zoneOffset[i] != 0;
         }
-        return AutoLimits.clampZones(want, rp);
+        if (c != null && c.zones != null && !moved) {
+            return base;                                   // the wave as it is
+        }
+        return AutoLimits.clampZones(want, base, rp);
     }
 
     /**
@@ -1464,13 +1506,19 @@ public final class AutoSession {
                     changed |= now10[i] != r.writtenZones[i];
                 }
                 if (changed) {
-                    if (written.zones != null || r.block != null) {
-                        msg = AiText.t("Вълната води зоните сама — ръчно не се местят.", "The wave drives the zones — no manual change.");
+                    if (r.block != null) {
+                        msg = who(r) + r.block;
                         msgKind = LIMIT;
                     } else {
-                        int[] z = AutoLimits.clampZones(now10, rp);
+                        // the person's move is kept as an offset over what the step asks (plan, wave or even step)
+                        int[] base = stepZones(r, written);
+                        int[] want = new int[AutoModel.CHANNELS];
                         for (int i = 0; i < AutoModel.CHANNELS; i++) {
-                            r.zoneOffset[i] = z[i] - rp.zones[i];
+                            want[i] = base[i] + r.zoneOffset[i] + (now10[i] - r.writtenZones[i]);
+                        }
+                        int[] z = AutoLimits.clampZones(want, base, rp);
+                        for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                            r.zoneOffset[i] = z[i] - base[i];
                         }
                         int bad = -1;
                         int moved = -1;
@@ -1483,13 +1531,13 @@ public final class AutoSession {
                             }
                         }
                         if (bad >= 0) {
-                            msg = who(r) + zoneReason(bad, now10[bad], z[bad], rp);
+                            msg = who(r) + zoneReason(bad, now10[bad], z[bad], rp, base);
                             msgKind = LIMIT;
                         } else if (moved >= 0 && msgKind == INFO) {
                             msgKey = "zone";
                             msg = who(r) + AutoCues.zoneNames()[moved] + " " + z[moved]
-                                    + AiText.t(" %. Зоните се местят ±", " %. Zones move ±") + rp.zoneDelta
-                                    + AiText.t(" от програмата.", " from the program.");
+                                    + AiText.t(" % — пази се до края. Надолу свободно, нагоре до +", " % — kept to the end. Down freely, up to +")
+                                    + rp.zoneDelta + AiText.t(" от програмата.", " over the program.");
                         }
                     }
                     rewrite = true;
@@ -1680,7 +1728,7 @@ public final class AutoSession {
     }
 
     /** Why zone {@code i} was brought back (locks, ±delta, balance rules). */
-    private static String zoneReason(int i, int wanted, int got, AutoModel.Plan rp) {
+    private static String zoneReason(int i, int wanted, int got, AutoModel.Plan rp, int[] base) {
         String[] n = AutoCues.zoneNames();
         if (rp.zoneLocked[i]) {
             return n[i] + AiText.t(" е заключена на ", " is locked at ") + got + " %";
@@ -1688,9 +1736,9 @@ public final class AutoSession {
         if (wanted > rp.zoneMax[i]) {
             return n[i] + AiText.t(" най-много ", " at most ") + rp.zoneMax[i] + " %";
         }
-        if (Math.abs(wanted - rp.zones[i]) > rp.zoneDelta) {
-            return n[i] + " " + got + AiText.t(" % — до ±", " % — up to ±") + rp.zoneDelta
-                    + AiText.t(" от програмата (", " from the program (") + rp.zones[i] + ")";
+        if (base != null && wanted > base[i] + rp.zoneDelta && got == Math.min(base[i] + rp.zoneDelta, rp.zoneMax[i])) {
+            return n[i] + " " + got + AiText.t(" % — нагоре най-много +", " % — up at most +") + rp.zoneDelta
+                    + AiText.t(" над програмата (", " over the program (") + base[i] + ")";
         }
         if (i == AutoModel.ABS) {
             return AiText.t("Корем ≤ 1.3 × кръст — пази гръбнака (", "Abs ≤ 1.3 × low back — protects the spine (") + got + " %)";

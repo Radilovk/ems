@@ -11,6 +11,7 @@
         Lcom/isaigu/gymapp/ai/AutoViews$Vital;,
         Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;,
         Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;,
+        Lcom/isaigu/gymapp/ai/AutoViews$RingStage;,
         Lcom/isaigu/gymapp/ai/AutoViews$SetRing;
     }
 .end annotation
@@ -78,11 +79,127 @@
     return-void
 .end method
 
+.method static bodyFill(D)F
+    .registers 12
+
+    .prologue
+    .line 67
+    const-wide/16 v0, 0x0
+
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+
+    invoke-static {v2, v3, p0, p1}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v2
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v0
+
+    .line 68
+    const-wide v2, 0x3fbeb851eb851eb8L    # 0.12
+
+    const-wide v4, 0x3fec28f5c28f5c29L    # 0.88
+
+    mul-double/2addr v4, v0
+
+    mul-double/2addr v4, v0
+
+    const-wide/high16 v6, 0x4008000000000000L    # 3.0
+
+    const-wide/high16 v8, 0x4000000000000000L    # 2.0
+
+    mul-double/2addr v0, v8
+
+    sub-double v0, v6, v0
+
+    mul-double/2addr v0, v4
+
+    add-double/2addr v0, v2
+
+    double-to-float v0, v0
+
+    return v0
+.end method
+
+.method public static bodyHeat(ID)I
+    .registers 14
+
+    .prologue
+    const/4 v1, 0x3
+
+    const-wide v8, 0x3ff2666666666666L    # 1.15
+
+    const-wide v6, 0x3fc3333333333333L    # 0.15
+
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    .line 56
+    cmpg-double v0, p1, v4
+
+    if-gtz v0, :cond_12
+
+    .line 62
+    :goto_11
+    return p0
+
+    .line 59
+    :cond_12
+    cmpg-double v0, p1, v8
+
+    if-gtz v0, :cond_23
+
+    .line 60
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    aget v0, v0, v1
+
+    sub-double v2, p1, v4
+
+    div-double/2addr v2, v6
+
+    double-to-float v1, v2
+
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result p0
+
+    goto :goto_11
+
+    .line 62
+    :cond_23
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    aget v0, v0, v1
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    const/4 v2, 0x4
+
+    aget v1, v1, v2
+
+    sub-double v2, p1, v8
+
+    div-double/2addr v2, v6
+
+    invoke-static {v4, v5, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v2
+
+    double-to-float v2, v2
+
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result p0
+
+    goto :goto_11
+.end method
+
 .method static dp(Landroid/view/View;F)F
     .registers 3
 
     .prologue
-    .line 50
+    .line 72
     invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0

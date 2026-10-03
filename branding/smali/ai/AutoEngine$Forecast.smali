@@ -34,23 +34,25 @@
 
 .field public totalS:D
 
+.field public zoneDose:[D
+
 
 # direct methods
 .method public constructor <init>()V
     .registers 3
 
     .prologue
-    .line 1324
+    .line 1395
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1326
+    .line 1397
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
-    .line 1335
+    .line 1408
     const-wide/high16 v0, -0x4010000000000000L    # -1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->fromS:D
@@ -64,7 +66,7 @@
     .registers 10
 
     .prologue
-    .line 1339
+    .line 1412
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->fromS:D
 
     const-wide/16 v2, 0x0
@@ -88,7 +90,7 @@
     .registers 12
 
     .prologue
-    .line 1344
+    .line 1417
     const-wide/16 v0, 0x0
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->totalS:D
@@ -114,10 +116,10 @@
 
     const/4 v8, 0x1
 
-    .line 1349
+    .line 1422
     const/4 v0, 0x0
 
-    .line 1350
+    .line 1423
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->points:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -139,7 +141,7 @@
 
     check-cast v0, [F
 
-    .line 1351
+    .line 1424
     aget v3, v0, v8
 
     float-to-double v4, v3
@@ -148,7 +150,7 @@
 
     if-ltz v3, :cond_44
 
-    .line 1352
+    .line 1425
     if-eqz v1, :cond_27
 
     aget v2, v0, v8
@@ -159,17 +161,17 @@
 
     if-gtz v2, :cond_2b
 
-    .line 1353
+    .line 1426
     :cond_27
     aget v0, v0, v6
 
     float-to-double v0, v0
 
-    .line 1359
+    .line 1432
     :goto_2a
     return-wide v0
 
-    .line 1355
+    .line 1428
     :cond_2b
     aget v2, v1, v6
 
@@ -208,10 +210,10 @@
     :cond_44
     move-object v1, v0
 
-    .line 1358
+    .line 1431
     goto :goto_a
 
-    .line 1359
+    .line 1432
     :cond_46
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->totalS:D
 

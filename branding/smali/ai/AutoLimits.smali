@@ -42,7 +42,7 @@
 
     const-wide v6, 0x3e112e0be826d695L    # 1.0E-9
 
-    .line 140
+    .line 146
     aget v0, p0, v9
 
     const-wide v2, 0x3ff4cccccccccccdL    # 1.3
@@ -69,7 +69,7 @@
 
     aput v0, p0, v9
 
-    .line 141
+    .line 147
     aget v0, p0, v10
 
     const/16 v1, 0x9
@@ -96,7 +96,7 @@
 
     aput v0, p0, v10
 
-    .line 142
+    .line 148
     aget v0, p0, v8
 
     const-wide v2, 0x3ff3333333333333L    # 1.2
@@ -123,7 +123,7 @@
 
     aput v0, p0, v8
 
-    .line 143
+    .line 149
     return-void
 .end method
 
@@ -137,7 +137,7 @@
 
     const-wide v8, 0x3e112e0be826d695L    # 1.0E-9
 
-    .line 146
+    .line 152
     aget v2, p0, v0
 
     int-to-double v2, v2
@@ -213,7 +213,7 @@
     .registers 3
 
     .prologue
-    .line 170
+    .line 176
     if-ge p0, p1, :cond_3
 
     :goto_2
@@ -457,96 +457,128 @@
 .end method
 
 .method public static clampZones([ILcom/isaigu/gymapp/ai/AutoModel$Plan;)[I
+    .registers 3
+
+    .prologue
+    .line 124
+    iget-object v0, p1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
+
+    invoke-static {p0, v0, p1}, Lcom/isaigu/gymapp/ai/AutoLimits;->clampZones([I[ILcom/isaigu/gymapp/ai/AutoModel$Plan;)[I
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static clampZones([I[ILcom/isaigu/gymapp/ai/AutoModel$Plan;)[I
     .registers 10
 
     .prologue
-    const/16 v7, 0xa
+    const/16 v6, 0xa
 
     const/4 v3, 0x0
 
-    .line 123
-    new-array v4, v7, [I
+    .line 129
+    new-array v4, v6, [I
 
     move v2, v3
 
-    .line 124
+    .line 130
     :goto_6
-    if-ge v2, v7, :cond_3b
+    if-ge v2, v6, :cond_47
 
-    .line 125
-    iget-object v0, p1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
+    .line 131
+    if-eqz p1, :cond_38
 
-    aget v1, v0, v2
+    array-length v0, p1
 
-    .line 126
-    if-eqz p0, :cond_2d
+    if-ge v2, v0, :cond_38
+
+    aget v1, p1, v2
+
+    .line 132
+    :goto_f
+    if-eqz p0, :cond_3d
 
     array-length v0, p0
 
-    if-ge v2, v0, :cond_2d
+    if-ge v2, v0, :cond_3d
 
     aget v0, p0, v2
 
-    .line 127
-    :goto_13
-    iget-object v5, p1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
+    .line 133
+    :goto_16
+    iget-object v5, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
 
     aget-boolean v5, v5, v2
 
-    if-eqz v5, :cond_2f
+    if-eqz v5, :cond_3f
 
-    .line 132
-    :goto_19
-    const/16 v0, 0x64
+    .line 134
+    iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
-    iget-object v5, p1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneMax:[I
+    aget v0, v0, v2
 
-    aget v5, v5, v2
-
-    invoke-static {v0, v5}, Ljava/lang/Math;->min(II)I
+    invoke-static {v1, v0}, Ljava/lang/Math;->min(II)I
 
     move-result v0
 
-    invoke-static {v1, v3, v0}, Lcom/isaigu/gymapp/ai/AutoLimits;->clamp(III)I
+    .line 138
+    :goto_24
+    const/16 v1, 0x64
+
+    iget-object v5, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneMax:[I
+
+    aget v5, v5, v2
+
+    invoke-static {v1, v5}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    invoke-static {v0, v3, v1}, Lcom/isaigu/gymapp/ai/AutoLimits;->clamp(III)I
 
     move-result v0
 
     aput v0, v4, v2
 
-    .line 124
+    .line 130
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
     goto :goto_6
 
-    :cond_2d
+    .line 131
+    :cond_38
+    iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
+
+    aget v1, v0, v2
+
+    goto :goto_f
+
+    :cond_3d
     move v0, v1
 
-    .line 126
-    goto :goto_13
+    .line 132
+    goto :goto_16
 
-    .line 130
-    :cond_2f
-    iget v5, p1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
+    .line 136
+    :cond_3f
+    iget v5, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
 
-    sub-int v5, v1, v5
+    add-int/2addr v1, v5
 
-    iget v6, p1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
 
-    add-int/2addr v1, v6
+    move-result v0
 
-    invoke-static {v0, v5, v1}, Lcom/isaigu/gymapp/ai/AutoLimits;->clamp(III)I
+    goto :goto_24
 
-    move-result v1
-
-    goto :goto_19
-
-    .line 134
-    :cond_3b
+    .line 140
+    :cond_47
     invoke-static {v4}, Lcom/isaigu/gymapp/ai/AutoLimits;->balance([I)V
 
-    .line 135
+    .line 141
     return-object v4
 .end method
 
@@ -675,7 +707,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 157
+    .line 163
     if-lez p0, :cond_9
 
     const-wide/16 v2, 0x0
@@ -687,11 +719,11 @@
     :cond_9
     move v0, v1
 
-    .line 166
+    .line 172
     :goto_a
     return v0
 
-    .line 160
+    .line 166
     :cond_b
     int-to-double v2, p0
 
@@ -705,7 +737,7 @@
 
     long-to-int v0, v2
 
-    .line 161
+    .line 167
     int-to-double v2, p0
 
     mul-double/2addr v2, p5
@@ -720,22 +752,22 @@
 
     double-to-int v2, v2
 
-    .line 162
+    .line 168
     invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
 
     move-result v0
 
-    .line 163
+    .line 169
     if-ltz p7, :cond_2c
 
     add-int/lit8 v2, p7, 0x5
 
     if-le v0, v2, :cond_2c
 
-    .line 164
+    .line 170
     add-int/lit8 v0, p7, 0x5
 
-    .line 166
+    .line 172
     :cond_2c
     const/16 v2, 0x64
 

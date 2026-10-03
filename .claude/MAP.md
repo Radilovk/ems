@@ -10,7 +10,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/add-builtin-exercise.py` (64L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
 - `scripts/ai-sim/AiExSim.java` (331L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
 - `scripts/ai-sim/AiSim.java` (427L) — Offline scenarios for the Smart Session engine.
-- `scripts/ai-sim/AutoSim.java` (1304L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
+- `scripts/ai-sim/AutoSim.java` (1433L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/MapSim.java` (146L) — MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest seconds, …
 - `scripts/ai-sim/PathNormSim.java` (68L) — PathNorm (Java, on the tablet) must give exactly what scripts/exercise-paths.py gives: dir/*.svg vs dir/*.norm.
 - `scripts/ai-sim/TemplateSim.java` (250L) — Offline test of the exercise templates (AutoTemplates) over every active program × profile × history.
@@ -168,22 +168,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiText.java` (181L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
 - `AiUi.java` (2175L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
-- `AutoBeep.java` (123L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
-- `AutoBoard.java` (153L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
+- `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
+- `AutoBoard.java` (167L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
 - `AutoCatalog.java` (703L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
-- `AutoCues.java` (133L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
-- `AutoEngine.java` (1871L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
+- `AutoCues.java` (224L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
+- `AutoEngine.java` (1946L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
 - `AutoHints.java` (348L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
 - `AutoHistory.java` (160L, compile:music-sync*,wearable) — How many sessions a client has had and when the last active one was — for the adaptation and recovery limits of the aut…
-- `AutoLimits.java` (173L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
-- `AutoLook.java` (344L, compile:music-sync*,wearable) — The training screen while automatic mode owns the suits (calibration and the run): every train row loses the controls t…
+- `AutoLimits.java` (179L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
+- `AutoLook.java` (436L, compile:music-sync*,wearable) — The training screen while automatic mode owns the suits (calibration and the run): every train row loses the controls t…
 - `AutoModel.java` (308L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
 - `AutoPlanner.java` (281L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
-- `AutoSession.java` (1872L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
+- `AutoSession.java` (1920L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
 - `AutoTemplateData.java` (114L, compile:music-sync*,wearable) — GENERATED by scripts/gen-exercises.py from branding/exercises/*.json — do not edit.
 - `AutoTemplates.java` (528L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
-- `AutoUi.java` (1692L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
-- `AutoViews.java` (764L, compile:music-sync*,wearable) — The drawn parts of the Auto live board (docs/xems-auto-mode-spec.md §12): the set ring around the exercise, the body he…
+- `AutoUi.java` (1842L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
+- `AutoViews.java` (920L, compile:music-sync*,wearable) — The drawn parts of the Auto live board (docs/xems-auto-mode-spec.md §12): the set ring around the exercise, the body he…
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (377L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
@@ -667,38 +667,38 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L201 ## Действия по време на сесията (v1.1.68)
   - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
-`docs/xems-auto-mode-spec.md` (553L)
+`docs/xems-auto-mode-spec.md` (585L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
-  - L61 ## 3. Входни данни и формули
-  - L63 ### 3.1 Профил
-  - L74 ### 3.2 Модификатори (прилагат се към всяка програма)
-  - L90 ### 3.3 Сила: какво е „лимит“
-  - L105 ### 3.4 Доза
-  - L111 ## 4. Твърди лимити (проверяват се на всеки тик)
-  - L113 ### 4.1 Абсолютни — за всички програми
-  - L131 ### 4.2 Обвивка във времето E(t) и прозорци на параметрите
-  - L146 ## 5. Зони (10 канала)
-  - L169 ## 6. Програми
-  - L171 ### 6.0 Йерархия на избора
-  - L200 ### 6.1 Общо стягане и оформяне (активна)
-  - L210 ### 6.2 Сила и бързина (активна)
-  - L224 ### 6.3 Седалище и бедра (активна)
-  - L234 ### 6.4 Талия и корем (активна)
-  - L245 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
-  - L256 ### 6.6 Дренаж (пасивна) — вълна по канали
-  - L272 ### 6.7 Антицелулит (пасивна)
-  - L284 ### 6.8 Болки в гърба и кръста (пасивна)
-  - L300 ### 6.9 Следродилно възстановяване (пасивна)
-  - L313 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
-  - L322 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
-  - L332 ## 7. Опции по програма
-  - L354 ## 8. Какво човекът може по време на сесия
-  - L366 ## 9. Реализация
-  - L409 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
-  - L443 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
-  - L530 ## 10. Подсказки (1.1.157-ai)
+  - L67 ## 3. Входни данни и формули
+  - L69 ### 3.1 Профил
+  - L80 ### 3.2 Модификатори (прилагат се към всяка програма)
+  - L96 ### 3.3 Сила: какво е „лимит“
+  - L111 ### 3.4 Доза
+  - L117 ## 4. Твърди лимити (проверяват се на всеки тик)
+  - L119 ### 4.1 Абсолютни — за всички програми
+  - L137 ### 4.2 Обвивка във времето E(t) и прозорци на параметрите
+  - L152 ## 5. Зони (10 канала)
+  - L175 ## 6. Програми
+  - L177 ### 6.0 Йерархия на избора
+  - L206 ### 6.1 Общо стягане и оформяне (активна)
+  - L216 ### 6.2 Сила и бързина (активна)
+  - L230 ### 6.3 Седалище и бедра (активна)
+  - L240 ### 6.4 Талия и корем (активна)
+  - L251 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
+  - L262 ### 6.6 Дренаж (пасивна) — вълна по канали
+  - L278 ### 6.7 Антицелулит (пасивна)
+  - L290 ### 6.8 Болки в гърба и кръста (пасивна)
+  - L306 ### 6.9 Следродилно възстановяване (пасивна)
+  - L319 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
+  - L328 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
+  - L338 ## 7. Опции по програма
+  - L360 ## 8. Какво човекът може по време на сесия
+  - L372 ## 9. Реализация
+  - L415 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
+  - L450 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
+  - L562 ## 10. Подсказки (1.1.157-ai)
 
 `docs/xems-client-data.md` (49L)
   - L1 # XEMS — какви данни къде живеят

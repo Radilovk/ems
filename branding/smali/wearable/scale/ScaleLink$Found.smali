@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 701
+    .line 750
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 702
+    .line 751
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Found;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 703
+    .line 752
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Found;->device:Landroid/bluetooth/BluetoothDevice;
 
-    .line 704
+    .line 753
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 3
 
     .prologue
-    .line 708
+    .line 757
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Found;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Found;->device:Landroid/bluetooth/BluetoothDevice;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->found(Landroid/bluetooth/BluetoothDevice;)V
 
-    .line 709
+    .line 758
     return-void
 .end method

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 825
+    .line 874
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 826
+    .line 875
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 827
+    .line 876
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 832
+    .line 881
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
@@ -61,12 +61,12 @@
 
     if-nez v0, :cond_17
 
-    .line 833
+    .line 882
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->handshakeA()V
 
-    .line 835
+    .line 884
     :cond_17
     return-void
 .end method

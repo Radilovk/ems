@@ -834,7 +834,181 @@ public final class ScaleSim {
         ok("S no body without impedances", ScaleBody.of(r.reading(), true, 40, 175) == null);
     }
 
+    // ---------------------------------------------------------------- XS (MovingLife SDK, libprotocol.so layout)
+
+    /** One impedance as the scale sends it: Ω×10 split low word first (the SDK's deImpedance read backwards). */
+    static void imp(byte[] f, int at, double ohm) {
+        long v = Math.round(ohm * 10);
+        f[at] = (byte) (v >> 8);
+        f[at + 1] = (byte) v;
+        f[at + 2] = (byte) (v >> 24);
+        f[at + 3] = (byte) (v >> 16);
+    }
+
+    /** A v11 0x81 result: weight, flags, then TLV 4 with the ten impedances (wire order RH LH T RF LF). */
+    static byte[] xsResult(double kg, int flags, long ts, double[] z20, double[] z100) {
+        int n = 22 + 2 + 40 + 1;
+        byte[] f = new byte[n];
+        f[0] = 0x33;
+        f[1] = (byte) 0xCC;
+        f[2] = (byte) n;
+        f[3] = 0;
+        f[4] = 7;
+        f[6] = (byte) 0x81;
+        f[7] = 1;
+        f[8] = (byte) 0xFF;
+        f[9] = (byte) 0xFF;
+        int w = (int) Math.round(kg * 100);
+        f[10] = (byte) (w >> 8);
+        f[11] = (byte) w;
+        f[14] = 1;
+        f[15] = 1;
+        f[16] = 1;
+        f[17] = (byte) flags;
+        f[18] = (byte) (ts >> 24);
+        f[19] = (byte) (ts >> 16);
+        f[20] = (byte) (ts >> 8);
+        f[21] = (byte) ts;
+        f[22] = 42;
+        f[23] = 4;
+        int[] wire = {ScaleProtocol.RIGHT_ARM, ScaleProtocol.LEFT_ARM, ScaleProtocol.TRUNK, ScaleProtocol.RIGHT_LEG,
+                ScaleProtocol.LEFT_LEG};
+        for (int k = 0; k < 10; k++) {
+            double[] z = k < 5 ? z20 : z100;
+            imp(f, 24 + 4 * k, z == null ? 0 : z[wire[k % 5]]);
+        }
+        int sum = 0;
+        for (int i = 2; i < n - 1; i++) {
+            sum += f[i] & 0xFF;
+        }
+        f[n - 1] = (byte) sum;
+        return f;
+    }
+
+    static byte[] feed(ScaleSenssun.Assembler a, byte[] f) {
+        byte[] out = null;
+        for (int i = 0; i < f.length; i += 20) {
+            byte[] c = java.util.Arrays.copyOfRange(f, i, Math.min(f.length, i + 20));
+            byte[] r = a.add(c);
+            if (r != null) {
+                out = r;
+            }
+        }
+        return out;
+    }
+
+    static void xs() {
+        double[] z20 = {17.3, 252.0, 234.0, 221.0, 232.0}, z100 = {15.7, 215.5, 199.5, 190.0, 200.0};
+        // the advert: company id, then vendor · version · model · own MAC
+        byte[] adv = hex("02 01 06 0e ff f0 ff 01 02 11 03 19 a1 b2 c3 d4 e5 f6");
+        int[] id = ScaleSenssun.xsAdvert(adv, "A1:B2:C3:D4:E5:F6");
+        ok("XS advert", id != null && id[0] == 0x11 && id[1] == 0x0319 && ScaleSenssun.pro(id[1]));
+        ok("XS advert of another MAC", ScaleSenssun.xsAdvert(adv, "A1:B2:C3:D4:E5:F7") == null);
+        eq("XS time", hex(ScaleSenssun.syncTime(1, 180, 0x6A000000L)), "33cc0f0001001001" + "00b46a000000" + "3f");
+        ScaleSenssun.Assembler asm = new ScaleSenssun.Assembler();
+        long now = 1790000000L;
+        byte[] f = feed(asm, xsResult(81.4, 0, now, z20, z100));
+        ok("XS assembled over 4 notifications", f != null && f.length == 65);
+        ScaleSenssun.XsFrame x = ScaleSenssun.parseXs(f);
+        ok("XS result", x.kind == ScaleSenssun.XsFrame.RESULT && x.ackWanted && !x.finished && x.error == 0
+                && !x.single() && !ScaleSenssun.stored(x, now + 30));
+        eq("XS kg", x.kg, 81.4, 1e-9);
+        for (int i = 0; i < 5; i++) {
+            eq("XS z20 " + i, x.z20[i], z20[i], 1e-9);
+            eq("XS z100 " + i, x.z100[i], z100[i], 1e-9);
+        }
+        eq("XS ack", hex(ScaleSenssun.ack(2, f)), "33cc0b000200ff810007" + "94");
+        ScaleProtocol.Reading r = ScaleSenssun.reading(x);
+        ScaleBody b = ScaleBody.of(r, true, 31, 175);
+        ScaleBody p1 = ScaleBody.of(reading(81.4, Double.NaN, z20, z100), true, 31, 175);
+        ok("XS → the same analysis as the P1 (" + (b == null ? "null" : b.fatKg + " kg fat") + ")", b != null
+                && b.fatKg == p1.fatKg && b.muscleKg == p1.muscleKg && b.segMuscleKg[1] == p1.segMuscleKg[1]);
+        ok("XS stored weigh-in", ScaleSenssun.stored(x, now + 3600));
+        byte[] bad = xsResult(81.4, 0, now, z20, z100);
+        bad[30] ^= 1;
+        ok("XS bad sum refused", feed(new ScaleSenssun.Assembler(), bad) == null);
+        ScaleSenssun.XsFrame nc = ScaleSenssun.parseXs(feed(asm, xsResult(81.4, 0x30, now, z20, z100)));
+        ok("XS no contact → weight only", nc.error == 4 && Double.isNaN(ScaleSenssun.reading(nc).z20[1]));
+        ScaleSenssun.XsFrame end = ScaleSenssun.parseXs(feed(asm, xsResult(0, 0x80, 0, null, null)));
+        ok("XS history end", end.finished);
+        byte[] live = hex("33 cc 11 00 05 00 80 00 1f cc 00 00 02 01 01 80 00");
+        int sm = 0;
+        for (int i = 2; i < live.length - 1; i++) {
+            sm += live[i] & 0xFF;
+        }
+        live[live.length - 1] = (byte) sm;
+        ScaleSenssun.XsFrame lv = ScaleSenssun.parseXs(asm.add(live));
+        ok("XS live", lv.kind == ScaleSenssun.XsFrame.LIVE && lv.stable && Math.abs(lv.kg - 81.4) < 1e-9);
+
+        // one frequency: the same body measured at 50 kHz only
+        double[] z50 = new double[5];
+        for (int i = 0; i < 5; i++) {
+            z50[i] = z20[i] + (z100[i] - z20[i]) * ScaleModel.AT50;
+        }
+        ScaleSenssun.XsFrame s1 = ScaleSenssun.parseXs(feed(asm, xsResult(81.4, 0, now, z50, null)));
+        ok("XS single frequency", s1.single() && s1.hasImpedance());
+        ScaleProtocol.Reading one = ScaleSenssun.reading(s1);
+        ok("single flagged", one.single && !Double.isNaN(one.z100[1]));
+        ScaleProtocol.Reading two = reading(81.4, Double.NaN, z20, z100);
+        eq("single: r50 = the measured 50 kHz", ScaleModel.r50(one.z20, one.z100), ScaleModel.r50(z20, z100), 0.2);   // 0.1 Ω on the wire
+        double f1 = ScaleModel.fatPct(one, true, 31, 175), f2 = ScaleModel.fatPct(two, true, 31, 175);
+        ok("single fat ≈ dual (" + r1(f1) + " vs " + r1(f2) + " %)", Math.abs(f1 - f2) < 1.0);
+        ScaleBody b1 = ScaleModel.body(one, true, 31, 175, f1), b2 = ScaleModel.body(two, true, 31, 175, f2);
+        ok("single: segments and the WLA25 chain", b1 != null && b2 != null);
+        for (int i = 0; i < 5; i++) {
+            ok("single seg muscle " + i + " (" + r1(b1.segMuscleKg[i]) + " vs " + r1(b2.segMuscleKg[i]) + ")",
+                    Math.abs(b1.segMuscleKg[i] - b2.segMuscleKg[i]) <= Math.max(0.3, 0.05 * b2.segMuscleKg[i]));
+        }
+        System.out.println("  single vs dual (P1 owner): fat " + r1(f1) + " / " + r1(f2) + " %, muscle "
+                + r1(b1.muscleKg) + " / " + r1(b2.muscleKg) + " kg, water " + r1(b1.waterPct) + " / "
+                + r1(b2.waterPct) + " %");
+        try {
+            org.json.JSONObject m = ScaleStore.toJson(one, b1, 0);
+            ok("single stored as f1", m.optInt("f1") == 1 && ScaleModel.reading(m).single);
+            org.json.JSONArray h = new org.json.JSONArray();
+            for (int d = 0; d < 3; d++) {
+                org.json.JSONObject o = ScaleStore.toJson(one, b1, d * 86400000L);
+                h.put(o);
+            }
+            ScaleInsight.Readiness rd = ScaleInsight.readiness(h, 2);
+            ok("single: no swelling verdict from ρ", rd.known() && Double.isNaN(rd.swell[1]));
+            org.json.JSONArray mix = new org.json.JSONArray();
+            mix.put(ScaleStore.toJson(two, b2, 0));
+            mix.put(ScaleStore.toJson(one, b1, 86400000L));
+            ok("single: P1 weigh-ins are not its baseline", !ScaleInsight.readiness(mix, 1).known());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // v1: 10 00 00 C5, 0x8C with TLV id-first, id 5 = weight (kg×10) + ten impedances
+        int n = 10 + 2 + 2 + 40 + 1;
+        byte[] v = new byte[n];
+        v[0] = 0x10;
+        v[3] = (byte) 0xC5;
+        v[4] = (byte) n;
+        v[6] = (byte) 0x8C;
+        v[10] = 5;
+        v[11] = 44;
+        v[12] = (byte) (814 >> 8);
+        v[13] = (byte) 814;
+        int[] wire = {ScaleProtocol.RIGHT_ARM, ScaleProtocol.LEFT_ARM, ScaleProtocol.TRUNK, ScaleProtocol.RIGHT_LEG,
+                ScaleProtocol.LEFT_LEG};
+        for (int k = 0; k < 10; k++) {
+            imp(v, 14 + 4 * k, (k < 5 ? z20 : z100)[wire[k % 5]]);
+        }
+        int s4 = 0;
+        for (int i = 4; i < n - 1; i++) {
+            s4 += v[i] & 0xFF;
+        }
+        v[n - 1] = (byte) s4;
+        ScaleSenssun.XsFrame x1 = ScaleSenssun.parseXs(feed(new ScaleSenssun.Assembler(), v));
+        ok("XS v1 8C", x1.kind == ScaleSenssun.XsFrame.RESULT && !x1.finished && Math.abs(x1.kg - 81.4) < 1e-9
+                && Math.abs(x1.z20[ScaleProtocol.LEFT_ARM] - 252.0) < 1e-9
+                && Math.abs(x1.z100[ScaleProtocol.TRUNK] - 15.7) < 1e-9);
+    }
+
     public static void main(String[] a) throws Exception {
+        xs();
         senssun();
         algorithms();
         advice();

@@ -93,7 +93,9 @@ public final class ScaleInsight {
         List<JSONObject> base = new ArrayList<JSONObject>();
         for (int i = at - 1; i >= 0 && base.size() < BASE_MAX; i--) {
             JSONObject o = hist.optJSONObject(i);
-            if (o != null && t - o.optLong("t") >= BASE_GAP_MS && o.optJSONArray("z20") != null) {
+            // the same kind of scale only: one frequency's spread ρ is not a measurement, and two scales differ
+            if (o != null && t - o.optLong("t") >= BASE_GAP_MS && o.optJSONArray("z20") != null
+                    && o.optInt("f1") == m.optInt("f1")) {
                 base.add(o);
             }
         }
@@ -102,7 +104,7 @@ public final class ScaleInsight {
             return r;
         }
         double worstV = 0;
-        for (int s = 0; s < 5; s++) {
+        for (int s = 0; s < 5 && m.optInt("f1") != 1; s++) {
             double now = ratio(m.optJSONArray("z20"), m.optJSONArray("z100"), s);
             List<Double> b = new ArrayList<Double>();
             for (JSONObject o : base) {

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 682
+    .line 731
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 683
+    .line 732
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 684
+    .line 733
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 7
 
     .prologue
-    .line 689
+    .line 738
     if-eqz p1, :cond_18
 
     :try_start_2
@@ -54,7 +54,7 @@
 
     if-eqz v0, :cond_18
 
-    .line 690
+    .line 739
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -69,12 +69,12 @@
     :try_end_18
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_18} :catch_19
 
-    .line 694
+    .line 743
     :cond_18
     :goto_18
     return-void
 
-    .line 692
+    .line 741
     :catch_19
     move-exception v0
 

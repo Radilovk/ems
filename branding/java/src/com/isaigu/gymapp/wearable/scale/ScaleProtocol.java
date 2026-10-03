@@ -51,6 +51,12 @@ public final class ScaleProtocol {
         public final double[] z100 = nan5();
         /** The scale's clock (A), Unix seconds; 0 = none. */
         public long scaleTime;
+        /**
+         * One frequency only (a single-frequency 8-electrode scale): the segments were measured at 50 kHz and
+         * z20 / z100 are spread from that value at the typical dispersion ({@link ScaleModel#single}) — r50 is the
+         * measured value, ρ = z100 / z20 carries nothing (no readiness from it).
+         */
+        public boolean single;
 
         static double[] nan5() {
             return new double[] {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};

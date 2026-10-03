@@ -132,7 +132,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/remove-software-ramp.py` (60L, build:L78) — Remove software ramp hook that blocks sendPulse and causes training freeze on Play.
 - `scripts/reorder-muscles.py` (84L, build:L38) — Reorder muscle group columns in train UI layouts (visual only, IDs unchanged).
 - `scripts/repo-map.py` (329L) — Token-cheap navigation for agents: generated repo map + per-file outline.
-- `scripts/scale-sim/ScaleSim.java` (856L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
+- `scripts/scale-sim/ScaleSim.java` (1030L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
 - `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
 - `scripts/setup-android-toolchain.sh` (41L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
@@ -283,17 +283,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleAnalysis.java` (621L, compile:music-sync*,wearable) — "Анализ" — every value of a weigh-in, explorable (Fitdays' list of values is the checklist, not the design): <ul> <li><…
 - `ScaleBody.java` (234L, compile:music-sync*,wearable) — Body composition from one scale measurement — iCOMON's WLA25, the algorithm Fitdays uses for these scales, so the numbe…
 - `ScaleDetail.java` (582L, compile:music-sync*,wearable) — The full report of one weigh-in, as the fitness apps list it — every value with its status word — plus the five zones a…
-- `ScaleInsight.java` (850L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
-- `ScaleLink.java` (853L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
-- `ScaleModel.java` (352L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
-- `ScaleProtocol.java` (379L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
+- `ScaleInsight.java` (852L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
+- `ScaleLink.java` (902L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
+- `ScaleModel.java` (381L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
+- `ScaleProtocol.java` (385L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
 - `ScaleScreen.java` (2339L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
-- `ScaleSenssun.java` (196L, compile:music-sync*,wearable) — The Senssun / MovingLife scale family (Senssun "Fat", IF_xx; Klausberg KB-7853 and the other scales sold for the Moving…
-- `ScaleSession.java` (206L, compile:music-sync*,wearable) — One measuring session = one time on the scale.
-- `ScaleShare.java` (452L, compile:music-sync*,wearable) — Sharing the scale's result from the summary: as an image (the sheet as it is on the screen, PNG) or as one HTML file th…
+- `ScaleSenssun.java` (529L, compile:music-sync*,wearable) — The Senssun / MovingLife scale family (Senssun "Fat", IF_xx; Klausberg KB-7853 and the other scales sold for the Moving…
+- `ScaleSession.java` (207L, compile:music-sync*,wearable) — One measuring session = one time on the scale.
+- `ScaleShare.java` (455L, compile:music-sync*,wearable) — Sharing the scale's result from the summary: as an image (the sheet as it is on the screen, PNG) or as one HTML file th…
 - `ScaleSources.java` (497L, compile:music-sync*,wearable) — "Научна основа" — where every number of the scale module comes from, said plainly: each source with what we take from i…
 - `ScaleStage.java` (896L, compile:music-sync*,wearable) — The measuring stage — what the client sees from "step on" to "done", one standing, no step-off: <ul> <li><b>Left</b> — …
-- `ScaleStore.java` (248L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
+- `ScaleStore.java` (251L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
 - `ScaleUploader.java` (199L, compile:music-sync*,wearable) — The client's scale measurements → the server, filed under the client's dossier id (XemsDossier.cidFor) like the trainin…
 - `ScaleViews.java` (1697L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
 
@@ -836,27 +836,27 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## 3. UI / UX
   - L57 ## 4. Какво да се провери на първото истинско мерене
 
-`docs/xems-scale.md` (367L)
+`docs/xems-scale.md` (385L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
   - L10 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
-  - L28 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306-ai, `ScaleSenssun`)
-  - L45 ## EMS use (1.1.286-ai)
-  - L56 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
-  - L79 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
-  - L98 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
-  - L124 ## State vs trait — why physical age jumped (1.1.300-ai)
-  - L138 ## One session must be enough — per-value stability (1.1.301-ai)
-  - L183 ## Owner's Fitdays report = test vector (1.1.288-ai)
-  - L190 ## Figures (1.1.288-ai)
-  - L195 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
-  - L227 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
-  - L240 ## Result page (`ScaleScreen`) — two views
-  - L306 ## What the hardware is
-  - L317 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L338 ## Measuring protocol (owner: no suit, thin clothes)
-  - L346 ## Validation path
-  - L351 ## Gemini / LLM
-  - L356 ## Licences of the ported code
+  - L28 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
+  - L63 ## EMS use (1.1.286-ai)
+  - L74 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
+  - L97 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
+  - L116 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
+  - L142 ## State vs trait — why physical age jumped (1.1.300-ai)
+  - L156 ## One session must be enough — per-value stability (1.1.301-ai)
+  - L201 ## Owner's Fitdays report = test vector (1.1.288-ai)
+  - L208 ## Figures (1.1.288-ai)
+  - L213 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
+  - L245 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
+  - L258 ## Result page (`ScaleScreen`) — two views
+  - L324 ## What the hardware is
+  - L335 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L356 ## Measuring protocol (owner: no suit, thin clothes)
+  - L364 ## Validation path
+  - L369 ## Gemini / LLM
+  - L374 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (292L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

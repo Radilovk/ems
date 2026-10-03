@@ -21,6 +21,8 @@
 
 .field public scaleTime:J
 
+.field public single:Z
+
 .field public stable:Z
 
 .field public stored:Z
@@ -66,7 +68,7 @@
     .registers 1
 
     .prologue
-    .line 56
+    .line 62
     const/4 v0, 0x5
 
     new-array v0, v0, [D
@@ -95,7 +97,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 60
+    .line 66
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
     aget-wide v2, v1, v0

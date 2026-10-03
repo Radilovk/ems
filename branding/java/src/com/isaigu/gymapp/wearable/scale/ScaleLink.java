@@ -86,6 +86,13 @@ public final class ScaleLink {
     int beatToken;
     // S / X
     final ScaleSenssun.Reader senssun = new ScaleSenssun.Reader();
+    final ScaleSenssun.Assembler xsAsm = new ScaleSenssun.Assembler();
+    /** XS identity seen in adverts (MAC → {version, model}); written by the scan thread. */
+    final java.util.Map<String, int[]> xsSeen = java.util.Collections.synchronizedMap(
+            new java.util.HashMap<String, int[]>());
+    /** {version, model} of the connected scale when it advertised as XS; null = classic Senssun / unknown. */
+    int[] xs;
+    int xsSn;
     /** Raw frames logged on this connection (S: the first ones, to check the decode; X: up to the cap). */
     int rawLogged;
 
@@ -159,6 +166,11 @@ public final class ScaleLink {
         if (advertisesFfb0(adv)) {
             return true;
         }
+        int[] x = ScaleSenssun.xsAdvert(adv, mac);
+        if (x != null) {
+            xsSeen.put(mac.toUpperCase(Locale.ROOT), x);
+            return true;
+        }
         String name = null;
         try {
             name = d.getName();
@@ -224,7 +236,9 @@ public final class ScaleLink {
             return;
         }
         stopScan();
-        log("found " + d.getAddress());
+        xs = xsSeen.get(String.valueOf(d.getAddress()).toUpperCase(Locale.ROOT));
+        log("found " + d.getAddress() + (xs == null ? "" : String.format(Locale.US,
+                " XS v%02X model %04X%s", xs[0], xs[1], ScaleSenssun.pro(xs[1]) ? " (8 electrodes)" : "")));
         setState(CONNECTING);
         resetSession();
         try {
@@ -252,6 +266,7 @@ public final class ScaleLink {
         results = 0;
         senssun.reset();
         rawLogged = 0;
+        xsSn = 0;
         ops.clear();
         busy = false;
         write = null;
@@ -312,7 +327,7 @@ public final class ScaleLink {
         }
         boolean named = looksLikeScale(name) || ScaleSenssun.looksLike(name) || mac.equalsIgnoreCase(ScaleStore.mac(app));
         // FFF0 is common outside scales: Senssun layout A only on a scale-like name (or the saved scale)
-        if (note != null && (sa == null || named)) {
+        if (note != null && (sa == null || named || xs != null)) {
             ScaleStore.setMac(app, mac);
             write = wr;
             gen = 'S';
@@ -402,6 +417,12 @@ public final class ScaleLink {
         setState(READY);
         if (gen == 'A') {
             main.postDelayed(new Unprompted(this), HELLO_WAIT_MS);
+        } else if (gen == 'S' && xs != null) {
+            if (xs[0] == ScaleSenssun.XS_V30) {
+                log("XS v30 (encrypted) — not supported, frames logged");
+            } else if (xs[0] >= 0x11) {
+                send(ScaleSenssun.syncTime(xsSn++, utcOffsetMin(), unixNow()), true);
+            }
         } else if (gen == 'S') {
             java.util.Calendar c = java.util.Calendar.getInstance();
             send(ScaleSenssun.date(c.get(java.util.Calendar.YEAR), c.get(java.util.Calendar.DAY_OF_YEAR)), true);
@@ -522,6 +543,34 @@ public final class ScaleLink {
             rawLogged++;
             log("rx S " + hexAll(data));
         }
+        if (data.length >= 2 && (data[0] & 0xFF) == 0xFF && (data[1] & 0xFF) == 0xA5) {
+            onClassicS(data);
+            return;
+        }
+        byte[] f = xsAsm.add(data);
+        if (f == null) {
+            return;
+        }
+        ScaleSenssun.XsFrame x = ScaleSenssun.parseXs(f);
+        if (x.ackWanted) {
+            send(ScaleSenssun.ack(xsSn++, f), true);
+        }
+        if (x.kind == ScaleSenssun.XsFrame.LIVE) {
+            heard = true;
+            live(x.kg, x.stable);
+        } else if (x.kind == ScaleSenssun.XsFrame.RESULT && ScaleSenssun.stored(x, unixNow())) {
+            log("XS stored weigh-in skipped (" + x.time + ")");
+        } else if (x.kind == ScaleSenssun.XsFrame.RESULT && !x.finished) {
+            heard = true;
+            log("XS result " + x.kg + " kg, error " + x.error + ", z20 " + java.util.Arrays.toString(x.z20)
+                    + ", z100 " + java.util.Arrays.toString(x.z100));
+            live(x.kg, true);
+            finish(ScaleSenssun.reading(x));
+        }
+    }
+
+    /** The classic Senssun frames (FF A5 …). */
+    void onClassicS(byte[] data) {
         int k = senssun.add(data);
         if (k == ScaleSenssun.Reader.NONE) {
             return;

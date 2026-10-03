@@ -51,10 +51,10 @@
     .prologue
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
-    .line 107
+    .line 123
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 112
+    .line 128
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->fatPct:D
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->waterPct:D
@@ -70,14 +70,14 @@
     .registers 5
 
     .prologue
-    .line 125
+    .line 141
     int-to-double v0, p0
 
     const-wide/high16 v2, 0x4024000000000000L    # 10.0
 
     div-double/2addr v0, v2
 
-    .line 126
+    .line 142
     const-wide/high16 v2, 0x4008000000000000L    # 3.0
 
     cmpl-double v2, v0, v2
@@ -115,21 +115,21 @@
 
     const/4 v2, 0x0
 
-    .line 130
+    .line 146
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->parse([B)Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;
 
     move-result-object v4
 
-    .line 131
+    .line 147
     if-nez v4, :cond_10
 
     move v0, v2
 
-    .line 181
+    .line 197
     :goto_f
     return v0
 
-    .line 134
+    .line 150
     :cond_10
     iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->type:I
 
@@ -137,10 +137,10 @@
 
     move v0, v2
 
-    .line 181
+    .line 197
     goto :goto_f
 
-    .line 137
+    .line 153
     :sswitch_17
     iget v0, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->v1:I
 
@@ -148,7 +148,7 @@
 
     div-double/2addr v0, v10
 
-    .line 138
+    .line 154
     const-wide v6, 0x4072c00000000000L    # 300.0
 
     cmpl-double v5, v0, v6
@@ -157,16 +157,16 @@
 
     move v0, v2
 
-    .line 139
+    .line 155
     goto :goto_f
 
-    .line 141
+    .line 157
     :cond_26
     cmpg-double v2, v0, v8
 
     if-gez v2, :cond_3b
 
-    .line 142
+    .line 158
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kg:D
 
     cmpl-double v2, v4, v8
@@ -177,20 +177,20 @@
 
     if-eqz v2, :cond_37
 
-    .line 143
+    .line 159
     :cond_34
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->reset()V
 
-    .line 145
+    .line 161
     :cond_37
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kg:D
 
     move v0, v3
 
-    .line 146
+    .line 162
     goto :goto_f
 
-    .line 148
+    .line 164
     :cond_3b
     iget-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->done:Z
 
@@ -210,14 +210,14 @@
 
     if-lez v2, :cond_50
 
-    .line 149
+    .line 165
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->reset()V
 
-    .line 151
+    .line 167
     :cond_50
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kg:D
 
-    .line 152
+    .line 168
     iget v0, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->type:I
 
     const/16 v1, 0xaa
@@ -228,10 +228,10 @@
 
     if-nez v0, :cond_60
 
-    .line 153
+    .line 169
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->stable:Z
 
-    .line 154
+    .line 170
     const/4 v0, 0x2
 
     goto :goto_f
@@ -239,10 +239,10 @@
     :cond_60
     move v0, v3
 
-    .line 156
+    .line 172
     goto :goto_f
 
-    .line 159
+    .line 175
     :sswitch_62
     iget v0, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->v1:I
 
@@ -252,7 +252,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->fatPct:D
 
-    .line 160
+    .line 176
     iget v0, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->v2:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->pct(I)D
@@ -261,7 +261,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->waterPct:D
 
-    .line 161
+    .line 177
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->done:Z
 
     if-nez v0, :cond_84
@@ -276,10 +276,10 @@
 
     if-ltz v0, :cond_84
 
-    .line 162
+    .line 178
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->done:Z
 
-    .line 163
+    .line 179
     const/4 v0, 0x3
 
     goto :goto_f
@@ -287,10 +287,10 @@
     :cond_84
     move v0, v2
 
-    .line 165
+    .line 181
     goto :goto_f
 
-    .line 167
+    .line 183
     :sswitch_86
     iget v3, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->v1:I
 
@@ -300,7 +300,7 @@
 
     iput-wide v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->musclePct:D
 
-    .line 168
+    .line 184
     iget v3, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->v2swap:I
 
     if-lez v3, :cond_9c
@@ -322,10 +322,10 @@
 
     move v0, v2
 
-    .line 169
+    .line 185
     goto/16 :goto_f
 
-    .line 171
+    .line 187
     :sswitch_a1
     iget v0, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Frame;->v1:I
 
@@ -333,10 +333,10 @@
 
     move v0, v2
 
-    .line 172
+    .line 188
     goto/16 :goto_f
 
-    .line 174
+    .line 190
     :sswitch_a8
     iget-boolean v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->done:Z
 
@@ -352,13 +352,13 @@
 
     if-ltz v4, :cond_bd
 
-    .line 175
+    .line 191
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->done:Z
 
-    .line 176
+    .line 192
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->fatPct:D
 
-    .line 177
+    .line 193
     const/4 v0, 0x4
 
     goto/16 :goto_f
@@ -366,10 +366,10 @@
     :cond_bd
     move v0, v2
 
-    .line 179
+    .line 195
     goto/16 :goto_f
 
-    .line 134
+    .line 150
     :sswitch_data_c0
     .sparse-switch
         0xa0 -> :sswitch_17
@@ -387,28 +387,28 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 187
+    .line 203
     new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;-><init>()V
 
-    .line 188
+    .line 204
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kg:D
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
-    .line 189
+    .line 205
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->stable:Z
 
-    .line 190
+    .line 206
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->result:Z
 
-    .line 191
+    .line 207
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->fatPct:D
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->scaleFatPct:D
 
-    .line 192
+    .line 208
     return-object v0
 .end method
 
@@ -418,15 +418,15 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 117
+    .line 133
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kg:D
 
-    .line 118
+    .line 134
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->stable:Z
 
-    .line 119
+    .line 135
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->boneKg:D
@@ -437,12 +437,12 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->fatPct:D
 
-    .line 120
+    .line 136
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kcal:I
 
-    .line 121
+    .line 137
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->done:Z
 
-    .line 122
+    .line 138
     return-void
 .end method

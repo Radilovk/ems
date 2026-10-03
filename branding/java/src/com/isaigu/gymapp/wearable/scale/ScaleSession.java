@@ -179,6 +179,7 @@ public final class ScaleSession {
         }
         m.weightKg = Math.round(w / g.size() * 100) / 100.0;
         m.scaleFatPct = nsf > 0 ? sf / nsf : Double.NaN;
+        m.single = g.get(0).single;
         for (int i = 0; i < 5; i++) {
             m.z20[i] = mid(g, i, true);
             m.z100[i] = mid(g, i, false);

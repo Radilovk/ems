@@ -246,6 +246,20 @@ final class ReportBridge {
             if (fi >= 0 && fj > fi) {
                 tpl = tpl.substring(0, fi) + tpl.substring(fj + ("<!--/FIG:" + drop + "-->").length());
             }
+            // no server: the file carries the client's body itself (the web card reads it from /v1/history)
+            try {
+                JSONObject d = new JSONObject(json);
+                org.json.JSONArray list = new JSONObject(body()).optJSONArray("list");
+                if (list != null && list.length() > 0) {
+                    org.json.JSONArray tail = new org.json.JSONArray();
+                    for (int i = Math.max(0, list.length() - 24); i < list.length(); i++) {
+                        tail.put(list.get(i));
+                    }
+                    d.put("body", tail);
+                    json = d.toString();
+                }
+            } catch (Throwable ignored) {
+            }
             boolean en = "en".equals(lang());
             String html = "<!doctype html><html lang=\"" + (en ? "en" : "bg") + "\"><head><meta charset=\"utf-8\">"
                     + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">"
@@ -302,13 +316,11 @@ final class ReportBridge {
         }
     }
 
-    /** Turn the report upright / back: returns "portrait" or "landscape" (what it turns to). */
+    /** Landscape only (1.1.310-ai): no turning upright any more — puts the host back across if it is not. */
     @JavascriptInterface
     public String rotate() {
-        boolean portrait = a.getResources().getConfiguration().orientation
-                != android.content.res.Configuration.ORIENTATION_PORTRAIT;
-        a.runOnUiThread(new Rotate(a, portrait));
-        return portrait ? "portrait" : "landscape";
+        a.runOnUiThread(new Rotate(a, false));
+        return "landscape";
     }
 
     static final class Rotate implements Runnable {
@@ -446,6 +458,70 @@ final class ReportBridge {
             WearableBleDiagLog.log("report", "client json: " + t);
         }
         return o.toString();
+    }
+
+    /**
+     * The client's body (the studio scale) for the report's "Тяло" block and the card: {list: compact weigh-ins
+     * oldest first (ScaleUploader.forCard), use: how the newest steers the training now — the same values AiProfile
+     * hands Auto and Smart Session (fresh ≤ 60 days, readiness only today and only with a baseline)}.
+     */
+    @JavascriptInterface
+    public String body() {
+        JSONObject o = new JSONObject();
+        try {
+            com.isaigu.gymapp.ai.AiProfile p = com.isaigu.gymapp.ai.AiProfile.of(user);
+            boolean male = p == null || p.sex != com.isaigu.gymapp.ai.AiModel.Sex.FEMALE;
+            int age = p != null && p.age != null ? p.age.intValue() : 35;
+            int h = p != null && p.heightCm >= 100 ? p.heightCm
+                    : a.getSharedPreferences("xems_scale", android.content.Context.MODE_PRIVATE).getInt("h" + user.id, 0);
+            if (h < 100) {
+                h = male ? 178 : 165;
+            }
+            o.put("list", new org.json.JSONArray(
+                    com.isaigu.gymapp.wearable.scale.ScaleUploader.forCard(a, user.id, male, age, h, 60)));
+            JSONObject use = new JSONObject();
+            if (p != null) {
+                use.put("fresh", p.measured);
+                use.put("ready", p.readiness);
+                use.put("readySeg", p.readinessSeg);
+                if (p.scaleFocus != null) {
+                    use.put("focus", p.scaleFocus);
+                }
+                use.put("chFat", p.channelFat != null);
+                use.put("muscleLow", p.muscleLow);
+                use.put("fatObese", p.fatObese);
+            }
+            com.isaigu.gymapp.wearable.scale.ScaleInsight.Readiness r =
+                    com.isaigu.gymapp.wearable.scale.ScaleStore.readinessToday(a, user.id);
+            if (r != null) {
+                use.put("readyScore", r.score);
+            }
+            o.put("use", use);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "body json: " + t);
+        }
+        return o.toString();
+    }
+
+    /** The client's scale page over the report (the "Тяло" block's button). */
+    @JavascriptInterface
+    public void openScale() {
+        a.runOnUiThread(new OpenScale(a, user));
+    }
+
+    static final class OpenScale implements Runnable {
+        final Activity a;
+        final TrainUser u;
+
+        OpenScale(Activity a, TrainUser u) {
+            this.a = a;
+            this.u = u;
+        }
+
+        @Override
+        public void run() {
+            com.isaigu.gymapp.wearable.scale.ScaleScreen.open(a, u);
+        }
     }
 
     @JavascriptInterface

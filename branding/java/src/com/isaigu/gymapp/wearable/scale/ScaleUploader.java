@@ -183,7 +183,46 @@ public final class ScaleUploader {
         if (m.optJSONArray("segFat") != null) {
             o.put("segFat", seg(m.optJSONArray("segFat")));
         }
+        // each zone's muscle and fat as % of its normal (the card colours the figure's zones by them)
+        double[][] on = ScaleInsight.ofNormal(m, male, heightCm);
+        if (!Double.isNaN(on[0][0])) {
+            o.put("zm", pct5(on[0]));
+            o.put("zf", pct5(on[1]));
+        }
         return o;
+    }
+
+    static JSONArray pct5(double[] v) throws org.json.JSONException {
+        JSONArray a = new JSONArray();
+        for (int i = 0; i < 5; i++) {
+            a.put(Double.isNaN(v[i]) ? JSONObject.NULL : (Object) Integer.valueOf((int) Math.round(Math.max(0,
+                    Math.min(400, v[i])))));
+        }
+        return a;
+    }
+
+    /**
+     * The client's weigh-ins for the client card — the report's "Тяло" block and the card sent as a file: the same
+     * compact items the server keeps (no impedances, no name), the newest {@code max}, oldest first; "[]" without.
+     */
+    public static String forCard(Context c, long userId, boolean male, int age, int heightCm, int max) {
+        JSONArray out = new JSONArray();
+        try {
+            JSONArray hist = ScaleStore.upgrade(c, userId, male, age, heightCm);
+            java.util.List<JSONObject> items = new java.util.ArrayList<JSONObject>();
+            for (int i = hist.length() - 1; i >= 0 && items.size() < max; i--) {
+                JSONObject m = hist.optJSONObject(i);
+                if (m != null && m.has("fat")) {
+                    items.add(0, item(hist, i, male, age, heightCm));
+                }
+            }
+            for (JSONObject o : items) {
+                out.put(o);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("scale", "card items: " + t);
+        }
+        return out.toString();
     }
 
     static void put(JSONObject o, String k, double v) throws org.json.JSONException {

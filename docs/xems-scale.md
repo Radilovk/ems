@@ -105,6 +105,20 @@ reach (skin tolerance limits it — Auto's model knows less reaches the muscle, 
 **Sharing** (summary sheet): `ScaleShare.image` (the sheet as PNG) and `ScaleShare.html` (one self-contained page
 for a phone, light/dark, figure + norm bars + change + recommendations), through the report's FileProvider path.
 
+### Client card — "Тяло" (1.1.310-ai)
+- **Tablet report rail** (`session-report.html` `renderBody`, `ReportBridge.body()`): latest weigh-in (date, body type,
+  body age, weight ± last, fat / muscle mass / water / visceral with their norm sector, muscle per zone as % of normal),
+  change since the first weigh-in **with the trainings in between**, and **"В тренировката"** — what the scale changes in
+  the training right now, the same values `AiProfile` hands Auto / Smart Session (readiness today and its strength
+  cut, focus zone +5 %, low muscle −10 % ceiling, fat per channel → reach; > 60 days → "weigh again"). "Отвори кантара"
+  opens the scale page over the report. The rail scrolls on its own across (history stays reachable).
+- **Compact item** (`ScaleUploader.item`, server `measures.js`): + `zm` / `zf` = the five zones' muscle / fat as % of
+  normal (0–400). Older servers drop unknown fields, so the tablet may ship first.
+- **Web card** (`client-card.html`): weight ± last, visceral, the four bars, zones row; the card sent as a file (no server)
+  carries the newest 24 weigh-ins itself (`d.body`, `ReportBridge.cardNow`).
+- **Readiness needs two baselines** (`ScaleInsight.BASE_MIN = 2`, audit F12): one earlier weigh-in is one contact, its
+  noise sits under the 1.2 % threshold.
+
 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
 Measured on WLA25 itself (sacoma port): same impedances, +10 kg → +9 % fat (its BMI / weight terms count weight
 as fat → muscular men "fat / overweight"); "body age" = entered age + a fat-% band offset (25 / 45 / 65 → 22 / 42 /
@@ -267,6 +281,15 @@ DXA of clients) (a guide, not a medical test; a few points off DXA for one
 person → re-measure, smooth, read the trend). Preview (HTML mock): `docs/scale/preview-science.png`.
 
 ## Result page (`ScaleScreen`) — two views
+**1.1.310-ai — landscape only, upright exports** (owner: "rows still broken after the portrait turn; portrait only
+for exporting"): the page and the report no longer unlock rotation (`ReportBridge.rotate` puts the host back across,
+the report's rotate button is gone). The summary's footer has one button **"Изпрати на клиента"** → a pop with four
+one-tap choices: image short / detailed, web page short / detailed. The image is built off screen, upright
+(`Page.exportImage`: header + `summaryRow` stacked by `Columns.apply(portrait)` at 640 dp, detailed adds
+`valuesCard` = every value with its status word + the five zones' muscle / fat against normal) → `ScaleShare.picture`
+(≤ 1440 px across). The web page: `ScaleShare.page(…, full)` — short = profile, figure, four values, zones, change
+since the first, three recommendations; detailed = + composition, all tiles, all recommendations, sources, raw readings.
+The older portrait notes below describe the layout code that now serves the exports.
 **Portrait too** (1.1.295-ai): the page unlocks rotation while open (restored on close, like the report); the summary
 and analysis sheets follow the turn (`ScaleScreen.Columns`).
 **One scrolling page, sized for any screen** (1.1.300-ai, owner: "on a big board it is insane", fonts mixed, phone

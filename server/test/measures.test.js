@@ -31,6 +31,9 @@ test('a real weigh-in passes, nonsense does not', () => {
   assert.equal(validMeasure(m(1790000000000, { nf: [1, 2] })), 'nf');
   assert.equal(validMeasure(m(1790000000000, { segMus: [1, 2, 3] })), 'segMus');
   assert.equal(validMeasure(m(1790000000000, { type: 9 })), 'type');
+  assert.equal(validMeasure(m(1790000000000, { zm: [98, 104, 101, null, 96], zf: [120, 90, 92, 110, 108] })), null);
+  assert.equal(validMeasure(m(1790000000000, { zm: [98, 104, 101, 900, 96] })), 'zm');
+  assert.equal(cleanMeasure(m(1790000000000, { zf: [1, 2, 3, 4, 5] })).zf.length, 5, 'zones % of normal kept');
   assert.equal(validMeasure([]), 'not an object');
 });
 

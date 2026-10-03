@@ -56,8 +56,9 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 **Golden rules: `docs/xems-ux-golden-rules.md` — read it before any UI work and run its checklist.**
 - **Landscape only (owner, important):** the tablet app runs in landscape — design every screen for a wide, short
   viewport: content side by side (picture | text | controls), rows that slide sideways rather than tall stacks,
-  nothing that needs portrait height. (Band 212×520 and phone PWA pages are the exceptions; the session report
-  and the scale page also follow the tablet into portrait — owner's request — via `ScaleScreen.Columns`.)
+  nothing that needs portrait height. (Band 212×520 and phone PWA pages are the exceptions. Since 1.1.310-ai the
+  session report and the scale page **no longer turn upright** (owner: rows broke after the turn) — upright exists
+  only in the exports: the scale's image / web page (short or detailed) and the report's PDF / image.)
 - **Attention priority:** the one thing the user needs now is biggest and first; secondary info smaller or folded;
   rare/edge content (e.g. contraindication lists) behind one question, never a central block.
 - **Intuitive:** one-tap choices over typing and dropdowns; plain, warm, natural Bulgarian (no form-speak);

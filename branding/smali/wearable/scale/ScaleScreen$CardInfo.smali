@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 2394
+    .line 2516
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2395
+    .line 2517
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CardInfo;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2396
+    .line 2518
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CardInfo;->key:Ljava/lang/String;
 
-    .line 2397
+    .line 2519
     return-void
 .end method
 
@@ -47,16 +47,16 @@
     .registers 4
 
     .prologue
-    .line 2401
+    .line 2523
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2402
+    .line 2524
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CardInfo;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CardInfo;->key:Ljava/lang/String;
 
     invoke-virtual {v0, p1, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->cardInfo(Landroid/view/View;Ljava/lang/String;)V
 
-    .line 2403
+    .line 2525
     return-void
 .end method

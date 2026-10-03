@@ -33,20 +33,20 @@
     .registers 3
 
     .prologue
-    .line 39
+    .line 44
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 41
+    .line 46
     const/16 v0, 0x64
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->score:I
 
-    .line 43
+    .line 48
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->factor:D
 
-    .line 45
+    .line 50
     const/4 v0, 0x5
 
     new-array v0, v0, [D
@@ -55,19 +55,19 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->swell:[D
 
-    .line 47
+    .line 52
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->dry:D
 
-    .line 49
+    .line 54
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
 
     return-void
 
-    .line 45
+    .line 50
     nop
 
     :array_1c
@@ -83,21 +83,23 @@
 
 # virtual methods
 .method public known()Z
-    .registers 2
+    .registers 3
 
     .prologue
-    .line 54
+    .line 59
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->base:I
 
-    if-lez v0, :cond_6
+    const/4 v1, 0x2
+
+    if-lt v0, v1, :cond_7
 
     const/4 v0, 0x1
 
-    :goto_5
+    :goto_6
     return v0
 
-    :cond_6
+    :cond_7
     const/4 v0, 0x0
 
-    goto :goto_5
+    goto :goto_6
 .end method

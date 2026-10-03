@@ -149,31 +149,57 @@ public final class ScaleSources {
                 ""));
         s.add(new Source(T_XEMS, "Готовност за тренировка", "Readiness for training",
                 "Съотношението на импеданса на 100 и 20 kHz спрямо собствената база на клиента: подуването след тежка "
-                        + "EMS го вдига (принципът е по Kyle 2004). Праговете −15 % и −30 % сила са наше правило и се "
-                        + "проверяват с повторни мерения.",
+                        + "EMS го вдига (принципът е по Kyle 2004). Праговете −15 % и −30 % сила са наше правило — "
+                        + "още не са проверени върху клиенти.",
                 "The 100 / 20 kHz impedance ratio against the client's own baseline: swelling after hard EMS raises it "
-                        + "(the principle per Kyle 2004). The −15 % and −30 % strength steps are our rule, checked on "
-                        + "repeated measurements.",
+                        + "(the principle per Kyle 2004). The −15 % and −30 % strength steps are our rule — "
+                        + "not yet checked on clients.",
                 "XEMS · по принципа на Kyle 2004", "собствена база на всеки клиент", "each client's own baseline", 0, ""));
         s.add(new Source(T_XEMS, "Геометрията на кантара", "The scale's geometry",
                 "Уравненията на Sun са за класическо мерене ръка–крак; кантарът мери по зони. Един коефициент ги "
-                        + "изравнява — нагласен по реално мерене на мъж, еднакъв за двата пола.",
+                        + "изравнява. Засега е нагласен по едно реално мерене (на мъж); ще се уточни с DXA на клиенти.",
                 "Sun's equations are for the classic hand-to-foot reading; the scale reads by zone. One factor matches "
-                        + "them — set on a real measurement of a man, the same for both sexes.",
-                "XEMS · калибриране спрямо WLA25", "отворено за повече референтни мерения (DXA)",
-                "open to more reference measurements (DXA)", 0, ""));
+                        + "them. For now it is set on one real measurement (a man); DXA of clients will refine it.",
+                "XEMS · калибриране спрямо WLA25", "1 калибровъчно мерене · предстои проверка с DXA",
+                "1 calibration measurement · a DXA check is next", 0, ""));
         s.add(new Source(T_XEMS, "Едно мерене от няколко стъпвания", "One measurement from several step-ons",
                 "При лош контакт, първо мерене, резултат далеч от последните дни или разминаване — още едно "
                         + "стъпване; лошите отпадат, от две — средното, от три — медианата.",
                 "On poor contact, a first measurement, a result far from the last days or a disagreement — one more "
                         + "step-on; the bad ones out, the mean of two, the median of three.",
-                "XEMS · правила на сесията", "проверено в симулация", "checked in simulation", 0, ""));
+                "XEMS · правила на сесията", "проверено в симулация, още не върху клиенти",
+                "checked in simulation, not yet on clients", 0, ""));
         s.add(new Source(T_XEMS, "Здравословно тегло", "Healthy weight",
                 "Собствените мускули на клиента при здравословен % мазнини (по Gallagher 2000) — не ИТМ 22.",
                 "The client's own muscle at a healthy fat % (per Gallagher 2000) — not BMI 22.",
                 "XEMS · изведено от Gallagher 2000 и Schutz 2002", "", "", 0, ""));
         return s;
     }
+
+    /** How the algorithm is built — four levels (also in the shared HTML). */
+    public static final String[] HOW_BG = {
+            "Кантарът мери: тегло и съпротивление на тялото на две честоти, по 5 зони.",
+            "Публикувани уравнения превръщат това в мазнини, мускули и вода — отделно за мъже и жени.",
+            "Публикувани норми казват къде стои човекът спрямо хиляди сверени с DXA и ЯМР хора.",
+            "Наши правила изглаждат между мерения, искат повторно стъпване и дават готовност за тренировка."};
+    public static final String[] HOW_EN = {
+            "The scale measures: weight and the body's resistance at two frequencies, in 5 zones.",
+            "Published equations turn that into fat, muscle and water — separately for men and women.",
+            "Published norms say where the person stands against thousands checked with DXA and MRI.",
+            "Our rules smooth between weigh-ins, ask for another step-on and give the readiness for training."};
+
+    public static final String LIMITS_BG = "Не сме обучавали модел върху бази с мерения: взели сме готовите формули и "
+            + "норми от проучванията горе, правени върху общо над 13 000 души, сверени с DXA, ЯМР и 4-компонентен "
+            + "модел. Кантарът с електроди е ориентир, не медицинско изследване — за отделен човек мазнините обикновено "
+            + "се отклоняват с няколко процентни пункта от DXA. Калибровката на кантара е по едно реално мерене, "
+            + "а правилата на XEMS още не са проверени с DXA на наши клиенти. Затова мерим повторно при съмнение, "
+            + "изглаждаме между мерения и гледаме тенденцията — тя е по-точна от едно число.";
+    public static final String LIMITS_EN = "We have not trained a model on measurement databases: we took the "
+            + "ready equations and norms of the studies above, made on over 13,000 people in total, checked with DXA, "
+            + "MRI and a 4-compartment model. An electrode scale is a guide, not a medical test — for one person fat is "
+            + "usually a few percentage points off DXA. The scale's calibration rests on one real measurement, and the "
+            + "XEMS rules are not yet checked with DXA of our clients. So we measure again when in doubt, smooth "
+            + "between weigh-ins and read the trend — it is more accurate than one number.";
 
     /** Peer-reviewed studies and the people measured in them (those with one sample). */
     public static int[] counts() {
@@ -222,14 +248,40 @@ public final class ScaleSources {
         XemsUi.fullScreen(sh);
         int[] c = counts();
         LinearLayout top = XemsUi.horizontal(a);
-        top.addView(big(String.valueOf(c[0]), tr("рецензирани проучвания", "peer-reviewed studies"), 0xFF22C55E),
+        top.addView(big(String.valueOf(c[0]), tr("рецензирани проучвания — оттам са формулите и нормите",
+                "peer-reviewed studies — the equations and norms come from them"), 0xFF22C55E),
                 XemsUi.weight(1, 0, a));
         top.addView(big(tr("над ", "over ") + (c[1] / 1000) + (bg ? " 000" : ",000"),
-                tr("души в техните референтни мерения", "people in their reference measurements"), 0xFF38BDF8),
+                tr("души, мерени в тези проучвания (не наша база)", "people measured in those studies (not our database)"),
+                0xFF38BDF8),
                 XemsUi.weight(1, 10, a));
         top.addView(big("DXA · " + tr("ЯМР", "MRI") + " · 4C", tr("златният стандарт, с който са сверени",
                 "the gold standards they were checked against"), 0xFFA78BFA), XemsUi.weight(1, 10, a));
         sh.body.addView(top, XemsUi.matchWrap(a, 0));
+
+        // how it is built: four levels, side by side
+        sh.body.addView(XemsUi.label(a, tr("Как е построено", "How it is built")), XemsUi.matchWrap(a, 14));
+        LinearLayout how = XemsUi.horizontal(a);
+        int[] hc = {0xFF94A3B8, 0xFF22C55E, 0xFF22C55E, 0xFFA78BFA};
+        String[] ht = bg ? new String[] {"Мерене", "Уравнения", "Норми", "Правила"}
+                : new String[] {"Measuring", "Equations", "Norms", "Rules"};
+        String[] hs = bg ? new String[] {"кантарът", "проучване", "проучване", "XEMS"}
+                : new String[] {"the scale", "study", "study", "XEMS"};
+        for (int i = 0; i < 4; i++) {
+            LinearLayout st = XemsUi.surface(a);
+            st.setPadding(dp(14), dp(10), dp(14), dp(12));
+            LinearLayout hh = XemsUi.horizontal(a);
+            hh.setGravity(Gravity.CENTER_VERTICAL);
+            hh.addView(XemsUi.text(a, (i + 1) + "  " + ht[i], 15, XemsUi.TEXT, true),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            hh.addView(XemsUi.text(a, hs[i], 12, hc[i], true));
+            st.addView(hh);
+            TextView tx = XemsUi.text(a, bg ? HOW_BG[i] : HOW_EN[i], 13, XemsUi.MUTED, false);
+            tx.setLineSpacing(dp(2), 1f);
+            st.addView(tx, XemsUi.matchWrap(a, 4));
+            how.addView(st, XemsUi.weight(1, i == 0 ? 0 : 10, a));
+        }
+        sh.body.addView(how, XemsUi.matchWrap(a, 6));
 
         chips = XemsUi.horizontal(a);
         sh.body.addView(chips, XemsUi.matchWrap(a, 14));
@@ -239,14 +291,7 @@ public final class ScaleSources {
         LinearLayout lim = XemsUi.surface(a);
         lim.setPadding(dp(16), dp(12), dp(16), dp(14));
         lim.addView(XemsUi.text(a, tr("Граници — честно", "Limits — honestly"), 15, XemsUi.TEXT, true));
-        TextView lt = XemsUi.text(a, tr("Кантарът с електроди е ориентир, не медицинско изследване. За отделен човек "
-                + "оценката на мазнините обикновено се отклонява с няколко процентни пункта от DXA, а водата и "
-                + "контактът местят импеданса от ден на ден. Затова мерим повторно при съмнение, изглаждаме между "
-                + "мерения и гледаме тенденцията — тя е по-точна от едно число.",
-                "An electrode scale is a guide, not a medical test. For one person the fat estimate is usually a few "
-                        + "percentage points off DXA, and water and contact move the impedance from day to day. So we "
-                        + "measure again when in doubt, smooth between weigh-ins and read the trend — it is more "
-                        + "accurate than one number."), 14, XemsUi.MUTED, false);
+        TextView lt = XemsUi.text(a, bg ? LIMITS_BG : LIMITS_EN, 14, XemsUi.MUTED, false);
         lt.setLineSpacing(dp(2), 1f);
         lim.addView(lt, XemsUi.matchWrap(a, 4));
         sh.body.addView(lim, XemsUi.matchWrap(a, 12));

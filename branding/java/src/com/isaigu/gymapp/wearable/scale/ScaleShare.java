@@ -310,9 +310,14 @@ public final class ScaleShare {
         int[] sc = ScaleSources.counts();
         h.append("<details class=card><summary><h2 style=\"display:inline\">").append(esc(tr("Научна основа",
                 "Scientific basis"))).append("</h2> <span style=\"color:var(--m)\">· ").append(sc[0])
-                .append(esc(tr(" рецензирани проучвания, над ", " peer-reviewed studies, over ")))
-                .append(sc[1] / 1000).append(esc(tr(" 000 души — докосни", ",000 people — tap")))
-                .append("</span></summary>");
+                .append(esc(tr(" рецензирани проучвания (над ", " peer-reviewed studies (over ")))
+                .append(sc[1] / 1000).append(esc(tr(" 000 души) — оттам са формулите и нормите; докосни",
+                        ",000 people) — the equations and norms come from them; tap")))
+                .append("</span></summary><ol style=\"color:var(--m);padding-left:20px\">");
+        for (int i = 0; i < 4; i++) {
+            h.append("<li>").append(esc(bg ? ScaleSources.HOW_BG[i] : ScaleSources.HOW_EN[i])).append("</li>");
+        }
+        h.append("</ol>");
         for (ScaleSources.Source x : ScaleSources.all()) {
             String col = hex(ScaleSources.tierColor(x.tier));
             h.append("<div class=src><b>").append(esc(bg ? x.topicBg : x.topicEn)).append("</b> <em style=\"color:")
@@ -329,11 +334,7 @@ public final class ScaleShare {
             }
             h.append("</div>");
         }
-        h.append("<p style=\"color:var(--m)\">").append(esc(tr("Кантарът с електроди е ориентир, не медицинско "
-                + "изследване: за отделен човек мазнините обикновено се отклоняват с няколко процентни пункта от DXA. "
-                + "Затова мерим повторно при съмнение, изглаждаме между мерения и гледаме тенденцията.",
-                "An electrode scale is a guide, not a medical test: for one person fat is usually a few percentage points "
-                        + "off DXA. So we measure again when in doubt, smooth between weigh-ins and read the trend.")))
+        h.append("<p style=\"color:var(--m)\">").append(esc(bg ? ScaleSources.LIMITS_BG : ScaleSources.LIMITS_EN))
                 .append("</p></details>");
         // the raw readings (impedances) of the last weigh-ins — to recompute or calibrate later; not shown
         h.append("<script type=\"application/json\" id=xems-raw>[");

@@ -142,8 +142,11 @@ section of the shared HTML. 19 sources in four honest tiers — **Проучва
 Gallagher 2000, Schutz 2002, Kelly 2009, Imboden 2017, Wang 1999, Mifflin 1990, Kyle 2004 ESPEN, Kemmler 2016,
 Kalman 1960), **Стандарт** (Katch–McArdle, WHO TRS 894), **Производител** (WLA25 zones / bone / visceral, vendor
 ranges — no published validation), **XEMS** (readiness thresholds, scale geometry factor, the step-on session,
-healthy weight — how each was derived). Top: 11 studies · over 13 000 people in their reference data · DXA / MRI /
-4C; filter chips by tier; a "limits, honestly" note (a guide, not a medical test; a few points off DXA for one
+healthy weight — how each was derived). Top: 11 studies (the equations and norms come from them) · over 13 000
+people measured in those studies (not our database) · DXA / MRI / 4C; "how it is built" in 4 levels (measuring ·
+published equations · published norms · XEMS rules); filter chips by tier; a "limits, honestly" note (1.1.299-ai:
+no model trained on measurement data; calibration rests on one real measurement; XEMS rules not yet checked with
+DXA of clients) (a guide, not a medical test; a few points off DXA for one
 person → re-measure, smooth, read the trend). Preview (HTML mock): `docs/scale/preview-science.png`.
 
 ## Result page (`ScaleScreen`) — two views

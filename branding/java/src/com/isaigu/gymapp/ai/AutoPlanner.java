@@ -93,18 +93,29 @@ public final class AutoPlanner {
             phiMax -= 0.1;
             plan.note("60+ г.: −10 % сила, по-дълги паузи", "60+: −10 % strength, longer pauses");
         }
-        if (in.bmi() > 0 && in.bmi() < 18.5) {
+        // little muscle → a gentler ceiling: measured on the scale when there is a measurement (an athletic low
+        // BMI is not fragile), else the BMI < 18.5 proxy
+        if (in.measured ? in.muscleLow : in.bmi() > 0 && in.bmi() < 18.5) {
             phiMax -= 0.1;
+            if (in.measured) {
+                plan.note("Кантарът: малко мускули — −10 % сила", "Scale: little muscle — −10 % strength");
+            }
         }
         if (p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 72) {
             phiMax *= 0.8;
             plan.note("Под 72 ч от последната активна: −20 %", "Under 72 h since the last active: −20 %");
         }
+        if (p.isActive() && in.readiness < 0.99) {
+            // the scale this morning: swelling / less water against the client's own baseline (wearable/scale)
+            phiMax *= in.readiness;
+            int pct = (int) Math.round((1 - in.readiness) * 100);
+            plan.note("Кантарът: не е възстановен — −" + pct + " %", "Scale: not recovered — −" + pct + " %");
+        }
         if (in.solo()) {
             phiMax = Math.min(phiMax, 0.9);
         }
         // The client's focus zones and state (AiPersonal): ceiling, pauses, onset, zones.
-        AiPersonal.Effect pe = AiPersonal.of(in.focus, in.cond, in.today);
+        AiPersonal.Effect pe = AiPersonal.of(AiPersonal.withScaleFocus(in.focus, in.scaleFocus), in.cond, in.today);
         phiMax *= pe.phi;
         plan.phiMax = Math.max(0.4, Math.min(1.0, phiMax));
 
@@ -232,8 +243,9 @@ public final class AutoPlanner {
         return plan;
     }
 
+    /** Obese on a fat-loss goal: by the scale's fat mass when measured (BMI ≥ 30 from muscle is not), else BMI. */
     private static boolean goalSlimBmi(Input in) {
-        return in.goal == Goal.SLIM && in.bmi() >= 30;
+        return in.goal == Goal.SLIM && (in.measured ? in.fatObese : in.bmi() >= 30);
     }
 
     /** Dose of the whole plan with the planned factors (relative units, as in the AI §6.2). */

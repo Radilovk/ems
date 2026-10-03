@@ -1004,10 +1004,17 @@ public final class AutoEngine {
         return c.pwUs > 0 && base > 0 ? clamp(c.pwUs / (double) base, 0.5, 1.6) : 1.0;
     }
 
-    /** Body fat % (Deurenberg 1991: 1.2·BMI + 0.23·age − 10.8·male − 5.4); −1 without the height. */
+    /**
+     * Body fat %: the scale's measurement when there is a fresh one, else Deurenberg 1991 (1.2·BMI + 0.23·age −
+     * 10.8·male − 5.4); −1 without either.
+     */
     double fatPct() {
         if (Double.isNaN(fatPct)) {
             AutoModel.Input in = plan.input;
+            if (in != null && in.fatPct > 2) {
+                fatPct = clamp(in.fatPct, 3, 60);
+                return fatPct;
+            }
             double bmi = in != null ? in.bmi() : 0;
             fatPct = bmi > 10 ? clamp(1.2 * bmi + 0.23 * in.age - (in.sex == AiModel.Sex.MALE ? 10.8 : 0) - 5.4, 5, 55)
                     : -1;
@@ -1022,19 +1029,29 @@ public final class AutoEngine {
     double reach(int k, int pwUs) {
         double d = AiEnergy.CH_DEPTH[k] * Math.sqrt(clamp((pwUs > 0 ? pwUs : PW_REF) / PW_REF, 0.3, 1.3));
         double fat = fatPct();
+        double[] cf = plan.input != null ? plan.input.channelFat : null;
+        if (cf != null && k >= 0 && k < cf.length && cf[k] > 2) {
+            fat = cf[k];          // the scale's segments: glutes and thighs insulate more than the arms
+        }
         if (fat >= 0) {
             d *= clamp(Math.exp(-(fat - FAT_REF) / FAT_SCALE), 0.6, 1.3);
         }
         return clamp(d, 0.05, 0.7);
     }
 
-    /** Weight of each zone in the whole body: muscle mass × reach at the pulse width now. */
+    /** The scale's muscle on channel k against the body's mean (1 without a measurement). */
+    double chMuscle(int k) {
+        double[] cm = plan.input != null ? plan.input.chMuscle : null;
+        return cm != null && k < cm.length && cm[k] > 0 ? cm[k] : 1.0;
+    }
+
+    /** Weight of each zone in the whole body: muscle mass × the scale's distribution × reach at the pulse width. */
     private double[] zoneMass() {
         Cmd c = current != null ? current : chCmd;
         int pw = c != null ? c.pwUs : (int) PW_REF;
         double[] a = new double[AutoModel.CHANNELS];
         for (int k = 0; k < a.length; k++) {
-            a[k] = AiEnergy.CH_MASS[k] * reach(k, pw);
+            a[k] = AiEnergy.CH_MASS[k] * chMuscle(k) * reach(k, pw);
         }
         return a;
     }
@@ -1065,15 +1082,15 @@ public final class AutoEngine {
             AiModel.Sex sex = in != null ? in.sex : AiModel.Sex.FEMALE;
             int age = in != null && in.age > 0 ? in.age : 35;
             double w = in != null && in.weightKg >= 30 && in.weightKg <= 250 ? in.weightKg : AiEnergy.DEFAULT_WEIGHT_KG;
-            double rest = AiEnergy.restingVo2(sex, age, w);
+            double rest = AiEnergy.restingVo2(sex, age, w, in != null ? in.leanKg : -1);
             double max = AiEnergy.fitnessVo2max(in != null ? in.fitness : AiModel.Fitness.MID, sex, age);
             boolean med = in != null && in.screening != null && in.screening.hrLoweringMedication;
             if (plan.hrRestMeasured && plan.hrRest >= 35 && plan.hrMax > plan.hrRest + 20 && !med) {
                 max = 0.5 * max + 0.5 * clamp(15.3 * plan.hrMax / plan.hrRest, 18, 75);   // Uth 2004
             }
             max = Math.max(max, rest + 10);
-            vo2Ref = new double[] {(max - rest) * w / 1000.0, (sex == AiModel.Sex.FEMALE ? 0.31 : 0.38) * w
-                    / AiEnergy.SM_REF_KG, w};
+            vo2Ref = new double[] {(max - rest) * w / 1000.0,
+                    AiEnergy.muscleScale(sex, w, in != null ? in.skeletalKg : -1), w};
         }
         return vo2Ref;
     }
@@ -1099,7 +1116,7 @@ public final class AutoEngine {
             if (dbl) {
                 part += (1 - s) * AiEnergy.recruited(rho * zk * c.pauseSigma, 1.0) * AiEnergy.freqFactor(c.pauseHz);
             }
-            ml += AiEnergy.CH_MASS[k] * ref[1] * reach(k, c.pwUs) * part * AiEnergy.R_MAX;
+            ml += AiEnergy.CH_MASS[k] * chMuscle(k) * ref[1] * reach(k, c.pwUs) * part * AiEnergy.R_MAX;
         }
         double ex = 0;
         if (c.phaseIndex == stationPhase && isStationPhase(c.phaseIndex)) {

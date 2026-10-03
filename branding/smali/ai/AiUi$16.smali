@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1270
+    .line 1271
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 3
 
     .prologue
-    .line 1273
+    .line 1274
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
@@ -59,10 +59,10 @@
     :goto_9
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
 
-    .line 1274
+    .line 1275
     return-void
 
-    .line 1273
+    .line 1274
     :cond_d
     const/4 v0, 0x0
 

@@ -100,7 +100,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->TICK:Ljava/lang/Runnable;
 
-    .line 201
+    .line 204
     const/4 v0, 0x7
 
     new-array v0, v0, [Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;
@@ -198,7 +198,7 @@
     .registers 3
 
     .prologue
-    .line 298
+    .line 301
     const-string v0, "strength_down"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -215,11 +215,11 @@
 
     move-result-object v0
 
-    .line 309
+    .line 312
     :goto_10
     return-object v0
 
-    .line 299
+    .line 302
     :cond_11
     const-string v0, "width_down"
 
@@ -239,7 +239,7 @@
 
     goto :goto_10
 
-    .line 300
+    .line 303
     :cond_22
     const-string v0, "freq_down"
 
@@ -259,7 +259,7 @@
 
     goto :goto_10
 
-    .line 301
+    .line 304
     :cond_33
     const-string v0, "pause_down"
 
@@ -279,7 +279,7 @@
 
     goto :goto_10
 
-    .line 302
+    .line 305
     :cond_44
     const-string v0, "pause_off"
 
@@ -299,7 +299,7 @@
 
     goto :goto_10
 
-    .line 303
+    .line 306
     :cond_55
     const-string v0, "off_up"
 
@@ -319,7 +319,7 @@
 
     goto :goto_10
 
-    .line 304
+    .line 307
     :cond_66
     const-string v0, "on_down"
 
@@ -339,7 +339,7 @@
 
     goto :goto_10
 
-    .line 305
+    .line 308
     :cond_77
     const-string v0, "restore"
 
@@ -359,7 +359,7 @@
 
     goto :goto_10
 
-    .line 306
+    .line 309
     :cond_88
     const-string v0, "cap"
 
@@ -379,7 +379,7 @@
 
     goto/16 :goto_10
 
-    .line 307
+    .line 310
     :cond_9a
     const-string v0, "resume"
 
@@ -399,7 +399,7 @@
 
     goto/16 :goto_10
 
-    .line 308
+    .line 311
     :cond_ac
     const-string v0, "calibrated"
 
@@ -419,7 +419,7 @@
 
     goto/16 :goto_10
 
-    .line 309
+    .line 312
     :cond_be
     const-string v0, ""
 
@@ -430,7 +430,7 @@
     .registers 1
 
     .prologue
-    .line 182
+    .line 185
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->ownsOutput()Z
     :try_end_3
@@ -438,15 +438,15 @@
 
     move-result v0
 
-    .line 184
+    .line 187
     :goto_4
     return v0
 
-    .line 183
+    .line 186
     :catch_5
     move-exception v0
 
-    .line 184
+    .line 187
     const/4 v0, 0x0
 
     goto :goto_4
@@ -475,14 +475,14 @@
 
     const/4 v2, 0x1
 
-    .line 232
+    .line 235
     if-nez p0, :cond_8
 
-    .line 252
+    .line 255
     :cond_7
     return-void
 
-    .line 235
+    .line 238
     :cond_8
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -502,12 +502,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 236
+    .line 239
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/HrGuard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v6
 
-    .line 237
+    .line 240
     sget-object v1, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
 
     invoke-interface {v1, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -516,7 +516,7 @@
 
     check-cast v1, [I
 
-    .line 238
+    .line 241
     if-eqz v6, :cond_c
 
     if-eqz v1, :cond_c
@@ -531,12 +531,12 @@
 
     if-eqz v4, :cond_c
 
-    .line 241
+    .line 244
     const/4 v4, 0x7
 
     new-array v7, v4, [I
 
-    .line 242
+    .line 245
     aget v4, v1, v3
 
     int-to-double v8, v4
@@ -557,7 +557,7 @@
 
     aput v4, v7, v3
 
-    .line 243
+    .line 246
     const/16 v4, 0x32
 
     aget v8, v1, v2
@@ -584,7 +584,7 @@
 
     aput v4, v7, v2
 
-    .line 244
+    .line 247
     aget v4, v1, v13
 
     int-to-double v8, v4
@@ -609,7 +609,7 @@
 
     aput v4, v7, v13
 
-    .line 245
+    .line 248
     aget v4, v1, v14
 
     sget-object v8, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
@@ -626,7 +626,7 @@
 
     aput v4, v7, v14
 
-    .line 246
+    .line 249
     const/4 v4, 0x4
 
     const/4 v8, 0x4
@@ -647,7 +647,7 @@
 
     aput v8, v7, v4
 
-    .line 247
+    .line 250
     const/4 v4, 0x6
 
     aget v4, v1, v4
@@ -668,7 +668,7 @@
 
     move v4, v2
 
-    .line 248
+    .line 251
     :goto_a4
     if-eqz v4, :cond_c8
 
@@ -697,7 +697,7 @@
     :goto_b9
     aput v1, v7, v12
 
-    .line 249
+    .line 252
     const/4 v8, 0x6
 
     if-eqz v4, :cond_cb
@@ -707,7 +707,7 @@
     :goto_bf
     aput v1, v7, v8
 
-    .line 250
+    .line 253
     invoke-static {v0, v6, v7}, Lcom/isaigu/gymapp/wearable/HrGuard;->write(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[I)V
 
     goto/16 :goto_c
@@ -715,10 +715,10 @@
     :cond_c6
     move v4, v3
 
-    .line 247
+    .line 250
     goto :goto_a4
 
-    .line 248
+    .line 251
     :cond_c8
     aget v1, v1, v12
 
@@ -727,7 +727,7 @@
     :cond_cb
     move v1, v3
 
-    .line 249
+    .line 252
     goto :goto_bf
 .end method
 
@@ -735,7 +735,7 @@
     .registers 2
 
     .prologue
-    .line 189
+    .line 192
     if-eqz p0, :cond_e
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -750,11 +750,11 @@
 
     if-nez v0, :cond_10
 
-    .line 190
+    .line 193
     :cond_e
     const/4 v0, 0x0
 
-    .line 192
+    .line 195
     :goto_f
     return-object v0
 
@@ -838,7 +838,7 @@
     .registers 6
 
     .prologue
-    .line 255
+    .line 258
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->entrySet()Ljava/util/Set;
@@ -863,19 +863,19 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 256
+    .line 259
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 257
+    .line 260
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/HrGuard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v4
 
-    .line 258
+    .line 261
     sget-object v2, Lcom/isaigu/gymapp/wearable/HrGuard;->written:Ljava/util/Map;
 
     invoke-interface {v2, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -884,7 +884,7 @@
 
     check-cast v2, [I
 
-    .line 260
+    .line 263
     if-eqz v4, :cond_a
 
     if-eqz v2, :cond_a
@@ -899,7 +899,7 @@
 
     if-eqz v2, :cond_a
 
-    .line 261
+    .line 264
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v0
@@ -916,18 +916,18 @@
 
     goto :goto_a
 
-    .line 264
+    .line 267
     :cond_46
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->clear()V
 
-    .line 265
+    .line 268
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->written:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->clear()V
 
-    .line 266
+    .line 269
     return-void
 .end method
 
@@ -979,68 +979,64 @@
 .end method
 
 .method private static tick()Z
-    .registers 16
+    .registers 14
 
     .prologue
-    const/4 v4, 0x0
-
-    const/4 v6, 0x0
-
-    const/4 v3, 0x1
-
     .line 93
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
-    move-result-wide v8
+    move-result-wide v6
 
     .line 94
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
-    move-result-object v10
+    move-result-object v5
 
     .line 95
-    if-eqz v10, :cond_36
+    if-eqz v5, :cond_34
 
     .line 96
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/HrGuard;->loadedRest:Z
 
-    if-nez v0, :cond_1c
+    if-nez v0, :cond_1a
 
     .line 97
-    sput-boolean v3, Lcom/isaigu/gymapp/wearable/HrGuard;->loadedRest:Z
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lcom/isaigu/gymapp/wearable/HrGuard;->loadedRest:Z
 
     .line 98
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    invoke-static {v10}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getRestHr(Landroid/content/Context;)I
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getRestHr(Landroid/content/Context;)I
 
     move-result v1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->setRestHr(I)V
 
     .line 100
-    :cond_1c
+    :cond_1a
     sget-object v1, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    invoke-static {v10}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isHrThresholdManual(Landroid/content/Context;)Z
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isHrThresholdManual(Landroid/content/Context;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_f8
+    if-eqz v0, :cond_f9
 
     .line 101
-    invoke-static {v10}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getHrThreshold(Landroid/content/Context;)I
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getHrThreshold(Landroid/content/Context;)I
 
     move-result v0
 
     .line 100
-    :goto_28
+    :goto_26
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->setManualUpper(I)V
 
     .line 102
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    invoke-static {v10}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getStrengthStep(Landroid/content/Context;)I
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getStrengthStep(Landroid/content/Context;)I
 
     move-result v1
 
@@ -1049,82 +1045,85 @@
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->setMaxStepPct(I)V
 
     .line 104
-    :cond_36
+    :cond_34
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->isCalibrating()Z
 
-    move-result v11
+    move-result v8
 
     .line 105
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->aiOwnsOutput()Z
 
-    move-result v12
+    move-result v9
 
     .line 106
-    if-eqz v10, :cond_fb
+    if-eqz v5, :cond_fc
 
-    invoke-static {v10}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isAutoReduceEnabled(Landroid/content/Context;)Z
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isAutoReduceEnabled(Landroid/content/Context;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_fb
+    if-eqz v0, :cond_fc
 
-    if-nez v12, :cond_fb
+    if-nez v9, :cond_fc
 
     const-string v0, "pulse"
 
     .line 107
-    invoke-static {v10, v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->has(Landroid/content/Context;Ljava/lang/String;)Z
+    invoke-static {v5, v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->has(Landroid/content/Context;Ljava/lang/String;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_fb
+    if-eqz v0, :cond_fc
 
-    move v2, v3
+    const/4 v0, 0x1
+
+    move v2, v0
 
     .line 108
-    :goto_53
+    :goto_52
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
 
     move-result-object v0
 
     .line 109
-    if-eqz v0, :cond_fe
+    if-eqz v0, :cond_100
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
 
     move-result-object v0
 
-    move-object v5, v0
+    move-object v3, v0
 
     .line 111
-    :goto_5e
-    new-instance v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;
+    :goto_5d
+    new-instance v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;
 
-    invoke-direct {v13}, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;-><init>()V
+    invoke-direct {v10}, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;-><init>()V
+
+    .line 112
+    const/4 v4, 0x0
 
     .line 113
-    if-eqz v5, :cond_107
+    if-eqz v3, :cond_10a
 
-    if-nez v12, :cond_107
+    if-nez v9, :cond_10a
 
     .line 114
-    invoke-interface {v5}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    invoke-interface {v3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    move-result-object v14
+    move-result-object v11
 
-    move-object v7, v6
-
-    :cond_6c
-    :goto_6c
-    invoke-interface {v14}, Ljava/util/Iterator;->hasNext()Z
+    :cond_6b
+    :goto_6b
+    invoke-interface {v11}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_108
+    if-eqz v0, :cond_10a
 
-    invoke-interface {v14}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v11}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
@@ -1135,69 +1134,71 @@
     .line 115
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/HrGuard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    move-result-object v15
+    move-result-object v12
 
     .line 116
-    if-eqz v15, :cond_6c
+    if-eqz v12, :cond_6b
 
     iget-object v0, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    if-eqz v0, :cond_6c
+    if-eqz v0, :cond_6b
 
     iget-object v0, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
 
-    if-eqz v0, :cond_6c
+    if-eqz v0, :cond_6b
 
     .line 119
-    invoke-static {v1, v15}, Lcom/isaigu/gymapp/wearable/HrGuard;->trackTrainerChanges(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
+    invoke-static {v1, v12}, Lcom/isaigu/gymapp/wearable/HrGuard;->trackTrainerChanges(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
 
     .line 120
-    if-nez v7, :cond_1f0
+    if-nez v4, :cond_20a
 
     .line 122
-    iput-boolean v3, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
+    const/4 v0, 0x1
+
+    iput-boolean v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
 
     .line 123
-    iget v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
+    iget v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    iput v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->hz:I
+    iput v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->hz:I
 
     .line 124
-    iget v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
+    iget v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    iput v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->pwUs:I
+    iput v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->pwUs:I
 
     .line 125
-    iget v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
+    iget v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    iput v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->onS:I
+    iput v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->onS:I
 
     .line 126
-    iget v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
+    iget v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
-    iput v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->offS:I
+    iput v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->offS:I
 
     .line 127
-    iget v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    iget v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iput v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->strength:I
+    iput v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->strength:I
 
     .line 128
-    iget-boolean v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-boolean v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    iput-boolean v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->activePause:Z
+    iput-boolean v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->activePause:Z
 
     .line 129
-    iget v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iget v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    iput v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->pauseStrength:I
+    iput v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->pauseStrength:I
 
     .line 130
-    iget v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iget v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
-    iput v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->pauseHz:I
+    iput v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->pauseHz:I
 
     .line 131
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
@@ -1209,55 +1210,57 @@
     check-cast v0, [I
 
     .line 132
-    if-eqz v0, :cond_d1
+    if-eqz v0, :cond_d2
 
     .line 133
-    const/4 v7, 0x2
+    const/4 v4, 0x2
 
-    aget v7, v0, v7
+    aget v4, v0, v4
 
-    iput v7, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->baseHz:I
+    iput v4, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->baseHz:I
 
     .line 134
-    const/4 v7, 0x3
+    const/4 v4, 0x3
 
-    aget v7, v0, v7
+    aget v4, v0, v4
 
-    iput v7, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->baseOnS:I
+    iput v4, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->baseOnS:I
 
     .line 135
-    const/4 v7, 0x4
+    const/4 v4, 0x4
 
-    aget v7, v0, v7
+    aget v4, v0, v4
 
-    iput v7, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->baseOffS:I
+    iput v4, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->baseOffS:I
 
     .line 136
-    const/4 v7, 0x6
+    const/4 v4, 0x6
 
-    aget v0, v0, v7
+    aget v0, v0, v4
 
-    if-ne v0, v3, :cond_101
+    const/4 v4, 0x1
 
-    move v0, v3
+    if-ne v0, v4, :cond_104
 
-    :goto_cf
-    iput-boolean v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->basePause:Z
+    const/4 v0, 0x1
+
+    :goto_d0
+    iput-boolean v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->basePause:Z
 
     .line 138
-    :cond_d1
-    iget-object v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    :cond_d2
+    iget-object v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    if-eqz v0, :cond_103
+    if-eqz v0, :cond_106
 
-    iget-object v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    if-eqz v0, :cond_103
+    if-eqz v0, :cond_106
 
     .line 139
-    iget-object v0, v15, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v0, v12, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
@@ -1267,13 +1270,13 @@
 
     check-cast v0, [I
 
-    :goto_e5
-    iput-object v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->channels:[I
+    :goto_e6
+    iput-object v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->channels:[I
 
     .line 140
     iget-object v0, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
 
-    if-eqz v0, :cond_105
+    if-eqz v0, :cond_108
 
     iget-object v0, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
 
@@ -1283,94 +1286,95 @@
 
     check-cast v0, [Z
 
-    :goto_f3
-    iput-object v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->disabled:[Z
+    :goto_f4
+    iput-object v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->disabled:[Z
 
-    :goto_f5
-    move-object v7, v1
+    :goto_f6
+    move-object v4, v1
 
     .line 142
-    goto/16 :goto_6c
+    goto/16 :goto_6b
 
     .line 101
-    :cond_f8
+    :cond_f9
     const/4 v0, -0x1
 
-    goto/16 :goto_28
-
-    :cond_fb
-    move v2, v4
+    goto/16 :goto_26
 
     .line 107
-    goto/16 :goto_53
+    :cond_fc
+    const/4 v0, 0x0
 
-    :cond_fe
-    move-object v5, v6
+    move v2, v0
+
+    goto/16 :goto_52
 
     .line 109
-    goto/16 :goto_5e
+    :cond_100
+    const/4 v0, 0x0
 
-    :cond_101
-    move v0, v4
+    move-object v3, v0
+
+    goto/16 :goto_5d
 
     .line 136
-    goto :goto_cf
+    :cond_104
+    const/4 v0, 0x0
 
-    :cond_103
-    move-object v0, v6
+    goto :goto_d0
 
     .line 139
-    goto :goto_e5
+    :cond_106
+    const/4 v0, 0x0
 
-    :cond_105
-    move-object v0, v6
+    goto :goto_e6
 
     .line 140
-    goto :goto_f3
+    :cond_108
+    const/4 v0, 0x0
 
-    :cond_107
-    move-object v7, v6
+    goto :goto_f4
 
     .line 144
-    :cond_108
-    if-eqz v7, :cond_125
+    :cond_10a
+    if-eqz v4, :cond_127
 
     .line 146
-    invoke-static {v7}, Lcom/isaigu/gymapp/ai/AiProfile;->of(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/ai/AiProfile;
+    invoke-static {v4}, Lcom/isaigu/gymapp/ai/AiProfile;->of(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/ai/AiProfile;
 
-    move-result-object v7
+    move-result-object v4
 
     .line 147
-    if-eqz v7, :cond_1d8
+    if-eqz v4, :cond_1ed
 
-    iget-wide v0, v7, Lcom/isaigu/gymapp/ai/AiProfile;->userId:J
+    iget-wide v0, v4, Lcom/isaigu/gymapp/ai/AiProfile;->userId:J
 
     .line 148
-    :goto_112
-    sget-wide v14, Lcom/isaigu/gymapp/wearable/HrGuard;->personId:J
+    :goto_114
+    sget-wide v12, Lcom/isaigu/gymapp/wearable/HrGuard;->personId:J
 
-    cmp-long v14, v0, v14
+    cmp-long v11, v0, v12
 
-    if-eqz v14, :cond_125
+    if-eqz v11, :cond_127
 
     .line 149
     sput-wide v0, Lcom/isaigu/gymapp/wearable/HrGuard;->personId:J
 
     .line 150
-    sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
+    sget-object v1, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    if-eqz v7, :cond_122
+    if-eqz v4, :cond_1f1
 
-    invoke-virtual {v7}, Lcom/isaigu/gymapp/ai/AiProfile;->toInput()Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    invoke-virtual {v4}, Lcom/isaigu/gymapp/ai/AiProfile;->toInput()Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    move-result-object v6
+    move-result-object v0
 
-    :cond_122
-    invoke-virtual {v0, v6}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->setPerson(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
+    :goto_124
+    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->setPerson(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
 
     .line 153
-    :cond_125
-    if-eqz v12, :cond_136
+    :cond_127
+    if-eqz v9, :cond_138
 
     .line 155
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
@@ -1388,15 +1392,15 @@
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->resetFactors()V
 
     .line 159
-    :cond_136
+    :cond_138
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    invoke-virtual {v0, v8, v9, v13, v2}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->tick(JLcom/isaigu/gymapp/wearable/HrGuardCore$Stim;Z)Z
+    invoke-virtual {v0, v6, v7, v10, v2}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->tick(JLcom/isaigu/gymapp/wearable/HrGuardCore$Stim;Z)Z
 
     move-result v1
 
     .line 160
-    if-eqz v11, :cond_18d
+    if-eqz v8, :cond_1a2
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
@@ -1404,9 +1408,9 @@
 
     move-result v0
 
-    if-nez v0, :cond_18d
+    if-nez v0, :cond_1a2
 
-    if-eqz v10, :cond_18d
+    if-eqz v5, :cond_1a2
 
     .line 161
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
@@ -1415,60 +1419,81 @@
 
     move-result v0
 
-    invoke-static {v10, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setRestHr(Landroid/content/Context;I)V
+    invoke-static {v5, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setRestHr(Landroid/content/Context;I)V
 
     .line 162
-    const-string v6, "hr_guard"
+    sget-wide v8, Lcom/isaigu/gymapp/wearable/HrGuard;->personId:J
+
+    const-wide/high16 v12, -0x8000000000000000L
+
+    cmp-long v0, v8, v12
+
+    if-eqz v0, :cond_166
+
+    .line 163
+    sget-wide v8, Lcom/isaigu/gymapp/wearable/HrGuard;->personId:J
+
+    sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getRestHr()I
+
+    move-result v0
+
+    invoke-static {v5, v8, v9, v0}, Lcom/isaigu/gymapp/wearable/scale/RestHrStore;->add(Landroid/content/Context;JI)V
+
+    .line 165
+    :cond_166
+    const-string v4, "hr_guard"
 
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v7, "rest="
+    const-string v5, "rest="
 
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    sget-object v7, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
-
-    invoke-virtual {v7}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getRestHr()I
-
-    move-result v7
-
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    const-string v7, " upper="
+    sget-object v5, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v5}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getRestHr()I
+
+    move-result v5
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    sget-object v7, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
+    const-string v5, " upper="
 
-    invoke-virtual {v7}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getUpper()I
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result v7
+    move-result-object v0
 
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    sget-object v5, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    move-result-object v7
+    invoke-virtual {v5}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getUpper()I
 
-    .line 163
+    move-result v5
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    .line 166
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->isManualUpper()Z
 
     move-result v0
 
-    if-eqz v0, :cond_1dc
+    if-eqz v0, :cond_1f4
 
     const-string v0, " (trainer)"
 
-    :goto_182
-    invoke-virtual {v7, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    :goto_197
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -1476,19 +1501,19 @@
 
     move-result-object v0
 
-    .line 162
-    invoke-static {v6, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-
     .line 165
-    :cond_18d
-    iget-boolean v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
+    invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    if-eqz v0, :cond_1df
+    .line 168
+    :cond_1a2
+    iget-boolean v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
 
-    if-eqz v2, :cond_1df
+    if-eqz v0, :cond_1f7
 
-    .line 166
-    if-nez v1, :cond_19d
+    if-eqz v2, :cond_1f7
+
+    .line 169
+    if-nez v1, :cond_1b2
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->written:Ljava/util/Map;
 
@@ -1496,18 +1521,18 @@
 
     move-result v0
 
-    if-nez v0, :cond_1a0
+    if-nez v0, :cond_1b5
 
-    .line 167
-    :cond_19d
-    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/HrGuard;->applyFactors(Ljava/util/List;)V
+    .line 170
+    :cond_1b2
+    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/HrGuard;->applyFactors(Ljava/util/List;)V
 
-    .line 173
-    :cond_1a0
-    :goto_1a0
-    iget-boolean v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
+    .line 176
+    :cond_1b5
+    :goto_1b5
+    iget-boolean v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
 
-    if-nez v0, :cond_1ac
+    if-nez v0, :cond_1c1
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
@@ -1515,25 +1540,25 @@
 
     move-result v0
 
-    if-eqz v0, :cond_1b7
+    if-eqz v0, :cond_1cc
 
-    .line 174
-    :cond_1ac
+    .line 177
+    :cond_1c1
     const-string v0, "hr-guard.csv"
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
-    invoke-virtual {v1, v8, v9, v13}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->csvRow(JLcom/isaigu/gymapp/wearable/HrGuardCore$Stim;)Ljava/lang/String;
+    invoke-virtual {v1, v6, v7, v10}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->csvRow(JLcom/isaigu/gymapp/wearable/HrGuardCore$Stim;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appendRaw(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 176
-    :cond_1b7
-    iget-boolean v0, v13, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
+    .line 179
+    :cond_1cc
+    iget-boolean v0, v10, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->running:Z
 
-    if-nez v0, :cond_1d6
+    if-nez v0, :cond_1eb
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
@@ -1541,70 +1566,82 @@
 
     move-result v0
 
-    if-nez v0, :cond_1d6
+    if-nez v0, :cond_1eb
 
     sget-wide v0, Lcom/isaigu/gymapp/wearable/HrGuard;->lastHrMs:J
 
-    sub-long v0, v8, v0
+    sub-long v0, v6, v0
 
-    const-wide/32 v6, 0xea60
+    const-wide/32 v2, 0xea60
 
-    cmp-long v0, v0, v6
+    cmp-long v0, v0, v2
 
-    if-ltz v0, :cond_1d6
+    if-ltz v0, :cond_1eb
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
 
-    .line 177
+    .line 180
     invoke-interface {v0}, Ljava/util/Map;->isEmpty()Z
 
     move-result v0
 
-    if-nez v0, :cond_1d7
+    if-nez v0, :cond_208
 
-    :cond_1d6
-    move v4, v3
+    :cond_1eb
+    const/4 v0, 0x1
 
-    .line 176
-    :cond_1d7
-    return v4
+    .line 179
+    :goto_1ec
+    return v0
 
     .line 147
-    :cond_1d8
+    :cond_1ed
     const-wide/high16 v0, -0x8000000000000000L
 
-    goto/16 :goto_112
+    goto/16 :goto_114
 
-    .line 163
-    :cond_1dc
+    .line 150
+    :cond_1f1
+    const/4 v0, 0x0
+
+    goto/16 :goto_124
+
+    .line 166
+    :cond_1f4
     const-string v0, " (auto)"
 
-    goto :goto_182
+    goto :goto_197
 
-    .line 169
-    :cond_1df
+    .line 172
+    :cond_1f7
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->isEmpty()Z
 
     move-result v0
 
-    if-nez v0, :cond_1a0
+    if-nez v0, :cond_1b5
 
-    .line 170
+    .line 173
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->restoreBase()V
 
-    .line 171
+    .line 174
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->resetFactors()V
 
-    goto :goto_1a0
+    goto :goto_1b5
 
-    :cond_1f0
-    move-object v1, v7
+    .line 180
+    :cond_208
+    const/4 v0, 0x0
 
-    goto/16 :goto_f5
+    goto :goto_1ec
+
+    :cond_20a
+    move-object v1, v4
+
+    goto/16 :goto_f6
 .end method
 
 .method private static trackTrainerChanges(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
@@ -1613,7 +1650,7 @@
     .prologue
     const/4 v6, 0x5
 
-    .line 207
+    .line 210
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->written:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1622,7 +1659,7 @@
 
     check-cast v0, [I
 
-    .line 208
+    .line 211
     sget-object v1, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
 
     invoke-interface {v1, p0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1631,15 +1668,15 @@
 
     check-cast v1, [I
 
-    .line 209
+    .line 212
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/HrGuard;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
 
     move-result-object v3
 
-    .line 210
+    .line 213
     if-nez v1, :cond_2e
 
-    .line 211
+    .line 214
     sget-object v1, Lcom/isaigu/gymapp/wearable/HrGuard;->base:Ljava/util/Map;
 
     invoke-virtual {v3}, [I->clone()Ljava/lang/Object;
@@ -1650,7 +1687,7 @@
 
     invoke-interface {v1, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 212
+    .line 215
     sget-object v1, Lcom/isaigu/gymapp/wearable/HrGuard;->written:Ljava/util/Map;
 
     invoke-virtual {v3}, [I->clone()Ljava/lang/Object;
@@ -1661,15 +1698,15 @@
 
     invoke-interface {v1, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 229
+    .line 232
     :cond_2d
     return-void
 
-    .line 215
+    .line 218
     :cond_2e
     if-eqz v0, :cond_2d
 
-    .line 218
+    .line 221
     const/4 v2, 0x0
 
     :goto_31
@@ -1677,24 +1714,24 @@
 
     if-ge v2, v4, :cond_2d
 
-    .line 219
+    .line 222
     aget v4, v3, v2
 
     aget v5, v0, v2
 
     if-eq v4, v5, :cond_5b
 
-    .line 220
+    .line 223
     aget v4, v3, v2
 
     aput v4, v1, v2
 
-    .line 221
+    .line 224
     aget v4, v3, v2
 
     aput v4, v0, v2
 
-    .line 222
+    .line 225
     const/4 v4, 0x6
 
     if-ne v2, v4, :cond_52
@@ -1705,17 +1742,17 @@
 
     if-ne v4, v5, :cond_52
 
-    .line 223
+    .line 226
     aget v4, v3, v6
 
     aput v4, v1, v6
 
-    .line 224
+    .line 227
     aget v4, v3, v6
 
     aput v4, v0, v6
 
-    .line 226
+    .line 229
     :cond_52
     sget-object v4, Lcom/isaigu/gymapp/wearable/HrGuard;->core:Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
@@ -1725,7 +1762,7 @@
 
     invoke-virtual {v4, v5}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->onTrainerChange(Lcom/isaigu/gymapp/wearable/HrGuardCore$Lever;)V
 
-    .line 218
+    .line 221
     :cond_5b
     add-int/lit8 v2, v2, 0x1
 
@@ -1740,7 +1777,7 @@
 
     const/4 v1, 0x0
 
-    .line 197
+    .line 200
     const/4 v2, 0x7
 
     new-array v2, v2, [I
@@ -1779,7 +1816,7 @@
 
     const/4 v3, 0x6
 
-    .line 198
+    .line 201
     iget-boolean v4, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     if-eqz v4, :cond_29
@@ -1787,13 +1824,13 @@
     :goto_26
     aput v0, v2, v3
 
-    .line 197
+    .line 200
     return-object v2
 
     :cond_29
     move v0, v1
 
-    .line 198
+    .line 201
     goto :goto_26
 .end method
 
@@ -1805,7 +1842,7 @@
 
     const/4 v2, 0x0
 
-    .line 269
+    .line 272
     sget-object v0, Lcom/isaigu/gymapp/wearable/HrGuard;->written:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1814,15 +1851,15 @@
 
     check-cast v0, [I
 
-    .line 270
+    .line 273
     if-eqz v0, :cond_10
 
-    .line 271
+    .line 274
     array-length v3, p2
 
     invoke-static {p2, v2, v0, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 273
+    .line 276
     :cond_10
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/HrGuard;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
 
@@ -1834,50 +1871,50 @@
 
     if-eqz v0, :cond_1b
 
-    .line 288
+    .line 291
     :goto_1a
     return-void
 
-    .line 276
+    .line 279
     :cond_1b
     aget v0, p2, v2
 
     iput v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 277
+    .line 280
     aget v0, p2, v1
 
     iput v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    .line 278
+    .line 281
     const/4 v0, 0x2
 
     aget v0, p2, v0
 
     iput v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    .line 279
+    .line 282
     const/4 v0, 0x3
 
     aget v0, p2, v0
 
     iput v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    .line 280
+    .line 283
     const/4 v0, 0x4
 
     aget v0, p2, v0
 
     iput v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
-    .line 281
+    .line 284
     const/4 v0, 0x5
 
     aget v0, p2, v0
 
     iput v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    .line 282
+    .line 285
     const/4 v0, 0x6
 
     aget v0, p2, v0
@@ -1889,7 +1926,7 @@
     :goto_3d
     iput-boolean v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 284
+    .line 287
     :try_start_3f
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
     :try_end_42
@@ -1897,11 +1934,11 @@
 
     goto :goto_1a
 
-    .line 285
+    .line 288
     :catch_43
     move-exception v0
 
-    .line 286
+    .line 289
     const-string v1, "hr_guard"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -1929,7 +1966,7 @@
     :cond_5d
     move v0, v2
 
-    .line 282
+    .line 285
     goto :goto_3d
 .end method
 
@@ -1937,7 +1974,7 @@
     .registers 4
 
     .prologue
-    .line 292
+    .line 295
     const/4 v0, 0x1
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->zoneFor(II)I

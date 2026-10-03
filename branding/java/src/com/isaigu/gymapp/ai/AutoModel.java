@@ -84,6 +84,24 @@ public final class AutoModel {
         public double weightKg = 70;
         /** 0 = not entered (the wizard does not go on without it). */
         public int heightCm = 0;
+        /** Body fat % measured by the scale; &lt; 0 = not measured (then estimated from the BMI). */
+        public double fatPct = -1;
+        /** Body fat % per suit channel from the scale's segments; null = the whole-body value everywhere. */
+        public double[] channelFat;
+        /** Today's scale readiness (1 / 0.85 / 0.7): swelling or less water against the client's own baseline. */
+        public double readiness = 1.0;
+        /** Scale (fresh measurement), &lt; 0 = not measured: lean mass and skeletal muscle (kg). */
+        public double leanKg = -1;
+        public double skeletalKg = -1;
+        /** Muscle per suit channel against the body's mean (mean ≈ 1); null = the standard distribution. */
+        public double[] chMuscle;
+        /** Measured classes: little muscle for the height / obese by fat mass (not by BMI). */
+        public boolean muscleLow;
+        public boolean fatObese;
+        /** Measured at all (then the classes above replace the BMI rules). */
+        public boolean measured;
+        /** Focus zone the scale asks for (weakest zone under 90 % of normal), client-form key; null = none. */
+        public String scaleFocus;
         public AiModel.Fitness fitness = AiModel.Fitness.MID;
         /** Finished sessions of this client (history + automatic sessions). */
         public int sessions = 0;

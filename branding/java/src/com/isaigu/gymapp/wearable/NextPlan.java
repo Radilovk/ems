@@ -230,6 +230,17 @@ public final class NextPlan {
 
     // ================================================================ recommendation
 
+    static String segName(int seg, boolean bg) {
+        switch (seg) {
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.LEFT_ARM: return bg ? "в лявата ръка" : "left arm";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.RIGHT_ARM: return bg ? "в дясната ръка" : "right arm";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.LEFT_LEG: return bg ? "в левия крак" : "left leg";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.RIGHT_LEG: return bg ? "в десния крак" : "right leg";
+            case com.isaigu.gymapp.wearable.scale.ScaleProtocol.TRUNK: return bg ? "в торса" : "trunk";
+            default: return bg ? "в тялото" : "body";
+        }
+    }
+
     static String tr(String bg, String en) {
         return XemsLang.tr(bg, en);
     }
@@ -296,6 +307,23 @@ public final class NextPlan {
             k *= 1.05;
             rec.why.add(tr("Последната е изкарана докрай — +5 % сила.", "The last one was completed — +5% strength."));
         }
+        // 1b. the scale this morning (wearable/scale): swelling or less water against the client's own baseline.
+        //     The stronger of the two cuts wins — the time rule and the measurement are not added up.
+        double timeK = Math.min(1.0, k);
+        com.isaigu.gymapp.wearable.scale.ScaleInsight.Readiness ready = c != null && u != null
+                ? com.isaigu.gymapp.wearable.scale.ScaleStore.readinessToday(c, u.id) : null;
+        if (ready != null && ready.factor < timeK - 0.001) {
+            k *= ready.factor / timeK;
+            int pct = (int) Math.round((1 - ready.factor) * 100);
+            boolean swollen = ready.worst >= 0 && ready.swell[ready.worst] >= 1.2;
+            rec.why.add(swollen
+                    ? tr("Кантарът днес: подуване " + segName(ready.worst, true) + " — не е възстановен: −" + pct + " %.",
+                         "Scale today: swelling in the " + segName(ready.worst, false) + " — not recovered: −" + pct + "%.")
+                    : tr("Кантарът днес: по-малко вода в тялото — −" + pct + " %, нека пие вода.",
+                         "Scale today: less body water — −" + pct + "%, have them drink."));
+        } else if (ready != null && ready.factor >= 1.0 && days < 4) {
+            rec.why.add(tr("Кантарът днес: възстановен ✓", "Scale today: recovered ✓"));
+        }
         // 2. the next appointment
         if (nextApptMs > 0 && apptMs > 0) {
             double gap = (nextApptMs - apptMs) / (double) DAY;
@@ -339,6 +367,7 @@ public final class NextPlan {
             rec.why.add(tr("Най-натоварени: " + join(down) + " — −5 %.", "Most loaded: " + join(down) + " — −5%."));
         }
         k = individual(own, n, rec, k);
+        scaleFocus(c, u, own, n, rec);
         n.st = clamp((int) Math.round(last.st * k), 0, 100);
         if (last.assisted) {
             rec.why.add(0, tr("Последната беше в автоматичен режим („" + last.program + "“) — ръчните настройки от преди нея.",
@@ -384,6 +413,32 @@ public final class NextPlan {
      * neck −15 % on that zone, birth within a year −15 % on the abs, sensitive to current −10 % overall,
      * stress / poor sleep: no increase today. Returns the new overall factor.
      */
+    /**
+     * The scale's weakest zone (under 90 % of normal, a fresh measurement) as one more focus: +5 % on its
+     * channels — unless the client already asked for that zone.
+     */
+    static void scaleFocus(Context c, TrainUser u, String[] own, Snap n, Rec rec) {
+        try {
+            com.isaigu.gymapp.ai.AiProfile p = c != null && u != null ? com.isaigu.gymapp.ai.AiProfile.of(u) : null;
+            String f = p != null ? p.scaleFocus : null;
+            if (f == null || has(own[0], f)) {
+                return;
+            }
+            boolean any = false;
+            for (int ch : focusChannels(f)) {
+                if (n.ch[ch] > 0 && n.ch[ch] < 100) {
+                    n.ch[ch] = Math.min(100, n.ch[ch] + 5);
+                    any = true;
+                }
+            }
+            if (any) {
+                rec.why.add(tr("Кантарът: най-слабата зона е " + focusName(f) + " — +5 %.",
+                        "Scale: the weakest zone is " + focusName(f) + " — +5%."));
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
     static double individual(String[] own, Snap n, Rec rec, double k) {
         List<String> fz = new ArrayList<String>();
         for (String f : own[0].split(",")) {

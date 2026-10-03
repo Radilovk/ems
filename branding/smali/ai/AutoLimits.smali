@@ -30,190 +30,11 @@
     return-void
 .end method
 
-.method public static balance([I)V
-    .registers 12
-
-    .prologue
-    const/4 v10, 0x2
-
-    const/4 v9, 0x1
-
-    const/4 v8, 0x0
-
-    const-wide v6, 0x3e112e0be826d695L    # 1.0E-9
-
-    .line 146
-    aget v0, p0, v9
-
-    const-wide v2, 0x3ff4cccccccccccdL    # 1.3
-
-    const/4 v1, 0x7
-
-    aget v1, p0, v1
-
-    int-to-double v4, v1
-
-    mul-double/2addr v2, v4
-
-    add-double/2addr v2, v6
-
-    invoke-static {v2, v3}, Ljava/lang/Math;->floor(D)D
-
-    move-result-wide v2
-
-    double-to-int v1, v2
-
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
-
-    move-result v0
-
-    aput v0, p0, v9
-
-    .line 147
-    aget v0, p0, v10
-
-    const/16 v1, 0x9
-
-    aget v1, p0, v1
-
-    int-to-double v2, v1
-
-    const-wide v4, 0x3fe3333333333333L    # 0.6
-
-    div-double/2addr v2, v4
-
-    add-double/2addr v2, v6
-
-    invoke-static {v2, v3}, Ljava/lang/Math;->floor(D)D
-
-    move-result-wide v2
-
-    double-to-int v1, v2
-
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
-
-    move-result v0
-
-    aput v0, p0, v10
-
-    .line 148
-    aget v0, p0, v8
-
-    const-wide v2, 0x3ff3333333333333L    # 1.2
-
-    const/4 v1, 0x6
-
-    aget v1, p0, v1
-
-    int-to-double v4, v1
-
-    mul-double/2addr v2, v4
-
-    add-double/2addr v2, v6
-
-    invoke-static {v2, v3}, Ljava/lang/Math;->floor(D)D
-
-    move-result-wide v2
-
-    double-to-int v1, v2
-
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
-
-    move-result v0
-
-    aput v0, p0, v8
-
-    .line 149
-    return-void
-.end method
-
-.method public static balanced([I)Z
-    .registers 11
-
-    .prologue
-    const/4 v0, 0x1
-
-    const/4 v1, 0x0
-
-    const-wide v8, 0x3e112e0be826d695L    # 1.0E-9
-
-    .line 152
-    aget v2, p0, v0
-
-    int-to-double v2, v2
-
-    const-wide v4, 0x3ff4cccccccccccdL    # 1.3
-
-    const/4 v6, 0x7
-
-    aget v6, p0, v6
-
-    int-to-double v6, v6
-
-    mul-double/2addr v4, v6
-
-    add-double/2addr v4, v8
-
-    cmpg-double v2, v2, v4
-
-    if-gtz v2, :cond_40
-
-    const/4 v2, 0x2
-
-    aget v2, p0, v2
-
-    int-to-double v2, v2
-
-    const/16 v4, 0x9
-
-    aget v4, p0, v4
-
-    int-to-double v4, v4
-
-    const-wide v6, 0x3fe3333333333333L    # 0.6
-
-    div-double/2addr v4, v6
-
-    add-double/2addr v4, v8
-
-    cmpg-double v2, v2, v4
-
-    if-gtz v2, :cond_40
-
-    aget v2, p0, v1
-
-    int-to-double v2, v2
-
-    const-wide v4, 0x3ff3333333333333L    # 1.2
-
-    const/4 v6, 0x6
-
-    aget v6, p0, v6
-
-    int-to-double v6, v6
-
-    mul-double/2addr v4, v6
-
-    add-double/2addr v4, v8
-
-    cmpg-double v2, v2, v4
-
-    if-gtz v2, :cond_40
-
-    :goto_3f
-    return v0
-
-    :cond_40
-    move v0, v1
-
-    goto :goto_3f
-.end method
-
 .method static clamp(III)I
     .registers 3
 
     .prologue
-    .line 176
+    .line 162
     if-ge p0, p1, :cond_3
 
     :goto_2
@@ -576,9 +397,6 @@
 
     .line 140
     :cond_47
-    invoke-static {v4}, Lcom/isaigu/gymapp/ai/AutoLimits;->balance([I)V
-
-    .line 141
     return-object v4
 .end method
 
@@ -707,7 +525,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 163
+    .line 149
     if-lez p0, :cond_9
 
     const-wide/16 v2, 0x0
@@ -719,11 +537,11 @@
     :cond_9
     move v0, v1
 
-    .line 172
+    .line 158
     :goto_a
     return v0
 
-    .line 166
+    .line 152
     :cond_b
     int-to-double v2, p0
 
@@ -737,7 +555,7 @@
 
     long-to-int v0, v2
 
-    .line 167
+    .line 153
     int-to-double v2, p0
 
     mul-double/2addr v2, p5
@@ -752,22 +570,22 @@
 
     double-to-int v2, v2
 
-    .line 168
+    .line 154
     invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
 
     move-result v0
 
-    .line 169
+    .line 155
     if-ltz p7, :cond_2c
 
     add-int/lit8 v2, p7, 0x5
 
     if-le v0, v2, :cond_2c
 
-    .line 170
+    .line 156
     add-int/lit8 v0, p7, 0x5
 
-    .line 172
+    .line 158
     :cond_2c
     const/16 v2, 0x64
 

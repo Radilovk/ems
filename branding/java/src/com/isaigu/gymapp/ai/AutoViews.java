@@ -184,8 +184,8 @@ public final class AutoViews {
             int w = getWidth();
             int h = getHeight();
             float s = Math.min(w, h);
-            float sw = Math.max(dp(this, 7), s * 0.055f);
-            float inset = sw * 1.5f;
+            float sw = Math.max(dp(this, 5), s * 0.042f);
+            float inset = sw * 1.2f;
             box.set((w - s) / 2f + inset, (h - s) / 2f + inset, (w + s) / 2f - inset, (h + s) / 2f - inset);
             track.setStrokeWidth(sw);
             track.setColor(XemsUi.alpha(XemsUi.TEXT, 0x1E));
@@ -285,6 +285,64 @@ public final class AutoViews {
             for (int i = 0; i < getChildCount(); i++) {
                 int[] x = box(i, s);
                 getChildAt(i).layout(x[0], x[1], x[0] + x[2], x[1] + x[3]);
+            }
+        }
+    }
+
+    // ================================================================ stage pair
+
+    /**
+     * The exercise now and the next one side by side (owner, 1.1.290 — the figures twice as big): the main square as
+     * high as the card, the arrow, the next square at 46 % of it, all centred vertically. When they would leave less
+     * than {@code minRestPx} for the text beside, both shrink together. Children: main stage, arrow, next stage.
+     */
+    public static final class StagePair extends android.view.ViewGroup {
+        static final float NEXT_SHARE = 0.46f;
+        private final int minRestPx;
+        private final int arrowPx;
+
+        public StagePair(Context c, int minRestPx, int arrowPx) {
+            super(c);
+            this.minRestPx = minRestPx;
+            this.arrowPx = arrowPx;
+        }
+
+        @Override
+        protected void onMeasure(int ws, int hs) {
+            int h = MeasureSpec.getSize(hs);
+            int w = MeasureSpec.getMode(ws) == MeasureSpec.UNSPECIFIED ? Integer.MAX_VALUE : MeasureSpec.getSize(ws);
+            boolean next = getChildCount() > 2 && getChildAt(2).getVisibility() != GONE;
+            float units = 1f + (next ? NEXT_SHARE : 0f);
+            int room = Math.max(0, w - minRestPx - (next ? arrowPx : 0));
+            int main = Math.max(0, Math.min(h, (int) (room / units)));
+            int nx = Math.round(main * NEXT_SHARE);
+            int total = main + (next ? arrowPx + nx : 0);
+            for (int i = 0; i < getChildCount(); i++) {
+                View ch = getChildAt(i);
+                if (ch.getVisibility() == GONE) {
+                    continue;
+                }
+                int cw = i == 0 ? main : i == 1 ? arrowPx : nx;
+                int chh = i == 1 ? main : cw;
+                ch.measure(MeasureSpec.makeMeasureSpec(cw, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(chh, MeasureSpec.EXACTLY));
+            }
+            setMeasuredDimension(total, h);
+        }
+
+        @Override
+        protected void onLayout(boolean changed, int l, int t, int r, int b) {
+            int h = b - t;
+            int x = 0;
+            for (int i = 0; i < getChildCount(); i++) {
+                View ch = getChildAt(i);
+                if (ch.getVisibility() == GONE) {
+                    continue;
+                }
+                int cw = ch.getMeasuredWidth();
+                int chh = ch.getMeasuredHeight();
+                int y = (h - chh) / 2;
+                ch.layout(x, y, x + cw, y + chh);
+                x += cw;
             }
         }
     }
@@ -686,16 +744,14 @@ public final class AutoViews {
     // ================================================================ timeline
 
     /**
-     * The whole session on one line: height = the stimulus the program gives (cycle load), colour = the peak zone
-     * load at that time. Smoothed over time (σ ≈ 40 s), so the usual short rests between sets melt into one
-     * profile; a critical pause — a rest of {@link AutoEngine#CRITICAL_PAUSE_S} s or more, or an HR stop — is kept
-     * out of the smoothing and goes down to the base, as wide as it lasts, with soft walls. The past is what
-     * happened (bright), the future the forecast moved to now (faded); phase separators, the HR line, "now".
+     * The whole session on one line (owner, 1.1.290): height and colour = the total load at that moment, on the
+     * real clock — a set (EMS + the exercise) stands high, the rest and any pause fall with the load as long as
+     * they last (muscles recover, the oxygen debt clears), the passive recovery stays low. Points are joined as
+     * they are (no time smoothing), so the sets and the valleys keep their real proportions. The past is bright,
+     * the future the live forecast (faded); phase separators, the HR line, "now".
      */
     public static final class Timeline extends View {
-        private static final int N = 360;
-        /** Time constant of the smoothing (seconds). */
-        private static final double SMOOTH_S = 40.0;
+        private static final int N = 480;
         private final Paint area = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint sep = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint now = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -736,11 +792,25 @@ public final class AutoViews {
             hrCapY = (cap - hrLo) / (hrHi - hrLo);
         }
 
-        /** True for a pause that stays deep on the timeline: an HR stop, or a rest of ≥ CRITICAL_PAUSE_S. */
-        static boolean critical(float[] p, double durationS) {
-            float kind = p.length > 6 ? p[6] : (p[2] <= 0 ? AutoEngine.TRACE_REST : AutoEngine.TRACE_CYCLE);
-            return kind == AutoEngine.TRACE_HR_PAUSE
-                    || (kind == AutoEngine.TRACE_REST && durationS >= AutoEngine.CRITICAL_PAUSE_S);
+        /** Index of the last point at or before t (by its session time), from {@code from}. */
+        private static int at(List<float[]> pts, double t, int from) {
+            int i = Math.max(0, from);
+            while (i + 1 < pts.size() && pts.get(i + 1)[0] <= t) {
+                i++;
+            }
+            return i;
+        }
+
+        /** Height at t: a cycle holds its value to the next point; a wait slides to the next point (the fall). */
+        private static float value(List<float[]> pts, int i, double t, int idx) {
+            float[] p = pts.get(i);
+            if (i + 1 >= pts.size() || p.length < 7 || p[6] == AutoEngine.TRACE_CYCLE) {
+                return p[idx];
+            }
+            float[] q = pts.get(i + 1);
+            double span = q[0] - p[0];
+            double k = span > 0 ? Math.max(0, Math.min(1, (t - p[0]) / span)) : 0;
+            return (float) (p[idx] + (q[idx] - p[idx]) * k);
         }
 
         /**
@@ -754,77 +824,43 @@ public final class AutoViews {
             double total = f != null ? sessionNow + Math.max(0, f.totalS - anchor) : sessionNow;
             totalS = (float) Math.max(60, total);
             nowS = (float) sessionNow;
-            // absolute: the top is the total load 1 (the limit) — a stronger current or a higher pulse shows higher
+            // absolute: the top is the total load 1 (the healthy limit) — never rescaled to the session
             double max = f != null ? f.maxLoad : 0;
             for (float[] p : past) {
                 max = Math.max(max, p[2]);
             }
-            max = Math.max(1.0, max);
-            float[] raw = new float[N];
-            float[] col = new float[N];
-            boolean[] crit = new boolean[N];
+            max = Math.max(1.0, Math.min(1.25, max));
             int pi = 0;
             int fi = 0;
             for (int i = 0; i < N; i++) {
                 double t = (i + 0.5) * totalS / N;
-                float[] p = null;
-                double dur = 0;
+                List<float[]> src = null;
+                int k = 0;
+                double tt = t;
                 if (t <= sessionNow) {
-                    while (pi + 1 < past.size() && past.get(pi + 1)[0] <= t) {
-                        pi++;
+                    if (!past.isEmpty() && past.get(0)[0] <= t) {
+                        pi = at(past, t, pi);
+                        src = past;
+                        k = pi;
                     }
-                    if (!past.isEmpty()) {
-                        p = past.get(pi);
-                        dur = (pi + 1 < past.size() ? past.get(pi + 1)[0] : sessionNow) - p[0];
-                    }
-                } else if (f != null) {
-                    double ft = anchor + (t - sessionNow);
-                    while (fi + 1 < f.points.size() && f.points.get(fi + 1)[0] <= ft) {
-                        fi++;
-                    }
-                    if (!f.points.isEmpty()) {
-                        p = f.points.get(fi);
-                        dur = (fi + 1 < f.points.size() ? f.points.get(fi + 1)[0] : f.totalS) - p[0];
-                    }
+                } else if (f != null && !f.points.isEmpty()) {
+                    tt = anchor + (t - sessionNow);
+                    fi = at(f.points, tt, fi);
+                    src = f.points;
+                    k = fi;
                 }
-                raw[i] = p != null ? (float) (p[2] / max) : 0;
-                col[i] = p != null ? p[3] : 0;
-                phase[i] = p != null && p.length > 4 ? (int) p[4] : 0;
-                hrv[i] = t <= sessionNow && p != null && p.length > 5 ? p[5] : 0;
-                crit[i] = p != null && critical(p, dur);
-            }
-            // Gaussian over time, without the critical pauses (they must not be filled in by their neighbours)
-            double sig = Math.max(0.6, SMOOTH_S * N / totalS);
-            int rad = (int) Math.ceil(3 * sig);
-            float[] sh = new float[N];
-            float[] sc = new float[N];
-            for (int i = 0; i < N; i++) {
-                if (crit[i]) {
-                    sh[i] = 0;
-                    sc[i] = 0;
+                if (src == null) {
+                    hv[i] = 0;
+                    cv[i] = 0;
+                    phase[i] = i > 0 ? phase[i - 1] : 0;
+                    hrv[i] = 0;
                     continue;
                 }
-                double ws = 0;
-                double hs = 0;
-                double cs = 0;
-                for (int j = Math.max(0, i - rad); j <= Math.min(N - 1, i + rad); j++) {
-                    if (crit[j]) {
-                        continue;
-                    }
-                    double wgt = Math.exp(-0.5 * (i - j) * (i - j) / (sig * sig));
-                    ws += wgt;
-                    hs += wgt * raw[j];
-                    cs += wgt * col[j];
-                }
-                sh[i] = ws > 0 ? (float) (hs / ws) : 0;
-                sc[i] = ws > 0 ? (float) (cs / ws) : 0;
-            }
-            // soft walls into a critical pause (one light pass over everything)
-            for (int i = 0; i < N; i++) {
-                float a = sh[Math.max(0, i - 1)];
-                float b = sh[Math.min(N - 1, i + 1)];
-                hv[i] = crit[i] ? (a + b) * 0.12f : 0.25f * a + 0.5f * sh[i] + 0.25f * b;
-                cv[i] = sc[i];
+                float[] p = src.get(k);
+                hv[i] = (float) (value(src, k, tt, 2) / max);
+                cv[i] = value(src, k, tt, 3);
+                phase[i] = p.length > 4 ? (int) p[4] : 0;
+                hrv[i] = t <= sessionNow && p.length > 5 ? p[5] : 0;
             }
             invalidate();
         }

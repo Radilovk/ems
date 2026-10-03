@@ -118,7 +118,7 @@ public final class AutoLimits {
     /**
      * Zones a person set, brought back into the limits (owner, 1.1.286 — every channel is the trainer's to set):
      * down freely to 0, up at most +zoneDelta over the step's own value and the per-zone maximum; locks hold;
-     * then the balance rules L7–L9 (the agonist gives way).
+     * every channel on its own — never tied to another (owner, 1.1.290: the electrodes are independent).
      */
     public static int[] clampZones(int[] wanted, Plan plan) {
         return clampZones(wanted, plan.zones, plan);
@@ -137,21 +137,7 @@ public final class AutoLimits {
             }
             z[i] = clamp(v, 0, Math.min(100, plan.zoneMax[i]));
         }
-        balance(z);
         return z;
-    }
-
-    /** L7 abs ≤ 1.3 × lower back, L8 front thigh ≤ back thigh / 0.6, L9 chest ≤ 1.2 × back. */
-    public static void balance(int[] z) {
-        z[ABS] = Math.min(z[ABS], (int) Math.floor(1.3 * z[LOWER_BACK] + 1e-9));
-        z[FRONT_THIGH] = Math.min(z[FRONT_THIGH], (int) Math.floor(z[BACK_THIGH] / 0.6 + 1e-9));
-        z[CHEST] = Math.min(z[CHEST], (int) Math.floor(1.2 * z[BACK] + 1e-9));
-    }
-
-    public static boolean balanced(int[] z) {
-        return z[ABS] <= 1.3 * z[LOWER_BACK] + 1e-9
-                && z[FRONT_THIGH] <= z[BACK_THIGH] / 0.6 + 1e-9
-                && z[CHEST] <= 1.2 * z[BACK] + 1e-9;
     }
 
     /**

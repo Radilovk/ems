@@ -18,11 +18,29 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleStage` | The measuring stage (1.1.301-ai): figure + drawn scan (`ScanFx`, time-driven) / scan film, 5 steps (step on · link · weight · analysis · done), instruction, live weight settling, scan ring, sweep count and contact chips (see "Measuring") |
 | `ScaleSources` | "Научна основа" (1.1.298-ai): every source of the module with its tier (study · standard · maker · XEMS), what we take, who was measured, DOI (tap → the paper); data also in the shared HTML |
 | `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
+| `ScaleSenssun` | Pure (1.1.306-ai): the second scale language — Senssun / MovingLife (Klausberg KB-7853 …): frames `FF A5 … T`, commands date / time / user, `Reader` = one standing (live → settled → user sent → fat) (see "Senssun / MovingLife") |
 | `ScaleLink` | Android BLE for as long as the page is open: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks; every result delivered, the link **stays** while the client stands; the scale's own disconnect (sleep) → scan again (1.1.301-ai) |
 | `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days); `save` (through `ScaleModel`), `upgrade` (older model / other sex·age·height → rebuilt), `delete` (+ server), `unlike` (weight jump → "is this X?") |
 | `ScaleInsight` | Pure: readiness (ρ = Z100/Z20 per segment and legs' Z20 vs the client's own baseline), segments as % of WLA25 normal, fat per suit channel, L/R asymmetry |
 | `ScaleViews` | Drawn: `Body` (project figures painted by segment, tap = select), `Radar` (5 segments vs normal, ghost = last), `Gauge` (readiness), `Trend`, `Reach` (current's reach per channel) |
 | `ScaleScreen` | Full-screen page from the client row (purple scale icon): body · today · trend & EMS (see "Result page") |
+
+## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306-ai, `ScaleSenssun`)
+Owner's second scale: Klausberg KB-7853 (8 electrodes, handle, MovingLife app = Senssun's app). No public spec of
+the KB-7853 exists; the only decoded protocol of the family is openScale's `SenssunHandler`, implemented as is:
+- **Found** by name (`senssun`, `movinglife`, `klausberg`, `kb-78…`, `if_…`, `body fat`, `fat scale`) or the saved MAC.
+- **Layouts:** A = FFF0 / notify FFF1 / write FFF2 (only on a scale-like name — FFF0 is common elsewhere);
+  B = FFB0 with FFB2 notify + write and **no FFB1** (ICOMON's FFB0 always has FFB1 → gen A/B as before).
+- **Frames** `FF A5 v1 v2 v3 v4 T`: A0 live / AA settled (kg×10 BE), B0 fat ‰ + water ‰, C0 muscle ‰ + bone (kg×10,
+  bytes swapped), D0 kcal, BE fat test failed. **Commands** `A5 cmd a b c 0 0 sum 0` (sum = bytes 1…6): 30 date,
+  31 time on connect; 10 user (sex·slot 1, age, height) once the weight settles → the scale sends B0.
+- **Result** = weight + the scale's fat % (BE → weight only); no impedances → saved through the existing
+  "weight only" path, no segments / readiness. Tests: `scripts/scale-sim` `senssun()` (frames built from the layout,
+  no real capture yet).
+- **Unknown language (gen X):** a scale-named device with neither ICOMON nor Senssun GATT → the link logs its GATT
+  table and every notification in full hex (`WearableBleDiagLog` tag `scale`, ≤ 400 frames); gen S logs its first
+  60 raw frames too. **Next step:** one weigh-in on the KB-7853 with the tablet → diag log → decode the 8-electrode
+  data (impedances) if it sends them, then feed them into `ScaleProtocol.Reading` like the P1.
 
 ## EMS use (1.1.286-ai)
 1. **Readiness → today's strength.** `ScaleInsight.readiness`: per segment Δρ = ρ / median(ρ of up to 8 earlier

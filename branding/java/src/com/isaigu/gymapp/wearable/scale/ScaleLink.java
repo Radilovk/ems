@@ -67,7 +67,11 @@ public final class ScaleLink {
     boolean oddLive;
     int state;
 
-    /** 'A' (FFB4 present, framed messages) or 'B' (20-byte frames). */
+    /**
+     * 'A' (FFB4 present, framed messages) or 'B' (20-byte frames) — ICOMON; 'S' Senssun / MovingLife
+     * ({@link ScaleSenssun}); 'X' a scale-named device that speaks neither: every service and frame is logged in full
+     * (a capture to decode it from), nothing is measured.
+     */
     char gen;
     int seq;
     boolean handshakeSent;
@@ -80,6 +84,10 @@ public final class ScaleLink {
     double liveKg;
     boolean liveStable;
     int beatToken;
+    // S / X
+    final ScaleSenssun.Reader senssun = new ScaleSenssun.Reader();
+    /** Raw frames logged on this connection (S: the first ones, to check the decode; X: up to the cap). */
+    int rawLogged;
 
     final List<Op> ops = new ArrayList<Op>();
     boolean busy;
@@ -139,7 +147,7 @@ public final class ScaleLink {
         scan = null;
     }
 
-    /** The scale: the address it had last time, its FFB0 service in the advert, or a scale-like name. */
+    /** The scale: the address it had last time, its FFB0 service in the advert, or a scale-like name (either family). */
     boolean isScale(BluetoothDevice d, byte[] adv) {
         String mac = d.getAddress();
         if (mac == null || notScales.contains(mac)) {
@@ -156,7 +164,10 @@ public final class ScaleLink {
             name = d.getName();
         } catch (Throwable ignored) {
         }
-        return looksLikeScale(name != null ? name : advName(adv));
+        if (name == null) {
+            name = advName(adv);
+        }
+        return looksLikeScale(name) || ScaleSenssun.looksLike(name);
     }
 
     static boolean looksLikeScale(String name) {
@@ -239,6 +250,8 @@ public final class ScaleLink {
         liveKg = 0;
         liveStable = false;
         results = 0;
+        senssun.reset();
+        rawLogged = 0;
         ops.clear();
         busy = false;
         write = null;
@@ -270,22 +283,83 @@ public final class ScaleLink {
         if (g != gatt) {
             return;
         }
+        String mac = g.getDevice().getAddress();
         BluetoothGattService s = g.getService(ScaleProtocol.SERVICE);
-        if (s == null) {
-            log("no FFB0 on " + g.getDevice().getAddress());
-            notScales.add(g.getDevice().getAddress());
-            closeGatt();
-            main.postDelayed(new Retry(this), 300);
+        if (s != null && s.getCharacteristic(ScaleProtocol.WRITE) != null) {
+            ScaleStore.setMac(app, mac);
+            write = s.getCharacteristic(ScaleProtocol.WRITE);
+            gen = s.getCharacteristic(ScaleProtocol.NAME_IMAGE) != null ? 'A' : 'B';
+            log("gen " + gen);
+            subscribe(g, s.getCharacteristic(ScaleProtocol.LIVE));
+            subscribe(g, s.getCharacteristic(ScaleProtocol.FRAMES));
+            ops.add(new Op(Op.READY, null, null));
+            pump();
             return;
         }
-        ScaleStore.setMac(app, g.getDevice().getAddress());
-        write = s.getCharacteristic(ScaleProtocol.WRITE);
-        gen = s.getCharacteristic(ScaleProtocol.NAME_IMAGE) != null ? 'A' : 'B';
-        log("gen " + gen);
-        subscribe(g, s.getCharacteristic(ScaleProtocol.LIVE));
-        subscribe(g, s.getCharacteristic(ScaleProtocol.FRAMES));
-        ops.add(new Op(Op.READY, null, null));
-        pump();
+        BluetoothGattCharacteristic note = null, wr = null;
+        BluetoothGattService sa = g.getService(ScaleSenssun.SERVICE_A);
+        if (sa != null && sa.getCharacteristic(ScaleSenssun.NOTIFY_A) != null
+                && sa.getCharacteristic(ScaleSenssun.WRITE_A) != null) {
+            note = sa.getCharacteristic(ScaleSenssun.NOTIFY_A);
+            wr = sa.getCharacteristic(ScaleSenssun.WRITE_A);
+        } else if (s != null && s.getCharacteristic(ScaleSenssun.CHAR_B) != null) {
+            note = wr = s.getCharacteristic(ScaleSenssun.CHAR_B);
+        }
+        String name = null;
+        try {
+            name = g.getDevice().getName();
+        } catch (Throwable ignored) {
+        }
+        boolean named = looksLikeScale(name) || ScaleSenssun.looksLike(name) || mac.equalsIgnoreCase(ScaleStore.mac(app));
+        // FFF0 is common outside scales: Senssun layout A only on a scale-like name (or the saved scale)
+        if (note != null && (sa == null || named)) {
+            ScaleStore.setMac(app, mac);
+            write = wr;
+            gen = 'S';
+            log("gen S (Senssun/MovingLife " + (sa != null ? "FFF0" : "FFB0") + ") " + name);
+            logServices(g);
+            subscribe(g, note);
+            ops.add(new Op(Op.READY, null, null));
+            pump();
+            return;
+        }
+        if (named) {
+            ScaleStore.setMac(app, mac);
+            gen = 'X';
+            log("gen X: unknown scale protocol, capturing " + name + " " + mac);
+            logServices(g);
+            for (BluetoothGattService sv : g.getServices()) {
+                for (BluetoothGattCharacteristic ch : sv.getCharacteristics()) {
+                    if ((ch.getProperties() & (BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                            | BluetoothGattCharacteristic.PROPERTY_INDICATE)) != 0) {
+                        subscribe(g, ch);
+                    }
+                }
+            }
+            ops.add(new Op(Op.READY, null, null));
+            pump();
+            return;
+        }
+        log("not a scale: " + mac + " " + name);
+        notScales.add(mac);
+        closeGatt();
+        main.postDelayed(new Retry(this), 300);
+    }
+
+    /** The GATT table in the diagnostics log: every service, characteristic and its properties. */
+    void logServices(BluetoothGatt g) {
+        try {
+            for (BluetoothGattService sv : g.getServices()) {
+                StringBuilder b = new StringBuilder("svc ").append(sv.getUuid());
+                for (BluetoothGattCharacteristic ch : sv.getCharacteristics()) {
+                    b.append("\n  chr ").append(ch.getUuid()).append(" props 0x")
+                            .append(Integer.toHexString(ch.getProperties()));
+                }
+                log(b.toString());
+            }
+        } catch (Throwable t) {
+            log("services: " + t);
+        }
     }
 
     void subscribe(BluetoothGatt g, BluetoothGattCharacteristic ch) {
@@ -312,6 +386,13 @@ public final class ScaleLink {
         }
         if (gen == 'A') {
             onFrameA(uuid, data);
+        } else if (gen == 'S') {
+            onFrameS(uuid, data);
+        } else if (gen == 'X') {
+            if (rawLogged < RAW_CAP) {
+                rawLogged++;
+                log("rx " + uuid.toString().substring(4, 8) + " " + hexAll(data));
+            }
         } else {
             onFrameB(uuid, data);
         }
@@ -321,6 +402,13 @@ public final class ScaleLink {
         setState(READY);
         if (gen == 'A') {
             main.postDelayed(new Unprompted(this), HELLO_WAIT_MS);
+        } else if (gen == 'S') {
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            send(ScaleSenssun.date(c.get(java.util.Calendar.YEAR), c.get(java.util.Calendar.DAY_OF_YEAR)), true);
+            send(ScaleSenssun.time(c.get(java.util.Calendar.HOUR_OF_DAY), c.get(java.util.Calendar.MINUTE),
+                    c.get(java.util.Calendar.SECOND)), true);
+        } else if (gen == 'X') {
+            // nothing to say: listen and log
         } else {
             main.postDelayed(new Beat(this, ++beatToken), BEAT_MS);
         }
@@ -425,6 +513,35 @@ public final class ScaleLink {
         main.postDelayed(new Beat(this, token), BEAT_MS);
     }
 
+    // ------------------------------------------------------------------ Senssun / MovingLife
+
+    static final int RAW_CAP = 400, RAW_S = 60;
+
+    void onFrameS(java.util.UUID uuid, byte[] data) {
+        if (rawLogged < RAW_S) {
+            rawLogged++;
+            log("rx S " + hexAll(data));
+        }
+        int k = senssun.add(data);
+        if (k == ScaleSenssun.Reader.NONE) {
+            return;
+        }
+        heard = true;
+        if (k == ScaleSenssun.Reader.LIVE) {
+            live(senssun.kg, false);
+        } else if (k == ScaleSenssun.Reader.STABLE) {
+            live(senssun.kg, true);
+            send(ScaleSenssun.user(male, age, heightCm), true);
+        } else {
+            if (k == ScaleSenssun.Reader.ERROR) {
+                log("S: fat test failed (contact) — weight only");
+            }
+            log("S result " + senssun.kg + " kg, fat " + senssun.fatPct + " %, water " + senssun.waterPct
+                    + " %, muscle " + senssun.musclePct + " %, bone " + senssun.boneKg + " kg, kcal " + senssun.kcal);
+            finish(senssun.reading());
+        }
+    }
+
     // ------------------------------------------------------------------ shared
 
     void live(double kg, boolean stable) {
@@ -450,6 +567,14 @@ public final class ScaleLink {
         StringBuilder b = new StringBuilder();
         for (int i = 0; i < d.length && i < 24; i++) {
             b.append(String.format(Locale.US, "%02x", d[i] & 0xFF));
+        }
+        return b.toString();
+    }
+
+    static String hexAll(byte[] d) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < d.length; i++) {
+            b.append(String.format(Locale.US, i == 0 ? "%02x" : " %02x", d[i] & 0xFF));
         }
         return b.toString();
     }

@@ -795,7 +795,47 @@ public final class ScaleSim {
         ok("scale focus joins the client's", f.contains("legs"));
     }
 
+    // ---------------------------------------------------------------- Senssun / MovingLife (openScale SenssunHandler)
+
+    /** Frames built from openScale's layout (FF A5 v1 v2 T …); no published capture of a KB-7853 exists yet. */
+    static void senssun() {
+        eq("S user", hex(ScaleSenssun.user(true, 36, 180)), "a510f124b40000d900");
+        eq("S user woman", hex(ScaleSenssun.user(false, 30, 165)), "a510011ea50000d400");
+        eq("S date", hex(ScaleSenssun.date(2026, 276)), "a5301a011400005f00");
+        eq("S time", hex(ScaleSenssun.time(14, 5, 9)), "a5310e050900004d00");
+        ok("S names", ScaleSenssun.looksLike("SENSSUN FAT") && ScaleSenssun.looksLike("IF_B7")
+                && ScaleSenssun.looksLike("Klausberg KB-7853") && !ScaleSenssun.looksLike("XEMS suit"));
+        ok("S not ICOMON", ScaleSenssun.parse(hex("ac 02 ff ff cc 33 00 00 00 00")) == null);
+        ScaleSenssun.Reader r = new ScaleSenssun.Reader();
+        ok("S live", r.add(hex("ff a5 02 a8 00 00 a0 00")) == ScaleSenssun.Reader.LIVE);
+        eq("S live kg", r.kg, 68.0, 1e-9);
+        ok("S fat before settle: no result", r.add(hex("ff a5 00 d2 02 26 b0 00")) == ScaleSenssun.Reader.NONE);
+        ok("S settled", r.add(hex("ff a5 03 2a 00 00 aa 00")) == ScaleSenssun.Reader.STABLE);
+        ok("S settled again: live", r.add(hex("ff a5 03 2a 00 00 aa 00")) == ScaleSenssun.Reader.LIVE);
+        eq("S kg", r.kg, 81.0, 1e-9);
+        ok("S fat → result", r.add(hex("ff a5 00 d2 02 26 b0 00")) == ScaleSenssun.Reader.RESULT);
+        eq("S fat", r.fatPct, 21.0, 1e-9);
+        eq("S water", r.waterPct, 55.0, 1e-9);
+        ok("S muscle", r.add(hex("ff a5 01 a4 1e 00 c0 00")) == ScaleSenssun.Reader.NONE);
+        eq("S muscle %", r.musclePct, 42.0, 1e-9);
+        eq("S bone (swapped)", r.boneKg, 3.0, 1e-9);
+        ok("S fat again: one result", r.add(hex("ff a5 00 d2 02 26 b0 00")) == ScaleSenssun.Reader.NONE);
+        ScaleProtocol.Reading m = r.reading();
+        ok("S reading", m.result && !m.hasTrunk() && Double.isNaN(m.z20[ScaleProtocol.LEFT_ARM]));
+        eq("S reading fat", m.scaleFatPct, 21.0, 1e-9);
+        ok("S step off", r.add(hex("ff a5 00 00 00 00 a0 00")) == ScaleSenssun.Reader.LIVE && Double.isNaN(r.fatPct));
+        r.add(hex("ff a5 02 bc 00 00 aa 00"));
+        ok("S no contact → weight only", r.add(hex("ff a5 00 00 00 00 be 00")) == ScaleSenssun.Reader.ERROR
+                && Double.isNaN(r.reading().scaleFatPct));
+        eq("S weight-only kg", r.reading().weightKg, 70.0, 1e-9);
+        ScaleSession ss = new ScaleSession(true, 40, 175);
+        ok("S into the session", ss.add(r.reading()) == ScaleSession.NEW && ss.merged() != null);
+        ok("S same weight again: repeat", ss.add(r.reading()) == ScaleSession.REPEAT);
+        ok("S no body without impedances", ScaleBody.of(r.reading(), true, 40, 175) == null);
+    }
+
     public static void main(String[] a) throws Exception {
+        senssun();
         algorithms();
         advice();
         ownerReport();

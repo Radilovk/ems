@@ -94,8 +94,8 @@ public final class ScaleSources {
                 "NHANES 1999–2004 · DXA · национална извадка на САЩ", "NHANES 1999–2004 · DXA · US national sample", 0,
                 "10.1371/journal.pone.0007038"));
         s.add(new Source(T_STUDY, "Физическа възраст", "Physical age",
-                "Медианите на мускулите на ръцете и краката и на мазнините по десетилетия — коя възраст им отговаря.",
-                "The medians of arm + leg muscle and of fat by decade — which age the body matches.",
+                "Мускулите на ръцете и краката и мазнините спрямо хората на твоята възраст (медиана и разсейване) — изразено в години.",
+                "Arm + leg muscle and fat against people of the client's own age (median and spread) — said in years.",
                 "Imboden MT, Welch WA, Swartz AM et al. PLoS One 2017;12(4):e0175110 и e0176161",
                 "3 327 възрастни · DXA", "3,327 adults · DXA", 3327, "10.1371/journal.pone.0175110"));
         s.add(new Source(T_STUDY, "Водата в тялото", "Body water",

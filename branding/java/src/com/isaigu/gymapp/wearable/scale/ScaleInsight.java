@@ -374,12 +374,13 @@ public final class ScaleInsight {
             b.almi = (sm.optDouble(ScaleProtocol.LEFT_ARM, 0) + sm.optDouble(ScaleProtocol.RIGHT_ARM, 0)
                     + sm.optDouble(ScaleProtocol.LEFT_LEG, 0) + sm.optDouble(ScaleProtocol.RIGHT_LEG, 0)) / h2;
         }
-        if (!Double.isNaN(b.almi)) {
-            b.ageFromMuscle = ageOf(b.almi, male ? ALMI_M : ALMI_F, male ? 0.026 : 0.012, false);
+        int pa = m.optInt("pa", 0);
+        if (pa >= 18) {
+            b.ageFromMuscle = pa - YEARS_PER_SD * zMuscle(b.almi, male, pa);
+            b.ageFromFat = pa + YEARS_PER_SD * zFat(b.fmi, male, pa);
         }
-        b.ageFromFat = ageOf(b.fmi, male ? FMI_M : FMI_F, male ? 0.07 : 0.16, true);
         double shown = m.optDouble("pag", Double.NaN);
-        b.physicalAge = !Double.isNaN(shown) ? shown : physicalAge(b.almi, b.fmi, male, m.optInt("pa", 0));
+        b.physicalAge = !Double.isNaN(shown) ? shown : physicalAge(b.almi, b.fmi, male, pa);
         JSONArray f = m.optJSONArray("segFat");
         if (f != null) {
             double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
@@ -391,61 +392,73 @@ public final class ScaleInsight {
     }
 
     /**
-     * Physical age before it is held (ScaleModel keeps the shown one until a real change): the age whose ALMI and
-     * FMI medians match, half each; half the gap to the passport, at most 8 years. NaN without fat.
+     * Physical age from one weigh-in: where the client stands among people of their own (passport) age, said in
+     * years. z = the client's ALMI and FMI against the median and spread of their age group (DXA, 3 327 adults,
+     * Imboden 2017: ALMI by quartiles, FMI on a log scale — it is skewed), muscle up and fat down count young,
+     * half each; {@link #YEARS_PER_SD} years per standard deviation, at most {@link #AGE_SPAN}. NaN without a
+     * passport age (18+) or fat.
+     * <p>Not the inverse of the medians by age (until 1.1.300-ai): they are almost flat — women's ALMI falls
+     * 0.01 kg/m² a year while people of one age differ by ~1 kg/m² — so 0.1 kg/m² of measuring noise became years.
+     * Against the spread of one's own age group the same noise is ~0.1 SD → a few months.
      */
     public static double physicalAge(double almi, double fmi, boolean male, int passport) {
-        double am = ageOf(almi, male ? ALMI_M : ALMI_F, male ? 0.026 : 0.012, false);
-        double af = ageOf(fmi, male ? FMI_M : FMI_F, male ? 0.07 : 0.16, true);
-        double a = Double.isNaN(am) ? af : Double.isNaN(af) ? am : 0.5 * am + 0.5 * af;
-        if (passport >= 18 && !Double.isNaN(a)) {
-            // the medians move slowly with age, so a fit body maps decades away: half the gap, at most 8 years
-            a = passport + Math.max(-AGE_SPAN, Math.min(AGE_SPAN, (a - passport) / 2));
-        }
-        return a;
-    }
-
-    /**
-     * Medians by age, DXA, 3 327 adults (Imboden et al., PLoS One 2017; 10.1371/journal.pone.0175110 and .0176161),
-     * at the decade middles 25 … 75. FMI only up to 55 (it falls again after 60 — loss of mass, not youth).
-     */
-    static final double[] AGES = {25, 35, 45, 55, 65, 75};
-    /** Physical age stays within this many years of the passport. */
-    static final double AGE_SPAN = 8;
-    static final double[] ALMI_M = {9.3, 9.1, 8.7, 8.6, 8.5, 8.0};
-    static final double[] ALMI_F = {6.9, 6.8, 6.7, 6.6, 6.5, 6.3};
-    static final double[] FMI_M = {5.0, 6.8, 8.0, 8.7};
-    static final double[] FMI_F = {6.6, 8.9, 9.7, 11.3};
-
-    /**
-     * The age whose median equals v: piecewise-linear inverse over the decades; beyond the youngest / oldest the
-     * outer slope per year (rising = the value grows with age).
-     */
-    static double ageOf(double v, double[] med, double slopeOut, boolean rising) {
-        if (Double.isNaN(v)) {
+        if (passport < 18 || Double.isNaN(fmi) || fmi <= 0) {
             return Double.NaN;
         }
-        int n = med.length;
-        double first = med[0], last = med[n - 1];
-        if (rising ? v <= first : v >= first) {
-            return clampAge(AGES[0] - Math.abs(v - first) / slopeOut);
-        }
-        if (rising ? v >= last : v <= last) {
-            return clampAge(AGES[n - 1] + Math.abs(v - last) / slopeOut);
-        }
-        for (int i = 1; i < n; i++) {
-            double lo = med[i - 1], hi = med[i];
-            if (rising ? v <= hi : v >= hi) {
-                double t = (v - lo) / (hi - lo);
-                return clampAge(AGES[i - 1] + t * (AGES[i] - AGES[i - 1]));
-            }
-        }
-        return clampAge(AGES[n - 1]);
+        double zf = zFat(fmi, male, passport);
+        double za = zMuscle(almi, male, passport);
+        double z = Double.isNaN(za) ? -zf : 0.5 * za - 0.5 * zf;
+        return passport - Math.max(-AGE_SPAN, Math.min(AGE_SPAN, YEARS_PER_SD * z));
     }
 
-    static double clampAge(double a) {
-        return Math.max(18, Math.min(85, a));
+    /** ALMI's z against the client's age group: (v − median) / (IQR / 1.349). */
+    static double zMuscle(double almi, boolean male, int age) {
+        if (Double.isNaN(almi) || almi <= 0) {
+            return Double.NaN;
+        }
+        double lo = atAge(male ? ALMI_M_P25 : ALMI_F_P25, age), mid = atAge(male ? ALMI_M_P50 : ALMI_F_P50, age),
+                hi = atAge(male ? ALMI_M_P75 : ALMI_F_P75, age);
+        return (almi - mid) / ((hi - lo) / IQR_SD);
     }
+
+    /** FMI's z against the client's age group on a log scale. */
+    static double zFat(double fmi, boolean male, int age) {
+        double lo = atAge(male ? FMI_M_P25 : FMI_F_P25, age), mid = atAge(male ? FMI_M_P50 : FMI_F_P50, age),
+                hi = atAge(male ? FMI_M_P75 : FMI_F_P75, age);
+        return Math.log(fmi / mid) / (Math.log(hi / lo) / IQR_SD);
+    }
+
+    /** The table's value at this age: linear between the decade middles 25 … 75, flat beyond. */
+    static double atAge(double[] t, int age) {
+        double a = Math.max(AGES[0], Math.min(AGES[AGES.length - 1], age));
+        for (int i = 1; i < AGES.length; i++) {
+            if (a <= AGES[i]) {
+                double f = (a - AGES[i - 1]) / (AGES[i] - AGES[i - 1]);
+                return t[i - 1] + f * (t[i] - t[i - 1]);
+            }
+        }
+        return t[t.length - 1];
+    }
+
+    /**
+     * Quartiles by decade (20–29 … 70–79 → 25 … 75), DXA, 3 327 adults (Imboden et al., PLoS One 2017: lean
+     * 10.1371/journal.pone.0176161 Table 5, fat 10.1371/journal.pone.0175110 Table 3).
+     */
+    static final double[] AGES = {25, 35, 45, 55, 65, 75};
+    static final double[] ALMI_M_P25 = {8.6, 8.6, 8.3, 8.1, 8.0, 7.6}, ALMI_M_P50 = {9.3, 9.1, 8.7, 8.6, 8.5, 8.0},
+            ALMI_M_P75 = {10.2, 9.6, 9.2, 9.2, 9.0, 8.3};
+    static final double[] ALMI_F_P25 = {6.4, 6.4, 6.1, 6.1, 6.1, 5.9}, ALMI_F_P50 = {6.9, 6.8, 6.7, 6.6, 6.5, 6.3},
+            ALMI_F_P75 = {7.4, 7.4, 7.2, 7.1, 7.1, 6.7};
+    static final double[] FMI_M_P25 = {3.2, 4.0, 5.2, 5.9, 6.2, 5.8}, FMI_M_P50 = {5.0, 6.8, 8.0, 8.7, 8.5, 7.9},
+            FMI_M_P75 = {7.1, 10.1, 10.5, 10.3, 10.2, 9.6};
+    static final double[] FMI_F_P25 = {5.0, 5.4, 7.0, 7.6, 8.0, 8.0}, FMI_F_P50 = {6.6, 8.9, 9.7, 11.3, 11.2, 10.5},
+            FMI_F_P75 = {8.2, 11.9, 12.8, 14.4, 14.3, 12.8};
+    /** Interquartile range of a normal distribution in SDs. */
+    static final double IQR_SD = 1.349;
+    /** Years per SD (2 SD — the top or bottom ~2 % of one's age group — reaches the 8-year limit). */
+    static final double YEARS_PER_SD = 4;
+    /** Physical age stays within this many years of the passport. */
+    static final double AGE_SPAN = 8;
 
     // ================================================================ norms: a 5-sector scale per value
 

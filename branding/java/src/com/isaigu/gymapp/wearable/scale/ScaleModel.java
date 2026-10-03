@@ -31,7 +31,7 @@ import org.json.JSONObject;
  */
 public final class ScaleModel {
     /** Stored measurements carry "v" = this; older ones are rebuilt from their raw impedances. */
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
     /** Segment sum → hand-to-foot resistance (owner's report: Sun 2003 = WLA25 17.0 % for him). */
     static final double GEO = 0.8736;
     /** Without a usable trunk reading (generation A): the trunk ≈ this share of arm + leg. */

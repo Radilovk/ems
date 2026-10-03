@@ -30,7 +30,7 @@
 
 .field static final TRUNK_SHARE:D = 0.037
 
-.field public static final VERSION:I = 0x3
+.field public static final VERSION:I = 0x4
 
 
 # direct methods
@@ -336,7 +336,7 @@
     .line 258
     const-string v5, "v"
 
-    const/4 v6, 0x3
+    const/4 v6, 0x4
 
     invoke-virtual {v4, v5, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
@@ -1189,7 +1189,7 @@
 
     move-result v3
 
-    const/4 v4, 0x3
+    const/4 v4, 0x4
 
     if-lt v3, v4, :cond_37
 
@@ -1276,7 +1276,7 @@
 
     move-result v3
 
-    const/4 v4, 0x3
+    const/4 v4, 0x4
 
     if-lt v3, v4, :cond_70
 

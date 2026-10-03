@@ -145,11 +145,11 @@ public final class ScaleSession {
         return g;
     }
 
-    /** Two step-ons agree: whole-body resistance within 3 %, the model's fat within 2 points. */
+    /** Two step-ons agree: whole-body resistance within 3 %, the model's fat within 1.5 points. */
     boolean agree(ScaleProtocol.Reading a, ScaleProtocol.Reading b) {
         double ra = ScaleModel.r50(a.z20, a.z100), rb = ScaleModel.r50(b.z20, b.z100);
         double fa = ScaleModel.fatPct(a, male, age, heightCm), fb = ScaleModel.fatPct(b, male, age, heightCm);
-        return gap(ra, rb) <= 3 && Math.abs(fa - fb) <= 2;
+        return gap(ra, rb) <= 3 && Math.abs(fa - fb) <= 1.5;
     }
 
     /** This reading's lean is more than 3 σ from where the client's filter expects it. */

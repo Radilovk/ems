@@ -334,6 +334,7 @@ public final class ScaleSim {
         o.put("fatKg", w * fat / 100);
         o.put("lean", w - w * fat / 100);
         o.put("skel", skelPct);
+        o.put("pa", 40);
         // limbs ≈ 45 % of the lean in muscle, split like the WLA25 regressions (arms 0.06 / legs 0.17 of lean)
         double lean = w - w * fat / 100;
         o.put("segMus", new org.json.JSONArray(new double[] {lean * 0.44, lean * 0.06, lean * 0.06, lean * 0.17,
@@ -353,17 +354,20 @@ public final class ScaleSim {
         ok("heavy woman = obese", hw.fatCls == 3);
         // very lean (below essential fat)
         ok("very lean", ScaleInsight.body(comp(60, 12, 42), false, 165).type == ScaleInsight.T_VERY_LEAN);
-        // physical age does not move with the entered age (there is none in the call) and follows the body
+        // physical age follows the body against its own age group (passport 40 in comp)
         double young = ScaleInsight.body(comp(75, 14, 50), true, 175).physicalAge;
         double older = ScaleInsight.body(comp(75, 26, 41), true, 175).physicalAge;
         ok("physical age: fitter body younger (" + Math.round(young) + " < " + Math.round(older) + ")",
-                young + 8 < older);
-        ok("physical age in range", young >= 18 && older <= 85);
-        // the DXA medians themselves map back to their decade
-        eq("ALMI median → 45", ScaleInsight.ageOf(8.7, ScaleInsight.ALMI_M, 0.026, false), 45, 1e-9);
-        eq("FMI median → 35", ScaleInsight.ageOf(6.8, ScaleInsight.FMI_M, 0.07, true), 35, 1e-9);
-        eq("FMI between", ScaleInsight.ageOf(7.4, ScaleInsight.FMI_M, 0.07, true), 40, 1e-9);
-        eq("lean young clamps 18", ScaleInsight.ageOf(3.0, ScaleInsight.FMI_M, 0.07, true), 18, 1e-9);
+                young + 4 < older);
+        ok("physical age within 8 y", young >= 32 - 1e-9 && older <= 48 + 1e-9);
+        // the age group's own medians = the passport age; a quartile of muscle ≈ 2.7 years younger
+        eq("medians → passport", ScaleInsight.physicalAge(8.7, 8.0, true, 45), 45, 1e-9);
+        eq("woman medians → passport", ScaleInsight.physicalAge(6.65, 10.5, false, 50), 50, 0.01);
+        eq("P75 muscle, median fat → −1.5 y", ScaleInsight.physicalAge(9.2, 8.0, true, 45), 45 - 2 * 0.5 / (0.9 / 1.349), 0.01);
+        ok("no passport → no physical age", Double.isNaN(ScaleInsight.physicalAge(8.7, 8.0, true, 0)));
+        // the noise of one step-on (ALMI ±0.12, FMI ±0.25) moves it by well under a year
+        double d = Math.abs(ScaleInsight.physicalAge(6.66, 9.95, false, 40) - ScaleInsight.physicalAge(6.54, 9.7, false, 40));
+        ok("step-on noise < 0.6 y (" + r1(d) + ")", d < 0.6);
     }
 
     /** The owner's own Fitdays report (Lescale P1, 02.10.2026, male, 31, 175 cm): our chain from its body fat. */
@@ -488,12 +492,12 @@ public final class ScaleSim {
             ok("held age: " + ex, false);
         }
 
-        // a real change still shows: weeks later, fat 9 kg more → the held age moves; the same day it would not
+        // a real change still shows: weeks later, much more fat → the held age moves; the same day it would not
         {
             ScaleModel.State sh = new ScaleModel.State();
             sh.ash = 0.45; sh.asv = ScaleModel.RA; sh.age = 40; sh.ageT = t; sh.lean = 40; sh.t = t;
             ScaleBody hb = ScaleBody.withFat(owner, false, 40, 168, 30);
-            hb.leanKg = 40; hb.fatKg = 25;
+            hb.leanKg = 40; hb.fatKg = 38;
             for (int k = 0; k < 5; k++) hb.segMuscleKg[k] = k == 0 ? 20 : 4.5;
             ScaleModel.trait(sh, hb, t + 3600000L, 0.04, false, 40, 168);
             eq("an hour later: held", sh.age, 40, 1e-9);
@@ -667,6 +671,11 @@ public final class ScaleSim {
         org.json.JSONObject m;
         try {
             m = ScaleStore.toJson(r, b, 0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            m.put("pa", 31);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

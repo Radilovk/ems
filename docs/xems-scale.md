@@ -116,6 +116,39 @@ filter, σ 0.012 per reading, 0.001/√day drift, restarts with the lean's); ALM
 Physical age `pag` is computed from those and **held** until it moves ≥ 2 years (least significant change) and
 never within 12 h of the last change (`ScaleModel.trait`). A real change (fat ±5 kg over weeks) still shows.
 
+## One session must be enough — per-value stability (1.1.301-ai)
+Owner: accuracy must come from one session, not from a history. How the professional analysers do it: InBody 770
+— 30 impedances (5 segments × 6 frequencies) per test, segments measured directly, no age / sex in the equations;
+duplicates in one session differ by 0.0–0.2 kg / L, days apart by 0.1–0.7 kg under a strict protocol (07:00, ≥ 10 h
+fasted, no hard exercise 48 h; PMC11649400). seca mBCA — equations fitted on a 4-compartment reference (124 + 130
+adults). Both rely on (1) a precise sweep, (2) a standard state of the body, (3) equations whose output moves no
+more than the input does. None publishes a "body age" from inverted population curves.
+Our P1 gives one sweep (2 frequencies × 5 segments) per step-on; `ScaleSession` = 1–3 step-ons, merged by median.
+**Sensitivity of every value to one session's disturbances** (fresh profile, no history; `Sens` harness — per-value
+SD for ±2 % contact noise per segment, and the shift for a meal +0.8 kg with impedance unchanged, a drink +0.5 kg,
+the meal absorbed −2 % limb impedance, z100 −1 %):
+
+| Value | SD per step-on | meal / drink | absorbed | verdict |
+|---|---|---|---|---|
+| fat % | 0.35–0.38 | +0.4–0.8 / +0.2–0.5 | −0.2…0 | OK; food on the scale reads as fat (all BIA) → protocol |
+| lean, muscle kg | 0.22–0.29 | +0.1–0.3 | +0.6–0.8 | OK |
+| water / protein / skeletal % | 0.08–0.30 | −0.6…−0.1 | ≤ 0.2 | OK |
+| BMR | 5–6 kcal | +2–6 | +13–17 | OK |
+| segment muscle | 0.03–0.13 kg | ≤ 0.13 | ≤ 0.35 | OK (WLA25 limbs are mostly lean-driven) |
+| ALMI | 0.05 | ≤ 0.05 | 0.12–0.13 | OK as a value |
+| **physical age (median inversion, ≤ 1.1.300)** | **1.2 y** | — | **−2.8 y** | **broken: amplifier** |
+| physical age (z vs own age group, 1.1.301) | 0.2 y | ≤ 0.13 | ≤ 0.4 | OK |
+| visceral grade | 0–0.5 | 0 / +1 near a step | | integer edge, inherent |
+
+**Physical age (1.1.301-ai)**: `ScaleInsight.physicalAge` = passport − 4 years × z, z = ½ z(ALMI) − ½ z(FMI)
+against the client's **own age group** — median and IQR / 1.349 by decade (Imboden 2017, DXA, 3 327 adults; FMI on
+a log scale), at most ±8 years; no passport → none. Why: within one age, people differ by ~1 kg/m² ALMI while the
+median falls 0.01–0.03 kg/m² a year; inverting the medians turned 0.1 kg/m² of noise into years, against the
+spread it is 0.1 SD. Owner's P1 report: 29 (Fitdays 29, passport 31). The cross-session hold of 1.1.300 stays.
+**Protocol is part of the measurement**: same time, before the session, ≥ 2 h after food, bladder empty, before
+training — what the pros enforce; the scale cannot tell a meal on the scale from fat.
+Step-ons agree when whole-body R ≤ 3 % and fat ≤ 1.5 points apart (was 2).
+
 ## Owner's Fitdays report = test vector (1.1.288-ai)
 Lescale P1, 02.10.2026, male 31, 175 cm, 81.4 kg; Z20 / Z100 (Ω) trunk 17.3 / 15.7, LA 252.0 / 215.5, RA 234.0 /
 199.5, LL 221.0 / 190.0, RL 232.0 / 200.0 — the P1 sends a **trunk** pair. With Fitdays' body fat (17.8 %) our

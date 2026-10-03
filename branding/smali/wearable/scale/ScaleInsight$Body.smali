@@ -47,37 +47,37 @@
 
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
-    .line 317
+    .line 318
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 318
+    .line 319
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->ffmi:D
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->fmi:D
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->smi:D
 
-    .line 320
+    .line 321
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->almi:D
 
-    .line 322
+    .line 323
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->muscleCls:I
 
-    .line 324
+    .line 325
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->fatCls:I
 
-    .line 325
+    .line 326
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->type:I
 
-    .line 326
+    .line 327
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->physicalAge:D
 
-    .line 327
+    .line 328
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->ageFromMuscle:D
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->ageFromFat:D
 
-    .line 329
+    .line 330
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->legFatShare:D
 
     return-void
@@ -89,7 +89,7 @@
     .registers 2
 
     .prologue
-    .line 332
+    .line 333
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->type:I
 
     if-ltz v0, :cond_6

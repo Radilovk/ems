@@ -1330,4 +1330,328 @@ public final class ScaleViews {
             v.invalidate();
         }
     }
+
+    // ================================================================ the analysis: mini norm, composition, path
+
+    /** A tile's norm in one glance: five short segments, the current one lit, a dot where the value is. */
+    public static final class MiniNorm extends View {
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF r = new RectF();
+        ScaleInsight.Norm n;
+        float grow = 1f;
+
+        public MiniNorm(Context c) {
+            super(c);
+        }
+
+        public void set(ScaleInsight.Norm norm) {
+            n = norm;
+            ValueAnimator va = ValueAnimator.ofFloat(0f, 1f);
+            va.setDuration(520);
+            va.setInterpolator(new DecelerateInterpolator(1.6f));
+            va.addUpdateListener(new Grow1(this));
+            va.start();
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            if (n == null) {
+                return;
+            }
+            float l = dp(this, 5), w = getWidth() - 2 * l, h = dp(this, 6), y = (getHeight() - h) / 2;
+            int now = n.sector();
+            for (int i = 0; i < 5; i++) {
+                float x0 = l + w * i / 5 + dp(this, 1), x1 = l + w * (i + 1) / 5 - dp(this, 1);
+                r.set(x0, y, x1, y + h);
+                p.setColor(i == now ? n.colors[i] : XemsUi.alpha(n.colors[i], 70));
+                c.drawRoundRect(r, h / 2, h / 2, p);
+            }
+            if (Double.isNaN(n.value) || now < 0) {
+                return;
+            }
+            double[] e = n.edges;
+            double cl = Math.max(e[0], Math.min(e[5], n.value));
+            double t = (cl - e[now]) / Math.max(1e-9, e[now + 1] - e[now]);
+            float x = l + (float) ((now + t) / 5 * w) * grow;
+            p.setColor(XemsUi.TEXT);
+            c.drawCircle(x, y + h / 2, dp(this, 5.5f), p);
+            p.setColor(n.colors[now]);
+            c.drawCircle(x, y + h / 2, dp(this, 3.2f), p);
+        }
+    }
+
+    static final class Grow1 implements ValueAnimator.AnimatorUpdateListener {
+        final View v;
+
+        Grow1(View v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator a) {
+            float g = (Float) a.getAnimatedValue();
+            if (v instanceof MiniNorm) {
+                ((MiniNorm) v).grow = g;
+            } else if (v instanceof Composition) {
+                ((Composition) v).grow = g;
+            } else if (v instanceof Path2Target) {
+                ((Path2Target) v).grow = g;
+            }
+            v.invalidate();
+        }
+    }
+
+    /**
+     * What the weight is made of: one bar split into fat · water · protein · minerals (kg), each part as wide as its
+     * share, its name, kg and % under it. Tap a part → {@link OnSegment#onSegment} with its index.
+     */
+    public static final class Composition extends View {
+        public static final int FAT = 0, WATER = 1, PROTEIN = 2, MINERAL = 3;
+        static final int[] COL = {0xFFF59E0B, 0xFF38BDF8, 0xFF22C55E, 0xFFA78BFA};
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF r = new RectF();
+        final double[] kg = {Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+        final float[] x0 = new float[4], x1 = new float[4];
+        int sel = -1;
+        float grow = 1f;
+        OnSegment l;
+
+        public Composition(Context c) {
+            super(c);
+            setClickable(true);
+        }
+
+        public void setOnSegment(OnSegment l) {
+            this.l = l;
+        }
+
+        public void set(double fatKg, double waterKg, double proteinKg, double mineralKg, int sel) {
+            boolean first = Double.isNaN(kg[0]);
+            kg[0] = fatKg;
+            kg[1] = waterKg;
+            kg[2] = proteinKg;
+            kg[3] = mineralKg;
+            this.sel = sel;
+            if (first) {
+                ValueAnimator va = ValueAnimator.ofFloat(0f, 1f);
+                va.setDuration(700);
+                va.setInterpolator(new DecelerateInterpolator(1.6f));
+                va.addUpdateListener(new Grow1(this));
+                va.start();
+            }
+            invalidate();
+        }
+
+        public void select(int sel) {
+            this.sel = sel;
+            invalidate();
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            double sum = 0;
+            for (double v : kg) {
+                if (Double.isNaN(v)) {
+                    return;
+                }
+                sum += v;
+            }
+            String[] names = {tr("Мазнини", "Fat"), tr("Вода", "Water"), tr("Белтък", "Protein"),
+                    tr("Минерали", "Minerals")};
+            float l0 = dp(this, 2), w = (getWidth() - 2 * l0) * grow, bh = dp(this, 34), top = dp(this, 4);
+            float x = l0;
+            for (int i = 0; i < 4; i++) {
+                float pw = (float) (kg[i] / sum * w);
+                x0[i] = x;
+                x1[i] = x + pw;
+                r.set(x + (i == 0 ? 0 : dp(this, 1.5f)), top, x + pw - (i == 3 ? 0 : dp(this, 1.5f)), top + bh);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(sel < 0 || sel == i ? COL[i] : XemsUi.alpha(COL[i], 90));
+                c.drawRoundRect(r, dp(this, 9), dp(this, 9), p);
+                if (sel == i) {
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setStrokeWidth(dp(this, 2.5f));
+                    p.setColor(XemsUi.TEXT);
+                    r.inset(-dp(this, 2), -dp(this, 2));
+                    c.drawRoundRect(r, dp(this, 11), dp(this, 11), p);
+                }
+                x += pw;
+            }
+            if (grow < 1f) {
+                return;
+            }
+            // the legend: four equal columns (a thin part still gets its label), dot · kg · name · %
+            float cw = (getWidth() - 2 * l0) / 4f, ty = top + bh + dp(this, 22);
+            for (int i = 0; i < 4; i++) {
+                float cx = l0 + cw * i;
+                boolean lit = sel < 0 || sel == i;
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(COL[i]);
+                c.drawCircle(cx + dp(this, 5), ty - dp(this, 5), dp(this, 4.5f), p);
+                p.setTextAlign(Paint.Align.LEFT);
+                p.setTextSize(dp(this, 15));
+                p.setFakeBoldText(true);
+                p.setColor(lit ? XemsUi.TEXT : XemsUi.MUTED);
+                c.drawText((Math.round(kg[i] * 10) / 10.0) + tr(" кг", " kg"), cx + dp(this, 14), ty, p);
+                p.setFakeBoldText(false);
+                p.setTextSize(dp(this, 12));
+                p.setColor(lit ? COL[i] : XemsUi.alpha(COL[i], 150));
+                c.drawText(names[i], cx + dp(this, 14), ty + dp(this, 16), p);
+                p.setColor(XemsUi.MUTED);
+                c.drawText(Math.round(kg[i] / sum * 100) + " %", cx + dp(this, 14), ty + dp(this, 31), p);
+            }
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent e) {
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                return true;
+            }
+            if (e.getAction() == MotionEvent.ACTION_UP && l != null) {
+                float x = e.getX();
+                int hit = 0;
+                for (int i = 0; i < 4; i++) {
+                    // the minerals part is thin: give each part at least 48 dp to hit
+                    float a = x0[i], b = Math.max(x1[i], x0[i] + dp(this, 48));
+                    if (x >= a && x <= b) {
+                        hit = i;
+                    }
+                }
+                if (x > x1[3] - dp(this, 48)) {
+                    hit = 3;
+                }
+                if (e.getY() > dp(this, 44)) {
+                    hit = Math.max(0, Math.min(3, (int) (x / (getWidth() / 4f))));
+                }
+                XemsUi.haptic(this);
+                l.onSegment(hit);
+                performClick();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean performClick() {
+            return super.performClick();
+        }
+    }
+
+    /**
+     * The way to the healthy weight: a track with today's weight and the healthy one, the gap as an arrow, under it
+     * what the gap is made of (fat to lose, muscle to gain). Healthy = the client's own lean at a healthy fat %.
+     */
+    public static final class Path2Target extends View {
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF r = new RectF();
+        double now = Double.NaN, target = Double.NaN, fat = Double.NaN, muscle = Double.NaN;
+        float grow = 1f;
+        boolean selected;
+
+        public Path2Target(Context c) {
+            super(c);
+            setClickable(true);
+        }
+
+        public void set(double now, double target, double fat, double muscle) {
+            boolean first = Double.isNaN(this.now);
+            this.now = now;
+            this.target = target;
+            this.fat = fat;
+            this.muscle = muscle;
+            if (first) {
+                ValueAnimator va = ValueAnimator.ofFloat(0f, 1f);
+                va.setDuration(800);
+                va.setInterpolator(new DecelerateInterpolator(1.6f));
+                va.addUpdateListener(new Grow1(this));
+                va.start();
+            }
+            invalidate();
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            if (Double.isNaN(now) || Double.isNaN(target)) {
+                return;
+            }
+            float l = dp(this, 14), rr = getWidth() - dp(this, 14), w = rr - l;
+            double lo = Math.min(now, target) - 4, hi = Math.max(now, target) + 4;
+            float y = dp(this, 44);
+            p.setStyle(Paint.Style.FILL);
+            p.setColor(XemsUi.alpha(XemsUi.TEXT, 34));
+            r.set(l, y - dp(this, 4), rr, y + dp(this, 4));
+            c.drawRoundRect(r, dp(this, 4), dp(this, 4), p);
+            // the healthy band ±3 %
+            float b0 = (float) (l + (target * 0.97 - lo) / (hi - lo) * w), b1 = (float) (l + (target * 1.03 - lo) / (hi - lo) * w);
+            p.setColor(XemsUi.alpha(0xFF22C55E, 120));
+            r.set(b0, y - dp(this, 4), b1, y + dp(this, 4));
+            c.drawRoundRect(r, dp(this, 4), dp(this, 4), p);
+            float xt = (float) (l + (target - lo) / (hi - lo) * w);
+            float xn0 = (float) (l + (now - lo) / (hi - lo) * w);
+            float xn = xt + (xn0 - xt) * grow;
+            boolean on = Math.abs(now - target) <= target * 0.03;
+            int gap = on ? 0xFF22C55E : 0xFFF59E0B;
+            if (!on) {
+                p.setColor(gap);
+                p.setStrokeWidth(dp(this, 4));
+                p.setStyle(Paint.Style.STROKE);
+                c.drawLine(xn, y, xt, y, p);
+                // arrow head at the healthy end
+                float d = xt > xn ? -1 : 1;
+                Path a = new Path();
+                a.moveTo(xt, y);
+                a.lineTo(xt + d * dp(this, 10), y - dp(this, 7));
+                a.lineTo(xt + d * dp(this, 10), y + dp(this, 7));
+                a.close();
+                p.setStyle(Paint.Style.FILL);
+                c.drawPath(a, p);
+            }
+            // healthy flag
+            p.setStyle(Paint.Style.FILL);
+            p.setColor(0xFF22C55E);
+            c.drawCircle(xt, y, dp(this, 8), p);
+            p.setTextAlign(Paint.Align.CENTER);
+            p.setTextSize(dp(this, 13));
+            p.setFakeBoldText(true);
+            c.drawText(Math.round(target * 10) / 10.0 + tr(" кг", " kg"), xt, y + dp(this, 28), p);
+            // now
+            p.setColor(XemsUi.TEXT);
+            c.drawCircle(xn, y, dp(this, 11), p);
+            p.setColor(on ? 0xFF22C55E : gap);
+            c.drawCircle(xn, y, dp(this, 6), p);
+            p.setColor(XemsUi.TEXT);
+            p.setTextSize(dp(this, 15));
+            c.drawText(Math.round(now * 10) / 10.0 + tr(" кг · сега", " kg · now"), Math.max(l + dp(this, 50),
+                    Math.min(rr - dp(this, 50), xn)), y - dp(this, 18), p);
+            p.setFakeBoldText(false);
+            // what the gap is
+            p.setTextAlign(Paint.Align.LEFT);
+            p.setTextSize(dp(this, 14));
+            float ty = y + dp(this, 56);
+            String t;
+            if (on) {
+                t = tr("✓ В здравословното тегло", "✓ At the healthy weight");
+                p.setColor(0xFF22C55E);
+            } else {
+                StringBuilder b = new StringBuilder();
+                if (Math.abs(fat) >= 0.5) {
+                    b.append(fat < 0 ? tr("−", "−") : "+").append(Math.round(Math.abs(fat) * 10) / 10.0)
+                            .append(tr(" кг мазнини", " kg fat"));
+                }
+                if (muscle >= 0.5) {
+                    b.append(b.length() > 0 ? "   " : "").append("+").append(Math.round(muscle * 10) / 10.0)
+                            .append(tr(" кг мускули", " kg muscle"));
+                }
+                t = b.toString();
+                p.setColor(XemsUi.TEXT);
+            }
+            c.drawText(t, l, ty, p);
+            if (selected) {
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(dp(this, 2));
+                p.setColor(XemsUi.alpha(0xFF22C55E, 200));
+                r.set(dp(this, 1), dp(this, 1), getWidth() - dp(this, 1), getHeight() - dp(this, 1));
+                c.drawRoundRect(r, dp(this, 14), dp(this, 14), p);
+            }
+        }
+    }
 }

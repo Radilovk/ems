@@ -129,11 +129,26 @@ public final class ScaleStore {
         return o;
     }
 
-    /** Appends the measurement; the stored object (with "t"), or null when it could not be written. */
-    public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, ScaleBody b) {
+    /**
+     * Appends the measurement through {@link ScaleModel} (sex-aware, smoothed against the client's history); the
+     * stored object (with "t"), or null when it could not be written.
+     */
+    public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
+            int heightCm) {
+        return save(c, userId, r, male, age, heightCm, 1);
+    }
+
+    /** As {@link #save}, for a reading merged from {@code steps} step-ons ("n"). */
+    public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
+            int heightCm, int steps) {
         try {
-            JSONObject o = toJson(r, b, System.currentTimeMillis());
-            JSONArray a = list(c, userId);
+            JSONArray a = upgrade(c, userId, male, age, heightCm);
+            ScaleModel.State st = ScaleModel.stateOf(a);
+            JSONObject o = ScaleModel.entry(r, male, age, heightCm, System.currentTimeMillis(), st);
+            ScaleModel.mark(o, male, heightCm);
+            if (steps > 1) {
+                o.put("n", steps);
+            }
             JSONArray out = new JSONArray();
             for (int i = Math.max(0, a.length() - KEEP + 1); i < a.length(); i++) {
                 out.put(a.get(i));
@@ -145,6 +160,60 @@ public final class ScaleStore {
             com.isaigu.gymapp.widget.XemsGuard.report("ScaleStore.save", t);
             return null;
         }
+    }
+
+    /**
+     * The history, rebuilt from its raw impedances when it was computed by an older model or for another sex /
+     * age / height (then everything goes to the server again).
+     */
+    public static JSONArray upgrade(Context c, long userId, boolean male, int age, int heightCm) {
+        JSONArray a = list(c, userId);
+        try {
+            if (ScaleModel.stale(a, male, age, heightCm)) {
+                a = ScaleModel.rebuild(a, male, age, heightCm);
+                prefs(c).edit().putString("m" + userId, a.toString()).remove(ScaleUploader.SENT + userId).apply();
+            }
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("ScaleStore.upgrade", t);
+        }
+        return a;
+    }
+
+    /**
+     * Removes one measurement (someone else on the client's profile, a bad step) and re-smooths the rest; the
+     * server is told on the next upload.
+     */
+    public static JSONArray delete(Context c, long userId, long t, boolean male, int age, int heightCm) {
+        JSONArray a = list(c, userId);
+        JSONArray keep = new JSONArray();
+        for (int i = 0; i < a.length(); i++) {
+            JSONObject m = a.optJSONObject(i);
+            if (m != null && m.optLong("t") != t) {
+                keep.put(m);
+            }
+        }
+        keep = ScaleModel.rebuild(keep, male, age, heightCm);
+        SharedPreferences p = prefs(c);
+        String del = p.getString(ScaleUploader.DELETED + userId, "");
+        p.edit().putString("m" + userId, keep.toString())
+                .putString(ScaleUploader.DELETED + userId, del.length() > 0 ? del + "," + t : String.valueOf(t))
+                .remove(ScaleUploader.SENT + userId).apply();
+        return keep;
+    }
+
+    /**
+     * True when this weight is not the client's last one — a jump no body makes within the time (someone else on
+     * the profile?): more than 4 kg / 7 % within 30 days.
+     */
+    public static boolean unlike(JSONArray hist, double w, long now) {
+        for (int i = hist.length() - 1; i >= 0; i--) {
+            JSONObject m = hist.optJSONObject(i);
+            if (m == null || !m.has("w")) {
+                continue;
+            }
+            return now - m.optLong("t") < 30L * 86400000 && Math.abs(w - m.optDouble("w")) > ScaleModel.jump(w);
+        }
+        return false;
     }
 
     public static String mac(Context c) {

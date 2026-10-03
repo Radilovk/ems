@@ -106,6 +106,34 @@ public final class ScaleBody {
         } else {
             return null;
         }
+        return chain(b, z, y, h, fatKg, fatPct, trunk20, trunk100, age, male);
+    }
+
+    /**
+     * The same body with another fat % (our sex-aware model or its smoothed value): segments, water, muscle and the
+     * rest follow from that fat exactly as WLA25 does; null when {@link #of} refuses the reading.
+     */
+    public static ScaleBody withFat(ScaleProtocol.Reading r, boolean male, int age, int heightCm, double fatPct) {
+        ScaleBody v = of(r, male, age, heightCm);
+        if (v == null || Double.isNaN(fatPct)) {
+            return v;
+        }
+        double[] z = r.z20, y = r.z100;
+        double trunk20 = Double.NaN, trunk100 = Double.NaN;
+        if (r.hasTrunk() && z[0] >= 1 && y[0] >= 1) {
+            trunk20 = z[0] * 0.826;
+            trunk100 = y[0] <= z[0] ? y[0] * 0.826 : trunk20 - 3.0;
+            if (trunk20 < 0 || trunk100 < 0) {
+                trunk20 = trunk100 = Double.NaN;
+            }
+        }
+        double pct = ceil1(Math.max(3, Math.min(60, fatPct)));
+        return chain(v, z, y, heightCm, ceil1(v.weightKg * pct / 100.0), pct, trunk20, trunk100, age, male);
+    }
+
+    static ScaleBody chain(ScaleBody b, double[] z, double[] y, double h, double fatKg, double fatPct,
+            double trunk20, double trunk100, int age, boolean male) {
+        double w = b.weightKg;
         double lean = w - fatKg;
         b.fatPct = fatPct;
         b.fatKg = fatKg;

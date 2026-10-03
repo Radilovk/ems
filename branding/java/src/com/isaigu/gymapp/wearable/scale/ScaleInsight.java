@@ -310,7 +310,8 @@ public final class ScaleInsight {
      *       women 9 / 13 kg/m²), so a heavy woman is not "normal" by a wide %-range.</li>
      *   <li><b>Physical age</b> — the age whose median appendicular muscle (ALMI) and fat mass (FMI) per height²
      *       match the measured ones, half each, from DXA reference data of 3 327 adults (Imboden 2017). The entered
-     *       age is not in it. The scale's BIA reads a little less fat than DXA, so it leans young.</li>
+     *       age is not in it; then half the gap to the passport, at most 8 years (the medians move slowly with
+     *       age, so a fit body alone would map decades away).</li>
      *   <li><b>Fat pattern</b> — the legs' share of the limb + trunk fat: gynoid (legs, hips) or android (trunk).</li>
      * </ul>
      */
@@ -372,6 +373,11 @@ public final class ScaleInsight {
         }
         b.ageFromFat = ageOf(b.fmi, male ? FMI_M : FMI_F, male ? 0.07 : 0.16, true);
         b.physicalAge = Double.isNaN(b.ageFromMuscle) ? b.ageFromFat : 0.5 * b.ageFromMuscle + 0.5 * b.ageFromFat;
+        int pa = m.optInt("pa", 0);
+        if (pa >= 18 && !Double.isNaN(b.physicalAge)) {
+            // the medians move slowly with age, so a fit body maps decades away: half the gap, at most 8 years
+            b.physicalAge = pa + Math.max(-AGE_SPAN, Math.min(AGE_SPAN, (b.physicalAge - pa) / 2));
+        }
         JSONArray f = m.optJSONArray("segFat");
         if (f != null) {
             double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
@@ -387,6 +393,8 @@ public final class ScaleInsight {
      * at the decade middles 25 … 75. FMI only up to 55 (it falls again after 60 — loss of mass, not youth).
      */
     static final double[] AGES = {25, 35, 45, 55, 65, 75};
+    /** Physical age stays within this many years of the passport. */
+    static final double AGE_SPAN = 8;
     static final double[] ALMI_M = {9.3, 9.1, 8.7, 8.6, 8.5, 8.0};
     static final double[] ALMI_F = {6.9, 6.8, 6.7, 6.6, 6.5, 6.3};
     static final double[] FMI_M = {5.0, 6.8, 8.0, 8.7};

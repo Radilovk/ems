@@ -102,7 +102,11 @@ public final class AiProfile {
         }
         Context c = appContext();
         if (c != null) {
-            // a fresh scale measurement knows the body better than the record
+            // a fresh scale measurement knows the body better than the record (older model → rebuilt first)
+            if (p.sex != null && p.age != null && p.heightCm >= 100) {
+                com.isaigu.gymapp.wearable.scale.ScaleStore.upgrade(c, u.id, p.sex != AiModel.Sex.FEMALE, p.age,
+                        p.heightCm);
+            }
             double fat = com.isaigu.gymapp.wearable.scale.ScaleStore.freshFatPct(c, u.id);
             if (!Double.isNaN(fat)) {
                 p.fatPct = fat;

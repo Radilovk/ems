@@ -6,6 +6,10 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Path2Target;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Composition;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormGrow;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormBar;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$ChangeGrow;,

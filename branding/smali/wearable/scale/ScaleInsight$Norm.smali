@@ -37,42 +37,42 @@
     .prologue
     const/4 v1, 0x5
 
-    .line 432
+    .line 440
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 433
+    .line 441
     const/4 v0, 0x6
 
     new-array v0, v0, [D
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->edges:[D
 
-    .line 434
+    .line 442
     new-array v0, v1, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->colors:[I
 
-    .line 435
+    .line 443
     new-array v0, v1, [Ljava/lang/String;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->names:[Ljava/lang/String;
 
-    .line 436
+    .line 444
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->value:D
 
-    .line 437
+    .line 445
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->unit:Ljava/lang/String;
 
-    .line 438
+    .line 446
     const/4 v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->decimals:I
 
-    .line 440
+    .line 448
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->source:Ljava/lang/String;
@@ -86,7 +86,7 @@
     .registers 7
 
     .prologue
-    .line 443
+    .line 451
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->value:D
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
@@ -95,14 +95,14 @@
 
     if-eqz v0, :cond_a
 
-    .line 444
+    .line 452
     const/4 v0, -0x1
 
-    .line 451
+    .line 459
     :goto_9
     return v0
 
-    .line 446
+    .line 454
     :cond_a
     const/4 v0, 0x1
 
@@ -111,7 +111,7 @@
 
     if-ge v0, v1, :cond_1e
 
-    .line 447
+    .line 455
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->value:D
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->edges:[D
@@ -122,18 +122,18 @@
 
     if-gez v1, :cond_1b
 
-    .line 448
+    .line 456
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_9
 
-    .line 446
+    .line 454
     :cond_1b
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_b
 
-    .line 451
+    .line 459
     :cond_1e
     const/4 v0, 0x4
 

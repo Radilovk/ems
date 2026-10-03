@@ -97,6 +97,17 @@ public final class ScaleScreen {
         TextView again;
         ScaleLink link;
         android.widget.PopupWindow infoPop;
+        LinearLayout row;
+        LinearLayout barTop;
+        LinearLayout barRange;
+        boolean portrait;
+        int orientationBefore = Integer.MIN_VALUE;
+        LinearLayout history;
+        /** The measuring stage (shown first and whenever someone steps on) and the step-ons of this measurement. */
+        ScaleStage stage;
+        ScaleSession session;
+        boolean staging;
+        final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
 
         // day
         ScaleViews.Gauge gauge;
@@ -169,35 +180,42 @@ public final class ScaleScreen {
             XemsUi.fullScreen(s);
             s.info.setVisibility(View.VISIBLE);
             s.info.setOnClickListener(new Info(this));
-            int screenH = a.getResources().getDisplayMetrics().heightPixels;
-            workH = Math.max(dp(440), screenH - dp(234));
+            portrait = Columns.portrait(a);
+            workH = Columns.landH(a, 234);
 
-            LinearLayout bar = XemsUi.horizontal(a);
-            bar.setGravity(Gravity.CENTER_VERTICAL);
+            barTop = XemsUi.horizontal(a);
+            barTop.setGravity(Gravity.CENTER_VERTICAL);
             modeHolder = XemsUi.horizontal(a);
-            bar.addView(modeHolder, new LinearLayout.LayoutParams(dp(380), ViewGroup.LayoutParams.WRAP_CONTENT));
-            bar.addView(XemsUi.spacer(a));
+            barTop.addView(modeHolder, new LinearLayout.LayoutParams(dp(360), ViewGroup.LayoutParams.WRAP_CONTENT));
+            barTop.addView(XemsUi.spacer(a));
             rangeHolder = XemsUi.horizontal(a);
-            bar.addView(rangeHolder);
-            TextView sum = XemsUi.button(a, tr("Обобщение и препоръки", "Summary and advice"), XemsUi.SECONDARY);
+            TextView det = XemsUi.button(a, tr("Анализ", "Analysis"), XemsUi.SECONDARY);
+            det.setOnClickListener(new Details(this));
+            LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
+            dl.leftMargin = dp(12);
+            barTop.addView(det, dl);
+            TextView sum = XemsUi.button(a, tr("Обобщение", "Summary"), XemsUi.SECONDARY);
             sum.setOnClickListener(new Summary(this));
             LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
-            sl.leftMargin = dp(12);
-            bar.addView(sum, sl);
-            s.body.addView(bar, XemsUi.matchWrap(a, 0));
+            sl.leftMargin = dp(10);
+            barTop.addView(sum, sl);
+            s.body.addView(barTop, XemsUi.matchWrap(a, 0));
+            barRange = XemsUi.horizontal(a);
+            barRange.setGravity(Gravity.CENTER_VERTICAL);
+            s.body.addView(barRange, XemsUi.matchWrap(a, 8));
 
-            LinearLayout row = XemsUi.horizontal(a);
+            row = XemsUi.horizontal(a);
             row.setGravity(Gravity.TOP);
-            row.addView(leftColumn(), new LinearLayout.LayoutParams(0, workH, 0.95f));
+            row.addView(leftColumn());
             middle = XemsUi.vertical(a);
-            LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0, workH, 1f);
-            mp.leftMargin = dp(14);
-            row.addView(middle, mp);
+            row.addView(middle);
             right = XemsUi.vertical(a);
-            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, workH, 1.12f);
-            rp.leftMargin = dp(14);
-            row.addView(right, rp);
+            row.addView(right);
+            stage = new ScaleStage(a, !male);
+            stage.results.setOnClickListener(new ToResults(this));
+            s.body.addView(stage.view(), XemsUi.matchWrap(a, 12));
             s.body.addView(row, XemsUi.matchWrap(a, 12));
+            arrange();
 
             again = XemsUi.button(a, tr("Мери пак", "Measure again"), XemsUi.SECONDARY);
             again.setOnClickListener(new Again(this));
@@ -208,13 +226,23 @@ public final class ScaleScreen {
             done.setOnClickListener(new Done(this));
             s.footer.addView(done, new LinearLayout.LayoutParams(dp(260), dp(56)));
 
-            hist = ScaleStore.list(a, userId);
+            hist = ScaleStore.upgrade(a, userId, male, age, heightCm);   // older model → rebuilt from raw
             at = hist.length() - 1;
             ScaleUploader.schedule(a, userId, male, age, heightCm);   // anything not on the client's card yet
             build();
             render(false);
+            showStage(true);
             s.dialog.setOnDismissListener(new Dismissed(this));
             s.dialog.show();
+            // the host is locked to landscape; this page also reads upright — it follows the tablet while open
+            try {
+                orientationBefore = a.getRequestedOrientation();
+                a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+            } catch (Throwable ignored) {
+            }
+            if (s.dialog.getWindow() != null) {
+                s.dialog.getWindow().getDecorView().addOnLayoutChangeListener(new Rotate(this));
+            }
             WearableBlePermissions.ensureConnectPermission(a, new Start(this));
         }
 
@@ -260,6 +288,28 @@ public final class ScaleScreen {
             legend.setGravity(Gravity.CENTER);
             col.addView(legend, XemsUi.matchWrap(a, 6));
             return col;
+        }
+
+        /**
+         * Landscape: figure | today | more, side by side, one screen high. Portrait: the same cards stacked, each
+         * its own height, the page scrolls; the comparison chips move to their own line.
+         */
+        void arrange() {
+            portrait = Columns.portrait(a);
+            workH = Columns.landH(a, 234);
+            Columns.apply(a, row, portrait, new float[] {0.95f, 1f, 1.12f}, new int[] {640, 700, 680}, workH);
+            if (stage != null) {
+                Columns.apply(a, stage.root, portrait, new float[] {1.2f, 1f}, new int[] {560, 600}, workH);
+            }
+            if (rangeHolder.getParent() != null) {
+                ((ViewGroup) rangeHolder.getParent()).removeView(rangeHolder);
+            }
+            if (portrait) {
+                barRange.addView(rangeHolder);
+            } else {
+                barTop.addView(rangeHolder, 2);
+            }
+            barRange.setVisibility(portrait && !staging ? View.VISIBLE : View.GONE);
         }
 
         /** The middle and right columns of the current view. */
@@ -367,6 +417,79 @@ public final class ScaleScreen {
             change = new ScaleViews.Change(a);
             mc.addView(change, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
             right.addView(mc, flex(12));
+            LinearLayout hc = XemsUi.card(a);
+            hc.addView(header(XemsUi.label(a, tr("Мерения", "Measurements")), "history"));
+            history = XemsUi.vertical(a);
+            hc.addView(history, XemsUi.matchWrap(a, 4));
+            right.addView(hc, XemsUi.matchWrap(a, 12));
+        }
+
+        /** The newest measurements, one line each; ✕ removes one (someone else on the profile, a bad step). */
+        void historyList() {
+            if (history == null) {
+                return;
+            }
+            history.removeAllViews();
+            SimpleDateFormat df = new SimpleDateFormat("d.MM · HH:mm", Locale.US);
+            int shown = 0;
+            for (int i = hist.length() - 1; i >= 0 && shown < 4; i--, shown++) {
+                JSONObject m = hist.optJSONObject(i);
+                if (m == null) {
+                    continue;
+                }
+                LinearLayout r = XemsUi.horizontal(a);
+                r.setGravity(Gravity.CENTER_VERTICAL);
+                r.addView(XemsUi.text(a, df.format(new Date(m.optLong("t"))), 14, XemsUi.MUTED, false),
+                        new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                r.addView(XemsUi.text(a, one(m.optDouble("w")) + tr(" кг", " kg") + (m.has("fat")
+                        ? "  ·  " + one(m.optDouble("fat")) + " %" : ""), 14, XemsUi.TEXT, true));
+                TextView x = XemsUi.iconButton(a, "✕", XemsUi.SURFACE, XemsUi.MUTED, 40);
+                x.setOnClickListener(new AskDelete(this, m.optLong("t")));
+                LinearLayout.LayoutParams xl = new LinearLayout.LayoutParams(dp(40), dp(40));
+                xl.leftMargin = dp(10);
+                r.addView(x, xl);
+                history.addView(r, XemsUi.matchWrap(a, 2));
+            }
+        }
+
+        void askDelete(long t) {
+            JSONObject m = null;
+            for (int i = 0; i < hist.length(); i++) {
+                JSONObject o = hist.optJSONObject(i);
+                if (o != null && o.optLong("t") == t) {
+                    m = o;
+                }
+            }
+            if (m == null) {
+                return;
+            }
+            String when = new SimpleDateFormat("d.MM.yyyy · HH:mm", Locale.US).format(new Date(t));
+            confirm(tr("Да изтрия ли това мерене?", "Delete this measurement?"),
+                    when + " · " + one(m.optDouble("w")) + tr(" кг", " kg")
+                            + tr(" — останалите се преизчисляват без него", " — the rest are recomputed without it"),
+                    tr("Изтрий", "Delete"), new DeleteNow(this, t), tr("Остави", "Keep"), null);
+        }
+
+        void deleteNow(long t) {
+            hist = ScaleStore.delete(a, userId, t, male, age, heightCm);
+            at = hist.length() - 1;
+            ScaleUploader.schedule(a, userId, male, age, heightCm);
+            render(false);
+        }
+
+        /** A small question sheet: title, one line, two answers (null action = just close). */
+        void confirm(String title, String line, String yes, Runnable onYes, String no, Runnable onNo) {
+            XemsUi.Shell q = XemsUi.shell(a, title, line, 640);
+            TextView n = XemsUi.button(a, no, XemsUi.SECONDARY);
+            n.setOnClickListener(new Answer(q, onNo));
+            q.footer.addView(n, new LinearLayout.LayoutParams(0, dp(56), 1f));
+            TextView y = XemsUi.button(a, yes, XemsUi.PRIMARY);
+            y.setOnClickListener(new Answer(q, onYes));
+            LinearLayout.LayoutParams yl = new LinearLayout.LayoutParams(0, dp(56), 1f);
+            yl.leftMargin = dp(12);
+            q.footer.addView(y, yl);
+            q.dialog.setCancelable(onNo == null);
+            q.dialog.show();
         }
 
         static final String[] TILE_KEY = {"fat", "muscle", "water", "age"};
@@ -552,6 +675,12 @@ public final class ScaleScreen {
                                 new String[] {"много по-млад", "по-млад", "като годините", "по-стар", "много по-стар"},
                                 new String[] {"much younger", "younger", "as the years", "older", "much older"})));
                     }
+                } else if ("history".equals(key)) {
+                    title = tr("Мерения", "Measurements");
+                    text = tr("Последните мерения на клиента. ✕ изтрива едно — например ако някой друг е стъпил на "
+                            + "профила му; останалите се преизчисляват без него, и в картона.",
+                            "The client's latest measurements. ✕ removes one — say someone else stepped on under "
+                                    + "this profile; the rest are recomputed without it, on the card too.");
                 } else if ("table".equals(key)) {
                     title = tr("Тогава → сега", "Then → now");
                     text = tr("Всеки показател в началото на периода и сега. Зелено — към добро, жълто — обратното.",
@@ -733,6 +862,7 @@ public final class ScaleScreen {
                 ap.leftMargin = dp(14);
                 row.addView(adv, ap);
                 sh.body.addView(row, XemsUi.matchWrap(a, 4));
+                Columns.follow(a, sh, row, new float[] {0.9f, 1.05f, 1.15f}, new int[] {600, 560, 640}, 170);
 
                 if (m != null && m.has("fat")) {
                     TextView img = XemsUi.button(a, tr("Сподели · изображение", "Share · image"), XemsUi.SECONDARY);
@@ -744,6 +874,11 @@ public final class ScaleScreen {
                     wl.leftMargin = dp(10);
                     sh.footer.addView(web, wl);
                 }
+                TextView sci = XemsUi.button(a, tr("Научна основа", "Scientific basis"), XemsUi.GHOST);
+                sci.setOnClickListener(new ScaleSources.Open(a));
+                LinearLayout.LayoutParams scl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56));
+                scl.leftMargin = dp(10);
+                sh.footer.addView(sci, scl);
                 sh.footer.addView(XemsUi.spacer(a));
                 TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
                 close.setOnClickListener(new CloseSheet(sh));
@@ -752,6 +887,13 @@ public final class ScaleScreen {
             } catch (Throwable t) {
                 XemsGuard.report("ScaleScreen.summary", t);
             }
+        }
+
+        /** "Анализ": every value explorable — composition, zones, tiles, the focus (ScaleAnalysis). */
+        void showDetail() {
+            String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim()
+                    : u.nickName != null ? u.nickName.trim() : "";
+            ScaleAnalysis.open(a, hist, at, male, age, heightCm, name);
         }
 
         LinearLayout radarCard() {
@@ -806,6 +948,8 @@ public final class ScaleScreen {
             heightCm = Math.max(100, Math.min(220, heightCm + d));
             ScaleStore.prefs(a).edit().putInt(H_KEY + userId, heightCm).apply();
             updateHeight();
+            hist = ScaleStore.upgrade(a, userId, male, age, heightCm);
+            render(false);
         }
 
         void updateHeight() {
@@ -930,6 +1074,7 @@ public final class ScaleScreen {
             trend.set(slice(series(M_KEY[metric]), fromI), sliceT(times(), fromI), M_COL[metric], "");
             radarZones(m, fi < at ? f : null, trackLayer == T_MUSCLE ? ScaleViews.LAYER_MUSCLE : ScaleViews.LAYER_FAT);
             deltaTable(f, m, fi < at);
+            historyList();
             double[] mk = slice(series("muscle"), fromI), fk = slice(series("fatKg"), fromI);
             change.set(mk, fk, sliceT(times(), fromI));
             changeHead(mk, fk);
@@ -1325,6 +1470,41 @@ public final class ScaleScreen {
             render(false);
         }
 
+        /** The stage in front (measuring) or the results; the switch fades. */
+        void showStage(boolean on) {
+            staging = on;
+            stage.view().setVisibility(on ? View.VISIBLE : View.GONE);
+            row.setVisibility(on ? View.GONE : View.VISIBLE);
+            barTop.setVisibility(on ? View.GONE : View.VISIBLE);
+            barRange.setVisibility(on || !portrait ? View.GONE : View.VISIBLE);
+            stage.results.setVisibility(hasFull() ? View.VISIBLE : View.GONE);
+            if (on) {
+                again.setVisibility(View.INVISIBLE);
+                XemsUi.enter(stage.view());
+            } else {
+                again.setVisibility(View.VISIBLE);
+                XemsUi.enter(row);
+            }
+        }
+
+        boolean hasFull() {
+            for (int i = 0; i < hist.length(); i++) {
+                JSONObject m = hist.optJSONObject(i);
+                if (m != null && m.has("fat")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /** A new measurement: a fresh session and stage, the link searching. */
+        void measureAgain() {
+            session = null;
+            stage.reset();
+            showStage(true);
+            startLink();
+        }
+
         void startLink() {
             if (link != null) {
                 link.close();
@@ -1339,6 +1519,7 @@ public final class ScaleScreen {
 
         @Override
         public void onState(int st) {
+            stage.linkState(st);
             switch (st) {
                 case ScaleLink.SEARCHING:
                     say(tr("Стъпи бос на кантара", "Step on the scale barefoot"), XemsUi.TEXT);
@@ -1370,14 +1551,67 @@ public final class ScaleScreen {
         public void onLive(double kg, boolean stable) {
             weight.setText(one(kg));
             weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
+            if (!staging && kg > 5) {
+                // someone stepped on while the results were open: the stage comes back
+                stage.reset();
+                showStage(true);
+            }
+            stage.liveWeight(kg, stable);
         }
 
         @Override
         public void onResult(ScaleProtocol.Reading r) {
             weight.setText(one(r.weightKg));
             weight.setTextColor(XemsUi.TEXT);
+            if (session == null) {
+                session = new ScaleSession(hist, male, age, heightCm);
+            }
+            if (!staging) {
+                showStage(true);
+            }
+            int need = session.add(r);
+            stage.stepResult(r, session);
+            if (need != ScaleSession.NEED_NONE) {
+                // one more step-on: listen again once this link has let the scale go
+                main.postDelayed(new Relink(this), 2600);
+                return;
+            }
+            steps = session.count();
+            ScaleProtocol.Reading m = session.merged();
+            session = null;
+            if (m == null) {
+                return;
+            }
+            guard(m);
+        }
+
+        int steps = 1;
+
+        void guard(ScaleProtocol.Reading r) {
+            if (ScaleStore.unlike(hist, r.weightKg, System.currentTimeMillis())) {
+                // a weight this client did not have days ago: someone else on the profile? ask before it joins
+                String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim() : tr("клиента", "the client");
+                JSONObject last = hist.length() > 0 ? hist.optJSONObject(hist.length() - 1) : null;
+                confirm(tr("Това ли е ", "Is this ") + name + "?",
+                        one(r.weightKg) + tr(" кг — последно ", " kg — last time ")
+                                + (last != null ? one(last.optDouble("w")) : "—") + tr(" кг. Не записвам чуждо мерене.",
+                                " kg. A measurement of someone else is not saved."),
+                        tr("Да, запиши", "Yes, save it"), new Keep(this, r), tr("Не, отхвърли", "No, discard"),
+                        new Drop(this));
+                return;
+            }
+            keep(r);
+        }
+
+        void dropped() {
+            say(tr("Мерането не е записано", "Not saved"), XemsUi.MUTED);
+            showStage(false);
+            again.setVisibility(View.VISIBLE);
+        }
+
+        void keep(ScaleProtocol.Reading r) {
             ScaleBody b = ScaleBody.of(r, male, age, heightCm);
-            JSONObject o = ScaleStore.save(a, userId, r, b);
+            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, steps);
             if (o != null) {
                 saved.setVisibility(View.VISIBLE);
                 XemsUi.enter(saved);
@@ -1395,6 +1629,19 @@ public final class ScaleScreen {
                 mode = MODE_DAY;
                 build();
             }
+            JSONObject m = cur();
+            stage.finished(m != null && m.has("fat") ? tr("Мазнини ", "Fat ") + one(m.optDouble("fat")) + " %  ·  "
+                    + tr("Мускули ", "Muscle ") + one(m.optDouble("muscle")) + tr(" кг", " kg")
+                    : tr("Само тегло — без дръжката няма състав", "Weight only — no composition without the handle"));
+            main.postDelayed(new Reveal(this), 1800);
+        }
+
+        /** After the ✓: the results come in. */
+        void reveal() {
+            if (!staging) {
+                return;
+            }
+            showStage(false);
             render(true);
         }
 
@@ -1444,8 +1691,10 @@ public final class ScaleScreen {
                 t.setPadding(XemsUi.dp(c, 18), XemsUi.dp(c, 14), XemsUi.dp(c, 18), XemsUi.dp(c, 14));
                 t.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, 0xFF42A5F5, 0.16f),
                         XemsUi.dp(c, 14), 0xFF42A5F5, XemsUi.dp(c, 1)));
-                infoPop = new android.widget.PopupWindow(t, XemsUi.dp(c, 560), ViewGroup.LayoutParams.WRAP_CONTENT,
-                        true);
+                ScaleSources.Open open = new ScaleSources.Open(a);
+                infoPop = new android.widget.PopupWindow(ScaleSources.withButton(a, t, open), XemsUi.dp(c, 560),
+                        ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                open.pop = infoPop;
                 infoPop.setOutsideTouchable(true);
                 infoPop.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
                 infoPop.setElevation(XemsUi.dp(c, 8));
@@ -1485,7 +1734,256 @@ public final class ScaleScreen {
         @Override
         public void onClick(View b) {
             XemsUi.haptic(b);
-            v.startLink();
+            v.measureAgain();
+        }
+    }
+
+    static final class ToResults implements View.OnClickListener {
+        final Page v;
+
+        ToResults(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            v.showStage(false);
+            v.render(false);
+        }
+    }
+
+    static final class Relink implements Runnable {
+        final Page v;
+
+        Relink(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            if (v.session != null && v.s.dialog.isShowing()) {
+                v.startLink();
+            }
+        }
+    }
+
+    static final class Reveal implements Runnable {
+        final Page v;
+
+        Reveal(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.reveal();
+        }
+    }
+
+    /**
+     * Side by side in landscape (one screen high, by weight) or stacked in portrait (each its own height; 0 = as
+     * tall as its content) — the scale page and its sheets.
+     */
+    static final class Columns implements View.OnLayoutChangeListener {
+        final Activity a;
+        final LinearLayout row;
+        final float[] weights;
+        final int[] tallDp;
+        final int offsetDp;
+        boolean portrait;
+
+        Columns(Activity a, LinearLayout row, float[] weights, int[] tallDp, int offsetDp) {
+            this.a = a;
+            this.row = row;
+            this.weights = weights;
+            this.tallDp = tallDp;
+            this.offsetDp = offsetDp;
+        }
+
+        static boolean portrait(Activity a) {
+            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            return dm.heightPixels > dm.widthPixels;
+        }
+
+        static int landH(Activity a, int offsetDp) {
+            return Math.max(XemsUi.dp(a, 440), a.getResources().getDisplayMetrics().heightPixels - XemsUi.dp(a, offsetDp));
+        }
+
+        static void apply(Activity a, LinearLayout row, boolean portrait, float[] w, int[] tallDp, int landH) {
+            row.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+            for (int i = 0; i < row.getChildCount(); i++) {
+                LinearLayout.LayoutParams lp;
+                if (portrait) {
+                    lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            tallDp[i] > 0 ? XemsUi.dp(a, tallDp[i]) : ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lp.topMargin = i > 0 ? XemsUi.dp(a, 14) : 0;
+                } else {
+                    lp = new LinearLayout.LayoutParams(0, landH, w[i]);
+                    lp.leftMargin = i > 0 ? XemsUi.dp(a, 14) : 0;
+                }
+                row.getChildAt(i).setLayoutParams(lp);
+            }
+        }
+
+        /** Lay the sheet's columns out now and again whenever the tablet turns. */
+        static void follow(Activity a, XemsUi.Shell sh, LinearLayout row, float[] w, int[] tallDp, int offsetDp) {
+            Columns c = new Columns(a, row, w, tallDp, offsetDp);
+            c.portrait = portrait(a);
+            apply(a, row, c.portrait, w, tallDp, landH(a, offsetDp));
+            if (sh.dialog.getWindow() != null) {
+                sh.dialog.getWindow().getDecorView().addOnLayoutChangeListener(c);
+            }
+        }
+
+        @Override
+        public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
+            boolean p = b - t > r - l;
+            if (p != portrait && r - l > 0) {
+                portrait = p;
+                row.post(new Relayout(this));
+            }
+        }
+    }
+
+    static final class Relayout implements Runnable {
+        final Columns c;
+
+        Relayout(Columns c) {
+            this.c = c;
+        }
+
+        @Override
+        public void run() {
+            Columns.apply(c.a, c.row, c.portrait, c.weights, c.tallDp, Columns.landH(c.a, c.offsetDp));
+        }
+    }
+
+    /** The page itself on a turn: columns, the chips line, then a fresh render (sizes changed). */
+    static final class Rotate implements View.OnLayoutChangeListener, Runnable {
+        final Page v;
+
+        Rotate(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onLayoutChange(View view, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
+            if (r - l > 0 && (b - t > r - l) != v.portrait) {
+                v.portrait = b - t > r - l;
+                view.post(this);
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                v.arrange();
+                v.build();
+                v.render(false);
+            } catch (Throwable t) {
+                XemsGuard.report("ScaleScreen.rotate", t);
+            }
+        }
+    }
+
+    static final class Details implements View.OnClickListener {
+        final Page v;
+
+        Details(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            v.showDetail();
+        }
+    }
+
+    static final class AskDelete implements View.OnClickListener {
+        final Page v;
+        final long t;
+
+        AskDelete(Page v, long t) {
+            this.v = v;
+            this.t = t;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            v.askDelete(t);
+        }
+    }
+
+    static final class DeleteNow implements Runnable {
+        final Page v;
+        final long t;
+
+        DeleteNow(Page v, long t) {
+            this.v = v;
+            this.t = t;
+        }
+
+        @Override
+        public void run() {
+            v.deleteNow(t);
+        }
+    }
+
+    static final class Keep implements Runnable {
+        final Page v;
+        final ScaleProtocol.Reading r;
+
+        Keep(Page v, ScaleProtocol.Reading r) {
+            this.v = v;
+            this.r = r;
+        }
+
+        @Override
+        public void run() {
+            v.keep(r);
+        }
+    }
+
+    static final class Drop implements Runnable {
+        final Page v;
+
+        Drop(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.dropped();
+        }
+    }
+
+    /** A question sheet's answer: close it, then act. */
+    static final class Answer implements View.OnClickListener {
+        final XemsUi.Shell q;
+        final Runnable then;
+
+        Answer(XemsUi.Shell q, Runnable then) {
+            this.q = q;
+            this.then = then;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            try {
+                q.dialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            if (then != null) {
+                try {
+                    then.run();
+                } catch (Throwable t) {
+                    XemsGuard.report("ScaleScreen.answer", t);
+                }
+            }
         }
     }
 
@@ -1518,6 +2016,16 @@ public final class ScaleScreen {
             if (v.link != null) {
                 v.link.close();
                 v.link = null;
+            }
+            v.main.removeCallbacksAndMessages(null);
+            if (v.stage != null) {
+                v.stage.release();
+            }
+            if (v.orientationBefore != Integer.MIN_VALUE) {
+                try {
+                    v.a.setRequestedOrientation(v.orientationBefore);
+                } catch (Throwable ignored) {
+                }
             }
         }
     }

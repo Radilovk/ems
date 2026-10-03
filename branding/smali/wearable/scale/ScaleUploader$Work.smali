@@ -34,25 +34,25 @@
     .registers 7
 
     .prologue
-    .line 46
+    .line 48
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 47
+    .line 49
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader$Work;->c:Landroid/content/Context;
 
-    .line 48
+    .line 50
     iput-wide p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader$Work;->userId:J
 
-    .line 49
+    .line 51
     iput-boolean p4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader$Work;->male:Z
 
-    .line 50
+    .line 52
     iput p5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader$Work;->age:I
 
-    .line 51
+    .line 53
     iput p6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader$Work;->heightCm:I
 
-    .line 52
+    .line 54
     return-void
 .end method
 
@@ -62,7 +62,7 @@
     .registers 8
 
     .prologue
-    .line 57
+    .line 59
     :try_start_0
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader$Work;->c:Landroid/content/Context;
 
@@ -79,12 +79,12 @@
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_d} :catch_20
     .catchall {:try_start_0 .. :try_end_d} :catchall_4c
 
-    .line 61
+    .line 63
     sget-object v1, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->RUNNING:Ljava/util/Set;
 
     monitor-enter v1
 
-    .line 62
+    .line 64
     :try_start_10
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->RUNNING:Ljava/util/Set;
 
@@ -96,14 +96,14 @@
 
     invoke-interface {v0, v2}, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
 
-    .line 63
+    .line 65
     monitor-exit v1
 
-    .line 65
+    .line 67
     :goto_1c
     return-void
 
-    .line 63
+    .line 65
     :catchall_1d
     move-exception v0
 
@@ -113,11 +113,11 @@
 
     throw v0
 
-    .line 58
+    .line 60
     :catch_20
     move-exception v0
 
-    .line 59
+    .line 61
     :try_start_21
     const-string v1, "scale"
 
@@ -143,12 +143,12 @@
     :try_end_39
     .catchall {:try_start_21 .. :try_end_39} :catchall_4c
 
-    .line 61
+    .line 63
     sget-object v1, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->RUNNING:Ljava/util/Set;
 
     monitor-enter v1
 
-    .line 62
+    .line 64
     :try_start_3c
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->RUNNING:Ljava/util/Set;
 
@@ -160,7 +160,7 @@
 
     invoke-interface {v0, v2}, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
 
-    .line 63
+    .line 65
     monitor-exit v1
 
     goto :goto_1c
@@ -174,7 +174,7 @@
 
     throw v0
 
-    .line 61
+    .line 63
     :catchall_4c
     move-exception v0
 
@@ -182,7 +182,7 @@
 
     monitor-enter v1
 
-    .line 62
+    .line 64
     :try_start_50
     sget-object v2, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->RUNNING:Ljava/util/Set;
 
@@ -194,15 +194,15 @@
 
     invoke-interface {v2, v3}, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
 
-    .line 63
+    .line 65
     monitor-exit v1
     :try_end_5c
     .catchall {:try_start_50 .. :try_end_5c} :catchall_5d
 
-    .line 64
+    .line 66
     throw v0
 
-    .line 63
+    .line 65
     :catchall_5d
     move-exception v0
 

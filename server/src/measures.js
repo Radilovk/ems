@@ -18,6 +18,7 @@ export function validMeasure(m) {
   if (!m || typeof m !== 'object' || Array.isArray(m)) return 'not an object';
   if (JSON.stringify(m).length > MEASURE_ITEM_BYTES) return 'too big';
   if (!Number.isInteger(m.t) || m.t < 1.5e12 || m.t > 4e12) return 't';
+  if (m.del !== undefined) return m.del === true && Object.keys(m).length === 2 ? null : 'del';
   if (!inRange(m.w, 20, 250)) return 'w';
   for (const [k, lo, hi] of [['fat', 2, 70], ['fatKg', 0, 200], ['muscle', 5, 150], ['water', 20, 80],
     ['visc', 0, 30], ['bmi', 8, 80], ['ffmi', 5, 40], ['fmi', 0, 50], ['page', 10, 100], ['ready', 0, 100]]) {
@@ -43,11 +44,14 @@ export function cleanMeasure(m) {
   return o;
 }
 
-/** Store the weigh-ins (same t replaces) and trim the client's oldest beyond MEASURE_KEEP — one batch. */
+/** Store the weigh-ins (same t replaces; {t, del: true} removes one) and trim the client's oldest beyond MEASURE_KEEP — one batch. */
 export async function putMeasures(db, licId, clientKey, items, ts) {
-  const stmts = items.map((m) => db.prepare(
-    'INSERT OR REPLACE INTO body_measures (license_id, client_key, t, data, created_at) VALUES (?1, ?2, ?3, ?4, ?5)',
-  ).bind(licId, clientKey, m.t, JSON.stringify(cleanMeasure(m)), ts));
+  const stmts = items.map((m) => (m.del
+    ? db.prepare('DELETE FROM body_measures WHERE license_id = ?1 AND client_key = ?2 AND t = ?3')
+      .bind(licId, clientKey, m.t)
+    : db.prepare(
+      'INSERT OR REPLACE INTO body_measures (license_id, client_key, t, data, created_at) VALUES (?1, ?2, ?3, ?4, ?5)',
+    ).bind(licId, clientKey, m.t, JSON.stringify(cleanMeasure(m)), ts)));
   stmts.push(db.prepare(
     `DELETE FROM body_measures WHERE license_id = ?1 AND client_key = ?2 AND t NOT IN
      (SELECT t FROM body_measures WHERE license_id = ?1 AND client_key = ?2 ORDER BY t DESC LIMIT ${MEASURE_KEEP})`,

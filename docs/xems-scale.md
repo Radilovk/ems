@@ -10,9 +10,15 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | Class | What |
 |---|---|
 | `ScaleProtocol` | Pure: frames, handshake and decode of both generations; `Reading` (weight, scale fat %, Z20/Z100 by segment 0 trunk · 1 LA · 2 RA · 3 LL · 4 RL) |
-| `ScaleBody` | Pure: WLA25 (float32 + half-up rounding as the vendor binary) → fat, muscle, water, visceral, BMR, body age, 5 segments |
+| `ScaleBody` | Pure: WLA25 (float32 + half-up rounding as the vendor binary) → fat, muscle, water, visceral, BMR, body age, 5 segments; `withFat` = the same chain from another fat % |
+| `ScaleModel` | Pure (1.1.295-ai): **the numbers we show** — sex-aware fat (Sun 2003 + the scale's own / WLA25), skeletal muscle (Janssen 2000), Kalman smoothing of lean between weigh-ins, rebuild of older history from raw impedances (see "XEMS model") |
+| `ScaleDetail` | Pure (1.1.295-ai): all values with a status word (`rows`), the analysis tiles with their 5-sector norms and texts (`metrics`), 5 zones fat / muscle (kg, % of standard), weight control to the client's own healthy weight |
+| `ScaleSession` | Pure (1.1.297-ai): one measurement = 1–3 step-ons; contact quality per step, when to ask another, the merge (see "Measuring") |
+| `ScaleStage` | The measuring stage (1.1.297-ai): figure / scan film, 5 steps, instruction, live weight settling, scan ring, step-on count and contact chips |
+| `ScaleSources` | "Научна основа" (1.1.298-ai): every source of the module with its tier (study · standard · maker · XEMS), what we take, who was measured, DOI (tap → the paper); data also in the shared HTML |
+| `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
 | `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
-| `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days) |
+| `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days); `save` (through `ScaleModel`), `upgrade` (older model / other sex·age·height → rebuilt), `delete` (+ server), `unlike` (weight jump → "is this X?") |
 | `ScaleInsight` | Pure: readiness (ρ = Z100/Z20 per segment and legs' Z20 vs the client's own baseline), segments as % of WLA25 normal, fat per suit channel, L/R asymmetry |
 | `ScaleViews` | Drawn: `Body` (project figures painted by segment, tap = select), `Radar` (5 segments vs normal, ghost = last), `Gauge` (readiness), `Trend`, `Reach` (current's reach per channel) |
 | `ScaleScreen` | Full-screen page from the client row (purple scale icon): body · today · trend & EMS (see "Result page") |
@@ -66,8 +72,35 @@ as fat → muscular men "fat / overweight"); "body age" = entered age + a fat-% 
   reads a little less fat than DXA → leans young. Entered age not used.
 - **Fat layer per zone** = the zone's own fat share against the healthy middle (men 15 %, women 25 %), not
   against a BMI-22 standard weight. **Fat pattern**: legs' share of segment fat (≥ 45 % legs/hips, ≤ 32 % belly).
-- Still open: the fat % number itself (WLA25 / the scale) keeps its weight term — fixing that needs reference
-  measurements (DEXA / calipers) for a studio-calibrated impedance-index model.
+- Physical age (1.1.295-ai): half the gap to the passport, at most ±8 years (stored `pa`) — the medians move
+  slowly with age, so a fit 40-year-old alone mapped to "19".
+- The fat % itself: see "XEMS model" below (1.1.295-ai).
+
+## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
+Owner's real exports (03.10.2026) showed: a lean woman (168 cm, 53.3 kg) at **11.9 %** fat, "−14.4 kg muscle /
+−12.8 kg fat in 0 days" (someone else's 81 kg weigh-in on her profile), physical age 19 for a 40-year-old. Causes and
+fixes:
+- **WLA25's fat regression has no sex and no age term** (sacoma `wla25.py` lines 515–536: impedances, height,
+  weight, BMI only) → women read ~8–15 points low. Now: fat-free mass by **Sun 2003** (NHANES III, 1 829 adults vs a
+  multi-component reference; men FFM = −10.678 + 0.652·H²/R + 0.262·W + 0.015·R, women −9.529 + 0.696·H²/R +
+  0.168·W + 0.016·R) over R50 = log-frequency interpolation of 20 / 100 kHz, the two sides' arm + leg averaged, plus
+  the trunk (gen A: +3.7 %), × `GEO` 0.8736 (foot-plate / handle → hand-to-foot geometry; calibrated once so that
+  Sun = WLA25 = 17.0 % on the owner's vector — geometry is sex-independent). Fat % = mean of the sex-aware
+  estimates: Sun, the scale's own value when sent (it uses sex + age); men without it also WLA25.
+- **Skeletal muscle** = Janssen 2000 (MRI, 388 adults; sex, age) as a share of the lean. Water 0.733 of the lean
+  (steady), protein, bone, segments, visceral by the WLA25 chain from the model's fat. Owner, 40 y: fat 17.0, water
+  60.9 %, protein 16.6 %, muscle 63.1 kg, BMR 1830 — Fitdays 17.0 / 60.8 / 16.6 / 63.0 / 1828.
+- **Steady**: lean through a Kalman filter over the client's weigh-ins — reading σ 1 kg, tissue drift 0.02 kg²/day,
+  a weight change carries lean by its likely share (same day 75 % — water, food; weeks 30 %), a reading > 3 σ off
+  counts less, a jump > max(4 kg, 7 %) or a 60-day gap restarts. Sim: ±4 % impedance noise → raw fat 15.8–18.0 %,
+  shown 16.6–17.1 %; two steps a minute apart = their mean; −4 kg fat over 8 weeks → lean flat.
+- **Wrong person**: a weight > max(4 kg, 7 %) off the last one within 30 days → "Това ли е <име>?" (save / discard).
+  Tracking view: the last 4 measurements with ✕ (delete → the rest re-smoothed; the server row goes too,
+  `{t, del: true}`).
+- **History** keeps raw impedances, so every older weigh-in is rebuilt (`ScaleStore.upgrade`: v < 2, or sex / age /
+  height changed) on the scale page, the upload and `AiProfile`; the server gets the rebuilt values again.
+- Shared HTML carries the last 10 raw readings (`<script id=xems-raw>`, impedances, sex / age / height) — send one
+  with a Fitdays / DXA report to calibrate further.
 
 ## Owner's Fitdays report = test vector (1.1.288-ai)
 Lescale P1, 02.10.2026, male 31, 175 cm, 81.4 kg; Z20 / Z100 (Ω) trunk 17.3 / 15.7, LA 252.0 / 215.5, RA 234.0 /
@@ -81,7 +114,56 @@ Owner's colour-coded anatomical art (`branding/body/scale/src/{male,female}.png`
 → grey art with full definition + map (R = segment, G = suit channel by colour). Layers: segment colour modulated by
 the art's light (muscles stay drawn); **Ток** = per muscle group (channel) by reach.
 
+## Measuring — the stage and the session (1.1.297-ai)
+**Why**: the scale makes **one** impedance sweep per step-on (~8–10 s after the weight settles; repeats on the same
+step reuse it), so "several measurements, the bad ones out" = several step-ons, and only when they add something.
+`ScaleSession` decides by itself:
+- **Contact** per step (`quality`): all four limbs 120–1200 Ω with 20 → 100 kHz dispersion (ratio 0.70–0.98), left
+  vs right ≤ 15 % for arms and for legs, trunk 5–100 Ω when sent; a weight-only result = no handle contact.
+- Another step when: poor contact (`NEED_CONTACT`, with the fix: palms on the metal / dry bare feet, heels back);
+  the client's **first** full measurement (`NEED_BASELINE` — two set the starting point); a good reading > 3 σ from
+  the client's filter (`NEED_CONFIRM` — the body does not change that fast); two good ones apart by > 3 % whole-body
+  resistance or > 2 fat points (`NEED_DISAGREE` → a third). At most 3.
+- **Merge**: the good steps only (all if none was good); per segment and frequency the mean of two, the median of
+  three; weight the mean; stored once with `"n"` = steps. Then the usual model + Kalman smoothing.
+**Stage** (`ScaleStage`, shown when the page opens and whenever someone steps on while the results are open; "Резултати ›"
+skips to them): left a dark theatre — the client's figure on the scale by sex (`branding/body/scale/measure/*-hero.webp`,
+owner's art, black → alpha) breathing while waiting, the scan film (`male.mp4` / `female.mp4`, owner's clips → 640 px
+H.264, no sound, ~480 KB, looped, starts from 0 when the weight settles) while the scale sweeps; right — steps
+link · step on · steady · scan · done (current pulsing), the instruction now (30 sp) with one line why, the live
+weight with its settling line into the ±0.1 kg band, the scan ring (~9 s, seconds left), "● ○ стъпване 1 от 2" and
+the contact chips (✓ Ръце · ✓ Крака · ✓ Тяло / ! …); between steps "Слез за момент" → "Стъпи пак" (the link is
+reopened by itself); at the end "✓ Готово" with fat and muscle, then the results fade in. Previews (HTML mocks):
+`docs/scale/preview-stage-wait.png`, `docs/scale/preview-stage-scan.png`.
+
+## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
+Behind the page's ⓘ (button at its foot), the Analysis ⓘ and the footers of Анализ / Обобщение; also a folded
+section of the shared HTML. 19 sources in four honest tiers — **Проучване** (peer-reviewed: Sun 2003, Janssen 2000,
+Gallagher 2000, Schutz 2002, Kelly 2009, Imboden 2017, Wang 1999, Mifflin 1990, Kyle 2004 ESPEN, Kemmler 2016,
+Kalman 1960), **Стандарт** (Katch–McArdle, WHO TRS 894), **Производител** (WLA25 zones / bone / visceral, vendor
+ranges — no published validation), **XEMS** (readiness thresholds, scale geometry factor, the step-on session,
+healthy weight — how each was derived). Top: 11 studies (the equations and norms come from them) · over 13 000
+people measured in those studies (not our database) · DXA / MRI / 4C; "how it is built" in 4 levels (measuring ·
+published equations · published norms · XEMS rules); filter chips by tier; a "limits, honestly" note (1.1.299-ai:
+no model trained on measurement data; calibration rests on one real measurement; XEMS rules not yet checked with
+DXA of clients) (a guide, not a medical test; a few points off DXA for one
+person → re-measure, smooth, read the trend). Preview (HTML mock): `docs/scale/preview-science.png`.
+
 ## Result page (`ScaleScreen`) — two views
+**Portrait too** (1.1.295-ai): the page unlocks rotation while open (restored on close, like the report); landscape =
+three columns one screen high, portrait = the same cards stacked (the page scrolls, comparison chips on their own
+line); the summary and analysis sheets follow the turn (`ScaleScreen.Columns`).
+**Анализ** (1.1.296-ai, `ScaleAnalysis`; Fitdays' list of values = the checklist, not the design): left — what the
+weight is made of (fat · water · protein · minerals, one bar, tap a part), the figure painted by zone status (fat or
+muscle by the focus; tap a zone), the way to the client's own healthy weight (track, now → healthy, fat − / muscle +);
+middle — 13 tiles in 4 groups (fat · muscle · water and frame · body and energy): value, ▲▼ since last time coloured
+by the good direction, status word, mini 5-sector norm (the word always = the lit sector, `ScaleDetail.metrics`);
+right — the focus of whatever was tapped: big value + status, the full norm bar, what it means / what moves it, its
+line through all weigh-ins with the change since last and since the first; a zone shows muscle and fat against
+their standard and left vs right. Opens on the value that needs attention first (`focusOf`). The shared HTML has the
+same composition bar and tiles (tap a tile = its explanation, `<details>`). Previews (HTML mocks, not device
+screenshots): `docs/scale/preview-analysis.png`, `docs/scale/preview-detail-share.png`.
+
 **Днес** (this measurement) | **Проследяване** (from: last time / 3 back / the first → now: figure by change per
 segment, big trend of one metric, radar then vs now, from → to table, **change since the start**: muscle and fat
 as kg from one dashed start line + "+0.6 кг мускули · −2.2 кг мазнини"). Day view: **body type as two band scales**

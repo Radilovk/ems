@@ -148,6 +148,24 @@ public final class ScaleShare {
                 .append("border-radius:14px;padding:12px 14px;margin:10px 0}.ad i{width:5px;border-radius:3px;flex:none}")
                 .append(".k{font-size:11px;font-weight:800}.ad b{display:block;font-size:16px;margin:2px 0}")
                 .append(".ad span{color:var(--m)}.d{display:flex;gap:16px;flex-wrap:wrap;font-size:20px;font-weight:800}")
+                .append(".cb{display:flex;gap:3px;height:30px;margin:6px 0 8px}.cb i{border-radius:9px;min-width:6px}")
+                .append(".cl{display:flex;gap:3px}.cl span{min-width:92px}.cl b{display:block;font-size:17px}.cl em{font-style:normal;")
+                .append("font-size:12px;font-weight:700}.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}")
+                .append(".gg{display:grid;grid-template-columns:1fr;gap:12px;margin:12px 0}.gg .card{margin:0}")
+                .append("@media(min-width:760px){.gg{grid-template-columns:1fr 1fr}}")
+                .append(".tl{background:var(--s);border-radius:14px;padding:10px 12px;border:1px solid transparent}")
+                .append(".tl[open]{border-color:#22C55E;grid-column:1/-1}.tl summary{list-style:none;cursor:pointer;display:block}")
+                .append(".tl summary::-webkit-details-marker{display:none}.tn{display:block;color:var(--m);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}")
+                .append(".tv{display:block;font-size:22px;font-weight:800;white-space:nowrap}.tv small{font-size:12px;color:var(--m);margin-left:2px}")
+                .append(".ts{display:block;font-size:12px;font-weight:700}.mn{position:relative;display:flex;gap:2px;margin:8px 4px 2px}")
+                .append(".mn i{flex:1;height:6px;border-radius:3px}.mn em{position:absolute;top:-4px;width:14px;height:14px;")
+                .append("margin-left:-7px;border-radius:50%;border:3px solid var(--t)}.tl p{margin:10px 0 2px;color:var(--m)}")
+                .append(".zt{width:100%;border-collapse:collapse}.src{padding:10px 0;border-top:1px solid var(--s)}")
+                .append(".src em{font-style:normal;font-size:11px;font-weight:700;border:1px solid;border-radius:10px;")
+                .append("padding:1px 8px;margin-left:6px}.src p{margin:4px 0}.src i{color:var(--m);font-size:13px}")
+                .append(".src small{color:var(--m)}.src a{color:#38BDF8;font-size:12px}summary{cursor:pointer}")
+                .append(".zt th{color:var(--m);font-size:12px;text-align:left;padding:6px}.zt td{padding:8px 6px;")
+                .append("border-top:1px solid var(--s);font-weight:700}")
                 .append("footer{color:var(--m);font-size:12px;text-align:center;margin:18px 0}</style></head><body><main>");
         // header
         h.append("<h1>").append(esc(name)).append("</h1><div style=\"color:var(--m)\">")
@@ -186,6 +204,83 @@ public final class ScaleShare {
         h.append(bar(tr("Висцерални мазнини", "Visceral fat"), ScaleInsight.visceralNorm(m.optDouble("visc", Double.NaN),
                 five)));
         h.append("</div></div>");
+        // what the weight is made of, then every value as a tile (tap = what it means)
+        double w = m.optDouble("w"), fatKg = m.optDouble("fatKg", Double.NaN), lean = m.optDouble("lean", Double.NaN);
+        double water = w * m.optDouble("water", Double.NaN) / 100, bone = m.optDouble("bone", Double.NaN);
+        double[] part = {fatKg, water, lean - water - bone, bone};
+        String[] pn = {tr("Мазнини", "Fat"), tr("Вода", "Water"), tr("Белтък", "Protein"), tr("Минерали", "Minerals")};
+        String[] pc = {"#F59E0B", "#38BDF8", "#22C55E", "#A78BFA"};
+        boolean okPart = true;
+        for (double x : part) {
+            okPart &= !Double.isNaN(x) && x >= 0;
+        }
+        h.append("<div class=card><h2>").append(esc(tr("От какво е теглото", "What the weight is made of")))
+                .append("</h2>");
+        if (okPart) {
+            h.append("<div class=cb>");
+            for (int i = 0; i < 4; i++) {
+                h.append("<i style=\"flex:").append(num(part[i], 2)).append(";background:").append(pc[i])
+                        .append("\"></i>");
+            }
+            h.append("</div><div class=cl>");
+            for (int i = 0; i < 4; i++) {
+                h.append("<span style=\"flex:").append(num(part[i], 2)).append("\"><b>").append(num(part[i], 1)).append(esc(tr(" кг", " kg"))).append("</b><em style=\"color:")
+                        .append(pc[i]).append("\">").append(esc(pn[i])).append(" · ").append(Math.round(part[i] / w * 100))
+                        .append(" %</em></span>");
+            }
+            h.append("</div>");
+        }
+        h.append("</div>");
+        List<ScaleDetail.Metric> ms = ScaleDetail.metrics(m, male, age, heightCm, bg);
+        h.append("<div class=gg>");
+        for (int g = 0; g < 4; g++) {
+            h.append("<div class=card><h2>").append(esc(bg ? ScaleDetail.groupBg(g) : ScaleDetail.groupEn(g)))
+                    .append("</h2><div class=tg>");
+            for (ScaleDetail.Metric x : ms) {
+                if (x.group != g) {
+                    continue;
+                }
+                String col = hex(ScaleDetail.statusColor(x.status));
+                h.append("<details class=tl><summary><span class=tn>").append(esc(bg ? x.bg : x.en))
+                        .append("</span><span class=tv>").append(esc(x.text())).append("<small>").append(esc(x.unit))
+                        .append("</small></span><span class=ts style=\"color:").append(col).append("\">")
+                        .append(esc(x.status >= 0 ? (bg ? ScaleDetail.statusBg(x.status) : ScaleDetail.statusEn(x.status))
+                                : (bg ? x.subBg : x.subEn))).append("</span>");
+                if (x.norm != null) {
+                    h.append(mini(x.norm));
+                }
+                h.append("</summary><p>");
+                String sub = bg ? x.subBg : x.subEn;
+                if (x.status >= 0 && sub.length() > 0) {
+                    h.append("<b>").append(esc(sub)).append("</b> · ");
+                }
+                h.append(esc(bg ? x.whatBg : x.whatEn)).append("</p></details>");
+            }
+            h.append("</div></div>");
+        }
+        h.append("</div>");
+        h.append("<div class=card><h2>").append(esc(tr("Зони · мазнини 80–160 % · мускули 90–110 %",
+                "Zones · fat 80–160 % · muscle 90–110 %"))).append("</h2><table class=zt><tr><th></th><th>")
+                .append(esc(tr("Мазнини", "Fat"))).append("</th><th>").append(esc(tr("Мускули", "Muscle")))
+                .append("</th></tr>");
+        ScaleDetail.Zone[] zs = ScaleDetail.zones(m, male, heightCm);
+        for (int seg : ScaleDetail.ORDER) {
+            ScaleDetail.Zone z = zs[seg];
+            h.append("<tr><td>").append(esc(bg ? ScaleDetail.zoneBg(seg) : ScaleDetail.zoneEn(seg))).append("</td>")
+                    .append(zoneTd(z.fatKg, z.fatPct, z.fatStatus)).append(zoneTd(z.musKg, z.musPct, z.musStatus))
+                    .append("</tr>");
+        }
+        h.append("</table>");
+        ScaleDetail.Control c = ScaleDetail.control(m, male, age, heightCm);
+        if (!Double.isNaN(c.target)) {
+            h.append("<h2 style=\"margin-top:16px\">").append(esc(tr("Контрол на теглото", "Weight control")))
+                    .append("</h2><div class=d><span>").append(num(c.target, 1)).append(esc(tr(" кг здравословно",
+                            " kg healthy"))).append("</span><span style=\"color:var(--m)\">")
+                    .append(esc(tr("тегло ", "weight ") + signed(c.total) + " · " + tr("мазнини ", "fat ")
+                            + signed(c.fat) + " · " + tr("мускули ", "muscle ") + signed(c.muscle)))
+                    .append("</span></div>");
+        }
+        h.append("</div>");
         // change since the first
         JSONObject first = at > 0 ? hist.optJSONObject(0) : null;
         if (first != null && first.has("muscle")) {
@@ -210,9 +305,93 @@ public final class ScaleShare {
                     .append(esc(bg ? x.titleBg : x.titleEn)).append("</b><span>").append(esc(bg ? x.textBg : x.textEn))
                     .append("</span></div></div>");
         }
-        h.append("</div><footer>XEMS · ").append(esc(tr("кантар с 8 електрода · ориентир, не медицинско изследване",
+        h.append("</div>");
+        // where the numbers come from — every source with its tier, what we take, who was measured
+        int[] sc = ScaleSources.counts();
+        h.append("<details class=card><summary><h2 style=\"display:inline\">").append(esc(tr("Научна основа",
+                "Scientific basis"))).append("</h2> <span style=\"color:var(--m)\">· ").append(sc[0])
+                .append(esc(tr(" рецензирани проучвания (над ", " peer-reviewed studies (over ")))
+                .append(sc[1] / 1000).append(esc(tr(" 000 души) — оттам са формулите и нормите; докосни",
+                        ",000 people) — the equations and norms come from them; tap")))
+                .append("</span></summary><ol style=\"color:var(--m);padding-left:20px\">");
+        for (int i = 0; i < 4; i++) {
+            h.append("<li>").append(esc(bg ? ScaleSources.HOW_BG[i] : ScaleSources.HOW_EN[i])).append("</li>");
+        }
+        h.append("</ol>");
+        for (ScaleSources.Source x : ScaleSources.all()) {
+            String col = hex(ScaleSources.tierColor(x.tier));
+            h.append("<div class=src><b>").append(esc(bg ? x.topicBg : x.topicEn)).append("</b> <em style=\"color:")
+                    .append(col).append(";border-color:").append(col).append("\">")
+                    .append(esc(bg ? ScaleSources.tierBg(x.tier) : ScaleSources.tierEn(x.tier))).append("</em><p>")
+                    .append(esc(bg ? x.useBg : x.useEn)).append("</p><i>").append(esc(x.cite)).append("</i>");
+            String who = bg ? x.whoBg : x.whoEn;
+            if (who.length() > 0) {
+                h.append("<small> · ").append(esc(who)).append("</small>");
+            }
+            if (x.doi.length() > 0) {
+                h.append(" <a href=\"https://doi.org/").append(esc(x.doi)).append("\">DOI ").append(esc(x.doi))
+                        .append("</a>");
+            }
+            h.append("</div>");
+        }
+        h.append("<p style=\"color:var(--m)\">").append(esc(bg ? ScaleSources.LIMITS_BG : ScaleSources.LIMITS_EN))
+                .append("</p></details>");
+        // the raw readings (impedances) of the last weigh-ins — to recompute or calibrate later; not shown
+        h.append("<script type=\"application/json\" id=xems-raw>[");
+        int from = Math.max(0, at - 9);
+        for (int i = from; i <= at; i++) {
+            JSONObject r = hist.optJSONObject(i);
+            if (r == null) {
+                continue;
+            }
+            JSONObject o = new JSONObject();
+            try {
+                o.put("t", r.optLong("t"));
+                o.put("w", r.optDouble("w"));
+                if (r.has("z20")) {
+                    o.put("z20", r.optJSONArray("z20"));
+                    o.put("z100", r.optJSONArray("z100"));
+                }
+                if (r.has("sfat")) {
+                    o.put("sfat", r.optDouble("sfat"));
+                }
+                o.put("male", male).put("age", age).put("h", heightCm).put("v", r.optInt("v"));
+            } catch (Exception ignored) {
+            }
+            h.append(i > from ? "," : "").append(o.toString().replace("</", "<\\/"));
+        }
+        h.append("]</script>");
+        h.append("<footer>XEMS · ").append(esc(tr("кантар с 8 електрода · ориентир, не медицинско изследване",
                 "8-electrode scale · a guide, not a medical test"))).append("</footer></main></body></html>");
         return h.toString();
+    }
+
+    /** A tile's 5-segment norm with the marker (HTML). */
+    static String mini(ScaleInsight.Norm n) {
+        StringBuilder b = new StringBuilder("<div class=mn>");
+        int now = n.sector();
+        for (int i = 0; i < 5; i++) {
+            b.append("<i style=\"background:").append(hex(n.colors[i])).append(i == now ? "" : ";opacity:.28")
+                    .append("\"></i>");
+        }
+        if (now >= 0) {
+            double[] e = n.edges;
+            double cl = Math.max(e[0], Math.min(e[5], n.value));
+            double pos = (now + (cl - e[now]) / Math.max(1e-9, e[now + 1] - e[now])) / 5 * 100;
+            b.append("<em style=\"left:").append(String.format(Locale.US, "%.1f", pos)).append("%;background:")
+                    .append(hex(n.colors[now])).append("\"></em>");
+        }
+        return b.append("</div>").toString();
+    }
+
+    static String zoneTd(double kg, double pct, int status) {
+        return "<td>" + (Double.isNaN(kg) ? "—" : num(kg, 1) + esc(tr(" кг", " kg"))) + (Double.isNaN(pct) ? ""
+                : " <span style=\"color:" + hex(ScaleDetail.statusColor(status)) + "\">" + Math.round(pct) + " %</span>")
+                + "</td>";
+    }
+
+    static String signed(double v) {
+        return Double.isNaN(v) ? "—" : (v >= 0 ? "+" : "−") + num(Math.abs(v), 1) + tr(" кг", " kg");
     }
 
     static String[] typeName(ScaleInsight.Body b) {

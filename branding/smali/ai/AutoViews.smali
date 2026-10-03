@@ -11,6 +11,7 @@
         Lcom/isaigu/gymapp/ai/AutoViews$Vital;,
         Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;,
         Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;,
+        Lcom/isaigu/gymapp/ai/AutoViews$StagePair;,
         Lcom/isaigu/gymapp/ai/AutoViews$RingStage;,
         Lcom/isaigu/gymapp/ai/AutoViews$SetRing;
     }

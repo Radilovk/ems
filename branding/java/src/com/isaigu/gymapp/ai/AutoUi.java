@@ -994,8 +994,6 @@ public final class AutoUi {
         LinearLayout top = XemsUi.horizontal(c);
         LinearLayout ex = nativeCard(c);
         LinearLayout exRow = XemsUi.horizontal(c);
-        // left half of the exercise card: goal + timer on top, the rings under them
-        LinearLayout exLeft = XemsUi.vertical(c);
         android.widget.FrameLayout headBar = new android.widget.FrameLayout(c);
         TextView goal = XemsUi.badge(c, goalName(plan.input.goal), goalColor(plan.input.goal));
         headBar.addView(goal, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -1012,11 +1010,10 @@ public final class AutoUi {
         clock.addView(runDots, dlp);
         headBar.addView(clock, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END | Gravity.CENTER_VERTICAL));
-        exLeft.addView(headBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 44)));
-        LinearLayout rings = XemsUi.horizontal(c);
-        rings.setGravity(Gravity.CENTER);
-        // the ring and the next one grow with the card (owner, 1.1.285): squares as large as the height allows
-        AutoViews.RingStage stage = new AutoViews.RingStage(c, 0.16f, XemsUi.dp(c, 300));
+        // the figures twice as big (owner, 1.1.290): the ring as high as the card, the next one beside at 46 %;
+        // the goal and the timer go above the name on the right
+        AutoViews.StagePair rings = new AutoViews.StagePair(c, XemsUi.dp(c, 300), XemsUi.dp(c, 26));
+        AutoViews.RingStage stage = new AutoViews.RingStage(c, 0.05f, XemsUi.dp(c, 2000));
         runFigure = new ExerciseFigure(c);
         runFigure.setCycle(System.currentTimeMillis(), 2, 2);
         stage.addView(runFigure);
@@ -1025,21 +1022,22 @@ public final class AutoUi {
         runRing = new AutoViews.SetRing(c);
         stage.addView(runRing);
         stage.setOnClickListener(new Act(A_HOW, 0));
-        rings.addView(stage, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.7f));
+        rings.addView(stage);
         runArrow = XemsUi.text(c, "→", 22, XemsUi.MUTED, false);
         runArrow.setGravity(Gravity.CENTER);
-        rings.addView(runArrow, new LinearLayout.LayoutParams(XemsUi.dp(c, 26), ViewGroup.LayoutParams.WRAP_CONTENT));
-        runNextStage = new AutoViews.RingStage(c, 0.17f, XemsUi.dp(c, 130));
+        rings.addView(runArrow);
+        runNextStage = new AutoViews.RingStage(c, 0.06f, XemsUi.dp(c, 2000));
         runNextRing = new AutoViews.SetRing(c);
         runNextFig = new ExerciseFigure(c);
         runNextFig.setCycle(System.currentTimeMillis(), 2, 2);
         runNextStage.addView(runNextFig);
         runNextStage.addView(runNextRing);
-        rings.addView(runNextStage, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.3f));
-        exLeft.addView(rings, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        exRow.addView(exLeft, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        rings.addView(runNextStage);
+        exRow.addView(rings, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
         // right half: the name and every step (or the program's phases when it has no exercises)
         LinearLayout exRight = XemsUi.vertical(c);
+        exRight.addView(headBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 44)));
         runPhase = XemsUi.text(c, "", 18, XemsUi.TEXT, true);
         runPhase.setMaxLines(1);
         runPhase.setEllipsize(android.text.TextUtils.TruncateAt.END);
@@ -1050,7 +1048,7 @@ public final class AutoUi {
         exRight.addView(runHow, XemsUi.matchWrap(c, 6));
         runPhases = XemsUi.vertical(c);
         exRight.addView(runPhases, XemsUi.matchWrap(c, 12));
-        LinearLayout.LayoutParams erp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.05f);
+        LinearLayout.LayoutParams erp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         erp.leftMargin = XemsUi.dp(c, 18);
         erp.rightMargin = XemsUi.dp(c, 26);
         exRow.addView(exRight, erp);
@@ -1065,7 +1063,7 @@ public final class AutoUi {
         runFlash.setClickable(false);
         ((android.widget.FrameLayout) exFrame).addView(runFlash, new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        top.addView(exFrame, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.75f));
+        top.addView(exFrame, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 2.3f));
 
         LinearLayout right = nativeCard(c);
         LinearLayout figs = XemsUi.horizontal(c);
@@ -1098,7 +1096,7 @@ public final class AutoUi {
         // ---- the whole session, edge to edge: the line, then one row — the clock and the latest notice
         LinearLayout tl = nativeCard(c);
         runTimeline = new AutoViews.Timeline(c);
-        tl.addView(runTimeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 72)));
+        tl.addView(runTimeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 92)));
         LinearLayout foot = XemsUi.horizontal(c);
         foot.setGravity(Gravity.CENTER_VERTICAL);
         runClock = XemsUi.text(c, "", 14, XemsUi.TEXT, true);
@@ -1207,39 +1205,43 @@ public final class AutoUi {
                         + "енергията си (по натоварването и кондицията), и пулсът да спадне. Тогава ▶ светва.\n"
                         + "Всеки старт брои 3 s: три къси сигнала и дълъг с първия импулс.\n"
                         + "Сивото вдясно е следващото; последните 10 s се оцветява. ⏭ в панела вдясно (между ▶ и +) — "
-                        + "към него: серията свършва и почивката е преди него.\n"
+                        + "пропуска: серията (или идващата серия) отпада и тренировката става толкова по-кратка; следва "
+                        + "следващото по ред.\n"
                         + "Управление — с главните ▶ / ❚❚ и ■: ■ работи от пауза; първият — към възстановяване, вторият — край.",
                         "The ring is the set: 30–40 s, the dots are the impulses.\n"
                         + "After the set the impulses stop by themselves. The rest lasts as long as the muscles need to "
                         + "refill (by the load and fitness) and the HR to come down; then ▶ lights up.\n"
                         + "Every start counts 3 s: three short beeps and a long one with the first impulse.\n"
                         + "The grey one on the right is the next; it lights up in the last 10 s. ⏭ on the right panel "
-                        + "(between ▶ and +) goes to it: the set ends and the rest comes before it.\n"
+                        + "(between ▶ and +) skips: the set (or the coming one) is dropped and the session is that much "
+                        + "shorter; the next in order follows.\n"
                         + "Control — the main ▶ / ❚❚ and ■: ■ works from a pause; the first goes to the recovery, the second ends.");
             case INFO_BODY:
-                return AiText.t("Всяка зона се оцветява постепенно с работата, която тази тренировка трябва да ѝ даде: "
-                        + "бледа в началото, в пълния цвят (жена — magenta, мъж — cyan) в края на плана, заедно с пасивната част "
-                        + "и възстановяването. Целта е на тази тренировка, не абсолютна. Над целта цветът става оранжев, после червен. "
-                        + "Зона, която работи в момента, светва малко по-ярко.\n"
-                        + "Сметка: сила × ширина на импулса × честота × % на зоната + работата на упражнението.\n"
+                return AiText.t("Всяка зона се оцветява с работата, която е получила досега, спрямо най-натоварената зона на "
+                        + "тази тренировка: тя стига пълния цвят (жена — magenta, мъж — cyan) в края на плана; другите остават "
+                        + "толкова по-бледи, колкото по-малко получават. Канал на 0 — само работата от упражнението. "
+                        + "Над целта цветът става оранжев, после червен. Зона, която работи в момента, светва по-ярко.\n"                        + "Сметка: сила × ширина на импулса × честота × % на зоната + работата на упражнението.\n"
                         + "Сърцето бие с пулса, цветът е пулсовата зона.\n"
                         + "Натоварване — цялото тяло: мускулите по импулса и упражнението, кислородът и пулсът, свършената работа; по данните на клиента.",
-                        "Each zone fills in with the work this session is meant to give it: faint at the start, full colour "
-                        + "(woman — magenta, man — cyan) at the end of the plan, the passive part and the recovery included. "
-                        + "The target is this session's, not absolute. Past it the colour turns orange, then red. "
-                        + "A zone working now glows a little brighter.\n"
-                        + "Sum: strength × pulse width × frequency × zone % + the exercise's work.\n"
+                        "Each zone is coloured by the work it has had so far against the most worked zone of this session: "
+                        + "that one reaches full colour (woman — magenta, man — cyan) at the end of the plan; the others stay as "
+                        + "much paler as they get less. A channel at 0 — the exercise's work only. Past the target the colour "
+                        + "turns orange, then red. A zone working now glows brighter.\n"                        + "Sum: strength × pulse width × frequency × zone % + the exercise's work.\n"
                         + "The heart beats with the HR, its colour is the HR zone.\n"
                         + "Load — the whole body: the muscles by impulse and exercise, oxygen and HR, the work done; by the client's data.");
             default:
-                return AiText.t("Цялата тренировка: височина и цвят — общото натоварване (горе = границата).\n"
-                        + "Миналото е ярко, предстоящото — прогноза от сегашното състояние, преизчислява се при всяка промяна на силата и пулса. Дълбока долина — пауза над 45 s или спиране по пулса.\n"
-                        + "Червена линия — пулсът, пунктир — таванът.\n"
-                        + "Часовникът брои импулсите и задължителните почивки; ръчната пауза не се брои.",
-                        "The whole session: height and colour — the total load (top = the limit).\n"
-                        + "The past is bright, what comes is forecast from the state now, redone on every change of strength and HR. A deep valley — a pause over 45 s or an HR stop.\n"
-                        + "Red line — the HR, dashed — the ceiling.\n"
-                        + "The clock counts impulses and the required rests; a manual pause does not count.");
+                return AiText.t("Цялата тренировка по реалния часовник: височина и цвят — общото натоварване (горе = 100 %, "
+                        + "здравословният максимум на клиента).\n"
+                        + "Серията (ЕМС + упражнението) стои високо, почивката и всяка пауза падат с натоварването, докато траят. "
+                        + "Възстановяването накрая е отделна, ниска част.\n"
+                        + "Миналото е ярко, предстоящото — прогноза от сегашното състояние.\n"
+                        + "Червена линия — пулсът, пунктир — таванът. Часовникът брои и паузите.",
+                        "The whole session on the real clock: height and colour — the total load (top = 100 %, the client's "
+                        + "healthy maximum).\n"
+                        + "A set (EMS + the exercise) stands high, the rest and any pause fall with the load as long as they last. "
+                        + "The recovery at the end is its own low part.\n"
+                        + "The past is bright, what comes is forecast from the state now.\n"
+                        + "Red line — the HR, dashed — the ceiling. The clock counts the pauses too.");
         }
     }
 

@@ -787,16 +787,19 @@ public final class AutoSession {
                 && (st == AutoEngine.State.RUN || st == AutoEngine.State.REST);
     }
 
-    /** The right panel's ⏭ (between ▶ and +): on to the next exercise / phase, with a short notice. */
+    /** The right panel's ⏭ (between ▶ and +): skip — on in order, the session shorter by what is skipped. */
     public static void nextFromPanel() {
         if (!canNext()) {
             return;
         }
-        String to = engine.getNextExercise();
+        double sk0 = engine.getSkippedS();
         if (next()) {
-            notice(to != null && to.length() > 0
-                            ? AiText.t("⏭ Към „" + AutoTemplates.name(to) + "“", "⏭ To " + AutoTemplates.name(to))
-                            : AiText.t("⏭ Следващата фаза", "⏭ The next phase"),
+            long cut = Math.round(engine.getSkippedS() - sk0);
+            String to = engine.getExercise();
+            String where = engine.isRestBeforeCooldown() ? AiText.t("към възстановяването", "to the recovery")
+                    : to != null && to.length() > 0 ? AiText.t("към „", "to ") + AutoTemplates.name(to) + AiText.t("“", "")
+                    : AiText.t("към следващата част", "to the next part");
+            notice("⏭ " + AiText.t("Пропуснато ", "Skipped ") + (cut > 0 ? "−" + AiText.mmss(cut) + " · " : "") + where,
                     INFO, System.currentTimeMillis());
         }
         AutoUi.refresh();
@@ -913,21 +916,9 @@ public final class AutoSession {
         return "";
     }
 
-    /** Countdown end: 3 s from now, or the device's next impulse when it comes within 4 s more. */
+    /** Countdown end: always 3 s from now (owner, 1.1.290 — never stretched to meet the device's own impulse). */
     private static long goTime(long now) {
-        long go = now + AutoEngine.COUNTDOWN_MS;
-        AutoEngine.Cmd w = written;
-        if (w != null && lastHookMs > 0 && now - lastHookMs < 30000L) {
-            long period = (Math.max(1, w.onS) + Math.max(1, w.offS)) * 1000L;
-            long next = lastHookMs;
-            while (next < go) {
-                next += period;
-            }
-            if (next - go <= 4000L) {
-                go = next;
-            }
-        }
-        return go;
+        return now + AutoEngine.COUNTDOWN_MS;
     }
 
     /** A countdown started (by ▶, the start, the HR resume): the short beeps and the exact go time. */
@@ -1079,7 +1070,7 @@ public final class AutoSession {
             long now = System.currentTimeMillis();
             for (Row r : rows) {
                 if (r.block == null && r.cal > 0) {
-                    AutoHistory.record(c, r.userId, plan.program.isActive(), engine.getElapsedS(), now);
+                    AutoHistory.record(c, r.userId, plan.program.isActive(), engine.getImpulseS(), now);
                 }
             }
         }
@@ -1165,6 +1156,7 @@ public final class AutoSession {
         feedLive(now);
         AutoEngine.State before = engine.getState();
         engine.tick(now);
+        engine.traceTick(now);                   // a pause / rest: the timeline falls with the load as it lasts
         AutoEngine.State after = engine.getState();
         engineEvents(now);
         if (before == AutoEngine.State.COUNTDOWN && after == AutoEngine.State.RUN) {
@@ -1727,7 +1719,7 @@ public final class AutoSession {
         return (r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (rows.indexOf(r) + 1)) + ": ";
     }
 
-    /** Why zone {@code i} was brought back (locks, ±delta, balance rules). */
+    /** Why zone {@code i} was brought back (a lock, the zone maximum, +delta). */
     private static String zoneReason(int i, int wanted, int got, AutoModel.Plan rp, int[] base) {
         String[] n = AutoCues.zoneNames();
         if (rp.zoneLocked[i]) {
@@ -1739,15 +1731,6 @@ public final class AutoSession {
         if (base != null && wanted > base[i] + rp.zoneDelta && got == Math.min(base[i] + rp.zoneDelta, rp.zoneMax[i])) {
             return n[i] + " " + got + AiText.t(" % — нагоре най-много +", " % — up at most +") + rp.zoneDelta
                     + AiText.t(" над програмата (", " over the program (") + base[i] + ")";
-        }
-        if (i == AutoModel.ABS) {
-            return AiText.t("Корем ≤ 1.3 × кръст — пази гръбнака (", "Abs ≤ 1.3 × low back — protects the spine (") + got + " %)";
-        }
-        if (i == AutoModel.FRONT_THIGH) {
-            return AiText.t("Предно бедро ≤ задно / 0.6 — пази коляното (", "Quads ≤ hamstrings / 0.6 — protects the knee (") + got + " %)";
-        }
-        if (i == AutoModel.CHEST) {
-            return AiText.t("Гърди ≤ 1.2 × гръб — стойка (", "Chest ≤ 1.2 × back — posture (") + got + " %)";
         }
         return n[i] + " " + got + " %";
     }

@@ -122,7 +122,6 @@ public final class AutoSim {
             check(plan.activeS <= 720, tag + ": first active session ≤ 12 min");
             check(plan.phiMax <= 0.7 + 1e-9, tag + ": first session φ ≤ 0.7");
         }
-        check(AutoLimits.balanced(plan.zones), tag + ": plan zones balanced");
         if (in.extra.breastfeeding) {
             check(plan.zones[AutoModel.CHEST] == 0 && plan.zoneLocked[AutoModel.CHEST], tag + ": chest off");
         }
@@ -291,10 +290,11 @@ public final class AutoSim {
         AutoModel.Plan plan = AutoPlanner.build(in, 70);
         int[] want = plan.zones.clone();
         want[AutoModel.ABS] = 100;
-        want[AutoModel.LOWER_BACK] = 50;           // −40: down is free (1.1.286) → 50 → abs ≤ 65
+        want[AutoModel.LOWER_BACK] = 50;           // −40: down is free (1.1.286)
         int[] z = AutoLimits.clampZones(want, plan);
         check(z[AutoModel.LOWER_BACK] == 50, "zones: a channel goes down freely (" + z[AutoModel.LOWER_BACK] + ")");
-        check(z[AutoModel.ABS] <= 65, "zones: L7 abs ≤ 1.3 × lower back (" + z[AutoModel.ABS] + ")");
+        check(z[AutoModel.ABS] == Math.min(Math.min(100, plan.zoneMax[AutoModel.ABS]), plan.zones[AutoModel.ABS] + plan.zoneDelta),
+                "zones: abs is not tied to the lower back (1.1.290, independent electrodes) (" + z[AutoModel.ABS] + ")");
         want = plan.zones.clone();
         want[AutoModel.CALF] = 0;
         want[AutoModel.GLUTES] = plan.zones[AutoModel.GLUTES] + 40;
@@ -311,12 +311,13 @@ public final class AutoSim {
         want[AutoModel.CHEST] = 75;
         want[AutoModel.BACK] = 55;
         z = AutoLimits.clampZones(want, plan);
-        check(z[AutoModel.CHEST] <= 1.2 * z[AutoModel.BACK], "zones: L9 chest ≤ 1.2 × back");
+        check(z[AutoModel.BACK] == 55, "zones: the back moves on its own");
         want = plan.zones.clone();
         want[AutoModel.FRONT_THIGH] = 80;
         want[AutoModel.BACK_THIGH] = 40;
         z = AutoLimits.clampZones(want, plan);
-        check(z[AutoModel.FRONT_THIGH] <= z[AutoModel.BACK_THIGH] / 0.6 + 1e-9, "zones: L8 thighs");
+        check(z[AutoModel.BACK_THIGH] == 40 && z[AutoModel.FRONT_THIGH] >= Math.min(80, plan.zones[AutoModel.FRONT_THIGH]),
+                "zones: the thighs are independent");
         AutoModel.Input pp = input(AiModel.Sex.FEMALE, 30, 60, 165, AiModel.Fitness.MID, 2, -1);
         pp.programId = AutoCatalog.POSTPARTUM;
         pp.extra.weeksSinceBirth = 10;
@@ -876,17 +877,30 @@ public final class AutoSim {
                 run.tick(tt - 1);
                 run.onCycle(tt);
             }
-            double lo = 9;
+            double[] endP = run.getZoneProgress(tt);
             double hi = -9;
             for (int k = 0; k < AutoModel.CHANNELS; k++) {
-                double zp = run.getZoneProgress(tt)[k];
-                if (base.zones[k] > 0) {
-                    lo = Math.min(lo, zp);
-                    hi = Math.max(hi, zp);
-                }
+                hi = Math.max(hi, endP[k]);
             }
-            check(lo > 0.97 && hi < 1.03, "every zone reaches its target colour at the end (" + lo + "…" + hi + ")");
+            check(hi > 0.97 && hi < 1.03, "the session's main zone reaches full colour at the end (" + hi + ")");
+            check(endP[AutoModel.GLUTES] > endP[AutoModel.CHEST] + 0.15, "the zones differ as their work does (glutes "
+                    + endP[AutoModel.GLUTES] + " vs chest " + endP[AutoModel.CHEST] + ")");
             check(halfSeen && halfMax < 0.9, "half way no zone is at its target yet (" + halfMax + ")");
+        }
+        // owner (1.1.290): a channel at 0 → that zone gets only the exercise's work → paler than with the EMS on
+        {
+            AutoEngine on = mainSet(base, sc, t, f.dose);
+            AutoEngine off0 = mainSet(base, sc, t, f.dose);
+            on.setZoneBudget(f.zoneDose);
+            off0.setZoneBudget(f.zoneDose);
+            int[] zz = base.zones.clone();
+            zz[AutoModel.GLUTES] = 0;
+            on.setLive(0.9, base.zones, t[0]);
+            off0.setLive(0.9, zz, t[0]);
+            long tg = t[0] + 3000;
+            double pOn = on.getZoneProgress(tg)[AutoModel.GLUTES] - on.getZoneProgress(t[0])[AutoModel.GLUTES];
+            double pOff = off0.getZoneProgress(tg)[AutoModel.GLUTES] - off0.getZoneProgress(t[0])[AutoModel.GLUTES];
+            check(pOff < pOn && pOff >= 0, "glutes at 0 fill slower (exercise only) than with the EMS on (" + pOff + " < " + pOn + ")");
         }
         // owner (1.1.288): a channel moved up or down changes nothing in the load — only 0 takes it out
         AutoEngine moved = mainSet(base, sc, t, f.dose);
@@ -1136,19 +1150,33 @@ public final class AutoSim {
         check(load[AutoModel.GLUTES] > load[AutoModel.CHEST] && load[AutoModel.GLUTES] > 0.2,
                 "glutes program loads the glutes more than the chest (" + load[AutoModel.GLUTES] + " / " + load[AutoModel.CHEST] + ")");
         check(e.getPeakLoad(t + 60000) < e.getPeakLoad(t), "the load decays in the rest");
-        // waiting longer than the rest minimum is not training time
+        // owner (1.1.290): the clock counts every wait in full (the timeline shows the pause as long as it lasts)
         double s0 = e.getSessionS(t);
         int min = e.getRestMinS();
         long late = t + (min + 40) * 1000L;
-        check(Math.abs(e.getSessionS(late) - (s0 + min + 3)) < 0.01, "the clock counts the rest minimum + countdown only ("
+        check(Math.abs(e.getSessionS(late) - (s0 + min + 40)) < 0.01, "the clock counts the whole rest ("
                 + (e.getSessionS(late) - s0) + ")");
         String before = e.getExercise();
+        AutoEngine.Forecast fBefore = e.forecastFrom(late);
+        double el0 = e.getElapsedS();
+        double setT = e.getSetTargetS();
         check(e.next(late) && !before.equals(e.getExercise()), "⏭ in the rest: the next exercise");
+        check(Math.abs(e.getElapsedS() - el0 - setT) < 1e-6 && Math.abs(e.getSkippedS() - setT) < 1e-6,
+                "⏭ in the rest skips the coming set: its time is cut from the session (" + setT + " s)");
+        {
+            AutoEngine.Forecast f0 = e.forecastFrom(late);
+            check(fBefore.totalS - f0.totalS > 0.7 * setT, "⏭ makes the session shorter (" + Math.round(fBefore.totalS)
+                    + " → " + Math.round(f0.totalS) + " s)");
+            check(Math.abs((f0.totalS - f0.phaseStartS[f0.phaseStartS.length - 1])
+                    - (fBefore.totalS - fBefore.phaseStartS[fBefore.phaseStartS.length - 1])) < 15,
+                    "the recovery keeps its length after a skip");
+        }
         e.requestGo(late, late);
         t = e.getGoMs();
         e.tick(t);
         double s1 = e.getSessionS(t);
-        check(Math.abs(s1 - (s0 + min + 3)) < 0.6, "after ▶ the clock went on from the counted rest (" + (s1 - s0) + ")");
+        check(Math.abs(s1 - (s0 + min + 40 + 3)) < 0.6, "after ▶ the clock went on from the rest + countdown, the skipped set not on it ("
+                + (s1 - s0) + ")");
         int[] imp = e.getSetImpulses();
         check(imp[0] == 1 && imp[1] >= 3 && imp[1] * e.getCurrent().durationMs() / 1000.0 <= AutoEngine.STATION_MAX_S,
                 "set impulses " + imp[0] + " / " + imp[1]);
@@ -1168,7 +1196,12 @@ public final class AutoSim {
         e.tick(t);
         e.userPause(t);
         double p0 = e.getSessionS(t);
-        check(e.getSessionS(t + 120000) - p0 <= 3.01, "a manual pause does not count");
+        check(Math.abs(e.getSessionS(t + 120000) - p0 - 120) < 0.01, "a manual pause counts as it lasts");
+        check(e.getTrace().get(e.getTrace().size() - 1)[6] == AutoEngine.TRACE_REST, "the pause is on the timeline");
+        double l0 = e.getSystemLoad(t);
+        e.traceTick(t + 60000);
+        float[] lp = e.getTrace().get(e.getTrace().size() - 1);
+        check(lp[2] < l0 && lp[2] > 0, "in the pause the timeline falls with the load (" + l0 + " → " + lp[2] + ")");
         // in the recovery Next does nothing
         e.stopPress(t);
         e.requestGo(t, t);
@@ -1330,7 +1363,8 @@ public final class AutoSim {
         t[0] = p.getGoMs();
         p.tick(t[0]);
         check(p.getStationS() >= setBefore - 1e-9 && p.getState() == AutoEngine.State.RUN, "S4 the set continues");
-        check(p.getSessionS(t[0]) - clk <= 3.5, "S4 the 2 min pause is not counted (" + (p.getSessionS(t[0]) - clk) + ")");
+        check(Math.abs(p.getSessionS(t[0]) - clk - 123) < 0.6, "S4 the 2 min pause (+ 3 s countdown) is on the clock ("
+                + (p.getSessionS(t[0]) - clk) + ")");
 
         // S5 · the HR jumps straight over the cap mid-cycle → output stops (L11); comes down → counts down by itself
         AutoModel.Plan hp = AutoPlanner.build(in, 66);
@@ -1341,7 +1375,7 @@ public final class AutoSim {
         h.tick(t[0] + 1000);
         check(h.getState() == AutoEngine.State.HR_PAUSE, "S5 HR over the cap → HR pause");
         float[] lastT = h.getTrace().get(h.getTrace().size() - 1);
-        check(lastT.length > 6 && lastT[6] == AutoEngine.TRACE_HR_PAUSE && lastT[2] == 0f,
+        check(lastT.length > 6 && lastT[6] == AutoEngine.TRACE_HR_PAUSE,
                 "S5 the HR stop is marked on the timeline (a critical pause)");
         long tt = t[0] + 1000;
         for (int i = 0; i < 40; i++) {
@@ -1404,7 +1438,7 @@ public final class AutoSim {
         check(maxActive <= plan.activeS + 1e-6, "S9 impulses of the active part ≤ 20 min (" + maxActive + ")");
         double counted = full.getSessionS(t[0]);
         AutoEngine.Forecast fc = AutoEngine.forecast(plan, sc, false);
-        check(Math.abs(counted - fc.totalS) < 60 + 1, "S9 clock without the extra 5 s per rest ≈ forecast ("
+        check(counted >= fc.totalS - 61, "S9 the clock holds the plan and every extra wait ("
                 + Math.round(counted) + " vs " + Math.round(fc.totalS) + ")");
         if (verbose) {
             System.out.println("  S9 sets " + full.getStationsDone() + " · clock " + Math.round(counted / 60) + " min · wall "

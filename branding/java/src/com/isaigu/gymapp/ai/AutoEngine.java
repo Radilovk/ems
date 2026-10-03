@@ -370,6 +370,7 @@ public final class AutoEngine {
             settle(now);
             state = State.USER_PAUSE;
             pauseStartMs = now;
+            traceRest(now);
             log(now, "pause");
         }
     }
@@ -586,7 +587,8 @@ public final class AutoEngine {
             pauseStartMs = now;
             hrOkSinceMs = 0;
             capHits++;
-            trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getSystemLoad(now), phaseIndex,
+            double hl = getSystemLoad(now);
+            trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, (float) hl, (float) hl, phaseIndex,
                     Math.max(0, getHr(now)), TRACE_HR_PAUSE});
             log(now, "HR " + hr + " ≥ cap " + plan.hrCap + " → pause");
             return;
@@ -1208,16 +1210,24 @@ public final class AutoEngine {
     }
 
     /**
-     * Each zone's way to its target (owner, 1.1.287): work done / the work the plan holds for it — 1 = the load
-     * this session is meant to give that zone, reached at the end of the plan (the recovery included). Relative to
-     * the session's own context, not an absolute scale; −1 = the plan gives the zone nothing.
+     * Each zone's colour on the body (owner, 1.1.290): its work done so far against the most worked zone of this
+     * session's plan — the zone the session is for reaches 1 (full colour) at the end of the plan, the recovery
+     * included; the others stay as much paler as they really get less (the exercise's own work, and the EMS only
+     * while the channel is above 0). So the differences between zones show live. −1 = nothing done and nothing
+     * planned there.
      */
     public double[] getZoneProgress(long now) {
         double[] d = getZoneDone(now);
+        double top = 0;
+        if (zoneBudget != null) {
+            for (double b : zoneBudget) {
+                top = Math.max(top, b);
+            }
+        }
         double[] out = new double[d.length];
         for (int k = 0; k < d.length; k++) {
             double b = zoneBudget != null && k < zoneBudget.length ? zoneBudget[k] : 0;
-            out[k] = b > 1e-6 ? d[k] / b : -1;
+            out[k] = top <= 1e-6 || (b <= 1e-6 && d[k] <= 1e-6) ? -1 : d[k] / top;
         }
         return out;
     }
@@ -1279,7 +1289,8 @@ public final class AutoEngine {
     }
 
     private void traceRest(long now) {
-        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, 0f, (float) getSystemLoad(now), phaseIndex,
+        double l = getSystemLoad(now);
+        trace.add(new float[] {(float) getSessionS(now), (float) elapsedS, (float) l, (float) l, phaseIndex,
                 Math.max(0, getHr(now)), TRACE_REST});
     }
 
@@ -1304,15 +1315,37 @@ public final class AutoEngine {
         return trace;
     }
 
-    /** The part of a wait the program imposed: the rest minimum + the countdown, the whole HR pause. */
+    /**
+     * The part of a wait the session clock counts (owner, 1.1.290): all of it — a rest, a manual pause, an HR
+     * pause. The timeline shows the load falling for as long as the pause really lasts, and the end moves by it;
+     * the recovery stays its own fixed part at the end.
+     */
     private double imposedOf(State from, double pauseS) {
-        if (from == State.REST) {
-            return Math.min(pauseS, restMinS + COUNTDOWN_MS / 1000.0);
+        return Math.max(0, pauseS);
+    }
+
+    /** A wait sample at most every this many seconds of the session clock (the fall of the load in a pause). */
+    static final double TRACE_WAIT_S = 4.0;
+
+    /**
+     * In a rest / pause / countdown: one sample of the total load as it falls (muscles recover, the oxygen debt
+     * clears) — the timeline's valley has the real shape and lasts as long as the pause. Called every tick.
+     */
+    public void traceTick(long now) {
+        if (state != State.REST && state != State.USER_PAUSE && state != State.HR_PAUSE && state != State.COUNTDOWN) {
+            return;
         }
-        if (from == State.HR_PAUSE) {
-            return pauseS;
+        double sNow = getSessionS(now);
+        if (!trace.isEmpty() && sNow - trace.get(trace.size() - 1)[0] < TRACE_WAIT_S) {
+            return;
         }
-        return Math.min(pauseS, COUNTDOWN_MS / 1000.0);
+        float kind = state == State.HR_PAUSE ? TRACE_HR_PAUSE : TRACE_REST;
+        double l = getSystemLoad(now);
+        trace.add(new float[] {(float) sNow, (float) elapsedS, (float) l, (float) l, phaseIndex,
+                Math.max(0, getHr(now)), kind});
+        if (trace.size() > 4000) {
+            trace.remove(0);
+        }
     }
 
     /**
@@ -1320,7 +1353,7 @@ public final class AutoEngine {
      * takes beyond the rest minimum before ▶, and a manual pause, are not counted.
      */
     public double getSessionS(long now) {
-        double s = elapsedS + imposedS;
+        double s = elapsedS - skippedS + imposedS;          // a skipped set is not session time: the end comes sooner
         if (state == State.REST || state == State.HR_PAUSE || state == State.USER_PAUSE
                 || (state == State.COUNTDOWN && countFrom != State.READY)) {
             State from = state == State.COUNTDOWN ? countFrom : state;
@@ -1347,10 +1380,24 @@ public final class AutoEngine {
         return new int[] {Math.max(1, Math.min(all, done)), all};
     }
 
+    /** Plan time skipped by ⏭ (not given as impulses): out of the session, not in the client's history. */
+    private double skippedS;
+
+    public double getSkippedS() {
+        return skippedS;
+    }
+
+    /** Impulse time really given (the plan clock minus what ⏭ skipped). */
+    public double getImpulseS() {
+        return Math.max(0, elapsedS - skippedS);
+    }
+
     /**
-     * ⏭ Next (owner, 1.1.271): in a set — it ends now (the rest still follows the fatigue); in the rest — the next
-     * exercise instead of the one shown; in a phase without sets — on to the next phase (the recovery is reached,
-     * never skipped). Returns true when something changed.
+     * ⏭ Skip (owner, 1.1.290): on to the next exercise or part in order, and the session gets shorter by what is
+     * skipped — never a reshuffle of the exercises. In a set: the set ends now and its unfinished time is cut
+     * (the rest still follows the fatigue). In the rest: the coming set is skipped whole — its time is cut and the
+     * one after it comes. In a phase without sets: on to the next phase. The recovery is reached, never skipped.
+     * Returns true when something changed.
      */
     public boolean next(long now) {
         Phase ph = phase();
@@ -1363,32 +1410,56 @@ public final class AutoEngine {
                 stationS += Math.min(current.durationMs(), Math.max(0, now - current.startMs)) / 1000.0;
                 counted = current;
             }
+            skip(Math.max(0, getSetTargetS() - stationS));
             lastSetS = stationS;
             stationS = 0;
             stationIndex++;
-            log(now, "next → set ended early");
+            log(now, "skip → set ended early, " + Math.round(skippedS) + " s skipped in all");
             enterRest(now, false);
             return true;
         }
         if (state == State.REST && !restBeforeCooldown && isStationPhase(phaseIndex)) {
+            skip(getSetTargetS());
             stationIndex++;
-            log(now, "next → exercise " + getExercise());
+            log(now, "skip → the coming set, " + Math.round(skippedS) + " s skipped in all");
+            int idx = phaseAt(elapsedS);
+            int cool = cooldownIndex();
+            if (cool >= 0 && (idx >= cool || plan.activeS - elapsedS < STATION_MIN_S / 2.0)) {
+                enterRecoveryRest(now, cool);
+            } else if (idx != phaseIndex) {
+                enterPhase(idx, now);
+                stationPhase = idx;
+                stationIndex = 0;
+            }
             return true;
         }
         if (state == State.RUN) {
             int idx = phaseIndex + 1;
+            double phaseEnd = 0;
+            for (int i = 0; i <= phaseIndex; i++) {
+                phaseEnd += plan.phases.get(i).durationS;
+            }
+            skip(Math.max(0, phaseEnd - elapsedS));
             if (idx < plan.phases.size() && plan.phases.get(idx).isCooldown()) {
-                log(now, "next → recovery");
+                log(now, "skip → recovery");
                 enterRecoveryRest(now, idx);
                 return true;
             }
             if (idx < plan.phases.size()) {
                 jumpTo(idx, now);
-                log(now, "next → phase " + phase().id);
+                log(now, "skip → phase " + phase().id);
                 return true;
             }
         }
         return false;
+    }
+
+    /** The plan clock jumps over {@code s} seconds that are not given (bounded by the active part). */
+    private void skip(double s) {
+        double room = Math.max(0, plan.activeS - elapsedS);
+        double d = Math.min(Math.max(0, s), room);
+        elapsedS += d;
+        skippedS += d;
     }
 
     /** The whole session planned ahead (no HR, ▶ pressed as soon as allowed): the timeline's profile. */
@@ -1457,7 +1528,11 @@ public final class AutoEngine {
                 f.phaseStartS[e.phaseIndex] = e.getSessionS(t);
             }
             if (e.getState() == State.REST) {
-                t += e.getRestMinS() * 1000L;
+                long until = t + e.getRestMinS() * 1000L;
+                while (t < until) {
+                    t = Math.min(until, t + (long) (TRACE_WAIT_S * 1000));
+                    e.traceTick(t);
+                }
                 e.requestGo(t, t);
                 t = e.getGoMs();
                 e.tick(t);
@@ -1599,18 +1674,20 @@ public final class AutoEngine {
                     e.resume(t);                         // what comes if ▶ is pressed now
                     break;
                 case REST:
+                    e.traceTick(t);                      // the valley: the load falls through the rest
                     if (e.getRestLeftS(t) > 0) {
-                        t += e.getRestLeftS(t) * 1000L;
+                        t += Math.min(e.getRestLeftS(t) * 1000L, (long) (TRACE_WAIT_S * 1000));
                     } else if (!e.requestGo(t, t)) {
-                        t += 5000L;                      // the HR has to come down first
+                        t += 4000L;                      // the HR has to come down first
                     }
                     break;
                 case HR_PAUSE:
                     if (e.canResume()) {
                         e.resume(t);
                     } else {
-                        t += 5000L;
+                        t += 4000L;
                         e.tick(t);
+                        e.traceTick(t);
                     }
                     break;
                 default:

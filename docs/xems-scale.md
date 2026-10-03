@@ -45,6 +45,17 @@ Ten u32 = right hand, left hand, trunk, right foot, left foot at 20 kHz, then at
 ack `33 CC 0B sn 00 FF func scaleSn sum`. Time `33 CC 0F sn 00 10 01 tzMin(2) unix(4) sum` on connect. A result
 stamped > 10 min from now (clock set) = a stored weigh-in → skipped. Contact error → weight only.
 
+**The person first (1.1.308-ai — owner: "only weight").** The SDK's 8-electrode workflow is sync time → **set
+user** → wait for data; without a user the scale weighs only (`onlyWeight`). `ScaleSenssun.hello` sends time and the
+client (pin 1, sex 1 man / 0 woman, height, age, activity 3, unit kg) in the exact bytes of the SDK's own
+generators — `libprotocol.so` run in an emulator (unicorn), `ScaleSim.xsCommands` compares byte for byte:
+v11 17 B · v12 26 B (+ time, type, encode = 0) · v13/v14/v15 33 B (+ encode100k, empty nickname TLV `03 01 00`) ·
+v1 19 B (`10 00 00 C5 13 03 01 00 01 pin sex h age act unit−1 kg×10 sum`) · v2 time `10 00 00 C5 0E 03 0A tz unix`.
+Version from the advert (MAC forward or backwards); not advertised → the first frame's family decides and every
+variant of it is sent (the scale ignores the others). The native parsers (`parseBLE_v1/v11/v12`) were run on the sim's
+frames too: same weight and impedances as `parseXs`; every vendor algorithm decodes impedances with `deImpedance`.
+**Log for a new model:** long press on the scale page's state line (or the measuring chip) → share the `scale` log.
+
 **One frequency (owner: the KB-7853 measures at one).** The protocol has room for both; a single-frequency scale
 leaves the 100 kHz words at 0 → its values are taken as **50 kHz** [D — check on the first real weigh-in against
 MovingLife]. `ScaleModel.single`: per segment z20 = z50 / (1 + (ρ − 1)·AT50), z100 = ρ·z20 with the typical

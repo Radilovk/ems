@@ -267,6 +267,7 @@ public final class ScaleLink {
         senssun.reset();
         rawLogged = 0;
         xsSn = 0;
+        xsHelloSent = false;
         ops.clear();
         busy = false;
         write = null;
@@ -420,8 +421,8 @@ public final class ScaleLink {
         } else if (gen == 'S' && xs != null) {
             if (xs[0] == ScaleSenssun.XS_V30) {
                 log("XS v30 (encrypted) — not supported, frames logged");
-            } else if (xs[0] >= 0x11) {
-                send(ScaleSenssun.syncTime(xsSn++, utcOffsetMin(), unixNow()), true);
+            } else {
+                xsHello(xs[0], xs[0] >= 0x11);
             }
         } else if (gen == 'S') {
             java.util.Calendar c = java.util.Calendar.getInstance();
@@ -536,7 +537,7 @@ public final class ScaleLink {
 
     // ------------------------------------------------------------------ Senssun / MovingLife
 
-    static final int RAW_CAP = 400, RAW_S = 60;
+    static final int RAW_CAP = 400, RAW_S = 200;
 
     void onFrameS(java.util.UUID uuid, byte[] data) {
         if (rawLogged < RAW_S) {
@@ -552,6 +553,13 @@ public final class ScaleLink {
             return;
         }
         ScaleSenssun.XsFrame x = ScaleSenssun.parseXs(f);
+        if (!xsHelloSent) {
+            // not advertised as XS: the first frame names the family — say hello in every variant of it
+            xsHello(-1, (f[0] & 0xFF) == 0x33);
+        }
+        if (x.kind == ScaleSenssun.XsFrame.OTHER) {
+            log("XS rx func " + Integer.toHexString(x.func) + ": " + hexAll(f));
+        }
         if (x.ackWanted) {
             send(ScaleSenssun.ack(xsSn++, f), true);
         }
@@ -566,6 +574,21 @@ public final class ScaleLink {
                     + ", z100 " + java.util.Arrays.toString(x.z100));
             live(x.kg, true);
             finish(ScaleSenssun.reading(x));
+        }
+    }
+
+    boolean xsHelloSent;
+
+    /** Time and the person on the scale (the SDK's workflow: sync time → set user → wait for data). */
+    void xsHello(int ver, boolean v11Family) {
+        xsHelloSent = true;
+        java.util.List<byte[]> h = ScaleSenssun.hello(ver, v11Family, xsSn, utcOffsetMin(), unixNow(), male, heightCm,
+                age, liveKg > 5 ? liveKg : lastKg);
+        xsSn += h.size();
+        log("XS hello v" + (ver < 0 ? (v11Family ? "11-family" : "1-family") : Integer.toHexString(ver)) + ": "
+                + h.size() + " frames");
+        for (byte[] b : h) {
+            send(b, true);
         }
     }
 

@@ -12,7 +12,8 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleProtocol` | Pure: frames, handshake and decode of both generations; `Reading` (weight, scale fat %, Z20/Z100 by segment 0 trunk · 1 LA · 2 RA · 3 LL · 4 RL) |
 | `ScaleBody` | Pure: WLA25 (float32 + half-up rounding as the vendor binary) → fat, muscle, water, visceral, BMR, body age, 5 segments; `withFat` = the same chain from another fat % |
 | `ScaleModel` | Pure (1.1.295-ai): **the numbers we show** — sex-aware fat (Sun 2003 + the scale's own / WLA25), skeletal muscle (Janssen 2000), Kalman smoothing of lean between weigh-ins, rebuild of older history from raw impedances (see "XEMS model") |
-| `ScaleDetail` | Pure (1.1.295-ai): the full report like the fitness apps — 19 values with a status word, 5 zones fat / muscle (kg, % of standard), weight control to the client's own healthy weight |
+| `ScaleDetail` | Pure (1.1.295-ai): all values with a status word (`rows`), the analysis tiles with their 5-sector norms and texts (`metrics`), 5 zones fat / muscle (kg, % of standard), weight control to the client's own healthy weight |
+| `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
 | `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
 | `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days); `save` (through `ScaleModel`), `upgrade` (older model / other sex·age·height → rebuilt), `delete` (+ server), `unlike` (weight jump → "is this X?") |
 | `ScaleInsight` | Pure: readiness (ρ = Z100/Z20 per segment and legs' Z20 vs the client's own baseline), segments as % of WLA25 normal, fat per suit channel, L/R asymmetry |
@@ -113,9 +114,17 @@ the art's light (muscles stay drawn); **Ток** = per muscle group (channel) by
 ## Result page (`ScaleScreen`) — two views
 **Portrait too** (1.1.295-ai): the page unlocks rotation while open (restored on close, like the report); landscape =
 three columns one screen high, portrait = the same cards stacked (the page scrolls, comparison chips on their own
-line); the summary and detail sheets follow the turn (`ScaleScreen.Columns`). **Подробно** (button next to
-Обобщение): every value · status, the zones table, weight control (`ScaleDetail`); the shared HTML has the same
-(`docs/scale/preview-detail-share.png`).
+line); the summary and analysis sheets follow the turn (`ScaleScreen.Columns`).
+**Анализ** (1.1.296-ai, `ScaleAnalysis`; Fitdays' list of values = the checklist, not the design): left — what the
+weight is made of (fat · water · protein · minerals, one bar, tap a part), the figure painted by zone status (fat or
+muscle by the focus; tap a zone), the way to the client's own healthy weight (track, now → healthy, fat − / muscle +);
+middle — 13 tiles in 4 groups (fat · muscle · water and frame · body and energy): value, ▲▼ since last time coloured
+by the good direction, status word, mini 5-sector norm (the word always = the lit sector, `ScaleDetail.metrics`);
+right — the focus of whatever was tapped: big value + status, the full norm bar, what it means / what moves it, its
+line through all weigh-ins with the change since last and since the first; a zone shows muscle and fat against
+their standard and left vs right. Opens on the value that needs attention first (`focusOf`). The shared HTML has the
+same composition bar and tiles (tap a tile = its explanation, `<details>`). Previews (HTML mocks, not device
+screenshots): `docs/scale/preview-analysis.png`, `docs/scale/preview-detail-share.png`.
 
 **Днес** (this measurement) | **Проследяване** (from: last time / 3 back / the first → now: figure by change per
 segment, big trend of one metric, radar then vs now, from → to table, **change since the start**: muscle and fat

@@ -491,6 +491,16 @@ public final class ScaleSim {
                     + r1(c.fat) + " · muscle " + r1(c.muscle) + " (Fitdays 77.7 / −3.7 by BMI 22)");
             ok("athletic owner: healthy weight above the BMI-22 one", c.target > 77.7);
             eq("muscle control 0 for an athletic man", c.muscle, 0, 0.001);
+            java.util.List<ScaleDetail.Metric> ms = ScaleDetail.metrics(e, true, 40, 175, true);
+            ok("analysis: 13 tiles in 4 groups", ms.size() == 13);
+            boolean match = true;
+            for (ScaleDetail.Metric x : ms) {
+                if (x.norm != null && x.status == ScaleDetail.S_NONE && !Double.isNaN(x.value)) {
+                    match = false;
+                }
+            }
+            ok("every tile with a norm has its status word", match);
+            ok("athletic owner: the first focus is not BMI", !ms.get(ScaleDetail.focusOf(ms)).key.equals("bmi"));
             ok("unlike: 81 kg on a 53 kg profile", ScaleStore.unlike(v2, 53, t + 120000));
             ok("not unlike: 81.9 after 81.4", !ScaleStore.unlike(v2, 81.9, t + 120000));
         } catch (Exception e) {

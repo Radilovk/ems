@@ -184,7 +184,7 @@ public final class ScaleScreen {
             barTop.addView(modeHolder, new LinearLayout.LayoutParams(dp(360), ViewGroup.LayoutParams.WRAP_CONTENT));
             barTop.addView(XemsUi.spacer(a));
             rangeHolder = XemsUi.horizontal(a);
-            TextView det = XemsUi.button(a, tr("Подробно", "Details"), XemsUi.SECONDARY);
+            TextView det = XemsUi.button(a, tr("Анализ", "Analysis"), XemsUi.SECONDARY);
             det.setOnClickListener(new Details(this));
             LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
             dl.leftMargin = dp(12);
@@ -669,20 +669,6 @@ public final class ScaleScreen {
                             + "профила му; останалите се преизчисляват без него, и в картона.",
                             "The client's latest measurements. ✕ removes one — say someone else stepped on under "
                                     + "this profile; the rest are recomputed without it, on the card too.");
-                } else if ("detail".equals(key)) {
-                    title = tr("Как се смята", "How it is computed");
-                    text = tr("Мазнините — по уравнения, проверени спрямо референтни методи, отделно за мъже и жени "
-                            + "(Sun 2003, 1 829 души), заедно с измереното от кантара; скелетните мускули — Janssen "
-                            + "2000 (ЯМР). Стойностите са изгладени между мерения: контактът и последната вода "
-                            + "местят импеданса, тъканта — не. Две мерения през минута дават средното; истинската "
-                            + "промяна се вижда до дни. Здравословното тегло е за собствените мускули при здравословни "
-                            + "мазнини — не по ИТМ 22.",
-                            "Fat by equations checked against reference methods, separate for men and women (Sun 2003, "
-                                    + "1,829 adults), together with the scale's own value; skeletal muscle by Janssen "
-                                    + "2000 (MRI). Values are smoothed between weigh-ins: contact and the last drink "
-                                    + "move the impedance, tissue does not. Two steps a minute apart give their mean; "
-                                    + "a real change shows within days. The healthy weight is for the client's own "
-                                    + "muscle at a healthy fat % — not BMI 22.");
                 } else if ("table".equals(key)) {
                     title = tr("Тогава → сега", "Then → now");
                     text = tr("Всеки показател в началото на периода и сега. Зелено — към добро, жълто — обратното.",
@@ -886,145 +872,11 @@ public final class ScaleScreen {
             }
         }
 
-        /** "Подробно": every value as the fitness apps list it, the five zones, the weight control. */
+        /** "Анализ": every value explorable — composition, zones, tiles, the focus (ScaleAnalysis). */
         void showDetail() {
-            try {
-                JSONObject m = cur();
-                String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim()
-                        : u.nickName != null ? u.nickName.trim() : "";
-                XemsUi.Shell sh = XemsUi.shell(a, tr("Подробно", "Details") + (name.length() > 0 ? " · " + name : ""),
-                        m != null ? new SimpleDateFormat("d.MM.yyyy · HH:mm", Locale.US).format(new Date(m.optLong("t")))
-                                + "  ·  " + (male ? tr("мъж", "male") : tr("жена", "female")) + " · " + age
-                                + tr(" г. · ", " y · ") + heightCm + tr(" см", " cm") : "", 1280);
-                XemsUi.fullScreen(sh);
-                boolean bg = XemsLang.tr("б", "e").equals("б");
-                LinearLayout row = XemsUi.horizontal(a);
-                row.setGravity(Gravity.TOP);
-
-                // 1. all values
-                LinearLayout vals = XemsUi.card(a);
-                vals.addView(header(XemsUi.label(a, tr("Показател · стойност · оценка", "Value · status")), "detail"));
-                java.util.List<ScaleDetail.Row> rows = ScaleDetail.rows(m, male, age, heightCm);
-                android.widget.ScrollView vs = new android.widget.ScrollView(a);
-                vs.setVerticalScrollBarEnabled(false);
-                LinearLayout vl = XemsUi.vertical(a);
-                vs.addView(vl);
-                for (int i = 0; i < rows.size(); i++) {
-                    ScaleDetail.Row r = rows.get(i);
-                    vl.addView(detailRow(bg ? r.bg : r.en, r.textBg != null ? (bg ? r.textBg : r.textEn)
-                                    : r.value() + (Double.isNaN(r.value) ? "" : bg ? r.unit : r.unit.replace(" кг", " kg")),
-                            r.status, i % 2 == 0), XemsUi.matchWrap(a, 0));
-                }
-                vals.addView(vs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-                row.addView(vals);
-
-                // 2. zones: fat and muscle, kg and % of the standard
-                LinearLayout zc = XemsUi.card(a);
-                zc.addView(header(XemsUi.label(a, tr("Зони · мазнини и мускули", "Zones · fat and muscle")), "zones"));
-                ScaleDetail.Zone[] zs = ScaleDetail.zones(m, male, heightCm);
-                LinearLayout hd = XemsUi.horizontal(a);
-                hd.addView(XemsUi.text(a, "", 12, XemsUi.MUTED, true), new LinearLayout.LayoutParams(0, -2, 1f));
-                hd.addView(XemsUi.text(a, tr("мазнини · 80–160 %", "fat · 80–160 %"), 12, XemsUi.MUTED, true),
-                        new LinearLayout.LayoutParams(0, -2, 1.2f));
-                hd.addView(XemsUi.text(a, tr("мускули · 90–110 %", "muscle · 90–110 %"), 12, XemsUi.MUTED, true),
-                        new LinearLayout.LayoutParams(0, -2, 1.2f));
-                zc.addView(hd, XemsUi.matchWrap(a, 8));
-                for (int k = 0; k < 5; k++) {
-                    int seg = ScaleDetail.ORDER[k];
-                    ScaleDetail.Zone z = zs[seg];
-                    LinearLayout zr = XemsUi.horizontal(a);
-                    zr.setGravity(Gravity.CENTER_VERTICAL);
-                    zr.setPadding(0, dp(9), 0, dp(9));
-                    zr.addView(XemsUi.text(a, bg ? ScaleDetail.zoneBg(seg) : ScaleDetail.zoneEn(seg), 15, XemsUi.TEXT,
-                            true), new LinearLayout.LayoutParams(0, -2, 1f));
-                    zr.addView(zoneCell(z.fatKg, z.fatPct, z.fatStatus), new LinearLayout.LayoutParams(0, -2, 1.2f));
-                    zr.addView(zoneCell(z.musKg, z.musPct, z.musStatus), new LinearLayout.LayoutParams(0, -2, 1.2f));
-                    zc.addView(zr, XemsUi.matchWrap(a, 0));
-                }
-                TextView zn = XemsUi.text(a, tr("% от стандарта за ръста; ръцете — мускули 80–115 %.",
-                        "% of the standard for the height; arms — muscle 80–115 %."), 12, XemsUi.MUTED, false);
-                zc.addView(zn, XemsUi.matchWrap(a, 6));
-                row.addView(zc);
-
-                // 3. weight control
-                LinearLayout cc = XemsUi.card(a);
-                cc.addView(header(XemsUi.label(a, tr("Контрол на теглото", "Weight control")), "detail"));
-                ScaleDetail.Control c = ScaleDetail.control(m, male, age, heightCm);
-                LinearLayout big = XemsUi.horizontal(a);
-                big.setGravity(Gravity.BOTTOM);
-                TextView tv = XemsUi.text(a, Double.isNaN(c.target) ? "—" : one(c.target), 44, XemsUi.TEXT, true);
-                tv.setIncludeFontPadding(false);
-                big.addView(tv);
-                TextView tu = XemsUi.text(a, tr(" кг здравословно", " kg healthy"), 15, XemsUi.MUTED, false);
-                tu.setPadding(0, 0, 0, dp(6));
-                big.addView(tu);
-                cc.addView(big, XemsUi.matchWrap(a, 8));
-                cc.addView(XemsUi.text(a, tr("за собствените мускули при здравословни мазнини — не по ИТМ",
-                        "for the client's own muscle at a healthy fat % — not by BMI"), 13, XemsUi.MUTED, false),
-                        XemsUi.matchWrap(a, 2));
-                String[][] cl = {{tr("Тегло", "Weight"), signedKg(c.total)}, {tr("Мазнини", "Fat"), signedKg(c.fat)},
-                        {tr("Мускули", "Muscle"), signedKg(c.muscle)}};
-                for (int i = 0; i < cl.length; i++) {
-                    double v = i == 0 ? c.total : i == 1 ? c.fat : c.muscle;
-                    int col = Double.isNaN(v) || Math.abs(v) < 0.5 ? XemsUi.GO_TEXT : i == 2 ? XemsUi.GO_TEXT
-                            : XemsUi.AMBER;
-                    LinearLayout cr = detailRow(cl[i][0], Double.isNaN(v) || Math.abs(v) < 0.5
-                            ? tr("✓ в нормата", "✓ on target") : cl[i][1], ScaleDetail.S_NONE, i % 2 == 0);
-                    ((TextView) cr.getChildAt(1)).setTextColor(col);
-                    cc.addView(cr, XemsUi.matchWrap(a, i == 0 ? 12 : 0));
-                }
-                row.addView(cc);
-                sh.body.addView(row, XemsUi.matchWrap(a, 4));
-                Columns.follow(a, sh, row, new float[] {1.1f, 1.05f, 0.85f}, new int[] {900, 0, 0}, 170);
-
-                sh.footer.addView(XemsUi.spacer(a));
-                TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
-                close.setOnClickListener(new CloseSheet(sh));
-                sh.footer.addView(close, new LinearLayout.LayoutParams(dp(260), dp(56)));
-                sh.dialog.show();
-            } catch (Throwable t) {
-                XemsGuard.report("ScaleScreen.detail", t);
-            }
-        }
-
-        static String signedKg(double v) {
-            return Double.isNaN(v) ? "—" : (v >= 0 ? "+" : "−") + one(Math.abs(v)) + tr(" кг", " kg");
-        }
-
-        /** name · value · status chip, striped. */
-        LinearLayout detailRow(String name, String value, int status, boolean stripe) {
-            LinearLayout r = XemsUi.horizontal(a);
-            r.setGravity(Gravity.CENTER_VERTICAL);
-            r.setPadding(dp(12), dp(8), dp(10), dp(8));
-            if (stripe) {
-                r.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, dp(10), 0, 0));
-            }
-            r.addView(XemsUi.text(a, name, 14, XemsUi.MUTED, false), new LinearLayout.LayoutParams(0, -2, 1.3f));
-            TextView v = XemsUi.text(a, value, 16, XemsUi.TEXT, true);
-            v.setGravity(Gravity.END);
-            r.addView(v, new LinearLayout.LayoutParams(0, -2, 1f));
-            TextView st = XemsUi.text(a, status >= 0 ? tr(ScaleDetail.statusBg(status), ScaleDetail.statusEn(status))
-                    : "", 13, ScaleDetail.statusColor(status), true);
-            st.setGravity(Gravity.END);
-            r.addView(st, new LinearLayout.LayoutParams(dp(118), -2));
-            return r;
-        }
-
-        /** "0.7 кг · 95 %" with the status colour on the %. */
-        TextView zoneCell(double kg, double pct, int status) {
-            android.text.SpannableStringBuilder b = new android.text.SpannableStringBuilder();
-            b.append(Double.isNaN(kg) ? "—" : one(kg) + tr(" кг", " kg"));
-            if (!Double.isNaN(pct)) {
-                b.append("  ");
-                part(b, Math.round(pct) + " %", ScaleDetail.statusColor(status));
-            }
-            return withText(b);
-        }
-
-        TextView withText(CharSequence c) {
-            TextView t = XemsUi.text(a, "", 15, XemsUi.TEXT, true);
-            t.setText(c);
-            return t;
+            String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim()
+                    : u.nickName != null ? u.nickName.trim() : "";
+            ScaleAnalysis.open(a, hist, at, male, age, heightCm, name);
         }
 
         LinearLayout radarCard() {

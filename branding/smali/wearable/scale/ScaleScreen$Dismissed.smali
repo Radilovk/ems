@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2015
+    .line 1867
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2016
+    .line 1868
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2017
+    .line 1869
     return-void
 .end method
 
@@ -42,28 +42,28 @@
     .registers 4
 
     .prologue
-    .line 2021
+    .line 1873
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     if-eqz v0, :cond_12
 
-    .line 2022
+    .line 1874
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->close()V
 
-    .line 2023
+    .line 1875
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     const/4 v1, 0x0
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 2025
+    .line 1877
     :cond_12
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -73,7 +73,7 @@
 
     if-eq v0, v1, :cond_25
 
-    .line 2027
+    .line 1879
     :try_start_1a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -87,12 +87,12 @@
     :try_end_25
     .catch Ljava/lang/Throwable; {:try_start_1a .. :try_end_25} :catch_26
 
-    .line 2031
+    .line 1883
     :cond_25
     :goto_25
     return-void
 
-    .line 2028
+    .line 1880
     :catch_26
     move-exception v0
 

@@ -290,6 +290,25 @@ public final class AutoUi {
         shell.scroll.post(new ScrollTo(keepY));
     }
 
+    /** The program row and where it was slid to (kept when a card is picked and the screen rebuilds). */
+    private static android.widget.HorizontalScrollView programStrip;
+    private static int stripX;
+
+    static final class StripTo implements Runnable {
+        private final android.widget.HorizontalScrollView v;
+        private final int x;
+
+        StripTo(android.widget.HorizontalScrollView v, int x) {
+            this.v = v;
+            this.x = x;
+        }
+
+        @Override
+        public void run() {
+            v.scrollTo(x, 0);
+        }
+    }
+
     static final class ScrollTo implements Runnable {
         private final int y;
 
@@ -438,14 +457,19 @@ public final class AutoUi {
                 sel = i;
             }
         }
-        body.addView(XemsUi.segmented(c, names, sel, new Act(A_GOAL, 0)), XemsUi.matchWrap(c, 4));
+        // goal and kind side by side (landscape): one row of choices
+        LinearLayout choose = XemsUi.horizontal(c);
+        choose.setGravity(Gravity.CENTER_VERTICAL);
+        choose.addView(XemsUi.segmented(c, names, sel, new Act(A_GOAL, 0)),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.6f));
         // Active / passive only where the goal has both.
         boolean both = !AutoCatalog.menu(in.goal, Kind.ACTIVE).isEmpty() && !AutoCatalog.menu(in.goal, Kind.PASSIVE).isEmpty();
         if (both) {
-            body.addView(XemsUi.segmented(c, new String[] {
-                    AiText.t("С движение", "With movement"), AiText.t("Процедура в покой", "Procedure at rest")},
-                    in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.matchWrap(c, 10));
+            choose.addView(XemsUi.segmented(c, new String[] {
+                    AiText.t("С движение", "With movement"), AiText.t("В покой", "At rest")},
+                    in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.weight(1f, 14, c));
         }
+        body.addView(choose, XemsUi.matchWrap(c, 4));
 
         List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
         Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
@@ -453,8 +477,13 @@ public final class AutoUi {
         if (chosen == null || !menu.contains(chosen) || AutoCatalog.blockReason(chosen, in.goal, in, false) != null) {
             in.programId = AutoCatalog.blockReason(rec, in.goal, in, false) == null ? rec.id : null;
         }
+        // the programs: a row of big picture cards that slides sideways (landscape) — the picture says what it
+        // trains, the name and the time are all a card needs; the chosen one's line is said once under the row
         String firstBlock = null;
         int shown = 0;
+        Program picked = null;
+        LinearLayout strip = XemsUi.horizontal(c);
+        strip.setPadding(0, XemsUi.dp(c, 4), XemsUi.dp(c, 8), XemsUi.dp(c, 4));
         for (int i = 0; i < menu.size(); i++) {
             Program p = menu.get(i);
             String block = AutoCatalog.blockReason(p, in.goal, in, false);
@@ -466,39 +495,65 @@ public final class AutoUi {
                 continue;
             }
             boolean on = p.id.equals(in.programId);
-            LinearLayout outer = XemsUi.card(c);
-            outer.setOrientation(LinearLayout.HORIZONTAL);
-            outer.setGravity(Gravity.CENTER_VERTICAL);
-            outer.setBackgroundDrawable(XemsUi.rounded(on ? XemsUi.mix(XemsUi.CARD, goalColor(in.goal), 0.18f) : XemsUi.CARD,
-                    XemsUi.dp(c, 16), on ? goalColor(in.goal) : XemsUi.STROKE, XemsUi.dp(c, on ? 2 : 1)));
-            // the program's picture (by what it trains and the client's sex), then name and line
-            LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            alp.rightMargin = XemsUi.dp(c, 14);
-            outer.addView(ProgramArt.tile(c, p.id, p.isActive(), in.sex, 128, 96), alp);
-            LinearLayout card = XemsUi.vertical(c);
-            outer.addView(card, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            LinearLayout head = XemsUi.horizontal(c);
-            head.addView(XemsUi.text(c, p.name(), 17, XemsUi.TEXT, true),
-                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            if (p == rec) {
-                head.addView(XemsUi.badge(c, AiText.t("Препоръчана", "Recommended"), XemsUi.GO_TEXT));
+            if (on) {
+                picked = p;
             }
-            head.addView(XemsUi.text(c, "  " + AutoPlanner.maxSeconds(p, in.goal, in) / 60 + " + "
-                    + AutoPlanner.RECOVERY_S / 60 + AiText.t(" мин", " min"),
-                    14, XemsUi.MUTED, false));
-            card.addView(head);
-            TextView d = XemsUi.text(c, p.desc(), 13, XemsUi.MUTED, false);
-            d.setPadding(0, XemsUi.dp(c, 4), 0, 0);
-            card.addView(d);
-            outer.setOnClickListener(new Act(A_PROGRAM, i));
-            XemsUi.pressable(outer);
-            body.addView(outer, XemsUi.matchWrap(c, shown == 0 ? 14 : 10));
+            int gc = goalColor(in.goal);
+            LinearLayout card = XemsUi.vertical(c);
+            int pad = XemsUi.dp(c, 10);
+            card.setPadding(pad, pad, pad, XemsUi.dp(c, 12));
+            card.setBackgroundDrawable(XemsUi.rounded(on ? XemsUi.mix(XemsUi.CARD, gc, 0.20f) : XemsUi.CARD,
+                    XemsUi.dp(c, 18), on ? gc : XemsUi.STROKE, XemsUi.dp(c, on ? 2.5f : 1)));
+            android.widget.FrameLayout art = new android.widget.FrameLayout(c);
+            art.addView(ProgramArt.tile(c, p.id, p.isActive(), in.sex, 210, 150), new android.widget.FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            if (p == rec) {
+                TextView star = XemsUi.badge(c, "★ " + AiText.t("Препоръчана", "Recommended"), XemsUi.GO_TEXT);
+                android.widget.FrameLayout.LayoutParams sl = new android.widget.FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.START);
+                sl.setMargins(XemsUi.dp(c, 6), XemsUi.dp(c, 6), 0, 0);
+                art.addView(star, sl);
+            }
+            if (on) {
+                TextView tick = XemsUi.text(c, "✓", 16, XemsUi.ON_ACCENT, true);
+                tick.setGravity(Gravity.CENTER);
+                tick.setBackgroundDrawable(XemsUi.rounded(gc, XemsUi.dp(c, 14), 0, 0));
+                android.widget.FrameLayout.LayoutParams tl = new android.widget.FrameLayout.LayoutParams(
+                        XemsUi.dp(c, 28), XemsUi.dp(c, 28), Gravity.TOP | Gravity.END);
+                tl.setMargins(0, XemsUi.dp(c, 6), XemsUi.dp(c, 6), 0);
+                art.addView(tick, tl);
+            }
+            card.addView(art);
+            TextView name = XemsUi.text(c, p.name(), 16, XemsUi.TEXT, true);
+            name.setMaxLines(2);
+            card.addView(name, XemsUi.matchWrap(c, 10));
+            card.addView(XemsUi.text(c, AutoPlanner.maxSeconds(p, in.goal, in) / 60 + " + "
+                    + AutoPlanner.RECOVERY_S / 60 + AiText.t(" мин", " min"), 14, on ? gc : XemsUi.MUTED, true),
+                    XemsUi.matchWrap(c, 2));
+            card.setOnClickListener(new Act(A_PROGRAM, i));
+            XemsUi.pressable(card);
+            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(XemsUi.dp(c, 230),
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            clp.rightMargin = XemsUi.dp(c, 12);
+            strip.addView(card, clp);
             shown++;
         }
         if (shown == 0) {
             body.addView(banner(c, XemsUi.AMBER, firstBlock != null ? firstBlock
                     : AiText.t("Няма програма за този избор.", "No program for this choice.")), XemsUi.matchWrap(c, 14));
+        } else {
+            programStrip = new android.widget.HorizontalScrollView(c);
+            programStrip.setHorizontalScrollBarEnabled(false);
+            programStrip.setOverScrollMode(View.OVER_SCROLL_NEVER);
+            programStrip.addView(strip);
+            body.addView(programStrip, XemsUi.matchWrap(c, 14));
+            programStrip.post(new StripTo(programStrip, stripX));
+            if (picked != null) {
+                TextView d = XemsUi.text(c, picked.desc(), 14, XemsUi.MUTED, false);
+                d.setMaxLines(2);
+                d.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                body.addView(d, XemsUi.matchWrap(c, 10));
+            }
         }
         // Who operates: remembered, so only a quiet line.
         TextView op = XemsUi.text(c, AiText.t("Управлява: ", "Operated by: ") + (in.solo()
@@ -528,7 +583,15 @@ public final class AutoUi {
         shell.title.setText(AutoSession.getRows().isEmpty() || AutoSession.getRows().get(0).name.length() == 0
                 ? AiText.t("Клиент", "Client") : AutoSession.getRows().get(0).name);
         subtitle(p != null ? p.name() : null);
-        LinearLayout body = shell.body;
+        // landscape: the client on the left, what will happen on the right — no tall stack
+        LinearLayout cols = XemsUi.horizontal(c);
+        LinearLayout body = XemsUi.vertical(c);
+        LinearLayout right = XemsUi.vertical(c);
+        cols.addView(body, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams rlp0 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.15f);
+        rlp0.leftMargin = XemsUi.dp(c, 22);
+        cols.addView(right, rlp0);
+        shell.body.addView(cols, XemsUi.matchWrap(c, 0));
         String pb = planBlocker();
         if (pb == null) {
             AutoSession.buildPlan();              // live: every answer below re-plans at once
@@ -592,17 +655,17 @@ public final class AutoUi {
 
         // What will happen: the plan, computed from the answers above.
         if (pb == null) {
-            planBlock(c, body);
+            planBlock(c, right);
         } else {
-            body.addView(banner(c, in.heightCm <= 0 ? XemsUi.AMBER : XemsUi.DANGER, pb), XemsUi.matchWrap(c, 14));
+            right.addView(banner(c, in.heightCm <= 0 ? XemsUi.AMBER : XemsUi.DANGER, pb), XemsUi.matchWrap(c, 0));
         }
 
         // How the client is today: one tap each; never blocks, the plan adapts quietly (AiPersonal)
-        LinearLayout todayRow = XemsUi.horizontal(c);
-        todayRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView cap = XemsUi.text(c, AiText.t("Днес", "Today"), 15, XemsUi.MUTED, true);
-        cap.setPadding(XemsUi.dp(c, 4), 0, XemsUi.dp(c, 12), 0);
-        todayRow.addView(cap);
+        TextView cap = XemsUi.text(c, AiText.t("Как е днес", "How is today"), 13, XemsUi.MUTED, true);
+        body.addView(cap, XemsUi.matchWrap(c, 16));
+        LinearLayout todayGrid = XemsUi.vertical(c);
+        LinearLayout todayRow = null;
+        int inRow = 0;
         for (int i = 0; i < AiPersonal.TODAY.length; i++) {
             String k = AiPersonal.TODAY[i];
             if ("t_period".equals(k) && !AiPersonal.periodApplies(in.sex, in.age, in.cond)) {
@@ -613,15 +676,22 @@ public final class AutoUi {
             TextView chip = XemsUi.chip(c, (on ? "✓ " : "") + AiPersonal.todayName(k, in.sex), on, XemsUi.AMBER);
             chip.setOnClickListener(new Act(A_STATE, i));
             XemsUi.pressable(chip);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (todayRow == null || inRow == 3) {
+                todayRow = XemsUi.horizontal(c);
+                todayGrid.addView(todayRow, XemsUi.matchWrap(c, todayGrid.getChildCount() == 0 ? 0 : 8));
+                inRow = 0;
+            }
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             lp.rightMargin = XemsUi.dp(c, 8);
             todayRow.addView(chip, lp);
+            inRow++;
         }
-        android.widget.HorizontalScrollView todayScroll = new android.widget.HorizontalScrollView(c);
-        todayScroll.setHorizontalScrollBarEnabled(false);
-        todayScroll.addView(todayRow);
-        body.addView(todayScroll, XemsUi.matchWrap(c, 12));
+        if (todayRow != null) {
+            while (inRow++ < 3) {                         // keep the last row's cells the same width
+                todayRow.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
+            }
+        }
+        body.addView(todayGrid, XemsUi.matchWrap(c, 6));
 
         boolean ready = pb == null;
         footer(c, AiText.t("Към силата  ›", "To strength  ›"), true);
@@ -639,13 +709,11 @@ public final class AutoUi {
         // the active part (≤ 20 min of impulses) + the passive recovery (10 min)
         tile(c, tiles, AiText.t("Време", "Time"), (plan.activeS / 60) + (plan.recoveryS > 0 ? " + " + plan.recoveryS / 60 : "")
                 + AiText.t(" мин", " min"), 0);
-        tile(c, tiles, AiText.t("Усещане", "Feeling"), plan.cr10Lo + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "")
-                + AiText.t(" от 10", " of 10"), 10);
         boolean band = AutoSession.isBandConfigured(host);
         if (plan.hrUse != AutoModel.HrUse.NONE && band) {
             tile(c, tiles, AiText.t("Пулс до", "HR up to"), plan.hrCap + "", 10);
         }
-        body.addView(tiles, XemsUi.matchWrap(c, 14));
+        body.addView(tiles, XemsUi.matchWrap(c, 0));
 
         LinearLayout opt = XemsUi.card(c);
         LinearLayout r1 = XemsUi.horizontal(c);
@@ -804,10 +872,8 @@ public final class AutoUi {
         subtitle(AiText.t("До усещане ", "Up to a feeling of ") + plan.cr10Lo
                 + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "") + AiText.t(" от 10 · ", " of 10 · ") + cr10Text(plan.cr10Hi));
         LinearLayout body = shell.body;
-        if (!calibStarted) {
-            footer(c, AiText.t("▶ Пусни импулсите", "▶ Start the pulses"), true);
-            return;
-        }
+        // the target feeling as a picture: 1–10, the target band lit — the trainer asks, the client answers
+        body.addView(cr10Scale(c, plan.cr10Lo, plan.cr10Hi), XemsUi.matchWrap(c, 2));
         List<AutoSession.Row> rows = AutoSession.getRows();
         for (int i = 0; i < rows.size(); i++) {
             AutoSession.Row r = rows.get(i);
@@ -826,6 +892,8 @@ public final class AutoUi {
                 int[] steps = {-5, -1};
                 for (int k = 0; k < steps.length; k++) {
                     TextView key = XemsUi.button(c, "−" + Math.abs(steps[k]), XemsUi.SECONDARY);
+                    key.setAlpha(calibStarted ? 1f : 0.35f);
+                    key.setEnabled(calibStarted);
                     key.setOnClickListener(new Act(A_CALIB_ROW, i * 100 + (steps[k] + 50)));
                     head.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 72), ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
@@ -834,6 +902,8 @@ public final class AutoUi {
                 int[] up = {+1, +5};
                 for (int k = 0; k < up.length; k++) {
                     TextView key = XemsUi.button(c, "+" + up[k], XemsUi.SECONDARY);
+                    key.setAlpha(calibStarted ? 1f : 0.35f);
+                    key.setEnabled(calibStarted);
                     key.setOnClickListener(new Act(A_CALIB_ROW, i * 100 + (up[k] + 50)));
                     head.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 72), ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
@@ -843,15 +913,36 @@ public final class AutoUi {
         }
         calibRowsInfo = hint(c, "");
         body.addView(calibRowsInfo, XemsUi.matchWrap(c, 8));
-        footer(c, AiText.t("Старт", "Start"), true);
+        footer(c, calibStarted ? AiText.t("Старт  ›", "Start  ›") : AiText.t("▶ Пусни импулсите", "▶ Start the pulses"), true);
         refreshCalib();
+    }
+
+    /** CR-10 as ten cells: the target band lit in green and named under it (the feeling to reach). */
+    private static View cr10Scale(Context c, int lo, int hi) {
+        LinearLayout box = XemsUi.vertical(c);
+        LinearLayout row = XemsUi.horizontal(c);
+        for (int v = 1; v <= 10; v++) {
+            boolean in = v >= lo && v <= hi;
+            int base = v <= 3 ? XemsUi.GO : v <= 6 ? XemsUi.AMBER : XemsUi.DANGER;
+            TextView t = XemsUi.text(c, String.valueOf(v), in ? 18 : 14, in ? XemsUi.ON_ACCENT : XemsUi.MUTED, in);
+            t.setGravity(Gravity.CENTER);
+            t.setBackgroundDrawable(XemsUi.rounded(in ? XemsUi.GO : XemsUi.alpha(base, 0x22), XemsUi.dp(c, 10),
+                    in ? XemsUi.GO_TEXT : 0, in ? XemsUi.dp(c, 2) : 0));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, in ? 46 : 38), 1f);
+            lp.setMargins(XemsUi.dp(c, 3), 0, XemsUi.dp(c, 3), 0);
+            lp.gravity = Gravity.CENTER_VERTICAL;
+            row.addView(t, lp);
+        }
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        box.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 48)));
+        return box;
     }
 
     private static void refreshCalib() {
         List<AutoSession.Row> rows = AutoSession.getRows();
         for (int i = 0; i < rowLabels.size() && i < rows.size(); i++) {
             AutoSession.Row r = rows.get(i);
-            rowLabels.get(i).setText(r.block != null ? "—" : r.lastStrength + "");
+            rowLabels.get(i).setText(r.block != null || !calibStarted ? "—" : r.lastStrength + "");
         }
         if (calibStarted) {
             enable(AutoSession.canStart());
@@ -1497,6 +1588,7 @@ public final class AutoUi {
             case A_BACK: back(); return;
             case A_HIDE: dismiss(); return;     // the session keeps running; the tile brings it back
             case A_GOAL: {
+                stripX = 0;
                 Goal g = Goal.values()[value];
                 if (g != in.goal) {
                     in.goal = g;
@@ -1508,6 +1600,7 @@ public final class AutoUi {
                 break;
             }
             case A_KIND:
+                stripX = 0;
                 in.kind = value == 0 ? Kind.ACTIVE : Kind.PASSIVE;
                 in.programId = null;
                 break;
@@ -1518,6 +1611,7 @@ public final class AutoUi {
             case A_HEALTH_OPEN: healthOpen = true; healthOk = false; break;
             case A_DETAILS: details = !details; break;
             case A_PROGRAM: {
+                stripX = programStrip != null ? programStrip.getScrollX() : 0;
                 List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
                 if (arg < menu.size()) {
                     in.programId = menu.get(arg).id;
@@ -1695,7 +1789,7 @@ public final class AutoUi {
     private static void tile(Context c, LinearLayout row, String label, String value, int left) {
         LinearLayout t = XemsUi.surface(c);
         t.addView(XemsUi.text(c, label, 12, XemsUi.MUTED, false));
-        TextView v = XemsUi.text(c, value, 19, XemsUi.TEXT, true);
+        TextView v = XemsUi.text(c, value, 24, XemsUi.TEXT, true);
         v.setPadding(0, XemsUi.dp(c, 4), 0, 0);
         t.addView(v);
         row.addView(t, XemsUi.weight(1, left, c));

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1158
+    .line 1249
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1159
+    .line 1250
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoUi$InfoTap;->which:I
 
-    .line 1160
+    .line 1251
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 3
 
     .prologue
-    .line 1164
+    .line 1255
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoUi$InfoTap;->which:I
 
     # invokes: Lcom/isaigu/gymapp/ai/AutoUi;->showInfo(Landroid/view/View;I)V
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/ai/AutoUi;->access$100(Landroid/view/View;I)V
 
-    .line 1165
+    .line 1256
     return-void
 .end method

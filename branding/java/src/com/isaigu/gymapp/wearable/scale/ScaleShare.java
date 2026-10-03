@@ -160,7 +160,10 @@ public final class ScaleShare {
                 .append(".ts{display:block;font-size:12px;font-weight:700}.mn{position:relative;display:flex;gap:2px;margin:8px 4px 2px}")
                 .append(".mn i{flex:1;height:6px;border-radius:3px}.mn em{position:absolute;top:-4px;width:14px;height:14px;")
                 .append("margin-left:-7px;border-radius:50%;border:3px solid var(--t)}.tl p{margin:10px 0 2px;color:var(--m)}")
-                .append(".zt{width:100%;border-collapse:collapse}")
+                .append(".zt{width:100%;border-collapse:collapse}.src{padding:10px 0;border-top:1px solid var(--s)}")
+                .append(".src em{font-style:normal;font-size:11px;font-weight:700;border:1px solid;border-radius:10px;")
+                .append("padding:1px 8px;margin-left:6px}.src p{margin:4px 0}.src i{color:var(--m);font-size:13px}")
+                .append(".src small{color:var(--m)}.src a{color:#38BDF8;font-size:12px}summary{cursor:pointer}")
                 .append(".zt th{color:var(--m);font-size:12px;text-align:left;padding:6px}.zt td{padding:8px 6px;")
                 .append("border-top:1px solid var(--s);font-weight:700}")
                 .append("footer{color:var(--m);font-size:12px;text-align:center;margin:18px 0}</style></head><body><main>");
@@ -303,6 +306,35 @@ public final class ScaleShare {
                     .append("</span></div></div>");
         }
         h.append("</div>");
+        // where the numbers come from — every source with its tier, what we take, who was measured
+        int[] sc = ScaleSources.counts();
+        h.append("<details class=card><summary><h2 style=\"display:inline\">").append(esc(tr("Научна основа",
+                "Scientific basis"))).append("</h2> <span style=\"color:var(--m)\">· ").append(sc[0])
+                .append(esc(tr(" рецензирани проучвания, над ", " peer-reviewed studies, over ")))
+                .append(sc[1] / 1000).append(esc(tr(" 000 души — докосни", ",000 people — tap")))
+                .append("</span></summary>");
+        for (ScaleSources.Source x : ScaleSources.all()) {
+            String col = hex(ScaleSources.tierColor(x.tier));
+            h.append("<div class=src><b>").append(esc(bg ? x.topicBg : x.topicEn)).append("</b> <em style=\"color:")
+                    .append(col).append(";border-color:").append(col).append("\">")
+                    .append(esc(bg ? ScaleSources.tierBg(x.tier) : ScaleSources.tierEn(x.tier))).append("</em><p>")
+                    .append(esc(bg ? x.useBg : x.useEn)).append("</p><i>").append(esc(x.cite)).append("</i>");
+            String who = bg ? x.whoBg : x.whoEn;
+            if (who.length() > 0) {
+                h.append("<small> · ").append(esc(who)).append("</small>");
+            }
+            if (x.doi.length() > 0) {
+                h.append(" <a href=\"https://doi.org/").append(esc(x.doi)).append("\">DOI ").append(esc(x.doi))
+                        .append("</a>");
+            }
+            h.append("</div>");
+        }
+        h.append("<p style=\"color:var(--m)\">").append(esc(tr("Кантарът с електроди е ориентир, не медицинско "
+                + "изследване: за отделен човек мазнините обикновено се отклоняват с няколко процентни пункта от DXA. "
+                + "Затова мерим повторно при съмнение, изглаждаме между мерения и гледаме тенденцията.",
+                "An electrode scale is a guide, not a medical test: for one person fat is usually a few percentage points "
+                        + "off DXA. So we measure again when in doubt, smooth between weigh-ins and read the trend.")))
+                .append("</p></details>");
         // the raw readings (impedances) of the last weigh-ins — to recompute or calibrate later; not shown
         h.append("<script type=\"application/json\" id=xems-raw>[");
         int from = Math.max(0, at - 9);

@@ -874,6 +874,11 @@ public final class ScaleScreen {
                     wl.leftMargin = dp(10);
                     sh.footer.addView(web, wl);
                 }
+                TextView sci = XemsUi.button(a, tr("Научна основа", "Scientific basis"), XemsUi.GHOST);
+                sci.setOnClickListener(new ScaleSources.Open(a));
+                LinearLayout.LayoutParams scl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56));
+                scl.leftMargin = dp(10);
+                sh.footer.addView(sci, scl);
                 sh.footer.addView(XemsUi.spacer(a));
                 TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
                 close.setOnClickListener(new CloseSheet(sh));
@@ -1686,8 +1691,10 @@ public final class ScaleScreen {
                 t.setPadding(XemsUi.dp(c, 18), XemsUi.dp(c, 14), XemsUi.dp(c, 18), XemsUi.dp(c, 14));
                 t.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, 0xFF42A5F5, 0.16f),
                         XemsUi.dp(c, 14), 0xFF42A5F5, XemsUi.dp(c, 1)));
-                infoPop = new android.widget.PopupWindow(t, XemsUi.dp(c, 560), ViewGroup.LayoutParams.WRAP_CONTENT,
-                        true);
+                ScaleSources.Open open = new ScaleSources.Open(a);
+                infoPop = new android.widget.PopupWindow(ScaleSources.withButton(a, t, open), XemsUi.dp(c, 560),
+                        ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                open.pop = infoPop;
                 infoPop.setOutsideTouchable(true);
                 infoPop.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
                 infoPop.setElevation(XemsUi.dp(c, 8));

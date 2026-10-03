@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1845
+    .line 1852
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1846
+    .line 1853
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relayout;->c:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;
 
-    .line 1847
+    .line 1854
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 8
 
     .prologue
-    .line 1851
+    .line 1858
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relayout;->c:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->a:Landroid/app/Activity;
@@ -77,6 +77,6 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;->apply(Landroid/app/Activity;Landroid/widget/LinearLayout;Z[F[II)V
 
-    .line 1852
+    .line 1859
     return-void
 .end method

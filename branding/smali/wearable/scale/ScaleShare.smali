@@ -770,25 +770,25 @@
 
     const/4 v2, 0x0
 
-    .line 338
+    .line 370
     new-instance v3, Ljava/lang/StringBuilder;
 
     const-string v0, "<div class=mn>"
 
     invoke-direct {v3, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    .line 339
+    .line 371
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->sector()I
 
     move-result v4
 
     move v1, v2
 
-    .line 340
+    .line 372
     :goto_e
     if-ge v1, v8, :cond_36
 
-    .line 341
+    .line 373
     const-string v0, "<i style=\"background:"
 
     invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -818,30 +818,30 @@
 
     const-string v5, "\"></i>"
 
-    .line 342
+    .line 374
     invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 340
+    .line 372
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_e
 
-    .line 341
+    .line 373
     :cond_33
     const-string v0, ";opacity:.28"
 
     goto :goto_26
 
-    .line 344
+    .line 376
     :cond_36
     if-ltz v4, :cond_98
 
-    .line 345
+    .line 377
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->edges:[D
 
-    .line 346
+    .line 378
     aget-wide v6, v0, v2
 
     aget-wide v8, v0, v8
@@ -856,7 +856,7 @@
 
     move-result-wide v6
 
-    .line 347
+    .line 379
     int-to-double v8, v4
 
     aget-wide v10, v0, v4
@@ -889,7 +889,7 @@
 
     mul-double/2addr v0, v6
 
-    .line 348
+    .line 380
     const-string v5, "<em style=\"left:"
 
     invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -928,7 +928,7 @@
 
     aget v1, v1, v4
 
-    .line 349
+    .line 381
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->hex(I)Ljava/lang/String;
 
     move-result-object v1
@@ -941,7 +941,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 351
+    .line 383
     :cond_98
     const-string v0, "</div>"
 
@@ -1078,7 +1078,7 @@
 
     move-result-object v5
 
-    if-eqz v7, :cond_425
+    if-eqz v7, :cond_437
 
     const-string v4, "bg"
 
@@ -1354,33 +1354,54 @@
 
     move-result-object v4
 
-    const-string v5, ".zt{width:100%;border-collapse:collapse}"
+    const-string v5, ".zt{width:100%;border-collapse:collapse}.src{padding:10px 0;border-top:1px solid var(--s)}"
 
     .line 163
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    const-string v5, ".zt th{color:var(--m);font-size:12px;text-align:left;padding:6px}.zt td{padding:8px 6px;"
+    const-string v5, ".src em{font-style:normal;font-size:11px;font-weight:700;border:1px solid;border-radius:10px;"
 
     .line 164
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    const-string v5, "border-top:1px solid var(--s);font-weight:700}"
+    const-string v5, "padding:1px 8px;margin-left:6px}.src p{margin:4px 0}.src i{color:var(--m);font-size:13px}"
 
     .line 165
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    const-string v5, "footer{color:var(--m);font-size:12px;text-align:center;margin:18px 0}</style></head><body><main>"
+    const-string v5, ".src small{color:var(--m)}.src a{color:#38BDF8;font-size:12px}summary{cursor:pointer}"
 
     .line 166
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
+    move-result-object v4
+
+    const-string v5, ".zt th{color:var(--m);font-size:12px;text-align:left;padding:6px}.zt td{padding:8px 6px;"
+
+    .line 167
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, "border-top:1px solid var(--s);font-weight:700}"
+
     .line 168
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, "footer{color:var(--m);font-size:12px;text-align:center;margin:18px 0}</style></head><body><main>"
+
+    .line 169
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 171
     const-string v4, "<h1>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1405,8 +1426,8 @@
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 169
-    if-eqz p3, :cond_429
+    .line 172
+    if-eqz p3, :cond_43b
 
     const-string v4, "\u041c\u044a\u0436"
 
@@ -1416,7 +1437,7 @@
 
     move-result-object v4
 
-    :goto_154
+    :goto_166
     invoke-virtual {v6, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -1461,7 +1482,7 @@
 
     const-string v11, " cm"
 
-    .line 170
+    .line 173
     invoke-static {v6, v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
@@ -1522,7 +1543,7 @@
 
     const-string v12, "t"
 
-    .line 171
+    .line 174
     invoke-virtual {v8, v12}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
 
     move-result-wide v12
@@ -1541,7 +1562,7 @@
 
     move-result-object v4
 
-    .line 169
+    .line 172
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -1552,23 +1573,23 @@
 
     const-string v5, "</div>"
 
-    .line 172
+    .line 175
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 174
+    .line 177
     const-string v4, "<div class=grid><div class=card>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 175
-    if-eqz p6, :cond_209
+    .line 178
+    if-eqz p6, :cond_21b
 
-    .line 176
+    .line 179
     new-instance v4, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v4}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 177
+    .line 180
     sget-object v5, Landroid/graphics/Bitmap$CompressFormat;->PNG:Landroid/graphics/Bitmap$CompressFormat;
 
     const/16 v6, 0x64
@@ -1577,14 +1598,14 @@
 
     invoke-virtual {v0, v5, v6, v4}, Landroid/graphics/Bitmap;->compress(Landroid/graphics/Bitmap$CompressFormat;ILjava/io/OutputStream;)Z
 
-    .line 178
+    .line 181
     const-string v5, "<img class=fig alt=\"\" src=\"data:image/png;base64,"
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
 
-    .line 179
+    .line 182
     invoke-virtual {v4}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
 
     move-result-object v4
@@ -1603,8 +1624,8 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 181
-    :cond_209
+    .line 184
+    :cond_21b
     const-string v4, "</div><div class=card><h2>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1631,12 +1652,12 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 182
+    .line 185
     invoke-static {v9}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->typeName(Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;)[Ljava/lang/String;
 
     move-result-object v4
 
-    .line 183
+    .line 186
     const-string v5, "<span class=chip style=\"color:"
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1667,7 +1688,7 @@
 
     const-string v6, "22\">"
 
-    .line 184
+    .line 187
     invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
@@ -1688,23 +1709,23 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 185
+    .line 188
     iget-wide v4, v9, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->physicalAge:D
 
     invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v4
 
-    if-nez v4, :cond_2b3
+    if-nez v4, :cond_2c5
 
-    .line 186
+    .line 189
     const-string v4, "<div style=\"margin-top:10px\"><span class=age style=\"color:"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
 
-    .line 187
+    .line 190
     iget-wide v12, v9, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->physicalAge:D
 
     add-int/lit8 v4, p4, -0x3
@@ -1713,18 +1734,18 @@
 
     cmpg-double v4, v12, v14
 
-    if-gtz v4, :cond_433
+    if-gtz v4, :cond_445
 
     const-string v4, "#22C55E"
 
-    :goto_271
+    :goto_283
     invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
     const-string v5, "\">"
 
-    .line 188
+    .line 191
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -1753,7 +1774,7 @@
 
     const-string v11, "physical age \u00b7 passport "
 
-    .line 189
+    .line 192
     invoke-static {v6, v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
@@ -1784,9 +1805,9 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 192
-    :cond_2b3
-    if-eqz v7, :cond_444
+    .line 195
+    :cond_2c5
+    if-eqz v7, :cond_456
 
     const/4 v4, 0x5
 
@@ -1824,9 +1845,9 @@
 
     move-object v6, v4
 
-    .line 194
-    :goto_2d2
-    if-eqz v7, :cond_463
+    .line 197
+    :goto_2e4
+    if-eqz v7, :cond_475
 
     const/4 v4, 0x5
 
@@ -1864,9 +1885,9 @@
 
     move-object v5, v4
 
-    .line 196
-    :goto_2f1
-    if-eqz v7, :cond_482
+    .line 199
+    :goto_303
+    if-eqz v7, :cond_494
 
     const/4 v4, 0x5
 
@@ -1902,8 +1923,8 @@
 
     aput-object v12, v4, v11
 
-    .line 198
-    :goto_30f
+    .line 201
+    :goto_321
     const-string v11, "\u041c\u0430\u0437\u043d\u0438\u043d\u0438"
 
     const-string v12, "Body fat"
@@ -1934,7 +1955,7 @@
 
     invoke-virtual {v10, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 199
+    .line 202
     const-string v6, "\u041c\u0443\u0441\u043a\u0443\u043b\u0438"
 
     const-string v11, "Muscle"
@@ -1957,7 +1978,7 @@
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 200
+    .line 203
     const-string v4, "\u0412\u043e\u0434\u0430"
 
     const-string v6, "Water"
@@ -1986,7 +2007,7 @@
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 201
+    .line 204
     const-string v4, "\u0412\u0438\u0441\u0446\u0435\u0440\u0430\u043b\u043d\u0438 \u043c\u0430\u0437\u043d\u0438\u043d\u0438"
 
     const-string v6, "Visceral fat"
@@ -2013,12 +2034,12 @@
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 203
+    .line 206
     const-string v4, "</div></div>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 205
+    .line 208
     const-string v4, "w"
 
     invoke-virtual {v8, v4}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
@@ -2041,7 +2062,7 @@
 
     move-result-wide v14
 
-    .line 206
+    .line 209
     const-string v6, "water"
 
     const-wide/high16 v16, 0x7ff8000000000000L    # Double.NaN
@@ -2068,7 +2089,7 @@
 
     move-result-wide v18
 
-    .line 207
+    .line 210
     const/4 v6, 0x4
 
     new-array v9, v6, [D
@@ -2093,7 +2114,7 @@
 
     aput-wide v18, v9, v4
 
-    .line 208
+    .line 211
     const/4 v4, 0x4
 
     new-array v11, v4, [Ljava/lang/String;
@@ -2146,7 +2167,7 @@
 
     aput-object v5, v11, v4
 
-    .line 209
+    .line 212
     const/4 v4, 0x4
 
     new-array v14, v4, [Ljava/lang/String;
@@ -2175,54 +2196,54 @@
 
     aput-object v5, v14, v4
 
-    .line 210
+    .line 213
     const/4 v6, 0x1
 
-    .line 211
+    .line 214
     array-length v15, v9
 
     const/4 v4, 0x0
 
     move v5, v4
 
-    :goto_40f
-    if-ge v5, v15, :cond_4a3
+    :goto_421
+    if-ge v5, v15, :cond_4b5
 
     aget-wide v16, v9, v5
 
-    .line 212
+    .line 215
     invoke-static/range {v16 .. v17}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v4
 
-    if-nez v4, :cond_4a0
+    if-nez v4, :cond_4b2
 
     const-wide/16 v18, 0x0
 
     cmpl-double v4, v16, v18
 
-    if-ltz v4, :cond_4a0
+    if-ltz v4, :cond_4b2
 
     const/4 v4, 0x1
 
-    :goto_420
+    :goto_432
     and-int/2addr v6, v4
 
-    .line 211
+    .line 214
     add-int/lit8 v4, v5, 0x1
 
     move v5, v4
 
-    goto :goto_40f
+    goto :goto_421
 
     .line 129
-    :cond_425
+    :cond_437
     const-string v4, "en"
 
     goto/16 :goto_2c
 
-    .line 169
-    :cond_429
+    .line 172
+    :cond_43b
     const-string v4, "\u0416\u0435\u043d\u0430"
 
     const-string v11, "Female"
@@ -2231,10 +2252,10 @@
 
     move-result-object v4
 
-    goto/16 :goto_154
+    goto/16 :goto_166
 
-    .line 187
-    :cond_433
+    .line 190
+    :cond_445
     iget-wide v12, v9, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->physicalAge:D
 
     add-int/lit8 v4, p4, 0x3
@@ -2243,19 +2264,19 @@
 
     cmpl-double v4, v12, v14
 
-    if-ltz v4, :cond_440
+    if-ltz v4, :cond_452
 
     const-string v4, "#F59E0B"
 
-    goto/16 :goto_271
+    goto/16 :goto_283
 
-    :cond_440
+    :cond_452
     const-string v4, "inherit"
 
-    goto/16 :goto_271
+    goto/16 :goto_283
 
-    .line 193
-    :cond_444
+    .line 196
+    :cond_456
     const/4 v4, 0x5
 
     new-array v4, v4, [Ljava/lang/String;
@@ -2292,10 +2313,10 @@
 
     move-object v6, v4
 
-    goto/16 :goto_2d2
+    goto/16 :goto_2e4
 
-    .line 195
-    :cond_463
+    .line 198
+    :cond_475
     const/4 v4, 0x5
 
     new-array v4, v4, [Ljava/lang/String;
@@ -2332,10 +2353,10 @@
 
     move-object v5, v4
 
-    goto/16 :goto_2f1
+    goto/16 :goto_303
 
-    .line 197
-    :cond_482
+    .line 200
+    :cond_494
     const/4 v4, 0x5
 
     new-array v4, v4, [Ljava/lang/String;
@@ -2370,16 +2391,16 @@
 
     aput-object v12, v4, v11
 
-    goto/16 :goto_30f
+    goto/16 :goto_321
 
-    .line 212
-    :cond_4a0
+    .line 215
+    :cond_4b2
     const/4 v4, 0x0
 
-    goto/16 :goto_420
+    goto/16 :goto_432
 
-    .line 214
-    :cond_4a3
+    .line 217
+    :cond_4b5
     const-string v4, "<div class=card><h2>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -2404,26 +2425,26 @@
 
     const-string v5, "</h2>"
 
-    .line 215
+    .line 218
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 216
-    if-eqz v6, :cond_570
+    .line 219
+    if-eqz v6, :cond_582
 
-    .line 217
+    .line 220
     const-string v4, "<div class=cb>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 218
+    .line 221
     const/4 v4, 0x0
 
-    :goto_4c6
+    :goto_4d8
     const/4 v5, 0x4
 
-    if-ge v4, v5, :cond_4f0
+    if-ge v4, v5, :cond_502
 
-    .line 219
+    .line 222
     const-string v5, "<i style=\"flex:"
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -2458,29 +2479,29 @@
 
     const-string v6, "\"></i>"
 
-    .line 220
+    .line 223
     invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 218
+    .line 221
     add-int/lit8 v4, v4, 0x1
 
-    goto :goto_4c6
+    goto :goto_4d8
 
-    .line 222
-    :cond_4f0
+    .line 225
+    :cond_502
     const-string v4, "</div><div class=cl>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 223
+    .line 226
     const/4 v4, 0x0
 
-    :goto_4f6
+    :goto_508
     const/4 v5, 0x4
 
-    if-ge v4, v5, :cond_56b
+    if-ge v4, v5, :cond_57d
 
-    .line 224
+    .line 227
     const-string v5, "<span style=\"flex:"
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -2545,7 +2566,7 @@
 
     aget-object v6, v14, v4
 
-    .line 225
+    .line 228
     invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
@@ -2592,27 +2613,27 @@
 
     const-string v6, " %</em></span>"
 
-    .line 226
+    .line 229
     invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 223
+    .line 226
     add-int/lit8 v4, v4, 0x1
 
-    goto :goto_4f6
-
-    .line 228
-    :cond_56b
-    const-string v4, "</div>"
-
-    invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 230
-    :cond_570
-    const-string v4, "</div>"
-
-    invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    goto :goto_508
 
     .line 231
+    :cond_57d
+    const-string v4, "</div>"
+
+    invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 233
+    :cond_582
+    const-string v4, "</div>"
+
+    invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 234
     move/from16 v0, p3
 
     move/from16 v1, p4
@@ -2623,35 +2644,35 @@
 
     move-result-object v9
 
-    .line 232
+    .line 235
     const-string v4, "<div class=gg>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 233
+    .line 236
     const/4 v4, 0x0
 
     move v6, v4
 
-    :goto_586
+    :goto_598
     const/4 v4, 0x4
 
-    if-ge v6, v4, :cond_68c
+    if-ge v6, v4, :cond_69e
 
-    .line 234
+    .line 237
     const-string v4, "<div class=card><h2>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
 
-    if-eqz v7, :cond_663
+    if-eqz v7, :cond_675
 
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->groupBg(I)Ljava/lang/String;
 
     move-result-object v4
 
-    :goto_595
+    :goto_5a7
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -2662,21 +2683,21 @@
 
     const-string v5, "</h2><div class=tg>"
 
-    .line 235
+    .line 238
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 236
+    .line 239
     invoke-interface {v9}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v11
 
-    :cond_5a6
-    :goto_5a6
+    :cond_5b8
+    :goto_5b8
     invoke-interface {v11}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_682
+    if-eqz v4, :cond_694
 
     invoke-interface {v11}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -2684,12 +2705,12 @@
 
     check-cast v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;
 
-    .line 237
+    .line 240
     iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->group:I
 
-    if-ne v5, v6, :cond_5a6
+    if-ne v5, v6, :cond_5b8
 
-    .line 240
+    .line 243
     iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->status:I
 
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->statusColor(I)I
@@ -2700,18 +2721,18 @@
 
     move-result-object v12
 
-    .line 241
+    .line 244
     const-string v5, "<details class=tl><summary><span class=tn>"
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v13
 
-    if-eqz v7, :cond_669
+    if-eqz v7, :cond_67b
 
     iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->bg:Ljava/lang/String;
 
-    :goto_5ca
+    :goto_5dc
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -2722,7 +2743,7 @@
 
     const-string v13, "</span><span class=tv>"
 
-    .line 242
+    .line 245
     invoke-virtual {v5, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
@@ -2757,7 +2778,7 @@
 
     const-string v13, "</small></span><span class=ts style=\"color:"
 
-    .line 243
+    .line 246
     invoke-virtual {v5, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
@@ -2772,12 +2793,12 @@
 
     move-result-object v12
 
-    .line 244
+    .line 247
     iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->status:I
 
-    if-ltz v5, :cond_674
+    if-ltz v5, :cond_686
 
-    if-eqz v7, :cond_66d
+    if-eqz v7, :cond_67f
 
     iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->status:I
 
@@ -2785,7 +2806,7 @@
 
     move-result-object v5
 
-    :goto_610
+    :goto_622
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -2796,15 +2817,15 @@
 
     const-string v12, "</span>"
 
-    .line 245
+    .line 248
     invoke-virtual {v5, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 246
+    .line 249
     iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->norm:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
-    if-eqz v5, :cond_62a
+    if-eqz v5, :cond_63c
 
-    .line 247
+    .line 250
     iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->norm:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->mini(Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;)Ljava/lang/String;
@@ -2813,30 +2834,30 @@
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 249
-    :cond_62a
+    .line 252
+    :cond_63c
     const-string v5, "</summary><p>"
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 250
-    if-eqz v7, :cond_67c
+    .line 253
+    if-eqz v7, :cond_68e
 
     iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subBg:Ljava/lang/String;
 
-    .line 251
-    :goto_633
+    .line 254
+    :goto_645
     iget v12, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->status:I
 
-    if-ltz v12, :cond_650
+    if-ltz v12, :cond_662
 
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
     move-result v12
 
-    if-lez v12, :cond_650
+    if-lez v12, :cond_662
 
-    .line 252
+    .line 255
     const-string v12, "<b>"
 
     invoke-virtual {v10, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -2855,13 +2876,13 @@
 
     invoke-virtual {v5, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 254
-    :cond_650
-    if-eqz v7, :cond_67f
+    .line 257
+    :cond_662
+    if-eqz v7, :cond_691
 
     iget-object v4, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->whatBg:Ljava/lang/String;
 
-    :goto_654
+    :goto_666
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -2874,77 +2895,77 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    goto/16 :goto_5a6
+    goto/16 :goto_5b8
 
-    .line 234
-    :cond_663
+    .line 237
+    :cond_675
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->groupEn(I)Ljava/lang/String;
 
     move-result-object v4
 
-    goto/16 :goto_595
-
-    .line 241
-    :cond_669
-    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->en:Ljava/lang/String;
-
-    goto/16 :goto_5ca
+    goto/16 :goto_5a7
 
     .line 244
-    :cond_66d
+    :cond_67b
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->en:Ljava/lang/String;
+
+    goto/16 :goto_5dc
+
+    .line 247
+    :cond_67f
     iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->status:I
 
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->statusEn(I)Ljava/lang/String;
 
     move-result-object v5
 
-    goto :goto_610
+    goto :goto_622
 
-    .line 245
-    :cond_674
-    if-eqz v7, :cond_679
+    .line 248
+    :cond_686
+    if-eqz v7, :cond_68b
 
     iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subBg:Ljava/lang/String;
 
-    goto :goto_610
+    goto :goto_622
 
-    :cond_679
+    :cond_68b
     iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subEn:Ljava/lang/String;
 
-    goto :goto_610
+    goto :goto_622
 
-    .line 250
-    :cond_67c
+    .line 253
+    :cond_68e
     iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subEn:Ljava/lang/String;
 
-    goto :goto_633
+    goto :goto_645
 
-    .line 254
-    :cond_67f
+    .line 257
+    :cond_691
     iget-object v4, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->whatEn:Ljava/lang/String;
 
-    goto :goto_654
+    goto :goto_666
 
-    .line 256
-    :cond_682
+    .line 259
+    :cond_694
     const-string v4, "</div></div>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 233
+    .line 236
     add-int/lit8 v4, v6, 0x1
 
     move v6, v4
 
-    goto/16 :goto_586
+    goto/16 :goto_598
 
-    .line 258
-    :cond_68c
+    .line 261
+    :cond_69e
     const-string v4, "</div>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 259
+    .line 262
     const-string v4, "<div class=card><h2>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -2969,7 +2990,7 @@
 
     const-string v5, "</h2><table class=zt><tr><th></th><th>"
 
-    .line 260
+    .line 263
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -2978,7 +2999,7 @@
 
     const-string v6, "Fat"
 
-    .line 261
+    .line 264
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -3015,10 +3036,10 @@
 
     const-string v5, "</th></tr>"
 
-    .line 262
+    .line 265
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 263
+    .line 266
     move/from16 v0, p3
 
     move/from16 v1, p5
@@ -3027,7 +3048,7 @@
 
     move-result-object v6
 
-    .line 264
+    .line 267
     sget-object v9, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->ORDER:[I
 
     array-length v11, v9
@@ -3036,28 +3057,28 @@
 
     move v5, v4
 
-    :goto_6e5
-    if-ge v5, v11, :cond_737
+    :goto_6f7
+    if-ge v5, v11, :cond_749
 
     aget v4, v9, v5
 
-    .line 265
+    .line 268
     aget-object v12, v6, v4
 
-    .line 266
+    .line 269
     const-string v13, "<tr><td>"
 
     invoke-virtual {v10, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v13
 
-    if-eqz v7, :cond_732
+    if-eqz v7, :cond_744
 
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->zoneBg(I)Ljava/lang/String;
 
     move-result-object v4
 
-    :goto_6f7
+    :goto_709
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -3080,7 +3101,7 @@
 
     iget v13, v12, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Zone;->fatStatus:I
 
-    .line 267
+    .line 270
     move-wide/from16 v0, v16
 
     invoke-static {v14, v15, v0, v1, v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->zoneTd(DDI)Ljava/lang/String;
@@ -3111,31 +3132,31 @@
 
     const-string v12, "</tr>"
 
-    .line 268
+    .line 271
     invoke-virtual {v4, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 264
+    .line 267
     add-int/lit8 v4, v5, 0x1
 
     move v5, v4
 
-    goto :goto_6e5
+    goto :goto_6f7
 
-    .line 266
-    :cond_732
+    .line 269
+    :cond_744
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->zoneEn(I)Ljava/lang/String;
 
     move-result-object v4
 
-    goto :goto_6f7
+    goto :goto_709
 
-    .line 270
-    :cond_737
+    .line 273
+    :cond_749
     const-string v4, "</table>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 271
+    .line 274
     move/from16 v0, p3
 
     move/from16 v1, p4
@@ -3146,16 +3167,16 @@
 
     move-result-object v4
 
-    .line 272
+    .line 275
     iget-wide v12, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Control;->target:D
 
     invoke-static {v12, v13}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v5
 
-    if-nez v5, :cond_7ef
+    if-nez v5, :cond_801
 
-    .line 273
+    .line 276
     const-string v5, "<h2 style=\"margin-top:16px\">"
 
     invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -3180,7 +3201,7 @@
 
     const-string v6, "</h2><div class=d><span>"
 
-    .line 274
+    .line 277
     invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
@@ -3215,7 +3236,7 @@
 
     const-string v6, "</span><span style=\"color:var(--m)\">"
 
-    .line 275
+    .line 278
     invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
@@ -3228,7 +3249,7 @@
 
     const-string v11, "weight "
 
-    .line 276
+    .line 279
     invoke-static {v9, v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v9
@@ -3267,7 +3288,7 @@
 
     iget-wide v12, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Control;->fat:D
 
-    .line 277
+    .line 280
     invoke-static {v12, v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->signed(D)Ljava/lang/String;
 
     move-result-object v9
@@ -3308,7 +3329,7 @@
 
     move-result-object v4
 
-    .line 276
+    .line 279
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -3319,17 +3340,17 @@
 
     const-string v5, "</span></div>"
 
-    .line 278
+    .line 281
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 280
-    :cond_7ef
+    .line 283
+    :cond_801
     const-string v4, "</div>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 282
-    if-lez p2, :cond_9a9
+    .line 285
+    if-lez p2, :cond_9bb
 
     const/4 v4, 0x0
 
@@ -3339,9 +3360,9 @@
 
     move-result-object v4
 
-    .line 283
-    :goto_7fd
-    if-eqz v4, :cond_8f5
+    .line 286
+    :goto_80f
+    if-eqz v4, :cond_907
 
     const-string v5, "muscle"
 
@@ -3349,9 +3370,9 @@
 
     move-result v5
 
-    if-eqz v5, :cond_8f5
+    if-eqz v5, :cond_907
 
-    .line 284
+    .line 287
     const-string v5, "muscle"
 
     invoke-virtual {v8, v5}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
@@ -3366,7 +3387,7 @@
 
     sub-double/2addr v12, v14
 
-    .line 285
+    .line 288
     const-string v5, "fatKg"
 
     invoke-virtual {v8, v5}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
@@ -3381,7 +3402,7 @@
 
     sub-double v14, v14, v16
 
-    .line 286
+    .line 289
     const-string v5, "t"
 
     invoke-virtual {v8, v5}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
@@ -3406,7 +3427,7 @@
 
     move-result-wide v4
 
-    .line 287
+    .line 290
     const-string v6, "<div class=card><h2>"
 
     invoke-virtual {v10, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -3437,7 +3458,7 @@
 
     const-string v8, " days"
 
-    .line 288
+    .line 291
     invoke-static {v5, v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -3450,7 +3471,7 @@
 
     move-result-object v4
 
-    .line 287
+    .line 290
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -3461,21 +3482,21 @@
 
     const-string v5, "</h2><div class=d><span style=\"color:"
 
-    .line 288
+    .line 291
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
 
-    .line 289
+    .line 292
     const-wide/16 v8, 0x0
 
     cmpl-double v4, v12, v8
 
-    if-ltz v4, :cond_9ac
+    if-ltz v4, :cond_9be
 
     const-string v4, "#22C55E"
 
-    :goto_87c
+    :goto_88e
     invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -3490,16 +3511,16 @@
 
     cmpl-double v4, v12, v8
 
-    if-ltz v4, :cond_9b0
+    if-ltz v4, :cond_9c2
 
     const-string v4, "+"
 
-    :goto_88e
+    :goto_8a0
     invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    .line 290
+    .line 293
     invoke-static {v12, v13}, Ljava/lang/Math;->abs(D)D
 
     move-result-wide v8
@@ -3536,16 +3557,16 @@
 
     move-result-object v5
 
-    .line 291
+    .line 294
     const-wide/16 v8, 0x0
 
     cmpg-double v4, v14, v8
 
-    if-gtz v4, :cond_9b4
+    if-gtz v4, :cond_9c6
 
     const-string v4, "#22C55E"
 
-    :goto_8bd
+    :goto_8cf
     invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -3560,16 +3581,16 @@
 
     cmpl-double v4, v14, v8
 
-    if-ltz v4, :cond_9b8
+    if-ltz v4, :cond_9ca
 
     const-string v4, "+"
 
-    :goto_8cf
+    :goto_8e1
     invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    .line 292
+    .line 295
     invoke-static {v14, v15}, Ljava/lang/Math;->abs(D)D
 
     move-result-wide v8
@@ -3604,8 +3625,8 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 295
-    :cond_8f5
+    .line 298
+    :cond_907
     const-string v4, "<div class=card><h2>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -3632,8 +3653,8 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 296
-    if-eqz v7, :cond_9bc
+    .line 299
+    if-eqz v7, :cond_9ce
 
     const/4 v4, 0x4
 
@@ -3665,8 +3686,8 @@
 
     move-object v5, v4
 
-    .line 297
-    :goto_92a
+    .line 300
+    :goto_93c
     const/4 v4, 0x4
 
     new-array v8, v4, [Ljava/lang/String;
@@ -3695,22 +3716,22 @@
 
     aput-object v6, v8, v4
 
-    .line 298
+    .line 301
     invoke-static/range {p1 .. p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->advice(Lorg/json/JSONArray;IZII)Ljava/util/List;
 
     move-result-object v4
 
-    .line 299
+    .line 302
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v9
 
-    :goto_949
+    :goto_95b
     invoke-interface {v9}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_9dc
+    if-eqz v4, :cond_9ee
 
     invoke-interface {v9}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -3718,7 +3739,7 @@
 
     check-cast v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
 
-    .line 300
+    .line 303
     const-string v6, "<div class=ad><i style=\"background:"
 
     invoke-virtual {v10, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -3743,7 +3764,7 @@
 
     aget-object v11, v8, v11
 
-    .line 301
+    .line 304
     invoke-virtual {v6, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v6
@@ -3768,12 +3789,12 @@
 
     move-result-object v11
 
-    .line 302
-    if-eqz v7, :cond_9d6
+    .line 305
+    if-eqz v7, :cond_9e8
 
     iget-object v6, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->titleBg:Ljava/lang/String;
 
-    :goto_989
+    :goto_99b
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
@@ -3788,11 +3809,11 @@
 
     move-result-object v6
 
-    if-eqz v7, :cond_9d9
+    if-eqz v7, :cond_9eb
 
     iget-object v4, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->textBg:Ljava/lang/String;
 
-    :goto_99b
+    :goto_9ad
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -3803,41 +3824,41 @@
 
     const-string v6, "</span></div></div>"
 
-    .line 303
+    .line 306
     invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    goto :goto_949
+    goto :goto_95b
 
-    .line 282
-    :cond_9a9
+    .line 285
+    :cond_9bb
     const/4 v4, 0x0
 
-    goto/16 :goto_7fd
+    goto/16 :goto_80f
 
-    .line 289
-    :cond_9ac
+    .line 292
+    :cond_9be
     const-string v4, "#F59E0B"
-
-    goto/16 :goto_87c
-
-    :cond_9b0
-    const-string v4, "\u2212"
 
     goto/16 :goto_88e
 
-    .line 291
-    :cond_9b4
-    const-string v4, "#F59E0B"
-
-    goto/16 :goto_8bd
-
-    :cond_9b8
+    :cond_9c2
     const-string v4, "\u2212"
+
+    goto/16 :goto_8a0
+
+    .line 294
+    :cond_9c6
+    const-string v4, "#F59E0B"
 
     goto/16 :goto_8cf
 
-    .line 296
-    :cond_9bc
+    :cond_9ca
+    const-string v4, "\u2212"
+
+    goto/16 :goto_8e1
+
+    .line 299
+    :cond_9ce
     const/4 v4, 0x4
 
     new-array v4, v4, [Ljava/lang/String;
@@ -3868,31 +3889,406 @@
 
     move-object v5, v4
 
-    goto/16 :goto_92a
+    goto/16 :goto_93c
 
-    .line 302
-    :cond_9d6
+    .line 305
+    :cond_9e8
     iget-object v6, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->titleEn:Ljava/lang/String;
-
-    goto :goto_989
-
-    :cond_9d9
-    iget-object v4, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->textEn:Ljava/lang/String;
 
     goto :goto_99b
 
-    .line 305
-    :cond_9dc
+    :cond_9eb
+    iget-object v4, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->textEn:Ljava/lang/String;
+
+    goto :goto_9ad
+
+    .line 308
+    :cond_9ee
     const-string v4, "</div>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 307
+    .line 310
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->counts()[I
+
+    move-result-object v4
+
+    .line 311
+    const-string v5, "<details class=card><summary><h2 style=\"display:inline\">"
+
+    invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v6, "\u041d\u0430\u0443\u0447\u043d\u0430 \u043e\u0441\u043d\u043e\u0432\u0430"
+
+    const-string v8, "Scientific basis"
+
+    invoke-static {v6, v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-static {v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v6, "</h2> <span style=\"color:var(--m)\">\u00b7 "
+
+    .line 312
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const/4 v6, 0x0
+
+    aget v6, v4, v6
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v6, " \u0440\u0435\u0446\u0435\u043d\u0437\u0438\u0440\u0430\u043d\u0438 \u043f\u0440\u043e\u0443\u0447\u0432\u0430\u043d\u0438\u044f, \u043d\u0430\u0434 "
+
+    const-string v8, " peer-reviewed studies, over "
+
+    .line 313
+    invoke-static {v6, v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-static {v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const/4 v6, 0x1
+
+    aget v4, v4, v6
+
+    div-int/lit16 v4, v4, 0x3e8
+
+    .line 314
+    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " 000 \u0434\u0443\u0448\u0438 \u2014 \u0434\u043e\u043a\u043e\u0441\u043d\u0438"
+
+    const-string v6, ",000 people \u2014 tap"
+
+    invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, "</span></summary>"
+
+    .line 315
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 316
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->all()Ljava/util/List;
+
+    move-result-object v4
+
+    invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v6
+
+    :goto_a50
+    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v4
+
+    if-eqz v4, :cond_b2c
+
+    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;
+
+    .line 317
+    iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->tier:I
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->tierColor(I)I
+
+    move-result v5
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->hex(I)Ljava/lang/String;
+
+    move-result-object v8
+
+    .line 318
+    const-string v5, "<div class=src><b>"
+
+    invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    if-eqz v7, :cond_b1a
+
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->topicBg:Ljava/lang/String;
+
+    :goto_a70
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v9, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v9, "</b> <em style=\"color:"
+
+    invoke-virtual {v5, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    .line 319
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v9, ";border-color:"
+
+    invoke-virtual {v5, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v8, "\">"
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    .line 320
+    if-eqz v7, :cond_b1e
+
+    iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->tier:I
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->tierBg(I)Ljava/lang/String;
+
+    move-result-object v5
+
+    :goto_a9a
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v8, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v8, "</em><p>"
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    .line 321
+    if-eqz v7, :cond_b26
+
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->useBg:Ljava/lang/String;
+
+    :goto_aac
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v8, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v8, "</p><i>"
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    iget-object v8, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->cite:Ljava/lang/String;
+
+    invoke-static {v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v8, "</i>"
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 322
+    if-eqz v7, :cond_b29
+
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->whoBg:Ljava/lang/String;
+
+    .line 323
+    :goto_acd
+    invoke-virtual {v5}, Ljava/lang/String;->length()I
+
+    move-result v8
+
+    if-lez v8, :cond_ae6
+
+    .line 324
+    const-string v8, "<small> \u00b7 "
+
+    invoke-virtual {v10, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v8, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v8, "</small>"
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 326
+    :cond_ae6
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->doi:Ljava/lang/String;
+
+    invoke-virtual {v5}, Ljava/lang/String;->length()I
+
+    move-result v5
+
+    if-lez v5, :cond_b13
+
+    .line 327
+    const-string v5, " <a href=\"https://doi.org/"
+
+    invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    iget-object v8, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->doi:Ljava/lang/String;
+
+    invoke-static {v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v8, "\">DOI "
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    iget-object v4, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->doi:Ljava/lang/String;
+
+    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, "</a>"
+
+    .line 328
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 330
+    :cond_b13
+    const-string v4, "</div>"
+
+    invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    goto/16 :goto_a50
+
+    .line 318
+    :cond_b1a
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->topicEn:Ljava/lang/String;
+
+    goto/16 :goto_a70
+
+    .line 320
+    :cond_b1e
+    iget v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->tier:I
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->tierEn(I)Ljava/lang/String;
+
+    move-result-object v5
+
+    goto/16 :goto_a9a
+
+    .line 321
+    :cond_b26
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->useEn:Ljava/lang/String;
+
+    goto :goto_aac
+
+    .line 322
+    :cond_b29
+    iget-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Source;->whoEn:Ljava/lang/String;
+
+    goto :goto_acd
+
+    .line 332
+    :cond_b2c
+    const-string v4, "<p style=\"color:var(--m)\">"
+
+    invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, "\u041a\u0430\u043d\u0442\u0430\u0440\u044a\u0442 \u0441 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438 \u0435 \u043e\u0440\u0438\u0435\u043d\u0442\u0438\u0440, \u043d\u0435 \u043c\u0435\u0434\u0438\u0446\u0438\u043d\u0441\u043a\u043e \u0438\u0437\u0441\u043b\u0435\u0434\u0432\u0430\u043d\u0435: \u0437\u0430 \u043e\u0442\u0434\u0435\u043b\u0435\u043d \u0447\u043e\u0432\u0435\u043a \u043c\u0430\u0437\u043d\u0438\u043d\u0438\u0442\u0435 \u043e\u0431\u0438\u043a\u043d\u043e\u0432\u0435\u043d\u043e \u0441\u0435 \u043e\u0442\u043a\u043b\u043e\u043d\u044f\u0432\u0430\u0442 \u0441 \u043d\u044f\u043a\u043e\u043b\u043a\u043e \u043f\u0440\u043e\u0446\u0435\u043d\u0442\u043d\u0438 \u043f\u0443\u043d\u043a\u0442\u0430 \u043e\u0442 DXA. \u0417\u0430\u0442\u043e\u0432\u0430 \u043c\u0435\u0440\u0438\u043c \u043f\u043e\u0432\u0442\u043e\u0440\u043d\u043e \u043f\u0440\u0438 \u0441\u044a\u043c\u043d\u0435\u043d\u0438\u0435, \u0438\u0437\u0433\u043b\u0430\u0436\u0434\u0430\u043c\u0435 \u043c\u0435\u0436\u0434\u0443 \u043c\u0435\u0440\u0435\u043d\u0438\u044f \u0438 \u0433\u043b\u0435\u0434\u0430\u043c\u0435 \u0442\u0435\u043d\u0434\u0435\u043d\u0446\u0438\u044f\u0442\u0430."
+
+    const-string v6, "An electrode scale is a guide, not a medical test: for one person fat is usually a few percentage points off DXA. So we measure again when in doubt, smooth between weigh-ins and read the trend."
+
+    invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->esc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, "</p></details>"
+
+    .line 337
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 339
     const-string v4, "<script type=\"application/json\" id=xems-raw>["
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 308
+    .line 340
     const/4 v4, 0x0
 
     add-int/lit8 v5, p2, -0x9
@@ -3903,38 +4299,38 @@
 
     move v5, v6
 
-    .line 309
-    :goto_9ee
+    .line 341
+    :goto_b54
     move/from16 v0, p2
 
-    if-gt v5, v0, :cond_a89
+    if-gt v5, v0, :cond_bef
 
-    .line 310
+    .line 342
     move-object/from16 v0, p1
 
     invoke-virtual {v0, v5}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v4
 
-    .line 311
-    if-nez v4, :cond_9fe
+    .line 343
+    if-nez v4, :cond_b64
 
-    .line 309
-    :goto_9fa
+    .line 341
+    :goto_b60
     add-int/lit8 v4, v5, 0x1
 
     move v5, v4
 
-    goto :goto_9ee
+    goto :goto_b54
 
-    .line 314
-    :cond_9fe
+    .line 346
+    :cond_b64
     new-instance v7, Lorg/json/JSONObject;
 
     invoke-direct {v7}, Lorg/json/JSONObject;-><init>()V
 
-    .line 316
-    :try_start_a03
+    .line 348
+    :try_start_b69
     const-string v8, "t"
 
     const-string v9, "t"
@@ -3945,7 +4341,7 @@
 
     invoke-virtual {v7, v8, v12, v13}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 317
+    .line 349
     const-string v8, "w"
 
     const-string v9, "w"
@@ -3956,16 +4352,16 @@
 
     invoke-virtual {v7, v8, v12, v13}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 318
+    .line 350
     const-string v8, "z20"
 
     invoke-virtual {v4, v8}, Lorg/json/JSONObject;->has(Ljava/lang/String;)Z
 
     move-result v8
 
-    if-eqz v8, :cond_a37
+    if-eqz v8, :cond_b9d
 
-    .line 319
+    .line 351
     const-string v8, "z20"
 
     const-string v9, "z20"
@@ -3976,7 +4372,7 @@
 
     invoke-virtual {v7, v8, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 320
+    .line 352
     const-string v8, "z100"
 
     const-string v9, "z100"
@@ -3987,17 +4383,17 @@
 
     invoke-virtual {v7, v8, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 322
-    :cond_a37
+    .line 354
+    :cond_b9d
     const-string v8, "sfat"
 
     invoke-virtual {v4, v8}, Lorg/json/JSONObject;->has(Ljava/lang/String;)Z
 
     move-result v8
 
-    if-eqz v8, :cond_a4a
+    if-eqz v8, :cond_bb0
 
-    .line 323
+    .line 355
     const-string v8, "sfat"
 
     const-string v9, "sfat"
@@ -4008,8 +4404,8 @@
 
     invoke-virtual {v7, v8, v12, v13}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 325
-    :cond_a4a
+    .line 357
+    :cond_bb0
     const-string v8, "male"
 
     move/from16 v0, p3
@@ -4043,16 +4439,16 @@
     move-result v4
 
     invoke-virtual {v8, v9, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
-    :try_end_a6d
-    .catch Ljava/lang/Exception; {:try_start_a03 .. :try_end_a6d} :catch_aae
+    :try_end_bd3
+    .catch Ljava/lang/Exception; {:try_start_b69 .. :try_end_bd3} :catch_c14
 
-    .line 328
-    :goto_a6d
-    if-le v5, v6, :cond_a86
+    .line 360
+    :goto_bd3
+    if-le v5, v6, :cond_bec
 
     const-string v4, ","
 
-    :goto_a71
+    :goto_bd7
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -4071,20 +4467,20 @@
 
     invoke-virtual {v4, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    goto/16 :goto_9fa
+    goto/16 :goto_b60
 
-    :cond_a86
+    :cond_bec
     const-string v4, ""
 
-    goto :goto_a71
+    goto :goto_bd7
 
-    .line 330
-    :cond_a89
+    .line 362
+    :cond_bef
     const-string v4, "]</script>"
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 331
+    .line 363
     const-string v4, "<footer>XEMS \u00b7 "
 
     invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4109,28 +4505,28 @@
 
     const-string v5, "</footer></main></body></html>"
 
-    .line 332
+    .line 364
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 333
+    .line 365
     invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v4
 
     return-object v4
 
-    .line 326
-    :catch_aae
+    .line 358
+    :catch_c14
     move-exception v4
 
-    goto :goto_a6d
+    goto :goto_bd3
 .end method
 
 .method static send(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;)V
     .registers 15
 
     .prologue
-    .line 390
+    .line 422
     :try_start_0
     new-instance v1, Ljava/io/File;
 
@@ -4142,26 +4538,26 @@
 
     invoke-direct {v1, v0, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 391
+    .line 423
     invoke-virtual {v1}, Ljava/io/File;->isDirectory()Z
 
     move-result v0
 
     if-nez v0, :cond_14
 
-    .line 392
+    .line 424
     invoke-virtual {v1}, Ljava/io/File;->mkdirs()Z
 
-    .line 394
+    .line 426
     :cond_14
     invoke-virtual {v1}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v2
 
-    .line 395
+    .line 427
     if-eqz v2, :cond_36
 
-    .line 396
+    .line 428
     array-length v3, v2
 
     const/4 v0, 0x0
@@ -4171,7 +4567,7 @@
 
     aget-object v4, v2, v0
 
-    .line 397
+    .line 429
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
@@ -4188,39 +4584,39 @@
 
     if-lez v5, :cond_33
 
-    .line 398
+    .line 430
     invoke-virtual {v4}, Ljava/io/File;->delete()Z
 
-    .line 396
+    .line 428
     :cond_33
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1c
 
-    .line 402
+    .line 434
     :cond_36
     new-instance v0, Ljava/io/File;
 
     invoke-direct {v0, v1, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 403
+    .line 435
     new-instance v1, Ljava/io/FileOutputStream;
 
     invoke-direct {v1, v0}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
     :try_end_40
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_40} :catch_b7
 
-    .line 405
+    .line 437
     :try_start_40
     invoke-virtual {v1, p3}, Ljava/io/FileOutputStream;->write([B)V
     :try_end_43
     .catchall {:try_start_40 .. :try_end_43} :catchall_b2
 
-    .line 407
+    .line 439
     :try_start_43
     invoke-virtual {v1}, Ljava/io/FileOutputStream;->close()V
 
-    .line 409
+    .line 441
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -4247,32 +4643,32 @@
 
     move-result-object v0
 
-    .line 410
+    .line 442
     new-instance v1, Landroid/content/Intent;
 
     const-string v2, "android.intent.action.SEND"
 
     invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 411
+    .line 443
     invoke-virtual {v1, p2}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 412
+    .line 444
     const-string v2, "android.intent.extra.STREAM"
 
     invoke-virtual {v1, v2, v0}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Landroid/os/Parcelable;)Landroid/content/Intent;
 
-    .line 413
+    .line 445
     const-string v0, "android.intent.extra.SUBJECT"
 
     invoke-virtual {v1, v0, p4}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 414
+    .line 446
     const/4 v0, 0x1
 
     invoke-virtual {v1, v0}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 415
+    .line 447
     const-string v0, "\u0421\u043f\u043e\u0434\u0435\u043b\u0438"
 
     const-string v2, "Share"
@@ -4287,7 +4683,7 @@
 
     invoke-virtual {p0, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
 
-    .line 416
+    .line 448
     const-string v0, "scale"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -4328,26 +4724,26 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 420
+    .line 452
     :goto_b1
     return-void
 
-    .line 407
+    .line 439
     :catchall_b2
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/FileOutputStream;->close()V
 
-    .line 408
+    .line 440
     throw v0
     :try_end_b7
     .catch Ljava/lang/Throwable; {:try_start_43 .. :try_end_b7} :catch_b7
 
-    .line 417
+    .line 449
     :catch_b7
     move-exception v0
 
-    .line 418
+    .line 450
     const-string v1, "ScaleShare.send"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -4359,7 +4755,7 @@
     .registers 6
 
     .prologue
-    .line 361
+    .line 393
     invoke-static {p0, p1}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v0
@@ -4449,12 +4845,12 @@
 
     const/4 v3, 0x0
 
-    .line 365
+    .line 397
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->type:I
 
     packed-switch v0, :pswitch_data_a2
 
-    .line 382
+    .line 414
     new-array v0, v2, [Ljava/lang/String;
 
     const-string v1, "\u2014"
@@ -4468,7 +4864,7 @@
     :goto_12
     return-object v0
 
-    .line 367
+    .line 399
     :pswitch_13
     new-array v0, v2, [Ljava/lang/String;
 
@@ -4488,7 +4884,7 @@
 
     goto :goto_12
 
-    .line 369
+    .line 401
     :pswitch_24
     new-array v0, v2, [Ljava/lang/String;
 
@@ -4508,7 +4904,7 @@
 
     goto :goto_12
 
-    .line 371
+    .line 403
     :pswitch_35
     new-array v0, v2, [Ljava/lang/String;
 
@@ -4528,7 +4924,7 @@
 
     goto :goto_12
 
-    .line 373
+    .line 405
     :pswitch_46
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->fatCls:I
 
@@ -4554,7 +4950,7 @@
 
     goto :goto_12
 
-    .line 374
+    .line 406
     :cond_5c
     new-array v0, v2, [Ljava/lang/String;
 
@@ -4574,7 +4970,7 @@
 
     goto :goto_12
 
-    .line 376
+    .line 408
     :pswitch_6d
     new-array v0, v2, [Ljava/lang/String;
 
@@ -4594,7 +4990,7 @@
 
     goto :goto_12
 
-    .line 378
+    .line 410
     :pswitch_7e
     new-array v0, v2, [Ljava/lang/String;
 
@@ -4614,7 +5010,7 @@
 
     goto :goto_12
 
-    .line 380
+    .line 412
     :pswitch_8f
     new-array v0, v2, [Ljava/lang/String;
 
@@ -4634,7 +5030,7 @@
 
     goto/16 :goto_12
 
-    .line 365
+    .line 397
     nop
 
     :pswitch_data_a2
@@ -4653,7 +5049,7 @@
     .registers 9
 
     .prologue
-    .line 355
+    .line 387
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -4685,7 +5081,7 @@
 
     const-string v0, ""
 
-    .line 356
+    .line 388
     :goto_1f
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -4701,7 +5097,7 @@
 
     move-result-object v0
 
-    .line 355
+    .line 387
     return-object v0
 
     :cond_2e
@@ -4741,7 +5137,7 @@
 
     goto :goto_13
 
-    .line 356
+    .line 388
     :cond_51
     new-instance v0, Ljava/lang/StringBuilder;
 

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 596
+    .line 602
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 597
+    .line 603
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$PathTap;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
 
-    .line 598
+    .line 604
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 5
 
     .prologue
-    .line 602
+    .line 608
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 603
+    .line 609
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$PathTap;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis$PathTap;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;
@@ -58,6 +58,6 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleAnalysis;->focusMetric(I)V
 
-    .line 604
+    .line 610
     return-void
 .end method

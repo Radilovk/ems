@@ -15,6 +15,7 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleDetail` | Pure (1.1.295-ai): all values with a status word (`rows`), the analysis tiles with their 5-sector norms and texts (`metrics`), 5 zones fat / muscle (kg, % of standard), weight control to the client's own healthy weight |
 | `ScaleSession` | Pure (1.1.297-ai): one measurement = 1–3 step-ons; contact quality per step, when to ask another, the merge (see "Measuring") |
 | `ScaleStage` | The measuring stage (1.1.297-ai): figure / scan film, 5 steps, instruction, live weight settling, scan ring, step-on count and contact chips |
+| `ScaleSources` | "Научна основа" (1.1.298-ai): every source of the module with its tier (study · standard · maker · XEMS), what we take, who was measured, DOI (tap → the paper); data also in the shared HTML |
 | `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
 | `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
 | `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days); `save` (through `ScaleModel`), `upgrade` (older model / other sex·age·height → rebuilt), `delete` (+ server), `unlike` (weight jump → "is this X?") |
@@ -134,6 +135,16 @@ weight with its settling line into the ±0.1 kg band, the scan ring (~9 s, secon
 the contact chips (✓ Ръце · ✓ Крака · ✓ Тяло / ! …); between steps "Слез за момент" → "Стъпи пак" (the link is
 reopened by itself); at the end "✓ Готово" with fat and muscle, then the results fade in. Previews (HTML mocks):
 `docs/scale/preview-stage-wait.png`, `docs/scale/preview-stage-scan.png`.
+
+## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
+Behind the page's ⓘ (button at its foot), the Analysis ⓘ and the footers of Анализ / Обобщение; also a folded
+section of the shared HTML. 19 sources in four honest tiers — **Проучване** (peer-reviewed: Sun 2003, Janssen 2000,
+Gallagher 2000, Schutz 2002, Kelly 2009, Imboden 2017, Wang 1999, Mifflin 1990, Kyle 2004 ESPEN, Kemmler 2016,
+Kalman 1960), **Стандарт** (Katch–McArdle, WHO TRS 894), **Производител** (WLA25 zones / bone / visceral, vendor
+ranges — no published validation), **XEMS** (readiness thresholds, scale geometry factor, the step-on session,
+healthy weight — how each was derived). Top: 11 studies · over 13 000 people in their reference data · DXA / MRI /
+4C; filter chips by tier; a "limits, honestly" note (a guide, not a medical test; a few points off DXA for one
+person → re-measure, smooth, read the trend). Preview (HTML mock): `docs/scale/preview-science.png`.
 
 ## Result page (`ScaleScreen`) — two views
 **Portrait too** (1.1.295-ai): the page unlocks rotation while open (restored on close, like the report); landscape =

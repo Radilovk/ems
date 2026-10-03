@@ -137,6 +137,9 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
     }
 
     void footer() {
+        TextView sci = XemsUi.button(a, tr("Научна основа", "Scientific basis"), XemsUi.GHOST);
+        sci.setOnClickListener(new ScaleSources.Open(a));
+        sh.footer.addView(sci, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56)));
         sh.footer.addView(XemsUi.spacer(a));
         TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
         close.setOnClickListener(new ScaleScreen.CloseSheet(sh));
@@ -537,7 +540,10 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         t.setLineSpacing(dp(3), 1f);
         t.setPadding(dp(18), dp(14), dp(18), dp(14));
         t.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, 0xFF42A5F5, 0.16f), dp(14), 0xFF42A5F5, dp(1)));
-        pop = new android.widget.PopupWindow(t, dp(560), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        ScaleSources.Open open = new ScaleSources.Open(a);
+        pop = new android.widget.PopupWindow(ScaleSources.withButton(a, t, open), dp(560),
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        open.pop = pop;
         pop.setOutsideTouchable(true);
         pop.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
         pop.setElevation(dp(8));

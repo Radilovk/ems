@@ -581,6 +581,19 @@ public final class ScaleSim {
         }
     }
 
+    /** Sources: every one says what it is used for and where it comes from; studies carry who was measured. */
+    static void sources() {
+        int[] c = ScaleSources.counts();
+        System.out.println("  sources: " + ScaleSources.all().size() + " (" + c[0] + " studies, " + c[1] + " people)");
+        boolean ok = true;
+        for (ScaleSources.Source x : ScaleSources.all()) {
+            ok &= x.useBg.length() > 0 && x.useEn.length() > 0 && x.cite.length() > 0
+                    && (x.tier != ScaleSources.T_STUDY || x.whoBg.length() > 0);
+        }
+        ok("every source: use + citation (+ sample for studies)", ok);
+        ok("over 13 000 people in the studies", c[1] > 13000);
+    }
+
     static void ownerReport() {
         ScaleProtocol.Reading r = new ScaleProtocol.Reading();
         r.result = true;
@@ -721,6 +734,7 @@ public final class ScaleSim {
         ownerReport();
         model();
         session();
+        sources();
         bodyType();
         genB();
         genA();

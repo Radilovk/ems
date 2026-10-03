@@ -37,23 +37,33 @@ public final class ScaleShare {
 
     // ------------------------------------------------------------------ image
 
-    /** The view as drawn now (the summary sheet) → PNG → share. */
-    public static void image(Activity a, View root, String name) {
+    /**
+     * The upright export (ScaleScreen.exportImage: the summary stacked for a phone, + every value when detailed),
+     * already measured and laid out off screen → PNG → share. Wide sheets are never sent as they are on the tablet.
+     */
+    public static void picture(Activity a, View root, String name, boolean full) {
         try {
             int w = root.getWidth(), h = root.getHeight();
             if (w <= 0 || h <= 0) {
                 return;
             }
-            Bitmap bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            // a phone-sized picture: at most ~1440 px across, and never so tall that the bitmap gets out of hand
+            float k = Math.min(1440f / w, 1f);
+            if (h * k > 9000) {
+                k = 9000f / h;
+            }
+            Bitmap bm = Bitmap.createBitmap(Math.round(w * k), Math.round(h * k), Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(bm);
-            c.drawColor(XemsUi.CARD);
+            c.drawColor(XemsUi.BG);
+            c.scale(k, k);
             root.draw(c);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             bm.compress(Bitmap.CompressFormat.PNG, 100, out);
             bm.recycle();
-            send(a, file(name, "png"), "image/png", out.toByteArray(), tr("Анализ на тялото", "Body analysis"));
+            send(a, file(name + (full ? "-full" : ""), "png"), "image/png", out.toByteArray(),
+                    tr("Анализ на тялото", "Body analysis"));
         } catch (Throwable t) {
-            XemsGuard.report("ScaleShare.image", t);
+            XemsGuard.report("ScaleShare.picture", t);
         }
     }
 
@@ -61,10 +71,10 @@ public final class ScaleShare {
 
     /** One self-contained HTML page of the measurement {@code at} (the client's phone, any browser). */
     public static void html(Activity a, String name, JSONArray hist, int at, boolean male, int age, int heightCm,
-            Bitmap figure) {
+            Bitmap figure, boolean full) {
         try {
-            String page = page(name, hist, at, male, age, heightCm, figure);
-            send(a, file(name, "html"), "text/html", page.getBytes("UTF-8"), tr("Анализ на тялото", "Body analysis"));
+            String page = page(name, hist, at, male, age, heightCm, figure, full);
+            send(a, file(name + (full ? "-full" : ""), "html"), "text/html", page.getBytes("UTF-8"), tr("Анализ на тялото", "Body analysis"));
         } catch (Throwable t) {
             XemsGuard.report("ScaleShare.html", t);
         }
@@ -121,7 +131,13 @@ public final class ScaleShare {
         return b.toString();
     }
 
-    static String page(String name, JSONArray hist, int at, boolean male, int age, int heightCm, Bitmap figure) {
+    /**
+     * The web page. Short: profile, figure, the four values, the zones, the change since the first and at most three
+     * recommendations. Detailed (full): + what the weight is made of, every value as a tile, all recommendations,
+     * the scientific basis and the raw readings.
+     */
+    static String page(String name, JSONArray hist, int at, boolean male, int age, int heightCm, Bitmap figure,
+            boolean full) {
         boolean bg = XemsLang.tr("б", "e").equals("б");
         JSONObject m = hist.optJSONObject(at);
         ScaleInsight.Body b = ScaleInsight.body(m, male, heightCm);
@@ -204,61 +220,63 @@ public final class ScaleShare {
         h.append(bar(tr("Висцерални мазнини", "Visceral fat"), ScaleInsight.visceralNorm(m.optDouble("visc", Double.NaN),
                 five)));
         h.append("</div></div>");
-        // what the weight is made of, then every value as a tile (tap = what it means)
-        double w = m.optDouble("w"), fatKg = m.optDouble("fatKg", Double.NaN), lean = m.optDouble("lean", Double.NaN);
-        double water = w * m.optDouble("water", Double.NaN) / 100, bone = m.optDouble("bone", Double.NaN);
-        double[] part = {fatKg, water, lean - water - bone, bone};
-        String[] pn = {tr("Мазнини", "Fat"), tr("Вода", "Water"), tr("Белтък", "Protein"), tr("Минерали", "Minerals")};
-        String[] pc = {"#F59E0B", "#38BDF8", "#22C55E", "#A78BFA"};
-        boolean okPart = true;
-        for (double x : part) {
-            okPart &= !Double.isNaN(x) && x >= 0;
-        }
-        h.append("<div class=card><h2>").append(esc(tr("Състав на тялото", "Body composition")))
-                .append("</h2>");
-        if (okPart) {
-            h.append("<div class=cb>");
-            for (int i = 0; i < 4; i++) {
-                h.append("<i style=\"flex:").append(num(part[i], 2)).append(";background:").append(pc[i])
-                        .append("\"></i>");
+        if (full) {
+            // what the weight is made of, then every value as a tile (tap = what it means)
+            double w = m.optDouble("w"), fatKg = m.optDouble("fatKg", Double.NaN), lean = m.optDouble("lean", Double.NaN);
+            double water = w * m.optDouble("water", Double.NaN) / 100, bone = m.optDouble("bone", Double.NaN);
+            double[] part = {fatKg, water, lean - water - bone, bone};
+            String[] pn = {tr("Мазнини", "Fat"), tr("Вода", "Water"), tr("Белтък", "Protein"), tr("Минерали", "Minerals")};
+            String[] pc = {"#F59E0B", "#38BDF8", "#22C55E", "#A78BFA"};
+            boolean okPart = true;
+            for (double x : part) {
+                okPart &= !Double.isNaN(x) && x >= 0;
             }
-            h.append("</div><div class=cl>");
-            for (int i = 0; i < 4; i++) {
-                h.append("<span style=\"flex:").append(num(part[i], 2)).append("\"><b>").append(num(part[i], 1)).append(esc(tr(" кг", " kg"))).append("</b><em style=\"color:")
-                        .append(pc[i]).append("\">").append(esc(pn[i])).append(" · ").append(Math.round(part[i] / w * 100))
-                        .append(" %</em></span>");
+            h.append("<div class=card><h2>").append(esc(tr("Състав на тялото", "Body composition")))
+                    .append("</h2>");
+            if (okPart) {
+                h.append("<div class=cb>");
+                for (int i = 0; i < 4; i++) {
+                    h.append("<i style=\"flex:").append(num(part[i], 2)).append(";background:").append(pc[i])
+                            .append("\"></i>");
+                }
+                h.append("</div><div class=cl>");
+                for (int i = 0; i < 4; i++) {
+                    h.append("<span style=\"flex:").append(num(part[i], 2)).append("\"><b>").append(num(part[i], 1)).append(esc(tr(" кг", " kg"))).append("</b><em style=\"color:")
+                            .append(pc[i]).append("\">").append(esc(pn[i])).append(" · ").append(Math.round(part[i] / w * 100))
+                            .append(" %</em></span>");
+                }
+                h.append("</div>");
+            }
+            h.append("</div>");
+            List<ScaleDetail.Metric> ms = ScaleDetail.metrics(m, male, age, heightCm, bg);
+            h.append("<div class=gg>");
+            for (int g = 0; g < 4; g++) {
+                h.append("<div class=card><h2>").append(esc(bg ? ScaleDetail.groupBg(g) : ScaleDetail.groupEn(g)))
+                        .append("</h2><div class=tg>");
+                for (ScaleDetail.Metric x : ms) {
+                    if (x.group != g) {
+                        continue;
+                    }
+                    String col = hex(ScaleDetail.statusColor(x.status));
+                    h.append("<details class=tl><summary><span class=tn>").append(esc(bg ? x.bg : x.en))
+                            .append("</span><span class=tv>").append(esc(x.text())).append("<small>").append(esc(x.unit))
+                            .append("</small></span><span class=ts style=\"color:").append(col).append("\">")
+                            .append(esc(x.status >= 0 ? (bg ? ScaleDetail.statusBg(x.status) : ScaleDetail.statusEn(x.status))
+                                    : (bg ? x.subBg : x.subEn))).append("</span>");
+                    if (x.norm != null) {
+                        h.append(mini(x.norm));
+                    }
+                    h.append("</summary><p>");
+                    String sub = bg ? x.subBg : x.subEn;
+                    if (x.status >= 0 && sub.length() > 0) {
+                        h.append("<b>").append(esc(sub)).append("</b> · ");
+                    }
+                    h.append(esc(bg ? x.whatBg : x.whatEn)).append("</p></details>");
+                }
+                h.append("</div></div>");
             }
             h.append("</div>");
         }
-        h.append("</div>");
-        List<ScaleDetail.Metric> ms = ScaleDetail.metrics(m, male, age, heightCm, bg);
-        h.append("<div class=gg>");
-        for (int g = 0; g < 4; g++) {
-            h.append("<div class=card><h2>").append(esc(bg ? ScaleDetail.groupBg(g) : ScaleDetail.groupEn(g)))
-                    .append("</h2><div class=tg>");
-            for (ScaleDetail.Metric x : ms) {
-                if (x.group != g) {
-                    continue;
-                }
-                String col = hex(ScaleDetail.statusColor(x.status));
-                h.append("<details class=tl><summary><span class=tn>").append(esc(bg ? x.bg : x.en))
-                        .append("</span><span class=tv>").append(esc(x.text())).append("<small>").append(esc(x.unit))
-                        .append("</small></span><span class=ts style=\"color:").append(col).append("\">")
-                        .append(esc(x.status >= 0 ? (bg ? ScaleDetail.statusBg(x.status) : ScaleDetail.statusEn(x.status))
-                                : (bg ? x.subBg : x.subEn))).append("</span>");
-                if (x.norm != null) {
-                    h.append(mini(x.norm));
-                }
-                h.append("</summary><p>");
-                String sub = bg ? x.subBg : x.subEn;
-                if (x.status >= 0 && sub.length() > 0) {
-                    h.append("<b>").append(esc(sub)).append("</b> · ");
-                }
-                h.append(esc(bg ? x.whatBg : x.whatEn)).append("</p></details>");
-            }
-            h.append("</div></div>");
-        }
-        h.append("</div>");
         h.append("<div class=card><h2>").append(esc(tr("Сегментен анализ", "Segmental analysis"))).append("</h2><table class=zt><tr><th></th><th>")
                 .append(esc(tr("Мазнини", "Fat"))).append("</th><th>").append(esc(tr("Мускулна маса", "Muscle mass")))
                 .append("</th></tr>");
@@ -298,69 +316,75 @@ public final class ScaleShare {
         String[] kinds = bg ? new String[] {"ДНЕС", "ТРЕНИРОВКА", "ТЯЛО", "НАВИЦИ"} : new String[] {"TODAY", "EMS", "BODY", "HABIT"};
         String[] tones = {"#22C55E", "#38BDF8", "#F59E0B", "#EF4444"};
         List<ScaleInsight.Advice> adv = ScaleInsight.advice(hist, at, male, age, heightCm);
+        int shownAdv = 0;
         for (ScaleInsight.Advice x : adv) {
+            if (!full && shownAdv++ >= 3) {
+                break;
+            }
             h.append("<div class=ad><i style=\"background:").append(tones[x.tone]).append("\"></i><div><div class=k style=\"color:")
                     .append(tones[x.tone]).append("\">").append(kinds[x.kind]).append("</div><b>")
                     .append(esc(bg ? x.titleBg : x.titleEn)).append("</b><span>").append(esc(bg ? x.textBg : x.textEn))
                     .append("</span></div></div>");
         }
         h.append("</div>");
-        // where the numbers come from — every source with its tier, what we take, who was measured
-        int[] sc = ScaleSources.counts();
-        h.append("<details class=card><summary><h2 style=\"display:inline\">").append(esc(tr("Научна основа",
-                "Scientific basis"))).append("</h2> <span style=\"color:var(--m)\">· ").append(sc[0])
-                .append(esc(tr(" рецензирани научни публикации", " peer-reviewed publications")))
-                .append("</span></summary><ol style=\"color:var(--m);padding-left:20px\">");
-        for (int i = 0; i < 4; i++) {
-            h.append("<li>").append(esc(bg ? ScaleSources.HOW_BG[i] : ScaleSources.HOW_EN[i])).append("</li>");
-        }
-        h.append("</ol>");
-        for (ScaleSources.Source x : ScaleSources.all()) {
-            String col = hex(ScaleSources.tierColor(x.tier));
-            h.append("<div class=src><b>").append(esc(bg ? x.topicBg : x.topicEn)).append("</b> <em style=\"color:")
-                    .append(col).append(";border-color:").append(col).append("\">")
-                    .append(esc(bg ? ScaleSources.tierBg(x.tier) : ScaleSources.tierEn(x.tier))).append("</em><p>")
-                    .append(esc(bg ? x.useBg : x.useEn)).append("</p><i>").append(esc(x.cite)).append("</i>");
-            String who = bg ? x.whoBg : x.whoEn;
-            if (who.length() > 0) {
-                h.append("<small> · ").append(esc(who)).append("</small>");
+        if (full) {
+            // where the numbers come from — every source with its tier, what we take, who was measured
+            int[] sc = ScaleSources.counts();
+            h.append("<details class=card><summary><h2 style=\"display:inline\">").append(esc(tr("Научна основа",
+                    "Scientific basis"))).append("</h2> <span style=\"color:var(--m)\">· ").append(sc[0])
+                    .append(esc(tr(" рецензирани научни публикации", " peer-reviewed publications")))
+                    .append("</span></summary><ol style=\"color:var(--m);padding-left:20px\">");
+            for (int i = 0; i < 4; i++) {
+                h.append("<li>").append(esc(bg ? ScaleSources.HOW_BG[i] : ScaleSources.HOW_EN[i])).append("</li>");
             }
-            if (x.doi.length() > 0) {
-                h.append(" <a href=\"https://doi.org/").append(esc(x.doi)).append("\">DOI ").append(esc(x.doi))
-                        .append("</a>");
-            }
-            h.append("</div>");
-        }
-        h.append("<p style=\"color:var(--m)\">").append(esc(bg ? ScaleSources.LIMITS_BG : ScaleSources.LIMITS_EN))
-                .append("</p></details>");
-        // the raw readings (impedances) of the last weigh-ins — to recompute or calibrate later; not shown
-        h.append("<script type=\"application/json\" id=xems-raw>[");
-        int from = Math.max(0, at - 9);
-        for (int i = from; i <= at; i++) {
-            JSONObject r = hist.optJSONObject(i);
-            if (r == null) {
-                continue;
-            }
-            JSONObject o = new JSONObject();
-            try {
-                o.put("t", r.optLong("t"));
-                o.put("w", r.optDouble("w"));
-                if (r.has("z20")) {
-                    o.put("z20", r.optJSONArray("z20"));
-                    o.put("z100", r.optJSONArray("z100"));
+            h.append("</ol>");
+            for (ScaleSources.Source x : ScaleSources.all()) {
+                String col = hex(ScaleSources.tierColor(x.tier));
+                h.append("<div class=src><b>").append(esc(bg ? x.topicBg : x.topicEn)).append("</b> <em style=\"color:")
+                        .append(col).append(";border-color:").append(col).append("\">")
+                        .append(esc(bg ? ScaleSources.tierBg(x.tier) : ScaleSources.tierEn(x.tier))).append("</em><p>")
+                        .append(esc(bg ? x.useBg : x.useEn)).append("</p><i>").append(esc(x.cite)).append("</i>");
+                String who = bg ? x.whoBg : x.whoEn;
+                if (who.length() > 0) {
+                    h.append("<small> · ").append(esc(who)).append("</small>");
                 }
-                if (r.has("sfat")) {
-                    o.put("sfat", r.optDouble("sfat"));
+                if (x.doi.length() > 0) {
+                    h.append(" <a href=\"https://doi.org/").append(esc(x.doi)).append("\">DOI ").append(esc(x.doi))
+                            .append("</a>");
                 }
-                if (r.optInt("f1") == 1) {
-                    o.put("f1", 1);
-                }
-                o.put("male", male).put("age", age).put("h", heightCm).put("v", r.optInt("v"));
-            } catch (Exception ignored) {
+                h.append("</div>");
             }
-            h.append(i > from ? "," : "").append(o.toString().replace("</", "<\\/"));
+            h.append("<p style=\"color:var(--m)\">").append(esc(bg ? ScaleSources.LIMITS_BG : ScaleSources.LIMITS_EN))
+                    .append("</p></details>");
+            // the raw readings (impedances) of the last weigh-ins — to recompute or calibrate later; not shown
+            h.append("<script type=\"application/json\" id=xems-raw>[");
+            int from = Math.max(0, at - 9);
+            for (int i = from; i <= at; i++) {
+                JSONObject r = hist.optJSONObject(i);
+                if (r == null) {
+                    continue;
+                }
+                JSONObject o = new JSONObject();
+                try {
+                    o.put("t", r.optLong("t"));
+                    o.put("w", r.optDouble("w"));
+                    if (r.has("z20")) {
+                        o.put("z20", r.optJSONArray("z20"));
+                        o.put("z100", r.optJSONArray("z100"));
+                    }
+                    if (r.has("sfat")) {
+                        o.put("sfat", r.optDouble("sfat"));
+                    }
+                    if (r.optInt("f1") == 1) {
+                        o.put("f1", 1);
+                    }
+                    o.put("male", male).put("age", age).put("h", heightCm).put("v", r.optInt("v"));
+                } catch (Exception ignored) {
+                }
+                h.append(i > from ? "," : "").append(o.toString().replace("</", "<\\/"));
+            }
+            h.append("]</script>");
         }
-        h.append("]</script>");
         h.append("<footer>XEMS · ").append(esc(tr("8-електроден биоимпедансен анализ · не е медицинска диагноза",
                 "8-electrode bioimpedance analysis · not a medical diagnosis"))).append("</footer></main></body></html>");
         return h.toString();

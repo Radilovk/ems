@@ -34,6 +34,11 @@ public final class ScaleInsight {
     public static final long TODAY_MS = 12L * 3600 * 1000;
     /** Baseline: up to this many earlier measurements, at least 6 h before the current one. */
     static final int BASE_MAX = 8;
+    /**
+     * Earlier weigh-ins (≥ 6 h apart) before a verdict (1.1.310-ai, audit F12): one baseline is one contact — its own
+     * ±0.5–1 % noise sits right under the 1.2 % threshold, so a single earlier weigh-in gave false "lighter today".
+     */
+    static final int BASE_MIN = 2;
     static final long BASE_GAP_MS = 6L * 3600 * 1000;
 
     public static final class Readiness {
@@ -47,11 +52,11 @@ public final class ScaleInsight {
         public double dry = Double.NaN;
         /** Segment that drives the verdict (or -1). */
         public int worst = -1;
-        /** How many earlier measurements the baseline stands on (0 = none yet: no verdict). */
+        /** How many earlier measurements the baseline stands on (under BASE_MIN: no verdict yet). */
         public int base;
 
         public boolean known() {
-            return base > 0;
+            return base >= BASE_MIN;
         }
     }
 
@@ -100,7 +105,7 @@ public final class ScaleInsight {
             }
         }
         r.base = base.size();
-        if (base.isEmpty()) {
+        if (base.size() < BASE_MIN) {
             return r;
         }
         double worstV = 0;

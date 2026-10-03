@@ -282,6 +282,12 @@ public final class ScaleSim {
         h.put(meas(0, z20, z100));
         ScaleInsight.Readiness r0 = ScaleInsight.readiness(h, 0);
         ok("first: no baseline", !r0.known() && r0.factor == 1.0);
+        // one earlier weigh-in is one contact: even a swollen-looking reading gives no verdict yet (audit F12)
+        org.json.JSONArray one = new org.json.JSONArray();
+        one.put(meas(0, z20, z100));
+        one.put(meas(4 * day, new double[] {350, 340, 244, 249}, new double[] {320, 310, 229, 234}));
+        ScaleInsight.Readiness r1b = ScaleInsight.readiness(one, 1);
+        ok("one baseline: no verdict yet", !r1b.known() && r1b.factor == 1.0 && r1b.base == 1);
         h.put(meas(4 * day, z20, z100));
         h.put(meas(8 * day, new double[] {351, 339, 256, 259}, new double[] {321, 309, 231, 234}));
         ScaleInsight.Readiness same = ScaleInsight.readiness(h, 2);

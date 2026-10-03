@@ -388,7 +388,7 @@
     .registers 8
 
     .prologue
-    .line 196
+    .line 235
     sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v1, "%.1f"
@@ -406,6 +406,135 @@
     aput-object v4, v2, v3
 
     invoke-static {v0, v1, v2}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static forCard(Landroid/content/Context;JZIII)Ljava/lang/String;
+    .registers 14
+
+    .prologue
+    .line 209
+    new-instance v1, Lorg/json/JSONArray;
+
+    invoke-direct {v1}, Lorg/json/JSONArray;-><init>()V
+
+    .line 211
+    :try_start_5
+    invoke-static/range {p0 .. p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->upgrade(Landroid/content/Context;JZII)Lorg/json/JSONArray;
+
+    move-result-object v2
+
+    .line 212
+    new-instance v3, Ljava/util/ArrayList;
+
+    invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
+
+    .line 213
+    invoke-virtual {v2}, Lorg/json/JSONArray;->length()I
+
+    move-result v0
+
+    add-int/lit8 v0, v0, -0x1
+
+    :goto_14
+    if-ltz v0, :cond_35
+
+    invoke-interface {v3}, Ljava/util/List;->size()I
+
+    move-result v4
+
+    if-ge v4, p6, :cond_35
+
+    .line 214
+    invoke-virtual {v2, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
+
+    move-result-object v4
+
+    .line 215
+    if-eqz v4, :cond_32
+
+    const-string v5, "fat"
+
+    invoke-virtual {v4, v5}, Lorg/json/JSONObject;->has(Ljava/lang/String;)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_32
+
+    .line 216
+    const/4 v4, 0x0
+
+    invoke-static {v2, v0, p3, p4, p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->item(Lorg/json/JSONArray;IZII)Lorg/json/JSONObject;
+
+    move-result-object v5
+
+    invoke-interface {v3, v4, v5}, Ljava/util/List;->add(ILjava/lang/Object;)V
+
+    .line 213
+    :cond_32
+    add-int/lit8 v0, v0, -0x1
+
+    goto :goto_14
+
+    .line 219
+    :cond_35
+    invoke-interface {v3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v2
+
+    :goto_39
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_62
+
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lorg/json/JSONObject;
+
+    .line 220
+    invoke-virtual {v1, v0}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
+    :try_end_48
+    .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_48} :catch_49
+
+    goto :goto_39
+
+    .line 222
+    :catch_49
+    move-exception v0
+
+    .line 223
+    const-string v2, "scale"
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "card items: "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 225
+    :cond_62
+    invoke-virtual {v1}, Lorg/json/JSONArray;->toString()Ljava/lang/String;
 
     move-result-object v0
 
@@ -456,7 +585,7 @@
 .end method
 
 .method static item(Lorg/json/JSONArray;IZII)Lorg/json/JSONObject;
-    .registers 15
+    .registers 13
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Lorg/json/JSONException;
@@ -464,8 +593,6 @@
     .end annotation
 
     .prologue
-    const-wide/high16 v8, 0x7ff8000000000000L    # Double.NaN
-
     .line 155
     invoke-virtual {p0, p1}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
 
@@ -562,7 +689,9 @@
 
     const-string v5, "fatKg"
 
-    invoke-virtual {v0, v5, v8, v9}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+    const-wide/high16 v6, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-virtual {v0, v5, v6, v7}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
 
     move-result-wide v6
 
@@ -573,7 +702,9 @@
 
     const-string v5, "muscle"
 
-    invoke-virtual {v0, v5, v8, v9}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+    const-wide/high16 v6, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-virtual {v0, v5, v6, v7}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
 
     move-result-wide v6
 
@@ -584,7 +715,9 @@
 
     const-string v5, "water"
 
-    invoke-virtual {v0, v5, v8, v9}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+    const-wide/high16 v6, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-virtual {v0, v5, v6, v7}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
 
     move-result-wide v6
 
@@ -597,7 +730,7 @@
 
     move-result v4
 
-    if-eqz v4, :cond_88
+    if-eqz v4, :cond_8c
 
     .line 166
     const-string v4, "visc"
@@ -611,12 +744,14 @@
     invoke-virtual {v3, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
     .line 168
-    :cond_88
+    :cond_8c
     const-string v4, "bmi"
 
     const-string v5, "bmi"
 
-    invoke-virtual {v0, v5, v8, v9}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+    const-wide/high16 v6, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-virtual {v0, v5, v6, v7}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
 
     move-result-wide v6
 
@@ -660,7 +795,7 @@
 
     move-result v4
 
-    if-eqz v4, :cond_c0
+    if-eqz v4, :cond_c6
 
     .line 175
     const-string v4, "ready"
@@ -670,10 +805,12 @@
     invoke-virtual {v3, v4, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
     .line 177
-    :cond_c0
+    :cond_c6
     const-string v2, "nf"
 
-    invoke-static {v8, v9, p2, p3, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->fatNorm(DZI[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+    const-wide/high16 v4, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-static {v4, v5, p2, p3, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->fatNorm(DZI[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     move-result-object v4
 
@@ -686,7 +823,9 @@
     .line 178
     const-string v2, "nm"
 
-    invoke-static {v8, v9, p2, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->muscleNorm(DZ[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+    const-wide/high16 v4, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-static {v4, v5, p2, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->muscleNorm(DZ[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     move-result-object v4
 
@@ -699,7 +838,9 @@
     .line 179
     const-string v2, "nw"
 
-    invoke-static {v8, v9, p2, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->waterNorm(DZ[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+    const-wide/high16 v4, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-static {v4, v5, p2, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->waterNorm(DZ[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     move-result-object v1
 
@@ -716,7 +857,7 @@
 
     move-result-object v1
 
-    if-eqz v1, :cond_fe
+    if-eqz v1, :cond_10a
 
     .line 181
     const-string v1, "segMus"
@@ -734,14 +875,14 @@
     invoke-virtual {v3, v1, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
     .line 183
-    :cond_fe
+    :cond_10a
     const-string v1, "segFat"
 
     invoke-virtual {v0, v1}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v1
 
-    if-eqz v1, :cond_115
+    if-eqz v1, :cond_121
 
     .line 184
     const-string v1, "segFat"
@@ -750,17 +891,144 @@
 
     invoke-virtual {v0, v2}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
+    move-result-object v2
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->seg(Lorg/json/JSONArray;)Lorg/json/JSONArray;
+
+    move-result-object v2
+
+    invoke-virtual {v3, v1, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 187
+    :cond_121
+    invoke-static {v0, p2, p4}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->ofNormal(Lorg/json/JSONObject;ZI)[[D
+
     move-result-object v0
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->seg(Lorg/json/JSONArray;)Lorg/json/JSONArray;
+    .line 188
+    const/4 v1, 0x0
+
+    aget-object v1, v0, v1
+
+    const/4 v2, 0x0
+
+    aget-wide v4, v1, v2
+
+    invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v1
+
+    if-nez v1, :cond_149
+
+    .line 189
+    const-string v1, "zm"
+
+    const/4 v2, 0x0
+
+    aget-object v2, v0, v2
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->pct5([D)Lorg/json/JSONArray;
+
+    move-result-object v2
+
+    invoke-virtual {v3, v1, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 190
+    const-string v1, "zf"
+
+    const/4 v2, 0x1
+
+    aget-object v0, v0, v2
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->pct5([D)Lorg/json/JSONArray;
 
     move-result-object v0
 
     invoke-virtual {v3, v1, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 186
-    :cond_115
+    .line 192
+    :cond_149
     return-object v3
+.end method
+
+.method static pct5([D)Lorg/json/JSONArray;
+    .registers 11
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Lorg/json/JSONException;
+        }
+    .end annotation
+
+    .prologue
+    .line 196
+    new-instance v2, Lorg/json/JSONArray;
+
+    invoke-direct {v2}, Lorg/json/JSONArray;-><init>()V
+
+    .line 197
+    const/4 v0, 0x0
+
+    move v1, v0
+
+    :goto_7
+    const/4 v0, 0x5
+
+    if-ge v1, v0, :cond_33
+
+    .line 198
+    aget-wide v4, p0, v1
+
+    invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1b
+
+    sget-object v0, Lorg/json/JSONObject;->NULL:Ljava/lang/Object;
+
+    :goto_14
+    invoke-virtual {v2, v0}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
+
+    .line 197
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_7
+
+    .line 198
+    :cond_1b
+    const-wide/16 v4, 0x0
+
+    const-wide/high16 v6, 0x4079000000000000L    # 400.0
+
+    aget-wide v8, p0, v1
+
+    .line 199
+    invoke-static {v6, v7, v8, v9}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v6
+
+    .line 198
+    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v4
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v4
+
+    long-to-int v0, v4
+
+    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v0
+
+    goto :goto_14
+
+    .line 201
+    :cond_33
+    return-object v2
 .end method
 
 .method static put(Lorg/json/JSONObject;Ljava/lang/String;D)V
@@ -772,7 +1040,7 @@
     .end annotation
 
     .prologue
-    .line 190
+    .line 229
     invoke-static {p2, p3}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v0
@@ -785,14 +1053,14 @@
 
     if-nez v0, :cond_13
 
-    .line 191
+    .line 230
     invoke-static {p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleUploader;->r1(D)D
 
     move-result-wide v0
 
     invoke-virtual {p0, p1, v0, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 193
+    .line 232
     :cond_13
     return-void
 .end method

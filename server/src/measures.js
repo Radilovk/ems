@@ -26,9 +26,9 @@ export function validMeasure(m) {
   }
   if (m.type !== undefined && !(Number.isInteger(m.type) && m.type >= -1 && m.type <= 6)) return 'type';
   for (const k of ['nf', 'nm', 'nw']) if (!edges(m[k])) return k;
-  for (const k of ['segMus', 'segFat']) {
+  for (const [k, hi] of [['segMus', 80], ['segFat', 80], ['zm', 400], ['zf', 400]]) {
     const s = m[k];
-    if (s !== undefined && !(Array.isArray(s) && s.length === 5 && s.every((x) => x === null || inRange(x, 0, 80)))) {
+    if (s !== undefined && !(Array.isArray(s) && s.length === 5 && s.every((x) => x === null || inRange(x, 0, hi)))) {
       return k;
     }
   }
@@ -37,7 +37,7 @@ export function validMeasure(m) {
 
 /** Only the known fields travel on (nothing the card does not need, nothing the tablet slipped in). */
 const FIELDS = ['t', 'w', 'fat', 'fatKg', 'muscle', 'water', 'visc', 'bmi', 'ffmi', 'fmi', 'page', 'ready', 'type',
-  'nf', 'nm', 'nw', 'segMus', 'segFat'];
+  'nf', 'nm', 'nw', 'segMus', 'segFat', 'zm', 'zf'];
 export function cleanMeasure(m) {
   const o = {};
   for (const k of FIELDS) if (m[k] !== undefined) o[k] = m[k];

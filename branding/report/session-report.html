@@ -72,6 +72,8 @@ h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
 
 /* ---------- left rail ---------- */
 .rail{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+/* the client card got taller ("Тяло"): across, the rail scrolls on its own so the history stays reachable */
+@media (min-width:981px){.rail{max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px;margin:-2px}}
 @media (max-width:980px){.rail{position:static}
   /* upright tablet / phone: client card in two columns, history as one swipeable row */
   .rail .list{display:flex;overflow-x:auto;max-height:none;scroll-snap-type:x proximity;padding-bottom:8px}
@@ -168,6 +170,24 @@ html.printing .factor{grid-template-columns:110px minmax(0,1fr) 44px}
 
 .sec-h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .sec-h h3{font-size:16px}
+/* "Тяло" — the studio scale on the client card (BR.body(): weigh-ins + how they steer the training) */
+.bodyk{display:grid;gap:12px}
+.bodyk .bt{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.bodyk .bt .age{margin-left:auto;font:700 26px/1 var(--f-cond)}.bodyk .bt .age small{font:500 11px var(--f-body);color:var(--hint);margin-left:4px}
+.bodyk .wt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.bodyk .wt b{font:700 30px/1 var(--f-cond)}.bodyk .wt span{font-size:12px;color:var(--hint)}
+.bodyk .v4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bodyk .v4>div{background:var(--surface);border-radius:10px;padding:9px 10px;display:grid;gap:3px}
+.bodyk .v4 b{font:700 20px/1.1 var(--f-cond)}.bodyk .v4 em{font-style:normal;font-size:11px;font-weight:500}
+.bodyk .v4 i{display:flex;gap:2px;margin-top:3px}.bodyk .v4 i u{flex:1;height:4px;border-radius:2px;text-decoration:none}
+.bodyk .zn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.bodyk .zn span{display:grid;justify-items:center;gap:1px;padding:6px 1px;border:1.5px solid;border-radius:10px}
+.bodyk .zn small{font-size:9.5px;color:var(--hint);white-space:nowrap}.bodyk .zn b{font:700 16px/1 var(--f-cond)}
+.bodyk .dl{display:flex;flex-wrap:wrap;gap:4px 14px;font:700 15px var(--f-cond)}
+.bodyk .use{display:grid;gap:6px;background:var(--surface);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--muted)}
+.bodyk .use div{display:flex;gap:8px;align-items:baseline}.bodyk .use div::before{content:"";flex:0 0 7px;height:7px;border-radius:50%;background:var(--c,var(--hint));transform:translateY(-1px)}
+.bodyk .use b{color:var(--text);font-weight:500}
+.bodyk .open{justify-self:start}
+.bodyk .open:active{transform:scale(.97)}
 .seg{display:inline-flex;background:var(--surface);border-radius:10px;padding:3px;gap:2px}
 .seg button{all:unset;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:12px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
@@ -289,6 +309,7 @@ details[open] summary::before{transform:rotate(45deg)}
         <svg id="weeks" viewBox="0 0 300 40" width="100%" role="img" aria-label="Тренировки по седмици"></svg>
       </div>
     </section>
+    <section class="card pad bodyk" id="bodyCard" aria-label="Тяло" hidden></section>
     <section class="card pad" aria-label="История">
       <div class="sec-h" style="margin-bottom:10px"><h3>История</h3><span class="sample" id="demoTag" hidden>примерни данни</span></div>
       <div class="list" id="list"></div>
@@ -679,6 +700,59 @@ function renderClient(){
   setSex(c.sex==="M"?"male":"female");
   $("#demoTag").hidden=!DEMO;
 }
+/* ---------------- body (the studio scale) ---------------- */
+// The client's weigh-ins on the card: newest values against their norms, zones, change since the first weigh-in
+// (with the trainings in between), and what the scale changes in the training right now — the same values the
+// tablet hands Auto and Smart Session (AiProfile). Hidden without a measurement.
+function demoBody(){const d=864e5,t=Date.now();const mk=(k,w,f,mu)=>({t:t-k*d,w,fat:f,fatKg:+(w*f/100).toFixed(1),muscle:mu,water:55.1,visc:6,ffmi:18.9,page:35,type:1,
+  nf:[21,25,32,38],nm:[14,17,19.5,22],nw:[45,50,60,65],zm:[101,94,96,88,91]});
+  return{list:[mk(70,66.2,31.5,42.6),mk(35,65.1,30.2,42.9),mk(1,64.0,28.4,43.3)],use:{fresh:true,ready:0.85,readySeg:3,readyScore:74,focus:"legs",chFat:true}};}
+function renderBody(){
+  const box=$("#bodyCard");let B=null;
+  try{B=DEMO?demoBody():(BR&&BR.body?JSON.parse(BR.body()||"{}"):null);}catch(e){B=null;}
+  const L=B&&B.list||[];if(!L.length){box.hidden=true;box.innerHTML="";return;}
+  const x=L[L.length-1],f=L[0],p=L.length>1?L[L.length-2]:null,U=B.use||{},EN=LANG==="en";
+  const f1=v=>(Math.round(v*10)/10).toFixed(1).replace(".",EN?".":",");
+  const LESS=["#38BDF8","#10B981","#22C55E","#F59E0B","#EF4444"],MORE=["#EF4444","#F59E0B","#22C55E","#10B981","#06B6D4"],BOTH=["#EF4444","#F59E0B","#22C55E","#F59E0B","#EF4444"];
+  const sector=(v,e)=>{if(v==null||!e||e.length!==4)return -1;let k=4;for(let i=0;i<4;i++)if(v<e[i]){k=i;break;}return k;};
+  const TYPES=[[tr("Атлетичен","Athletic"),"#22C55E"],[tr("Балансиран","Balanced"),"#22C55E"],[tr("Силен · с излишни мазнини","Strong · excess fat"),"#F59E0B"],[tr("Излишни мазнини","Excess fat"),"#F59E0B"],[tr("Мазнини при малко мускули","Fat with little muscle"),"#EF4444"],[tr("Слаб · малко мускули","Slim · little muscle"),"#F59E0B"],[tr("Много ниски мазнини","Very low fat"),"#38BDF8"]];
+  const ago=Math.round((Date.now()-x.t)/864e5);
+  let h=`<div class="sec-h" style="margin:0"><h3>${tr("Тяло · кантар","Body · scale")}</h3><span class="hint">${ago<=0?tr("днес","today"):ago===1?tr("вчера","yesterday"):tr("преди ","")+ago+tr(" дни"," days ago")}</span></div>`;
+  const ty=TYPES[x.type];h+=`<div class="bt">${ty?`<span class="chip" style="color:${ty[1]};background:${ty[1]}1f;border-color:transparent">${ty[0]}</span>`:""}${x.page!=null?`<span class="age">${Math.round(x.page)}<small>${tr("г. тяло","y body")}</small></span>`:""}</div>`;
+  const dw=p&&p.w!=null&&x.w!=null?x.w-p.w:null;
+  if(x.w!=null)h+=`<div class="wt"><b>${f1(x.w)}<small style="font-size:14px"> ${tr("кг","kg")}</small></b>${dw!=null&&Math.abs(dw)>=0.1?`<span>${dw>0?"+":"−"}${f1(Math.abs(dw))} ${tr("от предишното","since the last")}</span>`:""}</div>`;
+  const FN=EN?["very low","lean","normal","overweight","obese"]:["много ниски","стегнато","норма","наднормено","затлъстяване"],
+    MN=EN?["very low","low","normal","athletic","very high"]:["много малко","малко","норма","атлетично","много"],
+    WN=EN?["very low","low","normal","high","very high"]:["много ниско","ниско","норма","високо","много високо"];
+  const tile=(name,val,unit,s,cols,names)=>`<div><span class="eyebrow">${name}</span><b>${val==null?"—":val}<small style="font-size:12px;font-weight:500"> ${unit}</small></b><em style="color:${s>=0?cols[s]:"var(--hint)"}">${s>=0?names[s]:""}</em><i>${cols.map((c,k)=>`<u style="background:${c};opacity:${k===s?1:.25}"></u>`).join("")}</i></div>`;
+  const vs=x.visc==null?-1:x.visc<10?2:x.visc<15?3:4;
+  h+=`<div class="v4">${tile(tr("Мазнини","Body fat"),x.fat!=null?f1(x.fat):null,"%",sector(x.fat,x.nf),LESS,FN)}${tile(tr("Мускулна маса","Muscle mass"),x.muscle!=null?f1(x.muscle):null,tr("кг","kg"),sector(x.ffmi,x.nm),MORE,MN)}${tile(tr("Вода","Water"),x.water!=null?f1(x.water):null,"%",sector(x.water,x.nw),BOTH,WN)}${tile(tr("Висцерални","Visceral"),x.visc!=null?x.visc:null,"",vs,["#22C55E","#22C55E","#22C55E","#F59E0B","#EF4444"],EN?["","","normal","high","very high"]:["","","норма","повишени","високи"])}</div>`;
+  if(x.zm&&x.zm.length===5){const N=EN?["Trunk","L arm","R arm","L leg","R leg"]:["Торс","Л ръка","Д ръка","Л крак","Д крак"];
+    h+=`<div class="mini"><div class="mini-h"><span class="eyebrow">${tr("Мускули по зони · % от нормата","Muscle by zone · % of normal")}</span></div><div class="zn">${[1,2,0,3,4].map(i=>{const v=x.zm[i];if(v==null)return"";const c=v<90?"#F59E0B":v>110?"#06B6D4":"#22C55E";return`<span style="border-color:${c}66"><small>${N[i]}</small><b style="color:${c}">${Math.round(v)}</b></span>`;}).join("")}</div></div>`;}
+  if(L.length>1&&x.muscle!=null&&f.muscle!=null&&x.fatKg!=null&&f.fatKg!=null){
+    const dm=x.muscle-f.muscle,df=x.fatKg-f.fatKg,days=Math.round((x.t-f.t)/864e5),nT=sessions.filter(s=>s.date.getTime()>=f.t&&s.date.getTime()<=x.t+864e5).length;
+    h+=`<div class="mini"><div class="mini-h"><span class="eyebrow">${tr("От първото мерене","Since the first weigh-in")}</span><span class="hint">${days} ${tr("дни","days")}${nT?" · "+nT+" "+tr(nT===1?"тренировка":"тренировки",nT===1?"training":"trainings"):""}</span></div>`
+      +`<div class="dl"><span style="color:${dm>=0?"#22C55E":"#F59E0B"}">${dm>=0?"+":"−"}${f1(Math.abs(dm))} ${tr("кг мускулна маса","kg muscle mass")}</span><span style="color:${df<=0?"#22C55E":"#F59E0B"}">${df>=0?"+":"−"}${f1(Math.abs(df))} ${tr("кг мазнини","kg fat")}</span></div>`;
+    const sp=(key,col)=>{const v=L.map(o=>o[key]).filter(y=>y!=null);if(v.length<2)return"";const lo=Math.min(...v),hi=Math.max(...v),r=Math.max(hi-lo,.5);
+      return`<path d="${v.map((y,i)=>(i?"L":"M")+(i/(v.length-1)*300).toFixed(1)+","+(40-4-(y-lo)/r*32).toFixed(1)).join(" ")}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;};
+    h+=`<svg viewBox="0 0 300 40" width="100%" height="40" preserveAspectRatio="none" aria-hidden="true">${sp("muscle","#22C55E")}${sp("fatKg","#F59E0B")}</svg></div>`;}
+  // what the scale changes in the training now (AiProfile → Auto / Smart Session)
+  const SEG=EN?["trunk","left arm","right arm","left leg","right leg"]:["торса","лявата ръка","дясната ръка","левия крак","десния крак"];
+  const FOC={legs:tr("краката","the legs"),arms:tr("ръцете","the arms"),abs:tr("корема","the abs")};
+  const use=[];
+  if(!U.fresh)use.push(["var(--amber)",tr("Измерването е по-старо от 60 дни — тренировките вече не го ползват. <b>Премерете клиента.</b>","The weigh-in is older than 60 days — trainings no longer use it. <b>Weigh the client again.</b>")]);
+  else{
+    if(U.readyScore!=null)use.push([U.ready<0.99?"var(--amber)":"var(--go)",U.ready<0.99?tr(`Днес: готовност <b>${U.readyScore}</b> — силата е с <b>${Math.round((1-U.ready)*100)} % по-ниска</b>`,`Today: readiness <b>${U.readyScore}</b> — strength <b>${Math.round((1-U.ready)*100)} % lower</b>`)+(U.readySeg>=0?tr(" (подуване в "+SEG[U.readySeg]+")"," (swelling in the "+SEG[U.readySeg]+")"):""):tr(`Днес: готовност <b>${U.readyScore}</b> — пълна сила`,`Today: readiness <b>${U.readyScore}</b> — full strength`)]);
+    else use.push(["var(--hint)",tr("Готовност за деня — при мерене до 12 ч преди тренировката","Readiness for the day — with a weigh-in up to 12 h before the training")]);
+    if(U.focus&&FOC[U.focus])use.push(["var(--stim)",tr(`Най-слаба зона — <b>${FOC[U.focus]}</b>: +5 % на тези канали`,`Weakest zone — <b>${FOC[U.focus]}</b>: +5 % on those channels`)]);
+    if(U.muscleLow)use.push(["var(--amber)",tr("Малко мускулна маса — таванът на силата е с 10 % по-нисък","Low muscle mass — the strength ceiling is 10 % lower")]);
+    if(U.chFat)use.push(["var(--stim)",tr("Мазнини по канали → колко ток стига до мускула, натоварване и kcal","Fat per channel → how much current reaches the muscle, load and kcal")]);
+  }
+  h+=`<div class="use"><span class="eyebrow">${tr("В тренировката","In the training")}</span>${use.map(u=>`<div style="--c:${u[0]}"><span>${u[1]}</span></div>`).join("")}</div>`;
+  if(!DEMO&&BR&&BR.openScale)h+=`<button type="button" class="ghost open" id="bodyOpen">${tr("Отвори кантара ›","Open the scale ›")}</button>`;
+  box.innerHTML=h;box.hidden=false;
+  const ob=$("#bodyOpen");if(ob)ob.onclick=()=>{try{BR.openScale();}catch(e){}};
+}
 function renderStats(){
   $("#sCount").textContent=sessions.length;
   const last=sessions.slice(-4);$("#sEff").textContent=last.length?Math.round(last.reduce((a,s)=>a+s.a.eff,0)/last.length)+"%":"—";
@@ -1021,7 +1095,8 @@ async function shareImage(){
 }
 // The client's own card (branding/report/client-card.html): only totals and trends, no per-second data.
 // The client's web card (client-card.html): totals and trends only — three views: all time, the last
-// 30 days and the last training, each with its own muscle map. No per-second data, no body data.
+// 30 days and the last training, each with its own muscle map. No per-second data; the body (scale) comes from
+// /v1/history on the web, from ReportBridge.body() when the card goes as a file.
 function cardData(){
   const all=sessions,n=all.length,mass=CH.map(c=>c[1]);
   const musOf=list=>{const d=Array(10).fill(0);list.forEach(s=>s.a.chDose.forEach((v,i)=>d[i]+=v/mass[i]));const mx=Math.max(...d)||1;return d.map(v=>+(v/mx).toFixed(3));};
@@ -1076,8 +1151,8 @@ let VIEW="short";try{if(localStorage.getItem("xems.report.view")==="full")VIEW="
 function setView(v){VIEW=v;$("#report").dataset.view=v;$("#vShort").setAttribute("aria-pressed",String(v==="short"));$("#vFull").setAttribute("aria-pressed",String(v==="full"));
   try{localStorage.setItem("xems.report.view",v);}catch(e){}if(sessions.length&&v==="full"){drawModes();drawPhases();}}
 const rotBtn=$("#rotBtn");
-function rotLabel(){rotBtn.textContent=matchMedia("(orientation: portrait)").matches?tr("Хоризонтално","Landscape"):tr("Вертикално","Portrait");}
-if(BR&&BR.rotate){rotBtn.hidden=false;rotLabel();rotBtn.onclick=()=>{try{BR.rotate();}catch(e){}};matchMedia("(orientation: portrait)").addEventListener("change",rotLabel);}
+// landscape only (1.1.310-ai): no upright reading on the tablet — upright is the PDF / image export
+rotBtn.hidden=true;
 $("#vShort").onclick=()=>setView("short");$("#vFull").onclick=()=>setView("full");setView(VIEW);
 $("#cmpOff").onclick=()=>{compare=false;$("#cmpOff").setAttribute("aria-pressed","true");$("#cmpOn").setAttribute("aria-pressed","false");draw();};
 $("#cmpOn").onclick=()=>{compare=true;$("#cmpOn").setAttribute("aria-pressed","true");$("#cmpOff").setAttribute("aria-pressed","false");draw();};
@@ -1105,6 +1180,7 @@ function start(focusId){
   document.querySelectorAll("#report > :not(#empty):not(#sheet)").forEach(e=>e.hidden=!has);
   $("#delBtn").hidden=DEMO;
   renderStats();
+  try{renderBody();}catch(e){console.error(e);}
   if(!has){$("#list").innerHTML="";return;}
   setTimeout(refreshCard,1500);   // before drawing: a drawing error must not keep the card from the client
   let i=sessions.length-1;if(focusId){const k=sessions.findIndex(s=>String(s.id)===String(focusId));if(k>=0)i=k;}

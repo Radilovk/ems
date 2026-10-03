@@ -44,15 +44,11 @@ public final class ReportScreen {
             w.loadUrl(PAGE);
             d.setContentView(w, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
-            // The host is locked to landscape; the report may also be read upright (portrait):
-            // it follows the tablet's rotation while open, the page's rotate button forces either.
+            // Landscape only (owner, 1.1.310-ai): the report stays across like the host; upright is only the PDF /
+            // image export (laid out at phone width there).
             int before = a.getRequestedOrientation();
             d.setOnDismissListener(new Cleanup(w, a, before));
             d.show();
-            try {
-                a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
-            } catch (Throwable ignored) {
-            }
         } catch (Throwable t) {
             WearableBleDiagLog.log("report", "open failed: " + t);
         }

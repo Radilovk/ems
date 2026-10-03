@@ -368,6 +368,30 @@ public final class ScaleSim {
         // the noise of one step-on (ALMI ±0.12, FMI ±0.25) moves it by well under a year
         double d = Math.abs(ScaleInsight.physicalAge(6.66, 9.95, false, 40) - ScaleInsight.physicalAge(6.54, 9.7, false, 40));
         ok("step-on noise < 0.6 y (" + r1(d) + ")", d < 0.6);
+        // the heart: median resting HR for sex + age changes nothing; 10 bpm lower ≈ 1 SD → ~1.3 y younger as a third
+        eq("median heart = body alone", ScaleInsight.physicalAge(8.7, 8.0, 68, true, 45), 45, 0.05);
+        double fitHeart = ScaleInsight.physicalAge(8.7, 8.0, 58, true, 45);
+        ok("pulse 58 at 45 → younger (" + r1(fitHeart) + ")", fitHeart < 44 && fitHeart > 42);
+        ok("pulse 85 → older", ScaleInsight.physicalAge(8.7, 8.0, 85, true, 45) > 46.5);
+        ok("woman's norm is higher (74 at 30 = median)",
+                Math.abs(ScaleInsight.physicalAge(6.85, 8.1, 74, false, 30) - ScaleInsight.physicalAge(6.85, 8.1, false, 30)) < 0.3);
+        ok("implausible pulse ignored", ScaleInsight.physicalAge(8.7, 8.0, 150, true, 45) == 45);
+        // resting HR records: one per half hour, the median of the last five
+        try {
+            org.json.JSONArray hr = new org.json.JSONArray();
+            long t0 = 1_700_000_000_000L;
+            hr = RestHrStore.add(hr, t0, 80);
+            hr = RestHrStore.add(hr, t0 + 600000L, 70);          // same half hour → replaces
+            eq("same half hour replaces", hr.length(), 1, 0);
+            int[] v = {64, 90, 66, 65};
+            for (int i = 0; i < v.length; i++) {
+                hr = RestHrStore.add(hr, t0 + (i + 1) * 86400000L, v[i]);
+            }
+            eq("typical = median (one high day does not move it)", RestHrStore.typical(hr, t0 + 5 * 86400000L), 66, 0);
+            ok("old measurements expire", Double.isNaN(RestHrStore.typical(hr, t0 + 200 * 86400000L)));
+        } catch (org.json.JSONException ex) {
+            ok("rest HR store: " + ex, false);
+        }
     }
 
     /** The owner's own Fitdays report (Lescale P1, 02.10.2026, male, 31, 175 cm): our chain from its body fat. */
@@ -499,9 +523,9 @@ public final class ScaleSim {
             ScaleBody hb = ScaleBody.withFat(owner, false, 40, 168, 30);
             hb.leanKg = 40; hb.fatKg = 38;
             for (int k = 0; k < 5; k++) hb.segMuscleKg[k] = k == 0 ? 20 : 4.5;
-            ScaleModel.trait(sh, hb, t + 3600000L, 0.04, false, 40, 168);
+            ScaleModel.trait(sh, hb, t + 3600000L, 0.04, false, 40, 168, Double.NaN);
             eq("an hour later: held", sh.age, 40, 1e-9);
-            ScaleModel.trait(sh, hb, t + 28 * 86400000L, 28, false, 40, 168);
+            ScaleModel.trait(sh, hb, t + 28 * 86400000L, 28, false, 40, 168, Double.NaN);
             ok("four weeks later: moved (" + sh.age + ")", sh.age >= 42);
         }
 

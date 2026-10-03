@@ -145,6 +145,18 @@ against the client's **own age group** — median and IQR / 1.349 by decade (Imb
 a log scale), at most ±8 years; no passport → none. Why: within one age, people differ by ~1 kg/m² ALMI while the
 median falls 0.01–0.03 kg/m² a year; inverting the medians turned 0.1 kg/m² of noise into years, against the
 spread it is 0.1 SD. Owner's P1 report: 29 (Fitdays 29, passport 31). The cross-session hold of 1.1.300 stays.
+**Heart (1.1.302-ai)**: with a measured resting HR, physical age has three equal parts — muscle (ALMI), fat (FMI)
+and the heart: the client's typical resting HR (`RestHrStore`: prefs `xems_heart` r<userId> = [t, bpm], one per
+half hour, median of the last 5 within 120 days; written by the Smart Session's `AiRestHr` via
+`AiSession.rememberRestHr` and by the pulse guard's calibration in `HrGuard`) as z against sex and age, NHANES
+1999–2008 quartiles (Ostchega 2011, 35 302 adults; men 61/69/76 · 61/68/77 · 60/67/75, women 66/74/82 ·
+64/71/79 · 64/70/78 at 20–39 · 40–59 · 60–79; +10 bpm ≈ 1 SD; +10 bpm = +9 % all-cause mortality, Zhang 2016).
+Stored on the weigh-in as `rhr`; a resting HR measured after the last weigh-in is stamped into it (`ScaleStore.upgrade`
+rebuilds). Shown: "паспорт 40 · пулс 62". Not used, on purpose: **HR under EMS load** — the external work is not
+known (no watts), so submaximal-HR fitness tests (Åstrand) do not apply and EMS barely raises HR; **HR recovery** —
+validated only after a maximal treadmill test. Medicines that slow the pulse (β-blockers) make the heart read young —
+not asked yet. Fat distribution is not used: the scale's trunk fat is ~55 % of total fat by the WLA25 regression
+itself, not a measured split.
 **Protocol is part of the measurement**: same time, before the session, ≥ 2 h after food, bladder empty, before
 training — what the pros enforce; the scale cannot tell a meal on the scale from fat.
 Step-ons agree when whole-body R ≤ 3 % and fat ≤ 1.5 points apart (was 2).
@@ -185,7 +197,7 @@ reopened by itself); at the end "✓ Готово" with fat and muscle, then the
 
 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
 Behind the page's ⓘ (button at its foot), the Analysis ⓘ and the footers of Анализ / Обобщение; also a folded
-section of the shared HTML. 19 sources in four honest tiers — **Проучване** (peer-reviewed: Sun 2003, Janssen 2000,
+section of the shared HTML. 21 sources in four honest tiers (1.1.302-ai: + NHANES resting pulse, Zhang 2016) — **Проучване** (peer-reviewed: Sun 2003, Janssen 2000,
 Gallagher 2000, Schutz 2002, Kelly 2009, Imboden 2017, Wang 1999, Mifflin 1990, Kyle 2004 ESPEN, Kemmler 2016,
 Kalman 1960), **Стандарт** (Katch–McArdle, WHO TRS 894), **Производител** (WLA25 zones / bone / visceral, vendor
 ranges — no published validation), **XEMS** (readiness thresholds, scale geometry factor, the step-on session,

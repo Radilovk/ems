@@ -780,8 +780,9 @@ public final class ScaleScreen {
                                 : b.physicalAge >= age + 3 ? XemsUi.AMBER : XemsUi.TEXT, true);
                 pa.setIncludeFontPadding(false);
                 ages.addView(pa);
-                TextView pl = XemsUi.text(a, tr("  физическа възраст · паспорт ", "  physical age · passport ") + age,
-                        14, XemsUi.MUTED, false);
+                String hr = Double.isNaN(b.restHr) ? "" : tr(" · пулс ", " · HR ") + Math.round(b.restHr);
+                TextView pl = XemsUi.text(a, tr("  физическа възраст · паспорт ", "  physical age · passport ") + age
+                        + hr, 14, XemsUi.MUTED, false);
                 pl.setPadding(0, 0, 0, dp(6));
                 ages.addView(pl);
                 prof.addView(ages, XemsUi.matchWrap(a, 10));

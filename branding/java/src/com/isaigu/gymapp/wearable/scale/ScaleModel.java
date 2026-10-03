@@ -185,7 +185,8 @@ public final class ScaleModel {
      * its own filter (restarted with the lean's), then physical age from the smoothed lean / fat, held until it
      * moves by {@link #AGE_LSC} and at least {@link #AGE_HOLD_H} h after the last change.
      */
-    static void trait(State s, ScaleBody b, long t, double days, boolean male, int age, int heightCm) {
+    static void trait(State s, ScaleBody b, long t, double days, boolean male, int age, int heightCm,
+            double restHr) {
         double lean = b.leanKg;
         double limbs = b.segMuscleKg[ScaleProtocol.LEFT_ARM] + b.segMuscleKg[ScaleProtocol.RIGHT_ARM]
                 + b.segMuscleKg[ScaleProtocol.LEFT_LEG] + b.segMuscleKg[ScaleProtocol.RIGHT_LEG];
@@ -208,7 +209,7 @@ public final class ScaleModel {
             return;
         }
         double h2 = Math.pow(heightCm / 100.0, 2);
-        double now = ScaleInsight.physicalAge(s.ash * lean / h2, b.fatKg / h2, male, age);
+        double now = ScaleInsight.physicalAge(s.ash * lean / h2, b.fatKg / h2, restHr, male, age);
         if (Double.isNaN(now)) {
             return;
         }
@@ -242,6 +243,12 @@ public final class ScaleModel {
      */
     public static JSONObject entry(ScaleProtocol.Reading r, boolean male, int age, int heightCm, long t, State s)
             throws org.json.JSONException {
+        return entry(r, male, age, heightCm, t, s, Double.NaN);
+    }
+
+    /** As {@link #entry}, with the client's typical resting HR at the weigh-in (NaN = none) for physical age. */
+    public static JSONObject entry(ScaleProtocol.Reading r, boolean male, int age, int heightCm, long t, State s,
+            double restHr) throws org.json.JSONException {
         double fr = fatPct(r, male, age, heightCm);
         ScaleBody b = null;
         double lr = Double.NaN;
@@ -251,7 +258,7 @@ public final class ScaleModel {
             double lean = step(s, t, r.weightKg, lr);
             b = body(r, male, age, heightCm, 100 * (1 - lean / r.weightKg));
             if (b != null) {
-                trait(s, b, t, days, male, age, heightCm);
+                trait(s, b, t, days, male, age, heightCm, restHr);
             }
         }
         JSONObject o = ScaleStore.toJson(r, b, t);
@@ -271,6 +278,9 @@ public final class ScaleModel {
         }
         if (age > 0) {
             o.put("pa", age);
+        }
+        if (!Double.isNaN(restHr)) {
+            o.put("rhr", Math.round(restHr * 10) / 10.0);
         }
         return o;
     }
@@ -317,7 +327,9 @@ public final class ScaleModel {
                 continue;
             }
             try {
-                JSONObject o = m.has("z20") ? entry(reading(m), male, age, heightCm, m.optLong("t"), s) : m;
+                JSONObject o = m.has("z20")
+                        ? entry(reading(m), male, age, heightCm, m.optLong("t"), s, m.optDouble("rhr", Double.NaN))
+                        : m;
                 if (o != m && m.has("n")) {
                     o.put("n", m.optInt("n"));
                 }

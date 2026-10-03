@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2010
+    .line 2011
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2011
+    .line 2012
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2012
+    .line 2013
     return-void
 .end method
 
@@ -44,26 +44,26 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 2016
+    .line 2017
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     if-eqz v0, :cond_12
 
-    .line 2017
+    .line 2018
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->close()V
 
-    .line 2018
+    .line 2019
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 2020
+    .line 2021
     :cond_12
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -71,21 +71,21 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
 
-    .line 2021
+    .line 2022
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->stage:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     if-eqz v0, :cond_26
 
-    .line 2022
+    .line 2023
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->stage:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->release()V
 
-    .line 2024
+    .line 2025
     :cond_26
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -95,7 +95,7 @@
 
     if-eq v0, v1, :cond_39
 
-    .line 2026
+    .line 2027
     :try_start_2e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -109,12 +109,12 @@
     :try_end_39
     .catch Ljava/lang/Throwable; {:try_start_2e .. :try_end_39} :catch_3a
 
-    .line 2030
+    .line 2031
     :cond_39
     :goto_39
     return-void
 
-    .line 2027
+    .line 2028
     :catch_3a
     move-exception v0
 

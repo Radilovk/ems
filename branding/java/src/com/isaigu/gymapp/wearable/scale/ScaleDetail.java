@@ -545,15 +545,18 @@ public final class ScaleDetail {
         Metric pa = new Metric("page", G_BODY, "Физическа възраст", "Physical age");
         pa.value = b.physicalAge;
         pa.decimals = 0;
-        pa.subBg = "паспорт " + age;
-        pa.subEn = "passport " + age;
+        boolean heart = !Double.isNaN(b.restHr);
+        pa.subBg = "паспорт " + age + (heart ? " · пулс " + Math.round(b.restHr) : "");
+        pa.subEn = "passport " + age + (heart ? " · HR " + Math.round(b.restHr) : "");
         pa.dir = -1;
         ScaleInsight.Norm an = ScaleInsight.ageNorm(pa.value, age, pick(bg, N_AGE_BG, N_AGE_EN));
         put(pa, an, M_AGE);
-        pa.whatBg = "Годините, на които отговарят мускулите на ръцете и краката и мазнините (DXA, 3 327 души). "
-                + "Мускулите я свалят най-бързо.";
-        pa.whatEn = "The age the arm and leg muscle and the fat match (DXA, 3,327 adults). Muscle brings it down "
-                + "fastest.";
+        pa.whatBg = "Къде е тялото спрямо хората на същия пол и възраст: мускулите на ръцете и краката, мазнините"
+                + (heart ? " и пулсът в покой — по равно" : " — по равно; с измерен пулс в покой влиза и сърцето")
+                + ". Повече мускули, по-малко мазнини и по-нисък пулс я свалят.";
+        pa.whatEn = "Where the body stands among people of the same sex and age: arm and leg muscle, fat"
+                + (heart ? " and resting HR — equally" : " — equally; with a measured resting HR the heart counts too")
+                + ". More muscle, less fat and a lower pulse bring it down.";
         out.add(pa);
         return out;
     }

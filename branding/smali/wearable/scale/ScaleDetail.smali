@@ -700,7 +700,7 @@
 
     const/4 v2, 0x0
 
-    .line 587
+    .line 590
     const/4 v0, -0x1
 
     move v1, v2
@@ -709,7 +709,7 @@
 
     move v4, v2
 
-    .line 588
+    .line 591
     :goto_7
     invoke-interface {p0}, Ljava/util/List;->size()I
 
@@ -717,7 +717,7 @@
 
     if-ge v1, v0, :cond_3c
 
-    .line 589
+    .line 592
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -726,12 +726,12 @@
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->status:I
 
-    .line 590
+    .line 593
     if-ne v0, v6, :cond_31
 
     move v5, v6
 
-    .line 591
+    .line 594
     :goto_18
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
@@ -751,7 +751,7 @@
 
     move v0, v2
 
-    .line 594
+    .line 597
     :goto_29
     if-le v0, v3, :cond_2d
 
@@ -759,7 +759,7 @@
 
     move v4, v1
 
-    .line 588
+    .line 591
     :cond_2d
     add-int/lit8 v0, v1, 0x1
 
@@ -767,7 +767,7 @@
 
     goto :goto_7
 
-    .line 590
+    .line 593
     :cond_31
     if-ne v0, v7, :cond_35
 
@@ -789,7 +789,7 @@
 
     goto :goto_18
 
-    .line 599
+    .line 602
     :cond_3c
     return v4
 
@@ -1006,7 +1006,7 @@
     :cond_17
     move-object v4, v13
 
-    .line 558
+    .line 561
     :goto_18
     return-object v4
 
@@ -1067,7 +1067,7 @@
     move-result-object v20
 
     .line 389
-    if-eqz p4, :cond_64a
+    if-eqz p4, :cond_6cd
 
     const-string v4, " \u043a\u0433"
 
@@ -1223,13 +1223,13 @@
     iput v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->dir:I
 
     .line 408
-    if-eqz p1, :cond_64e
+    if-eqz p1, :cond_6d1
 
     const/4 v5, 0x6
 
     new-array v5, v5, [D
 
-    fill-array-data v5, :array_69a
+    fill-array-data v5, :array_730
 
     .line 409
     :goto_dd
@@ -1306,7 +1306,7 @@
 
     move-result v6
 
-    if-eqz v6, :cond_656
+    if-eqz v6, :cond_6d9
 
     const-string v6, "visc"
 
@@ -1598,13 +1598,13 @@
     iput v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->dir:I
 
     .line 446
-    if-eqz p1, :cond_65a
+    if-eqz p1, :cond_6dd
 
     const/4 v5, 0x6
 
     new-array v5, v5, [D
 
-    fill-array-data v5, :array_6b6
+    fill-array-data v5, :array_74c
 
     .line 447
     :goto_230
@@ -2077,7 +2077,7 @@
 
     new-array v5, v5, [D
 
-    fill-array-data v5, :array_6d2
+    fill-array-data v5, :array_768
 
     sget-object v6, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->MORE:[I
 
@@ -2304,7 +2304,7 @@
 
     move-result v5
 
-    if-eqz v5, :cond_662
+    if-eqz v5, :cond_6e5
 
     const-string v5, ""
 
@@ -2320,7 +2320,7 @@
 
     move-result v5
 
-    if-eqz v5, :cond_67e
+    if-eqz v5, :cond_701
 
     const-string v5, ""
 
@@ -2639,61 +2639,52 @@
     invoke-interface {v13, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     .line 545
-    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;
+    new-instance v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;
 
-    const-string v5, "page"
+    const-string v4, "page"
 
-    const/4 v6, 0x3
+    const/4 v5, 0x3
 
     const-string v7, "\u0424\u0438\u0437\u0438\u0447\u0435\u0441\u043a\u0430 \u0432\u044a\u0437\u0440\u0430\u0441\u0442"
 
     const-string v8, "Physical age"
 
-    invoke-direct {v4, v5, v6, v7, v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;-><init>(Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;)V
+    invoke-direct {v6, v4, v5, v7, v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;-><init>(Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;)V
 
     .line 546
     move-object/from16 v0, v18
 
-    iget-wide v6, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->physicalAge:D
+    iget-wide v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->physicalAge:D
 
-    iput-wide v6, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->value:D
+    iput-wide v4, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->value:D
 
     .line 547
-    const/4 v5, 0x0
+    const/4 v4, 0x0
 
-    iput v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->decimals:I
+    iput v4, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->decimals:I
 
     .line 548
-    new-instance v5, Ljava/lang/StringBuilder;
+    move-object/from16 v0, v18
 
-    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+    iget-wide v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->restHr:D
 
-    const-string v6, "\u043f\u0430\u0441\u043f\u043e\u0440\u0442 "
+    invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
 
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result v4
 
-    move-result-object v5
+    if-nez v4, :cond_71d
 
-    move/from16 v0, p2
-
-    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v5
-
-    iput-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subBg:Ljava/lang/String;
+    const/4 v4, 0x1
 
     .line 549
+    :goto_5ff
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v6, "passport "
+    const-string v7, "\u043f\u0430\u0441\u043f\u043e\u0440\u0442 "
 
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v5
 
@@ -2701,95 +2692,240 @@
 
     invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
+    move-result-object v7
+
+    if-eqz v4, :cond_720
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v8, " \u00b7 \u043f\u0443\u043b\u0441 "
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    move-object/from16 v0, v18
+
+    iget-wide v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->restHr:D
+
+    invoke-static {v8, v9}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v8
+
+    invoke-virtual {v5, v8, v9}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
     move-result-object v5
 
     invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v5
 
-    iput-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subEn:Ljava/lang/String;
+    :goto_62d
+    invoke-virtual {v7, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    iput-object v5, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subBg:Ljava/lang/String;
 
     .line 550
-    const/4 v5, -0x1
+    new-instance v5, Ljava/lang/StringBuilder;
 
-    iput v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->dir:I
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v7, "passport "
+
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    move/from16 v0, p2
+
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    if-eqz v4, :cond_724
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v8, " \u00b7 HR "
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    move-object/from16 v0, v18
+
+    iget-wide v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->restHr:D
+
+    invoke-static {v8, v9}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v8
+
+    invoke-virtual {v5, v8, v9}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    :goto_665
+    invoke-virtual {v7, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    iput-object v5, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->subEn:Ljava/lang/String;
 
     .line 551
-    iget-wide v6, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->value:D
+    const/4 v5, -0x1
+
+    iput v5, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->dir:I
+
+    .line 552
+    iget-wide v8, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->value:D
 
     sget-object v5, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->N_AGE_BG:[Ljava/lang/String;
 
-    sget-object v8, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->N_AGE_EN:[Ljava/lang/String;
+    sget-object v7, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->N_AGE_EN:[Ljava/lang/String;
 
     move/from16 v0, p4
 
-    invoke-static {v0, v5, v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->pick(Z[Ljava/lang/String;[Ljava/lang/String;)[Ljava/lang/String;
+    invoke-static {v0, v5, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->pick(Z[Ljava/lang/String;[Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v5
 
     move/from16 v0, p2
 
-    invoke-static {v6, v7, v0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->ageNorm(DI[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+    invoke-static {v8, v9, v0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->ageNorm(DI[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     move-result-object v5
 
-    .line 552
-    sget-object v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->M_AGE:[I
-
-    invoke-static {v4, v5, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->put(Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;[I)V
-
     .line 553
-    const-string v5, "\u0413\u043e\u0434\u0438\u043d\u0438\u0442\u0435, \u043d\u0430 \u043a\u043e\u0438\u0442\u043e \u043e\u0442\u0433\u043e\u0432\u0430\u0440\u044f\u0442 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u0440\u044a\u0446\u0435\u0442\u0435 \u0438 \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0438 \u043c\u0430\u0437\u043d\u0438\u043d\u0438\u0442\u0435 (DXA, 3 327 \u0434\u0443\u0448\u0438). \u041c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u044f \u0441\u0432\u0430\u043b\u044f\u0442 \u043d\u0430\u0439-\u0431\u044a\u0440\u0437\u043e."
+    sget-object v7, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->M_AGE:[I
 
-    iput-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->whatBg:Ljava/lang/String;
+    invoke-static {v6, v5, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->put(Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;[I)V
+
+    .line 554
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v7, "\u041a\u044a\u0434\u0435 \u0435 \u0442\u044f\u043b\u043e\u0442\u043e \u0441\u043f\u0440\u044f\u043c\u043e \u0445\u043e\u0440\u0430\u0442\u0430 \u043d\u0430 \u0441\u044a\u0449\u0438\u044f \u043f\u043e\u043b \u0438 \u0432\u044a\u0437\u0440\u0430\u0441\u0442: \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u0440\u044a\u0446\u0435\u0442\u0435 \u0438 \u043a\u0440\u0430\u043a\u0430\u0442\u0430, \u043c\u0430\u0437\u043d\u0438\u043d\u0438\u0442\u0435"
+
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
 
     .line 555
-    const-string v5, "The age the arm and leg muscle and the fat match (DXA, 3,327 adults). Muscle brings it down fastest."
+    if-eqz v4, :cond_728
 
-    iput-object v5, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->whatEn:Ljava/lang/String;
+    const-string v5, " \u0438 \u043f\u0443\u043b\u0441\u044a\u0442 \u0432 \u043f\u043e\u043a\u043e\u0439 \u2014 \u043f\u043e \u0440\u0430\u0432\u043d\u043e"
+
+    :goto_698
+    invoke-virtual {v7, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v7, ". \u041f\u043e\u0432\u0435\u0447\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438, \u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043c\u0430\u0437\u043d\u0438\u043d\u0438 \u0438 \u043f\u043e-\u043d\u0438\u0441\u044a\u043a \u043f\u0443\u043b\u0441 \u044f \u0441\u0432\u0430\u043b\u044f\u0442."
+
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    iput-object v5, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->whatBg:Ljava/lang/String;
 
     .line 557
-    invoke-interface {v13, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v7, "Where the body stands among people of the same sex and age: arm and leg muscle, fat"
+
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    .line 558
+    if-eqz v4, :cond_72c
+
+    const-string v4, " and resting HR \u2014 equally"
+
+    :goto_6b7
+    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, ". More muscle, less fat and a lower pulse bring it down."
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    iput-object v4, v6, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->whatEn:Ljava/lang/String;
+
+    .line 560
+    invoke-interface {v13, v6}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     move-object v4, v13
 
-    .line 558
+    .line 561
     goto/16 :goto_18
 
     .line 389
-    :cond_64a
+    :cond_6cd
     const-string v4, " kg"
 
     goto/16 :goto_4f
 
     .line 408
-    :cond_64e
+    :cond_6d1
     const/4 v5, 0x6
 
     new-array v5, v5, [D
 
-    fill-array-data v5, :array_6ee
+    fill-array-data v5, :array_784
 
     goto/16 :goto_dd
 
     .line 417
-    :cond_656
+    :cond_6d9
     const-wide/high16 v6, 0x7ff8000000000000L    # Double.NaN
 
     goto/16 :goto_12d
 
     .line 446
-    :cond_65a
+    :cond_6dd
     const/4 v5, 0x6
 
     new-array v5, v5, [D
 
-    fill-array-data v5, :array_70a
+    fill-array-data v5, :array_7a0
 
     goto/16 :goto_230
 
     .line 511
-    :cond_662
+    :cond_6e5
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -2819,7 +2955,7 @@
     goto/16 :goto_4a9
 
     .line 512
-    :cond_67e
+    :cond_701
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -2848,8 +2984,40 @@
 
     goto/16 :goto_4b7
 
+    .line 548
+    :cond_71d
+    const/4 v4, 0x0
+
+    goto/16 :goto_5ff
+
+    .line 549
+    :cond_720
+    const-string v5, ""
+
+    goto/16 :goto_62d
+
+    .line 550
+    :cond_724
+    const-string v5, ""
+
+    goto/16 :goto_665
+
+    .line 555
+    :cond_728
+    const-string v5, " \u2014 \u043f\u043e \u0440\u0430\u0432\u043d\u043e; \u0441 \u0438\u0437\u043c\u0435\u0440\u0435\u043d \u043f\u0443\u043b\u0441 \u0432 \u043f\u043e\u043a\u043e\u0439 \u0432\u043b\u0438\u0437\u0430 \u0438 \u0441\u044a\u0440\u0446\u0435\u0442\u043e"
+
+    goto/16 :goto_698
+
+    .line 558
+    :cond_72c
+    const-string v4, " \u2014 equally; with a measured resting HR the heart counts too"
+
+    goto :goto_6b7
+
     .line 408
-    :array_69a
+    nop
+
+    :array_730
     .array-data 8
         0x0
         0x4014000000000000L    # 5.0
@@ -2860,7 +3028,7 @@
     .end array-data
 
     .line 446
-    :array_6b6
+    :array_74c
     .array-data 8
         0x4034000000000000L    # 20.0
         0x403c000000000000L    # 28.0
@@ -2871,7 +3039,7 @@
     .end array-data
 
     .line 488
-    :array_6d2
+    :array_768
     .array-data 8
         0x4020000000000000L    # 8.0
         0x4028000000000000L    # 12.0
@@ -2882,7 +3050,7 @@
     .end array-data
 
     .line 408
-    :array_6ee
+    :array_784
     .array-data 8
         0x0
         0x4028000000000000L    # 12.0
@@ -2893,7 +3061,7 @@
     .end array-data
 
     .line 446
-    :array_70a
+    :array_7a0
     .array-data 8
         0x402e000000000000L    # 15.0
         0x4035000000000000L    # 21.0
@@ -4581,7 +4749,7 @@
     .registers 8
 
     .prologue
-    .line 563
+    .line 566
     const/4 v0, 0x1
 
     invoke-static {p0, p2, p3, p4, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->metrics(Lorg/json/JSONObject;ZIIZ)Ljava/util/List;
@@ -4605,7 +4773,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;
 
-    .line 564
+    .line 567
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->key:Ljava/lang/String;
 
     invoke-virtual {v2, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -4614,10 +4782,10 @@
 
     if-eqz v2, :cond_9
 
-    .line 565
+    .line 568
     iget-wide v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail$Metric;->value:D
 
-    .line 568
+    .line 571
     :goto_1f
     return-wide v0
 
@@ -4735,7 +4903,7 @@
 
     const/4 v7, 0x0
 
-    .line 573
+    .line 576
     const/4 v0, 0x6
 
     new-array v1, v0, [D
@@ -4792,7 +4960,7 @@
 
     aput-object v4, v3, v9
 
-    .line 574
+    .line 577
     invoke-static {p2, v0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleDetail;->pick(Z[Ljava/lang/String;[Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v3
@@ -4803,7 +4971,7 @@
 
     move-wide v4, p0
 
-    .line 573
+    .line 576
     invoke-static/range {v1 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->norm([D[I[Ljava/lang/String;DLjava/lang/String;ILjava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     move-result-object v0
@@ -4829,14 +4997,14 @@
     .prologue
     const/4 v0, 0x6
 
-    .line 580
+    .line 583
     if-eqz p2, :cond_1d
 
     new-array v1, v0, [D
 
     fill-array-data v1, :array_24
 
-    .line 581
+    .line 584
     :goto_8
     sget-object v2, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->MORE:[I
 
@@ -4862,7 +5030,7 @@
 
     return-object v0
 
-    .line 580
+    .line 583
     :cond_1d
     new-array v1, v0, [D
 

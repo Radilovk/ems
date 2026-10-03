@@ -144,7 +144,8 @@ public final class ScaleStore {
         try {
             JSONArray a = upgrade(c, userId, male, age, heightCm);
             ScaleModel.State st = ScaleModel.stateOf(a);
-            JSONObject o = ScaleModel.entry(r, male, age, heightCm, System.currentTimeMillis(), st);
+            JSONObject o = ScaleModel.entry(r, male, age, heightCm, System.currentTimeMillis(), st,
+                    RestHrStore.typical(c, userId));
             ScaleModel.mark(o, male, heightCm);
             if (steps > 1) {
                 o.put("n", steps);
@@ -169,7 +170,14 @@ public final class ScaleStore {
     public static JSONArray upgrade(Context c, long userId, boolean male, int age, int heightCm) {
         JSONArray a = list(c, userId);
         try {
-            if (ScaleModel.stale(a, male, age, heightCm)) {
+            // a resting HR measured after the last weigh-in: that weigh-in's physical age takes it in now
+            JSONObject last = a.length() > 0 ? a.optJSONObject(a.length() - 1) : null;
+            double rhr = RestHrStore.typical(c, userId);
+            boolean heart = last != null && last.has("z20") && !last.has("rhr") && !Double.isNaN(rhr);
+            if (heart) {
+                last.put("rhr", Math.round(rhr * 10) / 10.0);
+            }
+            if (heart || ScaleModel.stale(a, male, age, heightCm)) {
                 a = ScaleModel.rebuild(a, male, age, heightCm);
                 prefs(c).edit().putString("m" + userId, a.toString()).remove(ScaleUploader.SENT + userId).apply();
             }

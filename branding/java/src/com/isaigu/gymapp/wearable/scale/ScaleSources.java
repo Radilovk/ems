@@ -98,6 +98,17 @@ public final class ScaleSources {
                 "Arm + leg muscle and fat against people of the client's own age (median and spread) — said in years.",
                 "Imboden MT, Welch WA, Swartz AM et al. PLoS One 2017;12(4):e0175110 и e0176161",
                 "3 327 възрастни · DXA", "3,327 adults · DXA", 3327, "10.1371/journal.pone.0175110"));
+        s.add(new Source(T_STUDY, "Пулс в покой — норма", "Resting pulse — norms",
+                "Пулсът в покой по пол и възраст (квартили) — третата част на физическата възраст, когато е измерен.",
+                "Resting pulse by sex and age (quartiles) — the third part of physical age when it was measured.",
+                "Ostchega Y, Porter KS, Hughes J et al. Natl Health Stat Report 2011;(41):1–16 (NHANES 1999–2008)",
+                "35 302 души без болест или лекарство, което мени пулса", "35,302 people without HR-changing illness "
+                        + "or medicine", 35302, ""));
+        s.add(new Source(T_STUDY, "Пулс в покой — риск", "Resting pulse — risk",
+                "Защо пулсът тежи: +10 удара в минута в покой ≈ +9 % смъртност от всички причини (46 проучвания).",
+                "Why the pulse counts: +10 bpm at rest ≈ +9 % all-cause mortality (46 studies).",
+                "Zhang D, Shen X, Qi X. CMAJ 2016;188(3):E53–E63 (meta-analysis)",
+                "46 кохорти · 1,25 млн. души", "46 cohorts · 1.25 million people", 0, "10.1503/cmaj.150535"));
         s.add(new Source(T_STUDY, "Водата в тялото", "Body water",
                 "Водата е около 73 % от безмазнената маса — стабилна константа при възрастни.",
                 "Water is about 73 % of the fat-free mass — a steady constant in adults.",
@@ -189,14 +200,14 @@ public final class ScaleSources {
             "Our rules smooth between weigh-ins, ask for another step-on and give the readiness for training."};
 
     public static final String LIMITS_BG = "Не сме обучавали модел върху бази с мерения: взели сме готовите формули и "
-            + "норми от проучванията горе, правени върху общо над 13 000 души, сверени с DXA, ЯМР и 4-компонентен "
-            + "модел. Кантарът с електроди е ориентир, не медицинско изследване — за отделен човек мазнините обикновено "
+            + "норми от проучванията горе, правени върху общо над 48 000 души (тялото — сверено с DXA, ЯМР и "
+            + "4-компонентен модел). Кантарът с електроди е ориентир, не медицинско изследване — за отделен човек мазнините обикновено "
             + "се отклоняват с няколко процентни пункта от DXA. Калибровката на кантара е по едно реално мерене, "
             + "а правилата на XEMS още не са проверени с DXA на наши клиенти. Затова мерим повторно при съмнение, "
             + "изглаждаме между мерения и гледаме тенденцията — тя е по-точна от едно число.";
     public static final String LIMITS_EN = "We have not trained a model on measurement databases: we took the "
-            + "ready equations and norms of the studies above, made on over 13,000 people in total, checked with DXA, "
-            + "MRI and a 4-compartment model. An electrode scale is a guide, not a medical test — for one person fat is "
+            + "ready equations and norms of the studies above, made on over 48,000 people in total (the body checked "
+            + "with DXA, MRI and a 4-compartment model). An electrode scale is a guide, not a medical test — for one person fat is "
             + "usually a few percentage points off DXA. The scale's calibration rests on one real measurement, and the "
             + "XEMS rules are not yet checked with DXA of our clients. So we measure again when in doubt, smooth "
             + "between weigh-ins and read the trend — it is more accurate than one number.";

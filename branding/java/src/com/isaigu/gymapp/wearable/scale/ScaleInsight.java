@@ -325,7 +325,9 @@ public final class ScaleInsight {
         public int fatCls = -1;
         public int type = -1;
         public double physicalAge = Double.NaN;
-        public double ageFromMuscle = Double.NaN, ageFromFat = Double.NaN;
+        public double ageFromMuscle = Double.NaN, ageFromFat = Double.NaN, ageFromHeart = Double.NaN;
+        /** The resting HR that went into physical age (the client's typical at the weigh-in); NaN = none. */
+        public double restHr = Double.NaN;
         /** Legs' share of the segment fat (0–1); NaN without segments. */
         public double legFatShare = Double.NaN;
 
@@ -379,8 +381,12 @@ public final class ScaleInsight {
             b.ageFromMuscle = pa - YEARS_PER_SD * zMuscle(b.almi, male, pa);
             b.ageFromFat = pa + YEARS_PER_SD * zFat(b.fmi, male, pa);
         }
+        b.restHr = m.optDouble("rhr", Double.NaN);
+        if (pa >= 18 && !Double.isNaN(b.restHr)) {
+            b.ageFromHeart = pa + YEARS_PER_SD * zHeart(b.restHr, male, pa);
+        }
         double shown = m.optDouble("pag", Double.NaN);
-        b.physicalAge = !Double.isNaN(shown) ? shown : physicalAge(b.almi, b.fmi, male, pa);
+        b.physicalAge = !Double.isNaN(shown) ? shown : physicalAge(b.almi, b.fmi, b.restHr, male, pa);
         JSONArray f = m.optJSONArray("segFat");
         if (f != null) {
             double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
@@ -402,14 +408,56 @@ public final class ScaleInsight {
      * Against the spread of one's own age group the same noise is ~0.1 SD → a few months.
      */
     public static double physicalAge(double almi, double fmi, boolean male, int passport) {
+        return physicalAge(almi, fmi, Double.NaN, male, passport);
+    }
+
+    /**
+     * With the heart: the client's typical resting HR against their sex and age (NHANES 1999–2008, 35 302 adults
+     * without HR-changing illness or medicine; a lower pulse counts young — 10 bpm ≈ 1 SD, and +10 bpm carries
+     * +9 % all-cause mortality, Zhang 2016) as a third part: muscle, fat and heart a third each. NaN HR → muscle
+     * and fat half each, as before.
+     */
+    public static double physicalAge(double almi, double fmi, double restHr, boolean male, int passport) {
         if (passport < 18 || Double.isNaN(fmi) || fmi <= 0) {
             return Double.NaN;
         }
-        double zf = zFat(fmi, male, passport);
+        double sum = -zFat(fmi, male, passport);
+        int n = 1;
         double za = zMuscle(almi, male, passport);
-        double z = Double.isNaN(za) ? -zf : 0.5 * za - 0.5 * zf;
-        return passport - Math.max(-AGE_SPAN, Math.min(AGE_SPAN, YEARS_PER_SD * z));
+        if (!Double.isNaN(za)) {
+            sum += za;
+            n++;
+        }
+        double zh = zHeart(restHr, male, passport);
+        if (!Double.isNaN(zh)) {
+            sum -= zh;
+            n++;
+        }
+        return passport - Math.max(-AGE_SPAN, Math.min(AGE_SPAN, YEARS_PER_SD * sum / n));
     }
+
+    /** Resting HR's z against sex and age (quartiles by NHANES age group); NaN outside 35–120 bpm. */
+    static double zHeart(double bpm, boolean male, int age) {
+        if (Double.isNaN(bpm) || bpm < 35 || bpm > 120) {
+            return Double.NaN;
+        }
+        double[] lo = male ? RHR_M_P25 : RHR_F_P25, mid = male ? RHR_M_P50 : RHR_F_P50,
+                hi = male ? RHR_M_P75 : RHR_F_P75;
+        double a = Math.max(RHR_AGES[0], Math.min(RHR_AGES[2], age));
+        int i = a <= RHR_AGES[1] ? 1 : 2;
+        double f = (a - RHR_AGES[i - 1]) / (RHR_AGES[i] - RHR_AGES[i - 1]);
+        double l = lo[i - 1] + f * (lo[i] - lo[i - 1]), m = mid[i - 1] + f * (mid[i] - mid[i - 1]),
+                h = hi[i - 1] + f * (hi[i] - hi[i - 1]);
+        return (bpm - m) / ((h - l) / IQR_SD);
+    }
+
+    /**
+     * Resting pulse (60 s, seated, after 5 min rest), NHANES 1999–2008 (Ostchega et al., NHSR 41, 2011, Tables 2–3):
+     * quartiles at 20–39 · 40–59 · 60–79 → 30 · 50 · 70.
+     */
+    static final double[] RHR_AGES = {30, 50, 70};
+    static final double[] RHR_M_P25 = {61, 61, 60}, RHR_M_P50 = {69, 68, 67}, RHR_M_P75 = {76, 77, 75};
+    static final double[] RHR_F_P25 = {66, 64, 64}, RHR_F_P50 = {74, 71, 70}, RHR_F_P75 = {82, 79, 78};
 
     /** ALMI's z against the client's age group: (v − median) / (IQR / 1.349). */
     static double zMuscle(double almi, boolean male, int age) {

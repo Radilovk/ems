@@ -86,6 +86,7 @@ public final class ClientRow {
                 actions.addView(icon(c, XemsIcon.CHART, XemsUi.GO_TEXT, tr("Прогрес", "Progress")));
                 actions.addView(icon(c, XemsIcon.CARD, 0xFF64B5F6, tr("Резюме", "Summary")));
                 actions.addView(icon(c, XemsIcon.HISTORY, XemsUi.AMBER, tr("Последни тренировки", "Last trainings")));
+                actions.addView(icon(c, XemsIcon.SCALE, 0xFFBA68C8, tr("Кантар", "Scale")));
                 row.addView(actions, row.indexOfChild(start));
                 name.setSingleLine(false);
                 name.setMaxLines(2);
@@ -176,6 +177,8 @@ public final class ClientRow {
                 ReportScreen.open(a, u);
             } else if (which == 1) {
                 summary(a, u);
+            } else if (which == 3) {
+                com.isaigu.gymapp.wearable.scale.ScaleScreen.open(a, u);
             } else {
                 last(a, u);
             }
@@ -215,6 +218,16 @@ public final class ClientRow {
             tile(a, tiles2, tr("Тренировки", "Trainings"), String.valueOf(list.length()), 8);
             tile(a, tiles2, tr("Последна", "Last"), lastMs > 0 ? day(lastMs) : "—", 8);
             body.addView(tiles2, XemsUi.matchWrap(a, 8));
+            org.json.JSONObject scale = com.isaigu.gymapp.wearable.scale.ScaleStore.latest(a, u.id);
+            if (scale != null && scale.has("fat")) {
+                LinearLayout tiles3 = XemsUi.horizontal(a);
+                tile(a, tiles3, tr("Мазнини", "Body fat"), String.format(Locale.US, "%.1f %%", scale.optDouble("fat")), 0);
+                tile(a, tiles3, tr("Мускули", "Muscle"), String.format(Locale.US, "%.1f", scale.optDouble("muscle"))
+                        + tr(" кг", " kg"), 8);
+                tile(a, tiles3, tr("Вода", "Water"), String.format(Locale.US, "%.1f %%", scale.optDouble("water")), 8);
+                tile(a, tiles3, tr("Кантар", "Scale"), day(scale.optLong("t")), 8);
+                body.addView(tiles3, XemsUi.matchWrap(a, 8));
+            }
             appStatus(a, s, u, lastMs);
 
             if (p != null && (!p.focus.isEmpty() || !p.cond.isEmpty())) {

@@ -352,6 +352,9 @@ public final class AutoSession {
                     r.input.weightKg = p.weightKg;
                 }
                 r.input.heightCm = p.heightCm;
+                if (p.fatPct != null) {
+                    r.input.fatPct = p.fatPct;
+                }
                 if (p.fitness != null) {
                     r.input.fitness = p.fitness;
                 }
@@ -405,6 +408,7 @@ public final class AutoSession {
         to.age = from.age;
         to.weightKg = from.weightKg;
         to.heightCm = from.heightCm;
+        to.fatPct = from.fatPct;
         to.fitness = from.fitness;
         to.sessions = from.sessions;
         to.hoursSinceActive = from.hoursSinceActive;

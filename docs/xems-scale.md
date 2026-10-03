@@ -1,15 +1,30 @@
 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
 
-Status: research only, nothing implemented. Goal: the tablet reads the scale itself, stores the
-measurement per client (`(license_id, cid)`, see `xems-client-sync.md`), and replaces the
-Deurenberg body-fat estimate in `AutoEngine.fatPct()` with a measured value.
+Status: implemented in 1.1.285-ai (`wearable/scale/`), tested offline only — **not yet on the real P1**.
+The tablet reads the scale itself, stores the measurement per client on the tablet (server sync to
+`(license_id, cid)`, see `xems-client-sync.md`, is the next step) and a fresh measurement replaces the
+Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight in `AiProfile`).
+
+## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
+| Class | What |
+|---|---|
+| `ScaleProtocol` | Pure: frames, handshake and decode of both generations; `Reading` (weight, scale fat %, Z20/Z100 by segment 0 trunk · 1 LA · 2 RA · 3 LL · 4 RL) |
+| `ScaleBody` | Pure: WLA25 (float32 + half-up rounding as the vendor binary) → fat, muscle, water, visceral, BMR, body age, 5 segments |
+| `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
+| `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days) |
+| `ScaleScreen` | Sheet from the client row (purple scale icon): live weight left, result right with change since last, 5 zones; ⓘ = how to measure |
+
+Test: `bash scripts/scale-sim/run.sh` — 121 checks against the published captures and expected values
+(sacoma DISPLAY/EXACT/PROFILES = Fitdays; Fitman A7 frame + formulas). Generation is chosen by FFB4.
+First real run: check `WearableBleDiagLog` tag `scale` (found / gen / result) if anything stalls.
 
 ## What the hardware is
 - Lescale P1: 8 electrodes (4 foot + 4 handle), 5 segments, app **Fitdays** ⇒ **ICOMON (Chipsea
   BIA chip)** platform. Not Qingniu/Yolanda: the `FFE0/FFE1/FFE2` + `FD 33…` spec and the
   `FFB2 0x10/0x20/0x30/0x40` packet tables circulated online are unverified/generated — ignore.
 - Measures **|Z| only** (no reactance) at **2 frequencies, 20 kHz and 100 kHz**, per limb
-  ⇒ 8 usable limb impedances. **Trunk bytes are not a usable impedance** (Fitman #320, sacoma).
+  ⇒ 8 usable limb impedances. Gen A: **trunk bytes are not a usable impedance** (Fitman #320) — the
+  scale sends its own fat %; gen B sends a trunk pair that WLA25's fat regression uses.
   So: no true phase angle; Z100/Z20 per limb is available (ECW/TBW-like index).
 - Protocol is **plaintext** over service `FFB0` (XXTEA/DH in the vendor lib belongs to other
   protocol versions).
@@ -52,3 +67,15 @@ possible via the unofficial Fitdays cloud client (`AboveColin/fitdays`) — opti
 Not for numbers (non-deterministic, unverifiable). Optional later: short text interpretation of
 the trend + sessions, through the license Worker (no key on the tablet), with client consent
 (health data leaves the device).
+
+## Licences of the ported code
+`ScaleProtocol` / `ScaleBody` port MIT-licensed code; their notices apply to those parts:
+- sacoma-lib — MIT License, Copyright (c) 2026 Yunus Gungor (github.com/ynsgnr/sacoma-lib)
+- Fitman — MIT License, Copyright (c) 2026 Dave Nijhuis (github.com/DaveNijhuis/Fitman)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright
+notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.

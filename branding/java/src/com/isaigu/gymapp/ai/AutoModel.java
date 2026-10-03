@@ -84,6 +84,8 @@ public final class AutoModel {
         public double weightKg = 70;
         /** 0 = not entered (the wizard does not go on without it). */
         public int heightCm = 0;
+        /** Body fat % measured by the scale; &lt; 0 = not measured (then estimated from the BMI). */
+        public double fatPct = -1;
         public AiModel.Fitness fitness = AiModel.Fitness.MID;
         /** Finished sessions of this client (history + automatic sessions). */
         public int sessions = 0;

@@ -976,10 +976,17 @@ public final class AutoEngine {
         return c.pwUs > 0 && base > 0 ? clamp(c.pwUs / (double) base, 0.5, 1.6) : 1.0;
     }
 
-    /** Body fat % (Deurenberg 1991: 1.2·BMI + 0.23·age − 10.8·male − 5.4); −1 without the height. */
+    /**
+     * Body fat %: the scale's measurement when there is a fresh one, else Deurenberg 1991 (1.2·BMI + 0.23·age −
+     * 10.8·male − 5.4); −1 without either.
+     */
     double fatPct() {
         if (Double.isNaN(fatPct)) {
             AutoModel.Input in = plan.input;
+            if (in != null && in.fatPct > 2) {
+                fatPct = clamp(in.fatPct, 3, 60);
+                return fatPct;
+            }
             double bmi = in != null ? in.bmi() : 0;
             fatPct = bmi > 10 ? clamp(1.2 * bmi + 0.23 * in.age - (in.sex == AiModel.Sex.MALE ? 10.8 : 0) - 5.4, 5, 55)
                     : -1;

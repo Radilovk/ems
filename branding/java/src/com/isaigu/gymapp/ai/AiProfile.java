@@ -30,6 +30,8 @@ public final class AiProfile {
     public Double weightKg;
     /** 0 = not in the client record. */
     public int heightCm;
+    /** Body fat % of a fresh scale measurement (wearable/scale); null = none. */
+    public Double fatPct;
     public AiModel.Fitness fitness;
     public AiModel.Goal goal;
     public final Set<String> contraindications = new HashSet<String>();
@@ -87,6 +89,15 @@ public final class AiProfile {
         }
         Context c = appContext();
         if (c != null) {
+            // a fresh scale measurement knows the body better than the record
+            double fat = com.isaigu.gymapp.wearable.scale.ScaleStore.freshFatPct(c, u.id);
+            if (!Double.isNaN(fat)) {
+                p.fatPct = fat;
+            }
+            double kg = com.isaigu.gymapp.wearable.scale.ScaleStore.freshWeight(c, u.id);
+            if (!Double.isNaN(kg)) {
+                p.weightKg = kg;
+            }
             SharedPreferences prefs = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             String[] parts = prefs.getString("u" + u.id, "").split("\\|", -1);
             if (parts.length >= 3) {

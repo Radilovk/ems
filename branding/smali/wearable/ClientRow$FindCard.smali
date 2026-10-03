@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 308
+    .line 321
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 309
+    .line 322
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->a:Landroid/app/Activity;
 
-    .line 310
+    .line 323
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 311
+    .line 324
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->button:Landroid/view/View;
 
-    .line 312
+    .line 325
     return-void
 .end method
 
@@ -52,16 +52,16 @@
     .registers 7
 
     .prologue
-    .line 316
+    .line 329
     const/4 v1, 0x0
 
-    .line 318
+    .line 331
     :try_start_1
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->server()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 319
+    .line 332
     :goto_5
     const-string v2, "/"
 
@@ -71,7 +71,7 @@
 
     if-eqz v2, :cond_19
 
-    .line 320
+    .line 333
     const/4 v2, 0x0
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -86,7 +86,7 @@
 
     goto :goto_5
 
-    .line 322
+    .line 335
     :cond_19
     new-instance v2, Ljava/net/URL;
 
@@ -110,48 +110,48 @@
 
     invoke-direct {v2, v0}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 
-    .line 323
+    .line 336
     invoke-virtual {v2}, Ljava/net/URL;->openConnection()Ljava/net/URLConnection;
 
     move-result-object v0
 
     check-cast v0, Ljava/net/HttpURLConnection;
 
-    .line 324
+    .line 337
     const/16 v2, 0x2ee0
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 325
+    .line 338
     const/16 v2, 0x3a98
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 326
+    .line 339
     const-string v2, "POST"
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setRequestMethod(Ljava/lang/String;)V
 
-    .line 327
+    .line 340
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setDoOutput(Z)V
 
-    .line 328
+    .line 341
     const-string v2, "Content-Type"
 
     const-string v3, "application/json; charset=utf-8"
 
     invoke-virtual {v0, v2, v3}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 329
+    .line 342
     const-string v2, "User-Agent"
 
     const-string v3, "XEMS-Android"
 
     invoke-virtual {v0, v2, v3}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 330
+    .line 343
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -188,12 +188,12 @@
 
     move-result-object v2
 
-    .line 331
+    .line 344
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v3
 
-    .line 332
+    .line 345
     const-string v4, "UTF-8"
 
     invoke-virtual {v2, v4}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
@@ -202,10 +202,10 @@
 
     invoke-virtual {v3, v2}, Ljava/io/OutputStream;->write([B)V
 
-    .line 333
+    .line 346
     invoke-virtual {v3}, Ljava/io/OutputStream;->close()V
 
-    .line 334
+    .line 347
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v2
@@ -214,22 +214,22 @@
 
     if-ne v2, v3, :cond_b2
 
-    .line 335
+    .line 348
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v0
 
-    .line 336
+    .line 349
     new-instance v2, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v2}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 337
+    .line 350
     const/16 v3, 0x1000
 
     new-array v3, v3, [B
 
-    .line 339
+    .line 352
     :goto_a1
     invoke-virtual {v0, v3}, Ljava/io/InputStream;->read([B)I
 
@@ -237,7 +237,7 @@
 
     if-lez v4, :cond_c4
 
-    .line 340
+    .line 353
     const/4 v5, 0x0
 
     invoke-virtual {v2, v3, v5, v4}, Ljava/io/ByteArrayOutputStream;->write([BII)V
@@ -246,11 +246,11 @@
 
     goto :goto_a1
 
-    .line 349
+    .line 362
     :catch_ac
     move-exception v0
 
-    .line 350
+    .line 363
     const-string v2, "ClientRow.findCard"
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -258,7 +258,7 @@
     :cond_b2
     move-object v0, v1
 
-    .line 352
+    .line 365
     :goto_b3
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->a:Landroid/app/Activity;
 
@@ -274,15 +274,15 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 353
+    .line 366
     return-void
 
-    .line 342
+    .line 355
     :cond_c4
     :try_start_c4
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 343
+    .line 356
     new-instance v3, Lorg/json/JSONObject;
 
     const-string v0, "UTF-8"
@@ -293,7 +293,7 @@
 
     invoke-direct {v3, v0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 344
+    .line 357
     const-string v0, "url"
 
     const-string v2, ""
@@ -302,7 +302,7 @@
 
     move-result-object v0
 
-    .line 345
+    .line 358
     const-string v2, "ok"
 
     invoke-virtual {v3, v2}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;)Z

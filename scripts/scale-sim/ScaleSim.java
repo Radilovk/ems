@@ -1,0 +1,273 @@
+package com.isaigu.gymapp.wearable.scale;
+
+import java.util.List;
+
+/**
+ * Offline test of the scale protocol and body composition against real captures published by the two MIT
+ * projects (sacoma-lib: SACOMA Ultra, generation B; Fitman: iCOMON FG2305ULB, generation A) and their expected
+ * Fitdays / WLA25 values. See docs/xems-scale.md.
+ */
+public final class ScaleSim {
+    static int fails;
+    static int checks;
+
+    static byte[] hex(String s) {
+        s = s.replace(" ", "");
+        byte[] b = new byte[s.length() / 2];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) Integer.parseInt(s.substring(2 * i, 2 * i + 2), 16);
+        }
+        return b;
+    }
+
+    static String hex(byte[] b) {
+        StringBuilder s = new StringBuilder();
+        for (byte x : b) {
+            s.append(String.format("%02x", x & 0xFF));
+        }
+        return s.toString();
+    }
+
+    /** Fitman's test frames carry no check byte: append sum(type + payload) & 0x1F. */
+    static byte[] seal(String h) {
+        byte[] raw = hex(h);
+        byte[] out = new byte[raw.length + 1];
+        System.arraycopy(raw, 0, out, 0, raw.length);
+        int s = 0;
+        for (int i = 4; i < raw.length; i++) {
+            s += raw[i] & 0xFF;
+        }
+        out[raw.length] = (byte) (s & 0x1F);
+        return out;
+    }
+
+    static void eq(String what, double got, double want, double tol) {
+        checks++;
+        if (Double.isNaN(got) || Math.abs(got - want) > tol) {
+            fails++;
+            System.out.println("FAIL " + what + ": got " + got + " want " + want);
+        }
+    }
+
+    static void eq(String what, String got, String want) {
+        checks++;
+        if (!got.equals(want)) {
+            fails++;
+            System.out.println("FAIL " + what + ":\n  got  " + got + "\n  want " + want);
+        }
+    }
+
+    static void ok(String what, boolean c) {
+        checks++;
+        if (!c) {
+            fails++;
+            System.out.println("FAIL " + what);
+        }
+    }
+
+    // ---------------------------------------------------------------- generation B (sacoma-lib)
+
+    /** The vector's own check byte where it is right; sacoma's EXACT frame 0 was edited by hand without it. */
+    static byte[] sealB(String h) {
+        byte[] f = hex(h);
+        int s = 0;
+        for (int i = 3; i < 19; i++) {
+            s += f[i] & 0xFF;
+        }
+        f[19] = (byte) (s & 0x1F);
+        return f;
+    }
+
+    static ScaleProtocol.Reading a3(String f0, String f1) {
+        ScaleProtocol.AssemblerB asm = new ScaleProtocol.AssemblerB();
+        ok("frag0 waits", asm.add(sealB(f0)) == null);
+        return ScaleProtocol.decodeB(asm.add(hex(f1)));
+    }
+
+    static void genB() {
+        // decode: the two-fragment A3 result (different seq numbers on purpose)
+        ScaleProtocol.Reading r = a3("01 1a 00 a3 19 00 fd 02 00 00 d3 0b 85 0b 4e 0a 74 0a f6 15",
+                "01 1a 01 00 96 0a 0a 09 ec 09 2d 09 b6 00 00 00 00 00 00 14");
+        ok("display A3 decoded", r != null && r.result);
+        eq("display weight", r.weightKg, 64.77, 1e-9);
+        double[] want = {21.1, 294.9, 289.4, 267.6, 280.6, 15.0, 257.0, 254.0, 234.9, 248.6};
+        for (int i = 0; i < 10; i++) {
+            eq("display z" + i, i < 5 ? r.z20[i] : r.z100[i - 5], want[i], 1e-9);
+        }
+        ScaleBody b = ScaleBody.of(r, true, 30, 165);
+        eq("display bmi", b.bmi, 23.8, 1e-4);
+        eq("display fat%", b.fatPct, 15.9, 1e-4);
+        eq("display bone", b.boneKg, 3.7, 0.2);        // app display rounding (sacoma: 3.6 shown as 3.7)
+        eq("display visceral", b.visceral, 3, 0);
+        eq("display bmr", b.bmr, 1547, 1);
+        eq("display body age", b.bodyAge, 28, 0);
+        double[] segFat = {5.6, 0.4, 0.4, 1.8, 1.8};
+        for (int i = 0; i < 5; i++) {
+            eq("display segFat" + i, b.segFatKg[i], segFat[i], 0.05);
+        }
+
+        r = a3("02 1a 00 a3 19 00 fe 06 00 00 cf 0b 26 0a f9 09 f3 0a 7d 0a",
+                "02 1a 01 00 8c 09 a6 09 9e 08 c2 09 55 00 00 00 00 00 00 0a");
+        eq("exact weight", r.weightKg, 65.03, 1e-9);
+        b = ScaleBody.of(r, true, 30, 165);
+        eq("exact bmi", b.bmi, 23.9, 1e-4);
+        eq("exact fat%", b.fatPct, 15.2, 1e-4);
+        eq("exact muscle%", b.musclePct, 79.1, 1e-4);
+        eq("exact skeletal%", b.skeletalPct, 47.8, 1e-4);
+        eq("exact water%", b.waterPct, 62.1, 1e-4);
+        eq("exact protein%", b.proteinPct, 17.0, 1e-4);
+        eq("exact bone", b.boneKg, 3.7, 1e-4);
+        eq("exact visceral", b.visceral, 2, 0);
+        eq("exact bmr", b.bmr, 1560, 0);
+        eq("exact body age", b.bodyAge, 28, 0);
+        // sacoma order: left arm, right arm, left leg, right leg, trunk
+        double[] fat = {0.3466890690242769, 0.3665922690242768, 1.7313771483345035, 1.7479206483345036,
+                5.444233703420809};
+        double[] mus = {3.164282732394943, 3.1561568323949434, 8.993348787350007, 9.011398887350007,
+                24.001202669398396};
+        int[] seg = {ScaleProtocol.LEFT_ARM, ScaleProtocol.RIGHT_ARM, ScaleProtocol.LEFT_LEG,
+                ScaleProtocol.RIGHT_LEG, ScaleProtocol.TRUNK};
+        for (int i = 0; i < 5; i++) {
+            eq("exact segFat" + i, b.segFatKg[seg[i]], fat[i], 1e-4);
+            eq("exact segMus" + i, b.segMuscleKg[seg[i]], mus[i], 1e-4);
+        }
+
+        // other profiles over the same impedances (sacoma PROFILES)
+        double[] base = {20.7, 285.4, 280.9, 254.7, 268.5, 14.0, 247.0, 246.2, 224.2, 238.9};
+        profile("tall_male", 82.0, base, 1.0, 180, 45, true, 25.3, 16.8, 4.6, 61.1, 77.7);
+        profile("short_female", 55.0, base, 1.0, 158, 25, false, 22.0, 9.3, 3.3, 66.5, 84.6);
+        profile("mid_female", 68.0, base, 1.18, 170, 55, false, 23.5, 17.9, 3.7, 60.1, 76.6);
+        profile("tall_lean", 72.0, base, 1.18, 185, 35, true, 21.0, 10.4, 4.3, 65.7, 83.6);
+
+        // encode: BA heartbeat and BB user list, byte for byte as captured
+        List<byte[]> ba = ScaleProtocol.framesB(0, ScaleProtocol.syncB(0x6a2e4eaaL, 0x0605cf67L, 165, 64.90, true,
+                30, true));
+        eq("BA frame", hex(ba.get(0)), "001000ba6a2e4eaa00780605cf67a5995a9e0f08");
+        eq("BB payload", hex(ScaleProtocol.usersB(0x0605cf67L, 165, 64.90, true, 30)), "bb010605cf67a5995a9e");
+        // live weight + checksum gate
+        ScaleProtocol.AssemblerB live = new ScaleProtocol.AssemblerB();
+        ScaleProtocol.Reading w = ScaleProtocol.decodeB(live.add(hex("150700a2031900fae6000000000000000000001e")));
+        ok("A2 decoded", w != null && !w.result && w.stable);
+        eq("A2 weight", w.weightKg, 64.23, 1e-9);
+        ok("bad checksum dropped", live.add(hex("150700a2031900fae6000000000000000000001f")) == null);
+    }
+
+    static void profile(String n, double w, double[] base, double k, int h, int age, boolean male, double bmi,
+            double fat, double bone, double water, double muscle) {
+        ScaleProtocol.Reading r = new ScaleProtocol.Reading();
+        r.result = true;
+        r.weightKg = w;
+        for (int i = 0; i < 10; i++) {
+            double z = Math.round(base[i] * k * 10) / 10.0;
+            if (i < 5) {
+                r.z20[i] = z;
+            } else {
+                r.z100[i - 5] = z;
+            }
+        }
+        ScaleBody b = ScaleBody.of(r, male, age, h);
+        eq(n + " bmi", b.bmi, bmi, 1e-4);
+        eq(n + " fat%", b.fatPct, fat, 1e-4);
+        eq(n + " bone", b.boneKg, bone, 1e-4);
+        eq(n + " water%", b.waterPct, water, 1e-4);
+        eq(n + " muscle%", b.musclePct, muscle, 1e-4);
+    }
+
+    // ---------------------------------------------------------------- generation A (Fitman)
+
+    static void genA() {
+        byte[] uid = hex("0a0b0c0d");
+        eq("ack of hello", hex(ScaleProtocol.ackA(0, 3)), "00000300b0030013");
+        eq("guest BE", hex(ScaleProtocol.guestA(1, 0x6AB11E59L, 120)),
+                hex(hex("01 00 17 00 be 6a b1 1e 59 00 78 01 ac 17 70 98 13 88 13 88 2f 00 00 00 00 00 00 19")));
+        eq("profile BF", hex(ScaleProtocol.profileA(2, 170, 72.50, true, 40, uid)),
+                hex(seal("02 00 12 00 bf 01 01 aa 1c 52 a8 00 00 00 00 0f 0a 0b 0c 0d 01 01")));
+        // the user record carries previous / target weight; ours sends the last weight for both
+        byte[] user = ScaleProtocol.userA(3, 0x6AB11E59L, 120, 170, 72.50, true, 40, uid);
+        ScaleProtocol.FrameA uf = ScaleProtocol.parseA(user);
+        ok("user BE parses", uf != null && uf.type == 0xBE && uf.payload.length == 22);
+        eq("BD", hex(ScaleProtocol.bdA(4)), "04000200bd0906");
+        eq("BC", hex(ScaleProtocol.bcA(5, uid)),
+                hex(seal("05 00 13 00 bc 01 00 00 00 04 62 00 00 04 62 ed de 0a 0b 0c 0d 19 15")));
+        ok("hello parses", ScaleProtocol.parseA(hex("0a 00 1e 00 aa 93 79 1e 08 52 25 01 0a 00 00 00 00 00 00 00"
+                + " 00 00 00 00 00 00 01 a0 01 01 00 00 ff ff 1f")).type == ScaleProtocol.A_HELLO);
+        ok("bad check refused", ScaleProtocol.parseA(hex("04 00 03 00 a0 01 00 02")) == null);
+        eq("handshake size", ScaleProtocol.handshakeA(1, 0, 0, 170, 72.5, true, 40, uid).size(), 5, 0);
+
+        ScaleProtocol.FrameA f = ScaleProtocol.parseA(seal("11 00 26 00 a7 6a b1 1e b6 25 61 1b 34 00 0a 01"
+                + " ac 0d 48 0d 28 0a f6 09 1e 00 80 0c 1c 0c 2e 09 fc 08 14 0a 0b 0c 0d 01 00 b9"));
+        ScaleProtocol.Reading r = ScaleProtocol.decodeA(f);
+        ok("A7 decoded", r != null && r.result && !r.stored && !r.hasTrunk());
+        eq("A7 weight", r.weightKg, 72.5, 1e-9);
+        eq("A7 fat", r.scaleFatPct, 18.5, 1e-9);
+        eq("A7 time", r.scaleTime, 0x6AB11EB6L, 0);
+        eq("A7 LA z20", r.z20[ScaleProtocol.LEFT_ARM], 350.0, 1e-9);
+        eq("A7 RA z20", r.z20[ScaleProtocol.RIGHT_ARM], 340.0, 1e-9);
+        eq("A7 RL z20", r.z20[ScaleProtocol.RIGHT_LEG], 260.0, 1e-9);
+        eq("A7 LL z20", r.z20[ScaleProtocol.LEFT_LEG], 255.0, 1e-9);
+        eq("A7 LA z100", r.z100[ScaleProtocol.LEFT_ARM], 320.0, 1e-9);
+        eq("A7 LL z100", r.z100[ScaleProtocol.LEFT_LEG], 230.0, 1e-9);
+        ScaleProtocol.Reading st = ScaleProtocol.decodeA(ScaleProtocol.parseA(seal("5e 00 26 00 a5 6a b1 24 0a 25"
+                + " 61 1b 34 00 0a 01 ac 0d 48 0d 28 0a f6 09 1e 00 80 0c 1c 0c 2e 09 fc 08 14 00 00 00 00 01 01 b9")));
+        ok("A5 stored", st != null && st.stored);
+
+        // Fitman's formulas (Fitdays within rounding) for the same person: male, 40, 170 cm
+        ScaleBody b = ScaleBody.of(r, true, 40, 170);
+        ok("A body from the scale's fat", b != null && b.fatFromScale);
+        eq("A fat kg", b.fatKg, 13.4, 1e-4);
+        eq("A lean", b.leanKg, 59.1, 1e-4);
+        eq("A water%", b.waterPct, 59.8, 1e-4);
+        eq("A muscle kg", b.muscleKg, 55.1, 1e-4);
+        eq("A bone", b.boneKg, 4.0, 1e-4);
+        eq("A bmr", b.bmr, 1646, 0);
+        eq("A visceral", b.visceral, 4, 0);
+        eq("A subcut", b.subcutPct, 13.3, 1e-4);
+        eq("A body age", b.bodyAge, 38, 0);
+        eq("A LA fat", b.segFatKg[ScaleProtocol.LEFT_ARM], 0.81, 0.005);
+        eq("A RA fat", b.segFatKg[ScaleProtocol.RIGHT_ARM], 0.79, 0.005);
+        eq("A LL fat", b.segFatKg[ScaleProtocol.LEFT_LEG], 2.25, 0.005);
+        eq("A RL fat", b.segFatKg[ScaleProtocol.RIGHT_LEG], 2.26, 0.005);
+        eq("A LA muscle", b.segMuscleKg[ScaleProtocol.LEFT_ARM], 3.15, 0.005);
+        eq("A RA muscle", b.segMuscleKg[ScaleProtocol.RIGHT_ARM], 3.18, 0.005);
+        eq("A LL muscle", b.segMuscleKg[ScaleProtocol.LEFT_LEG], 9.74, 0.005);
+        eq("A RL muscle", b.segMuscleKg[ScaleProtocol.RIGHT_LEG], 9.74, 0.005);
+        eq("A trunk fat", b.segFatKg[ScaleProtocol.TRUNK], 7.73, 0.005);
+        eq("A trunk muscle", b.segMuscleKg[ScaleProtocol.TRUNK], 25.78, 0.005);
+
+        // live weight on FFB2 (12 bytes, bit 0 of byte 7 = weight bit 16)
+        eq("A live", ScaleProtocol.liveWeightA(hex("000000000000000125610000")), 75.105, 1e-9);
+    }
+
+    static void misc() {
+        ok("uid stable", hex(ScaleProtocol.uidBytes(42)).equals(hex(ScaleProtocol.uidBytes(42))));
+        ok("uid differs", !hex(ScaleProtocol.uidBytes(42)).equals(hex(ScaleProtocol.uidBytes(43))));
+        ok("uid never guest", !hex(ScaleProtocol.uidBytes(0)).equals("00000000"));
+        ok("name P1", ScaleLink.looksLikeScale("Lescale P1"));
+        ok("name band no", !ScaleLink.looksLikeScale("Xiaomi Smart Band 10"));
+        ok("adv FFB0", ScaleLink.advertisesFfb0(hex("020106 0303b0ff 0509503120 00")));
+        ok("adv other", !ScaleLink.advertisesFfb0(hex("020106 03030d18")));
+        eq("adv name", String.valueOf(ScaleLink.advName(hex("020106 0509503131 00"))), "P11");
+        ok("gate: no trunk, no scale fat", ScaleBody.of(noFat(), true, 30, 170) == null);
+    }
+
+    static ScaleProtocol.Reading noFat() {
+        ScaleProtocol.Reading r = new ScaleProtocol.Reading();
+        r.result = true;
+        r.weightKg = 70;
+        for (int i = 1; i < 5; i++) {
+            r.z20[i] = 300;
+            r.z100[i] = 280;
+        }
+        return r;
+    }
+
+    public static void main(String[] a) {
+        genB();
+        genA();
+        misc();
+        System.out.println((fails == 0 ? "OK" : "FAILED") + " scale-sim: " + (checks - fails) + "/" + checks);
+        if (fails > 0) {
+            System.exit(1);
+        }
+    }
+}

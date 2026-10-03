@@ -1007,7 +1007,29 @@ public final class ScaleSim {
                 && Math.abs(x1.z100[ScaleProtocol.TRUNK] - 15.7) < 1e-9);
     }
 
+    /** Exact frames of the MovingLife SDK's own generators (libprotocol.so run in an emulator, 1.1.308-ai). */
+    static void xsCommands() {
+        // emulator output: sex 1, height 175, unit 1, activity 3, weight 81.4, age 40, pin 1 (SN as the SDK counted)
+        eq("XS user v11", hex(ScaleSenssun.userAdd(0x11, 2, true, 175, 40, false)), "33cc11000200010100000101af280301f2");
+        eq("XS user v12", hex(ScaleSenssun.userAdd(0x12, 3, true, 175, 40, false)),
+                "33cc1a000300010100000101af280301000000000000000000fc");
+        eq("XS user v13", hex(ScaleSenssun.userAdd(0x13, 4, true, 175, 40, false)),
+                "33cc21000400010100000101af2803010000000000000000000000000003010008");
+        eq("XS user v15 = v13", hex(ScaleSenssun.userAdd(0x15, 6, true, 175, 40, false)),
+                "33cc21000600010100000101af280301000000000000000000000000000301000a");
+        eq("XS guest v11", hex(ScaleSenssun.userAdd(0x11, 7, true, 175, 40, true)), "33cc11000700010102000101af280301f9");
+        eq("XS user v1", hex(ScaleSenssun.userAddV1(true, 175, 40, 81.4)), "100000c51303010001000101af280300032e25");
+        eq("XS time v2", hex(ScaleSenssun.syncTimeV2(120, 0x6A000000L)), "100000c50e030a00786a000000fd");
+        ok("XS hello v11", ScaleSenssun.hello(0x11, true, 0, 120, 0, true, 175, 40, 80).size() == 2);
+        ok("XS hello unknown 33CC: all three", ScaleSenssun.hello(-1, true, 0, 120, 0, true, 175, 40, 80).size() == 4);
+        ok("XS hello v1", ScaleSenssun.hello(0x01, false, 0, 120, 0, true, 175, 40, 80).size() == 1);
+        ok("XS hello v30: nothing", ScaleSenssun.hello(0x30, true, 0, 120, 0, true, 175, 40, 80).isEmpty());
+        byte[] adv = hex("02 01 06 0e ff f0 ff 01 02 11 03 19 f6 e5 d4 c3 b2 a1");
+        ok("XS advert, MAC backwards", ScaleSenssun.xsAdvert(adv, "A1:B2:C3:D4:E5:F6") != null);
+    }
+
     public static void main(String[] a) throws Exception {
+        xsCommands();
         xs();
         senssun();
         algorithms();

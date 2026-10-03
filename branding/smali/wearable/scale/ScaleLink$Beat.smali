@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 891
+    .line 914
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 892
+    .line 915
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 893
+    .line 916
     iput p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;->token:I
 
-    .line 894
+    .line 917
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 3
 
     .prologue
-    .line 898
+    .line 921
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;->token:I
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->beat(I)V
 
-    .line 899
+    .line 922
     return-void
 .end method

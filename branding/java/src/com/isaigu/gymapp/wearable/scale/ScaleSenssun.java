@@ -249,11 +249,12 @@ public final class ScaleSenssun {
             int type = adv[i + 1] & 0xFF;
             int v = i + 4;                 // value after the 2-byte company id
             if (type == 0xFF && len >= 3 + 11 && v + 11 <= adv.length) {
-                boolean same = true;
+                boolean same = true, back = true;
                 for (int k = 0; k < 6; k++) {
                     same &= adv[v + 5 + k] == m[k];
+                    back &= adv[v + 5 + k] == m[5 - k];      // some firmwares put the MAC backwards
                 }
-                if (same) {
+                if (same || back) {
                     return new int[] {adv[v + 2] & 0xFF, (adv[v + 3] & 0xFF) << 8 | (adv[v + 4] & 0xFF)};
                 }
             }
@@ -504,6 +505,121 @@ public final class ScaleSenssun {
         a[13] = (byte) unix;
         a[14] = (byte) sum(a, 2, 13);
         return a;
+    }
+
+    // ---------------------------------------------------------------- the person (exact bytes of the SDK's own
+    // generateSyncUserAdd_v1 / _v11 / _v12 / _v13, run in an emulator; v14 and v15 call v13). Without a person the
+    // scale weighs only (the SDK's "onlyWeight"): the impedances come after this.
+
+    /** The XEMS slot on the scale (BCD on the wire). */
+    public static final int PIN = 1;
+    /** Sex code: 1 man, 0 woman; activity 1…5 (the scale's own estimate only); unit 1 = kg. */
+    static final int ACTIVITY = 3, UNIT_KG = 1;
+
+    static int bcd(int v) {
+        return (v / 10 % 10) << 4 | (v % 10);
+    }
+
+    static void head(byte[] a, int sn) {
+        a[0] = 0x33;
+        a[1] = (byte) 0xCC;
+        a[2] = (byte) a.length;
+        a[3] = (byte) (sn >> 8);
+        a[4] = (byte) sn;
+    }
+
+    /** v11 (17 B), v12 (26 B: + time, type, encode — 0 for a person the scale has not measured), v13+ (33 B). */
+    public static byte[] userAdd(int ver, int sn, boolean male, int heightCm, int age, boolean guest) {
+        int n = ver >= 0x13 ? 33 : ver == 0x12 ? 26 : 17;
+        byte[] a = new byte[n];
+        head(a, sn);
+        a[5] = 0;
+        a[6] = 1;
+        a[7] = 1;
+        a[8] = (byte) (guest ? 2 : 0);
+        a[9] = (byte) bcd(PIN / 100);
+        a[10] = (byte) bcd(PIN % 100);
+        a[11] = (byte) (male ? 1 : 0);
+        a[12] = (byte) Math.max(100, Math.min(220, heightCm));
+        a[13] = (byte) Math.max(10, Math.min(99, age));
+        a[14] = ACTIVITY;
+        a[15] = UNIT_KG;
+        if (n == 33) {
+            a[29] = 3;          // nickname TLV: length 3, id 1, empty
+            a[30] = 1;
+        }
+        a[n - 1] = (byte) sum(a, 2, n - 2);
+        return a;
+    }
+
+    /** v1 (versions below 0x11): {@code 10 00 00 C5 13 03 01 00 01 pin sex h age act unit−1 kg×10 sum(4…)}. */
+    public static byte[] userAddV1(boolean male, int heightCm, int age, double kg) {
+        byte[] a = new byte[19];
+        a[0] = 0x10;
+        a[3] = (byte) 0xC5;
+        a[4] = 19;
+        a[5] = 3;
+        a[6] = 1;
+        a[8] = 1;
+        a[9] = (byte) bcd(PIN / 100);
+        a[10] = (byte) bcd(PIN % 100);
+        a[11] = (byte) (male ? 1 : 0);
+        a[12] = (byte) Math.max(100, Math.min(220, heightCm));
+        a[13] = (byte) Math.max(10, Math.min(99, age));
+        a[14] = ACTIVITY;
+        a[15] = UNIT_KG - 1;
+        int w = (int) Math.round(Math.max(0, Math.min(250, kg)) * 10);
+        a[16] = (byte) (w >> 8);
+        a[17] = (byte) w;
+        a[18] = (byte) sum(a, 4, 17);
+        return a;
+    }
+
+    /** v2 (version 0x0F) time: {@code 10 00 00 C5 0E 03 0A tzMin(2) unix(4) sum(4…)}; v1 has none. */
+    public static byte[] syncTimeV2(int tzMin, long unix) {
+        byte[] a = new byte[14];
+        a[0] = 0x10;
+        a[3] = (byte) 0xC5;
+        a[4] = 14;
+        a[5] = 3;
+        a[6] = 0x0A;
+        a[7] = (byte) (tzMin >> 8);
+        a[8] = (byte) tzMin;
+        a[9] = (byte) (unix >> 24);
+        a[10] = (byte) (unix >> 16);
+        a[11] = (byte) (unix >> 8);
+        a[12] = (byte) unix;
+        a[13] = (byte) sum(a, 4, 12);
+        return a;
+    }
+
+    /**
+     * Everything to say on connecting, by protocol version (−1 = not advertised: every variant of the frame
+     * family seen first — {@code v11} true = 33 CC, false = 10 00 00 C5). The scale ignores what is not its own.
+     */
+    public static java.util.List<byte[]> hello(int ver, boolean v11Family, int sn, int tzMin, long unix, boolean male,
+            int heightCm, int age, double kg) {
+        java.util.List<byte[]> out = new java.util.ArrayList<byte[]>();
+        if (ver == XS_V30) {
+            return out;
+        }
+        boolean v11 = ver >= 0x11 || (ver < 0 && v11Family);
+        if (v11) {
+            out.add(syncTime(sn++, tzMin, unix));
+            if (ver < 0) {
+                out.add(userAdd(0x11, sn++, male, heightCm, age, false));
+                out.add(userAdd(0x12, sn++, male, heightCm, age, false));
+                out.add(userAdd(0x13, sn++, male, heightCm, age, false));
+            } else {
+                out.add(userAdd(ver, sn++, male, heightCm, age, false));
+            }
+        } else {
+            if (ver == 0x0F || ver < 0) {
+                out.add(syncTimeV2(tzMin, unix));
+            }
+            out.add(userAddV1(male, heightCm, age, kg));
+        }
+        return out;
     }
 
     /**

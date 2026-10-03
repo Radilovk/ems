@@ -964,31 +964,24 @@ public final class AutoSession {
         }
     }
 
-    /**
-     * The current the suits get now, for the corner of the avatar (owner, 1.1.287): frequency · pulse width,
-     * impulse / pause seconds, the second impulse in the pause. The last cycle written (also in the rest: what ran).
-     */
     /** The last cycle written to the suits (null before the first). */
     static AutoEngine.Cmd getWritten() {
         return written;
     }
 
-    static String paramsText() {
+    /**
+     * The current the suits get now, for the column under the row's time (owner, 1.1.288): {Hz, µs, impulse s,
+     * pause s, 2nd-impulse Hz (0 = none), 2nd-impulse %}. The last cycle written (in the rest: what ran); null
+     * before the first or on a step without output.
+     */
+    static int[] paramsNow() {
         AutoEngine.Cmd c = written;
-        if (c == null) {
-            return "";
+        if (c == null || c.frac <= 0) {
+            return null;
         }
-        if (c.frac <= 0) {
-            return AiText.t("без ток", "no current");
-        }
-        StringBuilder b = new StringBuilder();
-        b.append(c.hz).append(" Hz · ").append(c.pwUs).append(" µs\n");
-        b.append(Math.max(1, c.onS)).append(" s / ").append(Math.max(1, c.offS)).append(" s");
-        if (c.pauseHz > 0 && c.pauseSigma > 0 && engine != null && engine.isDoublePulseOn()) {
-            b.append(AiText.t("\n2-ри ", "\n2nd ")).append(c.pauseHz).append(" Hz · ")
-                    .append(Math.round(100 * c.pauseSigma)).append(" %");
-        }
-        return b.toString();
+        boolean dbl = c.pauseHz > 0 && c.pauseSigma > 0 && engine != null && engine.isDoublePulseOn();
+        return new int[] {c.hz, c.pwUs, Math.max(1, c.onS), Math.max(1, c.offS), dbl ? c.pauseHz : 0,
+                dbl ? (int) Math.round(100 * c.pauseSigma) : 0};
     }
 
     /** −10 % on every row (the "reduce" button; never automatically given back). */
@@ -1094,7 +1087,7 @@ public final class AutoSession {
                 handler.postDelayed(this, TICK_MS);
             }
             if ((stage == Stage.CALIB || stage == Stage.RUNNING) && plan != null) {
-                AutoLook.params(paramsText(), engine != null && engine.getState() == AutoEngine.State.RUN);
+                AutoLook.params(paramsNow(), engine != null && engine.getState() == AutoEngine.State.RUN);
                 AutoLook.apply(panelRoot, plan.program.name());
             } else {
                 AutoLook.restore();

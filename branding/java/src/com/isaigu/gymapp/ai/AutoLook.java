@@ -32,12 +32,13 @@ public final class AutoLook {
     private static final Map<ViewGroup, TextView> SIGNS = new WeakHashMap<ViewGroup, TextView>();
     private static int[] modeIds;
     private static int[] hideIds;
-    /** The avatar's top-right index button (2nd impulse %): the current's parameters are shown in its place. */
-    private static int cornerId;
-    private static String paramText = "";
+    /** The row's impulse-seconds control: the current's parameters are shown in its place, under the time. */
+    private static int pulseId;
+    /** {hz, µs, impulse s, pause s, 2nd-impulse Hz (0 = none), 2nd-impulse %}; null = nothing to show. */
+    private static int[] paramVals;
     private static boolean paramLive;
-    /** Avatar block → the parameter chip we put there. */
-    private static final Map<ViewGroup, TextView> BADGES = new WeakHashMap<ViewGroup, TextView>();
+    /** Info column of a row → the parameter column we put there. */
+    private static final Map<ViewGroup, LinearLayout> PARAMS = new WeakHashMap<ViewGroup, LinearLayout>();
     private static boolean on;
     private static String signLabel = "";
 
@@ -62,7 +63,7 @@ public final class AutoLook {
             if (modeIds == null) {
                 modeIds = ids(root.getContext(), MODE_IDS);
                 hideIds = ids(root.getContext(), HIDE_IDS);
-                cornerId = root.getContext().getResources().getIdentifier("pauseMaValue", "id",
+                pulseId = root.getContext().getResources().getIdentifier("paulsecontinue", "id",
                         root.getContext().getPackageName());
             }
             on = true;
@@ -191,9 +192,9 @@ public final class AutoLook {
                     v.setVisibility(e.getValue());
                 }
             }
-            List<ViewGroup> bs = new ArrayList<ViewGroup>(BADGES.keySet());
+            List<ViewGroup> bs = new ArrayList<ViewGroup>(PARAMS.keySet());
             for (int i = 0; i < bs.size(); i++) {
-                TextView b = BADGES.get(bs.get(i));
+                LinearLayout b = PARAMS.get(bs.get(i));
                 if (bs.get(i) != null && b != null) {
                     bs.get(i).removeView(b);
                 }
@@ -212,8 +213,8 @@ public final class AutoLook {
         SAVED.clear();
         VEILED.clear();
         SIGNS.clear();
-        BADGES.clear();
-        paramText = "";
+        PARAMS.clear();
+        paramVals = null;
     }
 
     private static int[] ids(Context c, String[] names) {
@@ -282,17 +283,17 @@ public final class AutoLook {
         return null;
     }
 
-    /** What the chip at the avatar says (empty = no chip); live = the impulses run now (else it is dimmed). */
-    static void params(String text, boolean live) {
-        paramText = text != null ? text : "";
+    /** What the parameter column shows (null = none); live = the impulses run now (else it is dimmed). */
+    static void params(int[] vals, boolean live) {
+        paramVals = vals;
         paramLive = live;
     }
 
     private static void hideIn(View v) {
         if (in(v.getId(), hideIds)) {
             veil(v);
-            if (v.getId() == cornerId && cornerId != 0) {
-                badge(v);
+            if (v.getId() == pulseId && pulseId != 0) {
+                paramColumn(v);
             }
             return;
         }
@@ -341,49 +342,67 @@ public final class AutoLook {
     }
 
     /**
-     * The current's parameters at the avatar's top-right corner (owner, 1.1.287), in place of the veiled 2nd-impulse
-     * button: Hz · µs, impulse / pause s, the 2nd impulse. Read-only — Auto sets them.
+     * The current's parameters right under the row's time (owner, 1.1.288), in place of the impulse / pause
+     * controls Auto takes over: a column of symbols with their values, no words — frequency, pulse width,
+     * impulse / pause, the 2nd impulse. Read-only; dimmed while no impulse runs.
      */
-    private static void badge(View anchor) {
-        if (!(anchor.getParent() instanceof android.widget.RelativeLayout)) {
+    private static void paramColumn(View pulse) {
+        if (!(pulse.getParent() instanceof ViewGroup) || !(pulse.getParent().getParent() instanceof LinearLayout)) {
             return;
         }
-        android.widget.RelativeLayout p = (android.widget.RelativeLayout) anchor.getParent();
-        TextView t = BADGES.get(p);
-        if (t == null || t.getParent() != p) {
-            Context c = p.getContext();
-            t = XemsUi.text(c, "", 11, XemsUi.TEXT, true);
-            t.setGravity(Gravity.END);
-            t.setMaxLines(3);
-            t.setIncludeFontPadding(false);
-            t.setLineSpacing(XemsUi.dp(c, 2), 1f);
-            int ph = XemsUi.dp(c, 7);
-            int pv = XemsUi.dp(c, 4);
-            t.setPadding(ph, pv, ph, pv);
-            t.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.CARD, 0xE6), XemsUi.dp(c, 8),
-                    XemsUi.alpha(XemsUi.GO, 0x88), XemsUi.dp(c, 1)));
-            android.widget.RelativeLayout.LayoutParams lp = new android.widget.RelativeLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            if (anchor.getId() != View.NO_ID) {
-                lp.addRule(android.widget.RelativeLayout.ALIGN_TOP, anchor.getId());
-                lp.addRule(android.widget.RelativeLayout.ALIGN_RIGHT, anchor.getId());
-            } else {
-                lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_TOP);
-                lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_RIGHT);
+        ViewGroup box = (ViewGroup) pulse.getParent();
+        LinearLayout info = (LinearLayout) box.getParent();
+        // the two control boxes (impulse s, pause s) give their place to the column
+        for (int i = 0; i < info.getChildCount(); i++) {
+            View ch = info.getChildAt(i);
+            if (ch instanceof android.widget.RelativeLayout) {
+                hide(ch, View.GONE);
             }
-            p.addView(t, lp);
-            BADGES.put(p, t);
         }
-        if (!paramText.contentEquals(t.getText())) {
-            t.setText(paramText);
+        LinearLayout col = PARAMS.get(info);
+        if (col == null || col.getParent() != info) {
+            Context c = info.getContext();
+            col = XemsUi.vertical(c);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 4), 0);
+            info.addView(col, Math.min(info.getChildCount(), info.indexOfChild(box)), lp);
+            int[] kinds = {ImpulseGlyph.HZ, ImpulseGlyph.DEPTH, ImpulseGlyph.PULSE_PAUSE, ImpulseGlyph.DOUBLE};
+            for (int k = 0; k < kinds.length; k++) {
+                TextView t = XemsUi.text(c, "", 14, XemsUi.TEXT, true);
+                t.setSingleLine(true);
+                t.setIncludeFontPadding(false);
+                ImpulseGlyph g = new ImpulseGlyph(kinds[k], XemsUi.GO_TEXT, XemsUi.dp(c, 1.6f));
+                g.setBounds(0, 0, XemsUi.dp(c, 16), XemsUi.dp(c, 16));
+                t.setCompoundDrawables(g, null, null, null);
+                t.setCompoundDrawablePadding(XemsUi.dp(c, 8));
+                col.addView(t, XemsUi.matchWrap(c, k == 0 ? 0 : 6));
+            }
+            PARAMS.put(info, col);
         }
-        int vis = paramText.length() > 0 ? View.VISIBLE : View.GONE;
-        if (t.getVisibility() != vis) {
-            t.setVisibility(vis);
+        int[] p = paramVals;
+        int vis = p != null ? View.VISIBLE : View.GONE;
+        if (col.getVisibility() != vis) {
+            col.setVisibility(vis);
         }
-        float a = paramLive ? 1f : 0.6f;
-        if (t.getAlpha() != a) {
-            t.setAlpha(a);
+        if (p == null) {
+            return;
+        }
+        String[] vals = {p[0] + " Hz", p[1] + " µs", p[2] + " / " + p[3] + " s",
+                p[4] > 0 ? p[4] + " Hz · " + p[5] + " %" : ""};
+        for (int k = 0; k < vals.length && k < col.getChildCount(); k++) {
+            TextView t = (TextView) col.getChildAt(k);
+            if (!vals[k].contentEquals(t.getText())) {
+                t.setText(vals[k]);
+            }
+            int v = vals[k].length() > 0 ? View.VISIBLE : View.GONE;
+            if (t.getVisibility() != v) {
+                t.setVisibility(v);
+            }
+        }
+        float a = paramLive ? 1f : 0.55f;
+        if (col.getAlpha() != a) {
+            col.setAlpha(a);
         }
     }
 

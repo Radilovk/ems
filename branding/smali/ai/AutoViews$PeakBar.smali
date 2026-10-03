@@ -114,21 +114,13 @@
 
 # virtual methods
 .method protected onDraw(Landroid/graphics/Canvas;)V
-    .registers 16
+    .registers 15
 
     .prologue
-    const/high16 v13, 0x3fa00000    # 1.25f
-
-    const/4 v1, 0x0
-
-    const/high16 v12, 0x40c00000    # 6.0f
-
-    const/high16 v11, 0x40000000    # 2.0f
-
     .line 523
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->getWidth()I
 
-    move-result v8
+    move-result v11
 
     .line 524
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->getHeight()I
@@ -136,46 +128,52 @@
     move-result v0
 
     .line 525
-    invoke-static {p0, v12}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+    const/high16 v1, 0x40c00000    # 6.0f
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
     move-result v2
 
     .line 526
-    int-to-float v3, v0
+    int-to-float v1, v0
 
-    invoke-static {p0, v12}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+    const/high16 v3, 0x40c00000    # 6.0f
 
-    move-result v4
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
-    sub-float v4, v3, v4
+    move-result v3
+
+    sub-float v4, v1, v3
 
     .line 527
-    int-to-float v3, v8
+    int-to-float v1, v11
 
-    div-float/2addr v3, v11
+    const/high16 v3, 0x40000000    # 2.0f
 
-    const/high16 v5, 0x41400000    # 12.0f
+    div-float/2addr v1, v3
 
-    invoke-static {p0, v5}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+    const/high16 v3, 0x41400000    # 12.0f
 
-    move-result v5
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
-    sub-float/2addr v3, v5
+    move-result v3
 
-    const/high16 v5, 0x41700000    # 15.0f
+    sub-float/2addr v1, v3
 
-    invoke-static {p0, v5}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+    const/high16 v3, 0x41700000    # 15.0f
 
-    move-result v5
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
-    invoke-static {v3, v5}, Ljava/lang/Math;->min(FF)F
+    move-result v3
 
-    move-result v9
+    invoke-static {v1, v3}, Ljava/lang/Math;->min(FF)F
+
+    move-result v12
 
     .line 528
-    iget v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->lastH:I
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->lastH:I
 
-    if-eq v0, v3, :cond_89
+    if-eq v0, v1, :cond_91
 
     .line 529
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->lastH:I
@@ -197,58 +195,62 @@
     .line 533
     const/4 v0, 0x0
 
-    :goto_3e
-    array-length v3, v5
+    :goto_3d
+    array-length v1, v5
 
-    if-ge v0, v3, :cond_5b
+    if-ge v0, v1, :cond_5c
 
     .line 534
-    sget-object v3, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
 
-    array-length v3, v3
+    array-length v1, v1
 
-    add-int/lit8 v3, v3, -0x1
+    add-int/lit8 v1, v1, -0x1
 
-    sub-int/2addr v3, v0
+    sub-int/2addr v1, v0
 
     .line 535
-    sget-object v7, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+    sget-object v3, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
 
-    aget v7, v7, v3
+    aget v3, v3, v1
 
-    aput v7, v5, v0
+    aput v3, v5, v0
 
     .line 536
-    const/high16 v7, 0x3f800000    # 1.0f
+    const/high16 v3, 0x3f800000    # 1.0f
 
-    sget-object v10, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+    sget-object v7, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
 
-    aget v3, v10, v3
+    aget v1, v7, v1
 
-    div-float/2addr v3, v13
+    const/high16 v7, 0x3fa00000    # 1.25f
 
-    sub-float v3, v7, v3
+    div-float/2addr v1, v7
 
-    aput v3, v6, v0
+    sub-float v1, v3, v1
+
+    aput v1, v6, v0
 
     .line 533
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_3e
+    goto :goto_3d
 
     .line 538
-    :cond_5b
-    iget-object v10, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->fill:Landroid/graphics/Paint;
+    :cond_5c
+    iget-object v8, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->fill:Landroid/graphics/Paint;
 
     new-instance v0, Landroid/graphics/LinearGradient;
 
-    sget-object v7, Landroid/graphics/Shader$TileMode;->CLAMP:Landroid/graphics/Shader$TileMode;
+    const/4 v1, 0x0
 
-    move v3, v1
+    const/4 v3, 0x0
+
+    sget-object v7, Landroid/graphics/Shader$TileMode;->CLAMP:Landroid/graphics/Shader$TileMode;
 
     invoke-direct/range {v0 .. v7}, Landroid/graphics/LinearGradient;-><init>(FFFF[I[FLandroid/graphics/Shader$TileMode;)V
 
-    invoke-virtual {v10, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
+    invoke-virtual {v8, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
     .line 539
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->tri:Landroid/graphics/Path;
@@ -258,31 +260,37 @@
     .line 540
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->tri:Landroid/graphics/Path;
 
-    int-to-float v1, v8
+    int-to-float v1, v11
 
-    div-float/2addr v1, v11
+    const/high16 v3, 0x40000000    # 2.0f
 
-    sub-float/2addr v1, v9
+    div-float/2addr v1, v3
+
+    sub-float/2addr v1, v12
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
     .line 541
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->tri:Landroid/graphics/Path;
 
-    int-to-float v1, v8
+    int-to-float v1, v11
 
-    div-float/2addr v1, v11
+    const/high16 v3, 0x40000000    # 2.0f
 
-    add-float/2addr v1, v9
+    div-float/2addr v1, v3
+
+    add-float/2addr v1, v12
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
     .line 542
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->tri:Landroid/graphics/Path;
 
-    int-to-float v1, v8
+    int-to-float v1, v11
 
-    div-float/2addr v1, v11
+    const/high16 v3, 0x40000000    # 2.0f
+
+    div-float/2addr v1, v3
 
     invoke-virtual {v0, v1, v4}, Landroid/graphics/Path;->lineTo(FF)V
 
@@ -292,16 +300,16 @@
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
     .line 545
-    :cond_89
+    :cond_91
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->fill:Landroid/graphics/Paint;
 
     sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsUi;->dark:Z
 
-    if-eqz v0, :cond_c7
+    if-eqz v0, :cond_1ad
 
     const/16 v0, 0xeb
 
-    :goto_91
+    :goto_99
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setAlpha(I)V
 
     .line 546
@@ -311,73 +319,333 @@
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 547
+    .line 549
+    sub-float v0, v4, v2
+
+    const/high16 v1, 0x3fa00000    # 1.25f
+
+    div-float/2addr v0, v1
+
+    sub-float v7, v4, v0
+
+    .line 550
+    sub-float v0, v4, v7
+
+    mul-float/2addr v0, v12
+
+    sub-float v1, v4, v2
+
+    div-float/2addr v0, v1
+
+    .line 551
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    const/16 v5, 0x99
+
+    invoke-static {v3, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v3
+
+    invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 552
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+
+    const v3, 0x3f99999a    # 1.2f
+
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+
+    move-result v3
+
+    invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 553
+    int-to-float v1, v11
+
+    const/high16 v3, 0x40000000    # 2.0f
+
+    div-float/2addr v1, v3
+
+    sub-float/2addr v1, v0
+
+    const/high16 v3, 0x40a00000    # 5.0f
+
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+
+    move-result v3
+
+    sub-float v6, v1, v3
+
+    int-to-float v1, v11
+
+    const/high16 v3, 0x40000000    # 2.0f
+
+    div-float/2addr v1, v3
+
+    add-float/2addr v0, v1
+
+    const/high16 v1, 0x40a00000    # 5.0f
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+
+    move-result v1
+
+    add-float v8, v0, v1
+
+    iget-object v10, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+
+    move-object v5, p1
+
+    move v9, v7
+
+    invoke-virtual/range {v5 .. v10}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+
+    .line 554
     sub-float v0, v4, v2
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->value:F
 
     mul-float/2addr v0, v1
 
-    div-float/2addr v0, v13
+    const/high16 v1, 0x3fa00000    # 1.25f
 
-    sub-float v6, v4, v0
+    div-float/2addr v0, v1
 
-    .line 548
-    sub-float v0, v6, v2
+    sub-float v7, v4, v0
 
-    mul-float/2addr v0, v9
+    .line 555
+    sub-float v0, v4, v7
+
+    mul-float/2addr v0, v12
 
     sub-float v1, v4, v2
 
     div-float/2addr v0, v1
 
-    .line 549
-    sub-float v0, v9, v0
+    const/high16 v1, 0x40c00000    # 6.0f
 
-    invoke-static {p0, v12}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
     move-result v1
 
+    add-float/2addr v1, v0
+
+    .line 556
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 557
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+
+    const/high16 v3, 0x40200000    # 2.5f
+
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+
+    move-result v3
+
+    invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 558
+    int-to-float v0, v11
+
+    const/high16 v3, 0x40000000    # 2.0f
+
+    div-float/2addr v0, v3
+
+    sub-float v6, v0, v1
+
+    int-to-float v0, v11
+
+    const/high16 v3, 0x40000000    # 2.0f
+
+    div-float/2addr v0, v3
+
+    add-float v8, v0, v1
+
+    iget-object v10, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+
+    move-object v5, p1
+
+    move v9, v7
+
+    invoke-virtual/range {v5 .. v10}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+
+    .line 560
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->txt:Landroid/graphics/Paint;
+
+    sget-object v3, Landroid/graphics/Paint$Align;->LEFT:Landroid/graphics/Paint$Align;
+
+    invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+
+    .line 561
+    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->txt:Landroid/graphics/Paint;
+
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->value:F
+
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    cmpl-float v0, v0, v5
+
+    if-lez v0, :cond_1b1
+
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    const/4 v5, 0x4
+
+    aget v0, v0, v5
+
+    :goto_13c
+    invoke-virtual {v3, v0}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 562
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->txt:Landroid/graphics/Paint;
+
+    invoke-virtual {v0}, Landroid/graphics/Paint;->getFontMetrics()Landroid/graphics/Paint$FontMetrics;
+
+    move-result-object v0
+
+    .line 563
+    iget v3, v0, Landroid/graphics/Paint$FontMetrics;->ascent:F
+
+    sub-float/2addr v2, v3
+
+    iget v3, v0, Landroid/graphics/Paint$FontMetrics;->ascent:F
+
+    iget v0, v0, Landroid/graphics/Paint$FontMetrics;->descent:F
+
+    add-float/2addr v0, v3
+
+    const/high16 v3, 0x40000000    # 2.0f
+
+    div-float/2addr v0, v3
+
+    sub-float v0, v7, v0
+
+    invoke-static {v4, v0}, Ljava/lang/Math;->min(FF)F
+
+    move-result v0
+
+    invoke-static {v2, v0}, Ljava/lang/Math;->max(FF)F
+
+    move-result v2
+
+    .line 564
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->value:F
+
+    const/high16 v4, 0x42c80000    # 100.0f
+
+    mul-float/2addr v3, v4
+
+    invoke-static {v3}, Ljava/lang/Math;->round(F)I
+
+    move-result v3
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "%"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 565
+    int-to-float v0, v11
+
+    const/high16 v4, 0x40000000    # 2.0f
+
+    div-float/2addr v0, v4
+
     add-float/2addr v0, v1
 
-    .line 550
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+    const/high16 v4, 0x40800000    # 4.0f
 
-    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+    invoke-static {p0, v4}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
 
-    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
+    move-result v4
 
-    .line 551
-    int-to-float v1, v8
+    add-float/2addr v0, v4
 
-    div-float/2addr v1, v11
+    .line 566
+    iget-object v4, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->txt:Landroid/graphics/Paint;
 
-    sub-float/2addr v1, v0
+    invoke-virtual {v4, v3}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
 
-    int-to-float v2, v8
+    move-result v4
 
-    div-float/2addr v2, v11
+    add-float/2addr v4, v0
 
-    add-float v3, v2, v0
+    int-to-float v5, v11
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->line:Landroid/graphics/Paint;
+    cmpl-float v4, v4, v5
 
-    move-object v0, p1
+    if-lez v4, :cond_1a7
 
-    move v2, v6
+    .line 567
+    const/4 v0, 0x0
 
-    move v4, v6
+    int-to-float v4, v11
 
-    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+    const/high16 v5, 0x40000000    # 2.0f
 
-    .line 552
+    div-float/2addr v4, v5
+
+    sub-float v1, v4, v1
+
+    const/high16 v4, 0x40800000    # 4.0f
+
+    invoke-static {p0, v4}, Lcom/isaigu/gymapp/ai/AutoViews;->dp(Landroid/view/View;F)F
+
+    move-result v4
+
+    sub-float/2addr v1, v4
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->txt:Landroid/graphics/Paint;
+
+    invoke-virtual {v4, v3}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
+
+    move-result v4
+
+    sub-float/2addr v1, v4
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    .line 569
+    :cond_1a7
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;->txt:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v3, v0, v2, v1}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 570
     return-void
 
     .line 545
-    :cond_c7
+    :cond_1ad
     const/16 v0, 0xff
 
-    goto :goto_91
+    goto/16 :goto_99
+
+    .line 561
+    :cond_1b1
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    goto :goto_13c
 .end method
 
 .method public set(D)V

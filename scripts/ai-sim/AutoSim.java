@@ -888,6 +888,19 @@ public final class AutoSim {
             check(lo > 0.97 && hi < 1.03, "every zone reaches its target colour at the end (" + lo + "…" + hi + ")");
             check(halfSeen && halfMax < 0.9, "half way no zone is at its target yet (" + halfMax + ")");
         }
+        // owner (1.1.288): a channel moved up or down changes nothing in the load — only 0 takes it out
+        AutoEngine moved = mainSet(base, sc, t, f.dose);
+        AutoEngine asIs = mainSet(base, sc, t, f.dose);
+        int[] mz = base.zones.clone();
+        for (int k = 0; k < mz.length; k++) {
+            mz[k] = mz[k] > 0 ? Math.max(1, mz[k] / 3) : 0;
+        }
+        moved.setLive(0.9, mz, t[0]);
+        asIs.setLive(0.9, base.zones, t[0]);
+        long tm = t[0] + 8000;
+        check(Math.abs(moved.getSystemLoad(tm) - asIs.getSystemLoad(tm)) < 1e-9
+                && Math.abs(moved.getChannelLoad(tm)[AutoModel.GLUTES] - asIs.getChannelLoad(tm)[AutoModel.GLUTES]) < 1e-9,
+                "channels at a third of the recommendation → the same load (sensitivity, not work)");
         // the client: fat (same weight, shorter → higher BMI) insulates → less reached → less oxygen
         AutoModel.Plan fat = legs(input(AiModel.Sex.MALE, 35, 82, 160, AiModel.Fitness.MID, 8, 200));
         AutoEngine ef = mainSet(fat, AutoTemplates.script(fat, null), t, f.dose);

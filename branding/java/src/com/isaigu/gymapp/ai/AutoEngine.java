@@ -131,7 +131,7 @@ public final class AutoEngine {
 
     // muscle fatigue per suit channel (docs/xems-ems-physiology.md §3, docs/xems-auto-mode-spec.md §12):
     // dF_k/dt = (w(f)·ρ·z_k + e·m_k) − F_k/τ in the impulse, (w(f_p)·ρ·σ_p·z_k + 0.3·e·m_k) − F_k/τ in the pause,
-    // −F_k/τ at rest. z_k = the zone's share, m_k = the exercise's work on the channel (0…1), e = EX_LOAD.
+    // −F_k/τ at rest. z_k = the recommended zone share ({@link #zonesOf}: 0 only when the channel is off), m_k = the exercise's work on the channel (0…1), e = EX_LOAD.
     // Decides the shortest rest (the most tired zone) and paints the body heat map and the timeline.
     private final double fMax;
     private final double fRec;
@@ -801,6 +801,25 @@ public final class AutoEngine {
         return state == State.RUN && isStationPhase(phaseIndex) ? Math.max(0, getSetTargetS() - getStationS()) : 0;
     }
 
+    /**
+     * The zones the calculations use (owner, 1.1.288): always the program's recommendation (the step's zones or the
+     * plan's) — a channel set higher or lower is the person's sensitivity and the suit's contact, not more or less
+     * work, so it changes nothing here. Only a channel set to 0 is out: the zone then gets only the exercise's work.
+     */
+    int[] zonesOf(Cmd c) {
+        int[] rec = c.zones != null ? c.zones : plan.zones;
+        if (liveZones == null || c != current) {
+            return rec;
+        }
+        int[] z = rec.clone();
+        for (int k = 0; k < z.length && k < liveZones.length; k++) {
+            if (liveZones[k] <= 0) {
+                z[k] = 0;
+            }
+        }
+        return z;
+    }
+
     /** Load rates of one cycle per channel: [0] in the impulse, [1] in the pause (units of F per second · τ⁻¹). */
     private double[][] rates(Cmd c) {
         double[][] g = new double[2][AutoModel.CHANNELS];
@@ -810,7 +829,7 @@ public final class AutoEngine {
         double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
         double w = AiPlanner.fatigueWeight(c.hz);
         double wp = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma : 0;
-        int[] z = liveZones != null && c == current ? liveZones : c.zones != null ? c.zones : plan.zones;
+        int[] z = zonesOf(c);
         int[] m = null;
         if (c.phaseIndex == stationPhase && isStationPhase(c.phaseIndex)) {
             String ex = getExercise();
@@ -1070,7 +1089,7 @@ public final class AutoEngine {
         double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
         double s = Math.max(1, c.onS) / (double) (Math.max(1, c.onS) + Math.max(1, c.offS));
         boolean dbl = doublePulse && c.pauseHz > 0 && c.pauseSigma > 0;
-        int[] z = liveZones != null && c == current ? liveZones : c.zones != null ? c.zones : plan.zones;
+        int[] z = zonesOf(c);
         double ml = 0;
         for (int k = 0; k < AutoModel.CHANNELS; k++) {
             double zk = z != null && k < z.length ? Math.max(0, z[k]) / 100.0 : 1.0;

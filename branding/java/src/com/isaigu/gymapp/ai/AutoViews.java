@@ -544,11 +544,29 @@ public final class AutoViews {
             }
             fill.setAlpha(XemsUi.dark ? 235 : 255);
             c.drawPath(tri, fill);
+            // 100 % = the most this client's body takes in a healthy way (in general, not this session); above it
+            // up to 125 % is over the limit — a thin line marks where that begins
+            float y100 = bottom - (bottom - top) / 1.25f;
+            float h100 = half * (bottom - y100) / (bottom - top);
+            line.setColor(XemsUi.alpha(XemsUi.TEXT, 0x99));
+            line.setStrokeWidth(dp(this, 1.2f));
+            c.drawLine(w / 2f - h100 - dp(this, 5), y100, w / 2f + h100 + dp(this, 5), y100, line);
             float y = bottom - (bottom - top) * value / 1.25f;
-            float hw = half * (y - top) / (bottom - top);
-            hw = half - hw + dp(this, 6);
+            float hw = half * (bottom - y) / (bottom - top) + dp(this, 6);
             line.setColor(XemsUi.TEXT);
+            line.setStrokeWidth(dp(this, 2.5f));
             c.drawLine(w / 2f - hw, y, w / 2f + hw, y, line);
+            // the value beside the marker, in the scale's own colour
+            txt.setTextAlign(Paint.Align.LEFT);
+            txt.setColor(value > 1f ? HEAT_COL[4] : XemsUi.TEXT);
+            Paint.FontMetrics fm = txt.getFontMetrics();
+            float ty = Math.max(top - fm.ascent, Math.min(bottom, y - (fm.ascent + fm.descent) / 2f));
+            String pct = Math.round(value * 100) + "%";
+            float tx = w / 2f + hw + dp(this, 4);
+            if (tx + txt.measureText(pct) > w) {
+                tx = Math.max(0, w / 2f - hw - dp(this, 4) - txt.measureText(pct));
+            }
+            c.drawText(pct, tx, ty, txt);
         }
     }
 

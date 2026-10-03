@@ -51,8 +51,9 @@ public final class ScaleScreen {
     /** Height used when the client record has none (remembered per client once set here). */
     static final String H_KEY = "h";
 
-    static final int M_FAT = 0, M_MUSCLE = 1, M_WATER = 2, M_VISC = 3, M_WEIGHT = 4;
-    static final String[] M_KEY = {"fat", "muscle", "water", "visc", "w"};
+    static final int M_FAT = 0, M_MUSCLE = 1, M_WATER = 2, M_AGE = 3, M_WEIGHT = 4;
+    /** "page" = physical age, computed (ScaleInsight.body), not stored. */
+    static final String[] M_KEY = {"fat", "muscle", "water", "page", "w"};
 
     public static void open(Activity a, TrainUser u) {
         try {
@@ -95,6 +96,8 @@ public final class ScaleScreen {
         TextView trendTitle;
         ScaleViews.Trend trend;
         ScaleViews.Reach reach;
+        ScaleViews.TypeMap typeMap;
+        TextView typeChip;
         TextView again;
         LinearLayout middle;
         LinearLayout right;
@@ -205,6 +208,13 @@ public final class ScaleScreen {
             saved.setVisibility(View.GONE);
             line.addView(saved);
             col.addView(line, XemsUi.matchWrap(a, 2));
+            typeChip = XemsUi.text(a, "", 16, XemsUi.TEXT, true);
+            typeChip.setPadding(dp(14), dp(8), dp(14), dp(8));
+            typeChip.setVisibility(View.GONE);
+            LinearLayout.LayoutParams tcp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            tcp.topMargin = dp(8);
+            col.addView(typeChip, tcp);
             heightRow = heightStepper();
             heightRow.setVisibility(heightFromProfile ? View.GONE : View.VISIBLE);
             col.addView(heightRow, XemsUi.matchWrap(a, 8));
@@ -248,7 +258,7 @@ public final class ScaleScreen {
         LinearLayout rightColumn(int h) {
             LinearLayout col = XemsUi.vertical(a);
             String[] names = {tr("Мазнини", "Body fat"), tr("Мускули", "Muscle"), tr("Вода", "Water"),
-                    tr("Висцерални", "Visceral")};
+                    tr("Възраст", "Age")};
             for (int r = 0; r < 2; r++) {
                 LinearLayout line = XemsUi.horizontal(a);
                 for (int c = 0; c < 2; c++) {
@@ -279,9 +289,18 @@ public final class ScaleScreen {
             tc.addView(trendTitle);
             trend = new ScaleViews.Trend(a, false);
             tc.addView(trend, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            LinearLayout duo = XemsUi.horizontal(a);
+            duo.addView(tc, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.25f));
+            LinearLayout mc = XemsUi.card(a);
+            mc.addView(XemsUi.label(a, tr("Тип тяло", "Body type")));
+            typeMap = new ScaleViews.TypeMap(a);
+            mc.addView(typeMap, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            LinearLayout.LayoutParams mcp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+            mcp.leftMargin = dp(10);
+            duo.addView(mc, mcp);
             LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
             tp.topMargin = dp(12);
-            col.addView(tc, tp);
+            col.addView(duo, tp);
             LinearLayout rc = XemsUi.card(a);
             rc.addView(XemsUi.label(a, tr("Ток до мускула · по канали", "Current to the muscle · per channel")));
             reach = new ScaleViews.Reach(a);
@@ -364,6 +383,8 @@ public final class ScaleScreen {
             zones(fresh);
             tilesAndTrend();
             reach.set(has ? ScaleInsight.channelFat(m) : null);
+            typeChip(m);
+            typeMap.set(male, series("ffmi"), series("fmi"));
             if (fresh) {
                 body.animateIn();
                 radar.animateIn();
@@ -398,12 +419,13 @@ public final class ScaleScreen {
         void zones(boolean fresh) {
             JSONObject m = cur();
             body.set(!male, layer, layerValues(m, layer, false), selected);
+            radar.fatMid = ScaleInsight.fatMid(male);
             radar.set(layer, layerValues(m, layer, true),
                     layer == ScaleViews.LAYER_READY ? null : layerValues(prev(), layer, true), selected);
             legend.setText(layer == ScaleViews.LAYER_MUSCLE
                     ? tr("● под нормата   ● норма   ● над нормата", "● below normal   ● normal   ● above")
                     : layer == ScaleViews.LAYER_FAT
-                            ? tr("● ниско   ● норма   ● високо", "● low   ● normal   ● high")
+                            ? tr("● здравословно   ● над средното   ● високо", "● healthy   ● above the middle   ● high")
                             : tr("● като обичайно   ● подуване   ● силно подуване",
                                     "● as usual   ● swelling   ● strong swelling"));
             detail.setText(detailText(m));
@@ -418,8 +440,14 @@ public final class ScaleScreen {
             if (selected < 0) {
                 double arms = ScaleInsight.asymmetry(k, ScaleProtocol.LEFT_ARM, ScaleProtocol.RIGHT_ARM);
                 double legs = ScaleInsight.asymmetry(k, ScaleProtocol.LEFT_LEG, ScaleProtocol.RIGHT_LEG);
+                ScaleInsight.Body bt = ScaleInsight.body(m, male, heightCm);
+                String pattern = Double.isNaN(bt.legFatShare) ? ""
+                        : bt.legFatShare >= 0.45 ? tr("  ·  мазнини: в краката и бедрата", "  ·  fat: legs and hips")
+                        : bt.legFatShare <= 0.32 ? tr("  ·  мазнини: около корема", "  ·  fat: round the belly")
+                        : tr("  ·  мазнини: равномерно", "  ·  fat: even");
                 return tr("Баланс Л/Д · ръце ", "Balance L/R · arms ") + signedPct(arms)
-                        + tr("  ·  крака ", "  ·  legs ") + signedPct(legs);
+                        + tr("  ·  крака ", "  ·  legs ") + signedPct(legs)
+                        + tr("  ·  висцерални ", "  ·  visceral ") + m.optInt("visc") + pattern;
             }
             double[][] n = ScaleInsight.ofNormal(m, male, heightCm);
             ScaleInsight.Readiness r = ScaleInsight.readiness(hist, indexOf(m));
@@ -429,11 +457,57 @@ public final class ScaleScreen {
             b.append("  ·  ").append(tr("мускули ", "muscle ")).append(one(k.optDouble(selected)))
                     .append(tr(" кг (", " kg (")).append(Math.round(n[0][selected])).append(" %)");
             b.append("  ·  ").append(tr("мазнини ", "fat ")).append(one(f.optDouble(selected)))
-                    .append(tr(" кг (", " kg (")).append(Math.round(n[1][selected])).append(" %)");
+                    .append(tr(" кг (", " kg (")).append(Math.round(n[1][selected] * ScaleInsight.fatMid(male) / 100))
+                    .append(tr(" % от зоната)", " % of the zone)"));
             if (!Double.isNaN(r.swell[selected])) {
                 b.append("  ·  ").append(tr("подуване ", "swelling ")).append(signedPct(r.swell[selected]));
             }
             return b.toString();
+        }
+
+        /** The body type in one line, coloured — the antidote to "muscle = overweight". */
+        void typeChip(JSONObject m) {
+            ScaleInsight.Body b = ScaleInsight.body(m, male, heightCm);
+            if (!b.known()) {
+                typeChip.setVisibility(View.GONE);
+                return;
+            }
+            String t;
+            int c;
+            switch (b.type) {
+                case ScaleInsight.T_ATHLETIC:
+                    t = tr("Атлетичен · теглото е мускули", "Athletic · the weight is muscle");
+                    c = 0xFF22C55E;
+                    break;
+                case ScaleInsight.T_BALANCED:
+                    t = tr("Балансиран", "Balanced");
+                    c = 0xFF22C55E;
+                    break;
+                case ScaleInsight.T_STRONG_FAT:
+                    t = tr("Силен · с излишни мазнини", "Strong · with excess fat");
+                    c = 0xFFF59E0B;
+                    break;
+                case ScaleInsight.T_FAT:
+                    t = b.fatCls >= 3 ? tr("Затлъстяване", "Obese") : tr("Излишни мазнини", "Excess fat");
+                    c = b.fatCls >= 3 ? 0xFFEF4444 : 0xFFF59E0B;
+                    break;
+                case ScaleInsight.T_FAT_LOW_MUSCLE:
+                    t = tr("Мазнини при малко мускули", "Fat with little muscle");
+                    c = 0xFFEF4444;
+                    break;
+                case ScaleInsight.T_LEAN_LOW_MUSCLE:
+                    t = tr("Слаб · малко мускули", "Slim · little muscle");
+                    c = 0xFFF59E0B;
+                    break;
+                default:
+                    t = tr("Много ниски мазнини", "Very low fat");
+                    c = 0xFF38BDF8;
+                    break;
+            }
+            typeChip.setText(t);
+            typeChip.setTextColor(c);
+            typeChip.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(c, 34), dp(18), XemsUi.alpha(c, 140), dp(1)));
+            typeChip.setVisibility(View.VISIBLE);
         }
 
         void readiness(JSONObject m) {
@@ -474,19 +548,27 @@ public final class ScaleScreen {
             JSONObject p = prev();
             String[] unit = {" %", tr(" кг", " kg"), " %", ""};
             boolean[] upGood = {false, true, true, false};
-            int[] col = {0xFFF59E0B, 0xFF22C55E, 0xFF38BDF8, 0xFFF97316};
+            int[] col = {0xFFF59E0B, 0xFF22C55E, 0xFF38BDF8, 0xFFA78BFA};
             for (int i = 0; i < 4; i++) {
-                double v = m != null ? m.optDouble(M_KEY[i], Double.NaN) : Double.NaN;
-                tileValue[i].setText(Double.isNaN(v) ? "—" : (i == M_VISC ? String.valueOf((int) v) : one(v))
-                        + (i == M_VISC ? "" : unit[i]));
-                setDelta(tileDelta[i], m, p, M_KEY[i], "", upGood[i], false);
+                if (i == M_AGE) {
+                    ScaleInsight.Body b = ScaleInsight.body(m, male, heightCm);
+                    double pa = b.physicalAge;
+                    tileValue[i].setText(Double.isNaN(pa) ? "—" : String.valueOf(Math.round(pa)));
+                    tileDelta[i].setText(tr("паспорт ", "passport ") + age);
+                    tileDelta[i].setTextColor(Double.isNaN(pa) ? XemsUi.MUTED : pa <= age - 2 ? XemsUi.GO_TEXT
+                            : pa >= age + 2 ? XemsUi.AMBER : XemsUi.MUTED);
+                } else {
+                    double v = m != null ? m.optDouble(M_KEY[i], Double.NaN) : Double.NaN;
+                    tileValue[i].setText(Double.isNaN(v) ? "—" : one(v) + unit[i]);
+                    setDelta(tileDelta[i], m, p, M_KEY[i], "", upGood[i], false);
+                }
                 spark[i].set(series(M_KEY[i]), times(), col[i], "");
                 boolean sel = metric == i;
                 tiles[i].setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, dp(14),
                         sel ? col[i] : XemsUi.alpha(XemsUi.STROKE, 0x88), dp(sel ? 2 : 1)));
             }
             String[] titles = {tr("Мазнини · %", "Body fat · %"), tr("Мускули · кг", "Muscle · kg"),
-                    tr("Вода · %", "Water · %"), tr("Висцерални", "Visceral"), tr("Тегло · кг", "Weight · kg")};
+                    tr("Вода · %", "Water · %"), tr("Физическа възраст", "Physical age"), tr("Тегло · кг", "Weight · kg")};
             int[] colAll = {col[0], col[1], col[2], col[3], 0xFFA78BFA};
             trendTitle.setText(titles[metric]);
             trend.set(series(M_KEY[metric]), times(), colAll[metric], "");
@@ -497,7 +579,12 @@ public final class ScaleScreen {
             double[] v = new double[n];
             for (int i = 0; i < n; i++) {
                 JSONObject o = hist.optJSONObject(i);
-                v[i] = o != null ? o.optDouble(key, Double.NaN) : Double.NaN;
+                if (o != null && (key.equals("page") || key.equals("ffmi") || key.equals("fmi"))) {
+                    ScaleInsight.Body b = ScaleInsight.body(o, male, heightCm);
+                    v[i] = key.equals("page") ? b.physicalAge : key.equals("ffmi") ? b.ffmi : b.fmi;
+                } else {
+                    v[i] = o != null ? o.optDouble(key, Double.NaN) : Double.NaN;
+                }
             }
             return v;
         }

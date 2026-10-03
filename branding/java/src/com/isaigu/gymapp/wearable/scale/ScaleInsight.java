@@ -162,11 +162,7 @@ public final class ScaleInsight {
         }
         double h = heightCm;
         float sw = ScaleBody.stdWeight(heightCm, male);
-        double bfm = ScaleBody.ceil1((male ? 0.15f : 0.23f) * sw);
         double ffm = ScaleBody.ceil1((male ? 0.85f : 0.77f) * sw);
-        double armFat = bfm * 0.101 + h * -0.004 + 0.331;
-        double legFat = bfm * 0.215 + h * -0.005 + 0.391;
-        double trunkFat = h * 0.006 + bfm * 0.389 - 0.683;
         double armMus = w * 0.02 + ffm * 0.102 + h * -0.045 + 3.752;
         double legMus = w * 0.059 + ffm * 0.168 + h * -0.056 + 4.775;
         double trunkMus = w * 0.166 + ffm * 0.485 + h * -0.16 + 13.595;
@@ -174,15 +170,21 @@ public final class ScaleInsight {
             boolean arm = i == ScaleProtocol.LEFT_ARM || i == ScaleProtocol.RIGHT_ARM;
             boolean trunk = i == ScaleProtocol.TRUNK;
             double sm = trunk ? trunkMus : arm ? armMus : legMus;
-            double sf = trunk ? trunkFat : arm ? armFat : legFat;
             if (!k.isNull(i) && sm > 0) {
                 out[0][i] = k.optDouble(i) / sm * 100;
             }
-            if (!f.isNull(i) && sf > 0) {
-                out[1][i] = f.optDouble(i) / sf * 100;
+            // fat: the zone's own fat share (fat / (fat + muscle)) against the healthy middle for the sex
+            double fz = f.optDouble(i, Double.NaN), mz = k.optDouble(i, Double.NaN);
+            if (!Double.isNaN(fz) && !Double.isNaN(mz) && fz + mz > 0) {
+                out[1][i] = fz / (fz + mz) * 100 / fatMid(male) * 100;
             }
         }
         return out;
+    }
+
+    /** The healthy middle of body fat (%) — the 100 of the fat layer: men 15, women 25. */
+    public static double fatMid(boolean male) {
+        return male ? 15 : 25;
     }
 
     // ================================================================ fat per suit channel
@@ -239,5 +241,92 @@ public final class ScaleInsight {
         }
         double l = v.optDouble(left), r = v.optDouble(right);
         return l + r > 0 ? (l - r) / ((l + r) / 2) * 100 : Double.NaN;
+    }
+
+    // ================================================================ body type — not against the population
+
+    /**
+     * What the body is made of, said without the two biases of the fitness apps: weight counted as fat (BMI terms)
+     * and the entered age echoed back as "body age".
+     *
+     * <ul>
+     *   <li><b>FFMI / FMI</b> — fat-free and fat mass per height² (kg/m²). Dense muscle raises FFMI, not FMI, so a
+     *       muscular man is "athletic", not "overweight", whatever his BMI.</li>
+     *   <li><b>Physiological thresholds</b> — "very low" only below essential fat (men 6 %, women 14 %), not below a
+     *       population percentile, so a lean woman is lean, not "in deficit"; "excess" / "obese" by FMI (men 6 / 9,
+     *       women 9 / 13 kg/m²), so a heavy woman is not "normal" by a wide %-range.</li>
+     *   <li><b>Physical age</b> — the age whose typical skeletal-muscle index and fat % match the measured ones, on
+     *       WLA25's own muscle scale (an average 30-year-old: men SMI 11.4 kg/m², −0.04 / year; women 9.0, −0.03;
+     *       fat men 17 % at 20, +0.225 / year; women 27 %, +0.25). The entered age is not in it. [D] reference curves,
+     *       to validate.</li>
+     *   <li><b>Fat pattern</b> — the legs' share of the limb + trunk fat: gynoid (legs, hips) or android (trunk).</li>
+     * </ul>
+     */
+    public static final class Body {
+        public double ffmi = Double.NaN, fmi = Double.NaN, smi = Double.NaN;
+        /** 0 low, 1 normal, 2 athletic, 3 very muscular. */
+        public int muscleCls = -1;
+        /** 0 very low (essential), 1 normal, 2 excess, 3 obese. */
+        public int fatCls = -1;
+        public int type = -1;
+        public double physicalAge = Double.NaN;
+        public double ageFromMuscle = Double.NaN, ageFromFat = Double.NaN;
+        /** Legs' share of the segment fat (0–1); NaN without segments. */
+        public double legFatShare = Double.NaN;
+
+        public boolean known() {
+            return type >= 0;
+        }
+    }
+
+    public static final int T_ATHLETIC = 0, T_BALANCED = 1, T_STRONG_FAT = 2, T_FAT = 3, T_FAT_LOW_MUSCLE = 4,
+            T_LEAN_LOW_MUSCLE = 5, T_VERY_LEAN = 6;
+
+    public static Body body(JSONObject m, boolean male, int heightCm) {
+        Body b = new Body();
+        if (m == null || !m.has("fat") || heightCm < 100) {
+            return b;
+        }
+        double h2 = Math.pow(heightCm / 100.0, 2);
+        double w = m.optDouble("w");
+        double fatPct = m.optDouble("fat");
+        double fatKg = m.optDouble("fatKg", w * fatPct / 100);
+        double lean = m.optDouble("lean", w - fatKg);
+        b.ffmi = lean / h2;
+        b.fmi = fatKg / h2;
+        double skel = m.optDouble("skel", Double.NaN);
+        b.smi = Double.isNaN(skel) ? Double.NaN : w * skel / 100 / h2;
+        if (male) {
+            b.muscleCls = b.ffmi < 17 ? 0 : b.ffmi < 20 ? 1 : b.ffmi < 23 ? 2 : 3;
+            b.fatCls = fatPct < 6 ? 0 : b.fmi <= 6 ? 1 : b.fmi <= 9 ? 2 : 3;
+        } else {
+            b.muscleCls = b.ffmi < 14 ? 0 : b.ffmi < 17 ? 1 : b.ffmi < 19.5 ? 2 : 3;
+            b.fatCls = fatPct < 14 ? 0 : b.fmi <= 9 ? 1 : b.fmi <= 13 ? 2 : 3;
+        }
+        if (b.fatCls == 0) {
+            b.type = T_VERY_LEAN;
+        } else if (b.fatCls == 1) {
+            b.type = b.muscleCls >= 2 ? T_ATHLETIC : b.muscleCls == 0 ? T_LEAN_LOW_MUSCLE : T_BALANCED;
+        } else {
+            b.type = b.muscleCls >= 2 ? T_STRONG_FAT : b.muscleCls == 0 ? T_FAT_LOW_MUSCLE : T_FAT;
+        }
+        if (!Double.isNaN(b.smi)) {
+            b.ageFromMuscle = clampAge(30 + ((male ? 11.4 : 9.0) - b.smi) / (male ? 0.04 : 0.03));
+        }
+        b.ageFromFat = clampAge(20 + (fatPct - (male ? 17 : 27)) / (male ? 0.225 : 0.25));
+        b.physicalAge = Double.isNaN(b.ageFromMuscle) ? b.ageFromFat
+                : 0.55 * b.ageFromMuscle + 0.45 * b.ageFromFat;
+        JSONArray f = m.optJSONArray("segFat");
+        if (f != null) {
+            double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
+            double all = legs + f.optDouble(ScaleProtocol.TRUNK, 0) + f.optDouble(ScaleProtocol.LEFT_ARM, 0)
+                    + f.optDouble(ScaleProtocol.RIGHT_ARM, 0);
+            b.legFatShare = all > 0 ? legs / all : Double.NaN;
+        }
+        return b;
+    }
+
+    static double clampAge(double a) {
+        return Math.max(18, Math.min(85, a));
     }
 }

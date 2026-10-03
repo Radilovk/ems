@@ -327,7 +327,38 @@ public final class ScaleSim {
         eq("asymmetry", ScaleInsight.asymmetry(new org.json.JSONArray("[0, 3.2, 3.0, 9, 9]"), 1, 2), 6.45, 0.01);
     }
 
+    static org.json.JSONObject comp(double w, double fat, double skelPct) throws Exception {
+        org.json.JSONObject o = new org.json.JSONObject();
+        o.put("w", w);
+        o.put("fat", fat);
+        o.put("fatKg", w * fat / 100);
+        o.put("lean", w - w * fat / 100);
+        o.put("skel", skelPct);
+        return o;
+    }
+
+    static void bodyType() throws Exception {
+        // muscular man, 180 cm, 90 kg, 14 % fat: BMI 27.8 "overweight" elsewhere — here athletic
+        ScaleInsight.Body m = ScaleInsight.body(comp(90, 14, 50), true, 180);
+        ok("muscular man = athletic", m.type == ScaleInsight.T_ATHLETIC);
+        // lean woman, 165 cm, 54 kg, 19 %: not "in deficit"
+        ScaleInsight.Body lw = ScaleInsight.body(comp(54, 19, 40), false, 165);
+        ok("lean woman = balanced/athletic", lw.type == ScaleInsight.T_BALANCED || lw.type == ScaleInsight.T_ATHLETIC);
+        // heavy woman, 165 cm, 88 kg, 41 %: obese, not "normal"
+        ScaleInsight.Body hw = ScaleInsight.body(comp(88, 41, 30), false, 165);
+        ok("heavy woman = obese", hw.fatCls == 3);
+        // very lean (below essential fat)
+        ok("very lean", ScaleInsight.body(comp(60, 12, 42), false, 165).type == ScaleInsight.T_VERY_LEAN);
+        // physical age does not move with the entered age (there is none in the call) and follows the body
+        double young = ScaleInsight.body(comp(75, 14, 50), true, 175).physicalAge;
+        double older = ScaleInsight.body(comp(75, 26, 41), true, 175).physicalAge;
+        ok("physical age: fitter body younger (" + Math.round(young) + " < " + Math.round(older) + ")",
+                young + 8 < older);
+        ok("physical age in range", young >= 18 && older <= 85);
+    }
+
     public static void main(String[] a) throws Exception {
+        bodyType();
         genB();
         genA();
         misc();

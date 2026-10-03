@@ -33,10 +33,10 @@
     .registers 4
 
     .prologue
-    .line 597
+    .line 600
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 589
+    .line 592
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -45,36 +45,36 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
-    .line 590
+    .line 593
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->r:Landroid/graphics/RectF;
 
-    .line 591
+    .line 594
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->score:I
 
-    .line 593
+    .line 596
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->verdict:Ljava/lang/String;
 
-    .line 594
+    .line 597
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->sub:Ljava/lang/String;
 
-    .line 598
+    .line 601
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 599
+    .line 602
     return-void
 .end method
 
@@ -82,7 +82,7 @@
     .registers 2
 
     .prologue
-    .line 614
+    .line 617
     if-gez p0, :cond_6
 
     const v0, -0x948d80
@@ -120,7 +120,7 @@
     .registers 14
 
     .prologue
-    .line 619
+    .line 622
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->getWidth()I
 
     move-result v0
@@ -145,14 +145,14 @@
 
     move-result v8
 
-    .line 620
+    .line 623
     const/high16 v0, 0x41600000    # 14.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
 
     move-result v0
 
-    .line 621
+    .line 624
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->getWidth()I
 
     move-result v1
@@ -163,14 +163,14 @@
 
     div-float v9, v1, v2
 
-    .line 622
+    .line 625
     const/high16 v1, 0x40800000    # 4.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
 
     move-result v10
 
-    .line 623
+    .line 626
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->r:Landroid/graphics/RectF;
 
     const/high16 v2, 0x40000000    # 2.0f
@@ -197,26 +197,26 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 624
+    .line 627
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 625
+    .line 628
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 626
+    .line 629
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 627
+    .line 630
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
@@ -229,7 +229,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 628
+    .line 631
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->r:Landroid/graphics/RectF;
 
     const/high16 v2, 0x43070000    # 135.0f
@@ -244,19 +244,19 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 629
+    .line 632
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->score:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->col(I)I
 
     move-result v6
 
-    .line 630
+    .line 633
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->score:I
 
     if-ltz v0, :cond_b5
 
-    .line 631
+    .line 634
     iget-object v11, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     new-instance v0, Landroid/graphics/LinearGradient;
@@ -291,7 +291,7 @@
 
     invoke-virtual {v11, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 633
+    .line 636
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->r:Landroid/graphics/RectF;
 
     const/high16 v2, 0x43070000    # 135.0f
@@ -314,14 +314,14 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 634
+    .line 637
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 636
+    .line 639
     :cond_b5
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
@@ -329,21 +329,21 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 637
+    .line 640
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 638
+    .line 641
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 639
+    .line 642
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->score:I
@@ -355,7 +355,7 @@
     :goto_d1
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 640
+    .line 643
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const v1, 0x3e99999a    # 0.3f
@@ -364,7 +364,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 641
+    .line 644
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->score:I
 
     if-ltz v0, :cond_17e
@@ -396,14 +396,14 @@
 
     invoke-virtual {p1, v0, v9, v1, v2}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 642
+    .line 645
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 643
+    .line 646
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41400000    # 12.0f
@@ -414,14 +414,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 644
+    .line 647
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 645
+    .line 648
     const-string v0, "\u0433\u043e\u0442\u043e\u0432\u043d\u043e\u0441\u0442"
 
     const-string v1, "readiness"
@@ -446,14 +446,14 @@
 
     invoke-virtual {p1, v0, v9, v1, v2}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 646
+    .line 649
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 647
+    .line 650
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41880000    # 17.0f
@@ -464,12 +464,12 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 648
+    .line 651
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 649
+    .line 652
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->verdict:Ljava/lang/String;
 
     add-float v1, v10, v8
@@ -486,14 +486,14 @@
 
     invoke-virtual {p1, v0, v9, v1, v2}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 650
+    .line 653
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 651
+    .line 654
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41400000    # 12.0f
@@ -504,14 +504,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 652
+    .line 655
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->p:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 653
+    .line 656
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->sub:Ljava/lang/String;
 
     add-float v1, v10, v8
@@ -528,16 +528,16 @@
 
     invoke-virtual {p1, v0, v9, v1, v2}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 654
+    .line 657
     return-void
 
-    .line 639
+    .line 642
     :cond_17a
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto/16 :goto_d1
 
-    .line 641
+    .line 644
     :cond_17e
     const-string v0, "\u2014"
 
@@ -550,22 +550,22 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 603
+    .line 606
     iput p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->score:I
 
-    .line 604
+    .line 607
     if-eqz p2, :cond_38
 
     :goto_5
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->verdict:Ljava/lang/String;
 
-    .line 605
+    .line 608
     if-eqz p3, :cond_3b
 
     :goto_9
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->sub:Ljava/lang/String;
 
-    .line 606
+    .line 609
     const/4 v0, 0x2
 
     new-array v0, v0, [F
@@ -588,12 +588,12 @@
 
     move-result-object v0
 
-    .line 607
+    .line 610
     const-wide/16 v2, 0x384
 
     invoke-virtual {v0, v2, v3}, Landroid/animation/ValueAnimator;->setDuration(J)Landroid/animation/ValueAnimator;
 
-    .line 608
+    .line 611
     new-instance v1, Landroid/view/animation/DecelerateInterpolator;
 
     const/high16 v2, 0x3fc00000    # 1.5f
@@ -602,26 +602,26 @@
 
     invoke-virtual {v0, v1}, Landroid/animation/ValueAnimator;->setInterpolator(Landroid/animation/TimeInterpolator;)V
 
-    .line 609
+    .line 612
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;)V
 
     invoke-virtual {v0, v1}, Landroid/animation/ValueAnimator;->addUpdateListener(Landroid/animation/ValueAnimator$AnimatorUpdateListener;)V
 
-    .line 610
+    .line 613
     invoke-virtual {v0}, Landroid/animation/ValueAnimator;->start()V
 
-    .line 611
+    .line 614
     return-void
 
-    .line 604
+    .line 607
     :cond_38
     const-string p2, ""
 
     goto :goto_5
 
-    .line 605
+    .line 608
     :cond_3b
     const-string p3, ""
 

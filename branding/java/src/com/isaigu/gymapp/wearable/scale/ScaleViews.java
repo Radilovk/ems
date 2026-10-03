@@ -65,10 +65,10 @@ public final class ScaleViews {
                 new int[] {0xFFF97316, 0xFFEAB308, 0xFF22C55E, 0xFF10B981, 0xFF06B6D4}, v);
     }
 
-    /** Fat, % of normal: green (lean) → yellow (normal-high) → orange → red (high). */
+    /** Fat, % of the healthy middle (15 / 25 %): green up to ~+12 %, amber at men 20 / women 34 %, red beyond. */
     public static int fatCol(double v) {
-        return lerp(new float[] {70, 100, 130, 170},
-                new int[] {0xFF22C55E, 0xFFEAB308, 0xFFF97316, 0xFFEF4444}, v);
+        return lerp(new float[] {85, 112, 135, 165},
+                new int[] {0xFF22C55E, 0xFF84CC16, 0xFFF59E0B, 0xFFEF4444}, v);
     }
 
     /** Swelling Δρ (%): green (as usual) → amber → red. */
@@ -373,6 +373,8 @@ public final class ScaleViews {
         static final double MIN = 50, MAX = 150;
         /** The readiness layer: 100 + Δρ × READY_K, so a 2.5 % swelling sits well out of the normal band. */
         public static final double READY_K = 15;
+        /** The fat layer's 100 (%), to label each zone with its own fat %. */
+        public double fatMid = 15;
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final Path path = new Path();
         double[] now = new double[5];
@@ -495,7 +497,8 @@ public final class ScaleViews {
                 p.setFakeBoldText(true);
                 p.setTextSize(dp(this, 14));
                 p.setColor(vc);
-                c.drawText(layer == LAYER_READY ? signed((v - 100) / READY_K) + "%" : Math.round(v) + "%", lx,
+                c.drawText(layer == LAYER_READY ? signed((v - 100) / READY_K) + "%"
+                        : layer == LAYER_FAT ? Math.round(v * fatMid / 100) + "%" : Math.round(v) + "%", lx,
                         ly + dp(this, 14), p);
                 p.setFakeBoldText(false);
             }
@@ -874,6 +877,108 @@ public final class ScaleViews {
             p.setPathEffect(new DashPathEffect(new float[] {dp(this, 4), dp(this, 4)}, 0));
             c.drawLine(0, my, getWidth(), my, p);
             p.setPathEffect(null);
+        }
+    }
+
+    // ================================================================ body type map (FFMI × FMI)
+
+    /**
+     * Muscle (FFMI, →) against fat (FMI, ↑), per height², in the client's sex's zones: athletic bottom-right,
+     * low muscle left, excess fat up. The history is a fading trail, today a big dot — the path the training takes.
+     */
+    public static final class TypeMap extends View {
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF r = new RectF();
+        double[] ffmi = new double[0];
+        double[] fmi = new double[0];
+        boolean male = true;
+
+        public TypeMap(Context c) {
+            super(c);
+        }
+
+        public void set(boolean male, double[] ffmi, double[] fmi) {
+            this.male = male;
+            this.ffmi = ffmi != null ? ffmi : new double[0];
+            this.fmi = fmi != null ? fmi : new double[0];
+            invalidate();
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            float l = dp(this, 4), t = dp(this, 4), rr = getWidth() - dp(this, 4), b = getHeight() - dp(this, 16);
+            double x0 = male ? 14 : 11, x1 = male ? 27 : 23, y0 = 0, y1 = male ? 14 : 18;
+            double[] xs = male ? new double[] {17, 20, 23} : new double[] {14, 17, 19.5};
+            double[] ys = male ? new double[] {6, 9} : new double[] {9, 13};
+            float w = rr - l, h = b - t;
+            // fat bands: normal (green), excess (amber), obese (red) — muscle low strip greyed
+            float yN = (float) (b - (ys[0] - y0) / (y1 - y0) * h);
+            float yE = (float) (b - (ys[1] - y0) / (y1 - y0) * h);
+            float xLow = (float) (l + (xs[0] - x0) / (x1 - x0) * w);
+            float xAth = (float) (l + (xs[1] - x0) / (x1 - x0) * w);
+            p.setStyle(Paint.Style.FILL);
+            p.setColor(XemsUi.alpha(0xFF22C55E, 34));
+            r.set(l, yN, rr, b);
+            c.drawRoundRect(r, dp(this, 6), dp(this, 6), p);
+            p.setColor(XemsUi.alpha(0xFF22C55E, 40));
+            r.set(xAth, yN, rr, b);
+            c.drawRect(r, p);
+            p.setColor(XemsUi.alpha(0xFFF59E0B, 34));
+            r.set(l, yE, rr, yN);
+            c.drawRect(r, p);
+            p.setColor(XemsUi.alpha(0xFFEF4444, 34));
+            r.set(l, t, rr, yE);
+            c.drawRoundRect(r, dp(this, 6), dp(this, 6), p);
+            p.setColor(XemsUi.alpha(XemsUi.MUTED, 40));
+            r.set(l, t, xLow, b);
+            c.drawRect(r, p);
+            p.setTextSize(dp(this, 11));
+            p.setFakeBoldText(true);
+            p.setTextAlign(Paint.Align.RIGHT);
+            p.setColor(XemsUi.GO_TEXT);
+            c.drawText(tr("атлетичен", "athletic"), rr - dp(this, 6), b - dp(this, 6), p);
+            p.setColor(0xFFF59E0B);
+            c.drawText(tr("излишни мазнини", "excess fat"), rr - dp(this, 6), yN - dp(this, 6), p);
+            p.setColor(0xFFEF4444);
+            c.drawText(tr("затлъстяване", "obese"), rr - dp(this, 6), t + dp(this, 14), p);
+            p.setTextAlign(Paint.Align.LEFT);
+            p.setColor(XemsUi.MUTED);
+            c.drawText(tr("малко мускули", "low muscle"), l + dp(this, 6), b - dp(this, 6), p);
+            p.setFakeBoldText(false);
+            p.setTextAlign(Paint.Align.CENTER);
+            p.setTextSize(dp(this, 10));
+            c.drawText(tr("мускули →", "muscle →"), (l + rr) / 2, getHeight() - dp(this, 2), p);
+            // trail
+            int n = Math.min(ffmi.length, fmi.length);
+            float px = 0, py = 0;
+            boolean have = false;
+            for (int i = 0; i < n; i++) {
+                if (Double.isNaN(ffmi[i]) || Double.isNaN(fmi[i])) {
+                    continue;
+                }
+                float x = (float) (l + (Math.max(x0, Math.min(x1, ffmi[i])) - x0) / (x1 - x0) * w);
+                float y = (float) (b - (Math.max(y0, Math.min(y1, fmi[i])) - y0) / (y1 - y0) * h);
+                float k = n == 1 ? 1f : 0.25f + 0.75f * i / (float) (n - 1);
+                if (have) {
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setStrokeWidth(dp(this, 2));
+                    p.setColor(XemsUi.alpha(XemsUi.TEXT, (int) (160 * k)));
+                    c.drawLine(px, py, x, y, p);
+                }
+                p.setStyle(Paint.Style.FILL);
+                boolean last = i == n - 1;
+                p.setColor(last ? XemsUi.TEXT : XemsUi.alpha(XemsUi.TEXT, (int) (200 * k)));
+                c.drawCircle(x, y, dp(this, last ? 7 : 3.5f), p);
+                if (last) {
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setStrokeWidth(dp(this, 2.5f));
+                    p.setColor(0xFF38BDF8);
+                    c.drawCircle(x, y, dp(this, 12), p);
+                }
+                px = x;
+                py = y;
+                have = true;
+            }
         }
     }
 }

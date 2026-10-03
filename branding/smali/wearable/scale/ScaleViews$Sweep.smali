@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 660
+    .line 663
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 661
+    .line 664
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;
 
-    .line 662
+    .line 665
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 666
+    .line 669
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;
 
     invoke-virtual {p1}, Landroid/animation/ValueAnimator;->getAnimatedValue()Ljava/lang/Object;
@@ -57,11 +57,11 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->shown:F
 
-    .line 667
+    .line 670
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;->invalidate()V
 
-    .line 668
+    .line 671
     return-void
 .end method

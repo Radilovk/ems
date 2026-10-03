@@ -6,6 +6,7 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$TypeMap;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;,
@@ -81,17 +82,17 @@
 
     :array_10
     .array-data 4
-        0x428c0000    # 70.0f
-        0x42c80000    # 100.0f
-        0x43020000    # 130.0f
-        0x432a0000    # 170.0f
+        0x42aa0000    # 85.0f
+        0x42e00000    # 112.0f
+        0x43070000    # 135.0f
+        0x43250000    # 165.0f
     .end array-data
 
     :array_1c
     .array-data 4
         -0xdd3aa2
-        -0x154cf8
-        -0x68cea
+        -0x7b33ea
+        -0xa61f5
         -0x10bbbc
     .end array-data
 .end method
@@ -278,7 +279,7 @@
     .registers 10
 
     .prologue
-    .line 582
+    .line 585
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V

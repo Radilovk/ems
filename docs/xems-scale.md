@@ -27,7 +27,23 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
    share); channels → trunk / arms / legs (glutes half trunk, half legs). `AutoEngine.reach(k)` uses it instead of
    the one whole-body value.
 
+## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
+Measured on WLA25 itself (sacoma port): same impedances, +10 kg → +9 % fat (its BMI / weight terms count weight
+as fat → muscular men "fat / overweight"); "body age" = entered age + a fat-% band offset (25 / 45 / 65 → 22 / 42 /
+62 for the same body). `ScaleInsight.body` adds a layer that does not carry those biases:
+- **FFMI / FMI** (kg/m²) classify: muscle low / normal / athletic / very (men 17 · 20 · 23, women 14 · 17 · 19.5),
+  fat very low only below essential fat (men 6 %, women 14 %), excess / obese by FMI (men 6 / 9, women 9 / 13).
+  Types: athletic ("the weight is muscle"), balanced, strong with excess fat, excess fat / obese, fat with little
+  muscle, slim with little muscle, very lean.
+- **Physical age**: the age whose typical SMI (on WLA25's muscle scale: men 11.4 kg/m² at 30, −0.04/yr; women 9.0,
+  −0.03) and fat % (men 17 % at 20, +0.225/yr; women 27 %, +0.25) match — 0.55 / 0.45. Entered age not used. [D]
+- **Fat layer per zone** = the zone's own fat share against the healthy middle (men 15 %, women 25 %), not
+  against a BMI-22 standard weight. **Fat pattern**: legs' share of segment fat (≥ 45 % legs/hips, ≤ 32 % belly).
+- Still open: the fat % number itself (WLA25 / the scale) keeps its weight term — fixing that needs reference
+  measurements (DEXA / calipers) for a studio-calibrated impedance-index model.
+
 ## Result page (`ScaleScreen`)
+Preview (HTML mock rendered from the real Java numbers, not a device screenshot): `docs/scale/result-page-preview.png`.
 Landscape, three columns: (1) weight live + what to do now; figure front/back painted in the chosen layer
 (Мускули / Мазнини / Възстановяване); (2) readiness gauge + verdict + reason chips; radar of the 5 segments
 (100 = normal, normal band 90–110, dashed = last time), the tapped segment's numbers or the L/R balance;

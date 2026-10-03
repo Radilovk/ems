@@ -27,13 +27,13 @@
     .registers 2
 
     .prologue
-    .line 2020
+    .line 2072
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2021
+    .line 2073
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2022
+    .line 2074
     return-void
 .end method
 
@@ -47,7 +47,7 @@
 
     const/4 v2, 0x0
 
-    .line 2026
+    .line 2078
     sub-int v0, p4, p2
 
     if-lez v0, :cond_27
@@ -67,7 +67,7 @@
 
     if-eq v0, v3, :cond_27
 
-    .line 2027
+    .line 2079
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     sub-int v3, p5, p3
@@ -79,30 +79,30 @@
     :goto_1b
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->portrait:Z
 
-    .line 2028
+    .line 2080
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->hold(Landroid/app/Activity;)V
 
-    .line 2029
+    .line 2081
     invoke-virtual {p1, p0}, Landroid/view/View;->post(Ljava/lang/Runnable;)Z
 
-    .line 2031
+    .line 2083
     :cond_27
     return-void
 
     :cond_28
     move v0, v2
 
-    .line 2026
+    .line 2078
     goto :goto_d
 
     :cond_2a
     move v1, v2
 
-    .line 2027
+    .line 2079
     goto :goto_1b
 .end method
 
@@ -110,7 +110,7 @@
     .registers 3
 
     .prologue
-    .line 2036
+    .line 2088
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -118,17 +118,17 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->hold(Landroid/app/Activity;)V
 
-    .line 2037
+    .line 2089
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->build()V
 
-    .line 2038
+    .line 2090
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->arrange()V
 
-    .line 2039
+    .line 2091
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     const/4 v1, 0x0
@@ -137,15 +137,15 @@
     :try_end_17
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_17} :catch_18
 
-    .line 2043
+    .line 2095
     :goto_17
     return-void
 
-    .line 2040
+    .line 2092
     :catch_18
     move-exception v0
 
-    .line 2041
+    .line 2093
     const-string v1, "ScaleScreen.rotate"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

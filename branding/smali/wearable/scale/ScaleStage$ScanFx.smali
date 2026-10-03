@@ -33,6 +33,12 @@
 
 .field final r:Landroid/graphics/RectF;
 
+.field rt:J
+
+.field rx:F
+
+.field ry:F
+
 .field since:J
 
 
@@ -41,10 +47,10 @@
     .registers 5
 
     .prologue
-    .line 556
+    .line 432
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 549
+    .line 423
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -53,22 +59,22 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
-    .line 550
+    .line 424
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
-    .line 552
+    .line 426
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->mode:I
 
-    .line 557
+    .line 433
     iput p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->accent:I
 
-    .line 558
+    .line 434
     return-void
 .end method
 
@@ -78,7 +84,7 @@
     .registers 3
 
     .prologue
-    .line 561
+    .line 437
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -98,25 +104,25 @@
     .registers 4
 
     .prologue
-    .line 565
+    .line 470
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->mode:I
 
     if-eq p1, v0, :cond_f
 
-    .line 566
+    .line 471
     iput p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->mode:I
 
-    .line 567
+    .line 472
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->since:J
 
-    .line 568
+    .line 473
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->invalidate()V
 
-    .line 570
+    .line 475
     :cond_f
     return-void
 .end method
@@ -125,7 +131,7 @@
     .registers 16
 
     .prologue
-    .line 574
+    .line 479
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->getWidth()I
 
     move-result v0
@@ -138,56 +144,59 @@
 
     int-to-float v4, v0
 
-    .line 575
+    .line 480
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->ripple(Landroid/graphics/Canvas;)V
+
+    .line 481
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->mode:I
 
-    if-eqz v0, :cond_18
+    if-eqz v0, :cond_1b
 
     const/4 v0, 0x0
 
     cmpg-float v0, v3, v0
 
-    if-lez v0, :cond_18
+    if-lez v0, :cond_1b
 
     const/4 v0, 0x0
 
     cmpg-float v0, v4, v0
 
-    if-gtz v0, :cond_19
+    if-gtz v0, :cond_1c
 
-    .line 637
-    :cond_18
-    :goto_18
+    .line 543
+    :cond_1b
+    :goto_1b
     return-void
 
-    .line 578
-    :cond_19
+    .line 484
+    :cond_1c
     invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->now()F
 
     move-result v2
 
-    .line 579
+    .line 485
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 580
+    .line 486
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 581
+    .line 487
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->mode:I
 
     const/4 v1, 0x1
 
-    if-ne v0, v1, :cond_e2
+    if-ne v0, v1, :cond_e5
 
-    .line 583
+    .line 489
     const/high16 v0, 0x3f000000    # 0.5f
 
     const/high16 v1, 0x3f000000    # 0.5f
@@ -212,7 +221,7 @@
 
     add-float/2addr v0, v1
 
-    .line 584
+    .line 490
     const/high16 v1, 0x42380000    # 46.0f
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
@@ -231,7 +240,7 @@
 
     move-result v4
 
-    .line 585
+    .line 491
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     iget v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->accent:I
@@ -252,7 +261,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 586
+    .line 492
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     const/high16 v6, 0x40000000    # 2.0f
@@ -293,21 +302,21 @@
 
     invoke-virtual {v5, v6, v7, v8, v9}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 587
+    .line 493
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v5, v6}, Landroid/graphics/Canvas;->drawOval(Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 588
+    .line 494
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     sget-object v6, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 589
+    .line 495
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const/high16 v6, 0x40000000    # 2.0f
@@ -318,7 +327,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 590
+    .line 496
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     iget v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->accent:I
@@ -339,7 +348,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 591
+    .line 497
     const/high16 v5, 0x3f800000    # 1.0f
 
     const/high16 v6, 0x3f000000    # 0.5f
@@ -348,7 +357,7 @@
 
     add-float/2addr v0, v5
 
-    .line 592
+    .line 498
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     const/high16 v6, 0x40000000    # 2.0f
@@ -377,27 +386,27 @@
 
     invoke-virtual {v5, v6, v7, v2, v0}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 593
+    .line 499
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawOval(Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 594
+    .line 500
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->postInvalidateOnAnimation()V
 
-    goto/16 :goto_18
+    goto/16 :goto_1b
 
-    .line 597
-    :cond_e2
+    .line 503
+    :cond_e5
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->mode:I
 
     const/4 v1, 0x3
 
-    if-ne v0, v1, :cond_16b
+    if-ne v0, v1, :cond_16e
 
-    .line 598
+    .line 504
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
@@ -412,14 +421,14 @@
 
     div-float/2addr v0, v1
 
-    .line 599
+    .line 505
     const/high16 v1, 0x3f800000    # 1.0f
 
     cmpg-float v1, v0, v1
 
-    if-gez v1, :cond_117
+    if-gez v1, :cond_11a
 
-    .line 600
+    .line 506
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const v2, -0xdd3aa2
@@ -440,7 +449,7 @@
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 601
+    .line 507
     const/4 v1, 0x0
 
     const/4 v2, 0x0
@@ -451,18 +460,18 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 602
+    .line 508
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->postInvalidateOnAnimation()V
 
-    .line 604
-    :cond_117
+    .line 510
+    :cond_11a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 605
+    .line 511
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const/high16 v1, 0x40400000    # 3.0f
@@ -473,7 +482,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 606
+    .line 512
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const v1, -0xdd3aa2
@@ -486,7 +495,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 607
+    .line 513
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40000000    # 2.0f
@@ -519,7 +528,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 608
+    .line 514
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x41a00000    # 20.0f
@@ -538,10 +547,10 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    goto/16 :goto_18
+    goto/16 :goto_1b
 
-    .line 612
-    :cond_16b
+    .line 518
+    :cond_16e
     const/high16 v0, 0x42100000    # 36.0f
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
@@ -556,7 +565,7 @@
 
     sub-float v11, v4, v0
 
-    .line 613
+    .line 519
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     iget v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->accent:I
@@ -571,13 +580,13 @@
 
     move v7, v1
 
-    .line 614
-    :goto_187
+    .line 520
+    :goto_18a
     cmpg-float v0, v7, v11
 
-    if-gez v0, :cond_1a3
+    if-gez v0, :cond_1a6
 
-    .line 615
+    .line 521
     const/4 v6, 0x0
 
     const/high16 v0, 0x3f800000    # 1.0f
@@ -596,7 +605,7 @@
 
     invoke-virtual/range {v5 .. v10}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 614
+    .line 520
     const/high16 v0, 0x41200000    # 10.0f
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
@@ -605,10 +614,10 @@
 
     add-float/2addr v7, v0
 
-    goto :goto_187
+    goto :goto_18a
 
-    .line 617
-    :cond_1a3
+    .line 523
+    :cond_1a6
     const v0, 0x4019999a    # 2.4f
 
     rem-float v0, v2, v0
@@ -617,19 +626,19 @@
 
     div-float v5, v0, v5
 
-    .line 618
+    .line 524
     const/high16 v0, 0x3f000000    # 0.5f
 
     cmpg-float v0, v5, v0
 
-    if-gez v0, :cond_2a5
+    if-gez v0, :cond_2a8
 
     const/high16 v0, 0x40000000    # 2.0f
 
     mul-float/2addr v0, v5
 
-    .line 619
-    :goto_1b6
+    .line 525
+    :goto_1b9
     mul-float v6, v0, v0
 
     const/high16 v7, 0x40400000    # 3.0f
@@ -642,42 +651,42 @@
 
     mul-float/2addr v0, v6
 
-    .line 620
+    .line 526
     sub-float v6, v11, v1
 
     mul-float/2addr v0, v6
 
     add-float/2addr v1, v0
 
-    .line 621
+    .line 527
     const/high16 v0, 0x3f000000    # 0.5f
 
     cmpg-float v0, v5, v0
 
-    if-gez v0, :cond_2ad
+    if-gez v0, :cond_2b0
 
     const/4 v0, 0x1
 
-    .line 622
-    :goto_1cb
+    .line 528
+    :goto_1ce
     const/high16 v5, 0x428c0000    # 70.0f
 
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
 
     move-result v5
 
-    .line 623
-    if-eqz v0, :cond_2b0
+    .line 529
+    if-eqz v0, :cond_2b3
 
     sub-float v7, v1, v5
 
-    :goto_1d5
-    if-eqz v0, :cond_2b3
+    :goto_1d8
+    if-eqz v0, :cond_2b6
 
     move v9, v1
 
-    .line 624
-    :goto_1d8
+    .line 530
+    :goto_1db
     iget-object v13, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     new-instance v5, Landroid/graphics/LinearGradient;
@@ -686,13 +695,13 @@
 
     const/4 v8, 0x0
 
-    if-eqz v0, :cond_2b7
+    if-eqz v0, :cond_2ba
 
     const/4 v10, 0x0
 
-    .line 625
-    :goto_1e1
-    if-eqz v0, :cond_2c2
+    .line 531
+    :goto_1e4
+    if-eqz v0, :cond_2c5
 
     const v0, -0xdd3aa2
 
@@ -702,15 +711,15 @@
 
     move-result v11
 
-    :goto_1ec
+    :goto_1ef
     sget-object v12, Landroid/graphics/Shader$TileMode;->CLAMP:Landroid/graphics/Shader$TileMode;
 
     invoke-direct/range {v5 .. v12}, Landroid/graphics/LinearGradient;-><init>(FFFFIILandroid/graphics/Shader$TileMode;)V
 
-    .line 624
+    .line 530
     invoke-virtual {v13, v5}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 626
+    .line 532
     const/4 v6, 0x0
 
     iget-object v10, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
@@ -721,21 +730,21 @@
 
     invoke-virtual/range {v5 .. v10}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 627
+    .line 533
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const/4 v5, 0x0
 
     invoke-virtual {v0, v5}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 628
+    .line 534
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const v5, -0x460440
 
     invoke-virtual {v0, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 629
+    .line 535
     const/high16 v0, 0x41000000    # 8.0f
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
@@ -772,7 +781,7 @@
 
     invoke-virtual/range {v5 .. v10}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 630
+    .line 536
     const/high16 v0, 0x3f000000    # 0.5f
 
     const/high16 v1, 0x3f000000    # 0.5f
@@ -801,14 +810,14 @@
 
     add-float/2addr v0, v1
 
-    .line 631
+    .line 537
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 632
+    .line 538
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const/high16 v2, 0x40000000    # 2.0f
@@ -819,7 +828,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 633
+    .line 539
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
 
     const v2, -0xdd3aa2
@@ -840,7 +849,7 @@
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 634
+    .line 540
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40000000    # 2.0f
@@ -873,7 +882,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 635
+    .line 541
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->r:Landroid/graphics/RectF;
 
     const/high16 v1, 0x41a00000    # 20.0f
@@ -892,13 +901,13 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 636
+    .line 542
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->postInvalidateOnAnimation()V
 
-    goto/16 :goto_18
+    goto/16 :goto_1b
 
-    .line 618
-    :cond_2a5
+    .line 524
+    :cond_2a8
     const/high16 v0, 0x40000000    # 2.0f
 
     const/high16 v6, 0x40000000    # 2.0f
@@ -907,27 +916,27 @@
 
     sub-float/2addr v0, v6
 
-    goto/16 :goto_1b6
+    goto/16 :goto_1b9
 
-    .line 621
-    :cond_2ad
+    .line 527
+    :cond_2b0
     const/4 v0, 0x0
 
-    goto/16 :goto_1cb
-
-    :cond_2b0
-    move v7, v1
-
-    .line 623
-    goto/16 :goto_1d5
+    goto/16 :goto_1ce
 
     :cond_2b3
-    add-float v9, v1, v5
+    move v7, v1
 
+    .line 529
     goto/16 :goto_1d8
 
-    .line 624
-    :cond_2b7
+    :cond_2b6
+    add-float v9, v1, v5
+
+    goto/16 :goto_1db
+
+    .line 530
+    :cond_2ba
     const v10, -0xdd3aa2
 
     const/16 v11, 0x78
@@ -936,11 +945,221 @@
 
     move-result v10
 
-    goto/16 :goto_1e1
+    goto/16 :goto_1e4
 
-    .line 625
-    :cond_2c2
+    .line 531
+    :cond_2c5
     const/4 v11, 0x0
 
-    goto/16 :goto_1ec
+    goto/16 :goto_1ef
+.end method
+
+.method public onTouchEvent(Landroid/view/MotionEvent;)Z
+    .registers 4
+
+    .prologue
+    .line 442
+    invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionMasked()I
+
+    move-result v0
+
+    if-nez v0, :cond_20
+
+    .line 443
+    invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->rx:F
+
+    .line 444
+    invoke-virtual {p1}, Landroid/view/MotionEvent;->getY()F
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->ry:F
+
+    .line 445
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
+
+    move-result-wide v0
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->rt:J
+
+    .line 446
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
+
+    .line 447
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->invalidate()V
+
+    .line 448
+    const/4 v0, 0x1
+
+    .line 450
+    :goto_1f
+    return v0
+
+    :cond_20
+    invoke-super {p0, p1}, Landroid/view/View;->onTouchEvent(Landroid/view/MotionEvent;)Z
+
+    move-result v0
+
+    goto :goto_1f
+.end method
+
+.method ripple(Landroid/graphics/Canvas;)V
+    .registers 10
+
+    .prologue
+    const/high16 v7, 0x42b40000    # 90.0f
+
+    const/high16 v6, 0x3f800000    # 1.0f
+
+    .line 455
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
+
+    move-result-wide v0
+
+    iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->rt:J
+
+    sub-long/2addr v0, v2
+
+    long-to-float v0, v0
+
+    const/high16 v1, 0x44610000    # 900.0f
+
+    div-float/2addr v0, v1
+
+    .line 456
+    iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->rt:J
+
+    const-wide/16 v4, 0x0
+
+    cmp-long v1, v2, v4
+
+    if-eqz v1, :cond_1b
+
+    cmpl-float v1, v0, v6
+
+    if-ltz v1, :cond_1c
+
+    .line 467
+    :cond_1b
+    :goto_1b
+    return-void
+
+    .line 459
+    :cond_1c
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
+
+    .line 460
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
+
+    sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+
+    .line 461
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
+
+    const/high16 v2, 0x40400000    # 3.0f
+
+    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 462
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
+
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->accent:I
+
+    const/high16 v3, 0x43480000    # 200.0f
+
+    sub-float v4, v6, v0
+
+    mul-float/2addr v3, v4
+
+    float-to-int v3, v3
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 463
+    iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->rx:F
+
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->ry:F
+
+    const/high16 v3, 0x41600000    # 14.0f
+
+    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
+
+    move-result v3
+
+    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
+
+    move-result v4
+
+    mul-float/2addr v4, v0
+
+    add-float/2addr v3, v4
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v1, v2, v3, v4}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+
+    .line 464
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
+
+    const/4 v2, -0x1
+
+    sub-float v3, v6, v0
+
+    mul-float/2addr v3, v7
+
+    float-to-int v3, v3
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 465
+    iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->rx:F
+
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->ry:F
+
+    const/high16 v3, 0x40c00000    # 6.0f
+
+    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
+
+    move-result v3
+
+    const/high16 v4, 0x425c0000    # 55.0f
+
+    invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->d(F)F
+
+    move-result v4
+
+    mul-float/2addr v0, v4
+
+    add-float/2addr v0, v3
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->p:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v1, v2, v0, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+
+    .line 466
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->postInvalidateOnAnimation()V
+
+    goto :goto_1b
 .end method

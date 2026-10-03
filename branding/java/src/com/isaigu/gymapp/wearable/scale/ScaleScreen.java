@@ -795,15 +795,13 @@ public final class ScaleScreen {
                         m != null ? new SimpleDateFormat("d.MM.yyyy · HH:mm", Locale.US).format(new Date(m.optLong("t")))
                                 : "", 1280);
                 XemsUi.fullScreen(sh);
-                int h = Math.max(dp(440), a.getResources().getDisplayMetrics().heightPixels - dp(170));
                 LinearLayout row = XemsUi.horizontal(a);
                 row.setGravity(Gravity.TOP);
                 ScaleInsight.Body b = ScaleInsight.body(m, male, heightCm);
 
-                // 1. profile
+                // 1. the verdict: what the body is, the one number that tells most, the figure
                 LinearLayout prof = XemsUi.card(a);
-                prof.addView(XemsUi.label(a, tr("Профил", "Profile")));
-                TextView chip = XemsUi.text(a, "", 18, XemsUi.TEXT, true);
+                TextView chip = XemsUi.text(a, "", 19, XemsUi.TEXT, true);
                 chip.setPadding(dp(14), dp(9), dp(14), dp(9));
                 TextView saveChip = typeChip;
                 typeChip = chip;
@@ -811,102 +809,106 @@ public final class ScaleScreen {
                 typeChip = saveChip;
                 LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
-                cp.topMargin = dp(8);
                 prof.addView(chip, cp);
-                String who = (male ? tr("Мъж", "Male") : tr("Жена", "Female")) + " · " + age + tr(" г.", " y") + " · "
-                        + heightCm + tr(" см", " cm") + (m != null ? " · " + one(m.optDouble("w")) + tr(" кг", " kg") : "");
-                prof.addView(XemsUi.text(a, who, 15, XemsUi.MUTED, false), XemsUi.matchWrap(a, 10));
                 LinearLayout ages = XemsUi.horizontal(a);
                 ages.setGravity(Gravity.BOTTOM);
                 TextView pa = XemsUi.text(a, Double.isNaN(b.physicalAge) ? "—" : String.valueOf(Math.round(b.physicalAge)),
-                        44, Double.isNaN(b.physicalAge) ? XemsUi.MUTED : b.physicalAge <= age - 3 ? XemsUi.GO_TEXT
+                        56, Double.isNaN(b.physicalAge) ? XemsUi.MUTED : b.physicalAge <= age - 3 ? XemsUi.GO_TEXT
                                 : b.physicalAge >= age + 3 ? XemsUi.AMBER : XemsUi.TEXT, true);
                 pa.setIncludeFontPadding(false);
                 ages.addView(pa);
-                String hr = Double.isNaN(b.restHr) ? "" : tr(" · пулс ", " · HR ") + Math.round(b.restHr);
-                TextView pl = XemsUi.text(a, tr("  възраст на тялото · реална ", "  body age · actual ") + age
-                        + hr, 14, XemsUi.MUTED, false);
+                TextView pl = XemsUi.text(a, tr("  години на тялото\n  реална възраст ", "  body age\n  actual age ") + age,
+                        15, XemsUi.MUTED, false);
                 pl.setPadding(0, 0, 0, dp(6));
                 ages.addView(pl);
-                prof.addView(ages, XemsUi.matchWrap(a, 10));
+                prof.addView(ages, XemsUi.matchWrap(a, 12));
+                String who = (male ? tr("Мъж", "Male") : tr("Жена", "Female")) + " · " + age + tr(" г.", " y") + " · "
+                        + heightCm + tr(" см", " cm") + (m != null ? " · " + one(m.optDouble("w")) + tr(" кг", " kg") : "");
+                prof.addView(XemsUi.text(a, who, 15, XemsUi.MUTED, false), XemsUi.matchWrap(a, 4));
                 ScaleViews.Body fig = new ScaleViews.Body(a);
                 double[] mus = ScaleInsight.ofNormal(m, male, heightCm)[0];
                 int[] cols = new int[5];
-                for (int i = 0; i < 5; i++) {
-                    cols[i] = Double.isNaN(mus[i]) ? 0 : ScaleViews.muscleCol(mus[i]);
+                for (int i2 = 0; i2 < 5; i2++) {
+                    cols[i2] = Double.isNaN(mus[i2]) ? 0 : ScaleViews.muscleCol(mus[i2]);
                 }
                 fig.setSegments(!male, cols, -1);
-                prof.addView(fig, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-                row.addView(prof, new LinearLayout.LayoutParams(0, h, 0.9f));
+                prof.addView(fig, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(300)));
+                row.addView(prof);
 
-                // 2. the key values on their norms
-                LinearLayout keys = XemsUi.card(a);
-                keys.addView(XemsUi.label(a, tr("Основни показатели", "Key values")));
+                // 2. the four values that matter: a number, a word, a short scale — then at most three actions
+                LinearLayout right = XemsUi.vertical(a);
                 String[] fatN = names(FAT_N, FAT_E);
                 String[] five = names(new String[] {"много ниско", "ниско", "норма", "високо", "много високо"},
                         new String[] {"very low", "low", "normal", "high", "very high"});
-                Object[][] rows = {
-                        {tr("Мазнини", "Body fat"), ScaleInsight.fatNorm(m != null ? m.optDouble("fat", Double.NaN)
-                                : Double.NaN, male, age, fatN)},
-                        {tr("Мускулна маса", "Muscle mass"), ScaleInsight.muscleNorm(b.ffmi, male, names(
+                double fatV = m != null ? m.optDouble("fat", Double.NaN) : Double.NaN;
+                Object[][] tiles4 = {
+                        {tr("Мазнини", "Body fat"), Double.isNaN(fatV) ? "—" : one(fatV) + " %",
+                                ScaleInsight.fatNorm(fatV, male, age, fatN)},
+                        {tr("Мускулна маса", "Muscle mass"), m != null ? one(m.optDouble("muscle")) + tr(" кг", " kg") : "—",
+                                ScaleInsight.muscleNorm(b.ffmi, male, names(
                                 new String[] {"много ниска", "ниска", "норма", "атлетична", "много висока"},
                                 new String[] {"very low", "low", "normal", "athletic", "very high"}))},
-                        {tr("Вода", "Water"), ScaleInsight.waterNorm(m != null ? m.optDouble("water", Double.NaN)
-                                : Double.NaN, male, five)},
-                        {tr("Висцерални мазнини", "Visceral fat"), ScaleInsight.visceralNorm(m != null
-                                ? m.optDouble("visc", Double.NaN) : Double.NaN, five)},
-                        {tr("ИТМ", "BMI"), ScaleInsight.bmiNorm(m != null
-                                ? m.optDouble("bmi", Double.NaN) : Double.NaN, names(
-                                new String[] {"много нисък", "нисък", "норма", "наднормено тегло", "затлъстяване"},
-                                new String[] {"very low", "low", "normal", "above", "obese"}))}};
-                for (Object[] r : rows) {
-                    keys.addView(XemsUi.text(a, (String) r[0], 13, XemsUi.MUTED, true), XemsUi.matchWrap(a, 8));
-                    ScaleViews.NormBar nb = new ScaleViews.NormBar(a);
-                    nb.set((ScaleInsight.Norm) r[1]);
-                    keys.addView(nb, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(88)));
+                        {tr("Вода", "Water"), m != null ? one(m.optDouble("water")) + " %" : "—",
+                                ScaleInsight.waterNorm(m != null ? m.optDouble("water", Double.NaN) : Double.NaN,
+                                male, five)},
+                        {tr("Висцерални мазнини", "Visceral fat"), m != null ? String.valueOf(m.optInt("visc")) : "—",
+                                ScaleInsight.visceralNorm(m != null ? m.optDouble("visc", Double.NaN) : Double.NaN,
+                                five)}};
+                for (int r = 0; r < 2; r++) {
+                    LinearLayout line = XemsUi.horizontal(a);
+                    line.setGravity(Gravity.TOP);
+                    for (int c2 = 0; c2 < 2; c2++) {
+                        Object[] t4 = tiles4[r * 2 + c2];
+                        ScaleInsight.Norm nm = (ScaleInsight.Norm) t4[2];
+                        int sec = nm.sector();
+                        int col = sec >= 0 ? nm.colors[sec] : XemsUi.MUTED;
+                        LinearLayout t = XemsUi.card(a);
+                        t.addView(XemsUi.text(a, (String) t4[0], 14, XemsUi.MUTED, true));
+                        TextView val = XemsUi.text(a, (String) t4[1], 34, XemsUi.TEXT, true);
+                        val.setIncludeFontPadding(false);
+                        t.addView(val, XemsUi.matchWrap(a, 4));
+                        t.addView(XemsUi.text(a, sec >= 0 ? nm.names[sec] : "", 16, col, true), XemsUi.matchWrap(a, 2));
+                        ScaleViews.MiniNorm mn = new ScaleViews.MiniNorm(a);
+                        mn.set(nm);
+                        t.addView(mn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(22)));
+                        LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(0,
+                                ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                        tl.leftMargin = c2 == 0 ? 0 : dp(12);
+                        line.addView(t, tl);
+                    }
+                    right.addView(line, XemsUi.matchWrap(a, r == 0 ? 0 : 12));
                 }
-                LinearLayout.LayoutParams kp = new LinearLayout.LayoutParams(0, h, 1.05f);
-                kp.leftMargin = dp(14);
-                row.addView(keys, kp);
 
-                // 3. recommendations
                 LinearLayout adv = XemsUi.card(a);
                 adv.addView(XemsUi.label(a, tr("Препоръки", "Recommendations")));
-                android.widget.ScrollView sc = new android.widget.ScrollView(a);
-                sc.setVerticalScrollBarEnabled(false);
-                LinearLayout list = XemsUi.vertical(a);
-                sc.addView(list);
                 boolean bg = XemsLang.tr("б", "e").equals("б");
-                String[] kinds = bg ? new String[] {"ДНЕС", "ТРЕНИРОВКА", "ТЯЛО", "НАВИЦИ"}
-                        : new String[] {"TODAY", "EMS", "BODY", "HABIT"};
                 int[] tones = {0xFF22C55E, 0xFF38BDF8, 0xFFF59E0B, 0xFFEF4444};
+                int shown = 0;
                 for (ScaleInsight.Advice ad : ScaleInsight.advice(hist, at, male, age, heightCm)) {
+                    if (shown++ >= 3) {
+                        break;
+                    }
                     LinearLayout item = XemsUi.horizontal(a);
-                    item.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, dp(14), XemsUi.alpha(tones[ad.tone], 120),
-                            dp(1)));
+                    item.setGravity(Gravity.TOP);
                     View stripe = new View(a);
                     stripe.setBackgroundDrawable(XemsUi.rounded(tones[ad.tone], dp(3), 0, 0));
                     LinearLayout.LayoutParams stl = new LinearLayout.LayoutParams(dp(5),
                             ViewGroup.LayoutParams.MATCH_PARENT);
-                    stl.setMargins(dp(8), dp(10), dp(4), dp(10));
+                    stl.rightMargin = dp(12);
                     item.addView(stripe, stl);
                     LinearLayout txt = XemsUi.vertical(a);
-                    txt.setPadding(dp(8), dp(10), dp(14), dp(12));
-                    TextView kind = XemsUi.text(a, kinds[ad.kind], 11, tones[ad.tone], true);
-                    txt.addView(kind);
-                    txt.addView(XemsUi.text(a, bg ? ad.titleBg : ad.titleEn, 16, XemsUi.TEXT, true), XemsUi.matchWrap(a, 2));
-                    TextView body = XemsUi.text(a, bg ? ad.textBg : ad.textEn, 14, XemsUi.MUTED, false);
+                    txt.addView(XemsUi.text(a, bg ? ad.titleBg : ad.titleEn, 17, XemsUi.TEXT, true));
+                    TextView body = XemsUi.text(a, bg ? ad.textBg : ad.textEn, 15, XemsUi.MUTED, false);
                     body.setLineSpacing(dp(2), 1f);
                     txt.addView(body, XemsUi.matchWrap(a, 3));
                     item.addView(txt, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-                    list.addView(item, XemsUi.matchWrap(a, 10));
+                    adv.addView(item, XemsUi.matchWrap(a, 12));
                 }
-                adv.addView(sc, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-                LinearLayout.LayoutParams ap = new LinearLayout.LayoutParams(0, h, 1.15f);
-                ap.leftMargin = dp(14);
-                row.addView(adv, ap);
+                right.addView(adv, XemsUi.matchWrap(a, 12));
+                row.addView(right);
                 sh.body.addView(row, XemsUi.matchWrap(a, 4));
-                Columns.follow(a, sh, row, new float[] {0.9f, 1.05f, 1.15f}, new int[] {600, 560, 640}, 170);
+                // two columns when wide (the verdict narrower), one when narrow; heights come from the content
+                Columns.follow(a, sh, row, new float[] {0.8f, 1.2f}, new int[] {0, 0}, 4000);
 
                 if (m != null && m.has("fat")) {
                     TextView img = XemsUi.button(a, tr("Изображение", "Image"), XemsUi.SECONDARY);
@@ -1524,7 +1526,6 @@ public final class ScaleScreen {
                 stage.steps.invalidate();
                 XemsUi.enter(stage.view());
             } else {
-                stage.showFilm(false);
                 again.setVisibility(View.VISIBLE);
                 s.scroll.scrollTo(0, 0);
                 XemsUi.enter(grid);
@@ -1965,9 +1966,19 @@ public final class ScaleScreen {
         static float density;
         static float scaled;
         static int dpi;
+        /** What the host had before the page took over: put back on close (the client list sizes from it). */
+        static float oDensity, oScaled, aDensity, aScaled;
+        static int oDpi, aDpi;
 
         static void begin(Activity a) {
             android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            android.util.DisplayMetrics am = a.getApplicationContext().getResources().getDisplayMetrics();
+            oDensity = dm.density;
+            oScaled = dm.scaledDensity;
+            oDpi = dm.densityDpi;
+            aDensity = am.density;
+            aScaled = am.scaledDensity;
+            aDpi = am.densityDpi;
             float k = 1f;
             if (dm.heightPixels > dm.widthPixels && dm.widthPixels > 0) {
                 k = dm.widthPixels / (float) dm.heightPixels;   // opened upright: AutoSize's dp is for the short side
@@ -1995,8 +2006,49 @@ public final class ScaleScreen {
             dm.densityDpi = dpi;
         }
 
-        static void end() {
+        static void end(Activity a) {
             density = 0;
+            if (oDensity <= 0) {
+                return;
+            }
+            try {
+                android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+                dm.density = oDensity;
+                dm.scaledDensity = oScaled;
+                dm.densityDpi = oDpi;
+                android.util.DisplayMetrics am = a.getApplicationContext().getResources().getDisplayMetrics();
+                am.density = aDensity;
+                am.scaledDensity = aScaled;
+                am.densityDpi = aDpi;
+            } catch (Throwable t) {
+                XemsGuard.report("ScaleScreen.densEnd", t);
+            }
+            // once more after the turn back to landscape has settled (AutoSize re-measures on it)
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Restore(a), 700);
+        }
+    }
+
+    static final class Restore implements Runnable {
+        final Activity a;
+
+        Restore(Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void run() {
+            try {
+                android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+                dm.density = Dens.oDensity;
+                dm.scaledDensity = Dens.oScaled;
+                dm.densityDpi = Dens.oDpi;
+                android.util.DisplayMetrics am = a.getApplicationContext().getResources().getDisplayMetrics();
+                am.density = Dens.aDensity;
+                am.scaledDensity = Dens.aScaled;
+                am.densityDpi = Dens.aDpi;
+                Dens.oDensity = 0;
+            } catch (Throwable ignored) {
+            }
         }
     }
 
@@ -2154,7 +2206,7 @@ public final class ScaleScreen {
                 } catch (Throwable ignored) {
                 }
             }
-            Dens.end();
+            Dens.end(v.a);
         }
     }
 

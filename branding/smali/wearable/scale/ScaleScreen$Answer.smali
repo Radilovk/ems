@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 2095
+    .line 2147
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2096
+    .line 2148
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Answer;->q:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 2097
+    .line 2149
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Answer;->then:Ljava/lang/Runnable;
 
-    .line 2098
+    .line 2150
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 4
 
     .prologue
-    .line 2102
+    .line 2154
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2104
+    .line 2156
     :try_start_3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Answer;->q:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -60,13 +60,13 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_a} :catch_1b
 
-    .line 2107
+    .line 2159
     :goto_a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Answer;->then:Ljava/lang/Runnable;
 
     if-eqz v0, :cond_13
 
-    .line 2109
+    .line 2161
     :try_start_e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Answer;->then:Ljava/lang/Runnable;
 
@@ -74,23 +74,23 @@
     :try_end_13
     .catch Ljava/lang/Throwable; {:try_start_e .. :try_end_13} :catch_14
 
-    .line 2114
+    .line 2166
     :cond_13
     :goto_13
     return-void
 
-    .line 2110
+    .line 2162
     :catch_14
     move-exception v0
 
-    .line 2111
+    .line 2163
     const-string v1, "ScaleScreen.answer"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_13
 
-    .line 2105
+    .line 2157
     :catch_1b
     move-exception v0
 

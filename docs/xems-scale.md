@@ -231,6 +231,15 @@ two by two, **narrow** one column; the bar splits into switch / Анализ·О
 figure card · one key card (4 numbers, readiness — the dial only with a verdict, before that one line "from the second
 measurement" — body type) · zones · current per channel. Drawn text follows the system font size (`ScaleViews.sp`,
 ×1.12, font scale capped 1.3).
+**1.1.306-ai.** *Summary redesigned* by the result pages of body-composition systems (Withings, InBody, Fitdays,
+Tanita): one verdict (body type chip + body age 56 sp + the figure), four large values (fat · muscle mass · water ·
+visceral: number 34 sp, status word in its colour, a short `MiniNorm` scale — no full-width bars), at most three
+recommendations (17 / 15 sp); BMI left to "Анализ"; two columns wide, one narrow, heights from content (no empty
+stretches). *No video:* the measuring stage is a still figure that breathes, with the drawn scan and a tap ripple
+(`ScanFx`); `male.mp4` / `female.mp4` removed from the APK. *Client list sizes after the page:* `Dens` kept the
+page's dp on the activity's metrics after closing, so the list (AutoSize) came back with rows of mixed sizes —
+`Dens.end` now restores the host's density, scaled density and dpi (again after 700 ms, when the turn back to
+landscape has settled).
 **Nothing cut, plain wording** (1.1.302-ai, owner: labels and blocks cut on some devices / after a turn; wording
 unprofessional, "in development", odd Bulgarian): `Columns.apply` gives columns a **minimum** height (screen high in
 landscape, `tallDp` upright) instead of a fixed one — content taller than the screen grows and the page scrolls

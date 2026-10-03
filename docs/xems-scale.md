@@ -13,6 +13,8 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleBody` | Pure: WLA25 (float32 + half-up rounding as the vendor binary) → fat, muscle, water, visceral, BMR, body age, 5 segments; `withFat` = the same chain from another fat % |
 | `ScaleModel` | Pure (1.1.295-ai): **the numbers we show** — sex-aware fat (Sun 2003 + the scale's own / WLA25), skeletal muscle (Janssen 2000), Kalman smoothing of lean between weigh-ins, rebuild of older history from raw impedances (see "XEMS model") |
 | `ScaleDetail` | Pure (1.1.295-ai): all values with a status word (`rows`), the analysis tiles with their 5-sector norms and texts (`metrics`), 5 zones fat / muscle (kg, % of standard), weight control to the client's own healthy weight |
+| `ScaleSession` | Pure (1.1.297-ai): one measurement = 1–3 step-ons; contact quality per step, when to ask another, the merge (see "Measuring") |
+| `ScaleStage` | The measuring stage (1.1.297-ai): figure / scan film, 5 steps, instruction, live weight settling, scan ring, step-on count and contact chips |
 | `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
 | `ScaleLink` | Android BLE: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks, result → close |
 | `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days); `save` (through `ScaleModel`), `upgrade` (older model / other sex·age·height → rebuilt), `delete` (+ server), `unlike` (weight jump → "is this X?") |
@@ -110,6 +112,28 @@ visceral 4, body age 29, segments within 0.1–0.15 kg). WLA25's own age-free fa
 Owner's colour-coded anatomical art (`branding/body/scale/src/{male,female}.png`) → `scripts/gen-scale-figures.py`
 → grey art with full definition + map (R = segment, G = suit channel by colour). Layers: segment colour modulated by
 the art's light (muscles stay drawn); **Ток** = per muscle group (channel) by reach.
+
+## Measuring — the stage and the session (1.1.297-ai)
+**Why**: the scale makes **one** impedance sweep per step-on (~8–10 s after the weight settles; repeats on the same
+step reuse it), so "several measurements, the bad ones out" = several step-ons, and only when they add something.
+`ScaleSession` decides by itself:
+- **Contact** per step (`quality`): all four limbs 120–1200 Ω with 20 → 100 kHz dispersion (ratio 0.70–0.98), left
+  vs right ≤ 15 % for arms and for legs, trunk 5–100 Ω when sent; a weight-only result = no handle contact.
+- Another step when: poor contact (`NEED_CONTACT`, with the fix: palms on the metal / dry bare feet, heels back);
+  the client's **first** full measurement (`NEED_BASELINE` — two set the starting point); a good reading > 3 σ from
+  the client's filter (`NEED_CONFIRM` — the body does not change that fast); two good ones apart by > 3 % whole-body
+  resistance or > 2 fat points (`NEED_DISAGREE` → a third). At most 3.
+- **Merge**: the good steps only (all if none was good); per segment and frequency the mean of two, the median of
+  three; weight the mean; stored once with `"n"` = steps. Then the usual model + Kalman smoothing.
+**Stage** (`ScaleStage`, shown when the page opens and whenever someone steps on while the results are open; "Резултати ›"
+skips to them): left a dark theatre — the client's figure on the scale by sex (`branding/body/scale/measure/*-hero.webp`,
+owner's art, black → alpha) breathing while waiting, the scan film (`male.mp4` / `female.mp4`, owner's clips → 640 px
+H.264, no sound, ~480 KB, looped, starts from 0 when the weight settles) while the scale sweeps; right — steps
+link · step on · steady · scan · done (current pulsing), the instruction now (30 sp) with one line why, the live
+weight with its settling line into the ±0.1 kg band, the scan ring (~9 s, seconds left), "● ○ стъпване 1 от 2" and
+the contact chips (✓ Ръце · ✓ Крака · ✓ Тяло / ! …); between steps "Слез за момент" → "Стъпи пак" (the link is
+reopened by itself); at the end "✓ Готово" with fat and muscle, then the results fade in. Previews (HTML mocks):
+`docs/scale/preview-stage-wait.png`, `docs/scale/preview-stage-scan.png`.
 
 ## Result page (`ScaleScreen`) — two views
 **Portrait too** (1.1.295-ai): the page unlocks rotation while open (restored on close, like the report); landscape =

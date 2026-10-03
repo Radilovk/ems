@@ -135,11 +135,20 @@ public final class ScaleStore {
      */
     public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
             int heightCm) {
+        return save(c, userId, r, male, age, heightCm, 1);
+    }
+
+    /** As {@link #save}, for a reading merged from {@code steps} step-ons ("n"). */
+    public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
+            int heightCm, int steps) {
         try {
             JSONArray a = upgrade(c, userId, male, age, heightCm);
             ScaleModel.State st = ScaleModel.stateOf(a);
             JSONObject o = ScaleModel.entry(r, male, age, heightCm, System.currentTimeMillis(), st);
             ScaleModel.mark(o, male, heightCm);
+            if (steps > 1) {
+                o.put("n", steps);
+            }
             JSONArray out = new JSONArray();
             for (int i = Math.max(0, a.length() - KEEP + 1); i < a.length(); i++) {
                 out.put(a.get(i));

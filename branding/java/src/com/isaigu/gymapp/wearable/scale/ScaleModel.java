@@ -243,6 +243,9 @@ public final class ScaleModel {
             }
             try {
                 JSONObject o = m.has("z20") ? entry(reading(m), male, age, heightCm, m.optLong("t"), s) : m;
+                if (o != m && m.has("n")) {
+                    o.put("n", m.optInt("n"));
+                }
                 mark(o, male, heightCm);
                 out.put(o);
             } catch (Throwable t) {

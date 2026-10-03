@@ -78,6 +78,16 @@ def main() -> int:
     for p in scale:
         shutil.copy2(p, sout / p.name)
     print(f"assets/xems/body/scale/ ({len(scale)} files, {sum(p.stat().st_size for p in scale)} B)")
+    # the measuring stage: the client on the scale (by sex) and the scan film (ScaleStage)
+    measure = sorted((body / "scale" / "measure").glob("*.*"))
+    want = {"female-hero.webp", "female.mp4", "male-hero.webp", "male.mp4"}
+    if {p.name for p in measure} != want:
+        raise SystemExit("branding/body/scale/measure: expected " + ", ".join(sorted(want)))
+    mout = sout / "measure"
+    mout.mkdir(parents=True, exist_ok=True)
+    for p in measure:
+        shutil.copy2(p, mout / p.name)
+    print(f"assets/xems/body/scale/measure/ ({len(measure)} files, {sum(p.stat().st_size for p in measure)} B)")
     return 0
 
 

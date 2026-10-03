@@ -550,17 +550,17 @@
     .end annotation
 
     .prologue
-    .line 257
+    .line 260
     const-string v0, "male"
 
     invoke-virtual {p0, v0, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 258
+    .line 261
     const-string v0, "hc"
 
     invoke-virtual {p0, v0, p2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 259
+    .line 262
     return-void
 .end method
 
@@ -859,7 +859,7 @@
 
     move-result v0
 
-    if-ge v7, v0, :cond_43
+    if-ge v7, v0, :cond_58
 
     .line 240
     invoke-virtual {p0, v7}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
@@ -886,7 +886,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_41
+    if-eqz v0, :cond_56
 
     invoke-static {v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->reading(Lorg/json/JSONObject;)Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
@@ -910,32 +910,55 @@
 
     .line 246
     :goto_35
-    invoke-static {v0, p1, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->mark(Lorg/json/JSONObject;ZI)V
+    if-eq v0, v8, :cond_4a
+
+    const-string v1, "n"
+
+    invoke-virtual {v8, v1}, Lorg/json/JSONObject;->has(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_4a
 
     .line 247
+    const-string v1, "n"
+
+    const-string v2, "n"
+
+    invoke-virtual {v8, v2}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;)I
+
+    move-result v2
+
+    invoke-virtual {v0, v1, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
+
+    .line 249
+    :cond_4a
+    invoke-static {v0, p1, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->mark(Lorg/json/JSONObject;ZI)V
+
+    .line 250
     invoke-virtual {v9, v0}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
-    :try_end_3b
-    .catch Ljava/lang/Throwable; {:try_start_1c .. :try_end_3b} :catch_3c
+    :try_end_50
+    .catch Ljava/lang/Throwable; {:try_start_1c .. :try_end_50} :catch_51
 
     goto :goto_18
 
-    .line 248
-    :catch_3c
+    .line 251
+    :catch_51
     move-exception v0
 
-    .line 249
+    .line 252
     invoke-virtual {v9, v8}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
     goto :goto_18
 
-    :cond_41
+    :cond_56
     move-object v0, v8
 
     .line 245
     goto :goto_35
 
-    .line 252
-    :cond_43
+    .line 255
+    :cond_58
     return-object v9
 .end method
 

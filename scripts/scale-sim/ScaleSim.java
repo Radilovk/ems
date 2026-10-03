@@ -512,6 +512,75 @@ public final class ScaleSim {
         return Math.round(v * 10) / 10.0;
     }
 
+    /** Measuring session: when to ask another step-on, how they merge. */
+    static void session() {
+        double[] z20 = {17.3, 252.0, 234.0, 221.0, 232.0}, z100 = {15.7, 215.5, 199.5, 190.0, 200.0};
+        ScaleProtocol.Reading good = reading(81.4, Double.NaN, z20, z100);
+        ok("owner's reading: good contact", ScaleSession.quality(good).ok());
+        double[] bad20 = {17.3, 252.0, 380.0, 221.0, 232.0}, bad100 = {15.7, 215.5, 330.0, 190.0, 200.0};
+        ok("one hand loose (+60 %): arms flagged", !ScaleSession.quality(reading(81.4, Double.NaN, bad20, bad100)).arms);
+        ScaleProtocol.Reading wOnly = new ScaleProtocol.Reading();
+        wOnly.result = true;
+        wOnly.weightKg = 81.4;
+        ok("weight only: not full", !ScaleSession.quality(wOnly).full);
+
+        ScaleSession s = new ScaleSession(new org.json.JSONArray(), true, 40, 175);
+        eq("first ever: a second step for the baseline", s.add(good), ScaleSession.NEED_BASELINE, 0);
+        double[] n20 = new double[5], n100 = new double[5];
+        for (int i = 0; i < 5; i++) {
+            n20[i] = z20[i] * 1.01;
+            n100[i] = z100[i] * 1.01;
+        }
+        eq("second agrees (1 %): done", s.add(reading(81.5, Double.NaN, n20, n100)), ScaleSession.NEED_NONE, 0);
+        ScaleProtocol.Reading m = s.merged();
+        eq("merged = mean of the two (LA 20 kHz)", m.z20[1], (252.0 + 252.0 * 1.01) / 2, 1e-6);
+        eq("merged weight = mean", m.weightKg, 81.45, 0.006);
+
+        ScaleSession s2 = new ScaleSession(new org.json.JSONArray(), true, 40, 175);
+        eq("loose hand: one more for the contact", s2.add(reading(81.4, Double.NaN, bad20, bad100)),
+                ScaleSession.NEED_CONTACT, 0);
+        s2.add(good);
+        for (int i = 0; i < 5; i++) {
+            n20[i] = z20[i] * 1.08;
+            n100[i] = z100[i] * 1.08;
+        }
+        eq("third ends the session (max 3)", s2.add(reading(81.4, Double.NaN, n20, n100)), ScaleSession.NEED_NONE, 0);
+        eq("the loose one is out of the merge (RA)", s2.merged().z20[2], (234.0 + 234.0 * 1.08) / 2, 1e-6);
+
+        ScaleSession s3 = new ScaleSession(new org.json.JSONArray(), true, 40, 175);
+        s3.add(good);
+        for (int i = 0; i < 5; i++) {
+            n20[i] = z20[i] * 1.07;
+            n100[i] = z100[i] * 1.07;
+        }
+        eq("two steps 7 % apart: a third", s3.add(reading(81.4, Double.NaN, n20, n100)), ScaleSession.NEED_DISAGREE, 0);
+        double[] t20 = new double[5], t100 = new double[5];
+        for (int i = 0; i < 5; i++) {
+            t20[i] = z20[i] * 1.005;
+            t100[i] = z100[i] * 1.005;
+        }
+        s3.add(reading(81.4, Double.NaN, t20, t100));
+        eq("three → the median", s3.merged().z20[1], 252.0 * 1.005, 1e-6);
+
+        try {
+            org.json.JSONArray h = new org.json.JSONArray();
+            long now = System.currentTimeMillis();
+            ScaleModel.State st = new ScaleModel.State();
+            h.put(ScaleModel.entry(good, true, 40, 175, now - 86400000L * 2, st));
+            ScaleSession s4 = new ScaleSession(h, true, 40, 175);
+            eq("known client, same body: one step is enough", s4.add(good), ScaleSession.NEED_NONE, 0);
+            for (int i = 0; i < 5; i++) {
+                n20[i] = z20[i] * 1.25;
+                n100[i] = z100[i] * 1.25;
+            }
+            ScaleSession s5 = new ScaleSession(h, true, 40, 175);
+            eq("known client, reading far off: confirm", s5.add(reading(81.4, Double.NaN, n20, n100)),
+                    ScaleSession.NEED_CONFIRM, 0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static void ownerReport() {
         ScaleProtocol.Reading r = new ScaleProtocol.Reading();
         r.result = true;
@@ -651,6 +720,7 @@ public final class ScaleSim {
         advice();
         ownerReport();
         model();
+        session();
         bodyType();
         genB();
         genA();

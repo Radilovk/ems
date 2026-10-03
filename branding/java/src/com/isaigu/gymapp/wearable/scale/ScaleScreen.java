@@ -103,6 +103,11 @@ public final class ScaleScreen {
         boolean portrait;
         int orientationBefore = Integer.MIN_VALUE;
         LinearLayout history;
+        /** The measuring stage (shown first and whenever someone steps on) and the step-ons of this measurement. */
+        ScaleStage stage;
+        ScaleSession session;
+        boolean staging;
+        final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
 
         // day
         ScaleViews.Gauge gauge;
@@ -206,6 +211,9 @@ public final class ScaleScreen {
             row.addView(middle);
             right = XemsUi.vertical(a);
             row.addView(right);
+            stage = new ScaleStage(a, !male);
+            stage.results.setOnClickListener(new ToResults(this));
+            s.body.addView(stage.view(), XemsUi.matchWrap(a, 12));
             s.body.addView(row, XemsUi.matchWrap(a, 12));
             arrange();
 
@@ -223,6 +231,7 @@ public final class ScaleScreen {
             ScaleUploader.schedule(a, userId, male, age, heightCm);   // anything not on the client's card yet
             build();
             render(false);
+            showStage(true);
             s.dialog.setOnDismissListener(new Dismissed(this));
             s.dialog.show();
             // the host is locked to landscape; this page also reads upright — it follows the tablet while open
@@ -289,6 +298,9 @@ public final class ScaleScreen {
             portrait = Columns.portrait(a);
             workH = Columns.landH(a, 234);
             Columns.apply(a, row, portrait, new float[] {0.95f, 1f, 1.12f}, new int[] {640, 700, 680}, workH);
+            if (stage != null) {
+                Columns.apply(a, stage.root, portrait, new float[] {1.2f, 1f}, new int[] {560, 600}, workH);
+            }
             if (rangeHolder.getParent() != null) {
                 ((ViewGroup) rangeHolder.getParent()).removeView(rangeHolder);
             }
@@ -297,7 +309,7 @@ public final class ScaleScreen {
             } else {
                 barTop.addView(rangeHolder, 2);
             }
-            barRange.setVisibility(portrait ? View.VISIBLE : View.GONE);
+            barRange.setVisibility(portrait && !staging ? View.VISIBLE : View.GONE);
         }
 
         /** The middle and right columns of the current view. */
@@ -1453,6 +1465,41 @@ public final class ScaleScreen {
             render(false);
         }
 
+        /** The stage in front (measuring) or the results; the switch fades. */
+        void showStage(boolean on) {
+            staging = on;
+            stage.view().setVisibility(on ? View.VISIBLE : View.GONE);
+            row.setVisibility(on ? View.GONE : View.VISIBLE);
+            barTop.setVisibility(on ? View.GONE : View.VISIBLE);
+            barRange.setVisibility(on || !portrait ? View.GONE : View.VISIBLE);
+            stage.results.setVisibility(hasFull() ? View.VISIBLE : View.GONE);
+            if (on) {
+                again.setVisibility(View.INVISIBLE);
+                XemsUi.enter(stage.view());
+            } else {
+                again.setVisibility(View.VISIBLE);
+                XemsUi.enter(row);
+            }
+        }
+
+        boolean hasFull() {
+            for (int i = 0; i < hist.length(); i++) {
+                JSONObject m = hist.optJSONObject(i);
+                if (m != null && m.has("fat")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /** A new measurement: a fresh session and stage, the link searching. */
+        void measureAgain() {
+            session = null;
+            stage.reset();
+            showStage(true);
+            startLink();
+        }
+
         void startLink() {
             if (link != null) {
                 link.close();
@@ -1467,6 +1514,7 @@ public final class ScaleScreen {
 
         @Override
         public void onState(int st) {
+            stage.linkState(st);
             switch (st) {
                 case ScaleLink.SEARCHING:
                     say(tr("Стъпи бос на кантара", "Step on the scale barefoot"), XemsUi.TEXT);
@@ -1498,12 +1546,43 @@ public final class ScaleScreen {
         public void onLive(double kg, boolean stable) {
             weight.setText(one(kg));
             weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
+            if (!staging && kg > 5) {
+                // someone stepped on while the results were open: the stage comes back
+                stage.reset();
+                showStage(true);
+            }
+            stage.liveWeight(kg, stable);
         }
 
         @Override
         public void onResult(ScaleProtocol.Reading r) {
             weight.setText(one(r.weightKg));
             weight.setTextColor(XemsUi.TEXT);
+            if (session == null) {
+                session = new ScaleSession(hist, male, age, heightCm);
+            }
+            if (!staging) {
+                showStage(true);
+            }
+            int need = session.add(r);
+            stage.stepResult(r, session);
+            if (need != ScaleSession.NEED_NONE) {
+                // one more step-on: listen again once this link has let the scale go
+                main.postDelayed(new Relink(this), 2600);
+                return;
+            }
+            steps = session.count();
+            ScaleProtocol.Reading m = session.merged();
+            session = null;
+            if (m == null) {
+                return;
+            }
+            guard(m);
+        }
+
+        int steps = 1;
+
+        void guard(ScaleProtocol.Reading r) {
             if (ScaleStore.unlike(hist, r.weightKg, System.currentTimeMillis())) {
                 // a weight this client did not have days ago: someone else on the profile? ask before it joins
                 String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim() : tr("клиента", "the client");
@@ -1521,12 +1600,13 @@ public final class ScaleScreen {
 
         void dropped() {
             say(tr("Мерането не е записано", "Not saved"), XemsUi.MUTED);
+            showStage(false);
             again.setVisibility(View.VISIBLE);
         }
 
         void keep(ScaleProtocol.Reading r) {
             ScaleBody b = ScaleBody.of(r, male, age, heightCm);
-            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm);
+            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, steps);
             if (o != null) {
                 saved.setVisibility(View.VISIBLE);
                 XemsUi.enter(saved);
@@ -1544,6 +1624,19 @@ public final class ScaleScreen {
                 mode = MODE_DAY;
                 build();
             }
+            JSONObject m = cur();
+            stage.finished(m != null && m.has("fat") ? tr("Мазнини ", "Fat ") + one(m.optDouble("fat")) + " %  ·  "
+                    + tr("Мускули ", "Muscle ") + one(m.optDouble("muscle")) + tr(" кг", " kg")
+                    : tr("Само тегло — без дръжката няма състав", "Weight only — no composition without the handle"));
+            main.postDelayed(new Reveal(this), 1800);
+        }
+
+        /** After the ✓: the results come in. */
+        void reveal() {
+            if (!staging) {
+                return;
+            }
+            showStage(false);
             render(true);
         }
 
@@ -1634,7 +1727,50 @@ public final class ScaleScreen {
         @Override
         public void onClick(View b) {
             XemsUi.haptic(b);
-            v.startLink();
+            v.measureAgain();
+        }
+    }
+
+    static final class ToResults implements View.OnClickListener {
+        final Page v;
+
+        ToResults(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            v.showStage(false);
+            v.render(false);
+        }
+    }
+
+    static final class Relink implements Runnable {
+        final Page v;
+
+        Relink(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            if (v.session != null && v.s.dialog.isShowing()) {
+                v.startLink();
+            }
+        }
+    }
+
+    static final class Reveal implements Runnable {
+        final Page v;
+
+        Reveal(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.reveal();
         }
     }
 
@@ -1873,6 +2009,10 @@ public final class ScaleScreen {
             if (v.link != null) {
                 v.link.close();
                 v.link = null;
+            }
+            v.main.removeCallbacksAndMessages(null);
+            if (v.stage != null) {
+                v.stage.release();
             }
             if (v.orientationBefore != Integer.MIN_VALUE) {
                 try {

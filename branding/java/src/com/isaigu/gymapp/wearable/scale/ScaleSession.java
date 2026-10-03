@@ -147,7 +147,7 @@ public final class ScaleSession {
         ScaleProtocol.Reading a = g.get(g.size() - 2), b = g.get(g.size() - 1);
         double ra = ScaleModel.r50(a.z20, a.z100), rb = ScaleModel.r50(b.z20, b.z100);
         double fa = ScaleModel.fatPct(a, male, age, heightCm), fb = ScaleModel.fatPct(b, male, age, heightCm);
-        return gap(ra, rb) > 3 || Math.abs(fa - fb) > 2;
+        return gap(ra, rb) > 3 || Math.abs(fa - fb) > 1.5;
     }
 
     /**

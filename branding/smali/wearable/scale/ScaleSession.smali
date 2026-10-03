@@ -1283,7 +1283,7 @@
 
     move-result-wide v0
 
-    const-wide/high16 v4, 0x4000000000000000L    # 2.0
+    const-wide/high16 v4, 0x3ff8000000000000L    # 1.5
 
     cmpl-double v0, v0, v4
 

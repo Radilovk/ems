@@ -524,13 +524,16 @@ public final class ScaleDetail {
         Metric pa = new Metric("page", G_BODY, "Възраст на тялото", "Body age");
         pa.value = b.physicalAge;
         pa.decimals = 0;
-        pa.subBg = "реална " + age;
-        pa.subEn = "actual " + age;
+        boolean heart = !Double.isNaN(b.restHr);
+        pa.subBg = "реална " + age + (heart ? " · пулс " + Math.round(b.restHr) : "");
+        pa.subEn = "actual " + age + (heart ? " · HR " + Math.round(b.restHr) : "");
         pa.dir = -1;
         ScaleInsight.Norm an = ScaleInsight.ageNorm(pa.value, age, pick(bg, N_AGE_BG, N_AGE_EN));
         put(pa, an, M_AGE);
-        pa.whatBg = "Възрастта, на която съответстват мускулатурата и мазнините, според референтни DXA данни.";
-        pa.whatEn = "The age the muscle and fat correspond to, from DXA reference data.";
+        pa.whatBg = "Къде е тялото спрямо хората от същия пол и възраст: мускулатура, мазнини"
+                + (heart ? " и пулс в покой" : "; при измерен пулс в покой се включва и той") + ".";
+        pa.whatEn = "Where the body stands among people of the same sex and age: muscle, fat"
+                + (heart ? " and resting heart rate" : "; a measured resting heart rate is included too") + ".";
         out.add(pa);
         return out;
     }

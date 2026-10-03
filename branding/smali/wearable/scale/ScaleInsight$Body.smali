@@ -17,6 +17,8 @@
 # instance fields
 .field public ageFromFat:D
 
+.field public ageFromHeart:D
+
 .field public ageFromMuscle:D
 
 .field public almi:D
@@ -32,6 +34,8 @@
 .field public muscleCls:I
 
 .field public physicalAge:D
+
+.field public restHr:D
 
 .field public smi:D
 
@@ -77,7 +81,12 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->ageFromFat:D
 
+    iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->ageFromHeart:D
+
     .line 330
+    iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->restHr:D
+
+    .line 332
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->legFatShare:D
 
     return-void
@@ -89,7 +98,7 @@
     .registers 2
 
     .prologue
-    .line 333
+    .line 335
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->type:I
 
     if-ltz v0, :cond_6

@@ -27,13 +27,13 @@
     .registers 2
 
     .prologue
-    .line 468
+    .line 479
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 469
+    .line 480
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Turn;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleSources;
 
-    .line 470
+    .line 481
     return-void
 .end method
 
@@ -47,7 +47,7 @@
 
     const/4 v2, 0x0
 
-    .line 474
+    .line 485
     sub-int v0, p4, p2
 
     if-lez v0, :cond_20
@@ -67,7 +67,7 @@
 
     if-eq v0, v3, :cond_20
 
-    .line 475
+    .line 486
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Turn;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleSources;
 
     sub-int v3, p5, p3
@@ -79,23 +79,23 @@
     :goto_1b
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->portrait:Z
 
-    .line 476
+    .line 487
     invoke-virtual {p1, p0}, Landroid/view/View;->post(Ljava/lang/Runnable;)Z
 
-    .line 478
+    .line 489
     :cond_20
     return-void
 
     :cond_21
     move v0, v2
 
-    .line 474
+    .line 485
     goto :goto_d
 
     :cond_23
     move v1, v2
 
-    .line 475
+    .line 486
     goto :goto_1b
 .end method
 
@@ -103,11 +103,11 @@
     .registers 2
 
     .prologue
-    .line 482
+    .line 493
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Turn;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleSources;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->build()V
 
-    .line 483
+    .line 494
     return-void
 .end method

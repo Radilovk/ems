@@ -93,11 +93,22 @@ public final class ScaleSources {
                 "Kelly TL, Wilson KE, Heymsfield SB. PLoS One 2009;4(9):e7038",
                 "NHANES 1999–2004 · DXA · национална извадка на САЩ", "NHANES 1999–2004 · DXA · US national sample", 0,
                 "10.1371/journal.pone.0007038"));
-        s.add(new Source(T_STUDY, "Физическа възраст", "Physical age",
-                "Медианите на мускулите на ръцете и краката и на мазнините по десетилетия — коя възраст им отговаря.",
-                "The medians of arm + leg muscle and of fat by decade — which age the body matches.",
+        s.add(new Source(T_STUDY, "Възраст на тялото", "Body age",
+                "Мускулите на ръцете и краката и мазнините спрямо хората на твоята възраст (медиана и разсейване) — изразено в години.",
+                "Arm + leg muscle and fat against people of the client's own age (median and spread) — said in years.",
                 "Imboden MT, Welch WA, Swartz AM et al. PLoS One 2017;12(4):e0175110 и e0176161",
                 "3 327 възрастни · DXA", "3,327 adults · DXA", 3327, "10.1371/journal.pone.0175110"));
+        s.add(new Source(T_STUDY, "Пулс в покой — норма", "Resting pulse — norms",
+                "Пулсът в покой по пол и възраст (квартили) — третата част на възрастта на тялото, когато е измерен.",
+                "Resting pulse by sex and age (quartiles) — the third part of body age when measured.",
+                "Ostchega Y, Porter KS, Hughes J et al. Natl Health Stat Report 2011;(41):1–16 (NHANES 1999–2008)",
+                "35 302 души без болест или лекарство, което мени пулса", "35,302 people without HR-changing illness "
+                        + "or medicine", 35302, ""));
+        s.add(new Source(T_STUDY, "Пулс в покой — риск", "Resting pulse — risk",
+                "Защо пулсът тежи: +10 удара в минута в покой ≈ +9 % смъртност от всички причини (46 проучвания).",
+                "Why the pulse counts: +10 bpm at rest ≈ +9 % all-cause mortality (46 studies).",
+                "Zhang D, Shen X, Qi X. CMAJ 2016;188(3):E53–E63 (meta-analysis)",
+                "46 кохорти · 1,25 млн. души", "46 cohorts · 1.25 million people", 0, "10.1503/cmaj.150535"));
         s.add(new Source(T_STUDY, "Водата в тялото", "Body water",
                 "Водата е около 73 % от безмазнената маса — стабилна константа при възрастни.",
                 "Water is about 73 % of the fat-free mass — a steady constant in adults.",

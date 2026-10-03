@@ -40,6 +40,21 @@ public final class ScaleInsight {
      */
     static final int BASE_MIN = 2;
     static final long BASE_GAP_MS = 6L * 3600 * 1000;
+    /**
+     * Baseline from the same time of day (1.1.311-ai): standing through the day moves fluid into the legs, so an
+     * evening weigh-in against morning ones reads as "swollen legs". Within ±3 h of the clock time; without two such,
+     * every earlier weigh-in counts but the thresholds are ×1.5.
+     */
+    static final double SAME_HOURS = 3.0;
+    static final double OTHER_TIME_K = 1.5;
+    /**
+     * Weight below the last week's median by this much (%) = water lost (1.1.311-ai): ≥ 2 % of body mass is the
+     * usual mark of dehydration that lowers performance (ACSM position stand on fluid replacement, 2007). Any scale.
+     */
+    static final double WEIGHT_DROP = 2.0;
+    static final long WEEK_MS = 7L * 24 * 3600 * 1000;
+    /** Trunk muscle under this % of normal = a focus zone (limbs: 90 %). */
+    static final double TRUNK_WEAK = 85;
 
     public static final class Readiness {
         /** 0–100. */
@@ -54,6 +69,12 @@ public final class ScaleInsight {
         public int worst = -1;
         /** How many earlier measurements the baseline stands on (under BASE_MIN: no verdict yet). */
         public int base;
+        /** The baseline is from the same time of day (else the thresholds are wider). */
+        public boolean sameTime = true;
+        /** Weight against the last week's median (%): − = lighter. NaN = no weigh-in that week. */
+        public double weight = Double.NaN;
+        /** The verdict comes from water (dry legs on a two-frequency scale, or weight lost), not from swelling. */
+        public boolean water;
 
         public boolean known() {
             return base >= BASE_MIN;
@@ -95,21 +116,31 @@ public final class ScaleInsight {
             return r;
         }
         long t = m.optLong("t");
-        List<JSONObject> base = new ArrayList<JSONObject>();
-        for (int i = at - 1; i >= 0 && base.size() < BASE_MAX; i--) {
+        List<JSONObject> all = new ArrayList<JSONObject>();
+        List<JSONObject> same = new ArrayList<JSONObject>();
+        for (int i = at - 1; i >= 0 && same.size() < BASE_MAX; i--) {
             JSONObject o = hist.optJSONObject(i);
             // the same kind of scale only: one frequency's spread ρ is not a measurement, and two scales differ
             if (o != null && t - o.optLong("t") >= BASE_GAP_MS && o.optJSONArray("z20") != null
                     && o.optInt("f1") == m.optInt("f1")) {
-                base.add(o);
+                if (all.size() < BASE_MAX) {
+                    all.add(o);
+                }
+                if (clockGap(t, o.optLong("t")) <= SAME_HOURS) {
+                    same.add(o);
+                }
             }
         }
+        List<JSONObject> base = same.size() >= BASE_MIN ? same : all;
+        r.sameTime = base == same;
+        double k = r.sameTime ? 1.0 : OTHER_TIME_K;
         r.base = base.size();
         if (base.size() < BASE_MIN) {
             return r;
         }
+        boolean single = m.optInt("f1") == 1;
         double worstV = 0;
-        for (int s = 0; s < 5 && m.optInt("f1") != 1; s++) {
+        for (int s = 0; s < 5 && !single; s++) {
             double now = ratio(m.optJSONArray("z20"), m.optJSONArray("z100"), s);
             List<Double> b = new ArrayList<Double>();
             for (JSONObject o : base) {
@@ -130,10 +161,22 @@ public final class ScaleInsight {
             }
         }
         List<Double> bz = new ArrayList<Double>();
+        List<Double> bw = new ArrayList<Double>();
         for (JSONObject o : base) {
             double v = legsZ20(o);
             if (!Double.isNaN(v)) {
                 bz.add(v);
+            }
+        }
+        // weight: every earlier weigh-in of the last week (any time of day, any kind of scale)
+        for (int i = at - 1; i >= 0; i--) {
+            JSONObject o = hist.optJSONObject(i);
+            if (o == null || t - o.optLong("t") > WEEK_MS) {
+                break;
+            }
+            double w = o.optDouble("w", Double.NaN);
+            if (t - o.optLong("t") >= BASE_GAP_MS && w >= 20 && w <= 250) {
+                bw.add(w);
             }
         }
         double nz = legsZ20(m);
@@ -141,15 +184,34 @@ public final class ScaleInsight {
         if (!Double.isNaN(nz) && !Double.isNaN(mz) && mz > 0) {
             r.dry = (nz / mz - 1) * 100;
         }
-        double dry = Double.isNaN(r.dry) ? 0 : Math.max(0, r.dry);
+        double mw = median(bw);
+        double w = m.optDouble("w", Double.NaN);
+        if (!Double.isNaN(mw) && !Double.isNaN(w) && mw > 0) {
+            r.weight = (w / mw - 1) * 100;
+        }
+        // one frequency: the legs' |Z| also moves with skin, sweat and temperature of the feet — shown, not acted on
+        double dry = Double.isNaN(r.dry) || single ? 0 : Math.max(0, r.dry);
+        double lost = Double.isNaN(r.weight) ? 0 : Math.max(0, -r.weight);
         r.score = (int) Math.round(Math.max(0, Math.min(100,
-                100 - 22 * Math.max(0, worstV - 0.4) - 5 * Math.max(0, dry - 2))));
-        if (worstV >= SWELL_RED) {
+                100 - 22 * Math.max(0, worstV / k - 0.4) - 5 * Math.max(0, dry / k - 2) - 10 * Math.max(0, lost - 1))));
+        if (worstV >= SWELL_RED * k) {
             r.factor = 0.7;
-        } else if (worstV >= SWELL_AMBER || dry >= DRY_AMBER) {
+        } else if (worstV >= SWELL_AMBER * k) {
             r.factor = 0.85;
+        } else if (dry >= DRY_AMBER * k || lost >= WEIGHT_DROP) {
+            r.factor = 0.85;
+            r.water = true;
         }
         return r;
+    }
+
+    /** Hours between two moments' clock times (0–12), in the tablet's time zone. */
+    static double clockGap(long a, long b) {
+        java.util.TimeZone tz = java.util.TimeZone.getDefault();
+        double ha = ((a + tz.getOffset(a)) % 86400000L + 86400000L) % 86400000L / 3600000.0;
+        double hb = ((b + tz.getOffset(b)) % 86400000L + 86400000L) % 86400000L / 3600000.0;
+        double d = Math.abs(ha - hb);
+        return Math.min(d, 24 - d);
     }
 
     // ================================================================ segments against normal (WLA25 standards)
@@ -280,10 +342,13 @@ public final class ScaleInsight {
     public static String weakFocus(JSONObject m, boolean male, int heightCm) {
         double[] n = ofNormal(m, male, heightCm)[0];
         int weak = -1;
-        double lo = 90;
+        double gap = 0;
         for (int i = 0; i < 5; i++) {
-            if (!Double.isNaN(n[i]) && n[i] < lo) {
-                lo = n[i];
+            // the trunk is half the body but a small part of its impedance — segmental BIA reads it least surely,
+            // so the trunk asks for focus only clearly below normal (85 %), the limbs from 90 % (1.1.311-ai)
+            double lim = i == ScaleProtocol.TRUNK ? TRUNK_WEAK : 90;
+            if (!Double.isNaN(n[i]) && lim - n[i] > gap) {
+                gap = lim - n[i];
                 weak = i;
             }
         }
@@ -694,14 +759,20 @@ public final class ScaleInsight {
                     "Training readiness is calculated from the next measurement on."));
         } else if (r.factor < 1) {
             int pct = (int) Math.round((1 - r.factor) * 100);
-            boolean swollen = r.worst >= 0 && r.swell[r.worst] >= SWELL_AMBER;
+            boolean swollen = !r.water && r.worst >= 0;
             out.add(new Advice(0, K_TODAY, r.factor <= 0.7 ? TONE_ALERT : TONE_WARN, "Интензитет днес: −" + pct + " %",
                     swollen ? "Непълно възстановяване в " + SEG_BG[r.worst] + ". Автоматичният режим вече е "
                             + "намалил интензитета."
+                            : !Double.isNaN(r.weight) && r.weight <= -WEIGHT_DROP
+                            ? "Теглото е с " + f1(-r.weight) + " % под обичайното за седмицата — загубена вода. "
+                            + "Препоръчват се 0,5 л вода преди тренировката."
                             : "Понижена хидратация. Препоръчва се вода преди тренировката.",
                     "Intensity today: −" + pct + " %",
                     swollen ? "Incomplete recovery in " + SEG_EN[r.worst] + ". Auto mode has already lowered the "
                             + "intensity."
+                            : !Double.isNaN(r.weight) && r.weight <= -WEIGHT_DROP
+                            ? "Weight " + f1(-r.weight) + " % under the week's usual — water lost. 0.5 l of water "
+                            + "before the session is advised."
                             : "Low hydration. Water before the session is advised."));
         } else {
             out.add(new Advice(4, K_TODAY, TONE_GOOD, "Готовност за пълна интензивност",

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1977
+    .line 1986
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1978
+    .line 1987
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Start;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 1979
+    .line 1988
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 1984
+    .line 1993
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Start;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -50,15 +50,15 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 1988
+    .line 1997
     :goto_5
     return-void
 
-    .line 1985
+    .line 1994
     :catch_6
     move-exception v0
 
-    .line 1986
+    .line 1995
     const-string v1, "ScaleScreen.start"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

@@ -1576,13 +1576,22 @@ public final class ScaleScreen {
             ready(true, "");
             String verdict = r.factor >= 1 ? tr("Пълна интензивност", "Full intensity")
                     : tr("Интензитет −", "Intensity −") + Math.round((1 - r.factor) * 100) + " %";
-            String sub = tr("спрямо личната база", "against the personal baseline");
+            String sub = r.sameTime ? tr("спрямо личната база", "against the personal baseline")
+                    : tr("спрямо мерения в друг час — по-широки прагове", "against other times of day — wider thresholds");
             gauge.set(r.score, verdict, sub);
             if (r.worst >= 0 && r.swell[r.worst] >= 0.4) {
                 String[] names = {tr("Торс", "Trunk"), tr("Лява ръка", "Left arm"), tr("Дясна ръка", "Right arm"),
                         tr("Ляв крак", "Left leg"), tr("Десен крак", "Right leg")};
                 reasons.addView(XemsUi.badge(a, names[r.worst] + "  " + signedPct(r.swell[r.worst]),
                         ScaleViews.swellCol(r.swell[r.worst])));
+            }
+            if (!Double.isNaN(r.weight) && r.weight <= -1) {
+                TextView w = XemsUi.badge(a, tr("Тегло ", "Weight ") + signedPct(r.weight) + tr(" за седмицата",
+                        " this week"), r.weight <= -ScaleInsight.WEIGHT_DROP ? XemsUi.AMBER : XemsUi.MUTED);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                lp.topMargin = dp(6);
+                reasons.addView(w, lp);
             }
             if (!Double.isNaN(r.dry) && r.dry >= 2) {
                 TextView w = XemsUi.badge(a, tr("Хидратация ", "Hydration ") + signedPct(-r.dry),

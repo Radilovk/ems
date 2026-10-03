@@ -101,15 +101,18 @@ public final class AutoPlanner {
                 plan.note("Кантарът: малко мускули — −10 % сила", "Scale: little muscle — −10 % strength");
             }
         }
-        if (p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 72) {
-            phiMax *= 0.8;
-            plan.note("Под 72 ч от последната активна: −20 %", "Under 72 h since the last active: −20 %");
-        }
-        if (p.isActive() && in.readiness < 0.99) {
+        // recovery: the time rule (< 72 h since the last active) and the scale this morning measure the same thing —
+        // the stronger of the two applies, never both (1.1.311-ai; NextPlan.recommend does the same)
+        boolean recent = p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 72;
+        boolean scaleCut = p.isActive() && in.readiness < 0.99;
+        if (scaleCut && (!recent || in.readiness < 0.8)) {
             // the scale this morning: swelling / less water against the client's own baseline (wearable/scale)
             phiMax *= in.readiness;
             int pct = (int) Math.round((1 - in.readiness) * 100);
             plan.note("Кантарът: не е възстановен — −" + pct + " %", "Scale: not recovered — −" + pct + " %");
+        } else if (recent) {
+            phiMax *= 0.8;
+            plan.note("Под 72 ч от последната активна: −20 %", "Under 72 h since the last active: −20 %");
         }
         if (in.solo()) {
             phiMax = Math.min(phiMax, 0.9);

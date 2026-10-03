@@ -21,56 +21,68 @@
 
 .field public factor:D
 
+.field public sameTime:Z
+
 .field public score:I
 
 .field public final swell:[D
+
+.field public water:Z
+
+.field public weight:D
 
 .field public worst:I
 
 
 # direct methods
 .method public constructor <init>()V
-    .registers 3
+    .registers 5
 
     .prologue
-    .line 44
+    const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
+
+    .line 59
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 46
+    .line 61
     const/16 v0, 0x64
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->score:I
 
-    .line 48
+    .line 63
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->factor:D
 
-    .line 50
+    .line 65
     const/4 v0, 0x5
 
     new-array v0, v0, [D
 
-    fill-array-data v0, :array_1c
+    fill-array-data v0, :array_20
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->swell:[D
 
-    .line 52
-    const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
+    .line 67
+    iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->dry:D
 
-    iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->dry:D
-
-    .line 54
+    .line 69
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
 
+    .line 73
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->sameTime:Z
+
+    .line 75
+    iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->weight:D
+
     return-void
 
-    .line 50
-    nop
-
-    :array_1c
+    .line 65
+    :array_20
     .array-data 8
         0x7ff8000000000000L    # Double.NaN
         0x7ff8000000000000L    # Double.NaN
@@ -86,7 +98,7 @@
     .registers 3
 
     .prologue
-    .line 59
+    .line 80
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->base:I
 
     const/4 v1, 0x2

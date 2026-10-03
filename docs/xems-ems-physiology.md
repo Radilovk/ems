@@ -88,7 +88,9 @@ reach very high values in the unaccustomed [E:R3]. Guidelines: ≥ 4 days betwee
 (docs/xems-plan.md). Report `persona()`: the first 4 sessions ×0.85…1.
 Measured recovery (scale, docs/xems-scale.md "EMS use"): swelling raises Z100/Z20 against the client's own
 baseline → ×0.85 from +1.2 %, ×0.7 from +2.5 %; drier legs (Z20 +5 %) → ×0.85. [D] The stronger of the
-time rule and the measurement wins.
+time rule and the measurement wins (Auto too since 1.1.311-ai). Since 1.1.311-ai: baseline from the same time of day
+(±3 h, else thresholds ×1.5); weight ≥ 2 % under the week's median → ×0.85 (water lost, any scale); on a
+one-frequency scale drier legs alone do not cut.
 
 ## 7. Heart rate
 - Resting HR (`AiRestHr`): measured for as long as its reliability needs, 10–45 s — the median of n samples with

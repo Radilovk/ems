@@ -314,6 +314,14 @@ public final class AiSession {
         startTicker();
     }
 
+    /** The resting HR just measured → the client's own record (physical age on the scale page). */
+    public static void rememberRestHr(Context c, int bpm) {
+        AiProfile client = AiProfile.of(leader());
+        if (client != null) {
+            com.isaigu.gymapp.wearable.scale.RestHrStore.add(c, client.userId, bpm);
+        }
+    }
+
     /** Derive + plan. hrRest ≤ 0 → without band (TRAINER only). */
     public static void buildPlan(int hrRest, double sigma, long dtMs) {
         profile = AiPlanner.derive(input, hrRest, sigma, dtMs);

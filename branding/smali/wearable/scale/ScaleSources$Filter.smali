@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 440
+    .line 451
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 441
+    .line 452
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Filter;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleSources;
 
-    .line 442
+    .line 453
     iput p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Filter;->tier:I
 
-    .line 443
+    .line 454
     return-void
 .end method
 
@@ -47,26 +47,26 @@
     .registers 4
 
     .prologue
-    .line 447
+    .line 458
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 448
+    .line 459
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Filter;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleSources;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Filter;->tier:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->filter:I
 
-    .line 449
+    .line 460
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Filter;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleSources;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->filterChips()V
 
-    .line 450
+    .line 461
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources$Filter;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleSources;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->build()V
 
-    .line 451
+    .line 462
     return-void
 .end method

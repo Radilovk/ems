@@ -742,6 +742,7 @@ final class AiUi {
         AiRestHr r = AiSession.getRestHr();
         if (r != null && r.getStatus() == AiRestHr.Status.DONE && !(self && r.getHrRest() >= 100)) {
             AiSession.buildPlan(r.getHrRest(), r.getSigma(), r.getDtHrMs());
+            AiSession.rememberRestHr(a, r.getHrRest());
             return true;
         }
         return false;

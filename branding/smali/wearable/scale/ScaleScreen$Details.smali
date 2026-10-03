@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2001
+    .line 2002
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2002
+    .line 2003
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Details;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2003
+    .line 2004
     return-void
 .end method
 
@@ -42,14 +42,14 @@
     .registers 3
 
     .prologue
-    .line 2007
+    .line 2008
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2008
+    .line 2009
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Details;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->showDetail()V
 
-    .line 2009
+    .line 2010
     return-void
 .end method

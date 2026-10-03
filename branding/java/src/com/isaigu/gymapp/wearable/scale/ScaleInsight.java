@@ -325,7 +325,9 @@ public final class ScaleInsight {
         public int fatCls = -1;
         public int type = -1;
         public double physicalAge = Double.NaN;
-        public double ageFromMuscle = Double.NaN, ageFromFat = Double.NaN;
+        public double ageFromMuscle = Double.NaN, ageFromFat = Double.NaN, ageFromHeart = Double.NaN;
+        /** The resting HR that went into physical age (the client's typical at the weigh-in); NaN = none. */
+        public double restHr = Double.NaN;
         /** Legs' share of the segment fat (0–1); NaN without segments. */
         public double legFatShare = Double.NaN;
 
@@ -366,18 +368,25 @@ public final class ScaleInsight {
             b.type = b.muscleCls >= 2 ? T_STRONG_FAT : b.muscleCls == 0 ? T_FAT_LOW_MUSCLE : T_FAT;
         }
         JSONArray sm = m.optJSONArray("segMus");
-        if (sm != null) {
+        double ash = m.optDouble("ash", Double.NaN);
+        if (!Double.isNaN(ash) && ash > 0) {
+            // the smoothed limbs' share of the smoothed lean (ScaleModel) — one step-on's limbs are too noisy
+            b.almi = ash * lean / h2;
+        } else if (sm != null) {
             b.almi = (sm.optDouble(ScaleProtocol.LEFT_ARM, 0) + sm.optDouble(ScaleProtocol.RIGHT_ARM, 0)
                     + sm.optDouble(ScaleProtocol.LEFT_LEG, 0) + sm.optDouble(ScaleProtocol.RIGHT_LEG, 0)) / h2;
-            b.ageFromMuscle = ageOf(b.almi, male ? ALMI_M : ALMI_F, male ? 0.026 : 0.012, false);
         }
-        b.ageFromFat = ageOf(b.fmi, male ? FMI_M : FMI_F, male ? 0.07 : 0.16, true);
-        b.physicalAge = Double.isNaN(b.ageFromMuscle) ? b.ageFromFat : 0.5 * b.ageFromMuscle + 0.5 * b.ageFromFat;
         int pa = m.optInt("pa", 0);
-        if (pa >= 18 && !Double.isNaN(b.physicalAge)) {
-            // the medians move slowly with age, so a fit body maps decades away: half the gap, at most 8 years
-            b.physicalAge = pa + Math.max(-AGE_SPAN, Math.min(AGE_SPAN, (b.physicalAge - pa) / 2));
+        if (pa >= 18) {
+            b.ageFromMuscle = pa - YEARS_PER_SD * zMuscle(b.almi, male, pa);
+            b.ageFromFat = pa + YEARS_PER_SD * zFat(b.fmi, male, pa);
         }
+        b.restHr = m.optDouble("rhr", Double.NaN);
+        if (pa >= 18 && !Double.isNaN(b.restHr)) {
+            b.ageFromHeart = pa + YEARS_PER_SD * zHeart(b.restHr, male, pa);
+        }
+        double shown = m.optDouble("pag", Double.NaN);
+        b.physicalAge = !Double.isNaN(shown) ? shown : physicalAge(b.almi, b.fmi, b.restHr, male, pa);
         JSONArray f = m.optJSONArray("segFat");
         if (f != null) {
             double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
@@ -389,46 +398,115 @@ public final class ScaleInsight {
     }
 
     /**
-     * Medians by age, DXA, 3 327 adults (Imboden et al., PLoS One 2017; 10.1371/journal.pone.0175110 and .0176161),
-     * at the decade middles 25 … 75. FMI only up to 55 (it falls again after 60 — loss of mass, not youth).
+     * Physical age from one weigh-in: where the client stands among people of their own (passport) age, said in
+     * years. z = the client's ALMI and FMI against the median and spread of their age group (DXA, 3 327 adults,
+     * Imboden 2017: ALMI by quartiles, FMI on a log scale — it is skewed), muscle up and fat down count young,
+     * half each; {@link #YEARS_PER_SD} years per standard deviation, at most {@link #AGE_SPAN}. NaN without a
+     * passport age (18+) or fat.
+     * <p>Not the inverse of the medians by age (until 1.1.300-ai): they are almost flat — women's ALMI falls
+     * 0.01 kg/m² a year while people of one age differ by ~1 kg/m² — so 0.1 kg/m² of measuring noise became years.
+     * Against the spread of one's own age group the same noise is ~0.1 SD → a few months.
      */
-    static final double[] AGES = {25, 35, 45, 55, 65, 75};
-    /** Physical age stays within this many years of the passport. */
-    static final double AGE_SPAN = 8;
-    static final double[] ALMI_M = {9.3, 9.1, 8.7, 8.6, 8.5, 8.0};
-    static final double[] ALMI_F = {6.9, 6.8, 6.7, 6.6, 6.5, 6.3};
-    static final double[] FMI_M = {5.0, 6.8, 8.0, 8.7};
-    static final double[] FMI_F = {6.6, 8.9, 9.7, 11.3};
+    public static double physicalAge(double almi, double fmi, boolean male, int passport) {
+        return physicalAge(almi, fmi, Double.NaN, male, passport);
+    }
 
     /**
-     * The age whose median equals v: piecewise-linear inverse over the decades; beyond the youngest / oldest the
-     * outer slope per year (rising = the value grows with age).
+     * With the heart: the client's typical resting HR against their sex and age (NHANES 1999–2008, 35 302 adults
+     * without HR-changing illness or medicine; a lower pulse counts young — 10 bpm ≈ 1 SD, and +10 bpm carries
+     * +9 % all-cause mortality, Zhang 2016) as a third part: muscle, fat and heart a third each. NaN HR → muscle
+     * and fat half each, as before.
      */
-    static double ageOf(double v, double[] med, double slopeOut, boolean rising) {
-        if (Double.isNaN(v)) {
+    public static double physicalAge(double almi, double fmi, double restHr, boolean male, int passport) {
+        if (passport < 18 || Double.isNaN(fmi) || fmi <= 0) {
             return Double.NaN;
         }
-        int n = med.length;
-        double first = med[0], last = med[n - 1];
-        if (rising ? v <= first : v >= first) {
-            return clampAge(AGES[0] - Math.abs(v - first) / slopeOut);
+        double sum = -zFat(fmi, male, passport);
+        int n = 1;
+        double za = zMuscle(almi, male, passport);
+        if (!Double.isNaN(za)) {
+            sum += za;
+            n++;
         }
-        if (rising ? v >= last : v <= last) {
-            return clampAge(AGES[n - 1] + Math.abs(v - last) / slopeOut);
+        double zh = zHeart(restHr, male, passport);
+        if (!Double.isNaN(zh)) {
+            sum -= zh;
+            n++;
         }
-        for (int i = 1; i < n; i++) {
-            double lo = med[i - 1], hi = med[i];
-            if (rising ? v <= hi : v >= hi) {
-                double t = (v - lo) / (hi - lo);
-                return clampAge(AGES[i - 1] + t * (AGES[i] - AGES[i - 1]));
-            }
-        }
-        return clampAge(AGES[n - 1]);
+        return passport - Math.max(-AGE_SPAN, Math.min(AGE_SPAN, YEARS_PER_SD * sum / n));
     }
 
-    static double clampAge(double a) {
-        return Math.max(18, Math.min(85, a));
+    /** Resting HR's z against sex and age (quartiles by NHANES age group); NaN outside 35–120 bpm. */
+    static double zHeart(double bpm, boolean male, int age) {
+        if (Double.isNaN(bpm) || bpm < 35 || bpm > 120) {
+            return Double.NaN;
+        }
+        double[] lo = male ? RHR_M_P25 : RHR_F_P25, mid = male ? RHR_M_P50 : RHR_F_P50,
+                hi = male ? RHR_M_P75 : RHR_F_P75;
+        double a = Math.max(RHR_AGES[0], Math.min(RHR_AGES[2], age));
+        int i = a <= RHR_AGES[1] ? 1 : 2;
+        double f = (a - RHR_AGES[i - 1]) / (RHR_AGES[i] - RHR_AGES[i - 1]);
+        double l = lo[i - 1] + f * (lo[i] - lo[i - 1]), m = mid[i - 1] + f * (mid[i] - mid[i - 1]),
+                h = hi[i - 1] + f * (hi[i] - hi[i - 1]);
+        return (bpm - m) / ((h - l) / IQR_SD);
     }
+
+    /**
+     * Resting pulse (60 s, seated, after 5 min rest), NHANES 1999–2008 (Ostchega et al., NHSR 41, 2011, Tables 2–3):
+     * quartiles at 20–39 · 40–59 · 60–79 → 30 · 50 · 70.
+     */
+    static final double[] RHR_AGES = {30, 50, 70};
+    static final double[] RHR_M_P25 = {61, 61, 60}, RHR_M_P50 = {69, 68, 67}, RHR_M_P75 = {76, 77, 75};
+    static final double[] RHR_F_P25 = {66, 64, 64}, RHR_F_P50 = {74, 71, 70}, RHR_F_P75 = {82, 79, 78};
+
+    /** ALMI's z against the client's age group: (v − median) / (IQR / 1.349). */
+    static double zMuscle(double almi, boolean male, int age) {
+        if (Double.isNaN(almi) || almi <= 0) {
+            return Double.NaN;
+        }
+        double lo = atAge(male ? ALMI_M_P25 : ALMI_F_P25, age), mid = atAge(male ? ALMI_M_P50 : ALMI_F_P50, age),
+                hi = atAge(male ? ALMI_M_P75 : ALMI_F_P75, age);
+        return (almi - mid) / ((hi - lo) / IQR_SD);
+    }
+
+    /** FMI's z against the client's age group on a log scale. */
+    static double zFat(double fmi, boolean male, int age) {
+        double lo = atAge(male ? FMI_M_P25 : FMI_F_P25, age), mid = atAge(male ? FMI_M_P50 : FMI_F_P50, age),
+                hi = atAge(male ? FMI_M_P75 : FMI_F_P75, age);
+        return Math.log(fmi / mid) / (Math.log(hi / lo) / IQR_SD);
+    }
+
+    /** The table's value at this age: linear between the decade middles 25 … 75, flat beyond. */
+    static double atAge(double[] t, int age) {
+        double a = Math.max(AGES[0], Math.min(AGES[AGES.length - 1], age));
+        for (int i = 1; i < AGES.length; i++) {
+            if (a <= AGES[i]) {
+                double f = (a - AGES[i - 1]) / (AGES[i] - AGES[i - 1]);
+                return t[i - 1] + f * (t[i] - t[i - 1]);
+            }
+        }
+        return t[t.length - 1];
+    }
+
+    /**
+     * Quartiles by decade (20–29 … 70–79 → 25 … 75), DXA, 3 327 adults (Imboden et al., PLoS One 2017: lean
+     * 10.1371/journal.pone.0176161 Table 5, fat 10.1371/journal.pone.0175110 Table 3).
+     */
+    static final double[] AGES = {25, 35, 45, 55, 65, 75};
+    static final double[] ALMI_M_P25 = {8.6, 8.6, 8.3, 8.1, 8.0, 7.6}, ALMI_M_P50 = {9.3, 9.1, 8.7, 8.6, 8.5, 8.0},
+            ALMI_M_P75 = {10.2, 9.6, 9.2, 9.2, 9.0, 8.3};
+    static final double[] ALMI_F_P25 = {6.4, 6.4, 6.1, 6.1, 6.1, 5.9}, ALMI_F_P50 = {6.9, 6.8, 6.7, 6.6, 6.5, 6.3},
+            ALMI_F_P75 = {7.4, 7.4, 7.2, 7.1, 7.1, 6.7};
+    static final double[] FMI_M_P25 = {3.2, 4.0, 5.2, 5.9, 6.2, 5.8}, FMI_M_P50 = {5.0, 6.8, 8.0, 8.7, 8.5, 7.9},
+            FMI_M_P75 = {7.1, 10.1, 10.5, 10.3, 10.2, 9.6};
+    static final double[] FMI_F_P25 = {5.0, 5.4, 7.0, 7.6, 8.0, 8.0}, FMI_F_P50 = {6.6, 8.9, 9.7, 11.3, 11.2, 10.5},
+            FMI_F_P75 = {8.2, 11.9, 12.8, 14.4, 14.3, 12.8};
+    /** Interquartile range of a normal distribution in SDs. */
+    static final double IQR_SD = 1.349;
+    /** Years per SD (2 SD — the top or bottom ~2 % of one's age group — reaches the 8-year limit). */
+    static final double YEARS_PER_SD = 4;
+    /** Physical age stays within this many years of the passport. */
+    static final double AGE_SPAN = 8;
 
     // ================================================================ norms: a 5-sector scale per value
 

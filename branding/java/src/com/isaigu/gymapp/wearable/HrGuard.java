@@ -159,6 +159,9 @@ public final class HrGuard {
         boolean changed = core.tick(now, stim, enabled);
         if (wasCalibrating && !core.isCalibrating() && ctx != null) {
             WearableConfig.setRestHr(ctx, core.getRestHr());
+            if (personId != NO_PERSON) {
+                com.isaigu.gymapp.wearable.scale.RestHrStore.add(ctx, personId, core.getRestHr());
+            }
             WearableBleDiagLog.log("hr_guard", "rest=" + core.getRestHr() + " upper=" + core.getUpper()
                     + (core.isManualUpper() ? " (trainer)" : " (auto)"));
         }

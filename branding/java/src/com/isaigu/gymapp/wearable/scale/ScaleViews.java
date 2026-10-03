@@ -1693,4 +1693,67 @@ public final class ScaleViews {
             }
         }
     }
+
+    // ================================================================ build matrix: muscle × fat
+
+    /**
+     * The build as a small labelled grid (muscle up, fat to the right): the client's cell lit with a dot, the
+     * others quiet — one glance says where the body is, with no numbers.
+     */
+    public static final class BuildGrid extends View {
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF r = new RectF();
+        int muscle = -1, fat = -1;
+
+        public BuildGrid(Context c) {
+            super(c);
+        }
+
+        /** muscle class 0 low … 3 very muscular; fat class 0 very low … 3 obese. */
+        public void set(int muscleCls, int fatCls) {
+            muscle = muscleCls;
+            fat = fatCls;
+            invalidate();
+        }
+
+        static int cellColor(int mu, int fa) {
+            if (fa == 0) {
+                return 0xFF38BDF8;
+            }
+            if (fa == 1) {
+                return mu >= 1 ? 0xFF22C55E : 0xFFF59E0B;
+            }
+            return mu >= 2 ? 0xFFF59E0B : 0xFFEF4444;
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            float lab = sp(this, 12) + dp(this, 6);
+            float w = getWidth(), h = getHeight() - lab;
+            float gap = dp(this, 4);
+            float cw = (w - 3 * gap) / 4, ch = (h - 3 * gap) / 4;
+            for (int row = 0; row < 4; row++) {
+                for (int col = 0; col < 4; col++) {
+                    int mu = 3 - row;
+                    boolean on = mu == muscle && col == fat;
+                    int color = cellColor(mu, col);
+                    r.set(col * (cw + gap), row * (ch + gap), col * (cw + gap) + cw, row * (ch + gap) + ch);
+                    p.setStyle(Paint.Style.FILL);
+                    p.setColor(on ? color : XemsUi.alpha(color, 46));
+                    c.drawRoundRect(r, dp(this, 8), dp(this, 8), p);
+                    if (on) {
+                        p.setColor(0xFFFFFFFF);
+                        c.drawCircle(r.centerX(), r.centerY(), Math.min(cw, ch) * 0.2f, p);
+                    }
+                }
+            }
+            p.setStyle(Paint.Style.FILL);
+            p.setColor(XemsUi.MUTED);
+            p.setTextSize(sp(this, 12));
+            p.setTextAlign(Paint.Align.LEFT);
+            drawFit(c, p, tr("▲ мускули", "▲ muscle"), 0, getHeight() - dp(this, 3), w / 2, this);
+            p.setTextAlign(Paint.Align.RIGHT);
+            drawFit(c, p, tr("мазнини ▶", "fat ▶"), w, getHeight() - dp(this, 3), w / 2, this);
+        }
+    }
 }

@@ -287,14 +287,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleLink.java` (728L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
 - `ScaleModel.java` (352L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
 - `ScaleProtocol.java` (379L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
-- `ScaleScreen.java` (2391L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
+- `ScaleScreen.java` (2466L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
 - `ScaleSession.java` (206L, compile:music-sync*,wearable) — One measuring session = one time on the scale.
 - `ScaleShare.java` (452L, compile:music-sync*,wearable) — Sharing the scale's result from the summary: as an image (the sheet as it is on the screen, PNG) or as one HTML file th…
 - `ScaleSources.java` (497L, compile:music-sync*,wearable) — "Научна основа" — where every number of the scale module comes from, said plainly: each source with what we take from i…
 - `ScaleStage.java` (754L, compile:music-sync*,wearable) — The measuring stage — what the client sees from "step on" to "done", one standing, no step-off: <ul> <li><b>Left</b> — …
 - `ScaleStore.java` (248L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
 - `ScaleUploader.java` (199L, compile:music-sync*,wearable) — The client's scale measurements → the server, filed under the client's dossier id (XemsDossier.cidFor) like the trainin…
-- `ScaleViews.java` (1697L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
+- `ScaleViews.java` (1760L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
 - `MiFitnessLogImport.java` (697L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
@@ -835,7 +835,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## 3. UI / UX
   - L57 ## 4. Какво да се провери на първото истинско мерене
 
-`docs/xems-scale.md` (358L)
+`docs/xems-scale.md` (364L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
   - L10 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
   - L27 ## EMS use (1.1.286-ai)
@@ -849,12 +849,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L177 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
   - L209 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
   - L222 ## Result page (`ScaleScreen`) — two views
-  - L297 ## What the hardware is
-  - L308 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L329 ## Measuring protocol (owner: no suit, thin clothes)
-  - L337 ## Validation path
-  - L342 ## Gemini / LLM
-  - L347 ## Licences of the ported code
+  - L303 ## What the hardware is
+  - L314 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L335 ## Measuring protocol (owner: no suit, thin clothes)
+  - L343 ## Validation path
+  - L348 ## Gemini / LLM
+  - L353 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (292L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

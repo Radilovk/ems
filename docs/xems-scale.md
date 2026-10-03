@@ -231,6 +231,12 @@ two by two, **narrow** one column; the bar splits into switch / Анализ·О
 figure card · one key card (4 numbers, readiness — the dial only with a verdict, before that one line "from the second
 measurement" — body type) · zones · current per channel. Drawn text follows the system font size (`ScaleViews.sp`,
 ×1.12, font scale capped 1.3).
+**1.1.307-ai — Summary, second pass** (examples: segmental analysers, shape-matrix reports): (1) the figure with each
+zone's note beside it — name, % of normal in the status colour, kg, status word (right side of the client on the
+image's left); the body-type chip and body age above; (2) four values (number · word · short scale); (3) the build
+as a 4 × 4 muscle × fat grid with the client's cell lit (`ScaleViews.BuildGrid`) beside "Towards a healthy weight"
+(fat −kg · muscle mass +kg · weight Δ, "в норма" when nothing is needed); (4) two recommendations at most. The
+header line carries sex · age · height · weight · date.
 **1.1.306-ai.** *Summary redesigned* by the result pages of body-composition systems (Withings, InBody, Fitdays,
 Tanita): one verdict (body type chip + body age 56 sp + the figure), four large values (fat · muscle mass · water ·
 visceral: number 34 sp, status word in its colour, a short `MiniNorm` scale — no full-width bars), at most three

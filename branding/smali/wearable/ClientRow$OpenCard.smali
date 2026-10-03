@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 288
+    .line 301
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 289
+    .line 302
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenCard;->a:Landroid/app/Activity;
 
-    .line 290
+    .line 303
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenCard;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 291
+    .line 304
     return-void
 .end method
 
@@ -47,17 +47,17 @@
     .registers 6
 
     .prologue
-    .line 295
+    .line 308
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 296
+    .line 309
     instance-of v0, p1, Landroid/widget/TextView;
 
     if-eqz v0, :cond_15
 
     move-object v0, p1
 
-    .line 297
+    .line 310
     check-cast v0, Landroid/widget/TextView;
 
     const-string v1, "\u0422\u044a\u0440\u0441\u0438 \u0441\u0435\u2026"
@@ -70,7 +70,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 299
+    .line 312
     :cond_15
     new-instance v0, Ljava/lang/Thread;
 
@@ -88,6 +88,6 @@
 
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
-    .line 300
+    .line 313
     return-void
 .end method

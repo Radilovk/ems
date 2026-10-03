@@ -70,6 +70,14 @@ def main() -> int:
     for p in figs:
         shutil.copy2(p, bout / p.name)
     print(f"assets/xems/body/ ({len(figs)} files, {sum(p.stat().st_size for p in figs)} B)")
+    scale = sorted((body / "scale").glob("*.webp"))   # the scale page's figures (scripts/gen-scale-figures.py)
+    if len(scale) != 8:
+        raise SystemExit("branding/body/scale: expected 8 figures — run scripts/gen-scale-figures.py")
+    sout = bout / "scale"
+    sout.mkdir(parents=True, exist_ok=True)
+    for p in scale:
+        shutil.copy2(p, sout / p.name)
+    print(f"assets/xems/body/scale/ ({len(scale)} files, {sum(p.stat().st_size for p in scale)} B)")
     return 0
 
 

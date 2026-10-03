@@ -290,4 +290,15 @@ public final class AiPersonal {
         }
         return b.toString();
     }
+
+    /** The client's focus zones plus the one the scale asks for (its weakest zone), without changing the form. */
+    public static java.util.Set<String> withScaleFocus(java.util.Set<String> focus, String scale) {
+        if (scale == null) {
+            return focus;
+        }
+        java.util.Set<String> f = new java.util.HashSet<String>(focus != null ? focus : new java.util.HashSet<String>());
+        f.add(scale);
+        return f;
+    }
+
 }

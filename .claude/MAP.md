@@ -41,7 +41,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-diag-logging.py` (83L, build:L129[BETA_MUSIC]) — Install MusicDiagLog smali and hook crash handler + application init.
 - `scripts/apply-double-impulse.py` (77L, build:L161) — The double impulse (2nd impulse / active pause) per mode: Основен, Кардио, Масаж — not Мускули.
 - `scripts/apply-edit-parameter-scroll.py` (68L, build:L82) — Make the impulse/parameter settings dialog scrollable on smaller tablet viewports.
-- `scripts/apply-exercise-assets.py` (78L, build:L113[BETA_MUSIC]) — Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program pictures: br…
+- `scripts/apply-exercise-assets.py` (86L, build:L113[BETA_MUSIC]) — Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program pictures: br…
 - `scripts/apply-form-theme.py` (96L, build:L48) — Fix dark-theme form fields: LineEditText underline + add-user layout text colors.
 - `scripts/apply-guide-tab.py` (283L, build:L87) — Replace the Video tab with a comprehensive styled EMS training and app guide.
 - `scripts/apply-hz-controls.py` (1119L, build:L52) — Hz indicator + shared slider/master controls for frequency during training.
@@ -100,7 +100,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-channel-scale-java.sh` (57L, build:L71[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L102[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (213L, build:L92[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (206L, build:L107[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (215L, build:L107[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (64L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (83L, build:L115[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -115,6 +115,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/gen-exercise-library.py` (117L) — branding/exercises/library-src.json (all 302 exercises: names, steps, muscles, pattern) → library.json, the library the…
 - `scripts/gen-exercises.py` (97L) — branding/exercises/{programs,exercises}.json → ai/AutoTemplateData.java (the template data as plain Java, so the logic …
 - `scripts/gen-program-art.py` (126L) — Program pictures for the tablet (ai/ProgramArt): branding/programs/src/*.webp (full resolution, transparent) → branding…
+- `scripts/gen-scale-figures.py` (209L) — The scale page's body figures, from the owner's colour-coded anatomical art (branding/body/scale/src/<sex>.png: front a…
 - `scripts/install_interval_timer_smali.py` (77L) — Install interval timer stack smali (helper, presets, block program) into decompiled APK.
 - `scripts/layout-implement.py` (301L) — Generate Android layout XML from approved layout brief.
 - `scripts/layout_brief_lib.py` (109L) — Shared layout brief load/validate (imported by CLI and implement).
@@ -131,6 +132,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/remove-software-ramp.py` (60L, build:L78) — Remove software ramp hook that blocks sendPulse and causes training freeze on Play.
 - `scripts/reorder-muscles.py` (84L, build:L38) — Reorder muscle group columns in train UI layouts (visual only, IDs unchanged).
 - `scripts/repo-map.py` (329L) — Token-cheap navigation for agents: generated repo map + per-file outline.
+- `scripts/scale-sim/ScaleSim.java` (519L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
+- `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
 - `scripts/setup-android-toolchain.sh` (41L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
 - `scripts/test-apk-safety.sh` (118L) — Automated safety test: BETA build must not change login-critical code vs baseline.
@@ -150,14 +153,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 ## Java sources → smali (compile:X = scripts/compile-X-java.sh; X* = catch-all find)
 
 **ai/** (`branding/java/src/com/isaigu/gymapp/ai/`)
-- `AiEnergy.java` (346L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
+- `AiEnergy.java` (379L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
 - `AiEngine.java` (1339L, compile:music-sync*,wearable) — XEMS Smart Session runtime (spec §5–§10).
 - `AiExercises.java` (335L, compile:music-sync*,wearable) — The exercises of a Smart Session (pure Java; the stations come from {@link AutoTemplates}).
 - `AiHrFilter.java` (129L, compile:music-sync*,wearable) — §7 — realtime HR validation, EMA smoothing, stimulation-artifact rejection, c_valid.
-- `AiModel.java` (203L, compile:music-sync*,wearable) — XEMS Smart Session data model (docs/xems-smart-session-spec.md §1, §3, §4).
-- `AiPersonal.java` (294L, compile:music-sync*,wearable) — The client's own profile beyond sex / age / weight / fitness / goal: focus zones and state (the client form's "Зони за …
-- `AiPlanner.java` (519L, compile:music-sync*,wearable) — §2.1, §3 (DERIVE) and §4, §6 (PLAN): deterministic plan from the session input.
-- `AiProfile.java` (202L, compile:music-sync*,wearable) — The client of a training slot as the AI session and the pulse module see them: sex, age and weight from the client reco…
+- `AiModel.java` (212L, compile:music-sync*,wearable) — XEMS Smart Session data model (docs/xems-smart-session-spec.md §1, §3, §4).
+- `AiPersonal.java` (305L, compile:music-sync*,wearable) — The client's own profile beyond sex / age / weight / fitness / goal: focus zones and state (the client form's "Зони за …
+- `AiPlanner.java` (527L, compile:music-sync*,wearable) — §2.1, §3 (DERIVE) and §4, §6 (PLAN): deterministic plan from the session input.
+- `AiProfile.java` (256L, compile:music-sync*,wearable) — The client of a training slot as the AI session and the pulse module see them: sex, age and weight from the client reco…
 - `AiRamp.java` (107L, compile:music-sync*,wearable) — Ramp bytes for the work-params PDU (device unit: 10 ms per step).
 - `AiRestHr.java` (292L, compile:music-sync*,wearable) — §2 CALIB_REST_HR — resting HR, measured as long as its reliability needs: 10–45 s (median of the last stretch).
 - `AiScreening.java` (86L, compile:music-sync*,wearable) — §1.1, §1.2, G11 — input validation and pre-session questionnaire.
@@ -169,17 +172,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AutoBoard.java` (167L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
 - `AutoCatalog.java` (703L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
 - `AutoCues.java` (224L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
-- `AutoEngine.java` (1929L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
+- `AutoEngine.java` (1946L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
 - `AutoHints.java` (348L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
 - `AutoHistory.java` (160L, compile:music-sync*,wearable) — How many sessions a client has had and when the last active one was — for the adaptation and recovery limits of the aut…
 - `AutoLimits.java` (179L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
 - `AutoLook.java` (436L, compile:music-sync*,wearable) — The training screen while automatic mode owns the suits (calibration and the run): every train row loses the controls t…
-- `AutoModel.java` (290L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
-- `AutoPlanner.java` (269L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
-- `AutoSession.java` (1898L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
+- `AutoModel.java` (308L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
+- `AutoPlanner.java` (281L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
+- `AutoSession.java` (1920L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
 - `AutoTemplateData.java` (114L, compile:music-sync*,wearable) — GENERATED by scripts/gen-exercises.py from branding/exercises/*.json — do not edit.
 - `AutoTemplates.java` (528L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
-- `AutoUi.java` (1748L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
+- `AutoUi.java` (1842L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
 - `AutoViews.java` (920L, compile:music-sync*,wearable) — The drawn parts of the Auto live board (docs/xems-auto-mode-spec.md §12): the set ring around the exercise, the body he…
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (377L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
@@ -237,7 +240,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (129L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (129L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
-- `ClientRow.java` (541L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
+- `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -246,7 +249,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `HrHistory.java` (126L, compile:music-sync*,wearable) — Heart-rate samples of the last hour (ring buffer) for the HR panel: chart, averages and time in zones.
 - `ManualDefaults.java` (84L, compile:music-sync*,wearable) — The manual mode's starting values: a client who comes into a training slot and has no settings of their own yet (no Nex…
 - `NextClient.java` (645L, compile:music-sync*,wearable) — The next client from the calendar: shortly before the appointment, when nothing runs on the tablet, asks the trainer an…
-- `NextPlan.java` (754L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
+- `NextPlan.java` (809L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (738L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
@@ -274,6 +277,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 - `XemsAccess.java` (96L, compile:music-sync*,wearable) — At the first start only what the suit needs right away, in one system request: location (Android scans Bluetooth only w…
 - `XemsAutoStart.java` (72L, compile:music-sync*,wearable) — After an update the app opens by itself (owner's requirement): Android tells the updated app (MY_PACKAGE_REPLACED) and …
+
+**wearable/scale/** (`branding/java/src/com/isaigu/gymapp/wearable/scale/`)
+- `ScaleBody.java` (206L, compile:music-sync*,wearable) — Body composition from one scale measurement — iCOMON's WLA25, the algorithm Fitdays uses for these scales, so the numbe…
+- `ScaleInsight.java` (758L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
+- `ScaleLink.java` (724L, compile:music-sync*,wearable) — One weigh-in with the body-composition scale, straight over BLE (no Fitdays, no cloud): find the scale when the client …
+- `ScaleProtocol.java` (379L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
+- `ScaleScreen.java` (1703L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
+- `ScaleShare.java` (276L, compile:music-sync*,wearable) — Sharing the scale's result from the summary: as an image (the sheet as it is on the screen, PNG) or as one HTML file th…
+- `ScaleStore.java` (158L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
+- `ScaleUploader.java` (172L, compile:music-sync*,wearable) — The client's scale measurements → the server, filed under the client's dossier id (XemsDossier.cidFor) like the trainin…
+- `ScaleViews.java` (1334L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
 - `MiFitnessLogImport.java` (697L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
@@ -316,10 +330,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsExercisePage.java` (133L, compile:music-sync*) — Settings → "Каталог с упражнения": the server's exercise selector (/admin/exercises) full screen inside the app, withou…
 - `XemsFullscreen.java` (109L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
-- `XemsIcon.java` (247L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
+- `XemsIcon.java` (257L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (441L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
-- `XemsLicenseClient.java` (598L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
+- `XemsLicenseClient.java` (618L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
 - `XemsLicenseSection.java` (352L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (283L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
@@ -380,8 +394,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1138L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
-- `server/src/limits.js` (28L) — Caps and rate-limit settings — stay safe on Workers free tier.
+- `server/src/index.js` (1184L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
+- `server/src/measures.js` (65L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (42L) — The bridge the report page expects (window.XemsReport), made from one fetch of /v1/history/<cardId> (the id comes from …
@@ -394,6 +409,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/ems.test.js` (15L) — 
 - `server/test/exercises.test.js` (78L) — 
 - `server/test/history.test.js` (95L) — D1-shaped wrapper over node:sqlite with the real migration.
+- `server/test/measures.test.js` (61L) — 
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (53L) — 
 - `server/test/report.test.js` (14L) — 
@@ -410,6 +426,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/migrations/0010_exercise_picks.sql` (10L) — 
 - `server/migrations/0011_exercise_zone.sql` (5L) — 
 - `server/migrations/0012_exercise_picks_ka.sql` (10L) — 
+- `server/migrations/0013_body_measures.sql` (12L) — 
 - `server/scripts/seed-release.sh` (25L) — Register current APK as a release on the license server.
 
 ## Branding YAML maps (top-level keys)
@@ -427,14 +444,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (92L)
+`CLAUDE.md` (93L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L42 ## Invariants (breaking one = broken release)
   - L55 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L67 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L89 ## Keeping the map true
+  - L90 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -654,38 +671,38 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L201 ## Действия по време на сесията (v1.1.68)
   - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
-`docs/xems-auto-mode-spec.md` (579L)
+`docs/xems-auto-mode-spec.md` (585L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
-  - L61 ## 3. Входни данни и формули
-  - L63 ### 3.1 Профил
-  - L74 ### 3.2 Модификатори (прилагат се към всяка програма)
-  - L90 ### 3.3 Сила: какво е „лимит“
-  - L105 ### 3.4 Доза
-  - L111 ## 4. Твърди лимити (проверяват се на всеки тик)
-  - L113 ### 4.1 Абсолютни — за всички програми
-  - L131 ### 4.2 Обвивка във времето E(t) и прозорци на параметрите
-  - L146 ## 5. Зони (10 канала)
-  - L169 ## 6. Програми
-  - L171 ### 6.0 Йерархия на избора
-  - L200 ### 6.1 Общо стягане и оформяне (активна)
-  - L210 ### 6.2 Сила и бързина (активна)
-  - L224 ### 6.3 Седалище и бедра (активна)
-  - L234 ### 6.4 Талия и корем (активна)
-  - L245 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
-  - L256 ### 6.6 Дренаж (пасивна) — вълна по канали
-  - L272 ### 6.7 Антицелулит (пасивна)
-  - L284 ### 6.8 Болки в гърба и кръста (пасивна)
-  - L300 ### 6.9 Следродилно възстановяване (пасивна)
-  - L313 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
-  - L322 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
-  - L332 ## 7. Опции по програма
-  - L354 ## 8. Какво човекът може по време на сесия
-  - L366 ## 9. Реализация
-  - L409 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
-  - L444 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
-  - L556 ## 10. Подсказки (1.1.157-ai)
+  - L67 ## 3. Входни данни и формули
+  - L69 ### 3.1 Профил
+  - L80 ### 3.2 Модификатори (прилагат се към всяка програма)
+  - L96 ### 3.3 Сила: какво е „лимит“
+  - L111 ### 3.4 Доза
+  - L117 ## 4. Твърди лимити (проверяват се на всеки тик)
+  - L119 ### 4.1 Абсолютни — за всички програми
+  - L137 ### 4.2 Обвивка във времето E(t) и прозорци на параметрите
+  - L152 ## 5. Зони (10 канала)
+  - L175 ## 6. Програми
+  - L177 ### 6.0 Йерархия на избора
+  - L206 ### 6.1 Общо стягане и оформяне (активна)
+  - L216 ### 6.2 Сила и бързина (активна)
+  - L230 ### 6.3 Седалище и бедра (активна)
+  - L240 ### 6.4 Талия и корем (активна)
+  - L251 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
+  - L262 ### 6.6 Дренаж (пасивна) — вълна по канали
+  - L278 ### 6.7 Антицелулит (пасивна)
+  - L290 ### 6.8 Болки в гърба и кръста (пасивна)
+  - L306 ### 6.9 Следродилно възстановяване (пасивна)
+  - L319 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
+  - L328 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
+  - L338 ## 7. Опции по програма
+  - L360 ## 8. Какво човекът може по време на сесия
+  - L372 ## 9. Реализация
+  - L415 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
+  - L450 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
+  - L562 ## 10. Подсказки (1.1.157-ai)
 
 `docs/xems-client-data.md` (49L)
   - L1 # XEMS — какви данни къде живеят
@@ -703,19 +720,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Тъмна тема и фонове
   - L46 ## Програмите на началния екран (1.1.263-ai)
 
-`docs/xems-client-sync.md` (121L)
+`docs/xems-client-sync.md` (123L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
   - L5 ## Досие на клиента на сървъра (етап 1)
   - L16 ## Кой е собственик на кои данни
-  - L26 ## Картонът в приложението на клиента (1.1.247-ai)
-  - L35 ## Опростено (1.1.265-ai)
-  - L42 ## Сливане на профил на таблета (`widget/XemsClientSync`)
-  - L55 ## Днес — моментно състояние (1.1.265-ai, `AiPersonal.TODAY`)
-  - L63 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
-  - L92 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
-  - L118 ## Кодът на студиото
+  - L28 ## Картонът в приложението на клиента (1.1.247-ai)
+  - L37 ## Опростено (1.1.265-ai)
+  - L44 ## Сливане на профил на таблета (`widget/XemsClientSync`)
+  - L57 ## Днес — моментно състояние (1.1.265-ai, `AiPersonal.TODAY`)
+  - L65 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
+  - L94 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
+  - L120 ## Кодът на студиото
 
-`docs/xems-ems-physiology.md` (123L)
+`docs/xems-ems-physiology.md` (130L)
   - L1 # EMS physiology — the knowledge the algorithms stand on
   - L8 ## 1. What the frequency does
   - L25 ## 2. Force–frequency curve (one function everywhere)
@@ -725,12 +742,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ### 3.3 Limit F_max and rest F_rec
   - L60 ### 3.4 What was wrong before 1.1.269
   - L67 ## 4. Energy
-  - L75 ## 5. Pulse width and dose
-  - L79 ## 6. Between sessions
-  - L86 ## 7. Heart rate
-  - L95 ## 8. Where it is used
-  - L109 ## Not yet
-  - L112 ## References (from the literature the team works with; check the exact source before quoting outside)
+  - L79 ## 5. Pulse width and dose
+  - L83 ## 6. Between sessions
+  - L93 ## 7. Heart rate
+  - L102 ## 8. Where it is used
+  - L116 ## Not yet
+  - L119 ## References (from the literature the team works with; check the exact source before quoting outside)
 
 `docs/xems-exercise-templates.md` (108L)
   - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them
@@ -803,6 +820,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L144 ## Лог
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
+
+`docs/xems-scale.md` (176L)
+  - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
+  - L9 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
+  - L20 ## EMS use (1.1.286-ai)
+  - L31 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
+  - L54 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
+  - L72 ## Owner's Fitdays report = test vector (1.1.288-ai)
+  - L79 ## Figures (1.1.288-ai)
+  - L84 ## Result page (`ScaleScreen`) — two views
+  - L115 ## What the hardware is
+  - L126 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L147 ## Measuring protocol (owner: no suit, thin clothes)
+  - L155 ## Validation path
+  - L160 ## Gemini / LLM
+  - L165 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (292L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

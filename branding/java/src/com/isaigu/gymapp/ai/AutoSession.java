@@ -352,6 +352,18 @@ public final class AutoSession {
                     r.input.weightKg = p.weightKg;
                 }
                 r.input.heightCm = p.heightCm;
+                if (p.fatPct != null) {
+                    r.input.fatPct = p.fatPct;
+                }
+                r.input.channelFat = p.channelFat;
+                r.input.readiness = p.readiness;
+                r.input.leanKg = p.leanKg;
+                r.input.skeletalKg = p.skeletalKg;
+                r.input.chMuscle = p.chMuscle;
+                r.input.muscleLow = p.muscleLow;
+                r.input.fatObese = p.fatObese;
+                r.input.measured = p.measured;
+                r.input.scaleFocus = p.scaleFocus;
                 if (p.fitness != null) {
                     r.input.fitness = p.fitness;
                 }
@@ -405,6 +417,16 @@ public final class AutoSession {
         to.age = from.age;
         to.weightKg = from.weightKg;
         to.heightCm = from.heightCm;
+        to.fatPct = from.fatPct;
+        to.channelFat = from.channelFat;
+        to.readiness = from.readiness;
+        to.leanKg = from.leanKg;
+        to.skeletalKg = from.skeletalKg;
+        to.chMuscle = from.chMuscle;
+        to.muscleLow = from.muscleLow;
+        to.fatObese = from.fatObese;
+        to.measured = from.measured;
+        to.scaleFocus = from.scaleFocus;
         to.fitness = from.fitness;
         to.sessions = from.sessions;
         to.hoursSinceActive = from.hoursSinceActive;

@@ -21,6 +21,7 @@ import cardTemplate from '../../branding/report/client-card.html';
 import reportTemplate from '../../branding/report/session-report.html';
 import { renderReport } from './report.js';
 import { putClients, pullClients, CLIENT_MAX_BYTES, CLIENTS_PUSH_MAX } from './clients.js';
+import { validMeasure, putMeasures, measuresJson, MEASURE_MAX_BYTES, MEASURES_PUSH_MAX } from './measures.js';
 import {
   studioCode, isStudioCode, cleanProfile, allowHit,
   PROFILE_MAX_BYTES, INBOX_KEEP_SEC, INBOX_MAX_PER_STUDIO, INBOX_BATCH, INBOX_TOKEN_MAX_AGE_SEC,
@@ -84,6 +85,9 @@ export default {
       }
       if (path === '/v1/session' && request.method === 'POST') {
         return handleSessionPut(request, env);
+      }
+      if (path === '/v1/measures' && request.method === 'POST') {
+        return handleMeasuresPut(request, env);
       }
       if (path.startsWith('/v1/history/')) {
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
@@ -444,6 +448,44 @@ async function handleSessionPut(request, env) {
   return json({ ok: true });
 }
 
+/** POST {token, device_id, client_key, items:[weigh-in…]} → {ok, n}. The client's scale measurements. */
+async function handleMeasuresPut(request, env) {
+  const body = await readJsonBody(request, MEASURE_MAX_BYTES);
+  if (!body) return err('unknown', 'Invalid JSON body');
+  const deviceId = normDevice(body.device_id);
+  const tokenBody = parseTokenBody(body.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  const clientKey = normClientKey(body.client_key);
+  if (!clientKey) return err('bad_request', 'client_key');
+  const items = body.items;
+  if (!Array.isArray(items) || items.length === 0 || items.length > MEASURES_PUSH_MAX) return err('bad_request', 'items');
+  for (let i = 0; i < items.length; i++) {
+    const bad = validMeasure(items[i]);
+    if (bad) return err('bad_request', `items[${i}]: ${bad}`);
+  }
+  if (!allowHit(`measures:dev:${deviceId}`, LIMITS.measuresPerMinutePerDevice, 60, now())) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many measurements' }, 429);
+  }
+  const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
+  if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
+  if (lic.expires_at && lic.expires_at < now()) return err('expired', 'License expired');
+  const act = await env.DB.prepare(
+    'SELECT status FROM activations WHERE license_id = ? AND device_id = ?',
+  ).bind(licId, deviceId).first();
+  if (!act || act.status !== 'active') return err('revoked', 'Device removed');
+
+  await putMeasures(env.DB, licId, clientKey, items, now());
+  const card = await env.DB.prepare('SELECT id FROM client_cards WHERE license_id = ? AND client_key = ?')
+    .bind(licId, clientKey).first();
+  if (card) {
+    const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
+    try { await caches.default.delete(new Request(`${base}/v1/history/${card.id}`)); } catch { /* no cache API */ }
+  }
+  return json({ ok: true, n: items.length });
+}
+
 const HISTORY_CACHE_SEC = 300;
 
 /**
@@ -472,7 +514,11 @@ async function handleHistory(request, env, ctx, cid) {
   if (!card || card.expires_at < now()) return cors(json({ ok: false, error: 'not_found' }, 404));
   let name = '';
   try { name = String(JSON.parse(card.data).name || '').slice(0, 60); } catch { /* no name */ }
-  const body = await historyJson(env.DB, card.license_id, card.client_key, name);
+  const hist = await historyJson(env.DB, card.license_id, card.client_key, name);
+  // the scale's measurements ride along (the card's "Тяло" block): one more indexed read, same cache
+  let bodyJson = '[]';
+  try { bodyJson = await measuresJson(env.DB, card.license_id, card.client_key); } catch { /* table not migrated yet */ }
+  const body = hist.slice(0, -1) + ',"body":' + bodyJson + '}';
   if (cache && ctx) {
     ctx.waitUntil(cache.put(key, new Response(body, {
       headers: { ...JSON_HEADERS, 'Cache-Control': `public, max-age=${HISTORY_CACHE_SEC}` },

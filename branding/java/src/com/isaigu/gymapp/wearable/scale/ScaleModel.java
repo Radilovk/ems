@@ -61,6 +61,29 @@ public final class ScaleModel {
 
     // ================================================================ one reading
 
+    /**
+     * Typical dispersion ρ = Z100 / Z20 by segment (trunk, arms, legs) — healthy adults' P1 readings (owner and
+     * the sim's clients: trunk 0.91, arms 0.85–0.91, legs 0.86–0.90). [D] Only spreads a single-frequency reading.
+     */
+    static final double[] RHO = {0.91, 0.88, 0.88, 0.88, 0.88};
+
+    /**
+     * A single-frequency (50 kHz) reading in the two-frequency form every algorithm reads: per segment
+     * z20 = z50 / (1 + (ρ − 1)·AT50), z100 = ρ·z20, so {@link #r50} returns the measured 50 kHz value exactly.
+     */
+    public static void single(ScaleProtocol.Reading r, double[] z50) {
+        r.single = true;
+        for (int i = 0; i < 5; i++) {
+            double z = z50[i];
+            if (z > 0) {
+                r.z20[i] = z / (1 + (RHO[i] - 1) * AT50);
+                r.z100[i] = RHO[i] * r.z20[i];
+            } else {
+                r.z20[i] = r.z100[i] = Double.NaN;
+            }
+        }
+    }
+
     /** Whole-body resistance at 50 kHz in hand-to-foot terms (Ω); NaN when the limbs are not usable. */
     public static double r50(double[] z20, double[] z100) {
         for (int i = 1; i < 5; i++) {
@@ -108,6 +131,11 @@ public final class ScaleModel {
         }
         double w = r.weightKg;
         double sun = clamp(100 * (w - ffmSun(male, heightCm, w, res)) / w, 3, 60);
+        if (r.single) {
+            // Sun 2003 is a 50 kHz equation (NHANES III): exactly what a single-frequency scale measures; WLA25's
+            // regression needs the real 100 kHz values
+            return v.fatFromScale ? (sun + v.fatPct) / 2 : sun;
+        }
         if (v.fatFromScale) {
             return (sun + v.fatPct) / 2;
         }
@@ -235,6 +263,7 @@ public final class ScaleModel {
             r.z100[i] = b != null && !b.isNull(i) ? b.optDouble(i, Double.NaN) : Double.NaN;
         }
         r.scaleFatPct = m.optDouble("sfat", Double.NaN);
+        r.single = m.optInt("f1") == 1;
         return r;
     }
 

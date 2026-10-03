@@ -176,17 +176,17 @@
     .end annotation
 
     .prologue
-    .line 190
+    .line 191
     invoke-interface {p0}, Ljava/util/List;->size()I
 
     move-result v0
 
     new-array v4, v0, [D
 
-    .line 191
+    .line 192
     const/4 v0, 0x0
 
-    .line 192
+    .line 193
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v5
@@ -206,14 +206,14 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
-    .line 193
+    .line 194
     if-eqz p2, :cond_2a
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
     aget-wide v2, v0, p1
 
-    .line 194
+    .line 195
     :goto_1e
     invoke-static {v2, v3}, Ljava/lang/Double;->isNaN(D)Z
 
@@ -221,7 +221,7 @@
 
     if-nez v0, :cond_54
 
-    .line 195
+    .line 196
     add-int/lit8 v0, v1, 0x1
 
     aput-wide v2, v4, v1
@@ -229,10 +229,10 @@
     :goto_28
     move v1, v0
 
-    .line 197
+    .line 198
     goto :goto_c
 
-    .line 193
+    .line 194
     :cond_2a
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z100:[D
 
@@ -240,27 +240,27 @@
 
     goto :goto_1e
 
-    .line 198
+    .line 199
     :cond_2f
     if-nez v1, :cond_34
 
-    .line 199
+    .line 200
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
-    .line 203
+    .line 204
     :goto_33
     return-wide v0
 
-    .line 201
+    .line 202
     :cond_34
     invoke-static {v4, v1}, Ljava/util/Arrays;->copyOf([DI)[D
 
     move-result-object v0
 
-    .line 202
+    .line 203
     invoke-static {v0}, Ljava/util/Arrays;->sort([D)V
 
-    .line 203
+    .line 204
     rem-int/lit8 v2, v1, 0x2
 
     const/4 v3, 0x1
@@ -965,7 +965,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_96
+    if-eqz v1, :cond_a2
 
     .line 160
     new-instance v0, Ljava/util/ArrayList;
@@ -987,7 +987,7 @@
     .line 163
     const/4 v0, 0x0
 
-    .line 186
+    .line 187
     :goto_19
     return-object v0
 
@@ -1068,7 +1068,7 @@
 
     move-result v9
 
-    if-nez v9, :cond_94
+    if-nez v9, :cond_a0
 
     .line 176
     iget-wide v10, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->scaleFatPct:D
@@ -1111,7 +1111,7 @@
     iput-wide v6, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
     .line 181
-    if-lez v2, :cond_8f
+    if-lez v2, :cond_9a
 
     int-to-double v2, v2
 
@@ -1123,12 +1123,25 @@
     .line 182
     const/4 v0, 0x0
 
-    :goto_77
-    const/4 v2, 0x5
+    invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    if-ge v0, v2, :cond_92
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->single:Z
+
+    iput-boolean v0, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->single:Z
 
     .line 183
+    const/4 v0, 0x0
+
+    :goto_82
+    const/4 v2, 0x5
+
+    if-ge v0, v2, :cond_9d
+
+    .line 184
     iget-object v2, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
     const/4 v3, 0x1
@@ -1139,7 +1152,7 @@
 
     aput-wide v4, v2, v0
 
-    .line 184
+    .line 185
     iget-object v2, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z100:[D
 
     const/4 v3, 0x0
@@ -1150,29 +1163,29 @@
 
     aput-wide v4, v2, v0
 
-    .line 182
+    .line 183
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_77
+    goto :goto_82
 
     .line 181
-    :cond_8f
+    :cond_9a
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
     goto :goto_74
 
-    :cond_92
+    :cond_9d
     move-object v0, v8
 
-    .line 186
-    goto :goto_19
+    .line 187
+    goto/16 :goto_19
 
-    :cond_94
+    :cond_a0
     move v0, v2
 
     goto :goto_5a
 
-    :cond_96
+    :cond_a2
     move-object v1, v0
 
     goto/16 :goto_12

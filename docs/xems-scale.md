@@ -18,11 +18,47 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
 | `ScaleStage` | The measuring stage (1.1.301-ai): figure + drawn scan (`ScanFx`, time-driven) / scan film, 5 steps (step on · link · weight · analysis · done), instruction, live weight settling, scan ring, sweep count and contact chips (see "Measuring") |
 | `ScaleSources` | "Научна основа" (1.1.298-ai): every source of the module with its tier (study · standard · maker · XEMS), what we take, who was measured, DOI (tap → the paper); data also in the shared HTML |
 | `ScaleAnalysis` | The "Анализ" sheet (1.1.296-ai): composition bar · zone figure · way to healthy weight | 13 tiles | focus with norm, meaning and history |
+| `ScaleSenssun` | Pure (1.1.306–307-ai): Senssun / MovingLife (Klausberg KB-7853): XS protocol v1 / v11–v15 (advert id, frames, segment impedances, ack, time) and the classic `FF A5` (see "Senssun / MovingLife") |
 | `ScaleLink` | Android BLE for as long as the page is open: scan (saved MAC / FFB0 in advert / scale-like name), connect, CCCDs, one-op-at-a-time queue, gen A handshake or gen B 0.4 s heartbeat + acks; every result delivered, the link **stays** while the client stands; the scale's own disconnect (sleep) → scan again (1.1.301-ai) |
 | `ScaleStore` | prefs `xems_scale`: `m<userId>` JSON array (raw impedances kept), `mac`, `h<userId>` height fallback; `freshFatPct/freshWeight` (60 days); `save` (through `ScaleModel`), `upgrade` (older model / other sex·age·height → rebuilt), `delete` (+ server), `unlike` (weight jump → "is this X?") |
 | `ScaleInsight` | Pure: readiness (ρ = Z100/Z20 per segment and legs' Z20 vs the client's own baseline), segments as % of WLA25 normal, fat per suit channel, L/R asymmetry |
 | `ScaleViews` | Drawn: `Body` (project figures painted by segment, tap = select), `Radar` (5 segments vs normal, ghost = last), `Gauge` (readiness), `Trend`, `Reach` (current's reach per channel) |
 | `ScaleScreen` | Full-screen page from the client row (purple scale icon): body · today · trend & EMS (see "Result page") |
+
+## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
+Owner's second scale: Klausberg KB-7853 (8 electrodes, handles, MovingLife app = Senssun's app). Goal: **the same
+tissue analysis as the P1**. Source: MovingLife 5.13.0 APK decompiled (jadx + Ghidra on `libprotocol.so` /
+`libBodyFatScaleAlg.so`, 1.1.307-ai); the older "Senssun Fat" `FF A5` protocol from openScale stays as a fallback.
+
+**Found** by the advert: manufacturer data = vendor (2) · protocol version (1) · model (2) · **its own MAC** (6)
+(`xsAdvert`; the MAC makes it the scale's own claim, no name needed), or by name / saved MAC. 8-electrode models
+(SDK model table, product type 4): 0309 0319 0320 0323 0324 0327 0333 0335–0338. GATT FFF0 / notify FFF1 / write FFF2.
+
+**Protocol by version** (the advert's byte; SDK `parseBodyFatProtocol`):
+| Version | Frames | Result | Done |
+|---|---|---|---|
+| < 0x11 (v1) | `10 00 00 C5 len 00 func …` sum 4…n−2 | 0x8C: TLV `id len data` from 10; id 5 = kg×10 + ten u32 | parse |
+| 0x11, other ≥ 0x11 (v11); 0x12–0x15 (v12 = same parse) | `33 CC len sn 00 func …` sum 2…n−2, split over notifications | 0x81: kg×100 @10, flags @17 (bit 7 history end; 0x10 hands, 0x20 feet, 0x08 nothing), Unix time @18, TLV `len id data` from 22: id 4 = ten u32, id 5 = u16 alg + ten u32 | parse, ack, time sync |
+| 0x30 | AES-CBC with a per-connection key (SHA-256 of a random + MAC handshake) | — | logged only |
+Ten u32 = right hand, left hand, trunk, right foot, left foot at 20 kHz, then at 100 kHz. One u32 `b0 b1 b2 b3`
+→ Ω×10 = `(b2b3 << 16) | b0b1` (SDK `deImpedance`). Live 0x80 (v11: kg×100 @8, stable bit 7 @15). Byte 7 = 1 →
+ack `33 CC 0B sn 00 FF func scaleSn sum`. Time `33 CC 0F sn 00 10 01 tzMin(2) unix(4) sum` on connect. A result
+stamped > 10 min from now (clock set) = a stored weigh-in → skipped. Contact error → weight only.
+
+**One frequency (owner: the KB-7853 measures at one).** The protocol has room for both; a single-frequency scale
+leaves the 100 kHz words at 0 → its values are taken as **50 kHz** [D — check on the first real weigh-in against
+MovingLife]. `ScaleModel.single`: per segment z20 = z50 / (1 + (ρ − 1)·AT50), z100 = ρ·z20 with the typical
+ρ = Z100/Z20 (`RHO`: trunk 0.91, limbs 0.88, from P1 readings), so `r50` = the measured value exactly and every
+algorithm runs unchanged (WLA25 segments, Janssen, Kalman, physical age, EMS links). What changes:
+- **Fat %** = Sun 2003 only (+ the scale's own if sent) — Sun is a 50 kHz equation (NHANES III, single-frequency
+  BIA), the right one for this scale; WLA25's fat regression needs real 100 kHz values.
+- **Readiness**: no swelling verdict from ρ (it is not measured); legs' Z (dry) still works; baselines only from
+  the same kind of scale (`f1`), a P1 history is never a KB baseline and the other way round.
+- Stored `"f1": 1` (+ shared HTML raw readings). Lost vs the P1: ECW / ICW split, ρ-based recovery.
+Sim (owner's P1 vector at 50 kHz): fat 17.0 / 17.0 %, muscle 63.1 / 63.1 kg, water 60.9 / 60.9 %, segments ±5 %.
+Tests: `scripts/scale-sim` `xs()` (frames built from the SDK layout — no real KB-7853 capture yet), `senssun()`.
+**Next:** one weigh-in on the KB-7853 → diag log (`scale` tag: version, model, every frame) → confirm the
+frequency, the impedance scale and the numbers against MovingLife.
 
 ## EMS use (1.1.286-ai)
 1. **Readiness → today's strength.** `ScaleInsight.readiness`: per segment Δρ = ρ / median(ρ of up to 8 earlier

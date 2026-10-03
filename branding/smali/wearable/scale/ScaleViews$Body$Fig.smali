@@ -17,6 +17,8 @@
 # instance fields
 .field art:Landroid/graphics/Bitmap;
 
+.field ch:[B
+
 .field h:I
 
 .field idx:[I
@@ -37,7 +39,7 @@
     .registers 1
 
     .prologue
-    .line 104
+    .line 128
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void

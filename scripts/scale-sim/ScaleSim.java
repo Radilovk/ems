@@ -334,6 +334,10 @@ public final class ScaleSim {
         o.put("fatKg", w * fat / 100);
         o.put("lean", w - w * fat / 100);
         o.put("skel", skelPct);
+        // limbs ≈ 45 % of the lean in muscle, split like the WLA25 regressions (arms 0.06 / legs 0.17 of lean)
+        double lean = w - w * fat / 100;
+        o.put("segMus", new org.json.JSONArray(new double[] {lean * 0.44, lean * 0.06, lean * 0.06, lean * 0.17,
+                lean * 0.17}));
         return o;
     }
 
@@ -355,9 +359,57 @@ public final class ScaleSim {
         ok("physical age: fitter body younger (" + Math.round(young) + " < " + Math.round(older) + ")",
                 young + 8 < older);
         ok("physical age in range", young >= 18 && older <= 85);
+        // the DXA medians themselves map back to their decade
+        eq("ALMI median → 45", ScaleInsight.ageOf(8.7, ScaleInsight.ALMI_M, 0.026, false), 45, 1e-9);
+        eq("FMI median → 35", ScaleInsight.ageOf(6.8, ScaleInsight.FMI_M, 0.07, true), 35, 1e-9);
+        eq("FMI between", ScaleInsight.ageOf(7.4, ScaleInsight.FMI_M, 0.07, true), 40, 1e-9);
+        eq("lean young clamps 18", ScaleInsight.ageOf(3.0, ScaleInsight.FMI_M, 0.07, true), 18, 1e-9);
+    }
+
+    /** The owner's own Fitdays report (Lescale P1, 02.10.2026, male, 31, 175 cm): our chain from its body fat. */
+    static void ownerReport() {
+        ScaleProtocol.Reading r = new ScaleProtocol.Reading();
+        r.result = true;
+        r.weightKg = 81.4;
+        r.scaleFatPct = 17.8;
+        double[] z20 = {17.3, 252.0, 234.0, 221.0, 232.0}, z100 = {15.7, 215.5, 199.5, 190.0, 200.0};
+        for (int i = 0; i < 5; i++) {
+            r.z20[i] = z20[i];
+            r.z100[i] = z100[i];
+        }
+        ScaleBody b = ScaleBody.of(r, true, 31, 175);
+        eq("P1 fat kg", b.fatKg, 14.5, 0.05);
+        eq("P1 muscle", b.muscleKg, 62.3, 0.11);
+        eq("P1 bone", b.boneKg, 4.5, 0.05);
+        eq("P1 water %", b.waterPct, 60.2, 0.11);
+        eq("P1 protein %", b.proteinPct, 16.4, 0.11);
+        eq("P1 skeletal %", b.skeletalPct, 47.0, 0.11);
+        eq("P1 bmr", b.bmr, 1815, 1);
+        eq("P1 visceral", b.visceral, 4, 0);
+        eq("P1 body age", b.bodyAge, 29, 0);
+        eq("P1 bmi", b.bmi, 26.6, 0.05);
+        double[] fat = {7.5, 0.7, 0.7, 2.3, 2.3}, mus = {29.1, 3.9, 4.0, 11.0, 11.0};
+        for (int i = 0; i < 5; i++) {
+            eq("P1 seg fat " + i, b.segFatKg[i], fat[i], 0.15);
+            eq("P1 seg muscle " + i, b.segMuscleKg[i], mus[i], 0.1);
+        }
+        // Fitdays: BMI 26.6 "high", target −4.3 kg; here: athletic
+        org.json.JSONObject m;
+        try {
+            m = ScaleStore.toJson(r, b, 0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        ScaleInsight.Body t = ScaleInsight.body(m, true, 175);
+        ok("P1 owner = athletic (FFMI " + Math.round(t.ffmi * 10) / 10.0 + ", FMI " + Math.round(t.fmi * 10) / 10.0
+                + ")", t.type == ScaleInsight.T_ATHLETIC);
+        eq("P1 ASMI as Fitdays", t.almi, 9.8, 0.1);
+        System.out.println("  P1 physical age " + Math.round(t.physicalAge) + " (muscle " + Math.round(t.ageFromMuscle)
+                + ", fat " + Math.round(t.ageFromFat) + "; Fitdays 29, passport 31)");
     }
 
     public static void main(String[] a) throws Exception {
+        ownerReport();
         bodyType();
         genB();
         genA();

@@ -35,15 +35,33 @@ as fat → muscular men "fat / overweight"); "body age" = entered age + a fat-% 
   fat very low only below essential fat (men 6 %, women 14 %), excess / obese by FMI (men 6 / 9, women 9 / 13).
   Types: athletic ("the weight is muscle"), balanced, strong with excess fat, excess fat / obese, fat with little
   muscle, slim with little muscle, very lean.
-- **Physical age**: the age whose typical SMI (on WLA25's muscle scale: men 11.4 kg/m² at 30, −0.04/yr; women 9.0,
-  −0.03) and fat % (men 17 % at 20, +0.225/yr; women 27 %, +0.25) match — 0.55 / 0.45. Entered age not used. [D]
+- **Physical age** (1.1.288-ai): the age whose **median ALMI and FMI** match, half each — DXA medians of 3 327
+  adults by decade (Imboden et al. 2017, PLoS One 10.1371/journal.pone.0175110 / .0176161): ALMI men 9.3 · 9.1 ·
+  8.7 · 8.6 · 8.5 · 8.0, women 6.9 · 6.8 · 6.7 · 6.6 · 6.5 · 6.3 (25…75 y); FMI men 5.0 · 6.8 · 8.0 · 8.7, women
+  6.6 · 8.9 · 9.7 · 11.3 (25…55 y; it falls after 60). FMI classes = Kelly et al. 2009 (NHANES DXA) Table 4. BIA
+  reads a little less fat than DXA → leans young. Entered age not used.
 - **Fat layer per zone** = the zone's own fat share against the healthy middle (men 15 %, women 25 %), not
   against a BMI-22 standard weight. **Fat pattern**: legs' share of segment fat (≥ 45 % legs/hips, ≤ 32 % belly).
 - Still open: the fat % number itself (WLA25 / the scale) keeps its weight term — fixing that needs reference
   measurements (DEXA / calipers) for a studio-calibrated impedance-index model.
 
-## Result page (`ScaleScreen`)
-Preview (HTML mock rendered from the real Java numbers, not a device screenshot): `docs/scale/result-page-preview.png`.
+## Owner's Fitdays report = test vector (1.1.288-ai)
+Lescale P1, 02.10.2026, male 31, 175 cm, 81.4 kg; Z20 / Z100 (Ω) trunk 17.3 / 15.7, LA 252.0 / 215.5, RA 234.0 /
+199.5, LL 221.0 / 190.0, RL 232.0 / 200.0 — the P1 sends a **trunk** pair. With Fitdays' body fat (17.8 %) our
+WLA25 chain reproduces the report (muscle 62.3, bone 4.5, water 60.2 %, protein 16.4 %, skeletal 47.0 %, BMR 1815,
+visceral 4, body age 29, segments within 0.1–0.15 kg). WLA25's own age-free fat regression gives 17.0 % → the
+17.8 % comes from an equation with the age in it (the scale's or the app's). `ScaleSim.ownerReport`.
+
+## Figures (1.1.288-ai)
+Owner's colour-coded anatomical art (`branding/body/scale/src/{male,female}.png`) → `scripts/gen-scale-figures.py`
+→ grey art with full definition + map (R = segment, G = suit channel by colour). Layers: segment colour modulated by
+the art's light (muscles stay drawn); **Ток** = per muscle group (channel) by reach.
+
+## Result page (`ScaleScreen`) — two views
+**Днес** (this measurement) | **Проследяване** (from: last time / 3 back / the first → now: figure by change per
+segment, big trend of one metric, radar then vs now, from → to table, body-type map with its trail — auto-zoomed
+on the client's points). Previews (HTML mocks from the real Java numbers, not device screenshots):
+`docs/scale/preview-today.png`, `docs/scale/preview-tracking.png`.
 Landscape, three columns: (1) weight live + what to do now; figure front/back painted in the chosen layer
 (Мускули / Мазнини / Възстановяване); (2) readiness gauge + verdict + reason chips; radar of the 5 segments
 (100 = normal, normal band 90–110, dashed = last time), the tapped segment's numbers or the L/R balance;

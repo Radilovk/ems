@@ -39,6 +39,136 @@
     return-void
 .end method
 
+.method static clampF(FFF)F
+    .registers 4
+
+    .prologue
+    .line 626
+    invoke-static {p2, p0}, Ljava/lang/Math;->min(FF)F
+
+    move-result v0
+
+    invoke-static {p1, v0}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    return v0
+.end method
+
+.method public static deltaCol(DZDD)I
+    .registers 15
+
+    .prologue
+    .line 82
+    invoke-static {p0, p1}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_8
+
+    .line 83
+    const/4 v0, 0x0
+
+    .line 90
+    :goto_7
+    return v0
+
+    .line 85
+    :cond_8
+    invoke-static {p0, p1}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v0
+
+    cmpg-double v0, v0, p3
+
+    if-gez v0, :cond_14
+
+    .line 86
+    const v0, -0x6b5c48
+
+    goto :goto_7
+
+    .line 88
+    :cond_14
+    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+
+    invoke-static {p0, p1}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v2
+
+    sub-double/2addr v2, p3
+
+    const-wide v4, 0x3eb0c6f7a0b5ed8dL    # 1.0E-6
+
+    sub-double v6, p5, p3
+
+    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v4
+
+    div-double/2addr v2, v4
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v0
+
+    double-to-float v1, v0
+
+    .line 89
+    const-wide/16 v2, 0x0
+
+    cmpl-double v0, p0, v2
+
+    if-lez v0, :cond_4b
+
+    const/4 v0, 0x1
+
+    :goto_33
+    if-ne v0, p2, :cond_4d
+
+    const/4 v0, 0x1
+
+    .line 90
+    :goto_36
+    const v2, -0x6b5c48
+
+    if-eqz v0, :cond_4f
+
+    const v0, -0xdd3aa2
+
+    :goto_3e
+    const v3, 0x3eb33333    # 0.35f
+
+    const v4, 0x3f266666    # 0.65f
+
+    mul-float/2addr v1, v4
+
+    add-float/2addr v1, v3
+
+    invoke-static {v2, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v0
+
+    goto :goto_7
+
+    .line 89
+    :cond_4b
+    const/4 v0, 0x0
+
+    goto :goto_33
+
+    :cond_4d
+    const/4 v0, 0x0
+
+    goto :goto_36
+
+    .line 90
+    :cond_4f
+    const v0, -0xa61f5
+
+    goto :goto_3e
+.end method
+
 .method static dp(Landroid/view/View;F)F
     .registers 3
 
@@ -101,7 +231,7 @@
     .registers 4
 
     .prologue
-    .line 82
+    .line 100
     if-nez p0, :cond_7
 
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->muscleCol(D)I
@@ -275,11 +405,47 @@
     .end array-data
 .end method
 
+.method public static reachCol(D)I
+    .registers 4
+
+    .prologue
+    const/4 v1, 0x3
+
+    .line 95
+    new-array v0, v1, [F
+
+    fill-array-data v0, :array_10
+
+    new-array v1, v1, [I
+
+    fill-array-data v1, :array_1a
+
+    invoke-static {v0, v1, p0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->lerp([F[ID)I
+
+    move-result v0
+
+    return v0
+
+    :array_10
+    .array-data 4
+        0x3f6147ae    # 0.88f
+        0x3f70a3d7    # 0.94f
+        0x3f7d70a4    # 0.99f
+    .end array-data
+
+    :array_1a
+    .array-data 4
+        -0x68cea
+        -0x154cf8
+        -0xdd3aa2
+    .end array-data
+.end method
+
 .method static signed(D)Ljava/lang/String;
     .registers 10
 
     .prologue
-    .line 585
+    .line 630
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V

@@ -7,7 +7,9 @@
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Metric;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$MetricPick;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Range;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Mode;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Layer;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$HeightHold;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Info;,
@@ -22,7 +24,15 @@
 # static fields
 .field static final H_KEY:Ljava/lang/String; = "h"
 
+.field static final LAYER_REACH:I = 0x3
+
+.field static final MODE_DAY:I = 0x0
+
+.field static final MODE_TRACK:I = 0x1
+
 .field static final M_AGE:I = 0x3
+
+.field static final M_COL:[I
 
 .field static final M_FAT:I = 0x0
 
@@ -34,16 +44,20 @@
 
 .field static final M_WEIGHT:I = 0x4
 
+.field static final T_FAT:I = 0x1
+
+.field static final T_MUSCLE:I
+
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 3
+    .registers 4
 
     .prologue
-    .line 56
-    const/4 v0, 0x5
+    const/4 v3, 0x5
 
-    new-array v0, v0, [Ljava/lang/String;
+    .line 57
+    new-array v0, v3, [Ljava/lang/String;
 
     const/4 v1, 0x0
 
@@ -77,7 +91,23 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen;->M_KEY:[Ljava/lang/String;
 
+    .line 58
+    new-array v0, v3, [I
+
+    fill-array-data v0, :array_26
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen;->M_COL:[I
+
     return-void
+
+    :array_26
+    .array-data 4
+        -0xa61f5
+        -0xdd3aa2
+        -0xc74208
+        -0x587406
+        -0x178607
+    .end array-data
 .end method
 
 .method private constructor <init>()V
@@ -94,7 +124,7 @@
     .registers 4
 
     .prologue
-    .line 60
+    .line 64
     :try_start_0
     new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -104,15 +134,15 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_8} :catch_9
 
-    .line 64
+    .line 68
     :goto_8
     return-void
 
-    .line 61
+    .line 65
     :catch_9
     move-exception v0
 
-    .line 62
+    .line 66
     const-string v1, "ScaleScreen.open"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

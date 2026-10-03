@@ -255,15 +255,16 @@ public final class ScaleInsight {
      *   <li><b>Physiological thresholds</b> — "very low" only below essential fat (men 6 %, women 14 %), not below a
      *       population percentile, so a lean woman is lean, not "in deficit"; "excess" / "obese" by FMI (men 6 / 9,
      *       women 9 / 13 kg/m²), so a heavy woman is not "normal" by a wide %-range.</li>
-     *   <li><b>Physical age</b> — the age whose typical skeletal-muscle index and fat % match the measured ones, on
-     *       WLA25's own muscle scale (an average 30-year-old: men SMI 11.4 kg/m², −0.04 / year; women 9.0, −0.03;
-     *       fat men 17 % at 20, +0.225 / year; women 27 %, +0.25). The entered age is not in it. [D] reference curves,
-     *       to validate.</li>
+     *   <li><b>Physical age</b> — the age whose median appendicular muscle (ALMI) and fat mass (FMI) per height²
+     *       match the measured ones, half each, from DXA reference data of 3 327 adults (Imboden 2017). The entered
+     *       age is not in it. The scale's BIA reads a little less fat than DXA, so it leans young.</li>
      *   <li><b>Fat pattern</b> — the legs' share of the limb + trunk fat: gynoid (legs, hips) or android (trunk).</li>
      * </ul>
      */
     public static final class Body {
         public double ffmi = Double.NaN, fmi = Double.NaN, smi = Double.NaN;
+        /** Appendicular (arms + legs) muscle per height², kg/m² — Fitdays' "ASMI". */
+        public double almi = Double.NaN;
         /** 0 low, 1 normal, 2 athletic, 3 very muscular. */
         public int muscleCls = -1;
         /** 0 very low (essential), 1 normal, 2 excess, 3 obese. */
@@ -310,12 +311,14 @@ public final class ScaleInsight {
         } else {
             b.type = b.muscleCls >= 2 ? T_STRONG_FAT : b.muscleCls == 0 ? T_FAT_LOW_MUSCLE : T_FAT;
         }
-        if (!Double.isNaN(b.smi)) {
-            b.ageFromMuscle = clampAge(30 + ((male ? 11.4 : 9.0) - b.smi) / (male ? 0.04 : 0.03));
+        JSONArray sm = m.optJSONArray("segMus");
+        if (sm != null) {
+            b.almi = (sm.optDouble(ScaleProtocol.LEFT_ARM, 0) + sm.optDouble(ScaleProtocol.RIGHT_ARM, 0)
+                    + sm.optDouble(ScaleProtocol.LEFT_LEG, 0) + sm.optDouble(ScaleProtocol.RIGHT_LEG, 0)) / h2;
+            b.ageFromMuscle = ageOf(b.almi, male ? ALMI_M : ALMI_F, male ? 0.026 : 0.012, false);
         }
-        b.ageFromFat = clampAge(20 + (fatPct - (male ? 17 : 27)) / (male ? 0.225 : 0.25));
-        b.physicalAge = Double.isNaN(b.ageFromMuscle) ? b.ageFromFat
-                : 0.55 * b.ageFromMuscle + 0.45 * b.ageFromFat;
+        b.ageFromFat = ageOf(b.fmi, male ? FMI_M : FMI_F, male ? 0.07 : 0.16, true);
+        b.physicalAge = Double.isNaN(b.ageFromMuscle) ? b.ageFromFat : 0.5 * b.ageFromMuscle + 0.5 * b.ageFromFat;
         JSONArray f = m.optJSONArray("segFat");
         if (f != null) {
             double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
@@ -324,6 +327,42 @@ public final class ScaleInsight {
             b.legFatShare = all > 0 ? legs / all : Double.NaN;
         }
         return b;
+    }
+
+    /**
+     * Medians by age, DXA, 3 327 adults (Imboden et al., PLoS One 2017; 10.1371/journal.pone.0175110 and .0176161),
+     * at the decade middles 25 … 75. FMI only up to 55 (it falls again after 60 — loss of mass, not youth).
+     */
+    static final double[] AGES = {25, 35, 45, 55, 65, 75};
+    static final double[] ALMI_M = {9.3, 9.1, 8.7, 8.6, 8.5, 8.0};
+    static final double[] ALMI_F = {6.9, 6.8, 6.7, 6.6, 6.5, 6.3};
+    static final double[] FMI_M = {5.0, 6.8, 8.0, 8.7};
+    static final double[] FMI_F = {6.6, 8.9, 9.7, 11.3};
+
+    /**
+     * The age whose median equals v: piecewise-linear inverse over the decades; beyond the youngest / oldest the
+     * outer slope per year (rising = the value grows with age).
+     */
+    static double ageOf(double v, double[] med, double slopeOut, boolean rising) {
+        if (Double.isNaN(v)) {
+            return Double.NaN;
+        }
+        int n = med.length;
+        double first = med[0], last = med[n - 1];
+        if (rising ? v <= first : v >= first) {
+            return clampAge(AGES[0] - Math.abs(v - first) / slopeOut);
+        }
+        if (rising ? v >= last : v <= last) {
+            return clampAge(AGES[n - 1] + Math.abs(v - last) / slopeOut);
+        }
+        for (int i = 1; i < n; i++) {
+            double lo = med[i - 1], hi = med[i];
+            if (rising ? v <= hi : v >= hi) {
+                double t = (v - lo) / (hi - lo);
+                return clampAge(AGES[i - 1] + t * (AGES[i] - AGES[i - 1]));
+            }
+        }
+        return clampAge(AGES[n - 1]);
     }
 
     static double clampAge(double a) {

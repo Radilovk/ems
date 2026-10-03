@@ -77,15 +77,37 @@ public final class ScaleViews {
                 new int[] {0xFF22C55E, 0xFFF59E0B, 0xFFEF4444}, v);
     }
 
+    /** A change: green the good way, amber the other, grey near zero (|d| below {@code still}). */
+    public static int deltaCol(double d, boolean upGood, double still, double full) {
+        if (Double.isNaN(d)) {
+            return 0;
+        }
+        if (Math.abs(d) < still) {
+            return 0xFF94A3B8;
+        }
+        float t = (float) Math.min(1, (Math.abs(d) - still) / Math.max(1e-6, full - still));
+        boolean good = (d > 0) == upGood;
+        return XemsUi.mix(0xFF94A3B8, good ? 0xFF22C55E : 0xFFF59E0B, 0.35f + 0.65f * t);
+    }
+
+    /** Relative reach of a channel against the body's mean: green as good, yellow −5 %, orange −10 % and less. */
+    public static int reachCol(double rel) {
+        return lerp(new float[] {0.88f, 0.94f, 0.99f}, new int[] {0xFFF97316, 0xFFEAB308, 0xFF22C55E}, rel);
+    }
+
     /** The colour of a segment value in a layer. */
     public static int layerCol(int layer, double v) {
         return layer == LAYER_MUSCLE ? muscleCol(v) : layer == LAYER_FAT ? fatCol(v) : swellCol(v);
     }
 
-    // ================================================================ body figure by segment
+    // ================================================================ body figure by segment / by muscle group
 
-    /** Front | back figure (assets/xems/body: -art + -seg from scripts/gen-scale-segments.py), each segment
-     *  painted by its value; the selected one bright, the rest a little dimmed. */
+    /**
+     * Front | back figure (assets/xems/body/scale, scripts/gen-scale-figures.py from the owner's anatomical art): the
+     * grey art keeps every muscle's definition; a colour is laid over it either per scale segment (trunk, arms,
+     * legs — the art's own light modulates it, so the muscles stay drawn) or per suit muscle group (the 10 channels;
+     * the rest of the body stays grey). The selected segment bright, the others dimmed.
+     */
     public static final class Body extends View {
         static final String[] SIDES = {"front", "back"};
         final Fig[] figs = new Fig[2];
@@ -93,8 +115,10 @@ public final class ScaleViews {
         final Paint label = new Paint(Paint.ANTI_ALIAS_FLAG);
         final Rect src = new Rect();
         final RectF[] dst = {new RectF(), new RectF()};
-        final int[] col = new int[6];
-        final boolean[] has = new boolean[6];
+        /** Colour per segment 1..5 / per channel 1..10; 0 = leave grey. */
+        final int[] segCol = new int[6];
+        final int[] chCol = new int[11];
+        boolean byChannel;
         String key = "";
         int selected = -1;
         boolean dirty = true;
@@ -106,6 +130,7 @@ public final class ScaleViews {
             Bitmap over;
             int[] idx;
             byte[] seg;
+            byte[] ch;
             byte[] lum;
             int[] px;
             int w;
@@ -122,8 +147,7 @@ public final class ScaleViews {
             onSegment = l;
         }
 
-        /** values by segment index (ScaleProtocol), NaN = no data; layer picks the colour scale. */
-        public void set(boolean female, int layer, double[] values, int sel) {
+        void sex(boolean female) {
             String k = female ? "female" : "male";
             if (!k.equals(key)) {
                 key = k;
@@ -131,12 +155,28 @@ public final class ScaleViews {
                     figs[i] = load(getContext(), k + "_" + SIDES[i]);
                 }
             }
+        }
+
+        /** Colours by segment index (ScaleProtocol 0..4); 0 = no data (grey). */
+        public void setSegments(boolean female, int[] cols, int sel) {
+            sex(female);
+            byChannel = false;
             for (int s = 0; s < 5; s++) {
-                double v = values != null && s < values.length ? values[s] : Double.NaN;
-                has[s + 1] = !Double.isNaN(v);
-                col[s + 1] = layerCol(layer, v);
+                segCol[s + 1] = cols != null && s < cols.length ? cols[s] : 0;
             }
             selected = sel;
+            dirty = true;
+            invalidate();
+        }
+
+        /** Colours by suit channel (PartStrenthBean.buwei 0..9); 0 = grey. */
+        public void setChannels(boolean female, int[] cols) {
+            sex(female);
+            byChannel = true;
+            for (int c = 0; c < 10; c++) {
+                chCol[c + 1] = cols != null && c < cols.length ? cols[c] : 0;
+            }
+            selected = -1;
             dirty = true;
             invalidate();
         }
@@ -152,16 +192,16 @@ public final class ScaleViews {
         static Fig load(Context c, String key) {
             Fig f = new Fig();
             try {
-                f.art = decode(c, "xems/body/" + key + "-art.webp", true);
-                Bitmap sg = decode(c, "xems/body/" + key + "-seg.webp", false);
-                if (f.art == null || sg == null) {
+                f.art = decode(c, "xems/body/scale/" + key + "-art.webp", true);
+                Bitmap mp = decode(c, "xems/body/scale/" + key + "-map.webp", false);
+                if (f.art == null || mp == null) {
                     return f;
                 }
-                f.w = sg.getWidth();
-                f.h = sg.getHeight();
+                f.w = mp.getWidth();
+                f.h = mp.getHeight();
                 int[] all = new int[f.w * f.h];
-                sg.getPixels(all, 0, f.w, 0, 0, f.w, f.h);
-                sg.recycle();
+                mp.getPixels(all, 0, f.w, 0, 0, f.w, f.h);
+                mp.recycle();
                 int[] art = new int[f.w * f.h];
                 Bitmap a = f.art.getWidth() == f.w && f.art.getHeight() == f.h ? f.art
                         : Bitmap.createScaledBitmap(f.art, f.w, f.h, true);
@@ -175,16 +215,17 @@ public final class ScaleViews {
                 }
                 f.idx = new int[n];
                 f.seg = new byte[n];
+                f.ch = new byte[n];
                 f.lum = new byte[n];
                 int j = 0;
                 for (int i = 0; i < all.length; i++) {
                     int s = (all[i] >> 16) & 0xFF;
                     if (s >= 1 && s <= 5) {
-                        int q = art[i];
-                        int l = (((q >> 16) & 0xFF) * 3 + ((q >> 8) & 0xFF) * 6 + (q & 0xFF)) / 10;
                         f.idx[j] = i;
                         f.seg[j] = (byte) s;
-                        f.lum[j] = (byte) Math.min(255, l * 2);
+                        int ch = (all[i] >> 8) & 0xFF;
+                        f.ch[j] = (byte) (ch <= 10 ? ch : 0);
+                        f.lum[j] = (byte) (art[i] & 0xFF);
                         j++;
                     }
                 }
@@ -217,17 +258,17 @@ public final class ScaleViews {
             java.util.Arrays.fill(px, 0);
             for (int j = 0; j < f.idx.length; j++) {
                 int s = f.seg[j];
-                if (!has[s]) {
+                int c = byChannel ? chCol[f.ch[j]] : segCol[s];
+                if (c == 0) {
                     continue;
                 }
-                int c = col[s];
+                // the art's own light: dark striations stay dark, the muscle bellies glow — definition kept
                 float l = (f.lum[j] & 0xFF) / 255f;
-                // the art's light keeps the volume: shadows darker, highlights lighter
-                float k = 0.55f + 0.75f * l;
+                float k = 0.12f + 1.45f * l;
                 int r = Math.min(255, (int) (((c >> 16) & 0xFF) * k));
                 int g = Math.min(255, (int) (((c >> 8) & 0xFF) * k));
                 int b = Math.min(255, (int) ((c & 0xFF) * k));
-                int alpha = selected < 0 || selected == s - 1 ? 205 : 90;
+                int alpha = selected < 0 || selected == s - 1 ? 238 : 110;
                 px[f.idx[j]] = (alpha << 24) | (r << 16) | (g << 8) | b;
             }
             f.over.setPixels(px, 0, f.w, 0, 0, f.w, f.h);
@@ -240,7 +281,7 @@ public final class ScaleViews {
                 repaint(figs[0]);
                 repaint(figs[1]);
             }
-            float gap = dp(this, 18);
+            float gap = dp(this, 14);
             float h = getHeight();
             float total = 0;
             for (Fig f : figs) {
@@ -273,7 +314,7 @@ public final class ScaleViews {
                 // the client's own sides: on the front view their right is on the image's left
                 label.setColor(XemsUi.MUTED);
                 label.setTextSize(dp(this, 12));
-                float ly = dst[i].top + dst[i].height() * 0.09f;
+                float ly = dst[i].top + dst[i].height() * 0.07f;
                 String l = tr("Л", "L"), r = tr("Д", "R");
                 c.drawText(i == 0 ? r : l, dst[i].left + dp(this, 6), ly, label);
                 c.drawText(i == 0 ? l : r, dst[i].right - dp(this, 6), ly, label);
@@ -579,6 +620,10 @@ public final class ScaleViews {
             v.grow = (Float) a.getAnimatedValue();
             v.invalidate();
         }
+    }
+
+    static float clampF(float v, float lo, float hi) {
+        return Math.max(lo, Math.min(hi, v));
     }
 
     static String signed(double v) {
@@ -907,15 +952,33 @@ public final class ScaleViews {
         @Override
         protected void onDraw(Canvas c) {
             float l = dp(this, 4), t = dp(this, 4), rr = getWidth() - dp(this, 4), b = getHeight() - dp(this, 16);
+            // zoomed on the client's own points (at least 2.5 × 2.5 kg/m²), so a few months' path is visible
+            double lx = Double.MAX_VALUE, hx = -Double.MAX_VALUE, ly = Double.MAX_VALUE, hy = -Double.MAX_VALUE;
+            for (int i = 0; i < Math.min(ffmi.length, fmi.length); i++) {
+                if (!Double.isNaN(ffmi[i]) && !Double.isNaN(fmi[i])) {
+                    lx = Math.min(lx, ffmi[i]);
+                    hx = Math.max(hx, ffmi[i]);
+                    ly = Math.min(ly, fmi[i]);
+                    hy = Math.max(hy, fmi[i]);
+                }
+            }
             double x0 = male ? 14 : 11, x1 = male ? 27 : 23, y0 = 0, y1 = male ? 14 : 18;
+            if (lx <= hx) {
+                double sx = Math.max(2.5, (hx - lx) * 1.8 + 1), sy = Math.max(2.5, (hy - ly) * 1.8 + 1);
+                double cxv = (lx + hx) / 2, cyv = (ly + hy) / 2;
+                x0 = cxv - sx / 2;
+                x1 = cxv + sx / 2;
+                y0 = Math.max(0, cyv - sy / 2);
+                y1 = y0 + sy;
+            }
             double[] xs = male ? new double[] {17, 20, 23} : new double[] {14, 17, 19.5};
             double[] ys = male ? new double[] {6, 9} : new double[] {9, 13};
             float w = rr - l, h = b - t;
             // fat bands: normal (green), excess (amber), obese (red) — muscle low strip greyed
-            float yN = (float) (b - (ys[0] - y0) / (y1 - y0) * h);
-            float yE = (float) (b - (ys[1] - y0) / (y1 - y0) * h);
-            float xLow = (float) (l + (xs[0] - x0) / (x1 - x0) * w);
-            float xAth = (float) (l + (xs[1] - x0) / (x1 - x0) * w);
+            float yN = clampF((float) (b - (ys[0] - y0) / (y1 - y0) * h), t, b);
+            float yE = clampF((float) (b - (ys[1] - y0) / (y1 - y0) * h), t, b);
+            float xLow = clampF((float) (l + (xs[0] - x0) / (x1 - x0) * w), l, rr);
+            float xAth = clampF((float) (l + (xs[1] - x0) / (x1 - x0) * w), l, rr);
             p.setStyle(Paint.Style.FILL);
             p.setColor(XemsUi.alpha(0xFF22C55E, 34));
             r.set(l, yN, rr, b);
@@ -935,15 +998,27 @@ public final class ScaleViews {
             p.setTextSize(dp(this, 11));
             p.setFakeBoldText(true);
             p.setTextAlign(Paint.Align.RIGHT);
-            p.setColor(XemsUi.GO_TEXT);
-            c.drawText(tr("атлетичен", "athletic"), rr - dp(this, 6), b - dp(this, 6), p);
-            p.setColor(0xFFF59E0B);
-            c.drawText(tr("излишни мазнини", "excess fat"), rr - dp(this, 6), yN - dp(this, 6), p);
-            p.setColor(0xFFEF4444);
-            c.drawText(tr("затлъстяване", "obese"), rr - dp(this, 6), t + dp(this, 14), p);
-            p.setTextAlign(Paint.Align.LEFT);
-            p.setColor(XemsUi.MUTED);
-            c.drawText(tr("малко мускули", "low muscle"), l + dp(this, 6), b - dp(this, 6), p);
+            float band = dp(this, 18);
+            if (b - yN > band && rr - xAth > dp(this, 70)) {
+                p.setColor(XemsUi.GO_TEXT);
+                c.drawText(tr("атлетичен", "athletic"), rr - dp(this, 6), b - dp(this, 6), p);
+            } else if (b - yN > band) {
+                p.setColor(XemsUi.GO_TEXT);
+                c.drawText(tr("норма", "normal"), rr - dp(this, 6), b - dp(this, 6), p);
+            }
+            if (yN - yE > band) {
+                p.setColor(0xFFF59E0B);
+                c.drawText(tr("излишни мазнини", "excess fat"), rr - dp(this, 6), yN - dp(this, 6), p);
+            }
+            if (yE - t > band) {
+                p.setColor(0xFFEF4444);
+                c.drawText(tr("затлъстяване", "obese"), rr - dp(this, 6), t + dp(this, 14), p);
+            }
+            if (xLow - l > dp(this, 80)) {
+                p.setTextAlign(Paint.Align.LEFT);
+                p.setColor(XemsUi.MUTED);
+                c.drawText(tr("малко мускули", "low muscle"), l + dp(this, 6), b - dp(this, 6), p);
+            }
             p.setFakeBoldText(false);
             p.setTextAlign(Paint.Align.CENTER);
             p.setTextSize(dp(this, 10));

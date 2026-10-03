@@ -46,6 +46,28 @@ public final class AutoViews {
         return HEAT_COL[HEAT_COL.length - 1];
     }
 
+    /**
+     * Colour of a body zone (owner, 1.1.287): the client's colour — magenta for a woman, cyan for a man — fills in
+     * smoothly as the zone gets the work this session is meant to give it; at the target (p = 1, the end of the plan,
+     * the passive part and the recovery included) it is full. The target is the session's own, not an absolute
+     * scale. Past it the colour warms: +15 % amber, +30 % red.
+     */
+    public static int bodyHeat(int sexCol, double p) {
+        if (p <= 1.0) {
+            return sexCol;
+        }
+        if (p <= 1.15) {
+            return XemsUi.mix(sexCol, HEAT_COL[3], (float) ((p - 1.0) / 0.15));
+        }
+        return XemsUi.mix(HEAT_COL[3], HEAT_COL[4], (float) Math.min(1.0, (p - 1.15) / 0.15));
+    }
+
+    /** How strongly a zone shows at progress p: faint at the start, full at the target (smoothstep). */
+    static float bodyFill(double p) {
+        double x = Math.max(0, Math.min(1, p));
+        return (float) (0.12 + 0.88 * x * x * (3 - 2 * x));
+    }
+
     static float dp(View v, float d) {
         return d * v.getResources().getDisplayMetrics().density;
     }
@@ -62,6 +84,8 @@ public final class AutoViews {
         public static final int READY = 2;
         public static final int RECOVERY = 3;
         public static final int IDLE = 4;
+        /** The board refreshes every 250 ms: the ring runs on by itself at most this far past the last value. */
+        private static final long AHEAD_MS = 700L;
 
         private final Paint track = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint arc = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -69,11 +93,15 @@ public final class AutoViews {
         private final Paint scrim = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint big = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final RectF box = new RectF();
+        private final android.graphics.Matrix rot = new android.graphics.Matrix();
         private float progress;
+        private float rate;
+        private long setMs;
+        private float shown;
         private int mode = IDLE;
         private int count;
-        private int lastW;
-        private int lastMode = -1;
+        private int colA;
+        private int colB;
         public SetRing(Context c) {
             super(c);
             track.setStyle(Paint.Style.STROKE);
@@ -83,18 +111,72 @@ public final class AutoViews {
             glow.setStrokeCap(Paint.Cap.ROUND);
             big.setTextAlign(Paint.Align.CENTER);
             big.setFakeBoldText(true);
+            colors(IDLE);
         }
 
-        /** progress 0…1, mode WORK / REST / READY / RECOVERY / IDLE, countdown seconds (0 = none). */
         public void set(float p, int m, int countdown) {
+            set(p, m, countdown, 0f);
+        }
+
+        /**
+         * progress 0…1, mode WORK / REST / READY / RECOVERY / IDLE, countdown seconds (0 = none), and how fast the
+         * progress runs now (share per second, 0 = stands): the ring moves on every frame between the board's
+         * refreshes, so it glides instead of stepping.
+         */
+        public void set(float p, int m, int countdown, float perS) {
             p = Math.max(0f, Math.min(1f, p));
-            if (Math.abs(p - progress) < 0.002f && m == mode && countdown == count) {
-                return;
+            long now = android.os.SystemClock.uptimeMillis();
+            if (m != mode || p < shown - 0.03f) {
+                shown = p;                                // a new set / mode: start from the true value
+            }
+            if (m != mode) {
+                colors(m);
             }
             progress = p;
+            rate = Math.max(0f, perS);
+            setMs = now;
             mode = m;
             count = countdown;
             invalidate();
+        }
+
+        private void colors(int m) {
+            switch (m) {
+                case WORK:                    // the kit's impulse colours: orange → accent red
+                    colA = XemsUi.ORANGE;
+                    colB = XemsUi.ACCENT;
+                    break;
+                case READY:
+                    colA = XemsUi.GO_TEXT;
+                    colB = XemsUi.GO;
+                    break;
+                case REST:
+                    colA = XemsUi.AMBER;
+                    colB = XemsUi.mix(XemsUi.AMBER, XemsUi.ORANGE, 0.5f);
+                    break;
+                case RECOVERY:
+                    colA = HEAT_COL[1];
+                    colB = HEAT_COL[0];
+                    break;
+                default:
+                    colA = XemsUi.MUTED;
+                    colB = XemsUi.MUTED;
+                    break;
+            }
+        }
+
+        /** The progress drawn now: the last value run on at its rate (never back, never past the next value's reach). */
+        private float now() {
+            float p = progress;
+            if (rate > 0f) {
+                long dt = Math.min(AHEAD_MS, android.os.SystemClock.uptimeMillis() - setMs);
+                p = Math.min(1f, p + rate * dt / 1000f);
+            }
+            if (p < shown) {
+                p = shown;
+            }
+            shown = p;
+            return p;
         }
 
         @Override
@@ -102,52 +184,40 @@ public final class AutoViews {
             int w = getWidth();
             int h = getHeight();
             float s = Math.min(w, h);
-            float sw = dp(this, 9);
-            box.set((w - s) / 2f + sw * 1.5f, (h - s) / 2f + sw * 1.5f, (w + s) / 2f - sw * 1.5f, (h + s) / 2f - sw * 1.5f);
+            float sw = Math.max(dp(this, 7), s * 0.055f);
+            float inset = sw * 1.5f;
+            box.set((w - s) / 2f + inset, (h - s) / 2f + inset, (w + s) / 2f - inset, (h + s) / 2f - inset);
             track.setStrokeWidth(sw);
             track.setColor(XemsUi.alpha(XemsUi.TEXT, 0x1E));
             c.drawOval(box, track);
-            if (w != lastW || mode != lastMode) {
-                lastW = w;
-                lastMode = mode;
-                int a;
-                int b;
-                switch (mode) {
-                    case WORK:                    // the kit's impulse colours: orange → accent red
-                        a = XemsUi.ORANGE;
-                        b = XemsUi.ACCENT;
-                        break;
-                    case READY:
-                        a = XemsUi.GO_TEXT;
-                        b = XemsUi.GO;
-                        break;
-                    case REST:
-                        a = XemsUi.AMBER;
-                        b = XemsUi.mix(XemsUi.AMBER, XemsUi.ORANGE, 0.5f);
-                        break;
-                    case RECOVERY:
-                        a = HEAT_COL[1];
-                        b = HEAT_COL[0];
-                        break;
-                    default:
-                        a = XemsUi.MUTED;
-                        b = XemsUi.MUTED;
-                        break;
-                }
-                SweepGradient g = new SweepGradient(w / 2f, h / 2f, new int[] {a, b, b}, new float[] {0f, 0.85f, 1f});
-                android.graphics.Matrix m = new android.graphics.Matrix();
-                m.setRotate(-90, w / 2f, h / 2f);
-                g.setLocalMatrix(m);
+            float p = now();
+            if (p > 0.001f) {
+                float r = box.width() / 2f;
+                // the round caps reach half a stroke past each end: the gradient starts under the first cap and
+                // ends exactly at the last one, so both ends carry their own colour (no wrap of the end colour)
+                float cap = (float) Math.toDegrees(sw * 1.3f / Math.max(1f, r));
+                boolean full = p >= 0.999f;
+                float sweep = full ? 360f : 360f * p;
+                float span = Math.min(1f, (sweep + 2 * cap) / 360f);
+                float back = Math.min(0.999f, span + (1f - span) * 0.5f);
+                SweepGradient g = full
+                        ? new SweepGradient(w / 2f, h / 2f, new int[] {colA, colB, colA}, new float[] {0f, 0.85f, 1f})
+                        : new SweepGradient(w / 2f, h / 2f, new int[] {colA, colB, colB, colA},
+                                new float[] {0f, Math.min(0.998f, span), back, 1f});
+                rot.setRotate(-90f - (full ? 0f : cap), w / 2f, h / 2f);
+                g.setLocalMatrix(rot);
                 arc.setShader(g);
                 glow.setShader(g);
-            }
-            if (progress > 0) {
-                float sweep = 360f * progress;
-                glow.setStrokeWidth(sw * 2.6f);
+                glow.setStrokeWidth(sw * 2.4f);
                 glow.setAlpha(XemsUi.dark ? 70 : 40);
-                c.drawArc(box, -90, sweep, false, glow);
                 arc.setStrokeWidth(sw);
-                c.drawArc(box, -90, sweep, false, arc);
+                if (full) {
+                    c.drawOval(box, glow);
+                    c.drawOval(box, arc);
+                } else {
+                    c.drawArc(box, -90, sweep, false, glow);
+                    c.drawArc(box, -90, sweep, false, arc);
+                }
             }
             if (count > 0) {
                 scrim.setColor(XemsUi.alpha(XemsUi.CARD, 0xC8));
@@ -156,6 +226,65 @@ public final class AutoViews {
                 big.setTextSize(s * 0.42f);
                 Paint.FontMetrics fm = big.getFontMetrics();
                 c.drawText(String.valueOf(count), w / 2f, h / 2f - (fm.ascent + fm.descent) / 2f, big);
+            }
+            if (rate > 0f && p < 1f && android.os.SystemClock.uptimeMillis() - setMs < AHEAD_MS) {
+                postInvalidateOnAnimation();
+            }
+        }
+    }
+
+    // ================================================================ ring stage
+
+    /**
+     * The square under a set ring: as large as its slot allows (owner, 1.1.285 — the ring grows with the card), the
+     * ring over the whole square, the exercise figure inside it at {@code figInset} of the side, the program's
+     * picture (when added) centred at 60 % × 45 %. Children in order: figure, [picture], ring.
+     */
+    public static final class RingStage extends android.view.ViewGroup {
+        private final float figInset;
+        private final int maxPx;
+
+        public RingStage(Context c, float figInset, int maxPx) {
+            super(c);
+            this.figInset = figInset;
+            this.maxPx = maxPx;
+        }
+
+        @Override
+        protected void onMeasure(int ws, int hs) {
+            int w = MeasureSpec.getMode(ws) == MeasureSpec.UNSPECIFIED ? maxPx : MeasureSpec.getSize(ws);
+            int h = MeasureSpec.getMode(hs) == MeasureSpec.UNSPECIFIED ? maxPx : MeasureSpec.getSize(hs);
+            int s = Math.max(0, Math.min(maxPx, Math.min(w, h)));
+            for (int i = 0; i < getChildCount(); i++) {
+                View ch = getChildAt(i);
+                int[] b = box(i, s);
+                ch.measure(MeasureSpec.makeMeasureSpec(b[2], MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(b[3], MeasureSpec.EXACTLY));
+            }
+            setMeasuredDimension(s, s);
+        }
+
+        /** {x, y, w, h} of child i in a square of side s. */
+        private int[] box(int i, int s) {
+            int n = getChildCount();
+            if (i == n - 1) {
+                return new int[] {0, 0, s, s};                       // the ring
+            }
+            if (i == 0) {
+                int in = Math.round(s * figInset);
+                return new int[] {in, in, Math.max(0, s - 2 * in), Math.max(0, s - 2 * in)};
+            }
+            int pw = Math.round(s * 0.6f);
+            int ph = Math.round(s * 0.45f);
+            return new int[] {(s - pw) / 2, (s - ph) / 2, pw, ph};
+        }
+
+        @Override
+        protected void onLayout(boolean changed, int l, int t, int r, int b) {
+            int s = Math.min(r - l, b - t);
+            for (int i = 0; i < getChildCount(); i++) {
+                int[] x = box(i, s);
+                getChildAt(i).layout(x[0], x[1], x[0] + x[2], x[1] + x[3]);
             }
         }
     }
@@ -170,8 +299,10 @@ public final class AutoViews {
         private final Rect src = new Rect();
         private final RectF dst = new RectF();
         private final double[] load = new double[AutoModel.CHANNELS];
+        private final double[] live = new double[AutoModel.CHANNELS];
         private final boolean[] off = new boolean[AutoModel.CHANNELS];
         private String sexKey = "";
+        private int sexCol = ExerciseFigure.COLOR;
         private boolean dirty = true;
 
         static final class Fig {
@@ -188,22 +319,28 @@ public final class AutoViews {
             super(c);
         }
 
-        /** Loads (F / F_max) per channel; off = the channel is switched off for every row (drawn plain). */
-        public void set(AiModel.Sex sex, double[] l, boolean[] disabled) {
+        /**
+         * progress = each zone's work done / the work the plan holds for it ({@link AutoEngine#getZoneProgress});
+         * live = F / F_max now (a zone working now glows a little lighter); off = switched off for every row.
+         */
+        public void set(AiModel.Sex sex, double[] progress, double[] liveLoad, boolean[] disabled) {
             String key = sex == AiModel.Sex.FEMALE ? "female" : "male";
             if (!key.equals(sexKey)) {
                 sexKey = key;
+                sexCol = ExerciseFigure.colorFor(sex == AiModel.Sex.FEMALE ? AiModel.Sex.FEMALE : AiModel.Sex.MALE);
                 for (int i = 0; i < 2; i++) {
                     figs[i] = load(getContext(), key + "_" + SIDES[i]);
                 }
                 dirty = true;
             }
             for (int k = 0; k < load.length; k++) {
-                // 1/40 steps: the figure is repainted only when a zone visibly changes
-                double v = l != null && k < l.length ? Math.round(l[k] * 40) / 40.0 : 0;
-                boolean o = disabled != null && k < disabled.length && disabled[k];
-                if (v != load[k] || o != off[k]) {
+                // 1/80 steps: the colour creeps in smoothly, the figure is repainted only when a zone changes
+                double v = progress != null && k < progress.length ? Math.round(progress[k] * 80) / 80.0 : 0;
+                double lv = liveLoad != null && k < liveLoad.length ? Math.round(Math.min(1.0, liveLoad[k]) * 10) / 10.0 : 0;
+                boolean o = disabled != null && k < disabled.length && disabled[k] || v < 0;
+                if (v != load[k] || lv != live[k] || o != off[k]) {
                     load[k] = v;
+                    live[k] = lv;
                     off[k] = o;
                     dirty = true;
                 }
@@ -278,8 +415,9 @@ public final class AutoViews {
             int[] col = new int[AutoModel.CHANNELS];
             float[] op = new float[AutoModel.CHANNELS];
             for (int k = 0; k < col.length; k++) {
-                col[k] = heat(load[k]);
-                op[k] = off[k] ? 0f : 0.3f + 0.7f * (float) Math.min(1.0, load[k] / 0.6);
+                // working now: up to 25 % lighter (the zone "breathes" with the impulse)
+                col[k] = XemsUi.mix(bodyHeat(sexCol, load[k]), 0xFFFFFFFF, (float) (0.25 * live[k]));
+                op[k] = off[k] ? 0f : bodyFill(load[k]);
             }
             int[] px = f.px;
             java.util.Arrays.fill(px, 0);
@@ -406,11 +544,29 @@ public final class AutoViews {
             }
             fill.setAlpha(XemsUi.dark ? 235 : 255);
             c.drawPath(tri, fill);
+            // 100 % = the most this client's body takes in a healthy way (in general, not this session); above it
+            // up to 125 % is over the limit — a thin line marks where that begins
+            float y100 = bottom - (bottom - top) / 1.25f;
+            float h100 = half * (bottom - y100) / (bottom - top);
+            line.setColor(XemsUi.alpha(XemsUi.TEXT, 0x99));
+            line.setStrokeWidth(dp(this, 1.2f));
+            c.drawLine(w / 2f - h100 - dp(this, 5), y100, w / 2f + h100 + dp(this, 5), y100, line);
             float y = bottom - (bottom - top) * value / 1.25f;
-            float hw = half * (y - top) / (bottom - top);
-            hw = half - hw + dp(this, 6);
+            float hw = half * (bottom - y) / (bottom - top) + dp(this, 6);
             line.setColor(XemsUi.TEXT);
+            line.setStrokeWidth(dp(this, 2.5f));
             c.drawLine(w / 2f - hw, y, w / 2f + hw, y, line);
+            // the value beside the marker, in the scale's own colour
+            txt.setTextAlign(Paint.Align.LEFT);
+            txt.setColor(value > 1f ? HEAT_COL[4] : XemsUi.TEXT);
+            Paint.FontMetrics fm = txt.getFontMetrics();
+            float ty = Math.max(top - fm.ascent, Math.min(bottom, y - (fm.ascent + fm.descent) / 2f));
+            String pct = Math.round(value * 100) + "%";
+            float tx = w / 2f + hw + dp(this, 4);
+            if (tx + txt.measureText(pct) > w) {
+                tx = Math.max(0, w / 2f - hw - dp(this, 4) - txt.measureText(pct));
+            }
+            c.drawText(pct, tx, ty, txt);
         }
     }
 

@@ -44,6 +44,7 @@ public final class AutoSim {
         todayStates();
         blocks();
         zones();
+        passiveTexts();
         windows();
         hrCap();
         corridor();
@@ -290,10 +291,22 @@ public final class AutoSim {
         AutoModel.Plan plan = AutoPlanner.build(in, 70);
         int[] want = plan.zones.clone();
         want[AutoModel.ABS] = 100;
-        want[AutoModel.LOWER_BACK] = 50;           // −40: clamped to −20 → 70 → abs ≤ 91
+        want[AutoModel.LOWER_BACK] = 50;           // −40: down is free (1.1.286) → 50 → abs ≤ 65
         int[] z = AutoLimits.clampZones(want, plan);
-        check(z[AutoModel.LOWER_BACK] == 70, "zones: ±20 of the program (" + z[AutoModel.LOWER_BACK] + ")");
-        check(z[AutoModel.ABS] <= 91, "zones: L7 abs ≤ 1.3 × lower back (" + z[AutoModel.ABS] + ")");
+        check(z[AutoModel.LOWER_BACK] == 50, "zones: a channel goes down freely (" + z[AutoModel.LOWER_BACK] + ")");
+        check(z[AutoModel.ABS] <= 65, "zones: L7 abs ≤ 1.3 × lower back (" + z[AutoModel.ABS] + ")");
+        want = plan.zones.clone();
+        want[AutoModel.CALF] = 0;
+        want[AutoModel.GLUTES] = plan.zones[AutoModel.GLUTES] + 40;
+        z = AutoLimits.clampZones(want, plan);
+        check(z[AutoModel.CALF] == 0, "zones: a channel can be switched off");
+        check(z[AutoModel.GLUTES] <= plan.zones[AutoModel.GLUTES] + plan.zoneDelta, "zones: up at most +zoneDelta");
+        int[] wave = new int[AutoModel.CHANNELS];
+        java.util.Arrays.fill(wave, 60);
+        want = wave.clone();
+        want[AutoModel.CALF] = 30;
+        z = AutoLimits.clampZones(want, wave, plan);
+        check(z[AutoModel.CALF] == 30, "zones: a wave / even step can be lowered per channel");
         want = plan.zones.clone();
         want[AutoModel.CHEST] = 75;
         want[AutoModel.BACK] = 55;
@@ -316,6 +329,29 @@ public final class AutoSim {
         z = AutoLimits.clampZones(want, plan);
         check(z[AutoModel.CHEST] == 0, "zones: L10 breastfeeding chest stays 0");
         check(z[AutoModel.ABS] <= 40, "zones: diastasis abs ≤ 40");
+    }
+
+    /** Owner (1.1.287): a passive session says the goal of every phase and what the current does. */
+    static void passiveTexts() {
+        String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
+                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY};
+        for (String id : ids) {
+            AutoModel.Input in = input(AiModel.Sex.FEMALE, 35, 62, 166, AiModel.Fitness.MID, 6, -1);
+            in.programId = id;
+            if (AutoCatalog.POSTPARTUM.equals(id)) {
+                in.extra.weeksSinceBirth = 12;
+            }
+            AutoModel.Plan plan = AutoPlanner.build(in, 70);
+            for (AutoModel.Phase ph : plan.phases) {
+                String g = AutoCues.phaseGoal(plan, ph);
+                check(g != null && g.length() > 10, id + "/" + ph.id + ": the goal is said");
+                AutoEngine.Cmd c = new AutoEngine.Cmd();
+                c.hz = ph.steps.isEmpty() ? 5 : ph.steps.get(0).hz;
+                c.frac = 0.5;
+                String e = AutoCues.effect(ph, c, false);
+                check(e != null && e.length() > 10, id + "/" + ph.id + ": the effect is said");
+            }
+        }
     }
 
     static void windows() {
@@ -769,9 +805,102 @@ public final class AutoSim {
         check(d > 0.02 && d < 0.6, "dose early in the main part (" + d + ")");
         double l = e.getSystemLoad(t[0]);
         double m = e.getMuscularLoad(t[0]);
-        check(Math.abs(l - Math.sqrt((0.45 * m * m + 0.35 * v * v + 0.2 * d * d) / 1.0)) < 1e-9,
-                "total = weighted RMS of muscles, oxygen and dose without a pulse");
+        check(Math.abs(l - (1 - (1 - m) * (1 - v)) * (1 + 0.15 * d)) < 1e-9,
+                "total = muscles OR oxygen (1 − (1−M)(1−V)), × (1 + 0.15·dose) without a pulse");
+        check(l >= Math.max(m, v) - 1e-9, "a light part never dilutes the harder one (" + l + " vs M " + m + ")");
 
+        // owner (1.1.285): the passive recovery never reads higher than the work; a main set is clearly loaded
+        double[] sum = new double[base.phases.size()];
+        int[] cnt = new int[sum.length];
+        for (float[] p : f.points) {
+            if (p[6] == AutoEngine.TRACE_CYCLE && p[2] > 0) {
+                sum[(int) p[4]] += p[2];
+                cnt[(int) p[4]]++;
+            }
+        }
+        double work = 0;
+        double rec = -1;
+        StringBuilder ph = new StringBuilder();
+        for (int i = 0; i < sum.length; i++) {
+            double avg = cnt[i] > 0 ? sum[i] / cnt[i] : 0;
+            ph.append(String.format(" %s=%.2f", base.phases.get(i).id, avg));
+            if (base.phases.get(i).isCooldown()) {
+                rec = avg;
+            } else {
+                work = Math.max(work, avg);
+            }
+        }
+        check(rec < 0 || rec < 0.75 * work, "recovery below the work on the timeline (" + ph + ")");
+        check(l > 0.45, "a main set reads as real work, not blue (" + l + ")");
+        AutoEngine half = mainSet(base, sc, t, f.dose);
+        AutoEngine all = mainSet(base, sc, t, f.dose);
+        int[] z = base.zones.clone();
+        for (int k = 0; k < 5; k++) {
+            z[k] = 0;
+        }
+        half.setLive(0.9, z, t[0]);
+        all.setLive(0.9, base.zones, t[0]);
+        long tz = t[0] + 8000;
+        check(half.getSystemLoad(tz) < all.getSystemLoad(tz) - 0.01, "fewer zones on → lower total ("
+                + half.getSystemLoad(tz) + " vs " + all.getSystemLoad(tz) + ")");
+        // owner (1.1.287): each zone's colour reaches its target (1) exactly at the end of the plan, not before
+        {
+            AutoEngine run = new AutoEngine(base);
+            run.setScript(sc);
+            run.setZoneBudget(f.zoneDose);
+            long tt = 0;
+            run.startAt(tt, tt);
+            tt = run.getGoMs();
+            run.tick(tt);
+            double halfMax = 0;
+            boolean halfSeen = false;
+            int g2 = 0;
+            while (run.getState() != AutoEngine.State.DONE && run.getState() != AutoEngine.State.STOPPED && g2++ < 8000) {
+                if (!halfSeen && run.getSessionS(tt) > f.totalS / 2) {
+                    halfSeen = true;
+                    for (double zp : run.getZoneProgress(tt)) {
+                        halfMax = Math.max(halfMax, zp);
+                    }
+                }
+                if (run.getState() == AutoEngine.State.REST) {
+                    tt += run.getRestMinS() * 1000L;
+                    run.requestGo(tt, tt);
+                    tt = run.getGoMs();
+                    run.tick(tt);
+                    continue;
+                }
+                if (run.getState() != AutoEngine.State.RUN || run.getCurrent() == null) {
+                    break;
+                }
+                tt += run.getCurrent().durationMs();
+                run.tick(tt - 1);
+                run.onCycle(tt);
+            }
+            double lo = 9;
+            double hi = -9;
+            for (int k = 0; k < AutoModel.CHANNELS; k++) {
+                double zp = run.getZoneProgress(tt)[k];
+                if (base.zones[k] > 0) {
+                    lo = Math.min(lo, zp);
+                    hi = Math.max(hi, zp);
+                }
+            }
+            check(lo > 0.97 && hi < 1.03, "every zone reaches its target colour at the end (" + lo + "…" + hi + ")");
+            check(halfSeen && halfMax < 0.9, "half way no zone is at its target yet (" + halfMax + ")");
+        }
+        // owner (1.1.288): a channel moved up or down changes nothing in the load — only 0 takes it out
+        AutoEngine moved = mainSet(base, sc, t, f.dose);
+        AutoEngine asIs = mainSet(base, sc, t, f.dose);
+        int[] mz = base.zones.clone();
+        for (int k = 0; k < mz.length; k++) {
+            mz[k] = mz[k] > 0 ? Math.max(1, mz[k] / 3) : 0;
+        }
+        moved.setLive(0.9, mz, t[0]);
+        asIs.setLive(0.9, base.zones, t[0]);
+        long tm = t[0] + 8000;
+        check(Math.abs(moved.getSystemLoad(tm) - asIs.getSystemLoad(tm)) < 1e-9
+                && Math.abs(moved.getChannelLoad(tm)[AutoModel.GLUTES] - asIs.getChannelLoad(tm)[AutoModel.GLUTES]) < 1e-9,
+                "channels at a third of the recommendation → the same load (sensitivity, not work)");
         // the client: fat (same weight, shorter → higher BMI) insulates → less reached → less oxygen
         AutoModel.Plan fat = legs(input(AiModel.Sex.MALE, 35, 82, 160, AiModel.Fitness.MID, 8, 200));
         AutoEngine ef = mainSet(fat, AutoTemplates.script(fat, null), t, f.dose);
@@ -1063,9 +1192,9 @@ public final class AutoSim {
         check(Math.abs(x0 - (0.6 * h.getCardioLoad(t) + 0.4 * h.getMetabolicLoad(t))) < 1e-12,
                 "central = 0.6·HR share + 0.4·oxygen model with a pulse");
         check(h.getDoseLoad(t) < 0, "no plan budget → no dose part");
-        check(Math.abs(h.getSystemLoad(t) - Math.sqrt((0.45 * m0 * m0 + 0.35 * x0 * x0) / 0.8)) < 1e-9
-                && h.getSystemLoad(t) <= Math.max(m0, x0) + 1e-9 && h.getSystemLoad(t) >= Math.min(m0, x0) - 1e-9,
-                "total load = weighted RMS of the parts (between them)");
+        check(Math.abs(h.getSystemLoad(t) - (1 - (1 - m0) * (1 - x0))) < 1e-9
+                && h.getSystemLoad(t) >= Math.max(m0, x0) - 1e-9 && h.getSystemLoad(t) <= 1.0 + 1e-9,
+                "total load = either system at its limit is the limit (≥ the higher part)");
         check(h.getMuscleMeanLoad(t) <= h.getPeakLoad(t) + 1e-9, "whole-body mean ≤ the peak zone");
         for (int i = 0; i < 2 && h.getState() == AutoEngine.State.RUN; i++) {
             t += h.getCurrent().durationMs();

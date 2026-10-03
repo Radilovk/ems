@@ -31,16 +31,16 @@
     .registers 3
 
     .prologue
-    .line 1569
+    .line 1719
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1570
+    .line 1720
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoUi$Act;->code:I
 
-    .line 1571
+    .line 1721
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoUi$Act;->arg:I
 
-    .line 1572
+    .line 1722
     return-void
 .end method
 
@@ -48,7 +48,7 @@
     .registers 4
 
     .prologue
-    .line 1597
+    .line 1747
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoUi$Act;->code:I
 
@@ -58,15 +58,15 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 1601
+    .line 1751
     :goto_7
     return-void
 
-    .line 1598
+    .line 1748
     :catch_8
     move-exception v0
 
-    .line 1599
+    .line 1749
     const-string v1, "AutoUi.action"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -80,15 +80,15 @@
     .registers 3
 
     .prologue
-    .line 1576
+    .line 1726
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1577
+    .line 1727
     const/4 v0, 0x0
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1578
+    .line 1728
     return-void
 .end method
 
@@ -96,10 +96,10 @@
     .registers 2
 
     .prologue
-    .line 1587
+    .line 1737
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1588
+    .line 1738
     return-void
 .end method
 
@@ -107,10 +107,10 @@
     .registers 2
 
     .prologue
-    .line 1582
+    .line 1732
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1583
+    .line 1733
     return-void
 .end method
 
@@ -118,7 +118,7 @@
     .registers 3
 
     .prologue
-    .line 1592
+    .line 1742
     if-eqz p1, :cond_7
 
     const/4 v0, 0x1
@@ -126,10 +126,10 @@
     :goto_3
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1593
+    .line 1743
     return-void
 
-    .line 1592
+    .line 1742
     :cond_7
     const/4 v0, 0x0
 

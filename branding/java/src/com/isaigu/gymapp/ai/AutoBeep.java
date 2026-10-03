@@ -12,6 +12,7 @@ import com.isaigu.gymapp.wearable.WearableBleDiagLog;
  * The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per
  * second, and a long one as the impulse begins: ". . . —". Plain sine tones (AudioTrack, music stream), so they
  * mix with background music and sound the same on every tablet. Named runnables only (dx).
+ * The end of an exercise (the rest begins) is one long, lower tone (owner, 1.1.285) — distinct from the start.
  */
 public final class AutoBeep {
     private static final int RATE = 22050;
@@ -19,11 +20,14 @@ public final class AutoBeep {
     private static final int LONG_HZ = 1175;
     private static final int SHORT_MS = 130;
     private static final int LONG_MS = 650;
+    private static final int END_HZ = 660;
+    private static final int END_MS = 1400;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable SHORT = new Beep(false);
     private static short[] shortPcm;
     private static short[] longPcm;
+    private static short[] endPcm;
 
     private AutoBeep() {}
 
@@ -47,6 +51,28 @@ public final class AutoBeep {
     public static void go() {
         cancel();
         play(true);
+    }
+
+    /** One long tone: the exercise is over, the rest begins. */
+    public static void end() {
+        cancel();
+        try {
+            short[] pcm = endPcm();
+            AudioTrack t = new AudioTrack(AudioManager.STREAM_MUSIC, RATE, AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT, pcm.length * 2, AudioTrack.MODE_STATIC);
+            t.write(pcm, 0, pcm.length);
+            t.play();
+            handler.postDelayed(new Release(t), END_MS + 300L);
+        } catch (Throwable e) {
+            WearableBleDiagLog.log("auto", "beep end: " + e);
+        }
+    }
+
+    private static synchronized short[] endPcm() {
+        if (endPcm == null) {
+            endPcm = tone(END_HZ, END_MS);
+        }
+        return endPcm;
     }
 
     static final class Beep implements Runnable {

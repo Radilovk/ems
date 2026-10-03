@@ -804,6 +804,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
 
+`docs/xems-scale.md` (55L)
+  - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
+  - L7 ## What the hardware is
+  - L17 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L38 ## Measuring protocol (owner: no suit, thin clothes)
+  - L46 ## Validation path
+  - L51 ## Gemini / LLM
+
 `docs/xems-server-spec.md` (292L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)
   - L7 ## 1. Цел

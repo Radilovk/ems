@@ -38,8 +38,8 @@ import java.util.Locale;
  *       one metric, the radar then vs now, the from → to table, the body-type map with its trail.</li>
  * </ul>
  *
- * The left column (weight live, what to do now, body type, the figure) stays in both. Saved by itself ("✓ Запазено");
- * every explanation lives behind ⓘ.
+ * The figure card first in both; the page scrolls — wide = cards two by two, narrow = one column ({@link Dens}).
+ * Saved by itself ("✓ Запазено"), no "is this the client?" (the page is the client's); explanations behind ⓘ.
  */
 public final class ScaleScreen {
     private ScaleScreen() {}
@@ -79,7 +79,6 @@ public final class ScaleScreen {
         double lastKg;
 
         XemsUi.Shell s;
-        int workH;
         LinearLayout modeHolder;
         LinearLayout rangeHolder;
         TextView weight;
@@ -92,12 +91,22 @@ public final class ScaleScreen {
         LinearLayout layerHolder;
         ScaleViews.Body body;
         TextView legend;
-        LinearLayout middle;
-        LinearLayout right;
+        /** The figure card — first in both views. */
+        LinearLayout leftCard;
+        /**
+         * Under the bar: rows of cards, the page scrolls (nothing is tied to the screen's height). Wide: the figure
+         * card and the cards of the view two by two; narrow (upright tablet, phone): one column in reading order.
+         */
+        LinearLayout grid;
+        /** The cards of the current view besides the figure card, most important first. */
+        final java.util.ArrayList<View> cards = new java.util.ArrayList<View>();
+        boolean narrow;
+        LinearLayout barTools;
+        LinearLayout barChips;
+        TextView readyNote;
         TextView again;
         ScaleLink link;
         android.widget.PopupWindow infoPop;
-        LinearLayout row;
         LinearLayout barTop;
         LinearLayout barRange;
         boolean portrait;
@@ -171,6 +180,7 @@ public final class ScaleScreen {
         // ================================================================ layout
 
         void show() {
+            Dens.begin(a);
             XemsUi.init(a);
             String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim()
                     : u.nickName != null ? u.nickName.trim() : "";
@@ -180,42 +190,32 @@ public final class ScaleScreen {
             XemsUi.fullScreen(s);
             s.info.setVisibility(View.VISIBLE);
             s.info.setOnClickListener(new Info(this));
-            portrait = Columns.portrait(a);
-            workH = Columns.landH(a, 234);
-
             barTop = XemsUi.horizontal(a);
             barTop.setGravity(Gravity.CENTER_VERTICAL);
             modeHolder = XemsUi.horizontal(a);
-            barTop.addView(modeHolder, new LinearLayout.LayoutParams(dp(360), ViewGroup.LayoutParams.WRAP_CONTENT));
-            barTop.addView(XemsUi.spacer(a));
             rangeHolder = XemsUi.horizontal(a);
+            rangeHolder.setGravity(Gravity.CENTER_VERTICAL);
+            barTools = XemsUi.horizontal(a);
             TextView det = XemsUi.button(a, tr("Анализ", "Analysis"), XemsUi.SECONDARY);
             det.setOnClickListener(new Details(this));
-            LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
-            dl.leftMargin = dp(12);
-            barTop.addView(det, dl);
+            barTools.addView(det);
             TextView sum = XemsUi.button(a, tr("Обобщение", "Summary"), XemsUi.SECONDARY);
             sum.setOnClickListener(new Summary(this));
-            LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
-            sl.leftMargin = dp(10);
-            barTop.addView(sum, sl);
+            barTools.addView(sum);
             s.body.addView(barTop, XemsUi.matchWrap(a, 0));
             barRange = XemsUi.horizontal(a);
             barRange.setGravity(Gravity.CENTER_VERTICAL);
-            s.body.addView(barRange, XemsUi.matchWrap(a, 8));
+            s.body.addView(barRange, XemsUi.matchWrap(a, 10));
+            barChips = XemsUi.horizontal(a);
+            barChips.setGravity(Gravity.CENTER_VERTICAL);
+            s.body.addView(barChips, XemsUi.matchWrap(a, 10));
 
-            row = XemsUi.horizontal(a);
-            row.setGravity(Gravity.TOP);
-            row.addView(leftColumn());
-            middle = XemsUi.vertical(a);
-            row.addView(middle);
-            right = XemsUi.vertical(a);
-            row.addView(right);
+            leftCard = leftColumn();
+            grid = XemsUi.vertical(a);
             stage = new ScaleStage(a, !male);
             stage.results.setOnClickListener(new ToResults(this));
             s.body.addView(stage.view(), XemsUi.matchWrap(a, 12));
-            s.body.addView(row, XemsUi.matchWrap(a, 12));
-            arrange();
+            s.body.addView(grid, XemsUi.matchWrap(a, 14));
 
             again = XemsUi.button(a, tr("Мери пак", "Measure again"), XemsUi.SECONDARY);
             again.setOnClickListener(new Again(this));
@@ -230,6 +230,7 @@ public final class ScaleScreen {
             at = hist.length() - 1;
             ScaleUploader.schedule(a, userId, male, age, heightCm);   // anything not on the client's card yet
             build();
+            arrange();
             render(false);
             showStage(true);
             s.dialog.setOnDismissListener(new Dismissed(this));
@@ -283,7 +284,7 @@ public final class ScaleScreen {
             col.addView(layerHolder, XemsUi.matchWrap(a, 12));
             body = new ScaleViews.Body(a);
             body.setOnSegment(this);
-            col.addView(body, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            col.addView(body, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(380)));
             legend = XemsUi.text(a, "", 12, XemsUi.MUTED, false);
             legend.setGravity(Gravity.CENTER);
             col.addView(legend, XemsUi.matchWrap(a, 6));
@@ -291,31 +292,93 @@ public final class ScaleScreen {
         }
 
         /**
-         * Landscape: figure | today | more, side by side, one screen high. Portrait: the same cards stacked, each
-         * its own height, the page scrolls; the comparison chips move to their own line.
+         * The bar and the cards for the width at hand. Wide (landscape): the switch, the comparison chips and the two
+         * sheet buttons on one line; the cards two by two. Narrow (upright, phone): the switch on its own line, the
+         * buttons under it, the chips under them; the cards one under the other. Heights come from the content, so
+         * the page simply scrolls on a small screen and does not stretch on a big one.
          */
         void arrange() {
             portrait = Columns.portrait(a);
-            workH = Columns.landH(a, 234);
-            Columns.apply(a, row, portrait, new float[] {0.95f, 1f, 1.12f}, new int[] {640, 700, 680}, workH);
-            if (stage != null) {
-                Columns.apply(a, stage.root, portrait, new float[] {1.2f, 1f}, new int[] {560, 600}, workH);
+            narrow = Columns.narrow(a);
+            Columns.apply(a, stage.root, narrow, new float[] {1.2f, 1f}, new int[] {340, 560},
+                    Columns.landH(a, 234));
+            detach(modeHolder);
+            detach(barTools);
+            detach(rangeHolder);
+            barTop.removeAllViews();
+            barRange.removeAllViews();
+            barChips.removeAllViews();
+            for (int i = 0; i < barTools.getChildCount(); i++) {
+                LinearLayout.LayoutParams lp = narrow
+                        ? new LinearLayout.LayoutParams(0, dp(52), 1f)
+                        : new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
+                lp.leftMargin = i > 0 ? dp(10) : 0;
+                barTools.getChildAt(i).setLayoutParams(lp);
             }
-            if (rangeHolder.getParent() != null) {
-                ((ViewGroup) rangeHolder.getParent()).removeView(rangeHolder);
-            }
-            if (portrait) {
-                barRange.addView(rangeHolder);
+            if (narrow) {
+                barTop.addView(modeHolder, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                barRange.addView(barTools, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                barChips.addView(rangeHolder);
             } else {
-                barTop.addView(rangeHolder, 2);
+                barTop.addView(modeHolder, new LinearLayout.LayoutParams(dp(380), ViewGroup.LayoutParams.WRAP_CONTENT));
+                barTop.addView(XemsUi.spacer(a));
+                barTop.addView(rangeHolder);
+                LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                tl.leftMargin = dp(12);
+                barTop.addView(barTools, tl);
             }
-            barRange.setVisibility(portrait && !staging ? View.VISIBLE : View.GONE);
+            lay();
+            bars();
         }
 
-        /** The middle and right columns of the current view. */
+        /** Which bar lines show: none while measuring; the extra lines only when narrow. */
+        void bars() {
+            barTop.setVisibility(staging ? View.GONE : View.VISIBLE);
+            barRange.setVisibility(narrow && !staging ? View.VISIBLE : View.GONE);
+            barChips.setVisibility(narrow && !staging && mode == MODE_TRACK ? View.VISIBLE : View.GONE);
+        }
+
+        static void detach(View v) {
+            if (v != null && v.getParent() != null) {
+                ((ViewGroup) v.getParent()).removeView(v);
+            }
+        }
+
+        /** The figure card and the view's cards into the grid: pairs side by side when wide, one column when narrow. */
+        void lay() {
+            grid.removeAllViews();
+            java.util.ArrayList<View> all = new java.util.ArrayList<View>();
+            all.add(leftCard);
+            all.addAll(cards);
+            for (View v : all) {
+                detach(v);
+            }
+            if (narrow) {
+                for (int i = 0; i < all.size(); i++) {
+                    grid.addView(all.get(i), XemsUi.matchWrap(a, i == 0 ? 0 : 14));
+                }
+                return;
+            }
+            for (int i = 0; i < all.size(); i += 2) {
+                LinearLayout r = XemsUi.horizontal(a);
+                r.setGravity(Gravity.TOP);
+                r.setBaselineAligned(false);
+                r.addView(all.get(i), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+                if (i + 1 < all.size()) {
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
+                            ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                    lp.leftMargin = dp(14);
+                    r.addView(all.get(i + 1), lp);
+                }
+                grid.addView(r, XemsUi.matchWrap(a, i == 0 ? 0 : 14));
+            }
+        }
+
+        /** The cards of the current view (the figure card stays). */
         void build() {
-            middle.removeAllViews();
-            right.removeAllViews();
+            cards.clear();
             modeHolder.removeAllViews();
             modeHolder.addView(XemsUi.segmented(a, new String[] {tr("Днес", "Today"), tr("Проследяване", "Tracking")},
                     mode, new Mode(this)), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -332,26 +395,22 @@ public final class ScaleScreen {
                     c.setOnClickListener(new Range(this, i));
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                             dp(48));
-                    lp.leftMargin = dp(8);
+                    lp.leftMargin = i > 0 ? dp(8) : 0;
                     rangeHolder.addView(c, lp);
                 }
             }
+            if (grid != null && barTools != null) {
+                lay();
+                bars();
+            }
         }
 
+        /**
+         * Today: the four numbers, readiness (only once there is a baseline — before that one line says when it
+         * comes) and the body type in one card; then the zones; then the current per channel.
+         */
         void buildDay() {
-            LinearLayout today = XemsUi.card(a);
-            when = XemsUi.label(a, "");
-            today.addView(header(when, "ready"));
-            gauge = new ScaleViews.Gauge(a);
-            today.addView(gauge, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    Math.min(dp(220), (int) (workH * 0.40f))));
-            reasons = XemsUi.horizontal(a);
-            reasons.setGravity(Gravity.CENTER);
-            today.addView(reasons, XemsUi.matchWrap(a, 6));
-            middle.addView(today, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-            middle.addView(radarCard(), flex(12));
-
+            LinearLayout key = XemsUi.card(a);
             String[] names = {tr("Мазнини", "Body fat"), tr("Мускули", "Muscle"), tr("Вода", "Water"),
                     tr("Възраст", "Age")};
             for (int r = 0; r < 2; r++) {
@@ -359,69 +418,77 @@ public final class ScaleScreen {
                 for (int c = 0; c < 2; c++) {
                     int i = r * 2 + c;
                     LinearLayout t = XemsUi.surface(a);
-                    t.setPadding(dp(14), dp(10), dp(14), dp(10));
+                    t.setPadding(dp(14), dp(10), dp(14), dp(12));
                     LinearLayout head = XemsUi.horizontal(a);
                     head.setGravity(Gravity.CENTER_VERTICAL);
-                    head.addView(XemsUi.text(a, names[i] + "  ⓘ", 13, XemsUi.MUTED, false),
+                    head.addView(XemsUi.text(a, names[i] + "  ⓘ", 14, XemsUi.MUTED, false),
                             new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-                    tileDelta[i] = XemsUi.text(a, "", 13, XemsUi.MUTED, true);
+                    tileDelta[i] = XemsUi.text(a, "", 14, XemsUi.MUTED, true);
                     head.addView(tileDelta[i]);
                     t.addView(head);
-                    tileValue[i] = XemsUi.text(a, "—", 30, XemsUi.TEXT, true);
+                    tileValue[i] = XemsUi.text(a, "—", 32, XemsUi.TEXT, true);
                     tileValue[i].setIncludeFontPadding(false);
-                    t.addView(tileValue[i], XemsUi.matchWrap(a, 4));
+                    t.addView(tileValue[i], XemsUi.matchWrap(a, 6));
                     tiles[i] = t;
                     t.setOnClickListener(new CardInfo(this, TILE_KEY[i]));
                     XemsUi.pressable(t);
                     line.addView(t, XemsUi.weight(1, c == 0 ? 0 : 10, a));
                 }
-                right.addView(line, XemsUi.matchWrap(a, r == 0 ? 0 : 10));
+                key.addView(line, XemsUi.matchWrap(a, r == 0 ? 0 : 10));
             }
-            LinearLayout mc = XemsUi.card(a);
-            mc.addView(header(XemsUi.label(a, tr("Тип тяло · спрямо ръста", "Body type · for the height")), "body"));
+            when = XemsUi.label(a, "");
+            key.addView(header(when, "ready"), XemsUi.matchWrap(a, 18));
+            readyNote = XemsUi.text(a, "", 15, XemsUi.MUTED, false);
+            key.addView(readyNote, XemsUi.matchWrap(a, 0));
+            gauge = new ScaleViews.Gauge(a);
+            key.addView(gauge, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(200)));
+            reasons = XemsUi.horizontal(a);
+            reasons.setGravity(Gravity.CENTER);
+            key.addView(reasons, XemsUi.matchWrap(a, 6));
+            key.addView(header(XemsUi.label(a, tr("Тип тяло · спрямо ръста", "Body type · for the height")), "body"),
+                    XemsUi.matchWrap(a, 18));
             meter = new ScaleViews.BandMeter(a);
-            mc.addView(meter, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-            right.addView(mc, flex(12));
+            key.addView(meter, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(170)));
+            cards.add(key);
+            cards.add(radarCard());
             LinearLayout rc = XemsUi.card(a);
             rc.addView(header(XemsUi.label(a, tr("Ток до мускула · по канали", "Current to the muscle · per channel")),
                     "reach"));
             reach = new ScaleViews.Reach(a);
-            rc.addView(reach, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(112)));
-            right.addView(rc, XemsUi.matchWrap(a, 12));
+            rc.addView(reach, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(170)));
+            cards.add(rc);
         }
 
+        /** Tracking: the trend of one value, the zones then vs now, the table, the change since the start, the list. */
         void buildTrack() {
             LinearLayout tc = XemsUi.card(a);
-            LinearLayout head = XemsUi.horizontal(a);
-            head.setGravity(Gravity.CENTER_VERTICAL);
             trendTitle = XemsUi.label(a, "");
             tc.addView(header(trendTitle, "trend"));
             metricHolder = XemsUi.horizontal(a);
             tc.addView(metricHolder, XemsUi.matchWrap(a, 8));
             trend = new ScaleViews.Trend(a, false);
-            tc.addView(trend, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-            middle.addView(tc, flex(0));
-            middle.addView(radarCard(), flex(12));
+            tc.addView(trend, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(260)));
+            cards.add(tc);
+            cards.add(radarCard());
 
             LinearLayout dc = XemsUi.card(a);
             when = XemsUi.label(a, "");
             dc.addView(header(when, "table"));
             table = XemsUi.vertical(a);
             dc.addView(table, XemsUi.matchWrap(a, 6));
-            right.addView(dc, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            cards.add(dc);
             LinearLayout mc = XemsUi.card(a);
             mc.addView(header(XemsUi.label(a, tr("Промяна от старта", "Change since the start")), "change"));
             changeHead = XemsUi.text(a, "", 22, XemsUi.TEXT, true);
             mc.addView(changeHead, XemsUi.matchWrap(a, 4));
             change = new ScaleViews.Change(a);
-            mc.addView(change, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-            right.addView(mc, flex(12));
+            mc.addView(change, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(220)));
+            cards.add(mc);
             LinearLayout hc = XemsUi.card(a);
             hc.addView(header(XemsUi.label(a, tr("Мерения", "Measurements")), "history"));
             history = XemsUi.vertical(a);
             hc.addView(history, XemsUi.matchWrap(a, 4));
-            right.addView(hc, XemsUi.matchWrap(a, 12));
+            cards.add(hc);
         }
 
         /** The newest measurements, one line each; ✕ removes one (someone else on the profile, a bad step). */
@@ -902,17 +969,11 @@ public final class ScaleScreen {
             zones.addView(header(XemsUi.label(a, tr("Зони спрямо нормата", "Zones against normal")), "zones"));
             radar = new ScaleViews.Radar(a);
             radar.setOnSegment(this);
-            zones.addView(radar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            zones.addView(radar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(320)));
             detail = XemsUi.text(a, "", 13, XemsUi.MUTED, false);
             detail.setGravity(Gravity.CENTER);
             zones.addView(detail, XemsUi.matchWrap(a, 4));
             return zones;
-        }
-
-        LinearLayout.LayoutParams flex(int topDp) {
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
-            lp.topMargin = dp(topDp);
-            return lp;
         }
 
         void layerControl() {
@@ -985,8 +1046,9 @@ public final class ScaleScreen {
         void render(boolean fresh) {
             JSONObject m = cur();
             boolean has = m != null && m.has("fat");
-            middle.setAlpha(has ? 1f : 0.45f);
-            right.setAlpha(has ? 1f : 0.45f);
+            for (View c : cards) {
+                c.setAlpha(has ? 1f : 0.45f);
+            }
             layerControl();
             if (m != null && !fresh && weight.getText().toString().equals("—")) {
                 weight.setText(one(m.optDouble("w")));
@@ -1330,15 +1392,18 @@ public final class ScaleScreen {
         void readiness(JSONObject m) {
             reasons.removeAllViews();
             if (m == null || m.optJSONArray("z20") == null) {
-                gauge.set(-1, tr("Стъпи на кантара", "Step on the scale"), "");
+                ready(false, m == null ? tr("Стъпи на кантара — готовността за днес идва с мерене.",
+                        "Step on the scale — today's readiness comes with a measurement.")
+                        : tr("Само тегло — без дръжката няма готовност.", "Weight only — no readiness without the handle."));
                 return;
             }
             ScaleInsight.Readiness r = ScaleInsight.readiness(hist, indexOf(m));
             if (!r.known()) {
-                gauge.set(-1, tr("Базата се трупа", "Building the baseline"),
-                        tr("готовността идва от второто мерене", "readiness comes with the second measurement"));
+                ready(false, tr("Готовността за тренировка идва от второто мерене — тогава има с какво да сравня.",
+                        "Training readiness comes with the second measurement — then there is something to compare."));
                 return;
             }
+            ready(true, "");
             String verdict = r.factor >= 1 ? tr("Пълна сила", "Full strength")
                     : "−" + Math.round((1 - r.factor) * 100) + tr(" % днес", " % today");
             String sub = tr("спрямо обичайното за клиента · ", "against the client's usual · ") + r.base
@@ -1358,6 +1423,14 @@ public final class ScaleScreen {
                 lp.leftMargin = dp(8);
                 reasons.addView(w, lp);
             }
+        }
+
+        /** The gauge when there is a verdict; otherwise one plain line in its place (no empty dial). */
+        void ready(boolean known, String note) {
+            gauge.setVisibility(known ? View.VISIBLE : View.GONE);
+            reasons.setVisibility(known ? View.VISIBLE : View.GONE);
+            readyNote.setText(note);
+            readyNote.setVisibility(known ? View.GONE : View.VISIBLE);
         }
 
         double[] series(String key) {
@@ -1447,8 +1520,7 @@ public final class ScaleScreen {
             selected = -1;
             build();
             render(false);
-            XemsUi.enter(middle);
-            XemsUi.enter(right);
+            XemsUi.enter(grid);
         }
 
         void setLayer(int l) {
@@ -1475,16 +1547,17 @@ public final class ScaleScreen {
         void showStage(boolean on) {
             staging = on;
             stage.view().setVisibility(on ? View.VISIBLE : View.GONE);
-            row.setVisibility(on ? View.GONE : View.VISIBLE);
-            barTop.setVisibility(on ? View.GONE : View.VISIBLE);
-            barRange.setVisibility(on || !portrait ? View.GONE : View.VISIBLE);
+            grid.setVisibility(on ? View.GONE : View.VISIBLE);
+            bars();
             stage.results.setVisibility(hasFull() ? View.VISIBLE : View.GONE);
             if (on) {
                 again.setVisibility(View.INVISIBLE);
                 XemsUi.enter(stage.view());
             } else {
+                stage.showFilm(false);
                 again.setVisibility(View.VISIBLE);
-                XemsUi.enter(row);
+                s.scroll.scrollTo(0, 0);
+                XemsUi.enter(grid);
             }
         }
 
@@ -1583,32 +1656,12 @@ public final class ScaleScreen {
             if (m == null) {
                 return;
             }
-            guard(m);
+            // the page is this client's: what is measured here is theirs — no "is this X?" (a reading far from the
+            // last ones already gets a second step-on from the session; a wrong one is removed in Tracking ✕)
+            keep(m);
         }
 
         int steps = 1;
-
-        void guard(ScaleProtocol.Reading r) {
-            if (ScaleStore.unlike(hist, r.weightKg, System.currentTimeMillis())) {
-                // a weight this client did not have days ago: someone else on the profile? ask before it joins
-                String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim() : tr("клиента", "the client");
-                JSONObject last = hist.length() > 0 ? hist.optJSONObject(hist.length() - 1) : null;
-                confirm(tr("Това ли е ", "Is this ") + name + "?",
-                        one(r.weightKg) + tr(" кг — последно ", " kg — last time ")
-                                + (last != null ? one(last.optDouble("w")) : "—") + tr(" кг. Не записвам чуждо мерене.",
-                                " kg. A measurement of someone else is not saved."),
-                        tr("Да, запиши", "Yes, save it"), new Keep(this, r), tr("Не, отхвърли", "No, discard"),
-                        new Drop(this));
-                return;
-            }
-            keep(r);
-        }
-
-        void dropped() {
-            say(tr("Мерането не е записано", "Not saved"), XemsUi.MUTED);
-            showStage(false);
-            again.setVisibility(View.VISIBLE);
-        }
 
         void keep(ScaleProtocol.Reading r) {
             ScaleBody b = ScaleBody.of(r, male, age, heightCm);
@@ -1807,6 +1860,12 @@ public final class ScaleScreen {
             return dm.heightPixels > dm.widthPixels;
         }
 
+        /** Too narrow for cards side by side: an upright tablet or a phone (with {@link Dens} ~ 600–800 dp). */
+        static boolean narrow(Activity a) {
+            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            return dm.widthPixels / Math.max(0.1f, dm.density) < 960;
+        }
+
         static int landH(Activity a, int offsetDp) {
             return Math.max(XemsUi.dp(a, 440), a.getResources().getDisplayMetrics().heightPixels - XemsUi.dp(a, offsetDp));
         }
@@ -1842,8 +1901,55 @@ public final class ScaleScreen {
             boolean p = b - t > r - l;
             if (p != portrait && r - l > 0) {
                 portrait = p;
+                Dens.hold(a);
                 row.post(new Relayout(this));
             }
+        }
+    }
+
+    /**
+     * One dp for the whole time the page is open, whichever way the tablet is turned. The app runs on AutoSize
+     * (design 1280 × 720 dp across the landscape width): turned upright, the width would again be 1280 dp — every
+     * text and drawing at ~45 % of its size, and only the parts rebuilt after the turn shrink, so sizes mix. Here the
+     * landscape dp (read when the page opens; the host is landscape) is held: upright the page is simply narrow
+     * (~600–800 dp) and takes one column, with the same text size as across.
+     */
+    static final class Dens {
+        static float density;
+        static float scaled;
+        static int dpi;
+
+        static void begin(Activity a) {
+            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            float k = 1f;
+            if (dm.heightPixels > dm.widthPixels && dm.widthPixels > 0) {
+                k = dm.widthPixels / (float) dm.heightPixels;   // opened upright: AutoSize's dp is for the short side
+            }
+            density = dm.density * k;
+            scaled = dm.scaledDensity * k;
+            dpi = Math.round(density * 160);
+        }
+
+        static void hold(Activity a) {
+            if (density <= 0) {
+                return;
+            }
+            try {
+                set(a.getResources().getDisplayMetrics());
+                set(a.getApplicationContext().getResources().getDisplayMetrics());
+            } catch (Throwable t) {
+                XemsGuard.report("ScaleScreen.dens", t);
+            }
+        }
+
+        static void set(android.util.DisplayMetrics dm) {
+            dm.density = density;
+            dm.scaledDensity = scaled;
+            dm.densityDpi = dpi;
+        }
+
+        static void end() {
+            density = 0;
         }
     }
 
@@ -1872,6 +1978,7 @@ public final class ScaleScreen {
         public void onLayoutChange(View view, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
             if (r - l > 0 && (b - t > r - l) != v.portrait) {
                 v.portrait = b - t > r - l;
+                Dens.hold(v.a);
                 view.post(this);
             }
         }
@@ -1879,8 +1986,9 @@ public final class ScaleScreen {
         @Override
         public void run() {
             try {
-                v.arrange();
+                Dens.hold(v.a);
                 v.build();
+                v.arrange();
                 v.render(false);
             } catch (Throwable t) {
                 XemsGuard.report("ScaleScreen.rotate", t);
@@ -1933,35 +2041,6 @@ public final class ScaleScreen {
         }
     }
 
-    static final class Keep implements Runnable {
-        final Page v;
-        final ScaleProtocol.Reading r;
-
-        Keep(Page v, ScaleProtocol.Reading r) {
-            this.v = v;
-            this.r = r;
-        }
-
-        @Override
-        public void run() {
-            v.keep(r);
-        }
-    }
-
-    static final class Drop implements Runnable {
-        final Page v;
-
-        Drop(Page v) {
-            this.v = v;
-        }
-
-        @Override
-        public void run() {
-            v.dropped();
-        }
-    }
-
-    /** A question sheet's answer: close it, then act. */
     static final class Answer implements View.OnClickListener {
         final XemsUi.Shell q;
         final Runnable then;
@@ -2028,6 +2107,7 @@ public final class ScaleScreen {
                 } catch (Throwable ignored) {
                 }
             }
+            Dens.end();
         }
     }
 

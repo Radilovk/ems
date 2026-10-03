@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 776
+    .line 802
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 777
+    .line 803
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Breathe;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    .line 778
+    .line 804
     return-void
 .end method
 
@@ -46,7 +46,7 @@
 
     const v3, 0x3c75c28f    # 0.015f
 
-    .line 782
+    .line 808
     invoke-virtual {p1}, Landroid/animation/ValueAnimator;->getAnimatedValue()Ljava/lang/Object;
 
     move-result-object v0
@@ -57,7 +57,7 @@
 
     move-result v0
 
-    .line 783
+    .line 809
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Breathe;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->hero:Landroid/widget/ImageView;
@@ -68,7 +68,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setScaleX(F)V
 
-    .line 784
+    .line 810
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Breathe;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->hero:Landroid/widget/ImageView;
@@ -79,7 +79,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setScaleY(F)V
 
-    .line 785
+    .line 811
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Breathe;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->hero:Landroid/widget/ImageView;
@@ -101,10 +101,10 @@
     :goto_34
     invoke-virtual {v1, v0}, Landroid/widget/ImageView;->setAlpha(F)V
 
-    .line 786
+    .line 812
     return-void
 
-    .line 785
+    .line 811
     :cond_38
     const v2, 0x3f59999a    # 0.85f
 

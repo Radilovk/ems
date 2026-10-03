@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 806
+    .line 832
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 807
+    .line 833
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    .line 808
+    .line 834
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 5
 
     .prologue
-    .line 812
+    .line 838
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->openFilm(Landroid/graphics/SurfaceTexture;)V
 
-    .line 813
+    .line 839
     return-void
 .end method
 
@@ -55,12 +55,12 @@
     .registers 3
 
     .prologue
-    .line 824
+    .line 850
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->release()V
 
-    .line 825
+    .line 851
     const/4 v0, 0x1
 
     return v0
@@ -70,14 +70,14 @@
     .registers 7
 
     .prologue
-    .line 817
+    .line 843
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->player:Landroid/media/MediaPlayer;
 
     if-eqz v0, :cond_1b
 
-    .line 818
+    .line 844
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
@@ -98,7 +98,7 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->fit(II)V
 
-    .line 820
+    .line 846
     :cond_1b
     return-void
 .end method
@@ -107,6 +107,6 @@
     .registers 2
 
     .prologue
-    .line 830
+    .line 856
     return-void
 .end method

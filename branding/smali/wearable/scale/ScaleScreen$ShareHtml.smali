@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 2276
+    .line 2283
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2277
+    .line 2284
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2278
+    .line 2285
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
-    .line 2279
+    .line 2286
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->name:Ljava/lang/String;
 
-    .line 2280
+    .line 2287
     return-void
 .end method
 
@@ -54,10 +54,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 2284
+    .line 2291
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2287
+    .line 2294
     :try_start_4
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
@@ -75,7 +75,7 @@
 
     if-lez v0, :cond_52
 
-    .line 2288
+    .line 2295
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getWidth()I
@@ -94,7 +94,7 @@
 
     move-result-object v0
 
-    .line 2290
+    .line 2297
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
     new-instance v3, Landroid/graphics/Canvas;
@@ -108,7 +108,7 @@
     :goto_30
     move-object v7, v0
 
-    .line 2295
+    .line 2302
     :goto_31
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -138,16 +138,16 @@
 
     invoke-static/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->html(Landroid/app/Activity;Ljava/lang/String;Lorg/json/JSONArray;IZIILandroid/graphics/Bitmap;)V
 
-    .line 2296
+    .line 2303
     return-void
 
-    .line 2292
+    .line 2299
     :catch_4f
     move-exception v0
 
     move-object v7, v1
 
-    .line 2293
+    .line 2300
     goto :goto_31
 
     :cond_52

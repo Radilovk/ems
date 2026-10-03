@@ -909,24 +909,19 @@ public final class ScaleScreen {
                 Columns.follow(a, sh, row, new float[] {0.9f, 1.05f, 1.15f}, new int[] {600, 560, 640}, 170);
 
                 if (m != null && m.has("fat")) {
-                    TextView img = XemsUi.button(a, tr("Сподели като изображение", "Share as image"), XemsUi.SECONDARY);
+                    TextView img = XemsUi.button(a, tr("Изображение", "Image"), XemsUi.SECONDARY);
                     img.setOnClickListener(new ShareImage(this, sh, name));
-                    sh.footer.addView(img, new LinearLayout.LayoutParams(dp(240), dp(56)));
-                    TextView web = XemsUi.button(a, tr("Сподели като уеб страница", "Share as web page"), XemsUi.SECONDARY);
+                    foot(sh, img, 1f, 0);
+                    TextView web = XemsUi.button(a, tr("Уеб страница", "Web page"), XemsUi.SECONDARY);
                     web.setOnClickListener(new ShareHtml(this, fig, name));
-                    LinearLayout.LayoutParams wl = new LinearLayout.LayoutParams(dp(220), dp(56));
-                    wl.leftMargin = dp(10);
-                    sh.footer.addView(web, wl);
+                    foot(sh, web, 1f, 8);
                 }
-                TextView sci = XemsUi.button(a, tr("Научна основа", "Scientific basis"), XemsUi.GHOST);
+                TextView sci = XemsUi.button(a, tr("Източници", "Sources"), XemsUi.SECONDARY);
                 sci.setOnClickListener(new ScaleSources.Open(a));
-                LinearLayout.LayoutParams scl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56));
-                scl.leftMargin = dp(10);
-                sh.footer.addView(sci, scl);
-                sh.footer.addView(XemsUi.spacer(a));
+                foot(sh, sci, 1f, 8);
                 TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
                 close.setOnClickListener(new CloseSheet(sh));
-                sh.footer.addView(close, new LinearLayout.LayoutParams(dp(260), dp(56)));
+                foot(sh, close, 1.2f, 8);
                 sh.dialog.show();
             } catch (Throwable t) {
                 XemsGuard.report("ScaleScreen.summary", t);
@@ -1833,6 +1828,18 @@ public final class ScaleScreen {
         public void run() {
             v.reveal();
         }
+    }
+
+    /** A footer button: one line, an equal share of the width — the row never runs off a narrow screen. */
+    static void foot(XemsUi.Shell sh, TextView b, float weight, int leftDp) {
+        Context c = b.getContext();
+        b.setSingleLine(true);
+        b.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        b.setTextSize(15);
+        b.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 8));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 52), weight);
+        lp.leftMargin = XemsUi.dp(c, leftDp);
+        sh.footer.addView(b, lp);
     }
 
     /**

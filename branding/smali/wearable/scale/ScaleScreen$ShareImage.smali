@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 2257
+    .line 2264
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2258
+    .line 2265
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2259
+    .line 2266
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 2260
+    .line 2267
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->name:Ljava/lang/String;
 
-    .line 2261
+    .line 2268
     return-void
 .end method
 
@@ -52,10 +52,10 @@
     .registers 5
 
     .prologue
-    .line 2265
+    .line 2272
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2266
+    .line 2273
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
@@ -70,7 +70,7 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 2267
+    .line 2274
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->a:Landroid/app/Activity;
@@ -79,6 +79,6 @@
 
     invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->image(Landroid/app/Activity;Landroid/view/View;Ljava/lang/String;)V
 
-    .line 2268
+    .line 2275
     return-void
 .end method

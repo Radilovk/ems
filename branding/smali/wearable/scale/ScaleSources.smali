@@ -2225,7 +2225,7 @@
 
     new-array v5, v0, [I
 
-    fill-array-data v5, :array_39e
+    fill-array-data v5, :array_390
 
     .line 262
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->bg:Z
@@ -2475,11 +2475,11 @@
 
     move-result v2
 
-    if-eqz v2, :cond_39b
+    if-eqz v2, :cond_38c
 
     const/4 v2, 0x2
 
-    if-ne v4, v2, :cond_39b
+    if-ne v4, v2, :cond_38c
 
     .line 280
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -2638,7 +2638,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_394
+    if-eqz v0, :cond_385
 
     const/16 v0, 0xa
 
@@ -2770,7 +2770,7 @@
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->bg:Z
 
-    if-eqz v0, :cond_397
+    if-eqz v0, :cond_388
 
     const-string v0, "\u0411\u0438\u043e\u0438\u043c\u043f\u0435\u0434\u0430\u043d\u0441\u043d\u0438\u044f\u0442 \u0430\u043d\u0430\u043b\u0438\u0437 \u0435 \u043c\u0435\u0442\u043e\u0434 \u0437\u0430 \u043e\u0446\u0435\u043d\u043a\u0430 \u043d\u0430 \u0441\u044a\u0441\u0442\u0430\u0432\u0430 \u043d\u0430 \u0442\u044f\u043b\u043e\u0442\u043e \u0438 \u043d\u0435 \u0437\u0430\u043c\u0435\u0441\u0442\u0432\u0430 \u043c\u0435\u0434\u0438\u0446\u0438\u043d\u0441\u043a\u043e \u0438\u0437\u0441\u043b\u0435\u0434\u0432\u0430\u043d\u0435. \u041e\u0442\u043a\u043b\u043e\u043d\u0435\u043d\u0438\u0435\u0442\u043e \u0441\u043f\u0440\u044f\u043c\u043e DXA \u043e\u0431\u0438\u043a\u043d\u043e\u0432\u0435\u043d\u043e \u0435 \u043d\u044f\u043a\u043e\u043b\u043a\u043e \u043f\u0440\u043e\u0446\u0435\u043d\u0442\u043d\u0438 \u043f\u0443\u043d\u043a\u0442\u0430. \u0417\u0430 \u043d\u0430\u0439-\u0433\u043e\u043b\u044f\u043c\u0430 \u0442\u043e\u0447\u043d\u043e\u0441\u0442 \u0441\u0435 \u0438\u0437\u043c\u0435\u0440\u0432\u0430\u0439\u0442\u0435 \u043f\u0440\u0438 \u0435\u0434\u043d\u0430\u043a\u0432\u0438 \u0443\u0441\u043b\u043e\u0432\u0438\u044f \u0438 \u0441\u043b\u0435\u0434\u0435\u0442\u0435 \u0442\u0435\u043d\u0434\u0435\u043d\u0446\u0438\u044f\u0442\u0430, \u0430 \u043d\u0435 \u0435\u0434\u0438\u043d\u0438\u0447\u043d\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442."
 
@@ -2927,25 +2927,11 @@
     .line 311
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
+    const/high16 v2, 0x3f800000    # 1.0f
 
-    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+    const/16 v3, 0x8
 
-    const/high16 v3, 0x43820000    # 260.0f
-
-    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->dp(F)I
-
-    move-result v3
-
-    const/high16 v4, 0x42600000    # 56.0f
-
-    invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->dp(F)I
-
-    move-result v4
-
-    invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
-
-    invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-static {v1, v0, v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen;->foot(Lcom/isaigu/gymapp/widget/XemsUi$Shell;Landroid/widget/TextView;FI)V
 
     .line 312
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSources;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -2958,24 +2944,26 @@
     return-void
 
     .line 285
-    :cond_394
+    :cond_385
     const/4 v0, 0x6
 
     goto/16 :goto_26a
 
     .line 296
-    :cond_397
+    :cond_388
     const-string v0, "Bioimpedance analysis estimates body composition and does not replace a medical examination. The deviation from DXA is usually a few percentage points. For the best accuracy measure under the same conditions and follow the trend rather than a single value."
 
     goto/16 :goto_2e6
 
-    :cond_39b
+    :cond_38c
     move-object v2, v3
 
     goto/16 :goto_1fc
 
     .line 261
-    :array_39e
+    nop
+
+    :array_390
     .array-data 4
         -0x6b5c48
         -0xdd3aa2

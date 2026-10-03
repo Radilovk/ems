@@ -367,6 +367,7 @@ public final class NextPlan {
             rec.why.add(tr("Най-натоварени: " + join(down) + " — −5 %.", "Most loaded: " + join(down) + " — −5%."));
         }
         k = individual(own, n, rec, k);
+        scaleFocus(c, u, own, n, rec);
         n.st = clamp((int) Math.round(last.st * k), 0, 100);
         if (last.assisted) {
             rec.why.add(0, tr("Последната беше в автоматичен режим („" + last.program + "“) — ръчните настройки от преди нея.",
@@ -412,6 +413,32 @@ public final class NextPlan {
      * neck −15 % on that zone, birth within a year −15 % on the abs, sensitive to current −10 % overall,
      * stress / poor sleep: no increase today. Returns the new overall factor.
      */
+    /**
+     * The scale's weakest zone (under 90 % of normal, a fresh measurement) as one more focus: +5 % on its
+     * channels — unless the client already asked for that zone.
+     */
+    static void scaleFocus(Context c, TrainUser u, String[] own, Snap n, Rec rec) {
+        try {
+            com.isaigu.gymapp.ai.AiProfile p = c != null && u != null ? com.isaigu.gymapp.ai.AiProfile.of(u) : null;
+            String f = p != null ? p.scaleFocus : null;
+            if (f == null || has(own[0], f)) {
+                return;
+            }
+            boolean any = false;
+            for (int ch : focusChannels(f)) {
+                if (n.ch[ch] > 0 && n.ch[ch] < 100) {
+                    n.ch[ch] = Math.min(100, n.ch[ch] + 5);
+                    any = true;
+                }
+            }
+            if (any) {
+                rec.why.add(tr("Кантарът: най-слабата зона е " + focusName(f) + " — +5 %.",
+                        "Scale: the weakest zone is " + focusName(f) + " — +5%."));
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
     static double individual(String[] own, Snap n, Rec rec, double k) {
         List<String> fz = new ArrayList<String>();
         for (String f : own[0].split(",")) {

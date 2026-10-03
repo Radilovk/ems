@@ -27,6 +27,29 @@ Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight i
    share); channels → trunk / arms / legs (glutes half trunk, half legs). `AutoEngine.reach(k)` uses it instead of
    the one whole-body value.
 
+## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
+A fresh measurement (≤ 60 days; readiness ≤ 12 h) reaches the engines through `AiProfile` → `AutoModel.Input` (Auto,
+`AutoSession`) and `AiModel.SessionInput` (Smart Session, `AiProfile.applyTo`):
+
+| Data | Algorithm | Effect |
+|---|---|---|
+| fat % (+ per channel) | `AutoEngine.fatPct / reach(k)` | current's reach per channel (fat insulates) — load, dose, total-load board |
+| skeletal muscle kg | `AiEnergy.muscleScale` → `evokedVo2`; `AutoEngine.vo2Ref` | O₂ / kcal of the evoked contractions (was 31 / 38 % of weight) |
+| muscle per channel (`ScaleInsight.channelMuscle`, mean 1) | `AiEnergy.evokedVo2`, `AutoEngine.zoneMass / metaDemand` | each channel's muscle mass: whole-body load, oxygen share, kcal |
+| lean mass kg | `AiEnergy.restingVo2(…, lean)` (Katch–McArdle) | resting burn from muscle, not weight — kcal, intensity, HR-free load |
+| readiness (×1 / 0.85 / 0.7) | `AutoPlanner` phiMax, `AiPlanner` phiMax (active), `NextPlan.recommend` | today's strength ceiling (the stronger of rest-days and scale) |
+| muscle low (FFMI) | `AutoPlanner` (replaces BMI < 18.5) | −10 % ceiling; an athletic low BMI is no longer cut |
+| obese by FMI | `AutoPlanner.goalSlimBmi` (replaces BMI ≥ 30) | the fat-loss HR corridor's upper edge −5 % only for real fat, not muscle |
+| weakest zone < 90 % | `AiPersonal.withScaleFocus` in `AutoPlanner` / `AiPlanner`; `NextPlan.scaleFocus` | one more focus zone (AiPersonal effect, +5 % on its channels in the plan) |
+| water low | inside readiness (legs' Z20) | ×0.85 + "drink" |
+
+Not changed on purpose: **HR max / HR zones / HrGuard** stay on the passport age (cardiovascular, not body
+composition); **VO₂max** stays on fitness + age; the **strength actually sent** is never raised automatically from the
+reach (skin tolerance limits it — Auto's model knows less reaches the muscle, the trainer decides).
+
+**Sharing** (summary sheet): `ScaleShare.image` (the sheet as PNG) and `ScaleShare.html` (one self-contained page
+for a phone, light/dark, figure + norm bars + change + recommendations), through the report's FileProvider path.
+
 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
 Measured on WLA25 itself (sacoma port): same impedances, +10 kg → +9 % fat (its BMI / weight terms count weight
 as fat → muscular men "fat / overweight"); "body age" = entered age + a fat-% band offset (25 / 45 / 65 → 22 / 42 /

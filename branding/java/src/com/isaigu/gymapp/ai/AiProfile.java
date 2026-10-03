@@ -37,6 +37,14 @@ public final class AiProfile {
     /** Today's scale readiness: strength factor (1 / 0.85 / 0.7) and the segment behind it (-1 = none). */
     public double readiness = 1.0;
     public int readinessSeg = -1;
+    /** Fresh scale measurement: lean / skeletal muscle kg (&lt; 0 = none), muscle per channel, classes, focus. */
+    public double leanKg = -1;
+    public double skeletalKg = -1;
+    public double[] chMuscle;
+    public boolean muscleLow;
+    public boolean fatObese;
+    public boolean measured;
+    public String scaleFocus;
     public AiModel.Fitness fitness;
     public AiModel.Goal goal;
     public final Set<String> contraindications = new HashSet<String>();
@@ -100,6 +108,24 @@ public final class AiProfile {
                 p.fatPct = fat;
             }
             p.channelFat = com.isaigu.gymapp.wearable.scale.ScaleStore.freshChannelFat(c, u.id);
+            org.json.JSONObject sm = com.isaigu.gymapp.wearable.scale.ScaleStore.fresh(c, u.id);
+            if (sm != null) {
+                boolean male = p.sex != AiModel.Sex.FEMALE;
+                int h = p.heightCm > 0 ? p.heightCm
+                        : c.getSharedPreferences("xems_scale", Context.MODE_PRIVATE).getInt("h" + u.id, 0);
+                p.measured = true;
+                p.leanKg = sm.optDouble("lean", -1);
+                double skel = sm.optDouble("skel", Double.NaN);
+                p.skeletalKg = Double.isNaN(skel) ? -1 : sm.optDouble("w") * skel / 100.0;
+                if (h >= 100) {
+                    p.chMuscle = com.isaigu.gymapp.wearable.scale.ScaleInsight.channelMuscle(sm, male, h);
+                    com.isaigu.gymapp.wearable.scale.ScaleInsight.Body b =
+                            com.isaigu.gymapp.wearable.scale.ScaleInsight.body(sm, male, h);
+                    p.muscleLow = b.muscleCls == 0;
+                    p.fatObese = b.fatCls == 3;
+                    p.scaleFocus = com.isaigu.gymapp.wearable.scale.ScaleInsight.weakFocus(sm, male, h);
+                }
+            }
             com.isaigu.gymapp.wearable.scale.ScaleInsight.Readiness ready =
                     com.isaigu.gymapp.wearable.scale.ScaleStore.readinessToday(c, u.id);
             if (ready != null) {
@@ -170,6 +196,11 @@ public final class AiProfile {
         }
         in.focus = new HashSet<String>(focus);
         in.cond = new HashSet<String>(cond);
+        in.leanKg = leanKg;
+        in.skeletalKg = skeletalKg;
+        in.chMuscle = chMuscle;
+        in.readiness = readiness;
+        in.scaleFocus = scaleFocus;
         if (in.screening != null) {
             for (String k : contraindications) {
                 if (in.screening.contraindications.containsKey(k)) {

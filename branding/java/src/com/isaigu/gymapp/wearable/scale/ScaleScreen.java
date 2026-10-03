@@ -733,6 +733,16 @@ public final class ScaleScreen {
                 row.addView(adv, ap);
                 sh.body.addView(row, XemsUi.matchWrap(a, 4));
 
+                if (m != null && m.has("fat")) {
+                    TextView img = XemsUi.button(a, tr("Сподели · изображение", "Share · image"), XemsUi.SECONDARY);
+                    img.setOnClickListener(new ShareImage(this, sh, name));
+                    sh.footer.addView(img, new LinearLayout.LayoutParams(dp(240), dp(56)));
+                    TextView web = XemsUi.button(a, tr("Сподели · HTML", "Share · HTML"), XemsUi.SECONDARY);
+                    web.setOnClickListener(new ShareHtml(this, fig, name));
+                    LinearLayout.LayoutParams wl = new LinearLayout.LayoutParams(dp(220), dp(56));
+                    wl.leftMargin = dp(10);
+                    sh.footer.addView(web, wl);
+                }
                 sh.footer.addView(XemsUi.spacer(a));
                 TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
                 close.setOnClickListener(new CloseSheet(sh));
@@ -1605,6 +1615,53 @@ public final class ScaleScreen {
         public void onClick(View b) {
             XemsUi.haptic(b);
             v.showSummary();
+        }
+    }
+
+    static final class ShareImage implements View.OnClickListener {
+        final Page v;
+        final XemsUi.Shell sh;
+        final String name;
+
+        ShareImage(Page v, XemsUi.Shell sh, String name) {
+            this.v = v;
+            this.sh = sh;
+            this.name = name;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            View root = (View) sh.body.getParent().getParent();
+            ScaleShare.image(v.a, root, name);
+        }
+    }
+
+    static final class ShareHtml implements View.OnClickListener {
+        final Page v;
+        final View fig;
+        final String name;
+
+        ShareHtml(Page v, View fig, String name) {
+            this.v = v;
+            this.fig = fig;
+            this.name = name;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            android.graphics.Bitmap bm = null;
+            try {
+                if (fig.getWidth() > 0 && fig.getHeight() > 0) {
+                    bm = android.graphics.Bitmap.createBitmap(fig.getWidth(), fig.getHeight(),
+                            android.graphics.Bitmap.Config.ARGB_8888);
+                    fig.draw(new android.graphics.Canvas(bm));
+                }
+            } catch (Throwable ignored) {
+                bm = null;
+            }
+            ScaleShare.html(v.a, name, v.hist, v.at, v.male, v.age, v.heightCm, bm);
         }
     }
 

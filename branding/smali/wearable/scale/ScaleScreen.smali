@@ -9,6 +9,8 @@
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$MetricPick;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CloseSheet;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Summary;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CardInfo;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Range;,

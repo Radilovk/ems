@@ -462,7 +462,47 @@ public final class ScaleSim {
         ok("woman: baseline hint", w.indexOf("Мерене преди всяка") >= 0);
     }
 
+    /** The scale's numbers reach the algorithms: energy (muscle, resting burn), channels, focus. */
+    static void algorithms() throws Exception {
+        com.isaigu.gymapp.ai.AiModel.Sex M = com.isaigu.gymapp.ai.AiModel.Sex.MALE;
+        // owner: 81.4 kg, skeletal 47 % = 38.3 kg, lean 66.9 kg
+        double est = com.isaigu.gymapp.ai.AiEnergy.muscleScale(M, 81.4, -1);
+        double meas = com.isaigu.gymapp.ai.AiEnergy.muscleScale(M, 81.4, 38.3);
+        ok("muscle scale from the scale (" + Math.round(meas * 100) / 100.0 + " vs estimate "
+                + Math.round(est * 100) / 100.0 + ")", meas > est);
+        double r0 = com.isaigu.gymapp.ai.AiEnergy.restingVo2(M, 31, 81.4);
+        double r1 = com.isaigu.gymapp.ai.AiEnergy.restingVo2(M, 31, 81.4, 66.9);
+        eq("resting VO2 by lean (Katch–McArdle 1815 kcal)", r1, (370 + 21.6 * 66.9) / 1440 / 4.83 * 1000 / 81.4, 1e-9);
+        ok("resting VO2 changes with lean (" + Math.round(r0 * 100) / 100.0 + " → " + Math.round(r1 * 100) / 100.0 + ")",
+                Math.abs(r1 - r0) > 0.01);
+        ScaleProtocol.Reading r = new ScaleProtocol.Reading();
+        r.result = true;
+        r.weightKg = 81.4;
+        r.scaleFatPct = 17.8;
+        double[] z20 = {17.3, 252.0, 234.0, 221.0, 232.0}, z100 = {15.7, 215.5, 199.5, 190.0, 200.0};
+        for (int i = 0; i < 5; i++) {
+            r.z20[i] = z20[i];
+            r.z100[i] = z100[i];
+        }
+        org.json.JSONObject m = ScaleStore.toJson(r, ScaleBody.of(r, true, 31, 175), 0);
+        double[] cm = ScaleInsight.channelMuscle(m, true, 175);
+        double mean = 0;
+        for (double v : cm) {
+            mean += v;
+        }
+        eq("channel muscle mean ≈ 1", mean / cm.length, 1.0, 1e-9);
+        ok("owner: no weak zone (all ≥ 90 %)", ScaleInsight.weakFocus(m, true, 175) == null);
+        // a weak left leg → "legs"
+        org.json.JSONObject w = new org.json.JSONObject(m.toString());
+        org.json.JSONArray sm = w.getJSONArray("segMus");
+        sm.put(ScaleProtocol.LEFT_LEG, 7.5);
+        eq("weak leg → focus legs", ScaleInsight.weakFocus(w, true, 175).equals("legs") ? 1 : 0, 1, 0);
+        java.util.Set<String> f = com.isaigu.gymapp.ai.AiPersonal.withScaleFocus(new java.util.HashSet<String>(), "legs");
+        ok("scale focus joins the client's", f.contains("legs"));
+    }
+
     public static void main(String[] a) throws Exception {
+        algorithms();
         advice();
         ownerReport();
         bodyType();

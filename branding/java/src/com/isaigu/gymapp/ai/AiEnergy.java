@@ -113,6 +113,8 @@ public final class AiEnergy {
     }
 
     private double muscleScale = 1.0;
+    /** Muscle per channel against the body's mean (scale segments); null = the standard distribution. */
+    private double[] chMuscle;
     private double kcalEmsModel;
 
     public static final double EPOC_TAU_S = 40.0;
@@ -155,10 +157,34 @@ public final class AiEnergy {
         boolean med = in.screening != null && in.screening.hrLoweringMedication;
         int rest = p != null && p.hrAvailable ? p.hrRest : -1;
         int max = p != null && p.hrMax > 0 ? p.hrMax : AiPlanner.hrMax(in.sex, in.age);
-        AiEnergy e = new AiEnergy(rest, max, w, restingVo2(in.sex, in.age, w),
+        AiEnergy e = new AiEnergy(rest, max, w, restingVo2(in.sex, in.age, w, in.leanKg),
                 fitnessVo2max(in.fitness, in.sex, in.age), !med);
-        e.muscleScale = (in.sex == AiModel.Sex.FEMALE ? 0.31 : 0.38) * w / SM_REF_KG;
+        e.muscleScale = muscleScale(in.sex, w, in.skeletalKg);
+        e.chMuscle = in.chMuscle;
         return e;
+    }
+
+    /**
+     * The person's skeletal muscle against the 28.5 kg reference: the scale's measured skeletal muscle when there
+     * is one, else the population share of the weight (women 31 %, men 38 %).
+     */
+    public static double muscleScale(AiModel.Sex sex, double w, double skeletalKg) {
+        if (skeletalKg >= 10 && skeletalKg <= 80) {
+            return skeletalKg / SM_REF_KG;
+        }
+        return (sex == AiModel.Sex.FEMALE ? 0.31 : 0.38) * w / SM_REF_KG;
+    }
+
+    /**
+     * Resting VO2 from the scale's lean mass when measured (Katch–McArdle RMR = 370 + 21.6 · lean, the same the
+     * scale's BMR uses: muscle, not weight, sets the resting burn), else Schofield from the weight.
+     */
+    public static double restingVo2(AiModel.Sex sex, int age, double w, double leanKg) {
+        if (leanKg >= 20 && leanKg <= 120 && w >= 30) {
+            double rmr = 370 + 21.6 * leanKg;
+            return Math.max(2.3, Math.min(4.5, rmr / 1440.0 / 4.83 * 1000.0 / w));
+        }
+        return restingVo2(sex, age, w);
     }
 
     /** Schofield (1985) RMR (kcal/day) → VO2 at rest in ml/kg/min. */
@@ -227,7 +253,8 @@ public final class AiEnergy {
         hrr = Math.max(0, Math.min(1, hrr));
         double restL = vo2rest * weightKg / 1000.0;
         double hrL = (vo2rest + hrr * (vo2max - vo2rest)) * weightKg / 1000.0;
-        double emsL = stim != null ? evokedVo2(stim, muscleScale) + exerciseVo2(exerciseMet, weightKg, stim.onShare) : 0;
+        double emsL = stim != null ? evokedVo2(stim, muscleScale, chMuscle)
+                + exerciseVo2(exerciseMet, weightKg, stim.onShare) : 0;
         double totalL = Math.max(hrL, restL + emsL);
         // RER from the effective intensity (either branch).
         double intensity = Math.max(hrr, (totalL - restL) / Math.max(1e-6, (vo2max - vo2rest) * weightKg / 1000.0));
@@ -247,6 +274,11 @@ public final class AiEnergy {
      * @param muscleScale person's skeletal-muscle mass / 28.5 kg
      */
     public static double evokedVo2(Stim s, double muscleScale) {
+        return evokedVo2(s, muscleScale, null);
+    }
+
+    /** As above, each channel's muscle weighed by the scale's segments (chMuscle, mean ≈ 1; null = standard). */
+    public static double evokedVo2(Stim s, double muscleScale, double[] chMuscle) {
         if (s == null) {
             return 0;
         }
@@ -267,7 +299,8 @@ public final class AiEnergy {
                 double q = sent * (s.pauseStrengthPct / 100.0) * (s.pwUs / 350.0);
                 part += s.pauseShare * recruited(q, tol) * freqFactor(s.pauseHz);
             }
-            ml += CH_MASS[ch] * muscleScale * CH_DEPTH[ch] * part * R_MAX;
+            double cm = chMuscle != null && ch < chMuscle.length && chMuscle[ch] > 0 ? chMuscle[ch] : 1.0;
+            ml += CH_MASS[ch] * cm * muscleScale * CH_DEPTH[ch] * part * R_MAX;
         }
         return ml / 1000.0;
     }

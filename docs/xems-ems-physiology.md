@@ -72,6 +72,10 @@ Simulation now (`scripts/ai-sim`, FatProbe): warm-up 12–17 %, main ≤ 100 %, 
   band) and the goal zone of drainage / massage, whose effect is circulation, not contraction (goal `basis: "M"`).
 - kcal = max(heart-rate branch, current + exercise branch) — `AiEnergy` class comment (VO2 from %HRR [E:R9]).
 
+With a fresh scale measurement (docs/xems-scale.md "Where the scale's data goes") the muscle mass is measured
+(skeletal muscle kg → muscleScale; muscle per channel from the segments) and the resting burn comes from lean mass
+(Katch–McArdle 370 + 21.6·lean) instead of the weight.
+
 ## 5. Pulse width and dose
 350 µs (300–400) reaches deeper fibres at a tolerable current [E:R2]; dose Q = 2·ρ·pw·f·t (biphasic) — §6.2 of the
 Smart Session spec. Dose is the budget; fatigue (§3) decides the blocks.

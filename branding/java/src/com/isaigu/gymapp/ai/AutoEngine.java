@@ -1011,13 +1011,19 @@ public final class AutoEngine {
         return clamp(d, 0.05, 0.7);
     }
 
-    /** Weight of each zone in the whole body: muscle mass × reach at the pulse width now. */
+    /** The scale's muscle on channel k against the body's mean (1 without a measurement). */
+    double chMuscle(int k) {
+        double[] cm = plan.input != null ? plan.input.chMuscle : null;
+        return cm != null && k < cm.length && cm[k] > 0 ? cm[k] : 1.0;
+    }
+
+    /** Weight of each zone in the whole body: muscle mass × the scale's distribution × reach at the pulse width. */
     private double[] zoneMass() {
         Cmd c = current != null ? current : chCmd;
         int pw = c != null ? c.pwUs : (int) PW_REF;
         double[] a = new double[AutoModel.CHANNELS];
         for (int k = 0; k < a.length; k++) {
-            a[k] = AiEnergy.CH_MASS[k] * reach(k, pw);
+            a[k] = AiEnergy.CH_MASS[k] * chMuscle(k) * reach(k, pw);
         }
         return a;
     }
@@ -1048,15 +1054,15 @@ public final class AutoEngine {
             AiModel.Sex sex = in != null ? in.sex : AiModel.Sex.FEMALE;
             int age = in != null && in.age > 0 ? in.age : 35;
             double w = in != null && in.weightKg >= 30 && in.weightKg <= 250 ? in.weightKg : AiEnergy.DEFAULT_WEIGHT_KG;
-            double rest = AiEnergy.restingVo2(sex, age, w);
+            double rest = AiEnergy.restingVo2(sex, age, w, in != null ? in.leanKg : -1);
             double max = AiEnergy.fitnessVo2max(in != null ? in.fitness : AiModel.Fitness.MID, sex, age);
             boolean med = in != null && in.screening != null && in.screening.hrLoweringMedication;
             if (plan.hrRestMeasured && plan.hrRest >= 35 && plan.hrMax > plan.hrRest + 20 && !med) {
                 max = 0.5 * max + 0.5 * clamp(15.3 * plan.hrMax / plan.hrRest, 18, 75);   // Uth 2004
             }
             max = Math.max(max, rest + 10);
-            vo2Ref = new double[] {(max - rest) * w / 1000.0, (sex == AiModel.Sex.FEMALE ? 0.31 : 0.38) * w
-                    / AiEnergy.SM_REF_KG, w};
+            vo2Ref = new double[] {(max - rest) * w / 1000.0,
+                    AiEnergy.muscleScale(sex, w, in != null ? in.skeletalKg : -1), w};
         }
         return vo2Ref;
     }
@@ -1082,7 +1088,7 @@ public final class AutoEngine {
             if (dbl) {
                 part += (1 - s) * AiEnergy.recruited(rho * zk * c.pauseSigma, 1.0) * AiEnergy.freqFactor(c.pauseHz);
             }
-            ml += AiEnergy.CH_MASS[k] * ref[1] * reach(k, c.pwUs) * part * AiEnergy.R_MAX;
+            ml += AiEnergy.CH_MASS[k] * chMuscle(k) * ref[1] * reach(k, c.pwUs) * part * AiEnergy.R_MAX;
         }
         double ex = 0;
         if (c.phaseIndex == stationPhase && isStationPhase(c.phaseIndex)) {

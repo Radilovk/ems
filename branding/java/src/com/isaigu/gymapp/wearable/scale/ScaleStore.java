@@ -86,6 +86,12 @@ public final class ScaleStore {
         return ScaleInsight.channelFat(m);
     }
 
+    /** The newest measurement if it is still fresh (60 days), else null. */
+    public static JSONObject fresh(Context c, long userId) {
+        JSONObject m = c != null ? latest(c, userId) : null;
+        return m != null && System.currentTimeMillis() - m.optLong("t") <= FRESH_MS && m.has("fat") ? m : null;
+    }
+
     static JSONArray arr(double[] v) throws org.json.JSONException {
         JSONArray a = new JSONArray();
         for (double d : v) {

@@ -17,6 +17,8 @@
 # instance fields
 .field public age:I
 
+.field public chMuscle:[D
+
 .field public cond:Ljava/util/Set;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -45,15 +47,23 @@
 
 .field public hrCapOverride:Ljava/lang/Integer;
 
+.field public leanKg:D
+
 .field public mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
 .field public operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
 .field public pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
+.field public readiness:D
+
+.field public scaleFocus:Ljava/lang/String;
+
 .field public screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
 .field public sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+.field public skeletalKg:D
 
 .field public today:Ljava/util/Set;
     .annotation system Ldalvik/annotation/Signature;
@@ -73,9 +83,11 @@
 
 # direct methods
 .method public constructor <init>()V
-    .registers 3
+    .registers 5
 
     .prologue
+    const-wide/high16 v2, -0x4010000000000000L    # -1.0
+
     .line 55
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -147,6 +159,17 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->today:Ljava/util/Set;
 
+    .line 76
+    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->leanKg:D
+
+    .line 77
+    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->skeletalKg:D
+
+    .line 81
+    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->readiness:D
+
     return-void
 .end method
 
@@ -156,7 +179,7 @@
     .registers 3
 
     .prologue
-    .line 77
+    .line 86
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;

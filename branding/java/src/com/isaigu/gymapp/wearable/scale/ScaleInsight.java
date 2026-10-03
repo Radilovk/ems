@@ -234,6 +234,59 @@ public final class ScaleInsight {
         return out;
     }
 
+    /**
+     * Muscle per suit channel against the body's own mean (10, mean ≈ 1): the zone's muscle % of normal (WLA25
+     * segment standard) mapped like {@link #CH_SEG} — a strong-legged client gets more mass on the thigh channels.
+     * The energy model (AiEnergy) and Auto's load / oxygen model (AutoEngine) weigh each channel's muscle with it.
+     * null without segments.
+     */
+    public static double[] channelMuscle(JSONObject m, boolean male, int heightCm) {
+        double[] n = ofNormal(m, male, heightCm)[0];
+        double trunk = n[ScaleProtocol.TRUNK];
+        double arms = (n[ScaleProtocol.LEFT_ARM] + n[ScaleProtocol.RIGHT_ARM]) / 2;
+        double legs = (n[ScaleProtocol.LEFT_LEG] + n[ScaleProtocol.RIGHT_LEG]) / 2;
+        if (Double.isNaN(trunk) || Double.isNaN(arms) || Double.isNaN(legs)) {
+            return null;
+        }
+        double[] g = {trunk, arms, legs};
+        double[] out = new double[CH_SEG.length];
+        double sum = 0;
+        for (int c = 0; c < out.length; c++) {
+            double v = 0;
+            for (int i = 0; i < 3; i++) {
+                v += CH_SEG[c][i] * g[i];
+            }
+            out[c] = v;
+            sum += v;
+        }
+        double mean = sum / out.length;
+        for (int c = 0; c < out.length; c++) {
+            out[c] = Math.max(0.7, Math.min(1.4, out[c] / mean));
+        }
+        return out;
+    }
+
+    /**
+     * The focus zone the measurement asks for (client-form keys, AiPersonal / NextPlan.focusChannels): the weakest
+     * segment under 90 % of normal — arms → "arms", legs → "legs", trunk → "abs"; null when every zone is normal.
+     */
+    public static String weakFocus(JSONObject m, boolean male, int heightCm) {
+        double[] n = ofNormal(m, male, heightCm)[0];
+        int weak = -1;
+        double lo = 90;
+        for (int i = 0; i < 5; i++) {
+            if (!Double.isNaN(n[i]) && n[i] < lo) {
+                lo = n[i];
+                weak = i;
+            }
+        }
+        if (weak < 0) {
+            return null;
+        }
+        return weak == ScaleProtocol.TRUNK ? "abs"
+                : weak == ScaleProtocol.LEFT_ARM || weak == ScaleProtocol.RIGHT_ARM ? "arms" : "legs";
+    }
+
     /** Left / right difference of a segment pair (%, + = left more); NaN without data. */
     public static double asymmetry(JSONArray v, int left, int right) {
         if (v == null || v.isNull(left) || v.isNull(right)) {

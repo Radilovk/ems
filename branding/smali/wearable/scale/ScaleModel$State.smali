@@ -15,7 +15,17 @@
 
 
 # instance fields
+.field public age:D
+
+.field public ageT:J
+
+.field public ash:D
+
+.field public asv:D
+
 .field public lean:D
+
+.field public restarted:Z
 
 .field public t:J
 
@@ -31,10 +41,10 @@
     .prologue
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
-    .line 128
+    .line 141
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 129
+    .line 142
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
@@ -42,6 +52,15 @@
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->var:D
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->w:D
+
+    .line 145
+    iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
+
+    const-wide v0, 0x3f22dfd694ccab3fL    # 1.44E-4
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->asv:D
+
+    iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->age:D
 
     return-void
 .end method
@@ -52,7 +71,7 @@
     .registers 3
 
     .prologue
-    .line 133
+    .line 151
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z

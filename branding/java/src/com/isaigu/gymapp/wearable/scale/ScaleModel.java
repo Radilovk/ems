@@ -24,11 +24,14 @@ import org.json.JSONObject;
  *       a weight change is mostly lean the same day (water, food) and mostly fat over weeks, the tissue drifts
  *       ≤ 0.14 kg/√day, one reading counts ±1 kg, a reading 3 σ off counts less. Two steps a minute apart →
  *       their average; a real change shows within days. A weight jump the body cannot make restarts it.</li>
+ *   <li><b>Traits are never one step-on</b> (v3) — the limbs' share of the lean (→ ALMI) has its own filter, and
+ *       physical age comes from the smoothed values and is held until it moves by 2 years, never within 12 h:
+ *       inverting the age medians (women's ALMI falls 0.01 kg/m² a year) turns 0.1 kg/m² of noise into years.</li>
  * </ul>
  */
 public final class ScaleModel {
     /** Stored measurements carry "v" = this; older ones are rebuilt from their raw impedances. */
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
     /** Segment sum → hand-to-foot resistance (owner's report: Sun 2003 = WLA25 17.0 % for him). */
     static final double GEO = 0.8736;
     /** Without a usable trunk reading (generation A): the trunk ≈ this share of arm + leg. */
@@ -38,6 +41,16 @@ public final class ScaleModel {
 
     /** One reading's lean mass error (kg²), the tissue's drift per day (kg²/day). */
     static final double R = 1.0, Q = 0.02;
+    /**
+     * The limbs' share of the lean (ALM / FFM): one step-on's spread (σ ≈ 0.012 — limb impedances move ±3 % with
+     * food, drink, skin) and its drift (σ 0.001 per √day — training moves it over months, not hours).
+     */
+    static final double RA = 1.44e-4, QA = 1e-6;
+    /**
+     * Physical age is held until it moves by this much (years) — the least change the measurement can tell from
+     * noise — and never within this many hours of the last change: a body does not age in an afternoon.
+     */
+    static final double AGE_LSC = 2.0, AGE_HOLD_H = 12;
     /** A weight change the body does not make: restart the filter. */
     static double jump(double w) {
         return Math.max(4.0, 0.07 * w);
@@ -128,6 +141,11 @@ public final class ScaleModel {
     public static final class State {
         public double lean = Double.NaN, var = R, w = Double.NaN;
         public long t;
+        /** Appendicular share of the lean, smoothed, and its variance; the shown physical age and when it was set. */
+        public double ash = Double.NaN, asv = RA, age = Double.NaN;
+        public long ageT;
+        /** The last step restarted the filter (first weigh-in, long gap, another body). */
+        public boolean restarted;
 
         public boolean on() {
             return !Double.isNaN(lean);
@@ -140,7 +158,8 @@ public final class ScaleModel {
      */
     public static double step(State s, long t, double w, double leanRaw) {
         double days = s.on() ? Math.max(0, (t - s.t) / 86400000.0) : 0;
-        if (!s.on() || days > 60 || Math.abs(w - s.w) > jump(w)) {
+        s.restarted = !s.on() || days > 60 || Math.abs(w - s.w) > jump(w);
+        if (s.restarted) {
             s.lean = leanRaw;
             s.var = R;
         } else {
@@ -159,6 +178,46 @@ public final class ScaleModel {
         s.w = w;
         s.t = t;
         return s.lean;
+    }
+
+    /**
+     * The slow traits of a weigh-in — what changes over weeks, not hours: the limbs' share of the lean through
+     * its own filter (restarted with the lean's), then physical age from the smoothed lean / fat, held until it
+     * moves by {@link #AGE_LSC} and at least {@link #AGE_HOLD_H} h after the last change.
+     */
+    static void trait(State s, ScaleBody b, long t, double days, boolean male, int age, int heightCm) {
+        double lean = b.leanKg;
+        double limbs = b.segMuscleKg[ScaleProtocol.LEFT_ARM] + b.segMuscleKg[ScaleProtocol.RIGHT_ARM]
+                + b.segMuscleKg[ScaleProtocol.LEFT_LEG] + b.segMuscleKg[ScaleProtocol.RIGHT_LEG];
+        double raw = lean > 0 ? limbs / lean : Double.NaN;
+        if (!Double.isNaN(raw) && raw > 0.2 && raw < 0.7) {
+            if (s.restarted || Double.isNaN(s.ash)) {
+                s.ash = raw;
+                s.asv = RA;
+            } else {
+                double p = s.asv + QA * days;
+                double k = p / (p + RA);
+                s.ash += k * (raw - s.ash);
+                s.asv = (1 - k) * p;
+            }
+        }
+        if (s.restarted) {
+            s.age = Double.NaN;
+        }
+        if (heightCm < 100 || Double.isNaN(s.ash)) {
+            return;
+        }
+        double h2 = Math.pow(heightCm / 100.0, 2);
+        double now = ScaleInsight.physicalAge(s.ash * lean / h2, b.fatKg / h2, male, age);
+        if (Double.isNaN(now)) {
+            return;
+        }
+        boolean held = !Double.isNaN(s.age) && (Math.abs(now - s.age) < AGE_LSC
+                || t - s.ageT < AGE_HOLD_H * 3600000L);
+        if (!held) {
+            s.age = Math.round(now);
+            s.ageT = t;
+        }
     }
 
     // ================================================================ stored measurements
@@ -188,8 +247,12 @@ public final class ScaleModel {
         double lr = Double.NaN;
         if (!Double.isNaN(fr)) {
             lr = r.weightKg * (1 - fr / 100);
+            double days = s.on() ? Math.max(0, (t - s.t) / 86400000.0) : 0;
             double lean = step(s, t, r.weightKg, lr);
             b = body(r, male, age, heightCm, 100 * (1 - lean / r.weightKg));
+            if (b != null) {
+                trait(s, b, t, days, male, age, heightCm);
+            }
         }
         JSONObject o = ScaleStore.toJson(r, b, t);
         o.put("v", VERSION);
@@ -197,6 +260,14 @@ public final class ScaleModel {
             o.put("fr", Math.round(fr * 10) / 10.0);
             o.put("lr", Math.round(lr * 100) / 100.0);
             o.put("var", Math.round(s.var * 1000) / 1000.0);
+            if (!Double.isNaN(s.ash)) {
+                o.put("ash", Math.round(s.ash * 10000) / 10000.0);
+                o.put("asv", s.asv);
+            }
+            if (!Double.isNaN(s.age)) {
+                o.put("pag", s.age);
+                o.put("pagT", s.ageT);
+            }
         }
         if (age > 0) {
             o.put("pa", age);
@@ -214,6 +285,10 @@ public final class ScaleModel {
                 s.var = m.optDouble("var", R);
                 s.w = m.optDouble("w");
                 s.t = m.optLong("t");
+                s.ash = m.optDouble("ash", Double.NaN);
+                s.asv = m.optDouble("asv", RA);
+                s.age = m.optDouble("pag", Double.NaN);
+                s.ageT = m.optLong("pagT", s.t);
                 break;
             }
         }

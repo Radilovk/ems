@@ -458,6 +458,49 @@ public final class ScaleSim {
         double l5 = ScaleModel.step(s5, t + 3600000, 81.5, 67.1);
         ok("+1.5 kg within an hour: fat up < 0.8 kg (" + r1(81.5 - l5 - 14) + ")", 81.5 - l5 - 14 < 0.8);
 
+        // the same woman stepping on 6 times in 2 hours (±4 % impedance, ±0.8 kg drink / food): physical age
+        // per step-on (v2: the step's own limbs) vs the held trait (v3)
+        try {
+            java.util.Random rw = new java.util.Random(11);
+            ScaleModel.State sw = new ScaleModel.State();
+            double oldLo = 99, oldHi = 0, newLo = 99, newHi = 0, oldFat = 0;
+            for (int i = 0; i < 6; i++) {
+                double[] a = new double[5], b = new double[5];
+                for (int k = 0; k < 5; k++) {
+                    double f = 1 + 0.04 * rw.nextGaussian();
+                    a[k] = z20[k] * 1.5 * f;
+                    b[k] = z100[k] * 1.5 * f * (1 + 0.01 * rw.nextGaussian());
+                }
+                ScaleProtocol.Reading rr = reading(61 + 0.8 * rw.nextGaussian(), Double.NaN, a, b);
+                org.json.JSONObject e = ScaleModel.entry(rr, false, 40, 168, t + i * 1200000L, sw);
+                double h2 = 1.68 * 1.68;
+                org.json.JSONArray sm = e.getJSONArray("segMus");
+                double almiRaw = (sm.getDouble(1) + sm.getDouble(2) + sm.getDouble(3) + sm.getDouble(4)) / h2;
+                double old = ScaleInsight.physicalAge(almiRaw, e.getDouble("fatKg") / h2, false, 40);
+                double now = ScaleInsight.body(e, false, 168).physicalAge;
+                oldLo = Math.min(oldLo, old); oldHi = Math.max(oldHi, old); oldFat = e.getDouble("fat"); oldFat = e.getDouble("fat"); oldFat = e.getDouble("fat");
+                newLo = Math.min(newLo, now); newHi = Math.max(newHi, now);
+            }
+            System.out.println("  woman (" + r1(oldFat) + " % fat), 6 step-ons in 2 h: physical age per step " + r1(oldLo) + "…" + r1(oldHi)
+                    + ", held " + r1(newLo) + "…" + r1(newHi));
+            ok("physical age the same within 2 hours", newHi - newLo < 0.01);
+        } catch (org.json.JSONException ex) {
+            ok("held age: " + ex, false);
+        }
+
+        // a real change still shows: weeks later, fat 9 kg more → the held age moves; the same day it would not
+        {
+            ScaleModel.State sh = new ScaleModel.State();
+            sh.ash = 0.45; sh.asv = ScaleModel.RA; sh.age = 40; sh.ageT = t; sh.lean = 40; sh.t = t;
+            ScaleBody hb = ScaleBody.withFat(owner, false, 40, 168, 30);
+            hb.leanKg = 40; hb.fatKg = 25;
+            for (int k = 0; k < 5; k++) hb.segMuscleKg[k] = k == 0 ? 20 : 4.5;
+            ScaleModel.trait(sh, hb, t + 3600000L, 0.04, false, 40, 168);
+            eq("an hour later: held", sh.age, 40, 1e-9);
+            ScaleModel.trait(sh, hb, t + 28 * 86400000L, 28, false, 40, 168);
+            ok("four weeks later: moved (" + sh.age + ")", sh.age >= 42);
+        }
+
         // rebuild: stored v1 history → v2, smoothed, with the passport age
         try {
             org.json.JSONArray h = new org.json.JSONArray();

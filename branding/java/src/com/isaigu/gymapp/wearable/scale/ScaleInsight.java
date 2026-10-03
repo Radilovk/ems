@@ -366,18 +366,20 @@ public final class ScaleInsight {
             b.type = b.muscleCls >= 2 ? T_STRONG_FAT : b.muscleCls == 0 ? T_FAT_LOW_MUSCLE : T_FAT;
         }
         JSONArray sm = m.optJSONArray("segMus");
-        if (sm != null) {
+        double ash = m.optDouble("ash", Double.NaN);
+        if (!Double.isNaN(ash) && ash > 0) {
+            // the smoothed limbs' share of the smoothed lean (ScaleModel) — one step-on's limbs are too noisy
+            b.almi = ash * lean / h2;
+        } else if (sm != null) {
             b.almi = (sm.optDouble(ScaleProtocol.LEFT_ARM, 0) + sm.optDouble(ScaleProtocol.RIGHT_ARM, 0)
                     + sm.optDouble(ScaleProtocol.LEFT_LEG, 0) + sm.optDouble(ScaleProtocol.RIGHT_LEG, 0)) / h2;
+        }
+        if (!Double.isNaN(b.almi)) {
             b.ageFromMuscle = ageOf(b.almi, male ? ALMI_M : ALMI_F, male ? 0.026 : 0.012, false);
         }
         b.ageFromFat = ageOf(b.fmi, male ? FMI_M : FMI_F, male ? 0.07 : 0.16, true);
-        b.physicalAge = Double.isNaN(b.ageFromMuscle) ? b.ageFromFat : 0.5 * b.ageFromMuscle + 0.5 * b.ageFromFat;
-        int pa = m.optInt("pa", 0);
-        if (pa >= 18 && !Double.isNaN(b.physicalAge)) {
-            // the medians move slowly with age, so a fit body maps decades away: half the gap, at most 8 years
-            b.physicalAge = pa + Math.max(-AGE_SPAN, Math.min(AGE_SPAN, (b.physicalAge - pa) / 2));
-        }
+        double shown = m.optDouble("pag", Double.NaN);
+        b.physicalAge = !Double.isNaN(shown) ? shown : physicalAge(b.almi, b.fmi, male, m.optInt("pa", 0));
         JSONArray f = m.optJSONArray("segFat");
         if (f != null) {
             double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
@@ -386,6 +388,21 @@ public final class ScaleInsight {
             b.legFatShare = all > 0 ? legs / all : Double.NaN;
         }
         return b;
+    }
+
+    /**
+     * Physical age before it is held (ScaleModel keeps the shown one until a real change): the age whose ALMI and
+     * FMI medians match, half each; half the gap to the passport, at most 8 years. NaN without fat.
+     */
+    public static double physicalAge(double almi, double fmi, boolean male, int passport) {
+        double am = ageOf(almi, male ? ALMI_M : ALMI_F, male ? 0.026 : 0.012, false);
+        double af = ageOf(fmi, male ? FMI_M : FMI_F, male ? 0.07 : 0.16, true);
+        double a = Double.isNaN(am) ? af : Double.isNaN(af) ? am : 0.5 * am + 0.5 * af;
+        if (passport >= 18 && !Double.isNaN(a)) {
+            // the medians move slowly with age, so a fit body maps decades away: half the gap, at most 8 years
+            a = passport + Math.max(-AGE_SPAN, Math.min(AGE_SPAN, (a - passport) / 2));
+        }
+        return a;
     }
 
     /**

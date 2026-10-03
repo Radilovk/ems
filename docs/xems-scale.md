@@ -102,6 +102,20 @@ fixes:
 - Shared HTML carries the last 10 raw readings (`<script id=xems-raw>`, impedances, sex / age / height) — send one
   with a Fitdays / DXA report to calibrate further.
 
+## State vs trait — why physical age jumped (1.1.300-ai)
+Owner: the same client, an hour apart, got two different physical ages. Cause: physical age inverts population
+medians that are almost flat — women's ALMI falls ~0.01 kg/m² a year (6.9 → 6.3 over 50 y), men's ~0.03 — so the
+0.1–0.15 kg/m² a single step-on's limbs move with food, drink and contact (segmental BIA test-retest; meals lower
+impedance for 2–4 h, Slinde 2001) became 4–10 years before the halving. Lean / fat were already Kalman-smoothed,
+but ALMI came from **one** step-on's limb impedances (`segMus`). Measured: woman 168 cm / 61 kg, 6 step-ons in 2 h →
+per-step age 37.7…41.9; held 40 (`ScaleSim`).
+**Rule now (v3)**: two kinds of numbers. **State** (changes in hours, may move every weigh-in): weight, hydration,
+ρ = Z100/Z20, readiness. **Trait** (changes in weeks; never from one step-on): fat, lean, muscle, ALMI, physical
+age. Traits come only from filtered values: lean (Kalman, above) and the limbs' share of the lean `ash` (own
+filter, σ 0.012 per reading, 0.001/√day drift, restarts with the lean's); ALMI = `ash` × smoothed lean / h².
+Physical age `pag` is computed from those and **held** until it moves ≥ 2 years (least significant change) and
+never within 12 h of the last change (`ScaleModel.trait`). A real change (fat ±5 kg over weeks) still shows.
+
 ## Owner's Fitdays report = test vector (1.1.288-ai)
 Lescale P1, 02.10.2026, male 31, 175 cm, 81.4 kg; Z20 / Z100 (Ω) trunk 17.3 / 15.7, LA 252.0 / 215.5, RA 234.0 /
 199.5, LL 221.0 / 190.0, RL 232.0 / 200.0 — the P1 sends a **trunk** pair. With Fitdays' body fat (17.8 %) our

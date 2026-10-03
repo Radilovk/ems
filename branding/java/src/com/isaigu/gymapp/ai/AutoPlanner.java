@@ -209,7 +209,6 @@ public final class AutoPlanner {
                 plan.note("Диастаза: коремът до 40 %", "Diastasis: abs up to 40 %");
             }
         }
-        AutoLimits.balance(plan.zones);
 
         // ---- CR10 target
         plan.cr10Lo = p.cr10Lo;

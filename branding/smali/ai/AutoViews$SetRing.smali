@@ -370,7 +370,7 @@
     int-to-float v10, v2
 
     .line 187
-    const/high16 v2, 0x40e00000    # 7.0f
+    const/high16 v2, 0x40a00000    # 5.0f
 
     move-object/from16 v0, p0
 
@@ -378,7 +378,7 @@
 
     move-result v2
 
-    const v3, 0x3d6147ae    # 0.055f
+    const v3, 0x3d2c0831    # 0.042f
 
     mul-float/2addr v3, v10
 
@@ -387,7 +387,7 @@
     move-result v11
 
     .line 188
-    const/high16 v2, 0x3fc00000    # 1.5f
+    const v2, 0x3f99999a    # 1.2f
 
     mul-float/2addr v2, v11
 
@@ -483,7 +483,7 @@
 
     cmpl-float v2, v12, v2
 
-    if-lez v2, :cond_146
+    if-lez v2, :cond_147
 
     .line 195
     move-object/from16 v0, p0
@@ -524,20 +524,20 @@
 
     cmpl-float v2, v12, v2
 
-    if-ltz v2, :cond_1d5
+    if-ltz v2, :cond_1d6
 
     const/4 v2, 0x1
 
     move v4, v2
 
     .line 200
-    :goto_94
-    if-eqz v4, :cond_1d9
+    :goto_95
+    if-eqz v4, :cond_1da
 
     const/high16 v5, 0x43b40000    # 360.0f
 
     .line 201
-    :goto_98
+    :goto_99
     const/high16 v2, 0x3f800000    # 1.0f
 
     const/high16 v6, 0x40000000    # 2.0f
@@ -572,7 +572,7 @@
     move-result v7
 
     .line 203
-    if-eqz v4, :cond_1df
+    if-eqz v4, :cond_1e0
 
     .line 204
     new-instance v2, Landroid/graphics/SweepGradient;
@@ -621,23 +621,23 @@
 
     new-array v14, v14, [F
 
-    fill-array-data v14, :array_264
+    fill-array-data v14, :array_266
 
     invoke-direct {v2, v6, v7, v13, v14}, Landroid/graphics/SweepGradient;-><init>(FF[I[F)V
 
     .line 207
-    :goto_e0
+    :goto_e1
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rot:Landroid/graphics/Matrix;
 
     const/high16 v7, -0x3d4c0000    # -90.0f
 
-    if-eqz v4, :cond_e9
+    if-eqz v4, :cond_ea
 
     const/4 v3, 0x0
 
-    :cond_e9
+    :cond_ea
     sub-float v3, v7, v3
 
     int-to-float v7, v8
@@ -693,11 +693,11 @@
 
     sget-boolean v2, Lcom/isaigu/gymapp/widget/XemsUi;->dark:Z
 
-    if-eqz v2, :cond_23e
+    if-eqz v2, :cond_23f
 
     const/16 v2, 0x46
 
-    :goto_120
+    :goto_121
     invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setAlpha(I)V
 
     .line 213
@@ -708,7 +708,7 @@
     invoke-virtual {v2, v11}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
     .line 214
-    if-eqz v4, :cond_242
+    if-eqz v4, :cond_243
 
     .line 215
     move-object/from16 v0, p0
@@ -737,13 +737,13 @@
     invoke-virtual {v0, v2, v3}, Landroid/graphics/Canvas;->drawOval(Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
     .line 222
-    :cond_146
-    :goto_146
+    :cond_147
+    :goto_147
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->count:I
 
-    if-lez v2, :cond_1b3
+    if-lez v2, :cond_1b4
 
     .line 223
     move-object/from16 v0, p0
@@ -862,7 +862,7 @@
     invoke-virtual {v0, v3, v4, v2, v5}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
     .line 230
-    :cond_1b3
+    :cond_1b4
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->rate:F
@@ -871,13 +871,13 @@
 
     cmpl-float v2, v2, v3
 
-    if-lez v2, :cond_1d4
+    if-lez v2, :cond_1d5
 
     const/high16 v2, 0x3f800000    # 1.0f
 
     cmpg-float v2, v12, v2
 
-    if-gez v2, :cond_1d4
+    if-gez v2, :cond_1d5
 
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
@@ -893,33 +893,33 @@
 
     cmp-long v2, v2, v4
 
-    if-gez v2, :cond_1d4
+    if-gez v2, :cond_1d5
 
     .line 231
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->postInvalidateOnAnimation()V
 
     .line 233
-    :cond_1d4
+    :cond_1d5
     return-void
 
     .line 199
-    :cond_1d5
+    :cond_1d6
     const/4 v2, 0x0
 
     move v4, v2
 
-    goto/16 :goto_94
+    goto/16 :goto_95
 
     .line 200
-    :cond_1d9
+    :cond_1da
     const/high16 v2, 0x43b40000    # 360.0f
 
     mul-float v5, v2, v12
 
-    goto/16 :goto_98
+    goto/16 :goto_99
 
     .line 205
-    :cond_1df
+    :cond_1e0
     new-instance v2, Landroid/graphics/SweepGradient;
 
     int-to-float v13, v8
@@ -1019,16 +1019,16 @@
 
     invoke-direct {v2, v13, v14, v15, v0}, Landroid/graphics/SweepGradient;-><init>(FF[I[F)V
 
-    goto/16 :goto_e0
+    goto/16 :goto_e1
 
     .line 212
-    :cond_23e
+    :cond_23f
     const/16 v2, 0x28
 
-    goto/16 :goto_120
+    goto/16 :goto_121
 
     .line 218
-    :cond_242
+    :cond_243
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->box:Landroid/graphics/RectF;
@@ -1062,10 +1062,12 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    goto/16 :goto_146
+    goto/16 :goto_147
 
     .line 204
-    :array_264
+    nop
+
+    :array_266
     .array-data 4
         0x0
         0x3f59999a    # 0.85f

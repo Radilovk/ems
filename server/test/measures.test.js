@@ -58,3 +58,14 @@ test('stored per client, same t replaces, oldest first, trimmed', async () => {
   assert.equal(n, MEASURE_KEEP);
   assert.equal(JSON.parse(await measuresJson(db, 'L', 'c3')).length, MEASURE_SEND);
 });
+
+test('a measurement removed on the tablet is removed on the server', async () => {
+  assert.equal(validMeasure({ t: 1790000000000, del: true }), null);
+  assert.equal(validMeasure({ t: 1790000000000, del: true, w: 80 }), 'del');
+  const db = fakeD1();
+  await putMeasures(db, 'L', 'c1', [m(1790000000000), m(1790000100000)], 1);
+  await putMeasures(db, 'L', 'c1', [{ t: 1790000000000, del: true }], 2);
+  const a = JSON.parse(await measuresJson(db, 'L', 'c1'));
+  assert.equal(a.length, 1);
+  assert.equal(a[0].t, 1790000100000);
+});

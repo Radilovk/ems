@@ -23,6 +23,8 @@ public final class ScaleUploader {
     private ScaleUploader() {}
 
     static final String SENT = "up";
+    /** Measurements removed on the tablet, still on the server (CSV of t). */
+    static final String DELETED = "del";
     static final int BATCH = 30;
     static final Set<Long> RUNNING = new HashSet<Long>();
 
@@ -66,6 +68,7 @@ public final class ScaleUploader {
     }
 
     static void upload(Context c, long userId, boolean male, int age, int heightCm) throws Exception {
+        ScaleStore.upgrade(c, userId, male, age, heightCm);
         String cid = com.isaigu.gymapp.widget.XemsDossier.cidFor(userId);
         if (cid.length() == 0) {
             WearableBleDiagLog.log("scale", "upload user " + userId + ": not on the server yet (no cid)");
@@ -73,6 +76,29 @@ public final class ScaleUploader {
             return;
         }
         SharedPreferences p = ScaleStore.prefs(c);
+        String del = p.getString(DELETED + userId, "");
+        if (del.length() > 0) {
+            JSONArray gone = new JSONArray();
+            for (String s : del.split(",")) {
+                if (s.length() > 0 && gone.length() < BATCH) {
+                    gone.put(new JSONObject().put("t", Long.parseLong(s)).put("del", true));
+                }
+            }
+            if (gone.length() > 0) {
+                com.isaigu.gymapp.widget.XemsLicenseClient.postMeasures(c, cid, gone.toString());
+            }
+            p.edit().remove(DELETED + userId).apply();
+        }
+        for (int round = 0; round < 6; round++) {
+            if (!batch(c, p, cid, userId, male, age, heightCm)) {
+                break;
+            }
+        }
+    }
+
+    /** One request of unsent weigh-ins; false when there was nothing left. */
+    static boolean batch(Context c, SharedPreferences p, String cid, long userId, boolean male, int age,
+            int heightCm) throws Exception {
         Set<String> sent = new HashSet<String>();
         for (String s : p.getString(SENT + userId, "").split(",")) {
             if (s.length() > 0) {
@@ -91,7 +117,7 @@ public final class ScaleUploader {
             now.add(String.valueOf(m.optLong("t")));
         }
         if (items.length() == 0) {
-            return;
+            return false;
         }
         com.isaigu.gymapp.widget.XemsLicenseClient.postMeasures(c, cid, items.toString());
         sent.addAll(now);
@@ -101,6 +127,7 @@ public final class ScaleUploader {
         }
         p.edit().putString(SENT + userId, b.toString()).apply();
         WearableBleDiagLog.log("scale", "uploaded " + items.length() + " for " + userId);
+        return true;
     }
 
     static double r1(double v) {

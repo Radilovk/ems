@@ -367,6 +367,141 @@ public final class ScaleSim {
     }
 
     /** The owner's own Fitdays report (Lescale P1, 02.10.2026, male, 31, 175 cm): our chain from its body fat. */
+    static ScaleProtocol.Reading reading(double w, double sfat, double[] z20, double[] z100) {
+        ScaleProtocol.Reading r = new ScaleProtocol.Reading();
+        r.result = true;
+        r.weightKg = w;
+        r.scaleFatPct = sfat;
+        for (int i = 0; i < 5; i++) {
+            r.z20[i] = z20[i];
+            r.z100[i] = z100[i];
+        }
+        return r;
+    }
+
+    /** XEMS model: sex-aware fat, calibration on the owner, steadiness. */
+    static void model() {
+        double[] z20 = {17.3, 252.0, 234.0, 221.0, 232.0}, z100 = {15.7, 215.5, 199.5, 190.0, 200.0};
+        ScaleProtocol.Reading owner = reading(81.4, Double.NaN, z20, z100);
+        double wla = ScaleBody.of(owner, true, 31, 175).fatPct;
+        double sun = 100 * (81.4 - ScaleModel.ffmSun(true, 175, 81.4, ScaleModel.r50(z20, z100))) / 81.4;
+        System.out.println("  owner: WLA25 " + wla + " %, Sun 2003 " + Math.round(sun * 10) / 10.0 + " %, R50 "
+                + Math.round(ScaleModel.r50(z20, z100)));
+        eq("model calibrated: Sun(man) = WLA25 on the owner", sun, wla, 0.15);
+        ScaleBody ob = ScaleModel.body(owner, true, 40, 175, ScaleModel.fatPct(owner, true, 40, 175));
+        System.out.println("  owner model: water " + ob.waterPct + " % · skeletal " + ob.skeletalPct + " % · protein "
+                + ob.proteinPct + " % · muscle " + ob.muscleKg + " · visceral " + ob.visceral);
+        eq("owner water ≈ Fitdays 60.8 %", ob.waterPct, 60.8, 0.6);
+        eq("owner protein ≈ Fitdays 16.6 %", ob.proteinPct, 16.6, 0.3);
+        ok("owner skeletal muscle plausible (40–50 %)", ob.skeletalPct > 40 && ob.skeletalPct < 50);
+
+        // the same impedances on a woman read more fat than on a man — WLA25 alone gives both the same
+        double[] fz20 = {24, 385, 380, 335, 330}, fz100 = {21, 335, 330, 292, 288};
+        ScaleProtocol.Reading wr = reading(53.3, Double.NaN, fz20, fz100);
+        double wW = ScaleBody.of(wr, false, 38, 168).fatPct, wM = ScaleBody.of(wr, true, 38, 168).fatPct;
+        double mF = ScaleModel.fatPct(wr, false, 38, 168), mM = ScaleModel.fatPct(wr, true, 38, 168);
+        System.out.println("  lean woman 168/53.3: WLA25 " + wW + " % (as a man " + wM + " %) · model " + r1(mF)
+                + " % (as a man " + r1(mM) + " %)");
+        eq("WLA25 has no sex term (the bias)", wW, wM, 0.01);
+        ok("model: a woman reads more fat than a man at the same impedances", mF > mM + 3);
+        ok("model: lean woman 168/53.3 in the female range (16–30 %)", mF > 16 && mF < 30);
+
+        // steadiness: the same body, impedance noise ±4 % between steps → the shown fat moves far less
+        java.util.Random rnd = new java.util.Random(7);
+        ScaleModel.State st = new ScaleModel.State();
+        double minRaw = 99, maxRaw = 0, minS = 99, maxS = 0;
+        long t = 1790000000000L;
+        for (int k = 0; k < 20; k++) {
+            double f = 1 + (rnd.nextDouble() - 0.5) * 0.08;
+            double[] a = new double[5], b = new double[5];
+            for (int i = 0; i < 5; i++) {
+                a[i] = z20[i] * f;
+                b[i] = z100[i] * f;
+            }
+            double w = 81.4 + (rnd.nextDouble() - 0.5) * 0.6;
+            ScaleProtocol.Reading rr = reading(w, Double.NaN, a, b);
+            double raw = ScaleModel.fatPct(rr, true, 40, 175);
+            double lean = ScaleModel.step(st, t, w, w * (1 - raw / 100));
+            double shown = 100 * (1 - lean / w);
+            if (k >= 3) {
+                minRaw = Math.min(minRaw, raw);
+                maxRaw = Math.max(maxRaw, raw);
+                minS = Math.min(minS, shown);
+                maxS = Math.max(maxS, shown);
+            }
+            t += k % 2 == 0 ? 60000 : 86400000L * 2;
+        }
+        System.out.println("  20 steps, ±4 % impedance noise: raw fat " + r1(minRaw) + "…" + r1(maxRaw) + " %, shown "
+                + r1(minS) + "…" + r1(maxS) + " %");
+        ok("smoothed spread ≤ 1/3 of the raw one", (maxS - minS) <= (maxRaw - minRaw) / 3);
+        ok("smoothed spread ≤ 1.5 points", maxS - minS <= 1.5);
+
+        // two steps a minute apart → their average
+        ScaleModel.State s2 = new ScaleModel.State();
+        ScaleModel.step(s2, t, 80, 64);
+        eq("two steps a minute apart = average", ScaleModel.step(s2, t + 60000, 80, 66), 65, 0.05);
+        // a real change: 4 kg of fat off over 8 weeks (lean flat) → shown follows the weight
+        ScaleModel.State s3 = new ScaleModel.State();
+        double l = 0;
+        for (int d = 0; d <= 56; d += 4) {
+            double w = 84 - 4.0 * d / 56;
+            l = ScaleModel.step(s3, t + d * 86400000L, w, 66);
+        }
+        eq("8 weeks −4 kg fat: lean stays", l, 66, 0.5);
+        // a weight the client cannot reach → restart, not a blend
+        ScaleModel.State s4 = new ScaleModel.State();
+        ScaleModel.step(s4, t, 53, 42);
+        eq("someone else's 81 kg on the profile: no blend", ScaleModel.step(s4, t + 60000, 81.6, 67), 67, 0.01);
+        // a big day-to-day hydration swing (+1.5 kg drink) goes mostly to lean, not fat
+        ScaleModel.State s5 = new ScaleModel.State();
+        ScaleModel.step(s5, t, 80, 66);
+        double l5 = ScaleModel.step(s5, t + 3600000, 81.5, 67.1);
+        ok("+1.5 kg within an hour: fat up < 0.8 kg (" + r1(81.5 - l5 - 14) + ")", 81.5 - l5 - 14 < 0.8);
+
+        // rebuild: stored v1 history → v2, smoothed, with the passport age
+        try {
+            org.json.JSONArray h = new org.json.JSONArray();
+            h.put(ScaleStore.toJson(owner, ScaleBody.of(owner, true, 40, 175), t));
+            h.put(ScaleStore.toJson(owner, ScaleBody.of(owner, true, 40, 175), t + 60000));
+            ok("v1 history is stale", ScaleModel.stale(h, true, 40, 175));
+            org.json.JSONArray v2 = ScaleModel.rebuild(h, true, 40, 175);
+            ok("rebuilt is current", !ScaleModel.stale(v2, true, 40, 175));
+            ok("sex change → stale", ScaleModel.stale(v2, false, 40, 175));
+            eq("rebuilt fat = model", v2.getJSONObject(1).getDouble("fat"), ScaleModel.fatPct(owner, true, 40, 175),
+                    0.11);
+            ScaleInsight.Body pb = ScaleInsight.body(v2.getJSONObject(1), true, 175);
+            System.out.println("  owner physical age " + Math.round(pb.physicalAge) + " (passport 40)");
+            ok("physical age within 8 y of the passport", Math.abs(pb.physicalAge - 40) <= 8.001);
+            org.json.JSONObject e = v2.getJSONObject(1);
+            java.util.List<ScaleDetail.Row> rows = ScaleDetail.rows(e, true, 40, 175);
+            StringBuilder sb = new StringBuilder("  detail:");
+            for (ScaleDetail.Row r : rows) {
+                sb.append(" ").append(r.bg).append(" ").append(r.value()).append(r.unit)
+                        .append(r.status >= 0 ? " [" + ScaleDetail.statusBg(r.status) + "]" : "").append(";");
+            }
+            System.out.println(sb);
+            ok("detail has the apps' values (≥ 19 rows)", rows.size() >= 19);
+            ScaleDetail.Zone[] zs = ScaleDetail.zones(e, true, 175);
+            double[] fd = {167.8, 95.2, 92.2, 132.7, 132.4};   // Fitdays: trunk, LA, RA, LL, RL
+            for (int i = 0; i < 5; i++) {
+                eq("zone fat % of standard ≈ Fitdays " + i, zs[i].fatPct, fd[i], 8);
+            }
+            ScaleDetail.Control c = ScaleDetail.control(e, true, 40, 175);
+            System.out.println("  control: healthy " + r1(c.target) + " kg · total " + r1(c.total) + " · fat "
+                    + r1(c.fat) + " · muscle " + r1(c.muscle) + " (Fitdays 77.7 / −3.7 by BMI 22)");
+            ok("athletic owner: healthy weight above the BMI-22 one", c.target > 77.7);
+            eq("muscle control 0 for an athletic man", c.muscle, 0, 0.001);
+            ok("unlike: 81 kg on a 53 kg profile", ScaleStore.unlike(v2, 53, t + 120000));
+            ok("not unlike: 81.9 after 81.4", !ScaleStore.unlike(v2, 81.9, t + 120000));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static double r1(double v) {
+        return Math.round(v * 10) / 10.0;
+    }
+
     static void ownerReport() {
         ScaleProtocol.Reading r = new ScaleProtocol.Reading();
         r.result = true;
@@ -505,6 +640,7 @@ public final class ScaleSim {
         algorithms();
         advice();
         ownerReport();
+        model();
         bodyType();
         genB();
         genA();

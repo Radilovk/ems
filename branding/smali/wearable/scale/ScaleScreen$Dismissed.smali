@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1512
+    .line 2015
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1513
+    .line 2016
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 1514
+    .line 2017
     return-void
 .end method
 
@@ -42,28 +42,59 @@
     .registers 4
 
     .prologue
-    .line 1518
+    .line 2021
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     if-eqz v0, :cond_12
 
-    .line 1519
+    .line 2022
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->close()V
 
-    .line 1520
+    .line 2023
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     const/4 v1, 0x0
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 1522
+    .line 2025
     :cond_12
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->orientationBefore:I
+
+    const/high16 v1, -0x80000000
+
+    if-eq v0, v1, :cond_25
+
+    .line 2027
+    :try_start_1a
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->a:Landroid/app/Activity;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
+
+    iget v1, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->orientationBefore:I
+
+    invoke-virtual {v0, v1}, Landroid/app/Activity;->setRequestedOrientation(I)V
+    :try_end_25
+    .catch Ljava/lang/Throwable; {:try_start_1a .. :try_end_25} :catch_26
+
+    .line 2031
+    :cond_25
+    :goto_25
     return-void
+
+    .line 2028
+    :catch_26
+    move-exception v0
+
+    goto :goto_25
 .end method

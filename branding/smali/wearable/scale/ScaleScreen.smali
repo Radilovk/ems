@@ -20,6 +20,15 @@
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Info;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dismissed;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Done;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Answer;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Drop;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Keep;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$DeleteNow;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$AskDelete;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Details;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Rotate;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Relayout;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Columns;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Again;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Start;
     }

@@ -148,6 +148,12 @@ public final class ScaleShare {
                 .append("border-radius:14px;padding:12px 14px;margin:10px 0}.ad i{width:5px;border-radius:3px;flex:none}")
                 .append(".k{font-size:11px;font-weight:800}.ad b{display:block;font-size:16px;margin:2px 0}")
                 .append(".ad span{color:var(--m)}.d{display:flex;gap:16px;flex-wrap:wrap;font-size:20px;font-weight:800}")
+                .append(".dt{display:grid;grid-template-columns:1fr;gap:0 18px}@media(min-width:640px){.dt{grid-template-columns:1fr 1fr}}")
+                .append(".dr{display:flex;gap:10px;align-items:baseline;padding:8px 6px;border-bottom:1px solid var(--s)}")
+                .append(".dr span{flex:1.3;color:var(--m)}.dr b{flex:1;text-align:right}.dr em{width:96px;text-align:right;")
+                .append("font-style:normal;font-weight:700;font-size:13px}.zt{width:100%;border-collapse:collapse}")
+                .append(".zt th{color:var(--m);font-size:12px;text-align:left;padding:6px}.zt td{padding:8px 6px;")
+                .append("border-top:1px solid var(--s);font-weight:700}")
                 .append("footer{color:var(--m);font-size:12px;text-align:center;margin:18px 0}</style></head><body><main>");
         // header
         h.append("<h1>").append(esc(name)).append("</h1><div style=\"color:var(--m)\">")
@@ -186,6 +192,38 @@ public final class ScaleShare {
         h.append(bar(tr("Висцерални мазнини", "Visceral fat"), ScaleInsight.visceralNorm(m.optDouble("visc", Double.NaN),
                 five)));
         h.append("</div></div>");
+        // every value, the zones, the weight control
+        h.append("<div class=card><h2>").append(esc(tr("Подробно", "Details"))).append("</h2><div class=dt>");
+        for (ScaleDetail.Row r : ScaleDetail.rows(m, male, age, heightCm)) {
+            String v = r.textBg != null ? (bg ? r.textBg : r.textEn)
+                    : r.value() + (Double.isNaN(r.value) ? "" : bg ? r.unit : r.unit.replace(" кг", " kg"));
+            h.append("<div class=dr><span>").append(esc(bg ? r.bg : r.en)).append("</span><b>").append(esc(v))
+                    .append("</b><em style=\"color:").append(hex(ScaleDetail.statusColor(r.status))).append("\">")
+                    .append(esc(r.status >= 0 ? (bg ? ScaleDetail.statusBg(r.status) : ScaleDetail.statusEn(r.status))
+                            : "")).append("</em></div>");
+        }
+        h.append("</div></div><div class=card><h2>").append(esc(tr("Зони · мазнини 80–160 % · мускули 90–110 %",
+                "Zones · fat 80–160 % · muscle 90–110 %"))).append("</h2><table class=zt><tr><th></th><th>")
+                .append(esc(tr("Мазнини", "Fat"))).append("</th><th>").append(esc(tr("Мускули", "Muscle")))
+                .append("</th></tr>");
+        ScaleDetail.Zone[] zs = ScaleDetail.zones(m, male, heightCm);
+        for (int seg : ScaleDetail.ORDER) {
+            ScaleDetail.Zone z = zs[seg];
+            h.append("<tr><td>").append(esc(bg ? ScaleDetail.zoneBg(seg) : ScaleDetail.zoneEn(seg))).append("</td>")
+                    .append(zoneTd(z.fatKg, z.fatPct, z.fatStatus)).append(zoneTd(z.musKg, z.musPct, z.musStatus))
+                    .append("</tr>");
+        }
+        h.append("</table>");
+        ScaleDetail.Control c = ScaleDetail.control(m, male, age, heightCm);
+        if (!Double.isNaN(c.target)) {
+            h.append("<h2 style=\"margin-top:16px\">").append(esc(tr("Контрол на теглото", "Weight control")))
+                    .append("</h2><div class=d><span>").append(num(c.target, 1)).append(esc(tr(" кг здравословно",
+                            " kg healthy"))).append("</span><span style=\"color:var(--m)\">")
+                    .append(esc(tr("тегло ", "weight ") + signed(c.total) + " · " + tr("мазнини ", "fat ")
+                            + signed(c.fat) + " · " + tr("мускули ", "muscle ") + signed(c.muscle)))
+                    .append("</span></div>");
+        }
+        h.append("</div>");
         // change since the first
         JSONObject first = at > 0 ? hist.optJSONObject(0) : null;
         if (first != null && first.has("muscle")) {
@@ -210,9 +248,45 @@ public final class ScaleShare {
                     .append(esc(bg ? x.titleBg : x.titleEn)).append("</b><span>").append(esc(bg ? x.textBg : x.textEn))
                     .append("</span></div></div>");
         }
-        h.append("</div><footer>XEMS · ").append(esc(tr("кантар с 8 електрода · ориентир, не медицинско изследване",
+        h.append("</div>");
+        // the raw readings (impedances) of the last weigh-ins — to recompute or calibrate later; not shown
+        h.append("<script type=\"application/json\" id=xems-raw>[");
+        int from = Math.max(0, at - 9);
+        for (int i = from; i <= at; i++) {
+            JSONObject r = hist.optJSONObject(i);
+            if (r == null) {
+                continue;
+            }
+            JSONObject o = new JSONObject();
+            try {
+                o.put("t", r.optLong("t"));
+                o.put("w", r.optDouble("w"));
+                if (r.has("z20")) {
+                    o.put("z20", r.optJSONArray("z20"));
+                    o.put("z100", r.optJSONArray("z100"));
+                }
+                if (r.has("sfat")) {
+                    o.put("sfat", r.optDouble("sfat"));
+                }
+                o.put("male", male).put("age", age).put("h", heightCm).put("v", r.optInt("v"));
+            } catch (Exception ignored) {
+            }
+            h.append(i > from ? "," : "").append(o.toString().replace("</", "<\\/"));
+        }
+        h.append("]</script>");
+        h.append("<footer>XEMS · ").append(esc(tr("кантар с 8 електрода · ориентир, не медицинско изследване",
                 "8-electrode scale · a guide, not a medical test"))).append("</footer></main></body></html>");
         return h.toString();
+    }
+
+    static String zoneTd(double kg, double pct, int status) {
+        return "<td>" + (Double.isNaN(kg) ? "—" : num(kg, 1) + esc(tr(" кг", " kg"))) + (Double.isNaN(pct) ? ""
+                : " <span style=\"color:" + hex(ScaleDetail.statusColor(status)) + "\">" + Math.round(pct) + " %</span>")
+                + "</td>";
+    }
+
+    static String signed(double v) {
+        return Double.isNaN(v) ? "—" : (v >= 0 ? "+" : "−") + num(Math.abs(v), 1) + tr(" кг", " kg");
     }
 
     static String[] typeName(ScaleInsight.Body b) {

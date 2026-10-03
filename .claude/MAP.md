@@ -132,7 +132,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/remove-software-ramp.py` (60L, build:L78) — Remove software ramp hook that blocks sendPulse and causes training freeze on Play.
 - `scripts/reorder-muscles.py` (84L, build:L38) — Reorder muscle group columns in train UI layouts (visual only, IDs unchanged).
 - `scripts/repo-map.py` (329L) — Token-cheap navigation for agents: generated repo map + per-file outline.
-- `scripts/scale-sim/ScaleSim.java` (433L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
+- `scripts/scale-sim/ScaleSim.java` (479L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
 - `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
 - `scripts/setup-android-toolchain.sh` (41L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
@@ -280,10 +280,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 **wearable/scale/** (`branding/java/src/com/isaigu/gymapp/wearable/scale/`)
 - `ScaleBody.java` (206L, compile:music-sync*,wearable) — Body composition from one scale measurement — iCOMON's WLA25, the algorithm Fitdays uses for these scales, so the numbe…
-- `ScaleInsight.java` (487L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
+- `ScaleInsight.java` (705L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
 - `ScaleLink.java` (724L, compile:music-sync*,wearable) — One weigh-in with the body-composition scale, straight over BLE (no Fitdays, no cloud): find the scale when the client …
 - `ScaleProtocol.java` (379L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
-- `ScaleScreen.java` (1471L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
+- `ScaleScreen.java` (1644L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
 - `ScaleStore.java` (152L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
 - `ScaleViews.java` (1334L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
 
@@ -816,7 +816,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
 
-`docs/xems-scale.md` (143L)
+`docs/xems-scale.md` (152L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
   - L8 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
   - L19 ## EMS use (1.1.286-ai)
@@ -824,12 +824,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L48 ## Owner's Fitdays report = test vector (1.1.288-ai)
   - L55 ## Figures (1.1.288-ai)
   - L60 ## Result page (`ScaleScreen`) — two views
-  - L82 ## What the hardware is
-  - L93 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L114 ## Measuring protocol (owner: no suit, thin clothes)
-  - L122 ## Validation path
-  - L127 ## Gemini / LLM
-  - L132 ## Licences of the ported code
+  - L91 ## What the hardware is
+  - L102 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L123 ## Measuring protocol (owner: no suit, thin clothes)
+  - L131 ## Validation path
+  - L136 ## Gemini / LLM
+  - L141 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (292L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

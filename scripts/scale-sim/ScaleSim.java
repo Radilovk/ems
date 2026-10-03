@@ -417,7 +417,53 @@ public final class ScaleSim {
                 + ", fat " + Math.round(t.ageFromFat) + "; Fitdays 29, passport 31)");
     }
 
+    /** The owner's report as the newest of five, the left leg swollen today — what the summary recommends. */
+    static void advice() throws Exception {
+        long d = 24L * 3600 * 1000, t0 = 1754000000000L;
+        double[] z20 = {17.3, 252.0, 234.0, 221.0, 232.0}, z100 = {15.7, 215.5, 199.5, 190.0, 200.0};
+        double[] kg = {82.9, 82.4, 82.0, 81.7, 81.4}, fat = {20.1, 19.4, 18.9, 18.3, 17.8};
+        double[] zk = {1.035, 1.026, 1.018, 1.009, 1.0};
+        org.json.JSONArray h = new org.json.JSONArray();
+        for (int i = 0; i < 5; i++) {
+            ScaleProtocol.Reading r = new ScaleProtocol.Reading();
+            r.result = true;
+            r.weightKg = kg[i];
+            r.scaleFatPct = fat[i];
+            for (int s = 0; s < 5; s++) {
+                r.z20[s] = z20[s] * zk[i];
+                r.z100[s] = z100[s] * zk[i] * (i == 4 && s == 3 ? 1.016 : 1);
+            }
+            h.put(ScaleStore.toJson(r, ScaleBody.of(r, true, 31, 175), t0 + i * 14 * d));
+        }
+        java.util.List<ScaleInsight.Advice> adv = ScaleInsight.advice(h, 4, true, 31, 175);
+        StringBuilder all = new StringBuilder();
+        for (ScaleInsight.Advice x : adv) {
+            System.out.println("  [" + x.prio + "] " + x.titleBg + " — " + x.textBg);
+            all.append(x.titleBg).append('|');
+        }
+        ok("first = softer today", adv.get(0).titleBg.startsWith("Днес по-леко"));
+        ok("athletic noted", all.indexOf("Атлетично тяло") >= 0);
+        ok("recomposition noted", all.indexOf("преобразява") >= 0);
+        ok("no fat warning for 17.8 %", all.indexOf("Мазнини над") < 0);
+        // a heavy woman with little muscle and low water
+        org.json.JSONObject o = comp(88, 41, 30);
+        o.put("water", 41.0);
+        o.put("visc", 12);
+        o.put("bmi", 32.3);
+        org.json.JSONArray one = new org.json.JSONArray();
+        one.put(o);
+        StringBuilder w = new StringBuilder();
+        for (ScaleInsight.Advice x : ScaleInsight.advice(one, 0, false, 45, 165)) {
+            w.append(x.titleBg).append('|');
+        }
+        ok("woman: obese + kg to normal (" + w + ")", w.indexOf("Затлъстяване: −") >= 0);
+        ok("woman: water", w.indexOf("Вода преди") >= 0);
+        ok("woman: visceral", w.indexOf("Висцерални мазнини: 12") >= 0);
+        ok("woman: baseline hint", w.indexOf("Мерене преди всяка") >= 0);
+    }
+
     public static void main(String[] a) throws Exception {
+        advice();
         ownerReport();
         bodyType();
         genB();

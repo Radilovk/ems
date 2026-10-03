@@ -8,7 +8,9 @@
     value = {
         Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+        Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$ByPrio;
     }
 .end annotation
 
@@ -30,6 +32,10 @@
 
 .field static final BOTH:[I
 
+.field static final CH_BG:[Ljava/lang/String;
+
+.field static final CH_EN:[Ljava/lang/String;
+
 .field static final CH_SEG:[[D
 
 .field static final CYAN:I = -0xf9492c
@@ -42,6 +48,14 @@
 
 .field static final GREEN:I = -0xdd3aa2
 
+.field public static final K_BODY:I = 0x2
+
+.field public static final K_EMS:I = 0x1
+
+.field public static final K_HABIT:I = 0x3
+
+.field public static final K_TODAY:I = 0x0
+
 .field static final LESS:[I
 
 .field static final MORE:[I
@@ -50,6 +64,10 @@
 
 .field static final RED:I = -0x10bbbc
 
+.field static final SEG_BG:[Ljava/lang/String;
+
+.field static final SEG_EN:[Ljava/lang/String;
+
 .field static final SWELL_AMBER:D = 1.2
 
 .field static final SWELL_RED:D = 2.5
@@ -57,6 +75,14 @@
 .field static final TEAL:I = -0xef467f
 
 .field public static final TODAY_MS:J = 0x2932e00L
+
+.field public static final TONE_ALERT:I = 0x3
+
+.field public static final TONE_GOOD:I = 0x0
+
+.field public static final TONE_INFO:I = 0x1
+
+.field public static final TONE_WARN:I = 0x2
 
 .field public static final T_ATHLETIC:I = 0x0
 
@@ -75,12 +101,14 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 7
+    .registers 8
 
     .prologue
-    const/4 v6, 0x4
+    const/4 v7, 0x0
 
-    const/4 v5, 0x6
+    const/4 v6, 0x6
+
+    const/4 v5, 0x4
 
     const/4 v4, 0x5
 
@@ -91,19 +119,17 @@
 
     new-array v0, v0, [[D
 
-    const/4 v1, 0x0
+    new-array v1, v3, [D
 
-    new-array v2, v3, [D
+    fill-array-data v1, :array_130
 
-    fill-array-data v2, :array_92
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v7
 
     const/4 v1, 0x1
 
     new-array v2, v3, [D
 
-    fill-array-data v2, :array_a2
+    fill-array-data v2, :array_140
 
     aput-object v2, v0, v1
 
@@ -111,39 +137,39 @@
 
     new-array v2, v3, [D
 
-    fill-array-data v2, :array_b2
+    fill-array-data v2, :array_150
 
     aput-object v2, v0, v1
 
     new-array v1, v3, [D
 
-    fill-array-data v1, :array_c2
+    fill-array-data v1, :array_160
 
     aput-object v1, v0, v3
 
     new-array v1, v3, [D
 
-    fill-array-data v1, :array_d2
+    fill-array-data v1, :array_170
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v5
 
     new-array v1, v3, [D
 
-    fill-array-data v1, :array_e2
+    fill-array-data v1, :array_180
 
     aput-object v1, v0, v4
 
     new-array v1, v3, [D
 
-    fill-array-data v1, :array_f2
+    fill-array-data v1, :array_190
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const/4 v1, 0x7
 
     new-array v2, v3, [D
 
-    fill-array-data v2, :array_102
+    fill-array-data v2, :array_1a0
 
     aput-object v2, v0, v1
 
@@ -151,7 +177,7 @@
 
     new-array v2, v3, [D
 
-    fill-array-data v2, :array_112
+    fill-array-data v2, :array_1b0
 
     aput-object v2, v0, v1
 
@@ -159,137 +185,309 @@
 
     new-array v2, v3, [D
 
-    fill-array-data v2, :array_122
+    fill-array-data v2, :array_1c0
 
     aput-object v2, v0, v1
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->CH_SEG:[[D
 
     .line 336
-    new-array v0, v5, [D
+    new-array v0, v6, [D
 
-    fill-array-data v0, :array_132
+    fill-array-data v0, :array_1d0
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->AGES:[D
 
     .line 337
-    new-array v0, v5, [D
+    new-array v0, v6, [D
 
-    fill-array-data v0, :array_14e
+    fill-array-data v0, :array_1ec
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->ALMI_M:[D
 
     .line 338
-    new-array v0, v5, [D
+    new-array v0, v6, [D
 
-    fill-array-data v0, :array_16a
+    fill-array-data v0, :array_208
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->ALMI_F:[D
 
     .line 339
-    new-array v0, v6, [D
+    new-array v0, v5, [D
 
-    fill-array-data v0, :array_186
+    fill-array-data v0, :array_224
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->FMI_M:[D
 
     .line 340
-    new-array v0, v6, [D
+    new-array v0, v5, [D
 
-    fill-array-data v0, :array_19a
+    fill-array-data v0, :array_238
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->FMI_F:[D
 
     .line 405
     new-array v0, v4, [I
 
-    fill-array-data v0, :array_1ae
+    fill-array-data v0, :array_24c
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->BOTH:[I
 
     .line 407
     new-array v0, v4, [I
 
-    fill-array-data v0, :array_1bc
+    fill-array-data v0, :array_25a
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->MORE:[I
 
     .line 409
     new-array v0, v4, [I
 
-    fill-array-data v0, :array_1ca
+    fill-array-data v0, :array_268
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->LESS:[I
+
+    .line 510
+    new-array v0, v4, [Ljava/lang/String;
+
+    const-string v1, "\u0442\u043e\u0440\u0441\u0430"
+
+    aput-object v1, v0, v7
+
+    const/4 v1, 0x1
+
+    const-string v2, "\u043b\u044f\u0432\u0430\u0442\u0430 \u0440\u044a\u043a\u0430"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x2
+
+    const-string v2, "\u0434\u044f\u0441\u043d\u0430\u0442\u0430 \u0440\u044a\u043a\u0430"
+
+    aput-object v2, v0, v1
+
+    const-string v1, "\u043b\u0435\u0432\u0438\u044f \u043a\u0440\u0430\u043a"
+
+    aput-object v1, v0, v3
+
+    const-string v1, "\u0434\u0435\u0441\u043d\u0438\u044f \u043a\u0440\u0430\u043a"
+
+    aput-object v1, v0, v5
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->SEG_BG:[Ljava/lang/String;
+
+    .line 511
+    new-array v0, v4, [Ljava/lang/String;
+
+    const-string v1, "the trunk"
+
+    aput-object v1, v0, v7
+
+    const/4 v1, 0x1
+
+    const-string v2, "the left arm"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x2
+
+    const-string v2, "the right arm"
+
+    aput-object v2, v0, v1
+
+    const-string v1, "the left leg"
+
+    aput-object v1, v0, v3
+
+    const-string v1, "the right leg"
+
+    aput-object v1, v0, v5
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->SEG_EN:[Ljava/lang/String;
+
+    .line 512
+    const/16 v0, 0xa
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const-string v1, "\u0433\u044a\u0440\u0434\u0438\u0442\u0435"
+
+    aput-object v1, v0, v7
+
+    const/4 v1, 0x1
+
+    const-string v2, "\u043a\u043e\u0440\u0435\u043c\u0430"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x2
+
+    const-string v2, "\u043f\u0440\u0435\u0434\u043d\u043e\u0442\u043e \u0431\u0435\u0434\u0440\u043e"
+
+    aput-object v2, v0, v1
+
+    const-string v1, "\u043f\u0440\u0430\u0441\u0446\u0438\u0442\u0435"
+
+    aput-object v1, v0, v3
+
+    const-string v1, "\u0440\u044a\u0446\u0435\u0442\u0435"
+
+    aput-object v1, v0, v5
+
+    const-string v1, "\u0442\u0440\u0430\u043f\u0435\u0446\u0430"
+
+    aput-object v1, v0, v4
+
+    const-string v1, "\u0433\u044a\u0440\u0431\u0430"
+
+    aput-object v1, v0, v6
+
+    const/4 v1, 0x7
+
+    const-string v2, "\u043a\u0440\u044a\u0441\u0442\u0430"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    const-string v2, "\u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435\u0442\u043e"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    const-string v2, "\u0437\u0430\u0434\u043d\u043e\u0442\u043e \u0431\u0435\u0434\u0440\u043e"
+
+    aput-object v2, v0, v1
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->CH_BG:[Ljava/lang/String;
+
+    .line 514
+    const/16 v0, 0xa
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const-string v1, "chest"
+
+    aput-object v1, v0, v7
+
+    const/4 v1, 0x1
+
+    const-string v2, "abs"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x2
+
+    const-string v2, "front thigh"
+
+    aput-object v2, v0, v1
+
+    const-string v1, "calves"
+
+    aput-object v1, v0, v3
+
+    const-string v1, "arms"
+
+    aput-object v1, v0, v5
+
+    const-string v1, "traps"
+
+    aput-object v1, v0, v4
+
+    const-string v1, "back"
+
+    aput-object v1, v0, v6
+
+    const/4 v1, 0x7
+
+    const-string v2, "lower back"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    const-string v2, "glutes"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    const-string v2, "back thigh"
+
+    aput-object v2, v0, v1
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->CH_EN:[Ljava/lang/String;
 
     return-void
 
     .line 196
     nop
 
-    :array_92
+    :array_130
     .array-data 8
         0x3ff0000000000000L    # 1.0
         0x0
         0x0
     .end array-data
 
-    :array_a2
+    :array_140
     .array-data 8
         0x3ff0000000000000L    # 1.0
         0x0
         0x0
     .end array-data
 
-    :array_b2
+    :array_150
     .array-data 8
         0x0
         0x0
         0x3ff0000000000000L    # 1.0
     .end array-data
 
-    :array_c2
+    :array_160
     .array-data 8
         0x0
         0x0
         0x3ff0000000000000L    # 1.0
     .end array-data
 
-    :array_d2
+    :array_170
     .array-data 8
         0x0
         0x3ff0000000000000L    # 1.0
         0x0
     .end array-data
 
-    :array_e2
+    :array_180
     .array-data 8
         0x3ff0000000000000L    # 1.0
         0x0
         0x0
     .end array-data
 
-    :array_f2
+    :array_190
     .array-data 8
         0x3ff0000000000000L    # 1.0
         0x0
         0x0
     .end array-data
 
-    :array_102
+    :array_1a0
     .array-data 8
         0x3ff0000000000000L    # 1.0
         0x0
         0x0
     .end array-data
 
-    :array_112
+    :array_1b0
     .array-data 8
         0x3fe0000000000000L    # 0.5
         0x0
         0x3fe0000000000000L    # 0.5
     .end array-data
 
-    :array_122
+    :array_1c0
     .array-data 8
         0x0
         0x0
@@ -297,7 +495,7 @@
     .end array-data
 
     .line 336
-    :array_132
+    :array_1d0
     .array-data 8
         0x4039000000000000L    # 25.0
         0x4041800000000000L    # 35.0
@@ -308,7 +506,7 @@
     .end array-data
 
     .line 337
-    :array_14e
+    :array_1ec
     .array-data 8
         0x402299999999999aL    # 9.3
         0x4022333333333333L    # 9.1
@@ -319,7 +517,7 @@
     .end array-data
 
     .line 338
-    :array_16a
+    :array_208
     .array-data 8
         0x401b99999999999aL    # 6.9
         0x401b333333333333L    # 6.8
@@ -330,7 +528,7 @@
     .end array-data
 
     .line 339
-    :array_186
+    :array_224
     .array-data 8
         0x4014000000000000L    # 5.0
         0x401b333333333333L    # 6.8
@@ -339,7 +537,7 @@
     .end array-data
 
     .line 340
-    :array_19a
+    :array_238
     .array-data 8
         0x401a666666666666L    # 6.6
         0x4021cccccccccccdL    # 8.9
@@ -348,7 +546,7 @@
     .end array-data
 
     .line 405
-    :array_1ae
+    :array_24c
     .array-data 4
         -0x10bbbc
         -0xa61f5
@@ -358,7 +556,7 @@
     .end array-data
 
     .line 407
-    :array_1bc
+    :array_25a
     .array-data 4
         -0x10bbbc
         -0xa61f5
@@ -368,7 +566,7 @@
     .end array-data
 
     .line 409
-    :array_1ca
+    :array_268
     .array-data 4
         -0xc74208
         -0xef467f
@@ -386,6 +584,2363 @@
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
+.end method
+
+.method public static advice(Lorg/json/JSONArray;IZII)Ljava/util/List;
+    .registers 29
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Lorg/json/JSONArray;",
+            "IZII)",
+            "Ljava/util/List",
+            "<",
+            "Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;",
+            ">;"
+        }
+    .end annotation
+
+    .prologue
+    .line 526
+    new-instance v14, Ljava/util/ArrayList;
+
+    invoke-direct {v14}, Ljava/util/ArrayList;-><init>()V
+
+    .line 527
+    if-eqz p0, :cond_2b
+
+    invoke-virtual/range {p0 .. p1}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
+
+    move-result-object v4
+
+    move-object v15, v4
+
+    .line 528
+    :goto_c
+    if-eqz v15, :cond_16
+
+    const-string v4, "fat"
+
+    invoke-virtual {v15, v4}, Lorg/json/JSONObject;->has(Ljava/lang/String;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_2e
+
+    .line 529
+    :cond_16
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x3
+
+    const/4 v7, 0x1
+
+    const-string v8, "\u0421\u0442\u044a\u043f\u0438 \u043d\u0430 \u043a\u0430\u043d\u0442\u0430\u0440\u0430"
+
+    const-string v9, "\u0411\u043e\u0441, \u0441 \u0434\u0432\u0435\u0442\u0435 \u0440\u044a\u0446\u0435 \u043d\u0430 \u0434\u0440\u044a\u0436\u043a\u0430\u0442\u0430 \u2014 \u0430\u043d\u0430\u043b\u0438\u0437\u044a\u0442 \u0441\u0435 \u043f\u043e\u044f\u0432\u044f\u0432\u0430 \u0442\u0443\u043a."
+
+    const-string v10, "Step on the scale"
+
+    const-string v11, "Barefoot, both hands on the handle \u2014 the analysis appears here."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    move-object v4, v14
+
+    .line 691
+    :goto_2a
+    return-object v4
+
+    .line 527
+    :cond_2b
+    const/4 v4, 0x0
+
+    move-object v15, v4
+
+    goto :goto_c
+
+    .line 534
+    :cond_2e
+    const/4 v4, 0x5
+
+    new-array v12, v4, [Ljava/lang/String;
+
+    const/4 v4, 0x0
+
+    const-string v5, ""
+
+    aput-object v5, v12, v4
+
+    const/4 v4, 0x1
+
+    const-string v5, ""
+
+    aput-object v5, v12, v4
+
+    const/4 v4, 0x2
+
+    const-string v5, ""
+
+    aput-object v5, v12, v4
+
+    const/4 v4, 0x3
+
+    const-string v5, ""
+
+    aput-object v5, v12, v4
+
+    const/4 v4, 0x4
+
+    const-string v5, ""
+
+    aput-object v5, v12, v4
+
+    .line 535
+    const-string v4, "w"
+
+    invoke-virtual {v15, v4}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v16
+
+    .line 536
+    const-string v4, "fat"
+
+    invoke-virtual {v15, v4}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v18
+
+    .line 537
+    move/from16 v0, p2
+
+    move/from16 v1, p4
+
+    invoke-static {v15, v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->body(Lorg/json/JSONObject;ZI)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;
+
+    move-result-object v13
+
+    .line 539
+    invoke-static/range {p0 .. p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->readiness(Lorg/json/JSONArray;I)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;
+
+    move-result-object v20
+
+    .line 540
+    invoke-virtual/range {v20 .. v20}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->known()Z
+
+    move-result v4
+
+    if-nez v4, :cond_25d
+
+    .line 541
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x3
+
+    const/4 v6, 0x3
+
+    const/4 v7, 0x1
+
+    const-string v8, "\u041c\u0435\u0440\u0435\u043d\u0435 \u043f\u0440\u0435\u0434\u0438 \u0432\u0441\u044f\u043a\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430"
+
+    const-string v9, "\u0421\u043b\u0435\u0434 2\u20133 \u043c\u0435\u0440\u0435\u043d\u0438\u044f \u043a\u0430\u043d\u0442\u0430\u0440\u044a\u0442 \u0449\u0435 \u043a\u0430\u0437\u0432\u0430 \u0434\u0430\u043b\u0438 \u0442\u044f\u043b\u043e\u0442\u043e \u0435 \u0433\u043e\u0442\u043e\u0432\u043e \u0437\u0430 \u043f\u044a\u043b\u043d\u0430 \u0441\u0438\u043b\u0430."
+
+    const-string v10, "Measure before every session"
+
+    const-string v11, "After 2\u20133 measurements the scale tells whether the body is ready for full strength."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 562
+    :goto_7b
+    const-string v4, "water"
+
+    const-wide/high16 v6, 0x7ff8000000000000L    # Double.NaN
+
+    invoke-virtual {v15, v4, v6, v7}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+
+    move-result-wide v4
+
+    move/from16 v0, p2
+
+    invoke-static {v4, v5, v0, v12}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->waterNorm(DZ[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+
+    move-result-object v11
+
+    .line 563
+    invoke-virtual {v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->sector()I
+
+    move-result v4
+
+    if-ltz v4, :cond_eb
+
+    invoke-virtual {v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->sector()I
+
+    move-result v4
+
+    const/4 v5, 0x1
+
+    if-gt v4, v5, :cond_eb
+
+    .line 564
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x1
+
+    const/4 v6, 0x3
+
+    const/4 v7, 0x2
+
+    const-string v8, "\u0412\u043e\u0434\u0430 \u043f\u0440\u0435\u0434\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430"
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v10, "\u0412\u043e\u0434\u0430\u0442\u0430 \u0435 "
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    iget-wide v0, v11, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->value:D
+
+    move-wide/from16 v20, v0
+
+    .line 565
+    invoke-static/range {v20 .. v21}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v10
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v10, " % \u2014 \u043f\u043e\u0434 \u043d\u043e\u0440\u043c\u0430\u0442\u0430. 0,5 \u043b \u0432\u043e\u0434\u0430 \u0447\u0430\u0441 \u043f\u0440\u0435\u0434\u0438 EMS: \u0442\u043e\u043a\u044a\u0442 \u0441\u0435 \u043f\u0440\u043e\u0432\u0435\u0436\u0434\u0430 \u043f\u043e-\u0440\u0430\u0432\u043d\u043e \u0438 \u0441\u0435 \u0443\u0441\u0435\u0449\u0430 \u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043f\u043e \u043a\u043e\u0436\u0430\u0442\u0430."
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    const-string v10, "Water before the session"
+
+    new-instance v20, Ljava/lang/StringBuilder;
+
+    invoke-direct/range {v20 .. v20}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v21, "Water is "
+
+    invoke-virtual/range {v20 .. v21}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v20
+
+    iget-wide v0, v11, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->value:D
+
+    move-wide/from16 v22, v0
+
+    .line 567
+    invoke-static/range {v22 .. v23}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v11
+
+    move-object/from16 v0, v20
+
+    invoke-virtual {v0, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v20, " % \u2014 below normal. 0.5 l an hour before EMS: the current flows more evenly and stings the skin less."
+
+    move-object/from16 v0, v20
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 564
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 571
+    :cond_eb
+    move-wide/from16 v0, v18
+
+    move/from16 v2, p2
+
+    move/from16 v3, p3
+
+    invoke-static {v0, v1, v2, v3, v12}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->fatNorm(DZI[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+
+    move-result-object v4
+
+    .line 572
+    invoke-virtual {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->sector()I
+
+    move-result v20
+
+    .line 573
+    const/4 v5, 0x3
+
+    move/from16 v0, v20
+
+    if-lt v0, v5, :cond_3a4
+
+    .line 574
+    iget-object v4, v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->edges:[D
+
+    const/4 v5, 0x3
+
+    aget-wide v4, v4, v5
+
+    mul-double v4, v4, v16
+
+    const-wide/high16 v6, 0x4059000000000000L    # 100.0
+
+    div-double/2addr v4, v6
+
+    .line 575
+    const-wide/16 v6, 0x0
+
+    const-string v8, "fatKg"
+
+    mul-double v10, v16, v18
+
+    const-wide/high16 v18, 0x4059000000000000L    # 100.0
+
+    div-double v10, v10, v18
+
+    invoke-virtual {v15, v8, v10, v11}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+
+    move-result-wide v8
+
+    sub-double v4, v8, v4
+
+    invoke-static {v6, v7, v4, v5}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v18
+
+    .line 576
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x1
+
+    const/4 v6, 0x2
+
+    const/4 v7, 0x4
+
+    move/from16 v0, v20
+
+    if-ne v0, v7, :cond_399
+
+    const/4 v7, 0x3
+
+    :goto_126
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 577
+    const/4 v8, 0x4
+
+    move/from16 v0, v20
+
+    if-ne v0, v8, :cond_39c
+
+    const-string v8, "\u0417\u0430\u0442\u043b\u044a\u0441\u0442\u044f\u0432\u0430\u043d\u0435"
+
+    :goto_132
+    invoke-virtual {v9, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, ": \u2212"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-static/range {v18 .. v19}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " \u043a\u0433 \u0434\u043e \u043d\u043e\u0440\u043c\u0430\u0442\u0430"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    const-string v9, "\u0426\u0435\u043b \u201e\u041e\u0442\u0441\u043b\u0430\u0431\u0432\u0430\u043d\u0435\u201c \u0432 EMS 2\u00d7 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e + \u0443\u043c\u0435\u0440\u0435\u043d \u0445\u0440\u0430\u043d\u0438\u0442\u0435\u043b\u0435\u043d \u0434\u0435\u0444\u0438\u0446\u0438\u0442; \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0434\u0430 \u0441\u0435 \u043f\u0430\u0437\u044f\u0442 \u2014 \u0441\u043b\u0435\u0434\u0438 \u0433\u0438 \u0442\u0443\u043a."
+
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 579
+    const/4 v10, 0x4
+
+    move/from16 v0, v20
+
+    if-ne v0, v10, :cond_3a0
+
+    const-string v10, "Obese"
+
+    :goto_15c
+    invoke-virtual {v11, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v11, ": \u2212"
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-static/range {v18 .. v19}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v11, " kg to normal"
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    const-string v11, "The EMS \"Fat loss\" goal twice a week + a moderate calorie deficit; keep the muscle \u2014 watch it here."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 576
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 588
+    :cond_180
+    :goto_180
+    iget-wide v4, v13, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Body;->ffmi:D
+
+    move/from16 v0, p2
+
+    invoke-static {v4, v5, v0, v12}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->muscleNorm(DZ[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
+
+    move-result-object v4
+
+    .line 589
+    invoke-virtual {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->sector()I
+
+    move-result v4
+
+    .line 590
+    if-ltz v4, :cond_3bb
+
+    const/4 v5, 0x1
+
+    if-gt v4, v5, :cond_3bb
+
+    .line 591
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x1
+
+    const/4 v6, 0x2
+
+    const/4 v7, 0x2
+
+    const-string v8, "\u041c\u0430\u043b\u043a\u043e \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u0437\u0430 \u0440\u044a\u0441\u0442\u0430"
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v10, "\u0426\u0435\u043b \u201e\u0422\u043e\u043d\u0443\u0441\u201c (\u0441\u0438\u043b\u043e\u0432\u0430 EMS) 2\u00d7 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u0438 \u0431\u0435\u043b\u0442\u044a\u043a \u043e\u043a\u043e\u043b\u043e 1,6 \u0433 \u043d\u0430 \u043a\u0433 \u0442\u0435\u0433\u043b\u043e \u0434\u043d\u0435\u0432\u043d\u043e ("
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-wide v10, 0x3ff999999999999aL    # 1.6
+
+    mul-double v10, v10, v16
+
+    .line 593
+    invoke-static {v10, v11}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v10
+
+    invoke-virtual {v9, v10, v11}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v10, " \u0433)."
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    const-string v10, "Little muscle for the height"
+
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v12, "The \"Tone\" goal (strength EMS) twice a week and about 1.6 g protein per kg a day ("
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-wide v12, 0x3ff999999999999aL    # 1.6
+
+    mul-double v12, v12, v16
+
+    .line 595
+    invoke-static {v12, v13}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v12
+
+    invoke-virtual {v11, v12, v13}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v12, " g)."
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 591
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 605
+    :cond_1e8
+    :goto_1e8
+    const-string v4, "visc"
+
+    const/4 v5, 0x0
+
+    invoke-virtual {v15, v4, v5}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;I)I
+
+    move-result v10
+
+    .line 606
+    const/16 v4, 0xa
+
+    if-lt v10, v4, :cond_22c
+
+    .line 607
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x1
+
+    const/4 v6, 0x2
+
+    const/16 v7, 0xf
+
+    if-lt v10, v7, :cond_470
+
+    const/4 v7, 0x3
+
+    :goto_1fc
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "\u0412\u0438\u0441\u0446\u0435\u0440\u0430\u043b\u043d\u0438 \u043c\u0430\u0437\u043d\u0438\u043d\u0438: "
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8, v10}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    const-string v9, "\u041c\u0430\u0437\u043d\u0438\u043d\u0438\u0442\u0435 \u043e\u043a\u043e\u043b\u043e \u043e\u0440\u0433\u0430\u043d\u0438\u0442\u0435 \u0441\u0430 \u0432\u0438\u0441\u043e\u043a\u0438 \u2014 \u043a\u0430\u0440\u0434\u0438\u043e + EMS \u0437\u0430 \u043e\u0442\u0441\u043b\u0430\u0431\u0432\u0430\u043d\u0435; \u043f\u0440\u0438 15+ \u2014 \u043a\u043e\u043d\u0441\u0443\u043b\u0442\u0430\u0446\u0438\u044f \u0441 \u043b\u0435\u043a\u0430\u0440."
+
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v12, "Visceral fat: "
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11, v10}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    const-string v11, "Fat around the organs is high \u2014 cardio + fat-loss EMS; at 15+ see a doctor."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 613
+    :cond_22c
+    move/from16 v0, p2
+
+    move/from16 v1, p4
+
+    invoke-static {v15, v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->ofNormal(Lorg/json/JSONObject;ZI)[[D
+
+    move-result-object v8
+
+    .line 614
+    const/4 v10, -0x1
+
+    .line 615
+    const-wide v12, 0x7fefffffffffffffL    # Double.MAX_VALUE
+
+    .line 616
+    const/4 v7, 0x0
+
+    :goto_23b
+    const/4 v4, 0x5
+
+    if-ge v7, v4, :cond_473
+
+    .line 617
+    const/4 v4, 0x0
+
+    aget-object v4, v8, v4
+
+    aget-wide v4, v4, v7
+
+    invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v4
+
+    if-nez v4, :cond_826
+
+    const/4 v4, 0x0
+
+    aget-object v4, v8, v4
+
+    aget-wide v4, v4, v7
+
+    cmpg-double v4, v4, v12
+
+    if-gez v4, :cond_826
+
+    .line 618
+    const/4 v4, 0x0
+
+    aget-object v4, v8, v4
+
+    aget-wide v4, v4, v7
+
+    move v6, v7
+
+    .line 616
+    :goto_258
+    add-int/lit8 v7, v7, 0x1
+
+    move-wide v12, v4
+
+    move v10, v6
+
+    goto :goto_23b
+
+    .line 545
+    :cond_25d
+    move-object/from16 v0, v20
+
+    iget-wide v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->factor:D
+
+    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
+
+    cmpg-double v4, v4, v6
+
+    if-gez v4, :cond_384
+
+    .line 546
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    move-object/from16 v0, v20
+
+    iget-wide v6, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->factor:D
+
+    sub-double/2addr v4, v6
+
+    const-wide/high16 v6, 0x4059000000000000L    # 100.0
+
+    mul-double/2addr v4, v6
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v4
+
+    long-to-int v10, v4
+
+    .line 547
+    move-object/from16 v0, v20
+
+    iget v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
+
+    if-ltz v4, :cond_377
+
+    move-object/from16 v0, v20
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->swell:[D
+
+    move-object/from16 v0, v20
+
+    iget v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
+
+    aget-wide v4, v4, v5
+
+    const-wide v6, 0x3ff3333333333333L    # 1.2
+
+    cmpl-double v4, v4, v6
+
+    if-ltz v4, :cond_377
+
+    const/4 v4, 0x1
+
+    move v11, v4
+
+    .line 548
+    :goto_291
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    move-object/from16 v0, v20
+
+    iget-wide v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->factor:D
+
+    const-wide v22, 0x3fe6666666666666L    # 0.7
+
+    cmpg-double v7, v8, v22
+
+    if-gtz v7, :cond_37b
+
+    const/4 v7, 0x3
+
+    :goto_2a3
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "\u0414\u043d\u0435\u0441 \u043f\u043e-\u043b\u0435\u043a\u043e: \u2212"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8, v10}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " %"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    .line 549
+    if-eqz v11, :cond_37e
+
+    .line 550
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v21, "\u041f\u043e\u0434\u0443\u0432\u0430\u043d\u0435 \u0432 "
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v9, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    sget-object v21, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->SEG_BG:[Ljava/lang/String;
+
+    move-object/from16 v0, v20
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
+
+    move/from16 v22, v0
+
+    aget-object v21, v21, v22
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v9, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v21, " (+"
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v9, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    move-object/from16 v0, v20
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->swell:[D
+
+    move-object/from16 v21, v0
+
+    move-object/from16 v0, v20
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
+
+    move/from16 v22, v0
+
+    aget-wide v22, v21, v22
+
+    .line 549
+    invoke-static/range {v22 .. v23}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v21
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v9, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v21, " %) \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043e\u0449\u0435 \u0441\u0435 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u0442. \u0410\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u043d\u0438\u044f\u0442 \u0440\u0435\u0436\u0438\u043c \u0432\u0435\u0447\u0435 \u0435 \u043d\u0430\u043c\u0430\u043b\u0438\u043b \u0441\u0438\u043b\u0430\u0442\u0430."
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v9, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    .line 551
+    :goto_307
+    new-instance v21, Ljava/lang/StringBuilder;
+
+    invoke-direct/range {v21 .. v21}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v22, "Softer today: \u2212"
+
+    invoke-virtual/range {v21 .. v22}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v21
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v0, v10}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v21, " %"
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v10, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    .line 553
+    if-eqz v11, :cond_381
+
+    .line 554
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v21, "Swelling in "
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    sget-object v21, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->SEG_EN:[Ljava/lang/String;
+
+    move-object/from16 v0, v20
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
+
+    move/from16 v22, v0
+
+    aget-object v21, v21, v22
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v21, " (+"
+
+    move-object/from16 v0, v21
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    move-object/from16 v0, v20
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->swell:[D
+
+    move-object/from16 v21, v0
+
+    move-object/from16 v0, v20
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;->worst:I
+
+    move/from16 v20, v0
+
+    aget-wide v20, v21, v20
+
+    .line 553
+    invoke-static/range {v20 .. v21}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v20
+
+    move-object/from16 v0, v20
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v20, " %) \u2014 the muscles are still recovering. Auto has already lowered the strength."
+
+    move-object/from16 v0, v20
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    .line 555
+    :goto_36f
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 548
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto/16 :goto_7b
+
+    .line 547
+    :cond_377
+    const/4 v4, 0x0
+
+    move v11, v4
+
+    goto/16 :goto_291
+
+    .line 548
+    :cond_37b
+    const/4 v7, 0x2
+
+    goto/16 :goto_2a3
+
+    .line 551
+    :cond_37e
+    const-string v9, "\u041f\u043e-\u043c\u0430\u043b\u043a\u043e \u0432\u043e\u0434\u0430 \u0432 \u0442\u044f\u043b\u043e\u0442\u043e \u2014 \u043d\u0435\u043a\u0430 \u043f\u0438\u0435 \u0432\u043e\u0434\u0430 \u043f\u0440\u0435\u0434\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430."
+
+    goto :goto_307
+
+    .line 555
+    :cond_381
+    const-string v11, "Less body water \u2014 have them drink before the session."
+
+    goto :goto_36f
+
+    .line 557
+    :cond_384
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x4
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    const-string v8, "\u0413\u043e\u0442\u043e\u0432 \u0437\u0430 \u043f\u044a\u043b\u043d\u0430 \u0441\u0438\u043b\u0430"
+
+    const-string v9, "\u0422\u044a\u043a\u0430\u043d\u0438\u0442\u0435 \u0441\u0430 \u043a\u0430\u0442\u043e \u043e\u0431\u0438\u0447\u0430\u0439\u043d\u043e\u0442\u043e \u2014 \u0431\u0435\u0437 \u043f\u043e\u0434\u0443\u0432\u0430\u043d\u0435 \u0441\u043b\u0435\u0434 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0430\u0442\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430."
+
+    const-string v10, "Ready for full strength"
+
+    const-string v11, "The tissues are as usual \u2014 no swelling after the last session."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto/16 :goto_7b
+
+    .line 576
+    :cond_399
+    const/4 v7, 0x2
+
+    goto/16 :goto_126
+
+    .line 577
+    :cond_39c
+    const-string v8, "\u041c\u0430\u0437\u043d\u0438\u043d\u0438 \u043d\u0430\u0434 \u043d\u043e\u0440\u043c\u0430\u0442\u0430"
+
+    goto/16 :goto_132
+
+    .line 579
+    :cond_3a0
+    const-string v10, "Fat above normal"
+
+    goto/16 :goto_15c
+
+    .line 582
+    :cond_3a4
+    if-nez v20, :cond_180
+
+    .line 583
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x1
+
+    const/4 v6, 0x2
+
+    const/4 v7, 0x2
+
+    const-string v8, "\u041c\u043d\u043e\u0433\u043e \u043d\u0438\u0441\u043a\u0438 \u043c\u0430\u0437\u043d\u0438\u043d\u0438"
+
+    const-string v9, "\u041f\u043e\u0434 \u0436\u0438\u0437\u043d\u0435\u043d\u043e \u043d\u0443\u0436\u043d\u0438\u0442\u0435 \u2014 \u0431\u0435\u0437 \u0445\u0440\u0430\u043d\u0438\u0442\u0435\u043b\u0435\u043d \u0434\u0435\u0444\u0438\u0446\u0438\u0442; \u043f\u043e\u0432\u0435\u0447\u0435 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435 \u043c\u0435\u0436\u0434\u0443 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438\u0442\u0435."
+
+    const-string v10, "Very low fat"
+
+    const-string v11, "Below the essential level \u2014 no calorie deficit; more recovery between sessions."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto/16 :goto_180
+
+    .line 596
+    :cond_3bb
+    const/4 v5, 0x3
+
+    if-lt v4, v5, :cond_1e8
+
+    const/4 v4, 0x2
+
+    move/from16 v0, v20
+
+    if-gt v0, v4, :cond_1e8
+
+    .line 597
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x4
+
+    const/4 v6, 0x2
+
+    const/4 v7, 0x0
+
+    const-string v8, "\u0410\u0442\u043b\u0435\u0442\u0438\u0447\u043d\u043e \u0442\u044f\u043b\u043e"
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v10, "\u0422\u0435\u0433\u043b\u043e\u0442\u043e \u0435 \u043e\u0442 \u043c\u0443\u0441\u043a\u0443\u043b\u0438"
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    .line 598
+    const-string v9, "bmi"
+
+    const-wide/16 v12, 0x0
+
+    invoke-virtual {v15, v9, v12, v13}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+
+    move-result-wide v12
+
+    const-wide/high16 v16, 0x4039000000000000L    # 25.0
+
+    cmpl-double v9, v12, v16
+
+    if-ltz v9, :cond_46a
+
+    .line 599
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v11, " \u2014 \u0418\u0422\u041c "
+
+    invoke-virtual {v9, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v11, "bmi"
+
+    .line 598
+    invoke-virtual {v15, v11}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v12
+
+    invoke-static {v12, v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-virtual {v9, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v11, " \u0437\u0430\u0431\u043b\u0443\u0436\u0434\u0430\u0432\u0430, \u043d\u0435 \u0435 \u043d\u0430\u0434\u043d\u043e\u0440\u043c\u0435\u043d\u043e."
+
+    invoke-virtual {v9, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    .line 599
+    :goto_406
+    invoke-virtual {v10, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v10, " \u041f\u043e\u0434\u0434\u044a\u0440\u0436\u0430\u0439 \u0441\u044a\u0441 \u0441\u0438\u043b\u043e\u0432\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430."
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    const-string v10, "Athletic body"
+
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v12, "The weight is muscle"
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v12
+
+    .line 600
+    const-string v11, "bmi"
+
+    const-wide/16 v16, 0x0
+
+    move-wide/from16 v0, v16
+
+    invoke-virtual {v15, v11, v0, v1}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
+
+    move-result-wide v16
+
+    const-wide/high16 v18, 0x4039000000000000L    # 25.0
+
+    cmpl-double v11, v16, v18
+
+    if-ltz v11, :cond_46d
+
+    .line 601
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v13, " \u2014 BMI "
+
+    invoke-virtual {v11, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v13, "bmi"
+
+    invoke-virtual {v15, v13}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v16
+
+    invoke-static/range {v16 .. v17}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v13
+
+    invoke-virtual {v11, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v13, " misleads, it is not overweight."
+
+    invoke-virtual {v11, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    :goto_454
+    invoke-virtual {v12, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v12, " Keep it with a strength program."
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 597
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto/16 :goto_1e8
+
+    .line 599
+    :cond_46a
+    const-string v9, "."
+
+    goto :goto_406
+
+    .line 601
+    :cond_46d
+    const-string v11, "."
+
+    goto :goto_454
+
+    .line 607
+    :cond_470
+    const/4 v7, 0x2
+
+    goto/16 :goto_1fc
+
+    .line 622
+    :cond_473
+    if-ltz v10, :cond_4f7
+
+    const-wide v4, 0x4056800000000000L    # 90.0
+
+    cmpg-double v4, v12, v4
+
+    if-gez v4, :cond_4f7
+
+    .line 623
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x2
+
+    const/4 v6, 0x1
+
+    const/4 v7, 0x2
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "\u041d\u0430\u0431\u043b\u0435\u0433\u043d\u0438 \u043d\u0430 "
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    sget-object v9, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->SEG_BG:[Ljava/lang/String;
+
+    aget-object v9, v9, v10
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v11, "\u041c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0442\u0430\u043c \u0441\u0430 "
+
+    invoke-virtual {v9, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    .line 624
+    invoke-static {v12, v13}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v16
+
+    move-wide/from16 v0, v16
+
+    invoke-virtual {v9, v0, v1}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v11, " % \u043e\u0442 \u043d\u043e\u0440\u043c\u0430\u0442\u0430 \u2014 \u0444\u043e\u043a\u0443\u0441-\u0437\u043e\u043d\u0430 \u0432 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430, \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f \u0437\u0430 \u043d\u0435\u044f."
+
+    invoke-virtual {v9, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v16, "Focus on "
+
+    move-object/from16 v0, v16
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    sget-object v16, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->SEG_EN:[Ljava/lang/String;
+
+    aget-object v10, v16, v10
+
+    invoke-virtual {v11, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v16, "The muscle there is "
+
+    move-object/from16 v0, v16
+
+    invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    .line 625
+    invoke-static {v12, v13}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v12
+
+    invoke-virtual {v11, v12, v13}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v12, " % of normal \u2014 a focus zone in the program, exercises for it."
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 623
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 628
+    :cond_4f7
+    const-string v4, "segMus"
+
+    invoke-virtual {v15, v4}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
+
+    move-result-object v6
+
+    .line 629
+    const/4 v4, 0x1
+
+    const/4 v5, 0x2
+
+    invoke-static {v6, v4, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->asymmetry(Lorg/json/JSONArray;II)D
+
+    move-result-wide v4
+
+    .line 630
+    const/4 v7, 0x3
+
+    const/4 v8, 0x4
+
+    invoke-static {v6, v7, v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->asymmetry(Lorg/json/JSONArray;II)D
+
+    move-result-wide v6
+
+    .line 631
+    invoke-static {v4, v5}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v8
+
+    invoke-static {v6, v7}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v10
+
+    cmpl-double v8, v8, v10
+
+    if-ltz v8, :cond_5db
+
+    move-wide v10, v4
+
+    .line 632
+    :goto_516
+    invoke-static {v10, v11}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v8
+
+    if-nez v8, :cond_5c5
+
+    invoke-static {v10, v11}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v8
+
+    const-wide/high16 v12, 0x4018000000000000L    # 6.0
+
+    cmpl-double v8, v8, v12
+
+    if-ltz v8, :cond_5c5
+
+    .line 633
+    invoke-static {v4, v5}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v4
+
+    invoke-static {v6, v7}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v6
+
+    cmpl-double v4, v4, v6
+
+    if-ltz v4, :cond_5de
+
+    const/4 v4, 0x1
+
+    move v13, v4
+
+    .line 634
+    :goto_534
+    const-wide/16 v4, 0x0
+
+    cmpl-double v4, v10, v4
+
+    if-lez v4, :cond_5e2
+
+    const/4 v4, 0x1
+
+    move v12, v4
+
+    .line 635
+    :goto_53c
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x2
+
+    const/4 v6, 0x1
+
+    const/4 v7, 0x1
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "\u0420\u0430\u0437\u043b\u0438\u043a\u0430 \u043b\u044f\u0432\u043e/\u0434\u044f\u0441\u043d\u043e "
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-static {v10, v11}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v16
+
+    invoke-static/range {v16 .. v17}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v16
+
+    move-wide/from16 v0, v16
+
+    invoke-virtual {v8, v0, v1}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " %"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    new-instance v16, Ljava/lang/StringBuilder;
+
+    invoke-direct/range {v16 .. v16}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 636
+    if-eqz v13, :cond_5e9
+
+    if-eqz v12, :cond_5e6
+
+    const-string v9, "\u0414\u044f\u0441\u043d\u0430\u0442\u0430 \u0440\u044a\u043a\u0430"
+
+    :goto_56f
+    move-object/from16 v0, v16
+
+    invoke-virtual {v0, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v16, " \u0435 \u043f\u043e-\u0441\u043b\u0430\u0431(\u0430) \u2014 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f \u0441 \u0435\u0434\u043d\u0430 \u0440\u044a\u043a\u0430 / \u043a\u0440\u0430\u043a; \u043a\u043e\u0441\u0442\u044e\u043c\u044a\u0442 \u0434\u0430\u0432\u0430 \u0435\u0434\u043d\u0430\u043a\u044a\u0432 \u0442\u043e\u043a \u0438 \u043d\u0430 \u0434\u0432\u0435\u0442\u0435."
+
+    move-object/from16 v0, v16
+
+    invoke-virtual {v9, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    new-instance v16, Ljava/lang/StringBuilder;
+
+    invoke-direct/range {v16 .. v16}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v17, "Left / right difference "
+
+    invoke-virtual/range {v16 .. v17}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v16
+
+    .line 638
+    invoke-static {v10, v11}, Ljava/lang/Math;->abs(D)D
+
+    move-result-wide v10
+
+    invoke-static {v10, v11}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v10
+
+    move-object/from16 v0, v16
+
+    invoke-virtual {v0, v10, v11}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v11, " %"
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    new-instance v16, Ljava/lang/StringBuilder;
+
+    invoke-direct/range {v16 .. v16}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 639
+    if-eqz v13, :cond_5f5
+
+    if-eqz v12, :cond_5f2
+
+    const-string v11, "The right arm"
+
+    :goto_5af
+    move-object/from16 v0, v16
+
+    invoke-virtual {v0, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v12, " is weaker \u2014 one-sided exercises; the suit gives both sides the same current."
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 635
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 643
+    :cond_5c5
+    invoke-static {v15}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->channelFat(Lorg/json/JSONObject;)[D
+
+    move-result-object v11
+
+    .line 644
+    if-eqz v11, :cond_6bb
+
+    .line 645
+    const-wide/16 v6, 0x0
+
+    .line 646
+    array-length v5, v11
+
+    const/4 v4, 0x0
+
+    :goto_5cf
+    if-ge v4, v5, :cond_5fd
+
+    aget-wide v8, v11, v4
+
+    .line 647
+    invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->reachFactor(D)D
+
+    move-result-wide v8
+
+    add-double/2addr v6, v8
+
+    .line 646
+    add-int/lit8 v4, v4, 0x1
+
+    goto :goto_5cf
+
+    :cond_5db
+    move-wide v10, v6
+
+    .line 631
+    goto/16 :goto_516
+
+    .line 633
+    :cond_5de
+    const/4 v4, 0x0
+
+    move v13, v4
+
+    goto/16 :goto_534
+
+    .line 634
+    :cond_5e2
+    const/4 v4, 0x0
+
+    move v12, v4
+
+    goto/16 :goto_53c
+
+    .line 636
+    :cond_5e6
+    const-string v9, "\u041b\u044f\u0432\u0430\u0442\u0430 \u0440\u044a\u043a\u0430"
+
+    goto :goto_56f
+
+    :cond_5e9
+    if-eqz v12, :cond_5ee
+
+    const-string v9, "\u0414\u0435\u0441\u043d\u0438\u044f\u0442 \u043a\u0440\u0430\u043a"
+
+    goto :goto_56f
+
+    :cond_5ee
+    const-string v9, "\u041b\u0435\u0432\u0438\u044f\u0442 \u043a\u0440\u0430\u043a"
+
+    goto/16 :goto_56f
+
+    .line 639
+    :cond_5f2
+    const-string v11, "The left arm"
+
+    goto :goto_5af
+
+    :cond_5f5
+    if-eqz v12, :cond_5fa
+
+    const-string v11, "The right leg"
+
+    goto :goto_5af
+
+    :cond_5fa
+    const-string v11, "The left leg"
+
+    goto :goto_5af
+
+    .line 649
+    :cond_5fd
+    array-length v4, v11
+
+    int-to-double v4, v4
+
+    div-double v12, v6, v4
+
+    .line 650
+    const/4 v5, -0x1
+
+    .line 651
+    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
+
+    .line 652
+    const/4 v4, 0x0
+
+    move v10, v5
+
+    :goto_606
+    array-length v5, v11
+
+    if-ge v4, v5, :cond_61a
+
+    .line 653
+    aget-wide v8, v11, v4
+
+    invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->reachFactor(D)D
+
+    move-result-wide v8
+
+    div-double/2addr v8, v12
+
+    .line 654
+    cmpg-double v5, v8, v6
+
+    if-gez v5, :cond_823
+
+    move-wide v6, v8
+
+    move v5, v4
+
+    .line 652
+    :goto_616
+    add-int/lit8 v4, v4, 0x1
+
+    move v10, v5
+
+    goto :goto_606
+
+    .line 659
+    :cond_61a
+    if-ltz v10, :cond_6bb
+
+    const-wide v4, 0x3fee666666666666L    # 0.95
+
+    cmpg-double v4, v6, v4
+
+    if-gez v4, :cond_6bb
+
+    .line 660
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    sub-double/2addr v4, v6
+
+    const-wide/high16 v6, 0x4059000000000000L    # 100.0
+
+    mul-double/2addr v4, v6
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v4
+
+    long-to-int v11, v4
+
+    .line 661
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x2
+
+    const/4 v6, 0x1
+
+    const/4 v7, 0x1
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "\u041f\u043e\u0432\u0435\u0447\u0435 \u0441\u0438\u043b\u0430 \u043d\u0430 "
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    sget-object v9, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->CH_BG:[Ljava/lang/String;
+
+    aget-object v9, v9, v10
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " (+"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " %)"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v12, "\u041c\u0430\u0437\u043d\u0438\u043d\u0438\u0442\u0435 \u0442\u0430\u043c \u0438\u0437\u043e\u043b\u0438\u0440\u0430\u0442 \u2014 \u0442\u043e\u043a\u044a\u0442 \u0441\u0442\u0438\u0433\u0430 "
+
+    invoke-virtual {v9, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v12, " % \u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043e\u0442 \u0441\u0440\u0435\u0434\u043d\u043e\u0442\u043e. \u0418\u043b\u0438 \u043f\u043e-\u0448\u0438\u0440\u043e\u043a \u0438\u043c\u043f\u0443\u043b\u0441."
+
+    invoke-virtual {v9, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    new-instance v12, Ljava/lang/StringBuilder;
+
+    invoke-direct {v12}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v13, "More strength on the "
+
+    invoke-virtual {v12, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v12
+
+    sget-object v13, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->CH_EN:[Ljava/lang/String;
+
+    aget-object v10, v13, v10
+
+    invoke-virtual {v12, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v12, " (+"
+
+    invoke-virtual {v10, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v12, " %)"
+
+    invoke-virtual {v10, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    new-instance v12, Ljava/lang/StringBuilder;
+
+    invoke-direct {v12}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v13, "The fat there insulates \u2014 the current reaches "
+
+    invoke-virtual {v12, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v12
+
+    invoke-virtual {v12, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v12, " % less than the mean. Or a wider pulse."
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 669
+    :cond_6bb
+    if-lez p1, :cond_77a
+
+    const/4 v4, 0x0
+
+    move-object/from16 v0, p0
+
+    invoke-virtual {v0, v4}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
+
+    move-result-object v4
+
+    .line 670
+    :goto_6c4
+    if-eqz v4, :cond_76f
+
+    const-string v5, "muscle"
+
+    invoke-virtual {v4, v5}, Lorg/json/JSONObject;->has(Ljava/lang/String;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_76f
+
+    const-string v5, "fatKg"
+
+    invoke-virtual {v4, v5}, Lorg/json/JSONObject;->has(Ljava/lang/String;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_76f
+
+    .line 671
+    const-string v5, "muscle"
+
+    invoke-virtual {v15, v5}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v6
+
+    const-string v5, "muscle"
+
+    invoke-virtual {v4, v5}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v8
+
+    sub-double v12, v6, v8
+
+    .line 672
+    const-string v5, "fatKg"
+
+    invoke-virtual {v15, v5}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v6
+
+    const-string v5, "fatKg"
+
+    invoke-virtual {v4, v5}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
+
+    move-result-wide v4
+
+    sub-double v16, v6, v4
+
+    .line 673
+    const-wide v4, 0x3fc999999999999aL    # 0.2
+
+    cmpl-double v4, v12, v4
+
+    if-ltz v4, :cond_77d
+
+    const-wide v4, -0x4036666666666666L    # -0.2
+
+    cmpg-double v4, v16, v4
+
+    if-gtz v4, :cond_77d
+
+    .line 674
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x4
+
+    const/4 v6, 0x2
+
+    const/4 v7, 0x0
+
+    const-string v8, "\u0422\u044f\u043b\u043e\u0442\u043e \u0441\u0435 \u043f\u0440\u0435\u043e\u0431\u0440\u0430\u0437\u044f\u0432\u0430 \u2713"
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v10, "+"
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    .line 675
+    invoke-static {v12, v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v10
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v10, " \u043a\u0433 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u0438 \u2212"
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    move-wide/from16 v0, v16
+
+    neg-double v10, v0
+
+    invoke-static {v10, v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v10
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    const-string v10, " \u043a\u0433 \u043c\u0430\u0437\u043d\u0438\u043d\u0438 \u043e\u0442 \u043f\u044a\u0440\u0432\u043e\u0442\u043e \u043c\u0435\u0440\u0435\u043d\u0435."
+
+    invoke-virtual {v9, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v9
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    const-string v10, "The body is recomposing \u2713"
+
+    new-instance v11, Ljava/lang/StringBuilder;
+
+    invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v15, "+"
+
+    invoke-virtual {v11, v15}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    .line 676
+    invoke-static {v12, v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v12
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v12, " kg muscle and \u2212"
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    move-wide/from16 v0, v16
+
+    neg-double v12, v0
+
+    invoke-static {v12, v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v12
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    const-string v12, " kg fat since the first measurement."
+
+    invoke-virtual {v11, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v11
+
+    invoke-virtual {v11}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 674
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 690
+    :cond_76f
+    :goto_76f
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$ByPrio;
+
+    invoke-direct {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$ByPrio;-><init>()V
+
+    invoke-static {v14, v4}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
+
+    move-object v4, v14
+
+    .line 691
+    goto/16 :goto_2a
+
+    .line 669
+    :cond_77a
+    const/4 v4, 0x0
+
+    goto/16 :goto_6c4
+
+    .line 678
+    :cond_77d
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    cmpl-double v4, v16, v4
+
+    if-ltz v4, :cond_7cd
+
+    .line 679
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x1
+
+    const/4 v6, 0x2
+
+    const/4 v7, 0x2
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "\u041c\u0430\u0437\u043d\u0438\u043d\u0438\u0442\u0435 \u0440\u0430\u0441\u0442\u0430\u0442: +"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-static/range {v16 .. v17}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " \u043a\u0433"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    const-string v9, "\u041e\u0442 \u043f\u044a\u0440\u0432\u043e\u0442\u043e \u043c\u0435\u0440\u0435\u043d\u0435 \u2014 \u043f\u0440\u043e\u0432\u0435\u0440\u0438 \u0445\u0440\u0430\u043d\u0435\u043d\u0435\u0442\u043e \u0438 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438\u0442\u0435."
+
+    new-instance v10, Ljava/lang/StringBuilder;
+
+    invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v11, "Fat is growing: +"
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    .line 681
+    invoke-static/range {v16 .. v17}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v11, " kg"
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    const-string v11, "Since the first measurement \u2014 check the food and how often they train."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 679
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_76f
+
+    .line 683
+    :cond_7cd
+    const-wide v4, -0x4016666666666666L    # -0.8
+
+    cmpg-double v4, v12, v4
+
+    if-gtz v4, :cond_76f
+
+    .line 684
+    new-instance v4, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;
+
+    const/4 v5, 0x1
+
+    const/4 v6, 0x2
+
+    const/4 v7, 0x2
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "\u041c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430\u043c\u0430\u043b\u044f\u0432\u0430\u0442: \u2212"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    neg-double v10, v12
+
+    invoke-static {v10, v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " \u043a\u0433"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    const-string v9, "\u041f\u043e\u0432\u0435\u0447\u0435 \u0431\u0435\u043b\u0442\u044a\u043a \u0438 \u0441\u0438\u043b\u043e\u0432\u0430 EMS; \u043f\u0440\u0438 \u043e\u0442\u0441\u043b\u0430\u0431\u0432\u0430\u043d\u0435 \u2014 \u043f\u043e-\u043c\u0430\u043b\u044a\u043a \u0434\u0435\u0444\u0438\u0446\u0438\u0442."
+
+    new-instance v10, Ljava/lang/StringBuilder;
+
+    invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v11, "Muscle is going down: \u2212"
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    neg-double v12, v12
+
+    .line 686
+    invoke-static {v12, v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight;->f1(D)Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    const-string v11, " kg"
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    const-string v11, "More protein and strength EMS; when losing weight \u2014 a smaller deficit."
+
+    invoke-direct/range {v4 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;-><init>(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 684
+    invoke-interface {v14, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto/16 :goto_76f
+
+    :cond_823
+    move v5, v10
+
+    goto/16 :goto_616
+
+    :cond_826
+    move-wide v4, v12
+
+    move v6, v10
+
+    goto/16 :goto_258
 .end method
 
 .method public static ageNorm(DI[Ljava/lang/String;)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
@@ -1770,6 +4325,34 @@
     return-wide v0
 .end method
 
+.method static f1(D)Ljava/lang/String;
+    .registers 8
+
+    .prologue
+    .line 518
+    sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
+
+    const-string v1, "%.1f"
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [Ljava/lang/Object;
+
+    const/4 v3, 0x0
+
+    invoke-static {p0, p1}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+
+    move-result-object v4
+
+    aput-object v4, v2, v3
+
+    invoke-static {v0, v1, v2}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 .method public static fatMid(Z)D
     .registers 3
 
@@ -2662,6 +5245,40 @@
     div-double v0, v4, v2
 
     goto :goto_14
+.end method
+
+.method static reachFactor(D)D
+    .registers 10
+
+    .prologue
+    .line 695
+    const-wide v0, 0x3fe3333333333333L    # 0.6
+
+    const-wide v2, 0x3ff4cccccccccccdL    # 1.3
+
+    const-wide/high16 v4, 0x4039000000000000L    # 25.0
+
+    sub-double v4, p0, v4
+
+    neg-double v4, v4
+
+    const-wide v6, 0x4041800000000000L    # 35.0
+
+    div-double/2addr v4, v6
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->exp(D)D
+
+    move-result-wide v4
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v2
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v0
+
+    return-wide v0
 .end method
 
 .method public static readiness(Lorg/json/JSONArray;I)Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Readiness;

@@ -64,6 +64,15 @@ as kg from one dashed start line + "+0.6 кг мускули · −2.2 кг ма
 (muscle low · normal · athletic · very; fat very low · normal · excess · obese — from FFMI / FMI, no kg/m² on
 screen; tick = last time). The FFMI × FMI scatter ("path of the body") was dropped in 1.1.289-ai: unclear to clients. Previews (HTML mocks from the real Java numbers, not device screenshots):
 `docs/scale/preview-today.png`, `docs/scale/preview-tracking.png`.
+**Обобщение и препоръки** (1.1.291-ai, button in the top bar → `ScaleScreen.showSummary`): profile (body type,
+sex · age · height · weight, physical age vs passport, the figure by muscle), the five key values on their norm bars
+(fat, muscle, water, visceral, BMI "weight only"), and the recommendations from `ScaleInsight.advice` — rules only
+(no LLM): today's readiness, water, fat to normal (kg), low muscle (strength EMS + 1.6 g/kg protein), athletic
+("BMI misleads"), visceral ≥ 10, the weakest zone (< 90 %), L/R ≥ 6 %, the channel the current reaches least, the
+trend (recomposition / fat up / muscle down). Sorted by urgency, tagged ДНЕС · EMS · ТЯЛО · НАВИК, coloured by tone.
+An LLM (the aidiet backend's Gemini) would only make sense later for free text (a letter to the client), never for
+the numbers. Preview: `docs/scale/preview-summary.png`.
+
 **ⓘ on every card and tile** (1.1.290-ai, `ScaleScreen.cardInfo`): what the value means in plain words + the value
 on a **5-sector norm bar** (`ScaleViews.NormBar`, `ScaleInsight.*Norm`: far below · below · norm · above · far above,
 coloured by what the direction means) with the client's marker and the source: fat % by sex/age (Gallagher 2000),

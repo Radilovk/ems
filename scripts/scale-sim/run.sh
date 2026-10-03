@@ -10,4 +10,4 @@ OUT="$(mktemp -d)"; trap 'rm -rf "${OUT}"' EXIT
 javac -nowarn -source 8 -target 8 -d "${OUT}" -cp "${JAR}" \
   -sourcepath "${ROOT}/branding/java/src:${ROOT}/branding/java-stubs" \
   "${D}/ScaleSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true
-java -cp "${OUT}:${JAR}" com.isaigu.gymapp.wearable.scale.ScaleSim 2>&1 | grep -av "Picked up"
+java -Dstdout.encoding=UTF-8 -Dfile.encoding=UTF-8 -cp "${OUT}:${JAR}" com.isaigu.gymapp.wearable.scale.ScaleSim 2>&1 | grep -av "Picked up"

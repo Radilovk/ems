@@ -27,7 +27,7 @@
     .registers 1
 
     .prologue
-    .line 1957
+    .line 1964
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -37,7 +37,7 @@
     .registers 5
 
     .prologue
-    .line 1963
+    .line 1970
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -46,10 +46,10 @@
 
     move-result-object v1
 
-    .line 1964
+    .line 1971
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 1965
+    .line 1972
     iget v2, v1, Landroid/util/DisplayMetrics;->heightPixels:I
 
     iget v3, v1, Landroid/util/DisplayMetrics;->widthPixels:I
@@ -60,7 +60,7 @@
 
     if-lez v2, :cond_1b
 
-    .line 1966
+    .line 1973
     iget v0, v1, Landroid/util/DisplayMetrics;->widthPixels:I
 
     int-to-float v0, v0
@@ -71,7 +71,7 @@
 
     div-float/2addr v0, v2
 
-    .line 1968
+    .line 1975
     :cond_1b
     iget v2, v1, Landroid/util/DisplayMetrics;->density:F
 
@@ -79,14 +79,14 @@
 
     sput v2, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
-    .line 1969
+    .line 1976
     iget v1, v1, Landroid/util/DisplayMetrics;->scaledDensity:F
 
     mul-float/2addr v0, v1
 
     sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->scaled:F
 
-    .line 1970
+    .line 1977
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
     const/high16 v1, 0x43200000    # 160.0f
@@ -99,7 +99,7 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->dpi:I
 
-    .line 1971
+    .line 1978
     return-void
 .end method
 
@@ -107,12 +107,12 @@
     .registers 1
 
     .prologue
-    .line 1992
+    .line 1999
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
-    .line 1993
+    .line 2000
     return-void
 .end method
 
@@ -120,7 +120,7 @@
     .registers 3
 
     .prologue
-    .line 1974
+    .line 1981
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
     const/4 v1, 0x0
@@ -129,11 +129,11 @@
 
     if-gtz v0, :cond_8
 
-    .line 1983
+    .line 1990
     :goto_7
     return-void
 
-    .line 1978
+    .line 1985
     :cond_8
     :try_start_8
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
@@ -146,7 +146,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->set(Landroid/util/DisplayMetrics;)V
 
-    .line 1979
+    .line 1986
     invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -165,11 +165,11 @@
 
     goto :goto_7
 
-    .line 1980
+    .line 1987
     :catch_23
     move-exception v0
 
-    .line 1981
+    .line 1988
     const-string v1, "ScaleScreen.dens"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -181,21 +181,21 @@
     .registers 2
 
     .prologue
-    .line 1986
+    .line 1993
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->density:F
 
     iput v0, p0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 1987
+    .line 1994
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->scaled:F
 
     iput v0, p0, Landroid/util/DisplayMetrics;->scaledDensity:F
 
-    .line 1988
+    .line 1995
     sget v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Dens;->dpi:I
 
     iput v0, p0, Landroid/util/DisplayMetrics;->densityDpi:I
 
-    .line 1989
+    .line 1996
     return-void
 .end method

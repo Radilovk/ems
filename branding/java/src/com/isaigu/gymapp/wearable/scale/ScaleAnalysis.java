@@ -137,13 +137,12 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
     }
 
     void footer() {
-        TextView sci = XemsUi.button(a, tr("Научна основа", "Scientific basis"), XemsUi.GHOST);
+        TextView sci = XemsUi.button(a, tr("Източници", "Sources"), XemsUi.SECONDARY);
         sci.setOnClickListener(new ScaleSources.Open(a));
-        sh.footer.addView(sci, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56)));
-        sh.footer.addView(XemsUi.spacer(a));
+        ScaleScreen.foot(sh, sci, 1f, 0);
         TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
         close.setOnClickListener(new ScaleScreen.CloseSheet(sh));
-        sh.footer.addView(close, new LinearLayout.LayoutParams(dp(260), dp(56)));
+        ScaleScreen.foot(sh, close, 2f, 8);
     }
 
     // ================================================================ left: composition · figure · path
@@ -337,11 +336,11 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         fBarTitle = XemsUi.text(a, "", 12, XemsUi.MUTED, true);
         focus.addView(fBarTitle, XemsUi.matchWrap(a, 8));
         fBar = new ScaleViews.NormBar(a);
-        focus.addView(fBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(86)));
+        focus.addView(fBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(104)));
         fBar2Title = XemsUi.text(a, "", 12, XemsUi.MUTED, true);
         focus.addView(fBar2Title, XemsUi.matchWrap(a, 2));
         fBar2 = new ScaleViews.NormBar(a);
-        focus.addView(fBar2, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(86)));
+        focus.addView(fBar2, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(104)));
         fWhat = XemsUi.text(a, "", 14, XemsUi.TEXT, false);
         fWhat.setLineSpacing(dp(3), 1f);
         focus.addView(fWhat, XemsUi.matchWrap(a, 6));

@@ -308,7 +308,7 @@ public final class ScaleSources {
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView close = XemsUi.button(a, tr("Затвори", "Close"), XemsUi.PRIMARY);
         close.setOnClickListener(new ScaleScreen.CloseSheet(sh));
-        sh.footer.addView(close, new LinearLayout.LayoutParams(dp(260), dp(56)));
+        ScaleScreen.foot(sh, close, 1f, 8);
         sh.dialog.show();
     }
 

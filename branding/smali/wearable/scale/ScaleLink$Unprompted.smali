@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 682
+    .line 700
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 683
+    .line 701
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 684
+    .line 702
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 689
+    .line 707
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
@@ -57,16 +57,16 @@
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->done:Z
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->results:I
 
     if-nez v0, :cond_17
 
-    .line 690
+    .line 708
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->handshakeA()V
 
-    .line 692
+    .line 710
     :cond_17
     return-void
 .end method

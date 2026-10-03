@@ -112,8 +112,8 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
                         + heightCm + tr(" см", " cm") : "", 1280);
         XemsUi.fullScreen(sh);
         if (m == null || ms.isEmpty()) {
-            sh.body.addView(XemsUi.text(a, tr("Още няма пълно мерене — хвани дръжката с двете ръце.",
-                    "No full measurement yet — hold the handle with both hands."), 16, XemsUi.MUTED, false));
+            sh.body.addView(XemsUi.text(a, tr("Няма пълно измерване. За анализ е нужен контакт с дръжката.",
+                    "No full measurement. The analysis needs contact with the handle."), 16, XemsUi.MUTED, false));
             footer();
             sh.dialog.show();
             return;
@@ -150,7 +150,7 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
 
     LinearLayout left() {
         LinearLayout col = XemsUi.card(a);
-        col.addView(XemsUi.label(a, tr("От какво е теглото", "What the weight is made of")));
+        col.addView(XemsUi.label(a, tr("Състав на тялото", "Body composition")));
         comp = new ScaleViews.Composition(a);
         comp.setOnSegment(new Part(this));
         double w = m.optDouble("w"), fatKg = m.optDouble("fatKg"), lean = m.optDouble("lean");
@@ -165,7 +165,7 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         col.addView(fig, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         LinearLayout pc = XemsUi.horizontal(a);
         pc.setGravity(Gravity.CENTER_VERTICAL);
-        pc.addView(XemsUi.label(a, tr("Път до здравословното тегло", "Way to the healthy weight")),
+        pc.addView(XemsUi.label(a, tr("Към здравословно тегло", "Towards a healthy weight")),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         col.addView(pc, XemsUi.matchWrap(a, 8));
         path = new ScaleViews.Path2Target(a);
@@ -185,8 +185,8 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
             cols[i] = st == ScaleDetail.S_NONE ? 0 : ScaleDetail.statusColor(st);
         }
         fig.setSegments(!male, cols, zone);
-        figTitle.setText(fat ? tr("ЗОНИ · МАЗНИНИ · докосни зона", "ZONES · FAT · tap a zone")
-                : tr("ЗОНИ · МУСКУЛИ · докосни зона", "ZONES · MUSCLE · tap a zone"));
+        figTitle.setText(fat ? tr("ЗОНИ · МАЗНИНИ", "ZONES · FAT")
+                : tr("ЗОНИ · МУСКУЛИ", "ZONES · MUSCLE"));
     }
 
     // ================================================================ middle: the tiles
@@ -198,19 +198,41 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
             card.setPadding(dp(12), dp(10), dp(12), dp(12));
             card.addView(XemsUi.text(a, (bg ? ScaleDetail.groupBg(g) : ScaleDetail.groupEn(g)).toUpperCase(
                     Locale.ROOT), 11, XemsUi.MUTED, true));
-            LinearLayout line = XemsUi.horizontal(a);
+            // narrow screens: two tiles a line (four were squeezed until names and values were cut)
+            int per = ScaleScreen.Columns.narrow(a) ? 2 : 4;
+            int total = 0;
+            for (int i = 0; i < ms.size(); i++) {
+                if (ms.get(i).group == g) {
+                    total++;
+                }
+            }
+            int cols = Math.min(per, Math.max(1, total));
+            LinearLayout line = null;
             int n = 0;
             for (int i = 0; i < ms.size(); i++) {
                 if (ms.get(i).group != g) {
                     continue;
                 }
+                if (n % cols == 0) {
+                    line = XemsUi.horizontal(a);
+                    line.setGravity(Gravity.TOP);
+                    line.setBaselineAligned(false);
+                    LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            0, 1f);
+                    ll.topMargin = n > 0 ? dp(8) : 0;
+                    card.addView(line, ll);
+                }
                 LinearLayout t = tile(ms.get(i), i);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-                lp.leftMargin = n > 0 ? dp(8) : 0;
+                lp.leftMargin = n % cols > 0 ? dp(8) : 0;
                 line.addView(t, lp);
                 n++;
             }
-            card.addView(line, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            for (int k = n % cols; k > 0 && k < cols; k++) {
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 1, 1f);
+                lp.leftMargin = dp(8);
+                line.addView(new View(a), lp);     // keep the last tile the width of the others
+            }
             LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
             cp.topMargin = g > 0 ? dp(10) : 0;
             col.addView(card, cp);
@@ -226,8 +248,7 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         }
         tiles.set(i, t);
         TextView nm = XemsUi.text(a, bg ? x.bg : x.en, 12, XemsUi.MUTED, false);
-        nm.setSingleLine(true);
-        nm.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        nm.setMaxLines(2);
         t.addView(nm);
         LinearLayout v = XemsUi.horizontal(a);
         v.setGravity(Gravity.BOTTOM);
@@ -246,7 +267,7 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         TextView st = XemsUi.text(a, x.status >= 0 ? (bg ? ScaleDetail.statusBg(x.status)
                 : ScaleDetail.statusEn(x.status)) : (bg ? x.subBg : x.subEn), 12,
                 x.status >= 0 ? ScaleDetail.statusColor(x.status) : XemsUi.MUTED, true);
-        st.setSingleLine(true);
+        st.setMaxLines(2);
         t.addView(st, XemsUi.matchWrap(a, 2));
         if (x.norm != null) {
             ScaleViews.MiniNorm mn = new ScaleViews.MiniNorm(a);
@@ -278,7 +299,7 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         }
         double d = now - was;
         if (Math.abs(d) < 0.05) {
-            t.setText(words ? tr("= както миналия път", "= as last time") : "=");
+            t.setText(words ? tr("= без промяна", "= no change") : "=");
             t.setTextColor(XemsUi.MUTED);
             return;
         }
@@ -307,9 +328,10 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         fStatus.setPadding(dp(12), dp(6), dp(12), dp(6));
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        sp.bottomMargin = dp(6);
-        vr.addView(fStatus, sp);
+        // the status on its own line: beside a big value it was pushed off the edge on narrow screens
         focus.addView(vr, XemsUi.matchWrap(a, 4));
+        sp.topMargin = dp(6);
+        focus.addView(fStatus, sp);
         fSub = XemsUi.text(a, "", 14, XemsUi.MUTED, false);
         focus.addView(fSub, XemsUi.matchWrap(a, 2));
         fBarTitle = XemsUi.text(a, "", 12, XemsUi.MUTED, true);
@@ -323,7 +345,7 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         fWhat = XemsUi.text(a, "", 14, XemsUi.TEXT, false);
         fWhat.setLineSpacing(dp(3), 1f);
         focus.addView(fWhat, XemsUi.matchWrap(a, 6));
-        fTrendTitle = XemsUi.text(a, tr("ВЪВ ВРЕМЕТО", "OVER TIME"), 11, XemsUi.MUTED, true);
+        fTrendTitle = XemsUi.text(a, tr("ДИНАМИКА", "TREND"), 11, XemsUi.MUTED, true);
         focus.addView(fTrendTitle, XemsUi.matchWrap(a, 12));
         fTrend = new ScaleViews.Trend(a, false);
         LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
@@ -409,15 +431,15 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         fGroup.setText(tr("ЗОНА", "ZONE"));
         fTitle.setText(bg ? ScaleDetail.zoneBg(seg) : ScaleDetail.zoneEn(seg));
         fValue.setText(Double.isNaN(z.musKg) ? "—" : one(z.musKg));
-        fUnit.setText(tr(" кг мускули", " kg muscle"));
+        fUnit.setText(tr(" кг мускулна маса", " kg muscle mass"));
         status(z.musStatus);
         fSub.setText(tr("мазнини ", "fat ") + (Double.isNaN(z.fatKg) ? "—" : one(z.fatKg) + tr(" кг", " kg")));
         fSub.setVisibility(View.VISIBLE);
-        fBarTitle.setText(tr("МУСКУЛИ · % ОТ СТАНДАРТА", "MUSCLE · % OF STANDARD"));
+        fBarTitle.setText(tr("МУСКУЛНА МАСА · % ОТ НОРМАТА", "MUSCLE MASS · % OF NORM"));
         fBarTitle.setVisibility(View.VISIBLE);
         fBar.setVisibility(View.VISIBLE);
         fBar.set(ScaleDetail.zoneMuscleNorm(z.musPct, arm, bg));
-        fBar2Title.setText(tr("МАЗНИНИ · % ОТ СТАНДАРТА", "FAT · % OF STANDARD"));
+        fBar2Title.setText(tr("МАЗНИНИ · % ОТ НОРМАТА", "FAT · % OF NORM"));
         fBar2Title.setVisibility(View.VISIBLE);
         fBar2.setVisibility(View.VISIBLE);
         fBar2.set(ScaleDetail.zoneFatNorm(z.fatPct, bg));
@@ -429,14 +451,12 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
             double o = zones[other].musKg;
             if (!Double.isNaN(o) && !Double.isNaN(z.musKg) && Math.max(o, z.musKg) > 0) {
                 double diff = Math.abs(z.musKg - o) / Math.max(o, z.musKg) * 100;
-                side = tr("Срещу другата страна: ", "Against the other side: ") + one(z.musKg) + " / " + one(o)
-                        + tr(" кг — ", " kg — ") + Math.round(diff) + " %" + (diff >= 6
-                        ? tr(". Над 6 % — повече сила на по-слабата страна.", ". Over 6 % — more strength on the weaker side.")
-                        : tr(", в нормата (до 6 %).", ", within normal (up to 6 %)."));
+                side = tr("Разлика с другата страна: ", "Difference to the other side: ") + Math.round(diff) + " %"
+                        + (diff >= 6 ? tr(" — над нормата (до 6 %).", " — above normal (up to 6 %).")
+                        : tr(" — в нормата.", " — within normal."));
             }
         } else {
-            side = tr("Тялото носи най-много мускули и мазнини; коремните мазнини тук са висцералните.",
-                    "The trunk carries the most muscle and fat; the belly fat here is the visceral one.");
+            side = "";
         }
         fWhat.setText(side);
         trend("segMus", seg, 1, tr(" кг", " kg"), ScaleDetail.statusColor(z.musStatus));
@@ -472,17 +492,17 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
         }
         fTrend.set(v, t, color == 0xFF94A3B8 ? 0xFF38BDF8 : color, "");
         if (v.length < 2) {
-            fDelta.setText(tr("Линията се появява от второто мерене", "The line starts with the second weigh-in"));
+            fDelta.setText(tr("Графиката се показва след второто измерване", "The chart is shown after the second measurement"));
             fDelta.setTextColor(XemsUi.MUTED);
             return;
         }
         android.text.SpannableStringBuilder b = new android.text.SpannableStringBuilder();
-        part(b, tr("от миналия ", "since last "), XemsUi.MUTED);
+        part(b, tr("спрямо предишното ", "since last "), XemsUi.MUTED);
         change(b, v[v.length - 1] - v[v.length - 2], dir, unit);
-        part(b, tr("   ·   от първия ", "   ·   since the first "), XemsUi.MUTED);
+        part(b, tr("   ·   от първото ", "   ·   since the first "), XemsUi.MUTED);
         change(b, v[v.length - 1] - v[0], dir, unit);
         long days = Math.round((t[t.length - 1] - t[0]) / 86400000.0);
-        part(b, "  (" + v.length + tr(" мерения, " + days + " дни)", " weigh-ins, " + days + " days)"), XemsUi.MUTED);
+        part(b, "  (" + v.length + tr(" измервания, " + days + " дни)", " measurements, " + days + " days)"), XemsUi.MUTED);
         fDelta.setText(b);
     }
 
@@ -521,33 +541,22 @@ final class ScaleAnalysis implements ScaleViews.OnSegment {
             pop.dismiss();
             return;
         }
-        TextView t = XemsUi.text(a, tr("Как се смята\n"
-                + "Мазнините — по уравнения, проверени спрямо референтни методи, отделно за мъже и жени (Sun 2003, "
-                + "1 829 души), заедно с измереното от кантара; скелетните мускули — Janssen 2000 (ЯМР). Стойностите "
-                + "са изгладени между мерения: контактът и последната вода местят импеданса, тъканта — не. Две "
-                + "мерения през минута дават средното; истинската промяна се вижда до дни.\n\n"
-                + "Здравословното тегло е за собствените мускули при здравословни мазнини — не по ИТМ 22.\n\n"
-                + "Докосни плочка, част от лентата, зона на фигурата или пътя до здравословното — вдясно идват "
-                + "нормата, какво значи и линията във времето.",
-                "How it is computed\n"
-                        + "Fat by equations checked against reference methods, separate for men and women (Sun 2003, "
-                        + "1,829 adults), together with the scale's own value; skeletal muscle by Janssen 2000 (MRI). "
-                        + "Values are smoothed between weigh-ins: contact and the last drink move the impedance, tissue "
-                        + "does not. Two steps a minute apart give their mean; a real change shows within days.\n\n"
-                        + "The healthy weight is for the client's own muscle at a healthy fat % — not BMI 22.\n\n"
-                        + "Tap a tile, a part of the bar, a zone of the figure or the way to the healthy weight — the "
-                        + "norm, what it means and its line over time come up on the right."), 14, XemsUi.TEXT, false);
+        TextView t = XemsUi.text(a, tr("Методика\n"
+                + "Съставът на тялото се изчислява по валидирани уравнения за биоимпеданс, отделно за мъже и жени "
+                + "(Sun 2003; скелетна мускулатура — Janssen 2000). Стойностите се изглаждат между измерванията, за да "
+                + "се намали влиянието на контакта и хидратацията.\n\n"
+                + "Здравословното тегло се определя от собствената мускулна маса при здравословен процент мазнини.",
+                "Method\n"
+                        + "Body composition is computed with validated bioimpedance equations, separately for men and "
+                        + "women (Sun 2003; skeletal muscle — Janssen 2000). Values are smoothed between measurements to "
+                        + "reduce the effect of contact and hydration.\n\n"
+                        + "The healthy weight is derived from the client's own muscle mass at a healthy fat percentage."), 14, XemsUi.TEXT, false);
         t.setLineSpacing(dp(3), 1f);
         t.setPadding(dp(18), dp(14), dp(18), dp(14));
         t.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, 0xFF42A5F5, 0.16f), dp(14), 0xFF42A5F5, dp(1)));
         ScaleSources.Open open = new ScaleSources.Open(a);
-        pop = new android.widget.PopupWindow(ScaleSources.withButton(a, t, open), dp(560),
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        pop = ScaleScreen.pop(a, anchor, ScaleSources.withButton(a, t, open), dp(560));
         open.pop = pop;
-        pop.setOutsideTouchable(true);
-        pop.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
-        pop.setElevation(dp(8));
-        pop.showAsDropDown(anchor, -dp(536), dp(6));
     }
 
     static final class Info implements View.OnClickListener {

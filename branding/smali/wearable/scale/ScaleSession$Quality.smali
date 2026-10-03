@@ -37,17 +37,17 @@
 
     const/4 v0, 0x1
 
-    .line 26
+    .line 24
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 27
+    .line 25
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSession$Quality;->arms:Z
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSession$Quality;->legs:Z
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSession$Quality;->trunk:Z
 
-    .line 29
+    .line 27
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSession$Quality;->armGap:D
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSession$Quality;->legGap:D
@@ -61,7 +61,7 @@
     .registers 2
 
     .prologue
-    .line 32
+    .line 30
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSession$Quality;->full:Z
 
     if-eqz v0, :cond_e

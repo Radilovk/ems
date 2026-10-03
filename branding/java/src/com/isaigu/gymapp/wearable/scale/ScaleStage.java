@@ -1,30 +1,32 @@
 package com.isaigu.gymapp.wearable.scale;
 
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsLang;
 import com.isaigu.gymapp.widget.XemsUi;
@@ -37,26 +39,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The measuring stage — what the client sees from "step on" to "done", the whole process visible:
+ * The measuring stage — what the client sees from "step on" to "done", one standing, no step-off:
  *
  * <ul>
- *   <li><b>Left</b> — a dark theatre: the client's figure on the scale (by sex) while waiting, the scan film while
- *       the scale sweeps the impedances, a phase chip.</li>
- *   <li><b>Right</b> — the five steps (link · step on · steady · scan · done), the instruction now (big), the live
- *       weight with its settling line, the scan ring with seconds, which step-on of how many and how each went
+ *   <li><b>Left</b> — a dark theatre: the client's figure on the scale (by sex); from the moment the scale is heard
+ *       (it only wakes when someone stands on it) a scan sweeps over the figure — drawn here, time-driven, so it
+ *       moves even when the tablet's animations are switched off or the film cannot play — and the scan film plays
+ *       over it as soon as its first frame is really on the screen.</li>
+ *   <li><b>Right</b> — the five steps (step on · link · weight · analysis · done), the instruction now (big), the
+ *       live weight with its settling line, the scan ring with seconds, how many sweeps and how the contact was
  *       (hands · feet · trunk).</li>
  * </ul>
  *
- * Driven by ScaleScreen (link state, live weight, results with the session's verdict). Pure UI.
+ * Driven by ScaleScreen (link state, live weight, sweeps). Pure UI.
  */
 final class ScaleStage {
-    static final int P_CONNECT = 0, P_STEP_ON = 1, P_SETTLE = 2, P_SCAN = 3, P_REVIEW = 4, P_STEP_OFF = 5,
-            P_DONE = 6, P_NO_BT = 7;
+    static final int P_WAIT = 0, P_LINK = 1, P_SETTLE = 2, P_SCAN = 3, P_DONE = 4, P_NO_BT = 5;
     /** The scale's impedance sweep after the weight settles, about this long. */
     static final double SCAN_S = 9;
+    /** Steadiness seen here too: generation A sends no "stable" flag with the live weight. */
+    static final double STEADY_KG = 0.15;
+    static final long STEADY_MS = 1500;
 
     static String tr(String bg, String en) {
         return XemsLang.tr(bg, en);
+    }
+
+    static void log(String s) {
+        WearableBleDiagLog.log("scale", "stage " + s);
     }
 
     final Activity a;
@@ -66,6 +76,7 @@ final class ScaleStage {
     final ImageView hero;
     final TextureView film;
     final View cover;
+    final ScanFx fx;
     final TextView chip;
     final StepsBar steps;
     final TextView title, sub, weight, unit, stableChip, round;
@@ -75,17 +86,14 @@ final class ScaleStage {
     final Handler main = new Handler(Looper.getMainLooper());
     MediaPlayer player;
     boolean filmReady;
-    /** The film is meant to be on (someone stands on the scale) — it starts as soon as the player is ready. */
+    /** The film is meant to be on (someone stands on the scale). */
     boolean filmOn;
-    /** Steadiness seen here too: generation A sends no "stable" flag with the live weight. */
-    double anchorKg;
-    long anchorT;
-    static final double STEADY_KG = 0.15;
-    static final long STEADY_MS = 1500;
+    /** Its frames are really on the screen (the cover is off). */
+    boolean filmShown;
     int phase = -1;
     long scanStart;
-    boolean needOff;
-    ValueAnimator breathe;
+    double anchorKg;
+    long anchorT;
     final Tick tick = new Tick(this);
 
     int dp(float v) {
@@ -97,14 +105,13 @@ final class ScaleStage {
         this.female = female;
         root = XemsUi.horizontal(a);
         root.setGravity(Gravity.TOP);
+        int accent = female ? 0xFFFF3EC8 : 0xFF38BDF8;
 
-        // the theatre
+        // the theatre: film (always drawn — a TextureView kept at alpha 0 may never get its surface) · opaque cover ·
+        // the figure · the drawn scan · chip and caption
         theatre = new FrameLayout(a);
-        theatre.setBackgroundDrawable(XemsUi.rounded(0xFF05070B, dp(22), XemsUi.alpha(female ? 0xFFFF3EC8 : 0xFF38BDF8,
-                90), dp(1)));
+        theatre.setBackgroundDrawable(XemsUi.rounded(0xFF05070B, dp(22), XemsUi.alpha(accent, 90), dp(1)));
         theatre.setClipToOutline(true);
-        // the film is always drawn (a TextureView kept at alpha 0 may never get its surface) under an opaque cover
-        // and the figure; showing the film = fading both out
         film = new TextureView(a);
         film.setSurfaceTextureListener(new FilmSurface(this));
         theatre.addView(film, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -121,6 +128,9 @@ final class ScaleStage {
             hero.setImageBitmap(hb);
         }
         theatre.addView(hero, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        fx = new ScanFx(a, accent);
+        theatre.addView(fx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         chip = XemsUi.text(a, "", 13, 0xFFFFFFFF, true);
         chip.setPadding(dp(14), dp(7), dp(14), dp(7));
@@ -175,7 +185,7 @@ final class ScaleStage {
         bl.topMargin = dp(12);
         side.addView(results, bl);
         root.addView(side);
-        phase(P_CONNECT);
+        phase(P_WAIT);
     }
 
     View view() {
@@ -184,17 +194,19 @@ final class ScaleStage {
 
     // ================================================================ driven from ScaleScreen
 
+    /** The link: searching = nobody on yet; connected = the scale woke up, so someone stands on it. */
     void linkState(int st) {
         switch (st) {
             case ScaleLink.SEARCHING:
-            case ScaleLink.CONNECTING:
-                if (phase == P_CONNECT || phase == P_NO_BT) {
-                    phase(P_CONNECT);
+                if (phase == P_NO_BT || phase == P_LINK) {
+                    phase(P_WAIT);
                 }
                 break;
+            case ScaleLink.CONNECTING:
             case ScaleLink.READY:
-                if (phase <= P_STEP_ON || phase == P_NO_BT) {
-                    phase(P_STEP_ON);
+            case ScaleLink.MEASURING:
+                if (phase == P_WAIT || phase == P_NO_BT) {
+                    phase(P_LINK);
                 }
                 break;
             case ScaleLink.NO_BLUETOOTH:
@@ -206,9 +218,17 @@ final class ScaleStage {
     }
 
     void liveWeight(double kg, boolean stable) {
-        weight.setText(String.valueOf(Math.round(kg * 10) / 10.0));
+        if (phase == P_DONE) {
+            if (kg >= 5) {
+                weight.setText(String.valueOf(Math.round(kg * 10) / 10.0));
+            }
+            return;
+        }
+        weight.setText(kg >= 5 ? String.valueOf(Math.round(kg * 10) / 10.0) : "—");
         weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
-        live.add(kg, stable);
+        if (kg >= 5) {
+            live.add(kg, stable);
+        }
         long now = System.currentTimeMillis();
         if (Math.abs(kg - anchorKg) > STEADY_KG) {
             anchorKg = kg;
@@ -216,18 +236,9 @@ final class ScaleStage {
         } else if (kg >= 5 && now - anchorT >= STEADY_MS) {
             stable = true;
         }
-        if (needOff) {
-            if (kg < 5) {
-                needOff = false;
-                phase(P_STEP_ON);
-            } else if (phase != P_STEP_OFF) {
-                phase(P_STEP_OFF);
-            }
-            return;
-        }
         if (kg < 5) {
             if (phase == P_SETTLE || phase == P_SCAN) {
-                phase(P_STEP_ON);
+                phase(P_LINK);
             }
             return;
         }
@@ -240,8 +251,8 @@ final class ScaleStage {
         }
     }
 
-    /** One step-on's result in, with the session's verdict. */
-    void stepResult(ScaleProtocol.Reading r, ScaleSession s) {
+    /** One sweep in (the session already holds it): contact chips and how many sweeps. */
+    void sweep(ScaleProtocol.Reading r, ScaleSession s) {
         weight.setText(String.valueOf(Math.round(r.weightKg * 10) / 10.0));
         weight.setTextColor(XemsUi.TEXT);
         live.done();
@@ -252,44 +263,8 @@ final class ScaleStage {
         if (r.hasTrunk()) {
             addQ(tr("Тяло", "Trunk"), q != null && q.full && q.trunk);
         }
-        roundText(s);
-        if (s.need == ScaleSession.NEED_NONE) {
-            phase(P_REVIEW);
-            title.setText(tr("✓ Мерено", "✓ Measured"));
-            sub.setText(s.count() > 1 ? tr(s.count() + " стъпвания — лошите извън сметката, останалите осреднени",
-                    s.count() + " step-ons — the bad ones out, the rest averaged")
-                    : tr("Контактът е добър, тялото е както обикновено", "Good contact, the body is as usual"));
-            return;
-        }
-        needOff = true;
-        phase(P_REVIEW);
-        switch (s.need) {
-            case ScaleSession.NEED_CONTACT:
-                title.setText(tr("Още веднъж — по-добър контакт", "Once more — better contact"));
-                sub.setText(q != null && !q.full ? tr("Ръцете не държаха дръжката. Слез, стъпи пак и хвани с двете ръце.",
-                        "The hands were off the handle. Step off, on again, both hands on it.")
-                        : q != null && !q.arms ? tr("Едната ръка не хваща добре — цялата длан върху металното, ръцете отпуснати.",
-                        "One hand is not on well — the whole palm on the metal, arms relaxed.")
-                        : tr("Стъпалата: боси, сухи, петите върху задните електроди.",
-                        "The feet: bare, dry, heels on the back electrodes."));
-                break;
-            case ScaleSession.NEED_BASELINE:
-                title.setText(tr("Още едно — за база", "One more — for the baseline"));
-                sub.setText(tr("Първото мерене на клиента: две стъпвания дават стабилна отправна точка. Слез и стъпи пак.",
-                        "The client's first: two step-ons give a steady starting point. Step off and on again."));
-                break;
-            case ScaleSession.NEED_CONFIRM:
-                title.setText(tr("Още едно — за проверка", "One more — to check"));
-                sub.setText(tr("Резултатът е далеч от последните дни, а тялото не се мени толкова бързо. Слез и стъпи пак.",
-                        "The result is far from the last days, and the body does not change that fast. Step off and on again."));
-                break;
-            default:
-                title.setText(tr("Още едно — двете се разминават", "One more — the two differ"));
-                sub.setText(tr("Третото решава: средното от трите, без крайното.",
-                        "The third decides: the middle of the three."));
-                break;
-        }
-        main.postDelayed(new Next(this), 2400);
+        int n = s.count();
+        round.setText(n <= 1 ? "" : tr(n + " отчитания · осреднени", n + " readings · averaged"));
     }
 
     void addQ(String name, boolean ok) {
@@ -304,36 +279,38 @@ final class ScaleStage {
         XemsUi.enter(t);
     }
 
-    void roundText(ScaleSession s) {
-        int n = s.count(), of = Math.max(n, s.planned());
-        StringBuilder b = new StringBuilder();
-        for (int i = 0; i < of; i++) {
-            b.append(i < n ? "●" : "○");
-        }
-        round.setText(b + "  " + tr("стъпване " + Math.min(n + (s.need == ScaleSession.NEED_NONE ? 0 : 1), of)
-                + " от " + of, "step-on " + Math.min(n + (s.need == ScaleSession.NEED_NONE ? 0 : 1), of) + " of " + of));
-    }
-
-    /** All merged and saved: the big ✓ and the two numbers that matter. */
-    void finished(String line) {
+    /**
+     * Saved: the big ✓ and the two numbers that matter — or, without the hands on the handle, "weight only" and
+     * what to do (the client may stay on: a scale that measures again is heard).
+     */
+    void finished(String line, boolean full) {
         phase(P_DONE);
-        sub.setText(line);
+        if (full) {
+            title.setText(tr("Готово", "Done"));
+            sub.setText(line);
+        } else {
+            title.setText(tr("Само тегло", "Weight only"));
+            sub.setText(tr("Няма контакт с дръжката. Хванете я с цели длани и останете на кантара или "
+                    + "започнете ново измерване.", "No contact with the handle. Hold it with whole palms and stay on "
+                    + "the scale, or start a new measurement."));
+        }
     }
 
-    /** A fresh session ("Мери пак"). */
+    /** A fresh standing ("Мери пак", or the next person). */
     void reset() {
-        needOff = false;
         quality.removeAllViews();
         round.setText("");
         live.clear();
         weight.setText("—");
-        phase(P_CONNECT);
+        anchorKg = 0;
+        phase = -1;
+        phase(P_WAIT);
     }
 
     // ================================================================ phases
 
     void phase(int p) {
-        if (p == phase && p != P_CONNECT) {
+        if (p == phase) {
             return;
         }
         int was = phase;
@@ -342,63 +319,48 @@ final class ScaleStage {
         String c;
         int cc;
         switch (p) {
-            case P_CONNECT:
-                title.setText(tr("Търся кантара…", "Looking for the scale…"));
-                sub.setText(tr("Стъпи на кантара — той се събужда и таблетът го намира сам.",
-                        "Step on the scale — it wakes up and the tablet finds it by itself."));
-                c = tr("ВРЪЗКА", "LINK");
-                cc = 0xFF94A3B8;
+            case P_WAIT:
+                title.setText(tr("Стъпете боси на кантара", "Step on the scale barefoot"));
+                sub.setText(tr("Петите върху задните електроди, двете ръце на дръжката, ръцете изпънати надолу.",
+                        "Heels on the rear electrodes, both hands on the handle, arms straight down."));
+                c = tr("ИЗЧАКВАНЕ", "WAITING");
+                cc = accent;
                 steps.at(0);
                 break;
-            case P_STEP_ON:
-                title.setText(tr("Стъпи бос на кантара", "Step on barefoot"));
-                sub.setText(tr("Петите върху задните електроди, хвани дръжката с двете ръце, ръцете отпуснати надолу.",
-                        "Heels on the back electrodes, both hands on the handle, arms relaxed down."));
-                c = tr("ЧАКАМ", "WAITING");
-                cc = accent;
+            case P_LINK:
+                title.setText(tr("Свързване…", "Connecting…"));
+                sub.setText(tr("Хванете дръжката с цели длани и стойте неподвижно.",
+                        "Hold the handle with whole palms and stand still."));
+                c = tr("ВРЪЗКА", "LINK");
+                cc = 0xFF94A3B8;
                 steps.at(1);
                 break;
             case P_SETTLE:
-                title.setText(tr("Стой спокойно…", "Stand still…"));
-                sub.setText(tr("Теглото се успокоява — без движение, без говорене.", "The weight settles — no moving, no talking."));
+                title.setText(tr("Стойте неподвижно", "Stand still"));
+                sub.setText(tr("Теглото се стабилизира.", "The weight is stabilising."));
                 c = tr("ТЕГЛО", "WEIGHT");
                 cc = 0xFFF59E0B;
                 steps.at(2);
                 break;
             case P_SCAN:
-                title.setText(tr("Мери — не пускай дръжката", "Measuring — keep holding"));
-                sub.setText(tr("Слаб ток минава през ръцете, тялото и краката на две честоти. Не се усеща.",
-                        "A faint current passes through arms, trunk and legs at two frequencies. It is not felt."));
-                c = tr("СКАНИРАНЕ", "SCANNING");
+                title.setText(tr("Измерване…", "Measuring…"));
+                sub.setText(tr("Не пускайте дръжката. Измервателният ток не се усеща.",
+                        "Keep holding the handle. The measuring current cannot be felt."));
+                c = tr("АНАЛИЗ", "ANALYSIS");
                 cc = 0xFF22C55E;
                 steps.at(3);
                 scanStart = System.currentTimeMillis();
                 main.removeCallbacks(tick);
                 main.post(tick);
                 break;
-            case P_REVIEW:
-                c = tr("ПРОВЕРКА", "CHECK");
-                cc = 0xFF22C55E;
-                steps.at(3);
-                live.ring(1f, "✓");
-                break;
-            case P_STEP_OFF:
-                title.setText(tr("Слез от кантара за момент", "Step off for a moment"));
-                sub.setText(tr("После стъпи пак — кантарът мери наново при всяко стъпване.",
-                        "Then step on again — the scale measures anew at every step-on."));
-                c = tr("СЛЕЗ", "STEP OFF");
-                cc = 0xFFF59E0B;
-                steps.at(1);
-                break;
             case P_DONE:
-                title.setText(tr("✓ Готово — може да слезе", "✓ Done — step off"));
                 c = tr("ГОТОВО", "DONE");
                 cc = 0xFF22C55E;
                 steps.at(4);
                 break;
             default:
-                title.setText(tr("Включи Bluetooth", "Turn Bluetooth on"));
-                sub.setText(tr("Без Bluetooth таблетът не чува кантара.", "Without Bluetooth the tablet cannot hear the scale."));
+                title.setText(tr("Включете Bluetooth", "Turn Bluetooth on"));
+                sub.setText(tr("Bluetooth е нужен за връзка с кантара.", "Bluetooth is needed to connect to the scale."));
                 c = "BLUETOOTH";
                 cc = 0xFFEF4444;
                 steps.at(0);
@@ -407,18 +369,13 @@ final class ScaleStage {
         chip.setText(c);
         chip.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(cc, 70), dp(16), XemsUi.alpha(cc, 200), dp(1)));
         stable(p);
-        if (p == P_STEP_ON || p == P_CONNECT) {
-            breathe(true);
-        } else {
-            breathe(false);
-        }
-        // the film runs from the moment someone stands on the scale until the results come in
-        showFilm(p == P_SETTLE || p == P_SCAN || p == P_REVIEW || p == P_DONE);
+        // someone is on the scale from the link on: the scan runs until the results come in
+        boolean on = p == P_LINK || p == P_SETTLE || p == P_SCAN || p == P_DONE;
+        fx.mode(p == P_WAIT ? ScanFx.IDLE : p == P_DONE ? ScanFx.DONE : on ? ScanFx.SCAN : ScanFx.OFF);
+        showFilm(on);
         if (p != P_SCAN) {
             main.removeCallbacks(tick);
-            if (p != P_REVIEW) {
-                live.ring(p == P_DONE ? 1f : 0f, p == P_DONE ? "✓" : "");
-            }
+            live.ring(p == P_DONE ? 1f : 0f, p == P_DONE ? "✓" : "");
         }
         if (was != p) {
             XemsUi.enter(title);
@@ -427,10 +384,10 @@ final class ScaleStage {
 
     void stable(int p) {
         if (p == P_SETTLE) {
-            stableChip.setText(tr("● успокоява се", "● settling"));
+            stableChip.setText(tr("● стабилизиране", "● stabilising"));
             stableChip.setTextColor(0xFFF59E0B);
-        } else if (p == P_SCAN || p == P_REVIEW || p == P_DONE) {
-            stableChip.setText(tr("✓ стабилно", "✓ steady"));
+        } else if (p == P_SCAN || p == P_DONE) {
+            stableChip.setText(tr("✓ стабилно", "✓ stable"));
             stableChip.setTextColor(0xFF22C55E);
         } else {
             stableChip.setText("");
@@ -445,44 +402,29 @@ final class ScaleStage {
 
     // ================================================================ the theatre: figure ↔ film
 
-    void breathe(boolean on) {
-        if (on && breathe == null) {
-            breathe = ValueAnimator.ofFloat(0f, 1f);
-            breathe.setDuration(2400);
-            breathe.setRepeatMode(ValueAnimator.REVERSE);
-            breathe.setRepeatCount(ValueAnimator.INFINITE);
-            breathe.addUpdateListener(new Breathe(this));
-            breathe.start();
-        } else if (!on && breathe != null) {
-            breathe.cancel();
-            breathe = null;
-            hero.setScaleX(1f);
-            hero.setScaleY(1f);
-            hero.setAlpha(1f);
-        }
-    }
-
     void showFilm(boolean on) {
         boolean was = filmOn;
         filmOn = on;
         if (on) {
             if (player != null && filmReady) {
                 try {
-                    if (!was || !player.isPlaying()) {
-                        if (!was) {
-                            player.seekTo(0);
-                        }
+                    if (!was) {
+                        player.seekTo(0);
+                    }
+                    if (!player.isPlaying()) {
                         player.start();
                     }
                 } catch (Throwable t) {
-                    XemsGuard.report("ScaleStage.play", t);
+                    log("play: " + t);
                 }
-                cover.animate().alpha(0f).setDuration(500).start();
-                hero.animate().alpha(0f).setDuration(500).start();
             }
+            // the cover comes off only with the film's first frame (FilmSurface.onSurfaceTextureUpdated)
         } else {
-            cover.animate().alpha(1f).setDuration(400).start();
-            hero.animate().alpha(1f).setDuration(400).start();
+            filmShown = false;
+            cover.animate().cancel();
+            cover.setAlpha(1f);
+            hero.animate().cancel();
+            hero.setAlpha(1f);
             if (player != null) {
                 try {
                     player.pause();
@@ -492,10 +434,21 @@ final class ScaleStage {
         }
     }
 
+    /** A frame of the film reached the screen: now it may show (once per standing). */
+    void frame() {
+        if (filmOn && !filmShown) {
+            filmShown = true;
+            log("film on screen");
+            cover.animate().alpha(0f).setDuration(450).start();
+            hero.animate().alpha(0f).setDuration(450).start();
+        }
+    }
+
     void openFilm(SurfaceTexture st) {
         try {
             File f = videoFile(a, female);
             if (f == null) {
+                log("film: no file");
                 return;
             }
             player = new MediaPlayer();
@@ -506,8 +459,10 @@ final class ScaleStage {
             Film l = new Film(this);
             player.setOnPreparedListener(l);
             player.setOnVideoSizeChangedListener(l);
+            player.setOnErrorListener(l);
             player.prepareAsync();
         } catch (Throwable t) {
+            log("film: " + t);
             XemsGuard.report("ScaleStage.film", t);
         }
     }
@@ -526,8 +481,8 @@ final class ScaleStage {
 
     void release() {
         main.removeCallbacksAndMessages(null);
-        breathe(false);
         filmReady = false;
+        filmShown = false;
         if (player != null) {
             try {
                 player.release();
@@ -537,16 +492,17 @@ final class ScaleStage {
         }
     }
 
-    /** The film from the APK's assets, copied once to the cache (the player needs a file). */
+    /** The film from the APK's assets (stored compressed), copied once to the cache — whole, or not at all. */
     static File videoFile(Context c, boolean female) {
         String name = (female ? "female" : "male") + ".mp4";
-        File f = new File(c.getCacheDir(), "xems_scale_" + name);
+        File f = new File(c.getCacheDir(), "xems_scale_v2_" + name);
         if (f.isFile() && f.length() > 10000) {
             return f;
         }
+        File tmp = new File(c.getCacheDir(), "xems_scale_v2_" + name + ".part");
         try {
             InputStream in = c.getAssets().open("xems/body/scale/measure/" + name);
-            OutputStream out = new FileOutputStream(f);
+            OutputStream out = new FileOutputStream(tmp);
             try {
                 byte[] buf = new byte[32768];
                 int n;
@@ -557,7 +513,7 @@ final class ScaleStage {
                 out.close();
                 in.close();
             }
-            return f;
+            return tmp.renameTo(f) ? f : tmp;
         } catch (Throwable t) {
             XemsGuard.report("ScaleStage.videoFile", t);
             return null;
@@ -577,22 +533,117 @@ final class ScaleStage {
         }
     }
 
-    // ================================================================ drawn parts
+    // ================================================================ drawn parts (time-driven: they move even with
+    // the system's animator scale at 0, which stops every ValueAnimator)
 
-    /** link · step on · steady · scan · done — done ones ✓, the current one pulsing. */
+    static float now() {
+        return (SystemClock.uptimeMillis() % 1000000L) / 1000f;
+    }
+
+    /**
+     * Over the figure: waiting — a soft glow breathing at the plate (step here); scanning — a bright line sweeping
+     * the body up and down with a fading trail, faint scan lines and the edges pulsing; done — one green flash.
+     */
+    static final class ScanFx extends View {
+        static final int OFF = 0, IDLE = 1, SCAN = 2, DONE = 3;
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF r = new RectF();
+        final int accent;
+        int mode = OFF;
+        long since;
+
+        ScanFx(Context c, int accent) {
+            super(c);
+            this.accent = accent;
+        }
+
+        float d(float v) {
+            return v * getResources().getDisplayMetrics().density;
+        }
+
+        void mode(int m) {
+            if (m != mode) {
+                mode = m;
+                since = SystemClock.uptimeMillis();
+                invalidate();
+            }
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            float w = getWidth(), h = getHeight();
+            if (mode == OFF || w <= 0 || h <= 0) {
+                return;
+            }
+            float t = now();
+            p.setShader(null);
+            p.setStyle(Paint.Style.FILL);
+            if (mode == IDLE) {
+                // the plate glows where the feet go
+                float k = 0.5f + 0.5f * (float) Math.sin(t * Math.PI / 1.2);
+                float cy = h - d(46), rx = w * 0.26f, ry = d(14);
+                p.setColor(XemsUi.alpha(accent, (int) (40 + 70 * k)));
+                r.set(w / 2 - rx * (1 + 0.08f * k), cy - ry, w / 2 + rx * (1 + 0.08f * k), cy + ry);
+                c.drawOval(r, p);
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(d(2));
+                p.setColor(XemsUi.alpha(accent, (int) (160 * (1 - k))));
+                float grow = 1 + 0.5f * k;
+                r.set(w / 2 - rx * grow, cy - ry * grow, w / 2 + rx * grow, cy + ry * grow);
+                c.drawOval(r, p);
+                postInvalidateOnAnimation();
+                return;
+            }
+            if (mode == DONE) {
+                float e = (SystemClock.uptimeMillis() - since) / 900f;
+                if (e < 1) {
+                    p.setColor(XemsUi.alpha(0xFF22C55E, (int) (110 * (1 - e))));
+                    c.drawRect(0, 0, w, h, p);
+                    postInvalidateOnAnimation();
+                }
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(d(3));
+                p.setColor(XemsUi.alpha(0xFF22C55E, 200));
+                r.set(d(2), d(2), w - d(2), h - d(2));
+                c.drawRoundRect(r, d(20), d(20), p);
+                return;
+            }
+            // SCAN: faint horizontal lines, a sweeping bright line with its trail, the frame pulsing
+            float top = d(36), bot = h - d(20);
+            p.setColor(XemsUi.alpha(accent, 22));
+            for (float y = top; y < bot; y += d(10)) {
+                c.drawRect(0, y, w, y + d(1), p);
+            }
+            float ph = (t % 2.4f) / 2.4f;                      // 0..1
+            float tri = ph < 0.5f ? ph * 2 : 2 - ph * 2;       // down and up
+            float ease = tri * tri * (3 - 2 * tri);
+            float y = top + (bot - top) * ease;
+            boolean down = ph < 0.5f;
+            float trail = d(70);
+            float y0 = down ? y - trail : y, y1 = down ? y : y + trail;
+            p.setShader(new LinearGradient(0, y0, 0, y1, down ? 0x00000000 : XemsUi.alpha(0xFF22C55E, 120),
+                    down ? XemsUi.alpha(0xFF22C55E, 120) : 0x00000000, Shader.TileMode.CLAMP));
+            c.drawRect(0, y0, w, y1, p);
+            p.setShader(null);
+            p.setColor(0xFFB9FBC0);
+            c.drawRect(d(8), y - d(1.5f), w - d(8), y + d(1.5f), p);
+            float k = 0.5f + 0.5f * (float) Math.sin(t * Math.PI * 2 / 1.6);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(d(2));
+            p.setColor(XemsUi.alpha(0xFF22C55E, (int) (60 + 100 * k)));
+            r.set(d(2), d(2), w - d(2), h - d(2));
+            c.drawRoundRect(r, d(20), d(20), p);
+            postInvalidateOnAnimation();
+        }
+    }
+
+    /** step on · link · weight · analysis · done — done ones ✓, the current one pulsing. */
     static final class StepsBar extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         int at;
-        float pulse;
-        ValueAnimator va;
 
         StepsBar(Context c) {
             super(c);
-            va = ValueAnimator.ofFloat(0f, 1f);
-            va.setDuration(1200);
-            va.setRepeatCount(ValueAnimator.INFINITE);
-            va.addUpdateListener(new Pulse(this));
-            va.start();
         }
 
         void at(int i) {
@@ -605,15 +656,10 @@ final class ScaleStage {
         }
 
         @Override
-        protected void onDetachedFromWindow() {
-            super.onDetachedFromWindow();
-            va.cancel();
-        }
-
-        @Override
         protected void onDraw(Canvas c) {
-            String[] n = {tr("Връзка", "Link"), tr("Стъпи", "Step on"), tr("Стабилно", "Steady"),
-                    tr("Сканиране", "Scan"), tr("Готово", "Done")};
+            String[] n = {tr("Стъпване", "Step on"), tr("Връзка", "Link"), tr("Тегло", "Weight"),
+                    tr("Анализ", "Analysis"), tr("Готово", "Done")};
+            float pulse = (now() % 1.2f) / 1.2f;
             float l = d(24), w = getWidth() - 2 * l, y = d(22);
             for (int i = 0; i < 5; i++) {
                 float x = l + w * i / 4;
@@ -623,12 +669,11 @@ final class ScaleStage {
                     c.drawLine(x + d(14), y, l + w * (i + 1) / 4 - d(14), y, p);
                 }
                 p.setStyle(Paint.Style.FILL);
-                if (i == at) {
+                if (i == at && at < 4) {
                     p.setColor(XemsUi.alpha(0xFF22C55E, (int) (90 * (1 - pulse))));
                     c.drawCircle(x, y, d(12) + d(10) * pulse, p);
                 }
-                p.setColor(i < at || (i == 4 && at == 4) ? 0xFF22C55E : i == at ? 0xFF22C55E
-                        : XemsUi.alpha(XemsUi.TEXT, 40));
+                p.setColor(i <= at ? 0xFF22C55E : XemsUi.alpha(XemsUi.TEXT, 40));
                 c.drawCircle(x, y, d(12), p);
                 p.setColor(i <= at ? 0xFF0B1A10 : XemsUi.MUTED);
                 p.setTextAlign(Paint.Align.CENTER);
@@ -638,9 +683,12 @@ final class ScaleStage {
                 p.setFakeBoldText(i == at);
                 p.setTextSize(d(12));
                 p.setColor(i == at ? XemsUi.TEXT : XemsUi.MUTED);
-                c.drawText(n[i], x, y + d(36), p);
+                ScaleViews.drawFit(c, p, n[i], x, y + d(36), w / 4 - d(4), this);
             }
             p.setFakeBoldText(false);
+            if (at < 4) {
+                postInvalidateOnAnimation();
+            }
         }
     }
 
@@ -738,7 +786,7 @@ final class ScaleStage {
                 p.setColor(XemsUi.MUTED);
                 p.setTextAlign(Paint.Align.CENTER);
                 p.setTextSize(d(13));
-                c.drawText(tr("тук се вижда как теглото се успокоява", "here the weight settles"), lw / 2, h / 2 + d(4), p);
+                ScaleViews.drawFit(c, p, tr("живо тегло", "live weight"), lw / 2, h / 2 + d(4), lw - d(16), this);
             }
             // the scan ring
             float cx = w - rs / 2 - d(4), cy = h / 2, rad = rs / 2 - d(8);
@@ -781,51 +829,6 @@ final class ScaleStage {
         }
     }
 
-    static final class Next implements Runnable {
-        final ScaleStage v;
-
-        Next(ScaleStage v) {
-            this.v = v;
-        }
-
-        @Override
-        public void run() {
-            if (v.phase == P_REVIEW && v.needOff) {
-                v.phase(P_STEP_OFF);
-            }
-        }
-    }
-
-    static final class Breathe implements ValueAnimator.AnimatorUpdateListener {
-        final ScaleStage v;
-
-        Breathe(ScaleStage v) {
-            this.v = v;
-        }
-
-        @Override
-        public void onAnimationUpdate(ValueAnimator a) {
-            float f = (Float) a.getAnimatedValue();
-            v.hero.setScaleX(1f + 0.015f * f);
-            v.hero.setScaleY(1f + 0.015f * f);
-            v.hero.setAlpha(v.phase == P_CONNECT ? 0.55f + 0.25f * f : 0.85f + 0.15f * f);
-        }
-    }
-
-    static final class Pulse implements ValueAnimator.AnimatorUpdateListener {
-        final StepsBar v;
-
-        Pulse(StepsBar v) {
-            this.v = v;
-        }
-
-        @Override
-        public void onAnimationUpdate(ValueAnimator a) {
-            v.pulse = (Float) a.getAnimatedValue();
-            v.invalidate();
-        }
-    }
-
     static final class FilmSurface implements TextureView.SurfaceTextureListener {
         final ScaleStage v;
 
@@ -853,10 +856,12 @@ final class ScaleStage {
 
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture st) {
+            v.frame();
         }
     }
 
-    static final class Film implements MediaPlayer.OnPreparedListener, MediaPlayer.OnVideoSizeChangedListener {
+    static final class Film implements MediaPlayer.OnPreparedListener, MediaPlayer.OnVideoSizeChangedListener,
+            MediaPlayer.OnErrorListener {
         final ScaleStage v;
 
         Film(ScaleStage v) {
@@ -866,6 +871,7 @@ final class ScaleStage {
         @Override
         public void onPrepared(MediaPlayer mp) {
             v.filmReady = true;
+            log("film ready " + mp.getVideoWidth() + "x" + mp.getVideoHeight());
             v.fit(mp.getVideoWidth(), mp.getVideoHeight());
             if (v.filmOn) {
                 v.filmOn = false;   // so it starts from the top
@@ -876,6 +882,14 @@ final class ScaleStage {
         @Override
         public void onVideoSizeChanged(MediaPlayer mp, int w, int h) {
             v.fit(w, h);
+        }
+
+        @Override
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            // the drawn scan stays; the film is simply not shown
+            log("film error " + what + "/" + extra);
+            v.filmReady = false;
+            return true;
         }
     }
 }

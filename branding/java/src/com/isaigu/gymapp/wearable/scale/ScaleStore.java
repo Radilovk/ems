@@ -138,14 +138,30 @@ public final class ScaleStore {
         return save(c, userId, r, male, age, heightCm, 1);
     }
 
-    /** As {@link #save}, for a reading merged from {@code steps} step-ons ("n"). */
+    /** As {@link #save}, for a reading merged from {@code steps} sweeps ("n"). */
     public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
             int heightCm, int steps) {
+        return save(c, userId, r, male, age, heightCm, steps, 0);
+    }
+
+    /**
+     * As {@link #save}; {@code replaceT} &gt; 0 = the same measurement refined (another sweep while the client still
+     * stands): the entry with that "t" is replaced, keeps its "t" (the server overwrites it) and goes up again.
+     */
+    public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
+            int heightCm, int steps, long replaceT) {
         try {
-            JSONArray a = upgrade(c, userId, male, age, heightCm);
+            JSONArray a0 = upgrade(c, userId, male, age, heightCm);
+            JSONArray a = new JSONArray();
+            for (int i = 0; i < a0.length(); i++) {
+                JSONObject m = a0.optJSONObject(i);
+                if (m != null && (replaceT <= 0 || m.optLong("t") != replaceT)) {
+                    a.put(m);
+                }
+            }
             ScaleModel.State st = ScaleModel.stateOf(a);
-            JSONObject o = ScaleModel.entry(r, male, age, heightCm, System.currentTimeMillis(), st,
-                    RestHrStore.typical(c, userId));
+            JSONObject o = ScaleModel.entry(r, male, age, heightCm, replaceT > 0 ? replaceT
+                    : System.currentTimeMillis(), st, RestHrStore.typical(c, userId));
             ScaleModel.mark(o, male, heightCm);
             if (steps > 1) {
                 o.put("n", steps);
@@ -155,7 +171,19 @@ public final class ScaleStore {
                 out.put(a.get(i));
             }
             out.put(o);
-            prefs(c).edit().putString("m" + userId, out.toString()).apply();
+            SharedPreferences p = prefs(c);
+            SharedPreferences.Editor e = p.edit().putString("m" + userId, out.toString());
+            if (replaceT > 0) {
+                // send it again (the server keeps one row per "t")
+                StringBuilder sent = new StringBuilder();
+                for (String x : p.getString(ScaleUploader.SENT + userId, "").split(",")) {
+                    if (x.length() > 0 && !x.equals(String.valueOf(replaceT))) {
+                        sent.append(sent.length() > 0 ? "," : "").append(x);
+                    }
+                }
+                e.putString(ScaleUploader.SENT + userId, sent.toString());
+            }
+            e.apply();
             return o;
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("ScaleStore.save", t);
@@ -207,21 +235,6 @@ public final class ScaleStore {
                 .putString(ScaleUploader.DELETED + userId, del.length() > 0 ? del + "," + t : String.valueOf(t))
                 .remove(ScaleUploader.SENT + userId).apply();
         return keep;
-    }
-
-    /**
-     * True when this weight is not the client's last one — a jump no body makes within the time (someone else on
-     * the profile?): more than 4 kg / 7 % within 30 days.
-     */
-    public static boolean unlike(JSONArray hist, double w, long now) {
-        for (int i = hist.length() - 1; i >= 0; i--) {
-            JSONObject m = hist.optJSONObject(i);
-            if (m == null || !m.has("w")) {
-                continue;
-            }
-            return now - m.optLong("t") < 30L * 86400000 && Math.abs(w - m.optDouble("w")) > ScaleModel.jump(w);
-        }
-        return false;
     }
 
     public static String mac(Context c) {

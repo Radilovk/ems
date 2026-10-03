@@ -84,7 +84,6 @@ public final class ScaleScreen {
         TextView weight;
         TextView weightDelta;
         TextView status;
-        TextView saved;
         TextView heightValue;
         LinearLayout heightRow;
         TextView typeChip;
@@ -114,7 +113,6 @@ public final class ScaleScreen {
         LinearLayout history;
         /** The measuring stage (shown first and whenever someone steps on) and the step-ons of this measurement. */
         ScaleStage stage;
-        ScaleSession session;
         boolean staging;
         final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
 
@@ -185,8 +183,7 @@ public final class ScaleScreen {
             String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim()
                     : u.nickName != null ? u.nickName.trim() : "";
             s = XemsUi.shell(a, name.length() > 0 ? name : tr("Кантар", "Scale"),
-                    tr("Кантар · бос, по тънки дрехи, преди тренировката",
-                            "Scale · barefoot, light clothes, before the training"), 1280);
+                    tr("Телесен анализ", "Body composition"), 1280);
             XemsUi.fullScreen(s);
             s.info.setVisibility(View.VISIBLE);
             s.info.setOnClickListener(new Info(this));
@@ -217,7 +214,7 @@ public final class ScaleScreen {
             s.body.addView(stage.view(), XemsUi.matchWrap(a, 12));
             s.body.addView(grid, XemsUi.matchWrap(a, 14));
 
-            again = XemsUi.button(a, tr("Мери пак", "Measure again"), XemsUi.SECONDARY);
+            again = XemsUi.button(a, tr("Ново измерване", "Measure again"), XemsUi.SECONDARY);
             again.setOnClickListener(new Again(this));
             again.setVisibility(View.INVISIBLE);
             s.footer.addView(again, new LinearLayout.LayoutParams(dp(220), dp(56)));
@@ -266,9 +263,6 @@ public final class ScaleScreen {
             line.setGravity(Gravity.CENTER_VERTICAL);
             status = XemsUi.text(a, "", 15, XemsUi.TEXT, true);
             line.addView(status, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            saved = XemsUi.badge(a, tr("✓ Запазено", "✓ Saved"), XemsUi.GO_TEXT);
-            saved.setVisibility(View.GONE);
-            line.addView(saved);
             col.addView(line, XemsUi.matchWrap(a, 2));
             typeChip = XemsUi.text(a, "", 16, XemsUi.TEXT, true);
             typeChip.setPadding(dp(14), dp(8), dp(14), dp(8));
@@ -300,8 +294,12 @@ public final class ScaleScreen {
         void arrange() {
             portrait = Columns.portrait(a);
             narrow = Columns.narrow(a);
-            Columns.apply(a, stage.root, narrow, new float[] {1.2f, 1f}, new int[] {340, 560},
-                    Columns.landH(a, 234));
+            int stageH = Columns.landH(a, 234);
+            Columns.apply(a, stage.root, narrow, new float[] {1.2f, 1f}, new int[] {340, 560}, stageH);
+            // the theatre keeps a set height (its picture would otherwise ask for its full pixel size)
+            LinearLayout.LayoutParams th = (LinearLayout.LayoutParams) stage.theatre.getLayoutParams();
+            th.height = narrow ? dp(340) : stageH;
+            stage.theatre.setLayoutParams(th);
             detach(modeHolder);
             detach(barTools);
             detach(rangeHolder);
@@ -380,7 +378,7 @@ public final class ScaleScreen {
         void build() {
             cards.clear();
             modeHolder.removeAllViews();
-            modeHolder.addView(XemsUi.segmented(a, new String[] {tr("Днес", "Today"), tr("Проследяване", "Tracking")},
+            modeHolder.addView(XemsUi.segmented(a, new String[] {tr("Днес", "Today"), tr("Развитие", "Progress")},
                     mode, new Mode(this)), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
             rangeHolder.removeAllViews();
@@ -388,8 +386,8 @@ public final class ScaleScreen {
                 buildDay();
             } else {
                 buildTrack();
-                String[] r = {tr("Спрямо миналото", "Since last time"), tr("3 мерения назад", "3 back"),
-                        tr("От началото", "Since the first")};
+                String[] r = {tr("Спрямо предишното", "Since last time"), tr("3 измервания назад", "3 back"),
+                        tr("От първото", "Since the first")};
                 for (int i = 0; i < r.length; i++) {
                     TextView c = XemsUi.chip(a, r[i], i == range, 0xFF38BDF8);
                     c.setOnClickListener(new Range(this, i));
@@ -411,8 +409,8 @@ public final class ScaleScreen {
          */
         void buildDay() {
             LinearLayout key = XemsUi.card(a);
-            String[] names = {tr("Мазнини", "Body fat"), tr("Мускули", "Muscle"), tr("Вода", "Water"),
-                    tr("Възраст", "Age")};
+            String[] names = {tr("Мазнини", "Body fat"), tr("Мускулна маса", "Muscle mass"), tr("Вода", "Water"),
+                    tr("Възраст на тялото", "Body age")};
             for (int r = 0; r < 2; r++) {
                 LinearLayout line = XemsUi.horizontal(a);
                 for (int c = 0; c < 2; c++) {
@@ -442,17 +440,17 @@ public final class ScaleScreen {
             key.addView(readyNote, XemsUi.matchWrap(a, 0));
             gauge = new ScaleViews.Gauge(a);
             key.addView(gauge, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(200)));
-            reasons = XemsUi.horizontal(a);
-            reasons.setGravity(Gravity.CENTER);
+            reasons = XemsUi.vertical(a);         // one reason per line: two badges side by side were cut off
+            reasons.setGravity(Gravity.CENTER_HORIZONTAL);
             key.addView(reasons, XemsUi.matchWrap(a, 6));
-            key.addView(header(XemsUi.label(a, tr("Тип тяло · спрямо ръста", "Body type · for the height")), "body"),
+            key.addView(header(XemsUi.label(a, tr("Телосложение", "Build")), "body"),
                     XemsUi.matchWrap(a, 18));
             meter = new ScaleViews.BandMeter(a);
             key.addView(meter, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(170)));
             cards.add(key);
             cards.add(radarCard());
             LinearLayout rc = XemsUi.card(a);
-            rc.addView(header(XemsUi.label(a, tr("Ток до мускула · по канали", "Current to the muscle · per channel")),
+            rc.addView(header(XemsUi.label(a, tr("Проводимост по канали", "Conductivity per channel")),
                     "reach"));
             reach = new ScaleViews.Reach(a);
             rc.addView(reach, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(170)));
@@ -478,14 +476,14 @@ public final class ScaleScreen {
             dc.addView(table, XemsUi.matchWrap(a, 6));
             cards.add(dc);
             LinearLayout mc = XemsUi.card(a);
-            mc.addView(header(XemsUi.label(a, tr("Промяна от старта", "Change since the start")), "change"));
+            mc.addView(header(XemsUi.label(a, tr("Промяна за периода", "Change over the period")), "change"));
             changeHead = XemsUi.text(a, "", 22, XemsUi.TEXT, true);
             mc.addView(changeHead, XemsUi.matchWrap(a, 4));
             change = new ScaleViews.Change(a);
             mc.addView(change, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(220)));
             cards.add(mc);
             LinearLayout hc = XemsUi.card(a);
-            hc.addView(header(XemsUi.label(a, tr("Мерения", "Measurements")), "history"));
+            hc.addView(header(XemsUi.label(a, tr("Измервания", "Measurements")), "history"));
             history = XemsUi.vertical(a);
             hc.addView(history, XemsUi.matchWrap(a, 4));
             cards.add(hc);
@@ -531,10 +529,10 @@ public final class ScaleScreen {
                 return;
             }
             String when = new SimpleDateFormat("d.MM.yyyy · HH:mm", Locale.US).format(new Date(t));
-            confirm(tr("Да изтрия ли това мерене?", "Delete this measurement?"),
-                    when + " · " + one(m.optDouble("w")) + tr(" кг", " kg")
-                            + tr(" — останалите се преизчисляват без него", " — the rest are recomputed without it"),
-                    tr("Изтрий", "Delete"), new DeleteNow(this, t), tr("Остави", "Keep"), null);
+            confirm(tr("Изтриване на измерването", "Delete the measurement"),
+                    when + " · " + one(m.optDouble("w")) + tr(" кг. Останалите стойности ще бъдат преизчислени.",
+                            " kg. The other values will be recalculated."),
+                    tr("Изтрий", "Delete"), new DeleteNow(this, t), tr("Отказ", "Cancel"), null);
         }
 
         void deleteNow(long t) {
@@ -575,7 +573,7 @@ public final class ScaleScreen {
 
         TextView dot(String key) {
             TextView d = XemsUi.iconButton(a, "i", XemsUi.SURFACE, XemsUi.TEXT, 34);
-            d.setContentDescription(tr("Какво значи", "What it means"));
+            d.setContentDescription(tr("Информация", "Information"));
             d.setOnClickListener(new CardInfo(this, key));
             return d;
         }
@@ -586,8 +584,8 @@ public final class ScaleScreen {
             return lp;
         }
 
-        static final String[] FAT_N = {"много ниски", "стегнато", "норма", "наднормено", "затлъстяване"};
-        static final String[] FAT_E = {"very low", "lean", "normal", "overweight", "obese"};
+        static final String[] FAT_N = {"много ниски", "ниски", "норма", "повишени", "високи"};
+        static final String[] FAT_E = {"very low", "low", "normal", "elevated", "high"};
 
         String[] names(String[] bg, String[] en) {
             return XemsLang.tr("б", "e").equals("б") ? bg : en;
@@ -611,66 +609,63 @@ public final class ScaleScreen {
                 double fat = m != null ? m.optDouble("fat", Double.NaN) : Double.NaN;
                 if ("fat".equals(key)) {
                     title = tr("Мазнини", "Body fat");
-                    text = tr("Каква част от теглото е мазнина. Нормата зависи от пола и възрастта. Под нея — стегнато "
-                            + "тяло; много под нея остават само жизнено нужните мазнини. Над нея — наднормено, после "
-                            + "затлъстяване.", "How much of the weight is fat. The norm depends on sex and age. Below it "
-                            + "— lean; far below only the essential fat is left. Above — overweight, then obese.");
+                    text = tr("Делът на мазнините в общото тегло. Нормата зависи от пола и възрастта.",
+                            "The share of fat in the total weight. The normal range depends on sex and age.");
                     bars.add(ScaleInsight.fatNorm(fat, male, age, names(FAT_N, FAT_E)));
                 } else if ("muscle".equals(key)) {
-                    title = tr("Мускули", "Muscle");
-                    text = tr("Мускулите и всичко без мазнини, спрямо ръста. В средата е обичайното за възрастни; "
-                            + "вдясно — атлетично. Тук повече е по-добре: тежко от мускули тяло не е наднормено.",
-                            "Muscle and everything that is not fat, for the height. The middle is usual for adults; "
-                                    + "to the right athletic. More is better here: weight from muscle is not overweight.");
+                    title = tr("Мускулна маса", "Muscle mass");
+                    text = tr("Мекотъканна маса без мазнини — мускули заедно с водата в тях. Оценява се спрямо ръста. "
+                            + "Скелетната мускулатура е в „Анализ“.",
+                            "Soft lean mass — muscle together with its water, rated for the height. Skeletal muscle "
+                                    + "is in \"Analysis\".");
                     bars.add(ScaleInsight.muscleNorm(b.ffmi, male, names(
-                            new String[] {"много малко", "малко", "норма", "атлетично", "много"},
+                            new String[] {"много ниска", "ниска", "норма", "атлетична", "много висока"},
                             new String[] {"very low", "low", "normal", "athletic", "very high"})));
                 } else if ("water".equals(key)) {
                     title = tr("Вода", "Water");
-                    text = tr("Каква част от теглото е вода. Ниско — обезводняване: нека пие вода преди тренировка "
-                            + "(токът се усеща по-силно). Високо — задържане на течности или оток.",
-                            "How much of the weight is water. Low — dehydrated: have them drink before training (the "
-                                    + "current feels stronger). High — fluid retention or swelling.");
+                    text = tr("Делът на водата в теглото. Ниската хидратация влошава провеждането на тока — "
+                            + "препоръчва се вода преди тренировката.",
+                            "The share of water in the weight. Low hydration impairs current conduction — water before "
+                                    + "the session is advised.");
                     bars.add(ScaleInsight.waterNorm(m != null ? m.optDouble("water", Double.NaN) : Double.NaN, male,
                             names(new String[] {"много ниско", "ниско", "норма", "високо", "много високо"},
                                     new String[] {"very low", "low", "normal", "high", "very high"})));
                 } else if ("age".equals(key)) {
-                    title = tr("Физическа възраст", "Physical age");
-                    text = tr("На каква възраст отговарят мускулите на ръцете и краката и мазнините — по средното от "
-                            + "DXA мерения на 3 327 души. Паспортната възраст не участва. ±3 години = като годините.",
-                            "The age whose usual arm + leg muscle and fat match — from DXA scans of 3,327 people. The "
-                                    + "passport age is not used. ±3 years = as old as the years.");
+                    title = tr("Възраст на тялото", "Body age");
+                    text = tr("Възрастта, на която съответстват мускулатурата и мазнините, според референтни DXA данни. "
+                            + "Разлика до ±3 години спрямо реалната е в нормата.",
+                            "The age the muscle and fat correspond to, from DXA reference data. Within ±3 years of the "
+                                    + "actual age is normal.");
                     bars.add(ScaleInsight.ageNorm(b.physicalAge, age, names(
-                            new String[] {"много по-млад", "по-млад", "като годините", "по-стар", "много по-стар"},
-                            new String[] {"much younger", "younger", "as the years", "older", "much older"})));
+                            new String[] {"много по-ниска", "по-ниска", "отговаря", "по-висока", "много по-висока"},
+                            new String[] {"much younger", "younger", "matches", "older", "much older"})));
                 } else if ("weight".equals(key)) {
                     title = tr("Тегло и ИТМ", "Weight and BMI");
-                    text = tr("ИТМ сравнява теглото с ръста, но не знае от какво е теглото: мускулите го вдигат без "
-                            + "мазнини. Затова решава „Тип тяло“, не ИТМ.", "BMI compares the weight with the height "
-                            + "but not what the weight is made of: muscle raises it without fat. So the body type "
-                            + "decides, not BMI.");
+                    text = tr("ИТМ отчита само теглото спрямо ръста и не различава мускули от мазнини. Оценката на "
+                            + "телосложението се базира на състава на тялото.",
+                            "BMI only relates weight to height and does not tell muscle from fat. The build is rated "
+                                    + "from body composition.");
                     bars.add(ScaleInsight.bmiNorm(m != null ? m.optDouble("bmi", Double.NaN) : Double.NaN, names(
-                            new String[] {"много нисък", "нисък", "норма", "над нормата", "затлъстяване"},
+                            new String[] {"много нисък", "нисък", "норма", "наднормено тегло", "затлъстяване"},
                             new String[] {"very low", "low", "normal", "above", "obese"})));
                 } else if ("ready".equals(key)) {
-                    title = tr("Готовност за днес", "Readiness today");
-                    text = tr("Как са тъканите днес спрямо обичайното за този клиент. Подуване след тежка EMS (ден 2–4) "
-                            + "или по-малко вода я свалят — тогава днес по-слабо: −15 % или −30 %. Автоматичният режим и "
-                            + "планът го прилагат сами.", "How the tissues are today against this client's usual. "
-                            + "Swelling after a hard EMS session (day 2–4) or less water lowers it — then softer today: "
-                            + "−15 % or −30 %. Auto and the plan apply it by themselves.");
+                    title = tr("Готовност за тренировка", "Training readiness");
+                    text = tr("Състоянието на тъканите спрямо личната база на клиента. При непълно възстановяване "
+                            + "интензитетът се намалява автоматично с 15 % или 30 %.",
+                            "The state of the tissues against the client's own baseline. When recovery is incomplete "
+                                    + "the intensity is reduced automatically by 15 % or 30 %.");
                     ScaleInsight.Readiness r = m != null ? ScaleInsight.readiness(hist, indexOf(m)) : null;
                     if (r != null && r.known()) {
                         bars.add(ScaleInsight.readyNorm(r.score, names(
-                                new String[] {"−30 %", "−15 %", "внимание", "добре", "пълна сила"},
+                                new String[] {"−30 %", "−15 %", "внимание", "добра", "пълна"},
                                 new String[] {"−30 %", "−15 %", "careful", "good", "full"})));
                     }
                 } else if ("zones".equals(key)) {
-                    title = tr("Зони спрямо нормата", "Zones against normal");
-                    text = tr("Мускулите във всяка зона спрямо нормата за ръста и теглото (100 %). Пунктирът е "
-                            + "сравнението. Докосни зона на фигурата или радара, за да видиш нея.",
-                            "The muscle of each zone against normal for the height and weight (100 %). Dashed = the "
-                                    + "comparison. Tap a zone on the figure or the radar to see it.");
+                    title = tr("Сегментен анализ", "Segmental analysis");
+                    text = tr("Мускулатурата във всяка зона спрямо нормата (100 %). Пунктирът показва предишното "
+                            + "измерване.",
+                            "The muscle of each zone against the norm (100 %). The dashed line is the previous "
+                                    + "measurement.");
                     double[] mus = ScaleInsight.ofNormal(m, male, heightCm)[0];
                     int z = selected;
                     if (z < 0) {
@@ -685,20 +680,18 @@ public final class ScaleScreen {
                     if (z >= 0) {
                         String[] zn = {tr("Торс", "Trunk"), tr("Лява ръка", "Left arm"), tr("Дясна ръка", "Right arm"),
                                 tr("Ляв крак", "Left leg"), tr("Десен крак", "Right leg")};
-                        barTitles.add(zn[z] + (selected < 0 ? tr(" · най-слабата зона", " · the weakest zone") : ""));
+                        barTitles.add(zn[z] + (selected < 0 ? tr(" · най-слаба зона", " · weakest zone") : ""));
                         bars.add(ScaleInsight.zoneNorm(mus[z], names(
-                                new String[] {"много малко", "малко", "норма", "над нормата", "много"},
+                                new String[] {"много ниска", "ниска", "норма", "над нормата", "много висока"},
                                 new String[] {"very low", "low", "normal", "above", "very high"})));
                     }
                 } else if ("body".equals(key)) {
-                    title = tr("Тип тяло", "Body type");
-                    text = tr("Мускули и мазнини поотделно, спрямо ръста — затова плътната мускулатура е „атлетично“, "
-                            + "а не „наднормено тегло“. Висцералните мазнини са около органите.",
-                            "Muscle and fat separately, for the height — so dense muscle is \"athletic\", not "
-                                    + "\"overweight\". Visceral fat sits around the organs.");
-                    barTitles.add(tr("Мускули", "Muscle"));
+                    title = tr("Телосложение", "Build");
+                    text = tr("Мускулна маса и мазнини, оценени поотделно спрямо ръста.",
+                            "Muscle mass and fat, each rated for the height.");
+                    barTitles.add(tr("Мускулна маса", "Muscle mass"));
                     bars.add(ScaleInsight.muscleNorm(b.ffmi, male, names(
-                            new String[] {"много малко", "малко", "норма", "атлетично", "много"},
+                            new String[] {"много ниска", "ниска", "норма", "атлетична", "много висока"},
                             new String[] {"very low", "low", "normal", "athletic", "very high"})));
                     barTitles.add(tr("Мазнини", "Fat"));
                     bars.add(ScaleInsight.fatNorm(fat, male, age, names(FAT_N, FAT_E)));
@@ -707,57 +700,50 @@ public final class ScaleScreen {
                             names(new String[] {"много ниски", "ниски", "норма", "високи", "много високи"},
                                     new String[] {"very low", "low", "normal", "high", "very high"})));
                 } else if ("reach".equals(key)) {
-                    title = tr("Ток до мускула", "Current to the muscle");
-                    text = tr("Мазнините над мускула изолират тока. Всяка колона е една мускулна група на костюма: "
-                            + "колко ток стига до нея спрямо средното за тялото. −10 = там е нужна повече сила или "
-                            + "по-широк импулс. Автоматичният режим го смята сам.", "Fat over a muscle insulates the "
-                            + "current. Each column is one suit muscle group: how much current reaches it against the "
-                            + "body's mean. −10 = more strength or a wider pulse there. Auto accounts for it.");
+                    title = tr("Проводимост по канали", "Conductivity per channel");
+                    text = tr("Подкожните мазнини намаляват тока, който достига до мускула. Стойностите са спрямо "
+                            + "средното за тялото; при отрицателни е нужна по-висока сила на канала. Автоматичният "
+                            + "режим го отчита.",
+                            "Subcutaneous fat reduces the current reaching the muscle. Values are relative to the body "
+                                    + "average; negative ones need a higher channel strength. Auto mode accounts for it.");
                 } else if ("figure".equals(key)) {
-                    title = tr("Фигурата", "The figure");
+                    title = tr("Карта на тялото", "Body map");
                     text = mode == MODE_TRACK
-                            ? tr("Всяка зона е оцветена по промяната от началото на периода: зелено — към добро "
-                                    + "(мускули прибавени / мазнини свалени), жълто — обратното, сиво — без промяна.",
-                                    "Each zone is coloured by its change since the start of the period: green the good "
-                                            + "way (muscle gained / fat lost), amber the other, grey no change.")
-                            : tr("Мускули и Мазнини — всяка зона спрямо нормата. Подуване — спрямо обичайното за "
-                                    + "клиента (след тежка тренировка). Ток — всяка мускулна група на костюма по това "
-                                    + "колко ток стига до нея. Докосни зона за числата ѝ.",
-                                    "Muscle and Fat — each zone against normal. Swelling — against the client's usual "
-                                            + "(after a hard session). Current — each suit muscle group by how much "
-                                            + "current reaches it. Tap a zone for its numbers.");
+                            ? tr("Промяната във всяка зона за периода: зелено — подобрение, жълто — влошаване, "
+                                    + "сиво — без промяна.",
+                                    "The change in each zone over the period: green — better, amber — worse, grey — no "
+                                            + "change.")
+                            : tr("Всяка зона спрямо нормата. Докоснете зона за подробности.",
+                                    "Each zone against the norm. Tap a zone for details.");
                 } else if ("trend".equals(key)) {
-                    title = tr("Тренд", "Trend");
-                    text = tr("Как се мени избраният показател от мерене до мерене в периода. Избери показател отгоре; "
-                            + "периода — горе вдясно.", "How the chosen value moves from measurement to measurement. "
-                            + "Pick the value above; the period top right.");
+                    title = tr("Динамика", "Trend");
+                    text = tr("Изменението на избрания показател за периода.",
+                            "How the chosen value changed over the period.");
                     if (metric == M_FAT) {
                         bars.add(ScaleInsight.fatNorm(fat, male, age, names(FAT_N, FAT_E)));
                     } else if (metric == M_MUSCLE) {
                         bars.add(ScaleInsight.muscleNorm(b.ffmi, male, names(
-                                new String[] {"много малко", "малко", "норма", "атлетично", "много"},
+                                new String[] {"много ниска", "ниска", "норма", "атлетична", "много висока"},
                                 new String[] {"very low", "low", "normal", "athletic", "very high"})));
                     } else if (metric == M_AGE) {
                         bars.add(ScaleInsight.ageNorm(b.physicalAge, age, names(
-                                new String[] {"много по-млад", "по-млад", "като годините", "по-стар", "много по-стар"},
-                                new String[] {"much younger", "younger", "as the years", "older", "much older"})));
+                                new String[] {"много по-ниска", "по-ниска", "отговаря", "по-висока", "много по-висока"},
+                                new String[] {"much younger", "younger", "matches", "older", "much older"})));
                     }
                 } else if ("history".equals(key)) {
-                    title = tr("Мерения", "Measurements");
-                    text = tr("Последните мерения на клиента. ✕ изтрива едно — например ако някой друг е стъпил на "
-                            + "профила му; останалите се преизчисляват без него, и в картона.",
-                            "The client's latest measurements. ✕ removes one — say someone else stepped on under "
-                                    + "this profile; the rest are recomputed without it, on the card too.");
+                    title = tr("Измервания", "Measurements");
+                    text = tr("Последните измервания. С ✕ се изтрива грешно измерване.",
+                            "The latest measurements. ✕ deletes a wrong one.");
                 } else if ("table".equals(key)) {
-                    title = tr("Тогава → сега", "Then → now");
-                    text = tr("Всеки показател в началото на периода и сега. Зелено — към добро, жълто — обратното.",
-                            "Each value at the start of the period and now. Green the good way, amber the other.");
+                    title = tr("Сравнение", "Comparison");
+                    text = tr("Показателите в началото и в края на периода. Зелено — подобрение, жълто — влошаване.",
+                            "The values at the start and at the end of the period. Green — better, amber — worse.");
                 } else if ("change".equals(key)) {
-                    title = tr("Промяна от старта", "Change since the start");
-                    text = tr("Колко кг мускули и мазнини са дошли или отишли от първото мерене в периода. Теглото "
-                            + "може да стои, докато мазнините падат и мускулите растат — това е целта.",
-                            "How many kg of muscle and fat came or went since the first measurement of the period. "
-                                    + "The weight can stay while fat falls and muscle grows — that is the aim.");
+                    title = tr("Промяна за периода", "Change over the period");
+                    text = tr("Изменението на мускулната маса и мазнините в килограми. Теглото може да остане същото, "
+                            + "докато съставът на тялото се подобрява.",
+                            "The change in muscle mass and fat in kilograms. The weight may stay the same while the "
+                                    + "body composition improves.");
                 }
                 LinearLayout box = XemsUi.vertical(a);
                 box.setPadding(dp(18), dp(14), dp(18), dp(16));
@@ -786,17 +772,7 @@ public final class ScaleScreen {
                 if (src.length() > 0) {
                     box.addView(XemsUi.text(a, src, 11, XemsUi.HINT, false), XemsUi.matchWrap(a, 4));
                 }
-                int width = dp(bars.size() > 0 ? 480 : 420);
-                infoPop = new android.widget.PopupWindow(box, width, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-                infoPop.setOutsideTouchable(true);
-                infoPop.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
-                infoPop.setElevation(dp(10));
-                // keep it on the screen: open towards the free side of the anchor
-                int[] at = new int[2];
-                anchor.getLocationOnScreen(at);
-                int screenW = a.getResources().getDisplayMetrics().widthPixels;
-                int x = Math.max(dp(12), Math.min(screenW - width - dp(12), at[0] + anchor.getWidth() / 2 - width / 2));
-                infoPop.showAtLocation(anchor, Gravity.TOP | Gravity.START, x, at[1] + anchor.getHeight() + dp(6));
+                infoPop = pop(a, anchor, box, dp(bars.size() > 0 ? 480 : 420));
                 XemsUi.enter(box);
             } catch (Throwable t) {
                 XemsGuard.report("ScaleScreen.cardInfo", t);
@@ -848,7 +824,7 @@ public final class ScaleScreen {
                 pa.setIncludeFontPadding(false);
                 ages.addView(pa);
                 String hr = Double.isNaN(b.restHr) ? "" : tr(" · пулс ", " · HR ") + Math.round(b.restHr);
-                TextView pl = XemsUi.text(a, tr("  физическа възраст · паспорт ", "  physical age · passport ") + age
+                TextView pl = XemsUi.text(a, tr("  възраст на тялото · реална ", "  body age · actual ") + age
                         + hr, 14, XemsUi.MUTED, false);
                 pl.setPadding(0, 0, 0, dp(6));
                 ages.addView(pl);
@@ -865,23 +841,23 @@ public final class ScaleScreen {
 
                 // 2. the key values on their norms
                 LinearLayout keys = XemsUi.card(a);
-                keys.addView(XemsUi.label(a, tr("Накратко · спрямо нормата", "In short · against the norm")));
+                keys.addView(XemsUi.label(a, tr("Основни показатели", "Key values")));
                 String[] fatN = names(FAT_N, FAT_E);
                 String[] five = names(new String[] {"много ниско", "ниско", "норма", "високо", "много високо"},
                         new String[] {"very low", "low", "normal", "high", "very high"});
                 Object[][] rows = {
                         {tr("Мазнини", "Body fat"), ScaleInsight.fatNorm(m != null ? m.optDouble("fat", Double.NaN)
                                 : Double.NaN, male, age, fatN)},
-                        {tr("Мускули", "Muscle"), ScaleInsight.muscleNorm(b.ffmi, male, names(
-                                new String[] {"много малко", "малко", "норма", "атлетично", "много"},
+                        {tr("Мускулна маса", "Muscle mass"), ScaleInsight.muscleNorm(b.ffmi, male, names(
+                                new String[] {"много ниска", "ниска", "норма", "атлетична", "много висока"},
                                 new String[] {"very low", "low", "normal", "athletic", "very high"}))},
                         {tr("Вода", "Water"), ScaleInsight.waterNorm(m != null ? m.optDouble("water", Double.NaN)
                                 : Double.NaN, male, five)},
                         {tr("Висцерални мазнини", "Visceral fat"), ScaleInsight.visceralNorm(m != null
                                 ? m.optDouble("visc", Double.NaN) : Double.NaN, five)},
-                        {tr("ИТМ (само теглото)", "BMI (weight only)"), ScaleInsight.bmiNorm(m != null
+                        {tr("ИТМ", "BMI"), ScaleInsight.bmiNorm(m != null
                                 ? m.optDouble("bmi", Double.NaN) : Double.NaN, names(
-                                new String[] {"много нисък", "нисък", "норма", "над нормата", "затлъстяване"},
+                                new String[] {"много нисък", "нисък", "норма", "наднормено тегло", "затлъстяване"},
                                 new String[] {"very low", "low", "normal", "above", "obese"}))}};
                 for (Object[] r : rows) {
                     keys.addView(XemsUi.text(a, (String) r[0], 13, XemsUi.MUTED, true), XemsUi.matchWrap(a, 8));
@@ -901,7 +877,7 @@ public final class ScaleScreen {
                 LinearLayout list = XemsUi.vertical(a);
                 sc.addView(list);
                 boolean bg = XemsLang.tr("б", "e").equals("б");
-                String[] kinds = bg ? new String[] {"ДНЕС", "EMS", "ТЯЛО", "НАВИК"}
+                String[] kinds = bg ? new String[] {"ДНЕС", "ТРЕНИРОВКА", "ТЯЛО", "НАВИЦИ"}
                         : new String[] {"TODAY", "EMS", "BODY", "HABIT"};
                 int[] tones = {0xFF22C55E, 0xFF38BDF8, 0xFFF59E0B, 0xFFEF4444};
                 for (ScaleInsight.Advice ad : ScaleInsight.advice(hist, at, male, age, heightCm)) {
@@ -933,10 +909,10 @@ public final class ScaleScreen {
                 Columns.follow(a, sh, row, new float[] {0.9f, 1.05f, 1.15f}, new int[] {600, 560, 640}, 170);
 
                 if (m != null && m.has("fat")) {
-                    TextView img = XemsUi.button(a, tr("Сподели · изображение", "Share · image"), XemsUi.SECONDARY);
+                    TextView img = XemsUi.button(a, tr("Сподели като изображение", "Share as image"), XemsUi.SECONDARY);
                     img.setOnClickListener(new ShareImage(this, sh, name));
                     sh.footer.addView(img, new LinearLayout.LayoutParams(dp(240), dp(56)));
-                    TextView web = XemsUi.button(a, tr("Сподели · HTML", "Share · HTML"), XemsUi.SECONDARY);
+                    TextView web = XemsUi.button(a, tr("Сподели като уеб страница", "Share as web page"), XemsUi.SECONDARY);
                     web.setOnClickListener(new ShareHtml(this, fig, name));
                     LinearLayout.LayoutParams wl = new LinearLayout.LayoutParams(dp(220), dp(56));
                     wl.leftMargin = dp(10);
@@ -966,7 +942,7 @@ public final class ScaleScreen {
 
         LinearLayout radarCard() {
             LinearLayout zones = XemsUi.card(a);
-            zones.addView(header(XemsUi.label(a, tr("Зони спрямо нормата", "Zones against normal")), "zones"));
+            zones.addView(header(XemsUi.label(a, tr("Сегментен анализ", "Segmental analysis")), "zones"));
             radar = new ScaleViews.Radar(a);
             radar.setOnSegment(this);
             zones.addView(radar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(320)));
@@ -979,9 +955,9 @@ public final class ScaleScreen {
         void layerControl() {
             layerHolder.removeAllViews();
             String[] labels = mode == MODE_DAY
-                    ? new String[] {tr("Мускули", "Muscle"), tr("Мазнини", "Fat"), tr("Подуване", "Swelling"),
+                    ? new String[] {tr("Мускули", "Muscle"), tr("Мазнини", "Fat"), tr("Възстановяване", "Recovery"),
                             tr("Ток", "Current")}
-                    : new String[] {tr("Промяна · мускули", "Change · muscle"), tr("Промяна · мазнини", "Change · fat")};
+                    : new String[] {tr("Мускули", "Muscle"), tr("Мазнини", "Fat")};
             layerHolder.setGravity(Gravity.CENTER_VERTICAL);
             layerHolder.addView(XemsUi.segmented(a, labels, mode == MODE_DAY ? layer : trackLayer, new Layer(this)),
                     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -1070,7 +1046,7 @@ public final class ScaleScreen {
 
         void renderDay(JSONObject m, boolean fresh) {
             if (m == null) {
-                when.setText(tr("Още няма мерене", "No measurement yet"));
+                when.setText(tr("Няма измерване", "No measurement yet"));
             } else {
                 boolean today = System.currentTimeMillis() - m.optLong("t") < ScaleInsight.TODAY_MS;
                 when.setText(fresh ? tr("Сега", "Now")
@@ -1088,7 +1064,7 @@ public final class ScaleScreen {
                     ScaleInsight.Body b = ScaleInsight.body(m, male, heightCm);
                     double pa = b.physicalAge;
                     tileValue[i].setText(Double.isNaN(pa) ? "—" : String.valueOf(Math.round(pa)));
-                    tileDelta[i].setText(tr("паспорт ", "passport ") + age);
+                    tileDelta[i].setText(tr("реална ", "actual ") + age);
                     tileDelta[i].setTextColor(Double.isNaN(pa) ? XemsUi.MUTED : pa <= age - 2 ? XemsUi.GO_TEXT
                             : pa >= age + 2 ? XemsUi.AMBER : XemsUi.MUTED);
                 } else {
@@ -1108,12 +1084,12 @@ public final class ScaleScreen {
             JSONObject f = from();
             int fi = fromIndex();
             if (m == null || f == null || fi == at) {
-                when.setText(tr("Сравнението идва от второто мерене", "The comparison starts with the second one"));
+                when.setText(tr("Сравнението е достъпно след второто измерване", "Comparison is available after the second measurement"));
             } else {
                 SimpleDateFormat df = new SimpleDateFormat("d.MM", Locale.US);
                 long days = Math.round((m.optLong("t") - f.optLong("t")) / 86400000.0);
                 when.setText(df.format(new Date(f.optLong("t"))) + "  →  " + df.format(new Date(m.optLong("t")))
-                        + tr("  ·  " + days + " дни · " + (at - fi) + " мерения",
+                        + tr("  ·  " + days + " дни · " + (at - fi) + " измервания",
                                 "  ·  " + days + " days · " + (at - fi) + " measurements"));
             }
             metricHolder.removeAllViews();
@@ -1130,8 +1106,8 @@ public final class ScaleScreen {
                 lp.rightMargin = dp(6);
                 metricHolder.addView(c, lp);
             }
-            String[] titles = {tr("Мазнини · %", "Body fat · %"), tr("Мускули · кг", "Muscle · kg"),
-                    tr("Вода · %", "Water · %"), tr("Физическа възраст", "Physical age"), tr("Тегло · кг", "Weight · kg")};
+            String[] titles = {tr("Мазнини · %", "Body fat · %"), tr("Мускулна маса · кг", "Muscle mass · kg"),
+                    tr("Вода · %", "Water · %"), tr("Възраст на тялото", "Body age"), tr("Тегло · кг", "Weight · kg")};
             trendTitle.setText(titles[metric]);
             int fromI = Math.max(0, fi);
             trend.set(slice(series(M_KEY[metric]), fromI), sliceT(times(), fromI), M_COL[metric], "");
@@ -1151,7 +1127,7 @@ public final class ScaleScreen {
             }
             double dm = mk[mk.length - 1] - mk[0], df = fk[fk.length - 1] - fk[0];
             android.text.SpannableStringBuilder b = new android.text.SpannableStringBuilder();
-            part(b, (dm >= 0 ? "+" : "−") + one(Math.abs(dm)) + tr(" кг мускули", " kg muscle"),
+            part(b, (dm >= 0 ? "+" : "−") + one(Math.abs(dm)) + tr(" кг мускулна маса", " kg muscle mass"),
                     Math.abs(dm) < 0.05 ? XemsUi.MUTED : dm > 0 ? XemsUi.GO_TEXT : XemsUi.AMBER);
             b.append("   ");
             part(b, (df >= 0 ? "+" : "−") + one(Math.abs(df)) + tr(" кг мазнини", " kg fat"),
@@ -1187,11 +1163,11 @@ public final class ScaleScreen {
             ScaleInsight.Body bm = ScaleInsight.body(m, male, heightCm);
             row(tr("Тегло", "Weight"), f, m, "w", tr(" кг", " kg"), false, true, both);
             row(tr("Мазнини", "Fat"), f, m, "fatKg", tr(" кг", " kg"), false, false, both);
-            row(tr("Мускули", "Muscle"), f, m, "muscle", tr(" кг", " kg"), true, false, both);
+            row(tr("Мускулна маса", "Muscle mass"), f, m, "muscle", tr(" кг", " kg"), true, false, both);
             row(tr("Мазнини %", "Fat %"), f, m, "fat", " %", false, false, both);
             row(tr("Вода", "Water"), f, m, "water", " %", true, false, both);
-            rowValues(tr("Възраст", "Age"), bf.physicalAge, bm.physicalAge, "", false, both, true);
-            row(tr("Висцерални", "Visceral"), f, m, "visc", "", false, false, both);
+            rowValues(tr("Възраст на тялото", "Body age"), bf.physicalAge, bm.physicalAge, "", false, both, true);
+            row(tr("Висцерални мазнини", "Visceral fat"), f, m, "visc", "", false, false, both);
         }
 
         void row(String name, JSONObject f, JSONObject m, String key, String unit, boolean upGood, boolean neutral,
@@ -1267,8 +1243,8 @@ public final class ScaleScreen {
                     }
                 }
                 body.setChannels(!male, ch);
-                legend.setText(tr("● токът стига добре   ● по-малко   ● най-малко — там повече сила",
-                        "● the current reaches well   ● less   ● least — more strength there"));
+                legend.setText(tr("● добра проводимост   ● по-ниска   ● най-ниска",
+                        "● good conductivity   ● lower   ● lowest"));
                 return;
             }
             if (mode == MODE_DAY) {
@@ -1279,9 +1255,9 @@ public final class ScaleScreen {
                 legend.setText(layer == ScaleViews.LAYER_MUSCLE
                         ? tr("● под нормата   ● норма   ● над нормата", "● below normal   ● normal   ● above")
                         : layer == ScaleViews.LAYER_FAT
-                                ? tr("● здравословно   ● над средното   ● високо", "● healthy   ● above the middle   ● high")
-                                : tr("● като обичайно   ● подуване   ● силно подуване",
-                                        "● as usual   ● swelling   ● strong swelling"));
+                                ? tr("● норма   ● повишени   ● високи", "● normal   ● elevated   ● high")
+                                : tr("● възстановен   ● натоварен   ● силно натоварен",
+                                        "● recovered   ● strained   ● heavily strained"));
             } else {
                 JSONObject f = from();
                 boolean muscle = trackLayer == T_MUSCLE;
@@ -1296,17 +1272,17 @@ public final class ScaleScreen {
                     boolean limb = i != ScaleProtocol.TRUNK;
                     cols[i] = ScaleViews.deltaCol(d, muscle, limb ? 0.04 : 0.1, limb ? 0.4 : 1.2);
                 }
-                legend.setText(muscle ? tr("● мускули прибавени   ● без промяна   ● мускули загубени",
-                                "● muscle gained   ● no change   ● muscle lost")
-                        : tr("● мазнини свалени   ● без промяна   ● мазнини качени",
-                                "● fat lost   ● no change   ● fat gained"));
+                legend.setText(muscle ? tr("● повече мускули   ● без промяна   ● по-малко мускули",
+                                "● more muscle   ● no change   ● less muscle")
+                        : tr("● по-малко мазнини   ● без промяна   ● повече мазнини",
+                                "● less fat   ● no change   ● more fat"));
             }
             body.setSegments(!male, cols, selected);
         }
 
         String detailText(JSONObject m) {
             if (m == null || !m.has("segMus")) {
-                return tr("Докосни зона на фигурата", "Tap a zone on the figure");
+                return tr("Докоснете зона за подробности", "Tap a zone for details");
             }
             JSONArray k = m.optJSONArray("segMus");
             JSONArray f = m.optJSONArray("segFat");
@@ -1315,10 +1291,10 @@ public final class ScaleScreen {
                 double legs = ScaleInsight.asymmetry(k, ScaleProtocol.LEFT_LEG, ScaleProtocol.RIGHT_LEG);
                 ScaleInsight.Body bt = ScaleInsight.body(m, male, heightCm);
                 String pattern = Double.isNaN(bt.legFatShare) ? ""
-                        : bt.legFatShare >= 0.45 ? tr("  ·  мазнини: в краката и бедрата", "  ·  fat: legs and hips")
-                        : bt.legFatShare <= 0.32 ? tr("  ·  мазнини: около корема", "  ·  fat: round the belly")
+                        : bt.legFatShare >= 0.45 ? tr("  ·  мазнини: предимно долна част", "  ·  fat: mostly lower body")
+                        : bt.legFatShare <= 0.32 ? tr("  ·  мазнини: предимно корем", "  ·  fat: mostly abdomen")
                         : tr("  ·  мазнини: равномерно", "  ·  fat: even");
-                return tr("Баланс Л/Д · ръце ", "Balance L/R · arms ") + signedPct(arms)
+                return tr("Симетрия Л/Д · ръце ", "L/R symmetry · arms ") + signedPct(arms)
                         + tr("  ·  крака ", "  ·  legs ") + signedPct(legs)
                         + tr("  ·  висцерални ", "  ·  visceral ") + m.optInt("visc") + pattern;
             }
@@ -1327,19 +1303,19 @@ public final class ScaleScreen {
             String[] names = {tr("Торс", "Trunk"), tr("Лява ръка", "Left arm"), tr("Дясна ръка", "Right arm"),
                     tr("Ляв крак", "Left leg"), tr("Десен крак", "Right leg")};
             StringBuilder b = new StringBuilder(names[selected]);
-            b.append("  ·  ").append(tr("мускули ", "muscle ")).append(one(k.optDouble(selected)))
+            b.append("  ·  ").append(tr("мускулна маса ", "muscle mass ")).append(one(k.optDouble(selected)))
                     .append(tr(" кг (", " kg (")).append(Math.round(n[0][selected])).append(" %)");
             b.append("  ·  ").append(tr("мазнини ", "fat ")).append(one(f.optDouble(selected)))
                     .append(tr(" кг (", " kg (")).append(Math.round(n[1][selected] * ScaleInsight.fatMid(male) / 100))
-                    .append(tr(" % от зоната)", " % of the zone)"));
+                    .append(" %)");
             if (!Double.isNaN(r.swell[selected])) {
-                b.append("  ·  ").append(tr("подуване ", "swelling ")).append(signedPct(r.swell[selected]));
+                b.append("  ·  ").append(tr("възстановяване ", "recovery ")).append(signedPct(r.swell[selected]));
             }
             JSONObject fr = from();
             if (mode == MODE_TRACK && fr != null && fromIndex() < at && fr.optJSONArray("segMus") != null) {
                 double d = k.optDouble(selected) - fr.optJSONArray("segMus").optDouble(selected);
                 b.append("  ·  ").append(tr("промяна ", "change ")).append(d >= 0 ? "+" : "−").append(one(Math.abs(d)))
-                        .append(tr(" кг мускули", " kg muscle"));
+                        .append(tr(" кг мускулна маса", " kg muscle mass"));
             }
             return b.toString();
         }
@@ -1355,27 +1331,27 @@ public final class ScaleScreen {
             int c;
             switch (b.type) {
                 case ScaleInsight.T_ATHLETIC:
-                    t = tr("Атлетичен · теглото е мускули", "Athletic · the weight is muscle");
+                    t = tr("Атлетично телосложение", "Athletic build");
                     c = 0xFF22C55E;
                     break;
                 case ScaleInsight.T_BALANCED:
-                    t = tr("Балансиран", "Balanced");
+                    t = tr("Балансирано телосложение", "Balanced build");
                     c = 0xFF22C55E;
                     break;
                 case ScaleInsight.T_STRONG_FAT:
-                    t = tr("Силен · с излишни мазнини", "Strong · with excess fat");
+                    t = tr("Мускулесто, с повишени мазнини", "Muscular, elevated fat");
                     c = 0xFFF59E0B;
                     break;
                 case ScaleInsight.T_FAT:
-                    t = b.fatCls >= 3 ? tr("Затлъстяване", "Obese") : tr("Излишни мазнини", "Excess fat");
+                    t = b.fatCls >= 3 ? tr("Затлъстяване", "Obese") : tr("Повишени мазнини", "Elevated fat");
                     c = b.fatCls >= 3 ? 0xFFEF4444 : 0xFFF59E0B;
                     break;
                 case ScaleInsight.T_FAT_LOW_MUSCLE:
-                    t = tr("Мазнини при малко мускули", "Fat with little muscle");
+                    t = tr("Повишени мазнини, ниска мускулна маса", "Elevated fat, low muscle mass");
                     c = 0xFFEF4444;
                     break;
                 case ScaleInsight.T_LEAN_LOW_MUSCLE:
-                    t = tr("Слаб · малко мускули", "Slim · little muscle");
+                    t = tr("Слабо телосложение, ниска мускулна маса", "Slim, low muscle mass");
                     c = 0xFFF59E0B;
                     break;
                 default:
@@ -1392,35 +1368,32 @@ public final class ScaleScreen {
         void readiness(JSONObject m) {
             reasons.removeAllViews();
             if (m == null || m.optJSONArray("z20") == null) {
-                ready(false, m == null ? tr("Стъпи на кантара — готовността за днес идва с мерене.",
-                        "Step on the scale — today's readiness comes with a measurement.")
-                        : tr("Само тегло — без дръжката няма готовност.", "Weight only — no readiness without the handle."));
+                ready(false, m == null ? tr("Няма измерване.", "No measurement yet.")
+                        : tr("Нужен е контакт с дръжката.", "Hand contact with the handle is needed."));
                 return;
             }
             ScaleInsight.Readiness r = ScaleInsight.readiness(hist, indexOf(m));
             if (!r.known()) {
-                ready(false, tr("Готовността за тренировка идва от второто мерене — тогава има с какво да сравня.",
-                        "Training readiness comes with the second measurement — then there is something to compare."));
+                ready(false, tr("Изчислява се от второто измерване.", "Available from the second measurement."));
                 return;
             }
             ready(true, "");
-            String verdict = r.factor >= 1 ? tr("Пълна сила", "Full strength")
-                    : "−" + Math.round((1 - r.factor) * 100) + tr(" % днес", " % today");
-            String sub = tr("спрямо обичайното за клиента · ", "against the client's usual · ") + r.base
-                    + tr(" мерения", " measurements");
+            String verdict = r.factor >= 1 ? tr("Пълна интензивност", "Full intensity")
+                    : tr("Интензитет −", "Intensity −") + Math.round((1 - r.factor) * 100) + " %";
+            String sub = tr("спрямо личната база", "against the personal baseline");
             gauge.set(r.score, verdict, sub);
             if (r.worst >= 0 && r.swell[r.worst] >= 0.4) {
-                String[] names = {tr("торс", "trunk"), tr("Л. ръка", "L arm"), tr("Д. ръка", "R arm"),
-                        tr("Л. крак", "L leg"), tr("Д. крак", "R leg")};
+                String[] names = {tr("Торс", "Trunk"), tr("Лява ръка", "Left arm"), tr("Дясна ръка", "Right arm"),
+                        tr("Ляв крак", "Left leg"), tr("Десен крак", "Right leg")};
                 reasons.addView(XemsUi.badge(a, names[r.worst] + "  " + signedPct(r.swell[r.worst]),
                         ScaleViews.swellCol(r.swell[r.worst])));
             }
             if (!Double.isNaN(r.dry) && r.dry >= 2) {
-                TextView w = XemsUi.badge(a, tr("💧 по-малко вода  ", "💧 less water  ") + signedPct(r.dry),
+                TextView w = XemsUi.badge(a, tr("Хидратация ", "Hydration ") + signedPct(-r.dry),
                         XemsUi.AMBER);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
-                lp.leftMargin = dp(8);
+                lp.topMargin = dp(6);
                 reasons.addView(w, lp);
             }
         }
@@ -1552,6 +1525,8 @@ public final class ScaleScreen {
             stage.results.setVisibility(hasFull() ? View.VISIBLE : View.GONE);
             if (on) {
                 again.setVisibility(View.INVISIBLE);
+                stage.fx.invalidate();
+                stage.steps.invalidate();
                 XemsUi.enter(stage.view());
             } else {
                 stage.showFilm(false);
@@ -1571,9 +1546,13 @@ public final class ScaleScreen {
             return false;
         }
 
-        /** A new measurement: a fresh session and stage, the link searching. */
+        /**
+         * "Мери пак": a fresh standing — the stage back, the link restarted (it keeps listening anyway: the next
+         * step-on is found without this button).
+         */
         void measureAgain() {
             session = null;
+            off = true;
             stage.reset();
             showStage(true);
             startLink();
@@ -1583,96 +1562,138 @@ public final class ScaleScreen {
             if (link != null) {
                 link.close();
             }
-            saved.setVisibility(View.GONE);
-            again.setVisibility(View.INVISIBLE);
             link = new ScaleLink(a, userId, male, age, heightCm, lastKg, this);
             link.start();
         }
 
         // ================================================================ the link
 
+        /**
+         * One standing = one measurement, refined by every new sweep while the client stays on. {@link #off}: the
+         * scale is free (stepped off, or it slept and dropped the link) — the next weight on it is a new standing.
+         */
+        ScaleSession session;
+        boolean off = true;
+        /** The entry this standing was saved as ("t"), 0 = not saved yet. */
+        long sessionT;
+        /** The last sweep heard — the scale repeating it after a reconnect is not a new measurement. */
+        ScaleProtocol.Reading lastSweep;
+
         @Override
         public void onState(int st) {
-            stage.linkState(st);
+            if (staging) {
+                stage.linkState(st);
+            }
             switch (st) {
                 case ScaleLink.SEARCHING:
-                    say(tr("Стъпи бос на кантара", "Step on the scale barefoot"), XemsUi.TEXT);
+                    if (session != null) {
+                        off = true;       // the scale slept: whoever steps on next is a new measurement
+                    }
+                    say(tr("Готов за измерване", "Ready to measure"), XemsUi.TEXT);
                     break;
                 case ScaleLink.CONNECTING:
-                    say(tr("Свързвам се…", "Connecting…"), XemsUi.MUTED);
+                    if (off && session != null && !staging) {
+                        // the scale woke up again (it sleeps when nobody is on): the next person — show the stage
+                        newStanding();
+                        stage.linkState(st);
+                    }
+                    say(tr("Свързване…", "Connecting…"), XemsUi.MUTED);
                     break;
                 case ScaleLink.READY:
-                case ScaleLink.MEASURING:
-                    say(tr("Хвани дръжката и задръж", "Hold the handle and stay still"), XemsUi.AMBER);
+                    if (session != null && sessionT > 0) {
+                        off = true;       // stepped off after a result
+                    }
+                    say(tr("Измерване…", "Measuring…"), XemsUi.AMBER);
                     break;
-                case ScaleLink.DONE:
-                    say(tr("✓ Готово — може да слезе", "✓ Done — step off"), XemsUi.GO_TEXT);
+                case ScaleLink.MEASURING:
+                    say(tr("Измерване…", "Measuring…"), XemsUi.AMBER);
                     break;
                 case ScaleLink.NO_BLUETOOTH:
-                    say(tr("Включи Bluetooth на таблета", "Turn Bluetooth on"), XemsUi.DANGER);
+                    say(tr("Включете Bluetooth", "Turn Bluetooth on"), XemsUi.DANGER);
                     break;
                 default:
                     break;
             }
         }
 
+        /** The status line of the figure card: the link while measuring; after a save it keeps "✓ Записано". */
         void say(String text, int color) {
+            if (sessionT > 0 && !staging) {
+                return;
+            }
             status.setText(text);
             status.setTextColor(color);
         }
 
+        /** A new standing: a fresh session and the stage in front. */
+        void newStanding() {
+            session = null;
+            sessionT = 0;
+            off = false;
+            stage.reset();
+            showStage(true);
+        }
+
         @Override
         public void onLive(double kg, boolean stable) {
-            weight.setText(one(kg));
-            weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
-            if (!staging && kg > 5) {
-                // someone stepped on while the results were open: the stage comes back
-                stage.reset();
-                showStage(true);
+            if (kg < 5) {
+                if (session != null) {
+                    off = true;           // stepped off
+                }
+                if (staging) {
+                    stage.liveWeight(kg, stable);
+                }
+                return;
             }
-            stage.liveWeight(kg, stable);
+            if (off && (session != null || !staging)) {
+                newStanding();            // someone stepped on (again): a new measurement
+            }
+            off = false;
+            if (staging) {
+                weight.setText(one(kg));
+                weight.setTextColor(stable ? XemsUi.TEXT : XemsUi.MUTED);
+                stage.liveWeight(kg, stable);
+            }
         }
 
         @Override
         public void onResult(ScaleProtocol.Reading r) {
-            weight.setText(one(r.weightKg));
-            weight.setTextColor(XemsUi.TEXT);
-            if (session == null) {
-                session = new ScaleSession(hist, male, age, heightCm);
+            if (off || session == null) {
+                if (lastSweep != null && !Double.isNaN(lastSweep.z20[ScaleProtocol.LEFT_ARM])
+                        && ScaleSession.same(lastSweep, r)) {
+                    return;               // the scale sending its last result again (same impedances)
+                }
+                if (session != null || !staging) {
+                    newStanding();
+                }
+                session = new ScaleSession(male, age, heightCm);
+                sessionT = 0;
+                off = false;
             }
-            if (!staging) {
-                showStage(true);
-            }
-            int need = session.add(r);
-            stage.stepResult(r, session);
-            if (need != ScaleSession.NEED_NONE) {
-                // one more step-on: listen again once this link has let the scale go
-                main.postDelayed(new Relink(this), 2600);
+            if (session.add(r) == ScaleSession.REPEAT) {
                 return;
             }
-            steps = session.count();
+            lastSweep = r;
+            if (staging) {
+                stage.sweep(r, session);
+            }
             ScaleProtocol.Reading m = session.merged();
-            session = null;
-            if (m == null) {
-                return;
+            if (m != null) {
+                // the page is this client's: what is measured here is theirs — no "is this X?" (a wrong one is
+                // removed in Tracking ✕)
+                keep(m, session.count());
             }
-            // the page is this client's: what is measured here is theirs — no "is this X?" (a reading far from the
-            // last ones already gets a second step-on from the session; a wrong one is removed in Tracking ✕)
-            keep(m);
         }
 
-        int steps = 1;
-
-        void keep(ScaleProtocol.Reading r) {
-            ScaleBody b = ScaleBody.of(r, male, age, heightCm);
-            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, steps);
+        /**
+         * Save the standing's merged reading: the first sweep adds the measurement and the results come in at once;
+         * every further sweep (the client still on) refines the same entry and the open results follow.
+         */
+        void keep(ScaleProtocol.Reading r, int n) {
+            boolean first = sessionT <= 0;
+            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, n, sessionT);
             if (o != null) {
-                saved.setVisibility(View.VISIBLE);
-                XemsUi.enter(saved);
-            }
-            if (b == null) {
-                say(tr("Само тегло — хвани дръжката с двете ръце", "Weight only — hold the handle with both hands"),
-                        XemsUi.AMBER);
+                sessionT = o.optLong("t");
             }
             lastKg = r.weightKg;
             again.setVisibility(View.VISIBLE);
@@ -1683,11 +1704,30 @@ public final class ScaleScreen {
                 mode = MODE_DAY;
                 build();
             }
+            weight.setText(one(r.weightKg));
+            weight.setTextColor(XemsUi.TEXT);
             JSONObject m = cur();
-            stage.finished(m != null && m.has("fat") ? tr("Мазнини ", "Fat ") + one(m.optDouble("fat")) + " %  ·  "
-                    + tr("Мускули ", "Muscle ") + one(m.optDouble("muscle")) + tr(" кг", " kg")
-                    : tr("Само тегло — без дръжката няма състав", "Weight only — no composition without the handle"));
-            main.postDelayed(new Reveal(this), 1800);
+            boolean comp = m != null && m.has("fat");
+            String when = new SimpleDateFormat("HH:mm", Locale.US).format(new Date(sessionT > 0 ? sessionT
+                    : System.currentTimeMillis()));
+            status.setText((comp ? tr("✓ Записано · ", "✓ Saved · ") : tr("Само тегло · ", "Weight only · ")) + when
+                    + (n > 1 ? tr(" · " + n + " отчитания", " · " + n + " readings") : ""));
+            status.setTextColor(comp ? XemsUi.GO_TEXT : XemsUi.AMBER);
+            if (staging) {
+                stage.finished(comp ? tr("Мазнини ", "Fat ") + one(m.optDouble("fat")) + " %  ·  "
+                        + tr("Мускулна маса ", "Muscle mass ") + one(m.optDouble("muscle")) + tr(" кг", " kg")
+                        : "", comp);
+                stage.results.setVisibility(hasFull() ? View.VISIBLE : View.GONE);
+                if (comp && first) {
+                    main.postDelayed(new Reveal(this), 1400);
+                } else if (comp) {
+                    main.postDelayed(new Reveal(this), 900);
+                }
+            } else {
+                // refined while the results are open
+                render(false);
+                XemsUi.enter(status);
+            }
         }
 
         /** After the ✓: the results come in. */
@@ -1707,52 +1747,27 @@ public final class ScaleScreen {
                     return;
                 }
                 Context c = anchor.getContext();
-                TextView t = XemsUi.text(c, tr("Мерене\n"
-                        + "• боси стъпала, голи ръце на дръжката — тънките дрехи не пречат\n"
-                        + "• преди тренировката, по едно и също време, 2 ч след хранене\n\n"
-                        + "Готовност\n"
-                        + "Съпротивлението на 20 и 100 kHz спрямо обичайното за този клиент. Подуването след тежка "
-                        + "EMS (ден 2–4) го вдига → днес по-слабо: −15 % или −30 %. Същото прилагат Auto и плана "
-                        + "за следващия клиент; по-силното от двете (дни почивка / кантар) печели.\n\n"
-                        + "Тип тяло и възраст\n"
-                        + "Мускули и мазнини на м² ръст — плътната мускулатура не е наднормено тегло. Възрастта е "
-                        + "тази, на която мускулите на ръцете и краката и мазнините отговарят на медианата от DXA "
-                        + "мерения на 3 327 души; въведената възраст не участва.\n\n"
-                        + "Зони\n"
-                        + "Мускули: 100 % = нормата за ръста и теглото. Мазнини: процентът в зоната спрямо "
-                        + "здравословната среда (мъже 15 %, жени 25 %). Пунктир = сравнението.\n\n"
-                        + "Ток\n"
-                        + "Мазнините над всяка мускулна група изолират: оранжево = там токът стига най-малко — "
-                        + "повече сила или по-широк импулс.",
-                        "Measuring\n"
-                                + "• bare feet, bare hands on the handle — light clothes do not matter\n"
-                                + "• before the training, same time of day, 2 h after a meal\n\n"
-                                + "Readiness\n"
-                                + "The 20 and 100 kHz impedance against this client's usual. Swelling after a hard EMS "
-                                + "session (day 2–4) raises it → softer today: −15 % or −30 %. Auto and the next-client "
-                                + "plan apply the same; the stronger of rest days and scale wins.\n\n"
-                                + "Body type and age\n"
-                                + "Muscle and fat per m² of height — dense muscle is not overweight. The age is the one "
-                                + "whose median arm + leg muscle and fat (DXA, 3,327 adults) match; the entered age is "
-                                + "not used.\n\n"
-                                + "Zones\n"
-                                + "Muscle: 100 % = normal for height and weight. Fat: the zone's fat % against the "
-                                + "healthy middle (men 15 %, women 25 %). Dashed = the comparison.\n\n"
-                                + "Current\n"
-                                + "Fat over each muscle group insulates: orange = the current reaches least there — "
-                                + "more strength or a wider pulse."), 14, XemsUi.TEXT, false);
+                TextView t = XemsUi.text(c, tr("Условия за точно измерване\n"
+                        + "• боси крака, двете ръце на дръжката\n"
+                        + "• преди тренировка, по едно и също време на деня\n"
+                        + "• поне 2 часа след хранене\n\n"
+                        + "Готовност за тренировка\n"
+                        + "Сравнява тъканите с личната база на клиента. При непълно възстановяване интензитетът "
+                        + "се намалява автоматично.",
+                        "For an accurate measurement\n"
+                                + "• bare feet, both hands on the handle\n"
+                                + "• before training, at the same time of day\n"
+                                + "• at least 2 hours after a meal\n\n"
+                                + "Training readiness\n"
+                                + "Compares the tissues with the client's own baseline. When recovery is incomplete the "
+                                + "intensity is reduced automatically."), 14, XemsUi.TEXT, false);
                 t.setLineSpacing(XemsUi.dp(c, 3), 1f);
                 t.setPadding(XemsUi.dp(c, 18), XemsUi.dp(c, 14), XemsUi.dp(c, 18), XemsUi.dp(c, 14));
                 t.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, 0xFF42A5F5, 0.16f),
                         XemsUi.dp(c, 14), 0xFF42A5F5, XemsUi.dp(c, 1)));
                 ScaleSources.Open open = new ScaleSources.Open(a);
-                infoPop = new android.widget.PopupWindow(ScaleSources.withButton(a, t, open), XemsUi.dp(c, 560),
-                        ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                infoPop = pop(a, anchor, ScaleSources.withButton(a, t, open), XemsUi.dp(c, 560));
                 open.pop = infoPop;
-                infoPop.setOutsideTouchable(true);
-                infoPop.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
-                infoPop.setElevation(XemsUi.dp(c, 8));
-                infoPop.showAsDropDown(anchor, -XemsUi.dp(c, 536), XemsUi.dp(c, 6));
             } catch (Throwable t) {
                 XemsGuard.report("ScaleScreen.info", t);
             }
@@ -1807,21 +1822,6 @@ public final class ScaleScreen {
         }
     }
 
-    static final class Relink implements Runnable {
-        final Page v;
-
-        Relink(Page v) {
-            this.v = v;
-        }
-
-        @Override
-        public void run() {
-            if (v.session != null && v.s.dialog.isShowing()) {
-                v.startLink();
-            }
-        }
-    }
-
     static final class Reveal implements Runnable {
         final Page v;
 
@@ -1833,6 +1833,38 @@ public final class ScaleScreen {
         public void run() {
             v.reveal();
         }
+    }
+
+    /**
+     * An explanation popup that always fits: at most the screen's width, below the anchor or above it — whichever
+     * side has room — and scrolling inside when it is taller than either side (no text is cut on a short screen).
+     */
+    static android.widget.PopupWindow pop(Activity a, View anchor, View content, int widthPx) {
+        android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+        int m = XemsUi.dp(a, 12);
+        int width = Math.min(widthPx, dm.widthPixels - 2 * m);
+        android.widget.ScrollView sv = new android.widget.ScrollView(a);
+        sv.setVerticalScrollBarEnabled(false);
+        sv.addView(content, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        content.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        int h = content.getMeasuredHeight();
+        int[] at = new int[2];
+        anchor.getLocationOnScreen(at);
+        int below = dm.heightPixels - (at[1] + anchor.getHeight()) - 2 * m;
+        int above = at[1] - 2 * m;
+        boolean down = h <= below || below >= above;
+        int room = Math.max(XemsUi.dp(a, 160), down ? below : above);
+        int ph = Math.min(h, room);
+        android.widget.PopupWindow w = new android.widget.PopupWindow(sv, width, ph, true);
+        w.setOutsideTouchable(true);
+        w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
+        w.setElevation(XemsUi.dp(a, 10));
+        int x = Math.max(m, Math.min(dm.widthPixels - width - m, at[0] + anchor.getWidth() / 2 - width / 2));
+        int y = down ? at[1] + anchor.getHeight() + XemsUi.dp(a, 6) : Math.max(m, at[1] - ph - XemsUi.dp(a, 6));
+        w.showAtLocation(anchor, Gravity.TOP | Gravity.START, x, y);
+        return w;
     }
 
     /**
@@ -1873,16 +1905,24 @@ public final class ScaleScreen {
         static void apply(Activity a, LinearLayout row, boolean portrait, float[] w, int[] tallDp, int landH) {
             row.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
             for (int i = 0; i < row.getChildCount(); i++) {
+                // a height is only a minimum: a column whose content is taller grows (and the page scrolls) —
+                // a fixed height cut the bottom off on short screens and after a turn
                 LinearLayout.LayoutParams lp;
+                View col = row.getChildAt(i);
                 if (portrait) {
                     lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            tallDp[i] > 0 ? XemsUi.dp(a, tallDp[i]) : ViewGroup.LayoutParams.WRAP_CONTENT);
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
                     lp.topMargin = i > 0 ? XemsUi.dp(a, 14) : 0;
+                    col.setMinimumHeight(tallDp[i] > 0 ? XemsUi.dp(a, tallDp[i]) : 0);
                 } else {
-                    lp = new LinearLayout.LayoutParams(0, landH, w[i]);
+                    lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, w[i]);
                     lp.leftMargin = i > 0 ? XemsUi.dp(a, 14) : 0;
+                    col.setMinimumHeight(landH);
                 }
-                row.getChildAt(i).setLayoutParams(lp);
+                if (row.getOrientation() == LinearLayout.HORIZONTAL) {
+                    row.setBaselineAligned(false);
+                }
+                col.setLayoutParams(lp);
             }
         }
 

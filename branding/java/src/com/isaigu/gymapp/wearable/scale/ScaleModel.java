@@ -16,9 +16,10 @@ import org.json.JSONObject;
  *       that for the owner's report (a man) the model equals WLA25 — the geometry is the same for both sexes.</li>
  *   <li><b>Fat %</b> — the mean of the sex-aware estimates: Sun 2003, and the scale's own value when it sent one
  *       (it computes it with the profile's sex and age); for men without it also WLA25 (calibrated on men).</li>
- *   <li><b>Water</b> — Sun 2003 TBW (by sex); <b>skeletal muscle</b> — Janssen 2000 (MRI, 388 adults; sex, age);
- *       protein = fat-free − water − mineral; the rest of the WLA25 chain (segments, bone, visceral) from the
- *       fat above.</li>
+ *   <li><b>Water</b> — 0.733 of the smoothed fat-free mass (the Wang 1999 hydration WLA25 uses — steadier than a
+ *       TBW regression on one reading); <b>skeletal muscle</b> — Janssen 2000 (MRI, 388 adults; sex, age) as a
+ *       share of that fat-free mass; the rest of the WLA25 chain (segments, bone, protein, visceral) from the fat
+ *       above.</li>
  *   <li><b>Steady</b> — impedance moves with contact, skin and the last drink (±1 kg of lean between two
  *       steps); tissue does not. Fat-free mass goes through a small Kalman filter over the client's weigh-ins:
  *       a weight change is mostly lean the same day (water, food) and mostly fat over weeks, the tissue drifts

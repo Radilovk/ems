@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 832
+    .line 835
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 833
+    .line 836
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    .line 834
+    .line 837
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 5
 
     .prologue
-    .line 838
+    .line 841
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->openFilm(Landroid/graphics/SurfaceTexture;)V
 
-    .line 839
+    .line 842
     return-void
 .end method
 
@@ -55,12 +55,12 @@
     .registers 3
 
     .prologue
-    .line 850
+    .line 853
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->release()V
 
-    .line 851
+    .line 854
     const/4 v0, 0x1
 
     return v0
@@ -70,14 +70,14 @@
     .registers 7
 
     .prologue
-    .line 843
+    .line 846
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->player:Landroid/media/MediaPlayer;
 
     if-eqz v0, :cond_1b
 
-    .line 844
+    .line 847
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
@@ -98,15 +98,20 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->fit(II)V
 
-    .line 846
+    .line 849
     :cond_1b
     return-void
 .end method
 
 .method public onSurfaceTextureUpdated(Landroid/graphics/SurfaceTexture;)V
-    .registers 2
+    .registers 3
 
     .prologue
-    .line 856
+    .line 859
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$FilmSurface;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->frame()V
+
+    .line 860
     return-void
 .end method

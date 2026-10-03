@@ -648,6 +648,10 @@ public final class ScaleInsight {
 
     static final String[] SEG_BG = {"торса", "лявата ръка", "дясната ръка", "левия крак", "десния крак"};
     static final String[] SEG_EN = {"the trunk", "the left arm", "the right arm", "the left leg", "the right leg"};
+    /** Zone names as titles (nominative). */
+    static final String[] SEG_N = {"торс", "лява ръка", "дясна ръка", "ляв крак", "десен крак"};
+    static final String[] CH_N = {"Гърди", "Корем", "Предно бедро", "Прасци", "Ръце", "Трапец", "Гръб", "Кръст",
+            "Седалище", "Задно бедро"};
     static final String[] CH_BG = {"гърдите", "корема", "предното бедро", "прасците", "ръцете", "трапеца", "гърба",
             "кръста", "седалището", "задното бедро"};
     static final String[] CH_EN = {"chest", "abs", "front thigh", "calves", "arms", "traps", "back", "lower back",
@@ -665,9 +669,9 @@ public final class ScaleInsight {
         List<Advice> out = new ArrayList<Advice>();
         JSONObject m = hist != null ? hist.optJSONObject(at) : null;
         if (m == null || !m.has("fat")) {
-            out.add(new Advice(0, K_HABIT, TONE_INFO, "Стъпи на кантара",
-                    "Бос, с двете ръце на дръжката — анализът се появява тук.", "Step on the scale",
-                    "Barefoot, both hands on the handle — the analysis appears here."));
+            out.add(new Advice(0, K_HABIT, TONE_INFO, "Няма измерване",
+                    "Измерването изисква боси крака и двете ръце на дръжката.", "No measurement",
+                    "The measurement needs bare feet and both hands on the handle."));
             return out;
         }
         String[] n5 = {"", "", "", "", ""};
@@ -677,76 +681,77 @@ public final class ScaleInsight {
         // 1. today
         Readiness r = readiness(hist, at);
         if (!r.known()) {
-            out.add(new Advice(3, K_HABIT, TONE_INFO, "Мерене преди всяка тренировка",
-                    "След 2–3 мерения кантарът ще казва дали тялото е готово за пълна сила.",
+            out.add(new Advice(3, K_HABIT, TONE_INFO, "Измерване преди всяка тренировка",
+                    "От следващото измерване се изчислява готовността за тренировка.",
                     "Measure before every session",
-                    "After 2–3 measurements the scale tells whether the body is ready for full strength."));
+                    "Training readiness is calculated from the next measurement on."));
         } else if (r.factor < 1) {
             int pct = (int) Math.round((1 - r.factor) * 100);
             boolean swollen = r.worst >= 0 && r.swell[r.worst] >= SWELL_AMBER;
-            out.add(new Advice(0, K_TODAY, r.factor <= 0.7 ? TONE_ALERT : TONE_WARN, "Днес по-леко: −" + pct + " %",
-                    swollen ? "Подуване в " + SEG_BG[r.worst] + " (+" + f1(r.swell[r.worst])
-                            + " %) — мускулите още се възстановяват. Автоматичният режим вече е намалил силата."
-                            : "По-малко вода в тялото — нека пие вода преди тренировката.",
-                    "Softer today: −" + pct + " %",
-                    swollen ? "Swelling in " + SEG_EN[r.worst] + " (+" + f1(r.swell[r.worst])
-                            + " %) — the muscles are still recovering. Auto has already lowered the strength."
-                            : "Less body water — have them drink before the session."));
+            out.add(new Advice(0, K_TODAY, r.factor <= 0.7 ? TONE_ALERT : TONE_WARN, "Интензитет днес: −" + pct + " %",
+                    swollen ? "Непълно възстановяване в " + SEG_BG[r.worst] + ". Автоматичният режим вече е "
+                            + "намалил интензитета."
+                            : "Понижена хидратация. Препоръчва се вода преди тренировката.",
+                    "Intensity today: −" + pct + " %",
+                    swollen ? "Incomplete recovery in " + SEG_EN[r.worst] + ". Auto mode has already lowered the "
+                            + "intensity."
+                            : "Low hydration. Water before the session is advised."));
         } else {
-            out.add(new Advice(4, K_TODAY, TONE_GOOD, "Готов за пълна сила",
-                    "Тъканите са като обичайното — без подуване след последната тренировка.", "Ready for full strength",
-                    "The tissues are as usual — no swelling after the last session."));
+            out.add(new Advice(4, K_TODAY, TONE_GOOD, "Готовност за пълна интензивност",
+                    "Тялото е възстановено след последната тренировка.", "Ready for full intensity",
+                    "The body has recovered from the last session."));
         }
         // 2. water
         Norm wn = waterNorm(m.optDouble("water", Double.NaN), male, n5);
         if (wn.sector() >= 0 && wn.sector() <= 1) {
-            out.add(new Advice(1, K_HABIT, TONE_WARN, "Вода преди тренировката",
-                    "Водата е " + f1(wn.value) + " % — под нормата. 0,5 л вода час преди EMS: токът се провежда по-равно "
-                            + "и се усеща по-малко по кожата.", "Water before the session",
-                    "Water is " + f1(wn.value) + " % — below normal. 0.5 l an hour before EMS: the current flows more "
-                            + "evenly and stings the skin less."));
+            out.add(new Advice(1, K_HABIT, TONE_WARN, "Хидратация под нормата",
+                    "Вода " + f1(wn.value) + " %. Препоръчват се 0,5 л вода един час преди тренировката.",
+                    "Hydration below normal",
+                    "Water " + f1(wn.value) + " %. 0.5 l of water an hour before the session is advised."));
         }
         // 3. fat
         Norm fn = fatNorm(fat, male, age, n5);
         int fs = fn.sector();
         if (fs >= 3) {
-            double target = w * fn.edges[3] / 100;
-            double over = Math.max(0, m.optDouble("fatKg", w * fat / 100) - target);
+            // fat to lose to reach the norm's upper edge p: the weight falls with it (lean kept), so
+            // (F − x) / (W − x) = p → x = (F − p·W) / (1 − p) — not F − p·W, which undercounts by the factor 1 / (1 − p)
+            double p = fn.edges[3] / 100;
+            double over = Math.max(0, (m.optDouble("fatKg", w * fat / 100) - p * w) / (1 - p));
             out.add(new Advice(1, K_BODY, fs == 4 ? TONE_ALERT : TONE_WARN,
-                    (fs == 4 ? "Затлъстяване" : "Мазнини над нормата") + ": −" + f1(over) + " кг до нормата",
-                    "Цел „Отслабване“ в EMS 2× седмично + умерен хранителен дефицит; мускулите да се пазят — "
-                            + "следи ги тук.", (fs == 4 ? "Obese" : "Fat above normal") + ": −" + f1(over)
-                            + " kg to normal", "The EMS \"Fat loss\" goal twice a week + a moderate calorie deficit; "
-                            + "keep the muscle — watch it here."));
+                    (fs == 4 ? "Високи мазнини" : "Повишени мазнини") + ": −" + f1(over) + " кг до нормата",
+                    "Програма „Отслабване“ 2 пъти седмично и умерен калориен дефицит при запазване на мускулната маса.",
+                    (fs == 4 ? "High body fat" : "Elevated body fat") + ": −" + f1(over) + " kg to normal",
+                    "The \"Fat loss\" program twice a week and a moderate calorie deficit while keeping muscle "
+                            + "mass."));
         } else if (fs == 0) {
             out.add(new Advice(1, K_BODY, TONE_WARN, "Много ниски мазнини",
-                    "Под жизнено нужните — без хранителен дефицит; повече възстановяване между тренировките.",
-                    "Very low fat", "Below the essential level — no calorie deficit; more recovery between sessions."));
+                    "Без калориен дефицит; повече време за възстановяване между тренировките.",
+                    "Very low body fat", "No calorie deficit; more recovery time between sessions."));
         }
         // 4. muscle
         Norm mn = muscleNorm(b.ffmi, male, n5);
         int ms = mn.sector();
         if (ms >= 0 && ms <= 1) {
-            out.add(new Advice(1, K_BODY, TONE_WARN, "Малко мускули за ръста",
-                    "Цел „Тонус“ (силова EMS) 2× седмично и белтък около 1,6 г на кг тегло дневно ("
-                            + Math.round(w * 1.6) + " г).", "Little muscle for the height",
-                    "The \"Tone\" goal (strength EMS) twice a week and about 1.6 g protein per kg a day ("
-                            + Math.round(w * 1.6) + " g)."));
+            out.add(new Advice(1, K_BODY, TONE_WARN, "Ниска мускулна маса",
+                    "Силова програма 2 пъти седмично и около " + Math.round(w * 1.6) + " г белтък дневно "
+                            + "(1,6 г/кг).", "Low muscle mass",
+                    "A strength program twice a week and about " + Math.round(w * 1.6) + " g of protein a day "
+                            + "(1.6 g/kg)."));
         } else if (ms >= 3 && fs <= 2) {
-            out.add(new Advice(4, K_BODY, TONE_GOOD, "Атлетично тяло",
-                    "Теглото е от мускули" + (m.optDouble("bmi", 0) >= 25 ? " — ИТМ " + f1(m.optDouble("bmi"))
-                            + " заблуждава, не е наднормено." : ".") + " Поддържай със силова програма.",
-                    "Athletic body", "The weight is muscle" + (m.optDouble("bmi", 0) >= 25 ? " — BMI "
-                            + f1(m.optDouble("bmi")) + " misleads, it is not overweight." : ".")
-                            + " Keep it with a strength program."));
+            out.add(new Advice(4, K_BODY, TONE_GOOD, "Атлетично телосложение",
+                    (m.optDouble("bmi", 0) >= 25 ? "Повишеният ИТМ се дължи на мускулна маса. " : "")
+                            + "Препоръчва се поддържаща силова програма.",
+                    "Athletic build", (m.optDouble("bmi", 0) >= 25 ? "The raised BMI is due to muscle mass. " : "")
+                            + "A maintenance strength program is advised."));
         }
         // 5. visceral
         int visc = m.optInt("visc", 0);
         if (visc >= 10) {
             out.add(new Advice(1, K_BODY, visc >= 15 ? TONE_ALERT : TONE_WARN, "Висцерални мазнини: " + visc,
-                    "Мазнините около органите са високи — кардио + EMS за отслабване; при 15+ — консултация с лекар.",
-                    "Visceral fat: " + visc, "Fat around the organs is high — cardio + fat-loss EMS; at 15+ see a "
-                            + "doctor."));
+                    visc >= 15 ? "Препоръчва се консултация с лекар и програма за отслабване."
+                            : "Препоръчват се аеробно натоварване и програма за отслабване.",
+                    "Visceral fat: " + visc, visc >= 15 ? "A doctor's advice and a fat-loss program are recommended."
+                            : "Aerobic exercise and a fat-loss program are recommended."));
         }
         // 6. the weakest zone and the balance
         double[][] nrm = ofNormal(m, male, heightCm);
@@ -759,10 +764,10 @@ public final class ScaleInsight {
             }
         }
         if (weak >= 0 && lo < 90) {
-            out.add(new Advice(2, K_EMS, TONE_WARN, "Наблегни на " + SEG_BG[weak],
-                    "Мускулите там са " + Math.round(lo) + " % от нормата — фокус-зона в програмата, упражнения за нея.",
-                    "Focus on " + SEG_EN[weak], "The muscle there is " + Math.round(lo)
-                            + " % of normal — a focus zone in the program, exercises for it."));
+            out.add(new Advice(2, K_EMS, TONE_WARN, "Фокусна зона: " + SEG_N[weak],
+                    "Мускулатурата е " + Math.round(lo) + " % от нормата. Препоръчва се като фокусна зона.",
+                    "Focus zone: " + SEG_EN[weak], "The muscle is " + Math.round(lo)
+                            + " % of the norm. Recommended as a focus zone."));
         }
         JSONArray k = m.optJSONArray("segMus");
         double armA = asymmetry(k, ScaleProtocol.LEFT_ARM, ScaleProtocol.RIGHT_ARM);
@@ -771,12 +776,13 @@ public final class ScaleInsight {
         if (!Double.isNaN(worstA) && Math.abs(worstA) >= 6) {
             boolean arms = Math.abs(armA) >= Math.abs(legA);
             boolean leftMore = worstA > 0;
-            out.add(new Advice(2, K_EMS, TONE_INFO, "Разлика ляво/дясно " + Math.round(Math.abs(worstA)) + " %",
-                    (arms ? (leftMore ? "Дясната ръка" : "Лявата ръка") : (leftMore ? "Десният крак" : "Левият крак"))
-                            + " е по-слаб(а) — упражнения с една ръка / крак; костюмът дава еднакъв ток и на двете.",
-                    "Left / right difference " + Math.round(Math.abs(worstA)) + " %",
+            out.add(new Advice(2, K_EMS, TONE_INFO, "Асиметрия ляво/дясно: " + Math.round(Math.abs(worstA)) + " %",
+                    (arms ? (leftMore ? "Дясната ръка е по-слаба." : "Лявата ръка е по-слаба.")
+                            : (leftMore ? "Десният крак е по-слаб." : "Левият крак е по-слаб."))
+                            + " Препоръчват се едностранни упражнения.",
+                    "Left/right asymmetry: " + Math.round(Math.abs(worstA)) + " %",
                     (arms ? (leftMore ? "The right arm" : "The left arm") : (leftMore ? "The right leg" : "The left leg"))
-                            + " is weaker — one-sided exercises; the suit gives both sides the same current."));
+                            + " is weaker. Single-side exercises are advised."));
         }
         // 7. the current's reach
         double[] cf = channelFat(m);
@@ -797,11 +803,10 @@ public final class ScaleInsight {
             }
             if (low >= 0 && lr < 0.95) {
                 int pct = (int) Math.round((1 - lr) * 100);
-                out.add(new Advice(2, K_EMS, TONE_INFO, "Повече сила на " + CH_BG[low] + " (+" + pct + " %)",
-                        "Мазнините там изолират — токът стига " + pct + " % по-малко от средното. Или по-широк импулс.",
-                        "More strength on the " + CH_EN[low] + " (+" + pct + " %)",
-                        "The fat there insulates — the current reaches " + pct + " % less than the mean. Or a wider "
-                                + "pulse."));
+                out.add(new Advice(2, K_EMS, TONE_INFO, "Канал „" + CH_N[low] + "“: +" + pct + " % сила",
+                        "Проводимостта там е с " + pct + " % под средната заради подкожните мазнини.",
+                        "Channel \"" + CH_EN[low] + "\": +" + pct + " % strength",
+                        "Conductivity there is " + pct + " % below average due to subcutaneous fat."));
             }
         }
         // 8. the trend (since the first measurement)
@@ -810,20 +815,21 @@ public final class ScaleInsight {
             double dm = m.optDouble("muscle") - first.optDouble("muscle");
             double df = m.optDouble("fatKg") - first.optDouble("fatKg");
             if (dm >= 0.2 && df <= -0.2) {
-                out.add(new Advice(4, K_BODY, TONE_GOOD, "Тялото се преобразява ✓",
-                        "+" + f1(dm) + " кг мускули и −" + f1(-df) + " кг мазнини от първото мерене.",
-                        "The body is recomposing ✓", "+" + f1(dm) + " kg muscle and −" + f1(-df)
+                out.add(new Advice(4, K_BODY, TONE_GOOD, "Подобрен състав на тялото",
+                        "+" + f1(dm) + " кг мускулна маса и −" + f1(-df) + " кг мазнини от първото измерване.",
+                        "Improved body composition", "+" + f1(dm) + " kg muscle mass and −" + f1(-df)
                                 + " kg fat since the first measurement."));
             } else if (df >= 1.0) {
-                out.add(new Advice(1, K_BODY, TONE_WARN, "Мазнините растат: +" + f1(df) + " кг",
-                        "От първото мерене — провери храненето и честотата на тренировките.",
-                        "Fat is growing: +" + f1(df) + " kg", "Since the first measurement — check the food and how "
-                                + "often they train."));
+                out.add(new Advice(1, K_BODY, TONE_WARN, "Мазнини: +" + f1(df) + " кг",
+                        "Увеличение от първото измерване. Препоръчва се преглед на храненето и честотата на "
+                                + "тренировките.",
+                        "Fat: +" + f1(df) + " kg", "An increase since the first measurement. Review the diet and the "
+                                + "training frequency."));
             } else if (dm <= -0.8) {
-                out.add(new Advice(1, K_BODY, TONE_WARN, "Мускулите намаляват: −" + f1(-dm) + " кг",
-                        "Повече белтък и силова EMS; при отслабване — по-малък дефицит.",
-                        "Muscle is going down: −" + f1(-dm) + " kg", "More protein and strength EMS; when losing "
-                                + "weight — a smaller deficit."));
+                out.add(new Advice(1, K_BODY, TONE_WARN, "Мускулна маса: −" + f1(-dm) + " кг",
+                        "Препоръчват се повече белтък и силова програма; при отслабване — по-умерен дефицит.",
+                        "Muscle mass: −" + f1(-dm) + " kg", "More protein and a strength program; when losing "
+                                + "weight, a more moderate deficit."));
             }
         }
         Collections.sort(out, new ByPrio());

@@ -5,6 +5,7 @@
 # interfaces
 .implements Landroid/media/MediaPlayer$OnPreparedListener;
 .implements Landroid/media/MediaPlayer$OnVideoSizeChangedListener;
+.implements Landroid/media/MediaPlayer$OnErrorListener;
 
 
 # annotations
@@ -27,30 +28,117 @@
     .registers 2
 
     .prologue
-    .line 862
+    .line 867
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 863
+    .line 868
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    .line 864
+    .line 869
     return-void
 .end method
 
 
 # virtual methods
+.method public onError(Landroid/media/MediaPlayer;II)Z
+    .registers 6
+
+    .prologue
+    .line 890
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "film error "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, "/"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->log(Ljava/lang/String;)V
+
+    .line 891
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
+
+    const/4 v1, 0x0
+
+    iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->filmReady:Z
+
+    .line 892
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
 .method public onPrepared(Landroid/media/MediaPlayer;)V
     .registers 6
 
     .prologue
     const/4 v3, 0x1
 
-    .line 868
+    .line 873
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iput-boolean v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->filmReady:Z
 
-    .line 869
+    .line 874
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "film ready "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p1}, Landroid/media/MediaPlayer;->getVideoWidth()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, "x"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p1}, Landroid/media/MediaPlayer;->getVideoHeight()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->log(Ljava/lang/String;)V
+
+    .line 875
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {p1}, Landroid/media/MediaPlayer;->getVideoWidth()I
@@ -63,27 +151,27 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->fit(II)V
 
-    .line 870
+    .line 876
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->filmOn:Z
 
-    if-eqz v0, :cond_22
+    if-eqz v0, :cond_4a
 
-    .line 871
+    .line 877
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     const/4 v1, 0x0
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->filmOn:Z
 
-    .line 872
+    .line 878
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->showFilm(Z)V
 
-    .line 874
-    :cond_22
+    .line 880
+    :cond_4a
     return-void
 .end method
 
@@ -91,11 +179,11 @@
     .registers 5
 
     .prologue
-    .line 878
+    .line 884
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Film;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0, p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->fit(II)V
 
-    .line 879
+    .line 885
     return-void
 .end method

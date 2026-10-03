@@ -189,17 +189,17 @@ public final class ScaleShare {
             h.append("<div style=\"margin-top:10px\"><span class=age style=\"color:")
                     .append(b.physicalAge <= age - 3 ? "#22C55E" : b.physicalAge >= age + 3 ? "#F59E0B" : "inherit")
                     .append("\">").append(Math.round(b.physicalAge)).append("</span> <span style=\"color:var(--m)\">")
-                    .append(esc(tr("физическа възраст · паспорт ", "physical age · passport ") + age)).append("</span></div>");
+                    .append(esc(tr("възраст на тялото · реална ", "body age · actual ") + age)).append("</span></div>");
         }
         // the five values
-        String[] fatN = bg ? new String[] {"много ниски", "стегнато", "норма", "наднормено", "затлъстяване"}
+        String[] fatN = bg ? new String[] {"много ниски", "ниски", "норма", "повишени", "високи"}
                 : new String[] {"very low", "lean", "normal", "overweight", "obese"};
         String[] five = bg ? new String[] {"много ниско", "ниско", "норма", "високо", "много високо"}
                 : new String[] {"very low", "low", "normal", "high", "very high"};
-        String[] mus = bg ? new String[] {"много малко", "малко", "норма", "атлетично", "много"}
+        String[] mus = bg ? new String[] {"много ниска", "ниска", "норма", "атлетична", "много висока"}
                 : new String[] {"very low", "low", "normal", "athletic", "very high"};
         h.append(bar(tr("Мазнини", "Body fat"), ScaleInsight.fatNorm(m.optDouble("fat", Double.NaN), male, age, fatN)));
-        h.append(bar(tr("Мускули", "Muscle"), ScaleInsight.muscleNorm(b.ffmi, male, mus)));
+        h.append(bar(tr("Мускулна маса", "Muscle mass"), ScaleInsight.muscleNorm(b.ffmi, male, mus)));
         h.append(bar(tr("Вода", "Water"), ScaleInsight.waterNorm(m.optDouble("water", Double.NaN), male, five)));
         h.append(bar(tr("Висцерални мазнини", "Visceral fat"), ScaleInsight.visceralNorm(m.optDouble("visc", Double.NaN),
                 five)));
@@ -214,7 +214,7 @@ public final class ScaleShare {
         for (double x : part) {
             okPart &= !Double.isNaN(x) && x >= 0;
         }
-        h.append("<div class=card><h2>").append(esc(tr("От какво е теглото", "What the weight is made of")))
+        h.append("<div class=card><h2>").append(esc(tr("Състав на тялото", "Body composition")))
                 .append("</h2>");
         if (okPart) {
             h.append("<div class=cb>");
@@ -259,9 +259,8 @@ public final class ScaleShare {
             h.append("</div></div>");
         }
         h.append("</div>");
-        h.append("<div class=card><h2>").append(esc(tr("Зони · мазнини 80–160 % · мускули 90–110 %",
-                "Zones · fat 80–160 % · muscle 90–110 %"))).append("</h2><table class=zt><tr><th></th><th>")
-                .append(esc(tr("Мазнини", "Fat"))).append("</th><th>").append(esc(tr("Мускули", "Muscle")))
+        h.append("<div class=card><h2>").append(esc(tr("Сегментен анализ", "Segmental analysis"))).append("</h2><table class=zt><tr><th></th><th>")
+                .append(esc(tr("Мазнини", "Fat"))).append("</th><th>").append(esc(tr("Мускулна маса", "Muscle mass")))
                 .append("</th></tr>");
         ScaleDetail.Zone[] zs = ScaleDetail.zones(m, male, heightCm);
         for (int seg : ScaleDetail.ORDER) {
@@ -274,10 +273,10 @@ public final class ScaleShare {
         ScaleDetail.Control c = ScaleDetail.control(m, male, age, heightCm);
         if (!Double.isNaN(c.target)) {
             h.append("<h2 style=\"margin-top:16px\">").append(esc(tr("Контрол на теглото", "Weight control")))
-                    .append("</h2><div class=d><span>").append(num(c.target, 1)).append(esc(tr(" кг здравословно",
+                    .append("</h2><div class=d><span>").append(num(c.target, 1)).append(esc(tr(" кг здравословно тегло",
                             " kg healthy"))).append("</span><span style=\"color:var(--m)\">")
                     .append(esc(tr("тегло ", "weight ") + signed(c.total) + " · " + tr("мазнини ", "fat ")
-                            + signed(c.fat) + " · " + tr("мускули ", "muscle ") + signed(c.muscle)))
+                            + signed(c.fat) + " · " + tr("мускулна маса ", "muscle mass ") + signed(c.muscle)))
                     .append("</span></div>");
         }
         h.append("</div>");
@@ -287,16 +286,16 @@ public final class ScaleShare {
             double dm = m.optDouble("muscle") - first.optDouble("muscle");
             double df = m.optDouble("fatKg") - first.optDouble("fatKg");
             long days = Math.round((m.optLong("t") - first.optLong("t")) / 86400000.0);
-            h.append("<div class=card><h2>").append(esc(tr("От първото мерене · ", "Since the first · ") + days
+            h.append("<div class=card><h2>").append(esc(tr("От първото измерване · ", "Since the first measurement · ") + days
                     + tr(" дни", " days"))).append("</h2><div class=d><span style=\"color:")
                     .append(dm >= 0 ? "#22C55E" : "#F59E0B").append("\">").append(dm >= 0 ? "+" : "−")
-                    .append(num(Math.abs(dm), 1)).append(esc(tr(" кг мускули", " kg muscle"))).append("</span><span style=\"color:")
+                    .append(num(Math.abs(dm), 1)).append(esc(tr(" кг мускулна маса", " kg muscle mass"))).append("</span><span style=\"color:")
                     .append(df <= 0 ? "#22C55E" : "#F59E0B").append("\">").append(df >= 0 ? "+" : "−")
                     .append(num(Math.abs(df), 1)).append(esc(tr(" кг мазнини", " kg fat"))).append("</span></div></div>");
         }
         // recommendations
         h.append("<div class=card><h2>").append(esc(tr("Препоръки", "Recommendations"))).append("</h2>");
-        String[] kinds = bg ? new String[] {"ДНЕС", "EMS", "ТЯЛО", "НАВИК"} : new String[] {"TODAY", "EMS", "BODY", "HABIT"};
+        String[] kinds = bg ? new String[] {"ДНЕС", "ТРЕНИРОВКА", "ТЯЛО", "НАВИЦИ"} : new String[] {"TODAY", "EMS", "BODY", "HABIT"};
         String[] tones = {"#22C55E", "#38BDF8", "#F59E0B", "#EF4444"};
         List<ScaleInsight.Advice> adv = ScaleInsight.advice(hist, at, male, age, heightCm);
         for (ScaleInsight.Advice x : adv) {
@@ -310,9 +309,7 @@ public final class ScaleShare {
         int[] sc = ScaleSources.counts();
         h.append("<details class=card><summary><h2 style=\"display:inline\">").append(esc(tr("Научна основа",
                 "Scientific basis"))).append("</h2> <span style=\"color:var(--m)\">· ").append(sc[0])
-                .append(esc(tr(" рецензирани проучвания (над ", " peer-reviewed studies (over ")))
-                .append(sc[1] / 1000).append(esc(tr(" 000 души) — оттам са формулите и нормите; докосни",
-                        ",000 people) — the equations and norms come from them; tap")))
+                .append(esc(tr(" рецензирани научни публикации", " peer-reviewed publications")))
                 .append("</span></summary><ol style=\"color:var(--m);padding-left:20px\">");
         for (int i = 0; i < 4; i++) {
             h.append("<li>").append(esc(bg ? ScaleSources.HOW_BG[i] : ScaleSources.HOW_EN[i])).append("</li>");
@@ -361,8 +358,8 @@ public final class ScaleShare {
             h.append(i > from ? "," : "").append(o.toString().replace("</", "<\\/"));
         }
         h.append("]</script>");
-        h.append("<footer>XEMS · ").append(esc(tr("кантар с 8 електрода · ориентир, не медицинско изследване",
-                "8-electrode scale · a guide, not a medical test"))).append("</footer></main></body></html>");
+        h.append("<footer>XEMS · ").append(esc(tr("8-електроден биоимпедансен анализ · не е медицинска диагноза",
+                "8-electrode bioimpedance analysis · not a medical diagnosis"))).append("</footer></main></body></html>");
         return h.toString();
     }
 
@@ -397,18 +394,18 @@ public final class ScaleShare {
     static String[] typeName(ScaleInsight.Body b) {
         switch (b.type) {
             case ScaleInsight.T_ATHLETIC:
-                return new String[] {tr("Атлетичен · теглото е мускули", "Athletic · the weight is muscle"), "#22C55E"};
+                return new String[] {tr("Атлетично телосложение", "Athletic build"), "#22C55E"};
             case ScaleInsight.T_BALANCED:
-                return new String[] {tr("Балансиран", "Balanced"), "#22C55E"};
+                return new String[] {tr("Балансирано телосложение", "Balanced build"), "#22C55E"};
             case ScaleInsight.T_STRONG_FAT:
-                return new String[] {tr("Силен · с излишни мазнини", "Strong · with excess fat"), "#F59E0B"};
+                return new String[] {tr("Мускулесто, с повишени мазнини", "Muscular, elevated fat"), "#F59E0B"};
             case ScaleInsight.T_FAT:
                 return b.fatCls >= 3 ? new String[] {tr("Затлъстяване", "Obese"), "#EF4444"}
-                        : new String[] {tr("Излишни мазнини", "Excess fat"), "#F59E0B"};
+                        : new String[] {tr("Повишени мазнини", "Elevated fat"), "#F59E0B"};
             case ScaleInsight.T_FAT_LOW_MUSCLE:
-                return new String[] {tr("Мазнини при малко мускули", "Fat with little muscle"), "#EF4444"};
+                return new String[] {tr("Повишени мазнини, ниска мускулна маса", "Elevated fat, low muscle mass"), "#EF4444"};
             case ScaleInsight.T_LEAN_LOW_MUSCLE:
-                return new String[] {tr("Слаб · малко мускули", "Slim · little muscle"), "#F59E0B"};
+                return new String[] {tr("Слабо телосложение, ниска мускулна маса", "Slim, low muscle mass"), "#F59E0B"};
             case ScaleInsight.T_VERY_LEAN:
                 return new String[] {tr("Много ниски мазнини", "Very low fat"), "#38BDF8"};
             default:

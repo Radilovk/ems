@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 761
+    .line 787
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 762
+    .line 788
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Next;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    .line 763
+    .line 789
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 767
+    .line 793
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Next;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
@@ -57,14 +57,14 @@
 
     if-eqz v0, :cond_13
 
-    .line 768
+    .line 794
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Next;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     const/4 v1, 0x5
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
 
-    .line 770
+    .line 796
     :cond_13
     return-void
 .end method

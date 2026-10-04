@@ -791,13 +791,18 @@ public final class AutoEngine {
     static final double ACTIVE_SHARE = 0.35;
 
     /** The exercise of the running set (or the next one in a rest); null outside the sets. */
+    /** "Само шаблон" (owner, 1.1.325): the template's sets, rests and impulse logic without the exercises. */
+    public boolean templateOnly() {
+        return plan.input != null && !plan.input.exercises;
+    }
+
     /** The running set's approach or the recovery's sector ("Сила + активна почивка", "Помпа"…), "" = none. */
     public String getImpulseName() {
         return impulseName;
     }
 
     public String getExercise() {
-        if (script == null || !isStationPhase(phaseIndex) || phaseIndex >= script.phase.length) {
+        if (templateOnly() || script == null || !isStationPhase(phaseIndex) || phaseIndex >= script.phase.length) {
             return null;
         }
         String[] l = script.phase[phaseIndex];
@@ -822,6 +827,9 @@ public final class AutoEngine {
         int idx = phaseAt(end);
         if (cool >= 0 && (idx >= cool || plan.activeS - end < STATION_MIN_S / 2.0)) {
             return NEXT_RECOVERY;
+        }
+        if (templateOnly()) {
+            return null;                       // "Само шаблон": no exercise to name
         }
         if (idx != phaseIndex) {
             return isStationPhase(idx) && idx < script.phase.length && script.phase[idx] != null

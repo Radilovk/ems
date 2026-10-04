@@ -459,6 +459,7 @@ public final class AutoSession {
         to.intensity = from.intensity;
         to.variant = from.variant;
         to.doublePulse = from.doublePulse;
+        to.exercises = from.exercises;
         to.totalSeconds = from.totalSeconds;
     }
 
@@ -2041,6 +2042,7 @@ public final class AutoSession {
             input.operator = AiModel.Operator.valueOf(p.getString("operator", "TRAINER"));
             input.intensity = AutoModel.Intensity.valueOf(p.getString("intensity", "STANDARD"));
             input.doublePulse = p.getBoolean("double", true);
+            input.exercises = p.getBoolean("exercises", true);
         } catch (Throwable ignored) {
         }
     }
@@ -2057,6 +2059,7 @@ public final class AutoSession {
                     .putString("operator", input.operator.name())
                     .putString("intensity", input.intensity.name())
                     .putBoolean("double", input.doublePulse)
+                    .putBoolean("exercises", input.exercises)
                     .apply();
         } catch (Throwable ignored) {
         }

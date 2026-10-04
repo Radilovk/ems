@@ -1168,6 +1168,46 @@ public final class AutoSim {
         check(g1.onS < g0.onS && g1.pauseHz == 7, "dynamics: tired → the second impulse takes more of the cycle");
         check(AutoDynamics.apply(st, AutoDynamics.STRENGTH_PAUSE, 0, false).pauseHz == 0,
                 "dynamics: no second impulse where the program does not allow it");
+        // "Само шаблон" (1.1.325): the same sets, rests and approaches, no exercise
+        AutoModel.Input fi = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
+        fi.goal = in.goal;
+        fi.kind = in.kind;
+        fi.programId = in.programId;
+        fi.exercises = false;
+        AutoModel.Plan fp = AutoPlanner.build(fi, 68);
+        AutoEngine fe = new AutoEngine(fp);
+        fe.setScript(AutoTemplates.script(fp, null));
+        long ft = 1000000L;
+        fe.startAt(ft, ft);
+        ft = fe.getGoMs();
+        fe.tick(ft);
+        int fSets = 0, fNamed = 0;
+        java.util.Set<String> fApproaches = new java.util.HashSet<String>();
+        int fg = 0;
+        while ((fe.getState() == AutoEngine.State.RUN || fe.getState() == AutoEngine.State.REST) && fg++ < 5000) {
+            if (fe.getState() == AutoEngine.State.REST) {
+                fSets++;
+                ft += Math.max(1, fe.getRestMinS()) * 1000L;
+                fe.requestGo(ft, ft);
+                ft = fe.getGoMs();
+                fe.tick(ft);
+                continue;
+            }
+            if (fe.getExercise() != null || (fe.getNextExercise() != null && fe.getNextExercise().length() > 0)) {
+                fNamed++;
+            }
+            if (fe.isStationPhase(fe.getPhaseIndex()) && fe.getImpulseName().length() > 0) {
+                fApproaches.add(fe.getImpulseName());
+            }
+            AutoEngine.Cmd fc = fe.getCurrent();
+            ft += fc.durationMs();
+            fe.tick(ft - 1);
+            fe.onCycle(ft);
+        }
+        check(fe.getState() == AutoEngine.State.DONE && fSets > 10, "template only: sets with rests (" + fSets + ")");
+        check(fNamed == 0, "template only: no exercise named (" + fNamed + ")");
+        check(fApproaches.size() >= 4, "template only: the approaches still change set by set (" + fApproaches + ")");
+
         // gentle programs and the first trainings: no 100 Hz approach
         AutoModel.Input s60 = input(AiModel.Sex.FEMALE, 66, 70, 165, AiModel.Fitness.MID, 10, 200);
         s60.goal = AutoModel.Goal.HEALTH;

@@ -64,6 +64,7 @@ public final class AutoUi {
     private static final int A_TIPS = 36;
     private static final int A_INFO = 37;
     private static final int A_STATE = 38;
+    private static final int A_EXERCISES = 41;
 
     private static XemsUi.Shell shell;
     private static Activity host;
@@ -470,6 +471,13 @@ public final class AutoUi {
                     in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.weight(1f, 14, c));
         }
         body.addView(choose, XemsUi.matchWrap(c, 4));
+        // "Само шаблон" / "С упражнения" (owner, 1.1.325): the template's blocks alone, or with its exercises — the
+        // impulse, pauses, rests and their logic are the same in both
+        if (in.kind == Kind.ACTIVE) {
+            body.addView(XemsUi.segmented(c, new String[] {AiText.t("Само шаблон", "Template only"),
+                    AiText.t("С упражнения", "With exercises")}, in.exercises ? 1 : 0, new Act(A_EXERCISES, 0)),
+                    XemsUi.matchWrap(c, 12));
+        }
 
         List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
         Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
@@ -1613,6 +1621,9 @@ public final class AutoUi {
                 }
                 break;
             }
+            case A_EXERCISES:
+                in.exercises = value == 1;
+                break;
             case A_KIND:
                 stripX = 0;
                 in.kind = value == 0 ? Kind.ACTIVE : Kind.PASSIVE;

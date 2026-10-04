@@ -44,6 +44,7 @@ public final class ClientPrograms {
                 return false;
             }
             sp.edit().putString(key(u.id, p.name), JSON.toJSONString(p)).apply();
+            ParamPlan.onSaved(app, u, key(u.id, p.name));   // the formula of now: the trainer's difference stays
             WearableBleDiagLog.log("manual", "saved '" + p.name + "' for user " + u.id);
             return true;
         } catch (Throwable t) {
@@ -87,6 +88,9 @@ public final class ClientPrograms {
                 copy(s, r);
             }
         }
+        if (ProgramFit.enabled(app)) {                  // the formula moves, the trainer's difference stays
+            ParamPlan.overlay(app, own, u, ParamPlan.savedAt(app, u, key(u.id, row.name)));
+        }
         try {
             if (!it.data.start) {
                 it.workLength = own.matchProgram() != null ? own.matchProgram().workLength : it.workLength;
@@ -123,6 +127,10 @@ public final class ClientPrograms {
     /** NextPlan.program: the client's own saved program, when there is one, is the start. */
     static TrainProgram base(TrainUser u, String program) {
         TrainProgram p = u != null ? load(u.id, program) : null;
-        return p != null ? (TrainProgram) BeanUtils.cloneObject(p) : null;
+        TrainProgram out = p != null ? (TrainProgram) BeanUtils.cloneObject(p) : null;
+        if (out != null && ProgramFit.enabled(app)) {
+            ParamPlan.overlay(app, out, u, ParamPlan.savedAt(app, u, key(u.id, program)));
+        }
+        return out;
     }
 }

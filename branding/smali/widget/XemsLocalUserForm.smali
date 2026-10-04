@@ -447,7 +447,7 @@
     .registers 3
 
     .prologue
-    .line 962
+    .line 967
     if-ge p0, p1, :cond_3
 
     :goto_2
@@ -518,7 +518,7 @@
     .registers 3
 
     .prologue
-    .line 897
+    .line 902
     const-string v0, "menopause"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -535,12 +535,12 @@
 
     move-result-object p0
 
-    .line 916
+    .line 921
     :cond_10
     :goto_10
     return-object p0
 
-    .line 898
+    .line 903
     :cond_11
     const-string v0, "prediabetes"
 
@@ -560,7 +560,7 @@
 
     goto :goto_10
 
-    .line 899
+    .line 904
     :cond_22
     const-string v0, "pcos"
 
@@ -580,7 +580,7 @@
 
     goto :goto_10
 
-    .line 900
+    .line 905
     :cond_33
     const-string v0, "thyroid"
 
@@ -600,7 +600,7 @@
 
     goto :goto_10
 
-    .line 901
+    .line 906
     :cond_44
     const-string v0, "water"
 
@@ -620,7 +620,7 @@
 
     goto :goto_10
 
-    .line 902
+    .line 907
     :cond_55
     const-string v0, "postpartum"
 
@@ -640,7 +640,7 @@
 
     goto :goto_10
 
-    .line 903
+    .line 908
     :cond_66
     const-string v0, "back"
 
@@ -660,7 +660,7 @@
 
     goto :goto_10
 
-    .line 904
+    .line 909
     :cond_77
     const-string v0, "neck"
 
@@ -680,7 +680,7 @@
 
     goto :goto_10
 
-    .line 905
+    .line 910
     :cond_88
     const-string v0, "knees"
 
@@ -700,7 +700,7 @@
 
     goto/16 :goto_10
 
-    .line 906
+    .line 911
     :cond_9a
     const-string v0, "joints"
 
@@ -720,7 +720,7 @@
 
     goto/16 :goto_10
 
-    .line 907
+    .line 912
     :cond_ac
     const-string v0, "injury"
 
@@ -740,7 +740,7 @@
 
     goto/16 :goto_10
 
-    .line 908
+    .line 913
     :cond_be
     const-string v0, "diastasis"
 
@@ -760,7 +760,7 @@
 
     goto/16 :goto_10
 
-    .line 909
+    .line 914
     :cond_d0
     const-string v0, "osteo"
 
@@ -780,7 +780,7 @@
 
     goto/16 :goto_10
 
-    .line 910
+    .line 915
     :cond_e2
     const-string v0, "varicose"
 
@@ -800,7 +800,7 @@
 
     goto/16 :goto_10
 
-    .line 911
+    .line 916
     :cond_f4
     const-string v0, "desk"
 
@@ -820,7 +820,7 @@
 
     goto/16 :goto_10
 
-    .line 912
+    .line 917
     :cond_106
     const-string v0, "stress"
 
@@ -840,7 +840,7 @@
 
     goto/16 :goto_10
 
-    .line 913
+    .line 918
     :cond_118
     const-string v0, "sleep"
 
@@ -860,7 +860,7 @@
 
     goto/16 :goto_10
 
-    .line 914
+    .line 919
     :cond_12a
     const-string v0, "senior"
 
@@ -880,7 +880,7 @@
 
     goto/16 :goto_10
 
-    .line 915
+    .line 920
     :cond_13c
     const-string v0, "sensitive"
 
@@ -905,7 +905,7 @@
     .registers 3
 
     .prologue
-    .line 934
+    .line 939
     const-string v0, "pregnancy"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -922,12 +922,12 @@
 
     move-result-object p0
 
-    .line 947
+    .line 952
     :cond_10
     :goto_10
     return-object p0
 
-    .line 935
+    .line 940
     :cond_11
     const-string v0, "implant"
 
@@ -947,7 +947,7 @@
 
     goto :goto_10
 
-    .line 936
+    .line 941
     :cond_22
     const-string v0, "cardiovascular"
 
@@ -967,7 +967,7 @@
 
     goto :goto_10
 
-    .line 937
+    .line 942
     :cond_33
     const-string v0, "circulation"
 
@@ -987,7 +987,7 @@
 
     goto :goto_10
 
-    .line 938
+    .line 943
     :cond_44
     const-string v0, "hernia"
 
@@ -1007,7 +1007,7 @@
 
     goto :goto_10
 
-    .line 939
+    .line 944
     :cond_55
     const-string v0, "cancer"
 
@@ -1027,7 +1027,7 @@
 
     goto :goto_10
 
-    .line 940
+    .line 945
     :cond_66
     const-string v0, "bleeding"
 
@@ -1047,7 +1047,7 @@
 
     goto :goto_10
 
-    .line 941
+    .line 946
     :cond_77
     const-string v0, "epilepsy"
 
@@ -1067,7 +1067,7 @@
 
     goto :goto_10
 
-    .line 942
+    .line 947
     :cond_88
     const-string v0, "neurological"
 
@@ -1087,7 +1087,7 @@
 
     goto/16 :goto_10
 
-    .line 943
+    .line 948
     :cond_9a
     const-string v0, "recent_surgery"
 
@@ -1107,7 +1107,7 @@
 
     goto/16 :goto_10
 
-    .line 944
+    .line 949
     :cond_ac
     const-string v0, "skin_lesion"
 
@@ -1127,7 +1127,7 @@
 
     goto/16 :goto_10
 
-    .line 945
+    .line 950
     :cond_be
     const-string v0, "kidney"
 
@@ -1147,7 +1147,7 @@
 
     goto/16 :goto_10
 
-    .line 946
+    .line 951
     :cond_d0
     const-string v0, "tuberculosis"
 
@@ -1183,12 +1183,12 @@
     .end annotation
 
     .prologue
-    .line 877
+    .line 882
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 878
+    .line 883
     array-length v3, p0
 
     const/4 v0, 0x0
@@ -1200,14 +1200,14 @@
 
     aget-object v4, p0, v1
 
-    .line 879
+    .line 884
     invoke-interface {p1, v4}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
 
     move-result v0
 
     if-eqz v0, :cond_21
 
-    .line 880
+    .line 885
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1223,7 +1223,7 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 878
+    .line 883
     :cond_21
     add-int/lit8 v0, v1, 0x1
 
@@ -1231,13 +1231,13 @@
 
     goto :goto_8
 
-    .line 880
+    .line 885
     :cond_25
     const-string v0, ""
 
     goto :goto_1a
 
-    .line 883
+    .line 888
     :cond_28
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1250,7 +1250,7 @@
     .registers 7
 
     .prologue
-    .line 860
+    .line 865
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1302,7 +1302,7 @@
 
     move-result-object v1
 
-    .line 861
+    .line 866
     invoke-virtual {p1}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -1350,7 +1350,7 @@
 
     move-result-object v1
 
-    .line 862
+    .line 867
     if-eqz p2, :cond_97
 
     invoke-virtual {p2}, Ljava/lang/String;->length()I
@@ -1398,7 +1398,7 @@
 
     move-result-object v0
 
-    .line 860
+    .line 865
     return-object v0
 
     :cond_91
@@ -1406,13 +1406,13 @@
 
     goto :goto_2f
 
-    .line 861
+    .line 866
     :cond_94
     const-string v0, ""
 
     goto :goto_5d
 
-    .line 862
+    .line 867
     :cond_97
     const-string v0, ""
 
@@ -1423,7 +1423,7 @@
     .registers 3
 
     .prologue
-    .line 928
+    .line 933
     const-string v0, "low"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1440,11 +1440,11 @@
 
     move-result-object v0
 
-    .line 930
+    .line 935
     :goto_10
     return-object v0
 
-    .line 929
+    .line 934
     :cond_11
     const-string v0, "high"
 
@@ -1464,7 +1464,7 @@
 
     goto :goto_10
 
-    .line 930
+    .line 935
     :cond_22
     const-string v0, "\u0421\u0440\u0435\u0434\u0435\u043d"
 
@@ -1481,7 +1481,7 @@
     .registers 3
 
     .prologue
-    .line 887
+    .line 892
     const-string v0, "abs"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1498,12 +1498,12 @@
 
     move-result-object p0
 
-    .line 893
+    .line 898
     :cond_10
     :goto_10
     return-object p0
 
-    .line 888
+    .line 893
     :cond_11
     const-string v0, "glutes"
 
@@ -1523,7 +1523,7 @@
 
     goto :goto_10
 
-    .line 889
+    .line 894
     :cond_22
     const-string v0, "legs"
 
@@ -1543,7 +1543,7 @@
 
     goto :goto_10
 
-    .line 890
+    .line 895
     :cond_33
     const-string v0, "arms"
 
@@ -1563,7 +1563,7 @@
 
     goto :goto_10
 
-    .line 891
+    .line 896
     :cond_44
     const-string v0, "back"
 
@@ -1583,7 +1583,7 @@
 
     goto :goto_10
 
-    .line 892
+    .line 897
     :cond_55
     const-string v0, "chest"
 
@@ -1608,7 +1608,7 @@
     .registers 3
 
     .prologue
-    .line 920
+    .line 925
     const-string v0, "fat"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1625,11 +1625,11 @@
 
     move-result-object v0
 
-    .line 924
+    .line 929
     :goto_10
     return-object v0
 
-    .line 921
+    .line 926
     :cond_11
     const-string v0, "massage"
 
@@ -1649,7 +1649,7 @@
 
     goto :goto_10
 
-    .line 922
+    .line 927
     :cond_22
     const-string v0, "drain"
 
@@ -1669,7 +1669,7 @@
 
     goto :goto_10
 
-    .line 923
+    .line 928
     :cond_33
     const-string v0, "cellulite"
 
@@ -1689,7 +1689,7 @@
 
     goto :goto_10
 
-    .line 924
+    .line 929
     :cond_44
     const-string v0, "\u0422\u043e\u043d\u0443\u0441"
 
@@ -1706,12 +1706,12 @@
     .registers 9
 
     .prologue
-    .line 866
+    .line 871
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 867
+    .line 872
     const-string v0, ","
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -1729,14 +1729,14 @@
 
     aget-object v5, v3, v1
 
-    .line 868
+    .line 873
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
     move-result v0
 
     if-lez v0, :cond_2d
 
-    .line 869
+    .line 874
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1759,7 +1759,7 @@
     :goto_2a
     invoke-virtual {v6, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 867
+    .line 872
     :cond_2d
     add-int/lit8 v0, v1, 0x1
 
@@ -1767,7 +1767,7 @@
 
     goto :goto_e
 
-    .line 869
+    .line 874
     :cond_31
     const-string v0, ""
 
@@ -1780,7 +1780,7 @@
 
     goto :goto_2a
 
-    .line 872
+    .line 877
     :cond_39
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1793,7 +1793,7 @@
     .registers 4
 
     .prologue
-    .line 966
+    .line 971
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -1879,12 +1879,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 845
+    .line 850
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 846
+    .line 851
     const-string v0, "\u0426\u0435\u043b: "
 
     const-string v2, "Goal: "
@@ -1907,7 +1907,7 @@
 
     const-string v2, " \u00b7 "
 
-    .line 847
+    .line 852
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -1930,10 +1930,10 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 848
+    .line 853
     const/4 v0, 0x1
 
-    .line 849
+    .line 854
     sget-object v4, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
 
     array-length v5, v4
@@ -1945,14 +1945,14 @@
 
     aget-object v6, v4, v2
 
-    .line 850
+    .line 855
     invoke-interface {p2, v6}, Ljava/util/Collection;->contains(Ljava/lang/Object;)Z
 
     move-result v7
 
     if-eqz v7, :cond_6b
 
-    .line 851
+    .line 856
     if-eqz v0, :cond_6e
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -1994,19 +1994,19 @@
 
     move v0, v1
 
-    .line 849
+    .line 854
     :cond_6b
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_38
 
-    .line 851
+    .line 856
     :cond_6e
     const-string v0, ", "
 
     goto :goto_5f
 
-    .line 855
+    .line 860
     :cond_71
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2019,7 +2019,7 @@
     .registers 3
 
     .prologue
-    .line 970
+    .line 975
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
@@ -2043,20 +2043,20 @@
 
     const/4 v3, 0x1
 
-    .line 951
+    .line 956
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v1
 
-    .line 952
+    .line 957
     invoke-virtual {v1, p0}, Ljava/util/Calendar;->setTime(Ljava/util/Date;)V
 
-    .line 953
+    .line 958
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v2
 
-    .line 954
+    .line 959
     invoke-virtual {v2, v3}, Ljava/util/Calendar;->get(I)I
 
     move-result v0
@@ -2067,7 +2067,7 @@
 
     sub-int/2addr v0, v3
 
-    .line 955
+    .line 960
     invoke-virtual {v2, v4}, Ljava/util/Calendar;->get(I)I
 
     move-result v2
@@ -2078,10 +2078,10 @@
 
     if-ge v2, v1, :cond_22
 
-    .line 956
+    .line 961
     add-int/lit8 v0, v0, -0x1
 
-    .line 958
+    .line 963
     :cond_22
     return v0
 .end method

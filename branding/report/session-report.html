@@ -172,6 +172,11 @@ html.printing .factor{grid-template-columns:110px minmax(0,1fr) 44px}
 .sec-h h3{font-size:16px}
 /* "Тяло" — the studio scale on the client card (BR.body(): weigh-ins + how they steer the training) */
 .bodyk{display:grid;gap:12px}
+.prmk{display:grid;gap:10px}.prmk .pv{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.prmk .pv b{font:700 24px/1 var(--f-cond)}
+.prmk .pm{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}.prmk .pm span{color:var(--hint)}
+.prmk .why{margin:0;padding-left:18px;font-size:12.5px;color:var(--hint);display:grid;gap:3px}
+.prmk details{font-size:12.5px}.prmk summary{cursor:pointer;color:var(--hint)}.prmk .pe{padding:6px 0;border-top:1px solid var(--line,rgba(127,127,127,.18))}
+.prmk .pe[aria-current="true"] b{color:var(--stim)}
 .bodyk .bt{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
 .bodyk .bt .age{margin-left:auto;font:700 26px/1 var(--f-cond)}.bodyk .bt .age small{font:500 11px var(--f-body);color:var(--hint);margin-left:4px}
 .bodyk .wt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.bodyk .wt b{font:700 30px/1 var(--f-cond)}.bodyk .wt span{font-size:12px;color:var(--hint)}
@@ -310,6 +315,7 @@ details[open] summary::before{transform:rotate(45deg)}
       </div>
     </section>
     <section class="card pad bodyk" id="bodyCard" aria-label="Тяло" hidden></section>
+    <section class="card pad prmk" id="prmCard" aria-label="Импулс" hidden></section>
     <section class="card pad" aria-label="История">
       <div class="sec-h" style="margin-bottom:10px"><h3>История</h3><span class="sample" id="demoTag" hidden>примерни данни</span></div>
       <div class="list" id="list"></div>
@@ -725,6 +731,29 @@ function renderClient(){
 function demoBody(){const d=864e5,t=Date.now();const mk=(k,w,f,mu)=>({t:t-k*d,w,fat:f,fatKg:+(w*f/100).toFixed(1),muscle:mu,water:55.1,visc:6,ffmi:18.9,page:35,type:1,
   nf:[21,25,32,38],nm:[14,17,19.5,22],nw:[45,50,60,65],zm:[101,94,96,88,91]});
   return{list:[mk(70,66.2,31.5,42.6),mk(35,65.1,30.2,42.9),mk(1,64.0,28.4,43.3)],use:{fresh:true,ready:0.85,readySeg:3,readyScore:74,focus:"legs",chFat:true}};}
+function prmDemo(){const d=864e5,n=Date.now(),e=(t,v,ve,c,ce,V,df,dfe,w,we)=>({t:n-t*d,var:v,varEn:ve,trig:c[0],trigEn:ce[0],cause:c,causeEn:ce,v:V,diff:df,diffEn:dfe,why:w,whyEn:we});
+  return [e(40,"Адаптация","Adaptation",["Първо изчисление"],["First calculation"],[[85,350,4,6,0,0,0],[85,350,4,6,0,0,0],[30,350,8,3,0,0,0],[5,280,10,2,0,0,0]],[],[],["Тренировка 1 от 3 за адаптация: 85 Hz, 4 s, по-дълга пауза."],["Training 1 of 3 of adaptation: 85 Hz, 4 s, longer pause."]),
+    e(12,"Мощност","Power",["Тренировка 5"],["Training 5"],[[100,360,3,4,0,0,0],[100,360,4,5,0,0,0],[50,360,5,4,0,0,0],[8,285,8,2,0,0,0]],["Основен: 85 → 100 Hz, 4 → 3 s импулс, 6 → 4 s пауза"],["Main: 85 → 100 Hz, 4 → 3 s impulse, 6 → 4 s pause"],["Вариант „Мощност“ (2 от 4) — всяка тренировка различен стимул."],["Variant \"Power\" (2 of 4) — a different stimulus every training."]),
+    e(1,"Обем","Volume",["Мазнини 31.0 → 29.4 % (кантар)","Тренировка 6"],["Fat 31.0 → 29.4%","Training 6"],[[70,355,6,5,0,0,0],[90,355,6,7,0,0,0],[40,355,6,4,0,0,0],[3,283,10,2,0,0,0]],["Основен: 100 → 70 Hz, 360 → 355 µs, 3 → 6 s импулс, 4 → 5 s пауза"],["Main: 100 → 70 Hz, 360 → 355 µs, 3 → 6 s impulse, 4 → 5 s pause"],["Вариант „Обем“ (3 от 4) — всяка тренировка различен стимул.","Мазнини 29 % (кантар) (норма 28) → дълбочина 355 µs.","Пауза от модела на умората (слаба форма): Основен 6 / 5 s."],["Variant \"Volume\" (3 of 4).","Fat 29% (scale) (norm 28) → depth 355 µs.","Pause from the fatigue model (low): Main 6 / 5 s."])];}
+function prmList(){if(DEMO)return prmDemo();if(!BR||!BR.params)return [];try{const L=JSON.parse(BR.params()||"[]");return Array.isArray(L)?L:[];}catch(e){return [];}}
+function prmEsc(t){return String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);}
+function prmLine(r){return r?r[0]+" Hz · "+r[1]+" µs · "+r[2]+"/"+r[3]+" s"+(r[4]===1?" · "+tr("2-ри ","2nd ")+r[5]+" Hz "+r[6]+" %":""):"";}
+/** The client's impulse, recalculated from their profile, measurements and trainings (wearable/ParamPlan) and why. */
+function renderPrm(){
+  const box=$("#prmCard");if(!box)return;const L=prmList();if(!L.length){box.hidden=true;box.innerHTML="";return;}
+  const EN=LANG==="en",S=sessions[cur],at=S?S.date.getTime():Date.now();
+  let k=-1;for(let i=0;i<L.length;i++)if(L[i].t<=at)k=i;const before=k>=0;if(!before)k=L.length-1;   // older trainings: no entry yet
+  const e=L[k],nx=L[L.length-1],M=EN?["Main","Muscle","Cardio","Massage"]:["Основен","Мускули","Кардио","Масаж"];
+  const d=t=>{const x=new Date(t);return x.getDate()+" "+MON[x.getMonth()];};
+  let h=`<div class="sec-h" style="margin:0"><h3>${tr("Импулс · защо","Impulse · why")}</h3><span class="hint">${S&&before?tr("за тази тренировка","for this training"):tr("сега","now")}</span></div>`;
+  h+=`<div class="pv"><b>${prmEsc(EN?e.varEn:e.var)}</b><span class="hint">${d(e.t)} · ${prmEsc(EN?e.trigEn:e.trig)}</span></div>`;
+  h+=`<div class="pm">${(e.v||[]).map((r,i)=>`<span>${M[i]}</span><div>${prmLine(r)}</div>`).join("")}</div>`;
+  const w=(EN?e.whyEn:e.why)||[];if(w.length)h+=`<ul class="why">${w.map(x=>`<li>${prmEsc(x)}</li>`).join("")}</ul>`;
+  if(nx!==e)h+=`<div class="hint" style="font-size:12.5px">${tr("Следваща: ","Next: ")}<b>${prmEsc(EN?nx.varEn:nx.var)}</b> · ${M[0]} ${prmLine(nx.v&&nx.v[0])}</div>`;
+  h+=`<details><summary>${tr("Дневник на промените","Change log")} (${L.length})</summary>${L.slice().reverse().map(x=>{const c=(EN?x.causeEn:x.cause)||[],df=(EN?x.diffEn:x.diff)||[];
+    return `<div class="pe" aria-current="${x===e}"><b>${d(x.t)} · ${prmEsc(EN?x.varEn:x.var)}</b><div class="hint">${c.map(prmEsc).join(" · ")}</div>${df.length?`<div>${df.map(prmEsc).join("<br>")}</div>`:""}</div>`;}).join("")}</details>`;
+  box.innerHTML=h;box.hidden=false;
+}
 function renderBody(){
   const box=$("#bodyCard");let B=null;
   try{B=DEMO?demoBody():(BR&&BR.body?JSON.parse(BR.body()||"{}"):null);}catch(e){B=null;}
@@ -805,7 +834,7 @@ function heat(v){const st=["--h1","--h2","--h3","--h4","--h5"];const k=Math.min(
 
 /* ---------------- report ---------------- */
 let cur=0,compare=false,layers={hr:true,stim:true,ma:false},view="front",delArmed=false;
-function show(i){cur=i;const s=sessions[i];GOAL=s.a.goalP||GOALS[s.goal]||GOALS.tone;HR_REST=s.sim.rest;HR_MAX=s.sim.max;PH=s.sim.PH;delArmed=false;$("#delBtn").textContent=tr("Изтрий","Delete");$("#delBtn").classList.remove("warn");renderList(i);draw();}
+function show(i){cur=i;try{renderPrm();}catch(e){}const s=sessions[i];GOAL=s.a.goalP||GOALS[s.goal]||GOALS.tone;HR_REST=s.sim.rest;HR_MAX=s.sim.max;PH=s.sim.PH;delArmed=false;$("#delBtn").textContent=tr("Изтрий","Delete");$("#delBtn").classList.remove("warn");renderList(i);draw();}
 
 function leadText(a){return(a.eff>=80?tr("Много добра тренировка за целта „","A very good training for the goal “"):a.eff>=60?tr("Добра тренировка за целта „","A good training for the goal “"):tr("Слаба тренировка за целта „","A weak training for the goal “"))+GOAL.n+tr("“","”");}
 /* ---------------- motion ---------------- */
@@ -1140,7 +1169,9 @@ function cardData(){
     eff:tail.map(s=>[s.date.getTime(),s.a.eff]),ma:tail.map(s=>s.a.maMax),rec:tail.map(s=>s.sim.recDrop!=null?s.sim.recDrop:null),
     mus:musOf(all),delt:deltOf(all),musMin:sec.map(v=>Math.round(v/60)),
     p30:{n:m30.length,sec:sum(m30,s=>s.sim.T),kcal:Math.round(sum(m30,s=>s.a.kcal)),mus:musOf(m30),delt:deltOf(m30),eff:m30.slice(-24).map(s=>[s.date.getTime(),s.a.eff])},
-    last:{d:last.date.getTime(),t:last.type,e:last.a.eff,k:last.a.kcal,a:last.a.act,h:last.a.hrAvg||0,mus:musOf([last]),delt:deltOf([last])}};
+    last:{d:last.date.getTime(),t:last.type,e:last.a.eff,k:last.a.kcal,a:last.a.act,h:last.a.hrAvg||0,mus:musOf([last]),delt:deltOf([last])},
+    prm:prmList().slice(-6).map(x=>({t:x.t,var:String((LANG==="en"?x.varEn:x.var)||"").slice(0,40),trig:String((LANG==="en"?x.trigEn:x.trig)||"").slice(0,80),
+      main:prmLine(x.v&&x.v[0]).slice(0,80),d:((LANG==="en"?x.diffEn:x.diff)||[]).slice(0,4).map(y=>String(y).slice(0,120))}))};
 }
 window.xemsCardDone=how=>{if(how==="fail")shareMsg(tr("Картонът не можа да се подготви.","The card could not be prepared."));else{shareMsg("");$("#sheet").hidden=true;}};
 function shareCard(){
@@ -1207,6 +1238,7 @@ function start(focusId){
   $("#delBtn").hidden=DEMO;
   renderStats();
   try{renderBody();}catch(e){console.error(e);}
+  try{renderPrm();}catch(e){console.error(e);}
   if(!has){$("#list").innerHTML="";return;}
   setTimeout(refreshCard,1500);   // before drawing: a drawing error must not keep the card from the client
   let i=sessions.length-1;if(focusId){const k=sessions.findIndex(s=>String(s.id)===String(focusId));if(k>=0)i=k;}

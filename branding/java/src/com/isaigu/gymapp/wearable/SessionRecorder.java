@@ -343,6 +343,7 @@ public final class SessionRecorder {
             }
             CardPublisher.publish(r.user);          // the client's card (booking app) at once
         }
+        ParamPlan.onSession(app, r.user, r.start);  // the next training's impulse, logged
     }
 
     private static void showPending() {

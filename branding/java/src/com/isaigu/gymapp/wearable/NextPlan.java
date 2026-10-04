@@ -774,6 +774,9 @@ public final class NextPlan {
             }
             b.strenthBean.buwei = parts;
         }
+        if (ProgramFit.enabled(null)) {
+            ParamPlan.overlay(null, p, u, null);         // the impulse recalculated from who the client is
+        }
         return p;
     }
 

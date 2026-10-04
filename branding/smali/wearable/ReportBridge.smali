@@ -138,7 +138,7 @@
     .registers 8
 
     .prologue
-    .line 580
+    .line 590
     if-eqz p1, :cond_a
 
     :try_start_2
@@ -150,15 +150,15 @@
 
     if-nez v0, :cond_d
 
-    .line 581
+    .line 591
     :cond_a
     const-string v0, ""
 
-    .line 603
+    .line 613
     :goto_c
     return-object v0
 
-    .line 583
+    .line 593
     :cond_d
     new-instance v0, Ljava/io/File;
 
@@ -174,7 +174,7 @@
 
     invoke-direct {v0, v1}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 584
+    .line 594
     invoke-virtual {v0}, Ljava/io/File;->isFile()Z
 
     move-result v1
@@ -191,13 +191,13 @@
 
     if-lez v1, :cond_30
 
-    .line 585
+    .line 595
     :cond_2d
     const-string v0, ""
 
     goto :goto_c
 
-    .line 587
+    .line 597
     :cond_30
     invoke-virtual {v0}, Ljava/io/File;->length()J
 
@@ -207,24 +207,24 @@
 
     new-array v1, v1, [B
 
-    .line 588
+    .line 598
     new-instance v2, Ljava/io/FileInputStream;
 
     invoke-direct {v2, v0}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
     :try_end_3c
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_3c} :catch_6b
 
-    .line 590
+    .line 600
     const/4 v0, 0x0
 
-    .line 591
+    .line 601
     :goto_3d
     :try_start_3d
     array-length v3, v1
 
     if-ge v0, v3, :cond_48
 
-    .line 592
+    .line 602
     array-length v3, v1
 
     sub-int/2addr v3, v0
@@ -235,15 +235,15 @@
 
     move-result v3
 
-    .line 593
+    .line 603
     if-gtz v3, :cond_64
 
-    .line 599
+    .line 609
     :cond_48
     :try_start_48
     invoke-virtual {v2}, Ljava/io/FileInputStream;->close()V
 
-    .line 601
+    .line 611
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -270,29 +270,29 @@
 
     goto :goto_c
 
-    .line 596
+    .line 606
     :cond_64
     add-int/2addr v0, v3
 
-    .line 597
+    .line 607
     goto :goto_3d
 
-    .line 599
+    .line 609
     :catchall_66
     move-exception v0
 
     invoke-virtual {v2}, Ljava/io/FileInputStream;->close()V
 
-    .line 600
+    .line 610
     throw v0
     :try_end_6b
     .catch Ljava/lang/Throwable; {:try_start_48 .. :try_end_6b} :catch_6b
 
-    .line 602
+    .line 612
     :catch_6b
     move-exception v0
 
-    .line 603
+    .line 613
     const-string v0, ""
 
     goto :goto_c
@@ -2534,7 +2534,7 @@
     .end annotation
 
     .prologue
-    .line 559
+    .line 569
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/ReportBridge$Dismiss;
@@ -2545,7 +2545,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 560
+    .line 570
     return-void
 .end method
 
@@ -2555,7 +2555,7 @@
     .end annotation
 
     .prologue
-    .line 552
+    .line 562
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -2567,11 +2567,11 @@
     :try_end_9
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_9} :catch_a
 
-    .line 555
+    .line 565
     :goto_9
     return-void
 
-    .line 553
+    .line 563
     :catch_a
     move-exception v0
 
@@ -2665,6 +2665,40 @@
     return-void
 .end method
 
+.method public params()Ljava/lang/String;
+    .registers 5
+    .annotation runtime Landroid/webkit/JavascriptInterface;
+    .end annotation
+
+    .prologue
+    .line 531
+    :try_start_0
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
+
+    iget-wide v2, v1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
+
+    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/ParamPlan;->json(Landroid/content/Context;J)Ljava/lang/String;
+    :try_end_9
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_9} :catch_b
+
+    move-result-object v0
+
+    .line 533
+    :goto_a
+    return-object v0
+
+    .line 532
+    :catch_b
+    move-exception v0
+
+    .line 533
+    const-string v0, "[]"
+
+    goto :goto_a
+.end method
+
 .method public printPdf(Ljava/lang/String;)V
     .registers 6
     .annotation runtime Landroid/webkit/JavascriptInterface;
@@ -2694,7 +2728,7 @@
     .end annotation
 
     .prologue
-    .line 544
+    .line 554
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -2706,11 +2740,11 @@
     :try_end_9
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_9} :catch_a
 
-    .line 547
+    .line 557
     :goto_9
     return-void
 
-    .line 545
+    .line 555
     :catch_a
     move-exception v0
 
@@ -3129,7 +3163,7 @@
     .end annotation
 
     .prologue
-    .line 535
+    .line 545
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -3143,15 +3177,15 @@
 
     move-result-object v0
 
-    .line 537
+    .line 547
     :goto_a
     return-object v0
 
-    .line 536
+    .line 546
     :catch_b
     move-exception v0
 
-    .line 537
+    .line 547
     const-string v0, "null"
 
     goto :goto_a
@@ -3163,7 +3197,7 @@
     .end annotation
 
     .prologue
-    .line 529
+    .line 539
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;

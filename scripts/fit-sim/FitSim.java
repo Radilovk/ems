@@ -74,6 +74,21 @@ public final class FitSim {
         eq("save: cardio pause back to base", 2, row.aerobicTrainingProgramDataBean.pulsePause);
         eq("save: muscle pause back to base", 4, row.muscleTrainingProgramDataBean.pulsePause);
 
+        // 4. The formula moves, the trainer's saved difference stays (docs/xems-param-formula.md, owner 1-a).
+        int[] at = {85, 350, 4, 4, 0, 0, 0};                // the formula when the trainer saved
+        ProgramDataBean sv = new ProgramDataBean();          // the trainer's saved: 70 Hz, 4/5 s, 2nd impulse on
+        sv.hz = 70; sv.pulseWidth = 350; sv.pulseContinue = 4; sv.pulsePause = 5;
+        sv.activePause = true; sv.pauseHz = 6; sv.pauseStrenthPercent = 40;
+        ParamPlan.put(sv, 0, new int[] {100, 370, 3, 4, 0, 0, 0}, at);
+        eq("offset: hz 100 − 15", 85, sv.hz);
+        eq("offset: width follows", 370, sv.pulseWidth);
+        eq("offset: pause +1", 5, sv.pulsePause);
+        eq("offset: trainer's 2nd impulse kept", 1, sv.activePause ? 1 : 0);
+        eq("offset: its Hz kept", 6, sv.pauseHz);
+        ProgramDataBean ex = new ProgramDataBean();
+        ParamPlan.put(ex, 1, new int[] {90, 360, 5, 6, 1, 6, 45}, null);
+        eq("no saved: exactly the formula", 90, ex.hz);
+        eq("muscle: never a 2nd impulse", 0, ex.activePause ? 1 : 0);
         System.out.println(fails == 0 ? "FitSim: all OK" : "FitSim: " + fails + " FAILED");
         if (fails > 0) {
             System.exit(1);

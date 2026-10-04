@@ -283,6 +283,15 @@ public final class ProgramFit {
                 f.zoneFit[k] = rb.strenthBean.buwei.clone();
             }
         }
+        if (prof != null && ParamPlan.overlay(c, row, u, null)) {   // the impulse from who the client is
+            for (int k = 0; k < MODES; k++) {
+                ProgramDataBean rb = bean(row, k);
+                if (rb != null && f.fit[k] != null) {
+                    f.fit[k] = values(rb);
+                    f.last[k] = values(rb);
+                }
+            }
+        }
         synchronized (FITS) {
             FITS.put(it, f);
         }

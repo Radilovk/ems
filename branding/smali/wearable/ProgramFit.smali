@@ -100,7 +100,7 @@
     .registers 3
 
     .prologue
-    .line 789
+    .line 798
     move-object v0, p0
 
     :goto_1
@@ -108,19 +108,19 @@
 
     if-eqz v1, :cond_13
 
-    .line 790
+    .line 799
     instance-of v1, v0, Landroid/app/Activity;
 
     if-eqz v1, :cond_c
 
-    .line 791
+    .line 800
     check-cast v0, Landroid/app/Activity;
 
-    .line 795
+    .line 804
     :goto_b
     return-object v0
 
-    .line 793
+    .line 802
     :cond_c
     check-cast v0, Landroid/content/ContextWrapper;
 
@@ -130,7 +130,7 @@
 
     goto :goto_1
 
-    .line 795
+    .line 804
     :cond_13
     const/4 v0, 0x0
 
@@ -175,7 +175,7 @@
 
     if-nez v2, :cond_b
 
-    .line 296
+    .line 305
     :cond_a
     :goto_a
     return-void
@@ -516,39 +516,101 @@
 
     .line 286
     :cond_f5
+    if-eqz v5, :cond_125
+
+    const/4 v2, 0x0
+
+    move-object/from16 v0, p0
+
+    move-object/from16 v1, p2
+
+    invoke-static {v0, v4, v1, v2}, Lcom/isaigu/gymapp/wearable/ParamPlan;->overlay(Landroid/content/Context;Lcom/isaigu/gymapp/bean/TrainProgram;Lcom/isaigu/gymapp/bean/TrainUser;[[I)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_125
+
+    .line 287
+    const/4 v2, 0x0
+
+    :goto_103
+    const/4 v3, 0x4
+
+    if-ge v2, v3, :cond_125
+
+    .line 288
+    invoke-static {v4, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v3
+
+    .line 289
+    if-eqz v3, :cond_122
+
+    iget-object v6, v10, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->fit:[[I
+
+    aget-object v6, v6, v2
+
+    if-eqz v6, :cond_122
+
+    .line 290
+    iget-object v6, v10, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->fit:[[I
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
+
+    move-result-object v7
+
+    aput-object v7, v6, v2
+
+    .line 291
+    iget-object v6, v10, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
+
+    move-result-object v3
+
+    aput-object v3, v6, v2
+
+    .line 287
+    :cond_122
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_103
+
+    .line 295
+    :cond_125
     sget-object v3, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
     monitor-enter v3
 
-    .line 287
-    :try_start_f8
+    .line 296
+    :try_start_128
     sget-object v2, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
     move-object/from16 v0, p1
 
     invoke-interface {v2, v0, v10}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 288
+    .line 297
     monitor-exit v3
-    :try_end_100
-    .catchall {:try_start_f8 .. :try_end_100} :catchall_181
+    :try_end_130
+    .catchall {:try_start_128 .. :try_end_130} :catchall_1b1
 
-    .line 289
+    .line 298
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
 
-    if-nez v2, :cond_118
+    if-nez v2, :cond_148
 
     invoke-virtual {v4}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v2
 
-    if-eqz v2, :cond_118
+    if-eqz v2, :cond_148
 
-    .line 290
+    .line 299
     invoke-virtual {v4}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v2
@@ -559,15 +621,15 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
 
-    .line 292
-    :cond_118
+    .line 301
+    :cond_148
     const/4 v2, 0x1
 
     move-object/from16 v0, p1
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->refresh(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
 
-    .line 293
+    .line 302
     const-string v3, "manual"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -600,8 +662,8 @@
 
     move-result-object v4
 
-    .line 294
-    if-eqz v5, :cond_184
+    .line 303
+    if-eqz v5, :cond_1b4
 
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -653,8 +715,8 @@
 
     move-result-object v2
 
-    .line 295
-    :goto_174
+    .line 304
+    :goto_1a4
     invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -663,48 +725,48 @@
 
     move-result-object v2
 
-    .line 293
+    .line 302
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
     goto/16 :goto_a
 
-    .line 288
-    :catchall_181
+    .line 297
+    :catchall_1b1
     move-exception v2
 
-    :try_start_182
+    :try_start_1b2
     monitor-exit v3
-    :try_end_183
-    .catchall {:try_start_182 .. :try_end_183} :catchall_181
+    :try_end_1b3
+    .catchall {:try_start_1b2 .. :try_end_1b3} :catchall_1b1
 
     throw v2
 
-    .line 295
-    :cond_184
+    .line 304
+    :cond_1b4
     const-string v2, " as saved (personalisation off)"
 
-    goto :goto_174
+    goto :goto_1a4
 .end method
 
 .method public static attachSwitch(Landroid/view/View;)V
     .registers 8
 
     .prologue
-    .line 698
+    .line 707
     if-nez p0, :cond_3
 
-    .line 732
+    .line 741
     :cond_2
     :goto_2
     return-void
 
-    .line 702
+    .line 711
     :cond_3
     const/4 v3, 0x0
 
     move-object v2, p0
 
-    .line 703
+    .line 712
     :goto_5
     :try_start_5
     invoke-virtual {v2}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
@@ -715,14 +777,14 @@
 
     if-eqz v1, :cond_86
 
-    .line 704
+    .line 713
     invoke-virtual {v2}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
 
     check-cast v1, Landroid/view/View;
 
-    .line 705
+    .line 714
     instance-of v4, v1, Landroid/widget/ScrollView;
 
     if-eqz v4, :cond_82
@@ -731,7 +793,7 @@
 
     if-eqz v4, :cond_82
 
-    .line 706
+    .line 715
     move-object v0, v2
 
     check-cast v0, Landroid/view/ViewGroup;
@@ -740,14 +802,14 @@
 
     move-object v2, v1
 
-    .line 711
+    .line 720
     :goto_20
     if-eqz v2, :cond_2
 
-    .line 714
+    .line 723
     invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ParamDialogUi;->style(Landroid/view/ViewGroup;)V
 
-    .line 715
+    .line 724
     const-string v1, "xems_program_fit_switch"
 
     invoke-virtual {v2, v1}, Landroid/view/ViewGroup;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -756,20 +818,20 @@
 
     if-nez v1, :cond_2
 
-    .line 718
+    .line 727
     invoke-virtual {v2}, Landroid/view/ViewGroup;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 719
+    .line 728
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
 
-    .line 720
+    .line 729
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->enabled(Landroid/content/Context;)Z
 
     move-result v3
 
-    .line 721
+    .line 730
     const-string v4, "\u041f\u0435\u0440\u0441\u043e\u043d\u0430\u043b\u0438\u0437\u0430\u0446\u0438\u044f"
 
     const-string v5, "Personalisation"
@@ -778,7 +840,7 @@
 
     move-result-object v4
 
-    .line 722
+    .line 731
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/ProgramFit;->hint(Z)Ljava/lang/String;
 
     move-result-object v5
@@ -787,24 +849,24 @@
 
     invoke-direct {v6, v1}, Lcom/isaigu/gymapp/wearable/ProgramFit$Toggle;-><init>(Landroid/content/Context;)V
 
-    .line 721
+    .line 730
     invoke-static {v1, v4, v5, v3, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
 
     move-result-object v3
 
-    .line 723
+    .line 732
     const-string v4, "xems_program_fit_switch"
 
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setTag(Ljava/lang/Object;)V
 
-    .line 724
+    .line 733
     const/high16 v4, 0x41800000    # 16.0f
 
     invoke-static {v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
-    .line 725
+    .line 734
     const/high16 v5, 0x41000000    # 8.0f
 
     invoke-static {v1, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -819,7 +881,7 @@
 
     invoke-virtual {v3, v4, v5, v4, v1}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 726
+    .line 735
     const-string v1, "xems_param_header"
 
     invoke-virtual {v2, v1}, Landroid/view/ViewGroup;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -830,7 +892,7 @@
 
     const/4 v1, 0x1
 
-    .line 727
+    .line 736
     :goto_70
     new-instance v4, Landroid/view/ViewGroup$LayoutParams;
 
@@ -846,11 +908,11 @@
 
     goto :goto_2
 
-    .line 729
+    .line 738
     :catch_7b
     move-exception v1
 
-    .line 730
+    .line 739
     const-string v2, "ProgramFit.attachSwitch"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -860,10 +922,10 @@
     :cond_82
     move-object v2, v1
 
-    .line 710
+    .line 719
     goto :goto_5
 
-    .line 726
+    .line 735
     :cond_84
     const/4 v1, 0x0
 
@@ -928,17 +990,17 @@
     .registers 3
 
     .prologue
-    .line 758
+    .line 767
     if-eqz p0, :cond_a
 
-    .line 759
+    .line 768
     new-instance v0, Lcom/isaigu/gymapp/wearable/ProgramFit$SaveAs;
 
     invoke-direct {v0, p1}, Lcom/isaigu/gymapp/wearable/ProgramFit$SaveAs;-><init>(Ljava/lang/Object;)V
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnLongClickListener(Landroid/view/View$OnLongClickListener;)V
 
-    .line 761
+    .line 770
     :cond_a
     return-void
 .end method
@@ -947,7 +1009,7 @@
     .registers 1
 
     .prologue
-    .line 526
+    .line 535
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->isArmed()Z
     :try_end_3
@@ -955,15 +1017,15 @@
 
     move-result v0
 
-    .line 528
+    .line 537
     :goto_4
     return v0
 
-    .line 527
+    .line 536
     :catch_5
     move-exception v0
 
-    .line 528
+    .line 537
     const/4 v0, 0x0
 
     goto :goto_4
@@ -1040,7 +1102,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 347
+    .line 356
     if-eqz p0, :cond_75
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -1053,13 +1115,13 @@
 
     move-object v1, v0
 
-    .line 348
+    .line 357
     :goto_c
     sget-object v3, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
     monitor-enter v3
 
-    .line 349
+    .line 358
     :try_start_f
     sget-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
@@ -1069,7 +1131,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;
 
-    .line 350
+    .line 359
     if-eqz v0, :cond_29
 
     if-eqz v1, :cond_23
@@ -1082,7 +1144,7 @@
 
     if-eqz v4, :cond_29
 
-    .line 351
+    .line 360
     :cond_23
     sget-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
@@ -1090,7 +1152,7 @@
 
     move-object v0, v2
 
-    .line 354
+    .line 363
     :cond_29
     if-nez v0, :cond_7c
 
@@ -1104,17 +1166,17 @@
 
     if-eqz v2, :cond_7c
 
-    .line 355
+    .line 364
     new-instance v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;-><init>()V
 
-    .line 356
+    .line 365
     iget-wide v4, v1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
     iput-wide v4, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->userId:J
 
-    .line 357
+    .line 366
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
@@ -1123,14 +1185,14 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->program:Ljava/lang/String;
 
-    .line 358
+    .line 367
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->ref:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 359
+    .line 368
     const/4 v1, 0x0
 
     :goto_4d
@@ -1138,7 +1200,7 @@
 
     if-ge v1, v2, :cond_77
 
-    .line 360
+    .line 369
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v2
@@ -1147,10 +1209,10 @@
 
     move-result-object v2
 
-    .line 361
+    .line 370
     if-eqz v2, :cond_72
 
-    .line 362
+    .line 371
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->base:[[I
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -1159,7 +1221,7 @@
 
     aput-object v5, v4, v1
 
-    .line 363
+    .line 372
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->fit:[[I
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -1168,7 +1230,7 @@
 
     aput-object v5, v4, v1
 
-    .line 364
+    .line 373
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -1177,7 +1239,7 @@
 
     aput-object v2, v4, v1
 
-    .line 359
+    .line 368
     :cond_72
     add-int/lit8 v1, v1, 0x1
 
@@ -1186,22 +1248,22 @@
     :cond_75
     move-object v1, v2
 
-    .line 347
+    .line 356
     goto :goto_c
 
-    .line 367
+    .line 376
     :cond_77
     sget-object v1, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
     invoke-interface {v1, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 369
+    .line 378
     :cond_7c
     monitor-exit v3
 
     return-object v0
 
-    .line 370
+    .line 379
     :catchall_7e
     move-exception v0
 
@@ -1218,18 +1280,18 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 585
+    .line 594
     if-eqz p0, :cond_9
 
     iget-object v2, p0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 586
+    .line 595
     :goto_5
     if-nez v2, :cond_b
 
     move-object v0, v1
 
-    .line 595
+    .line 604
     :cond_8
     :goto_8
     return-object v0
@@ -1237,10 +1299,10 @@
     :cond_9
     move-object v2, v1
 
-    .line 585
+    .line 594
     goto :goto_5
 
-    .line 589
+    .line 598
     :cond_b
     invoke-static {v2}, Lcom/isaigu/gymapp/utils/BeanUtils;->cloneObject(Ljava/lang/Object;)Ljava/lang/Object;
 
@@ -1248,21 +1310,21 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 590
+    .line 599
     if-nez v0, :cond_15
 
     move-object v0, v2
 
-    .line 591
+    .line 600
     goto :goto_8
 
-    .line 593
+    .line 602
     :cond_15
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/ProgramFit;->itemOf(Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v2
 
-    .line 594
+    .line 603
     if-eqz v2, :cond_20
 
     const/4 v1, 0x0
@@ -1271,7 +1333,7 @@
 
     move-result-object v1
 
-    .line 595
+    .line 604
     :cond_20
     if-eqz v1, :cond_8
 
@@ -1286,24 +1348,24 @@
     .registers 3
 
     .prologue
-    .line 340
+    .line 349
     sget-object v1, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 341
+    .line 350
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 342
+    .line 351
     monitor-exit v1
 
-    .line 343
+    .line 352
     return-void
 
-    .line 342
+    .line 351
     :catchall_a
     move-exception v0
 
@@ -1379,15 +1441,15 @@
     .registers 16
 
     .prologue
-    .line 422
+    .line 431
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v4
 
-    .line 423
+    .line 432
     const/4 v0, 0x0
 
-    .line 424
+    .line 433
     const/4 v1, 0x0
 
     :goto_6
@@ -1395,12 +1457,12 @@
 
     if-ge v1, v2, :cond_17
 
-    .line 425
+    .line 434
     aget-boolean v2, p4, v1
 
     if-eqz v2, :cond_14
 
-    .line 426
+    .line 435
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->manual:[[Z
 
     aget-object v2, v2, p2
@@ -1409,25 +1471,25 @@
 
     aput-boolean v3, v2, v1
 
-    .line 424
+    .line 433
     :cond_14
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_6
 
-    .line 429
+    .line 438
     :cond_17
     if-nez p5, :cond_1b
 
-    .line 430
+    .line 439
     const/4 v2, 0x0
 
-    .line 462
+    .line 471
     :cond_1a
     :goto_1a
     return v2
 
-    .line 432
+    .line 441
     :cond_1b
     const/4 v1, 0x2
 
@@ -1457,7 +1519,7 @@
 
     if-lez v1, :cond_50
 
-    .line 433
+    .line 442
     const/4 v1, 0x0
 
     const/4 v2, 0x3
@@ -1488,18 +1550,18 @@
 
     move-result v1
 
-    .line 434
+    .line 443
     iget v2, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     if-eq v1, v2, :cond_50
 
-    .line 435
+    .line 444
     iput v1, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
-    .line 436
+    .line 445
     const/4 v0, 0x1
 
-    .line 439
+    .line 448
     :cond_50
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->hasBase:Z
 
@@ -1512,10 +1574,10 @@
     :cond_57
     move v2, v0
 
-    .line 440
+    .line 449
     goto :goto_1a
 
-    .line 442
+    .line 451
     :cond_59
     const/4 v1, 0x5
 
@@ -1523,7 +1585,7 @@
 
     fill-array-data v5, :array_be
 
-    .line 443
+    .line 452
     const/4 v1, 0x0
 
     move v2, v0
@@ -1533,10 +1595,10 @@
 
     if-ge v1, v0, :cond_1a
 
-    .line 444
+    .line 453
     aget v6, v5, v1
 
-    .line 445
+    .line 454
     aget-boolean v0, p4, v6
 
     if-eqz v0, :cond_70
@@ -1547,7 +1609,7 @@
 
     if-nez v0, :cond_74
 
-    .line 443
+    .line 452
     :cond_70
     :goto_70
     add-int/lit8 v0, v1, 0x1
@@ -1556,7 +1618,7 @@
 
     goto :goto_61
 
-    .line 448
+    .line 457
     :cond_74
     invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/ProgramFit;->get(Lcom/isaigu/gymapp/bean/ProgramDataBean;I)I
 
@@ -1570,7 +1632,7 @@
 
     sub-int v7, v0, v3
 
-    .line 449
+    .line 458
     const/4 v3, 0x0
 
     move v0, v2
@@ -1580,12 +1642,12 @@
 
     if-ge v3, v2, :cond_bb
 
-    .line 450
+    .line 459
     invoke-static {p1, v3}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v2
 
-    .line 451
+    .line 460
     if-eq v3, p2, :cond_9b
 
     if-eqz v2, :cond_9b
@@ -1604,7 +1666,7 @@
 
     if-eqz v8, :cond_9f
 
-    .line 449
+    .line 458
     :cond_9b
     :goto_9b
     add-int/lit8 v2, v3, 0x1
@@ -1613,7 +1675,7 @@
 
     goto :goto_82
 
-    .line 454
+    .line 463
     :cond_9f
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->base:[[I
 
@@ -1623,17 +1685,17 @@
 
     add-int/2addr v8, v7
 
-    .line 455
+    .line 464
     invoke-static {v2, v6}, Lcom/isaigu/gymapp/wearable/ProgramFit;->get(Lcom/isaigu/gymapp/bean/ProgramDataBean;I)I
 
     move-result v9
 
     if-eq v9, v8, :cond_9b
 
-    .line 456
+    .line 465
     invoke-static {v2, v6, v8}, Lcom/isaigu/gymapp/wearable/ProgramFit;->set(Lcom/isaigu/gymapp/bean/ProgramDataBean;II)V
 
-    .line 457
+    .line 466
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->fit:[[I
 
     aget-object v0, v0, v3
@@ -1644,7 +1706,7 @@
 
     aput v2, v0, v6
 
-    .line 458
+    .line 467
     const/4 v0, 0x1
 
     goto :goto_9b
@@ -1654,7 +1716,7 @@
 
     goto :goto_70
 
-    .line 442
+    .line 451
     nop
 
     :array_be
@@ -1671,7 +1733,7 @@
     .registers 3
 
     .prologue
-    .line 735
+    .line 744
     if-eqz p0, :cond_b
 
     const-string v0, "\u0412\u0441\u0435\u043a\u0438 \u043a\u043b\u0438\u0435\u043d\u0442 \u043f\u043e\u043b\u0443\u0447\u0430\u0432\u0430 \u0437\u0430\u043f\u0438\u0441\u0430\u043d\u0430\u0442\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430, \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d\u0430 \u0437\u0430 \u043d\u0435\u0433\u043e"
@@ -1685,7 +1747,7 @@
     :goto_a
     return-object v0
 
-    .line 737
+    .line 746
     :cond_b
     const-string v0, "\u0418\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0430 \u2014 \u0432\u0441\u0438\u0447\u043a\u043e \u0435 \u0440\u044a\u0447\u043d\u043e, \u0442\u043e\u0447\u043d\u043e \u043a\u0430\u043a\u0442\u043e \u0433\u043e \u0437\u0430\u0434\u0430\u0434\u0435\u0448"
 
@@ -1704,10 +1766,10 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 652
+    .line 661
     sget-object v3, Lcom/isaigu/gymapp/wearable/ProgramFit;->items:Ljava/util/List;
 
-    .line 653
+    .line 662
     if-eqz v3, :cond_7
 
     if-nez p0, :cond_9
@@ -1715,12 +1777,12 @@
     :cond_7
     move-object v0, v2
 
-    .line 662
+    .line 671
     :cond_8
     :goto_8
     return-object v0
 
-    .line 656
+    .line 665
     :cond_9
     const/4 v0, 0x0
 
@@ -1733,21 +1795,21 @@
 
     if-ge v1, v0, :cond_21
 
-    .line 657
+    .line 666
     invoke-interface {v3, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 658
+    .line 667
     if-eqz v0, :cond_1d
 
     iget-object v4, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     if-eq v4, p0, :cond_8
 
-    .line 656
+    .line 665
     :cond_1d
     add-int/lit8 v0, v1, 0x1
 
@@ -1758,7 +1820,7 @@
     :cond_21
     move-object v0, v2
 
-    .line 662
+    .line 671
     goto :goto_8
 .end method
 
@@ -1766,7 +1828,7 @@
     .registers 13
 
     .prologue
-    .line 378
+    .line 387
     const/4 v0, 0x1
 
     :try_start_1
@@ -1774,15 +1836,15 @@
 
     move-result-object v0
 
-    .line 379
+    .line 388
     if-nez v0, :cond_8
 
-    .line 414
+    .line 423
     :cond_7
     :goto_7
     return-void
 
-    .line 382
+    .line 391
     :cond_8
     const/4 v1, 0x0
 
@@ -1790,7 +1852,7 @@
 
     move-result v5
 
-    .line 383
+    .line 392
     const/4 v2, 0x0
 
     :goto_e
@@ -1798,40 +1860,40 @@
 
     if-ge v2, v1, :cond_63
 
-    .line 384
+    .line 393
     invoke-static {p1, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v7
 
-    .line 385
+    .line 394
     invoke-static {p2, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v8
 
-    .line 386
+    .line 395
     if-eqz v7, :cond_1d
 
     if-nez v8, :cond_20
 
-    .line 383
+    .line 392
     :cond_1d
     :goto_1d
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_e
 
-    .line 389
+    .line 398
     :cond_20
     invoke-static {v7}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
 
     move-result-object v3
 
-    .line 390
+    .line 399
     const/4 v1, 0x7
 
     new-array v4, v1, [Z
 
-    .line 391
+    .line 400
     const/4 v1, 0x0
 
     move v6, v1
@@ -1841,7 +1903,7 @@
 
     if-ge v6, v1, :cond_3d
 
-    .line 392
+    .line 401
     aget v1, v3, v6
 
     invoke-static {v8, v6}, Lcom/isaigu/gymapp/wearable/ProgramFit;->get(Lcom/isaigu/gymapp/bean/ProgramDataBean;I)I
@@ -1855,31 +1917,31 @@
     :goto_35
     aput-boolean v1, v4, v6
 
-    .line 391
+    .line 400
     add-int/lit8 v1, v6, 0x1
 
     move v6, v1
 
     goto :goto_29
 
-    .line 392
+    .line 401
     :cond_3b
     const/4 v1, 0x0
 
     goto :goto_35
 
-    .line 394
+    .line 403
     :cond_3d
     invoke-static {v7}, Lcom/isaigu/gymapp/wearable/ProgramFit;->zones(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
 
     move-result-object v1
 
-    .line 395
+    .line 404
     invoke-static {v8}, Lcom/isaigu/gymapp/wearable/ProgramFit;->zones(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
 
     move-result-object v6
 
-    .line 396
+    .line 405
     if-eqz v1, :cond_57
 
     if-eqz v6, :cond_57
@@ -1890,7 +1952,7 @@
 
     if-nez v1, :cond_57
 
-    .line 397
+    .line 406
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->manual:[[Z
 
     aget-object v1, v1, v2
@@ -1904,25 +1966,25 @@
     :cond_57
     move-object v1, p2
 
-    .line 399
+    .line 408
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/ProgramFit;->handChanged(Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;Lcom/isaigu/gymapp/bean/TrainProgram;I[I[ZZ)Z
     :try_end_5b
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_5b} :catch_5c
 
     goto :goto_1d
 
-    .line 411
+    .line 420
     :catch_5c
     move-exception v0
 
-    .line 412
+    .line 421
     const-string v1, "ProgramFit.onEdit"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_7
 
-    .line 401
+    .line 410
     :cond_63
     const/4 v1, 0x0
 
@@ -1931,16 +1993,16 @@
 
     if-ge v1, v2, :cond_78
 
-    .line 402
+    .line 411
     :try_start_67
     invoke-static {p2, v1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v2
 
-    .line 403
+    .line 412
     if-eqz v2, :cond_75
 
-    .line 404
+    .line 413
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -1949,17 +2011,17 @@
 
     aput-object v2, v3, v1
 
-    .line 401
+    .line 410
     :cond_75
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_64
 
-    .line 407
+    .line 416
     :cond_78
     iput-object p2, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->ref:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 408
+    .line 417
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     if-eqz v0, :cond_7
@@ -1970,7 +2032,7 @@
 
     if-eqz v0, :cond_7
 
-    .line 409
+    .line 418
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -1992,7 +2054,7 @@
 
     const/4 v8, 0x4
 
-    .line 537
+    .line 546
     :try_start_3
     invoke-static {p2}, Lcom/isaigu/gymapp/utils/BeanUtils;->cloneObject(Ljava/lang/Object;)Ljava/lang/Object;
 
@@ -2000,19 +2062,19 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 538
+    .line 547
     if-eqz v0, :cond_14
 
     iget-object v3, p2, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
     if-eqz v3, :cond_14
 
-    .line 539
+    .line 548
     iget-object v3, p2, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
     invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/ProgramFit;->saveBase(Lcom/isaigu/gymapp/bean/TrainProgram;Ljava/lang/String;)V
 
-    .line 541
+    .line 550
     :cond_14
     if-eqz p0, :cond_22
 
@@ -2026,21 +2088,21 @@
 
     move-object v3, v0
 
-    .line 542
+    .line 551
     :goto_1f
     if-nez v3, :cond_24
 
-    .line 579
+    .line 588
     :goto_21
     return-void
 
     :cond_22
     move-object v3, v2
 
-    .line 541
+    .line 550
     goto :goto_1f
 
-    .line 545
+    .line 554
     :cond_24
     const/4 v0, 0x0
 
@@ -2048,7 +2110,7 @@
 
     move-result v0
 
-    .line 546
+    .line 555
     if-eqz v0, :cond_58
 
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/AiProfile;->of(Lcom/isaigu/gymapp/bean/TrainUser;)Lcom/isaigu/gymapp/ai/AiProfile;
@@ -2057,47 +2119,47 @@
 
     move-object v4, v0
 
-    .line 547
+    .line 556
     :goto_30
     new-instance v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;
 
     invoke-direct {v5}, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;-><init>()V
 
-    .line 548
+    .line 557
     iget-wide v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
     iput-wide v6, v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->userId:J
 
-    .line 549
+    .line 558
     iget-object v0, p2, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
     iput-object v0, v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->program:Ljava/lang/String;
 
-    .line 550
+    .line 559
     const/4 v0, 0x1
 
     iput-boolean v0, v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->hasBase:Z
 
-    .line 551
+    .line 560
     iput-object p2, v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->ref:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 552
+    .line 561
     const/4 v0, 0x4
 
     new-array v6, v0, [[I
 
     move v3, v1
 
-    .line 553
+    .line 562
     :goto_46
     if-ge v3, v8, :cond_5c
 
-    .line 554
+    .line 563
     invoke-static {p2, v3}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    .line 555
+    .line 564
     if-eqz v0, :cond_5a
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -2107,7 +2169,7 @@
     :goto_52
     aput-object v0, v6, v3
 
-    .line 553
+    .line 562
     add-int/lit8 v0, v3, 0x1
 
     move v3, v0
@@ -2117,16 +2179,16 @@
     :cond_58
     move-object v4, v2
 
-    .line 546
+    .line 555
     goto :goto_30
 
     :cond_5a
     move-object v0, v2
 
-    .line 555
+    .line 564
     goto :goto_52
 
-    .line 557
+    .line 566
     :cond_5c
     invoke-static {v6, v4}, Lcom/isaigu/gymapp/wearable/ProgramFit;->personalize([[ILcom/isaigu/gymapp/ai/AiProfile;)[[I
 
@@ -2134,19 +2196,19 @@
 
     move v2, v1
 
-    .line 558
+    .line 567
     :goto_61
     if-ge v2, v8, :cond_a2
 
-    .line 559
+    .line 568
     invoke-static {p2, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v4
 
-    .line 560
+    .line 569
     if-nez v4, :cond_6d
 
-    .line 558
+    .line 567
     :goto_69
     add-int/lit8 v0, v2, 0x1
 
@@ -2157,13 +2219,13 @@
     :cond_6d
     move v0, v1
 
-    .line 563
+    .line 572
     :goto_6e
     const/4 v7, 0x7
 
     if-ge v0, v7, :cond_8b
 
-    .line 564
+    .line 573
     if-ne v0, v8, :cond_7c
 
     iget-object v7, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -2172,13 +2234,13 @@
 
     if-eqz v7, :cond_7c
 
-    .line 563
+    .line 572
     :goto_79
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6e
 
-    .line 567
+    .line 576
     :cond_7c
     aget-object v7, v3, v2
 
@@ -2190,18 +2252,18 @@
 
     goto :goto_79
 
-    .line 576
+    .line 585
     :catch_84
     move-exception v0
 
-    .line 577
+    .line 586
     const-string v1, "ProgramFit.onMaster"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_21
 
-    .line 569
+    .line 578
     :cond_8b
     :try_start_8b
     iget-object v0, v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->base:[[I
@@ -2210,7 +2272,7 @@
 
     aput-object v7, v0, v2
 
-    .line 570
+    .line 579
     iget-object v0, v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->fit:[[I
 
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -2219,7 +2281,7 @@
 
     aput-object v7, v0, v2
 
-    .line 571
+    .line 580
     iget-object v0, v5, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
 
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -2230,7 +2292,7 @@
 
     goto :goto_69
 
-    .line 573
+    .line 582
     :cond_a2
     sget-object v1, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
@@ -2238,13 +2300,13 @@
     :try_end_a5
     .catch Ljava/lang/Throwable; {:try_start_8b .. :try_end_a5} :catch_84
 
-    .line 574
+    .line 583
     :try_start_a5
     sget-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->FITS:Ljava/util/Map;
 
     invoke-interface {v0, p0, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 575
+    .line 584
     monitor-exit v1
 
     goto/16 :goto_21
@@ -2266,16 +2328,16 @@
     .registers 6
 
     .prologue
-    .line 801
+    .line 810
     :try_start_0
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/ClientPrograms;->init(Landroid/content/Context;)V
 
-    .line 802
+    .line 811
     if-eqz p1, :cond_65
 
     iget-object v0, p1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 803
+    .line 812
     :goto_7
     if-eqz p0, :cond_67
 
@@ -2293,7 +2355,7 @@
 
     if-eqz v1, :cond_67
 
-    .line 804
+    .line 813
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2368,40 +2430,40 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/BaseActivity;->showTips(Ljava/lang/String;)V
 
-    .line 815
+    .line 824
     :cond_64
     :goto_64
     return-void
 
-    .line 802
+    .line 811
     :cond_65
     const/4 v0, 0x0
 
     goto :goto_7
 
-    .line 808
+    .line 817
     :cond_67
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->forSave(Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;)Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    .line 809
+    .line 818
     if-eqz p0, :cond_64
 
     if-eqz v0, :cond_64
 
-    .line 810
+    .line 819
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/OperationUtil;->save(Lcom/isaigu/gymapp/BaseActivity;Lcom/isaigu/gymapp/bean/TrainProgram;)V
     :try_end_72
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_72} :catch_73
 
     goto :goto_64
 
-    .line 812
+    .line 821
     :catch_73
     move-exception v0
 
-    .line 813
+    .line 822
     const-string v1, "ProgramFit.onSaveClick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -2413,31 +2475,31 @@
     .registers 5
 
     .prologue
-    .line 300
+    .line 309
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 301
+    .line 310
     if-nez v2, :cond_8
 
-    .line 302
+    .line 311
     const/4 v0, 0x0
 
-    .line 316
+    .line 325
     :goto_7
     return-object v0
 
-    .line 304
+    .line 313
     :cond_8
     invoke-static {}, Lcom/isaigu/gymapp/wearable/ProgramFit;->programs()Ljava/util/List;
 
     move-result-object v3
 
-    .line 305
+    .line 314
     if-eqz v3, :cond_2d
 
-    .line 306
+    .line 315
     const/4 v0, 0x0
 
     move v1, v0
@@ -2449,31 +2511,31 @@
 
     if-ge v1, v0, :cond_2d
 
-    .line 307
+    .line 316
     invoke-interface {v3, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     if-ne v0, v2, :cond_29
 
-    .line 308
+    .line 317
     invoke-static {v2}, Lcom/isaigu/gymapp/utils/BeanUtils;->cloneObject(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 309
+    .line 318
     if-eqz v0, :cond_29
 
-    .line 310
+    .line 319
     iget-object v1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
     goto :goto_7
 
-    .line 306
+    .line 315
     :cond_29
     add-int/lit8 v0, v1, 0x1
 
@@ -2484,7 +2546,7 @@
     :cond_2d
     move-object v0, v2
 
-    .line 316
+    .line 325
     goto :goto_7
 .end method
 
@@ -3099,12 +3161,12 @@
     .end annotation
 
     .prologue
-    .line 320
+    .line 329
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 321
+    .line 330
     if-eqz v0, :cond_9
 
     iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
@@ -3122,12 +3184,12 @@
     .registers 4
 
     .prologue
-    .line 666
+    .line 675
     sget-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->main:Landroid/os/Handler;
 
     if-nez v0, :cond_f
 
-    .line 667
+    .line 676
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -3138,7 +3200,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->main:Landroid/os/Handler;
 
-    .line 669
+    .line 678
     :cond_f
     sget-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->main:Landroid/os/Handler;
 
@@ -3148,7 +3210,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 670
+    .line 679
     return-void
 .end method
 
@@ -3156,23 +3218,23 @@
     .registers 6
 
     .prologue
-    .line 623
+    .line 632
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->stored(Ljava/lang/String;)Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
 
-    .line 624
+    .line 633
     iput-object p1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
-    .line 625
+    .line 634
     if-eqz v1, :cond_23
 
-    .line 626
+    .line 635
     iget-object v0, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
 
-    .line 627
+    .line 636
     const/4 v0, 0x0
 
     :goto_d
@@ -3180,44 +3242,44 @@
 
     if-ge v0, v2, :cond_23
 
-    .line 628
+    .line 637
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v2
 
-    .line 629
+    .line 638
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v3
 
-    .line 630
+    .line 639
     if-eqz v2, :cond_20
 
     if-eqz v3, :cond_20
 
-    .line 631
+    .line 640
     iget v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     iput v2, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 627
+    .line 636
     :cond_20
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_d
 
-    .line 635
+    .line 644
     :cond_23
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 636
+    .line 645
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->loginUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-eqz v1, :cond_35
 
-    .line 637
+    .line 646
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->loginUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iget-wide v2, v1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
@@ -3228,17 +3290,17 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->userId:Ljava/lang/Long;
 
-    .line 639
+    .line 648
     :cond_35
     invoke-virtual {v0, p0}, Lcom/isaigu/gymapp/mgr/DataMgr;->addOrUpdateTrainProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
-    .line 641
+    .line 650
     :try_start_38
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->save(Lcom/isaigu/gymapp/bean/TrainProgram;)V
     :try_end_3b
     .catch Ljava/lang/Throwable; {:try_start_38 .. :try_end_3b} :catch_4a
 
-    .line 644
+    .line 653
     :goto_3b
     const-string v1, "file_name_train_data"
 
@@ -3248,7 +3310,7 @@
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 646
+    .line 655
     const/16 v0, 0x6a
 
     :try_start_46
@@ -3256,17 +3318,17 @@
     :try_end_49
     .catch Ljava/lang/Throwable; {:try_start_46 .. :try_end_49} :catch_4c
 
-    .line 649
+    .line 658
     :goto_49
     return-void
 
-    .line 642
+    .line 651
     :catch_4a
     move-exception v1
 
     goto :goto_3b
 
-    .line 647
+    .line 656
     :catch_4c
     move-exception v0
 
@@ -3452,12 +3514,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 325
+    .line 334
     invoke-static {}, Lcom/isaigu/gymapp/wearable/ProgramFit;->programs()Ljava/util/List;
 
     move-result-object v3
 
-    .line 326
+    .line 335
     if-eqz p0, :cond_9
 
     if-nez v3, :cond_b
@@ -3465,12 +3527,12 @@
     :cond_9
     move-object v0, v2
 
-    .line 335
+    .line 344
     :cond_a
     :goto_a
     return-object v0
 
-    .line 329
+    .line 338
     :cond_b
     const/4 v0, 0x0
 
@@ -3483,14 +3545,14 @@
 
     if-ge v1, v0, :cond_27
 
-    .line 330
+    .line 339
     invoke-interface {v3, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 331
+    .line 340
     if-eqz v0, :cond_23
 
     iget-object v4, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
@@ -3501,7 +3563,7 @@
 
     if-nez v4, :cond_a
 
-    .line 329
+    .line 338
     :cond_23
     add-int/lit8 v0, v1, 0x1
 
@@ -3512,7 +3574,7 @@
     :cond_27
     move-object v0, v2
 
-    .line 335
+    .line 344
     goto :goto_a
 .end method
 
@@ -3524,30 +3586,30 @@
 
     const/4 v1, 0x0
 
-    .line 600
+    .line 609
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->hasBase:Z
 
     if-nez v0, :cond_7
 
-    .line 618
+    .line 627
     :cond_6
     return-object p1
 
     :cond_7
     move v2, v1
 
-    .line 603
+    .line 612
     :goto_8
     const/4 v0, 0x4
 
     if-ge v2, v0, :cond_6
 
-    .line 604
+    .line 613
     invoke-static {p1, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v3
 
-    .line 605
+    .line 614
     if-eqz v3, :cond_1d
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->base:[[I
@@ -3562,7 +3624,7 @@
 
     if-nez v0, :cond_21
 
-    .line 603
+    .line 612
     :cond_1d
     :goto_1d
     add-int/lit8 v0, v2, 0x1
@@ -3574,11 +3636,11 @@
     :cond_21
     move v0, v1
 
-    .line 608
+    .line 617
     :goto_22
     if-ge v0, v6, :cond_44
 
-    .line 609
+    .line 618
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->manual:[[Z
 
     aget-object v4, v4, v2
@@ -3599,7 +3661,7 @@
 
     if-ne v4, v5, :cond_41
 
-    .line 610
+    .line 619
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->base:[[I
 
     aget-object v4, v4, v2
@@ -3608,13 +3670,13 @@
 
     invoke-static {v3, v0, v4}, Lcom/isaigu/gymapp/wearable/ProgramFit;->set(Lcom/isaigu/gymapp/bean/ProgramDataBean;II)V
 
-    .line 608
+    .line 617
     :cond_41
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_22
 
-    .line 613
+    .line 622
     :cond_44
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->zoneBase:[[I
 
@@ -3648,14 +3710,14 @@
 
     aget-object v4, v4, v2
 
-    .line 614
+    .line 623
     invoke-static {v0, v4}, Ljava/util/Arrays;->equals([I[I)Z
 
     move-result v0
 
     if-eqz v0, :cond_1d
 
-    .line 615
+    .line 624
     iget-object v3, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->zoneBase:[[I
@@ -3687,28 +3749,28 @@
     .end annotation
 
     .prologue
-    .line 467
+    .line 476
     sput-object p1, Lcom/isaigu/gymapp/wearable/ProgramFit;->items:Ljava/util/List;
 
-    .line 468
+    .line 477
     if-eqz p0, :cond_a
 
-    .line 469
+    .line 478
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/ProgramFit;->app:Landroid/content/Context;
 
-    .line 471
+    .line 480
     :cond_a
     if-nez p1, :cond_d
 
-    .line 522
+    .line 531
     :cond_c
     return-void
 
-    .line 474
+    .line 483
     :cond_d
     invoke-static {}, Lcom/isaigu/gymapp/wearable/ManualDefaults;->assisted()Z
 
@@ -3727,13 +3789,13 @@
 
     move v7, v0
 
-    .line 475
+    .line 484
     :goto_1b
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/ProgramFit;->enabled(Landroid/content/Context;)Z
 
     move-result v5
 
-    .line 476
+    .line 485
     const/4 v0, 0x0
 
     move v8, v0
@@ -3745,7 +3807,7 @@
 
     if-ge v8, v0, :cond_c
 
-    .line 477
+    .line 486
     invoke-interface {p1, v8}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -3754,7 +3816,7 @@
 
     check-cast v6, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 478
+    .line 487
     if-eqz v6, :cond_3c
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -3769,7 +3831,7 @@
 
     if-nez v0, :cond_43
 
-    .line 476
+    .line 485
     :cond_3c
     :goto_3c
     add-int/lit8 v0, v8, 0x1
@@ -3778,7 +3840,7 @@
 
     goto :goto_21
 
-    .line 474
+    .line 483
     :cond_40
     const/4 v0, 0x0
 
@@ -3786,21 +3848,21 @@
 
     goto :goto_1b
 
-    .line 481
+    .line 490
     :cond_43
     invoke-static {v6}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->seen(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 482
+    .line 491
     const/4 v0, 0x1
 
     invoke-static {v6, v0}, Lcom/isaigu/gymapp/wearable/ProgramFit;->fitFor(Lcom/isaigu/gymapp/train/model/TrainItem;Z)Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;
 
     move-result-object v0
 
-    .line 483
+    .line 492
     if-eqz v0, :cond_3c
 
-    .line 487
+    .line 496
     :try_start_4d
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->ref:Lcom/isaigu/gymapp/bean/TrainProgram;
 
@@ -3810,14 +3872,14 @@
 
     if-eq v1, v2, :cond_76
 
-    .line 488
+    .line 497
     invoke-virtual {v6}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->ref:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 489
+    .line 498
     const/4 v1, 0x0
 
     move v2, v1
@@ -3827,14 +3889,14 @@
 
     if-ge v2, v1, :cond_3c
 
-    .line 490
+    .line 499
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->ref:Lcom/isaigu/gymapp/bean/TrainProgram;
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
-    .line 491
+    .line 500
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
 
     if-eqz v1, :cond_74
@@ -3846,24 +3908,24 @@
     :goto_6e
     aput-object v1, v3, v2
 
-    .line 489
+    .line 498
     add-int/lit8 v1, v2, 0x1
 
     move v2, v1
 
     goto :goto_5d
 
-    .line 491
+    .line 500
     :cond_74
     const/4 v1, 0x0
 
     goto :goto_6e
 
-    .line 495
+    .line 504
     :cond_76
     const/4 v9, 0x0
 
-    .line 496
+    .line 505
     const/4 v2, 0x0
 
     :goto_78
@@ -3871,7 +3933,7 @@
 
     if-ge v2, v1, :cond_cb
 
-    .line 497
+    .line 506
     invoke-virtual {v6}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
@@ -3880,7 +3942,7 @@
 
     move-result-object v10
 
-    .line 498
+    .line 507
     if-eqz v10, :cond_f4
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
@@ -3891,7 +3953,7 @@
 
     move v1, v9
 
-    .line 496
+    .line 505
     :goto_8c
     add-int/lit8 v2, v2, 0x1
 
@@ -3899,13 +3961,13 @@
 
     goto :goto_78
 
-    .line 501
+    .line 510
     :cond_90
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
 
     aget-object v3, v1, v2
 
-    .line 502
+    .line 511
     if-nez v7, :cond_f4
 
     const/4 v1, 0x2
@@ -3924,13 +3986,13 @@
 
     if-eq v1, v4, :cond_f4
 
-    .line 503
+    .line 512
     :cond_a4
     const/4 v1, 0x7
 
     new-array v4, v1, [Z
 
-    .line 504
+    .line 513
     const/4 v11, 0x2
 
     const/4 v1, 0x2
@@ -3946,7 +4008,7 @@
     :goto_b0
     aput-boolean v1, v4, v11
 
-    .line 505
+    .line 514
     const/4 v11, 0x3
 
     const/4 v1, 0x3
@@ -3962,7 +4024,7 @@
     :goto_bb
     aput-boolean v1, v4, v11
 
-    .line 506
+    .line 515
     invoke-virtual {v6}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
@@ -3975,19 +4037,19 @@
 
     goto :goto_8c
 
-    .line 504
+    .line 513
     :cond_c7
     const/4 v1, 0x0
 
     goto :goto_b0
 
-    .line 505
+    .line 514
     :cond_c9
     const/4 v1, 0x0
 
     goto :goto_bb
 
-    .line 509
+    .line 518
     :cond_cb
     const/4 v1, 0x0
 
@@ -3996,7 +4058,7 @@
 
     if-ge v1, v2, :cond_e4
 
-    .line 510
+    .line 519
     invoke-virtual {v6}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v2
@@ -4005,10 +4067,10 @@
 
     move-result-object v2
 
-    .line 511
+    .line 520
     if-eqz v2, :cond_e1
 
-    .line 512
+    .line 521
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/ProgramFit$Fit;->last:[[I
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->values(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -4017,17 +4079,17 @@
 
     aput-object v2, v3, v1
 
-    .line 509
+    .line 518
     :cond_e1
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_cc
 
-    .line 515
+    .line 524
     :cond_e4
     if-eqz v9, :cond_3c
 
-    .line 516
+    .line 525
     const/4 v0, 0x1
 
     invoke-static {v6, v0}, Lcom/isaigu/gymapp/wearable/ProgramFit;->refresh(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
@@ -4036,11 +4098,11 @@
 
     goto/16 :goto_3c
 
-    .line 518
+    .line 527
     :catch_ec
     move-exception v0
 
-    .line 519
+    .line 528
     const-string v1, "ProgramFit.tick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

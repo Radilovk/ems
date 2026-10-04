@@ -2,6 +2,7 @@ package com.isaigu.gymapp.wearable;
 
 import android.content.Context;
 
+import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.bean.TrainUser;
 import com.isaigu.gymapp.train.model.TrainItem;
 
@@ -29,6 +30,7 @@ public final class ManualDefaults {
             return;
         }
         ClientPrograms.init(c);
+        ParamPlan.init(c);
         try {
             for (int i = 0; i < items.size(); i++) {
                 TrainItem it = items.get(i);
@@ -75,8 +77,20 @@ public final class ManualDefaults {
     }
 
     static void applyTo(Context c, TrainItem it, TrainUser u) {
-        if (c == null || NextPlan.load(c, u.id) != null) {
-            return;                                        // a returning client keeps their settings
+        if (c == null) {
+            return;
+        }
+        if (NextPlan.load(c, u.id) != null) {              // a returning client: their program, the impulse recalculated
+            TrainProgram row = ProgramFit.own(it);
+            if (ProgramFit.enabled(c) && ParamPlan.overlay(c, row, u, null)) {
+                ProgramFit.forget(it);
+                try {
+                    it.onParamsChange();
+                    it.xemsRefresh();
+                } catch (Throwable ignored) {
+                }
+            }
+            return;
         }
         ProgramFit.applyTo(c, it, u);
     }

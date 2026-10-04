@@ -186,14 +186,14 @@
 
 # virtual methods
 .method public clampAll()V
-    .registers 8
+    .registers 9
 
     .prologue
-    const/high16 v6, 0x42c80000    # 100.0f
+    const/high16 v7, 0x42c80000    # 100.0f
 
-    const/16 v5, 0x64
+    const/16 v6, 0x64
 
-    const/16 v2, 0xa
+    const/16 v5, 0xa
 
     const/4 v4, 0x0
 
@@ -215,7 +215,7 @@
 
     const/16 v1, 0x190
 
-    invoke-static {v0, v5, v1}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
+    invoke-static {v0, v6, v1}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
@@ -224,7 +224,7 @@
     .line 124
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
-    invoke-static {v0, v3, v2}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
+    invoke-static {v0, v3, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
@@ -233,7 +233,7 @@
     .line 125
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
-    invoke-static {v0, v4, v2}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
+    invoke-static {v0, v4, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
@@ -242,7 +242,7 @@
     .line 126
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
-    invoke-static {v0, v4, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
+    invoke-static {v0, v4, v6}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
@@ -253,13 +253,13 @@
 
     move-result v0
 
-    if-eqz v0, :cond_86
+    if-eqz v0, :cond_84
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
     const/16 v1, 0xb4
 
-    invoke-static {v0, v2, v1}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
+    invoke-static {v0, v5, v1}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
@@ -269,9 +269,7 @@
     .line 128
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
-    const/16 v1, 0x78
-
-    invoke-static {v0, v3, v1}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
+    invoke-static {v0, v3, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
@@ -282,7 +280,7 @@
 
     const/4 v1, 0x5
 
-    invoke-static {v0, v1, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
+    invoke-static {v0, v1, v6}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
@@ -293,7 +291,7 @@
 
     int-to-float v0, v0
 
-    div-float/2addr v0, v6
+    div-float/2addr v0, v7
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
@@ -314,7 +312,7 @@
 
     int-to-float v0, v0
 
-    div-float/2addr v0, v6
+    div-float/2addr v0, v7
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
@@ -333,21 +331,21 @@
     .line 132
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    if-eqz v0, :cond_85
+    if-eqz v0, :cond_83
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
-    if-ge v0, v3, :cond_85
+    if-ge v0, v3, :cond_83
 
     .line 133
     iput v3, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
     .line 135
-    :cond_85
+    :cond_83
     return-void
 
     .line 127
-    :cond_86
+    :cond_84
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
     const/4 v1, 0x3

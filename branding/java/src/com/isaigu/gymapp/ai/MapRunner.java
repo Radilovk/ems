@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainUser;
-import com.isaigu.gymapp.dialog.BlockProgramRunner;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
@@ -95,20 +94,9 @@ public final class MapRunner {
             return AiText.t("Програмите с упражнения вървят в Авто или AI — Авто не е отключен.",
                     "Exercise programs run in Auto or AI — Auto is not unlocked.");
         }
-        try {
-            if (AiSession.ownsOutput() || AiSession.getStage() == AiSession.Stage.RUNNING) {
-                return AiText.t("Първо спри AI сесията.", "Stop the AI session first.");
-            }
-            if (AutoSession.isActive()) {
-                return AiText.t("Първо спри Авто.", "Stop Auto first.");
-            }
-            if (MusicSync.isRunning() || MasterStrengthControl.isSyncActive()) {
-                return AiText.t("Изключи музикалния синхрон.", "Turn music sync off.");
-            }
-            if (BlockProgramRunner.isArmed()) {
-                return AiText.t("Изключи блоковата програма на таймера.", "Disarm the timer block program.");
-            }
-        } catch (Throwable ignored) {
+        String other = OutputOwner.conflict(OutputOwner.MAP);
+        if (other != null) {
+            return other;
         }
         List<TrainItem> rows = rows();
         if (rows.isEmpty()) {

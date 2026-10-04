@@ -10347,24 +10347,18 @@
 .end method
 
 .method static step(Lcom/isaigu/gymapp/ai/Workout$Block;II)V
-    .registers 10
+    .registers 8
 
     .prologue
-    const/16 v6, 0x14
+    const/4 v0, 0x5
 
-    const/4 v2, 0x0
-
-    const/4 v3, -0x1
-
-    const/4 v1, 0x5
-
-    const/4 v0, 0x1
+    const/4 v1, 0x1
 
     .line 836
-    packed-switch p1, :pswitch_data_74
+    packed-switch p1, :pswitch_data_68
 
     .line 865
-    :pswitch_9
+    :pswitch_5
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
     mul-int/lit8 v1, p2, 0x5
@@ -10374,46 +10368,24 @@
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
     .line 868
-    :goto_10
+    :goto_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout$Block;->clampAll()V
 
     .line 869
     return-void
 
     .line 838
-    :pswitch_14
-    iget v4, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
+    :pswitch_10
+    iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
-    iget v5, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
-
-    if-lez p2, :cond_22
-
-    :goto_1a
-    add-int/2addr v2, v5
-
-    if-ge v2, v6, :cond_24
-
-    :goto_1d
-    mul-int/2addr v0, p2
-
-    add-int/2addr v0, v4
+    add-int/2addr v0, p2
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
-    goto :goto_10
-
-    :cond_22
-    move v2, v3
-
-    goto :goto_1a
-
-    :cond_24
-    move v0, v1
-
-    goto :goto_1d
+    goto :goto_c
 
     .line 841
-    :pswitch_26
+    :pswitch_16
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
     mul-int/lit8 v1, p2, 0x5
@@ -10422,10 +10394,10 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
-    goto :goto_10
+    goto :goto_c
 
     .line 844
-    :pswitch_2e
+    :pswitch_1e
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
     mul-int/lit8 v1, p2, 0x64
@@ -10434,10 +10406,10 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
-    goto :goto_10
+    goto :goto_c
 
     .line 847
-    :pswitch_36
+    :pswitch_26
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
     mul-int/lit8 v1, p2, 0x64
@@ -10446,66 +10418,70 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
-    goto :goto_10
+    goto :goto_c
 
     .line 850
-    :pswitch_3e
+    :pswitch_2e
     iget v2, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
     move-result v3
 
-    if-eqz v3, :cond_4c
+    if-eqz v3, :cond_3b
 
-    :goto_46
-    mul-int v0, p2, v1
+    :goto_36
+    mul-int/2addr v0, p2
 
     add-int/2addr v0, v2
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
-    goto :goto_10
+    goto :goto_c
 
-    :cond_4c
-    move v1, v0
+    :cond_3b
+    move v0, v1
 
-    goto :goto_46
+    goto :goto_36
 
     .line 853
-    :pswitch_4e
+    :pswitch_3d
+    iget v3, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
+
     iget v4, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
-    iget v5, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
+    if-lez p2, :cond_4f
 
-    if-lez p2, :cond_5c
+    const/4 v2, 0x0
 
-    :goto_54
-    add-int/2addr v2, v5
+    :goto_44
+    add-int/2addr v2, v4
 
-    if-ge v2, v6, :cond_5e
+    const/16 v4, 0x14
 
-    :goto_57
-    mul-int/2addr v0, p2
+    if-ge v2, v4, :cond_51
 
-    add-int/2addr v0, v4
+    :goto_49
+    mul-int v0, p2, v1
+
+    add-int/2addr v0, v3
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
-    goto :goto_10
+    goto :goto_c
 
-    :cond_5c
-    move v2, v3
+    :cond_4f
+    const/4 v2, -0x1
 
-    goto :goto_54
+    goto :goto_44
 
-    :cond_5e
-    move v0, v1
+    :cond_51
+    move v1, v0
 
-    goto :goto_57
+    goto :goto_49
 
     .line 856
-    :pswitch_60
+    :pswitch_53
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
     mul-int/lit8 v1, p2, 0x19
@@ -10514,41 +10490,43 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
-    goto :goto_10
+    goto :goto_c
 
     .line 859
-    :pswitch_68
+    :pswitch_5b
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
     add-int/2addr v0, p2
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
-    goto :goto_10
+    goto :goto_c
 
     .line 862
-    :pswitch_6e
+    :pswitch_61
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
     add-int/2addr v0, p2
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
-    goto :goto_10
+    goto :goto_c
 
     .line 836
-    :pswitch_data_74
+    nop
+
+    :pswitch_data_68
     .packed-switch 0x0
-        :pswitch_3e
-        :pswitch_4e
-        :pswitch_60
-        :pswitch_68
-        :pswitch_6e
-        :pswitch_9
-        :pswitch_14
-        :pswitch_26
         :pswitch_2e
-        :pswitch_36
+        :pswitch_3d
+        :pswitch_53
+        :pswitch_5b
+        :pswitch_61
+        :pswitch_5
+        :pswitch_10
+        :pswitch_16
+        :pswitch_1e
+        :pswitch_26
     .end packed-switch
 .end method
 

@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1298
+    .prologue
+    .line 1300
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,60 +33,64 @@
 .method public onError()V
     .registers 2
 
-    .line 1323
+    .prologue
+    .line 1325
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 1324
+    .line 1326
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 1325
+    .line 1327
     return-void
 .end method
 
 .method public onPlaybackEnded()V
     .registers 2
 
-    .line 1313
+    .prologue
+    .line 1315
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->advanceToNextTrack()Z
 
     move-result v0
 
     if-eqz v0, :cond_7
 
-    .line 1314
+    .line 1321
+    :goto_6
     return-void
 
-    .line 1316
+    .line 1318
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onPlaybackEndedNaturally()V
 
-    .line 1317
+    .line 1319
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 1318
+    .line 1320
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 1319
-    return-void
+    goto :goto_6
 .end method
 
 .method public onTone(I)V
     .registers 2
 
-    .line 1301
+    .prologue
+    .line 1303
     # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->latestTone:I
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1902(I)I
 
-    .line 1302
+    .line 1304
     return-void
 .end method
 
 .method public onWaveformLevel(I)V
     .registers 3
 
-    .line 1306
+    .prologue
+    .line 1308
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_19
@@ -111,11 +116,11 @@
 
     if-nez v0, :cond_19
 
-    .line 1307
+    .line 1309
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$2300(I)V
 
-    .line 1309
+    .line 1311
     :cond_19
     return-void
 .end method

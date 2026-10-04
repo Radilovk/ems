@@ -23,9 +23,11 @@ public final class AutoLimits {
     public static final int ON_MAX_ACTIVE = 6;
     public static final int ON_MAX_PASSIVE = 4;
     public static final int ON_MAX_WAVE = 3;
-    public static final int RAMP_MIN_TETANIC_MS = 300;
+    /** The absolute numbers live in {@link SafeLimits} (one place, 1.1.331); Auto's own stricter choices stay here. */
+    public static final int RAMP_MIN_TETANIC_MS = SafeLimits.RAMP_MIN_MS;
+    /** Auto's own floor (a narrower pulse does little at these strengths); the absolute floor is SafeLimits.PW_MIN. */
     public static final int PW_MIN = 150;
-    public static final int PW_MAX = 400;
+    public static final int PW_MAX = SafeLimits.PW_MAX;
     /** Strength units a person may add per cycle (G3). */
     public static final int RAISE_PER_CYCLE = 5;
 
@@ -43,26 +45,23 @@ public final class AutoLimits {
 
     /** L4 / L5: pulse width range for a frequency. */
     public static int pwMax(int hz) {
-        if (hz >= 100) {
-            return 300;
-        }
-        return PW_MAX;
+        return hz >= 100 ? SafeLimits.PW_MAX_100HZ : PW_MAX;
     }
 
     /** Highest frequency for the client (age ≥ 60 → 85 Hz). */
     public static int hzMax(Plan plan) {
-        return age(plan) >= 60 ? 85 : 120;
+        return SafeLimits.hzMax(age(plan));
+    }
+
+    /** The age the limits use: the questionnaire's, or an older client on the rows (one cycle goes to all). */
+    static int age(Plan plan) {
+        return Math.max(plan.input != null ? plan.input.age : -1, plan.limitAge);
     }
 
     /**
      * L1–L6 on one step; {@code next} is the step that follows (a non-tetanic step after a
      * tetanic one counts as its rest, as in the 85 ↔ 6 Hz alternation).
      */
-    /** The age the limits use: the questionnaire's, or an older client on the rows (one cycle goes to all). */
-    static int age(Plan plan) {
-        return Math.max(plan.input != null ? plan.input.age : -1, plan.limitAge);
-    }
-
     public static Step clampStep(Step s, Step next, Plan plan, Phase ph) {
         Step c = s.copy();
         c.hz = clamp(c.hz, 1, hzMax(plan));
@@ -81,7 +80,7 @@ public final class AutoLimits {
             }
         }
         if (c.pauseHz > 0) {
-            c.pauseHz = clamp(c.pauseHz, 1, 10);
+            c.pauseHz = clamp(c.pauseHz, 1, SafeLimits.PAUSE_HZ_MAX);
             c.pauseSigma = Math.max(0, Math.min(0.6, c.pauseSigma));
         }
         // the absolute limits of every mode (SafeLimits, 1.1.323) — what the suit's guard would enforce anyway

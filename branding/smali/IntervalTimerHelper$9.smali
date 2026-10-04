@@ -3,12 +3,12 @@
 .source "IntervalTimerHelper.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/widget/XemsUi$OnStep;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildIntervalSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildMoreRows(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,11 @@
 
 
 # instance fields
-.field final synthetic val$refresh:Ljava/lang/Runnable;
+.field final synthetic val$a:Landroid/app/Activity;
 
 
 # direct methods
-.method constructor <init>(Ljava/lang/Runnable;)V
+.method constructor <init>(Landroid/app/Activity;)V
     .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -31,8 +31,8 @@
     .end annotation
 
     .prologue
-    .line 843
-    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$refresh:Ljava/lang/Runnable;
+    .line 790
+    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,41 +41,18 @@
 
 
 # virtual methods
-.method public onStep(I)V
-    .registers 5
+.method public onClick(Landroid/view/View;)V
+    .registers 4
 
     .prologue
-    .line 846
-    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1200()I
+    .line 793
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$a:Landroid/app/Activity;
 
-    move-result v0
+    const/4 v1, 0x1
 
-    add-int/lit8 v0, v0, 0x1
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->openSub(Landroid/app/Activity;I)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1400(Landroid/app/Activity;I)V
 
-    const/4 v1, 0x0
-
-    const/16 v2, 0x1e
-
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->clamp(III)I
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1500(III)I
-
-    move-result v0
-
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1202(I)I
-
-    .line 847
-    const-string v0, ""
-
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(Ljava/lang/String;)Ljava/lang/String;
-
-    .line 848
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$refresh:Ljava/lang/Runnable;
-
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
-
-    .line 849
+    .line 794
     return-void
 .end method

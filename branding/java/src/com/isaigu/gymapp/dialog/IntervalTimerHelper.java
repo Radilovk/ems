@@ -40,7 +40,7 @@ import com.isaigu.gymapp.widget.XemsUi;
 
 /**
  * Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a
- * settings sheet built with {@link XemsUi} — interval or block program, quick picks, saved
+ * settings sheet built with {@link XemsUi} — interval, quick picks, saved
  * programs as chips, signal chips with instant preview.
  */
 public final class IntervalTimerHelper {
@@ -74,15 +74,11 @@ public final class IntervalTimerHelper {
     private static final int STR_SOUND_ALARM = 0x7f0d0154;
     private static final int STR_SOUND_DEVICE = 0x7f0d0155;
     private static final int STR_SOUND_PICK_DEVICE = 0x7f0d0156;
-    private static final int STR_BLOCK_EMPTY = 0x7f0d0150;
     private static final int STR_TAB_INTERVAL = 0x7f0d0161;
-    private static final int STR_TAB_BLOCK = 0x7f0d0162;
     private static final int STR_NO_TRAINING = 0x7f0d011a;
 
     private static final int DURATION_MIN_SEC = 5;
     private static final int DURATION_MAX_SEC = 600;
-    private static final int TRAIN_MIN_SEC = 60;
-    private static final int TRAIN_MAX_SEC = 90 * 60;
     private static final int LOOPS_MAX = 30;
     private static final int[] QUICK_INTERVALS = {20, 30, 45, 60, 90, 120, 180, 300};
     private static final int[] QUICK_LOOPS = {0, 4, 6, 8, 10, 12};
@@ -123,12 +119,9 @@ public final class IntervalTimerHelper {
     private static final String PREFS = "interval_timer";
     private static final String KEY_MINUTES = "minutes";
     private static final String KEY_SECONDS = "seconds";
-    private static final String KEY_TRAIN_SEC = "train_sec";
     private static final String KEY_LOOPS = "loops";
     private static final String KEY_SOUND = "sound";
     private static final String KEY_CUSTOM_URI = "custom_uri";
-    private static final String KEY_BLOCK_MODE = "block_program_mode";
-    private static final String KEY_BLOCK_REPEAT = "block_program_repeat";
     private static final float COUNTDOWN_TEXT_SP = 54f;
     private static final float OVERLAY_TAP_SLOP_DP = 10f;
     private static final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
@@ -164,11 +157,7 @@ public final class IntervalTimerHelper {
 
     /** Settings (edited in the sheet). */
     private static int intervalSec = 30;
-    private static int trainSec = 20 * 60;
     private static int maxLoops;
-    private static boolean blockProgramMode;
-    private static boolean blockProgramRepeat;
-    private static ArrayList<ProgramSegment> blockSegments = new ArrayList<>();
     private static String selectedPresetId = "";
     private static boolean settingsLoaded;
 
@@ -205,19 +194,10 @@ public final class IntervalTimerHelper {
         o.put("arm", armed);
         o.put("run", armed && countdownRunning && !timerPausedByUser);
         o.put("pau", armed && timerPausedByUser);
-        if (armed && blockProgramMode && BlockProgramRunner.isArmed()) {
-            o.put("left", BlockProgramRunner.getBlockRemainingMs() / 1000);
-            o.put("int", Math.max(1, BlockProgramRunner.getBlockTotalMs() / 1000));
-            o.put("lbl", "B" + (BlockProgramRunner.getBlockIndex() + 1) + "/"
-                    + Math.max(1, BlockProgramRunner.getBlockCount()) + " · C"
-                    + (BlockProgramRunner.getCyclesDone() + 1) + "/"
-                    + Math.max(1, BlockProgramRunner.getCurrentBlockCycles()));
-        } else {
             o.put("left", (armed && remainingMs > 0 ? remainingMs : intervalMs) / 1000);
             o.put("int", Math.max(1, intervalMs / 1000));
             o.put("loop", Math.max(1, currentLoop));
             o.put("loops", maxLoops);
-        }
         return o;
     }
 
@@ -236,7 +216,7 @@ public final class IntervalTimerHelper {
         handler.post(new BandClearUserPause());
     }
 
-    /** Band app "reset": the timer only — back to the start of the interval / block. */
+    /** Band app "reset": the timer only — back to the start of the interval. */
     public static void bandReset() {
         handler.post(new BandReset());
     }
@@ -291,11 +271,10 @@ public final class IntervalTimerHelper {
             return;
         }
         int sec = preset.minutes * 60 + preset.seconds;
-        if (preset.blockMode && preset.blockRepeat) {
-            trainSec = clamp(sec, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
-        } else if (!preset.blockMode) {
-            intervalSec = clamp(sec, DURATION_MIN_SEC, DURATION_MAX_SEC);
+        if (preset.blockMode) {
+            return;                                     // an old block preset: nothing of it runs any more
         }
+        intervalSec = clamp(sec, DURATION_MIN_SEC, DURATION_MAX_SEC);
         maxLoops = clamp(preset.loops, 0, LOOPS_MAX);
         selectedSound = preset.sound;
         if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
@@ -304,24 +283,18 @@ public final class IntervalTimerHelper {
         customSignalUri = preset.customUri != null && preset.customUri.length() > 0
                 ? Uri.parse(preset.customUri)
                 : null;
-        blockProgramMode = preset.blockMode;
-        blockProgramRepeat = preset.blockRepeat;
-        blockSegments = preset.blocks != null ? new ArrayList<>(preset.blocks) : new ArrayList<ProgramSegment>();
     }
 
     static TimerPreset captureCurrentPreset(String id, String name) {
         TimerPreset preset = new TimerPreset();
         preset.id = id != null ? id : TimerPresetStorage.newId();
         preset.name = name != null ? name : "";
-        int sec = blockProgramMode && blockProgramRepeat ? trainSec : intervalSec;
+        int sec = intervalSec;
         preset.minutes = sec / 60;
         preset.seconds = sec % 60;
         preset.loops = maxLoops;
         preset.sound = selectedSound;
         preset.customUri = customSignalUri != null ? customSignalUri.toString() : "";
-        preset.blockMode = blockProgramMode;
-        preset.blockRepeat = blockProgramRepeat;
-        preset.blocks = blockSegments != null ? new ArrayList<>(blockSegments) : new ArrayList<ProgramSegment>();
         return preset;
     }
 
@@ -453,26 +426,6 @@ public final class IntervalTimerHelper {
             updateOverlayVisibility();
             return;
         }
-        if (blockProgramMode && BlockProgramRunner.isArmed()) {
-            if (running) {
-                BlockProgramRunner.onTrainingStart();
-                lastDisplayedCountdownSec = -1;
-                if (!countdownRunning && !timerPausedByUser) {
-                    countdownRunning = true;
-                    lastTickRealtime = SystemClock.elapsedRealtime();
-                    handler.removeCallbacks(tickRunnable);
-                    handler.post(tickRunnable);
-                }
-            } else if (countdownRunning) {
-                countdownRunning = false;
-                handler.removeCallbacks(tickRunnable);
-            }
-            refreshStatusText();
-            refreshOverlayText();
-            updatePauseButtonLabel();
-            updateOverlayVisibility();
-            return;
-        }
         if (running) {
             if (!countdownRunning && !timerPausedByUser) {
                 if (currentLoop <= 0) {
@@ -504,17 +457,7 @@ public final class IntervalTimerHelper {
     }
 
     private static void onTrainingStopImpl() {
-        BlockProgramRunner.reset();
         resetAll();
-    }
-
-    public static void refreshBlockOverlay() {
-        lastDisplayedCountdownSec = -1;
-        refreshOverlayText();
-    }
-
-    public static void playBlockSignal() {
-        playSignal();
     }
 
     public static void triggerAllStop() {
@@ -532,7 +475,6 @@ public final class IntervalTimerHelper {
         lastDisplayedCountdownSec = -1;
         handler.removeCallbacks(tickRunnable);
         releaseSignalPlayer();
-        BlockProgramRunner.reset();
         dismissSheet();
         dismissOverlayDialog(false);
         refreshStatusText();
@@ -549,7 +491,6 @@ public final class IntervalTimerHelper {
         lastDisplayedCountdownSec = -1;
         handler.removeCallbacks(tickRunnable);
         releaseSignalPlayer();
-        BlockProgramRunner.reset();
         dismissOverlayDialog(false);
         refreshStatusText();
         updatePauseButtonLabel();
@@ -604,23 +545,11 @@ public final class IntervalTimerHelper {
             toast(selectedSound == SOUND_DEVICE ? STR_SOUND_PICK_DEVICE : STR_SOUND_NO_FILE);
             return;
         }
-        if (blockProgramMode) {
-            if (blockSegments == null || blockSegments.isEmpty()) {
-                toast(STR_BLOCK_EMPTY);
-                return;
-            }
-            int seconds = blockProgramRepeat ? trainSec : sequenceSeconds();
-            BlockProgramRunner.arm(itemManager, blockSegments, blockProgramRepeat, Math.max(1, seconds));
-            intervalMs = Math.max(1, seconds) * 1000L;
-            maxLoops = 0;
-        } else {
-            if (intervalSec <= 0) {
-                toast(STR_INVALID_DURATION);
-                return;
-            }
-            BlockProgramRunner.reset();
-            intervalMs = intervalSec * 1000L;
+        if (intervalSec <= 0) {
+            toast(STR_INVALID_DURATION);
+            return;
         }
+        intervalMs = intervalSec * 1000L;
         saveSettings(resolveActivity(null));
         currentLoop = 0;
         remainingMs = intervalMs;
@@ -763,21 +692,7 @@ public final class IntervalTimerHelper {
         LinearLayout body = sheet.body;
         body.removeAllViews();
 
-        body.addView(XemsUi.segmented(a,
-                new String[] {a.getString(STR_TAB_INTERVAL), a.getString(STR_TAB_BLOCK)},
-                blockProgramMode ? 1 : 0, new XemsUi.OnIndex() {
-                    @Override
-                    public void onIndex(int i) {
-                        blockProgramMode = i == 1;
-                        selectedPresetId = "";
-                        rebuildSheet();
-                    }
-                }));
-        if (blockProgramMode) {
-            buildBlockSection(a, body);
-        } else {
-            buildIntervalSection(a, body);
-        }
+        buildIntervalSection(a, body);
         buildMoreRows(a, body);
         buildFooter(a);
         refreshStatusText();
@@ -1056,123 +971,6 @@ public final class IntervalTimerHelper {
         }
     }
 
-    private static void buildBlockSection(final Activity a, LinearLayout body) {
-        LinearLayout card = XemsUi.card(a);
-        if (blockSegments == null) {
-            blockSegments = new ArrayList<>();
-        }
-        LinearLayout head = XemsUi.horizontal(a);
-        head.addView(XemsUi.label(a, tr("Блокове", "Blocks") + " · " + blockSegments.size()),
-                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView edit = XemsUi.button(a, blockSegments.isEmpty()
-                ? tr("+ Създай", "+ Create") : tr("Редактирай", "Edit"), XemsUi.SECONDARY);
-        edit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        edit.setPadding(XemsUi.dp(a, 16), XemsUi.dp(a, 8), XemsUi.dp(a, 16), XemsUi.dp(a, 8));
-        edit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                BlockProgramEditor.show(a, blockSegments, MusicPlayerHelper.resolveTargetItem(itemManager),
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                selectedPresetId = "";
-                                rebuildSheet();
-                            }
-                        });
-            }
-        });
-        head.addView(edit);
-        card.addView(head);
-
-        if (blockSegments.isEmpty()) {
-            TextView empty = XemsUi.text(a, tr("Още няма блокове", "No blocks yet"), 15, XemsUi.MUTED, false);
-            card.addView(empty, XemsUi.matchWrap(a, 6));
-        } else {
-            int[] onOff = resolveOnOffFromSeed();
-            for (int i = 0; i < blockSegments.size(); i++) {
-                ProgramSegment seg = blockSegments.get(i);
-                card.addView(blockRow(a, i, seg, onOff), XemsUi.matchWrap(a, i == 0 ? 6 : 8));
-            }
-        }
-
-        card.addView(XemsUi.toggleRow(a, tr("Повтаряй до края на времето", "Repeat until time is up"), null,
-                blockProgramRepeat, new XemsUi.OnToggle() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        blockProgramRepeat = on;
-                        selectedPresetId = "";
-                        rebuildSheet();
-                    }
-                }), XemsUi.matchWrap(a, 14));
-
-        if (blockProgramRepeat) {
-            final XemsUi.Stepper time = XemsUi.stepper(a, formatSeconds(trainSec), null, 26, null);
-            XemsUi.repeatOnHold(time.view.getChildAt(0), new XemsUi.OnStep() {
-                @Override
-                public void onStep(int d) {
-                    trainSec = clamp(trainSec - 30, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
-                    time.set(formatSeconds(trainSec), null);
-                }
-            }, -1);
-            XemsUi.repeatOnHold(time.view.getChildAt(2), new XemsUi.OnStep() {
-                @Override
-                public void onStep(int d) {
-                    trainSec = clamp(trainSec + 30, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
-                    time.set(formatSeconds(trainSec), null);
-                }
-            }, +1);
-            card.addView(settingRow(a, tr("Време", "Time"), time.view), XemsUi.matchWrap(a, 10));
-        } else if (!blockSegments.isEmpty()) {
-            TextView seq = XemsUi.text(a, tr("Общо ", "Total ") + formatSeconds(sequenceSeconds()),
-                    14, XemsUi.MUTED, false);
-            card.addView(seq, XemsUi.matchWrap(a, 6));
-        }
-        body.addView(card, XemsUi.matchWrap(a, 14));
-    }
-
-    private static View blockRow(Activity a, int index, ProgramSegment seg, int[] onOff) {
-        LinearLayout row = XemsUi.surface(a);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        TextView num = XemsUi.text(a, String.valueOf(index + 1), 15, XemsUi.ON_ACCENT, true);
-        num.setGravity(Gravity.CENTER);
-        num.setBackgroundDrawable(XemsUi.rounded(XemsUi.ACCENT, XemsUi.dp(a, 14), 0, 0));
-        row.addView(num, new LinearLayout.LayoutParams(XemsUi.dp(a, 28), XemsUi.dp(a, 28)));
-        LinearLayout texts = XemsUi.vertical(a);
-        texts.setPadding(XemsUi.dp(a, 12), 0, 0, 0);
-        texts.addView(XemsUi.text(a, seg.cycles + tr(" цикъла", " cycles") + "  ·  "
-                + formatSeconds((long) seg.cycles * (onOff[0] + onOff[1])), 15, XemsUi.TEXT, true));
-        TextView params = XemsUi.text(a, seg.strenth + "%   ·   " + seg.hz + " Hz   ·   " + seg.pulseWidth + " µs",
-                13, XemsUi.MUTED, false);
-        params.setPadding(0, XemsUi.dp(a, 3), 0, 0);
-        texts.addView(params);
-        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        return row;
-    }
-
-    private static int sequenceSeconds() {
-        int[] onOff = resolveOnOffFromSeed();
-        return BlockProgramRunner.computeSequenceSeconds(blockSegments, onOff[0], onOff[1]);
-    }
-
-    private static int[] resolveOnOffFromSeed() {
-        int on = 4;
-        int off = 4;
-        TrainItem seed = MusicPlayerHelper.resolveTargetItem(itemManager);
-        if (seed != null && seed.getTrainProgram() != null) {
-            com.isaigu.gymapp.bean.ProgramDataBean bean = seed.getTrainProgram().matchProgram();
-            if (bean != null) {
-                if (bean.pulseContinue > 0) {
-                    on = bean.pulseContinue;
-                }
-                if (bean.pulsePause > 0) {
-                    off = bean.pulsePause;
-                }
-            }
-        }
-        return new int[] {on, off};
-    }
-
     /** Saved programs as chips: tap = load, hold = rename / delete; "+" saves the current one. */
     private static void buildPresetSection(final Activity a, LinearLayout body) {
         LinearLayout[] holder = new LinearLayout[1];
@@ -1208,8 +1006,11 @@ public final class IntervalTimerHelper {
         XemsUi.addChip(a, row, save);
         ArrayList<TimerPreset> presets = TimerPresetStorage.loadAll(a);
         for (final TimerPreset p : presets) {
+            if (p.blockMode) {
+                continue;                               // an old block preset: the block program is gone
+            }
             boolean sel = p.id != null && p.id.equals(selectedPresetId);
-            String kind = p.blockMode ? "▦ " : "◷ ";
+            String kind = "◷ ";
             TextView chip = XemsUi.chip(a, kind + (p.name != null ? p.name : "?"), sel, XemsUi.ACCENT);
             chip.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1468,7 +1269,6 @@ public final class IntervalTimerHelper {
                 settingsLoaded = true;
                 intervalSec = clamp(prefs.getInt(KEY_MINUTES, 0) * 60 + prefs.getInt(KEY_SECONDS, 30),
                         DURATION_MIN_SEC, DURATION_MAX_SEC);
-                trainSec = clamp(prefs.getInt(KEY_TRAIN_SEC, 20 * 60), TRAIN_MIN_SEC, TRAIN_MAX_SEC);
                 maxLoops = clamp(prefs.getInt(KEY_LOOPS, 0), 0, LOOPS_MAX);
                 selectedSound = prefs.getInt(KEY_SOUND, SOUND_BEEP);
                 if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
@@ -1476,9 +1276,6 @@ public final class IntervalTimerHelper {
                 }
                 String uriText = prefs.getString(KEY_CUSTOM_URI, null);
                 customSignalUri = uriText != null && uriText.length() > 0 ? Uri.parse(uriText) : null;
-                blockProgramMode = prefs.getBoolean(KEY_BLOCK_MODE, false);
-                blockProgramRepeat = prefs.getBoolean(KEY_BLOCK_REPEAT, false);
-                blockSegments = BlockProgramStorage.loadBlocks(activity);
             }
             intervalMs = intervalSec * 1000L;
         } catch (Throwable t) {
@@ -1494,18 +1291,14 @@ public final class IntervalTimerHelper {
             SharedPreferences.Editor editor = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
             editor.putInt(KEY_MINUTES, intervalSec / 60);
             editor.putInt(KEY_SECONDS, intervalSec % 60);
-            editor.putInt(KEY_TRAIN_SEC, trainSec);
             editor.putInt(KEY_LOOPS, maxLoops);
             editor.putInt(KEY_SOUND, selectedSound);
-            editor.putBoolean(KEY_BLOCK_MODE, blockProgramMode);
-            editor.putBoolean(KEY_BLOCK_REPEAT, blockProgramRepeat);
             if (customSignalUri != null) {
                 editor.putString(KEY_CUSTOM_URI, customSignalUri.toString());
             } else {
                 editor.remove(KEY_CUSTOM_URI);
             }
             editor.apply();
-            BlockProgramStorage.save(activity, blockProgramMode, blockProgramRepeat, blockSegments);
         } catch (Throwable t) {
             MusicDiagLog.logError("interval_timer_prefs_save", t);
         }
@@ -1736,18 +1529,6 @@ public final class IntervalTimerHelper {
         if (countdownView == null) {
             return;
         }
-        if (armed && blockProgramMode && BlockProgramRunner.isArmed()) {
-            updateCountdownDisplay(BlockProgramRunner.getBlockRemainingMs());
-            if (loopLabelView != null) {
-                int blockNum = BlockProgramRunner.getBlockIndex() + 1;
-                int blockCount = Math.max(1, BlockProgramRunner.getBlockCount());
-                int cycleNum = BlockProgramRunner.getCyclesDone() + 1;
-                int cycleMax = Math.max(1, BlockProgramRunner.getCurrentBlockCycles());
-                loopLabelView.setText("B" + blockNum + "/" + blockCount + " · C" + cycleNum + "/" + cycleMax);
-            }
-            refreshBlockOverlayRing();
-            return;
-        }
         updateCountdownDisplay(remainingMs > 0 ? remainingMs : intervalMs);
         if (loopLabelView != null) {
             if (!armed) {
@@ -1761,28 +1542,6 @@ public final class IntervalTimerHelper {
             }
         }
         refreshOverlayRing();
-    }
-
-    private static void refreshBlockOverlayRing() {
-        if (ringView == null) {
-            return;
-        }
-        try {
-            long totalMs = BlockProgramRunner.getBlockTotalMs();
-            long remainMs = BlockProgramRunner.getBlockRemainingMs();
-            float remainingFraction = totalMs > 0L ? remainMs / (float) totalMs : 0f;
-            if (remainingFraction < 0f) {
-                remainingFraction = 0f;
-            }
-            if (remainingFraction > 1f) {
-                remainingFraction = 1f;
-            }
-            ringView.setElapsedFraction(1f - remainingFraction);
-            if (countdownView != null) {
-                countdownView.setTextColor(TimerRingView.colorForRemaining(remainingFraction));
-            }
-        } catch (Throwable ignored) {
-        }
     }
 
     private static void refreshOverlayRing() {
@@ -1821,11 +1580,7 @@ public final class IntervalTimerHelper {
         if (!armed) {
             return;
         }
-        if (blockProgramMode && BlockProgramRunner.isArmed()) {
-            BlockProgramRunner.resetCurrentBlockCountdown();
-        } else {
-            remainingMs = intervalMs;
-        }
+        remainingMs = intervalMs;
         lastDisplayedCountdownSec = -1;
         timerPausedByUser = false;
         if (trainingRunning) {
@@ -2157,12 +1912,6 @@ public final class IntervalTimerHelper {
                 long now = SystemClock.elapsedRealtime();
                 long delta = now - lastTickRealtime;
                 lastTickRealtime = now;
-                if (blockProgramMode && BlockProgramRunner.isArmed()) {
-                    BlockProgramRunner.tickBlock(delta);
-                    refreshOverlayText();
-                    handler.postDelayed(tickRunnable, TICK_MS);
-                    return;
-                }
                 remainingMs -= delta;
                 if (remainingMs <= 0L) {
                     onIntervalFinished();

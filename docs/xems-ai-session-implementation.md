@@ -165,7 +165,7 @@ scripts/ai-sim/run.sh -v     # с лог на решенията
 ## 9. Сглобяване
 
 `compile-wearable-java.sh` компилира и пакета `ai` и го инсталира в `branding/smali/ai`.
-`apply-ai-session.py` се пуска след `apply-block-program.py` в `build-apk.sh`.
+`apply-ai-session.py` се пуска след `apply-pulse-cycle-hook.py` (той слага куката `AiSession.onPulseCycle`) в `build-apk.sh`.
 `apply-ai-session.py` закача и Настройки → Гривна в `SettingFragment.onCreateView`.
 v1.1.58-ai е сглобена без d8 (javac → dx → baksmali), както v1.1.53–1.1.57.
 

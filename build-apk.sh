@@ -119,7 +119,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   fi
   python3 "${ROOT}/scripts/apply-wearable-bridge.py"
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
-  python3 "${ROOT}/scripts/apply-block-program.py"
+  python3 "${ROOT}/scripts/apply-pulse-cycle-hook.py"
   python3 "${ROOT}/scripts/apply-ai-session.py"
   python3 "${ROOT}/scripts/apply-exercise-assets.py"
   if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
@@ -143,13 +143,6 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   if [[ ! -f "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/MusicPlayerHelper.smali" ]]; then
     echo "ERROR: BETA_MUSIC=1 but MusicPlayerHelper.smali missing — build would crash after login."
     echo "  Fix compile-music-sync-java.sh or set BETA_MUSIC=0 intentionally."
-    exit 1
-  fi
-  if [[ -f "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/BlockProgramRunner.smali" ]] \
-      && grep -q '\-\$\$Lambda\$BlockProgramRunner' \
-        "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/BlockProgramRunner.smali"; then
-    echo "ERROR: BlockProgramRunner.smali references missing lambda classes — training start will crash."
-    echo "  Re-run compile-interval-timer-java.sh (BlockProgramRunner must not use lambdas)."
     exit 1
   fi
   python3 "${ROOT}/scripts/verify-interval-timer-smali.py"

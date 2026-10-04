@@ -3,7 +3,7 @@
 .source "IntervalTimerHelper.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -17,12 +17,23 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic val$y:I
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(I)V
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 768
+    .line 700
+    iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$3;->val$y:I
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,35 +41,33 @@
 
 
 # virtual methods
-.method public onIndex(I)V
-    .registers 3
+.method public run()V
+    .registers 4
 
     .prologue
-    const/4 v0, 0x1
+    .line 703
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 771
-    if-ne p1, v0, :cond_f
+    move-result-object v0
 
-    :goto_3
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$702(Z)Z
+    if-eqz v0, :cond_12
 
-    .line 772
-    const-string v0, ""
+    .line 704
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v0
 
-    .line 773
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()V
+    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->scroll:Landroid/widget/ScrollView;
 
-    .line 774
+    const/4 v1, 0x0
+
+    iget v2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$3;->val$y:I
+
+    invoke-virtual {v0, v1, v2}, Landroid/widget/ScrollView;->scrollTo(II)V
+
+    .line 706
+    :cond_12
     return-void
-
-    .line 771
-    :cond_f
-    const/4 v0, 0x0
-
-    goto :goto_3
 .end method

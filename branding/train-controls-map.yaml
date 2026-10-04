@@ -290,8 +290,8 @@ program_data_bean:
 
     - name: inputRamp
       label: Input ramp
-      range: 0–3000 ms, step 10
-      encoding: byte (ms+9)/10, max 255
+      range: 0–3000 ms (dialog 0–3 s, 0.5 s steps)
+      encoding: PDU byte always 0 — the tablet ramps (train.model.SoftRamp, ai/AiRamp)
       ui: edit_parameter_dialog
       parallel_api: none
 

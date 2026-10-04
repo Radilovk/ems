@@ -25,13 +25,14 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 1221
+    .prologue
+    .line 1223
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1222
+    .line 1224
     iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchFailed;->gen:I
 
-    .line 1223
+    .line 1225
     return-void
 .end method
 
@@ -40,7 +41,8 @@
 .method public run()V
     .registers 3
 
-    .line 1227
+    .prologue
+    .line 1229
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchFailed;->gen:I
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->prefetchGen:I
@@ -50,14 +52,14 @@
 
     if-eq v0, v1, :cond_9
 
-    .line 1228
+    .line 1233
+    :goto_8
     return-void
 
-    .line 1230
+    .line 1232
     :cond_9
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->handlePrefetchFailure()V
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$900()V
 
-    .line 1231
-    return-void
+    goto :goto_8
 .end method

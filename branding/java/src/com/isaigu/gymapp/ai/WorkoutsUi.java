@@ -835,7 +835,7 @@ public final class WorkoutsUi {
     static void step(Workout.Block b, int which, int dir) {
         switch (which) {
             case P_HZ2:
-                b.hz2 += dir * (b.hz2 + (dir > 0 ? 0 : -1) < 20 ? 1 : 5);
+                b.hz2 += dir;                                  // 1–10 Hz: one step each
                 break;
             case P_STR2:
                 b.str2 += dir * 5;

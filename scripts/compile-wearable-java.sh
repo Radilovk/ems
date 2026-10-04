@@ -117,6 +117,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiRestHr.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiPlanner.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/SafeLimits.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/OutputOwner.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiHrFilter.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiEngine.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiEnergy.java"

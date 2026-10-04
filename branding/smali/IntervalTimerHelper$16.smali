@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildBlockSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildPresetSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,11 @@
 
 
 # instance fields
-.field final synthetic val$a:Landroid/app/Activity;
+.field final synthetic val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
 
 # direct methods
-.method constructor <init>(Landroid/app/Activity;)V
+.method constructor <init>(Lcom/isaigu/gymapp/dialog/TimerPreset;)V
     .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -31,8 +31,8 @@
     .end annotation
 
     .prologue
-    .line 1071
-    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$a:Landroid/app/Activity;
+    .line 1015
+    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -42,32 +42,29 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 6
+    .registers 3
 
     .prologue
-    .line 1074
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$a:Landroid/app/Activity;
+    .line 1018
+    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1900()Ljava/util/ArrayList;
+    .line 1019
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
-    move-result-object v1
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->applyPreset(Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2000()Lcom/isaigu/gymapp/train/TrainItemManager;
+    .line 1020
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
-    move-result-object v2
+    iget-object v0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
+    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1302(Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    .line 1021
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->closeSub()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1700()V
 
-    new-instance v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16$1;
-
-    invoke-direct {v3, p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16$1;-><init>(Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;)V
-
-    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->show(Landroid/app/Activity;Ljava/util/ArrayList;Lcom/isaigu/gymapp/train/model/TrainItem;Ljava/lang/Runnable;)V
-
-    .line 1082
+    .line 1022
     return-void
 .end method

@@ -92,7 +92,7 @@ A workout **is** an impulse map: a line of blocks (merged with the exercises for
   100 %; impulse blocks advance by counted impulse cycles (AiSession.onPulseCycle → leader), rests by time, a time
   fallback (length + 3 s) if the cycle hook is silent; time counts only while the suit runs. Card at the top: line
   with playhead, figure (client's colour), "повторение 3/8 · Hz · µs", "Следва: …", ■ Стоп. Refused together with
-  AI, Auto, music sync, the timer's block program (and they refuse while a map runs). Recorded exercise → kcal /
+  AI, Auto, music sync (one owner of the output, ai/OutputOwner; they refuse while a map runs). Recorded exercise → kcal /
   muscle map like the Smart Session.
 - **▶ AI** (`AiExercises.forWorkout`): the exercise blocks in map order are the sets (rest and plain blocks are left
   to the AI's own rests); rest-pause when the AI's block is shorter; the block's Hz / µs are used only when gentler

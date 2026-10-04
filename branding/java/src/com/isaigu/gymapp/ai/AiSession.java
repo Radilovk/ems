@@ -8,7 +8,6 @@ import android.os.Looper;
 import android.view.View;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
-import com.isaigu.gymapp.dialog.BlockProgramRunner;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
@@ -252,25 +251,9 @@ public final class AiSession {
 
     /** Returns an error text if another automatic mode owns the output, else null. */
     public static String conflict() {
-        if (MapRunner.isRunning()) {
-            return AiText.t("Първо спри картата от Тренировки.", "Stop the Workouts map first.");
-        }
-        if (AutoSession.isActive()) {
-            return AiText.t("Затвори автоматичната тренировка преди AI.", "Close the automatic session before AI.");
-        }
-        try {
-            if (MasterStrengthControl.isSyncActive()) {
-                return AiText.t("Спри музикалната синхронизация преди AI сесия.",
-                        "Stop music sync before an AI session.");
-            }
-        } catch (Throwable ignored) {
-        }
-        try {
-            if (BlockProgramRunner.isArmed()) {
-                return AiText.t("Изключи блоковата програма на таймера преди AI сесия.",
-                        "Disarm the timer block program before an AI session.");
-            }
-        } catch (Throwable ignored) {
+        String other = OutputOwner.conflict(OutputOwner.AI);
+        if (other != null) {
+            return other;
         }
         if (leader() == null) {
             return AiText.t("Добави участник и свържи костюма.", "Add a participant and connect the suit.");

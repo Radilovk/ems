@@ -42,9 +42,6 @@ def main() -> int:
     widget = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget/XemsUi.smali"
     if not widget.is_file():
         errs.append("widget/XemsUi.smali missing — timer settings sheet would crash (run compile-music-sync-java.sh)")
-    runner = DIALOG_DIR / "BlockProgramRunner.smali"
-    if runner.is_file() and "-$$Lambda$BlockProgramRunner" in runner.read_text(encoding="utf-8"):
-        errs.append("BlockProgramRunner.smali references lambda classes — training start will crash")
     if errs:
         print("Interval timer smali check FAILED:", file=sys.stderr)
         for err in errs:

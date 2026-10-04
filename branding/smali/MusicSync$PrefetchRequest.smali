@@ -27,6 +27,7 @@
 .method constructor <init>(Landroid/app/Activity;Landroid/net/Uri;)V
     .registers 3
 
+    .prologue
     .line 1168
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,6 +46,7 @@
 .method public run()V
     .registers 3
 
+    .prologue
     .line 1175
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchRequest;->activity:Landroid/app/Activity;
 

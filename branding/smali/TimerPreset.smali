@@ -12,18 +12,6 @@
 # instance fields
 .field public blockMode:Z
 
-.field public blockRepeat:Z
-
-.field public blocks:Ljava/util/ArrayList;
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "Ljava/util/ArrayList<",
-            "Lcom/isaigu/gymapp/dialog/ProgramSegment;",
-            ">;"
-        }
-    .end annotation
-.end field
-
 .field public customUri:Ljava/lang/String;
 
 .field public id:Ljava/lang/String;
@@ -43,197 +31,210 @@
 .method public constructor <init>()V
     .registers 2
 
-    .line 6
+    .prologue
+    .line 9
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 10
+    .line 13
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
-    .line 11
+    .line 14
+    const-string v0, ""
+
     iput-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
 
-    .line 16
-    iput-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
-
     .line 19
-    new-instance v0, Ljava/util/ArrayList;
+    const-string v0, ""
 
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
+    iput-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
 
     return-void
 .end method
 
 .method public static deserialize(Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/TimerPreset;
-    .registers 5
+    .registers 9
 
-    .line 60
+    .prologue
+    const/4 v7, 0x5
+
+    const/4 v6, 0x4
+
+    const/4 v5, 0x3
+
+    const/4 v4, 0x2
+
+    const/4 v3, 0x1
+
+    .line 52
     new-instance v0, Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/dialog/TimerPreset;-><init>()V
 
-    .line 61
-    if-eqz p0, :cond_a2
+    .line 53
+    if-eqz p0, :cond_12
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    if-nez v1, :cond_f
-
-    goto/16 :goto_a2
-
-    .line 64
-    :cond_f
-    const/16 v1, 0xa
-
-    const-string v2, "\u001f"
-
-    invoke-virtual {p0, v2, v1}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
-
-    move-result-object p0
-
-    .line 66
-    :try_start_17
-    array-length v1, p0
-
-    if-lez v1, :cond_1f
-
-    .line 67
-    const/4 v1, 0x0
-
-    aget-object v1, p0, v1
-
-    iput-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
-
-    .line 69
-    :cond_1f
-    array-length v1, p0
-
-    const/4 v2, 0x1
-
-    if-le v1, v2, :cond_27
-
-    .line 70
-    aget-object v1, p0, v2
-
-    iput-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
-
-    .line 72
-    :cond_27
-    array-length v1, p0
-
-    const/4 v2, 0x2
-
-    if-le v1, v2, :cond_37
-
-    .line 73
-    aget-object v1, p0, v2
-
-    invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v1}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
-
-    move-result v1
-
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
-
-    .line 75
-    :cond_37
-    array-length v1, p0
-
-    const/4 v2, 0x3
-
-    if-le v1, v2, :cond_47
-
-    .line 76
-    aget-object v1, p0, v2
-
-    invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v1}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
-
-    move-result v1
-
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
-
-    .line 78
-    :cond_47
-    array-length v1, p0
-
-    const/4 v2, 0x4
-
-    if-le v1, v2, :cond_57
-
-    .line 79
-    aget-object v1, p0, v2
-
-    invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v1}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
-
-    move-result v1
-
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
-
-    .line 81
-    :cond_57
-    array-length v1, p0
-
-    const/4 v2, 0x5
-
-    if-le v1, v2, :cond_67
-
-    .line 82
-    aget-object v1, p0, v2
-
-    invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v1}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
-
-    move-result v1
-
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
+    if-nez v1, :cond_13
 
     .line 84
-    :cond_67
-    array-length v1, p0
+    :cond_12
+    :goto_12
+    return-object v0
 
+    .line 56
+    :cond_13
+    const-string v1, "\u001f"
+
+    const/16 v2, 0xa
+
+    invoke-virtual {p0, v1, v2}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 58
+    :try_start_1b
+    array-length v2, v1
+
+    if-lez v2, :cond_23
+
+    .line 59
+    const/4 v2, 0x0
+
+    aget-object v2, v1, v2
+
+    iput-object v2, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
+
+    .line 61
+    :cond_23
+    array-length v2, v1
+
+    if-le v2, v3, :cond_2b
+
+    .line 62
+    const/4 v2, 0x1
+
+    aget-object v2, v1, v2
+
+    iput-object v2, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
+
+    .line 64
+    :cond_2b
+    array-length v2, v1
+
+    if-le v2, v4, :cond_3b
+
+    .line 65
+    const/4 v2, 0x2
+
+    aget-object v2, v1, v2
+
+    invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v2
+
+    iput v2, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
+
+    .line 67
+    :cond_3b
+    array-length v2, v1
+
+    if-le v2, v5, :cond_4b
+
+    .line 68
+    const/4 v2, 0x3
+
+    aget-object v2, v1, v2
+
+    invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v2
+
+    iput v2, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
+
+    .line 70
+    :cond_4b
+    array-length v2, v1
+
+    if-le v2, v6, :cond_5b
+
+    .line 71
+    const/4 v2, 0x4
+
+    aget-object v2, v1, v2
+
+    invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v2
+
+    iput v2, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
+
+    .line 73
+    :cond_5b
+    array-length v2, v1
+
+    if-le v2, v7, :cond_6b
+
+    .line 74
+    const/4 v2, 0x5
+
+    aget-object v2, v1, v2
+
+    invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v2
+
+    iput v2, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
+
+    .line 76
+    :cond_6b
+    array-length v2, v1
+
+    const/4 v3, 0x6
+
+    if-le v2, v3, :cond_74
+
+    .line 77
     const/4 v2, 0x6
 
-    if-le v1, v2, :cond_6f
+    aget-object v2, v1, v2
 
-    .line 85
-    aget-object v1, p0, v2
+    iput-object v2, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
+    .line 79
+    :cond_74
+    array-length v2, v1
 
-    .line 87
-    :cond_6f
-    array-length v1, p0
-    :try_end_70
-    .catch Ljava/lang/NumberFormatException; {:try_start_17 .. :try_end_70} :catch_a0
+    const/4 v3, 0x7
 
+    if-le v2, v3, :cond_12
+
+    .line 80
     const-string v2, "1"
 
     const/4 v3, 0x7
 
-    if-le v1, v3, :cond_81
-
-    .line 88
-    :try_start_75
-    aget-object v1, p0, v3
+    aget-object v1, v1, v3
 
     invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -244,63 +245,16 @@
     move-result v1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
+    :try_end_87
+    .catch Ljava/lang/NumberFormatException; {:try_start_1b .. :try_end_87} :catch_88
 
-    .line 90
-    :cond_81
-    array-length v1, p0
+    goto :goto_12
 
-    const/16 v3, 0x8
+    .line 82
+    :catch_88
+    move-exception v1
 
-    if-le v1, v3, :cond_92
-
-    .line 91
-    aget-object v1, p0, v3
-
-    invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    iput-boolean v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockRepeat:Z
-
-    .line 93
-    :cond_92
-    array-length v1, p0
-
-    const/16 v2, 0x9
-
-    if-le v1, v2, :cond_9f
-
-    .line 94
-    aget-object p0, p0, v2
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/TimerPreset;->parseBlocks(Ljava/lang/String;)Ljava/util/ArrayList;
-
-    move-result-object p0
-
-    iput-object p0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
-    :try_end_9f
-    .catch Ljava/lang/NumberFormatException; {:try_start_75 .. :try_end_9f} :catch_a0
-
-    .line 97
-    :cond_9f
-    goto :goto_a1
-
-    .line 96
-    :catch_a0
-    move-exception p0
-
-    .line 98
-    :goto_a1
-    return-object v0
-
-    .line 62
-    :cond_a2
-    :goto_a2
-    return-object v0
+    goto :goto_12
 .end method
 
 .method static joinRecords(Ljava/util/ArrayList;)Ljava/lang/String;
@@ -308,206 +262,127 @@
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
-            "Ljava/util/ArrayList<",
+            "Ljava/util/ArrayList",
+            "<",
             "Lcom/isaigu/gymapp/dialog/TimerPreset;",
             ">;)",
             "Ljava/lang/String;"
         }
     .end annotation
 
-    .line 124
-    if-eqz p0, :cond_42
+    .prologue
+    .line 95
+    if-eqz p0, :cond_8
 
     invoke-virtual {p0}, Ljava/util/ArrayList;->isEmpty()Z
 
     move-result v0
 
-    if-eqz v0, :cond_9
+    if-eqz v0, :cond_b
 
-    goto :goto_42
+    .line 96
+    :cond_8
+    const-string v0, ""
 
-    .line 127
-    :cond_9
-    new-instance v0, Ljava/lang/StringBuilder;
+    .line 109
+    :goto_a
+    return-object v0
 
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    .line 98
+    :cond_b
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    .line 128
-    const/4 v1, 0x0
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    :goto_f
+    .line 99
+    const/4 v0, 0x0
+
+    move v1, v0
+
+    :goto_12
     invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
 
-    move-result v2
+    move-result v0
 
-    if-ge v1, v2, :cond_3d
+    if-ge v1, v0, :cond_43
 
-    .line 129
+    .line 100
     invoke-virtual {p0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
-    move-result-object v2
+    move-result-object v0
 
-    check-cast v2, Lcom/isaigu/gymapp/dialog/TimerPreset;
+    check-cast v0, Lcom/isaigu/gymapp/dialog/TimerPreset;
 
-    .line 130
-    if-eqz v2, :cond_3a
+    .line 101
+    if-eqz v0, :cond_2c
 
-    iget-object v3, v2, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
+    iget-object v3, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
-    if-eqz v3, :cond_3a
+    if-eqz v3, :cond_2c
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v3
 
-    if-nez v3, :cond_28
+    if-nez v3, :cond_30
 
-    .line 131
-    goto :goto_3a
+    .line 99
+    :cond_2c
+    :goto_2c
+    add-int/lit8 v0, v1, 0x1
 
-    .line 133
-    :cond_28
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->length()I
+    move v1, v0
+
+    goto :goto_12
+
+    .line 104
+    :cond_30
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v3
 
-    if-lez v3, :cond_33
+    if-lez v3, :cond_3b
 
-    .line 134
+    .line 105
     const-string v3, "\u001e"
 
-    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 136
-    :cond_33
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/dialog/TimerPreset;->serialize()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 128
-    :cond_3a
-    :goto_3a
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_f
-
-    .line 138
-    :cond_3d
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p0
-
-    return-object p0
-
-    .line 125
-    :cond_42
-    :goto_42
-    const-string p0, ""
-
-    return-object p0
-.end method
-
-.method private static parseBlocks(Ljava/lang/String;)Ljava/util/ArrayList;
-    .registers 4
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "(",
-            "Ljava/lang/String;",
-            ")",
-            "Ljava/util/ArrayList<",
-            "Lcom/isaigu/gymapp/dialog/ProgramSegment;",
-            ">;"
-        }
-    .end annotation
-
-    .line 102
-    new-instance v0, Ljava/util/ArrayList;
-
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    .line 103
-    if-eqz p0, :cond_32
-
-    invoke-virtual {p0}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    if-nez v1, :cond_e
-
-    goto :goto_32
-
-    .line 106
-    :cond_e
-    const-string v1, "\\|"
-
-    invoke-virtual {p0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
-
-    move-result-object p0
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     .line 107
-    const/4 v1, 0x0
+    :cond_3b
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/TimerPreset;->serialize()Ljava/lang/String;
 
-    :goto_15
-    array-length v2, p0
+    move-result-object v0
 
-    if-ge v1, v2, :cond_31
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 108
-    aget-object v2, p0, v1
-
-    invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/String;->length()I
-
-    move-result v2
-
-    if-nez v2, :cond_25
+    goto :goto_2c
 
     .line 109
-    goto :goto_2e
+    :cond_43
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    .line 111
-    :cond_25
-    aget-object v2, p0, v1
+    move-result-object v0
 
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->deserialize(Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/ProgramSegment;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
-    .line 107
-    :goto_2e
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_15
-
-    .line 113
-    :cond_31
-    return-object v0
-
-    .line 104
-    :cond_32
-    :goto_32
-    return-object v0
+    goto :goto_a
 .end method
 
 .method private static safe(Ljava/lang/String;)Ljava/lang/String;
-    .registers 3
+    .registers 4
 
-    .line 117
+    .prologue
+    .line 88
     if-nez p0, :cond_5
 
-    .line 118
-    const-string p0, ""
+    .line 89
+    const-string v0, ""
 
-    return-object p0
+    .line 91
+    :goto_4
+    return-object v0
 
-    .line 120
     :cond_5
     const-string v0, "\u001f"
 
@@ -515,342 +390,332 @@
 
     invoke-virtual {p0, v0, v1}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    const-string v0, "\u001e"
+    const-string v1, "\u001e"
 
-    invoke-virtual {p0, v0, v1}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+    const-string v2, " "
 
-    move-result-object p0
+    invoke-virtual {v0, v1, v2}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
-    invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
+    move-result-object v0
 
-    move-result-object p0
+    invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
-    return-object p0
+    move-result-object v0
+
+    goto :goto_4
 .end method
 
 .method static splitRecords(Ljava/lang/String;)Ljava/util/ArrayList;
-    .registers 5
+    .registers 6
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
             "Ljava/lang/String;",
             ")",
-            "Ljava/util/ArrayList<",
+            "Ljava/util/ArrayList",
+            "<",
             "Lcom/isaigu/gymapp/dialog/TimerPreset;",
             ">;"
         }
     .end annotation
 
-    .line 142
-    new-instance v0, Ljava/util/ArrayList;
+    .prologue
+    .line 113
+    new-instance v1, Ljava/util/ArrayList;
 
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 143
-    if-eqz p0, :cond_3b
+    .line 114
+    if-eqz p0, :cond_d
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
-    move-result v1
+    move-result v0
 
-    if-nez v1, :cond_e
+    if-nez v0, :cond_f
 
-    goto :goto_3b
+    :cond_d
+    move-object v0, v1
 
-    .line 146
-    :cond_e
-    const/4 v1, -0x1
+    .line 127
+    :goto_e
+    return-object v0
 
-    const-string v2, "\u001e"
+    .line 117
+    :cond_f
+    const-string v0, "\u001e"
 
-    invoke-virtual {p0, v2, v1}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
+    const/4 v2, -0x1
 
-    move-result-object p0
-
-    .line 147
-    const/4 v1, 0x0
-
-    :goto_16
-    array-length v2, p0
-
-    if-ge v1, v2, :cond_3a
-
-    .line 148
-    aget-object v2, p0, v1
-
-    invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
+    invoke-virtual {p0, v0, v2}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
 
     move-result-object v2
 
-    invoke-virtual {v2}, Ljava/lang/String;->length()I
+    .line 118
+    const/4 v0, 0x0
 
-    move-result v2
+    :goto_17
+    array-length v3, v2
 
-    if-nez v2, :cond_26
+    if-ge v0, v3, :cond_3b
 
-    .line 149
-    goto :goto_37
+    .line 119
+    aget-object v3, v2, v0
 
-    .line 151
-    :cond_26
-    aget-object v2, p0, v1
+    invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/TimerPreset;->deserialize(Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/TimerPreset;
-
-    move-result-object v2
-
-    .line 152
-    iget-object v3, v2, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
+    move-result-object v3
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v3
 
-    if-lez v3, :cond_37
+    if-nez v3, :cond_29
 
-    .line 153
-    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+    .line 118
+    :cond_26
+    :goto_26
+    add-int/lit8 v0, v0, 0x1
 
-    .line 147
-    :cond_37
-    :goto_37
-    add-int/lit8 v1, v1, 0x1
+    goto :goto_17
 
-    goto :goto_16
+    .line 122
+    :cond_29
+    aget-object v3, v2, v0
 
-    .line 156
-    :cond_3a
-    return-object v0
+    invoke-static {v3}, Lcom/isaigu/gymapp/dialog/TimerPreset;->deserialize(Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/TimerPreset;
 
-    .line 144
+    move-result-object v3
+
+    .line 123
+    iget-object v4, v3, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
+
+    invoke-virtual {v4}, Ljava/lang/String;->length()I
+
+    move-result v4
+
+    if-lez v4, :cond_26
+
+    .line 124
+    invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    goto :goto_26
+
     :cond_3b
-    :goto_3b
-    return-object v0
+    move-object v0, v1
+
+    .line 127
+    goto :goto_e
 .end method
 
 
 # virtual methods
 .method public copy()Lcom/isaigu/gymapp/dialog/TimerPreset;
-    .registers 5
+    .registers 3
 
-    .line 22
-    new-instance v0, Lcom/isaigu/gymapp/dialog/TimerPreset;
-
-    invoke-direct {v0}, Lcom/isaigu/gymapp/dialog/TimerPreset;-><init>()V
-
-    .line 23
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
-
-    iput-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
-
+    .prologue
     .line 24
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
+    new-instance v1, Lcom/isaigu/gymapp/dialog/TimerPreset;
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
+    invoke-direct {v1}, Lcom/isaigu/gymapp/dialog/TimerPreset;-><init>()V
 
     .line 25
-    iget v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
+    iput-object v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
     .line 26
-    iget v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
 
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
+    iput-object v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
 
     .line 27
-    iget v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
 
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
+    iput v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
 
     .line 28
-    iget v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
 
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
+    iput v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
 
     .line 29
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
 
-    if-eqz v1, :cond_22
-
-    goto :goto_24
-
-    :cond_22
-    const-string v1, ""
-
-    :goto_24
-    iput-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
+    iput v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
 
     .line 30
-    iget-boolean v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
 
-    iput-boolean v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
+    iput v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
 
     .line 31
-    iget-boolean v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockRepeat:Z
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
 
-    iput-boolean v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockRepeat:Z
+    if-eqz v0, :cond_2a
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
+
+    :goto_23
+    iput-object v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
 
     .line 32
-    new-instance v1, Ljava/util/ArrayList;
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
 
-    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
-
-    iput-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
+    iput-boolean v0, v1, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
 
     .line 33
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
+    return-object v1
 
-    if-eqz v1, :cond_5c
+    .line 31
+    :cond_2a
+    const-string v0, ""
 
-    .line 34
-    const/4 v1, 0x0
-
-    :goto_3a
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
-
-    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_5c
-
-    .line 35
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
-
-    invoke-virtual {v2, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lcom/isaigu/gymapp/dialog/ProgramSegment;
-
-    .line 36
-    if-eqz v2, :cond_59
-
-    .line 37
-    iget-object v3, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
-
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->serialize()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->deserialize(Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/ProgramSegment;
-
-    move-result-object v2
-
-    invoke-virtual {v3, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
-    .line 34
-    :cond_59
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_3a
-
-    .line 41
-    :cond_5c
-    return-object v0
+    goto :goto_23
 .end method
 
 .method public serialize()Ljava/lang/String;
-    .registers 4
+    .registers 5
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 37
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 38
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/TimerPreset;->safe(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 39
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/TimerPreset;->safe(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 40
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 41
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 42
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 43
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 44
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/TimerPreset;->safe(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     .line 45
-    new-instance v0, Ljava/lang/StringBuilder;
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
 
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    if-eqz v0, :cond_80
+
+    const/4 v0, 0x1
+
+    :goto_64
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u001f"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     .line 46
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/TimerPreset;->safe(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
 
     const-string v1, "\u001f"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     .line 47
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
+    const-string v0, ""
 
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/TimerPreset;->safe(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     .line 48
-    iget v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 49
-    iget v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 50
-    iget v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 51
-    iget v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 52
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/TimerPreset;->safe(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 53
-    iget-boolean v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 54
-    iget-boolean v2, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockRepeat:Z
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 55
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
-
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/BlockProgramStorage;->serializeBlocks(Ljava/util/ArrayList;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 56
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     return-object v0
+
+    :cond_80
+    move v0, v1
+
+    .line 45
+    goto :goto_64
 .end method

@@ -29,7 +29,7 @@ public final class MapSim {
         b.rampOut = -20;
         b.clampAll();
         check(b.off >= 1, "a double impulse keeps its second impulse ≥ 1 s");
-        check(b.hz2 == Workout.HZ_MAX && b.str2 == 5, "second impulse Hz / strength clamped");
+        check(b.hz2 == com.isaigu.gymapp.ai.SafeLimits.PAUSE_HZ_MAX && b.str2 == 5, "second impulse ≤ 10 Hz, strength clamped");
         check(b.rampIn == Workout.RAMP_MAX_MS && b.rampOut == 0, "ramps clamped to 0–3 s in 0.1 s steps");
         Workout.Block k = b.copy();
         check(k.dbl && k.hz2 == b.hz2 && k.str2 == b.str2 && k.rampIn == b.rampIn && k.rampOut == b.rampOut,

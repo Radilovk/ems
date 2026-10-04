@@ -90,7 +90,22 @@ def java_sources() -> dict[str, Path]:
     return out
 
 
-def check_smali_matches_java(files: list[str]) -> list[str]:
+def java_code(text: str) -> str:
+    """The Java without comments and whitespace: a comment-only edit compiles to the same smali."""
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", "", text)
+    return re.sub(r"\s+", "", text)
+
+
+def code_changed(base: str, path: str) -> bool:
+    try:
+        old = git("show", f"{base}:{path}")
+    except subprocess.CalledProcessError:
+        return True
+    return java_code(old) != java_code((ROOT / path).read_text(encoding="utf-8"))
+
+
+def check_smali_matches_java(files: list[str], base: str = "origin/main") -> list[str]:
     """
     branding/smali is compiler output of branding/java. Two drifts ship silently otherwise:
     a Java edit whose smali was never regenerated (missing SDK, a class left out of a compile list), and smali
@@ -111,7 +126,7 @@ def check_smali_matches_java(files: list[str]) -> list[str]:
         if not (f.startswith("branding/java/src/") and f.endswith(".java")) or not (ROOT / f).is_file():
             continue
         smali = by_outer.get(Path(f).stem)
-        if smali and not any(s in changed for s in smali):
+        if smali and not any(s in changed for s in smali) and code_changed(base, f):
             stale.append(Path(f).stem)
     if stale:
         errors.append(
@@ -187,7 +202,7 @@ def main() -> int:
             args.base = git("hash-object", "-t", "tree", "/dev/null")
 
     errors = verify_shipment(args.base, args.head)
-    errors.extend(check_smali_matches_java(changed_files(args.base, args.head)))
+    errors.extend(check_smali_matches_java(changed_files(args.base, args.head), args.base))
     errors.extend(check_band_versions())
     if not args.skip_worktree:
         errors.extend(verify_worktree_clean())

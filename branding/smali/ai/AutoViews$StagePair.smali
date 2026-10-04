@@ -29,16 +29,16 @@
     .registers 4
 
     .prologue
-    .line 310
+    .line 312
     invoke-direct {p0, p1}, Landroid/view/ViewGroup;-><init>(Landroid/content/Context;)V
 
-    .line 311
+    .line 313
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->minRestPx:I
 
-    .line 312
+    .line 314
     iput p3, p0, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->arrowPx:I
 
-    .line 313
+    .line 315
     return-void
 .end method
 
@@ -50,14 +50,14 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 339
+    .line 341
     sub-int v3, p5, p3
 
     move v0, v1
 
     move v2, v1
 
-    .line 341
+    .line 343
     :goto_5
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->getChildCount()I
 
@@ -65,12 +65,12 @@
 
     if-ge v0, v1, :cond_31
 
-    .line 342
+    .line 344
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 343
+    .line 345
     invoke-virtual {v1}, Landroid/view/View;->getVisibility()I
 
     move-result v4
@@ -81,7 +81,7 @@
 
     move v1, v2
 
-    .line 341
+    .line 343
     :goto_18
     add-int/lit8 v0, v0, 0x1
 
@@ -89,35 +89,35 @@
 
     goto :goto_5
 
-    .line 346
+    .line 348
     :cond_1c
     invoke-virtual {v1}, Landroid/view/View;->getMeasuredWidth()I
 
     move-result v4
 
-    .line 347
+    .line 349
     invoke-virtual {v1}, Landroid/view/View;->getMeasuredHeight()I
 
     move-result v5
 
-    .line 348
+    .line 350
     sub-int v6, v3, v5
 
     div-int/lit8 v6, v6, 0x2
 
-    .line 349
+    .line 351
     add-int v7, v2, v4
 
     add-int/2addr v5, v6
 
     invoke-virtual {v1, v2, v6, v7, v5}, Landroid/view/View;->layout(IIII)V
 
-    .line 350
+    .line 352
     add-int v1, v2, v4
 
     goto :goto_18
 
-    .line 352
+    .line 354
     :cond_31
     return-void
 .end method
@@ -136,12 +136,12 @@
 
     const/4 v3, 0x0
 
-    .line 317
+    .line 319
     invoke-static {p2}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
     move-result v7
 
-    .line 318
+    .line 320
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getMode(I)I
 
     move-result v0
@@ -150,7 +150,7 @@
 
     const v0, 0x7fffffff
 
-    .line 319
+    .line 321
     :goto_15
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->getChildCount()I
 
@@ -170,7 +170,7 @@
 
     move v5, v6
 
-    .line 320
+    .line 322
     :goto_26
     const/high16 v4, 0x3f800000    # 1.0f
 
@@ -181,7 +181,7 @@
     :goto_2b
     add-float/2addr v1, v4
 
-    .line 321
+    .line 323
     iget v4, p0, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->minRestPx:I
 
     sub-int v4, v0, v4
@@ -197,7 +197,7 @@
 
     move-result v0
 
-    .line 322
+    .line 324
     int-to-float v0, v0
 
     div-float/2addr v0, v1
@@ -212,7 +212,7 @@
 
     move-result v1
 
-    .line 323
+    .line 325
     int-to-float v0, v1
 
     mul-float/2addr v0, v2
@@ -221,7 +221,7 @@
 
     move-result v4
 
-    .line 324
+    .line 326
     if-eqz v5, :cond_70
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->arrowPx:I
@@ -231,7 +231,7 @@
     :goto_50
     add-int v5, v1, v0
 
-    .line 325
+    .line 327
     :goto_52
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->getChildCount()I
 
@@ -239,25 +239,25 @@
 
     if-ge v3, v0, :cond_91
 
-    .line 326
+    .line 328
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->getChildAt(I)Landroid/view/View;
 
     move-result-object v8
 
-    .line 327
+    .line 329
     invoke-virtual {v8}, Landroid/view/View;->getVisibility()I
 
     move-result v0
 
     if-ne v0, v10, :cond_72
 
-    .line 325
+    .line 327
     :goto_62
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_52
 
-    .line 318
+    .line 320
     :cond_65
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
@@ -268,10 +268,10 @@
     :cond_6a
     move v5, v3
 
-    .line 319
+    .line 321
     goto :goto_26
 
-    .line 320
+    .line 322
     :cond_6c
     const/4 v1, 0x0
 
@@ -280,28 +280,28 @@
     :cond_6e
     move v0, v3
 
-    .line 321
+    .line 323
     goto :goto_34
 
     :cond_70
     move v0, v3
 
-    .line 324
+    .line 326
     goto :goto_50
 
-    .line 330
+    .line 332
     :cond_72
     if-nez v3, :cond_88
 
     move v2, v1
 
-    .line 331
+    .line 333
     :goto_75
     if-ne v3, v6, :cond_8f
 
     move v0, v1
 
-    .line 332
+    .line 334
     :goto_78
     const/high16 v9, 0x40000000    # 2.0f
 
@@ -319,7 +319,7 @@
 
     goto :goto_62
 
-    .line 330
+    .line 332
     :cond_88
     if-ne v3, v6, :cond_8d
 
@@ -335,13 +335,13 @@
     :cond_8f
     move v0, v2
 
-    .line 331
+    .line 333
     goto :goto_78
 
-    .line 334
+    .line 336
     :cond_91
     invoke-virtual {p0, v5, v7}, Lcom/isaigu/gymapp/ai/AutoViews$StagePair;->setMeasuredDimension(II)V
 
-    .line 335
+    .line 337
     return-void
 .end method

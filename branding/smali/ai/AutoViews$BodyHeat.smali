@@ -79,7 +79,7 @@
     .registers 3
 
     .prologue
-    .line 366
+    .line 368
     const/4 v0, 0x2
 
     new-array v0, v0, [Ljava/lang/String;
@@ -111,104 +111,104 @@
 
     const/16 v1, 0xb
 
-    .line 407
+    .line 409
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 374
+    .line 376
     const/4 v0, 0x2
 
     new-array v0, v0, [Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->figs:[Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
 
-    .line 375
+    .line 377
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v3}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->paint:Landroid/graphics/Paint;
 
-    .line 376
+    .line 378
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v3}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->glowPaint:Landroid/graphics/Paint;
 
-    .line 377
+    .line 379
     new-instance v0, Landroid/graphics/Rect;
 
     invoke-direct {v0}, Landroid/graphics/Rect;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->src:Landroid/graphics/Rect;
 
-    .line 378
+    .line 380
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dst:Landroid/graphics/RectF;
 
-    .line 380
+    .line 382
     new-array v0, v1, [D
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->target:[D
 
-    .line 381
+    .line 383
     new-array v0, v1, [D
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->held:[D
 
-    .line 382
+    .line 384
     new-array v0, v1, [D
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->from:[D
 
-    .line 383
+    .line 385
     new-array v0, v1, [J
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->fadeMs:[J
 
-    .line 384
+    .line 386
     new-array v0, v1, [J
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->activeSince:[J
 
-    .line 385
+    .line 387
     new-array v0, v1, [D
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->live:[D
 
-    .line 386
+    .line 388
     new-array v0, v1, [Z
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->off:[Z
 
-    .line 387
+    .line 389
     new-array v0, v1, [Z
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->active:[Z
 
-    .line 388
+    .line 390
     new-array v0, v1, [D
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->shown:[D
 
-    .line 389
+    .line 391
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->sexKey:Ljava/lang/String;
 
-    .line 391
+    .line 393
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dirty:Z
 
-    .line 392
+    .line 394
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->glowDirty:Z
 
-    .line 393
+    .line 395
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->first:Z
 
-    .line 408
+    .line 410
     return-void
 .end method
 
@@ -221,7 +221,7 @@
     .end annotation
 
     .prologue
-    .line 538
+    .line 540
     invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
 
     move-result-object v0
@@ -230,26 +230,26 @@
 
     move-result-object v1
 
-    .line 540
+    .line 542
     :try_start_8
     new-instance v0, Landroid/graphics/BitmapFactory$Options;
 
     invoke-direct {v0}, Landroid/graphics/BitmapFactory$Options;-><init>()V
 
-    .line 541
+    .line 543
     const/4 v2, 0x0
 
     iput-boolean v2, v0, Landroid/graphics/BitmapFactory$Options;->inScaled:Z
 
-    .line 542
+    .line 544
     sget-object v2, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
 
     iput-object v2, v0, Landroid/graphics/BitmapFactory$Options;->inPreferredConfig:Landroid/graphics/Bitmap$Config;
 
-    .line 543
+    .line 545
     iput-boolean p2, v0, Landroid/graphics/BitmapFactory$Options;->inPremultiplied:Z
 
-    .line 544
+    .line 546
     const/4 v2, 0x0
 
     invoke-static {v1, v2, v0}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;
@@ -258,19 +258,19 @@
 
     move-result-object v0
 
-    .line 546
+    .line 548
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 544
+    .line 546
     return-object v0
 
-    .line 546
+    .line 548
     :catchall_1f
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 547
+    .line 549
     throw v0
 .end method
 
@@ -280,12 +280,12 @@
     .prologue
     const/4 v9, 0x0
 
-    .line 482
+    .line 484
     new-instance v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
 
     invoke-direct {v8}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;-><init>()V
 
-    .line 484
+    .line 486
     :try_start_6
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -319,7 +319,7 @@
 
     iput-object v0, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->art:Landroid/graphics/Bitmap;
 
-    .line 485
+    .line 487
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -350,7 +350,7 @@
 
     move-result-object v0
 
-    .line 486
+    .line 488
     iget-object v1, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->art:Landroid/graphics/Bitmap;
 
     if-eqz v1, :cond_4a
@@ -360,27 +360,27 @@
     :cond_4a
     move-object v0, v8
 
-    .line 522
+    .line 524
     :goto_4b
     return-object v0
 
-    .line 489
+    .line 491
     :cond_4c
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->getWidth()I
 
     move-result v3
 
-    .line 490
+    .line 492
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->getHeight()I
 
     move-result v7
 
-    .line 491
+    .line 493
     mul-int v1, v3, v7
 
     new-array v1, v1, [I
 
-    .line 492
+    .line 494
     const/4 v2, 0x0
 
     const/4 v4, 0x0
@@ -391,10 +391,10 @@
 
     invoke-virtual/range {v0 .. v7}, Landroid/graphics/Bitmap;->getPixels([IIIIIII)V
 
-    .line 493
+    .line 495
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 495
+    .line 497
     array-length v4, v1
 
     move v2, v9
@@ -406,39 +406,39 @@
 
     aget v5, v1, v2
 
-    .line 496
+    .line 498
     invoke-static {v5}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->zoneOf(I)I
 
     move-result v5
 
     if-ltz v5, :cond_71
 
-    .line 497
+    .line 499
     add-int/lit8 v0, v0, 0x1
 
-    .line 495
+    .line 497
     :cond_71
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_65
 
-    .line 500
+    .line 502
     :cond_74
     new-array v2, v0, [I
 
     iput-object v2, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->idx:[I
 
-    .line 501
+    .line 503
     new-array v2, v0, [B
 
     iput-object v2, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->zone:[B
 
-    .line 502
+    .line 504
     new-array v2, v0, [B
 
     iput-object v2, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->shade:[B
 
-    .line 503
+    .line 505
     new-array v0, v0, [B
 
     iput-object v0, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->cov:[B
@@ -447,36 +447,36 @@
 
     move v0, v9
 
-    .line 505
+    .line 507
     :goto_86
     array-length v4, v1
 
     if-ge v2, v4, :cond_af
 
-    .line 506
+    .line 508
     aget v4, v1, v2
 
-    .line 507
+    .line 509
     invoke-static {v4}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->zoneOf(I)I
 
     move-result v5
 
-    .line 508
+    .line 510
     if-ltz v5, :cond_ac
 
-    .line 509
+    .line 511
     iget-object v6, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->idx:[I
 
     aput v2, v6, v0
 
-    .line 510
+    .line 512
     iget-object v6, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->zone:[B
 
     int-to-byte v5, v5
 
     aput-byte v5, v6, v0
 
-    .line 511
+    .line 513
     iget-object v5, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->shade:[B
 
     shr-int/lit8 v6, v4, 0x8
@@ -487,7 +487,7 @@
 
     aput-byte v6, v5, v0
 
-    .line 512
+    .line 514
     iget-object v5, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->cov:[B
 
     and-int/lit16 v4, v4, 0xff
@@ -496,16 +496,16 @@
 
     aput-byte v4, v5, v0
 
-    .line 513
+    .line 515
     add-int/lit8 v0, v0, 0x1
 
-    .line 505
+    .line 507
     :cond_ac
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_86
 
-    .line 516
+    .line 518
     :cond_af
     mul-int v0, v3, v7
 
@@ -513,7 +513,7 @@
 
     iput-object v0, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->px:[I
 
-    .line 517
+    .line 519
     sget-object v0, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
 
     invoke-static {v3, v7, v0}, Landroid/graphics/Bitmap;->createBitmap(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;
@@ -522,7 +522,7 @@
 
     iput-object v0, v8, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->over:Landroid/graphics/Bitmap;
 
-    .line 518
+    .line 520
     sget-object v0, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
 
     invoke-static {v3, v7, v0}, Landroid/graphics/Bitmap;->createBitmap(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;
@@ -536,14 +536,14 @@
     :goto_c5
     move-object v0, v8
 
-    .line 522
+    .line 524
     goto :goto_4b
 
-    .line 519
+    .line 521
     :catch_c7
     move-exception v0
 
-    .line 520
+    .line 522
     const-string v1, "AutoViews.body"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -555,28 +555,28 @@
     .registers 14
 
     .prologue
-    .line 570
+    .line 572
     if-eqz p1, :cond_4
 
     if-nez p2, :cond_5
 
-    .line 595
+    .line 597
     :cond_4
     :goto_4
     return-void
 
-    .line 573
+    .line 575
     :cond_5
     const/16 v0, 0xb
 
     new-array v2, v0, [I
 
-    .line 574
+    .line 576
     const/16 v0, 0xb
 
     new-array v3, v0, [F
 
-    .line 575
+    .line 577
     const/4 v0, 0x0
 
     move v1, v0
@@ -586,10 +586,10 @@
 
     if-ge v1, v0, :cond_6d
 
-    .line 576
+    .line 578
     if-eqz p3, :cond_4e
 
-    .line 577
+    .line 579
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->female:Z
 
     const-wide/16 v4, 0x0
@@ -616,7 +616,7 @@
 
     aput v0, v2, v1
 
-    .line 578
+    .line 580
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->active:[Z
 
     aget-boolean v0, v0, v1
@@ -640,7 +640,7 @@
     :goto_46
     aput v0, v3, v1
 
-    .line 575
+    .line 577
     :goto_48
     add-int/lit8 v0, v1, 0x1
 
@@ -648,13 +648,13 @@
 
     goto :goto_f
 
-    .line 578
+    .line 580
     :cond_4c
     const/4 v0, 0x0
 
     goto :goto_46
 
-    .line 580
+    .line 582
     :cond_4e
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->female:Z
 
@@ -668,7 +668,7 @@
 
     aput v0, v2, v1
 
-    .line 581
+    .line 583
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->off:[Z
 
     aget-boolean v0, v0, v1
@@ -693,16 +693,16 @@
 
     goto :goto_61
 
-    .line 584
+    .line 586
     :cond_6d
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->px:[I
 
-    .line 585
+    .line 587
     const/4 v0, 0x0
 
     invoke-static {v1, v0}, Ljava/util/Arrays;->fill([II)V
 
-    .line 586
+    .line 588
     const/4 v0, 0x0
 
     :goto_74
@@ -712,28 +712,28 @@
 
     if-ge v0, v4, :cond_a7
 
-    .line 587
+    .line 589
     iget-object v4, p1, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->zone:[B
 
     aget-byte v4, v4, v0
 
-    .line 588
+    .line 590
     aget v5, v3, v4
 
-    .line 589
+    .line 591
     const/4 v6, 0x0
 
     cmpg-float v6, v5, v6
 
     if-gtz v6, :cond_87
 
-    .line 586
+    .line 588
     :goto_84
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_74
 
-    .line 592
+    .line 594
     :cond_87
     iget-object v6, p1, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->idx:[I
 
@@ -773,7 +773,7 @@
 
     goto :goto_84
 
-    .line 594
+    .line 596
     :cond_a7
     const/4 v2, 0x0
 
@@ -804,27 +804,27 @@
     .registers 8
 
     .prologue
-    .line 552
+    .line 554
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
 
-    .line 553
+    .line 555
     shr-int/lit8 v1, p0, 0x8
 
     and-int/lit16 v1, v1, 0xff
 
-    .line 554
+    .line 556
     and-int/lit16 v3, p0, 0xff
 
-    .line 555
+    .line 557
     const/high16 v2, 0x3f000000    # 0.5f
 
     cmpg-float v2, p1, v2
 
     if-gez v2, :cond_29
 
-    .line 556
+    .line 558
     mul-int/lit8 v0, v0, 0x2
 
     int-to-float v0, v0
@@ -833,7 +833,7 @@
 
     float-to-int v2, v0
 
-    .line 557
+    .line 559
     mul-int/lit8 v0, v1, 0x2
 
     int-to-float v0, v0
@@ -842,7 +842,7 @@
 
     float-to-int v1, v0
 
-    .line 558
+    .line 560
     mul-int/lit8 v0, v3, 0x2
 
     int-to-float v0, v0
@@ -851,7 +851,7 @@
 
     float-to-int v0, v0
 
-    .line 565
+    .line 567
     :goto_1f
     shl-int/lit8 v3, p2, 0x18
 
@@ -867,7 +867,7 @@
 
     return v0
 
-    .line 560
+    .line 562
     :cond_29
     const/high16 v2, 0x40000000    # 2.0f
 
@@ -881,7 +881,7 @@
 
     mul-float/2addr v4, v2
 
-    .line 561
+    .line 563
     int-to-float v2, v0
 
     rsub-int v0, v0, 0xff
@@ -894,7 +894,7 @@
 
     float-to-int v2, v0
 
-    .line 562
+    .line 564
     int-to-float v0, v1
 
     rsub-int v1, v1, 0xff
@@ -907,7 +907,7 @@
 
     float-to-int v1, v0
 
-    .line 563
+    .line 565
     int-to-float v0, v3
 
     rsub-int v3, v3, 0xff
@@ -927,7 +927,7 @@
     .registers 12
 
     .prologue
-    .line 473
+    .line 475
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->fadeMs:[J
 
     aget-wide v0, v0, p1
@@ -938,16 +938,16 @@
 
     if-gtz v0, :cond_f
 
-    .line 474
+    .line 476
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->held:[D
 
     aget-wide v0, v0, p1
 
-    .line 478
+    .line 480
     :goto_e
     return-wide v0
 
-    .line 476
+    .line 478
     :cond_f
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
@@ -967,7 +967,7 @@
 
     move-result-wide v0
 
-    .line 477
+    .line 479
     mul-double v2, v0, v0
 
     const-wide/high16 v4, 0x4008000000000000L    # 3.0
@@ -980,7 +980,7 @@
 
     mul-double/2addr v0, v2
 
-    .line 478
+    .line 480
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->from:[D
 
     aget-wide v2, v2, p1
@@ -1010,23 +1010,23 @@
 
     const/4 v1, -0x1
 
-    .line 527
+    .line 529
     shr-int/lit8 v2, p0, 0x10
 
     and-int/lit16 v2, v2, 0xff
 
-    .line 528
+    .line 530
     and-int/lit16 v3, p0, 0xff
 
     const/16 v4, 0x8
 
     if-gt v3, v4, :cond_e
 
-    .line 534
+    .line 536
     :goto_d
     return v1
 
-    .line 531
+    .line 533
     :cond_e
     const/4 v3, 0x1
 
@@ -1034,12 +1034,12 @@
 
     if-gt v2, v0, :cond_16
 
-    .line 532
+    .line 534
     add-int/lit8 v1, v2, -0x1
 
     goto :goto_d
 
-    .line 534
+    .line 536
     :cond_16
     const/16 v3, 0xd
 
@@ -1062,15 +1062,15 @@
     .registers 22
 
     .prologue
-    .line 599
+    .line 601
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v8
 
-    .line 600
+    .line 602
     const/4 v4, 0x0
 
-    .line 601
+    .line 603
     const/4 v2, 0x0
 
     move v3, v2
@@ -1082,14 +1082,14 @@
 
     if-ge v3, v2, :cond_50
 
-    .line 602
+    .line 604
     move-object/from16 v0, p0
 
     invoke-direct {v0, v3, v8, v9}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->shownAt(IJ)D
 
     move-result-wide v4
 
-    .line 603
+    .line 605
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->shown:[D
@@ -1100,28 +1100,28 @@
 
     if-eqz v2, :cond_2c
 
-    .line 604
+    .line 606
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->shown:[D
 
     aput-wide v4, v2, v3
 
-    .line 605
+    .line 607
     const/4 v2, 0x1
 
     move-object/from16 v0, p0
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dirty:Z
 
-    .line 606
+    .line 608
     const/4 v2, 0x1
 
     move-object/from16 v0, p0
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->glowDirty:Z
 
-    .line 608
+    .line 610
     :cond_2c
     move-object/from16 v0, p0
 
@@ -1154,7 +1154,7 @@
     :goto_47
     or-int v4, v6, v2
 
-    .line 601
+    .line 603
     add-int/lit8 v2, v3, 0x1
 
     move v3, v2
@@ -1163,17 +1163,17 @@
 
     goto :goto_8
 
-    .line 608
+    .line 610
     :cond_4e
     const/4 v2, 0x0
 
     goto :goto_47
 
-    .line 610
+    .line 612
     :cond_50
     const/4 v3, 0x0
 
-    .line 611
+    .line 613
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->active:[Z
@@ -1189,17 +1189,17 @@
 
     aget-boolean v3, v4, v2
 
-    .line 612
+    .line 614
     or-int/2addr v3, v5
 
-    .line 611
+    .line 613
     add-int/lit8 v2, v2, 0x1
 
     move v5, v3
 
     goto :goto_58
 
-    .line 614
+    .line 616
     :cond_61
     move-object/from16 v0, p0
 
@@ -1207,14 +1207,14 @@
 
     if-eqz v2, :cond_87
 
-    .line 615
+    .line 617
     const/4 v2, 0x0
 
     move-object/from16 v0, p0
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dirty:Z
 
-    .line 616
+    .line 618
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->figs:[Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
@@ -1230,7 +1230,7 @@
 
     aget-object v10, v4, v3
 
-    .line 617
+    .line 619
     if-eqz v10, :cond_85
 
     iget-object v2, v10, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->over:Landroid/graphics/Bitmap;
@@ -1242,20 +1242,20 @@
 
     invoke-direct {v0, v10, v2, v11}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->repaint(Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;Landroid/graphics/Bitmap;Z)V
 
-    .line 616
+    .line 618
     add-int/lit8 v2, v3, 0x1
 
     move v3, v2
 
     goto :goto_73
 
-    .line 617
+    .line 619
     :cond_85
     const/4 v2, 0x0
 
     goto :goto_7b
 
-    .line 620
+    .line 622
     :cond_87
     move-object/from16 v0, p0
 
@@ -1265,14 +1265,14 @@
 
     if-eqz v5, :cond_af
 
-    .line 621
+    .line 623
     const/4 v2, 0x0
 
     move-object/from16 v0, p0
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->glowDirty:Z
 
-    .line 622
+    .line 624
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->figs:[Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
@@ -1288,7 +1288,7 @@
 
     aget-object v10, v4, v3
 
-    .line 623
+    .line 625
     if-eqz v10, :cond_ad
 
     iget-object v2, v10, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->glow:Landroid/graphics/Bitmap;
@@ -1300,20 +1300,20 @@
 
     invoke-direct {v0, v10, v2, v11}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->repaint(Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;Landroid/graphics/Bitmap;Z)V
 
-    .line 622
+    .line 624
     add-int/lit8 v2, v3, 0x1
 
     move v3, v2
 
     goto :goto_9b
 
-    .line 623
+    .line 625
     :cond_ad
     const/4 v2, 0x0
 
     goto :goto_a3
 
-    .line 627
+    .line 629
     :cond_af
     const-wide/16 v2, 0x44c
 
@@ -1325,7 +1325,7 @@
 
     div-double/2addr v2, v8
 
-    .line 628
+    .line 630
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->glowPaint:Landroid/graphics/Paint;
@@ -1362,7 +1362,7 @@
 
     invoke-virtual {v4, v2}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 629
+    .line 631
     const/high16 v2, 0x41b00000    # 22.0f
 
     move-object/from16 v0, p0
@@ -1371,17 +1371,17 @@
 
     move-result v7
 
-    .line 630
+    .line 632
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->getHeight()I
 
     move-result v2
 
     int-to-float v8, v2
 
-    .line 631
+    .line 633
     const/4 v2, 0x0
 
-    .line 632
+    .line 634
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->figs:[Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
@@ -1395,14 +1395,14 @@
 
     aget-object v10, v4, v3
 
-    .line 633
+    .line 635
     if-eqz v10, :cond_117
 
     iget-object v11, v10, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->art:Landroid/graphics/Bitmap;
 
     if-eqz v11, :cond_117
 
-    .line 634
+    .line 636
     iget-object v11, v10, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->art:Landroid/graphics/Bitmap;
 
     invoke-virtual {v11}, Landroid/graphics/Bitmap;->getWidth()I
@@ -1425,17 +1425,17 @@
 
     add-float/2addr v2, v10
 
-    .line 632
+    .line 634
     :cond_117
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_fb
 
-    .line 637
+    .line 639
     :cond_11a
     const/high16 v3, 0x3f800000    # 1.0f
 
-    .line 638
+    .line 640
     add-float v4, v2, v7
 
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->getWidth()I
@@ -1448,7 +1448,7 @@
 
     if-lez v4, :cond_134
 
-    .line 639
+    .line 641
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->getWidth()I
 
     move-result v3
@@ -1465,7 +1465,7 @@
 
     div-float/2addr v3, v4
 
-    .line 641
+    .line 643
     :cond_134
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->getWidth()I
 
@@ -1483,7 +1483,7 @@
 
     div-float/2addr v2, v4
 
-    .line 642
+    .line 644
     const/4 v4, 0x0
 
     :goto_141
@@ -1491,32 +1491,32 @@
 
     if-ge v4, v9, :cond_1d5
 
-    .line 643
+    .line 645
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->figs:[Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
 
     aget-object v9, v9, v4
 
-    .line 644
+    .line 646
     if-eqz v9, :cond_150
 
     iget-object v10, v9, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->art:Landroid/graphics/Bitmap;
 
     if-nez v10, :cond_153
 
-    .line 642
+    .line 644
     :cond_150
     :goto_150
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_141
 
-    .line 647
+    .line 649
     :cond_153
     mul-float v10, v8, v3
 
-    .line 648
+    .line 650
     iget-object v11, v9, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->art:Landroid/graphics/Bitmap;
 
     invoke-virtual {v11}, Landroid/graphics/Bitmap;->getWidth()I
@@ -1537,14 +1537,14 @@
 
     div-float/2addr v11, v12
 
-    .line 649
+    .line 651
     sub-float v12, v8, v10
 
     const/high16 v13, 0x40000000    # 2.0f
 
     div-float/2addr v12, v13
 
-    .line 650
+    .line 652
     move-object/from16 v0, p0
 
     iget-object v13, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->src:Landroid/graphics/Rect;
@@ -1571,7 +1571,7 @@
 
     invoke-virtual/range {v13 .. v17}, Landroid/graphics/Rect;->set(IIII)V
 
-    .line 651
+    .line 653
     move-object/from16 v0, p0
 
     iget-object v13, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dst:Landroid/graphics/RectF;
@@ -1582,7 +1582,7 @@
 
     invoke-virtual {v13, v2, v12, v14, v10}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 652
+    .line 654
     iget-object v10, v9, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->art:Landroid/graphics/Bitmap;
 
     move-object/from16 v0, p0
@@ -1601,12 +1601,12 @@
 
     invoke-virtual {v0, v10, v12, v13, v14}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;Landroid/graphics/Rect;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 653
+    .line 655
     iget-object v10, v9, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->over:Landroid/graphics/Bitmap;
 
     if-eqz v10, :cond_1b7
 
-    .line 654
+    .line 656
     iget-object v10, v9, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->over:Landroid/graphics/Bitmap;
 
     move-object/from16 v0, p0
@@ -1625,7 +1625,7 @@
 
     invoke-virtual {v0, v10, v12, v13, v14}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;Landroid/graphics/Rect;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 656
+    .line 658
     :cond_1b7
     if-eqz v5, :cond_1d0
 
@@ -1633,7 +1633,7 @@
 
     if-eqz v10, :cond_1d0
 
-    .line 657
+    .line 659
     iget-object v9, v9, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;->glow:Landroid/graphics/Bitmap;
 
     move-object/from16 v0, p0
@@ -1652,7 +1652,7 @@
 
     invoke-virtual {v0, v9, v10, v12, v13}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;Landroid/graphics/Rect;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 659
+    .line 661
     :cond_1d0
     add-float v9, v11, v7
 
@@ -1660,17 +1660,17 @@
 
     goto/16 :goto_150
 
-    .line 661
+    .line 663
     :cond_1d5
     if-nez v5, :cond_1d9
 
     if-eqz v6, :cond_1dc
 
-    .line 662
+    .line 664
     :cond_1d9
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->postInvalidateOnAnimation()V
 
-    .line 664
+    .line 666
     :cond_1dc
     return-void
 .end method
@@ -1679,7 +1679,7 @@
     .registers 11
 
     .prologue
-    .line 411
+    .line 413
     const/4 v5, 0x0
 
     move-object v0, p0
@@ -1694,7 +1694,7 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->set(Lcom/isaigu/gymapp/ai/AiModel$Sex;[D[D[Z[Z)V
 
-    .line 412
+    .line 414
     return-void
 .end method
 
@@ -1702,7 +1702,7 @@
     .registers 22
 
     .prologue
-    .line 420
+    .line 422
     sget-object v2, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     move-object/from16 v0, p1
@@ -1711,7 +1711,7 @@
 
     const-string v2, "female"
 
-    .line 421
+    .line 423
     :goto_8
     move-object/from16 v0, p0
 
@@ -1723,12 +1723,12 @@
 
     if-nez v3, :cond_60
 
-    .line 422
+    .line 424
     move-object/from16 v0, p0
 
     iput-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->sexKey:Ljava/lang/String;
 
-    .line 423
+    .line 425
     sget-object v3, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     move-object/from16 v0, p1
@@ -1742,7 +1742,7 @@
 
     iput-boolean v3, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->female:Z
 
-    .line 424
+    .line 426
     const/4 v3, 0x0
 
     :goto_22
@@ -1750,7 +1750,7 @@
 
     if-ge v3, v4, :cond_56
 
-    .line 425
+    .line 427
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->figs:[Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat$Fig;
@@ -1791,24 +1791,24 @@
 
     aput-object v5, v4, v3
 
-    .line 424
+    .line 426
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_22
 
-    .line 420
+    .line 422
     :cond_51
     const-string v2, "male"
 
     goto :goto_8
 
-    .line 423
+    .line 425
     :cond_54
     const/4 v3, 0x0
 
     goto :goto_1d
 
-    .line 427
+    .line 429
     :cond_56
     const/4 v2, 0x1
 
@@ -1816,23 +1816,23 @@
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dirty:Z
 
-    .line 428
+    .line 430
     const/4 v2, 0x1
 
     move-object/from16 v0, p0
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->glowDirty:Z
 
-    .line 430
+    .line 432
     :cond_60
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v6
 
-    .line 431
+    .line 433
     const/4 v3, 0x0
 
-    .line 432
+    .line 434
     const/4 v2, 0x0
 
     move v9, v2
@@ -1844,7 +1844,7 @@
 
     if-ge v9, v2, :cond_180
 
-    .line 434
+    .line 436
     if-eqz p2, :cond_164
 
     move-object/from16 v0, p2
@@ -1869,7 +1869,7 @@
 
     div-double v4, v2, v4
 
-    .line 435
+    .line 437
     :goto_81
     if-eqz p3, :cond_168
 
@@ -1903,7 +1903,7 @@
 
     move-wide v10, v2
 
-    .line 436
+    .line 438
     :goto_9c
     if-eqz p4, :cond_a7
 
@@ -1929,7 +1929,7 @@
 
     move v3, v2
 
-    .line 437
+    .line 439
     :goto_af
     if-eqz p5, :cond_171
 
@@ -1949,7 +1949,7 @@
 
     move v8, v2
 
-    .line 438
+    .line 440
     :goto_be
     if-eqz v8, :cond_ce
 
@@ -1961,14 +1961,14 @@
 
     if-nez v2, :cond_ce
 
-    .line 439
+    .line 441
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->activeSince:[J
 
     aput-wide v6, v2, v9
 
-    .line 441
+    .line 443
     :cond_ce
     move-object/from16 v0, p0
 
@@ -1988,7 +1988,7 @@
 
     if-eqz v2, :cond_e5
 
-    .line 442
+    .line 444
     :cond_e0
     const/4 v2, 0x1
 
@@ -1996,7 +1996,7 @@
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->glowDirty:Z
 
-    .line 444
+    .line 446
     :cond_e5
     move-object/from16 v0, p0
 
@@ -2004,21 +2004,21 @@
 
     aput-boolean v8, v2, v9
 
-    .line 445
+    .line 447
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->live:[D
 
     aput-wide v10, v2, v9
 
-    .line 446
+    .line 448
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->target:[D
 
     aput-wide v4, v2, v9
 
-    .line 447
+    .line 449
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->off:[Z
@@ -2027,21 +2027,21 @@
 
     if-eq v3, v2, :cond_10a
 
-    .line 448
+    .line 450
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->off:[Z
 
     aput-boolean v3, v2, v9
 
-    .line 449
+    .line 451
     const/4 v2, 0x1
 
     move-object/from16 v0, p0
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dirty:Z
 
-    .line 453
+    .line 455
     :cond_10a
     move-object/from16 v0, p0
 
@@ -2068,7 +2068,7 @@
     :cond_121
     const/4 v2, 0x1
 
-    .line 454
+    .line 456
     :goto_122
     if-eqz v2, :cond_15c
 
@@ -2082,7 +2082,7 @@
 
     if-eqz v2, :cond_15c
 
-    .line 455
+    .line 457
     move-object/from16 v0, p0
 
     iget-object v10, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->from:[D
@@ -2098,14 +2098,14 @@
     :goto_139
     aput-wide v2, v10, v9
 
-    .line 456
+    .line 458
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->held:[D
 
     aput-wide v4, v2, v9
 
-    .line 457
+    .line 459
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->fadeMs:[J
@@ -2121,17 +2121,17 @@
     :goto_14d
     aput-wide v2, v4, v9
 
-    .line 458
+    .line 460
     if-eqz v8, :cond_157
 
-    .line 459
+    .line 461
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->activeSince:[J
 
     aput-wide v6, v2, v9
 
-    .line 461
+    .line 463
     :cond_157
     const/4 v2, 0x1
 
@@ -2139,11 +2139,11 @@
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dirty:Z
 
-    .line 463
+    .line 465
     :cond_15c
     or-int v3, v12, v8
 
-    .line 432
+    .line 434
     add-int/lit8 v2, v9, 0x1
 
     move v9, v2
@@ -2152,13 +2152,13 @@
 
     goto/16 :goto_68
 
-    .line 434
+    .line 436
     :cond_164
     const-wide/16 v4, 0x0
 
     goto/16 :goto_81
 
-    .line 435
+    .line 437
     :cond_168
     const-wide/16 v2, 0x0
 
@@ -2166,7 +2166,7 @@
 
     goto/16 :goto_9c
 
-    .line 436
+    .line 438
     :cond_16d
     const/4 v2, 0x0
 
@@ -2174,7 +2174,7 @@
 
     goto/16 :goto_af
 
-    .line 437
+    .line 439
     :cond_171
     const/4 v2, 0x0
 
@@ -2182,13 +2182,13 @@
 
     goto/16 :goto_be
 
-    .line 453
+    .line 455
     :cond_175
     const/4 v2, 0x0
 
     goto :goto_122
 
-    .line 455
+    .line 457
     :cond_177
     move-object/from16 v0, p0
 
@@ -2201,10 +2201,10 @@
     :cond_17e
     move-wide v2, v6
 
-    .line 457
+    .line 459
     goto :goto_14d
 
-    .line 465
+    .line 467
     :cond_180
     const/4 v2, 0x0
 
@@ -2212,7 +2212,7 @@
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->first:Z
 
-    .line 466
+    .line 468
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->dirty:Z
@@ -2227,11 +2227,11 @@
 
     if-eqz v12, :cond_196
 
-    .line 467
+    .line 469
     :cond_193
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->invalidate()V
 
-    .line 469
+    .line 471
     :cond_196
     return-void
 .end method

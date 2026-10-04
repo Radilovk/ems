@@ -638,7 +638,7 @@ public final class AutoSession {
             forecastScale = 1.0;
             forecast = AutoEngine.forecast(plan, script, forecastDouble);
             engine.setDoseBudget(forecast.dose);             // D of the total load: the plan's own work
-            engine.setZoneBudget(forecast.zoneDose);         // each zone's target colour = the plan's work on it
+            engine.setZoneBudget(forecast.zoneDose, forecast.zoneExDose); // each zone's optimum = the plan's work on it
         } catch (Throwable t) {
             forecast = null;
             WearableBleDiagLog.log("auto", "forecast: " + t);

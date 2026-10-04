@@ -19,6 +19,8 @@
 
 .field cov:[B
 
+.field glow:Landroid/graphics/Bitmap;
+
 .field idx:[I
 
 .field over:Landroid/graphics/Bitmap;
@@ -35,7 +37,7 @@
     .registers 1
 
     .prologue
-    .line 366
+    .line 390
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void

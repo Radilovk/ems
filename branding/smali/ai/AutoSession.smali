@@ -9476,7 +9476,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_151
+    if-nez v0, :cond_155
 
     move v0, v3
 
@@ -9540,7 +9540,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
     :try_end_89
-    .catch Ljava/lang/Throwable; {:try_start_49 .. :try_end_89} :catch_154
+    .catch Ljava/lang/Throwable; {:try_start_49 .. :try_end_89} :catch_158
 
     .line 635
     :cond_89
@@ -9557,7 +9557,7 @@
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->doublePulseAllowed:Z
 
-    if-eqz v0, :cond_16f
+    if-eqz v0, :cond_173
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -9565,7 +9565,7 @@
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->doublePulse:Z
 
-    if-eqz v0, :cond_16f
+    if-eqz v0, :cond_173
 
     move v0, v3
 
@@ -9606,12 +9606,16 @@
 
     iget-object v1, v1, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->zoneDose:[D
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->setZoneBudget([D)V
-    :try_end_c3
-    .catch Ljava/lang/Throwable; {:try_start_90 .. :try_end_c3} :catch_172
+    sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->forecast:Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;
+
+    iget-object v3, v3, Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;->zoneExDose:[D
+
+    invoke-virtual {v0, v1, v3}, Lcom/isaigu/gymapp/ai/AutoEngine;->setZoneBudget([D[D)V
+    :try_end_c7
+    .catch Ljava/lang/Throwable; {:try_start_90 .. :try_end_c7} :catch_176
 
     .line 646
-    :goto_c3
+    :goto_c7
     sput v2, Lcom/isaigu/gymapp/ai/AutoSession;->seenCorridorExt:I
 
     .line 647
@@ -9763,14 +9767,14 @@
 
     goto/16 :goto_11
 
-    :cond_151
+    :cond_155
     move v0, v2
 
     .line 627
     goto/16 :goto_50
 
     .line 632
-    :catch_154
+    :catch_158
     move-exception v0
 
     .line 633
@@ -9798,14 +9802,14 @@
 
     goto/16 :goto_89
 
-    :cond_16f
+    :cond_173
     move v0, v2
 
     .line 637
     goto/16 :goto_9f
 
     .line 642
-    :catch_172
+    :catch_176
     move-exception v0
 
     .line 643
@@ -9834,7 +9838,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto/16 :goto_c3
+    goto/16 :goto_c7
 .end method
 
 .method private static startTicker()V

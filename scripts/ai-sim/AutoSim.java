@@ -848,7 +848,7 @@ public final class AutoSim {
         {
             AutoEngine run = new AutoEngine(base);
             run.setScript(sc);
-            run.setZoneBudget(f.zoneDose);
+            run.setZoneBudget(f.zoneDose, f.zoneExDose);
             long tt = 0;
             run.startAt(tt, tt);
             tt = run.getGoMs();
@@ -859,8 +859,9 @@ public final class AutoSim {
             while (run.getState() != AutoEngine.State.DONE && run.getState() != AutoEngine.State.STOPPED && g2++ < 8000) {
                 if (!halfSeen && run.getSessionS(tt) > f.totalS / 2) {
                     halfSeen = true;
-                    for (double zp : run.getZoneProgress(tt)) {
-                        halfMax = Math.max(halfMax, zp);
+                    double[] hp = run.getZoneProgress(tt);
+                    for (int k = 0; k < hp.length; k++) {
+                        halfMax = Math.max(halfMax, hp[k]);
                     }
                 }
                 if (run.getState() == AutoEngine.State.REST) {
@@ -886,13 +887,66 @@ public final class AutoSim {
             check(endP[AutoModel.GLUTES] > endP[AutoModel.CHEST] + 0.15, "the zones differ as their work does (glutes "
                     + endP[AutoModel.GLUTES] + " vs chest " + endP[AutoModel.CHEST] + ")");
             check(halfSeen && halfMax < 0.9, "half way no zone is at its target yet (" + halfMax + ")");
+            // owner (1.1.313): every zone the program is for ends at its optimum (1), the others below it
+            double topB = 0;
+            for (int k = 0; k < AutoModel.CHANNELS; k++) {
+                topB = Math.max(topB, f.zoneDose[k]);
+            }
+            for (int k = 0; k < AutoModel.CHANNELS; k++) {
+                if (f.zoneDose[k] >= 0.5 * topB) {
+                    check(Math.abs(endP[k] - 1) < 0.03, "zone " + k + " the program is for ends optimal (" + endP[k] + ")");
+                } else {
+                    check(endP[k] < 1, "zone " + k + " the program barely loads stays under (" + endP[k] + ")");
+                }
+            }
+            // the deltoid: no channel, the exercises' shoulder work only, measured against their top zone
+            check(f.zoneDose[AutoEngine.DELTOID] == f.zoneExDose[AutoEngine.DELTOID], "the deltoid gets no current");
+            check(endP.length == AutoEngine.ZONES && endP[AutoEngine.DELTOID] < 1.03, "the deltoid ends at most optimal ("
+                    + endP[AutoEngine.DELTOID] + ")");
+        }
+        // owner (1.1.313): the zones the running set works pulse; nothing in a rest
+        {
+            AutoEngine run = new AutoEngine(base);
+            run.setScript(sc);
+            long tt = 0;
+            run.startAt(tt, tt);
+            tt = run.getGoMs();
+            run.tick(tt);
+            boolean seenRun = false;
+            boolean seenRest = false;
+            int g3 = 0;
+            while (run.getState() != AutoEngine.State.DONE && run.getState() != AutoEngine.State.STOPPED && g3++ < 8000) {
+                boolean[] act = run.getZoneActive(tt + 500);
+                int n = 0;
+                for (boolean b : act) {
+                    n += b ? 1 : 0;
+                }
+                if (run.getState() == AutoEngine.State.REST) {
+                    seenRest = true;
+                    check(n == 0, "no zone pulses in a rest");
+                    tt += run.getRestMinS() * 1000L;
+                    run.requestGo(tt, tt);
+                    tt = run.getGoMs();
+                    run.tick(tt);
+                    continue;
+                }
+                if (run.getState() != AutoEngine.State.RUN || run.getCurrent() == null) {
+                    break;
+                }
+                seenRun = true;
+                check(n > 0, "a running cycle makes at least one zone pulse");
+                tt += run.getCurrent().durationMs();
+                run.tick(tt - 1);
+                run.onCycle(tt);
+            }
+            check(seenRun && seenRest, "the pulse test saw sets and rests");
         }
         // owner (1.1.290): a channel at 0 → that zone gets only the exercise's work → paler than with the EMS on
         {
             AutoEngine on = mainSet(base, sc, t, f.dose);
             AutoEngine off0 = mainSet(base, sc, t, f.dose);
-            on.setZoneBudget(f.zoneDose);
-            off0.setZoneBudget(f.zoneDose);
+            on.setZoneBudget(f.zoneDose, f.zoneExDose);
+            off0.setZoneBudget(f.zoneDose, f.zoneExDose);
             int[] zz = base.zones.clone();
             zz[AutoModel.GLUTES] = 0;
             on.setLive(0.9, base.zones, t[0]);

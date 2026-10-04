@@ -349,24 +349,49 @@ public final class AutoViews {
 
     // ================================================================ body heat map
 
-    /** Anterior | posterior figure; each suit channel painted by its load (assets/xems/body, scripts/gen-body-figures.py). */
+    /**
+     * The body figures (front | back) coloured per zone (owner, 1.1.313): the ten suit zones and the deltoid (the
+     * exercises only). A zone the running set works lights up and pulses for as long as it works; its colour is
+     * held meanwhile and, once the set is over (or every {@link #COMMIT_MS} of non-stop work), moves smoothly to
+     * the work gathered so far — so it changes a step with every set and ends the session in the colour of all of
+     * it: pale = less than its optimum, the client's colour = the optimum, amber → red = overload
+     * ({@link AutoEngine#getZoneProgress}).
+     */
     public static final class BodyHeat extends View {
         private static final String[] SIDES = {"front", "back"};
+        /** Region id of the deltoid in the idx maps (scripts/gen-body-figures.py). */
+        static final int DELTOID_R = 13;
+        /** A zone working without a break takes its new colour at least this often. */
+        static final long COMMIT_MS = 60000L;
+        static final long FADE_MS = 900L;
+        static final long PULSE_MS = 1100L;
+        private static final int Z = AutoEngine.ZONES;
         private final Fig[] figs = new Fig[2];
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+        private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         private final Rect src = new Rect();
         private final RectF dst = new RectF();
-        private final double[] load = new double[AutoModel.CHANNELS];
-        private final double[] live = new double[AutoModel.CHANNELS];
-        private final boolean[] off = new boolean[AutoModel.CHANNELS];
+        /** The newest progress per zone, the value the colour shows (held while working), and the fade's start. */
+        private final double[] target = new double[Z];
+        private final double[] held = new double[Z];
+        private final double[] from = new double[Z];
+        private final long[] fadeMs = new long[Z];
+        private final long[] activeSince = new long[Z];
+        private final double[] live = new double[Z];
+        private final boolean[] off = new boolean[Z];
+        private final boolean[] active = new boolean[Z];
+        private final double[] shown = new double[Z];
         private String sexKey = "";
         private int sexCol = ExerciseFigure.COLOR;
         private boolean dirty = true;
+        private boolean glowDirty = true;
+        private boolean first = true;
 
         static final class Fig {
             Bitmap art;
             Bitmap over;
-            int[] idx;          // pixel index of every channel pixel
+            Bitmap glow;
+            int[] idx;          // pixel index of every zone pixel
             byte[] zone;
             byte[] shade;
             byte[] cov;
@@ -377,11 +402,16 @@ public final class AutoViews {
             super(c);
         }
 
-        /**
-         * progress = each zone's work done / the work the plan holds for it ({@link AutoEngine#getZoneProgress});
-         * live = F / F_max now (a zone working now glows a little lighter); off = switched off for every row.
-         */
         public void set(AiModel.Sex sex, double[] progress, double[] liveLoad, boolean[] disabled) {
+            set(sex, progress, liveLoad, disabled, null);
+        }
+
+        /**
+         * progress = each zone's work done / its optimum ({@link AutoEngine#getZoneProgress}); live = F / F_max now
+         * (how strongly a working zone pulses); off = switched off for every row; working = the zones the running
+         * set works now ({@link AutoEngine#getZoneActive}).
+         */
+        public void set(AiModel.Sex sex, double[] progress, double[] liveLoad, boolean[] disabled, boolean[] working) {
             String key = sex == AiModel.Sex.FEMALE ? "female" : "male";
             if (!key.equals(sexKey)) {
                 sexKey = key;
@@ -390,22 +420,57 @@ public final class AutoViews {
                     figs[i] = load(getContext(), key + "_" + SIDES[i]);
                 }
                 dirty = true;
+                glowDirty = true;
             }
-            for (int k = 0; k < load.length; k++) {
-                // 1/80 steps: the colour creeps in smoothly, the figure is repainted only when a zone changes
+            long now = android.os.SystemClock.uptimeMillis();
+            boolean any = false;
+            for (int k = 0; k < Z; k++) {
+                // 1/80 steps: the figure is repainted only when a zone changes
                 double v = progress != null && k < progress.length ? Math.round(progress[k] * 80) / 80.0 : 0;
                 double lv = liveLoad != null && k < liveLoad.length ? Math.round(Math.min(1.0, liveLoad[k]) * 10) / 10.0 : 0;
                 boolean o = disabled != null && k < disabled.length && disabled[k] || v < 0;
-                if (v != load[k] || lv != live[k] || o != off[k]) {
-                    load[k] = v;
-                    live[k] = lv;
+                boolean a = working != null && k < working.length && working[k] && !o;
+                if (a && !active[k]) {
+                    activeSince[k] = now;
+                }
+                if (a != active[k] || lv != live[k]) {
+                    glowDirty = true;
+                }
+                active[k] = a;
+                live[k] = lv;
+                target[k] = v;
+                if (o != off[k]) {
                     off[k] = o;
                     dirty = true;
                 }
+                // the colour moves on when the zone rests, or after a long stretch of work; the very first values
+                // are taken as they are (a board opened mid-session)
+                boolean commit = first || !a || now - activeSince[k] >= COMMIT_MS;
+                if (commit && v != held[k]) {
+                    from[k] = first ? v : shownAt(k, now);
+                    held[k] = v;
+                    fadeMs[k] = first ? 0 : now;
+                    if (a) {
+                        activeSince[k] = now;
+                    }
+                    dirty = true;
+                }
+                any |= a;
             }
-            if (dirty) {
+            first = false;
+            if (dirty || glowDirty || any) {
                 invalidate();
             }
+        }
+
+        /** The value the colour shows at {@code now}: the held value, faded in from the previous one. */
+        private double shownAt(int k, long now) {
+            if (fadeMs[k] <= 0) {
+                return held[k];
+            }
+            double t = Math.min(1.0, (now - fadeMs[k]) / (double) FADE_MS);
+            t = t * t * (3 - 2 * t);
+            return from[k] + (held[k] - from[k]) * t;
         }
 
         static Fig load(Context c, String key) {
@@ -423,8 +488,7 @@ public final class AutoViews {
                 ix.recycle();
                 int n = 0;
                 for (int p : all) {
-                    int z = (p >> 16) & 0xFF;
-                    if (z >= 1 && z <= AutoModel.CHANNELS && (p & 0xFF) > 8) {
+                    if (zoneOf(p) >= 0) {
                         n++;
                     }
                 }
@@ -435,10 +499,10 @@ public final class AutoViews {
                 int j = 0;
                 for (int i = 0; i < all.length; i++) {
                     int p = all[i];
-                    int z = (p >> 16) & 0xFF;
-                    if (z >= 1 && z <= AutoModel.CHANNELS && (p & 0xFF) > 8) {
+                    int z = zoneOf(p);
+                    if (z >= 0) {
                         f.idx[j] = i;
-                        f.zone[j] = (byte) (z - 1);
+                        f.zone[j] = (byte) z;
                         f.shade[j] = (byte) ((p >> 8) & 0xFF);
                         f.cov[j] = (byte) (p & 0xFF);
                         j++;
@@ -446,10 +510,23 @@ public final class AutoViews {
                 }
                 f.px = new int[w * h];
                 f.over = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                f.glow = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             } catch (Throwable t) {
                 com.isaigu.gymapp.widget.XemsGuard.report("AutoViews.body", t);
             }
             return f;
+        }
+
+        /** Zone of an idx pixel: R 1…10 = the suit channels, {@link #DELTOID_R} = the deltoid; −1 = none. */
+        static int zoneOf(int p) {
+            int r = (p >> 16) & 0xFF;
+            if ((p & 0xFF) <= 8) {
+                return -1;
+            }
+            if (r >= 1 && r <= AutoModel.CHANNELS) {
+                return r - 1;
+            }
+            return r == DELTOID_R ? AutoEngine.DELTOID : -1;
         }
 
         private static Bitmap decode(Context c, String asset, boolean premultiplied) throws java.io.IOException {
@@ -466,16 +543,38 @@ public final class AutoViews {
         }
 
         /** The report's recolour: the shade keeps the volume (dark → black, mid → the colour, light → white). */
-        private void repaint(Fig f) {
-            if (f == null || f.over == null) {
+        private static int shadeOf(int c, float l, int alpha) {
+            int r = (c >> 16) & 0xFF;
+            int g = (c >> 8) & 0xFF;
+            int b = c & 0xFF;
+            if (l < 0.5f) {
+                r = (int) (r * 2 * l);
+                g = (int) (g * 2 * l);
+                b = (int) (b * 2 * l);
+            } else {
+                float k2 = (2 * l - 1) * 0.55f;
+                r = (int) (r + (255 - r) * k2);
+                g = (int) (g + (255 - g) * k2);
+                b = (int) (b + (255 - b) * k2);
+            }
+            return (alpha << 24) | (r << 16) | (g << 8) | b;
+        }
+
+        /** The held colours (or the glow of the working zones: lighter, as strong as the zone's load now). */
+        private void repaint(Fig f, Bitmap target, boolean glow) {
+            if (f == null || target == null) {
                 return;
             }
-            int[] col = new int[AutoModel.CHANNELS];
-            float[] op = new float[AutoModel.CHANNELS];
-            for (int k = 0; k < col.length; k++) {
-                // working now: up to 25 % lighter (the zone "breathes" with the impulse)
-                col[k] = XemsUi.mix(bodyHeat(sexCol, load[k]), 0xFFFFFFFF, (float) (0.25 * live[k]));
-                op[k] = off[k] ? 0f : bodyFill(load[k]);
+            int[] col = new int[Z];
+            float[] op = new float[Z];
+            for (int k = 0; k < Z; k++) {
+                if (glow) {
+                    col[k] = XemsUi.mix(bodyHeat(sexCol, Math.max(0, shown[k])), 0xFFFFFFFF, 0.45f);
+                    op[k] = active[k] ? (float) (0.55 + 0.45 * live[k]) : 0f;
+                } else {
+                    col[k] = bodyHeat(sexCol, shown[k]);
+                    op[k] = off[k] ? 0f : bodyFill(shown[k]);
+                }
             }
             int[] px = f.px;
             java.util.Arrays.fill(px, 0);
@@ -485,37 +584,45 @@ public final class AutoViews {
                 if (a <= 0f) {
                     continue;
                 }
-                int c = col[z];
-                float l = (f.shade[j] & 0xFF) / 255f;
-                int r = (c >> 16) & 0xFF;
-                int g = (c >> 8) & 0xFF;
-                int b = c & 0xFF;
-                if (l < 0.5f) {
-                    r = (int) (r * 2 * l);
-                    g = (int) (g * 2 * l);
-                    b = (int) (b * 2 * l);
-                } else {
-                    float k2 = (2 * l - 1) * 0.55f;
-                    r = (int) (r + (255 - r) * k2);
-                    g = (int) (g + (255 - g) * k2);
-                    b = (int) (b + (255 - b) * k2);
-                }
-                int alpha = (int) ((f.cov[j] & 0xFF) * a);
-                px[f.idx[j]] = (alpha << 24) | (r << 16) | (g << 8) | b;
+                px[f.idx[j]] = shadeOf(col[z], (f.shade[j] & 0xFF) / 255f, (int) ((f.cov[j] & 0xFF) * a));
             }
-            f.over.setPixels(px, 0, f.over.getWidth(), 0, 0, f.over.getWidth(), f.over.getHeight());
+            target.setPixels(px, 0, target.getWidth(), 0, 0, target.getWidth(), target.getHeight());
         }
 
         @Override
         protected void onDraw(Canvas c) {
+            long now = android.os.SystemClock.uptimeMillis();
+            boolean fading = false;
+            for (int k = 0; k < Z; k++) {
+                double v = shownAt(k, now);
+                if (v != shown[k]) {
+                    shown[k] = v;
+                    dirty = true;
+                    glowDirty = true;
+                }
+                fading |= fadeMs[k] > 0 && now - fadeMs[k] < FADE_MS;
+            }
+            boolean any = false;
+            for (boolean a : active) {
+                any |= a;
+            }
             if (dirty) {
                 dirty = false;
-                repaint(figs[0]);
-                repaint(figs[1]);
+                for (Fig f : figs) {
+                    repaint(f, f != null ? f.over : null, false);
+                }
             }
-            float lh = 0;
+            if (glowDirty && any) {
+                glowDirty = false;
+                for (Fig f : figs) {
+                    repaint(f, f != null ? f.glow : null, true);
+                }
+            }
+            // the pulse: the working zones breathe between a faint and a strong glow
+            double ph = (now % PULSE_MS) / (double) PULSE_MS;
+            glowPaint.setAlpha((int) (255 * (0.15 + 0.85 * (0.5 - 0.5 * Math.cos(2 * Math.PI * ph)))));
             float gap = dp(this, 22);
-            float h = getHeight() - lh;
+            float h = getHeight();
             float totalW = 0;
             for (Fig f : figs) {
                 if (f != null && f.art != null) {
@@ -541,7 +648,13 @@ public final class AutoViews {
                 if (f.over != null) {
                     c.drawBitmap(f.over, src, dst, paint);
                 }
+                if (any && f.glow != null) {
+                    c.drawBitmap(f.glow, src, dst, glowPaint);
+                }
                 x += fw + gap;
+            }
+            if (any || fading) {
+                postInvalidateOnAnimation();
             }
         }
     }

@@ -30,6 +30,10 @@ package com.isaigu.gymapp.ai;
  *       it; before that (HR lags 20–40 s) or in passive programs (HR hardly moves) the channel model
  *       carries it. Nothing is counted twice.</li>
  *   <li><b>Fuel:</b> RER rises with intensity → 4.69…5.05 kcal per litre O2 (Lusk).</li>
+ *   <li><b>Glycolytic share</b> (docs/xems-ems-physiology.md §4): part of the evoked ATP is made without oxygen
+ *       (PCr, glycolysis; {@link #glycolyticShare}, rising with the force the frequency gives). It is not oxygen
+ *       uptake now, so the heart branch cannot see it: its O2-equivalent {@code evoked · g/(1−g)} is kept as a debt,
+ *       counted in the total at once (lactate, glycogen, repaid over the next hour) — on top of the max() above.</li>
  *   <li><b>After the session:</b> 60 s of recovery are integrated; the rest of the fast O2 debt is
  *       added as (VO2_end − VO2_rest)·τ, τ = 40 s ({@link #closeEpoc}).</li>
  * </ol>
@@ -116,8 +120,15 @@ public final class AiEnergy {
     /** Muscle per channel against the body's mean (scale segments); null = the standard distribution. */
     private double[] chMuscle;
     private double kcalEmsModel;
+    /** Glycolytic debt so far, litres O2-equivalent (not yet in kcal — {@link #getKcal} adds it). */
+    private double glyDebtL;
 
     public static final double EPOC_TAU_S = 40.0;
+    /** Glycolytic share of the evoked ATP: GLY_BASE at the lowest force, + GLY_FORCE at 85 Hz and above. [D] */
+    public static final double GLY_BASE = 0.15;
+    public static final double GLY_FORCE = 0.15;
+    /** kcal per litre of O2-equivalent repaid through lactate / glycogen (RER ≈ 1, Lusk). */
+    public static final double GLY_KCAL_PER_L = 5.0;
 
     private final double weightKg;
     private final double vo2rest;
@@ -227,6 +238,7 @@ public final class AiEnergy {
         kcalRest = 0;
         kcalEms = 0;
         kcalEmsModel = 0;
+        glyDebtL = 0;
         lastVo2 = -1;
         lastMs = -1L;
     }
@@ -263,6 +275,13 @@ public final class AiEnergy {
         kcal += totalL * perL * dtS;
         kcalRest += restL * 4.83 / 60.0 * dtS;
         kcalEmsModel += emsL * perL * dtS;
+        if (stim != null) {
+            // main impulse sets the force weight; with no main impulse (pause only) the pause frequency does
+            int gHz = stim.onShare > 0 && stim.hz > 0 ? stim.hz : stim.pauseHz;
+            double evokedL = evokedVo2(stim, muscleScale, chMuscle);
+            double g = glycolyticShare(gHz);
+            glyDebtL += evokedL * g / (1.0 - g) * dtS / 60.0;
+        }
         if (restL + emsL > hrL) {
             kcalEms += (restL + emsL - hrL) * perL * dtS;
         }
@@ -319,6 +338,11 @@ public final class AiEnergy {
         return Math.max(0, Math.min(1, r));
     }
 
+    /** Share of the evoked ATP made without oxygen at this frequency (0.17 at 7 Hz … 0.30 at 85 Hz). [D] */
+    public static double glycolyticShare(int hz) {
+        return GLY_BASE + GLY_FORCE * Math.max(0, Math.min(1.0, AiPlanner.forceWeight(Math.max(0, hz))));
+    }
+
     /** k(f) = f/(f+25) normalised to 85 Hz. */
     static double freqFactor(int hz) {
         return (hz / (hz + 25.0)) / (85.0 / 110.0);
@@ -339,11 +363,18 @@ public final class AiEnergy {
             kcal += (lastVo2 - vo2rest) * weightKg / 1000.0 * 4.83 / 60.0 * EPOC_TAU_S;
         }
         lastVo2 = -1;
+        kcal += glyDebtL * GLY_KCAL_PER_L;     // the debt becomes part of the base total
+        glyDebtL = 0;
+    }
+
+    /** kcal of the glycolytic debt still open (already inside {@link #getKcal}). */
+    public double getDebtKcal() {
+        return glyDebtL * GLY_KCAL_PER_L;
     }
 
     /** Above resting metabolism (what the training added). */
     public double getActiveKcal() {
-        return Math.max(0, kcal - kcalRest);
+        return Math.max(0, getKcal() - kcalRest);
     }
 
     public double getVo2rest() {
@@ -351,7 +382,7 @@ public final class AiEnergy {
     }
 
     public double getKcal() {
-        return kcal;
+        return kcal + glyDebtL * GLY_KCAL_PER_L;
     }
 
     /** kcal the channel model added above the heart-rate branch (HR lag, passive work). */

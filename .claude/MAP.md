@@ -9,7 +9,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 (BETA_MUSIC default 1, DESIGN_PIPELINE default 0, SKIP_JAVA_RECOMPILE default 0). NOT-IN-BUILD = dead/manual patch.
 - `scripts/add-builtin-exercise.py` (64L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
 - `scripts/ai-sim/AiExSim.java` (331L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
-- `scripts/ai-sim/AiSim.java` (427L) — Offline scenarios for the Smart Session engine.
+- `scripts/ai-sim/AiSim.java` (441L) — Offline scenarios for the Smart Session engine.
 - `scripts/ai-sim/AutoSim.java` (1521L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/MapSim.java` (146L) — MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest seconds, …
 - `scripts/ai-sim/PathNormSim.java` (68L) — PathNorm (Java, on the tablet) must give exactly what scripts/exercise-paths.py gives: dir/*.svg vs dir/*.norm.
@@ -154,7 +154,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 ## Java sources → smali (compile:X = scripts/compile-X-java.sh; X* = catch-all find)
 
 **ai/** (`branding/java/src/com/isaigu/gymapp/ai/`)
-- `AiEnergy.java` (379L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
+- `AiEnergy.java` (410L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
 - `AiEngine.java` (1339L, compile:music-sync*,wearable) — XEMS Smart Session runtime (spec §5–§10).
 - `AiExercises.java` (335L, compile:music-sync*,wearable) — The exercises of a Smart Session (pure Java; the stations come from {@link AutoTemplates}).
 - `AiHrFilter.java` (129L, compile:music-sync*,wearable) — §7 — realtime HR validation, EMA smoothing, stimulation-artifact rejection, c_valid.
@@ -741,7 +741,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L94 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
   - L120 ## Кодът на студиото
 
-`docs/xems-ems-physiology.md` (132L)
+`docs/xems-ems-physiology.md` (180L)
   - L1 # EMS physiology — the knowledge the algorithms stand on
   - L8 ## 1. What the frequency does
   - L25 ## 2. Force–frequency curve (one function everywhere)
@@ -751,12 +751,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ### 3.3 Limit F_max and rest F_rec
   - L60 ### 3.4 What was wrong before 1.1.269
   - L67 ## 4. Energy
-  - L79 ## 5. Pulse width and dose
-  - L83 ## 6. Between sessions
-  - L95 ## 7. Heart rate
-  - L104 ## 8. Where it is used
-  - L118 ## Not yet
-  - L121 ## References (from the literature the team works with; check the exact source before quoting outside)
+  - L71 ### 4.1 During — frequency, force, fibres
+  - L94 ### 4.2 After — the interest the body pays
+  - L107 ### 4.3 What the total is
+  - L118 ## 5. Pulse width and dose
+  - L122 ## 6. Between sessions
+  - L134 ## 7. Heart rate
+  - L143 ## 8. Where it is used
+  - L157 ## Not yet
+  - L160 ## References (from the literature the team works with; check the exact source before quoting outside)
 
 `docs/xems-exercise-templates.md` (110L)
   - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them

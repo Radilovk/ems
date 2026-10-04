@@ -451,7 +451,7 @@ const INFO={
  P:[["Напредък","Progress"],["EMS дозата на тази тренировка спрямо средното от последните 3.","This training's EMS dose vs. the average of the last 3."],["Около 60 % = същото ниво, над 70 % — расте, под 50 % — по-леко от обичайното. Първата тренировка няма с какво да се сравни.","About 60 % = the same level, over 70 % rising, under 50 % lighter than usual. The first training has nothing to compare with."]],
  persona:[["Лична цел","Personal target"],["Целевата EMS доза и зона на клиента спрямо стандарта (100 %).","The client's target EMS dose and zone vs. the standard (100 %)."],["Намалява за начинаещ (×0,75), при ИТМ над 25 и с възрастта над 30; расте за напреднал (×1,2).","Lower for a beginner (×0.75), with BMI over 25 and with age over 30; higher for an advanced client (×1.2)."]],
  act:[["Активно време","Active time"],["Времето с пуснат костюм, без паузите.","Time with the suit running, pauses excluded."]],
- kcal:[["Калории","Calories"],["Оценка по модела на XEMS — от пулса и от задействаната мускулна маса. Не е лабораторно измерване.","An XEMS model estimate — from heart rate and the muscle mass worked. Not a lab measurement."],["<b>MET</b> — колко пъти повече енергия от покой (покой = 1).","<b>MET</b> — how many times the resting energy use (rest = 1)."]],
+ kcal:[["Калории","Calories"],["Оценка по модела на XEMS — от пулса, задействаната мускулна маса и честотата (високата честота плаща и без кислород — лактат и гликоген след тренировката). Не е лабораторно измерване.","An XEMS model estimate — from heart rate, the muscle mass worked and the frequency (high frequency also pays without oxygen — lactate and glycogen after the session). Not a lab measurement."],["<b>MET</b> — колко пъти повече енергия от покой (покой = 1).","<b>MET</b> — how many times the resting energy use (rest = 1)."]],
  hr:[["Пулс","Heart rate"],["Среден и максимален пулс от гривната за активното време.","Average and maximum heart rate from the band over the active time."]],
  load:[["Общо натоварване","Total load"],["Интензивността на всяка секунда (EMS натоварване + пулс), събрана за цялата тренировка, в точки.","The intensity of each second (EMS load + heart rate), summed over the training, in points."],["Сравнява тренировки на един клиент и между клиенти — като TRIMP в спорта.","Compares trainings of one client and between clients — like TRIMP in sport."]],
  pauses:[["Паузи","Pauses"],["Колко пъти тренировката е спирана и колко време общо.","How many times the training was stopped and for how long in total."]],
@@ -640,7 +640,11 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const eff=Math.round(100*(.40*Tg+.30*D+.15*Q+.15*P));
   const load=Math.round(s.reduce((a,p)=>a+p.I,0)/60*10);
   const Wkg=weight||70,vr=3.5*Wkg/1000,vmax=Math.min(60,15.3*sim.max/Math.max(40,sim.rest))*Wkg/1000,musc=female?.31/.38:1;
-  let kcal=0;for(const p of s){const vh=sim.hasHr?vr+p.C*(vmax-vr):0;const ve=vr+p.M*1.6*Wkg/75*musc+(p.vx||0);kcal+=Math.max(vh,ve)*(4.7+.35*p.I)/60;}
+  let kcal=0,kcalGly=0;for(const p of s){const vh=sim.hasHr?vr+p.C*(vmax-vr):0;const em=p.M*1.6*Wkg/75*musc;const ve=vr+em+(p.vx||0);kcal+=Math.max(vh,ve)*(4.7+.35*p.I)/60;
+    // the glycolytic share of the evoked ATP never becomes oxygen uptake, so the heart branch cannot see it:
+    // it is paid back after the session (lactate, glycogen) and counted on top (docs/xems-ems-physiology.md §4)
+    if(em>0){const g=.15+.15*Math.min(1,kF(p.hz||1));kcalGly+=em*g/(1-g)*5/60;}}
+  kcal+=kcalGly;
   const hrs=s.filter(p=>p.hr>0&&!p.paused).map(p=>p.hr);
   const modes=[
     // r = [EMS load from, to, heart-rate reserve from, to] — a partition: strong current is strength work
@@ -663,7 +667,7 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const phases=sim.PH.map(ph=>{const xs=s.slice(ph.a,Math.min(ph.b,T));const a=xs.filter(p=>!p.paused);const hh=a.filter(p=>p.hr>0);
     return{...ph,dur:xs.length,act:a.length,S:a.reduce((q,p)=>q+p.S,0)/Math.max(1,a.length),hr:hh.length?Math.round(hh.reduce((q,p)=>q+p.hr,0)/hh.length):0,hrMax:hh.length?Math.max(...hh.map(p=>p.hr)):0,ma:xs.length?Math.max(...xs.map(p=>p.ma)):0};});
   const met=Wkg>0&&T>0?kcal/(Wkg*T/3600):0;
-  return{met,over,under,persona:P0,goalP:goal,onSec:s.filter(p=>p.on&&!p.paused).length,eff,T:Tg,D,Q,P,dose,load,kcal:Math.round(kcal),pauseS,act:act.length,
+  return{met,over,under,persona:P0,goalP:goal,onSec:s.filter(p=>p.on&&!p.paused).length,eff,T:Tg,D,Q,P,dose,load,kcal:Math.round(kcal),kcalGly:Math.round(kcalGly),pauseS,act:act.length,
     hrAvg:hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):0,hrMax:hrs.length?Math.max(...hrs):0,modes,chDose,exDose,phases,maMax:Math.max(0,...s.map(p=>p.ma))};
 }
 function typeLabel(m){if(m.type==="ai")return "Smart Session";if(m.type==="auto")return tr("Авто · ","Auto · ")+(m.program||"");const md=m.modes|0,massage=(md&8)!==0,work=(md&7)!==0;
@@ -836,7 +840,7 @@ function draw(){
   const d=(v,pv,unit,inv)=>{if(!compare||pv==null)return"";const x=v-pv;if(!Math.round(x))return`${tr("<span class=\"delta hint\">без промяна</span>","<span class=\"delta hint\">no change</span>")}`;const good=inv?x<0:x>0;return`<span class="delta ${good?"up":"down"}">${x>0?"▲":"▼"} ${Math.abs(Math.round(x))}${unit}</span>`;};
   const K=[
     [tr("Активно време","Active time"),mmss(a.act),"",`${tr("от ","of ")}${mmss(s.sim.T)}${tr(" общо"," total")}`,d(a.act/60,p&&p.act/60,tr(" мин"," min"))],
-    [tr("Калории","Calories"),a.kcal,"kcal",`≈ ${a.met.toFixed(1)}${tr(" MET · оценка XEMS"," MET · XEMS estimate")}`,d(a.kcal,p&&p.kcal," kcal")],
+    [tr("Калории","Calories"),a.kcal,"kcal",`≈ ${a.met.toFixed(1)}${tr(" MET · оценка XEMS"," MET · XEMS estimate")}${a.kcalGly>=5?tr(" · от тях ~"+a.kcalGly+" се изплащат след тренировката (лактат, гликоген)"," · ~"+a.kcalGly+" of them are paid back after the session (lactate, glycogen)"):""}`,d(a.kcal,p&&p.kcal," kcal")],
     [tr("Пулс","Heart rate"),a.hrAvg||"—",a.hrMax?"/ "+a.hrMax:"",s.sim.hasHr?tr("среден / макс.","average / max"):tr("няма данни от гривна","no band data"),d(a.hrAvg,p&&p.hrAvg,tr(" уд"," bpm"))],
     [tr("Общо натоварване","Total load"),a.load,tr("т.","pts"),tr("интензивност × време","intensity × time"),d(a.load,p&&p.load,tr(" т."," pts"))]
   ],K2=[

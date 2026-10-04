@@ -50,13 +50,9 @@ npx wrangler deploy
 npx wrangler secret put LICENSE_PRIVATE_KEY
 ```
 
-**Задължително преди пускане (1.1.330):** паролата на панела няма стойност по подразбиране — без тайната
-`ADMIN_PASSWORD` панелът е затворен. Кодът за настройка на таблет също е тайна (само SHA-256):
-```bash
-npx wrangler secret put ADMIN_PASSWORD
-npx wrangler secret put ADMIN_USER
-printf '%s' 'ТВОЯТ-КОД' | sha256sum | cut -d' ' -f1 | npx wrangler secret put SETUP_CODE_SHA256
-```
+**Една парола за всичко (1.1.334):** тайната `ADMIN_PASSWORD` на Worker-а — вход в панела и, въведена на таблета
+в „Достъп и лиценз“, одобрява таблета и отваря настройката му. Задава се веднъж: Cloudflare → Workers →
+xems-license → Settings → Variables and Secrets → Add → Secret `ADMIN_PASSWORD`. Без нея панелът е затворен.
 
 ## Разходи
 

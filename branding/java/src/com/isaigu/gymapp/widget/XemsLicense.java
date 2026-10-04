@@ -17,8 +17,8 @@ import java.util.UUID;
  * <p>A fresh install is the base app (training only). The add-on modules stay visible but locked
  * until unlocked:
  * <ul>
- *   <li><b>no codes in the app</b> (1.1.330): every key goes to the server; the admin's setup code lives only
- *       there (as a hash). A new tablet waits until the admin approves it ({@link #isPending()}).</li>
+ *   <li><b>no codes in the app</b> (1.1.330): every key goes to the server. The admin password typed here
+ *       approves a waiting tablet and opens its setup ({@link #isPending()}).</li>
  *   <li><b>license server</b> — the key is sent to the server, which answers with a signed
  *       token ({@link XemsLicenseToken}) listing the modules and the end date. The token is kept
  *       and checked offline; it is refreshed about once a day when the server is reachable, and
@@ -64,7 +64,7 @@ public final class XemsLicense {
     static final String K_EMS = "ems";
     /**
      * "setup" = admin setup of a new tablet (everything open), "locked" = the customer's profile. Only the server
-     * opens the setup (an approved new tablet, the admin's code, the admin panel); a fresh install is locked.
+     * opens the setup (approval, the admin password typed on the tablet, the admin panel); a fresh install is locked.
      */
     static final String K_PHASE = "phase";
     /** The server has this tablet as waiting for the admin's approval. */

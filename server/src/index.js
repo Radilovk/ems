@@ -164,19 +164,31 @@ async function handleActivate(request, env) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many attempts for this device' }, 429);
   }
 
-  // The admin's setup code (only its SHA-256, as the Worker secret SETUP_CODE_SHA256 — never in the app or the
-  // repo): opens the admin setup on a tablet the server already knows, with that tablet's own licence.
-  if (env.SETUP_CODE_SHA256 && (await sha256Hex(String(body.key || '').trim())) === env.SETUP_CODE_SHA256) {
-    const act = await env.DB.prepare(
+  // The admin password typed on a tablet (Достъп и лиценз): one credential for everything. It approves the tablet
+  // into the owner's studio when it waits (or is new) and opens its setup — no admin panel needed.
+  if (isAdminPassword(env, body.key)) {
+    let act = await env.DB.prepare(
       "SELECT * FROM activations WHERE device_id = ? AND status IN ('active', 'pending') ORDER BY (status = 'active') DESC LIMIT 1",
     ).bind(deviceId).first();
-    if (!act) return err('unknown', 'Unknown tablet');
-    if (act.status === 'pending') return err('pending', 'Waiting for approval');
+    const ts = now();
+    if (act && act.status === 'active') {
+      await env.DB.prepare('UPDATE activations SET setup = 1, last_seen = ? WHERE license_id = ? AND device_id = ?')
+        .bind(ts, act.license_id, deviceId).run();
+    } else {
+      if (!env.OWNER_LICENSE) return err('unknown', 'No owner license');
+      await env.DB.prepare("DELETE FROM activations WHERE device_id = ? AND status = 'pending'").bind(deviceId).run();
+      await env.DB.prepare(
+        `INSERT OR REPLACE INTO activations (license_id, device_id, device_model, android, app_version, app_code, lang, first_seen, last_seen, status, ems_local, setup)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, 1)`,
+      ).bind(
+        env.OWNER_LICENSE, deviceId, body.device_model || '', body.android || 0,
+        body.app_version || '', body.app_code || 0, body.lang || 'bg', ts, ts, JSON.stringify(normMacList(body.ems_local)),
+      ).run();
+      act = { license_id: env.OWNER_LICENSE };
+    }
     const owned = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(act.license_id).first();
     if (!owned) return err('unknown', 'No license for this device');
-    await env.DB.prepare('UPDATE activations SET setup = 1, last_seen = ? WHERE license_id = ? AND device_id = ?')
-      .bind(now(), act.license_id, deviceId).run();
-    await audit(env, 'setup_code', owned.id, deviceId, null);
+    await audit(env, 'admin_on_tablet', owned.id, deviceId, null);
     return json({
       ok: true, token: await mintToken(env, owned, deviceId), phase: 'setup', setup_code: true,
       studio: await ensureStudioCode(env, owned),
@@ -1238,10 +1250,13 @@ function checkAdmin(request, env) {
   if (colon < 0) return false;
   const user = decoded.slice(0, colon);
   const pass = decoded.slice(colon + 1);
-  const expectedUser = env.ADMIN_USER || 'admin';
-  const expected = env.ADMIN_PASSWORD;
-  if (!expected) return false;                     // no secret set → the admin stays closed (no built-in password)
-  return Boolean(sameText(user, expectedUser) & sameText(pass, expected));
+  return Boolean(sameText(user, env.ADMIN_USER || 'admin') & isAdminPassword(env, pass));
+}
+
+/** The admin password (Worker secret ADMIN_PASSWORD). No built-in default: without it the admin stays closed. */
+function isAdminPassword(env, pass) {
+  const p = String(pass || '').trim();
+  return Boolean(env.ADMIN_PASSWORD) && sameText(p, env.ADMIN_PASSWORD);
 }
 
 /** Compare without leaking where the first difference is. */

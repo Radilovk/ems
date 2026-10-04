@@ -259,10 +259,10 @@ public final class XemsLicenseSection {
         String arms = XemsLicense.hasFeature(XemsLicense.FEAT_ARMS_FULL)
                 ? tr(" · ръцете с нормална сила (стъпка 1:1)", " · arms at normal strength (step 1:1)") : "";
         if (XemsLicense.isPending() && src.length() == 0) {
-            return tr("Таблетът е записан на сървъра. Щом администраторът го одобри (Таблети → Одобри), "
-                            + "модулите се отключват сами. Номер на таблета: ",
-                    "The tablet is registered on the server. Once the admin approves it (Tablets → Approve), "
-                            + "the modules unlock by themselves. Tablet number: ") + XemsLicense.deviceIdShown();
+            return tr("Въведи админ паролата в полето отдолу — таблетът се отключва веднага "
+                            + "(или го одобри от админ панела). Номер на таблета: ",
+                    "Type the admin password in the field below — the tablet unlocks at once "
+                            + "(or approve it in the admin panel). Tablet number: ") + XemsLicense.deviceIdShown();
         }
         if ("server".equals(src)) {
             long exp = XemsLicense.expiresS();
@@ -299,7 +299,7 @@ public final class XemsLicenseSection {
             return tr("Таблетът чака одобрение от администратора", "The tablet is waiting for the admin's approval");
         }
         if ("not_setup_code".equals(code)) {
-            return tr("Грешен код", "Wrong code");
+            return tr("Грешна парола", "Wrong password");
         }
         if ("revoked".equals(code) || "disabled".equals(code)) {
             return tr("Ключът е спрян", "The key is disabled");

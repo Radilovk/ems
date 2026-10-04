@@ -258,12 +258,11 @@ public final class XemsLocalSection {
                 .setTitle(tr("Край на настройката?", "Finish setup?"))
                 .setMessage(tr("Таблетът минава в потребителски режим: модулите следват лиценза, "
                                 + "виждат се само сдвоените костюми (" + XemsLocalStore.pairedCount(a) + ") "
-                                + "и тези, които сървърът добави. Обратно в настройка — с кода на "
-                                + "администратора (проверява го сървърът) или от админ панела.",
+                                + "и тези, които сървърът добави. Обратно в настройка — с админ паролата "
+                                + "в „Достъп и лиценз“.",
                         "The tablet switches to user mode: modules follow the licence and only the paired "
                                 + "suits (" + XemsLocalStore.pairedCount(a) + ") and those the server adds "
-                                + "are shown. Back to setup with the admin's code (the server checks it) "
-                                + "or from the admin panel."))
+                                + "are shown. Back to setup with the admin password in \"Access & licence\"."))
                 .setPositiveButton(tr("Заключи", "Lock"), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface d, int which) {
                         XemsLocalStore.finishSetup();

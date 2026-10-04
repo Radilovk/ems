@@ -1,6 +1,7 @@
 import com.isaigu.gymapp.ai.AiModel;
 import com.isaigu.gymapp.ai.AutoCatalog;
 import com.isaigu.gymapp.ai.AutoCues;
+import com.isaigu.gymapp.ai.AutoDynamics;
 import com.isaigu.gymapp.ai.AutoEngine;
 import com.isaigu.gymapp.ai.AutoLimits;
 import com.isaigu.gymapp.ai.AutoModel;
@@ -53,6 +54,7 @@ public final class AutoSim {
         drainWave();
         cues();
         setsAndStops();
+        dynamics();
         liveModel();
         totalLoad();
         liveForecast();
@@ -1051,6 +1053,130 @@ public final class AutoSim {
         return m;
     }
 
+    /**
+     * Owner (1.1.322): the impulse moves during Auto — another approach per set (from fatigue, HR, dose and the
+     * training count), the frequency glides down with the fatigue inside a set, the recovery runs in sectors.
+     */
+    static void dynamics() {
+        AutoModel.Input in = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
+        in.goal = AutoModel.Goal.TONE;
+        in.kind = AutoModel.Kind.ACTIVE;
+        in.programId = AutoCatalog.GENERAL;
+        AutoModel.Plan plan = AutoPlanner.build(in, 68);
+        AutoEngine e = new AutoEngine(plan);
+        AutoTemplates.Script sc = AutoTemplates.script(plan, null);
+        e.setScript(sc);
+        long t = 1000000L;
+        e.startAt(t, t);
+        t = e.getGoMs();
+        e.tick(t);
+        java.util.Set<String> names = new java.util.HashSet<String>();
+        java.util.Set<Integer> sectors = new java.util.HashSet<Integer>();
+        String prevName = null;
+        int repeats = 0, setsSeen = 0, glides = 0, rampsOnJump = 0, jumps = 0;
+        int firstHz = -1, lastHz = -1;
+        int guard = 0;
+        while ((e.getState() == AutoEngine.State.RUN || e.getState() == AutoEngine.State.REST) && guard++ < 5000) {
+            if (e.getState() == AutoEngine.State.REST) {
+                if (firstHz > 0 && lastHz > 0 && lastHz < firstHz) {
+                    glides++;
+                }
+                firstHz = lastHz = -1;
+                t += Math.max(1, e.getRestMinS()) * 1000L;
+                e.requestGo(t, t);
+                t = e.getGoMs();
+                e.tick(t);
+                continue;
+            }
+            AutoEngine.Cmd c = e.getCurrent();
+            String nm = e.getImpulseName();
+            AutoModel.Phase ph = plan.phases.get(c.phaseIndex);
+            if (e.isStationPhase(c.phaseIndex) && nm.length() > 0) {
+                if (firstHz < 0) {
+                    setsSeen++;
+                    names.add(nm);
+                    if (nm.equals(prevName)) {
+                        repeats++;
+                    }
+                    prevName = nm;
+                    firstHz = c.hz;
+                }
+                lastHz = c.hz;
+            }
+            if (ph.isCooldown() && nm.length() > 0) {
+                sectors.add(nm.hashCode());
+            }
+            t += c.durationMs();
+            e.tick(t - 1);
+            AutoEngine.Cmd n = e.onCycle(t);
+            if (n != null && c != null && Math.abs(n.hz - c.hz) >= 10) {
+                jumps++;
+                if (n.rampUpMs >= 600) {
+                    rampsOnJump++;
+                }
+            }
+        }
+        check(e.getState() == AutoEngine.State.DONE, "dynamics: the session ends");
+        check(names.size() >= 4, "dynamics: at least 4 different approaches in one training (" + names + ")");
+        check(repeats == 0, "dynamics: never the same approach twice in a row (" + repeats + ")");
+        check(glides >= setsSeen / 2, "dynamics: the frequency falls inside most sets (" + glides + " / " + setsSeen + ")");
+        check(sectors.size() >= 3, "dynamics: the recovery runs in ≥ 3 sectors (" + sectors.size() + ")");
+        check(jumps == 0 || rampsOnJump == jumps, "dynamics: every jump ≥ 10 Hz has a soft rise (" + rampsOnJump + " / "
+                + jumps + ")");
+        // another training → another order
+        AutoModel.Input in2 = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 9, 200);
+        in2.goal = in.goal;
+        in2.kind = in.kind;
+        in2.programId = in.programId;
+        AutoModel.Plan p2 = AutoPlanner.build(in2, 68);
+        AutoModel.Phase main = null;
+        for (AutoModel.Phase ph : plan.phases) {
+            if ("MAIN".equals(ph.id)) {
+                main = ph;
+            }
+        }
+        AutoDynamics.Approach[] l1 = AutoDynamics.approaches(plan, main);
+        AutoDynamics.Ctx x = new AutoDynamics.Ctx();
+        x.fresh = 0.6;
+        x.sessions = 8;
+        int a8 = AutoDynamics.pick(l1, x);
+        x.sessions = 9;
+        int a9 = AutoDynamics.pick(l1, x);
+        check(p2 != null && a8 != a9, "dynamics: the next training starts with another approach");
+        // fresh muscle → hard work; tired → light; high pulse → light
+        x.sessions = 8;
+        x.fresh = 1.0;
+        int hard = AutoDynamics.pick(l1, x);
+        x.fresh = 0.1;
+        int light = AutoDynamics.pick(l1, x);
+        check(l1[hard].cls > l1[light].cls, "dynamics: fresh → harder approach than tired (" + l1[hard].id + " / "
+                + l1[light].id + ")");
+        x.fresh = 0.8;
+        x.hrHigh = true;
+        check(l1[AutoDynamics.pick(l1, x)].cls <= 1, "dynamics: HR near the cap → a light approach");
+        // the glide: frequency down, pause up, depth never down
+        AutoModel.Step st = l1[0] != null ? main.steps.get(0) : null;
+        AutoModel.Step g0 = AutoDynamics.apply(st, AutoDynamics.STRENGTH_PAUSE, 0, true);
+        AutoModel.Step g1 = AutoDynamics.apply(st, AutoDynamics.STRENGTH_PAUSE, 1, true);
+        check(g1.hz < g0.hz && g1.offS > g0.offS && g1.pwUs >= g0.pwUs, "dynamics: tired → lower Hz, longer pause, depth "
+                + "not lower (" + g0.hz + "→" + g1.hz + " Hz, " + g0.pwUs + "→" + g1.pwUs + " µs)");
+        check(g1.onS < g0.onS && g1.pauseHz == 7, "dynamics: tired → the second impulse takes more of the cycle");
+        check(AutoDynamics.apply(st, AutoDynamics.STRENGTH_PAUSE, 0, false).pauseHz == 0,
+                "dynamics: no second impulse where the program does not allow it");
+        // gentle programs and the first trainings: no 100 Hz approach
+        AutoModel.Input s60 = input(AiModel.Sex.FEMALE, 66, 70, 165, AiModel.Fitness.MID, 10, 200);
+        s60.goal = AutoModel.Goal.HEALTH;
+        s60.kind = AutoModel.Kind.ACTIVE;
+        s60.programId = AutoCatalog.SENIOR;
+        AutoModel.Plan ps = AutoPlanner.build(s60, 68);
+        for (AutoModel.Phase ph : ps.phases) {
+            AutoDynamics.Approach[] l = AutoDynamics.approaches(ps, ph);
+            for (int i = 0; l != null && i < l.length; i++) {
+                check(l[i].hz <= 85, "dynamics: 50+ program — no approach over 85 Hz (" + l[i].id + ")");
+            }
+        }
+    }
+
     /** Owner (1.1.284): the timeline's future runs on from the live state — strength, HR — within Auto's bounds. */
     static void liveForecast() {
         long[] t = new long[1];
@@ -1097,8 +1223,10 @@ public final class AutoSim {
                 "HR at the cap → the running set ends in the forecast");
         check(meanHr(fh2) > meanHr(fh1) + 10, "higher HR now → higher HR ahead (" + Math.round(meanHr(fh1)) + " → "
                 + Math.round(meanHr(fh2)) + ")");
-        check(fh2.totalS > fh1.totalS, "a pulse that stays high → the forecast ends later (" + Math.round(fh1.totalS)
-                + " → " + Math.round(fh2.totalS) + ")");
+        // since 1.1.322 a high pulse also turns the next sets to lighter approaches (AutoDynamics), which shortens
+        // their rests: the end no longer has to come later, only not much earlier
+        check(fh2.totalS >= fh1.totalS - 60, "a pulse that stays high → the forecast does not end much earlier ("
+                + Math.round(fh1.totalS) + " → " + Math.round(fh2.totalS) + ")");
         float[] lh = fh2.points.get(fh2.points.size() - 1);
         check(lh[1] <= plan.totalS + 1, "…the impulses still keep the plan's bounds");
         boolean hrLine = false;

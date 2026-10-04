@@ -89,6 +89,17 @@ public final class AutoEngine {
     private int userPw = -1;
     private boolean doublePulse;
 
+    // the impulse in motion (AutoDynamics, spec §13): the set's approach, its history, the recovery's sector
+    private int apKey = -1;
+    private int apIdx = -1;
+    private int apPrev = -1;
+    private int apPrev2 = -1;
+    private int apPhase = -1;
+    private int apSetN;
+    private int[] apUsed = new int[8];
+    private int sectorIdx = -1;
+    private String impulseName = "";
+
     // heart rate
     private int hr = -1;
     private long hrMs;
@@ -430,6 +441,12 @@ public final class AutoEngine {
             return false;
         }
         for (int i = phaseIndex; i < plan.phases.size(); i++) {
+            AutoDynamics.Approach[] list = isStationPhase(i) ? AutoDynamics.approaches(plan, plan.phases.get(i)) : null;
+            for (int j = 0; list != null && j < list.length; j++) {
+                if (list[j].pauseHz > 0) {
+                    return true;
+                }
+            }
             for (Step s : plan.phases.get(i).steps) {
                 if (s.pauseHz > 0) {
                     return true;
@@ -774,6 +791,11 @@ public final class AutoEngine {
     static final double ACTIVE_SHARE = 0.35;
 
     /** The exercise of the running set (or the next one in a rest); null outside the sets. */
+    /** The running set's approach or the recovery's sector ("Сила + активна почивка", "Помпа"…), "" = none. */
+    public String getImpulseName() {
+        return impulseName;
+    }
+
     public String getExercise() {
         if (script == null || !isStationPhase(phaseIndex) || phaseIndex >= script.phase.length) {
             return null;
@@ -1889,8 +1911,65 @@ public final class AutoEngine {
     }
 
     private Cmd build(Phase ph, int step, long now) {
-        Step base = ph.steps.get(step % ph.steps.size());
+        Step program = ph.steps.get(step % ph.steps.size());
         Step next = ph.steps.size() > 1 ? ph.steps.get((step + 1) % ph.steps.size()) : null;
+        boolean fresh = false;
+        Step base = program;
+        boolean station = isStationPhase(phaseIndex);
+        AutoDynamics.Approach[] list = station ? AutoDynamics.approaches(plan, ph) : null;
+        double g = AutoDynamics.glide(fMax > 0 ? peakF() / fMax : 0);
+        if (list != null) {
+            int key = phaseIndex * 100000 + stationsDone;
+            if (key != apKey) {                       // a new set: its approach from what is happening now
+                if (apPhase != phaseIndex) {
+                    apPhase = phaseIndex;
+                    apSetN = 0;
+                    apPrev = apPrev2 = -1;
+                    apUsed = new int[8];
+                }
+                AutoDynamics.Ctx x = new AutoDynamics.Ctx();
+                x.fresh = 1 - (fMax > 0 ? Math.min(1, peakF() / fMax) : 0);
+                boolean hrFresh = hr > 0 && now - hrMs <= HR_STALE_MS;
+                x.hrHigh = hrFresh && (hrNearCap(now) || plan.hrUse == HrUse.CORRIDOR && hr > plan.corridorHiHr());
+                x.hrLow = hrFresh && plan.hrUse == HrUse.CORRIDOR && hr < plan.corridorLoHr();
+                x.dose = qPlanned > 0 ? qUsed / qPlanned : 1;
+                x.sessions = plan.input != null ? plan.input.sessions : 0;
+                x.set = apSetN;
+                x.prev = apPrev;
+                x.prev2 = apPrev2;
+                x.progress = plan.activeS > 0 ? Math.min(1, elapsedS / plan.activeS) : 0;
+                x.used = apUsed;
+                apIdx = Math.min(list.length - 1, AutoDynamics.pick(list, x));
+                apPrev2 = apPrev;
+                apPrev = apIdx;
+                if (apIdx < apUsed.length) {
+                    apUsed[apIdx]++;
+                }
+                apSetN++;
+                apKey = key;
+                fresh = true;
+                impulseName = list[apIdx].name();
+                log(now, "set approach " + list[apIdx].id + " fresh=" + fmt(x.fresh) + " dose=" + fmt(x.dose)
+                        + (x.hrHigh ? " hr-high" : "") + (x.hrLow ? " hr-low" : ""));
+            }
+            base = AutoDynamics.apply(program, list[Math.max(0, apIdx)], g, plan.doublePulseAllowed);
+        } else if (station && program.isTetanic() && program.sigma > 0) {
+            base = AutoDynamics.apply(program, AutoDynamics.baseOf(program), g, plan.doublePulseAllowed);
+            impulseName = "";
+        } else {
+            int k = AutoDynamics.sector(plan, ph, phaseElapsed(), ph.durationS);
+            if (k >= 0) {
+                fresh = k != sectorIdx;
+                if (fresh) {
+                    log(now, "recovery sector " + k);
+                }
+                sectorIdx = k;
+                base = AutoDynamics.sectorStep(program, k, plan.doublePulseAllowed);
+                impulseName = AutoDynamics.sectorName(k);
+            } else {
+                impulseName = "";
+            }
+        }
         Step s = base.copy();
         if (userHz > 0) {
             s.hz = userHz;
@@ -1905,6 +1984,7 @@ public final class AutoEngine {
             s.pwUs = userPw;
         }
         s.offS += corridorExt + doseExt;
+        s.rampUpMs = AutoDynamics.ramp(s.rampUpMs, current != null ? current.hz : -1, s.hz, fresh);
         s = AutoLimits.clampStep(s, next, plan, ph);
         double p = ph.durationS > 0 ? phaseElapsed() / ph.durationS : 0;
         Cmd c = new Cmd();

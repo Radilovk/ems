@@ -64,6 +64,23 @@ impulse), the main part started "exhausted" (first block ended at once, long res
 took blocks 30–50 % over the limit, and a 5 Hz cool-down or 2 Hz massage counted as contraction.
 Simulation now (`scripts/ai-sim`, FatProbe): warm-up 12–17 %, main ≤ 100 %, massage ≤ 10 %, drainage ≈ 1 %.
 
+### 3.5 The impulse moves with the fatigue (Auto, 1.1.322 — `ai/AutoDynamics`)
+- **Frequency down inside a set.** In a sustained voluntary effort the motor units fire slower as the muscle tires
+  while the force holds ("muscle wisdom"); a fatigued muscle relaxes slower, so it fuses at a lower rate.
+  Progressively lower stimulation frequency kept the force of a fatiguing NMES bout better than a constant one
+  [E:R16]. Auto: `hz = start − (start − floor)·g`, `g = clamp((F/F_max − 0.25)/0.65)` — a fresh muscle (long rest)
+  starts at the top, the floor is reached at 90 % of F_max; the floor of ≥ 50 Hz work is never under 50 Hz.
+- **Depth never down.** Pulse width decides how many motor units are recruited [E:R2, R7]; less width = fewer
+  fibres, not less fatigue. At the end of a set (g > 0.6) +≤ 20 µs to reach fibres that have not worked yet.
+- **Pause up, impulse : impulse.** The pause grows by ≤ 2 s with g; an approach with a second impulse gives it
+  1 s of the impulse when g > 0.7 (low-frequency active recovery).
+- **Another approach per set** (strength + active rest, pure strength, volume, metabolic, endurance tone): the
+  hard ones while the muscle is fresh and early in the session, the light ones when the HR is high, late or
+  tired; the order differs every training. Alternating high- and low-frequency work lets the high-frequency
+  fatigue recover while the work goes on [D — no study shows that variety itself beats the standard 85 Hz 4/4].
+- **Passive recovery in sectors** (massage → pump 2 Hz, tone-massage 8 Hz + 3 Hz, drainage 1 Hz): changing
+  frequency keeps the sensation from fading (habituation) and alternates pumping and massage [D].
+
 ## 4. Energy
 
 Three layers: what the muscle spends **while** the impulses run, what is paid **after**, and what is still unknown.
@@ -191,4 +208,6 @@ Validate τ, F_max, w(f) and kf on recorded sessions (CR10 answers, HR recovery,
 - R13 Glycogen depletion of human skeletal muscle fibers in response to high-frequency electrical stimulation
   (Can. J. Appl. Physiol. 2003).
 - R14 Inter-individual differences in muscle damage after a single bout of high-intensity WB-EMS (PMC11537929).
+- R16 Binder-Macleod S.A., Guerin T. (1990). Preservation of force output through progressive reduction of stimulation
+  frequency in human quadriceps femoris muscle. *Phys. Ther.* (check the exact source before quoting).
 - R15 Effect of exercise intensity, duration and mode on post-exercise oxygen consumption (PubMed 14599232).

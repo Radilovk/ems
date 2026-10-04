@@ -1439,7 +1439,8 @@ public final class AutoUi {
         } else {
             AutoModel.Phase about = beforeRecovery ? plan.phases.get(plan.phases.size() - 1) : ph;
             runPhase.setText(beforeRecovery ? "→  " + AiText.t("Възстановяване", "Recovery")
-                    : recovery ? AiText.t("Възстановяване", "Recovery") : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
+                    : recovery ? AiText.t("Възстановяване", "Recovery") + (e.getImpulseName().length() > 0
+                    ? "  ·  " + e.getImpulseName() : "") : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
             runPhase.setTextColor(XemsUi.TEXT);
             // no exercise (passive program, recovery): what this part is for and what the current does now
             AutoEngine.Cmd now1 = beforeRecovery ? null : AutoSession.getWritten();
@@ -1548,7 +1549,9 @@ public final class AutoUi {
         double left = f != null ? f.leftS(sNow, e.getElapsedS()) : e.getRemainingS();
         runClock.setText(AiText.mmss(sNow) + "  /  " + AiText.mmss(sNow + left));
         if (boardSub != null) {
-            boardSub.setText(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn)) : "");
+            String imp = e.getImpulseName();                   // the set's approach / the recovery's sector
+            boardSub.setText(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn))
+                    + (imp.length() > 0 ? "  ·  " + imp : "") : "");
         }
         showPhases(e, !fig && !e.isStationPhase(e.getPhaseIndex()));
 

@@ -106,6 +106,27 @@ public final class ProgramArt {
         }
     }
 
+    /**
+     * Puts picture {@code key} on a tile from {@link #tile} (owner, 1.1.315: the passive recovery shows the figure
+     * lying back, not the program's own picture). Nothing happens when the tile already shows it.
+     */
+    public static void show(View tile, String key, int wDp) {
+        if (!(tile instanceof FrameLayout) || ((FrameLayout) tile).getChildCount() == 0
+                || !(((FrameLayout) tile).getChildAt(0) instanceof ImageView) || key.equals(tile.getTag())) {
+            return;
+        }
+        Context c = tile.getContext();
+        Bitmap b = bitmap(c, key, XemsUi.dp(c, wDp));
+        if (b == null) {
+            return;
+        }
+        android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(c.getResources(), b);
+        d.setFilterBitmap(true);
+        d.setAntiAlias(true);
+        ((ImageView) ((FrameLayout) tile).getChildAt(0)).setImageDrawable(d);
+        tile.setTag(key);
+    }
+
     /** The picture on its dark rounded tile, {@code wDp} × {@code hDp}; an empty tile if the picture is missing. */
     public static View tile(Context c, String programId, boolean active, AiModel.Sex sex, int wDp, int hDp) {
         FrameLayout f = new FrameLayout(c);
@@ -121,6 +142,7 @@ public final class ProgramArt {
             iv.setImageDrawable(d);
         }
         f.addView(iv, new FrameLayout.LayoutParams(XemsUi.dp(c, wDp), XemsUi.dp(c, hDp), Gravity.CENTER));
+        f.setTag(key(programId, active, sex));
         f.setMinimumWidth(XemsUi.dp(c, wDp));
         f.setMinimumHeight(XemsUi.dp(c, hDp));
         return f;

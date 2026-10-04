@@ -49,11 +49,25 @@ public final class AutoSession {
         int cal;
         double user = 1.0;
         final int[] zoneOffset = new int[AutoModel.CHANNELS];
+        /** Each channel's share set at the calibration (owner, 1.1.315), % of what the program asks; 100 = as is. */
+        final int[] zoneRatio = full(AutoModel.CHANNELS, 100);
         int lastStrength = -1;
         int writtenStrength = -1;
         int[] writtenZones;
         double raiseBudget = AutoLimits.RAISE_PER_CYCLE;
     }
+
+    private static int[] full(int n, int v) {
+        int[] a = new int[n];
+        Arrays.fill(a, v);
+        return a;
+    }
+
+    /** The leader's energy model (kcal): his data, the impulses the suit really gives, the heart, the exercise. */
+    private static AiEnergy energy;
+    private static boolean epocClosed;
+    /** Pulse width the calibration ran at (the tolerated charge is measured there). */
+    private static int calPw = 350;
 
     private static TrainItemManager manager;
     private static View panelRoot;
@@ -528,6 +542,7 @@ public final class AutoSession {
             r.cal = 0;
             r.user = 1.0;
             Arrays.fill(r.zoneOffset, 0);
+            Arrays.fill(r.zoneRatio, 100);
             r.raiseBudget = CALIB_RISE_PER_S;
             int now = strengthOf(r.item);
             r.lastStrength = r.block == null ? Math.min(now, 10) : 0;
@@ -620,6 +635,7 @@ public final class AutoSession {
             r.lastStrength = -1;
         }
         engine = new AutoEngine(plan);
+        startEnergy();
         long now = System.currentTimeMillis();
         script = null;
         ExerciseFigure.preload(c);
@@ -1175,6 +1191,7 @@ public final class AutoSession {
         } else if (!zeroed) {
             zeroOutput();
         }
+        tickEnergy(now, after);
         if ((after == AutoEngine.State.DONE || after == AutoEngine.State.STOPPED) && stage == Stage.RUNNING) {
             zeroOutput();
             stopDevice();
@@ -1194,6 +1211,123 @@ public final class AutoSession {
                 AutoUi.show();
             }
         }
+    }
+
+    // ================================================================ energy (docs/xems-ems-physiology.md §4)
+
+    private static Row leaderRow() {
+        TrainItem l = leader();
+        for (Row r : rows) {
+            if (r.item == l) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    private static void startEnergy() {
+        energy = null;
+        epocClosed = false;
+        AiEnergy.exerciseMet = 0;
+        try {
+            Row r = leaderRow();
+            AutoModel.Input in = r != null && r.input != null ? r.input : input;
+            AutoModel.Plan pl = r != null && r.plan != null ? r.plan : plan;
+            boolean med = in.screening != null && in.screening.hrLoweringMedication;
+            energy = AiEnergy.forPerson(in.sex, in.age, in.weightKg, in.fitness, in.leanKg, in.skeletalKg, in.chMuscle,
+                    med, pl.hrRestMeasured ? pl.hrRest : -1, pl.hrMax);
+            calPw = calibrationCmd().pwUs > 0 ? calibrationCmd().pwUs : 350;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("auto", "energy: " + t);
+        }
+    }
+
+    /**
+     * Once per tick: the heart, what the suit really gives the leader now (impulse, or the second impulse in the
+     * pause; hz, pulse width, strength, channels), and the movement of the running set — the same physiology as the
+     * Smart Session. At the end the fast part of the debt is closed.
+     */
+    private static void tickEnergy(long now, AutoEngine.State st) {
+        if (energy == null || engine == null) {
+            return;
+        }
+        if (st == AutoEngine.State.DONE || st == AutoEngine.State.STOPPED) {
+            AiEnergy.exerciseMet = 0;
+            if (!epocClosed) {
+                epocClosed = true;
+                energy.closeEpoc();
+            }
+            return;
+        }
+        double hr = engine.getHr(now);
+        AiEnergy.Stim es = null;
+        double met = 0;
+        Row r = leaderRow();
+        if (st == AutoEngine.State.RUN && r != null && r.block == null && r.cal > 0 && r.item.data != null) {
+            ProgramDataBean b = bean(r.item);
+            if (b != null && b.strenth > 0) {
+                boolean inImpulse = r.item.data.inStart;
+                if (inImpulse || (b.activePause && b.pauseHz > 0)) {
+                    es = new AiEnergy.Stim();
+                    if (b.strenthBean != null && b.strenthBean.buwei != null) {
+                        es.channels = b.strenthBean.buwei.clone();
+                    }
+                    if (r.item.partsDisabled != null) {
+                        es.disabled = r.item.partsDisabled.clone();
+                    }
+                    es.hz = b.hz;
+                    es.pwUs = b.pulseWidth;
+                    if (inImpulse) {
+                        es.strengthPct = b.strenth;
+                        es.onShare = 1.0;
+                    } else {
+                        es.onShare = 0;
+                        es.pauseHz = b.pauseHz;
+                        es.pauseStrengthPct = b.pauseStrenthPercent;
+                        es.pauseShare = 1.0;
+                    }
+                    // tolerated level = the calibration (its strength at its pulse width) on each channel
+                    es.toleratedCharge = new double[AiEnergy.CH_MASS.length];
+                    for (int i = 0; i < es.toleratedCharge.length; i++) {
+                        double chPct = es.channels != null && i < es.channels.length ? es.channels[i] : 100;
+                        es.toleratedCharge[i] = chPct / 100.0
+                                * (i == AiEnergy.ARMS ? AiEnergy.armsSent(calPw) : AiEnergy.channelSent(i, calPw))
+                                * r.cal / 100.0 * calPw / 350.0;
+                    }
+                }
+            }
+            met = currentMet();
+        }
+        AiEnergy.exerciseMet = met;
+        energy.tick(now, hr, es);
+    }
+
+    /** MET of the movement of the running set (0 in a rest, a pause or without exercises). */
+    private static double currentMet() {
+        int ix = currentExercise();
+        return ix >= 0 ? AutoTemplates.met(ix) : 0;
+    }
+
+    /** Index of the exercise done now (AutoTemplates table); −1 outside a running set — for the record and the kcal. */
+    public static int currentExercise() {
+        try {
+            if (stage != Stage.RUNNING || engine == null || engine.getState() != AutoEngine.State.RUN) {
+                return -1;
+            }
+            String id = engine.getExercise();
+            return id != null ? AutoTemplates.index(id) : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    /** Estimated kcal of this session (total, with the open debt), −1 before the start. */
+    public static double getKcal() {
+        return energy != null ? energy.getKcal() : -1;
+    }
+
+    public static AiEnergy getEnergy() {
+        return energy;
     }
 
     // ================================================================ writing
@@ -1238,11 +1372,17 @@ public final class AutoSession {
 
     /** The zones the running step asks for on this row (a wave / even step, else the plan), before the person's moves. */
     private static int[] stepZones(Row r, AutoEngine.Cmd c) {
-        AutoModel.Plan rp = r.plan != null ? r.plan : plan;
-        if (c == null || c.zones == null) {
-            return rp.zones.clone();
+        int[] z = stepZonesRaw(r, c);
+        for (int i = 0; i < z.length; i++) {
+            z[i] = Math.max(0, Math.min(100, (int) Math.round(z[i] * r.zoneRatio[i] / 100.0)));
         }
-        int[] z = c.zones.clone();
+        return z;
+    }
+
+    /** As {@link #stepZones} without the calibration's channel shares. */
+    private static int[] stepZonesRaw(Row r, AutoEngine.Cmd c) {
+        AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+        int[] z = c == null || c.zones == null ? rp.zones.clone() : c.zones.clone();
         for (int i = 0; i < z.length; i++) {
             if (rp.zoneLocked[i] && rp.zones[i] == 0) {
                 z[i] = 0;
@@ -1265,7 +1405,7 @@ public final class AutoSession {
             want[i] = base[i] + r.zoneOffset[i];
             moved |= r.zoneOffset[i] != 0;
         }
-        if (c != null && c.zones != null && !moved) {
+        if (!moved) {
             return base;                                   // the wave as it is
         }
         return AutoLimits.clampZones(want, base, rp);
@@ -1497,7 +1637,28 @@ public final class AutoSession {
                     now10[i] = b.strenthBean.buwei[i];
                     changed |= now10[i] != r.writtenZones[i];
                 }
-                if (changed) {
+                if (changed && calib && r.block == null) {
+                    // the calibration (owner, 1.1.316): the row's own channel sliders set each channel's share
+                    // against the program, free of the run's limits; it holds for the whole session
+                    int[] raw = stepZonesRaw(r, written);
+                    for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                        if (now10[i] == r.writtenZones[i]) {
+                            continue;
+                        }
+                        if (raw[i] > 0) {
+                            r.zoneRatio[i] = Math.max(0, Math.min(300, (int) Math.round(now10[i] * 100.0 / raw[i])));
+                            r.zoneOffset[i] = 0;
+                        } else {
+                            r.zoneOffset[i] = now10[i];
+                        }
+                    }
+                    if (msgKind == INFO) {
+                        msgKey = "calib_zone";
+                        msg = who(r) + AiText.t("делът на зоните е зададен — пази се до края.",
+                                "zone shares set — kept to the end.");
+                    }
+                    rewrite = true;
+                } else if (changed) {
                     if (r.block != null) {
                         msg = who(r) + r.block;
                         msgKind = LIMIT;
@@ -1563,7 +1724,12 @@ public final class AutoSession {
                     // not calibrated at the start: this value becomes the calibration
                     r.cal = Math.min(100, (int) Math.round(allowed / f));
                 } else {
+                    // the start strength is no ceiling (owner, 1.1.315): a raise with + over the phase cap moves
+                    // the calibration up with it, so the whole session runs on the new strength; +5 per pulse stays
                     double ceil = engine.rowCeiling(written, rpl.phiMax, rpl.envMax);
+                    if (ceil > 0 && allowed > (int) Math.floor(r.cal * ceil + 1e-9)) {
+                        r.cal = Math.min(100, (int) Math.ceil(allowed / ceil - 1e-9));
+                    }
                     allowed = Math.min(allowed, (int) Math.floor(r.cal * ceil + 1e-9));
                 }
             }

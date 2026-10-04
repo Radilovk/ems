@@ -43,6 +43,30 @@ public final class HrGuard {
         return core;
     }
 
+    /**
+     * kcal of what runs now: the automatic mode and the Smart Session count their own (the leader's data, the
+     * impulses really given, the exercise); the manual count of the guard otherwise.
+     */
+    public static double liveKcal() {
+        try {
+            com.isaigu.gymapp.ai.AutoSession.Stage as = com.isaigu.gymapp.ai.AutoSession.getStage();
+            if (as == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING || as == com.isaigu.gymapp.ai.AutoSession.Stage.REPORT) {
+                double k = com.isaigu.gymapp.ai.AutoSession.getKcal();
+                if (k >= 0) {
+                    return k;
+                }
+            }
+            if (com.isaigu.gymapp.ai.AiSession.getStage() == com.isaigu.gymapp.ai.AiSession.Stage.RUNNING) {
+                double k = com.isaigu.gymapp.ai.AiSession.getKcal();
+                if (k >= 0) {
+                    return k;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return core != null ? core.getKcal() : 0;
+    }
+
     /** Every valid band sample (NotifyWearableBridge.onHeartRate). */
     static void onHeartRate(int bpm) {
         long now = System.currentTimeMillis();

@@ -314,7 +314,7 @@ public final class HrGuardCore {
     public boolean tick(long nowMs, Stim stim, boolean control) {
         tickCalibration(nowMs);
         double hr = hrFresh(nowMs) ? filter.getHrS() : -1;
-        energy.tick(nowMs, hr, energyStim(stim));
+        tickEnergy(nowMs, hr, stim);
         slope = computeSlope();
         forecast = hr > 0 ? hr + Math.max(0, slope) * lagS : -1;
         if (stim == null || !stim.running || !control) {
@@ -668,7 +668,39 @@ public final class HrGuardCore {
         }
     }
 
+    /** A run after a gap this long is a new session: the count starts again. */
+    private static final long NEW_RUN_GAP_MS = 10L * 60000L;
+    /** After the impulses stop the count follows the heart this long (recovery), then the fast debt is closed. */
+    private static final long RECOVERY_MS = 60000L;
+    private long lastRunMs = -1L;
+    private boolean epocClosed = true;
+
+    /**
+     * kcal of a manual session (owner, 1.1.318): counts only while impulses run + 60 s of recovery, then closes the
+     * fast part of the debt — before, it ran on from the last reset, rest and idle time included.
+     */
+    private void tickEnergy(long nowMs, double hr, Stim stim) {
+        if (stim != null && stim.running) {
+            if (lastRunMs < 0 || nowMs - lastRunMs > NEW_RUN_GAP_MS) {
+                energy.reset();
+                java.util.Arrays.fill(peakCharge, 0);
+            }
+            lastRunMs = nowMs;
+            epocClosed = false;
+            energy.tick(nowMs, hr, energyStim(stim));
+        } else if (lastRunMs >= 0 && !epocClosed) {
+            if (nowMs - lastRunMs <= RECOVERY_MS) {
+                energy.tick(nowMs, hr, null);
+            } else {
+                energy.closeEpoc();
+                epocClosed = true;
+            }
+        }
+    }
+
     public void resetEnergy() {
+        lastRunMs = -1L;
+        epocClosed = true;
         energy.reset();
         java.util.Arrays.fill(peakCharge, 0);
     }

@@ -389,7 +389,7 @@ public final class AutoUi {
         switch (step) {
             case STEP_PROGRAM:
                 if (in.kind == Kind.ACTIVE && in.exercises) {
-                    setupWorkout();                   // a made program: set up on the training screen, then ▶ Старт
+                    setupWorkout();                   // ready → the client step; own map → calibrated on the screen
                 } else if (in.programId != null) {
                     go(STEP_CLIENT);
                 }
@@ -430,6 +430,14 @@ public final class AutoUi {
             }
         }
         if (w == null) {
+            return;
+        }
+        Program rp = presetProgram(w);
+        if (rp != null) {
+            // a ready one is the automatic program itself with its exercises: the client step, the same setting-up
+            // and the automatic mode's limits (HR, dose, recovery) — nothing lost against "С упражнения" before
+            AutoSession.getInput().programId = rp.id;
+            go(STEP_CLIENT);
             return;
         }
         Activity a = host;
@@ -533,8 +541,11 @@ public final class AutoUi {
                 int mins = Math.max(1, Math.round(w.totalSeconds() / 60f));
                 String meta = w.distinctExercises() + AiText.t(" упр. · ", " ex. · ") + w.exerciseBlocks()
                         + AiText.t(" серии", " sets");
+                Program rp = presetProgram(w);
+                // a ready one runs as the automatic program with its exercises: its plan's three times
                 strip.addView(programCard(c, on, w.effectiveLevel(), ProgramArt.templateKey(in.sex), w.name,
-                        (w.preset ? "" : "★ ") + meta, null, "≈ " + mins + AiText.t(" мин", " min"), new Act(A_WORKOUT, i)),
+                        (w.preset ? "" : "★ ") + meta, rp != null ? AutoCatalog.times(rp, in.goal, in) : null,
+                        rp != null ? null : "≈ " + mins + AiText.t(" мин", " min"), new Act(A_WORKOUT, i)),
                         cardParams(c));
                 if (on) {
                     pickedLine = WorkoutsUi.focusLine(w);
@@ -599,7 +610,11 @@ public final class AutoUi {
         op.setPadding(0, XemsUi.dp(c, 6), 0, XemsUi.dp(c, 6));
         op.setOnClickListener(new Act(A_OPERATOR, 0));
         body.addView(op, XemsUi.matchWrap(c, 16));
-        footer(c, withEx ? AiText.t("Към настройване  ›", "To setup  ›") : AiText.t("Напред", "Next"), false);
+        boolean ownMap = false;
+        for (Workout w : withEx ? pickList : new ArrayList<Workout>()) {
+            ownMap |= w.id.equals(workoutId) && presetProgram(w) == null;
+        }
+        footer(c, ownMap ? AiText.t("Към настройване  ›", "To setup  ›") : AiText.t("Напред", "Next"), false);
         enable(withEx ? workoutId != null : in.programId != null);
     }
 
@@ -607,10 +622,19 @@ public final class AutoUi {
     private static List<Workout> pickList = new ArrayList<Workout>();
     private static String workoutId;
 
+    /** The automatic program behind a ready map ("preset:<id>"), null for the studio's own. */
+    private static Program presetProgram(Workout w) {
+        return w.preset && w.id != null && w.id.startsWith("preset:") ? AutoCatalog.get(w.id.substring(7)) : null;
+    }
+
     /** A made program is offered when it is linked to the goal, is active, and is not for the other sex. */
     private static void addPick(Workout w, AutoModel.Input in) {
         if (w.blocks.isEmpty() || !w.fits(in.goal, Kind.ACTIVE)) {
             return;
+        }
+        Program rp = presetProgram(w);
+        if (rp != null && AutoCatalog.blockReason(rp, in.goal, in, false) != null) {
+            return;                                   // not for this client today
         }
         if (w.sex != null && !w.sex.equals(in.sex == AiModel.Sex.MALE ? "m" : "f")) {
             return;

@@ -165,9 +165,13 @@ Unmarked: goal from the exercises (cardio → Отслабване, else Стя�
 Ready maps carry their program's marks (`AutoCatalog.Program.level`, the goals whose menu lists it).
 `Workout.fits(goal, kind)` is the filter: Auto → Активна → **С упражнения** lists the studio's own maps first, then the
 ready ones, that fit the chosen goal (and the client's sex), as cards coloured by difficulty with their time.
-Picking one → **Към настройване**: `MapRunner.arm` — the card waits ("Настрой силата"), the trainer sets the total
-strength and each channel on the main screen, then **▶ Старт** (`MapRunner.go`; enabled once a strength is set); ✕ Отказ
-leaves nothing changed.
+Picking a **ready** one (`preset:<program>`) → the client step and the automatic mode itself with that program's
+exercises (its plan, HR, dose, recovery, the same setting-up board) — nothing lost against the old "С упражнения".
+Picking the studio's **own** map → **Към настройване**: `MapRunner.arm` = the **same calibration as Auto** (1.1.337):
+the map's main work (longest exercise block) runs on every row from strength 0, the trainer raises the total strength
+(≤ +5 / s, held back above that) and each channel on the main screen to 6–7 of 10, then **▶ Старт** (`MapRunner.go`,
+enabled once a strength is set) takes it as each row's 100 % and the map runs; ✕ Отказ puts the rows' own impulse and
+strength back.
 
 ## Not yet
 Workouts sync between tablets / to the server; picking a workout from the AI goal screen (today: from Тренировки);

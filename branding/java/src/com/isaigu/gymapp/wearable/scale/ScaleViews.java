@@ -749,7 +749,10 @@ public final class ScaleViews {
 
     // ================================================================ trend line
 
-    /** One metric over the measurements: soft area, the line, dots, the last point big with its value. */
+    /**
+     * One metric over the measurements: soft area, the line, dots, the last point big with its value.
+     * A tap on a dot shows that weigh-in's date and value (a tap beside it or on it again hides it).
+     */
     public static final class Trend extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final Path line = new Path();
@@ -759,6 +762,11 @@ public final class ScaleViews {
         int color = 0xFF22C55E;
         String unit = "";
         boolean compact;
+        /** Where each value was drawn (NaN = not drawn) and the dot tapped (-1 = none). */
+        float[] px = new float[0];
+        float[] py = new float[0];
+        int sel = -1;
+        float downX, downY;
 
         public Trend(Context c, boolean compact) {
             super(c);
@@ -770,7 +778,100 @@ public final class ScaleViews {
             this.t = times != null ? times : new long[0];
             this.color = color;
             this.unit = unit != null ? unit : "";
+            sel = -1;
             invalidate();
+        }
+
+        @Override
+        public boolean onTouchEvent(android.view.MotionEvent e) {
+            if (compact || px.length == 0) {
+                return super.onTouchEvent(e);
+            }
+            int a = e.getActionMasked();
+            if (a == android.view.MotionEvent.ACTION_DOWN) {
+                downX = e.getX();
+                downY = e.getY();
+                return true;
+            }
+            if (a == android.view.MotionEvent.ACTION_UP) {
+                float slop = android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop();
+                if (Math.abs(e.getX() - downX) > slop * 2 || Math.abs(e.getY() - downY) > slop * 2) {
+                    return true;
+                }
+                int hit = -1;
+                float best = dp(this, 28);
+                for (int i = 0; i < px.length; i++) {
+                    if (Float.isNaN(px[i])) {
+                        continue;
+                    }
+                    float d = Math.abs(px[i] - e.getX()) + 0.35f * Math.abs(py[i] - e.getY());
+                    if (d < best) {
+                        best = d;
+                        hit = i;
+                    }
+                }
+                sel = hit == sel ? -1 : hit;
+                if (sel >= 0) {
+                    try {
+                        performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+                    } catch (Throwable ignored) {
+                    }
+                }
+                invalidate();
+                return true;
+            }
+            return a == android.view.MotionEvent.ACTION_MOVE || super.onTouchEvent(e);
+        }
+
+        /** The tapped dot: a guide line, the dot ringed, and a bubble with its date and value. */
+        void drawPick(Canvas c, float padT, float h) {
+            if (sel < 0 || sel >= px.length || Float.isNaN(px[sel]) || sel >= v.length) {
+                return;
+            }
+            float x = px[sel], y = py[sel];
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(dp(this, 1.2f));
+            p.setColor(XemsUi.alpha(color, 120));
+            c.drawLine(x, padT, x, padT + h, p);
+            p.setStrokeWidth(dp(this, 2.5f));
+            p.setColor(color);
+            c.drawCircle(x, y, dp(this, 8), p);
+            p.setStyle(Paint.Style.FILL);
+            String val = String.format(Locale.US, "%.1f", v[sel]) + unit;
+            String day = sel < t.length && t[sel] > 0
+                    ? new java.text.SimpleDateFormat("d.MM.yyyy  HH:mm", Locale.US).format(new java.util.Date(t[sel])) : "";
+            p.setTextSize(sp(this, 15));
+            p.setFakeBoldText(true);
+            float wv = p.measureText(val);
+            p.setFakeBoldText(false);
+            p.setTextSize(sp(this, 11));
+            float wd = p.measureText(day);
+            float bw = Math.max(wv, wd) + dp(this, 20);
+            float bh = dp(this, day.isEmpty() ? 30 : 46);
+            float bx = Math.max(dp(this, 2), Math.min(getWidth() - bw - dp(this, 2), x - bw / 2f));
+            float by = y - bh - dp(this, 14);
+            if (by < dp(this, 2)) {
+                by = y + dp(this, 14);                    // no room above the dot: below it
+            }
+            by = Math.min(by, getHeight() - bh - dp(this, 2));
+            p.setColor(XemsUi.CARD);
+            c.drawRoundRect(new android.graphics.RectF(bx, by, bx + bw, by + bh), dp(this, 10), dp(this, 10), p);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(dp(this, 1.5f));
+            p.setColor(color);
+            c.drawRoundRect(new android.graphics.RectF(bx, by, bx + bw, by + bh), dp(this, 10), dp(this, 10), p);
+            p.setStyle(Paint.Style.FILL);
+            p.setTextAlign(Paint.Align.CENTER);
+            p.setTextSize(sp(this, 15));
+            p.setFakeBoldText(true);
+            p.setColor(XemsUi.TEXT);
+            c.drawText(val, bx + bw / 2f, by + dp(this, 21), p);
+            p.setFakeBoldText(false);
+            if (!day.isEmpty()) {
+                p.setTextSize(sp(this, 11));
+                p.setColor(XemsUi.MUTED);
+                c.drawText(day, bx + bw / 2f, by + dp(this, 38), p);
+            }
         }
 
         @Override
@@ -807,6 +908,11 @@ public final class ScaleViews {
             area.reset();
             float lastX = 0, lastY = 0, firstX = 0;
             int k = 0;
+            if (px.length != v.length) {
+                px = new float[v.length];
+                py = new float[v.length];
+            }
+            java.util.Arrays.fill(px, Float.NaN);
             for (int i = 0; i < v.length; i++) {
                 if (Double.isNaN(v[i])) {
                     continue;
@@ -814,6 +920,8 @@ public final class ScaleViews {
                 float x = padL + (v.length == 1 ? w : byTime ? (float) ((t[i] - t0) / (double) (t1 - t0)) * w
                         : w * i / Math.max(1, v.length - 1));
                 float y = padT + (float) ((hi - v[i]) / (hi - lo)) * h;
+                px[i] = x;
+                py[i] = y;
                 if (k == 0) {
                     line.moveTo(x, y);
                     area.moveTo(x, padT + h);
@@ -872,6 +980,7 @@ public final class ScaleViews {
                     p.setTextAlign(Paint.Align.RIGHT);
                     drawFit(c, p, f.format(new java.util.Date(t[t.length - 1])), padL + w, getHeight() - dp(this, 4), -1, this);
                 }
+                drawPick(c, padT, h);
             }
         }
     }

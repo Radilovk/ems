@@ -133,6 +133,17 @@ for a phone, light/dark, figure + norm bars + change + recommendations), through
 - **Readiness needs two baselines** (`ScaleInsight.BASE_MIN = 2`, audit F12): one earlier weigh-in is one contact, its
   noise sits under the 1.2 % threshold.
 
+### Weight: the scale wins over the card (1.1.315-ai, owner)
+The weight the client types in the profile is a guess. Every weigh-in writes its weight into the client card
+(`ScaleScreen.cardWeight` → `XemsLocalStore.saveUserQuiet`, by reflection — widget is compiled apart), and
+`XemsClientSync` drops the profile's weight when the last weigh-in is newer than the profile. The weight sent to the
+scale before stepping on is the last weigh-in (any age), the card's value only when there is none. Body composition
+always uses the measured weight.
+
+### Trend: tap a dot (1.1.315-ai)
+`ScaleViews.Trend` (not compact): a tap on a dot shows a bubble with that weigh-in's value and date/time, a guide
+line and a ring; a tap on the same dot or beside the dots hides it.
+
 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
 Measured on WLA25 itself (sacoma port): same impedances, +10 kg → +9 % fat (its BMI / weight terms count weight
 as fat → muscular men "fat / overweight"); "body age" = entered age + a fat-% band offset (25 / 45 / 65 → 22 / 42 /

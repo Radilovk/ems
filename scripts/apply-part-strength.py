@@ -6,7 +6,8 @@ percent per channel for both). While channels are selected only strength changes
 pause selections do not take + / − or the slider).
 
 Patches (idempotent; each site is checked and the build stops if it is not found):
-  TrainItemManager.lambda$addAllPartValue$6  + / −: selected channels first
+  TrainItemManager.lambda$addAllPartValue$6  + / −: only the picked clients (XemsLocalAvatar.masterApplies,
+                                              a tap on the photo; nobody picked = all), then selected channels first
   TrainViewHolder$4.onChangedEnd              slider release: selected channels first
   TrainViewHolder.updateUI                    slider shows the selected channels' level
 """
@@ -44,6 +45,11 @@ def patch_manager() -> None:
     if not anchor:
         raise RuntimeError("TrainItemManager.lambda$addAllPartValue$6: isPauseMaSelected site not found")
     inject = (
+        f"    invoke-static {{p2}}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->masterApplies({ITEM})Z\n"
+        "    move-result v0\n"
+        "    if-nez v0, :cond_xems_pick_plus\n"
+        "    return-void\n"
+        "    :cond_xems_pick_plus\n"
         f"    invoke-static {{p2, p1}}, {PS}->addSelected({ITEM}I)Z\n"
         "    move-result v0\n"
         "    if-eqz v0, :cond_parts_none\n"

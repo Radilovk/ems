@@ -19,7 +19,7 @@
     .registers 1
 
     .prologue
-    .line 58
+    .line 59
     invoke-direct {p0}, Landroid/app/Fragment;-><init>()V
 
     return-void
@@ -31,7 +31,7 @@
     .registers 2
 
     .prologue
-    .line 95
+    .line 96
     :try_start_0
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->getFragmentManager()Landroid/app/FragmentManager;
 
@@ -49,11 +49,11 @@
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_f} :catch_10
 
-    .line 98
+    .line 99
     :goto_f
     return-void
 
-    .line 96
+    .line 97
     :catch_10
     move-exception v0
 
@@ -64,22 +64,22 @@
     .registers 7
 
     .prologue
-    .line 77
+    .line 78
     invoke-super {p0, p1, p2, p3}, Landroid/app/Fragment;->onActivityResult(IILandroid/content/Intent;)V
 
-    .line 78
+    .line 79
     # getter for: Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->pending:Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->access$000()Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;
 
     move-result-object v0
 
-    .line 79
+    .line 80
     const/4 v1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->pending:Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->access$002(Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;)Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;
 
-    .line 81
+    .line 82
     const/16 v1, 0x5a7
 
     if-ne p1, v1, :cond_2d
@@ -99,7 +99,7 @@
 
     if-eqz v0, :cond_2d
 
-    .line 82
+    .line 83
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->getActivity()Landroid/app/Activity;
 
     move-result-object v1
@@ -112,27 +112,27 @@
 
     move-result-object v1
 
-    .line 83
+    .line 84
     if-eqz v1, :cond_2d
 
-    .line 84
+    .line 85
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;->onPicked(Landroid/graphics/Bitmap;)V
     :try_end_2d
     .catch Ljava/lang/Throwable; {:try_start_14 .. :try_end_2d} :catch_31
 
-    .line 90
+    .line 91
     :cond_2d
     :goto_2d
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->done()V
 
-    .line 91
+    .line 92
     return-void
 
-    .line 87
+    .line 88
     :catch_31
     move-exception v0
 
-    .line 88
+    .line 89
     const-string v1, "xems"
 
     const-string v2, "XemsLocalAvatar.result"
@@ -146,13 +146,13 @@
     .registers 5
 
     .prologue
-    .line 61
+    .line 62
     invoke-super {p0, p1}, Landroid/app/Fragment;->onCreate(Landroid/os/Bundle;)V
 
-    .line 62
+    .line 63
     if-nez p1, :cond_20
 
-    .line 64
+    .line 65
     :try_start_5
     new-instance v0, Landroid/content/Intent;
 
@@ -160,17 +160,17 @@
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 65
+    .line 66
     const-string v1, "image/*"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 66
+    .line 67
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 67
+    .line 68
     const/4 v1, 0x0
 
     invoke-static {v0, v1}, Landroid/content/Intent;->createChooser(Landroid/content/Intent;Ljava/lang/CharSequence;)Landroid/content/Intent;
@@ -183,23 +183,23 @@
     :try_end_20
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_20} :catch_21
 
-    .line 73
+    .line 74
     :cond_20
     :goto_20
     return-void
 
-    .line 68
+    .line 69
     :catch_21
     move-exception v0
 
-    .line 69
+    .line 70
     const-string v1, "xems"
 
     const-string v2, "XemsLocalAvatar.start"
 
     invoke-static {v1, v2, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 70
+    .line 71
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->done()V
 
     goto :goto_20

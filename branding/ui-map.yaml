@@ -131,7 +131,7 @@ train_row:
         - id: pauseHzValue
           label_bg: "Долу-дясно: pause Hz"
         - id: userIcon
-          label_bg: "Снимка на потребителя"
+          label_bg: "Снимка на потребителя — докосване: избор за мастър контролите (свети), задържане: картон"
           config_key: avatar.icon_padding_dp
         - id: wave_ball_progress_value
           label_bg: "Таймер в центъра"

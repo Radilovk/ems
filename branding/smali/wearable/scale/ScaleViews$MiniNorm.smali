@@ -29,10 +29,10 @@
     .registers 4
 
     .prologue
-    .line 1383
+    .line 1492
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 1377
+    .line 1486
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -41,19 +41,19 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->p:Landroid/graphics/Paint;
 
-    .line 1378
+    .line 1487
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->r:Landroid/graphics/RectF;
 
-    .line 1380
+    .line 1489
     const/high16 v0, 0x3f800000    # 1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->grow:F
 
-    .line 1384
+    .line 1493
     return-void
 .end method
 
@@ -63,17 +63,17 @@
     .registers 16
 
     .prologue
-    .line 1397
+    .line 1506
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->n:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     if-nez v0, :cond_5
 
-    .line 1419
+    .line 1528
     :cond_4
     :goto_4
     return-void
 
-    .line 1400
+    .line 1509
     :cond_5
     const/high16 v0, 0x40a00000    # 5.0f
 
@@ -111,14 +111,14 @@
 
     div-float v5, v0, v1
 
-    .line 1401
+    .line 1510
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->n:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->sector()I
 
     move-result v6
 
-    .line 1402
+    .line 1511
     const/4 v0, 0x0
 
     move v1, v0
@@ -128,7 +128,7 @@
 
     if-ge v1, v0, :cond_80
 
-    .line 1403
+    .line 1512
     int-to-float v0, v1
 
     mul-float/2addr v0, v3
@@ -167,14 +167,14 @@
 
     sub-float/2addr v7, v8
 
-    .line 1404
+    .line 1513
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->r:Landroid/graphics/RectF;
 
     add-float v9, v5, v4
 
     invoke-virtual {v8, v0, v5, v7, v9}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 1405
+    .line 1514
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->p:Landroid/graphics/Paint;
 
     if-ne v1, v6, :cond_73
@@ -188,7 +188,7 @@
     :goto_5d
     invoke-virtual {v7, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1406
+    .line 1515
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->r:Landroid/graphics/RectF;
 
     const/high16 v7, 0x40000000    # 2.0f
@@ -203,14 +203,14 @@
 
     invoke-virtual {p1, v0, v7, v8, v9}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 1402
+    .line 1511
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_2d
 
-    .line 1405
+    .line 1514
     :cond_73
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->n:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
@@ -226,7 +226,7 @@
 
     goto :goto_5d
 
-    .line 1408
+    .line 1517
     :cond_80
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->n:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
@@ -240,12 +240,12 @@
 
     if-ltz v6, :cond_4
 
-    .line 1411
+    .line 1520
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->n:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;->edges:[D
 
-    .line 1412
+    .line 1521
     const/4 v1, 0x0
 
     aget-wide v8, v0, v1
@@ -266,7 +266,7 @@
 
     move-result-wide v8
 
-    .line 1413
+    .line 1522
     aget-wide v10, v0, v6
 
     sub-double/2addr v8, v10
@@ -287,7 +287,7 @@
 
     div-double v0, v8, v0
 
-    .line 1414
+    .line 1523
     int-to-double v8, v6
 
     add-double/2addr v0, v8
@@ -308,14 +308,14 @@
 
     add-float/2addr v0, v2
 
-    .line 1415
+    .line 1524
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->p:Landroid/graphics/Paint;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1416
+    .line 1525
     const/high16 v1, 0x40000000    # 2.0f
 
     div-float v1, v4, v1
@@ -332,7 +332,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1417
+    .line 1526
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->p:Landroid/graphics/Paint;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->n:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
@@ -343,7 +343,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1418
+    .line 1527
     const/high16 v1, 0x40000000    # 2.0f
 
     div-float v1, v4, v1
@@ -367,10 +367,10 @@
     .registers 6
 
     .prologue
-    .line 1387
+    .line 1496
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->n:Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Norm;
 
-    .line 1388
+    .line 1497
     const/4 v0, 0x2
 
     new-array v0, v0, [F
@@ -381,12 +381,12 @@
 
     move-result-object v0
 
-    .line 1389
+    .line 1498
     const-wide/16 v2, 0x208
 
     invoke-virtual {v0, v2, v3}, Landroid/animation/ValueAnimator;->setDuration(J)Landroid/animation/ValueAnimator;
 
-    .line 1390
+    .line 1499
     new-instance v1, Landroid/view/animation/DecelerateInterpolator;
 
     const v2, 0x3fcccccd    # 1.6f
@@ -395,20 +395,20 @@
 
     invoke-virtual {v0, v1}, Landroid/animation/ValueAnimator;->setInterpolator(Landroid/animation/TimeInterpolator;)V
 
-    .line 1391
+    .line 1500
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;-><init>(Landroid/view/View;)V
 
     invoke-virtual {v0, v1}, Landroid/animation/ValueAnimator;->addUpdateListener(Landroid/animation/ValueAnimator$AnimatorUpdateListener;)V
 
-    .line 1392
+    .line 1501
     invoke-virtual {v0}, Landroid/animation/ValueAnimator;->start()V
 
-    .line 1393
+    .line 1502
     return-void
 
-    .line 1388
+    .line 1497
     :array_28
     .array-data 4
         0x0

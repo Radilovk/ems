@@ -1,4 +1,7 @@
+import com.isaigu.gymapp.ai.AiModel;
+import com.isaigu.gymapp.ai.AutoModel;
 import com.isaigu.gymapp.ai.MapClock;
+import com.isaigu.gymapp.ai.MapDynamics;
 import com.isaigu.gymapp.ai.Workout;
 
 /** MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest
@@ -42,8 +45,79 @@ public final class MapSim {
         check(anyDouble, "a passive program's active pause becomes a double impulse");
     }
 
+    static AutoModel.Step stepOf(Workout.Block b) {
+        AutoModel.Step s = new AutoModel.Step(b.hz, b.pw, Math.max(1, b.on), Math.max(1, b.off));
+        s.pauseHz = b.dbl ? b.hz2 : 0;
+        s.pauseSigma = b.dbl ? b.str2 / 100.0 : 0;
+        s.rampUpMs = b.rampIn;
+        return s;
+    }
+
+    /** Owner (1.1.324): the smart impulse in every ready workout — an approach per set, glide, longer rests. */
+    static void dynamics() {
+        java.util.Set<String> names = new java.util.HashSet<String>();
+        int sets = 0, falling = 0, extended = 0;
+        for (Workout m : Workout.presets()) {
+            if (m.isPassive()) {
+                continue;
+            }
+            MapDynamics d = new MapDynamics(AiModel.Fitness.MID, 8, 35, 185);
+            double t = 0;
+            String prev = null;
+            for (Workout.Block b : m.blocks) {
+                if (b.isRest()) {
+                    int need = d.restS(b.reps);
+                    check(need >= b.reps && need <= Math.max(b.reps, MapDynamics.REST_MAX_S), m.id + ": rest " + need);
+                    extended += need > b.reps ? 1 : 0;
+                    d.advance(need, false, false, 0, 0, 0, 0);
+                    t += need;
+                    continue;
+                }
+                AutoModel.Step drawn = stepOf(b);
+                String nm = b.hasExercise() ? d.startSet(drawn, t / Math.max(1, m.totalSeconds()), -1) : "";
+                if (!b.hasExercise()) {
+                    d.startPlain(drawn);
+                }
+                if (nm.length() > 0) {
+                    names.add(nm);
+                    check(!nm.equals(prev) || nm.equals("Както е нарисуван"), m.id + ": not the same approach twice");
+                    prev = nm;
+                    sets++;
+                }
+                int first = -1, last = -1;
+                for (int r = 0; r < b.reps; r++) {
+                    AutoModel.Step s = d.cycle(drawn, true);
+                    if (first < 0) {
+                        first = s.hz;
+                    }
+                    last = s.hz;
+                    check(b.hz >= 50 || s.hz < 70, m.id + ": a cardio / jump block never gets strength (" + s.hz + ")");
+                    check(b.hz >= 20 || s.hz == b.hz, m.id + ": stretching / twitches keep the drawn impulse");
+                    check(s.pwUs >= drawn.pwUs, m.id + ": depth never below the drawn");
+                    d.advance(s.onS, true, true, s.hz, s.pauseHz, s.pauseSigma, b.rel / 100.0);
+                    d.advance(Math.max(1, s.offS), true, false, s.hz, s.pauseHz, s.pauseSigma, b.rel / 100.0);
+                    t += s.onS + Math.max(1, s.offS);
+                }
+                if (b.reps > 3 && first >= 50 && last < first) {
+                    falling++;
+                }
+            }
+        }
+        check(names.size() >= 4, "dynamics: the ready workouts use ≥ 4 approaches (" + names + ")");
+        check(falling >= sets / 3, "dynamics: the frequency falls inside the sets (" + falling + " / " + sets + ")");
+        // a tired muscle → a drawn short rest is extended
+        MapDynamics d = new MapDynamics(AiModel.Fitness.LOW, 8, 35, 185);
+        for (int i = 0; i < 12; i++) {
+            d.advance(6, true, true, 100, 0, 0, 1);
+            d.advance(2, true, false, 100, 0, 0, 1);
+        }
+        check(d.restS(10) > 10, "dynamics: tired → the drawn 10 s rest is longer (" + d.restS(10) + ")");
+        check(new MapDynamics(AiModel.Fitness.MID, 8, 35, 185).restS(30) == 30, "dynamics: fresh → the drawn rest");
+    }
+
     public static void main(String[] args) {
         impulseSettings();
+        dynamics();
         java.util.List<Workout> maps = new java.util.ArrayList<Workout>(Workout.presets());
         Workout w = new Workout();
         w.id = "drawn";

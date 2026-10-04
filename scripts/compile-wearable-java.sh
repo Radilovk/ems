@@ -130,6 +130,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoLimits.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoPlanner.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoDynamics.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/MapDynamics.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoEngine.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoHistory.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoSession.java"

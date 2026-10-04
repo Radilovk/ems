@@ -95,6 +95,28 @@ public final class AutoDynamics {
         return new Approach[] {base, STRENGTH_PAUSE, PURE, VOLUME, METABOLIC, TONE};
     }
 
+    /**
+     * The approaches of one block of a drawn map (Програми, owner 1.1.324): by the movement the block was drawn for —
+     * cardio / jumps (< 50 Hz) never get strength approaches, stretching / twitches (< 20 Hz) none at all; 60+ and the
+     * first trainings no 100 Hz. The drawn impulse is always one of them (index 0).
+     */
+    public static Approach[] forMap(Step drawn, int sessions, int age) {
+        if (drawn == null || !drawn.isTetanic()) {
+            return null;
+        }
+        Approach base = baseOf(drawn);
+        if (drawn.hz < 50) {
+            return new Approach[] {base, METABOLIC, TONE};
+        }
+        if (age >= 60) {
+            return new Approach[] {base, LIGHT_VOLUME, TONE};
+        }
+        if (sessions < 3) {
+            return new Approach[] {base, VOLUME, METABOLIC, TONE};
+        }
+        return new Approach[] {base, STRENGTH_PAUSE, PURE, VOLUME, METABOLIC, TONE};
+    }
+
     /** The program's own step as an approach: it glides down to 70 % (never under fusion, 50 Hz) when ≥ 50 Hz. */
     static Approach baseOf(Step s) {
         int floor = s.hz >= 50 ? Math.max(50, (int) Math.round(s.hz * 0.7)) : s.hz;

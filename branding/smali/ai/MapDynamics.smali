@@ -48,29 +48,29 @@
 
     const/4 v2, -0x1
 
-    .line 39
+    .line 41
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 30
+    .line 32
     iput v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->prev:I
 
-    .line 31
+    .line 33
     iput v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->prev2:I
 
-    .line 32
+    .line 34
     const/16 v1, 0x8
 
     new-array v1, v1, [I
 
     iput-object v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->used:[I
 
-    .line 34
+    .line 36
     iput v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
 
-    .line 35
+    .line 37
     iput v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->lastHz:I
 
-    .line 40
+    .line 42
     if-eqz p1, :cond_40
 
     :goto_15
@@ -78,36 +78,36 @@
 
     move-result-object v1
 
-    .line 41
+    .line 43
     aget-wide v2, v1, v0
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fMax:D
 
-    .line 42
+    .line 44
     const/4 v2, 0x1
 
     aget-wide v2, v1, v2
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fRec:D
 
-    .line 43
+    .line 45
     const/4 v2, 0x2
 
     aget-wide v2, v1, v2
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->tau:D
 
-    .line 44
+    .line 46
     invoke-static {v0, p2}, Ljava/lang/Math;->max(II)I
 
     move-result v1
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->sessions:I
 
-    .line 45
+    .line 47
     iput p3, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->age:I
 
-    .line 46
+    .line 48
     if-lez p4, :cond_3d
 
     int-to-double v0, p4
@@ -125,10 +125,10 @@
     :cond_3d
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->hrCap:I
 
-    .line 47
+    .line 49
     return-void
 
-    .line 40
+    .line 42
     :cond_40
     sget-object p1, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->MID:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
@@ -139,7 +139,7 @@
     .registers 4
 
     .prologue
-    .line 142
+    .line 144
     const/4 v0, 0x0
 
     :goto_1
@@ -153,7 +153,7 @@
 
     if-ge v0, v1, :cond_18
 
-    .line 143
+    .line 145
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     aget-object v1, v1, v0
@@ -164,17 +164,17 @@
 
     if-ne v1, p1, :cond_15
 
-    .line 147
+    .line 149
     :goto_14
     return v0
 
-    .line 142
+    .line 144
     :cond_15
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 147
+    .line 149
     :cond_18
     const/4 v0, -0x1
 
@@ -191,7 +191,7 @@
 
     const/4 v2, 0x0
 
-    .line 128
+    .line 130
     new-array v3, v1, [Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     const/4 v4, 0x0
@@ -232,7 +232,7 @@
 
     aput-object v5, v3, v4
 
-    .line 130
+    .line 132
     if-eqz p0, :cond_31
 
     const-string v4, "base"
@@ -248,11 +248,11 @@
     :cond_31
     move v0, v2
 
-    .line 138
+    .line 140
     :goto_32
     return v0
 
-    .line 133
+    .line 135
     :cond_33
     add-int/lit8 v0, v0, 0x1
 
@@ -261,7 +261,7 @@
 
     if-ge v0, v2, :cond_3d
 
-    .line 134
+    .line 136
     aget-object v2, v3, v0
 
     if-ne v2, p0, :cond_33
@@ -271,7 +271,7 @@
     :cond_3d
     move v0, v1
 
-    .line 138
+    .line 140
     goto :goto_32
 .end method
 
@@ -281,18 +281,18 @@
     .registers 20
 
     .prologue
-    .line 51
+    .line 53
     const-wide/16 v0, 0x0
 
     cmpg-double v0, p1, v0
 
     if-gtz v0, :cond_7
 
-    .line 62
+    .line 64
     :goto_6
     return-void
 
-    .line 54
+    .line 56
     :cond_7
     neg-double v0, p1
 
@@ -304,15 +304,15 @@
 
     move-result-wide v2
 
-    .line 55
+    .line 57
     const-wide/16 v0, 0x0
 
-    .line 56
+    .line 58
     if-eqz p3, :cond_2a
 
     if-eqz p4, :cond_2a
 
-    .line 57
+    .line 59
     invoke-static {p5}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
 
     move-result-wide v0
@@ -323,7 +323,7 @@
 
     mul-double/2addr v0, v4
 
-    .line 61
+    .line 63
     :cond_1e
     :goto_1e
     iget-wide v4, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->f:D
@@ -342,13 +342,13 @@
 
     goto :goto_6
 
-    .line 58
+    .line 60
     :cond_2a
     if-eqz p3, :cond_1e
 
     if-lez p6, :cond_1e
 
-    .line 59
+    .line 61
     invoke-static {p6}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
 
     move-result-wide v0
@@ -368,17 +368,17 @@
     .registers 8
 
     .prologue
-    .line 109
+    .line 111
     if-nez p1, :cond_4
 
-    .line 110
+    .line 112
     const/4 v0, 0x0
 
-    .line 117
+    .line 119
     :goto_3
     return-object v0
 
-    .line 112
+    .line 114
     :cond_4
     iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
 
@@ -388,7 +388,7 @@
 
     if-eqz v0, :cond_34
 
-    .line 113
+    .line 115
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
@@ -407,7 +407,7 @@
 
     move-result-object v0
 
-    .line 114
+    .line 116
     :goto_1e
     iget v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
@@ -423,19 +423,19 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    .line 115
+    .line 117
     const/4 v1, 0x0
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fresh:Z
 
-    .line 116
+    .line 118
     iget v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->lastHz:I
 
     goto :goto_3
 
-    .line 113
+    .line 115
     :cond_34
     invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->copy()Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
@@ -450,7 +450,7 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 65
+    .line 67
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fMax:D
 
     cmpl-double v2, v2, v0
@@ -471,7 +471,7 @@
     .registers 8
 
     .prologue
-    .line 122
+    .line 124
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->f:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fRec:D
@@ -494,7 +494,7 @@
 
     mul-double/2addr v0, v2
 
-    .line 123
+    .line 125
     :goto_14
     int-to-double v2, p1
 
@@ -516,29 +516,31 @@
 
     return v0
 
-    .line 122
+    .line 124
     :cond_25
     const-wide/16 v0, 0x0
 
     goto :goto_14
 .end method
 
-.method public startPlain(Lcom/isaigu/gymapp/ai/AutoModel$Step;)V
-    .registers 6
+.method public startPlain(Lcom/isaigu/gymapp/ai/AutoModel$Step;Z)V
+    .registers 7
 
     .prologue
     const/4 v3, 0x1
 
     const/4 v1, 0x0
 
-    .line 102
-    if-eqz p1, :cond_1e
+    .line 104
+    if-nez p2, :cond_20
+
+    if-eqz p1, :cond_20
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->isTetanic()Z
 
     move-result v0
 
-    if-eqz v0, :cond_1e
+    if-eqz v0, :cond_20
 
     new-array v0, v3, [Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
@@ -548,166 +550,177 @@
 
     aput-object v2, v0, v1
 
-    :goto_12
+    :goto_14
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
-    .line 103
+    .line 105
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
-    if-eqz v0, :cond_20
+    if-eqz v0, :cond_22
 
     move v0, v1
 
-    :goto_19
+    :goto_1b
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
 
-    .line 104
+    .line 106
     iput-boolean v3, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fresh:Z
 
-    .line 105
+    .line 107
     return-void
 
-    .line 102
-    :cond_1e
+    .line 104
+    :cond_20
     const/4 v0, 0x0
 
-    goto :goto_12
+    goto :goto_14
 
-    .line 103
-    :cond_20
+    .line 105
+    :cond_22
     const/4 v0, -0x1
 
-    goto :goto_19
+    goto :goto_1b
 .end method
 
-.method public startSet(Lcom/isaigu/gymapp/ai/AutoModel$Step;DI)Ljava/lang/String;
-    .registers 11
+.method public startSet(Lcom/isaigu/gymapp/ai/AutoModel$Step;IZDI)Ljava/lang/String;
+    .registers 15
 
     .prologue
-    const/4 v0, 0x1
+    const/4 v1, 0x1
 
-    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
 
-    .line 73
-    iget v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->sessions:I
+    .line 75
+    if-eqz p3, :cond_14
+
+    const/4 v0, 0x0
+
+    :goto_6
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
+
+    .line 76
+    iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fresh:Z
+
+    .line 77
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
+
+    if-nez v0, :cond_1d
+
+    .line 78
+    const/4 v0, -0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
+
+    .line 79
+    const-string v0, ""
+
+    .line 99
+    :goto_13
+    return-object v0
+
+    .line 75
+    :cond_14
+    iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->sessions:I
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->age:I
 
-    invoke-static {p1, v1, v2}, Lcom/isaigu/gymapp/ai/AutoDynamics;->forMap(Lcom/isaigu/gymapp/ai/AutoModel$Step;II)[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
+    invoke-static {p1, p2, v0, v2}, Lcom/isaigu/gymapp/ai/AutoDynamics;->forMap(Lcom/isaigu/gymapp/ai/AutoModel$Step;III)[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
-    move-result-object v1
+    move-result-object v0
 
-    iput-object v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
-
-    .line 74
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->fresh:Z
-
-    .line 75
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
-
-    if-nez v1, :cond_19
-
-    .line 76
-    const/4 v0, -0x1
-
-    iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
-
-    .line 77
-    const-string v0, ""
-
-    .line 97
-    :goto_18
-    return-object v0
-
-    .line 79
-    :cond_19
-    new-instance v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;
-
-    invoke-direct {v1}, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;-><init>()V
-
-    .line 80
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/MapDynamics;->fatigue()D
-
-    move-result-wide v2
-
-    invoke-static {v4, v5, v2, v3}, Ljava/lang/Math;->min(DD)D
-
-    move-result-wide v2
-
-    sub-double v2, v4, v2
-
-    iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->fresh:D
+    goto :goto_6
 
     .line 81
-    const-wide/16 v2, 0x0
+    :cond_1d
+    new-instance v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;
 
-    invoke-static {v4, v5, p2, p3}, Ljava/lang/Math;->min(DD)D
+    invoke-direct {v2}, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;-><init>()V
+
+    .line 82
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/MapDynamics;->fatigue()D
 
     move-result-wide v4
 
-    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D
+    invoke-static {v6, v7, v4, v5}, Ljava/lang/Math;->min(DD)D
 
-    move-result-wide v2
+    move-result-wide v4
 
-    iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->progress:D
+    sub-double v4, v6, v4
 
-    .line 82
-    iget v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->hrCap:I
-
-    if-lez v2, :cond_b8
-
-    iget v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->hrCap:I
-
-    add-int/lit8 v2, v2, -0x5
-
-    if-lt p4, v2, :cond_b8
-
-    :goto_40
-    iput-boolean v0, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->hrHigh:Z
+    iput-wide v4, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->fresh:D
 
     .line 83
-    iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->sessions:I
+    const-wide/16 v4, 0x0
 
-    iput v0, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->sessions:I
+    invoke-static {v6, v7, p4, p5}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v6
+
+    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v4
+
+    iput-wide v4, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->progress:D
 
     .line 84
-    iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->setN:I
+    iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->hrCap:I
 
-    iput v0, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->set:I
+    if-lez v0, :cond_bd
+
+    iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->hrCap:I
+
+    add-int/lit8 v0, v0, -0x5
+
+    if-lt p6, v0, :cond_bd
+
+    move v0, v1
+
+    :goto_45
+    iput-boolean v0, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->hrHigh:Z
 
     .line 85
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->used:[I
+    iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->sessions:I
 
-    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->used:[I
+    iput v0, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->sessions:I
+
+    .line 86
+    iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->setN:I
+
+    iput v0, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->set:I
 
     .line 87
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->used:[I
+
+    iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->used:[I
+
+    .line 89
     iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->prev:I
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/MapDynamics;->indexOf(I)I
 
     move-result v0
 
-    iput v0, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->prev:I
+    iput v0, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->prev:I
 
-    .line 88
+    .line 90
     iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->prev2:I
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/MapDynamics;->indexOf(I)I
 
     move-result v0
 
-    iput v0, v1, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->prev2:I
+    iput v0, v2, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->prev2:I
 
-    .line 89
+    .line 91
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     array-length v0, v0
 
     add-int/lit8 v0, v0, -0x1
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
-    invoke-static {v2, v1}, Lcom/isaigu/gymapp/ai/AutoDynamics;->pick([Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;)I
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AutoDynamics;->pick([Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;)I
 
     move-result v1
 
@@ -717,12 +730,12 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
 
-    .line 90
+    .line 92
     iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->prev:I
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->prev2:I
 
-    .line 91
+    .line 93
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
@@ -735,7 +748,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->prev:I
 
-    .line 92
+    .line 94
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
@@ -746,16 +759,16 @@
 
     move-result v0
 
-    .line 93
-    if-ltz v0, :cond_98
+    .line 95
+    if-ltz v0, :cond_9d
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->used:[I
 
     array-length v1, v1
 
-    if-ge v0, v1, :cond_98
+    if-ge v0, v1, :cond_9d
 
-    .line 94
+    .line 96
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->used:[I
 
     aget v2, v1, v0
@@ -764,15 +777,15 @@
 
     aput v2, v1, v0
 
-    .line 96
-    :cond_98
+    .line 98
+    :cond_9d
     iget v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->setN:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->setN:I
 
-    .line 97
+    .line 99
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
@@ -787,7 +800,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_ba
+    if-eqz v0, :cond_bf
 
     const-string v0, "\u041a\u0430\u043a\u0442\u043e \u0435 \u043d\u0430\u0440\u0438\u0441\u0443\u0432\u0430\u043d"
 
@@ -797,16 +810,16 @@
 
     move-result-object v0
 
-    goto/16 :goto_18
+    goto/16 :goto_13
 
-    .line 82
-    :cond_b8
+    .line 84
+    :cond_bd
     const/4 v0, 0x0
 
-    goto :goto_40
+    goto :goto_45
 
-    .line 97
-    :cond_ba
+    .line 99
+    :cond_bf
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->list:[Lcom/isaigu/gymapp/ai/AutoDynamics$Approach;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/MapDynamics;->idx:I
@@ -817,5 +830,5 @@
 
     move-result-object v0
 
-    goto/16 :goto_18
+    goto/16 :goto_13
 .end method

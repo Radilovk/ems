@@ -73,6 +73,7 @@ public final class MapRunner {
     /** The step going out now (null = the block as drawn). */
     private static AutoModel.Step cur;
     private static String approach = "";
+    private static Context app;
 
     public static boolean isRunning() {
         return map != null && clock != null && !clock.isDone();
@@ -113,6 +114,7 @@ public final class MapRunner {
         map = w.copy(w.id, w.name);
         swapForLeader(a);
         clock = new MapClock(map);
+        app = a != null ? a.getApplicationContext() : app;
         dyn = null;
         cur = null;
         approach = "";
@@ -173,6 +175,26 @@ public final class MapRunner {
             WearableBleDiagLog.log("map", "dynamics: " + t);
         }
         return new MapDynamics(fit, sessions, age, hrMax);
+    }
+
+    /** The block's movement: its own pattern, else the built-in one, else the library's (owner, 1.1.326). */
+    static int moveOf(Workout.Block b) {
+        String pat = b.pat;
+        boolean hold = b.hold;
+        if (pat == null && b.ex != null) {
+            pat = Workout.patternOf(b.ex);
+            if (pat == null && app != null) {
+                try {
+                    ExerciseLibrary.Entry e = ExerciseLibrary.get(app, b.ex);
+                    if (e != null) {
+                        pat = e.pat;
+                        hold |= e.isHold();
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return AutoDynamics.move(pat, hold);
     }
 
     static AutoModel.Step stepOf(Workout.Block b) {
@@ -367,11 +389,12 @@ public final class MapRunner {
                 }
             } else if (b.hasExercise()) {
                 int hr = AiSession.isBandStreaming() ? AiSession.getLastBandHr() : -1;
-                approach = dyn.startSet(stepOf(b), map.totalSeconds() > 0 ? clock.position() / map.totalSeconds() : 0, hr);
+                approach = dyn.startSet(stepOf(b), moveOf(b), b.lock,
+                        map.totalSeconds() > 0 ? clock.position() / map.totalSeconds() : 0, hr);
                 WearableBleDiagLog.log("map", "set " + idx + " approach " + approach + " fatigue "
                         + Math.round(dyn.fatigue() * 100) + " %");
             } else {
-                dyn.startPlain(stepOf(b));
+                dyn.startPlain(stepOf(b), b.lock);
                 approach = "";
             }
         }

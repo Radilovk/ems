@@ -73,48 +73,130 @@ public final class AutoDynamics {
     static final Approach LIGHT_VOLUME = new Approach("light_volume", "Лек обем", "Light volume", 70, 55, 5, 5, 0, 0,
             1);
 
-    /** The program's approaches; null = no approaches (a designed multi-step phase keeps its steps). */
+    /** The impulse class of a program (AutoCatalog.Program.impulse, owner 1.1.326); unset = gentle. */
+    public static final String STRENGTH = "strength";
+    public static final String POWER = "power";
+    public static final String CARDIO = "cardio";
+    public static final String GENTLE = "gentle";
+
+    /**
+     * The program's approaches; null = no approaches (a designed multi-step phase keeps its steps). By the program's
+     * impulse class, never by its id — a new program without a class is gentle until someone says otherwise.
+     */
     public static Approach[] approaches(Plan plan, Phase ph) {
         if (plan == null || ph == null || plan.program == null || !plan.program.isActive() || ph.wave
                 || ph.isCooldown() || "WARMUP".equals(ph.id) || ph.steps.size() != 1 || !ph.steps.get(0).isTetanic()) {
             return null;
         }
         Approach base = baseOf(ph.steps.get(0));
-        String id = plan.program.id;
-        boolean novice = plan.input != null && plan.input.sessions < 3;
-        if (AutoCatalog.POWER.equals(id)) {
-            return new Approach[] {base, POWER_SHORT, POWER_HOLD};
+        String cls = impulseClass(plan.program);
+        boolean no100 = plan.input != null && (plan.input.sessions < 3 || plan.input.age >= 60);
+        Approach[] l;
+        if (POWER.equals(cls)) {
+            l = new Approach[] {base, POWER_SHORT, POWER_HOLD};
+        } else if (STRENGTH.equals(cls)) {
+            l = new Approach[] {base, STRENGTH_PAUSE, PURE, VOLUME, METABOLIC, TONE};
+        } else if (CARDIO.equals(cls)) {
+            l = new Approach[] {base, METABOLIC, TONE, VOLUME};
+        } else {
+            l = new Approach[] {base, LIGHT_VOLUME, TONE};
         }
-        if (AutoCatalog.BACK_ACTIVE.equals(id) || AutoCatalog.SENIOR.equals(id) || AutoCatalog.POSTPARTUM.equals(id)
-                || AutoCatalog.BACK_PAIN.equals(id)) {
-            return new Approach[] {base, LIGHT_VOLUME, TONE};
+        return no100 && !POWER.equals(cls) ? without100(l) : l;
+    }
+
+    /** The program's impulse class (unset or unknown → gentle). */
+    public static String impulseClass(AutoCatalog.Program p) {
+        String c = p != null ? p.impulse : null;
+        return STRENGTH.equals(c) || POWER.equals(c) || CARDIO.equals(c) ? c : GENTLE;
+    }
+
+    /** The list without the 100 Hz approaches (the drawn / program step stays). */
+    static Approach[] without100(Approach[] l) {
+        int n = 0;
+        for (Approach a : l) {
+            if (a.hz < 95 || BASE.equals(a.id)) {
+                n++;
+            }
         }
-        if (novice) {
-            return new Approach[] {base, VOLUME, METABOLIC, TONE};
+        Approach[] out = new Approach[n];
+        int k = 0;
+        for (Approach a : l) {
+            if (a.hz < 95 || BASE.equals(a.id)) {
+                out[k++] = a;
+            }
         }
-        return new Approach[] {base, STRENGTH_PAUSE, PURE, VOLUME, METABOLIC, TONE};
+        return out;
+    }
+
+    // ------------------------------------------------------------------ the movement of a map block
+
+    public static final int MOVE_STRENGTH = 0, MOVE_SMALL = 1, MOVE_HOLD = 2, MOVE_CARDIO = 3, MOVE_STRETCH = 4,
+            MOVE_UNKNOWN = 5;
+
+    /** The movement from the exercise's library pattern (owner, 1.1.326) — not from the drawn frequency. */
+    public static int move(String pat, boolean hold) {
+        String p = pat != null ? pat : "";
+        if (hold || "core_static".equals(p) || "carry".equals(p)) {
+            return MOVE_HOLD;
+        }
+        if ("cardio".equals(p) || "plyo".equals(p)) {
+            return MOVE_CARDIO;
+        }
+        if ("stretch".equals(p) || "mobility".equals(p)) {
+            return MOVE_STRETCH;
+        }
+        if (isSmall(p)) {
+            return MOVE_SMALL;
+        }
+        for (String x : STRENGTH_PATS) {
+            if (x.equals(p)) {
+                return MOVE_STRENGTH;
+            }
+        }
+        return MOVE_UNKNOWN;                                   // a new pattern: light until it is classified
+    }
+
+    /** The big compound movements of the library (multi-joint, big muscles): every strength approach. */
+    static final String[] STRENGTH_PATS = {"squat", "lunge", "hinge", "glute", "push_h", "push_v", "pull_h", "pull_v",
+        "dip", "olympic"};
+
+    /** Small muscles and core flexion (the library patterns Workout.forExercise starts at 85 Hz / 300 µs). */
+    public static boolean isSmall(String p) {
+        return "biceps".equals(p) || "triceps".equals(p) || "lat_raise".equals(p) || "rear_delt".equals(p)
+                || "front_raise".equals(p) || "fly".equals(p) || "shrug".equals(p) || "forearm".equals(p)
+                || "calf".equals(p) || "abductor".equals(p) || "adductor".equals(p) || "knee_flex".equals(p)
+                || "knee_ext".equals(p) || "pullover".equals(p) || "core_flex".equals(p) || "core_rot".equals(p)
+                || "core_hip".equals(p) || "back_ext".equals(p);
     }
 
     /**
-     * The approaches of one block of a drawn map (Програми, owner 1.1.324): by the movement the block was drawn for —
-     * cardio / jumps (< 50 Hz) never get strength approaches, stretching / twitches (< 20 Hz) none at all; 60+ and the
-     * first trainings no 100 Hz. The drawn impulse is always one of them (index 0).
+     * The approaches of one block of a drawn map (Програми, owner 1.1.324 / 1.1.326) by the exercise's movement:
+     * stretching stays as drawn; cardio / jumps only metabolic / tone; holds light volume / tone; small muscles no
+     * pure 100 Hz strength; an exercise of unknown movement is treated like a light strength one (no 100 Hz).
+     * 60+ and the first trainings no 100 Hz. The drawn impulse is always one of them (index 0). Plain stimulation
+     * (no exercise): {@code move} = MOVE_UNKNOWN.
      */
-    public static Approach[] forMap(Step drawn, int sessions, int age) {
-        if (drawn == null || !drawn.isTetanic()) {
+    public static Approach[] forMap(Step drawn, int move, int sessions, int age) {
+        if (drawn == null || !drawn.isTetanic() || move == MOVE_STRETCH) {
             return null;
         }
         Approach base = baseOf(drawn);
-        if (drawn.hz < 50) {
-            return new Approach[] {base, METABOLIC, TONE};
+        Approach[] l;
+        boolean strength = move == MOVE_STRENGTH || move == MOVE_SMALL || (move == MOVE_UNKNOWN && drawn.hz >= 50);
+        if (age >= 60 && strength) {
+            l = new Approach[] {base, LIGHT_VOLUME, TONE};    // 60+: the gentle strength set, cardio / holds keep theirs
+        } else if (move == MOVE_CARDIO) {
+            l = new Approach[] {base, METABOLIC, TONE};
+        } else if (move == MOVE_HOLD) {
+            l = new Approach[] {base, LIGHT_VOLUME, TONE};
+        } else if (move == MOVE_SMALL) {
+            l = new Approach[] {base, STRENGTH_PAUSE, VOLUME, METABOLIC, TONE};
+        } else if (move == MOVE_STRENGTH) {
+            l = new Approach[] {base, STRENGTH_PAUSE, PURE, VOLUME, METABOLIC, TONE};
+        } else {
+            l = drawn.hz < 50 ? new Approach[] {base, METABOLIC, TONE} : new Approach[] {base, VOLUME, METABOLIC, TONE};
         }
-        if (age >= 60) {
-            return new Approach[] {base, LIGHT_VOLUME, TONE};
-        }
-        if (sessions < 3) {
-            return new Approach[] {base, VOLUME, METABOLIC, TONE};
-        }
-        return new Approach[] {base, STRENGTH_PAUSE, PURE, VOLUME, METABOLIC, TONE};
+        return sessions < 3 ? without100(l) : l;
     }
 
     /** The program's own step as an approach: it glides down to 70 % (never under fusion, 50 Hz) when ≥ 50 Hz. */

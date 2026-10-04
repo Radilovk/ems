@@ -7,6 +7,8 @@ import com.isaigu.gymapp.ai.AutoModel.Step;
  * motion"): the same logic as the automatic mode (ai/AutoDynamics, physiology §3.5), automatically in every ready
  * template and every workout with exercises. Procedures (passive maps) are left exactly as drawn. Pure Java.
  * <ul>
+ *   <li>The approaches follow the exercise's movement (library pattern), not the drawn frequency; a 🔒 block stays
+ *       exactly as drawn (its fatigue still counts).</li>
  *   <li>The muscle's fatigue runs the whole time (physiology §3.1, the leader's fitness): impulse, second impulse,
  *       pause, rest.</li>
  *   <li>Every exercise block (a set) gets its approach when it starts — fresh / tired, the stage of the workout,
@@ -69,8 +71,8 @@ public final class MapDynamics {
      * A set (exercise block) starts: its approach. {@code progress} 0…1 of the workout, {@code hr} the leader's
      * pulse (≤ 0 = none). Returns the approach's name ("" = the drawn impulse stays without approaches).
      */
-    public String startSet(Step drawn, double progress, int hr) {
-        list = AutoDynamics.forMap(drawn, sessions, age);
+    public String startSet(Step drawn, int move, boolean lock, double progress, int hr) {
+        list = lock ? null : AutoDynamics.forMap(drawn, move, sessions, age);
         fresh = true;
         if (list == null) {
             idx = -1;
@@ -97,9 +99,9 @@ public final class MapDynamics {
         return list[idx].id.equals(AutoDynamics.BASE) ? AiText.t("Както е нарисуван", "As drawn") : list[idx].name();
     }
 
-    /** A plain block (no exercise): the drawn impulse, gliding only. */
-    public void startPlain(Step drawn) {
-        list = drawn != null && drawn.isTetanic() ? new AutoDynamics.Approach[] {AutoDynamics.baseOf(drawn)} : null;
+    /** A plain block (no exercise): the drawn impulse, gliding only (🔒 = exactly as drawn). */
+    public void startPlain(Step drawn, boolean lock) {
+        list = !lock && drawn != null && drawn.isTetanic() ? new AutoDynamics.Approach[] {AutoDynamics.baseOf(drawn)} : null;
         idx = list != null ? 0 : -1;
         fresh = true;
     }

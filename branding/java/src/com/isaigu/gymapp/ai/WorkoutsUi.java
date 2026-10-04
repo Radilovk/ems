@@ -62,6 +62,7 @@ public final class WorkoutsUi {
     static final int A_KIND = 27;
     static final int A_MODE = 28;
     static final int A_PICK_TOGGLE = 29;
+    static final int A_LOCK = 44;
 
     // block parameters (A_PARAM arg)
     static final int P_REPS = 0;
@@ -714,7 +715,18 @@ public final class WorkoutsUi {
                 LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 44), 1f);
                 mp.rightMargin = XemsUi.dp(c, 8);
                 row1.addView(more, mp);
-                row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 2f));
+                if (!editing.isPassive()) {
+                    // 🔒 (owner, 1.1.326): exactly as drawn — the smart impulse leaves this block alone
+                    TextView lock = XemsUi.button(c, b.lock ? AiText.t("🔒 Точно както е", "🔒 Exactly as drawn")
+                            : AiText.t("✦ Умен импулс", "✦ Smart impulse"), b.lock ? XemsUi.SECONDARY : XemsUi.GHOST);
+                    lock.setOnClickListener(new Act(A_LOCK, 0));
+                    LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 44), 1f);
+                    lp2.rightMargin = XemsUi.dp(c, 8);
+                    row1.addView(lock, lp2);
+                    row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
+                } else {
+                    row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 2f));
+                }
             } else {
                 row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 3f));
             }
@@ -1341,6 +1353,17 @@ public final class WorkoutsUi {
                 fillPanel(c);
                 break;
             }
+            case A_LOCK: {
+                int s = mapView != null ? mapView.getSelected() : -1;
+                if (s >= 0 && s < editing.blocks.size()) {
+                    Workout.Block b = editing.blocks.get(s);
+                    b.lock = !b.lock;
+                    dirty = true;
+                    mapView.invalidate();
+                    fillPanel(c);
+                }
+                break;
+            }
             case A_MODE: {
                 int s = mapView != null ? mapView.getSelected() : -1;
                 if (s >= 0 && s < editing.blocks.size() && (v == 1) != editing.blocks.get(s).dbl) {
@@ -1371,6 +1394,8 @@ public final class WorkoutsUi {
                 int s = mapView.getSelected();
                 if (s >= 0) {
                     editing.blocks.get(s).ex = null;
+                    editing.blocks.get(s).pat = null;
+                    editing.blocks.get(s).hold = false;
                     dirty = true;
                     go(EDIT);
                     mapView.select(s);
@@ -1458,6 +1483,8 @@ public final class WorkoutsUi {
         if (replaceIndex >= 0 && replaceIndex < editing.blocks.size() && a.arg >= 0) {
             Workout.Block b = editing.blocks.get(replaceIndex);
             b.ex = a.ex;
+            b.pat = e != null ? e.pat : Workout.patternOf(a.ex);   // the movement the smart impulse follows
+            b.hold = e != null && e.isHold();
             if (b.isRest()) {
                 b.rel = 100;
                 b.clampAll();

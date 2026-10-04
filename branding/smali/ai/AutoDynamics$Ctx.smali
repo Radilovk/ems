@@ -45,19 +45,19 @@
 
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
-    .line 129
+    .line 211
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 131
+    .line 213
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->fresh:D
 
-    .line 136
+    .line 218
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->dose:D
 
-    .line 146
+    .line 228
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->prev:I
 
-    .line 147
+    .line 229
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoDynamics$Ctx;->prev2:I
 
     return-void

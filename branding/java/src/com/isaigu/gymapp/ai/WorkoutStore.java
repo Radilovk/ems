@@ -169,6 +169,15 @@ public final class WorkoutStore {
             x.put("s2", b.str2);
             x.put("ri", b.rampIn);
             x.put("ro", b.rampOut);
+            if (b.pat != null) {
+                x.put("pat", b.pat);
+            }
+            if (b.hold) {
+                x.put("hold", 1);
+            }
+            if (b.lock) {
+                x.put("lock", 1);
+            }
             bl.put(x);
         }
         o.put("blocks", bl);
@@ -205,6 +214,9 @@ public final class WorkoutStore {
                     b.str2 = x.optInt("s2", b.str2);
                     b.rampIn = x.optInt("ri", b.rampIn);
                     b.rampOut = x.optInt("ro", b.rampOut);
+                    b.pat = x.has("pat") ? x.optString("pat") : null;
+                    b.hold = x.optInt("hold", 0) == 1;
+                    b.lock = x.optInt("lock", 0) == 1;
                     b.clampAll();
                     w.blocks.add(b);
                 }

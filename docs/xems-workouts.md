@@ -111,7 +111,18 @@ without a switch. **Procedures (passive maps) stay exactly as drawn.**
 - **Every repetition** (one impulse) glides: frequency down with the fatigue, pause up ≤ 2 s, depth +≤ 20 µs at the
   end (never below the drawn); a new approach / a jump ≥ 10 Hz starts softer. The repetitions stay as drawn.
 - **A drawn rest is the minimum**: still tired (F over F_rec) → longer, at most 2 min (`MapDynamics.restS`).
+- **By the exercise's movement, not the drawn Hz** (1.1.326, `AutoDynamics.move` / `forMap`): the block keeps the
+  library pattern (`Block.pat`, `hold`; old blocks look it up: built-in → library). Big compound movements
+  (`STRENGTH_PATS`: squat, lunge, hinge, glute, push/pull, dip, olympic) — every approach; small muscles / core flexion —
+  no pure 100 Hz; holds (`core_static`, `carry`, duration) — light volume / tone; cardio / plyo — metabolic / tone;
+  stretching — as drawn. **A new pattern nobody classified = light (no 100 Hz)**, and MapSim fails until it is
+  classified. 60+: the gentle set only for strength movements (cardio / holds keep theirs); first trainings no 100 Hz.
+- **🔒 per block** (editor panel: "✦ Умен импулс" ↔ "🔒 Точно както е"; a lock on the line): that block goes exactly
+  as drawn — no approach, no glide (its fatigue still counts for the next ones). Stored as `lock` in the map.
 - Plain stimulation blocks in a workout glide only. The card shows the real Hz / µs and the approach.
+- Tests (`run-auto.sh`): every active template in the catalogue (declared class, approaches inside it, 60+ / first
+  trainings, power OFF ≥ 2·ON, glide in the sets) and every exercise of `library.json` (classified, approaches fit the
+  movement, 🔒) — anything added later is checked at the next build.
 - `MapClock`: the time fallback waits for the real cycle length (`setCycleS`), a rest can be extended (`setRestS`).
 - Test: `run-auto.sh` → MapSim `dynamics()`.
 

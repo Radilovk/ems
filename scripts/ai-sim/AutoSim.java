@@ -1208,6 +1208,89 @@ public final class AutoSim {
         check(fNamed == 0, "template only: no exercise named (" + fNamed + ")");
         check(fApproaches.size() >= 4, "template only: the approaches still change set by set (" + fApproaches + ")");
 
+        // every template in the catalogue (also the ones added later): a declared impulse class, approaches inside
+        // the class, no 100 Hz for 60+ / the first trainings, power keeps OFF ≥ 2·ON, the frequency glides (1.1.326)
+        for (AutoCatalog.Program prog : AutoCatalog.all()) {
+            if (!prog.isActive()) {
+                continue;
+            }
+            check(prog.impulse != null, prog.id + ": an active template declares its impulse class (strength / power / "
+                    + "cardio / gentle) — AutoCatalog p.impulse");
+            String cls = AutoDynamics.impulseClass(prog);
+            for (AutoModel.Input pi : profiles()) {
+                pi.programId = prog.id;
+                pi.kind = AutoModel.Kind.ACTIVE;
+                for (AutoModel.Goal g : AutoModel.Goal.values()) {
+                    if (!AutoCatalog.menu(g, AutoModel.Kind.ACTIVE).contains(prog)) {
+                        continue;
+                    }
+                    pi.goal = g;
+                    if (AutoCatalog.blockReason(prog, g, pi) != null) {
+                        continue;
+                    }
+                    AutoModel.Plan pl = AutoPlanner.build(pi, 68);
+                    for (AutoModel.Phase ph : pl.phases) {
+                        AutoDynamics.Approach[] l = AutoDynamics.approaches(pl, ph);
+                        for (int i = 1; l != null && i < l.length; i++) {
+                            String at = prog.id + "/" + ph.id + "/" + l[i].id + " age " + pi.age + " N" + pi.sessions;
+                            check(!AutoDynamics.GENTLE.equals(cls) || l[i].hz <= 85, at + ": gentle — no approach over 85 Hz");
+                            check((pi.age < 60 && pi.sessions >= 3) || AutoDynamics.POWER.equals(cls) || l[i].hz < 95,
+                                    at + ": 60+ / first trainings — no 100 Hz approach");
+                            check(!AutoDynamics.POWER.equals(cls) || l[i].off >= 2 * l[i].on, at + ": power keeps OFF ≥ 2·ON");
+                            check(!AutoDynamics.POWER.equals(cls) || l[i].pauseHz == 0, at + ": power — no second impulse");
+                        }
+                    }
+                }
+            }
+            // the frequency glides inside the sets (a mid-fitness man, after the adaptation)
+            AutoModel.Input gi = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
+            gi.programId = prog.id;
+            gi.kind = AutoModel.Kind.ACTIVE;
+            for (AutoModel.Goal g : AutoModel.Goal.values()) {
+                if (AutoCatalog.menu(g, AutoModel.Kind.ACTIVE).contains(prog)) {
+                    gi.goal = g;
+                    break;
+                }
+            }
+            if (gi.goal == null || AutoCatalog.blockReason(prog, gi.goal, gi) != null) {
+                continue;
+            }
+            AutoModel.Plan gp = AutoPlanner.build(gi, 68);
+            AutoEngine ge = new AutoEngine(gp);
+            ge.setScript(AutoTemplates.script(gp, null));
+            long gt = 1000000L;
+            ge.startAt(gt, gt);
+            gt = ge.getGoMs();
+            ge.tick(gt);
+            int gSets = 0, gFall = 0, first = -1, last = -1, gGuard = 0;
+            while ((ge.getState() == AutoEngine.State.RUN || ge.getState() == AutoEngine.State.REST) && gGuard++ < 5000) {
+                if (ge.getState() == AutoEngine.State.REST) {
+                    if (first >= 50) {
+                        gSets++;
+                        gFall += last < first ? 1 : 0;
+                    }
+                    first = last = -1;
+                    gt += Math.max(1, ge.getRestMinS()) * 1000L;
+                    ge.requestGo(gt, gt);
+                    gt = ge.getGoMs();
+                    ge.tick(gt);
+                    continue;
+                }
+                AutoEngine.Cmd gc = ge.getCurrent();
+                if (ge.isStationPhase(gc.phaseIndex) && gc.frac > 0) {
+                    if (first < 0) {
+                        first = gc.hz;
+                    }
+                    last = gc.hz;
+                }
+                gt += gc.durationMs();
+                ge.tick(gt - 1);
+                ge.onCycle(gt);
+            }
+            check(gSets == 0 || gFall * 3 >= gSets, prog.id + ": the frequency glides down in the sets (" + gFall + " / "
+                    + gSets + ")");
+        }
+
         // gentle programs and the first trainings: no 100 Hz approach
         AutoModel.Input s60 = input(AiModel.Sex.FEMALE, 66, 70, 165, AiModel.Fitness.MID, 10, 200);
         s60.goal = AutoModel.Goal.HEALTH;

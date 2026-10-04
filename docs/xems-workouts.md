@@ -156,6 +156,19 @@ next exercise, no forbidden exercise, ready maps fit one session, passive maps n
 MapSim runs MapClock over every map with and without the cycle hook (exact impulses per block, rest seconds, fallback);
 PathNorm vs Python. `cd server && npm test` (exercises helpers).
 
+## Classifiers — what the automatic mode filters by (owner, 1.1.336)
+Marked while a map is made (editor, under the name; saved with the map, `WorkoutStore` `goals` / `lvl` / `sex`):
+**goal** (Стягане · Отслабване · Здраве — several allowed, `Workout.goals` = `AutoModel.Goal` names), **difficulty**
+(Лесна · Средна · Трудна → `level` 1–3 = green / amber / red), **for whom** (everyone · women · men = `sex`). Active or
+passive is the map itself (Тренировки / Процедури); the trained zones are derived from the exercises (`derivedFocus`).
+Unmarked: goal from the exercises (cardio → Отслабване, else Стягане; a procedure fits every goal), level medium.
+Ready maps carry their program's marks (`AutoCatalog.Program.level`, the goals whose menu lists it).
+`Workout.fits(goal, kind)` is the filter: Auto → Активна → **С упражнения** lists the studio's own maps first, then the
+ready ones, that fit the chosen goal (and the client's sex), as cards coloured by difficulty with their time.
+Picking one → **Към настройване**: `MapRunner.arm` — the card waits ("Настрой силата"), the trainer sets the total
+strength and each channel on the main screen, then **▶ Старт** (`MapRunner.go`; enabled once a strength is set); ✕ Отказ
+leaves nothing changed.
+
 ## Not yet
 Workouts sync between tablets / to the server; picking a workout from the AI goal screen (today: from Тренировки);
 repetitions on the band.

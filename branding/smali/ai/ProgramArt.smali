@@ -71,7 +71,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 86
+    .line 95
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -98,12 +98,12 @@
 
     move-result-object v2
 
-    .line 87
+    .line 96
     sget-object v3, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
 
     monitor-enter v3
 
-    .line 88
+    .line 97
     :try_start_1f
     sget-object v0, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
 
@@ -113,7 +113,7 @@
 
     if-eqz v0, :cond_31
 
-    .line 89
+    .line 98
     sget-object v0, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -126,11 +126,11 @@
     :try_end_30
     .catchall {:try_start_1f .. :try_end_30} :catchall_70
 
-    .line 105
+    .line 114
     :goto_30
     return-object v0
 
-    .line 93
+    .line 102
     :cond_31
     :try_start_31
     invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
@@ -165,30 +165,30 @@
 
     move-result-object v0
 
-    .line 94
+    .line 103
     new-instance v4, Landroid/graphics/BitmapFactory$Options;
 
     invoke-direct {v4}, Landroid/graphics/BitmapFactory$Options;-><init>()V
 
-    .line 95
+    .line 104
     const/4 v5, 0x0
 
     iput-boolean v5, v4, Landroid/graphics/BitmapFactory$Options;->inScaled:Z
 
-    .line 96
+    .line 105
     const/4 v5, 0x0
 
     invoke-static {v0, v5, v4}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;
 
     move-result-object v1
 
-    .line 97
+    .line 106
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 98
+    .line 107
     if-eqz v1, :cond_68
 
-    .line 99
+    .line 108
     const/4 v0, 0x1
 
     invoke-virtual {v1, v0}, Landroid/graphics/Bitmap;->setHasMipMap(Z)V
@@ -199,19 +199,19 @@
     :cond_68
     move-object v0, v1
 
-    .line 104
+    .line 113
     :goto_69
     :try_start_69
     sget-object v1, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
 
     invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 105
+    .line 114
     monitor-exit v3
 
     goto :goto_30
 
-    .line 106
+    .line 115
     :catchall_70
     move-exception v0
 
@@ -221,11 +221,11 @@
 
     throw v0
 
-    .line 101
+    .line 110
     :catch_73
     move-exception v0
 
-    .line 102
+    .line 111
     :try_start_74
     const-string v4, "xems"
 
@@ -270,77 +270,47 @@
     .registers 4
 
     .prologue
-    .line 46
+    .line 59
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->MALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     if-ne p2, v0, :cond_e
 
     const/4 v0, 0x1
 
-    .line 47
+    .line 60
     :goto_5
     if-eqz p1, :cond_9
 
-    if-nez p0, :cond_26
+    if-nez p0, :cond_10
 
-    .line 48
+    .line 61
     :cond_9
-    if-eqz v0, :cond_10
+    invoke-static {p2}, Lcom/isaigu/gymapp/ai/ProgramArt;->passiveKey(Lcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
 
-    .line 49
-    const-string v0, "passive-m"
+    move-result-object v0
 
-    .line 82
+    .line 91
     :goto_d
     return-object v0
 
-    .line 46
+    .line 59
     :cond_e
     const/4 v0, 0x0
 
     goto :goto_5
 
-    .line 51
+    .line 63
     :cond_10
-    const-string v0, "drain"
+    if-eqz v0, :cond_4b
 
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_20
-
-    const-string v0, "recovery"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_23
-
-    .line 52
-    :cond_20
-    const-string v0, "passive-f-music"
-
-    goto :goto_d
-
-    :cond_23
-    const-string v0, "passive-f-line"
-
-    goto :goto_d
-
-    .line 54
-    :cond_26
-    if-eqz v0, :cond_61
-
-    .line 55
+    .line 64
     const-string v0, "glutes"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_38
+    if-nez v0, :cond_22
 
     const-string v0, "cardio"
 
@@ -348,23 +318,23 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3b
+    if-eqz v0, :cond_25
 
-    .line 56
-    :cond_38
+    .line 65
+    :cond_22
     const-string v0, "m-lunge"
 
     goto :goto_d
 
-    .line 58
-    :cond_3b
+    .line 67
+    :cond_25
     const-string v0, "core"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_5b
+    if-nez v0, :cond_45
 
     const-string v0, "power"
 
@@ -372,16 +342,16 @@
 
     move-result v0
 
-    if-nez v0, :cond_5b
+    if-nez v0, :cond_45
 
     const-string v0, "back_active"
 
-    .line 59
+    .line 68
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_5b
+    if-nez v0, :cond_45
 
     const-string v0, "upper"
 
@@ -389,29 +359,29 @@
 
     move-result v0
 
-    if-eqz v0, :cond_5e
+    if-eqz v0, :cond_48
 
-    .line 60
-    :cond_5b
+    .line 69
+    :cond_45
     const-string v0, "m-pushup"
 
     goto :goto_d
 
-    .line 62
-    :cond_5e
+    .line 71
+    :cond_48
     const-string v0, "m-squat"
 
     goto :goto_d
 
-    .line 64
-    :cond_61
+    .line 73
+    :cond_4b
     const-string v0, "glutes"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_71
+    if-nez v0, :cond_5b
 
     const-string v0, "postpartum"
 
@@ -419,17 +389,47 @@
 
     move-result v0
 
-    if-eqz v0, :cond_74
+    if-eqz v0, :cond_5e
 
-    .line 65
-    :cond_71
+    .line 74
+    :cond_5b
     const-string v0, "f-bridge"
 
     goto :goto_d
 
-    .line 67
-    :cond_74
+    .line 76
+    :cond_5e
     const-string v0, "core"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_69
+
+    .line 77
+    const-string v0, "f-plank"
+
+    goto :goto_d
+
+    .line 79
+    :cond_69
+    const-string v0, "power"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_74
+
+    .line 80
+    const-string v0, "f-pushup"
+
+    goto :goto_d
+
+    .line 82
+    :cond_74
+    const-string v0, "cardio"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -437,14 +437,14 @@
 
     if-eqz v0, :cond_7f
 
-    .line 68
-    const-string v0, "f-plank"
+    .line 83
+    const-string v0, "f-climber"
 
     goto :goto_d
 
-    .line 70
+    .line 85
     :cond_7f
-    const-string v0, "power"
+    const-string v0, "back_active"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -452,14 +452,14 @@
 
     if-eqz v0, :cond_8a
 
-    .line 71
-    const-string v0, "f-pushup"
+    .line 86
+    const-string v0, "f-lateral"
 
     goto :goto_d
 
-    .line 73
+    .line 88
     :cond_8a
-    const-string v0, "cardio"
+    const-string v0, "senior"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -467,46 +467,36 @@
 
     if-eqz v0, :cond_96
 
-    .line 74
-    const-string v0, "f-climber"
-
-    goto/16 :goto_d
-
-    .line 76
-    :cond_96
-    const-string v0, "back_active"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_a2
-
-    .line 77
-    const-string v0, "f-lateral"
-
-    goto/16 :goto_d
-
-    .line 79
-    :cond_a2
-    const-string v0, "senior"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_ae
-
-    .line 80
+    .line 89
     const-string v0, "f-curl"
 
     goto/16 :goto_d
 
-    .line 82
-    :cond_ae
+    .line 91
+    :cond_96
     const-string v0, "f-squat"
 
     goto/16 :goto_d
+.end method
+
+.method public static passiveKey(Lcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
+    .registers 2
+
+    .prologue
+    .line 54
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->MALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    if-ne p0, v0, :cond_7
+
+    const-string v0, "passive-m"
+
+    :goto_6
+    return-object v0
+
+    :cond_7
+    const-string v0, "passive-f"
+
+    goto :goto_6
 .end method
 
 .method public static show(Landroid/view/View;Ljava/lang/String;I)V
@@ -517,7 +507,7 @@
 
     const/4 v3, 0x0
 
-    .line 114
+    .line 123
     instance-of v0, p0, Landroid/widget/FrameLayout;
 
     if-eqz v0, :cond_24
@@ -536,7 +526,7 @@
 
     check-cast v0, Landroid/widget/FrameLayout;
 
-    .line 115
+    .line 124
     invoke-virtual {v0, v3}, Landroid/widget/FrameLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
@@ -555,18 +545,18 @@
 
     if-eqz v0, :cond_25
 
-    .line 128
+    .line 137
     :cond_24
     :goto_24
     return-void
 
-    .line 118
+    .line 127
     :cond_25
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 119
+    .line 128
     int-to-float v1, p2
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -577,10 +567,10 @@
 
     move-result-object v1
 
-    .line 120
+    .line 129
     if-eqz v1, :cond_24
 
-    .line 123
+    .line 132
     new-instance v2, Landroid/graphics/drawable/BitmapDrawable;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -589,15 +579,15 @@
 
     invoke-direct {v2, v0, v1}, Landroid/graphics/drawable/BitmapDrawable;-><init>(Landroid/content/res/Resources;Landroid/graphics/Bitmap;)V
 
-    .line 124
+    .line 133
     invoke-virtual {v2, v4}, Landroid/graphics/drawable/BitmapDrawable;->setFilterBitmap(Z)V
 
-    .line 125
+    .line 134
     invoke-virtual {v2, v4}, Landroid/graphics/drawable/BitmapDrawable;->setAntiAlias(Z)V
 
     move-object v0, p0
 
-    .line 126
+    .line 135
     check-cast v0, Landroid/widget/FrameLayout;
 
     invoke-virtual {v0, v3}, Landroid/widget/FrameLayout;->getChildAt(I)Landroid/view/View;
@@ -608,26 +598,62 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 127
+    .line 136
     invoke-virtual {p0, p1}, Landroid/view/View;->setTag(Ljava/lang/Object;)V
 
     goto :goto_24
 .end method
 
+.method public static templateKey(Lcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
+    .registers 2
+
+    .prologue
+    .line 49
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->MALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    if-ne p0, v0, :cond_7
+
+    const-string v0, "active-m"
+
+    :goto_6
+    return-object v0
+
+    :cond_7
+    const-string v0, "active-f"
+
+    goto :goto_6
+.end method
+
 .method public static tile(Landroid/content/Context;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;II)Landroid/view/View;
-    .registers 12
+    .registers 7
+
+    .prologue
+    .line 141
+    invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/ai/ProgramArt;->key(Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {p0, v0, p4, p5}, Lcom/isaigu/gymapp/ai/ProgramArt;->tileKey(Landroid/content/Context;Ljava/lang/String;II)Landroid/view/View;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static tileKey(Landroid/content/Context;Ljava/lang/String;II)Landroid/view/View;
+    .registers 10
 
     .prologue
     const/4 v5, 0x1
 
     const/4 v3, 0x0
 
-    .line 132
+    .line 146
     new-instance v0, Landroid/widget/FrameLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 133
+    .line 147
     const v1, -0xedebe6
 
     const/high16 v2, 0x41600000    # 14.0f
@@ -644,38 +670,34 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 134
+    .line 148
     new-instance v1, Landroid/widget/ImageView;
 
     invoke-direct {v1, p0}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 135
+    .line 149
     sget-object v2, Landroid/widget/ImageView$ScaleType;->FIT_CENTER:Landroid/widget/ImageView$ScaleType;
 
     invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
-    .line 136
+    .line 150
     invoke-virtual {v1, v3}, Landroid/widget/ImageView;->setAdjustViewBounds(Z)V
 
-    .line 137
-    invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/ai/ProgramArt;->key(Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
+    .line 151
+    int-to-float v2, p2
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v2
+
+    invoke-static {p0, p1, v2}, Lcom/isaigu/gymapp/ai/ProgramArt;->bitmap(Landroid/content/Context;Ljava/lang/String;I)Landroid/graphics/Bitmap;
 
     move-result-object v2
 
-    int-to-float v3, p4
+    .line 152
+    if-eqz v2, :cond_42
 
-    invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v3
-
-    invoke-static {p0, v2, v3}, Lcom/isaigu/gymapp/ai/ProgramArt;->bitmap(Landroid/content/Context;Ljava/lang/String;I)Landroid/graphics/Bitmap;
-
-    move-result-object v2
-
-    .line 138
-    if-eqz v2, :cond_46
-
-    .line 139
+    .line 153
     new-instance v3, Landroid/graphics/drawable/BitmapDrawable;
 
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -684,26 +706,26 @@
 
     invoke-direct {v3, v4, v2}, Landroid/graphics/drawable/BitmapDrawable;-><init>(Landroid/content/res/Resources;Landroid/graphics/Bitmap;)V
 
-    .line 140
+    .line 154
     invoke-virtual {v3, v5}, Landroid/graphics/drawable/BitmapDrawable;->setFilterBitmap(Z)V
 
-    .line 141
+    .line 155
     invoke-virtual {v3, v5}, Landroid/graphics/drawable/BitmapDrawable;->setAntiAlias(Z)V
 
-    .line 142
+    .line 156
     invoke-virtual {v1, v3}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 144
-    :cond_46
+    .line 158
+    :cond_42
     new-instance v2, Landroid/widget/FrameLayout$LayoutParams;
 
-    int-to-float v3, p4
+    int-to-float v3, p2
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v3
 
-    int-to-float v4, p5
+    int-to-float v4, p3
 
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
@@ -715,15 +737,11 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 145
-    invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/ai/ProgramArt;->key(Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
+    .line 159
+    invoke-virtual {v0, p1}, Landroid/widget/FrameLayout;->setTag(Ljava/lang/Object;)V
 
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setTag(Ljava/lang/Object;)V
-
-    .line 146
-    int-to-float v1, p4
+    .line 160
+    int-to-float v1, p2
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
@@ -731,8 +749,8 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setMinimumWidth(I)V
 
-    .line 147
-    int-to-float v1, p5
+    .line 161
+    int-to-float v1, p3
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
@@ -740,7 +758,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setMinimumHeight(I)V
 
-    .line 148
+    .line 162
     return-object v0
 .end method
 

@@ -30,9 +30,9 @@ public final class AutoUi {
     static final int STEP_PROGRAM = 0;
     /** Client and plan: who, what the plan is, the health confirmation. */
     static final int STEP_CLIENT = 1;
-    static final int STEP_CALIB = 2;
+    /** The run (and the setting-up before it) lives in the training screen (AutoBoard), not in a sheet. */
     static final int STEP_RUN = 3;
-    private static final int SETUP_STEPS = 3;
+    private static final int SETUP_STEPS = 2;
 
     // action codes
     private static final int A_CLOSE = 1;
@@ -50,11 +50,11 @@ public final class AutoUi {
     private static final int A_TODAY = 13;
     private static final int A_EXTRA = 14;
     private static final int A_WEEKS = 15;
-    private static final int A_MINUTES = 16;
-    private static final int A_INTENSITY = 17;
     private static final int A_VARIANT = 18;
     private static final int A_DOUBLE = 19;
-    private static final int A_CALIB_ROW = 21;
+    private static final int A_WORKOUT = 42;
+    private static final int A_SETUP_GO = 43;
+    private static final int A_SETUP_BACK = 44;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -70,7 +70,6 @@ public final class AutoUi {
     private static Activity host;
     private static int step;
     private static boolean heightTouched;
-    private static boolean calibStarted;
     /** Client step: the profile editors are open (else one summary line). */
     private static boolean profileOpen;
     /** Client step: "no contraindications, fine today" confirmed. */
@@ -118,7 +117,6 @@ public final class AutoUi {
     private static final int INFO_BODY = 1;
     private static final int INFO_TIMELINE = 2;
     private static AutoViews.Timeline runTimeline;
-    private static TextView calibRowsInfo;
     private static TextView primary;
     private static final List<TextView> rowLabels = new ArrayList<TextView>();
 
@@ -140,7 +138,6 @@ public final class AutoUi {
             AutoSession.beginSetup(a);
             AutoModel.Input in = AutoSession.getInput();
             heightTouched = in.heightCm > 0;
-            calibStarted = false;
             profileOpen = in.heightCm <= 0;
             healthOk = true;                          // contraindications belong to the registration, not here
             healthOpen = false;
@@ -153,8 +150,7 @@ public final class AutoUi {
             onFinished();
             return;
         }
-        show(a, st == AutoSession.Stage.RUNNING ? STEP_RUN
-                : st == AutoSession.Stage.CALIB ? STEP_CALIB : STEP_PROGRAM);
+        show(a, st == AutoSession.Stage.RUNNING || st == AutoSession.Stage.CALIB ? STEP_RUN : STEP_PROGRAM);
     }
 
     /** Bring the board back (HR pause, stop from the main screen). */
@@ -203,6 +199,9 @@ public final class AutoUi {
 
     /** The board left the screen: drop its views. */
     static void onBoardDetached() {
+        setupLabels.clear();
+        setupGo = null;
+        setupNote = null;
         runPhase = null;
         runFlash = null;
         boardSub = null;
@@ -241,20 +240,14 @@ public final class AutoUi {
     static void refresh() {
         try {
             if (AutoBoard.isAttached()) {
-                refreshRun();
+                if (AutoSession.getStage() == AutoSession.Stage.CALIB) {
+                    refreshSetup();
+                } else {
+                    refreshRun();
+                }
             }
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoUi.refreshRun", t);
-        }
-        if (shell == null || !shell.dialog.isShowing()) {
-            return;
-        }
-        try {
-            if (step == STEP_CALIB) {
-                refreshCalib();
-            }
-        } catch (Throwable t) {
-            com.isaigu.gymapp.widget.XemsGuard.report("AutoUi.refresh", t);
         }
     }
 
@@ -272,11 +265,9 @@ public final class AutoUi {
         shell.footer.setVisibility(View.VISIBLE);
         rowLabels.clear();
         runPhase = null;
-        calibRowsInfo = null;
         switch (s) {
             case STEP_PROGRAM: screenProgram(c); break;
             case STEP_CLIENT: screenClient(c); break;
-            case STEP_CALIB: screenCalib(c); break;
             default: break;                                   // the run lives in the training screen (AutoBoard)
         }
         stepTip(c, s);
@@ -342,18 +333,20 @@ public final class AutoUi {
     private static String stepTipText(int s) {
         switch (s) {
             case STEP_PROGRAM:
-                return AiText.t("Показват се само програмите, позволени за този клиент. „Препоръчана“ е по профила.",
-                        "Only the programs allowed for this client are shown. \u201cRecommended\u201d follows the profile.");
+                return AiText.t("Цветът е трудността: зелено — лесна, жълто — средна, червено — трудна. Под името са "
+                        + "загрявка · основна част · възстановяване. „С упражнения“ показва програмите от Програми, "
+                        + "свързани с целта. ★ — препоръчана по профила.",
+                        "The colour is the difficulty: green easy, amber medium, red hard. Under the name: warm-up · main "
+                        + "part · recovery. \u201cWith exercises\u201d shows the programs from Programs linked to the goal. "
+                        + "★ — recommended by the profile.");
             case STEP_CLIENT:
-                return AiText.t("Профилът е от клиентския запис, планът се смята от него. Може да скъсиш времето и да смениш "
-                        + "интензитета, не и да минеш лимитите. „Днес“ — как е клиентът сега (недоспал, стрес, цикъл…): "
-                        + "не спира тренировката, планът се нагласява сам.",
-                        "The profile comes from the client record and the plan from the profile. You may shorten the time and "
-                        + "change the intensity, not pass the limits. \u201cToday\u201d — how the client is now (short on sleep, "
-                        + "stress, period…): it never stops the session, the plan adapts by itself.");
-            case STEP_CALIB:
-                return AiText.t("Качи силата на всеки клиент до целевото усещане. Съотношението между зоните — с плъзгачите на каналите на реда; пази се до края. „Старт“ започва от загрявката с 60 % от нея.",
-                        "Raise each client's strength to the target feeling. The balance between zones — with the row's channel sliders; it holds to the end. Start begins with the warm-up at 60 % of it.");
+                return AiText.t("Профилът е от клиентския запис, планът се смята от него — времето и интензитетът са на "
+                        + "програмата, не се сменят. „Днес“ — как е клиентът сега (недоспал, стрес, цикъл…): "
+                        + "не спира тренировката, планът се нагласява сам. Силата се настройва на главния екран.",
+                        "The profile comes from the client record and the plan from the profile — the time and the "
+                        + "intensity are the program's, not changed. \u201cToday\u201d — how the client is now (short on sleep, "
+                        + "stress, period…): it never stops the session, the plan adapts by itself. The strength is set on "
+                        + "the main screen.");
             case STEP_RUN:
                 return AiText.t("Управлява се с главните ▶ / ❚❚ и ■. ■ действа от пауза: първият — към 10 мин възстановяване, "
                         + "вторият — край. Импулсите са най-много 20 мин. ✕ скрива таблото — сесията продължава. "
@@ -395,7 +388,9 @@ public final class AutoUi {
         AutoModel.Input in = AutoSession.getInput();
         switch (step) {
             case STEP_PROGRAM:
-                if (in.programId != null) {
+                if (in.kind == Kind.ACTIVE && in.exercises) {
+                    setupWorkout();                   // a made program: set up on the training screen, then ▶ Старт
+                } else if (in.programId != null) {
                     go(STEP_CLIENT);
                 }
                 break;
@@ -411,20 +406,14 @@ public final class AutoUi {
                         AutoSession.saveHeight(host, in.heightCm);
                     }
                     AutoSession.buildPlan();
-                    go(STEP_CALIB);
+                    // The strength is set on the training screen itself (owner, 1.1.336): the sheet steps aside,
+                    // the impulses run at the calibration, the board waits for ▶ Старт.
+                    AutoSession.beginCalibration();
+                    dismiss();
+                    AutoBoard.sync(AutoSession.getPanelRoot() != null ? AutoSession.getPanelRoot()
+                            : host.getWindow().getDecorView());
                 } else {
                     go(STEP_CLIENT);
-                }
-                break;
-            case STEP_CALIB:
-                if (!calibStarted) {
-                    AutoSession.beginCalibration();
-                    calibStarted = true;
-                    go(STEP_CALIB);
-                } else if (AutoSession.canStart()) {
-                    AutoSession.startRun(host);
-                    // The program runs by itself: the sheet steps aside, the tile brings it back.
-                    dismiss();
                 }
                 break;
             default:
@@ -432,14 +421,51 @@ public final class AutoUi {
         }
     }
 
-    private static void back() {
-        if (step == STEP_CALIB && AutoSession.getStage() == AutoSession.Stage.CALIB) {
-            AutoSession.stop();
-            calibStarted = false;
+    /** "С упражнения": the chosen made program is armed on the training screen (the card has ▶ Старт). */
+    private static void setupWorkout() {
+        Workout w = null;
+        for (Workout x : pickList) {
+            if (x.id.equals(workoutId)) {
+                w = x;
+            }
         }
-        if (step > STEP_PROGRAM && step <= STEP_CALIB) {
+        if (w == null) {
+            return;
+        }
+        Activity a = host;
+        AutoSession.close();                          // the map owns the output from here
+        dismiss();
+        String why = MapRunner.arm(a, w);
+        if (why != null) {
+            toast(a, why);
+            open(a);
+        }
+    }
+
+    private static void back() {
+        if (step > STEP_PROGRAM && step < STEP_RUN) {
             go(step - 1);
         }
+    }
+
+    /** From the setting-up board: back to the client step (the impulses stop). */
+    private static void setupBack() {
+        AutoSession.stop();                           // CALIB → SETUP, the board goes
+        AutoBoard.detach();
+        if (host != null) {
+            show(host, STEP_CLIENT);
+        }
+    }
+
+    /** From the setting-up board: ▶ Старт — the program begins (the countdown, then the warm-up). */
+    private static void setupGo() {
+        if (!AutoSession.canStart()) {
+            toast(host, AiText.t("Първо задай сила на реда.", "Set a strength on the row first."));
+            return;
+        }
+        AutoSession.startRun(host);
+        AutoBoard.sync(AutoSession.getPanelRoot() != null ? AutoSession.getPanelRoot()
+                : host.getWindow().getDecorView());
     }
 
     // ================================================================ 1 · program
@@ -463,101 +489,104 @@ public final class AutoUi {
         choose.setGravity(Gravity.CENTER_VERTICAL);
         choose.addView(XemsUi.segmented(c, names, sel, new Act(A_GOAL, 0)),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.6f));
-        // Active / passive only where the goal has both.
+        // Active / passive (owner, 1.1.336) — only where the goal has both
         boolean both = !AutoCatalog.menu(in.goal, Kind.ACTIVE).isEmpty() && !AutoCatalog.menu(in.goal, Kind.PASSIVE).isEmpty();
         if (both) {
             choose.addView(XemsUi.segmented(c, new String[] {
-                    AiText.t("С движение", "With movement"), AiText.t("В покой", "At rest")},
+                    AiText.t("Активна", "Active"), AiText.t("Пасивна", "Passive")},
                     in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.weight(1f, 14, c));
         }
         body.addView(choose, XemsUi.matchWrap(c, 4));
-        // "Само шаблон" / "С упражнения" (owner, 1.1.325): the template's blocks alone, or with its exercises — the
-        // impulse, pauses, rests and their logic are the same in both
+        // "Шаблон" / "С упражнения" (owner, 1.1.325 / 1.1.336): the ready template alone, or the programs made in
+        // Програми (with exercises) that are linked to this goal
+        boolean withEx = in.kind == Kind.ACTIVE && in.exercises;
         if (in.kind == Kind.ACTIVE) {
-            body.addView(XemsUi.segmented(c, new String[] {AiText.t("Само шаблон", "Template only"),
+            body.addView(XemsUi.segmented(c, new String[] {AiText.t("Шаблон", "Template"),
                     AiText.t("С упражнения", "With exercises")}, in.exercises ? 1 : 0, new Act(A_EXERCISES, 0)),
                     XemsUi.matchWrap(c, 12));
         }
 
-        List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
-        Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
-        Program chosen = AutoCatalog.get(in.programId);
-        if (chosen == null || !menu.contains(chosen) || AutoCatalog.blockReason(chosen, in.goal, in, false) != null) {
-            in.programId = AutoCatalog.blockReason(rec, in.goal, in, false) == null ? rec.id : null;
-        }
-        // the programs: a row of big picture cards that slides sideways (landscape) — the picture says what it
-        // trains, the name and the time are all a card needs; the chosen one's line is said once under the row
-        String firstBlock = null;
-        int shown = 0;
-        Program picked = null;
         LinearLayout strip = XemsUi.horizontal(c);
         strip.setPadding(0, XemsUi.dp(c, 4), XemsUi.dp(c, 8), XemsUi.dp(c, 4));
-        for (int i = 0; i < menu.size(); i++) {
-            Program p = menu.get(i);
-            String block = AutoCatalog.blockReason(p, in.goal, in, false);
-            if (block != null) {
-                // Not for this client today: not offered at all.
-                if (firstBlock == null) {
-                    firstBlock = block;
+        String firstBlock = null;
+        int shown = 0;
+        String pickedLine = null;
+        if (withEx) {
+            // the programs of this goal: the studio's own, then the ready ones
+            pickList = new ArrayList<Workout>();
+            for (Workout w : WorkoutStore.own(c)) {
+                addPick(w, in);
+            }
+            for (Workout w : WorkoutStore.presets()) {
+                addPick(w, in);
+            }
+            boolean has = false;
+            for (Workout w : pickList) {
+                has |= w.id.equals(workoutId);
+            }
+            if (!has) {
+                workoutId = pickList.isEmpty() ? null : pickList.get(0).id;
+            }
+            for (int i = 0; i < pickList.size(); i++) {
+                Workout w = pickList.get(i);
+                boolean on = w.id.equals(workoutId);
+                int mins = Math.max(1, Math.round(w.totalSeconds() / 60f));
+                String meta = w.distinctExercises() + AiText.t(" упр. · ", " ex. · ") + w.exerciseBlocks()
+                        + AiText.t(" серии", " sets");
+                strip.addView(programCard(c, on, w.effectiveLevel(), ProgramArt.templateKey(in.sex), w.name,
+                        (w.preset ? "" : "★ ") + meta, null, "≈ " + mins + AiText.t(" мин", " min"), new Act(A_WORKOUT, i)),
+                        cardParams(c));
+                if (on) {
+                    pickedLine = WorkoutsUi.focusLine(w);
                 }
-                continue;
+                shown++;
             }
-            boolean on = p.id.equals(in.programId);
-            if (on) {
-                picked = p;
+            if (shown == 0) {
+                body.addView(banner(c, XemsUi.AMBER, AiText.t("Няма програми с упражнения за „", "No exercise programs for \u201c")
+                        + goalName(in.goal) + AiText.t("“. Направи ги в Програми — отбележи им цел и трудност.",
+                        "\u201d. Make them in Programs — mark their goal and level.")), XemsUi.matchWrap(c, 14));
             }
-            int gc = goalColor(in.goal);
-            LinearLayout card = XemsUi.vertical(c);
-            int pad = XemsUi.dp(c, 10);
-            card.setPadding(pad, pad, pad, XemsUi.dp(c, 12));
-            card.setBackgroundDrawable(XemsUi.rounded(on ? XemsUi.mix(XemsUi.CARD, gc, 0.20f) : XemsUi.CARD,
-                    XemsUi.dp(c, 18), on ? gc : XemsUi.STROKE, XemsUi.dp(c, on ? 2.5f : 1)));
-            android.widget.FrameLayout art = new android.widget.FrameLayout(c);
-            art.addView(ProgramArt.tile(c, p.id, p.isActive(), in.sex, 210, 150), new android.widget.FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            if (p == rec) {
-                TextView star = XemsUi.badge(c, "★ " + AiText.t("Препоръчана", "Recommended"), XemsUi.GO_TEXT);
-                android.widget.FrameLayout.LayoutParams sl = new android.widget.FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.START);
-                sl.setMargins(XemsUi.dp(c, 6), XemsUi.dp(c, 6), 0, 0);
-                art.addView(star, sl);
-            }
-            if (on) {
-                TextView tick = XemsUi.text(c, "✓", 16, XemsUi.ON_ACCENT, true);
-                tick.setGravity(Gravity.CENTER);
-                tick.setBackgroundDrawable(XemsUi.rounded(gc, XemsUi.dp(c, 14), 0, 0));
-                android.widget.FrameLayout.LayoutParams tl = new android.widget.FrameLayout.LayoutParams(
-                        XemsUi.dp(c, 28), XemsUi.dp(c, 28), Gravity.TOP | Gravity.END);
-                tl.setMargins(0, XemsUi.dp(c, 6), XemsUi.dp(c, 6), 0);
-                art.addView(tick, tl);
-            }
-            card.addView(art);
-            TextView name = XemsUi.text(c, p.name(), 16, XemsUi.TEXT, true);
-            name.setMaxLines(2);
-            card.addView(name, XemsUi.matchWrap(c, 10));
-            card.addView(XemsUi.text(c, AutoPlanner.maxSeconds(p, in.goal, in) / 60 + " + "
-                    + AutoPlanner.RECOVERY_S / 60 + AiText.t(" мин", " min"), 14, on ? gc : XemsUi.MUTED, true),
-                    XemsUi.matchWrap(c, 2));
-            card.setOnClickListener(new Act(A_PROGRAM, i));
-            XemsUi.pressable(card);
-            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(XemsUi.dp(c, 230),
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            clp.rightMargin = XemsUi.dp(c, 12);
-            strip.addView(card, clp);
-            shown++;
-        }
-        if (shown == 0) {
-            body.addView(banner(c, XemsUi.AMBER, firstBlock != null ? firstBlock
-                    : AiText.t("Няма програма за този избор.", "No program for this choice.")), XemsUi.matchWrap(c, 14));
         } else {
+            List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
+            Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
+            Program chosen = AutoCatalog.get(in.programId);
+            if (chosen == null || !menu.contains(chosen) || AutoCatalog.blockReason(chosen, in.goal, in, false) != null) {
+                in.programId = AutoCatalog.blockReason(rec, in.goal, in, false) == null ? rec.id : null;
+            }
+            // every template of the goal as a card: the colour is the difficulty, the three times the plan
+            for (int i = 0; i < menu.size(); i++) {
+                Program p = menu.get(i);
+                String block = AutoCatalog.blockReason(p, in.goal, in, false);
+                if (block != null) {
+                    // Not for this client today: not offered at all.
+                    if (firstBlock == null) {
+                        firstBlock = block;
+                    }
+                    continue;
+                }
+                boolean on = p.id.equals(in.programId);
+                if (on) {
+                    pickedLine = p.desc();
+                }
+                String art = p.isActive() ? ProgramArt.templateKey(in.sex) : ProgramArt.passiveKey(in.sex);
+                strip.addView(programCard(c, on, p.level, art, (p == rec ? "★ " : "") + p.name(), null,
+                        AutoCatalog.times(p, in.goal, in), null, new Act(A_PROGRAM, i)), cardParams(c));
+                shown++;
+            }
+            if (shown == 0) {
+                body.addView(banner(c, XemsUi.AMBER, firstBlock != null ? firstBlock
+                        : AiText.t("Няма програма за този избор.", "No program for this choice.")), XemsUi.matchWrap(c, 14));
+            }
+        }
+        if (shown > 0) {
             programStrip = new android.widget.HorizontalScrollView(c);
             programStrip.setHorizontalScrollBarEnabled(false);
             programStrip.setOverScrollMode(View.OVER_SCROLL_NEVER);
             programStrip.addView(strip);
             body.addView(programStrip, XemsUi.matchWrap(c, 14));
             programStrip.post(new StripTo(programStrip, stripX));
-            if (picked != null) {
-                TextView d = XemsUi.text(c, picked.desc(), 14, XemsUi.MUTED, false);
+            if (pickedLine != null && pickedLine.length() > 0) {
+                TextView d = XemsUi.text(c, pickedLine, 14, XemsUi.MUTED, false);
                 d.setMaxLines(2);
                 d.setEllipsize(android.text.TextUtils.TruncateAt.END);
                 body.addView(d, XemsUi.matchWrap(c, 10));
@@ -570,8 +599,87 @@ public final class AutoUi {
         op.setPadding(0, XemsUi.dp(c, 6), 0, XemsUi.dp(c, 6));
         op.setOnClickListener(new Act(A_OPERATOR, 0));
         body.addView(op, XemsUi.matchWrap(c, 16));
-        footer(c, AiText.t("Напред", "Next"), false);
-        enable(in.programId != null);
+        footer(c, withEx ? AiText.t("Към настройване  ›", "To setup  ›") : AiText.t("Напред", "Next"), false);
+        enable(withEx ? workoutId != null : in.programId != null);
+    }
+
+    /** The programs of "С упражнения" on screen (the card index is the position here) and the chosen one. */
+    private static List<Workout> pickList = new ArrayList<Workout>();
+    private static String workoutId;
+
+    /** A made program is offered when it is linked to the goal, is active, and is not for the other sex. */
+    private static void addPick(Workout w, AutoModel.Input in) {
+        if (w.blocks.isEmpty() || !w.fits(in.goal, Kind.ACTIVE)) {
+            return;
+        }
+        if (w.sex != null && !w.sex.equals(in.sex == AiModel.Sex.MALE ? "m" : "f")) {
+            return;
+        }
+        pickList.add(w);
+    }
+
+    private static LinearLayout.LayoutParams cardParams(Context c) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(XemsUi.dp(c, 250), ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.rightMargin = XemsUi.dp(c, 12);
+        return lp;
+    }
+
+    /**
+     * One program card (owner, 1.1.336): the whole card wears the difficulty — green easy, amber medium, red hard —
+     * its badge names it; under the name either the three times (warm-up · main · recovery) or, for a made
+     * program, its size and total time.
+     */
+    private static LinearLayout programCard(Context c, boolean on, int level, String artKey, String name, String meta,
+                                            int[] times, String total, Act click) {
+        int lc = levelColor(level);
+        LinearLayout card = XemsUi.vertical(c);
+        int pad = XemsUi.dp(c, 10);
+        card.setPadding(pad, pad, pad, XemsUi.dp(c, 12));
+        card.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, lc, on ? 0.26f : 0.12f),
+                XemsUi.dp(c, 18), on ? lc : XemsUi.alpha(lc, 0x99), XemsUi.dp(c, on ? 3f : 1.5f)));
+        android.widget.FrameLayout art = new android.widget.FrameLayout(c);
+        art.addView(ProgramArt.tileKey(c, artKey, 210, 150), new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView lv = XemsUi.badge(c, levelName(level), lc);
+        android.widget.FrameLayout.LayoutParams sl = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.START);
+        sl.setMargins(XemsUi.dp(c, 6), XemsUi.dp(c, 6), 0, 0);
+        art.addView(lv, sl);
+        if (on) {
+            TextView tick = XemsUi.text(c, "✓", 16, XemsUi.ON_ACCENT, true);
+            tick.setGravity(Gravity.CENTER);
+            tick.setBackgroundDrawable(XemsUi.rounded(lc, XemsUi.dp(c, 14), 0, 0));
+            android.widget.FrameLayout.LayoutParams tl = new android.widget.FrameLayout.LayoutParams(
+                    XemsUi.dp(c, 28), XemsUi.dp(c, 28), Gravity.TOP | Gravity.END);
+            tl.setMargins(0, XemsUi.dp(c, 6), XemsUi.dp(c, 6), 0);
+            art.addView(tick, tl);
+        }
+        card.addView(art);
+        TextView nm = XemsUi.text(c, name, 16, XemsUi.TEXT, true);
+        nm.setMaxLines(2);
+        card.addView(nm, XemsUi.matchWrap(c, 10));
+        if (meta != null) {
+            card.addView(XemsUi.text(c, meta, 13, XemsUi.MUTED, false), XemsUi.matchWrap(c, 2));
+        }
+        if (total != null) {
+            card.addView(XemsUi.text(c, total, 15, on ? lc : XemsUi.MUTED, true), XemsUi.matchWrap(c, 4));
+        }
+        if (times != null) {
+            LinearLayout row = XemsUi.horizontal(c);
+            String[] cap = {AiText.t("Загрявка", "Warm-up"), AiText.t("Основна", "Main"), AiText.t("Възстанов.", "Recovery")};
+            for (int k = 0; k < 3; k++) {
+                LinearLayout cell = XemsUi.vertical(c);
+                TextView v = XemsUi.text(c, times[k] > 0 ? Math.round(times[k] / 60f) + AiText.t(" мин", " min") : "—",
+                        15, on ? lc : XemsUi.TEXT, true);
+                cell.addView(v);
+                cell.addView(XemsUi.text(c, cap[k], 11, XemsUi.MUTED, false));
+                row.addView(cell, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            }
+            card.addView(row, XemsUi.matchWrap(c, 6));
+        }
+        card.setOnClickListener(click);
+        XemsUi.pressable(card);
+        return card;
     }
 
     // ================================================================ 2 · client and plan
@@ -702,11 +810,12 @@ public final class AutoUi {
         body.addView(todayGrid, XemsUi.matchWrap(c, 6));
 
         boolean ready = pb == null;
-        footer(c, AiText.t("Към силата  ›", "To strength  ›"), true);
+        footer(c, AiText.t("Към настройване  ›", "To setup  ›"), true);
         enable(ready);
     }
 
-    /** The plan on the client step: time, feeling, HR; duration, intensity, options; notes; details folded. */
+    /** The plan on the client step: the three times, HR; options; notes; details folded. Time and intensity are the
+     *  program's (owner, 1.1.336): not chosen, only shown. */
     private static void planBlock(Context c, LinearLayout body) {
         AutoModel.Plan plan = AutoSession.getPlan();
         AutoModel.Input in = AutoSession.getInput();
@@ -714,9 +823,12 @@ public final class AutoUi {
             return;
         }
         LinearLayout tiles = XemsUi.horizontal(c);
-        // the active part (≤ 20 min of impulses) + the passive recovery (10 min)
-        tile(c, tiles, AiText.t("Време", "Time"), (plan.activeS / 60) + (plan.recoveryS > 0 ? " + " + plan.recoveryS / 60 : "")
-                + AiText.t(" мин", " min"), 0);
+        // warm-up · main part (together ≤ 20 min of impulses) · the passive recovery (10 min)
+        int[] tm = AutoCatalog.times(plan.program, in.goal, in);
+        tile(c, tiles, AiText.t("Трудност", "Level"), levelName(plan.program.level), 0, levelColor(plan.program.level));
+        tile(c, tiles, AiText.t("Загрявка", "Warm-up"), tm[0] / 60 + AiText.t(" мин", " min"), 10);
+        tile(c, tiles, AiText.t("Основна", "Main"), tm[1] / 60 + AiText.t(" мин", " min"), 10);
+        tile(c, tiles, AiText.t("Възстановяване", "Recovery"), tm[2] / 60 + AiText.t(" мин", " min"), 10);
         boolean band = AutoSession.isBandConfigured(host);
         if (plan.hrUse != AutoModel.HrUse.NONE && band) {
             tile(c, tiles, AiText.t("Пулс до", "HR up to"), plan.hrCap + "", 10);
@@ -724,16 +836,6 @@ public final class AutoUi {
         body.addView(tiles, XemsUi.matchWrap(c, 0));
 
         LinearLayout opt = XemsUi.card(c);
-        LinearLayout r1 = XemsUi.horizontal(c);
-        r1.setGravity(Gravity.CENTER_VERTICAL);
-        r1.addView(XemsUi.stepper(c, "" + (plan.activeS / 60), AiText.t("мин активни", "min active"), 20,
-                new Act(A_MINUTES, 0)).view);
-        String[] levels = AutoPlanner.intenseAllowed(plan.program, in)
-                ? new String[] {AiText.t("Мек", "Soft"), AiText.t("Стандартен", "Standard"), AiText.t("Интензивен", "Intense")}
-                : new String[] {AiText.t("Мек", "Soft"), AiText.t("Стандартен", "Standard")};
-        r1.addView(XemsUi.segmented(c, levels, Math.min(levels.length - 1, in.intensity.ordinal()),
-                new Act(A_INTENSITY, 0)), XemsUi.weight(1, 14, c));
-        opt.addView(r1);
         if (plan.program.variantsBg != null) {
             String[] v = new String[plan.program.variantsBg.length];
             for (int i = 0; i < v.length; i++) {
@@ -746,7 +848,9 @@ public final class AutoUi {
                     AiText.t("лек импулс и в паузата", "a light pulse in the pause too"),
                     in.doublePulse, new Act(A_DOUBLE, 0)), XemsUi.matchWrap(c, 8));
         }
-        body.addView(opt, XemsUi.matchWrap(c, 10));
+        if (opt.getChildCount() > 0) {
+            body.addView(opt, XemsUi.matchWrap(c, 10));
+        }
 
         // Only what needs attention.
         StringBuilder notes = new StringBuilder();
@@ -874,57 +978,6 @@ public final class AutoUi {
 
     // ================================================================ 3 · strength
 
-    private static void screenCalib(Context c) {
-        AutoModel.Plan plan = AutoSession.getPlan();
-        shell.title.setText(AiText.t("Сила", "Strength"));
-        subtitle(AiText.t("До усещане ", "Up to a feeling of ") + plan.cr10Lo
-                + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "") + AiText.t(" от 10 · ", " of 10 · ") + cr10Text(plan.cr10Hi));
-        LinearLayout body = shell.body;
-        // the target feeling as a picture: 1–10, the target band lit — the trainer asks, the client answers
-        body.addView(cr10Scale(c, plan.cr10Lo, plan.cr10Hi), XemsUi.matchWrap(c, 2));
-        List<AutoSession.Row> rows = AutoSession.getRows();
-        for (int i = 0; i < rows.size(); i++) {
-            AutoSession.Row r = rows.get(i);
-            LinearLayout card = XemsUi.card(c);
-            LinearLayout head = XemsUi.horizontal(c);
-            head.setGravity(Gravity.CENTER_VERTICAL);
-            head.addView(XemsUi.text(c, r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (i + 1),
-                    16, XemsUi.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            TextView lbl = XemsUi.text(c, "", 22, XemsUi.GO_TEXT, true);
-            rowLabels.add(lbl);
-            if (r.block != null) {
-                head.addView(lbl);
-                card.addView(head);
-                card.addView(XemsUi.text(c, "⊘ " + r.block, 13, XemsUi.DANGER, true));
-            } else {
-                int[] steps = {-5, -1};
-                for (int k = 0; k < steps.length; k++) {
-                    TextView key = XemsUi.button(c, "−" + Math.abs(steps[k]), XemsUi.SECONDARY);
-                    key.setAlpha(calibStarted ? 1f : 0.35f);
-                    key.setEnabled(calibStarted);
-                    key.setOnClickListener(new Act(A_CALIB_ROW, i * 100 + (steps[k] + 50)));
-                    head.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 72), ViewGroup.LayoutParams.WRAP_CONTENT));
-                }
-                lbl.setGravity(Gravity.CENTER);
-                head.addView(lbl, new LinearLayout.LayoutParams(XemsUi.dp(c, 80), ViewGroup.LayoutParams.WRAP_CONTENT));
-                int[] up = {+1, +5};
-                for (int k = 0; k < up.length; k++) {
-                    TextView key = XemsUi.button(c, "+" + up[k], XemsUi.SECONDARY);
-                    key.setAlpha(calibStarted ? 1f : 0.35f);
-                    key.setEnabled(calibStarted);
-                    key.setOnClickListener(new Act(A_CALIB_ROW, i * 100 + (up[k] + 50)));
-                    head.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 72), ViewGroup.LayoutParams.WRAP_CONTENT));
-                }
-                card.addView(head);
-            }
-            body.addView(card, XemsUi.matchWrap(c, 12));
-        }
-        calibRowsInfo = hint(c, "");
-        body.addView(calibRowsInfo, XemsUi.matchWrap(c, 8));
-        footer(c, calibStarted ? AiText.t("Старт  ›", "Start  ›") : AiText.t("▶ Пусни импулсите", "▶ Start the pulses"), true);
-        refreshCalib();
-    }
-
     /** CR-10 as ten cells: the target band lit in green and named under it (the feeling to reach). */
     private static View cr10Scale(Context c, int lo, int hi) {
         LinearLayout box = XemsUi.vertical(c);
@@ -944,21 +997,6 @@ public final class AutoUi {
         row.setGravity(Gravity.CENTER_VERTICAL);
         box.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 48)));
         return box;
-    }
-
-    private static void refreshCalib() {
-        List<AutoSession.Row> rows = AutoSession.getRows();
-        for (int i = 0; i < rowLabels.size() && i < rows.size(); i++) {
-            AutoSession.Row r = rows.get(i);
-            rowLabels.get(i).setText(r.block != null || !calibStarted ? "—" : r.lastStrength + "");
-        }
-        if (calibStarted) {
-            enable(AutoSession.canStart());
-        }
-        if (calibRowsInfo != null) {
-            String n = AutoSession.getLastNotice();
-            calibRowsInfo.setText(n != null ? n : "");
-        }
     }
 
     private static String cr10Text(int v) {
@@ -1027,6 +1065,7 @@ public final class AutoUi {
         stage.addView(runFigure);
         runArt = ProgramArt.tile(c, plan.program.id, plan.program.isActive(), lead != null ? lead.sex : null, 120, 90);
         stage.addView(runArt);
+        ProgramArt.show(runArt, ringKey(plan.program, false, lead != null ? lead.sex : null), 120);
         runRing = new AutoViews.SetRing(c);
         stage.addView(runRing);
         stage.setOnClickListener(new Act(A_HOW, 0));
@@ -1124,6 +1163,113 @@ public final class AutoUi {
         tl.addView(foot, XemsUi.matchWrap(c, 2));
         body.addView(infoCorner(c, tl, INFO_TIMELINE), XemsUi.matchWrap(c, 6));
         refreshRun();
+    }
+
+    // ================================================================ setting up (owner, 1.1.336)
+
+    private static final List<TextView> setupLabels = new ArrayList<TextView>();
+    private static TextView setupGo;
+    private static TextView setupNote;
+
+    /**
+     * The setting-up board on the training screen, in place of the old strength sheet: the program (picture, level,
+     * the three times), what to do — the total strength with the row's own slider and each channel with the channel
+     * sliders, up to the target feeling — each row's strength now, and ▶ Старт, which begins the program.
+     */
+    static void buildSetupBoard(Context c, LinearLayout body) {
+        XemsUi.init(c);
+        host = c instanceof Activity ? (Activity) c : host;
+        AutoModel.Plan plan = AutoSession.getPlan();
+        AutoModel.Input lead = AutoSession.getInput();
+        setupLabels.clear();
+        LinearLayout card = nativeCard(c);
+        LinearLayout row = XemsUi.horizontal(c);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+
+        AiModel.Sex sx = lead != null ? lead.sex : null;
+        String key = plan.program.isActive() ? ProgramArt.templateKey(sx) : ProgramArt.passiveKey(sx);
+        row.addView(ProgramArt.tileKey(c, key, 230, 172), new LinearLayout.LayoutParams(XemsUi.dp(c, 230), XemsUi.dp(c, 172)));
+
+        LinearLayout mid = XemsUi.vertical(c);
+        LinearLayout head = XemsUi.horizontal(c);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.addView(XemsUi.text(c, AiText.t("Настройване", "Setting up"), 26, XemsUi.TEXT, true));
+        TextView lv = XemsUi.badge(c, levelName(plan.program.level), levelColor(plan.program.level));
+        LinearLayout.LayoutParams lvp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        lvp.leftMargin = XemsUi.dp(c, 12);
+        head.addView(lv, lvp);
+        mid.addView(head);
+        mid.addView(XemsUi.text(c, plan.program.name() + " · " + goalName(plan.input.goal), 15, XemsUi.MUTED, true),
+                XemsUi.matchWrap(c, 2));
+        LinearLayout tiles = XemsUi.horizontal(c);
+        int[] tm = AutoCatalog.times(plan.program, plan.input.goal, plan.input);
+        tile(c, tiles, AiText.t("Загрявка", "Warm-up"), tm[0] / 60 + AiText.t(" мин", " min"), 0);
+        tile(c, tiles, AiText.t("Основна", "Main"), tm[1] / 60 + AiText.t(" мин", " min"), 10);
+        tile(c, tiles, AiText.t("Възстановяване", "Recovery"), tm[2] / 60 + AiText.t(" мин", " min"), 10);
+        mid.addView(tiles, XemsUi.matchWrap(c, 8));
+        mid.addView(XemsUi.text(c, AiText.t("① Обща сила — плъзгачът на реда   ② Сила на всеки канал — каналите на реда   ③ ▶ Старт",
+                "① Total strength — the row's slider   ② Each channel — the row's channels   ③ ▶ Start"),
+                14, XemsUi.TEXT, false), XemsUi.matchWrap(c, 10));
+        mid.addView(XemsUi.text(c, AiText.t("До усещане ", "Up to a feeling of ") + plan.cr10Lo
+                + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "") + AiText.t(" от 10 · ", " of 10 · ")
+                + cr10Text(plan.cr10Hi), 13, XemsUi.MUTED, true), XemsUi.matchWrap(c, 8));
+        mid.addView(cr10Scale(c, plan.cr10Lo, plan.cr10Hi), XemsUi.matchWrap(c, 2));
+        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        mlp.leftMargin = XemsUi.dp(c, 18);
+        mlp.rightMargin = XemsUi.dp(c, 18);
+        row.addView(mid, mlp);
+
+        LinearLayout right = XemsUi.vertical(c);
+        right.setGravity(Gravity.CENTER_VERTICAL);
+        List<AutoSession.Row> rows = AutoSession.getRows();
+        for (int i = 0; i < rows.size(); i++) {
+            AutoSession.Row r = rows.get(i);
+            LinearLayout line = XemsUi.horizontal(c);
+            line.setGravity(Gravity.CENTER_VERTICAL);
+            line.addView(XemsUi.text(c, r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (i + 1),
+                    15, XemsUi.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView lbl = XemsUi.text(c, "", 24, XemsUi.GO_TEXT, true);
+            setupLabels.add(lbl);
+            line.addView(lbl);
+            right.addView(line, XemsUi.matchWrap(c, i == 0 ? 0 : 4));
+            if (r.block != null) {
+                right.addView(XemsUi.text(c, "⊘ " + r.block, 12, XemsUi.DANGER, true));
+            }
+        }
+        setupNote = XemsUi.text(c, "", 13, XemsUi.AMBER, true);
+        setupNote.setMaxLines(3);
+        setupNote.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        right.addView(setupNote, XemsUi.matchWrap(c, 8));
+        setupGo = XemsUi.button(c, AiText.t("▶  Старт", "▶  Start"), XemsUi.PRIMARY);
+        setupGo.setOnClickListener(new Act(A_SETUP_GO, 0));
+        right.addView(setupGo, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 66)));
+        TextView back = XemsUi.button(c, AiText.t("‹  Назад", "‹  Back"), XemsUi.GHOST);
+        back.setOnClickListener(new Act(A_SETUP_BACK, 0));
+        right.addView(back, XemsUi.matchWrap(c, 8));
+        row.addView(right, new LinearLayout.LayoutParams(XemsUi.dp(c, 260), ViewGroup.LayoutParams.WRAP_CONTENT));
+        card.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        body.addView(card, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        refreshSetup();
+    }
+
+    /** Each row's strength now; ▶ Старт wakes once a strength is set; the latest notice. */
+    private static void refreshSetup() {
+        List<AutoSession.Row> rows = AutoSession.getRows();
+        for (int i = 0; i < setupLabels.size() && i < rows.size(); i++) {
+            AutoSession.Row r = rows.get(i);
+            setupLabels.get(i).setText(r.block != null ? "—" : String.valueOf(Math.max(0, r.lastStrength)));
+        }
+        boolean ok = AutoSession.canStart();
+        if (setupGo != null) {
+            setupGo.setAlpha(ok ? 1f : 0.45f);
+        }
+        if (setupNote != null) {
+            String n = AutoSession.getLastNotice();
+            setupNote.setText(n != null && n.length() > 0 ? n
+                    : ok ? "" : AiText.t("Качи силата от главния екран — Старт се отключва.",
+                    "Raise the strength on the main screen — Start unlocks."));
+        }
     }
 
     /** A card exactly like the training screen's own rows (the app's ui_card_background), else the kit's card. */
@@ -1387,6 +1533,12 @@ public final class AutoUi {
         }
     }
 
+    /** The ring's picture without an exercise figure (owner, 1.1.336): the active template is the standing figure
+     *  with the dumbbell; the passive procedure and every recovery, the figure lying back. */
+    private static String ringKey(AutoCatalog.Program p, boolean relax, AiModel.Sex sx) {
+        return relax || !p.isActive() ? ProgramArt.passiveKey(sx) : ProgramArt.templateKey(sx);
+    }
+
     private static void refreshRun() {
         AutoEngine e = AutoSession.getEngine();
         if (e == null || runPhase == null) {
@@ -1413,8 +1565,7 @@ public final class AutoUi {
             // the passive recovery: the figure lying back on the couch, not the program's picture
             boolean relax = recovery || beforeRecovery;
             AiModel.Sex sx = lead != null ? lead.sex : null;
-            ProgramArt.show(runArt, relax ? ProgramArt.key(AutoCatalog.RECOVERY, false, sx)
-                    : ProgramArt.key(plan.program.id, plan.program.isActive(), sx), 120);
+            ProgramArt.show(runArt, ringKey(plan.program, relax, sx), 120);
         }
         String nx = e.getNextExercise();
         boolean soon = st == AutoEngine.State.RUN && nx != null && e.getSetLeftS() <= NEXT_SOON_S;
@@ -1622,6 +1773,7 @@ public final class AutoUi {
                 break;
             }
             case A_EXERCISES:
+                stripX = 0;
                 in.exercises = value == 1;
                 break;
             case A_KIND:
@@ -1687,17 +1839,6 @@ public final class AutoUi {
                 break;
             }
             case A_WEEKS: in.extra.weeksSinceBirth = Math.max(0, Math.min(104, in.extra.weeksSinceBirth + value)); break;
-            case A_MINUTES: {
-                AutoModel.Plan plan = AutoSession.getPlan();
-                int cur = plan != null ? plan.activeS : AutoPlanner.ACTIVE_MAX_S;
-                in.totalSeconds = AutoPlanner.clampSeconds(AutoCatalog.get(in.programId), in.goal, in, cur + 60 * value);
-                AutoSession.buildPlan();
-                break;
-            }
-            case A_INTENSITY:
-                in.intensity = AutoModel.Intensity.values()[Math.min(2, value)];
-                AutoSession.buildPlan();
-                break;
             case A_VARIANT:
                 in.variant = value;
                 AutoSession.buildPlan();
@@ -1712,12 +1853,18 @@ public final class AutoUi {
             case A_TIPS:
                 AutoSession.setTips(host, value == 1);
                 return;
-            case A_CALIB_ROW:
-                AutoSession.tip("calib_keys", AiText.t("±1 / ±5 на реда. Качването е плавно: най-много +5 в секунда.",
-                        "±1 / ±5 per row. Raising is gradual: at most +5 per second."), now);
-                AutoSession.adjustCalibration(arg / 100, arg % 100 - 50);
-                refreshCalib();
+            case A_SETUP_GO:
+                setupGo();
                 return;
+            case A_SETUP_BACK:
+                setupBack();
+                return;
+            case A_WORKOUT:
+                stripX = programStrip != null ? programStrip.getScrollX() : 0;
+                if (arg < pickList.size()) {
+                    workoutId = pickList.get(arg).id;
+                }
+                break;
             case A_HOW: {
                 // the steps are always on screen; in the rest a tap on the exercise gives the next one instead
                 AutoEngine e = AutoSession.getEngine();
@@ -1812,9 +1959,13 @@ public final class AutoUi {
     }
 
     private static void tile(Context c, LinearLayout row, String label, String value, int left) {
+        tile(c, row, label, value, left, XemsUi.TEXT);
+    }
+
+    private static void tile(Context c, LinearLayout row, String label, String value, int left, int color) {
         LinearLayout t = XemsUi.surface(c);
         t.addView(XemsUi.text(c, label, 12, XemsUi.MUTED, false));
-        TextView v = XemsUi.text(c, value, 24, XemsUi.TEXT, true);
+        TextView v = XemsUi.text(c, value, 24, color, true);
         v.setPadding(0, XemsUi.dp(c, 4), 0, 0);
         t.addView(v);
         row.addView(t, XemsUi.weight(1, left, c));
@@ -1827,7 +1978,7 @@ public final class AutoUi {
         return t;
     }
 
-    private static String goalName(Goal g) {
+    static String goalName(Goal g) {
         switch (g) {
             case SLIM: return AiText.t("Отслабване", "Weight loss");
             case HEALTH: return AiText.t("Здраве", "Health");
@@ -1835,12 +1986,21 @@ public final class AutoUi {
         }
     }
 
-    private static int goalColor(Goal g) {
+    static int goalColor(Goal g) {
         switch (g) {
             case SLIM: return XemsUi.ORANGE;
             case HEALTH: return 0xFF26A69A;
             default: return XemsUi.GO;
         }
+    }
+
+    /** Difficulty (owner, 1.1.336): easy green · medium amber · hard red — the same on every card. */
+    static String levelName(int level) {
+        return level <= 1 ? AiText.t("Лесна", "Easy") : level == 2 ? AiText.t("Средна", "Medium") : AiText.t("Трудна", "Hard");
+    }
+
+    static int levelColor(int level) {
+        return level <= 1 ? XemsUi.GO : level == 2 ? XemsUi.AMBER : XemsUi.DANGER;
     }
 
     private static void toast(Context c, String s) {

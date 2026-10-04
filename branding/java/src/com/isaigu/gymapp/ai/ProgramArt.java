@@ -41,15 +41,24 @@ public final class ProgramArt {
         return WIDTHS[WIDTHS.length - 1];
     }
 
+    /**
+     * The picture of the template alone (owner, 1.1.336): the active template is the standing figure with the
+     * dumbbell, whatever the program — the exercises (when they are on) are drawn by their own figures.
+     */
+    public static String templateKey(AiModel.Sex sex) {
+        return sex == AiModel.Sex.MALE ? "active-m" : "active-f";
+    }
+
+    /** The passive procedure and the recovery (owner, 1.1.336): the figure lying back, by sex. */
+    public static String passiveKey(AiModel.Sex sex) {
+        return sex == AiModel.Sex.MALE ? "passive-m" : "passive-f";
+    }
+
     /** Which picture: an active program by what it trains, a passive one by the client's sex. */
     public static String key(String programId, boolean active, AiModel.Sex sex) {
         boolean male = sex == AiModel.Sex.MALE;
         if (!active || programId == null) {
-            if (male) {
-                return "passive-m";
-            }
-            return AutoCatalog.DRAIN.equals(programId) || AutoCatalog.RECOVERY.equals(programId)
-                    ? "passive-f-music" : "passive-f-line";
+            return passiveKey(sex);
         }
         if (male) {
             if (AutoCatalog.GLUTES_LEGS.equals(programId) || AutoCatalog.CARDIO.equals(programId)) {
@@ -129,12 +138,17 @@ public final class ProgramArt {
 
     /** The picture on its dark rounded tile, {@code wDp} × {@code hDp}; an empty tile if the picture is missing. */
     public static View tile(Context c, String programId, boolean active, AiModel.Sex sex, int wDp, int hDp) {
+        return tileKey(c, key(programId, active, sex), wDp, hDp);
+    }
+
+    /** The same tile for a picture picked by its key ({@link #templateKey}, {@link #passiveKey}). */
+    public static View tileKey(Context c, String key, int wDp, int hDp) {
         FrameLayout f = new FrameLayout(c);
         f.setBackgroundDrawable(XemsUi.rounded(TILE, XemsUi.dp(c, 14), 0, 0));
         ImageView iv = new ImageView(c);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
         iv.setAdjustViewBounds(false);
-        Bitmap b = bitmap(c, key(programId, active, sex), XemsUi.dp(c, wDp));
+        Bitmap b = bitmap(c, key, XemsUi.dp(c, wDp));
         if (b != null) {
             android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(c.getResources(), b);
             d.setFilterBitmap(true);
@@ -142,7 +156,7 @@ public final class ProgramArt {
             iv.setImageDrawable(d);
         }
         f.addView(iv, new FrameLayout.LayoutParams(XemsUi.dp(c, wDp), XemsUi.dp(c, hDp), Gravity.CENTER));
-        f.setTag(key(programId, active, sex));
+        f.setTag(key);
         f.setMinimumWidth(XemsUi.dp(c, wDp));
         f.setMinimumHeight(XemsUi.dp(c, hDp));
         return f;

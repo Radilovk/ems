@@ -43,6 +43,7 @@ public final class AutoSim {
         }
         System.out.println("full runs: " + runs);
         bySex();
+        classifiers();
         todayStates();
         blocks();
         zones();
@@ -553,6 +554,33 @@ public final class AutoSim {
 
     /** Men never get the women's programs (cellulite, glutes & thighs, postpartum), women never the men's; every
      *  goal × kind still has a program for both. */
+    /** Cards (owner, 1.1.336): every program has a level 1–3; its three times add up to the plan and the recovery is 10 min. */
+    static void classifiers() {
+        for (AutoModel.Goal g : AutoModel.Goal.values()) {
+            for (AutoModel.Kind k : AutoModel.Kind.values()) {
+                for (AutoCatalog.Program p : AutoCatalog.menu(g, k)) {
+                    check(p.level >= 1 && p.level <= 3, p.id + ": level " + p.level);
+                    AutoModel.Input in = new AutoModel.Input();
+                    in.goal = g;
+                    in.kind = k;
+                    in.programId = p.id;
+                    in.sessions = 10;
+                    in.sex = p.maleOnly ? AiModel.Sex.MALE : AiModel.Sex.FEMALE;
+                    int[] t = AutoCatalog.times(p, g, in);
+                    check(t[2] == AutoPlanner.RECOVERY_S, p.id + ": recovery " + t[2]);
+                    check(t[0] + t[1] == AutoPlanner.maxSeconds(p, g, in), p.id + "/" + g + ": warm " + t[0] + " + main " + t[1]
+                            + " ≠ " + AutoPlanner.maxSeconds(p, g, in));
+                    check(t[0] > 0 && t[0] < t[1], p.id + ": warm-up " + t[0] + " main " + t[1]);
+                    // the plan itself is the programme's: no chosen minutes, no soft / intense
+                    AutoModel.Plan plan = AutoPlanner.build(in, 68);
+                    check(plan.activeS == t[0] + t[1], p.id + ": plan " + plan.activeS);
+                }
+            }
+        }
+        check(AutoCatalog.get(AutoCatalog.CARDIO).level == 3 && AutoCatalog.get(AutoCatalog.DRAIN).level == 1
+                && AutoCatalog.get(AutoCatalog.GENERAL).level == 2, "levels");
+    }
+
     static void bySex() {
         for (AutoModel.Goal g : AutoModel.Goal.values()) {
             for (AutoModel.Kind k : AutoModel.Kind.values()) {

@@ -93,7 +93,11 @@ smallest width ≥ the tile's px (no density scaling, mipmaps on), always on a d
 Shown on the Auto program cards (128×96 dp) and the AI plan screen (160×120 dp).
 Key = program × sex: women — general f-squat, glutes/postpartum f-bridge, core f-plank, power f-pushup, cardio
 f-climber, back f-lateral, senior f-curl; men — glutes/cardio m-lunge, core/power/back m-pushup, else m-squat;
-passive — passive-m, or passive-f-music (drain, recovery) / passive-f-line. Unused yet: f-lunge, f-bicycle,
+passive — passive-m / passive-f. **1.1.336 (owner's four pictures):** the standing figure with a dumbbell is the
+**active template** — `active-m` / `active-f` (`ProgramArt.templateKey`): the cards of the first step and the Auto ring
+whenever no exercise figure is drawn (template only, between sets); the figure lying back is the **passive procedure and
+every recovery** — `passive-m` / `passive-f` (`ProgramArt.passiveKey`), replacing passive-f-music / passive-f-line.
+The per-program pictures (f-squat … m-squat) stay for the AI plan screen. Unused yet: f-lunge, f-bicycle,
 f-legraise, f-twist, f-dip, f-tricep.
 
 ## Figure colour

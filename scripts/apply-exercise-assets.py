@@ -50,7 +50,7 @@ def main() -> int:
     print(f"assets/xems/exercises.json ({len(exs)} exercises, {DEST.stat().st_size} B)")
     art = ROOT / "branding" / "programs"
     java_art = (ROOT / "branding" / "java" / "src" / "com" / "isaigu" / "gymapp" / "ai" / "ProgramArt.java").read_text(encoding="utf-8")
-    keys = set(re.findall(r'"((?:f|m|passive)-[a-z-]+)"', java_art))
+    keys = set(re.findall(r'"((?:f|m|passive|active)-[a-z-]+)"', java_art))
     have = {p.stem.split("@")[0] for p in art.glob("*@*.webp")}
     if keys - have:
         raise SystemExit(f"branding/programs: missing {sorted(keys - have)} (ProgramArt uses them)")

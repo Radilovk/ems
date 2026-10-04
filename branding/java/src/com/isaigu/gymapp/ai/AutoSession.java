@@ -480,6 +480,9 @@ public final class AutoSession {
     /** Build the plan for the leader and every other row (same timeline, each row's own limits). */
     public static void buildPlan() {
         syncLeaderInput();
+        // time and intensity are the program's (owner, 1.1.336): the soft / intense choice and the minutes are gone
+        input.intensity = AutoModel.Intensity.STANDARD;
+        input.totalSeconds = null;
         AutoCatalog.Program p = AutoCatalog.get(input.programId);
         int cap = Integer.MAX_VALUE;
         for (Row r : rows) {

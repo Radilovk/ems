@@ -126,7 +126,7 @@ public final class PauseSetting {
         }
     }
 
-    /** One stepper: the 2nd impulse's Hz (1–120, 1 Hz) or strength (0–100 %, 5 %). */
+    /** One stepper: the 2nd impulse's Hz (1–10, 1 Hz — the absolute limit, ai/SafeLimits) or strength (0–100 %, 5 %). */
     static final class Step implements XemsUi.OnStep {
         private final ProgramDataBean b;
         private final XemsUi.Stepper s;
@@ -141,7 +141,7 @@ public final class PauseSetting {
         @Override
         public void onStep(int dir) {
             if (hz) {
-                b.pauseHz = Math.max(1, Math.min(120, (b.pauseHz > 0 ? b.pauseHz : 7) + dir));
+                b.pauseHz = Math.max(1, Math.min(com.isaigu.gymapp.ai.SafeLimits.PAUSE_HZ_MAX, (b.pauseHz > 0 ? b.pauseHz : 7) + dir));
             } else {
                 int v = Math.round(b.pauseStrenthPercent / 5f) * 5 + dir * 5;
                 b.pauseStrenthPercent = Math.max(0, Math.min(100, v));

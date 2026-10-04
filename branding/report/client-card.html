@@ -206,7 +206,6 @@ footer{text-align:center;color:var(--faint);font-size:11.5px;padding-top:6px}
 
   <div class="trend glass rise" id="trend" style="animation-delay:.32s"></div>
   <div class="bodyc glass rise" id="bodyc" hidden style="animation-delay:.36s"></div>
-  <div class="bodyc glass rise" id="prmc" hidden style="animation-delay:.4s"></div>
   <footer id="foot"></footer>
 </div>
 <div class="toast glass" id="toast" hidden></div>
@@ -401,20 +400,9 @@ const INFO={
     m.querySelector("h4").textContent=d[0];m.querySelector(".b").innerHTML=d[1].map(x=>`<p>${x}</p>`).join("");m.hidden=false;m.querySelector(".ok").focus();});
   if(EN)document.querySelectorAll(".info").forEach(b=>b.setAttribute("aria-label","What is this?"));})();
 
-// the client's impulse: recalculated from the profile, the measurements and the trainings (tablet ParamPlan)
-(function(){const L=Array.isArray(D.prm)?D.prm:[],box=$("#prmc");if(!L.length||!box)return;
-  const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
-  const day=t=>{const x=new Date(t);return x.getDate()+" "+MON[x.getMonth()];},c=L[L.length-1];
-  box.innerHTML=`<h3>${tr("Импулсът ти","Your impulse")}</h3><div class="wt"><b>${esc(c.var)}</b><small>${esc(c.main)}</small></div>`
-    +`<div class="when">${tr("Изчислява се наново от профила, измерванията и тренировките ти","Recalculated from your profile, measurements and trainings")}</div>`
-    +L.slice().reverse().map(e=>`<div><b>${day(e.t)}</b> · ${esc(e.trig)}${(e.d||[]).length?`<div class="when">${e.d.map(esc).join(" · ")}</div>`:""}</div>`).join("");
-  box.hidden=false;})();
-
 function sample(){const now=Date.now(),dd=864e5,eff=[];for(let i=0;i<14;i++)eff.push([now-(50-i*3.6)*dd,Math.round(69+i*1.0+(i%4===2?-5:0))]);
   return{v:1,lang:/[?&]en\b/.test(location.search)?"en":"bg",name:"Demo",sex:"F",gen:now,since:now-80*dd,n:22,sec:31944,act:30800,kcal:3213,contr:0,
     weeks:[2,2,1,2,2,1,2,2,2,2,2,1],streak:12,eff,mus:[.78,.85,1,.67,.52,.61,.81,.57,.95,.9],delt:.62,p30:{n:8,sec:11616,kcal:1180,mus:[.7,.8,1,.72,.45,.58,.76,.6,.92,.86],delt:.55,eff:eff.slice(-8)},
-    last:{d:now-2*dd,t:"Test",e:83,k:164,a:1404,h:115,mus:[.62,.9,1,.55,.35,.5,.7,.66,.98,.8],delt:.8},
-    prm:[{t:now-12*dd,var:"Мощност",trig:"Тренировка 5",main:"100 Hz · 360 µs · 3/4 s",d:["Основен: 85 → 100 Hz, 4 → 3 s импулс"]},
-      {t:now-dd,var:"Обем",trig:"Мазнини 31.0 → 29.4 % (кантар)",main:"70 Hz · 355 µs · 6/5 s",d:["Основен: 100 → 70 Hz, 3 → 6 s импулс, 4 → 5 s пауза"]}]};}
+    last:{d:now-2*dd,t:"Test",e:83,k:164,a:1404,h:115,mus:[.62,.9,1,.55,.35,.5,.7,.66,.98,.8],delt:.8}};}
 })();
 </script>

@@ -76,7 +76,7 @@ frequency, the impedance scale and the numbers against MovingLife.
    measurements ≥ 6 h before) − 1; arms weigh 0.7 (they get a fraction of the current). Worst ≥ 1.2 % → ×0.85,
    ≥ 2.5 % → ×0.7; legs' Z20 ≥ +5 % (drier) → ×0.85. Score = 100 − 22·(worst − 0.4) − 5·(dry − 2). [D] — validate
    on repeated measurements (day-to-day noise, the days after hard sessions). No baseline (first measurement) → no
-   verdict. Used when the measurement is ≤ 12 h old: `AutoPlanner` (phiMax ×, note) and `NextPlan.recommend`
+   verdict. Used when the measurement is ≤ 12 h old: `AutoPlanner` (phiMax ×, note) (the manual mode no longer, 1.1.323)
    (the stronger of rest-days and scale wins, never both).
 2. **Fat per suit channel → reach.** `ScaleInsight.channelFat`: whole-body fat % × (segment fat share / body
    share); channels → trunk / arms / legs (glutes half trunk, half legs). `AutoEngine.reach(k)` uses it instead of
@@ -92,10 +92,10 @@ A fresh measurement (≤ 60 days; readiness ≤ 12 h) reaches the engines throug
 | skeletal muscle kg | `AiEnergy.muscleScale` → `evokedVo2`; `AutoEngine.vo2Ref` | O₂ / kcal of the evoked contractions (was 31 / 38 % of weight) |
 | muscle per channel (`ScaleInsight.channelMuscle`, mean 1) | `AiEnergy.evokedVo2`, `AutoEngine.zoneMass / metaDemand` | each channel's muscle mass: whole-body load, oxygen share, kcal |
 | lean mass kg | `AiEnergy.restingVo2(…, lean)` (Katch–McArdle) | resting burn from muscle, not weight — kcal, intensity, HR-free load |
-| readiness (×1 / 0.85 / 0.7) | `AutoPlanner` phiMax, `AiPlanner` phiMax (active), `NextPlan.recommend` | today's strength ceiling (the stronger of rest-days and scale) |
+| readiness (×1 / 0.85 / 0.7) | `AutoPlanner` phiMax, `AiPlanner` phiMax (active) | today's strength ceiling (the stronger of rest-days and scale) |
 | muscle low (FFMI) | `AutoPlanner` (replaces BMI < 18.5) | −10 % ceiling; an athletic low BMI is no longer cut |
 | obese by FMI | `AutoPlanner.goalSlimBmi` (replaces BMI ≥ 30) | the fat-loss HR corridor's upper edge −5 % only for real fat, not muscle |
-| weakest zone < 90 % | `AiPersonal.withScaleFocus` in `AutoPlanner` / `AiPlanner`; `NextPlan.scaleFocus` | one more focus zone (AiPersonal effect, +5 % on its channels in the plan) |
+| weakest zone < 90 % | `AiPersonal.withScaleFocus` in `AutoPlanner` / `AiPlanner` | one more focus zone (AiPersonal effect, +5 % on its channels in the plan) |
 | water low | inside readiness (legs' Z20) | ×0.85 + "drink" |
 
 Not changed on purpose: **HR max / HR zones / HrGuard** stay on the passport age (cardiovascular, not body

@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 2654
+    .line 2653
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2655
+    .line 2654
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2656
+    .line 2655
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
-    .line 2657
+    .line 2656
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->name:Ljava/lang/String;
 
-    .line 2658
+    .line 2657
     iput-boolean p4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->full:Z
 
-    .line 2659
+    .line 2658
     return-void
 .end method
 
@@ -59,10 +59,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 2663
+    .line 2662
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2666
+    .line 2665
     :try_start_4
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
@@ -80,7 +80,7 @@
 
     if-lez v0, :cond_65
 
-    .line 2667
+    .line 2666
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getWidth()I
@@ -99,7 +99,7 @@
 
     move-result-object v0
 
-    .line 2669
+    .line 2668
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->fig:Landroid/view/View;
 
     new-instance v3, Landroid/graphics/Canvas;
@@ -113,7 +113,7 @@
     :goto_30
     move-object v7, v0
 
-    .line 2674
+    .line 2673
     :goto_31
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -121,19 +121,19 @@
 
     if-eqz v0, :cond_42
 
-    .line 2675
+    .line 2674
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
     invoke-virtual {v0}, Landroid/widget/PopupWindow;->dismiss()V
 
-    .line 2676
+    .line 2675
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
-    .line 2678
+    .line 2677
     :cond_42
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -165,16 +165,16 @@
 
     invoke-static/range {v0 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->html(Landroid/app/Activity;Ljava/lang/String;Lorg/json/JSONArray;IZIILandroid/graphics/Bitmap;Z)V
 
-    .line 2679
+    .line 2678
     return-void
 
-    .line 2671
+    .line 2670
     :catch_62
     move-exception v0
 
     move-object v7, v1
 
-    .line 2672
+    .line 2671
     goto :goto_31
 
     :cond_65

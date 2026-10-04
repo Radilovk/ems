@@ -32,7 +32,7 @@ forceWeight(f) = S(f) / S(85)              1 Hz 0.001 · 5 Hz 0.06 · 7 Hz 0.13 
 - Java: `AiPlanner.forceWeight` / `forceShare`. Report: `kF` in `branding/report/session-report.html`.
 - Means "how hard the muscle contracts": the report's **EMS load S**, its modes ("strength work" needs strong
   contraction, so a 7 Hz warm-up at high mA is light tone, not strength), the muscle map, and the 30-day load per zone
-  in the session record (`SessionRec.chLoad` → `mus` → `NextPlan` zone balance).
+  in the session record (`SessionRec.chLoad` → `mus`).
 
 ## 3. Fatigue
 
@@ -114,7 +114,7 @@ Three layers: what the muscle spends **while** the impulses run, what is paid **
 | Fast | ATP, phosphocreatine (50 % in ~30 s, all in 2–3 min), O2 of myoglobin and blood, the O2 deficit of the rising HR | minutes | `closeEpoc`: (VO2_end − rest) · τ, τ = 40 s (AI session only) |
 | Slow, glycolytic | lactate (~65 % oxidised, ~25 % back to glycogen by gluconeogenesis), glycogen | ~10–60 min | the glycolytic debt: litres O2-equivalent × 5.0 kcal/L, in the total from the moment it is made (`AiEnergy.getKcal`) |
 | Slow, other | temperature, catecholamines, ion balance | minutes–hours | **not modelled** (no size from the sources) |
-| Muscle damage | CK rises with high intensity, peak ~72 h; repair costs energy | days | **not modelled**; `NextPlan` rests the zone [E:R3, R14] |
+| Muscle damage | CK rises with high intensity, peak ~72 h; repair costs energy | days | **not modelled**; Auto / AI rest rules [E:R3, R14] |
 
 EPOC is intensity- and duration-dependent: low strength and short work leave no lasting EPOC [E:R15]. The glycolytic
 debt is small for a 7 Hz warm-up or a massage and large for 85–100 Hz strength work — as it should.
@@ -155,7 +155,7 @@ Smart Session spec. Dose is the budget; fatigue (§3) decides the blocks.
 WB-EMS stresses the same motor units every impulse; after a hard session creatine kinase peaks on day 2–4 and can
 reach very high values in the unaccustomed [E:R3]. Guidelines: ≥ 4 days between sessions, the first sessions
 (adaptation) clearly lighter, ~20 min, strength by RPE, plenty of fluid [E:R1].
-`NextPlan.recommend`: < 48 h → −30 % and shorter; 2–4 days → −15 %; next appointment within 4 days → −5 %
+Auto / AI (`AutoPlanner`, `AiPlanner`) use these rest rules; the manual mode no longer adapts (1.1.323: `NextPlan.recommend` loads the last settings unchanged). Before: < 48 h → −30 % and shorter; 2–4 days → −15 %; next appointment within 4 days → −5 %
 (docs/xems-plan.md). Report `persona()`: the first 4 sessions ×0.85…1.
 Measured recovery (scale, docs/xems-scale.md "EMS use"): swelling raises Z100/Z20 against the client's own
 baseline → ×0.85 from +1.2 %, ×0.7 from +2.5 %; drier legs (Z20 +5 %) → ×0.85. [D] The stronger of the
@@ -180,7 +180,7 @@ one-frequency scale drier legs alone do not cut.
 | muscle work per zone | `wearable/SessionRec.chLoad`, report `chDose` |
 | EMS load S / metabolic M, modes, goal zones | `branding/report/session-report.html` (`kF`, `kf`, `GOALS`) |
 | energy | `ai/AiEnergy`, report `kcal` |
-| rest between sessions | `wearable/NextPlan` |
+| rest between sessions | `ai/AutoPlanner`, `ai/AiPlanner` |
 | rest after an Auto set: τ·ln(F / F_rec), 15 s floor tetanic | `ai/AutoEngine.enterRest` (docs/xems-auto-mode-spec.md §11) |
 | pulse module lever order (k(f) above / below fusion, pressor reflex) | `wearable/HrGuardCore.ladder` (docs/xems-pulse-control.md) |
 | resting HR | `ai/AiRestHr`, `AiUi.screenRest` |

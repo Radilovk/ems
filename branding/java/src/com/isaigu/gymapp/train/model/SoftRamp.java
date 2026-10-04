@@ -14,6 +14,8 @@ import java.util.WeakHashMap;
  * work-params PDU, so at the start of every ON phase the strength is sent in steps from low to
  * the set value (like quick + presses), and before the end of the ON phase in steps down.
  *
+ * <p>Every phase and every ON-phase send first goes through wearable/SafeGuard (the absolute limits, 1.1.323).
+ *
  * <p>Hooks (scripts/apply-soft-ramp.py): TrainItem.startPulse marks a new phase
  * ({@link #phase}); TrainItem.sendPulse sends the ON phase through {@link #sendDuration}.
  * Every step checks that the slot still runs, is connected and is in its ON phase, so nothing
@@ -39,6 +41,7 @@ public final class SoftRamp {
             if (item == null || item.data == null) {
                 return;
             }
+            com.isaigu.gymapp.wearable.SafeGuard.enforce(item);   // the absolute limits before every phase
             next(item);
             scale.remove(item);
             fresh.put(item, item.data.inStart ? Boolean.TRUE : Boolean.FALSE);
@@ -53,6 +56,7 @@ public final class SoftRamp {
         if (s == null) {
             return;
         }
+        com.isaigu.gymapp.wearable.SafeGuard.enforce(item, b);      // never out of the limits, whoever set it
         try {
             boolean start = Boolean.TRUE.equals(fresh.remove(item));
             int[] ms = AiRamp.rampMs(b);

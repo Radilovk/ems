@@ -524,16 +524,6 @@ final class ReportBridge {
         }
     }
 
-    /** The client's impulse log (wearable/ParamPlan), oldest first. */
-    @JavascriptInterface
-    public String params() {
-        try {
-            return ParamPlan.json(a, user.id);
-        } catch (Throwable t) {
-            return "[]";
-        }
-    }
-
     @JavascriptInterface
     public String sessions() {
         return SessionStore.listFor(a, user.id);

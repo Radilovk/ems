@@ -7,6 +7,7 @@ import com.isaigu.gymapp.ai.AutoLimits;
 import com.isaigu.gymapp.ai.AutoModel;
 import com.isaigu.gymapp.ai.AutoPlanner;
 import com.isaigu.gymapp.ai.AutoTemplates;
+import com.isaigu.gymapp.ai.SafeLimits;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -231,6 +232,10 @@ public final class AutoSim {
         check(c.pwUs >= 150 && c.pwUs <= 400, at + ": L5 pw in 150–400");
         check(plan.input.age < 60 || c.hz <= 85, at + ": 60+ ≤ 85 Hz");
         check(c.onS >= 1 && c.offS >= 1, at + ": device ON/OFF ≥ 1 s");
+        check(c.hz < 20 || c.offS >= SafeLimits.minOff(c.hz, c.onS, c.pauseHz, c.pauseSigma),
+                at + ": absolute limit — pause " + c.offS + " s at " + c.hz + " Hz · " + c.onS + " s");
+        check(c.pauseHz <= SafeLimits.PAUSE_HZ_MAX && (c.pauseHz == 0 || c.pauseHz < c.hz),
+                at + ": absolute limit — second impulse ≤ 10 Hz, under the main");
         check(c.frac <= plan.phiMax + 1e-9, at + ": frac ≤ φmax");
         check(c.ceiling >= c.frac - 1e-9, at + ": ceiling ≥ frac");
         check(c.ceiling <= plan.envMax * plan.phiMax + 1e-9, at + ": ceiling ≤ E·φmax");
@@ -1631,9 +1636,11 @@ public final class AutoSim {
         t[0] = 0;
         AutoEngine w = fresh(plan, sc, t);
         toMainSet(w, t);
-        double l0 = w.cycleLoad(w.getCurrent());
-        AutoEngine.Cmd c10 = w.userParams(-1, w.getCurrent().onS + 1, -1, -1, t[0] + 500);
-        check(w.getCurrent() == c10 && w.cycleLoad(c10) >= l0 - 1e-9, "S10 longer impulse → the cycle's load follows");
+        AutoEngine.Cmd c9 = w.getCurrent();
+        AutoEngine.Cmd c10 = w.userParams(-1, c9.onS + 1, -1, -1, t[0] + 500);
+        // since 1.1.323 a longer impulse may also lengthen the pause (SafeLimits): the cycle follows both at once
+        check(w.getCurrent() == c10 && c10.onS > c9.onS && c10.offS >= SafeLimits.minOff(c10.hz, c10.onS,
+                c10.pauseHz, c10.pauseSigma), "S10 longer impulse → the cycle follows, the pause stays safe");
     }
 
     static void check(boolean ok, String what) {

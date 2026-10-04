@@ -10,87 +10,87 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/add-builtin-exercise.py` (64L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
 - `scripts/ai-sim/AiExSim.java` (331L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
 - `scripts/ai-sim/AiSim.java` (450L) — Offline scenarios for the Smart Session engine.
-- `scripts/ai-sim/AutoSim.java` (1649L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
+- `scripts/ai-sim/AutoSim.java` (1656L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/MapSim.java` (146L) — MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest seconds, …
 - `scripts/ai-sim/PathNormSim.java` (68L) — PathNorm (Java, on the tablet) must give exactly what scripts/exercise-paths.py gives: dir/*.svg vs dir/*.norm.
 - `scripts/ai-sim/TemplateSim.java` (250L) — Offline test of the exercise templates (AutoTemplates) over every active program × profile × history.
 - `scripts/ai-sim/run-auto.sh` (21L) — Offline test of the automatic mode (AutoCatalog / AutoPlanner / AutoLimits / AutoEngine / AutoTemplates) on the JVM.
 - `scripts/ai-sim/run.sh` (9L) — Offline test of the Smart Session engine (branding/java/src/com/isaigu/gymapp/ai) on the JVM.
 - `scripts/apply-active-pause-avatar-button.py` (2419L, build:L66) — Active pause avatar button: Hz-style control around the user icon (default mode only).
-- `scripts/apply-active-pause-control-fixes.py` (1464L, build:L153) — Fix active-pause control routing, main-mode button styling, and mode-exit behavior.
+- `scripts/apply-active-pause-control-fixes.py` (1464L, build:L154) — Fix active-pause control routing, main-mode button styling, and mode-exit behavior.
 - `scripts/apply-active-pause-fixes.py` (1368L, build:L64) — Fix active-pause Hz input and persistence (does not change training +/- or slider).
-- `scripts/apply-active-pause-pulse-labels.py` (358L, build:L76) — Switch impulse/pause time labels when active pause mode is enabled.
+- `scripts/apply-active-pause-pulse-labels.py` (358L, build:L77) — Switch impulse/pause time labels when active pause mode is enabled.
 - `scripts/apply-active-pause.py` (929L, build:L63) — Active pause (impulse change during pause) settings and training logic.
-- `scripts/apply-ai-session.py` (168L, build:L112[BETA_MUSIC]) — XEMS Smart Session ("AI" button): install ai smali, hook device cycles, route ramp bytes.
-- `scripts/apply-arms-channel-scale.py` (160L, build:L155) — Apply encode-time arms channel strength reduction (÷5 at 150 µs … ÷10 at 400 µs pulse width) (buwei5 / index 4).
-- `scripts/apply-avatar-card.py` (195L, build:L123[BETA_MUSIC]) — Training slot: the client's photo is a button, not part of the slider.
-- `scripts/apply-avatar-proportional-lock.py` (85L, build:L75) — Replace avatar column RelativeLayout with proportional AvatarClusterLayout.
+- `scripts/apply-ai-session.py` (168L, build:L113[BETA_MUSIC]) — XEMS Smart Session ("AI" button): install ai smali, hook device cycles, route ramp bytes.
+- `scripts/apply-arms-channel-scale.py` (160L, build:L156) — Apply encode-time arms channel strength reduction (÷5 at 150 µs … ÷10 at 400 µs pulse width) (buwei5 / index 4).
+- `scripts/apply-avatar-card.py` (195L, build:L124[BETA_MUSIC]) — Training slot: the client's photo is a button, not part of the slider.
+- `scripts/apply-avatar-proportional-lock.py` (85L, build:L76) — Replace avatar column RelativeLayout with proportional AvatarClusterLayout.
 - `scripts/apply-avatar-timer.py` (315L, build:L51) — Remove avatar wave fill; show interval seconds only while training is running.
-- `scripts/apply-band-app.py` (59L, build:L124[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
-- `scripts/apply-beta-features.py` (95L, build:L94[BETA_MUSIC]) — BETA music sync core: install MusicSync smali + shared strings (player only, no mic).
-- `scripts/apply-ble-scan-lifecycle.py` (151L, build:L89) — Stop background BleDeviceManager scan outside the device-connect flow.
-- `scripts/apply-block-program.py` (102L, build:L111[BETA_MUSIC]) — Block program pulse hook (global runner; UI lives in IntervalTimerHelper).
+- `scripts/apply-band-app.py` (59L, build:L125[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
+- `scripts/apply-beta-features.py` (95L, build:L95[BETA_MUSIC]) — BETA music sync core: install MusicSync smali + shared strings (player only, no mic).
+- `scripts/apply-ble-scan-lifecycle.py` (151L, build:L90) — Stop background BleDeviceManager scan outside the device-connect flow.
+- `scripts/apply-block-program.py` (102L, build:L112[BETA_MUSIC]) — Block program pulse hook (global runner; UI lives in IntervalTimerHelper).
 - `scripts/apply-branding-train-layouts.py` (97L, build:L59[DESIGN_PIPELINE]) — Apply canonical train-screen layouts from branding/design/ at end of build.
 - `scripts/apply-branding.py` (235L, build:L39) — Apply branding images to decompiled APK resources.
-- `scripts/apply-bt-latency.py` (99L, build:L88) — Minimize Bluetooth command queue latency — write immediately after each ACK.
+- `scripts/apply-bt-latency.py` (99L, build:L89) — Minimize Bluetooth command queue latency — write immediately after each ACK.
 - `scripts/apply-client-search-fix.py` (91L, build:L45) — Make client-name search case-insensitive.
 - `scripts/apply-dark-polish.py` (720L, build:L43) — Dark-theme-only UI polish: muscle bar, user list icons, device serial hide.
-- `scripts/apply-defaults.py` (80L, build:L83) — Default Bulgarian + dark theme.
+- `scripts/apply-defaults.py` (80L, build:L84) — Default Bulgarian + dark theme.
 - `scripts/apply-design-config.py` (423L, build:L57[DESIGN_PIPELINE]) — Apply branding/design-config.yaml to train row layouts in branding/design/.
 - `scripts/apply-design-workflow.sh` (4L, NOT-IN-BUILD) — Back-compat alias — use scripts/design-apply.sh
-- `scripts/apply-diag-logging.py` (83L, build:L129[BETA_MUSIC]) — Install MusicDiagLog smali and hook crash handler + application init.
-- `scripts/apply-double-impulse.py` (77L, build:L161) — The double impulse (2nd impulse / active pause) per mode: Основен, Кардио, Масаж — not Мускули.
-- `scripts/apply-edit-parameter-scroll.py` (68L, build:L82) — Make the impulse/parameter settings dialog scrollable on smaller tablet viewports.
-- `scripts/apply-exercise-assets.py` (96L, build:L113[BETA_MUSIC]) — Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program pictures: br…
+- `scripts/apply-diag-logging.py` (83L, build:L130[BETA_MUSIC]) — Install MusicDiagLog smali and hook crash handler + application init.
+- `scripts/apply-double-impulse.py` (77L, build:L162) — The double impulse (2nd impulse / active pause) per mode: Основен, Кардио, Масаж — not Мускули.
+- `scripts/apply-edit-parameter-scroll.py` (68L, build:L83) — Make the impulse/parameter settings dialog scrollable on smaller tablet viewports.
+- `scripts/apply-exercise-assets.py` (96L, build:L114[BETA_MUSIC]) — Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program pictures: br…
 - `scripts/apply-form-theme.py` (96L, build:L48) — Fix dark-theme form fields: LineEditText underline + add-user layout text colors.
-- `scripts/apply-guide-tab.py` (283L, build:L87) — Replace the Video tab with a comprehensive styled EMS training and app guide.
+- `scripts/apply-guide-tab.py` (283L, build:L88) — Replace the Video tab with a comprehensive styled EMS training and app guide.
 - `scripts/apply-hz-controls.py` (1119L, build:L52) — Hz indicator + shared slider/master controls for frequency during training.
 - `scripts/apply-impulse-display.py` (42L, build:L49) — Show impulse strength as percent instead of milliamps on the training screen.
-- `scripts/apply-interval-timer.py` (701L, build:L104[BETA_MUSIC]) — Interval timer: master button, draggable dial overlay, training sync hooks (settings sheet is Java/XemsUi).
+- `scripts/apply-interval-timer.py` (701L, build:L105[BETA_MUSIC]) — Interval timer: master button, draggable dial overlay, training sync hooks (settings sheet is Java/XemsUi).
 - `scripts/apply-languages.py` (185L, build:L41) — Limit app languages to Bulgarian and English.
 - `scripts/apply-list-theme.py` (46L, build:L44) — Fix connect-dialog list row colors set programmatically in adapters.
-- `scripts/apply-live-settings.py` (132L, build:L95[BETA_MUSIC]) — Settings saved from ⚙ Master (right panel) or a row's gear do not interrupt the training.
-- `scripts/apply-local-mode.py` (610L, build:L118[BETA_MUSIC]) — Local-only mode: users, programs, history and suits without xemsplus cloud sync.
+- `scripts/apply-live-settings.py` (132L, build:L96[BETA_MUSIC]) — Settings saved from ⚙ Master (right panel) or a row's gear do not interrupt the training.
+- `scripts/apply-local-mode.py` (610L, build:L119[BETA_MUSIC]) — Local-only mode: users, programs, history and suits without xemsplus cloud sync.
 - `scripts/apply-login-fix.py` (150L, build:L65) — Fix stuck loading spinner on login and post-login navigation.
 - `scripts/apply-main-mode-button.py` (613L, build:L67) — Add 'Main' (Основен) as the 4th program mode button (useType=0) with muscle/cardio/massage.
 - `scripts/apply-muscle-icons.py` (81L, build:L40) — Standardize and apply muscle group icons to decompiled APK resources.
-- `scripts/apply-music-player.py` (596L, build:L99[BETA_MUSIC]) — BETA in-app music player: master button + floating overlay player with playlist.
-- `scripts/apply-music-seek-fix.py` (177L, build:L100[BETA_MUSIC]) — Allow full 360deg touch on CircleSeekBar when wheel_scroll_only_one_circle=false.
-- `scripts/apply-music-sync-controls.py` (176L, build:L98[BETA_MUSIC]) — Music sync: +/- ceiling, block manual slider, lock index/muscle controls.
-- `scripts/apply-music-sync-pulse.py` (108L, build:L96[BETA_MUSIC]) — Remove PDU hooks — music-sync drives bean.strenth / slider directly.
-- `scripts/apply-music-sync-slider.py` (76L, build:L97[BETA_MUSIC]) — Register circle slider + MA label with MusicSync when TrainViewHolder binds.
-- `scripts/apply-music-training-sync.py` (207L, build:L105[BETA_MUSIC]) — Music-sync BLE hooks.
-- `scripts/apply-part-strength.py` (140L, build:L158) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
+- `scripts/apply-music-player.py` (596L, build:L100[BETA_MUSIC]) — BETA in-app music player: master button + floating overlay player with playlist.
+- `scripts/apply-music-seek-fix.py` (177L, build:L101[BETA_MUSIC]) — Allow full 360deg touch on CircleSeekBar when wheel_scroll_only_one_circle=false.
+- `scripts/apply-music-sync-controls.py` (176L, build:L99[BETA_MUSIC]) — Music sync: +/- ceiling, block manual slider, lock index/muscle controls.
+- `scripts/apply-music-sync-pulse.py` (108L, build:L97[BETA_MUSIC]) — Remove PDU hooks — music-sync drives bean.strenth / slider directly.
+- `scripts/apply-music-sync-slider.py` (76L, build:L98[BETA_MUSIC]) — Register circle slider + MA label with MusicSync when TrainViewHolder binds.
+- `scripts/apply-music-training-sync.py` (207L, build:L106[BETA_MUSIC]) — Music-sync BLE hooks.
+- `scripts/apply-part-strength.py` (140L, build:L159) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
 - `scripts/apply-picker-colors.py` (40L, build:L46) — Client / program / device picker in the app's colours.
-- `scripts/apply-plan-tab.py` (68L, build:L126[BETA_MUSIC]) — The "План" tab shows wearable/PlanScreen (appointments from the tablet's calendar, next client) instead of the vendor's…
-- `scripts/apply-program-fit.py` (166L, build:L120[BETA_MUSIC]) — Saved program = the base of the manual mode; the diskette saves it, the gear works while training.
-- `scripts/apply-quick-start.py` (111L, build:L121[BETA_MUSIC]) — Client list: ▶ quick start in every row, ↻ refresh next to the search (wearable/QuickStart).
+- `scripts/apply-plan-tab.py` (68L, build:L127[BETA_MUSIC]) — The "План" tab shows wearable/PlanScreen (appointments from the tablet's calendar, next client) instead of the vendor's…
+- `scripts/apply-program-fit.py` (166L, build:L121[BETA_MUSIC]) — Saved program = the base of the manual mode; the diskette saves it, the gear works while training.
+- `scripts/apply-quick-start.py` (111L, build:L122[BETA_MUSIC]) — Client list: ▶ quick start in every row, ↻ refresh next to the search (wearable/QuickStart).
 - `scripts/apply-ramp-limits.py` (418L, NOT-IN-BUILD) — Input/output ramp in milliseconds (0-3000 ms); device encoding (ms+9)/10.
-- `scripts/apply-ramp-setting.py` (77L, build:L119[BETA_MUSIC]) — Soft rise / fall (ramp) back in the program parameters dialog, in seconds (0.0–2.0 s).
+- `scripts/apply-ramp-setting.py` (77L, build:L120[BETA_MUSIC]) — Soft rise / fall (ramp) back in the program parameters dialog, in seconds (0.0–2.0 s).
 - `scripts/apply-security-hardening.py` (124L, NOT-IN-BUILD) — Harden APK manifest and network config to reduce install / Play Protect warnings.
-- `scripts/apply-session-report.py` (42L, build:L125[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
-- `scripts/apply-settings-ui.py` (230L, build:L84) — Settings screen: language + dark/light theme only.
-- `scripts/apply-settings-username-theme.py` (64L, build:L81) — Dark-theme username label above avatar in operational settings dialog.
+- `scripts/apply-session-report.py` (42L, build:L126[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
+- `scripts/apply-settings-ui.py` (230L, build:L85) — Settings screen: language + dark/light theme only.
+- `scripts/apply-settings-username-theme.py` (64L, build:L82) — Dark-theme username label above avatar in operational settings dialog.
 - `scripts/apply-slider-theme.py` (374L, build:L50) — Improve vertical slider track depth and thumb contrast via smali patches.
-- `scripts/apply-soft-ramp.py` (61L, build:L122[BETA_MUSIC]) — Tablet-side impulse ramp (train.model.SoftRamp): the suit ignores the PDU ramp bytes.
+- `scripts/apply-soft-ramp.py` (61L, build:L123[BETA_MUSIC]) — Tablet-side impulse ramp (train.model.SoftRamp): the suit ignores the PDU ramp bytes.
 - `scripts/apply-software-ramp.py` (603L, NOT-IN-BUILD) — Software ramp up/down by scaling amp (strength) like manual +/- during pulse phases.
 - `scripts/apply-startup-permissions.py` (127L, NOT-IN-BUILD) — Batch runtime permissions at app start; skip duplicate prompts later in the app.
-- `scripts/apply-suit-reconnect.py` (171L, build:L162) — The suit's Bluetooth link drops during a training → the row waits for it and binds it again.
+- `scripts/apply-suit-reconnect.py` (171L, build:L163) — The suit's Bluetooth link drops during a training → the row waits for it and binds it again.
 - `scripts/apply-tab-theme.py` (152L, build:L47) — Improve bottom-tab icon contrast in dark mode only.
-- `scripts/apply-theme-toggle.py` (112L, build:L85) — Install theme toggle via ThemeUtils (safe resource lookup, no hardcoded ids).
-- `scripts/apply-train-index.py` (82L, build:L160) — The 2nd impulse (active pause) turns on from either of its buttons and starts at the main strength.
-- `scripts/apply-train-info-column.py` (243L, build:L164) — Training row, column right of the avatar: name on its own line, time + status icons on one row, battery number readable…
+- `scripts/apply-theme-toggle.py` (112L, build:L86) — Install theme toggle via ThemeUtils (safe resource lookup, no hardcoded ids).
+- `scripts/apply-train-index.py` (82L, build:L161) — The 2nd impulse (active pause) turns on from either of its buttons and starts at the main strength.
+- `scripts/apply-train-info-column.py` (243L, build:L165) — Training row, column right of the avatar: name on its own line, time + status icons on one row, battery number readable…
 - `scripts/apply-train-participant-ui.py` (878L, NOT-IN-BUILD) — Train participant UX: initial empty slot, add-user on last row bottom-right, sidebar intact.
-- `scripts/apply-train-swipe-delete-fix.py` (81L, build:L127[BETA_MUSIC]) — Disable swipe-delete on empty train slots; guard delete handler against empty items.
+- `scripts/apply-train-swipe-delete-fix.py` (81L, build:L128[BETA_MUSIC]) — Disable swipe-delete on empty train slots; guard delete handler against empty items.
 - `scripts/apply-train-ui-refinements.py` (271L, build:L53) — Factory-style status icons and compact impulse/pause button labels.
 - `scripts/apply-ui-theme.py` (633L, build:L42) — Apply comprehensive UI theme across all app screens.
-- `scripts/apply-wearable-bridge.py` (486L, build:L109[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
-- `scripts/apply-wearable-permissions.py` (90L, build:L110[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
-- `scripts/apply-wearable-settings-connect.py` (388L, build:L146[BETA_MUSIC]) — Patch wearable smali for settings band connection test (full reconnect + status UX).
-- `scripts/apply-xems-nav.py` (91L, build:L117[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
+- `scripts/apply-wearable-bridge.py` (486L, build:L110[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
+- `scripts/apply-wearable-permissions.py` (90L, build:L111[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
+- `scripts/apply-wearable-settings-connect.py` (388L, build:L147[BETA_MUSIC]) — Patch wearable smali for settings band connection test (full reconnect + status UX).
+- `scripts/apply-xems-nav.py` (91L, build:L118[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
 - `scripts/ble-sim/run-dual.sh` (25L) — Two bands (Settings → Band → second band): the same simulated Band 9/10 as the client's band (ROLE=hr) and as
-- `scripts/ble-sim/run-hr-policy.sh` (33L, build:L145[BETA_MUSIC]) — Offline HR demand policy test (settings/dial/AI vs idle link). No device, no Android SDK.
+- `scripts/ble-sim/run-hr-policy.sh` (33L, build:L146[BETA_MUSIC]) — Offline HR demand policy test (settings/dial/AI vs idle link). No device, no Android SDK.
 - `scripts/ble-sim/run-spp.sh` (17L) — Offline protocol test: real XiaomiBandSppClient (JVM, stubbed android.*) vs spp_band.py (Band 9/10 over SPP).
 - `scripts/ble-sim/run.sh` (15L) — Offline protocol test: real XiaomiBandBleClient (JVM, stubbed android.*) vs Python Band 8 simulator.
 - `scripts/ble-sim/snoop_decode.py` (306L) — Decode a Xiaomi Band 9/10 session (Bluetooth Classic / SPP) from an Android btsnoop_hci.log.
@@ -99,19 +99,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L70[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-channel-scale-java.sh` (57L, build:L71[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
-- `scripts/compile-interval-timer-java.sh` (112L, build:L102[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
-- `scripts/compile-music-sync-java.sh` (213L, build:L92[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (226L, build:L107[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-interval-timer-java.sh` (112L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
+- `scripts/compile-music-sync-java.sh` (213L, build:L93[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
+- `scripts/compile-softramp-java.sh` (44L, build:L72[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
+- `scripts/compile-wearable-java.sh` (226L, build:L108[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (64L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
-- `scripts/compile-xems-local-java.sh` (83L, build:L115[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
+- `scripts/compile-xems-local-java.sh` (83L, build:L116[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
 - `scripts/design_config_schema.py` (116L) — Safe bounds and validation for branding/design-config.yaml.
 - `scripts/exercise-line-width.py` (208L) — Even line weight for the exercise figures. Some frames of the source drawings (mostly the middle one) are traced with m…
 - `scripts/exercise-paths.py` (166L) — SVG path data → absolute M / L / C / Z only, so the app draws it with android.graphics.Path and no SVG library.
-- `scripts/fit-sim/FitSim.java` (159L) — Offline checks of ProgramFit: corrections on the saved base, hand changes as reference, save without corrections.
-- `scripts/fit-sim/FormulaSim.java` (108L) — Offline checks of ParamFormula: depth from fat, variety by training, pause from the fatigue model, 2nd impulse.
+- `scripts/fit-sim/SafeSim.java` (74L) — Offline checks of SafeLimits: the absolute limits of every mode (docs/xems-safety-limits.md).
 - `scripts/fit-sim/SearchSim.java` (30L) — Offline check of the client search: Cyrillic ↔ Latin phonetic matches (XemsSearch.matches).
-- `scripts/fit-sim/run.sh` (16L) — Offline test of ai/ParamFormula (the impulse from the client), wearable/ProgramFit (saved program = base, hand changes …
+- `scripts/fit-sim/run.sh` (15L) — Offline test of ai/SafeLimits (the absolute limits of every mode) and the
 - `scripts/gen-body-figures.py` (54L) — The body figures of the Auto live board (ai/BodyHeatView): the report's anatomical art and channel maps (branding/repor…
 - `scripts/gen-card-art.py` (249L) — Client card figures from the illustrated art in branding/report/figures/.
 - `scripts/gen-exercise-library.py` (117L) — branding/exercises/library-src.json (all 302 exercises: names, steps, muscles, pattern) → library.json, the library the…
@@ -126,12 +126,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
 - `scripts/prune-languages.py` (73L) — Remove unused locale resource folders, keep only English and Bulgarian.
 - `scripts/pull-diag-logs.sh` (69L) — Pull music/crash diagnostic logs from a connected device into diag-logs/ (repo root).
-- `scripts/remove-active-pause-segments.py` (261L, build:L79) — Revert multi-interval active pause (caused login/training instability).
-- `scripts/remove-active-pause-settings.py` (106L, build:L80) — Remove active pause controls from program settings; operational screen only.
-- `scripts/remove-demo-mode.py` (262L, build:L86) — Remove all demo-mode smali patches and UI hooks from the decompiled APK.
-- `scripts/remove-ramp.py` (458L, build:L77) — Remove ramp UI and always send zero ramp bytes to the device.
-- `scripts/remove-segment-program-gear.py` (105L, build:L128[BETA_MUSIC]) — Remove per-program segment UI from gear dialog (block program is in interval timer).
-- `scripts/remove-software-ramp.py` (60L, build:L78) — Remove software ramp hook that blocks sendPulse and causes training freeze on Play.
+- `scripts/remove-active-pause-segments.py` (261L, build:L80) — Revert multi-interval active pause (caused login/training instability).
+- `scripts/remove-active-pause-settings.py` (106L, build:L81) — Remove active pause controls from program settings; operational screen only.
+- `scripts/remove-demo-mode.py` (262L, build:L87) — Remove all demo-mode smali patches and UI hooks from the decompiled APK.
+- `scripts/remove-ramp.py` (458L, build:L78) — Remove ramp UI and always send zero ramp bytes to the device.
+- `scripts/remove-segment-program-gear.py` (105L, build:L129[BETA_MUSIC]) — Remove per-program segment UI from gear dialog (block program is in interval timer).
+- `scripts/remove-software-ramp.py` (60L, build:L79) — Remove software ramp hook that blocks sendPulse and causes training freeze on Play.
 - `scripts/reorder-muscles.py` (84L, build:L38) — Reorder muscle group columns in train UI layouts (visual only, IDs unchanged).
 - `scripts/repo-map.py` (329L) — Token-cheap navigation for agents: generated repo map + per-file outline.
 - `scripts/scale-sim/ScaleSim.java` (1090L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
@@ -140,16 +140,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/setup-android-toolchain.sh` (41L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
 - `scripts/test-apk-safety.sh` (118L) — Automated safety test: BETA build must not change login-critical code vs baseline.
 - `scripts/ui-map.py` (126L, build:L56[DESIGN_PIPELINE]) — UI map utilities — validate layouts, explain structure, guide safe edits.
-- `scripts/verify-active-pause-routing.py` (284L, build:L154) — Verify master slider and +/- routing stay aligned for active pause.
+- `scripts/verify-active-pause-routing.py` (284L, build:L155) — Verify master slider and +/- routing stay aligned for active pause.
 - `scripts/verify-apk-hrfix.py` (136L) — Verify v1.1.55-ble HR fix markers in built APK / smali.
 - `scripts/verify-apk-shipped.py` (167L) — Fail when APK-shipping source changed but xems27.apk was not rebuilt and committed.
-- `scripts/verify-arms-channel-scale.py` (67L, build:L156) — Verify arms channel strength scale hook is present in decompiled smali.
-- `scripts/verify-beta-safety.py` (73L, build:L131[BETA_MUSIC]) — Fail the build if BETA music hooks touch login-critical classes.
-- `scripts/verify-interval-timer-smali.py` (59L, build:L144[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
+- `scripts/verify-arms-channel-scale.py` (67L, build:L157) — Verify arms channel strength scale hook is present in decompiled smali.
+- `scripts/verify-beta-safety.py` (73L, build:L132[BETA_MUSIC]) — Fail the build if BETA music hooks touch login-critical classes.
+- `scripts/verify-interval-timer-smali.py` (59L, build:L145[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
 - `scripts/verify-login-path.py` (89L) — Fail the build if login -> MainFragment -> NewTrainFragment path looks broken.
-- `scripts/verify-music-sync-smali.py` (183L, build:L130[BETA_MUSIC]) — Music player → MasterStrengthControl.setMasterStrength (no PDU hook).
-- `scripts/verify-no-missing-classes.py` (42L, build:L166) — Fail the build when app smali references a com.isaigu.gymapp class that no smali file defines.
-- `scripts/verify-wearable-smali.py` (107L, build:L147[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
+- `scripts/verify-music-sync-smali.py` (183L, build:L131[BETA_MUSIC]) — Music player → MasterStrengthControl.setMasterStrength (no PDU hook).
+- `scripts/verify-no-missing-classes.py` (42L, build:L167) — Fail the build when app smali references a com.isaigu.gymapp class that no smali file defines.
+- `scripts/verify-wearable-smali.py` (107L, build:L148[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
 
 ## Java sources → smali (compile:X = scripts/compile-X-java.sh; X* = catch-all find)
@@ -166,7 +166,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiRamp.java` (107L, compile:music-sync*,wearable) — Ramp bytes for the work-params PDU (device unit: 10 ms per step).
 - `AiRestHr.java` (292L, compile:music-sync*,wearable) — §2 CALIB_REST_HR — resting HR, measured as long as its reliability needs: 10–45 s (median of the last stretch).
 - `AiScreening.java` (86L, compile:music-sync*,wearable) — §1.1, §1.2, G11 — input validation and pre-session questionnaire.
-- `AiSession.java` (1220L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
+- `AiSession.java` (1250L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
 - `AiText.java` (181L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
 - `AiUi.java` (2176L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
@@ -178,7 +178,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AutoEngine.java` (2175L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
 - `AutoHints.java` (348L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
 - `AutoHistory.java` (160L, compile:music-sync*,wearable) — How many sessions a client has had and when the last active one was — for the adaptation and recovery limits of the aut…
-- `AutoLimits.java` (165L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
+- `AutoLimits.java` (179L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
 - `AutoLook.java` (436L, compile:music-sync*,wearable) — The training screen while automatic mode owns the suits (calibration and the run): every train row loses the controls t…
 - `AutoModel.java` (308L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
 - `AutoPlanner.java` (283L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
@@ -194,9 +194,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ImpulseMapView.java` (576L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (106L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
 - `MapRunner.java` (491L, compile:music-sync*,wearable) — Runs an impulse map exactly as drawn (Тренировки → "По картата"): every block's Hz, µs, impulse / pause go to all rows;…
-- `ParamFormula.java` (313L, compile:music-sync*,wearable) — The impulse of the manual mode from who the client is (docs/xems-param-formula.md): frequency, depth (pulse width), imp…
 - `PathNorm.java` (355L, compile:music-sync*,wearable) — SVG path data → absolute M / L / C / Z only (what {@link ExerciseFigure} draws).
 - `ProgramArt.java` (151L, compile:music-sync*,wearable) — The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile — in the lig…
+- `SafeLimits.java` (151L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
 - `Workout.java` (519L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
 - `WorkoutStore.java` (241L, compile:music-sync*,wearable) — The studio's own workouts on this tablet (files/xems_workouts.json) plus the ready programs ({@link Workout#presets}).
 - `WorkoutsUi.java` (1586L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
@@ -220,7 +220,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `TimerPresetStorage.java` (89L, compile:interval-timer,music-sync*) — Local named timer presets (interval + block program).
 
 **train/model/** (`branding/java/src/com/isaigu/gymapp/train/model/`)
-- `SoftRamp.java` (215L, compile:music-sync*) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so at the …
+- `SoftRamp.java` (219L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so at the …
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
 - `ChannelStrengthScale.java` (122L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
@@ -243,7 +243,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandRemote.java` (1095L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (129L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
-- `ClientPrograms.java` (137L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
+- `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
@@ -251,22 +251,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `HrGuard.java` (339L, compile:music-sync*,wearable) — Pulse module driver: feeds {@link HrGuardCore} with band HR and the running program, and writes its factors to the runn…
 - `HrGuardCore.java` (851L, compile:music-sync*,wearable) — Pulse module: heart-rate driven control of the impulse output, without any extra input.
 - `HrHistory.java` (126L, compile:music-sync*,wearable) — Heart-rate samples of the last hour (ring buffer) for the HR panel: chart, averages and time in zones.
-- `ManualDefaults.java` (98L, compile:music-sync*,wearable) — The manual mode's starting values: a client who comes into a training slot and has no settings of their own yet (no Nex…
+- `ManualDefaults.java` (70L, compile:music-sync*,wearable) — The manual mode's starting values: a client who comes into a training slot gets their own saved settings for that progr…
 - `NextClient.java` (645L, compile:music-sync*,wearable) — The next client from the calendar: shortly before the appointment, when nothing runs on the tablet, asks the trainer an…
-- `NextPlan.java` (812L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
+- `NextPlan.java` (418L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (738L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `ParamPlan.java` (421L, compile:music-sync*,wearable) — The client's impulse, recalculated from who they are (ai/ParamFormula, docs/xems-param-formula.md) and logged: <ul> <li…
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
-- `ProgramFit.java` (826L, compile:music-sync*,wearable) — Personalisation of the manual mode against the SAVED program ("Test" or any other): <ul> <li>The saved program is the b…
+- `ProgramFit.java` (256L, compile:music-sync*,wearable) — The manual mode's programs, exactly as the trainer sets them (owner, 1.1.323: no automatic adaptation in the manual mod…
 - `QuickStart.java` (259L, compile:music-sync*,wearable) — Client list (Потребители): <ul> <li>▶ at the end of every row: the client's last program (their saved one, else the las…
-- `ReportBridge.java` (617L, compile:music-sync*,wearable) — window.XemsReport in the report page.
+- `ReportBridge.java` (607L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (82L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
+- `SafeGuard.java` (147L, compile:music-sync*,wearable) — The absolute limits (ai/SafeLimits) on a training row, right before the suit gets it: called by train.model.SoftRamp at…
 - `Schedule.java` (516L, compile:music-sync*,wearable) — The studio's appointments from the tablet's own calendar (Acuity → Google Calendar sync, or any calendar the tablet sho…
 - `SearchPad.java` (580L, compile:music-sync*,wearable) — Our own search keyboard for the client searches (Потребители, the client / program / device picker), made for a tablet …
 - `SessionInts.java` (41L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
 - `SessionRec.java` (398L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
-- `SessionRecorder.java` (455L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
+- `SessionRecorder.java` (454L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
 - `SessionUploader.java` (162L, compile:music-sync*,wearable) — Sends what the client's training analysis needs (the summary + the per-second record from files/xems_sessions, gzip-com…
 - `SuitReconnect.java` (425L, compile:music-sync*,wearable) — The suit's Bluetooth link dropped during a training: the row stays (client, program, time left, all settings), paused a…
@@ -292,7 +292,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleLink.java` (925L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
 - `ScaleModel.java` (381L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
 - `ScaleProtocol.java` (385L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
-- `ScaleScreen.java` (2715L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
+- `ScaleScreen.java` (2714L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
 - `ScaleSenssun.java` (645L, compile:music-sync*,wearable) — The Senssun / MovingLife scale family (Senssun "Fat", IF_xx; Klausberg KB-7853 and the other scales sold for the Moving…
 - `ScaleSession.java` (207L, compile:music-sync*,wearable) — One measuring session = one time on the scale.
 - `ScaleShare.java` (479L, compile:music-sync*,wearable) — Sharing the scale's result from the summary: as an image (the sheet as it is on the screen, PNG) or as one HTML file th…
@@ -354,7 +354,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalGate.java` (248L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (356L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1207L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
-- `XemsLocalUserForm.java` (978L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
+- `XemsLocalUserForm.java` (973L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (1388L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (381L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
@@ -400,7 +400,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 ## server (Cloudflare Worker license server)
 - `server/src/admin.js` (610L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
-- `server/src/card.js` (101L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
+- `server/src/card.js` (96L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/clients.js` (106L) — One pushed record: {key (tablet id), cid?, ek?, pk?, t, deleted?, data?}; null when unusable.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
@@ -414,7 +414,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (42L) — The bridge the report page expects (window.XemsReport), made from one fetch of /v1/history/<cardId> (the id comes from …
 - `server/src/utils.js` (102L) — Shared helpers for license server (testable, no Worker bindings).
-- `server/test/card.test.js` (113L) — 
+- `server/test/card.test.js` (104L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/clients.test.js` (68L) — 
 - `server/test/crypto-verify.test.js` (24L) — 
@@ -684,7 +684,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L201 ## Действия по време на сесията (v1.1.68)
   - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
-`docs/xems-auto-mode-spec.md` (620L)
+`docs/xems-auto-mode-spec.md` (619L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
@@ -796,14 +796,6 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L167 ## Какво остава за сървъра
   - L174 ## Проверки (без Android)
 
-`docs/xems-param-formula.md` (50L)
-  - L1 # The client's impulse — formula, triggers, log (1.1.321-ai)
-  - L8 ## Owner's decisions
-  - L17 ## The formula (`ParamFormula.compute`)
-  - L29 ## Triggers and the log (`ParamPlan`)
-  - L37 ## Onto the row
-  - L45 ## Where it shows
-
 `docs/xems-part-strength.md` (43L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85)
   - L16 ## Как го постига (`train/utils/PartStrength`)
@@ -820,17 +812,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L51 ## Изглед (приоритет на вниманието)
   - L59 ## Статус в таба
 
-`docs/xems-program-fit.md` (82L)
-  - L1 # Записана програма, персонализация, запис с дискетата (1.1.238-ai, 1.1.239-ai)
-  - L6 ## Импулсът от формулата (1.1.321-ai)
-  - L11 ## База = записаната програма
-  - L18 ## Ръчна промяна = отправна точка
-  - L26 ## Дискетата и ⚙ на реда → профилът на клиента (1.1.239-ai)
-  - L36 ## Диалогът с параметрите
-  - L49 ## Двоен импулс по режими (1.1.240-ai)
-  - L60 ## Одит 1.1.241-ai (поправено)
-  - L71 ## ⚙ на реда и ⚙ Master
-  - L78 ## Превключвател „Персонализация“
+`docs/xems-program-fit.md` (66L)
+  - L1 # Записана програма, запис с дискетата (1.1.238-ai, 1.1.239-ai; без адаптация от 1.1.323-ai)
+  - L6 ## Ръчният режим без адаптация (собственик, 1.1.323)
+  - L15 ## Дискетата и ⚙ на реда → профилът на клиента (1.1.239-ai)
+  - L25 ## Диалогът с параметрите
+  - L38 ## Двоен импулс по режими (1.1.240-ai)
+  - L49 ## Одит 1.1.241-ai (поправено)
+  - L60 ## ⚙ на реда и ⚙ Master
 
 `docs/xems-pulse-control.md` (192L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
@@ -848,6 +837,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L144 ## Лог
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
+
+`docs/xems-safety-limits.md` (37L)
+  - L1 # Absolute limits of the impulse (owner, 1.1.323-ai)
+  - L8 ## The rules
+  - L28 ## Where
 
 `docs/xems-scale-audit.md` (62L)
   - L1 # Одит на модула „Кантар“ (1.1.301-ai)

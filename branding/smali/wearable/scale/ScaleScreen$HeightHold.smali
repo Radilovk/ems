@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2501
+    .line 2500
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2502
+    .line 2501
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$HeightHold;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2503
+    .line 2502
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 2507
+    .line 2506
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$HeightHold;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->stepHeight(I)V
 
-    .line 2508
+    .line 2507
     return-void
 .end method

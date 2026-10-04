@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Offline test of ai/ParamFormula (the impulse from the client), wearable/ProgramFit (saved program = base, hand changes as reference) and the
+# Offline test of ai/SafeLimits (the absolute limits of every mode) and the
 # phonetic client search (widget/XemsSearch) on the JVM.
 # Needs android-sdk/platforms/android-30/android.jar (scripts/setup-android-toolchain.sh).
 set -euo pipefail
@@ -9,7 +9,6 @@ JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 OUT="$(mktemp -d)"; trap 'rm -rf "${OUT}"' EXIT
 javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${OUT}" -cp "${JAR}" \
   -sourcepath "${ROOT}/branding/java/src:${ROOT}/branding/java-stubs" \
-  "${D}/FitSim.java" "${D}/FormulaSim.java" "${D}/SearchSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true
-java -cp "${OUT}:${JAR}" com.isaigu.gymapp.wearable.FitSim 2>&1 | grep -v "Picked up"
-java -Dfile.encoding=UTF-8 -cp "${OUT}:${JAR}" com.isaigu.gymapp.ai.FormulaSim 2>&1 | grep -v "Picked up"
+  "${D}/SafeSim.java" "${D}/SearchSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true
+java -Dfile.encoding=UTF-8 -cp "${OUT}:${JAR}" com.isaigu.gymapp.ai.SafeSim 2>&1 | grep -v "Picked up"
 java -Dfile.encoding=UTF-8 -cp "${OUT}:${JAR}" SearchSim 2>&1 | grep -v "Picked up"

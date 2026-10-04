@@ -60,11 +60,6 @@ export function validCardData(d) {
   // the deltoid (no suit channel, the exercises only): optional, −1 = no exercise worked it, else 0…1
   const delt = (v) => v === undefined || (num(v) && v >= -1 && v <= 1);
   if (!delt(d.delt) || !delt(d.last.delt) || (d.p30 && !delt(d.p30.delt))) return 'delt';
-  // the impulse log (optional): at most 8 short entries
-  const str = (v, n) => v === undefined || (typeof v === 'string' && v.length <= n);
-  if (d.prm !== undefined && (!arr(d.prm, 8) || !d.prm.every((e) => e && typeof e === 'object' && num(e.t)
-    && str(e.var, 40) && str(e.trig, 80) && str(e.main, 80) && (e.d === undefined || (arr(e.d, 4)
-    && e.d.every((x) => str(x, 120))))))) return 'prm';
   return null;
 }
 

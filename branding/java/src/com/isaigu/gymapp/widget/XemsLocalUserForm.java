@@ -660,11 +660,6 @@ public final class XemsLocalUserForm {
                     .putLong("edit" + u.id, System.currentTimeMillis())
                     .putBoolean("own" + u.id, owner).putInt("misport" + u.id, miSport)
                     .putString("focus" + u.id, csvOf(FOCUS, focus)).putString("cond" + u.id, csvOf(COND, cond)).apply();
-            try {                                        // the client's impulse recalculated and logged
-                Class.forName("com.isaigu.gymapp.wearable.ParamPlan")
-                        .getMethod("onProfile", android.content.Context.class, TrainUser.class).invoke(null, a, u);
-            } catch (Throwable ignored) {
-            }
             dialog.dismiss();
         }
 

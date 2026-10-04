@@ -1,7 +1,7 @@
 # XEMS — „План“ и следващ клиент (1.1.188-ai)
 
-Код: `wearable/Schedule` (календар + разпознаване на клиента), `wearable/NextPlan` (последни / препоръчани
-настройки), `wearable/NextClient` (въпросът и зареждането), `wearable/PlanScreen` (табът). Кука:
+Код: `wearable/Schedule` (календар + разпознаване на клиента), `wearable/NextPlan` (последните
+настройки; от 1.1.323 без препоръка — ръчният режим не адаптира, `docs/xems-program-fit.md`), `wearable/NextClient` (въпросът и зареждането), `wearable/PlanScreen` (табът). Кука:
 `scripts/apply-plan-tab.py` (`CalendarFragment.onCreateView` / `onHiddenChanged`). Старият месечен планер на
 производителя не се показва.
 

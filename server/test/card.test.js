@@ -47,15 +47,6 @@ describe('validCardData', () => {
     d.delt = 7;
     assert.equal(validCardData(d), 'delt');
   });
-  it('accepts the impulse log and rejects a broken one', () => {
-    const d = ok();
-    d.prm = [{ t: 1, var: 'Сила', trig: 'Тегло 80 → 78 kg', main: '85 Hz · 360 µs · 4/4 s', d: ['Основен: 350 → 360 µs'] }];
-    assert.equal(validCardData(d), null);
-    d.prm[0].main = 'x'.repeat(200);
-    assert.equal(validCardData(d), 'prm');
-    d.prm = new Array(9).fill({ t: 1 });
-    assert.equal(validCardData(d), 'prm');
-  });
   it('rejects non-numbers', () => {
     const d = ok(); d.kcal = '9';
     assert.equal(validCardData(d), 'kcal');

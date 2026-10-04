@@ -1928,7 +1928,6 @@ public final class ScaleScreen {
             JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, n, sessionT);
             if (o != null) {
                 sessionT = o.optLong("t");
-                com.isaigu.gymapp.wearable.ParamPlan.onScale(a, userId);
             }
             lastKg = r.weightKg;
             cardWeight(r.weightKg);

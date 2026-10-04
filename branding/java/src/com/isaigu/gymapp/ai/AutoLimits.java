@@ -79,6 +79,20 @@ public final class AutoLimits {
             c.pauseHz = clamp(c.pauseHz, 1, 10);
             c.pauseSigma = Math.max(0, Math.min(0.6, c.pauseSigma));
         }
+        // the absolute limits of every mode (SafeLimits, 1.1.323) — what the suit's guard would enforce anyway
+        int[] v = SafeLimits.cycle(c.hz, c.pwUs, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.rampUpMs,
+                plan.input != null ? plan.input.age : -1);
+        c.hz = v[SafeLimits.HZ];
+        c.pwUs = v[SafeLimits.PW];
+        c.onS = v[SafeLimits.ON];
+        c.offS = v[SafeLimits.OFF];
+        c.rampUpMs = c.isTetanic() ? Math.max(c.rampUpMs, v[SafeLimits.RAMP]) : c.rampUpMs;
+        if (v[SafeLimits.AP] == 0) {
+            c.pauseHz = 0;
+            c.pauseSigma = 0;
+        } else {
+            c.pauseHz = v[SafeLimits.PHZ];
+        }
         return c;
     }
 

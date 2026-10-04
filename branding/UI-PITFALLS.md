@@ -170,7 +170,7 @@ Delete **само** при зареден потребител в слота.
 2. Провери конфликти (`grep` за `0x7f09…` в `scripts/`)
 3. Същият ID в Java constant и XML generator
 
-Пример collision: `apply-train-participant-ui.py` vs interval timer — ползвай свободни IDs (напр. `0x7f090292+`).
+Пример collision (стар, премахнат скрипт `apply-train-participant-ui.py`) vs interval timer — ползвай свободни IDs (напр. `0x7f090292+`).
 
 ---
 

@@ -105,6 +105,20 @@ reach (skin tolerance limits it — Auto's model knows less reaches the muscle, 
 **Sharing** (summary sheet): `ScaleShare.image` (the sheet as PNG) and `ScaleShare.html` (one self-contained page
 for a phone, light/dark, figure + norm bars + change + recommendations), through the report's FileProvider path.
 
+### Readiness and focus, second pass (1.1.311-ai)
+- **Same time of day:** the baseline is taken from weigh-ins within ±3 h of the current clock time (standing all day
+  moves fluid into the legs — an evening weigh-in against morning ones read as "swollen legs"). Without two such,
+  every earlier weigh-in counts and the thresholds are ×1.5 (`sameTime` false, the gauge says so).
+- **Weight lost:** ≥ 2 % under the last week's median weight → water lost → ×0.85 + "drink" (ACSM 2007 fluid
+  replacement: ≥ 2 % body-mass loss impairs performance). Works on any scale, including the one-frequency KB-7853.
+- **One frequency:** drier legs' |Z| alone no longer cuts strength (feet skin, sweat, temperature move it too) — shown only.
+- **Trunk focus** only under 85 % of normal (limbs 90 %): segmental BIA reads the trunk least surely.
+- **AutoPlanner:** "< 72 h since the last active" (−20 %) and the scale's readiness no longer multiply — the stronger
+  applies (as `NextPlan.recommend`); ×0.85 alone and −20 % alone were stacking to −32 % for one cause.
+- **Open (owner's decision):** pulse width by channel fat (≥ 30 % on a channel → 350–400 µs reaches deeper at a
+  tolerable current), never automatic: a wider pulse is felt stronger at the same setting, so it would be a hint at the
+  strength step, not a change.
+
 ### Client card — "Тяло" (1.1.310-ai)
 - **Tablet report rail** (`session-report.html` `renderBody`, `ReportBridge.body()`): latest weigh-in (date, body type,
   body age, weight ± last, fat / muscle mass / water / visceral with their norm sector, muscle per zone as % of normal),

@@ -158,7 +158,7 @@
 
     iget v4, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sessions:I
 
-    if-nez v4, :cond_1cb
+    if-nez v4, :cond_1d1
 
     .line 84
     const-wide v2, 0x3fe6666666666666L    # 0.7
@@ -199,7 +199,7 @@
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->measured:Z
 
-    if-eqz v4, :cond_228
+    if-eqz v4, :cond_22e
 
     move-object/from16 v0, p0
 
@@ -227,13 +227,13 @@
 
     invoke-virtual {v10, v4, v6}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 104
+    .line 106
     :cond_b6
     invoke-virtual {v5}, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->isActive()Z
 
     move-result v4
 
-    if-eqz v4, :cond_dd
+    if-eqz v4, :cond_247
 
     move-object/from16 v0, p0
 
@@ -243,7 +243,7 @@
 
     cmpl-double v4, v6, v8
 
-    if-ltz v4, :cond_dd
+    if-ltz v4, :cond_247
 
     move-object/from16 v0, p0
 
@@ -253,27 +253,17 @@
 
     cmpg-double v4, v6, v8
 
-    if-gez v4, :cond_dd
+    if-gez v4, :cond_247
 
-    .line 105
-    const-wide v6, 0x3fe999999999999aL    # 0.8
+    const/4 v4, 0x1
 
-    mul-double/2addr v2, v6
-
-    .line 106
-    const-string v4, "\u041f\u043e\u0434 72 \u0447 \u043e\u0442 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0430\u0442\u0430 \u0430\u043a\u0442\u0438\u0432\u043d\u0430: \u221220 %"
-
-    const-string v6, "Under 72 h since the last active: \u221220 %"
-
-    invoke-virtual {v10, v4, v6}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 108
-    :cond_dd
+    .line 107
+    :goto_d1
     invoke-virtual {v5}, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->isActive()Z
 
-    move-result v4
+    move-result v6
 
-    if-eqz v4, :cond_139
+    if-eqz v6, :cond_24a
 
     move-object/from16 v0, p0
 
@@ -281,11 +271,30 @@
 
     const-wide v8, 0x3fefae147ae147aeL    # 0.99
 
-    cmpg-double v4, v6, v8
+    cmpg-double v6, v6, v8
 
-    if-gez v4, :cond_139
+    if-gez v6, :cond_24a
+
+    const/4 v6, 0x1
+
+    .line 108
+    :goto_e5
+    if-eqz v6, :cond_24d
+
+    if-eqz v4, :cond_f6
+
+    move-object/from16 v0, p0
+
+    iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->readiness:D
+
+    const-wide v8, 0x3fe999999999999aL    # 0.8
+
+    cmpg-double v6, v6, v8
+
+    if-gez v6, :cond_24d
 
     .line 110
+    :cond_f6
     move-object/from16 v0, p0
 
     iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->readiness:D
@@ -362,23 +371,24 @@
 
     invoke-virtual {v10, v6, v4}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 114
-    :cond_139
+    .line 117
+    :cond_13f
+    :goto_13f
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoModel$Input;->solo()Z
 
     move-result v4
 
-    if-eqz v4, :cond_148
+    if-eqz v4, :cond_14e
 
-    .line 115
+    .line 118
     const-wide v6, 0x3feccccccccccccdL    # 0.9
 
     invoke-static {v2, v3, v6, v7}, Ljava/lang/Math;->min(DD)D
 
     move-result-wide v2
 
-    .line 118
-    :cond_148
+    .line 121
+    :cond_14e
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->focus:Ljava/util/Set;
@@ -403,12 +413,12 @@
 
     move-result-object v11
 
-    .line 119
+    .line 122
     iget-wide v6, v11, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     mul-double/2addr v2, v6
 
-    .line 120
+    .line 123
     const-wide v6, 0x3fd999999999999aL    # 0.4
 
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
@@ -423,45 +433,45 @@
 
     iput-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phiMax:D
 
-    .line 123
+    .line 126
     iget-wide v2, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->envMax:D
 
-    .line 124
+    .line 127
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sessions:I
 
     const/4 v6, 0x3
 
-    if-ge v4, v6, :cond_183
+    if-ge v4, v6, :cond_189
 
-    .line 125
+    .line 128
     const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
 
     invoke-static {v2, v3, v6, v7}, Ljava/lang/Math;->min(DD)D
 
     move-result-wide v2
 
-    .line 127
-    :cond_183
+    .line 130
+    :cond_189
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoModel$Input;->solo()Z
 
     move-result v4
 
-    if-eqz v4, :cond_192
+    if-eqz v4, :cond_198
 
-    .line 128
+    .line 131
     const-wide v6, 0x3ff199999999999aL    # 1.1
 
     invoke-static {v2, v3, v6, v7}, Ljava/lang/Math;->min(DD)D
 
     move-result-wide v2
 
-    .line 130
-    :cond_192
+    .line 133
+    :cond_198
     iput-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->envMax:D
 
-    .line 133
+    .line 136
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
@@ -474,28 +484,28 @@
 
     move-result-object v12
 
-    .line 134
+    .line 137
     const/4 v2, 0x0
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->totalS:I
 
-    .line 135
+    .line 138
     const/4 v2, 0x0
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->recoveryS:I
 
-    .line 136
+    .line 139
     invoke-interface {v12}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
 
-    :cond_1aa
-    :goto_1aa
+    :cond_1b0
+    :goto_1b0
     invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v2
 
-    if-eqz v2, :cond_241
+    if-eqz v2, :cond_25e
 
     invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -503,7 +513,7 @@
 
     check-cast v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
-    .line 137
+    .line 140
     iget v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->totalS:I
 
     iget v6, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->durationS:I
@@ -512,14 +522,14 @@
 
     iput v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->totalS:I
 
-    .line 138
+    .line 141
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->isCooldown()Z
 
     move-result v4
 
-    if-eqz v4, :cond_1aa
+    if-eqz v4, :cond_1b0
 
-    .line 139
+    .line 142
     iget v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->recoveryS:I
 
     iget v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->durationS:I
@@ -528,17 +538,17 @@
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->recoveryS:I
 
-    goto :goto_1aa
+    goto :goto_1b0
 
     .line 86
-    :cond_1cb
+    :cond_1d1
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sessions:I
 
     const/4 v6, 0x2
 
-    if-gt v4, v6, :cond_21a
+    if-gt v4, v6, :cond_220
 
     .line 87
     const-wide v2, 0x3fe999999999999aL    # 0.8
@@ -609,7 +619,7 @@
     goto/16 :goto_82
 
     .line 89
-    :cond_21a
+    :cond_220
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sessions:I
@@ -624,7 +634,7 @@
     goto/16 :goto_82
 
     .line 98
-    :cond_228
+    :cond_22e
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoModel$Input;->bmi()D
 
     move-result-wide v6
@@ -647,15 +657,45 @@
 
     goto/16 :goto_a3
 
-    .line 142
-    :cond_241
+    .line 106
+    :cond_247
+    const/4 v4, 0x0
+
+    goto/16 :goto_d1
+
+    .line 107
+    :cond_24a
+    const/4 v6, 0x0
+
+    goto/16 :goto_e5
+
+    .line 113
+    :cond_24d
+    if-eqz v4, :cond_13f
+
+    .line 114
+    const-wide v6, 0x3fe999999999999aL    # 0.8
+
+    mul-double/2addr v2, v6
+
+    .line 115
+    const-string v4, "\u041f\u043e\u0434 72 \u0447 \u043e\u0442 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0430\u0442\u0430 \u0430\u043a\u0442\u0438\u0432\u043d\u0430: \u221220 %"
+
+    const-string v6, "Under 72 h since the last active: \u221220 %"
+
+    invoke-virtual {v10, v4, v6}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto/16 :goto_13f
+
+    .line 145
+    :cond_25e
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->INTENSE:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    if-ne v2, v3, :cond_257
+    if-ne v2, v3, :cond_274
 
     move-object/from16 v0, p0
 
@@ -663,55 +703,55 @@
 
     move-result v2
 
-    if-nez v2, :cond_257
+    if-nez v2, :cond_274
 
-    .line 143
+    .line 146
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->STANDARD:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     move-object/from16 v0, p0
 
     iput-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    .line 145
-    :cond_257
+    .line 148
+    :cond_274
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->SOFT:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    if-ne v2, v3, :cond_339
+    if-ne v2, v3, :cond_356
 
     const-wide v2, 0x3feb333333333333L    # 0.85
 
     move-wide v6, v2
 
-    .line 146
-    :goto_265
+    .line 149
+    :goto_282
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->SOFT:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    if-ne v2, v3, :cond_34e
+    if-ne v2, v3, :cond_36b
 
     const/4 v2, 0x1
 
     move v8, v2
 
-    .line 147
-    :goto_26f
+    .line 150
+    :goto_28c
     invoke-interface {v12}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v13
 
-    :cond_273
+    :cond_290
     invoke-interface {v13}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v2
 
-    if-eqz v2, :cond_39c
+    if-eqz v2, :cond_3b9
 
     invoke-interface {v13}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -719,44 +759,44 @@
 
     check-cast v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
-    .line 148
+    .line 151
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->isCooldown()Z
 
     move-result v3
 
-    if-nez v3, :cond_28f
+    if-nez v3, :cond_2ac
 
-    .line 149
+    .line 152
     iget-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiStart:D
 
     mul-double/2addr v14, v6
 
     iput-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiStart:D
 
-    .line 150
+    .line 153
     iget-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiEnd:D
 
     mul-double/2addr v14, v6
 
     iput-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiEnd:D
 
-    .line 152
-    :cond_28f
+    .line 155
+    :cond_2ac
     iget-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envEnd:D
 
     const-wide/high16 v16, -0x4010000000000000L    # -1.0
 
     cmpl-double v3, v14, v16
 
-    if-nez v3, :cond_29b
+    if-nez v3, :cond_2b8
 
-    .line 153
+    .line 156
     iget-wide v14, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->envMax:D
 
     iput-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envEnd:D
 
-    .line 155
-    :cond_29b
+    .line 158
+    :cond_2b8
     iget-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envStart:D
 
     iget-wide v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->envMax:D
@@ -769,7 +809,7 @@
 
     iput-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envStart:D
 
-    .line 156
+    .line 159
     iget-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envStart:D
 
     iget-wide v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envEnd:D
@@ -790,24 +830,24 @@
 
     iput-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envEnd:D
 
-    .line 158
+    .line 161
     invoke-virtual {v5}, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->isActive()Z
 
     move-result v3
 
-    if-nez v3, :cond_2e5
+    if-nez v3, :cond_302
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->hasTetanic()Z
 
     move-result v3
 
-    if-eqz v3, :cond_2e5
+    if-eqz v3, :cond_302
 
     iget-boolean v3, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->wave:Z
 
-    if-nez v3, :cond_2e5
+    if-nez v3, :cond_302
 
-    .line 159
+    .line 162
     iget-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiStart:D
 
     const-wide v16, 0x3fe6666666666666L    # 0.7
@@ -818,7 +858,7 @@
 
     iput-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiStart:D
 
-    .line 160
+    .line 163
     iget-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiEnd:D
 
     const-wide v16, 0x3fe6666666666666L    # 0.7
@@ -829,22 +869,22 @@
 
     iput-wide v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiEnd:D
 
-    .line 162
-    :cond_2e5
+    .line 165
+    :cond_302
     const/4 v3, 0x0
 
     move v4, v3
 
-    :goto_2e7
+    :goto_304
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     invoke-interface {v3}, Ljava/util/List;->size()I
 
     move-result v3
 
-    if-ge v4, v3, :cond_35e
+    if-ge v4, v3, :cond_37b
 
-    .line 163
+    .line 166
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     invoke-interface {v3, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -853,12 +893,12 @@
 
     check-cast v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
-    .line 164
+    .line 167
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->isTetanic()Z
 
     move-result v9
 
-    if-eqz v9, :cond_335
+    if-eqz v9, :cond_352
 
     iget-wide v14, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->sigma:D
 
@@ -866,13 +906,13 @@
 
     cmpl-double v9, v14, v16
 
-    if-lez v9, :cond_335
+    if-lez v9, :cond_352
 
     iget-boolean v9, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->wave:Z
 
-    if-nez v9, :cond_335
+    if-nez v9, :cond_352
 
-    .line 165
+    .line 168
     const/4 v9, 0x1
 
     iget v14, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
@@ -885,31 +925,31 @@
 
     iput v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    .line 166
+    .line 169
     move-object/from16 v0, p0
 
     iget v9, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->age:I
 
     const/16 v14, 0x3c
 
-    if-lt v9, v14, :cond_327
+    if-lt v9, v14, :cond_344
 
-    .line 167
+    .line 170
     iget v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
     add-int/lit8 v9, v9, 0x2
 
     iput v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    .line 168
+    .line 171
     iget v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
     add-int/lit16 v9, v9, 0xc8
 
     iput v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    .line 170
-    :cond_327
+    .line 173
+    :cond_344
     iget v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
     iget v14, v11, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
@@ -918,7 +958,7 @@
 
     iput v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    .line 171
+    .line 174
     iget v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
     iget v14, v11, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
@@ -927,76 +967,76 @@
 
     iput v9, v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    .line 162
-    :cond_335
+    .line 165
+    :cond_352
     add-int/lit8 v3, v4, 0x1
 
     move v4, v3
 
-    goto :goto_2e7
+    goto :goto_304
 
-    .line 145
-    :cond_339
+    .line 148
+    :cond_356
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->INTENSE:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    if-ne v2, v3, :cond_349
+    if-ne v2, v3, :cond_366
 
     const-wide v2, 0x3ff199999999999aL    # 1.1
 
     move-wide v6, v2
 
-    goto/16 :goto_265
+    goto/16 :goto_282
 
-    :cond_349
+    :cond_366
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     move-wide v6, v2
 
-    goto/16 :goto_265
+    goto/16 :goto_282
 
-    .line 146
-    :cond_34e
+    .line 149
+    :cond_36b
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->INTENSE:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    if-ne v2, v3, :cond_35a
+    if-ne v2, v3, :cond_377
 
     const/4 v2, -0x1
 
     move v8, v2
 
-    goto/16 :goto_26f
+    goto/16 :goto_28c
 
-    :cond_35a
+    :cond_377
     const/4 v2, 0x0
 
     move v8, v2
 
-    goto/16 :goto_26f
+    goto/16 :goto_28c
 
-    .line 174
-    :cond_35e
+    .line 177
+    :cond_37b
     const/4 v3, 0x0
 
     move v9, v3
 
-    :goto_360
+    :goto_37d
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     invoke-interface {v3}, Ljava/util/List;->size()I
 
     move-result v3
 
-    if-ge v9, v3, :cond_273
+    if-ge v9, v3, :cond_290
 
-    .line 175
+    .line 178
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     add-int/lit8 v4, v9, 0x1
@@ -1015,7 +1055,7 @@
 
     check-cast v3, Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
-    .line 176
+    .line 179
     iget-object v14, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     iget-object v4, v2, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
@@ -1036,75 +1076,75 @@
 
     move/from16 v0, v16
 
-    if-le v15, v0, :cond_39a
+    if-le v15, v0, :cond_3b7
 
-    :goto_38f
+    :goto_3ac
     invoke-static {v4, v3, v10, v2}, Lcom/isaigu/gymapp/ai/AutoLimits;->clampStep(Lcom/isaigu/gymapp/ai/AutoModel$Step;Lcom/isaigu/gymapp/ai/AutoModel$Step;Lcom/isaigu/gymapp/ai/AutoModel$Plan;Lcom/isaigu/gymapp/ai/AutoModel$Phase;)Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
     move-result-object v3
 
     invoke-interface {v14, v9, v3}, Ljava/util/List;->set(ILjava/lang/Object;)Ljava/lang/Object;
 
-    .line 174
+    .line 177
     add-int/lit8 v3, v9, 0x1
 
     move v9, v3
 
-    goto :goto_360
+    goto :goto_37d
 
-    .line 176
-    :cond_39a
+    .line 179
+    :cond_3b7
     const/4 v3, 0x0
 
-    goto :goto_38f
+    goto :goto_3ac
 
-    .line 180
-    :cond_39c
+    .line 183
+    :cond_3b9
     iget-object v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
 
     invoke-interface {v2, v12}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z
 
-    .line 181
+    .line 184
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->SOFT:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    if-ne v2, v3, :cond_3cc
+    if-ne v2, v3, :cond_3e9
 
-    .line 182
+    .line 185
     const-string v2, "\u041c\u0435\u043a: \u221215 % \u0441\u0438\u043b\u0430, +1 s \u043f\u0430\u0443\u0437\u0430"
 
     const-string v3, "Soft: \u221215 % strength, +1 s pause"
 
     invoke-virtual {v10, v2, v3}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 188
-    :cond_3b0
-    :goto_3b0
+    .line 191
+    :cond_3cd
+    :goto_3cd
     iget-object v2, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->zones:[I
 
     invoke-virtual {v11, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->apply([I)[I
 
     move-result-object v3
 
-    .line 189
+    .line 192
     const/4 v2, 0x0
 
-    :goto_3b7
+    :goto_3d4
     const/16 v4, 0xa
 
-    if-ge v2, v4, :cond_3dc
+    if-ge v2, v4, :cond_3f9
 
-    .line 190
+    .line 193
     iget-object v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
     aget v6, v3, v2
 
     aput v6, v4, v2
 
-    .line 191
+    .line 194
     iget-object v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneMax:[I
 
     iget-object v6, v11, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->zoneMax:[I
@@ -1113,46 +1153,46 @@
 
     aput v6, v4, v2
 
-    .line 189
+    .line 192
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_3b7
+    goto :goto_3d4
 
-    .line 183
-    :cond_3cc
+    .line 186
+    :cond_3e9
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->INTENSE:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    if-ne v2, v3, :cond_3b0
+    if-ne v2, v3, :cond_3cd
 
-    .line 184
+    .line 187
     const-string v2, "\u0418\u043d\u0442\u0435\u043d\u0437\u0438\u0432\u0435\u043d: +10 % (\u0434\u043e \u0442\u0430\u0432\u0430\u043d\u0430), \u22121 s \u043f\u0430\u0443\u0437\u0430"
 
     const-string v3, "Intense: +10 % (to the ceiling), \u22121 s pause"
 
     invoke-virtual {v10, v2, v3}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_3b0
+    goto :goto_3cd
 
-    .line 193
-    :cond_3dc
+    .line 196
+    :cond_3f9
     const/4 v2, 0x0
 
     move v4, v2
 
-    :goto_3de
+    :goto_3fb
     iget-object v2, v11, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->notesBg:Ljava/util/List;
 
     invoke-interface {v2}, Ljava/util/List;->size()I
 
     move-result v2
 
-    if-ge v4, v2, :cond_3fd
+    if-ge v4, v2, :cond_41a
 
-    .line 194
+    .line 197
     iget-object v2, v11, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->notesBg:Ljava/util/List;
 
     invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -1171,24 +1211,24 @@
 
     invoke-virtual {v10, v2, v3}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 193
+    .line 196
     add-int/lit8 v2, v4, 0x1
 
     move v4, v2
 
-    goto :goto_3de
+    goto :goto_3fb
 
-    .line 196
-    :cond_3fd
+    .line 199
+    :cond_41a
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->extra:Lcom/isaigu/gymapp/ai/AutoModel$Extra;
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Extra;->breastfeeding:Z
 
-    if-eqz v2, :cond_418
+    if-eqz v2, :cond_435
 
-    .line 197
+    .line 200
     iget-object v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
     const/4 v3, 0x0
@@ -1197,7 +1237,7 @@
 
     aput v4, v2, v3
 
-    .line 198
+    .line 201
     iget-object v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
 
     const/4 v3, 0x0
@@ -1206,15 +1246,15 @@
 
     aput-boolean v4, v2, v3
 
-    .line 199
+    .line 202
     const-string v2, "\u041a\u044a\u0440\u043c\u0435\u043d\u0435: \u0433\u044a\u0440\u0434\u0438\u0442\u0435 \u0441\u0430 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0438"
 
     const-string v3, "Breastfeeding: chest channel off"
 
     invoke-virtual {v10, v2, v3}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 201
-    :cond_418
+    .line 204
+    :cond_435
     const-string v2, "postpartum"
 
     iget-object v3, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
@@ -1223,7 +1263,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_461
+    if-eqz v2, :cond_47e
 
     move-object/from16 v0, p0
 
@@ -1231,9 +1271,9 @@
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Extra;->diastasis:Z
 
-    if-eqz v2, :cond_461
+    if-eqz v2, :cond_47e
 
-    .line 202
+    .line 205
     iget-object v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
     const/4 v3, 0x1
@@ -1252,7 +1292,7 @@
 
     aput v4, v2, v3
 
-    .line 203
+    .line 206
     iget-object v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneMax:[I
 
     const/4 v3, 0x1
@@ -1261,7 +1301,7 @@
 
     aput v4, v2, v3
 
-    .line 204
+    .line 207
     iget-object v3, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
 
     const/4 v4, 0x1
@@ -1272,14 +1312,14 @@
 
     const/4 v6, 0x6
 
-    if-ge v2, v6, :cond_53e
+    if-ge v2, v6, :cond_55b
 
     const/4 v2, 0x1
 
-    :goto_44c
+    :goto_469
     aput-boolean v2, v3, v4
 
-    .line 205
+    .line 208
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->cond:Ljava/util/Set;
@@ -1290,34 +1330,34 @@
 
     move-result v2
 
-    if-nez v2, :cond_461
+    if-nez v2, :cond_47e
 
-    .line 206
+    .line 209
     const-string v2, "\u0414\u0438\u0430\u0441\u0442\u0430\u0437\u0430: \u043a\u043e\u0440\u0435\u043c\u044a\u0442 \u0434\u043e 40 %"
 
     const-string v3, "Diastasis: abs up to 40 %"
 
     invoke-virtual {v10, v2, v3}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 211
-    :cond_461
+    .line 214
+    :cond_47e
     iget v2, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->cr10Lo:I
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->cr10Lo:I
 
-    .line 212
+    .line 215
     iget v2, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->cr10Hi:I
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->cr10Hi:I
 
-    .line 213
+    .line 216
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sessions:I
 
-    if-nez v2, :cond_486
+    if-nez v2, :cond_4a3
 
-    .line 214
+    .line 217
     const/4 v2, 0x2
 
     iget v3, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->cr10Lo:I
@@ -1330,7 +1370,7 @@
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->cr10Lo:I
 
-    .line 215
+    .line 218
     iget v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->cr10Lo:I
 
     iget v3, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->cr10Hi:I
@@ -1343,8 +1383,8 @@
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->cr10Hi:I
 
-    .line 219
-    :cond_486
+    .line 222
+    :cond_4a3
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
@@ -1355,7 +1395,7 @@
 
     iput-object v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrUse:Lcom/isaigu/gymapp/ai/AutoModel$HrUse;
 
-    .line 220
+    .line 223
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
@@ -1370,35 +1410,35 @@
 
     iput v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrMax:I
 
-    .line 221
-    if-lez p1, :cond_541
+    .line 224
+    if-lez p1, :cond_55e
 
     const/4 v2, 0x1
 
-    :goto_4a1
+    :goto_4be
     iput-boolean v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrRestMeasured:Z
 
-    .line 222
-    if-lez p1, :cond_544
+    .line 225
+    if-lez p1, :cond_561
 
-    :goto_4a5
+    :goto_4c2
     move/from16 v0, p1
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrRest:I
 
-    .line 223
+    .line 226
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->LOW:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    if-ne v2, v3, :cond_548
+    if-ne v2, v3, :cond_565
 
     const-wide v2, -0x4056666666666666L    # -0.05
 
-    .line 224
-    :goto_4b6
+    .line 227
+    :goto_4d3
     iget-wide v6, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->xCap:D
 
     add-double v8, v6, v2
@@ -1409,28 +1449,28 @@
 
     const/16 v6, 0x3c
 
-    if-lt v4, v6, :cond_55b
+    if-lt v4, v6, :cond_578
 
     const-wide v6, -0x4056666666666666L    # -0.05
 
-    :goto_4c7
+    :goto_4e4
     add-double/2addr v8, v6
 
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoModel$Input;->solo()Z
 
     move-result v4
 
-    if-eqz v4, :cond_55f
+    if-eqz v4, :cond_57c
 
     const-wide v6, -0x4056666666666666L    # -0.05
 
-    :goto_4d3
+    :goto_4f0
     add-double/2addr v6, v8
 
-    .line 225
+    .line 228
     iput-wide v6, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xCap:D
 
-    .line 226
+    .line 229
     invoke-virtual {v10, v6, v7}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrAt(D)I
 
     move-result v4
@@ -1443,26 +1483,26 @@
 
     iput v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrCap:I
 
-    .line 227
+    .line 230
     iget-object v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrUse:Lcom/isaigu/gymapp/ai/AutoModel$HrUse;
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$HrUse;->CORRIDOR:Lcom/isaigu/gymapp/ai/AutoModel$HrUse;
 
-    if-ne v4, v6, :cond_515
+    if-ne v4, v6, :cond_532
 
-    .line 228
+    .line 231
     invoke-static {v5}, Lcom/isaigu/gymapp/ai/AutoCatalog;->corridor(Lcom/isaigu/gymapp/ai/AutoCatalog$Program;)[D
 
     move-result-object v4
 
-    .line 229
+    .line 232
     const/4 v6, 0x0
 
     aget-wide v6, v4, v6
 
     iput-wide v6, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xLo:D
 
-    .line 230
+    .line 233
     const/4 v6, 0x1
 
     aget-wide v6, v4, v6
@@ -1475,23 +1515,23 @@
 
     const/16 v3, 0x3c
 
-    if-lt v2, v3, :cond_563
+    if-lt v2, v3, :cond_580
 
     const-wide v2, -0x4056666666666666L    # -0.05
 
-    :goto_502
+    :goto_51f
     add-double/2addr v2, v6
 
     iput-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xHi:D
 
-    .line 231
+    .line 234
     invoke-static/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AutoPlanner;->goalSlimBmi(Lcom/isaigu/gymapp/ai/AutoModel$Input;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_515
+    if-eqz v2, :cond_532
 
-    .line 232
+    .line 235
     iget-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xHi:D
 
     const-wide v6, 0x3fa999999999999aL    # 0.05
@@ -1500,22 +1540,22 @@
 
     iput-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xHi:D
 
-    .line 237
-    :cond_515
+    .line 240
+    :cond_532
     iget-boolean v2, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->doublePulse:Z
 
-    if-eqz v2, :cond_566
+    if-eqz v2, :cond_583
 
     const-string v2, "postpartum"
 
     iget-object v3, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
 
-    .line 238
+    .line 241
     invoke-virtual {v2, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_52a
+    if-eqz v2, :cond_547
 
     move-object/from16 v0, p0
 
@@ -1523,22 +1563,22 @@
 
     const/4 v3, 0x4
 
-    if-lt v2, v3, :cond_566
+    if-lt v2, v3, :cond_583
 
-    :cond_52a
+    :cond_547
     const/4 v2, 0x1
 
-    :goto_52b
+    :goto_548
     iput-boolean v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->doublePulseAllowed:Z
 
-    .line 241
+    .line 244
     invoke-static {v10}, Lcom/isaigu/gymapp/ai/AutoPlanner;->simulateDose(Lcom/isaigu/gymapp/ai/AutoModel$Plan;)D
 
     move-result-wide v2
 
     iput-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->qPlan:D
 
-    .line 242
+    .line 245
     iget-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->qPlan:D
 
     const-wide v4, 0x3ff199999999999aL    # 1.1
@@ -1547,68 +1587,68 @@
 
     iput-wide v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->qBudget:D
 
-    .line 243
+    .line 246
     return-object v10
 
-    .line 204
-    :cond_53e
+    .line 207
+    :cond_55b
     const/4 v2, 0x0
 
-    goto/16 :goto_44c
+    goto/16 :goto_469
 
-    .line 221
-    :cond_541
+    .line 224
+    :cond_55e
     const/4 v2, 0x0
 
-    goto/16 :goto_4a1
+    goto/16 :goto_4be
 
-    .line 222
-    :cond_544
+    .line 225
+    :cond_561
     const/16 p1, 0x46
 
-    goto/16 :goto_4a5
+    goto/16 :goto_4c2
 
-    .line 223
-    :cond_548
+    .line 226
+    :cond_565
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->HIGH:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    if-ne v2, v3, :cond_557
+    if-ne v2, v3, :cond_574
 
     const-wide v2, 0x3fa999999999999aL    # 0.05
 
-    goto/16 :goto_4b6
+    goto/16 :goto_4d3
 
-    :cond_557
+    :cond_574
     const-wide/16 v2, 0x0
-
-    goto/16 :goto_4b6
-
-    .line 224
-    :cond_55b
-    const-wide/16 v6, 0x0
-
-    goto/16 :goto_4c7
-
-    :cond_55f
-    const-wide/16 v6, 0x0
 
     goto/16 :goto_4d3
 
-    .line 230
-    :cond_563
+    .line 227
+    :cond_578
+    const-wide/16 v6, 0x0
+
+    goto/16 :goto_4e4
+
+    :cond_57c
+    const-wide/16 v6, 0x0
+
+    goto/16 :goto_4f0
+
+    .line 233
+    :cond_580
     const-wide/16 v2, 0x0
 
-    goto :goto_502
+    goto :goto_51f
 
-    .line 238
-    :cond_566
+    .line 241
+    :cond_583
     const/4 v2, 0x0
 
-    goto :goto_52b
+    goto :goto_548
 .end method
 
 .method public static clampSeconds(Lcom/isaigu/gymapp/ai/AutoCatalog$Program;Lcom/isaigu/gymapp/ai/AutoModel$Goal;Lcom/isaigu/gymapp/ai/AutoModel$Input;I)I
@@ -1644,7 +1684,7 @@
     .prologue
     const-wide/high16 v6, 0x4000000000000000L    # 2.0
 
-    .line 273
+    .line 276
     mul-double v0, v6, p1
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pwUs:I
@@ -1665,7 +1705,7 @@
 
     mul-double/2addr v0, v2
 
-    .line 274
+    .line 277
     if-eqz p3, :cond_35
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
@@ -1680,7 +1720,7 @@
 
     if-lez v2, :cond_35
 
-    .line 275
+    .line 278
     mul-double v2, v6, p1
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
@@ -1713,7 +1753,7 @@
 
     add-double/2addr v0, v2
 
-    .line 277
+    .line 280
     :cond_35
     return-wide v0
 .end method
@@ -1722,7 +1762,7 @@
     .registers 5
 
     .prologue
-    .line 248
+    .line 251
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->SLIM:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
@@ -1937,10 +1977,10 @@
     .registers 15
 
     .prologue
-    .line 253
+    .line 256
     const-wide/16 v0, 0x0
 
-    .line 254
+    .line 257
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
 
     invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -1962,7 +2002,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
-    .line 255
+    .line 258
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->isEmpty()Z
@@ -1971,21 +2011,21 @@
 
     if-nez v1, :cond_9
 
-    .line 258
+    .line 261
     const/4 v5, 0x0
 
-    .line 259
+    .line 262
     const/4 v1, 0x0
 
     move v4, v1
 
-    .line 260
+    .line 263
     :goto_20
     iget v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->durationS:I
 
     if-ge v5, v1, :cond_9
 
-    .line 261
+    .line 264
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     iget-object v6, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
@@ -2002,7 +2042,7 @@
 
     check-cast v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
-    .line 262
+    .line 265
     iget-wide v8, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phiMax:D
 
     int-to-double v10, v5
@@ -2025,7 +2065,7 @@
 
     mul-double/2addr v8, v10
 
-    .line 263
+    .line 266
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     iget-boolean v6, v6, Lcom/isaigu/gymapp/ai/AutoModel$Input;->doublePulse:Z
@@ -2045,28 +2085,28 @@
 
     add-double/2addr v2, v8
 
-    .line 264
+    .line 267
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->durationS()I
 
     move-result v1
 
     add-int/2addr v5, v1
 
-    .line 265
+    .line 268
     add-int/lit8 v1, v4, 0x1
 
     move v4, v1
 
-    .line 266
+    .line 269
     goto :goto_20
 
-    .line 263
+    .line 266
     :cond_5f
     const/4 v6, 0x0
 
     goto :goto_51
 
-    .line 268
+    .line 271
     :cond_61
     return-wide v2
 .end method

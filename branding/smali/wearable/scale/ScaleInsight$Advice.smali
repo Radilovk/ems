@@ -35,30 +35,30 @@
     .registers 8
 
     .prologue
-    .line 645
+    .line 710
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 646
+    .line 711
     iput p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->prio:I
 
-    .line 647
+    .line 712
     iput p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->kind:I
 
-    .line 648
+    .line 713
     iput p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->tone:I
 
-    .line 649
+    .line 714
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->titleBg:Ljava/lang/String;
 
-    .line 650
+    .line 715
     iput-object p5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->textBg:Ljava/lang/String;
 
-    .line 651
+    .line 716
     iput-object p6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->titleEn:Ljava/lang/String;
 
-    .line 652
+    .line 717
     iput-object p7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleInsight$Advice;->textEn:Ljava/lang/String;
 
-    .line 653
+    .line 718
     return-void
 .end method

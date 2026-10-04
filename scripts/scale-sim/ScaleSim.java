@@ -313,6 +313,30 @@ public final class ScaleSim {
         q.put(meas(0, z20, z100));
         q.put(meas(2 * 3600 * 1000L, z20, z100));
         ok("baseline ignores the same morning", !ScaleInsight.readiness(q, 1).known());
+        // evening (+10 h) against morning baselines: the day's fluid in the legs is not a recovery verdict
+        long eve = 10L * 3600 * 1000;
+        org.json.JSONArray ev = new org.json.JSONArray();
+        ev.put(meas(0, z20, z100));
+        ev.put(meas(4 * day, z20, z100));
+        ev.put(meas(8 * day + eve, new double[] {350, 340, 249, 254}, new double[] {320, 310, 228, 233}));
+        ScaleInsight.Readiness re = ScaleInsight.readiness(ev, 2);
+        ok("other time of day: wider thresholds, +1.6 % is no cut", re.known() && !re.sameTime && re.factor == 1.0);
+        // the same evening reading against evening baselines is a verdict again
+        org.json.JSONArray ev2 = new org.json.JSONArray();
+        ev2.put(meas(eve, z20, z100));
+        ev2.put(meas(4 * day + eve, z20, z100));
+        ev2.put(meas(8 * day + eve, new double[] {350, 340, 249, 254}, new double[] {320, 310, 228, 233}));
+        ok("same time of day: −15 %", ScaleInsight.readiness(ev2, 2).sameTime
+                && ScaleInsight.readiness(ev2, 2).factor == 0.85);
+        // 2.5 % lighter than the week's weigh-ins, impedances as usual → water lost, −15 %
+        org.json.JSONArray wl = new org.json.JSONArray();
+        wl.put(meas(0, z20, z100));
+        wl.put(meas(3 * day, z20, z100));
+        org.json.JSONObject light = meas(5 * day, z20, z100);
+        light.put("w", 72.5 * 0.975);
+        wl.put(light);
+        ScaleInsight.Readiness rw = ScaleInsight.readiness(wl, 2);
+        ok("weight −2.5 % in a week: water, −15 %", rw.factor == 0.85 && rw.water && rw.weight < -2);
 
         // % of normal: muscle and fat by segment, in a plausible band
         double[][] n = ScaleInsight.ofNormal(h.optJSONObject(0), true, 170);
@@ -797,6 +821,7 @@ public final class ScaleSim {
         org.json.JSONArray sm = w.getJSONArray("segMus");
         sm.put(ScaleProtocol.LEFT_LEG, 7.5);
         eq("weak leg → focus legs", ScaleInsight.weakFocus(w, true, 175).equals("legs") ? 1 : 0, 1, 0);
+        ok("trunk asks for focus only under 85 %", ScaleInsight.TRUNK_WEAK == 85);
         java.util.Set<String> f = com.isaigu.gymapp.ai.AiPersonal.withScaleFocus(new java.util.HashSet<String>(), "legs");
         ok("scale focus joins the client's", f.contains("legs"));
     }
@@ -978,6 +1003,13 @@ public final class ScaleSim {
             }
             ScaleInsight.Readiness rd = ScaleInsight.readiness(h, 2);
             ok("single: no swelling verdict from ρ", rd.known() && Double.isNaN(rd.swell[1]));
+            org.json.JSONObject dryer = new org.json.JSONObject(h.getJSONObject(2).toString());
+            org.json.JSONArray zz = dryer.getJSONArray("z20");
+            for (int i = 1; i < 5; i++) {
+                zz.put(i, zz.getDouble(i) * 1.07);
+            }
+            h.put(2, dryer);
+            ok("single: drier feet alone do not cut", ScaleInsight.readiness(h, 2).factor == 1.0);
             org.json.JSONArray mix = new org.json.JSONArray();
             mix.put(ScaleStore.toJson(two, b2, 0));
             mix.put(ScaleStore.toJson(one, b1, 86400000L));

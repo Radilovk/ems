@@ -894,6 +894,69 @@ public final class AutoEngine {
         return g;
     }
 
+    /** A channel at this value or more gets the current in full on the body (owner: the feeling does not follow the
+     *  number — a weak impulse can contract hard); below it only the exercise counts there. */
+    static final int ZONE_ON = 2;
+    /** An exercise works a zone when its muscle share there is at least this (0…1). */
+    static final double EX_ZONE = 0.25;
+
+    /**
+     * The body's accounting (owner): each zone gets the current in full when its channel is on (≥ {@link #ZONE_ON}),
+     * whatever the strength, and the exercise's work on its muscles on top; a channel at 0 — the exercise alone. Rows
+     * as in {@link #rates}: 0 impulse, 1 pause, 2–3 the exercise's part. The fatigue and the dose keep {@link #rates}.
+     */
+    private double[][] zoneRates(Cmd c) {
+        double[][] g = new double[4][ZONES];
+        if (c == null || c.frac <= 0) {
+            return g;
+        }
+        boolean pause = doublePulse && c.pauseHz > 0 && c.pauseSigma > 0;
+        int[] z = zonesOf(c);
+        int[] m = exerciseMuscles(c);
+        for (int k = 0; k < AutoModel.CHANNELS; k++) {
+            double on = z == null || k >= z.length || z[k] >= ZONE_ON ? 1.0 : 0.0;
+            double mk = m != null && k < m.length ? Math.max(0, m[k]) / 100.0 : 0;
+            g[0][k] = on + EX_LOAD * mk;
+            g[1][k] = (pause ? 0.3 * on : 0) + 0.3 * EX_LOAD * mk;
+            g[2][k] = EX_LOAD * mk;
+            g[3][k] = 0.3 * EX_LOAD * mk;
+        }
+        double sh = m != null && EX_SHOULDERS < m.length ? Math.max(0, m[EX_SHOULDERS]) / 100.0 : 0;
+        g[0][DELTOID] = g[2][DELTOID] = EX_LOAD * sh;
+        g[1][DELTOID] = g[3][DELTOID] = 0.3 * EX_LOAD * sh;
+        return g;
+    }
+
+    /** The muscles of the exercise running in this cycle (null: none). */
+    private int[] exerciseMuscles(Cmd c) {
+        if (c.phaseIndex == stationPhase && isStationPhase(c.phaseIndex)) {
+            String ex = getExercise();
+            int ix = ex != null ? AutoTemplates.index(ex) : -1;
+            return ix >= 0 ? AutoTemplates.muscles(ix) : null;
+        }
+        return null;
+    }
+
+    /**
+     * How each zone glows now (owner): 1 = the current is on there and the exercise works it (brightest, pulsing),
+     * 0.5 = only one of the two, 0 = neither. Only while the impulses run.
+     */
+    public double[] getZoneLive(long now) {
+        double[] out = new double[ZONES];
+        if (state != State.RUN || chCmd == null || now < chCmd.startMs || chCmd.frac <= 0) {
+            return out;
+        }
+        int[] z = zonesOf(chCmd);
+        int[] m = exerciseMuscles(chCmd);
+        for (int k = 0; k < AutoModel.CHANNELS; k++) {
+            boolean on = z == null || k >= z.length || z[k] >= ZONE_ON;
+            boolean ex = m != null && k < m.length && m[k] / 100.0 >= EX_ZONE;
+            out[k] = (on ? 0.5 : 0) + (ex ? 0.5 : 0);
+        }
+        out[DELTOID] = m != null && EX_SHOULDERS < m.length && m[EX_SHOULDERS] / 100.0 >= EX_ZONE ? 0.5 : 0;
+        return out;
+    }
+
     /**
      * F of channel k at {@code now} (no state change): from chFMs along the running cycle's impulse / pause
      * (chFMs may be anywhere inside it — a change mid-cycle re-bases there), then decay.
@@ -963,10 +1026,11 @@ public final class AutoEngine {
     /** Brings the channel values to {@code now} (before any change of state or cycle). */
     private void settle(long now) {
         double[][] g = chCmd != null ? rates(chCmd) : null;
+        double[][] gz = chCmd != null ? zoneRates(chCmd) : null;
         doseDone += doseAdded(now, g);
         for (int k = 0; k < zoneDone.length; k++) {
-            zoneDone[k] += zoneAdded(now, g, k, 0);
-            zoneExDone[k] += zoneAdded(now, g, k, 2);
+            zoneDone[k] += zoneAdded(now, gz, k, 0);
+            zoneExDone[k] += zoneAdded(now, gz, k, 2);
         }
         stepMeta(now, chCmd);
         for (int k = 0; k < chF.length; k++) {
@@ -1256,7 +1320,7 @@ public final class AutoEngine {
     private double[] zoneSum(long now, double[] base, int row) {
         double[] out = base.clone();
         if (chCmd != null) {
-            double[][] g = rates(chCmd);
+            double[][] g = zoneRates(chCmd);
             for (int k = 0; k < out.length; k++) {
                 out[k] += zoneAdded(now, g, k, row);
             }
@@ -1277,24 +1341,14 @@ public final class AutoEngine {
 
     /**
      * The zones working now (owner, 1.1.313: they glow and pulse while the set runs): in a running cycle, the zones
-     * whose impulse rate — current and exercise together — is at least {@link #ACTIVE_SHARE} of the strongest one.
+     * with the current on or worked by the exercise ({@link #getZoneLive} &gt; 0), whatever the strength (owner).
      * Nothing in a rest, a pause or the countdown.
      */
     public boolean[] getZoneActive(long now) {
+        double[] l = getZoneLive(now);
         boolean[] out = new boolean[ZONES];
-        if (state != State.RUN || chCmd == null || now < chCmd.startMs) {
-            return out;
-        }
-        double[][] g = rates(chCmd);
-        double top = 0;
         for (int k = 0; k < ZONES; k++) {
-            top = Math.max(top, g[0][k]);
-        }
-        if (top <= 1e-9) {
-            return out;
-        }
-        for (int k = 0; k < ZONES; k++) {
-            out[k] = g[0][k] >= ACTIVE_SHARE * top;
+            out[k] = l[k] > 0;
         }
         return out;
     }

@@ -1630,9 +1630,10 @@ public final class AutoSession {
                     now10[i] = b.strenthBean.buwei[i];
                     changed |= now10[i] != r.writtenZones[i];
                 }
-                if (changed && calib && r.block == null) {
-                    // the calibration (owner, 1.1.316): the row's own channel sliders set each channel's share
-                    // against the program, free of the run's limits; it holds for the whole session
+                if (changed && r.block == null) {
+                    // the row's own channel sliders set each channel's share against the program (owner, 1.1.316 at
+                    // the calibration; 1.1.338 also during the run, templates and exercises alike): free, it holds
+                    // from then on
                     int[] raw = stepZonesRaw(r, written);
                     for (int i = 0; i < AutoModel.CHANNELS; i++) {
                         if (now10[i] == r.writtenZones[i]) {

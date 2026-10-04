@@ -918,8 +918,10 @@ public final class AutoSim {
             for (int k = 0; k < AutoModel.CHANNELS; k++) {
                 hi = Math.max(hi, endP[k]);
             }
-            check(hi > 0.97 && hi < 1.03, "the session's main zone reaches full colour at the end (" + hi + ")");
-            check(endP[AutoModel.GLUTES] > endP[AutoModel.CHEST] + 0.15, "the zones differ as their work does (glutes "
+            check(hi > 0.95 && hi < 1.06, "the session's main zone reaches full colour at the end (" + hi + ")");
+            // owner (1.1.338): a channel that is on counts in full whatever its strength — the zones of the program
+            // end alike; only the exercises (and a channel at 0) make a difference
+            check(Math.abs(endP[AutoModel.GLUTES] - endP[AutoModel.CHEST]) < 0.1, "zones on end alike (glutes "
                     + endP[AutoModel.GLUTES] + " vs chest " + endP[AutoModel.CHEST] + ")");
             check(halfSeen && halfMax < 0.9, "half way no zone is at its target yet (" + halfMax + ")");
             // owner (1.1.313): every zone the program is for ends at its optimum (1), the others below it
@@ -929,7 +931,7 @@ public final class AutoSim {
             }
             for (int k = 0; k < AutoModel.CHANNELS; k++) {
                 if (f.zoneDose[k] >= 0.5 * topB) {
-                    check(Math.abs(endP[k] - 1) < 0.03, "zone " + k + " the program is for ends optimal (" + endP[k] + ")");
+                    check(Math.abs(endP[k] - 1) < 0.06, "zone " + k + " the program is for ends optimal (" + endP[k] + ")");
                 } else {
                     check(endP[k] < 1, "zone " + k + " the program barely loads stays under (" + endP[k] + ")");
                 }

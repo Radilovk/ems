@@ -92,7 +92,7 @@ public final class ProgramArt {
     }
 
     static Bitmap bitmap(Context c, String key, int px) {
-        String name = key + "@" + widthFor(px);
+        String name = key + "@" + (key.endsWith("-sq") ? RING_PX : widthFor(px));
         synchronized (CACHE) {
             if (CACHE.containsKey(name)) {
                 return CACHE.get(name);
@@ -134,6 +134,37 @@ public final class ProgramArt {
         d.setAntiAlias(true);
         ((ImageView) ((FrameLayout) tile).getChildAt(0)).setImageDrawable(d);
         tile.setTag(key);
+    }
+
+    /** Pixel side of the square ring pictures (scripts/gen-program-art.py SQ). */
+    static final int RING_PX = 512;
+
+    /**
+     * The owner's square picture for the Auto ring (1.1.338): whole, transparent, filling the circle — no tile.
+     * {@code key} = {@link #templateKey} / {@link #passiveKey}.
+     */
+    public static ImageView ring(Context c, String key) {
+        ImageView iv = new ImageView(c);
+        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        showRing(iv, key);
+        return iv;
+    }
+
+    /** Puts square picture {@code key} on a ring view (nothing when it already shows it). */
+    public static void showRing(View v, String key) {
+        if (!(v instanceof ImageView) || key.equals(v.getTag())) {
+            return;
+        }
+        Context c = v.getContext();
+        Bitmap b = bitmap(c, key + "-sq", RING_PX);
+        if (b == null) {
+            return;
+        }
+        android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(c.getResources(), b);
+        d.setFilterBitmap(true);
+        d.setAntiAlias(true);
+        ((ImageView) v).setImageDrawable(d);
+        v.setTag(key);
     }
 
     /** The picture on its dark rounded tile, {@code wDp} × {@code hDp}; an empty tile if the picture is missing. */

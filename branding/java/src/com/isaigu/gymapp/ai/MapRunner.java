@@ -177,24 +177,43 @@ public final class MapRunner {
         return new MapDynamics(fit, sessions, age, hrMax);
     }
 
-    /** The block's movement: its own pattern, else the built-in one, else the library's (owner, 1.1.326). */
+    /** The block's movement: its own pattern, else the built-in one, else the library's (owner, 1.1.326), in the
+     *  admin's picker group as it is now — the group decides (1.1.327). */
     static int moveOf(Workout.Block b) {
         String pat = b.pat;
         boolean hold = b.hold;
-        if (pat == null && b.ex != null) {
-            pat = Workout.patternOf(b.ex);
-            if (pat == null && app != null) {
+        String zone = null;
+        if (b.ex != null) {
+            if (pat == null) {
+                pat = Workout.patternOf(b.ex);
+            }
+            if (app != null) {
                 try {
                     ExerciseLibrary.Entry e = ExerciseLibrary.get(app, b.ex);
                     if (e != null) {
-                        pat = e.pat;
-                        hold |= e.isHold();
+                        if (pat == null) {
+                            pat = e.pat;
+                        }
+                        hold = e.isHold() || "core_static".equals(pat);   // blocks saved before 1.1.327: timed ≠ hold
+                        zone = ExerciseLibrary.zoneOf(app, e);
                     }
                 } catch (Throwable ignored) {
                 }
             }
         }
-        return AutoDynamics.move(pat, hold);
+        return AutoDynamics.move(pat, hold, zone);
+    }
+
+    /** The block's exercise work per suit channel (library / built-in {@code mus}), null = none. */
+    static int[] musclesOf(Workout.Block b) {
+        if (b == null || b.ex == null || b.isRest()) {
+            return null;
+        }
+        if (app != null) {
+            ExerciseLibrary.load(app);                         // registers the library's muscles
+        }
+        int ix = AutoTemplates.index(b.ex);
+        return ix >= 0 ? AutoTemplates.muscles(ix) : null;
     }
 
     static AutoModel.Step stepOf(Workout.Block b) {
@@ -381,6 +400,7 @@ public final class MapRunner {
         lastIndex = idx;
         cur = null;
         if (dyn != null) {
+            dyn.setMuscles(musclesOf(b));
             if (b.isRest()) {
                 int need = dyn.restS(b.reps);
                 clock.setRestS(need);

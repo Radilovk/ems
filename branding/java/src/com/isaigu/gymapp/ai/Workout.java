@@ -176,24 +176,31 @@ public final class Workout {
      * cardio and jumps 40 Hz / 300 µs / 3+3 s at 85 %; stretching 10 Hz / 250 µs / 6+2 s at 60 %.
      */
     public static Block forExercise(String ex, String pat, boolean hold) {
-        Block b = forExercise0(ex, pat, hold);
+        return forExercise(ex, pat, hold, null);
+    }
+
+    /** {@link #forExercise} in the admin's picker group ({@code zone}, null = the library's): the group decides
+     *  the movement (1.1.327, {@link AutoDynamics#patIn}); the block keeps the library pattern. */
+    public static Block forExercise(String ex, String pat, boolean hold, String zone) {
+        int m = AutoDynamics.move(pat, hold, zone);
+        Block b = forExercise0(ex, m, AutoDynamics.patIn(pat, zone));
         b.pat = pat;
-        b.hold = hold || "core_static".equals(pat);
+        b.hold = m == AutoDynamics.MOVE_HOLD;
         return b;
     }
 
-    private static Block forExercise0(String ex, String pat, boolean hold) {
+    private static Block forExercise0(String ex, int m, String pat) {
         String p = pat != null ? pat : "";
-        if (hold || "core_static".equals(p)) {
+        if (m == AutoDynamics.MOVE_HOLD) {
             return new Block(ex, 5, 70, 300, 6, 4, 100);
         }
-        if ("cardio".equals(p) || "plyo".equals(p)) {
+        if (m == AutoDynamics.MOVE_CARDIO) {
             Block b = new Block(ex, 8, 40, 300, 3, 3, 85);
             b.rampIn = 300;                                    // quick moves: a short rise
             b.rampOut = 300;
             return b;
         }
-        if ("stretch".equals(p)) {
+        if (m == AutoDynamics.MOVE_STRETCH) {
             Block b = new Block(ex, 6, 10, 250, 6, 2, 60);
             b.rampIn = 1000;                                   // stretching: a slow rise
             b.rampOut = 1000;

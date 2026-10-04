@@ -156,6 +156,69 @@ public final class AutoDynamics {
         return MOVE_UNKNOWN;                                   // a new pattern: light until it is classified
     }
 
+    /**
+     * The movement the smart impulse follows: the admin's picker group decides (Settings → "Каталог с упражнения",
+     * owner 1.1.327), the library pattern only refines inside it. Кардио → cardio, Разтягане → stretching; a muscle
+     * group (not Функционални — whole-body, the pattern says how it moves) turns a cardio / stretch / unknown
+     * pattern into strength for that group. {@code zone} null / "" = the library's own = the pattern as it is.
+     */
+    public static String patIn(String pat, String zone) {
+        String p = pat != null ? pat : "";
+        String z = zone != null ? zone : "";
+        if ("cardio".equals(z)) {
+            return "cardio".equals(p) || "plyo".equals(p) ? p : "cardio";
+        }
+        if ("stretch".equals(z)) {
+            return "stretch";
+        }
+        if (z.length() == 0 || "functional".equals(z)) {
+            return pat;
+        }
+        int m = move(p, false);
+        if (m != MOVE_CARDIO && m != MOVE_STRETCH && m != MOVE_UNKNOWN) {
+            return pat;
+        }
+        if ("legs".equals(z)) {
+            return "squat";
+        }
+        if ("glutes".equals(z)) {
+            return "glute";
+        }
+        if ("back".equals(z)) {
+            return "pull_h";
+        }
+        if ("chest".equals(z)) {
+            return "push_h";
+        }
+        if ("arms".equals(z)) {
+            return "biceps";
+        }
+        if ("shoulders".equals(z)) {
+            return "lat_raise";
+        }
+        if ("abs".equals(z)) {
+            return "core_flex";
+        }
+        return pat;
+    }
+
+    /** A static hold (plank, wall sit, dead hang): timed in the library and not a cardio / stretch move — jump rope,
+     *  mountain climbers or a timed stretch are timed too, but they move (1.1.327). */
+    public static boolean isHold(String type, String pat) {
+        if (!"duration".equals(type)) {
+            return false;
+        }
+        int m = move(pat, false);
+        return m != MOVE_CARDIO && m != MOVE_STRETCH;
+    }
+
+    /** The movement of a block: {@link #patIn} + the hold — a cardio / stretch movement is never a hold (old
+     *  blocks saved before 1.1.327 may carry hold for jump rope or a timed stretch). */
+    public static int move(String pat, boolean hold, String zone) {
+        int m = move(patIn(pat, zone), false);
+        return hold && m != MOVE_CARDIO && m != MOVE_STRETCH ? MOVE_HOLD : m;
+    }
+
     /** The big compound movements of the library (multi-joint, big muscles): every strength approach. */
     static final String[] STRENGTH_PATS = {"squat", "lunge", "hinge", "glute", "push_h", "push_v", "pull_h", "pull_v",
         "dip", "olympic"};

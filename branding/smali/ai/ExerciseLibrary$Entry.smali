@@ -105,12 +105,12 @@
     .registers 3
 
     .prologue
-    .line 78
-    const-string v0, "duration"
+    .line 79
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->type:Ljava/lang/String;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->type:Ljava/lang/String;
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->pat:Ljava/lang/String;
 
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoDynamics;->isHold(Ljava/lang/String;Ljava/lang/String;)Z
 
     move-result v0
 

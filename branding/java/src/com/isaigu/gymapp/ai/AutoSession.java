@@ -603,31 +603,6 @@ public final class AutoSession {
         writeRows(written != null ? written : calibrationCmd(), true);
     }
 
-    /**
-     * ± on one channel of a row at the calibration (owner, 1.1.315): the channel's share against the program,
-     * 0–200 % in steps of 10; it holds for the whole session (every step and wave is scaled by it).
-     */
-    public static void adjustZone(int rowIndex, int channel, int delta) {
-        if (rowIndex < 0 || rowIndex >= rows.size() || channel < 0 || channel >= AutoModel.CHANNELS) {
-            return;
-        }
-        Row r = rows.get(rowIndex);
-        if (r.block != null) {
-            return;
-        }
-        r.zoneRatio[channel] = Math.max(0, Math.min(200, r.zoneRatio[channel] + delta));
-        writeRows(written != null ? written : calibrationCmd(), true);
-    }
-
-    /** What channel {@code channel} of a row gets now, % (−1 = nothing written yet). */
-    static int zoneNow(int rowIndex, int channel) {
-        if (rowIndex < 0 || rowIndex >= rows.size()) {
-            return -1;
-        }
-        int[] z = rows.get(rowIndex).writtenZones;
-        return z != null && channel < z.length ? z[channel] : -1;
-    }
-
     public static boolean canStart() {
         for (Row r : rows) {
             if (r.block == null && r.lastStrength > 0) {
@@ -1272,6 +1247,15 @@ public final class AutoSession {
 
     /** The zones the running step asks for on this row (a wave / even step, else the plan), before the person's moves. */
     private static int[] stepZones(Row r, AutoEngine.Cmd c) {
+        int[] z = stepZonesRaw(r, c);
+        for (int i = 0; i < z.length; i++) {
+            z[i] = Math.max(0, Math.min(100, (int) Math.round(z[i] * r.zoneRatio[i] / 100.0)));
+        }
+        return z;
+    }
+
+    /** As {@link #stepZones} without the calibration's channel shares. */
+    private static int[] stepZonesRaw(Row r, AutoEngine.Cmd c) {
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
         int[] z = c == null || c.zones == null ? rp.zones.clone() : c.zones.clone();
         for (int i = 0; i < z.length; i++) {
@@ -1279,7 +1263,6 @@ public final class AutoSession {
                 z[i] = 0;
             }
             z[i] = Math.min(z[i], rp.zoneMax[i]);
-            z[i] = Math.max(0, Math.min(100, (int) Math.round(z[i] * r.zoneRatio[i] / 100.0)));
         }
         return z;
     }
@@ -1529,7 +1512,28 @@ public final class AutoSession {
                     now10[i] = b.strenthBean.buwei[i];
                     changed |= now10[i] != r.writtenZones[i];
                 }
-                if (changed) {
+                if (changed && calib && r.block == null) {
+                    // the calibration (owner, 1.1.316): the row's own channel sliders set each channel's share
+                    // against the program, free of the run's limits; it holds for the whole session
+                    int[] raw = stepZonesRaw(r, written);
+                    for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                        if (now10[i] == r.writtenZones[i]) {
+                            continue;
+                        }
+                        if (raw[i] > 0) {
+                            r.zoneRatio[i] = Math.max(0, Math.min(300, (int) Math.round(now10[i] * 100.0 / raw[i])));
+                            r.zoneOffset[i] = 0;
+                        } else {
+                            r.zoneOffset[i] = now10[i];
+                        }
+                    }
+                    if (msgKind == INFO) {
+                        msgKey = "calib_zone";
+                        msg = who(r) + AiText.t("делът на зоните е зададен — пази се до края.",
+                                "zone shares set — kept to the end.");
+                    }
+                    rewrite = true;
+                } else if (changed) {
                     if (r.block != null) {
                         msg = who(r) + r.block;
                         msgKind = LIMIT;

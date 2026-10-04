@@ -55,7 +55,6 @@ public final class AutoUi {
     private static final int A_VARIANT = 18;
     private static final int A_DOUBLE = 19;
     private static final int A_CALIB_ROW = 21;
-    private static final int A_CALIB_ZONE = 22;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -121,8 +120,6 @@ public final class AutoUi {
     private static TextView calibRowsInfo;
     private static TextView primary;
     private static final List<TextView> rowLabels = new ArrayList<TextView>();
-    /** Calibration: row × channel → its % label. */
-    private static final List<TextView[]> zoneLabels = new ArrayList<TextView[]>();
 
     private AutoUi() {}
 
@@ -273,7 +270,6 @@ public final class AutoUi {
         shell.footer.removeAllViews();
         shell.footer.setVisibility(View.VISIBLE);
         rowLabels.clear();
-        zoneLabels.clear();
         runPhase = null;
         calibRowsInfo = null;
         switch (s) {
@@ -355,8 +351,8 @@ public final class AutoUi {
                         + "change the intensity, not pass the limits. \u201cToday\u201d — how the client is now (short on sleep, "
                         + "stress, period…): it never stops the session, the plan adapts by itself.");
             case STEP_CALIB:
-                return AiText.t("Качи силата на всеки клиент до целевото усещане. „Старт“ започва от загрявката с 60 % от нея.",
-                        "Raise each client's strength to the target feeling. Start begins with the warm-up at 60 % of it.");
+                return AiText.t("Качи силата на всеки клиент до целевото усещане. Съотношението между зоните — с плъзгачите на каналите на реда; пази се до края. „Старт“ започва от загрявката с 60 % от нея.",
+                        "Raise each client's strength to the target feeling. The balance between zones — with the row's channel sliders; it holds to the end. Start begins with the warm-up at 60 % of it.");
             case STEP_RUN:
                 return AiText.t("Управлява се с главните ▶ / ❚❚ и ■. ■ действа от пауза: първият — към 10 мин възстановяване, "
                         + "вторият — край. Импулсите са най-много 20 мин. ✕ скрива таблото — сесията продължава. "
@@ -912,7 +908,6 @@ public final class AutoUi {
                     head.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 72), ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
                 card.addView(head);
-                card.addView(zoneKeys(c, i), XemsUi.matchWrap(c, 10));
             }
             body.addView(card, XemsUi.matchWrap(c, 12));
         }
@@ -920,49 +915,6 @@ public final class AutoUi {
         body.addView(calibRowsInfo, XemsUi.matchWrap(c, 8));
         footer(c, calibStarted ? AiText.t("Старт  ›", "Start  ›") : AiText.t("▶ Пусни импулсите", "▶ Start the pulses"), true);
         refreshCalib();
-    }
-
-    /**
-     * Each channel's share for this row (owner, 1.1.315): ten small tiles side by side — the zone, its % now,
-     * − / + (10 % of what the program asks). Set with the client during the calibration; holds to the end.
-     */
-    private static View zoneKeys(Context c, int row) {
-        android.widget.HorizontalScrollView sc = new android.widget.HorizontalScrollView(c);
-        sc.setHorizontalScrollBarEnabled(false);
-        LinearLayout line = XemsUi.horizontal(c);
-        String[] names = AutoCues.zoneNames();
-        TextView[] vals = new TextView[AutoModel.CHANNELS];
-        for (int ch = 0; ch < AutoModel.CHANNELS; ch++) {
-            LinearLayout tile = XemsUi.vertical(c);
-            tile.setGravity(Gravity.CENTER_HORIZONTAL);
-            tile.setPadding(XemsUi.dp(c, 4), XemsUi.dp(c, 6), XemsUi.dp(c, 4), XemsUi.dp(c, 6));
-            tile.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x14), XemsUi.dp(c, 10), 0, 0));
-            TextView n = XemsUi.text(c, names[ch], 12, XemsUi.MUTED, false);
-            n.setSingleLine(true);
-            n.setGravity(Gravity.CENTER);
-            tile.addView(n);
-            TextView v = XemsUi.text(c, "—", 18, XemsUi.TEXT, true);
-            v.setGravity(Gravity.CENTER);
-            tile.addView(v);
-            vals[ch] = v;
-            LinearLayout keys = XemsUi.horizontal(c);
-            for (int k = 0; k < 2; k++) {
-                TextView key = XemsUi.button(c, k == 0 ? "−" : "+", XemsUi.SECONDARY);
-                key.setAlpha(calibStarted ? 1f : 0.35f);
-                key.setEnabled(calibStarted);
-                key.setOnClickListener(new Act(A_CALIB_ZONE, row * 100 + ch * 2 + k));
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(XemsUi.dp(c, 44), XemsUi.dp(c, 40));
-                lp.setMargins(XemsUi.dp(c, 2), XemsUi.dp(c, 4), XemsUi.dp(c, 2), 0);
-                keys.addView(key, lp);
-            }
-            tile.addView(keys);
-            LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(XemsUi.dp(c, 104), ViewGroup.LayoutParams.WRAP_CONTENT);
-            tp.setMargins(0, 0, XemsUi.dp(c, 6), 0);
-            line.addView(tile, tp);
-        }
-        zoneLabels.add(vals);
-        sc.addView(line);
-        return sc;
     }
 
     /** CR-10 as ten cells: the target band lit in green and named under it (the feeling to reach). */
@@ -991,13 +943,6 @@ public final class AutoUi {
         for (int i = 0; i < rowLabels.size() && i < rows.size(); i++) {
             AutoSession.Row r = rows.get(i);
             rowLabels.get(i).setText(r.block != null || !calibStarted ? "—" : r.lastStrength + "");
-        }
-        for (int i = 0; i < zoneLabels.size(); i++) {
-            TextView[] v = zoneLabels.get(i);
-            for (int ch = 0; ch < v.length; ch++) {
-                int z = calibStarted ? AutoSession.zoneNow(i, ch) : -1;
-                v[ch].setText(z >= 0 ? z + " %" : "—");
-            }
         }
         if (calibStarted) {
             enable(AutoSession.canStart());
@@ -1041,7 +986,6 @@ public final class AutoUi {
         AutoModel.Plan plan = AutoSession.getPlan();
         AutoModel.Input lead = AutoSession.getInput();
         rowLabels.clear();
-        zoneLabels.clear();
 
         // no header: the program is on the AUTO sign of the client's row, the phase on the card and the timeline
         boardSub = null;
@@ -1758,12 +1702,6 @@ public final class AutoUi {
                 AutoSession.tip("calib_keys", AiText.t("±1 / ±5 на реда. Качването е плавно: най-много +5 в секунда.",
                         "±1 / ±5 per row. Raising is gradual: at most +5 per second."), now);
                 AutoSession.adjustCalibration(arg / 100, arg % 100 - 50);
-                refreshCalib();
-                return;
-            case A_CALIB_ZONE:
-                AutoSession.tip("calib_zones", AiText.t("± на зона: делът ѝ спрямо програмата, пази се до края.",
-                        "± per zone: its share against the program, kept to the end."), now);
-                AutoSession.adjustZone(arg / 100, (arg % 100) / 2, arg % 2 == 0 ? -10 : 10);
                 refreshCalib();
                 return;
             case A_HOW: {

@@ -256,6 +256,8 @@ public final class AutoModel {
     public static final class Plan {
         public AutoCatalog.Program program;
         public Input input;
+        /** Oldest client on the rows (−1 = none known): the absolute limits use it, so one cycle fits every row. */
+        public int limitAge = -1;
         public final List<Phase> phases = new ArrayList<Phase>();
         /** Whole session: the active part + the passive recovery (cool-down). */
         public int totalS;

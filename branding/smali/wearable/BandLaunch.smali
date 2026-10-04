@@ -246,13 +246,15 @@
 
     move-result v0
 
-    if-nez v0, :cond_69
+    if-nez v0, :cond_6b
 
     .line 50
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->requestConnect(Landroid/app/Activity;)V
+    const-string v0, "link"
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->acquire(Landroid/app/Activity;Ljava/lang/String;)V
 
     .line 52
-    :cond_69
+    :cond_6b
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandLaunch;->main:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandLaunch;->timeout:Lcom/isaigu/gymapp/wearable/BandLaunch$Timeout;
@@ -267,8 +269,8 @@
     const-wide/32 v2, 0xafc8
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-    :try_end_7a
-    .catch Ljava/lang/Throwable; {:try_start_55 .. :try_end_7a} :catch_4e
+    :try_end_7c
+    .catch Ljava/lang/Throwable; {:try_start_55 .. :try_end_7c} :catch_4e
 
     goto :goto_1e
 .end method

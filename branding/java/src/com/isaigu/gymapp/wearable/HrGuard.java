@@ -204,9 +204,13 @@ public final class HrGuard {
                 || !base.isEmpty();
     }
 
+    /**
+     * Any engine driving the strength (AI, Auto, a map, music — ai/OutputOwner): the pulse module works only in the
+     * manual mode, else two writers fight (it read music's / the map's writes as the trainer's base).
+     */
     private static boolean aiOwnsOutput() {
         try {
-            return com.isaigu.gymapp.ai.AiSession.ownsOutput();
+            return com.isaigu.gymapp.ai.OutputOwner.engineDrives();
         } catch (Throwable t) {
             return false;
         }

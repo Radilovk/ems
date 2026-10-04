@@ -95,7 +95,7 @@ export function activationStale(act, body, ts) {
   if (b.app_code && Number(b.app_code) !== Number(act.app_code)) return true;
   if (b.device_model && b.device_model !== act.device_model) return true;
   if (b.lang && b.lang !== act.lang) return true;
-  if (b.setup !== undefined && (b.setup ? 1 : 0) !== (act.setup || 0)) return true;
+  if (b.setup_done && act.setup) return true;          // the tablet finished the setup: the server closes it
   if (Array.isArray(b.ems_local) && JSON.stringify(normMacList(b.ems_local)) !== (act.ems_local || '[]')) return true;
   return false;
 }

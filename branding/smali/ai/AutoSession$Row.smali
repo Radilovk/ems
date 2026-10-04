@@ -53,25 +53,25 @@
 
     const/4 v2, -0x1
 
-    .line 42
+    .line 41
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 45
+    .line 44
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->name:Ljava/lang/String;
 
-    .line 50
+    .line 49
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
 
-    .line 51
+    .line 50
     new-array v0, v3, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
 
-    .line 53
+    .line 52
     const/16 v0, 0x64
 
     # invokes: Lcom/isaigu/gymapp/ai/AutoSession;->full(II)[I
@@ -81,13 +81,13 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneRatio:[I
 
-    .line 54
+    .line 53
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
 
-    .line 55
+    .line 54
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
-    .line 57
+    .line 56
     const-wide/high16 v0, 0x4014000000000000L    # 5.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D

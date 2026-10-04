@@ -17,7 +17,8 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 24
+    .prologue
+    .line 22
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -26,361 +27,160 @@
 .method public static clear()V
     .registers 1
 
-    .line 33
+    .prologue
     const/4 v0, 0x0
 
+    .line 31
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
 
-    .line 34
+    .line 32
     sput v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampUpMs:I
 
-    .line 35
+    .line 33
     sput v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampDownMs:I
 
-    .line 36
+    .line 34
     return-void
 .end method
 
-.method private static encode(I)I
-    .registers 1
-
-    .line 104
-    const/4 p0, 0x0
-
-    return p0
-.end method
-
 .method static fit(III)[I
-    .registers 9
+    .registers 8
 
-    .line 91
-    const/16 v0, 0xbb8
+    .prologue
+    const/16 v2, 0xbb8
 
-    invoke-static {v0, p0}, Ljava/lang/Math;->min(II)I
-
-    move-result p0
-
-    const/4 v1, 0x0
-
-    invoke-static {v1, p0}, Ljava/lang/Math;->max(II)I
-
-    move-result p0
-
-    .line 92
-    invoke-static {v0, p1}, Ljava/lang/Math;->min(II)I
-
-    move-result p1
-
-    invoke-static {v1, p1}, Ljava/lang/Math;->max(II)I
-
-    move-result p1
-
-    .line 93
-    if-lez p2, :cond_18
-
-    mul-int/lit16 p2, p2, 0x3e8
-
-    goto :goto_19
-
-    :cond_18
-    const/4 p2, 0x0
-
-    .line 94
-    :goto_19
-    if-lez p2, :cond_32
-
-    add-int v0, p0, p1
-
-    if-le v0, p2, :cond_32
-
-    .line 95
-    int-to-double v2, p2
-
-    int-to-double v4, v0
-
-    div-double/2addr v2, v4
-
-    .line 96
-    int-to-double v4, p0
-
-    mul-double v4, v4, v2
-
-    invoke-static {v4, v5}, Ljava/lang/Math;->floor(D)D
-
-    move-result-wide v4
-
-    double-to-int p0, v4
-
-    .line 97
-    int-to-double p1, p1
-
-    mul-double p1, p1, v2
-
-    invoke-static {p1, p2}, Ljava/lang/Math;->floor(D)D
-
-    move-result-wide p1
-
-    double-to-int p1, p1
-
-    .line 99
-    :cond_32
-    const/4 p2, 0x2
-
-    new-array p2, p2, [I
-
-    aput p0, p2, v1
-
-    const/4 p0, 0x1
-
-    aput p1, p2, p0
-
-    return-object p2
-.end method
-
-.method public static inputByte()I
-    .registers 1
-
-    .line 40
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
-
-    if-eqz v0, :cond_b
-
-    sget v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampUpMs:I
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiRamp;->encode(I)I
-
-    move-result v0
-
-    goto :goto_c
-
-    :cond_b
-    const/4 v0, 0x0
-
-    :goto_c
-    return v0
-.end method
-
-.method public static inputByte(Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
-    .registers 3
-
-    .line 48
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
-
-    if-nez v0, :cond_12
-
-    if-nez p0, :cond_7
-
-    goto :goto_12
-
-    .line 51
-    :cond_7
-    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
-
-    iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
-
-    iget p0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
-
-    invoke-static {v0, v1, p0}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByteMs(III)I
-
-    move-result p0
-
-    return p0
-
-    .line 49
-    :cond_12
-    :goto_12
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByte()I
-
-    move-result p0
-
-    return p0
-.end method
-
-.method public static inputByteMs(III)I
-    .registers 4
-
-    .line 62
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
-
-    if-eqz v0, :cond_9
-
-    .line 63
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByte()I
-
-    move-result p0
-
-    return p0
-
-    .line 65
-    :cond_9
-    invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/ai/AiRamp;->fit(III)[I
-
-    move-result-object p0
-
-    const/4 p1, 0x0
-
-    aget p0, p0, p1
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiRamp;->encode(I)I
-
-    move-result p0
-
-    return p0
-.end method
-
-.method public static outputByte()I
-    .registers 1
-
-    .line 44
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
-
-    if-eqz v0, :cond_b
-
-    sget v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampDownMs:I
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiRamp;->encode(I)I
-
-    move-result v0
-
-    goto :goto_c
-
-    :cond_b
-    const/4 v0, 0x0
-
-    :goto_c
-    return v0
-.end method
-
-.method public static outputByte(Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
-    .registers 3
+    const/4 v3, 0x0
 
     .line 55
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
+    invoke-static {v2, p0}, Ljava/lang/Math;->min(II)I
 
-    if-nez v0, :cond_12
+    move-result v0
 
-    if-nez p0, :cond_7
+    invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
 
-    goto :goto_12
-
-    .line 58
-    :cond_7
-    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
-
-    iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
-
-    iget p0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
-
-    invoke-static {v0, v1, p0}, Lcom/isaigu/gymapp/ai/AiRamp;->outputByteMs(III)I
-
-    move-result p0
-
-    return p0
+    move-result v1
 
     .line 56
-    :cond_12
-    :goto_12
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->outputByte()I
+    invoke-static {v2, p1}, Ljava/lang/Math;->min(II)I
 
-    move-result p0
+    move-result v0
 
-    return p0
-.end method
+    invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
 
-.method public static outputByteMs(III)I
-    .registers 4
+    move-result v0
 
-    .line 69
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
+    .line 57
+    if-lez p2, :cond_30
 
-    if-eqz v0, :cond_9
+    mul-int/lit16 v2, p2, 0x3e8
 
-    .line 70
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->outputByte()I
+    .line 58
+    :goto_17
+    if-lez v2, :cond_27
 
-    move-result p0
+    add-int v4, v1, v0
 
-    return p0
+    if-le v4, v2, :cond_27
 
-    .line 72
-    :cond_9
-    invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/ai/AiRamp;->fit(III)[I
+    .line 59
+    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
 
-    move-result-object p0
+    move-result v1
 
-    const/4 p1, 0x1
+    .line 60
+    sub-int v0, v2, v1
 
-    aget p0, p0, p1
+    invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
 
-    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiRamp;->encode(I)I
+    move-result v0
 
-    move-result p0
+    .line 62
+    :cond_27
+    const/4 v2, 0x2
 
-    return p0
+    new-array v2, v2, [I
+
+    aput v1, v2, v3
+
+    const/4 v1, 0x1
+
+    aput v0, v2, v1
+
+    return-object v2
+
+    :cond_30
+    move v2, v3
+
+    .line 57
+    goto :goto_17
 .end method
 
 .method public static rampMs(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
-    .registers 4
+    .registers 5
 
-    .line 80
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
+    .prologue
+    const/16 v3, 0xbb8
 
     const/4 v1, 0x2
 
+    .line 41
+    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
+
     if-eqz v0, :cond_1c
 
-    .line 81
-    new-array p0, v1, [I
+    .line 42
+    new-array v0, v1, [I
 
-    const/4 v0, 0x0
+    const/4 v1, 0x0
 
-    sget v1, Lcom/isaigu/gymapp/ai/AiRamp;->rampUpMs:I
+    sget v2, Lcom/isaigu/gymapp/ai/AiRamp;->rampUpMs:I
 
-    const/16 v2, 0xbb8
+    invoke-static {v3, v2}, Ljava/lang/Math;->min(II)I
 
-    invoke-static {v2, v1}, Ljava/lang/Math;->min(II)I
+    move-result v2
 
-    move-result v1
+    aput v2, v0, v1
 
-    aput v1, p0, v0
+    const/4 v1, 0x1
 
-    const/4 v0, 0x1
+    sget v2, Lcom/isaigu/gymapp/ai/AiRamp;->rampDownMs:I
 
-    sget v1, Lcom/isaigu/gymapp/ai/AiRamp;->rampDownMs:I
+    invoke-static {v3, v2}, Ljava/lang/Math;->min(II)I
 
-    invoke-static {v2, v1}, Ljava/lang/Math;->min(II)I
+    move-result v2
 
-    move-result v1
+    aput v2, v0, v1
 
-    aput v1, p0, v0
+    .line 47
+    :goto_1b
+    return-object v0
 
-    return-object p0
-
-    .line 83
+    .line 44
     :cond_1c
     if-nez p0, :cond_24
 
-    .line 84
-    new-array p0, v1, [I
+    .line 45
+    new-array v0, v1, [I
 
-    fill-array-data p0, :array_30
+    fill-array-data v0, :array_30
 
-    return-object p0
+    goto :goto_1b
 
-    .line 86
+    .line 47
     :cond_24
     iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
 
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
 
-    iget p0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
+    iget v2, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    invoke-static {v0, v1, p0}, Lcom/isaigu/gymapp/ai/AiRamp;->fit(III)[I
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiRamp;->fit(III)[I
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    goto :goto_1b
 
+    .line 45
     nop
 
     :array_30
@@ -391,29 +191,30 @@
 .end method
 
 .method public static set(II)V
-    .registers 3
+    .registers 4
 
-    .line 27
+    .prologue
+    const/4 v1, 0x0
+
+    .line 25
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
 
+    .line 26
+    invoke-static {v1, p0}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    sput v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampUpMs:I
+
+    .line 27
+    invoke-static {v1, p1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    sput v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampDownMs:I
+
     .line 28
-    const/4 v0, 0x0
-
-    invoke-static {v0, p0}, Ljava/lang/Math;->max(II)I
-
-    move-result p0
-
-    sput p0, Lcom/isaigu/gymapp/ai/AiRamp;->rampUpMs:I
-
-    .line 29
-    invoke-static {v0, p1}, Ljava/lang/Math;->max(II)I
-
-    move-result p0
-
-    sput p0, Lcom/isaigu/gymapp/ai/AiRamp;->rampDownMs:I
-
-    .line 30
     return-void
 .end method

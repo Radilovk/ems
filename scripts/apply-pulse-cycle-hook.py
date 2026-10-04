@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Block program pulse hook (global runner; UI lives in IntervalTimerHelper)."""
+"""The pulse-cycle hook of TrainItem$2.onFinish (an ON phase begins) → AiSession.onPulseCycle, which drives the
+AI session, Auto and the maps; also installs the interval timer smali.
+
+Before 1.1.331 this was apply-block-program.py: the hook went to the timer's block program first (removed — the
+workouts' maps do blocks, with per-row strength and the limits)."""
 
 from __future__ import annotations
 
@@ -32,20 +36,11 @@ def install_smali() -> None:
 
 def patch_pulse_hook(text: str) -> str:
     hook = (
-        "    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;"
-        "->onPulseCycleComplete(Lcom/isaigu/gymapp/train/model/TrainItem;)V\n\n"
+        "    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;"
+        "->onPulseCycle(Lcom/isaigu/gymapp/train/model/TrainItem;)V\n\n"
     )
-    old_runner = "SegmentProgramRunner;->onPulsePhaseFinished"
-    new_runner = "BlockProgramRunner;->onPulseCycleComplete"
-    if new_runner in text:
-        print("TrainItem$2.onFinish: block program hook already applied")
-        return text
-    if old_runner in text:
-        text = text.replace(
-            "Lcom/isaigu/gymapp/dialog/SegmentProgramRunner;->onPulsePhaseFinished",
-            "Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->onPulseCycleComplete",
-        )
-        print("TrainItem$2.onFinish: upgraded segment hook to block program")
+    if "AiSession;->onPulseCycle" in text:
+        print("TrainItem$2.onFinish: pulse-cycle hook already applied")
         return text
     old = """    :goto_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem$2;->this$0:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -59,7 +54,7 @@ def patch_pulse_hook(text: str) -> str:
     invoke-static {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->access$100(Lcom/isaigu/gymapp/train/model/TrainItem;)V"""
     if old not in text:
         raise RuntimeError("TrainItem$2.onFinish hook marker not found")
-    print("TrainItem$2.onFinish: block program cycle hook")
+    print("TrainItem$2.onFinish: pulse-cycle hook (AiSession)")
     return text.replace(old, new, 1)
 
 
@@ -93,7 +88,7 @@ def main() -> int:
     install_smali()
     TRAIN_ITEM_2.write_text(patch_pulse_hook(TRAIN_ITEM_2.read_text(encoding="utf-8")), encoding="utf-8")
     TRAIN_ITEM.write_text(remove_legacy_train_hooks(TRAIN_ITEM.read_text(encoding="utf-8")), encoding="utf-8")
-    print("apply-block-program: done")
+    print("apply-pulse-cycle-hook: done")
     return 0
 
 

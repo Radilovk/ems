@@ -301,7 +301,6 @@ Band 8 има IMU, но **в разчетения протокол (Gadgetbridge
 
 ```bash
 bash build-apk.sh          # пълна сглобка → xems27.apk, RELEASE_VERSION
-python3 scripts/verify-apk-hrfix.py
 ```
 
 - `scripts/compile-wearable-java.sh` компилира `wearable/**.java` → d8 → baksmali →

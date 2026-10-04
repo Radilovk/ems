@@ -31,6 +31,7 @@
 .method constructor <init>(Landroid/app/Activity;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;I)V
     .registers 5
 
+    .prologue
     .line 1130
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -55,6 +56,7 @@
 .method public run()V
     .registers 4
 
+    .prologue
     .line 1139
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->token:I
 
@@ -65,7 +67,8 @@
 
     if-eq v0, v1, :cond_9
 
-    .line 1140
+    .line 1143
+    :goto_8
     return-void
 
     .line 1142
@@ -79,6 +82,5 @@
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->finishStartPlayer(Landroid/app/Activity;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;)V
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$400(Landroid/app/Activity;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;)V
 
-    .line 1143
-    return-void
+    goto :goto_8
 .end method

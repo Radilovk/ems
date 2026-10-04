@@ -17,11 +17,11 @@ import android.widget.TextView;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainUser;
-import com.isaigu.gymapp.dialog.BlockProgramRunner;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
 import com.isaigu.gymapp.train.utils.MusicSync;
+import com.isaigu.gymapp.wearable.SafeGuard;
 import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 import com.isaigu.gymapp.widget.XemsUi;
 
@@ -55,6 +55,8 @@ public final class MapRunner {
     private static final Map<TrainItem, Integer> base = new HashMap<TrainItem, Integer>();
     /** Each row's own impulse before the map (Hz, µs, ON, OFF, active pause, its Hz and %, ramps): put back on stop. */
     private static final Map<TrainItem, int[]> own = new HashMap<TrainItem, int[]>();
+    /** What the map last wrote to each row (same order): on stop only the values still the map's go back. */
+    private static final Map<TrainItem, int[]> wrote = new HashMap<TrainItem, int[]>();
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable ticker = new Ticker();
 
@@ -92,20 +94,9 @@ public final class MapRunner {
             return AiText.t("Програмите с упражнения вървят в Авто или AI — Авто не е отключен.",
                     "Exercise programs run in Auto or AI — Auto is not unlocked.");
         }
-        try {
-            if (AiSession.ownsOutput() || AiSession.getStage() == AiSession.Stage.RUNNING) {
-                return AiText.t("Първо спри AI сесията.", "Stop the AI session first.");
-            }
-            if (AutoSession.isActive()) {
-                return AiText.t("Първо спри Авто.", "Stop Auto first.");
-            }
-            if (MusicSync.isRunning() || MasterStrengthControl.isSyncActive()) {
-                return AiText.t("Изключи музикалния синхрон.", "Turn music sync off.");
-            }
-            if (BlockProgramRunner.isArmed()) {
-                return AiText.t("Изключи блоковата програма на таймера.", "Disarm the timer block program.");
-            }
-        } catch (Throwable ignored) {
+        String other = OutputOwner.conflict(OutputOwner.MAP);
+        if (other != null) {
+            return other;
         }
         List<TrainItem> rows = rows();
         if (rows.isEmpty()) {
@@ -124,6 +115,7 @@ public final class MapRunner {
         idleS = 0;
         base.clear();
         own.clear();
+        wrote.clear();
         for (TrainItem it : rows) {
             ProgramDataBean b = bean(it);
             base.put(it, b != null ? b.strenth : 0);
@@ -283,15 +275,22 @@ public final class MapRunner {
             Integer s = base.get(it);
             int[] o = own.get(it);
             if (b != null && o != null) {                       // the row's own impulse back
-                b.hz = o[0];
-                b.pulseWidth = o[1];
-                b.pulseContinue = o[2];
-                b.pulsePause = o[3];
-                b.activePause = o[4] == 1;
-                b.pauseHz = o[5];
-                b.pauseStrenthPercent = o[6];
-                b.inputRamp = o[7];
-                b.outputRamp = o[8];
+                // a value the trainer changed during the map (⚙, + / −) stays: only the map's own values go back
+                int[] w = wrote.get(it);
+                int[] now = snap(b);
+                int[] back = new int[now.length];
+                for (int i = 0; i < now.length; i++) {
+                    back[i] = w == null || now[i] == w[i] ? o[i] : now[i];
+                }
+                b.hz = back[0];
+                b.pulseWidth = back[1];
+                b.pulseContinue = back[2];
+                b.pulsePause = back[3];
+                b.activePause = back[4] == 1;
+                b.pauseHz = back[5];
+                b.pauseStrenthPercent = back[6];
+                b.inputRamp = back[7];
+                b.outputRamp = back[8];
             }
             if (b != null && s != null) {
                 b.strenth = s;                                   // the trainer's strength back
@@ -314,6 +313,7 @@ public final class MapRunner {
         clock = null;
         base.clear();
         own.clear();
+        wrote.clear();
         AiEnergy.exerciseMet = 0;
         hideCard();
     }
@@ -448,6 +448,8 @@ public final class MapRunner {
                 bean.inputRamp = b.rampIn;
                 bean.outputRamp = b.rampOut;
             }
+            SafeGuard.clamp(it, bean);                         // the limits before the write, the row's own age
+            wrote.put(it, snap(bean));
             if (it.data != null && it.data.inStart) {
                 it.data.secondValue = bean.pulseContinue;
             }
@@ -475,7 +477,8 @@ public final class MapRunner {
         }
         AutoModel.Step s = dyn.cycle(stepOf(b), true);
         cur = s;
-        clock.setCycleS(s.onS + Math.max(1, s.offS));
+        int cycleS = s.onS + Math.max(1, s.offS);
+        boolean first = true;
         for (TrainItem it : rows()) {
             ProgramDataBean bean = bean(it);
             if (bean == null) {
@@ -493,6 +496,12 @@ public final class MapRunner {
             }
             bean.inputRamp = s.rampUpMs;
             bean.outputRamp = s.rampDownMs;
+            SafeGuard.clamp(it, bean);
+            wrote.put(it, snap(bean));
+            if (first) {
+                cycleS = bean.pulseContinue + Math.max(1, bean.pulsePause);   // the clock runs on what is sent
+                first = false;
+            }
             if (it.data != null && it.data.inStart) {
                 it.data.secondValue = bean.pulseContinue;
             }
@@ -502,10 +511,17 @@ public final class MapRunner {
                 WearableBleDiagLog.log("map", "onParamsChange: " + t);
             }
         }
+        clock.setCycleS(cycleS);
         try {
             MasterStrengthControl.resetApplied();
         } catch (Throwable ignored) {
         }
+    }
+
+    /** A row's impulse in the order of {@link #own}. */
+    private static int[] snap(ProgramDataBean b) {
+        return new int[] {b.hz, b.pulseWidth, b.pulseContinue, b.pulsePause, b.activePause ? 1 : 0, b.pauseHz,
+            b.pauseStrenthPercent, b.inputRamp, b.outputRamp};
     }
 
     private static List<TrainItem> rows() {

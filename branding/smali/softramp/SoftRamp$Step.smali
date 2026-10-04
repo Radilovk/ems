@@ -34,25 +34,25 @@
     .registers 7
 
     .prologue
-    .line 161
+    .line 184
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 162
+    .line 185
     iput-object p1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 163
+    .line 186
     iput p2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->g:I
 
-    .line 164
+    .line 187
     iput p3, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->workLength:I
 
-    .line 165
+    .line 188
     iput-wide p4, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->f:D
 
-    .line 166
+    .line 189
     iput-boolean p6, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->last:Z
 
-    .line 167
+    .line 190
     return-void
 .end method
 
@@ -62,7 +62,7 @@
     .registers 7
 
     .prologue
-    .line 172
+    .line 195
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -74,17 +74,17 @@
 
     if-nez v0, :cond_b
 
-    .line 188
+    .line 211
     :goto_a
     return-void
 
-    .line 175
+    .line 198
     :cond_b
     iget-boolean v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->last:Z
 
     if-eqz v0, :cond_37
 
-    .line 176
+    .line 199
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->scale:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$000()Ljava/util/WeakHashMap;
 
@@ -94,7 +94,7 @@
 
     invoke-virtual {v0, v1}, Ljava/util/WeakHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 183
+    .line 206
     :cond_18
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -106,7 +106,7 @@
 
     move-result-object v1
 
-    .line 184
+    .line 207
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -123,18 +123,18 @@
 
     goto :goto_a
 
-    .line 185
+    .line 208
     :catch_30
     move-exception v0
 
-    .line 186
+    .line 209
     const-string v1, "SoftRamp.step"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_a
 
-    .line 178
+    .line 201
     :cond_37
     :try_start_37
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->scale:Ljava/util/WeakHashMap;
@@ -152,7 +152,7 @@
 
     invoke-virtual {v0, v1, v2}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 179
+    .line 202
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;

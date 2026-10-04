@@ -25,8 +25,14 @@ APK_SOURCE_PREFIXES = (
     "branding/smali/",
     "translations/",
     "scripts/apply-",
+    "scripts/remove-",
     "scripts/compile-",
+    "branding/layouts/",
+    "build-apk.sh",
 )
+
+# Hand-written smali kept on purpose (no Java source).
+SMALI_WITHOUT_JAVA = {"ThemeUtils"}
 
 APK_ARTIFACTS = (
     "xems27.apk",
@@ -74,6 +80,59 @@ def check_band_versions() -> list[str]:
             )
     if app_ux.is_file() and f"const APP_VERSION = {code}" not in app_ux.read_text(encoding="utf-8"):
         errors.append(f"band-app/src/app.ux APP_VERSION != manifest versionCode ({code})")
+    return errors
+
+
+def java_sources() -> dict[str, Path]:
+    out: dict[str, Path] = {}
+    for p in (ROOT / "branding" / "java" / "src").rglob("*.java"):
+        out[p.stem] = p
+    return out
+
+
+def java_code(text: str) -> str:
+    """The Java without comments and whitespace: a comment-only edit compiles to the same smali."""
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", "", text)
+    return re.sub(r"\s+", "", text)
+
+
+def code_changed(base: str, path: str) -> bool:
+    try:
+        old = git("show", f"{base}:{path}")
+    except subprocess.CalledProcessError:
+        return True
+    return java_code(old) != java_code((ROOT / path).read_text(encoding="utf-8"))
+
+
+def check_smali_matches_java(files: list[str], base: str = "origin/main") -> list[str]:
+    """
+    branding/smali is compiler output of branding/java. Two drifts ship silently otherwise:
+    a Java edit whose smali was never regenerated (missing SDK, a class left out of a compile list), and smali
+    whose Java was deleted (still copied into the APK).
+    """
+    errors: list[str] = []
+    smali_root = ROOT / "branding" / "smali"
+    by_outer: dict[str, list[str]] = {}
+    for p in smali_root.rglob("*.smali"):
+        by_outer.setdefault(p.stem.split("$")[0], []).append(p.relative_to(ROOT).as_posix())
+    java = java_sources()
+    orphans = sorted(o for o in by_outer if o not in java and o not in SMALI_WITHOUT_JAVA)
+    if orphans:
+        errors.append("smali without Java source (delete it): " + ", ".join(orphans))
+    changed = set(files)
+    stale = []
+    for f in files:
+        if not (f.startswith("branding/java/src/") and f.endswith(".java")) or not (ROOT / f).is_file():
+            continue
+        smali = by_outer.get(Path(f).stem)
+        if smali and not any(s in changed for s in smali) and code_changed(base, f):
+            stale.append(Path(f).stem)
+    if stale:
+        errors.append(
+            "Java changed but its smali was not regenerated: " + ", ".join(sorted(stale))
+            + "\n  Fix: run the class's compile script (MAP: compile:X) and commit branding/smali."
+        )
     return errors
 
 
@@ -143,6 +202,7 @@ def main() -> int:
             args.base = git("hash-object", "-t", "tree", "/dev/null")
 
     errors = verify_shipment(args.base, args.head)
+    errors.extend(check_smali_matches_java(changed_files(args.base, args.head), args.base))
     errors.extend(check_band_versions())
     if not args.skip_worktree:
         errors.extend(verify_worktree_clean())

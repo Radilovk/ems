@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 32
+    .line 31
     const/4 v0, 0x5
 
     new-array v0, v0, [Lcom/isaigu/gymapp/ai/AutoSession$Stage;
@@ -84,7 +84,7 @@
     .registers 3
 
     .prologue
-    .line 32
+    .line 31
     new-instance v0, Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     const-string v1, "IDLE"
@@ -153,7 +153,7 @@
     .end annotation
 
     .prologue
-    .line 32
+    .line 31
     invoke-direct {p0, p1, p2}, Ljava/lang/Enum;-><init>(Ljava/lang/String;I)V
 
     return-void
@@ -163,7 +163,7 @@
     .registers 2
 
     .prologue
-    .line 32
+    .line 31
     const-class v0, Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     invoke-static {v0, p0}, Ljava/lang/Enum;->valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
@@ -179,7 +179,7 @@
     .registers 1
 
     .prologue
-    .line 32
+    .line 31
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->$VALUES:[Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     invoke-virtual {v0}, [Lcom/isaigu/gymapp/ai/AutoSession$Stage;->clone()Ljava/lang/Object;

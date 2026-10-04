@@ -258,16 +258,11 @@ public final class XemsLocalSection {
                 .setTitle(tr("Край на настройката?", "Finish setup?"))
                 .setMessage(tr("Таблетът минава в потребителски режим: модулите следват лиценза, "
                                 + "виждат се само сдвоените костюми (" + XemsLocalStore.pairedCount(a) + ") "
-                                + "и тези, които сървърът добави. Обратно в настройка — с ключ 0123.",
+                                + "и тези, които сървърът добави. Обратно в настройка — с админ паролата "
+                                + "в „Достъп и лиценз“.",
                         "The tablet switches to user mode: modules follow the licence and only the paired "
                                 + "suits (" + XemsLocalStore.pairedCount(a) + ") and those the server adds "
-                                + "are shown. Back to setup with the key 0123.")
-                        + (XemsLicense.isAdminKey()
-                        ? tr("\n\nВНИМАНИЕ: активният ключ е 0123 — клиентът ще остане с пълни права. "
-                                + "Въведи първо ключа на клиента.",
-                        "\n\nWARNING: the active key is 0123, the customer keeps full rights. "
-                                + "Enter the customer's key first.")
-                        : ""))
+                                + "are shown. Back to setup with the admin password in \"Access & licence\"."))
                 .setPositiveButton(tr("Заключи", "Lock"), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface d, int which) {
                         XemsLocalStore.finishSetup();

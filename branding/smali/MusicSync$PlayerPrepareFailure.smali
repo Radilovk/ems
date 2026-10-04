@@ -25,6 +25,7 @@
 .method constructor <init>(I)V
     .registers 2
 
+    .prologue
     .line 1149
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,6 +41,7 @@
 .method public run()V
     .registers 3
 
+    .prologue
     .line 1155
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareFailure;->token:I
 
@@ -50,7 +52,8 @@
 
     if-eq v0, v1, :cond_9
 
-    .line 1156
+    .line 1161
+    :goto_8
     return-void
 
     .line 1158
@@ -69,6 +72,5 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 1161
-    return-void
+    goto :goto_8
 .end method

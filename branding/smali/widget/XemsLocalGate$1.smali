@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalGate;->onLoginView(Ljava/lang/Object;Landroid/view/View;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalGate;->attach(Landroid/app/Activity;Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,15 +18,21 @@
 
 
 # instance fields
-.field final synthetic val$fragment:Ljava/lang/Object;
+.field final synthetic val$a:Landroid/app/Activity;
 
 
 # direct methods
-.method constructor <init>(Ljava/lang/Object;)V
+.method constructor <init>(Landroid/app/Activity;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 61
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;->val$fragment:Ljava/lang/Object;
+    .prologue
+    .line 145
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,14 +42,34 @@
 
 # virtual methods
 .method public run()V
-    .registers 2
+    .registers 4
 
-    .line 64
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;->val$fragment:Ljava/lang/Object;
+    .prologue
+    .line 148
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;->val$a:Landroid/app/Activity;
 
-    # invokes: Lcom/isaigu/gymapp/widget/XemsLocalGate;->autoLogin(Ljava/lang/Object;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->access$000(Ljava/lang/Object;)V
+    const-string v1, "\u0420\u0435\u0441\u0442\u0430\u0440\u0442 \u043a\u044a\u043c \u0432\u0445\u043e\u0434\u0430\u2026"
 
-    .line 65
+    const-string v2, "Restarting to login\u2026"
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v2, 0x0
+
+    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+
+    move-result-object v0
+
+    .line 149
+    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
+
+    .line 150
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;->val$a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->restartToLogin(Landroid/app/Activity;)V
+
+    .line 151
     return-void
 .end method

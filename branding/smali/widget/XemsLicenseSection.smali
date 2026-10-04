@@ -1019,43 +1019,43 @@
 
     const/high16 v2, 0x41400000    # 12.0f
 
-    .line 332
+    .line 345
     new-instance v0, Landroid/widget/EditText;
 
     invoke-direct {v0, p0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 333
+    .line 346
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
-    .line 334
+    .line 347
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 335
+    .line 348
     const/high16 v1, 0x41800000    # 16.0f
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextSize(F)V
 
-    .line 336
+    .line 349
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 337
+    .line 350
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 338
+    .line 351
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 339
+    .line 352
     invoke-virtual {v0, v1, v3, v1, v3}, Landroid/widget/EditText;->setPadding(IIII)V
 
-    .line 340
+    .line 353
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -1078,7 +1078,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 341
+    .line 354
     return-object v0
 .end method
 
@@ -1086,7 +1086,7 @@
     .registers 3
 
     .prologue
-    .line 313
+    .line 326
     const-string v0, "timer"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1095,7 +1095,7 @@
 
     if-eqz v0, :cond_11
 
-    .line 314
+    .line 327
     const-string v0, "\u0422\u0430\u0439\u043c\u0435\u0440"
 
     const-string v1, "Timer"
@@ -1104,11 +1104,11 @@
 
     move-result-object v0
 
-    .line 328
+    .line 341
     :goto_10
     return-object v0
 
-    .line 316
+    .line 329
     :cond_11
     const-string v0, "music"
 
@@ -1118,7 +1118,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 317
+    .line 330
     const-string v0, "\u041c\u0443\u0437\u0438\u043a\u0430"
 
     const-string v1, "Music"
@@ -1129,7 +1129,7 @@
 
     goto :goto_10
 
-    .line 319
+    .line 332
     :cond_22
     const-string v0, "pulse"
 
@@ -1139,7 +1139,7 @@
 
     if-eqz v0, :cond_33
 
-    .line 320
+    .line 333
     const-string v0, "\u041f\u0443\u043b\u0441"
 
     const-string v1, "Heart rate"
@@ -1150,7 +1150,7 @@
 
     goto :goto_10
 
-    .line 322
+    .line 335
     :cond_33
     const-string v0, "ai"
 
@@ -1160,12 +1160,12 @@
 
     if-eqz v0, :cond_3e
 
-    .line 323
+    .line 336
     const-string v0, "AI"
 
     goto :goto_10
 
-    .line 325
+    .line 338
     :cond_3e
     const-string v0, "auto"
 
@@ -1175,7 +1175,7 @@
 
     if-eqz v0, :cond_4f
 
-    .line 326
+    .line 339
     const-string v0, "\u0410\u0432\u0442\u043e"
 
     const-string v1, "Auto"
@@ -1186,7 +1186,7 @@
 
     goto :goto_10
 
-    .line 328
+    .line 341
     :cond_4f
     const-string v0, "\u0427\u0430\u0441\u043e\u0432\u043d\u0438\u043a"
 
@@ -1204,7 +1204,7 @@
 
     .prologue
     .line 231
-    if-eqz p3, :cond_2a
+    if-eqz p3, :cond_3b
 
     .line 232
     const-string v0, "reset"
@@ -1223,7 +1223,7 @@
 
     move-result-object v0
 
-    .line 233
+    .line 234
     :goto_12
     const/4 v1, 0x0
 
@@ -1232,21 +1232,41 @@
 
     move-result-object v0
 
-    .line 233
+    .line 234
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 235
+    .line 236
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->attach(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 236
+    .line 237
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->onLicenseChanged()V
 
-    .line 241
+    .line 242
     :goto_20
     return-void
 
     .line 233
     :cond_21
+    const-string v0, "setup"
+
+    invoke-virtual {v0, p4}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_32
+
+    const-string v0, "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430\u0442\u0430 \u0435 \u043e\u0442\u0432\u043e\u0440\u0435\u043d\u0430"
+
+    const-string v1, "Setup opened"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_12
+
+    .line 234
+    :cond_32
     const-string v0, "\u041c\u043e\u0434\u0443\u043b\u0438\u0442\u0435 \u0441\u0430 \u043e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u0438"
 
     const-string v1, "Modules unlocked"
@@ -1257,13 +1277,13 @@
 
     goto :goto_12
 
-    .line 239
-    :cond_2a
+    .line 240
+    :cond_3b
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     invoke-virtual {p2, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 240
+    .line 241
     invoke-static {p4}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->reason(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
@@ -1277,7 +1297,7 @@
     .registers 4
 
     .prologue
-    .line 275
+    .line 282
     const-string v0, "no_server"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1286,7 +1306,7 @@
 
     if-eqz v0, :cond_11
 
-    .line 276
+    .line 283
     const-string v0, "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u0435\u043d \u043a\u043b\u044e\u0447. \u041e\u0442\u043a\u043b\u044e\u0447\u0432\u0430\u043d\u0435 \u043f\u0440\u0435\u0437 \u0438\u043d\u0442\u0435\u0440\u043d\u0435\u0442 \u043e\u0449\u0435 \u043d\u0435 \u0435 \u043d\u0430\u043b\u0438\u0447\u043d\u043e."
 
     const-string v1, "Invalid key. Online unlocking is not available yet."
@@ -1295,11 +1315,11 @@
 
     move-result-object v0
 
-    .line 309
+    .line 322
     :goto_10
     return-object v0
 
-    .line 279
+    .line 286
     :cond_11
     const-string v0, "offline"
 
@@ -1309,7 +1329,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 280
+    .line 287
     const-string v0, "\u041d\u044f\u043c\u0430 \u0432\u0440\u044a\u0437\u043a\u0430 \u0441\u044a\u0441 \u0441\u044a\u0440\u0432\u044a\u0440\u0430. \u041e\u043f\u0438\u0442\u0430\u0439 \u043f\u0430\u043a."
 
     const-string v1, "Cannot reach the server. Try again."
@@ -1320,7 +1340,7 @@
 
     goto :goto_10
 
-    .line 282
+    .line 289
     :cond_22
     const-string v0, "invalid_key"
 
@@ -1330,7 +1350,7 @@
 
     if-eqz v0, :cond_33
 
-    .line 283
+    .line 290
     const-string v0, "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u0435\u043d \u043a\u043b\u044e\u0447"
 
     const-string v1, "Invalid key"
@@ -1341,7 +1361,7 @@
 
     goto :goto_10
 
-    .line 285
+    .line 292
     :cond_33
     const-string v0, "expired"
 
@@ -1351,7 +1371,7 @@
 
     if-eqz v0, :cond_44
 
-    .line 286
+    .line 293
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u0438\u0437\u0442\u0435\u043a\u044a\u043b"
 
     const-string v1, "The key has expired"
@@ -1362,7 +1382,7 @@
 
     goto :goto_10
 
-    .line 288
+    .line 295
     :cond_44
     const-string v0, "device_limit"
 
@@ -1372,7 +1392,7 @@
 
     if-eqz v0, :cond_55
 
-    .line 289
+    .line 296
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0432\u0435\u0447\u0435 \u0435 \u043f\u043e\u043b\u0437\u0432\u0430\u043d \u043d\u0430 \u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c\u0430 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0430"
 
     const-string v1, "The key is already used on the maximum number of devices"
@@ -1383,15 +1403,57 @@
 
     goto :goto_10
 
-    .line 291
+    .line 298
     :cond_55
+    const-string v0, "pending"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_66
+
+    .line 299
+    const-string v0, "\u0422\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u0447\u0430\u043a\u0430 \u043e\u0434\u043e\u0431\u0440\u0435\u043d\u0438\u0435 \u043e\u0442 \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440\u0430"
+
+    const-string v1, "The tablet is waiting for the admin\'s approval"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_10
+
+    .line 301
+    :cond_66
+    const-string v0, "not_setup_code"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_77
+
+    .line 302
+    const-string v0, "\u0413\u0440\u0435\u0448\u043d\u0430 \u043f\u0430\u0440\u043e\u043b\u0430"
+
+    const-string v1, "Wrong password"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_10
+
+    .line 304
+    :cond_77
     const-string v0, "revoked"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_65
+    if-nez v0, :cond_87
 
     const-string v0, "disabled"
 
@@ -1399,10 +1461,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_6e
+    if-eqz v0, :cond_90
 
-    .line 292
-    :cond_65
+    .line 305
+    :cond_87
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u0441\u043f\u0440\u044f\u043d"
 
     const-string v1, "The key is disabled"
@@ -1413,15 +1475,15 @@
 
     goto :goto_10
 
-    .line 294
-    :cond_6e
+    .line 307
+    :cond_90
     const-string v0, "no_server_key"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_86
+    if-nez v0, :cond_a8
 
     const-string v0, "bad_signature"
 
@@ -1429,7 +1491,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_86
+    if-nez v0, :cond_a8
 
     const-string v0, "bad_token"
 
@@ -1437,10 +1499,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_8f
+    if-eqz v0, :cond_b2
 
-    .line 295
-    :cond_86
+    .line 308
+    :cond_a8
     const-string v0, "\u041e\u0442\u0433\u043e\u0432\u043e\u0440\u044a\u0442 \u043d\u0430 \u0441\u044a\u0440\u0432\u044a\u0440\u0430 \u043d\u0435 \u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d (\u043f\u043e\u0434\u043f\u0438\u0441)"
 
     const-string v1, "The server answer failed the signature check"
@@ -1449,19 +1511,19 @@
 
     move-result-object v0
 
-    goto :goto_10
+    goto/16 :goto_10
 
-    .line 297
-    :cond_8f
+    .line 310
+    :cond_b2
     const-string v0, "other_device"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_a1
+    if-eqz v0, :cond_c4
 
-    .line 298
+    .line 311
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u0438\u0437\u0434\u0430\u0434\u0435\u043d \u0437\u0430 \u0434\u0440\u0443\u0433\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e"
 
     const-string v1, "The key was issued for another device"
@@ -1472,17 +1534,17 @@
 
     goto/16 :goto_10
 
-    .line 300
-    :cond_a1
+    .line 313
+    :cond_c4
     const-string v0, "bad_checksum"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_b3
+    if-eqz v0, :cond_d6
 
-    .line 301
+    .line 314
     const-string v0, "\u0418\u0437\u0442\u0435\u0433\u043b\u0435\u043d\u0438\u044f\u0442 \u0444\u0430\u0439\u043b \u0435 \u043f\u043e\u0432\u0440\u0435\u0434\u0435\u043d"
 
     const-string v1, "The download is damaged"
@@ -1493,17 +1555,17 @@
 
     goto/16 :goto_10
 
-    .line 303
-    :cond_b3
+    .line 316
+    :cond_d6
     const-string v0, "download_failed"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_c5
+    if-eqz v0, :cond_e8
 
-    .line 304
+    .line 317
     const-string v0, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u0442\u043e \u043d\u0435 \u043c\u0438\u043d\u0430"
 
     const-string v1, "Download failed"
@@ -1514,17 +1576,17 @@
 
     goto/16 :goto_10
 
-    .line 306
-    :cond_c5
+    .line 319
+    :cond_e8
     const-string v0, "install_failed"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_d7
+    if-eqz v0, :cond_fa
 
-    .line 307
+    .line 320
     const-string v0, "\u0418\u043d\u0441\u0442\u0430\u043b\u0430\u0442\u043e\u0440\u044a\u0442 \u043d\u0435 \u0441\u0435 \u043e\u0442\u0432\u043e\u0440\u0438"
 
     const-string v1, "The installer did not open"
@@ -1535,8 +1597,8 @@
 
     goto/16 :goto_10
 
-    .line 309
-    :cond_d7
+    .line 322
+    :cond_fa
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1568,21 +1630,21 @@
     .registers 10
 
     .prologue
-    .line 254
+    .line 258
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->source()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 255
+    .line 259
     const-string v0, "arms_full"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->hasFeature(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_36
+    if-eqz v0, :cond_3e
 
-    .line 256
+    .line 260
     const-string v0, " \u00b7 \u0440\u044a\u0446\u0435\u0442\u0435 \u0441 \u043d\u043e\u0440\u043c\u0430\u043b\u043d\u0430 \u0441\u0438\u043b\u0430 (\u0441\u0442\u044a\u043f\u043a\u0430 1:1)"
 
     const-string v2, " \u00b7 arms at normal strength (step 1:1)"
@@ -1591,34 +1653,43 @@
 
     move-result-object v0
 
-    .line 257
+    .line 261
     :goto_14
-    const-string v2, "code"
-
-    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isPending()Z
 
     move-result v2
 
-    if-eqz v2, :cond_39
+    if-eqz v2, :cond_41
 
-    .line 258
-    new-instance v1, Ljava/lang/StringBuilder;
+    invoke-virtual {v1}, Ljava/lang/String;->length()I
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    move-result v2
 
-    const-string v2, "\u041e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u043e \u0441 \u043a\u043e\u0434 \u00b7 \u0431\u0435\u0437 \u0441\u0440\u043e\u043a"
+    if-nez v2, :cond_41
 
-    const-string v3, "Unlocked with a code \u00b7 no end date"
+    .line 262
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    move-result-object v2
+    const-string v1, "\u0412\u044a\u0432\u0435\u0434\u0438 \u0430\u0434\u043c\u0438\u043d \u043f\u0430\u0440\u043e\u043b\u0430\u0442\u0430 \u0432 \u043f\u043e\u043b\u0435\u0442\u043e \u043e\u0442\u0434\u043e\u043b\u0443 \u2014 \u0442\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u0441\u0435 \u043e\u0442\u043a\u043b\u044e\u0447\u0432\u0430 \u0432\u0435\u0434\u043d\u0430\u0433\u0430 (\u0438\u043b\u0438 \u0433\u043e \u043e\u0434\u043e\u0431\u0440\u0438 \u043e\u0442 \u0430\u0434\u043c\u0438\u043d \u043f\u0430\u043d\u0435\u043b\u0430). \u041d\u043e\u043c\u0435\u0440 \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430: "
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v2, "Type the admin password in the field below \u2014 the tablet unlocks at once (or approve it in the admin panel). Tablet number: "
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    .line 265
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->deviceIdShown()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -1626,42 +1697,42 @@
 
     move-result-object v0
 
-    .line 270
-    :goto_35
+    .line 277
+    :goto_3d
     return-object v0
 
-    .line 256
-    :cond_36
+    .line 260
+    :cond_3e
     const-string v0, ""
 
     goto :goto_14
 
-    .line 260
-    :cond_39
+    .line 267
+    :cond_41
     const-string v2, "server"
 
     invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_f8
+    if-eqz v1, :cond_100
 
-    .line 261
+    .line 268
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->expiresS()J
 
     move-result-wide v2
 
-    .line 262
+    .line 269
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->plan()Ljava/lang/String;
 
     move-result-object v4
 
-    .line 263
+    .line 270
     const-wide/16 v6, 0x0
 
     cmp-long v1, v2, v6
 
-    if-nez v1, :cond_c2
+    if-nez v1, :cond_ca
 
     const-string v1, "\u0431\u0435\u0437 \u0441\u0440\u043e\u043a"
 
@@ -1671,13 +1742,13 @@
 
     move-result-object v1
 
-    .line 265
-    :goto_57
+    .line 272
+    :goto_5f
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->graceDaysLeft()I
 
     move-result v3
 
-    .line 266
+    .line 273
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -1686,7 +1757,7 @@
 
     move-result v2
 
-    if-lez v2, :cond_f2
+    if-lez v2, :cond_fa
 
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -1718,7 +1789,7 @@
 
     move-result-object v2
 
-    :goto_85
+    :goto_8d
     invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -1727,8 +1798,8 @@
 
     move-result-object v2
 
-    .line 267
-    if-ltz v3, :cond_f5
+    .line 274
+    if-ltz v3, :cond_fd
 
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -1766,7 +1837,7 @@
 
     move-result-object v1
 
-    :goto_b4
+    :goto_bc
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -1779,10 +1850,10 @@
 
     move-result-object v0
 
-    goto/16 :goto_35
+    goto/16 :goto_3d
 
-    .line 264
-    :cond_c2
+    .line 271
+    :cond_ca
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1827,22 +1898,22 @@
 
     move-result-object v1
 
-    goto/16 :goto_57
+    goto/16 :goto_5f
 
-    .line 266
-    :cond_f2
+    .line 273
+    :cond_fa
     const-string v2, ""
 
-    goto :goto_85
+    goto :goto_8d
 
-    .line 267
-    :cond_f5
+    .line 274
+    :cond_fd
     const-string v1, ""
 
-    goto :goto_b4
+    goto :goto_bc
 
-    .line 270
-    :cond_f8
+    .line 277
+    :cond_100
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0431\u0435\u0437 \u0434\u043e\u043f\u044a\u043b\u043d\u0438\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u043c\u043e\u0434\u0443\u043b\u0438. \u0412\u044a\u0432\u0435\u0434\u0438 \u043a\u043b\u044e\u0447, \u0437\u0430 \u0434\u0430 \u0433\u0438 \u043e\u0442\u043a\u043b\u044e\u0447\u0438\u0448."
 
     const-string v1, "Training without the add-on modules. Enter a key to unlock them."
@@ -1851,21 +1922,52 @@
 
     move-result-object v0
 
-    goto/16 :goto_35
+    goto/16 :goto_3d
 .end method
 
 .method static statusTitle()Ljava/lang/String;
     .registers 2
 
     .prologue
-    .line 244
+    .line 245
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isPending()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_19
+
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->source()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-nez v0, :cond_19
+
+    .line 246
+    const-string v0, "\u0427\u0430\u043a\u0430 \u043e\u0434\u043e\u0431\u0440\u0435\u043d\u0438\u0435"
+
+    const-string v1, "Waiting for approval"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 254
+    :goto_18
+    return-object v0
+
+    .line 248
+    :cond_19
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isFull()Z
 
     move-result v0
 
-    if-eqz v0, :cond_f
+    if-eqz v0, :cond_28
 
-    .line 245
+    .line 249
     const-string v0, "\u041f\u044a\u043b\u0435\u043d \u0434\u043e\u0441\u0442\u044a\u043f"
 
     const-string v1, "Full access"
@@ -1874,12 +1976,10 @@
 
     move-result-object v0
 
-    .line 250
-    :goto_e
-    return-object v0
+    goto :goto_18
 
-    .line 247
-    :cond_f
+    .line 251
+    :cond_28
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->unlockedList()Ljava/util/List;
 
     move-result-object v0
@@ -1888,9 +1988,9 @@
 
     move-result v0
 
-    if-nez v0, :cond_22
+    if-nez v0, :cond_3b
 
-    .line 248
+    .line 252
     const-string v0, "\u0427\u0430\u0441\u0442\u0438\u0447\u0435\u043d \u0434\u043e\u0441\u0442\u044a\u043f"
 
     const-string v1, "Partial access"
@@ -1899,10 +1999,10 @@
 
     move-result-object v0
 
-    goto :goto_e
+    goto :goto_18
 
-    .line 250
-    :cond_22
+    .line 254
+    :cond_3b
     const-string v0, "\u0411\u0430\u0437\u043e\u0432 \u0440\u0435\u0436\u0438\u043c"
 
     const-string v1, "Base mode"
@@ -1911,14 +2011,14 @@
 
     move-result-object v0
 
-    goto :goto_e
+    goto :goto_18
 .end method
 
 .method static tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 346
+    .line 359
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     :try_end_3
@@ -1926,11 +2026,11 @@
 
     move-result-object p0
 
-    .line 348
+    .line 361
     :goto_4
     return-object p0
 
-    .line 347
+    .line 360
     :catch_5
     move-exception v0
 

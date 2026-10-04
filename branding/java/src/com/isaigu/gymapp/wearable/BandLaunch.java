@@ -47,7 +47,7 @@ public final class BandLaunch {
             }
             toast(WearableUi.tr("Свързване с гривната…", "Connecting to the band…"));
             if (!NotifyWearableBridge.isLinkUp()) {
-                NotifyWearableBridge.requestConnect(a);
+                NotifyWearableBridge.acquire(a, NotifyWearableBridge.OWNER_LINK);   // the link, not the pulse
             }
             main.removeCallbacks(timeout);
             main.postDelayed(timeout, CONNECT_WAIT_MS);

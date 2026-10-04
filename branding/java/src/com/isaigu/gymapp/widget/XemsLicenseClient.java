@@ -60,6 +60,7 @@ public final class XemsLicenseClient {
     static final String K_AUTO_NEXT = "auto_next";
     static final long AUTO_RETRY_MS = 10L * 60L * 1000L;      // offline: ask again soon
     static final long AUTO_NO_MS = 6L * 60L * 60L * 1000L;     // the server said no: ask again later
+    static final long AUTO_PENDING_MS = 2L * 60L * 1000L;      // waiting for the admin: the approval shows up soon
     private static volatile Update lastUpdate;
 
     private XemsLicenseClient() {}
@@ -70,16 +71,15 @@ public final class XemsLicenseClient {
 
     // ================================================================ license
 
-    /** Key typed in Settings: offline code, else the server; empty key = back to the base app. */
+    /**
+     * Key typed in Settings → the server (no codes in the app): a licence key, or the admin's setup code, which
+     * the server checks and answers with phase "setup". Empty key = back to the base app.
+     */
     public static void activate(final Context c, final String key, final Done cb) {
         final String k = key == null ? "" : key.trim();
         if (k.length() == 0) {
             XemsLicense.reset();
             post(cb, true, "reset");
-            return;
-        }
-        if (XemsLicense.applyLocalCode(k)) {
-            post(cb, true, "code");
             return;
         }
         if (!serverConfigured()) {
@@ -93,8 +93,14 @@ public final class XemsLicenseClient {
                     String body = "{" + common(c) + ",\"key\":" + XemsLicenseToken.quote(k) + "}";
                     Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/license/activate", body));
                     if (Boolean.TRUE.equals(r.get("ok")) && r.get("token") != null) {
-                        String why = XemsLicense.applyToken(k, String.valueOf(r.get("token")));
-                        post(cb, why == null, why == null ? "server" : why);
+                        boolean setupCode = "setup".equals(r.get("phase")) && Boolean.TRUE.equals(r.get("setup_code"));
+                        // the setup code opens the setup with the tablet's own licence; it is never kept as the key
+                        String why = XemsLicense.applyToken(setupCode ? null : k, String.valueOf(r.get("token")));
+                        if (why == null) {
+                            XemsLicense.applyPhase(r.get("phase"));
+                            saveStudio(c, r.get("studio"));
+                        }
+                        post(cb, why == null, why == null ? (setupCode ? "setup" : "server") : why);
                     } else {
                         post(cb, false, XemsLicenseToken.str(r.get("error")));
                     }
@@ -128,6 +134,7 @@ public final class XemsLicenseClient {
                     Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/license/refresh", body));
                     if (Boolean.TRUE.equals(r.get("ok")) && r.get("token") != null) {
                         XemsLicense.applyToken(null, String.valueOf(r.get("token")));
+                        XemsLicense.applyPhase(r.get("phase"));
                         saveStudio(c, r.get("studio"));
                         saveLatest(r.get("app_latest"));
                     } else if ("revoked".equals(r.get("error")) || "unknown".equals(r.get("error"))) {
@@ -169,8 +176,8 @@ public final class XemsLicenseClient {
 
     /**
      * No license on this tablet (a new install or a reinstall): ask the server by the tablet's own id.
-     * An active tablet gets its license back (and its studio), a new one joins the owner's license,
-     * a tablet the admin removed stays locked. Nothing to type.
+     * An active tablet gets its license back (and its studio, and its phase), a new one waits until the admin
+     * approves it (asked again every 2 min meanwhile), a tablet the admin removed stays locked. Nothing to type.
      */
     static void autoIfNone(Context c) {
         if (c == null || autoRunning || !serverConfigured() || XemsLicense.source().length() > 0) {
@@ -200,10 +207,12 @@ public final class XemsLicenseClient {
                         && XemsLicense.applyToken(null, String.valueOf(r.get("token"))) == null) {
                     saveStudio(c, r.get("studio"));
                     saveLatest(r.get("app_latest"));
-                    if ("locked".equals(r.get("phase"))) {
-                        XemsLicense.finishSetup();   // a reinstall of a tablet that was already handed over
-                    }
+                    XemsLicense.applyPhase(r.get("phase"));   // the server's phase (setup / handed over)
                     wait = 0;
+                    main.post(new LicenseChanged());
+                } else if ("pending".equals(r.get("error"))) {
+                    XemsLicense.setPending(true);
+                    wait = AUTO_PENDING_MS;
                     main.post(new LicenseChanged());
                 }
             } catch (Throwable t) {
@@ -504,6 +513,7 @@ public final class XemsLicenseClient {
                 + ",\"app_code\":" + appCode(c)
                 + ",\"lang\":" + XemsLicenseToken.quote(XemsLang.isBg() ? "bg" : "en")
                 + ",\"setup\":" + XemsLicense.isSetupMode()
+                + (XemsLicense.setupDoneUntold() ? ",\"setup_done\":true" : "")
                 + ",\"ems_local\":" + pairedSuits(c);
     }
 

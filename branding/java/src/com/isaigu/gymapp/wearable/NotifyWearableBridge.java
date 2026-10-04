@@ -29,6 +29,12 @@ public final class NotifyWearableBridge {
     public static final String OWNER_DIAL = "dial";
     public static final String OWNER_AI = "ai";
     public static final String OWNER_SETTINGS = "settings";
+    /**
+     * The link only (open the XEMS app on the band, install it, the remote): no heart rate — the optical sensor
+     * stays off unless something that wants the pulse holds the link too (HrDemandPolicy). Before 1.1.332 these
+     * took the dial's share and kept the sensor on until the dial was opened and closed.
+     */
+    public static final String OWNER_LINK = "link";
 
     private static final Set<String> owners = new LinkedHashSet<String>();
 
@@ -636,18 +642,6 @@ public final class NotifyWearableBridge {
 
     public static String getBleBuildTag() {
         return XiaomiBand.getBuildTag();
-    }
-
-    public static int getGbCommandCount() {
-        return 0;
-    }
-
-    public static String getResolvedGadgetbridgePackage(Context context) {
-        return null;
-    }
-
-    public static String getGbPackageLabel(Context context) {
-        return "--";
     }
 
     public static String getLastEventAction() {

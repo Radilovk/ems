@@ -185,7 +185,7 @@ public final class BandAppInstall {
             }
             pendingManual = true;
             show(WearableUi.tr("Свързване с гривната…", "Connecting to the band…"));
-            NotifyWearableBridge.requestConnect(a);
+            NotifyWearableBridge.acquire(a, NotifyWearableBridge.OWNER_LINK);   // the link, not the pulse
             main.removeCallbacks(connectTimeout);
             main.postDelayed(connectTimeout, CONNECT_WAIT_MS);
         } catch (Throwable t) {

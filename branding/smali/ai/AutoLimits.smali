@@ -30,11 +30,39 @@
     return-void
 .end method
 
+.method static age(Lcom/isaigu/gymapp/ai/AutoModel$Plan;)I
+    .registers 3
+
+    .prologue
+    .line 58
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
+
+    if-eqz v0, :cond_f
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
+
+    iget v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->age:I
+
+    :goto_8
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->limitAge:I
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    return v0
+
+    :cond_f
+    const/4 v0, -0x1
+
+    goto :goto_8
+.end method
+
 .method static clamp(III)I
     .registers 3
 
     .prologue
-    .line 176
+    .line 179
     if-ge p0, p1, :cond_3
 
     :goto_2
@@ -57,12 +85,12 @@
     .registers 15
 
     .prologue
-    .line 62
+    .line 66
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->copy()Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
     move-result-object v10
 
-    .line 63
+    .line 67
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
     const/4 v1, 0x1
@@ -77,7 +105,7 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
-    .line 64
+    .line 68
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pwUs:I
 
     const/16 v1, 0x96
@@ -94,7 +122,7 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pwUs:I
 
-    .line 65
+    .line 69
     const/4 v0, 0x1
 
     iget v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
@@ -105,7 +133,7 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
-    .line 66
+    .line 70
     const/4 v0, 0x1
 
     iget v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
@@ -116,7 +144,7 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    .line 67
+    .line 71
     invoke-virtual {v10}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->isTetanic()Z
 
     move-result v0
@@ -131,7 +159,7 @@
 
     if-lez v0, :cond_82
 
-    .line 68
+    .line 72
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
     invoke-static {p2, p3}, Lcom/isaigu/gymapp/ai/AutoLimits;->onMax(Lcom/isaigu/gymapp/ai/AutoModel$Plan;Lcom/isaigu/gymapp/ai/AutoModel$Phase;)I
@@ -144,7 +172,7 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
-    .line 69
+    .line 73
     const/16 v0, 0x12c
 
     iget v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
@@ -155,16 +183,16 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    .line 70
+    .line 74
     iget v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    if-eqz p1, :cond_f0
+    if-eqz p1, :cond_ec
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->isTetanic()Z
 
     move-result v0
 
-    if-nez v0, :cond_f0
+    if-nez v0, :cond_ec
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->durationS()I
 
@@ -173,10 +201,10 @@
     :goto_65
     add-int/2addr v1, v0
 
-    .line 71
+    .line 75
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
-    if-eqz v0, :cond_f3
+    if-eqz v0, :cond_ef
 
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
@@ -184,25 +212,25 @@
 
     move-result v0
 
-    if-nez v0, :cond_f3
+    if-nez v0, :cond_ef
 
     const/4 v0, 0x1
 
-    .line 72
+    .line 76
     :goto_73
-    if-eqz p3, :cond_f6
+    if-eqz p3, :cond_f1
 
     iget-boolean v2, p3, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->wave:Z
 
-    if-eqz v2, :cond_f6
+    if-eqz v2, :cond_f1
 
     const/4 v0, 0x1
 
-    .line 74
+    .line 78
     :goto_7a
     if-ge v1, v0, :cond_82
 
-    .line 75
+    .line 79
     iget v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
     sub-int/2addr v0, v1
@@ -211,13 +239,13 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    .line 78
+    .line 82
     :cond_82
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
     if-lez v0, :cond_a4
 
-    .line 79
+    .line 83
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
     const/4 v1, 0x1
@@ -230,7 +258,7 @@
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
-    .line 80
+    .line 84
     const-wide/16 v0, 0x0
 
     const-wide v2, 0x3fe3333333333333L    # 0.6
@@ -247,7 +275,7 @@
 
     iput-wide v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
 
-    .line 83
+    .line 87
     :cond_a4
     iget v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
@@ -263,55 +291,48 @@
 
     iget v8, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    .line 84
-    iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
+    invoke-static {p2}, Lcom/isaigu/gymapp/ai/AutoLimits;->age(Lcom/isaigu/gymapp/ai/AutoModel$Plan;)I
 
-    if-eqz v0, :cond_10b
+    move-result v9
 
-    iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
-
-    iget v9, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->age:I
-
-    .line 83
-    :goto_ba
     invoke-static/range {v1 .. v9}, Lcom/isaigu/gymapp/ai/SafeLimits;->cycle(IIIIIDII)[I
 
     move-result-object v1
 
-    .line 85
+    .line 88
     const/4 v0, 0x0
 
     aget v0, v1, v0
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
-    .line 86
+    .line 89
     const/4 v0, 0x1
 
     aget v0, v1, v0
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pwUs:I
 
-    .line 87
+    .line 90
     const/4 v0, 0x2
 
     aget v0, v1, v0
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
-    .line 88
+    .line 91
     const/4 v0, 0x3
 
     aget v0, v1, v0
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    .line 89
+    .line 92
     invoke-virtual {v10}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->isTetanic()Z
 
     move-result v0
 
-    if-eqz v0, :cond_10d
+    if-eqz v0, :cond_106
 
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
@@ -323,51 +344,51 @@
 
     move-result v0
 
-    :goto_e1
+    :goto_dd
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    .line 90
+    .line 93
     const/4 v0, 0x4
 
     aget v0, v1, v0
 
-    if-nez v0, :cond_110
+    if-nez v0, :cond_109
 
-    .line 91
+    .line 94
     const/4 v0, 0x0
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
-    .line 92
+    .line 95
     const-wide/16 v0, 0x0
 
     iput-wide v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
 
-    .line 96
-    :goto_ef
+    .line 99
+    :goto_eb
     return-object v10
 
-    .line 70
-    :cond_f0
+    .line 74
+    :cond_ec
     const/4 v0, 0x0
 
     goto/16 :goto_65
 
-    .line 71
-    :cond_f3
+    .line 75
+    :cond_ef
     const/4 v0, 0x0
 
-    goto/16 :goto_73
+    goto :goto_73
 
-    .line 73
-    :cond_f6
-    if-eqz v0, :cond_fb
+    .line 77
+    :cond_f1
+    if-eqz v0, :cond_f6
 
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
     goto :goto_7a
 
-    :cond_fb
+    :cond_f6
     const-wide v2, 0x3fe51eb851eb851fL    # 0.66
 
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
@@ -384,34 +405,28 @@
 
     goto/16 :goto_7a
 
-    .line 84
-    :cond_10b
-    const/4 v9, -0x1
-
-    goto :goto_ba
-
-    .line 89
-    :cond_10d
+    .line 92
+    :cond_106
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    goto :goto_e1
+    goto :goto_dd
 
-    .line 94
-    :cond_110
+    .line 97
+    :cond_109
     const/4 v0, 0x5
 
     aget v0, v1, v0
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
-    goto :goto_ef
+    goto :goto_eb
 .end method
 
 .method public static clampZones([ILcom/isaigu/gymapp/ai/AutoModel$Plan;)[I
     .registers 3
 
     .prologue
-    .line 138
+    .line 141
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
     invoke-static {p0, v0, p1}, Lcom/isaigu/gymapp/ai/AutoLimits;->clampZones([I[ILcom/isaigu/gymapp/ai/AutoModel$Plan;)[I
@@ -429,16 +444,16 @@
 
     const/4 v3, 0x0
 
-    .line 143
+    .line 146
     new-array v4, v6, [I
 
     move v2, v3
 
-    .line 144
+    .line 147
     :goto_6
     if-ge v2, v6, :cond_47
 
-    .line 145
+    .line 148
     if-eqz p1, :cond_38
 
     array-length v0, p1
@@ -447,7 +462,7 @@
 
     aget v1, p1, v2
 
-    .line 146
+    .line 149
     :goto_f
     if-eqz p0, :cond_3d
 
@@ -457,7 +472,7 @@
 
     aget v0, p0, v2
 
-    .line 147
+    .line 150
     :goto_16
     iget-object v5, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
 
@@ -465,7 +480,7 @@
 
     if-eqz v5, :cond_3f
 
-    .line 148
+    .line 151
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
     aget v0, v0, v2
@@ -474,7 +489,7 @@
 
     move-result v0
 
-    .line 152
+    .line 155
     :goto_24
     const/16 v1, 0x64
 
@@ -492,14 +507,14 @@
 
     aput v0, v4, v2
 
-    .line 144
+    .line 147
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
     goto :goto_6
 
-    .line 145
+    .line 148
     :cond_38
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
@@ -510,10 +525,10 @@
     :cond_3d
     move v0, v1
 
-    .line 146
+    .line 149
     goto :goto_16
 
-    .line 150
+    .line 153
     :cond_3f
     iget v5, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
 
@@ -525,58 +540,46 @@
 
     goto :goto_24
 
-    .line 154
+    .line 157
     :cond_47
     return-object v4
 .end method
 
 .method public static hzMax(Lcom/isaigu/gymapp/ai/AutoModel$Plan;)I
-    .registers 3
+    .registers 2
 
     .prologue
-    .line 54
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
+    .line 53
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AutoLimits;->age(Lcom/isaigu/gymapp/ai/AutoModel$Plan;)I
 
-    if-eqz v0, :cond_f
+    move-result v0
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/SafeLimits;->hzMax(I)I
 
-    iget v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->age:I
+    move-result v0
 
-    const/16 v1, 0x3c
-
-    if-lt v0, v1, :cond_f
-
-    const/16 v0, 0x55
-
-    :goto_e
     return v0
-
-    :cond_f
-    const/16 v0, 0x78
-
-    goto :goto_e
 .end method
 
 .method public static onMax(Lcom/isaigu/gymapp/ai/AutoModel$Plan;Lcom/isaigu/gymapp/ai/AutoModel$Phase;)I
     .registers 3
 
     .prologue
-    .line 34
+    .line 36
     if-eqz p1, :cond_8
 
     iget-boolean v0, p1, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->wave:Z
 
     if-eqz v0, :cond_8
 
-    .line 35
+    .line 37
     const/4 v0, 0x3
 
-    .line 41
+    .line 43
     :goto_7
     return v0
 
-    .line 37
+    .line 39
     :cond_8
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
@@ -592,7 +595,7 @@
 
     const/4 v0, 0x1
 
-    .line 38
+    .line 40
     :goto_15
     if-nez v0, :cond_23
 
@@ -608,19 +611,19 @@
 
     if-eqz v0, :cond_27
 
-    .line 39
+    .line 41
     :cond_23
     const/4 v0, 0x4
 
     goto :goto_7
 
-    .line 37
+    .line 39
     :cond_25
     const/4 v0, 0x0
 
     goto :goto_15
 
-    .line 41
+    .line 43
     :cond_27
     const/4 v0, 0x6
 
@@ -631,15 +634,13 @@
     .registers 2
 
     .prologue
-    .line 46
+    .line 48
     const/16 v0, 0x64
 
     if-lt p0, v0, :cond_7
 
-    .line 47
     const/16 v0, 0x12c
 
-    .line 49
     :goto_6
     return v0
 
@@ -655,7 +656,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 163
+    .line 166
     if-lez p0, :cond_9
 
     const-wide/16 v2, 0x0
@@ -667,11 +668,11 @@
     :cond_9
     move v0, v1
 
-    .line 172
+    .line 175
     :goto_a
     return v0
 
-    .line 166
+    .line 169
     :cond_b
     int-to-double v2, p0
 
@@ -685,7 +686,7 @@
 
     long-to-int v0, v2
 
-    .line 167
+    .line 170
     int-to-double v2, p0
 
     mul-double/2addr v2, p5
@@ -700,22 +701,22 @@
 
     double-to-int v2, v2
 
-    .line 168
+    .line 171
     invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
 
     move-result v0
 
-    .line 169
+    .line 172
     if-ltz p7, :cond_2c
 
     add-int/lit8 v2, p7, 0x5
 
     if-le v0, v2, :cond_2c
 
-    .line 170
+    .line 173
     add-int/lit8 v0, p7, 0x5
 
-    .line 172
+    .line 175
     :cond_2c
     const/16 v2, 0x64
 
@@ -730,19 +731,19 @@
     .registers 9
 
     .prologue
-    .line 104
+    .line 107
     if-eqz p0, :cond_6
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->hz:Z
 
     if-nez v0, :cond_7
 
-    .line 108
+    .line 111
     :cond_6
     :goto_6
     return p1
 
-    .line 107
+    .line 110
     :cond_7
     const/4 v0, 0x1
 
@@ -762,7 +763,7 @@
 
     move-result v0
 
-    .line 108
+    .line 111
     sub-int v1, p1, v0
 
     add-int/2addr v0, p1
@@ -778,14 +779,14 @@
     .registers 5
 
     .prologue
-    .line 119
+    .line 122
     if-eqz p0, :cond_6
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->off:Z
 
     if-nez v0, :cond_7
 
-    .line 122
+    .line 125
     :cond_6
     :goto_6
     return p1
@@ -816,14 +817,14 @@
     .registers 5
 
     .prologue
-    .line 112
+    .line 115
     if-eqz p0, :cond_6
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->on:Z
 
     if-nez v0, :cond_7
 
-    .line 115
+    .line 118
     :cond_6
     :goto_6
     return p1
@@ -854,14 +855,14 @@
     .registers 5
 
     .prologue
-    .line 126
+    .line 129
     if-eqz p0, :cond_6
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->pw:Z
 
     if-nez v0, :cond_7
 
-    .line 129
+    .line 132
     :cond_6
     :goto_6
     return p1

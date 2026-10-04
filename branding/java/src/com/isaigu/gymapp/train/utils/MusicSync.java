@@ -852,6 +852,15 @@ public class MusicSync {
         if (activity == null || uri == null) {
             return;
         }
+        // AI, Auto or a map holds the strength: music would fight it (ai/OutputOwner)
+        String other = com.isaigu.gymapp.ai.OutputOwner.conflict(com.isaigu.gymapp.ai.OutputOwner.MUSIC);
+        if (other != null) {
+            try {
+                android.widget.Toast.makeText(activity, other, android.widget.Toast.LENGTH_LONG).show();
+            } catch (Throwable ignored) {
+            }
+            return;
+        }
         String key = uri.toString();
         if (playerPreparing) {
             if (!(prefetchPromote && prefetchKey != null && !prefetchKey.equals(key))) {

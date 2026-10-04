@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 49
+    .line 55
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 49
+    .line 55
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$ControlListener;-><init>()V
 
     return-void
@@ -44,11 +44,11 @@
     .registers 4
 
     .prologue
-    .line 63
+    .line 69
     # setter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->controlConnected:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$202(Z)Z
 
-    .line 64
+    .line 70
     const-string v1, "control"
 
     if-eqz p1, :cond_15
@@ -58,21 +58,21 @@
     :goto_9
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 65
+    .line 71
     if-eqz p1, :cond_11
 
-    .line 66
+    .line 72
     # invokes: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->startRemote()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$300()V
 
-    .line 68
+    .line 74
     :cond_11
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 69
+    .line 75
     return-void
 
-    .line 64
+    .line 70
     :cond_15
     const-string v0, "disconnected"
 
@@ -83,7 +83,7 @@
     .registers 2
 
     .prologue
-    .line 59
+    .line 65
     return-void
 .end method
 
@@ -91,7 +91,7 @@
     .registers 5
 
     .prologue
-    .line 52
+    .line 58
     const-string v0, "control"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -114,9 +114,9 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 53
+    .line 59
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 54
+    .line 60
     return-void
 .end method

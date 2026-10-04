@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install interval timer stack smali (helper, presets, block program) into decompiled APK."""
+"""Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331)."""
 
 from __future__ import annotations
 
@@ -16,9 +16,6 @@ BRANDING_SMALI = ROOT / "branding/smali"
 DIALOG_GLOBS = (
     "IntervalTimerHelper*.smali",
     "TimerPreset*.smali",
-    "BlockProgram*.smali",
-    "ProgramSegment.smali",
-    "BlockProgramEditor*.smali",
     "ModalInfoHelper*.smali",
 )
 
@@ -27,10 +24,6 @@ REQUIRED_DIALOG = (
     "IntervalTimerHelper$MasterToggleListener.smali",
     "TimerPreset.smali",
     "TimerPresetStorage.smali",
-    "BlockProgramRunner.smali",
-    "BlockProgramStorage.smali",
-    "BlockProgramEditor.smali",
-    "ProgramSegment.smali",
 )
 
 
@@ -60,11 +53,6 @@ def verify() -> None:
             "Interval timer stack incomplete — missing dialog smali:\n  "
             + "\n  ".join(missing)
             + "\nRun: bash scripts/compile-interval-timer-java.sh"
-        )
-    runner = DIALOG_DIR / "BlockProgramRunner.smali"
-    if runner.is_file() and "-$$Lambda$BlockProgramRunner" in runner.read_text(encoding="utf-8"):
-        raise SystemExit(
-            "BlockProgramRunner.smali references lambda classes — rebuild without lambdas"
         )
 
 

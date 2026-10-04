@@ -2,7 +2,10 @@ package com.isaigu.gymapp.dialog;
 
 import java.util.ArrayList;
 
-/** Named interval / block timer configuration stored on device. */
+/**
+ * Named interval timer configuration stored on device. The block program was removed (1.1.331: the workouts'
+ * maps do it); an old block preset still reads ({@link #blockMode}) and is left out of the list.
+ */
 public final class TimerPreset {
     private static final String FIELD = "\u001f";
     private static final String BLOCK = "\u001e";
@@ -14,9 +17,8 @@ public final class TimerPreset {
     public int loops;
     public int sound;
     public String customUri = "";
+    /** A preset saved by the old block program (it cannot run any more). */
     public boolean blockMode;
-    public boolean blockRepeat;
-    public ArrayList<ProgramSegment> blocks = new ArrayList<>();
 
     public TimerPreset copy() {
         TimerPreset copy = new TimerPreset();
@@ -28,16 +30,6 @@ public final class TimerPreset {
         copy.sound = sound;
         copy.customUri = customUri != null ? customUri : "";
         copy.blockMode = blockMode;
-        copy.blockRepeat = blockRepeat;
-        copy.blocks = new ArrayList<>();
-        if (blocks != null) {
-            for (int i = 0; i < blocks.size(); i++) {
-                ProgramSegment seg = blocks.get(i);
-                if (seg != null) {
-                    copy.blocks.add(ProgramSegment.deserialize(seg.serialize()));
-                }
-            }
-        }
         return copy;
     }
 
@@ -51,8 +43,8 @@ public final class TimerPreset {
         sb.append(sound).append(FIELD);
         sb.append(safe(customUri)).append(FIELD);
         sb.append(blockMode ? 1 : 0).append(FIELD);
-        sb.append(blockRepeat ? 1 : 0).append(FIELD);
-        sb.append(BlockProgramStorage.serializeBlocks(blocks));
+        sb.append(0).append(FIELD);                    // the old block fields keep their place in the record
+        sb.append("");
         return sb.toString();
     }
 
@@ -87,30 +79,9 @@ public final class TimerPreset {
             if (parts.length > 7) {
                 preset.blockMode = "1".equals(parts[7].trim());
             }
-            if (parts.length > 8) {
-                preset.blockRepeat = "1".equals(parts[8].trim());
-            }
-            if (parts.length > 9) {
-                preset.blocks = parseBlocks(parts[9]);
-            }
         } catch (NumberFormatException ignored) {
         }
         return preset;
-    }
-
-    private static ArrayList<ProgramSegment> parseBlocks(String raw) {
-        ArrayList<ProgramSegment> list = new ArrayList<>();
-        if (raw == null || raw.length() == 0) {
-            return list;
-        }
-        String[] tokens = raw.split("\\|");
-        for (int i = 0; i < tokens.length; i++) {
-            if (tokens[i].trim().length() == 0) {
-                continue;
-            }
-            list.add(ProgramSegment.deserialize(tokens[i]));
-        }
-        return list;
     }
 
     private static String safe(String value) {

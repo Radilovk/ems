@@ -11,10 +11,14 @@ fallthrough = true
 
 [vars]
 PUBLIC_URL = "https://license.biocode-bg.com"
-# New tablets (no key) join this license with its modules until the admin locks them (Таблети → премахни).
+# New tablets (no key) wait here as "pending" until the admin approves them into a studio (Таблети → Одобри).
 OWNER_LICENSE = "L-2026-792848"
 # The exercise picker page (/admin/exercises) also opens with an access code; only its SHA-256 is kept here.
 EXERCISES_CODE_SHA256 = "84fb8d2f313130144c5484ae581adf85c1f9395aa882768a18c9b2fa7d32d835"
+
+# Nightly sweep of the tables that only grow (expired cards, old audit, unapproved tablets, rate limits).
+[triggers]
+crons = ["17 3 * * *"]
 
 [[d1_databases]]
 binding = "DB"

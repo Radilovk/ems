@@ -125,7 +125,7 @@ public final class Workout {
             off = clamp(off, 0, OFF_MAX);
             rel = clamp(rel, 0, 100);
             reps = isRest() ? clamp(reps, REST_MIN_S, REST_MAX_S) : clamp(reps, REPS_MIN, REPS_MAX);
-            hz2 = clamp(hz2, HZ_MIN, HZ_MAX);
+            hz2 = clamp(hz2, HZ_MIN, SafeLimits.PAUSE_HZ_MAX);     // the 2nd impulse is for relaxing: ≤ 10 Hz
             str2 = clamp(str2, 5, 100);
             rampIn = clamp(Math.round(rampIn / (float) RAMP_STEP_MS) * RAMP_STEP_MS, 0, RAMP_MAX_MS);
             rampOut = clamp(Math.round(rampOut / (float) RAMP_STEP_MS) * RAMP_STEP_MS, 0, RAMP_MAX_MS);

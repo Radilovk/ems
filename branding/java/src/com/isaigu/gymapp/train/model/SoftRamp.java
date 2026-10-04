@@ -50,6 +50,29 @@ public final class SoftRamp {
         }
     }
 
+    /**
+     * Hook: the pause-phase send of TrainItem.sendPulse (phase start and every change in it) — every mode. The
+     * second impulse goes out only within the limits (wearable/SafeGuard.pause): none at strength 0, at most 10 Hz,
+     * never above the main strength; otherwise a plain pause.
+     */
+    public static void sendPause(TrainItem item, ProgramDataBean b, boolean[] parts, int workLength) {
+        CommandSender s = item != null ? item.sender : null;
+        if (s == null || b == null) {
+            return;
+        }
+        int[] p = null;
+        try {
+            p = com.isaigu.gymapp.wearable.SafeGuard.pause(b);
+        } catch (Throwable t) {
+            XemsGuard.report("SoftRamp.sendPause", t);
+        }
+        if (p != null) {
+            s.sendActivePause(b, parts, workLength, p[0], p[1]);
+        } else {
+            s.sendPause(b, workLength);
+        }
+    }
+
     /** Hook: the ON-phase send of TrainItem.sendPulse (phase start and every + / − in it). */
     public static void sendDuration(TrainItem item, ProgramDataBean b, boolean[] parts, int workLength) {
         CommandSender s = item != null ? item.sender : null;

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->presetMenu(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
+    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildSignalSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,31 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$a:Landroid/app/Activity;
-
-.field final synthetic val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
-
-.field final synthetic val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$Shell;Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
-    .registers 4
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
     .prologue
-    .line 1243
-    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$a:Landroid/app/Activity;
-
-    iput-object p3, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
-
+    .line 1175
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -50,38 +31,25 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 6
+    .registers 3
 
     .prologue
-    .line 1246
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    .line 1178
+    const/4 v0, 0x1
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
+    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2402(I)I
 
-    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+    .line 1179
+    const/4 v0, 0x0
 
-    .line 1247
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$a:Landroid/app/Activity;
+    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2602(Landroid/net/Uri;)Landroid/net/Uri;
 
-    const-string v1, "\u041d\u043e\u0432\u043e \u0438\u043c\u0435"
+    .line 1180
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSheets()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1900()V
 
-    const-string v2, "New name"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
-
-    new-instance v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23$1;
-
-    invoke-direct {v3, p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23$1;-><init>(Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;)V
-
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->promptName(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
-    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
-
-    .line 1256
+    .line 1181
     return-void
 .end method

@@ -5,7 +5,8 @@
 **Live:** https://license.biocode-bg.com  
 **Admin (уеб, без CMD):** https://license.biocode-bg.com/admin
 
-Влез с **admin** / **0123** (Basic auth). От там:
+Влез с `ADMIN_USER` / `ADMIN_PASSWORD` (Basic auth; тайни на Worker-а). От там:
+- **одобряваш нови таблети** (Таблети → Одобри → студио) и отваряш настройката им
 - създаваш лицензни ключове за клиенти
 - управляваш костюми (MAC) по лиценз
 - **регистрираш нов APK** за OTA (APK файлът е в GitHub, сървърът сочи таблетите към него)
@@ -49,11 +50,9 @@ npx wrangler deploy
 npx wrangler secret put LICENSE_PRIVATE_KEY
 ```
 
-По подразбиране админ входът е `admin` / `0123`. За друга парола:
-```bash
-npx wrangler secret put ADMIN_PASSWORD
-npx wrangler secret put ADMIN_USER
-```
+**Една парола за всичко (1.1.334):** тайната `ADMIN_PASSWORD` на Worker-а — вход в панела и, въведена на таблета
+в „Достъп и лиценз“, одобрява таблета и отваря настройката му. Задава се веднъж: Cloudflare → Workers →
+xems-license → Settings → Variables and Secrets → Add → Secret `ADMIN_PASSWORD`. Без нея панелът е затворен.
 
 ## Разходи
 

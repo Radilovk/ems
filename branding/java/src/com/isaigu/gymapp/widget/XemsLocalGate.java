@@ -8,25 +8,31 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.isaigu.gymapp.bean.TrainUser;
+import com.isaigu.gymapp.bean.UserData;
+import com.isaigu.gymapp.utils.FileUtils;
 
 /**
  * Hidden doors of the tablet build.
  *
  * <ul>
- *   <li><b>Login</b> — never shown: the login screen fills in the house account and presses
- *       Login itself. 7 taps on "Language" in Settings restart the app into the real login
- *       screen, once.</li>
+ *   <li><b>Login</b> — never shown and never sent anywhere (1.1.330): the splash screen takes the vendor's own
+ *       offline path with a local session ({@link #localSession()}) — no account, no password in the app, no
+ *       dependence on the vendor's server. 7 taps on "Language" in Settings restart the app into the real login
+ *       screen, once (typed by hand).</li>
  *   <li><b>Access &amp; licence</b> — hidden once a key is entered; 7 taps on "Dark theme"
  *       show it again (until the app restarts).</li>
  * </ul>
  */
 public final class XemsLocalGate {
-    static final String LOGIN_USER = "radilov.k@gmail.com";
-    static final String LOGIN_PASSWORD = "a123456";
+    /** The local session's placeholders: the vendor's offline path only checks that they are not empty. */
+    static final String LOCAL_USER = "xems";
+    static final String LOCAL_PASSWORD = "local";
+    static final String ROLE_COACH = "ROLE_COACH";
+    static final String FILE_LOGIN_USER = "file_name_login_user";
 
     private static final String PREFS = "xems_local_store";
     private static final String KEY_LOGIN_SCREEN = "show_login_once";
@@ -47,50 +53,69 @@ public final class XemsLocalGate {
         return c != null && prefs(c).getBoolean(KEY_LOGIN_SCREEN, false);
     }
 
-    /** End of LoginFragment.onCreateView: fill in the house account and log in. */
+    /**
+     * SplashFragment, before its "logged in?" check: a local session instead of the vendor's account. A new
+     * install gets one; an older install that logged in with the house account keeps its session, but the real
+     * password is overwritten (nothing of the vendor account stays on the tablet). Always true unless the
+     * trainer asked for the login screen (7 taps).
+     */
+    public static boolean localSession() {
+        try {
+            if (wantLoginScreen()) {
+                return false;
+            }
+            UserData u = UserData.getInstance();
+            if (u == null) {
+                return false;
+            }
+            boolean changed = false;
+            if (!u.autoLogin || isEmpty(u.userName)) {
+                u.userName = LOCAL_USER;
+                u.autoLogin = true;
+                u.rememberPassword = true;
+                u.roleName = ROLE_COACH;
+                changed = true;
+            }
+            if (!LOCAL_PASSWORD.equals(u.password)) {
+                u.password = LOCAL_PASSWORD;
+                changed = true;
+            }
+            if (isEmpty(u.roleName)) {
+                u.roleName = ROLE_COACH;
+                changed = true;
+            }
+            if (changed) {
+                FileUtils.saveData(u);
+            }
+            if (FileUtils.getData(FILE_LOGIN_USER, TrainUser.class) == null) {
+                TrainUser me = new TrainUser();
+                me.id = 1L;
+                me.name = "XEMS";
+                me.nickName = "XEMS";
+                me.username = LOCAL_USER;
+                me.roleName = ROLE_COACH;
+                FileUtils.saveData(FILE_LOGIN_USER, me);
+            }
+            return true;
+        } catch (Throwable t) {
+            android.util.Log.e("xems_gate", "localSession", t);
+            return false;
+        }
+    }
+
+    private static boolean isEmpty(String s) {
+        return s == null || s.length() == 0;
+    }
+
+    /** End of LoginFragment.onCreateView (shown only on request): the next start goes past it again. */
     public static void onLoginView(final Object fragment, View root) {
         try {
             Context c = XemsLocalStore.getAppContext();
-            if (fragment == null || root == null || c == null) {
-                return;
-            }
-            if (prefs(c).getBoolean(KEY_LOGIN_SCREEN, false)) {
+            if (c != null && prefs(c).getBoolean(KEY_LOGIN_SCREEN, false)) {
                 prefs(c).edit().putBoolean(KEY_LOGIN_SCREEN, false).apply();   // this time by hand
-                return;
             }
-            root.post(new Runnable() {
-                @Override
-                public void run() {
-                    autoLogin(fragment);
-                }
-            });
         } catch (Throwable t) {
             android.util.Log.e("xems_gate", "onLoginView", t);
-        }
-    }
-
-    private static void autoLogin(Object fragment) {
-        try {
-            EditText user = (EditText) field(fragment, "userName");
-            EditText pass = (EditText) field(fragment, "password");
-            View login = (View) field(fragment, "login");
-            if (user == null || pass == null || login == null) {
-                return;
-            }
-            user.setText(LOGIN_USER);
-            pass.setText(LOGIN_PASSWORD);
-            // Remembered + auto login: next starts go straight through the splash screen.
-            check(field(fragment, "rememberPassword"));
-            check(field(fragment, "autoLogin"));
-            login.performClick();
-        } catch (Throwable t) {
-            android.util.Log.e("xems_gate", "autoLogin", t);
-        }
-    }
-
-    private static void check(Object box) {
-        if (box instanceof CompoundButton && !((CompoundButton) box).isChecked()) {
-            ((CompoundButton) box).setChecked(true);
         }
     }
 
@@ -233,12 +258,6 @@ public final class XemsLocalGate {
                 }
             });
         }
-    }
-
-    private static Object field(Object o, String name) throws Exception {
-        java.lang.reflect.Field f = o.getClass().getDeclaredField(name);
-        f.setAccessible(true);
-        return f.get(o);
     }
 
     private static SharedPreferences prefs(Context c) {

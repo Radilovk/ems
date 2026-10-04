@@ -900,7 +900,9 @@
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
 
     .line 188
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->requestConnect(Landroid/app/Activity;)V
+    const-string v0, "link"
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->acquire(Landroid/app/Activity;Ljava/lang/String;)V
 
     .line 189
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
@@ -917,8 +919,8 @@
     const-wide/16 v2, 0x61a8
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-    :try_end_3f
-    .catch Ljava/lang/Throwable; {:try_start_1f .. :try_end_3f} :catch_17
+    :try_end_41
+    .catch Ljava/lang/Throwable; {:try_start_1f .. :try_end_41} :catch_17
 
     goto :goto_9
 .end method

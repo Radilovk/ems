@@ -3,7 +3,7 @@
 .source "XemsLocalGate.java"
 
 # interfaces
-.implements Landroid/view/View$OnTouchListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -24,8 +24,14 @@
 # direct methods
 .method constructor <init>(Ljava/lang/Runnable;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 219
+    .prologue
+    .line 254
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;->val$tap:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -35,26 +41,15 @@
 
 
 # virtual methods
-.method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
+.method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 222
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getAction()I
+    .prologue
+    .line 257
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;->val$tap:Ljava/lang/Runnable;
 
-    move-result p1
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    const/4 p2, 0x1
-
-    if-ne p1, p2, :cond_c
-
-    .line 223
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;->val$tap:Ljava/lang/Runnable;
-
-    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
-
-    .line 225
-    :cond_c
-    const/4 p1, 0x0
-
-    return p1
+    .line 258
+    return-void
 .end method

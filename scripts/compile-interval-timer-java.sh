@@ -18,10 +18,6 @@ BAKSMALI="${ROOT}/tools/baksmali.jar"
 
 TIMER_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/IntervalTimerHelper.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/dialog/ProgramSegment.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramRunner.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramStorage.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramEditor.java"
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPreset.java"
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPresetStorage.java"
   "${JAVA_SRC}/com/isaigu/gymapp/widget/TimerRingView.java"
@@ -43,7 +39,7 @@ bash "${ROOT}/scripts/compile-music-sync-java.sh"
 
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 
-echo "Compiling interval timer + block program classes..."
+echo "Compiling interval timer classes..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
 javac \
@@ -58,8 +54,6 @@ rm -f "${DEX_FILE}"
 mkdir -p "${OUT_DIR}/dex"
 mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
   \( -path '*/dialog/IntervalTimerHelper*.class' \
-  -o -path '*/dialog/ProgramSegment.class' \
-  -o -path '*/dialog/BlockProgram*.class' \
   -o -path '*/dialog/TimerPreset*.class' \
   -o -path '*/widget/TimerRingView*.class' \) -print | sort)
 (
@@ -91,10 +85,7 @@ while IFS= read -r -d '' file; do
   echo "  -> $(basename "${file}")"
 done < <(find "${SMALI_OUT}" \( \
   -path '*/dialog/IntervalTimerHelper*.smali' \
-  -o -path '*/dialog/ProgramSegment.smali' \
-  -o -path '*/dialog/BlockProgram*.smali' \
   -o -path '*/dialog/TimerPreset*.smali' \
-  -o -path '*/dialog/-$$Lambda$BlockProgramEditor*.smali' \
   \) -print0)
 
 rm -f "${WIDGET_SMALI}/TimerRingView.smali"
@@ -103,9 +94,9 @@ while IFS= read -r -d '' file; do
   echo "  -> widget/TimerRingView.smali"
 done < <(find "${SMALI_OUT}" -path '*/widget/TimerRingView.smali' -print0)
 
-if [[ ! -f "${BRANDING_SMALI}/BlockProgramRunner.smali" ]]; then
-  echo "ERROR: BlockProgramRunner.smali not produced"
+if [[ ! -f "${BRANDING_SMALI}/IntervalTimerHelper.smali" ]]; then
+  echo "ERROR: IntervalTimerHelper.smali not produced"
   exit 1
 fi
 
-echo "Interval timer + block program Java compile complete."
+echo "Interval timer Java compile complete."

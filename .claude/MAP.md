@@ -338,7 +338,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalAvatar.java` (978L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (267L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (351L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
-- `XemsLocalStore.java` (1131L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
+- `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (973L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (1388L, compile:music-sync*) — Main navigation (v1.1.64).
@@ -800,7 +800,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L51 ## Изглед (приоритет на вниманието)
   - L59 ## Статус в таба
 
-`docs/xems-program-fit.md` (66L)
+`docs/xems-program-fit.md` (80L)
   - L1 # Записана програма, запис с дискетата (1.1.238-ai, 1.1.239-ai; без адаптация от 1.1.323-ai)
   - L6 ## Ръчният режим без адаптация (собственик, 1.1.323)
   - L15 ## Дискетата и ⚙ на реда → профилът на клиента (1.1.239-ai)
@@ -808,6 +808,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L38 ## Двоен импулс по режими (1.1.240-ai)
   - L49 ## Одит 1.1.241-ai (поправено)
   - L60 ## ⚙ на реда и ⚙ Master
+  - L67 ## Базови настройки на „Main“ (1.1.334)
 
 `docs/xems-pulse-control.md` (192L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)

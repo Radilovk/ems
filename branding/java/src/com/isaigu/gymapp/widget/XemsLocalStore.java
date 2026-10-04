@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.isaigu.gymapp.BaseActivity;
 import com.isaigu.gymapp.BaseDialogFragment;
 import com.isaigu.gymapp.bean.DeviceBean;
+import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.bean.TrainUser;
 import com.isaigu.gymapp.bean.vo.RegisterProtocolVO;
@@ -174,7 +175,11 @@ public final class XemsLocalStore {
 
     /** The demo client and training (1.1.198; before: "Примерен клиент", "Тренировка 1"). */
     static final String DEMO_NAME = "Demo";
-    static final String DEMO_PROGRAM = "Test";
+    static final String DEMO_PROGRAM = "Main";
+    /** The names the demo program had before: "Test" until 1.1.334, "Тренировка 1" / "Workout 1" before 1.1.198. */
+    private static final String[] OLD_DEMO_PROGRAMS = {"Test", "Тренировка 1", "Workout 1"};
+    /** The base settings of "Main" were put in (once per tablet; later edits stay). */
+    private static final String KEY_BASE_MAIN = "base_main_v1";
 
     /**
      * A ready demo client is always on the list (put back if it was removed): a full profile, so the
@@ -205,8 +210,7 @@ public final class XemsLocalStore {
             s.name = DEMO_NAME;
             s.nickName = DEMO_NAME;
         }
-        if (s.trainName == null || s.trainName.length() == 0
-                || "Тренировка 1".equals(s.trainName) || "Workout 1".equals(s.trainName)) {
+        if (s.trainName == null || s.trainName.length() == 0 || isOldDemoName(s.trainName)) {
             s.trainName = DEMO_PROGRAM;
         }
         demoProfile(s);
@@ -247,6 +251,7 @@ public final class XemsLocalStore {
         renameSeededProgram(dm);
         hideCloudProgramsOnce(dm);
         seedDefaultProgramIfNeeded();
+        applyBaseSettingsOnce(dm);
         ActivePauseStorage.mergeList(dm.trainData);
         savePrograms();
     }
@@ -743,8 +748,91 @@ public final class XemsLocalStore {
         TrainProgram p = TrainProgram.getTrainProgramTemplate1();
         p.id = Long.valueOf(nextProgramId());
         p.name = DEMO_PROGRAM;
+        applyBaseSettings(p);
+        try {
+            ActivePauseStorage.save(p);
+        } catch (Throwable ignored) {
+        }
+        Context ctx = getAppContext();
+        if (ctx != null) {
+            prefs(ctx).edit().putBoolean(KEY_BASE_MAIN, true).apply();
+        }
         dm.trainData = new ArrayList<>();
         dm.trainData.add(p);
+    }
+
+    private static boolean isOldDemoName(String name) {
+        for (String old : OLD_DEMO_PROGRAMS) {
+            if (old.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The base settings of the program "Main" (owner, 1.1.334), per mode — strength and work length untouched:
+     * <ul>
+     *   <li>Основен: 40 Hz, 4 : 4 s, 350 µs, soft rise / fall 0.5 s, double impulse on (2nd impulse 7 Hz);</li>
+     *   <li>Мускули: 80 Hz, 5 : 4 s with a plain pause, 350 µs, soft rise / fall 1 s;</li>
+     *   <li>Кардио: 7 Hz, 350 µs, no second impulse, the shortest pause the limits allow (1 s);</li>
+     *   <li>Масаж: 120 Hz, 1 : 1 s, 150 µs, no soft rise / fall set (the absolute limits still hold a 0.3 s rise).</li>
+     * </ul>
+     */
+    static void applyBaseSettings(TrainProgram p) {
+        if (p == null) {
+            return;
+        }
+        base(p.programDataBean, 40, 350, 4, 4, 500, 500, true, 7);
+        base(p.muscleTrainingProgramDataBean, 80, 350, 5, 4, 1000, 1000, false, 0);
+        ProgramDataBean cardio = p.aerobicTrainingProgramDataBean;
+        base(cardio, 7, 350, cardio != null && cardio.pulseContinue > 0 ? cardio.pulseContinue : 15, 1,
+                cardio != null ? cardio.inputRamp : 0, cardio != null ? cardio.outputRamp : 0, false, 0);
+        base(p.massageModeProgramDataBean, 120, 150, 1, 1, 0, 0, false, 0);
+    }
+
+    private static void base(ProgramDataBean b, int hz, int pw, int on, int off, int rampIn, int rampOut,
+            boolean dbl, int hz2) {
+        if (b == null) {
+            return;
+        }
+        b.hz = hz;
+        b.pulseWidth = pw;
+        b.pulseContinue = on;
+        b.pulsePause = off;
+        b.inputRamp = rampIn;
+        b.outputRamp = rampOut;
+        b.activePause = dbl;
+        if (dbl) {
+            b.pauseHz = hz2;
+            if (b.pauseStrenthPercent <= 0) {
+                b.pauseStrenthPercent = 10;        // as the parameters dialog does when the switch goes on
+            }
+        } else {
+            b.pauseHz = 0;
+            b.pauseStrenthPercent = 0;
+        }
+    }
+
+    /** Once per tablet: the base settings go into the stored program "Main" (a tablet already in use gets them too). */
+    private static void applyBaseSettingsOnce(DataMgr dm) {
+        Context ctx = getAppContext();
+        if (ctx == null || prefs(ctx).getBoolean(KEY_BASE_MAIN, false) || dm.trainData == null) {
+            return;
+        }
+        for (int i = 0; i < dm.trainData.size(); i++) {
+            TrainProgram p = dm.trainData.get(i);
+            if (p != null && DEMO_PROGRAM.equals(p.name)) {
+                applyBaseSettings(p);
+                try {
+                    ActivePauseStorage.save(p);
+                } catch (Throwable ignored) {
+                }
+                android.util.Log.i("xems_local", "base settings put into " + DEMO_PROGRAM);
+                prefs(ctx).edit().putBoolean(KEY_BASE_MAIN, true).apply();
+                return;
+            }
+        }
     }
 
     /**
@@ -808,8 +896,8 @@ public final class XemsLocalStore {
     }
 
     /**
-     * The program seeded before 1.1.198 ("Тренировка 1" / "Workout 1") becomes "Test"; the clients
-     * pointing at it by name follow. Nothing happens once a "Test" exists.
+     * The demo program under an old name ("Test", "Тренировка 1", "Workout 1") becomes "Main"; the clients
+     * pointing at it by name follow. Nothing happens once a "Main" exists.
      */
     private static void renameSeededProgram(DataMgr dm) {
         TrainProgram old = null;
@@ -821,20 +909,19 @@ public final class XemsLocalStore {
             if (DEMO_PROGRAM.equals(p.name)) {
                 return;
             }
-            if (old == null && ("Тренировка 1".equals(p.name) || "Workout 1".equals(p.name))) {
+            if (old == null && isOldDemoName(p.name)) {
                 old = p;
             }
         }
         if (old == null) {
             return;
         }
-        String was = old.name;
         old.name = DEMO_PROGRAM;
         boolean users = false;
         if (dm.trainUsers != null) {
             for (int i = 0; i < dm.trainUsers.size(); i++) {
                 TrainUser u = dm.trainUsers.get(i);
-                if (u != null && was.equals(u.trainName)) {
+                if (u != null && isOldDemoName(u.trainName)) {
                     u.trainName = DEMO_PROGRAM;
                     users = true;
                 }

@@ -67,6 +67,8 @@ public final class AutoCatalog {
         public boolean doublePulse;
         /** Impulse class for the smart impulse (AutoDynamics.STRENGTH / POWER / CARDIO / GENTLE); unset = gentle. */
         public String impulse;
+        /** Difficulty (owner, 1.1.336): 1 easy (green) · 2 medium (amber) · 3 hard (red). */
+        public int level = 2;
         public boolean femaleOnly;
         /** Men's programs: a woman's menu does not show them. */
         public boolean maleOnly;
@@ -180,6 +182,40 @@ public final class AutoCatalog {
                 "3 ↔ 8 Hz масаж след натоварване", "3 ↔ 8 Hz massage after training",
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
+
+        // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
+        // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY}) {
+            get(id).level = 1;
+        }
+        for (String id : new String[] {POWER, CARDIO, MASS}) {
+            get(id).level = 3;
+        }
+    }
+
+    /**
+     * The card's three times (owner, 1.1.336), seconds: warm-up (the program's first phase), the main part (the rest of
+     * the active work) and the recovery. The time itself is not chosen any more: it is the program's, as long as
+     * this client may have it ({@link AutoPlanner#maxSeconds}).
+     */
+    public static int[] times(Program p, Goal goal, Input in) {
+        List<Phase> ph = phases(p, goal, in, AutoPlanner.maxSeconds(p, goal, in));
+        int warm = 0;
+        int main = 0;
+        int rec = 0;
+        boolean first = true;
+        for (Phase x : ph) {
+            if (x.isCooldown()) {
+                rec += x.durationS;
+            } else if (first && ph.size() > 2) {
+                warm = x.durationS;
+                first = false;
+            } else {
+                main += x.durationS;
+                first = false;
+            }
+        }
+        return new int[] {warm, main, rec};
     }
 
     private static Program add(Program p) {

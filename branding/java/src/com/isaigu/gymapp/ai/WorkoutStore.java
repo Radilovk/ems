@@ -150,6 +150,17 @@ public final class WorkoutStore {
             f.put(z);
         }
         o.put("focus", f);
+        if (w.sex != null) {
+            o.put("sex", w.sex);
+        }
+        if (w.level > 0) {
+            o.put("lvl", w.level);
+        }
+        JSONArray gs = new JSONArray();
+        for (String g : w.goals) {
+            gs.put(g);
+        }
+        o.put("goals", gs);
         JSONArray bl = new JSONArray();
         for (Workout.Block b : w.blocks) {
             JSONObject x = new JSONObject();
@@ -196,6 +207,12 @@ public final class WorkoutStore {
             JSONArray f = o.optJSONArray("focus");
             for (int i = 0; f != null && i < f.length(); i++) {
                 w.focus.add(f.getString(i));
+            }
+            w.sex = o.has("sex") ? o.optString("sex") : null;
+            w.level = o.optInt("lvl", 0);
+            JSONArray gs = o.optJSONArray("goals");
+            for (int i = 0; gs != null && i < gs.length(); i++) {
+                w.goals.add(gs.getString(i));
             }
             JSONArray bl = o.optJSONArray("blocks");
             if (bl != null) {

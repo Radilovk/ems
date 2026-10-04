@@ -145,6 +145,14 @@ public final class Workout {
     public boolean preset;
     /** Who a ready program is for: "m" men, "f" women, null everyone (AutoCatalog maleOnly / femaleOnly). */
     public String sex;
+    /**
+     * Classifiers for the automatic mode's filter (owner, 1.1.336), marked when the map is made: the goals it serves
+     * ({@link AutoModel.Goal} names: TONE, SLIM, HEALTH — empty = from its exercises) and the difficulty 1 easy /
+     * 2 medium / 3 hard (0 = not marked, counts as medium). Active or passive is the map itself ({@link #isPassive});
+     * who it is for is {@link #sex}; the trained zones are {@link #focus} / {@link #derivedFocus}.
+     */
+    public final java.util.Set<String> goals = new java.util.LinkedHashSet<String>();
+    public int level;
     public long updatedAt;
 
     static int clamp(int v, int lo, int hi) {
@@ -160,6 +168,9 @@ public final class Workout {
         w.id = newId;
         w.name = newName;
         w.goal = goal;
+        w.sex = sex;
+        w.level = level;
+        w.goals.addAll(goals);
         w.focus.addAll(focus);
         for (Block b : blocks) {
             w.blocks.add(b.copy());
@@ -292,6 +303,36 @@ public final class Workout {
             }
         }
         return all > 0 && cardio * 2 > all ? GOAL_FAT : GOAL_TONE;
+    }
+
+    /** The goals this map serves: the marked ones; unmarked — an exercise map by its exercises (cardio → slimming,
+     *  else toning), a procedure fits every goal. */
+    public java.util.Set<AutoModel.Goal> effectiveGoals() {
+        java.util.Set<AutoModel.Goal> out = new java.util.LinkedHashSet<AutoModel.Goal>();
+        for (String g : goals) {
+            try {
+                out.add(AutoModel.Goal.valueOf(g));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        if (out.isEmpty()) {
+            if (isPassive()) {
+                out.addAll(java.util.Arrays.asList(AutoModel.Goal.values()));
+            } else {
+                out.add(GOAL_FAT.equals(suggestedGoal()) ? AutoModel.Goal.SLIM : AutoModel.Goal.TONE);
+            }
+        }
+        return out;
+    }
+
+    /** 1 easy · 2 medium · 3 hard (unmarked = medium). */
+    public int effectiveLevel() {
+        return level >= 1 && level <= 3 ? level : 2;
+    }
+
+    /** Shown in the automatic mode's menu for this goal and kind (active / passive). */
+    public boolean fits(AutoModel.Goal g, AutoModel.Kind kind) {
+        return isPassive() == (kind == AutoModel.Kind.PASSIVE) && effectiveGoals().contains(g);
     }
 
     /** A clean block: active programs — strength impulse; passive — a relaxing low-frequency one. */
@@ -438,6 +479,19 @@ public final class Workout {
         return p == null ? null : p.maleOnly ? "m" : p.femaleOnly ? "f" : null;
     }
 
+    /** A ready map carries its program's classifiers: the goals whose menu lists it, and its difficulty. */
+    private static void classify(Workout w, AutoCatalog.Program prog) {
+        if (prog == null) {
+            return;
+        }
+        w.level = prog.level;
+        for (AutoModel.Goal g : AutoModel.Goal.values()) {
+            if (AutoCatalog.menu(g, prog.kind).contains(prog)) {
+                w.goals.add(g.name());
+            }
+        }
+    }
+
     public static List<Workout> presets() {
         List<Workout> out = new ArrayList<Workout>();
         for (int p = 0; p < AutoTemplateData.PROGRAMS.length; p++) {
@@ -453,6 +507,7 @@ public final class Workout {
             w.name = prog != null ? prog.name() : id;
             w.goal = AutoCatalog.CARDIO.equals(id) ? GOAL_FAT : GOAL_TONE;
             w.sex = audience(prog);
+            classify(w, prog);
             if (AutoCatalog.GLUTES_LEGS.equals(id)) {
                 w.focus.add("glutes");
             } else if (AutoCatalog.CORE.equals(id)) {
@@ -503,6 +558,7 @@ public final class Workout {
                 w.name = prog.name();
                 w.goal = GOAL_PASSIVE;
                 w.sex = audience(prog);
+                classify(w, prog);
                 for (AutoModel.Phase ph : plan.phases) {
                     int n = Math.max(1, ph.steps.size());
                     for (AutoModel.Step s : ph.steps) {

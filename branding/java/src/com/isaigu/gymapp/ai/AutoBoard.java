@@ -19,6 +19,8 @@ public final class AutoBoard {
     private static ViewGroup.LayoutParams listParams;
     private static View board;
     private static int heightPx = -1;
+    /** The attached board is the setting-up one (before ▶ Старт), not the run's. */
+    private static boolean setupKind;
     /** Reference width of the board (dp); its height follows the real space (never below DESIGN_H). */
     static final int DESIGN_W = 1160;
     static final int DESIGN_H = 290;
@@ -72,7 +74,9 @@ public final class AutoBoard {
 
     /** Builds the board under the first row when Auto runs, removes it otherwise. */
     static void sync(View any) {
-        boolean want = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
+        boolean run = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
+        boolean setup = AutoSession.getStage() == AutoSession.Stage.CALIB && AutoSession.getPlan() != null;
+        boolean want = run || setup;
         try {
             if (!want) {
                 detach();
@@ -88,11 +92,12 @@ public final class AutoBoard {
             if (rv == null || !(rv.getParent() instanceof LinearLayout)) {
                 return;
             }
-            if (isAttached() && rv == list) {
+            if (isAttached() && rv == list && setupKind == setup) {
                 keepFirstRow(rv);
                 return;
             }
             detach();
+            setupKind = setup;
             attach(c, rv);
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoBoard.sync", t);
@@ -119,7 +124,11 @@ public final class AutoBoard {
         // evenly to the real width; its height is whatever is left (Fit), so it fills the space on every tablet —
         // no scrolling, nothing cut, no empty band above or below.
         LinearLayout content = XemsUi.vertical(c);
-        AutoUi.buildBoard(c, content);
+        if (setupKind) {
+            AutoUi.buildSetupBoard(c, content);
+        } else {
+            AutoUi.buildBoard(c, content);
+        }
         android.widget.FrameLayout sv = new android.widget.FrameLayout(c);
         sv.addView(content, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, DESIGN_W), XemsUi.dp(c, DESIGN_H)));
         sv.addOnLayoutChangeListener(new Fit(content));

@@ -228,6 +228,31 @@ public final class MapSim {
         check(n >= 300, "library: every exercise checked (" + n + ")");
     }
 
+    /** The marks the automatic mode filters by (owner, 1.1.336): ready maps carry their program's goals and level. */
+    static void classifiers() {
+        for (Workout m : Workout.presets()) {
+            check(m.level >= 1 && m.level <= 3, m.id + ": level " + m.level);
+            check(!m.goals.isEmpty(), m.id + ": no goals");
+            for (AutoModel.Goal g : AutoModel.Goal.values()) {
+                check(m.fits(g, m.isPassive() ? AutoModel.Kind.PASSIVE : AutoModel.Kind.ACTIVE) == m.goals.contains(g.name()),
+                        m.id + ": fits " + g);
+                check(!m.fits(g, m.isPassive() ? AutoModel.Kind.ACTIVE : AutoModel.Kind.PASSIVE), m.id + ": wrong kind fits");
+            }
+        }
+        Workout w = new Workout();                       // unmarked: from its exercises / any goal for a procedure
+        w.blocks.add(Workout.forExercise("bodyweight-squat", "squat", false));
+        check(w.effectiveLevel() == 2 && w.effectiveGoals().size() == 1, "unmarked exercise map");
+        w.goals.add("HEALTH");
+        w.level = 3;
+        check(w.effectiveLevel() == 3 && w.fits(AutoModel.Goal.HEALTH, AutoModel.Kind.ACTIVE)
+                && !w.fits(AutoModel.Goal.TONE, AutoModel.Kind.ACTIVE), "marked map");
+        Workout c2 = w.copy("x", "y");
+        check(c2.level == 3 && c2.goals.contains("HEALTH"), "copy keeps the marks");
+        Workout pr = new Workout();
+        pr.goal = Workout.GOAL_PASSIVE;
+        check(pr.effectiveGoals().size() == AutoModel.Goal.values().length, "a procedure fits every goal");
+    }
+
     public static void main(String[] args) {
         impulseSettings();
         dynamics();
@@ -247,6 +272,7 @@ public final class MapSim {
             run(m, true);
             run(m, false);
         }
+        classifiers();
         // what the backend decides without asking: zones, goal, rest length
         for (Workout m : Workout.presets()) {
             if (m.isPassive()) {

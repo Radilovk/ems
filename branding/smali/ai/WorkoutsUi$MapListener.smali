@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 886
+    .line 944
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,19 +34,19 @@
     .registers 2
 
     .prologue
-    .line 896
+    .line 954
     const/4 v0, 0x1
 
     # setter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$102(Z)Z
 
-    .line 897
+    .line 955
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshFooter()V
 
-    .line 898
+    .line 956
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshLegend()V
 
-    .line 899
+    .line 957
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -54,7 +54,7 @@
 
     if-eqz v0, :cond_1d
 
-    .line 900
+    .line 958
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -68,7 +68,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
-    .line 902
+    .line 960
     :cond_1d
     return-void
 .end method
@@ -77,7 +77,7 @@
     .registers 3
 
     .prologue
-    .line 889
+    .line 947
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -85,7 +85,7 @@
 
     if-eqz v0, :cond_13
 
-    .line 890
+    .line 948
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -99,7 +99,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
-    .line 892
+    .line 950
     :cond_13
     return-void
 .end method

@@ -74,6 +74,7 @@ java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 for f in XemsSearch XemsLocalStore XemsLocalApi XemsLocalSection XemsLocalGate XemsLocalUserForm XemsLocalAvatar XemsClientSync; do
   src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
   [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
+  rm -f "${BRANDING_SMALI}/${f}"\$*.smali   # inner classes the Java no longer has
   for inner in "${SMALI_OUT}/com/isaigu/gymapp/widget/${f}"\$*.smali; do
     [[ -f "$inner" ]] && cp "$inner" "${BRANDING_SMALI}/$(basename "$inner")"
   done

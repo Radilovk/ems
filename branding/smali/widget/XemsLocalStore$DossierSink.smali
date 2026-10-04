@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1156
+    .line 1080
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 4
 
     .prologue
-    .line 1164
+    .line 1088
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->removeUserQuiet(J)V
 
-    .line 1165
+    .line 1089
     return-void
 .end method
 
@@ -45,9 +45,9 @@
     .registers 3
 
     .prologue
-    .line 1159
+    .line 1083
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUserQuiet(Lcom/isaigu/gymapp/bean/TrainUser;Z)V
 
-    .line 1160
+    .line 1084
     return-void
 .end method

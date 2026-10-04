@@ -33,32 +33,15 @@ public final class XemsLocalApi {
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
-    /** Set at start in the admin setup: the next customer / program list also asks the cloud. */
-    private static volatile boolean syncUsers;
-    private static volatile boolean syncPrograms;
-
-    static void requestCloudSync() {
-        syncUsers = true;
-        syncPrograms = true;
-    }
-
     private XemsLocalApi() {}
 
     // ================================================================ customers
 
     /**
-     * Customers. Normally the tablet's list. Right after start in the admin setup (0123) the cloud
-     * is asked once too: its customers are added to the tablet's (see {@link CloudMerge}). Then the
-     * returned callback carries the cloud request on; null = answered here.
+     * Customers: the tablet's list, always (the vendor's cloud is never asked — 1.1.330). Returns null = answered
+     * here (the smali hook would carry a returned callback on to the cloud).
      */
     public static OKHttpUtils.HttpResponseCallback getUserCustomers(long coachId, OKHttpUtils.HttpResponseCallback cb) {
-        if (syncUsers && cb != null && XemsLocalStore.isAdminSession()) {
-            syncUsers = false;
-            OKHttpUtils.HttpResponseCallback merge = CloudMerge.wrap(cb, CloudMerge.USERS);
-            if (merge != null) {
-                return merge;
-            }
-        }
         answerUsers(cb);
         return null;
     }
@@ -79,7 +62,6 @@ public final class XemsLocalApi {
     /** Programs: the tablet's only. The vendor's cloud programs are not taken in any more (owner, 1.1.263: the
      *  home screen shows the demo and the studio's own; XemsLocalStore put the old cloud ones aside). */
     public static OKHttpUtils.HttpResponseCallback getUserProgramTrainDataList(long coachId, OKHttpUtils.HttpResponseCallback cb) {
-        syncPrograms = false;
         answerPrograms(cb);
         return null;
     }
@@ -196,66 +178,6 @@ public final class XemsLocalApi {
         v.outputRamp = d.outputRamp;
         v.workLength = d.workLength;
         return v;
-    }
-
-    /**
-     * Carries a cloud list request on in the admin setup. Built with the original callback's
-     * target type, so OKHttpUtils parses the answer the same way. Whatever the cloud says, the
-     * original callback gets the tablet's list: the cloud items the tablet lacks are added first.
-     */
-    static final class CloudMerge extends OKHttpUtils.HttpResponseCallback {
-        static final int USERS = 1;
-        static final int PROGRAMS = 2;
-
-        private final OKHttpUtils.HttpResponseCallback original;
-        private final int kind;
-
-        private CloudMerge(java.lang.reflect.Type type, OKHttpUtils.HttpResponseCallback original, int kind) {
-            super(type);
-            this.original = original;
-            this.kind = kind;
-        }
-
-        /** Null when the original's target type cannot be read (then the tablet answers). */
-        static OKHttpUtils.HttpResponseCallback wrap(OKHttpUtils.HttpResponseCallback cb, int kind) {
-            try {
-                java.lang.reflect.Field f = OKHttpUtils.HttpResponseCallback.class.getDeclaredField("targetType");
-                f.setAccessible(true);
-                java.lang.reflect.Type type = (java.lang.reflect.Type) f.get(cb);
-                return type == null ? null : new CloudMerge(type, cb, kind);
-            } catch (Throwable t) {
-                android.util.Log.e("xems_local", "cloud merge", t);
-                return null;
-            }
-        }
-
-        @Override
-        public void httpResponse(boolean ok, String message, Object result) {
-            try {
-                List<?> cloud = null;
-                if (ok && result instanceof ResponseData) {
-                    ResponseData r = (ResponseData) result;
-                    if (r.getCode() == 0 && r.getData() instanceof List) {
-                        cloud = (List<?>) r.getData();
-                    }
-                }
-                if (kind == USERS) {
-                    XemsLocalStore.loadUsers();
-                    if (cloud != null) {
-                        XemsLocalStore.mergeCloudUsers(cloud);
-                    }
-                    answerUsers(original);
-                } else {
-                    XemsLocalStore.loadPrograms();
-                    if (cloud != null) {
-                        XemsLocalStore.mergeCloudPrograms(cloud);
-                    }
-                    answerPrograms(original);
-                }
-            } catch (Throwable t) {
-                android.util.Log.e("xems_local", "cloud merge", t);
-            }
-        }
     }
 
     /** Success in the cloud's shape, delivered on the main thread after the caller returns. */

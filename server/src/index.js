@@ -1,4 +1,5 @@
 import { signToken, sha256Hex, verifyToken } from './crypto.js';
+import { sweep } from './sweep.js';
 import { resolveEntitlements, PLANS } from './plans.js';
 import { catalogSummary, filterMods, filterFeat } from './catalog.js';
 import {
@@ -47,6 +48,10 @@ function cors(res) {
 }
 
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(sweep(env));
+  },
+
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
@@ -159,6 +164,25 @@ async function handleActivate(request, env) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many attempts for this device' }, 429);
   }
 
+  // The admin's setup code (only its SHA-256, as the Worker secret SETUP_CODE_SHA256 — never in the app or the
+  // repo): opens the admin setup on a tablet the server already knows, with that tablet's own licence.
+  if (env.SETUP_CODE_SHA256 && (await sha256Hex(String(body.key || '').trim())) === env.SETUP_CODE_SHA256) {
+    const act = await env.DB.prepare(
+      "SELECT * FROM activations WHERE device_id = ? AND status IN ('active', 'pending') ORDER BY (status = 'active') DESC LIMIT 1",
+    ).bind(deviceId).first();
+    if (!act) return err('unknown', 'Unknown tablet');
+    if (act.status === 'pending') return err('pending', 'Waiting for approval');
+    const owned = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(act.license_id).first();
+    if (!owned) return err('unknown', 'No license for this device');
+    await env.DB.prepare('UPDATE activations SET setup = 1, last_seen = ? WHERE license_id = ? AND device_id = ?')
+      .bind(now(), act.license_id, deviceId).run();
+    await audit(env, 'setup_code', owned.id, deviceId, null);
+    return json({
+      ok: true, token: await mintToken(env, owned, deviceId), phase: 'setup', setup_code: true,
+      studio: await ensureStudioCode(env, owned),
+    });
+  }
+
   const keyHash = await sha256Hex(key);
   const lic = await env.DB.prepare('SELECT * FROM licenses WHERE key_hash = ?').bind(keyHash).first();
   if (!lic) return err('invalid_key', 'License key not found');
@@ -169,9 +193,17 @@ async function handleActivate(request, env) {
     'SELECT * FROM activations WHERE license_id = ? AND device_id = ?',
   ).bind(lic.id, deviceId).first();
 
+  let setup = 0;
   if (existing) {
-    if (existing.status !== 'active') return err('revoked', 'Device removed');
+    if (existing.status === 'pending') {
+      // the key is the customer's own: the waiting row becomes this licence's tablet
+      await env.DB.prepare("UPDATE activations SET status = 'active' WHERE license_id = ? AND device_id = ?")
+        .bind(lic.id, deviceId).run();
+    } else if (existing.status !== 'active') {
+      return err('revoked', 'Device removed');
+    }
     await touchActivation(env, existing, body);
+    setup = body.setup_done ? 0 : (existing.setup || 0);
   } else {
     const active = await env.DB.prepare(
       "SELECT COUNT(*) AS n FROM activations WHERE license_id = ? AND status = 'active'",
@@ -186,20 +218,26 @@ async function handleActivate(request, env) {
     ).bind(
       lic.id, deviceId, body.device_model || '', body.android || 0,
       body.app_version || '', body.app_code || 0, body.lang || 'bg', ts, ts,
-      JSON.stringify(normMacList(body.ems_local)), body.setup ? 1 : 0,
+      JSON.stringify(normMacList(body.ems_local)), 0,
     ).run();
+    // a key typed on a tablet that was waiting for approval: the waiting row is not needed any more
+    await env.DB.prepare("DELETE FROM activations WHERE device_id = ? AND status = 'pending' AND license_id != ?")
+      .bind(deviceId, lic.id).run();
   }
 
   const token = await mintToken(env, lic, deviceId);
   await audit(env, 'activate', lic.id, deviceId, body.device_model);
-  return json({ ok: true, token });
+  return json({ ok: true, token, phase: setup ? 'setup' : 'locked' });
 }
 
 /**
  * A tablet without a license asks by its own id (stable across a reinstall):
  * - it already has an active activation → that license again (reinstall keeps everything);
  * - it was removed in the admin panel → stays locked;
- * - new → joins OWNER_LICENSE (the owner's tablets are full until the owner locks one); no owner → unknown.
+ * - pending (new, not approved yet) → still waiting;
+ * - new → waits for the admin (Таблети → Одобри, with the studio it belongs to). Until then it runs the base
+ *   app: no modules, no client data. (Before 1.1.329 a new device joined OWNER_LICENSE at once — anyone could
+ *   mint the owner's token and read every client.)
  */
 async function handleAuto(request, env) {
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
@@ -217,37 +255,33 @@ async function handleAuto(request, env) {
   const act = await env.DB.prepare(
     "SELECT * FROM activations WHERE device_id = ? ORDER BY (status = 'active') DESC, last_seen DESC LIMIT 1",
   ).bind(deviceId).first();
+  if (act && act.status === 'pending') return err('pending', 'Waiting for approval');
   if (act && act.status !== 'active') return err('revoked', 'Device locked');
-
-  let lic;
-  if (act) {
-    lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(act.license_id).first();
-  } else {
+  if (!act) {
+    // parked under the owner's licence (the activation needs one) until the admin approves it and picks the studio
     if (!env.OWNER_LICENSE) return err('unknown', 'No license for this device');
-    lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(env.OWNER_LICENSE).first();
+    const ts = now();
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO activations (license_id, device_id, device_model, android, app_version, app_code, lang, first_seen, last_seen, status, ems_local, setup)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+    ).bind(
+      env.OWNER_LICENSE, deviceId, body.device_model || '', body.android || 0,
+      body.app_version || '', body.app_code || 0, body.lang || 'bg', ts, ts,
+      JSON.stringify(normMacList(body.ems_local)), body.setup ? 1 : 0,
+    ).run();
+    await audit(env, 'auto_pending', env.OWNER_LICENSE, deviceId, body.device_model);
+    return err('pending', 'Waiting for approval');
   }
+
+  const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(act.license_id).first();
   if (!lic) return err('unknown', 'No license for this device');
   if (lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License disabled');
   if (lic.expires_at && lic.expires_at < now()) return err('expired', 'License expired');
 
-  // a reinstall starts in the setup on the tablet: the saved state (setup finished or not, the paired suits) wins
-  const phase = act && !act.setup ? 'locked' : 'setup';
-  if (act) {
-    await touchActivation(env, act, { ...body, setup: undefined, ems_local: undefined });
-    await audit(env, 'auto_restore', lic.id, deviceId, body.device_model);
-  } else {
-    // the owner's own tablets: no device limit
-    const ts = now();
-    await env.DB.prepare(
-      `INSERT INTO activations (license_id, device_id, device_model, android, app_version, app_code, lang, first_seen, last_seen, status, ems_local, setup)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
-    ).bind(
-      lic.id, deviceId, body.device_model || '', body.android || 0,
-      body.app_version || '', body.app_code || 0, body.lang || 'bg', ts, ts,
-      JSON.stringify(normMacList(body.ems_local)), body.setup ? 1 : 0,
-    ).run();
-    await audit(env, 'auto_enroll', lic.id, deviceId, body.device_model);
-  }
+  // the server's phase: the setup is open only when the admin opened it (approval, setup code, admin panel)
+  const phase = phaseAfter(act, body);
+  // no audit row per call: /auto runs at every app start
+  await touchActivation(env, act, { ...body, ems_local: undefined });
   const token = await mintToken(env, lic, deviceId);
   return json({ ok: true, token, phase, studio: await ensureStudioCode(env, lic), app_latest: await latestFor(env, body.app_code) });
 }
@@ -285,6 +319,7 @@ async function handleRefresh(request, env) {
   if (!allowHit(`refresh:dev:${deviceId}`, LIMITS.refreshPerMinutePerDevice, 60, now())) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many refresh attempts' }, 429);
   }
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
 
   const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
   if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
@@ -297,7 +332,10 @@ async function handleRefresh(request, env) {
 
   if (activationStale(act, body, now())) await touchActivation(env, act, body);
   const newToken = await mintToken(env, lic, deviceId);
-  return json({ ok: true, token: newToken, studio: await ensureStudioCode(env, lic), app_latest: await latestFor(env, body.app_code) });
+  return json({
+    ok: true, token: newToken, phase: phaseAfter(act, body),
+    studio: await ensureStudioCode(env, lic), app_latest: await latestFor(env, body.app_code),
+  });
 }
 
 // ─── Client card (a phone page the studio sends to its client) ───────────────
@@ -364,11 +402,15 @@ async function handleCardFind(request, env) {
   const ek = lookupHash(body?.ek);
   const pk = lookupHash(body?.pk);
   if (!ek && !pk) return cors(err('bad_request', 'ek / pk'));
+  // only the studio's own cards: a phone number alone never opens another studio's client
+  if (!isStudioCode(body?.studio)) return cors(err('bad_request', 'studio'));
+  const lic = await env.DB.prepare('SELECT id FROM licenses WHERE studio_code = ?').bind(body.studio).first();
+  if (!lic) return cors(json({ ok: false, error: 'not_found' }, 404));
   const { results } = await env.DB.prepare(
     `SELECT id, email_hash, phone_hash, updated_at FROM client_cards
-     WHERE expires_at > ? AND (email_hash = ? OR phone_hash = ?)
+     WHERE license_id = ? AND expires_at > ? AND (email_hash = ? OR phone_hash = ?)
      ORDER BY updated_at DESC LIMIT 20`,
-  ).bind(now(), ek || '-', pk || '-').all();
+  ).bind(lic.id, now(), ek || '-', pk || '-').all();
   const hit = (results || []).find((r) => lookupMatches(r, ek, pk));
   if (!hit) return cors(json({ ok: false, error: 'not_found' }, 404));
   const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
@@ -786,6 +828,28 @@ async function adminApi(request, env, path) {
     return json({ ok: true });
   }
 
+  if (route.match(/^activations\/[^/]+\/[^/]+\/approve$/) && request.method === 'POST') {
+    const [, licId, deviceId] = route.split('/');
+    const b = (await readJsonBody(request)) || {};
+    const target = String(b.license_id || licId);
+    const lic = await env.DB.prepare('SELECT id FROM licenses WHERE id = ?').bind(target).first();
+    if (!lic) return json({ ok: false, error: 'not_found', message: 'Няма такъв ключ' }, 404);
+    const r = await env.DB.prepare(
+      "UPDATE activations SET status = 'active', setup = 1, license_id = ? WHERE license_id = ? AND device_id = ? AND status = 'pending'",
+    ).bind(target, licId, deviceId).run();
+    if (!r?.meta?.changes) return json({ ok: false, error: 'not_pending' }, 409);
+    await audit(env, 'approve_device', target, deviceId, null);
+    return json({ ok: true });
+  }
+
+  if (route.match(/^activations\/[^/]+\/[^/]+\/setup$/) && request.method === 'POST') {
+    const [, licId, deviceId] = route.split('/');
+    await env.DB.prepare("UPDATE activations SET setup = 1 WHERE license_id = ? AND device_id = ? AND status = 'active'")
+      .bind(licId, deviceId).run();
+    await audit(env, 'open_setup', licId, deviceId, null);
+    return json({ ok: true });
+  }
+
   if (route.startsWith('activations/') && request.method === 'GET') {
     const licId = route.split('/')[1];
     const rows = await env.DB.prepare(
@@ -1078,6 +1142,11 @@ async function uniqueLicenseId(env) {
   throw new Error('Could not generate unique license ID');
 }
 
+/** The phase the tablet runs after this call: the server opens the setup; only the tablet's "done" closes it. */
+function phaseAfter(act, body) {
+  return act.setup && !body?.setup_done ? 'setup' : 'locked';
+}
+
 async function touchActivation(env, act, body) {
   await env.DB.prepare(
     `UPDATE activations SET last_seen = ?, device_model = ?, android = ?, app_version = ?, app_code = ?, lang = ?,
@@ -1088,7 +1157,7 @@ async function touchActivation(env, act, body) {
     body.app_version || act.app_version, body.app_code || act.app_code,
     body.lang || act.lang,
     Array.isArray(body.ems_local) ? JSON.stringify(normMacList(body.ems_local)) : (act.ems_local || '[]'),
-    body.setup === undefined ? (act.setup || 0) : (body.setup ? 1 : 0),
+    body.setup_done ? 0 : (act.setup || 0),
     act.license_id, act.device_id,
   ).run();
 }
@@ -1170,8 +1239,18 @@ function checkAdmin(request, env) {
   const user = decoded.slice(0, colon);
   const pass = decoded.slice(colon + 1);
   const expectedUser = env.ADMIN_USER || 'admin';
-  const expected = env.ADMIN_PASSWORD || '0123';
-  return user === expectedUser && pass === expected;
+  const expected = env.ADMIN_PASSWORD;
+  if (!expected) return false;                     // no secret set → the admin stays closed (no built-in password)
+  return Boolean(sameText(user, expectedUser) & sameText(pass, expected));
+}
+
+/** Compare without leaking where the first difference is. */
+function sameText(a, b) {
+  const x = new TextEncoder().encode(String(a));
+  const y = new TextEncoder().encode(String(b));
+  let d = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) d |= (x[i] || 0) ^ (y[i] || 0);
+  return d === 0;
 }
 
 function json(obj, status = 200) {

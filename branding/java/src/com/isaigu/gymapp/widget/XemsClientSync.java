@@ -268,11 +268,13 @@ public final class XemsClientSync {
             u.nickName = name;
         }
         boolean changed = created;
-        if (email.length() > 0 && (empty(u.email) || newer) && !email.equalsIgnoreCase(u.email)) {
+        // the contact only fills an empty field: a profile never replaces the e-mail or phone the studio has
+        // (the booking page is public — a changed contact is the trainer's edit in the client form)
+        if (email.length() > 0 && empty(u.email)) {
             u.email = email;
             changed = true;
         }
-        if (phone.length() > 0 && (empty(u.phone) || newer) && !digits9(phone).equals(digits9(u.phone))) {
+        if (phone.length() > 0 && empty(u.phone)) {
             u.phone = phone;
             changed = true;
         }

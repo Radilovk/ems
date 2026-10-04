@@ -105,86 +105,10 @@ public final class XemsLocalStore {
             XemsClientSync.start(ctx);
             MessageDispatcher.dispatchEventMessage((short) 0x69);
             MessageDispatcher.dispatchEventMessage((short) 0x6a);
-            if (fragment != null && isAdminSession()) {
-                // Admin setup (0123): everything visible — the coach's cloud customers and
-                // programs join the tablet's (MainFragment's own refresh, through ApiMgr).
-                XemsLocalApi.requestCloudSync();
-                callPrivate(fragment, "initUsers");
-                callPrivate(fragment, "initTrainPrograms");
-            }
+            // No cloud merge in the admin setup any more (1.1.330): the coach's vendor-cloud customers never land on
+            // a customer's tablet; the studio's clients come from the licence server (XemsDossier) only.
         } catch (Throwable t) {
             android.util.Log.e("xems_local", "bootstrapOnline", t);
-        }
-    }
-
-    private static void callPrivate(Object target, String method) {
-        try {
-            java.lang.reflect.Method m = target.getClass().getDeclaredMethod(method);
-            m.setAccessible(true);
-            m.invoke(target);
-        } catch (Throwable t) {
-            android.util.Log.e("xems_local", method, t);
-        }
-    }
-
-    /** Cloud customers the tablet does not have yet (same id = the tablet's copy stays). */
-    static void mergeCloudUsers(List<?> cloud) {
-        DataMgr dm = DataMgr.getInstance();
-        if (dm.trainUsers == null) {
-            dm.trainUsers = new ArrayList<>();
-        }
-        boolean added = false;
-        for (int i = 0; i < cloud.size(); i++) {
-            Object o = cloud.get(i);
-            if (!(o instanceof TrainUser)) {
-                continue;
-            }
-            TrainUser u = (TrainUser) o;
-            boolean known = false;
-            for (int j = 0; j < dm.trainUsers.size() && !known; j++) {
-                TrainUser l = dm.trainUsers.get(j);
-                known = l != null && l.id == u.id;
-            }
-            if (!known) {
-                dm.trainUsers.add(u);
-                added = true;
-            }
-        }
-        if (added) {
-            saveUsers();
-        }
-    }
-
-    /** Cloud programs the tablet does not have and did not delete. */
-    static void mergeCloudPrograms(List<?> cloud) {
-        DataMgr dm = DataMgr.getInstance();
-        if (dm.trainData == null) {
-            dm.trainData = new ArrayList<>();
-        }
-        Set<String> deleted = deletedPrograms();
-        List<TrainProgram> fresh = new ArrayList<>();
-        for (int i = 0; i < cloud.size(); i++) {
-            Object o = cloud.get(i);
-            if (!(o instanceof TrainProgram)) {
-                continue;
-            }
-            TrainProgram p = (TrainProgram) o;
-            if (p.id == null || deleted.contains(String.valueOf(p.id))) {
-                continue;
-            }
-            boolean known = false;
-            for (int j = 0; j < dm.trainData.size() && !known; j++) {
-                TrainProgram l = dm.trainData.get(j);
-                known = l != null && p.id.equals(l.id);
-            }
-            if (!known) {
-                fresh.add(p);
-            }
-        }
-        if (!fresh.isEmpty()) {
-            ActivePauseStorage.mergeList(fresh);
-            dm.trainData.addAll(fresh);
-            savePrograms();
         }
     }
 

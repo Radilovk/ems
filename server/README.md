@@ -5,7 +5,8 @@
 **Live:** https://license.biocode-bg.com  
 **Admin (уеб, без CMD):** https://license.biocode-bg.com/admin
 
-Влез с **admin** / **0123** (Basic auth). От там:
+Влез с `ADMIN_USER` / `ADMIN_PASSWORD` (Basic auth; тайни на Worker-а). От там:
+- **одобряваш нови таблети** (Таблети → Одобри → студио) и отваряш настройката им
 - създаваш лицензни ключове за клиенти
 - управляваш костюми (MAC) по лиценз
 - **регистрираш нов APK** за OTA (APK файлът е в GitHub, сървърът сочи таблетите към него)
@@ -49,10 +50,12 @@ npx wrangler deploy
 npx wrangler secret put LICENSE_PRIVATE_KEY
 ```
 
-По подразбиране админ входът е `admin` / `0123`. За друга парола:
+**Задължително преди пускане (1.1.330):** паролата на панела няма стойност по подразбиране — без тайната
+`ADMIN_PASSWORD` панелът е затворен. Кодът за настройка на таблет също е тайна (само SHA-256):
 ```bash
 npx wrangler secret put ADMIN_PASSWORD
 npx wrangler secret put ADMIN_USER
+printf '%s' 'ТВОЯТ-КОД' | sha256sum | cut -d' ' -f1 | npx wrangler secret put SETUP_CODE_SHA256
 ```
 
 ## Разходи

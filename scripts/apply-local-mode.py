@@ -398,8 +398,9 @@ def patch_api_mgr() -> None:
 
 
 def patch_login() -> None:
-    """No login screen: it logs in with the house account by itself (XemsLocalGate), unless
-    7 taps on Language asked for it; then the splash goes there instead of auto-login."""
+    """No login screen and no vendor account: the splash makes a local session (XemsLocalGate.localSession) and
+    always takes the vendor's own offline path (saved session → main screen), so nothing is sent to the vendor's
+    server and no account lives in the app. 7 taps on Language ask for the real login screen once."""
     text = LOGIN.read_text(encoding="utf-8")
     if f"{GATE}->onLoginView" not in text:
         start = text.index(".method public onCreateView(")
@@ -410,11 +411,27 @@ def patch_login() -> None:
                 + body[ret:])
         text = text[:start] + body + text[end:]
         LOGIN.write_text(text, encoding="utf-8")
-        print("LoginFragment: house account login")
+        print("LoginFragment: login screen only on request")
     else:
         print("LoginFragment: already patched")
 
     text = SPLASH_RUN.read_text(encoding="utf-8")
+    if f"{GATE}->localSession" not in text:
+        is_login = "    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/UserData;->isLogin()Z\n"
+        if text.count(is_login) != 1:
+            raise SystemExit("SplashFragment$1$1: isLogin check not found once")
+        # same UserData singleton as v0: the local session is in place before isLogin reads it
+        text = text.replace(is_login, f"    invoke-static {{}}, {GATE}->localSession()Z\n\n" + is_login, 1)
+        net = """    invoke-static {v0}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected(Landroid/content/Context;)Z
+
+    move-result v0
+"""
+        if text.count(net) != 1:
+            raise SystemExit("SplashFragment$1$1: network check not found once")
+        # never the vendor's online login (ApiMgr.login): the saved local session opens the app
+        text = text.replace(net, "    const/4 v0, 0x0\n", 1)
+        SPLASH_RUN.write_text(text, encoding="utf-8")
+        print("SplashFragment: local session, no vendor login")
     if f"{GATE}->wantLoginScreen" in text:
         print("SplashFragment: already patched")
         return

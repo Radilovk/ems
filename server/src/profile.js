@@ -59,7 +59,8 @@ export function cleanProfile(p, nowSec) {
     cond: pick(p.cond, COND),
     contra: pick(p.contra, CONTRA),
     note: str(p.note, 300),
-    t: int(p.t, 0, nowSec + 86400) ?? nowSec,
+    // the server's clock: a profile can never claim to be newer than it is and win over the studio's edits
+    t: nowSec,
   };
   if (out.name.length < 2) return 'name';
   if (out.email && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(out.email)) return 'email';

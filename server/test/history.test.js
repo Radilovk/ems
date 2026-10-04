@@ -89,6 +89,8 @@ test('a licence refresh writes the tablet row only when needed', () => {
   assert.equal(activationStale(act, same, 1000 + 60), false);
   assert.equal(activationStale(act, same, 1000 + ACTIVATION_SEEN_SEC), true);
   assert.equal(activationStale(act, { ...same, app_code: 301 }, 1060), true);
-  assert.equal(activationStale(act, { ...same, setup: true }, 1060), true);
+  // the tablet's own setup flag no longer writes (the server opens the setup); its "done" does
+  assert.equal(activationStale(act, { ...same, setup: true }, 1060), false);
+  assert.equal(activationStale({ ...act, setup: 1 }, { ...same, setup_done: true }, 1060), true);
   assert.equal(activationStale(act, { ...same, ems_local: ['AA:BB:CC:DD:EE:FF'] }, 1060), true);
 });

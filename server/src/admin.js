@@ -327,6 +327,10 @@ const ACTION_LABELS={
   create_license:'Създаден ключ',
   update_license:'Променен лиценз',
   remove_device:'Премахнат таблет',
+  auto_pending:'Нов таблет чака одобрение',
+  approve_device:'Одобрен таблет',
+  open_setup:'Отворена настройка',
+  setup_code:'Настройка с кода',
   update_release:'Променена версия',
   delete_release:'Изтрита версия',
   add_ems_device:'Добавен EMS костюм',
@@ -403,7 +407,8 @@ async function load(){
 async function loadDevices(){
   const d=await api('devices');
   document.querySelector('#dev_table tbody').innerHTML=(d.devices||[]).map(x=>'<tr><td><code>'+fmtDev(x.device_id)+'</code></td><td>'+(x.customer||'—')+'</td><td>'+(x.device_model||'—')+'</td><td>'+(x.app_version||'?')+' <span style="color:#8b949e">('+x.app_code+')</span></td><td>'+fmtTs(x.last_seen)+'</td><td>'+(x.setup?'<span class="tag active">да — админ</span>':'не')+'</td><td>'+
-    (x.status==='active'?'<button class="danger" onclick="removeDevice(\\''+x.license_id+'\\',\\''+x.device_id+'\\')" title="Освобождава слот за нов таблет">Премахни таблет</button>':'<span class="tag removed">премахнат</span>')+
+    (x.status==='pending'?'<span class="tag disabled">чака одобрение</span> <select id="ap_'+x.device_id+'" title="Към кое студио принадлежи">'+(window._licenses||[]).map(l=>'<option value="'+l.id+'"'+(l.id===x.license_id?' selected':'')+'>'+(l.customer||l.id)+'</option>').join('')+'</select> <button onclick="approveDevice(\\''+x.license_id+'\\',\\''+x.device_id+'\\')">Одобри</button>':
+     x.status==='active'?(x.setup?'':'<button class="secondary" onclick="openSetup(\\''+x.license_id+'\\',\\''+x.device_id+'\\')" title="Таблетът влиза в настройка при следващото опресняване">Отвори настройка</button> ')+'<button class="danger" onclick="removeDevice(\\''+x.license_id+'\\',\\''+x.device_id+'\\')" title="Освобождава слот за нов таблет">Премахни таблет</button>':'<span class="tag removed">премахнат</span>')+
     '</td></tr>').join('')||'<tr><td colspan="7" class="empty">Няма активирани таблети. Ключът още не е ползван.</td></tr>';
 }
 
@@ -582,6 +587,19 @@ async function showLic(id){
   document.getElementById('lic_modal').classList.add('on');
 }
 function closeLic(){document.getElementById('lic_modal').classList.remove('on')}
+
+async function openSetup(licId,devId){
+  if(!confirm('Отвори настройката на таблет '+fmtDev(devId)+'?\\n\\nВсички модули са отворени, докато на таблета не натиснат „Заключи“.')) return;
+  await api('activations/'+licId+'/'+devId+'/setup',{method:'POST'});
+  loadDevices();
+}
+
+async function approveDevice(licId,devId){
+  const sel=document.getElementById('ap_'+devId);
+  const target=sel?sel.value:licId;
+  await api('activations/'+licId+'/'+devId+'/approve',{method:'POST',body:JSON.stringify({license_id:target})});
+  loadDevices();load();
+}
 
 async function removeDevice(licId,devId){
   if(!confirm('Премахни таблет '+fmtDev(devId)+'?\\n\\nОсвобождава един слот — нов таблет може да активира същия ключ.')) return;

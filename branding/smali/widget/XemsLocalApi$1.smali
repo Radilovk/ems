@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 271
+    .line 193
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;->val$cb:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;->val$r:Lcom/isaigu/gymapp/bean/vo/ResponseData;
@@ -49,7 +49,7 @@
     .registers 5
 
     .prologue
-    .line 275
+    .line 197
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;->val$cb:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
 
@@ -63,15 +63,15 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_a} :catch_b
 
-    .line 279
+    .line 201
     :goto_a
     return-void
 
-    .line 276
+    .line 198
     :catch_b
     move-exception v0
 
-    .line 277
+    .line 199
     const-string v1, "xems_local"
 
     const-string v2, "callback"

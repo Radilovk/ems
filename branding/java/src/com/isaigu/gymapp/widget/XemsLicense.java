@@ -6,7 +6,6 @@ import android.provider.Settings;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,8 +17,9 @@ import java.util.UUID;
  * <p>A fresh install is the base app (training only). The add-on modules stay visible but locked
  * until unlocked:
  * <ul>
- *   <li><b>offline code</b> — the key {@link #LOCAL_CODE} unlocks everything, no server needed;</li>
- *   <li><b>license server</b> — any other key is sent to the server, which answers with a signed
+ *   <li><b>no codes in the app</b> (1.1.330): every key goes to the server; the admin's setup code lives only
+ *       there (as a hash). A new tablet waits until the admin approves it ({@link #isPending()}).</li>
+ *   <li><b>license server</b> — the key is sent to the server, which answers with a signed
  *       token ({@link XemsLicenseToken}) listing the modules and the end date. The token is kept
  *       and checked offline; it is refreshed about once a day when the server is reachable, and
  *       keeps working {@link #GRACE_DAYS} days past its end date without the server.</li>
@@ -40,10 +40,6 @@ public final class XemsLicense {
     /** Feature (not a module): the arms channel goes out 1:1 instead of reduced (÷ armsDivider(), scaled by pulse width). */
     public static final String FEAT_ARMS_FULL = "arms_full";
 
-    /** Offline admin key: every module, and the tablet setup again (see {@link #isSetupMode()}). */
-    static final String LOCAL_CODE = "0123";
-    /** Offline key: base app, arms channel at normal strength (step 1:1, no multiplier). */
-    static final String LOCAL_CODE_ARMS = "RENI123";
     /** X.509 / base64 public key of the license server (ECDSA P-256). */
     static final String SERVER_PUBLIC_KEY =
             "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEeFeVVxE3nb0wRB2xzPPyjq36QHwvJMPkkvGiLTuWGoab"
@@ -55,7 +51,7 @@ public final class XemsLicense {
 
     static final String PREFS = "xems_license";
     static final String K_KEY = "key";
-    static final String K_SOURCE = "source";          // "" base, "code", "server"
+    static final String K_SOURCE = "source";          // "" base, "server" ("code" before 1.1.330: dropped)
     static final String K_TOKEN = "token";
     static final String K_MODS = "mods";
     static final String K_FEATS = "feats";
@@ -66,8 +62,15 @@ public final class XemsLicense {
     static final String K_DEVICE = "device";
     static final String K_SERVER = "server";
     static final String K_EMS = "ems";
-    /** "setup" = admin setup of a new tablet (everything open), "locked" = the customer's profile. */
+    /**
+     * "setup" = admin setup of a new tablet (everything open), "locked" = the customer's profile. Only the server
+     * opens the setup (an approved new tablet, the admin's code, the admin panel); a fresh install is locked.
+     */
     static final String K_PHASE = "phase";
+    /** The server has this tablet as waiting for the admin's approval. */
+    static final String K_PENDING = "pending";
+    /** The trainer finished the setup: told to the server with the next licence call, then cleared. */
+    static final String K_SETUP_DONE = "setup_done";
     /** Arms channel on this tablet, set in the admin setup: "" (the licence decides), "full" (1:1), "reduced". */
     static final String K_ARMS = "arms";
 
@@ -144,17 +147,47 @@ public final class XemsLicense {
     /**
      * Admin setup of a new tablet: every module and feature is open and any EMS suit can be
      * paired. Ends with {@link #finishSetup()}; after that the tablet runs the customer's
-     * profile (the licence key) with only the allowed suits. The admin key {@link #LOCAL_CODE}
-     * opens the setup again.
+     * profile (the licence key) with only the allowed suits. Only the server opens the setup again.
      */
     public static boolean isSetupMode() {
         return setup;
     }
 
-    /** Ends the admin setup (the customer's profile from here on; {@link #LOCAL_CODE} reopens it). */
+    /** Ends the admin setup (the customer's profile from here on); the server is told with the next call. */
     public static void finishSetup() {
-        prefs().edit().putString(K_PHASE, "locked").apply();
+        prefs().edit().putString(K_PHASE, "locked").putBoolean(K_SETUP_DONE, true).apply();
         reload();
+        XemsLicenseClient.refreshNow(app);
+    }
+
+    /** The phase the server holds for this tablet ("setup" / "locked"); anything else is ignored. */
+    static void applyPhase(Object phase) {
+        String p = phase == null ? "" : String.valueOf(phase);
+        if (!"setup".equals(p) && !"locked".equals(p)) {
+            return;
+        }
+        SharedPreferences.Editor e = prefs().edit().remove(K_PENDING);
+        if (!prefs().getBoolean(K_SETUP_DONE, false) || "locked".equals(p)) {
+            e.putString(K_PHASE, p);       // a finished setup not yet told to the server stays finished
+        }
+        if ("locked".equals(p)) {
+            e.remove(K_SETUP_DONE);
+        }
+        e.apply();
+        reload();
+    }
+
+    /** The server has this tablet waiting for the admin's approval. */
+    public static boolean isPending() {
+        return prefs().getBoolean(K_PENDING, false);
+    }
+
+    static void setPending(boolean on) {
+        prefs().edit().putBoolean(K_PENDING, on).apply();
+    }
+
+    static boolean setupDoneUntold() {
+        return prefs().getBoolean(K_SETUP_DONE, false);
     }
 
     /** Suits (BLE MAC, as the server wrote them) the licence allows, while it is valid. */
@@ -187,11 +220,6 @@ public final class XemsLicense {
 
     public static String plan() {
         return prefs().getString(K_PLAN, "");
-    }
-
-    /** The admin key is the active licence (then the customer would keep everything open). */
-    public static boolean isAdminKey() {
-        return "code".equals(source()) && LOCAL_CODE.equals(key().trim().toUpperCase(java.util.Locale.US));
     }
 
     public static String key() {
@@ -257,48 +285,6 @@ public final class XemsLicense {
 
     // ================================================================ changes
 
-    /**
-     * Offline codes (case does not matter): {@link #LOCAL_CODE} = every module;
-     * {@link #LOCAL_CODE_ARMS} = base app with the arms channel at normal strength.
-     * True when {@code key} is one of them (and it is applied).
-     */
-    public static boolean applyLocalCode(String key) {
-        String k = key == null ? "" : key.trim().toUpperCase(java.util.Locale.US);
-        List<String> mods;
-        List<String> feats;
-        String plan;
-        if (LOCAL_CODE.equals(k)) {
-            mods = Arrays.asList(ALL);
-            feats = new ArrayList<String>();
-            plan = "full";
-        } else if (LOCAL_CODE_ARMS.equals(k)) {
-            mods = new ArrayList<String>();
-            feats = Arrays.asList(FEAT_ARMS_FULL);
-            plan = "base+arms";
-        } else {
-            return false;
-        }
-        SharedPreferences.Editor e = prefs().edit();
-        if (LOCAL_CODE.equals(k)) {
-            // The admin key: back to the tablet setup (pair suits, import), locked again with
-            // "Finish setup".
-            e.putString(K_PHASE, "setup");
-        }
-        e
-                .putString(K_KEY, key.trim())
-                .putString(K_SOURCE, "code")
-                .putString(K_MODS, join(mods))
-                .putString(K_FEATS, join(feats))
-                .putString(K_PLAN, plan)
-                .putString(K_LIC, "local")
-                .putLong(K_EXP, 0)
-                .remove(K_TOKEN)
-                .remove(K_EMS)
-                .apply();
-        reload();
-        return true;
-    }
-
     /** Server answered with a token: verify and keep it. Null when accepted, else the reason. */
     public static String applyToken(String key, String token) {
         String[] why = new String[1];
@@ -350,15 +336,19 @@ public final class XemsLicense {
             return;
         }
         SharedPreferences p = prefs();
+        if ("code".equals(p.getString(K_SOURCE, ""))) {
+            // an offline code from before 1.1.330: no codes any more — back to the base app, the server decides
+            p.edit().remove(K_KEY).remove(K_SOURCE).remove(K_MODS).remove(K_FEATS).remove(K_PLAN).remove(K_LIC)
+                    .remove(K_EXP).putString(K_PHASE, "locked").apply();
+        }
         long now = System.currentTimeMillis() / 1000L;
         unlocked = decide(p.getString(K_SOURCE, ""), p.getString(K_MODS, ""), p.getLong(K_EXP, 0), now);
         features = decideList(p.getString(K_SOURCE, ""), p.getString(K_FEATS, ""), p.getLong(K_EXP, 0), now);
         ems = decideList(p.getString(K_SOURCE, ""), p.getString(K_EMS, ""), p.getLong(K_EXP, 0), now);
         String phase = p.getString(K_PHASE, "");
         if (phase.length() == 0) {
-            // First run of this version: a tablet that already holds a licence is in use at a
-            // customer, so it stays locked; a fresh install starts in the admin setup.
-            phase = p.getString(K_SOURCE, "").length() > 0 ? "locked" : "setup";
+            // a fresh install is locked: the setup (everything open) comes only from the server
+            phase = "locked";
             p.edit().putString(K_PHASE, phase).apply();
         }
         setup = "setup".equals(phase);
@@ -374,8 +364,7 @@ public final class XemsLicense {
 
     static Set<String> decideList(String source, String csv, long expS, long nowS) {
         Set<String> out = new HashSet<String>();
-        boolean valid = "code".equals(source)
-                || ("server".equals(source) && (expS == 0 || nowS <= expS + GRACE_DAYS * 86400L));
+        boolean valid = "server".equals(source) && (expS == 0 || nowS <= expS + GRACE_DAYS * 86400L);
         if (valid && csv != null) {
             for (String m : csv.split(",")) {
                 if (m.trim().length() > 0) {

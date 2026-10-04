@@ -50,7 +50,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-languages.py` (185L, build:L51) — Limit app languages to Bulgarian and English.
 - `scripts/apply-list-theme.py` (46L, build:L54) — Fix connect-dialog list row colors set programmatically in adapters.
 - `scripts/apply-live-settings.py` (132L, build:L106[BETA_MUSIC]) — Settings saved from ⚙ Master (right panel) or a row's gear do not interrupt the training.
-- `scripts/apply-local-mode.py` (610L, build:L129[BETA_MUSIC]) — Local-only mode: users, programs, history and suits without xemsplus cloud sync.
+- `scripts/apply-local-mode.py` (627L, build:L129[BETA_MUSIC]) — Local-only mode: users, programs, history and suits without xemsplus cloud sync.
 - `scripts/apply-login-fix.py` (150L, build:L75) — Fix stuck loading spinner on login and post-login navigation.
 - `scripts/apply-main-mode-button.py` (613L, build:L77) — Add 'Main' (Основен) as the 4th program mode button (useType=0) with muscle/cardio/massage.
 - `scripts/apply-muscle-icons.py` (81L, build:L50) — Standardize and apply muscle group icons to decompiled APK resources.
@@ -103,8 +103,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-music-sync-java.sh` (216L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
 - `scripts/compile-wearable-java.sh` (227L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
-- `scripts/compile-xems-license-java.sh` (60L, build:L79[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
-- `scripts/compile-xems-local-java.sh` (83L, build:L126[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
+- `scripts/compile-xems-license-java.sh` (61L, build:L79[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
+- `scripts/compile-xems-local-java.sh` (84L, build:L126[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
 - `scripts/design_config_schema.py` (116L) — Safe bounds and validation for branding/design-config.yaml.
 - `scripts/exercise-line-width.py` (208L) — Even line weight for the exercise figures. Some frames of the source drawings (mostly the middle one) are traced with m…
@@ -339,22 +339,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicVisualizerView.java` (217L, compile:music-sync*) — Radial music visualizer: rays from the play-button ring toward the seek ring (never past it).
 - `TimerRingView.java` (348L, compile:interval-timer,music-sync*) — XEMS dial ring (interval timer, HR dial): a 60-segment LED ring on a soft face.
 - `XemsClientMatch.java` (55L, compile:music-sync*,xems-license) — Finding a client on the tablet list by e-mail, else by the phone's last 9 digits (profiles and dossiers).
-- `XemsClientSync.java` (413L, compile:music-sync,xems-local) — The clients' own profiles (filled in the studio's booking PWA) → the tablet's client list.
+- `XemsClientSync.java` (415L, compile:music-sync,xems-local) — The clients' own profiles (filled in the studio's booking PWA) → the tablet's client list.
 - `XemsDossier.java` (437L, compile:music-sync*,xems-license) — The client dossier on the server (stage 1): the studio's client list is kept on the licence server, one record per pers…
 - `XemsExercisePage.java` (133L, compile:music-sync*) — Settings → "Каталог с упражнения": the server's exercise selector (/admin/exercises) full screen inside the app, withou…
 - `XemsFullscreen.java` (109L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
 - `XemsIcon.java` (257L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
-- `XemsLicense.java` (441L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
-- `XemsLicenseClient.java` (618L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
-- `XemsLicenseSection.java` (352L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
+- `XemsLicense.java` (430L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
+- `XemsLicenseClient.java` (628L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
+- `XemsLicenseSection.java` (365L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
-- `XemsLocalApi.java` (283L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
+- `XemsLocalApi.java` (205L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
 - `XemsLocalAvatar.java` (978L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
-- `XemsLocalGate.java` (248L, compile:xems-local) — Hidden doors of the tablet build.
-- `XemsLocalSection.java` (356L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
-- `XemsLocalStore.java` (1207L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
+- `XemsLocalGate.java` (267L, compile:xems-local) — Hidden doors of the tablet build.
+- `XemsLocalSection.java` (352L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
+- `XemsLocalStore.java` (1131L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (973L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (1388L, compile:music-sync*) — Main navigation (v1.1.64).
@@ -400,7 +400,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/scripts/setup-emulator.mjs` (36L) — Create a Vela VVD sized like Band 10 (212×520 logical).
 
 ## server (Cloudflare Worker license server)
-- `server/src/admin.js` (610L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
+- `server/src/admin.js` (628L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
 - `server/src/card.js` (96L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/clients.js` (106L) — One pushed record: {key (tablet id), cid?, ek?, pk?, t, deleted?, data?}; null when unusable.
@@ -408,12 +408,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1184L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1263L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (69L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
-- `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
+- `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (42L) — The bridge the report page expects (window.XemsReport), made from one fetch of /v1/history/<cardId> (the id comes from …
+- `server/src/sweep.js` (13L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
 - `server/src/utils.js` (102L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/test/card.test.js` (104L) — 
 - `server/test/catalog.test.js` (29L) — 
@@ -422,11 +423,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
 - `server/test/ems.test.js` (15L) — 
 - `server/test/exercises.test.js` (78L) — 
-- `server/test/history.test.js` (95L) — D1-shaped wrapper over node:sqlite with the real migration.
+- `server/test/history.test.js` (97L) — D1-shaped wrapper over node:sqlite with the real migration.
 - `server/test/measures.test.js` (75L) — 
 - `server/test/plans.test.js` (30L) — 
-- `server/test/profile.test.js` (53L) — 
+- `server/test/profile.test.js` (57L) — 
 - `server/test/report.test.js` (14L) — 
+- `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
 - `server/test/utils.test.js` (99L) — 
 - `server/migrations/0001_init.sql` (63L) — 
 - `server/migrations/0002_ems_devices.sql` (7L) — 
@@ -783,20 +785,20 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L102 ## Tests
   - L108 ## Not yet
 
-`docs/xems-license-api.md` (179L)
+`docs/xems-license-api.md` (180L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
-  - L32 ## Отключване
-  - L44 ## Данни, които клиентът праща (входни данни за сървъра)
-  - L59 ## API (HTTPS, JSON, UTF-8)
-  - L63 ### 1. Активиране
-  - L83 ### 2. Опресняване (веднъж на 24 h, във фон)
-  - L96 ### 3. Проверка за нова версия
-  - L113 ### 4. Клиентски картон (линк за клиента)
-  - L151 ## Жетон (подписан от сървъра)
-  - L167 ## Какво остава за сървъра
-  - L174 ## Проверки (без Android)
+  - L34 ## Отключване
+  - L45 ## Данни, които клиентът праща (входни данни за сървъра)
+  - L60 ## API (HTTPS, JSON, UTF-8)
+  - L64 ### 1. Активиране
+  - L84 ### 2. Опресняване (веднъж на 24 h, във фон)
+  - L97 ### 3. Проверка за нова версия
+  - L114 ### 4. Клиентски картон (линк за клиента)
+  - L152 ## Жетон (подписан от сървъра)
+  - L168 ## Какво остава за сървъра
+  - L175 ## Проверки (без Android)
 
 `docs/xems-part-strength.md` (43L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85)
@@ -878,24 +880,24 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L451 ## Gemini / LLM
   - L456 ## Licences of the ported code
 
-`docs/xems-server-spec.md` (292L)
+`docs/xems-server-spec.md` (285L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)
   - L7 ## 1. Цел
   - L15 ## 2. Какво е готово в клиента (XEMS ≥ 1.1.84)
-  - L45 ## 3. Каталог: модули и функции
-  - L78 ## 4. Устройство (предложение)
-  - L93 ## 5. База данни (минимум)
-  - L143 ## 6. Заявки (подробно в `xems-license-api.md`)
-  - L145 ### 6.1 `POST /v1/license/activate`
-  - L157 ### 6.2 `POST /v1/license/refresh`
-  - L169 ### 6.3 `GET /v1/app/update?app=xems&channel=stable&code=209&device_id=…`
-  - L177 ## 7. Подпис на жетона
-  - L221 ## 8. Издания (обновяване)
-  - L235 ## 9. Админ панел (минимум)
-  - L249 ## 10. Сигурност
-  - L260 ## 11. Пускане: стъпки
-  - L271 ### Примерна проверка с curl
-  - L285 ## 12. Отворени решения
+  - L38 ## 3. Каталог: модули и функции
+  - L71 ## 4. Устройство (предложение)
+  - L86 ## 5. База данни (минимум)
+  - L136 ## 6. Заявки (подробно в `xems-license-api.md`)
+  - L138 ### 6.1 `POST /v1/license/activate`
+  - L150 ### 6.2 `POST /v1/license/refresh`
+  - L162 ### 6.3 `GET /v1/app/update?app=xems&channel=stable&code=209&device_id=…`
+  - L170 ## 7. Подпис на жетона
+  - L214 ## 8. Издания (обновяване)
+  - L228 ## 9. Админ панел (минимум)
+  - L242 ## 10. Сигурност
+  - L253 ## 11. Пускане: стъпки
+  - L264 ### Примерна проверка с curl
+  - L278 ## 12. Отворени решения
 
 `docs/xems-smart-session-spec.md` (614L)
   - L1 # XEMS Smart Session — формална спецификация v1.1
@@ -1084,10 +1086,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `server/CLAUDE.md` (11L)
   - L1 # server — XEMS license server (Cloudflare Worker + D1)
 
-`server/README.md` (64L)
+`server/README.md` (67L)
   - L1 # XEMS License Server (Cloudflare Worker)
-  - L13 ## OTA обновяване (GitHub)
-  - L20 ## API
-  - L31 ## Тестове
-  - L38 ## Deploy
-  - L58 ## Разходи
+  - L14 ## OTA обновяване (GitHub)
+  - L21 ## API
+  - L32 ## Тестове
+  - L39 ## Deploy
+  - L61 ## Разходи

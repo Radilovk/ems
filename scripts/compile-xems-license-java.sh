@@ -46,6 +46,7 @@ if (
   for f in XemsLicense XemsLicenseToken XemsLicenseClient XemsDossier XemsClientMatch; do
     src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
     [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
+    rm -f "${BRANDING_SMALI}/${f}"\$*.smali   # inner classes the Java no longer has
     for inner in "${SMALI_OUT}/com/isaigu/gymapp/widget/${f}"\$*.smali; do
       [[ -f "$inner" ]] && cp "$inner" "${BRANDING_SMALI}/$(basename "$inner")"
     done

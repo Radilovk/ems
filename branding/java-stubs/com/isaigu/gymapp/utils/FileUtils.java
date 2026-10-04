@@ -14,4 +14,6 @@ public final class FileUtils {
     public static void saveListData(String fileName, Class<?> cls, List<?> list) {}
 
     public static void saveData(String fileName, Object data) {}
+
+    public static void saveData(Object data) {}
 }

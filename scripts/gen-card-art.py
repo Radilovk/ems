@@ -15,8 +15,8 @@ around them turn to the body's graphite, the zones keep their painted light for 
 
 Writes into branding/report/client-card.html and session-report.html, per view (<sex>_<side>):
   art-…  WebP with alpha: the neutral figure
-  fig-…  lossless WebP map: R = zone + 1 (0 = none), G = the zone's light (32 levels),
-         B = zone coverage (soft edge)
+  fig-…  lossless WebP map: R = zone + 1 (0 = none; 13 = the deltoid, scripts/body_deltoid.py),
+         G = the zone's light (32 levels), B = zone coverage (soft edge)
 
 usage: python3 scripts/gen-card-art.py        (needs numpy, scipy, Pillow with WebP)
 """
@@ -24,11 +24,15 @@ from __future__ import annotations
 
 import base64
 import io
+import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
 from scipy import ndimage
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from body_deltoid import DELTOID_R, add_deltoid  # noqa: E402  (the shoulder cap: the suit has no channel there)
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "branding" / "report" / "figures"
@@ -192,7 +196,8 @@ def build(rgb, al, side, layers):
     zmap[..., 0] = np.where(zone >= 0, zone + 1, 0)
     zmap[..., 1] = np.clip(shade * 255, 0, 255).astype(np.uint8)
     zmap[..., 2] = np.clip(w * 255, 0, 255).astype(np.uint8)
-    return Image.fromarray((art_rgba * 255).astype(np.uint8), "RGBA"), Image.fromarray(zmap, "RGB")
+    art_im = Image.fromarray((art_rgba * 255).astype(np.uint8), "RGBA")
+    return art_im, add_deltoid(art_im, Image.fromarray(zmap, "RGB"))
 
 
 def uri(im: Image.Image, lossless: bool) -> str:

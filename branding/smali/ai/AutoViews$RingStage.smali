@@ -25,16 +25,16 @@
     .registers 4
 
     .prologue
-    .line 248
+    .line 253
     invoke-direct {p0, p1}, Landroid/view/ViewGroup;-><init>(Landroid/content/Context;)V
 
-    .line 249
+    .line 254
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->figInset:F
 
-    .line 250
+    .line 255
     iput p3, p0, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->maxPx:I
 
-    .line 251
+    .line 256
     return-void
 .end method
 
@@ -52,17 +52,17 @@
 
     const/4 v4, 0x0
 
-    .line 269
+    .line 274
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->getChildCount()I
 
     move-result v0
 
-    .line 270
+    .line 275
     add-int/lit8 v0, v0, -0x1
 
     if-ne p1, v0, :cond_18
 
-    .line 271
+    .line 276
     new-array v0, v3, [I
 
     aput v4, v0, v4
@@ -73,15 +73,15 @@
 
     aput p2, v0, v7
 
-    .line 279
+    .line 284
     :goto_17
     return-object v0
 
-    .line 273
+    .line 278
     :cond_18
     if-nez p1, :cond_3d
 
-    .line 274
+    .line 279
     int-to-float v0, p2
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->figInset:F
@@ -92,7 +92,7 @@
 
     move-result v1
 
-    .line 275
+    .line 280
     new-array v0, v3, [I
 
     aput v1, v0, v4
@@ -121,7 +121,7 @@
 
     goto :goto_17
 
-    .line 277
+    .line 282
     :cond_3d
     int-to-float v0, p2
 
@@ -133,7 +133,7 @@
 
     move-result v1
 
-    .line 278
+    .line 283
     int-to-float v0, p2
 
     const v2, 0x3ee66666    # 0.45f
@@ -144,7 +144,7 @@
 
     move-result v2
 
-    .line 279
+    .line 284
     new-array v0, v3, [I
 
     sub-int v3, p2, v1
@@ -172,7 +172,7 @@
     .registers 15
 
     .prologue
-    .line 284
+    .line 289
     sub-int v0, p4, p2
 
     sub-int v1, p5, p3
@@ -181,7 +181,7 @@
 
     move-result v1
 
-    .line 285
+    .line 290
     const/4 v0, 0x0
 
     :goto_9
@@ -191,12 +191,12 @@
 
     if-ge v0, v2, :cond_31
 
-    .line 286
+    .line 291
     invoke-direct {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->box(II)[I
 
     move-result-object v2
 
-    .line 287
+    .line 292
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->getChildAt(I)Landroid/view/View;
 
     move-result-object v3
@@ -231,12 +231,12 @@
 
     invoke-virtual {v3, v4, v5, v6, v2}, Landroid/view/View;->layout(IIII)V
 
-    .line 285
+    .line 290
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_9
 
-    .line 289
+    .line 294
     :cond_31
     return-void
 .end method
@@ -249,7 +249,7 @@
 
     const/4 v2, 0x0
 
-    .line 255
+    .line 260
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getMode(I)I
 
     move-result v0
@@ -258,7 +258,7 @@
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->maxPx:I
 
-    .line 256
+    .line 261
     :goto_b
     invoke-static {p2}, Landroid/view/View$MeasureSpec;->getMode(I)I
 
@@ -268,7 +268,7 @@
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->maxPx:I
 
-    .line 257
+    .line 262
     :goto_13
     iget v3, p0, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->maxPx:I
 
@@ -286,7 +286,7 @@
 
     move v0, v2
 
-    .line 258
+    .line 263
     :goto_22
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->getChildCount()I
 
@@ -294,17 +294,17 @@
 
     if-ge v0, v2, :cond_4e
 
-    .line 259
+    .line 264
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->getChildAt(I)Landroid/view/View;
 
     move-result-object v2
 
-    .line 260
+    .line 265
     invoke-direct {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->box(II)[I
 
     move-result-object v3
 
-    .line 261
+    .line 266
     const/4 v4, 0x2
 
     aget v4, v3, v4
@@ -317,20 +317,20 @@
 
     aget v3, v3, v5
 
-    .line 262
+    .line 267
     invoke-static {v3, v6}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v3
 
-    .line 261
+    .line 266
     invoke-virtual {v2, v4, v3}, Landroid/view/View;->measure(II)V
 
-    .line 258
+    .line 263
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_22
 
-    .line 255
+    .line 260
     :cond_44
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
@@ -338,7 +338,7 @@
 
     goto :goto_b
 
-    .line 256
+    .line 261
     :cond_49
     invoke-static {p2}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
@@ -346,10 +346,10 @@
 
     goto :goto_13
 
-    .line 264
+    .line 269
     :cond_4e
     invoke-virtual {p0, v1, v1}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->setMeasuredDimension(II)V
 
-    .line 265
+    .line 270
     return-void
 .end method

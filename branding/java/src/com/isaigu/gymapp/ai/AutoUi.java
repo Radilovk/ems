@@ -1503,7 +1503,9 @@ public final class AutoUi {
         // a channel at 0 still shows what the exercises give that zone (its progress); a zone the plan never
         // loads has no progress (−1) and stays plain
         boolean[] off = new boolean[AutoModel.CHANNELS];
-        runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getZoneProgress(now), e.getChannelLoad(now), off);
+        // a zone the running set works glows and pulses; its colour moves on after the set (owner, 1.1.313)
+        runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getZoneProgress(now), e.getChannelLoad(now), off,
+                e.getZoneActive(now));
         runPeak.set(e.getSystemLoad(now));                     // the total load: muscles (peak + body) and heart
         boolean hrUsed = plan.hrUse != AutoModel.HrUse.NONE && AutoSession.isBandConfigured(host);
         runVital.setVisibility(hrUsed ? View.VISIBLE : View.GONE);

@@ -57,6 +57,9 @@ export function validCardData(d) {
   const mus10 = (m) => m === undefined || (arr(m, 10) && m.length === 10 && m.every(num));
   if (!mus10(d.last.mus)) return 'last.mus';
   if (d.p30 !== undefined && (typeof d.p30 !== 'object' || !mus10(d.p30.mus) || !arr(d.p30.eff || [], 60))) return 'p30';
+  // the deltoid (no suit channel, the exercises only): optional, −1 = no exercise worked it, else 0…1
+  const delt = (v) => v === undefined || (num(v) && v >= -1 && v <= 1);
+  if (!delt(d.delt) || !delt(d.last.delt) || (d.p30 && !delt(d.p30.delt))) return 'delt';
   return null;
 }
 

@@ -2,8 +2,9 @@
 """The body figures of the Auto live board (ai/BodyHeatView): the report's anatomical art and channel maps
 (branding/report/session-report.html, ids art-<key> / fig-<key>, docs/session-report/README.md) → branding/body/,
 scaled to HEIGHT px for the tablet. art = the grey figure (RGBA); idx = R channel + 1 (0 outside, 1..10 the suit
-channels in PartStrenthBean.buwei order, 11 other muscle, 12 body), G shade, B coverage — R scaled nearest
-(a region id must never blend), G / B smooth. Shipped by scripts/apply-exercise-assets.py → assets/xems/body/.
+channels in PartStrenthBean.buwei order, 11 other muscle, 12 body, 13 the deltoid), G shade, B coverage — R scaled
+nearest (a region id must never blend), G / B smooth. The deltoid (no suit channel: the exercises only) comes with the
+report's maps (scripts/body_deltoid.py, cut in gen-card-art.py). Shipped by scripts/apply-exercise-assets.py → assets/xems/body/.
 Run after the report's figures change.
 """
 
@@ -37,7 +38,8 @@ def main() -> int:
         art = grab(html, "art", key).convert("RGBA")
         idx = grab(html, "fig", key).convert("RGB")
         w = round(art.width * HEIGHT / art.height)
-        art.resize((w, HEIGHT), Image.LANCZOS).save(OUT / f"{key}-art.webp", "WEBP", quality=88, method=6)
+        art = art.resize((w, HEIGHT), Image.LANCZOS)
+        art.save(OUT / f"{key}-art.webp", "WEBP", quality=88, method=6)
         r, g, b = idx.split()
         r = r.resize((w, HEIGHT), Image.NEAREST)
         g = g.resize((w, HEIGHT), Image.BILINEAR)

@@ -762,6 +762,17 @@ public final class AutoEngine {
     /** Share of a full channel the exercise's own movement adds in the impulse (30 % of it in the pause). [D] */
     public static final double EX_LOAD = 0.25;
 
+    /** The body's zones: the suit channels and the deltoid (owner, 1.1.313) — no electrode, only the exercises'
+     *  shoulder work (their muscles' column 5, the one the trapezius channel also takes) colours it. */
+    public static final int ZONES = AutoModel.CHANNELS + 1;
+    public static final int DELTOID = AutoModel.CHANNELS;
+    static final int EX_SHOULDERS = 5;
+    /** A zone whose plan is at least this share of the top zone's is one the program is for: its own plan is its
+     *  optimum. A zone below gets measured against this share of the top, so it shows how little it got. [D] */
+    static final double TARGET_SHARE = 0.5;
+    /** A zone working now: its rate in the impulse ≥ this share of the running set's strongest zone. [D] */
+    static final double ACTIVE_SHARE = 0.35;
+
     /** The exercise of the running set (or the next one in a rest); null outside the sets. */
     public String getExercise() {
         if (script == null || !isStationPhase(phaseIndex) || phaseIndex >= script.phase.length) {
@@ -822,9 +833,10 @@ public final class AutoEngine {
         return z;
     }
 
-    /** Load rates of one cycle per channel: [0] in the impulse, [1] in the pause (units of F per second · τ⁻¹). */
+    /** Load rates of one cycle per zone: [0] in the impulse, [1] in the pause (units of F per second · τ⁻¹);
+     *  [2] / [3] the exercise's own part of them. Index {@link #DELTOID} = the exercise's shoulder work only. */
     private double[][] rates(Cmd c) {
-        double[][] g = new double[2][AutoModel.CHANNELS];
+        double[][] g = new double[4][ZONES];
         if (c == null || c.frac <= 0) {
             return g;
         }
@@ -843,7 +855,12 @@ public final class AutoEngine {
             double mk = m != null && k < m.length ? Math.max(0, m[k]) / 100.0 : 0;
             g[0][k] = w * rho * zk + EX_LOAD * mk;
             g[1][k] = wp * rho * zk + 0.3 * EX_LOAD * mk;
+            g[2][k] = EX_LOAD * mk;
+            g[3][k] = 0.3 * EX_LOAD * mk;
         }
+        double sh = m != null && EX_SHOULDERS < m.length ? Math.max(0, m[EX_SHOULDERS]) / 100.0 : 0;
+        g[0][DELTOID] = g[2][DELTOID] = EX_LOAD * sh;
+        g[1][DELTOID] = g[3][DELTOID] = 0.3 * EX_LOAD * sh;
         return g;
     }
 
@@ -918,7 +935,8 @@ public final class AutoEngine {
         double[][] g = chCmd != null ? rates(chCmd) : null;
         doseDone += doseAdded(now, g);
         for (int k = 0; k < zoneDone.length; k++) {
-            zoneDone[k] += zoneAdded(now, g, k);
+            zoneDone[k] += zoneAdded(now, g, k, 0);
+            zoneExDone[k] += zoneAdded(now, g, k, 2);
         }
         stepMeta(now, chCmd);
         for (int k = 0; k < chF.length; k++) {
@@ -993,8 +1011,10 @@ public final class AutoEngine {
     private long metaMs = -1;
     private double doseDone;
     private double doseBudget;
-    private double[] zoneDone = new double[AutoModel.CHANNELS];
+    private double[] zoneDone = new double[ZONES];
+    private double[] zoneExDone = new double[ZONES];
     private double[] zoneBudget;
+    private double[] zoneExBudget;
     private double fatPct = Double.NaN;
     private double[] vo2Ref;
 
@@ -1178,8 +1198,9 @@ public final class AutoEngine {
         return (g0 * inOn + g1 * inOff) / sa;
     }
 
-    /** Work added to zone k since chFMs under g: ∫ g_k dt over the impulse and the pause (the body's colour). */
-    private double zoneAdded(long now, double[][] g, int k) {
+    /** Work added to zone k since chFMs under g: ∫ g_k dt over the impulse and the pause (the body's colour);
+     *  row 0 = all of it, row 2 = the exercise's part. */
+    private double zoneAdded(long now, double[][] g, int k, int row) {
         if (chCmd == null || g == null || now <= chFMs) {
             return 0;
         }
@@ -1189,16 +1210,25 @@ public final class AutoEngine {
         double end = Math.min(dur, (now - chCmd.startMs) / 1000.0);
         double inOn = Math.max(0, Math.min(end, on) - pos);
         double inOff = Math.max(0, end - Math.max(pos, on));
-        return g[0][k] * inOn + g[1][k] * inOff;
+        return g[row][k] * inOn + g[row + 1][k] * inOff;
     }
 
     /** Work done per zone so far (every phase, the passive ones and the recovery too). */
     public double[] getZoneDone(long now) {
-        double[] out = zoneDone.clone();
+        return zoneSum(now, zoneDone, 0);
+    }
+
+    /** The exercises' part of {@link #getZoneDone}. */
+    public double[] getZoneExDone(long now) {
+        return zoneSum(now, zoneExDone, 2);
+    }
+
+    private double[] zoneSum(long now, double[] base, int row) {
+        double[] out = base.clone();
         if (chCmd != null) {
             double[][] g = rates(chCmd);
             for (int k = 0; k < out.length; k++) {
-                out[k] += zoneAdded(now, g, k);
+                out[k] += zoneAdded(now, g, k, row);
             }
         }
         return out;
@@ -1206,28 +1236,66 @@ public final class AutoEngine {
 
     /** The work the plan holds per zone (the first forecast): the target of each zone's colour. */
     public void setZoneBudget(double[] budget) {
+        setZoneBudget(budget, null);
+    }
+
+    /** … and the exercises' part of it (the deltoid's reference: it gets nothing else). */
+    public void setZoneBudget(double[] budget, double[] exBudget) {
         zoneBudget = budget != null ? budget.clone() : null;
+        zoneExBudget = exBudget != null ? exBudget.clone() : null;
     }
 
     /**
-     * Each zone's colour on the body (owner, 1.1.290): its work done so far against the most worked zone of this
-     * session's plan — the zone the session is for reaches 1 (full colour) at the end of the plan, the recovery
-     * included; the others stay as much paler as they really get less (the exercise's own work, and the EMS only
-     * while the channel is above 0). So the differences between zones show live. −1 = nothing done and nothing
-     * planned there.
+     * The zones working now (owner, 1.1.313: they glow and pulse while the set runs): in a running cycle, the zones
+     * whose impulse rate — current and exercise together — is at least {@link #ACTIVE_SHARE} of the strongest one.
+     * Nothing in a rest, a pause or the countdown.
+     */
+    public boolean[] getZoneActive(long now) {
+        boolean[] out = new boolean[ZONES];
+        if (state != State.RUN || chCmd == null || now < chCmd.startMs) {
+            return out;
+        }
+        double[][] g = rates(chCmd);
+        double top = 0;
+        for (int k = 0; k < ZONES; k++) {
+            top = Math.max(top, g[0][k]);
+        }
+        if (top <= 1e-9) {
+            return out;
+        }
+        for (int k = 0; k < ZONES; k++) {
+            out[k] = g[0][k] >= ACTIVE_SHARE * top;
+        }
+        return out;
+    }
+
+    /**
+     * Each zone's colour on the body (owner, 1.1.313): its work done so far against its own optimum. The optimum
+     * comes from the program's plan (the first forecast — its zones and its own exercises, so the program's
+     * classification): a zone the program is for (plan ≥ {@link #TARGET_SHARE} of the top zone's) reaches 1 exactly
+     * when it gets what the plan holds for it; a zone the plan barely loads is measured against that share of the
+     * top, so a zone without exercises or without current stays as low as it really is. More current or extra work
+     * pushes a zone past 1 (overload). The deltoid has no current: its optimum is the same share of the top zone's
+     * exercise work. −1 = nothing done and nothing planned there.
      */
     public double[] getZoneProgress(long now) {
         double[] d = getZoneDone(now);
         double top = 0;
-        if (zoneBudget != null) {
-            for (double b : zoneBudget) {
-                top = Math.max(top, b);
+        double exTop = 0;
+        for (int k = 0; k < AutoModel.CHANNELS; k++) {
+            if (zoneBudget != null && k < zoneBudget.length) {
+                top = Math.max(top, zoneBudget[k]);
+            }
+            if (zoneExBudget != null && k < zoneExBudget.length) {
+                exTop = Math.max(exTop, zoneExBudget[k]);
             }
         }
         double[] out = new double[d.length];
         for (int k = 0; k < d.length; k++) {
             double b = zoneBudget != null && k < zoneBudget.length ? zoneBudget[k] : 0;
-            out[k] = top <= 1e-6 || (b <= 1e-6 && d[k] <= 1e-6) ? -1 : d[k] / top;
+            double t = k == DELTOID ? exTop : top;
+            double ref = Math.max(b, TARGET_SHARE * t);
+            out[k] = ref <= 1e-6 || (b <= 1e-6 && d[k] <= 1e-6) ? -1 : d[k] / ref;
         }
         return out;
     }
@@ -1474,6 +1542,8 @@ public final class AutoEngine {
         public double dose;
         /** The same per zone (the target of each zone's colour on the body). */
         public double[] zoneDose;
+        /** The exercises' part of zoneDose. */
+        public double[] zoneExDose;
         /** Session s the forecast runs on from (a live forecast, points in the session's own clock); −1 = the plan
          *  from its start (points mapped by impulse time). */
         public double fromS = -1;
@@ -1549,6 +1619,7 @@ public final class AutoEngine {
         f.totalS = e.getSessionS(t);
         f.dose = e.getDoseDone(t);
         f.zoneDose = e.getZoneDone(t);
+        f.zoneExDose = e.getZoneExDone(t);
         for (int i = 1; i < f.phaseStartS.length; i++) {
             if (f.phaseStartS[i] < 0) {
                 f.phaseStartS[i] = f.totalS;
@@ -1720,6 +1791,7 @@ public final class AutoEngine {
         }
         f.dose = e.getDoseDone(t);
         f.zoneDose = e.getZoneDone(t);
+        f.zoneExDose = e.getZoneExDone(t);
         return f;
     }
 

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 407
+    .line 413
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,19 +34,19 @@
     .registers 2
 
     .prologue
-    .line 410
+    .line 416
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 411
+    .line 417
     if-eqz v0, :cond_9
 
-    .line 412
+    .line 418
     # invokes: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->performConnect(Landroid/content/Context;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$800(Landroid/content/Context;)V
 
-    .line 414
+    .line 420
     :cond_9
     return-void
 .end method

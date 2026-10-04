@@ -29,16 +29,12 @@ final class WearableBandPicker {
 
     private WearableBandPicker() {}
 
-    /** The second band (control) field: the pick fills only that field, the first band stays. */
-    private static boolean forControl;
-
-    static void showForControl(Activity activity, EditText macField) {
-        show(activity, macField);
-        forControl = true;
-    }
-
+    /**
+     * The pick only fills the field; saving the band (with its key and role) is BandPairing's (saveBand →
+     * assignBandRole). Before 1.1.332 the pick wrote the MAC into the active band at once — with the old key, even
+     * when the form was cancelled.
+     */
     static void show(Activity activity, EditText macField) {
-        forControl = false;
         if (activity == null || activity.isFinishing()) {
             return;
         }
@@ -194,10 +190,6 @@ final class WearableBandPicker {
         public void onClick(View v) {
             if (target != null && mac.length() > 0) {
                 target.setText(mac);
-                Activity activity = WearableUi.asActivity(v.getContext());
-                if (activity != null && !forControl) {
-                    WearableConfig.setBandMac(activity, mac);
-                }
             }
             target = null;
             close();

@@ -42,15 +42,15 @@
     .registers 11
 
     .prologue
-    const/4 v3, 0x4
+    const/4 v7, 0x4
 
-    const/4 v7, 0x3
+    const/4 v6, 0x3
 
-    const/4 v6, 0x2
+    const/4 v5, 0x2
 
-    const/4 v5, 0x1
+    const/4 v4, 0x1
 
-    const/4 v4, 0x0
+    const/4 v3, 0x0
 
     .line 274
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->getChildCount()I
@@ -63,15 +63,15 @@
     if-ne p1, v0, :cond_18
 
     .line 276
-    new-array v0, v3, [I
+    new-array v0, v7, [I
 
-    aput v4, v0, v4
+    aput v3, v0, v3
 
-    aput v4, v0, v5
+    aput v3, v0, v4
+
+    aput p2, v0, v5
 
     aput p2, v0, v6
-
-    aput p2, v0, v7
 
     .line 284
     :goto_17
@@ -93,39 +93,43 @@
     move-result v1
 
     .line 280
-    new-array v0, v3, [I
+    new-array v0, v7, [I
+
+    aput v1, v0, v3
 
     aput v1, v0, v4
-
-    aput v1, v0, v5
 
     mul-int/lit8 v2, v1, 0x2
 
     sub-int v2, p2, v2
 
-    invoke-static {v4, v2}, Ljava/lang/Math;->max(II)I
+    invoke-static {v3, v2}, Ljava/lang/Math;->max(II)I
 
     move-result v2
 
-    aput v2, v0, v6
+    aput v2, v0, v5
 
     mul-int/lit8 v1, v1, 0x2
 
     sub-int v1, p2, v1
 
-    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
+    invoke-static {v3, v1}, Ljava/lang/Math;->max(II)I
 
     move-result v1
 
-    aput v1, v0, v7
+    aput v1, v0, v6
 
     goto :goto_17
 
-    .line 282
+    .line 283
     :cond_3d
     int-to-float v0, p2
 
-    const v1, 0x3f19999a    # 0.6f
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$RingStage;->figInset:F
+
+    const v2, 0x3d4ccccd    # 0.05f
+
+    add-float/2addr v1, v2
 
     mul-float/2addr v0, v1
 
@@ -133,35 +137,32 @@
 
     move-result v1
 
-    .line 283
-    int-to-float v0, p2
+    .line 284
+    new-array v0, v7, [I
 
-    const v2, 0x3ee66666    # 0.45f
+    aput v1, v0, v3
 
-    mul-float/2addr v0, v2
+    aput v1, v0, v4
 
-    invoke-static {v0}, Ljava/lang/Math;->round(F)I
+    mul-int/lit8 v2, v1, 0x2
+
+    sub-int v2, p2, v2
+
+    invoke-static {v3, v2}, Ljava/lang/Math;->max(II)I
 
     move-result v2
 
-    .line 284
-    new-array v0, v3, [I
+    aput v2, v0, v5
 
-    sub-int v3, p2, v1
+    mul-int/lit8 v1, v1, 0x2
 
-    div-int/lit8 v3, v3, 0x2
+    sub-int v1, p2, v1
 
-    aput v3, v0, v4
+    invoke-static {v3, v1}, Ljava/lang/Math;->max(II)I
 
-    sub-int v3, p2, v2
-
-    div-int/lit8 v3, v3, 0x2
-
-    aput v3, v0, v5
+    move-result v1
 
     aput v1, v0, v6
-
-    aput v2, v0, v7
 
     goto :goto_17
 .end method

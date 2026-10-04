@@ -1087,9 +1087,8 @@ public final class AutoUi {
         runFigure = new ExerciseFigure(c);
         runFigure.setCycle(System.currentTimeMillis(), 2, 2);
         stage.addView(runFigure);
-        runArt = ProgramArt.tile(c, plan.program.id, plan.program.isActive(), lead != null ? lead.sex : null, 120, 90);
+        runArt = ProgramArt.ring(c, ringKey(plan.program, false, lead != null ? lead.sex : null));
         stage.addView(runArt);
-        ProgramArt.show(runArt, ringKey(plan.program, false, lead != null ? lead.sex : null), 120);
         runRing = new AutoViews.SetRing(c);
         stage.addView(runRing);
         stage.setOnClickListener(new Act(A_HOW, 0));
@@ -1212,7 +1211,7 @@ public final class AutoUi {
 
         AiModel.Sex sx = lead != null ? lead.sex : null;
         String key = plan.program.isActive() ? ProgramArt.templateKey(sx) : ProgramArt.passiveKey(sx);
-        row.addView(ProgramArt.tileKey(c, key, 230, 172), new LinearLayout.LayoutParams(XemsUi.dp(c, 230), XemsUi.dp(c, 172)));
+        row.addView(ProgramArt.ring(c, key), new LinearLayout.LayoutParams(XemsUi.dp(c, 200), XemsUi.dp(c, 200)));
 
         LinearLayout mid = XemsUi.vertical(c);
         LinearLayout head = XemsUi.horizontal(c);
@@ -1589,7 +1588,7 @@ public final class AutoUi {
             // the passive recovery: the figure lying back on the couch, not the program's picture
             boolean relax = recovery || beforeRecovery;
             AiModel.Sex sx = lead != null ? lead.sex : null;
-            ProgramArt.show(runArt, ringKey(plan.program, relax, sx), 120);
+            ProgramArt.showRing(runArt, ringKey(plan.program, relax, sx));
         }
         String nx = e.getNextExercise();
         boolean soon = st == AutoEngine.State.RUN && nx != null && e.getSetLeftS() <= NEXT_SOON_S;
@@ -1694,8 +1693,9 @@ public final class AutoUi {
         // a channel at 0 still shows what the exercises give that zone (its progress); a zone the plan never
         // loads has no progress (−1) and stays plain
         boolean[] off = new boolean[AutoModel.CHANNELS];
-        // a zone the running set works glows and pulses; its colour moves on after the set (owner, 1.1.313)
-        runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getZoneProgress(now), e.getChannelLoad(now), off,
+        // a working zone glows the same whatever the strength (owner): current on + the exercise's muscle =
+        // brightest, one of the two = softer; its colour moves on after the set (1.1.313)
+        runBody.set(lead != null ? lead.sex : AiModel.Sex.MALE, e.getZoneProgress(now), e.getZoneLive(now), off,
                 e.getZoneActive(now));
         runPeak.set(e.getSystemLoad(now));                     // the total load: muscles (peak + body) and heart
         boolean hrUsed = plan.hrUse != AutoModel.HrUse.NONE && AutoSession.isBandConfigured(host);

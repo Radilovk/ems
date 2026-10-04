@@ -243,7 +243,7 @@ public final class AutoViews {
     /**
      * The square under a set ring: as large as its slot allows (owner, 1.1.285 — the ring grows with the card), the
      * ring over the whole square, the exercise figure inside it at {@code figInset} of the side, the program's
-     * picture (when added) centred at 60 % × 45 %. Children in order: figure, [picture], ring.
+     * picture (when added) square inside the circle. Children in order: figure, [picture], ring.
      */
     public static final class RingStage extends android.view.ViewGroup {
         private final float figInset;
@@ -279,9 +279,9 @@ public final class AutoViews {
                 int in = Math.round(s * figInset);
                 return new int[] {in, in, Math.max(0, s - 2 * in), Math.max(0, s - 2 * in)};
             }
-            int pw = Math.round(s * 0.6f);
-            int ph = Math.round(s * 0.45f);
-            return new int[] {(s - pw) / 2, (s - ph) / 2, pw, ph};
+            // the program's square picture fills the circle like the figure (owner, 1.1.338)
+            int in = Math.round(s * (figInset + 0.05f));
+            return new int[] {in, in, Math.max(0, s - 2 * in), Math.max(0, s - 2 * in)};
         }
 
         @Override

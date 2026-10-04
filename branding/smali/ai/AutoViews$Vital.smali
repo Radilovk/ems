@@ -31,24 +31,24 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 757
+    .line 762
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 751
+    .line 756
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
-    .line 752
+    .line 757
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->num:Landroid/graphics/Paint;
 
-    .line 758
+    .line 763
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
     const v1, 0x400ccccd    # 2.2f
@@ -59,26 +59,26 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 759
+    .line 764
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 760
+    .line 765
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->num:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 761
+    .line 766
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->num:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 762
+    .line 767
     return-void
 .end method
 
@@ -96,12 +96,12 @@
 
     const v7, 0x3eae147b    # 0.34f
 
-    .line 800
+    .line 805
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
-    .line 801
+    .line 806
     mul-float v1, v8, p2
 
     add-float/2addr v1, p0
@@ -112,7 +112,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 802
+    .line 807
     const v1, 0x3dcccccd    # 0.1f
 
     mul-float/2addr v1, p2
@@ -149,7 +149,7 @@
 
     invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
 
-    .line 803
+    .line 808
     mul-float v1, v7, p2
 
     add-float/2addr v1, p0
@@ -180,7 +180,7 @@
 
     invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
 
-    .line 804
+    .line 809
     const v1, 0x3f07ae14    # 0.53f
 
     mul-float/2addr v1, p2
@@ -215,7 +215,7 @@
 
     invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
 
-    .line 805
+    .line 810
     const v1, 0x3f828f5c    # 1.02f
 
     mul-float/2addr v1, p2
@@ -246,10 +246,10 @@
 
     invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
 
-    .line 806
+    .line 811
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
-    .line 807
+    .line 812
     return-object v0
 .end method
 
@@ -267,12 +267,12 @@
 
     const/high16 v8, 0x40000000    # 2.0f
 
-    .line 775
+    .line 780
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->getWidth()I
 
     move-result v6
 
-    .line 776
+    .line 781
     int-to-float v1, v6
 
     mul-float/2addr v1, v9
@@ -291,12 +291,12 @@
 
     move-result v7
 
-    .line 778
+    .line 783
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->hr:I
 
     if-lez v1, :cond_49
 
-    .line 779
+    .line 784
     const-wide/32 v2, 0xea60
 
     const/16 v1, 0x1e
@@ -311,7 +311,7 @@
 
     div-long/2addr v2, v4
 
-    .line 780
+    .line 785
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
@@ -324,7 +324,7 @@
 
     div-float/2addr v1, v2
 
-    .line 781
+    .line 786
     const v2, 0x3df5c28f    # 0.12f
 
     neg-float v1, v1
@@ -345,16 +345,16 @@
 
     add-float/2addr v0, v1
 
-    .line 782
+    .line 787
     const-wide/16 v2, 0x28
 
     invoke-virtual {p0, v2, v3}, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->postInvalidateDelayed(J)V
 
-    .line 784
+    .line 789
     :cond_49
     mul-float v4, v7, v0
 
-    .line 785
+    .line 790
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->hr:I
@@ -366,7 +366,7 @@
     :goto_53
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 786
+    .line 791
     const/4 v1, 0x7
 
     int-to-float v0, v6
@@ -387,26 +387,26 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->draw(Landroid/graphics/Canvas;IFFFLandroid/graphics/Paint;)V
 
-    .line 787
+    .line 792
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->hr:I
 
     if-lez v0, :cond_98
 
-    .line 788
+    .line 793
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 789
+    .line 794
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
     const/16 v1, 0x46
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 790
+    .line 795
     int-to-float v0, v6
 
     sub-float/2addr v0, v4
@@ -427,21 +427,21 @@
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 791
+    .line 796
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
     const/16 v1, 0xff
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 792
+    .line 797
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->heart:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 794
+    .line 799
     :cond_98
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->num:Landroid/graphics/Paint;
 
@@ -454,14 +454,14 @@
     :goto_a0
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 795
+    .line 800
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->num:Landroid/graphics/Paint;
 
     mul-float v1, v7, v9
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 796
+    .line 801
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->hr:I
 
     if-lez v0, :cond_c9
@@ -489,22 +489,22 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 797
+    .line 802
     return-void
 
-    .line 785
+    .line 790
     :cond_c3
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto :goto_53
 
-    .line 794
+    .line 799
     :cond_c6
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto :goto_a0
 
-    .line 796
+    .line 801
     :cond_c9
     const-string v0, "\u2014"
 
@@ -515,7 +515,7 @@
     .registers 4
 
     .prologue
-    .line 766
+    .line 771
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->hr:I
 
     if-ne p1, v0, :cond_8
@@ -524,17 +524,17 @@
 
     if-eq p2, v0, :cond_f
 
-    .line 767
+    .line 772
     :cond_8
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->hr:I
 
-    .line 768
+    .line 773
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->color:I
 
-    .line 769
+    .line 774
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoViews$Vital;->invalidate()V
 
-    .line 771
+    .line 776
     :cond_f
     return-void
 .end method

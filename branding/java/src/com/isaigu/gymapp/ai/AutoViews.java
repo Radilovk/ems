@@ -47,19 +47,24 @@ public final class AutoViews {
     }
 
     /**
-     * Colour of a body zone (owner, 1.1.287): the client's colour — magenta for a woman, cyan for a man — fills in
-     * smoothly as the zone gets the work this session is meant to give it; at the target (p = 1, the end of the plan,
-     * the passive part and the recovery included) it is full. The target is the session's own, not an absolute
-     * scale. Past it the colour warms: +15 % amber, +30 % red.
+     * Colour of a body zone (owner, 1.1.287 / 1.1.314): one gamut per sex, the one the report and the client card
+     * use — a man's runs blue → cyan, a woman's violet → magenta. Below the optimum (p &lt; 1) the colour comes up
+     * from the gamut's low end; at the optimum it is the client's colour ({@link ExerciseFigure#colorFor}); past
+     * it the gamut's own overload end (+15 %, +30 %): a man's cyan turns ice-white, a woman's magenta hot pink-red.
+     * The optimum is the zone's own ({@link AutoEngine#getZoneProgress}), not an absolute scale.
      */
-    public static int bodyHeat(int sexCol, double p) {
+    static final int[] GAMUT_M = {0xFF7D96FF, 0xFF22E3FF, 0xFF96F5FF, 0xFFE1FFFF};
+    static final int[] GAMUT_F = {0xFFC478FF, 0xFFFF3BD4, 0xFFFF2D95, 0xFFFF1E5A};
+
+    public static int bodyHeat(boolean female, double p) {
+        int[] g = female ? GAMUT_F : GAMUT_M;
         if (p <= 1.0) {
-            return sexCol;
+            return XemsUi.mix(g[0], g[1], (float) Math.max(0, Math.min(1, 0.35 + 0.65 * p)));
         }
         if (p <= 1.15) {
-            return XemsUi.mix(sexCol, HEAT_COL[3], (float) ((p - 1.0) / 0.15));
+            return XemsUi.mix(g[1], g[2], (float) ((p - 1.0) / 0.15));
         }
-        return XemsUi.mix(HEAT_COL[3], HEAT_COL[4], (float) Math.min(1.0, (p - 1.15) / 0.15));
+        return XemsUi.mix(g[2], g[3], (float) Math.min(1.0, (p - 1.15) / 0.15));
     }
 
     /** How strongly a zone shows at progress p: faint at the start, full at the target (smoothstep). */
@@ -354,8 +359,8 @@ public final class AutoViews {
      * exercises only). A zone the running set works lights up and pulses for as long as it works; its colour is
      * held meanwhile and, once the set is over (or every {@link #COMMIT_MS} of non-stop work), moves smoothly to
      * the work gathered so far — so it changes a step with every set and ends the session in the colour of all of
-     * it: pale = less than its optimum, the client's colour = the optimum, amber → red = overload
-     * ({@link AutoEngine#getZoneProgress}).
+     * it, in the client's gamut ({@link AutoViews#bodyHeat}): a man's blue → cyan → ice-white, a woman's violet →
+     * magenta → hot pink-red ({@link AutoEngine#getZoneProgress}).
      */
     public static final class BodyHeat extends View {
         private static final String[] SIDES = {"front", "back"};
@@ -382,7 +387,7 @@ public final class AutoViews {
         private final boolean[] active = new boolean[Z];
         private final double[] shown = new double[Z];
         private String sexKey = "";
-        private int sexCol = ExerciseFigure.COLOR;
+        private boolean female;
         private boolean dirty = true;
         private boolean glowDirty = true;
         private boolean first = true;
@@ -415,7 +420,7 @@ public final class AutoViews {
             String key = sex == AiModel.Sex.FEMALE ? "female" : "male";
             if (!key.equals(sexKey)) {
                 sexKey = key;
-                sexCol = ExerciseFigure.colorFor(sex == AiModel.Sex.FEMALE ? AiModel.Sex.FEMALE : AiModel.Sex.MALE);
+                female = sex == AiModel.Sex.FEMALE;
                 for (int i = 0; i < 2; i++) {
                     figs[i] = load(getContext(), key + "_" + SIDES[i]);
                 }
@@ -569,10 +574,10 @@ public final class AutoViews {
             float[] op = new float[Z];
             for (int k = 0; k < Z; k++) {
                 if (glow) {
-                    col[k] = XemsUi.mix(bodyHeat(sexCol, Math.max(0, shown[k])), 0xFFFFFFFF, 0.45f);
+                    col[k] = XemsUi.mix(bodyHeat(female, Math.max(0, shown[k])), 0xFFFFFFFF, 0.45f);
                     op[k] = active[k] ? (float) (0.55 + 0.45 * live[k]) : 0f;
                 } else {
-                    col[k] = bodyHeat(sexCol, shown[k]);
+                    col[k] = bodyHeat(female, shown[k]);
                     op[k] = off[k] ? 0f : bodyFill(shown[k]);
                 }
             }

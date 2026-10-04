@@ -41,6 +41,12 @@ describe('validCardData', () => {
     const d = ok(); d.p30 = { n: 3, mus: [1] };
     assert.equal(validCardData(d), 'p30');
   });
+  it('accepts the deltoid level and rejects a wrong one', () => {
+    const d = ok(); d.delt = 0.6; d.last.delt = -1;
+    assert.equal(validCardData(d), null);
+    d.delt = 7;
+    assert.equal(validCardData(d), 'delt');
+  });
   it('rejects non-numbers', () => {
     const d = ok(); d.kcal = '9';
     assert.equal(validCardData(d), 'kcal');

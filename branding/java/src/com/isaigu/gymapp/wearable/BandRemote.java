@@ -618,6 +618,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     }
 
     private static org.json.JSONArray lastMus;
+    /** The deltoid's level 0–100 (−1 = no exercise worked it): no suit channel, so not in "mus". */
+    private static int lastDelt = -1;
     private static String lastSex = "F";
     private static long lastMusMs;
     private static boolean lastMusOwner;
@@ -626,7 +628,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
      * The muscle map of the training that just closed (the band owner's slot, else the leading one):
      * joins the band's summary — the one already out, or the next within 5 minutes.
      */
-    static void onMuscles(int[] levels, String sex, boolean owner) {
+    static void onMuscles(int[] levels, int delt, String sex, boolean owner) {
         try {
             long now = System.currentTimeMillis();
             if (!owner && lastMusOwner && now - lastMusMs < 300000L) {
@@ -642,11 +644,13 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 return;
             }
             lastMus = a;
+            lastDelt = delt;
             lastSex = sex;
             lastMusMs = now;
             lastMusOwner = owner;
             if (summary != null && now < summaryUntilMs) {
                 summary.put("mus", a);
+                summary.put("delt", delt);
                 summary.put("sex", sex);
                 handler.postDelayed(new Push(true), 300);
             }
@@ -679,6 +683,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             o.put("zt", zt);
             if (lastMus != null && now - lastMusMs < 300000L) {
                 o.put("mus", lastMus);
+                o.put("delt", lastDelt);
                 o.put("sex", lastSex);
             }
             summary = o;

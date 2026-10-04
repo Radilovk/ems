@@ -71,7 +71,9 @@ import { BODY } from '../../common/body-map.js'
 const STOPS_F = [[0, [196, 120, 255]], [0.5, [226, 64, 251]], [1, [255, 45, 149]]]
 const STOPS_M = [[0, [125, 150, 255]], [0.5, [61, 165, 255]], [1, [0, 229, 255]]]
 const BODY_GREY = [66, 66, 70]      // the figure's graphite: a lightly loaded muscle leans toward it
-const MUSCLE = ['Гърди', 'Корем', 'Предно бедро', 'Прасци', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
+const MUSCLE = ['Гърди', 'Корем', 'Предно бедро', 'Прасци', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро', 'Рамо']
+// zone 10 = the deltoid: no suit channel, the exercises' shoulder work (s.delt 0–100, −1 / missing = none)
+const DELT = 10
 // both sexes listed so the image budget check sees them
 const STENCILS = ['/common/body/f-front.png', '/common/body/f-back.png', '/common/body/m-front.png', '/common/body/m-back.png']
 
@@ -139,7 +141,13 @@ export default {
     if (mus && mus.length === 10 && Math.max(...mus) > 0) {
       const mx = Math.max(...mus)
       const lv = mus.map((v) => v / mx)
+      const d = typeof s.delt === 'number' && s.delt >= 0 ? s.delt / 100 : -1
       const col = lv.map((v) => heat(v, s.sex === 'M' ? STOPS_M : STOPS_F))
+      col.push(d >= 0 ? heat(d, s.sex === 'M' ? STOPS_M : STOPS_F)
+        : '#' + BODY_GREY.map((x) => ('0' + x.toString(16)).slice(-2)).join(''))
+      if (d >= 0) {
+        lv.push(d)
+      }
       this.sexK = s.sex === 'M' ? 'm' : 'f'
       this.figH = BODY.views[this.sexK + '-front'].h
       this.front = boxes(this.sexK + '-front', col)

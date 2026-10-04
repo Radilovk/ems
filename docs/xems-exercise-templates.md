@@ -80,8 +80,8 @@ so the tablet report, the client's copy (server) and the band use the same data.
 - **Muscle map:** each exercise's muscles (`mus`, 100 = main) add `EX_LOAD` 0.25 of a full channel in the impulse,
   30 % of it in the pause (`SessionRec.EXERCISE_LOAD` 25 for the band/card figure). MET/muscles live in
   `branding/exercises/exercises.json` (`met`, `mus`) → `AutoTemplateData.MET/MUS`.
-- **Auto live body (1.1.313):** the shoulders column also feeds a deltoid zone of its own (no current) — see
-  `docs/xems-auto-mode-spec.md` §12 „Цвят на зоните“.
+- **Deltoid (1.1.313 live board, 1.1.314 report / card / band):** the shoulders column also feeds a deltoid zone of
+  its own (no current) — see `docs/xems-auto-mode-spec.md` §12 „Цвят на зоните“, `docs/session-report/README.md`.
 
 ## Program pictures (`ai/ProgramArt`)
 Sources: `branding/programs/src/*.webp` (full resolution, transparent; the women's set cut from the owner's 13-pose

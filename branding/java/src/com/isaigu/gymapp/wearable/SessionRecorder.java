@@ -184,7 +184,7 @@ public final class SessionRecorder {
                             r.idle = 0;
                             BandWorkout.onState(r, false);
                             if (r.bandOwner || r.leader) {
-                                BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
+                                BandRemote.onMuscles(r.muscleLevels(), r.deltLevel(), r.sex(), r.bandOwner);
                             }
                             r.end = now;
                             if (r.activeS() >= MIN_ACTIVE_S) {
@@ -312,7 +312,7 @@ public final class SessionRecorder {
         BandWorkout.onEnd(r);
         NextClient.onClosed(slot, r, now);
         if (r.bandOwner || r.leader) {
-            BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
+            BandRemote.onMuscles(r.muscleLevels(), r.deltLevel(), r.sex(), r.bandOwner);
         }
         if (r.activeS() < MIN_ACTIVE_S) {
             WearableBleDiagLog.log("report", "session dropped (" + r.activeS() + " s active) user " + r.userId);

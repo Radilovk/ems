@@ -31,6 +31,8 @@ POS = {"front": 2, "back": 106}
 POS_Y = 92
 # the page background under them: bg/summary.png, background-size cover on 212 × 520
 PAGE = np.asarray(Image.open(ROOT / "src/common/bg/summary.png").convert("RGB").resize((212, 520), Image.BILINEAR)).astype(np.float32) / 255
+DELT = 10                                # the deltoid's zone index in the boxes (after the 10 channels)
+ZONES = 11
 GRID = 3                                 # colour boxes snap to 2 px
 NEED = 0.12                              # below this share of colour a pixel keeps the stencil alone
 
@@ -45,6 +47,7 @@ def stencil(rgb, al, side):
     A = np.asarray(art_im).astype(np.float32) / 255
     Z = np.asarray(zmap).astype(np.float32)
     zone = Z[..., 0].astype(int) - 1
+    zone[Z[..., 0] == art.DELTOID_R] = DELT          # the deltoid: box zone 10 (summary page: s.delt)
     l = Z[..., 1] / 255
     w = Z[..., 2] / 255
     cov = A[..., 3]
@@ -106,13 +109,13 @@ def main() -> int:
             S = np.where(a_s[..., None] > 1e-3, Sa_s / np.maximum(a_s[..., None], 1e-3), 0)
             # colour boxes per zone at screen resolution: needed where the colour shows, allowed anywhere
             # except on another muscle (the stencil hides them over the body and around it)
-            K = np.stack([down(np.where(zone == z, k, 0), f) for z in range(10)])   # 10 × H × W
+            K = np.stack([down(np.where(zone == z, k, 0), f) for z in range(ZONES)])   # 11 × H × W
             rects = []
             G = GRID                                        # boxes on a coarser grid: fewer divs
             Hg, Wg = -(-K.shape[1] // G), -(-K.shape[2] // G)
             pad = lambda x: np.pad(x, ((0, Hg * G - x.shape[0]), (0, Wg * G - x.shape[1])))
             K = np.stack([pad(k_).reshape(Hg, G, Wg, G).max((1, 3)) for k_ in K])
-            for z in range(10):
+            for z in range(ZONES):
                 need = (K[z] > NEED) & (K[z] >= np.delete(K, z, 0).max(0))
                 if not need.any():
                     continue

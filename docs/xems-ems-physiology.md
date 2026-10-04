@@ -113,6 +113,9 @@ never became oxygen uptake.
 | Report (`session-report.html`) | the same terms per second from the record: Schofield resting uptake, VO2max = Uth ⊕ fitness value, `max(heart, rest + evoked + exercise)`, the glycolytic debt, the fast debt |
 | Dial, band, summary | `HrGuard.liveKcal()` — Auto or AI kcal when one runs, else the manual one |
 
+**The total in the report is gross** (it holds the resting burn of the same time); the tile also shows "above rest"
+(`kcalAct` = total − rest · time). Totals of the client card, the 30-day sum, CSV and TCX are gross. Checked on one
+case (80 kg man, 20 min, 85 Hz, 4/4 s, HR at half reserve): Java 212 kcal, report 228 (+7 %).
 The model of the report is a per-second copy of the Java one and stays simpler (no pulse-width balance per channel, no
 scale's channel muscle); the two can differ by a few per cent.
 

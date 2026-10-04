@@ -741,7 +741,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L94 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
   - L120 ## Кодът на студиото
 
-`docs/xems-ems-physiology.md` (192L)
+`docs/xems-ems-physiology.md` (195L)
   - L1 # EMS physiology — the knowledge the algorithms stand on
   - L8 ## 1. What the frequency does
   - L25 ## 2. Force–frequency curve (one function everywhere)
@@ -754,13 +754,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L71 ### 4.1 During — frequency, force, fibres
   - L94 ### 4.2 After — the interest the body pays
   - L107 ### 4.3 Where it is counted (1.1.318)
-  - L119 ### 4.4 What the total is
-  - L130 ## 5. Pulse width and dose
-  - L134 ## 6. Between sessions
-  - L146 ## 7. Heart rate
-  - L155 ## 8. Where it is used
-  - L169 ## Not yet
-  - L172 ## References (from the literature the team works with; check the exact source before quoting outside)
+  - L122 ### 4.4 What the total is
+  - L133 ## 5. Pulse width and dose
+  - L137 ## 6. Between sessions
+  - L149 ## 7. Heart rate
+  - L158 ## 8. Where it is used
+  - L172 ## Not yet
+  - L175 ## References (from the literature the team works with; check the exact source before quoting outside)
 
 `docs/xems-exercise-templates.md` (110L)
   - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them

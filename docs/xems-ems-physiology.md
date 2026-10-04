@@ -66,11 +66,65 @@ Simulation now (`scripts/ai-sim`, FatProbe): warm-up 12–17 %, main ≤ 100 %, 
 
 ## 4. Energy
 
-- Oxygen cost per second rises with the firing rate and levels off above fusion: `kf(f) = (f/(f+25)) / (85/110)`,
-  7 Hz ≈ 0.28 of 85 Hz (twitches cost more per unit of force than a tetanus, Ca²⁺ handling) [D].
-  Java `AiEnergy.freqFactor`; report `kf` → the **metabolic stimulus M** (calories, the heart-rate estimate without a
-  band) and the goal zone of drainage / massage, whose effect is circulation, not contraction (goal `basis: "M"`).
-- kcal = max(heart-rate branch, current + exercise branch) — `AiEnergy` class comment (VO2 from %HRR [E:R9]).
+Three layers: what the muscle spends **while** the impulses run, what is paid **after**, and what is still unknown.
+
+### 4.1 During — frequency, force, fibres
+- **Below fusion (≤ ~10 Hz):** ATP per twitch does not depend on the rate, so energy per second rises about linearly
+  with the frequency; whole-body VO2 climbs up to ~8–12 Hz and then flattens (healthy men, quadriceps, 1–12 Hz:
+  ~2.4× rest at 5 Hz) [E:R10].
+- **Above fusion (> ~30 Hz):** force saturates; extra pulses add little force. The cost per second is then set by the
+  force and by how much muscle is fired. At equal current a higher frequency means more force → more ATP per second.
+  Our `kf(f) = (f/(f+25))/(85/110)` has this shape (7 Hz ≈ 0.28, 85 Hz = 1; ≈ 3.5× between them) [D].
+- **Per unit of force it is different:** with short pulses (0.05 ms) at 25 Hz a unit of force costs ≈ 2× the
+  phosphocreatine of a voluntary one; wide pulses at 100 Hz (1 ms) cost about the same as voluntary in "responders"
+  [E:R11]. Equal-force low vs high frequency alone did not change the metabolic changes in another study [E:R12].
+  So "high frequency = 3–4× the energy" holds **per second at the same current** (more force), not per unit of force.
+  Not found in the literature: a measured 3–4× anaerobic ratio — the owner's figure; kept as a tunable [D].
+- **Fibres:** EMS fires fibres non-selectively, at fixed places, synchronously [E:R6, R7]. The same units work all the
+  time → they tire sooner and go glycolytic. High-frequency stimulation empties glycogen in all fibre types, most in
+  type II (IIa most) [E:R13]. Muscles: surface current reaches the superficial / large muscle better than the deep one
+  (`AiEnergy.CH_DEPTH`, `CH_MASS`) [D].
+- **Aerobic and glycolytic share.** Part of the ATP of the evoked contraction is covered without oxygen (PCr,
+  glycolysis). It does not show as oxygen uptake while it happens; the body pays it back afterwards. We split the
+  evoked ATP: aerobic (counted as VO2, as before) and glycolytic: `g(f) = 0.15 + 0.15·forceWeight(f)` — 0.17 at 7 Hz,
+  0.30 at 85 Hz. The glycolytic O2-equivalent of a second is `evoked VO2 · g/(1−g)` [D — the owner's 3–4× is a
+  per-second ratio between low and high frequency; with kf and g together we get ≈ 7× in glycolytic ATP, still to be
+  validated].
+
+### 4.2 After — the interest the body pays
+| Part | What is repaid | When | In the code |
+|---|---|---|---|
+| Fast | ATP, phosphocreatine (50 % in ~30 s, all in 2–3 min), O2 of myoglobin and blood, the O2 deficit of the rising HR | minutes | `closeEpoc`: (VO2_end − rest) · τ, τ = 40 s (AI session only) |
+| Slow, glycolytic | lactate (~65 % oxidised, ~25 % back to glycogen by gluconeogenesis), glycogen | ~10–60 min | the glycolytic debt: litres O2-equivalent × 5.0 kcal/L, in the total from the moment it is made (`AiEnergy.getKcal`) |
+| Slow, other | temperature, catecholamines, ion balance | minutes–hours | **not modelled** (no size from the sources) |
+| Muscle damage | CK rises with high intensity, peak ~72 h; repair costs energy | days | **not modelled**; `NextPlan` rests the zone [E:R3, R14] |
+
+EPOC is intensity- and duration-dependent: low strength and short work leave no lasting EPOC [E:R15]. The glycolytic
+debt is small for a 7 Hz warm-up or a massage and large for 85–100 Hz strength work — as it should.
+No double counting: the fast term is the deficit of the oxygen uptake we already count; the glycolytic debt is work that
+never became oxygen uptake.
+
+### 4.3 Where it is counted (1.1.318)
+| Where | What it uses |
+|---|---|
+| Smart Session (`AiSession.tickEnergy`) | client data, the cycle's impulse, the exercise, HR; closes the fast debt at the end |
+| Auto (`AutoSession.tickEnergy`) | the leader's data from the client record (weight, age, sex, fitness, scale lean / skeletal mass, channel muscle, medication, measured resting HR), the impulse the suit **really** gives (hz, pulse width, strength, channels, the second impulse in the pause), the running set's exercise, HR; the tolerated charge is the calibration; closes the fast debt at the end |
+| Manual (`HrGuardCore.tickEnergy`) | the leading row's real values; counts only while impulses run + 60 s of recovery, then closes the fast debt; a new run after 10 min starts again (before: ran on from the last calibration, idle time included) |
+| Report (`session-report.html`) | the same terms per second from the record: Schofield resting uptake, VO2max = Uth ⊕ fitness value, `max(heart, rest + evoked + exercise)`, the glycolytic debt, the fast debt |
+| Dial, band, summary | `HrGuard.liveKcal()` — Auto or AI kcal when one runs, else the manual one |
+
+**The total in the report is gross** (it holds the resting burn of the same time); the tile also shows "above rest"
+(`kcalAct` = total − rest · time). Totals of the client card, the 30-day sum, CSV and TCX are gross. Checked on one
+case (80 kg man, 20 min, 85 Hz, 4/4 s, HR at half reserve): Java 212 kcal, report 228 (+7 %).
+The model of the report is a per-second copy of the Java one and stays simpler (no pulse-width balance per channel, no
+scale's channel muscle); the two can differ by a few per cent.
+
+### 4.4 What the total is
+`kcal = max(heart branch, rest + evoked + exercise) + glycolytic debt (+ fast EPOC at the end)` — the heart branch
+carries the aerobic part when there is a band; the glycolytic debt is added **on top**, because heart rate does not
+see it. The report (`session-report.html`) uses the same terms per second (its `hz`, `M`, `kF`) and shows the debt apart.
+The planning of Auto (`AutoEngine` load, dose, fatigue) uses `kf`, `recruited`, `R_MAX` and is **not** changed by the
+debt, so the plans stay as they were.
 
 With a fresh scale measurement (docs/xems-scale.md "Where the scale's data goes") the muscle mass is measured
 (skeletal muscle kg → muscleScale; muscle per channel from the segments) and the resting burn comes from lean mass
@@ -129,3 +183,12 @@ Validate τ, F_max, w(f) and kf on recorded sessions (CR10 answers, HR recovery,
 - R7 Bickel, Gregory, Dean (2011). Motor unit recruitment during NMES: a critical appraisal. *Eur. J. Appl. Physiol.*
 - R8 Haseler, Hogan, Richardson (1999). Skeletal muscle phosphocreatine recovery in exercise-trained humans. *J. Appl. Physiol.*
 - R9 Swain & Leutholtz (1997); ACSM — %HRR ≈ %VO2R.
+- R10 Whole body oxygen uptake and evoked knee torque in response to low-frequency electrical stimulation of the
+  quadriceps (J. NeuroEng. Rehabil. 2013, 10:63).
+- R11 Responders to wide-pulse, high-frequency NMES show reduced metabolic demand: a 31P-MRS study (PLoS ONE 2015).
+- R12 Gondin et al. (2010). Effects of stimulation frequency and pulse duration on fatigue and metabolic cost during a
+  single bout of NMES. *Muscle & Nerve* (abstract only checked).
+- R13 Glycogen depletion of human skeletal muscle fibers in response to high-frequency electrical stimulation
+  (Can. J. Appl. Physiol. 2003).
+- R14 Inter-individual differences in muscle damage after a single bout of high-intensity WB-EMS (PMC11537929).
+- R15 Effect of exercise intensity, duration and mode on post-exercise oxygen consumption (PubMed 14599232).

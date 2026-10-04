@@ -509,6 +509,111 @@
     goto/16 :goto_d
 .end method
 
+.method public static show(Landroid/view/View;Ljava/lang/String;I)V
+    .registers 8
+
+    .prologue
+    const/4 v4, 0x1
+
+    const/4 v3, 0x0
+
+    .line 114
+    instance-of v0, p0, Landroid/widget/FrameLayout;
+
+    if-eqz v0, :cond_24
+
+    move-object v0, p0
+
+    check-cast v0, Landroid/widget/FrameLayout;
+
+    invoke-virtual {v0}, Landroid/widget/FrameLayout;->getChildCount()I
+
+    move-result v0
+
+    if-eqz v0, :cond_24
+
+    move-object v0, p0
+
+    check-cast v0, Landroid/widget/FrameLayout;
+
+    .line 115
+    invoke-virtual {v0, v3}, Landroid/widget/FrameLayout;->getChildAt(I)Landroid/view/View;
+
+    move-result-object v0
+
+    instance-of v0, v0, Landroid/widget/ImageView;
+
+    if-eqz v0, :cond_24
+
+    invoke-virtual {p0}, Landroid/view/View;->getTag()Ljava/lang/Object;
+
+    move-result-object v0
+
+    invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_25
+
+    .line 128
+    :cond_24
+    :goto_24
+    return-void
+
+    .line 118
+    :cond_25
+    invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    .line 119
+    int-to-float v1, p2
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v1
+
+    invoke-static {v0, p1, v1}, Lcom/isaigu/gymapp/ai/ProgramArt;->bitmap(Landroid/content/Context;Ljava/lang/String;I)Landroid/graphics/Bitmap;
+
+    move-result-object v1
+
+    .line 120
+    if-eqz v1, :cond_24
+
+    .line 123
+    new-instance v2, Landroid/graphics/drawable/BitmapDrawable;
+
+    invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-direct {v2, v0, v1}, Landroid/graphics/drawable/BitmapDrawable;-><init>(Landroid/content/res/Resources;Landroid/graphics/Bitmap;)V
+
+    .line 124
+    invoke-virtual {v2, v4}, Landroid/graphics/drawable/BitmapDrawable;->setFilterBitmap(Z)V
+
+    .line 125
+    invoke-virtual {v2, v4}, Landroid/graphics/drawable/BitmapDrawable;->setAntiAlias(Z)V
+
+    move-object v0, p0
+
+    .line 126
+    check-cast v0, Landroid/widget/FrameLayout;
+
+    invoke-virtual {v0, v3}, Landroid/widget/FrameLayout;->getChildAt(I)Landroid/view/View;
+
+    move-result-object v0
+
+    check-cast v0, Landroid/widget/ImageView;
+
+    invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 127
+    invoke-virtual {p0, p1}, Landroid/view/View;->setTag(Ljava/lang/Object;)V
+
+    goto :goto_24
+.end method
+
 .method public static tile(Landroid/content/Context;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;II)Landroid/view/View;
     .registers 12
 
@@ -517,12 +622,12 @@
 
     const/4 v3, 0x0
 
-    .line 111
+    .line 132
     new-instance v0, Landroid/widget/FrameLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 112
+    .line 133
     const v1, -0xedebe6
 
     const/high16 v2, 0x41600000    # 14.0f
@@ -539,20 +644,20 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 113
+    .line 134
     new-instance v1, Landroid/widget/ImageView;
 
     invoke-direct {v1, p0}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 114
+    .line 135
     sget-object v2, Landroid/widget/ImageView$ScaleType;->FIT_CENTER:Landroid/widget/ImageView$ScaleType;
 
     invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
-    .line 115
+    .line 136
     invoke-virtual {v1, v3}, Landroid/widget/ImageView;->setAdjustViewBounds(Z)V
 
-    .line 116
+    .line 137
     invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/ai/ProgramArt;->key(Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
 
     move-result-object v2
@@ -567,10 +672,10 @@
 
     move-result-object v2
 
-    .line 117
+    .line 138
     if-eqz v2, :cond_46
 
-    .line 118
+    .line 139
     new-instance v3, Landroid/graphics/drawable/BitmapDrawable;
 
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -579,16 +684,16 @@
 
     invoke-direct {v3, v4, v2}, Landroid/graphics/drawable/BitmapDrawable;-><init>(Landroid/content/res/Resources;Landroid/graphics/Bitmap;)V
 
-    .line 119
+    .line 140
     invoke-virtual {v3, v5}, Landroid/graphics/drawable/BitmapDrawable;->setFilterBitmap(Z)V
 
-    .line 120
+    .line 141
     invoke-virtual {v3, v5}, Landroid/graphics/drawable/BitmapDrawable;->setAntiAlias(Z)V
 
-    .line 121
+    .line 142
     invoke-virtual {v1, v3}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 123
+    .line 144
     :cond_46
     new-instance v2, Landroid/widget/FrameLayout$LayoutParams;
 
@@ -610,7 +715,14 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 124
+    .line 145
+    invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/ai/ProgramArt;->key(Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setTag(Ljava/lang/Object;)V
+
+    .line 146
     int-to-float v1, p4
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -619,7 +731,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setMinimumWidth(I)V
 
-    .line 125
+    .line 147
     int-to-float v1, p5
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -628,7 +740,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setMinimumHeight(I)V
 
-    .line 126
+    .line 148
     return-object v0
 .end method
 

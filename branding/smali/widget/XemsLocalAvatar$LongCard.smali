@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 525
+    .line 541
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 526
+    .line 542
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$LongCard;->touch:Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;
 
-    .line 527
+    .line 543
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$LongCard;->v:Landroid/view/View;
 
-    .line 528
+    .line 544
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 532
+    .line 548
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$LongCard;->touch:Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->down:Z
@@ -60,14 +60,14 @@
 
     if-ne v0, p0, :cond_1e
 
-    .line 533
+    .line 549
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$LongCard;->touch:Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;
 
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->longDone:Z
 
-    .line 535
+    .line 551
     :try_start_11
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$LongCard;->v:Landroid/view/View;
 
@@ -77,7 +77,7 @@
     :try_end_17
     .catch Ljava/lang/Throwable; {:try_start_11 .. :try_end_17} :catch_1f
 
-    .line 538
+    .line 554
     :goto_17
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$LongCard;->touch:Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;
 
@@ -85,11 +85,11 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->open(Landroid/view/View;)V
 
-    .line 540
+    .line 556
     :cond_1e
     return-void
 
-    .line 536
+    .line 552
     :catch_1f
     move-exception v0
 

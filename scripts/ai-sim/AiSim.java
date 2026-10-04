@@ -292,6 +292,29 @@ public class AiSim {
         double v0 = AiEnergy.evokedVo2(on, 1.0), v1 = AiEnergy.evokedVo2(both, 1.0);
         System.out.printf("PAUSE energy: work only %.3f L/min, + active pause 6 Hz 45%% %.3f L/min%n", v0, v1);
         check(v1 > v0 && v1 < 1.5 * v0, "active pause adds a modest O2 cost");
+        // Glycolytic debt (docs/xems-ems-physiology.md §4): high frequency pays more without oxygen, once.
+        AiEnergy lo = new AiEnergy(60, 180), hi = new AiEnergy(60, 180);
+        AiEnergy.Stim s7 = stim(null, 60, 7, 350, 1), s85 = stim(null, 60, 85, 350, 1);
+        long tt = 0;
+        for (int i = 0; i <= 120; i++) { lo.tick(tt, -1, s7); hi.tick(tt, -1, s85); tt += 1000; }
+        double d7 = lo.getDebtKcal(), d85 = hi.getDebtKcal();
+        System.out.printf("DEBT 2 min: 7 Hz %.2f kcal, 85 Hz %.2f kcal (%.1fx)%n", d7, d85, d85 / Math.max(1e-9, d7));
+        check(d7 > 0 && d85 > 3 * d7, "glycolytic debt grows with the frequency");
+        double before = hi.getKcal();
+        hi.closeEpoc();
+        double afterOnce = hi.getKcal();
+        hi.closeEpoc();
+        check(hi.getDebtKcal() == 0 && Math.abs(hi.getKcal() - afterOnce) < 1e-9, "closing twice does not count the debt twice");
+        check(afterOnce >= before - 1e-9, "closing the epoc never lowers the total");
+        // the person model without a SessionInput (Auto) equals the Smart Session's one
+        SessionInput pin = new SessionInput();
+        pin.sex = Sex.FEMALE; pin.age = 41; pin.weightKg = 66; pin.fitness = Fitness.MID;
+        Profile pp = AiPlanner.derive(pin, 62, 1.0, 3000);
+        AiEnergy ea = AiEnergy.forSession(pin, pp);
+        AiEnergy eb = AiEnergy.forPerson(Sex.FEMALE, 41, 66, Fitness.MID, -1, -1, null, false, 62, pp.hrMax);
+        long t2 = 0;
+        for (int i = 0; i <= 300; i++) { ea.tick(t2, 120, stim(null, 60, 85, 350, 1)); eb.tick(t2, 120, stim(null, 60, 85, 350, 1)); t2 += 1000; }
+        check(Math.abs(ea.getKcal() - eb.getKcal()) < 1e-6, "forPerson = forSession for the same client");
     }
 
     static void energy(String name, Sex sex, int age, double w, Fitness fit, int rest, boolean med) {

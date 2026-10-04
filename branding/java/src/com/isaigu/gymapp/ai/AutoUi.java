@@ -351,8 +351,8 @@ public final class AutoUi {
                         + "change the intensity, not pass the limits. \u201cToday\u201d — how the client is now (short on sleep, "
                         + "stress, period…): it never stops the session, the plan adapts by itself.");
             case STEP_CALIB:
-                return AiText.t("Качи силата на всеки клиент до целевото усещане. „Старт“ започва от загрявката с 60 % от нея.",
-                        "Raise each client's strength to the target feeling. Start begins with the warm-up at 60 % of it.");
+                return AiText.t("Качи силата на всеки клиент до целевото усещане. Съотношението между зоните — с плъзгачите на каналите на реда; пази се до края. „Старт“ започва от загрявката с 60 % от нея.",
+                        "Raise each client's strength to the target feeling. The balance between zones — with the row's channel sliders; it holds to the end. Start begins with the warm-up at 60 % of it.");
             case STEP_RUN:
                 return AiText.t("Управлява се с главните ▶ / ❚❚ и ■. ■ действа от пауза: първият — към 10 мин възстановяване, "
                         + "вторият — край. Импулсите са най-много 20 мин. ✕ скрива таблото — сесията продължава. "
@@ -1401,6 +1401,13 @@ public final class AutoUi {
         runFigure.setVisibility(fig ? View.VISIBLE : View.INVISIBLE);
         runArt.setVisibility(fig ? View.GONE : View.VISIBLE);
         runArt.setAlpha(st == AutoEngine.State.RUN ? 1f : 0.6f);
+        if (!fig) {
+            // the passive recovery: the figure lying back on the couch, not the program's picture
+            boolean relax = recovery || beforeRecovery;
+            AiModel.Sex sx = lead != null ? lead.sex : null;
+            ProgramArt.show(runArt, relax ? ProgramArt.key(AutoCatalog.RECOVERY, false, sx)
+                    : ProgramArt.key(plan.program.id, plan.program.isActive(), sx), 120);
+        }
         String nx = e.getNextExercise();
         boolean soon = st == AutoEngine.State.RUN && nx != null && e.getSetLeftS() <= NEXT_SOON_S;
         // the next exercise beside: grey and smaller while it waits, in colour in the set's last seconds

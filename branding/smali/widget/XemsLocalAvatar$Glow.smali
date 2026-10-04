@@ -25,10 +25,10 @@
     .registers 4
 
     .prologue
-    .line 474
+    .line 490
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 472
+    .line 488
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -37,17 +37,17 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
-    .line 475
+    .line 491
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->v:Landroid/view/View;
 
-    .line 476
+    .line 492
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 477
+    .line 493
     return-void
 .end method
 
@@ -65,21 +65,21 @@
 
     const/high16 v10, 0x3fc00000    # 1.5f
 
-    .line 481
+    .line 497
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->v:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getWidth()I
 
     move-result v0
 
-    .line 482
+    .line 498
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->v:Landroid/view/View;
 
     invoke-virtual {v1}, Landroid/view/View;->getHeight()I
 
     move-result v1
 
-    .line 483
+    .line 499
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v2
@@ -100,7 +100,7 @@
 
     if-eq v1, v2, :cond_31
 
-    .line 484
+    .line 500
     :cond_26
     invoke-static {v11, v0}, Ljava/lang/Math;->max(II)I
 
@@ -112,7 +112,7 @@
 
     invoke-virtual {p0, v4, v4, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->setBounds(IIII)V
 
-    .line 486
+    .line 502
     :cond_31
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->v:Landroid/view/View;
 
@@ -126,7 +126,7 @@
 
     iget v2, v2, Landroid/util/DisplayMetrics;->density:F
 
-    .line 487
+    .line 503
     invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
 
     move-result v3
@@ -147,35 +147,35 @@
 
     sub-float/2addr v3, v4
 
-    .line 488
+    .line 504
     const/4 v4, 0x0
 
     cmpg-float v4, v3, v4
 
     if-gtz v4, :cond_51
 
-    .line 506
+    .line 522
     :goto_50
     return-void
 
-    .line 491
+    .line 507
     :cond_51
     int-to-float v0, v0
 
     div-float v4, v0, v5
 
-    .line 492
+    .line 508
     int-to-float v0, v1
 
     div-float v1, v0, v5
 
-    .line 494
+    .line 510
     const/4 v0, 0x6
 
     :goto_58
     if-lt v0, v11, :cond_86
 
-    .line 495
+    .line 511
     iget-object v5, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
     const/high16 v6, 0x40400000    # 3.0f
@@ -184,7 +184,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 496
+    .line 512
     iget-object v5, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
     rsub-int/lit8 v6, v0, 0x6
@@ -205,7 +205,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 497
+    .line 513
     int-to-float v5, v0
 
     const v6, 0x400ccccd    # 2.2f
@@ -220,12 +220,12 @@
 
     invoke-virtual {p1, v4, v1, v5, v6}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 494
+    .line 510
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_58
 
-    .line 500
+    .line 516
     :cond_86
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
@@ -235,14 +235,14 @@
 
     invoke-virtual {v0, v5}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 501
+    .line 517
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
     const v5, -0xa10f74
 
     invoke-virtual {v0, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 502
+    .line 518
     mul-float v0, v10, v2
 
     sub-float v0, v3, v0
@@ -251,21 +251,21 @@
 
     invoke-virtual {p1, v4, v1, v0, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 503
+    .line 519
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
     mul-float v5, v10, v2
 
     invoke-virtual {v0, v5}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 504
+    .line 520
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->p:Landroid/graphics/Paint;
 
     const v5, -0x33000001    # -1.3421772E8f
 
     invoke-virtual {v0, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 505
+    .line 521
     mul-float v0, v10, v2
 
     sub-float v0, v3, v0
@@ -281,7 +281,7 @@
     .registers 2
 
     .prologue
-    .line 516
+    .line 532
     const/4 v0, -0x3
 
     return v0
@@ -291,7 +291,7 @@
     .registers 2
 
     .prologue
-    .line 509
+    .line 525
     return-void
 .end method
 
@@ -299,6 +299,6 @@
     .registers 2
 
     .prologue
-    .line 512
+    .line 528
     return-void
 .end method

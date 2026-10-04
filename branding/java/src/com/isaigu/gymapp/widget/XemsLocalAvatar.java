@@ -245,6 +245,19 @@ public final class XemsLocalAvatar {
     private static final java.util.WeakHashMap<android.view.View, Boolean> GRAB =
             new java.util.WeakHashMap<android.view.View, Boolean>();
     private static int ringId;
+    private static java.lang.reflect.Method autoOn;
+
+    /** Auto owns the suits (ai.AutoLook, compiled after this class — so by name): the ring does not move. */
+    private static boolean autoOwns() {
+        try {
+            if (autoOn == null) {
+                autoOn = Class.forName("com.isaigu.gymapp.ai.AutoLook").getMethod("isOn");
+            }
+            return Boolean.TRUE.equals(autoOn.invoke(null));
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 
     /**
      * Hook: start of CircleSeekBar.onTouchEvent (thumb centre and radius in view coordinates). The ring
@@ -258,6 +271,9 @@ public final class XemsLocalAvatar {
             }
             if (v.getId() != ringId) {
                 return true;
+            }
+            if (autoOwns()) {
+                return false;          // Auto (owner, 1.1.315): strength only with the + / − keys, never the ring
             }
             int a = e.getActionMasked();
             if (a == android.view.MotionEvent.ACTION_DOWN) {

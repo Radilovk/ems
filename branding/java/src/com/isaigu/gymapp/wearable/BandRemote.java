@@ -549,7 +549,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             dur = e.getPlan().totalS;
             what = "ai|" + st + "|" + e.getPhaseIndex() + "|" + restReady;
         } else if (trainRunning || trainMs > 0 && !musicOnly()) {
-            double kcal = HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+            double kcal = HrGuard.liveKcal();
             title = hrText;
             sub = WearableUi.tr("Тренировка ", "Training ") + mmss(trainMs / 1000.0)
                     + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
@@ -666,8 +666,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             android.content.Context ctx = WearableSyncHelper.getContext();
             int limit = ctx != null ? WearableConfig.getHrThreshold(ctx) : 170;
             HrHistory.Series ss = HrHistory.since(now, Math.max(60, durS + 5) * 1000L);
-            double kcal = "ai".equals(kind) ? AiSession.getKcal()
-                    : HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+            double kcal = "ai".equals(kind) ? AiSession.getKcal() : HrGuard.liveKcal();
             org.json.JSONObject o = new org.json.JSONObject();
             o.put("n", ++endSeq);
             o.put("kind", kind);
@@ -736,7 +735,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         AiEngine e = AiSession.getEngine();
         boolean ai = AiSession.getStage() == AiSession.Stage.RUNNING && e != null;
         String mode = ai ? "ai" : XemsPanel.isRunning() || trainWasRunning ? "manual" : musicOnly() ? "music" : "idle";
-        double kcal = ai ? AiSession.getKcal() : HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+        double kcal = ai ? AiSession.getKcal() : HrGuard.liveKcal();
         boolean restReady = ai && e.getState() == AiEngine.State.REST && e.isRestReady();
         String vib = "";
         if (restReady && !lastRestReady) {

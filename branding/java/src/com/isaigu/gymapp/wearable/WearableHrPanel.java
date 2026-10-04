@@ -217,7 +217,7 @@ public final class WearableHrPanel {
         avgVal.setText(stats.size() > 1 ? String.valueOf(stats.avg()) : "--");
         maxVal.setText(stats.size() > 0 ? String.valueOf(stats.max()) : "--");
         minVal.setText(stats.size() > 0 ? String.valueOf(stats.min()) : "--");
-        double kcal = g != null ? g.getKcal() : 0;
+        double kcal = g != null ? HrGuard.liveKcal() : 0;
         kcalVal.setText(kcal > 0 ? String.valueOf(Math.round(kcal)) : "--");
 
         StringBuilder lim = new StringBuilder();

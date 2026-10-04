@@ -49,10 +49,18 @@ public final class AutoSession {
         int cal;
         double user = 1.0;
         final int[] zoneOffset = new int[AutoModel.CHANNELS];
+        /** Each channel's share set at the calibration (owner, 1.1.315), % of what the program asks; 100 = as is. */
+        final int[] zoneRatio = full(AutoModel.CHANNELS, 100);
         int lastStrength = -1;
         int writtenStrength = -1;
         int[] writtenZones;
         double raiseBudget = AutoLimits.RAISE_PER_CYCLE;
+    }
+
+    private static int[] full(int n, int v) {
+        int[] a = new int[n];
+        Arrays.fill(a, v);
+        return a;
     }
 
     private static TrainItemManager manager;
@@ -528,6 +536,7 @@ public final class AutoSession {
             r.cal = 0;
             r.user = 1.0;
             Arrays.fill(r.zoneOffset, 0);
+            Arrays.fill(r.zoneRatio, 100);
             r.raiseBudget = CALIB_RISE_PER_S;
             int now = strengthOf(r.item);
             r.lastStrength = r.block == null ? Math.min(now, 10) : 0;
@@ -592,6 +601,31 @@ public final class AutoSession {
             r.lastStrength = v;
         }
         writeRows(written != null ? written : calibrationCmd(), true);
+    }
+
+    /**
+     * ± on one channel of a row at the calibration (owner, 1.1.315): the channel's share against the program,
+     * 0–200 % in steps of 10; it holds for the whole session (every step and wave is scaled by it).
+     */
+    public static void adjustZone(int rowIndex, int channel, int delta) {
+        if (rowIndex < 0 || rowIndex >= rows.size() || channel < 0 || channel >= AutoModel.CHANNELS) {
+            return;
+        }
+        Row r = rows.get(rowIndex);
+        if (r.block != null) {
+            return;
+        }
+        r.zoneRatio[channel] = Math.max(0, Math.min(200, r.zoneRatio[channel] + delta));
+        writeRows(written != null ? written : calibrationCmd(), true);
+    }
+
+    /** What channel {@code channel} of a row gets now, % (−1 = nothing written yet). */
+    static int zoneNow(int rowIndex, int channel) {
+        if (rowIndex < 0 || rowIndex >= rows.size()) {
+            return -1;
+        }
+        int[] z = rows.get(rowIndex).writtenZones;
+        return z != null && channel < z.length ? z[channel] : -1;
     }
 
     public static boolean canStart() {
@@ -1239,15 +1273,13 @@ public final class AutoSession {
     /** The zones the running step asks for on this row (a wave / even step, else the plan), before the person's moves. */
     private static int[] stepZones(Row r, AutoEngine.Cmd c) {
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
-        if (c == null || c.zones == null) {
-            return rp.zones.clone();
-        }
-        int[] z = c.zones.clone();
+        int[] z = c == null || c.zones == null ? rp.zones.clone() : c.zones.clone();
         for (int i = 0; i < z.length; i++) {
             if (rp.zoneLocked[i] && rp.zones[i] == 0) {
                 z[i] = 0;
             }
             z[i] = Math.min(z[i], rp.zoneMax[i]);
+            z[i] = Math.max(0, Math.min(100, (int) Math.round(z[i] * r.zoneRatio[i] / 100.0)));
         }
         return z;
     }
@@ -1265,7 +1297,7 @@ public final class AutoSession {
             want[i] = base[i] + r.zoneOffset[i];
             moved |= r.zoneOffset[i] != 0;
         }
-        if (c != null && c.zones != null && !moved) {
+        if (!moved) {
             return base;                                   // the wave as it is
         }
         return AutoLimits.clampZones(want, base, rp);
@@ -1563,7 +1595,12 @@ public final class AutoSession {
                     // not calibrated at the start: this value becomes the calibration
                     r.cal = Math.min(100, (int) Math.round(allowed / f));
                 } else {
+                    // the start strength is no ceiling (owner, 1.1.315): a raise with + over the phase cap moves
+                    // the calibration up with it, so the whole session runs on the new strength; +5 per pulse stays
                     double ceil = engine.rowCeiling(written, rpl.phiMax, rpl.envMax);
+                    if (ceil > 0 && allowed > (int) Math.floor(r.cal * ceil + 1e-9)) {
+                        r.cal = Math.min(100, (int) Math.ceil(allowed / ceil - 1e-9));
+                    }
                     allowed = Math.min(allowed, (int) Math.floor(r.cal * ceil + 1e-9));
                 }
             }

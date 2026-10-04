@@ -68,6 +68,14 @@ algorithm runs unchanged (WLA25 segments, Janssen, Kalman, physical age, EMS lin
 - Stored `"f1": 1` (+ shared HTML raw readings). Lost vs the P1: ECW / ICW split, ρ-based recovery.
 Sim (owner's P1 vector at 50 kHz): fat 17.0 / 17.0 %, muscle 63.1 / 63.1 kg, water 60.9 / 60.9 %, segments ±5 %.
 Tests: `scripts/scale-sim` `xs()` (frames built from the SDK layout — no real KB-7853 capture yet), `senssun()`.
+**Real KB-7853 capture (1.1.328-ai, owner's log).** Protocol **v1** (`10 00 00 C5`), FFF1 notify: live `03 80` frames
+(kg×10 @7, lb×10 @9, byte 12 `B0` → `BA` = stable), then `03 81` (short, "measured") and the result `03 8C`, 61 B in
+three notifications + the checksum `*` alone (sum of bytes 4…n−2 = 0x2A). Result TLV at 10: `05 2C` · kg×10 (0x0341 =
+83.3) · word `40 00` · **ten big-endian IEEE-754 floats in 0.1 Ω** · 4 zero bytes. The older integer layout was wrong
+for this model → weight only. Real values: 20 kHz RH 270.5, LH 227.2, trunk 21.9, RF 220.8, LF 226.5 Ω; second five
+241.6 / 186.4 / 20.1 / 189.1 / 196.9 Ω (Z_hi/Z_lo 0.82–0.91, as on the P1) → **two frequencies**, so the full
+WLA25 analysis runs (not the single-frequency path). `floatOhms` is tried first, the integer layout stays as fallback.
+Test: `ScaleSim` "XS v1 real capture". **Still to confirm:** which pair is 20 / 100 kHz against MovingLife.
 **Next:** one weigh-in on the KB-7853 → diag log (`scale` tag: version, model, every frame) → confirm the
 frequency, the impedance scale and the numbers against MovingLife.
 

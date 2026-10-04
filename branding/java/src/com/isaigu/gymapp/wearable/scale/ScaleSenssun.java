@@ -364,6 +364,29 @@ public final class ScaleSenssun {
         return v == 0 || v >= 0xFFFFFFL ? Double.NaN : v / 10.0;
     }
 
+    /** One big-endian float in 0.1 Ω → Ω; NaN for 0 and anything outside 2…3000 Ω. */
+    static double floatOhm(byte[] f, int i) {
+        float v = Float.intBitsToFloat((f[i] & 0xFF) << 24 | (f[i + 1] & 0xFF) << 16 | (f[i + 2] & 0xFF) << 8
+                | (f[i + 3] & 0xFF));
+        return v >= 20f && v <= 30000f ? v / 10.0 : Double.NaN;
+    }
+
+    /** Ten floats (5 at the low frequency, 5 at the high; wire order) → x; false if they are not floats. */
+    static boolean floatOhms(byte[] f, int at, XsFrame x) {
+        if (at + 40 > f.length - 1) {
+            return false;
+        }
+        for (int k = 0; k < 5; k++) {
+            if (Double.isNaN(floatOhm(f, at + 4 * k))) {
+                return false;
+            }
+        }
+        for (int k = 0; k < 10; k++) {
+            (k < 5 ? x.z20 : x.z100)[WIRE[k % 5]] = floatOhm(f, at + 4 * k);
+        }
+        return true;
+    }
+
     /** Wire order RH, LH, trunk, RF, LF → segment index. */
     static final int[] WIRE = {ScaleProtocol.RIGHT_ARM, ScaleProtocol.LEFT_ARM, ScaleProtocol.TRUNK,
             ScaleProtocol.RIGHT_LEG, ScaleProtocol.LEFT_LEG};
@@ -452,7 +475,11 @@ public final class ScaleSenssun {
                     int end = Math.min(i + len, f.length - 1);
                     if (id == 5 && end - (i + 2) >= 2) {
                         x.kg = u16(f, i + 2) / 10.0;
-                        tenOhms(f, i + 4, end, x);
+                        // real KB-7853 capture: kg, a 2-byte word (0x4000), ten big-endian floats in 0.1 Ω;
+                        // the length byte counts the data only, so the TLV is longer than `end` says
+                        if (!floatOhms(f, i + 6, x)) {
+                            tenOhms(f, i + 4, end, x);
+                        }
                     } else if (id == 7 && end - (i + 2) >= 2 && Double.isNaN(x.kg)) {
                         x.kg = u16(f, i + 2) / 100.0;
                     }

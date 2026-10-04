@@ -109,7 +109,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->PRO_MODELS:[I
 
-    .line 368
+    .line 391
     const/4 v0, 0x5
 
     new-array v0, v0, [I
@@ -138,7 +138,7 @@
         0x338
     .end array-data
 
-    .line 368
+    .line 391
     :array_5a
     .array-data 4
         0x2
@@ -173,72 +173,72 @@
 
     const/4 v3, 0x0
 
-    .line 474
+    .line 501
     const/16 v0, 0xb
 
     new-array v0, v0, [B
 
-    .line 475
+    .line 502
     const/16 v1, 0x33
 
     aput-byte v1, v0, v3
 
-    .line 476
+    .line 503
     const/4 v1, 0x1
 
     const/16 v2, -0x34
 
     aput-byte v2, v0, v1
 
-    .line 477
+    .line 504
     const/16 v1, 0xb
 
     aput-byte v1, v0, v4
 
-    .line 478
+    .line 505
     shr-int/lit8 v1, p0, 0x8
 
     int-to-byte v1, v1
 
     aput-byte v1, v0, v5
 
-    .line 479
+    .line 506
     int-to-byte v1, p0
 
     aput-byte v1, v0, v6
 
-    .line 480
+    .line 507
     const/4 v1, 0x5
 
     aput-byte v3, v0, v1
 
-    .line 481
+    .line 508
     const/4 v1, -0x1
 
     aput-byte v1, v0, v7
 
-    .line 482
+    .line 509
     const/4 v1, 0x7
 
     aget-byte v2, p1, v7
 
     aput-byte v2, v0, v1
 
-    .line 483
+    .line 510
     const/16 v1, 0x8
 
     aget-byte v2, p1, v5
 
     aput-byte v2, v0, v1
 
-    .line 484
+    .line 511
     const/16 v1, 0x9
 
     aget-byte v2, p1, v6
 
     aput-byte v2, v0, v1
 
-    .line 485
+    .line 512
     const/16 v1, 0xa
 
     const/16 v2, 0x9
@@ -251,7 +251,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 486
+    .line 513
     return-object v0
 .end method
 
@@ -259,7 +259,7 @@
     .registers 3
 
     .prologue
-    .line 520
+    .line 547
     div-int/lit8 v0, p0, 0xa
 
     rem-int/lit8 v0, v0, 0xa
@@ -377,19 +377,19 @@
     .registers 3
 
     .prologue
-    .line 384
+    .line 407
     and-int/lit8 v0, p0, 0x40
 
     if-eqz v0, :cond_6
 
-    .line 385
+    .line 408
     const/4 v0, 0x1
 
-    .line 399
+    .line 422
     :goto_5
     return v0
 
-    .line 387
+    .line 410
     :cond_6
     and-int/lit8 v0, p0, 0x30
 
@@ -397,70 +397,241 @@
 
     if-ne v0, v1, :cond_e
 
-    .line 388
+    .line 411
     const/4 v0, 0x4
 
     goto :goto_5
 
-    .line 390
+    .line 413
     :cond_e
     and-int/lit8 v0, p0, 0x20
 
     if-eqz v0, :cond_14
 
-    .line 391
+    .line 414
     const/4 v0, 0x3
 
     goto :goto_5
 
-    .line 393
+    .line 416
     :cond_14
     and-int/lit8 v0, p0, 0x10
 
     if-eqz v0, :cond_1a
 
-    .line 394
+    .line 417
     const/4 v0, 0x2
 
     goto :goto_5
 
-    .line 396
+    .line 419
     :cond_1a
     and-int/lit8 v0, p0, 0x8
 
     if-eqz v0, :cond_20
 
-    .line 397
+    .line 420
     const/4 v0, 0x5
 
     goto :goto_5
 
-    .line 399
+    .line 422
     :cond_20
     const/4 v0, 0x0
 
     goto :goto_5
 .end method
 
+.method static floatOhm([BI)D
+    .registers 6
+
+    .prologue
+    .line 369
+    aget-byte v0, p0, p1
+
+    and-int/lit16 v0, v0, 0xff
+
+    shl-int/lit8 v0, v0, 0x18
+
+    add-int/lit8 v1, p1, 0x1
+
+    aget-byte v1, p0, v1
+
+    and-int/lit16 v1, v1, 0xff
+
+    shl-int/lit8 v1, v1, 0x10
+
+    or-int/2addr v0, v1
+
+    add-int/lit8 v1, p1, 0x2
+
+    aget-byte v1, p0, v1
+
+    and-int/lit16 v1, v1, 0xff
+
+    shl-int/lit8 v1, v1, 0x8
+
+    or-int/2addr v0, v1
+
+    add-int/lit8 v1, p1, 0x3
+
+    aget-byte v1, p0, v1
+
+    and-int/lit16 v1, v1, 0xff
+
+    or-int/2addr v0, v1
+
+    invoke-static {v0}, Ljava/lang/Float;->intBitsToFloat(I)F
+
+    move-result v0
+
+    .line 371
+    const/high16 v1, 0x41a00000    # 20.0f
+
+    cmpl-float v1, v0, v1
+
+    if-ltz v1, :cond_35
+
+    const v1, 0x46ea6000    # 30000.0f
+
+    cmpg-float v1, v0, v1
+
+    if-gtz v1, :cond_35
+
+    float-to-double v0, v0
+
+    const-wide/high16 v2, 0x4024000000000000L    # 10.0
+
+    div-double/2addr v0, v2
+
+    :goto_34
+    return-wide v0
+
+    :cond_35
+    const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
+
+    goto :goto_34
+.end method
+
+.method static floatOhms([BILcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;)Z
+    .registers 10
+
+    .prologue
+    const/4 v6, 0x5
+
+    const/4 v0, 0x0
+
+    .line 376
+    add-int/lit8 v1, p1, 0x28
+
+    array-length v2, p0
+
+    add-int/lit8 v2, v2, -0x1
+
+    if-le v1, v2, :cond_a
+
+    .line 387
+    :cond_9
+    :goto_9
+    return v0
+
+    :cond_a
+    move v1, v0
+
+    .line 379
+    :goto_b
+    if-ge v1, v6, :cond_1d
+
+    .line 380
+    mul-int/lit8 v2, v1, 0x4
+
+    add-int/2addr v2, p1
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->floatOhm([BI)D
+
+    move-result-wide v2
+
+    invoke-static {v2, v3}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v2
+
+    if-nez v2, :cond_9
+
+    .line 379
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_b
+
+    :cond_1d
+    move v1, v0
+
+    .line 384
+    :goto_1e
+    const/16 v0, 0xa
+
+    if-ge v1, v0, :cond_3c
+
+    .line 385
+    if-ge v1, v6, :cond_39
+
+    iget-object v0, p2, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z20:[D
+
+    :goto_26
+    sget-object v2, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->WIRE:[I
+
+    rem-int/lit8 v3, v1, 0x5
+
+    aget v2, v2, v3
+
+    mul-int/lit8 v3, v1, 0x4
+
+    add-int/2addr v3, p1
+
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->floatOhm([BI)D
+
+    move-result-wide v4
+
+    aput-wide v4, v0, v2
+
+    .line 384
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_1e
+
+    .line 385
+    :cond_39
+    iget-object v0, p2, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z100:[D
+
+    goto :goto_26
+
+    .line 387
+    :cond_3c
+    const/4 v0, 0x1
+
+    goto :goto_9
+.end method
+
 .method static head([BI)V
     .registers 4
 
     .prologue
-    .line 524
+    .line 551
     const/4 v0, 0x0
 
     const/16 v1, 0x33
 
     aput-byte v1, p0, v0
 
-    .line 525
+    .line 552
     const/4 v0, 0x1
 
     const/16 v1, -0x34
 
     aput-byte v1, p0, v0
 
-    .line 526
+    .line 553
     const/4 v0, 0x2
 
     array-length v1, p0
@@ -469,7 +640,7 @@
 
     aput-byte v1, p0, v0
 
-    .line 527
+    .line 554
     const/4 v0, 0x3
 
     shr-int/lit8 v1, p1, 0x8
@@ -478,14 +649,14 @@
 
     aput-byte v1, p0, v0
 
-    .line 528
+    .line 555
     const/4 v0, 0x4
 
     int-to-byte v1, p1
 
     aput-byte v1, p0, v0
 
-    .line 529
+    .line 556
     return-void
 .end method
 
@@ -590,23 +761,23 @@
     .end annotation
 
     .prologue
-    .line 602
+    .line 629
     new-instance v6, Ljava/util/ArrayList;
 
     invoke-direct {v6}, Ljava/util/ArrayList;-><init>()V
 
-    .line 603
+    .line 630
     const/16 v0, 0x30
 
     if-ne p0, v0, :cond_b
 
     move-object v0, v6
 
-    .line 622
+    .line 649
     :goto_a
     return-object v0
 
-    .line 606
+    .line 633
     :cond_b
     const/16 v0, 0x11
 
@@ -619,11 +790,11 @@
     :cond_13
     const/4 v0, 0x1
 
-    .line 607
+    .line 634
     :goto_14
     if-eqz v0, :cond_6f
 
-    .line 608
+    .line 635
     add-int/lit8 v1, p2, 0x1
 
     invoke-static {p2, p3, p4, p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->syncTime(IIJ)[B
@@ -632,10 +803,10 @@
 
     invoke-interface {v6, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 609
+    .line 636
     if-gez p0, :cond_5d
 
-    .line 610
+    .line 637
     const/16 v0, 0x11
 
     add-int/lit8 v7, v1, 0x1
@@ -654,7 +825,7 @@
 
     invoke-interface {v6, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 611
+    .line 638
     const/16 v0, 0x12
 
     add-int/lit8 v8, v7, 0x1
@@ -675,7 +846,7 @@
 
     invoke-interface {v6, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 612
+    .line 639
     const/16 v0, 0x13
 
     add-int/lit8 v1, v8, 0x1
@@ -699,16 +870,16 @@
     :goto_59
     move-object v0, v6
 
-    .line 622
+    .line 649
     goto :goto_a
 
-    .line 606
+    .line 633
     :cond_5b
     const/4 v0, 0x0
 
     goto :goto_14
 
-    .line 614
+    .line 641
     :cond_5d
     add-int/lit8 v0, v1, 0x1
 
@@ -730,7 +901,7 @@
 
     goto :goto_59
 
-    .line 617
+    .line 644
     :cond_6f
     const/16 v0, 0xf
 
@@ -738,7 +909,7 @@
 
     if-gez p0, :cond_7c
 
-    .line 618
+    .line 645
     :cond_75
     invoke-static {p3, p4, p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->syncTimeV2(IJ)[B
 
@@ -746,7 +917,7 @@
 
     invoke-interface {v6, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 620
+    .line 647
     :cond_7c
     invoke-static/range {p6 .. p10}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->userAddV1(ZIID)[B
 
@@ -1085,12 +1256,12 @@
     .registers 11
 
     .prologue
-    .line 404
+    .line 427
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;-><init>()V
 
-    .line 405
+    .line 428
     if-eqz p0, :cond_c
 
     array-length v0, p0
@@ -1102,11 +1273,11 @@
     :cond_c
     move-object v0, v1
 
-    .line 464
+    .line 491
     :goto_d
     return-object v0
 
-    .line 408
+    .line 431
     :cond_e
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->headV11([B)Z
 
@@ -1114,7 +1285,7 @@
 
     if-eqz v0, :cond_dc
 
-    .line 409
+    .line 432
     const/4 v0, 0x6
 
     aget-byte v0, p0, v0
@@ -1123,7 +1294,7 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->func:I
 
-    .line 410
+    .line 433
     const/4 v0, 0x3
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->u16([BI)I
@@ -1132,7 +1303,7 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->sn:I
 
-    .line 411
+    .line 434
     const/4 v0, 0x7
 
     aget-byte v0, p0, v0
@@ -1146,7 +1317,7 @@
     :goto_29
     iput-boolean v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->ackWanted:Z
 
-    .line 412
+    .line 435
     iget v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->func:I
 
     const/16 v2, 0x80
@@ -1159,12 +1330,12 @@
 
     if-lt v0, v2, :cond_56
 
-    .line 413
+    .line 436
     const/4 v0, 0x1
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
-    .line 414
+    .line 437
     const/16 v0, 0x8
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->u16([BI)I
@@ -1179,7 +1350,7 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
-    .line 415
+    .line 438
     const/16 v0, 0xf
 
     aget-byte v0, p0, v0
@@ -1197,22 +1368,22 @@
     :goto_50
     move-object v0, v1
 
-    .line 464
+    .line 491
     goto :goto_d
 
-    .line 411
+    .line 434
     :cond_52
     const/4 v0, 0x0
 
     goto :goto_29
 
-    .line 415
+    .line 438
     :cond_54
     const/4 v0, 0x0
 
     goto :goto_4e
 
-    .line 416
+    .line 439
     :cond_56
     iget v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->func:I
 
@@ -1226,12 +1397,12 @@
 
     if-lt v0, v2, :cond_50
 
-    .line 417
+    .line 440
     const/4 v0, 0x2
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
-    .line 418
+    .line 441
     const/16 v0, 0xa
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->u16([BI)I
@@ -1246,12 +1417,12 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
-    .line 419
+    .line 442
     const/4 v0, 0x1
 
     iput-boolean v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->stable:Z
 
-    .line 420
+    .line 443
     const/16 v0, 0x11
 
     aget-byte v0, p0, v0
@@ -1265,7 +1436,7 @@
     :goto_7c
     iput-boolean v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->finished:Z
 
-    .line 421
+    .line 444
     const/16 v0, 0x12
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->u16([BI)I
@@ -1290,7 +1461,7 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->time:J
 
-    .line 422
+    .line 445
     iget-boolean v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->finished:Z
 
     if-eqz v0, :cond_c8
@@ -1300,7 +1471,7 @@
     :goto_97
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->error:I
 
-    .line 423
+    .line 446
     const/16 v0, 0x16
 
     :goto_9b
@@ -1316,7 +1487,7 @@
 
     if-ge v2, v3, :cond_50
 
-    .line 424
+    .line 447
     aget-byte v2, p0, v0
 
     and-int/lit16 v2, v2, 0xff
@@ -1327,12 +1498,12 @@
 
     and-int/lit16 v3, v3, 0xff
 
-    .line 425
+    .line 448
     const/4 v4, 0x2
 
     if-lt v2, v4, :cond_50
 
-    .line 428
+    .line 451
     add-int v4, v0, v2
 
     array-length v5, p0
@@ -1343,31 +1514,31 @@
 
     move-result v4
 
-    .line 429
+    .line 452
     const/4 v5, 0x4
 
     if-ne v3, v5, :cond_d3
 
-    .line 430
+    .line 453
     add-int/lit8 v3, v0, 0x2
 
     invoke-static {p0, v3, v4, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->tenOhms([BIILcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;)V
 
-    .line 434
+    .line 457
     :cond_c4
     :goto_c4
     add-int/2addr v0, v2
 
-    .line 435
+    .line 458
     goto :goto_9b
 
-    .line 420
+    .line 443
     :cond_c6
     const/4 v0, 0x0
 
     goto :goto_7c
 
-    .line 422
+    .line 445
     :cond_c8
     const/16 v0, 0x11
 
@@ -1381,20 +1552,20 @@
 
     goto :goto_97
 
-    .line 431
+    .line 454
     :cond_d3
     const/4 v5, 0x5
 
     if-ne v3, v5, :cond_c4
 
-    .line 432
+    .line 455
     add-int/lit8 v3, v0, 0x4
 
     invoke-static {p0, v3, v4, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->tenOhms([BIILcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;)V
 
     goto :goto_c4
 
-    .line 437
+    .line 460
     :cond_dc
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->headV1([B)Z
 
@@ -1402,7 +1573,7 @@
 
     if-eqz v0, :cond_50
 
-    .line 438
+    .line 461
     const/4 v0, 0x6
 
     aget-byte v0, p0, v0
@@ -1411,7 +1582,7 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->func:I
 
-    .line 439
+    .line 462
     iget v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->func:I
 
     const/16 v2, 0x80
@@ -1424,12 +1595,12 @@
 
     if-lt v0, v2, :cond_12c
 
-    .line 440
+    .line 463
     const/4 v0, 0x1
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
-    .line 441
+    .line 464
     const/16 v0, 0xb
 
     aget-byte v0, p0, v0
@@ -1438,7 +1609,7 @@
 
     shr-int/lit8 v0, v0, 0x4
 
-    .line 442
+    .line 465
     const/4 v2, 0x7
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->u16([BI)I
@@ -1467,7 +1638,7 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
-    .line 443
+    .line 466
     const/16 v0, 0xc
 
     aget-byte v0, p0, v0
@@ -1487,19 +1658,19 @@
 
     goto/16 :goto_50
 
-    .line 442
+    .line 465
     :cond_127
     const/16 v0, 0x64
 
     goto :goto_10c
 
-    .line 443
+    .line 466
     :cond_12a
     const/4 v0, 0x0
 
     goto :goto_123
 
-    .line 444
+    .line 467
     :cond_12c
     iget v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->func:I
 
@@ -1513,17 +1684,17 @@
 
     if-lt v0, v2, :cond_50
 
-    .line 445
+    .line 468
     const/4 v0, 0x2
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
-    .line 446
+    .line 469
     const/4 v0, 0x1
 
     iput-boolean v0, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->stable:Z
 
-    .line 447
+    .line 470
     const/16 v0, 0xa
 
     :goto_13f
@@ -1535,7 +1706,7 @@
 
     if-ge v2, v3, :cond_153
 
-    .line 448
+    .line 471
     aget-byte v2, p0, v0
 
     and-int/lit16 v2, v2, 0xff
@@ -1546,12 +1717,12 @@
 
     and-int/lit16 v3, v3, 0xff
 
-    .line 449
+    .line 472
     const/4 v4, 0x2
 
     if-ge v3, v4, :cond_160
 
-    .line 461
+    .line 488
     :cond_153
     iget-wide v2, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
@@ -1559,7 +1730,7 @@
 
     cmpl-double v0, v2, v4
 
-    if-gtz v0, :cond_1a5
+    if-gtz v0, :cond_1ad
 
     const/4 v0, 0x1
 
@@ -1568,7 +1739,7 @@
 
     goto/16 :goto_50
 
-    .line 452
+    .line 475
     :cond_160
     add-int v4, v0, v3
 
@@ -1580,10 +1751,10 @@
 
     move-result v4
 
-    .line 453
+    .line 476
     const/4 v5, 0x5
 
-    if-ne v2, v5, :cond_186
+    if-ne v2, v5, :cond_18e
 
     add-int/lit8 v5, v0, 0x2
 
@@ -1591,9 +1762,9 @@
 
     const/4 v6, 0x2
 
-    if-lt v5, v6, :cond_186
+    if-lt v5, v6, :cond_18e
 
-    .line 454
+    .line 477
     add-int/lit8 v2, v0, 0x2
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->u16([BI)I
@@ -1608,24 +1779,33 @@
 
     iput-wide v6, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
-    .line 455
+    .line 480
+    add-int/lit8 v2, v0, 0x6
+
+    invoke-static {p0, v2, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->floatOhms([BILcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_18c
+
+    .line 481
     add-int/lit8 v2, v0, 0x4
 
     invoke-static {p0, v2, v4, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->tenOhms([BIILcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;)V
 
-    .line 459
-    :cond_184
-    :goto_184
+    .line 486
+    :cond_18c
+    :goto_18c
     add-int/2addr v0, v3
 
-    .line 460
+    .line 487
     goto :goto_13f
 
-    .line 456
-    :cond_186
+    .line 483
+    :cond_18e
     const/4 v5, 0x7
 
-    if-ne v2, v5, :cond_184
+    if-ne v2, v5, :cond_18c
 
     add-int/lit8 v2, v0, 0x2
 
@@ -1633,7 +1813,7 @@
 
     const/4 v4, 0x2
 
-    if-lt v2, v4, :cond_184
+    if-lt v2, v4, :cond_18c
 
     iget-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
@@ -1641,9 +1821,9 @@
 
     move-result v2
 
-    if-eqz v2, :cond_184
+    if-eqz v2, :cond_18c
 
-    .line 457
+    .line 484
     add-int/lit8 v2, v0, 0x2
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->u16([BI)I
@@ -1658,10 +1838,10 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
-    goto :goto_184
+    goto :goto_18c
 
-    .line 461
-    :cond_1a5
+    .line 488
+    :cond_1ad
     const/4 v0, 0x0
 
     goto :goto_15c
@@ -1712,23 +1892,23 @@
 
     const/4 v4, 0x0
 
-    .line 630
+    .line 657
     new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;-><init>()V
 
-    .line 631
+    .line 658
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
-    .line 632
+    .line 659
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->stable:Z
 
-    .line 633
+    .line 660
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->result:Z
 
-    .line 634
+    .line 661
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->error:I
 
     if-nez v1, :cond_25
@@ -1739,24 +1919,24 @@
 
     if-eqz v1, :cond_25
 
-    .line 635
+    .line 662
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->single()Z
 
     move-result v1
 
     if-eqz v1, :cond_26
 
-    .line 636
+    .line 663
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z20:[D
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->single(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;[D)V
 
-    .line 642
+    .line 669
     :cond_25
     :goto_25
     return-object v0
 
-    .line 638
+    .line 665
     :cond_26
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z20:[D
 
@@ -1764,7 +1944,7 @@
 
     invoke-static {v1, v4, v2, v4, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 639
+    .line 666
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z100:[D
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z100:[D
@@ -1778,7 +1958,7 @@
     .registers 8
 
     .prologue
-    .line 469
+    .line 496
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->time:J
 
     const-wide/32 v2, 0x5f5e1000
@@ -1856,27 +2036,27 @@
 
     const/4 v3, 0x0
 
-    .line 491
+    .line 518
     const/16 v0, 0xf
 
     new-array v0, v0, [B
 
-    .line 492
+    .line 519
     const/16 v1, 0x33
 
     aput-byte v1, v0, v3
 
-    .line 493
+    .line 520
     const/16 v1, -0x34
 
     aput-byte v1, v0, v4
 
-    .line 494
+    .line 521
     const/16 v1, 0xf
 
     aput-byte v1, v0, v5
 
-    .line 495
+    .line 522
     const/4 v1, 0x3
 
     shr-int/lit8 v2, p0, 0x8
@@ -1885,45 +2065,45 @@
 
     aput-byte v2, v0, v1
 
-    .line 496
+    .line 523
     const/4 v1, 0x4
 
     int-to-byte v2, p0
 
     aput-byte v2, v0, v1
 
-    .line 497
+    .line 524
     const/4 v1, 0x5
 
     aput-byte v3, v0, v1
 
-    .line 498
+    .line 525
     const/4 v1, 0x6
 
     const/16 v2, 0x10
 
     aput-byte v2, v0, v1
 
-    .line 499
+    .line 526
     const/4 v1, 0x7
 
     aput-byte v4, v0, v1
 
-    .line 500
+    .line 527
     shr-int/lit8 v1, p1, 0x8
 
     int-to-byte v1, v1
 
     aput-byte v1, v0, v6
 
-    .line 501
+    .line 528
     const/16 v1, 0x9
 
     int-to-byte v2, p1
 
     aput-byte v2, v0, v1
 
-    .line 502
+    .line 529
     const/16 v1, 0xa
 
     const/16 v2, 0x18
@@ -1936,7 +2116,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 503
+    .line 530
     const/16 v1, 0xb
 
     const/16 v2, 0x10
@@ -1949,7 +2129,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 504
+    .line 531
     const/16 v1, 0xc
 
     shr-long v2, p2, v6
@@ -1960,14 +2140,14 @@
 
     aput-byte v2, v0, v1
 
-    .line 505
+    .line 532
     long-to-int v1, p2
 
     int-to-byte v1, v1
 
     aput-byte v1, v0, v7
 
-    .line 506
+    .line 533
     const/16 v1, 0xe
 
     invoke-static {v0, v5, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->sum([BII)I
@@ -1978,7 +2158,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 507
+    .line 534
     return-object v0
 .end method
 
@@ -1996,39 +2176,39 @@
 
     const/4 v3, 0x3
 
-    .line 580
+    .line 607
     const/16 v0, 0xe
 
     new-array v0, v0, [B
 
-    .line 581
+    .line 608
     const/4 v1, 0x0
 
     const/16 v2, 0x10
 
     aput-byte v2, v0, v1
 
-    .line 582
+    .line 609
     const/16 v1, -0x3b
 
     aput-byte v1, v0, v3
 
-    .line 583
+    .line 610
     const/16 v1, 0xe
 
     aput-byte v1, v0, v4
 
-    .line 584
+    .line 611
     const/4 v1, 0x5
 
     aput-byte v3, v0, v1
 
-    .line 585
+    .line 612
     const/4 v1, 0x6
 
     aput-byte v6, v0, v1
 
-    .line 586
+    .line 613
     const/4 v1, 0x7
 
     shr-int/lit8 v2, p0, 0x8
@@ -2037,12 +2217,12 @@
 
     aput-byte v2, v0, v1
 
-    .line 587
+    .line 614
     int-to-byte v1, p0
 
     aput-byte v1, v0, v5
 
-    .line 588
+    .line 615
     const/16 v1, 0x9
 
     const/16 v2, 0x18
@@ -2055,7 +2235,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 589
+    .line 616
     const/16 v1, 0x10
 
     shr-long v2, p1, v1
@@ -2066,7 +2246,7 @@
 
     aput-byte v1, v0, v6
 
-    .line 590
+    .line 617
     const/16 v1, 0xb
 
     shr-long v2, p1, v5
@@ -2077,14 +2257,14 @@
 
     aput-byte v2, v0, v1
 
-    .line 591
+    .line 618
     long-to-int v1, p1
 
     int-to-byte v1, v1
 
     aput-byte v1, v0, v7
 
-    .line 592
+    .line 619
     const/16 v1, 0xd
 
     invoke-static {v0, v4, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->sum([BII)I
@@ -2095,7 +2275,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 593
+    .line 620
     return-object v0
 .end method
 
@@ -2103,7 +2283,7 @@
     .registers 10
 
     .prologue
-    .line 372
+    .line 395
     const/4 v0, 0x0
 
     move v1, v0
@@ -2121,7 +2301,7 @@
 
     if-gt v0, p2, :cond_28
 
-    .line 373
+    .line 396
     mul-int/lit8 v0, v1, 0x4
 
     add-int/2addr v0, p1
@@ -2130,7 +2310,7 @@
 
     move-result-wide v2
 
-    .line 374
+    .line 397
     const/4 v0, 0x5
 
     if-ge v1, v0, :cond_25
@@ -2146,20 +2326,20 @@
 
     aput-wide v2, v0, v4
 
-    .line 372
+    .line 395
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_2
 
-    .line 374
+    .line 397
     :cond_25
     iget-object v0, p3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z100:[D
 
     goto :goto_19
 
-    .line 376
+    .line 399
     :cond_28
     return-void
 .end method
@@ -2182,7 +2362,7 @@
     .registers 4
 
     .prologue
-    .line 379
+    .line 402
     aget-byte v0, p0, p1
 
     and-int/lit16 v0, v0, 0xff
@@ -2268,36 +2448,36 @@
 
     const/4 v4, 0x1
 
-    .line 533
+    .line 560
     const/16 v0, 0x13
 
     if-lt p0, v0, :cond_7a
 
     const/16 v0, 0x21
 
-    .line 534
+    .line 561
     :goto_c
     new-array v5, v0, [B
 
-    .line 535
+    .line 562
     invoke-static {v5, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->head([BI)V
 
-    .line 536
+    .line 563
     const/4 v1, 0x5
 
     aput-byte v3, v5, v1
 
-    .line 537
+    .line 564
     const/4 v1, 0x6
 
     aput-byte v4, v5, v1
 
-    .line 538
+    .line 565
     const/4 v1, 0x7
 
     aput-byte v4, v5, v1
 
-    .line 539
+    .line 566
     const/16 v6, 0x8
 
     if-eqz p5, :cond_84
@@ -2309,7 +2489,7 @@
 
     aput-byte v1, v5, v6
 
-    .line 540
+    .line 567
     const/16 v1, 0x9
 
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->bcd(I)I
@@ -2320,7 +2500,7 @@
 
     aput-byte v6, v5, v1
 
-    .line 541
+    .line 568
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->bcd(I)I
 
     move-result v1
@@ -2329,7 +2509,7 @@
 
     aput-byte v1, v5, v8
 
-    .line 542
+    .line 569
     const/16 v1, 0xb
 
     if-eqz p2, :cond_37
@@ -2341,7 +2521,7 @@
 
     aput-byte v3, v5, v1
 
-    .line 543
+    .line 570
     const/16 v1, 0xc
 
     const/16 v3, 0x64
@@ -2360,7 +2540,7 @@
 
     aput-byte v3, v5, v1
 
-    .line 544
+    .line 571
     const/16 v1, 0xd
 
     const/16 v3, 0x63
@@ -2377,32 +2557,32 @@
 
     aput-byte v3, v5, v1
 
-    .line 545
+    .line 572
     const/16 v1, 0xe
 
     aput-byte v7, v5, v1
 
-    .line 546
+    .line 573
     const/16 v1, 0xf
 
     aput-byte v4, v5, v1
 
-    .line 547
+    .line 574
     const/16 v1, 0x21
 
     if-ne v0, v1, :cond_6e
 
-    .line 548
+    .line 575
     const/16 v1, 0x1d
 
     aput-byte v7, v5, v1
 
-    .line 549
+    .line 576
     const/16 v1, 0x1e
 
     aput-byte v4, v5, v1
 
-    .line 551
+    .line 578
     :cond_6e
     add-int/lit8 v1, v0, -0x1
 
@@ -2416,10 +2596,10 @@
 
     aput-byte v0, v5, v1
 
-    .line 552
+    .line 579
     return-object v5
 
-    .line 533
+    .line 560
     :cond_7a
     const/16 v0, 0x12
 
@@ -2437,7 +2617,7 @@
     :cond_84
     move v1, v3
 
-    .line 539
+    .line 566
     goto :goto_1f
 .end method
 
@@ -2455,42 +2635,42 @@
 
     const/4 v1, 0x0
 
-    .line 557
+    .line 584
     const/16 v2, 0x13
 
     new-array v2, v2, [B
 
-    .line 558
+    .line 585
     const/16 v3, 0x10
 
     aput-byte v3, v2, v1
 
-    .line 559
+    .line 586
     const/16 v3, -0x3b
 
     aput-byte v3, v2, v5
 
-    .line 560
+    .line 587
     const/16 v3, 0x13
 
     aput-byte v3, v2, v6
 
-    .line 561
+    .line 588
     const/4 v3, 0x5
 
     aput-byte v5, v2, v3
 
-    .line 562
+    .line 589
     const/4 v3, 0x6
 
     aput-byte v0, v2, v3
 
-    .line 563
+    .line 590
     const/16 v3, 0x8
 
     aput-byte v0, v2, v3
 
-    .line 564
+    .line 591
     const/16 v3, 0x9
 
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->bcd(I)I
@@ -2501,7 +2681,7 @@
 
     aput-byte v4, v2, v3
 
-    .line 565
+    .line 592
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->bcd(I)I
 
     move-result v3
@@ -2510,7 +2690,7 @@
 
     aput-byte v3, v2, v7
 
-    .line 566
+    .line 593
     const/16 v3, 0xb
 
     if-eqz p0, :cond_8e
@@ -2520,7 +2700,7 @@
 
     aput-byte v0, v2, v3
 
-    .line 567
+    .line 594
     const/16 v0, 0xc
 
     const/16 v3, 0x64
@@ -2539,7 +2719,7 @@
 
     aput-byte v3, v2, v0
 
-    .line 568
+    .line 595
     const/16 v0, 0xd
 
     const/16 v3, 0x63
@@ -2556,17 +2736,17 @@
 
     aput-byte v3, v2, v0
 
-    .line 569
+    .line 596
     const/16 v0, 0xe
 
     aput-byte v5, v2, v0
 
-    .line 570
+    .line 597
     const/16 v0, 0xf
 
     aput-byte v1, v2, v0
 
-    .line 571
+    .line 598
     const-wide/16 v0, 0x0
 
     const-wide v4, 0x406f400000000000L    # 250.0
@@ -2589,7 +2769,7 @@
 
     long-to-int v0, v0
 
-    .line 572
+    .line 599
     const/16 v1, 0x10
 
     shr-int/lit8 v3, v0, 0x8
@@ -2598,14 +2778,14 @@
 
     aput-byte v3, v2, v1
 
-    .line 573
+    .line 600
     const/16 v1, 0x11
 
     int-to-byte v0, v0
 
     aput-byte v0, v2, v1
 
-    .line 574
+    .line 601
     const/16 v0, 0x12
 
     const/16 v1, 0x11
@@ -2618,13 +2798,13 @@
 
     aput-byte v1, v2, v0
 
-    .line 575
+    .line 602
     return-object v2
 
     :cond_8e
     move v0, v1
 
-    .line 566
+    .line 593
     goto :goto_34
 .end method
 

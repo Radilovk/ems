@@ -1043,6 +1043,29 @@ public final class ScaleSim {
         ok("XS v1 8C", x1.kind == ScaleSenssun.XsFrame.RESULT && !x1.finished && Math.abs(x1.kg - 81.4) < 1e-9
                 && Math.abs(x1.z20[ScaleProtocol.LEFT_ARM] - 252.0) < 1e-9
                 && Math.abs(x1.z100[ScaleProtocol.TRUNK] - 15.7) < 1e-9);
+
+        // the owner's real KB-7853 capture (1.1.328-ai): v1 0x8C, floats in 0.1 Ω after kg + 0x4000; three
+        // notifications of 20 bytes, the checksum '*' last
+        String[] cap = {"100000C53D038C221200052C0341400045291000", "450E0000435B6000450A0000450D900045170000",
+                "44E900004348800044EC600044F6110600000000", "2A"};
+        ScaleSenssun.Assembler rasm = new ScaleSenssun.Assembler();
+        byte[] whole = null;
+        for (String c : cap) {
+            byte[] cb = new byte[c.length() / 2];
+            for (int i = 0; i < cb.length; i++) {
+                cb[i] = (byte) Integer.parseInt(c.substring(2 * i, 2 * i + 2), 16);
+            }
+            byte[] rr = rasm.add(cb);
+            if (rr != null) {
+                whole = rr;
+            }
+        }
+        ScaleSenssun.XsFrame xr = ScaleSenssun.parseXs(whole);
+        ok("XS v1 real capture", xr.kind == ScaleSenssun.XsFrame.RESULT && !xr.finished && !xr.single()
+                && Math.abs(xr.kg - 83.3) < 1e-9 && xr.hasImpedance()
+                && Math.abs(xr.z20[ScaleProtocol.RIGHT_ARM] - 270.5) < 1e-9
+                && Math.abs(xr.z20[ScaleProtocol.TRUNK] - 21.9375) < 1e-9
+                && Math.abs(xr.z100[ScaleProtocol.LEFT_LEG] - 196.85) < 0.01);
     }
 
     /** Exact frames of the MovingLife SDK's own generators (libprotocol.so run in an emulator, 1.1.308-ai). */

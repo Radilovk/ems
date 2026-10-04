@@ -164,6 +164,12 @@ public final class ScaleScreen {
                     lastKg = p.weightKg;
                 }
             }
+            // the scale's own last weight (any age) before the client's own guess in the card
+            JSONObject last = ScaleStore.latest(a, userId);
+            double w = last != null ? last.optDouble("w", Double.NaN) : Double.NaN;
+            if (w >= 20 && w <= 250) {
+                lastKg = w;
+            }
             heightFromProfile = heightCm > 0;
             if (heightCm <= 0) {
                 heightCm = ScaleStore.prefs(a).getInt(H_KEY + userId, 0);
@@ -1890,6 +1896,30 @@ public final class ScaleScreen {
         }
 
         /**
+         * The measured weight goes into the client card: what the client typed in their profile is a guess, the scale
+         * wins (XemsClientSync no longer takes the profile's weight over a newer weigh-in).
+         */
+        void cardWeight(double kg) {
+            if (!(kg >= 20 && kg <= 250) || u == null) {
+                return;
+            }
+            float w = Math.round(kg * 10) / 10f;
+            if (Math.abs(u.weight - w) < 0.05f) {
+                return;
+            }
+            u.weight = w;
+            try {
+                // XemsLocalStore (widget, compiled apart): save the record quietly, the lists refresh
+                java.lang.reflect.Method m = Class.forName("com.isaigu.gymapp.widget.XemsLocalStore")
+                        .getDeclaredMethod("saveUserQuiet", TrainUser.class, boolean.class);
+                m.setAccessible(true);
+                m.invoke(null, u, true);
+            } catch (Throwable t) {
+                android.util.Log.w("xems_scale", "card weight", t);
+            }
+        }
+
+        /**
          * Save the standing's merged reading: the first sweep adds the measurement and the results come in at once;
          * every further sweep (the client still on) refines the same entry and the open results follow.
          */
@@ -1900,6 +1930,7 @@ public final class ScaleScreen {
                 sessionT = o.optLong("t");
             }
             lastKg = r.weightKg;
+            cardWeight(r.weightKg);
             again.setVisibility(View.VISIBLE);
             hist = ScaleStore.list(a, userId);
             ScaleUploader.schedule(a, userId, male, age, heightCm);

@@ -79,7 +79,6 @@ public final class ClientPrograms {
             return false;
         }
         TrainProgram own = ProgramFit.own(it);
-        ProgramFit.forget(it);
         for (int k = 0; k < ProgramFit.MODES; k++) {
             ProgramDataBean s = ProgramFit.bean(saved, k);
             ProgramDataBean r = ProgramFit.bean(own, k);

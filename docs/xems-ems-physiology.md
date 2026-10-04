@@ -32,7 +32,7 @@ forceWeight(f) = S(f) / S(85)              1 Hz 0.001 · 5 Hz 0.06 · 7 Hz 0.13 
 - Java: `AiPlanner.forceWeight` / `forceShare`. Report: `kF` in `branding/report/session-report.html`.
 - Means "how hard the muscle contracts": the report's **EMS load S**, its modes ("strength work" needs strong
   contraction, so a 7 Hz warm-up at high mA is light tone, not strength), the muscle map, and the 30-day load per zone
-  in the session record (`SessionRec.chLoad` → `mus` → `NextPlan` zone balance).
+  in the session record (`SessionRec.chLoad` → `mus`).
 
 ## 3. Fatigue
 
@@ -63,6 +63,23 @@ with no limit in continuous phases: the warm-up settled at 2–3 × F_max (300 %
 impulse), the main part started "exhausted" (first block ended at once, long rest, easier exercises), a 6 s impulse
 took blocks 30–50 % over the limit, and a 5 Hz cool-down or 2 Hz massage counted as contraction.
 Simulation now (`scripts/ai-sim`, FatProbe): warm-up 12–17 %, main ≤ 100 %, massage ≤ 10 %, drainage ≈ 1 %.
+
+### 3.5 The impulse moves with the fatigue (Auto, 1.1.322 — `ai/AutoDynamics`)
+- **Frequency down inside a set.** In a sustained voluntary effort the motor units fire slower as the muscle tires
+  while the force holds ("muscle wisdom"); a fatigued muscle relaxes slower, so it fuses at a lower rate.
+  Progressively lower stimulation frequency kept the force of a fatiguing NMES bout better than a constant one
+  [E:R16]. Auto: `hz = start − (start − floor)·g`, `g = clamp((F/F_max − 0.25)/0.65)` — a fresh muscle (long rest)
+  starts at the top, the floor is reached at 90 % of F_max; the floor of ≥ 50 Hz work is never under 50 Hz.
+- **Depth never down.** Pulse width decides how many motor units are recruited [E:R2, R7]; less width = fewer
+  fibres, not less fatigue. At the end of a set (g > 0.6) +≤ 20 µs to reach fibres that have not worked yet.
+- **Pause up, impulse : impulse.** The pause grows by ≤ 2 s with g; an approach with a second impulse gives it
+  1 s of the impulse when g > 0.7 (low-frequency active recovery).
+- **Another approach per set** (strength + active rest, pure strength, volume, metabolic, endurance tone): the
+  hard ones while the muscle is fresh and early in the session, the light ones when the HR is high, late or
+  tired; the order differs every training. Alternating high- and low-frequency work lets the high-frequency
+  fatigue recover while the work goes on [D — no study shows that variety itself beats the standard 85 Hz 4/4].
+- **Passive recovery in sectors** (massage → pump 2 Hz, tone-massage 8 Hz + 3 Hz, drainage 1 Hz): changing
+  frequency keeps the sensation from fading (habituation) and alternates pumping and massage [D].
 
 ## 4. Energy
 
@@ -97,7 +114,7 @@ Three layers: what the muscle spends **while** the impulses run, what is paid **
 | Fast | ATP, phosphocreatine (50 % in ~30 s, all in 2–3 min), O2 of myoglobin and blood, the O2 deficit of the rising HR | minutes | `closeEpoc`: (VO2_end − rest) · τ, τ = 40 s (AI session only) |
 | Slow, glycolytic | lactate (~65 % oxidised, ~25 % back to glycogen by gluconeogenesis), glycogen | ~10–60 min | the glycolytic debt: litres O2-equivalent × 5.0 kcal/L, in the total from the moment it is made (`AiEnergy.getKcal`) |
 | Slow, other | temperature, catecholamines, ion balance | minutes–hours | **not modelled** (no size from the sources) |
-| Muscle damage | CK rises with high intensity, peak ~72 h; repair costs energy | days | **not modelled**; `NextPlan` rests the zone [E:R3, R14] |
+| Muscle damage | CK rises with high intensity, peak ~72 h; repair costs energy | days | **not modelled**; Auto / AI rest rules [E:R3, R14] |
 
 EPOC is intensity- and duration-dependent: low strength and short work leave no lasting EPOC [E:R15]. The glycolytic
 debt is small for a 7 Hz warm-up or a massage and large for 85–100 Hz strength work — as it should.
@@ -138,7 +155,7 @@ Smart Session spec. Dose is the budget; fatigue (§3) decides the blocks.
 WB-EMS stresses the same motor units every impulse; after a hard session creatine kinase peaks on day 2–4 and can
 reach very high values in the unaccustomed [E:R3]. Guidelines: ≥ 4 days between sessions, the first sessions
 (adaptation) clearly lighter, ~20 min, strength by RPE, plenty of fluid [E:R1].
-`NextPlan.recommend`: < 48 h → −30 % and shorter; 2–4 days → −15 %; next appointment within 4 days → −5 %
+Auto / AI (`AutoPlanner`, `AiPlanner`) use these rest rules; the manual mode no longer adapts (1.1.323: `NextPlan.recommend` loads the last settings unchanged). Before: < 48 h → −30 % and shorter; 2–4 days → −15 %; next appointment within 4 days → −5 %
 (docs/xems-plan.md). Report `persona()`: the first 4 sessions ×0.85…1.
 Measured recovery (scale, docs/xems-scale.md "EMS use"): swelling raises Z100/Z20 against the client's own
 baseline → ×0.85 from +1.2 %, ×0.7 from +2.5 %; drier legs (Z20 +5 %) → ×0.85. [D] The stronger of the
@@ -163,7 +180,7 @@ one-frequency scale drier legs alone do not cut.
 | muscle work per zone | `wearable/SessionRec.chLoad`, report `chDose` |
 | EMS load S / metabolic M, modes, goal zones | `branding/report/session-report.html` (`kF`, `kf`, `GOALS`) |
 | energy | `ai/AiEnergy`, report `kcal` |
-| rest between sessions | `wearable/NextPlan` |
+| rest between sessions | `ai/AutoPlanner`, `ai/AiPlanner` |
 | rest after an Auto set: τ·ln(F / F_rec), 15 s floor tetanic | `ai/AutoEngine.enterRest` (docs/xems-auto-mode-spec.md §11) |
 | pulse module lever order (k(f) above / below fusion, pressor reflex) | `wearable/HrGuardCore.ladder` (docs/xems-pulse-control.md) |
 | resting HR | `ai/AiRestHr`, `AiUi.screenRest` |
@@ -191,4 +208,6 @@ Validate τ, F_max, w(f) and kf on recorded sessions (CR10 answers, HR recovery,
 - R13 Glycogen depletion of human skeletal muscle fibers in response to high-frequency electrical stimulation
   (Can. J. Appl. Physiol. 2003).
 - R14 Inter-individual differences in muscle damage after a single bout of high-intensity WB-EMS (PMC11537929).
+- R16 Binder-Macleod S.A., Guerin T. (1990). Preservation of force output through progressive reduction of stimulation
+  frequency in human quadriceps femoris muscle. *Phys. Ther.* (check the exact source before quoting).
 - R15 Effect of exercise intensity, duration and mode on post-exercise oxygen consumption (PubMed 14599232).

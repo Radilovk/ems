@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1209
+    .line 1221
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 1218
+    .line 1230
     invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -42,7 +42,7 @@
     # setter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->query:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$302(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 1219
+    .line 1231
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -50,7 +50,7 @@
 
     if-eqz v0, :cond_1a
 
-    .line 1220
+    .line 1232
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -64,7 +64,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillGrid(Landroid/content/Context;)V
 
-    .line 1222
+    .line 1234
     :cond_1a
     return-void
 .end method
@@ -73,7 +73,7 @@
     .registers 5
 
     .prologue
-    .line 1211
+    .line 1223
     return-void
 .end method
 
@@ -81,6 +81,6 @@
     .registers 5
 
     .prologue
-    .line 1214
+    .line 1226
     return-void
 .end method

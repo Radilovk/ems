@@ -62,7 +62,7 @@
 
     const/4 v2, 0x1
 
-    const/16 v3, 0x78
+    const/16 v3, 0xa
 
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->b:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 

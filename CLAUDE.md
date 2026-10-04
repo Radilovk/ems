@@ -81,6 +81,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Workouts = impulse maps (blocks = sets), library (302, admin picks), run by map / with AI | `docs/xems-workouts.md` |
 | "План" tab, calendar, next client | `docs/xems-plan.md` |
 | Saved program as base, personalisation, diskette | `docs/xems-program-fit.md` |
+| Absolute limits of every mode (pause from Hz, 2nd impulse ≤ 10 Hz, 60+ ≤ 85 Hz) | `docs/xems-safety-limits.md` |
 | Client list rows, search keyboard, quick start | `docs/xems-client-list.md` |
 | Client ↔ tablet ↔ server sync, CF costs | `docs/xems-client-sync.md` |
 | Suit BT drop → row waits and reconnects | `docs/xems-suit-reconnect.md` |

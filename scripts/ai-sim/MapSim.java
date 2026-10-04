@@ -1,4 +1,7 @@
+import com.isaigu.gymapp.ai.AiModel;
+import com.isaigu.gymapp.ai.AutoModel;
 import com.isaigu.gymapp.ai.MapClock;
+import com.isaigu.gymapp.ai.MapDynamics;
 import com.isaigu.gymapp.ai.Workout;
 
 /** MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest
@@ -42,8 +45,144 @@ public final class MapSim {
         check(anyDouble, "a passive program's active pause becomes a double impulse");
     }
 
+    static AutoModel.Step stepOf(Workout.Block b) {
+        AutoModel.Step s = new AutoModel.Step(b.hz, b.pw, Math.max(1, b.on), Math.max(1, b.off));
+        s.pauseHz = b.dbl ? b.hz2 : 0;
+        s.pauseSigma = b.dbl ? b.str2 / 100.0 : 0;
+        s.rampUpMs = b.rampIn;
+        return s;
+    }
+
+    /** Owner (1.1.324): the smart impulse in every ready workout — an approach per set, glide, longer rests. */
+    static void dynamics() {
+        java.util.Set<String> names = new java.util.HashSet<String>();
+        int sets = 0, falling = 0, extended = 0;
+        for (Workout m : Workout.presets()) {
+            if (m.isPassive()) {
+                continue;
+            }
+            MapDynamics d = new MapDynamics(AiModel.Fitness.MID, 8, 35, 185);
+            double t = 0;
+            String prev = null;
+            for (Workout.Block b : m.blocks) {
+                if (b.isRest()) {
+                    int need = d.restS(b.reps);
+                    check(need >= b.reps && need <= Math.max(b.reps, MapDynamics.REST_MAX_S), m.id + ": rest " + need);
+                    extended += need > b.reps ? 1 : 0;
+                    d.advance(need, false, false, 0, 0, 0, 0);
+                    t += need;
+                    continue;
+                }
+                AutoModel.Step drawn = stepOf(b);
+                String pat = b.pat != null ? b.pat : b.ex != null ? Workout.patternOf(b.ex) : null;
+                int mv = com.isaigu.gymapp.ai.AutoDynamics.move(pat, b.hold);
+                String nm = b.hasExercise() ? d.startSet(drawn, mv, b.lock, t / Math.max(1, m.totalSeconds()), -1) : "";
+                if (!b.hasExercise()) {
+                    d.startPlain(drawn, b.lock);
+                }
+                if (nm.length() > 0) {
+                    names.add(nm);
+                    check(!nm.equals(prev) || nm.equals("Както е нарисуван"), m.id + ": not the same approach twice");
+                    prev = nm;
+                    sets++;
+                }
+                int first = -1, last = -1;
+                for (int r = 0; r < b.reps; r++) {
+                    AutoModel.Step s = d.cycle(drawn, true);
+                    if (first < 0) {
+                        first = s.hz;
+                    }
+                    last = s.hz;
+                    check(mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_CARDIO || s.hz < 70,
+                            m.id + ": a cardio / jump exercise never gets strength (" + s.hz + ")");
+                    check((mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_STRETCH && b.hz >= 20) || s.hz == b.hz,
+                            m.id + ": stretching / twitches keep the drawn impulse");
+                    check(!b.lock || (s.hz == b.hz && s.offS == Math.max(1, b.off)), m.id + ": 🔒 exactly as drawn");
+                    check(s.pwUs >= drawn.pwUs, m.id + ": depth never below the drawn");
+                    d.advance(s.onS, true, true, s.hz, s.pauseHz, s.pauseSigma, b.rel / 100.0);
+                    d.advance(Math.max(1, s.offS), true, false, s.hz, s.pauseHz, s.pauseSigma, b.rel / 100.0);
+                    t += s.onS + Math.max(1, s.offS);
+                }
+                if (b.reps > 3 && first >= 50 && last < first) {
+                    falling++;
+                }
+            }
+        }
+        check(names.size() >= 4, "dynamics: the ready workouts use ≥ 4 approaches (" + names + ")");
+        check(falling >= sets / 3, "dynamics: the frequency falls inside the sets (" + falling + " / " + sets + ")");
+        // a tired muscle → a drawn short rest is extended
+        MapDynamics d = new MapDynamics(AiModel.Fitness.LOW, 8, 35, 185);
+        for (int i = 0; i < 12; i++) {
+            d.advance(6, true, true, 100, 0, 0, 1);
+            d.advance(2, true, false, 100, 0, 0, 1);
+        }
+        check(d.restS(10) > 10, "dynamics: tired → the drawn 10 s rest is longer (" + d.restS(10) + ")");
+        check(new MapDynamics(AiModel.Fitness.MID, 8, 35, 185).restS(30) == 30, "dynamics: fresh → the drawn rest");
+    }
+
+    /**
+     * Every exercise of the library (also the ones added later, branding/exercises/library.json): its movement is
+     * classified, and its approaches fit it (1.1.326).
+     */
+    static void library() {
+        String root = System.getProperty("xems.root", ".");
+        String txt;
+        try {
+            txt = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(root,
+                    "branding/exercises/library.json")), "UTF-8");
+        } catch (Exception e) {
+            check(false, "library.json readable: " + e);
+            return;
+        }
+        java.util.regex.Pattern typeP = java.util.regex.Pattern.compile("\"type\":\"([^\"]*)\"");
+        java.util.regex.Pattern patP = java.util.regex.Pattern.compile("\"pat\":\"([^\"]*)\"");
+        String[] parts = txt.split("\\{\"id\":\"");
+        int n = 0;
+        for (int k = 1; k < parts.length; k++) {
+            String chunk = parts[k];
+            String id = chunk.substring(0, chunk.indexOf('"'));
+            java.util.regex.Matcher tm = typeP.matcher(chunk);
+            java.util.regex.Matcher pm = patP.matcher(chunk);
+            String type = tm.find() ? tm.group(1) : "";
+            String pat = pm.find() ? pm.group(1) : "";
+            boolean hold = "duration".equals(type);
+            int mv = com.isaigu.gymapp.ai.AutoDynamics.move(pat, hold);
+            n++;
+            check(mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_UNKNOWN, id + ": its movement '" + pat
+                    + "' is classified (AutoDynamics.move / STRENGTH_PATS / isSmall)");
+            Workout.Block b = Workout.forExercise(id, pat, hold);
+            AutoModel.Step drawn = stepOf(b);
+            for (int age : new int[] {35, 66}) {
+                for (int sessions : new int[] {0, 8}) {
+                    com.isaigu.gymapp.ai.AutoDynamics.Approach[] l =
+                            com.isaigu.gymapp.ai.AutoDynamics.forMap(drawn, mv, sessions, age);
+                    String at = id + " (" + pat + ") age " + age + " N" + sessions;
+                    if (mv == com.isaigu.gymapp.ai.AutoDynamics.MOVE_STRETCH) {
+                        check(l == null, at + ": stretching stays as drawn");
+                        continue;
+                    }
+                    for (int i = 1; l != null && i < l.length; i++) {
+                        check(mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_CARDIO || l[i].hz < 70, at + ": cardio — no strength");
+                        check(mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_HOLD || l[i].hz < 95, at + ": hold — no 100 Hz");
+                        check(mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_SMALL || !"pure".equals(l[i].id), at + ": small — no pure strength");
+                        check(age < 60 || l[i].hz <= 85, at + ": 60+ — nothing over 85 Hz");
+                        check(sessions >= 3 || l[i].hz < 95, at + ": first trainings — no 100 Hz");
+                    }
+                }
+            }
+            // 🔒: exactly as drawn
+            MapDynamics d = new MapDynamics(AiModel.Fitness.MID, 8, 35, 185);
+            d.startSet(drawn, mv, true, 0.5, -1);
+            AutoModel.Step s = d.cycle(drawn, true);
+            check(s.hz == drawn.hz && s.onS == drawn.onS && s.offS == drawn.offS && s.pwUs == drawn.pwUs, id + ": 🔒 as drawn");
+        }
+        check(n >= 300, "library: every exercise checked (" + n + ")");
+    }
+
     public static void main(String[] args) {
         impulseSettings();
+        dynamics();
+        library();
         java.util.List<Workout> maps = new java.util.ArrayList<Workout>(Workout.presets());
         Workout w = new Workout();
         w.id = "drawn";

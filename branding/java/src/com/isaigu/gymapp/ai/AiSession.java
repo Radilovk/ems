@@ -1070,7 +1070,37 @@ public final class AiSession {
         }
     }
 
+    /** The absolute limits (SafeLimits, 1.1.323) on the cycle before it reaches the rows. */
+    private static void safe(AiEngine.CycleCmd c) {
+        if (c == null) {
+            return;
+        }
+        int age = -1;
+        try {
+            List<TrainItem> list = manager != null ? manager.getItemList() : null;
+            for (int i = 0; list != null && i < list.size() && age < 0; i++) {
+                TrainItem it = list.get(i);
+                if (it != null && !it.isEmpty() && it.data != null) {
+                    age = com.isaigu.gymapp.wearable.SafeGuard.age(it.data.trainUser);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        int[] v = SafeLimits.cycle(c.hz, c.pwUs, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.rampUpMs, age);
+        c.hz = v[SafeLimits.HZ];
+        c.pwUs = v[SafeLimits.PW];
+        c.onS = v[SafeLimits.ON];
+        c.offS = v[SafeLimits.OFF];
+        c.rampUpMs = v[SafeLimits.RAMP];
+        if (v[SafeLimits.AP] == 0) {
+            c.pauseHz = 0;
+        } else {
+            c.pauseHz = v[SafeLimits.PHZ];
+        }
+    }
+
     private static void writeAll(AiEngine.CycleCmd c, int percent) {
+        safe(c);
         AiRamp.set(c.rampUpMs, c.rampDownMs);
         percent = Math.max(0, Math.min(100, percent));
         written = c;

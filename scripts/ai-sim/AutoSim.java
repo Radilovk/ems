@@ -1,11 +1,13 @@
 import com.isaigu.gymapp.ai.AiModel;
 import com.isaigu.gymapp.ai.AutoCatalog;
 import com.isaigu.gymapp.ai.AutoCues;
+import com.isaigu.gymapp.ai.AutoDynamics;
 import com.isaigu.gymapp.ai.AutoEngine;
 import com.isaigu.gymapp.ai.AutoLimits;
 import com.isaigu.gymapp.ai.AutoModel;
 import com.isaigu.gymapp.ai.AutoPlanner;
 import com.isaigu.gymapp.ai.AutoTemplates;
+import com.isaigu.gymapp.ai.SafeLimits;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,7 @@ public final class AutoSim {
         drainWave();
         cues();
         setsAndStops();
+        dynamics();
         liveModel();
         totalLoad();
         liveForecast();
@@ -229,6 +232,10 @@ public final class AutoSim {
         check(c.pwUs >= 150 && c.pwUs <= 400, at + ": L5 pw in 150–400");
         check(plan.input.age < 60 || c.hz <= 85, at + ": 60+ ≤ 85 Hz");
         check(c.onS >= 1 && c.offS >= 1, at + ": device ON/OFF ≥ 1 s");
+        check(c.hz < 20 || c.offS >= SafeLimits.minOff(c.hz, c.onS, c.pauseHz, c.pauseSigma),
+                at + ": absolute limit — pause " + c.offS + " s at " + c.hz + " Hz · " + c.onS + " s");
+        check(c.pauseHz <= SafeLimits.PAUSE_HZ_MAX && (c.pauseHz == 0 || c.pauseHz < c.hz),
+                at + ": absolute limit — second impulse ≤ 10 Hz, under the main");
         check(c.frac <= plan.phiMax + 1e-9, at + ": frac ≤ φmax");
         check(c.ceiling >= c.frac - 1e-9, at + ": ceiling ≥ frac");
         check(c.ceiling <= plan.envMax * plan.phiMax + 1e-9, at + ": ceiling ≤ E·φmax");
@@ -1051,6 +1058,253 @@ public final class AutoSim {
         return m;
     }
 
+    /**
+     * Owner (1.1.322): the impulse moves during Auto — another approach per set (from fatigue, HR, dose and the
+     * training count), the frequency glides down with the fatigue inside a set, the recovery runs in sectors.
+     */
+    static void dynamics() {
+        AutoModel.Input in = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
+        in.goal = AutoModel.Goal.TONE;
+        in.kind = AutoModel.Kind.ACTIVE;
+        in.programId = AutoCatalog.GENERAL;
+        AutoModel.Plan plan = AutoPlanner.build(in, 68);
+        AutoEngine e = new AutoEngine(plan);
+        AutoTemplates.Script sc = AutoTemplates.script(plan, null);
+        e.setScript(sc);
+        long t = 1000000L;
+        e.startAt(t, t);
+        t = e.getGoMs();
+        e.tick(t);
+        java.util.Set<String> names = new java.util.HashSet<String>();
+        java.util.Set<Integer> sectors = new java.util.HashSet<Integer>();
+        String prevName = null;
+        int repeats = 0, setsSeen = 0, glides = 0, rampsOnJump = 0, jumps = 0;
+        int firstHz = -1, lastHz = -1;
+        int guard = 0;
+        while ((e.getState() == AutoEngine.State.RUN || e.getState() == AutoEngine.State.REST) && guard++ < 5000) {
+            if (e.getState() == AutoEngine.State.REST) {
+                if (firstHz > 0 && lastHz > 0 && lastHz < firstHz) {
+                    glides++;
+                }
+                firstHz = lastHz = -1;
+                t += Math.max(1, e.getRestMinS()) * 1000L;
+                e.requestGo(t, t);
+                t = e.getGoMs();
+                e.tick(t);
+                continue;
+            }
+            AutoEngine.Cmd c = e.getCurrent();
+            String nm = e.getImpulseName();
+            AutoModel.Phase ph = plan.phases.get(c.phaseIndex);
+            if (e.isStationPhase(c.phaseIndex) && nm.length() > 0) {
+                if (firstHz < 0) {
+                    setsSeen++;
+                    names.add(nm);
+                    if (nm.equals(prevName)) {
+                        repeats++;
+                    }
+                    prevName = nm;
+                    firstHz = c.hz;
+                }
+                lastHz = c.hz;
+            }
+            if (ph.isCooldown() && nm.length() > 0) {
+                sectors.add(nm.hashCode());
+            }
+            t += c.durationMs();
+            e.tick(t - 1);
+            AutoEngine.Cmd n = e.onCycle(t);
+            if (n != null && c != null && Math.abs(n.hz - c.hz) >= 10) {
+                jumps++;
+                if (n.rampUpMs >= 600) {
+                    rampsOnJump++;
+                }
+            }
+        }
+        check(e.getState() == AutoEngine.State.DONE, "dynamics: the session ends");
+        check(names.size() >= 4, "dynamics: at least 4 different approaches in one training (" + names + ")");
+        check(repeats == 0, "dynamics: never the same approach twice in a row (" + repeats + ")");
+        check(glides >= setsSeen / 2, "dynamics: the frequency falls inside most sets (" + glides + " / " + setsSeen + ")");
+        check(sectors.size() >= 3, "dynamics: the recovery runs in ≥ 3 sectors (" + sectors.size() + ")");
+        check(jumps == 0 || rampsOnJump == jumps, "dynamics: every jump ≥ 10 Hz has a soft rise (" + rampsOnJump + " / "
+                + jumps + ")");
+        // another training → another order
+        AutoModel.Input in2 = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 9, 200);
+        in2.goal = in.goal;
+        in2.kind = in.kind;
+        in2.programId = in.programId;
+        AutoModel.Plan p2 = AutoPlanner.build(in2, 68);
+        AutoModel.Phase main = null;
+        for (AutoModel.Phase ph : plan.phases) {
+            if ("MAIN".equals(ph.id)) {
+                main = ph;
+            }
+        }
+        AutoDynamics.Approach[] l1 = AutoDynamics.approaches(plan, main);
+        AutoDynamics.Ctx x = new AutoDynamics.Ctx();
+        x.fresh = 0.6;
+        x.sessions = 8;
+        int a8 = AutoDynamics.pick(l1, x);
+        x.sessions = 9;
+        int a9 = AutoDynamics.pick(l1, x);
+        check(p2 != null && a8 != a9, "dynamics: the next training starts with another approach");
+        // fresh muscle → hard work; tired → light; high pulse → light
+        x.sessions = 8;
+        x.fresh = 1.0;
+        int hard = AutoDynamics.pick(l1, x);
+        x.fresh = 0.1;
+        int light = AutoDynamics.pick(l1, x);
+        check(l1[hard].cls > l1[light].cls, "dynamics: fresh → harder approach than tired (" + l1[hard].id + " / "
+                + l1[light].id + ")");
+        x.fresh = 0.8;
+        x.hrHigh = true;
+        check(l1[AutoDynamics.pick(l1, x)].cls <= 1, "dynamics: HR near the cap → a light approach");
+        // the glide: frequency down, pause up, depth never down
+        AutoModel.Step st = l1[0] != null ? main.steps.get(0) : null;
+        AutoModel.Step g0 = AutoDynamics.apply(st, AutoDynamics.STRENGTH_PAUSE, 0, true);
+        AutoModel.Step g1 = AutoDynamics.apply(st, AutoDynamics.STRENGTH_PAUSE, 1, true);
+        check(g1.hz < g0.hz && g1.offS > g0.offS && g1.pwUs >= g0.pwUs, "dynamics: tired → lower Hz, longer pause, depth "
+                + "not lower (" + g0.hz + "→" + g1.hz + " Hz, " + g0.pwUs + "→" + g1.pwUs + " µs)");
+        check(g1.onS < g0.onS && g1.pauseHz == 7, "dynamics: tired → the second impulse takes more of the cycle");
+        check(AutoDynamics.apply(st, AutoDynamics.STRENGTH_PAUSE, 0, false).pauseHz == 0,
+                "dynamics: no second impulse where the program does not allow it");
+        // "Само шаблон" (1.1.325): the same sets, rests and approaches, no exercise
+        AutoModel.Input fi = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
+        fi.goal = in.goal;
+        fi.kind = in.kind;
+        fi.programId = in.programId;
+        fi.exercises = false;
+        AutoModel.Plan fp = AutoPlanner.build(fi, 68);
+        AutoEngine fe = new AutoEngine(fp);
+        fe.setScript(AutoTemplates.script(fp, null));
+        long ft = 1000000L;
+        fe.startAt(ft, ft);
+        ft = fe.getGoMs();
+        fe.tick(ft);
+        int fSets = 0, fNamed = 0;
+        java.util.Set<String> fApproaches = new java.util.HashSet<String>();
+        int fg = 0;
+        while ((fe.getState() == AutoEngine.State.RUN || fe.getState() == AutoEngine.State.REST) && fg++ < 5000) {
+            if (fe.getState() == AutoEngine.State.REST) {
+                fSets++;
+                ft += Math.max(1, fe.getRestMinS()) * 1000L;
+                fe.requestGo(ft, ft);
+                ft = fe.getGoMs();
+                fe.tick(ft);
+                continue;
+            }
+            if (fe.getExercise() != null || (fe.getNextExercise() != null && fe.getNextExercise().length() > 0)) {
+                fNamed++;
+            }
+            if (fe.isStationPhase(fe.getPhaseIndex()) && fe.getImpulseName().length() > 0) {
+                fApproaches.add(fe.getImpulseName());
+            }
+            AutoEngine.Cmd fc = fe.getCurrent();
+            ft += fc.durationMs();
+            fe.tick(ft - 1);
+            fe.onCycle(ft);
+        }
+        check(fe.getState() == AutoEngine.State.DONE && fSets > 10, "template only: sets with rests (" + fSets + ")");
+        check(fNamed == 0, "template only: no exercise named (" + fNamed + ")");
+        check(fApproaches.size() >= 4, "template only: the approaches still change set by set (" + fApproaches + ")");
+
+        // every template in the catalogue (also the ones added later): a declared impulse class, approaches inside
+        // the class, no 100 Hz for 60+ / the first trainings, power keeps OFF ≥ 2·ON, the frequency glides (1.1.326)
+        for (AutoCatalog.Program prog : AutoCatalog.all()) {
+            if (!prog.isActive()) {
+                continue;
+            }
+            check(prog.impulse != null, prog.id + ": an active template declares its impulse class (strength / power / "
+                    + "cardio / gentle) — AutoCatalog p.impulse");
+            String cls = AutoDynamics.impulseClass(prog);
+            for (AutoModel.Input pi : profiles()) {
+                pi.programId = prog.id;
+                pi.kind = AutoModel.Kind.ACTIVE;
+                for (AutoModel.Goal g : AutoModel.Goal.values()) {
+                    if (!AutoCatalog.menu(g, AutoModel.Kind.ACTIVE).contains(prog)) {
+                        continue;
+                    }
+                    pi.goal = g;
+                    if (AutoCatalog.blockReason(prog, g, pi) != null) {
+                        continue;
+                    }
+                    AutoModel.Plan pl = AutoPlanner.build(pi, 68);
+                    for (AutoModel.Phase ph : pl.phases) {
+                        AutoDynamics.Approach[] l = AutoDynamics.approaches(pl, ph);
+                        for (int i = 1; l != null && i < l.length; i++) {
+                            String at = prog.id + "/" + ph.id + "/" + l[i].id + " age " + pi.age + " N" + pi.sessions;
+                            check(!AutoDynamics.GENTLE.equals(cls) || l[i].hz <= 85, at + ": gentle — no approach over 85 Hz");
+                            check((pi.age < 60 && pi.sessions >= 3) || AutoDynamics.POWER.equals(cls) || l[i].hz < 95,
+                                    at + ": 60+ / first trainings — no 100 Hz approach");
+                            check(!AutoDynamics.POWER.equals(cls) || l[i].off >= 2 * l[i].on, at + ": power keeps OFF ≥ 2·ON");
+                            check(!AutoDynamics.POWER.equals(cls) || l[i].pauseHz == 0, at + ": power — no second impulse");
+                        }
+                    }
+                }
+            }
+            // the frequency glides inside the sets (a mid-fitness man, after the adaptation)
+            AutoModel.Input gi = input(AiModel.Sex.MALE, 35, 82, 180, AiModel.Fitness.MID, 8, 200);
+            gi.programId = prog.id;
+            gi.kind = AutoModel.Kind.ACTIVE;
+            for (AutoModel.Goal g : AutoModel.Goal.values()) {
+                if (AutoCatalog.menu(g, AutoModel.Kind.ACTIVE).contains(prog)) {
+                    gi.goal = g;
+                    break;
+                }
+            }
+            if (gi.goal == null || AutoCatalog.blockReason(prog, gi.goal, gi) != null) {
+                continue;
+            }
+            AutoModel.Plan gp = AutoPlanner.build(gi, 68);
+            AutoEngine ge = new AutoEngine(gp);
+            ge.setScript(AutoTemplates.script(gp, null));
+            long gt = 1000000L;
+            ge.startAt(gt, gt);
+            gt = ge.getGoMs();
+            ge.tick(gt);
+            int gSets = 0, gFall = 0, first = -1, last = -1, gGuard = 0;
+            while ((ge.getState() == AutoEngine.State.RUN || ge.getState() == AutoEngine.State.REST) && gGuard++ < 5000) {
+                if (ge.getState() == AutoEngine.State.REST) {
+                    if (first >= 50) {
+                        gSets++;
+                        gFall += last < first ? 1 : 0;
+                    }
+                    first = last = -1;
+                    gt += Math.max(1, ge.getRestMinS()) * 1000L;
+                    ge.requestGo(gt, gt);
+                    gt = ge.getGoMs();
+                    ge.tick(gt);
+                    continue;
+                }
+                AutoEngine.Cmd gc = ge.getCurrent();
+                if (ge.isStationPhase(gc.phaseIndex) && gc.frac > 0) {
+                    if (first < 0) {
+                        first = gc.hz;
+                    }
+                    last = gc.hz;
+                }
+                gt += gc.durationMs();
+                ge.tick(gt - 1);
+                ge.onCycle(gt);
+            }
+            check(gSets == 0 || gFall * 3 >= gSets, prog.id + ": the frequency glides down in the sets (" + gFall + " / "
+                    + gSets + ")");
+        }
+
+        // gentle programs and the first trainings: no 100 Hz approach
+        AutoModel.Input s60 = input(AiModel.Sex.FEMALE, 66, 70, 165, AiModel.Fitness.MID, 10, 200);
+        s60.goal = AutoModel.Goal.HEALTH;
+        s60.kind = AutoModel.Kind.ACTIVE;
+        s60.programId = AutoCatalog.SENIOR;
+        AutoModel.Plan ps = AutoPlanner.build(s60, 68);
+        for (AutoModel.Phase ph : ps.phases) {
+            AutoDynamics.Approach[] l = AutoDynamics.approaches(ps, ph);
+            for (int i = 0; l != null && i < l.length; i++) {
+                check(l[i].hz <= 85, "dynamics: 50+ program — no approach over 85 Hz (" + l[i].id + ")");
+            }
+        }
+    }
+
     /** Owner (1.1.284): the timeline's future runs on from the live state — strength, HR — within Auto's bounds. */
     static void liveForecast() {
         long[] t = new long[1];
@@ -1097,8 +1351,10 @@ public final class AutoSim {
                 "HR at the cap → the running set ends in the forecast");
         check(meanHr(fh2) > meanHr(fh1) + 10, "higher HR now → higher HR ahead (" + Math.round(meanHr(fh1)) + " → "
                 + Math.round(meanHr(fh2)) + ")");
-        check(fh2.totalS > fh1.totalS, "a pulse that stays high → the forecast ends later (" + Math.round(fh1.totalS)
-                + " → " + Math.round(fh2.totalS) + ")");
+        // since 1.1.322 a high pulse also turns the next sets to lighter approaches (AutoDynamics), which shortens
+        // their rests: the end no longer has to come later, only not much earlier
+        check(fh2.totalS >= fh1.totalS - 60, "a pulse that stays high → the forecast does not end much earlier ("
+                + Math.round(fh1.totalS) + " → " + Math.round(fh2.totalS) + ")");
         float[] lh = fh2.points.get(fh2.points.size() - 1);
         check(lh[1] <= plan.totalS + 1, "…the impulses still keep the plan's bounds");
         boolean hrLine = false;
@@ -1503,9 +1759,11 @@ public final class AutoSim {
         t[0] = 0;
         AutoEngine w = fresh(plan, sc, t);
         toMainSet(w, t);
-        double l0 = w.cycleLoad(w.getCurrent());
-        AutoEngine.Cmd c10 = w.userParams(-1, w.getCurrent().onS + 1, -1, -1, t[0] + 500);
-        check(w.getCurrent() == c10 && w.cycleLoad(c10) >= l0 - 1e-9, "S10 longer impulse → the cycle's load follows");
+        AutoEngine.Cmd c9 = w.getCurrent();
+        AutoEngine.Cmd c10 = w.userParams(-1, c9.onS + 1, -1, -1, t[0] + 500);
+        // since 1.1.323 a longer impulse may also lengthen the pause (SafeLimits): the cycle follows both at once
+        check(w.getCurrent() == c10 && c10.onS > c9.onS && c10.offS >= SafeLimits.minOff(c10.hz, c10.onS,
+                c10.pauseHz, c10.pauseSigma), "S10 longer impulse → the cycle follows, the pause stays safe");
     }
 
     static void check(boolean ok, String what) {

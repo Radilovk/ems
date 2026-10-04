@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 301
+    .line 302
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 302
+    .line 303
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoUi$StripTo;->v:Landroid/widget/HorizontalScrollView;
 
-    .line 303
+    .line 304
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoUi$StripTo;->x:I
 
-    .line 304
+    .line 305
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 4
 
     .prologue
-    .line 308
+    .line 309
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoUi$StripTo;->v:Landroid/widget/HorizontalScrollView;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoUi$StripTo;->x:I
@@ -56,6 +56,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/HorizontalScrollView;->scrollTo(II)V
 
-    .line 309
+    .line 310
     return-void
 .end method

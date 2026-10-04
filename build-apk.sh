@@ -69,6 +69,7 @@ if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
   bash "${ROOT}/scripts/compile-xems-license-java.sh"
   bash "${ROOT}/scripts/compile-avatar-cluster-java.sh"
   bash "${ROOT}/scripts/compile-channel-scale-java.sh"
+  bash "${ROOT}/scripts/compile-softramp-java.sh"
 else
   echo "SKIP_JAVA_RECOMPILE=1 — using prebuilt smali in branding/smali/"
 fi

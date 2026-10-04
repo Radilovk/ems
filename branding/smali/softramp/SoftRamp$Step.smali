@@ -31,38 +31,38 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/train/model/TrainItem;IIDZ)V
-    .locals 0
+    .registers 7
 
     .prologue
-    .line 157
+    .line 161
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 158
+    .line 162
     iput-object p1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 159
+    .line 163
     iput p2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->g:I
 
-    .line 160
+    .line 164
     iput p3, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->workLength:I
 
-    .line 161
+    .line 165
     iput-wide p4, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->f:D
 
-    .line 162
+    .line 166
     iput-boolean p6, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->last:Z
 
-    .line 163
+    .line 167
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .locals 6
+    .registers 7
 
     .prologue
-    .line 168
+    .line 172
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -72,19 +72,20 @@
 
     move-result v0
 
-    if-nez v0, :cond_0
+    if-nez v0, :cond_b
 
-    .line 184
-    :goto_0
+    .line 188
+    :goto_a
     return-void
 
-    .line 171
-    :cond_0
+    .line 175
+    :cond_b
     iget-boolean v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->last:Z
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_37
 
-    .line 172
+    .line 176
+    # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->scale:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$000()Ljava/util/WeakHashMap;
 
     move-result-object v0
@@ -93,8 +94,8 @@
 
     invoke-virtual {v0, v1}, Ljava/util/WeakHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 179
-    :cond_1
+    .line 183
+    :cond_18
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -105,7 +106,7 @@
 
     move-result-object v1
 
-    .line 180
+    .line 184
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -117,25 +118,26 @@
     iget-wide v4, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->f:D
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/train/model/SoftRamp;->sendScaled(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZID)V
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+    :try_end_2f
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_2f} :catch_30
 
-    goto :goto_0
+    goto :goto_a
 
-    .line 181
-    :catch_0
+    .line 185
+    :catch_30
     move-exception v0
 
-    .line 182
+    .line 186
     const-string v1, "SoftRamp.step"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_0
+    goto :goto_a
 
-    .line 174
-    :cond_2
-    :try_start_1
+    .line 178
+    :cond_37
+    :try_start_37
+    # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->scale:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$000()Ljava/util/WeakHashMap;
 
     move-result-object v0
@@ -150,18 +152,18 @@
 
     invoke-virtual {v0, v1, v2}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 175
+    .line 179
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/CommandSender;->isBusy()Z
-    :try_end_1
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
+    :try_end_4d
+    .catch Ljava/lang/Throwable; {:try_start_37 .. :try_end_4d} :catch_30
 
     move-result v0
 
-    if-eqz v0, :cond_1
+    if-eqz v0, :cond_18
 
-    goto :goto_0
+    goto :goto_a
 .end method

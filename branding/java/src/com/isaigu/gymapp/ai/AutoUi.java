@@ -64,6 +64,7 @@ public final class AutoUi {
     private static final int A_TIPS = 36;
     private static final int A_INFO = 37;
     private static final int A_STATE = 38;
+    private static final int A_EXERCISES = 41;
 
     private static XemsUi.Shell shell;
     private static Activity host;
@@ -470,6 +471,13 @@ public final class AutoUi {
                     in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.weight(1f, 14, c));
         }
         body.addView(choose, XemsUi.matchWrap(c, 4));
+        // "Само шаблон" / "С упражнения" (owner, 1.1.325): the template's blocks alone, or with its exercises — the
+        // impulse, pauses, rests and their logic are the same in both
+        if (in.kind == Kind.ACTIVE) {
+            body.addView(XemsUi.segmented(c, new String[] {AiText.t("Само шаблон", "Template only"),
+                    AiText.t("С упражнения", "With exercises")}, in.exercises ? 1 : 0, new Act(A_EXERCISES, 0)),
+                    XemsUi.matchWrap(c, 12));
+        }
 
         List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
         Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
@@ -1439,7 +1447,8 @@ public final class AutoUi {
         } else {
             AutoModel.Phase about = beforeRecovery ? plan.phases.get(plan.phases.size() - 1) : ph;
             runPhase.setText(beforeRecovery ? "→  " + AiText.t("Възстановяване", "Recovery")
-                    : recovery ? AiText.t("Възстановяване", "Recovery") : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
+                    : recovery ? AiText.t("Възстановяване", "Recovery") + (e.getImpulseName().length() > 0
+                    ? "  ·  " + e.getImpulseName() : "") : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "");
             runPhase.setTextColor(XemsUi.TEXT);
             // no exercise (passive program, recovery): what this part is for and what the current does now
             AutoEngine.Cmd now1 = beforeRecovery ? null : AutoSession.getWritten();
@@ -1548,7 +1557,9 @@ public final class AutoUi {
         double left = f != null ? f.leftS(sNow, e.getElapsedS()) : e.getRemainingS();
         runClock.setText(AiText.mmss(sNow) + "  /  " + AiText.mmss(sNow + left));
         if (boardSub != null) {
-            boardSub.setText(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn)) : "");
+            String imp = e.getImpulseName();                   // the set's approach / the recovery's sector
+            boardSub.setText(ph != null ? (recovery ? AiText.t("Възстановяване", "Recovery") : AiText.t(ph.nameBg, ph.nameEn))
+                    + (imp.length() > 0 ? "  ·  " + imp : "") : "");
         }
         showPhases(e, !fig && !e.isStationPhase(e.getPhaseIndex()));
 
@@ -1610,6 +1621,9 @@ public final class AutoUi {
                 }
                 break;
             }
+            case A_EXERCISES:
+                in.exercises = value == 1;
+                break;
             case A_KIND:
                 stripX = 0;
                 in.kind = value == 0 ? Kind.ACTIVE : Kind.PASSIVE;

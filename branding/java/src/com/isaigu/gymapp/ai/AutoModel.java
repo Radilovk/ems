@@ -112,6 +112,9 @@ public final class AutoModel {
         /** Program variant: DRAIN 1 = sensitive (8 Hz steps). */
         public int variant = 0;
         public boolean doublePulse = true;
+        /** "С упражнения" (true) or "Само шаблон" (false, owner 1.1.325): the template's blocks — impulse, pauses,
+         *  rests and their logic — with or without the exercises. */
+        public boolean exercises = true;
         /** Minutes chosen in the plan step; null = the program's value. */
         public Integer totalSeconds;
         public AiModel.Screening screening = new AiModel.Screening();

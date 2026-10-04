@@ -10,16 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The manual mode's starting values: a client who comes into a training slot and has no settings of
- * their own yet (no NextPlan snapshot) gets the slot's SAVED program ("Test" or any other) with their own
- * corrections — fitness, age, goal, focus zones and state ({@link ProgramFit}); with personalisation off,
- * the saved program exactly. Never the strength. Returning clients keep their own settings.
+ * The manual mode's starting values: a client who comes into a training slot gets their own saved settings for
+ * that program (diskette / ⚙, {@link ClientPrograms}); otherwise the row's program exactly as it is. No automatic
+ * adaptation (owner, 1.1.323) — the only automatic thing is the absolute limits at every send (SafeGuard).
  */
 public final class ManualDefaults {
-    /** Slot → the client last seen there (applied once per arrival). */
     /** Slot → "client|program" last seen there (applied once per arrival / program change). */
     private static final Map<Integer, String> SEEN = new HashMap<Integer, String>();
-    private static boolean primed;
 
     private ManualDefaults() {}
 
@@ -44,7 +41,6 @@ public final class ManualDefaults {
                 if (now.equals(was)) {
                     continue;
                 }
-                boolean newClient = was == null || !was.startsWith(u.id + "|");
                 SEEN.put(i, now);
                 if (it.data.start || assisted()) {
                     continue;
@@ -53,12 +49,9 @@ public final class ManualDefaults {
                 if (ClientPrograms.applyTo(it, u)) {
                     continue;
                 }
-                // The slots already filled when the app starts are the trainer's as they were.
-                if (primed && newClient) {
-                    applyTo(c, it, u);
-                }
+                // Otherwise the row keeps the program as it is: no automatic adaptation in the manual mode
+                // (owner, 1.1.323) — only the absolute limits (SafeGuard) at every send.
             }
-            primed = true;
         } catch (Throwable t) {
             WearableBleDiagLog.log("manual", "defaults: " + t);
         }
@@ -72,12 +65,5 @@ public final class ManualDefaults {
         } catch (Throwable t) {
             return false;
         }
-    }
-
-    static void applyTo(Context c, TrainItem it, TrainUser u) {
-        if (c == null || NextPlan.load(c, u.id) != null) {
-            return;                                        // a returning client keeps their settings
-        }
-        ProgramFit.applyTo(c, it, u);
     }
 }

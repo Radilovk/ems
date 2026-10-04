@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
+import com.isaigu.gymapp.bean.TrainUser;
 import com.isaigu.gymapp.dialog.BlockProgramRunner;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
@@ -67,6 +68,13 @@ public final class MapRunner {
     private static TextView detail;
     private static TextView next;
 
+    // the smart impulse of a workout (MapDynamics, owner 1.1.324); null for a procedure = exactly as drawn
+    private static MapDynamics dyn;
+    /** The step going out now (null = the block as drawn). */
+    private static AutoModel.Step cur;
+    private static String approach = "";
+    private static Context app;
+
     public static boolean isRunning() {
         return map != null && clock != null && !clock.isDone();
     }
@@ -106,6 +114,13 @@ public final class MapRunner {
         map = w.copy(w.id, w.name);
         swapForLeader(a);
         clock = new MapClock(map);
+        app = a != null ? a.getApplicationContext() : app;
+        dyn = null;
+        cur = null;
+        approach = "";
+        if (!map.isPassive()) {
+            dyn = dynamicsFor(a);
+        }
         idleS = 0;
         base.clear();
         own.clear();
@@ -136,6 +151,59 @@ public final class MapRunner {
         showCard(a);
         WearableBleDiagLog.log("map", "start " + map.id + " blocks " + map.blocks.size() + " " + map.totalSeconds() + " s");
         return null;
+    }
+
+    /** The leader's fitness, age, training count and HR max for the smart impulse. */
+    private static MapDynamics dynamicsFor(Context c) {
+        AiModel.Fitness fit = AiModel.Fitness.MID;
+        int age = -1;
+        int sessions = 0;
+        int hrMax = 0;
+        try {
+            TrainItem lead = leader();
+            TrainUser u = lead != null && lead.data != null ? lead.data.trainUser : null;
+            AiProfile p = u != null ? AiProfile.of(u) : null;
+            if (p != null) {
+                fit = p.fitness != null ? p.fitness : fit;
+                age = p.age != null ? p.age : -1;
+                hrMax = p.age != null ? AiPlanner.hrMax(p.sex != null ? p.sex : AiModel.Sex.FEMALE, p.age) : 0;
+            }
+            if (u != null && c != null) {
+                sessions = AutoHistory.of(c, u.id).sessions;
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("map", "dynamics: " + t);
+        }
+        return new MapDynamics(fit, sessions, age, hrMax);
+    }
+
+    /** The block's movement: its own pattern, else the built-in one, else the library's (owner, 1.1.326). */
+    static int moveOf(Workout.Block b) {
+        String pat = b.pat;
+        boolean hold = b.hold;
+        if (pat == null && b.ex != null) {
+            pat = Workout.patternOf(b.ex);
+            if (pat == null && app != null) {
+                try {
+                    ExerciseLibrary.Entry e = ExerciseLibrary.get(app, b.ex);
+                    if (e != null) {
+                        pat = e.pat;
+                        hold |= e.isHold();
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return AutoDynamics.move(pat, hold);
+    }
+
+    static AutoModel.Step stepOf(Workout.Block b) {
+        AutoModel.Step s = new AutoModel.Step(b.hz, b.pw, Math.max(1, b.on), Math.max(1, b.off));
+        s.pauseHz = b.dbl ? b.hz2 : 0;
+        s.pauseSigma = b.dbl ? b.str2 / 100.0 : 0;
+        s.rampUpMs = b.rampIn;
+        s.rampDownMs = b.rampOut;
+        return s;
     }
 
     /**
@@ -188,6 +256,9 @@ public final class MapRunner {
             return;
         }
         handler.removeCallbacks(ticker);
+        dyn = null;
+        cur = null;
+        approach = "";
         for (TrainItem it : rows()) {
             ProgramDataBean b = bean(it);
             Integer s = base.get(it);
@@ -236,6 +307,8 @@ public final class MapRunner {
         cycleStartMs = System.currentTimeMillis();
         if (clock.onCycle()) {
             apply(false);
+        } else if (dyn != null) {
+            writeCycle();                                      // every repetition glides with the fatigue
         }
     }
 
@@ -269,6 +342,14 @@ public final class MapRunner {
             return;
         }
         boolean running = lead.data != null && lead.data.start;
+        if (dyn != null) {
+            Workout.Block b = clock.block();
+            AutoModel.Step s = cur;
+            boolean work = b != null && !b.isRest() && s != null;
+            boolean on = work && now - cycleStartMs < s.onS * 1000L;
+            dyn.advance(dt, running && work, on, work ? s.hz : 0, work ? s.pauseHz : 0, work ? s.pauseSigma : 0,
+                    work ? b.rel / 100.0 : 0);
+        }
         if (running && clock.tick(dt)) {
             apply(false);
         }
@@ -298,6 +379,25 @@ public final class MapRunner {
         Workout.Block prev = lastIndex >= 0 && lastIndex < map.blocks.size() ? map.blocks.get(lastIndex) : null;
         Workout.Block b = clock.block();
         lastIndex = idx;
+        cur = null;
+        if (dyn != null) {
+            if (b.isRest()) {
+                int need = dyn.restS(b.reps);
+                clock.setRestS(need);
+                if (need > b.reps) {
+                    WearableBleDiagLog.log("map", "rest " + b.reps + " → " + need + " s (fatigue " + Math.round(dyn.fatigue() * 100) + " %)");
+                }
+            } else if (b.hasExercise()) {
+                int hr = AiSession.isBandStreaming() ? AiSession.getLastBandHr() : -1;
+                approach = dyn.startSet(stepOf(b), moveOf(b), b.lock,
+                        map.totalSeconds() > 0 ? clock.position() / map.totalSeconds() : 0, hr);
+                WearableBleDiagLog.log("map", "set " + idx + " approach " + approach + " fatigue "
+                        + Math.round(dyn.fatigue() * 100) + " %");
+            } else {
+                dyn.startPlain(stepOf(b), b.lock);
+                approach = "";
+            }
+        }
         for (TrainItem it : rows()) {
             ProgramDataBean bean = bean(it);
             if (bean == null) {
@@ -311,6 +411,8 @@ public final class MapRunner {
             int full = s != null ? s : bean.strenth;
             if (b.isRest()) {
                 bean.strenth = 0;
+            } else if (dyn != null) {
+                bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
             } else {
                 bean.hz = b.hz;
                 bean.pulseWidth = b.pw;
@@ -326,6 +428,51 @@ public final class MapRunner {
                 bean.inputRamp = b.rampIn;
                 bean.outputRamp = b.rampOut;
             }
+            if (it.data != null && it.data.inStart) {
+                it.data.secondValue = bean.pulseContinue;
+            }
+            try {
+                it.onParamsChange();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("map", "onParamsChange: " + t);
+            }
+        }
+        if (dyn != null && !b.isRest()) {
+            writeCycle();                                      // the set's first repetition, its approach
+            return;
+        }
+        try {
+            MasterStrengthControl.resetApplied();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** One repetition's impulse (approach + glide) to every row; the strength stays each row's. */
+    private static void writeCycle() {
+        Workout.Block b = clock.block();
+        if (dyn == null || b == null || b.isRest()) {
+            return;
+        }
+        AutoModel.Step s = dyn.cycle(stepOf(b), true);
+        cur = s;
+        clock.setCycleS(s.onS + Math.max(1, s.offS));
+        for (TrainItem it : rows()) {
+            ProgramDataBean bean = bean(it);
+            if (bean == null) {
+                continue;
+            }
+            bean.hz = s.hz;
+            bean.pulseWidth = s.pwUs;
+            bean.pulseContinue = Math.max(1, s.onS);
+            bean.pulsePause = Math.max(1, s.offS);
+            boolean dbl = s.pauseHz > 0 && s.pauseSigma > 0 && AiSession.pauseAllowed(it);
+            bean.activePause = dbl;
+            if (dbl) {
+                bean.pauseHz = s.pauseHz;
+                bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * s.pauseSigma));
+            }
+            bean.inputRamp = s.rampUpMs;
+            bean.outputRamp = s.rampDownMs;
             if (it.data != null && it.data.inStart) {
                 it.data.secondValue = bean.pulseContinue;
             }
@@ -461,13 +608,15 @@ public final class MapRunner {
         line.setPlayhead((float) clock.position());
         if (b.isRest()) {
             figure.setExercise(null);
-            name.setText(AiText.t("Почивка ", "Rest ") + AiText.mmss(Math.max(0, b.reps - clock.getBlockS())));
+            name.setText(AiText.t("Почивка ", "Rest ") + AiText.mmss(Math.max(0, clock.restLength() - clock.getBlockS())));
             detail.setText("");
         } else {
             // the exercise only — no impulse sync, no counting: the client does it at their own pace
             figure.setExercise(b.hasExercise() ? b.ex : null);
             name.setText(b.hasExercise() ? AutoTemplates.name(b.ex) : AiText.t("Импулс", "Impulse"));
-            detail.setText(b.hz + " Hz · " + b.pw + " µs");
+            AutoModel.Step s = cur;
+            detail.setText((s != null ? s.hz : b.hz) + " Hz · " + (s != null ? s.pwUs : b.pw) + " µs"
+                    + (approach.length() > 0 ? "  ·  " + approach : ""));
         }
         String n = "";
         for (int k = idx + 1; k < map.blocks.size(); k++) {

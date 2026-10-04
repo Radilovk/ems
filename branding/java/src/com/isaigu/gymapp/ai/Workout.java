@@ -60,6 +60,12 @@ public final class Workout {
         /** Ramp of every impulse, ms: rising at its start, falling at its end (0 = sharp). */
         public int rampIn = 500;
         public int rampOut = 500;
+        /** The exercise's movement (library pattern: squat, cardio, stretch…; null = look it up) and hold
+         *  (plank, wall sit) — what the smart impulse picks its approaches by (owner, 1.1.326). */
+        public String pat;
+        public boolean hold;
+        /** 🔒 exactly as drawn: the smart impulse leaves this block alone (owner, 1.1.326). */
+        public boolean lock;
 
         public Block() {}
 
@@ -100,6 +106,9 @@ public final class Workout {
             b.str2 = str2;
             b.rampIn = rampIn;
             b.rampOut = rampOut;
+            b.pat = pat;
+            b.hold = hold;
+            b.lock = lock;
             return b;
         }
 
@@ -167,6 +176,13 @@ public final class Workout {
      * cardio and jumps 40 Hz / 300 µs / 3+3 s at 85 %; stretching 10 Hz / 250 µs / 6+2 s at 60 %.
      */
     public static Block forExercise(String ex, String pat, boolean hold) {
+        Block b = forExercise0(ex, pat, hold);
+        b.pat = pat;
+        b.hold = hold || "core_static".equals(pat);
+        return b;
+    }
+
+    private static Block forExercise0(String ex, String pat, boolean hold) {
         String p = pat != null ? pat : "";
         if (hold || "core_static".equals(p)) {
             return new Block(ex, 5, 70, 300, 6, 4, 100);
@@ -189,12 +205,8 @@ public final class Workout {
         return new Block(ex, 8, 85, 350, 4, 4, 100);
     }
 
-    static boolean isSmall(String p) {
-        return "biceps".equals(p) || "triceps".equals(p) || "lat_raise".equals(p) || "rear_delt".equals(p)
-                || "front_raise".equals(p) || "fly".equals(p) || "shrug".equals(p) || "forearm".equals(p)
-                || "calf".equals(p) || "abductor".equals(p) || "adductor".equals(p) || "knee_flex".equals(p)
-                || "knee_ext".equals(p) || "pullover".equals(p) || "core_flex".equals(p) || "core_rot".equals(p)
-                || "core_hip".equals(p) || "back_ext".equals(p);
+    public static boolean isSmall(String p) {
+        return AutoDynamics.isSmall(p);
     }
 
     /** A rest between sets: no current, 30 s. */
@@ -281,7 +293,7 @@ public final class Workout {
     }
 
     /** Built-in exercise pattern (null for library-only ones; the UI passes the library's). */
-    static String patternOf(String ex) {
+    public static String patternOf(String ex) {
         int i = AutoTemplates.ex(ex);
         return i >= 0 ? AutoTemplateData.PAT[i] : null;
     }

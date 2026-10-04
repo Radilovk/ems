@@ -52,12 +52,8 @@ if (
   done
   echo "XemsLicense smali updated in ${BRANDING_SMALI}"
 else
-  echo "WARN: d8 failed for XemsLicense stack — keeping prebuilt smali in ${BRANDING_SMALI}"
-  for f in XemsLicense XemsLicenseToken XemsLicenseClient; do
-    [[ -f "${BRANDING_SMALI}/${f}.smali" ]] || {
-      echo "ERROR: missing prebuilt ${BRANDING_SMALI}/${f}.smali"
-      exit 1
-    }
-  done
+  # a stale prebuilt would ship Java edits that never compiled: stop instead of keeping it
+  echo "ERROR: d8 failed for the XemsLicense stack — the Java edits would not ship."
+  exit 1
 fi
 echo "XemsLicense classes ready in ${CLASSES_DIR}"

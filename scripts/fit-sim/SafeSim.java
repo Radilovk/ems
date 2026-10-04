@@ -48,6 +48,16 @@ public final class SafeSim {
                 }
             }
         }
+        // the pause send (every mode, right at the send): the row's settings stay, only what goes out is capped
+        ok("rest (strength 0) → plain pause", SafeLimits.pauseSend(0, 85, true, 6, 40) == null);
+        ok("2nd impulse off → plain pause", SafeLimits.pauseSend(50, 85, false, 6, 40) == null);
+        int[] ps = SafeLimits.pauseSend(50, 85, true, 60, 40);
+        eq("pause send: 60 Hz → 10", 10, ps[0]);
+        eq("pause send: strength kept", 40, ps[1]);
+        eq("pause send: never above the main", 30, SafeLimits.pauseSend(30, 85, true, 6, 70)[1]);
+        eq("pause send: under the main Hz", 4, SafeLimits.pauseSend(30, 5, true, 8, 20)[0]);
+        ok("pause send: 1 Hz main → plain pause", SafeLimits.pauseSend(30, 1, true, 1, 20) == null);
+        ok("pause send: 0 strength 2nd → plain pause", SafeLimits.pauseSend(30, 85, true, 6, 0) == null);
         StringBuilder bg = new StringBuilder();
         SafeLimits.apply(new int[] {100, 350, 4, 1, 0, 0, 0, 0}, 35, bg, null);
         ok("the trainer is told why", bg.indexOf("Пауза 1 → ") >= 0);

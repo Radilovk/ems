@@ -127,7 +127,7 @@
     .registers 3
 
     .prologue
-    .line 122
+    .line 145
     if-eqz p0, :cond_20
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -152,7 +152,7 @@
 
     if-eqz v0, :cond_20
 
-    .line 123
+    .line 146
     invoke-static {p0}, Lcom/isaigu/gymapp/train/model/SoftRamp;->current(Lcom/isaigu/gymapp/train/model/TrainItem;)I
 
     move-result v0
@@ -161,11 +161,11 @@
 
     const/4 v0, 0x1
 
-    .line 122
+    .line 145
     :goto_1f
     return v0
 
-    .line 123
+    .line 146
     :cond_20
     const/4 v0, 0x0
 
@@ -176,77 +176,77 @@
     .registers 3
 
     .prologue
-    .line 137
+    .line 160
     new-instance v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/bean/ProgramDataBean;-><init>()V
 
-    .line 138
+    .line 161
     iget-boolean v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 139
+    .line 162
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    .line 140
+    .line 163
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
 
-    .line 141
+    .line 164
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->massageCycle:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->massageCycle:I
 
-    .line 142
+    .line 165
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
 
-    .line 143
+    .line 166
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
-    .line 144
+    .line 167
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    .line 145
+    .line 168
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    .line 146
+    .line 169
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
-    .line 147
+    .line 170
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    .line 148
+    .line 171
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 149
+    .line 172
     iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
 
-    .line 150
+    .line 173
     iget-object v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    .line 151
+    .line 174
     return-object v0
 .end method
 
@@ -256,7 +256,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 103
+    .line 126
     sget-object v0, Lcom/isaigu/gymapp/train/model/SoftRamp;->gen:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -265,7 +265,7 @@
 
     check-cast v0, [I
 
-    .line 104
+    .line 127
     if-eqz v0, :cond_e
 
     aget v0, v0, v1
@@ -283,7 +283,7 @@
     .registers 4
 
     .prologue
-    .line 94
+    .line 117
     sget-object v0, Lcom/isaigu/gymapp/train/model/SoftRamp;->gen:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -292,20 +292,20 @@
 
     check-cast v0, [I
 
-    .line 95
+    .line 118
     if-nez v0, :cond_12
 
-    .line 96
+    .line 119
     const/4 v0, 0x1
 
     new-array v0, v0, [I
 
-    .line 97
+    .line 120
     sget-object v1, Lcom/isaigu/gymapp/train/model/SoftRamp;->gen:Ljava/util/WeakHashMap;
 
     invoke-virtual {v1, p0, v0}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 99
+    .line 122
     :cond_12
     const/4 v1, 0x0
 
@@ -390,12 +390,12 @@
     .registers 20
 
     .prologue
-    .line 108
+    .line 131
     invoke-static {p0}, Lcom/isaigu/gymapp/train/model/SoftRamp;->current(Lcom/isaigu/gymapp/train/model/TrainItem;)I
 
     move-result v10
 
-    .line 109
+    .line 132
     const-wide/16 v2, 0x2
 
     const-wide/16 v4, 0x14
@@ -422,14 +422,14 @@
 
     long-to-int v11, v2
 
-    .line 111
+    .line 134
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     int-to-double v4, v11
 
     div-double v6, v2, v4
 
-    .line 112
+    .line 135
     sget-object v2, Lcom/isaigu/gymapp/train/model/SoftRamp;->scale:Ljava/util/WeakHashMap;
 
     invoke-static {v6, v7}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
@@ -446,10 +446,10 @@
 
     move/from16 v5, p3
 
-    .line 113
+    .line 136
     invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/train/model/SoftRamp;->sendScaled(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZID)V
 
-    .line 114
+    .line 137
     const/4 v2, 0x2
 
     move v9, v2
@@ -457,7 +457,7 @@
     :goto_38
     if-gt v9, v11, :cond_60
 
-    .line 115
+    .line 138
     add-int/lit8 v2, v9, -0x1
 
     mul-int v2, v2, p4
@@ -472,7 +472,7 @@
 
     move-result-wide v12
 
-    .line 116
+    .line 139
     sget-object v14, Lcom/isaigu/gymapp/train/model/SoftRamp;->main:Landroid/os/Handler;
 
     new-instance v2, Lcom/isaigu/gymapp/train/model/SoftRamp$Step;
@@ -498,20 +498,20 @@
 
     invoke-virtual {v14, v2, v12, v13}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 114
+    .line 137
     add-int/lit8 v2, v9, 0x1
 
     move v9, v2
 
     goto :goto_38
 
-    .line 116
+    .line 139
     :cond_5e
     const/4 v8, 0x0
 
     goto :goto_50
 
-    .line 118
+    .line 141
     :cond_60
     return-void
 .end method
@@ -524,23 +524,23 @@
 
     const/4 v3, 0x1
 
-    .line 55
+    .line 78
     if-eqz p0, :cond_b
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
 
     move-object v6, v0
 
-    .line 56
+    .line 79
     :goto_8
     if-nez v6, :cond_e
 
-    .line 89
+    .line 112
     :cond_a
     :goto_a
     return-void
 
-    .line 55
+    .line 78
     :cond_b
     const/4 v0, 0x0
 
@@ -548,11 +548,11 @@
 
     goto :goto_8
 
-    .line 59
+    .line 82
     :cond_e
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/SafeGuard;->enforce(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
-    .line 61
+    .line 84
     :try_start_11
     sget-object v0, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
 
@@ -566,12 +566,12 @@
 
     move-result v0
 
-    .line 62
+    .line 85
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiRamp;->rampMs(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
 
     move-result-object v1
 
-    .line 63
+    .line 86
     if-eqz v0, :cond_6c
 
     const/4 v2, 0x0
@@ -584,14 +584,14 @@
 
     if-le v2, v3, :cond_6c
 
-    .line 64
+    .line 87
     const/4 v0, 0x0
 
     aget v0, v1, v0
 
     invoke-static {p0, p1, p2, p3, v0}, Lcom/isaigu/gymapp/train/model/SoftRamp;->rampUp(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZII)V
 
-    .line 65
+    .line 88
     const/4 v0, 0x1
 
     aget v0, v1, v0
@@ -606,7 +606,7 @@
 
     if-lez v0, :cond_a
 
-    .line 66
+    .line 89
     iget v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     int-to-long v2, v0
@@ -621,7 +621,7 @@
 
     sub-long/2addr v2, v4
 
-    .line 67
+    .line 90
     const/4 v0, 0x0
 
     aget v0, v1, v0
@@ -632,7 +632,7 @@
 
     if-lez v0, :cond_a
 
-    .line 68
+    .line 91
     sget-object v0, Lcom/isaigu/gymapp/train/model/SoftRamp;->main:Landroid/os/Handler;
 
     new-instance v4, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;
@@ -653,22 +653,22 @@
 
     goto :goto_a
 
-    .line 85
+    .line 108
     :catch_62
     move-exception v0
 
-    .line 86
+    .line 109
     const-string v1, "SoftRamp.sendDuration"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 88
+    .line 111
     :cond_68
     invoke-virtual {v6, p1, p2, p3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendDuration(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)V
 
     goto :goto_a
 
-    .line 73
+    .line 96
     :cond_6c
     if-eqz v0, :cond_9b
 
@@ -687,7 +687,7 @@
 
     if-lez v0, :cond_9b
 
-    .line 74
+    .line 97
     iget v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     int-to-long v2, v0
@@ -702,14 +702,14 @@
 
     sub-long/2addr v2, v4
 
-    .line 75
+    .line 98
     const-wide/16 v4, 0x0
 
     cmp-long v0, v2, v4
 
     if-lez v0, :cond_9b
 
-    .line 76
+    .line 99
     sget-object v0, Lcom/isaigu/gymapp/train/model/SoftRamp;->main:Landroid/os/Handler;
 
     new-instance v4, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;
@@ -726,7 +726,7 @@
 
     invoke-virtual {v0, v4, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 79
+    .line 102
     :cond_9b
     sget-object v0, Lcom/isaigu/gymapp/train/model/SoftRamp;->scale:Ljava/util/WeakHashMap;
 
@@ -736,10 +736,10 @@
 
     check-cast v0, Ljava/lang/Double;
 
-    .line 80
+    .line 103
     if-eqz v0, :cond_68
 
-    .line 82
+    .line 105
     invoke-virtual {v0}, Ljava/lang/Double;->doubleValue()D
 
     move-result-wide v4
@@ -759,33 +759,111 @@
     goto/16 :goto_a
 .end method
 
+.method public static sendPause(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)V
+    .registers 10
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 59
+    if-eqz p0, :cond_a
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
+
+    .line 60
+    :goto_5
+    if-eqz v0, :cond_9
+
+    if-nez p1, :cond_c
+
+    .line 74
+    :cond_9
+    :goto_9
+    return-void
+
+    :cond_a
+    move-object v0, v1
+
+    .line 59
+    goto :goto_5
+
+    .line 65
+    :cond_c
+    :try_start_c
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/SafeGuard;->pause(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
+    :try_end_f
+    .catch Ljava/lang/Throwable; {:try_start_c .. :try_end_f} :catch_1f
+
+    move-result-object v1
+
+    .line 69
+    :goto_10
+    if-eqz v1, :cond_26
+
+    .line 70
+    const/4 v2, 0x0
+
+    aget v4, v1, v2
+
+    const/4 v2, 0x1
+
+    aget v5, v1, v2
+
+    move-object v1, p1
+
+    move-object v2, p2
+
+    move v3, p3
+
+    invoke-virtual/range {v0 .. v5}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendActivePause(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZIII)V
+
+    goto :goto_9
+
+    .line 66
+    :catch_1f
+    move-exception v2
+
+    .line 67
+    const-string v3, "SoftRamp.sendPause"
+
+    invoke-static {v3, v2}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_10
+
+    .line 72
+    :cond_26
+    invoke-virtual {v0, p1, p3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendPause(Lcom/isaigu/gymapp/bean/ProgramDataBean;I)V
+
+    goto :goto_9
+.end method
+
 .method static sendScaled(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZID)V
     .registers 10
 
     .prologue
-    .line 127
+    .line 150
     const-wide v0, 0x3feff7ced916872bL    # 0.999
 
     cmpl-double v0, p4, v0
 
     if-ltz v0, :cond_f
 
-    .line 128
+    .line 151
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
 
     invoke-virtual {v0, p1, p2, p3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendDuration(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)V
 
-    .line 134
+    .line 157
     :goto_e
     return-void
 
-    .line 131
+    .line 154
     :cond_f
     invoke-static {p1}, Lcom/isaigu/gymapp/train/model/SoftRamp;->copy(Lcom/isaigu/gymapp/bean/ProgramDataBean;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    .line 132
+    .line 155
     const/4 v1, 0x1
 
     iget v2, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
@@ -806,7 +884,7 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 133
+    .line 156
     iget-object v1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
 
     invoke-virtual {v1, v0, p2, p3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendDuration(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)V

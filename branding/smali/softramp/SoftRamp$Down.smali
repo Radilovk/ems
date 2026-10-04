@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 198
+    .line 221
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 199
+    .line 222
     iput-object p1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 200
+    .line 223
     iput p2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->g:I
 
-    .line 201
+    .line 224
     iput p3, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->workLength:I
 
-    .line 202
+    .line 225
     iput p4, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->downMs:I
 
-    .line 203
+    .line 226
     return-void
 .end method
 
@@ -57,7 +57,7 @@
     .registers 13
 
     .prologue
-    .line 207
+    .line 230
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget v1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->g:I
@@ -68,11 +68,11 @@
 
     if-nez v0, :cond_b
 
-    .line 216
+    .line 239
     :cond_a
     return-void
 
-    .line 210
+    .line 233
     :cond_b
     const-wide/16 v0, 0x2
 
@@ -100,7 +100,7 @@
 
     long-to-int v8, v0
 
-    .line 211
+    .line 234
     const/4 v0, 0x1
 
     move v7, v0
@@ -108,7 +108,7 @@
     :goto_27
     if-gt v7, v8, :cond_a
 
-    .line 212
+    .line 235
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     int-to-double v2, v7
@@ -121,7 +121,7 @@
 
     sub-double v4, v0, v2
 
-    .line 213
+    .line 236
     add-int/lit8 v0, v7, -0x1
 
     iget v1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->downMs:I
@@ -138,7 +138,7 @@
 
     move-result-wide v10
 
-    .line 214
+    .line 237
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$100()Landroid/os/Handler;
 
@@ -158,7 +158,7 @@
 
     invoke-virtual {v9, v0, v10, v11}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 211
+    .line 234
     add-int/lit8 v0, v7, 0x1
 
     move v7, v0

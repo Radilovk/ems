@@ -116,6 +116,24 @@ public final class SafeLimits {
                 age, null, null);
     }
 
+    /**
+     * What the pause phase may send, right at the send (every mode, every pause send): {2nd impulse Hz, its
+     * strength} or null = a plain pause. No main impulse (strength 0: a rest, music at 0, a 0 block) → no second
+     * impulse; its Hz at most 10 and under the main one; its strength never above the main one. The row's settings
+     * stay as set — only what goes out is capped.
+     */
+    public static int[] pauseSend(int strength, int hz, boolean activePause, int pauseHz, int pauseStrength) {
+        if (!activePause || strength <= 0) {
+            return null;
+        }
+        int hzMax = Math.min(PAUSE_HZ_MAX, hz - 1);
+        int pct = Math.min(Math.min(PAUSE_PCT_MAX, pauseStrength), strength);
+        if (hzMax < 1 || pct <= 0) {
+            return null;
+        }
+        return new int[] {Math.max(1, Math.min(hzMax, pauseHz)), pct};
+    }
+
     /** Shortest pause (s) for a fused impulse within a trained person's fatigue limit. */
     public static int minOff(int hz, int on, int pauseHz, double pauseSigma) {
         if (hz < TETANIC_HZ) {

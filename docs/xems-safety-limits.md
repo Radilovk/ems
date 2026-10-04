@@ -30,7 +30,13 @@ Shortest pause (s) for impulse 2…10 s (no second impulse):
   row's program; `SoftRamp.sendDuration` (every ON-phase send) → `SafeGuard.enforce(item, bean)`. The value is
   corrected **on the row** (the screen shows what the suit gets) and the trainer reads one line why
   ("Граница за безопасност: Пауза 1 → 4 s: при 100 Hz · 4 s по-кратка не е безопасна"), at most every 8 s.
+- **Pause phase** (1.1.329): every pause send of every mode goes through `SoftRamp.sendPause` →
+  `SafeGuard.pause` → `SafeLimits.pauseSend`: no second impulse when the main strength is 0 (a map's rest block,
+  music at 0), its Hz at most 10 and under the main one, its strength never above the main one. Only what goes out
+  is capped — the row keeps the trainer's 2nd-impulse setting (before 1.1.329 a lower main strength wiped it).
 - The engines apply the same rules before they write, so they never read the guard's correction as a trainer's
-  change: Auto `AutoLimits.clampStep` (+ `run-auto.sh` checks every cycle), AI `AiSession.safe`.
+  change: Auto `AutoLimits.clampStep` (+ `run-auto.sh` checks every cycle), AI `AiSession.safe`, maps `MapRunner`
+  (`SafeGuard.clamp` with the row's own age; the map clock runs on the clamped times). One cycle written to many rows
+  (AI, Auto) uses the oldest client's age.
 - The 2nd-impulse stepper of the parameters dialog goes 1–10 Hz (`PauseSetting`).
 - `scripts/compile-softramp-java.sh` builds `branding/smali/softramp` (before 1.1.323 it had no script).

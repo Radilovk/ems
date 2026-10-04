@@ -77,6 +77,22 @@ public final class SafeGuard {
         }
     }
 
+    /**
+     * Silent version for the engines that write a row themselves (ai/MapRunner): the limits with the row's own age
+     * before the write, so the row (and the times taken from it) already hold what the suit gets.
+     */
+    public static boolean clamp(TrainItem item, ProgramDataBean b) {
+        if (b == null) {
+            return false;
+        }
+        try {
+            return enforce(b, age(item != null && item.data != null ? item.data.trainUser : null), null, null);
+        } catch (Throwable t) {
+            XemsGuard.report("SafeGuard.clamp", t);
+            return false;
+        }
+    }
+
     static boolean enforce(ProgramDataBean b, int age, StringBuilder bg, StringBuilder en) {
         // the second impulse's strength is absolute on the row: as a share of the main one for the limits
         int ps = b.strenth > 0 ? (int) Math.round(b.pauseStrenthPercent * 100.0 / b.strenth) : 0;
@@ -86,9 +102,8 @@ public final class SafeGuard {
         if (java.util.Arrays.equals(v, s)) {
             return false;
         }
-        if (s[SafeLimits.PS] != ps) {
-            b.pauseStrenthPercent = Math.min(b.pauseStrenthPercent, b.strenth);
-        }
+        // the 2nd impulse's strength is not rewritten: a main impulse lowered for a while (a block, the pulse module)
+        // would wipe it for good; the cap is applied at the pause send (pause())
         b.hz = s[SafeLimits.HZ];
         b.pulseWidth = s[SafeLimits.PW];
         b.pulseContinue = s[SafeLimits.ON];
@@ -97,6 +112,17 @@ public final class SafeGuard {
         b.pauseHz = s[SafeLimits.PHZ];
         b.inputRamp = s[SafeLimits.RAMP];
         return true;
+    }
+
+    /**
+     * The pause phase's send (train.model.SoftRamp.sendPause, every pause send of every mode): {2nd impulse Hz,
+     * strength} or null = plain pause. See {@link SafeLimits#pauseSend}.
+     */
+    public static int[] pause(ProgramDataBean b) {
+        if (b == null) {
+            return null;
+        }
+        return SafeLimits.pauseSend(b.strenth, b.hz, b.activePause, b.pauseHz, b.pauseStrenthPercent);
     }
 
     /** The client's age, −1 when not known. */

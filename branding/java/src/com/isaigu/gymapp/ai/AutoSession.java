@@ -635,6 +635,12 @@ public final class AutoSession {
             r.user = 1.0;
             r.lastStrength = -1;
         }
+        plan.limitAge = -1;
+        for (TrainItem it : items()) {
+            if (it.data != null) {
+                plan.limitAge = Math.max(plan.limitAge, com.isaigu.gymapp.wearable.SafeGuard.age(it.data.trainUser));
+            }
+        }
         engine = new AutoEngine(plan);
         startEnergy();
         long now = System.currentTimeMillis();

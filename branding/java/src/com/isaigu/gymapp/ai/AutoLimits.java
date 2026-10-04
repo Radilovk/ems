@@ -51,13 +51,18 @@ public final class AutoLimits {
 
     /** Highest frequency for the client (age ≥ 60 → 85 Hz). */
     public static int hzMax(Plan plan) {
-        return plan.input != null && plan.input.age >= 60 ? 85 : 120;
+        return age(plan) >= 60 ? 85 : 120;
     }
 
     /**
      * L1–L6 on one step; {@code next} is the step that follows (a non-tetanic step after a
      * tetanic one counts as its rest, as in the 85 ↔ 6 Hz alternation).
      */
+    /** The age the limits use: the questionnaire's, or an older client on the rows (one cycle goes to all). */
+    static int age(Plan plan) {
+        return Math.max(plan.input != null ? plan.input.age : -1, plan.limitAge);
+    }
+
     public static Step clampStep(Step s, Step next, Plan plan, Phase ph) {
         Step c = s.copy();
         c.hz = clamp(c.hz, 1, hzMax(plan));
@@ -80,8 +85,7 @@ public final class AutoLimits {
             c.pauseSigma = Math.max(0, Math.min(0.6, c.pauseSigma));
         }
         // the absolute limits of every mode (SafeLimits, 1.1.323) — what the suit's guard would enforce anyway
-        int[] v = SafeLimits.cycle(c.hz, c.pwUs, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.rampUpMs,
-                plan.input != null ? plan.input.age : -1);
+        int[] v = SafeLimits.cycle(c.hz, c.pwUs, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.rampUpMs, age(plan));
         c.hz = v[SafeLimits.HZ];
         c.pwUs = v[SafeLimits.PW];
         c.onS = v[SafeLimits.ON];

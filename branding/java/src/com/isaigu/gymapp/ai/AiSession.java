@@ -1075,13 +1075,15 @@ public final class AiSession {
         if (c == null) {
             return;
         }
+        // one cycle goes to every row: the oldest client's limits (the strictest), so no row's guard corrects what
+        // the session wrote and the session never reads that correction as a trainer's change
         int age = -1;
         try {
             List<TrainItem> list = manager != null ? manager.getItemList() : null;
-            for (int i = 0; list != null && i < list.size() && age < 0; i++) {
+            for (int i = 0; list != null && i < list.size(); i++) {
                 TrainItem it = list.get(i);
                 if (it != null && !it.isEmpty() && it.data != null) {
-                    age = com.isaigu.gymapp.wearable.SafeGuard.age(it.data.trainUser);
+                    age = Math.max(age, com.isaigu.gymapp.wearable.SafeGuard.age(it.data.trainUser));
                 }
             }
         } catch (Throwable ignored) {

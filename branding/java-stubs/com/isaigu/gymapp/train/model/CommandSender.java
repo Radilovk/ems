@@ -8,4 +8,9 @@ public class CommandSender {
     }
 
     public void sendDuration(ProgramDataBean bean, boolean[] disabled, int workLength) {}
+
+    public void sendActivePause(ProgramDataBean bean, boolean[] disabled, int workLength, int pauseHz,
+            int pauseStrength) {}
+
+    public void sendPause(ProgramDataBean bean, int workLength) {}
 }

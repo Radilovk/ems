@@ -978,16 +978,16 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 121
+    .line 139
     const/16 v0, 0x14
 
     if-ge p0, v0, :cond_6
 
-    .line 129
+    .line 147
     :cond_5
     return v2
 
-    .line 124
+    .line 142
     :cond_6
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->HIGH:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
@@ -995,7 +995,7 @@
 
     move-result-object v8
 
-    .line 126
+    .line 144
     :goto_c
     const/16 v0, 0x1e
 
@@ -1029,7 +1029,7 @@
 
     if-lez v0, :cond_5
 
-    .line 127
+    .line 145
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_c
@@ -1039,10 +1039,10 @@
     .registers 5
 
     .prologue
-    .line 143
+    .line 161
     if-eqz p0, :cond_11
 
-    .line 144
+    .line 162
     invoke-virtual {p0}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1058,11 +1058,11 @@
 
     invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 146
+    .line 164
     :cond_11
     if-eqz p1, :cond_22
 
-    .line 147
+    .line 165
     invoke-virtual {p1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1078,28 +1078,94 @@
 
     invoke-virtual {v0, p3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 149
+    .line 167
     :cond_22
     return-void
 
-    .line 144
+    .line 162
     :cond_23
     const-string v0, ""
 
     goto :goto_a
 
-    .line 147
+    .line 165
     :cond_26
     const-string v0, ""
 
     goto :goto_1b
 .end method
 
+.method public static pauseSend(IIZII)[I
+    .registers 10
+
+    .prologue
+    const/4 v0, 0x0
+
+    const/4 v4, 0x1
+
+    .line 126
+    if-eqz p2, :cond_6
+
+    if-gtz p0, :cond_7
+
+    .line 134
+    :cond_6
+    :goto_6
+    return-object v0
+
+    .line 129
+    :cond_7
+    const/16 v1, 0xa
+
+    add-int/lit8 v2, p1, -0x1
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    .line 130
+    const/16 v2, 0x64
+
+    invoke-static {v2, p4}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    invoke-static {v2, p0}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    .line 131
+    if-lt v1, v4, :cond_6
+
+    if-lez v2, :cond_6
+
+    .line 134
+    const/4 v0, 0x2
+
+    new-array v0, v0, [I
+
+    const/4 v3, 0x0
+
+    invoke-static {v1, p3}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    aput v1, v0, v3
+
+    aput v2, v0, v4
+
+    goto :goto_6
+.end method
+
 .method public static peak(IIIIDD)D
     .registers 20
 
     .prologue
-    .line 134
+    .line 152
     neg-int v0, p1
 
     int-to-double v0, v0
@@ -1110,7 +1176,7 @@
 
     move-result-wide v2
 
-    .line 135
+    .line 153
     const/4 v0, 0x1
 
     invoke-static {v0, p2}, Ljava/lang/Math;->max(II)I
@@ -1127,14 +1193,14 @@
 
     move-result-wide v4
 
-    .line 136
+    .line 154
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
 
     move-result-wide v0
 
     mul-double v6, v0, p6
 
-    .line 137
+    .line 155
     if-lez p3, :cond_4b
 
     invoke-static {p3}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
@@ -1145,7 +1211,7 @@
 
     mul-double v0, v0, p6
 
-    .line 138
+    .line 156
     :goto_25
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
@@ -1177,7 +1243,7 @@
 
     div-double/2addr v0, v4
 
-    .line 139
+    .line 157
     mul-double v4, v0, v2
 
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
@@ -1194,7 +1260,7 @@
 
     return-wide v0
 
-    .line 137
+    .line 155
     :cond_4b
     const-wide/16 v0, 0x0
 

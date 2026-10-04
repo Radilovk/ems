@@ -24,9 +24,19 @@ if [[ ! -f "${TOOLS}/uber-apk-signer.jar" ]]; then
 fi
 
 BASE_APK="${ROOT}/build/xems27-base.apk"
+BASE_COMMIT="724be17b049fe267da7f7cc4fabbcd188aa53fc8"
+BASE_SHA256="57106241f9d26a218d26c348bf7e6acb9191dc83dc78b65cd4a206bcb8c3f875"
 if [[ ! -f "${BASE_APK}" ]]; then
   echo "Extracting v0.50 base APK from git..."
-  git show 724be17:xems27.apk > "${BASE_APK}"
+  # a shallow clone (cloud session, CI) does not hold the base commit: fetch just that one commit
+  if ! git cat-file -e "${BASE_COMMIT}^{commit}" 2>/dev/null; then
+    git fetch --depth=1 origin "${BASE_COMMIT}"
+  fi
+  git show "${BASE_COMMIT}:xems27.apk" > "${BASE_APK}"
+fi
+if [[ "$(sha256sum "${BASE_APK}" | cut -d' ' -f1)" != "${BASE_SHA256}" ]]; then
+  echo "ERROR: ${BASE_APK} is not the v0.50 base APK (sha256 differs) — delete it and rebuild."
+  exit 1
 fi
 
 echo "Fresh decompile from v0.50 base (${BASE_APK})..."
@@ -191,8 +201,8 @@ if [[ "${GOT_SHA256}" != "${SIGN_SHA256}" ]]; then
 fi
 echo "Signing key OK (same as every release)."
 
-# Broken builds (missing BETA music stack) were ~8.76MB; healthy builds ~8.78MB+.
-MIN_APK_BYTES="${MIN_APK_BYTES:-8765000}"
+# Healthy builds are ~16.2 MB (1.1.328); a build that lost a whole stack (music, wearable, AI, assets) is far smaller.
+MIN_APK_BYTES="${MIN_APK_BYTES:-15000000}"
 APK_BYTES="$(wc -c < "${OUT_APK}")"
 if [[ "${APK_BYTES}" -lt "${MIN_APK_BYTES}" ]]; then
   echo "ERROR: ${OUT_APK} is only ${APK_BYTES} bytes — likely missing BETA music stack (broken login/crash)."

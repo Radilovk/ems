@@ -88,8 +88,20 @@ final class SessionRec {
     /** The report was opened on the screen. */
     boolean shown;
 
+    /** The last start handed out: a training's id is its start (ms), unique on this tablet. */
+    private static long lastStart;
+
+    /**
+     * A group start (⚙ Master ▶) opens every slot in one recorder tick with the same "now": each slot gets the next
+     * free millisecond, or the trainings would share an id and overwrite each other's file and index entry.
+     */
+    static synchronized long uniqueStart(long now) {
+        lastStart = Math.max(now, lastStart + 1);
+        return lastStart;
+    }
+
     SessionRec(TrainItem item, long now) {
-        start = now;
+        start = uniqueStart(now);
         TrainUser u = item.data.trainUser;
         userId = u.id;
         user = u;

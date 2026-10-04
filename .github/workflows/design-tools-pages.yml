@@ -34,6 +34,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Keep the signing key out of the public site
+        run: rm -f branding/release.keystore branding/*.jks branding/*.keystore
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

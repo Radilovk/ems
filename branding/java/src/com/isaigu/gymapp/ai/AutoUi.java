@@ -1398,13 +1398,13 @@ public final class AutoUi {
                         + "тази тренировка: тя стига пълния цвят (жена — magenta, мъж — cyan) в края на плана; другите остават "
                         + "толкова по-бледи, колкото по-малко получават. Канал на 0 — само работата от упражнението. "
                         + "Над целта цветът става оранжев, после червен. Зона, която работи в момента, светва по-ярко.\n"                        + "Сметка: сила × ширина на импулса × честота × % на зоната + работата на упражнението.\n"
-                        + "Сърцето бие с пулса, цветът е пулсовата зона.\n"
+                        + "Червеното сърце бие с пулса; числото е в цвета на пулсовата зона.\n"
                         + "Натоварване — цялото тяло: мускулите по импулса и упражнението, кислородът и пулсът, свършената работа; по данните на клиента.",
                         "Each zone is coloured by the work it has had so far against the most worked zone of this session: "
                         + "that one reaches full colour (woman — magenta, man — cyan) at the end of the plan; the others stay as "
                         + "much paler as they get less. A channel at 0 — the exercise's work only. Past the target the colour "
                         + "turns orange, then red. A zone working now glows brighter.\n"                        + "Sum: strength × pulse width × frequency × zone % + the exercise's work.\n"
-                        + "The heart beats with the HR, its colour is the HR zone.\n"
+                        + "The red heart beats with the HR; the number is in the HR zone's colour.\n"
                         + "Load — the whole body: the muscles by impulse and exercise, oxygen and HR, the work done; by the client's data.");
             default:
                 return AiText.t("Цялата тренировка по реалния часовник: височина и цвят — общото натоварване (горе = 100 %, "

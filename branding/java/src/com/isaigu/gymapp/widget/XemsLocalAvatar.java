@@ -458,7 +458,33 @@ public final class XemsLocalAvatar {
         }
     }
 
-    /** The photo lit (a glowing ring round it) while its client is picked. */
+    private static java.lang.reflect.Method itemsOf;
+
+    /** Trainees on the training screen now (WearableSyncHelper is outside this stack — by name). */
+    static int trainees() {
+        try {
+            if (itemsOf == null) {
+                itemsOf = Class.forName("com.isaigu.gymapp.wearable.WearableSyncHelper").getMethod("getItemManager");
+            }
+            Object m = itemsOf.invoke(null);
+            if (m == null) {
+                return 2;
+            }
+            java.util.List<?> all = (java.util.List<?>) m.getClass().getMethod("getItemList").invoke(m);
+            int n = 0;
+            for (Object o : all) {
+                if (o instanceof com.isaigu.gymapp.train.model.TrainItem
+                        && !((com.isaigu.gymapp.train.model.TrainItem) o).isEmpty()) {
+                    n++;
+                }
+            }
+            return n;
+        } catch (Throwable t) {
+            return 2;
+        }
+    }
+
+    /** The photo lit (a glowing ring on its edge, the glow inwards) while its client is picked. */
     static void showPick(android.view.View icon, boolean on) {
         try {
             android.view.ViewOverlay ov = icon.getOverlay();
@@ -482,7 +508,7 @@ public final class XemsLocalAvatar {
     /** View tag key for the glow (an app id that no view uses as a tag key). */
     private static final int TAG_GLOW = 0x7f5a7e01;
 
-    /** A soft halo and a bright ring at the photo's edge (same geometry as {@link #onPhoto}). */
+    /** A bright ring on the photo's edge (the photo's own size) and a glow that fades inwards, over the photo. */
     static final class Glow extends android.graphics.drawable.Drawable {
         private final android.view.View v;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -500,25 +526,28 @@ public final class XemsLocalAvatar {
                 setBounds(0, 0, Math.max(1, w), Math.max(1, h));
             }
             float d = v.getResources().getDisplayMetrics().density;
-            float r = (Math.min(w, h) - 44 * d) / 2f - 46 * d;
+            float aw = w - v.getPaddingLeft() - v.getPaddingRight();
+            float ah = h - v.getPaddingTop() - v.getPaddingBottom();
+            float r = Math.min(aw, ah) / 2f;                 // the photo circle: the image fits the padded box
             if (r <= 0) {
                 return;
             }
-            float cx = w / 2f;
-            float cy = h / 2f;
-            // halo: rings fading outwards
-            for (int i = 6; i >= 1; i--) {
-                p.setStrokeWidth(3 * d);
-                p.setColor(Color.argb(22 + (6 - i) * 14, 0x5E, 0xF0, 0x8C));
-                c.drawCircle(cx, cy, r + i * 2.2f * d, p);
+            float cx = v.getPaddingLeft() + aw / 2f;
+            float cy = v.getPaddingTop() + ah / 2f;
+            // glow: rings fading towards the centre
+            float step = 2.2f * d;
+            for (int i = 12; i >= 1; i--) {
+                p.setStrokeWidth(step + 0.6f * d);
+                p.setColor(Color.argb(10 + (12 - i) * 9, 0x5E, 0xF0, 0x8C));
+                c.drawCircle(cx, cy, r - 4.5f * d - i * step + step / 2f, p);
             }
-            // the ring itself, on the photo's edge
+            // the ring itself, on the photo's edge, inside it
             p.setStrokeWidth(4.5f * d);
             p.setColor(0xFF5EF08C);
-            c.drawCircle(cx, cy, r - 1.5f * d, p);
+            c.drawCircle(cx, cy, r - 2.25f * d, p);
             p.setStrokeWidth(1.5f * d);
             p.setColor(0xCCFFFFFF);
-            c.drawCircle(cx, cy, r - 1.5f * d, p);
+            c.drawCircle(cx, cy, r - 2.25f * d, p);
         }
 
         @Override
@@ -612,8 +641,8 @@ public final class XemsLocalAvatar {
                     down = false;
                     cancelLong(v);
                     if (!longDone && onPhoto(v, e.getX(), e.getY())) {
-                        if (item != null) {
-                            // training screen: tap = pick this client for the master controls
+                        if (item != null && trainees() > 1) {
+                            // training screen, several trainees: tap = pick this client for the master controls
                             boolean on = togglePick(item);
                             showPick(v, on);
                             try {

@@ -37,28 +37,28 @@
 
     const/4 v1, 0x4
 
-    .line 33
+    .line 35
     new-array v0, v2, [F
 
     fill-array-data v0, :array_20
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
 
-    .line 34
+    .line 36
     new-array v0, v2, [I
 
     fill-array-data v0, :array_30
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
 
-    .line 56
+    .line 58
     new-array v0, v1, [I
 
     fill-array-data v0, :array_40
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->GAMUT_M:[I
 
-    .line 57
+    .line 59
     new-array v0, v1, [I
 
     fill-array-data v0, :array_4c
@@ -67,7 +67,7 @@
 
     return-void
 
-    .line 33
+    .line 35
     nop
 
     :array_20
@@ -80,7 +80,7 @@
         0x3fa00000    # 1.25f
     .end array-data
 
-    .line 34
+    .line 36
     :array_30
     .array-data 4
         -0xd09401
@@ -91,7 +91,7 @@
         -0x46e3e4
     .end array-data
 
-    .line 56
+    .line 58
     :array_40
     .array-data 4
         -0x826901
@@ -100,7 +100,7 @@
         -0x1e0001
     .end array-data
 
-    .line 57
+    .line 59
     :array_4c
     .array-data 4
         -0x3b8701
@@ -114,7 +114,7 @@
     .registers 1
 
     .prologue
-    .line 28
+    .line 30
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -124,7 +124,7 @@
     .registers 12
 
     .prologue
-    .line 72
+    .line 74
     const-wide/16 v0, 0x0
 
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
@@ -137,7 +137,7 @@
 
     move-result-wide v0
 
-    .line 73
+    .line 75
     const-wide v2, 0x3fbeb851eb851eb8L    # 0.12
 
     const-wide v4, 0x3fec28f5c28f5c29L    # 0.88
@@ -177,18 +177,18 @@
 
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
-    .line 60
+    .line 62
     if-eqz p0, :cond_37
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->GAMUT_F:[I
 
-    .line 61
+    .line 63
     :goto_12
     cmpg-double v1, p1, v8
 
     if-gtz v1, :cond_3a
 
-    .line 62
+    .line 64
     const/4 v1, 0x0
 
     aget v1, v0, v1
@@ -219,23 +219,23 @@
 
     move-result v0
 
-    .line 67
+    .line 69
     :goto_36
     return v0
 
-    .line 60
+    .line 62
     :cond_37
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->GAMUT_M:[I
 
     goto :goto_12
 
-    .line 64
+    .line 66
     :cond_3a
     cmpg-double v1, p1, v6
 
     if-gtz v1, :cond_4b
 
-    .line 65
+    .line 67
     aget v1, v0, v2
 
     aget v0, v0, v3
@@ -252,7 +252,7 @@
 
     goto :goto_36
 
-    .line 67
+    .line 69
     :cond_4b
     aget v1, v0, v3
 
@@ -281,7 +281,7 @@
     .registers 3
 
     .prologue
-    .line 77
+    .line 79
     invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -303,7 +303,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 37
+    .line 39
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
 
     aget v0, v0, v2
@@ -314,16 +314,16 @@
 
     if-gtz v0, :cond_f
 
-    .line 38
+    .line 40
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
 
     aget v0, v0, v2
 
-    .line 46
+    .line 48
     :goto_e
     return v0
 
-    .line 40
+    .line 42
     :cond_f
     const/4 v0, 0x1
 
@@ -334,7 +334,7 @@
 
     if-ge v0, v1, :cond_47
 
-    .line 41
+    .line 43
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
 
     aget v1, v1, v0
@@ -345,7 +345,7 @@
 
     if-gtz v1, :cond_44
 
-    .line 42
+    .line 44
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
 
     add-int/lit8 v2, v0, -0x1
@@ -374,7 +374,7 @@
 
     double-to-float v1, v2
 
-    .line 43
+    .line 45
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
 
     add-int/lit8 v3, v0, -0x1
@@ -391,13 +391,13 @@
 
     goto :goto_e
 
-    .line 40
+    .line 42
     :cond_44
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_10
 
-    .line 46
+    .line 48
     :cond_47
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
 

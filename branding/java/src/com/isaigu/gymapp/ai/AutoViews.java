@@ -4,9 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -749,10 +751,12 @@ public final class AutoViews {
     // ================================================================ the pulse
 
     /**
-     * The pulse beside the body: a heart that beats at the HR, in the colour of its zone (the kit's HR zones,
-     * as on the dial), the number under it. Gone without a band.
+     * The pulse beside the body: a red heart with a red glow that beats at the HR, the number under it in the colour
+     * of its zone (the kit's HR zones, as on the dial). Gone without a band.
      */
     public static final class Vital extends View {
+        private static final int HEART_RED = 0xFFFF3B47;
+        private final Paint glow = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint heart = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint num = new Paint(Paint.ANTI_ALIAS_FLAG);
         private int hr;
@@ -787,12 +791,23 @@ public final class AutoViews {
                 postInvalidateDelayed(40);
             }
             float g = s * beat;
-            heart.setColor(hr > 0 ? color : XemsUi.MUTED);
-            ImpulseGlyph.draw(c, ImpulseGlyph.HEART, (w - g) / 2f, s * 0.55f - g / 2f, g, heart);
+            float hx = w / 2f;
+            float hy = s * 0.55f;
+            if (hr > 0) {
+                // the red glow behind the heart swells with each beat
+                float k = (beat - 1f) / 0.12f;                      // 1 on the beat → 0 between
+                float gr = s * (0.75f + 0.35f * k);
+                glow.setShader(new RadialGradient(hx, hy, gr,
+                        new int[] {Color.argb((int) (150 + 80 * k), 255, 40, 50), Color.argb(0, 255, 40, 50)},
+                        null, Shader.TileMode.CLAMP));
+                c.drawCircle(hx, hy, gr, glow);
+            }
+            heart.setColor(hr > 0 ? HEART_RED : XemsUi.MUTED);
+            ImpulseGlyph.draw(c, ImpulseGlyph.HEART, (w - g) / 2f, hy - g / 2f, g, heart);
             if (hr > 0) {
                 heart.setStyle(Paint.Style.FILL);
-                heart.setAlpha(70);
-                c.drawPath(heartPath((w - g) / 2f, s * 0.55f - g / 2f, g), heart);
+                heart.setAlpha(110);
+                c.drawPath(heartPath((w - g) / 2f, hy - g / 2f, g), heart);
                 heart.setAlpha(255);
                 heart.setStyle(Paint.Style.STROKE);
             }

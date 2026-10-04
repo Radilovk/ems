@@ -89,8 +89,9 @@ public final class SessionRecorder {
         boolean assisted = assistActive();
         String autoProgram = autoProgram();
         // the Smart Session's exercise, or the block of a map run (Тренировки → По картата)
+        int autoEx = com.isaigu.gymapp.ai.AutoSession.currentExercise();   // the running set of an automatic program
         int exercise = aiPhase > 0 ? com.isaigu.gymapp.ai.AiSession.currentExercise()
-                : com.isaigu.gymapp.ai.MapRunner.currentExercise();
+                : autoEx >= 0 ? autoEx : com.isaigu.gymapp.ai.MapRunner.currentExercise();
         boolean music = musicOn();
         boolean leaderTaken = false;
         if (items != null) {
@@ -239,7 +240,8 @@ public final class SessionRecorder {
                 }
                 BandWorkout.onState(r, running);
                 if (!(r.idle > 0)) {
-                    r.sample(it, r.leader && bpm > 0 ? bpm : 0, r.leader ? aiPhase : 0, exercise);
+                    r.sample(it, r.leader && bpm > 0 ? bpm : 0, r.leader ? aiPhase : 0,
+                            autoEx >= 0 && !r.leader ? -1 : exercise);      // a group's set is the leader's, not forced on the others
                 }
             }
         }

@@ -639,11 +639,22 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const P=avgPrev>0?clamp(.6+(dose-avgPrev)/avgPrev*2,0,1):.6;
   const eff=Math.round(100*(.40*Tg+.30*D+.15*Q+.15*P));
   const load=Math.round(s.reduce((a,p)=>a+p.I,0)/60*10);
-  const Wkg=weight||70,vr=3.5*Wkg/1000,vmax=Math.min(60,15.3*sim.max/Math.max(40,sim.rest))*Wkg/1000,musc=female?.31/.38:1;
+  const Wkg=weight||70,musc=female?.31/.38:1;
+  // the client's own resting and maximal uptake, as in AiEnergy: Schofield from sex, age, weight (not a flat 3.5);
+  // VO2max = the measured-HR ratio (Uth) averaged with the population value of fitness, sex and age
+  const ageY=pers&&pers.age>0?pers.age:35;
+  const rmr=female?(ageY<30?14.818*Wkg+486.6:ageY<60?8.126*Wkg+845.6:9.082*Wkg+658.5):(ageY<30?15.057*Wkg+692.2:ageY<60?11.472*Wkg+873.1:11.711*Wkg+587.7);
+  const vr=Math.max(2.3,Math.min(4.5,rmr/1440/4.83*1000/Wkg))*Wkg/1000;
+  const popMax=Math.max(16,({low:34,high:52}[pers&&pers.fitness]||42)*(female?.83:1)*(1-.009*Math.max(0,ageY-25)));
+  const uthMax=Math.max(18,Math.min(75,15.3*sim.max/Math.max(40,sim.rest)));
+  const vmax=Math.max(.5*uthMax+.5*popMax,vr*1000/Wkg+10)*Wkg/1000;
   let kcal=0,kcalGly=0;for(const p of s){const vh=sim.hasHr?vr+p.C*(vmax-vr):0;const em=p.M*1.6*Wkg/75*musc;const ve=vr+em+(p.vx||0);kcal+=Math.max(vh,ve)*(4.7+.35*p.I)/60;
     // the glycolytic share of the evoked ATP never becomes oxygen uptake, so the heart branch cannot see it:
     // it is paid back after the session (lactate, glycogen) and counted on top (docs/xems-ems-physiology.md §4)
     if(em>0){const g=.15+.15*Math.min(1,kF(p.hz||1));kcalGly+=em*g/(1-g)*5/60;}}
+  // the fast part of the oxygen debt after the end: (VO2_end − rest) · τ, τ = 40 s (AiEnergy.closeEpoc)
+  {let vEnd=0,nEnd=0;for(let i=Math.max(0,s.length-5);i<s.length;i++){const p=s[i];const vh=sim.hasHr?vr+p.C*(vmax-vr):0;vEnd+=Math.max(vh,vr+p.M*1.6*Wkg/75*musc+(p.vx||0));nEnd++;}
+    vEnd=nEnd?vEnd/nEnd:vr;if(vEnd>vr)kcal+=(vEnd-vr)*4.83/60*40;}
   kcal+=kcalGly;
   const hrs=s.filter(p=>p.hr>0&&!p.paused).map(p=>p.hr);
   const modes=[

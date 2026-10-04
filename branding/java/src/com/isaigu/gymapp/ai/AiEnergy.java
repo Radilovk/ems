@@ -163,6 +163,22 @@ public final class AiEnergy {
     }
 
     /** Personal model for an AI session: sex, age, weight, fitness, medication, measured resting HR. */
+    /**
+     * The same personal model from the plain data of a client (the automatic mode has no SessionInput): sex, age,
+     * weight, fitness, the scale's lean / skeletal mass and channel muscle, HR-lowering medication, resting and
+     * maximum HR (rest &lt; 0 = not measured).
+     */
+    public static AiEnergy forPerson(AiModel.Sex sex, int age, double weightKg, AiModel.Fitness fitness,
+            double leanKg, double skeletalKg, double[] chMuscle, boolean medication, int hrRest, int hrMax) {
+        double w = weightKg >= 30 && weightKg <= 250 ? weightKg : DEFAULT_WEIGHT_KG;
+        int a = age > 0 ? age : 35;
+        AiEnergy e = new AiEnergy(hrRest, hrMax, w, restingVo2(sex, a, w, leanKg), fitnessVo2max(fitness, sex, a),
+                !medication);
+        e.muscleScale = muscleScale(sex, w, skeletalKg);
+        e.chMuscle = chMuscle;
+        return e;
+    }
+
     public static AiEnergy forSession(AiModel.SessionInput in, AiModel.Profile p) {
         double w = in.weightKg >= 30 && in.weightKg <= 250 ? in.weightKg : DEFAULT_WEIGHT_KG;
         boolean med = in.screening != null && in.screening.hrLoweringMedication;

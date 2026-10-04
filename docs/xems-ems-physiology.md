@@ -104,7 +104,19 @@ debt is small for a 7 Hz warm-up or a massage and large for 85–100 Hz strength
 No double counting: the fast term is the deficit of the oxygen uptake we already count; the glycolytic debt is work that
 never became oxygen uptake.
 
-### 4.3 What the total is
+### 4.3 Where it is counted (1.1.318)
+| Where | What it uses |
+|---|---|
+| Smart Session (`AiSession.tickEnergy`) | client data, the cycle's impulse, the exercise, HR; closes the fast debt at the end |
+| Auto (`AutoSession.tickEnergy`) | the leader's data from the client record (weight, age, sex, fitness, scale lean / skeletal mass, channel muscle, medication, measured resting HR), the impulse the suit **really** gives (hz, pulse width, strength, channels, the second impulse in the pause), the running set's exercise, HR; the tolerated charge is the calibration; closes the fast debt at the end |
+| Manual (`HrGuardCore.tickEnergy`) | the leading row's real values; counts only while impulses run + 60 s of recovery, then closes the fast debt; a new run after 10 min starts again (before: ran on from the last calibration, idle time included) |
+| Report (`session-report.html`) | the same terms per second from the record: Schofield resting uptake, VO2max = Uth ⊕ fitness value, `max(heart, rest + evoked + exercise)`, the glycolytic debt, the fast debt |
+| Dial, band, summary | `HrGuard.liveKcal()` — Auto or AI kcal when one runs, else the manual one |
+
+The model of the report is a per-second copy of the Java one and stays simpler (no pulse-width balance per channel, no
+scale's channel muscle); the two can differ by a few per cent.
+
+### 4.4 What the total is
 `kcal = max(heart branch, rest + evoked + exercise) + glycolytic debt (+ fast EPOC at the end)` — the heart branch
 carries the aerobic part when there is a band; the glycolytic debt is added **on top**, because heart rate does not
 see it. The report (`session-report.html`) uses the same terms per second (its `hz`, `M`, `kF`) and shows the debt apart.

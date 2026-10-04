@@ -306,6 +306,15 @@ public class AiSim {
         hi.closeEpoc();
         check(hi.getDebtKcal() == 0 && Math.abs(hi.getKcal() - afterOnce) < 1e-9, "closing twice does not count the debt twice");
         check(afterOnce >= before - 1e-9, "closing the epoc never lowers the total");
+        // the person model without a SessionInput (Auto) equals the Smart Session's one
+        SessionInput pin = new SessionInput();
+        pin.sex = Sex.FEMALE; pin.age = 41; pin.weightKg = 66; pin.fitness = Fitness.MID;
+        Profile pp = AiPlanner.derive(pin, 62, 1.0, 3000);
+        AiEnergy ea = AiEnergy.forSession(pin, pp);
+        AiEnergy eb = AiEnergy.forPerson(Sex.FEMALE, 41, 66, Fitness.MID, -1, -1, null, false, 62, pp.hrMax);
+        long t2 = 0;
+        for (int i = 0; i <= 300; i++) { ea.tick(t2, 120, stim(null, 60, 85, 350, 1)); eb.tick(t2, 120, stim(null, 60, 85, 350, 1)); t2 += 1000; }
+        check(Math.abs(ea.getKcal() - eb.getKcal()) < 1e-6, "forPerson = forSession for the same client");
     }
 
     static void energy(String name, Sex sex, int age, double w, Fitness fit, int rest, boolean med) {

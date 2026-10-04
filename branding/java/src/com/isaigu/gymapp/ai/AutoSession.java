@@ -63,6 +63,12 @@ public final class AutoSession {
         return a;
     }
 
+    /** The leader's energy model (kcal): his data, the impulses the suit really gives, the heart, the exercise. */
+    private static AiEnergy energy;
+    private static boolean epocClosed;
+    /** Pulse width the calibration ran at (the tolerated charge is measured there). */
+    private static int calPw = 350;
+
     private static TrainItemManager manager;
     private static View panelRoot;
     private static Stage stage = Stage.IDLE;
@@ -629,6 +635,7 @@ public final class AutoSession {
             r.lastStrength = -1;
         }
         engine = new AutoEngine(plan);
+        startEnergy();
         long now = System.currentTimeMillis();
         script = null;
         ExerciseFigure.preload(c);
@@ -1184,6 +1191,7 @@ public final class AutoSession {
         } else if (!zeroed) {
             zeroOutput();
         }
+        tickEnergy(now, after);
         if ((after == AutoEngine.State.DONE || after == AutoEngine.State.STOPPED) && stage == Stage.RUNNING) {
             zeroOutput();
             stopDevice();
@@ -1203,6 +1211,123 @@ public final class AutoSession {
                 AutoUi.show();
             }
         }
+    }
+
+    // ================================================================ energy (docs/xems-ems-physiology.md §4)
+
+    private static Row leaderRow() {
+        TrainItem l = leader();
+        for (Row r : rows) {
+            if (r.item == l) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    private static void startEnergy() {
+        energy = null;
+        epocClosed = false;
+        AiEnergy.exerciseMet = 0;
+        try {
+            Row r = leaderRow();
+            AutoModel.Input in = r != null && r.input != null ? r.input : input;
+            AutoModel.Plan pl = r != null && r.plan != null ? r.plan : plan;
+            boolean med = in.screening != null && in.screening.hrLoweringMedication;
+            energy = AiEnergy.forPerson(in.sex, in.age, in.weightKg, in.fitness, in.leanKg, in.skeletalKg, in.chMuscle,
+                    med, pl.hrRestMeasured ? pl.hrRest : -1, pl.hrMax);
+            calPw = calibrationCmd().pwUs > 0 ? calibrationCmd().pwUs : 350;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("auto", "energy: " + t);
+        }
+    }
+
+    /**
+     * Once per tick: the heart, what the suit really gives the leader now (impulse, or the second impulse in the
+     * pause; hz, pulse width, strength, channels), and the movement of the running set — the same physiology as the
+     * Smart Session. At the end the fast part of the debt is closed.
+     */
+    private static void tickEnergy(long now, AutoEngine.State st) {
+        if (energy == null || engine == null) {
+            return;
+        }
+        if (st == AutoEngine.State.DONE || st == AutoEngine.State.STOPPED) {
+            AiEnergy.exerciseMet = 0;
+            if (!epocClosed) {
+                epocClosed = true;
+                energy.closeEpoc();
+            }
+            return;
+        }
+        double hr = engine.getHr(now);
+        AiEnergy.Stim es = null;
+        double met = 0;
+        Row r = leaderRow();
+        if (st == AutoEngine.State.RUN && r != null && r.block == null && r.cal > 0 && r.item.data != null) {
+            ProgramDataBean b = bean(r.item);
+            if (b != null && b.strenth > 0) {
+                boolean inImpulse = r.item.data.inStart;
+                if (inImpulse || (b.activePause && b.pauseHz > 0)) {
+                    es = new AiEnergy.Stim();
+                    if (b.strenthBean != null && b.strenthBean.buwei != null) {
+                        es.channels = b.strenthBean.buwei.clone();
+                    }
+                    if (r.item.partsDisabled != null) {
+                        es.disabled = r.item.partsDisabled.clone();
+                    }
+                    es.hz = b.hz;
+                    es.pwUs = b.pulseWidth;
+                    if (inImpulse) {
+                        es.strengthPct = b.strenth;
+                        es.onShare = 1.0;
+                    } else {
+                        es.onShare = 0;
+                        es.pauseHz = b.pauseHz;
+                        es.pauseStrengthPct = b.pauseStrenthPercent;
+                        es.pauseShare = 1.0;
+                    }
+                    // tolerated level = the calibration (its strength at its pulse width) on each channel
+                    es.toleratedCharge = new double[AiEnergy.CH_MASS.length];
+                    for (int i = 0; i < es.toleratedCharge.length; i++) {
+                        double chPct = es.channels != null && i < es.channels.length ? es.channels[i] : 100;
+                        es.toleratedCharge[i] = chPct / 100.0
+                                * (i == AiEnergy.ARMS ? AiEnergy.armsSent(calPw) : AiEnergy.channelSent(i, calPw))
+                                * r.cal / 100.0 * calPw / 350.0;
+                    }
+                }
+            }
+            met = currentMet();
+        }
+        AiEnergy.exerciseMet = met;
+        energy.tick(now, hr, es);
+    }
+
+    /** MET of the movement of the running set (0 in a rest, a pause or without exercises). */
+    private static double currentMet() {
+        int ix = currentExercise();
+        return ix >= 0 ? AutoTemplates.met(ix) : 0;
+    }
+
+    /** Index of the exercise done now (AutoTemplates table); −1 outside a running set — for the record and the kcal. */
+    public static int currentExercise() {
+        try {
+            if (stage != Stage.RUNNING || engine == null || engine.getState() != AutoEngine.State.RUN) {
+                return -1;
+            }
+            String id = engine.getExercise();
+            return id != null ? AutoTemplates.index(id) : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    /** Estimated kcal of this session (total, with the open debt), −1 before the start. */
+    public static double getKcal() {
+        return energy != null ? energy.getKcal() : -1;
+    }
+
+    public static AiEnergy getEnergy() {
+        return energy;
     }
 
     // ================================================================ writing

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 73
+    .line 97
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 78
+    .line 102
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/wearable/HrGuard;->tick()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->access$000()Z
@@ -43,11 +43,11 @@
 
     move-result v0
 
-    .line 83
+    .line 107
     :goto_4
     if-eqz v0, :cond_2e
 
-    .line 84
+    .line 108
     # getter for: Lcom/isaigu/gymapp/wearable/HrGuard;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->access$100()Landroid/os/Handler;
 
@@ -57,18 +57,18 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 88
+    .line 112
     :goto_f
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 89
+    .line 113
     return-void
 
-    .line 79
+    .line 103
     :catch_13
     move-exception v0
 
-    .line 80
+    .line 104
     const-string v1, "hr_guard"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -91,12 +91,12 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 81
+    .line 105
     const/4 v0, 0x1
 
     goto :goto_4
 
-    .line 86
+    .line 110
     :cond_2e
     const/4 v0, 0x0
 

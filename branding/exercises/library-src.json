@@ -6236,7 +6236,7 @@
    "sec": [
     "предно бедро"
    ],
-   "type": "duration",
+   "type": "bodyweight_reps",
    "diff": 1,
    "pat": "core_hip",
    "cat": "core",

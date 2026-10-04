@@ -75,7 +75,9 @@ public final class MapSim {
                 }
                 AutoModel.Step drawn = stepOf(b);
                 String pat = b.pat != null ? b.pat : b.ex != null ? Workout.patternOf(b.ex) : null;
-                int mv = com.isaigu.gymapp.ai.AutoDynamics.move(pat, b.hold);
+                int mv = com.isaigu.gymapp.ai.AutoDynamics.move(pat, b.hold, null);
+                int ix = b.ex != null ? com.isaigu.gymapp.ai.AutoTemplates.index(b.ex) : -1;
+                d.setMuscles(ix >= 0 ? com.isaigu.gymapp.ai.AutoTemplates.muscles(ix) : null);
                 String nm = b.hasExercise() ? d.startSet(drawn, mv, b.lock, t / Math.max(1, m.totalSeconds()), -1) : "";
                 if (!b.hasExercise()) {
                     d.startPlain(drawn, b.lock);
@@ -118,6 +120,50 @@ public final class MapSim {
         }
         check(d.restS(10) > 10, "dynamics: tired → the drawn 10 s rest is longer (" + d.restS(10) + ")");
         check(new MapDynamics(AiModel.Fitness.MID, 8, 35, 185).restS(30) == 30, "dynamics: fresh → the drawn rest");
+        // fatigue per channel (1.1.327): the exercise's own work lands on its muscles; the same muscles set after
+        // set pile up more than alternating legs / chest
+        int[] legs = new int[AutoModel.CHANNELS];
+        int[] chest = new int[AutoModel.CHANNELS];
+        legs[AutoModel.FRONT_THIGH] = 100;
+        legs[AutoModel.GLUTES] = 50;
+        chest[AutoModel.CHEST] = 100;
+        chest[AutoModel.ARMS] = 50;
+        MapDynamics same = new MapDynamics(AiModel.Fitness.MID, 8, 35, 185);
+        MapDynamics alt = new MapDynamics(AiModel.Fitness.MID, 8, 35, 185);
+        for (int set = 0; set < 6; set++) {
+            same.setMuscles(legs);
+            alt.setMuscles(set % 2 == 0 ? legs : chest);
+            for (MapDynamics x : new MapDynamics[] {same, alt}) {
+                for (int r = 0; r < 8; r++) {
+                    x.advance(4, true, true, 85, 0, 0, 0.8);
+                    x.advance(4, true, false, 85, 0, 0, 0.8);
+                }
+                x.setMuscles(null);
+                x.advance(30, false, false, 0, 0, 0, 0);
+            }
+        }
+        double[] cl = same.channelLoad();
+        check(cl[AutoModel.FRONT_THIGH] > cl[AutoModel.CHEST], "dynamics: the exercise's muscles carry more (legs "
+                + Math.round(cl[AutoModel.FRONT_THIGH] * 100) + " % vs chest " + Math.round(cl[AutoModel.CHEST] * 100) + " %)");
+        check(alt.fatigue() < same.fatigue(), "dynamics: alternating muscles tire the most tired one less ("
+                + Math.round(alt.fatigue() * 100) + " % < " + Math.round(same.fatigue() * 100) + " %)");
+        check(alt.restS(20) <= same.restS(20), "dynamics: alternating → rest not longer");
+        // the admin's picker group decides the movement (1.1.327)
+        check(com.isaigu.gymapp.ai.AutoDynamics.move("squat", false, "cardio") == com.isaigu.gymapp.ai.AutoDynamics.MOVE_CARDIO,
+                "group: a squat in Кардио → cardio");
+        check(com.isaigu.gymapp.ai.AutoDynamics.move("core_static", true, "stretch") == com.isaigu.gymapp.ai.AutoDynamics.MOVE_STRETCH,
+                "group: a hold in Разтягане → stretching");
+        check(com.isaigu.gymapp.ai.AutoDynamics.move("cardio", false, "legs") == com.isaigu.gymapp.ai.AutoDynamics.MOVE_STRENGTH,
+                "group: a cardio move in Бедра → strength");
+        check(com.isaigu.gymapp.ai.AutoDynamics.move("cardio", false, "arms") == com.isaigu.gymapp.ai.AutoDynamics.MOVE_SMALL,
+                "group: a cardio move in Ръце → small muscles");
+        check(com.isaigu.gymapp.ai.AutoDynamics.move("cardio", false, "functional") == com.isaigu.gymapp.ai.AutoDynamics.MOVE_CARDIO,
+                "group: Функционални keeps the movement (burpee = cardio)");
+        check(com.isaigu.gymapp.ai.AutoDynamics.move("hinge", false, "glutes") == com.isaigu.gymapp.ai.AutoDynamics.MOVE_STRENGTH,
+                "group: a muscle group keeps a strength movement");
+        check(com.isaigu.gymapp.ai.AutoDynamics.move("cardio", true, null) == com.isaigu.gymapp.ai.AutoDynamics.MOVE_CARDIO,
+                "an old block with hold on jump rope → cardio");
+        check(Workout.forExercise("x", "squat", false, "cardio").hz < 50, "group: the starting impulse follows it");
     }
 
     /**
@@ -145,8 +191,11 @@ public final class MapSim {
             java.util.regex.Matcher pm = patP.matcher(chunk);
             String type = tm.find() ? tm.group(1) : "";
             String pat = pm.find() ? pm.group(1) : "";
-            boolean hold = "duration".equals(type);
-            int mv = com.isaigu.gymapp.ai.AutoDynamics.move(pat, hold);
+            boolean hold = com.isaigu.gymapp.ai.AutoDynamics.isHold(type, pat);
+            int mv = com.isaigu.gymapp.ai.AutoDynamics.move(pat, hold, null);
+            check(!hold || !"duration".equals(type) || mv == com.isaigu.gymapp.ai.AutoDynamics.MOVE_HOLD, id + ": a hold");
+            check(!"duration".equals(type) || !("stretch".equals(pat) || "cardio".equals(pat) || "plyo".equals(pat))
+                    || mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_HOLD, id + ": timed cardio / stretching is not a hold");
             n++;
             check(mv != com.isaigu.gymapp.ai.AutoDynamics.MOVE_UNKNOWN, id + ": its movement '" + pat
                     + "' is classified (AutoDynamics.move / STRENGTH_PATS / isSmall)");

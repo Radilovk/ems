@@ -117,6 +117,16 @@ without a switch. **Procedures (passive maps) stay exactly as drawn.**
   no pure 100 Hz; holds (`core_static`, `carry`, duration) — light volume / tone; cardio / plyo — metabolic / tone;
   stretching — as drawn. **A new pattern nobody classified = light (no 100 Hz)**, and MapSim fails until it is
   classified. 60+: the gentle set only for strength movements (cardio / holds keep theirs); first trainings no 100 Hz.
+- **The catalogue's group decides** (1.1.327, `AutoDynamics.patIn` / `move(pat, hold, zone)`): the group the admin
+  gives an exercise in Settings → "Каталог с упражнения" (server picks `zone`; the library's own otherwise) is read at
+  run time, so a change applies to saved workouts too. Кардио → cardio, Разтягане → stretching; a muscle group turns a
+  cardio / stretch / unknown pattern into strength for it (Бедра squat, Седалище glute, Гръб pull, Гърди push; Ръце,
+  Рамене, Корем = small muscles); Функционални keeps the pattern. The new block's starting impulse follows the same.
+- **Hold = static** (1.1.327, `AutoDynamics.isHold`): timed in the library and not cardio / stretching — jump rope,
+  mountain climbers, a timed stretch move; old blocks saved with hold on such moves are read by the library again.
+- **Fatigue per suit channel** (1.1.327, as in Auto): the drawn impulse on every channel + the exercise's own work on
+  its muscles (library `mus`, `EX_LOAD`); rest and approach follow the most tired channel. Alternating muscle groups
+  helps only a little (the current reaches every muscle; the exercise adds ≤ 25 %).
 - **🔒 per block** (editor panel: "✦ Умен импулс" ↔ "🔒 Точно както е"; a lock on the line): that block goes exactly
   as drawn — no approach, no glide (its fatigue still counts for the next ones). Stored as `lock` in the map.
 - Plain stimulation blocks in a workout glide only. The card shows the real Hz / µs and the approach.

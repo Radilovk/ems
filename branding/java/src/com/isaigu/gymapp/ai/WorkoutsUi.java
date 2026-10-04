@@ -1509,7 +1509,7 @@ public final class WorkoutsUi {
             }
             justPicked = null;
         } else {
-            addSet(a.ex, e);
+            addSet(c, a.ex, e);
             justPicked = countIn(a.ex) == 1 ? a.ex : null;
         }
         // the top slot: the exercise just touched while it is in the program, else the one picked last
@@ -1521,8 +1521,9 @@ public final class WorkoutsUi {
     }
 
     /** One more set of an exercise: after its last set (a rest between), so the program keeps its order. */
-    private static void addSet(String ex, ExerciseLibrary.Entry e) {
-        Workout.Block b = Workout.forExercise(ex, e != null ? e.pat : Workout.patternOf(ex), e != null && e.isHold());
+    private static void addSet(Context c, String ex, ExerciseLibrary.Entry e) {
+        Workout.Block b = Workout.forExercise(ex, e != null ? e.pat : Workout.patternOf(ex), e != null && e.isHold(),
+                ExerciseLibrary.zoneOf(c, e));
         int last = -1;
         for (int i = 0; i < editing.blocks.size(); i++) {
             if (ex.equals(editing.blocks.get(i).ex) && !editing.blocks.get(i).isRest()) {

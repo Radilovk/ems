@@ -9,8 +9,11 @@ import com.isaigu.gymapp.ai.AutoModel.Step;
  * <ul>
  *   <li>The approaches follow the exercise's movement (library pattern), not the drawn frequency; a 🔒 block stays
  *       exactly as drawn (its fatigue still counts).</li>
- *   <li>The muscle's fatigue runs the whole time (physiology §3.1, the leader's fitness): impulse, second impulse,
- *       pause, rest.</li>
+ *   <li>The muscles' fatigue runs the whole time, per suit channel as in the automatic mode (physiology §3.1,
+ *       auto spec "Формули", the leader's fitness, 1.1.327): the impulse on every channel plus the exercise's own work
+ *       on its muscles (library {@code mus}, {@link AutoEngine#EX_LOAD}) — squats after squats pile up in the legs,
+ *       a chest exercise between them lets the legs' own part go down. Rest and approach follow the most tired
+ *       channel, like Auto.</li>
  *   <li>Every exercise block (a set) gets its approach when it starts — fresh / tired, the stage of the workout,
  *       the heart rate, the approaches already used, the training count; the drawn impulse is one of them.</li>
  *   <li>Every impulse (one repetition) glides with the fatigue: frequency down, pause up, depth a little up at the end.</li>
@@ -27,7 +30,10 @@ public final class MapDynamics {
     private final int sessions;
     private final int age;
     private final int hrCap;
-    private double f;
+    /** F per suit channel. */
+    private final double[] fk = new double[AutoModel.CHANNELS];
+    /** The running exercise's work per channel 0–100 (null = none: plain stimulation, rest). */
+    private int[] mus;
     private int setN;
     private int prev = -1;
     private int prev2 = -1;
@@ -48,23 +54,56 @@ public final class MapDynamics {
         this.hrCap = hrMax > 0 ? (int) Math.round(hrMax * 0.85) : 0;
     }
 
-    /** Time passes: {@code on} = the impulse runs; else the pause (with its second impulse) or a rest (stopped). */
+    /** The exercise of the block that starts (its muscles per channel, 0–100; null = no exercise). */
+    public void setMuscles(int[] m) {
+        mus = m;
+    }
+
+    /**
+     * Time passes: {@code on} = the impulse runs; else the pause (with its second impulse) or a rest (stopped).
+     * Per channel: dF_k/dt = w(f)·ρ + e·m_k − F_k/τ in the impulse, w(f_p)·ρ·σ_p + 0.3·e·m_k − F_k/τ in the pause,
+     * −F_k/τ at rest (every channel gets the drawn strength: z_k = 1).
+     */
     public void advance(double dtS, boolean running, boolean on, int hz, int pauseHz, double pauseSigma, double rho) {
         if (dtS <= 0) {
             return;
         }
         double e = Math.exp(-dtS / tau);
-        double target = 0;
+        double g = 0;
+        double ex = 0;
         if (running && on) {
-            target = AiPlanner.fatigueWeight(hz) * rho * tau;
-        } else if (running && pauseHz > 0) {
-            target = AiPlanner.fatigueWeight(pauseHz) * pauseSigma * rho * tau;
+            g = AiPlanner.fatigueWeight(hz) * rho;
+            ex = AutoEngine.EX_LOAD;
+        } else if (running) {
+            g = pauseHz > 0 ? AiPlanner.fatigueWeight(pauseHz) * pauseSigma * rho : 0;
+            ex = 0.3 * AutoEngine.EX_LOAD;
         }
-        f = f * e + target * (1 - e);
+        for (int k = 0; k < fk.length; k++) {
+            double mk = mus != null && k < mus.length ? Math.max(0, mus[k]) / 100.0 : 0;
+            fk[k] = fk[k] * e + (g + ex * mk) * tau * (1 - e);
+        }
     }
 
+    /** The most tired channel, F / F_max. */
     public double fatigue() {
-        return fMax > 0 ? f / fMax : 0;
+        return fMax > 0 ? peak() / fMax : 0;
+    }
+
+    /** Live load of each channel, F_k / F_max. */
+    public double[] channelLoad() {
+        double[] out = new double[fk.length];
+        for (int k = 0; k < out.length; k++) {
+            out[k] = fMax > 0 ? fk[k] / fMax : 0;
+        }
+        return out;
+    }
+
+    private double peak() {
+        double m = 0;
+        for (double v : fk) {
+            m = Math.max(m, v);
+        }
+        return m;
     }
 
     /**
@@ -121,6 +160,7 @@ public final class MapDynamics {
 
     /** A rest block starts: how long it must last (s) — the drawn one, longer when the muscle is not back yet. */
     public int restS(int drawnS) {
+        double f = peak();
         double t = f > fRec ? tau * Math.log(f / fRec) : 0;
         return (int) Math.round(Math.max(drawnS, Math.min(REST_MAX_S, t)));
     }

@@ -1311,42 +1311,48 @@
     return-void
 .end method
 
-.method private static addSet(Ljava/lang/String;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)V
-    .registers 7
+.method private static addSet(Landroid/content/Context;Ljava/lang/String;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)V
+    .registers 8
 
     .prologue
     const/4 v1, 0x0
 
     .line 1525
-    if-eqz p1, :cond_46
+    if-eqz p2, :cond_4a
 
-    iget-object v0, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->pat:Ljava/lang/String;
+    iget-object v0, p2, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->pat:Ljava/lang/String;
 
     move-object v2, v0
 
     :goto_6
-    if-eqz p1, :cond_4c
+    if-eqz p2, :cond_50
 
-    invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->isHold()Z
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->isHold()Z
 
     move-result v0
 
-    if-eqz v0, :cond_4c
+    if-eqz v0, :cond_50
 
     const/4 v0, 0x1
 
+    .line 1526
     :goto_f
-    invoke-static {p0, v2, v0}, Lcom/isaigu/gymapp/ai/Workout;->forExercise(Ljava/lang/String;Ljava/lang/String;Z)Lcom/isaigu/gymapp/ai/Workout$Block;
+    invoke-static {p0, p2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->zoneOf(Landroid/content/Context;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 1526
+    .line 1525
+    invoke-static {p1, v2, v0, v3}, Lcom/isaigu/gymapp/ai/Workout;->forExercise(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Lcom/isaigu/gymapp/ai/Workout$Block;
+
+    move-result-object v3
+
+    .line 1527
     const/4 v0, -0x1
 
     move v2, v0
 
-    .line 1527
-    :goto_15
+    .line 1528
+    :goto_19
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1355,9 +1361,9 @@
 
     move-result v0
 
-    if-ge v1, v0, :cond_4e
+    if-ge v1, v0, :cond_52
 
-    .line 1528
+    .line 1529
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1370,11 +1376,11 @@
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
-    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_c0
+    if-eqz v0, :cond_c4
 
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1390,21 +1396,21 @@
 
     move-result v0
 
-    if-nez v0, :cond_c0
+    if-nez v0, :cond_c4
 
     move v0, v1
 
-    .line 1527
-    :goto_42
+    .line 1528
+    :goto_46
     add-int/lit8 v1, v1, 0x1
 
     move v2, v0
 
-    goto :goto_15
+    goto :goto_19
 
     .line 1525
-    :cond_46
-    invoke-static {p0}, Lcom/isaigu/gymapp/ai/Workout;->patternOf(Ljava/lang/String;)Ljava/lang/String;
+    :cond_4a
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/Workout;->patternOf(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -1412,16 +1418,16 @@
 
     goto :goto_6
 
-    :cond_4c
+    :cond_50
     move v0, v1
 
     goto :goto_f
 
-    .line 1532
-    :cond_4e
-    if-ltz v2, :cond_75
-
     .line 1533
+    :cond_52
+    if-ltz v2, :cond_79
+
+    .line 1534
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1432,12 +1438,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1534
+    .line 1535
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->copy()Lcom/isaigu/gymapp/ai/Workout$Block;
 
     move-result-object v1
 
-    .line 1535
+    .line 1536
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1450,7 +1456,7 @@
 
     invoke-interface {v3, v4, v0}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 1536
+    .line 1537
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1459,12 +1465,12 @@
 
     invoke-interface {v0, v2, v1}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 1543
-    :goto_74
+    .line 1544
+    :goto_78
     return-void
 
-    .line 1539
-    :cond_75
+    .line 1540
+    :cond_79
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1473,7 +1479,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_b8
+    if-nez v0, :cond_bc
 
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1499,9 +1505,9 @@
 
     move-result v0
 
-    if-nez v0, :cond_b8
+    if-nez v0, :cond_bc
 
-    .line 1540
+    .line 1541
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1532,20 +1538,20 @@
 
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 1542
-    :cond_b8
+    .line 1543
+    :cond_bc
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
 
     invoke-interface {v0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    goto :goto_74
+    goto :goto_78
 
-    :cond_c0
+    :cond_c4
     move v0, v2
 
-    goto :goto_42
+    goto :goto_46
 .end method
 
 .method static autoName(Lcom/isaigu/gymapp/ai/Workout;)Ljava/lang/String;
@@ -1554,12 +1560,12 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 1590
+    .line 1591
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout;->derivedFocus()Ljava/util/List;
 
     move-result-object v1
 
-    .line 1591
+    .line 1592
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout;->isPassive()Z
 
     move-result v0
@@ -1572,7 +1578,7 @@
 
     if-eqz v0, :cond_4c
 
-    .line 1592
+    .line 1593
     :cond_11
     new-instance v1, Ljava/text/SimpleDateFormat;
 
@@ -1582,7 +1588,7 @@
 
     invoke-direct {v1, v0, v2}, Ljava/text/SimpleDateFormat;-><init>(Ljava/lang/String;Ljava/util/Locale;)V
 
-    .line 1593
+    .line 1594
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -1610,7 +1616,7 @@
 
     invoke-direct {v2}, Ljava/util/Date;-><init>()V
 
-    .line 1594
+    .line 1595
     invoke-virtual {v1, v2}, Ljava/text/SimpleDateFormat;->format(Ljava/util/Date;)Ljava/lang/String;
 
     move-result-object v1
@@ -1623,12 +1629,12 @@
 
     move-result-object v0
 
-    .line 1600
+    .line 1601
     :cond_42
     :goto_42
     return-object v0
 
-    .line 1593
+    .line 1594
     :cond_43
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 "
 
@@ -1640,7 +1646,7 @@
 
     goto :goto_2d
 
-    .line 1596
+    .line 1597
     :cond_4c
     const/4 v0, 0x0
 
@@ -1654,14 +1660,14 @@
 
     move-result-object v0
 
-    .line 1597
+    .line 1598
     invoke-interface {v1}, Ljava/util/List;->size()I
 
     move-result v2
 
     if-le v2, v4, :cond_42
 
-    .line 1598
+    .line 1599
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -1832,12 +1838,12 @@
     .registers 1
 
     .prologue
-    .line 1604
+    .line 1605
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     if-eqz v0, :cond_b
 
-    .line 1606
+    .line 1607
     :try_start_4
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -1847,17 +1853,17 @@
     :try_end_b
     .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_b} :catch_f
 
-    .line 1610
+    .line 1611
     :cond_b
     :goto_b
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 1611
+    .line 1612
     return-void
 
-    .line 1607
+    .line 1608
     :catch_f
     move-exception v0
 
@@ -6939,7 +6945,7 @@
     :cond_e5
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->addSet(Ljava/lang/String;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)V
+    invoke-static {p0, v0, v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->addSet(Landroid/content/Context;Ljava/lang/String;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)V
 
     .line 1513
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
@@ -7768,7 +7774,7 @@
     .registers 3
 
     .prologue
-    .line 1556
+    .line 1557
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -7782,7 +7788,7 @@
     :goto_a
     if-ltz v1, :cond_40
 
-    .line 1557
+    .line 1558
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -7817,10 +7823,10 @@
 
     if-nez v0, :cond_41
 
-    .line 1558
+    .line 1559
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->removeSet(I)V
 
-    .line 1559
+    .line 1560
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -7833,13 +7839,13 @@
 
     move-result v0
 
-    .line 1556
+    .line 1557
     :goto_3d
     add-int/lit8 v1, v0, -0x1
 
     goto :goto_a
 
-    .line 1562
+    .line 1563
     :cond_40
     return-void
 
@@ -7853,14 +7859,14 @@
     .registers 3
 
     .prologue
-    .line 1547
+    .line 1548
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
 
     invoke-interface {v0, p0}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 1548
+    .line 1549
     if-lez p0, :cond_31
 
     add-int/lit8 v0, p0, -0x1
@@ -7893,7 +7899,7 @@
 
     if-eqz v0, :cond_31
 
-    .line 1549
+    .line 1550
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -7902,12 +7908,12 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 1553
+    .line 1554
     :cond_30
     :goto_30
     return-void
 
-    .line 1550
+    .line 1551
     :cond_31
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -7935,7 +7941,7 @@
 
     if-eqz v0, :cond_30
 
-    .line 1551
+    .line 1552
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -7976,12 +7982,12 @@
     .registers 3
 
     .prologue
-    .line 1580
+    .line 1581
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->deriveGoal(Lcom/isaigu/gymapp/ai/Workout;)V
 
-    .line 1581
+    .line 1582
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->name:Ljava/lang/String;
@@ -7996,7 +8002,7 @@
 
     if-nez v0, :cond_1d
 
-    .line 1582
+    .line 1583
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
@@ -8007,18 +8013,18 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout;->name:Ljava/lang/String;
 
-    .line 1584
+    .line 1585
     :cond_1d
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/WorkoutStore;->save(Landroid/content/Context;Lcom/isaigu/gymapp/ai/Workout;)V
 
-    .line 1585
+    .line 1586
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1586
+    .line 1587
     return-void
 .end method
 

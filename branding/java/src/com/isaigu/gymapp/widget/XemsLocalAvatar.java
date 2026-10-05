@@ -245,6 +245,7 @@ public final class XemsLocalAvatar {
     private static final java.util.WeakHashMap<android.view.View, Boolean> GRAB =
             new java.util.WeakHashMap<android.view.View, Boolean>();
     private static int ringId;
+    private static long lastRingHint;
     private static java.lang.reflect.Method autoOn;
 
     /** Auto owns the suits (ai.AutoLook, compiled after this class — so by name): the ring does not move. */
@@ -273,7 +274,17 @@ public final class XemsLocalAvatar {
                 return true;
             }
             if (autoOwns()) {
-                return false;          // Auto (owner, 1.1.315): strength only with the + / − keys, never the ring
+                // Auto (owner, 1.1.315): strength only with the + / − keys, never the ring — a touch says so
+                if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) {
+                    long now = android.os.SystemClock.uptimeMillis();
+                    if (now - lastRingHint > 2500) {
+                        lastRingHint = now;
+                        android.widget.Toast.makeText(v.getContext(), XemsLocalUserForm.tr(
+                                "Силата на импулсите се увеличава и намалява с + и −",
+                                "Pulse strength goes up and down with + and −"), android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                }
+                return false;
             }
             int a = e.getActionMasked();
             if (a == android.view.MotionEvent.ACTION_DOWN) {

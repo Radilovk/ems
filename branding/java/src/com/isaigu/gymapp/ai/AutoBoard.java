@@ -1,6 +1,8 @@
 package com.isaigu.gymapp.ai;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -66,6 +68,45 @@ public final class AutoBoard {
         }
     }
 
+    /** The list whose drag is already shut off (one listener per list). */
+    private static View guarded;
+
+    /**
+     * The list is cut to one row, so a drag on it (the slider, the avatar, the empty gaps) must never scroll it:
+     * the row would slide up and snap back. While the board is attached the list neither intercepts a drag nor
+     * scrolls on one nobody took.
+     */
+    static final class NoDrag implements RecyclerView.OnItemTouchListener, View.OnTouchListener {
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            if (isAttached() && e.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                rv.requestDisallowInterceptTouchEvent(true);
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {}
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+
+        @Override
+        public boolean onTouch(View v, MotionEvent e) {
+            return isAttached() && e.getActionMasked() == MotionEvent.ACTION_MOVE;
+        }
+    }
+
+    private static void guard(View rv) {
+        if (rv == guarded || !(rv instanceof RecyclerView)) {
+            return;
+        }
+        NoDrag g = new NoDrag();
+        ((RecyclerView) rv).addOnItemTouchListener(g);
+        rv.setOnTouchListener(g);
+        guarded = rv;
+    }
+
     private AutoBoard() {}
 
     public static boolean isAttached() {
@@ -107,6 +148,7 @@ public final class AutoBoard {
     private static void attach(Context c, View rv) {
         LinearLayout parent = (LinearLayout) rv.getParent();
         list = rv;
+        guard(rv);
         listParams = rv.getLayoutParams();
         scrollTop(rv);
         // the client's own row only: the list is cut to one row's height

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 36
+    .line 38
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 37
+    .line 39
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
-    .line 38
+    .line 40
     return-void
 .end method
 
@@ -42,35 +42,35 @@
     .registers 17
 
     .prologue
-    .line 42
+    .line 44
     sub-int v3, p4, p2
 
-    .line 43
+    .line 45
     sub-int v4, p5, p3
 
-    .line 44
+    .line 46
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object v5
 
-    .line 45
+    .line 47
     iget v6, v5, Landroid/view/ViewGroup$LayoutParams;->width:I
 
-    .line 46
+    .line 48
     if-lez v3, :cond_12
 
     if-lez v4, :cond_12
 
     if-gtz v6, :cond_13
 
-    .line 66
+    .line 68
     :cond_12
     :goto_12
     return-void
 
-    .line 49
+    .line 51
     :cond_13
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
@@ -82,14 +82,14 @@
 
     move-result v0
 
-    .line 50
+    .line 52
     int-to-float v1, v3
 
     int-to-float v2, v6
 
     div-float v2, v1, v2
 
-    .line 51
+    .line 53
     int-to-float v1, v4
 
     div-float/2addr v1, v2
@@ -98,10 +98,10 @@
 
     move-result v1
 
-    .line 52
+    .line 54
     if-ge v1, v0, :cond_68
 
-    .line 54
+    .line 56
     int-to-float v1, v4
 
     int-to-float v2, v0
@@ -110,21 +110,21 @@
 
     move v2, v1
 
-    .line 56
+    .line 58
     :goto_2d
     iget v1, v5, Landroid/view/ViewGroup$LayoutParams;->height:I
 
     if-eq v1, v0, :cond_38
 
-    .line 57
+    .line 59
     iput v0, v5, Landroid/view/ViewGroup$LayoutParams;->height:I
 
-    .line 58
+    .line 60
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
     invoke-virtual {v1, v5}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 60
+    .line 62
     :cond_38
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
@@ -132,24 +132,24 @@
 
     invoke-virtual {v1, v5}, Landroid/view/View;->setPivotX(F)V
 
-    .line 61
+    .line 63
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
     const/4 v5, 0x0
 
     invoke-virtual {v1, v5}, Landroid/view/View;->setPivotY(F)V
 
-    .line 62
+    .line 64
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
     invoke-virtual {v1, v2}, Landroid/view/View;->setScaleX(F)V
 
-    .line 63
+    .line 65
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
     invoke-virtual {v1, v2}, Landroid/view/View;->setScaleY(F)V
 
-    .line 64
+    .line 66
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
     int-to-float v3, v3
@@ -166,7 +166,7 @@
 
     invoke-virtual {v1, v3}, Landroid/view/View;->setTranslationX(F)V
 
-    .line 65
+    .line 67
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoBoard$Fit;->content:Landroid/view/View;
 
     int-to-float v3, v4

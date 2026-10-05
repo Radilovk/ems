@@ -2,6 +2,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -17,12 +18,22 @@ public class RecyclerView extends ViewGroup {
 
     public void addOnScrollListener(OnScrollListener listener) {}
 
+    public void addOnItemTouchListener(OnItemTouchListener listener) {}
+
     public LayoutManager getLayoutManager() {
         return null;
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {}
+
+    public interface OnItemTouchListener {
+        boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e);
+
+        void onTouchEvent(RecyclerView rv, MotionEvent e);
+
+        void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept);
+    }
 
     public static abstract class OnScrollListener {
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {}

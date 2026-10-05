@@ -549,11 +549,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L57 ## Replies
   - L62 ## XEMS → bodytech mapping
 
-`bodytech/probe/README.md` (32L)
+`bodytech/probe/README.md` (30L)
   - L1 # XEMS BT Probe — тест на bodytech костюма
   - L7 ## Инсталиране
-  - L12 ## Тест (около 10 минути, костюмът облечен)
-  - L30 ## Сглобяване
+  - L12 ## Тест (около 10 минути, костюмът облечен) — версия 0.2
+  - L28 ## Сглобяване
 
 `branding/CLAUDE.md` (11L)
   - L1 # branding/ — resources patched into the APK

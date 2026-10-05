@@ -71,21 +71,27 @@ public class MainActivity extends Activity implements Link.Listener {
     volatile boolean running;
     volatile boolean testBusy;
     volatile boolean abort;
-    boolean heartbeatOn = true, batteryPollOn = true, fast;
+    boolean heartbeatOn = true, batteryPollOn = true;
+    /** A guided test is waiting for the user's answer (channel map, watchdog). */
+    volatile boolean uiTest, wdActive;
+    long wdFrom;
+    int mapCh, mapLevel;
+    final String[] mapResult = new String[9];
     int lastBatteryRaw = -1;
 
     // parameters (defaults = EMSFIT program: 85 Hz, 360 µs, 0.4 s up, 4 s work, 0.4 s down, 4 s pause)
     int hz = 85, widthUs = 360, t1 = 400, t2 = 4000, t3 = 400, t4 = 4000, wave = -1, target = 0;
-    int testLevel = 5, settleMs = 1500, samples = 3;
+    int testLevel = 10, settleMs = 1500, samples = 3;
 
     // views
-    TextView status, battery, result, logView;
+    TextView status, battery, result, logView, runState, askTitle;
+    LinearLayout askBox, askButtons;
     ScrollView logScroll;
     LinearLayout devices;
     final TextView[] levelText = new TextView[9];
     final List<Button> waveChips = new ArrayList<Button>();
     final List<Button> targetChips = new ArrayList<Button>();
-    Button hbBtn, batBtn, fastBtn;
+    Button hbBtn, batBtn;
 
     final StringBuilder logBuf = new StringBuilder();
     boolean logDirty;
@@ -106,7 +112,7 @@ public class MainActivity extends Activity implements Link.Listener {
         setContentView(buildUi());
         link = new Link(this, this);
         adapter = BluetoothAdapter.getDefaultAdapter();
-        onLog("XEMS BT Probe 0.1 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
+        onLog("XEMS BT Probe 0.2 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
                 + " (API " + Build.VERSION.SDK_INT + ") · " + startedAt);
         if (Build.VERSION.SDK_INT >= 23
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -179,6 +185,9 @@ public class MainActivity extends Activity implements Link.Listener {
         stop.setTextSize(20);
         ctl.addView(stop, weight(1.4f));
         c1.addView(ctl);
+        runState = text("", 17, DIM, true);
+        runState.setPadding(0, dp(6), 0, dp(2));
+        c1.addView(runState);
         root.addView(scroll(c1), colParams(1.15f));
 
         // ---- column 2: parameters + tests
@@ -249,6 +258,34 @@ public class MainActivity extends Activity implements Link.Listener {
         result = text("", 13, TEXT, false);
         result.setTypeface(Typeface.MONOSPACE);
         c2.addView(result);
+        LinearLayout gt = row();
+        gt.addView(button("Карта на каналите", ACCENT, new View.OnClickListener() {
+            @Override public void onClick(View v) { mapStart(); }
+        }), weight());
+        gt.addView(button("Тест watchdog", CHIP, new View.OnClickListener() {
+            @Override public void onClick(View v) { wdStart(); }
+        }), weight());
+        gt.addView(button("Батерия под товар", CHIP, new View.OnClickListener() {
+            @Override public void onClick(View v) { loadTest(); }
+        }), weight());
+        c2.addView(gt);
+        askBox = new LinearLayout(this);
+        askBox.setOrientation(LinearLayout.VERTICAL);
+        askBox.setPadding(dp(10), dp(8), dp(10), dp(10));
+        GradientDrawable ag = new GradientDrawable();
+        ag.setColor(0xFF263240);
+        ag.setCornerRadius(dp(12));
+        ag.setStroke(dp(2), AMBER);
+        askBox.setBackground(ag);
+        askTitle = text("", 17, TEXT, true);
+        askBox.addView(askTitle);
+        askButtons = new LinearLayout(this);
+        askButtons.setOrientation(LinearLayout.VERTICAL);
+        askBox.addView(askButtons);
+        askBox.setVisibility(View.GONE);
+        LinearLayout.LayoutParams ap = new LinearLayout.LayoutParams(-1, -2);
+        ap.setMargins(0, dp(8), 0, dp(4));
+        c2.addView(askBox, ap);
 
         LinearLayout tg = row();
         hbBtn = chip("", new View.OnClickListener() {
@@ -262,12 +299,8 @@ public class MainActivity extends Activity implements Link.Listener {
         batBtn = chip("", new View.OnClickListener() {
             @Override public void onClick(View v) { batteryPollOn = !batteryPollOn; paintToggles(); }
         });
-        fastBtn = chip("", new View.OnClickListener() {
-            @Override public void onClick(View v) { fast = !fast; link.setFast(fast); paintToggles(); }
-        });
         tg.addView(hbBtn);
         tg.addView(batBtn);
-        tg.addView(fastBtn);
         c2.addView(hscroll(tg));
         root.addView(scroll(c2), colParams(1f));
 
@@ -364,8 +397,6 @@ public class MainActivity extends Activity implements Link.Listener {
         tint(hbBtn, heartbeatOn ? ACCENT : RED);
         batBtn.setText("Батерия на 10 s: " + (batteryPollOn ? "вкл" : "изкл"));
         tint(batBtn, batteryPollOn ? ACCENT : CHIP);
-        fastBtn.setText("Бърза връзка: " + (fast ? "вкл" : "изкл"));
-        tint(fastBtn, fast ? ACCENT : CHIP);
     }
 
     // ---- small view helpers
@@ -605,7 +636,8 @@ public class MainActivity extends Activity implements Link.Listener {
     // session
     void onReady() {
         devices.removeAllViews();
-        if (fast) link.setFast(true);
+        // measured: default ≈ 25 ms per frame, BALANCED ≈ 90 ms — always ask for HIGH
+        link.setFast(true);
         link.post(new Runnable() {
             @Override public void run() {
                 link.write(Proto.batteryInit(), "инициализация (като EMSFIT)");
@@ -712,6 +744,28 @@ public class MainActivity extends Activity implements Link.Listener {
                     levelText[ch].setText(String.valueOf(level[ch]));
                     levelText[ch].setTextColor(level[ch] > 0 ? AMBER : TEXT);
                 }
+                showRunState();
+            }
+        });
+    }
+
+    void showRunState() {
+        main.post(new Runnable() {
+            @Override public void run() {
+                if (runState == null) return;
+                if (running && onMask() != 0) {
+                    runState.setText("▶ РАБОТИ");
+                    runState.setTextColor(ACCENT);
+                } else if (running) {
+                    runState.setText("▶ пуснат, но всички канали са на 0");
+                    runState.setTextColor(AMBER);
+                } else if (onMask() != 0) {
+                    runState.setText("■ СПРЯН — натисни ▶ Старт, за да тръгне");
+                    runState.setTextColor(AMBER);
+                } else {
+                    runState.setText("■ СПРЯН");
+                    runState.setTextColor(DIM);
+                }
             }
         });
     }
@@ -724,6 +778,7 @@ public class MainActivity extends Activity implements Link.Listener {
             @Override public void run() { link.write(Proto.enable(m), "СТАРТ"); }
         });
         if (m == 0) onLog("Старт без сила — вдигни канал с +");
+        showRunState();
     }
 
     void pause() {
@@ -732,6 +787,7 @@ public class MainActivity extends Activity implements Link.Listener {
         link.post(new Runnable() {
             @Override public void run() { link.write(Proto.allOff(), "ПАУЗА"); }
         });
+        showRunState();
     }
 
     void stopAll() {
@@ -740,10 +796,22 @@ public class MainActivity extends Activity implements Link.Listener {
         Arrays.fill(level, 0);
         refreshLevels();
         link.clearQueue();
+        final boolean guided = uiTest;
+        if (uiTest) {
+            uiTest = false;
+            wdActive = false;
+            testBusy = false;
+            heartbeatOn = true;
+            link.heartbeatEnabled = true;
+            paintToggles();
+            hideAsk();
+            result.setText("Тестът е спрян.");
+        }
         link.post(new Runnable() {
             @Override public void run() {
                 link.write(Proto.allOff(), "СТОП");
                 for (int ch = 1; ch <= 8; ch++) link.write(Proto.intensity(ch, 0), "СТОП");
+                if (guided) uploadProgramOnWorker();
                 abort = false;
             }
         });
@@ -811,12 +879,15 @@ public class MainActivity extends Activity implements Link.Listener {
                         Arrays.sort(sorted);
                         double med = (sorted[3] + sorted[4]) / 2;
                         rep.append(String.format(Locale.US, "Шум ±%.1f raw · медиана на спада %.1f raw%n", noise, med));
-                        if (med < 3 * Math.max(noise, 0.5)) {
-                            rep.append("Спадът е под шума — вдигни нивото на теста или изчакването.\n");
+                        boolean noSignal = med < 3 * Math.max(noise, 0.5);
+                        if (noSignal) {
+                            rep.append("Батерията не показва товара — каналите НЕ могат да се оценят така.\n"
+                                    + "Вдигни нивото на теста или пусни „Батерия под товар“.\n");
                         }
                         for (int ch = 1; ch <= 8; ch++) {
                             String verdict;
                             if (Double.isNaN(delta[ch])) verdict = "няма отчет";
+                            else if (noSignal) verdict = "неизвестно";
                             else if (med > 0 && delta[ch] < 0.25 * med && delta[ch] < 2 * Math.max(noise, 0.5)) verdict = "НЯМА ТОК — кабел/електрод?";
                             else if (med > 0 && delta[ch] > 2.5 * med) verdict = "ТВЪРДЕ МНОГО — утечка?";
                             else verdict = "ок";
@@ -897,12 +968,11 @@ public class MainActivity extends Activity implements Link.Listener {
                     }
                     rep = String.format(Locale.US,
                             "Запис→ACK: %d/30, средно %s ms, мин %s, макс %s; 30 кадъра за %d ms (%.1f кадъра/s)%n"
-                                    + "Батерия: %d/10 отговора, средно %s ms, мин %s, макс %s%n"
-                                    + "Бърза връзка: %s",
+                                    + "Батерия: %d/10 отговора, средно %s ms, мин %s, макс %s",
                             ok, ok > 0 ? String.valueOf(sum / ok) : "—", ok > 0 ? String.valueOf(min) : "—",
                             ok > 0 ? String.valueOf(max) : "—", total, 30000.0 / Math.max(1, total),
                             bok, bok > 0 ? String.valueOf(bsum / bok) : "—", bok > 0 ? String.valueOf(bmin) : "—",
-                            bok > 0 ? String.valueOf(bmax) : "—", fast ? "вкл" : "изкл");
+                            bok > 0 ? String.valueOf(bmax) : "—");
                 } finally {
                     testBusy = false;
                 }
@@ -916,11 +986,235 @@ public class MainActivity extends Activity implements Link.Listener {
     }
 
     // =====================================================================================
+    // guided tests (the user answers on screen)
+
+    interface Pick { void pick(int i); }
+
+    void ask(String title, String[] options, final Pick cb) {
+        askTitle.setText(title);
+        askButtons.removeAllViews();
+        LinearLayout r = null;
+        for (int i = 0; i < options.length; i++) {
+            if (i % 3 == 0) {
+                r = row();
+                askButtons.addView(r);
+            }
+            final int k = i;
+            Button b = button(options[i], i == options.length - 1 && options.length > 2 ? CHIP : BLUE,
+                    new View.OnClickListener() {
+                        @Override public void onClick(View v) { cb.pick(k); }
+                    });
+            b.setTextSize(15);
+            r.addView(b, weight());
+        }
+        askBox.setVisibility(View.VISIBLE);
+    }
+
+    void hideAsk() {
+        askBox.setVisibility(View.GONE);
+        askButtons.removeAllViews();
+    }
+
+    static final String[] MUSCLES = {"Гърди", "Корем", "Ръце", "Рамене / трапец", "Горен гръб", "Кръст",
+            "Седалище", "Предно бедро", "Задно бедро", "Прасец", "Нищо не усещам", "+2 сила"};
+
+    /** One channel at a time, continuous output; the user taps which muscle works. */
+    void mapStart() {
+        if (!requireReady() || testBusy) return;
+        testBusy = true;
+        uiTest = true;
+        running = false;
+        Arrays.fill(level, 0);
+        Arrays.fill(mapResult, null);
+        refreshLevels();
+        mapLevel = testLevel;
+        final int fHz = hz, fW = widthUs;
+        result.setText("Карта на каналите…");
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.log("===== КАРТА НА КАНАЛИТЕ: ниво " + mapLevel + ", " + fHz + " Hz, " + fW + " µs, без пауза =====");
+                link.write(Proto.reset(), "карта");
+                for (int ch = 1; ch <= 8; ch++) writeChannelProgram(ch, fHz, fW, 0, 60000, 0, 0, -1, true);
+                link.write(Proto.allOff(), "карта");
+                main.post(new Runnable() {
+                    @Override public void run() { if (uiTest) mapNext(1); }
+                });
+            }
+        });
+    }
+
+    void mapNext(final int ch) {
+        if (ch > 8) { mapFinish(); return; }
+        mapCh = ch;
+        final int lv = mapLevel;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.intensity(ch, lv), "карта C" + ch);
+                link.write(Proto.enable(1 << (ch - 1)), "карта C" + ch + " сам");
+            }
+        });
+        ask("Работи само C" + ch + " (сила " + lv + "). Кой мускул се свива?", MUSCLES, new Pick() {
+            @Override public void pick(int i) {
+                if (!uiTest) return;
+                if (i == MUSCLES.length - 1) {
+                    mapLevel = Math.min(60, mapLevel + 2);
+                    final int nl = mapLevel;
+                    link.post(new Runnable() {
+                        @Override public void run() { link.write(Proto.intensity(ch, nl), "карта C" + ch + " +2"); }
+                    });
+                    askTitle.setText("Работи само C" + ch + " (сила " + nl + "). Кой мускул се свива?");
+                    return;
+                }
+                mapResult[ch] = MUSCLES[i] + " (сила " + mapLevel + ")";
+                onLog("КАРТА C" + ch + " = " + mapResult[ch]);
+                link.post(new Runnable() {
+                    @Override public void run() {
+                        link.write(Proto.allOff(), "карта C" + ch + " край");
+                        link.write(Proto.intensity(ch, 0), null);
+                    }
+                });
+                mapNext(ch + 1);
+            }
+        });
+    }
+
+    void mapFinish() {
+        hideAsk();
+        StringBuilder r = new StringBuilder("Карта на каналите:\n");
+        for (int ch = 1; ch <= 8; ch++) r.append("C").append(ch).append(" → ").append(mapResult[ch]).append('\n');
+        final String text = r.toString();
+        result.setText(text);
+        uiTest = false;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.log("===== КРАЙ НА КАРТАТА =====\n" + text);
+                uploadProgramOnWorker();
+                testBusy = false;
+                main.post(new Runnable() {
+                    @Override public void run() { saveLog(false); }
+                });
+            }
+        });
+    }
+
+    /** Stops the heartbeat while a channel runs; the user taps when the suit stops by itself. */
+    void wdStart() {
+        if (!requireReady() || testBusy) return;
+        if (!running || onMask() == 0) {
+            result.setText("Първо пусни един канал на ниска сила с ▶ Старт, после натисни „Тест watchdog“.");
+            return;
+        }
+        testBusy = true;
+        uiTest = true;
+        wdActive = true;
+        heartbeatOn = false;
+        link.heartbeatEnabled = false;
+        paintToggles();
+        wdFrom = link.lastSyncAt;
+        onLog("===== WATCHDOG: heartbeat спрян, канали " + Proto.bits(onMask()) + " =====");
+        result.setText("Чакам костюмът да спре сам…");
+        ask("Heartbeat спрян. Натисни, когато костюмът спре:", new String[]{"Спря!", "Не спира"}, new Pick() {
+            @Override public void pick(int i) { wdFinish(i == 0 ? 1 : 0); }
+        });
+    }
+
+    /** stopped: 1 = the user saw it stop, 0 = says it keeps going, −1 = 40 s timeout. */
+    void wdFinish(int stopped) {
+        if (!wdActive) return;
+        double secs = (SystemClock.elapsedRealtime() - wdFrom) / 1000.0;
+        String msg = stopped == 1
+                ? String.format(Locale.US, "WATCHDOG: костюмът спря %.1f s след последния heartbeat", secs)
+                : String.format(Locale.US, "WATCHDOG: костюмът НЕ спря за %.1f s без heartbeat", secs);
+        onLog(msg);
+        result.setText(msg);
+        wdActive = false;
+        uiTest = false;
+        heartbeatOn = true;
+        link.heartbeatEnabled = true;
+        paintToggles();
+        hideAsk();
+        running = false;
+        showRunState();
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.allOff(), "watchdog край");
+                link.write(Proto.sync(6), "heartbeat обратно");
+                testBusy = false;
+            }
+        });
+    }
+
+    /** All channels with strength > 0 run without pause; battery read as fast as it answers, off / on / off. */
+    void loadTest() {
+        if (!requireReady() || testBusy) return;
+        final int mask = onMask();
+        if (mask == 0) {
+            result.setText("Вдигни силата на каналите до ниво, което ясно усещаш (напр. 20–30), после „Батерия под товар“.");
+            return;
+        }
+        testBusy = true;
+        abort = false;
+        running = false;
+        final int[] lv = level.clone();
+        final int fHz = hz, fW = widthUs, f1 = t1, f2 = t2, f3 = t3, f4 = t4, fWave = wave;
+        result.setText("Батерия под товар: 5 s изкл · 8 s вкл · 5 s изкл…");
+        link.post(new Runnable() {
+            @Override public void run() {
+                String rep;
+                try {
+                    StringBuilder l = new StringBuilder();
+                    for (int ch = 1; ch <= 8; ch++) l.append(" C").append(ch).append('=').append(lv[ch]);
+                    link.log("===== БАТЕРИЯ ПОД ТОВАР:" + l + ", " + fHz + " Hz, " + fW + " µs =====");
+                    link.write(Proto.allOff(), "товар");
+                    for (int ch = 1; ch <= 8; ch++) writeChannelProgram(ch, fHz, fW, 0, 60000, 0, 0, -1, false);
+                    double[] a = phase("изкл", 5000);
+                    link.write(Proto.enable(mask), "товар ВКЛ");
+                    double[] b = phase("вкл", 8000);
+                    link.write(Proto.allOff(), "товар ИЗКЛ");
+                    double[] c = phase("изкл 2", 5000);
+                    double offMean = (a[1] + c[1]) / 2, drop = offMean - b[1];
+                    rep = String.format(Locale.US,
+                            "изкл:   %3.0f отчета, средно %.1f (%.0f–%.0f)%n"
+                                    + "вкл:    %3.0f отчета, средно %.1f (%.0f–%.0f)%n"
+                                    + "изкл 2: %3.0f отчета, средно %.1f (%.0f–%.0f)%n"
+                                    + "Спад при товар: %.1f raw = %.1f mV%n%s",
+                            a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], c[0], c[1], c[2], c[3], drop, drop * 2.4,
+                            Math.abs(drop) < 1.0
+                                    ? "Батерията НЕ реагира на товара → проверка на електродите през батерията не става."
+                                    : "Батерията реагира на товара → проверката на електродите е възможна при тази сила.");
+                } finally {
+                    link.write(Proto.allOff(), "товар край");
+                    for (int ch = 1; ch <= 8; ch++) writeChannelProgram(ch, fHz, fW, f1, f2, f3, f4, fWave, false);
+                    testBusy = false;
+                }
+                link.log("===== КРАЙ =====\n" + rep);
+                final String text = rep;
+                main.post(new Runnable() {
+                    @Override public void run() { result.setText(text); showRunState(); saveLog(false); }
+                });
+            }
+        });
+    }
+
+    /** Worker thread: battery readings for ms → {count, mean, min, max}. */
+    double[] phase(String name, int ms) {
+        long end = SystemClock.elapsedRealtime() + ms;
+        double n = 0, sum = 0, mn = Double.MAX_VALUE, mx = 0;
+        while (!abort && SystemClock.elapsedRealtime() < end) {
+            int raw = link.readBattery(800, null);
+            if (raw > 0) { n++; sum += raw; mn = Math.min(mn, raw); mx = Math.max(mx, raw); }
+        }
+        if (n == 0) return new double[]{0, Double.NaN, 0, 0};
+        link.log(String.format(Locale.US, "  %s: %d отчета, средно %.2f (%.0f–%.0f)", name, (int) n, sum / n, mn, mx));
+        return new double[]{n, sum / n, mn, mx};
+    }
+
+    // =====================================================================================
     // periodic
     /** EMSFIT sends SYNC(6) every 4.5 s; long jobs slip their own heartbeats in (Link.keepAlive). */
     final class HeartbeatTick implements Runnable {
         @Override public void run() {
-            if (heartbeatOn && link.ready() && !testBusy) {
+            if (heartbeatOn && link.ready()) {
                 link.post(new Runnable() {
                     @Override public void run() { link.keepAlive(3000); }
                 });
@@ -931,7 +1225,7 @@ public class MainActivity extends Activity implements Link.Listener {
 
     final class BatteryTick implements Runnable {
         @Override public void run() {
-            if (batteryPollOn && link.ready() && !testBusy) {
+            if (batteryPollOn && link.ready() && !testBusy && !wdActive) {
                 link.post(new Runnable() {
                     @Override public void run() { link.readBattery(1500, null); }
                 });
@@ -945,6 +1239,8 @@ public class MainActivity extends Activity implements Link.Listener {
             if (link.ready() && !heartbeatOn && link.lastSyncAt > 0) {
                 long s = (SystemClock.elapsedRealtime() - link.lastSyncAt) / 1000;
                 status.setText("Готов · без heartbeat от " + s + " s");
+                if (wdActive) askTitle.setText("Heartbeat спрян от " + s + " s. Натисни, когато костюмът спре:");
+                if (wdActive && s >= 40) wdFinish(-1);
             }
             main.postDelayed(this, 1000);
         }

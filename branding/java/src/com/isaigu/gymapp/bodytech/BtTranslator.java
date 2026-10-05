@@ -148,6 +148,11 @@ public final class BtTranslator {
         devMask = 0;
     }
 
+    /** The owner's per-channel value may only hold a channel BELOW what the program asks (limits stay upstream). */
+    private static int lower(int own, int program) {
+        return own > 0 && own < program ? own : program;
+    }
+
     /** Strength (0..99 %) the owner's map gives channel ch in the current phase. */
     private int target(int ch) {
         int s = BtSettings.slider(ch);
@@ -155,7 +160,7 @@ public final class BtTranslator {
         int g = BtSettings.group(ch);
         if (phase == SECOND && g == BtSettings.GROUP_MAIN) return 0;
         if (phase == MAIN && g == BtSettings.GROUP_SECOND) return 0;
-        int t = (parts[s] * BtSettings.gain() + 50) / 100;
+        int t = (int) (((long) parts[s] * BtSettings.gain() * BtSettings.chGain(ch) + 5000L) / 10000L);
         return t < 0 ? 0 : (t > MAX_PCT ? MAX_PCT : t);
     }
 
@@ -165,13 +170,16 @@ public final class BtTranslator {
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             int t = target(ch);
             if (t > 0) {
-                if (devHz[ch] != hz) {
-                    out.add(BtProto.hz(ch, hz));
-                    devHz[ch] = hz;
+                int h = lower(BtSettings.chHz(ch, phase == SECOND), hz);
+                int u = lower(BtSettings.chWidth(ch), widthUs);
+                if (u < MIN_US) u = MIN_US;
+                if (devHz[ch] != h) {
+                    out.add(BtProto.hz(ch, h));
+                    devHz[ch] = h;
                 }
-                if (devUs[ch] != widthUs) {
-                    out.add(BtProto.width(ch, widthUs));
-                    devUs[ch] = widthUs;
+                if (devUs[ch] != u) {
+                    out.add(BtProto.width(ch, u));
+                    devUs[ch] = u;
                 }
                 mask |= 1 << (ch - 1);
             }

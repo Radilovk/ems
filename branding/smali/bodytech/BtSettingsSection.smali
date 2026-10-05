@@ -13,6 +13,9 @@
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Group;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Name;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Toggle;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
     }
 .end annotation

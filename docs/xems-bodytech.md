@@ -1,4 +1,4 @@
-# Bodytech suit in XEMS — plain training (1.1.344-ai)
+# Bodytech suit in XEMS — plain training (1.1.345-ai)
 
 A bodytech suit (EMSFIT 5.1 hardware, BLE service `FE50`, name `EMS08-…` / `TZLJ…` / `ADT…`) trains from the stock XEMS
 row: same screen, same ＋/− and sliders, same programs, ramp, double impulse, timer, battery, reconnect.
@@ -32,7 +32,7 @@ bodytech is remembered (`xems_bodytech_suits`).
 |---|---|
 | cmd 1: 10 sliders (`buwei`) | kept; applied by the cmd 3 that always follows it (one coherent step) |
 | cmd 3 flag 1: Hz, width (pdu[4]·50 µs) | per working channel: Hz register, width register (only when changed) |
-| strength of slider *s* | channel *c* with `slider(c) = s`: `strength × gain / 100`, ≤ 99 % |
+| strength of slider *s* | channel *c* with `slider(c) = s`: `strength × global gain × channel gain`, ≤ 99 % |
 | channel works | its strength > 0 → bit in the SEL mask (written last) |
 | pause (cmd 3 flag 0), stop (F2) | SEL all off |
 | second impulse (`sendActivePause`) | channels set to "Основен" are silent, "Втори" work; Hz = pause Hz |
@@ -43,11 +43,19 @@ bodytech is remembered (`xems_bodytech_suits`).
 The suit's own cycle is programmed as one continuous burst (T1 = T3 = T4 = 0, T2 = 100 s): the tablet runs
 impulse / pause / ramp itself (SoftRamp), as it does for the XEMS suit; every phase is a SEL / strength change.
 
-## Owner's map (Settings → Костюм bodytech)
-Per channel C1–C8: name, slider (muscle) or "Няма", impulse (both / main / second). Defaults: EMSFIT labels and the
-nearest slider — C1 Кръст→Кръст, C2 Седалище→Седалище, C3 Рамене→Трапец, C4 Среден гръб→Гръб, C5 Гърди→Гърди,
-C6 Ръце→Ръце, C7 Бедра→Предно бедро, C8 Корем→Корем. Several channels may share a slider. Also: waveform (the suit's
-own / square / sine / trapezoid) and a strength scale 50–150 %. Changes are saved at once and used by the next command.
+## Owner's settings (Settings → Костюм bodytech)
+Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two columns, four channels each):
+- **name** (free text, up to 24 characters; empty = "C<n>");
+- **slider** (muscle) or "Няма" — several channels may share one slider;
+- **works in the impulse**: both / main / second. With the double impulse on, a channel can work in the main one only,
+  in the second only, in both, or (slider "Няма") in none;
+- **Параметри ▾**: strength % of this channel on top of the slider (0–150), pulse width µs, Hz of the main impulse and
+  Hz of the second impulse. "Авто" = as the program says. Width and Hz can only **lower** the program's value
+  (the limits of `docs/xems-safety-limits.md` stay upstream; main ≤ 120 Hz, second ≤ 10 Hz here too).
+Global: waveform (the suit's own / square / sine / trapezoid) and a strength scale 50–150 %.
+Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C2 Седалище→Седалище, C3 Рамене→Трапец, C4 Среден
+гръб→Гръб, C5 Гърди→Гърди, C6 Ръце→Ръце, C7 Бедра→Предно бедро, C8 Корем→Корем. "По подразбиране" resets everything.
+Changes are saved at once and used by the next command the row sends.
 
 ## Safety
 - Strength ≤ 99 % per channel, a channel is on only when its slider gives it strength, width 50–511 µs.

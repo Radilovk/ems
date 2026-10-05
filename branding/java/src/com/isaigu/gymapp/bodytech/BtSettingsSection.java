@@ -79,6 +79,7 @@ public final class BtSettingsSection {
     static final class Sheet {
         final Activity a;
         final XemsUi.Shell sh;
+        final boolean[] open = new boolean[BtSettings.CHANNELS + 1];
 
         Sheet(Activity a) {
             this.a = a;
@@ -106,9 +107,9 @@ public final class BtSettingsSection {
             cols.setGravity(Gravity.TOP);
             LinearLayout left = XemsUi.vertical(a);
             LinearLayout right = XemsUi.vertical(a);
-            for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
-                LinearLayout col = ch <= 4 ? left : right;
-                col.addView(channel(ch), XemsUi.matchWrap(a, ch == 1 || ch == 5 ? 0 : 10));
+            for (int pos = 0; pos < BtSettings.CHANNELS; pos++) {
+                LinearLayout col = pos < 4 ? left : right;
+                col.addView(channel(BtSettings.channelAt(pos)), XemsUi.matchWrap(a, pos == 0 || pos == 4 ? 0 : 10));
             }
             cols.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             cols.addView(right, XemsUi.weight(1f, 12, a));
@@ -152,6 +153,16 @@ public final class BtSettingsSection {
             name.setPadding(XemsUi.dp(a, 12), 0, 0, 0);
             name.addTextChangedListener(new Name(ch));
             head.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            int pos = BtSettings.positionOf(ch);
+            TextView up = XemsUi.iconButton(a, "▲", XemsUi.SURFACE, pos > 0 ? XemsUi.TEXT : XemsUi.HINT, 34);
+            up.setOnClickListener(new Move(this, ch, -1));
+            TextView down = XemsUi.iconButton(a, "▼", XemsUi.SURFACE,
+                    pos < BtSettings.CHANNELS - 1 ? XemsUi.TEXT : XemsUi.HINT, 34);
+            down.setOnClickListener(new Move(this, ch, +1));
+            LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));
+            ml.leftMargin = XemsUi.dp(a, 6);
+            head.addView(up, ml);
+            head.addView(down, ml);
             s.addView(head);
 
             LinearLayout.LayoutParams gap = XemsUi.matchWrap(a, 10);
@@ -163,9 +174,117 @@ public final class BtSettingsSection {
                 XemsUi.addChip(a, holder[0], c);
             }
             s.addView(hs, gap);
-            s.addView(XemsUi.segmented(a, BtSettings.GROUPS, BtSettings.group(ch), new Group(this, ch)),
-                    XemsUi.matchWrap(a, 10));
+            TextView in = XemsUi.label(a, "Работи в импулс");
+            in.setPadding(0, XemsUi.dp(a, 10), 0, XemsUi.dp(a, 6));
+            s.addView(in);
+            s.addView(XemsUi.segmented(a, BtSettings.GROUPS, BtSettings.group(ch), new Group(this, ch)));
+
+            TextView more = XemsUi.chip(a, open[ch] ? "Параметри ▴" : "Параметри ▾", open[ch], XemsUi.ACCENT);
+            more.setOnClickListener(new Toggle(this, ch));
+            LinearLayout.LayoutParams mp = XemsUi.matchWrap(a, 10);
+            mp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            s.addView(more, mp);
+            if (open[ch]) s.addView(params(ch), XemsUi.matchWrap(a, 8));
             return s;
+        }
+
+        /** The channel's own strength, width and Hz — 2 × 2 steppers. */
+        View params(int ch) {
+            LinearLayout box = XemsUi.vertical(a);
+            LinearLayout r1 = XemsUi.horizontal(a);
+            r1.setGravity(Gravity.TOP);
+            r1.addView(field("Сила", String.valueOf(BtSettings.chGain(ch)) + " %", new Param(this, ch, Param.GAIN)),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            int w = BtSettings.chWidth(ch);
+            r1.addView(field("Ширина", w == 0 ? "Авто" : w + " µs", new Param(this, ch, Param.WIDTH)),
+                    XemsUi.weight(1f, 8, a));
+            box.addView(r1);
+            LinearLayout r2 = XemsUi.horizontal(a);
+            r2.setGravity(Gravity.TOP);
+            int hm = BtSettings.chHz(ch, false);
+            int hs = BtSettings.chHz(ch, true);
+            r2.addView(field("Hz основен", hm == 0 ? "Авто" : hm + " Hz", new Param(this, ch, Param.HZ_MAIN)),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            r2.addView(field("Hz втори", hs == 0 ? "Авто" : hs + " Hz", new Param(this, ch, Param.HZ_SECOND)),
+                    XemsUi.weight(1f, 8, a));
+            box.addView(r2, XemsUi.matchWrap(a, 8));
+            TextView note = XemsUi.text(a, "Авто = както в програмата. Hz и ширина могат само да намалят стойността от програмата.",
+                    12, XemsUi.HINT, false);
+            note.setPadding(0, XemsUi.dp(a, 8), 0, 0);
+            box.addView(note);
+            return box;
+        }
+
+        View field(String label, String value, XemsUi.OnStep cb) {
+            LinearLayout f = XemsUi.vertical(a);
+            f.addView(XemsUi.label(a, label));
+            f.addView(XemsUi.stepper(a, value, null, 16, cb).view);
+            return f;
+        }
+    }
+
+    /** ▲ / ▼: the channel one place up / down in the sheet. */
+    static final class Move implements View.OnClickListener {
+        final Sheet sheet;
+        final int ch, dir;
+
+        Move(Sheet sheet, int ch, int dir) {
+            this.sheet = sheet;
+            this.ch = ch;
+            this.dir = dir;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            BtSettings.move(ch, dir);
+            sheet.render();
+        }
+    }
+
+    static final class Toggle implements View.OnClickListener {
+        final Sheet sheet;
+        final int ch;
+
+        Toggle(Sheet sheet, int ch) {
+            this.sheet = sheet;
+            this.ch = ch;
+        }
+
+        @Override
+        public void onClick(View v) {
+            sheet.open[ch] = !sheet.open[ch];
+            sheet.render();
+        }
+    }
+
+    /** − / + of one channel parameter. Width and Hz: 0 = "Авто" (the program's). */
+    static final class Param implements XemsUi.OnStep {
+        static final int GAIN = 0, WIDTH = 1, HZ_MAIN = 2, HZ_SECOND = 3;
+        final Sheet sheet;
+        final int ch, what;
+
+        Param(Sheet sheet, int ch, int what) {
+            this.sheet = sheet;
+            this.ch = ch;
+            this.what = what;
+        }
+
+        @Override
+        public void onStep(int dir) {
+            if (what == GAIN) {
+                BtSettings.setChGain(ch, BtSettings.chGain(ch) + 5 * dir);
+            } else if (what == WIDTH) {
+                int w = BtSettings.chWidth(ch);
+                if (w == 0) w = dir > 0 ? BtSettings.WIDTH_MIN : 0;
+                else if (dir < 0 && w <= BtSettings.WIDTH_MIN) w = 0;
+                else w += 10 * dir;
+                BtSettings.setChWidth(ch, w);
+            } else {
+                boolean second = what == HZ_SECOND;
+                BtSettings.setChHz(ch, second, BtSettings.chHz(ch, second) + dir);
+            }
+            sheet.render();
         }
     }
 

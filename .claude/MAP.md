@@ -196,9 +196,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 **bodytech/** (`branding/java/src/com/isaigu/gymapp/bodytech/`)
 - `BtBridge.java` (349L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtProto.java` (148L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
-- `BtSettings.java` (161L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
-- `BtSettingsSection.java` (273L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
-- `BtTranslator.java` (189L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtSettings.java` (260L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
+- `BtSettingsSection.java` (392L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
+- `BtTranslator.java` (197L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -744,14 +744,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (69L)
-  - L1 # Bodytech suit in XEMS — plain training (1.1.344-ai)
+`docs/xems-bodytech.md` (77L)
+  - L1 # Bodytech suit in XEMS — plain training (1.1.345-ai)
   - L8 ## How it works
   - L30 ## Translation (XEMS → bodytech)
-  - L46 ## Owner's map (Settings → Костюм bodytech)
-  - L52 ## Safety
-  - L60 ## Not verified on a person yet
-  - L66 ## Tests
+  - L46 ## Owner's settings (Settings → Костюм bodytech)
+  - L60 ## Safety
+  - L68 ## Not verified on a person yet
+  - L74 ## Tests
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

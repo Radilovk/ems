@@ -7,7 +7,9 @@ Confirmed on a real suit (probe 0.1, 2026-10-05, `EMS08-05629`, 02:BC:34:D6:2D:9
 every frame ACKed, battery reply. FE51 props 0x1a (read, write, notify). Write→ACK ≈ 25 ms with the default /
 HIGH connection priority, ≈ 90 ms after asking for BALANCED. No reply except battery. Battery raw stayed
 1570–1572 with seven channels at strength 1–6 — the voltage does not show a light load.
-Still open: channel → muscle map, watchdog behaviour, battery under a strong load, firmware limits.
+Channel names (EMSFIT labels, customButtonN → CH): C1 WAIST, C2 GLUTES, C3 SHOULDER, C4 MIDDLE BACK, C5 CHEST,
+C6 ARM, C7 LEG, C8 ABDOMEN.
+Still open: watchdog behaviour, battery under a strong load, any readable register besides battery (probe 0.3 auto test).
 
 ## Link
 | | |

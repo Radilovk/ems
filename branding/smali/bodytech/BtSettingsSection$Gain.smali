@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 351
+    .line 487
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 352
+    .line 488
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Gain;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 353
+    .line 489
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 357
+    .line 493
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->gain()I
 
     move-result v0
@@ -53,11 +53,11 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setGain(I)V
 
-    .line 358
+    .line 494
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Gain;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 359
+    .line 495
     return-void
 .end method

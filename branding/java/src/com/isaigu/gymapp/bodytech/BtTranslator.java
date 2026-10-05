@@ -32,6 +32,9 @@ public final class BtTranslator {
     private int hz = DEF_HZ, widthUs = DEF_US;
     private boolean on;
     private long deadlineMs;
+    private int testCh, testPct;           // the owner holds "test" on one channel (settings sheet); 0 = none
+    static final int TEST_MAX_PCT = 30;
+    static final long TEST_MS = 1500L;
 
     // what the suit holds now (as far as we know)
     private boolean programmed;
@@ -61,6 +64,10 @@ public final class BtTranslator {
     /** One XEMS command (the 0x53 frame's cmd and pdu). Returns the bodytech frames, in order; may be empty. */
     public synchronized List<byte[]> command(int cmd, byte[] pdu, long nowMs) {
         List<byte[]> out = new ArrayList<byte[]>();
+        if (testCh != 0 && cmd != CMD_BATTERY) {      // the row speaks: the test is over
+            testCh = 0;
+            off(out);
+        }
         prepare(out);
         if (cmd == CMD_SETTING) {
             // kept; the cmd 3 that always follows it (CommandSender: sendDuration / sendActivePause) applies it, so
@@ -88,6 +95,35 @@ public final class BtTranslator {
         } else if (cmd == CMD_BATTERY) {
             out.add(BtProto.batterySync());
         }
+        return out;
+    }
+
+    /** A real training is running (not just a held test). */
+    public synchronized boolean training() {
+        return on && testCh == 0;
+    }
+
+    /**
+     * The owner holds "test" on channel ch at pct % (1..30): only that channel, at the program's default Hz / width,
+     * until {@link #testOff} or {@link #TEST_MS} without a renewal. Refused (empty) while a training runs.
+     */
+    public synchronized List<byte[]> testOn(int ch, int pct, long nowMs) {
+        List<byte[]> out = new ArrayList<byte[]>();
+        if (training() || ch < 1 || ch > BtSettings.CHANNELS) return out;
+        prepare(out);
+        testCh = ch;
+        testPct = pct < 1 ? 1 : (pct > TEST_MAX_PCT ? TEST_MAX_PCT : pct);
+        hz = DEF_HZ;
+        widthUs = DEF_US;
+        on = true;
+        deadlineMs = nowMs + TEST_MS;
+        reconcile(out);
+        return out;
+    }
+
+    public synchronized List<byte[]> testOff() {
+        List<byte[]> out = new ArrayList<byte[]>();
+        if (testCh != 0) off(out);
         return out;
     }
 
@@ -144,6 +180,7 @@ public final class BtTranslator {
 
     private void off(List<byte[]> out) {
         on = false;
+        testCh = 0;
         if (devMask != 0) out.add(BtProto.allOff());
         devMask = 0;
     }
@@ -155,6 +192,7 @@ public final class BtTranslator {
 
     /** Strength (0..99 %) the owner's map gives channel ch in the current phase. */
     private int target(int ch) {
+        if (testCh != 0) return ch == testCh ? testPct : 0;
         int s = BtSettings.slider(ch);
         if (s < 0 || s >= 10) return 0;
         int g = BtSettings.group(ch);
@@ -170,8 +208,8 @@ public final class BtTranslator {
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             int t = target(ch);
             if (t > 0) {
-                int h = lower(BtSettings.chHz(ch, phase == SECOND), hz);
-                int u = lower(BtSettings.chWidth(ch), widthUs);
+                int h = testCh != 0 ? hz : lower(BtSettings.chHz(ch, phase == SECOND), hz);
+                int u = testCh != 0 ? widthUs : lower(BtSettings.chWidth(ch), widthUs);
                 if (u < MIN_US) u = MIN_US;
                 if (devHz[ch] != h) {
                     out.add(BtProto.hz(ch, h));

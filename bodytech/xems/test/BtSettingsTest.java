@@ -93,6 +93,16 @@ public class BtSettingsTest {
         eq("reset: channel gain", 100, BtSettings.chGain(2));
         eq("reset: width auto", 0, BtSettings.chWidth(2));
 
+        BtSettings.reset();
+        BtSettings.sortLeftToRight();
+        // defaults: C1 lower back(7), C2 glutes(8), C3 traps(5), C4 back(6), C5 chest(0), C6 arms(4), C7 front thigh(2), C8 abs(1)
+        // row order: calf, front thigh, back thigh, glutes, abs, lower back, back, traps, chest, arms
+        eq("left to right", "7,2,8,1,4,3,5,6", order());
+        BtSettings.setSlider(1, BtSettings.NO_SLIDER);
+        BtSettings.sortLeftToRight();
+        eq("no slider goes last", 1, BtSettings.channelAt(7));
+        BtSettings.reset();
+
         if (fails > 0) System.exit(1);
     }
 }

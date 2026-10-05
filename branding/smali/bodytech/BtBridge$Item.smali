@@ -27,18 +27,18 @@
     .registers 4
 
     .prologue
-    .line 182
+    .line 210
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 183
+    .line 211
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Item;->frame:[B
 
-    .line 184
+    .line 212
     iput-object p2, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Item;->cb:Lcom/clj/fastble/callback/BleWriteCallback;
 
-    .line 185
+    .line 213
     iput-object p3, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Item;->orig:[B
 
-    .line 186
+    .line 214
     return-void
 .end method

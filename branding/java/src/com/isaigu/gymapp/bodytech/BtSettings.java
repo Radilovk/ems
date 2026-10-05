@@ -23,6 +23,9 @@ public final class BtSettings {
     public static final String[] SLIDERS = {"Гърди", "Корем", "Предно бедро", "Прасец", "Ръце", "Трапец",
             "Гръб", "Кръст", "Седалище", "Задно бедро"};
     public static final int NO_SLIDER = -1;
+    /** The training row's sliders, left to right (reorder-muscles.py): calf, front thigh, back thigh, glutes, abs,
+     *  lower back, back, trapezius, chest, arms — as indexes into {@link #SLIDERS}. */
+    public static final int[] ROW_ORDER = {3, 2, 9, 8, 1, 7, 6, 5, 0, 4};
 
     /** EMSFIT labels (customButtonN → CH): C1 WAIST … C8 ABDOMEN. Index 0 unused. */
     static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Гърди", "Ръце",
@@ -203,6 +206,27 @@ public final class BtSettings {
         if (!valid(ch)) return;
         if (second) chHzSecond[ch] = clampHz(hz, HZ_SECOND_MAX);
         else chHzMain[ch] = clampHz(hz, HZ_MAIN_MAX);
+        save();
+    }
+
+    /** Channels in the order of the row's sliders, left to right (several on one slider keep their order, none last). */
+    public static synchronized void sortLeftToRight() {
+        int[] key = new int[CHANNELS + 1];
+        for (int ch = 1; ch <= CHANNELS; ch++) {
+            int k = 100;
+            for (int i = 0; i < ROW_ORDER.length; i++) if (ROW_ORDER[i] == slider[ch]) k = i;
+            key[ch] = k * 10 + ch;
+        }
+        for (int i = 0; i < CHANNELS; i++) order[i] = i + 1;
+        for (int i = 1; i < CHANNELS; i++) {
+            int c = order[i];
+            int j = i - 1;
+            while (j >= 0 && key[order[j]] > key[c]) {
+                order[j + 1] = order[j];
+                j--;
+            }
+            order[j + 1] = c;
+        }
         save();
     }
 

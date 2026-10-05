@@ -234,6 +234,24 @@ public class BtTranslatorTest {
         eq("second: C1 no C2 yes C3 none", hex(BtProto.enable(0xFF & ~0x01 & ~0x04)), hex(f.get(f.size() - 1)));
         BtSettings.reset();
 
+        // --- held test of one channel: only that channel, low, refused during a training, off on release / timeout
+        tr = new BtTranslator();
+        f = tr.testOn(3, 5, 0);
+        eq("test: C3 at 5 %", true, has(f, BtProto.intensity(3, 5)));
+        eq("test: only C3 in SEL", hex(BtProto.enable(0x04)), hex(f.get(f.size() - 1)));
+        eq("test: not a training", false, tr.training());
+        eq("test renewed: nothing new", 0, tr.testOn(3, 5, 400).size());
+        eq("test capped at 30 %", true, has(tr.testOn(3, 90, 500), BtProto.intensity(3, 30)));
+        eq("test timeout → SEL all off", hexAll(java.util.Arrays.asList(BtProto.allOff())), hexAll(tr.heartbeat(2200)));
+        tr.testOn(3, 5, 3000);
+        eq("test release → SEL all off", hexAll(java.util.Arrays.asList(BtProto.allOff())), hexAll(tr.testOff()));
+        tr.testOn(3, 5, 4000);
+        f = tr.command(1, setting(50), 4100);
+        eq("the row speaking ends the test", hex(BtProto.allOff()), hex(f.get(0)));
+        pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), 4200);
+        eq("training running", true, tr.training());
+        eq("test refused during a training", 0, tr.testOn(3, 5, 4300).size());
+
         // --- which suit
         eq("FE50 in scan record", true, BtProto.has16(new byte[]{2, 1, 6, 3, 3, 0x50, (byte) 0xFE}, 0xFE50));
         eq("FFF0 is not FE50", false, BtProto.has16(new byte[]{2, 1, 6, 3, 3, (byte) 0xF0, (byte) 0xFF}, 0xFE50));

@@ -84,6 +84,34 @@ public final class BtBridge {
         }
     }
 
+    /**
+     * Settings sheet: hold "test" on one channel (the owner finds out which muscle it is). down = on at pct %
+     * (renew every ≤ 1 s), !down = off. Returns "ok", "no_suit" (no connected bodytech suit has been used yet — connect it
+     * from Тренировка first) or "training" (a real training runs on it).
+     */
+    public static String test(int ch, int pct, boolean down) {
+        try {
+            Dev v = null;
+            synchronized (BtBridge.class) {
+                for (Dev x : DEVS.values()) {
+                    if (BleManager.getInstance().isConnected(x.d)) {
+                        v = x;
+                        break;
+                    }
+                }
+            }
+            if (v == null) return "no_suit";
+            if (v.tr.training()) return "training";
+            v.begin();
+            if (down) v.add(v.tr.testOn(ch, pct, SystemClock.elapsedRealtime()), null, null, false);
+            else v.add(v.tr.testOff(), null, null, true);
+            return "ok";
+        } catch (Throwable t) {
+            Log.e(TAG, "test: " + t);
+            return "no_suit";
+        }
+    }
+
     /** CommandReceiver.onReceiveData start: a bodytech reply → battery percent for the row. true = handled. */
     public static boolean reply(BleDevice d, byte[] data, OnReceiveCommandListener l) {
         try {

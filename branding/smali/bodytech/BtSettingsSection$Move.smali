@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 231
+    .line 268
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 232
+    .line 269
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 233
+    .line 270
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;->ch:I
 
-    .line 234
+    .line 271
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;->dir:I
 
-    .line 235
+    .line 272
     return-void
 .end method
 
@@ -52,21 +52,21 @@
     .registers 4
 
     .prologue
-    .line 239
+    .line 276
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 240
+    .line 277
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;->ch:I
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;->dir:I
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->move(II)V
 
-    .line 241
+    .line 278
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 242
+    .line 279
     return-void
 .end method

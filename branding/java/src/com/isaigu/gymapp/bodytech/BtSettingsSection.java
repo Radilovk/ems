@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -80,6 +83,9 @@ public final class BtSettingsSection {
         final Activity a;
         final XemsUi.Shell sh;
         final boolean[] open = new boolean[BtSettings.CHANNELS + 1];
+        int level = 3;                                    // test strength, % (1..30)
+        final Handler handler = new Handler(Looper.getMainLooper());
+        Hold hold;
 
         Sheet(Activity a) {
             this.a = a;
@@ -90,9 +96,25 @@ public final class BtSettingsSection {
             reset.setOnClickListener(new Reset(this));
             TextView done = XemsUi.button(a, "Готово", XemsUi.PRIMARY);
             done.setOnClickListener(new Done(sh));
+            TextView sort = XemsUi.button(a, "Подреди ляво → дясно", XemsUi.SECONDARY);
+            sort.setOnClickListener(new Sort(this));
             sh.footer.addView(reset);
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            sp.leftMargin = XemsUi.dp(a, 10);
+            sh.footer.addView(sort, sp);
+            sh.dialog.setOnDismissListener(new Stop(this));
             sh.footer.addView(XemsUi.spacer(a));
             sh.footer.addView(done);
+        }
+
+        void stopHold() {
+            if (hold != null) {
+                hold.live = false;
+                handler.removeCallbacks(hold);
+                hold = null;
+            }
+            BtBridge.test(0, 0, false);
         }
 
         void show() {
@@ -103,6 +125,17 @@ public final class BtSettingsSection {
         /** Redraw from the saved values (after any change that moves a chip). */
         void render() {
             sh.body.removeAllViews();
+            LinearLayout test = XemsUi.horizontal(a);
+            TextView tl = XemsUi.text(a, "Тест на канал: дръж ▶ на канала, за да усетиш кой мускул работи. Ниво:", 14,
+                    XemsUi.MUTED, false);
+            test.addView(tl, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            LinearLayout lv = XemsUi.stepper(a, level + " %", null, 16, new Level(this)).view;
+            test.addView(lv, new LinearLayout.LayoutParams(XemsUi.dp(a, 190), ViewGroup.LayoutParams.WRAP_CONTENT));
+            sh.body.addView(test, XemsUi.matchWrap(a, 0));
+            TextView tn = XemsUi.text(a, "Костюмът трябва да е свързан от екрана Тренировка. Започни от най-ниското ниво.",
+                    12, XemsUi.HINT, false);
+            tn.setPadding(0, XemsUi.dp(a, 4), 0, XemsUi.dp(a, 10));
+            sh.body.addView(tn);
             LinearLayout cols = XemsUi.horizontal(a);
             cols.setGravity(Gravity.TOP);
             LinearLayout left = XemsUi.vertical(a);
@@ -163,12 +196,16 @@ public final class BtSettingsSection {
             ml.leftMargin = XemsUi.dp(a, 6);
             head.addView(up, ml);
             head.addView(down, ml);
+            TextView play = XemsUi.iconButton(a, "▶", XemsUi.GO, 0xFFFFFFFF, 34);
+            play.setOnTouchListener(new TestTouch(this, ch));
+            head.addView(play, ml);
             s.addView(head);
 
             LinearLayout.LayoutParams gap = XemsUi.matchWrap(a, 10);
             LinearLayout[] holder = new LinearLayout[1];
             HorizontalScrollView hs = XemsUi.chipRow(a, holder);
-            for (int i = -1; i < BtSettings.SLIDERS.length; i++) {
+            for (int k = -1; k < BtSettings.ROW_ORDER.length; k++) {
+                int i = k < 0 ? -1 : BtSettings.ROW_ORDER[k];       // the row's order, left to right
                 TextView c = XemsUi.chip(a, BtSettings.sliderName(i), BtSettings.slider(ch) == i, XemsUi.GO_TEXT);
                 c.setOnClickListener(new Pick(this, Pick.SLIDER, ch, i));
                 XemsUi.addChip(a, holder[0], c);
@@ -285,6 +322,105 @@ public final class BtSettingsSection {
                 BtSettings.setChHz(ch, second, BtSettings.chHz(ch, second) + dir);
             }
             sheet.render();
+        }
+    }
+
+    /** Hold = the channel works at the test level; release (or 1.5 s without a renewal) = off. */
+    static final class TestTouch implements View.OnTouchListener {
+        final Sheet sheet;
+        final int ch;
+
+        TestTouch(Sheet sheet, int ch) {
+            this.sheet = sheet;
+            this.ch = ch;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent e) {
+            int act = e.getActionMasked();
+            if (act == MotionEvent.ACTION_DOWN) {
+                v.setPressed(true);
+                XemsUi.haptic(v);
+                sheet.stopHold();
+                sheet.hold = new Hold(sheet, ch);
+                sheet.hold.run();
+                return true;
+            }
+            if (act == MotionEvent.ACTION_UP || act == MotionEvent.ACTION_CANCEL) {
+                v.setPressed(false);
+                sheet.stopHold();
+                return true;
+            }
+            return true;
+        }
+    }
+
+    /** While held: renew the test every 500 ms and say what happened. */
+    static final class Hold implements Runnable {
+        final Sheet sheet;
+        final int ch;
+        boolean live = true;
+
+        Hold(Sheet sheet, int ch) {
+            this.sheet = sheet;
+            this.ch = ch;
+        }
+
+        @Override
+        public void run() {
+            if (!live) return;
+            String r = BtBridge.test(ch, sheet.level, true);
+            if ("ok".equals(r)) {
+                sheet.sh.subtitle.setText(BtSettings.name(ch) + " · " + sheet.level + " %");
+                sheet.handler.postDelayed(this, 500);
+            } else {
+                sheet.sh.subtitle.setText("no_suit".equals(r)
+                        ? "Няма свързан bodytech костюм — свържи го от екрана Тренировка"
+                        : "Тренировка върви на костюма — спри я, за да тестваш");
+                live = false;
+            }
+            sheet.sh.subtitle.setVisibility(View.VISIBLE);
+        }
+    }
+
+    static final class Level implements XemsUi.OnStep {
+        final Sheet sheet;
+
+        Level(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public void onStep(int dir) {
+            sheet.level = Math.max(1, Math.min(BtTranslator.TEST_MAX_PCT, sheet.level + dir));
+            sheet.render();
+        }
+    }
+
+    static final class Sort implements View.OnClickListener {
+        final Sheet sheet;
+
+        Sort(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public void onClick(View v) {
+            BtSettings.sortLeftToRight();
+            sheet.render();
+        }
+    }
+
+    static final class Stop implements android.content.DialogInterface.OnDismissListener {
+        final Sheet sheet;
+
+        Stop(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public void onDismiss(android.content.DialogInterface d) {
+            sheet.stopHold();
         }
     }
 

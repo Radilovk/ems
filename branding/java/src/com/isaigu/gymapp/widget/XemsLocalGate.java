@@ -21,8 +21,7 @@ import com.isaigu.gymapp.utils.FileUtils;
  * <ul>
  *   <li><b>Login</b> — never shown and never sent anywhere (1.1.330): the splash screen takes the vendor's own
  *       offline path with a local session ({@link #localSession()}) — no account, no password in the app, no
- *       dependence on the vendor's server. 7 taps on "Language" in Settings restart the app into the real login
- *       screen, once (typed by hand).</li>
+ *       dependence on the vendor's server. There is no door back to the vendor's login (1.1.352).</li>
  *   <li><b>Access &amp; licence</b> — hidden once a key is entered; 7 taps on "Dark theme"
  *       show it again (until the app restarts).</li>
  * </ul>
@@ -35,7 +34,6 @@ public final class XemsLocalGate {
     static final String FILE_LOGIN_USER = "file_name_login_user";
 
     private static final String PREFS = "xems_local_store";
-    private static final String KEY_LOGIN_SCREEN = "show_login_once";
     private static final String LICENSE_TAG = "xems_license_section";
     private static final int TAPS = 7;
     private static final long TAP_WINDOW_MS = 3000L;
@@ -47,23 +45,13 @@ public final class XemsLocalGate {
 
     // ================================================================ login
 
-    /** SplashFragment: true = go to the login screen instead of the saved auto-login. */
-    public static boolean wantLoginScreen() {
-        Context c = XemsLocalStore.getAppContext();
-        return c != null && prefs(c).getBoolean(KEY_LOGIN_SCREEN, false);
-    }
-
     /**
      * SplashFragment, before its "logged in?" check: a local session instead of the vendor's account. A new
      * install gets one; an older install that logged in with the house account keeps its session, but the real
-     * password is overwritten (nothing of the vendor account stays on the tablet). Always true unless the
-     * trainer asked for the login screen (7 taps).
+     * password is overwritten (nothing of the vendor account stays on the tablet).
      */
     public static boolean localSession() {
         try {
-            if (wantLoginScreen()) {
-                return false;
-            }
             UserData u = UserData.getInstance();
             if (u == null) {
                 return false;
@@ -107,50 +95,15 @@ public final class XemsLocalGate {
         return s == null || s.length() == 0;
     }
 
-    /** End of LoginFragment.onCreateView (shown only on request): the next start goes past it again. */
-    public static void onLoginView(final Object fragment, View root) {
-        try {
-            Context c = XemsLocalStore.getAppContext();
-            if (c != null && prefs(c).getBoolean(KEY_LOGIN_SCREEN, false)) {
-                prefs(c).edit().putBoolean(KEY_LOGIN_SCREEN, false).apply();   // this time by hand
-            }
-        } catch (Throwable t) {
-            android.util.Log.e("xems_gate", "onLoginView", t);
-        }
-    }
-
-    /** Restart the app into the login screen (7 taps on Language). */
-    static void restartToLogin(Activity a) {
-        prefs(a).edit().putBoolean(KEY_LOGIN_SCREEN, true).commit();
-        Intent i = a.getPackageManager().getLaunchIntentForPackage(a.getPackageName());
-        if (i != null) {
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            a.startActivity(i);
-        }
-        a.finishAffinity();
-        android.os.Process.killProcess(android.os.Process.myPid());
-    }
-
     // ================================================================ settings
 
-    /** SettingFragment (with XemsLocalSection): the two tap doors and the licence card rule. */
+    /** SettingFragment (with XemsLocalSection): the licence door and the licence card rule. */
     public static void attach(final Activity a, View root) {
         try {
             if (a == null || !(root instanceof ViewGroup)) {
                 return;
             }
             final ViewGroup group = (ViewGroup) root;
-            TextView language = findLabel(a, group, "setlanguage");
-            if (language != null) {
-                onTaps(language, new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(a, XemsLocalStore.tr("Рестарт към входа…", "Restarting to login…"),
-                                Toast.LENGTH_SHORT).show();
-                        restartToLogin(a);
-                    }
-                });
-            }
             TextView dark = findLabel(a, group, "setdarktheme");
             if (dark != null) {
                 onTaps(dark, new Runnable() {

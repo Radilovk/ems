@@ -3,7 +3,7 @@
 .source "XemsLocalGate.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnTouchListener;
 
 
 # annotations
@@ -18,16 +18,12 @@
 
 
 # instance fields
-.field final synthetic val$action:Ljava/lang/Runnable;
-
-.field final synthetic val$count:[I
-
-.field final synthetic val$last:[J
+.field final synthetic val$tap:Ljava/lang/Runnable;
 
 
 # direct methods
-.method constructor <init>([I[JLjava/lang/Runnable;)V
-    .registers 4
+.method constructor <init>(Ljava/lang/Runnable;)V
+    .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -35,12 +31,8 @@
     .end annotation
 
     .prologue
-    .line 231
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$count:[I
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$last:[J
-
-    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$action:Ljava/lang/Runnable;
+    .line 197
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$tap:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,72 +41,27 @@
 
 
 # virtual methods
-.method public run()V
-    .registers 10
+.method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
+    .registers 5
 
     .prologue
-    const/4 v8, 0x0
+    .line 200
+    invoke-virtual {p2}, Landroid/view/MotionEvent;->getAction()I
 
-    .line 234
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+    move-result v0
 
-    move-result-wide v2
+    const/4 v1, 0x1
 
-    .line 235
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$count:[I
+    if-ne v0, v1, :cond_c
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$last:[J
-
-    aget-wide v4, v0, v8
-
-    sub-long v4, v2, v4
-
-    const-wide/16 v6, 0xbb8
-
-    cmp-long v0, v4, v6
-
-    if-lez v0, :cond_2b
-
-    const/4 v0, 0x1
-
-    :goto_14
-    aput v0, v1, v8
-
-    .line 236
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$last:[J
-
-    aput-wide v2, v0, v8
-
-    .line 237
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$count:[I
-
-    aget v0, v0, v8
-
-    const/4 v1, 0x7
-
-    if-lt v0, v1, :cond_2a
-
-    .line 238
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$count:[I
-
-    aput v8, v0, v8
-
-    .line 239
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$action:Ljava/lang/Runnable;
+    .line 201
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$tap:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 241
-    :cond_2a
-    return-void
+    .line 203
+    :cond_c
+    const/4 v0, 0x0
 
-    .line 235
-    :cond_2b
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;->val$count:[I
-
-    aget v0, v0, v8
-
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_14
+    return v0
 .end method

@@ -14,7 +14,7 @@
   auto-select first program
 - DeviceAdapter.discoverDevice (both): show suits found over BLE (any in setup, allowed after)
 - SettingFragment: XemsLocalSection + activity result forwarding; XemsLocalGate (7 taps on
-  Language = restart to login, 7 taps on Dark theme = licence card, hidden once a key is set)
+  Dark theme = licence card, hidden once a key is set)
 - BleMgr$1: a BLE find reaches the app only when it is an EMS suit (name with EMS / NBee,
   the suit maker's advertising data, or a MAC the tablet knows); suits show by their name
 - UserFragment: new / edit client opens XemsLocalUserForm (quick form, AI questions)
@@ -44,9 +44,6 @@ API_MGR = SMALI / "mgr/ApiMgr.smali"
 LOCAL_API = "Lcom/isaigu/gymapp/widget/XemsLocalApi;"
 CB = "Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;"
 # ApiMgr method (name, smali params) -> XemsLocalApi method of the same name and parameters.
-# Methods in API_MAYBE_CLOUD return a callback: null = answered by the tablet, else the cloud
-# request goes on with that callback (admin setup sync).
-API_MAYBE_CLOUD = ("getUserCustomers", "getUserProgramTrainDataList")
 API_REDIRECTS = (
     ("getUserCustomers", "J" + CB),
     ("getUserBindMachine", "J" + CB),
@@ -59,7 +56,6 @@ API_REDIRECTS = (
     ("getTrainRecordList", "J" + CB),
 )
 SETTING = SMALI / "fragment/SettingFragment.smali"
-LOGIN = SMALI / "fragment/LoginFragment.smali"
 SPLASH_RUN = SMALI / "fragment/SplashFragment$1$1.smali"
 GATE = "Lcom/isaigu/gymapp/widget/XemsLocalGate;"
 SRC = ROOT / "branding" / "smali" / "widget"
@@ -379,18 +375,7 @@ def patch_api_mgr() -> None:
             n += 2 if t in ("J", "D") else 1
         regs = ", ".join(f"p{i}" for i in range(n))
         first_line = body.index("    .line ")
-        if name in API_MAYBE_CLOUD:
-            cb_reg = f"p{n - 1}"
-            target = f"{LOCAL_API}->{name}({params}){CB}"
-            jump = (
-                f"    invoke-static {{{regs}}}, {target}\n\n"
-                f"    move-result-object {cb_reg}\n\n"
-                f"    if-nez {cb_reg}, :xems_cloud\n\n"
-                f"    return-void\n\n"
-                f"    :xems_cloud\n"
-            )
-        else:
-            jump = f"    invoke-static {{{regs}}}, {target}\n\n    return-void\n\n"
+        jump = f"    invoke-static {{{regs}}}, {target}\n\n    return-void\n\n"
         body = body[:first_line] + jump + body[first_line:]
         text = text[:start] + body + text[end:]
         print(f"ApiMgr.{name}: answered by the tablet")
@@ -400,61 +385,26 @@ def patch_api_mgr() -> None:
 def patch_login() -> None:
     """No login screen and no vendor account: the splash makes a local session (XemsLocalGate.localSession) and
     always takes the vendor's own offline path (saved session → main screen), so nothing is sent to the vendor's
-    server and no account lives in the app. 7 taps on Language ask for the real login screen once."""
-    text = LOGIN.read_text(encoding="utf-8")
-    if f"{GATE}->onLoginView" not in text:
-        start = text.index(".method public onCreateView(")
-        end = text.index(".end method", start)
-        body = text[start:end]
-        ret = body.rindex("    return-object v0")
-        body = (body[:ret] + f"    invoke-static {{p0, v0}}, {GATE}->onLoginView(Ljava/lang/Object;Landroid/view/View;)V\n\n"
-                + body[ret:])
-        text = text[:start] + body + text[end:]
-        LOGIN.write_text(text, encoding="utf-8")
-        print("LoginFragment: login screen only on request")
-    else:
-        print("LoginFragment: already patched")
-
+    server and no account lives in the app. There is no way back to the vendor's login (1.1.352)."""
     text = SPLASH_RUN.read_text(encoding="utf-8")
-    if f"{GATE}->localSession" not in text:
-        is_login = "    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/UserData;->isLogin()Z\n"
-        if text.count(is_login) != 1:
-            raise SystemExit("SplashFragment$1$1: isLogin check not found once")
-        # same UserData singleton as v0: the local session is in place before isLogin reads it
-        text = text.replace(is_login, f"    invoke-static {{}}, {GATE}->localSession()Z\n\n" + is_login, 1)
-        net = """    invoke-static {v0}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected(Landroid/content/Context;)Z
-
-    move-result v0
-"""
-        if text.count(net) != 1:
-            raise SystemExit("SplashFragment$1$1: network check not found once")
-        # never the vendor's online login (ApiMgr.login): the saved local session opens the app
-        text = text.replace(net, "    const/4 v0, 0x0\n", 1)
-        SPLASH_RUN.write_text(text, encoding="utf-8")
-        print("SplashFragment: local session, no vendor login")
-    if f"{GATE}->wantLoginScreen" in text:
+    if f"{GATE}->localSession" in text:
         print("SplashFragment: already patched")
         return
-    anchor = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/UserData;->isLogin()Z
+    is_login = "    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/UserData;->isLogin()Z\n"
+    if text.count(is_login) != 1:
+        raise SystemExit("SplashFragment$1$1: isLogin check not found once")
+    # same UserData singleton as v0: the local session is in place before isLogin reads it
+    text = text.replace(is_login, f"    invoke-static {{}}, {GATE}->localSession()Z\n\n" + is_login, 1)
+    net = """    invoke-static {v0}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected(Landroid/content/Context;)Z
 
     move-result v0
 """
-    if anchor not in text:
-        raise SystemExit("SplashFragment$1$1: isLogin check not found")
-    # Asked for the login screen: treat as not logged in (v1 is set again right after).
-    text = text.replace(anchor, anchor + f"""
-    invoke-static {{}}, {GATE}->wantLoginScreen()Z
-
-    move-result v1
-
-    if-eqz v1, :xems_saved_login
-
-    const/4 v0, 0x0
-
-    :xems_saved_login
-""", 1)
+    if text.count(net) != 1:
+        raise SystemExit("SplashFragment$1$1: network check not found once")
+    # never the vendor's online login (ApiMgr.login): the saved local session opens the app
+    text = text.replace(net, "    const/4 v0, 0x0\n", 1)
     SPLASH_RUN.write_text(text, encoding="utf-8")
-    print("SplashFragment: login screen on request")
+    print("SplashFragment: local session, no vendor login")
 
 
 USER_FORM = "Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->show(Landroid/app/Activity;Ljava/lang/Object;)V"

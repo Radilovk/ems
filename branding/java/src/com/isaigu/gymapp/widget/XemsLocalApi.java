@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * The tablet as the app's backend: ApiMgr's calls for customers, programs and training history
- * land here instead of xemsplus.com (apply-local-mode.py puts a jump at the top of each).
+ * land here; nothing goes to the vendor's server (apply-local-mode.py puts a jump at the top of each).
  *
  * <p>The answer goes to the same callback, in the same shape the cloud used (code 0 + data), a
  * moment later on the main thread, so every screen that waited for the cloud works unchanged,
@@ -37,13 +37,9 @@ public final class XemsLocalApi {
 
     // ================================================================ customers
 
-    /**
-     * Customers: the tablet's list, always (the vendor's cloud is never asked — 1.1.330). Returns null = answered
-     * here (the smali hook would carry a returned callback on to the cloud).
-     */
-    public static OKHttpUtils.HttpResponseCallback getUserCustomers(long coachId, OKHttpUtils.HttpResponseCallback cb) {
+    /** Customers: the tablet's list, always. */
+    public static void getUserCustomers(long coachId, OKHttpUtils.HttpResponseCallback cb) {
         answerUsers(cb);
-        return null;
     }
 
     static void answerUsers(OKHttpUtils.HttpResponseCallback cb) {
@@ -59,11 +55,9 @@ public final class XemsLocalApi {
 
     // ================================================================ programs
 
-    /** Programs: the tablet's only. The vendor's cloud programs are not taken in any more (owner, 1.1.263: the
-     *  home screen shows the demo and the studio's own; XemsLocalStore put the old cloud ones aside). */
-    public static OKHttpUtils.HttpResponseCallback getUserProgramTrainDataList(long coachId, OKHttpUtils.HttpResponseCallback cb) {
+    /** Programs: the tablet's only (the home screen shows the demo and the studio's own). */
+    public static void getUserProgramTrainDataList(long coachId, OKHttpUtils.HttpResponseCallback cb) {
         answerPrograms(cb);
-        return null;
     }
 
     static void answerPrograms(OKHttpUtils.HttpResponseCallback cb) {
@@ -200,5 +194,29 @@ public final class XemsLocalApi {
                 }
             }
         });
+    }
+
+    // ================================================================ no vendor network
+
+    /** OKHttpUtils (every request to the vendor's server) answers "no network" at once; nothing leaves the tablet. */
+    public static void offline(final OKHttpUtils.HttpResponseCallback cb) {
+        if (cb == null) {
+            return;
+        }
+        MAIN.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    cb.httpResponse(false, "offline", null);
+                } catch (Throwable t) {
+                    android.util.Log.e("xems_local", "offline callback", t);
+                }
+            }
+        });
+    }
+
+    /** The video cache's own connection (HttpUrlSource): refused. */
+    public static java.io.IOException denied() {
+        return new java.io.IOException("no vendor network");
     }
 }

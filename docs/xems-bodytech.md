@@ -1,4 +1,4 @@
-# Bodytech suit in XEMS — plain training (1.1.348-ai)
+# Bodytech suit in XEMS — plain training (1.1.349-ai)
 
 A bodytech suit (EMSFIT 5.1 hardware, BLE service `FE50`, name `EMS08-…` / `TZLJ…` / `ADT…`) trains from the stock XEMS
 row: same screen, same ＋/− and sliders, same programs, ramp, double impulse, timer, battery, reconnect.
@@ -71,8 +71,9 @@ Changes are saved at once and used by the next command the row sends.
 ## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
 The same sheet has "Тест на импулс": Hz (1–1000, presets 1 … 1000 and − / +), width (50–511 µs), waveform (the suit's own /
 square / sine / trapezoid / trapezoid 2) and the level. Hold **▶** on a channel to feel it on that muscle.
-- The strength is held to a charge cap: 30 % at the default 85 Hz × 360 µs, lower as Hz × width grows
-  (`BtTranslator.testCap`; 400 Hz × 360 µs → 6 %, 1000 Hz × 511 µs → 1 %). The sheet shows the cap.
+- The level goes up to **99 %** (the suit reads 100 as 0). A charge cap holds it lower as Hz × width grows beyond 85 Hz × 360 µs
+  (`BtTranslator.testCap`; 400 Hz × 360 µs → 21 %, 1000 Hz × 511 µs → 5 %). The sheet shows the cap; a switch
+  "Таван по заряд" turns it off (then 99 % at any Hz / width). Level chips 1 … 99 and − / + (1, 2, 5 steps).
 - The waveform goes back to the owner's setting (square when "the suit's own") when the test ends or another channel
   is tested. The effect of Hz > 120, width > the program's and the waveform on the body is **not known yet** (frames are ACKed,
   nothing reads back) — this test is how to find out.

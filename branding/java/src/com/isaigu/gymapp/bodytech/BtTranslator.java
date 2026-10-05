@@ -33,7 +33,8 @@ public final class BtTranslator {
     private boolean on;
     private long deadlineMs;
     private int testCh, testPct;           // the owner holds "test" on one channel (settings sheet); 0 = none
-    static final int TEST_MAX_PCT = 30;
+    /** The suit takes 0..99 % (100 would read as 0, bodytech/PROTOCOL.md). */
+    static final int TEST_MAX_PCT = MAX_PCT;
     static final long TEST_MS = 1500L;
     /** Test range the suit takes (bodytech/PROTOCOL.md): Hz 1..1000, width 50..511 µs, waveform 0..3 (−1 = the suit's own). */
     public static final int TEST_HZ_MAX = 1000;
@@ -109,10 +110,15 @@ public final class BtTranslator {
     }
 
     /**
-     * Strength cap of a held test: 30 % at the default 85 Hz × 360 µs, lower as Hz × width (the charge each second)
-     * grows — a test at 1000 Hz and 511 µs is held to 1 %.
+     * Strength cap of a held test: 99 % up to the default 85 Hz × 360 µs, lower as Hz × width (the charge each second)
+     * grows — 400 Hz × 360 µs 21 %, 1000 Hz × 511 µs 5 %. The owner can switch the charge cap off (then 99 %).
      */
     public static int testCap(int hz, int us) {
+        return testCap(hz, us, false);
+    }
+
+    public static int testCap(int hz, int us, boolean uncapped) {
+        if (uncapped) return TEST_MAX_PCT;
         long duty = (long) clampHz(hz) * clampUs(us);
         long ref = (long) DEF_HZ * DEF_US;
         long c = duty <= ref ? TEST_MAX_PCT : (TEST_MAX_PCT * ref) / duty;
@@ -134,11 +140,16 @@ public final class BtTranslator {
 
     /**
      * The owner holds "test" on channel ch: only that channel, at hz (1..1000), width us (50..511) and waveform
-     * wave (0 square, 1 sine, 2 / 3 trapezoid, −1 the suit's own), strength pct held to {@link #testCap}, until
+     * wave (0 square, 1 sine, 2 / 3 trapezoid, −1 the suit's own), strength pct held to {@link #testCap} (1..99), until
      * {@link #testOff} or {@link #TEST_MS} without a renewal. Refused (empty) while a training runs. The waveform goes
      * back to the owner's setting when the test ends (square when "the suit's own").
      */
     public synchronized List<byte[]> testOn(int ch, int pct, int h, int us, int wave, long nowMs) {
+        return testOn(ch, pct, h, us, wave, false, nowMs);
+    }
+
+    /** As above; uncapped = the owner switched the charge cap off (strength up to 99 % at any Hz / width). */
+    public synchronized List<byte[]> testOn(int ch, int pct, int h, int us, int wave, boolean uncapped, long nowMs) {
         List<byte[]> out = new ArrayList<byte[]>();
         if (training() || ch < 1 || ch > BtSettings.CHANNELS) return out;
         prepare(out);
@@ -152,7 +163,7 @@ public final class BtTranslator {
         testCh = ch;
         hz = clampHz(h);
         widthUs = clampUs(us);
-        int cap = testCap(hz, widthUs);
+        int cap = testCap(hz, widthUs, uncapped);
         testPct = pct < 1 ? 1 : (pct > cap ? cap : pct);
         on = true;
         deadlineMs = nowMs + TEST_MS;

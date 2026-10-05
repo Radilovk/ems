@@ -200,9 +200,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtProto.java` (148L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
 - `BtSettings.java` (284L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
 - `BtSettingsSection.java` (450L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
-- `BtTest.java` (232L, compile:music-sync*) — The impulse test: Hz 1..1000, width 50..511 µs, waveform and level, felt with a ▶ held on a channel ({@link BtBridge#te…
+- `BtTest.java` (257L, compile:music-sync*) — The impulse test: Hz 1..1000, width 50..511 µs, waveform and level, felt with a ▶ held on a channel ({@link BtBridge#te…
 - `BtTestMode.java` (118L, compile:music-sync*) — The row's gear on a bodytech suit → "Тестов режим": a screen of its own, apart from the training, to try the impulse (H…
-- `BtTranslator.java` (286L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (297L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -749,18 +749,18 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (116L)
-  - L1 # Bodytech suit in XEMS — plain training (1.1.348-ai)
+`docs/xems-bodytech.md` (117L)
+  - L1 # Bodytech suit in XEMS — plain training (1.1.349-ai)
   - L8 ## How it works
   - L30 ## Translation (XEMS → bodytech)
   - L46 ## Owner's settings (Settings → Костюм bodytech)
   - L60 ## Test of a channel and the left → right order (1.1.346)
   - L71 ## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
-  - L82 ## Test mode from the row's gear (1.1.348)
-  - L90 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L99 ## Safety
-  - L107 ## Not verified on a person yet
-  - L113 ## Tests
+  - L83 ## Test mode from the row's gear (1.1.348)
+  - L91 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L100 ## Safety
+  - L108 ## Not verified on a person yet
+  - L114 ## Tests
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

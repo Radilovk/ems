@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 142
+    .line 178
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 143
+    .line 179
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Touch;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    .line 144
+    .line 180
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Touch;->ch:I
 
-    .line 145
+    .line 181
     return-void
 .end method
 
@@ -49,26 +49,26 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 149
+    .line 185
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 150
+    .line 186
     if-nez v0, :cond_27
 
-    .line 151
+    .line 187
     invoke-virtual {p1, v4}, Landroid/view/View;->setPressed(Z)V
 
-    .line 152
+    .line 188
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 153
+    .line 189
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Touch;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtTest;->stop()V
 
-    .line 154
+    .line 190
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Touch;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     new-instance v1, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;
@@ -81,19 +81,19 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->hold:Lcom/isaigu/gymapp/bodytech/BtTest$Hold;
 
-    .line 155
+    .line 191
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Touch;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->hold:Lcom/isaigu/gymapp/bodytech/BtTest$Hold;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->run()V
 
-    .line 160
+    .line 196
     :cond_26
     :goto_26
     return v4
 
-    .line 156
+    .line 192
     :cond_27
     if-eq v0, v4, :cond_2c
 
@@ -101,13 +101,13 @@
 
     if-ne v0, v1, :cond_26
 
-    .line 157
+    .line 193
     :cond_2c
     const/4 v0, 0x0
 
     invoke-virtual {p1, v0}, Landroid/view/View;->setPressed(Z)V
 
-    .line 158
+    .line 194
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Touch;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtTest;->stop()V

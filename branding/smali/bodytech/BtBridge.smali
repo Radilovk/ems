@@ -154,7 +154,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 192
+    .line 199
     :try_start_1
     const-string v0, "android.app.ActivityThread"
 
@@ -162,7 +162,7 @@
 
     move-result-object v0
 
-    .line 193
+    .line 200
     const-string v2, "currentApplication"
 
     const/4 v3, 0x0
@@ -185,25 +185,25 @@
 
     check-cast v0, Landroid/content/Context;
 
-    .line 194
+    .line 201
     if-eqz v0, :cond_1f
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->load(Landroid/content/Context;)V
     :try_end_1f
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1f} :catch_20
 
-    .line 197
+    .line 204
     :cond_1f
     :goto_1f
     return-object v0
 
-    .line 196
+    .line 203
     :catch_20
     move-exception v0
 
     move-object v0, v1
 
-    .line 197
+    .line 204
     goto :goto_1f
 .end method
 
@@ -275,7 +275,7 @@
     .registers 5
 
     .prologue
-    .line 204
+    .line 211
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtBridge;
 
     monitor-enter v1
@@ -285,7 +285,7 @@
 
     move-result-object v2
 
-    .line 205
+    .line 212
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBridge;->DEVS:Ljava/util/Map;
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -294,32 +294,32 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 206
+    .line 213
     if-nez v0, :cond_1e
 
-    .line 207
+    .line 214
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->app()Landroid/content/Context;
 
-    .line 208
+    .line 215
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;-><init>(Lcom/clj/fastble/data/BleDevice;)V
 
-    .line 209
+    .line 216
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtBridge;->DEVS:Ljava/util/Map;
 
     invoke-interface {v3, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 213
+    .line 220
     :cond_1e
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtBridge;->gattOf(Lcom/clj/fastble/data/BleDevice;)Ljava/lang/Object;
 
     move-result-object v2
 
-    .line 214
+    .line 221
     if-eqz v2, :cond_31
 
-    .line 215
+    .line 222
     iget-object v3, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->gatt:Ljava/lang/Object;
 
     if-eqz v3, :cond_2f
@@ -330,22 +330,22 @@
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->relink()V
 
-    .line 216
+    .line 223
     :cond_2f
     iput-object v2, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->gatt:Ljava/lang/Object;
 
-    .line 218
+    .line 225
     :cond_31
     iput-object p0, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->d:Lcom/clj/fastble/data/BleDevice;
     :try_end_33
     .catchall {:try_start_3 .. :try_end_33} :catchall_35
 
-    .line 219
+    .line 226
     monitor-exit v1
 
     return-object v0
 
-    .line 204
+    .line 211
     :catchall_35
     move-exception v0
 
@@ -358,7 +358,7 @@
     .registers 2
 
     .prologue
-    .line 224
+    .line 231
     :try_start_0
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
 
@@ -370,15 +370,15 @@
 
     move-result-object v0
 
-    .line 226
+    .line 233
     :goto_8
     return-object v0
 
-    .line 225
+    .line 232
     :catch_9
     move-exception v0
 
-    .line 226
+    .line 233
     const/4 v0, 0x0
 
     goto :goto_8
@@ -392,7 +392,7 @@
 
     const/4 v1, 0x0
 
-    .line 161
+    .line 168
     const-class v3, Lcom/isaigu/gymapp/bodytech/BtBridge;
 
     monitor-enter v3
@@ -404,17 +404,17 @@
 
     move-result-object v4
 
-    .line 162
+    .line 169
     if-nez v4, :cond_d
 
-    .line 172
+    .line 179
     :cond_b
     :goto_b
     monitor-exit v3
 
     return v1
 
-    .line 163
+    .line 170
     :cond_d
     :try_start_d
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBridge;->KIND:Ljava/util/Map;
@@ -425,7 +425,7 @@
 
     check-cast v0, Ljava/lang/Boolean;
 
-    .line 164
+    .line 171
     if-eqz v0, :cond_1c
 
     invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
@@ -434,13 +434,13 @@
 
     goto :goto_b
 
-    .line 166
+    .line 173
     :cond_1c
     invoke-virtual {p0}, Lcom/clj/fastble/data/BleDevice;->getScanRecord()[B
 
     move-result-object v5
 
-    .line 167
+    .line 174
     if-eqz v5, :cond_48
 
     const v0, 0xfe50
@@ -453,7 +453,7 @@
 
     move v1, v2
 
-    .line 170
+    .line 177
     :cond_2c
     :goto_2c
     if-eqz v1, :cond_37
@@ -466,7 +466,7 @@
 
     invoke-static {v4}, Lcom/isaigu/gymapp/bodytech/BtBridge;->remember(Ljava/lang/String;)V
 
-    .line 171
+    .line 178
     :cond_37
     if-nez v5, :cond_3b
 
@@ -485,7 +485,7 @@
 
     goto :goto_b
 
-    .line 161
+    .line 168
     :catchall_45
     move-exception v0
 
@@ -493,7 +493,7 @@
 
     throw v0
 
-    .line 168
+    .line 175
     :cond_48
     if-eqz v5, :cond_53
 
@@ -506,7 +506,7 @@
 
     if-nez v0, :cond_2c
 
-    .line 169
+    .line 176
     :cond_53
     invoke-virtual {p0}, Lcom/clj/fastble/data/BleDevice;->getName()Ljava/lang/String;
 
@@ -544,7 +544,7 @@
     .registers 5
 
     .prologue
-    .line 134
+    .line 141
     const-class v2, Lcom/isaigu/gymapp/bodytech/BtBridge;
 
     monitor-enter v2
@@ -553,13 +553,13 @@
 
     const/4 v0, 0x0
 
-    .line 138
+    .line 145
     :goto_6
     monitor-exit v2
 
     return v0
 
-    .line 135
+    .line 142
     :cond_8
     :try_start_8
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBridge;->KIND:Ljava/util/Map;
@@ -585,7 +585,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 136
+    .line 143
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
@@ -610,7 +610,7 @@
 
     goto :goto_6
 
-    .line 138
+    .line 145
     :cond_35
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtBridge;->known(Ljava/lang/String;)Z
     :try_end_38
@@ -620,7 +620,7 @@
 
     goto :goto_6
 
-    .line 134
+    .line 141
     :catchall_3a
     move-exception v0
 
@@ -635,12 +635,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 176
+    .line 183
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v1
 
-    .line 177
+    .line 184
     if-eqz v1, :cond_21
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -708,12 +708,12 @@
     .registers 3
 
     .prologue
-    .line 186
+    .line 193
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->app()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 187
+    .line 194
     if-nez v0, :cond_8
 
     const/4 v0, 0x0
@@ -737,12 +737,12 @@
     .registers 4
 
     .prologue
-    .line 181
+    .line 188
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 182
+    .line 189
     if-eqz v0, :cond_25
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -775,7 +775,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 183
+    .line 190
     :cond_25
     return-void
 .end method
@@ -786,7 +786,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 144
+    .line 151
     if-eqz p0, :cond_b
 
     if-eqz p1, :cond_b
@@ -801,18 +801,18 @@
     :cond_b
     const/4 v0, 0x0
 
-    .line 150
+    .line 157
     :cond_c
     :goto_c
     return v0
 
-    .line 145
+    .line 152
     :cond_d
     invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtProto;->batteryRaw([B)I
 
     move-result v1
 
-    .line 146
+    .line 153
     if-lez v1, :cond_c
 
     if-eqz p2, :cond_c
@@ -827,11 +827,11 @@
 
     goto :goto_c
 
-    .line 148
+    .line 155
     :catch_1d
     move-exception v1
 
-    .line 149
+    .line 156
     const-string v2, "xems-bt"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -938,7 +938,7 @@
     .registers 6
 
     .prologue
-    .line 363
+    .line 370
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtBridge;
 
     monitor-enter v1
@@ -950,20 +950,20 @@
 
     if-eqz v0, :cond_9
 
-    .line 366
+    .line 373
     :goto_7
     monitor-exit v1
 
     return-void
 
-    .line 364
+    .line 371
     :cond_9
     const/4 v0, 0x1
 
     :try_start_a
     sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtBridge;->beating:Z
 
-    .line 365
+    .line 372
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBridge;->main:Landroid/os/Handler;
 
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtBridge;->BEAT:Lcom/isaigu/gymapp/bodytech/BtBridge$Beat;
@@ -976,7 +976,7 @@
 
     goto :goto_7
 
-    .line 363
+    .line 370
     :catchall_16
     move-exception v0
 
@@ -985,14 +985,14 @@
     throw v0
 .end method
 
-.method public static test(Ljava/lang/String;IIIIIZZ)Ljava/lang/String;
-    .registers 18
+.method public static test(Ljava/lang/String;IIIIIIIIZ)Ljava/lang/String;
+    .registers 22
 
     .prologue
-    .line 110
+    .line 116
     const/4 v1, 0x0
 
-    .line 111
+    .line 117
     :try_start_1
     const-class v2, Lcom/isaigu/gymapp/bodytech/BtBridge;
 
@@ -1000,7 +1000,7 @@
     :try_end_4
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_4} :catch_3d
 
-    .line 112
+    .line 118
     :try_start_4
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBridge;->DEVS:Ljava/util/Map;
 
@@ -1017,7 +1017,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_90
+    if-eqz v0, :cond_96
 
     invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -1025,7 +1025,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 113
+    .line 119
     if-eqz p0, :cond_28
 
     iget-object v4, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->d:Lcom/clj/fastble/data/BleDevice;
@@ -1040,7 +1040,7 @@
 
     if-eqz v4, :cond_e
 
-    .line 114
+    .line 120
     :cond_28
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
 
@@ -1054,13 +1054,13 @@
 
     if-eqz v4, :cond_e
 
-    .line 119
+    .line 125
     :goto_34
     monitor-exit v2
     :try_end_35
     .catchall {:try_start_4 .. :try_end_35} :catchall_3a
 
-    .line 120
+    .line 126
     if-nez v0, :cond_59
 
     :try_start_37
@@ -1068,11 +1068,11 @@
     :try_end_39
     .catch Ljava/lang/Throwable; {:try_start_37 .. :try_end_39} :catch_3d
 
-    .line 128
+    .line 135
     :goto_39
     return-object v0
 
-    .line 119
+    .line 125
     :catchall_3a
     move-exception v0
 
@@ -1086,11 +1086,11 @@
     :try_end_3d
     .catch Ljava/lang/Throwable; {:try_start_3c .. :try_end_3d} :catch_3d
 
-    .line 126
+    .line 133
     :catch_3d
     move-exception v0
 
-    .line 127
+    .line 134
     const-string v1, "xems-bt"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -1113,12 +1113,12 @@
 
     invoke-static {v1, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 128
+    .line 135
     const-string v0, "no_suit"
 
     goto :goto_39
 
-    .line 121
+    .line 127
     :cond_59
     :try_start_59
     iget-object v1, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->tr:Lcom/isaigu/gymapp/bodytech/BtTranslator;
@@ -1133,18 +1133,18 @@
 
     goto :goto_39
 
-    .line 122
+    .line 128
     :cond_64
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->begin()V
 
-    .line 123
-    if-eqz p7, :cond_83
+    .line 129
+    if-eqz p9, :cond_89
 
     iget-object v1, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->tr:Lcom/isaigu/gymapp/bodytech/BtTranslator;
 
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
-    move-result-wide v8
+    move-result-wide v10
 
     move v2, p1
 
@@ -1152,13 +1152,17 @@
 
     move v4, p3
 
-    move v5, p4
+    move/from16 v5, p4
 
-    move v6, p5
+    move/from16 v6, p5
 
     move/from16 v7, p6
 
-    invoke-virtual/range {v1 .. v9}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOn(IIIIIZJ)Ljava/util/List;
+    move/from16 v8, p7
+
+    move/from16 v9, p8
+
+    invoke-virtual/range {v1 .. v11}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOn(IIIIIIIIJ)Ljava/util/List;
 
     move-result-object v1
 
@@ -1170,14 +1174,14 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->add(Ljava/util/List;Lcom/clj/fastble/callback/BleWriteCallback;[BZ)V
 
-    .line 125
-    :goto_80
+    .line 132
+    :goto_86
     const-string v0, "ok"
 
     goto :goto_39
 
-    .line 124
-    :cond_83
+    .line 131
+    :cond_89
     iget-object v1, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->tr:Lcom/isaigu/gymapp/bodytech/BtTranslator;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOff()Ljava/util/List;
@@ -1191,15 +1195,47 @@
     const/4 v4, 0x1
 
     invoke-virtual {v0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->add(Ljava/util/List;Lcom/clj/fastble/callback/BleWriteCallback;[BZ)V
-    :try_end_8f
-    .catch Ljava/lang/Throwable; {:try_start_59 .. :try_end_8f} :catch_3d
+    :try_end_95
+    .catch Ljava/lang/Throwable; {:try_start_59 .. :try_end_95} :catch_3d
 
-    goto :goto_80
+    goto :goto_86
 
-    :cond_90
+    :cond_96
     move-object v0, v1
 
     goto :goto_34
+.end method
+
+.method public static test(Ljava/lang/String;IIIIIZZ)Ljava/lang/String;
+    .registers 18
+
+    .prologue
+    .line 109
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    const/4 v8, 0x1
+
+    move-object v0, p0
+
+    move v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    move v5, p5
+
+    move/from16 v9, p7
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/bodytech/BtBridge;->test(Ljava/lang/String;IIIIIIIIZ)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
 .end method
 
 .method public static write(Lcom/clj/fastble/data/BleDevice;[BLcom/clj/fastble/callback/BleWriteCallback;)Z

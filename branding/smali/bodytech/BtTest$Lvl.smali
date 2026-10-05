@@ -26,36 +26,36 @@
     .registers 2
 
     .prologue
-    .line 195
+    .line 232
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 196
+    .line 233
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    .line 197
+    .line 234
     return-void
 .end method
 
 
 # virtual methods
 .method public onStep(I)V
-    .registers 8
+    .registers 7
 
     .prologue
     const/4 v1, 0x1
 
-    .line 201
+    .line 238
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->level:I
 
     const/16 v2, 0xa
 
-    if-ge v0, v2, :cond_46
+    if-ge v0, v2, :cond_38
 
     move v0, v1
 
-    .line 202
+    .line 239
     :goto_a
     if-gez p1, :cond_1c
 
@@ -75,25 +75,11 @@
 
     move-result v0
 
-    .line 203
+    .line 240
     :cond_1c
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
-
-    iget v3, v3, Lcom/isaigu/gymapp/bodytech/BtTest;->tHz:I
-
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
-
-    iget v4, v4, Lcom/isaigu/gymapp/bodytech/BtTest;->tUs:I
-
-    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
-
-    iget-boolean v5, v5, Lcom/isaigu/gymapp/bodytech/BtTest;->free:Z
-
-    invoke-static {v3, v4, v5}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCap(IIZ)I
-
-    move-result v3
+    const/16 v3, 0x63
 
     iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
@@ -113,31 +99,31 @@
 
     iput v0, v2, Lcom/isaigu/gymapp/bodytech/BtTest;->level:I
 
-    .line 204
+    .line 241
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 205
+    .line 242
     return-void
 
-    .line 201
-    :cond_46
+    .line 238
+    :cond_38
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Lvl;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->level:I
 
     const/16 v2, 0x28
 
-    if-ge v0, v2, :cond_50
+    if-ge v0, v2, :cond_42
 
     const/4 v0, 0x2
 
     goto :goto_a
 
-    :cond_50
+    :cond_42
     const/4 v0, 0x5
 
     goto :goto_a

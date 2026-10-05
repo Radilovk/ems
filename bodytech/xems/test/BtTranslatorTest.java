@@ -329,22 +329,45 @@ public class BtTranslatorTest {
         eq("training running", true, tr.training());
         eq("test refused during a training", 0, tr.testOn(3, 5, 4300).size());
 
-        // --- extended test: Hz up to 1000, width up to 511, waveform; strength held to the charge cap
-        eq("cap at default 85 Hz x 360 us", 99, BtTranslator.testCap(85, 360));
-        eq("cap lower Hz: still 99", 99, BtTranslator.testCap(10, 100));
-        eq("cap at 1000 Hz x 511 us", 5, BtTranslator.testCap(1000, 511));
-        eq("cap at 400 Hz x 360 us", 21, BtTranslator.testCap(400, 360));
-        eq("charge cap off", 99, BtTranslator.testCap(1000, 511, true));
+        // --- extended test: Hz up to 10000, width up to half the period, waveform; no strength cap
+        eq("no cap at 85 Hz x 360 us", 99, BtTranslator.testCap(85, 360));
+        eq("no cap at 1000 Hz x 511 us", 99, BtTranslator.testCap(1000, 511));
+        eq("max width at 1000 Hz", 500, BtTranslator.maxUsAt(1000));
+        eq("max width at 2500 Hz", 200, BtTranslator.maxUsAt(2500));
+        eq("max width at 85 Hz: the register's", BtProto.WIDTH_RAW_MAX, BtTranslator.maxUsAt(85));
         tr = new BtTranslator();
         f = tr.testOn(2, 50, 400, 360, 1, 0);
         eq("ext test: waveform sine on C2", true, has(f, BtProto.waveform(2, 1)));
         eq("ext test: 400 Hz on C2", true, has(f, BtProto.hz(2, 400)));
-        eq("ext test: strength held to cap 21", true, has(f, BtProto.intensity(2, 21)));
+        eq("ext test: strength as asked, 50", true, has(f, BtProto.intensity(2, 50)));
         eq("ext test: waveform before SEL", true, indexOf(f, BtProto.waveform(2, 1)) < indexOf(f, BtProto.enable(0x02)));
-        f = tr.testOn(2, 20, 1000, 511, 1, 400);
-        eq("ext test: 1000 Hz, 511 us, cap 5", true, has(f, BtProto.hz(2, 1000)) && has(f, BtProto.width(2, 511))
-                && has(f, BtProto.intensity(2, 5)));
-        eq("charge cap off: 80 % at 1000 Hz", true, has(tr.testOn(2, 80, 1000, 511, 1, true, 450), BtProto.intensity(2, 80)));
+        f = tr.testOn(2, 80, 1000, 511, 1, 400);
+        eq("ext test: 1000 Hz, width cut to 500, 80 %", true, has(f, BtProto.hz(2, 1000))
+                && has(f, BtProto.width(2, 500)) && has(f, BtProto.intensity(2, 80)));
+        // Australian: 1 kHz, 500 us, burst 4 / 16 ms; then Russian 2.5 kHz, 200 us, 10 / 10 ms, gain x3
+        f = tr.testOn(2, 30, 1000, 500, 1, 4, 16, 1, 420);
+        eq("australian: T2 4 ms", true, has(f, BtProto.t(2, 2, 4)));
+        eq("australian: T4 16 ms", true, has(f, BtProto.t(2, 4, 16)));
+        List<byte[]> fa = new BtTranslator().testOn(2, 30, 1000, 500, 1, 4, 16, 1, 0);
+        eq("australian: burst before SEL", true, indexOf(fa, BtProto.t(2, 2, 4)) >= 0
+                && indexOf(fa, BtProto.t(2, 2, 4)) < indexOf(fa, BtProto.enable(0x02)));
+        f = tr.testOn(2, 30, 2500, 200, 1, 10, 10, 3, 440);
+        eq("russian: 2500 Hz", true, has(f, BtProto.hz(2, 2500)));
+        eq("russian: T2 / T4 10 ms", true, has(f, BtProto.t(2, 2, 10)) && has(f, BtProto.t(2, 4, 10)));
+        eq("russian: gain x3", true, has(f, BtProto.stepNorByte(2, 3)));
+        f = tr.testOn(2, 30, 85, 1200, 1, 0, 0, 1, 460);
+        eq("wide test pulse 1200 us: raw register", true, has(f, BtProto.widthRaw(2, 1200)));
+        eq("continuous again: T2 back, T4 0, gain x1", true, has(f, BtProto.t(2, 2, 100000))
+                && has(f, BtProto.t(2, 4, 0)) && has(f, BtProto.stepNorByte(2, 1)));
+        eq("10 kHz accepted", true, has(new BtTranslator().testOn(1, 1, 10000, 50, -1, 0), BtProto.hz(1, 10000)));
+        tr.testOn(2, 30, 1000, 500, 1, 4, 16, 2, 470);
+        tr.testOff();
+        tr.command(0xF1, new byte[1], 480);
+        f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), 490);
+        eq("training after a burst test: continuous, x1", true, has(f, BtProto.t(2, 2, 100000))
+                && has(f, BtProto.t(2, 4, 0)) && has(f, BtProto.stepNorByte(2, 1)));
+        tr = new BtTranslator();
+        tr.testOn(2, 5, 85, 360, 1, 400);
         f = tr.testOff();
         eq("release: SEL off then waveform back to square", hexAll(java.util.Arrays.asList(BtProto.allOff(),
                 BtProto.waveform(2, 0))), hexAll(f));
@@ -360,8 +383,8 @@ public class BtTranslatorTest {
         f = tr.testOn(5, 5, 85, 360, -1, 2200);
         eq("suit's own waveform again: restored", true, has(f, BtProto.waveform(5, 0)));
         tr.testOff();
-        eq("out of range Hz and width are held", true, has(new BtTranslator().testOn(1, 1, 5000, 9000, -1, 0),
-                BtProto.hz(1, 1000)));
+        eq("out of range Hz is held", true, has(new BtTranslator().testOn(1, 1, 50000, 9000, -1, 0),
+                BtProto.hz(1, 10000)));
 
         // --- which suit
         eq("FE50 in scan record", true, BtProto.has16(new byte[]{2, 1, 6, 3, 3, 0x50, (byte) 0xFE}, 0xFE50));

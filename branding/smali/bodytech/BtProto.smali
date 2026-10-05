@@ -58,6 +58,8 @@
 
 .field public static final STEP_NOR_DEFAULT:I = 0x1010101
 
+.field public static final WIDTH_RAW_MAX:I = 0x666
+
 
 # direct methods
 .method private constructor <init>()V
@@ -138,7 +140,7 @@
 
     const/4 v0, -0x1
 
-    .line 109
+    .line 123
     if-eqz p0, :cond_1a
 
     array-length v1, p0
@@ -163,12 +165,12 @@
 
     if-eq v1, v2, :cond_1b
 
-    .line 111
+    .line 125
     :cond_1a
     :goto_1a
     return v0
 
-    .line 110
+    .line 124
     :cond_1b
     aget-byte v1, p0, v3
 
@@ -178,7 +180,7 @@
 
     if-eqz v1, :cond_1a
 
-    .line 111
+    .line 125
     :cond_23
     aget-byte v0, p0, v3
 
@@ -293,10 +295,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 133
+    .line 147
     move v0, v1
 
-    .line 134
+    .line 148
     :goto_2
     add-int/lit8 v2, v0, 0x1
 
@@ -304,12 +306,12 @@
 
     if-ge v2, v3, :cond_12
 
-    .line 135
+    .line 149
     aget-byte v2, p0, v0
 
     and-int/lit16 v3, v2, 0xff
 
-    .line 136
+    .line 150
     if-eqz v3, :cond_12
 
     add-int v2, v0, v3
@@ -318,12 +320,12 @@
 
     if-lt v2, v4, :cond_13
 
-    .line 145
+    .line 159
     :cond_12
     :goto_12
     return v1
 
-    .line 137
+    .line 151
     :cond_13
     add-int/lit8 v2, v0, 0x1
 
@@ -331,7 +333,7 @@
 
     and-int/lit16 v2, v2, 0xff
 
-    .line 138
+    .line 152
     const/4 v4, 0x2
 
     if-eq v2, v4, :cond_1f
@@ -340,7 +342,7 @@
 
     if-ne v2, v4, :cond_3b
 
-    .line 139
+    .line 153
     :cond_1f
     add-int/lit8 v2, v0, 0x2
 
@@ -351,7 +353,7 @@
 
     if-gt v4, v5, :cond_3b
 
-    .line 140
+    .line 154
     aget-byte v4, p0, v2
 
     and-int/lit16 v4, v4, 0xff
@@ -372,19 +374,19 @@
 
     goto :goto_12
 
-    .line 139
+    .line 153
     :cond_38
     add-int/lit8 v2, v2, 0x2
 
     goto :goto_21
 
-    .line 143
+    .line 157
     :cond_3b
     add-int/lit8 v2, v3, 0x1
 
     add-int/2addr v0, v2
 
-    .line 144
+    .line 158
     goto :goto_2
 .end method
 
@@ -460,23 +462,23 @@
 
     const/4 v1, 0x0
 
-    .line 125
+    .line 139
     if-nez p0, :cond_7
 
     move v0, v1
 
-    .line 128
+    .line 142
     :cond_6
     :goto_6
     return v0
 
-    .line 126
+    .line 140
     :cond_7
     invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
 
     move-result-object v2
 
-    .line 127
+    .line 141
     const-string v3, "TZLJ"
 
     invoke-virtual {v2, v3}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -493,7 +495,7 @@
 
     if-nez v3, :cond_6
 
-    .line 128
+    .line 142
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v3
@@ -538,12 +540,12 @@
     .registers 5
 
     .prologue
-    .line 118
+    .line 132
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtProto;->volts(I)F
 
     move-result v0
 
-    .line 119
+    .line 133
     const/16 v1, 0x64
 
     const/4 v2, 0x0
@@ -620,6 +622,49 @@
     goto :goto_b
 .end method
 
+.method public static stepNorByte(II)[B
+    .registers 4
+
+    .prologue
+    const/16 v1, 0x1f
+
+    const/4 v0, 0x1
+
+    .line 93
+    if-ge p1, v0, :cond_14
+
+    move p1, v0
+
+    .line 94
+    :cond_6
+    :goto_6
+    shl-int/lit8 v0, p1, 0x8
+
+    or-int/2addr v0, p1
+
+    shl-int/lit8 v1, p1, 0x10
+
+    or-int/2addr v0, v1
+
+    shl-int/lit8 v1, p1, 0x18
+
+    or-int/2addr v0, v1
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/bodytech/BtProto;->stepNor(II)[B
+
+    move-result-object v0
+
+    return-object v0
+
+    .line 93
+    :cond_14
+    if-le p1, v1, :cond_6
+
+    move p1, v1
+
+    goto :goto_6
+.end method
+
 .method public static sync(I)[B
     .registers 4
 
@@ -658,12 +703,12 @@
     .prologue
     const v1, 0xfffff
 
-    .line 92
+    .line 106
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_1d
 
-    .line 93
+    .line 107
     if-lez p2, :cond_c
 
     mul-int/lit8 v0, p2, 0xa
@@ -673,7 +718,7 @@
     :cond_c
     const/16 v0, 0x2625
 
-    .line 97
+    .line 111
     :goto_e
     add-int/lit8 v1, p1, 0x7
 
@@ -685,7 +730,7 @@
 
     return-object v0
 
-    .line 93
+    .line 107
     :cond_17
     mul-int/lit16 v0, p2, 0x2710
 
@@ -695,7 +740,7 @@
 
     goto :goto_e
 
-    .line 95
+    .line 109
     :cond_1d
     if-ltz p2, :cond_23
 
@@ -722,7 +767,7 @@
     .registers 4
 
     .prologue
-    .line 100
+    .line 114
     const/16 v1, 0xb
 
     if-ltz p1, :cond_8
@@ -751,7 +796,7 @@
     .registers 4
 
     .prologue
-    .line 101
+    .line 115
     const/16 v1, 0xc
 
     if-ltz p1, :cond_8
@@ -782,7 +827,7 @@
     .registers 4
 
     .prologue
-    .line 102
+    .line 116
     const/16 v1, 0xd
 
     if-ltz p1, :cond_8
@@ -811,7 +856,7 @@
     .registers 4
 
     .prologue
-    .line 103
+    .line 117
     const/16 v1, 0xe
 
     if-ltz p1, :cond_8
@@ -842,7 +887,7 @@
     .registers 4
 
     .prologue
-    .line 86
+    .line 100
     const/4 v1, 0x6
 
     if-lez p1, :cond_7
@@ -873,7 +918,7 @@
     .registers 3
 
     .prologue
-    .line 114
+    .line 128
     int-to-float v0, p0
 
     const v1, 0x3b1d4952    # 0.0024f
@@ -887,7 +932,7 @@
     .registers 4
 
     .prologue
-    .line 83
+    .line 97
     const/4 v0, 0x4
 
     and-int/lit8 v1, p1, 0x3
@@ -930,4 +975,43 @@
     and-int/lit16 v0, v0, 0x1fff
 
     goto :goto_9
+.end method
+
+.method public static widthRaw(II)[B
+    .registers 4
+
+    .prologue
+    const/16 v1, 0x666
+
+    const/4 v0, 0x1
+
+    .line 85
+    if-ge p1, v0, :cond_12
+
+    move p1, v0
+
+    .line 86
+    :cond_6
+    :goto_6
+    const/4 v0, 0x3
+
+    mul-int/lit8 v1, p1, 0xa
+
+    div-int/lit8 v1, v1, 0x2
+
+    and-int/lit16 v1, v1, 0x1fff
+
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/bodytech/BtProto;->frame(III)[B
+
+    move-result-object v0
+
+    return-object v0
+
+    .line 85
+    :cond_12
+    if-le p1, v1, :cond_6
+
+    move p1, v1
+
+    goto :goto_6
 .end method

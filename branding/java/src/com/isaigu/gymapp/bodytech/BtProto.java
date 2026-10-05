@@ -80,6 +80,20 @@ public final class BtProto {
         return frame(ch, R_WIDTH, (us <= 0 || us >= 512) ? 800 : ((us * 10) / 2) & 8191);
     }
 
+    /** Pulse width in µs straight into the register's 13 bits (0.2 µs units): 1..1638 µs, no vendor fallback (test only). */
+    public static byte[] widthRaw(int ch, int us) {
+        int u = us < 1 ? 1 : (us > WIDTH_RAW_MAX ? WIDTH_RAW_MAX : us);
+        return frame(ch, R_WIDTH, ((u * 10) / 2) & 8191);
+    }
+
+    public static final int WIDTH_RAW_MAX = 1638;
+
+    /** STEP_NOR with every byte = b (1..31); the vendor sends 1 in every byte. */
+    public static byte[] stepNorByte(int ch, int b) {
+        int v = b < 1 ? 1 : (b > 31 ? 31 : b);
+        return stepNor(ch, v | (v << 8) | (v << 16) | (v << 24));
+    }
+
     public static byte[] waveform(int ch, int w) { return frame(ch, R_WAVEFORM, w & 3); }
 
     public static byte[] tPeriod(int ch, int v) {

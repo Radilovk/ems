@@ -33,11 +33,16 @@ public final class BtTranslator {
     private boolean on;
     private long deadlineMs;
     private int testCh, testPct;           // the owner holds "test" on one channel (settings sheet); 0 = none
+    private int testOnMs, testOffMs, testStep = 1;   // the test's burst (0 = continuous) and STEP_NOR byte
     /** The suit takes 0..99 % (100 would read as 0, bodytech/PROTOCOL.md). */
     static final int TEST_MAX_PCT = MAX_PCT;
     static final long TEST_MS = 1500L;
-    /** Test range the suit takes (bodytech/PROTOCOL.md): Hz 1..1000, width 50..511 µs, waveform 0..3 (−1 = the suit's own). */
-    public static final int TEST_HZ_MAX = 1000;
+    /** Hz the test (and the owner's per-channel values) may send: 1..10000 (register = 1 MHz / Hz). */
+    public static final int TEST_HZ_MAX = 10000;
+    /** Test width: up to the register's 13 bits (BtProto.widthRaw), past the vendor's 511 µs. */
+    public static final int TEST_US_MAX = BtProto.WIDTH_RAW_MAX;
+    /** Test burst on / off, ms (T2 / T4 of the suit's own cycle); STEP_NOR byte 1..31. */
+    public static final int BURST_MAX_MS = 1000, STEP_MAX = 31;
     private int waveCh, waveVal;             // channel whose waveform the test changed (0 = none)
     private final int[] devWaveCh = new int[BtSettings.CHANNELS + 1];   // last waveform sent per channel (−1 = none yet)
 
@@ -55,6 +60,9 @@ public final class BtTranslator {
     private final int[] devInt = new int[BtSettings.CHANNELS + 1];
     private final int[] devHz = new int[BtSettings.CHANNELS + 1];
     private final int[] devUs = new int[BtSettings.CHANNELS + 1];
+    private final int[] devOn = new int[BtSettings.CHANNELS + 1];     // T2 ms the suit holds (CYCLE_ON_MS = continuous)
+    private final int[] devOff = new int[BtSettings.CHANNELS + 1];    // T4 ms
+    private final int[] devStep = new int[BtSettings.CHANNELS + 1];   // STEP_NOR byte
 
     /** Hook: CommandSender.sendDuration (MAIN) / sendActivePause (SECOND) / sendPause (PAUSE) begins. */
     public synchronized void phase(int p) {
@@ -143,20 +151,15 @@ public final class BtTranslator {
         return on && testCh == 0;
     }
 
-    /**
-     * Strength cap of a held test: 99 % up to the default 85 Hz × 360 µs, lower as Hz × width (the charge each second)
-     * grows — 400 Hz × 360 µs 21 %, 1000 Hz × 511 µs 5 %. The owner can switch the charge cap off (then 99 %).
-     */
+    /** Strength of a held test: no cap (owner, 1.1.360) — the suit's own 99 % at any Hz / width. */
     public static int testCap(int hz, int us) {
-        return testCap(hz, us, false);
+        return TEST_MAX_PCT;
     }
 
-    public static int testCap(int hz, int us, boolean uncapped) {
-        if (uncapped) return TEST_MAX_PCT;
-        long duty = (long) clampHz(hz) * clampUs(us);
-        long ref = (long) DEF_HZ * DEF_US;
-        long c = duty <= ref ? TEST_MAX_PCT : (TEST_MAX_PCT * ref) / duty;
-        return (int) Math.max(1, c);
+    /** Widest pulse at hz: half the period (a longer one fills the period — steady current), at most the register's. */
+    public static int maxUsAt(int hz) {
+        int half = 500000 / clampHz(hz);
+        return half < MIN_US ? MIN_US : (half > TEST_US_MAX ? TEST_US_MAX : half);
     }
 
     static int clampHz(int h) {
@@ -165,6 +168,10 @@ public final class BtTranslator {
 
     static int clampUs(int u) {
         return u < MIN_US ? MIN_US : (u > MAX_US ? MAX_US : u);
+    }
+
+    static int clampMs(int ms) {
+        return ms < 0 ? 0 : (ms > BURST_MAX_MS ? BURST_MAX_MS : ms);
     }
 
     /** {@link #testOn(int, int, int, int, int, long)} with the program's default 85 Hz, 360 µs and the suit's own waveform. */
@@ -182,8 +189,17 @@ public final class BtTranslator {
         return testOn(ch, pct, h, us, wave, false, nowMs);
     }
 
-    /** As above; uncapped = the owner switched the charge cap off (strength up to 99 % at any Hz / width). */
+    /** As above (uncapped is kept for old callers: there is no cap any more). */
     public synchronized List<byte[]> testOn(int ch, int pct, int h, int us, int wave, boolean uncapped, long nowMs) {
+        return testOn(ch, pct, h, us, wave, 0, 0, 1, nowMs);
+    }
+
+    /**
+     * Full test: Hz 1..{@link #TEST_HZ_MAX}, width 50..{@link #maxUsAt} µs, waveform, burst onMs / offMs (the suit's
+     * T2 / T4; 0 = continuous — Australian 4 / 16 ms, Russian 10 / 10 ms) and the STEP_NOR byte (1 = the vendor's).
+     */
+    public synchronized List<byte[]> testOn(int ch, int pct, int h, int us, int wave, int onMs, int offMs, int step,
+                                            long nowMs) {
         List<byte[]> out = new ArrayList<byte[]>();
         if (training() || ch < 1 || ch > BtSettings.CHANNELS) return out;
         prepare(out);
@@ -195,9 +211,12 @@ public final class BtTranslator {
         }
         testCh = ch;
         hz = clampHz(h);
-        widthUs = clampUs(us);
-        int cap = testCap(hz, widthUs, uncapped);
-        testPct = pct < 1 ? 1 : (pct > cap ? cap : pct);
+        int wmax = maxUsAt(hz);
+        widthUs = us < MIN_US ? MIN_US : (us > wmax ? wmax : us);
+        testOnMs = clampMs(onMs);
+        testOffMs = testOnMs > 0 ? clampMs(offMs) : 0;
+        testStep = step < 1 ? 1 : (step > STEP_MAX ? STEP_MAX : step);
+        testPct = pct < 1 ? 1 : (pct > TEST_MAX_PCT ? TEST_MAX_PCT : pct);
         on = true;
         deadlineMs = nowMs + TEST_MS;
         reconcile(out);
@@ -261,6 +280,9 @@ public final class BtTranslator {
             devInt[ch] = 0;
             devHz[ch] = DEF_HZ;
             devUs[ch] = DEF_US;
+            devOn[ch] = CYCLE_ON_MS;
+            devOff[ch] = 0;
+            devStep[ch] = 1;
         }
         out.add(BtProto.allOff());
         devMask = 0;
@@ -342,8 +364,24 @@ public final class BtTranslator {
                     devHz[ch] = h;
                 }
                 if (devUs[ch] != u) {
-                    out.add(BtProto.width(ch, u));
+                    out.add(u > MAX_US ? BtProto.widthRaw(ch, u) : BtProto.width(ch, u));
                     devUs[ch] = u;
+                }
+                boolean tc = testCh != 0 && testOnMs > 0;
+                int onMs = tc ? testOnMs : CYCLE_ON_MS;
+                int offMs = tc ? testOffMs : 0;
+                if (devOn[ch] != onMs) {
+                    out.add(BtProto.t(ch, 2, onMs));
+                    devOn[ch] = onMs;
+                }
+                if (devOff[ch] != offMs) {
+                    out.add(BtProto.t(ch, 4, offMs));
+                    devOff[ch] = offMs;
+                }
+                int st = testCh != 0 ? testStep : 1;
+                if (devStep[ch] != st) {
+                    out.add(BtProto.stepNorByte(ch, st));
+                    devStep[ch] = st;
                 }
                 mask |= 1 << (ch - 1);
             }

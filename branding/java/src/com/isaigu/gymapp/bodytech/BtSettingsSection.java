@@ -226,7 +226,7 @@ public final class BtSettingsSection {
             r2.addView(field("Hz втори", hs == 0 ? "Авто" : hs + " Hz", new Param(this, ch, Param.HZ_SECOND)),
                     XemsUi.weight(1f, 8, a));
             box.addView(r2, XemsUi.matchWrap(a, 8));
-            TextView note = XemsUi.text(a, "Авто = както в програмата. Hz и ширина могат само да намалят стойността от програмата.",
+            TextView note = XemsUi.text(a, "Авто = както в програмата. Пълните параметри (отделно за втория импулс, форма, без ограничения) — от зъбчатото колело на реда.",
                     12, XemsUi.HINT, false);
             note.setPadding(0, XemsUi.dp(a, 8), 0, 0);
             box.addView(note);
@@ -293,14 +293,10 @@ public final class BtSettingsSection {
             if (what == GAIN) {
                 BtSettings.setChGain(ch, BtSettings.chGain(ch) + 5 * dir);
             } else if (what == WIDTH) {
-                int w = BtSettings.chWidth(ch);
-                if (w == 0) w = dir > 0 ? BtSettings.WIDTH_MIN : 0;
-                else if (dir < 0 && w <= BtSettings.WIDTH_MIN) w = 0;
-                else w += 10 * dir;
-                BtSettings.setChWidth(ch, w);
+                BtSettings.setChWidth(ch, BtFull.stepUs(BtSettings.chWidth(ch), dir));
             } else {
                 boolean second = what == HZ_SECOND;
-                BtSettings.setChHz(ch, second, BtSettings.chHz(ch, second) + dir);
+                BtSettings.setChHz(ch, second, BtFull.stepHz(BtSettings.chHz(ch, second), dir));
             }
             sheet.render();
         }

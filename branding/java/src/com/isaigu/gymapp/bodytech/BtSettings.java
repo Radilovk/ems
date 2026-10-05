@@ -38,7 +38,7 @@ public final class BtSettings {
     public static final int WAVE_SUIT = -1;
     public static final String[] WAVES = {"На костюма", "Квадрат", "Синус", "Трапец", "Трапец 2"};
 
-    public static final int GAIN_MIN = 50, GAIN_MAX = 150;
+    public static final int GAIN_MIN = 50, GAIN_MAX = 300;
 
     static final String[] names = new String[CHANNELS + 1];
     static final int[] slider = new int[CHANNELS + 1];
@@ -50,12 +50,18 @@ public final class BtSettings {
     /** Per channel: strength % on top of the global one, width µs and Hz of the main / 2nd impulse (0 = the program's). */
     static final int[] chGain = new int[CHANNELS + 1];
     static final int[] chWidth = new int[CHANNELS + 1];
+    static final int[] chWidthSecond = new int[CHANNELS + 1];
+    /** Waveform of the main / 2nd impulse per channel: −1 = the global one, 0..3 = square, sine, trapezoid, trapezoid 2. */
+    static final int[] chWaveMain = new int[CHANNELS + 1];
+    static final int[] chWaveSecond = new int[CHANNELS + 1];
+    /** true = the owner's per-channel values rule as they are (Hz up to 1000, width up to 511 µs); false = they can only lower the program's. */
+    static boolean unlimited = true;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
 
-    public static final int CH_GAIN_MAX = 150;
+    public static final int CH_GAIN_MAX = 300;
     public static final int WIDTH_MIN = 50, WIDTH_MAX = 511;
-    public static final int HZ_MAIN_MAX = 120, HZ_SECOND_MAX = 10;
+    public static final int HZ_MAIN_MAX = 1000, HZ_SECOND_MAX = 1000;
 
     static Context app;
     static boolean loaded;
@@ -72,9 +78,13 @@ public final class BtSettings {
         for (int ch = 1; ch <= CHANNELS; ch++) {
             chGain[ch] = clampChGain(p.getInt("cgain" + ch, 100));
             chWidth[ch] = clampWidth(p.getInt("cwidth" + ch, 0));
+            chWidthSecond[ch] = clampWidth(p.getInt("cwidths" + ch, 0));
+            chWaveMain[ch] = clampChWave(p.getInt("cwavem" + ch, -1));
+            chWaveSecond[ch] = clampChWave(p.getInt("cwaves" + ch, -1));
             chHzMain[ch] = clampHz(p.getInt("chzm" + ch, 0), HZ_MAIN_MAX);
             chHzSecond[ch] = clampHz(p.getInt("chzs" + ch, 0), HZ_SECOND_MAX);
         }
+        unlimited = p.getBoolean("unlimited", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -92,12 +102,16 @@ public final class BtSettings {
         for (int ch = 1; ch <= CHANNELS; ch++) {
             e.putInt("cgain" + ch, chGain[ch]);
             e.putInt("cwidth" + ch, chWidth[ch]);
+            e.putInt("cwidths" + ch, chWidthSecond[ch]);
+            e.putInt("cwavem" + ch, chWaveMain[ch]);
+            e.putInt("cwaves" + ch, chWaveSecond[ch]);
             e.putInt("chzm" + ch, chHzMain[ch]);
             e.putInt("chzs" + ch, chHzSecond[ch]);
         }
         StringBuilder o = new StringBuilder();
         for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
         e.putString("order", o.toString());
+        e.putBoolean("unlimited", unlimited);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -111,10 +125,14 @@ public final class BtSettings {
             group[ch] = GROUP_BOTH;
             chGain[ch] = 100;
             chWidth[ch] = 0;
+            chWidthSecond[ch] = 0;
+            chWaveMain[ch] = -1;
+            chWaveSecond[ch] = -1;
             chHzMain[ch] = 0;
             chHzSecond[ch] = 0;
         }
         loadOrder("");
+        unlimited = true;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -141,7 +159,24 @@ public final class BtSettings {
     public static synchronized int chGain(int ch) { return valid(ch) ? chGain[ch] : 100; }
 
     /** Width µs this channel is held to (never above the program's); 0 = the program's. */
-    public static synchronized int chWidth(int ch) { return valid(ch) ? chWidth[ch] : 0; }
+    public static synchronized int chWidth(int ch) { return chWidth(ch, false); }
+
+    public static synchronized int chWidth(int ch, boolean second) {
+        return valid(ch) ? (second ? chWidthSecond[ch] : chWidth[ch]) : 0;
+    }
+
+    /** Waveform of this channel in the main / 2nd impulse: its own (0..3) or −1 = the global setting / the suit's own. */
+    public static synchronized int chWave(int ch, boolean second) {
+        return valid(ch) ? (second ? chWaveSecond[ch] : chWaveMain[ch]) : -1;
+    }
+
+    /** The waveform in force for the channel and impulse: its own, else the global one (−1 = the suit's own). */
+    public static synchronized int waveFor(int ch, boolean second) {
+        int w = chWave(ch, second);
+        return w >= 0 ? w : wave;
+    }
+
+    public static synchronized boolean unlimited() { return unlimited; }
 
     /** Hz this channel is held to in the main (second = false) or 2nd impulse (never above the program's); 0 = the program's. */
     public static synchronized int chHz(int ch, boolean second) {
@@ -197,8 +232,51 @@ public final class BtSettings {
     }
 
     public static synchronized void setChWidth(int ch, int us) {
+        setChWidth(ch, false, us);
+    }
+
+    public static synchronized void setChWidth(int ch, boolean second, int us) {
         if (!valid(ch)) return;
-        chWidth[ch] = clampWidth(us);
+        if (second) chWidthSecond[ch] = clampWidth(us);
+        else chWidth[ch] = clampWidth(us);
+        save();
+    }
+
+    public static synchronized void setChWave(int ch, boolean second, int w) {
+        if (!valid(ch)) return;
+        if (second) chWaveSecond[ch] = clampChWave(w);
+        else chWaveMain[ch] = clampChWave(w);
+        save();
+    }
+
+    public static synchronized void setUnlimited(boolean u) {
+        unlimited = u;
+        save();
+    }
+
+    /** Copy every per-channel value (strength, Hz, width, waveform of both impulses) of one channel to all the others. */
+    public static synchronized void copyToAll(int from) {
+        if (!valid(from)) return;
+        for (int ch = 1; ch <= CHANNELS; ch++) {
+            if (ch == from) continue;
+            chGain[ch] = chGain[from];
+            chHzMain[ch] = chHzMain[from];
+            chHzSecond[ch] = chHzSecond[from];
+            chWidth[ch] = chWidth[from];
+            chWidthSecond[ch] = chWidthSecond[from];
+            chWaveMain[ch] = chWaveMain[from];
+            chWaveSecond[ch] = chWaveSecond[from];
+        }
+        save();
+    }
+
+    /** Back to "as the program says" for one channel (strength 100 %, Hz / width auto, waveform global). */
+    public static synchronized void clearChannel(int ch) {
+        if (!valid(ch)) return;
+        chGain[ch] = 100;
+        chHzMain[ch] = chHzSecond[ch] = 0;
+        chWidth[ch] = chWidthSecond[ch] = 0;
+        chWaveMain[ch] = chWaveSecond[ch] = -1;
         save();
     }
 
@@ -278,6 +356,8 @@ public final class BtSettings {
     static int clampGroup(int g) { return g >= GROUP_BOTH && g <= GROUP_SECOND ? g : GROUP_BOTH; }
 
     static int clampWave(int w) { return w >= 0 && w <= 3 ? w : WAVE_SUIT; }
+
+    static int clampChWave(int w) { return w >= 0 && w <= 3 ? w : -1; }
 
     static int clampGain(int g) { return Math.max(GAIN_MIN, Math.min(GAIN_MAX, g)); }
 }

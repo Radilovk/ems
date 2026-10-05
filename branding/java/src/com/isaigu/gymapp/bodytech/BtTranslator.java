@@ -39,11 +39,10 @@ public final class BtTranslator {
     /** Test range the suit takes (bodytech/PROTOCOL.md): Hz 1..1000, width 50..511 µs, waveform 0..3 (−1 = the suit's own). */
     public static final int TEST_HZ_MAX = 1000;
     private int waveCh, waveVal;             // channel whose waveform the test changed (0 = none)
-    private final boolean[] waveTouched = new boolean[BtSettings.CHANNELS + 1];
+    private final int[] devWaveCh = new int[BtSettings.CHANNELS + 1];   // last waveform sent per channel (−1 = none yet)
 
     // what the suit holds now (as far as we know)
     private boolean programmed;
-    private int devWave = -2;               // waveform in the suit (−1 = its own, −2 = not programmed)
     private boolean unsafe = true;          // state unknown → next command starts with SEL all off
     private int devMask;
     private final int[] devInt = new int[BtSettings.CHANNELS + 1];
@@ -154,11 +153,10 @@ public final class BtTranslator {
         if (training() || ch < 1 || ch > BtSettings.CHANNELS) return out;
         prepare(out);
         if (waveCh != 0 && (waveCh != ch || wave != waveVal)) restoreWave(out);
-        if (wave >= 0 && wave <= 3 && waveCh == 0) {
-            out.add(BtProto.waveform(ch, wave));
+        sendWave(out, ch, wave);
+        if (wave >= 0 && wave <= 3) {
             waveCh = ch;
             waveVal = wave;
-            waveTouched[ch] = true;
         }
         testCh = ch;
         hz = clampHz(h);
@@ -180,9 +178,8 @@ public final class BtTranslator {
     /** The waveform the test changed goes back: the owner's, or square when the owner leaves it to the suit. */
     private void restoreWave(List<byte[]> out) {
         if (waveCh == 0) return;
-        int w = BtSettings.wave();
-        out.add(BtProto.waveform(waveCh, w >= 0 ? w : 0));
-        waveTouched[waveCh] = false;
+        int w = BtSettings.waveFor(waveCh, false);
+        sendWave(out, waveCh, w);
         waveCh = 0;
     }
 
@@ -206,12 +203,10 @@ public final class BtTranslator {
             devMask = 0;
             unsafe = false;
         }
-        if (programmed && !on && BtSettings.wave() != devWave) programmed = false;   // the owner changed the waveform
         if (programmed) return;
         out.add(BtProto.batteryInit());
         out.add(BtProto.batteryInit2());
         out.add(BtProto.reset());
-        int wave = BtSettings.wave();
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             out.add(BtProto.hz(ch, DEF_HZ));
             out.add(BtProto.stepNor(ch, BtProto.STEP_NOR_DEFAULT));
@@ -226,16 +221,14 @@ public final class BtTranslator {
             out.add(BtProto.t1WidthStep(ch, 0));
             out.add(BtProto.t3IntStep(ch, 1));
             out.add(BtProto.t3WidthStep(ch, 0));
-            if (wave >= 0) out.add(BtProto.waveform(ch, wave));
-            else if (waveTouched[ch]) out.add(BtProto.waveform(ch, 0));   // a test changed it
-            waveTouched[ch] = false;
+            if (devWaveCh[ch] > 0) out.add(BtProto.waveform(ch, 0));   // a test or a training had set one
+            devWaveCh[ch] = -1;
             devInt[ch] = 0;
             devHz[ch] = DEF_HZ;
             devUs[ch] = DEF_US;
         }
         out.add(BtProto.allOff());
         devMask = 0;
-        devWave = wave;
         programmed = true;
     }
 
@@ -247,9 +240,32 @@ public final class BtTranslator {
         restoreWave(out);
     }
 
-    /** The owner's per-channel value may only hold a channel BELOW what the program asks (limits stay upstream). */
-    private static int lower(int own, int program) {
-        return own > 0 && own < program ? own : program;
+    /** Waveform of a channel: w 0..3 sent when it differs from what the suit holds; −1 (the suit's own) puts back square. */
+    private void sendWave(List<byte[]> out, int ch, int w) {
+        if (w >= 0 && w <= 3) {
+            if (devWaveCh[ch] != w) {
+                out.add(BtProto.waveform(ch, w));
+                devWaveCh[ch] = w;
+            }
+        } else if (devWaveCh[ch] > 0) {
+            out.add(BtProto.waveform(ch, 0));
+            devWaveCh[ch] = 0;
+        }
+    }
+
+    /** Hz of a channel in the current impulse: the owner's (as it is when unlimited, else only below the program's). */
+    private int effHz(int ch, int program) {
+        int own = BtSettings.chHz(ch, phase == SECOND);
+        if (own <= 0) return program;
+        if (BtSettings.unlimited()) return clampHz(own);
+        return own < program ? own : program;
+    }
+
+    private int effUs(int ch, int program) {
+        int own = BtSettings.chWidth(ch, phase == SECOND);
+        if (own <= 0) return program;
+        if (BtSettings.unlimited()) return clampUs(own);
+        return own < program ? own : program;
     }
 
     /** Strength (0..99 %) the owner's map gives channel ch in the current phase. */
@@ -270,9 +286,10 @@ public final class BtTranslator {
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             int t = target(ch);
             if (t > 0) {
-                int h = testCh != 0 ? hz : lower(BtSettings.chHz(ch, phase == SECOND), hz);
-                int u = testCh != 0 ? widthUs : lower(BtSettings.chWidth(ch), widthUs);
+                int h = testCh != 0 ? hz : effHz(ch, hz);
+                int u = testCh != 0 ? widthUs : effUs(ch, widthUs);
                 if (u < MIN_US) u = MIN_US;
+                if (testCh == 0) sendWave(out, ch, BtSettings.waveFor(ch, phase == SECOND));
                 if (devHz[ch] != h) {
                     out.add(BtProto.hz(ch, h));
                     devHz[ch] = h;

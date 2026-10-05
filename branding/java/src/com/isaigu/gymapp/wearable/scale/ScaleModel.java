@@ -32,7 +32,7 @@ import org.json.JSONObject;
  */
 public final class ScaleModel {
     /** Stored measurements carry "v" = this; older ones are rebuilt from their raw impedances. */
-    public static final int VERSION = 5;
+    public static final int VERSION = 6;
     /** Segment sum → hand-to-foot resistance (owner's report: Sun 2003 = WLA25 17.0 % for him). */
     static final double GEO = 0.8736;
     /** Without a usable trunk reading (generation A): the trunk ≈ this share of arm + leg. */
@@ -40,8 +40,11 @@ public final class ScaleModel {
     /** Where 50 kHz lies between 20 and 100 kHz on a log scale. */
     static final double AT50 = Math.log(50.0 / 20.0) / Math.log(100.0 / 20.0);
 
-    /** One reading's lean mass error (kg²), the tissue's drift per day (kg²/day). */
-    static final double R = 1.0, Q = 0.02;
+    /**
+     * The weight is the measured base and is never touched. What is filtered is the fat's share of it (points of
+     * %): one reading's error (pt²) and the tissue's drift per day (pt²/day).
+     */
+    static final double R = 1.5, Q = 0.03;
     /**
      * The limbs' share of the lean (ALM / FFM): one step-on's spread (σ ≈ 0.012 — limb impedances move ±3 % with
      * food, drink, skin) and its drift (σ 0.001 per √day — training moves it over months, not hours).
@@ -53,12 +56,13 @@ public final class ScaleModel {
      */
     static final double AGE_LSC = 2.0, AGE_HOLD_H = 12;
     /**
-     * What the tissue can really change between two weigh-ins (kg of lean = kg of fat the other way, the weight
-     * being measured): a hydration / food / contact allowance, plus this many kg a day (≈ 0.8 kg a week — a hard
-     * diet or a hard bulk). A reading further off than that is the measurement's noise, not the body: it is cut
-     * to the limit before the filter sees it.
+     * What the body can really change between two weigh-ins, as shares of the (measured) weight: fat % moves by at
+     * most ALLOW points for hydration / food / contact plus TISSUE_DAY points a day (≈ 0.12 kg of fat a day at
+     * 80 kg: a hard diet or bulk). A reading further off is the measurement's noise, not the body: it is cut to
+     * the limit before the filter sees it. The other ratios (limb shares, skeletal share) move at most REL +
+     * REL_DAY per day of their own value.
      */
-    static final double ALLOW = 0.6, TISSUE_DAY = 0.12;
+    static final double ALLOW = 0.5, TISSUE_DAY = 0.15, REL = 0.03, REL_DAY = 0.01;
     /** A weight change the body does not make: restart the filter. */
     static double jump(double w) {
         return Math.max(4.0, 0.07 * w);
@@ -180,6 +184,9 @@ public final class ScaleModel {
         /** Appendicular share of the lean, smoothed, and its variance; the shown physical age and when it was set. */
         public double ash = Double.NaN, asv = RA, age = Double.NaN;
         public long ageT;
+        /** Smoothed ratios (see {@link #ratios}) and the days since the previous weigh-in. */
+        public double[] ratio;
+        public double ratioDays;
         /** The last step restarted the filter (first weigh-in, long gap, another body). */
         public boolean restarted;
 
@@ -195,26 +202,60 @@ public final class ScaleModel {
     public static double step(State s, long t, double w, double leanRaw) {
         double days = s.on() ? Math.max(0, (t - s.t) / 86400000.0) : 0;
         s.restarted = !s.on() || days > 60 || Math.abs(w - s.w) > jump(w);
+        double raw = 100 * (1 - leanRaw / w);
+        double pct;
         if (s.restarted) {
-            s.lean = leanRaw;
+            pct = raw;
             s.var = R;
         } else {
-            double dw = w - s.w;
-            double share = 0.3 + 0.45 * Math.exp(-days / 3);
-            double x = s.lean + share * dw;
-            double p = Math.min(4 * R, s.var + Q * days + 0.09 * dw * dw);
+            double prev = 100 * (1 - s.lean / s.w);       // the fat share carries to the new weight as it is
+            double p = Math.min(4 * R, s.var + Q * days);
             double cap = ALLOW + TISSUE_DAY * days;
-            double e = clamp(leanRaw - x, -cap, cap);
+            double e = clamp(raw - prev, -cap, cap);
             double sv = p + R;
             double r = e * e / sv > 9 ? R * e * e / sv / 9 : R;     // 3 σ off → counts less
             double k = p / (p + r);
-            s.lean = x + k * e;
+            pct = prev + k * e;
             s.var = (1 - k) * p;
         }
-        s.lean = clamp(s.lean, 0.4 * w, 0.97 * w);
+        s.lean = clamp(w * (1 - pct / 100), 0.4 * w, 0.97 * w);
         s.w = w;
         s.t = t;
         return s.lean;
+    }
+
+    /**
+     * The ratios that were still read from one step-on's impedances — each limb's muscle / fat share of the total
+     * and the skeletal share of the lean — held to the same rule: a cut to what a body can change since the last
+     * weigh-in, then half way. Rewrites the body's values; stores the ratios in the state.
+     */
+    static void ratios(State s, ScaleBody b) {
+        double lean = b.leanKg, fat = b.fatKg, w = b.weightKg;
+        if (!(lean > 0) || !(fat > 0)) {
+            return;
+        }
+        double[] now = new double[11];
+        for (int i = 0; i < 5; i++) {
+            now[i] = b.segMuscleKg[i] / lean;
+            now[5 + i] = b.segFatKg[i] / fat;
+        }
+        now[10] = b.skeletalPct * w / 100 / lean;
+        double days = s.ratioDays;
+        double[] use = now;
+        if (!s.restarted && s.ratio != null) {
+            use = new double[11];
+            double rel = REL + REL_DAY * days;
+            for (int i = 0; i < 11; i++) {
+                double pr = s.ratio[i];
+                use[i] = pr + 0.5 * clamp(now[i] - pr, -rel * pr, rel * pr);
+            }
+        }
+        for (int i = 0; i < 5; i++) {
+            b.segMuscleKg[i] = use[i] * lean;
+            b.segFatKg[i] = use[5 + i] * fat;
+        }
+        b.skeletalPct = ScaleBody.ceil1(use[10] * lean / w * 100);
+        s.ratio = use;
     }
 
     /**
@@ -296,6 +337,8 @@ public final class ScaleModel {
             double lean = step(s, t, r.weightKg, lr);
             b = body(r, male, age, heightCm, 100 * (1 - lean / r.weightKg));
             if (b != null) {
+                s.ratioDays = days;
+                ratios(s, b);
                 trait(s, b, t, days, male, age, heightCm, restHr);
             }
         }
@@ -305,6 +348,13 @@ public final class ScaleModel {
             o.put("fr", Math.round(fr * 10) / 10.0);
             o.put("lr", Math.round(lr * 100) / 100.0);
             o.put("var", Math.round(s.var * 1000) / 1000.0);
+            if (s.ratio != null) {
+                JSONArray ra = new JSONArray();
+                for (double d : s.ratio) {
+                    ra.put(Math.round(d * 10000) / 10000.0);
+                }
+                o.put("sr", ra);
+            }
             if (!Double.isNaN(s.ash)) {
                 o.put("ash", Math.round(s.ash * 10000) / 10000.0);
                 o.put("asv", s.asv);
@@ -337,6 +387,13 @@ public final class ScaleModel {
                 s.asv = m.optDouble("asv", RA);
                 s.age = m.optDouble("pag", Double.NaN);
                 s.ageT = m.optLong("pagT", s.t);
+                JSONArray sr = m.optJSONArray("sr");
+                if (sr != null && sr.length() == 11) {
+                    s.ratio = new double[11];
+                    for (int j = 0; j < 11; j++) {
+                        s.ratio[j] = sr.optDouble(j);
+                    }
+                }
                 break;
             }
         }

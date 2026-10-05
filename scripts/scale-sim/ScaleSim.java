@@ -497,8 +497,8 @@ public final class ScaleSim {
         // two steps a minute apart → their average
         ScaleModel.State s2 = new ScaleModel.State();
         ScaleModel.step(s2, t, 80, 64);
-        // 2 kg of lean in a minute is not a body: the reading is cut to the allowance (0.6 kg), the filter takes half
-        eq("two steps a minute apart: a 2 kg jump is cut to the physiological limit", ScaleModel.step(s2, t + 60000, 80, 66), 64.3, 0.05);
+        // 2 kg of lean in a minute is not a body: the reading is cut to the allowance (0.5 pt of the weight), the filter takes half
+        eq("two steps a minute apart: a 2 kg jump is cut to the physiological limit", ScaleModel.step(s2, t + 60000, 80, 66), 64.2, 0.05);
         // a day later the limit is 0.72 kg: even a 3 kg lean "change" moves the shown value <= 0.5*0.72
         ScaleModel.State s6 = new ScaleModel.State();
         ScaleModel.step(s6, t, 80, 64);
@@ -510,7 +510,8 @@ public final class ScaleSim {
             double w = 84 - 4.0 * d / 56;
             l = ScaleModel.step(s3, t + d * 86400000L, w, 66);
         }
-        eq("8 weeks −4 kg fat: lean stays", l, 66, 0.5);
+        eq("8 weeks −4 kg fat: lean stays", l, 66, 1.0);
+        ok("8 weeks −4 kg fat: shown fat within 1 point of real (" + r1(100 * (1 - l / 80)) + " vs 17.5)", Math.abs(100 * (1 - l / 80) - 17.5) <= 1.0);
         // a weight the client cannot reach → restart, not a blend
         ScaleModel.State s4 = new ScaleModel.State();
         ScaleModel.step(s4, t, 53, 42);

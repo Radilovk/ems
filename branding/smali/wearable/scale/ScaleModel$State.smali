@@ -25,6 +25,10 @@
 
 .field public lean:D
 
+.field public ratio:[D
+
+.field public ratioDays:D
+
 .field public restarted:Z
 
 .field public t:J
@@ -41,19 +45,19 @@
     .prologue
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
-    .line 177
+    .line 181
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 178
+    .line 182
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
-    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+    const-wide/high16 v0, 0x3ff8000000000000L    # 1.5
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->var:D
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->w:D
 
-    .line 181
+    .line 185
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
 
     const-wide v0, 0x3f22dfd694ccab3fL    # 1.44E-4
@@ -71,7 +75,7 @@
     .registers 3
 
     .prologue
-    .line 187
+    .line 194
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z

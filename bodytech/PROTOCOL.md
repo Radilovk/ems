@@ -3,12 +3,25 @@
 Source: decompiled `com.emsfit.way8` 5.1 (`bodytech/bodytech.zip`), package `zcontrol.protocol`.
 Encodings verified byte-for-byte against the vendor classes: 2946 frames, 0 differences
 (`bodytech/probe/test/run.sh` keeps 25 of them as golden vectors).
-Not yet seen on a real suit: replies other than battery, firmware limits, channel → muscle map.
+Confirmed on a real suit (probe 0.1, 2026-10-05, `EMS08-05629`, 02:BC:34:D6:2D:93): service/characteristic,
+every frame ACKed, battery reply. FE51 props 0x1a (read, write, notify). Write→ACK ≈ 25 ms with the default /
+HIGH connection priority, ≈ 90 ms after asking for BALANCED. No reply except battery. Battery raw stayed
+1570–1572 with seven channels at strength 1–6 — the voltage does not show a light load.
+Channel names (EMSFIT labels, customButtonN → CH): C1 WAIST, C2 GLUTES, C3 SHOULDER, C4 MIDDLE BACK, C5 CHEST,
+C6 ARM, C7 LEG, C8 ABDOMEN.
+Probe 0.3 auto test (2026-10-05, Huawei MNA-LX9, nobody in the suit): 0 write errors in ~1 100 frames;
+write→ACK 31 ms average with HIGH priority (≈ 31 frames/s). GATT read of FE51 returns the 6-byte MAC
+(`02 BC 34 D6 2D 93`). Sweep of 50 read requests (STATUS 0x08kk0000, 0x0801000n, 0x08n00000, VER): only the
+battery answers, whatever the low bytes; the suit once echoed a request frame back. No other readable register,
+no change with outputs on (all, or one channel at 30, open circuit), none 16 s without heartbeat — the suit gives
+no feedback about the output. Battery 1571 raw flat throughout (open circuit draws nothing measurable).
+Limit Hz (1–1000), width (50–511 µs) and waveform 0–3 frames are all ACKed (GATT level, effect unproven).
+Still open (needs a person): muscle check of the channel map, watchdog stop time, battery under a real load.
 
 ## Link
 | | |
 |---|---|
-| Advertised name contains | `TZLJ`, `EMS` or `ADT` (vendor scan filter) |
+| Advertised name contains | `TZLJ`, `EMS` or `ADT` (vendor scan filter); seen: `EMS08-05629`, advertises FE50 |
 | Service | `0000fe50-0000-1000-8000-00805f9b34fb` |
 | Write + notify | `0000fe51-…` (same characteristic, write with response) |
 | Pacing | one frame in flight; next after write ACK (vendor polls 10 ms, gives up after 1 s) |

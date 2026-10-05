@@ -40,6 +40,10 @@ public final class Link {
     final Semaphore writeAck = new Semaphore(0);
     final Semaphore setupAck = new Semaphore(0);
     final Object batLock = new Object();
+    final Object rxLock = new Object();
+    final Semaphore readAck = new Semaphore(0);
+    volatile byte[] lastRx, lastRead;
+    volatile long lastRxAt;
     volatile BluetoothGatt gatt;
     volatile BluetoothGattCharacteristic ch;
     volatile int state = ST_IDLE;
@@ -166,6 +170,13 @@ public final class Link {
         }
 
         @Override
+        public void onCharacteristicRead(BluetoothGatt g, BluetoothGattCharacteristic c, int status) {
+            lastRead = c.getValue();
+            log("READ status=" + status + " " + Proto.hex(lastRead) + "   " + Proto.decode(lastRead));
+            readAck.release();
+        }
+
+        @Override
         public void onCharacteristicWrite(BluetoothGatt g, BluetoothGattCharacteristic c, int status) {
             lastWriteStatus = status;
             writeAck.release();
@@ -175,6 +186,11 @@ public final class Link {
         public void onCharacteristicChanged(BluetoothGatt g, BluetoothGattCharacteristic c) {
             byte[] v = c.getValue();
             log("RX " + Proto.hex(v) + "   " + Proto.decode(v));
+            synchronized (rxLock) {
+                lastRx = v == null ? null : v.clone();
+                lastRxAt = SystemClock.elapsedRealtime();
+                rxLock.notifyAll();
+            }
             int raw = Proto.batteryRaw(v);
             if (raw > 0) {
                 synchronized (batLock) {
@@ -284,6 +300,33 @@ public final class Link {
             if (latencyOut != null) latencyOut[0] = lastBatteryAt - since;
             return lastBatteryRaw;
         }
+    }
+
+    /** Worker thread only. Writes a frame and returns the first notification after it (≤ timeoutMs), or null. */
+    public byte[] query(byte[] frame, String why, long timeoutMs) {
+        long since = SystemClock.elapsedRealtime();
+        if (write(frame, why) < 0) return null;
+        long deadline = since + timeoutMs;
+        synchronized (rxLock) {
+            while (lastRxAt < since) {
+                long left = deadline - SystemClock.elapsedRealtime();
+                if (left <= 0) return null;
+                try { rxLock.wait(left); } catch (InterruptedException e) { return null; }
+            }
+            return lastRx;
+        }
+    }
+
+    /** Worker thread only. GATT read of FE51. */
+    public byte[] readChar() {
+        BluetoothGatt g = gatt;
+        BluetoothGattCharacteristic c = ch;
+        if (g == null || c == null) return null;
+        readAck.drainPermits();
+        lastRead = null;
+        if (!g.readCharacteristic(c)) { log("READ не тръгна"); return null; }
+        try { readAck.tryAcquire(1000, TimeUnit.MILLISECONDS); } catch (InterruptedException ignored) { }
+        return lastRead;
     }
 
     public static boolean looksLikeSuit(String name, List<?> uuids) {

@@ -560,21 +560,32 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L23 ## Train screen preview — **canonical method for UI frames**
   - L40 ## Not automatable without hardware
 
-`bodytech/PROTOCOL.md` (71L)
-  - L1 # Bodytech (EMSFIT 5.1) suit — BLE protocol
-  - L8 ## Link
-  - L17 ## Frame — 8 bytes, big endian
-  - L21 ### Global registers (channel 0)
-  - L30 ### Channel registers
-  - L49 ## Sequences (EMSFIT)
-  - L57 ## Replies
-  - L62 ## XEMS → bodytech mapping
+`bodytech/HANDOFF.md` (49L)
+  - L1 # Bodytech в XEMS — какво е готово и какво остава
+  - L3 ## Готово (в репото)
+  - L14 ## Как XEMS говори със своя костюм (проучено)
+  - L31 ## Остава — частта за довършване
+  - L43 ## Мога да довърша и аз (не управлява изхода)
 
-`bodytech/probe/README.md` (32L)
+`bodytech/PROTOCOL.md` (84L)
+  - L1 # Bodytech (EMSFIT 5.1) suit — BLE protocol
+  - L21 ## Link
+  - L30 ## Frame — 8 bytes, big endian
+  - L34 ### Global registers (channel 0)
+  - L43 ### Channel registers
+  - L62 ## Sequences (EMSFIT)
+  - L70 ## Replies
+  - L75 ## XEMS → bodytech mapping
+
+`bodytech/probe/README.md` (33L)
   - L1 # XEMS BT Probe — тест на bodytech костюма
   - L7 ## Инсталиране
-  - L12 ## Тест (около 10 минути, костюмът облечен)
-  - L30 ## Сглобяване
+  - L12 ## Авто тест (версия 0.3) — без човек в костюма
+  - L23 ## Ръчни тестове (когато има човек в костюма)
+  - L31 ## Сглобяване
+
+`bodytech/xems/README.md` (19L)
+  - L1 # Bodytech в XEMS — подготвени класове (още не са в build-а)
 
 `branding/CLAUDE.md` (11L)
   - L1 # branding/ — resources patched into the APK

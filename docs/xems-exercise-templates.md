@@ -7,8 +7,8 @@
 | Who leads | the program and its limits; the trainer sets strength inside them | the system (pulse, fatigue, the client's signals) |
 | Pulse | optional (required only by cardio) | required |
 | Clients | group: one program for all rows | one client (the leader) |
-| Exercises | **example only**: a figure at its own tempo + "Пример: …", rotates every 12 s, no "next" | **part of the plan**: station per block / cycle, easier when tired, "Следва" |
-| kcal / load / zones | current + pulse only | current + exercise + pulse (the pulse wins when higher) |
+| Exercises | **sets** (1.1.270): one exercise per 30–40 s set, automatic pause after it, ▶ to go on, "Следва" in the rest; figure at its own tempo | **part of the plan**: station per block / cycle, easier when tired, "Следва" |
+| kcal / load / zones | current + exercise + pulse (1.1.318: the **leader's** running set, recorded and counted like AI; the pulse wins when higher; the others of a group get no exercise) | current + exercise + pulse (the pulse wins when higher) |
 | Level of exercises | from the profile, no history | profile + history of this program |
 
 Why: in AI the pulse is required, so it confirms the movement is really done; in Auto nothing confirms it, and
@@ -64,12 +64,13 @@ a group session would force the leader's exercises on everyone.
 - Band: `BandRemote` state `ex` (now) / `exn` (next, in the rest) → `pages/ai` label under the time, home card.
 
 ## Auto (`AutoHints`)
-Example figure 140×104 dp beside the exercise name (21 sp) in the hint card, "пример · <phase hint>" under it, own
-2 s / 2 s tempo, rotates through the phase's list every 12 s; without an example the phase hint is the headline.
-No record, no kcal, no history.
+Figure 140×104 dp beside the exercise name (21 sp) in the hint card, own 2 s / 2 s tempo. Owner (1.1.270): the
+exercises run as **sets** — one exercise per 30–40 s of work (`AutoEngine` stations), then an automatic pause; the card
+shows "Следва: …" and the ▶ key (docs/xems-auto-mode-spec.md §11). The list of the phase is walked in order, set by set.
+Phases without sets (none today) keep the 12 s rotating example. Since 1.1.318 the running set of the leader is recorded and counts in kcal and the muscle map (`AutoSession.currentExercise`, only in a running set — not in a rest or a pause); still no history.
 
 ## Energy, load and muscle map
-Smart Session only. The exercise done each second is recorded (`SessionRec.ex` = index + 1, `exs` = {id, met, mus}),
+Smart Session and (since 1.1.318, leader only) Auto. The exercise done each second is recorded (`SessionRec.ex` = index + 1, `exs` = {id, met, mus}),
 so the tablet report, the client's copy (server) and the band use the same data. Estimates, marked [D] in code:
 - **kcal:** the movement's own oxygen cost (MET − 1) · 3.5 ml/kg/min — full in the impulse, 30 % in the pause —
   is added to the current's branch; the result is still max(pulse branch, current + movement), so with a pulse the
@@ -79,6 +80,8 @@ so the tablet report, the client's copy (server) and the band use the same data.
 - **Muscle map:** each exercise's muscles (`mus`, 100 = main) add `EX_LOAD` 0.25 of a full channel in the impulse,
   30 % of it in the pause (`SessionRec.EXERCISE_LOAD` 25 for the band/card figure). MET/muscles live in
   `branding/exercises/exercises.json` (`met`, `mus`) → `AutoTemplateData.MET/MUS`.
+- **Deltoid (1.1.313 live board, 1.1.314 report / card / band):** the shoulders column also feeds a deltoid zone of
+  its own (no current) — see `docs/xems-auto-mode-spec.md` §12 „Цвят на зоните“, `docs/session-report/README.md`.
 
 ## Program pictures (`ai/ProgramArt`)
 Sources: `branding/programs/src/*.webp` (full resolution, transparent; the women's set cut from the owner's 13-pose
@@ -90,7 +93,11 @@ smallest width ≥ the tile's px (no density scaling, mipmaps on), always on a d
 Shown on the Auto program cards (128×96 dp) and the AI plan screen (160×120 dp).
 Key = program × sex: women — general f-squat, glutes/postpartum f-bridge, core f-plank, power f-pushup, cardio
 f-climber, back f-lateral, senior f-curl; men — glutes/cardio m-lunge, core/power/back m-pushup, else m-squat;
-passive — passive-m, or passive-f-music (drain, recovery) / passive-f-line. Unused yet: f-lunge, f-bicycle,
+passive — passive-m / passive-f. **1.1.336 (owner's four pictures):** the standing figure with a dumbbell is the
+**active template** — `active-m` / `active-f` (`ProgramArt.templateKey`): the cards of the first step and the Auto ring
+whenever no exercise figure is drawn (template only, between sets); the figure lying back is the **passive procedure and
+every recovery** — `passive-m` / `passive-f` (`ProgramArt.passiveKey`), replacing passive-f-music / passive-f-line.
+The per-program pictures (f-squat … m-squat) stay for the AI plan screen. Unused yet: f-lunge, f-bicycle,
 f-legraise, f-twist, f-dip, f-tricep.
 
 ## Figure colour

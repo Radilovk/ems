@@ -228,25 +228,20 @@ public final class NextPlan {
         return s;
     }
 
-    // ================================================================ recommendation
+    // ================================================================ the next training
 
     static String tr(String bg, String en) {
         return XemsLang.tr(bg, en);
     }
 
-    static final String[] ZONES_BG = {"гърди", "корем", "предно бедро", "прасци", "ръце", "трапец", "гръб",
-            "кръст", "седалище", "задно бедро"};
-    static final String[] ZONES_EN = {"chest", "abs", "front thigh", "calves", "arms", "traps", "back",
-            "lower back", "glutes", "back thigh"};
-
     /**
-     * Settings for the training at {@code apptMs}. {@code nextApptMs} is the client's following
-     * appointment (0 = none known).
+     * The client's last settings for the training at {@code apptMs} — memory, not an adaptation (owner, 1.1.323:
+     * the manual mode no longer changes anything by itself; the absolute limits are ai/SafeLimits).
+     * {@code nextApptMs} is the client's following appointment (0 = none known).
      */
     public static Rec recommend(Context c, TrainUser u, long apptMs, long nextApptMs) {
         Rec rec = new Rec();
         rec.nextApptMs = nextApptMs;
-        long now = apptMs > 0 ? apptMs : System.currentTimeMillis();
         Snap last = c != null && u != null ? load(c, u.id) : null;
         List<JSONObject> hist = history(c, u != null ? u.id : -1);
         long lastMs = last != null ? last.t : 0;
@@ -254,101 +249,13 @@ public final class NextPlan {
             lastMs = Math.max(lastMs, hist.get(i).optLong("start"));
         }
         rec.lastMs = lastMs;
-        String[] own = own(c, u);
         if (last == null) {
             rec.first = true;
-            mindOnly(own, rec);
-            rec.why.add(hist.isEmpty()
-                    ? tr("Първа тренировка със запис — програмата на клиента, силата се нагласява на място.",
-                         "First recorded training — the client's program, set the strength on the spot.")
-                    : tr("Няма запазени настройки — програмата на клиента.",
-                         "No saved settings — the client's program."));
             return rec;
         }
         rec.last = last;
-        Snap n = last.copy();
-        double k = 1.0;
-        double days = lastMs > 0 ? (now - lastMs) / (double) DAY : 99;
-        // 1. rest since the last training. WB-EMS works the same motor units every impulse, so the muscle damage
-        //    (CK) of a hard session peaks on day 2–4; the WB-EMS guidelines ask ≥ 4 days between sessions
-        //    (docs/xems-ems-physiology.md §6).
-        if (days < 2) {
-            k *= 0.7;
-            n.work = shorter(n.work, 0.8);
-            rec.why.add(tr(String.format("Само %d ч от последната — мускулите не са възстановени (след EMS това трае 2–4 дни): −30 %%, по-кратко.",
-                                   Math.round(days * 24)),
-                           String.format("Only %d h since the last one — the muscles have not recovered (after EMS that takes 2–4 days): −30%%, shorter.",
-                                   Math.round(days * 24))));
-        } else if (days < 4) {
-            k *= 0.85;
-            rec.why.add(tr(String.format("%d дни почивка — под препоръчаните 4 дни между EMS тренировки: −15 %%.", (int) Math.floor(days)),
-                           String.format("%d days of rest — under the recommended 4 days between EMS sessions: −15%%.", (int) Math.floor(days))));
-        } else if (days > 21) {
-            k *= 0.8;
-            n.work = shorter(n.work, 0.8);
-            rec.why.add(tr(String.format("Дълга пауза (%d дни) — −20 %% и по-кратко.", Math.round(days)),
-                           String.format("Long break (%d days) — −20%% and shorter.", Math.round(days))));
-        } else if (days > 8) {
-            k *= 0.9;
-            rec.why.add(tr(String.format("Пауза %d дни — −10 %%.", Math.round(days)),
-                           String.format("%d days off — −10%%.", Math.round(days))));
-        } else if (!last.assisted && last.planS > 0 && last.activeS >= 0.9 * last.planS && hist.size() >= 2) {
-            k *= 1.05;
-            rec.why.add(tr("Последната е изкарана докрай — +5 % сила.", "The last one was completed — +5% strength."));
-        }
-        // 2. the next appointment
-        if (nextApptMs > 0 && apptMs > 0) {
-            double gap = (nextApptMs - apptMs) / (double) DAY;
-            if (gap < 4) {
-                k *= 0.95;
-                rec.why.add(tr("Следващият час е след по-малко от 4 дни — умерено, за да се възстановят (−5 %).",
-                               "The next appointment is within 4 days — moderate, so they recover (−5%)."));
-            }
-        }
-        // 3. the muscles: the 30-day load per zone against the average
-        double[] load = load30(hist, now);
-        List<String> up = new ArrayList<String>();
-        List<String> down = new ArrayList<String>();
-        if (load != null) {
-            double sum = 0;
-            int m = 0;
-            for (int i = 0; i < CH; i++) {
-                if (n.ch[i] > 0) {
-                    sum += load[i];
-                    m++;
-                }
-            }
-            double avg = m > 0 ? sum / m : 0;
-            for (int i = 0; i < CH && avg > 0; i++) {
-                if (n.ch[i] <= 0) {
-                    continue;                              // a zone switched off stays off
-                }
-                if (load[i] < 0.7 * avg && n.ch[i] < 100) {
-                    n.ch[i] = Math.min(100, n.ch[i] + 10);
-                    up.add(XemsLang.isBg() ? ZONES_BG[i] : ZONES_EN[i]);
-                } else if (load[i] > 1.35 * avg && n.ch[i] > 20) {
-                    n.ch[i] = Math.max(20, n.ch[i] - 5);
-                    down.add(XemsLang.isBg() ? ZONES_BG[i] : ZONES_EN[i]);
-                }
-            }
-        }
-        if (!up.isEmpty()) {
-            rec.why.add(tr("Изостават за 30 дни: " + join(up) + " — +10 %.", "Behind over 30 days: " + join(up) + " — +10%."));
-        }
-        if (!down.isEmpty()) {
-            rec.why.add(tr("Най-натоварени: " + join(down) + " — −5 %.", "Most loaded: " + join(down) + " — −5%."));
-        }
-        k = individual(own, n, rec, k);
-        n.st = clamp((int) Math.round(last.st * k), 0, 100);
-        if (last.assisted) {
-            rec.why.add(0, tr("Последната беше в автоматичен режим („" + last.program + "“) — ръчните настройки от преди нея.",
-                              "The last one ran in automatic mode (" + last.program + ") — the manual settings from before it."));
-        }
-        rec.next = n;
-        rec.same = n.st == last.st && n.work == last.work && Arrays.equals(n.ch, last.ch);
-        if (rec.same) {
-            rec.why.add(tr("Както последния път.", "As last time."));
-        }
+        rec.next = last.copy();
+        rec.same = true;
         return rec;
     }
 
@@ -364,196 +271,6 @@ public final class NextPlan {
         return new String[] {p.getString("focus" + u.id, ""), p.getString("cond" + u.id, ""), parts[0]};
     }
 
-    static boolean has(String csv, String k) {
-        return ("," + csv + ",").contains("," + k + ",");
-    }
-
-    /** Focus zones → channels (chest 0, abs 1, front thigh 2, arms 4, back 6, glutes 8, back thigh 9). */
-    static int[] focusChannels(String k) {
-        if ("abs".equals(k)) return new int[] {1};
-        if ("glutes".equals(k)) return new int[] {8};
-        if ("legs".equals(k)) return new int[] {2, 9};
-        if ("arms".equals(k)) return new int[] {4};
-        if ("back".equals(k)) return new int[] {6};
-        if ("chest".equals(k)) return new int[] {0};
-        return new int[0];
-    }
-
-    /**
-     * What the client asked for and what to mind, on top of the history: focus zones +5 %, a sore lower back /
-     * neck −15 % on that zone, birth within a year −15 % on the abs, sensitive to current −10 % overall,
-     * stress / poor sleep: no increase today. Returns the new overall factor.
-     */
-    static double individual(String[] own, Snap n, Rec rec, double k) {
-        List<String> fz = new ArrayList<String>();
-        for (String f : own[0].split(",")) {
-            int[] chs = focusChannels(f);
-            boolean any = false;
-            for (int ch : chs) {
-                if (n.ch[ch] > 0 && n.ch[ch] < 100) {
-                    n.ch[ch] = Math.min(100, n.ch[ch] + 5);
-                    any = true;
-                }
-            }
-            if (any) {
-                fz.add(focusName(f));
-            }
-        }
-        if (!fz.isEmpty()) {
-            rec.why.add(tr("Клиентът иска акцент на: " + join(fz) + " — +5 %.", "The client wants more on: " + join(fz) + " — +5%."));
-        }
-        return condition(own[1], own.length > 2 ? own[2] : "", n, rec, k);
-    }
-
-    // Channels: chest 0, abs 1, front thigh 2, calves 3, arms 4, traps 5, back 6, lower back 7, glutes 8, back thigh 9.
-    static final int[] BIG = {2, 9, 8, 6};
-    static final int[] LEGS_GLUTES = {2, 9, 8};
-
-    /**
-     * The client's state — never a stop, it shapes the approach: which zones carry the load, how much the
-     * strength may rise today and how long the work part is. Each rule says what it did in the reasons.
-     */
-    static double condition(String cond, String goal, Snap n, Rec rec, double k) {
-        double cap = 9;                                    // the most the strength may rise today (× last)
-        double workF = 1.0;
-        boolean fat = "fat".equals(goal) || "cellulite".equals(goal);
-        // hormones and metabolism
-        if (has(cond, "prediabetes") || has(cond, "pcos")) {
-            int up = has(cond, "prediabetes") ? 10 : 5;
-            if (zones(n, LEGS_GLUTES, up)) {
-                rec.why.add(tr((has(cond, "prediabetes") ? "Преддиабет" : "ПКОС") + " — бедра и седалище +" + up
-                        + " %: големите мускули усвояват най-много глюкоза. Не на гладно.",
-                        (has(cond, "prediabetes") ? "Prediabetes" : "PCOS") + " — thighs and glutes +" + up
-                        + "%: the big muscles take up the most glucose. Not on an empty stomach."));
-            }
-        }
-        if (has(cond, "menopause")) {
-            if (zones(n, BIG, 5)) {
-                rec.why.add(tr("Менопауза — големите мускули +5 % (мускулна маса и кости)"
-                        + (fat ? ", целта „отслабване“ идва от тях." : "."),
-                        "Menopause — big muscles +5% (muscle mass and bones)" + (fat ? ", fat loss comes from them." : ".")));
-            }
-            cap = Math.min(cap, 1.05);
-        }
-        if (has(cond, "thyroid")) {
-            cap = Math.min(cap, 1.0);
-            rec.why.add(tr("Щитовидна жлеза — без увеличение днес; следи умората.",
-                    "Thyroid — no increase today; watch the fatigue."));
-        }
-        if (has(cond, "water")) {
-            zones(n, new int[] {3}, -10);
-            rec.why.add(tr("Задържане на течности — прасци −10 %"
-                    + ("drain".equals(goal) ? "." : "; в края 10 мин дренаж."),
-                    "Water retention — calves −10%" + ("drain".equals(goal) ? "." : "; 10 min drainage at the end.")));
-        }
-        if (has(cond, "postpartum") && zones(n, new int[] {1}, -15)) {
-            rec.why.add(tr("След бременност — коремът −15 %, тазовото дъно първо.",
-                    "After pregnancy — abs −15%, pelvic floor first."));
-        }
-        // body and joints
-        if (has(cond, "diastasis") && n.ch[1] > 20) {
-            n.ch[1] = Math.max(20, Math.min(n.ch[1] - 25, 40));
-            rec.why.add(tr("Диастаза — коремът до 40 %, без напъване.", "Diastasis — abs at most 40%, no straining."));
-        }
-        if (has(cond, "back") && zones(n, new int[] {7}, -15)) {
-            rec.why.add(tr("Кръст — кръстът −15 %, седалище и корем го пазят.", "Lower back — lower back −15%."));
-        }
-        if (has(cond, "neck") && zones(n, new int[] {5}, -15)) {
-            rec.why.add(tr("Врат / рамене — трапецът −15 %.", "Neck / shoulders — traps −15%."));
-        }
-        if (has(cond, "knees") && zones(n, new int[] {2}, -10)) {
-            rec.why.add(tr("Колене — предно бедро −10 %.", "Knees — front thigh −10%."));
-        }
-        if (has(cond, "desk") && zones(n, new int[] {6, 8}, 5)) {
-            rec.why.add(tr("Седяща работа — гръб и седалище +5 % (стойка).", "Desk job — back and glutes +5% (posture)."));
-        }
-        if (has(cond, "varicose") && zones(n, new int[] {3, 9}, -10)) {
-            rec.why.add(tr("Разширени вени — прасци и задно бедро −10 %.", "Varicose veins — calves and back thigh −10%."));
-        }
-        if (has(cond, "joints") || has(cond, "osteo")) {
-            cap = Math.min(cap, 1.05);
-            rec.why.add(tr((has(cond, "osteo") ? "Остеопороза" : "Стави") + " — силата расте плавно (до +5 %), без скокове и дълбоки клякания.",
-                    (has(cond, "osteo") ? "Osteoporosis" : "Joints") + " — strength rises slowly (≤ +5%), no jumps or deep squats."));
-        }
-        // lifestyle
-        if (has(cond, "senior")) {
-            if (zones(n, BIG, 5)) {
-                rec.why.add(tr("60+ — големите мускули +5 %, силата расте плавно.", "60+ — big muscles +5%, strength rises slowly."));
-            }
-            cap = Math.min(cap, 1.05);
-        }
-        if (has(cond, "stress")) {
-            cap = Math.min(cap, 1.0);
-            rec.why.add(tr("Напрежение и стрес — без увеличение, спокойно темпо; трапец и гръб се отпускат в края.",
-                    "Tension and stress — no increase, calm pace; relax traps and back at the end."));
-        }
-        if (has(cond, "sleep")) {
-            cap = Math.min(cap, 1.0);
-            workF = Math.min(workF, 0.9);
-            rec.why.add(tr("Лош сън / умора — без увеличение и по-кратко.", "Poor sleep / fatigue — no increase and shorter."));
-        }
-        if (has(cond, "sensitive")) {
-            k *= 0.9;
-            rec.why.add(tr("Чувствителен към тока — −10 %, по-плавно качване.", "Sensitive to current — −10%, raise slowly."));
-        }
-        if (k > cap) {
-            k = cap;
-        }
-        if (workF < 1.0) {
-            n.work = shorter(n.work, workF);
-        }
-        mindNotes(cond, rec);
-        return k;
-    }
-
-    /** Adds {@code pct} to each zone that is on (20..100); true when one changed. */
-    static boolean zones(Snap n, int[] chs, int pct) {
-        boolean any = false;
-        for (int ch : chs) {
-            if (n.ch[ch] <= 0) {
-                continue;                                  // a zone switched off stays off
-            }
-            int v = pct > 0 ? Math.min(100, n.ch[ch] + pct) : Math.max(Math.min(n.ch[ch], 20), n.ch[ch] + pct);
-            any |= v != n.ch[ch];
-            n.ch[ch] = v;
-        }
-        return any;
-    }
-
-    /** First training (no settings yet): only what to tell the trainer. */
-    static void mindOnly(String[] own, Rec rec) {
-        List<String> fz = new ArrayList<String>();
-        for (String f : own[0].split(",")) {
-            if (f.length() > 0) {
-                fz.add(focusName(f));
-            }
-        }
-        if (!fz.isEmpty()) {
-            rec.why.add(tr("Клиентът иска акцент на: " + join(fz) + ".", "The client wants more on: " + join(fz) + "."));
-        }
-        String cond = own[1];
-        List<String> m = new ArrayList<String>();
-        for (String c : cond.split(",")) {
-            if (c.length() > 0) {
-                m.add(NextClient.condName(c));
-            }
-        }
-        if (!m.isEmpty()) {
-            rec.why.add(tr("Състояние: " + join(m) + " — силата се нагласява на място, по-плавно.",
-                    "Condition: " + join(m) + " — set the strength on the spot, gently."));
-        }
-        mindNotes(cond, rec);
-    }
-
-    private static void mindNotes(String cond, Rec rec) {
-        if (has(cond, "knees")) {
-            rec.why.add(tr("Колене — внимание при клякания и напади.", "Knees — careful with squats and lunges."));
-        }
-        if (has(cond, "injury")) {
-            rec.why.add(tr("Стара травма — попитай къде, преди старта.", "Old injury — ask where before the start."));
-        }
-    }
-
     static String focusName(String k) {
         if ("abs".equals(k)) return tr("корем", "abs");
         if ("glutes".equals(k)) return tr("седалище", "glutes");
@@ -561,25 +278,6 @@ public final class NextPlan {
         if ("arms".equals(k)) return tr("ръце", "arms");
         if ("back".equals(k)) return tr("гръб", "back");
         return tr("гърди", "chest");
-    }
-
-    private static int shorter(int work, double f) {
-        if (work <= 0) {
-            return work;
-        }
-        int w = (int) Math.round(work * f / 60.0) * 60;
-        return Math.max(Math.min(work, 10 * 60), w);
-    }
-
-    private static String join(List<String> xs) {
-        StringBuilder b = new StringBuilder();
-        for (int i = 0; i < xs.size(); i++) {
-            if (i > 0) {
-                b.append(", ");
-            }
-            b.append(xs.get(i));
-        }
-        return b.toString();
     }
 
     static int clamp(int v, int lo, int hi) {
@@ -604,40 +302,6 @@ public final class NextPlan {
         }
         return out;
     }
-
-    /** Relative load per zone over the 30 days before {@code now} (null with fewer than 2 trainings). */
-    static double[] load30(List<JSONObject> hist, long now) {
-        double[] out = new double[CH];
-        int n = 0;
-        for (int i = 0; i < hist.size(); i++) {
-            JSONObject o = hist.get(i);
-            long t = o.optLong("start");
-            if (t <= 0 || now - t > 30 * DAY || t > now) {
-                continue;
-            }
-            JSONArray a = o.optJSONArray("mus");
-            if (a == null) {
-                a = o.optJSONArray("chPeak");   // older records: the peak per zone
-            }
-            if (a == null) {
-                continue;
-            }
-            double mx = 0;
-            for (int k = 0; k < CH && k < a.length(); k++) {
-                mx = Math.max(mx, a.optDouble(k, 0));
-            }
-            if (mx <= 0) {
-                continue;
-            }
-            for (int k = 0; k < CH && k < a.length(); k++) {
-                out[k] += a.optDouble(k, 0) / mx;
-            }
-            n++;
-        }
-        return n >= 2 ? out : null;
-    }
-
-    // ================================================================ loading into a slot
 
     /**
      * The program to load: the client's own program (or the one of the last training, or the slot's),

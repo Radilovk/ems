@@ -32,6 +32,13 @@ public final class AutoLook {
     private static final Map<ViewGroup, TextView> SIGNS = new WeakHashMap<ViewGroup, TextView>();
     private static int[] modeIds;
     private static int[] hideIds;
+    /** The row's impulse-seconds control: the current's parameters are shown in its place, under the time. */
+    private static int pulseId;
+    /** {hz, µs, impulse s, pause s, 2nd-impulse Hz (0 = none), 2nd-impulse %}; null = nothing to show. */
+    private static int[] paramVals;
+    private static boolean paramLive;
+    /** Info column of a row → the parameter column we put there. */
+    private static final Map<ViewGroup, LinearLayout> PARAMS = new WeakHashMap<ViewGroup, LinearLayout>();
     private static boolean on;
     private static String signLabel = "";
 
@@ -56,12 +63,113 @@ public final class AutoLook {
             if (modeIds == null) {
                 modeIds = ids(root.getContext(), MODE_IDS);
                 hideIds = ids(root.getContext(), HIDE_IDS);
+                pulseId = root.getContext().getResources().getIdentifier("paulsecontinue", "id",
+                        root.getContext().getPackageName());
             }
             on = true;
             signLabel = label;
             walk(root, program != null ? program : "");
         } catch (Throwable t) {
             com.isaigu.gymapp.wearable.WearableBleDiagLog.log("auto", "look: " + t);
+        }
+    }
+
+    // ---- the main control panel during Auto (owner, 1.1.276): its ▶/❚❚ and ■ drive the automatic session
+    private static final java.util.Set<View> MAIN_KEYS = java.util.Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
+    private static View mainStart;
+
+    /**
+     * The training screen's own start/pause and stop keys take over Auto's controls while it runs (the board
+     * has none): a touch listener consumes them, so the vendor's handler never runs; the start key's icon follows
+     * Auto (▶ when it waits, ❚❚ while the impulses run). Undone by {@link #unbindMainKeys}.
+     */
+    static void bindMainKeys(View any, boolean running) {
+        if (any == null) {
+            return;
+        }
+        try {
+            View root = any.getRootView();
+            Context c = root.getContext();
+            int startId = c.getResources().getIdentifier("allStartPause", "id", c.getPackageName());
+            int stopId = c.getResources().getIdentifier("allStop", "id", c.getPackageName());
+            View st = startId != 0 ? root.findViewById(startId) : null;
+            View sp = stopId != 0 ? root.findViewById(stopId) : null;
+            if (st != null && !MAIN_KEYS.contains(st)) {
+                st.setOnTouchListener(new MainKey(true));
+                MAIN_KEYS.add(st);
+            }
+            if (sp != null && !MAIN_KEYS.contains(sp)) {
+                sp.setOnTouchListener(new MainKey(false));
+                MAIN_KEYS.add(sp);
+            }
+            if (st != null) {
+                mainStart = st;
+                icon(st, running);
+            }
+        } catch (Throwable t) {
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("auto", "main keys: " + t);
+        }
+    }
+
+    /** The vendor's icons: mipmap/start (▶) and mipmap/stop2 (❚❚). */
+    private static void icon(View st, boolean running) {
+        Context c = st.getContext();
+        int res = c.getResources().getIdentifier(running ? "stop2" : "start", "mipmap", c.getPackageName());
+        Integer was = (Integer) st.getTag(TAG_ICON);
+        if (res != 0 && (was == null || was != res)) {
+            st.setBackgroundResource(res);
+            st.setTag(TAG_ICON, res);
+        }
+    }
+
+    private static final int TAG_ICON = 0x7f7a0001;
+
+    static void unbindMainKeys(boolean deviceRunning) {
+        for (View v : new ArrayList<View>(MAIN_KEYS)) {
+            if (v != null) {
+                v.setOnTouchListener(null);
+                v.setAlpha(1f);
+            }
+        }
+        MAIN_KEYS.clear();
+        if (mainStart != null) {
+            try {
+                mainStart.setTag(TAG_ICON, null);
+                icon(mainStart, deviceRunning);
+            } catch (Throwable ignored) {
+            }
+        }
+        mainStart = null;
+    }
+
+    static final class MainKey implements View.OnTouchListener {
+        private final boolean start;
+
+        MainKey(boolean start) {
+            this.start = start;
+        }
+
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            int a = e.getActionMasked();
+            if (a == android.view.MotionEvent.ACTION_DOWN) {
+                v.setAlpha(0.6f);
+            } else if (a == android.view.MotionEvent.ACTION_UP || a == android.view.MotionEvent.ACTION_CANCEL) {
+                v.setAlpha(1f);
+                boolean inside = e.getX() >= 0 && e.getY() >= 0 && e.getX() <= v.getWidth() && e.getY() <= v.getHeight();
+                if (a == android.view.MotionEvent.ACTION_UP && inside) {
+                    try {
+                        if (start) {
+                            AutoSession.mainStartPause();
+                        } else {
+                            AutoSession.mainStop();
+                        }
+                    } catch (Throwable t) {
+                        com.isaigu.gymapp.widget.XemsGuard.report("AutoLook.mainKey", t);
+                    }
+                }
+            }
+            return true;
         }
     }
 
@@ -84,6 +192,13 @@ public final class AutoLook {
                     v.setVisibility(e.getValue());
                 }
             }
+            List<ViewGroup> bs = new ArrayList<ViewGroup>(PARAMS.keySet());
+            for (int i = 0; i < bs.size(); i++) {
+                LinearLayout b = PARAMS.get(bs.get(i));
+                if (bs.get(i) != null && b != null) {
+                    bs.get(i).removeView(b);
+                }
+            }
             List<ViewGroup> cols = new ArrayList<ViewGroup>(SIGNS.keySet());
             for (int i = 0; i < cols.size(); i++) {
                 ViewGroup col = cols.get(i);
@@ -98,6 +213,8 @@ public final class AutoLook {
         SAVED.clear();
         VEILED.clear();
         SIGNS.clear();
+        PARAMS.clear();
+        paramVals = null;
     }
 
     private static int[] ids(Context c, String[] names) {
@@ -166,9 +283,18 @@ public final class AutoLook {
         return null;
     }
 
+    /** What the parameter column shows (null = none); live = the impulses run now (else it is dimmed). */
+    static void params(int[] vals, boolean live) {
+        paramVals = vals;
+        paramLive = live;
+    }
+
     private static void hideIn(View v) {
         if (in(v.getId(), hideIds)) {
             veil(v);
+            if (v.getId() == pulseId && pulseId != 0) {
+                paramColumn(v);
+            }
             return;
         }
         if (v instanceof ViewGroup) {
@@ -212,6 +338,71 @@ public final class AutoLook {
         }
         if (v.getVisibility() != visibility) {
             v.setVisibility(visibility);
+        }
+    }
+
+    /**
+     * The current's parameters right under the row's time (owner, 1.1.288), in place of the impulse / pause
+     * controls Auto takes over: a column of symbols with their values, no words — frequency, pulse width,
+     * impulse / pause, the 2nd impulse. Read-only; dimmed while no impulse runs.
+     */
+    private static void paramColumn(View pulse) {
+        if (!(pulse.getParent() instanceof ViewGroup) || !(pulse.getParent().getParent() instanceof LinearLayout)) {
+            return;
+        }
+        ViewGroup box = (ViewGroup) pulse.getParent();
+        LinearLayout info = (LinearLayout) box.getParent();
+        // the two control boxes (impulse s, pause s) give their place to the column
+        for (int i = 0; i < info.getChildCount(); i++) {
+            View ch = info.getChildAt(i);
+            if (ch instanceof android.widget.RelativeLayout) {
+                hide(ch, View.GONE);
+            }
+        }
+        LinearLayout col = PARAMS.get(info);
+        if (col == null || col.getParent() != info) {
+            Context c = info.getContext();
+            col = XemsUi.vertical(c);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 4), 0);
+            info.addView(col, Math.min(info.getChildCount(), info.indexOfChild(box)), lp);
+            int[] kinds = {ImpulseGlyph.HZ, ImpulseGlyph.DEPTH, ImpulseGlyph.PULSE_PAUSE, ImpulseGlyph.DOUBLE};
+            for (int k = 0; k < kinds.length; k++) {
+                TextView t = XemsUi.text(c, "", 14, XemsUi.TEXT, true);
+                t.setSingleLine(true);
+                t.setIncludeFontPadding(false);
+                ImpulseGlyph g = new ImpulseGlyph(kinds[k], XemsUi.GO_TEXT, XemsUi.dp(c, 1.6f));
+                g.setBounds(0, 0, XemsUi.dp(c, 16), XemsUi.dp(c, 16));
+                t.setCompoundDrawables(g, null, null, null);
+                t.setCompoundDrawablePadding(XemsUi.dp(c, 8));
+                col.addView(t, XemsUi.matchWrap(c, k == 0 ? 0 : 6));
+            }
+            PARAMS.put(info, col);
+        }
+        int[] p = paramVals;
+        int vis = p != null ? View.VISIBLE : View.GONE;
+        if (col.getVisibility() != vis) {
+            col.setVisibility(vis);
+        }
+        if (p == null) {
+            return;
+        }
+        String[] vals = {p[0] + " Hz", p[1] + " µs", p[2] + " / " + p[3] + " s",
+                p[4] > 0 ? p[4] + " Hz · " + p[5] + " %" : ""};
+        for (int k = 0; k < vals.length && k < col.getChildCount(); k++) {
+            TextView t = (TextView) col.getChildAt(k);
+            if (!vals[k].contentEquals(t.getText())) {
+                t.setText(vals[k]);
+            }
+            int v = vals[k].length() > 0 ? View.VISIBLE : View.GONE;
+            if (t.getVisibility() != v) {
+                t.setVisibility(v);
+            }
+        }
+        float a = paramLive ? 1f : 0.55f;
+        if (col.getAlpha() != a) {
+            col.setAlpha(a);
         }
     }
 

@@ -75,6 +75,7 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/train/utils/MusicAutoTune*.class' \
      -o -path '*/train/utils/MusicDiagLog.class' \
      -o -path '*/train/utils/ProgramLive.class' \
+     -o -path '*/train/utils/PartStrength*.class' \
      -o -path '*/dialog/MusicPlayerHelper*.class' \
      -o -path '*/dialog/MusicDial*.class' \
      -o -path '*/dialog/MusicPlaylist*.class' \
@@ -104,8 +105,9 @@ if (
   java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
   INSTALL_SMALI=1
 else
-  echo "WARN: d8 failed for music-sync stack — keeping prebuilt smali in ${BRANDING_SMALI}"
-  INSTALL_SMALI=0
+  # a stale prebuilt would ship Java edits that never compiled: stop instead of keeping it
+  echo "ERROR: d8 failed for the music-sync stack — the Java edits would not ship."
+  exit 1
 fi
 
 if [[ "${INSTALL_SMALI}" -eq 1 ]]; then
@@ -125,6 +127,7 @@ MUSIC_EXACT = {
     "SoundEnvelopeMapper.smali",
     "MusicDiagLog.smali",
     "ProgramLive.smali",
+    "PartStrength.smali",
 }
 MUSIC_PREFIXES = (
     "MusicSync",

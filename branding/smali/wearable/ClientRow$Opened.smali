@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 362
+    .line 375
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 363
+    .line 376
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->a:Landroid/app/Activity;
 
-    .line 364
+    .line 377
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 365
+    .line 378
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->url:Ljava/lang/String;
 
-    .line 366
+    .line 379
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->button:Landroid/view/View;
 
-    .line 367
+    .line 380
     return-void
 .end method
 
@@ -57,14 +57,14 @@
     .registers 4
 
     .prologue
-    .line 371
+    .line 384
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->button:Landroid/view/View;
 
     instance-of v0, v0, Landroid/widget/TextView;
 
     if-eqz v0, :cond_15
 
-    .line 372
+    .line 385
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->button:Landroid/view/View;
 
     check-cast v0, Landroid/widget/TextView;
@@ -79,13 +79,13 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 374
+    .line 387
     :cond_15
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->url:Ljava/lang/String;
 
     if-nez v0, :cond_2c
 
-    .line 375
+    .line 388
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->a:Landroid/app/Activity;
 
     const-string v1, "\u041d\u0430 \u0441\u044a\u0440\u0432\u044a\u0440\u0430 \u043d\u044f\u043c\u0430 \u043a\u0430\u0440\u0442\u043e\u043d \u0437\u0430 \u0442\u043e\u0437\u0438 \u0438\u043c\u0435\u0439\u043b / \u0442\u0435\u043b\u0435\u0444\u043e\u043d (\u0438\u043b\u0438 \u043d\u044f\u043c\u0430 \u0432\u0440\u044a\u0437\u043a\u0430)."
@@ -102,14 +102,14 @@
 
     move-result-object v0
 
-    .line 376
+    .line 389
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 380
+    .line 393
     :goto_2b
     return-void
 
-    .line 379
+    .line 392
     :cond_2c
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;->a:Landroid/app/Activity;
 

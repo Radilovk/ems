@@ -89,8 +89,9 @@ public final class SessionRecorder {
         boolean assisted = assistActive();
         String autoProgram = autoProgram();
         // the Smart Session's exercise, or the block of a map run (Тренировки → По картата)
+        int autoEx = com.isaigu.gymapp.ai.AutoSession.currentExercise();   // the running set of an automatic program
         int exercise = aiPhase > 0 ? com.isaigu.gymapp.ai.AiSession.currentExercise()
-                : com.isaigu.gymapp.ai.MapRunner.currentExercise();
+                : autoEx >= 0 ? autoEx : com.isaigu.gymapp.ai.MapRunner.currentExercise();
         boolean music = musicOn();
         boolean leaderTaken = false;
         if (items != null) {
@@ -184,7 +185,7 @@ public final class SessionRecorder {
                             r.idle = 0;
                             BandWorkout.onState(r, false);
                             if (r.bandOwner || r.leader) {
-                                BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
+                                BandRemote.onMuscles(r.muscleLevels(), r.deltLevel(), r.sex(), r.bandOwner);
                             }
                             r.end = now;
                             if (r.activeS() >= MIN_ACTIVE_S) {
@@ -239,7 +240,8 @@ public final class SessionRecorder {
                 }
                 BandWorkout.onState(r, running);
                 if (!(r.idle > 0)) {
-                    r.sample(it, r.leader && bpm > 0 ? bpm : 0, r.leader ? aiPhase : 0, exercise);
+                    r.sample(it, r.leader && bpm > 0 ? bpm : 0, r.leader ? aiPhase : 0,
+                            autoEx >= 0 && !r.leader ? -1 : exercise);      // a group's set is the leader's, not forced on the others
                 }
             }
         }
@@ -312,7 +314,7 @@ public final class SessionRecorder {
         BandWorkout.onEnd(r);
         NextClient.onClosed(slot, r, now);
         if (r.bandOwner || r.leader) {
-            BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
+            BandRemote.onMuscles(r.muscleLevels(), r.deltLevel(), r.sex(), r.bandOwner);
         }
         if (r.activeS() < MIN_ACTIVE_S) {
             WearableBleDiagLog.log("report", "session dropped (" + r.activeS() + " s active) user " + r.userId);

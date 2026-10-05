@@ -549,7 +549,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             dur = e.getPlan().totalS;
             what = "ai|" + st + "|" + e.getPhaseIndex() + "|" + restReady;
         } else if (trainRunning || trainMs > 0 && !musicOnly()) {
-            double kcal = HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+            double kcal = HrGuard.liveKcal();
             title = hrText;
             sub = WearableUi.tr("Тренировка ", "Training ") + mmss(trainMs / 1000.0)
                     + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
@@ -618,6 +618,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     }
 
     private static org.json.JSONArray lastMus;
+    /** The deltoid's level 0–100 (−1 = no exercise worked it): no suit channel, so not in "mus". */
+    private static int lastDelt = -1;
     private static String lastSex = "F";
     private static long lastMusMs;
     private static boolean lastMusOwner;
@@ -626,7 +628,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
      * The muscle map of the training that just closed (the band owner's slot, else the leading one):
      * joins the band's summary — the one already out, or the next within 5 minutes.
      */
-    static void onMuscles(int[] levels, String sex, boolean owner) {
+    static void onMuscles(int[] levels, int delt, String sex, boolean owner) {
         try {
             long now = System.currentTimeMillis();
             if (!owner && lastMusOwner && now - lastMusMs < 300000L) {
@@ -642,11 +644,13 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 return;
             }
             lastMus = a;
+            lastDelt = delt;
             lastSex = sex;
             lastMusMs = now;
             lastMusOwner = owner;
             if (summary != null && now < summaryUntilMs) {
                 summary.put("mus", a);
+                summary.put("delt", delt);
                 summary.put("sex", sex);
                 handler.postDelayed(new Push(true), 300);
             }
@@ -662,8 +666,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             android.content.Context ctx = WearableSyncHelper.getContext();
             int limit = ctx != null ? WearableConfig.getHrThreshold(ctx) : 170;
             HrHistory.Series ss = HrHistory.since(now, Math.max(60, durS + 5) * 1000L);
-            double kcal = "ai".equals(kind) ? AiSession.getKcal()
-                    : HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+            double kcal = "ai".equals(kind) ? AiSession.getKcal() : HrGuard.liveKcal();
             org.json.JSONObject o = new org.json.JSONObject();
             o.put("n", ++endSeq);
             o.put("kind", kind);
@@ -679,6 +682,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             o.put("zt", zt);
             if (lastMus != null && now - lastMusMs < 300000L) {
                 o.put("mus", lastMus);
+                o.put("delt", lastDelt);
                 o.put("sex", lastSex);
             }
             summary = o;
@@ -731,7 +735,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         AiEngine e = AiSession.getEngine();
         boolean ai = AiSession.getStage() == AiSession.Stage.RUNNING && e != null;
         String mode = ai ? "ai" : XemsPanel.isRunning() || trainWasRunning ? "manual" : musicOnly() ? "music" : "idle";
-        double kcal = ai ? AiSession.getKcal() : HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+        double kcal = ai ? AiSession.getKcal() : HrGuard.liveKcal();
         boolean restReady = ai && e.getState() == AiEngine.State.REST && e.isRestReady();
         String vib = "";
         if (restReady && !lastRestReady) {

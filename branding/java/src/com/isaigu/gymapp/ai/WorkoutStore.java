@@ -150,6 +150,17 @@ public final class WorkoutStore {
             f.put(z);
         }
         o.put("focus", f);
+        if (w.sex != null) {
+            o.put("sex", w.sex);
+        }
+        if (w.level > 0) {
+            o.put("lvl", w.level);
+        }
+        JSONArray gs = new JSONArray();
+        for (String g : w.goals) {
+            gs.put(g);
+        }
+        o.put("goals", gs);
         JSONArray bl = new JSONArray();
         for (Workout.Block b : w.blocks) {
             JSONObject x = new JSONObject();
@@ -169,6 +180,15 @@ public final class WorkoutStore {
             x.put("s2", b.str2);
             x.put("ri", b.rampIn);
             x.put("ro", b.rampOut);
+            if (b.pat != null) {
+                x.put("pat", b.pat);
+            }
+            if (b.hold) {
+                x.put("hold", 1);
+            }
+            if (b.lock) {
+                x.put("lock", 1);
+            }
             bl.put(x);
         }
         o.put("blocks", bl);
@@ -188,6 +208,12 @@ public final class WorkoutStore {
             for (int i = 0; f != null && i < f.length(); i++) {
                 w.focus.add(f.getString(i));
             }
+            w.sex = o.has("sex") ? o.optString("sex") : null;
+            w.level = o.optInt("lvl", 0);
+            JSONArray gs = o.optJSONArray("goals");
+            for (int i = 0; gs != null && i < gs.length(); i++) {
+                w.goals.add(gs.getString(i));
+            }
             JSONArray bl = o.optJSONArray("blocks");
             if (bl != null) {
                 for (int i = 0; i < bl.length(); i++) {
@@ -205,6 +231,9 @@ public final class WorkoutStore {
                     b.str2 = x.optInt("s2", b.str2);
                     b.rampIn = x.optInt("ri", b.rampIn);
                     b.rampOut = x.optInt("ro", b.rampOut);
+                    b.pat = x.has("pat") ? x.optString("pat") : null;
+                    b.hold = x.optInt("hold", 0) == 1;
+                    b.lock = x.optInt("lock", 0) == 1;
                     b.clampAll();
                     w.blocks.add(b);
                 }

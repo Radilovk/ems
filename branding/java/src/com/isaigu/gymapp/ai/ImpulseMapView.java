@@ -387,6 +387,9 @@ public final class ImpulseMapView extends View {
             c.drawText(v[n], x + gs + gap, y + gs - 1.5f * d, text);
             y += row;
         }
+        if (b.lock && !b.isRest()) {
+            c.drawText("🔒", r.left + li * 0.5f + 4 * d, r.top + 14 * d, text);   // exactly as drawn (1.1.326)
+        }
         if (b.hasExercise()) {
             float fs = Math.min(56 * d, Math.max(22 * d, width[i] - 4 * d));
             RectF box = new RectF(r.centerX() - fs / 2, r.top - fs - 4 * d, r.centerX() + fs / 2, r.top - 4 * d);

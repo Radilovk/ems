@@ -30,6 +30,21 @@ public final class AiProfile {
     public Double weightKg;
     /** 0 = not in the client record. */
     public int heightCm;
+    /** Body fat % of a fresh scale measurement (wearable/scale); null = none. */
+    public Double fatPct;
+    /** Body fat % per suit channel from the scale's segments; null = none. */
+    public double[] channelFat;
+    /** Today's scale readiness: strength factor (1 / 0.85 / 0.7) and the segment behind it (-1 = none). */
+    public double readiness = 1.0;
+    public int readinessSeg = -1;
+    /** Fresh scale measurement: lean / skeletal muscle kg (&lt; 0 = none), muscle per channel, classes, focus. */
+    public double leanKg = -1;
+    public double skeletalKg = -1;
+    public double[] chMuscle;
+    public boolean muscleLow;
+    public boolean fatObese;
+    public boolean measured;
+    public String scaleFocus;
     public AiModel.Fitness fitness;
     public AiModel.Goal goal;
     public final Set<String> contraindications = new HashSet<String>();
@@ -87,6 +102,44 @@ public final class AiProfile {
         }
         Context c = appContext();
         if (c != null) {
+            // a fresh scale measurement knows the body better than the record (older model → rebuilt first)
+            if (p.sex != null && p.age != null && p.heightCm >= 100) {
+                com.isaigu.gymapp.wearable.scale.ScaleStore.upgrade(c, u.id, p.sex != AiModel.Sex.FEMALE, p.age,
+                        p.heightCm);
+            }
+            double fat = com.isaigu.gymapp.wearable.scale.ScaleStore.freshFatPct(c, u.id);
+            if (!Double.isNaN(fat)) {
+                p.fatPct = fat;
+            }
+            p.channelFat = com.isaigu.gymapp.wearable.scale.ScaleStore.freshChannelFat(c, u.id);
+            org.json.JSONObject sm = com.isaigu.gymapp.wearable.scale.ScaleStore.fresh(c, u.id);
+            if (sm != null) {
+                boolean male = p.sex != AiModel.Sex.FEMALE;
+                int h = p.heightCm > 0 ? p.heightCm
+                        : c.getSharedPreferences("xems_scale", Context.MODE_PRIVATE).getInt("h" + u.id, 0);
+                p.measured = true;
+                p.leanKg = sm.optDouble("lean", -1);
+                double skel = sm.optDouble("skel", Double.NaN);
+                p.skeletalKg = Double.isNaN(skel) ? -1 : sm.optDouble("w") * skel / 100.0;
+                if (h >= 100) {
+                    p.chMuscle = com.isaigu.gymapp.wearable.scale.ScaleInsight.channelMuscle(sm, male, h);
+                    com.isaigu.gymapp.wearable.scale.ScaleInsight.Body b =
+                            com.isaigu.gymapp.wearable.scale.ScaleInsight.body(sm, male, h);
+                    p.muscleLow = b.muscleCls == 0;
+                    p.fatObese = b.fatCls == 3;
+                    p.scaleFocus = com.isaigu.gymapp.wearable.scale.ScaleInsight.weakFocus(sm, male, h);
+                }
+            }
+            com.isaigu.gymapp.wearable.scale.ScaleInsight.Readiness ready =
+                    com.isaigu.gymapp.wearable.scale.ScaleStore.readinessToday(c, u.id);
+            if (ready != null) {
+                p.readiness = ready.factor;
+                p.readinessSeg = ready.worst;
+            }
+            double kg = com.isaigu.gymapp.wearable.scale.ScaleStore.freshWeight(c, u.id);
+            if (!Double.isNaN(kg)) {
+                p.weightKg = kg;
+            }
             SharedPreferences prefs = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             String[] parts = prefs.getString("u" + u.id, "").split("\\|", -1);
             if (parts.length >= 3) {
@@ -147,6 +200,11 @@ public final class AiProfile {
         }
         in.focus = new HashSet<String>(focus);
         in.cond = new HashSet<String>(cond);
+        in.leanKg = leanKg;
+        in.skeletalKg = skeletalKg;
+        in.chMuscle = chMuscle;
+        in.readiness = readiness;
+        in.scaleFocus = scaleFocus;
         if (in.screening != null) {
             for (String k : contraindications) {
                 if (in.screening.contraindications.containsKey(k)) {

@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 811
+    .line 812
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$11$1;->this$0:Lcom/isaigu/gymapp/ai/AiUi$11;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,13 +40,13 @@
     .registers 3
 
     .prologue
-    .line 814
+    .line 815
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->reconnectBand(Landroid/app/Activity;)V
 
-    .line 815
+    .line 816
     return-void
 .end method

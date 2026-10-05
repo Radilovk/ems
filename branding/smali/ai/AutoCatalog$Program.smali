@@ -35,7 +35,11 @@
 
 .field public final id:Ljava/lang/String;
 
+.field public impulse:Ljava/lang/String;
+
 .field public final kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+
+.field public level:I
 
 .field public maleOnly:Z
 
@@ -57,7 +61,7 @@
     .registers 10
 
     .prologue
-    .line 78
+    .line 82
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 66
@@ -65,28 +69,33 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->envMax:D
 
-    .line 79
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
+    .line 71
+    const/4 v0, 0x2
 
-    .line 80
-    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameBg:Ljava/lang/String;
-
-    .line 81
-    iput-object p3, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameEn:Ljava/lang/String;
-
-    .line 82
-    iput-object p4, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descBg:Ljava/lang/String;
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->level:I
 
     .line 83
-    iput-object p5, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descEn:Ljava/lang/String;
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
 
     .line 84
-    iput-object p6, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameBg:Ljava/lang/String;
 
     .line 85
-    iput-object p7, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->zones:[I
+    iput-object p3, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameEn:Ljava/lang/String;
 
     .line 86
+    iput-object p4, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descBg:Ljava/lang/String;
+
+    .line 87
+    iput-object p5, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descEn:Ljava/lang/String;
+
+    .line 88
+    iput-object p6, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+
+    .line 89
+    iput-object p7, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->zones:[I
+
+    .line 90
     return-void
 .end method
 
@@ -96,7 +105,7 @@
     .registers 3
 
     .prologue
-    .line 97
+    .line 101
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descBg:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descEn:Ljava/lang/String;
@@ -112,7 +121,7 @@
     .registers 3
 
     .prologue
-    .line 89
+    .line 93
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -134,7 +143,7 @@
     .registers 3
 
     .prologue
-    .line 93
+    .line 97
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameBg:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameEn:Ljava/lang/String;

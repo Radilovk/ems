@@ -20,13 +20,23 @@
 # instance fields
 .field final synthetic val$a:Landroid/app/Activity;
 
+.field final synthetic val$group:Landroid/view/ViewGroup;
+
 
 # direct methods
-.method constructor <init>(Landroid/app/Activity;)V
-    .registers 2
+.method constructor <init>(Landroid/view/ViewGroup;Landroid/app/Activity;)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 120
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$a:Landroid/app/Activity;
+    .prologue
+    .line 156
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$group:Landroid/view/ViewGroup;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -38,12 +48,24 @@
 .method public run()V
     .registers 4
 
-    .line 123
+    .prologue
+    .line 159
+    const/4 v0, 0x1
+
+    # setter for: Lcom/isaigu/gymapp/widget/XemsLocalGate;->licenceRevealed:Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->access$002(Z)Z
+
+    .line 160
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$group:Landroid/view/ViewGroup;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->applyLicenceRule(Landroid/view/ViewGroup;)V
+
+    .line 161
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$a:Landroid/app/Activity;
 
-    const-string v1, "\u0420\u0435\u0441\u0442\u0430\u0440\u0442 \u043a\u044a\u043c \u0432\u0445\u043e\u0434\u0430\u2026"
+    const-string v1, "\u0414\u043e\u0441\u0442\u044a\u043f \u0438 \u043b\u0438\u0446\u0435\u043d\u0437"
 
-    const-string v2, "Restarting to login\u2026"
+    const-string v2, "Access & licence"
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -55,14 +77,9 @@
 
     move-result-object v0
 
-    .line 124
+    .line 162
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 125
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$a:Landroid/app/Activity;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->restartToLogin(Landroid/app/Activity;)V
-
-    .line 126
+    .line 163
     return-void
 .end method

@@ -9,7 +9,6 @@ import android.view.View;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainUser;
-import com.isaigu.gymapp.dialog.BlockProgramRunner;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
@@ -49,11 +48,25 @@ public final class AutoSession {
         int cal;
         double user = 1.0;
         final int[] zoneOffset = new int[AutoModel.CHANNELS];
+        /** Each channel's share set at the calibration (owner, 1.1.315), % of what the program asks; 100 = as is. */
+        final int[] zoneRatio = full(AutoModel.CHANNELS, 100);
         int lastStrength = -1;
         int writtenStrength = -1;
         int[] writtenZones;
         double raiseBudget = AutoLimits.RAISE_PER_CYCLE;
     }
+
+    private static int[] full(int n, int v) {
+        int[] a = new int[n];
+        Arrays.fill(a, v);
+        return a;
+    }
+
+    /** The leader's energy model (kcal): his data, the impulses the suit really gives, the heart, the exercise. */
+    private static AiEnergy energy;
+    private static boolean epocClosed;
+    /** Pulse width the calibration ran at (the tolerated charge is measured there). */
+    private static int calPw = 350;
 
     private static TrainItemManager manager;
     private static View panelRoot;
@@ -97,6 +110,15 @@ public final class AutoSession {
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable ticker = new Ticker();
+    private static final Runnable goNow = new GoNow();
+    /** The leader row's last impulse hook: the countdown ends with the device's next impulse when it can. */
+    private static long lastHookMs;
+    /** Countdowns already announced (beeps scheduled) — by their go time. */
+    private static long beepsForGoMs;
+    private static AutoEngine.Forecast forecast;
+    private static double forecastScale = 1.0;
+    private static boolean forecastDouble;
+    private static long forecastMs;
 
     private AutoSession() {}
 
@@ -112,9 +134,17 @@ public final class AutoSession {
             if (item == null || item != leader() || stage != Stage.RUNNING || engine == null) {
                 return;
             }
-            AutoEngine.Cmd c = engine.onCycle(System.currentTimeMillis());
-            if (c != null && c != written) {
+            long now = System.currentTimeMillis();
+            lastHookMs = now;
+            AutoEngine.State before = engine.getState();
+            AutoEngine.Cmd c = engine.onCycle(now);
+            if (before == AutoEngine.State.COUNTDOWN && engine.getState() == AutoEngine.State.RUN) {
+                onGo(now);
+            } else if (c != null && c != written) {
                 applyCycle(c);
+            } else if (before == AutoEngine.State.RUN && engine.getState() != AutoEngine.State.RUN) {
+                zeroOutput();                    // the set ended on this impulse: nothing more goes out
+                onStateChange(before, now);
             }
         } catch (Throwable t) {
             WearableBleDiagLog.log("auto", "onPulseCycle: " + t);
@@ -286,25 +316,9 @@ public final class AutoSession {
 
     /** Text when another automatic mode owns the output, else null. */
     public static String conflict() {
-        if (MapRunner.isRunning()) {
-            return AiText.t("Първо спри картата от Тренировки.", "Stop the Workouts map first.");
-        }
-        if (AiSession.getStage() != AiSession.Stage.IDLE) {
-            return AiText.t("Затвори AI сесията преди Авто.", "Close the AI session before Auto.");
-        }
-        try {
-            if (MusicSync.isRunning() || MasterStrengthControl.isSyncActive()) {
-                return AiText.t("Спри музикалната синхронизация: в Авто програмата държи честотата и паузите.",
-                        "Stop music sync: in Auto the program holds frequency and pauses.");
-            }
-        } catch (Throwable ignored) {
-        }
-        try {
-            if (BlockProgramRunner.isArmed()) {
-                return AiText.t("Изключи блоковата програма на таймера преди Авто.",
-                        "Disarm the timer block program before Auto.");
-            }
-        } catch (Throwable ignored) {
+        String other = OutputOwner.conflict(OutputOwner.AUTO);
+        if (other != null) {
+            return other;
         }
         if (leader() == null) {
             return AiText.t("Добави участник и свържи костюма.", "Add a participant and connect the suit.");
@@ -335,6 +349,18 @@ public final class AutoSession {
                     r.input.weightKg = p.weightKg;
                 }
                 r.input.heightCm = p.heightCm;
+                if (p.fatPct != null) {
+                    r.input.fatPct = p.fatPct;
+                }
+                r.input.channelFat = p.channelFat;
+                r.input.readiness = p.readiness;
+                r.input.leanKg = p.leanKg;
+                r.input.skeletalKg = p.skeletalKg;
+                r.input.chMuscle = p.chMuscle;
+                r.input.muscleLow = p.muscleLow;
+                r.input.fatObese = p.fatObese;
+                r.input.measured = p.measured;
+                r.input.scaleFocus = p.scaleFocus;
                 if (p.fitness != null) {
                     r.input.fitness = p.fitness;
                 }
@@ -388,6 +414,16 @@ public final class AutoSession {
         to.age = from.age;
         to.weightKg = from.weightKg;
         to.heightCm = from.heightCm;
+        to.fatPct = from.fatPct;
+        to.channelFat = from.channelFat;
+        to.readiness = from.readiness;
+        to.leanKg = from.leanKg;
+        to.skeletalKg = from.skeletalKg;
+        to.chMuscle = from.chMuscle;
+        to.muscleLow = from.muscleLow;
+        to.fatObese = from.fatObese;
+        to.measured = from.measured;
+        to.scaleFocus = from.scaleFocus;
         to.fitness = from.fitness;
         to.sessions = from.sessions;
         to.hoursSinceActive = from.hoursSinceActive;
@@ -406,6 +442,7 @@ public final class AutoSession {
         to.intensity = from.intensity;
         to.variant = from.variant;
         to.doublePulse = from.doublePulse;
+        to.exercises = from.exercises;
         to.totalSeconds = from.totalSeconds;
     }
 
@@ -443,6 +480,9 @@ public final class AutoSession {
     /** Build the plan for the leader and every other row (same timeline, each row's own limits). */
     public static void buildPlan() {
         syncLeaderInput();
+        // time and intensity are the program's (owner, 1.1.336): the soft / intense choice and the minutes are gone
+        input.intensity = AutoModel.Intensity.STANDARD;
+        input.totalSeconds = null;
         AutoCatalog.Program p = AutoCatalog.get(input.programId);
         int cap = Integer.MAX_VALUE;
         for (Row r : rows) {
@@ -458,12 +498,12 @@ public final class AutoSession {
         }
         int hrRest = restHrEstimate();
         plan = AutoPlanner.build(input, hrRest);
-        if (cap != Integer.MAX_VALUE && plan.totalS > cap) {
+        if (cap != Integer.MAX_VALUE && plan.activeS > cap) {
             input.totalSeconds = cap;
             plan = AutoPlanner.build(input, hrRest);
         }
         for (Row r : rows) {
-            r.input.totalSeconds = plan.totalS;
+            r.input.totalSeconds = plan.activeS;
             r.plan = r == rows.get(0) ? plan : AutoPlanner.build(r.input, -1);
         }
     }
@@ -489,6 +529,7 @@ public final class AutoSession {
             r.cal = 0;
             r.user = 1.0;
             Arrays.fill(r.zoneOffset, 0);
+            Arrays.fill(r.zoneRatio, 100);
             r.raiseBudget = CALIB_RISE_PER_S;
             int now = strengthOf(r.item);
             r.lastStrength = r.block == null ? Math.min(now, 10) : 0;
@@ -580,9 +621,15 @@ public final class AutoSession {
             r.user = 1.0;
             r.lastStrength = -1;
         }
+        plan.limitAge = -1;
+        for (TrainItem it : items()) {
+            if (it.data != null) {
+                plan.limitAge = Math.max(plan.limitAge, com.isaigu.gymapp.wearable.SafeGuard.age(it.data.trainUser));
+            }
+        }
         engine = new AutoEngine(plan);
+        startEnergy();
         long now = System.currentTimeMillis();
-        engine.start(now);
         script = null;
         ExerciseFigure.preload(c);
         try {
@@ -594,6 +641,17 @@ public final class AutoSession {
         } catch (Throwable t) {
             WearableBleDiagLog.log("auto", "template: " + t);
         }
+        engine.setScript(script);
+        try {
+            forecastDouble = plan.doublePulseAllowed && plan.input.doublePulse;
+            forecastScale = 1.0;
+            forecast = AutoEngine.forecast(plan, script, forecastDouble);
+            engine.setDoseBudget(forecast.dose);             // D of the total load: the plan's own work
+            engine.setZoneBudget(forecast.zoneDose, forecast.zoneExDose); // each zone's optimum = the plan's work on it
+        } catch (Throwable t) {
+            forecast = null;
+            WearableBleDiagLog.log("auto", "forecast: " + t);
+        }
         seenCorridorExt = 0;
         seenDoseExt = 0;
         seenRaiseLocked = false;
@@ -601,19 +659,75 @@ public final class AutoSession {
         hrNearMs = 0;
         lastNotice = "";
         lastNoticeKind = INFO;
-        setWorkLengthAll(plan.totalS + 1800);
+        beepsForGoMs = 0;
+        // impulse time ≤ plan.totalS; the rests between exercises come on top of it
+        setWorkLengthAll(plan.totalS + 3600);
         stage = Stage.RUNNING;
-        applyCycle(engine.getCurrent());
+        zeroOutput();                            // calibration impulses off: the start counts down first
         ensureDeviceRunning();
+        engine.startAt(now, goTime(now));
+        onCountdown(now);
         WearableBleDiagLog.log("auto", "run " + plan.program.id + " goal=" + input.goal + " T=" + plan.totalS
                 + " rows=" + rows.size() + " cap=" + plan.hrCap);
         startTicker();
     }
 
+    /** The whole session planned ahead (the live board's timeline), null before the start. */
+    static AutoEngine.Forecast getForecast() {
+        return forecast;
+    }
+
+    /** ⏭ Next: the set ends now / the next exercise / the next phase (never past the recovery). */
+    public static boolean next() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.State before = engine.getState();
+        if (!engine.next(now)) {
+            return false;
+        }
+        if (engine.getState() != AutoEngine.State.RUN) {
+            zeroOutput();
+        }
+        onStateChange(before, now);
+        return true;
+    }
+
+    /**
+     * ■ STOP (owner, 1.1.270): the session never ends on one stop. In the active part it goes to the passive
+     * recovery (10 min, waits for ▶); in the recovery — or before the session started — it ends.
+     */
     public static void stop() {
+        if (stage == Stage.CALIB) {
+            end();
+            return;
+        }
+        if (stage != Stage.RUNNING || engine == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoBeep.cancel();
+        handler.removeCallbacks(goNow);
+        if (engine.stopPress(now)) {
+            end();
+            return;
+        }
+        zeroOutput();
+        notice(AiText.t("Активната част е спряна → възстановяване " + plan.recoveryS / 60
+                        + " мин. „▶ Старт“ го пуска; второ СТОП приключва тренировката.",
+                "Active part stopped → recovery " + plan.recoveryS / 60 + " min. ▶ Start runs it; a second STOP ends the session."),
+                SAFETY, now);
+        AutoUi.show();
+    }
+
+    /** Ends at once (closing Auto, the second stop): impulses off, the device stops, the report opens. */
+    static void end() {
         if (engine != null) {
             engine.stop(System.currentTimeMillis());
         }
+        AutoBeep.cancel();
+        handler.removeCallbacks(goNow);
         zeroOutput();
         stopDevice();
         if (stage == Stage.RUNNING) {
@@ -625,12 +739,14 @@ public final class AutoSession {
 
     public static void close() {
         if (stage == Stage.RUNNING || stage == Stage.CALIB) {
-            stop();
+            end();
         }
         stopTicker();
         AutoHints.hide();
         AiRamp.clear();
         AutoLook.restore();
+        AutoLook.unbindMainKeys(leaderRunning());
+        AutoBoard.detach();
         stage = Stage.IDLE;
         written = null;
         engine = null;
@@ -639,20 +755,255 @@ public final class AutoSession {
         releaseBand();
     }
 
+    /** Pause during the work, ▶ in a pause or after an exercise, cancel during the countdown. */
     public static void togglePause() {
         if (engine == null) {
             return;
         }
         long now = System.currentTimeMillis();
-        if (engine.canResume()) {
-            engine.resume(now);
-            zeroed = false;
-            applyCycle(engine.getCurrent());
-            ensureDeviceRunning();
-        } else if (engine.getState() == AutoEngine.State.RUN) {
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.COUNTDOWN) {
+            engine.cancelCountdown(now);
+            AutoBeep.cancel();
+            handler.removeCallbacks(goNow);
+            beepsForGoMs = 0;
+        } else if (st == AutoEngine.State.REST || engine.canResume()) {
+            startNext();
+        } else if (st == AutoEngine.State.RUN) {
             engine.userPause(now);
             zeroOutput();
         }
+    }
+
+    /**
+     * The main panel's ▶/❚❚ during Auto (owner, 1.1.276 — the board has no keys): pause while the impulses run,
+     * the next set / resume when it waits (too early → the notice says why), cancel during the countdown.
+     */
+    /** True while Auto runs: the right panel's ▶ and ■ belong to it (XemsPanel routes them here). */
+    public static boolean mainKeysOwned() {
+        return stage == Stage.RUNNING && engine != null && engine.getState() != AutoEngine.State.DONE
+                && engine.getState() != AutoEngine.State.STOPPED;
+    }
+
+    /** ⏭ can do something now: a set or a rest of exercises, or a phase that is not the recovery. */
+    public static boolean canNext() {
+        if (!mainKeysOwned()) {
+            return false;
+        }
+        AutoModel.Phase ph = engine.phase();
+        AutoEngine.State st = engine.getState();
+        return ph != null && !ph.isCooldown() && !engine.isRestBeforeCooldown()
+                && (st == AutoEngine.State.RUN || st == AutoEngine.State.REST);
+    }
+
+    /** The right panel's ⏭ (between ▶ and +): skip — on in order, the session shorter by what is skipped. */
+    public static void nextFromPanel() {
+        if (!canNext()) {
+            return;
+        }
+        double sk0 = engine.getSkippedS();
+        if (next()) {
+            long cut = Math.round(engine.getSkippedS() - sk0);
+            String to = engine.getExercise();
+            String where = engine.isRestBeforeCooldown() ? AiText.t("към възстановяването", "to the recovery")
+                    : to != null && to.length() > 0 ? AiText.t("към „", "to ") + AutoTemplates.name(to) + AiText.t("“", "")
+                    : AiText.t("към следващата част", "to the next part");
+            notice("⏭ " + AiText.t("Пропуснато ", "Skipped ") + (cut > 0 ? "−" + AiText.mmss(cut) + " · " : "") + where,
+                    INFO, System.currentTimeMillis());
+        }
+        AutoUi.refresh();
+    }
+
+    /** For the right panel's start tile: −1 = not Auto, 1 = impulses run (show ❚❚), 0 = it waits (show ▶). */
+    public static int mainKeyState() {
+        if (!mainKeysOwned()) {
+            return -1;
+        }
+        AutoEngine.State st = engine.getState();
+        return st == AutoEngine.State.RUN || st == AutoEngine.State.COUNTDOWN ? 1 : 0;
+    }
+
+    public static void mainStartPause() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.RUN) {
+            engine.userPause(now);
+            zeroOutput();
+            notice(AiText.t("Пауза. ▶ продължава, ■ — към възстановяване.", "Paused. ▶ resumes, ■ — to the recovery."),
+                    INFO, now);
+        } else if (st == AutoEngine.State.HR_PAUSE && !engine.canResume()) {
+            notice(AiText.t("Пулсът е висок — ▶ се отключва, когато спадне.", "HR is high — ▶ unlocks when it drops."),
+                    LIMIT, now);
+        } else {
+            togglePause();
+        }
+        AutoUi.refresh();
+    }
+
+    /**
+     * The main panel's ■ during Auto: while the impulses run it only pauses (■ works from a pause — never one press
+     * to the end); in a pause or a rest it is the Auto STOP (active part → recovery, recovery → end).
+     */
+    public static void mainStop() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.State st = engine.getState();
+        if (st == AutoEngine.State.RUN || st == AutoEngine.State.COUNTDOWN) {
+            if (st == AutoEngine.State.COUNTDOWN) {
+                engine.cancelCountdown(now);
+                AutoBeep.cancel();
+                handler.removeCallbacks(goNow);
+                beepsForGoMs = 0;
+            }
+            if (engine.getState() == AutoEngine.State.RUN) {
+                engine.userPause(now);
+            }
+            zeroOutput();
+            notice(AiText.t("Пауза. ■ още веднъж — " + (engine.phase() != null && engine.phase().isCooldown()
+                            ? "край." : "към възстановяване."),
+                    "Paused. ■ again — " + (engine.phase() != null && engine.phase().isCooldown() ? "end." : "to the recovery.")),
+                    LIMIT, now);
+        } else {
+            stop();
+        }
+        AutoUi.refresh();
+    }
+
+    /** True when ▶ may be pressed now (the next set, a pause, a confirmed HR resume). */
+    public static boolean startReady() {
+        if (engine == null) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        if (engine.getState() == AutoEngine.State.REST) {
+            return engine.getRestLeftS(now) == 0 && !engine.isRestHrHigh(now);
+        }
+        return engine.canResume();
+    }
+
+    /**
+     * ▶ Start: the countdown begins (3 short beeps, the impulse with the long one). Too early after an exercise →
+     * nothing starts and the notice says why (the physiological rest, or the HR). Returns true when started.
+     */
+    public static boolean startNext() {
+        if (engine == null || stage != Stage.RUNNING) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        if (engine.getState() == AutoEngine.State.REST && !startReady()) {
+            notice(waitReason(now), LIMIT, now);
+            return false;
+        }
+        ensureDeviceRunning();
+        if (!engine.requestGo(now, goTime(now))) {
+            return false;
+        }
+        onCountdown(now);
+        return true;
+    }
+
+    /** Why the next set cannot start yet (shown when ▶ is pressed too early). */
+    static String waitReason(long now) {
+        int left = engine.getRestLeftS(now);
+        if (left > 0) {
+            return AiText.t("Още " + left + " s почивка. След тази серия мускулите трябва ~" + engine.getRestMinS()
+                            + " s, за да възстановят енергията си (фосфокреатин) — иначе следващата серия тръгва уморена,"
+                            + " силата пада и натоварването става опасно.",
+                    left + " s more rest. After this set the muscles need ~" + engine.getRestMinS()
+                            + " s to refill their energy (phosphocreatine) — otherwise the next set starts tired.");
+        }
+        if (engine.isRestHrHigh(now)) {
+            return AiText.t("Пулсът е " + engine.getHr(now) + " — следващата серия тръгва при " + engine.getRestHrLimit()
+                            + " или по-малко. Почини още малко.",
+                    "HR is " + engine.getHr(now) + " — the next set starts at " + engine.getRestHrLimit() + " or less.");
+        }
+        return "";
+    }
+
+    /** Countdown end: always 3 s from now (owner, 1.1.290 — never stretched to meet the device's own impulse). */
+    private static long goTime(long now) {
+        return now + AutoEngine.COUNTDOWN_MS;
+    }
+
+    /** A countdown started (by ▶, the start, the HR resume): the short beeps and the exact go time. */
+    private static void onCountdown(long now) {
+        long go = engine.getGoMs();
+        if (go == beepsForGoMs) {
+            return;
+        }
+        beepsForGoMs = go;
+        AutoBeep.countdown(go);
+        handler.removeCallbacks(goNow);
+        handler.postDelayed(goNow, Math.max(0, go - now));
+        AutoHints.refresh();
+    }
+
+    /** The impulses start: the long beep and the first cycle. */
+    private static void onGo(long now) {
+        AutoBeep.go();
+        beepsForGoMs = 0;
+        handler.removeCallbacks(goNow);
+        AutoEngine.Cmd c = engine.getCurrent();
+        if (c != null) {
+            applyCycle(c);
+        }
+        ensureDeviceRunning();
+    }
+
+    static final class GoNow implements Runnable {
+        @Override
+        public void run() {
+            try {
+                tick();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("auto", "go: " + t);
+            }
+        }
+    }
+
+    /** After an exercise / at the end of the active part: say what comes and when ▶ is allowed. */
+    private static void onStateChange(AutoEngine.State before, long now) {
+        AutoEngine.State after = engine.getState();
+        if (after == AutoEngine.State.REST && before != AutoEngine.State.REST) {
+            if (before == AutoEngine.State.RUN) {
+                AutoBeep.end();                          // one long tone: the exercise is over, rest
+                AutoUi.flashSetEnd();                    // and the card flashes amber
+            }
+            if (engine.isRestBeforeCooldown()) {
+                notice(AiText.t("Активната част свърши. Следва възстановяване " + plan.recoveryS / 60
+                                + " мин — легни / седни удобно и натисни „▶ Старт“.",
+                        "The active part is done. Recovery " + plan.recoveryS / 60 + " min next — get comfortable and press ▶ Start."),
+                        INFO, now);
+            } else {
+                notice(AiText.t("Серията свърши — почивка поне " + engine.getRestMinS() + " s, после „▶ Старт“.",
+                        "Set done — rest at least " + engine.getRestMinS() + " s, then ▶ Start."), INFO, now);
+            }
+        }
+    }
+
+    /** The last cycle written to the suits (null before the first). */
+    static AutoEngine.Cmd getWritten() {
+        return written;
+    }
+
+    /**
+     * The current the suits get now, for the column under the row's time (owner, 1.1.288): {Hz, µs, impulse s,
+     * pause s, 2nd-impulse Hz (0 = none), 2nd-impulse %}. The last cycle written (in the rest: what ran); null
+     * before the first or on a step without output.
+     */
+    static int[] paramsNow() {
+        AutoEngine.Cmd c = written;
+        if (c == null || c.frac <= 0) {
+            return null;
+        }
+        boolean dbl = c.pauseHz > 0 && c.pauseSigma > 0 && engine != null && engine.isDoublePulseOn();
+        return new int[] {c.hz, c.pwUs, Math.max(1, c.onS), Math.max(1, c.offS), dbl ? c.pauseHz : 0,
+                dbl ? (int) Math.round(100 * c.pauseSigma) : 0};
     }
 
     /** −10 % on every row (the "reduce" button; never automatically given back). */
@@ -708,17 +1059,16 @@ public final class AutoSession {
         }
     }
 
-    public static void skipToCooldown() {
-        if (engine != null) {
-            engine.skipToCooldown(System.currentTimeMillis());
-            if (engine.getState() == AutoEngine.State.RUN) {
-                applyCycle(engine.getCurrent());
-            }
-        }
+
+    private static boolean leaderRunning() {
+        TrainItem l = leader();
+        return l != null && l.data != null && l.data.start;
     }
 
     private static void finishToReport() {
         stage = Stage.REPORT;
+        AutoLook.unbindMainKeys(false);
+        AutoBoard.detach();
         AutoHints.hide();
         AutoLook.restore();
         // The board closes and the client's report opens (after this tick).
@@ -729,7 +1079,7 @@ public final class AutoSession {
             long now = System.currentTimeMillis();
             for (Row r : rows) {
                 if (r.block == null && r.cal > 0) {
-                    AutoHistory.record(c, r.userId, plan.program.isActive(), engine.getElapsedS(), now);
+                    AutoHistory.record(c, r.userId, plan.program.isActive(), engine.getImpulseS(), now);
                 }
             }
         }
@@ -759,9 +1109,17 @@ public final class AutoSession {
                 handler.postDelayed(this, TICK_MS);
             }
             if ((stage == Stage.CALIB || stage == Stage.RUNNING) && plan != null) {
+                AutoLook.params(paramsNow(), engine != null && engine.getState() == AutoEngine.State.RUN);
                 AutoLook.apply(panelRoot, plan.program.name());
             } else {
                 AutoLook.restore();
+            }
+            AutoBoard.sync(panelRoot);
+            if (stage == Stage.RUNNING && engine != null) {
+                AutoEngine.State es = engine.getState();
+                AutoLook.bindMainKeys(panelRoot, es == AutoEngine.State.RUN || es == AutoEngine.State.COUNTDOWN);
+            } else {
+                AutoLook.unbindMainKeys(leaderRunning());
             }
             AutoUi.refresh();
             AutoHints.refresh();
@@ -804,10 +1162,20 @@ public final class AutoSession {
         } catch (Throwable ignored) {
         }
         guard(now);
+        feedLive(now);
         AutoEngine.State before = engine.getState();
         engine.tick(now);
+        engine.traceTick(now);                   // a pause / rest: the timeline falls with the load as it lasts
         AutoEngine.State after = engine.getState();
         engineEvents(now);
+        if (before == AutoEngine.State.COUNTDOWN && after == AutoEngine.State.RUN) {
+            onGo(now);
+        } else if (after == AutoEngine.State.COUNTDOWN) {
+            onCountdown(now);                    // e.g. the HR came down: the engine counts down by itself
+        }
+        if (before != after) {
+            onStateChange(before, now);
+        }
         if (after == AutoEngine.State.RUN) {
             AutoEngine.Cmd c = engine.getCurrent();
             if (c != null && c != lastApplied) {
@@ -816,10 +1184,12 @@ public final class AutoSession {
         } else if (!zeroed) {
             zeroOutput();
         }
+        tickEnergy(now, after);
         if ((after == AutoEngine.State.DONE || after == AutoEngine.State.STOPPED) && stage == Stage.RUNNING) {
             zeroOutput();
             stopDevice();
             finishToReport();
+            AutoBeep.cancel();
             WearableBleDiagLog.log("auto", "end " + after);
         }
         if (before != after) {
@@ -827,13 +1197,130 @@ public final class AutoSession {
             if (after == AutoEngine.State.HR_PAUSE) {
                 notice(AiText.t("Пулсът стигна тавана (" + plan.hrCap + ") — импулсите спират, докато спадне",
                         "HR at the ceiling (" + plan.hrCap + ") — pulses stop until it drops"), SAFETY, now);
-            } else if (before == AutoEngine.State.HR_PAUSE && after == AutoEngine.State.RUN) {
+            } else if (before == AutoEngine.State.HR_PAUSE && after == AutoEngine.State.COUNTDOWN) {
                 notice(AiText.t("Пулсът спадна — продължаваме по-меко (" + Math.round(engine.getCurrent() != null
                         ? 100 * engine.getReentry() : 80) + " %, +10 % на импулс)",
                         "HR is down — resuming softer (+10 % per pulse)"), LIMIT, now);
                 AutoUi.show();
             }
         }
+    }
+
+    // ================================================================ energy (docs/xems-ems-physiology.md §4)
+
+    private static Row leaderRow() {
+        TrainItem l = leader();
+        for (Row r : rows) {
+            if (r.item == l) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    private static void startEnergy() {
+        energy = null;
+        epocClosed = false;
+        AiEnergy.exerciseMet = 0;
+        try {
+            Row r = leaderRow();
+            AutoModel.Input in = r != null && r.input != null ? r.input : input;
+            AutoModel.Plan pl = r != null && r.plan != null ? r.plan : plan;
+            boolean med = in.screening != null && in.screening.hrLoweringMedication;
+            energy = AiEnergy.forPerson(in.sex, in.age, in.weightKg, in.fitness, in.leanKg, in.skeletalKg, in.chMuscle,
+                    med, pl.hrRestMeasured ? pl.hrRest : -1, pl.hrMax);
+            calPw = calibrationCmd().pwUs > 0 ? calibrationCmd().pwUs : 350;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("auto", "energy: " + t);
+        }
+    }
+
+    /**
+     * Once per tick: the heart, what the suit really gives the leader now (impulse, or the second impulse in the
+     * pause; hz, pulse width, strength, channels), and the movement of the running set — the same physiology as the
+     * Smart Session. At the end the fast part of the debt is closed.
+     */
+    private static void tickEnergy(long now, AutoEngine.State st) {
+        if (energy == null || engine == null) {
+            return;
+        }
+        if (st == AutoEngine.State.DONE || st == AutoEngine.State.STOPPED) {
+            AiEnergy.exerciseMet = 0;
+            if (!epocClosed) {
+                epocClosed = true;
+                energy.closeEpoc();
+            }
+            return;
+        }
+        double hr = engine.getHr(now);
+        AiEnergy.Stim es = null;
+        double met = 0;
+        Row r = leaderRow();
+        if (st == AutoEngine.State.RUN && r != null && r.block == null && r.cal > 0 && r.item.data != null) {
+            ProgramDataBean b = bean(r.item);
+            if (b != null && b.strenth > 0) {
+                boolean inImpulse = r.item.data.inStart;
+                if (inImpulse || (b.activePause && b.pauseHz > 0)) {
+                    es = new AiEnergy.Stim();
+                    if (b.strenthBean != null && b.strenthBean.buwei != null) {
+                        es.channels = b.strenthBean.buwei.clone();
+                    }
+                    if (r.item.partsDisabled != null) {
+                        es.disabled = r.item.partsDisabled.clone();
+                    }
+                    es.hz = b.hz;
+                    es.pwUs = b.pulseWidth;
+                    if (inImpulse) {
+                        es.strengthPct = b.strenth;
+                        es.onShare = 1.0;
+                    } else {
+                        es.onShare = 0;
+                        es.pauseHz = b.pauseHz;
+                        es.pauseStrengthPct = b.pauseStrenthPercent;
+                        es.pauseShare = 1.0;
+                    }
+                    // tolerated level = the calibration (its strength at its pulse width) on each channel
+                    es.toleratedCharge = new double[AiEnergy.CH_MASS.length];
+                    for (int i = 0; i < es.toleratedCharge.length; i++) {
+                        double chPct = es.channels != null && i < es.channels.length ? es.channels[i] : 100;
+                        es.toleratedCharge[i] = chPct / 100.0
+                                * (i == AiEnergy.ARMS ? AiEnergy.armsSent(calPw) : AiEnergy.channelSent(i, calPw))
+                                * r.cal / 100.0 * calPw / 350.0;
+                    }
+                }
+            }
+            met = currentMet();
+        }
+        AiEnergy.exerciseMet = met;
+        energy.tick(now, hr, es);
+    }
+
+    /** MET of the movement of the running set (0 in a rest, a pause or without exercises). */
+    private static double currentMet() {
+        int ix = currentExercise();
+        return ix >= 0 ? AutoTemplates.met(ix) : 0;
+    }
+
+    /** Index of the exercise done now (AutoTemplates table); −1 outside a running set — for the record and the kcal. */
+    public static int currentExercise() {
+        try {
+            if (stage != Stage.RUNNING || engine == null || engine.getState() != AutoEngine.State.RUN) {
+                return -1;
+            }
+            String id = engine.getExercise();
+            return id != null ? AutoTemplates.index(id) : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    /** Estimated kcal of this session (total, with the open debt), −1 before the start. */
+    public static double getKcal() {
+        return energy != null ? energy.getKcal() : -1;
+    }
+
+    public static AiEnergy getEnergy() {
+        return energy;
     }
 
     // ================================================================ writing
@@ -876,24 +1363,92 @@ public final class AutoSession {
         return v;
     }
 
+    /** The zones the running step asks for on this row (a wave / even step, else the plan), before the person's moves. */
+    private static int[] stepZones(Row r, AutoEngine.Cmd c) {
+        int[] z = stepZonesRaw(r, c);
+        for (int i = 0; i < z.length; i++) {
+            z[i] = Math.max(0, Math.min(100, (int) Math.round(z[i] * r.zoneRatio[i] / 100.0)));
+        }
+        return z;
+    }
+
+    /** As {@link #stepZones} without the calibration's channel shares. */
+    private static int[] stepZonesRaw(Row r, AutoEngine.Cmd c) {
+        AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+        int[] z = c == null || c.zones == null ? rp.zones.clone() : c.zones.clone();
+        for (int i = 0; i < z.length; i++) {
+            if (rp.zoneLocked[i] && rp.zones[i] == 0) {
+                z[i] = 0;
+            }
+            z[i] = Math.min(z[i], rp.zoneMax[i]);
+        }
+        return z;
+    }
+
+    /**
+     * The step's zones + the person's own move per channel (owner, 1.1.286: every channel is set individually —
+     * on a wave and an even step too; the move stays with the row for the rest of the session).
+     */
     private static int[] rowZones(Row r, AutoEngine.Cmd c) {
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
-        if (c.zones != null) {
-            int[] z = c.zones.clone();
-            for (int i = 0; i < z.length; i++) {
-                if (rp.zoneLocked[i] && rp.zones[i] == 0) {
-                    z[i] = 0;
-                }
-                z[i] = Math.min(z[i], rp.zoneMax[i]);
-            }
-            return z;
-        }
+        int[] base = stepZones(r, c);
+        boolean moved = false;
         int[] want = new int[AutoModel.CHANNELS];
         for (int i = 0; i < want.length; i++) {
-            want[i] = rp.zones[i] + r.zoneOffset[i];
+            want[i] = base[i] + r.zoneOffset[i];
+            moved |= r.zoneOffset[i] != 0;
         }
-        return AutoLimits.clampZones(want, rp);
+        if (!moved) {
+            return base;                                   // the wave as it is
+        }
+        return AutoLimits.clampZones(want, base, rp);
     }
+
+    /**
+     * The lead row's real output → the engine (strength / calibration, zones as set), so the fatigue, the rests,
+     * the heat map and the timeline follow every manual change. Then, at most every 5 s, the forecast is rebuilt
+     * when the person's strength factor or the double impulse has moved (the remaining time and the profile).
+     */
+    private static void feedLive(long now) {
+        if (engine == null || stage != Stage.RUNNING) {
+            return;
+        }
+        Row lead = null;
+        for (Row r : rows) {
+            if (r.block == null && r.cal > 0) {
+                lead = r;
+                break;
+            }
+        }
+        AutoEngine.Cmd c = engine.getCurrent();
+        boolean changed = false;
+        if (lead != null && engine.getState() == AutoEngine.State.RUN && c != null) {
+            engine.setLive(Math.max(0, lead.writtenStrength) / (double) lead.cal, lead.writtenZones, now);
+            AutoModel.Plan rp = lead.plan != null ? lead.plan : plan;
+            double planned = AutoEngine.rowFrac(c, rp.phiMax);
+            double scale = planned > 0 ? Math.max(0, lead.writtenStrength) / (lead.cal * planned) : 1.0;
+            boolean dbl = engine.isDoublePulseOn();
+            changed = Math.abs(scale - forecastScale) > 0.03 || dbl != forecastDouble;
+            forecastScale = scale;
+            forecastDouble = dbl;
+        }
+        // the timeline's future runs on from the live state (strength, zones, µs, fatigue, dose, HR) — every
+        // FORECAST_MS, at once (≥ 1 s) after a change of the output
+        if (now - forecastMs >= FORECAST_MS || (changed && now - forecastMs >= 1000L)) {
+            forecastMs = now;
+            try {
+                AutoEngine.Forecast f = engine.forecastFrom(now);
+                if (f != null) {
+                    forecast = f;
+                }
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("auto", "forecast: " + t);
+            }
+        }
+    }
+
+    /** How often the live forecast is rebuilt (ms). */
+    static final long FORECAST_MS = 5000L;
 
     private static void writeRows(AutoEngine.Cmd c, boolean calib) {
         if (c == null) {
@@ -938,6 +1493,9 @@ public final class AutoSession {
         try {
             MasterStrengthControl.resetApplied();
         } catch (Throwable ignored) {
+        }
+        if (!calib) {
+            feedLive(System.currentTimeMillis());
         }
     }
 
@@ -1072,14 +1630,42 @@ public final class AutoSession {
                     now10[i] = b.strenthBean.buwei[i];
                     changed |= now10[i] != r.writtenZones[i];
                 }
-                if (changed) {
-                    if (written.zones != null || r.block != null) {
-                        msg = AiText.t("Вълната води зоните сама — ръчно не се местят.", "The wave drives the zones — no manual change.");
+                if (changed && r.block == null) {
+                    // the row's own channel sliders set each channel's share against the program (owner, 1.1.316 at
+                    // the calibration; 1.1.338 also during the run, templates and exercises alike): free, it holds
+                    // from then on
+                    int[] raw = stepZonesRaw(r, written);
+                    for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                        if (now10[i] == r.writtenZones[i]) {
+                            continue;
+                        }
+                        if (raw[i] > 0) {
+                            r.zoneRatio[i] = Math.max(0, Math.min(300, (int) Math.round(now10[i] * 100.0 / raw[i])));
+                            r.zoneOffset[i] = 0;
+                        } else {
+                            r.zoneOffset[i] = now10[i];
+                        }
+                    }
+                    if (msgKind == INFO) {
+                        msgKey = "calib_zone";
+                        msg = who(r) + AiText.t("делът на зоните е зададен — пази се до края.",
+                                "zone shares set — kept to the end.");
+                    }
+                    rewrite = true;
+                } else if (changed) {
+                    if (r.block != null) {
+                        msg = who(r) + r.block;
                         msgKind = LIMIT;
                     } else {
-                        int[] z = AutoLimits.clampZones(now10, rp);
+                        // the person's move is kept as an offset over what the step asks (plan, wave or even step)
+                        int[] base = stepZones(r, written);
+                        int[] want = new int[AutoModel.CHANNELS];
                         for (int i = 0; i < AutoModel.CHANNELS; i++) {
-                            r.zoneOffset[i] = z[i] - rp.zones[i];
+                            want[i] = base[i] + r.zoneOffset[i] + (now10[i] - r.writtenZones[i]);
+                        }
+                        int[] z = AutoLimits.clampZones(want, base, rp);
+                        for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                            r.zoneOffset[i] = z[i] - base[i];
                         }
                         int bad = -1;
                         int moved = -1;
@@ -1092,13 +1678,13 @@ public final class AutoSession {
                             }
                         }
                         if (bad >= 0) {
-                            msg = who(r) + zoneReason(bad, now10[bad], z[bad], rp);
+                            msg = who(r) + zoneReason(bad, now10[bad], z[bad], rp, base);
                             msgKind = LIMIT;
                         } else if (moved >= 0 && msgKind == INFO) {
                             msgKey = "zone";
                             msg = who(r) + AutoCues.zoneNames()[moved] + " " + z[moved]
-                                    + AiText.t(" %. Зоните се местят ±", " %. Zones move ±") + rp.zoneDelta
-                                    + AiText.t(" от програмата.", " from the program.");
+                                    + AiText.t(" % — пази се до края. Надолу свободно, нагоре до +", " % — kept to the end. Down freely, up to +")
+                                    + rp.zoneDelta + AiText.t(" от програмата.", " over the program.");
                         }
                     }
                     rewrite = true;
@@ -1132,7 +1718,12 @@ public final class AutoSession {
                     // not calibrated at the start: this value becomes the calibration
                     r.cal = Math.min(100, (int) Math.round(allowed / f));
                 } else {
+                    // the start strength is no ceiling (owner, 1.1.315): a raise with + over the phase cap moves
+                    // the calibration up with it, so the whole session runs on the new strength; +5 per pulse stays
                     double ceil = engine.rowCeiling(written, rpl.phiMax, rpl.envMax);
+                    if (ceil > 0 && allowed > (int) Math.floor(r.cal * ceil + 1e-9)) {
+                        r.cal = Math.min(100, (int) Math.ceil(allowed / ceil - 1e-9));
+                    }
                     allowed = Math.min(allowed, (int) Math.floor(r.cal * ceil + 1e-9));
                 }
             }
@@ -1288,8 +1879,8 @@ public final class AutoSession {
         return (r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (rows.indexOf(r) + 1)) + ": ";
     }
 
-    /** Why zone {@code i} was brought back (locks, ±delta, balance rules). */
-    private static String zoneReason(int i, int wanted, int got, AutoModel.Plan rp) {
+    /** Why zone {@code i} was brought back (a lock, the zone maximum, +delta). */
+    private static String zoneReason(int i, int wanted, int got, AutoModel.Plan rp, int[] base) {
         String[] n = AutoCues.zoneNames();
         if (rp.zoneLocked[i]) {
             return n[i] + AiText.t(" е заключена на ", " is locked at ") + got + " %";
@@ -1297,18 +1888,9 @@ public final class AutoSession {
         if (wanted > rp.zoneMax[i]) {
             return n[i] + AiText.t(" най-много ", " at most ") + rp.zoneMax[i] + " %";
         }
-        if (Math.abs(wanted - rp.zones[i]) > rp.zoneDelta) {
-            return n[i] + " " + got + AiText.t(" % — до ±", " % — up to ±") + rp.zoneDelta
-                    + AiText.t(" от програмата (", " from the program (") + rp.zones[i] + ")";
-        }
-        if (i == AutoModel.ABS) {
-            return AiText.t("Корем ≤ 1.3 × кръст — пази гръбнака (", "Abs ≤ 1.3 × low back — protects the spine (") + got + " %)";
-        }
-        if (i == AutoModel.FRONT_THIGH) {
-            return AiText.t("Предно бедро ≤ задно / 0.6 — пази коляното (", "Quads ≤ hamstrings / 0.6 — protects the knee (") + got + " %)";
-        }
-        if (i == AutoModel.CHEST) {
-            return AiText.t("Гърди ≤ 1.2 × гръб — стойка (", "Chest ≤ 1.2 × back — posture (") + got + " %)";
+        if (base != null && wanted > base[i] + rp.zoneDelta && got == Math.min(base[i] + rp.zoneDelta, rp.zoneMax[i])) {
+            return n[i] + " " + got + AiText.t(" % — нагоре най-много +", " % — up at most +") + rp.zoneDelta
+                    + AiText.t(" над програмата (", " over the program (") + base[i] + ")";
         }
         return n[i] + " " + got + " %";
     }
@@ -1453,6 +2035,7 @@ public final class AutoSession {
             input.operator = AiModel.Operator.valueOf(p.getString("operator", "TRAINER"));
             input.intensity = AutoModel.Intensity.valueOf(p.getString("intensity", "STANDARD"));
             input.doublePulse = p.getBoolean("double", true);
+            input.exercises = p.getBoolean("exercises", true);
         } catch (Throwable ignored) {
         }
     }
@@ -1469,6 +2052,7 @@ public final class AutoSession {
                     .putString("operator", input.operator.name())
                     .putString("intensity", input.intensity.name())
                     .putBoolean("double", input.doublePulse)
+                    .putBoolean("exercises", input.exercises)
                     .apply();
         } catch (Throwable ignored) {
         }

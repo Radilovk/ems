@@ -16,11 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
-import com.isaigu.gymapp.dialog.BlockProgramRunner;
+import com.isaigu.gymapp.bean.TrainUser;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
 import com.isaigu.gymapp.train.utils.MusicSync;
+import com.isaigu.gymapp.wearable.SafeGuard;
 import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 import com.isaigu.gymapp.widget.XemsUi;
 
@@ -54,8 +55,22 @@ public final class MapRunner {
     private static final Map<TrainItem, Integer> base = new HashMap<TrainItem, Integer>();
     /** Each row's own impulse before the map (Hz, µs, ON, OFF, active pause, its Hz and %, ramps): put back on stop. */
     private static final Map<TrainItem, int[]> own = new HashMap<TrainItem, int[]>();
+    /** What the map last wrote to each row (same order): on stop only the values still the map's go back. */
+    private static final Map<TrainItem, int[]> wrote = new HashMap<TrainItem, int[]>();
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable ticker = new Ticker();
+    /**
+     * The map is prepared and waits for ▶ Старт (owner, 1.1.336 — the automatic mode's "С упражнения"): the trainer
+     * sets the total strength and each channel on the main screen, then starts. The clock and the output are still.
+     */
+    private static boolean waiting;
+    /** Calibration (as the automatic mode's, AutoSession CALIB): each row's strength may rise ≤ 5 per second. */
+    static final double CALIB_RISE_PER_S = 5.0;
+    /** Each row's strength before the map (put back when the setting-up is cancelled) and its calibration so far. */
+    private static final Map<TrainItem, Integer> ownStrength = new HashMap<TrainItem, Integer>();
+    private static final Map<TrainItem, Double> calibAllowed = new HashMap<TrainItem, Double>();
+    private static TextView goButton;
+    private static TextView stopButton;
 
     // card
     private static Dialog dialog;
@@ -67,12 +82,33 @@ public final class MapRunner {
     private static TextView detail;
     private static TextView next;
 
+    // the smart impulse of a workout (MapDynamics, owner 1.1.324); null for a procedure = exactly as drawn
+    private static MapDynamics dyn;
+    /** The step going out now (null = the block as drawn). */
+    private static AutoModel.Step cur;
+    private static String approach = "";
+    private static Context app;
+
     public static boolean isRunning() {
         return map != null && clock != null && !clock.isDone();
     }
 
     /** Why a map cannot start now, or null (and it starts). */
     public static String start(Activity a, Workout w) {
+        return begin(a, w, false);
+    }
+
+    /** As {@link #start} but the map only waits: the card has ▶ Старт, the strength is set on the main screen first. */
+    public static String arm(Activity a, Workout w) {
+        return begin(a, w, true);
+    }
+
+    /** True while an armed map waits for its start. */
+    public static boolean isWaiting() {
+        return waiting && map != null;
+    }
+
+    private static String begin(Activity a, Workout w, boolean arm) {
         if (w == null || w.blocks.isEmpty()) {
             return AiText.t("Картата е празна.", "The map is empty.");
         }
@@ -84,20 +120,9 @@ public final class MapRunner {
             return AiText.t("Програмите с упражнения вървят в Авто или AI — Авто не е отключен.",
                     "Exercise programs run in Auto or AI — Auto is not unlocked.");
         }
-        try {
-            if (AiSession.ownsOutput() || AiSession.getStage() == AiSession.Stage.RUNNING) {
-                return AiText.t("Първо спри AI сесията.", "Stop the AI session first.");
-            }
-            if (AutoSession.isActive()) {
-                return AiText.t("Първо спри Авто.", "Stop Auto first.");
-            }
-            if (MusicSync.isRunning() || MasterStrengthControl.isSyncActive()) {
-                return AiText.t("Изключи музикалния синхрон.", "Turn music sync off.");
-            }
-            if (BlockProgramRunner.isArmed()) {
-                return AiText.t("Изключи блоковата програма на таймера.", "Disarm the timer block program.");
-            }
-        } catch (Throwable ignored) {
+        String other = OutputOwner.conflict(OutputOwner.MAP);
+        if (other != null) {
+            return other;
         }
         List<TrainItem> rows = rows();
         if (rows.isEmpty()) {
@@ -106,21 +131,85 @@ public final class MapRunner {
         map = w.copy(w.id, w.name);
         swapForLeader(a);
         clock = new MapClock(map);
+        app = a != null ? a.getApplicationContext() : app;
+        dyn = null;
+        cur = null;
+        approach = "";
+        if (!map.isPassive()) {
+            dyn = dynamicsFor(a);
+        }
         idleS = 0;
         base.clear();
         own.clear();
+        wrote.clear();
+        waiting = arm;
         for (TrainItem it : rows) {
             ProgramDataBean b = bean(it);
-            base.put(it, b != null ? b.strenth : 0);
+            if (!arm) {
+                base.put(it, b != null ? b.strenth : 0);
+            }
             if (b != null) {
                 own.put(it, new int[] {b.hz, b.pulseWidth, b.pulseContinue, b.pulsePause, b.activePause ? 1 : 0,
                         b.pauseHz, b.pauseStrenthPercent, b.inputRamp, b.outputRamp});
             }
         }
         lastIndex = -1;
-        apply(true);
+        if (arm) {
+            calibrate(rows);
+        } else {
+            launch();
+        }
+        lastTickMs = System.currentTimeMillis();
+        handler.removeCallbacks(ticker);
+        handler.postDelayed(ticker, TICK_MS);
+        showCard(a);
+        WearableBleDiagLog.log("map", (arm ? "armed " : "start ") + map.id + " blocks " + map.blocks.size() + " "
+                + map.totalSeconds() + " s");
+        return null;
+    }
+
+    /**
+     * The setting-up runs the impulse like the automatic mode's calibration: the map's main work (its longest
+     * exercise block, else its first impulse block) goes to every row from strength 0, the suits run, the trainer
+     * raises the total strength (≤ 5 per second) and the channels on the main screen; ▶ Старт takes it as 100 %.
+     */
+    private static void calibrate(List<TrainItem> rows) {
+        Workout.Block cal = null;
+        for (Workout.Block x : map.blocks) {
+            if (x.isRest()) {
+                continue;
+            }
+            if (cal == null || (x.hasExercise() && (!cal.hasExercise() || x.seconds() > cal.seconds()))) {
+                cal = x;
+            }
+        }
+        ownStrength.clear();
+        calibAllowed.clear();
         for (TrainItem it : rows) {
-            it.workLength = map.totalSeconds() + 120;
+            ProgramDataBean b = bean(it);
+            if (b == null) {
+                continue;
+            }
+            ownStrength.put(it, b.strenth);
+            calibAllowed.put(it, 0.0);
+            b.strenth = 0;
+            if (cal != null) {
+                b.hz = cal.hz;
+                b.pulseWidth = cal.pw;
+                b.pulseContinue = Math.max(1, cal.on);
+                b.pulsePause = Math.max(1, cal.off);
+                b.activePause = false;
+                b.inputRamp = cal.rampIn;
+                b.outputRamp = cal.rampOut;
+            }
+            SafeGuard.clamp(it, b);
+            wrote.put(it, snap(b));
+            it.workLength = 3600;
+            try {
+                it.onParamsChange();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("map", "calib: " + t);
+            }
         }
         try {
             TrainItemManager m = AiSession.manager();
@@ -128,14 +217,151 @@ public final class MapRunner {
                 m.startAll();
             }
         } catch (Throwable t) {
+            WearableBleDiagLog.log("map", "calib startAll: " + t);
+        }
+    }
+
+    /** During the calibration a strength above the gradual rise is pulled back (the automatic mode's rule). */
+    private static void calibTick(double dt) {
+        for (TrainItem it : rows()) {
+            ProgramDataBean b = bean(it);
+            Double cap = calibAllowed.get(it);
+            if (b == null || cap == null) {
+                continue;
+            }
+            double allowed = Math.min(100, cap + CALIB_RISE_PER_S * dt);
+            if (b.strenth > allowed + 0.001) {
+                b.strenth = (int) Math.floor(allowed);         // pushed faster than the rise: held back
+                calibAllowed.put(it, allowed);
+                try {
+                    it.onParamsChange();
+                } catch (Throwable ignored) {
+                }
+            } else {
+                calibAllowed.put(it, (double) b.strenth);      // down is free, up within the rise
+            }
+        }
+    }
+
+    /** The first block goes out and the suits start. */
+    private static void launch() {
+        apply(true);
+        for (TrainItem it : rows()) {
+            it.workLength = map.totalSeconds() + 120;
+        }
+        boolean allRun = true;
+        for (TrainItem it : rows()) {
+            allRun &= it.data != null && it.data.start;
+        }
+        try {
+            TrainItemManager m = AiSession.manager();
+            if (m != null && !allRun) {                        // after the calibration the suits already run
+                m.startAll();
+            }
+        } catch (Throwable t) {
             WearableBleDiagLog.log("map", "startAll: " + t);
         }
         lastTickMs = System.currentTimeMillis();
-        handler.removeCallbacks(ticker);
-        handler.postDelayed(ticker, TICK_MS);
-        showCard(a);
-        WearableBleDiagLog.log("map", "start " + map.id + " blocks " + map.blocks.size() + " " + map.totalSeconds() + " s");
-        return null;
+    }
+
+    /** ▶ Старт of a waiting map: what the trainer set is each row's 100 %, then the map runs. */
+    public static void go() {
+        if (!isWaiting()) {
+            return;
+        }
+        boolean any = false;
+        for (TrainItem it : rows()) {
+            ProgramDataBean b = bean(it);
+            base.put(it, b != null ? b.strenth : 0);
+            any |= b != null && b.strenth > 0;
+        }
+        if (!any) {
+            return;                                            // nothing set yet: the card says so
+        }
+        waiting = false;
+        lastIndex = -1;
+        ownStrength.clear();
+        calibAllowed.clear();
+        launch();
+        if (stopButton != null) {
+            stopButton.setText(AiText.t("■  Стоп", "■  Stop"));
+        }
+        if (goButton != null) {
+            goButton.setVisibility(View.GONE);
+        }
+        updateCard(System.currentTimeMillis());
+    }
+
+    /** The leader's fitness, age, training count and HR max for the smart impulse. */
+    private static MapDynamics dynamicsFor(Context c) {
+        AiModel.Fitness fit = AiModel.Fitness.MID;
+        int age = -1;
+        int sessions = 0;
+        int hrMax = 0;
+        try {
+            TrainItem lead = leader();
+            TrainUser u = lead != null && lead.data != null ? lead.data.trainUser : null;
+            AiProfile p = u != null ? AiProfile.of(u) : null;
+            if (p != null) {
+                fit = p.fitness != null ? p.fitness : fit;
+                age = p.age != null ? p.age : -1;
+                hrMax = p.age != null ? AiPlanner.hrMax(p.sex != null ? p.sex : AiModel.Sex.FEMALE, p.age) : 0;
+            }
+            if (u != null && c != null) {
+                sessions = AutoHistory.of(c, u.id).sessions;
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("map", "dynamics: " + t);
+        }
+        return new MapDynamics(fit, sessions, age, hrMax);
+    }
+
+    /** The block's movement: its own pattern, else the built-in one, else the library's (owner, 1.1.326), in the
+     *  admin's picker group as it is now — the group decides (1.1.327). */
+    static int moveOf(Workout.Block b) {
+        String pat = b.pat;
+        boolean hold = b.hold;
+        String zone = null;
+        if (b.ex != null) {
+            if (pat == null) {
+                pat = Workout.patternOf(b.ex);
+            }
+            if (app != null) {
+                try {
+                    ExerciseLibrary.Entry e = ExerciseLibrary.get(app, b.ex);
+                    if (e != null) {
+                        if (pat == null) {
+                            pat = e.pat;
+                        }
+                        hold = e.isHold() || "core_static".equals(pat);   // blocks saved before 1.1.327: timed ≠ hold
+                        zone = ExerciseLibrary.zoneOf(app, e);
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return AutoDynamics.move(pat, hold, zone);
+    }
+
+    /** The block's exercise work per suit channel (library / built-in {@code mus}), null = none. */
+    static int[] musclesOf(Workout.Block b) {
+        if (b == null || b.ex == null || b.isRest()) {
+            return null;
+        }
+        if (app != null) {
+            ExerciseLibrary.load(app);                         // registers the library's muscles
+        }
+        int ix = AutoTemplates.index(b.ex);
+        return ix >= 0 ? AutoTemplates.muscles(ix) : null;
+    }
+
+    static AutoModel.Step stepOf(Workout.Block b) {
+        AutoModel.Step s = new AutoModel.Step(b.hz, b.pw, Math.max(1, b.on), Math.max(1, b.off));
+        s.pauseHz = b.dbl ? b.hz2 : 0;
+        s.pauseSigma = b.dbl ? b.str2 / 100.0 : 0;
+        s.rampUpMs = b.rampIn;
+        s.rampDownMs = b.rampOut;
+        return s;
     }
 
     /**
@@ -188,20 +414,30 @@ public final class MapRunner {
             return;
         }
         handler.removeCallbacks(ticker);
+        dyn = null;
+        cur = null;
+        approach = "";
         for (TrainItem it : rows()) {
             ProgramDataBean b = bean(it);
-            Integer s = base.get(it);
+            Integer s = waiting ? ownStrength.get(it) : base.get(it);
             int[] o = own.get(it);
             if (b != null && o != null) {                       // the row's own impulse back
-                b.hz = o[0];
-                b.pulseWidth = o[1];
-                b.pulseContinue = o[2];
-                b.pulsePause = o[3];
-                b.activePause = o[4] == 1;
-                b.pauseHz = o[5];
-                b.pauseStrenthPercent = o[6];
-                b.inputRamp = o[7];
-                b.outputRamp = o[8];
+                // a value the trainer changed during the map (⚙, + / −) stays: only the map's own values go back
+                int[] w = wrote.get(it);
+                int[] now = snap(b);
+                int[] back = new int[now.length];
+                for (int i = 0; i < now.length; i++) {
+                    back[i] = w == null || now[i] == w[i] ? o[i] : now[i];
+                }
+                b.hz = back[0];
+                b.pulseWidth = back[1];
+                b.pulseContinue = back[2];
+                b.pulsePause = back[3];
+                b.activePause = back[4] == 1;
+                b.pauseHz = back[5];
+                b.pauseStrenthPercent = back[6];
+                b.inputRamp = back[7];
+                b.outputRamp = back[8];
             }
             if (b != null && s != null) {
                 b.strenth = s;                                   // the trainer's strength back
@@ -219,29 +455,35 @@ public final class MapRunner {
         } catch (Throwable t) {
             WearableBleDiagLog.log("map", "stopAll: " + t);
         }
+        waiting = false;
+        ownStrength.clear();
+        calibAllowed.clear();
         WearableBleDiagLog.log("map", "stop at block " + (clock != null ? clock.getIndex() : -1));
         map = null;
         clock = null;
         base.clear();
         own.clear();
+        wrote.clear();
         AiEnergy.exerciseMet = 0;
         hideCard();
     }
 
     /** AiSession.onPulseCycle: the leader's impulse started. */
     static void onPulseCycle(TrainItem item) {
-        if (!isRunning() || item != leader()) {
+        if (!isRunning() || waiting || item != leader()) {
             return;
         }
         cycleStartMs = System.currentTimeMillis();
         if (clock.onCycle()) {
             apply(false);
+        } else if (dyn != null) {
+            writeCycle();                                      // every repetition glides with the fatigue
         }
     }
 
     /** Index of the exercise of the block now (for the session record), −1 when none. */
     public static int currentExercise() {
-        Workout.Block b = isRunning() ? clock.block() : null;
+        Workout.Block b = isRunning() && !waiting ? clock.block() : null;
         return b != null && b.hasExercise() ? AutoTemplates.index(b.ex) : -1;
     }
 
@@ -268,7 +510,20 @@ public final class MapRunner {
             stop();
             return;
         }
+        if (waiting) {
+            calibTick(dt);
+            updateCard(now);
+            return;
+        }
         boolean running = lead.data != null && lead.data.start;
+        if (dyn != null) {
+            Workout.Block b = clock.block();
+            AutoModel.Step s = cur;
+            boolean work = b != null && !b.isRest() && s != null;
+            boolean on = work && now - cycleStartMs < s.onS * 1000L;
+            dyn.advance(dt, running && work, on, work ? s.hz : 0, work ? s.pauseHz : 0, work ? s.pauseSigma : 0,
+                    work ? b.rel / 100.0 : 0);
+        }
         if (running && clock.tick(dt)) {
             apply(false);
         }
@@ -298,6 +553,26 @@ public final class MapRunner {
         Workout.Block prev = lastIndex >= 0 && lastIndex < map.blocks.size() ? map.blocks.get(lastIndex) : null;
         Workout.Block b = clock.block();
         lastIndex = idx;
+        cur = null;
+        if (dyn != null) {
+            dyn.setMuscles(musclesOf(b));
+            if (b.isRest()) {
+                int need = dyn.restS(b.reps);
+                clock.setRestS(need);
+                if (need > b.reps) {
+                    WearableBleDiagLog.log("map", "rest " + b.reps + " → " + need + " s (fatigue " + Math.round(dyn.fatigue() * 100) + " %)");
+                }
+            } else if (b.hasExercise()) {
+                int hr = AiSession.isBandStreaming() ? AiSession.getLastBandHr() : -1;
+                approach = dyn.startSet(stepOf(b), moveOf(b), b.lock,
+                        map.totalSeconds() > 0 ? clock.position() / map.totalSeconds() : 0, hr);
+                WearableBleDiagLog.log("map", "set " + idx + " approach " + approach + " fatigue "
+                        + Math.round(dyn.fatigue() * 100) + " %");
+            } else {
+                dyn.startPlain(stepOf(b), b.lock);
+                approach = "";
+            }
+        }
         for (TrainItem it : rows()) {
             ProgramDataBean bean = bean(it);
             if (bean == null) {
@@ -311,6 +586,8 @@ public final class MapRunner {
             int full = s != null ? s : bean.strenth;
             if (b.isRest()) {
                 bean.strenth = 0;
+            } else if (dyn != null) {
+                bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
             } else {
                 bean.hz = b.hz;
                 bean.pulseWidth = b.pw;
@@ -326,6 +603,8 @@ public final class MapRunner {
                 bean.inputRamp = b.rampIn;
                 bean.outputRamp = b.rampOut;
             }
+            SafeGuard.clamp(it, bean);                         // the limits before the write, the row's own age
+            wrote.put(it, snap(bean));
             if (it.data != null && it.data.inStart) {
                 it.data.secondValue = bean.pulseContinue;
             }
@@ -335,10 +614,69 @@ public final class MapRunner {
                 WearableBleDiagLog.log("map", "onParamsChange: " + t);
             }
         }
+        if (dyn != null && !b.isRest()) {
+            writeCycle();                                      // the set's first repetition, its approach
+            return;
+        }
         try {
             MasterStrengthControl.resetApplied();
         } catch (Throwable ignored) {
         }
+    }
+
+    /** One repetition's impulse (approach + glide) to every row; the strength stays each row's. */
+    private static void writeCycle() {
+        Workout.Block b = clock.block();
+        if (dyn == null || b == null || b.isRest()) {
+            return;
+        }
+        AutoModel.Step s = dyn.cycle(stepOf(b), true);
+        cur = s;
+        int cycleS = s.onS + Math.max(1, s.offS);
+        boolean first = true;
+        for (TrainItem it : rows()) {
+            ProgramDataBean bean = bean(it);
+            if (bean == null) {
+                continue;
+            }
+            bean.hz = s.hz;
+            bean.pulseWidth = s.pwUs;
+            bean.pulseContinue = Math.max(1, s.onS);
+            bean.pulsePause = Math.max(1, s.offS);
+            boolean dbl = s.pauseHz > 0 && s.pauseSigma > 0 && AiSession.pauseAllowed(it);
+            bean.activePause = dbl;
+            if (dbl) {
+                bean.pauseHz = s.pauseHz;
+                bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * s.pauseSigma));
+            }
+            bean.inputRamp = s.rampUpMs;
+            bean.outputRamp = s.rampDownMs;
+            SafeGuard.clamp(it, bean);
+            wrote.put(it, snap(bean));
+            if (first) {
+                cycleS = bean.pulseContinue + Math.max(1, bean.pulsePause);   // the clock runs on what is sent
+                first = false;
+            }
+            if (it.data != null && it.data.inStart) {
+                it.data.secondValue = bean.pulseContinue;
+            }
+            try {
+                it.onParamsChange();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("map", "onParamsChange: " + t);
+            }
+        }
+        clock.setCycleS(cycleS);
+        try {
+            MasterStrengthControl.resetApplied();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** A row's impulse in the order of {@link #own}. */
+    private static int[] snap(ProgramDataBean b) {
+        return new int[] {b.hz, b.pulseWidth, b.pulseContinue, b.pulsePause, b.activePause ? 1 : 0, b.pauseHz,
+            b.pauseStrenthPercent, b.inputRamp, b.outputRamp};
     }
 
     private static List<TrainItem> rows() {
@@ -372,9 +710,17 @@ public final class MapRunner {
             top.setGravity(Gravity.CENTER_VERTICAL);
             head = XemsUi.text(a, "", 13, XemsUi.MUTED, true);
             top.addView(head, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            TextView stop = XemsUi.button(a, AiText.t("■  Стоп", "■  Stop"), XemsUi.ACCENT_BTN);
+            TextView stop = XemsUi.button(a, waiting ? AiText.t("✕  Отказ", "✕  Cancel") : AiText.t("■  Стоп", "■  Stop"),
+                    XemsUi.ACCENT_BTN);
             stop.setOnClickListener(new StopClick());
+            stopButton = stop;
             top.addView(stop, new LinearLayout.LayoutParams(XemsUi.dp(a, 130), XemsUi.dp(a, 42)));
+            goButton = XemsUi.button(a, AiText.t("▶  Старт", "▶  Start"), XemsUi.PRIMARY);
+            goButton.setOnClickListener(new GoClick());
+            goButton.setVisibility(waiting ? View.VISIBLE : View.GONE);
+            LinearLayout.LayoutParams glp = new LinearLayout.LayoutParams(XemsUi.dp(a, 150), XemsUi.dp(a, 42));
+            glp.rightMargin = XemsUi.dp(a, 10);
+            top.addView(goButton, top.getChildCount() - 1, glp);
             card.addView(top);
 
             LinearLayout mid = XemsUi.horizontal(a);
@@ -447,10 +793,16 @@ public final class MapRunner {
         dialog = null;
         line = null;
         figure = null;
+        goButton = null;
+        stopButton = null;
     }
 
     private static void updateCard(long now) {
         if (dialog == null || clock == null || clock.isDone()) {
+            return;
+        }
+        if (waiting) {
+            updateWaiting();
             return;
         }
         Workout.Block b = clock.block();
@@ -461,13 +813,15 @@ public final class MapRunner {
         line.setPlayhead((float) clock.position());
         if (b.isRest()) {
             figure.setExercise(null);
-            name.setText(AiText.t("Почивка ", "Rest ") + AiText.mmss(Math.max(0, b.reps - clock.getBlockS())));
+            name.setText(AiText.t("Почивка ", "Rest ") + AiText.mmss(Math.max(0, clock.restLength() - clock.getBlockS())));
             detail.setText("");
         } else {
             // the exercise only — no impulse sync, no counting: the client does it at their own pace
             figure.setExercise(b.hasExercise() ? b.ex : null);
             name.setText(b.hasExercise() ? AutoTemplates.name(b.ex) : AiText.t("Импулс", "Impulse"));
-            detail.setText(b.hz + " Hz · " + b.pw + " µs");
+            AutoModel.Step s = cur;
+            detail.setText((s != null ? s.hz : b.hz) + " Hz · " + (s != null ? s.pwUs : b.pw) + " µs"
+                    + (approach.length() > 0 ? "  ·  " + approach : ""));
         }
         String n = "";
         for (int k = idx + 1; k < map.blocks.size(); k++) {
@@ -478,6 +832,42 @@ public final class MapRunner {
             }
         }
         next.setText(n);
+    }
+
+    /** The waiting card: what to do, and ▶ Старт awake once a strength is set. */
+    private static void updateWaiting() {
+        boolean any = false;
+        for (TrainItem it : rows()) {
+            ProgramDataBean b = bean(it);
+            any |= b != null && b.strenth > 0;
+        }
+        head.setText(AiText.t("Авто · ", "Auto · ") + map.name + "  ·  " + AiText.t("настройване", "setting up"));
+        line.setPlayhead(0f);
+        Workout.Block first = null;
+        for (Workout.Block x : map.blocks) {
+            if (x.hasExercise()) {
+                first = x;
+                break;
+            }
+        }
+        figure.setExercise(first != null ? first.ex : null);
+        name.setText(AiText.t("Настрой силата", "Set the strength"));
+        detail.setText(AiText.t("Импулсите вървят: качи общата сила (до +5 в секунда) и силата на всеки канал от главния "
+                + "екран до силно, но приятно усещане (6–7 от 10). После ▶ Старт.",
+                "The impulses run: raise the total strength (up to +5 a second) and each channel on the main screen to "
+                + "strong but pleasant (6–7 of 10). Then ▶ Start."));
+        next.setText(first != null ? AiText.t("Първо: ", "First: ") + AutoTemplates.name(first.ex) : "");
+        if (goButton != null) {
+            goButton.setEnabled(any);
+            goButton.setAlpha(any ? 1f : 0.5f);
+        }
+    }
+
+    static final class GoClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            go();
+        }
     }
 
     static final class StopClick implements View.OnClickListener {

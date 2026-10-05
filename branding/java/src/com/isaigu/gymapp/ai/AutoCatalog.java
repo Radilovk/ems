@@ -65,6 +65,10 @@ public final class AutoCatalog {
         /** Envelope ceiling in the main part (how far above the calibration). */
         public double envMax = 1.0;
         public boolean doublePulse;
+        /** Impulse class for the smart impulse (AutoDynamics.STRENGTH / POWER / CARDIO / GENTLE); unset = gentle. */
+        public String impulse;
+        /** Difficulty (owner, 1.1.336): 1 easy (green) · 2 medium (amber) · 3 hard (red). */
+        public int level = 2;
         public boolean femaleOnly;
         /** Men's programs: a woman's menu does not show them. */
         public boolean maleOnly;
@@ -105,47 +109,47 @@ public final class AutoCatalog {
         p = add(new Program(GENERAL, "Общо стягане и оформяне", "Full-body toning",
                 "Цялото тяло, силова работа с упражнения", "Whole body, strength work with exercises",
                 Kind.ACTIVE, AutoModel.zones(70, 90, 90, 100, 90, 80, 90, 70, 80, 75)));
-        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true;
+        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(GLUTES_LEGS, "Седалище и бедра", "Glutes & thighs",
                 "Акцент върху седалището и задното бедро", "Focus on glutes and hamstrings",
                 Kind.ACTIVE, AutoModel.zones(60, 85, 95, 100, 70, 75, 60, 40, 40, 40)));
-        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.femaleOnly = true;
+        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.femaleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(MASS, "Мускулна маса", "Muscle mass",
                 "Цялото тяло, тежки бавни повторения — обем и сила", "Whole body, heavy slow reps — size and strength",
                 Kind.ACTIVE, AutoModel.zones(60, 85, 80, 80, 80, 75, 100, 90, 100, 100)));
-        p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.3; p.maleOnly = true;
+        p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.3; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(UPPER, "Гърди, рамене и ръце", "Chest, shoulders & arms",
                 "Горната част: гърди, гръб, рамене и ръце", "Upper body: chest, back, shoulders and arms",
                 Kind.ACTIVE, AutoModel.zones(40, 60, 55, 60, 80, 70, 100, 100, 100, 100)));
-        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.maleOnly = true;
+        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(CORE, "Талия и корем", "Waist & core",
                 "Корем с кръста в баланс — пази гръбнака", "Abs balanced with the lower back",
                 Kind.ACTIVE, AutoModel.zones(40, 60, 60, 70, 100, 90, 75, 45, 55, 40)));
-        p.cr10Lo = 6; p.cr10Hi = 6; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true;
+        p.cr10Lo = 6; p.cr10Hi = 6; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(POWER, "Сила и бързина", "Power & speed",
                 "Бързи влакна: кратък взривен импулс, дълга почивка", "Fast fibres: short explosive pulse, long rest",
                 Kind.ACTIVE, AutoModel.zones(80, 100, 100, 100, 85, 80, 90, 70, 85, 80)));
-        p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.15;
+        p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.15; p.impulse = AutoDynamics.POWER;
 
         p = add(new Program(CARDIO, "Кардио-метаболитна", "Cardio-metabolic",
                 "Изгаряне: сила ↔ 7 Hz, пулсът в зоната на мазнините", "Burn: strength ↔ 7 Hz, HR in the fat zone",
                 Kind.ACTIVE, AutoModel.zones(90, 100, 100, 100, 70, 70, 80, 50, 60, 70)));
-        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.10; p.doublePulse = true;
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.10; p.doublePulse = true; p.impulse = AutoDynamics.CARDIO;
 
         p = add(new Program(BACK_ACTIVE, "Здрав гръб и стойка", "Healthy back & posture",
                 "Гръб, кръст и корем заедно, с упражнения", "Back, lower back and core together, with exercises",
                 Kind.ACTIVE, AutoModel.zones(50, 70, 80, 90, 80, 100, 100, 80, 60, 60)));
-        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.15; p.asksBack = true;
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.15; p.asksBack = true; p.impulse = AutoDynamics.GENTLE;
 
         p = add(new Program(SENIOR, "Здрави мускули 50+", "Strong muscles 50+",
                 "Сила за ежедневието, бавни движения", "Strength for daily life, slow movements",
                 Kind.ACTIVE, AutoModel.zones(80, 100, 90, 100, 70, 80, 80, 60, 60, 70)));
-        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.75; p.envMax = 1.0;
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.75; p.envMax = 1.0; p.impulse = AutoDynamics.GENTLE;
 
         p = add(new Program(CELLULITE, "Антицелулит", "Anti-cellulite",
                 "Тонус на долната част + дренажна вълна", "Lower-body tone + drainage wave",
@@ -155,7 +159,7 @@ public final class AutoCatalog {
         p = add(new Program(POSTPARTUM, "Следродилно възстановяване", "Postpartum recovery",
                 "Тазово дъно, седалище и кръст; коремът — внимателно", "Pelvic floor, glutes, lower back; abs gently",
                 Kind.PASSIVE, AutoModel.zones(50, 70, 80, 100, 60, 90, 60, 50, 40, 50)));
-        p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.45; p.femaleOnly = true; p.asksPostpartum = true;
+        p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.45; p.femaleOnly = true; p.asksPostpartum = true; p.impulse = AutoDynamics.GENTLE;
 
         p = add(new Program(DRAIN, "Дренаж", "Lymph drainage",
                 "Вълна по зоните от периферията към центъра", "A wave through the zones towards the centre",
@@ -178,6 +182,40 @@ public final class AutoCatalog {
                 "3 ↔ 8 Hz масаж след натоварване", "3 ↔ 8 Hz massage after training",
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
+
+        // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
+        // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY}) {
+            get(id).level = 1;
+        }
+        for (String id : new String[] {POWER, CARDIO, MASS}) {
+            get(id).level = 3;
+        }
+    }
+
+    /**
+     * The card's three times (owner, 1.1.336), seconds: warm-up (the program's first phase), the main part (the rest of
+     * the active work) and the recovery. The time itself is not chosen any more: it is the program's, as long as
+     * this client may have it ({@link AutoPlanner#maxSeconds}).
+     */
+    public static int[] times(Program p, Goal goal, Input in) {
+        List<Phase> ph = phases(p, goal, in, AutoPlanner.maxSeconds(p, goal, in));
+        int warm = 0;
+        int main = 0;
+        int rec = 0;
+        boolean first = true;
+        for (Phase x : ph) {
+            if (x.isCooldown()) {
+                rec += x.durationS;
+            } else if (first && ph.size() > 2) {
+                warm = x.durationS;
+                first = false;
+            } else {
+                main += x.durationS;
+                first = false;
+            }
+        }
+        return new int[] {warm, main, rec};
     }
 
     private static Program add(Program p) {
@@ -320,7 +358,7 @@ public final class AutoCatalog {
 
     // ================================================================ phases
 
-    /** Program length before the client's limits (spec §6). */
+    /** Length of the active part before the client's limits (spec §6); AutoPlanner caps it at 20 min. */
     public static int baseSeconds(Program p, Goal goal, Input in) {
         boolean slim = goal == Goal.SLIM;
         switch (p.id) {
@@ -527,6 +565,7 @@ public final class AutoCatalog {
                 m.steps.add(tet(80, 300, 4, 8));
                 Phase e = phase(out, "RELIEF", "Обезболяване", "Relief", 0.25, total, 0.7, 0.7);
                 e.steps.add(twitch(2, 200, 10, 1, 1.0));
+                cooldown(out, total, 0.10, 2);
                 break;
             }
             case POSTPARTUM: {
@@ -591,15 +630,30 @@ public final class AutoCatalog {
         return c;
     }
 
-    /** Rounding: the phases add up to exactly the total. */
-    private static void fixDurations(List<Phase> out, int total) {
+    /**
+     * The active phases share exactly {@code active} seconds (their shares rescaled); the cool-down is the
+     * passive recovery: a fixed {@link AutoPlanner#RECOVERY_S} on top (owner, 1.1.270).
+     */
+    private static void fixDurations(List<Phase> out, int active) {
+        int shares = 0;
+        Phase lastActive = null;
+        for (Phase p : out) {
+            if (!p.isCooldown()) {
+                shares += p.durationS;
+                lastActive = p;
+            }
+        }
         int sum = 0;
         for (Phase p : out) {
-            sum += p.durationS;
+            if (p.isCooldown()) {
+                p.durationS = AutoPlanner.RECOVERY_S;
+            } else {
+                p.durationS = shares > 0 ? (int) Math.round(p.durationS * (double) active / shares) : 0;
+                sum += p.durationS;
+            }
         }
-        if (!out.isEmpty()) {
-            Phase last = out.get(out.size() - 1);
-            last.durationS = Math.max(30, last.durationS + total - sum);
+        if (lastActive != null) {
+            lastActive.durationS = Math.max(30, lastActive.durationS + active - sum);
         }
     }
 

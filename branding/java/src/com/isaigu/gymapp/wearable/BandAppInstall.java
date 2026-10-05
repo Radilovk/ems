@@ -30,7 +30,7 @@ public final class BandAppInstall {
     public static final String ASSET_EN = "xems-band-en.rpk";
     public static final String PACKAGE = "com.xems.band";
     /** versionCode in band-app/src/manifest.json (apply-band-app.py checks they match). */
-    public static final int VERSION = 72;
+    public static final int VERSION = 73;
 
     /** "bg" / "en": the band app for the tablet's language. */
     static String tabletLang() {
@@ -185,7 +185,7 @@ public final class BandAppInstall {
             }
             pendingManual = true;
             show(WearableUi.tr("Свързване с гривната…", "Connecting to the band…"));
-            NotifyWearableBridge.requestConnect(a);
+            NotifyWearableBridge.acquire(a, NotifyWearableBridge.OWNER_LINK);   // the link, not the pulse
             main.removeCallbacks(connectTimeout);
             main.postDelayed(connectTimeout, CONNECT_WAIT_MS);
         } catch (Throwable t) {

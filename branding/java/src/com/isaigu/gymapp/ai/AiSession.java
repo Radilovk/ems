@@ -8,7 +8,6 @@ import android.os.Looper;
 import android.view.View;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
-import com.isaigu.gymapp.dialog.BlockProgramRunner;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
@@ -252,25 +251,9 @@ public final class AiSession {
 
     /** Returns an error text if another automatic mode owns the output, else null. */
     public static String conflict() {
-        if (MapRunner.isRunning()) {
-            return AiText.t("Първо спри картата от Тренировки.", "Stop the Workouts map first.");
-        }
-        if (AutoSession.isActive()) {
-            return AiText.t("Затвори автоматичната тренировка преди AI.", "Close the automatic session before AI.");
-        }
-        try {
-            if (MasterStrengthControl.isSyncActive()) {
-                return AiText.t("Спри музикалната синхронизация преди AI сесия.",
-                        "Stop music sync before an AI session.");
-            }
-        } catch (Throwable ignored) {
-        }
-        try {
-            if (BlockProgramRunner.isArmed()) {
-                return AiText.t("Изключи блоковата програма на таймера преди AI сесия.",
-                        "Disarm the timer block program before an AI session.");
-            }
-        } catch (Throwable ignored) {
+        String other = OutputOwner.conflict(OutputOwner.AI);
+        if (other != null) {
+            return other;
         }
         if (leader() == null) {
             return AiText.t("Добави участник и свържи костюма.", "Add a participant and connect the suit.");
@@ -312,6 +295,14 @@ public final class AiSession {
         profile = null;
         plan = null;
         startTicker();
+    }
+
+    /** The resting HR just measured → the client's own record (physical age on the scale page). */
+    public static void rememberRestHr(Context c, int bpm) {
+        AiProfile client = AiProfile.of(leader());
+        if (client != null) {
+            com.isaigu.gymapp.wearable.scale.RestHrStore.add(c, client.userId, bpm);
+        }
     }
 
     /** Derive + plan. hrRest ≤ 0 → without band (TRAINER only). */
@@ -1062,7 +1053,39 @@ public final class AiSession {
         }
     }
 
+    /** The absolute limits (SafeLimits, 1.1.323) on the cycle before it reaches the rows. */
+    private static void safe(AiEngine.CycleCmd c) {
+        if (c == null) {
+            return;
+        }
+        // one cycle goes to every row: the oldest client's limits (the strictest), so no row's guard corrects what
+        // the session wrote and the session never reads that correction as a trainer's change
+        int age = -1;
+        try {
+            List<TrainItem> list = manager != null ? manager.getItemList() : null;
+            for (int i = 0; list != null && i < list.size(); i++) {
+                TrainItem it = list.get(i);
+                if (it != null && !it.isEmpty() && it.data != null) {
+                    age = Math.max(age, com.isaigu.gymapp.wearable.SafeGuard.age(it.data.trainUser));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        int[] v = SafeLimits.cycle(c.hz, c.pwUs, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.rampUpMs, age);
+        c.hz = v[SafeLimits.HZ];
+        c.pwUs = v[SafeLimits.PW];
+        c.onS = v[SafeLimits.ON];
+        c.offS = v[SafeLimits.OFF];
+        c.rampUpMs = v[SafeLimits.RAMP];
+        if (v[SafeLimits.AP] == 0) {
+            c.pauseHz = 0;
+        } else {
+            c.pauseHz = v[SafeLimits.PHZ];
+        }
+    }
+
     private static void writeAll(AiEngine.CycleCmd c, int percent) {
+        safe(c);
         AiRamp.set(c.rampUpMs, c.rampDownMs);
         percent = Math.max(0, Math.min(100, percent));
         written = c;

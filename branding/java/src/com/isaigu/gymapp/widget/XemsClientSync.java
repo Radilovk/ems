@@ -268,11 +268,13 @@ public final class XemsClientSync {
             u.nickName = name;
         }
         boolean changed = created;
-        if (email.length() > 0 && (empty(u.email) || newer) && !email.equalsIgnoreCase(u.email)) {
+        // the contact only fills an empty field: a profile never replaces the e-mail or phone the studio has
+        // (the booking page is public — a changed contact is the trainer's edit in the client form)
+        if (email.length() > 0 && empty(u.email)) {
             u.email = email;
             changed = true;
         }
-        if (phone.length() > 0 && (empty(u.phone) || newer) && !digits9(phone).equals(digits9(u.phone))) {
+        if (phone.length() > 0 && empty(u.phone)) {
             u.phone = phone;
             changed = true;
         }
@@ -307,6 +309,9 @@ public final class XemsClientSync {
             changed = true;
         }
         int w = p.optInt("w", 0);
+        if (w > 0 && !created && scaleSince(c, u.id) >= savedAt) {
+            w = 0;                                        // a weigh-in on the scale is newer: the scale wins
+        }
         if (w > 0 && (u.weight <= 0 || newer) && Math.round(u.weight) != w) {
             u.weight = w;
             changed = true;
@@ -370,6 +375,18 @@ public final class XemsClientSync {
         u.remark = XemsLocalUserForm.summaryOf(g, f, contra) + XemsLocalUserForm.extras(oldFocus, oldCond, note);
         XemsLocalStore.saveUserQuiet(u, true);
         return created ? 1 : 2;
+    }
+
+    /** Time of the client's last weigh-in on the scale (prefs "xems_scale", as ScaleStore keeps them); 0 = none. */
+    static long scaleSince(Context c, long userId) {
+        try {
+            JSONArray a = new JSONArray(c.getSharedPreferences("xems_scale", Context.MODE_PRIVATE)
+                    .getString("m" + userId, "[]"));
+            JSONObject m = a.length() > 0 ? a.optJSONObject(a.length() - 1) : null;
+            return m != null && m.optDouble("w", 0) >= 20 ? m.optLong("t") : 0;
+        } catch (Throwable t) {
+            return 0;
+        }
     }
 
     static String csv(JSONArray a) {

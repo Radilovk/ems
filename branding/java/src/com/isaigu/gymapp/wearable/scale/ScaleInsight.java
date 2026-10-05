@@ -1,0 +1,927 @@
+package com.isaigu.gymapp.wearable.scale;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md
+ * §6):
+ *
+ * <ul>
+ *   <li><b>Readiness.</b> Per segment the ratio ρ = Z100 / Z20. Extracellular fluid conducts at both frequencies,
+ *       cells only at the high one, so swelling (the oedema of muscle damage after a hard session, CK day 2–4)
+ *       raises ρ, and less body water raises Z20. Both against the client's own baseline (the median of the
+ *       earlier measurements) — never against a population norm. [D] thresholds, to validate.</li>
+ *   <li><b>Segments against normal.</b> WLA25's own standards for each segment's muscle and fat (the "% of
+ *       normal" of segmental analysers): 100 = the standard for this height, weight and sex.</li>
+ *   <li><b>Fat per suit channel.</b> The whole-body fat % redistributed by each segment's fat share, so the
+ *       current's reach (AutoEngine.reach) knows that glutes and thighs insulate more than the arms.</li>
+ * </ul>
+ */
+public final class ScaleInsight {
+    private ScaleInsight() {}
+
+    /** [D] swelling of the most swollen segment (Δρ, %) for −15 % / −30 %. */
+    static final double SWELL_AMBER = 1.2;
+    static final double SWELL_RED = 2.5;
+    /** [D] legs' Z20 above the baseline (%) = less water: from here a −15 %. */
+    static final double DRY_AMBER = 5.0;
+    /** A readiness counts for today's session when the measurement is at most this old. */
+    public static final long TODAY_MS = 12L * 3600 * 1000;
+    /** Baseline: up to this many earlier measurements, at least 6 h before the current one. */
+    static final int BASE_MAX = 8;
+    /**
+     * Earlier weigh-ins (≥ 6 h apart) before a verdict (1.1.310-ai, audit F12): one baseline is one contact — its own
+     * ±0.5–1 % noise sits right under the 1.2 % threshold, so a single earlier weigh-in gave false "lighter today".
+     */
+    static final int BASE_MIN = 2;
+    static final long BASE_GAP_MS = 6L * 3600 * 1000;
+    /**
+     * Baseline from the same time of day (1.1.311-ai): standing through the day moves fluid into the legs, so an
+     * evening weigh-in against morning ones reads as "swollen legs". Within ±3 h of the clock time; without two such,
+     * every earlier weigh-in counts but the thresholds are ×1.5.
+     */
+    static final double SAME_HOURS = 3.0;
+    static final double OTHER_TIME_K = 1.5;
+    /**
+     * Weight below the last week's median by this much (%) = water lost (1.1.311-ai): ≥ 2 % of body mass is the
+     * usual mark of dehydration that lowers performance (ACSM position stand on fluid replacement, 2007). Any scale.
+     */
+    static final double WEIGHT_DROP = 2.0;
+    static final long WEEK_MS = 7L * 24 * 3600 * 1000;
+    /** Trunk muscle under this % of normal = a focus zone (limbs: 90 %). */
+    static final double TRUNK_WEAK = 85;
+
+    public static final class Readiness {
+        /** 0–100. */
+        public int score = 100;
+        /** Strength factor for today: 1, 0.85 or 0.7. */
+        public double factor = 1.0;
+        /** Δρ (%) by segment index; NaN = no data. */
+        public final double[] swell = new double[] {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+        /** Legs' Z20 change against the baseline (%): + = drier. NaN = no data. */
+        public double dry = Double.NaN;
+        /** Segment that drives the verdict (or -1). */
+        public int worst = -1;
+        /** How many earlier measurements the baseline stands on (under BASE_MIN: no verdict yet). */
+        public int base;
+        /** The baseline is from the same time of day (else the thresholds are wider). */
+        public boolean sameTime = true;
+        /** Weight against the last week's median (%): − = lighter. NaN = no weigh-in that week. */
+        public double weight = Double.NaN;
+        /** The verdict comes from water (dry legs on a two-frequency scale, or weight lost), not from swelling. */
+        public boolean water;
+
+        public boolean known() {
+            return base >= BASE_MIN;
+        }
+    }
+
+    static double ratio(JSONArray z20, JSONArray z100, int i) {
+        if (z20 == null || z100 == null || z20.isNull(i) || z100.isNull(i)) {
+            return Double.NaN;
+        }
+        double a = z20.optDouble(i, Double.NaN);
+        double b = z100.optDouble(i, Double.NaN);
+        return a > 1 && b > 1 ? b / a : Double.NaN;
+    }
+
+    static double median(List<Double> v) {
+        if (v.isEmpty()) {
+            return Double.NaN;
+        }
+        List<Double> s = new ArrayList<Double>(v);
+        Collections.sort(s);
+        int n = s.size();
+        return n % 2 == 1 ? s.get(n / 2) : (s.get(n / 2 - 1) + s.get(n / 2)) / 2;
+    }
+
+    static double legsZ20(JSONObject m) {
+        JSONArray z = m.optJSONArray("z20");
+        if (z == null || z.isNull(ScaleProtocol.LEFT_LEG) || z.isNull(ScaleProtocol.RIGHT_LEG)) {
+            return Double.NaN;
+        }
+        return (z.optDouble(ScaleProtocol.LEFT_LEG) + z.optDouble(ScaleProtocol.RIGHT_LEG)) / 2;
+    }
+
+    /** Readiness of measurement {@code at} of the history (oldest first). */
+    public static Readiness readiness(JSONArray hist, int at) {
+        Readiness r = new Readiness();
+        JSONObject m = hist != null ? hist.optJSONObject(at) : null;
+        if (m == null) {
+            return r;
+        }
+        long t = m.optLong("t");
+        List<JSONObject> all = new ArrayList<JSONObject>();
+        List<JSONObject> same = new ArrayList<JSONObject>();
+        for (int i = at - 1; i >= 0 && same.size() < BASE_MAX; i--) {
+            JSONObject o = hist.optJSONObject(i);
+            // the same kind of scale only: one frequency's spread ρ is not a measurement, and two scales differ
+            if (o != null && t - o.optLong("t") >= BASE_GAP_MS && o.optJSONArray("z20") != null
+                    && o.optInt("f1") == m.optInt("f1")) {
+                if (all.size() < BASE_MAX) {
+                    all.add(o);
+                }
+                if (clockGap(t, o.optLong("t")) <= SAME_HOURS) {
+                    same.add(o);
+                }
+            }
+        }
+        List<JSONObject> base = same.size() >= BASE_MIN ? same : all;
+        r.sameTime = base == same;
+        double k = r.sameTime ? 1.0 : OTHER_TIME_K;
+        r.base = base.size();
+        if (base.size() < BASE_MIN) {
+            return r;
+        }
+        boolean single = m.optInt("f1") == 1;
+        double worstV = 0;
+        for (int s = 0; s < 5 && !single; s++) {
+            double now = ratio(m.optJSONArray("z20"), m.optJSONArray("z100"), s);
+            List<Double> b = new ArrayList<Double>();
+            for (JSONObject o : base) {
+                double v = ratio(o.optJSONArray("z20"), o.optJSONArray("z100"), s);
+                if (!Double.isNaN(v)) {
+                    b.add(v);
+                }
+            }
+            double med = median(b);
+            if (!Double.isNaN(now) && !Double.isNaN(med)) {
+                r.swell[s] = (now / med - 1) * 100;
+                // the arms get a fraction of the current (AiEnergy.ARMS_SENT): their swelling weighs less
+                double w = s == ScaleProtocol.LEFT_ARM || s == ScaleProtocol.RIGHT_ARM ? 0.7 : 1.0;
+                if (r.swell[s] * w > worstV) {
+                    worstV = r.swell[s] * w;
+                    r.worst = s;
+                }
+            }
+        }
+        List<Double> bz = new ArrayList<Double>();
+        List<Double> bw = new ArrayList<Double>();
+        for (JSONObject o : base) {
+            double v = legsZ20(o);
+            if (!Double.isNaN(v)) {
+                bz.add(v);
+            }
+        }
+        // weight: every earlier weigh-in of the last week (any time of day, any kind of scale)
+        for (int i = at - 1; i >= 0; i--) {
+            JSONObject o = hist.optJSONObject(i);
+            if (o == null || t - o.optLong("t") > WEEK_MS) {
+                break;
+            }
+            double w = o.optDouble("w", Double.NaN);
+            if (t - o.optLong("t") >= BASE_GAP_MS && w >= 20 && w <= 250) {
+                bw.add(w);
+            }
+        }
+        double nz = legsZ20(m);
+        double mz = median(bz);
+        if (!Double.isNaN(nz) && !Double.isNaN(mz) && mz > 0) {
+            r.dry = (nz / mz - 1) * 100;
+        }
+        double mw = median(bw);
+        double w = m.optDouble("w", Double.NaN);
+        if (!Double.isNaN(mw) && !Double.isNaN(w) && mw > 0) {
+            r.weight = (w / mw - 1) * 100;
+        }
+        // one frequency: the legs' |Z| also moves with skin, sweat and temperature of the feet — shown, not acted on
+        double dry = Double.isNaN(r.dry) || single ? 0 : Math.max(0, r.dry);
+        double lost = Double.isNaN(r.weight) ? 0 : Math.max(0, -r.weight);
+        r.score = (int) Math.round(Math.max(0, Math.min(100,
+                100 - 22 * Math.max(0, worstV / k - 0.4) - 5 * Math.max(0, dry / k - 2) - 10 * Math.max(0, lost - 1))));
+        if (worstV >= SWELL_RED * k) {
+            r.factor = 0.7;
+        } else if (worstV >= SWELL_AMBER * k) {
+            r.factor = 0.85;
+        } else if (dry >= DRY_AMBER * k || lost >= WEIGHT_DROP) {
+            r.factor = 0.85;
+            r.water = true;
+        }
+        return r;
+    }
+
+    /** Hours between two moments' clock times (0–12), in the tablet's time zone. */
+    static double clockGap(long a, long b) {
+        java.util.TimeZone tz = java.util.TimeZone.getDefault();
+        double ha = ((a + tz.getOffset(a)) % 86400000L + 86400000L) % 86400000L / 3600000.0;
+        double hb = ((b + tz.getOffset(b)) % 86400000L + 86400000L) % 86400000L / 3600000.0;
+        double d = Math.abs(ha - hb);
+        return Math.min(d, 24 - d);
+    }
+
+    // ================================================================ segments against normal (WLA25 standards)
+
+    /** % of normal by segment index: [0] muscle, [1] fat. NaN where the measurement has no segments. */
+    public static double[][] ofNormal(JSONObject m, boolean male, int heightCm) {
+        double[][] out = new double[2][5];
+        for (int i = 0; i < 5; i++) {
+            out[0][i] = Double.NaN;
+            out[1][i] = Double.NaN;
+        }
+        JSONArray f = m != null ? m.optJSONArray("segFat") : null;
+        JSONArray k = m != null ? m.optJSONArray("segMus") : null;
+        double w = m != null ? m.optDouble("w", Double.NaN) : Double.NaN;
+        if (f == null || k == null || Double.isNaN(w) || heightCm < 100) {
+            return out;
+        }
+        double h = heightCm;
+        float sw = ScaleBody.stdWeight(heightCm, male);
+        double ffm = ScaleBody.ceil1((male ? 0.85f : 0.77f) * sw);
+        double armMus = w * 0.02 + ffm * 0.102 + h * -0.045 + 3.752;
+        double legMus = w * 0.059 + ffm * 0.168 + h * -0.056 + 4.775;
+        double trunkMus = w * 0.166 + ffm * 0.485 + h * -0.16 + 13.595;
+        for (int i = 0; i < 5; i++) {
+            boolean arm = i == ScaleProtocol.LEFT_ARM || i == ScaleProtocol.RIGHT_ARM;
+            boolean trunk = i == ScaleProtocol.TRUNK;
+            double sm = trunk ? trunkMus : arm ? armMus : legMus;
+            if (!k.isNull(i) && sm > 0) {
+                out[0][i] = k.optDouble(i) / sm * 100;
+            }
+            // fat: the zone's own fat share (fat / (fat + muscle)) against the healthy middle for the sex
+            double fz = f.optDouble(i, Double.NaN), mz = k.optDouble(i, Double.NaN);
+            if (!Double.isNaN(fz) && !Double.isNaN(mz) && fz + mz > 0) {
+                out[1][i] = fz / (fz + mz) * 100 / fatMid(male) * 100;
+            }
+        }
+        return out;
+    }
+
+    /** The healthy middle of body fat (%) — the 100 of the fat layer: men 15, women 25. */
+    public static double fatMid(boolean male) {
+        return male ? 15 : 25;
+    }
+
+    // ================================================================ fat per suit channel
+
+    /**
+     * PartStrenthBean.buwei order (AiEnergy.CH_MASS): 0 chest, 1 abs, 2 front thigh, 3 calf, 4 arms, 5 traps,
+     * 6 back, 7 lower back, 8 glutes, 9 back thigh → segment weights {trunk, arms, legs}.
+     */
+    static final double[][] CH_SEG = {
+            {1, 0, 0}, {1, 0, 0}, {0, 0, 1}, {0, 0, 1}, {0, 1, 0},
+            {1, 0, 0}, {1, 0, 0}, {1, 0, 0}, {0.5, 0, 0.5}, {0, 0, 1}};
+
+    /** Body fat % per suit channel (10), averaging at the whole-body value; null without segments. */
+    public static double[] channelFat(JSONObject m) {
+        JSONArray f = m != null ? m.optJSONArray("segFat") : null;
+        JSONArray k = m != null ? m.optJSONArray("segMus") : null;
+        double whole = m != null ? m.optDouble("fat", Double.NaN) : Double.NaN;
+        if (f == null || k == null || Double.isNaN(whole)) {
+            return null;
+        }
+        double[] share = new double[3];   // trunk, arms, legs: fat / (fat + muscle)
+        double fs = 0, ts = 0;
+        int[][] segs = {{ScaleProtocol.TRUNK}, {ScaleProtocol.LEFT_ARM, ScaleProtocol.RIGHT_ARM},
+                {ScaleProtocol.LEFT_LEG, ScaleProtocol.RIGHT_LEG}};
+        for (int g = 0; g < 3; g++) {
+            double fa = 0, mu = 0;
+            for (int s : segs[g]) {
+                fa += f.optDouble(s, 0);
+                mu += k.optDouble(s, 0);
+            }
+            if (fa + mu <= 0) {
+                return null;
+            }
+            share[g] = fa / (fa + mu);
+            fs += fa;
+            ts += fa + mu;
+        }
+        double mean = fs / ts;
+        double[] out = new double[CH_SEG.length];
+        for (int c = 0; c < out.length; c++) {
+            double s = 0;
+            for (int g = 0; g < 3; g++) {
+                s += CH_SEG[c][g] * share[g];
+            }
+            out[c] = Math.max(3, Math.min(60, whole * s / mean));
+        }
+        return out;
+    }
+
+    /**
+     * Muscle per suit channel against the body's own mean (10, mean ≈ 1): the zone's muscle % of normal (WLA25
+     * segment standard) mapped like {@link #CH_SEG} — a strong-legged client gets more mass on the thigh channels.
+     * The energy model (AiEnergy) and Auto's load / oxygen model (AutoEngine) weigh each channel's muscle with it.
+     * null without segments.
+     */
+    public static double[] channelMuscle(JSONObject m, boolean male, int heightCm) {
+        double[] n = ofNormal(m, male, heightCm)[0];
+        double trunk = n[ScaleProtocol.TRUNK];
+        double arms = (n[ScaleProtocol.LEFT_ARM] + n[ScaleProtocol.RIGHT_ARM]) / 2;
+        double legs = (n[ScaleProtocol.LEFT_LEG] + n[ScaleProtocol.RIGHT_LEG]) / 2;
+        if (Double.isNaN(trunk) || Double.isNaN(arms) || Double.isNaN(legs)) {
+            return null;
+        }
+        double[] g = {trunk, arms, legs};
+        double[] out = new double[CH_SEG.length];
+        double sum = 0;
+        for (int c = 0; c < out.length; c++) {
+            double v = 0;
+            for (int i = 0; i < 3; i++) {
+                v += CH_SEG[c][i] * g[i];
+            }
+            out[c] = v;
+            sum += v;
+        }
+        double mean = sum / out.length;
+        for (int c = 0; c < out.length; c++) {
+            out[c] = Math.max(0.7, Math.min(1.4, out[c] / mean));
+        }
+        return out;
+    }
+
+    /**
+     * The focus zone the measurement asks for (client-form keys, AiPersonal / NextPlan.focusChannels): the weakest
+     * segment under 90 % of normal — arms → "arms", legs → "legs", trunk → "abs"; null when every zone is normal.
+     */
+    public static String weakFocus(JSONObject m, boolean male, int heightCm) {
+        double[] n = ofNormal(m, male, heightCm)[0];
+        int weak = -1;
+        double gap = 0;
+        for (int i = 0; i < 5; i++) {
+            // the trunk is half the body but a small part of its impedance — segmental BIA reads it least surely,
+            // so the trunk asks for focus only clearly below normal (85 %), the limbs from 90 % (1.1.311-ai)
+            double lim = i == ScaleProtocol.TRUNK ? TRUNK_WEAK : 90;
+            if (!Double.isNaN(n[i]) && lim - n[i] > gap) {
+                gap = lim - n[i];
+                weak = i;
+            }
+        }
+        if (weak < 0) {
+            return null;
+        }
+        return weak == ScaleProtocol.TRUNK ? "abs"
+                : weak == ScaleProtocol.LEFT_ARM || weak == ScaleProtocol.RIGHT_ARM ? "arms" : "legs";
+    }
+
+    /** Left / right difference of a segment pair (%, + = left more); NaN without data. */
+    public static double asymmetry(JSONArray v, int left, int right) {
+        if (v == null || v.isNull(left) || v.isNull(right)) {
+            return Double.NaN;
+        }
+        double l = v.optDouble(left), r = v.optDouble(right);
+        return l + r > 0 ? (l - r) / ((l + r) / 2) * 100 : Double.NaN;
+    }
+
+    // ================================================================ body type — not against the population
+
+    /**
+     * What the body is made of, said without the two biases of the fitness apps: weight counted as fat (BMI terms)
+     * and the entered age echoed back as "body age".
+     *
+     * <ul>
+     *   <li><b>FFMI / FMI</b> — fat-free and fat mass per height² (kg/m²). Dense muscle raises FFMI, not FMI, so a
+     *       muscular man is "athletic", not "overweight", whatever his BMI.</li>
+     *   <li><b>Physiological thresholds</b> — "very low" only below essential fat (men 6 %, women 14 %), not below a
+     *       population percentile, so a lean woman is lean, not "in deficit"; "excess" / "obese" by FMI (men 6 / 9,
+     *       women 9 / 13 kg/m²), so a heavy woman is not "normal" by a wide %-range.</li>
+     *   <li><b>Physical age</b> — the age whose median appendicular muscle (ALMI) and fat mass (FMI) per height²
+     *       match the measured ones, half each, from DXA reference data of 3 327 adults (Imboden 2017). The entered
+     *       age is not in it; then half the gap to the passport, at most 8 years (the medians move slowly with
+     *       age, so a fit body alone would map decades away).</li>
+     *   <li><b>Fat pattern</b> — the legs' share of the limb + trunk fat: gynoid (legs, hips) or android (trunk).</li>
+     * </ul>
+     */
+    public static final class Body {
+        public double ffmi = Double.NaN, fmi = Double.NaN, smi = Double.NaN;
+        /** Appendicular (arms + legs) muscle per height², kg/m² — Fitdays' "ASMI". */
+        public double almi = Double.NaN;
+        /** 0 low, 1 normal, 2 athletic, 3 very muscular. */
+        public int muscleCls = -1;
+        /** 0 very low (essential), 1 normal, 2 excess, 3 obese. */
+        public int fatCls = -1;
+        public int type = -1;
+        public double physicalAge = Double.NaN;
+        public double ageFromMuscle = Double.NaN, ageFromFat = Double.NaN, ageFromHeart = Double.NaN;
+        /** The resting HR that went into physical age (the client's typical at the weigh-in); NaN = none. */
+        public double restHr = Double.NaN;
+        /** Legs' share of the segment fat (0–1); NaN without segments. */
+        public double legFatShare = Double.NaN;
+
+        public boolean known() {
+            return type >= 0;
+        }
+    }
+
+    public static final int T_ATHLETIC = 0, T_BALANCED = 1, T_STRONG_FAT = 2, T_FAT = 3, T_FAT_LOW_MUSCLE = 4,
+            T_LEAN_LOW_MUSCLE = 5, T_VERY_LEAN = 6;
+
+    public static Body body(JSONObject m, boolean male, int heightCm) {
+        Body b = new Body();
+        if (m == null || !m.has("fat") || heightCm < 100) {
+            return b;
+        }
+        double h2 = Math.pow(heightCm / 100.0, 2);
+        double w = m.optDouble("w");
+        double fatPct = m.optDouble("fat");
+        double fatKg = m.optDouble("fatKg", w * fatPct / 100);
+        double lean = m.optDouble("lean", w - fatKg);
+        b.ffmi = lean / h2;
+        b.fmi = fatKg / h2;
+        double skel = m.optDouble("skel", Double.NaN);
+        b.smi = Double.isNaN(skel) ? Double.NaN : w * skel / 100 / h2;
+        if (male) {
+            b.muscleCls = b.ffmi < 17 ? 0 : b.ffmi < 20 ? 1 : b.ffmi < 23 ? 2 : 3;
+            b.fatCls = fatPct < 6 ? 0 : b.fmi <= 6 ? 1 : b.fmi <= 9 ? 2 : 3;
+        } else {
+            b.muscleCls = b.ffmi < 14 ? 0 : b.ffmi < 17 ? 1 : b.ffmi < 19.5 ? 2 : 3;
+            b.fatCls = fatPct < 14 ? 0 : b.fmi <= 9 ? 1 : b.fmi <= 13 ? 2 : 3;
+        }
+        if (b.fatCls == 0) {
+            b.type = T_VERY_LEAN;
+        } else if (b.fatCls == 1) {
+            b.type = b.muscleCls >= 2 ? T_ATHLETIC : b.muscleCls == 0 ? T_LEAN_LOW_MUSCLE : T_BALANCED;
+        } else {
+            b.type = b.muscleCls >= 2 ? T_STRONG_FAT : b.muscleCls == 0 ? T_FAT_LOW_MUSCLE : T_FAT;
+        }
+        JSONArray sm = m.optJSONArray("segMus");
+        double ash = m.optDouble("ash", Double.NaN);
+        if (!Double.isNaN(ash) && ash > 0) {
+            // the smoothed limbs' share of the smoothed lean (ScaleModel) — one step-on's limbs are too noisy
+            b.almi = ash * lean / h2;
+        } else if (sm != null) {
+            b.almi = (sm.optDouble(ScaleProtocol.LEFT_ARM, 0) + sm.optDouble(ScaleProtocol.RIGHT_ARM, 0)
+                    + sm.optDouble(ScaleProtocol.LEFT_LEG, 0) + sm.optDouble(ScaleProtocol.RIGHT_LEG, 0)) / h2;
+        }
+        int pa = m.optInt("pa", 0);
+        if (pa >= 18) {
+            b.ageFromMuscle = pa - YEARS_PER_SD * zMuscle(b.almi, male, pa);
+            b.ageFromFat = pa + YEARS_PER_SD * zFat(b.fmi, male, pa);
+        }
+        b.restHr = m.optDouble("rhr", Double.NaN);
+        if (pa >= 18 && !Double.isNaN(b.restHr)) {
+            b.ageFromHeart = pa + YEARS_PER_SD * zHeart(b.restHr, male, pa);
+        }
+        double shown = m.optDouble("pag", Double.NaN);
+        b.physicalAge = !Double.isNaN(shown) ? shown : physicalAge(b.almi, b.fmi, b.restHr, male, pa);
+        JSONArray f = m.optJSONArray("segFat");
+        if (f != null) {
+            double legs = f.optDouble(ScaleProtocol.LEFT_LEG, 0) + f.optDouble(ScaleProtocol.RIGHT_LEG, 0);
+            double all = legs + f.optDouble(ScaleProtocol.TRUNK, 0) + f.optDouble(ScaleProtocol.LEFT_ARM, 0)
+                    + f.optDouble(ScaleProtocol.RIGHT_ARM, 0);
+            b.legFatShare = all > 0 ? legs / all : Double.NaN;
+        }
+        return b;
+    }
+
+    /**
+     * Physical age from one weigh-in: where the client stands among people of their own (passport) age, said in
+     * years. z = the client's ALMI and FMI against the median and spread of their age group (DXA, 3 327 adults,
+     * Imboden 2017: ALMI by quartiles, FMI on a log scale — it is skewed), muscle up and fat down count young,
+     * half each; {@link #YEARS_PER_SD} years per standard deviation, at most {@link #AGE_SPAN}. NaN without a
+     * passport age (18+) or fat.
+     * <p>Not the inverse of the medians by age (until 1.1.300-ai): they are almost flat — women's ALMI falls
+     * 0.01 kg/m² a year while people of one age differ by ~1 kg/m² — so 0.1 kg/m² of measuring noise became years.
+     * Against the spread of one's own age group the same noise is ~0.1 SD → a few months.
+     */
+    public static double physicalAge(double almi, double fmi, boolean male, int passport) {
+        return physicalAge(almi, fmi, Double.NaN, male, passport);
+    }
+
+    /**
+     * With the heart: the client's typical resting HR against their sex and age (NHANES 1999–2008, 35 302 adults
+     * without HR-changing illness or medicine; a lower pulse counts young — 10 bpm ≈ 1 SD, and +10 bpm carries
+     * +9 % all-cause mortality, Zhang 2016) as a third part: muscle, fat and heart a third each. NaN HR → muscle
+     * and fat half each, as before.
+     */
+    public static double physicalAge(double almi, double fmi, double restHr, boolean male, int passport) {
+        if (passport < 18 || Double.isNaN(fmi) || fmi <= 0) {
+            return Double.NaN;
+        }
+        double sum = -zFat(fmi, male, passport);
+        int n = 1;
+        double za = zMuscle(almi, male, passport);
+        if (!Double.isNaN(za)) {
+            sum += za;
+            n++;
+        }
+        double zh = zHeart(restHr, male, passport);
+        if (!Double.isNaN(zh)) {
+            sum -= zh;
+            n++;
+        }
+        return passport - Math.max(-AGE_SPAN, Math.min(AGE_SPAN, YEARS_PER_SD * sum / n));
+    }
+
+    /** Resting HR's z against sex and age (quartiles by NHANES age group); NaN outside 35–120 bpm. */
+    static double zHeart(double bpm, boolean male, int age) {
+        if (Double.isNaN(bpm) || bpm < 35 || bpm > 120) {
+            return Double.NaN;
+        }
+        double[] lo = male ? RHR_M_P25 : RHR_F_P25, mid = male ? RHR_M_P50 : RHR_F_P50,
+                hi = male ? RHR_M_P75 : RHR_F_P75;
+        double a = Math.max(RHR_AGES[0], Math.min(RHR_AGES[2], age));
+        int i = a <= RHR_AGES[1] ? 1 : 2;
+        double f = (a - RHR_AGES[i - 1]) / (RHR_AGES[i] - RHR_AGES[i - 1]);
+        double l = lo[i - 1] + f * (lo[i] - lo[i - 1]), m = mid[i - 1] + f * (mid[i] - mid[i - 1]),
+                h = hi[i - 1] + f * (hi[i] - hi[i - 1]);
+        return (bpm - m) / ((h - l) / IQR_SD);
+    }
+
+    /**
+     * Resting pulse (60 s, seated, after 5 min rest), NHANES 1999–2008 (Ostchega et al., NHSR 41, 2011, Tables 2–3):
+     * quartiles at 20–39 · 40–59 · 60–79 → 30 · 50 · 70.
+     */
+    static final double[] RHR_AGES = {30, 50, 70};
+    static final double[] RHR_M_P25 = {61, 61, 60}, RHR_M_P50 = {69, 68, 67}, RHR_M_P75 = {76, 77, 75};
+    static final double[] RHR_F_P25 = {66, 64, 64}, RHR_F_P50 = {74, 71, 70}, RHR_F_P75 = {82, 79, 78};
+
+    /** ALMI's z against the client's age group: (v − median) / (IQR / 1.349). */
+    static double zMuscle(double almi, boolean male, int age) {
+        if (Double.isNaN(almi) || almi <= 0) {
+            return Double.NaN;
+        }
+        double lo = atAge(male ? ALMI_M_P25 : ALMI_F_P25, age), mid = atAge(male ? ALMI_M_P50 : ALMI_F_P50, age),
+                hi = atAge(male ? ALMI_M_P75 : ALMI_F_P75, age);
+        return (almi - mid) / ((hi - lo) / IQR_SD);
+    }
+
+    /** FMI's z against the client's age group on a log scale. */
+    static double zFat(double fmi, boolean male, int age) {
+        double lo = atAge(male ? FMI_M_P25 : FMI_F_P25, age), mid = atAge(male ? FMI_M_P50 : FMI_F_P50, age),
+                hi = atAge(male ? FMI_M_P75 : FMI_F_P75, age);
+        return Math.log(fmi / mid) / (Math.log(hi / lo) / IQR_SD);
+    }
+
+    /** The table's value at this age: linear between the decade middles 25 … 75, flat beyond. */
+    static double atAge(double[] t, int age) {
+        double a = Math.max(AGES[0], Math.min(AGES[AGES.length - 1], age));
+        for (int i = 1; i < AGES.length; i++) {
+            if (a <= AGES[i]) {
+                double f = (a - AGES[i - 1]) / (AGES[i] - AGES[i - 1]);
+                return t[i - 1] + f * (t[i] - t[i - 1]);
+            }
+        }
+        return t[t.length - 1];
+    }
+
+    /**
+     * Quartiles by decade (20–29 … 70–79 → 25 … 75), DXA, 3 327 adults (Imboden et al., PLoS One 2017: lean
+     * 10.1371/journal.pone.0176161 Table 5, fat 10.1371/journal.pone.0175110 Table 3).
+     */
+    static final double[] AGES = {25, 35, 45, 55, 65, 75};
+    static final double[] ALMI_M_P25 = {8.6, 8.6, 8.3, 8.1, 8.0, 7.6}, ALMI_M_P50 = {9.3, 9.1, 8.7, 8.6, 8.5, 8.0},
+            ALMI_M_P75 = {10.2, 9.6, 9.2, 9.2, 9.0, 8.3};
+    static final double[] ALMI_F_P25 = {6.4, 6.4, 6.1, 6.1, 6.1, 5.9}, ALMI_F_P50 = {6.9, 6.8, 6.7, 6.6, 6.5, 6.3},
+            ALMI_F_P75 = {7.4, 7.4, 7.2, 7.1, 7.1, 6.7};
+    static final double[] FMI_M_P25 = {3.2, 4.0, 5.2, 5.9, 6.2, 5.8}, FMI_M_P50 = {5.0, 6.8, 8.0, 8.7, 8.5, 7.9},
+            FMI_M_P75 = {7.1, 10.1, 10.5, 10.3, 10.2, 9.6};
+    static final double[] FMI_F_P25 = {5.0, 5.4, 7.0, 7.6, 8.0, 8.0}, FMI_F_P50 = {6.6, 8.9, 9.7, 11.3, 11.2, 10.5},
+            FMI_F_P75 = {8.2, 11.9, 12.8, 14.4, 14.3, 12.8};
+    /** Interquartile range of a normal distribution in SDs. */
+    static final double IQR_SD = 1.349;
+    /** Years per SD (2 SD — the top or bottom ~2 % of one's age group — reaches the 8-year limit). */
+    static final double YEARS_PER_SD = 4;
+    /** Physical age stays within this many years of the passport. */
+    static final double AGE_SPAN = 8;
+
+    // ================================================================ norms: a 5-sector scale per value
+
+    /**
+     * One value on its norm: five sectors — far below · below · the norm in the middle · above · far above —
+     * with their edges (6 numbers, the outer two only bound the drawing), the colour of each sector (by what the
+     * direction means for this value: more muscle is good, more fat is not) and the client's value.
+     */
+    public static final class Norm {
+        public final double[] edges = new double[6];
+        public final int[] colors = new int[5];
+        public final String[] names = new String[5];
+        public double value = Double.NaN;
+        public String unit = "";
+        public int decimals = 1;
+        /** Where the numbers come from (shown small under the scale). */
+        public String source = "";
+
+        public int sector() {
+            if (Double.isNaN(value)) {
+                return -1;
+            }
+            for (int i = 1; i < 5; i++) {
+                if (value < edges[i]) {
+                    return i - 1;
+                }
+            }
+            return 4;
+        }
+    }
+
+    static final int RED = 0xFFEF4444, ORANGE = 0xFFF97316, AMBER = 0xFFF59E0B, GREEN = 0xFF22C55E,
+            TEAL = 0xFF10B981, CYAN = 0xFF06B6D4, BLUE = 0xFF38BDF8;
+    /** Too little and too much both matter: red · amber · green · amber · red. */
+    static final int[] BOTH = {RED, AMBER, GREEN, AMBER, RED};
+    /** More is better (muscle): red · amber · green · teal · cyan. */
+    static final int[] MORE = {RED, AMBER, GREEN, TEAL, CYAN};
+    /** Less is better down to a floor (fat): blue · green-ish · green · amber · red. */
+    static final int[] LESS = {BLUE, TEAL, GREEN, AMBER, RED};
+
+    static Norm norm(double[] e, int[] cols, String[] names, double v, String unit, int dec, String source) {
+        Norm n = new Norm();
+        System.arraycopy(e, 0, n.edges, 0, 6);
+        System.arraycopy(cols, 0, n.colors, 0, 5);
+        System.arraycopy(names, 0, n.names, 0, 5);
+        n.value = v;
+        n.unit = unit;
+        n.decimals = dec;
+        n.source = source;
+        return n;
+    }
+
+    /**
+     * Body fat % by sex and age: the healthy range (Gallagher et al. 2000, Am J Clin Nutr 72:694 — from DXA and
+     * four-compartment models, by BMI 18.5–25 equivalence) in the middle; below it lean down to essential fat
+     * (men 5 %, women 12 %); above it "overweight", then "obese".
+     */
+    public static Norm fatNorm(double fatPct, boolean male, int age, String[] names) {
+        double[] e;
+        if (male) {
+            e = age < 40 ? new double[] {0, 5, 8, 20, 25, 40} : age < 60 ? new double[] {0, 5, 11, 22, 28, 42}
+                    : new double[] {0, 5, 13, 25, 30, 44};
+        } else {
+            e = age < 40 ? new double[] {0, 12, 21, 33, 39, 50} : age < 60 ? new double[] {0, 12, 23, 34, 40, 52}
+                    : new double[] {0, 12, 24, 36, 42, 54};
+        }
+        return norm(e, LESS, names, fatPct, " %", 1, "Gallagher 2000 · AJCN");
+    }
+
+    /**
+     * Muscle by fat-free mass per height² (FFMI): men 17–20 / women 14–17 is the usual adult range; above it
+     * athletic, then very muscular; below 17 / 14 low, below 16 / 13 very low (Schutz et al. 2002, Int J Obes 26:953;
+     * Kelly 2009 NHANES DXA).
+     */
+    public static Norm muscleNorm(double ffmi, boolean male, String[] names) {
+        double[] e = male ? new double[] {13, 16, 17, 20, 23, 27} : new double[] {10, 13, 14, 17, 19.5, 23};
+        return norm(e, MORE, names, ffmi, "", 1, "FFMI · Schutz 2002 · Kelly 2009 (NHANES)");
+    }
+
+    /** Body water % of the weight: men 50–65, women 45–60 (adult reference ranges of BIA / dilution). */
+    public static Norm waterNorm(double waterPct, boolean male, String[] names) {
+        double[] e = male ? new double[] {35, 45, 50, 65, 70, 80} : new double[] {30, 40, 45, 60, 65, 75};
+        return norm(e, BOTH, names, waterPct, " %", 1, "BIA reference ranges");
+    }
+
+    /** Physical age against the passport: ±3 years is "as the age", younger is good, older is not. */
+    public static Norm ageNorm(double physical, int passport, String[] names) {
+        double p = passport;
+        double[] e = {p - 25, p - 10, p - 3, p + 3, p + 10, p + 25};
+        return norm(e, new int[] {CYAN, TEAL, GREEN, AMBER, RED}, names, physical, "", 0, "Imboden 2017 (DXA, 3 327)");
+    }
+
+    /** Visceral fat grade (the scale's 1–20): up to 9 normal, 10–14 high, 15+ very high (vendor scale). */
+    public static Norm visceralNorm(double grade, String[] names) {
+        double[] e = {0, 2, 4, 10, 15, 21};
+        return norm(e, new int[] {TEAL, GREEN, GREEN, AMBER, RED}, names, grade, "", 0, "WLA25 / Fitdays");
+    }
+
+    /** BMI (WHO): 18.5–25 normal — weight only: dense muscle moves it up without fat. */
+    public static Norm bmiNorm(double bmi, String[] names) {
+        double[] e = {12, 16, 18.5, 25, 30, 40};
+        return norm(e, BOTH, names, bmi, "", 1, "WHO");
+    }
+
+    /** A zone's muscle, % of normal (the segmental standard of the vendor: 90–110 normal). */
+    public static Norm zoneNorm(double pct, String[] names) {
+        double[] e = {60, 80, 90, 110, 120, 150};
+        return norm(e, MORE, names, pct, " %", 0, "WLA25 / Fitdays segment standard");
+    }
+
+    /** Readiness 0–100 against the client's own baseline. */
+    public static Norm readyNorm(double score, String[] names) {
+        double[] e = {0, 40, 60, 80, 90, 100};
+        return norm(e, new int[] {RED, ORANGE, AMBER, GREEN, GREEN}, names, score, "", 0, "XEMS");
+    }
+
+    // ================================================================ summary: what to do with all this
+
+    public static final int TONE_GOOD = 0, TONE_INFO = 1, TONE_WARN = 2, TONE_ALERT = 3;
+    public static final int K_TODAY = 0, K_EMS = 1, K_BODY = 2, K_HABIT = 3;
+
+    /** One recommendation: what, why in one line, how urgent (0 first) and its tone. */
+    public static final class Advice {
+        public final int prio;
+        public final int kind;
+        public final int tone;
+        public final String titleBg, textBg, titleEn, textEn;
+
+        Advice(int prio, int kind, int tone, String titleBg, String textBg, String titleEn, String textEn) {
+            this.prio = prio;
+            this.kind = kind;
+            this.tone = tone;
+            this.titleBg = titleBg;
+            this.textBg = textBg;
+            this.titleEn = titleEn;
+            this.textEn = textEn;
+        }
+    }
+
+    static final String[] SEG_BG = {"торса", "лявата ръка", "дясната ръка", "левия крак", "десния крак"};
+    static final String[] SEG_EN = {"the trunk", "the left arm", "the right arm", "the left leg", "the right leg"};
+    /** Zone names as titles (nominative). */
+    static final String[] SEG_N = {"торс", "лява ръка", "дясна ръка", "ляв крак", "десен крак"};
+    static final String[] CH_N = {"Гърди", "Корем", "Предно бедро", "Прасци", "Ръце", "Трапец", "Гръб", "Кръст",
+            "Седалище", "Задно бедро"};
+    static final String[] CH_BG = {"гърдите", "корема", "предното бедро", "прасците", "ръцете", "трапеца", "гърба",
+            "кръста", "седалището", "задното бедро"};
+    static final String[] CH_EN = {"chest", "abs", "front thigh", "calves", "arms", "traps", "back", "lower back",
+            "glutes", "back thigh"};
+
+    static String f1(double v) {
+        return String.format(java.util.Locale.US, "%.1f", v);
+    }
+
+    /**
+     * The recommendations for measurement {@code at}, most urgent first — derived only from what was measured
+     * (readiness, norms, zones, the current's reach, the trend), the same every time for the same data. [D] rules.
+     */
+    public static List<Advice> advice(JSONArray hist, int at, boolean male, int age, int heightCm) {
+        List<Advice> out = new ArrayList<Advice>();
+        JSONObject m = hist != null ? hist.optJSONObject(at) : null;
+        if (m == null || !m.has("fat")) {
+            out.add(new Advice(0, K_HABIT, TONE_INFO, "Няма измерване",
+                    "Измерването изисква боси крака и двете ръце на дръжката.", "No measurement",
+                    "The measurement needs bare feet and both hands on the handle."));
+            return out;
+        }
+        String[] n5 = {"", "", "", "", ""};
+        double w = m.optDouble("w");
+        double fat = m.optDouble("fat");
+        Body b = body(m, male, heightCm);
+        // 1. today
+        Readiness r = readiness(hist, at);
+        if (!r.known()) {
+            out.add(new Advice(3, K_HABIT, TONE_INFO, "Измерване преди всяка тренировка",
+                    "От следващото измерване се изчислява готовността за тренировка.",
+                    "Measure before every session",
+                    "Training readiness is calculated from the next measurement on."));
+        } else if (r.factor < 1) {
+            int pct = (int) Math.round((1 - r.factor) * 100);
+            boolean swollen = !r.water && r.worst >= 0;
+            out.add(new Advice(0, K_TODAY, r.factor <= 0.7 ? TONE_ALERT : TONE_WARN, "Интензитет днес: −" + pct + " %",
+                    swollen ? "Непълно възстановяване в " + SEG_BG[r.worst] + ". Автоматичният режим вече е "
+                            + "намалил интензитета."
+                            : !Double.isNaN(r.weight) && r.weight <= -WEIGHT_DROP
+                            ? "Теглото е с " + f1(-r.weight) + " % под обичайното за седмицата — загубена вода. "
+                            + "Препоръчват се 0,5 л вода преди тренировката."
+                            : "Понижена хидратация. Препоръчва се вода преди тренировката.",
+                    "Intensity today: −" + pct + " %",
+                    swollen ? "Incomplete recovery in " + SEG_EN[r.worst] + ". Auto mode has already lowered the "
+                            + "intensity."
+                            : !Double.isNaN(r.weight) && r.weight <= -WEIGHT_DROP
+                            ? "Weight " + f1(-r.weight) + " % under the week's usual — water lost. 0.5 l of water "
+                            + "before the session is advised."
+                            : "Low hydration. Water before the session is advised."));
+        } else {
+            out.add(new Advice(4, K_TODAY, TONE_GOOD, "Готовност за пълна интензивност",
+                    "Тялото е възстановено след последната тренировка.", "Ready for full intensity",
+                    "The body has recovered from the last session."));
+        }
+        // 2. water
+        Norm wn = waterNorm(m.optDouble("water", Double.NaN), male, n5);
+        if (wn.sector() >= 0 && wn.sector() <= 1) {
+            out.add(new Advice(1, K_HABIT, TONE_WARN, "Хидратация под нормата",
+                    "Вода " + f1(wn.value) + " %. Препоръчват се 0,5 л вода един час преди тренировката.",
+                    "Hydration below normal",
+                    "Water " + f1(wn.value) + " %. 0.5 l of water an hour before the session is advised."));
+        }
+        // 3. fat
+        Norm fn = fatNorm(fat, male, age, n5);
+        int fs = fn.sector();
+        if (fs >= 3) {
+            // fat to lose to reach the norm's upper edge p: the weight falls with it (lean kept), so
+            // (F − x) / (W − x) = p → x = (F − p·W) / (1 − p) — not F − p·W, which undercounts by the factor 1 / (1 − p)
+            double p = fn.edges[3] / 100;
+            double over = Math.max(0, (m.optDouble("fatKg", w * fat / 100) - p * w) / (1 - p));
+            out.add(new Advice(1, K_BODY, fs == 4 ? TONE_ALERT : TONE_WARN,
+                    (fs == 4 ? "Високи мазнини" : "Повишени мазнини") + ": −" + f1(over) + " кг до нормата",
+                    "Програма „Отслабване“ 2 пъти седмично и умерен калориен дефицит при запазване на мускулната маса.",
+                    (fs == 4 ? "High body fat" : "Elevated body fat") + ": −" + f1(over) + " kg to normal",
+                    "The \"Fat loss\" program twice a week and a moderate calorie deficit while keeping muscle "
+                            + "mass."));
+        } else if (fs == 0) {
+            out.add(new Advice(1, K_BODY, TONE_WARN, "Много ниски мазнини",
+                    "Без калориен дефицит; повече време за възстановяване между тренировките.",
+                    "Very low body fat", "No calorie deficit; more recovery time between sessions."));
+        }
+        // 4. muscle
+        Norm mn = muscleNorm(b.ffmi, male, n5);
+        int ms = mn.sector();
+        if (ms >= 0 && ms <= 1) {
+            out.add(new Advice(1, K_BODY, TONE_WARN, "Ниска мускулна маса",
+                    "Силова програма 2 пъти седмично и около " + Math.round(w * 1.6) + " г белтък дневно "
+                            + "(1,6 г/кг).", "Low muscle mass",
+                    "A strength program twice a week and about " + Math.round(w * 1.6) + " g of protein a day "
+                            + "(1.6 g/kg)."));
+        } else if (ms >= 3 && fs <= 2) {
+            out.add(new Advice(4, K_BODY, TONE_GOOD, "Атлетично телосложение",
+                    (m.optDouble("bmi", 0) >= 25 ? "Повишеният ИТМ се дължи на мускулна маса. " : "")
+                            + "Препоръчва се поддържаща силова програма.",
+                    "Athletic build", (m.optDouble("bmi", 0) >= 25 ? "The raised BMI is due to muscle mass. " : "")
+                            + "A maintenance strength program is advised."));
+        }
+        // 5. visceral
+        int visc = m.optInt("visc", 0);
+        if (visc >= 10) {
+            out.add(new Advice(1, K_BODY, visc >= 15 ? TONE_ALERT : TONE_WARN, "Висцерални мазнини: " + visc,
+                    visc >= 15 ? "Препоръчва се консултация с лекар и програма за отслабване."
+                            : "Препоръчват се аеробно натоварване и програма за отслабване.",
+                    "Visceral fat: " + visc, visc >= 15 ? "A doctor's advice and a fat-loss program are recommended."
+                            : "Aerobic exercise and a fat-loss program are recommended."));
+        }
+        // 6. the weakest zone and the balance
+        double[][] nrm = ofNormal(m, male, heightCm);
+        int weak = -1;
+        double lo = Double.MAX_VALUE;
+        for (int i = 0; i < 5; i++) {
+            if (!Double.isNaN(nrm[0][i]) && nrm[0][i] < lo) {
+                lo = nrm[0][i];
+                weak = i;
+            }
+        }
+        if (weak >= 0 && lo < 90) {
+            out.add(new Advice(2, K_EMS, TONE_WARN, "Фокусна зона: " + SEG_N[weak],
+                    "Мускулатурата е " + Math.round(lo) + " % от нормата. Препоръчва се като фокусна зона.",
+                    "Focus zone: " + SEG_EN[weak], "The muscle is " + Math.round(lo)
+                            + " % of the norm. Recommended as a focus zone."));
+        }
+        JSONArray k = m.optJSONArray("segMus");
+        double armA = asymmetry(k, ScaleProtocol.LEFT_ARM, ScaleProtocol.RIGHT_ARM);
+        double legA = asymmetry(k, ScaleProtocol.LEFT_LEG, ScaleProtocol.RIGHT_LEG);
+        double worstA = Math.abs(armA) >= Math.abs(legA) ? armA : legA;
+        if (!Double.isNaN(worstA) && Math.abs(worstA) >= 6) {
+            boolean arms = Math.abs(armA) >= Math.abs(legA);
+            boolean leftMore = worstA > 0;
+            out.add(new Advice(2, K_EMS, TONE_INFO, "Асиметрия ляво/дясно: " + Math.round(Math.abs(worstA)) + " %",
+                    (arms ? (leftMore ? "Дясната ръка е по-слаба." : "Лявата ръка е по-слаба.")
+                            : (leftMore ? "Десният крак е по-слаб." : "Левият крак е по-слаб."))
+                            + " Препоръчват се едностранни упражнения.",
+                    "Left/right asymmetry: " + Math.round(Math.abs(worstA)) + " %",
+                    (arms ? (leftMore ? "The right arm" : "The left arm") : (leftMore ? "The right leg" : "The left leg"))
+                            + " is weaker. Single-side exercises are advised."));
+        }
+        // 7. the current's reach
+        double[] cf = channelFat(m);
+        if (cf != null) {
+            double mean = 0;
+            for (double v : cf) {
+                mean += reachFactor(v);
+            }
+            mean /= cf.length;
+            int low = -1;
+            double lr = 1;
+            for (int c = 0; c < cf.length; c++) {
+                double rel = reachFactor(cf[c]) / mean;
+                if (rel < lr) {
+                    lr = rel;
+                    low = c;
+                }
+            }
+            if (low >= 0 && lr < 0.95) {
+                int pct = (int) Math.round((1 - lr) * 100);
+                out.add(new Advice(2, K_EMS, TONE_INFO, "Канал „" + CH_N[low] + "“: +" + pct + " % сила",
+                        "Проводимостта там е с " + pct + " % под средната заради подкожните мазнини.",
+                        "Channel \"" + CH_EN[low] + "\": +" + pct + " % strength",
+                        "Conductivity there is " + pct + " % below average due to subcutaneous fat."));
+            }
+        }
+        // 8. the trend (since the first measurement)
+        JSONObject first = at > 0 ? hist.optJSONObject(0) : null;
+        if (first != null && first.has("muscle") && first.has("fatKg")) {
+            double dm = m.optDouble("muscle") - first.optDouble("muscle");
+            double df = m.optDouble("fatKg") - first.optDouble("fatKg");
+            if (dm >= 0.2 && df <= -0.2) {
+                out.add(new Advice(4, K_BODY, TONE_GOOD, "Подобрен състав на тялото",
+                        "+" + f1(dm) + " кг мускулна маса и −" + f1(-df) + " кг мазнини от първото измерване.",
+                        "Improved body composition", "+" + f1(dm) + " kg muscle mass and −" + f1(-df)
+                                + " kg fat since the first measurement."));
+            } else if (df >= 1.0) {
+                out.add(new Advice(1, K_BODY, TONE_WARN, "Мазнини: +" + f1(df) + " кг",
+                        "Увеличение от първото измерване. Препоръчва се преглед на храненето и честотата на "
+                                + "тренировките.",
+                        "Fat: +" + f1(df) + " kg", "An increase since the first measurement. Review the diet and the "
+                                + "training frequency."));
+            } else if (dm <= -0.8) {
+                out.add(new Advice(1, K_BODY, TONE_WARN, "Мускулна маса: −" + f1(-dm) + " кг",
+                        "Препоръчват се повече белтък и силова програма; при отслабване — по-умерен дефицит.",
+                        "Muscle mass: −" + f1(-dm) + " kg", "More protein and a strength program; when losing "
+                                + "weight, a more moderate deficit."));
+            }
+        }
+        Collections.sort(out, new ByPrio());
+        return out;
+    }
+
+    static double reachFactor(double fatPct) {
+        return Math.max(0.6, Math.min(1.3, Math.exp(-(fatPct - 25.0) / 35.0)));
+    }
+
+    static final class ByPrio implements java.util.Comparator<Advice> {
+        @Override
+        public int compare(Advice a, Advice b) {
+            return a.prio != b.prio ? a.prio - b.prio : b.tone - a.tone;
+        }
+    }
+}

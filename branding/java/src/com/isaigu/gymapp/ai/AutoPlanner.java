@@ -23,13 +23,16 @@ public final class AutoPlanner {
     private AutoPlanner() {}
 
     public static final int MIN_SECONDS = 600;
+    /**
+     * Owner (1.1.270): the active part collects at most 20 min of impulses (the pauses between exercises do not
+     * count); the passive recovery after it is a fixed 10 min on top. Both are set before the start.
+     */
+    public static final int ACTIVE_MAX_S = 1200;
+    public static final int RECOVERY_S = 600;
 
-    /** Longest session this client may have in this program (after adaptation / recovery). */
+    /** Longest active part this client may have in this program (after adaptation / recovery), ≤ 20 min. */
     public static int maxSeconds(Program p, Goal goal, Input in) {
-        int t = AutoCatalog.baseSeconds(p, goal, in);
-        if (goal == Goal.SLIM && in.bmi() >= 30 && t >= 1500 && p.isActive()) {
-            t = Math.min(1800, t + 300);
-        }
+        int t = Math.min(ACTIVE_MAX_S, AutoCatalog.baseSeconds(p, goal, in));
         if (AutoCatalog.SENIOR.equals(p.id) && in.sessions < 3) {
             t = Math.min(t, 900);
         }
@@ -69,8 +72,8 @@ public final class AutoPlanner {
         plan.program = p;
         plan.input = in;
         int max = maxSeconds(p, in.goal, in);
-        plan.totalS = in.totalSeconds != null ? clampSeconds(p, in.goal, in, in.totalSeconds) : max;
-        if (plan.totalS < AutoCatalog.baseSeconds(p, in.goal, in)) {
+        plan.activeS = in.totalSeconds != null ? clampSeconds(p, in.goal, in, in.totalSeconds) : max;
+        if (plan.activeS < Math.min(ACTIVE_MAX_S, AutoCatalog.baseSeconds(p, in.goal, in))) {
             plan.note("Времето е съкратено: адаптация / възстановяване",
                     "Shortened: adaptation / recovery");
         }
@@ -90,10 +93,24 @@ public final class AutoPlanner {
             phiMax -= 0.1;
             plan.note("60+ г.: −10 % сила, по-дълги паузи", "60+: −10 % strength, longer pauses");
         }
-        if (in.bmi() > 0 && in.bmi() < 18.5) {
+        // little muscle → a gentler ceiling: measured on the scale when there is a measurement (an athletic low
+        // BMI is not fragile), else the BMI < 18.5 proxy
+        if (in.measured ? in.muscleLow : in.bmi() > 0 && in.bmi() < 18.5) {
             phiMax -= 0.1;
+            if (in.measured) {
+                plan.note("Кантарът: малко мускули — −10 % сила", "Scale: little muscle — −10 % strength");
+            }
         }
-        if (p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 72) {
+        // recovery: the time rule (< 72 h since the last active) and the scale this morning measure the same thing —
+        // the stronger of the two applies, never both (1.1.311-ai; NextPlan.recommend does the same)
+        boolean recent = p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 72;
+        boolean scaleCut = p.isActive() && in.readiness < 0.99;
+        if (scaleCut && (!recent || in.readiness < 0.8)) {
+            // the scale this morning: swelling / less water against the client's own baseline (wearable/scale)
+            phiMax *= in.readiness;
+            int pct = (int) Math.round((1 - in.readiness) * 100);
+            plan.note("Кантарът: не е възстановен — −" + pct + " %", "Scale: not recovered — −" + pct + " %");
+        } else if (recent) {
             phiMax *= 0.8;
             plan.note("Под 72 ч от последната активна: −20 %", "Under 72 h since the last active: −20 %");
         }
@@ -101,7 +118,7 @@ public final class AutoPlanner {
             phiMax = Math.min(phiMax, 0.9);
         }
         // The client's focus zones and state (AiPersonal): ceiling, pauses, onset, zones.
-        AiPersonal.Effect pe = AiPersonal.of(in.focus, in.cond, in.today);
+        AiPersonal.Effect pe = AiPersonal.of(AiPersonal.withScaleFocus(in.focus, in.scaleFocus), in.cond, in.today);
         phiMax *= pe.phi;
         plan.phiMax = Math.max(0.4, Math.min(1.0, phiMax));
 
@@ -116,7 +133,15 @@ public final class AutoPlanner {
         plan.envMax = env;
 
         // ---- phases
-        List<Phase> phases = AutoCatalog.phases(p, in.goal, in, plan.totalS);
+        List<Phase> phases = AutoCatalog.phases(p, in.goal, in, plan.activeS);
+        plan.totalS = 0;
+        plan.recoveryS = 0;
+        for (Phase ph : phases) {
+            plan.totalS += ph.durationS;
+            if (ph.isCooldown()) {
+                plan.recoveryS += ph.durationS;
+            }
+        }
         if (in.intensity == Intensity.INTENSE && !intenseAllowed(p, in)) {
             in.intensity = Intensity.STANDARD;
         }
@@ -184,7 +209,6 @@ public final class AutoPlanner {
                 plan.note("Диастаза: коремът до 40 %", "Diastasis: abs up to 40 %");
             }
         }
-        AutoLimits.balance(plan.zones);
 
         // ---- CR10 target
         plan.cr10Lo = p.cr10Lo;
@@ -222,8 +246,9 @@ public final class AutoPlanner {
         return plan;
     }
 
+    /** Obese on a fat-loss goal: by the scale's fat mass when measured (BMI ≥ 30 from muscle is not), else BMI. */
     private static boolean goalSlimBmi(Input in) {
-        return in.goal == Goal.SLIM && in.bmi() >= 30;
+        return in.goal == Goal.SLIM && (in.measured ? in.fatObese : in.bmi() >= 30);
     }
 
     /** Dose of the whole plan with the planned factors (relative units, as in the AI §6.2). */

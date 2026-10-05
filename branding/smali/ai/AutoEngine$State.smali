@@ -26,11 +26,15 @@
 # static fields
 .field private static final synthetic $VALUES:[Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
+.field public static final enum COUNTDOWN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
 .field public static final enum DONE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
 .field public static final enum HR_PAUSE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
 .field public static final enum READY:Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
+.field public static final enum REST:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
 .field public static final enum RUN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
@@ -44,8 +48,8 @@
     .registers 3
 
     .prologue
-    .line 19
-    const/4 v0, 0x6
+    .line 24
+    const/16 v0, 0x8
 
     new-array v0, v0, [Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
@@ -75,11 +79,23 @@
 
     const/4 v1, 0x4
 
-    sget-object v2, Lcom/isaigu/gymapp/ai/AutoEngine$State;->DONE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
+    sget-object v2, Lcom/isaigu/gymapp/ai/AutoEngine$State;->REST:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     aput-object v2, v0, v1
 
     const/4 v1, 0x5
+
+    sget-object v2, Lcom/isaigu/gymapp/ai/AutoEngine$State;->COUNTDOWN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x6
+
+    sget-object v2, Lcom/isaigu/gymapp/ai/AutoEngine$State;->DONE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoEngine$State;->STOPPED:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
@@ -92,7 +108,7 @@
     .registers 3
 
     .prologue
-    .line 19
+    .line 24
     new-instance v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     const-string v1, "READY"
@@ -135,9 +151,29 @@
 
     new-instance v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
-    const-string v1, "DONE"
+    const-string v1, "REST"
 
     const/4 v2, 0x4
+
+    invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AutoEngine$State;-><init>(Ljava/lang/String;I)V
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;->REST:Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
+    new-instance v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
+    const-string v1, "COUNTDOWN"
+
+    const/4 v2, 0x5
+
+    invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AutoEngine$State;-><init>(Ljava/lang/String;I)V
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;->COUNTDOWN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
+    new-instance v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;
+
+    const-string v1, "DONE"
+
+    const/4 v2, 0x6
 
     invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AutoEngine$State;-><init>(Ljava/lang/String;I)V
 
@@ -147,7 +183,7 @@
 
     const-string v1, "STOPPED"
 
-    const/4 v2, 0x5
+    const/4 v2, 0x7
 
     invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AutoEngine$State;-><init>(Ljava/lang/String;I)V
 
@@ -171,7 +207,7 @@
     .end annotation
 
     .prologue
-    .line 19
+    .line 24
     invoke-direct {p0, p1, p2}, Ljava/lang/Enum;-><init>(Ljava/lang/String;I)V
 
     return-void
@@ -181,7 +217,7 @@
     .registers 2
 
     .prologue
-    .line 19
+    .line 24
     const-class v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     invoke-static {v0, p0}, Ljava/lang/Enum;->valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
@@ -197,7 +233,7 @@
     .registers 1
 
     .prologue
-    .line 19
+    .line 24
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;->$VALUES:[Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     invoke-virtual {v0}, [Lcom/isaigu/gymapp/ai/AutoEngine$State;->clone()Ljava/lang/Object;

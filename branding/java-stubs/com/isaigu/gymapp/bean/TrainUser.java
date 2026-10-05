@@ -17,4 +17,7 @@ public class TrainUser implements java.io.Serializable {
     public Gender gender;
     public int height;
     public float weight;
+    public String username;
+    public String roleName;
+    public long useTime;
 }

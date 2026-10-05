@@ -56,7 +56,9 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 **Golden rules: `docs/xems-ux-golden-rules.md` — read it before any UI work and run its checklist.**
 - **Landscape only (owner, important):** the tablet app runs in landscape — design every screen for a wide, short
   viewport: content side by side (picture | text | controls), rows that slide sideways rather than tall stacks,
-  nothing that needs portrait height. (Band 212×520 and phone PWA pages are the exceptions.)
+  nothing that needs portrait height. (Band 212×520 and phone PWA pages are the exceptions. Since 1.1.310-ai the
+  session report and the scale page **no longer turn upright** (owner: rows broke after the turn) — upright exists
+  only in the exports: the scale's image / web page (short or detailed) and the report's PDF / image.)
 - **Attention priority:** the one thing the user needs now is biggest and first; secondary info smaller or folded;
   rare/edge content (e.g. contraindication lists) behind one question, never a central block.
 - **Intuitive:** one-tap choices over typing and dropdowns; plain, warm, natural Bulgarian (no form-speak);
@@ -79,9 +81,11 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Workouts = impulse maps (blocks = sets), library (302, admin picks), run by map / with AI | `docs/xems-workouts.md` |
 | "План" tab, calendar, next client | `docs/xems-plan.md` |
 | Saved program as base, personalisation, diskette | `docs/xems-program-fit.md` |
+| Absolute limits of every mode (pause from Hz, 2nd impulse ≤ 10 Hz, 60+ ≤ 85 Hz) | `docs/xems-safety-limits.md` |
 | Client list rows, search keyboard, quick start | `docs/xems-client-list.md` |
 | Client ↔ tablet ↔ server sync, CF costs | `docs/xems-client-sync.md` |
 | Suit BT drop → row waits and reconnects | `docs/xems-suit-reconnect.md` |
+| Body-composition scale (Lescale P1, direct BLE, WLA25) | `docs/xems-scale.md` |
 | Pulse / strength control | `docs/xems-pulse-control.md`, `docs/xems-part-strength.md` |
 | EMS physiology (frequency, fatigue model, recovery, energy, rest between sessions) — before touching any of it | `docs/xems-ems-physiology.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |

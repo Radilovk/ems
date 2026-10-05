@@ -62,6 +62,11 @@ public final class WorkoutsUi {
     static final int A_KIND = 27;
     static final int A_MODE = 28;
     static final int A_PICK_TOGGLE = 29;
+    static final int A_LOCK = 44;
+    /** The classifiers the automatic mode filters by (owner, 1.1.336): goal (toggle), difficulty, who it is for. */
+    static final int A_CLASS_GOAL = 60;
+    static final int A_CLASS_LEVEL = 61;
+    static final int A_CLASS_SEX = 62;
 
     // block parameters (A_PARAM arg)
     static final int P_REPS = 0;
@@ -95,6 +100,8 @@ public final class WorkoutsUi {
     private static LinearLayout panel;
     private static LinearLayout pickGrid;
     private static TextView summary;
+    /** The classifier chips under the name (rebuilt in place when one is tapped). */
+    private static LinearLayout classBox;
     /** The block panel shows Hz / µs / impulse / pause / strength (else only the length — the impulse is set by
      *  the movement). */
     private static boolean advanced;
@@ -373,6 +380,11 @@ public final class WorkoutsUi {
             name.addTextChangedListener(new NameWatch());
             top.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             body.addView(top, XemsUi.matchWrap(c, 4));
+            classBox = XemsUi.vertical(c);
+            fillClasses(c);
+            body.addView(classBox, XemsUi.matchWrap(c, 6));
+        } else {
+            classBox = null;
         }
 
         summary = XemsUi.text(c, "", 13.5f, XemsUi.MUTED, false);
@@ -462,6 +474,53 @@ public final class WorkoutsUi {
             ip.leftMargin = XemsUi.dp(c, 10);
             shell.footer.addView(ai, ip);
         }
+    }
+
+    /**
+     * What the map is for, marked while it is made (owner, 1.1.336) — the automatic mode filters its menu by these:
+     * the goals it serves, how hard it is, who it is for. Active or passive is the map itself (the Тренировки /
+     * Процедури switch); the trained zones come from the exercises.
+     */
+    static void fillClasses(Context c) {
+        if (classBox == null || editing == null) {
+            return;
+        }
+        classBox.removeAllViews();
+        Workout w = editing;
+        java.util.Set<AutoModel.Goal> eg = w.effectiveGoals();
+        AutoModel.Goal[] goals = AutoModel.Goal.values();
+        LinearLayout row = XemsUi.horizontal(c);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.addView(classLabel(c, AiText.t("Цел", "Goal")));
+        for (int i = 0; i < goals.length; i++) {
+            TextView chip = XemsUi.chip(c, AutoUi.goalName(goals[i]), eg.contains(goals[i]), AutoUi.goalColor(goals[i]));
+            chip.setOnClickListener(new Act(A_CLASS_GOAL, i));
+            XemsUi.addChip(c, row, chip);
+        }
+        row.addView(classLabel(c, AiText.t("Трудност", "Level")));
+        for (int lv = 1; lv <= 3; lv++) {
+            TextView chip = XemsUi.chip(c, AutoUi.levelName(lv), w.effectiveLevel() == lv, AutoUi.levelColor(lv));
+            chip.setOnClickListener(new Act(A_CLASS_LEVEL, lv));
+            XemsUi.addChip(c, row, chip);
+        }
+        row.addView(classLabel(c, AiText.t("За кого", "For")));
+        String[] who = {AiText.t("Всички", "Everyone"), AiText.t("Жени", "Women"), AiText.t("Мъже", "Men")};
+        int sel = "f".equals(w.sex) ? 1 : "m".equals(w.sex) ? 2 : 0;
+        for (int i = 0; i < who.length; i++) {
+            TextView chip = XemsUi.chip(c, who[i], i == sel, XemsUi.GO);
+            chip.setOnClickListener(new Act(A_CLASS_SEX, i));
+            XemsUi.addChip(c, row, chip);
+        }
+        android.widget.HorizontalScrollView sv = new android.widget.HorizontalScrollView(c);
+        sv.setHorizontalScrollBarEnabled(false);
+        sv.addView(row);
+        classBox.addView(sv);
+    }
+
+    private static TextView classLabel(Context c, String s) {
+        TextView t = XemsUi.text(c, s, 13, XemsUi.MUTED, true);
+        t.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 6), 0);
+        return t;
     }
 
     private static void addButton(Context c, LinearLayout row, String label, int code, boolean first) {
@@ -714,7 +773,18 @@ public final class WorkoutsUi {
                 LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 44), 1f);
                 mp.rightMargin = XemsUi.dp(c, 8);
                 row1.addView(more, mp);
-                row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 2f));
+                if (!editing.isPassive()) {
+                    // 🔒 (owner, 1.1.326): exactly as drawn — the smart impulse leaves this block alone
+                    TextView lock = XemsUi.button(c, b.lock ? AiText.t("🔒 Точно както е", "🔒 Exactly as drawn")
+                            : AiText.t("✦ Умен импулс", "✦ Smart impulse"), b.lock ? XemsUi.SECONDARY : XemsUi.GHOST);
+                    lock.setOnClickListener(new Act(A_LOCK, 0));
+                    LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 44), 1f);
+                    lp2.rightMargin = XemsUi.dp(c, 8);
+                    row1.addView(lock, lp2);
+                    row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
+                } else {
+                    row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 2f));
+                }
             } else {
                 row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 3f));
             }
@@ -823,7 +893,7 @@ public final class WorkoutsUi {
     static void step(Workout.Block b, int which, int dir) {
         switch (which) {
             case P_HZ2:
-                b.hz2 += dir * (b.hz2 + (dir > 0 ? 0 : -1) < 20 ? 1 : 5);
+                b.hz2 += dir;                                  // 1–10 Hz: one step each
                 break;
             case P_STR2:
                 b.str2 += dir * 5;
@@ -1260,6 +1330,12 @@ public final class WorkoutsUi {
         }
     }
 
+    private static void classChanged(Context c) {
+        dirty = true;
+        fillClasses(c);
+        autosave(c);
+    }
+
     /** Where a new block goes: after the selected one, or at the end. */
     private static int insertAt() {
         int s = mapView != null ? mapView.getSelected() : -1;
@@ -1336,9 +1412,45 @@ public final class WorkoutsUi {
                 }
                 close();
                 break;
+            case A_CLASS_GOAL: {
+                AutoModel.Goal g = AutoModel.Goal.values()[v];
+                java.util.Set<AutoModel.Goal> eg = editing.effectiveGoals();
+                if (eg.contains(g)) {
+                    if (eg.size() > 1) {                       // at least one goal stays
+                        eg.remove(g);
+                    }
+                } else {
+                    eg.add(g);
+                }
+                editing.goals.clear();
+                for (AutoModel.Goal x : eg) {
+                    editing.goals.add(x.name());
+                }
+                classChanged(c);
+                return;
+            }
+            case A_CLASS_LEVEL:
+                editing.level = v;
+                classChanged(c);
+                return;
+            case A_CLASS_SEX:
+                editing.sex = v == 1 ? "f" : v == 2 ? "m" : null;
+                classChanged(c);
+                return;
             case A_ADVANCED: {
                 advanced = !advanced;
                 fillPanel(c);
+                break;
+            }
+            case A_LOCK: {
+                int s = mapView != null ? mapView.getSelected() : -1;
+                if (s >= 0 && s < editing.blocks.size()) {
+                    Workout.Block b = editing.blocks.get(s);
+                    b.lock = !b.lock;
+                    dirty = true;
+                    mapView.invalidate();
+                    fillPanel(c);
+                }
                 break;
             }
             case A_MODE: {
@@ -1371,6 +1483,8 @@ public final class WorkoutsUi {
                 int s = mapView.getSelected();
                 if (s >= 0) {
                     editing.blocks.get(s).ex = null;
+                    editing.blocks.get(s).pat = null;
+                    editing.blocks.get(s).hold = false;
                     dirty = true;
                     go(EDIT);
                     mapView.select(s);
@@ -1458,6 +1572,8 @@ public final class WorkoutsUi {
         if (replaceIndex >= 0 && replaceIndex < editing.blocks.size() && a.arg >= 0) {
             Workout.Block b = editing.blocks.get(replaceIndex);
             b.ex = a.ex;
+            b.pat = e != null ? e.pat : Workout.patternOf(a.ex);   // the movement the smart impulse follows
+            b.hold = e != null && e.isHold();
             if (b.isRest()) {
                 b.rel = 100;
                 b.clampAll();
@@ -1482,7 +1598,7 @@ public final class WorkoutsUi {
             }
             justPicked = null;
         } else {
-            addSet(a.ex, e);
+            addSet(c, a.ex, e);
             justPicked = countIn(a.ex) == 1 ? a.ex : null;
         }
         // the top slot: the exercise just touched while it is in the program, else the one picked last
@@ -1494,8 +1610,9 @@ public final class WorkoutsUi {
     }
 
     /** One more set of an exercise: after its last set (a rest between), so the program keeps its order. */
-    private static void addSet(String ex, ExerciseLibrary.Entry e) {
-        Workout.Block b = Workout.forExercise(ex, e != null ? e.pat : Workout.patternOf(ex), e != null && e.isHold());
+    private static void addSet(Context c, String ex, ExerciseLibrary.Entry e) {
+        Workout.Block b = Workout.forExercise(ex, e != null ? e.pat : Workout.patternOf(ex), e != null && e.isHold(),
+                ExerciseLibrary.zoneOf(c, e));
         int last = -1;
         for (int i = 0; i < editing.blocks.size(); i++) {
             if (ex.equals(editing.blocks.get(i).ex) && !editing.blocks.get(i).isRest()) {

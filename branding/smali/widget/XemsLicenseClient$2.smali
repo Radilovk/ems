@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 123
+    .line 129
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$2;->val$c:Landroid/content/Context;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -47,7 +47,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 127
+    .line 133
     :try_start_1
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -97,7 +97,7 @@
 
     move-result-object v0
 
-    .line 128
+    .line 134
     const-string v1, "POST"
 
     const-string v2, "/v1/license/refresh"
@@ -110,7 +110,7 @@
 
     move-result-object v0
 
-    .line 129
+    .line 135
     sget-object v1, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
 
     const-string v2, "ok"
@@ -123,7 +123,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_7a
+    if-eqz v1, :cond_83
 
     const-string v1, "token"
 
@@ -131,9 +131,9 @@
 
     move-result-object v1
 
-    if-eqz v1, :cond_7a
+    if-eqz v1, :cond_83
 
-    .line 130
+    .line 136
     const/4 v1, 0x0
 
     const-string v2, "token"
@@ -148,7 +148,16 @@
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicense;->applyToken(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 131
+    .line 137
+    const-string v1, "phase"
+
+    invoke-interface {v0, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLicense;->applyPhase(Ljava/lang/Object;)V
+
+    .line 138
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$2;->val$c:Landroid/content/Context;
 
     const-string v2, "studio"
@@ -159,7 +168,7 @@
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->saveStudio(Landroid/content/Context;Ljava/lang/Object;)V
 
-    .line 132
+    .line 139
     const-string v1, "app_latest"
 
     invoke-interface {v0, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -167,22 +176,22 @@
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->saveLatest(Ljava/lang/Object;)V
-    :try_end_76
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_76} :catch_9a
-    .catchall {:try_start_1 .. :try_end_76} :catchall_a3
+    :try_end_7f
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_7f} :catch_a3
+    .catchall {:try_start_1 .. :try_end_7f} :catchall_ac
 
-    .line 141
-    :goto_76
+    .line 148
+    :goto_7f
     # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->refreshing:Z
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$102(Z)Z
 
-    .line 143
-    :goto_79
+    .line 150
+    :goto_82
     return-void
 
-    .line 133
-    :cond_7a
-    :try_start_7a
+    .line 140
+    :cond_83
+    :try_start_83
     const-string v1, "revoked"
 
     const-string v2, "error"
@@ -195,7 +204,7 @@
 
     move-result v1
 
-    if-nez v1, :cond_96
+    if-nez v1, :cond_9f
 
     const-string v1, "unknown"
 
@@ -209,44 +218,44 @@
 
     move-result v0
 
-    if-eqz v0, :cond_9f
-
-    .line 134
-    :cond_96
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->revoke()V
-    :try_end_99
-    .catch Ljava/lang/Throwable; {:try_start_7a .. :try_end_99} :catch_9a
-    .catchall {:try_start_7a .. :try_end_99} :catchall_a3
-
-    goto :goto_76
-
-    .line 138
-    :catch_9a
-    move-exception v0
+    if-eqz v0, :cond_a8
 
     .line 141
-    # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->refreshing:Z
-    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$102(Z)Z
-
-    goto :goto_79
-
-    .line 136
     :cond_9f
-    :try_start_9f
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->markChecked()V
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->revoke()V
     :try_end_a2
-    .catch Ljava/lang/Throwable; {:try_start_9f .. :try_end_a2} :catch_9a
-    .catchall {:try_start_9f .. :try_end_a2} :catchall_a3
+    .catch Ljava/lang/Throwable; {:try_start_83 .. :try_end_a2} :catch_a3
+    .catchall {:try_start_83 .. :try_end_a2} :catchall_ac
 
-    goto :goto_76
+    goto :goto_7f
 
-    .line 141
-    :catchall_a3
+    .line 145
+    :catch_a3
+    move-exception v0
+
+    .line 148
+    # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->refreshing:Z
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$102(Z)Z
+
+    goto :goto_82
+
+    .line 143
+    :cond_a8
+    :try_start_a8
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->markChecked()V
+    :try_end_ab
+    .catch Ljava/lang/Throwable; {:try_start_a8 .. :try_end_ab} :catch_a3
+    .catchall {:try_start_a8 .. :try_end_ab} :catchall_ac
+
+    goto :goto_7f
+
+    .line 148
+    :catchall_ac
     move-exception v0
 
     # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->refreshing:Z
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$102(Z)Z
 
-    .line 142
+    .line 149
     throw v0
 .end method

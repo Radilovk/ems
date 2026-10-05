@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
@@ -244,6 +245,20 @@ public final class XemsLocalAvatar {
     private static final java.util.WeakHashMap<android.view.View, Boolean> GRAB =
             new java.util.WeakHashMap<android.view.View, Boolean>();
     private static int ringId;
+    private static long lastRingHint;
+    private static java.lang.reflect.Method autoOn;
+
+    /** Auto owns the suits (ai.AutoLook, compiled after this class — so by name): the ring does not move. */
+    private static boolean autoOwns() {
+        try {
+            if (autoOn == null) {
+                autoOn = Class.forName("com.isaigu.gymapp.ai.AutoLook").getMethod("isOn");
+            }
+            return Boolean.TRUE.equals(autoOn.invoke(null));
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 
     /**
      * Hook: start of CircleSeekBar.onTouchEvent (thumb centre and radius in view coordinates). The ring
@@ -257,6 +272,19 @@ public final class XemsLocalAvatar {
             }
             if (v.getId() != ringId) {
                 return true;
+            }
+            if (autoOwns()) {
+                // Auto (owner, 1.1.315): strength only with the + / − keys, never the ring — a touch says so
+                if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) {
+                    long now = android.os.SystemClock.uptimeMillis();
+                    if (now - lastRingHint > 2500) {
+                        lastRingHint = now;
+                        android.widget.Toast.makeText(v.getContext(), XemsLocalUserForm.tr(
+                                "Силата на импулсите се увеличава и намалява с + и −",
+                                "Pulse strength goes up and down with + and −"), android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                }
+                return false;
             }
             int a = e.getActionMasked();
             if (a == android.view.MotionEvent.ACTION_DOWN) {
@@ -330,8 +358,10 @@ public final class XemsLocalAvatar {
     }
 
     /**
-     * Hook: TrainViewHolder.bind (the training screen) — a tap on the client's photo opens the
-     * client card. The client is read at tap time (the slot may get another client later).
+     * Hook: TrainViewHolder.bind (the training screen). With several clients a tap on a photo picks
+     * that client (the photo lights up) and the master controls — + / −, ▶ / ❚❚ and ⚙ Master — act
+     * on the picked clients only; nothing picked = everyone, as before. A long press opens the client
+     * card. The client is read at touch time (the slot may get another client later).
      */
     public static void bindCard(final android.view.View icon, final com.isaigu.gymapp.train.model.TrainItem item) {
         try {
@@ -341,8 +371,228 @@ public final class XemsLocalAvatar {
             icon.setOnClickListener(null);
             icon.setClickable(false);
             icon.setOnTouchListener(new CardTouch(item, null));
+            showPick(icon, picked(item));
         } catch (Throwable t) {
             android.util.Log.w("xems", "XemsLocalAvatar.bindCard", t);
+        }
+    }
+
+    // ================================================================ picked clients (training screen)
+
+    /** Picked rows → the client id they were picked with (a slot that gets another client drops out). */
+    private static final java.util.WeakHashMap<com.isaigu.gymapp.train.model.TrainItem, Long> PICKED =
+            new java.util.WeakHashMap<com.isaigu.gymapp.train.model.TrainItem, Long>();
+
+    private static long clientId(com.isaigu.gymapp.train.model.TrainItem it) {
+        if (it == null || it.isEmpty() || it.data == null || it.data.trainUser == null) {
+            return Long.MIN_VALUE;
+        }
+        return it.data.trainUser.id;
+    }
+
+    /** The rows picked now (stale ones — empty slot, other client — are dropped). */
+    static synchronized java.util.List<com.isaigu.gymapp.train.model.TrainItem> pickedItems() {
+        java.util.List<com.isaigu.gymapp.train.model.TrainItem> out =
+                new java.util.ArrayList<com.isaigu.gymapp.train.model.TrainItem>();
+        java.util.Iterator<java.util.Map.Entry<com.isaigu.gymapp.train.model.TrainItem, Long>> i =
+                PICKED.entrySet().iterator();
+        while (i.hasNext()) {
+            java.util.Map.Entry<com.isaigu.gymapp.train.model.TrainItem, Long> e = i.next();
+            com.isaigu.gymapp.train.model.TrainItem it = e.getKey();
+            if (it == null || e.getValue() == null || clientId(it) != e.getValue().longValue()) {
+                i.remove();
+            } else {
+                out.add(it);
+            }
+        }
+        return out;
+    }
+
+    public static synchronized boolean picked(com.isaigu.gymapp.train.model.TrainItem it) {
+        Long id = it != null ? PICKED.get(it) : null;
+        return id != null && clientId(it) == id.longValue();
+    }
+
+    /** Tap on a photo: pick / unpick that client. Returns the new state. */
+    static synchronized boolean togglePick(com.isaigu.gymapp.train.model.TrainItem it) {
+        if (picked(it)) {
+            PICKED.remove(it);
+            return false;
+        }
+        long id = clientId(it);
+        if (id == Long.MIN_VALUE) {
+            return false;
+        }
+        PICKED.put(it, id);
+        return true;
+    }
+
+    /**
+     * Hook: the master + / − (TrainItemManager.lambda$addAllPartValue$6) and ⚙ Master
+     * (NewTrainFragment.lambda$settingAllUser$15): does a master control act on this row?
+     */
+    public static boolean masterApplies(com.isaigu.gymapp.train.model.TrainItem it) {
+        try {
+            return pickedItems().isEmpty() || picked(it);
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
+    /**
+     * Hook: NewTrainFragment.startOrStopAll (▶ / ❚❚ of the master panel). With clients picked it starts
+     * them, or pauses them when one of them runs, and returns true (the others and the panel's own
+     * state stay as they are); with nobody picked it returns false and the usual start / pause runs.
+     * ■ (end of the session) stays for everyone: it also ends the timer, the music and the band.
+     */
+    public static boolean masterStartOrStop() {
+        try {
+            java.util.List<com.isaigu.gymapp.train.model.TrainItem> list = pickedItems();
+            if (list.isEmpty()) {
+                return false;
+            }
+            boolean running = false;
+            for (com.isaigu.gymapp.train.model.TrainItem it : list) {
+                running |= it.data != null && it.data.start;
+            }
+            for (com.isaigu.gymapp.train.model.TrainItem it : list) {
+                if (running) {
+                    it.stop();
+                } else {
+                    it.start();
+                }
+            }
+            return true;
+        } catch (Throwable t) {
+            android.util.Log.w("xems", "XemsLocalAvatar.masterStartOrStop", t);
+            return false;
+        }
+    }
+
+    private static java.lang.reflect.Method itemsOf;
+
+    /** Trainees on the training screen now (WearableSyncHelper is outside this stack — by name). */
+    static int trainees() {
+        try {
+            if (itemsOf == null) {
+                itemsOf = Class.forName("com.isaigu.gymapp.wearable.WearableSyncHelper").getMethod("getItemManager");
+            }
+            Object m = itemsOf.invoke(null);
+            if (m == null) {
+                return 2;
+            }
+            java.util.List<?> all = (java.util.List<?>) m.getClass().getMethod("getItemList").invoke(m);
+            int n = 0;
+            for (Object o : all) {
+                if (o instanceof com.isaigu.gymapp.train.model.TrainItem
+                        && !((com.isaigu.gymapp.train.model.TrainItem) o).isEmpty()) {
+                    n++;
+                }
+            }
+            return n;
+        } catch (Throwable t) {
+            return 2;
+        }
+    }
+
+    /** The photo lit (a glowing ring on its edge, the glow inwards) while its client is picked. */
+    static void showPick(android.view.View icon, boolean on) {
+        try {
+            android.view.ViewOverlay ov = icon.getOverlay();
+            Object old = icon.getTag(TAG_GLOW);
+            if (old instanceof Glow) {
+                ov.remove((Glow) old);
+                icon.setTag(TAG_GLOW, null);
+            }
+            if (on) {
+                Glow g = new Glow(icon);
+                g.setBounds(0, 0, Math.max(1, icon.getWidth()), Math.max(1, icon.getHeight()));
+                ov.add(g);
+                icon.setTag(TAG_GLOW, g);
+            }
+            icon.invalidate();
+        } catch (Throwable t) {
+            android.util.Log.w("xems", "XemsLocalAvatar.showPick", t);
+        }
+    }
+
+    /** View tag key for the glow (an app id that no view uses as a tag key). */
+    private static final int TAG_GLOW = 0x7f5a7e01;
+
+    /** A bright ring on the photo's edge (the photo's own size) and a glow that fades inwards, over the photo. */
+    static final class Glow extends android.graphics.drawable.Drawable {
+        private final android.view.View v;
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        Glow(android.view.View v) {
+            this.v = v;
+            p.setStyle(Paint.Style.STROKE);
+        }
+
+        @Override
+        public void draw(Canvas c) {
+            int w = v.getWidth();
+            int h = v.getHeight();
+            if (w != getBounds().width() || h != getBounds().height()) {
+                setBounds(0, 0, Math.max(1, w), Math.max(1, h));
+            }
+            float d = v.getResources().getDisplayMetrics().density;
+            float aw = w - v.getPaddingLeft() - v.getPaddingRight();
+            float ah = h - v.getPaddingTop() - v.getPaddingBottom();
+            float r = Math.min(aw, ah) / 2f;                 // the photo circle: the image fits the padded box
+            if (r <= 0) {
+                return;
+            }
+            float cx = v.getPaddingLeft() + aw / 2f;
+            float cy = v.getPaddingTop() + ah / 2f;
+            // glow: rings fading towards the centre
+            float step = 2.2f * d;
+            for (int i = 12; i >= 1; i--) {
+                p.setStrokeWidth(step + 0.6f * d);
+                p.setColor(Color.argb(10 + (12 - i) * 9, 0x5E, 0xF0, 0x8C));
+                c.drawCircle(cx, cy, r - 4.5f * d - i * step + step / 2f, p);
+            }
+            // the ring itself, on the photo's edge, inside it
+            p.setStrokeWidth(4.5f * d);
+            p.setColor(0xFF5EF08C);
+            c.drawCircle(cx, cy, r - 2.25f * d, p);
+            p.setStrokeWidth(1.5f * d);
+            p.setColor(0xCCFFFFFF);
+            c.drawCircle(cx, cy, r - 2.25f * d, p);
+        }
+
+        @Override
+        public void setAlpha(int alpha) {}
+
+        @Override
+        public void setColorFilter(android.graphics.ColorFilter cf) {}
+
+        @Override
+        public int getOpacity() {
+            return android.graphics.PixelFormat.TRANSLUCENT;
+        }
+    }
+
+    /** Long press on the photo → the client card (posted while the finger stays on it). */
+    static final class LongCard implements Runnable {
+        final CardTouch touch;
+        final android.view.View v;
+
+        LongCard(CardTouch touch, android.view.View v) {
+            this.touch = touch;
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            if (touch.down && touch.pending == this) {
+                touch.longDone = true;
+                try {
+                    v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+                } catch (Throwable ignored) {
+                }
+                touch.open(v);
+            }
         }
     }
 
@@ -368,7 +618,9 @@ public final class XemsLocalAvatar {
     static final class CardTouch implements android.view.View.OnTouchListener {
         private final com.isaigu.gymapp.train.model.TrainItem item;
         private final com.isaigu.gymapp.bean.TrainUserProgramDataWrapper wrapper;
-        private boolean down;
+        boolean down;
+        boolean longDone;
+        LongCard pending;
 
         CardTouch(com.isaigu.gymapp.train.model.TrainItem item, com.isaigu.gymapp.bean.TrainUserProgramDataWrapper wrapper) {
             this.item = item;
@@ -381,18 +633,40 @@ public final class XemsLocalAvatar {
                 int a = e.getActionMasked();
                 if (a == android.view.MotionEvent.ACTION_DOWN) {
                     down = onPhoto(v, e.getX(), e.getY());
+                    longDone = false;
+                    cancelLong(v);
+                    if (down && item != null) {
+                        pending = new LongCard(this, v);
+                        v.postDelayed(pending, android.view.ViewConfiguration.getLongPressTimeout());
+                    }
                     return down;
                 }
                 if (!down) {
                     return false;
                 }
-                if (a == android.view.MotionEvent.ACTION_UP) {
+                if (a == android.view.MotionEvent.ACTION_MOVE) {
+                    if (!onPhoto(v, e.getX(), e.getY())) {
+                        cancelLong(v);
+                    }
+                } else if (a == android.view.MotionEvent.ACTION_UP) {
                     down = false;
-                    if (onPhoto(v, e.getX(), e.getY())) {
-                        open(v);
+                    cancelLong(v);
+                    if (!longDone && onPhoto(v, e.getX(), e.getY())) {
+                        if (item != null && trainees() > 1) {
+                            // training screen, several trainees: tap = pick this client for the master controls
+                            boolean on = togglePick(item);
+                            showPick(v, on);
+                            try {
+                                v.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+                            } catch (Throwable ignored) {
+                            }
+                        } else {
+                            open(v);
+                        }
                     }
                 } else if (a == android.view.MotionEvent.ACTION_CANCEL) {
                     down = false;
+                    cancelLong(v);
                 }
                 return true;
             } catch (Throwable t) {
@@ -401,7 +675,14 @@ public final class XemsLocalAvatar {
             }
         }
 
-        private void open(android.view.View v) {
+        private void cancelLong(android.view.View v) {
+            if (pending != null) {
+                v.removeCallbacks(pending);
+                pending = null;
+            }
+        }
+
+        void open(android.view.View v) {
             com.isaigu.gymapp.bean.TrainUserProgramDataWrapper w = wrapper != null ? wrapper : item != null ? item.data : null;
             Activity act = activity(v.getContext());
             if (w != null && w.trainUser != null && act != null) {

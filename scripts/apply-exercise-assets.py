@@ -50,7 +50,7 @@ def main() -> int:
     print(f"assets/xems/exercises.json ({len(exs)} exercises, {DEST.stat().st_size} B)")
     art = ROOT / "branding" / "programs"
     java_art = (ROOT / "branding" / "java" / "src" / "com" / "isaigu" / "gymapp" / "ai" / "ProgramArt.java").read_text(encoding="utf-8")
-    keys = set(re.findall(r'"((?:f|m|passive)-[a-z-]+)"', java_art))
+    keys = set(re.findall(r'"((?:f|m|passive|active)-[a-z-]+)"', java_art))
     have = {p.stem.split("@")[0] for p in art.glob("*@*.webp")}
     if keys - have:
         raise SystemExit(f"branding/programs: missing {sorted(keys - have)} (ProgramArt uses them)")
@@ -61,6 +61,33 @@ def main() -> int:
         shutil.copy2(p, out / p.name)
         size += p.stat().st_size
     print(f"assets/xems/programs/ ({len(have)} pictures, {size} B)")
+    body = ROOT / "branding" / "body"                # Auto live board figures (scripts/gen-body-figures.py)
+    figs = sorted(body.glob("*.webp"))
+    if len(figs) != 8:
+        raise SystemExit("branding/body: expected 8 figures — run scripts/gen-body-figures.py")
+    bout = DEST.parent / "body"
+    bout.mkdir(parents=True, exist_ok=True)
+    for p in figs:
+        shutil.copy2(p, bout / p.name)
+    print(f"assets/xems/body/ ({len(figs)} files, {sum(p.stat().st_size for p in figs)} B)")
+    scale = sorted((body / "scale").glob("*.webp"))   # the scale page's figures (scripts/gen-scale-figures.py)
+    if len(scale) != 8:
+        raise SystemExit("branding/body/scale: expected 8 figures — run scripts/gen-scale-figures.py")
+    sout = bout / "scale"
+    sout.mkdir(parents=True, exist_ok=True)
+    for p in scale:
+        shutil.copy2(p, sout / p.name)
+    print(f"assets/xems/body/scale/ ({len(scale)} files, {sum(p.stat().st_size for p in scale)} B)")
+    # the measuring stage: the client on the scale (by sex), a still picture (ScaleStage; no video)
+    measure = sorted((body / "scale" / "measure").glob("*.*"))
+    want = {"female-hero.webp", "male-hero.webp"}
+    if {p.name for p in measure} != want:
+        raise SystemExit("branding/body/scale/measure: expected " + ", ".join(sorted(want)))
+    mout = sout / "measure"
+    mout.mkdir(parents=True, exist_ok=True)
+    for p in measure:
+        shutil.copy2(p, mout / p.name)
+    print(f"assets/xems/body/scale/measure/ ({len(measure)} files, {sum(p.stat().st_size for p in measure)} B)")
     return 0
 
 

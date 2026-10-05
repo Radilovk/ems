@@ -29,19 +29,20 @@
 .method constructor <init>(Landroid/content/Context;Landroid/net/Uri;I)V
     .registers 4
 
-    .line 1175
+    .prologue
+    .line 1184
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1176
+    .line 1185
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchTask;->context:Landroid/content/Context;
 
-    .line 1177
+    .line 1186
     iput-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchTask;->uri:Landroid/net/Uri;
 
-    .line 1178
+    .line 1187
     iput p3, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchTask;->gen:I
 
-    .line 1179
+    .line 1188
     return-void
 .end method
 
@@ -50,13 +51,14 @@
 .method public run()V
     .registers 5
 
-    .line 1185
+    .prologue
+    .line 1194
     const/16 v0, 0xa
 
     :try_start_2
     invoke-static {v0}, Landroid/os/Process;->setThreadPriority(I)V
 
-    .line 1186
+    .line 1195
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchTask;->context:Landroid/content/Context;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PrefetchTask;->uri:Landroid/net/Uri;
@@ -65,10 +67,11 @@
 
     move-result-object v0
 
-    .line 1187
+    .line 1196
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 1188
+    .line 1197
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200()Landroid/os/Handler;
 
     move-result-object v1
@@ -81,19 +84,21 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
     :try_end_1e
-    .catchall {:try_start_2 .. :try_end_1e} :catchall_1f
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_1e} :catch_1f
 
-    .line 1192
-    goto :goto_31
+    .line 1202
+    :goto_1e
+    return-void
 
-    .line 1189
-    :catchall_1f
+    .line 1198
+    :catch_1f
     move-exception v0
 
-    .line 1190
+    .line 1199
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 1191
+    .line 1200
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200()Landroid/os/Handler;
 
     move-result-object v0
@@ -106,7 +111,5 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1193
-    :goto_31
-    return-void
+    goto :goto_1e
 .end method

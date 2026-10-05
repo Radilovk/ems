@@ -23,9 +23,11 @@ public final class AutoLimits {
     public static final int ON_MAX_ACTIVE = 6;
     public static final int ON_MAX_PASSIVE = 4;
     public static final int ON_MAX_WAVE = 3;
-    public static final int RAMP_MIN_TETANIC_MS = 300;
+    /** The absolute numbers live in {@link SafeLimits} (one place, 1.1.331); Auto's own stricter choices stay here. */
+    public static final int RAMP_MIN_TETANIC_MS = SafeLimits.RAMP_MIN_MS;
+    /** Auto's own floor (a narrower pulse does little at these strengths); the absolute floor is SafeLimits.PW_MIN. */
     public static final int PW_MIN = 150;
-    public static final int PW_MAX = 400;
+    public static final int PW_MAX = SafeLimits.PW_MAX;
     /** Strength units a person may add per cycle (G3). */
     public static final int RAISE_PER_CYCLE = 5;
 
@@ -43,15 +45,17 @@ public final class AutoLimits {
 
     /** L4 / L5: pulse width range for a frequency. */
     public static int pwMax(int hz) {
-        if (hz >= 100) {
-            return 300;
-        }
-        return PW_MAX;
+        return hz >= 100 ? SafeLimits.PW_MAX_100HZ : PW_MAX;
     }
 
     /** Highest frequency for the client (age ≥ 60 → 85 Hz). */
     public static int hzMax(Plan plan) {
-        return plan.input != null && plan.input.age >= 60 ? 85 : 120;
+        return SafeLimits.hzMax(age(plan));
+    }
+
+    /** The age the limits use: the questionnaire's, or an older client on the rows (one cycle goes to all). */
+    static int age(Plan plan) {
+        return Math.max(plan.input != null ? plan.input.age : -1, plan.limitAge);
     }
 
     /**
@@ -76,8 +80,21 @@ public final class AutoLimits {
             }
         }
         if (c.pauseHz > 0) {
-            c.pauseHz = clamp(c.pauseHz, 1, 10);
+            c.pauseHz = clamp(c.pauseHz, 1, SafeLimits.PAUSE_HZ_MAX);
             c.pauseSigma = Math.max(0, Math.min(0.6, c.pauseSigma));
+        }
+        // the absolute limits of every mode (SafeLimits, 1.1.323) — what the suit's guard would enforce anyway
+        int[] v = SafeLimits.cycle(c.hz, c.pwUs, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.rampUpMs, age(plan));
+        c.hz = v[SafeLimits.HZ];
+        c.pwUs = v[SafeLimits.PW];
+        c.onS = v[SafeLimits.ON];
+        c.offS = v[SafeLimits.OFF];
+        c.rampUpMs = c.isTetanic() ? Math.max(c.rampUpMs, v[SafeLimits.RAMP]) : c.rampUpMs;
+        if (v[SafeLimits.AP] == 0) {
+            c.pauseHz = 0;
+            c.pauseSigma = 0;
+        } else {
+            c.pauseHz = v[SafeLimits.PHZ];
         }
         return c;
     }
@@ -116,36 +133,28 @@ public final class AutoLimits {
     }
 
     /**
-     * Zones a person set, brought back into the limits: ±zoneDelta of the program, the
-     * per-zone maximum and locks, then the balance rules L7–L9 (the agonist gives way).
+     * Zones a person set, brought back into the limits (owner, 1.1.286 — every channel is the trainer's to set):
+     * down freely to 0, up at most +zoneDelta over the step's own value and the per-zone maximum; locks hold;
+     * every channel on its own — never tied to another (owner, 1.1.290: the electrodes are independent).
      */
     public static int[] clampZones(int[] wanted, Plan plan) {
+        return clampZones(wanted, plan.zones, plan);
+    }
+
+    /** As above against {@code base} — the zones the running step asks for (a wave, an even step, the plan). */
+    public static int[] clampZones(int[] wanted, int[] base, Plan plan) {
         int[] z = new int[CHANNELS];
         for (int i = 0; i < CHANNELS; i++) {
-            int base = plan.zones[i];
-            int v = wanted != null && i < wanted.length ? wanted[i] : base;
+            int b = base != null && i < base.length ? base[i] : plan.zones[i];
+            int v = wanted != null && i < wanted.length ? wanted[i] : b;
             if (plan.zoneLocked[i]) {
-                v = base;
+                v = Math.min(b, plan.zones[i]);
             } else {
-                v = clamp(v, base - plan.zoneDelta, base + plan.zoneDelta);
+                v = Math.min(v, b + plan.zoneDelta);
             }
             z[i] = clamp(v, 0, Math.min(100, plan.zoneMax[i]));
         }
-        balance(z);
         return z;
-    }
-
-    /** L7 abs ≤ 1.3 × lower back, L8 front thigh ≤ back thigh / 0.6, L9 chest ≤ 1.2 × back. */
-    public static void balance(int[] z) {
-        z[ABS] = Math.min(z[ABS], (int) Math.floor(1.3 * z[LOWER_BACK] + 1e-9));
-        z[FRONT_THIGH] = Math.min(z[FRONT_THIGH], (int) Math.floor(z[BACK_THIGH] / 0.6 + 1e-9));
-        z[CHEST] = Math.min(z[CHEST], (int) Math.floor(1.2 * z[BACK] + 1e-9));
-    }
-
-    public static boolean balanced(int[] z) {
-        return z[ABS] <= 1.3 * z[LOWER_BACK] + 1e-9
-                && z[FRONT_THIGH] <= z[BACK_THIGH] / 0.6 + 1e-9
-                && z[CHEST] <= 1.2 * z[BACK] + 1e-9;
     }
 
     /**

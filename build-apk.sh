@@ -24,9 +24,19 @@ if [[ ! -f "${TOOLS}/uber-apk-signer.jar" ]]; then
 fi
 
 BASE_APK="${ROOT}/build/xems27-base.apk"
+BASE_COMMIT="724be17b049fe267da7f7cc4fabbcd188aa53fc8"
+BASE_SHA256="57106241f9d26a218d26c348bf7e6acb9191dc83dc78b65cd4a206bcb8c3f875"
 if [[ ! -f "${BASE_APK}" ]]; then
   echo "Extracting v0.50 base APK from git..."
-  git show 724be17:xems27.apk > "${BASE_APK}"
+  # a shallow clone (cloud session, CI) does not hold the base commit: fetch just that one commit
+  if ! git cat-file -e "${BASE_COMMIT}^{commit}" 2>/dev/null; then
+    git fetch --depth=1 origin "${BASE_COMMIT}"
+  fi
+  git show "${BASE_COMMIT}:xems27.apk" > "${BASE_APK}"
+fi
+if [[ "$(sha256sum "${BASE_APK}" | cut -d' ' -f1)" != "${BASE_SHA256}" ]]; then
+  echo "ERROR: ${BASE_APK} is not the v0.50 base APK (sha256 differs) — delete it and rebuild."
+  exit 1
 fi
 
 echo "Fresh decompile from v0.50 base (${BASE_APK})..."
@@ -35,6 +45,7 @@ java -jar "${TOOLS}/apktool.jar" d "${BASE_APK}" -o "${DECOMPILED}" -f
 
 cp "${ROOT}/translations/values-bg/strings.xml" "${DECOMPILED}/res/values-bg/strings.xml"
 cp "${ROOT}"/branding/layouts/*.xml "${DECOMPILED}/res/layout/"
+python3 "${ROOT}/scripts/apply-version.py"
 python3 "${ROOT}/scripts/reorder-muscles.py" "${DECOMPILED}"
 python3 "${ROOT}/scripts/apply-branding.py"
 python3 "${ROOT}/scripts/apply-muscle-icons.py"
@@ -69,14 +80,13 @@ if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
   bash "${ROOT}/scripts/compile-xems-license-java.sh"
   bash "${ROOT}/scripts/compile-avatar-cluster-java.sh"
   bash "${ROOT}/scripts/compile-channel-scale-java.sh"
+  bash "${ROOT}/scripts/compile-softramp-java.sh"
 else
   echo "SKIP_JAVA_RECOMPILE=1 — using prebuilt smali in branding/smali/"
 fi
 python3 "${ROOT}/scripts/apply-avatar-proportional-lock.py"
 python3 "${ROOT}/scripts/apply-active-pause-pulse-labels.py"
 python3 "${ROOT}/scripts/remove-ramp.py"
-python3 "${ROOT}/scripts/remove-software-ramp.py"
-python3 "${ROOT}/scripts/remove-active-pause-segments.py"
 python3 "${ROOT}/scripts/remove-active-pause-settings.py"
 python3 "${ROOT}/scripts/apply-settings-username-theme.py"
 python3 "${ROOT}/scripts/apply-edit-parameter-scroll.py"
@@ -108,7 +118,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   fi
   python3 "${ROOT}/scripts/apply-wearable-bridge.py"
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
-  python3 "${ROOT}/scripts/apply-block-program.py"
+  python3 "${ROOT}/scripts/apply-pulse-cycle-hook.py"
   python3 "${ROOT}/scripts/apply-ai-session.py"
   python3 "${ROOT}/scripts/apply-exercise-assets.py"
   if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
@@ -125,7 +135,6 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-session-report.py"
   python3 "${ROOT}/scripts/apply-plan-tab.py"
   python3 "${ROOT}/scripts/apply-train-swipe-delete-fix.py"
-  python3 "${ROOT}/scripts/remove-segment-program-gear.py"
   python3 "${ROOT}/scripts/apply-diag-logging.py"
   python3 "${ROOT}/scripts/verify-music-sync-smali.py"
   python3 "${ROOT}/scripts/verify-beta-safety.py"
@@ -134,16 +143,8 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
     echo "  Fix compile-music-sync-java.sh or set BETA_MUSIC=0 intentionally."
     exit 1
   fi
-  if [[ -f "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/BlockProgramRunner.smali" ]] \
-      && grep -q '\-\$\$Lambda\$BlockProgramRunner' \
-        "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/BlockProgramRunner.smali"; then
-    echo "ERROR: BlockProgramRunner.smali references missing lambda classes — training start will crash."
-    echo "  Re-run compile-interval-timer-java.sh (BlockProgramRunner must not use lambdas)."
-    exit 1
-  fi
   python3 "${ROOT}/scripts/verify-interval-timer-smali.py"
   bash "${ROOT}/scripts/ble-sim/run-hr-policy.sh"
-  python3 "${ROOT}/scripts/apply-wearable-settings-connect.py"
   python3 "${ROOT}/scripts/verify-wearable-smali.py"
 else
   echo "BETA music sync disabled (BETA_MUSIC=0)."
@@ -190,8 +191,8 @@ if [[ "${GOT_SHA256}" != "${SIGN_SHA256}" ]]; then
 fi
 echo "Signing key OK (same as every release)."
 
-# Broken builds (missing BETA music stack) were ~8.76MB; healthy builds ~8.78MB+.
-MIN_APK_BYTES="${MIN_APK_BYTES:-8765000}"
+# Healthy builds are ~16.2 MB (1.1.328); a build that lost a whole stack (music, wearable, AI, assets) is far smaller.
+MIN_APK_BYTES="${MIN_APK_BYTES:-15000000}"
 APK_BYTES="$(wc -c < "${OUT_APK}")"
 if [[ "${APK_BYTES}" -lt "${MIN_APK_BYTES}" ]]; then
   echo "ERROR: ${OUT_APK} is only ${APK_BYTES} bytes — likely missing BETA music stack (broken login/crash)."

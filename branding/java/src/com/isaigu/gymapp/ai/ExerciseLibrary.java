@@ -73,9 +73,10 @@ public final class ExerciseLibrary {
             return AiText.t(how, howEn != null && howEn.length() > 0 ? howEn : how);
         }
 
-        /** Hold exercises (plank, wall sit): a set counts holds, not repetitions. */
+        /** Hold exercises (plank, wall sit): a set counts holds, not repetitions. Timed cardio / stretching moves
+         *  (jump rope, a timed stretch) are not holds (1.1.327). */
         public boolean isHold() {
-            return "duration".equals(type);
+            return AutoDynamics.isHold(type, pat);
         }
     }
 
@@ -177,6 +178,16 @@ public final class ExerciseLibrary {
         } catch (Throwable ignored) {
         }
         return out;
+    }
+
+    /** The exercise's picker group now: the admin's (server picks) or the library's — what decides its movement
+     *  for the smart impulse (1.1.327). */
+    public static String zoneOf(Context c, Entry e) {
+        if (e == null) {
+            return null;
+        }
+        String z = zones(c).get(e.id);
+        return z != null ? z : e.libZone;
     }
 
     /** The owner's selection unless the admin switched it off; any other only when switched on. */

@@ -60,6 +60,12 @@ public final class Workout {
         /** Ramp of every impulse, ms: rising at its start, falling at its end (0 = sharp). */
         public int rampIn = 500;
         public int rampOut = 500;
+        /** The exercise's movement (library pattern: squat, cardio, stretch…; null = look it up) and hold
+         *  (plank, wall sit) — what the smart impulse picks its approaches by (owner, 1.1.326). */
+        public String pat;
+        public boolean hold;
+        /** 🔒 exactly as drawn: the smart impulse leaves this block alone (owner, 1.1.326). */
+        public boolean lock;
 
         public Block() {}
 
@@ -100,6 +106,9 @@ public final class Workout {
             b.str2 = str2;
             b.rampIn = rampIn;
             b.rampOut = rampOut;
+            b.pat = pat;
+            b.hold = hold;
+            b.lock = lock;
             return b;
         }
 
@@ -116,7 +125,7 @@ public final class Workout {
             off = clamp(off, 0, OFF_MAX);
             rel = clamp(rel, 0, 100);
             reps = isRest() ? clamp(reps, REST_MIN_S, REST_MAX_S) : clamp(reps, REPS_MIN, REPS_MAX);
-            hz2 = clamp(hz2, HZ_MIN, HZ_MAX);
+            hz2 = clamp(hz2, HZ_MIN, SafeLimits.PAUSE_HZ_MAX);     // the 2nd impulse is for relaxing: ≤ 10 Hz
             str2 = clamp(str2, 5, 100);
             rampIn = clamp(Math.round(rampIn / (float) RAMP_STEP_MS) * RAMP_STEP_MS, 0, RAMP_MAX_MS);
             rampOut = clamp(Math.round(rampOut / (float) RAMP_STEP_MS) * RAMP_STEP_MS, 0, RAMP_MAX_MS);
@@ -136,6 +145,14 @@ public final class Workout {
     public boolean preset;
     /** Who a ready program is for: "m" men, "f" women, null everyone (AutoCatalog maleOnly / femaleOnly). */
     public String sex;
+    /**
+     * Classifiers for the automatic mode's filter (owner, 1.1.336), marked when the map is made: the goals it serves
+     * ({@link AutoModel.Goal} names: TONE, SLIM, HEALTH — empty = from its exercises) and the difficulty 1 easy /
+     * 2 medium / 3 hard (0 = not marked, counts as medium). Active or passive is the map itself ({@link #isPassive});
+     * who it is for is {@link #sex}; the trained zones are {@link #focus} / {@link #derivedFocus}.
+     */
+    public final java.util.Set<String> goals = new java.util.LinkedHashSet<String>();
+    public int level;
     public long updatedAt;
 
     static int clamp(int v, int lo, int hi) {
@@ -151,6 +168,9 @@ public final class Workout {
         w.id = newId;
         w.name = newName;
         w.goal = goal;
+        w.sex = sex;
+        w.level = level;
+        w.goals.addAll(goals);
         w.focus.addAll(focus);
         for (Block b : blocks) {
             w.blocks.add(b.copy());
@@ -167,17 +187,31 @@ public final class Workout {
      * cardio and jumps 40 Hz / 300 µs / 3+3 s at 85 %; stretching 10 Hz / 250 µs / 6+2 s at 60 %.
      */
     public static Block forExercise(String ex, String pat, boolean hold) {
+        return forExercise(ex, pat, hold, null);
+    }
+
+    /** {@link #forExercise} in the admin's picker group ({@code zone}, null = the library's): the group decides
+     *  the movement (1.1.327, {@link AutoDynamics#patIn}); the block keeps the library pattern. */
+    public static Block forExercise(String ex, String pat, boolean hold, String zone) {
+        int m = AutoDynamics.move(pat, hold, zone);
+        Block b = forExercise0(ex, m, AutoDynamics.patIn(pat, zone));
+        b.pat = pat;
+        b.hold = m == AutoDynamics.MOVE_HOLD;
+        return b;
+    }
+
+    private static Block forExercise0(String ex, int m, String pat) {
         String p = pat != null ? pat : "";
-        if (hold || "core_static".equals(p)) {
+        if (m == AutoDynamics.MOVE_HOLD) {
             return new Block(ex, 5, 70, 300, 6, 4, 100);
         }
-        if ("cardio".equals(p) || "plyo".equals(p)) {
+        if (m == AutoDynamics.MOVE_CARDIO) {
             Block b = new Block(ex, 8, 40, 300, 3, 3, 85);
             b.rampIn = 300;                                    // quick moves: a short rise
             b.rampOut = 300;
             return b;
         }
-        if ("stretch".equals(p)) {
+        if (m == AutoDynamics.MOVE_STRETCH) {
             Block b = new Block(ex, 6, 10, 250, 6, 2, 60);
             b.rampIn = 1000;                                   // stretching: a slow rise
             b.rampOut = 1000;
@@ -189,12 +223,8 @@ public final class Workout {
         return new Block(ex, 8, 85, 350, 4, 4, 100);
     }
 
-    static boolean isSmall(String p) {
-        return "biceps".equals(p) || "triceps".equals(p) || "lat_raise".equals(p) || "rear_delt".equals(p)
-                || "front_raise".equals(p) || "fly".equals(p) || "shrug".equals(p) || "forearm".equals(p)
-                || "calf".equals(p) || "abductor".equals(p) || "adductor".equals(p) || "knee_flex".equals(p)
-                || "knee_ext".equals(p) || "pullover".equals(p) || "core_flex".equals(p) || "core_rot".equals(p)
-                || "core_hip".equals(p) || "back_ext".equals(p);
+    public static boolean isSmall(String p) {
+        return AutoDynamics.isSmall(p);
     }
 
     /** A rest between sets: no current, 30 s. */
@@ -275,13 +305,43 @@ public final class Workout {
         return all > 0 && cardio * 2 > all ? GOAL_FAT : GOAL_TONE;
     }
 
+    /** The goals this map serves: the marked ones; unmarked — an exercise map by its exercises (cardio → slimming,
+     *  else toning), a procedure fits every goal. */
+    public java.util.Set<AutoModel.Goal> effectiveGoals() {
+        java.util.Set<AutoModel.Goal> out = new java.util.LinkedHashSet<AutoModel.Goal>();
+        for (String g : goals) {
+            try {
+                out.add(AutoModel.Goal.valueOf(g));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        if (out.isEmpty()) {
+            if (isPassive()) {
+                out.addAll(java.util.Arrays.asList(AutoModel.Goal.values()));
+            } else {
+                out.add(GOAL_FAT.equals(suggestedGoal()) ? AutoModel.Goal.SLIM : AutoModel.Goal.TONE);
+            }
+        }
+        return out;
+    }
+
+    /** 1 easy · 2 medium · 3 hard (unmarked = medium). */
+    public int effectiveLevel() {
+        return level >= 1 && level <= 3 ? level : 2;
+    }
+
+    /** Shown in the automatic mode's menu for this goal and kind (active / passive). */
+    public boolean fits(AutoModel.Goal g, AutoModel.Kind kind) {
+        return isPassive() == (kind == AutoModel.Kind.PASSIVE) && effectiveGoals().contains(g);
+    }
+
     /** A clean block: active programs — strength impulse; passive — a relaxing low-frequency one. */
     public Block clean() {
         return isPassive() ? new Block(null, 30, 7, 350, 5, 1, 100) : new Block(null, 8, 85, 350, 4, 4, 100);
     }
 
     /** Built-in exercise pattern (null for library-only ones; the UI passes the library's). */
-    static String patternOf(String ex) {
+    public static String patternOf(String ex) {
         int i = AutoTemplates.ex(ex);
         return i >= 0 ? AutoTemplateData.PAT[i] : null;
     }
@@ -419,6 +479,19 @@ public final class Workout {
         return p == null ? null : p.maleOnly ? "m" : p.femaleOnly ? "f" : null;
     }
 
+    /** A ready map carries its program's classifiers: the goals whose menu lists it, and its difficulty. */
+    private static void classify(Workout w, AutoCatalog.Program prog) {
+        if (prog == null) {
+            return;
+        }
+        w.level = prog.level;
+        for (AutoModel.Goal g : AutoModel.Goal.values()) {
+            if (AutoCatalog.menu(g, prog.kind).contains(prog)) {
+                w.goals.add(g.name());
+            }
+        }
+    }
+
     public static List<Workout> presets() {
         List<Workout> out = new ArrayList<Workout>();
         for (int p = 0; p < AutoTemplateData.PROGRAMS.length; p++) {
@@ -434,6 +507,7 @@ public final class Workout {
             w.name = prog != null ? prog.name() : id;
             w.goal = AutoCatalog.CARDIO.equals(id) ? GOAL_FAT : GOAL_TONE;
             w.sex = audience(prog);
+            classify(w, prog);
             if (AutoCatalog.GLUTES_LEGS.equals(id)) {
                 w.focus.add("glutes");
             } else if (AutoCatalog.CORE.equals(id)) {
@@ -484,6 +558,7 @@ public final class Workout {
                 w.name = prog.name();
                 w.goal = GOAL_PASSIVE;
                 w.sex = audience(prog);
+                classify(w, prog);
                 for (AutoModel.Phase ph : plan.phases) {
                     int n = Math.max(1, ph.steps.size());
                     for (AutoModel.Step s : ph.steps) {

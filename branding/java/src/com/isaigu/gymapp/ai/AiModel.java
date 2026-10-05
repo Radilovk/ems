@@ -72,6 +72,15 @@ public final class AiModel {
         public java.util.Set<String> cond = new java.util.HashSet<String>();
         /** How the client is today (AiPersonal.TODAY): never blocks, quietly softens the session. */
         public java.util.Set<String> today = new java.util.HashSet<String>();
+        /** Scale (fresh measurement), &lt; 0 = not measured: lean mass and skeletal muscle (kg). */
+        public double leanKg = -1;
+        public double skeletalKg = -1;
+        /** Muscle per suit channel against the body's mean (mean ≈ 1); null = the standard distribution. */
+        public double[] chMuscle;
+        /** Today's scale readiness (1 / 0.85 / 0.7). */
+        public double readiness = 1.0;
+        /** Focus zone the scale asks for (client-form key); null = none. */
+        public String scaleFocus;
 
         public boolean isTraining() {
             return mode == Mode.ACTIVE;

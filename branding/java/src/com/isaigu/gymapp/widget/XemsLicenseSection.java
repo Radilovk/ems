@@ -230,6 +230,7 @@ public final class XemsLicenseSection {
     static void onActivated(Activity a, View root, TextView result, boolean ok, String msg) {
         if (ok) {
             android.widget.Toast.makeText(a, "reset".equals(msg) ? tr("Базов режим", "Base mode")
+                    : "setup".equals(msg) ? tr("Настройката е отворена", "Setup opened")
                     : tr("Модулите са отключени", "Modules unlocked"), android.widget.Toast.LENGTH_SHORT).show();
             // rebuild both cards (the band card depends on the license) and the module bar
             com.isaigu.gymapp.wearable.WearableSettingsSection.attach(a, root);
@@ -241,6 +242,9 @@ public final class XemsLicenseSection {
     }
 
     static String statusTitle() {
+        if (XemsLicense.isPending() && XemsLicense.source().length() == 0) {
+            return tr("Чака одобрение", "Waiting for approval");
+        }
         if (XemsLicense.isFull()) {
             return tr("Пълен достъп", "Full access");
         }
@@ -254,8 +258,11 @@ public final class XemsLicenseSection {
         String src = XemsLicense.source();
         String arms = XemsLicense.hasFeature(XemsLicense.FEAT_ARMS_FULL)
                 ? tr(" · ръцете с нормална сила (стъпка 1:1)", " · arms at normal strength (step 1:1)") : "";
-        if ("code".equals(src)) {
-            return tr("Отключено с код · без срок", "Unlocked with a code · no end date") + arms;
+        if (XemsLicense.isPending() && src.length() == 0) {
+            return tr("Въведи админ паролата в полето отдолу — таблетът се отключва веднага "
+                            + "(или го одобри от админ панела). Номер на таблета: ",
+                    "Type the admin password in the field below — the tablet unlocks at once "
+                            + "(or approve it in the admin panel). Tablet number: ") + XemsLicense.deviceIdShown();
         }
         if ("server".equals(src)) {
             long exp = XemsLicense.expiresS();
@@ -287,6 +294,12 @@ public final class XemsLicenseSection {
         }
         if ("device_limit".equals(code)) {
             return tr("Ключът вече е ползван на максимума устройства", "The key is already used on the maximum number of devices");
+        }
+        if ("pending".equals(code)) {
+            return tr("Таблетът чака одобрение от администратора", "The tablet is waiting for the admin's approval");
+        }
+        if ("not_setup_code".equals(code)) {
+            return tr("Грешна парола", "Wrong password");
         }
         if ("revoked".equals(code) || "disabled".equals(code)) {
             return tr("Ключът е спрян", "The key is disabled");

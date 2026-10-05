@@ -30,7 +30,7 @@
 
 .field public static final PACKAGE:Ljava/lang/String; = "com.xems.band"
 
-.field public static final VERSION:I = 0x48
+.field public static final VERSION:I = 0x49
 
 .field private static final autoCheck:Ljava/lang/Runnable;
 
@@ -163,7 +163,7 @@
     .registers 7
 
     .prologue
-    const/16 v4, 0x48
+    const/16 v4, 0x49
 
     .line 159
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->read(Landroid/content/Context;)[B
@@ -550,7 +550,7 @@
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v1, "72/"
+    const-string v1, "73/"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -900,7 +900,9 @@
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
 
     .line 188
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->requestConnect(Landroid/app/Activity;)V
+    const-string v0, "link"
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->acquire(Landroid/app/Activity;Ljava/lang/String;)V
 
     .line 189
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
@@ -917,8 +919,8 @@
     const-wide/16 v2, 0x61a8
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-    :try_end_3f
-    .catch Ljava/lang/Throwable; {:try_start_1f .. :try_end_3f} :catch_17
+    :try_end_41
+    .catch Ljava/lang/Throwable; {:try_start_1f .. :try_end_41} :catch_17
 
     goto :goto_9
 .end method
@@ -1044,7 +1046,7 @@
 
     move-result v1
 
-    const/16 v2, 0x48
+    const/16 v2, 0x49
 
     if-ge v1, v2, :cond_a
 

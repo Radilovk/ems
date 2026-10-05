@@ -24,6 +24,10 @@ describe('cleanProfile', () => {
     assert.deepEqual(c.contra, ['implant']);
     assert.equal(c.by, 1990);
   });
+  it('takes the server clock, never the time the client sends', () => {
+    assert.equal(cleanProfile(p({ t: NOW + 80000 }), NOW).t, NOW);
+    assert.equal(cleanProfile(p({ t: 5 }), NOW).t, NOW);
+  });
   it('keeps focus zones and conditions from the known lists', () => {
     const c = cleanProfile(p({ focus: ['abs', 'x', 'abs'], cond: ['back', 'nope', 'menopause'] }), NOW);
     assert.deepEqual(c.focus, ['abs']);

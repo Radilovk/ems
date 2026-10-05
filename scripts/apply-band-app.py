@@ -14,6 +14,7 @@ import json
 import re
 import shutil
 import sys
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,8 +44,25 @@ def check_version() -> None:
         raise SystemExit(f"WearableSettingsSection.smali inlined VERSION ({m.group(1)}) != {code} — recompile the wearable Java")
 
 
+def check_rpks(code: int) -> None:
+    """The built .rpk files carry the same versionCode and their own language: a stale .rpk reports the old
+    version to the tablet, which then reinstalls it in a loop."""
+    for name, src in FILES.items():
+        if not src.exists():
+            continue
+        with zipfile.ZipFile(src) as z:
+            got = json.loads(z.read("manifest.json").decode("utf-8")).get("versionCode")
+            app = z.read("app.js").decode("utf-8", "replace")
+        if got != code:
+            raise SystemExit(f"band-app/{src.name}: versionCode {got} != {code} — rebuild with band-app/build.sh")
+        lang = "en" if name.endswith("-en.rpk") else "bg"
+        if f"APP_LANG = '{lang}'" not in app:
+            raise SystemExit(f"band-app/{src.name}: not the {lang} build (APP_LANG) — rebuild with band-app/build.sh")
+
+
 def main() -> int:
     check_version()
+    check_rpks(json.loads((BAND / "src" / "manifest.json").read_text(encoding="utf-8"))["versionCode"])
     ASSETS.mkdir(parents=True, exist_ok=True)
     for name, src in FILES.items():
         if not src.exists():

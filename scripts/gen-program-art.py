@@ -119,6 +119,32 @@ def main() -> None:
             render(im, w, h).save(dst, "WEBP", quality=86, method=6)
             total += dst.stat().st_size
     print(f"{len(srcs)} pictures × {len(DENSITIES)} sizes {widths()} → {OUT.relative_to(ROOT)} ({total // 1024} KB)")
+    # the owner's square pictures (1.1.338) also go whole and square, transparent, for the Auto ring: the figure
+    # fills the circle instead of a small 4:3 tile inside it
+    for p in srcs:
+        if not p.stem.startswith(("active-", "passive-")):
+            continue
+        im = Image.open(p).convert("RGBA")
+        bb = im.getchannel("A").point(lambda v: 255 if v > 6 else 0).getbbox() or (0, 0, im.width, im.height)
+        im = im.crop(bb)
+        side = int(max(im.width, im.height) * 1.04)
+        sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        sq.paste(im, ((side - im.width) // 2, (side - im.height) // 2), im)
+        dst = OUT / f"{p.stem}-sq@{SQ}.webp"
+        render_sq(sq, SQ).save(dst, "WEBP", quality=88, method=6)
+        print(f"{dst.relative_to(ROOT)} ({dst.stat().st_size // 1024} KB)")
+
+
+SQ = 512
+
+
+def render_sq(im: Image.Image, w: int) -> Image.Image:
+    """Square, line-preserving downscale (as render, without the 4:3 frame)."""
+    s = w / im.width
+    p = to_lin(im)
+    step = max(1, int(round(1 / s)))
+    q = 0.55 * resize_f(p, (w, w)) + 0.45 * resize_f(maxf(p, step), (w, w))
+    return from_lin(q).filter(ImageFilter.UnsharpMask(radius=0.7, percent=55, threshold=1))
 
 
 if __name__ == "__main__":

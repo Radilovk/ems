@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
+    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildIntervalSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,12 +18,16 @@
 
 
 # instance fields
-.field final synthetic val$y:I
+.field final synthetic val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+.field final synthetic val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+.field final synthetic val$summary:Landroid/widget/TextView;
 
 
 # direct methods
-.method constructor <init>(I)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$Stepper;Lcom/isaigu/gymapp/widget/XemsUi$Stepper;Landroid/widget/TextView;)V
+    .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +35,12 @@
     .end annotation
 
     .prologue
-    .line 785
-    iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$y:I
+    .line 721
+    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    iput-object p3, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$summary:Landroid/widget/TextView;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -42,32 +50,157 @@
 
 # virtual methods
 .method public run()V
-    .registers 4
+    .registers 7
 
     .prologue
-    .line 788
-    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    const/4 v4, 0x0
+
+    .line 724
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalSec:I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$700()I
+
+    move-result v1
+
+    int-to-long v2, v1
+
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$800(J)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 725
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()I
+
+    move-result v1
+
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsText(I)Ljava/lang/String;
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 726
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$summary:Landroid/widget/TextView;
+
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()I
+
+    move-result v0
+
+    if-lez v0, :cond_50
+
+    .line 727
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "\u041e\u0431\u0449\u043e "
+
+    const-string v3, "Total "
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    if-eqz v0, :cond_12
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()I
 
-    .line 789
-    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    move-result v2
+
+    int-to-long v2, v2
+
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalSec:I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$700()I
+
+    move-result v4
+
+    int-to-long v4, v4
+
+    mul-long/2addr v2, v4
+
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$800(J)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->scroll:Landroid/widget/ScrollView;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    const/4 v1, 0x0
+    move-result-object v0
 
-    iget v2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$y:I
+    .line 726
+    :goto_4c
+    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    invoke-virtual {v0, v1, v2}, Landroid/widget/ScrollView;->scrollTo(II)V
-
-    .line 791
-    :cond_12
+    .line 730
     return-void
+
+    .line 729
+    :cond_50
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "\u0421\u0438\u0433\u043d\u0430\u043b \u043d\u0430 \u0432\u0441\u0435\u043a\u0438 "
+
+    const-string v3, "A signal every "
+
+    .line 728
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalSec:I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$700()I
+
+    move-result v2
+
+    int-to-long v2, v2
+
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$800(J)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v2, ", \u0431\u0435\u0437 \u043a\u0440\u0430\u0439"
+
+    const-string v3, ", no end"
+
+    .line 729
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_4c
 .end method

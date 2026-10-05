@@ -14,6 +14,8 @@ import java.util.WeakHashMap;
  * work-params PDU, so at the start of every ON phase the strength is sent in steps from low to
  * the set value (like quick + presses), and before the end of the ON phase in steps down.
  *
+ * <p>Every phase and every ON-phase send first goes through wearable/SafeGuard (the absolute limits, 1.1.323).
+ *
  * <p>Hooks (scripts/apply-soft-ramp.py): TrainItem.startPulse marks a new phase
  * ({@link #phase}); TrainItem.sendPulse sends the ON phase through {@link #sendDuration}.
  * Every step checks that the slot still runs, is connected and is in its ON phase, so nothing
@@ -39,11 +41,35 @@ public final class SoftRamp {
             if (item == null || item.data == null) {
                 return;
             }
+            com.isaigu.gymapp.wearable.SafeGuard.enforce(item);   // the absolute limits before every phase
             next(item);
             scale.remove(item);
             fresh.put(item, item.data.inStart ? Boolean.TRUE : Boolean.FALSE);
         } catch (Throwable t) {
             XemsGuard.report("SoftRamp.phase", t);
+        }
+    }
+
+    /**
+     * Hook: the pause-phase send of TrainItem.sendPulse (phase start and every change in it) — every mode. The
+     * second impulse goes out only within the limits (wearable/SafeGuard.pause): none at strength 0, at most 10 Hz,
+     * never above the main strength; otherwise a plain pause.
+     */
+    public static void sendPause(TrainItem item, ProgramDataBean b, boolean[] parts, int workLength) {
+        CommandSender s = item != null ? item.sender : null;
+        if (s == null || b == null) {
+            return;
+        }
+        int[] p = null;
+        try {
+            p = com.isaigu.gymapp.wearable.SafeGuard.pause(b);
+        } catch (Throwable t) {
+            XemsGuard.report("SoftRamp.sendPause", t);
+        }
+        if (p != null) {
+            s.sendActivePause(b, parts, workLength, p[0], p[1]);
+        } else {
+            s.sendPause(b, workLength);
         }
     }
 
@@ -53,6 +79,7 @@ public final class SoftRamp {
         if (s == null) {
             return;
         }
+        com.isaigu.gymapp.wearable.SafeGuard.enforce(item, b);      // never out of the limits, whoever set it
         try {
             boolean start = Boolean.TRUE.equals(fresh.remove(item));
             int[] ms = AiRamp.rampMs(b);

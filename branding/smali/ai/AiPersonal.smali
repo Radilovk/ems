@@ -1767,3 +1767,55 @@
 
     goto :goto_17
 .end method
+
+.method public static withScaleFocus(Ljava/util/Set;Ljava/lang/String;)Ljava/util/Set;
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;",
+            "Ljava/lang/String;",
+            ")",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    .prologue
+    .line 296
+    if-nez p1, :cond_3
+
+    .line 301
+    :goto_2
+    return-object p0
+
+    .line 299
+    :cond_3
+    new-instance v0, Ljava/util/HashSet;
+
+    if-eqz p0, :cond_f
+
+    :goto_7
+    invoke-direct {v0, p0}, Ljava/util/HashSet;-><init>(Ljava/util/Collection;)V
+
+    .line 300
+    invoke-interface {v0, p1}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+
+    move-object p0, v0
+
+    .line 301
+    goto :goto_2
+
+    .line 299
+    :cond_f
+    new-instance p0, Ljava/util/HashSet;
+
+    invoke-direct {p0}, Ljava/util/HashSet;-><init>()V
+
+    goto :goto_7
+.end method

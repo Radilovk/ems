@@ -503,17 +503,17 @@
     .registers 2
 
     .prologue
-    .line 571
+    .line 574
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->listener:Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;
 
     if-eqz v0, :cond_9
 
-    .line 572
+    .line 575
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->listener:Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;->onChanged()V
 
-    .line 574
+    .line 577
     :cond_9
     return-void
 .end method
@@ -1195,13 +1195,72 @@
 
     .line 390
     :cond_1dd
+    move-object/from16 v0, p3
+
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
+
+    if-eqz v1, :cond_211
+
+    invoke-virtual/range {p3 .. p3}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
+
+    move-result v1
+
+    if-nez v1, :cond_211
+
+    .line 391
+    const-string v1, "\ud83d\udd12"
+
+    move-object/from16 v0, p4
+
+    iget v2, v0, Landroid/graphics/RectF;->left:F
+
+    const/high16 v3, 0x3f000000    # 0.5f
+
+    mul-float v3, v3, p5
+
+    add-float/2addr v2, v3
+
+    const/high16 v3, 0x40800000    # 4.0f
+
+    move-object/from16 v0, p0
+
+    iget v4, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->d:F
+
+    mul-float/2addr v3, v4
+
+    add-float/2addr v2, v3
+
+    move-object/from16 v0, p4
+
+    iget v3, v0, Landroid/graphics/RectF;->top:F
+
+    const/high16 v4, 0x41600000    # 14.0f
+
+    move-object/from16 v0, p0
+
+    iget v5, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->d:F
+
+    mul-float/2addr v4, v5
+
+    add-float/2addr v3, v4
+
+    move-object/from16 v0, p0
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->text:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 393
+    :cond_211
     invoke-virtual/range {p3 .. p3}, Lcom/isaigu/gymapp/ai/Workout$Block;->hasExercise()Z
 
     move-result v1
 
-    if-eqz v1, :cond_255
+    if-eqz v1, :cond_289
 
-    .line 391
+    .line 394
     const/high16 v1, 0x42600000    # 56.0f
 
     move-object/from16 v0, p0
@@ -1242,7 +1301,7 @@
 
     move-result v1
 
-    .line 392
+    .line 395
     new-instance v2, Landroid/graphics/RectF;
 
     invoke-virtual/range {p4 .. p4}, Landroid/graphics/RectF;->centerX()F
@@ -1297,21 +1356,21 @@
 
     invoke-direct {v2, v3, v4, v1, v5}, Landroid/graphics/RectF;-><init>(FFFF)V
 
-    .line 393
+    .line 396
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->fig:Landroid/graphics/Paint;
 
-    if-eqz p7, :cond_23e
+    if-eqz p7, :cond_272
 
     move/from16 p8, v10
 
-    :cond_23e
+    :cond_272
     move/from16 v0, p8
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 394
+    .line 397
     move-object/from16 v0, p3
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
@@ -1326,18 +1385,18 @@
 
     move-result v1
 
-    if-nez v1, :cond_255
+    if-nez v1, :cond_289
 
-    .line 395
+    .line 398
     const/4 v1, 0x1
 
     move v11, v1
 
-    .line 398
-    :cond_255
-    if-eqz p7, :cond_3e7
+    .line 401
+    :cond_289
+    if-eqz p7, :cond_41b
 
-    .line 400
+    .line 403
     move-object/from16 v0, p4
 
     iget v1, v0, Landroid/graphics/RectF;->bottom:F
@@ -1352,7 +1411,7 @@
 
     sub-float/2addr v1, v2
 
-    .line 401
+    .line 404
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->handle:Landroid/graphics/RectF;
@@ -1419,7 +1478,7 @@
 
     invoke-virtual {v2, v3, v4, v5, v1}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 402
+    .line 405
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->handle:Landroid/graphics/RectF;
@@ -1438,7 +1497,7 @@
 
     div-float/2addr v1, v2
 
-    .line 403
+    .line 406
     const/high16 v2, 0x41400000    # 12.0f
 
     move-object/from16 v0, p0
@@ -1469,14 +1528,14 @@
 
     move-result v2
 
-    .line 404
+    .line 407
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v3, v10}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 405
+    .line 408
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->fill:Landroid/graphics/Paint;
@@ -1485,7 +1544,7 @@
 
     invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 406
+    .line 409
     new-instance v3, Landroid/graphics/RectF;
 
     move-object/from16 v0, p4
@@ -1546,7 +1605,7 @@
 
     invoke-virtual {v0, v3, v1, v2, v4}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 408
+    .line 411
     move-object/from16 v0, p4
 
     iget v1, v0, Landroid/graphics/RectF;->bottom:F
@@ -1561,7 +1620,7 @@
 
     sub-float v3, v1, v2
 
-    .line 409
+    .line 412
     const/high16 v1, 0x40e00000    # 7.0f
 
     move-object/from16 v0, p0
@@ -1570,7 +1629,7 @@
 
     mul-float v7, v1, v2
 
-    .line 410
+    .line 413
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->ink:Landroid/graphics/Paint;
@@ -1585,7 +1644,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 411
+    .line 414
     move-object/from16 v0, p4
 
     iget v1, v0, Landroid/graphics/RectF;->left:F
@@ -1614,7 +1673,7 @@
 
     add-float v10, v1, v2
 
-    .line 412
+    .line 415
     move-object/from16 v0, p4
 
     iget v1, v0, Landroid/graphics/RectF;->right:F
@@ -1629,7 +1688,7 @@
 
     sub-float v12, v1, v2
 
-    .line 413
+    .line 416
     sub-float v2, v10, v7
 
     add-float v4, v10, v7
@@ -1644,7 +1703,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 414
+    .line 417
     sub-float v2, v12, v7
 
     add-float v4, v12, v7
@@ -1659,7 +1718,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 415
+    .line 418
     sub-float v6, v3, v7
 
     add-float v8, v3, v7
@@ -1676,7 +1735,7 @@
 
     invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 416
+    .line 419
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->ink:Landroid/graphics/Paint;
@@ -1691,7 +1750,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 417
+    .line 420
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->minusBtn:Landroid/graphics/RectF;
@@ -1738,7 +1797,7 @@
 
     invoke-virtual {v1, v2, v4, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 418
+    .line 421
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->plusBtn:Landroid/graphics/RectF;
@@ -1785,8 +1844,8 @@
 
     invoke-virtual {v1, v2, v4, v5, v3}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 420
-    :cond_3e7
+    .line 423
+    :cond_41b
     return v11
 .end method
 
@@ -1966,7 +2025,7 @@
     .prologue
     const/high16 v3, 0x3fc00000    # 1.5f
 
-    .line 426
+    .line 429
     const/4 v0, 0x0
 
     :goto_3
@@ -1976,7 +2035,7 @@
 
     if-ge v0, v1, :cond_29
 
-    .line 427
+    .line 430
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->left:[F
 
     aget v1, v1, v0
@@ -2011,17 +2070,17 @@
 
     if-gtz v1, :cond_26
 
-    .line 431
+    .line 434
     :goto_25
     return v0
 
-    .line 426
+    .line 429
     :cond_26
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_3
 
-    .line 431
+    .line 434
     :cond_29
     const/4 v0, -0x1
 
@@ -3692,7 +3751,7 @@
 
     const/4 v1, 0x1
 
-    .line 436
+    .line 439
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->editable:Z
 
     if-eqz v0, :cond_c
@@ -3704,22 +3763,22 @@
     :cond_c
     move v0, v2
 
-    .line 541
+    .line 544
     :goto_d
     return v0
 
-    .line 439
+    .line 442
     :cond_e
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
 
-    .line 440
+    .line 443
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getY()F
 
     move-result v3
 
-    .line 441
+    .line 444
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v4
@@ -3728,37 +3787,37 @@
 
     move v0, v1
 
-    .line 541
+    .line 544
     goto :goto_d
 
-    .line 443
+    .line 446
     :pswitch_1f
     iput v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->downX:F
 
-    .line 444
+    .line 447
     iput v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->downY:F
 
-    .line 445
+    .line 448
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getEventTime()J
 
     move-result-wide v4
 
     iput-wide v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->downAt:J
 
-    .line 446
+    .line 449
     iput v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
-    .line 447
+    .line 450
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lifted:Z
 
-    .line 448
+    .line 451
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->indexAt(F)I
 
     move-result v2
 
     iput v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->downIndex:I
 
-    .line 449
+    .line 452
     iget v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     if-ltz v2, :cond_9f
@@ -3777,7 +3836,7 @@
 
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->plusBtn:Landroid/graphics/RectF;
 
-    .line 450
+    .line 453
     invoke-virtual {v2, v0, v3}, Landroid/graphics/RectF;->contains(FF)Z
 
     move-result v2
@@ -3792,7 +3851,7 @@
 
     if-nez v2, :cond_9f
 
-    .line 451
+    .line 454
     new-instance v2, Landroid/graphics/RectF;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->handle:Landroid/graphics/RectF;
@@ -3841,20 +3900,20 @@
 
     invoke-direct {v2, v4, v5, v6, v7}, Landroid/graphics/RectF;-><init>(FFFF)V
 
-    .line 452
+    .line 455
     invoke-virtual {v2, v0, v3}, Landroid/graphics/RectF;->contains(FF)Z
 
     move-result v0
 
     if-eqz v0, :cond_9f
 
-    .line 453
+    .line 456
     iput v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
-    .line 454
+    .line 457
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 455
+    .line 458
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -3873,14 +3932,14 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->startSeconds:I
 
-    .line 456
+    .line 459
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     invoke-interface {v0, v1}, Landroid/view/ViewParent;->requestDisallowInterceptTouchEvent(Z)V
 
-    .line 459
+    .line 462
     :cond_9f
     iget v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
@@ -3890,7 +3949,7 @@
 
     if-ltz v0, :cond_b1
 
-    .line 460
+    .line 463
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lift:Ljava/lang/Runnable;
 
     invoke-static {}, Landroid/view/ViewConfiguration;->getLongPressTimeout()I
@@ -3904,21 +3963,21 @@
     :cond_b1
     move v0, v1
 
-    .line 462
+    .line 465
     goto/16 :goto_d
 
-    .line 464
+    .line 467
     :pswitch_b4
     iget v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->downX:F
 
     sub-float v4, v0, v4
 
-    .line 465
+    .line 468
     iget v5, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
     if-ne v5, v1, :cond_14f
 
-    .line 466
+    .line 469
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -3931,7 +3990,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 467
+    .line 470
     iget v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->startSeconds:I
 
     int-to-float v2, v2
@@ -3948,14 +4007,14 @@
 
     add-float/2addr v2, v3
 
-    .line 468
+    .line 471
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
     move-result v3
 
     if-eqz v3, :cond_129
 
-    .line 469
+    .line 472
     const/high16 v3, 0x40a00000    # 5.0f
 
     div-float/2addr v2, v3
@@ -3976,7 +4035,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
-    .line 473
+    .line 476
     :goto_f0
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->width:[F
 
@@ -4002,7 +4061,7 @@
 
     aput v0, v2, v3
 
-    .line 474
+    .line 477
     iget v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     add-int/lit8 v0, v0, 0x1
@@ -4014,7 +4073,7 @@
 
     if-ge v0, v2, :cond_146
 
-    .line 475
+    .line 478
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->left:[F
 
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->left:[F
@@ -4041,12 +4100,12 @@
 
     aput v3, v2, v0
 
-    .line 474
+    .line 477
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_10a
 
-    .line 471
+    .line 474
     :cond_129
     iget v3, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
@@ -4082,19 +4141,19 @@
 
     goto :goto_f0
 
-    .line 477
+    .line 480
     :cond_146
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
-    .line 478
+    .line 481
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->changed()V
 
     move v0, v1
 
-    .line 479
+    .line 482
     goto/16 :goto_d
 
-    .line 481
+    .line 484
     :cond_14f
     iget v5, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
@@ -4132,13 +4191,13 @@
 
     if-lez v3, :cond_175
 
-    .line 482
+    .line 485
     :cond_170
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lift:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->removeCallbacks(Ljava/lang/Runnable;)Z
 
-    .line 484
+    .line 487
     :cond_175
     iget v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
@@ -4146,84 +4205,84 @@
 
     if-ne v3, v4, :cond_19d
 
-    .line 485
+    .line 488
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->indexAt(F)I
 
     move-result v0
 
-    .line 486
+    .line 489
     if-ltz v0, :cond_197
 
     iget v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     if-eq v0, v3, :cond_197
 
-    .line 487
+    .line 490
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
 
     iget v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     invoke-virtual {v3, v4, v0}, Lcom/isaigu/gymapp/ai/Workout;->move(II)V
 
-    .line 488
+    .line 491
     iput v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
-    .line 489
+    .line 492
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 490
+    .line 493
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->layoutBlocks()V
 
-    .line 491
+    .line 494
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 492
+    .line 495
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->changed()V
 
-    .line 494
+    .line 497
     :cond_197
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
     move v0, v1
 
-    .line 495
+    .line 498
     goto/16 :goto_d
 
     :cond_19d
     move v0, v1
 
-    .line 497
+    .line 500
     goto/16 :goto_d
 
-    .line 500
+    .line 503
     :pswitch_1a0
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lift:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->removeCallbacks(Ljava/lang/Runnable;)Z
 
-    .line 501
+    .line 504
     iget-boolean v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lifted:Z
 
     if-eqz v4, :cond_1b5
 
-    .line 502
+    .line 505
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lifted:Z
 
-    .line 503
+    .line 506
     iput v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
-    .line 504
+    .line 507
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 505
+    .line 508
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
     move v0, v1
 
-    .line 506
+    .line 509
     goto/16 :goto_d
 
-    .line 508
+    .line 511
     :cond_1b5
     iget v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
@@ -4261,7 +4320,7 @@
 
     if-gez v4, :cond_21a
 
-    .line 509
+    .line 512
     iget v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     if-ltz v4, :cond_224
@@ -4274,7 +4333,7 @@
 
     if-eqz v4, :cond_224
 
-    .line 510
+    .line 513
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -4301,55 +4360,55 @@
 
     invoke-interface {v3, v4, v0}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 511
+    .line 514
     iget v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
-    .line 512
+    .line 515
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 513
+    .line 516
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->requestLayout()V
 
-    .line 514
+    .line 517
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->changed()V
 
-    .line 524
+    .line 527
     :goto_20c
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->listener:Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;
 
     if-eqz v0, :cond_217
 
-    .line 525
+    .line 528
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->listener:Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;
 
     iget v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     invoke-interface {v0, v3}, Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;->onSelect(I)V
 
-    .line 527
+    .line 530
     :cond_217
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->performClick()Z
 
-    .line 529
+    .line 532
     :cond_21a
     iput v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
-    .line 530
+    .line 533
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 531
+    .line 534
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
     move v0, v1
 
-    .line 532
+    .line 535
     goto/16 :goto_d
 
-    .line 515
+    .line 518
     :cond_224
     iget v4, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
@@ -4363,7 +4422,7 @@
 
     if-eqz v0, :cond_254
 
-    .line 516
+    .line 519
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -4372,7 +4431,7 @@
 
     invoke-interface {v0, v3}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 517
+    .line 520
     iget v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
@@ -4391,18 +4450,18 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
 
-    .line 518
+    .line 521
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 519
+    .line 522
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->requestLayout()V
 
-    .line 520
+    .line 523
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->changed()V
 
     goto :goto_20c
 
-    .line 522
+    .line 525
     :cond_254
     iget v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->downIndex:I
 
@@ -4410,30 +4469,30 @@
 
     goto :goto_20c
 
-    .line 534
+    .line 537
     :pswitch_259
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lift:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->removeCallbacks(Ljava/lang/Runnable;)Z
 
-    .line 535
+    .line 538
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->lifted:Z
 
-    .line 536
+    .line 539
     iput v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
 
-    .line 537
+    .line 540
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
 
-    .line 538
+    .line 541
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
     move v0, v1
 
-    .line 539
+    .line 542
     goto/16 :goto_d
 
-    .line 441
+    .line 444
     :pswitch_data_26a
     .packed-switch 0x0
         :pswitch_1f
@@ -4447,7 +4506,7 @@
     .registers 2
 
     .prologue
-    .line 567
+    .line 570
     invoke-super {p0}, Landroid/view/View;->performClick()Z
 
     move-result v0

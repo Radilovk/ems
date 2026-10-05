@@ -57,7 +57,7 @@
     .registers 1
 
     .prologue
-    .line 22
+    .line 27
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -69,7 +69,7 @@
     .registers 4
 
     .prologue
-    .line 48
+    .line 53
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->onS:I
 
     const/4 v1, 0x1

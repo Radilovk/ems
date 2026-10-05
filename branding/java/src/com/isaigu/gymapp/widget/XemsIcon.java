@@ -35,6 +35,10 @@ public final class XemsIcon extends Drawable {
     public static final int SEARCH = 15;
     /** A dumbbell: the workouts. */
     public static final int DUMBBELL = 16;
+    /** ⏭ — on to the next exercise (Auto). */
+    public static final int NEXT = 17;
+    /** A bathroom scale with its display: the body-composition measurement. */
+    public static final int SCALE = 18;
 
     private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -150,6 +154,18 @@ public final class XemsIcon extends Drawable {
                 c.drawPath(path, fill);
                 c.drawPath(path, stroke);
                 break;
+            case NEXT:
+                path.reset();
+                path.moveTo(5f, 5f);
+                path.lineTo(15f, 12f);
+                path.lineTo(5f, 19f);
+                path.close();
+                stroke.setStrokeWidth(1.5f);
+                c.drawPath(path, fill);
+                c.drawPath(path, stroke);
+                r.set(16.5f, 5f, 19.5f, 19f);
+                c.drawRoundRect(r, 1.2f, 1.2f, fill);
+                break;
             case PAUSE:
                 r.set(6f, 5f, 10f, 19f);
                 c.drawRoundRect(r, 1.5f, 1.5f, fill);
@@ -206,6 +222,14 @@ public final class XemsIcon extends Drawable {
             case SEARCH:
                 c.drawCircle(10.5f, 10.5f, 6f, stroke);
                 c.drawLine(15f, 15f, 20f, 20f, stroke);
+                break;
+            case SCALE:
+                r.set(3.5f, 3.5f, 20.5f, 20.5f);
+                c.drawRoundRect(r, 4f, 4f, stroke);
+                r.set(8f, 6.5f, 16f, 10f);
+                c.drawRoundRect(r, 1.2f, 1.2f, fill);
+                c.drawLine(8.5f, 15.5f, 8.5f, 17f, stroke);
+                c.drawLine(15.5f, 15.5f, 15.5f, 17f, stroke);
                 break;
             default:
                 break;

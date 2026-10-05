@@ -41,15 +41,24 @@ public final class ProgramArt {
         return WIDTHS[WIDTHS.length - 1];
     }
 
+    /**
+     * The picture of the template alone (owner, 1.1.336): the active template is the standing figure with the
+     * dumbbell, whatever the program — the exercises (when they are on) are drawn by their own figures.
+     */
+    public static String templateKey(AiModel.Sex sex) {
+        return sex == AiModel.Sex.MALE ? "active-m" : "active-f";
+    }
+
+    /** The passive procedure and the recovery (owner, 1.1.336): the figure lying back, by sex. */
+    public static String passiveKey(AiModel.Sex sex) {
+        return sex == AiModel.Sex.MALE ? "passive-m" : "passive-f";
+    }
+
     /** Which picture: an active program by what it trains, a passive one by the client's sex. */
     public static String key(String programId, boolean active, AiModel.Sex sex) {
         boolean male = sex == AiModel.Sex.MALE;
         if (!active || programId == null) {
-            if (male) {
-                return "passive-m";
-            }
-            return AutoCatalog.DRAIN.equals(programId) || AutoCatalog.RECOVERY.equals(programId)
-                    ? "passive-f-music" : "passive-f-line";
+            return passiveKey(sex);
         }
         if (male) {
             if (AutoCatalog.GLUTES_LEGS.equals(programId) || AutoCatalog.CARDIO.equals(programId)) {
@@ -83,7 +92,7 @@ public final class ProgramArt {
     }
 
     static Bitmap bitmap(Context c, String key, int px) {
-        String name = key + "@" + widthFor(px);
+        String name = key + "@" + (key.endsWith("-sq") ? RING_PX : widthFor(px));
         synchronized (CACHE) {
             if (CACHE.containsKey(name)) {
                 return CACHE.get(name);
@@ -106,14 +115,71 @@ public final class ProgramArt {
         }
     }
 
+    /**
+     * Puts picture {@code key} on a tile from {@link #tile} (owner, 1.1.315: the passive recovery shows the figure
+     * lying back, not the program's own picture). Nothing happens when the tile already shows it.
+     */
+    public static void show(View tile, String key, int wDp) {
+        if (!(tile instanceof FrameLayout) || ((FrameLayout) tile).getChildCount() == 0
+                || !(((FrameLayout) tile).getChildAt(0) instanceof ImageView) || key.equals(tile.getTag())) {
+            return;
+        }
+        Context c = tile.getContext();
+        Bitmap b = bitmap(c, key, XemsUi.dp(c, wDp));
+        if (b == null) {
+            return;
+        }
+        android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(c.getResources(), b);
+        d.setFilterBitmap(true);
+        d.setAntiAlias(true);
+        ((ImageView) ((FrameLayout) tile).getChildAt(0)).setImageDrawable(d);
+        tile.setTag(key);
+    }
+
+    /** Pixel side of the square ring pictures (scripts/gen-program-art.py SQ). */
+    static final int RING_PX = 512;
+
+    /**
+     * The owner's square picture for the Auto ring (1.1.338): whole, transparent, filling the circle — no tile.
+     * {@code key} = {@link #templateKey} / {@link #passiveKey}.
+     */
+    public static ImageView ring(Context c, String key) {
+        ImageView iv = new ImageView(c);
+        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        showRing(iv, key);
+        return iv;
+    }
+
+    /** Puts square picture {@code key} on a ring view (nothing when it already shows it). */
+    public static void showRing(View v, String key) {
+        if (!(v instanceof ImageView) || key.equals(v.getTag())) {
+            return;
+        }
+        Context c = v.getContext();
+        Bitmap b = bitmap(c, key + "-sq", RING_PX);
+        if (b == null) {
+            return;
+        }
+        android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(c.getResources(), b);
+        d.setFilterBitmap(true);
+        d.setAntiAlias(true);
+        ((ImageView) v).setImageDrawable(d);
+        v.setTag(key);
+    }
+
     /** The picture on its dark rounded tile, {@code wDp} × {@code hDp}; an empty tile if the picture is missing. */
     public static View tile(Context c, String programId, boolean active, AiModel.Sex sex, int wDp, int hDp) {
+        return tileKey(c, key(programId, active, sex), wDp, hDp);
+    }
+
+    /** The same tile for a picture picked by its key ({@link #templateKey}, {@link #passiveKey}). */
+    public static View tileKey(Context c, String key, int wDp, int hDp) {
         FrameLayout f = new FrameLayout(c);
         f.setBackgroundDrawable(XemsUi.rounded(TILE, XemsUi.dp(c, 14), 0, 0));
         ImageView iv = new ImageView(c);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
         iv.setAdjustViewBounds(false);
-        Bitmap b = bitmap(c, key(programId, active, sex), XemsUi.dp(c, wDp));
+        Bitmap b = bitmap(c, key, XemsUi.dp(c, wDp));
         if (b != null) {
             android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(c.getResources(), b);
             d.setFilterBitmap(true);
@@ -121,6 +187,7 @@ public final class ProgramArt {
             iv.setImageDrawable(d);
         }
         f.addView(iv, new FrameLayout.LayoutParams(XemsUi.dp(c, wDp), XemsUi.dp(c, hDp), Gravity.CENTER));
+        f.setTag(key);
         f.setMinimumWidth(XemsUi.dp(c, wDp));
         f.setMinimumHeight(XemsUi.dp(c, hDp));
         return f;

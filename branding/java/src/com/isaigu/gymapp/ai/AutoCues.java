@@ -47,6 +47,97 @@ public final class AutoCues {
         return AiText.t("Легни удобно, не се движи — мускулите работят сами", "Lie comfortably, do not move — the muscles work by themselves");
     }
 
+    /**
+     * The goal of a phase without exercises (owner, 1.1.287 — the passive session says what it is for), in the
+     * exercise card's place: by the program and the phase.
+     */
+    public static String phaseGoal(Plan plan, Phase ph) {
+        if (ph == null) {
+            return "";
+        }
+        String id = plan.program.id;
+        String p = ph.id != null ? ph.id : "";
+        if (ph.isCooldown()) {
+            return AiText.t("Възстановяване: пулсът и дишането се успокояват, мускулите се отпускат и се изчистват от продуктите на умората.",
+                    "Recovery: the HR and breathing settle, the muscles relax and clear the products of fatigue.");
+        }
+        if ("WARMUP".equals(p)) {
+            return AiText.t("Подготовка: кръвта приижда в мускулите, нервите и ставите се загряват, за да понесат силата.",
+                    "Preparation: blood flows into the muscles, nerves and joints warm up to take the strength.");
+        }
+        if ("OPEN".equals(p)) {
+            return AiText.t("Отваряне: първо се раздвижват пътищата в корема и раменете, за да има къде да се оттече течността.",
+                    "Opening: the pathways in the abdomen and shoulders move first, so the fluid has somewhere to drain.");
+        }
+        if ("LEGS".equals(p)) {
+            return AiText.t("Дренаж на краката: вълна от прасеца към седалището изтласква задържаната течност нагоре.",
+                    "Leg drainage: a wave from the calf to the glutes pushes the held fluid upwards.");
+        }
+        if ("ARMS".equals(p)) {
+            return AiText.t("Дренаж на ръцете и гърба към гърдите.", "Drainage of the arms and back towards the chest.");
+        }
+        if ("WAVE".equals(p) || ph.wave) {
+            return AiText.t("Дренаж: последователни съкращения изтласкват течността под кожата към лимфните пътища.",
+                    "Drainage: contractions in sequence push the fluid under the skin towards the lymph pathways.");
+        }
+        if ("RELAX".equals(p)) {
+            return AiText.t("Отпускане на напрежението и спазъма в гърба.", "Releasing the tension and spasm in the back.");
+        }
+        if ("RELIEF".equals(p)) {
+            return AiText.t("Обезболяване: ниската честота намалява усещането за болка.", "Pain relief: the low frequency dampens the pain.");
+        }
+        if (AutoCatalog.PASSIVE_METABOLIC.equals(id)) {
+            return "Tone".equals(ph.nameEn)
+                    ? AiText.t("Тонус: кратко стягане между блоковете за изгаряне.", "Tone: a short firming between the burning blocks.")
+                    : AiText.t("Изгаряне на енергия без умора: бавните влакна работят непрекъснато.",
+                            "Burning energy without fatigue: the slow fibres work non-stop.");
+        }
+        if (AutoCatalog.BACK_PAIN.equals(id)) {
+            return AiText.t("Стабилизация: дълбоките мускули на корема и гърба поемат товара от гръбнака.",
+                    "Stabilising: the deep abdominal and back muscles take the load off the spine.");
+        }
+        if (AutoCatalog.POSTPARTUM.equals(id)) {
+            return AiText.t("Тазово дъно и корем: сила и контрол след раждането.", "Pelvic floor and abs: strength and control after birth.");
+        }
+        if (AutoCatalog.CELLULITE.equals(id)) {
+            return AiText.t("Тонус на мускулите под кожата — по-стегнат вид.", "Tone of the muscles under the skin — a firmer look.");
+        }
+        if (AutoCatalog.RECOVERY.equals(id)) {
+            return AiText.t("Масаж: по-добър кръвоток, отпускане и по-бързо възстановяване след натоварване.",
+                    "Massage: better blood flow, relaxation and faster recovery after training.");
+        }
+        return plan.program.desc();
+    }
+
+    /** What the current impulse does in the body (by its frequency, the wave and the 2nd impulse). */
+    public static String effect(Phase ph, AutoEngine.Cmd c, boolean doublePulse) {
+        if (c == null || c.frac <= 0) {
+            return AiText.t("Пауза — мускулите почиват, съдовете се пълнят.", "Pause — the muscles rest, the vessels refill.");
+        }
+        String e;
+        if (ph != null && ph.wave) {
+            e = AiText.t("Зоните се съкращават една след друга — като ръце, които изстискват течността към сърцето.",
+                    "The zones contract one after another — like hands squeezing the fluid towards the heart.");
+        } else if (c.hz <= 4) {
+            e = AiText.t(c.hz + " Hz — редки отделни потрепвания: мускулът се отпуска, кръвта тече свободно; тази честота намалява болката.",
+                    c.hz + " Hz — sparse single twitches: the muscle lets go, blood flows freely; this frequency dampens pain.");
+        } else if (c.hz <= 12) {
+            e = AiText.t(c.hz + " Hz — ритмични потрепвания, мускулна помпа: движат кръвта и лимфата, бавните влакна горят енергия, без да се уморяват.",
+                    c.hz + " Hz — rhythmic twitches, a muscle pump: they move blood and lymph, the slow fibres burn energy without tiring.");
+        } else if (c.hz <= 40) {
+            e = AiText.t(c.hz + " Hz — меко слято съкращение: издръжливост и тонус без силна умора.",
+                    c.hz + " Hz — a soft fused contraction: endurance and tone without strong fatigue.");
+        } else {
+            e = AiText.t(c.hz + " Hz — пълно съкращение: включва най-много влакна наведнъж — тонус и сила; паузата връща кръвта.",
+                    c.hz + " Hz — a full contraction: the most fibres at once — tone and strength; the pause lets the blood back.");
+        }
+        if (doublePulse && c.pauseHz > 0 && c.pauseSigma > 0) {
+            e += AiText.t(" В паузата лек 2-ри импулс (" + c.pauseHz + " Hz) държи кръвта в движение.",
+                    " In the pause a light 2nd impulse (" + c.pauseHz + " Hz) keeps the blood moving.");
+        }
+        return e;
+    }
+
     /** Cue while the pulse is ON. */
     public static String onCue(Plan plan, Phase ph, AutoEngine.Cmd c) {
         if (c == null || c.frac <= 0) {

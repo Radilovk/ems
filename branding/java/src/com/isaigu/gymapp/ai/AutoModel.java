@@ -84,6 +84,24 @@ public final class AutoModel {
         public double weightKg = 70;
         /** 0 = not entered (the wizard does not go on without it). */
         public int heightCm = 0;
+        /** Body fat % measured by the scale; &lt; 0 = not measured (then estimated from the BMI). */
+        public double fatPct = -1;
+        /** Body fat % per suit channel from the scale's segments; null = the whole-body value everywhere. */
+        public double[] channelFat;
+        /** Today's scale readiness (1 / 0.85 / 0.7): swelling or less water against the client's own baseline. */
+        public double readiness = 1.0;
+        /** Scale (fresh measurement), &lt; 0 = not measured: lean mass and skeletal muscle (kg). */
+        public double leanKg = -1;
+        public double skeletalKg = -1;
+        /** Muscle per suit channel against the body's mean (mean ≈ 1); null = the standard distribution. */
+        public double[] chMuscle;
+        /** Measured classes: little muscle for the height / obese by fat mass (not by BMI). */
+        public boolean muscleLow;
+        public boolean fatObese;
+        /** Measured at all (then the classes above replace the BMI rules). */
+        public boolean measured;
+        /** Focus zone the scale asks for (weakest zone under 90 % of normal), client-form key; null = none. */
+        public String scaleFocus;
         public AiModel.Fitness fitness = AiModel.Fitness.MID;
         /** Finished sessions of this client (history + automatic sessions). */
         public int sessions = 0;
@@ -94,6 +112,9 @@ public final class AutoModel {
         /** Program variant: DRAIN 1 = sensitive (8 Hz steps). */
         public int variant = 0;
         public boolean doublePulse = true;
+        /** "С упражнения" (true) or "Само шаблон" (false, owner 1.1.325): the template's blocks — impulse, pauses,
+         *  rests and their logic — with or without the exercises. */
+        public boolean exercises = true;
         /** Minutes chosen in the plan step; null = the program's value. */
         public Integer totalSeconds;
         public AiModel.Screening screening = new AiModel.Screening();
@@ -235,8 +256,15 @@ public final class AutoModel {
     public static final class Plan {
         public AutoCatalog.Program program;
         public Input input;
+        /** Oldest client on the rows (−1 = none known): the absolute limits use it, so one cycle fits every row. */
+        public int limitAge = -1;
         public final List<Phase> phases = new ArrayList<Phase>();
+        /** Whole session: the active part + the passive recovery (cool-down). */
         public int totalS;
+        /** The active part (everything before the cool-down), ≤ 20 min of impulses (owner, 1.1.270). */
+        public int activeS;
+        /** The passive recovery at the end (10 min), 0 = the program has none. */
+        public int recoveryS;
         /** Hard ceiling of the planned strength factor (adaptation, age, SOLO …). */
         public double phiMax = 1.0;
         /** Ceiling of the envelope (how far above the calibration a person may go). */

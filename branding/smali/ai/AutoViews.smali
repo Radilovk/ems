@@ -1,0 +1,413 @@
+.class public final Lcom/isaigu/gymapp/ai/AutoViews;
+.super Ljava/lang/Object;
+.source "AutoViews.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/MemberClasses;
+    value = {
+        Lcom/isaigu/gymapp/ai/AutoViews$Timeline;,
+        Lcom/isaigu/gymapp/ai/AutoViews$Dots;,
+        Lcom/isaigu/gymapp/ai/AutoViews$Vital;,
+        Lcom/isaigu/gymapp/ai/AutoViews$PeakBar;,
+        Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;,
+        Lcom/isaigu/gymapp/ai/AutoViews$StagePair;,
+        Lcom/isaigu/gymapp/ai/AutoViews$RingStage;,
+        Lcom/isaigu/gymapp/ai/AutoViews$SetRing;
+    }
+.end annotation
+
+
+# static fields
+.field static final GAMUT_F:[I
+
+.field static final GAMUT_M:[I
+
+.field static final HEAT_AT:[F
+
+.field static final HEAT_COL:[I
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .registers 3
+
+    .prologue
+    const/4 v2, 0x6
+
+    const/4 v1, 0x4
+
+    .line 35
+    new-array v0, v2, [F
+
+    fill-array-data v0, :array_20
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+
+    .line 36
+    new-array v0, v2, [I
+
+    fill-array-data v0, :array_30
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    .line 58
+    new-array v0, v1, [I
+
+    fill-array-data v0, :array_40
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->GAMUT_M:[I
+
+    .line 59
+    new-array v0, v1, [I
+
+    fill-array-data v0, :array_4c
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->GAMUT_F:[I
+
+    return-void
+
+    .line 35
+    nop
+
+    :array_20
+    .array-data 4
+        0x0
+        0x3e99999a    # 0.3f
+        0x3f0ccccd    # 0.55f
+        0x3f4ccccd    # 0.8f
+        0x3f800000    # 1.0f
+        0x3fa00000    # 1.25f
+    .end array-data
+
+    .line 36
+    :array_30
+    .array-data 4
+        -0xd09401
+        -0xdd2c12
+        -0xdd3aa2
+        -0x533eb
+        -0x10bbbc
+        -0x46e3e4
+    .end array-data
+
+    .line 58
+    :array_40
+    .array-data 4
+        -0x826901
+        -0xdd1c01
+        -0x690a01
+        -0x1e0001
+    .end array-data
+
+    .line 59
+    :array_4c
+    .array-data 4
+        -0x3b8701
+        -0xc42c
+        -0xd26b
+        -0xe1a6
+    .end array-data
+.end method
+
+.method private constructor <init>()V
+    .registers 1
+
+    .prologue
+    .line 30
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+.method static bodyFill(D)F
+    .registers 12
+
+    .prologue
+    .line 74
+    const-wide/16 v0, 0x0
+
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+
+    invoke-static {v2, v3, p0, p1}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v2
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v0
+
+    .line 75
+    const-wide v2, 0x3fbeb851eb851eb8L    # 0.12
+
+    const-wide v4, 0x3fec28f5c28f5c29L    # 0.88
+
+    mul-double/2addr v4, v0
+
+    mul-double/2addr v4, v0
+
+    const-wide/high16 v6, 0x4008000000000000L    # 3.0
+
+    const-wide/high16 v8, 0x4000000000000000L    # 2.0
+
+    mul-double/2addr v0, v8
+
+    sub-double v0, v6, v0
+
+    mul-double/2addr v0, v4
+
+    add-double/2addr v0, v2
+
+    double-to-float v0, v0
+
+    return v0
+.end method
+
+.method public static bodyHeat(ZD)I
+    .registers 14
+
+    .prologue
+    const/4 v3, 0x2
+
+    const/4 v2, 0x1
+
+    const-wide v6, 0x3ff2666666666666L    # 1.15
+
+    const-wide v4, 0x3fc3333333333333L    # 0.15
+
+    const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
+
+    .line 62
+    if-eqz p0, :cond_37
+
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->GAMUT_F:[I
+
+    .line 63
+    :goto_12
+    cmpg-double v1, p1, v8
+
+    if-gtz v1, :cond_3a
+
+    .line 64
+    const/4 v1, 0x0
+
+    aget v1, v0, v1
+
+    aget v0, v0, v2
+
+    const-wide/16 v2, 0x0
+
+    const-wide v4, 0x3fd6666666666666L    # 0.35
+
+    const-wide v6, 0x3fe4cccccccccccdL    # 0.65
+
+    mul-double/2addr v6, p1
+
+    add-double/2addr v4, v6
+
+    invoke-static {v8, v9, v4, v5}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v4
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v2
+
+    double-to-float v2, v2
+
+    invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v0
+
+    .line 69
+    :goto_36
+    return v0
+
+    .line 62
+    :cond_37
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->GAMUT_M:[I
+
+    goto :goto_12
+
+    .line 66
+    :cond_3a
+    cmpg-double v1, p1, v6
+
+    if-gtz v1, :cond_4b
+
+    .line 67
+    aget v1, v0, v2
+
+    aget v0, v0, v3
+
+    sub-double v2, p1, v8
+
+    div-double/2addr v2, v4
+
+    double-to-float v2, v2
+
+    invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v0
+
+    goto :goto_36
+
+    .line 69
+    :cond_4b
+    aget v1, v0, v3
+
+    const/4 v2, 0x3
+
+    aget v0, v0, v2
+
+    sub-double v2, p1, v6
+
+    div-double/2addr v2, v4
+
+    invoke-static {v8, v9, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v2
+
+    double-to-float v2, v2
+
+    invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v0
+
+    goto :goto_36
+.end method
+
+.method static dp(Landroid/view/View;F)F
+    .registers 3
+
+    .prologue
+    .line 79
+    invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v0
+
+    iget v0, v0, Landroid/util/DisplayMetrics;->density:F
+
+    mul-float/2addr v0, p1
+
+    return v0
+.end method
+
+.method public static heat(D)I
+    .registers 8
+
+    .prologue
+    const/4 v2, 0x0
+
+    .line 39
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+
+    aget v0, v0, v2
+
+    float-to-double v0, v0
+
+    cmpg-double v0, p0, v0
+
+    if-gtz v0, :cond_f
+
+    .line 40
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    aget v0, v0, v2
+
+    .line 48
+    :goto_e
+    return v0
+
+    .line 42
+    :cond_f
+    const/4 v0, 0x1
+
+    :goto_10
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+
+    array-length v1, v1
+
+    if-ge v0, v1, :cond_47
+
+    .line 43
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+
+    aget v1, v1, v0
+
+    float-to-double v2, v1
+
+    cmpg-double v1, p0, v2
+
+    if-gtz v1, :cond_44
+
+    .line 44
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+
+    add-int/lit8 v2, v0, -0x1
+
+    aget v1, v1, v2
+
+    float-to-double v2, v1
+
+    sub-double v2, p0, v2
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+
+    aget v1, v1, v0
+
+    sget-object v4, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_AT:[F
+
+    add-int/lit8 v5, v0, -0x1
+
+    aget v4, v4, v5
+
+    sub-float/2addr v1, v4
+
+    float-to-double v4, v1
+
+    div-double/2addr v2, v4
+
+    double-to-float v1, v2
+
+    .line 45
+    sget-object v2, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    add-int/lit8 v3, v0, -0x1
+
+    aget v2, v2, v3
+
+    sget-object v3, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    aget v0, v3, v0
+
+    invoke-static {v2, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v0
+
+    goto :goto_e
+
+    .line 42
+    :cond_44
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_10
+
+    .line 48
+    :cond_47
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoViews;->HEAT_COL:[I
+
+    array-length v1, v1
+
+    add-int/lit8 v1, v1, -0x1
+
+    aget v0, v0, v1
+
+    goto :goto_e
+.end method

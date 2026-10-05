@@ -30,6 +30,10 @@ package com.isaigu.gymapp.ai;
  *       it; before that (HR lags 20–40 s) or in passive programs (HR hardly moves) the channel model
  *       carries it. Nothing is counted twice.</li>
  *   <li><b>Fuel:</b> RER rises with intensity → 4.69…5.05 kcal per litre O2 (Lusk).</li>
+ *   <li><b>Glycolytic share</b> (docs/xems-ems-physiology.md §4): part of the evoked ATP is made without oxygen
+ *       (PCr, glycolysis; {@link #glycolyticShare}, rising with the force the frequency gives). It is not oxygen
+ *       uptake now, so the heart branch cannot see it: its O2-equivalent {@code evoked · g/(1−g)} is kept as a debt,
+ *       counted in the total at once (lactate, glycogen, repaid over the next hour) — on top of the max() above.</li>
  *   <li><b>After the session:</b> 60 s of recovery are integrated; the rest of the fast O2 debt is
  *       added as (VO2_end − VO2_rest)·τ, τ = 40 s ({@link #closeEpoc}).</li>
  * </ol>
@@ -113,9 +117,18 @@ public final class AiEnergy {
     }
 
     private double muscleScale = 1.0;
+    /** Muscle per channel against the body's mean (scale segments); null = the standard distribution. */
+    private double[] chMuscle;
     private double kcalEmsModel;
+    /** Glycolytic debt so far, litres O2-equivalent (not yet in kcal — {@link #getKcal} adds it). */
+    private double glyDebtL;
 
     public static final double EPOC_TAU_S = 40.0;
+    /** Glycolytic share of the evoked ATP: GLY_BASE at the lowest force, + GLY_FORCE at 85 Hz and above. [D] */
+    public static final double GLY_BASE = 0.15;
+    public static final double GLY_FORCE = 0.15;
+    /** kcal per litre of O2-equivalent repaid through lactate / glycogen (RER ≈ 1, Lusk). */
+    public static final double GLY_KCAL_PER_L = 5.0;
 
     private final double weightKg;
     private final double vo2rest;
@@ -150,15 +163,55 @@ public final class AiEnergy {
     }
 
     /** Personal model for an AI session: sex, age, weight, fitness, medication, measured resting HR. */
+    /**
+     * The same personal model from the plain data of a client (the automatic mode has no SessionInput): sex, age,
+     * weight, fitness, the scale's lean / skeletal mass and channel muscle, HR-lowering medication, resting and
+     * maximum HR (rest &lt; 0 = not measured).
+     */
+    public static AiEnergy forPerson(AiModel.Sex sex, int age, double weightKg, AiModel.Fitness fitness,
+            double leanKg, double skeletalKg, double[] chMuscle, boolean medication, int hrRest, int hrMax) {
+        double w = weightKg >= 30 && weightKg <= 250 ? weightKg : DEFAULT_WEIGHT_KG;
+        int a = age > 0 ? age : 35;
+        AiEnergy e = new AiEnergy(hrRest, hrMax, w, restingVo2(sex, a, w, leanKg), fitnessVo2max(fitness, sex, a),
+                !medication);
+        e.muscleScale = muscleScale(sex, w, skeletalKg);
+        e.chMuscle = chMuscle;
+        return e;
+    }
+
     public static AiEnergy forSession(AiModel.SessionInput in, AiModel.Profile p) {
         double w = in.weightKg >= 30 && in.weightKg <= 250 ? in.weightKg : DEFAULT_WEIGHT_KG;
         boolean med = in.screening != null && in.screening.hrLoweringMedication;
         int rest = p != null && p.hrAvailable ? p.hrRest : -1;
         int max = p != null && p.hrMax > 0 ? p.hrMax : AiPlanner.hrMax(in.sex, in.age);
-        AiEnergy e = new AiEnergy(rest, max, w, restingVo2(in.sex, in.age, w),
+        AiEnergy e = new AiEnergy(rest, max, w, restingVo2(in.sex, in.age, w, in.leanKg),
                 fitnessVo2max(in.fitness, in.sex, in.age), !med);
-        e.muscleScale = (in.sex == AiModel.Sex.FEMALE ? 0.31 : 0.38) * w / SM_REF_KG;
+        e.muscleScale = muscleScale(in.sex, w, in.skeletalKg);
+        e.chMuscle = in.chMuscle;
         return e;
+    }
+
+    /**
+     * The person's skeletal muscle against the 28.5 kg reference: the scale's measured skeletal muscle when there
+     * is one, else the population share of the weight (women 31 %, men 38 %).
+     */
+    public static double muscleScale(AiModel.Sex sex, double w, double skeletalKg) {
+        if (skeletalKg >= 10 && skeletalKg <= 80) {
+            return skeletalKg / SM_REF_KG;
+        }
+        return (sex == AiModel.Sex.FEMALE ? 0.31 : 0.38) * w / SM_REF_KG;
+    }
+
+    /**
+     * Resting VO2 from the scale's lean mass when measured (Katch–McArdle RMR = 370 + 21.6 · lean, the same the
+     * scale's BMR uses: muscle, not weight, sets the resting burn), else Schofield from the weight.
+     */
+    public static double restingVo2(AiModel.Sex sex, int age, double w, double leanKg) {
+        if (leanKg >= 20 && leanKg <= 120 && w >= 30) {
+            double rmr = 370 + 21.6 * leanKg;
+            return Math.max(2.3, Math.min(4.5, rmr / 1440.0 / 4.83 * 1000.0 / w));
+        }
+        return restingVo2(sex, age, w);
     }
 
     /** Schofield (1985) RMR (kcal/day) → VO2 at rest in ml/kg/min. */
@@ -201,6 +254,7 @@ public final class AiEnergy {
         kcalRest = 0;
         kcalEms = 0;
         kcalEmsModel = 0;
+        glyDebtL = 0;
         lastVo2 = -1;
         lastMs = -1L;
     }
@@ -227,7 +281,8 @@ public final class AiEnergy {
         hrr = Math.max(0, Math.min(1, hrr));
         double restL = vo2rest * weightKg / 1000.0;
         double hrL = (vo2rest + hrr * (vo2max - vo2rest)) * weightKg / 1000.0;
-        double emsL = stim != null ? evokedVo2(stim, muscleScale) + exerciseVo2(exerciseMet, weightKg, stim.onShare) : 0;
+        double emsL = stim != null ? evokedVo2(stim, muscleScale, chMuscle)
+                + exerciseVo2(exerciseMet, weightKg, stim.onShare) : 0;
         double totalL = Math.max(hrL, restL + emsL);
         // RER from the effective intensity (either branch).
         double intensity = Math.max(hrr, (totalL - restL) / Math.max(1e-6, (vo2max - vo2rest) * weightKg / 1000.0));
@@ -236,6 +291,13 @@ public final class AiEnergy {
         kcal += totalL * perL * dtS;
         kcalRest += restL * 4.83 / 60.0 * dtS;
         kcalEmsModel += emsL * perL * dtS;
+        if (stim != null) {
+            // main impulse sets the force weight; with no main impulse (pause only) the pause frequency does
+            int gHz = stim.onShare > 0 && stim.hz > 0 ? stim.hz : stim.pauseHz;
+            double evokedL = evokedVo2(stim, muscleScale, chMuscle);
+            double g = glycolyticShare(gHz);
+            glyDebtL += evokedL * g / (1.0 - g) * dtS / 60.0;
+        }
         if (restL + emsL > hrL) {
             kcalEms += (restL + emsL - hrL) * perL * dtS;
         }
@@ -247,6 +309,11 @@ public final class AiEnergy {
      * @param muscleScale person's skeletal-muscle mass / 28.5 kg
      */
     public static double evokedVo2(Stim s, double muscleScale) {
+        return evokedVo2(s, muscleScale, null);
+    }
+
+    /** As above, each channel's muscle weighed by the scale's segments (chMuscle, mean ≈ 1; null = standard). */
+    public static double evokedVo2(Stim s, double muscleScale, double[] chMuscle) {
         if (s == null) {
             return 0;
         }
@@ -267,7 +334,8 @@ public final class AiEnergy {
                 double q = sent * (s.pauseStrengthPct / 100.0) * (s.pwUs / 350.0);
                 part += s.pauseShare * recruited(q, tol) * freqFactor(s.pauseHz);
             }
-            ml += CH_MASS[ch] * muscleScale * CH_DEPTH[ch] * part * R_MAX;
+            double cm = chMuscle != null && ch < chMuscle.length && chMuscle[ch] > 0 ? chMuscle[ch] : 1.0;
+            ml += CH_MASS[ch] * cm * muscleScale * CH_DEPTH[ch] * part * R_MAX;
         }
         return ml / 1000.0;
     }
@@ -284,6 +352,11 @@ public final class AiEnergy {
         double th = 0.05 * ref;
         double r = R_AT_TOLERATED * (q - th) / Math.max(1e-9, ref - th);
         return Math.max(0, Math.min(1, r));
+    }
+
+    /** Share of the evoked ATP made without oxygen at this frequency (0.17 at 7 Hz … 0.30 at 85 Hz). [D] */
+    public static double glycolyticShare(int hz) {
+        return GLY_BASE + GLY_FORCE * Math.max(0, Math.min(1.0, AiPlanner.forceWeight(Math.max(0, hz))));
     }
 
     /** k(f) = f/(f+25) normalised to 85 Hz. */
@@ -306,11 +379,18 @@ public final class AiEnergy {
             kcal += (lastVo2 - vo2rest) * weightKg / 1000.0 * 4.83 / 60.0 * EPOC_TAU_S;
         }
         lastVo2 = -1;
+        kcal += glyDebtL * GLY_KCAL_PER_L;     // the debt becomes part of the base total
+        glyDebtL = 0;
+    }
+
+    /** kcal of the glycolytic debt still open (already inside {@link #getKcal}). */
+    public double getDebtKcal() {
+        return glyDebtL * GLY_KCAL_PER_L;
     }
 
     /** Above resting metabolism (what the training added). */
     public double getActiveKcal() {
-        return Math.max(0, kcal - kcalRest);
+        return Math.max(0, getKcal() - kcalRest);
     }
 
     public double getVo2rest() {
@@ -318,7 +398,7 @@ public final class AiEnergy {
     }
 
     public double getKcal() {
-        return kcal;
+        return kcal + glyDebtL * GLY_KCAL_PER_L;
     }
 
     /** kcal the channel model added above the heart-rate branch (HR lag, passive work). */

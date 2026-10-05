@@ -73,6 +73,9 @@ final class SessionRec {
     /** Work per channel: Σ (share × main strength) over the impulse seconds — the muscle map's load — plus the
      *  exercise's own work on its muscles (EXERCISE_LOAD at a main muscle in the impulse, 30 % of it in the pause). */
     final double[] chLoad = new double[CH];
+    /** The exercises' own part of it, every channel (switched off or not): the deltoid's reference — it has no
+     *  channel and gets the shoulder column (5) alone, as the report page does. */
+    final double[] exLoad = new double[CH];
 
     /** Seconds the slot has been paused without a break. */
     int pausedS;
@@ -85,8 +88,20 @@ final class SessionRec {
     /** The report was opened on the screen. */
     boolean shown;
 
+    /** The last start handed out: a training's id is its start (ms), unique on this tablet. */
+    private static long lastStart;
+
+    /**
+     * A group start (⚙ Master ▶) opens every slot in one recorder tick with the same "now": each slot gets the next
+     * free millisecond, or the trainings would share an id and overwrite each other's file and index entry.
+     */
+    static synchronized long uniqueStart(long now) {
+        lastStart = Math.max(now, lastStart + 1);
+        return lastStart;
+    }
+
     SessionRec(TrainItem item, long now) {
-        start = now;
+        start = uniqueStart(now);
         TrainUser u = item.data.trainUser;
         userId = u.id;
         user = u;
@@ -210,6 +225,7 @@ final class SessionRec {
             exUsed.add(exercise);
             int pct = item.data.inStart ? 100 : 30;
             for (int i = 0; i < CH && i < mus.length; i++) {
+                exLoad[i] += mus[i] * EXERCISE_LOAD * pct / 10000.0;
                 if ((mask & (1 << i)) == 0) {
                     chLoad[i] += mus[i] * EXERCISE_LOAD * pct / 10000.0;
                 }
@@ -228,6 +244,15 @@ final class SessionRec {
             out[i] = mx > 0 ? (int) Math.round(chLoad[i] * 100.0 / mx) : 0;
         }
         return out;
+    }
+
+    /** The deltoid, 0–100: the exercises' shoulder work against the zone they worked most; −1 = none worked it. */
+    int deltLevel() {
+        double mx = 0;
+        for (double v : exLoad) {
+            mx = Math.max(mx, v);
+        }
+        return mx > 0 && exLoad[5] > 0 ? (int) Math.round(Math.min(100.0, exLoad[5] * 100.0 / mx)) : -1;
     }
 
     /** "M" / "F" for the band's figure (female when unknown). */

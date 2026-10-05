@@ -3,8 +3,12 @@
 
 - CircleSeekBar.isTouch: a touch inside the ring (on the photo) is not the slider's
   (XemsLocalAvatar.inCenter) — the slider moves only on its ring;
-- TrainViewHolder.bind (the training screen): a tap on userIcon opens the client card
-  (XemsLocalAvatar.bindCard(View, TrainItem));
+- TrainViewHolder.bind (the training screen): a tap on userIcon picks the client for the master
+  controls (the photo lights up), a long press opens the client card (XemsLocalAvatar.bindCard(View, TrainItem));
+- master controls on the picked clients only (nobody picked = everyone):
+  NewTrainFragment.lambda$settingAllUser$15 (⚙ Master),
+  NewTrainFragment.startOrStopAll (▶ / ❚❚; ■ stays for everyone);
+  + / − in apply-part-strength.py (apply-active-pause-control-fixes.py rewrites that lambda later);
 - TrainFragment$UserTrainAdapter.onBindViewHolder (old list): same card.
 - CircleSeekBar.onTouchEvent: the training ring moves only when the gesture starts on its handle
   (XemsLocalAvatar.grab); a tap anywhere else on the track does nothing.
@@ -17,6 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 SEEK = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget/CircleSeekBar.smali"
+FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 HOLDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder.smali"
 ADAPTER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/TrainFragment$UserTrainAdapter.smali"
 AV = "Lcom/isaigu/gymapp/widget/XemsLocalAvatar;"
@@ -132,12 +137,57 @@ def patch_grab() -> None:
     SEEK.write_text(text[:k] + GRAB + text[k:], encoding="utf-8")
 
 
+ITEM = "Lcom/isaigu/gymapp/train/model/TrainItem;"
+
+
+def guard_first(path: Path, sig: str, code: str, mark: str) -> None:
+    """Insert {code} as the first statement of the method {sig} (right after .locals)."""
+    text = path.read_text(encoding="utf-8")
+    a = text.find(sig)
+    if a < 0:
+        sys.exit(f"apply-avatar-card: {sig} not found in {path.name}")
+    b = text.find(".end method", a)
+    if mark in text[a:b]:
+        return
+    loc = text.find(".locals", a)
+    if loc < 0 or loc > b:
+        sys.exit(f"apply-avatar-card: .locals of {sig} not found")
+    eol = text.find("\n", loc)
+    path.write_text(text[:eol + 1] + code + text[eol + 1:], encoding="utf-8")
+
+
+def patch_master_pick() -> None:
+    applies = f"{AV}->masterApplies({ITEM})Z"
+    guard_first(
+        FRAGMENT,
+        ".method static synthetic lambda$settingAllUser$15(",
+        f"    invoke-static {{p2}}, {applies}\n"
+        "    move-result v0\n"
+        "    if-nez v0, :cond_xems_pick_set\n"
+        "    return-void\n"
+        "    :cond_xems_pick_set\n",
+        applies,
+    )
+    start = f"{AV}->masterStartOrStop()Z"
+    guard_first(
+        FRAGMENT,
+        ".method public startOrStopAll()V",
+        f"    invoke-static {{}}, {start}\n"
+        "    move-result v0\n"
+        "    if-eqz v0, :cond_xems_pick_start\n"
+        "    return-void\n"
+        "    :cond_xems_pick_start\n",
+        start,
+    )
+
+
 def main() -> None:
+    patch_master_pick()
     patch_seek()
     patch_grab()
     patch_holder()
     patch_adapter()
-    print("apply-avatar-card: slider ring only, photo opens the client card")
+    print("apply-avatar-card: slider ring only, photo picks the client (long press: card)")
 
 
 if __name__ == "__main__":

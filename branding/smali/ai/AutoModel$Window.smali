@@ -43,29 +43,29 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 121
+    .line 142
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 126
+    .line 147
     const-wide v0, 0x3fb999999999999aL    # 0.1
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->hzShare:D
 
-    .line 127
+    .line 148
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->onMinus:I
 
-    .line 128
+    .line 149
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->onPlus:I
 
-    .line 129
+    .line 150
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->offMinus:I
 
-    .line 130
+    .line 151
     const/4 v0, 0x2
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->offPlus:I
 
-    .line 131
+    .line 152
     const/16 v0, 0x32
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->pwDelta:I
@@ -77,7 +77,7 @@
     .registers 1
 
     .prologue
-    .line 134
+    .line 155
     new-instance v0, Lcom/isaigu/gymapp/ai/AutoModel$Window;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AutoModel$Window;-><init>()V
@@ -91,23 +91,23 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 138
+    .line 159
     new-instance v0, Lcom/isaigu/gymapp/ai/AutoModel$Window;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AutoModel$Window;-><init>()V
 
-    .line 139
+    .line 160
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->hz:Z
 
-    .line 140
+    .line 161
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->on:Z
 
-    .line 141
+    .line 162
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->off:Z
 
-    .line 142
+    .line 163
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Window;->pw:Z
 
-    .line 143
+    .line 164
     return-object v0
 .end method

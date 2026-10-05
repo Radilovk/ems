@@ -15,6 +15,10 @@ public final class MapClock {
     private double blockS;
     private double elapsedS;
     private boolean done;
+    /** The impulse cycle as it runs now (s, MapDynamics may lengthen it); ≤ 0 = as drawn. */
+    private double cycleS = -1;
+    /** The running rest's length (s, MapDynamics may extend it); < 0 = as drawn. */
+    private double restS = -1;
 
     public MapClock(Workout map) {
         this.map = map;
@@ -86,13 +90,31 @@ public final class MapClock {
         }
         blockS += dtS;
         elapsedS += dtS;
-        if (b.isRest() ? blockS >= b.reps : blockS >= b.seconds() + FALLBACK_S) {
+        double impulses = cycleS > 0 ? Math.max(b.seconds(), b.reps * cycleS) : b.seconds();
+        if (b.isRest() ? blockS >= (restS >= 0 ? restS : b.reps) : blockS >= impulses + FALLBACK_S) {
             return next();
         }
         return false;
     }
 
+    /** The cycle now really lasts {@code s} seconds (the time fallback waits for it). */
+    public void setCycleS(double s) {
+        cycleS = s;
+    }
+
+    /** The running rest lasts {@code s} seconds (at least as drawn). */
+    public void setRestS(double s) {
+        restS = s;
+    }
+
+    /** Seconds the running rest lasts. */
+    public double restLength() {
+        Workout.Block b = block();
+        return b == null ? 0 : restS >= 0 ? restS : b.reps;
+    }
+
     private boolean next() {
+        restS = -1;
         index++;
         cycles = 0;
         blockS = 0;

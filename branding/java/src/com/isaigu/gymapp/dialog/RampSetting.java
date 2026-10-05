@@ -20,8 +20,8 @@ import java.util.Locale;
  * Soft rise / fall of the impulses in the program parameters dialog (per user and from the
  * master settings — both use EditUserProgramDataDialog). The stock ramp column was hidden by
  * scripts/remove-ramp.py; this shows it again in seconds: 0 … 3 s in 0.5 s steps.
- * Values are stored in ms in ProgramDataBean.inputRamp / outputRamp and sent to the device by
- * AiRamp (capped so both together fit into the impulse ON time).
+ * Values are stored in ms in ProgramDataBean.inputRamp / outputRamp; the tablet ramps the ON phase itself
+ * (train.model.SoftRamp via ai/AiRamp, both together fit into the impulse ON time) — the suit gets ramp bytes 0.
  * Every mode has its own: Основен in the stock column, Мускули / Кардио / Масаж get a row
  * "Плавно ↑ / ↓" under their work time (their own bean).
  */

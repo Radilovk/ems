@@ -92,11 +92,49 @@ A workout **is** an impulse map: a line of blocks (merged with the exercises for
   100 %; impulse blocks advance by counted impulse cycles (AiSession.onPulseCycle → leader), rests by time, a time
   fallback (length + 3 s) if the cycle hook is silent; time counts only while the suit runs. Card at the top: line
   with playhead, figure (client's colour), "повторение 3/8 · Hz · µs", "Следва: …", ■ Стоп. Refused together with
-  AI, Auto, music sync, the timer's block program (and they refuse while a map runs). Recorded exercise → kcal /
+  AI, Auto, music sync (one owner of the output, ai/OutputOwner; they refuse while a map runs). Recorded exercise → kcal /
   muscle map like the Smart Session.
 - **▶ AI** (`AiExercises.forWorkout`): the exercise blocks in map order are the sets (rest and plain blocks are left
   to the AI's own rests); rest-pause when the AI's block is shorter; the block's Hz / µs are used only when gentler
   than the AI's plan (`AiSession.gentler`), never stronger; strength, rests and timing stay with the AI.
+
+## Impulse in motion (owner, 1.1.324 — `ai/MapDynamics`)
+In every ready template and every workout with exercises, **▶ Авто** no longer sends the drawn impulse unchanged —
+the automatic mode's logic (`ai/AutoDynamics`, physiology §3.5, docs/xems-auto-mode-spec.md §13) runs on it, always,
+without a switch. **Procedures (passive maps) stay exactly as drawn.**
+- The leader's muscle fatigue runs the whole map (impulse, second impulse, pause, rest; the leader's fitness).
+- **Each exercise block (a set)** gets its approach when it starts: the drawn impulse ("Както е нарисуван") or
+  strength + active rest, pure strength, volume, metabolic, endurance tone — from how fresh the muscle is, the stage
+  of the workout, the leader's pulse (near 85 % of HR max → light), the approaches used (never the same twice in a row)
+  and the training count. By the drawn movement: cardio / jumps (< 50 Hz) only metabolic / tone; stretching (< 20 Hz)
+  stays as drawn; 60+ and the first 3 trainings no 100 Hz.
+- **Every repetition** (one impulse) glides: frequency down with the fatigue, pause up ≤ 2 s, depth +≤ 20 µs at the
+  end (never below the drawn); a new approach / a jump ≥ 10 Hz starts softer. The repetitions stay as drawn.
+- **A drawn rest is the minimum**: still tired (F over F_rec) → longer, at most 2 min (`MapDynamics.restS`).
+- **By the exercise's movement, not the drawn Hz** (1.1.326, `AutoDynamics.move` / `forMap`): the block keeps the
+  library pattern (`Block.pat`, `hold`; old blocks look it up: built-in → library). Big compound movements
+  (`STRENGTH_PATS`: squat, lunge, hinge, glute, push/pull, dip, olympic) — every approach; small muscles / core flexion —
+  no pure 100 Hz; holds (`core_static`, `carry`, duration) — light volume / tone; cardio / plyo — metabolic / tone;
+  stretching — as drawn. **A new pattern nobody classified = light (no 100 Hz)**, and MapSim fails until it is
+  classified. 60+: the gentle set only for strength movements (cardio / holds keep theirs); first trainings no 100 Hz.
+- **The catalogue's group decides** (1.1.327, `AutoDynamics.patIn` / `move(pat, hold, zone)`): the group the admin
+  gives an exercise in Settings → "Каталог с упражнения" (server picks `zone`; the library's own otherwise) is read at
+  run time, so a change applies to saved workouts too. Кардио → cardio, Разтягане → stretching; a muscle group turns a
+  cardio / stretch / unknown pattern into strength for it (Бедра squat, Седалище glute, Гръб pull, Гърди push; Ръце,
+  Рамене, Корем = small muscles); Функционални keeps the pattern. The new block's starting impulse follows the same.
+- **Hold = static** (1.1.327, `AutoDynamics.isHold`): timed in the library and not cardio / stretching — jump rope,
+  mountain climbers, a timed stretch move; old blocks saved with hold on such moves are read by the library again.
+- **Fatigue per suit channel** (1.1.327, as in Auto): the drawn impulse on every channel + the exercise's own work on
+  its muscles (library `mus`, `EX_LOAD`); rest and approach follow the most tired channel. Alternating muscle groups
+  helps only a little (the current reaches every muscle; the exercise adds ≤ 25 %).
+- **🔒 per block** (editor panel: "✦ Умен импулс" ↔ "🔒 Точно както е"; a lock on the line): that block goes exactly
+  as drawn — no approach, no glide (its fatigue still counts for the next ones). Stored as `lock` in the map.
+- Plain stimulation blocks in a workout glide only. The card shows the real Hz / µs and the approach.
+- Tests (`run-auto.sh`): every active template in the catalogue (declared class, approaches inside it, 60+ / first
+  trainings, power OFF ≥ 2·ON, glide in the sets) and every exercise of `library.json` (classified, approaches fit the
+  movement, 🔒) — anything added later is checked at the next build.
+- `MapClock`: the time fallback waits for the real cycle length (`setCycleS`), a rest can be extended (`setRestS`).
+- Test: `run-auto.sh` → MapSim `dynamics()`.
 
 ## Audit 1.1.256 — the backend decides, the screen stays quiet
 - **Counting**: the cycle hook fires as ON begins and the parameters written then drive that impulse, so the impulse
@@ -117,6 +155,23 @@ rests, plain blocks) on the real engine: sets in map order, each exactly its rep
 next exercise, no forbidden exercise, ready maps fit one session, passive maps never run with AI, timeline math;
 MapSim runs MapClock over every map with and without the cycle hook (exact impulses per block, rest seconds, fallback);
 PathNorm vs Python. `cd server && npm test` (exercises helpers).
+
+## Classifiers — what the automatic mode filters by (owner, 1.1.336)
+Marked while a map is made (editor, under the name; saved with the map, `WorkoutStore` `goals` / `lvl` / `sex`):
+**goal** (Стягане · Отслабване · Здраве — several allowed, `Workout.goals` = `AutoModel.Goal` names), **difficulty**
+(Лесна · Средна · Трудна → `level` 1–3 = green / amber / red), **for whom** (everyone · women · men = `sex`). Active or
+passive is the map itself (Тренировки / Процедури); the trained zones are derived from the exercises (`derivedFocus`).
+Unmarked: goal from the exercises (cardio → Отслабване, else Стягане; a procedure fits every goal), level medium.
+Ready maps carry their program's marks (`AutoCatalog.Program.level`, the goals whose menu lists it).
+`Workout.fits(goal, kind)` is the filter: Auto → Активна → **С упражнения** lists the studio's own maps first, then the
+ready ones, that fit the chosen goal (and the client's sex), as cards coloured by difficulty with their time.
+Picking a **ready** one (`preset:<program>`) → the client step and the automatic mode itself with that program's
+exercises (its plan, HR, dose, recovery, the same setting-up board) — nothing lost against the old "С упражнения".
+Picking the studio's **own** map → **Към настройване**: `MapRunner.arm` = the **same calibration as Auto** (1.1.337):
+the map's main work (longest exercise block) runs on every row from strength 0, the trainer raises the total strength
+(≤ +5 / s, held back above that) and each channel on the main screen to 6–7 of 10, then **▶ Старт** (`MapRunner.go`,
+enabled once a strength is set) takes it as each row's 100 % and the map runs; ✕ Отказ puts the rows' own impulse and
+strength back.
 
 ## Not yet
 Workouts sync between tablets / to the server; picking a workout from the AI goal screen (today: from Тренировки);

@@ -29,7 +29,8 @@ public final class HrGuard {
     /** Client whose data the core has (user id), NO_PERSON = population defaults. */
     private static long personId = NO_PERSON;
     private static final Handler handler = new Handler(Looper.getMainLooper());
-    /** Per row: trainer's values {strength, pwUs, hz} and what the guard last wrote. */
+    /** Per row: trainer's values {strength, pwUs, hz, on s, off s, double impulse strength %, double impulse on 0/1}
+     *  and what the guard last wrote. */
     private static final Map<TrainItem, int[]> base = new HashMap<TrainItem, int[]>();
     private static final Map<TrainItem, int[]> written = new HashMap<TrainItem, int[]>();
     private static boolean ticking;
@@ -40,6 +41,30 @@ public final class HrGuard {
 
     public static HrGuardCore core() {
         return core;
+    }
+
+    /**
+     * kcal of what runs now: the automatic mode and the Smart Session count their own (the leader's data, the
+     * impulses really given, the exercise); the manual count of the guard otherwise.
+     */
+    public static double liveKcal() {
+        try {
+            com.isaigu.gymapp.ai.AutoSession.Stage as = com.isaigu.gymapp.ai.AutoSession.getStage();
+            if (as == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING || as == com.isaigu.gymapp.ai.AutoSession.Stage.REPORT) {
+                double k = com.isaigu.gymapp.ai.AutoSession.getKcal();
+                if (k >= 0) {
+                    return k;
+                }
+            }
+            if (com.isaigu.gymapp.ai.AiSession.getStage() == com.isaigu.gymapp.ai.AiSession.Stage.RUNNING) {
+                double k = com.isaigu.gymapp.ai.AiSession.getKcal();
+                if (k >= 0) {
+                    return k;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return core != null ? core.getKcal() : 0;
     }
 
     /** Every valid band sample (NotifyWearableBridge.onHeartRate). */
@@ -127,6 +152,13 @@ public final class HrGuard {
                     stim.activePause = b.activePause;
                     stim.pauseStrength = b.pauseStrenthPercent;
                     stim.pauseHz = b.pauseHz;
+                    int[] bs = base.get(item);
+                    if (bs != null) {
+                        stim.baseHz = bs[2];
+                        stim.baseOnS = bs[3];
+                        stim.baseOffS = bs[4];
+                        stim.basePause = bs[6] == 1;
+                    }
                     stim.channels = b.strenthBean != null && b.strenthBean.buwei != null
                             ? b.strenthBean.buwei.clone() : null;
                     stim.disabled = item.partsDisabled != null ? item.partsDisabled.clone() : null;
@@ -151,6 +183,9 @@ public final class HrGuard {
         boolean changed = core.tick(now, stim, enabled);
         if (wasCalibrating && !core.isCalibrating() && ctx != null) {
             WearableConfig.setRestHr(ctx, core.getRestHr());
+            if (personId != NO_PERSON) {
+                com.isaigu.gymapp.wearable.scale.RestHrStore.add(ctx, personId, core.getRestHr());
+            }
             WearableBleDiagLog.log("hr_guard", "rest=" + core.getRestHr() + " upper=" + core.getUpper()
                     + (core.isManualUpper() ? " (trainer)" : " (auto)"));
         }
@@ -169,9 +204,13 @@ public final class HrGuard {
                 || !base.isEmpty();
     }
 
+    /**
+     * Any engine driving the strength (AI, Auto, a map, music — ai/OutputOwner): the pulse module works only in the
+     * manual mode, else two writers fight (it read music's / the map's writes as the trainer's base).
+     */
     private static boolean aiOwnsOutput() {
         try {
-            return com.isaigu.gymapp.ai.AiSession.ownsOutput();
+            return com.isaigu.gymapp.ai.OutputOwner.engineDrives();
         } catch (Throwable t) {
             return false;
         }
@@ -184,32 +223,39 @@ public final class HrGuard {
         return item.getTrainProgram().matchProgram();
     }
 
+    /** What the row has now, in the order of {@link #base}. */
+    private static int[] values(ProgramDataBean b) {
+        return new int[] {b.strenth, b.pulseWidth, b.hz, b.pulseContinue, b.pulsePause, b.pauseStrenthPercent,
+                b.activePause ? 1 : 0};
+    }
+
+    private static final HrGuardCore.Lever[] LEVER_OF = {
+            HrGuardCore.Lever.STRENGTH, HrGuardCore.Lever.WIDTH, HrGuardCore.Lever.FREQ,
+            HrGuardCore.Lever.ON, HrGuardCore.Lever.OFF, HrGuardCore.Lever.PAUSE, HrGuardCore.Lever.PAUSE};
+
     /** A value that differs from what the guard wrote was set by the trainer → new base. */
     private static void trackTrainerChanges(TrainItem item, ProgramDataBean b) {
         int[] w = written.get(item);
         int[] bs = base.get(item);
+        int[] now = values(b);
         if (bs == null) {
-            base.put(item, new int[] {b.strenth, b.pulseWidth, b.hz});
-            written.put(item, new int[] {b.strenth, b.pulseWidth, b.hz});
+            base.put(item, now.clone());
+            written.put(item, now.clone());
             return;
         }
         if (w == null) {
             return;
         }
-        if (b.strenth != w[0]) {
-            bs[0] = b.strenth;
-            w[0] = b.strenth;
-            core.onTrainerChange(HrGuardCore.Lever.STRENGTH);
-        }
-        if (b.pulseWidth != w[1]) {
-            bs[1] = b.pulseWidth;
-            w[1] = b.pulseWidth;
-            core.onTrainerChange(HrGuardCore.Lever.WIDTH);
-        }
-        if (b.hz != w[2]) {
-            bs[2] = b.hz;
-            w[2] = b.hz;
-            core.onTrainerChange(HrGuardCore.Lever.FREQ);
+        for (int i = 0; i < now.length; i++) {
+            if (now[i] != w[i]) {
+                bs[i] = now[i];
+                w[i] = now[i];
+                if (i == 6 && now[i] == 1) {
+                    bs[5] = now[5];
+                    w[5] = now[5];
+                }
+                core.onTrainerChange(LEVER_OF[i]);
+            }
         }
     }
 
@@ -223,10 +269,16 @@ public final class HrGuard {
             if (b == null || bs == null || item.data == null || !item.data.start) {
                 continue;
             }
-            int s = (int) Math.round(bs[0] * core.getStrengthFactor());
-            int pw = Math.max(50, (int) Math.round(bs[1] * core.getWidthFactor()));
-            int hz = Math.max(1, (int) Math.round(bs[2] * core.getFreqFactor()));
-            write(item, b, s, pw, hz);
+            int[] v = new int[7];
+            v[0] = (int) Math.round(bs[0] * core.getStrengthFactor());
+            v[1] = Math.max(50, (int) Math.round(bs[1] * core.getWidthFactor()));
+            v[2] = Math.max(1, (int) Math.round(bs[2] * core.getFreqFactor()));
+            v[3] = Math.max(1, bs[3] - core.getOnCut());
+            v[4] = Math.max(1, bs[4] + core.getOffAdd());
+            boolean pause = bs[6] == 1 && core.getPauseFactor() > 0;
+            v[5] = pause ? Math.max(1, (int) Math.round(bs[5] * core.getPauseFactor())) : bs[5];
+            v[6] = pause ? 1 : 0;
+            write(item, b, v);
         }
     }
 
@@ -235,39 +287,40 @@ public final class HrGuard {
             TrainItem item = e.getKey();
             ProgramDataBean b = bean(item);
             int[] w = written.get(item);
-            int[] bs = e.getValue();
             // Only put back what is still ours (the trainer may have changed it meanwhile).
-            if (b != null && w != null && b.strenth == w[0] && b.pulseWidth == w[1] && b.hz == w[2]) {
-                write(item, b, bs[0], bs[1], bs[2]);
+            if (b != null && w != null && java.util.Arrays.equals(values(b), w)) {
+                write(item, b, e.getValue().clone());
             }
         }
         base.clear();
         written.clear();
     }
 
-    private static void write(TrainItem item, ProgramDataBean b, int s, int pw, int hz) {
+    private static void write(TrainItem item, ProgramDataBean b, int[] v) {
         int[] w = written.get(item);
-        if (b.strenth == s && b.pulseWidth == pw && b.hz == hz) {
-            if (w != null) {
-                w[0] = s;
-                w[1] = pw;
-                w[2] = hz;
-            }
+        if (w != null) {
+            System.arraycopy(v, 0, w, 0, v.length);
+        }
+        if (java.util.Arrays.equals(values(b), v)) {
             return;
         }
-        b.strenth = s;
-        b.pulseWidth = pw;
-        b.hz = hz;
-        if (w != null) {
-            w[0] = s;
-            w[1] = pw;
-            w[2] = hz;
-        }
+        b.strenth = v[0];
+        b.pulseWidth = v[1];
+        b.hz = v[2];
+        b.pulseContinue = v[3];
+        b.pulsePause = v[4];
+        b.pauseStrenthPercent = v[5];
+        b.activePause = v[6] == 1;
         try {
             item.onParamsChange();
         } catch (Throwable t) {
             WearableBleDiagLog.log("hr_guard", "onParamsChange: " + t);
         }
+    }
+
+    /** The HR's zone colour as on the dial and the HR panel (zone 1–5 of the maximum HR) — for other screens. */
+    public static int zoneColor(int hr, int hrMax) {
+        return WearableUi.zoneColor(Math.max(1, WearableUi.zoneFor(hr, hrMax)));
     }
 
     // ================================================================ dial text
@@ -276,6 +329,10 @@ public final class HrGuard {
         if ("strength_down".equals(code)) return WearableUi.tr("сила ↓", "strength ↓");
         if ("width_down".equals(code)) return WearableUi.tr("импулс µs ↓", "pulse µs ↓");
         if ("freq_down".equals(code)) return WearableUi.tr("честота ↓", "frequency ↓");
+        if ("pause_down".equals(code)) return WearableUi.tr("двоен импулс ↓", "double impulse ↓");
+        if ("pause_off".equals(code)) return WearableUi.tr("двоен импулс изкл.", "double impulse off");
+        if ("off_up".equals(code)) return WearableUi.tr("пауза ↑", "pause ↑");
+        if ("on_down".equals(code)) return WearableUi.tr("импулс s ↓", "impulse s ↓");
         if ("restore".equals(code)) return WearableUi.tr("връщане ↑", "restoring ↑");
         if ("cap".equals(code)) return WearableUi.tr("СТОП — таван", "STOP — ceiling");
         if ("resume".equals(code)) return WearableUi.tr("продължава", "resumed");

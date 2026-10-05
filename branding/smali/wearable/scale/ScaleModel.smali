@@ -16,6 +16,8 @@
 
 .field static final AGE_LSC:D = 2.0
 
+.field static final ALLOW:D = 0.6
+
 .field static final AT50:D
 
 .field static final GEO:D = 0.8736
@@ -30,9 +32,11 @@
 
 .field static final RHO:[D
 
+.field static final TISSUE_DAY:D = 0.12
+
 .field static final TRUNK_SHARE:D = 0.037
 
-.field public static final VERSION:I = 0x4
+.field public static final VERSION:I = 0x5
 
 
 # direct methods
@@ -57,7 +61,7 @@
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->AT50:D
 
-    .line 68
+    .line 75
     const/4 v0, 0x5
 
     new-array v0, v0, [D
@@ -82,7 +86,7 @@
     .registers 1
 
     .prologue
-    .line 60
+    .line 67
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -92,23 +96,23 @@
     .registers 24
 
     .prologue
-    .line 150
+    .line 157
     invoke-static/range {p0 .. p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->withFat(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZIID)Lcom/isaigu/gymapp/wearable/scale/ScaleBody;
 
     move-result-object v2
 
-    .line 151
+    .line 158
     if-nez v2, :cond_8
 
-    .line 152
+    .line 159
     const/4 v2, 0x0
 
-    .line 164
+    .line 171
     :cond_7
     :goto_7
     return-object v2
 
-    .line 154
+    .line 161
     :cond_8
     move-object/from16 v0, p0
 
@@ -122,12 +126,12 @@
 
     move-result-wide v8
 
-    .line 155
+    .line 162
     iget-wide v0, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->leanKg:D
 
     move-wide/from16 v16, v0
 
-    .line 156
+    .line 163
     invoke-static {v8, v9}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v3
@@ -140,10 +144,10 @@
 
     if-lez v3, :cond_7
 
-    .line 157
+    .line 164
     iget-wide v6, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->weightKg:D
 
-    .line 160
+    .line 167
     const-wide/high16 v10, 0x3ff0000000000000L    # 1.0
 
     move/from16 v0, p3
@@ -160,7 +164,7 @@
 
     move-result-wide v4
 
-    .line 161
+    .line 168
     move/from16 v0, p3
 
     int-to-double v12, v0
@@ -187,7 +191,7 @@
 
     mul-double v4, v4, v16
 
-    .line 162
+    .line 169
     div-double/2addr v4, v6
 
     const-wide/high16 v6, 0x4059000000000000L    # 100.0
@@ -207,7 +211,7 @@
     .registers 8
 
     .prologue
-    .line 119
+    .line 126
     invoke-static {p4, p5, p0, p1}, Ljava/lang/Math;->min(DD)D
 
     move-result-wide v0
@@ -228,7 +232,7 @@
     .end annotation
 
     .prologue
-    .line 276
+    .line 284
     const-wide/high16 v7, 0x7ff8000000000000L    # Double.NaN
 
     move-object v0, p0
@@ -259,25 +263,25 @@
     .end annotation
 
     .prologue
-    .line 282
+    .line 290
     invoke-static/range {p0 .. p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->fatPct(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZII)D
 
     move-result-wide v24
 
-    .line 283
+    .line 291
     const/4 v13, 0x0
 
-    .line 284
+    .line 292
     const-wide/high16 v10, 0x7ff8000000000000L    # Double.NaN
 
-    .line 285
+    .line 293
     invoke-static/range {v24 .. v25}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v4
 
     if-nez v4, :cond_69
 
-    .line 286
+    .line 294
     move-object/from16 v0, p0
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
@@ -292,7 +296,7 @@
 
     mul-double v10, v4, v6
 
-    .line 287
+    .line 295
     invoke-virtual/range {p6 .. p6}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->on()Z
 
     move-result v4
@@ -317,7 +321,7 @@
 
     move-result-wide v16
 
-    .line 288
+    .line 296
     :goto_33
     move-object/from16 v0, p0
 
@@ -331,7 +335,7 @@
 
     move-result-wide v4
 
-    .line 289
+    .line 297
     const-wide/high16 v6, 0x4059000000000000L    # 100.0
 
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
@@ -358,7 +362,7 @@
 
     move-result-object v13
 
-    .line 290
+    .line 298
     if-eqz v13, :cond_69
 
     move-object/from16 v12, p6
@@ -373,10 +377,10 @@
 
     move-wide/from16 v21, p7
 
-    .line 291
+    .line 299
     invoke-static/range {v12 .. v22}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->trait(Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;Lcom/isaigu/gymapp/wearable/scale/ScaleBody;JDZIID)V
 
-    .line 294
+    .line 302
     :cond_69
     move-object/from16 v0, p0
 
@@ -386,17 +390,17 @@
 
     move-result-object v4
 
-    .line 295
+    .line 303
     const-string v5, "v"
 
-    const/4 v6, 0x4
+    const/4 v6, 0x5
 
     invoke-virtual {v4, v5, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 296
+    .line 304
     if-eqz v13, :cond_fd
 
-    .line 297
+    .line 305
     const-string v5, "fr"
 
     const-wide/high16 v6, 0x4024000000000000L    # 10.0
@@ -415,7 +419,7 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 298
+    .line 306
     const-string v5, "lr"
 
     const-wide/high16 v6, 0x4059000000000000L    # 100.0
@@ -434,7 +438,7 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 299
+    .line 307
     const-string v5, "var"
 
     move-object/from16 v0, p6
@@ -457,7 +461,7 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 300
+    .line 308
     move-object/from16 v0, p6
 
     iget-wide v6, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
@@ -468,7 +472,7 @@
 
     if-nez v5, :cond_e1
 
-    .line 301
+    .line 309
     const-string v5, "ash"
 
     move-object/from16 v0, p6
@@ -491,7 +495,7 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 302
+    .line 310
     const-string v5, "asv"
 
     move-object/from16 v0, p6
@@ -500,7 +504,7 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 304
+    .line 312
     :cond_e1
     move-object/from16 v0, p6
 
@@ -512,7 +516,7 @@
 
     if-nez v5, :cond_fd
 
-    .line 305
+    .line 313
     const-string v5, "pag"
 
     move-object/from16 v0, p6
@@ -521,7 +525,7 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 306
+    .line 314
     const-string v5, "pagT"
 
     move-object/from16 v0, p6
@@ -530,18 +534,18 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 309
+    .line 317
     :cond_fd
     if-lez p2, :cond_106
 
-    .line 310
+    .line 318
     const-string v5, "pa"
 
     move/from16 v0, p2
 
     invoke-virtual {v4, v5, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 312
+    .line 320
     :cond_106
     invoke-static/range {p7 .. p8}, Ljava/lang/Double;->isNaN(D)Z
 
@@ -549,7 +553,7 @@
 
     if-nez v5, :cond_11d
 
-    .line 313
+    .line 321
     const-string v5, "rhr"
 
     const-wide/high16 v6, 0x4024000000000000L    # 10.0
@@ -568,11 +572,11 @@
 
     invoke-virtual {v4, v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 315
+    .line 323
     :cond_11d
     return-object v4
 
-    .line 287
+    .line 295
     :cond_11e
     const-wide/16 v16, 0x0
 
@@ -583,23 +587,23 @@
     .registers 16
 
     .prologue
-    .line 124
+    .line 131
     invoke-static {p0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->of(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZII)Lcom/isaigu/gymapp/wearable/scale/ScaleBody;
 
     move-result-object v8
 
-    .line 125
+    .line 132
     if-nez v8, :cond_9
 
-    .line 126
+    .line 133
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
-    .line 142
+    .line 149
     :cond_8
     :goto_8
     return-wide v0
 
-    .line 128
+    .line 135
     :cond_9
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
@@ -609,23 +613,23 @@
 
     move-result-wide v6
 
-    .line 129
+    .line 136
     invoke-static {v6, v7}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v0
 
     if-eqz v0, :cond_1a
 
-    .line 130
+    .line 137
     iget-wide v0, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->fatPct:D
 
     goto :goto_8
 
-    .line 132
+    .line 139
     :cond_1a
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
-    .line 133
+    .line 140
     const-wide/high16 v10, 0x4059000000000000L    # 100.0
 
     int-to-double v2, p3
@@ -650,12 +654,12 @@
 
     move-result-wide v0
 
-    .line 134
+    .line 141
     iget-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->single:Z
 
     if-eqz v2, :cond_3f
 
-    .line 137
+    .line 144
     iget-boolean v2, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->fatFromScale:Z
 
     if-eqz v2, :cond_8
@@ -670,13 +674,13 @@
 
     goto :goto_8
 
-    .line 139
+    .line 146
     :cond_3f
     iget-boolean v2, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->fatFromScale:Z
 
     if-eqz v2, :cond_4a
 
-    .line 140
+    .line 147
     iget-wide v2, v8, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->fatPct:D
 
     add-double/2addr v0, v2
@@ -687,7 +691,7 @@
 
     goto :goto_8
 
-    .line 142
+    .line 149
     :cond_4a
     if-eqz p1, :cond_8
 
@@ -706,12 +710,12 @@
     .registers 14
 
     .prologue
-    .line 109
+    .line 116
     mul-double v0, p1, p1
 
     div-double/2addr v0, p5
 
-    .line 110
+    .line 117
     if-eqz p0, :cond_20
 
     const-wide v2, -0x3fdaa4dd2f1a9fbeL    # -10.678
@@ -765,7 +769,7 @@
     .registers 6
 
     .prologue
-    .line 57
+    .line 64
     const-wide/high16 v0, 0x4010000000000000L    # 4.0
 
     const-wide v2, 0x3fb1eb851eb851ecL    # 0.07
@@ -788,17 +792,17 @@
     .end annotation
 
     .prologue
-    .line 377
+    .line 385
     const-string v0, "male"
 
     invoke-virtual {p0, v0, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 378
+    .line 386
     const-string v0, "hc"
 
     invoke-virtual {p0, v0, p2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 379
+    .line 387
     return-void
 .end method
 
@@ -816,7 +820,7 @@
 
     const-wide/high16 v10, 0x4059000000000000L    # 100.0
 
-    .line 89
+    .line 96
     move v0, v1
 
     :goto_c
@@ -824,7 +828,7 @@
 
     if-ge v0, v2, :cond_21
 
-    .line 90
+    .line 97
     aget-wide v2, p0, v0
 
     cmpl-double v2, v2, v10
@@ -837,21 +841,21 @@
 
     if-gez v2, :cond_1e
 
-    .line 91
+    .line 98
     :cond_1b
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
-    .line 104
+    .line 111
     :goto_1d
     return-wide v0
 
-    .line 89
+    .line 96
     :cond_1e
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_c
 
-    .line 94
+    .line 101
     :cond_21
     aget-wide v2, p0, v1
 
@@ -875,7 +879,7 @@
 
     div-double/2addr v2, v6
 
-    .line 95
+    .line 102
     aget-wide v0, p1, v1
 
     const/4 v4, 0x3
@@ -898,12 +902,12 @@
 
     div-double/2addr v0, v6
 
-    .line 96
+    .line 103
     aget-wide v4, p0, v8
 
     aget-wide v6, p1, v8
 
-    .line 97
+    .line 104
     const-wide/high16 v8, 0x4014000000000000L    # 5.0
 
     cmpl-double v8, v4, v8
@@ -924,13 +928,13 @@
 
     if-gtz v8, :cond_65
 
-    .line 98
+    .line 105
     add-double/2addr v2, v4
 
-    .line 99
+    .line 106
     add-double/2addr v0, v6
 
-    .line 104
+    .line 111
     :goto_59
     const-wide v4, 0x3febf487fcb923a3L    # 0.8736
 
@@ -946,11 +950,11 @@
 
     goto :goto_1d
 
-    .line 101
+    .line 108
     :cond_65
     mul-double/2addr v2, v12
 
-    .line 102
+    .line 109
     mul-double/2addr v0, v12
 
     goto :goto_59
@@ -966,15 +970,15 @@
 
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
-    .line 257
+    .line 265
     new-instance v7, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     invoke-direct {v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;-><init>()V
 
-    .line 258
+    .line 266
     iput-boolean v4, v7, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->result:Z
 
-    .line 259
+    .line 267
     const-string v0, "w"
 
     invoke-virtual {p0, v0, v2, v3}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
@@ -983,7 +987,7 @@
 
     iput-wide v0, v7, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
-    .line 260
+    .line 268
     const-string v0, "z20"
 
     invoke-virtual {p0, v0}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
@@ -998,13 +1002,13 @@
 
     move v6, v5
 
-    .line 261
+    .line 269
     :goto_20
     const/4 v0, 0x5
 
     if-ge v6, v0, :cond_4b
 
-    .line 262
+    .line 270
     iget-object v10, v7, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
     if-eqz v8, :cond_47
@@ -1022,7 +1026,7 @@
     :goto_31
     aput-wide v0, v10, v6
 
-    .line 263
+    .line 271
     iget-object v10, v7, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z100:[D
 
     if-eqz v9, :cond_49
@@ -1040,7 +1044,7 @@
     :goto_41
     aput-wide v0, v10, v6
 
-    .line 261
+    .line 269
     add-int/lit8 v0, v6, 0x1
 
     move v6, v0
@@ -1050,16 +1054,16 @@
     :cond_47
     move-wide v0, v2
 
-    .line 262
+    .line 270
     goto :goto_31
 
     :cond_49
     move-wide v0, v2
 
-    .line 263
+    .line 271
     goto :goto_41
 
-    .line 265
+    .line 273
     :cond_4b
     const-string v0, "sfat"
 
@@ -1069,7 +1073,7 @@
 
     iput-wide v0, v7, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->scaleFatPct:D
 
-    .line 266
+    .line 274
     const-string v0, "f1"
 
     invoke-virtual {p0, v0}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;)I
@@ -1083,13 +1087,13 @@
     :goto_5c
     iput-boolean v0, v7, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->single:Z
 
-    .line 267
+    .line 275
     return-object v7
 
     :cond_5f
     move v0, v5
 
-    .line 266
+    .line 274
     goto :goto_5c
 .end method
 
@@ -1097,17 +1101,17 @@
     .registers 16
 
     .prologue
-    .line 352
+    .line 360
     new-instance v11, Lorg/json/JSONArray;
 
     invoke-direct {v11}, Lorg/json/JSONArray;-><init>()V
 
-    .line 353
+    .line 361
     new-instance v6, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;
 
     invoke-direct {v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;-><init>()V
 
-    .line 354
+    .line 362
     const/4 v0, 0x0
 
     move v9, v0
@@ -1119,15 +1123,15 @@
 
     if-ge v9, v0, :cond_60
 
-    .line 355
+    .line 363
     invoke-virtual {p0, v9}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v10
 
-    .line 356
+    .line 364
     if-nez v10, :cond_1c
 
-    .line 354
+    .line 362
     :goto_18
     add-int/lit8 v0, v9, 0x1
 
@@ -1135,7 +1139,7 @@
 
     goto :goto_c
 
-    .line 360
+    .line 368
     :cond_1c
     :try_start_1c
     const-string v0, "z20"
@@ -1146,7 +1150,7 @@
 
     if-eqz v0, :cond_5e
 
-    .line 361
+    .line 369
     invoke-static {v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->reading(Lorg/json/JSONObject;)Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     move-result-object v0
@@ -1175,7 +1179,7 @@
 
     move-result-object v0
 
-    .line 363
+    .line 371
     :goto_3d
     if-eq v0, v10, :cond_52
 
@@ -1187,7 +1191,7 @@
 
     if-eqz v1, :cond_52
 
-    .line 364
+    .line 372
     const-string v1, "n"
 
     const-string v2, "n"
@@ -1198,22 +1202,22 @@
 
     invoke-virtual {v0, v1, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 366
+    .line 374
     :cond_52
     invoke-static {v0, p1, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->mark(Lorg/json/JSONObject;ZI)V
 
-    .line 367
+    .line 375
     invoke-virtual {v11, v0}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
     :try_end_58
     .catch Ljava/lang/Throwable; {:try_start_1c .. :try_end_58} :catch_59
 
     goto :goto_18
 
-    .line 368
+    .line 376
     :catch_59
     move-exception v0
 
-    .line 369
+    .line 377
     invoke-virtual {v11, v10}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
     goto :goto_18
@@ -1221,10 +1225,10 @@
     :cond_5e
     move-object v0, v10
 
-    .line 362
+    .line 370
     goto :goto_3d
 
-    .line 372
+    .line 380
     :cond_60
     return-object v11
 .end method
@@ -1235,12 +1239,12 @@
     .prologue
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
-    .line 75
+    .line 82
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->single:Z
 
-    .line 76
+    .line 83
     const/4 v0, 0x0
 
     :goto_6
@@ -1248,17 +1252,17 @@
 
     if-ge v0, v1, :cond_3a
 
-    .line 77
+    .line 84
     aget-wide v2, p1, v0
 
-    .line 78
+    .line 85
     const-wide/16 v4, 0x0
 
     cmpl-double v1, v2, v4
 
     if-lez v1, :cond_2f
 
-    .line 79
+    .line 86
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
     sget-object v4, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->RHO:[D
@@ -1277,7 +1281,7 @@
 
     aput-wide v2, v1, v0
 
-    .line 80
+    .line 87
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z100:[D
 
     sget-object v2, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->RHO:[D
@@ -1292,13 +1296,13 @@
 
     aput-wide v2, v1, v0
 
-    .line 76
+    .line 83
     :goto_2c
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6
 
-    .line 82
+    .line 89
     :cond_2f
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
@@ -1312,7 +1316,7 @@
 
     goto :goto_2c
 
-    .line 85
+    .line 92
     :cond_3a
     return-void
 .end method
@@ -1321,7 +1325,7 @@
     .registers 12
 
     .prologue
-    .line 115
+    .line 122
     mul-double v0, p2, p2
 
     div-double/2addr v0, p4
@@ -1375,7 +1379,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 340
+    .line 348
     move v0, v1
 
     :goto_2
@@ -1385,12 +1389,12 @@
 
     if-ge v0, v2, :cond_38
 
-    .line 341
+    .line 349
     invoke-virtual {p0, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v2
 
-    .line 342
+    .line 350
     if-eqz v2, :cond_39
 
     const-string v3, "z20"
@@ -1407,7 +1411,7 @@
 
     move-result v3
 
-    const/4 v4, 0x4
+    const/4 v4, 0x5
 
     if-lt v3, v4, :cond_37
 
@@ -1421,7 +1425,7 @@
 
     const-string v3, "hc"
 
-    .line 343
+    .line 351
     invoke-virtual {v2, v3, p3}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;I)I
 
     move-result v3
@@ -1436,15 +1440,15 @@
 
     if-eq v2, p1, :cond_39
 
-    .line 344
+    .line 352
     :cond_37
     const/4 v1, 0x1
 
-    .line 347
+    .line 355
     :cond_38
     return v1
 
-    .line 340
+    .line 348
     :cond_39
     add-int/lit8 v0, v0, 0x1
 
@@ -1457,12 +1461,12 @@
     .prologue
     const-wide/high16 v6, 0x7ff8000000000000L    # Double.NaN
 
-    .line 320
+    .line 328
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;-><init>()V
 
-    .line 321
+    .line 329
     invoke-virtual {p0}, Lorg/json/JSONArray;->length()I
 
     move-result v0
@@ -1472,12 +1476,12 @@
     :goto_d
     if-ltz v0, :cond_6f
 
-    .line 322
+    .line 330
     invoke-virtual {p0, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v2
 
-    .line 323
+    .line 331
     if-eqz v2, :cond_70
 
     const-string v3, "lean"
@@ -1494,11 +1498,11 @@
 
     move-result v3
 
-    const/4 v4, 0x4
+    const/4 v4, 0x5
 
     if-lt v3, v4, :cond_70
 
-    .line 324
+    .line 332
     const-string v0, "lean"
 
     invoke-virtual {v2, v0}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
@@ -1507,7 +1511,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
-    .line 325
+    .line 333
     const-string v0, "var"
 
     const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
@@ -1518,7 +1522,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->var:D
 
-    .line 326
+    .line 334
     const-string v0, "w"
 
     invoke-virtual {v2, v0}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;)D
@@ -1527,7 +1531,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->w:D
 
-    .line 327
+    .line 335
     const-string v0, "t"
 
     invoke-virtual {v2, v0}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
@@ -1536,7 +1540,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->t:J
 
-    .line 328
+    .line 336
     const-string v0, "ash"
 
     invoke-virtual {v2, v0, v6, v7}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
@@ -1545,7 +1549,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
 
-    .line 329
+    .line 337
     const-string v0, "asv"
 
     const-wide v4, 0x3f22dfd694ccab3fL    # 1.44E-4
@@ -1556,7 +1560,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->asv:D
 
-    .line 330
+    .line 338
     const-string v0, "pag"
 
     invoke-virtual {v2, v0, v6, v7}, Lorg/json/JSONObject;->optDouble(Ljava/lang/String;D)D
@@ -1565,7 +1569,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->age:D
 
-    .line 331
+    .line 339
     const-string v0, "pagT"
 
     iget-wide v4, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->t:J
@@ -1576,11 +1580,11 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ageT:J
 
-    .line 335
+    .line 343
     :cond_6f
     return-object v1
 
-    .line 321
+    .line 329
     :cond_70
     add-int/lit8 v0, v0, -0x1
 
@@ -1591,7 +1595,7 @@
     .registers 22
 
     .prologue
-    .line 189
+    .line 196
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->on()Z
 
     move-result v2
@@ -1614,7 +1618,7 @@
 
     move-result-wide v2
 
-    .line 190
+    .line 197
     :goto_17
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->on()Z
 
@@ -1650,22 +1654,22 @@
     :goto_34
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->restarted:Z
 
-    .line 191
+    .line 198
     iget-boolean v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->restarted:Z
 
     if-eqz v4, :cond_68
 
-    .line 192
+    .line 199
     move-wide/from16 v0, p5
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
-    .line 193
+    .line 200
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->var:D
 
-    .line 206
+    .line 214
     :goto_42
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
@@ -1683,40 +1687,40 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
-    .line 207
+    .line 215
     move-wide/from16 v0, p3
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->w:D
 
-    .line 208
+    .line 216
     move-wide/from16 v0, p1
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->t:J
 
-    .line 209
+    .line 217
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     return-wide v2
 
-    .line 189
+    .line 196
     :cond_63
     const-wide/16 v2, 0x0
 
     goto :goto_17
 
-    .line 190
+    .line 197
     :cond_66
     const/4 v4, 0x0
 
     goto :goto_34
 
-    .line 195
+    .line 202
     :cond_68
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->w:D
 
     sub-double v4, p3, v4
 
-    .line 196
+    .line 203
     const-wide v6, 0x3fd3333333333333L    # 0.3
 
     const-wide v8, 0x3fdccccccccccccdL    # 0.45
@@ -1735,106 +1739,121 @@
 
     add-double/2addr v6, v8
 
-    .line 197
+    .line 204
     iget-wide v8, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     mul-double/2addr v6, v4
 
-    add-double/2addr v6, v8
+    add-double/2addr v8, v6
 
-    .line 198
-    const-wide/high16 v8, 0x4010000000000000L    # 4.0
+    .line 205
+    const-wide/high16 v6, 0x4010000000000000L    # 4.0
 
     iget-wide v10, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->var:D
 
     const-wide v12, 0x3f947ae147ae147bL    # 0.02
 
-    mul-double/2addr v2, v12
+    mul-double/2addr v12, v2
 
-    add-double/2addr v2, v10
+    add-double/2addr v10, v12
 
-    const-wide v10, 0x3fb70a3d70a3d70aL    # 0.09
+    const-wide v12, 0x3fb70a3d70a3d70aL    # 0.09
 
-    mul-double/2addr v10, v4
+    mul-double/2addr v12, v4
 
-    mul-double/2addr v4, v10
+    mul-double/2addr v4, v12
 
-    add-double/2addr v2, v4
+    add-double/2addr v4, v10
 
-    invoke-static {v8, v9, v2, v3}, Ljava/lang/Math;->min(DD)D
+    invoke-static {v6, v7, v4, v5}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v10
+
+    .line 206
+    const-wide v4, 0x3fe3333333333333L    # 0.6
+
+    const-wide v6, 0x3fbeb851eb851eb8L    # 0.12
+
+    mul-double/2addr v2, v6
+
+    add-double v6, v4, v2
+
+    .line 207
+    sub-double v2, p5, v8
+
+    neg-double v4, v6
+
+    invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->clamp(DDD)D
 
     move-result-wide v4
 
-    .line 199
-    sub-double v8, p5, v6
-
-    .line 200
+    .line 208
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
-    add-double/2addr v2, v4
+    add-double/2addr v2, v10
 
-    .line 201
-    mul-double v10, v8, v8
+    .line 209
+    mul-double v6, v4, v4
 
-    div-double/2addr v10, v2
+    div-double/2addr v6, v2
 
     const-wide/high16 v12, 0x4022000000000000L    # 9.0
 
-    cmpl-double v10, v10, v12
+    cmpl-double v6, v6, v12
 
-    if-lez v10, :cond_c1
+    if-lez v6, :cond_d4
 
-    const-wide/high16 v10, 0x3ff0000000000000L    # 1.0
+    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
 
-    mul-double/2addr v10, v8
+    mul-double/2addr v6, v4
 
-    mul-double/2addr v10, v8
+    mul-double/2addr v6, v4
+
+    div-double v2, v6, v2
+
+    const-wide/high16 v6, 0x4022000000000000L    # 9.0
+
+    div-double/2addr v2, v6
+
+    .line 210
+    :goto_c4
+    add-double/2addr v2, v10
 
     div-double v2, v10, v2
 
-    const-wide/high16 v10, 0x4022000000000000L    # 9.0
+    .line 211
+    mul-double/2addr v4, v2
 
-    div-double/2addr v2, v10
+    add-double/2addr v4, v8
 
-    .line 202
-    :goto_b2
-    add-double/2addr v2, v4
+    iput-wide v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
-    div-double v2, v4, v2
+    .line 212
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
 
-    .line 203
-    mul-double/2addr v8, v2
+    sub-double v2, v4, v2
 
-    add-double/2addr v6, v8
-
-    iput-wide v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
-
-    .line 204
-    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
-
-    sub-double v2, v6, v2
-
-    mul-double/2addr v2, v4
+    mul-double/2addr v2, v10
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->var:D
 
-    goto :goto_42
+    goto/16 :goto_42
 
-    .line 201
-    :cond_c1
+    .line 209
+    :cond_d4
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
-    goto :goto_b2
+    goto :goto_c4
 .end method
 
 .method static trait(Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;Lcom/isaigu/gymapp/wearable/scale/ScaleBody;JDZIID)V
     .registers 25
 
     .prologue
-    .line 219
+    .line 227
     iget-wide v4, p1, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->leanKg:D
 
-    .line 220
+    .line 228
     iget-object v2, p1, Lcom/isaigu/gymapp/wearable/scale/ScaleBody;->segMuscleKg:[D
 
     const/4 v3, 0x1
@@ -1865,7 +1884,7 @@
 
     add-double/2addr v2, v6
 
-    .line 222
+    .line 230
     const-wide/16 v6, 0x0
 
     cmpl-double v6, v4, v6
@@ -1874,7 +1893,7 @@
 
     div-double/2addr v2, v4
 
-    .line 223
+    .line 231
     :goto_20
     invoke-static {v2, v3}, Ljava/lang/Double;->isNaN(D)Z
 
@@ -1894,7 +1913,7 @@
 
     if-gez v6, :cond_4d
 
-    .line 224
+    .line 232
     iget-boolean v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->restarted:Z
 
     if-nez v6, :cond_44
@@ -1907,28 +1926,28 @@
 
     if-eqz v6, :cond_67
 
-    .line 225
+    .line 233
     :cond_44
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
 
-    .line 226
+    .line 234
     const-wide v2, 0x3f22dfd694ccab3fL    # 1.44E-4
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->asv:D
 
-    .line 234
+    .line 242
     :cond_4d
     :goto_4d
     iget-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->restarted:Z
 
     if-eqz v2, :cond_55
 
-    .line 235
+    .line 243
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->age:D
 
-    .line 237
+    .line 245
     :cond_55
     const/16 v2, 0x64
 
@@ -1944,18 +1963,18 @@
 
     if-eqz v2, :cond_89
 
-    .line 251
+    .line 259
     :cond_63
     :goto_63
     return-void
 
-    .line 222
+    .line 230
     :cond_64
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
     goto :goto_20
 
-    .line 228
+    .line 236
     :cond_67
     iget-wide v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->asv:D
 
@@ -1965,14 +1984,14 @@
 
     add-double/2addr v6, v8
 
-    .line 229
+    .line 237
     const-wide v8, 0x3f22dfd694ccab3fL    # 1.44E-4
 
     add-double/2addr v8, v6
 
     div-double v8, v6, v8
 
-    .line 230
+    .line 238
     iget-wide v10, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
 
     iget-wide v12, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
@@ -1985,7 +2004,7 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
 
-    .line 231
+    .line 239
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     sub-double/2addr v2, v8
@@ -1996,7 +2015,7 @@
 
     goto :goto_4d
 
-    .line 240
+    .line 248
     :cond_89
     move/from16 v0, p8
 
@@ -2012,7 +2031,7 @@
 
     move-result-wide v6
 
-    .line 241
+    .line 249
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
 
     mul-double/2addr v2, v4
@@ -2033,14 +2052,14 @@
 
     move-result-wide v4
 
-    .line 242
+    .line 250
     invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v2
 
     if-nez v2, :cond_63
 
-    .line 245
+    .line 253
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->age:D
 
     invoke-static {v2, v3}, Ljava/lang/Double;->isNaN(D)Z
@@ -2078,11 +2097,11 @@
     :cond_d0
     const/4 v2, 0x1
 
-    .line 247
+    .line 255
     :goto_d1
     if-nez v2, :cond_63
 
-    .line 248
+    .line 256
     invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
 
     move-result-wide v2
@@ -2091,14 +2110,14 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->age:D
 
-    .line 249
+    .line 257
     move-wide/from16 v0, p2
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ageT:J
 
     goto :goto_63
 
-    .line 245
+    .line 253
     :cond_df
     const/4 v2, 0x0
 

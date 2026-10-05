@@ -32,7 +32,7 @@ import org.json.JSONObject;
  */
 public final class ScaleModel {
     /** Stored measurements carry "v" = this; older ones are rebuilt from their raw impedances. */
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
     /** Segment sum → hand-to-foot resistance (owner's report: Sun 2003 = WLA25 17.0 % for him). */
     static final double GEO = 0.8736;
     /** Without a usable trunk reading (generation A): the trunk ≈ this share of arm + leg. */
@@ -52,6 +52,13 @@ public final class ScaleModel {
      * noise — and never within this many hours of the last change: a body does not age in an afternoon.
      */
     static final double AGE_LSC = 2.0, AGE_HOLD_H = 12;
+    /**
+     * What the tissue can really change between two weigh-ins (kg of lean = kg of fat the other way, the weight
+     * being measured): a hydration / food / contact allowance, plus this many kg a day (≈ 0.8 kg a week — a hard
+     * diet or a hard bulk). A reading further off than that is the measurement's noise, not the body: it is cut
+     * to the limit before the filter sees it.
+     */
+    static final double ALLOW = 0.6, TISSUE_DAY = 0.12;
     /** A weight change the body does not make: restart the filter. */
     static double jump(double w) {
         return Math.max(4.0, 0.07 * w);
@@ -196,7 +203,8 @@ public final class ScaleModel {
             double share = 0.3 + 0.45 * Math.exp(-days / 3);
             double x = s.lean + share * dw;
             double p = Math.min(4 * R, s.var + Q * days + 0.09 * dw * dw);
-            double e = leanRaw - x;
+            double cap = ALLOW + TISSUE_DAY * days;
+            double e = clamp(leanRaw - x, -cap, cap);
             double sv = p + R;
             double r = e * e / sv > 9 ? R * e * e / sv / 9 : R;     // 3 σ off → counts less
             double k = p / (p + r);

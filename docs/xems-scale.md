@@ -197,6 +197,13 @@ fixes:
 - Shared HTML carries the last 10 raw readings (`<script id=xems-raw>`, impedances, sex / age / height) — send one
   with a Fitdays / DXA report to calibrate further.
 
+## Physiological limit between weigh-ins (1.1.342-ai, owner: "fat can't change that much in minutes")
+Hand-to-foot BIA moves with water, food and contact, not with tissue. `ScaleModel.step` now cuts the reading's lean
+(= fat the other way, weight being measured) to what a body can really change since the last weigh-in:
+**0.6 kg allowance + 0.12 kg per day** (≈ 0.8 kg/week, a hard diet or bulk) around the prediction, before the Kalman
+gain. Minutes apart → ≤ 0.6 kg; a day → 0.72 kg; a 2 kg "change" in a minute is noise. `VERSION` 5 → every client's
+history is rebuilt from raw impedances on next open. The first reading of a client still anchors the filter.
+
 ## State vs trait — why physical age jumped (1.1.300-ai)
 Owner: the same client, an hour apart, got two different physical ages. Cause: physical age inverts population
 medians that are almost flat — women's ALMI falls ~0.01 kg/m² a year (6.9 → 6.3 over 50 y), men's ~0.03 — so the

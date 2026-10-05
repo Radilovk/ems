@@ -497,7 +497,12 @@ public final class ScaleSim {
         // two steps a minute apart → their average
         ScaleModel.State s2 = new ScaleModel.State();
         ScaleModel.step(s2, t, 80, 64);
-        eq("two steps a minute apart = average", ScaleModel.step(s2, t + 60000, 80, 66), 65, 0.05);
+        // 2 kg of lean in a minute is not a body: the reading is cut to the allowance (0.6 kg), the filter takes half
+        eq("two steps a minute apart: a 2 kg jump is cut to the physiological limit", ScaleModel.step(s2, t + 60000, 80, 66), 64.3, 0.05);
+        // a day later the limit is 0.72 kg: even a 3 kg lean "change" moves the shown value <= 0.5*0.72
+        ScaleModel.State s6 = new ScaleModel.State();
+        ScaleModel.step(s6, t, 80, 64);
+        ok("a day later, 3 kg lean off: shown moves <= 0.4 kg", Math.abs(ScaleModel.step(s6, t + 86400000L, 80, 61) - 64) <= 0.4);
         // a real change: 4 kg of fat off over 8 weeks (lean flat) → shown follows the weight
         ScaleModel.State s3 = new ScaleModel.State();
         double l = 0;

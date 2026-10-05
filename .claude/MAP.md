@@ -584,6 +584,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L23 ## Ръчни тестове (когато има човек в костюма)
   - L31 ## Сглобяване
 
+`bodytech/xems/README.md` (19L)
+  - L1 # Bodytech в XEMS — подготвени класове (още не са в build-а)
+
 `branding/CLAUDE.md` (11L)
   - L1 # branding/ — resources patched into the APK
 

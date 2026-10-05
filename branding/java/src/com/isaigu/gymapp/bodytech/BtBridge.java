@@ -106,6 +106,12 @@ public final class BtBridge {
      * from Тренировка first) or "training" (a real training runs on it).
      */
     public static String test(String mac, int ch, int pct, int hz, int us, int wave, boolean uncapped, boolean down) {
+        return test(mac, ch, pct, hz, us, wave, 0, 0, 1, down);
+    }
+
+    /** As above, with a burst (onMs / offMs, 0 = continuous) and the STEP_NOR byte (BtTranslator full testOn). */
+    public static String test(String mac, int ch, int pct, int hz, int us, int wave, int onMs, int offMs, int step,
+                              boolean down) {
         try {
             Dev v = null;
             synchronized (BtBridge.class) {
@@ -120,7 +126,8 @@ public final class BtBridge {
             if (v == null) return "no_suit";
             if (v.tr.training()) return "training";
             v.begin();
-            if (down) v.add(v.tr.testOn(ch, pct, hz, us, wave, uncapped, SystemClock.elapsedRealtime()), null, null, false);
+            if (down) v.add(v.tr.testOn(ch, pct, hz, us, wave, onMs, offMs, step, SystemClock.elapsedRealtime()),
+                    null, null, false);
             else v.add(v.tr.testOff(), null, null, true);
             return "ok";
         } catch (Throwable t) {

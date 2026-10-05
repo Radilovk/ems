@@ -30,41 +30,43 @@
     .registers 4
 
     .prologue
-    .line 170
+    .line 202
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 168
+    .line 200
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->live:Z
 
-    .line 171
+    .line 203
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    .line 172
+    .line 204
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->ch:I
 
-    .line 173
+    .line 205
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .registers 9
+    .registers 11
 
     .prologue
-    .line 177
+    const/4 v9, 0x1
+
+    .line 209
     iget-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->live:Z
 
-    if-nez v0, :cond_5
+    if-nez v0, :cond_6
 
-    .line 189
-    :goto_4
+    .line 222
+    :goto_5
     return-void
 
-    .line 178
-    :cond_5
+    .line 210
+    :cond_6
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->mac:Ljava/lang/String;
@@ -89,29 +91,35 @@
 
     iget-object v6, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    iget-boolean v6, v6, Lcom/isaigu/gymapp/bodytech/BtTest;->free:Z
+    iget v6, v6, Lcom/isaigu/gymapp/bodytech/BtTest;->onMs:I
 
-    const/4 v7, 0x1
+    iget-object v7, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    invoke-static/range {v0 .. v7}, Lcom/isaigu/gymapp/bodytech/BtBridge;->test(Ljava/lang/String;IIIIIZZ)Ljava/lang/String;
+    iget v7, v7, Lcom/isaigu/gymapp/bodytech/BtTest;->offMs:I
+
+    iget-object v8, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+
+    iget v8, v8, Lcom/isaigu/gymapp/bodytech/BtTest;->gain:I
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/bodytech/BtBridge;->test(Ljava/lang/String;IIIIIIIIZ)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 179
+    .line 211
     const-string v1, "ok"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_8d
+    if-eqz v1, :cond_f1
 
-    .line 180
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+    .line 212
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    new-instance v1, Ljava/lang/StringBuilder;
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
     iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->ch:I
 
@@ -119,57 +127,57 @@
 
     move-result-object v2
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     const-string v2, " \u00b7 "
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v2, v2, Lcom/isaigu/gymapp/bodytech/BtTest;->level:I
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     const-string v2, " % \u00b7 "
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v2, v2, Lcom/isaigu/gymapp/bodytech/BtTest;->tHz:I
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     const-string v2, " Hz \u00b7 "
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v2, v2, Lcom/isaigu/gymapp/bodytech/BtTest;->tUs:I
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     const-string v2, " \u00b5s \u00b7 "
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v0
 
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->WAVES:[Ljava/lang/String;
 
@@ -181,17 +189,106 @@
 
     aget-object v2, v2, v3
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    move-result-object v2
 
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    .line 213
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    move-result-object v1
+    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->onMs:I
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtTest;->say(Ljava/lang/String;)V
+    if-lez v0, :cond_eb
 
-    .line 182
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, " \u00b7 \u043f\u0430\u043a\u0435\u0442 "
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+
+    iget v3, v3, Lcom/isaigu/gymapp/bodytech/BtTest;->onMs:I
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "/"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+
+    iget v3, v3, Lcom/isaigu/gymapp/bodytech/BtTest;->offMs:I
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " ms"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_b4
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    .line 214
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+
+    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->gain:I
+
+    if-le v0, v9, :cond_ee
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, " \u00b7 \u00d7"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+
+    iget v3, v3, Lcom/isaigu/gymapp/bodytech/BtTest;->gain:I
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_d5
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 212
+    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/bodytech/BtTest;->say(Ljava/lang/String;)V
+
+    .line 215
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->handler:Landroid/os/Handler;
@@ -200,10 +297,22 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    goto/16 :goto_4
+    goto/16 :goto_5
 
-    .line 184
-    :cond_8d
+    .line 213
+    :cond_eb
+    const-string v0, ""
+
+    goto :goto_b4
+
+    .line 214
+    :cond_ee
+    const-string v0, ""
+
+    goto :goto_d5
+
+    .line 217
+    :cond_f1
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     const-string v2, "no_suit"
@@ -212,25 +321,25 @@
 
     move-result v0
 
-    if-eqz v0, :cond_a1
+    if-eqz v0, :cond_105
 
-    .line 185
+    .line 218
     const-string v0, "\u041d\u044f\u043c\u0430 \u0441\u0432\u044a\u0440\u0437\u0430\u043d bodytech \u043a\u043e\u0441\u0442\u044e\u043c \u2014 \u0441\u0432\u044a\u0440\u0436\u0438 \u0433\u043e \u043e\u0442 \u0435\u043a\u0440\u0430\u043d\u0430 \u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430"
 
-    .line 184
-    :goto_99
+    .line 217
+    :goto_fd
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/bodytech/BtTest;->say(Ljava/lang/String;)V
 
-    .line 187
+    .line 220
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->live:Z
 
-    goto/16 :goto_4
+    goto/16 :goto_5
 
-    .line 186
-    :cond_a1
+    .line 219
+    :cond_105
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0432\u044a\u0440\u0432\u0438 \u043d\u0430 \u043a\u043e\u0441\u0442\u044e\u043c\u0430 \u2014 \u0441\u043f\u0440\u0438 \u044f, \u0437\u0430 \u0434\u0430 \u0442\u0435\u0441\u0442\u0432\u0430\u0448"
 
-    goto :goto_99
+    goto :goto_fd
 .end method

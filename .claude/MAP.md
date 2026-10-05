@@ -199,15 +199,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 **bodytech/** (`branding/java/src/com/isaigu/gymapp/bodytech/`)
 - `BtBeep.java` (99L, compile:music-sync*) — Sound signals of a bodytech suit, from the tablet (owner, 1.1.355), in Morse marks: start "...-", pause / stop "-", lin…
-- `BtBridge.java` (406L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `BtBridge.java` (413L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtFull.java` (267L, compile:music-sync*) — The row's gear on a bodytech suit → "Пълни параметри": every channel's own strength, Hz, width and waveform, separately…
 - `BtGear.java` (148L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
-- `BtProto.java` (148L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
+- `BtProto.java` (162L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
 - `BtSettings.java` (364L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
 - `BtSettingsSection.java` (446L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
-- `BtTest.java` (257L, compile:music-sync*) — The impulse test: Hz 1..1000, width 50..511 µs, waveform and level, felt with a ▶ held on a channel ({@link BtBridge#te…
+- `BtTest.java` (323L, compile:music-sync*) — The impulse test: protocol (plain / Australian / Russian), Hz 1..10000, width 50 µs ..
 - `BtTestMode.java` (118L, compile:music-sync*) — The row's gear on a bodytech suit → "Тестов режим": a screen of its own, apart from the training, to try the impulse (H…
-- `BtTranslator.java` (362L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (400L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -755,23 +755,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (145L)
+`docs/xems-bodytech.md` (151L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L8 ## How it works
   - L30 ## Translation (XEMS → bodytech)
   - L48 ## Owner's settings (Settings → Костюм bodytech)
   - L62 ## Test of a channel and the left → right order (1.1.346)
-  - L73 ## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
-  - L84 ## Full parameters from the row's gear (1.1.350) — no limits
-  - L97 ## Test mode from the row's gear (1.1.348)
-  - L105 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L114 ## Safety
-  - L122 ## Not verified on a person yet
-  - L128 ## Tests
-  - L132 ## What still limits (not the app)
-  - L136 ## Second impulse without limits (1.1.353)
-  - L139 ## Own device names (1.1.353)
-  - L142 ## Sound signals (1.1.355)
+  - L73 ## Test of the impulse: protocols, Hz 1–10000, width, waveform, bursts, gain (1.1.347, 1.1.360)
+  - L90 ## Full parameters from the row's gear (1.1.350) — no limits
+  - L103 ## Test mode from the row's gear (1.1.348)
+  - L111 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L120 ## Safety
+  - L128 ## Not verified on a person yet
+  - L134 ## Tests
+  - L138 ## What still limits (not the app)
+  - L142 ## Second impulse without limits (1.1.353)
+  - L145 ## Own device names (1.1.353)
+  - L148 ## Sound signals (1.1.355)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

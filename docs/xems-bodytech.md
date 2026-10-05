@@ -70,12 +70,18 @@ Changes are saved at once and used by the next command the row sends.
 - The training row's header icons are shared by all rows and stay the XEMS muscle icons: a channel appears under the
   slider (icon) it is mapped to. The channel names are the owner's labels in this sheet.
 
-## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
+## Test of the impulse: protocols, Hz 1–10000, width, waveform, bursts, gain (1.1.347, 1.1.360)
 The same sheet has "Тест на импулс": Hz (1–1000, presets 1 … 1000 and − / +), width (50–511 µs), waveform (the suit's own /
 square / sine / trapezoid / trapezoid 2) and the level. Hold **▶** on a channel to feel it on that muscle.
-- The level goes up to **99 %** (the suit reads 100 as 0). A charge cap holds it lower as Hz × width grows beyond 85 Hz × 360 µs
-  (`BtTranslator.testCap`; 400 Hz × 360 µs → 21 %, 1000 Hz × 511 µs → 5 %). The sheet shows the cap; a switch
-  "Таван по заряд" (since 1.1.351 **off by default**: 99 % at any Hz / width) turns it on. Level chips 1 … 99 and − / + (1, 2, 5 steps).
+- The level goes up to **99 %** (the suit reads 100 as 0). Since 1.1.360 there is **no charge cap** (owner); level chips
+  1 … 99 and − / + (1, 2, 5 steps).
+- **Protocols (1.1.360):** chips "Обикновен" (85 Hz, 360 µs, continuous), "Австралийски 1 kHz" (1000 Hz, 500 µs, bursts
+  4 ms / 16 ms = 50/s), "Руски 2,5 kHz" (2500 Hz, 200 µs, bursts 10 / 10 ms). Bursts are the suit's own T2 / T4 (set
+  per channel for the test, back to continuous T2 = 100 s, T4 = 0 for training); own values with − / + (0 = continuous,
+  up to 1000 ms). Hz up to **10 000**; width up to **half the period** (`BtTranslator.maxUsAt`: 500 µs at 1 kHz, 200 µs
+  at 2.5 kHz) and past the vendor's 511 µs up to the register's 1638 µs (`BtProto.widthRaw`) at low Hz.
+- **Gain (опит):** STEP_NOR byte ×1 … ×31 (`BtProto.stepNorByte`; the vendor always sends ×1, the effect is not measured).
+  Raising it brings the level down to 10 % at most; training always gets ×1 back.
 - The waveform goes back to the owner's setting (square when "the suit's own") when the test ends or another channel
   is tested. The effect of Hz > 120, width > the program's and the waveform on the body is **not known yet** (frames are ACKed,
   nothing reads back) — this test is how to find out.

@@ -748,8 +748,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (129L)
-  - L1 # Bodytech suit in XEMS — plain training (1.1.350-ai)
+`docs/xems-bodytech.md` (133L)
+  - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L8 ## How it works
   - L30 ## Translation (XEMS → bodytech)
   - L46 ## Owner's settings (Settings → Костюм bodytech)
@@ -761,6 +761,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L112 ## Safety
   - L120 ## Not verified on a person yet
   - L126 ## Tests
+  - L130 ## What still limits (not the app)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

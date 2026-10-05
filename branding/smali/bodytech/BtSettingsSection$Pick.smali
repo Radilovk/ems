@@ -38,22 +38,22 @@
     .registers 5
 
     .prologue
-    .line 197
+    .line 316
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 198
+    .line 317
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 199
+    .line 318
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;->what:I
 
-    .line 200
+    .line 319
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;->ch:I
 
-    .line 201
+    .line 320
     iput p4, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;->value:I
 
-    .line 202
+    .line 321
     return-void
 .end method
 
@@ -63,10 +63,10 @@
     .registers 4
 
     .prologue
-    .line 206
+    .line 325
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 207
+    .line 326
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;->what:I
 
     if-nez v0, :cond_14
@@ -77,16 +77,16 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setSlider(II)V
 
-    .line 209
+    .line 328
     :goto_e
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 210
+    .line 329
     return-void
 
-    .line 208
+    .line 327
     :cond_14
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;->value:I
 

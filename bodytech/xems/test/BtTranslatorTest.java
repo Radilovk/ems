@@ -201,6 +201,39 @@ public class BtTranslatorTest {
         f = tr.command(3, run(600, 0, 360, 4, 4, 1), 0);
         eq("Hz 0: stays off", false, tr.isOn());
 
+        // --- per-channel parameters: strength %, width, Hz of each impulse (only below the program's)
+        tr = new BtTranslator();
+        BtSettings.setChGain(1, 50);
+        BtSettings.setChWidth(2, 200);
+        BtSettings.setChWidth(3, 450);                 // above the program's 360: ignored
+        BtSettings.setChHz(4, false, 40);
+        BtSettings.setChHz(4, true, 5);
+        BtSettings.setChHz(5, false, 120);             // above the program's 85: ignored
+        f = pair(tr, setting(60), run(600, 85, 350, 4, 4, 1), t);
+        eq("channel gain 50 %", true, has(f, BtProto.intensity(1, 30)));
+        eq("channel width 200", true, has(f, BtProto.width(2, 200)));
+        eq("width above program ignored", true, has(f, BtProto.width(3, 350)));
+        eq("C4 main Hz 40", true, has(f, BtProto.hz(4, 40)));
+        eq("C5 Hz above program ignored", false, has(f, BtProto.hz(5, 120)));
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(60), run(600, 8, 350, 4, 4, 1), t);
+        eq("C4 second Hz 5", true, has(f, BtProto.hz(4, 5)));
+        eq("C6 second Hz = program's 8", true, has(f, BtProto.hz(6, 8)));
+        BtSettings.reset();
+
+        // --- the same channel can work in one impulse only, another in the other, another in none
+        tr = new BtTranslator();
+        BtSettings.setGroup(1, BtSettings.GROUP_MAIN);
+        BtSettings.setGroup(2, BtSettings.GROUP_SECOND);
+        BtSettings.setSlider(3, BtSettings.NO_SLIDER);
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("main: C1 yes C2 no C3 none", hex(BtProto.enable(0xFF & ~0x02 & ~0x04)), hex(f.get(f.size() - 1)));
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(40), run(600, 8, 350, 4, 4, 1), t);
+        eq("second: C1 no C2 yes C3 none", hex(BtProto.enable(0xFF & ~0x01 & ~0x04)), hex(f.get(f.size() - 1)));
+        BtSettings.reset();
+
         // --- which suit
         eq("FE50 in scan record", true, BtProto.has16(new byte[]{2, 1, 6, 3, 3, 0x50, (byte) 0xFE}, 0xFE50));
         eq("FFF0 is not FE50", false, BtProto.has16(new byte[]{2, 1, 6, 3, 3, (byte) 0xF0, (byte) 0xFF}, 0xFE50));

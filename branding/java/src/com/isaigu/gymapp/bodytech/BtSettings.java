@@ -42,6 +42,17 @@ public final class BtSettings {
     static final int[] group = new int[CHANNELS + 1];
     static int wave = WAVE_SUIT;
     static int gain = 100;
+    /** Display order: order[pos] = channel (pos 0..7). */
+    static final int[] order = new int[CHANNELS];
+    /** Per channel: strength % on top of the global one, width µs and Hz of the main / 2nd impulse (0 = the program's). */
+    static final int[] chGain = new int[CHANNELS + 1];
+    static final int[] chWidth = new int[CHANNELS + 1];
+    static final int[] chHzMain = new int[CHANNELS + 1];
+    static final int[] chHzSecond = new int[CHANNELS + 1];
+
+    public static final int CH_GAIN_MAX = 150;
+    public static final int WIDTH_MIN = 50, WIDTH_MAX = 511;
+    public static final int HZ_MAIN_MAX = 120, HZ_SECOND_MAX = 10;
 
     static Context app;
     static boolean loaded;
@@ -55,6 +66,13 @@ public final class BtSettings {
             slider[ch] = clampSlider(p.getInt("slider" + ch, DEFAULT_SLIDER[ch]));
             group[ch] = clampGroup(p.getInt("group" + ch, GROUP_BOTH));
         }
+        for (int ch = 1; ch <= CHANNELS; ch++) {
+            chGain[ch] = clampChGain(p.getInt("cgain" + ch, 100));
+            chWidth[ch] = clampWidth(p.getInt("cwidth" + ch, 0));
+            chHzMain[ch] = clampHz(p.getInt("chzm" + ch, 0), HZ_MAIN_MAX);
+            chHzSecond[ch] = clampHz(p.getInt("chzs" + ch, 0), HZ_SECOND_MAX);
+        }
+        loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
         loaded = true;
@@ -68,6 +86,15 @@ public final class BtSettings {
             e.putInt("slider" + ch, slider[ch]);
             e.putInt("group" + ch, group[ch]);
         }
+        for (int ch = 1; ch <= CHANNELS; ch++) {
+            e.putInt("cgain" + ch, chGain[ch]);
+            e.putInt("cwidth" + ch, chWidth[ch]);
+            e.putInt("chzm" + ch, chHzMain[ch]);
+            e.putInt("chzs" + ch, chHzSecond[ch]);
+        }
+        StringBuilder o = new StringBuilder();
+        for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
+        e.putString("order", o.toString());
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -79,7 +106,12 @@ public final class BtSettings {
             names[ch] = DEFAULT_NAMES[ch];
             slider[ch] = DEFAULT_SLIDER[ch];
             group[ch] = GROUP_BOTH;
+            chGain[ch] = 100;
+            chWidth[ch] = 0;
+            chHzMain[ch] = 0;
+            chHzSecond[ch] = 0;
         }
+        loadOrder("");
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -101,6 +133,25 @@ public final class BtSettings {
     public static synchronized int wave() { return wave; }
 
     public static synchronized int gain() { return gain; }
+
+    /** Strength % of this channel on top of the global one (100 = as the slider gives). */
+    public static synchronized int chGain(int ch) { return valid(ch) ? chGain[ch] : 100; }
+
+    /** Width µs this channel is held to (never above the program's); 0 = the program's. */
+    public static synchronized int chWidth(int ch) { return valid(ch) ? chWidth[ch] : 0; }
+
+    /** Hz this channel is held to in the main (second = false) or 2nd impulse (never above the program's); 0 = the program's. */
+    public static synchronized int chHz(int ch, boolean second) {
+        return valid(ch) ? (second ? chHzSecond[ch] : chHzMain[ch]) : 0;
+    }
+
+    /** The channel shown at position pos (0..7) of the sheet. */
+    public static synchronized int channelAt(int pos) { return pos >= 0 && pos < CHANNELS ? order[pos] : pos + 1; }
+
+    public static synchronized int positionOf(int ch) {
+        for (int i = 0; i < CHANNELS; i++) if (order[i] == ch) return i;
+        return ch - 1;
+    }
 
     public static String sliderName(int s) {
         return s >= 0 && s < SLIDERS.length ? SLIDERS[s] : "Няма";
@@ -136,6 +187,36 @@ public final class BtSettings {
         save();
     }
 
+    public static synchronized void setChGain(int ch, int v) {
+        if (!valid(ch)) return;
+        chGain[ch] = clampChGain(v);
+        save();
+    }
+
+    public static synchronized void setChWidth(int ch, int us) {
+        if (!valid(ch)) return;
+        chWidth[ch] = clampWidth(us);
+        save();
+    }
+
+    public static synchronized void setChHz(int ch, boolean second, int hz) {
+        if (!valid(ch)) return;
+        if (second) chHzSecond[ch] = clampHz(hz, HZ_SECOND_MAX);
+        else chHzMain[ch] = clampHz(hz, HZ_MAIN_MAX);
+        save();
+    }
+
+    /** Move the channel one place up (dir −1) or down (+1) in the sheet. */
+    public static synchronized void move(int ch, int dir) {
+        int p = positionOf(ch);
+        int q = p + dir;
+        if (q < 0 || q >= CHANNELS) return;
+        int t = order[p];
+        order[p] = order[q];
+        order[q] = t;
+        save();
+    }
+
     public static synchronized void setWave(int w) {
         wave = clampWave(w);
         save();
@@ -147,6 +228,24 @@ public final class BtSettings {
     }
 
     // ---------------------------------------------------------------- limits
+
+    static void loadOrder(String o) {
+        boolean[] seen = new boolean[CHANNELS + 1];
+        boolean ok = o != null && o.length() == CHANNELS;
+        for (int i = 0; ok && i < CHANNELS; i++) {
+            int c = o.charAt(i) - '0';
+            if (c < 1 || c > CHANNELS || seen[c]) ok = false;
+            else seen[c] = true;
+        }
+        for (int i = 0; i < CHANNELS; i++) order[i] = ok ? o.charAt(i) - '0' : i + 1;
+    }
+
+    /** 0 = the program's; else 50..511 µs. */
+    static int clampWidth(int w) { return w <= 0 ? 0 : Math.max(WIDTH_MIN, Math.min(WIDTH_MAX, w)); }
+
+    static int clampHz(int h, int max) { return h <= 0 ? 0 : Math.min(max, h); }
+
+    static int clampChGain(int g) { return Math.max(0, Math.min(CH_GAIN_MAX, g)); }
 
     static boolean valid(int ch) { return ch >= 1 && ch <= CHANNELS; }
 

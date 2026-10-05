@@ -11,6 +11,12 @@ public class BtSettingsTest {
         }
     }
 
+    static String order() {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < BtSettings.CHANNELS; i++) b.append(i > 0 ? "," : "").append(BtSettings.channelAt(i));
+        return b.toString();
+    }
+
     public static void main(String[] a) {
         BtSettings.reset();
         eq("default name C1", "Кръст", BtSettings.name(1));
@@ -62,6 +68,31 @@ public class BtSettingsTest {
         eq("reset slider", 6, BtSettings.slider(4));
 
         System.out.println(fails == 0 ? "BtSettingsTest OK" : "BtSettingsTest FAILED: " + fails);
+        BtSettings.reset();
+        eq("default order", "1,2,3,4,5,6,7,8", order());
+        BtSettings.move(3, -1);
+        eq("C3 up", "1,3,2,4,5,6,7,8", order());
+        BtSettings.move(1, -1);
+        eq("first stays", "1,3,2,4,5,6,7,8", order());
+        BtSettings.move(8, 1);
+        eq("last stays", "1,3,2,4,5,6,7,8", order());
+        eq("position of C2", 2, BtSettings.positionOf(2));
+        BtSettings.loadOrder("11345678");
+        eq("bad order → default", "1,2,3,4,5,6,7,8", order());
+        BtSettings.setChGain(2, 200);
+        eq("channel gain capped", 150, BtSettings.chGain(2));
+        BtSettings.setChWidth(2, 10);
+        eq("width raised to 50", 50, BtSettings.chWidth(2));
+        BtSettings.setChWidth(2, 900);
+        eq("width capped 511", 511, BtSettings.chWidth(2));
+        BtSettings.setChHz(2, true, 40);
+        eq("2nd Hz capped 10", 10, BtSettings.chHz(2, true));
+        BtSettings.setChHz(2, false, 300);
+        eq("main Hz capped 120", 120, BtSettings.chHz(2, false));
+        BtSettings.reset();
+        eq("reset: channel gain", 100, BtSettings.chGain(2));
+        eq("reset: width auto", 0, BtSettings.chWidth(2));
+
         if (fails > 0) System.exit(1);
     }
 }

@@ -62,6 +62,18 @@ public final class BtBridge {
         dev(d).tr.phase(p);
     }
 
+    /** TrainItem.reset start (stop, end of the time, connect): all off, strengths 0, the suit programmed afresh. */
+    public static void reset(BleDevice d) {
+        try {
+            if (d == null || !isBodytech(d)) return;
+            Dev v = dev(d);
+            v.begin();
+            v.add(v.tr.reset(), null, null, false);
+        } catch (Throwable t) {
+            Log.e(TAG, "reset: " + t);
+        }
+    }
+
     /**
      * BleDeviceManager.write start. true = taken (a bodytech suit and an XEMS frame): translated and queued, the
      * callback fires after the last frame. false = the stock write goes on (not a bodytech suit, or one of our own

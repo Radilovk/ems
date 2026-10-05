@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 133
+    .line 137
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 134
+    .line 138
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtGear$Test;->c:Lcom/isaigu/gymapp/bodytech/BtGear$Choice;
 
-    .line 135
+    .line 139
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 5
 
     .prologue
-    .line 139
+    .line 143
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtGear$Test;->c:Lcom/isaigu/gymapp/bodytech/BtGear$Choice;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtGear$Choice;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -51,7 +51,7 @@
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 140
+    .line 144
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtTestMode;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtGear$Test;->c:Lcom/isaigu/gymapp/bodytech/BtGear$Choice;
@@ -66,6 +66,6 @@
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtTestMode;->show()V
 
-    .line 141
+    .line 145
     return-void
 .end method

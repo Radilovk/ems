@@ -763,7 +763,7 @@
     .registers 10
 
     .prologue
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
     .line 59
     if-eqz p0, :cond_a
@@ -782,7 +782,7 @@
     return-void
 
     :cond_a
-    move-object v0, v1
+    move-object v0, v2
 
     .line 59
     goto :goto_5
@@ -790,15 +790,19 @@
     .line 65
     :cond_c
     :try_start_c
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/SafeGuard;->pause(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
-    :try_end_f
-    .catch Ljava/lang/Throwable; {:try_start_c .. :try_end_f} :catch_1f
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SafeGuard;->free2(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+
+    move-result v1
+
+    invoke-static {p1, v1}, Lcom/isaigu/gymapp/wearable/SafeGuard;->pause(Lcom/isaigu/gymapp/bean/ProgramDataBean;Z)[I
+    :try_end_13
+    .catch Ljava/lang/Throwable; {:try_start_c .. :try_end_13} :catch_23
 
     move-result-object v1
 
     .line 69
-    :goto_10
-    if-eqz v1, :cond_26
+    :goto_14
+    if-eqz v1, :cond_2b
 
     .line 70
     const/4 v2, 0x0
@@ -820,18 +824,20 @@
     goto :goto_9
 
     .line 66
-    :catch_1f
-    move-exception v2
+    :catch_23
+    move-exception v1
 
     .line 67
     const-string v3, "SoftRamp.sendPause"
 
-    invoke-static {v3, v2}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+    invoke-static {v3, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_10
+    move-object v1, v2
+
+    goto :goto_14
 
     .line 72
-    :cond_26
+    :cond_2b
     invoke-virtual {v0, p1, p3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendPause(Lcom/isaigu/gymapp/bean/ProgramDataBean;I)V
 
     goto :goto_9

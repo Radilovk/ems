@@ -7,6 +7,7 @@
                                queued (cb fires after the last bodytech frame), false = the stock write goes on
   CommandReceiver.onReceiveData start: BtBridge.reply(device, bytes, listener) → true = a bodytech reply (battery)
   CommandSender.sendDuration / sendActivePause / sendPause  start: BtBridge.phase(device, 1 / 2 / 0)
+  TrainItem.reset (stop)      start: BtBridge.reset(device) → all off, strengths 0, the suit programmed afresh
   TrainViewHolder$1.onNoDoubleClick (the row's gear) start: BtGear.open(item, view) → true = on a bodytech row the
                                gear first asks "Настройки на програмата" / "Тестов режим" (BtTestMode)
   SettingFragment.onCreateView after the Band section: BtSettingsSection.attach(activity, root) — Settings →
@@ -135,6 +136,13 @@ def main() -> None:
         f"    invoke-static {{v0, p1}}, Lcom/isaigu/gymapp/bodytech/BtGear;->open(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;)Z\n\n"
         f"    move-result v0\n\n    if-eqz v0, :cond_{MARK}_gear\n\n    return-void\n\n    :cond_{MARK}_gear\n",
         "gear",
+    )
+    insert_at_start(
+        APP / "train/model/TrainItem.smali",
+        ".method public reset()V",
+        f"    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->device:{DEV}\n\n"
+        f"    invoke-static {{v0}}, {BB}->reset({DEV})V\n",
+        "reset",
     )
     for sig, ph in (
         (".method public sendDuration(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)V", 1),

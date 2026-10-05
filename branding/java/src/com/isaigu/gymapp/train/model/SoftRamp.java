@@ -62,7 +62,7 @@ public final class SoftRamp {
         }
         int[] p = null;
         try {
-            p = com.isaigu.gymapp.wearable.SafeGuard.pause(b);
+            p = com.isaigu.gymapp.wearable.SafeGuard.pause(b, com.isaigu.gymapp.wearable.SafeGuard.free2(item));
         } catch (Throwable t) {
             XemsGuard.report("SoftRamp.sendPause", t);
         }

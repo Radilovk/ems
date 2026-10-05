@@ -18,6 +18,8 @@
 # static fields
 .field private static bypass:Z
 
+.field public static freeSecond:Z
+
 
 # direct methods
 .method private constructor <init>()V
@@ -44,7 +46,7 @@
     .registers 3
 
     .prologue
-    .line 48
+    .line 52
     move-object v0, p0
 
     :goto_1
@@ -52,18 +54,18 @@
 
     if-eqz v1, :cond_13
 
-    .line 49
+    .line 53
     instance-of v1, v0, Landroid/app/Activity;
 
     if-eqz v1, :cond_c
 
     check-cast v0, Landroid/app/Activity;
 
-    .line 52
+    .line 56
     :goto_b
     return-object v0
 
-    .line 50
+    .line 54
     :cond_c
     check-cast v0, Landroid/content/ContextWrapper;
 
@@ -73,7 +75,7 @@
 
     goto :goto_1
 
-    .line 52
+    .line 56
     :cond_13
     const/4 v0, 0x0
 
@@ -81,86 +83,98 @@
 .end method
 
 .method public static open(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;)Z
-    .registers 6
+    .registers 7
 
     .prologue
+    const/4 v1, 0x1
+
     const/4 v0, 0x0
 
-    .line 29
-    :try_start_1
-    sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtGear;->bypass:Z
+    .line 31
+    :try_start_2
+    sget-boolean v2, Lcom/isaigu/gymapp/bodytech/BtGear;->bypass:Z
 
-    if-eqz v1, :cond_9
+    if-eqz v2, :cond_d
 
-    .line 30
+    .line 32
     const/4 v1, 0x0
 
     sput-boolean v1, Lcom/isaigu/gymapp/bodytech/BtGear;->bypass:Z
 
-    .line 43
-    :cond_8
-    :goto_8
+    .line 33
+    const/4 v1, 0x1
+
+    sput-boolean v1, Lcom/isaigu/gymapp/bodytech/BtGear;->freeSecond:Z
+
+    .line 47
+    :cond_c
+    :goto_c
     return v0
 
-    .line 33
-    :cond_9
-    if-eqz p0, :cond_8
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    if-eqz v1, :cond_8
-
-    if-eqz p1, :cond_8
-
-    .line 34
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
-
-    .line 35
-    invoke-static {v1}, Lcom/isaigu/gymapp/bodytech/BtBridge;->isBodytechMac(Ljava/lang/String;)Z
-
-    move-result v2
-
-    if-eqz v2, :cond_8
-
     .line 36
-    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
+    :cond_d
+    if-eqz p0, :cond_c
 
-    move-result-object v2
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtGear;->activity(Landroid/content/Context;)Landroid/app/Activity;
+    if-eqz v2, :cond_c
 
-    move-result-object v2
+    if-eqz p1, :cond_c
 
     .line 37
-    if-eqz v2, :cond_8
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
 
     .line 38
-    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->load(Landroid/content/Context;)V
+    const/4 v3, 0x0
+
+    sput-boolean v3, Lcom/isaigu/gymapp/bodytech/BtGear;->freeSecond:Z
 
     .line 39
-    new-instance v3, Lcom/isaigu/gymapp/bodytech/BtGear$Choice;
+    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtBridge;->isBodytechMac(Ljava/lang/String;)Z
 
-    invoke-direct {v3, v2, p1, v1}, Lcom/isaigu/gymapp/bodytech/BtGear$Choice;-><init>(Landroid/app/Activity;Landroid/view/View;Ljava/lang/String;)V
+    move-result v3
 
-    invoke-virtual {v3}, Lcom/isaigu/gymapp/bodytech/BtGear$Choice;->show()V
-    :try_end_30
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_30} :catch_32
+    if-eqz v3, :cond_c
 
     .line 40
-    const/4 v0, 0x1
+    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    goto :goto_8
+    move-result-object v3
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/bodytech/BtGear;->activity(Landroid/content/Context;)Landroid/app/Activity;
+
+    move-result-object v3
 
     .line 41
-    :catch_32
-    move-exception v1
+    if-eqz v3, :cond_c
 
     .line 42
+    invoke-static {v3}, Lcom/isaigu/gymapp/bodytech/BtSettings;->load(Landroid/content/Context;)V
+
+    .line 43
+    new-instance v4, Lcom/isaigu/gymapp/bodytech/BtGear$Choice;
+
+    invoke-direct {v4, v3, p1, v2}, Lcom/isaigu/gymapp/bodytech/BtGear$Choice;-><init>(Landroid/app/Activity;Landroid/view/View;Ljava/lang/String;)V
+
+    invoke-virtual {v4}, Lcom/isaigu/gymapp/bodytech/BtGear$Choice;->show()V
+    :try_end_37
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_37} :catch_39
+
+    move v0, v1
+
+    .line 44
+    goto :goto_c
+
+    .line 45
+    :catch_39
+    move-exception v1
+
+    .line 46
     const-string v2, "BtGear.open"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_8
+    goto :goto_c
 .end method

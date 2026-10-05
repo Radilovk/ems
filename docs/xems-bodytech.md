@@ -34,7 +34,9 @@ bodytech is remembered (`xems_bodytech_suits`).
 | cmd 3 flag 1: Hz, width (pdu[4]·50 µs) | per working channel: Hz register, width register (only when changed) |
 | strength of slider *s* | channel *c* with `slider(c) = s`: `strength × global gain × channel gain`, ≤ 99 % |
 | channel works | its strength > 0 → bit in the SEL mask (written last) |
-| pause (cmd 3 flag 0), stop (F2) | SEL all off |
+| pause (cmd 3 flag 0) | SEL all off |
+| start (F1) / pause or stop (F2) | run gate open / closed: closed = SEL off + every strength 0, and a cmd 3 (a parameter change re-sends the impulse) only keeps its values (1.1.354) |
+| stop (TrainItem.reset) | `BtBridge.reset`: off, strengths 0, the full program again (as at connect; skipped when the suit never ran since) |
 | second impulse (`sendActivePause`) | channels set to "Основен" are silent, "Втори" work; Hz = pause Hz |
 | battery (cmd 5) | STATUS query; the reply becomes the percent the row shows |
 | — | first command after connect: SEL off, battery init, RESET, per-channel program, SEL off (≈ 3 s) |
@@ -51,7 +53,7 @@ Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two co
   in the second only, in both, or (slider "Няма") in none;
 - **Параметри ▾**: strength % of this channel on top of the slider (0–150), pulse width µs, Hz of the main impulse and
   Hz of the second impulse. "Авто" = as the program says. Width and Hz can only **lower** the program's value
-  (the limits of `docs/xems-safety-limits.md` stay upstream; main ≤ 120 Hz, second ≤ 10 Hz here too).
+  (main limits of `docs/xems-safety-limits.md` stay upstream).
 Global: waveform (the suit's own / square / sine / trapezoid) and a strength scale 50–150 %.
 Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C2 Седалище→Седалище, C3 Рамене→Трапец, C4 Среден
 гръб→Гръб, C5 Гърди→Гърди, C6 Ръце→Ръце, C7 Бедра→Предно бедро, C8 Корем→Корем. "По подразбиране" resets everything.
@@ -130,3 +132,9 @@ or releasing ▶ switches the output off; refused while a training runs on the s
 ## What still limits (not the app)
 Strength 99 % (the suit reads 100 as 0) · Hz ≤ 1000 (above it a 511 µs pulse is longer than the period — the output turns into
 a steady current) · width ≤ 511 µs (the vendor's encoder: a longer value falls back to 160 µs). Everything else is the owner's.
+
+## Second impulse without limits (1.1.353)
+On a bodytech row the second impulse is not capped: any Hz (also ≥ main, stepper to 1000 in the parameters dialog), strength as set, also at main strength 0. `SafeGuard.free2(item)` (MAC is bodytech) → `SafeLimits.apply(…, free2)` / `pauseSend(…, free2)`; `BtGear.freeSecond` lifts the `PauseSetting` stepper. XEMS suits keep ≤ 10 Hz.
+
+## Own device names (1.1.353)
+Device list (both connect dialogs): long-press a row (or tap its "i") → own name; `bodytech/DeviceAlias`, tablet only (`xems_device_alias`, by MAC), never synced. Hook: `scripts/apply-device-alias.py`.

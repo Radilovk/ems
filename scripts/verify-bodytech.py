@@ -10,7 +10,7 @@ APP = ROOT / "build" / "decompiled" / "smali_classes2" / "com" / "isaigu" / "gym
 BB = "Lcom/isaigu/gymapp/bodytech/BtBridge;"
 
 CLASSES = ["BtBridge", "BtBridge$Ack", "BtBridge$Beat", "BtBridge$Dev", "BtBridge$Item", "BtProto", "BtSettings",
-           "BtTranslator", "BtSettingsSection", "BtGear", "BtTestMode", "BtTest", "BtFull"]
+           "BtTranslator", "BtSettingsSection", "BtGear", "BtTestMode", "BtTest", "BtFull", "DeviceAlias"]
 # (file, method signature, the call that must be in it, how many times)
 HOOKS = [
     ("train/ble/BleDeviceManager.smali", ".method private static getConfig(", f"{BB}->config(", 1),
@@ -20,6 +20,7 @@ HOOKS = [
     ("train/model/CommandSender.smali", ".method public sendDuration(", f"{BB}->phase(", 1),
     ("train/model/CommandSender.smali", ".method public sendActivePause(", f"{BB}->phase(", 1),
     ("train/model/CommandSender.smali", ".method public sendPause(", f"{BB}->phase(", 1),
+    ("train/model/TrainItem.smali", ".method public reset()V", f"{BB}->reset(", 1),
 ]
 
 

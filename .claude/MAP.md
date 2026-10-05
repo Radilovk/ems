@@ -539,6 +539,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L23 ## Train screen preview — **canonical method for UI frames**
   - L40 ## Not automatable without hardware
 
+`bodytech/PROTOCOL.md` (71L)
+  - L1 # Bodytech (EMSFIT 5.1) suit — BLE protocol
+  - L8 ## Link
+  - L17 ## Frame — 8 bytes, big endian
+  - L21 ### Global registers (channel 0)
+  - L30 ### Channel registers
+  - L49 ## Sequences (EMSFIT)
+  - L57 ## Replies
+  - L62 ## XEMS → bodytech mapping
+
+`bodytech/probe/README.md` (32L)
+  - L1 # XEMS BT Probe — тест на bodytech костюма
+  - L7 ## Инсталиране
+  - L12 ## Тест (около 10 минути, костюмът облечен)
+  - L30 ## Сглобяване
+
 `branding/CLAUDE.md` (11L)
   - L1 # branding/ — resources patched into the APK
 

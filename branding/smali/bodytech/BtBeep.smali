@@ -10,13 +10,13 @@
 
 .field static final EDGE_MS:I = 0x5
 
-.field static final FREQ:I = 0xa28
+.field static final FREQ:I = 0x4b0
 
 .field static final GAP_MS:I = 0x78
 
 .field static final LOST_GAP_MS:J = 0x1388L
 
-.field static final RATE:I = 0x5622
+.field static final RATE:I = 0x5dc0
 
 .field private static final TAG:Ljava/lang/String; = "BtBeep"
 
@@ -116,173 +116,197 @@
     .registers 15
 
     .prologue
+    .line 42
     const/4 v1, 0x0
 
-    .line 42
-    move v0, v1
-
-    move v2, v1
-
     .line 43
-    :goto_3
+    const/4 v0, 0x0
+
+    :goto_2
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
-    move-result v3
+    move-result v2
 
-    if-ge v0, v3, :cond_22
+    if-ge v0, v2, :cond_21
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
+    move-result v2
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtBeep;->ms(C)I
+
     move-result v3
 
-    invoke-static {v3}, Lcom/isaigu/gymapp/bodytech/BtBeep;->ms(C)I
-
-    move-result v4
-
-    add-int/lit8 v3, v0, 0x1
+    add-int/lit8 v2, v0, 0x1
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
-    move-result v5
+    move-result v4
 
-    if-ge v3, v5, :cond_20
+    if-ge v2, v4, :cond_1f
 
-    const/16 v3, 0x78
+    const/16 v2, 0x78
 
-    :goto_1b
-    add-int/2addr v3, v4
-
+    :goto_1a
     add-int/2addr v2, v3
+
+    add-int/2addr v1, v2
 
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_3
+    goto :goto_2
 
-    :cond_20
-    move v3, v1
+    :cond_1f
+    const/4 v2, 0x0
 
-    goto :goto_1b
+    goto :goto_1a
 
     .line 44
-    :cond_22
-    mul-int/lit16 v0, v2, 0x5622
+    :cond_21
+    mul-int/lit16 v0, v1, 0x5dc0
 
     div-int/lit16 v0, v0, 0x3e8
 
     new-array v6, v0, [S
 
-    move v0, v1
-
-    move v2, v1
+    .line 45
+    const/4 v1, 0x0
 
     .line 46
-    :goto_2a
+    const/4 v0, 0x0
+
+    :goto_29
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
-    move-result v3
+    move-result v2
 
-    if-ge v0, v3, :cond_7a
+    if-ge v0, v2, :cond_81
 
     .line 47
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
-    move-result v3
+    move-result v2
 
-    invoke-static {v3}, Lcom/isaigu/gymapp/bodytech/BtBeep;->ms(C)I
+    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtBeep;->ms(C)I
 
-    move-result v3
+    move-result v2
 
-    mul-int/lit16 v3, v3, 0x5622
+    mul-int/lit16 v2, v2, 0x5dc0
 
-    div-int/lit16 v7, v3, 0x3e8
+    div-int/lit16 v7, v2, 0x3e8
 
     .line 48
-    const/16 v8, 0x6e
-
-    move v3, v1
+    const/16 v8, 0x78
 
     .line 49
+    const/4 v2, 0x0
+
+    move v5, v2
+
     :goto_3f
-    if-ge v3, v7, :cond_74
+    if-ge v5, v7, :cond_7b
 
     .line 50
-    if-ge v3, v8, :cond_67
+    if-ge v5, v8, :cond_6c
 
-    int-to-double v4, v3
+    int-to-double v2, v5
 
     int-to-double v10, v8
 
-    div-double/2addr v4, v10
+    div-double/2addr v2, v10
 
     .line 51
     :goto_46
-    add-int v9, v2, v3
+    add-int v9, v1, v5
 
-    const-wide v10, 0x40cfe82411fa8d3fL    # 16336.281798666923
+    int-to-long v10, v5
 
-    int-to-double v12, v3
+    const-wide/16 v12, 0x4b0
 
-    mul-double/2addr v10, v12
+    mul-long/2addr v10, v12
 
-    const-wide v12, 0x40d5888000000000L    # 22050.0
+    const-wide/16 v12, 0x2
 
-    div-double/2addr v10, v12
+    mul-long/2addr v10, v12
 
-    invoke-static {v10, v11}, Ljava/lang/Math;->sin(D)D
+    const-wide/16 v12, 0x5dc0
 
-    move-result-wide v10
+    div-long/2addr v10, v12
 
-    mul-double/2addr v4, v10
+    const-wide/16 v12, 0x2
 
-    const-wide v10, 0x40dd4c0000000000L    # 30000.0
+    rem-long/2addr v10, v12
 
-    mul-double/2addr v4, v10
+    const-wide/16 v12, 0x0
 
-    double-to-int v4, v4
+    cmp-long v4, v10, v12
 
-    int-to-short v4, v4
+    if-nez v4, :cond_79
 
-    aput-short v4, v6, v9
+    const/4 v4, 0x1
+
+    :goto_5c
+    int-to-double v10, v4
+
+    mul-double/2addr v2, v10
+
+    const-wide v10, 0x40cf400000000000L    # 16000.0
+
+    mul-double/2addr v2, v10
+
+    double-to-int v2, v2
+
+    int-to-short v2, v2
+
+    aput-short v2, v6, v9
 
     .line 49
-    add-int/lit8 v3, v3, 0x1
+    add-int/lit8 v2, v5, 0x1
+
+    move v5, v2
 
     goto :goto_3f
 
     .line 50
-    :cond_67
-    sub-int v4, v7, v8
+    :cond_6c
+    sub-int v2, v7, v8
 
-    if-le v3, v4, :cond_71
+    if-le v5, v2, :cond_76
 
-    sub-int v4, v7, v3
+    sub-int v2, v7, v5
 
-    int-to-double v4, v4
+    int-to-double v2, v2
 
     int-to-double v10, v8
 
-    div-double/2addr v4, v10
+    div-double/2addr v2, v10
 
     goto :goto_46
 
-    :cond_71
-    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+    :cond_76
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     goto :goto_46
+
+    .line 51
+    :cond_79
+    const/4 v4, -0x1
+
+    goto :goto_5c
 
     .line 53
-    :cond_74
-    add-int/lit16 v3, v7, 0xa56
+    :cond_7b
+    add-int/lit16 v2, v7, 0xb40
 
-    add-int/2addr v2, v3
+    add-int/2addr v1, v2
 
     .line 46
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_2a
+    goto :goto_29
 
     .line 55
-    :cond_7a
+    :cond_81
     return-object v6
 .end method
 
@@ -339,7 +363,7 @@
 
     move-result-object v2
 
-    const/16 v3, 0x5622
+    const/16 v3, 0x5dc0
 
     invoke-virtual {v2, v3}, Landroid/media/AudioFormat$Builder;->setSampleRate(I)Landroid/media/AudioFormat$Builder;
 

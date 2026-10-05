@@ -9,13 +9,13 @@ import android.util.Log;
 
 /**
  * Sound signals of a bodytech suit, from the tablet (owner, 1.1.355; even and high since 1.1.356), in Morse marks:
- * start "...-", pause / stop "-", link problem "..." (at most once every {@link #LOST_GAP_MS}). One pure high tone
- * (2.6 kHz), dot 120 ms, dash 240 ms, gap 120 ms, the same loudness for every mark (soft 5 ms edges, no clicks).
+ * start "...-", pause / stop "-", link problem "..." (at most once every {@link #LOST_GAP_MS}). One square-wave tone
+ * (1200 Hz), dot 120 ms, dash 240 ms, gap 120 ms, the same loudness for every mark (soft 5 ms edges, no clicks).
  * The whole signal is one PCM buffer on one AudioTrack: exact timing, no timers. A new signal cuts the old one.
  */
 public final class BtBeep {
     private static final String TAG = "BtBeep";
-    static final int RATE = 22050, FREQ = 2600, DOT_MS = 120, DASH_MS = 240, GAP_MS = 120, EDGE_MS = 5;
+    static final int RATE = 24000, FREQ = 1200, DOT_MS = 120, DASH_MS = 240, GAP_MS = 120, EDGE_MS = 5;
     static final long LOST_GAP_MS = 5000L;
     private static AudioTrack track;
     private static long lastLost;
@@ -48,7 +48,7 @@ public final class BtBeep {
             int edge = EDGE_MS * RATE / 1000;
             for (int k = 0; k < len; k++) {
                 double env = k < edge ? (double) k / edge : (k > len - edge ? (double) (len - k) / edge : 1.0);
-                out[at + k] = (short) (Math.sin(2 * Math.PI * FREQ * k / RATE) * env * 30000);
+                out[at + k] = (short) ((((long) k * FREQ * 2 / RATE) % 2 == 0 ? 1 : -1) * env * 16000);   // square wave
             }
             at += len + GAP_MS * RATE / 1000;
         }

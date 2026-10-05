@@ -29,7 +29,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-band-app.py` (77L, build:L137[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
 - `scripts/apply-beta-features.py` (95L, build:L105[BETA_MUSIC]) — BETA music sync core: install MusicSync smali + shared strings (player only, no mic).
 - `scripts/apply-ble-scan-lifecycle.py` (151L, build:L100) — Stop background BleDeviceManager scan outside the device-connect flow.
-- `scripts/apply-bodytech.py` (155L, build:L169) — Bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `scripts/apply-bodytech.py` (163L, build:L169) — Bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `scripts/apply-branding-train-layouts.py` (97L, build:L70[DESIGN_PIPELINE]) — Apply canonical train-screen layouts from branding/design/ at end of build.
 - `scripts/apply-branding.py` (235L, build:L50) — Apply branding images to decompiled APK resources.
 - `scripts/apply-bt-latency.py` (99L, build:L99) — Minimize Bluetooth command queue latency — write immediately after each ACK.
@@ -137,7 +137,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-apk-shipped.py` (227L) — Fail when APK-shipping source changed but xems27.apk was not rebuilt and committed.
 - `scripts/verify-arms-channel-scale.py` (67L, build:L160) — Verify arms channel strength scale hook is present in decompiled smali.
 - `scripts/verify-beta-safety.py` (73L, build:L143[BETA_MUSIC]) — Fail the build if BETA music hooks touch login-critical classes.
-- `scripts/verify-bodytech.py` (51L, build:L170) — Verify the bodytech suit hooks and classes are in the decompiled app (apply-bodytech.py ran, once each).
+- `scripts/verify-bodytech.py` (52L, build:L170) — Verify the bodytech suit hooks and classes are in the decompiled app (apply-bodytech.py ran, once each).
 - `scripts/verify-interval-timer-smali.py` (56L, build:L149[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
 - `scripts/verify-login-path.py` (89L) — Fail the build if login -> MainFragment -> NewTrainFragment path looks broken.
 - `scripts/verify-music-sync-smali.py` (183L, build:L142[BETA_MUSIC]) — Music player → MasterStrengthControl.setMasterStrength (no PDU hook).
@@ -198,7 +198,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WorkoutsUi.java` (1703L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
 
 **bodytech/** (`branding/java/src/com/isaigu/gymapp/bodytech/`)
-- `BtBridge.java` (387L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `BtBridge.java` (399L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtFull.java` (267L, compile:music-sync*) — The row's gear on a bodytech suit → "Пълни параметри": every channel's own strength, Hz, width and waveform, separately…
 - `BtGear.java` (148L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtProto.java` (148L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
@@ -206,7 +206,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtSettingsSection.java` (446L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
 - `BtTest.java` (257L, compile:music-sync*) — The impulse test: Hz 1..1000, width 50..511 µs, waveform and level, felt with a ▶ held on a channel ({@link BtBridge#te…
 - `BtTestMode.java` (118L, compile:music-sync*) — The row's gear on a bodytech suit → "Тестов режим": a screen of its own, apart from the training, to try the impulse (H…
-- `BtTranslator.java` (314L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (357L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -754,22 +754,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (139L)
+`docs/xems-bodytech.md` (141L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L8 ## How it works
   - L30 ## Translation (XEMS → bodytech)
-  - L46 ## Owner's settings (Settings → Костюм bodytech)
-  - L60 ## Test of a channel and the left → right order (1.1.346)
-  - L71 ## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
-  - L82 ## Full parameters from the row's gear (1.1.350) — no limits
-  - L95 ## Test mode from the row's gear (1.1.348)
-  - L103 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L112 ## Safety
-  - L120 ## Not verified on a person yet
-  - L126 ## Tests
-  - L130 ## What still limits (not the app)
-  - L134 ## Second impulse without limits (1.1.353)
-  - L137 ## Own device names (1.1.353)
+  - L48 ## Owner's settings (Settings → Костюм bodytech)
+  - L62 ## Test of a channel and the left → right order (1.1.346)
+  - L73 ## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
+  - L84 ## Full parameters from the row's gear (1.1.350) — no limits
+  - L97 ## Test mode from the row's gear (1.1.348)
+  - L105 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L114 ## Safety
+  - L122 ## Not verified on a person yet
+  - L128 ## Tests
+  - L132 ## What still limits (not the app)
+  - L136 ## Second impulse without limits (1.1.353)
+  - L139 ## Own device names (1.1.353)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

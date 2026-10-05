@@ -87,6 +87,12 @@ public class BtTranslatorTest {
         // --- strength alone changes nothing while the output is off
         eq("setting while off", 0, tr.command(1, setting(50), t).size());
 
+        // --- the run gate: before start (F1) an impulse only keeps its values, nothing goes out
+        tr.phase(BtTranslator.MAIN);
+        eq("impulse before start: nothing out", 0, tr.command(3, run(600, 85, 350, 4, 4, 1), t).size());
+        eq("impulse before start: not on", false, tr.isOn());
+        tr.command(0xF1, new byte[1], t);
+
         // --- impulse on: width differs from the program (350 vs 360) → width, strength, then SEL
         tr.phase(BtTranslator.MAIN);
         f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
@@ -125,6 +131,30 @@ public class BtTranslatorTest {
         f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
         eq("on again: only SEL", hexAll(java.util.Arrays.asList(BtProto.enable(0xFF))), hexAll(f));
 
+        // --- pause (F2): SEL off and every strength 0; a parameter change then (the row re-sends its impulse) stays silent
+        f = tr.command(0xF2, new byte[1], t);
+        eq("F2: SEL off first", hex(BtProto.allOff()), hex(f.get(0)));
+        eq("F2: strengths to 0", true, has(f, BtProto.intensity(1, 0)) && has(f, BtProto.intensity(8, 0)));
+        eq("change in pause: nothing out", 0, pair(tr, setting(70), run(600, 90, 350, 4, 4, 1), t).size());
+        tr.phase(BtTranslator.SECOND);
+        eq("2nd impulse in pause: nothing out", 0, pair(tr, setting(70), run(600, 8, 350, 4, 4, 1), t).size());
+        eq("pause: not on", false, tr.isOn());
+        tr.command(0xF1, new byte[1], t);
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
+        eq("start again: on with the new values", true, has(f, BtProto.hz(1, 90)) || has(f, BtProto.intensity(1, 50)));
+        eq("start again: SEL last", hex(BtProto.enable(0xFF)), hex(f.get(f.size() - 1)));
+
+        // --- stop (TrainItem.reset): off, strengths 0, the full program again; the gate stays closed
+        f = tr.reset();
+        eq("reset: SEL off first", hex(BtProto.allOff()), hex(f.get(0)));
+        eq("reset: reprogrammed", true, has(f, BtProto.reset()));
+        eq("after reset: impulse silent", 0, pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t).size());
+        eq("reset of an unused suit: no second program", false, has(tr.reset(), BtProto.reset()));
+        tr.command(0xF1, new byte[1], t);
+        f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
+        eq("after reset + start: on", hex(BtProto.enable(0xFF)), hex(f.get(f.size() - 1)));
+
         // --- second impulse: owner's groups. C2 (glutes) main-only, C7 (thighs) second-only
         BtSettings.setGroup(2, BtSettings.GROUP_MAIN);
         BtSettings.setGroup(7, BtSettings.GROUP_SECOND);
@@ -145,6 +175,7 @@ public class BtTranslatorTest {
 
         // --- gain and the 99 % ceiling
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         BtSettings.setGain(150);
         tr.command(1, setting(60), t);
         f = tr.command(3, run(600, 85, 360, 4, 4, 1), t);
@@ -156,6 +187,7 @@ public class BtTranslatorTest {
 
         // --- a slider with no channel does nothing; a channel without slider never works
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         BtSettings.setSlider(3, BtSettings.NO_SLIDER);
         tr.command(1, setting(50), t);
         f = tr.command(3, run(600, 85, 360, 4, 4, 1), t);
@@ -164,6 +196,7 @@ public class BtTranslatorTest {
 
         // --- keep-alive: an output nobody renewed goes off after the phase + 3 s
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         tr.command(1, setting(50), 0);
         tr.command(3, run(600, 85, 360, 4, 4, 1), 0);
         eq("heartbeat inside the phase: nothing", 0, tr.heartbeat(6900).size());
@@ -172,11 +205,13 @@ public class BtTranslatorTest {
         eq("then nothing more", 0, tr.heartbeat(9000).size());
         // the session ends sooner than the phase: its end counts
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         tr.command(1, setting(50), 0);
         tr.command(3, run(2, 85, 360, 20, 4, 1), 0);
         eq("session end is the limit", 1, tr.heartbeat(5100).size());
         // second-impulse phase counts the pause length
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         tr.phase(BtTranslator.SECOND);
         tr.command(1, setting(50), 0);
         tr.command(3, run(600, 8, 360, 20, 2, 1), 0);
@@ -184,6 +219,7 @@ public class BtTranslatorTest {
 
         // --- a failed write: the next frame is SEL all off, then the program again
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         tr.command(1, setting(50), 0);
         tr.command(3, run(600, 85, 360, 4, 4, 1), 0);
         tr.forget();
@@ -197,12 +233,14 @@ public class BtTranslatorTest {
 
         // --- hz 0 or a bad frame never turns anything on
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         tr.command(1, setting(50), 0);
         f = tr.command(3, run(600, 0, 360, 4, 4, 1), 0);
         eq("Hz 0: stays off", false, tr.isOn());
 
         // --- per-channel parameters: strength %, width, Hz of each impulse (only below the program's)
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         BtSettings.setUnlimited(false);                // the old rule: only below the program's
         BtSettings.setChGain(1, 50);
         BtSettings.setChWidth(2, 200);
@@ -224,6 +262,7 @@ public class BtTranslatorTest {
 
         // --- unlimited (default): the owner's per-channel values rule as they are, up to the suit's own range
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         BtSettings.setChHz(1, false, 1000);
         BtSettings.setChWidth(1, false, 511);
         BtSettings.setChHz(2, true, 300);
@@ -259,6 +298,7 @@ public class BtTranslatorTest {
 
         // --- the same channel can work in one impulse only, another in the other, another in none
         tr = new BtTranslator();
+        tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         BtSettings.setGroup(1, BtSettings.GROUP_MAIN);
         BtSettings.setGroup(2, BtSettings.GROUP_SECOND);
         BtSettings.setSlider(3, BtSettings.NO_SLIDER);
@@ -284,6 +324,7 @@ public class BtTranslatorTest {
         tr.testOn(3, 5, 4000);
         f = tr.command(1, setting(50), 4100);
         eq("the row speaking ends the test", hex(BtProto.allOff()), hex(f.get(0)));
+        tr.command(0xF1, new byte[1], 4150);
         pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), 4200);
         eq("training running", true, tr.training());
         eq("test refused during a training", 0, tr.testOn(3, 5, 4300).size());

@@ -34,7 +34,9 @@ bodytech is remembered (`xems_bodytech_suits`).
 | cmd 3 flag 1: Hz, width (pdu[4]·50 µs) | per working channel: Hz register, width register (only when changed) |
 | strength of slider *s* | channel *c* with `slider(c) = s`: `strength × global gain × channel gain`, ≤ 99 % |
 | channel works | its strength > 0 → bit in the SEL mask (written last) |
-| pause (cmd 3 flag 0), stop (F2) | SEL all off |
+| pause (cmd 3 flag 0) | SEL all off |
+| start (F1) / pause or stop (F2) | run gate open / closed: closed = SEL off + every strength 0, and a cmd 3 (a parameter change re-sends the impulse) only keeps its values (1.1.354) |
+| stop (TrainItem.reset) | `BtBridge.reset`: off, strengths 0, the full program again (as at connect; skipped when the suit never ran since) |
 | second impulse (`sendActivePause`) | channels set to "Основен" are silent, "Втори" work; Hz = pause Hz |
 | battery (cmd 5) | STATUS query; the reply becomes the percent the row shows |
 | — | first command after connect: SEL off, battery init, RESET, per-channel program, SEL off (≈ 3 s) |

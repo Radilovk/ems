@@ -43,6 +43,13 @@ public final class BtTranslator {
 
     // what the suit holds now (as far as we know)
     private boolean programmed;
+    /**
+     * The row's run gate: F1 (start) opens it, F2 (pause / stop) closes it. A closed gate lets no output out — a
+     * parameter change in pause or after stop (the stock row then re-sends its impulse: TrainItem.onParamsChange →
+     * sendPulse, cmd 3 with flag 1) is only remembered. The XEMS suit has this gate in itself; bodytech has not.
+     */
+    private boolean armed;
+    private boolean used;                   // an output was on since the suit was last programmed
     private boolean unsafe = true;          // state unknown → next command starts with SEL all off
     private int devMask;
     private final int[] devInt = new int[BtSettings.CHANNELS + 1];
@@ -64,6 +71,21 @@ public final class BtTranslator {
         waveCh = 0;
         unsafe = true;
         on = false;
+        armed = false;
+    }
+
+    /**
+     * Stop (TrainItem.reset): everything off and the suit programmed afresh now, as after a new connect — the next
+     * start finds a clean suit. Returns the frames (SEL off, strengths 0, the full program).
+     */
+    public synchronized List<byte[]> reset() {
+        List<byte[]> out = new ArrayList<byte[]>();
+        armed = false;
+        testCh = 0;
+        zero(out);
+        if (used) programmed = false;       // a suit that never ran since its program (connect) is not done twice
+        prepare(out);
+        return out;
     }
 
     /** One XEMS command (the 0x53 frame's cmd and pdu). Returns the bodytech frames, in order; may be empty. */
@@ -85,6 +107,11 @@ public final class BtTranslator {
             boolean flag = at(pdu, 10) == 1;
             if (!flag || h <= 0) {
                 off(out);
+            } else if (!armed) {
+                // paused / stopped: the new values are kept for the next start, nothing goes out
+                hz = h;
+                widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
+                zero(out);
             } else {
                 hz = h;
                 widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
@@ -95,8 +122,11 @@ public final class BtTranslator {
                 on = true;
                 reconcile(out);
             }
+        } else if (cmd == CMD_START) {
+            armed = true;
         } else if (cmd == CMD_STOP) {
-            off(out);
+            armed = false;
+            zero(out);
         } else if (cmd == CMD_BATTERY) {
             out.add(BtProto.batterySync());
         }
@@ -230,6 +260,18 @@ public final class BtTranslator {
         out.add(BtProto.allOff());
         devMask = 0;
         programmed = true;
+        used = false;
+    }
+
+    /** Pause / stop: SEL all off and every channel's strength to 0 (nothing left in the suit to come back). */
+    private void zero(List<byte[]> out) {
+        off(out);
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if (devInt[ch] != 0) {
+                out.add(BtProto.intensity(ch, 0));
+                devInt[ch] = 0;
+            }
+        }
     }
 
     private void off(List<byte[]> out) {
@@ -305,6 +347,7 @@ public final class BtTranslator {
                 devInt[ch] = t;
             }
         }
+        if (mask != 0) used = true;
         if (mask != devMask) {
             out.add(BtProto.enable(mask));
             devMask = mask;

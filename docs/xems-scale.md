@@ -310,6 +310,13 @@ instruction now (30 sp), the live weight with its settling line into the ±0.1 k
 sweep count and the contact chips. Previews (HTML mocks, 1.1.297): `docs/scale/preview-stage-wait.png`,
 `docs/scale/preview-stage-scan.png`.
 
+**Stored weigh-in of this standing (1.1.353-ai, owner: "first step-on only starts it, the second measures").** The
+scale wakes on the step-on and measures at once; the link takes seconds, so the first sweep could reach us as a
+stored weigh-in (A5 / old Senssun clock) and was dropped. `ScaleLink.mine`: a stored result is **taken** when fresh
+by the scale's clock (≤ 10 min) or when the client is on the scale now at the same weight (±1 kg); otherwise skipped
+(logged "stored weigh-in … taken/skipped"). The classic Senssun frame also gets the person at connect, not only at
+"stable".
+
 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
 Behind the page's ⓘ (button at its foot), the Analysis ⓘ and the footers of Анализ / Обобщение; also a folded
 section of the shared HTML. 21 sources in four honest tiers (1.1.302-ai: + NHANES resting pulse, Zhang 2016) — **Проучване** (peer-reviewed: Sun 2003, Janssen 2000,

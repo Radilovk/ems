@@ -291,7 +291,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleBody.java` (234L, compile:music-sync*,wearable) — Body composition from one scale measurement — iCOMON's WLA25, the algorithm Fitdays uses for these scales, so the numbe…
 - `ScaleDetail.java` (582L, compile:music-sync*,wearable) — The full report of one weigh-in, as the fitness apps list it — every value with its status word — plus the five zones a…
 - `ScaleInsight.java` (928L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
-- `ScaleLink.java` (925L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
+- `ScaleLink.java` (939L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
 - `ScaleModel.java` (446L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
 - `ScaleProtocol.java` (385L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
 - `ScaleScreen.java` (2714L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
@@ -900,7 +900,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## 3. UI / UX
   - L57 ## 4. Какво да се провери на първото истинско мерене
 
-`docs/xems-scale.md` (477L)
+`docs/xems-scale.md` (484L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
   - L10 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
   - L28 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
@@ -918,14 +918,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L269 ## Owner's Fitdays report = test vector (1.1.288-ai)
   - L276 ## Figures (1.1.288-ai)
   - L281 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
-  - L313 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
-  - L326 ## Result page (`ScaleScreen`) — two views
-  - L416 ## What the hardware is
-  - L427 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L448 ## Measuring protocol (owner: no suit, thin clothes)
-  - L456 ## Validation path
-  - L461 ## Gemini / LLM
-  - L466 ## Licences of the ported code
+  - L320 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
+  - L333 ## Result page (`ScaleScreen`) — two views
+  - L423 ## What the hardware is
+  - L434 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L455 ## Measuring protocol (owner: no suit, thin clothes)
+  - L463 ## Validation path
+  - L468 ## Gemini / LLM
+  - L473 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (285L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

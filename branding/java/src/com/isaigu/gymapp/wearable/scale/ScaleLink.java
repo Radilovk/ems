@@ -429,6 +429,7 @@ public final class ScaleLink {
             send(ScaleSenssun.date(c.get(java.util.Calendar.YEAR), c.get(java.util.Calendar.DAY_OF_YEAR)), true);
             send(ScaleSenssun.time(c.get(java.util.Calendar.HOUR_OF_DAY), c.get(java.util.Calendar.MINUTE),
                     c.get(java.util.Calendar.SECOND)), true);
+            send(ScaleSenssun.user(male, age, heightCm), true);      // the person before the scale starts its sweep
         } else if (gen == 'X') {
             // nothing to say: listen and log
         } else {
@@ -483,7 +484,7 @@ public final class ScaleLink {
         } else if (f.type == ScaleProtocol.A_RESULT || f.type == ScaleProtocol.A_STORED) {
             send(ScaleProtocol.ackA(seq++, f.seq), true);
             ScaleProtocol.Reading r = ScaleProtocol.decodeA(f);
-            if (r != null && !r.stored) {
+            if (r != null && (!r.stored || mine(r.weightKg, r.scaleTime))) {
                 finish(r);
             }
         }
@@ -566,7 +567,8 @@ public final class ScaleLink {
         if (x.kind == ScaleSenssun.XsFrame.LIVE) {
             heard = true;
             live(x.kg, x.stable);
-        } else if (x.kind == ScaleSenssun.XsFrame.RESULT && ScaleSenssun.stored(x, unixNow())) {
+        } else if (x.kind == ScaleSenssun.XsFrame.RESULT && ScaleSenssun.stored(x, unixNow())
+                && !mine(x.kg, x.time)) {
             log("XS stored weigh-in skipped (" + x.time + ")");
         } else if (x.kind == ScaleSenssun.XsFrame.RESULT && !x.finished) {
             heard = true;
@@ -578,6 +580,18 @@ public final class ScaleLink {
     }
 
     boolean xsHelloSent;
+
+    /**
+     * A weigh-in the scale kept (it measured before we were connected — it wakes on the step-on, the link takes a few
+     * seconds) that still belongs to this standing: fresh by the scale's clock, or the client is on it now at the same
+     * weight. Anything else is an old weigh-in of somebody else, skipped.
+     */
+    boolean mine(double kg, long scaleTime) {
+        boolean fresh = scaleTime > 1600000000L && Math.abs(unixNow() - scaleTime) <= 600;
+        boolean here = liveKg > 5 && Math.abs(kg - liveKg) <= 1.0;
+        log("stored weigh-in " + kg + " kg: " + (fresh || here ? "taken" : "skipped"));
+        return fresh || here;
+    }
 
     /** Time and the person on the scale (the SDK's workflow: sync time → set user → wait for data). */
     void xsHello(int ver, boolean v11Family) {

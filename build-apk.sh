@@ -127,6 +127,8 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   fi
   python3 "${ROOT}/scripts/apply-xems-nav.py"
   python3 "${ROOT}/scripts/apply-local-mode.py"
+  # After local mode: no request to the vendor's server leaves the tablet (OKHttpUtils, video cache, Glide, update download).
+  python3 "${ROOT}/scripts/apply-no-vendor-network.py"
   python3 "${ROOT}/scripts/apply-ramp-setting.py"
   python3 "${ROOT}/scripts/apply-program-fit.py"
   python3 "${ROOT}/scripts/apply-quick-start.py"
@@ -170,6 +172,9 @@ python3 "${ROOT}/scripts/verify-bodytech.py"
 python3 "${ROOT}/scripts/apply-train-info-column.py"
 # Every app class that smali references must be installed (a missed one = NoClassDefFoundError at run time).
 python3 "${ROOT}/scripts/verify-no-missing-classes.py"
+if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
+  python3 "${ROOT}/scripts/verify-no-vendor-network.py"
+fi
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign

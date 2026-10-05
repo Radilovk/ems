@@ -6,8 +6,6 @@
 # static fields
 .field static final FILE_LOGIN_USER:Ljava/lang/String; = "file_name_login_user"
 
-.field private static final KEY_LOGIN_SCREEN:Ljava/lang/String; = "show_login_once"
-
 .field private static final LICENSE_TAG:Ljava/lang/String; = "xems_license_section"
 
 .field static final LOCAL_PASSWORD:Ljava/lang/String; = "local"
@@ -30,7 +28,7 @@
     .registers 1
 
     .prologue
-    .line 46
+    .line 44
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -40,7 +38,7 @@
     .registers 1
 
     .prologue
-    .line 30
+    .line 29
     sput-boolean p0, Lcom/isaigu/gymapp/widget/XemsLocalGate;->licenceRevealed:Z
 
     return p0
@@ -52,28 +50,28 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 181
+    .line 134
     const-string v1, "xems_license_section"
 
     invoke-virtual {p0, v1}, Landroid/view/ViewGroup;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v2
 
-    .line 182
+    .line 135
     if-nez v2, :cond_a
 
-    .line 191
+    .line 144
     :cond_9
     :goto_9
     return-void
 
-    .line 185
+    .line 138
     :cond_a
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->key()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 186
+    .line 139
     sget-boolean v3, Lcom/isaigu/gymapp/widget/XemsLocalGate;->licenceRevealed:Z
 
     if-nez v3, :cond_2d
@@ -92,13 +90,13 @@
 
     const/4 v1, 0x1
 
-    .line 187
+    .line 140
     :goto_1f
     if-eqz v1, :cond_23
 
     const/16 v0, 0x8
 
-    .line 188
+    .line 141
     :cond_23
     invoke-virtual {v2}, Landroid/view/View;->getVisibility()I
 
@@ -106,7 +104,7 @@
 
     if-eq v1, v0, :cond_9
 
-    .line 189
+    .line 142
     invoke-virtual {v2, v0}, Landroid/view/View;->setVisibility(I)V
 
     goto :goto_9
@@ -114,7 +112,7 @@
     :cond_2d
     move v1, v0
 
-    .line 186
+    .line 139
     goto :goto_1f
 .end method
 
@@ -122,7 +120,7 @@
     .registers 5
 
     .prologue
-    .line 139
+    .line 103
     if-eqz p0, :cond_6
 
     :try_start_2
@@ -130,74 +128,56 @@
 
     if-nez v0, :cond_7
 
-    .line 177
+    .line 130
     :cond_6
     :goto_6
     return-void
 
-    .line 142
+    .line 106
     :cond_7
     check-cast p1, Landroid/view/ViewGroup;
 
-    .line 143
-    const-string v0, "setlanguage"
-
-    invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->findLabel(Landroid/content/Context;Landroid/view/ViewGroup;Ljava/lang/String;)Landroid/widget/TextView;
-
-    move-result-object v0
-
-    .line 144
-    if-eqz v0, :cond_19
-
-    .line 145
-    new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;
-
-    invoke-direct {v1, p0}, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;-><init>(Landroid/app/Activity;)V
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->onTaps(Landroid/view/View;Ljava/lang/Runnable;)V
-
-    .line 154
-    :cond_19
+    .line 107
     const-string v0, "setdarktheme"
 
     invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->findLabel(Landroid/content/Context;Landroid/view/ViewGroup;Ljava/lang/String;)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 155
-    if-eqz v0, :cond_29
+    .line 108
+    if-eqz v0, :cond_19
 
-    .line 156
-    new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;
+    .line 109
+    new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;
 
-    invoke-direct {v1, p1, p0}, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;-><init>(Landroid/view/ViewGroup;Landroid/app/Activity;)V
+    invoke-direct {v1, p1, p0}, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;-><init>(Landroid/view/ViewGroup;Landroid/app/Activity;)V
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->onTaps(Landroid/view/View;Ljava/lang/Runnable;)V
 
-    .line 166
-    :cond_29
+    .line 119
+    :cond_19
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->applyLicenceRule(Landroid/view/ViewGroup;)V
 
-    .line 168
+    .line 121
     invoke-virtual {p1}, Landroid/view/ViewGroup;->getViewTreeObserver()Landroid/view/ViewTreeObserver;
 
     move-result-object v0
 
-    new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalGate$3;
+    new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;
 
-    invoke-direct {v1, p1}, Lcom/isaigu/gymapp/widget/XemsLocalGate$3;-><init>(Landroid/view/ViewGroup;)V
+    invoke-direct {v1, p1}, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;-><init>(Landroid/view/ViewGroup;)V
 
     invoke-virtual {v0, v1}, Landroid/view/ViewTreeObserver;->addOnGlobalLayoutListener(Landroid/view/ViewTreeObserver$OnGlobalLayoutListener;)V
-    :try_end_38
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_38} :catch_39
+    :try_end_28
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_28} :catch_29
 
     goto :goto_6
 
-    .line 174
-    :catch_39
+    .line 127
+    :catch_29
     move-exception v0
 
-    .line 175
+    .line 128
     const-string v1, "xems_gate"
 
     const-string v2, "attach"
@@ -211,7 +191,7 @@
     .registers 6
 
     .prologue
-    .line 195
+    .line 148
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -226,13 +206,13 @@
 
     move-result v0
 
-    .line 196
+    .line 149
     if-nez v0, :cond_12
 
-    .line 197
+    .line 150
     const/4 v0, 0x0
 
-    .line 199
+    .line 152
     :goto_11
     return-object v0
 
@@ -256,7 +236,7 @@
     .registers 5
 
     .prologue
-    .line 203
+    .line 156
     const/4 v0, 0x0
 
     move v2, v0
@@ -268,12 +248,12 @@
 
     if-ge v2, v0, :cond_3c
 
-    .line 204
+    .line 157
     invoke-virtual {p0, v2}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 205
+    .line 158
     instance-of v0, v1, Landroid/widget/TextView;
 
     if-eqz v0, :cond_2c
@@ -286,7 +266,7 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 206
+    .line 159
     invoke-virtual {v0}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
 
     move-result-object v0
@@ -305,31 +285,31 @@
 
     if-eqz v0, :cond_2c
 
-    .line 207
+    .line 160
     check-cast v1, Landroid/widget/TextView;
 
-    .line 216
+    .line 169
     :cond_2b
     :goto_2b
     return-object v1
 
-    .line 209
+    .line 162
     :cond_2c
     instance-of v0, v1, Landroid/view/ViewGroup;
 
     if-eqz v0, :cond_38
 
-    .line 210
+    .line 163
     check-cast v1, Landroid/view/ViewGroup;
 
     invoke-static {v1, p1}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->findText(Landroid/view/ViewGroup;Ljava/lang/String;)Landroid/widget/TextView;
 
     move-result-object v1
 
-    .line 211
+    .line 164
     if-nez v1, :cond_2b
 
-    .line 203
+    .line 156
     :cond_38
     add-int/lit8 v0, v2, 0x1
 
@@ -337,7 +317,7 @@
 
     goto :goto_2
 
-    .line 216
+    .line 169
     :cond_3c
     const/4 v1, 0x0
 
@@ -348,7 +328,7 @@
     .registers 2
 
     .prologue
-    .line 107
+    .line 95
     if-eqz p0, :cond_8
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -377,32 +357,24 @@
 
     const/4 v1, 0x1
 
-    .line 64
+    .line 55
     :try_start_2
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->wantLoginScreen()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_9
-
-    .line 102
-    :cond_8
-    :goto_8
-    return v0
-
-    .line 67
-    :cond_9
     invoke-static {}, Lcom/isaigu/gymapp/bean/UserData;->getInstance()Lcom/isaigu/gymapp/bean/UserData;
 
     move-result-object v3
 
-    .line 68
-    if-eqz v3, :cond_8
+    .line 56
+    if-nez v3, :cond_9
 
-    .line 72
+    .line 90
+    :goto_8
+    return v0
+
+    .line 60
+    :cond_9
     iget-boolean v2, v3, Lcom/isaigu/gymapp/bean/UserData;->autoLogin:Z
 
-    if-eqz v2, :cond_1b
+    if-eqz v2, :cond_15
 
     iget-object v2, v3, Lcom/isaigu/gymapp/bean/UserData;->userName:Ljava/lang/String;
 
@@ -410,33 +382,33 @@
 
     move-result v2
 
-    if-eqz v2, :cond_7e
+    if-eqz v2, :cond_78
 
-    .line 73
-    :cond_1b
+    .line 61
+    :cond_15
     const-string v2, "xems"
 
     iput-object v2, v3, Lcom/isaigu/gymapp/bean/UserData;->userName:Ljava/lang/String;
 
-    .line 74
+    .line 62
     const/4 v2, 0x1
 
     iput-boolean v2, v3, Lcom/isaigu/gymapp/bean/UserData;->autoLogin:Z
 
-    .line 75
+    .line 63
     const/4 v2, 0x1
 
     iput-boolean v2, v3, Lcom/isaigu/gymapp/bean/UserData;->rememberPassword:Z
 
-    .line 76
+    .line 64
     const-string v2, "ROLE_COACH"
 
     iput-object v2, v3, Lcom/isaigu/gymapp/bean/UserData;->roleName:Ljava/lang/String;
 
     move v2, v1
 
-    .line 79
-    :goto_2a
+    .line 67
+    :goto_24
     const-string v4, "local"
 
     iget-object v5, v3, Lcom/isaigu/gymapp/bean/UserData;->password:Ljava/lang/String;
@@ -445,41 +417,41 @@
 
     move-result v4
 
-    if-nez v4, :cond_39
+    if-nez v4, :cond_33
 
-    .line 80
+    .line 68
     const-string v2, "local"
 
     iput-object v2, v3, Lcom/isaigu/gymapp/bean/UserData;->password:Ljava/lang/String;
 
     move v2, v1
 
-    .line 83
-    :cond_39
+    .line 71
+    :cond_33
     iget-object v4, v3, Lcom/isaigu/gymapp/bean/UserData;->roleName:Ljava/lang/String;
 
     invoke-static {v4}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->isEmpty(Ljava/lang/String;)Z
 
     move-result v4
 
-    if-eqz v4, :cond_46
+    if-eqz v4, :cond_40
 
-    .line 84
+    .line 72
     const-string v2, "ROLE_COACH"
 
     iput-object v2, v3, Lcom/isaigu/gymapp/bean/UserData;->roleName:Ljava/lang/String;
 
     move v2, v1
 
-    .line 87
-    :cond_46
-    if-eqz v2, :cond_4b
+    .line 75
+    :cond_40
+    if-eqz v2, :cond_45
 
-    .line 88
+    .line 76
     invoke-static {v3}, Lcom/isaigu/gymapp/utils/FileUtils;->saveData(Ljava/lang/Object;)V
 
-    .line 90
-    :cond_4b
+    .line 78
+    :cond_45
     const-string v2, "file_name_login_user"
 
     const-class v3, Lcom/isaigu/gymapp/bean/TrainUser;
@@ -488,56 +460,56 @@
 
     move-result-object v2
 
-    if-nez v2, :cond_73
+    if-nez v2, :cond_6d
 
-    .line 91
+    .line 79
     new-instance v2, Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/bean/TrainUser;-><init>()V
 
-    .line 92
+    .line 80
     const-wide/16 v4, 0x1
 
     iput-wide v4, v2, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    .line 93
+    .line 81
     const-string v3, "XEMS"
 
     iput-object v3, v2, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 94
+    .line 82
     const-string v3, "XEMS"
 
     iput-object v3, v2, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
-    .line 95
+    .line 83
     const-string v3, "xems"
 
     iput-object v3, v2, Lcom/isaigu/gymapp/bean/TrainUser;->username:Ljava/lang/String;
 
-    .line 96
+    .line 84
     const-string v3, "ROLE_COACH"
 
     iput-object v3, v2, Lcom/isaigu/gymapp/bean/TrainUser;->roleName:Ljava/lang/String;
 
-    .line 97
+    .line 85
     const-string v3, "file_name_login_user"
 
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/utils/FileUtils;->saveData(Ljava/lang/String;Ljava/lang/Object;)V
-    :try_end_73
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_73} :catch_75
+    :try_end_6d
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_6d} :catch_6f
 
-    :cond_73
+    :cond_6d
     move v0, v1
 
-    .line 99
+    .line 87
     goto :goto_8
 
-    .line 100
-    :catch_75
+    .line 88
+    :catch_6f
     move-exception v1
 
-    .line 101
+    .line 89
     const-string v2, "xems_gate"
 
     const-string v3, "localSession"
@@ -546,22 +518,22 @@
 
     goto :goto_8
 
-    :cond_7e
+    :cond_78
     move v2, v0
 
-    goto :goto_2a
+    goto :goto_24
 .end method
 
 .method private static norm(Ljava/lang/String;)Ljava/lang/String;
     .registers 4
 
     .prologue
-    .line 220
+    .line 173
     if-nez p0, :cond_1c
 
     const-string v0, ""
 
-    .line 221
+    .line 174
     :goto_4
     const-string v1, ":"
 
@@ -590,80 +562,13 @@
     :cond_1b
     return-object v0
 
-    .line 220
+    .line 173
     :cond_1c
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_4
-.end method
-
-.method public static onLoginView(Ljava/lang/Object;Landroid/view/View;)V
-    .registers 6
-
-    .prologue
-    .line 113
-    :try_start_0
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    .line 114
-    if-eqz v0, :cond_25
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
-
-    move-result-object v1
-
-    const-string v2, "show_login_once"
-
-    const/4 v3, 0x0
-
-    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_25
-
-    .line 115
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    const-string v1, "show_login_once"
-
-    const/4 v2, 0x0
-
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
-    :try_end_25
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_25} :catch_26
-
-    .line 120
-    :cond_25
-    :goto_25
-    return-void
-
-    .line 117
-    :catch_26
-    move-exception v0
-
-    .line 118
-    const-string v1, "xems_gate"
-
-    const-string v2, "onLoginView"
-
-    invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-
-    goto :goto_25
 .end method
 
 .method private static onTaps(Landroid/view/View;Ljava/lang/Runnable;)V
@@ -674,24 +579,24 @@
 
     const/4 v4, 0x0
 
-    .line 229
+    .line 182
     new-array v0, v1, [I
 
     aput v4, v0, v4
 
-    .line 230
+    .line 183
     new-array v1, v1, [J
 
     const-wide/16 v2, 0x0
 
     aput-wide v2, v1, v4
 
-    .line 231
-    new-instance v2, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;
+    .line 184
+    new-instance v2, Lcom/isaigu/gymapp/widget/XemsLocalGate$3;
 
-    invoke-direct {v2, v0, v1, p1}, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;-><init>([I[JLjava/lang/Runnable;)V
+    invoke-direct {v2, v0, v1, p1}, Lcom/isaigu/gymapp/widget/XemsLocalGate$3;-><init>([I[JLjava/lang/Runnable;)V
 
-    .line 243
+    .line 196
     invoke-virtual {p0}, Landroid/view/View;->isClickable()Z
 
     move-result v0
@@ -704,23 +609,23 @@
 
     if-eqz v0, :cond_26
 
-    .line 244
+    .line 197
     :cond_1d
-    new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;
+    new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;
 
-    invoke-direct {v0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;-><init>(Ljava/lang/Runnable;)V
+    invoke-direct {v0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalGate$4;-><init>(Ljava/lang/Runnable;)V
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
-    .line 261
+    .line 214
     :goto_25
     return-void
 
-    .line 254
+    .line 207
     :cond_26
-    new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;
+    new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;
 
-    invoke-direct {v0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;-><init>(Ljava/lang/Runnable;)V
+    invoke-direct {v0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;-><init>(Ljava/lang/Runnable;)V
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
@@ -731,7 +636,7 @@
     .registers 4
 
     .prologue
-    .line 264
+    .line 217
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -745,98 +650,4 @@
     move-result-object v0
 
     return-object v0
-.end method
-
-.method static restartToLogin(Landroid/app/Activity;)V
-    .registers 4
-
-    .prologue
-    .line 124
-    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    const-string v1, "show_login_once"
-
-    const/4 v2, 0x1
-
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
-
-    .line 125
-    invoke-virtual {p0}, Landroid/app/Activity;->getPackageManager()Landroid/content/pm/PackageManager;
-
-    move-result-object v0
-
-    invoke-virtual {p0}, Landroid/app/Activity;->getPackageName()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/content/pm/PackageManager;->getLaunchIntentForPackage(Ljava/lang/String;)Landroid/content/Intent;
-
-    move-result-object v0
-
-    .line 126
-    if-eqz v0, :cond_29
-
-    .line 127
-    const v1, 0x10008000
-
-    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-
-    .line 128
-    invoke-virtual {p0, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
-
-    .line 130
-    :cond_29
-    invoke-virtual {p0}, Landroid/app/Activity;->finishAffinity()V
-
-    .line 131
-    invoke-static {}, Landroid/os/Process;->myPid()I
-
-    move-result v0
-
-    invoke-static {v0}, Landroid/os/Process;->killProcess(I)V
-
-    .line 132
-    return-void
-.end method
-
-.method public static wantLoginScreen()Z
-    .registers 3
-
-    .prologue
-    const/4 v0, 0x0
-
-    .line 52
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
-
-    move-result-object v1
-
-    .line 53
-    if-eqz v1, :cond_14
-
-    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
-
-    move-result-object v1
-
-    const-string v2, "show_login_once"
-
-    invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_14
-
-    const/4 v0, 0x1
-
-    :cond_14
-    return v0
 .end method

@@ -3,7 +3,7 @@
 .source "XemsLocalGate.java"
 
 # interfaces
-.implements Landroid/view/View$OnTouchListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 244
+    .line 207
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$tap:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -41,27 +41,15 @@
 
 
 # virtual methods
-.method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .registers 5
+.method public onClick(Landroid/view/View;)V
+    .registers 3
 
     .prologue
-    .line 247
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getAction()I
-
-    move-result v0
-
-    const/4 v1, 0x1
-
-    if-ne v0, v1, :cond_c
-
-    .line 248
+    .line 210
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$tap:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 250
-    :cond_c
-    const/4 v0, 0x0
-
-    return v0
+    .line 211
+    return-void
 .end method

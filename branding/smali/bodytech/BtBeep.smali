@@ -4,21 +4,23 @@
 
 
 # static fields
+.field static final ATTACK_MS:I = 0x8
+
 .field static final DASH_MS:I = 0xf0
 
 .field static final DOT_MS:I = 0x78
 
-.field static final EDGE_MS:I = 0x5
+.field static final FREQ_DASH:I = 0x527
 
-.field static final FREQ_DASH:I = 0x578
-
-.field static final FREQ_DOT:I = 0x4b0
+.field static final FREQ_DOT:I = 0x370
 
 .field static final GAP_MS:I = 0x78
 
 .field static final LOST_GAP_MS:J = 0x1388L
 
 .field static final RATE:I = 0x5dc0
+
+.field static final RELEASE_MS:I = 0x8
 
 .field private static final TAG:Ljava/lang/String; = "BtBeep"
 
@@ -32,7 +34,7 @@
     .registers 1
 
     .prologue
-    .line 23
+    .line 24
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,7 +44,7 @@
     .registers 8
 
     .prologue
-    .line 34
+    .line 35
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtBeep;
 
     monitor-enter v1
@@ -52,7 +54,7 @@
 
     move-result-wide v2
 
-    .line 35
+    .line 36
     sget-wide v4, Lcom/isaigu/gymapp/bodytech/BtBeep;->lastLost:J
     :try_end_9
     .catchall {:try_start_3 .. :try_end_9} :catchall_1b
@@ -65,18 +67,18 @@
 
     if-gez v0, :cond_13
 
-    .line 38
+    .line 39
     :goto_11
     monitor-exit v1
 
     return-void
 
-    .line 36
+    .line 37
     :cond_13
     :try_start_13
     sput-wide v2, Lcom/isaigu/gymapp/bodytech/BtBeep;->lastLost:J
 
-    .line 37
+    .line 38
     const-string v0, "..."
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtBeep;->play(Ljava/lang/String;)V
@@ -85,7 +87,7 @@
 
     goto :goto_11
 
-    .line 34
+    .line 35
     :catchall_1b
     move-exception v0
 
@@ -98,7 +100,7 @@
     .registers 2
 
     .prologue
-    .line 60
+    .line 66
     const/16 v0, 0x2d
 
     if-ne p0, v0, :cond_7
@@ -115,13 +117,13 @@
 .end method
 
 .method static pcm(Ljava/lang/String;)[S
-    .registers 19
+    .registers 21
 
     .prologue
-    .line 42
+    .line 43
     const/4 v3, 0x0
 
-    .line 43
+    .line 44
     const/4 v2, 0x0
 
     :goto_2
@@ -165,18 +167,18 @@
 
     goto :goto_1c
 
-    .line 44
+    .line 45
     :cond_23
     mul-int/lit16 v2, v3, 0x5dc0
 
     div-int/lit16 v2, v2, 0x3e8
 
-    new-array v9, v2, [S
-
-    .line 45
-    const/4 v3, 0x0
+    new-array v8, v2, [S
 
     .line 46
+    const/4 v3, 0x0
+
+    .line 47
     const/4 v2, 0x0
 
     :goto_2b
@@ -184,9 +186,9 @@
 
     move-result v4
 
-    if-ge v2, v4, :cond_99
+    if-ge v2, v4, :cond_c4
 
-    .line 47
+    .line 48
     move-object/from16 v0, p0
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->charAt(I)C
@@ -199,9 +201,9 @@
 
     mul-int/lit16 v4, v4, 0x5dc0
 
-    div-int/lit16 v10, v4, 0x3e8
+    div-int/lit16 v9, v4, 0x3e8
 
-    .line 48
+    .line 49
     move-object/from16 v0, p0
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->charAt(I)C
@@ -210,139 +212,165 @@
 
     const/16 v5, 0x2d
 
-    if-ne v4, v5, :cond_81
+    if-ne v4, v5, :cond_ba
 
-    const/16 v4, 0x578
-
-    .line 49
-    :goto_4b
-    const/16 v11, 0x78
+    const/16 v4, 0x527
 
     .line 50
-    const/4 v5, 0x0
-
-    move v8, v5
-
-    :goto_4f
-    if-ge v8, v10, :cond_93
+    :goto_4b
+    const/16 v10, 0xc0
 
     .line 51
-    if-ge v8, v11, :cond_84
+    const/16 v11, 0xc0
 
-    int-to-double v6, v8
+    .line 52
+    const/4 v5, 0x0
 
-    int-to-double v12, v11
+    :goto_50
+    if-ge v5, v9, :cond_bd
+
+    .line 53
+    const-wide v6, -0x3ffe666666666666L    # -2.2
+
+    int-to-double v12, v5
+
+    mul-double/2addr v6, v12
+
+    int-to-double v12, v9
 
     div-double/2addr v6, v12
 
-    .line 52
-    :goto_56
-    add-int v12, v3, v8
+    invoke-static {v6, v7}, Ljava/lang/Math;->exp(D)D
 
-    int-to-long v14, v8
+    move-result-wide v6
 
-    int-to-long v0, v4
+    .line 54
+    if-ge v5, v10, :cond_65
 
-    move-wide/from16 v16, v0
+    int-to-double v12, v5
 
-    mul-long v14, v14, v16
+    int-to-double v14, v10
 
-    const-wide/16 v16, 0x2
+    div-double/2addr v12, v14
 
-    mul-long v14, v14, v16
+    mul-double/2addr v6, v12
 
-    const-wide/16 v16, 0x5dc0
+    .line 55
+    :cond_65
+    sub-int v12, v9, v11
 
-    div-long v14, v14, v16
+    if-le v5, v12, :cond_6f
 
-    const-wide/16 v16, 0x2
+    sub-int v12, v9, v5
 
-    rem-long v14, v14, v16
+    int-to-double v12, v12
 
-    const-wide/16 v16, 0x0
+    int-to-double v14, v11
 
-    cmp-long v5, v14, v16
+    div-double/2addr v12, v14
 
-    if-nez v5, :cond_91
+    mul-double/2addr v6, v12
 
-    const/4 v5, 0x1
+    .line 56
+    :cond_6f
+    const-wide v12, 0x401921fb54442d18L    # 6.283185307179586
 
-    :goto_71
+    int-to-double v14, v4
+
+    mul-double/2addr v12, v14
+
     int-to-double v14, v5
 
-    mul-double/2addr v6, v14
+    mul-double/2addr v12, v14
 
-    const-wide v14, 0x40cf400000000000L    # 16000.0
+    const-wide v14, 0x40d7700000000000L    # 24000.0
 
-    mul-double/2addr v6, v14
+    div-double/2addr v12, v14
 
-    double-to-int v5, v6
+    .line 57
+    invoke-static {v12, v13}, Ljava/lang/Math;->sin(D)D
 
-    int-to-short v5, v5
+    move-result-wide v14
 
-    aput-short v5, v9, v12
+    const-wide v16, 0x3fd999999999999aL    # 0.4
 
-    .line 50
-    add-int/lit8 v5, v8, 0x1
+    const-wide/high16 v18, 0x4000000000000000L    # 2.0
 
-    move v8, v5
+    mul-double v18, v18, v12
 
-    goto :goto_4f
+    invoke-static/range {v18 .. v19}, Ljava/lang/Math;->sin(D)D
 
-    .line 48
-    :cond_81
-    const/16 v4, 0x4b0
+    move-result-wide v18
+
+    mul-double v16, v16, v18
+
+    add-double v14, v14, v16
+
+    const-wide v16, 0x3fc999999999999aL    # 0.2
+
+    const-wide/high16 v18, 0x4008000000000000L    # 3.0
+
+    mul-double v12, v12, v18
+
+    invoke-static {v12, v13}, Ljava/lang/Math;->sin(D)D
+
+    move-result-wide v12
+
+    mul-double v12, v12, v16
+
+    add-double/2addr v12, v14
+
+    .line 58
+    add-int v14, v3, v5
+
+    const-wide v16, 0x3ff999999999999aL    # 1.6
+
+    div-double v12, v12, v16
+
+    mul-double/2addr v6, v12
+
+    const-wide v12, 0x40d57c0000000000L    # 22000.0
+
+    mul-double/2addr v6, v12
+
+    double-to-int v6, v6
+
+    int-to-short v6, v6
+
+    aput-short v6, v8, v14
+
+    .line 52
+    add-int/lit8 v5, v5, 0x1
+
+    goto :goto_50
+
+    .line 49
+    :cond_ba
+    const/16 v4, 0x370
 
     goto :goto_4b
 
-    .line 51
-    :cond_84
-    sub-int v5, v10, v11
-
-    if-le v8, v5, :cond_8e
-
-    sub-int v5, v10, v8
-
-    int-to-double v6, v5
-
-    int-to-double v12, v11
-
-    div-double/2addr v6, v12
-
-    goto :goto_56
-
-    :cond_8e
-    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
-
-    goto :goto_56
-
-    .line 52
-    :cond_91
-    const/4 v5, -0x1
-
-    goto :goto_71
-
-    .line 54
-    :cond_93
-    add-int/lit16 v4, v10, 0xb40
+    .line 60
+    :cond_bd
+    add-int/lit16 v4, v9, 0xb40
 
     add-int/2addr v3, v4
 
-    .line 46
+    .line 47
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_2b
+    goto/16 :goto_2b
 
-    .line 56
-    :cond_99
-    return-object v9
+    .line 62
+    :cond_c4
+    return-object v8
 .end method
 
 .method private static declared-synchronized play(Ljava/lang/String;)V
     .registers 9
 
     .prologue
-    .line 65
+    .line 71
     const-class v6, Lcom/isaigu/gymapp/bodytech/BtBeep;
 
     monitor-enter v6
@@ -350,12 +378,12 @@
     :try_start_3
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBeep;->release()V
 
-    .line 66
+    .line 72
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtBeep;->pcm(Ljava/lang/String;)[S
 
     move-result-object v7
 
-    .line 67
+    .line 73
     new-instance v0, Landroid/media/AudioTrack;
 
     new-instance v1, Landroid/media/AudioAttributes$Builder;
@@ -364,14 +392,14 @@
 
     const/4 v2, 0x1
 
-    .line 68
+    .line 74
     invoke-virtual {v1, v2}, Landroid/media/AudioAttributes$Builder;->setUsage(I)Landroid/media/AudioAttributes$Builder;
 
     move-result-object v1
 
     const/4 v2, 0x4
 
-    .line 69
+    .line 75
     invoke-virtual {v1, v2}, Landroid/media/AudioAttributes$Builder;->setContentType(I)Landroid/media/AudioAttributes$Builder;
 
     move-result-object v1
@@ -386,7 +414,7 @@
 
     const/4 v3, 0x2
 
-    .line 70
+    .line 76
     invoke-virtual {v2, v3}, Landroid/media/AudioFormat$Builder;->setEncoding(I)Landroid/media/AudioFormat$Builder;
 
     move-result-object v2
@@ -399,7 +427,7 @@
 
     const/4 v3, 0x4
 
-    .line 71
+    .line 77
     invoke-virtual {v2, v3}, Landroid/media/AudioFormat$Builder;->setChannelMask(I)Landroid/media/AudioFormat$Builder;
 
     move-result-object v2
@@ -418,33 +446,33 @@
 
     invoke-direct/range {v0 .. v5}, Landroid/media/AudioTrack;-><init>(Landroid/media/AudioAttributes;Landroid/media/AudioFormat;III)V
 
-    .line 73
+    .line 79
     const/4 v1, 0x0
 
     array-length v2, v7
 
     invoke-virtual {v0, v7, v1, v2}, Landroid/media/AudioTrack;->write([SII)I
 
-    .line 74
+    .line 80
     invoke-virtual {v0}, Landroid/media/AudioTrack;->play()V
 
-    .line 75
+    .line 81
     sput-object v0, Lcom/isaigu/gymapp/bodytech/BtBeep;->track:Landroid/media/AudioTrack;
     :try_end_4a
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_4a} :catch_4c
     .catchall {:try_start_3 .. :try_end_4a} :catchall_66
 
-    .line 79
+    .line 85
     :goto_4a
     monitor-exit v6
 
     return-void
 
-    .line 76
+    .line 82
     :catch_4c
     move-exception v0
 
-    .line 77
+    .line 83
     :try_start_4d
     const-string v1, "BtBeep"
 
@@ -472,7 +500,7 @@
 
     goto :goto_4a
 
-    .line 65
+    .line 71
     :catchall_66
     move-exception v0
 
@@ -485,39 +513,39 @@
     .registers 4
 
     .prologue
-    .line 83
+    .line 89
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBeep;->track:Landroid/media/AudioTrack;
 
     if-eqz v0, :cond_e
 
-    .line 84
+    .line 90
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBeep;->track:Landroid/media/AudioTrack;
 
     invoke-virtual {v0}, Landroid/media/AudioTrack;->stop()V
 
-    .line 85
+    .line 91
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtBeep;->track:Landroid/media/AudioTrack;
 
     invoke-virtual {v0}, Landroid/media/AudioTrack;->release()V
     :try_end_e
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_e} :catch_12
 
-    .line 90
+    .line 96
     :cond_e
     :goto_e
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/bodytech/BtBeep;->track:Landroid/media/AudioTrack;
 
-    .line 91
+    .line 97
     return-void
 
-    .line 87
+    .line 93
     :catch_12
     move-exception v0
 
-    .line 88
+    .line 94
     const-string v1, "BtBeep"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -547,12 +575,12 @@
     .registers 1
 
     .prologue
-    .line 26
+    .line 27
     const-string v0, "...-"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtBeep;->play(Ljava/lang/String;)V
 
-    .line 27
+    .line 28
     return-void
 .end method
 
@@ -560,11 +588,11 @@
     .registers 1
 
     .prologue
-    .line 30
+    .line 31
     const-string v0, "-"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtBeep;->play(Ljava/lang/String;)V
 
-    .line 31
+    .line 32
     return-void
 .end method

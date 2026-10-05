@@ -28,7 +28,9 @@ final class BtTest {
     final XemsUi.Shell sh;
     final Runnable redraw;
     final Handler handler = new Handler(Looper.getMainLooper());
-    int level = 3;                         // %, 1..cap
+    int level = 3;                         // %, 1..cap (99 at most)
+    boolean free;                          // the owner switched the charge cap off
+    static final int[] LEVEL_PRESETS = {1, 3, 5, 10, 20, 30, 50, 70, 99};
     int tHz = 85, tUs = 360, tWave = -1;   // the test impulse
     Hold hold;
 
@@ -49,7 +51,7 @@ final class BtTest {
         hint.setPadding(0, XemsUi.dp(a, 4), 0, XemsUi.dp(a, 10));
         box.addView(hint);
 
-        int cap = BtTranslator.testCap(tHz, tUs);
+        int cap = BtTranslator.testCap(tHz, tUs, free);
         if (level > cap) level = cap;
         LinearLayout r1 = XemsUi.horizontal(a);
         r1.setGravity(Gravity.TOP);
@@ -73,10 +75,29 @@ final class BtTest {
         wv.addView(hs);
         r2.addView(wv, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         LinearLayout lv = XemsUi.vertical(a);
-        lv.addView(XemsUi.label(a, "Ниво (най-много " + cap + " % при тези Hz и ширина)"));
+        lv.addView(XemsUi.label(a, "Ниво (най-много " + cap + " %)"));
         lv.addView(XemsUi.stepper(a, level + " %", null, 16, new Lvl(this)).view);
+        LinearLayout[] lh = new LinearLayout[1];
+        HorizontalScrollView ls = XemsUi.chipRow(a, lh);
+        for (int i = 0; i < LEVEL_PRESETS.length; i++) {
+            if (LEVEL_PRESETS[i] > cap) break;
+            TextView c = XemsUi.chip(a, LEVEL_PRESETS[i] + "", LEVEL_PRESETS[i] == level, XemsUi.ACCENT);
+            c.setOnClickListener(new Preset(this, Preset.LEVEL, LEVEL_PRESETS[i]));
+            XemsUi.addChip(a, lh[0], c);
+        }
+        lv.addView(ls, XemsUi.matchWrap(a, 8));
         r2.addView(lv, XemsUi.weight(1f, 12, a));
         box.addView(r2, XemsUi.matchWrap(a, 10));
+
+        TextView cp = XemsUi.chip(a, free ? "Таван по заряд: изключен" : "Таван по заряд: включен", !free, XemsUi.GO_TEXT);
+        cp.setOnClickListener(new Preset(this, Preset.FREE, free ? 0 : 1));
+        LinearLayout.LayoutParams cl = XemsUi.matchWrap(a, 10);
+        cl.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        box.addView(cp, cl);
+        TextView cn = XemsUi.text(a, "Таванът по заряд пази високите Hz и широките импулси: при тях силата е по-ниска, а при "
+                + "85 Hz × 360 µs и по-малко е до 99 %. Изключи го само ако знаеш какво правиш.", 12, XemsUi.HINT, false);
+        cn.setPadding(0, XemsUi.dp(a, 6), 0, 0);
+        box.addView(cn);
         return box;
     }
 
@@ -111,7 +132,7 @@ final class BtTest {
             handler.removeCallbacks(hold);
             hold = null;
         }
-        BtBridge.test(mac, 0, 0, 0, 0, -1, false);
+        BtBridge.test(mac, 0, 0, 0, 0, -1, false, false);
     }
 
     static final class Touch implements View.OnTouchListener {
@@ -154,7 +175,7 @@ final class BtTest {
         @Override
         public void run() {
             if (!live) return;
-            String r = BtBridge.test(t.mac, ch, t.level, t.tHz, t.tUs, t.tWave, true);
+            String r = BtBridge.test(t.mac, ch, t.level, t.tHz, t.tUs, t.tWave, t.free, true);
             if ("ok".equals(r)) {
                 t.say(BtSettings.name(ch) + " · " + t.level + " % · " + t.tHz + " Hz · " + t.tUs + " µs · "
                         + BtSettings.WAVES[t.tWave + 1]);
@@ -177,7 +198,9 @@ final class BtTest {
 
         @Override
         public void onStep(int dir) {
-            t.level = Math.max(1, Math.min(BtTranslator.testCap(t.tHz, t.tUs), t.level + dir));
+            int step = t.level < 10 ? 1 : (t.level < 40 ? 2 : 5);
+            if (dir < 0 && t.level > 1) step = Math.min(step, t.level - 1);
+            t.level = Math.max(1, Math.min(BtTranslator.testCap(t.tHz, t.tUs, t.free), t.level + dir * step));
             t.redraw.run();
         }
     }
@@ -209,7 +232,7 @@ final class BtTest {
 
     /** A chip of the test impulse: a Hz or width preset, or a waveform. */
     static final class Preset implements View.OnClickListener {
-        static final int HZ = 0, US = 1, WAVE = 2;
+        static final int HZ = 0, US = 1, WAVE = 2, LEVEL = 3, FREE = 4;
         final BtTest t;
         final int what, value;
 
@@ -224,6 +247,8 @@ final class BtTest {
             XemsUi.haptic(v);
             if (what == HZ) t.tHz = value;
             else if (what == US) t.tUs = value;
+            else if (what == LEVEL) t.level = value;
+            else if (what == FREE) t.free = value == 1;
             else t.tWave = value;
             t.redraw.run();
         }

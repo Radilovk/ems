@@ -241,7 +241,7 @@ public class BtTranslatorTest {
         eq("test: only C3 in SEL", hex(BtProto.enable(0x04)), hex(f.get(f.size() - 1)));
         eq("test: not a training", false, tr.training());
         eq("test renewed: nothing new", 0, tr.testOn(3, 5, 400).size());
-        eq("test capped at 30 %", true, has(tr.testOn(3, 90, 500), BtProto.intensity(3, 30)));
+        eq("test up to 99 %", true, has(tr.testOn(3, 150, 500), BtProto.intensity(3, 99)));
         eq("test timeout → SEL all off", hexAll(java.util.Arrays.asList(BtProto.allOff())), hexAll(tr.heartbeat(2200)));
         tr.testOn(3, 5, 3000);
         eq("test release → SEL all off", hexAll(java.util.Arrays.asList(BtProto.allOff())), hexAll(tr.testOff()));
@@ -253,19 +253,21 @@ public class BtTranslatorTest {
         eq("test refused during a training", 0, tr.testOn(3, 5, 4300).size());
 
         // --- extended test: Hz up to 1000, width up to 511, waveform; strength held to the charge cap
-        eq("cap at default 85 Hz x 360 us", 30, BtTranslator.testCap(85, 360));
-        eq("cap lower Hz: still 30", 30, BtTranslator.testCap(10, 100));
-        eq("cap at 1000 Hz x 511 us", 1, BtTranslator.testCap(1000, 511));
-        eq("cap at 400 Hz x 360 us", 6, BtTranslator.testCap(400, 360));
+        eq("cap at default 85 Hz x 360 us", 99, BtTranslator.testCap(85, 360));
+        eq("cap lower Hz: still 99", 99, BtTranslator.testCap(10, 100));
+        eq("cap at 1000 Hz x 511 us", 5, BtTranslator.testCap(1000, 511));
+        eq("cap at 400 Hz x 360 us", 21, BtTranslator.testCap(400, 360));
+        eq("charge cap off", 99, BtTranslator.testCap(1000, 511, true));
         tr = new BtTranslator();
-        f = tr.testOn(2, 20, 400, 360, 1, 0);
+        f = tr.testOn(2, 50, 400, 360, 1, 0);
         eq("ext test: waveform sine on C2", true, has(f, BtProto.waveform(2, 1)));
         eq("ext test: 400 Hz on C2", true, has(f, BtProto.hz(2, 400)));
-        eq("ext test: strength held to cap 6", true, has(f, BtProto.intensity(2, 6)));
+        eq("ext test: strength held to cap 21", true, has(f, BtProto.intensity(2, 21)));
         eq("ext test: waveform before SEL", true, indexOf(f, BtProto.waveform(2, 1)) < indexOf(f, BtProto.enable(0x02)));
         f = tr.testOn(2, 20, 1000, 511, 1, 400);
-        eq("ext test: 1000 Hz, 511 us, cap 1", true, has(f, BtProto.hz(2, 1000)) && has(f, BtProto.width(2, 511))
-                && has(f, BtProto.intensity(2, 1)));
+        eq("ext test: 1000 Hz, 511 us, cap 5", true, has(f, BtProto.hz(2, 1000)) && has(f, BtProto.width(2, 511))
+                && has(f, BtProto.intensity(2, 5)));
+        eq("charge cap off: 80 % at 1000 Hz", true, has(tr.testOn(2, 80, 1000, 511, 1, true, 450), BtProto.intensity(2, 80)));
         f = tr.testOff();
         eq("release: SEL off then waveform back to square", hexAll(java.util.Arrays.asList(BtProto.allOff(),
                 BtProto.waveform(2, 0))), hexAll(f));

@@ -34,16 +34,16 @@
     .registers 3
 
     .prologue
-    .line 191
+    .line 214
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 192
+    .line 215
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Step;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    .line 193
+    .line 216
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Step;->what:I
 
-    .line 194
+    .line 217
     return-void
 .end method
 
@@ -57,24 +57,24 @@
 
     const/4 v1, 0x1
 
-    .line 198
+    .line 221
     iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Step;->what:I
 
     if-nez v2, :cond_3f
 
-    .line 199
+    .line 222
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Step;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v2, v2, Lcom/isaigu/gymapp/bodytech/BtTest;->tHz:I
 
-    .line 200
+    .line 223
     const/16 v3, 0x14
 
     if-ge v2, v3, :cond_32
 
     move v0, v1
 
-    .line 201
+    .line 224
     :cond_10
     :goto_10
     if-gez p1, :cond_1a
@@ -87,7 +87,7 @@
 
     add-int/lit8 v0, v2, -0x1
 
-    .line 202
+    .line 225
     :cond_1a
     iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Step;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
@@ -107,7 +107,7 @@
 
     iput v0, v3, Lcom/isaigu/gymapp/bodytech/BtTest;->tHz:I
 
-    .line 206
+    .line 229
     :goto_2a
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Step;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
@@ -115,10 +115,10 @@
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 207
+    .line 230
     return-void
 
-    .line 200
+    .line 223
     :cond_32
     const/16 v3, 0x64
 
@@ -137,7 +137,7 @@
 
     goto :goto_10
 
-    .line 204
+    .line 227
     :cond_3f
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Step;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 

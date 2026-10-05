@@ -80,19 +80,32 @@ public final class BtSettingsSection {
         final Activity a;
         final XemsUi.Shell sh;
         final boolean[] open = new boolean[BtSettings.CHANNELS + 1];
+        final BtTest test;
 
         Sheet(Activity a) {
             this.a = a;
             XemsUi.init(a);
             sh = XemsUi.shell(a, "Костюм bodytech", "Канали C1–C8 → слайдери на XEMS", 980);
+            test = new BtTest(a, null, sh, new Redraw(this));
             render();
             TextView reset = XemsUi.button(a, "По подразбиране", XemsUi.SECONDARY);
             reset.setOnClickListener(new Reset(this));
             TextView done = XemsUi.button(a, "Готово", XemsUi.PRIMARY);
             done.setOnClickListener(new Done(sh));
+            TextView sort = XemsUi.button(a, "Подреди ляво → дясно", XemsUi.SECONDARY);
+            sort.setOnClickListener(new Sort(this));
             sh.footer.addView(reset);
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            sp.leftMargin = XemsUi.dp(a, 10);
+            sh.footer.addView(sort, sp);
+            sh.dialog.setOnDismissListener(new Stop(this));
             sh.footer.addView(XemsUi.spacer(a));
             sh.footer.addView(done);
+        }
+
+        void stopHold() {
+            test.stop();
         }
 
         void show() {
@@ -103,6 +116,7 @@ public final class BtSettingsSection {
         /** Redraw from the saved values (after any change that moves a chip). */
         void render() {
             sh.body.removeAllViews();
+            sh.body.addView(test.panel(), XemsUi.matchWrap(a, 0));
             LinearLayout cols = XemsUi.horizontal(a);
             cols.setGravity(Gravity.TOP);
             LinearLayout left = XemsUi.vertical(a);
@@ -163,12 +177,16 @@ public final class BtSettingsSection {
             ml.leftMargin = XemsUi.dp(a, 6);
             head.addView(up, ml);
             head.addView(down, ml);
+            TextView play = XemsUi.iconButton(a, "▶", XemsUi.GO, 0xFFFFFFFF, 34);
+            play.setOnTouchListener(test.touch(ch));
+            head.addView(play, ml);
             s.addView(head);
 
             LinearLayout.LayoutParams gap = XemsUi.matchWrap(a, 10);
             LinearLayout[] holder = new LinearLayout[1];
             HorizontalScrollView hs = XemsUi.chipRow(a, holder);
-            for (int i = -1; i < BtSettings.SLIDERS.length; i++) {
+            for (int k = -1; k < BtSettings.ROW_ORDER.length; k++) {
+                int i = k < 0 ? -1 : BtSettings.ROW_ORDER[k];       // the row's order, left to right
                 TextView c = XemsUi.chip(a, BtSettings.sliderName(i), BtSettings.slider(ch) == i, XemsUi.GO_TEXT);
                 c.setOnClickListener(new Pick(this, Pick.SLIDER, ch, i));
                 XemsUi.addChip(a, holder[0], c);
@@ -285,6 +303,46 @@ public final class BtSettingsSection {
                 BtSettings.setChHz(ch, second, BtSettings.chHz(ch, second) + dir);
             }
             sheet.render();
+        }
+    }
+
+    static final class Redraw implements Runnable {
+        final Sheet sheet;
+
+        Redraw(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public void run() {
+            sheet.render();
+        }
+    }
+
+    static final class Sort implements View.OnClickListener {
+        final Sheet sheet;
+
+        Sort(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public void onClick(View v) {
+            BtSettings.sortLeftToRight();
+            sheet.render();
+        }
+    }
+
+    static final class Stop implements android.content.DialogInterface.OnDismissListener {
+        final Sheet sheet;
+
+        Stop(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public void onDismiss(android.content.DialogInterface d) {
+            sheet.stopHold();
         }
     }
 

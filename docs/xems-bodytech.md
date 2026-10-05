@@ -1,4 +1,4 @@
-# Bodytech suit in XEMS — plain training (1.1.345-ai)
+# Bodytech suit in XEMS — plain training (1.1.348-ai)
 
 A bodytech suit (EMSFIT 5.1 hardware, BLE service `FE50`, name `EMS08-…` / `TZLJ…` / `ADT…`) trains from the stock XEMS
 row: same screen, same ＋/− and sliders, same programs, ramp, double impulse, timer, battery, reconnect.
@@ -56,6 +56,45 @@ Global: waveform (the suit's own / square / sine / trapezoid) and a strength sca
 Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C2 Седалище→Седалище, C3 Рамене→Трапец, C4 Среден
 гръб→Гръб, C5 Гърди→Гърди, C6 Ръце→Ръце, C7 Бедра→Предно бедро, C8 Корем→Корем. "По подразбиране" resets everything.
 Changes are saved at once and used by the next command the row sends.
+
+## Test of a channel and the left → right order (1.1.346)
+- **▶ on each channel card (hold)**: only that channel works, at the test level (1–30 %, start at 1–3 %), so the owner
+  feels which muscle it is and names / maps it. Release, close the sheet, or 1.5 s without a renewal = off. Refused while a
+  training runs on the suit. The suit must have been connected from Тренировка before (the bridge knows it from its first
+  command); the sheet says "no suit" otherwise.
+- **Подреди ляво → дясно** sorts the channels by where their slider sits in the training row (calf, front thigh, back
+  thigh, glutes, abs, lower back, back, trapezius, chest, arms); channels without a slider go last. The slider chips of
+  every channel are listed in the same order.
+- The training row's header icons are shared by all rows and stay the XEMS muscle icons: a channel appears under the
+  slider (icon) it is mapped to. The channel names are the owner's labels in this sheet.
+
+## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
+The same sheet has "Тест на импулс": Hz (1–1000, presets 1 … 1000 and − / +), width (50–511 µs), waveform (the suit's own /
+square / sine / trapezoid / trapezoid 2) and the level. Hold **▶** on a channel to feel it on that muscle.
+- The strength is held to a charge cap: 30 % at the default 85 Hz × 360 µs, lower as Hz × width grows
+  (`BtTranslator.testCap`; 400 Hz × 360 µs → 6 %, 1000 Hz × 511 µs → 1 %). The sheet shows the cap.
+- The waveform goes back to the owner's setting (square when "the suit's own") when the test ends or another channel
+  is tested. The effect of Hz > 120, width > the program's and the waveform on the body is **not known yet** (frames are ACKed,
+  nothing reads back) — this test is how to find out.
+- **Training stays inside the program's limits**: per-channel Hz / width can only lower the program's value, the waveform is
+  one setting for all channels. Once a value is proven on a person it can be allowed in training (a separate decision).
+
+## Test mode from the row's gear (1.1.348)
+On a row whose suit is a bodytech one the gear (⚙) first asks **"Настройки на програмата"** (the stock dialog) or **"Тестов режим"**.
+Rows with an XEMS suit open the stock dialog at once. Test mode (`BtTestMode`) is a screen apart from the training: the
+impulse test above (Hz 1–1000, width 50–511 µs, waveform, level with the charge cap) and the eight channels left → right
+with name and slider, each with a hold ▶, on **that row's suit**. Nothing is saved into the program; closing the screen
+or releasing ▶ switches the output off; refused while a training runs on the suit. Hook: `TrainViewHolder$1.onNoDoubleClick`
+→ `BtGear.open` (the stock dialog is replayed through the gear's own click once, past the hook).
+
+## What bodytech has that the XEMS suit has not (and what is used)
+| bodytech | used |
+|---|---|
+| Hz, width, strength, waveform are registers **per channel** (XEMS: one Hz / width for all) | per-channel width, Hz (main / 2nd), strength; waveform global |
+| 8 independent channels on a SEL mask | per-channel "works in main / 2nd impulse / none" |
+| the suit can run ramps and pauses itself (T1–T4, int / width steps) | **not used**: effect unproven on a person; the tablet's SoftRamp does it |
+| no feedback except battery | the held channel test is the only way to learn the muscle map |
+| 8 channels, not 10 sliders | owner's map; several channels may share a slider |
 
 ## Safety
 - Strength ≤ 99 % per channel, a channel is on only when its slider gives it strength, width 50–511 µs.

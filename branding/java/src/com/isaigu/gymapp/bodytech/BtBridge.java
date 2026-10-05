@@ -84,6 +84,44 @@ public final class BtBridge {
         }
     }
 
+    /**
+     * Settings sheet: hold "test" on one channel (which muscle it is; which Hz / width / waveform feels how). down = on at pct %
+     * (renew every ≤ 1 s), !down = off. Returns "ok", "no_suit" (no connected bodytech suit has been used yet — connect it
+     * from Тренировка first) or "training" (a real training runs on it).
+     */
+    public static String test(String mac, int ch, int pct, int hz, int us, int wave, boolean down) {
+        try {
+            Dev v = null;
+            synchronized (BtBridge.class) {
+                for (Dev x : DEVS.values()) {
+                    if (mac != null && !mac.equalsIgnoreCase(x.d.getMac())) continue;
+                    if (BleManager.getInstance().isConnected(x.d)) {
+                        v = x;
+                        break;
+                    }
+                }
+            }
+            if (v == null) return "no_suit";
+            if (v.tr.training()) return "training";
+            v.begin();
+            if (down) v.add(v.tr.testOn(ch, pct, hz, us, wave, SystemClock.elapsedRealtime()), null, null, false);
+            else v.add(v.tr.testOff(), null, null, true);
+            return "ok";
+        } catch (Throwable t) {
+            Log.e(TAG, "test: " + t);
+            return "no_suit";
+        }
+    }
+
+    /** Is the suit with this MAC a bodytech one (seen as such when it was connected)? */
+    public static synchronized boolean isBodytechMac(String mac) {
+        if (mac == null) return false;
+        for (Map.Entry<String, Boolean> e : KIND.entrySet()) {
+            if (e.getKey().equalsIgnoreCase(mac)) return e.getValue().booleanValue();
+        }
+        return known(mac);
+    }
+
     /** CommandReceiver.onReceiveData start: a bodytech reply → battery percent for the row. true = handled. */
     public static boolean reply(BleDevice d, byte[] data, OnReceiveCommandListener l) {
         try {

@@ -158,7 +158,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiUi.java` (2176L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
-- `AutoBoard.java` (176L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
+- `AutoBoard.java` (218L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
 - `AutoCatalog.java` (741L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
 - `AutoCues.java` (224L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
 - `AutoDynamics.java` (432L, compile:music-sync*,wearable) — The impulse of the automatic mode changes while it runs (owner, 1.1.322 — docs/xems-auto-mode-spec.md §13, docs/xems-em…
@@ -335,7 +335,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLicenseSection.java` (365L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (205L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
-- `XemsLocalAvatar.java` (1007L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
+- `XemsLocalAvatar.java` (1018L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (267L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (351L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
@@ -522,75 +522,6 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L393 ## 12. Основни директории
   - L403 ## 13. Идея на проекта
 
-`PORTFOLIO.md` (353L)
-  - L1 # XEMS Pro — продажбено портфолио и техническа визия
-  - L3 ## Кратко резюме
-  - L19 ## За какво е този продукт
-  - L39 ## За кого е предназначен
-  - L52 ## Какво прави XEMS Pro уникално
-  - L54 ### 1. Цялата работа е в един контролен слой
-  - L68 ### 2. Smart Session и automatic mode
-  - L83 ### 3. Wearable интеграция
-  - L93 ### 4. Локален режим + cloud периодично обновяване
-  - L104 ## Какво е разработено вече
-  - L106 ### Таблетно Android приложение
-  - L119 ### Band приложение
-  - L127 ### Лицензен сървър
-  - L139 ### AI и автоматизация
-  - L151 ## Техническа архитектура
-  - L153 ### Основни слоеве
-  - L182 ## Технологичен стек
-  - L193 ### Процентно разпределение на repo
-  - L208 ## Каква стойност носи продуктът за клиенти
-  - L210 ### За EMS студио
-  - L218 ### За треньор
-  - L225 ### За клиника / рехабилитация
-  - L234 ## Бизнес потенциал
-  - L236 ### Стойността не е само в софтуера
-  - L246 ### Възможни модели на продажба
-  - L259 ## Конкурентно предимство
-  - L274 ## Силни страни на реализацията
-  - L286 ## Ограничения и реалистична оценка
-  - L299 ## Кратко бизнес обяснение
-  - L307 ## Финална позиция
-  - L326 ## Съдържание в GitHub
-  - L341 ## Заключение
-
-`XEMS-PROJECT-EXPLANATION.md` (417L)
-  - L1 # XEMS — пълно обяснение на функциите и интеграциите
-  - L3 ## 1. Какво е това приложение
-  - L21 ## 2. Архитектура на проекта
-  - L25 ### 2.1 Таблетното Android приложение
-  - L35 ### 2.2 Band app
-  - L44 ### 2.3 Cloud лицензен сървър
-  - L54 ## 3. Основни функционалности на таблетното приложение
-  - L56 ### 3.1 Управление на клиенти и потребители
-  - L75 ### 3.2 Тренировъчни програми и режимове
-  - L102 ### 3.3 EMS импулс и контрол на силата
-  - L123 ### 3.4 UI и навигация
-  - L138 ### 3.5 Сеансите, записването и отчетите
-  - L158 ### 3.6 Наблюдение на сърдечна честота (HR)
-  - L176 ### 3.7 Локален режим и синхронизация
-  - L187 ## 4. AI и автоматични тренировки
-  - L189 ### 4.1 Smart Session (AI)
-  - L210 ### 4.2 Automatic mode
-  - L230 ## 5. Интеграция с Xiaomi Band 10
-  - L234 ### 5.1 Технологии и слоеве
-  - L253 ### 5.2 Band app и remote interface
-  - L266 ### 5.3 Разширени функции
-  - L275 ## 6. Лицензиране и OTA актуализация
-  - L279 ### 6.1 Какво прави сървърът
-  - L299 ### 6.2 Важна интеграция
-  - L309 ## 7. Music sync и ритмична тренировка
-  - L329 ## 8. Local-only data and tablet storage
-  - L343 ## 9. Build и patching система
-  - L347 ### 9.1 Как се строи APK
-  - L358 ### 9.2 Защо е важно
-  - L366 ## 10. Най-важните интеграции в едно гледище
-  - L382 ## 11. Кратко резюме
-  - L393 ## 12. Основни директории
-  - L403 ## 13. Идея на проекта
-
 `band-app/CLAUDE.md` (27L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)
 
@@ -629,15 +560,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L23 ## Train screen preview — **canonical method for UI frames**
   - L40 ## Not automatable without hardware
 
-`bodytech/PROTOCOL.md` (77L)
+`bodytech/HANDOFF.md` (49L)
+  - L1 # Bodytech в XEMS — какво е готово и какво остава
+  - L3 ## Готово (в репото)
+  - L14 ## Как XEMS говори със своя костюм (проучено)
+  - L31 ## Остава — частта за довършване
+  - L43 ## Мога да довърша и аз (не управлява изхода)
+
+`bodytech/PROTOCOL.md` (84L)
   - L1 # Bodytech (EMSFIT 5.1) suit — BLE protocol
-  - L14 ## Link
-  - L23 ## Frame — 8 bytes, big endian
-  - L27 ### Global registers (channel 0)
-  - L36 ### Channel registers
-  - L55 ## Sequences (EMSFIT)
-  - L63 ## Replies
-  - L68 ## XEMS → bodytech mapping
+  - L21 ## Link
+  - L30 ## Frame — 8 bytes, big endian
+  - L34 ### Global registers (channel 0)
+  - L43 ### Channel registers
+  - L62 ## Sequences (EMSFIT)
+  - L70 ## Replies
+  - L75 ## XEMS → bodytech mapping
 
 `bodytech/probe/README.md` (33L)
   - L1 # XEMS BT Probe — тест на bodytech костюма

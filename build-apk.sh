@@ -81,6 +81,7 @@ if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
   bash "${ROOT}/scripts/compile-avatar-cluster-java.sh"
   bash "${ROOT}/scripts/compile-channel-scale-java.sh"
   bash "${ROOT}/scripts/compile-softramp-java.sh"
+  bash "${ROOT}/scripts/compile-bodytech-java.sh"
 else
   echo "SKIP_JAVA_RECOMPILE=1 — using prebuilt smali in branding/smali/"
 fi
@@ -161,6 +162,10 @@ python3 "${ROOT}/scripts/apply-part-strength.py"
 python3 "${ROOT}/scripts/apply-train-index.py"
 python3 "${ROOT}/scripts/apply-double-impulse.py"
 python3 "${ROOT}/scripts/apply-suit-reconnect.py"
+# The bodytech suit (service FE50) on the stock row: its XEMS commands become bodytech frames (BtBridge). After every
+# patch that rewrites BleDeviceManager / CommandSender / CommandReceiver.
+python3 "${ROOT}/scripts/apply-bodytech.py"
+python3 "${ROOT}/scripts/verify-bodytech.py"
 # After every train row layout patch: name / time / status icons / big + and − (column right of the avatar).
 python3 "${ROOT}/scripts/apply-train-info-column.py"
 # Every app class that smali references must be installed (a missed one = NoClassDefFoundError at run time).

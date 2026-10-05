@@ -15,4 +15,16 @@ public class BleManager {
     }
 
     public void disconnect(BleDevice device) {}
+
+    public BluetoothGatt getBluetoothGatt(BleDevice device) {
+        return null;
+    }
+
+    public boolean isConnected(BleDevice device) {
+        return false;
+    }
+
+    public boolean requestConnectionPriority(BleDevice device, int connectionPriority) {
+        return false;
+    }
 }

@@ -96,17 +96,17 @@
     .registers 15
 
     .prologue
-    .line 226
+    .line 232
     invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->list(Landroid/content/Context;J)Lorg/json/JSONArray;
 
     move-result-object v1
 
-    .line 227
+    .line 233
     new-instance v2, Lorg/json/JSONArray;
 
     invoke-direct {v2}, Lorg/json/JSONArray;-><init>()V
 
-    .line 228
+    .line 234
     const/4 v0, 0x0
 
     :goto_a
@@ -116,12 +116,12 @@
 
     if-ge v0, v3, :cond_26
 
-    .line 229
+    .line 235
     invoke-virtual {v1, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 230
+    .line 236
     if-eqz v3, :cond_23
 
     const-string v4, "t"
@@ -134,27 +134,27 @@
 
     if-eqz v4, :cond_23
 
-    .line 231
+    .line 237
     invoke-virtual {v2, v3}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 228
+    .line 234
     :cond_23
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_a
 
-    .line 234
+    .line 240
     :cond_26
     invoke-static {v2, p5, p6, p7}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->rebuild(Lorg/json/JSONArray;ZII)Lorg/json/JSONArray;
 
     move-result-object v1
 
-    .line 235
+    .line 241
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 236
+    .line 242
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -179,7 +179,7 @@
 
     move-result-object v2
 
-    .line 237
+    .line 243
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -228,7 +228,7 @@
 
     move-result-object v4
 
-    .line 238
+    .line 244
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -280,17 +280,17 @@
 
     move-result-object v2
 
-    .line 239
+    .line 245
     invoke-interface {v0, v2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 240
+    .line 246
     return-object v1
 
-    .line 238
+    .line 244
     :cond_b5
     invoke-static {p3, p4}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
 
@@ -672,7 +672,7 @@
     .registers 4
 
     .prologue
-    .line 244
+    .line 250
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -892,10 +892,40 @@
 .end method
 
 .method public static save(Landroid/content/Context;JLcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZIIIJ)Lorg/json/JSONObject;
-    .registers 22
+    .registers 21
 
     .prologue
-    .line 157
+    .line 156
+    const/4 v10, 0x0
+
+    move-object v0, p0
+
+    move-wide v1, p1
+
+    move-object v3, p3
+
+    move v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v6, p6
+
+    move/from16 v7, p7
+
+    move-wide/from16 v8, p8
+
+    invoke-static/range {v0 .. v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->save(Landroid/content/Context;JLcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZIIIJLcom/isaigu/gymapp/wearable/scale/ScaleModel$Notes;)Lorg/json/JSONObject;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static save(Landroid/content/Context;JLcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZIIIJLcom/isaigu/gymapp/wearable/scale/ScaleModel$Notes;)Lorg/json/JSONObject;
+    .registers 25
+
+    .prologue
+    .line 163
     move-object v3, p0
 
     move-wide v4, p1
@@ -911,12 +941,12 @@
 
     move-result-object v3
 
-    .line 158
-    new-instance v11, Lorg/json/JSONArray;
+    .line 164
+    new-instance v12, Lorg/json/JSONArray;
 
-    invoke-direct {v11}, Lorg/json/JSONArray;-><init>()V
+    invoke-direct {v12}, Lorg/json/JSONArray;-><init>()V
 
-    .line 159
+    .line 165
     const/4 v2, 0x0
 
     :goto_12
@@ -926,12 +956,12 @@
 
     if-ge v2, v4, :cond_34
 
-    .line 160
+    .line 166
     invoke-virtual {v3, v2}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v4
 
-    .line 161
+    .line 167
     if-eqz v4, :cond_31
 
     const-wide/16 v6, 0x0
@@ -950,38 +980,38 @@
 
     if-eqz v5, :cond_31
 
-    .line 162
+    .line 168
     :cond_2e
-    invoke-virtual {v11, v4}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
+    invoke-virtual {v12, v4}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 159
+    .line 165
     :cond_31
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_12
 
-    .line 165
+    .line 171
     :cond_34
-    invoke-static {v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->stateOf(Lorg/json/JSONArray;)Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;
+    invoke-static {v12}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->stateOf(Lorg/json/JSONArray;)Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;
 
     move-result-object v8
 
-    .line 166
+    .line 172
     const-wide/16 v2, 0x0
 
     cmp-long v2, p8, v2
 
-    if-lez v2, :cond_84
+    if-lez v2, :cond_87
 
     move-wide/from16 v6, p8
 
-    .line 167
+    .line 173
     :goto_40
-    invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/RestHrStore;->typical(Landroid/content/Context;J)D
+    invoke-static/range {p0 .. p2}, Lcom/isaigu/gymapp/wearable/scale/RestHrStore;->typical(Landroid/content/Context;J)D
 
     move-result-wide v9
 
-    move-object v2, p3
+    move-object/from16 v2, p3
 
     move/from16 v3, p4
 
@@ -989,42 +1019,44 @@
 
     move/from16 v5, p6
 
-    .line 166
-    invoke-static/range {v2 .. v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->entry(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZIIJLcom/isaigu/gymapp/wearable/scale/ScaleModel$State;D)Lorg/json/JSONObject;
+    move-object/from16 v11, p10
+
+    .line 172
+    invoke-static/range {v2 .. v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->entry(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;ZIIJLcom/isaigu/gymapp/wearable/scale/ScaleModel$State;DLcom/isaigu/gymapp/wearable/scale/ScaleModel$Notes;)Lorg/json/JSONObject;
 
     move-result-object v2
 
-    .line 168
+    .line 174
     move/from16 v0, p4
 
     move/from16 v1, p6
 
     invoke-static {v2, v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->mark(Lorg/json/JSONObject;ZI)V
 
-    .line 169
+    .line 175
     const/4 v3, 0x1
 
     move/from16 v0, p7
 
-    if-le v0, v3, :cond_62
+    if-le v0, v3, :cond_65
 
-    .line 170
+    .line 176
     const-string v3, "n"
 
     move/from16 v0, p7
 
     invoke-virtual {v2, v3, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 172
-    :cond_62
+    .line 178
+    :cond_65
     new-instance v4, Lorg/json/JSONArray;
 
     invoke-direct {v4}, Lorg/json/JSONArray;-><init>()V
 
-    .line 173
+    .line 179
     const/4 v3, 0x0
 
-    invoke-virtual {v11}, Lorg/json/JSONArray;->length()I
+    invoke-virtual {v12}, Lorg/json/JSONArray;->length()I
 
     move-result v5
 
@@ -1036,43 +1068,43 @@
 
     move-result v3
 
-    :goto_74
-    invoke-virtual {v11}, Lorg/json/JSONArray;->length()I
+    :goto_77
+    invoke-virtual {v12}, Lorg/json/JSONArray;->length()I
 
     move-result v5
 
-    if-ge v3, v5, :cond_89
+    if-ge v3, v5, :cond_8c
 
-    .line 174
-    invoke-virtual {v11, v3}, Lorg/json/JSONArray;->get(I)Ljava/lang/Object;
+    .line 180
+    invoke-virtual {v12, v3}, Lorg/json/JSONArray;->get(I)Ljava/lang/Object;
 
     move-result-object v5
 
     invoke-virtual {v4, v5}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 173
+    .line 179
     add-int/lit8 v3, v3, 0x1
 
-    goto :goto_74
+    goto :goto_77
 
-    .line 167
-    :cond_84
+    .line 173
+    :cond_87
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
 
     goto :goto_40
 
-    .line 176
-    :cond_89
+    .line 182
+    :cond_8c
     invoke-virtual {v4, v2}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 177
+    .line 183
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v3
 
-    .line 178
+    .line 184
     invoke-interface {v3}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v5
@@ -1087,7 +1119,9 @@
 
     move-result-object v6
 
-    invoke-virtual {v6, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+    move-wide v0, p1
+
+    invoke-virtual {v6, v0, v1}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
     move-result-object v6
 
@@ -1103,19 +1137,19 @@
 
     move-result-object v5
 
-    .line 179
+    .line 185
     const-wide/16 v6, 0x0
 
     cmp-long v4, p8, v6
 
-    if-lez v4, :cond_120
+    if-lez v4, :cond_126
 
-    .line 181
+    .line 187
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 182
+    .line 188
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -1126,7 +1160,9 @@
 
     move-result-object v4
 
-    invoke-virtual {v4, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+    move-wide v0, p1
+
+    invoke-virtual {v4, v0, v1}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
@@ -1152,17 +1188,17 @@
 
     move v4, v3
 
-    :goto_dc
-    if-ge v4, v8, :cond_106
+    :goto_e1
+    if-ge v4, v8, :cond_10b
 
     aget-object v9, v7, v4
 
-    .line 183
+    .line 189
     invoke-virtual {v9}, Ljava/lang/String;->length()I
 
     move-result v3
 
-    if-lez v3, :cond_ff
+    if-lez v3, :cond_104
 
     invoke-static/range {p8 .. p9}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
 
@@ -1172,40 +1208,40 @@
 
     move-result v3
 
-    if-nez v3, :cond_ff
+    if-nez v3, :cond_104
 
-    .line 184
+    .line 190
     invoke-virtual {v6}, Ljava/lang/StringBuilder;->length()I
 
     move-result v3
 
-    if-lez v3, :cond_103
+    if-lez v3, :cond_108
 
     const-string v3, ","
 
-    :goto_f8
+    :goto_fd
     invoke-virtual {v6, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
     invoke-virtual {v3, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 182
-    :cond_ff
+    .line 188
+    :cond_104
     add-int/lit8 v3, v4, 0x1
 
     move v4, v3
 
-    goto :goto_dc
+    goto :goto_e1
 
-    .line 184
-    :cond_103
+    .line 190
+    :cond_108
     const-string v3, ""
 
-    goto :goto_f8
+    goto :goto_fd
 
-    .line 187
-    :cond_106
+    .line 193
+    :cond_10b
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -1216,7 +1252,9 @@
 
     move-result-object v3
 
-    invoke-virtual {v3, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+    move-wide v0, p1
+
+    invoke-virtual {v3, v0, v1}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
@@ -1230,36 +1268,36 @@
 
     invoke-interface {v5, v3, v4}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 189
-    :cond_120
+    .line 195
+    :cond_126
     invoke-interface {v5}, Landroid/content/SharedPreferences$Editor;->apply()V
-    :try_end_123
-    .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_123} :catch_124
+    :try_end_129
+    .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_129} :catch_12a
 
-    .line 193
-    :goto_123
+    .line 199
+    :goto_129
     return-object v2
 
-    .line 191
-    :catch_124
+    .line 197
+    :catch_12a
     move-exception v2
 
-    .line 192
+    .line 198
     const-string v3, "ScaleStore.save"
 
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 193
+    .line 199
     const/4 v2, 0x0
 
-    goto :goto_123
+    goto :goto_129
 .end method
 
 .method public static setMac(Landroid/content/Context;Ljava/lang/String;)V
     .registers 4
 
     .prologue
-    .line 248
+    .line 254
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1279,10 +1317,10 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 249
+    .line 255
     return-void
 
-    .line 248
+    .line 254
     :cond_14
     const-string p1, ""
 
@@ -1506,12 +1544,12 @@
     .prologue
     const-wide/high16 v6, 0x4024000000000000L    # 10.0
 
-    .line 202
+    .line 208
     invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->list(Landroid/content/Context;J)Lorg/json/JSONArray;
 
     move-result-object v0
 
-    .line 205
+    .line 211
     :try_start_6
     invoke-virtual {v0}, Lorg/json/JSONArray;->length()I
 
@@ -1531,13 +1569,13 @@
 
     move-object v2, v1
 
-    .line 206
+    .line 212
     :goto_17
     invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/RestHrStore;->typical(Landroid/content/Context;J)D
 
     move-result-wide v4
 
-    .line 207
+    .line 213
     if-eqz v2, :cond_8f
 
     const-string v1, "z20"
@@ -1564,11 +1602,11 @@
 
     const/4 v1, 0x1
 
-    .line 208
+    .line 214
     :goto_34
     if-eqz v1, :cond_42
 
-    .line 209
+    .line 215
     const-string v3, "rhr"
 
     mul-double/2addr v4, v6
@@ -1583,7 +1621,7 @@
 
     invoke-virtual {v2, v3, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 211
+    .line 217
     :cond_42
     if-nez v1, :cond_4a
 
@@ -1593,13 +1631,13 @@
 
     if-eqz v1, :cond_8b
 
-    .line 212
+    .line 218
     :cond_4a
     invoke-static {v0, p3, p4, p5}, Lcom/isaigu/gymapp/wearable/scale/ScaleModel;->rebuild(Lorg/json/JSONArray;ZII)Lorg/json/JSONArray;
 
     move-result-object v0
 
-    .line 213
+    .line 219
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v1
@@ -1660,12 +1698,12 @@
     :try_end_8b
     .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_8b} :catch_91
 
-    .line 218
+    .line 224
     :cond_8b
     :goto_8b
     return-object v0
 
-    .line 205
+    .line 211
     :cond_8c
     const/4 v1, 0x0
 
@@ -1673,17 +1711,17 @@
 
     goto :goto_17
 
-    .line 207
+    .line 213
     :cond_8f
     const/4 v1, 0x0
 
     goto :goto_34
 
-    .line 215
+    .line 221
     :catch_91
     move-exception v1
 
-    .line 216
+    .line 222
     const-string v2, "ScaleStore.upgrade"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

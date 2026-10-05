@@ -1089,6 +1089,61 @@ public final class ScaleSim {
         ok("XS advert, MAC backwards", ScaleSenssun.xsAdvert(adv, "A1:B2:C3:D4:E5:F6") != null);
     }
 
+    /** The plausibility gate: what the body can and cannot do between two weigh-ins. */
+    static void gate() {
+        // 70 kg, minutes / hours / days apart
+        ok("gate: +0.6 kg in 10 min — no question", ScaleCheck.weight(0.6, 0.17, 70) == ScaleCheck.OK);
+        ok("gate: −1.2 kg in 3 h (toilet, drink) — no question", ScaleCheck.weight(-1.2, 3, 70) == ScaleCheck.OK);
+        ok("gate: +2 kg in 1 h — ask (same person?)", ScaleCheck.weight(2, 1, 70) == ScaleCheck.ASK);
+        ok("gate: +28 kg in 1 h (another client) — impossible", ScaleCheck.weight(28, 1, 70) == ScaleCheck.IMPOSSIBLE);
+        ok("gate: +10 kg in a day — impossible", ScaleCheck.weight(10, 24, 70) == ScaleCheck.IMPOSSIBLE);
+        ok("gate: −4 kg in 2 weeks — ask, possible", ScaleCheck.weight(-4, 14 * 24, 70) != ScaleCheck.IMPOSSIBLE);
+        ok("gate: −2 kg in 2 weeks — no question", ScaleCheck.weight(-2, 14 * 24, 70) == ScaleCheck.OK);
+        ok("gate: hard limit grows with the days", ScaleCheck.hard(24 * 30, 70) > ScaleCheck.hard(24, 70) + 10);
+        // composition
+        ok("gate: fat +1.0 point in 2 h — noise", !ScaleCheck.fatOff(1.0, 2));
+        ok("gate: fat −4 points in 2 h — off", ScaleCheck.fatOff(-4, 2));
+        ok("gate: fat −4 points in 3 weeks — within the allowance", !ScaleCheck.fatOff(-4, 21 * 24));
+        // cycle: women of fertile age only
+        ok("gate: cycle asked of a 28-year-old woman", ScaleCheck.cycleAsked(false, 28));
+        ok("gate: cycle never asked of a 60-year-old", !ScaleCheck.cycleAsked(false, 60));
+        ok("gate: cycle never asked of a man", !ScaleCheck.cycleAsked(true, 28));
+        // causes
+        ok("gate: nothing off — no cause", ScaleCheck.cause(0.4, 0.5, 2, 70, true, 12, 0, -1) == null);
+        ok("gate: ate, weight up → food", ScaleCheck.FOOD.equals(ScaleCheck.cause(1.8, 2.5, 2, 70, true, 12,
+                ScaleCheck.C_FOOD, -1)));
+        ok("gate: lean man, +1.5 kg in a day, nothing said → glycogen",
+                ScaleCheck.GLYCOGEN.equals(ScaleCheck.cause(1.8, 2.5, 20, 80, true, 11, 0, -1)));
+        ok("gate: soft woman, +1.8 kg in a day → water",
+                ScaleCheck.WATER.equals(ScaleCheck.cause(1.9, 2.5, 20, 65, false, 31, 0, -1)));
+        ok("gate: before the period → cycle",
+                ScaleCheck.CYCLE.equals(ScaleCheck.cause(1.9, 2.5, 20, 65, false, 31, 0, ScaleCheck.CYC_BEFORE)));
+        ok("gate: −5.5 kg over 3 weeks → real",
+                ScaleCheck.REAL.equals(ScaleCheck.cause(-5.5, -2, 21 * 24, 70, true, 20, 0, -1)));
+        // the filter: a water day must not move the lean the way a real change does
+        try {
+            ScaleModel.State a = new ScaleModel.State(), b = new ScaleModel.State();
+            for (ScaleModel.State st : new ScaleModel.State[] {a, b}) {
+                ScaleModel.step(st, 0, 80.0, 66.0);
+            }
+            a.skeptic = true;
+            ScaleModel.step(a, 3600000L * 20, 82.0, 62.0);     // a reading 4 kg lean lower, weight +2 (water)
+            ScaleModel.step(b, 3600000L * 20, 82.0, 62.0);
+            ok("gate: skeptic reading keeps the lean steadier (" + a.lean + " vs " + b.lean + ")",
+                    a.lean > b.lean && !a.restarted);
+            ScaleModel.Notes n = new ScaleModel.Notes();
+            n.cond = ScaleCheck.C_FOOD;
+            n.why = ScaleCheck.FOOD;
+            org.json.JSONObject o = new org.json.JSONObject();
+            n.put(o);
+            ScaleModel.Notes back = ScaleModel.Notes.of(o);
+            ok("gate: notes survive a rebuild", back != null && back.cond == ScaleCheck.C_FOOD
+                    && ScaleCheck.FOOD.equals(back.why) && back.cyc == -1);
+        } catch (Exception e) {
+            ok("gate: " + e, false);
+        }
+    }
+
     public static void main(String[] a) throws Exception {
         xsCommands();
         xs();
@@ -1104,6 +1159,7 @@ public final class ScaleSim {
         genA();
         misc();
         insight();
+        gate();
         System.out.println((fails == 0 ? "OK" : "FAILED") + " scale-sim: " + (checks - fails) + "/" + checks);
         if (fails > 0) {
             System.exit(1);

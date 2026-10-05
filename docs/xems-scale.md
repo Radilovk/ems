@@ -189,13 +189,36 @@ fixes:
   a weight change carries lean by its likely share (same day 75 % — water, food; weeks 30 %), a reading > 3 σ off
   counts less, a jump > max(4 kg, 7 %) or a 60-day gap restarts. Sim: ±4 % impedance noise → raw fat 15.8–18.0 %,
   shown 16.6–17.1 %; two steps a minute apart = their mean; −4 kg fat over 8 weeks → lean flat.
-- **Wrong person**: a weight > max(4 kg, 7 %) off the last one within 30 days → "Това ли е <име>?" (save / discard).
-  Tracking view: the last 4 measurements with ✕ (delete → the rest re-smoothed; the server row goes too,
-  `{t, del: true}`).
+- **Wrong person**: see "Plausibility gate" below (the old "Това ли е?" prompt was removed in 1.1.301 and is back,
+  smarter, in 1.1.342). Tracking view: the last 4 measurements with ✕ (delete → the rest re-smoothed; the server
+  row goes too, `{t, del: true}`).
 - **History** keeps raw impedances, so every older weigh-in is rebuilt (`ScaleStore.upgrade`: v < 2, or sex / age /
   height changed) on the scale page, the upload and `AiProfile`; the server gets the rebuilt values again.
 - Shared HTML carries the last 10 raw readings (`<script id=xems-raw>`, impedances, sex / age / height) — send one
   with a Fitdays / DXA report to calibrate further.
+
+## Plausibility gate — "can the body do this?" (1.1.342-ai, owner, `ScaleCheck`)
+Same client, minutes / hours / a day apart: fat and muscle cannot change much; weight changes of hours are water, food,
+gut, clothes (and the cycle, and glycogen in the lean). Before the **first reading of a standing** is saved
+(`ScaleScreen.Page.gateOpen`; further sweeps of the same standing refine the saved entry, no new questions):
+1. **Weight beyond `soft(h, w)`** (0.012·w + 0.5 kg + 0.15 kg/day, days ≤ 90) → "Същият човек ли е?" with the last
+   weight, time and difference. *No* → stopped, nothing saved ("Измерването е прекратено").
+2. *Yes* and beyond **`hard(h, w)`** (0.04·w + 0.4 kg/day) → "Логическа несъвместимост в данните" — not physiologically
+   possible in that time, nothing saved.
+3. Possible (or only the **fat % jumped**: raw − last shown > `fatLimit(h)` = 1.5 + 0.15/day, days ≤ 30) → sheet
+   "Същите ли са условията?": three switches (food / drink, toilet, clothes / shoes) — what is *different* from last
+   time; Cancel = nothing saved.
+4. **Cycle** (women 12–52 with a profile age — never a man, never a 60-year-old, never a guessed age): asked on
+   **every** new weigh-in, one segmented control (Не / Преди цикъл / По време на цикъл), carried over when answered
+   < 12 h ago; stored as `cyc`. Asked together with 3. when that sheet is open, else alone.
+5. **Cause** (`ScaleCheck.cause`, first-order factors cleared first): what the client said (food + weight up, toilet +
+   weight down, clothes) → the cycle → ≤ 3 days: a lean build (fat ≤ 15 % men / ≤ 24 % women) with ≥ 0.5 kg moving →
+   **glycogen + water** (≈ 3 g water per g glycogen — the muscle holds it), else **water** → ≥ 7 days → **real**.
+   Stored on the entry as `why` (+ `cond` bits, `cyc`), shown in the status line ("… · вероятно гликоген и вода, не
+   мускул"). Any cause but *real* makes the lean filter **sceptical** for that reading (`State.skeptic`): the weight
+   change carries the lean at 90 %, the reading's noise ×4, no restart on a big jump (only a gap > 60 days restarts) —
+   so water does not become "muscle lost / fat gained". Notes survive `rebuild`.
+Limits are the model's choices (one place: `ScaleCheck.soft / hard / fatLimit`), tested in `ScaleSim.gate()`.
 
 ## State vs trait — why physical age jumped (1.1.300-ai)
 Owner: the same client, an hour apart, got two different physical ages. Cause: physical age inverts population

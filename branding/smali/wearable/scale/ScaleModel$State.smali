@@ -27,6 +27,8 @@
 
 .field public restarted:Z
 
+.field public skeptic:Z
+
 .field public t:J
 
 .field public var:D
@@ -41,10 +43,10 @@
     .prologue
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
-    .line 170
+    .line 201
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 171
+    .line 202
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
@@ -53,7 +55,7 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->w:D
 
-    .line 174
+    .line 205
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->ash:D
 
     const-wide v0, 0x3f22dfd694ccab3fL    # 1.44E-4
@@ -71,7 +73,7 @@
     .registers 3
 
     .prologue
-    .line 180
+    .line 213
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleModel$State;->lean:D
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z

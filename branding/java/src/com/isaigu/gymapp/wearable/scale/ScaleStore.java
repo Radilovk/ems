@@ -153,6 +153,12 @@ public final class ScaleStore {
      */
     public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
             int heightCm, int steps, long replaceT) {
+        return save(c, userId, r, male, age, heightCm, steps, replaceT, null);
+    }
+
+    /** As above, with the plausibility gate's notes (conditions, cycle, cause) kept on the entry. */
+    public static JSONObject save(Context c, long userId, ScaleProtocol.Reading r, boolean male, int age,
+            int heightCm, int steps, long replaceT, ScaleModel.Notes notes) {
         try {
             JSONArray a0 = upgrade(c, userId, male, age, heightCm);
             JSONArray a = new JSONArray();
@@ -164,7 +170,7 @@ public final class ScaleStore {
             }
             ScaleModel.State st = ScaleModel.stateOf(a);
             JSONObject o = ScaleModel.entry(r, male, age, heightCm, replaceT > 0 ? replaceT
-                    : System.currentTimeMillis(), st, RestHrStore.typical(c, userId));
+                    : System.currentTimeMillis(), st, RestHrStore.typical(c, userId), notes);
             ScaleModel.mark(o, male, heightCm);
             if (steps > 1) {
                 o.put("n", steps);

@@ -74,6 +74,8 @@ public final class ScaleScreen {
         final long userId;
         boolean male = true;
         int age = 35;
+        /** The profile gives the age (else 35 is only a placeholder — no cycle question on a guess). */
+        boolean ageKnown;
         int heightCm;
         boolean heightFromProfile;
         double lastKg;
@@ -158,6 +160,7 @@ public final class ScaleScreen {
                 }
                 if (p.age != null) {
                     age = p.age;
+                    ageKnown = true;
                 }
                 heightCm = p.heightCm;
                 if (p.weightKg != null) {
@@ -550,16 +553,24 @@ public final class ScaleScreen {
 
         /** A small question sheet: title, one line, two answers (null action = just close). */
         void confirm(String title, String line, String yes, Runnable onYes, String no, Runnable onNo) {
+            confirm(title, line, yes, onYes, no, onNo, onNo == null);
+        }
+
+        /** As above; {@code no} = null → one button; {@code cancelable} false → only the buttons close it. */
+        void confirm(String title, String line, String yes, Runnable onYes, String no, Runnable onNo,
+                boolean cancelable) {
             XemsUi.Shell q = XemsUi.shell(a, title, line, 640);
-            TextView n = XemsUi.button(a, no, XemsUi.SECONDARY);
-            n.setOnClickListener(new Answer(q, onNo));
-            q.footer.addView(n, new LinearLayout.LayoutParams(0, dp(56), 1f));
+            if (no != null) {
+                TextView n = XemsUi.button(a, no, XemsUi.SECONDARY);
+                n.setOnClickListener(new Answer(q, onNo));
+                q.footer.addView(n, new LinearLayout.LayoutParams(0, dp(56), 1f));
+            }
             TextView y = XemsUi.button(a, yes, XemsUi.PRIMARY);
             y.setOnClickListener(new Answer(q, onYes));
             LinearLayout.LayoutParams yl = new LinearLayout.LayoutParams(0, dp(56), 1f);
-            yl.leftMargin = dp(12);
+            yl.leftMargin = no != null ? dp(12) : 0;
             q.footer.addView(y, yl);
-            q.dialog.setCancelable(onNo == null);
+            q.dialog.setCancelable(cancelable);
             q.dialog.show();
         }
 
@@ -1762,6 +1773,8 @@ public final class ScaleScreen {
          */
         void measureAgain() {
             session = null;
+            gate = GATE_NONE;
+            notes = null;
             off = true;
             stage.reset();
             showStage(true);
@@ -1839,6 +1852,8 @@ public final class ScaleScreen {
         void newStanding() {
             session = null;
             sessionT = 0;
+            gate = GATE_NONE;
+            notes = null;
             off = false;
             stage.reset();
             showStage(true);
@@ -1879,6 +1894,8 @@ public final class ScaleScreen {
                 session = new ScaleSession(male, age, heightCm);
                 sessionT = 0;
                 off = false;
+                gate = GATE_NONE;
+                notes = null;
             }
             if (session.add(r) == ScaleSession.REPEAT) {
                 return;
@@ -1889,8 +1906,14 @@ public final class ScaleScreen {
             }
             ScaleProtocol.Reading m = session.merged();
             if (m != null) {
-                // the page is this client's: what is measured here is theirs — no "is this X?" (a wrong one is
-                // removed in Tracking ✕)
+                // the page is this client's, but a weight / composition the body could not have made since the last
+                // weigh-in is asked about first (ScaleCheck); a wrong one is also removable in Tracking ✕
+                if (gate == GATE_WAIT || gate == GATE_NO) {
+                    return;               // the sheet is open / the measurement was stopped
+                }
+                if (gate == GATE_NONE && sessionT <= 0 && !gateOpen(m)) {
+                    return;
+                }
                 keep(m, session.count());
             }
         }
@@ -1919,13 +1942,215 @@ public final class ScaleScreen {
             }
         }
 
+
+        // ================================================================ the plausibility gate (ScaleCheck)
+
+        static final int GATE_NONE = 0, GATE_WAIT = 1, GATE_NO = 2, GATE_OK = 3;
+        /** Where this standing is at the gate, and the answers / cause that go on its entry. */
+        int gate = GATE_NONE;
+        ScaleModel.Notes notes;
+        /** The last weigh-in against this one: signed kg, hours, raw fat − last fat (points), last fat %, last kg. */
+        double gDw, gHours, gDFat = Double.NaN, gLastFat = Double.NaN, gLastW = Double.NaN;
+        long gLastT;
+        double gKg;
+        int gVerdict, gCond, gCyc = -1;
+        boolean gAskCond, gAskCyc;
+
+        /**
+         * A new standing's first reading: true = save now; false = a sheet is open (or the measurement is stopped)
+         * and {@link #keep} follows from {@link #settle} when the client has answered.
+         */
+        boolean gateOpen(ScaleProtocol.Reading m) {
+            JSONObject last = ScaleStore.latest(a, userId);
+            long now = System.currentTimeMillis();
+            gDw = 0;
+            gHours = 0;
+            gDFat = Double.NaN;
+            gLastFat = Double.NaN;
+            gLastW = Double.NaN;
+            gLastT = 0;
+            gCond = 0;
+            gCyc = -1;
+            gKg = m.weightKg;
+            gVerdict = ScaleCheck.OK;
+            if (last != null && last.optLong("t") > 0 && last.optDouble("w", Double.NaN) >= 20) {
+                gLastT = last.optLong("t");
+                gLastW = last.optDouble("w");
+                gHours = Math.max(0, (now - gLastT) / 3600000.0);
+                gDw = m.weightKg - gLastW;
+                gVerdict = ScaleCheck.weight(gDw, gHours, gLastW);
+                gLastFat = last.optDouble("fat", Double.NaN);
+                double fr = ScaleModel.fatPct(m, male, age, heightCm);
+                if (!Double.isNaN(fr) && !Double.isNaN(gLastFat)) {
+                    gDFat = fr - gLastFat;
+                }
+            }
+            gAskCond = gVerdict != ScaleCheck.OK || ScaleCheck.fatOff(gDFat, gHours);
+            // the cycle: women of fertile age, every weigh-in — carried over when answered within the last 12 h
+            gAskCyc = ageKnown && ScaleCheck.cycleAsked(male, age);
+            if (gAskCyc && last != null && last.has("cyc") && gHours < 12) {
+                gCyc = last.optInt("cyc");
+                gAskCyc = false;
+            }
+            if (!gAskCond && !gAskCyc) {
+                settle();
+                return true;
+            }
+            gate = GATE_WAIT;
+            if (gVerdict != ScaleCheck.OK) {
+                askSame();
+            } else {
+                askConditions();
+            }
+            return false;
+        }
+
+        /** The answers in: name the likely cause, then the measurement is saved. */
+        void settle() {
+            ScaleModel.Notes n = new ScaleModel.Notes();
+            n.cond = gCond;
+            n.cyc = gCyc;
+            n.why = Double.isNaN(gLastW) ? null
+                    : ScaleCheck.cause(gDw, gDFat, gHours, gLastW, male, gLastFat, gCond, gCyc);
+            notes = n.any() ? n : null;
+            gate = GATE_OK;
+        }
+
+        void accept() {
+            settle();
+            ScaleProtocol.Reading m = session != null ? session.merged() : null;
+            if (m != null) {
+                keep(m, session.count());
+            }
+        }
+
+        /** Stopped: nothing is saved; the stage says so; stepping off and on again measures anew. */
+        void reject(String head, String line) {
+            gate = GATE_NO;
+            notes = null;
+            if (staging) {
+                stage.stopped(head, line);
+            }
+            status.setText(head);
+            status.setTextColor(XemsUi.AMBER);
+            again.setVisibility(View.VISIBLE);
+        }
+
+        void rejectPerson() {
+            reject(tr("Измерването е прекратено", "Measurement stopped"),
+                    tr("Не е същият човек — нищо не е записано. Слезте и започнете ново измерване.",
+                            "Not the same person — nothing was saved. Step off and start a new measurement."));
+        }
+
+        void rejectUser() {
+            reject(tr("Измерването е отказано", "Measurement cancelled"),
+                    tr("Нищо не е записано. Слезте и започнете ново измерване.",
+                            "Nothing was saved. Step off and start a new measurement."));
+        }
+
+        String ago() {
+            return gHours < 1.5 ? tr(Math.max(1, Math.round(gHours * 60)) + " мин", Math.max(1,
+                    Math.round(gHours * 60)) + " min")
+                    : gHours < 48 ? tr(Math.round(gHours) + " ч", Math.round(gHours) + " h")
+                    : tr(Math.round(gHours / 24) + " дни", Math.round(gHours / 24) + " days");
+        }
+
+        String change() {
+            return (gDw >= 0 ? "+" : "−") + one(Math.abs(gDw)) + tr(" кг", " kg");
+        }
+
+        /** 1. A weight the body could not have moved to: is this the last client? */
+        void askSame() {
+            String name = u.name != null && u.name.trim().length() > 0 ? u.name.trim() : "";
+            String when = new SimpleDateFormat("d.MM · HH:mm", Locale.US).format(new Date(gLastT));
+            confirm(tr("Същият човек ли е?", "Is this the same person?"),
+                    tr("Теглото сега е " + one(gKg) + " кг, при предишното измерване (" + when + ", преди "
+                            + ago() + ") беше " + one(gLastW) + " кг (" + change() + "). Това "
+                            + (name.length() > 0 ? name + " ли е?" : "същият човек ли е?"),
+                            "The weight is " + one(gKg) + " kg, at the last measurement (" + when + ", " + ago()
+                            + " ago) it was " + one(gLastW) + " kg (" + change() + "). Is this "
+                            + (name.length() > 0 ? name + "?" : "the same person?")),
+                    tr("Да, същият", "Yes, the same"), new Same(this),
+                    tr("Не, друг", "No, someone else"), new RejectPerson(this), false);
+        }
+
+        /** 2. Same person: can the body do it in this time? */
+        void afterSame() {
+            if (gVerdict == ScaleCheck.IMPOSSIBLE) {
+                confirm(tr("Логическа несъвместимост в данните", "The data do not add up"),
+                        tr("Промяна от " + change() + " за " + ago() + " не е възможна физиологично (най-много "
+                                + "≈ " + one(ScaleCheck.hard(gHours, gLastW)) + " кг за това време). Измерването не "
+                                + "е записано.", "A change of " + change() + " in " + ago() + " is not physiologically "
+                                + "possible (at most ≈ " + one(ScaleCheck.hard(gHours, gLastW)) + " kg in that time). "
+                                + "The measurement was not saved."),
+                        tr("Разбрах", "OK"), new RejectUser(this), null, null, false);
+                return;
+            }
+            askConditions();
+        }
+
+        /** 3. Possible: were the conditions the same? (+ the cycle, for women of fertile age) */
+        void askConditions() {
+            XemsUi.Shell q = XemsUi.shell(a, gAskCond ? tr("Същите ли са условията?", "Same conditions?")
+                    : tr("Един кратък въпрос", "One quick question"), gAskCond
+                    ? tr("Спрямо предишното измерване — отбележете какво е различно.",
+                            "Against the last measurement — mark what is different.")
+                    : tr("Цикълът променя водата в тялото и затова — измерването.",
+                            "The cycle moves the body's water, and with it the measurement."), 640);
+            if (gAskCond) {
+                String[] t = {tr("Хранене или напитки преди кантара", "Food or drink before the scale"),
+                        tr("Тоалетна — различно от предния път", "Toilet — different from last time"),
+                        tr("Други дрехи, обувки или аксесоари", "Other clothes, shoes or accessories")};
+                int[] bits = {ScaleCheck.C_FOOD, ScaleCheck.C_TOILET, ScaleCheck.C_CLOTHES};
+                for (int i = 0; i < t.length; i++) {
+                    q.body.addView(XemsUi.toggleRow(a, t[i], null, false, new Flip(this, bits[i])));
+                }
+            }
+            if (gAskCyc) {
+                gCyc = ScaleCheck.CYC_NO;
+                TextView h = XemsUi.text(a, tr("Менструален цикъл", "Menstrual cycle"), 15, XemsUi.TEXT, true);
+                h.setPadding(0, dp(gAskCond ? 14 : 4), 0, dp(8));
+                q.body.addView(h);
+                q.body.addView(XemsUi.segmented(a, new String[] {tr("Не", "No"), tr("Преди цикъл", "Before"),
+                        tr("По време на цикъл", "During")}, 0, new CycPick(this)));
+            }
+            TextView n = XemsUi.button(a, tr("Откажи", "Cancel"), XemsUi.SECONDARY);
+            n.setOnClickListener(new Answer(q, new RejectUser(this)));
+            q.footer.addView(n, new LinearLayout.LayoutParams(0, dp(56), 1f));
+            TextView y = XemsUi.button(a, tr("Запиши измерването", "Save the measurement"), XemsUi.PRIMARY);
+            y.setOnClickListener(new Answer(q, new Accept(this)));
+            LinearLayout.LayoutParams yl = new LinearLayout.LayoutParams(0, dp(56), 1f);
+            yl.leftMargin = dp(12);
+            q.footer.addView(y, yl);
+            q.dialog.setCancelable(false);
+            q.dialog.show();
+        }
+
+        /** The cause, in words (status line and results). */
+        String causeLine(String why) {
+            if (ScaleCheck.FOOD.equals(why)) {
+                return tr("храна/напитки — не е тъкан", "food/drink — not tissue");
+            } else if (ScaleCheck.TOILET.equals(why)) {
+                return tr("тоалетна — не е тъкан", "toilet — not tissue");
+            } else if (ScaleCheck.CLOTHES.equals(why)) {
+                return tr("дрехи/аксесоари — не е тъкан", "clothes — not tissue");
+            } else if (ScaleCheck.CYCLE.equals(why)) {
+                return tr("цикъл: вода, не тъкан", "cycle: water, not tissue");
+            } else if (ScaleCheck.GLYCOGEN.equals(why)) {
+                return tr("вероятно гликоген и вода, не мускул", "likely glycogen and water, not muscle");
+            } else if (ScaleCheck.WATER.equals(why)) {
+                return tr("вероятно вода, не тъкан", "likely water, not tissue");
+            }
+            return tr("реална промяна", "a real change");
+        }
+
         /**
          * Save the standing's merged reading: the first sweep adds the measurement and the results come in at once;
          * every further sweep (the client still on) refines the same entry and the open results follow.
          */
         void keep(ScaleProtocol.Reading r, int n) {
             boolean first = sessionT <= 0;
-            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, n, sessionT);
+            JSONObject o = ScaleStore.save(a, userId, r, male, age, heightCm, n, sessionT, notes);
             if (o != null) {
                 sessionT = o.optLong("t");
             }
@@ -1946,7 +2171,8 @@ public final class ScaleScreen {
             String when = new SimpleDateFormat("HH:mm", Locale.US).format(new Date(sessionT > 0 ? sessionT
                     : System.currentTimeMillis()));
             status.setText((comp ? tr("✓ Записано · ", "✓ Saved · ") : tr("Само тегло · ", "Weight only · ")) + when
-                    + (n > 1 ? tr(" · " + n + " отчитания", " · " + n + " readings") : ""));
+                    + (n > 1 ? tr(" · " + n + " отчитания", " · " + n + " readings") : "")
+                    + (notes != null && notes.why != null ? " · " + causeLine(notes.why) : ""));
             status.setTextColor(comp ? XemsUi.GO_TEXT : XemsUi.AMBER);
             if (staging) {
                 stage.finished(comp ? tr("Мазнини ", "Fat ") + one(m.optDouble("fat")) + " %  ·  "
@@ -2434,6 +2660,86 @@ public final class ScaleScreen {
                     XemsGuard.report("ScaleScreen.answer", t);
                 }
             }
+        }
+    }
+
+    static final class Same implements Runnable {
+        final Page v;
+
+        Same(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.afterSame();
+        }
+    }
+
+    static final class Accept implements Runnable {
+        final Page v;
+
+        Accept(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.accept();
+        }
+    }
+
+    static final class RejectPerson implements Runnable {
+        final Page v;
+
+        RejectPerson(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.rejectPerson();
+        }
+    }
+
+    static final class RejectUser implements Runnable {
+        final Page v;
+
+        RejectUser(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.rejectUser();
+        }
+    }
+
+    static final class Flip implements XemsUi.OnToggle {
+        final Page v;
+        final int bit;
+
+        Flip(Page v, int bit) {
+            this.v = v;
+            this.bit = bit;
+        }
+
+        @Override
+        public void onToggle(boolean on) {
+            v.gCond = on ? v.gCond | bit : v.gCond & ~bit;
+        }
+    }
+
+    static final class CycPick implements XemsUi.OnIndex {
+        final Page v;
+
+        CycPick(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onIndex(int i) {
+            v.gCyc = i;
         }
     }
 

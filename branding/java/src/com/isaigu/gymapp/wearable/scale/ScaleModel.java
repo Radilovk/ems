@@ -166,6 +166,37 @@ public final class ScaleModel {
 
     // ================================================================ steady over time
 
+    /** The client's answers at the plausibility gate and the cause it named; stored on the entry ("cond", "cyc", "why"). */
+    public static final class Notes {
+        public int cond;
+        public int cyc = -1;
+        public String why;
+
+        boolean any() {
+            return cond != 0 || cyc >= 0 || why != null;
+        }
+
+        void put(JSONObject o) throws org.json.JSONException {
+            if (cond != 0) {
+                o.put("cond", cond);
+            }
+            if (cyc >= 0) {
+                o.put("cyc", cyc);
+            }
+            if (why != null) {
+                o.put("why", why);
+            }
+        }
+
+        static Notes of(JSONObject m) {
+            Notes n = new Notes();
+            n.cond = m.optInt("cond");
+            n.cyc = m.optInt("cyc", -1);
+            n.why = m.has("why") ? m.optString("why") : null;
+            return n.any() ? n : null;
+        }
+    }
+
     /** The filter's state after a weigh-in. */
     public static final class State {
         public double lean = Double.NaN, var = R, w = Double.NaN;
@@ -175,6 +206,8 @@ public final class ScaleModel {
         public long ageT;
         /** The last step restarted the filter (first weigh-in, long gap, another body). */
         public boolean restarted;
+        /** This reading's deviation is (probably) water / content, not tissue: it counts less, the weight carries lean. */
+        public boolean skeptic;
 
         public boolean on() {
             return !Double.isNaN(lean);
@@ -187,18 +220,21 @@ public final class ScaleModel {
      */
     public static double step(State s, long t, double w, double leanRaw) {
         double days = s.on() ? Math.max(0, (t - s.t) / 86400000.0) : 0;
-        s.restarted = !s.on() || days > 60 || Math.abs(w - s.w) > jump(w);
+        s.restarted = !s.on() || days > 60 || (!s.skeptic && Math.abs(w - s.w) > jump(w));
         if (s.restarted) {
             s.lean = leanRaw;
             s.var = R;
         } else {
             double dw = w - s.w;
-            double share = 0.3 + 0.45 * Math.exp(-days / 3);
+            double share = s.skeptic ? 0.9 : 0.3 + 0.45 * Math.exp(-days / 3);
             double x = s.lean + share * dw;
             double p = Math.min(4 * R, s.var + Q * days + 0.09 * dw * dw);
             double e = leanRaw - x;
             double sv = p + R;
             double r = e * e / sv > 9 ? R * e * e / sv / 9 : R;     // 3 σ off → counts less
+            if (s.skeptic) {
+                r *= 4;                                          // the plausibility gate named a non-tissue cause
+            }
             double k = p / (p + r);
             s.lean = x + k * e;
             s.var = (1 - k) * p;
@@ -279,6 +315,13 @@ public final class ScaleModel {
     /** As {@link #entry}, with the client's typical resting HR at the weigh-in (NaN = none) for physical age. */
     public static JSONObject entry(ScaleProtocol.Reading r, boolean male, int age, int heightCm, long t, State s,
             double restHr) throws org.json.JSONException {
+        return entry(r, male, age, heightCm, t, s, restHr, null);
+    }
+
+    /** As above, with the gate's notes (null = none): a non-tissue cause makes the filter trust the reading less. */
+    public static JSONObject entry(ScaleProtocol.Reading r, boolean male, int age, int heightCm, long t, State s,
+            double restHr, Notes notes) throws org.json.JSONException {
+        s.skeptic = notes != null && ScaleCheck.skeptic(notes.why, notes.cond);
         double fr = fatPct(r, male, age, heightCm);
         ScaleBody b = null;
         double lr = Double.NaN;
@@ -286,6 +329,7 @@ public final class ScaleModel {
             lr = r.weightKg * (1 - fr / 100);
             double days = s.on() ? Math.max(0, (t - s.t) / 86400000.0) : 0;
             double lean = step(s, t, r.weightKg, lr);
+            s.skeptic = false;
             b = body(r, male, age, heightCm, 100 * (1 - lean / r.weightKg));
             if (b != null) {
                 trait(s, b, t, days, male, age, heightCm, restHr);
@@ -305,6 +349,9 @@ public final class ScaleModel {
                 o.put("pag", s.age);
                 o.put("pagT", s.ageT);
             }
+        }
+        if (notes != null) {
+            notes.put(o);
         }
         if (age > 0) {
             o.put("pa", age);
@@ -358,7 +405,8 @@ public final class ScaleModel {
             }
             try {
                 JSONObject o = m.has("z20")
-                        ? entry(reading(m), male, age, heightCm, m.optLong("t"), s, m.optDouble("rhr", Double.NaN))
+                        ? entry(reading(m), male, age, heightCm, m.optLong("t"), s, m.optDouble("rhr", Double.NaN),
+                                Notes.of(m))
                         : m;
                 if (o != m && m.has("n")) {
                     o.put("n", m.optInt("n"));

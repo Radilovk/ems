@@ -271,6 +271,13 @@ final class ScaleStage {
         }
     }
 
+    /** The measurement was stopped (plausibility gate): not saved; step off and on again for a new one. */
+    void stopped(String head, String line) {
+        phase(P_DONE);
+        title.setText(head);
+        sub.setText(line);
+    }
+
     /** A fresh standing ("Мери пак", or the next person). */
     void reset() {
         quality.removeAllViews();

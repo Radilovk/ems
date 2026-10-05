@@ -127,8 +127,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/scale-sim/ScaleSim.java` (1119L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
 - `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
-- `scripts/setup-android-toolchain.sh` (41L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
+- `scripts/setup-android-toolchain.sh` (55L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
 - `scripts/test-apk-safety.sh` (118L) — Automated safety test: BETA build must not change login-critical code vs baseline.
+- `scripts/toolchain/BakMain.java` (21L) — baksmali "d <dex> -o <dir>" on top of the baksmali library bundled in apktool.jar.
 - `scripts/ui-map.py` (126L, build:L67[DESIGN_PIPELINE]) — UI map utilities — validate layouts, explain structure, guide safe edits.
 - `scripts/verify-active-pause-routing.py` (284L, build:L156) — Verify master slider and +/- routing stay aligned for active pause.
 - `scripts/verify-apk-shipped.py` (227L) — Fail when APK-shipping source changed but xems27.apk was not rebuilt and committed.
@@ -571,10 +572,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L40 ## Not automatable without hardware
 
 `bodytech/HANDOFF.md` (33L)
-  - L1 # Bodytech в XEMS — какво е готово и какво остава
-  - L3 ## Готово (в репото)
-  - L14 ## Как XEMS говори със своя костюм (проучено)
-  - L31 ## Състояние (1.1.344-ai)
+  - L1 # Bodytech — състояние (1.1.345-ai)
+  - L6 ## Къде е какво
+  - L18 ## Остава — проверка с човек в костюма
+  - L26 ## Възможни следващи стъпки (не са започнати)
+  - L30 ## Среда за build (облачна сесия)
 
 `bodytech/PROTOCOL.md` (84L)
   - L1 # Bodytech (EMSFIT 5.1) suit — BLE protocol

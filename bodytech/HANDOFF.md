@@ -1,32 +1,32 @@
-# Bodytech в XEMS — какво е готово и какво остава
+# Bodytech — състояние (1.1.345-ai)
 
-## Готово (в репото)
+Bodytech костюмът (EMSFIT 5.1, услуга `FE50`) тренира от обикновения ред на XEMS. Как работи, настройките и
+границите: **`docs/xems-bodytech.md`**. Нарочно извън обхвата: музика, пулс (гривна), Auto, Smart Session (AI).
+
+## Къде е какво
 | Какво | Къде |
 |---|---|
-| Протоколът на костюма, проверен байт по байт срещу EMSFIT 5.1 и на реален костюм (`EMS08-05629`) | `bodytech/PROTOCOL.md` |
-| Тестово приложение XEMS BT Probe 0.3 (свързване, канали, параметри, авто тест, лог) | `bodytech/probe/` (`build.sh`, `test/run.sh`) |
+| XEMS: превод, връзка, настройки („Настройки → Костюм bodytech“) | `branding/java/src/com/isaigu/gymapp/bodytech/`, `scripts/apply-bodytech.py`, `verify-bodytech.py` |
+| Протоколът на костюма (проверен байт по байт срещу EMSFIT и на реален костюм `EMS08-05629`) | `bodytech/PROTOCOL.md` |
+| Тестово приложение XEMS BT Probe 0.3 (връзка, канали, авто тест, лог) | `bodytech/probe/` |
 | Резултати от автоматичния тест | `bodytech/logs/probe-0.3-auto-20261005.txt` |
-| Имената на каналите в EMSFIT: C1 Кръст · C2 Седалище · C3 Рамене · C4 Среден гръб · C5 Гърди · C6 Ръце · C7 Бедра · C8 Корем | `PROTOCOL.md` |
+| Тестове без устройство | `bash bodytech/xems/test/run.sh`, `bash bodytech/probe/test/run.sh` |
 
 Измерено: запис → потвърждение ≈ 25–31 ms при висок приоритет на връзката (≈ 90 ms при BALANCED).
-Костюмът не връща обратна връзка за изхода, само батерия. GATT четене на FE51 дава MAC адреса.
+Костюмът не връща обратна връзка за изхода, само батерия.
 
-## Как XEMS говори със своя костюм (проучено)
-- Всички команди минават през `train/ble/BleDeviceManager`: `getConfig(device)` избира услугата,
-  `write(device, data, cb)` праща, `notify(device, cb)` приема.
-- Рамка на XEMS: `0x53 | дължина | команда | данни | контролна сума`.
-  - cmd 1: сила на 10-те слайдера (buwei 0..9: гърди, корем, предно бедро, прасец, ръце, трапец, гръб, кръст,
-    седалище, задно бедро).
-  - cmd 3: време, Hz, ширина/50, импулс/пауза.
-  - `F1` / `F2`: старт / стоп.
-  - cmd 5: заявка за батерия; отговорът е cmd 6 с процент.
-- Таблетът сам върти фазите (`TrainItem.sendPulse`): импулс → `sendDuration`, пауза → `sendPause`,
-  втори импулс → `CommandSender.sendActivePause`.
-- Bodytech вече се показва при търсене и се сдвоява (името съдържа „EMS“), но XEMS после ползва услуга `FFF0`
-  вместо `FE50`, затова не работи.
-- Зъбчатото колело на реда: `TrainViewHolder$1.onNoDoubleClick` → `EditUserProgramDataDialog`.
-- Java → smali в тази среда: `scripts/setup-android-toolchain.sh` + `tools/baksmali.jar` (обвивка върху
-  библиотеката в apktool), Pillow за `apply-branding.py`. Пълният build минава.
+## Остава — проверка с човек в костюма
+От `docs/xems-bodytech.md` („Not verified on a person yet“), с XEMS или с тестовото приложение:
+1. Импулсът тече непрекъснато през цялата фаза (програма T1 = T3 = T4 = 0, T2 = 100 s).
+2. Усещане за сила: XEMS % → bodytech % е 1 : 1 × мащаб. Първата сесия — ниска сила или мащаб 50 %.
+3. Watchdog: след колко секунди костюмът спира сам, когато таблетът замлъкне (probe → „Тест watchdog“).
+4. Скорост на смяна на фазите при двоен импулс.
+5. Картата канал → мускул (probe → „Карта на каналите“) и батерията под реален товар.
 
-## Състояние (1.1.344-ai)
-Преводачът и настройките са в XEMS: виж `docs/xems-bodytech.md`.
+## Възможни следващи стъпки (не са започнати)
+- Настройките отделно за всеки костюм (сега са общи за таблета).
+- Достъп до „Костюм bodytech“ и от зъбчатото колело на реда.
+
+## Среда за build (облачна сесия)
+`bash scripts/setup-android-toolchain.sh` (android.jar, dx, baksmali — ако bitbucket откаже, baksmali се сглобява
+от библиотеката в apktool: `scripts/toolchain/BakMain.java`), `pip install pillow` за `apply-branding.py`.

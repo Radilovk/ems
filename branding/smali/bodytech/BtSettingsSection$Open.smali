@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 67
+    .line 64
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 68
+    .line 65
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Open;->a:Landroid/app/Activity;
 
-    .line 69
+    .line 66
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 74
+    .line 71
     :try_start_0
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
@@ -54,15 +54,15 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_a} :catch_b
 
-    .line 78
+    .line 75
     :goto_a
     return-void
 
-    .line 75
+    .line 72
     :catch_b
     move-exception v0
 
-    .line 76
+    .line 73
     const-string v1, "BtSettingsSection.open"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

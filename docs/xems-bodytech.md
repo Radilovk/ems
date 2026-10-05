@@ -1,4 +1,4 @@
-# Bodytech suit in XEMS — plain training (1.1.347-ai)
+# Bodytech suit in XEMS — plain training (1.1.348-ai)
 
 A bodytech suit (EMSFIT 5.1 hardware, BLE service `FE50`, name `EMS08-…` / `TZLJ…` / `ADT…`) trains from the stock XEMS
 row: same screen, same ＋/− and sliders, same programs, ramp, double impulse, timer, battery, reconnect.
@@ -78,6 +78,14 @@ square / sine / trapezoid / trapezoid 2) and the level. Hold **▶** on a channe
   nothing reads back) — this test is how to find out.
 - **Training stays inside the program's limits**: per-channel Hz / width can only lower the program's value, the waveform is
   one setting for all channels. Once a value is proven on a person it can be allowed in training (a separate decision).
+
+## Test mode from the row's gear (1.1.348)
+On a row whose suit is a bodytech one the gear (⚙) first asks **"Настройки на програмата"** (the stock dialog) or **"Тестов режим"**.
+Rows with an XEMS suit open the stock dialog at once. Test mode (`BtTestMode`) is a screen apart from the training: the
+impulse test above (Hz 1–1000, width 50–511 µs, waveform, level with the charge cap) and the eight channels left → right
+with name and slider, each with a hold ▶, on **that row's suit**. Nothing is saved into the program; closing the screen
+or releasing ▶ switches the output off; refused while a training runs on the suit. Hook: `TrainViewHolder$1.onNoDoubleClick`
+→ `BtGear.open` (the stock dialog is replayed through the gear's own click once, past the hook).
 
 ## What bodytech has that the XEMS suit has not (and what is used)
 | bodytech | used |

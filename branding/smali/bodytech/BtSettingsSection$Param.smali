@@ -40,19 +40,19 @@
     .registers 4
 
     .prologue
-    .line 353
+    .line 285
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 354
+    .line 286
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 355
+    .line 287
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
-    .line 356
+    .line 288
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
-    .line 357
+    .line 289
     return-void
 .end method
 
@@ -68,12 +68,12 @@
 
     const/4 v1, 0x0
 
-    .line 361
+    .line 293
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
     if-nez v3, :cond_1c
 
-    .line 362
+    .line 294
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
@@ -88,34 +88,34 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChGain(II)V
 
-    .line 373
+    .line 305
     :goto_16
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 374
+    .line 306
     return-void
 
-    .line 363
+    .line 295
     :cond_1c
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
     if-ne v3, v2, :cond_3c
 
-    .line 364
+    .line 296
     iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
     invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth(I)I
 
     move-result v2
 
-    .line 365
+    .line 297
     if-nez v2, :cond_32
 
     if-lez p1, :cond_30
 
-    .line 368
+    .line 300
     :goto_2a
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
@@ -126,10 +126,10 @@
     :cond_30
     move v0, v1
 
-    .line 365
+    .line 297
     goto :goto_2a
 
-    .line 366
+    .line 298
     :cond_32
     if-gez p1, :cond_38
 
@@ -139,7 +139,7 @@
 
     goto :goto_2a
 
-    .line 367
+    .line 299
     :cond_38
     mul-int/lit8 v0, p1, 0xa
 
@@ -147,7 +147,7 @@
 
     goto :goto_2a
 
-    .line 370
+    .line 302
     :cond_3c
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
@@ -157,7 +157,7 @@
 
     move v1, v2
 
-    .line 371
+    .line 303
     :cond_42
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 

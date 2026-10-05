@@ -1,4 +1,4 @@
-# Bodytech suit in XEMS — plain training (1.1.349-ai)
+# Bodytech suit in XEMS — plain training (1.1.351-ai)
 
 A bodytech suit (EMSFIT 5.1 hardware, BLE service `FE50`, name `EMS08-…` / `TZLJ…` / `ADT…`) trains from the stock XEMS
 row: same screen, same ＋/− and sliders, same programs, ramp, double impulse, timer, battery, reconnect.
@@ -73,12 +73,24 @@ The same sheet has "Тест на импулс": Hz (1–1000, presets 1 … 100
 square / sine / trapezoid / trapezoid 2) and the level. Hold **▶** on a channel to feel it on that muscle.
 - The level goes up to **99 %** (the suit reads 100 as 0). A charge cap holds it lower as Hz × width grows beyond 85 Hz × 360 µs
   (`BtTranslator.testCap`; 400 Hz × 360 µs → 21 %, 1000 Hz × 511 µs → 5 %). The sheet shows the cap; a switch
-  "Таван по заряд" turns it off (then 99 % at any Hz / width). Level chips 1 … 99 and − / + (1, 2, 5 steps).
+  "Таван по заряд" (since 1.1.351 **off by default**: 99 % at any Hz / width) turns it on. Level chips 1 … 99 and − / + (1, 2, 5 steps).
 - The waveform goes back to the owner's setting (square when "the suit's own") when the test ends or another channel
   is tested. The effect of Hz > 120, width > the program's and the waveform on the body is **not known yet** (frames are ACKed,
   nothing reads back) — this test is how to find out.
-- **Training stays inside the program's limits**: per-channel Hz / width can only lower the program's value, the waveform is
-  one setting for all channels. Once a value is proven on a person it can be allowed in training (a separate decision).
+- Since 1.1.350 the values proven in the test can be used in training through "Пълни параметри" (see above).
+
+## Full parameters from the row's gear (1.1.350) — no limits
+The gear on a bodytech row now offers three things: **Настройки на програмата** (stock), **Пълни параметри**, **Тестов режим**.
+"Пълни параметри" (`BtFull`) sets, for the selected channel, separately for the **main** and the **2nd impulse**: Hz
+(1–1000), width (50–511 µs), waveform (square / sine / trapezoid / trapezoid 2 / "Авто" = the global one), plus the channel's
+strength (0–300 % of the slider, ≤ 99 % on the suit). "Авто" = as the program says. Chips for quick values, − / + with fine
+steps low and coarse high, "Копирай на всички канали", "Върни на Авто".
+- **"Без ограничения" (on by default)**: the owner's per-channel Hz / width rule in the training exactly as set, whatever
+  the program or the XEMS limits say (they act on the XEMS values, the translator applies these after them). Off: they can
+  only lower the program's value (the old rule).
+- The waveform is sent per channel when the impulse changes (main ↔ 2nd) and put back to square when a channel returns to "Авто".
+- Not limited by the app anymore: only by the suit's own ranges. The effect on the body of > 120 Hz, wide pulses and the
+  waveforms is the owner's to judge (use the test mode first).
 
 ## Test mode from the row's gear (1.1.348)
 On a row whose suit is a bodytech one the gear (⚙) first asks **"Настройки на програмата"** (the stock dialog) or **"Тестов режим"**.
@@ -114,3 +126,7 @@ or releasing ▶ switches the output off; refused while a training runs on the s
 ## Tests
 `bash bodytech/xems/test/run.sh` (translator + settings, JVM) · `bash bodytech/probe/test/run.sh` (frames vs EMSFIT) ·
 `python3 scripts/verify-bodytech.py` after a build.
+
+## What still limits (not the app)
+Strength 99 % (the suit reads 100 as 0) · Hz ≤ 1000 (above it a 511 µs pulse is longer than the period — the output turns into
+a steady current) · width ≤ 511 µs (the vendor's encoder: a longer value falls back to 160 µs). Everything else is the owner's.

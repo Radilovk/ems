@@ -29,7 +29,7 @@ final class BtTest {
     final Runnable redraw;
     final Handler handler = new Handler(Looper.getMainLooper());
     int level = 3;                         // %, 1..cap (99 at most)
-    boolean free;                          // the owner switched the charge cap off
+    boolean free = true;                   // no charge cap by default (the owner can switch it on)
     static final int[] LEVEL_PRESETS = {1, 3, 5, 10, 20, 30, 50, 70, 99};
     int tHz = 85, tUs = 360, tWave = -1;   // the test impulse
     Hold hold;
@@ -94,8 +94,8 @@ final class BtTest {
         LinearLayout.LayoutParams cl = XemsUi.matchWrap(a, 10);
         cl.width = ViewGroup.LayoutParams.WRAP_CONTENT;
         box.addView(cp, cl);
-        TextView cn = XemsUi.text(a, "Таванът по заряд пази високите Hz и широките импулси: при тях силата е по-ниска, а при "
-                + "85 Hz × 360 µs и по-малко е до 99 %. Изключи го само ако знаеш какво правиш.", 12, XemsUi.HINT, false);
+        TextView cn = XemsUi.text(a, "Изключен: нивото е до 99 % при всякакви Hz и ширина. Включен: при високи Hz и широки "
+                + "импулси таванът на нивото е по-нисък (пази кожата).", 12, XemsUi.HINT, false);
         cn.setPadding(0, XemsUi.dp(a, 6), 0, 0);
         box.addView(cn);
         return box;

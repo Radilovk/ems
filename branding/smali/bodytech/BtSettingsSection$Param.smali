@@ -59,19 +59,15 @@
 
 # virtual methods
 .method public onStep(I)V
-    .registers 6
+    .registers 5
 
     .prologue
-    const/16 v0, 0x32
-
-    const/4 v2, 0x1
-
-    const/4 v1, 0x0
+    const/4 v0, 0x1
 
     .line 293
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
-    if-nez v3, :cond_1c
+    if-nez v1, :cond_19
 
     .line 294
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
@@ -88,88 +84,67 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChGain(II)V
 
-    .line 305
-    :goto_16
+    .line 301
+    :goto_13
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 306
+    .line 302
     return-void
 
     .line 295
-    :cond_1c
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
+    :cond_19
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
-    if-ne v3, v2, :cond_3c
+    if-ne v1, v0, :cond_2d
 
     .line 296
-    iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth(I)I
-
-    move-result v2
-
-    .line 297
-    if-nez v2, :cond_32
-
-    if-lez p1, :cond_30
-
-    .line 300
-    :goto_2a
-    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChWidth(II)V
-
-    goto :goto_16
-
-    :cond_30
-    move v0, v1
-
-    .line 297
-    goto :goto_2a
-
-    .line 298
-    :cond_32
-    if-gez p1, :cond_38
-
-    if-gt v2, v0, :cond_38
-
-    move v0, v1
-
-    goto :goto_2a
-
-    .line 299
-    :cond_38
-    mul-int/lit8 v0, p1, 0xa
-
-    add-int/2addr v0, v2
-
-    goto :goto_2a
-
-    .line 302
-    :cond_3c
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
-
-    const/4 v3, 0x3
-
-    if-ne v0, v3, :cond_42
-
-    move v1, v2
-
-    .line 303
-    :cond_42
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth(I)I
+
+    move-result v1
+
+    invoke-static {v1, p1}, Lcom/isaigu/gymapp/bodytech/BtFull;->stepUs(II)I
+
+    move-result v1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChWidth(II)V
+
+    goto :goto_13
+
+    .line 298
+    :cond_2d
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
+
+    const/4 v2, 0x3
+
+    if-ne v1, v2, :cond_42
+
+    .line 299
+    :goto_32
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
+
     iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
-    invoke-static {v2, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHz(IZ)I
+    invoke-static {v2, v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHz(IZ)I
 
     move-result v2
 
-    add-int/2addr v2, p1
+    invoke-static {v2, p1}, Lcom/isaigu/gymapp/bodytech/BtFull;->stepHz(II)I
 
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChHz(IZI)V
+    move-result v2
 
-    goto :goto_16
+    invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChHz(IZI)V
+
+    goto :goto_13
+
+    .line 298
+    :cond_42
+    const/4 v0, 0x0
+
+    goto :goto_32
 .end method

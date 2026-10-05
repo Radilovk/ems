@@ -203,6 +203,7 @@ public class BtTranslatorTest {
 
         // --- per-channel parameters: strength %, width, Hz of each impulse (only below the program's)
         tr = new BtTranslator();
+        BtSettings.setUnlimited(false);                // the old rule: only below the program's
         BtSettings.setChGain(1, 50);
         BtSettings.setChWidth(2, 200);
         BtSettings.setChWidth(3, 450);                 // above the program's 360: ignored
@@ -219,6 +220,41 @@ public class BtTranslatorTest {
         f = pair(tr, setting(60), run(600, 8, 350, 4, 4, 1), t);
         eq("C4 second Hz 5", true, has(f, BtProto.hz(4, 5)));
         eq("C6 second Hz = program's 8", true, has(f, BtProto.hz(6, 8)));
+        BtSettings.reset();
+
+        // --- unlimited (default): the owner's per-channel values rule as they are, up to the suit's own range
+        tr = new BtTranslator();
+        BtSettings.setChHz(1, false, 1000);
+        BtSettings.setChWidth(1, false, 511);
+        BtSettings.setChHz(2, true, 300);
+        BtSettings.setChWidth(2, true, 500);
+        BtSettings.setChWave(3, false, 1);
+        BtSettings.setChWave(3, true, 3);
+        BtSettings.setChGain(4, 300);
+        eq("unlimited by default", true, BtSettings.unlimited());
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("unlimited: C1 1000 Hz (program 85)", true, has(f, BtProto.hz(1, 1000)));
+        eq("unlimited: C1 width 511 (program 350)", true, has(f, BtProto.width(1, 511)));
+        eq("per channel waveform, main impulse", true, has(f, BtProto.waveform(3, 1)));
+        eq("other channels: no waveform frame", false, has(f, BtProto.waveform(2, 1)));
+        eq("channel strength x3 of 40 = 99 (cap)", true, has(f, BtProto.intensity(4, 99)));
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(40), run(600, 8, 350, 4, 4, 1), t);
+        eq("unlimited: C2 2nd impulse 300 Hz (program 8)", true, has(f, BtProto.hz(2, 300)));
+        eq("unlimited: C2 2nd impulse width 500", true, has(f, BtProto.width(2, 500)));
+        eq("2nd impulse waveform of C3", true, has(f, BtProto.waveform(3, 3)));
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("back to main: C3 waveform again", true, has(f, BtProto.waveform(3, 1)));
+        eq("back to main: C2 Hz back to the program's", true, has(f, BtProto.hz(2, 85)));
+        BtSettings.setChWave(3, false, -1);
+        BtSettings.setChWave(3, true, -1);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("waveform cleared: square again", true, has(f, BtProto.waveform(3, 0)));
+        BtSettings.copyToAll(1);
+        eq("copied to all: C7 Hz", 1000, BtSettings.chHz(7, false));
+        BtSettings.clearChannel(7);
+        eq("cleared: C7 Hz auto", 0, BtSettings.chHz(7, false));
         BtSettings.reset();
 
         // --- the same channel can work in one impulse only, another in the other, another in none

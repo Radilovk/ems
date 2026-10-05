@@ -35,17 +35,18 @@ public final class SafeGuard {
                 return;
             }
             int age = age(item.data.trainUser);
+            boolean free = free2(item);
             StringBuilder bg = new StringBuilder();
             StringBuilder en = new StringBuilder();
             ProgramDataBean run = p.matchProgram();
             if (run != null) {
-                enforce(run, age, bg, en);              // the running mode speaks
+                enforce(run, age, bg, en, free);              // the running mode speaks
             }
             ProgramDataBean[] all = {p.programDataBean, p.muscleTrainingProgramDataBean,
                 p.aerobicTrainingProgramDataBean, p.massageModeProgramDataBean};
             for (ProgramDataBean b : all) {
                 if (b != null && b != run) {
-                    enforce(b, age, null, null);
+                    enforce(b, age, null, null, free);
                 }
             }
             if (bg.length() > 0) {
@@ -65,7 +66,7 @@ public final class SafeGuard {
         try {
             StringBuilder bg = new StringBuilder();
             StringBuilder en = new StringBuilder();
-            boolean changed = enforce(b, age(item != null && item.data != null ? item.data.trainUser : null), bg, en);
+            boolean changed = enforce(b, age(item != null && item.data != null ? item.data.trainUser : null), bg, en, free2(item));
             if (bg.length() > 0) {
                 tip(item, XemsLang.tr("Граница за безопасност: ", "Safety limit: ")
                         + XemsLang.tr(bg.toString(), en.toString()).replace("\n", " · "));
@@ -86,19 +87,29 @@ public final class SafeGuard {
             return false;
         }
         try {
-            return enforce(b, age(item != null && item.data != null ? item.data.trainUser : null), null, null);
+            return enforce(b, age(item != null && item.data != null ? item.data.trainUser : null), null, null, free2(item));
         } catch (Throwable t) {
             XemsGuard.report("SafeGuard.clamp", t);
             return false;
         }
     }
 
-    static boolean enforce(ProgramDataBean b, int age, StringBuilder bg, StringBuilder en) {
+    /** A bodytech suit: the second impulse has no limits (owner, 1.1.353). */
+    public static boolean free2(TrainItem item) {
+        try {
+            return item != null && item.data != null
+                    && com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(item.data.macAddress);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    static boolean enforce(ProgramDataBean b, int age, StringBuilder bg, StringBuilder en, boolean free2) {
         // the second impulse's strength is absolute on the row: as a share of the main one for the limits
         int ps = b.strenth > 0 ? (int) Math.round(b.pauseStrenthPercent * 100.0 / b.strenth) : 0;
         int[] v = {b.hz, b.pulseWidth, b.pulseContinue, b.pulsePause, b.activePause ? 1 : 0, b.pauseHz, ps,
             b.inputRamp};
-        int[] s = SafeLimits.apply(v, age, bg, en);
+        int[] s = SafeLimits.apply(v, age, bg, en, free2);
         if (java.util.Arrays.equals(v, s)) {
             return false;
         }
@@ -119,10 +130,14 @@ public final class SafeGuard {
      * strength} or null = plain pause. See {@link SafeLimits#pauseSend}.
      */
     public static int[] pause(ProgramDataBean b) {
+        return pause(b, false);
+    }
+
+    public static int[] pause(ProgramDataBean b, boolean free2) {
         if (b == null) {
             return null;
         }
-        return SafeLimits.pauseSend(b.strenth, b.hz, b.activePause, b.pauseHz, b.pauseStrenthPercent);
+        return SafeLimits.pauseSend(b.strenth, b.hz, b.activePause, b.pauseHz, b.pauseStrenthPercent, free2);
     }
 
     /** The client's age, −1 when not known. */

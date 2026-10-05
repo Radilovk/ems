@@ -43,6 +43,11 @@ public final class SafeLimits {
      * Returns a new array; {@code why} (may be null) gets one short Bulgarian / English line per correction.
      */
     public static int[] apply(int[] in, int age, StringBuilder whyBg, StringBuilder whyEn) {
+        return apply(in, age, whyBg, whyEn, false);
+    }
+
+    /** {@code free2}: a bodytech suit — the second impulse (Hz, strength, on / off) is left as the trainer set it. */
+    public static int[] apply(int[] in, int age, StringBuilder whyBg, StringBuilder whyEn, boolean free2) {
         int[] v = in.clone();
         int hzMax = hzMax(age);
         if (v[HZ] > hzMax) {
@@ -72,7 +77,7 @@ public final class SafeLimits {
                 v[RAMP] = RAMP_MIN_MS;                          // silent: a soft rise is never felt as a change
             }
         }
-        if (v[AP] == 1) {
+        if (v[AP] == 1 && !free2) {
             int phzMax = Math.min(PAUSE_HZ_MAX, v[HZ] - 1);
             if (phzMax < 1) {
                 note(whyBg, whyEn, "Втори импулс изключен: основната честота е твърде ниска",
@@ -123,6 +128,17 @@ public final class SafeLimits {
      * stay as set — only what goes out is capped.
      */
     public static int[] pauseSend(int strength, int hz, boolean activePause, int pauseHz, int pauseStrength) {
+        return pauseSend(strength, hz, activePause, pauseHz, pauseStrength, false);
+    }
+
+    /** {@code free2}: a bodytech suit — the second impulse goes out as set (any Hz, strength, also at main 0). */
+    public static int[] pauseSend(int strength, int hz, boolean activePause, int pauseHz, int pauseStrength, boolean free2) {
+        if (free2) {
+            if (!activePause || pauseStrength <= 0) {
+                return null;
+            }
+            return new int[] {Math.max(1, pauseHz), pauseStrength};
+        }
         if (!activePause || strength <= 0) {
             return null;
         }

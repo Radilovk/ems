@@ -40,3 +40,5 @@ Shortest pause (s) for impulse 2…10 s (no second impulse):
   (AI, Auto) uses the oldest client's age.
 - The 2nd-impulse stepper of the parameters dialog goes 1–10 Hz (`PauseSetting`).
 - `scripts/compile-softramp-java.sh` builds `branding/smali/softramp` (before 1.1.323 it had no script).
+
+Bodytech rows (1.1.353): the second-impulse limits above (≤ 10 Hz, under main, none at strength 0, ≤ main strength) are not applied — see `docs/xems-bodytech.md`.

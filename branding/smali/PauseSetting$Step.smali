@@ -55,53 +55,63 @@
     .line 143
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->hz:Z
 
-    if-eqz v0, :cond_24
+    if-eqz v0, :cond_2b
 
     .line 144
+    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->b:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    const/4 v3, 0x1
+
+    sget-boolean v0, Lcom/isaigu/gymapp/bodytech/BtGear;->freeSecond:Z
+
+    if-eqz v0, :cond_26
+
+    const/16 v0, 0x3e8
+
+    :goto_d
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->b:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    const/4 v2, 0x1
+    iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
-    const/16 v3, 0xa
+    if-lez v1, :cond_29
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->b:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->b:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
-    if-lez v0, :cond_22
+    :goto_17
+    add-int/2addr v1, p1
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->b:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
-
-    :goto_13
-    add-int/2addr v0, p1
-
-    invoke-static {v3, v0}, Ljava/lang/Math;->min(II)I
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
 
     move-result v0
 
-    invoke-static {v2, v0}, Ljava/lang/Math;->max(II)I
+    invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
-    iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iput v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
     .line 149
-    :goto_1e
+    :goto_22
     invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->show()V
 
     .line 150
     return-void
 
     .line 144
-    :cond_22
-    const/4 v0, 0x7
+    :cond_26
+    const/16 v0, 0xa
 
-    goto :goto_13
+    goto :goto_d
+
+    :cond_29
+    const/4 v1, 0x7
+
+    goto :goto_17
 
     .line 146
-    :cond_24
+    :cond_2b
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/PauseSetting$Step;->b:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
@@ -139,7 +149,7 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    goto :goto_1e
+    goto :goto_22
 .end method
 
 .method show()V

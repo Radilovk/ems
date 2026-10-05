@@ -22,16 +22,20 @@ public final class BtGear {
     private BtGear() {}
 
     private static boolean bypass;
+    /** The stock parameters dialog was opened for a bodytech row → its 2nd-impulse Hz has no cap. */
+    public static boolean freeSecond;
 
     /** true = handled here (the stock dialog is not opened now). */
     public static boolean open(TrainItem item, View gear) {
         try {
             if (bypass) {
                 bypass = false;
+                freeSecond = true;
                 return false;
             }
             if (item == null || item.data == null || gear == null) return false;
             String mac = item.data.macAddress;
+            freeSecond = false;
             if (!BtBridge.isBodytechMac(mac)) return false;
             Activity act = activity(gear.getContext());
             if (act == null) return false;

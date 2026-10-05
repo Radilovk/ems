@@ -59,533 +59,251 @@
 .end method
 
 .method public static apply([IILjava/lang/StringBuilder;Ljava/lang/StringBuilder;)[I
-    .registers 16
+    .registers 5
 
     .prologue
-    const/4 v11, 0x3
-
-    const/4 v8, 0x5
-
-    const/4 v10, 0x2
-
-    const/4 v4, 0x1
-
-    const/4 v2, 0x0
-
     .line 46
+    const/4 v0, 0x0
+
+    invoke-static {p0, p1, p2, p3, v0}, Lcom/isaigu/gymapp/ai/SafeLimits;->apply([IILjava/lang/StringBuilder;Ljava/lang/StringBuilder;Z)[I
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static apply([IILjava/lang/StringBuilder;Ljava/lang/StringBuilder;Z)[I
+    .registers 13
+
+    .prologue
+    .line 51
     invoke-virtual {p0}, [I->clone()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, [I
 
-    .line 47
+    .line 52
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/SafeLimits;->hzMax(I)I
 
-    move-result v3
-
-    .line 48
-    aget v1, v0, v2
-
-    if-le v1, v3, :cond_76
-
-    .line 49
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v5, "\u0427\u0435\u0441\u0442\u043e\u0442\u0430 "
-
-    invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    aget v5, v0, v2
-
-    invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v5, " \u2192 "
-
-    invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v5, " Hz"
-
-    invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const/16 v1, 0x3c
-
-    if-lt p1, v1, :cond_24e
-
-    const-string v1, " (60+)"
-
-    :goto_3a
-    invoke-virtual {v5, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v5
-
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "Frequency "
-
-    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    aget v6, v0, v2
-
-    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v6, " \u2192 "
-
-    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v6, " Hz"
-
-    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    .line 50
-    const/16 v1, 0x3c
-
-    if-lt p1, v1, :cond_252
-
-    const-string v1, " (60+)"
-
-    :goto_69
-    invoke-virtual {v6, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    .line 49
-    invoke-static {p2, p3, v5, v1}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 51
-    aput v3, v0, v2
+    move-result v2
 
     .line 53
-    :cond_76
-    aget v1, v0, v2
+    const/4 v1, 0x0
 
-    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
+    aget v1, v0, v1
 
-    move-result v1
-
-    aput v1, v0, v2
+    if-le v1, v2, :cond_75
 
     .line 54
-    aget v1, v0, v2
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    const/16 v3, 0x64
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-lt v1, v3, :cond_256
+    const-string v3, "\u0427\u0435\u0441\u0442\u043e\u0442\u0430 "
 
-    const/16 v1, 0x12c
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 55
-    :goto_86
-    aget v3, v0, v4
+    move-result-object v1
 
-    if-le v3, v1, :cond_f1
+    const/4 v3, 0x0
 
-    .line 56
-    new-instance v3, Ljava/lang/StringBuilder;
+    aget v3, v0, v3
 
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    const-string v5, "\u0414\u044a\u043b\u0431\u043e\u0447\u0438\u043d\u0430 "
+    move-result-object v1
 
-    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v3, " \u2192 "
 
-    move-result-object v3
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    aget v5, v0, v4
+    move-result-object v1
 
-    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v3
+    move-result-object v1
 
-    const-string v5, " \u2192 "
+    const-string v3, " Hz"
 
-    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
-    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const/16 v1, 0x3c
+
+    if-lt p1, v1, :cond_27b
+
+    const-string v1, " (60+)"
+
+    :goto_37
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v3
 
-    const-string v5, " \u00b5s \u043f\u0440\u0438 "
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    move-result-object v3
+    const-string v4, "Frequency "
 
-    aget v5, v0, v2
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v1
 
-    move-result-object v3
-
-    const-string v5, " Hz"
-
-    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v3
-
-    new-instance v5, Ljava/lang/StringBuilder;
-
-    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "Depth "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    aget v6, v0, v4
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " \u2192 "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " \u00b5s at "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    aget v6, v0, v2
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " Hz"
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-static {p2, p3, v3, v5}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 58
-    aput v1, v0, v4
-
-    .line 60
-    :cond_f1
-    const/16 v1, 0x32
-
-    aget v3, v0, v4
-
-    invoke-static {v1, v3}, Ljava/lang/Math;->max(II)I
-
-    move-result v1
-
-    aput v1, v0, v4
-
-    .line 61
-    aget v1, v0, v10
-
-    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
-
-    move-result v1
-
-    aput v1, v0, v10
-
-    .line 62
-    aget v1, v0, v11
-
-    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
-
-    move-result v1
-
-    aput v1, v0, v11
-
-    .line 63
-    aget v1, v0, v2
-
-    const/16 v3, 0x14
-
-    if-lt v1, v3, :cond_25a
-
-    move v3, v4
-
-    .line 64
-    :goto_112
-    if-eqz v3, :cond_192
-
-    .line 65
-    aget v1, v0, v2
-
-    const/16 v5, 0x32
-
-    if-lt v1, v5, :cond_25d
-
-    const/4 v1, 0x6
-
-    .line 66
-    :goto_11b
-    aget v5, v0, v10
-
-    if-le v5, v1, :cond_186
-
-    .line 67
-    new-instance v5, Ljava/lang/StringBuilder;
-
-    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "\u0418\u043c\u043f\u0443\u043b\u0441 "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    aget v6, v0, v10
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " \u2192 "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " s \u043f\u0440\u0438 "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    aget v6, v0, v2
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " Hz"
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v5
-
-    new-instance v6, Ljava/lang/StringBuilder;
-
-    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v7, "Impulse "
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    aget v7, v0, v10
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    const-string v7, " \u2192 "
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    invoke-virtual {v6, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    const-string v7, " s at "
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    aget v7, v0, v2
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    const-string v7, " Hz"
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v6
-
-    invoke-static {p2, p3, v5, v6}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 69
-    aput v1, v0, v10
-
-    .line 71
-    :cond_186
-    const/4 v1, 0x7
-
-    aget v1, v0, v1
-
-    const/16 v5, 0x12c
-
-    if-ge v1, v5, :cond_192
-
-    .line 72
-    const/4 v1, 0x7
-
-    const/16 v5, 0x12c
-
-    aput v5, v0, v1
-
-    .line 75
-    :cond_192
-    const/4 v1, 0x4
-
-    aget v1, v0, v1
-
-    if-ne v1, v4, :cond_1ad
-
-    .line 76
-    const/16 v1, 0xa
-
-    aget v5, v0, v2
-
-    add-int/lit8 v5, v5, -0x1
-
-    invoke-static {v1, v5}, Ljava/lang/Math;->min(II)I
-
-    move-result v1
-
-    .line 77
-    if-ge v1, v4, :cond_261
-
-    .line 78
-    const-string v1, "\u0412\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d: \u043e\u0441\u043d\u043e\u0432\u043d\u0430\u0442\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0435 \u0442\u0432\u044a\u0440\u0434\u0435 \u043d\u0438\u0441\u043a\u0430"
-
-    const-string v5, "Second impulse off: the main frequency is too low"
-
-    invoke-static {p2, p3, v1, v5}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 80
-    const/4 v1, 0x4
-
-    aput v2, v0, v1
-
-    .line 95
-    :cond_1ad
-    :goto_1ad
-    if-eqz v3, :cond_24d
-
-    .line 96
-    aget v3, v0, v2
-
-    aget v6, v0, v10
-
-    const/4 v1, 0x4
-
-    aget v1, v0, v1
-
-    if-ne v1, v4, :cond_2d1
-
-    aget v1, v0, v8
-
-    :goto_1ba
-    const/4 v5, 0x4
-
-    aget v5, v0, v5
-
-    if-ne v5, v4, :cond_2d4
-
-    const/4 v4, 0x6
+    const/4 v4, 0x0
 
     aget v4, v0, v4
 
-    int-to-double v4, v4
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    const-wide/high16 v8, 0x4059000000000000L    # 100.0
+    move-result-object v1
 
-    div-double/2addr v4, v8
+    const-string v4, " \u2192 "
 
-    :goto_1c6
-    invoke-static {v3, v6, v1, v4, v5}, Lcom/isaigu/gymapp/ai/SafeLimits;->minOff(IIID)I
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result v1
+    move-result-object v1
 
-    .line 97
-    aget v3, v0, v11
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    if-ge v3, v1, :cond_24d
+    move-result-object v1
 
-    .line 98
+    const-string v4, " Hz"
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    .line 55
+    const/16 v1, 0x3c
+
+    if-lt p1, v1, :cond_27f
+
+    const-string v1, " (60+)"
+
+    :goto_67
+    invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 54
+    invoke-static {p2, p3, v3, v1}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 56
+    const/4 v1, 0x0
+
+    aput v2, v0, v1
+
+    .line 58
+    :cond_75
+    const/4 v1, 0x0
+
+    const/4 v2, 0x1
+
+    const/4 v3, 0x0
+
+    aget v3, v0, v3
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    aput v2, v0, v1
+
+    .line 59
+    const/4 v1, 0x0
+
+    aget v1, v0, v1
+
+    const/16 v2, 0x64
+
+    if-lt v1, v2, :cond_283
+
+    const/16 v1, 0x12c
+
+    .line 60
+    :goto_89
+    const/4 v2, 0x1
+
+    aget v2, v0, v2
+
+    if-le v2, v1, :cond_fa
+
+    .line 61
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "\u0414\u044a\u043b\u0431\u043e\u0447\u0438\u043d\u0430 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const/4 v3, 0x1
+
+    aget v3, v0, v3
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " \u2192 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " \u00b5s \u043f\u0440\u0438 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const/4 v3, 0x0
+
+    aget v3, v0, v3
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " Hz"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v4, "\u041f\u0430\u0443\u0437\u0430 "
+    const-string v4, "Depth "
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
-    aget v4, v0, v11
+    const/4 v4, 0x1
+
+    aget v4, v0, v4
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
@@ -601,31 +319,163 @@
 
     move-result-object v3
 
-    const-string v4, " s: \u043f\u0440\u0438 "
+    const-string v4, " \u00b5s at "
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
-    aget v4, v0, v2
+    const/4 v4, 0x0
+
+    aget v4, v0, v4
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
-    const-string v4, " Hz \u00b7 "
+    const-string v4, " Hz"
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
-    aget v4, v0, v10
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {p2, p3, v2, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 63
+    const/4 v2, 0x1
+
+    aput v1, v0, v2
+
+    .line 65
+    :cond_fa
+    const/4 v1, 0x1
+
+    const/16 v2, 0x32
+
+    const/4 v3, 0x1
+
+    aget v3, v0, v3
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    aput v2, v0, v1
+
+    .line 66
+    const/4 v1, 0x2
+
+    const/4 v2, 0x1
+
+    const/4 v3, 0x2
+
+    aget v3, v0, v3
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    aput v2, v0, v1
+
+    .line 67
+    const/4 v1, 0x3
+
+    const/4 v2, 0x1
+
+    const/4 v3, 0x3
+
+    aget v3, v0, v3
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    aput v2, v0, v1
+
+    .line 68
+    const/4 v1, 0x0
+
+    aget v1, v0, v1
+
+    const/16 v2, 0x14
+
+    if-lt v1, v2, :cond_287
+
+    const/4 v1, 0x1
+
+    move v2, v1
+
+    .line 69
+    :goto_125
+    if-eqz v2, :cond_1ac
+
+    .line 70
+    const/4 v1, 0x0
+
+    aget v1, v0, v1
+
+    const/16 v3, 0x32
+
+    if-lt v1, v3, :cond_28b
+
+    const/4 v1, 0x6
+
+    .line 71
+    :goto_12f
+    const/4 v3, 0x2
+
+    aget v3, v0, v3
+
+    if-le v3, v1, :cond_1a0
+
+    .line 72
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "\u0418\u043c\u043f\u0443\u043b\u0441 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const/4 v4, 0x2
+
+    aget v4, v0, v4
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
-    const-string v4, " s \u043f\u043e-\u043a\u0440\u0430\u0442\u043a\u0430 \u043d\u0435 \u0435 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u0430"
+    const-string v4, " \u2192 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " s \u043f\u0440\u0438 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const/4 v4, 0x0
+
+    aget v4, v0, v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " Hz"
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -639,13 +489,15 @@
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v5, "Pause "
+    const-string v5, "Impulse "
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    aget v5, v0, v11
+    const/4 v5, 0x2
+
+    aget v5, v0, v5
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
@@ -661,33 +513,215 @@
 
     move-result-object v4
 
-    const-string v5, " s: at "
+    const-string v5, " s at "
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
+    const/4 v5, 0x0
+
+    aget v5, v0, v5
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " Hz"
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-static {p2, p3, v3, v4}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 74
+    const/4 v3, 0x2
+
+    aput v1, v0, v3
+
+    .line 76
+    :cond_1a0
+    const/4 v1, 0x7
+
+    aget v1, v0, v1
+
+    const/16 v3, 0x12c
+
+    if-ge v1, v3, :cond_1ac
+
+    .line 77
+    const/4 v1, 0x7
+
+    const/16 v3, 0x12c
+
+    aput v3, v0, v1
+
+    .line 80
+    :cond_1ac
+    const/4 v1, 0x4
+
+    aget v1, v0, v1
+
+    const/4 v3, 0x1
+
+    if-ne v1, v3, :cond_1cd
+
+    if-nez p4, :cond_1cd
+
+    .line 81
+    const/16 v1, 0xa
+
+    const/4 v3, 0x0
+
+    aget v3, v0, v3
+
+    add-int/lit8 v3, v3, -0x1
+
+    invoke-static {v1, v3}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    .line 82
+    const/4 v3, 0x1
+
+    if-ge v1, v3, :cond_28f
+
+    .line 83
+    const-string v1, "\u0412\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d: \u043e\u0441\u043d\u043e\u0432\u043d\u0430\u0442\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0435 \u0442\u0432\u044a\u0440\u0434\u0435 \u043d\u0438\u0441\u043a\u0430"
+
+    const-string v3, "Second impulse off: the main frequency is too low"
+
+    invoke-static {p2, p3, v1, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 85
+    const/4 v1, 0x4
+
+    const/4 v3, 0x0
+
+    aput v3, v0, v1
+
+    .line 100
+    :cond_1cd
+    :goto_1cd
+    if-eqz v2, :cond_27a
+
+    .line 101
+    const/4 v1, 0x0
+
+    aget v4, v0, v1
+
+    const/4 v1, 0x2
+
+    aget v5, v0, v1
+
+    const/4 v1, 0x4
+
+    aget v1, v0, v1
+
+    const/4 v2, 0x1
+
+    if-ne v1, v2, :cond_306
+
+    const/4 v1, 0x5
+
+    aget v1, v0, v1
+
+    :goto_1de
+    const/4 v2, 0x4
+
     aget v2, v0, v2
 
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const/4 v3, 0x1
+
+    if-ne v2, v3, :cond_309
+
+    const/4 v2, 0x6
+
+    aget v2, v0, v2
+
+    int-to-double v2, v2
+
+    const-wide/high16 v6, 0x4059000000000000L    # 100.0
+
+    div-double/2addr v2, v6
+
+    :goto_1eb
+    invoke-static {v4, v5, v1, v2, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->minOff(IIID)I
+
+    move-result v1
+
+    .line 102
+    const/4 v2, 0x3
+
+    aget v2, v0, v2
+
+    if-ge v2, v1, :cond_27a
+
+    .line 103
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "\u041f\u0430\u0443\u0437\u0430 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
-    const-string v4, " Hz \u00b7 "
+    const/4 v3, 0x3
 
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    aget v3, v0, v3
 
-    move-result-object v2
-
-    aget v4, v0, v10
-
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
-    const-string v4, " s a shorter one is not safe"
+    const-string v3, " \u2192 "
 
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " s: \u043f\u0440\u0438 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const/4 v3, 0x0
+
+    aget v3, v0, v3
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " Hz \u00b7 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const/4 v3, 0x2
+
+    aget v3, v0, v3
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " s \u043f\u043e-\u043a\u0440\u0430\u0442\u043a\u0430 \u043d\u0435 \u0435 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u0430"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
@@ -695,174 +729,258 @@
 
     move-result-object v2
 
-    invoke-static {p2, p3, v3, v2}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+    new-instance v3, Ljava/lang/StringBuilder;
 
-    .line 102
-    aput v1, v0, v11
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 105
-    :cond_24d
+    const-string v4, "Pause "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const/4 v4, 0x3
+
+    aget v4, v0, v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " \u2192 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " s: at "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const/4 v4, 0x0
+
+    aget v4, v0, v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " Hz \u00b7 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const/4 v4, 0x2
+
+    aget v4, v0, v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " s a shorter one is not safe"
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {p2, p3, v2, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 107
+    const/4 v2, 0x3
+
+    aput v1, v0, v2
+
+    .line 110
+    :cond_27a
     return-object v0
 
-    .line 49
-    :cond_24e
-    const-string v1, ""
-
-    goto/16 :goto_3a
-
-    .line 50
-    :cond_252
-    const-string v1, ""
-
-    goto/16 :goto_69
-
     .line 54
-    :cond_256
+    :cond_27b
+    const-string v1, ""
+
+    goto/16 :goto_37
+
+    .line 55
+    :cond_27f
+    const-string v1, ""
+
+    goto/16 :goto_67
+
+    .line 59
+    :cond_283
     const/16 v1, 0x190
 
-    goto/16 :goto_86
+    goto/16 :goto_89
 
-    :cond_25a
-    move v3, v2
+    .line 68
+    :cond_287
+    const/4 v1, 0x0
 
-    .line 63
-    goto/16 :goto_112
+    move v2, v1
 
-    .line 65
-    :cond_25d
+    goto/16 :goto_125
+
+    .line 70
+    :cond_28b
     const/16 v1, 0xa
 
-    goto/16 :goto_11b
-
-    .line 82
-    :cond_261
-    aget v5, v0, v8
-
-    if-le v5, v1, :cond_2b4
-
-    .line 83
-    new-instance v5, Ljava/lang/StringBuilder;
-
-    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "\u0412\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    aget v6, v0, v8
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " \u2192 "
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v6, " Hz (\u043f\u0430\u0443\u0437\u0430\u0442\u0430 \u0435 \u0437\u0430 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u043d\u0435)"
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v5
-
-    new-instance v6, Ljava/lang/StringBuilder;
-
-    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v7, "Second impulse "
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    aget v7, v0, v8
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    const-string v7, " \u2192 "
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    invoke-virtual {v6, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    const-string v7, " Hz (the pause is for relaxing)"
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v6
-
-    invoke-static {p2, p3, v5, v6}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 85
-    aput v1, v0, v8
+    goto/16 :goto_12f
 
     .line 87
-    :cond_2b4
-    aget v1, v0, v8
+    :cond_28f
+    const/4 v3, 0x5
 
-    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
+    aget v3, v0, v3
 
-    move-result v1
-
-    aput v1, v0, v8
+    if-le v3, v1, :cond_2e6
 
     .line 88
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "\u0412\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const/4 v4, 0x5
+
+    aget v4, v0, v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " \u2192 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " Hz (\u043f\u0430\u0443\u0437\u0430\u0442\u0430 \u0435 \u0437\u0430 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u043d\u0435)"
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v5, "Second impulse "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const/4 v5, 0x5
+
+    aget v5, v0, v5
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " \u2192 "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " Hz (the pause is for relaxing)"
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-static {p2, p3, v3, v4}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 90
+    const/4 v3, 0x5
+
+    aput v1, v0, v3
+
+    .line 92
+    :cond_2e6
+    const/4 v1, 0x5
+
+    const/4 v3, 0x1
+
+    const/4 v4, 0x5
+
+    aget v4, v0, v4
+
+    invoke-static {v3, v4}, Ljava/lang/Math;->max(II)I
+
+    move-result v3
+
+    aput v3, v0, v1
+
+    .line 93
     const/4 v1, 0x6
 
     aget v1, v0, v1
 
-    const/16 v5, 0x64
+    const/16 v3, 0x64
 
-    if-le v1, v5, :cond_1ad
+    if-le v1, v3, :cond_1cd
 
-    .line 89
+    .line 94
     const-string v1, "\u0412\u0442\u043e\u0440\u0438\u044f\u0442 \u0438\u043c\u043f\u0443\u043b\u0441 \u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043f\u043e-\u0441\u0438\u043b\u0435\u043d \u043e\u0442 \u043e\u0441\u043d\u043e\u0432\u043d\u0438\u044f"
 
-    const-string v5, "The second impulse cannot be stronger than the main one"
+    const-string v3, "The second impulse cannot be stronger than the main one"
 
-    invoke-static {p2, p3, v1, v5}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 91
-    const/4 v1, 0x6
-
-    const/16 v5, 0x64
-
-    aput v5, v0, v1
-
-    goto/16 :goto_1ad
-
-    :cond_2d1
-    move v1, v2
+    invoke-static {p2, p3, v1, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
     .line 96
-    goto/16 :goto_1ba
+    const/4 v1, 0x6
 
-    :cond_2d4
-    const-wide/16 v4, 0x0
+    const/16 v3, 0x64
 
-    goto/16 :goto_1c6
+    aput v3, v0, v1
+
+    goto/16 :goto_1cd
+
+    .line 101
+    :cond_306
+    const/4 v1, 0x0
+
+    goto/16 :goto_1de
+
+    :cond_309
+    const-wide/16 v2, 0x0
+
+    goto/16 :goto_1eb
 .end method
 
 .method public static cycle(IIIIIDII)[I
@@ -875,7 +993,7 @@
 
     const/4 v2, 0x0
 
-    .line 114
+    .line 119
     if-lez p4, :cond_35
 
     const-wide/16 v4, 0x0
@@ -886,7 +1004,7 @@
 
     move v0, v1
 
-    .line 115
+    .line 120
     :goto_c
     const/16 v3, 0x8
 
@@ -942,13 +1060,13 @@
     :cond_35
     move v0, v2
 
-    .line 114
+    .line 119
     goto :goto_c
 
     :cond_37
     move v1, v2
 
-    .line 115
+    .line 120
     goto :goto_1d
 .end method
 
@@ -978,16 +1096,16 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 139
+    .line 155
     const/16 v0, 0x14
 
     if-ge p0, v0, :cond_6
 
-    .line 147
+    .line 163
     :cond_5
     return v2
 
-    .line 142
+    .line 158
     :cond_6
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->HIGH:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
@@ -995,7 +1113,7 @@
 
     move-result-object v8
 
-    .line 144
+    .line 160
     :goto_c
     const/16 v0, 0x1e
 
@@ -1029,7 +1147,7 @@
 
     if-lez v0, :cond_5
 
-    .line 145
+    .line 161
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_c
@@ -1039,10 +1157,10 @@
     .registers 5
 
     .prologue
-    .line 161
+    .line 177
     if-eqz p0, :cond_11
 
-    .line 162
+    .line 178
     invoke-virtual {p0}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1058,11 +1176,11 @@
 
     invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 164
+    .line 180
     :cond_11
     if-eqz p1, :cond_22
 
-    .line 165
+    .line 181
     invoke-virtual {p1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1078,17 +1196,17 @@
 
     invoke-virtual {v0, p3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 167
+    .line 183
     :cond_22
     return-void
 
-    .line 162
+    .line 178
     :cond_23
     const-string v0, ""
 
     goto :goto_a
 
-    .line 165
+    .line 181
     :cond_26
     const-string v0, ""
 
@@ -1096,25 +1214,75 @@
 .end method
 
 .method public static pauseSend(IIZII)[I
-    .registers 10
+    .registers 11
 
     .prologue
+    .line 131
+    const/4 v5, 0x0
+
+    move v0, p0
+
+    move v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/SafeLimits;->pauseSend(IIZIIZ)[I
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static pauseSend(IIZIIZ)[I
+    .registers 12
+
+    .prologue
+    const/4 v5, 0x2
+
+    const/4 v4, 0x0
+
     const/4 v0, 0x0
 
-    const/4 v4, 0x1
+    const/4 v3, 0x1
 
-    .line 126
-    if-eqz p2, :cond_6
+    .line 136
+    if-eqz p5, :cond_16
 
-    if-gtz p0, :cond_7
+    .line 137
+    if-eqz p2, :cond_a
 
-    .line 134
-    :cond_6
-    :goto_6
+    if-gtz p4, :cond_b
+
+    .line 150
+    :cond_a
+    :goto_a
     return-object v0
 
-    .line 129
-    :cond_7
+    .line 140
+    :cond_b
+    new-array v0, v5, [I
+
+    invoke-static {v3, p3}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    aput v1, v0, v4
+
+    aput p4, v0, v3
+
+    goto :goto_a
+
+    .line 142
+    :cond_16
+    if-eqz p2, :cond_a
+
+    if-lez p0, :cond_a
+
+    .line 145
     const/16 v1, 0xa
 
     add-int/lit8 v2, p1, -0x1
@@ -1123,7 +1291,7 @@
 
     move-result v1
 
-    .line 130
+    .line 146
     const/16 v2, 0x64
 
     invoke-static {v2, p4}, Ljava/lang/Math;->min(II)I
@@ -1134,38 +1302,34 @@
 
     move-result v2
 
-    .line 131
-    if-lt v1, v4, :cond_6
+    .line 147
+    if-lt v1, v3, :cond_a
 
-    if-lez v2, :cond_6
+    if-lez v2, :cond_a
 
-    .line 134
-    const/4 v0, 0x2
-
-    new-array v0, v0, [I
-
-    const/4 v3, 0x0
+    .line 150
+    new-array v0, v5, [I
 
     invoke-static {v1, p3}, Ljava/lang/Math;->min(II)I
 
     move-result v1
 
-    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
+    invoke-static {v3, v1}, Ljava/lang/Math;->max(II)I
 
     move-result v1
 
-    aput v1, v0, v3
+    aput v1, v0, v4
 
-    aput v2, v0, v4
+    aput v2, v0, v3
 
-    goto :goto_6
+    goto :goto_a
 .end method
 
 .method public static peak(IIIIDD)D
     .registers 20
 
     .prologue
-    .line 152
+    .line 168
     neg-int v0, p1
 
     int-to-double v0, v0
@@ -1176,7 +1340,7 @@
 
     move-result-wide v2
 
-    .line 153
+    .line 169
     const/4 v0, 0x1
 
     invoke-static {v0, p2}, Ljava/lang/Math;->max(II)I
@@ -1193,14 +1357,14 @@
 
     move-result-wide v4
 
-    .line 154
+    .line 170
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
 
     move-result-wide v0
 
     mul-double v6, v0, p6
 
-    .line 155
+    .line 171
     if-lez p3, :cond_4b
 
     invoke-static {p3}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
@@ -1211,7 +1375,7 @@
 
     mul-double v0, v0, p6
 
-    .line 156
+    .line 172
     :goto_25
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
@@ -1243,7 +1407,7 @@
 
     div-double/2addr v0, v4
 
-    .line 157
+    .line 173
     mul-double v4, v0, v2
 
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
@@ -1260,7 +1424,7 @@
 
     return-wide v0
 
-    .line 155
+    .line 171
     :cond_4b
     const-wide/16 v0, 0x0
 

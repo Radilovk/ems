@@ -141,7 +141,7 @@ public final class PauseSetting {
         @Override
         public void onStep(int dir) {
             if (hz) {
-                b.pauseHz = Math.max(1, Math.min(com.isaigu.gymapp.ai.SafeLimits.PAUSE_HZ_MAX, (b.pauseHz > 0 ? b.pauseHz : 7) + dir));
+                b.pauseHz = Math.max(1, Math.min(com.isaigu.gymapp.bodytech.BtGear.freeSecond ? 1000 : com.isaigu.gymapp.ai.SafeLimits.PAUSE_HZ_MAX, (b.pauseHz > 0 ? b.pauseHz : 7) + dir));
             } else {
                 int v = Math.round(b.pauseStrenthPercent / 5f) * 5 + dir * 5;
                 b.pauseStrenthPercent = Math.max(0, Math.min(100, v));

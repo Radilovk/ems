@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 430
+    .line 527
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 431
+    .line 528
     iput p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Name;->ch:I
 
-    .line 432
+    .line 529
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 442
+    .line 539
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Name;->ch:I
 
     invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
@@ -51,7 +51,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setName(ILjava/lang/String;)V
 
-    .line 443
+    .line 540
     return-void
 .end method
 
@@ -59,7 +59,7 @@
     .registers 5
 
     .prologue
-    .line 435
+    .line 532
     return-void
 .end method
 
@@ -67,6 +67,6 @@
     .registers 5
 
     .prologue
-    .line 438
+    .line 535
     return-void
 .end method

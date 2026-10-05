@@ -85,11 +85,11 @@ public final class BtBridge {
     }
 
     /**
-     * Settings sheet: hold "test" on one channel (the owner finds out which muscle it is). down = on at pct %
+     * Settings sheet: hold "test" on one channel (which muscle it is; which Hz / width / waveform feels how). down = on at pct %
      * (renew every ≤ 1 s), !down = off. Returns "ok", "no_suit" (no connected bodytech suit has been used yet — connect it
      * from Тренировка first) or "training" (a real training runs on it).
      */
-    public static String test(int ch, int pct, boolean down) {
+    public static String test(int ch, int pct, int hz, int us, int wave, boolean down) {
         try {
             Dev v = null;
             synchronized (BtBridge.class) {
@@ -103,7 +103,7 @@ public final class BtBridge {
             if (v == null) return "no_suit";
             if (v.tr.training()) return "training";
             v.begin();
-            if (down) v.add(v.tr.testOn(ch, pct, SystemClock.elapsedRealtime()), null, null, false);
+            if (down) v.add(v.tr.testOn(ch, pct, hz, us, wave, SystemClock.elapsedRealtime()), null, null, false);
             else v.add(v.tr.testOff(), null, null, true);
             return "ok";
         } catch (Throwable t) {

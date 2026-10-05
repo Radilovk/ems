@@ -197,8 +197,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtBridge.java` (377L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtProto.java` (148L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
 - `BtSettings.java` (284L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
-- `BtSettingsSection.java` (528L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
-- `BtTranslator.java` (235L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtSettingsSection.java` (625L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
+- `BtTranslator.java` (286L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -744,16 +744,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (97L)
-  - L1 # Bodytech suit in XEMS — plain training (1.1.346-ai)
+`docs/xems-bodytech.md` (108L)
+  - L1 # Bodytech suit in XEMS — plain training (1.1.347-ai)
   - L8 ## How it works
   - L30 ## Translation (XEMS → bodytech)
   - L46 ## Owner's settings (Settings → Костюм bodytech)
   - L60 ## Test of a channel and the left → right order (1.1.346)
-  - L71 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L80 ## Safety
-  - L88 ## Not verified on a person yet
-  - L94 ## Tests
+  - L71 ## Test of the impulse: Hz 1–1000, width 50–511 µs, waveform (1.1.347)
+  - L82 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L91 ## Safety
+  - L99 ## Not verified on a person yet
+  - L105 ## Tests
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

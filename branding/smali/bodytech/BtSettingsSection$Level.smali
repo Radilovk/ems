@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 389
+    .line 439
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 390
+    .line 440
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Level;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 391
+    .line 441
     return-void
 .end method
 
@@ -42,12 +42,22 @@
     .registers 6
 
     .prologue
-    .line 395
+    .line 445
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Level;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     const/4 v1, 0x1
 
-    const/16 v2, 0x1e
+    iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Level;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
+
+    iget v2, v2, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->tHz:I
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Level;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
+
+    iget v3, v3, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->tUs:I
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCap(II)I
+
+    move-result v2
 
     iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Level;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
@@ -65,11 +75,11 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->level:I
 
-    .line 396
+    .line 446
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Level;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 397
+    .line 447
     return-void
 .end method

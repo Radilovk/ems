@@ -15,6 +15,8 @@
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Name;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Stop;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sort;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Preset;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$TestStep;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Level;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Hold;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$TestTouch;,

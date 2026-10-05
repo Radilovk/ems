@@ -198,7 +198,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WorkoutsUi.java` (1703L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
 
 **bodytech/** (`branding/java/src/com/isaigu/gymapp/bodytech/`)
-- `BtBridge.java` (399L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `BtBeep.java` (80L, compile:music-sync*) — Sound signals of a bodytech suit, from the tablet (owner, 1.1.355), in Morse marks: start "...-", pause / stop "-", lin…
+- `BtBridge.java` (406L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtFull.java` (267L, compile:music-sync*) — The row's gear on a bodytech suit → "Пълни параметри": every channel's own strength, Hz, width and waveform, separately…
 - `BtGear.java` (148L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtProto.java` (148L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
@@ -206,7 +207,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtSettingsSection.java` (446L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
 - `BtTest.java` (257L, compile:music-sync*) — The impulse test: Hz 1..1000, width 50..511 µs, waveform and level, felt with a ▶ held on a channel ({@link BtBridge#te…
 - `BtTestMode.java` (118L, compile:music-sync*) — The row's gear on a bodytech suit → "Тестов режим": a screen of its own, apart from the training, to try the impulse (H…
-- `BtTranslator.java` (357L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (362L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -754,7 +755,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (141L)
+`docs/xems-bodytech.md` (145L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L8 ## How it works
   - L30 ## Translation (XEMS → bodytech)
@@ -770,6 +771,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L132 ## What still limits (not the app)
   - L136 ## Second impulse without limits (1.1.353)
   - L139 ## Own device names (1.1.353)
+  - L142 ## Sound signals (1.1.355)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

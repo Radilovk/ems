@@ -88,7 +88,11 @@ public final class BtBridge {
             System.arraycopy(data, 3, pdu, 0, pdu.length);
             Dev v = dev(d);
             v.begin();
+            boolean was = v.tr.armed();
             v.add(v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime()), cb, data, false);
+            boolean now = v.tr.armed();
+            if (!was && now) BtBeep.start();
+            else if (was && !now) BtBeep.stop();
             return true;
         } catch (Throwable t) {
             Log.e(TAG, "write: " + t);
@@ -299,6 +303,7 @@ public final class BtBridge {
                 try {
                     BleDeviceManager.write(d, it.frame, ack);
                 } catch (Throwable t) {
+                    BtBeep.lost();
                     fail(null);
                 }
                 return;
@@ -311,6 +316,7 @@ public final class BtBridge {
 
         /** A write failed: everything queued is dropped (each waiting command hears of it); the suit is re-learned. */
         synchronized void fail(BleException e) {
+            if (tr.armed()) BtBeep.lost();                  // the link gone mid-training
             busy = false;
             Item it = inflight;
             inflight = null;
@@ -346,6 +352,7 @@ public final class BtBridge {
 
         @Override
         public void onWriteFailure(BleException e) {
+            BtBeep.lost();                                  // a write refused: the link is in trouble
             v.fail(e);
         }
     }

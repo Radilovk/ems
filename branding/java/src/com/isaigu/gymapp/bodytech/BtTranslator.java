@@ -61,6 +61,11 @@ public final class BtTranslator {
         phase = p;
     }
 
+    /** The run gate is open (started, not paused / stopped). */
+    public synchronized boolean armed() {
+        return armed;
+    }
+
     public synchronized boolean isOn() {
         return on;
     }

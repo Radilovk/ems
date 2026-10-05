@@ -138,3 +138,7 @@ On a bodytech row the second impulse is not capped: any Hz (also ≥ main, stepp
 
 ## Own device names (1.1.353)
 Device list (both connect dialogs): long-press a row (or tap its "i") → own name; `bodytech/DeviceAlias`, tablet only (`xems_device_alias`, by MAC), never synced. Hook: `scripts/apply-device-alias.py`.
+
+## Sound signals (1.1.355)
+`BtBeep`, tablet speaker, Morse marks: start (F1 opens the gate) `...-`, pause / stop (F2 closes it) `-`, link problem
+`...` (a write refused, or the link gone while started; at most every 5 s). Bodytech suits only.

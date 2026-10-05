@@ -30,21 +30,21 @@
     .registers 4
 
     .prologue
-    .line 202
+    .line 206
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 200
+    .line 204
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->live:Z
 
-    .line 203
+    .line 207
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    .line 204
+    .line 208
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->ch:I
 
-    .line 205
+    .line 209
     return-void
 .end method
 
@@ -56,16 +56,16 @@
     .prologue
     const/4 v9, 0x1
 
-    .line 209
+    .line 213
     iget-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->live:Z
 
     if-nez v0, :cond_6
 
-    .line 222
+    .line 226
     :goto_5
     return-void
 
-    .line 210
+    .line 214
     :cond_6
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
@@ -105,7 +105,7 @@
 
     move-result-object v0
 
-    .line 211
+    .line 215
     const-string v1, "ok"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -114,7 +114,7 @@
 
     if-eqz v1, :cond_f1
 
-    .line 212
+    .line 216
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -193,7 +193,7 @@
 
     move-result-object v2
 
-    .line 213
+    .line 217
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->onMs:I
@@ -247,7 +247,7 @@
 
     move-result-object v2
 
-    .line 214
+    .line 218
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->gain:I
@@ -285,10 +285,10 @@
 
     move-result-object v0
 
-    .line 212
+    .line 216
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/bodytech/BtTest;->say(Ljava/lang/String;)V
 
-    .line 215
+    .line 219
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->handler:Landroid/os/Handler;
@@ -299,19 +299,19 @@
 
     goto/16 :goto_5
 
-    .line 213
+    .line 217
     :cond_eb
     const-string v0, ""
 
     goto :goto_b4
 
-    .line 214
+    .line 218
     :cond_ee
     const-string v0, ""
 
     goto :goto_d5
 
-    .line 217
+    .line 221
     :cond_f1
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
@@ -323,21 +323,21 @@
 
     if-eqz v0, :cond_105
 
-    .line 218
+    .line 222
     const-string v0, "\u041d\u044f\u043c\u0430 \u0441\u0432\u044a\u0440\u0437\u0430\u043d bodytech \u043a\u043e\u0441\u0442\u044e\u043c \u2014 \u0441\u0432\u044a\u0440\u0436\u0438 \u0433\u043e \u043e\u0442 \u0435\u043a\u0440\u0430\u043d\u0430 \u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430"
 
-    .line 217
+    .line 221
     :goto_fd
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/bodytech/BtTest;->say(Ljava/lang/String;)V
 
-    .line 220
+    .line 224
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Hold;->live:Z
 
     goto/16 :goto_5
 
-    .line 219
+    .line 223
     :cond_105
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0432\u044a\u0440\u0432\u0438 \u043d\u0430 \u043a\u043e\u0441\u0442\u044e\u043c\u0430 \u2014 \u0441\u043f\u0440\u0438 \u044f, \u0437\u0430 \u0434\u0430 \u0442\u0435\u0441\u0442\u0432\u0430\u0448"
 

@@ -24,9 +24,13 @@ final class BtTest {
     static final int[] HZ_PRESETS = {1, 10, 30, 50, 85, 120, 300, 1000, 2500, 5000, 10000};
     static final int[] US_PRESETS = {50, 100, 200, 360, 500, 700, 1000, 1600};
     static final int[] LEVEL_PRESETS = {1, 3, 5, 10, 20, 30, 50, 70, 99};
-    /** Protocols: plain, Australian (1 kHz, 500 µs, 4 / 16 ms = 50 bursts/s), Russian (2.5 kHz, 200 µs, 10 / 10 ms). */
+    /**
+     * Protocols {Hz, µs, burst on ms, off ms, waveform}: plain (85 Hz, 360 µs, continuous, square — the EMS impulse),
+     * Australian (1 kHz, 500 µs, 4 / 16 ms = 50 bursts/s, sine), Russian (2.5 kHz, 200 µs, 10 / 10 ms, sine): both are
+     * burst-modulated sinusoidal AC in the literature.
+     */
     static final String[] PROTO = {"Обикновен", "Австралийски 1 kHz", "Руски 2,5 kHz"};
-    static final int[][] PROTO_VAL = {{85, 360, 0, 0}, {1000, 500, 4, 16}, {2500, 200, 10, 10}};
+    static final int[][] PROTO_VAL = {{85, 360, 0, 0, 0}, {1000, 500, 4, 16, 1}, {2500, 200, 10, 10, 1}};
     static final int GAIN_SAFE_LEVEL = 10;
 
     final Activity a;
@@ -312,9 +316,11 @@ final class BtTest {
                 t.tUs = p[1];
                 t.onMs = p[2];
                 t.offMs = p[3];
+                t.tWave = p[4];
                 t.proto = value;
             } else {
                 t.tWave = value;
+                t.proto = -1;
             }
             t.redraw.run();
         }

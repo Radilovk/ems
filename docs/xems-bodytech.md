@@ -75,8 +75,9 @@ The same sheet has "Тест на импулс": Hz (1–1000, presets 1 … 100
 square / sine / trapezoid / trapezoid 2) and the level. Hold **▶** on a channel to feel it on that muscle.
 - The level goes up to **99 %** (the suit reads 100 as 0). Since 1.1.360 there is **no charge cap** (owner); level chips
   1 … 99 and − / + (1, 2, 5 steps).
-- **Protocols (1.1.360):** chips "Обикновен" (85 Hz, 360 µs, continuous), "Австралийски 1 kHz" (1000 Hz, 500 µs, bursts
-  4 ms / 16 ms = 50/s), "Руски 2,5 kHz" (2500 Hz, 200 µs, bursts 10 / 10 ms). Bursts are the suit's own T2 / T4 (set
+- **Protocols (1.1.360, waveform 1.1.361):** chips "Обикновен" (85 Hz, 360 µs, continuous, square), "Австралийски 1 kHz"
+  (1000 Hz, 500 µs, bursts 4 ms / 16 ms = 50/s, **sine**), "Руски 2,5 kHz" (2500 Hz, 200 µs, bursts 10 / 10 ms,
+  **sine**) — both are burst-modulated sinusoidal AC in the literature; changing any value by hand leaves the protocol. Bursts are the suit's own T2 / T4 (set
   per channel for the test, back to continuous T2 = 100 s, T4 = 0 for training); own values with − / + (0 = continuous,
   up to 1000 ms). Hz up to **10 000**; width up to **half the period** (`BtTranslator.maxUsAt`: 500 µs at 1 kHz, 200 µs
   at 2.5 kHz) and past the vendor's 511 µs up to the register's 1638 µs (`BtProto.widthRaw`) at low Hz.

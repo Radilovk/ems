@@ -42,116 +42,116 @@
     .registers 4
 
     .prologue
-    .line 292
+    .line 296
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 293
+    .line 297
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    .line 294
+    .line 298
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->what:I
 
-    .line 295
+    .line 299
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->value:I
 
-    .line 296
+    .line 300
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 7
+    .registers 8
 
     .prologue
+    const/4 v5, 0x4
+
     const/4 v4, 0x3
 
     const/4 v3, 0x1
 
     const/4 v2, -0x1
 
-    .line 300
+    .line 304
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 301
+    .line 305
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->what:I
 
-    if-nez v0, :cond_1c
+    if-nez v0, :cond_1d
 
-    .line 302
+    .line 306
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->value:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->tHz:I
 
-    .line 303
+    .line 307
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iput v2, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->proto:I
 
-    .line 319
-    :goto_14
+    .line 325
+    :goto_15
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 320
+    .line 326
     return-void
 
-    .line 304
-    :cond_1c
+    .line 308
+    :cond_1d
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->what:I
 
-    if-ne v0, v3, :cond_2b
+    if-ne v0, v3, :cond_2c
 
-    .line 305
+    .line 309
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->value:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->tUs:I
 
-    .line 306
+    .line 310
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iput v2, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->proto:I
 
-    goto :goto_14
+    goto :goto_15
 
-    .line 307
-    :cond_2b
+    .line 311
+    :cond_2c
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->what:I
 
-    if-ne v0, v4, :cond_36
+    if-ne v0, v4, :cond_37
 
-    .line 308
+    .line 312
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->value:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->level:I
 
-    goto :goto_14
+    goto :goto_15
 
-    .line 309
-    :cond_36
+    .line 313
+    :cond_37
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->what:I
 
-    const/4 v1, 0x4
+    if-ne v0, v5, :cond_68
 
-    if-ne v0, v1, :cond_62
-
-    .line 310
+    .line 314
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtTest;->PROTO_VAL:[[I
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->value:I
 
     aget-object v0, v0, v1
 
-    .line 311
+    .line 315
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     const/4 v2, 0x0
@@ -160,14 +160,14 @@
 
     iput v2, v1, Lcom/isaigu/gymapp/bodytech/BtTest;->tHz:I
 
-    .line 312
+    .line 316
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     aget v2, v0, v3
 
     iput v2, v1, Lcom/isaigu/gymapp/bodytech/BtTest;->tUs:I
 
-    .line 313
+    .line 317
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     const/4 v2, 0x2
@@ -176,29 +176,41 @@
 
     iput v2, v1, Lcom/isaigu/gymapp/bodytech/BtTest;->onMs:I
 
-    .line 314
+    .line 318
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
-    aget v0, v0, v4
+    aget v2, v0, v4
 
-    iput v0, v1, Lcom/isaigu/gymapp/bodytech/BtTest;->offMs:I
+    iput v2, v1, Lcom/isaigu/gymapp/bodytech/BtTest;->offMs:I
 
-    .line 315
+    .line 319
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+
+    aget v0, v0, v5
+
+    iput v0, v1, Lcom/isaigu/gymapp/bodytech/BtTest;->tWave:I
+
+    .line 320
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->value:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->proto:I
 
-    goto :goto_14
+    goto :goto_15
 
-    .line 317
-    :cond_62
+    .line 322
+    :cond_68
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->value:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->tWave:I
 
-    goto :goto_14
+    .line 323
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtTest$Preset;->t:Lcom/isaigu/gymapp/bodytech/BtTest;
+
+    iput v2, v0, Lcom/isaigu/gymapp/bodytech/BtTest;->proto:I
+
+    goto :goto_15
 .end method

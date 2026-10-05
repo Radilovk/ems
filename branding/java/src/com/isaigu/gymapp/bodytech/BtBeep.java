@@ -8,14 +8,15 @@ import android.os.SystemClock;
 import android.util.Log;
 
 /**
- * Sound signals of a bodytech suit, from the tablet (owner, 1.1.355; even and high since 1.1.356), in Morse marks:
- * start "...-", pause / stop "-", link problem "..." (at most once every {@link #LOST_GAP_MS}). One square-wave tone
- * (dot 1200 Hz, dash 1400 Hz), dot 120 ms, dash 240 ms, gap 120 ms, the same loudness for every mark (soft 5 ms edges, no clicks).
+ * Sound signals of a bodytech suit, from the tablet (owner, 1.1.355), in Morse marks: start "...-", pause / stop "-",
+ * link problem "..." (at most once every {@link #LOST_GAP_MS}). Made to be pleasant yet heard in a gym (1.1.359):
+ * a bell-like tone — a sine with a soft 2nd and 3rd harmonic (carries over noise, not harsh like a square wave),
+ * 8 ms soft attack, exponential decay; dot 880 Hz (A5) 120 ms, dash 1319 Hz (E6, a perfect fifth up) 240 ms, gap 120 ms.
  * The whole signal is one PCM buffer on one AudioTrack: exact timing, no timers. A new signal cuts the old one.
  */
 public final class BtBeep {
     private static final String TAG = "BtBeep";
-    static final int RATE = 24000, FREQ_DOT = 1200, FREQ_DASH = 1400, DOT_MS = 120, DASH_MS = 240, GAP_MS = 120, EDGE_MS = 5;
+    static final int RATE = 24000, FREQ_DOT = 880, FREQ_DASH = 1319, DOT_MS = 120, DASH_MS = 240, GAP_MS = 120, ATTACK_MS = 8, RELEASE_MS = 8;
     static final long LOST_GAP_MS = 5000L;
     private static AudioTrack track;
     private static long lastLost;
@@ -46,10 +47,15 @@ public final class BtBeep {
         for (int i = 0; i < marks.length(); i++) {
             int len = ms(marks.charAt(i)) * RATE / 1000;
             int freq = marks.charAt(i) == '-' ? FREQ_DASH : FREQ_DOT;
-            int edge = EDGE_MS * RATE / 1000;
+            int att = ATTACK_MS * RATE / 1000;
+            int rel = RELEASE_MS * RATE / 1000;
             for (int k = 0; k < len; k++) {
-                double env = k < edge ? (double) k / edge : (k > len - edge ? (double) (len - k) / edge : 1.0);
-                out[at + k] = (short) ((((long) k * freq * 2 / RATE) % 2 == 0 ? 1 : -1) * env * 16000);   // square wave
+                double env = Math.exp(-2.2 * k / len);                 // bell-like decay (ends at ~11 %)
+                if (k < att) env *= (double) k / att;                  // soft attack, no click
+                if (k > len - rel) env *= (double) (len - k) / rel;    // soft end
+                double w = 2 * Math.PI * freq * k / RATE;
+                double v = Math.sin(w) + 0.4 * Math.sin(2 * w) + 0.2 * Math.sin(3 * w);   // a few harmonics: carries, not harsh
+                out[at + k] = (short) (v / 1.6 * env * 22000);
             }
             at += len + GAP_MS * RATE / 1000;
         }

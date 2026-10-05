@@ -1,0 +1,219 @@
+package com.isaigu.gymapp.bodytech;
+
+import java.util.List;
+
+/** Offline check of BtTranslator: what the bodytech suit is told for what the XEMS row says (no suit, no Android). */
+public class BtTranslatorTest {
+    static int fails;
+
+    static void eq(String what, Object want, Object got) {
+        if (!String.valueOf(want).equals(String.valueOf(got))) {
+            fails++;
+            System.out.println("FAIL " + what + ": want " + want + " got " + got);
+        }
+    }
+
+    static String hex(byte[] f) {
+        StringBuilder b = new StringBuilder();
+        for (byte x : f) b.append(String.format("%02X", x & 0xFF));
+        return b.toString();
+    }
+
+    static String hexAll(List<byte[]> l) {
+        StringBuilder b = new StringBuilder();
+        for (byte[] f : l) b.append(hex(f)).append(' ');
+        return b.toString().trim();
+    }
+
+    /** XEMS cmd 1: 11 bytes, [0] = 0, [1..10] = the sliders. */
+    static byte[] setting(int... s) {
+        byte[] p = new byte[11];
+        for (int i = 0; i < 10; i++) p[1 + i] = (byte) (i < s.length ? s[i] : 0);
+        return p;
+    }
+
+    static byte[] setting(int all) {
+        int[] s = new int[10];
+        java.util.Arrays.fill(s, all);
+        return setting(s);
+    }
+
+    /** XEMS cmd 3 (CommandUtil.getWorkParamsPdu). */
+    static byte[] run(int workLen, int hz, int us, int cont, int pause, int flag) {
+        byte[] p = new byte[11];
+        p[1] = (byte) (workLen >> 8);
+        p[2] = (byte) workLen;
+        p[3] = (byte) hz;
+        p[4] = (byte) (us / 50);
+        p[5] = (byte) cont;
+        p[6] = (byte) pause;
+        p[10] = (byte) flag;
+        return p;
+    }
+
+    /** The row's pair: cmd 1 (sliders) then cmd 3 (run); returns the frames of the pair. */
+    static List<byte[]> pair(BtTranslator tr, byte[] sliders, byte[] run, long t) {
+        List<byte[]> f = new java.util.ArrayList<byte[]>(tr.command(1, sliders, t));
+        f.addAll(tr.command(3, run, t));
+        return f;
+    }
+
+    static boolean has(List<byte[]> l, byte[] want) {
+        for (byte[] f : l) if (hex(f).equals(hex(want))) return true;
+        return false;
+    }
+
+    static int indexOf(List<byte[]> l, byte[] want) {
+        for (int i = 0; i < l.size(); i++) if (hex(l.get(i)).equals(hex(want))) return i;
+        return -1;
+    }
+
+    public static void main(String[] a) {
+        BtSettings.reset();
+        long t = 1000;
+
+        // --- first command: SEL all off, then the vendor's program, outputs at 0
+        BtTranslator tr = new BtTranslator();
+        List<byte[]> f = tr.command(0xF2, new byte[1], t);
+        eq("program starts with SEL all off", "36000300FF0000C9", hex(f.get(0)));
+        eq("program: battery init", "36000100020102C9", hex(f.get(1)));
+        eq("program: reset", "36000000000001C9", hex(f.get(3)));
+        eq("program length", 1 + 2 + 1 + 8 * 13 + 1, f.size());
+        eq("program ends with SEL all off", "36000300FF0000C9", hex(f.get(f.size() - 1)));
+        eq("program: T2 of C1 = 100 s (vendor ms*10000/1024)", hex(BtProto.t(1, 2, 100000)),
+                hex(f.get(3 + 1 + 6)));
+        eq("second stop: nothing to send", 0, tr.command(0xF2, new byte[1], t).size());
+
+        // --- strength alone changes nothing while the output is off
+        eq("setting while off", 0, tr.command(1, setting(50), t).size());
+
+        // --- impulse on: width differs from the program (350 vs 360) → width, strength, then SEL
+        tr.phase(BtTranslator.MAIN);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
+        eq("on: no Hz frame (85 = programmed)", false, has(f, BtProto.hz(1, 85)));
+        eq("on: width C1", true, has(f, BtProto.width(1, 350)));
+        eq("on: strength C1", true, has(f, BtProto.intensity(1, 50)));
+        eq("on: strength C8", true, has(f, BtProto.intensity(8, 50)));
+        eq("on: SEL last", hex(BtProto.enable(0xFF)), hex(f.get(f.size() - 1)));
+        eq("on: strength before SEL", true, indexOf(f, BtProto.intensity(5, 50)) < indexOf(f, BtProto.enable(0xFF)));
+        eq("on: width before strength", true, indexOf(f, BtProto.width(1, 350)) < indexOf(f, BtProto.intensity(1, 50)));
+
+        // --- the owner's map: C1 → slider 7 (lower back). Only that slider moves → only C1 changes
+        f = pair(tr, setting(50, 50, 50, 50, 50, 50, 50, 60, 50, 50), run(600, 85, 350, 4, 4, 1), t);
+        eq("slider 7 → only C1", hexAll(java.util.Arrays.asList(BtProto.intensity(1, 60))), hexAll(f));
+
+        // --- to zero: strength 0 first, then SEL without the channel
+        f = pair(tr, setting(50, 50, 50, 50, 50, 50, 50, 0, 50, 50), run(600, 85, 350, 4, 4, 1), t);
+        eq("to zero: intensity then SEL", hexAll(java.util.Arrays.asList(BtProto.intensity(1, 0), BtProto.enable(0xFE))),
+                hexAll(f));
+        f = pair(tr, setting(50, 50, 50, 50, 50, 50, 50, 20, 50, 50), run(600, 85, 350, 4, 4, 1), t);
+        eq("back from zero: intensity then SEL", hexAll(java.util.Arrays.asList(BtProto.intensity(1, 20), BtProto.enable(0xFF))),
+                hexAll(f));
+
+        // --- the same command again sends nothing
+        eq("repeat: nothing", 0, pair(tr, setting(50, 50, 50, 50, 50, 50, 50, 20, 50, 50), run(600, 85, 350, 4, 4, 1), t).size());
+
+        // --- pause (flag 0): SEL all off once
+        tr.phase(BtTranslator.PAUSE);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 0), t);
+        eq("pause: SEL all off", hexAll(java.util.Arrays.asList(BtProto.allOff())), hexAll(f));
+        eq("pause again: nothing", 0, tr.command(3, run(600, 85, 350, 4, 4, 0), t).size());
+        eq("not on", false, tr.isOn());
+
+        // --- impulse back on: strengths are already in the suit → only SEL
+        tr.phase(BtTranslator.MAIN);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
+        eq("on again: only SEL", hexAll(java.util.Arrays.asList(BtProto.enable(0xFF))), hexAll(f));
+
+        // --- second impulse: owner's groups. C2 (glutes) main-only, C7 (thighs) second-only
+        BtSettings.setGroup(2, BtSettings.GROUP_MAIN);
+        BtSettings.setGroup(7, BtSettings.GROUP_SECOND);
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(40), run(600, 8, 350, 4, 4, 1), t);
+        eq("second: C2 off", true, has(f, BtProto.intensity(2, 0)));
+        eq("second: C2 not in SEL (C7 is, so bit 6 set, bit 1 clear)", hex(BtProto.enable(0xFF & ~0x02)),
+                hex(f.get(f.size() - 1)));
+        eq("second: C7 gets Hz 8", true, has(f, BtProto.hz(7, 8)));
+        eq("second: C2 gets no Hz frame (not working)", false, has(f, BtProto.hz(2, 8)));
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
+        eq("main: C7 off", true, has(f, BtProto.intensity(7, 0)));
+        eq("main: C2 on at 50", true, has(f, BtProto.intensity(2, 50)));
+        eq("main: C2 never left 85 Hz: no Hz frame", false, has(f, BtProto.hz(2, 85)));
+        eq("main: C7 (was at 8 Hz, now silent) keeps no Hz frame", false, has(f, BtProto.hz(7, 85)));
+        BtSettings.reset();
+
+        // --- gain and the 99 % ceiling
+        tr = new BtTranslator();
+        BtSettings.setGain(150);
+        tr.command(1, setting(60), t);
+        f = tr.command(3, run(600, 85, 360, 4, 4, 1), t);
+        eq("gain 150 % of 60", true, has(f, BtProto.intensity(1, 90)));
+        f = pair(tr, setting(120), run(600, 85, 360, 4, 4, 1), t);
+        eq("ceiling 99", true, has(f, BtProto.intensity(1, 99)));
+        eq("never above 99", false, has(f, BtProto.intensity(1, 100)));
+        BtSettings.reset();
+
+        // --- a slider with no channel does nothing; a channel without slider never works
+        tr = new BtTranslator();
+        BtSettings.setSlider(3, BtSettings.NO_SLIDER);
+        tr.command(1, setting(50), t);
+        f = tr.command(3, run(600, 85, 360, 4, 4, 1), t);
+        eq("no slider: C3 not in SEL", hex(BtProto.enable(0xFF & ~0x04)), hex(f.get(f.size() - 1)));
+        BtSettings.reset();
+
+        // --- keep-alive: an output nobody renewed goes off after the phase + 3 s
+        tr = new BtTranslator();
+        tr.command(1, setting(50), 0);
+        tr.command(3, run(600, 85, 360, 4, 4, 1), 0);
+        eq("heartbeat inside the phase: nothing", 0, tr.heartbeat(6900).size());
+        eq("heartbeat after phase + 3 s: SEL all off", hexAll(java.util.Arrays.asList(BtProto.allOff())),
+                hexAll(tr.heartbeat(7100)));
+        eq("then nothing more", 0, tr.heartbeat(9000).size());
+        // the session ends sooner than the phase: its end counts
+        tr = new BtTranslator();
+        tr.command(1, setting(50), 0);
+        tr.command(3, run(2, 85, 360, 20, 4, 1), 0);
+        eq("session end is the limit", 1, tr.heartbeat(5100).size());
+        // second-impulse phase counts the pause length
+        tr = new BtTranslator();
+        tr.phase(BtTranslator.SECOND);
+        tr.command(1, setting(50), 0);
+        tr.command(3, run(600, 8, 360, 20, 2, 1), 0);
+        eq("second phase: pause length", 1, tr.heartbeat(5100).size());
+
+        // --- a failed write: the next frame is SEL all off, then the program again
+        tr = new BtTranslator();
+        tr.command(1, setting(50), 0);
+        tr.command(3, run(600, 85, 360, 4, 4, 1), 0);
+        tr.forget();
+        eq("forgotten: not on", false, tr.isOn());
+        f = tr.command(1, setting(50), 0);
+        eq("after failure: SEL all off first", hex(BtProto.allOff()), hex(f.get(0)));
+        eq("after failure: program again", true, f.size() > 100);
+
+        // --- battery
+        eq("battery query", hex(BtProto.batterySync()), hex(tr.command(5, new byte[0], 0).get(0)));
+
+        // --- hz 0 or a bad frame never turns anything on
+        tr = new BtTranslator();
+        tr.command(1, setting(50), 0);
+        f = tr.command(3, run(600, 0, 360, 4, 4, 1), 0);
+        eq("Hz 0: stays off", false, tr.isOn());
+
+        // --- which suit
+        eq("FE50 in scan record", true, BtProto.has16(new byte[]{2, 1, 6, 3, 3, 0x50, (byte) 0xFE}, 0xFE50));
+        eq("FFF0 is not FE50", false, BtProto.has16(new byte[]{2, 1, 6, 3, 3, (byte) 0xF0, (byte) 0xFF}, 0xFE50));
+        eq("name EMS08-05629", true, BtProto.nameIsBodytech("EMS08-05629"));
+        eq("name NB-1", false, BtProto.nameIsBodytech("NB-1234"));
+        eq("name xems", false, BtProto.nameIsBodytech("xems"));
+        eq("name ems", false, BtProto.nameIsBodytech("ems"));
+        eq("battery reply", 1571, BtProto.batteryRaw(new byte[]{0x36, 0, 1, 8, 1, 0x06, 0x23, (byte) 0xC9}));
+
+        if (fails == 0) System.out.println("BtTranslatorTest: OK");
+        else {
+            System.out.println("BtTranslatorTest: " + fails + " FAILED");
+            System.exit(1);
+        }
+    }
+}

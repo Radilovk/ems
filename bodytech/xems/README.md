@@ -1,18 +1,4 @@
-# Bodytech в XEMS — подготвени класове (още не са в build-а)
+# bodytech in XEMS — tests only
 
-Класовете тук влизат в `branding/java` и `build-apk.sh` на последната стъпка (сглобяване), за да не се пуска
-нова версия на XEMS с половин функция.
-
-| Стъпка | Клас | Състояние |
-|---|---|---|
-| 1. Настройки (само данни в таблета) | `BtSettings` | готово, тест: `bash bodytech/xems/test/run.sh` |
-| 2. Екран за настройките (XemsUi) | — | предстои |
-| 3. Разпознаване на bodytech ред, зъбчато колело → екрана | — | предстои |
-| 4. Сглобяване в XEMS | — | предстои |
-
-`BtSettings` (SharedPreferences `xems_bodytech`): за всеки канал C1–C8 — име (свободен текст, до 24 знака),
-слайдер на XEMS (buwei 0–9 или „Няма“; няколко канала могат да са на един слайдер), импулс при двоен импулс
-(и двата / основен / втори); форма на импулса (на костюма / 0–3) и мащаб на силата 50–150 %.
-По подразбиране: етикетите от EMSFIT и най-близкият слайдер (C1 Кръст → Кръст, C2 Седалище → Седалище,
-C3 Рамене → Трапец, C4 Среден гръб → Гръб, C5 Гърди → Гърди, C6 Ръце → Ръце, C7 Бедра → Предно бедро,
-C8 Корем → Корем).
+The code moved to `branding/java/src/com/isaigu/gymapp/bodytech/` and is part of the build (`scripts/apply-bodytech.py`).
+Description: `docs/xems-bodytech.md`. Tests here: `bash bodytech/xems/test/run.sh`.

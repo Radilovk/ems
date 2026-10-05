@@ -3,12 +3,16 @@
 Source: decompiled `com.emsfit.way8` 5.1 (`bodytech/bodytech.zip`), package `zcontrol.protocol`.
 Encodings verified byte-for-byte against the vendor classes: 2946 frames, 0 differences
 (`bodytech/probe/test/run.sh` keeps 25 of them as golden vectors).
-Not yet seen on a real suit: replies other than battery, firmware limits, channel → muscle map.
+Confirmed on a real suit (probe 0.1, 2026-10-05, `EMS08-05629`, 02:BC:34:D6:2D:93): service/characteristic,
+every frame ACKed, battery reply. FE51 props 0x1a (read, write, notify). Write→ACK ≈ 25 ms with the default /
+HIGH connection priority, ≈ 90 ms after asking for BALANCED. No reply except battery. Battery raw stayed
+1570–1572 with seven channels at strength 1–6 — the voltage does not show a light load.
+Still open: channel → muscle map, watchdog behaviour, battery under a strong load, firmware limits.
 
 ## Link
 | | |
 |---|---|
-| Advertised name contains | `TZLJ`, `EMS` or `ADT` (vendor scan filter) |
+| Advertised name contains | `TZLJ`, `EMS` or `ADT` (vendor scan filter); seen: `EMS08-05629`, advertises FE50 |
 | Service | `0000fe50-0000-1000-8000-00805f9b34fb` |
 | Write + notify | `0000fe51-…` (same characteristic, write with response) |
 | Pacing | one frame in flight; next after write ACK (vendor polls 10 ms, gives up after 1 s) |

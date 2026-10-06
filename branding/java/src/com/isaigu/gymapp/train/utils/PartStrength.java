@@ -1,10 +1,14 @@
 package com.isaigu.gymapp.train.utils;
 
+import com.isaigu.gymapp.ai.SafeLimits;
 import com.isaigu.gymapp.bean.PartStrenthBean;
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.dialog.ActivePauseStorage;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.wearable.PartPick;
+import com.isaigu.gymapp.wearable.SafeGuard;
+import com.isaigu.gymapp.wearable.SecondParts;
 
 
 /**
@@ -22,6 +26,10 @@ import com.isaigu.gymapp.train.model.TrainItem;
  * channels go above the main strength, it goes up and the other channels' percent is set so their
  * output stays exactly the same; the second impulse strength rises in the same ratio, so the
  * other channels' second impulse stays too. With nothing selected the original code runs.
+ *
+ * <p>A channel marked yellow (wearable/PartPick) changes its second impulse alone: its percents for the second
+ * impulse are kept apart (wearable/SecondParts, per client) and go out with the second impulse's packet
+ * ({@link #secondPdu}). Green channels change both impulses as above.
  */
 public final class PartStrength {
     /** Same safety as the master slider: at most +20 in one release. */
@@ -39,7 +47,15 @@ public final class PartStrength {
             if (sel == null) {
                 return false;
             }
-            change(item, b, sel, delta);
+            boolean[] yel = yellow(b, sel);
+            boolean[] green = without(sel, yel);
+            PartPick.touch();
+            if (any(green)) {
+                change(item, b, green, delta);
+            }
+            if (any(yel)) {
+                changeSecond(item, b, yel, delta);
+            }
             item.addAllPartValue(0, true);          // nothing added: just send and refresh
             return true;
         } catch (Throwable t) {
@@ -57,11 +73,19 @@ public final class PartStrength {
             if (sel == null) {
                 return false;
             }
-            int now = level(b, sel);
+            boolean[] yel = yellow(b, sel);
+            boolean[] green = without(sel, yel);
+            int now = any(green) ? level(b, green) : level2(item, b, yel);
             int to = Math.min(clamp(level), now + MAX_RAISE);
             // the strongest selected channel goes to the slider; the other selected ones move by
             // the same step (their differences stay, as with + / −)
-            change(item, b, sel, to - now);
+            PartPick.touch();
+            if (any(green)) {
+                change(item, b, green, to - now);
+            }
+            if (any(yel)) {
+                changeSecond(item, b, yel, to - now);
+            }
             item.addAllPartValue(0, true);
             return true;
         } catch (Throwable t) {
@@ -77,10 +101,135 @@ public final class PartStrength {
             if (sel == null) {
                 return current;
             }
-            return level(b, sel) * 75 / 100;
+            boolean[] yel = yellow(b, sel);
+            boolean[] green = without(sel, yel);
+            int lv = any(green) ? level(b, green) : level2(item, b, yel);
+            return lv * 75 / 100;
         } catch (Throwable t) {
             return current;
         }
+    }
+
+    // ================================================================ second impulse of a yellow channel
+
+    /**
+     * Hook: CommandSender.sendActivePause — the second impulse's channel packet. With the client's own
+     * second-impulse percents (yellow channels) they replace the main ones; otherwise exactly the original.
+     */
+    public static byte[] secondPdu(ProgramDataBean b, boolean[] disabled, int strength) {
+        try {
+            int[] own = SecondParts.get(b);
+            if (own != null && b.strenthBean != null && b.strenthBean.buwei != null
+                    && own.length == b.strenthBean.buwei.length) {
+                ProgramDataBean t = new ProgramDataBean();
+                t.pulseWidth = b.pulseWidth;                 // the arms scale follows the pulse width
+                PartStrenthBean s = new PartStrenthBean();
+                s.buwei = own;
+                t.strenthBean = s;
+                return CommandUtil.getPartsParamsPduWithStrength(t, disabled, strength);
+            }
+        } catch (Throwable ignored) {
+        }
+        return CommandUtil.getPartsParamsPduWithStrength(b, disabled, strength);
+    }
+
+    /** The second impulse's strength as the suit gets it: the set one within the limits of the row. */
+    static int secondStrength(TrainItem item, ProgramDataBean b) {
+        return Math.min(b.pauseStrenthPercent, secondCap(item, b));
+    }
+
+    /** Highest second impulse strength the row sends (never above the main one; a bodytech suit is free). */
+    static int secondCap(TrainItem item, ProgramDataBean b) {
+        try {
+            if (SafeGuard.free2(item)) {
+                return 150;
+            }
+        } catch (Throwable ignored) {
+        }
+        return Math.max(0, Math.min(SafeLimits.PAUSE_PCT_MAX, b.strenth));
+    }
+
+    /** What the slider stands for on yellow channels: the strongest one's second impulse. */
+    static int level2(TrainItem item, ProgramDataBean b, boolean[] sel) {
+        int[] e = SecondParts.effective(b, b.strenthBean.buwei);
+        int p = secondStrength(item, b);
+        int max = 0;
+        for (int i = 0; i < e.length; i++) {
+            if (sel[i]) {
+                max = Math.max(max, real(e[i], p));
+            }
+        }
+        return max;
+    }
+
+    /**
+     * Yellow channels +delta on the second impulse only. Within the second impulse strength the channel percent
+     * moves; above it the second impulse strength goes up (up to the limit) and the other channels' percents are
+     * set so their second impulse stays exactly where it was. The main impulse is not touched.
+     */
+    static void changeSecond(TrainItem item, ProgramDataBean b, boolean[] yel, int delta) {
+        int[] parts = b.strenthBean.buwei;
+        int[] e = SecondParts.effective(b, parts);
+        int cap = secondCap(item, b);
+        int p = Math.min(b.pauseStrenthPercent, cap);
+        int[] target = new int[parts.length];
+        int maxSel = 0;
+        for (int i = 0; i < parts.length; i++) {
+            int r = real(e[i], p);
+            target[i] = yel[i] ? clamp(r + delta) : r;
+            if (yel[i]) {
+                maxSel = Math.max(maxSel, target[i]);
+            }
+        }
+        int np = p;
+        if (maxSel > p && cap > p) {
+            np = Math.min(cap, raisedStrength(target, yel, Math.min(100, maxSel)));
+        }
+        for (int i = 0; i < parts.length; i++) {
+            if (yel[i] || np != p) {
+                e[i] = percentFor(Math.min(target[i], np), np, e[i]);
+            }
+        }
+        if (np != p) {
+            b.pauseStrenthPercent = np;
+            saveProgram(item);
+        }
+        SecondParts.set(b, parts, e);
+    }
+
+    /** The selected channels of {@code sel} that are yellow and can take it (second impulse on); null when none. */
+    static boolean[] yellow(ProgramDataBean b, boolean[] sel) {
+        if (b == null || !b.activePause) {
+            return null;
+        }
+        boolean[] y = new boolean[sel.length];
+        boolean any = false;
+        for (int i = 0; i < sel.length; i++) {
+            y[i] = sel[i] && PartPick.isYellow(i);
+            any |= y[i];
+        }
+        return any ? y : null;
+    }
+
+    static boolean[] without(boolean[] sel, boolean[] yel) {
+        boolean[] g = sel.clone();
+        if (yel != null) {
+            for (int i = 0; i < g.length; i++) {
+                g[i] = g[i] && !yel[i];
+            }
+        }
+        return g;
+    }
+
+    static boolean any(boolean[] a) {
+        if (a != null) {
+            for (int i = 0; i < a.length; i++) {
+                if (a[i]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // ================================================================ internals
@@ -97,25 +246,73 @@ public final class PartStrength {
         return max;
     }
 
-    /** Selected channels +delta; the second impulse (when on) follows in the same ratio. */
+    /**
+     * Selected (green) channels +delta; the second impulse (when on) follows in the same ratio. A channel that
+     * has its own second-impulse percent (SecondParts) takes the main impulse's real step in its second impulse.
+     */
     static void change(TrainItem item, ProgramDataBean b, boolean[] sel, int delta) {
         int[] parts = b.strenthBean.buwei;
         int before = b.strenth;
         int pause = b.pauseStrenthPercent;
+        int[] own = b.activePause ? SecondParts.get(b) : null;
+        int[] shared = own != null && own.length == parts.length ? own : parts;
         int[] second = new int[parts.length];
+        int[] mainReal = new int[parts.length];
         for (int i = 0; i < parts.length; i++) {
-            second[i] = real(parts[i], pause);
+            second[i] = real(shared[i], pause);
+            mainReal[i] = real(parts[i], before);
         }
         b.strenth = apply(parts, before, sel, delta, false, !MusicSync.isRunning());
+        if (own != null && own.length == parts.length) {
+            int[] want = new int[parts.length];
+            for (int i = 0; i < parts.length; i++) {
+                want[i] = sel[i] ? clamp(second[i] + real(parts[i], b.strenth) - mainReal[i]) : second[i];
+            }
+            int np = pause;
+            if (b.strenth != before && before > 0) {
+                np = bestPauseOwn(own, want, pause * (double) b.strenth / before);
+                b.pauseStrenthPercent = np;
+                saveProgram(item);
+            }
+            for (int i = 0; i < parts.length; i++) {
+                own[i] = percentFor(Math.min(want[i], np), np, own[i]);
+            }
+            SecondParts.set(b, parts, own);
+            return;
+        }
         if (b.activePause && b.strenth != before && before > 0) {
             // other channels got a smaller percent for a bigger strength: raise the second impulse
             // strength about the same ratio — the value that keeps their second impulse closest
             b.pauseStrenthPercent = bestPause(parts, sel, second, pause * (double) b.strenth / before);
-            try {
-                ActivePauseStorage.save(item.getTrainProgram());
-            } catch (Throwable ignored) {
+            saveProgram(item);
+        }
+    }
+
+    static void saveProgram(TrainItem item) {
+        try {
+            ActivePauseStorage.save(item.getTrainProgram());
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Like {@link #bestPause} when the channels have their own second-impulse percents: they are refitted to {@code want}. */
+    static int bestPauseOwn(int[] own, int[] want, double ideal) {
+        int centre = (int) Math.round(ideal);
+        int best = clamp(centre);
+        long bestCost = Long.MAX_VALUE;
+        for (int p = Math.max(0, centre - 4); p <= Math.min(100, centre + 4); p++) {
+            long cost = 0;
+            for (int i = 0; i < own.length; i++) {
+                int d = real(percentFor(Math.min(want[i], p), p, own[i]), p) - want[i];
+                cost += d > 0 ? 2L * d : -d;
+            }
+            cost = cost * 16 + Math.abs(p - centre);
+            if (cost < bestCost) {
+                bestCost = cost;
+                best = p;
             }
         }
+        return best;
     }
 
     /** Second impulse strength near {@code ideal} that keeps the other channels' output closest (never above). */

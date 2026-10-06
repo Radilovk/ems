@@ -3,6 +3,7 @@ package com.isaigu.gymapp.train.utils;
 import com.isaigu.gymapp.bean.PartStrenthBean;
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
+import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 import com.isaigu.gymapp.fragment.NewTrainFragment;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
@@ -70,6 +71,60 @@ public class PartSim {
             r[i] = PartStrength.real(e[i], p);
         }
         return r;
+    }
+
+    /** PartLook: what the row shows (green main / yellow second) and the 1.5 × limit. */
+    static void looks(Frag f, Mgr m) {
+        ProgramDataBean b = new ProgramDataBean();
+        b.strenthBean = new PartStrenthBean();
+        b.strenthBean.buwei = new int[10];
+        for (int i = 0; i < 10; i++) {
+            b.strenthBean.buwei[i] = 80;
+        }
+        b.strenth = 50;
+        b.hz = 85;
+        b.activePause = true;
+        b.pauseHz = 6;
+        b.pauseStrenthPercent = 40;
+        TrainProgram tp = new TrainProgram();
+        tp.programDataBean = b;
+        Item it = new Item(tp);
+        it.data = new TrainUserProgramDataWrapper();
+        m.list.clear();
+        m.list.add(it);
+        check(PartStrength.secondCap(it, b) == 75, "2nd impulse cap at main 50: " + PartStrength.secondCap(it, b));
+        b.strenth = 80;
+        check(PartStrength.secondCap(it, b) == 100, "2nd impulse cap at main 80: the unit's 100");
+        b.strenth = 50;
+        // stopped: all green
+        check(!PartLook.live(it, b), "stopped row: no live second impulse");
+        check(!PartLook.barSecond(it, b, null, 3, false), "stopped, unmarked: green");
+        // running, pause phase: unmarked follows the second impulse
+        it.data.start = true;
+        it.data.inStart = false;
+        check(PartLook.live(it, b), "pause phase: second impulse live");
+        check(PartLook.barSecond(it, b, null, 3, true), "pause phase, unmarked: yellow");
+        it.data.inStart = true;
+        check(!PartLook.live(it, b), "impulse phase: main");
+        // a marked channel keeps its look whatever runs
+        it.partsControl[3] = false;
+        PartPick.click(f, m, it.partsControl, 3);                // green
+        check(!PartLook.barSecond(it, b, null, 3, true), "green mark stays green in the pause phase");
+        PartPick.click(f, m, it.partsControl, 3);                // yellow
+        check(PartLook.barSecond(it, b, null, 3, false), "yellow mark stays yellow in the impulse phase");
+        PartPick.click(f, m, it.partsControl, 3);                // off
+        // the free ring: locked in the look it had, its release sets the second impulse (≤ +20, ≤ 1.5 × main)
+        it.data.inStart = false;
+        check(PartLook.ringMove(it), "free ring in the pause phase: second impulse look");
+        it.data.inStart = true;                                  // the phase turns under the finger
+        check(PartLook.ringMove(it), "ring stays in its look while it moves");
+        check(PartLook.ringEnd(it, 100), "yellow ring release handled");
+        check(b.pauseStrenthPercent == 60 && b.strenth == 50, "yellow ring: 40 → 60 (+20), main stays: "
+                + b.pauseStrenthPercent + " / " + b.strenth);
+        check(PartLook.ringEnd(it, 100) && b.pauseStrenthPercent == 75, "yellow ring: at most 1.5 × main (75): "
+                + b.pauseStrenthPercent);
+        check(PartStrength.seekValue(it, 0) == 75 * 75 / 100, "ring shows the second impulse while held");
+        it.data.start = false;
     }
 
     public static void main(String[] a) {
@@ -164,7 +219,7 @@ public class PartSim {
                 }
                 if (onlyYellow) {
                     check(b.strenth == str0, "yellow changed the main strength");
-                    check(b.pauseStrenthPercent <= Math.min(100, b.strenth), "second strength above the limit");
+                    check(b.pauseStrenthPercent <= com.isaigu.gymapp.ai.SafeLimits.pauseCap(b.strenth), "second strength above the limit (1.5 × main)");
                     check(b.pauseStrenthPercent >= ps0 || delta < 0, "second strength lowered by +");
                 }
                 // the slider: release at a random level
@@ -226,10 +281,10 @@ public class PartSim {
         PartPick.click(f, m, marks, 7);
         PartPick.click(f, m, marks, 7);
         int[] mb = mainReal(b), sb = secondReal(it, b);
-        PartStrength.bar(tp, b, 7, 50);                       // bar → 30 of 60
+        PartStrength.bar(null, tp, b, 7, 50);                 // yellow bar shows the 2nd impulse: 50 % of 40 → 20
         int[] ma = mainReal(b), sa = secondReal(it, b);
         check(ma[7] == mb[7], "yellow bar moved the main impulse");
-        check(sa[7] == 30, "yellow bar: second impulse " + sa[7] + " instead of 30");
+        check(sa[7] == 20, "yellow bar: second impulse " + sa[7] + " instead of 20");
         for (int i = 0; i < 10; i++) {
             if (i != 7) {
                 check(ma[i] == mb[i] && sa[i] == sb[i], "yellow bar moved channel " + i);
@@ -238,7 +293,7 @@ public class PartSim {
         PartPick.click(f, m, marks, 7);                       // off
         PartPick.click(f, m, marks, 7);                       // green
         sb = secondReal(it, b);
-        PartStrength.bar(tp, b, 7, 100);
+        PartStrength.bar(null, tp, b, 7, 100);
         check(mainReal(b)[7] == 60 && secondReal(it, b)[7] == sb[7], "green bar: main alone");
         marks[7] = false;
         // own percents are dropped when they equal the main ones
@@ -248,6 +303,8 @@ public class PartSim {
         check(SecondParts.get(b) != null, "own percents kept");
         SecondParts.set(b, b.strenthBean.buwei, same);
         check(SecondParts.get(b) == null, "own percents equal to the main ones dropped");
+
+        looks(f, m);
 
         System.out.println("operations: " + ops + ", yellow + steps: " + yellowUp + " (exactly +1: " + exact + ", at the limit: " + capped + ")"
                 + ", second impulse of others moved: " + secondShift + " (by more than 1: " + secondShiftBig + ")");

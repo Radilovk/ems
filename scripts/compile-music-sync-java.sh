@@ -76,6 +76,7 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/train/utils/MusicDiagLog.class' \
      -o -path '*/train/utils/ProgramLive.class' \
      -o -path '*/train/utils/PartStrength*.class' \
+     -o -path '*/train/utils/PartLook*.class' \
      -o -path '*/dialog/MusicPlayerHelper*.class' \
      -o -path '*/dialog/MusicDial*.class' \
      -o -path '*/dialog/MusicPlaylist*.class' \
@@ -130,6 +131,7 @@ MUSIC_EXACT = {
     "PartStrength.smali",
 }
 MUSIC_PREFIXES = (
+    "PartLook",
     "MusicSync",
     "MusicPlayerHelper",
     "MusicDial",

@@ -61,8 +61,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-music-sync-slider.py` (76L, build:L108[BETA_MUSIC]) — Register circle slider + MA label with MusicSync when TrainViewHolder binds.
 - `scripts/apply-music-training-sync.py` (207L, build:L116[BETA_MUSIC]) — Music-sync BLE hooks.
 - `scripts/apply-no-vendor-network.py` (111L, build:L131[BETA_MUSIC]) — No request ever leaves the tablet for the vendor's server (xemsplus.com) or any other host through the vendor's code.
-- `scripts/apply-part-strength.py` (140L, build:L162) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
-- `scripts/apply-pause-parts.py` (159L, build:L164) — Second impulse per channel: the muscle icon cycles green → yellow → off, yellow changes the second impulse alone.
+- `scripts/apply-part-strength.py` (147L, build:L162) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
+- `scripts/apply-pause-parts.py` (282L, build:L164) — Second impulse per channel: the muscle icon cycles green → yellow → off, yellow changes the second impulse alone.
 - `scripts/apply-picker-colors.py` (40L, build:L57) — Client / program / device picker in the app's colours.
 - `scripts/apply-plan-tab.py` (68L, build:L139[BETA_MUSIC]) — The "План" tab shows wearable/PlanScreen (appointments from the tablet's calendar, next client) instead of the vendor's…
 - `scripts/apply-program-fit.py` (166L, build:L133[BETA_MUSIC]) — Saved program = the base of the manual mode; the diskette saves it, the gear works while training.
@@ -99,7 +99,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
-- `scripts/compile-music-sync-java.sh` (216L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
+- `scripts/compile-music-sync-java.sh` (218L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
 - `scripts/compile-wearable-java.sh` (230L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
@@ -108,7 +108,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/design_config_schema.py` (116L) — Safe bounds and validation for branding/design-config.yaml.
 - `scripts/exercise-line-width.py` (208L) — Even line weight for the exercise figures. Some frames of the source drawings (mostly the middle one) are traced with m…
 - `scripts/exercise-paths.py` (166L) — SVG path data → absolute M / L / C / Z only, so the app draws it with android.graphics.Path and no SVG library.
-- `scripts/fit-sim/SafeSim.java` (84L) — Offline checks of SafeLimits: the absolute limits of every mode (docs/xems-safety-limits.md).
+- `scripts/fit-sim/SafeSim.java` (90L) — Offline checks of SafeLimits: the absolute limits of every mode (docs/xems-safety-limits.md).
 - `scripts/fit-sim/SearchSim.java` (30L) — Offline check of the client search: Cyrillic ↔ Latin phonetic matches (XemsSearch.matches).
 - `scripts/fit-sim/run.sh` (15L) — Offline test of ai/SafeLimits (the absolute limits of every mode) and the
 - `scripts/gen-body-figures.py` (54L) — The body figures of the Auto live board (ai/BodyHeatView): the report's anatomical art and channel maps (branding/repor…
@@ -120,7 +120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
-- `scripts/part-sim/PartSim.java` (260L) — Offline test of the muscle icon cycle (green → yellow → off) and of the second impulse per channel (PartStrength.change…
+- `scripts/part-sim/PartSim.java` (317L) — Offline test of the muscle icon cycle (green → yellow → off) and of the second impulse per channel (PartStrength.change…
 - `scripts/part-sim/run.sh` (16L) — Offline test of the muscle icon cycle (green → yellow → off) and the second impulse per channel
 - `scripts/part-sim/shim/android/os/Handler.java` (8L) — Test shim: the android.jar stub throws in the constructor.
 - `scripts/part-sim/shim/android/os/Looper.java` (7L) — Test shim.
@@ -198,7 +198,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `OutputOwner.java` (85L, compile:music-sync*,wearable) — Who drives the impulse of the rows right now (1.1.331): one answer for every mode, so two writers never fight over the …
 - `PathNorm.java` (355L, compile:music-sync*,wearable) — SVG path data → absolute M / L / C / Z only (what {@link ExerciseFigure} draws).
 - `ProgramArt.java` (196L, compile:music-sync*,wearable) — The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile — in the lig…
-- `SafeLimits.java` (185L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
+- `SafeLimits.java` (194L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
 - `Workout.java` (594L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
 - `WorkoutStore.java` (270L, compile:music-sync*,wearable) — The studio's own workouts on this tablet (files/xems_workouts.json) plus the ready programs ({@link Workout#presets}).
 - `WorkoutsUi.java` (1703L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
@@ -245,7 +245,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (33L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartStrength.java` (424L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
+- `PartLook.java` (339L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
+- `PartStrength.java` (431L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
 
@@ -423,7 +424,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1278L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1279L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (69L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
@@ -870,7 +871,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L168 ## Какво остава за сървъра
   - L175 ## Проверки (без Android)
 
-`docs/xems-part-strength.md` (85L)
+`docs/xems-part-strength.md` (111L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
   - L28 ## Къде е вързано (`scripts/apply-part-strength.py`, последен в `build-apk.sh`)
@@ -880,6 +881,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L69 ### Съхранение по клиент и сървър
   - L73 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
   - L81 ### Защо 1.1.362–365 не работеше
+  - L86 ## Жълто = вторият импулс на екрана (1.1.369-ai)
 
 `docs/xems-plan.md` (62L)
   - L1 # XEMS — „План“ и следващ клиент (1.1.188-ai)
@@ -918,7 +920,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
 
-`docs/xems-safety-limits.md` (45L)
+`docs/xems-safety-limits.md` (46L)
   - L1 # Absolute limits of the impulse (owner, 1.1.323-ai)
   - L8 ## The rules
   - L28 ## Where

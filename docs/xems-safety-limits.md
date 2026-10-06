@@ -12,7 +12,7 @@ Code: `ai/SafeLimits` (pure, the rules), `wearable/SafeGuard` (on the row), test
 | Depth | 50–400 µs; from 100 Hz at most 300 µs | high rate × wide pulse = pain / burn (Auto L4) |
 | Fused impulse (≥ 20 Hz) | at most 6 s from 50 Hz, 10 s at 20–49 Hz; soft rise ≥ 0.3 s | WB-EMS impulse 4–6 s [E:R1]; no jolt |
 | Pause (≥ 20 Hz) | the **shortest pause whose steady fatigue peak at the calibrated strength stays within a trained person's limit** (physiology §3.1, HIGH: τ 30 s, F_max = 1.15·τ/(1+e^(−4/τ))); the second impulse counts | one formula for every combination |
-| Second impulse | **≤ 10 Hz**, under the main frequency, never stronger than the main impulse; 1 Hz main → off | the pause is for relaxing — a fused contraction there is no rest |
+| Second impulse | **≤ 10 Hz**, under the main frequency; strength **at most 1.5 × the main impulse** (never above the unit's 100; owner, 1.1.369); 1 Hz main → off | the pause is for relaxing — a fused contraction there is no rest; a low Hz is felt weaker, so it may go above the main strength |
 
 Shortest pause (s) for impulse 2…10 s (no second impulse):
 
@@ -32,7 +32,8 @@ Shortest pause (s) for impulse 2…10 s (no second impulse):
   ("Граница за безопасност: Пауза 1 → 4 s: при 100 Hz · 4 s по-кратка не е безопасна"), at most every 8 s.
 - **Pause phase** (1.1.329): every pause send of every mode goes through `SoftRamp.sendPause` →
   `SafeGuard.pause` → `SafeLimits.pauseSend`: no second impulse when the main strength is 0 (a map's rest block,
-  music at 0), its Hz at most 10 and under the main one, its strength never above the main one. Only what goes out
+  music at 0), its Hz at most 10 and under the main one, its strength at most 1.5 × the main one (`SafeLimits.pauseCap`; before
+  1.1.369 never above it). Only what goes out
   is capped — the row keeps the trainer's 2nd-impulse setting (before 1.1.329 a lower main strength wiped it).
 - The engines apply the same rules before they write, so they never read the guard's correction as a trainer's
   change: Auto `AutoLimits.clampStep` (+ `run-auto.sh` checks every cycle), AI `AiSession.safe`, maps `MapRunner`

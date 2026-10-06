@@ -1,5 +1,7 @@
 package com.isaigu.gymapp.train.utils;
 
+import android.view.View;
+
 import com.isaigu.gymapp.ai.SafeLimits;
 import com.isaigu.gymapp.bean.PartStrenthBean;
 import com.isaigu.gymapp.bean.ProgramDataBean;
@@ -89,13 +91,16 @@ public final class PartStrength {
         }
     }
 
-    /** Slider position (0–75 scale) for the card: the selected channels' level, else unchanged. */
+    /**
+     * Slider position (0–75 scale) for the card: the selected channels' level; nothing selected — the second impulse's
+     * strength while the ring is in its look (PartLook), else unchanged.
+     */
     public static int seekValue(TrainItem item, int current) {
         try {
             ProgramDataBean b = bean(item);
             boolean[] sel = selection(item, b);
             if (sel == null) {
-                return current;
+                return b != null ? PartLook.ringValue(item, b, current) : current;
             }
             boolean[] yel = yellow(b, sel);
             boolean[] green = without(sel, yel);
@@ -134,7 +139,7 @@ public final class PartStrength {
         return Math.min(b.pauseStrenthPercent, secondCap(item, b));
     }
 
-    /** Highest second impulse strength the row sends (never above the main one; a bodytech suit is free). */
+    /** Highest second impulse strength the row sends (at most 1.5 × the main one, SafeLimits; a bodytech suit is free). */
     static int secondCap(TrainItem item, ProgramDataBean b) {
         try {
             if (SafeGuard.free2(item)) {
@@ -142,7 +147,7 @@ public final class PartStrength {
             }
         } catch (Throwable ignored) {
         }
-        return Math.max(0, Math.min(SafeLimits.PAUSE_PCT_MAX, b.strenth));
+        return SafeLimits.pauseCap(b.strenth);
     }
 
     /** What the slider stands for on yellow channels: the strongest one's second impulse. */
@@ -276,23 +281,25 @@ public final class PartStrength {
     // ================================================================ a channel's own bar (row)
 
     /**
-     * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the stock
-     * percent of the main impulse). Yellow channel: the bar's strength goes to its second impulse alone, the main
-     * impulse stays where it was. Otherwise the main impulse takes it as stock; with the second impulse on the
-     * second impulse of the channel stays where it was (green = main alone).
+     * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the bar's
+     * percent). The bar sets what it showed (PartLook): in the second impulse's look (yellow) the channel's second
+     * impulse alone — its percent of the second impulse's strength — the main impulse stays where it was. Otherwise
+     * the main impulse takes it as stock; with the second impulse on the second impulse of the channel stays where it
+     * was (green = main alone).
      */
-    public static void bar(TrainProgram prog, ProgramDataBean b, int i, int stored) {
+    public static void bar(View view, TrainProgram prog, ProgramDataBean b, int i, int stored) {
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
         if (parts == null || i < 0 || i >= parts.length) {
             return;
         }
         try {
             PartPick.touch();
-            if (b.activePause && PartPick.isYellow(i)) {
+            if (PartLook.release(view, b, i)) {
                 boolean[] y = new boolean[parts.length];
                 y[i] = true;
-                int now = real(SecondParts.effective(b, parts)[i], Math.min(b.pauseStrenthPercent, secondCap(null, b)));
-                changeSecond(null, prog, b, y, real(stored, b.strenth) - now);
+                int p2 = Math.min(b.pauseStrenthPercent, secondCap(null, b));
+                int now = real(SecondParts.effective(b, parts)[i], p2);
+                changeSecond(null, prog, b, y, real(stored, p2) - now);
                 return;
             }
             int[] second = b.activePause ? SecondParts.effective(b, parts) : SecondParts.get(b);

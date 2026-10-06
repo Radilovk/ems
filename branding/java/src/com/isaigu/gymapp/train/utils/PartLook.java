@@ -203,24 +203,122 @@ public final class PartLook {
      * "Л" / "Д" before their percent (the muscle icons above are shared by every row, so the tag is on the row).
      */
     /**
-     * A bodytech row (owner, 1.1.378): a slider no channel of the suit answers (the chest — on bodytech that channel is
-     * a leg; the calf by default) is hidden. INVISIBLE, not GONE: the columns stay under the muscle icons above, which
-     * every row shares. Rows are recycled, so every other row gets its columns back.
+     * A bodytech row (owner, 1.1.379): chest and calf do not exist on the suit — their columns are hidden; the legs
+     * are whole left / right legs. INVISIBLE, not GONE: the columns stay under the muscle icons above, which every row
+     * shares. Rows are recycled, so every other row gets its columns back. The header follows ({@link #header}).
      */
     static void columns(TrainItem item, VerticalColorSeekBar[] bars) {
         boolean bt = item != null && item.data != null
                 && com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(item.data.macAddress);
+        if (bars.length > 0 && bars[0] != null) {
+            header(item, bars[0], bt);
+        }
         for (int i = 0; i < bars.length; i++) {
             if (bars[i] == null || !(bars[i].getParent() instanceof View)) {
                 continue;
             }
             View col = (View) bars[i].getParent();
-            int want = !bt || com.isaigu.gymapp.bodytech.BtSettings.hasChannel(i) ? View.VISIBLE : View.INVISIBLE;
+            int want = bt && com.isaigu.gymapp.bodytech.BtSettings.hidden(i) ? View.INVISIBLE : View.VISIBLE;
             if (col.getVisibility() != want) {
                 col.setVisibility(want);
             }
         }
     }
+
+    /** Rows on screen with a suit: bodytech or not (the header is the bodytech one only when every such row is). */
+    private static final WeakHashMap<TrainItem, Object[]> ROWS = new WeakHashMap<TrainItem, Object[]>();
+    /** The stock header labels / leg icons, to put back when an XEMS suit is on the screen again. */
+    private static final WeakHashMap<View, Object> HEADER_ORIG = new WeakHashMap<View, Object>();
+
+    /**
+     * The muscle header above the rows (shared by every row; cells buwei1..10, icon + label): when every row on the
+     * screen with a suit runs a bodytech one (owner, 1.1.379), chest and calf go, and the two leg columns read
+     * "Ляв крак" / "Десен крак" with the same leg icon (no front / back thigh). Any XEMS suit → the stock header.
+     */
+    static void header(TrainItem item, View bar, boolean bt) {
+        try {
+            if (item != null) {
+                boolean suit = item.data != null && item.data.macAddress != null && item.data.macAddress.length() > 0;
+                if (suit) {
+                    ROWS.put(item, new Object[] {new java.lang.ref.WeakReference<View>(bar), Boolean.valueOf(bt)});
+                } else {
+                    ROWS.remove(item);
+                }
+            }
+            boolean anyBt = false, anyXems = false;
+            for (Object[] v : ROWS.values()) {
+                @SuppressWarnings("unchecked")
+                View b = ((java.lang.ref.WeakReference<View>) v[0]).get();
+                if (b == null || !b.isAttachedToWindow()) {
+                    continue;
+                }
+                if (((Boolean) v[1]).booleanValue()) {
+                    anyBt = true;
+                } else {
+                    anyXems = true;
+                }
+            }
+            boolean on = anyBt && !anyXems;
+            View root = bar.getRootView();
+            if (root == null) {
+                return;
+            }
+            String pkg = root.getContext().getPackageName();
+            android.view.ViewGroup left = null;
+            for (int i = 0; i < 10; i++) {
+                int id = root.getResources().getIdentifier("buwei" + (i + 1), "id", pkg);
+                View cell = id != 0 ? root.findViewById(id) : null;
+                if (!(cell instanceof android.view.ViewGroup)) {
+                    continue;
+                }
+                android.view.ViewGroup g = (android.view.ViewGroup) cell;
+                if (com.isaigu.gymapp.bodytech.BtSettings.hidden(i)) {
+                    int want = on ? View.INVISIBLE : View.VISIBLE;
+                    if (g.getVisibility() != want) {
+                        g.setVisibility(want);
+                    }
+                    continue;
+                }
+                if (i != com.isaigu.gymapp.bodytech.BtSettings.LEFT_LEG
+                        && i != com.isaigu.gymapp.bodytech.BtSettings.RIGHT_LEG) {
+                    continue;
+                }
+                boolean isLeft = i == com.isaigu.gymapp.bodytech.BtSettings.LEFT_LEG;
+                View icon = g.getChildCount() > 0 ? g.getChildAt(0) : null;
+                TextView label = g.getChildCount() > 1 && g.getChildAt(1) instanceof TextView ? (TextView) g.getChildAt(1) : null;
+                if (isLeft) {
+                    left = g;
+                }
+                if (label != null) {
+                    if (!HEADER_ORIG.containsKey(label)) {
+                        HEADER_ORIG.put(label, label.getText());
+                    }
+                    CharSequence want = on ? com.isaigu.gymapp.bodytech.BtSettings.SLIDERS[i] : (CharSequence) HEADER_ORIG.get(label);
+                    if (want != null && !want.toString().equals(label.getText().toString())) {
+                        label.setText(want);
+                    }
+                }
+                if (!isLeft && icon != null && left != null && left.getChildAt(0) != null) {
+                    if (!HEADER_ORIG.containsKey(icon)) {
+                        HEADER_ORIG.put(icon, icon.getBackground());
+                    }
+                    android.graphics.drawable.Drawable src = left.getChildAt(0).getBackground();
+                    if (on && src != null && src.getConstantState() != null) {
+                        if (icon.getTag() != LEG_TAG) {
+                            icon.setBackgroundDrawable(src.getConstantState().newDrawable());
+                            icon.setTag(LEG_TAG);
+                        }
+                    } else if (!on && icon.getTag() == LEG_TAG) {
+                        icon.setBackgroundDrawable((android.graphics.drawable.Drawable) HEADER_ORIG.get(icon));
+                        icon.setTag(null);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static final Object LEG_TAG = new Object();
 
     /**
      * A bodytech row (owner, 1.1.377): the two leg bars and texts show what the suit gets (BtTranslator.legValue —

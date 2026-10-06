@@ -187,8 +187,8 @@ public final class BtSettingsSection {
             HorizontalScrollView hs = XemsUi.chipRow(a, holder);
             for (int k = -1; k < BtSettings.ROW_ORDER.length; k++) {
                 int i = k < 0 ? -1 : BtSettings.ROW_ORDER[k];       // the row's order, left to right
-                // the bodytech suit has no chest channel (owner, 1.1.378): "Гърди" is not offered (kept only while chosen)
-                if (i == 0 && BtSettings.slider(ch) != 0) continue;
+                // the bodytech suit has no chest and no calf (owner, 1.1.379): they are not offered
+                if (BtSettings.hidden(i)) continue;
                 TextView c = XemsUi.chip(a, BtSettings.sliderName(i), BtSettings.slider(ch) == i, XemsUi.GO_TEXT);
                 c.setOnClickListener(new Pick(this, Pick.SLIDER, ch, i));
                 XemsUi.addChip(a, holder[0], c);

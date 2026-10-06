@@ -199,9 +199,9 @@
 
     const/4 v1, -0x1
 
-    const/4 v3, 0x1
+    const/4 v4, 0x1
 
-    const/4 v4, 0x0
+    const/4 v5, 0x0
 
     .line 155
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
@@ -220,38 +220,38 @@
     .line 157
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
 
-    new-instance v5, Ljava/lang/StringBuilder;
+    new-instance v3, Ljava/lang/StringBuilder;
 
-    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
     const-string v7, "C"
 
-    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v5
+    move-result-object v3
 
-    invoke-virtual {v5, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v5
+    move-result-object v3
 
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v5
+    move-result-object v3
 
     sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    invoke-static {v0, v5, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->badge(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
+    invoke-static {v0, v3, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->badge(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
 
     move-result-object v0
 
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 158
-    new-instance v5, Landroid/widget/EditText;
+    new-instance v3, Landroid/widget/EditText;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
 
-    invoke-direct {v5, v0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
+    invoke-direct {v3, v0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
     .line 159
     invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->name(I)Ljava/lang/String;
@@ -280,43 +280,43 @@
 
     move-result v0
 
-    if-eqz v0, :cond_127
+    if-eqz v0, :cond_125
 
     const-string v0, ""
 
     :goto_57
-    invoke-virtual {v5, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v3, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
     .line 160
     const-string v0, "\u0418\u043c\u0435 \u043d\u0430 \u043a\u0430\u043d\u0430\u043b\u0430"
 
-    invoke-virtual {v5, v0}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
+    invoke-virtual {v3, v0}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
     .line 161
-    invoke-virtual {v5, v3}, Landroid/widget/EditText;->setSingleLine(Z)V
+    invoke-virtual {v3, v4}, Landroid/widget/EditText;->setSingleLine(Z)V
 
     .line 162
-    invoke-virtual {v5, v3}, Landroid/widget/EditText;->setInputType(I)V
+    invoke-virtual {v3, v4}, Landroid/widget/EditText;->setInputType(I)V
 
     .line 163
     const/high16 v0, 0x41800000    # 16.0f
 
-    invoke-virtual {v5, v0}, Landroid/widget/EditText;->setTextSize(F)V
+    invoke-virtual {v3, v0}, Landroid/widget/EditText;->setTextSize(F)V
 
     .line 164
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
-    invoke-virtual {v5, v0}, Landroid/widget/EditText;->setTextColor(I)V
+    invoke-virtual {v3, v0}, Landroid/widget/EditText;->setTextColor(I)V
 
     .line 165
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
-    invoke-virtual {v5, v0}, Landroid/widget/EditText;->setHintTextColor(I)V
+    invoke-virtual {v3, v0}, Landroid/widget/EditText;->setHintTextColor(I)V
 
     .line 166
     const/4 v0, 0x0
 
-    invoke-virtual {v5, v0}, Landroid/widget/EditText;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+    invoke-virtual {v3, v0}, Landroid/widget/EditText;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
     .line 167
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
@@ -327,14 +327,14 @@
 
     move-result v0
 
-    invoke-virtual {v5, v0, v4, v4, v4}, Landroid/widget/EditText;->setPadding(IIII)V
+    invoke-virtual {v3, v0, v5, v5, v5}, Landroid/widget/EditText;->setPadding(IIII)V
 
     .line 168
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Name;
 
     invoke-direct {v0, p1}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Name;-><init>(I)V
 
-    invoke-virtual {v5, v0}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
+    invoke-virtual {v3, v0}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
 
     .line 169
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
@@ -343,14 +343,14 @@
 
     const/high16 v8, 0x3f800000    # 1.0f
 
-    invoke-direct {v0, v4, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+    invoke-direct {v0, v5, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    invoke-virtual {v2, v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v2, v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 170
     invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->positionOf(I)I
 
-    move-result v5
+    move-result v3
 
     .line 171
     iget-object v7, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
@@ -359,7 +359,7 @@
 
     sget v9, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
-    if-lez v5, :cond_12d
+    if-lez v3, :cond_12b
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
@@ -385,7 +385,7 @@
     .line 174
     const/4 v0, 0x7
 
-    if-ge v5, v0, :cond_131
+    if-ge v3, v0, :cond_12f
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
@@ -396,14 +396,14 @@
     move-result-object v0
 
     .line 175
-    new-instance v5, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;
+    new-instance v3, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;
 
-    invoke-direct {v5, p0, p1, v3}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;-><init>(Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;II)V
+    invoke-direct {v3, p0, p1, v4}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Move;-><init>(Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;II)V
 
-    invoke-virtual {v0, v5}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     .line 176
-    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
+    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     iget-object v8, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
 
@@ -421,7 +421,7 @@
 
     move-result v9
 
-    invoke-direct {v5, v8, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+    invoke-direct {v3, v8, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
     .line 177
     iget-object v8, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
@@ -430,13 +430,13 @@
 
     move-result v8
 
-    iput v8, v5, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+    iput v8, v3, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
     .line 178
-    invoke-virtual {v2, v7, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v2, v7, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 179
-    invoke-virtual {v2, v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 180
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
@@ -459,7 +459,7 @@
     invoke-virtual {v0, v7}, Landroid/widget/TextView;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
     .line 182
-    invoke-virtual {v2, v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 183
     invoke-virtual {v6, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
@@ -474,7 +474,7 @@
     move-result-object v7
 
     .line 186
-    new-array v8, v3, [Landroid/widget/LinearLayout;
+    new-array v8, v4, [Landroid/widget/LinearLayout;
 
     .line 187
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
@@ -491,31 +491,29 @@
 
     array-length v2, v2
 
-    if-ge v0, v2, :cond_15f
+    if-ge v0, v2, :cond_15c
 
     .line 189
-    if-gez v0, :cond_134
+    if-gez v0, :cond_132
 
-    move v5, v1
+    move v2, v1
 
     .line 191
     :goto_11c
-    if-nez v5, :cond_13a
+    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->hidden(I)Z
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider(I)I
+    move-result v3
 
-    move-result v2
-
-    if-eqz v2, :cond_13a
+    if-eqz v3, :cond_137
 
     .line 188
-    :goto_124
+    :goto_122
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_114
 
     .line 159
-    :cond_127
+    :cond_125
     invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->name(I)Ljava/lang/String;
 
     move-result-object v0
@@ -523,74 +521,72 @@
     goto/16 :goto_57
 
     .line 171
-    :cond_12d
+    :cond_12b
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     goto/16 :goto_a4
 
     .line 174
-    :cond_131
+    :cond_12f
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     goto :goto_bb
 
     .line 189
-    :cond_134
+    :cond_132
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->ROW_ORDER:[I
 
     aget v2, v2, v0
 
-    move v5, v2
-
     goto :goto_11c
 
     .line 192
-    :cond_13a
+    :cond_137
     iget-object v10, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
 
-    invoke-static {v5}, Lcom/isaigu/gymapp/bodytech/BtSettings;->sliderName(I)Ljava/lang/String;
+    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->sliderName(I)Ljava/lang/String;
 
     move-result-object v11
 
     invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider(I)I
 
-    move-result v2
+    move-result v3
 
-    if-ne v2, v5, :cond_15d
+    if-ne v3, v2, :cond_15a
 
-    move v2, v3
+    move v3, v4
 
-    :goto_147
+    :goto_144
     sget v12, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    invoke-static {v10, v11, v2, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->chip(Landroid/content/Context;Ljava/lang/String;ZI)Landroid/widget/TextView;
+    invoke-static {v10, v11, v3, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->chip(Landroid/content/Context;Ljava/lang/String;ZI)Landroid/widget/TextView;
 
-    move-result-object v2
+    move-result-object v3
 
     .line 193
     new-instance v10, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;
 
-    invoke-direct {v10, p0, v4, p1, v5}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;-><init>(Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;III)V
+    invoke-direct {v10, p0, v5, p1, v2}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;-><init>(Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;III)V
 
-    invoke-virtual {v2, v10}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    invoke-virtual {v3, v10}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     .line 194
-    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
+    iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
 
-    aget-object v10, v8, v4
+    aget-object v10, v8, v5
 
-    invoke-static {v5, v10, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
+    invoke-static {v2, v10, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    goto :goto_124
+    goto :goto_122
 
-    :cond_15d
-    move v2, v4
+    :cond_15a
+    move v3, v5
 
     .line 192
-    goto :goto_147
+    goto :goto_144
 
     .line 196
-    :cond_15f
+    :cond_15c
     invoke-virtual {v6, v9, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 197
@@ -617,7 +613,7 @@
 
     move-result v2
 
-    invoke-virtual {v0, v4, v1, v4, v2}, Landroid/widget/TextView;->setPadding(IIII)V
+    invoke-virtual {v0, v5, v1, v5, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
     .line 199
     invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
@@ -648,11 +644,11 @@
 
     aget-boolean v0, v0, p1
 
-    if-eqz v0, :cond_1d2
+    if-eqz v0, :cond_1cf
 
     const-string v0, "\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0438 \u25b4"
 
-    :goto_19c
+    :goto_199
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->open:[Z
 
     aget-boolean v2, v2, p1
@@ -692,7 +688,7 @@
 
     aget-boolean v0, v0, p1
 
-    if-eqz v0, :cond_1d1
+    if-eqz v0, :cond_1ce
 
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->params(I)Landroid/view/View;
 
@@ -709,14 +705,14 @@
     invoke-virtual {v6, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 208
-    :cond_1d1
+    :cond_1ce
     return-object v6
 
     .line 202
-    :cond_1d2
+    :cond_1cf
     const-string v0, "\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0438 \u25be"
 
-    goto :goto_19c
+    goto :goto_199
 .end method
 
 .method field(Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/widget/XemsUi$OnStep;)Landroid/view/View;

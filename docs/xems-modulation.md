@@ -42,14 +42,14 @@ strongest contraction still calm, no pain or burning; sensory: a clear feel, no 
 ## Procedures (all passive; starting values; every value is changed per phase on the screen)
 | id | name | zones | phases (min) | total |
 |---|---|---|---|---|
-| atrophy | Атрофия и циркулация | thighs, calf | A 5 · B 13 (10 / 40 s) · E 6 · D 5 (4 ms) | 29 |
-| lipolysis | Пасивна липолиза | glutes, thighs, abs, lower back | A 5 · B 15 · slow 10 Hz 15 · D 5 | 40 |
+| atrophy | Атрофия и циркулация | both legs | A 5 · B 13 (10 / 40 s) · E 6 · D 5 (4 ms) | 29 |
+| lipolysis | Пасивна липолиза | glutes, legs, abs, lower back | A 5 · B 15 · slow 10 Hz 15 · D 5 | 40 |
 | ifc-chronic | Болка · хронична (IFC) | lower back, back | 2 Hz beat 15 · sweep 2–10 Hz / 10 s 10 | 25 |
 | ifc-acute | Болка · остра (IFC) | lower back, back | sweep 80–150 Hz / 8 s 20 | 20 |
-| shape | Оформяне | glutes, thighs, abs, lower back | A 6 · B 14 · D 6 | 26 |
-| tone | Стягане (after adaptation) | thighs, glutes | A 6 · C 12 · D 5 (4 ms) | 23 |
-| pump | Мускулна помпа | thighs, calf | A 6 · E 12 · D 7 (4 ms) | 25 |
-| cellulite | Целулит — подкрепа | glutes, thighs | A 6 · B 13 · D 8 | 27 |
+| shape | Оформяне | glutes, legs, abs, lower back | A 6 · B 14 · D 6 | 26 |
+| tone | Стягане (after adaptation) | legs, glutes | A 6 · C 12 · D 5 (4 ms) | 23 |
+| pump | Мускулна помпа | both legs | A 6 · E 12 · D 7 (4 ms) | 25 |
+| cellulite | Целулит — подкрепа | glutes, legs | A 6 · B 13 · D 8 | 27 |
 | abs | Корем | abs | A 6 · B 13 · D 5 | 24 |
 Channels are preselected from the owner's map (slider of each channel, `BtSettings`); each can be toggled. Zone choice
 follows the owner's remap, not fixed channel numbers. 1.1.375 changes to the kept ones: atrophy and lipolysis got the

@@ -257,7 +257,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandPairing.java` (717L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
 - `BandRemote.java` (1095L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
-- `CardPublisher.java` (129L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
+- `CardPublisher.java` (136L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
@@ -275,7 +275,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
 - `ProgramFit.java` (256L, compile:music-sync*,wearable) — The manual mode's programs, exactly as the trainer sets them (owner, 1.1.323: no automatic adaptation in the manual mod…
 - `QuickStart.java` (259L, compile:music-sync*,wearable) — Client list (Потребители): <ul> <li>▶ at the end of every row: the client's last program (their saved one, else the las…
-- `ReportBridge.java` (607L, compile:music-sync*,wearable) — window.XemsReport in the report page.
+- `ReportBridge.java` (613L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (82L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
 - `SafeGuard.java` (188L, compile:music-sync*,wearable) — The absolute limits (ai/SafeLimits) on a training row, right before the suit gets it: called by train.model.SoftRamp at…
 - `Schedule.java` (516L, compile:music-sync*,wearable) — The studio's appointments from the tablet's own calendar (Acuity → Google Calendar sync, or any calendar the tablet sho…
@@ -356,7 +356,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `TimerRingView.java` (348L, compile:interval-timer,music-sync*) — XEMS dial ring (interval timer, HR dial): a 60-segment LED ring on a soft face.
 - `XemsClientMatch.java` (55L, compile:music-sync*,xems-license) — Finding a client on the tablet list by e-mail, else by the phone's last 9 digits (profiles and dossiers).
 - `XemsClientSync.java` (415L, compile:music-sync,xems-local) — The clients' own profiles (filled in the studio's booking PWA) → the tablet's client list.
-- `XemsDossier.java` (477L, compile:music-sync*,xems-license) — The client dossier on the server (stage 1): the studio's client list is kept on the licence server, one record per pers…
+- `XemsDossier.java` (491L, compile:music-sync*,xems-license) — The client dossier on the server (stage 1): the studio's client list is kept on the licence server, one record per pers…
 - `XemsExercisePage.java` (133L, compile:music-sync*) — Settings → "Каталог с упражнения": the server's exercise selector (/admin/exercises) full screen inside the app, withou…
 - `XemsFullscreen.java` (109L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
@@ -803,17 +803,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L46 ## Програмите на началния екран (1.1.263-ai)
   - L52 ## Общите контроли и избраните клиенти (1.1.372-ai)
 
-`docs/xems-client-sync.md` (123L)
+`docs/xems-client-sync.md` (129L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
   - L5 ## Досие на клиента на сървъра (етап 1)
   - L16 ## Кой е собственик на кои данни
-  - L28 ## Картонът в приложението на клиента (1.1.247-ai)
-  - L37 ## Опростено (1.1.265-ai)
-  - L44 ## Сливане на профил на таблета (`widget/XemsClientSync`)
-  - L57 ## Днес — моментно състояние (1.1.265-ai, `AiPersonal.TODAY`)
-  - L65 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
-  - L94 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
-  - L120 ## Кодът на студиото
+  - L34 ## Картонът в приложението на клиента (1.1.247-ai)
+  - L43 ## Опростено (1.1.265-ai)
+  - L50 ## Сливане на профил на таблета (`widget/XemsClientSync`)
+  - L63 ## Днес — моментно състояние (1.1.265-ai, `AiPersonal.TODAY`)
+  - L71 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
+  - L100 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
+  - L126 ## Кодът на студиото
 
 `docs/xems-ems-physiology.md` (214L)
   - L1 # EMS physiology — the knowledge the algorithms stand on

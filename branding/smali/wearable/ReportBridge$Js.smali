@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 303
+    .line 309
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 304
+    .line 310
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Js;->w:Landroid/webkit/WebView;
 
-    .line 305
+    .line 311
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Js;->script:Ljava/lang/String;
 
-    .line 306
+    .line 312
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 4
 
     .prologue
-    .line 311
+    .line 317
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Js;->w:Landroid/webkit/WebView;
 
     if-eqz v0, :cond_c
 
-    .line 312
+    .line 318
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Js;->w:Landroid/webkit/WebView;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Js;->script:Ljava/lang/String;
@@ -64,12 +64,12 @@
     :try_end_c
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
 
-    .line 316
+    .line 322
     :cond_c
     :goto_c
     return-void
 
-    .line 314
+    .line 320
     :catch_d
     move-exception v0
 

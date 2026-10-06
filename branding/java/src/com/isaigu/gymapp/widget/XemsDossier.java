@@ -65,7 +65,20 @@ public final class XemsDossier {
 
     /** The server id of a client ("" = not on the server yet). */
     public static String cidFor(long userId) {
-        return app == null ? "" : prefs().getString("cid" + userId, "");
+        return app == null || isDemo(userId) ? "" : prefs().getString("cid" + userId, "");
+    }
+
+    /**
+     * The demo client lives on this tablet only (owner, 1.1.374): no dossier, no card, no trainings or
+     * measures on the server, nothing pulled back into it.
+     */
+    public static boolean isDemo(long userId) {
+        return userId == DEMO_ID;
+    }
+
+    /** The program "Main" is this tablet's own: its settings (and each client's under it) never go up. */
+    static boolean isDemoProgram(String programKey) {
+        return programKey != null && programKey.startsWith("Main|");   // XemsLocalStore.DEMO_PROGRAM
     }
 
     /** The key a card is filed under: the server id when known, else the tablet id. */
@@ -385,7 +398,8 @@ public final class XemsDossier {
         JSONObject o = new JSONObject();
         String pre = "u" + id + "|";
         for (Map.Entry<String, ?> e : app.getSharedPreferences(SECOND, Context.MODE_PRIVATE).getAll().entrySet()) {
-            if (e.getKey().startsWith(pre) && e.getValue() instanceof String && ((String) e.getValue()).length() > 0) {
+            if (e.getKey().startsWith(pre) && e.getValue() instanceof String && ((String) e.getValue()).length() > 0
+                    && !isDemoProgram(e.getKey().substring(pre.length()))) {
                 o.put(e.getKey().substring(pre.length()), e.getValue());
             }
         }
@@ -398,7 +412,7 @@ public final class XemsDossier {
         SharedPreferences.Editor e = p.edit();
         String pre = "u" + id + "|";
         for (String k : new ArrayList<String>(p.getAll().keySet())) {
-            if (k.startsWith(pre)) {
+            if (k.startsWith(pre) && !isDemoProgram(k.substring(pre.length()))) {   // "Main" stays the tablet's
                 e.remove(k);
             }
         }
@@ -406,7 +420,7 @@ public final class XemsDossier {
             for (java.util.Iterator<String> it = sp.keys(); it.hasNext(); ) {
                 String k = it.next();
                 String v = sp.optString(k, "");
-                if (k.length() > 0 && v.matches("[0-9]{1,3}(,[0-9]{1,3}){0,15}")) {
+                if (k.length() > 0 && !isDemoProgram(k) && v.matches("[0-9]{1,3}(,[0-9]{1,3}){0,15}")) {
                     e.putString(pre + k, v);
                 }
             }

@@ -219,6 +219,29 @@
     move-result-object v1
 
     .line 45
+    iget-wide v2, p1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsDossier;->isDemo(J)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_35
+
+    .line 46
+    const-string v0, "\u0414\u0435\u043c\u043e \u043a\u043b\u0438\u0435\u043d\u0442\u044a\u0442 \u0435 \u0441\u0430\u043c\u043e \u043d\u0430 \u0442\u043e\u0437\u0438 \u0442\u0430\u0431\u043b\u0435\u0442 \u2014 \u043d\u0438\u0449\u043e \u043d\u0435 \u0441\u0435 \u043a\u0430\u0447\u0432\u0430."
+
+    const-string v1, "The demo client lives on this tablet only \u2014 nothing is uploaded."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 66
+    :goto_34
+    return-object v0
+
+    .line 49
+    :cond_35
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/ReportBridge;->lookupFields(Lcom/isaigu/gymapp/bean/TrainUser;)Ljava/lang/String;
 
     move-result-object v2
@@ -227,9 +250,9 @@
 
     move-result v2
 
-    if-nez v2, :cond_37
+    if-nez v2, :cond_48
 
-    .line 46
+    .line 50
     const-string v0, "\u2717 \u041d\u044f\u043c\u0430 \u0438\u043c\u0435\u0439\u043b \u0438\u043b\u0438 \u0442\u0435\u043b\u0435\u0444\u043e\u043d \u2014 \u043a\u043b\u0438\u0435\u043d\u0442\u044a\u0442 \u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u043d\u0430\u043c\u0435\u0440\u0438 \u0430\u043d\u0430\u043b\u0438\u0437\u0430 \u0441\u0438. \u0414\u043e\u0431\u0430\u0432\u0438 \u0433\u0438 \u0432 \u043a\u0430\u0440\u0442\u043e\u043d\u0430."
 
     const-string v1, "\u2717 No e-mail or phone \u2014 the client cannot find the analysis. Add them to the client form."
@@ -238,17 +261,15 @@
 
     move-result-object v0
 
-    .line 62
-    :goto_36
-    return-object v0
+    goto :goto_34
 
-    .line 49
-    :cond_37
+    .line 53
+    :cond_48
     cmp-long v2, p2, v8
 
-    if-gtz v2, :cond_44
+    if-gtz v2, :cond_55
 
-    .line 50
+    .line 54
     const-string v0, "\u0410\u043d\u0430\u043b\u0438\u0437\u044a\u0442 \u0449\u0435 \u0441\u0435 \u043f\u043e\u044f\u0432\u0438 \u0442\u0430\u043c \u0441\u043b\u0435\u0434 \u043f\u044a\u0440\u0432\u0430\u0442\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430."
 
     const-string v1, "The analysis appears there after the first training."
@@ -257,10 +278,10 @@
 
     move-result-object v0
 
-    goto :goto_36
+    goto :goto_34
 
-    .line 53
-    :cond_44
+    .line 57
+    :cond_55
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -285,7 +306,7 @@
 
     move-result-wide v2
 
-    .line 54
+    .line 58
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -312,23 +333,23 @@
 
     move-result-object v0
 
-    .line 55
+    .line 59
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    if-eqz v1, :cond_86
+    if-eqz v1, :cond_97
 
     cmp-long v1, v2, v8
 
-    if-lez v1, :cond_c9
+    if-lez v1, :cond_da
 
     cmp-long v1, v2, p2
 
-    if-gez v1, :cond_c9
+    if-gez v1, :cond_da
 
-    .line 56
-    :cond_86
+    .line 60
+    :cond_97
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -345,12 +366,12 @@
 
     move-result-object v1
 
-    .line 57
+    .line 61
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v2
 
-    if-lez v2, :cond_c6
+    if-lez v2, :cond_d7
 
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -376,7 +397,7 @@
 
     move-result-object v0
 
-    :goto_b6
+    :goto_c7
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -391,18 +412,18 @@
 
     move-result-object v0
 
-    goto/16 :goto_36
+    goto/16 :goto_34
 
-    :cond_c6
+    :cond_d7
     const-string v0, ""
 
-    goto :goto_b6
+    goto :goto_c7
 
-    .line 59
-    :cond_c9
+    .line 63
+    :cond_da
     cmp-long v0, v2, v8
 
-    if-lez v0, :cond_125
+    if-lez v0, :cond_136
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -440,8 +461,8 @@
 
     move-result-object v0
 
-    .line 60
-    :goto_f2
+    .line 64
+    :goto_103
     iget-wide v2, p1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsDossier;->cidFor(J)Ljava/lang/String;
@@ -452,9 +473,9 @@
 
     move-result v1
 
-    if-nez v1, :cond_128
+    if-nez v1, :cond_139
 
-    .line 61
+    .line 65
     const-string v1, " (\u043f\u043e\u0434\u0440\u043e\u0431\u043d\u0438\u044f\u0442 \u0430\u043d\u0430\u043b\u0438\u0437 \u0447\u0430\u043a\u0430 \u0432\u0440\u044a\u0437\u043a\u0430 \u0441\u044a\u0441 \u0441\u044a\u0440\u0432\u044a\u0440\u0430)"
 
     const-string v2, " (the detailed analysis waits for the server)"
@@ -463,8 +484,8 @@
 
     move-result-object v1
 
-    .line 62
-    :goto_106
+    .line 66
+    :goto_117
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -493,17 +514,17 @@
 
     move-result-object v0
 
-    goto/16 :goto_36
+    goto/16 :goto_34
 
-    .line 59
-    :cond_125
+    .line 63
+    :cond_136
     const-string v0, ""
 
-    goto :goto_f2
+    goto :goto_103
 
-    .line 61
-    :cond_128
+    .line 65
+    :cond_139
     const-string v1, ""
 
-    goto :goto_106
+    goto :goto_117
 .end method

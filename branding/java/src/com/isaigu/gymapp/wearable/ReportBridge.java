@@ -193,6 +193,9 @@ final class ReportBridge {
     }
 
     void refreshNow(String json, String key) {
+        if (com.isaigu.gymapp.widget.XemsDossier.isDemo(user.id)) {
+            return;                                   // the demo client stays on the tablet
+        }
         try {
             String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, com.isaigu.gymapp.widget.XemsDossier.keyFor(user.id), json,
                     lookupFields(user));
@@ -227,6 +230,9 @@ final class ReportBridge {
         String hello = first.length() > 0
                 ? WearableUi.tr("Здравей, " + first + "! ", "Hi " + first + "! ") : "";
         try {
+            if (com.isaigu.gymapp.widget.XemsDossier.isDemo(user.id)) {
+                throw new IllegalStateException("demo: tablet only");   // → the card as a file, no link
+            }
             String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, com.isaigu.gymapp.widget.XemsDossier.keyFor(user.id), json,
                     lookupFields(user));
             cardPrefs().edit().putString("url_" + user.id, url)

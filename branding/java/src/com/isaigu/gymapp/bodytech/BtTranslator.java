@@ -43,7 +43,9 @@ public final class BtTranslator {
     public static final int TEST_US_MAX = BtProto.WIDTH_RAW_MAX;
     /** Test burst on / off, ms (T2 / T4 of the suit's own cycle); STEP_NOR byte 1..31. */
     public static final int BURST_MAX_MS = 1000, STEP_MAX = 31;
-    private int waveCh, waveVal;             // channel whose waveform the test changed (0 = none)
+    private int waveMask, waveVal;           // channels (bit ch−1) whose waveform the test changed (0 = none)
+    private final int[] testPcts = new int[BtSettings.CHANNELS + 1];   // strength per channel of a test / Australian program
+    private final int[] testHzs = new int[BtSettings.CHANNELS + 1];    // Hz per channel of a test / program
     private final int[] devWaveCh = new int[BtSettings.CHANNELS + 1];   // last waveform sent per channel (−1 = none yet)
 
     // what the suit holds now (as far as we know)
@@ -74,6 +76,11 @@ public final class BtTranslator {
         return armed;
     }
 
+    /** An output was on since the suit was last programmed (so a reset is a real stop). */
+    public synchronized boolean ran() {
+        return used;
+    }
+
     public synchronized boolean isOn() {
         return on;
     }
@@ -81,7 +88,7 @@ public final class BtTranslator {
     /** Write failed / link dropped: the suit state is unknown. */
     public synchronized void forget() {
         programmed = false;
-        waveCh = 0;
+        waveMask = 0;
         unsafe = true;
         on = false;
         armed = false;
@@ -201,22 +208,60 @@ public final class BtTranslator {
     public synchronized List<byte[]> testOn(int ch, int pct, int h, int us, int wave, int onMs, int offMs, int step,
                                             long nowMs) {
         List<byte[]> out = new ArrayList<byte[]>();
-        if (training() || ch < 1 || ch > BtSettings.CHANNELS) return out;
+        if (ch < 1 || ch > BtSettings.CHANNELS) return out;
+        int[] pcts = new int[BtSettings.CHANNELS + 1];
+        int[] hzs = new int[BtSettings.CHANNELS + 1];
+        pcts[ch] = pct;
+        hzs[ch] = h;
+        return programOn(pcts, hzs, us, wave, onMs, offMs, step, nowMs);
+    }
+
+    /**
+     * Australian-current program (BtAusRun): several channels at once, each with its own strength pcts[ch] (0 = silent,
+     * index 1..8) and its own Hz hzs[ch] (the carrier; two channels may differ by the beat of an interferential
+     * program), a common width, waveform, burst and STEP_NOR byte. Held like a test: renewed by the runner, off after
+     * {@link #TEST_MS} without a renewal. Refused (empty) while a training runs.
+     */
+    public synchronized List<byte[]> programOn(int[] pcts, int[] hzs, int us, int wave, int onMs, int offMs, int step,
+                                               long nowMs) {
+        List<byte[]> out = new ArrayList<byte[]>();
+        if (training() || pcts == null || hzs == null) return out;
+        int first = 0;
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if (ch < pcts.length && pcts[ch] > 0) {
+                first = ch;
+                break;
+            }
+        }
+        if (first == 0) {
+            if (testCh != 0) off(out);
+            return out;
+        }
         prepare(out);
-        if (waveCh != 0 && (waveCh != ch || wave != waveVal)) restoreWave(out);
-        sendWave(out, ch, wave);
+        int bits = 0;
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) if (ch < pcts.length && pcts[ch] > 0) bits |= 1 << (ch - 1);
+        if (waveMask != 0 && (waveMask != bits || wave != waveVal)) restoreWave(out);
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            int v = ch < pcts.length ? pcts[ch] : 0;
+            testPcts[ch] = v < 0 ? 0 : (v > TEST_MAX_PCT ? TEST_MAX_PCT : v);
+            testHzs[ch] = clampHz(ch < hzs.length && hzs[ch] > 0 ? hzs[ch] : DEF_HZ);
+            if (testPcts[ch] > 0) sendWave(out, ch, wave);
+        }
         if (wave >= 0 && wave <= 3) {
-            waveCh = ch;
+            waveMask |= bits;
             waveVal = wave;
         }
-        testCh = ch;
-        hz = clampHz(h);
+        testCh = first;
+        hz = testHzs[first];
         int wmax = maxUsAt(hz);
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if (testPcts[ch] > 0 && maxUsAt(testHzs[ch]) < wmax) wmax = maxUsAt(testHzs[ch]);
+        }
         widthUs = us < MIN_US ? MIN_US : (us > wmax ? wmax : us);
         testOnMs = clampMs(onMs);
         testOffMs = testOnMs > 0 ? clampMs(offMs) : 0;
         testStep = step < 1 ? 1 : (step > STEP_MAX ? STEP_MAX : step);
-        testPct = pct < 1 ? 1 : (pct > TEST_MAX_PCT ? TEST_MAX_PCT : pct);
+        testPct = testPcts[first];
         on = true;
         deadlineMs = nowMs + TEST_MS;
         reconcile(out);
@@ -231,10 +276,11 @@ public final class BtTranslator {
 
     /** The waveform the test changed goes back: the owner's, or square when the owner leaves it to the suit. */
     private void restoreWave(List<byte[]> out) {
-        if (waveCh == 0) return;
-        int w = BtSettings.waveFor(waveCh, false);
-        sendWave(out, waveCh, w);
-        waveCh = 0;
+        if (waveMask == 0) return;
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if ((waveMask & (1 << (ch - 1))) != 0) sendWave(out, ch, BtSettings.waveFor(ch, false));
+        }
+        waveMask = 0;
     }
 
     /** Once a second: an output nobody renewed in time goes off. */
@@ -339,7 +385,7 @@ public final class BtTranslator {
 
     /** Strength (0..99 %) the owner's map gives channel ch in the current phase. */
     private int target(int ch) {
-        if (testCh != 0) return ch == testCh ? testPct : 0;
+        if (testCh != 0) return testPcts[ch];
         int s = BtSettings.slider(ch);
         if (s < 0 || s >= 10) return 0;
         int g = BtSettings.group(ch);
@@ -355,7 +401,7 @@ public final class BtTranslator {
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             int t = target(ch);
             if (t > 0) {
-                int h = testCh != 0 ? hz : effHz(ch, hz);
+                int h = testCh != 0 ? testHzs[ch] : effHz(ch, hz);
                 int u = testCh != 0 ? widthUs : effUs(ch, widthUs);
                 if (u < MIN_US) u = MIN_US;
                 if (testCh == 0) sendWave(out, ch, BtSettings.waveFor(ch, phase == SECOND));

@@ -68,7 +68,9 @@ public final class BtBridge {
             if (d == null || !isBodytech(d)) return;
             Dev v = dev(d);
             v.begin();
+            boolean ran = v.tr.ran();
             v.add(v.tr.reset(), null, null, false);
+            if (ran) BtBeep.stop();                         // a real stop (the suit ran since its program), not a connect
         } catch (Throwable t) {
             Log.e(TAG, "reset: " + t);
         }
@@ -92,7 +94,7 @@ public final class BtBridge {
             v.add(v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime()), cb, data, false);
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
-            else if (was && !now) BtBeep.stop();
+            else if (was && !now) BtBeep.pause();
             return true;
         } catch (Throwable t) {
             Log.e(TAG, "write: " + t);
@@ -132,6 +134,36 @@ public final class BtBridge {
             return "ok";
         } catch (Throwable t) {
             Log.e(TAG, "test: " + t);
+            return "no_suit";
+        }
+    }
+
+    /**
+     * Australian-current program ({@link BtAusRun}): several channels at once (pcts / hzs indexed by channel 1..8), held
+     * like a test — renewed every ≤ 1 s, off with {@code down = false}. Returns "ok", "no_suit" or "training".
+     */
+    public static String program(String mac, int[] pcts, int[] hzs, int us, int wave, int onMs, int offMs, int step,
+                                 boolean down) {
+        try {
+            Dev v = null;
+            synchronized (BtBridge.class) {
+                for (Dev x : DEVS.values()) {
+                    if (mac != null && !mac.equalsIgnoreCase(x.d.getMac())) continue;
+                    if (BleManager.getInstance().isConnected(x.d)) {
+                        v = x;
+                        break;
+                    }
+                }
+            }
+            if (v == null) return "no_suit";
+            if (v.tr.training()) return "training";
+            v.begin();
+            if (down) v.add(v.tr.programOn(pcts, hzs, us, wave, onMs, offMs, step, SystemClock.elapsedRealtime()),
+                    null, null, false);
+            else v.add(v.tr.testOff(), null, null, true);
+            return "ok";
+        } catch (Throwable t) {
+            Log.e(TAG, "program: " + t);
             return "no_suit";
         }
     }

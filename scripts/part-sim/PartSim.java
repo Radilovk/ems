@@ -300,6 +300,14 @@ public class PartSim {
         check(b.strenthBean.buwei[2] == 70 && SecondParts.effective(b, b.strenthBean.buwei)[2] == 70,
                 "unmarked bar: both impulses");
         check(SecondParts.effective(b, b.strenthBean.buwei)[3] == 50, "unmarked bar: other channels stay");
+        // press and hold on channel 4: its second impulse takes the main percent again, the others keep theirs
+        SecondParts.set(b, b.strenthBean.buwei, new int[] {50, 50, 50, 50, 50, 50, 50, 50, 50, 50});
+        java.util.List<TrainItem> rowsList = new java.util.ArrayList<TrainItem>();
+        rowsList.add(it);
+        check(PartPick.sync(rowsList, 4), "hold sync: a row with the second impulse");
+        int[] eff = SecondParts.effective(b, b.strenthBean.buwei);
+        check(eff[4] == b.strenthBean.buwei[4], "hold sync: channel 4 aligned to the main");
+        check(eff[5] == 50, "hold sync: channel 5 keeps its own second percent");
         // own percents are dropped when they equal the main ones
         b.activePause = true;
         int[] same = b.strenthBean.buwei.clone();

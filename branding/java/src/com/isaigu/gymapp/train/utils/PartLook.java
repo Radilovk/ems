@@ -56,6 +56,9 @@ public final class PartLook {
     /** Bar / ring → the look it is painted in now (TRUE = second). */
     private static final WeakHashMap<View, Boolean> PAINTED = new WeakHashMap<View, Boolean>();
 
+    /** The window whose channel icons got their hold listeners (again for a new window). */
+    private static java.lang.ref.WeakReference<View> holds;
+
     private PartLook() {}
 
     // ================================================================ which look
@@ -178,6 +181,13 @@ public final class PartLook {
             }
             if (ring != null) {
                 lookRing(ring, ringSecond(item, b, live));
+            }
+            if (bars.length > 0 && bars[0] != null && bars[0].isAttachedToWindow()) {
+                View root = bars[0].getRootView();
+                if (holds == null || holds.get() != root) {
+                    holds = new java.lang.ref.WeakReference<View>(root);
+                    PartPick.installHolds(root);          // press and hold on a channel icon (sync)
+                }
             }
         } catch (Throwable ignored) {
         }

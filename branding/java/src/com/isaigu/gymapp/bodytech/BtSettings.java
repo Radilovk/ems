@@ -133,6 +133,13 @@ public final class BtSettings {
         return tag;
     }
 
+    /** Slider s drives some channel of the suit (false = nothing on the suit answers it). true before the map is loaded. */
+    public static synchronized boolean hasChannel(int s) {
+        if (!loaded) return true;
+        for (int ch = 1; ch <= CHANNELS; ch++) if (slider[ch] == s) return true;
+        return false;
+    }
+
     /** The sliders of the two legs (a Л one and a Д one, {@link #rowTag}); empty when the map has no such pair. */
     public static synchronized int[] legSliders() {
         int[] tmp = new int[10];

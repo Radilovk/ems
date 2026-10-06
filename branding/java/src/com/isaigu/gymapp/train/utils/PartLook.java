@@ -147,6 +147,9 @@ public final class PartLook {
     public static void paint(TrainItem item, ProgramDataBean b, VerticalColorSeekBar[] bars, TextView[] texts,
             CircleSeekBar ring) {
         try {
+            if (bars != null) {
+                columns(item, bars);
+            }
             if (item == null || b == null || bars == null || b.strenthBean == null || b.strenthBean.buwei == null) {
                 return;
             }
@@ -199,6 +202,26 @@ public final class PartLook {
      * A bodytech row (owner, 1.1.376): the legs are left / right, not front / back — the two thigh sliders carry
      * "Л" / "Д" before their percent (the muscle icons above are shared by every row, so the tag is on the row).
      */
+    /**
+     * A bodytech row (owner, 1.1.378): a slider no channel of the suit answers (the chest — on bodytech that channel is
+     * a leg; the calf by default) is hidden. INVISIBLE, not GONE: the columns stay under the muscle icons above, which
+     * every row shares. Rows are recycled, so every other row gets its columns back.
+     */
+    static void columns(TrainItem item, VerticalColorSeekBar[] bars) {
+        boolean bt = item != null && item.data != null
+                && com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(item.data.macAddress);
+        for (int i = 0; i < bars.length; i++) {
+            if (bars[i] == null || !(bars[i].getParent() instanceof View)) {
+                continue;
+            }
+            View col = (View) bars[i].getParent();
+            int want = !bt || com.isaigu.gymapp.bodytech.BtSettings.hasChannel(i) ? View.VISIBLE : View.INVISIBLE;
+            if (col.getVisibility() != want) {
+                col.setVisibility(want);
+            }
+        }
+    }
+
     /**
      * A bodytech row (owner, 1.1.377): the two leg bars and texts show what the suit gets (BtTranslator.legValue —
      * equal legs until a hand moves one, then each in proportion). A bar under the finger or in the second impulse's

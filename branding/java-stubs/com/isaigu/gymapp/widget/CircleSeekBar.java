@@ -35,4 +35,8 @@ public class CircleSeekBar extends View {
 
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener listener) {
     }
+
+    /** The reached arc's gradient (vendor default green → yellow → red). */
+    public void setSectionColors(int startColor, int middleColor, int endColor) {
+    }
 }

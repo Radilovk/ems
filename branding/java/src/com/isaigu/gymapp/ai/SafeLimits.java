@@ -7,8 +7,9 @@ package com.isaigu.gymapp.ai;
  *   <li>Frequency 1–120 Hz; 60+ at most 85 Hz.</li>
  *   <li>Depth 50–400 µs; from 100 Hz at most 300 µs.</li>
  *   <li>Fused contraction (≥ 20 Hz): impulse at most 6 s from 50 Hz, 10 s below; soft rise ≥ 0.3 s.</li>
- *   <li>Second impulse: at most 10 Hz, under the main frequency, never stronger than the main impulse — the pause
- *       must let the muscle relax; a fused contraction in the pause is no rest.</li>
+ *   <li>Second impulse: at most 10 Hz, under the main frequency — the pause must let the muscle relax; a fused
+ *       contraction in the pause is no rest. Its strength at most 1.5 × the main impulse (owner, 1.1.369; a low
+ *       Hz is felt weaker), never above the unit's 100.</li>
  *   <li>Pause from ≥ 20 Hz: the shortest one whose steady fatigue peak at the calibrated strength stays within the
  *       limit of a <b>trained</b> person (docs/xems-ems-physiology.md §3, HIGH: τ 30 s, F_max 1.15·…) — the second
  *       impulse counts. Shorter → raised.</li>
@@ -25,12 +26,20 @@ public final class SafeLimits {
     public static final int ON_MAX_TETANIC = 10;
     public static final int RAMP_MIN_MS = 300;
     public static final int PAUSE_HZ_MAX = 10;
-    public static final int PAUSE_PCT_MAX = 100;
+    /** The second impulse's strength at most this share (%) of the main one. */
+    public static final int PAUSE_PCT_MAX = 150;
+    /** The unit's strength scale. */
+    public static final int STRENGTH_MAX = 100;
     public static final int OFF_MAX_SEARCH = 30;
 
     public static final int HZ = 0, PW = 1, ON = 2, OFF = 3, AP = 4, PHZ = 5, PS = 6, RAMP = 7, N = 8;
 
     private SafeLimits() {}
+
+    /** Highest second impulse strength at main strength {@code strength}: 1.5 × it, at most the unit's 100. */
+    public static int pauseCap(int strength) {
+        return Math.max(0, Math.min(STRENGTH_MAX, strength * PAUSE_PCT_MAX / 100));
+    }
 
     /** Highest frequency for the client's age (−1 / null = unknown → 120). */
     public static int hzMax(int age) {
@@ -91,8 +100,8 @@ public final class SafeLimits {
                 }
                 v[PHZ] = Math.max(1, v[PHZ]);
                 if (v[PS] > PAUSE_PCT_MAX) {
-                    note(whyBg, whyEn, "Вторият импулс не може да е по-силен от основния",
-                            "The second impulse cannot be stronger than the main one");
+                    note(whyBg, whyEn, "Вторият импулс е най-много 1,5 пъти по-силен от основния",
+                            "The second impulse is at most 1.5 times the main one");
                     v[PS] = PAUSE_PCT_MAX;
                 }
             }
@@ -124,7 +133,7 @@ public final class SafeLimits {
     /**
      * What the pause phase may send, right at the send (every mode, every pause send): {2nd impulse Hz, its
      * strength} or null = a plain pause. No main impulse (strength 0: a rest, music at 0, a 0 block) → no second
-     * impulse; its Hz at most 10 and under the main one; its strength never above the main one. The row's settings
+     * impulse; its Hz at most 10 and under the main one; its strength at most 1.5 × the main one. The row's settings
      * stay as set — only what goes out is capped.
      */
     public static int[] pauseSend(int strength, int hz, boolean activePause, int pauseHz, int pauseStrength) {
@@ -143,7 +152,7 @@ public final class SafeLimits {
             return null;
         }
         int hzMax = Math.min(PAUSE_HZ_MAX, hz - 1);
-        int pct = Math.min(Math.min(PAUSE_PCT_MAX, pauseStrength), strength);
+        int pct = Math.min(pauseStrength, pauseCap(strength));
         if (hzMax < 1 || pct <= 0) {
             return null;
         }

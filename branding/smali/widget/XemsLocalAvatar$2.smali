@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 874
+    .line 895
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$dlg:Landroid/app/Dialog;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$a:Landroid/app/Activity;
@@ -53,18 +53,18 @@
     .registers 4
 
     .prologue
-    .line 876
+    .line 897
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$dlg:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 877
+    .line 898
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->show(Landroid/app/Activity;Ljava/lang/Object;)V
 
-    .line 878
+    .line 899
     return-void
 .end method

@@ -17,11 +17,15 @@ public final class SafeSim {
         // a long fused impulse is cut
         eq("100 Hz · 12 s → 6 s", 6, SafeLimits.apply(new int[] {100, 300, 12, 12, 0, 0, 0, 500}, 35, null, null)[SafeLimits.ON]);
         eq("30 Hz · 15 s → 10 s", 10, SafeLimits.apply(new int[] {30, 300, 15, 2, 0, 0, 0, 500}, 35, null, null)[SafeLimits.ON]);
-        // second impulse: never high frequency, never over the main, never stronger
-        int[] p = SafeLimits.apply(new int[] {100, 300, 4, 4, 1, 80, 120, 500}, 35, null, null);
+        // second impulse: never high frequency, never over the main Hz, at most 1.5 × the main strength
+        int[] p = SafeLimits.apply(new int[] {100, 300, 4, 4, 1, 80, 180, 500}, 35, null, null);
         eq("2nd impulse 80 → 10 Hz", 10, p[SafeLimits.PHZ]);
-        eq("2nd impulse ≤ main strength", 100, p[SafeLimits.PS]);
-        ok("2nd impulse counts in the pause", p[SafeLimits.OFF] >= SafeLimits.minOff(100, 4, 10, 1.0));
+        eq("2nd impulse ≤ 1.5 × main strength", 150, p[SafeLimits.PS]);
+        eq("2nd impulse 1.2 × main stays", 120,
+                SafeLimits.apply(new int[] {100, 300, 4, 4, 1, 8, 120, 500}, 35, null, null)[SafeLimits.PS]);
+        ok("2nd impulse counts in the pause", p[SafeLimits.OFF] >= SafeLimits.minOff(100, 4, 10, 1.5));
+        eq("2nd impulse cap at main 40", 60, SafeLimits.pauseCap(40));
+        eq("2nd impulse cap at main 80 (unit's 100)", 100, SafeLimits.pauseCap(80));
         int[] low = SafeLimits.apply(new int[] {5, 250, 10, 2, 1, 8, 50, 0}, 35, null, null);
         eq("massage 5 Hz: 2nd impulse under 5", 4, low[SafeLimits.PHZ]);
         eq("1 Hz: no 2nd impulse", 0, SafeLimits.apply(new int[] {1, 250, 10, 1, 1, 1, 50, 0}, 35, null, null)[SafeLimits.AP]);
@@ -54,7 +58,9 @@ public final class SafeSim {
         int[] ps = SafeLimits.pauseSend(50, 85, true, 60, 40);
         eq("pause send: 60 Hz → 10", 10, ps[0]);
         eq("pause send: strength kept", 40, ps[1]);
-        eq("pause send: never above the main", 30, SafeLimits.pauseSend(30, 85, true, 6, 70)[1]);
+        eq("pause send: at most 1.5 × the main", 45, SafeLimits.pauseSend(30, 85, true, 6, 70)[1]);
+        eq("pause send: up to 1.5 × the main as set", 40, SafeLimits.pauseSend(30, 85, true, 6, 40)[1]);
+        eq("pause send: never above the unit's 100", 100, SafeLimits.pauseSend(80, 85, true, 6, 100)[1]);
         eq("pause send: under the main Hz", 4, SafeLimits.pauseSend(30, 5, true, 8, 20)[0]);
         ok("pause send: 1 Hz main → plain pause", SafeLimits.pauseSend(30, 1, true, 1, 20) == null);
         ok("pause send: 0 strength 2nd → plain pause", SafeLimits.pauseSend(30, 85, true, 6, 0) == null);

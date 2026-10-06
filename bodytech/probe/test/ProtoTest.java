@@ -22,6 +22,9 @@ public class ProtoTest {
         check("36 00 03 00 FA 00 05 C9", Proto.enable(0x05));
         check("36 00 10 00 00 2D F4 C9", Proto.hz(1, 85));
         check("36 00 80 00 02 2E 09 C9", Proto.hz(8, 7));
+        check("36 00 50 00 00 27 10 C9", Proto.period(5, 10000));
+        check(Proto.hex(Proto.hz(5, 100)), Proto.period(5, 10000));
+        check("36 00 70 00 00 27 1A C9", Proto.period(7, 10010));
         check("36 00 21 01 01 01 01 C9", Proto.stepNor(2, Proto.STEP_NOR_DEFAULT));
         check("36 00 32 00 00 00 19 C9", Proto.intensity(3, 25));
         check("36 00 32 00 00 00 00 C9", Proto.intensity(3, 100));

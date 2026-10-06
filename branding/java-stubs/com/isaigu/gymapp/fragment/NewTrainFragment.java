@@ -10,7 +10,4 @@ public class NewTrainFragment extends Fragment {
     public BaseActivity getBaseActivity() {
         return null;
     }
-
-    /** Added by apply-pause-parts.py: the adapter and the muscle icons redraw. */
-    public void xemsRefreshParts() {}
 }

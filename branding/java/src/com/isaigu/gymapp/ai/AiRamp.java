@@ -10,7 +10,7 @@ import com.isaigu.gymapp.bean.ProgramDataBean;
  *   <li>otherwise → the program's input / output ramp (inputRamp / outputRamp, ms, 0–3 s in the parameters
  *       dialog, dialog/RampSetting), each ≤ {@link #MAX_MS}, together ≤ the impulse ON time.</li>
  * </ul>
- * SoftRamp ramps the ON phase only; the second impulse in the pause starts at its level.
+ * SoftRamp ramps both impulses: the main one in the ON phase, the second one in the pause (fitted into it).
  */
 public final class AiRamp {
     public static final int MAX_MS = 3000;

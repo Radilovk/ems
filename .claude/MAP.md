@@ -234,7 +234,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `TimerPresetStorage.java` (89L, compile:interval-timer,music-sync*) — Local named timer presets (interval + block program).
 
 **train/model/** (`branding/java/src/com/isaigu/gymapp/train/model/`)
-- `SoftRamp.java` (242L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so at the …
+- `SoftRamp.java` (386L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
 - `ChannelStrengthScale.java` (122L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
@@ -423,7 +423,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1278L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1279L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (69L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
@@ -1022,7 +1022,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## Стоково (преди)
   - L21 ## Кукички
 
-`docs/xems-ui-kit.md` (170L)
+`docs/xems-ui-kit.md` (178L)
   - L1 # XEMS UI kit — таймер, плейър, пулс, AI, навигация (v1.1.66)
   - L5 ## Принцип
   - L21 ## Интервален таймер

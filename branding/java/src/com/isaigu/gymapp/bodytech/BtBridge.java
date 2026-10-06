@@ -68,7 +68,9 @@ public final class BtBridge {
             if (d == null || !isBodytech(d)) return;
             Dev v = dev(d);
             v.begin();
+            boolean ran = v.tr.ran();
             v.add(v.tr.reset(), null, null, false);
+            if (ran) BtBeep.stop();                         // a real stop (the suit ran since its program), not a connect
         } catch (Throwable t) {
             Log.e(TAG, "reset: " + t);
         }
@@ -92,7 +94,7 @@ public final class BtBridge {
             v.add(v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime()), cb, data, false);
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
-            else if (was && !now) BtBeep.stop();
+            else if (was && !now) BtBeep.pause();
             return true;
         } catch (Throwable t) {
             Log.e(TAG, "write: " + t);

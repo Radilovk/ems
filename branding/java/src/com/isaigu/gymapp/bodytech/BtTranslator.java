@@ -76,6 +76,11 @@ public final class BtTranslator {
         return armed;
     }
 
+    /** An output was on since the suit was last programmed (so a reset is a real stop). */
+    public synchronized boolean ran() {
+        return used;
+    }
+
     public synchronized boolean isOn() {
         return on;
     }

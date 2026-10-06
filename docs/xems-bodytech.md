@@ -148,6 +148,9 @@ On a bodytech row the second impulse is not capped: any Hz (also ≥ main, stepp
 ## Own device names (1.1.353)
 Device list (both connect dialogs): long-press a row (or tap its "i") → own name; `bodytech/DeviceAlias`, tablet only (`xems_device_alias`, by MAC), never synced. Hook: `scripts/apply-device-alias.py`.
 
-## Sound signals (1.1.355)
-`BtBeep`, tablet speaker, Morse marks (1.1.359: bell-like — sine + soft 2nd / 3rd harmonic, 8 ms attack, exponential decay; dot 880 Hz 120 ms, dash 1319 Hz 240 ms, gap 120 ms; one PCM buffer on an AudioTrack; a square wave was tried and was unpleasant): start (F1 opens the gate) `...-`, pause / stop (F2 closes it) `-`, link problem
-`...` (a write refused, or the link gone while started; at most every 5 s). Bodytech suits only.
+## Sound signals (1.1.360)
+`BtBeep`, tablet speaker, bodytech suits only. Start (F1 opens the gate) = one long HIGH tone (1319 Hz, 400 ms);
+pause (F2, the row's stop button) = one long LOW tone (880 Hz, 400 ms); stop (TrainItem.reset after a run, the suit
+is reprogrammed) = the low tone twice as long (800 ms); link problem (a write refused, or the link gone while started;
+at most every 5 s) = three short low tones. Bell-like: sine + soft 2nd / 3rd harmonic, 8 ms attack, exponential decay
+(a square wave was tried and was unpleasant). One PCM buffer on an AudioTrack.

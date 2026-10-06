@@ -42,7 +42,8 @@ import java.util.WeakHashMap;
  * {@code partsControl} (a yellow channel is marked there too, so everything that reads the selection still works);
  * this class only adds which marked channels are yellow.
  * <b>Press and hold 3 s</b> on a channel icon (second impulse on): the channel's second impulse takes the main one's
- * percent again (synced, aligned to the main impulse) on every row; a ring with a glow fills around the icon while
+ * percent again (synced, aligned to the main impulse) on every row — on the picked clients only when some are
+ * picked (green photo); a ring with a glow fills around the icon while
  * the finger stays, and the tap that ends the hold does not mark the channel (1.1.371).
  * Hooks: NewTrainFragment.changePartControl (click, with the fragment's own manager: the field is package-private),
  * end of updateMuscleSelectionVisual (tint; the hold listener is set there), SessionRecorder tick
@@ -289,6 +290,9 @@ public final class PartPick {
                     || i >= b.strenthBean.buwei.length) {
                 continue;
             }
+            if (!applies(it)) {
+                continue;                              // clients picked (green photo): only they
+            }
             any = true;
             int[] main = b.strenthBean.buwei;
             int[] e = SecondParts.effective(b, main);
@@ -330,6 +334,24 @@ public final class PartPick {
             Hold h = new Hold(cell, icon, i);
             cell.setTag(TAG_HOLD, h);
             cell.setOnTouchListener(h);
+        }
+    }
+
+    private static java.lang.reflect.Method applies;
+
+    /**
+     * widget/XemsLocalAvatar.masterApplies: nobody picked = every row, else the picked ones (green photo). By
+     * reflection: that class is compiled apart (compile-xems-local-java.sh), not on this compile's classpath.
+     */
+    static boolean applies(TrainItem it) {
+        try {
+            if (applies == null) {
+                applies = Class.forName("com.isaigu.gymapp.widget.XemsLocalAvatar")
+                        .getMethod("masterApplies", TrainItem.class);
+            }
+            return Boolean.TRUE.equals(applies.invoke(null, it));
+        } catch (Throwable t) {
+            return true;
         }
     }
 

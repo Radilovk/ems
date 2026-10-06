@@ -39,19 +39,19 @@
     .registers 6
 
     .prologue
-    .line 352
+    .line 374
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 353
+    .line 375
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
-    .line 354
+    .line 376
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->icon:Landroid/view/View;
 
-    .line 355
+    .line 377
     iput p3, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->index:I
 
-    .line 356
+    .line 378
     new-instance v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     invoke-virtual {p1}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
@@ -68,7 +68,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
-    .line 357
+    .line 379
     return-void
 .end method
 
@@ -80,35 +80,35 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 360
+    .line 382
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v1
 
     packed-switch v1, :pswitch_data_70
 
-    .line 386
+    .line 408
     :cond_8
     :goto_8
     return v0
 
-    .line 362
+    .line 384
     :pswitch_9
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->done:Z
 
-    .line 363
+    .line 385
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->holdable()Z
 
     move-result v1
 
     if-eqz v1, :cond_8
 
-    .line 364
+    .line 386
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->start()V
 
     goto :goto_8
 
-    .line 368
+    .line 390
     :pswitch_15
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->active:Z
 
@@ -162,7 +162,7 @@
 
     if-gtz v1, :cond_57
 
-    .line 369
+    .line 391
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getY()F
 
     move-result v1
@@ -183,45 +183,45 @@
 
     if-lez v1, :cond_8
 
-    .line 370
+    .line 392
     :cond_57
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->stop(Z)V
 
     goto :goto_8
 
-    .line 374
+    .line 396
     :pswitch_5b
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->done:Z
 
     if-eqz v1, :cond_66
 
-    .line 375
+    .line 397
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->done:Z
 
-    .line 376
+    .line 398
     invoke-virtual {p1, v0}, Landroid/view/View;->setPressed(Z)V
 
-    .line 377
+    .line 399
     const/4 v0, 0x1
 
     goto :goto_8
 
-    .line 379
+    .line 401
     :cond_66
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->stop(Z)V
 
     goto :goto_8
 
-    .line 382
+    .line 404
     :pswitch_6a
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->done:Z
 
-    .line 383
+    .line 405
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->stop(Z)V
 
     goto :goto_8
 
-    .line 360
+    .line 382
     :pswitch_data_70
     .packed-switch 0x0
         :pswitch_9
@@ -239,14 +239,14 @@
 
     const/high16 v4, 0x40000000    # 2.0f
 
-    .line 416
+    .line 438
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->icon:Landroid/view/View;
 
     if-eqz v0, :cond_5d
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->icon:Landroid/view/View;
 
-    .line 417
+    .line 439
     :goto_9
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
@@ -262,7 +262,7 @@
 
     div-float/2addr v1, v4
 
-    .line 418
+    .line 440
     :goto_15
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
@@ -278,7 +278,7 @@
 
     div-float/2addr v2, v4
 
-    .line 419
+    .line 441
     :goto_21
     invoke-virtual {v0}, Landroid/view/View;->getWidth()I
 
@@ -314,22 +314,22 @@
 
     add-float/2addr v0, v3
 
-    .line 420
+    .line 442
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iput v1, v3, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cx:F
 
-    .line 421
+    .line 443
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iput v2, v1, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cy:F
 
-    .line 422
+    .line 444
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->r:F
 
-    .line 423
+    .line 445
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
@@ -346,16 +346,16 @@
 
     invoke-virtual {v0, v5, v5, v1, v2}, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->setBounds(IIII)V
 
-    .line 424
+    .line 446
     return-void
 
-    .line 416
+    .line 438
     :cond_5d
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
     goto :goto_9
 
-    .line 417
+    .line 439
     :cond_60
     invoke-virtual {v0}, Landroid/view/View;->getLeft()I
 
@@ -375,7 +375,7 @@
 
     goto :goto_15
 
-    .line 418
+    .line 440
     :cond_6d
     invoke-virtual {v0}, Landroid/view/View;->getTop()I
 
@@ -408,17 +408,17 @@
 
     const/high16 v6, 0x3f800000    # 1.0f
 
-    .line 427
+    .line 449
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 428
+    .line 450
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->active:Z
 
     if-eqz v0, :cond_91
 
-    .line 429
+    .line 451
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->down:J
@@ -437,7 +437,7 @@
 
     iput v4, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->progress:F
 
-    .line 430
+    .line 452
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->down:J
@@ -452,7 +452,7 @@
 
     iput v4, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->spin:F
 
-    .line 431
+    .line 453
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->progress:F
@@ -461,23 +461,23 @@
 
     if-ltz v0, :cond_69
 
-    .line 432
+    .line 454
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->active:Z
 
-    .line 433
+    .line 455
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->done:Z
 
-    .line 434
+    .line 456
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iput v6, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
 
-    .line 435
+    .line 457
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->down:J
 
-    .line 436
+    .line 458
     # getter for: Lcom/isaigu/gymapp/wearable/PartPick;->LAST:[J
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->access$200()[J
 
@@ -487,7 +487,7 @@
 
     aput-wide v2, v0, v4
 
-    .line 439
+    .line 461
     :try_start_47
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->index:I
 
@@ -497,16 +497,16 @@
 
     move-result v0
 
-    .line 443
+    .line 465
     :goto_4d
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
     invoke-virtual {v2, v1}, Landroid/view/View;->performHapticFeedback(I)Z
 
-    .line 444
+    .line 466
     if-eqz v0, :cond_69
 
-    .line 445
+    .line 467
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -525,16 +525,16 @@
 
     move-result-object v0
 
-    .line 447
+    .line 469
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 450
+    .line 472
     :cond_69
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->invalidateSelf()V
 
-    .line 451
+    .line 473
     # getter for: Lcom/isaigu/gymapp/wearable/PartPick;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->access$100()Landroid/os/Handler;
 
@@ -542,15 +542,15 @@
 
     invoke-virtual {v0, p0, v8, v9}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 463
+    .line 485
     :goto_75
     return-void
 
-    .line 440
+    .line 462
     :catch_76
     move-exception v0
 
-    .line 441
+    .line 463
     const-string v2, "index"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -577,7 +577,7 @@
 
     goto :goto_4d
 
-    .line 454
+    .line 476
     :cond_91
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
@@ -587,7 +587,7 @@
 
     if-lez v0, :cond_bf
 
-    .line 455
+    .line 477
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->down:J
@@ -608,12 +608,12 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
 
-    .line 456
+    .line 478
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->invalidateSelf()V
 
-    .line 457
+    .line 479
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
@@ -622,7 +622,7 @@
 
     if-lez v0, :cond_bf
 
-    .line 458
+    .line 480
     # getter for: Lcom/isaigu/gymapp/wearable/PartPick;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->access$100()Landroid/os/Handler;
 
@@ -632,7 +632,7 @@
 
     goto :goto_75
 
-    .line 462
+    .line 484
     :cond_bf
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
@@ -651,7 +651,7 @@
     .registers 3
 
     .prologue
-    .line 391
+    .line 413
     const/high16 v0, 0x41400000    # 12.0f
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
@@ -677,32 +677,32 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 395
+    .line 417
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->down:J
 
-    .line 396
+    .line 418
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->active:Z
 
-    .line 397
+    .line 419
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->progress:F
 
-    .line 398
+    .line 420
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->ring:Lcom/isaigu/gymapp/wearable/PartPick$Ring;
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
 
-    .line 399
+    .line 421
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->place()V
 
-    .line 400
+    .line 422
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
@@ -713,7 +713,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/ViewOverlay;->remove(Landroid/graphics/drawable/Drawable;)V
 
-    .line 401
+    .line 423
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
@@ -724,7 +724,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/ViewOverlay;->add(Landroid/graphics/drawable/Drawable;)V
 
-    .line 402
+    .line 424
     # getter for: Lcom/isaigu/gymapp/wearable/PartPick;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->access$100()Landroid/os/Handler;
 
@@ -732,7 +732,7 @@
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 403
+    .line 425
     # getter for: Lcom/isaigu/gymapp/wearable/PartPick;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->access$100()Landroid/os/Handler;
 
@@ -740,7 +740,7 @@
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 404
+    .line 426
     return-void
 .end method
 
@@ -748,15 +748,15 @@
     .registers 4
 
     .prologue
-    .line 407
+    .line 429
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->active:Z
 
-    .line 408
+    .line 430
     if-nez p1, :cond_17
 
-    .line 409
+    .line 431
     # getter for: Lcom/isaigu/gymapp/wearable/PartPick;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->access$100()Landroid/os/Handler;
 
@@ -764,7 +764,7 @@
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 410
+    .line 432
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Hold;->cell:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
@@ -775,7 +775,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/ViewOverlay;->remove(Landroid/graphics/drawable/Drawable;)V
 
-    .line 412
+    .line 434
     :cond_17
     return-void
 .end method

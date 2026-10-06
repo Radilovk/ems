@@ -440,6 +440,27 @@ public final class XemsLocalAvatar {
     }
 
     /**
+     * Hook: ■ of the master panel (NewTrainFragment.lambda$onCreateView$1). With clients picked only they stop
+     * (their slot resets) and true is returned: the session (timer, music, band) goes on for the others. Nobody
+     * picked → false: the usual end of the session for everyone.
+     */
+    public static boolean masterStop() {
+        try {
+            java.util.List<com.isaigu.gymapp.train.model.TrainItem> list = pickedItems();
+            if (list.isEmpty()) {
+                return false;
+            }
+            for (com.isaigu.gymapp.train.model.TrainItem it : list) {
+                it.reset();
+            }
+            return true;
+        } catch (Throwable t) {
+            android.util.Log.w("xems", "XemsLocalAvatar.masterStop", t);
+            return false;
+        }
+    }
+
+    /**
      * Hook: NewTrainFragment.startOrStopAll (▶ / ❚❚ of the master panel). With clients picked it starts
      * them, or pauses them when one of them runs, and returns true (the others and the panel's own
      * state stay as they are); with nobody picked it returns false and the usual start / pause runs.

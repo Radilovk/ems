@@ -45,76 +45,76 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 475
+    .line 497
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 469
+    .line 491
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
-    .line 470
+    .line 492
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->arc:Landroid/graphics/Paint;
 
-    .line 471
+    .line 493
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->head:Landroid/graphics/Paint;
 
-    .line 472
+    .line 494
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->oval:Landroid/graphics/RectF;
 
-    .line 476
+    .line 498
     iput p1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->d:F
 
-    .line 477
+    .line 499
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 478
+    .line 500
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 479
+    .line 501
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->arc:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 480
+    .line 502
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->arc:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 481
+    .line 503
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->head:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 482
+    .line 504
     return-void
 .end method
 
@@ -134,19 +134,19 @@
 
     const/4 v8, 0x0
 
-    .line 485
+    .line 507
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->r:F
 
     cmpg-float v0, v0, v8
 
     if-gtz v0, :cond_10
 
-    .line 522
+    .line 544
     :cond_f
     :goto_f
     return-void
 
-    .line 488
+    .line 510
     :cond_10
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->oval:Landroid/graphics/RectF;
 
@@ -176,14 +176,14 @@
 
     invoke-virtual {v0, v1, v4, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 489
+    .line 511
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
 
     cmpl-float v0, v0, v8
 
     if-lez v0, :cond_140
 
-    .line 490
+    .line 512
     :goto_2f
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
 
@@ -191,7 +191,7 @@
 
     if-lez v0, :cond_145
 
-    .line 491
+    .line 513
     :goto_35
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
 
@@ -209,7 +209,7 @@
 
     move v6, v0
 
-    .line 493
+    .line 515
     :goto_43
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
@@ -217,7 +217,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 494
+    .line 516
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41100000    # 9.0f
@@ -228,14 +228,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 495
+    .line 517
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     const v1, 0x33ffc107
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 496
+    .line 518
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     mul-int/lit8 v1, v6, 0x33
@@ -250,7 +250,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 497
+    .line 519
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cx:F
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cy:F
@@ -261,7 +261,7 @@
 
     invoke-virtual {p1, v0, v1, v4, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 498
+    .line 520
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     const/high16 v4, 0x40e00000    # 7.0f
@@ -285,7 +285,7 @@
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 499
+    .line 521
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
@@ -299,7 +299,7 @@
     :goto_92
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 500
+    .line 522
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->glow:Landroid/graphics/Paint;
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
@@ -323,7 +323,7 @@
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 501
+    .line 523
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->oval:Landroid/graphics/RectF;
 
     const/4 v4, 0x0
@@ -334,7 +334,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 503
+    .line 525
     new-instance v0, Landroid/graphics/SweepGradient;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cx:F
@@ -355,27 +355,27 @@
 
     invoke-direct {v0, v1, v4, v5, v7}, Landroid/graphics/SweepGradient;-><init>(FF[I[F)V
 
-    .line 506
+    .line 528
     new-instance v1, Landroid/graphics/Matrix;
 
     invoke-direct {v1}, Landroid/graphics/Matrix;-><init>()V
 
-    .line 507
+    .line 529
     iget v4, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cx:F
 
     iget v5, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cy:F
 
     invoke-virtual {v1, v2, v4, v5}, Landroid/graphics/Matrix;->setRotate(FFF)V
 
-    .line 508
+    .line 530
     invoke-virtual {v0, v1}, Landroid/graphics/SweepGradient;->setLocalMatrix(Landroid/graphics/Matrix;)V
 
-    .line 509
+    .line 531
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->arc:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 510
+    .line 532
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->arc:Landroid/graphics/Paint;
 
     const/high16 v1, 0x40600000    # 3.5f
@@ -386,12 +386,12 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 511
+    .line 533
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->arc:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v6}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 512
+    .line 534
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->oval:Landroid/graphics/RectF;
 
     const/4 v4, 0x0
@@ -402,7 +402,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 513
+    .line 535
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->flash:F
 
     cmpg-float v0, v0, v8
@@ -415,7 +415,7 @@
 
     if-lez v0, :cond_f
 
-    .line 514
+    .line 536
     add-float v0, v2, v3
 
     float-to-double v0, v0
@@ -424,7 +424,7 @@
 
     move-result-wide v0
 
-    .line 515
+    .line 537
     iget v2, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cx:F
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->r:F
@@ -441,7 +441,7 @@
 
     add-float/2addr v2, v3
 
-    .line 516
+    .line 538
     iget v3, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->cy:F
 
     iget v4, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->r:F
@@ -458,14 +458,14 @@
 
     add-float/2addr v0, v3
 
-    .line 517
+    .line 539
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->head:Landroid/graphics/Paint;
 
     const v3, 0x66ffffff
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 518
+    .line 540
     iget v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->d:F
 
     mul-float/2addr v1, v10
@@ -474,14 +474,14 @@
 
     invoke-virtual {p1, v2, v0, v1, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 519
+    .line 541
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->head:Landroid/graphics/Paint;
 
     const/4 v3, -0x1
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 520
+    .line 542
     const/high16 v1, 0x40400000    # 3.0f
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->d:F
@@ -494,7 +494,7 @@
 
     goto/16 :goto_f
 
-    .line 489
+    .line 511
     :cond_140
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->progress:F
 
@@ -502,7 +502,7 @@
 
     goto/16 :goto_2f
 
-    .line 490
+    .line 512
     :cond_145
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->spin:F
 
@@ -510,7 +510,7 @@
 
     goto/16 :goto_35
 
-    .line 491
+    .line 513
     :cond_14a
     const/16 v0, 0xff
 
@@ -518,25 +518,25 @@
 
     goto/16 :goto_43
 
-    .line 498
+    .line 520
     :cond_14f
     iget v0, p0, Lcom/isaigu/gymapp/wearable/PartPick$Ring;->progress:F
 
     goto/16 :goto_7f
 
-    .line 499
+    .line 521
     :cond_153
     const/16 v0, -0x3ef9
 
     goto/16 :goto_92
 
-    .line 500
+    .line 522
     :cond_157
     const/16 v0, 0x50
 
     goto/16 :goto_9f
 
-    .line 503
+    .line 525
     nop
 
     :array_15c
@@ -562,7 +562,7 @@
     .registers 2
 
     .prologue
-    .line 531
+    .line 553
     const/4 v0, -0x3
 
     return v0
@@ -572,7 +572,7 @@
     .registers 2
 
     .prologue
-    .line 525
+    .line 547
     return-void
 .end method
 
@@ -580,6 +580,6 @@
     .registers 2
 
     .prologue
-    .line 528
+    .line 550
     return-void
 .end method

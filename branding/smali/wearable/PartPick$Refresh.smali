@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 183
+    .line 184
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 186
+    .line 187
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/wearable/PartPick;->frag:Ljava/lang/ref/WeakReference;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->access$000()Ljava/lang/ref/WeakReference;
@@ -54,31 +54,31 @@
 
     check-cast v0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
-    .line 187
+    .line 188
     :goto_10
     if-eqz v0, :cond_15
 
-    .line 188
+    .line 189
     invoke-virtual {v0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->xemsRefreshParts()V
     :try_end_15
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_15} :catch_18
 
-    .line 193
+    .line 194
     :cond_15
     :goto_15
     return-void
 
-    .line 186
+    .line 187
     :cond_16
     const/4 v0, 0x0
 
     goto :goto_10
 
-    .line 190
+    .line 191
     :catch_18
     move-exception v0
 
-    .line 191
+    .line 192
     const-string v1, "index"
 
     new-instance v2, Ljava/lang/StringBuilder;

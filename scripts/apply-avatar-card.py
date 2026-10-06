@@ -7,7 +7,8 @@
   controls (the photo lights up), a long press opens the client card (XemsLocalAvatar.bindCard(View, TrainItem));
 - master controls on the picked clients only (nobody picked = everyone):
   NewTrainFragment.lambda$settingAllUser$15 (⚙ Master),
-  NewTrainFragment.startOrStopAll (▶ / ❚❚; ■ stays for everyone);
+  NewTrainFragment.startOrStopAll (▶ / ❚❚),
+  NewTrainFragment.lambda$onCreateView$1 (■: picked → only they stop, the session goes on; nobody → end for all);
   + / − in apply-part-strength.py (apply-active-pause-control-fixes.py rewrites that lambda later);
 - TrainFragment$UserTrainAdapter.onBindViewHolder (old list): same card.
 - CircleSeekBar.onTouchEvent: the training ring moves only when the gesture starts on its handle
@@ -181,8 +182,26 @@ def patch_master_pick() -> None:
     )
 
 
+def patch_master_stop() -> None:
+    stop = f"{AV}->masterStop()Z"
+    guard_first(
+        FRAGMENT,
+        ".method public synthetic lambda$onCreateView$1$NewTrainFragment(",
+        f"    invoke-static {{}}, {stop}\n"
+        "    move-result v0\n"
+        "    if-eqz v0, :cond_xems_pick_stop\n"
+        "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncTrainingState()V\n"
+        "    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V\n"
+        "    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->syncTrainingState()V\n"
+        "    return-void\n"
+        "    :cond_xems_pick_stop\n",
+        stop,
+    )
+
+
 def main() -> None:
     patch_master_pick()
+    patch_master_stop()
     patch_seek()
     patch_grab()
     patch_holder()

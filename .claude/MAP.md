@@ -23,7 +23,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-active-pause.py` (929L, build:L74) — Active pause (impulse change during pause) settings and training logic.
 - `scripts/apply-ai-session.py` (75L, build:L123[BETA_MUSIC]) — XEMS Smart Session ("AI" button): install ai smali, check the device-cycle hook, Settings → Band.
 - `scripts/apply-arms-channel-scale.py` (160L, build:L159) — Apply encode-time arms channel strength reduction (÷5 at 150 µs … ÷10 at 400 µs pulse width) (buwei5 / index 4).
-- `scripts/apply-avatar-card.py` (195L, build:L136[BETA_MUSIC]) — Training slot: the client's photo is a button, not part of the slider.
+- `scripts/apply-avatar-card.py` (214L, build:L136[BETA_MUSIC]) — Training slot: the client's photo is a button, not part of the slider.
 - `scripts/apply-avatar-proportional-lock.py` (85L, build:L88) — Replace avatar column RelativeLayout with proportional AvatarClusterLayout.
 - `scripts/apply-avatar-timer.py` (315L, build:L62) — Remove avatar wave fill; show interval seconds only while training is running.
 - `scripts/apply-band-app.py` (77L, build:L137[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
@@ -271,7 +271,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `NextPlan.java` (418L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (732L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `PartPick.java` (535L, compile:music-sync*,wearable) — The muscle-group icons on the training screen, with the second impulse on: <ul> <li>1st tap — green: + / − and the avat…
+- `PartPick.java` (557L, compile:music-sync*,wearable) — The muscle-group icons on the training screen, with the second impulse on: <ul> <li>1st tap — green: + / − and the avat…
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
 - `ProgramFit.java` (256L, compile:music-sync*,wearable) — The manual mode's programs, exactly as the trainer sets them (owner, 1.1.323: no automatic adaptation in the manual mod…
 - `QuickStart.java` (259L, compile:music-sync*,wearable) — Client list (Потребители): <ul> <li>▶ at the end of every row: the client's last program (their saved one, else the las…
@@ -367,7 +367,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLicenseSection.java` (365L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (223L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here; nothing goes to…
-- `XemsLocalAvatar.java` (1018L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
+- `XemsLocalAvatar.java` (1039L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (351L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
@@ -799,7 +799,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
   - L28 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
 
-`docs/xems-client-list.md` (51L)
+`docs/xems-client-list.md` (70L)
   - L1 # Списък с клиенти, търсене, избор (1.1.243-ai)
   - L6 ## Редът на клиента
   - L15 ## Обновяване
@@ -808,6 +808,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L30 ## Меню
   - L39 ## Тъмна тема и фонове
   - L46 ## Програмите на началния екран (1.1.263-ai)
+  - L52 ## Общите контроли и избраните клиенти (1.1.372-ai)
 
 `docs/xems-client-sync.md` (123L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)

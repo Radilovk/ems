@@ -74,11 +74,14 @@ public final class BtGear {
             full.setOnClickListener(new Full(this));
             TextView test = XemsUi.button(a, "Тестов режим", XemsUi.SECONDARY);
             test.setOnClickListener(new Test(this));
+            TextView aus = XemsUi.button(a, "Австралийски ток", XemsUi.SECONDARY);
+            aus.setOnClickListener(new Aus(this));
             sh.body.addView(prog, XemsUi.matchWrap(a, 8));
             sh.body.addView(full, XemsUi.matchWrap(a, 12));
             sh.body.addView(test, XemsUi.matchWrap(a, 12));
+            sh.body.addView(aus, XemsUi.matchWrap(a, 12));
             TextView hint = XemsUi.text(a, "Пълни параметри: Hz до 1000, ширина до 511 µs, форма и сила за всеки канал и "
-                    + "всеки импулс. Тестов режим: пробваш ги, без да пипаш програмата.", 12, XemsUi.HINT, false);
+                    + "всеки импулс. Тестов режим: пробваш ги, без да пипаш програмата. Австралийски ток: готови протоколи с 1 kHz ток.", 12, XemsUi.HINT, false);
             hint.setPadding(0, XemsUi.dp(a, 12), 0, XemsUi.dp(a, 8));
             sh.body.addView(hint);
         }
@@ -128,6 +131,20 @@ public final class BtGear {
         public void onClick(View v) {
             c.sh.dialog.dismiss();
             new BtFull(c.a, c.mac).show();
+        }
+    }
+
+    static final class Aus implements View.OnClickListener {
+        final Choice c;
+
+        Aus(Choice c) {
+            this.c = c;
+        }
+
+        @Override
+        public void onClick(View v) {
+            c.sh.dialog.dismiss();
+            new BtAusScreen(c.a, c.mac).show();
         }
     }
 

@@ -136,6 +136,36 @@ public final class BtBridge {
         }
     }
 
+    /**
+     * Australian-current program ({@link BtAusRun}): several channels at once (pcts / hzs indexed by channel 1..8), held
+     * like a test — renewed every ≤ 1 s, off with {@code down = false}. Returns "ok", "no_suit" or "training".
+     */
+    public static String program(String mac, int[] pcts, int[] hzs, int us, int wave, int onMs, int offMs, int step,
+                                 boolean down) {
+        try {
+            Dev v = null;
+            synchronized (BtBridge.class) {
+                for (Dev x : DEVS.values()) {
+                    if (mac != null && !mac.equalsIgnoreCase(x.d.getMac())) continue;
+                    if (BleManager.getInstance().isConnected(x.d)) {
+                        v = x;
+                        break;
+                    }
+                }
+            }
+            if (v == null) return "no_suit";
+            if (v.tr.training()) return "training";
+            v.begin();
+            if (down) v.add(v.tr.programOn(pcts, hzs, us, wave, onMs, offMs, step, SystemClock.elapsedRealtime()),
+                    null, null, false);
+            else v.add(v.tr.testOff(), null, null, true);
+            return "ok";
+        } catch (Throwable t) {
+            Log.e(TAG, "program: " + t);
+            return "no_suit";
+        }
+    }
+
     /** Is the suit with this MAC a bodytech one (seen as such when it was connected)? */
     public static synchronized boolean isBodytechMac(String mac) {
         if (mac == null) return false;

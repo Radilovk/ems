@@ -7,8 +7,9 @@ ROOT="$(cd "${HERE}/../.." && pwd)"
 JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 [[ -s "${JAR}" ]] || bash "${ROOT}/scripts/setup-android-toolchain.sh"
 OUT="$(mktemp -d)"
-mapfile -t SRC < <(ls "${ROOT}"/branding/java/src/com/isaigu/gymapp/bodytech/{BtProto,BtSettings,BtTranslator}.java; find "${HERE}/test" -name '*.java' | sort)
+mapfile -t SRC < <(ls "${ROOT}"/branding/java/src/com/isaigu/gymapp/bodytech/{BtProto,BtSettings,BtTranslator,BtAus}.java; find "${HERE}/test" -name '*.java' | sort)
 javac --release 8 -nowarn -encoding UTF-8 -classpath "${JAR}" -d "${OUT}" "${SRC[@]}" 2>&1 | grep -v -E '^warning|warnings$' || true
 java -cp "${OUT}:${JAR}" com.isaigu.gymapp.bodytech.BtSettingsTest
 java -cp "${OUT}:${JAR}" com.isaigu.gymapp.bodytech.BtTranslatorTest
+java -cp "${OUT}:${JAR}" com.isaigu.gymapp.bodytech.BtAusTest
 rm -rf "${OUT}"

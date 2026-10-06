@@ -8,6 +8,7 @@
     value = {
         Lcom/isaigu/gymapp/bodytech/BtGear$Choice;,
         Lcom/isaigu/gymapp/bodytech/BtGear$Test;,
+        Lcom/isaigu/gymapp/bodytech/BtGear$Aus;,
         Lcom/isaigu/gymapp/bodytech/BtGear$Full;,
         Lcom/isaigu/gymapp/bodytech/BtGear$Replay;,
         Lcom/isaigu/gymapp/bodytech/BtGear$Program;

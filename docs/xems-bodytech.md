@@ -1,5 +1,7 @@
 # Bodytech suit in XEMS — plain training (1.1.351-ai)
 
+> Australian-current protocols (gear → «Австралийски ток», 1.1.362): `docs/xems-australian.md`.
+
 A bodytech suit (EMSFIT 5.1 hardware, BLE service `FE50`, name `EMS08-…` / `TZLJ…` / `ADT…`) trains from the stock XEMS
 row: same screen, same ＋/− and sliders, same programs, ramp, double impulse, timer, battery, reconnect.
 **Not covered on purpose:** music sync, pulse (band) control, Auto mode, Smart Session (AI) — only the plain training.

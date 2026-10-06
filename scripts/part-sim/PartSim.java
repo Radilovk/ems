@@ -118,12 +118,10 @@ public class PartSim {
         check(PartLook.ringMove(it), "free ring in the pause phase: second impulse look");
         it.data.inStart = true;                                  // the phase turns under the finger
         check(PartLook.ringMove(it), "ring stays in its look while it moves");
-        check(PartLook.ringEnd(it, 100), "yellow ring release handled");
-        check(b.pauseStrenthPercent == 60 && b.strenth == 50, "yellow ring: 40 → 60 (+20), main stays: "
-                + b.pauseStrenthPercent + " / " + b.strenth);
-        check(PartLook.ringEnd(it, 100) && b.pauseStrenthPercent == 75, "yellow ring: at most 1.5 × main (75): "
-                + b.pauseStrenthPercent);
-        check(PartStrength.seekValue(it, 0) == 75 * 75 / 100, "ring shows the second impulse while held");
+        check(PartLook.ringEnd(it, 60), "yellow ring release handled");
+        check(b.strenth == 70 && b.pauseStrenthPercent == 56, "both by the same ratio (50/40 → 70/56): "
+                + b.strenth + " / " + b.pauseStrenthPercent);
+        check(PartStrength.seekValue(it, 0) == 56 * 75 / 100, "ring shows the second impulse while held");
         it.data.start = false;
     }
 
@@ -296,6 +294,12 @@ public class PartSim {
         PartStrength.bar(null, tp, b, 7, 100);
         check(mainReal(b)[7] == 60 && secondReal(it, b)[7] == sb[7], "green bar: main alone");
         marks[7] = false;
+        // not marked: the bar sets both impulses
+        SecondParts.set(b, b.strenthBean.buwei, new int[] {50, 50, 50, 50, 50, 50, 50, 50, 50, 50});
+        PartStrength.bar(null, tp, b, 2, 70);
+        check(b.strenthBean.buwei[2] == 70 && SecondParts.effective(b, b.strenthBean.buwei)[2] == 70,
+                "unmarked bar: both impulses");
+        check(SecondParts.effective(b, b.strenthBean.buwei)[3] == 50, "unmarked bar: other channels stay");
         // own percents are dropped when they equal the main ones
         b.activePause = true;
         int[] same = b.strenthBean.buwei.clone();

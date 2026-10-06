@@ -282,10 +282,9 @@ public final class PartStrength {
 
     /**
      * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the bar's
-     * percent). The bar sets what it showed (PartLook): in the second impulse's look (yellow) the channel's second
-     * impulse alone — its percent of the second impulse's strength — the main impulse stays where it was. Otherwise
-     * the main impulse takes it as stock; with the second impulse on the second impulse of the channel stays where it
-     * was (green = main alone).
+     * percent). As everywhere: a yellow channel — its second impulse alone (percent of the second impulse's strength),
+     * the main stays; a green channel — its main impulse alone, the second stays; not marked — both impulses get the
+     * percent.
      */
     public static void bar(View view, TrainProgram prog, ProgramDataBean b, int i, int stored) {
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
@@ -293,8 +292,10 @@ public final class PartStrength {
             return;
         }
         try {
+            PartLook.release(view);
             PartPick.touch();
-            if (PartLook.release(view, b, i)) {
+            boolean marked = PartPick.isMarked(i);
+            if (marked && b.activePause && PartPick.isYellow(i)) {
                 boolean[] y = new boolean[parts.length];
                 y[i] = true;
                 int p2 = Math.min(b.pauseStrenthPercent, secondCap(null, b));
@@ -305,6 +306,9 @@ public final class PartStrength {
             int[] second = b.activePause ? SecondParts.effective(b, parts) : SecondParts.get(b);
             parts[i] = stored;
             if (second != null && second.length == parts.length) {
+                if (!marked) {
+                    second[i] = stored;                 // not marked: both impulses
+                }
                 SecondParts.set(b, parts, second);
             }
         } catch (Throwable t) {

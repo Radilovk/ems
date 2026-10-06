@@ -54,6 +54,11 @@ public final class PartPick {
         return i >= 0 && i < N && YELLOW[i] && ctl != null && i < ctl.length && ctl[i];
     }
 
+    /** The channel is marked, green or yellow. */
+    public static boolean isMarked(int i) {
+        return i >= 0 && i < N && ctl != null && i < ctl.length && ctl[i];
+    }
+
     /** + / − or the slider acted on the marked channels: their 5 s start again. */
     public static void touch() {
         long now = System.currentTimeMillis();

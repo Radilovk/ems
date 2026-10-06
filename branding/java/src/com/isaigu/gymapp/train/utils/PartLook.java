@@ -25,8 +25,9 @@ import java.util.WeakHashMap;
  *   <li><b>What is being set keeps its look:</b> a marked channel (green = main, yellow = second), the selected index
  *       (MA / Hz = main, 2nd MA / 2nd Hz = second), a bar or the ring under the finger (the look it had when the
  *       finger went down) — plus {@link #HOLD_MS} after the release, so the result is seen where it was set.</li>
- *   <li>What a bar or the ring shows is what its release sets: a yellow bar sets the channel's second impulse,
- *       a yellow ring the second impulse's total strength.</li>
+ *   <li>What a release changes follows one rule (owner): nothing selected — both impulses; green — the main
+ *       impulse; yellow — the second. A yellow-looking ring with nothing selected moves both impulses by the same
+ *       ratio (the value under the finger is the second impulse's).</li>
  * </ul>
  * Hooks (scripts/apply-part-look.py): end of TrainViewHolder.updateUI ({@link #paint}), the bar's move
  * ({@link #drag}) and release (PartStrength.bar), the ring's move ({@link #ringMove}) and release ({@link #ringEnd});
@@ -212,15 +213,13 @@ public final class PartLook {
         }
     }
 
-    /** A bar's release (PartStrength.bar): its look (true = second); it is kept {@link #HOLD_MS} more. */
-    static boolean release(View bar, ProgramDataBean b, int i) {
+    /** A bar's release (PartStrength.bar): it keeps its look {@link #HOLD_MS} more. */
+    static void release(View bar) {
         Lock l = held(bar);
-        if (l == null) {
-            return b.activePause && PartPick.isYellow(i);  // no move seen: as the mark says
+        if (l != null) {
+            l.dragging = false;
+            l.until = System.currentTimeMillis() + HOLD_MS;
         }
-        l.dragging = false;
-        l.until = System.currentTimeMillis() + HOLD_MS;
-        return l.second && b.activePause;
     }
 
     /**
@@ -250,8 +249,9 @@ public final class PartLook {
 
     /**
      * Hook: the ring released (TrainViewHolder$4.onChangedEnd, after the selected channels' turn), {@code level}
-     * 0–100. The free ring in the second impulse's look sets the second impulse's total strength (at most +20 in
-     * one release, within its limit). True = handled.
+     * 0–100. Nothing selected and the ring in the second impulse's look (it showed the second impulse's strength):
+     * both impulses move by the same ratio, so the second one lands on the finger's value — the main one at most +20
+     * in one release, the second within its limit. True = handled.
      */
     public static boolean ringEnd(TrainItem item, int level) {
         try {
@@ -261,12 +261,17 @@ public final class PartLook {
                 l.dragging = false;
                 l.until = System.currentTimeMillis() + HOLD_MS;
             }
-            if (b == null || !b.activePause || l == null || !l.second || !ringFree(item, b)) {
+            if (b == null || !b.activePause || l == null || !l.second || !ringFree(item, b)
+                    || b.pauseStrenthPercent <= 0 || b.strenth <= 0) {
                 return false;
             }
-            int now = PartStrength.secondStrength(item, b);
-            int to = Math.min(PartStrength.clamp(level), now + PartStrength.MAX_RAISE);
-            b.pauseStrenthPercent = Math.min(to, PartStrength.secondCap(item, b));
+            int to = Math.min(PartStrength.clamp(level), PartStrength.secondCap(item, b));
+            int main = (int) Math.round(to * (double) b.strenth / b.pauseStrenthPercent);
+            main = Math.max(0, Math.min(Math.min(100, b.strenth + PartStrength.MAX_RAISE), main));
+            // the stock coupling (TrainItem.setMainAndPauseStrenthFromSlider): the second keeps its share of the main
+            int pause = (int) ((main * (long) b.pauseStrenthPercent + b.strenth / 2) / b.strenth);
+            b.pauseStrenthPercent = Math.max(0, Math.min(100, pause));
+            b.strenth = main;
             PartStrength.saveProgram(item);
             return true;
         } catch (Throwable t) {

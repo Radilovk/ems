@@ -28,18 +28,39 @@ public class BtAusTest {
         eq("width at 1 kHz", 500, BtAus.widthFor(1000, 500));
         eq("width at 2 kHz is half the period", 250, BtAus.widthFor(2000, 500));
 
-        // every template is sane
+        // every procedure is sane: passive, phases that fit the suit
         for (BtAus.T t : BtAus.ALL) {
-            eq(t.id + " width ok", true, t.us <= BtTranslator.maxUsAt(t.carrier) && t.us >= BtTranslator.MIN_US);
-            eq(t.id + " level", true, t.level >= 1 && t.level <= 99);
+            eq(t.id + " passive", BtAus.PASSIVE, t.kind);
             eq(t.id + " zones", true, t.zones.length > 0);
-            eq(t.id + " minutes", true, t.minutes >= 1 && t.minutes <= 90);
-            if (t.burstHz > 0) eq(t.id + " burst fits", true, BtAus.burst(t.burstHz, t.burstMs)[0] > 0);
+            eq(t.id + " minutes", true, t.minutes >= 10 && t.minutes <= 45);
+            for (BtAus.Ph p : t.ph) {
+                String w = t.id + "/" + p.name;
+                eq(w + " width ok", true, p.us <= BtTranslator.maxUsAt(p.carrier) && p.us >= BtTranslator.MIN_US);
+                eq(w + " level", true, p.level >= 1 && p.level <= 10);
+                eq(w + " hz", true, p.carrier >= 1 && p.carrier <= BtTranslator.TEST_HZ_MAX);
+                if (p.burstHz > 0) {
+                    int[] bb = BtAus.burst(p.burstHz, p.burstMs);
+                    eq(w + " burst fits", true, bb[0] > 0);
+                    eq(w + " burst duty <= 20 %", true, bb[0] * 100 <= 20 * (bb[0] + bb[1]));
+                }
+                if (p.carrier >= 4000) eq(w + " 4 kHz at 125 us", 125, BtAus.widthFor(p.carrier, p.us));
+            }
         }
-        eq("4 passive procedures", 4, BtAus.ALL.length);
-        for (BtAus.T t : BtAus.ALL) eq(t.id + " passive", BtAus.PASSIVE, t.kind);
+        eq("9 procedures", 9, BtAus.ALL.length);
         eq("byId", "ifc-acute", BtAus.byId("ifc-acute").id);
         eq("byId none", null, BtAus.byId("strength"));
+        eq("only tone is advanced", true, BtAus.byId("tone").advanced && !BtAus.byId("shape").advanced);
+        eq("lipolysis 40 min", 40, BtAus.byId("lipolysis").minutes);
+
+        // chain of phases
+        int[] mins = {5, 13, 6, 5};
+        eq("phase 0 at 0", 0, BtAus.phaseAt(mins, 0)[0]);
+        eq("phase 0 at 299", 0, BtAus.phaseAt(mins, 299)[0]);
+        eq("phase 1 at 300", 1, BtAus.phaseAt(mins, 300)[0]);
+        eq("phase 1 start", 300, BtAus.phaseAt(mins, 300)[1]);
+        eq("phase 3 start", (5 + 13 + 6) * 60, BtAus.phaseAt(mins, 1500)[1]);
+        eq("past the end", -1, BtAus.phaseAt(mins, 29 * 60)[0]);
+        eq("a skipped (0 min) phase is passed", 2, BtAus.phaseAt(new int[]{5, 0, 6}, 300)[0]);
 
         // timeline: on 10 (ramps 2) off 30
         BtAus.Pos p = BtAus.at(10, 30, 2, 0);

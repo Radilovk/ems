@@ -42,402 +42,451 @@
     .registers 3
 
     .prologue
-    .line 494
+    .line 581
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 495
+    .line 582
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
-    .line 496
+    .line 583
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
 
-    .line 497
+    .line 584
     return-void
 .end method
 
 
 # virtual methods
 .method public onStep(I)V
-    .registers 9
+    .registers 11
 
     .prologue
-    const/4 v6, 0x0
+    const/4 v8, 0x0
 
-    const/4 v3, 0x2
+    const/4 v4, 0x2
 
-    const/4 v2, 0x5
+    const/4 v3, 0x5
 
-    const/16 v0, 0xa
+    const/16 v1, 0xa
 
-    const/4 v1, 0x1
+    const/4 v2, 0x1
 
-    .line 501
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
+    .line 588
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
-    iget-object v4, v4, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->run:Lcom/isaigu/gymapp/bodytech/BtAusRun;
+    iget-object v5, v0, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->run:Lcom/isaigu/gymapp/bodytech/BtAusRun;
 
-    .line 502
-    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
+    .line 590
+    iget v0, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    if-nez v5, :cond_45
+    if-eqz v0, :cond_47
 
-    .line 503
-    iget v5, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
+    iget v0, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
 
-    if-ge v5, v0, :cond_3b
+    if-ltz v0, :cond_47
 
-    move v0, v1
+    iget v0, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
 
-    .line 504
-    :goto_13
-    if-gez p1, :cond_21
+    .line 591
+    :goto_14
+    invoke-virtual {v5, v0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ph(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
+    move-result-object v6
 
-    if-le v2, v1, :cond_21
+    .line 592
+    iget v7, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
 
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
+    if-nez v7, :cond_52
 
-    add-int/lit8 v2, v2, -0x1
+    .line 593
+    iget-object v6, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:[I
 
-    invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
+    aget v6, v6, v0
 
-    move-result v0
+    .line 594
+    if-ge v6, v1, :cond_4a
 
-    .line 505
-    :cond_21
-    const/16 v2, 0x63
+    move v1, v2
 
-    iget v3, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
+    .line 595
+    :goto_23
+    if-gez p1, :cond_2d
 
-    mul-int/2addr v0, p1
+    if-le v6, v2, :cond_2d
 
-    add-int/2addr v0, v3
+    add-int/lit8 v3, v6, -0x1
 
-    invoke-static {v2, v0}, Ljava/lang/Math;->min(II)I
+    invoke-static {v1, v3}, Ljava/lang/Math;->min(II)I
 
-    move-result v0
+    move-result v1
 
-    invoke-static {v1, v0}, Ljava/lang/Math;->max(II)I
+    .line 596
+    :cond_2d
+    iget-object v3, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:[I
 
-    move-result v0
+    const/16 v4, 0x63
 
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
+    mul-int/2addr v1, p1
 
-    .line 506
-    iget v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
+    add-int/2addr v1, v6
 
-    if-eqz v0, :cond_6c
+    invoke-static {v4, v1}, Ljava/lang/Math;->min(II)I
 
-    .line 507
+    move-result v1
+
+    invoke-static {v2, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    aput v1, v3, v0
+
+    .line 597
+    iget v0, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
+
+    if-eqz v0, :cond_77
+
+    .line 598
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->live()V
 
-    .line 540
-    :goto_3a
+    .line 632
+    :goto_46
     return-void
 
-    .line 503
-    :cond_3b
-    iget v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
+    .line 590
+    :cond_47
+    iget v0, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sel:I
 
-    const/16 v5, 0x28
+    goto :goto_14
 
-    if-ge v0, v5, :cond_43
+    .line 594
+    :cond_4a
+    const/16 v1, 0x28
 
-    move v0, v3
+    if-ge v6, v1, :cond_50
 
-    goto :goto_13
+    move v1, v4
 
-    :cond_43
-    move v0, v2
+    goto :goto_23
 
-    goto :goto_13
+    :cond_50
+    move v1, v3
 
-    .line 510
-    :cond_45
-    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
+    goto :goto_23
 
-    if-ne v5, v1, :cond_74
+    .line 601
+    :cond_52
+    iget v7, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
 
-    .line 511
-    iget v3, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:I
+    if-ne v7, v2, :cond_7f
 
-    if-ge v3, v0, :cond_72
+    .line 602
+    iget-object v4, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
 
-    move v0, v1
+    aget v4, v4, v0
 
-    .line 512
-    :goto_4e
-    if-gez p1, :cond_5c
+    .line 603
+    if-ge v4, v1, :cond_7d
 
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:I
+    move v1, v2
 
-    if-le v2, v1, :cond_5c
+    .line 604
+    :goto_5d
+    if-gez p1, :cond_67
 
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:I
+    if-le v4, v2, :cond_67
 
-    add-int/lit8 v2, v2, -0x1
+    add-int/lit8 v3, v4, -0x1
 
-    invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
+    invoke-static {v1, v3}, Ljava/lang/Math;->min(II)I
 
-    move-result v0
+    move-result v1
 
-    .line 513
-    :cond_5c
-    const/16 v2, 0x5a
+    .line 605
+    :cond_67
+    iget-object v3, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
 
-    iget v3, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:I
+    const/16 v5, 0x3c
 
-    mul-int/2addr v0, p1
+    mul-int/2addr v1, p1
 
-    add-int/2addr v0, v3
+    add-int/2addr v1, v4
 
-    invoke-static {v2, v0}, Ljava/lang/Math;->min(II)I
+    invoke-static {v5, v1}, Ljava/lang/Math;->min(II)I
 
-    move-result v0
+    move-result v1
 
-    invoke-static {v1, v0}, Ljava/lang/Math;->max(II)I
+    invoke-static {v2, v1}, Ljava/lang/Math;->max(II)I
 
-    move-result v0
+    move-result v1
 
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:I
+    aput v1, v3, v0
 
-    .line 539
-    :cond_6c
-    :goto_6c
+    .line 631
+    :cond_77
+    :goto_77
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->render()V
 
-    goto :goto_3a
+    goto :goto_46
 
-    :cond_72
-    move v0, v2
+    :cond_7d
+    move v1, v3
 
-    .line 511
-    goto :goto_4e
+    .line 603
+    goto :goto_5d
 
-    .line 514
-    :cond_74
-    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
+    .line 606
+    :cond_7f
+    iget v7, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
 
-    if-ne v5, v3, :cond_b2
+    if-ne v7, v4, :cond_c3
 
-    .line 515
-    iget v5, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
+    .line 607
+    iget-object v7, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
 
-    if-nez v5, :cond_9a
+    aget v7, v7, v0
 
-    .line 516
-    if-lez p1, :cond_6c
+    if-nez v7, :cond_a5
 
-    .line 517
-    iget-object v1, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    .line 608
+    if-lez p1, :cond_77
 
-    iget v1, v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->onS:I
+    .line 609
+    iget-object v2, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
 
-    if-lez v1, :cond_88
+    iget v3, v6, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->onS:I
 
-    iget-object v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    if-lez v3, :cond_93
 
-    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->onS:I
+    iget v1, v6, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->onS:I
 
-    :cond_88
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
+    :cond_93
+    aput v1, v2, v0
 
-    .line 518
-    iget-object v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    .line 610
+    iget-object v2, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
 
-    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->offS:I
+    iget v1, v6, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->offS:I
 
-    if-lez v0, :cond_97
+    if-lez v1, :cond_a0
 
-    iget-object v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    iget v1, v6, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->offS:I
 
-    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->offS:I
+    :goto_9d
+    aput v1, v2, v0
 
-    :goto_94
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
+    goto :goto_77
 
-    goto :goto_6c
+    :cond_a0
+    iget-object v1, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
 
-    :cond_97
-    iget v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
+    aget v1, v1, v0
 
-    goto :goto_94
+    goto :goto_9d
 
-    .line 521
-    :cond_9a
-    iget v5, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
+    .line 613
+    :cond_a5
+    iget-object v6, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
 
-    if-ge v5, v0, :cond_b0
+    aget v6, v6, v0
 
-    move v0, v1
+    if-ge v6, v1, :cond_c1
 
-    .line 522
-    :goto_9f
-    const/16 v1, 0x3c
+    move v1, v2
 
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
+    .line 614
+    :goto_ac
+    iget-object v2, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
 
-    mul-int/2addr v0, p1
+    const/16 v3, 0x3c
 
-    add-int/2addr v0, v2
+    iget-object v5, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
 
-    invoke-static {v1, v0}, Ljava/lang/Math;->min(II)I
-
-    move-result v0
-
-    invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
-
-    move-result v0
-
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
-
-    goto :goto_6c
-
-    :cond_b0
-    move v0, v2
-
-    .line 521
-    goto :goto_9f
-
-    .line 524
-    :cond_b2
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
-
-    const/4 v5, 0x3
-
-    if-ne v3, v5, :cond_eb
-
-    .line 525
-    iget v3, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
-
-    if-nez v3, :cond_d4
-
-    .line 526
-    if-lez p1, :cond_6c
-
-    .line 527
-    iget v1, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
-
-    if-lez v1, :cond_d2
-
-    iget v1, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
-
-    :goto_c3
-    iput v1, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
-
-    .line 528
-    iget-object v1, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v1, v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->offS:I
-
-    if-lez v1, :cond_cf
-
-    iget-object v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->offS:I
-
-    :cond_cf
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
-
-    goto :goto_6c
-
-    :cond_d2
-    move v1, v0
-
-    .line 527
-    goto :goto_c3
-
-    .line 531
-    :cond_d4
-    iget v3, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
-
-    if-ge v3, v0, :cond_e9
-
-    .line 532
-    :goto_d8
-    const/16 v0, 0x78
-
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
+    aget v5, v5, v0
 
     mul-int/2addr v1, p1
 
-    add-int/2addr v1, v2
+    add-int/2addr v1, v5
 
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
+    invoke-static {v3, v1}, Ljava/lang/Math;->min(II)I
 
-    move-result v0
+    move-result v1
 
-    invoke-static {v6, v0}, Ljava/lang/Math;->max(II)I
+    invoke-static {v4, v1}, Ljava/lang/Math;->max(II)I
 
-    move-result v0
+    move-result v1
 
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
+    aput v1, v2, v0
 
-    goto :goto_6c
+    goto :goto_77
+
+    :cond_c1
+    move v1, v3
+
+    .line 613
+    goto :goto_ac
+
+    .line 616
+    :cond_c3
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
+
+    const/4 v7, 0x3
+
+    if-ne v4, v7, :cond_109
+
+    .line 617
+    iget-object v4, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
+
+    aget v4, v4, v0
+
+    if-nez v4, :cond_eb
+
+    .line 618
+    if-lez p1, :cond_77
+
+    .line 619
+    iget-object v3, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
+
+    iget-object v2, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
+
+    aget v2, v2, v0
+
+    if-lez v2, :cond_e9
+
+    iget-object v2, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
+
+    aget v2, v2, v0
+
+    :goto_dc
+    aput v2, v3, v0
+
+    .line 620
+    iget-object v2, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
+
+    iget v3, v6, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->offS:I
+
+    if-lez v3, :cond_e6
+
+    iget v1, v6, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->offS:I
+
+    :cond_e6
+    aput v1, v2, v0
+
+    goto :goto_77
 
     :cond_e9
-    move v1, v2
+    move v2, v1
 
-    .line 531
-    goto :goto_d8
+    .line 619
+    goto :goto_dc
 
-    .line 534
+    .line 623
     :cond_eb
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
+    iget-object v4, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
 
-    const/4 v3, 0x4
+    aget v4, v4, v0
 
-    if-ne v0, v3, :cond_10a
+    if-ge v4, v1, :cond_107
 
-    .line 535
-    iget v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:I
+    .line 624
+    :goto_f1
+    iget-object v1, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
 
-    if-lez v0, :cond_6c
+    const/16 v3, 0x78
 
-    const/16 v0, 0x3e8
+    iget-object v4, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
 
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:I
+    aget v4, v4, v0
 
-    div-int/2addr v0, v2
+    mul-int/2addr v2, p1
 
-    add-int/lit8 v0, v0, -0x1
+    add-int/2addr v2, v4
 
-    iget v2, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:I
+    invoke-static {v3, v2}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    invoke-static {v8, v2}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    aput v2, v1, v0
+
+    goto/16 :goto_77
+
+    :cond_107
+    move v2, v3
+
+    .line 623
+    goto :goto_f1
+
+    .line 626
+    :cond_109
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Stp;->what:I
+
+    const/4 v4, 0x4
+
+    if-ne v1, v4, :cond_130
+
+    .line 627
+    iget-object v1, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:[I
+
+    aget v1, v1, v0
+
+    if-lez v1, :cond_77
+
+    iget-object v1, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:[I
+
+    const/16 v3, 0x3e8
+
+    iget-object v4, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:[I
+
+    aget v4, v4, v0
+
+    div-int/2addr v3, v4
+
+    add-int/lit8 v3, v3, -0x1
+
+    iget-object v4, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:[I
+
+    aget v4, v4, v0
+
+    add-int/2addr v4, p1
+
+    invoke-static {v3, v4}, Ljava/lang/Math;->min(II)I
+
+    move-result v3
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    aput v2, v1, v0
+
+    goto/16 :goto_77
+
+    .line 629
+    :cond_130
+    iget-object v1, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:[I
+
+    iget-object v2, v5, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:[I
+
+    aget v2, v2, v0
 
     add-int/2addr v2, p1
 
-    invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
+    invoke-static {v3, v2}, Ljava/lang/Math;->min(II)I
 
-    move-result v0
+    move-result v2
 
-    invoke-static {v1, v0}, Ljava/lang/Math;->max(II)I
+    invoke-static {v8, v2}, Ljava/lang/Math;->max(II)I
 
-    move-result v0
+    move-result v2
 
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:I
+    aput v2, v1, v0
 
-    goto/16 :goto_6c
-
-    .line 537
-    :cond_10a
-    iget v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:I
-
-    add-int/2addr v0, p1
-
-    invoke-static {v2, v0}, Ljava/lang/Math;->min(II)I
-
-    move-result v0
-
-    invoke-static {v6, v0}, Ljava/lang/Math;->max(II)I
-
-    move-result v0
-
-    iput v0, v4, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:I
-
-    goto/16 :goto_6c
+    goto/16 :goto_77
 .end method

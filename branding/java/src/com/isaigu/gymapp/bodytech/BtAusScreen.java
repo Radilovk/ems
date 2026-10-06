@@ -33,9 +33,10 @@ public final class BtAusScreen {
     final BtAusRun run;
     boolean more;
     int shown = -1;                       // the state the body was drawn for
+    int shownCur = -2;                    // and the phase
 
     // live views of the running screen
-    TextView tvTime, tvPhase, tvLeft, tvFeel;
+    TextView tvTime, tvPhase, tvLeft, tvFeel, tvStage;
     View barFill, barRest;
     TextView[] chTv = new TextView[BtSettings.CHANNELS + 1];
     XemsUi.Stepper lvl;
@@ -72,7 +73,7 @@ public final class BtAusScreen {
 
     /** Called by the runner every tick and on state changes. */
     void refresh() {
-        if (run.state != shown) {
+        if (run.state != shown || run.cur != shownCur) {
             render();
             return;
         }
@@ -81,6 +82,7 @@ public final class BtAusScreen {
 
     void render() {
         shown = run.state;
+        shownCur = run.cur;
         sh.body.removeAllViews();
         sh.footer.removeAllViews();
         for (int i = 0; i < chTv.length; i++) chTv[i] = null;
@@ -94,6 +96,8 @@ public final class BtAusScreen {
 
     private void setup() {
         BtAus.T t = run.t;
+        int i = run.sel;
+        BtAus.Ph p = run.ph(i);
         LinearLayout row = XemsUi.horizontal(a);
         row.setGravity(Gravity.TOP);
 
@@ -101,6 +105,11 @@ public final class BtAusScreen {
         LinearLayout left = XemsUi.vertical(a);
         left.addView(XemsUi.label(a, "Цел"));
         left.addView(XemsUi.text(a, t.goal, 14, XemsUi.TEXT, false));
+        if (t.advanced) {
+            TextView adv = XemsUi.text(a, "Само след няколко по-леки сеанса (адаптация).", 13, XemsUi.AMBER, true);
+            adv.setPadding(0, XemsUi.dp(a, 8), 0, 0);
+            left.addView(adv);
+        }
         TextView how = XemsUi.label(a, "Как");
         how.setPadding(0, XemsUi.dp(a, 12), 0, 0);
         left.addView(how);
@@ -111,20 +120,8 @@ public final class BtAusScreen {
         left.addView(XemsUi.text(a, t.course, 13, XemsUi.MUTED, false));
         row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 4f));
 
-        // right: the chosen one
+        // right: zones, the phases side by side, the chosen phase's values
         LinearLayout right = XemsUi.vertical(a);
-        LinearLayout head = XemsUi.horizontal(a);
-        head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(XemsUi.text(a, "Усещане", 13, XemsUi.MUTED, true),
-                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView info = XemsUi.iconButton(a, "i", XemsUi.SURFACE, XemsUi.TEXT, 40);
-        info.setOnClickListener(new Do(this, Do.INFO, 0));
-        head.addView(info, new LinearLayout.LayoutParams(XemsUi.dp(a, 40), XemsUi.dp(a, 40)));
-        right.addView(head);
-        TextView feel = XemsUi.text(a, t.feel, 15, XemsUi.GO_TEXT, true);
-        feel.setPadding(0, XemsUi.dp(a, 2), 0, XemsUi.dp(a, 10));
-        right.addView(feel);
-
         right.addView(XemsUi.label(a, "Зони (канали)"));
         LinearLayout[] ch = new LinearLayout[1];
         HorizontalScrollView cs = XemsUi.chipRow(a, ch);
@@ -136,38 +133,54 @@ public final class BtAusScreen {
         }
         right.addView(cs, XemsUi.matchWrap(a, 6));
 
+        LinearLayout phHead = XemsUi.horizontal(a);
+        phHead.setGravity(Gravity.CENTER_VERTICAL);
+        phHead.addView(XemsUi.label(a, "Фази · общо " + Math.round(run.totalSec() / 60) + " мин"),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView info = XemsUi.iconButton(a, "i", XemsUi.SURFACE, XemsUi.TEXT, 36);
+        info.setOnClickListener(new Do(this, Do.INFO, 0));
+        phHead.addView(info, new LinearLayout.LayoutParams(XemsUi.dp(a, 36), XemsUi.dp(a, 36)));
+        LinearLayout.LayoutParams hp = XemsUi.matchWrap(a, 12);
+        right.addView(phHead, hp);
+        if (run.n > 1) {
+            LinearLayout phs = XemsUi.horizontal(a);
+            for (int k = 0; k < run.n; k++) {
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                if (k > 0) lp.leftMargin = XemsUi.dp(a, 6);
+                phs.addView(phaseCard(k, k == i), lp);
+            }
+            right.addView(phs, XemsUi.matchWrap(a, 6));
+        }
+
+        TextView feel = XemsUi.text(a, (run.n > 1 ? p.name + ": " : "") + p.feel, 14, XemsUi.GO_TEXT, true);
+        feel.setPadding(0, XemsUi.dp(a, 8), 0, XemsUi.dp(a, 4));
+        right.addView(feel);
+
         LinearLayout r1 = XemsUi.horizontal(a);
         r1.setGravity(Gravity.TOP);
-        r1.addView(field("Ниво на тока", run.level + " %", Stp.LEVEL),
+        r1.addView(field("Ниво в началото", run.level[i] + " %", Stp.LEVEL),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        r1.addView(field("Време", run.minutes + " мин", Stp.MIN), XemsUi.weight(1f, 12, a));
-        right.addView(r1, XemsUi.matchWrap(a, 12));
-        LinearLayout lc = XemsUi.horizontal(a);
+        r1.addView(field("Време", run.minutes[i] + " мин", Stp.MIN), XemsUi.weight(1f, 12, a));
+        if (!p.ifc) {
+            r1.addView(field("Ток / почивка", run.offS[i] == 0 ? "непрекъснато" : run.onS[i] + " / " + run.offS[i] + " s",
+                    Stp.OFF), XemsUi.weight(1.2f, 12, a));
+        }
+        right.addView(r1, XemsUi.matchWrap(a, 8));
         LinearLayout[] lh = new LinearLayout[1];
         HorizontalScrollView ls = XemsUi.chipRow(a, lh);
-        for (int i = 0; i < LEVELS.length; i++) {
-            TextView c = XemsUi.chip(a, LEVELS[i] + "", LEVELS[i] == run.level, XemsUi.GO_TEXT);
-            c.setOnClickListener(new Do(this, Do.LEVEL, LEVELS[i]));
+        for (int k = 0; k < LEVELS.length; k++) {
+            TextView c = XemsUi.chip(a, LEVELS[k] + "", LEVELS[k] == run.level[i], XemsUi.GO_TEXT);
+            c.setOnClickListener(new Do(this, Do.LEVEL, LEVELS[k]));
             XemsUi.addChip(a, lh[0], c);
         }
-        lc.addView(ls, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        right.addView(lc, XemsUi.matchWrap(a, 6));
-
-        if (!t.ifc) {
-            LinearLayout r2 = XemsUi.horizontal(a);
-            r2.setGravity(Gravity.TOP);
-            r2.addView(field("Ток тече", run.offS == 0 ? "непрекъснато" : run.onS + " s", Stp.ON),
-                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            r2.addView(field("Почивка", run.offS == 0 ? "—" : run.offS + " s", Stp.OFF), XemsUi.weight(1f, 12, a));
-            right.addView(r2, XemsUi.matchWrap(a, 12));
-        }
+        right.addView(ls, XemsUi.matchWrap(a, 6));
 
         TextView mt = XemsUi.text(a, more ? "▴ По-малко" : "▾ Още параметри", 13, XemsUi.MUTED, true);
-        mt.setPadding(0, XemsUi.dp(a, 12), 0, XemsUi.dp(a, 6));
+        mt.setPadding(0, XemsUi.dp(a, 10), 0, XemsUi.dp(a, 6));
         mt.setOnClickListener(new Do(this, Do.MORE, 0));
         right.addView(mt);
         if (more) moreBox(right);
-        TextView sum = XemsUi.text(a, summary(), 12, XemsUi.HINT, false);
+        TextView sum = XemsUi.text(a, summary(i), 12, XemsUi.HINT, false);
         sum.setPadding(0, XemsUi.dp(a, 4), 0, 0);
         right.addView(sum);
         row.addView(right, XemsUi.weight(7f, 18, a));
@@ -179,23 +192,56 @@ public final class BtAusScreen {
         sh.footer.addView(ci);
         sh.footer.addView(XemsUi.spacer(a));
         String why = run.blocker();
-        TextView go = XemsUi.button(a, why != null ? why : "▶ Пусни тока", XemsUi.PRIMARY);
+        TextView go = XemsUi.button(a, why != null ? why : "▶ Пусни тока · " + Math.round(run.totalSec() / 60) + " мин",
+                XemsUi.PRIMARY);
         if (why != null) go.setAlpha(0.4f);
         else go.setOnClickListener(new Do(this, Do.START, 0));
         sh.footer.addView(go);
     }
 
+    /** One phase in the setup row: its name, minutes and the kind of current; the chosen one is lit. */
+    private View phaseCard(int k, boolean on) {
+        BtAus.Ph p = run.ph(k);
+        LinearLayout card = XemsUi.vertical(a);
+        card.setPadding(XemsUi.dp(a, 10), XemsUi.dp(a, 8), XemsUi.dp(a, 10), XemsUi.dp(a, 8));
+        card.setBackgroundDrawable(on
+                ? XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x26), XemsUi.dp(a, 12), XemsUi.GO, XemsUi.dp(a, 2))
+                : XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(a, 12), XemsUi.STROKE, XemsUi.dp(a, 1)));
+        TextView nm = XemsUi.text(a, (k + 1) + ". " + p.name, 13, on ? XemsUi.GO_TEXT : XemsUi.TEXT, true);
+        nm.setSingleLine(true);
+        nm.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        card.addView(nm);
+        TextView m = XemsUi.text(a, run.minutes[k] + " мин · " + kindOf(k), 11.5f, XemsUi.MUTED, false);
+        m.setSingleLine(true);
+        m.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        card.addView(m);
+        XemsUi.pressable(card);
+        card.setOnClickListener(new Do(this, Do.PHASE, k));
+        return card;
+    }
+
+    /** The kind of current of phase k in a few words. */
+    String kindOf(int k) {
+        BtAus.Ph p = run.ph(k);
+        int hz = run.carrier[k];
+        if (p.ifc) return "IFC " + (hz >= 1000 ? (hz / 100) / 10.0 + " kHz" : hz + " Hz");
+        if (hz >= 1000) return (hz % 1000 == 0 ? hz / 1000 + "" : (hz / 100) / 10.0 + "") + " kHz"
+                + (run.burstHz[k] > 0 ? " · " + run.burstMs[k] + " ms" : "");
+        return hz + " Hz";
+    }
+
     private void moreBox(LinearLayout right) {
+        int i = run.sel;
         LinearLayout r = XemsUi.horizontal(a);
         r.setGravity(Gravity.TOP);
         LinearLayout bz = XemsUi.vertical(a);
         bz.addView(XemsUi.label(a, "Пакети в секунда"));
         LinearLayout[] h = new LinearLayout[1];
         HorizontalScrollView hs = XemsUi.chipRow(a, h);
-        for (int i = 0; i < BURST_HZ.length; i++) {
-            TextView c = XemsUi.chip(a, BURST_HZ[i] == 0 ? "без" : BURST_HZ[i] + " Hz", run.burstHz == BURST_HZ[i],
+        for (int k = 0; k < BURST_HZ.length; k++) {
+            TextView c = XemsUi.chip(a, BURST_HZ[k] == 0 ? "без" : BURST_HZ[k] + " Hz", run.burstHz[i] == BURST_HZ[k],
                     XemsUi.GO_TEXT);
-            c.setOnClickListener(new Do(this, Do.BURST, BURST_HZ[i]));
+            c.setOnClickListener(new Do(this, Do.BURST, BURST_HZ[k]));
             XemsUi.addChip(a, h[0], c);
         }
         bz.addView(hs);
@@ -204,9 +250,9 @@ public final class BtAusScreen {
         wv.addView(XemsUi.label(a, "Форма"));
         LinearLayout[] w = new LinearLayout[1];
         HorizontalScrollView ws = XemsUi.chipRow(a, w);
-        for (int i = 0; i < 3; i++) {
-            TextView c = XemsUi.chip(a, BtSettings.WAVES[i + 1], run.wave == i, XemsUi.GO_TEXT);
-            c.setOnClickListener(new Do(this, Do.WAVE, i));
+        for (int k = 0; k < 3; k++) {
+            TextView c = XemsUi.chip(a, BtSettings.WAVES[k + 1], run.wave[i] == k, XemsUi.GO_TEXT);
+            c.setOnClickListener(new Do(this, Do.WAVE, k));
             XemsUi.addChip(a, w[0], c);
         }
         wv.addView(ws);
@@ -214,9 +260,13 @@ public final class BtAusScreen {
         right.addView(r, XemsUi.matchWrap(a, 4));
         LinearLayout r2 = XemsUi.horizontal(a);
         r2.setGravity(Gravity.TOP);
-        r2.addView(field("Дължина на пакета", run.burstHz == 0 ? "—" : run.burstMs + " ms", Stp.BMS),
+        r2.addView(field("Дължина на пакета", run.burstHz[i] == 0 ? "—" : run.burstMs[i] + " ms", Stp.BMS),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        r2.addView(field("Плавно вдигане / сваляне", run.rampS + " s", Stp.RAMP), XemsUi.weight(1f, 12, a));
+        if (!run.ph(i).ifc) {
+            r2.addView(field("Ток тече", run.offS[i] == 0 ? "непрекъснато" : run.onS[i] + " s", Stp.ON),
+                    XemsUi.weight(1f, 12, a));
+        }
+        r2.addView(field("Плавно вдигане / сваляне", run.rampS[i] + " s", Stp.RAMP), XemsUi.weight(1f, 12, a));
         right.addView(r2, XemsUi.matchWrap(a, 10));
     }
 
@@ -227,22 +277,25 @@ public final class BtAusScreen {
         return f;
     }
 
-    /** One line of what goes to the suit (µs / Hz are for the trainer). */
-    String summary() {
-        BtAus.T t = run.t;
-        int[] b = BtAus.burst(run.burstHz, run.burstMs);
-        String s = run.carrier + " Hz · " + BtAus.widthFor(run.carrier, t.us) + " µs · "
-                + (b[0] == 0 ? "без пакети" : "пакети " + b[0] + " / " + b[1] + " ms (" + run.burstHz + " в секунда)")
-                + " · " + BtSettings.WAVES[run.wave + 1];
-        if (t.ifc) {
-            if (t.beatHi > t.beatLo) {
-                s += " · смесване " + t.beatLo + "–" + t.beatHi + " Hz за " + t.sweepS + " s";
+    /** One line of what goes to the suit in phase i (µs / Hz are for the trainer). */
+    String summary(int i) {
+        BtAus.Ph p = run.ph(i);
+        int hz = run.carrier[i];
+        int[] b = BtAus.burst(run.burstHz[i], run.burstMs[i]);
+        String s = hz + " Hz · " + BtAus.widthFor(hz, p.us) + " µs · "
+                + (b[0] == 0 ? "без пакети" : "пакети " + b[0] + " / " + b[1] + " ms (" + run.burstHz[i] + " в секунда, "
+                + Math.round(b[0] * 100f / (b[0] + b[1])) + " %)")
+                + " · " + BtSettings.WAVES[run.wave[i] + 1];
+        if (p.ifc) {
+            if (p.beatHi > p.beatLo) {
+                s = hz + " Hz · смесване " + p.beatLo + "–" + p.beatHi + " Hz за " + p.sweepS + " s · "
+                        + BtAus.widthFor(hz, p.us) + " µs · " + BtSettings.WAVES[run.wave[i] + 1];
             } else {
-                int[] p = BtAus.ifcPair(run.carrier, t.beatLo);
-                double real = BtAus.realHz(p[1]) - BtAus.realHz(p[0]);
-                s = Math.round(BtAus.realHz(p[0])) + " Hz и " + Math.round(BtAus.realHz(p[1])) + " Hz · смесване ≈ "
-                        + (Math.round(real * 10) / 10.0) + " Hz · " + BtAus.widthFor(p[0], t.us) + " µs · "
-                        + BtSettings.WAVES[run.wave + 1];
+                int[] pr = BtAus.ifcPair(hz, p.beatLo);
+                double real = BtAus.realHz(pr[1]) - BtAus.realHz(pr[0]);
+                s = Math.round(BtAus.realHz(pr[0])) + " Hz и " + Math.round(BtAus.realHz(pr[1])) + " Hz · смесване ≈ "
+                        + (Math.round(real * 10) / 10.0) + " Hz · " + BtAus.widthFor(pr[0], p.us) + " µs · "
+                        + BtSettings.WAVES[run.wave[i] + 1];
             }
         }
         return s;
@@ -267,10 +320,13 @@ public final class BtAusScreen {
 
         LinearLayout c2 = XemsUi.vertical(a);
         c2.setGravity(Gravity.CENTER_HORIZONTAL);
+        tvStage = XemsUi.text(a, "", 15, XemsUi.MUTED, true);
+        tvStage.setGravity(Gravity.CENTER);
+        c2.addView(tvStage);
         tvPhase = XemsUi.text(a, "", 30, XemsUi.GO_TEXT, true);
         tvPhase.setGravity(Gravity.CENTER);
         c2.addView(tvPhase);
-        tvFeel = XemsUi.text(a, run.t.feel, 13, XemsUi.HINT, false);
+        tvFeel = XemsUi.text(a, "", 13, XemsUi.HINT, false);
         tvFeel.setGravity(Gravity.CENTER);
         tvFeel.setPadding(0, XemsUi.dp(a, 8), 0, 0);
         c2.addView(tvFeel);
@@ -278,7 +334,7 @@ public final class BtAusScreen {
 
         LinearLayout c3 = XemsUi.vertical(a);
         c3.addView(XemsUi.label(a, "Ниво на тока"));
-        lvl = XemsUi.stepper(a, run.level + " %", null, 28, new Stp(this, Stp.LEVEL));
+        lvl = XemsUi.stepper(a, "", null, 28, new Stp(this, Stp.LEVEL));
         c3.addView(lvl.view);
         row.addView(c3, XemsUi.weight(4f, 12, a));
         sh.body.addView(row, XemsUi.matchWrap(a, 8));
@@ -315,6 +371,14 @@ public final class BtAusScreen {
         TextView stop = XemsUi.button(a, done ? "Към настройката" : "■ Стоп", XemsUi.SECONDARY);
         stop.setOnClickListener(new Do(this, Do.STOP, 0));
         sh.footer.addView(stop);
+        if (!done && run.n > 1 && run.cur >= 0 && run.cur < run.n - 1) {
+            TextView sk = XemsUi.button(a, "⏭ Следваща фаза", XemsUi.GHOST);
+            sk.setOnClickListener(new Do(this, Do.SKIP, 0));
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            sp.leftMargin = XemsUi.dp(a, 10);
+            sh.footer.addView(sk, sp);
+        }
         sh.footer.addView(XemsUi.spacer(a));
         if (done) {
             TextView again = XemsUi.button(a, "↻ Още веднъж", XemsUi.PRIMARY);
@@ -338,12 +402,19 @@ public final class BtAusScreen {
         double total = run.totalSec();
         double left = Math.max(0, total - run.elapsed);
         tvTime.setText(clock(left));
-        tvLeft.setText("от " + run.minutes + " мин");
+        tvLeft.setText("от " + Math.round(total / 60) + " мин");
+        int i = run.cur < 0 ? 0 : run.cur;
+        BtAus.Ph cp = run.ph(i);
+        String next = run.n > 1 && i < run.n - 1 ? " · след това " + run.ph(i + 1).name.toLowerCase() : "";
+        tvStage.setText(run.n > 1 ? "Фаза " + (i + 1) + " от " + run.n + " · " + cp.name + " · " + clock(run.phaseLeft())
+                + next : cp.name);
+        tvFeel.setText(cp.feel);
         BtAus.Pos p = run.pos;
         int col = XemsUi.GO_TEXT;
         String ph;
         if (run.state == BtAusRun.DONE) {
             ph = "ГОТОВО ✓";
+            tvStage.setText(run.t.name);
         } else if (run.state == BtAusRun.PAUSE) {
             ph = "ПАУЗА";
             col = XemsUi.AMBER;
@@ -370,7 +441,7 @@ public final class BtAusScreen {
         for (int c = 1; c <= BtSettings.CHANNELS; c++) {
             if (chTv[c] != null) chTv[c].setText(run.pcts[c] + " %");
         }
-        if (lvl != null) lvl.set(run.level + " %", null);
+        if (lvl != null) lvl.set(run.level[i] + " %", null);
     }
 
     static String clock(double sec) {
@@ -393,9 +464,18 @@ public final class BtAusScreen {
         TextView cb = XemsUi.text(a, "Съчетание\n" + t.combine, 14, XemsUi.TEXT, false);
         cb.setPadding(0, XemsUi.dp(a, 12), 0, 0);
         d.body.addView(cb);
-        TextView hint = XemsUi.text(a, "Силата на тока е по усещане: започни ниско и вдигай, докато стане това, което "
-                + "пише под „Усещане“. Ефектът върху тялото при този костюм не е измерен — костюмът не "
-                + "връща обратна връзка.", 12, XemsUi.HINT, false);
+        StringBuilder ph = new StringBuilder("Фази");
+        for (int k = 0; k < run.n; k++) {
+            ph.append("\n").append(k + 1).append(". ").append(run.ph(k).name).append(" · ").append(run.minutes[k])
+                    .append(" мин · ").append(kindOf(k)).append(" — ").append(run.ph(k).feel);
+        }
+        TextView pv = XemsUi.text(a, ph.toString(), 13, XemsUi.TEXT, false);
+        pv.setPadding(0, XemsUi.dp(a, 12), 0, 0);
+        d.body.addView(pv);
+        TextView hint = XemsUi.text(a, "Силата е по усещане: всяка фаза започва ниско и плавно — вдигай, докато стане "
+                + "това, което пише за фазата. При 4 kHz за същото усещане трябва по-високо ниво. Спри при болка, парене, "
+                + "спазъм, замайване, гадене, сърцебиене. Костюмът не връща ток, съпротивление или температура — следи "
+                + "кожата и човека.", 12, XemsUi.HINT, false);
         hint.setPadding(0, XemsUi.dp(a, 14), 0, 0);
         d.body.addView(hint);
         d.dialog.show();
@@ -437,7 +517,7 @@ public final class BtAusScreen {
 
     /** A tap on a protocol, a zone, a chip or a button. */
     static final class Do implements View.OnClickListener {
-        static final int CHAN = 1, LEVEL = 2, MORE = 3, BURST = 4, WAVE = 5, START = 6, PAUSE = 7, STOP = 8,
+        static final int PHASE = 0, SKIP = 11, CHAN = 1, LEVEL = 2, MORE = 3, BURST = 4, WAVE = 5, START = 6, PAUSE = 7, STOP = 8,
                 INFO = 9, CONTRA = 10;
         final BtAusScreen s;
         final int what, arg;
@@ -452,17 +532,24 @@ public final class BtAusScreen {
         public void onClick(View v) {
             XemsUi.haptic(v);
             BtAusRun r = s.run;
-            if (what == CHAN) {
+            int i = r.sel;
+            if (what == PHASE) {
+                r.sel = arg;
+            } else if (what == SKIP) {
+                r.skip();
+                return;
+            } else if (what == CHAN) {
                 r.chans[arg] = !r.chans[arg];
             } else if (what == LEVEL) {
-                r.level = arg;
+                r.level[i] = arg;
             } else if (what == MORE) {
                 s.more = !s.more;
             } else if (what == BURST) {
-                r.burstHz = arg;
-                if (arg > 0 && r.burstMs == 0) r.burstMs = 4;
+                r.burstHz[i] = arg;
+                if (arg > 0 && r.burstMs[i] == 0) r.burstMs[i] = 2;
+                if (arg > 0) r.burstMs[i] = Math.min(r.burstMs[i], 1000 / arg - 1);
             } else if (what == WAVE) {
-                r.wave = arg;
+                r.wave[i] = arg;
             } else if (what == START) {
                 r.start();
                 s.render();
@@ -499,42 +586,47 @@ public final class BtAusScreen {
         @Override
         public void onStep(int dir) {
             BtAusRun r = s.run;
+            // live (running) the level is the running phase's; in the setup every value is the chosen phase's
+            int i = r.state != BtAusRun.IDLE && r.cur >= 0 ? r.cur : r.sel;
+            BtAus.Ph p = r.ph(i);
             if (what == LEVEL) {
-                int st = r.level < 10 ? 1 : (r.level < 40 ? 2 : 5);
-                if (dir < 0 && r.level > 1) st = Math.min(st, r.level - 1);
-                r.level = Math.max(1, Math.min(BtTranslator.MAX_PCT, r.level + dir * st));
+                int lv = r.level[i];
+                int st = lv < 10 ? 1 : (lv < 40 ? 2 : 5);
+                if (dir < 0 && lv > 1) st = Math.min(st, lv - 1);
+                r.level[i] = Math.max(1, Math.min(BtTranslator.MAX_PCT, lv + dir * st));
                 if (r.state != BtAusRun.IDLE) {
                     s.live();
                     return;
                 }
             } else if (what == MIN) {
-                int st = r.minutes < 10 ? 1 : 5;
-                if (dir < 0 && r.minutes > 1) st = Math.min(st, r.minutes - 1);
-                r.minutes = Math.max(1, Math.min(90, r.minutes + dir * st));
+                int m = r.minutes[i];
+                int st = m < 10 ? 1 : 5;
+                if (dir < 0 && m > 1) st = Math.min(st, m - 1);
+                r.minutes[i] = Math.max(1, Math.min(60, m + dir * st));
             } else if (what == ON) {
-                if (r.offS == 0) {
+                if (r.offS[i] == 0) {
                     if (dir > 0) {
-                        r.onS = r.t.onS > 0 ? r.t.onS : 10;
-                        r.offS = r.t.offS > 0 ? r.t.offS : r.onS;
+                        r.onS[i] = p.onS > 0 ? p.onS : 10;
+                        r.offS[i] = p.offS > 0 ? p.offS : r.onS[i];
                     }
                 } else {
-                    int st = r.onS < 10 ? 1 : 5;
-                    r.onS = Math.max(2, Math.min(60, r.onS + dir * st));
+                    int st = r.onS[i] < 10 ? 1 : 5;
+                    r.onS[i] = Math.max(2, Math.min(60, r.onS[i] + dir * st));
                 }
             } else if (what == OFF) {
-                if (r.offS == 0) {
+                if (r.offS[i] == 0) {
                     if (dir > 0) {
-                        r.onS = r.onS > 0 ? r.onS : 10;
-                        r.offS = r.t.offS > 0 ? r.t.offS : 10;
+                        r.onS[i] = r.onS[i] > 0 ? r.onS[i] : 10;
+                        r.offS[i] = p.offS > 0 ? p.offS : 10;
                     }
                 } else {
-                    int st = r.offS < 10 ? 1 : 5;
-                    r.offS = Math.max(0, Math.min(120, r.offS + dir * st));
+                    int st = r.offS[i] < 10 ? 1 : 5;
+                    r.offS[i] = Math.max(0, Math.min(120, r.offS[i] + dir * st));
                 }
             } else if (what == BMS) {
-                if (r.burstHz > 0) r.burstMs = Math.max(1, Math.min(1000 / r.burstHz - 1, r.burstMs + dir));
+                if (r.burstHz[i] > 0) r.burstMs[i] = Math.max(1, Math.min(1000 / r.burstHz[i] - 1, r.burstMs[i] + dir));
             } else {
-                r.rampS = Math.max(0, Math.min(5, r.rampS + dir));
+                r.rampS[i] = Math.max(0, Math.min(5, r.rampS[i] + dir));
             }
             s.render();
         }

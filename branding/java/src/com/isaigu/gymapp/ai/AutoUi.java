@@ -665,8 +665,10 @@ public final class AutoUi {
         com.isaigu.gymapp.bodytech.BtAus.T[] all = com.isaigu.gymapp.bodytech.BtAus.ALL;
         for (int i = 0; i < all.length; i++) {
             com.isaigu.gymapp.bodytech.BtAus.T t = all[i];
-            strip.addView(programCard(c, t.id.equals(modId), 0, ProgramArt.passiveKey(in.sex),
-                    AiText.t("Модулация · ", "Modulation · ") + t.name, AiText.t("само bodytech", "bodytech only"),
+            // the colour is the dose: the gentle ones green, the high-dose "Стягане" (after adaptation) amber
+            strip.addView(programCard(c, t.id.equals(modId), t.advanced ? 2 : 1, ProgramArt.passiveKey(in.sex),
+                    AiText.t("Модулация · ", "Modulation · ") + t.name, t.ph.length + AiText.t(" фази · ", " phases · ")
+                            + (t.advanced ? AiText.t("след адаптация", "after adaptation") : AiText.t("bodytech", "bodytech")),
                     null, "≈ " + t.minutes + AiText.t(" мин", " min"), new Act(A_MOD, i)), cardParams(c));
         }
         return all.length;

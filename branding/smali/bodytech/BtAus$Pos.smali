@@ -27,18 +27,18 @@
     .registers 4
 
     .prologue
-    .line 142
+    .line 270
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 143
+    .line 271
     iput p1, p0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;->phase:I
 
-    .line 144
+    .line 272
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;->left:I
 
-    .line 145
+    .line 273
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;->factor:F
 
-    .line 146
+    .line 274
     return-void
 .end method

@@ -160,6 +160,8 @@ python3 "${ROOT}/scripts/apply-arms-channel-scale.py"
 python3 "${ROOT}/scripts/verify-arms-channel-scale.py"
 # After the train control routing: + / − and the slider act on the selected muscle groups.
 python3 "${ROOT}/scripts/apply-part-strength.py"
+# The muscle icon cycles green → yellow → off; yellow changes the second impulse of the channel alone (kept per client).
+python3 "${ROOT}/scripts/apply-pause-parts.py"
 # After the active-pause listeners are final: 2nd impulse from Hz or MA, 5 s auto-clear (TrainIndex).
 python3 "${ROOT}/scripts/apply-train-index.py"
 python3 "${ROOT}/scripts/apply-double-impulse.py"

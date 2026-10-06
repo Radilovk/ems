@@ -59,7 +59,7 @@ Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two co
   (main limits of `docs/xems-safety-limits.md` stay upstream).
 Global: waveform (the suit's own / square / sine / trapezoid) and a strength scale 50–150 %.
 Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C2 Седалище→Седалище, C3 Рамене→Трапец, C4 Среден
-гръб→Гръб, **C5 Ляво бедро→Предно бедро**, C6 Ръце→Ръце, **C7 Дясно бедро→Задно бедро**, C8 Корем→Корем.
+гръб→Гръб, **C5 Ляв крак** (front-thigh slider), C6 Ръце→Ръце, **C7 Десен крак** (back-thigh slider), C8 Корем→Корем.
 "По подразбиране" resets everything.
 - **The legs (owner, 1.1.376):** on bodytech EMSFIT's "Гърди" (C5) and "Бедра" (C7) are the left and right thigh (each
   front + back). Each leg has its own slider: the row's front-thigh slider drives the left leg, the back-thigh slider
@@ -75,10 +75,16 @@ Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C
   each leg is its row value × its own factor, so a program step or ± moves both in proportion and 0 stays 0. Stop
   (`reset`) = equal again. A program step that happens to change exactly one leg and nothing else reads as a hand.
   The second impulse's (yellow) look is not redrawn — the suit still gets the equal value.
-- **No chest on bodytech (owner, 1.1.378):** EMSFIT's "Гърди" channel is a leg, so the suit has no chest. On a bodytech
-  row every slider that no channel answers (`BtSettings.hasChannel`: the chest, and the calf with the default map) is
-  hidden — INVISIBLE, so the other columns stay under the shared muscle icons (`PartLook.columns`; recycled rows get
-  their columns back). Settings → Костюм bodytech no longer offers "Гърди" as a slider (only while a channel still has it).
+- **Whole left / right legs, no chest, no calf (owner, 1.1.379):** bodytech has two whole legs on separate electrodes —
+  no front / back thigh, no chest, no calf. Everywhere in the bodytech interface the front-thigh slider is **"Ляв крак"**
+  and the back-thigh slider **"Десен крак"** (`BtSettings.SLIDERS`; channel names too — the 1.1.376 "Ляво / Дясно
+  бедро" are renamed once on load). Chest and calf (`BtSettings.hidden`) are not offered in the settings, cannot be
+  set, and a channel still on one of them moves to the free leg (`BtSettings.legs`).
+  - **A bodytech row:** the chest and calf columns are hidden (INVISIBLE, so the columns stay under the shared header);
+    the two leg columns carry Л / Д (`PartLook.columns`).
+  - **The header** (muscle icons + labels above all rows, `PartLook.header`): when every row on the screen with a suit
+    runs a bodytech one, chest and calf go and the leg columns read "Ляв крак" / "Десен крак" with the same leg icon.
+    Any XEMS suit on the screen → the stock header (its rows need front / back thigh).
 Changes are saved at once and used by the next command the row sends.
 
 ## Test of a channel and the left → right order (1.1.346)

@@ -201,8 +201,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtAus.java` (250L, compile:music-sync*) — Australian current (1 kHz carrier, bursts) — the templates and the timeline, pure logic (no Android; tested offline).
 - `BtAusRun.java` (207L, compile:music-sync*) — Runs one Australian-current session ({@link BtAus}) on a bodytech suit: every {@link #TICK_MS} it works out where the p…
 - `BtAusScreen.java` (550L, compile:music-sync*) — The row's gear on a bodytech suit → "Австралийски ток": ready protocols of the 1 kHz burst current (strength, HIIT, met…
-- `BtBeep.java` (99L, compile:music-sync*) — Sound signals of a bodytech suit, from the tablet (owner, 1.1.355), in Morse marks: start "...-", pause / stop "-", lin…
-- `BtBridge.java` (443L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `BtBeep.java` (106L, compile:music-sync*) — Sound signals of a bodytech suit, from the tablet (owner; 1.1.360 scheme): start = one long HIGH tone, pause = one long…
+- `BtBridge.java` (445L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtFull.java` (267L, compile:music-sync*) — The row's gear on a bodytech suit → "Пълни параметри": every channel's own strength, Hz, width and waveform, separately…
 - `BtGear.java` (165L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtProto.java` (162L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
@@ -210,7 +210,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtSettingsSection.java` (446L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
 - `BtTest.java` (329L, compile:music-sync*) — The impulse test: protocol (plain / Australian / Russian), Hz 1..10000, width 50 µs ..
 - `BtTestMode.java` (118L, compile:music-sync*) — The row's gear on a bodytech suit → "Тестов режим": a screen of its own, apart from the training, to try the impulse (H…
-- `BtTranslator.java` (441L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (446L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -766,7 +766,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
 
-`docs/xems-bodytech.md` (154L)
+`docs/xems-bodytech.md` (157L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L10 ## How it works
   - L32 ## Translation (XEMS → bodytech)
@@ -782,7 +782,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L141 ## What still limits (not the app)
   - L145 ## Second impulse without limits (1.1.353)
   - L148 ## Own device names (1.1.353)
-  - L151 ## Sound signals (1.1.355)
+  - L151 ## Sound signals (1.1.360)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

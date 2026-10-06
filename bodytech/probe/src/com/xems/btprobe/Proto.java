@@ -72,6 +72,11 @@ public final class Proto {
         return frame(ch, R_LENGTH_CLOCK, (hz <= 0 || hz > 1000000) ? 0 : (1000000 / hz) & 0xFFFFF);
     }
 
+    /** Period straight in 1 MHz ticks (1 µs each): 10000 = 100 Hz, 10010 ≈ 99.9 Hz. Isolation test (beat). */
+    public static byte[] period(int ch, int ticks) {
+        return frame(ch, R_LENGTH_CLOCK, ticks & 0xFFFFF);
+    }
+
     public static byte[] stepNor(int ch, int v) {
         return frame(ch, R_STEP_NOR, (v <= 0 || v >= 0x20202020) ? STEP_NOR_DEFAULT : v & 0x1F1F1F1F);
     }

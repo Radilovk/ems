@@ -19,5 +19,5 @@ usesFramework:
   tag: null
 version: 2.9.3
 versionInfo:
-  versionCode: '3'
-  versionName: '0.3'
+  versionCode: '4'
+  versionName: '0.4'

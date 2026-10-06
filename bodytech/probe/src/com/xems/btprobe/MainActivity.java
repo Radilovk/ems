@@ -77,6 +77,11 @@ public class MainActivity extends Activity implements Link.Listener {
     long wdFrom;
     int mapCh, mapLevel;
     final String[] mapResult = new String[9];
+    /** Isolation test (0.4): channels A / B, their levels, the period in µs ticks, the answers and the taps. */
+    int isoA, isoB, isoLvA, isoLvB, isoP;
+    final int[] isoAns = new int[6];
+    final List<Long> isoTaps = new ArrayList<Long>();
+    final double[] isoBeat = new double[2];
     int lastBatteryRaw = -1;
 
     // parameters (defaults = EMSFIT program: 85 Hz, 360 µs, 0.4 s up, 4 s work, 0.4 s down, 4 s pause)
@@ -112,7 +117,7 @@ public class MainActivity extends Activity implements Link.Listener {
         setContentView(buildUi());
         link = new Link(this, this);
         adapter = BluetoothAdapter.getDefaultAdapter();
-        onLog("XEMS BT Probe 0.3 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
+        onLog("XEMS BT Probe 0.4 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
                 + " (API " + Build.VERSION.SDK_INT + ") · " + startedAt);
         if (Build.VERSION.SDK_INT >= 23
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -274,6 +279,10 @@ public class MainActivity extends Activity implements Link.Listener {
             @Override public void onClick(View v) { loadTest(); }
         }), weight());
         c2.addView(gt);
+        Button iso = button("Изолация между два канала (човек в костюма)", ACCENT, new View.OnClickListener() {
+            @Override public void onClick(View v) { isoStart(); }
+        });
+        c2.addView(iso, new LinearLayout.LayoutParams(-1, dp(54)));
         askBox = new LinearLayout(this);
         askBox.setOrientation(LinearLayout.VERTICAL);
         askBox.setPadding(dp(10), dp(8), dp(10), dp(10));
@@ -1151,6 +1160,248 @@ public class MainActivity extends Activity implements Link.Listener {
                 testBusy = false;
             }
         });
+    }
+
+    // =====================================================================================
+    // isolation test (0.4): what keeps two channels from acting on each other — felt by the person in the suit
+
+    static final String[] ISO_SEEN = {"Изчезна", "Остава", "Не мога да кажа"};
+    static final String[] ISO_BEAT = {"Сега!", "Постоянно е, без ритъм", "Няма взаимодействие", "Готово"};
+    static final int ISO_GONE = 0, ISO_STAYS = 1, ISO_UNSURE = 2;
+    /** isoAns slots: 0 base, 1 strength 0 with SEL on, 2 SEL off with strength, 3 beat 10 s, 4 beat 5 s, 5 T4 pause. */
+    static final int BEAT_RHYTHM = 0, BEAT_CONSTANT = 1, BEAT_NONE = 2;
+
+    /** Exactly two channels with strength > 0 (e.g. C5 left leg and C7 right leg): A keeps running, B is varied. */
+    void isoStart() {
+        if (!requireReady() || testBusy) return;
+        int m = onMask();
+        if (Integer.bitCount(m) != 2) {
+            result.setText("Вдигни сила само на ДВА канала (напр. C5 Ляв крак и C7 Десен крак) — толкова, че да "
+                    + "усещаш взаимодействието между тях. После натисни „Изолация“.");
+            return;
+        }
+        isoA = Integer.numberOfTrailingZeros(m) + 1;
+        isoB = 32 - Integer.numberOfLeadingZeros(m);
+        isoLvA = level[isoA];
+        isoLvB = level[isoB];
+        isoP = 1000000 / Math.max(1, hz);
+        Arrays.fill(isoAns, -1);
+        isoBeat[0] = isoBeat[1] = Double.NaN;
+        testBusy = true;
+        uiTest = true;
+        running = false;
+        showRunState();
+        final int a = isoA, b = isoB, la = isoLvA, lb = isoLvB, fW = widthUs, p = isoP;
+        result.setText("Изолация: C" + a + " (A) и C" + b + " (B)…");
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.log("===== ИЗОЛАЦИЯ: A = C" + a + " сила " + la + ", B = C" + b + " сила " + lb + ", период "
+                        + p + " µs (" + (1000000.0 / p) + " Hz), " + fW + " µs, без пауза =====");
+                link.write(Proto.reset(), "изолация");
+                for (int ch = 1; ch <= 8; ch++) writeChannelProgram(ch, 1000000 / p, fW, 0, 60000, 0, 0, -1, true);
+                link.write(Proto.period(a, p), null);
+                link.write(Proto.period(b, p), null);
+                link.write(Proto.intensity(a, la), null);
+                link.write(Proto.intensity(b, lb), null);
+                link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), "изолация: A и B");
+                main.post(new Runnable() {
+                    @Override public void run() { if (uiTest) isoBase(); }
+                });
+            }
+        });
+    }
+
+    void isoBase() {
+        ask("1/5 · Работят C" + isoA + " и C" + isoB + ", и двата без пауза. Усещаш ли взаимодействието между тях?",
+                new String[]{"Да", "Не"}, new Pick() {
+                    @Override public void pick(int i) {
+                        if (!uiTest) return;
+                        isoAns[0] = i == 0 ? ISO_STAYS : ISO_GONE;
+                        onLog("ИЗОЛАЦИЯ 1 (и двата вкл): взаимодействие " + (i == 0 ? "ДА" : "НЕ"));
+                        if (i != 0) { isoFinish("Без взаимодействие при тази сила — вдигни силата и пусни теста пак."); return; }
+                        isoZero();
+                    }
+                });
+    }
+
+    /** B: strength 0, but its bit stays in SEL. */
+    void isoZero() {
+        final int b = isoB;
+        link.post(new Runnable() {
+            @Override public void run() { link.write(Proto.intensity(b, 0), "изолация 2: B сила 0, остава включен"); }
+        });
+        ask("2/5 · C" + isoB + " е на сила 0, но остава ВКЛЮЧЕН. Взаимодействието:", ISO_SEEN, new Pick() {
+            @Override public void pick(int i) {
+                if (!uiTest) return;
+                isoAns[1] = i;
+                onLog("ИЗОЛАЦИЯ 2 (B сила 0, вкл): " + ISO_SEEN[i]);
+                isoSelOff();
+            }
+        });
+    }
+
+    /** B: its strength back, but out of SEL. */
+    void isoSelOff() {
+        final int a = isoA, b = isoB, lb = isoLvB;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.intensity(b, lb), null);
+                link.write(Proto.enable(1 << (a - 1)), "изолация 3: B изключен, силата му остава");
+            }
+        });
+        ask("3/5 · C" + isoB + " е ИЗКЛЮЧЕН (силата му остава записана). Взаимодействието:", ISO_SEEN, new Pick() {
+            @Override public void pick(int i) {
+                if (!uiTest) return;
+                isoAns[2] = i;
+                onLog("ИЗОЛАЦИЯ 3 (B изкл, сила " + isoLvB + "): " + ISO_SEEN[i]);
+                isoBeatStep(0);
+            }
+        });
+    }
+
+    /**
+     * Both on, B's period a few µs longer: their pulses slide past each other and meet once per beat (10 s, then 5 s).
+     * Interaction that comes and goes with the beat = the pulses overlap; steady = B acts while it waits.
+     */
+    void isoBeatStep(final int k) {
+        final double beatS = k == 0 ? 10 : 5;
+        final int d = Math.max(1, (int) Math.round((double) isoP * isoP / (beatS * 1e6)));
+        final int a = isoA, b = isoB, p = isoP;
+        isoTaps.clear();
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.period(b, p + d), "изолация " + (4 + k) + ": B период " + (p + d) + " µs");
+                link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), null);
+            }
+        });
+        final double expect = (double) p * p / d / 1e6;
+        link.log(String.format(Locale.US, "  очакван ритъм %.1f s", expect));
+        ask((4 + k) + "/5 · C" + isoB + " е с малко по-ниска честота. Ако взаимодействието идва на тласъци, натискай "
+                + "„Сега!“ при ВСЕКИ тласък (поне 4 пъти), после „Готово“.", ISO_BEAT, new Pick() {
+            @Override public void pick(int i) {
+                if (!uiTest) return;
+                if (i == 0) {
+                    isoTaps.add(SystemClock.elapsedRealtime());
+                    askTitle.setText((4 + k) + "/5 · Натиснато " + isoTaps.size() + " пъти. Продължавай при всеки "
+                            + "тласък, после „Готово“.");
+                    return;
+                }
+                if (i == 3 && isoTaps.size() < 3) {
+                    askTitle.setText((4 + k) + "/5 · Нужни са поне 3 натискания на „Сега!“ (имаш " + isoTaps.size()
+                            + "). Или избери „Постоянно“ / „Няма“.");
+                    return;
+                }
+                double med = Double.NaN;
+                if (i == 3) {
+                    double[] iv = new double[isoTaps.size() - 1];
+                    for (int j = 1; j < isoTaps.size(); j++) iv[j - 1] = (isoTaps.get(j) - isoTaps.get(j - 1)) / 1000.0;
+                    Arrays.sort(iv);
+                    med = iv.length % 2 == 1 ? iv[iv.length / 2] : (iv[iv.length / 2 - 1] + iv[iv.length / 2]) / 2;
+                    isoBeat[k] = med;
+                }
+                isoAns[3 + k] = i == 3 ? BEAT_RHYTHM : i == 1 ? BEAT_CONSTANT : BEAT_NONE;
+                onLog(String.format(Locale.US, "ИЗОЛАЦИЯ %d (ритъм %.0f s): %s%s", 4 + k, expect,
+                        i == 3 ? "РИТЪМ" : ISO_BEAT[i], i == 3 ? String.format(Locale.US,
+                                ", %d натискания, медиана %.1f s", isoTaps.size(), med) : ""));
+                if (k == 0 && i == 3) isoBeatStep(1);
+                else isoCycle();
+            }
+        });
+    }
+
+    /** B on its own cycle, 2 s work / 2 s pause, the suit runs it; A keeps going. Does B's pause isolate it? */
+    void isoCycle() {
+        final int a = isoA, b = isoB, p = isoP;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.enable(1 << (a - 1)), "изолация 5: B спрян за новия цикъл");
+                link.write(Proto.period(b, p), null);
+                link.write(Proto.t(b, 1, 0), null);
+                link.write(Proto.t(b, 2, 2000), null);
+                link.write(Proto.t(b, 3, 0), null);
+                link.write(Proto.t(b, 4, 2000), null);
+                link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), "изолация 5: B 2 s работа / 2 s пауза");
+            }
+        });
+        final String[] opts = {"Изчезва в паузата", "Остава и в паузата", "C" + isoB + " не спира", "Не мога да кажа"};
+        ask("5/5 · C" + isoB + " работи 2 s и спира 2 s (сам, костюмът го върти). Когато C" + isoB
+                + " е в ПАУЗА, взаимодействието:", opts, new Pick() {
+            @Override public void pick(int i) {
+                if (!uiTest) return;
+                isoAns[5] = i;
+                onLog("ИЗОЛАЦИЯ 5 (пауза T4 на B): " + opts[i]);
+                isoFinish(null);
+            }
+        });
+    }
+
+    void isoFinish(String early) {
+        hideAsk();
+        StringBuilder r = new StringBuilder("ИЗОЛАЦИЯ C" + isoA + " / C" + isoB + ":\n");
+        if (early != null) {
+            r.append(early);
+        } else {
+            r.append("• Сила 0 (остава вкл): ").append(isoWord(isoAns[1])).append('\n');
+            r.append("• Изключен (SEL): ").append(isoWord(isoAns[2])).append('\n');
+            r.append("• Ритъм 10 s: ").append(beatWord(0)).append('\n');
+            if (isoAns[4] >= 0) r.append("• Ритъм 5 s: ").append(beatWord(1)).append('\n');
+            r.append("• Пауза на цикъла (T4): ").append(isoAns[5] == 0 ? "изолира" : isoAns[5] == 1 ? "НЕ изолира"
+                    : isoAns[5] == 2 ? "каналът не спря — цикълът не тръгна" : "неясно").append('\n');
+            r.append("→ ").append(isoVerdict());
+        }
+        final String text = r.toString();
+        result.setText(text);
+        uiTest = false;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.allOff(), "изолация край");
+                for (int ch = 1; ch <= 8; ch++) link.write(Proto.intensity(ch, 0), null);
+                link.log("===== КРАЙ НА ИЗОЛАЦИЯТА =====\n" + text);
+                uploadProgramOnWorker();
+                testBusy = false;
+                main.post(new Runnable() {
+                    @Override public void run() { Arrays.fill(level, 0); refreshLevels(); saveLog(false); }
+                });
+            }
+        });
+    }
+
+    static String isoWord(int a) {
+        return a == ISO_GONE ? "изолира" : a == ISO_STAYS ? "НЕ изолира" : "неясно";
+    }
+
+    String beatWord(int k) {
+        int a = isoAns[3 + k];
+        if (a == BEAT_RHYTHM) return String.format(Locale.US, "тласъци през %.1f s (очаквано %.0f s)", isoBeat[k],
+                k == 0 ? 10.0 : 5.0);
+        return a == BEAT_CONSTANT ? "постоянно, без ритъм" : "няма взаимодействие";
+    }
+
+    /** The beat followed the frequency difference: 10 s and 5 s each within ±40 %, the second shorter. */
+    boolean beatConfirmed() {
+        return isoAns[3] == BEAT_RHYTHM && isoAns[4] == BEAT_RHYTHM
+                && Math.abs(isoBeat[0] - 10) <= 4 && Math.abs(isoBeat[1] - 5) <= 2 && isoBeat[1] < isoBeat[0];
+    }
+
+    String isoVerdict() {
+        if (beatConfirmed()) {
+            return "СЛУЧАЙ А: пречи само застъпването на импулсите. Решение: подреждане на импулсите във времето, "
+                    + "всички канали остават включени.";
+        }
+        if (isoAns[3] == BEAT_RHYTHM) {
+            return "Има тласъци, но не следват честотата убедително — повтори теста (по-спокойно, по-ниска сила).";
+        }
+        if (isoAns[5] == 0) {
+            return "СЛУЧАЙ Б1: каналът влияе и докато чака, но паузата на собствения цикъл (T4) го изолира. "
+                    + "Решение: времеви слотове в самия модул (цикъл ~10 ms на канал).";
+        }
+        if (isoAns[1] == ISO_GONE) {
+            return "Сила 0 изолира, но паузата T4 — не (или цикълът не тръгна). Следва тест с T1-рампа и стъпки на силата.";
+        }
+        if (isoAns[2] == ISO_GONE) {
+            return "Изолира само изключването (SEL). Модулът не може сам да превключва SEL бързо — софтуерен път няма.";
+        }
+        return "Неясен резултат — прати лога.";
     }
 
     /** All channels with strength > 0 run without pause; battery read as fast as it answers, off / on / off. */

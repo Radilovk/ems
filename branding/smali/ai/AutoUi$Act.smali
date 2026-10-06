@@ -31,16 +31,16 @@
     .registers 3
 
     .prologue
-    .line 1915
+    .line 1999
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1916
+    .line 2000
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoUi$Act;->code:I
 
-    .line 1917
+    .line 2001
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoUi$Act;->arg:I
 
-    .line 1918
+    .line 2002
     return-void
 .end method
 
@@ -48,7 +48,7 @@
     .registers 4
 
     .prologue
-    .line 1943
+    .line 2027
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoUi$Act;->code:I
 
@@ -58,15 +58,15 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 1947
+    .line 2031
     :goto_7
     return-void
 
-    .line 1944
+    .line 2028
     :catch_8
     move-exception v0
 
-    .line 1945
+    .line 2029
     const-string v1, "AutoUi.action"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -80,15 +80,15 @@
     .registers 3
 
     .prologue
-    .line 1922
+    .line 2006
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1923
+    .line 2007
     const/4 v0, 0x0
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1924
+    .line 2008
     return-void
 .end method
 
@@ -96,10 +96,10 @@
     .registers 2
 
     .prologue
-    .line 1933
+    .line 2017
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1934
+    .line 2018
     return-void
 .end method
 
@@ -107,10 +107,10 @@
     .registers 2
 
     .prologue
-    .line 1928
+    .line 2012
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1929
+    .line 2013
     return-void
 .end method
 
@@ -118,7 +118,7 @@
     .registers 3
 
     .prologue
-    .line 1938
+    .line 2022
     if-eqz p1, :cond_7
 
     const/4 v0, 0x1
@@ -126,10 +126,10 @@
     :goto_3
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/AutoUi$Act;->run(I)V
 
-    .line 1939
+    .line 2023
     return-void
 
-    .line 1938
+    .line 2022
     :cond_7
     const/4 v0, 0x0
 

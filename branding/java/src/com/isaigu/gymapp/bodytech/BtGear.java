@@ -15,8 +15,9 @@ import com.isaigu.gymapp.widget.XemsUi;
 
 /**
  * Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py). On a row whose suit is a
- * bodytech one the gear first asks: "Настройки на програмата" (the stock dialog, as always), "Пълни параметри"
- * ({@link BtFull}) or "Тестов режим" ({@link BtTestMode}). Every other row opens the stock dialog at once.
+ * bodytech one the gear first asks: "Настройки на програмата" (the stock dialog, as always) or "Пълни параметри"
+ * ({@link BtFull}). Every other row opens the stock dialog at once. (The test mode and the Australian / Russian
+ * currents are gone, owner 1.1.372; the passive "Модулация" procedures live in the automatic mode.)
  */
 public final class BtGear {
     private BtGear() {}
@@ -72,16 +73,10 @@ public final class BtGear {
             prog.setOnClickListener(new Program(this));
             TextView full = XemsUi.button(a, "Пълни параметри", XemsUi.SECONDARY);
             full.setOnClickListener(new Full(this));
-            TextView test = XemsUi.button(a, "Тестов режим", XemsUi.SECONDARY);
-            test.setOnClickListener(new Test(this));
-            TextView aus = XemsUi.button(a, "Австралийски ток", XemsUi.SECONDARY);
-            aus.setOnClickListener(new Aus(this));
             sh.body.addView(prog, XemsUi.matchWrap(a, 8));
             sh.body.addView(full, XemsUi.matchWrap(a, 12));
-            sh.body.addView(test, XemsUi.matchWrap(a, 12));
-            sh.body.addView(aus, XemsUi.matchWrap(a, 12));
             TextView hint = XemsUi.text(a, "Пълни параметри: Hz до 1000, ширина до 511 µs, форма и сила за всеки канал и "
-                    + "всеки импулс. Тестов режим: пробваш ги, без да пипаш програмата. Австралийски ток: готови протоколи с 1 kHz ток.", 12, XemsUi.HINT, false);
+                    + "всеки импулс.", 12, XemsUi.HINT, false);
             hint.setPadding(0, XemsUi.dp(a, 12), 0, XemsUi.dp(a, 8));
             sh.body.addView(hint);
         }
@@ -131,34 +126,6 @@ public final class BtGear {
         public void onClick(View v) {
             c.sh.dialog.dismiss();
             new BtFull(c.a, c.mac).show();
-        }
-    }
-
-    static final class Aus implements View.OnClickListener {
-        final Choice c;
-
-        Aus(Choice c) {
-            this.c = c;
-        }
-
-        @Override
-        public void onClick(View v) {
-            c.sh.dialog.dismiss();
-            new BtAusScreen(c.a, c.mac).show();
-        }
-    }
-
-    static final class Test implements View.OnClickListener {
-        final Choice c;
-
-        Test(Choice c) {
-            this.c = c;
-        }
-
-        @Override
-        public void onClick(View v) {
-            c.sh.dialog.dismiss();
-            new BtTestMode(c.a, c.mac).show();
         }
     }
 }

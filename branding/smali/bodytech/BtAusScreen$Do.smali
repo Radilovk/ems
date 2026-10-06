@@ -32,8 +32,6 @@
 
 .field static final PAUSE:I = 0x7
 
-.field static final PICK:I = 0x0
-
 .field static final START:I = 0x6
 
 .field static final STOP:I = 0x8
@@ -54,90 +52,48 @@
     .registers 4
 
     .prologue
-    .line 448
+    .line 445
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 449
+    .line 446
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
-    .line 450
+    .line 447
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
-    .line 451
+    .line 448
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->arg:I
 
-    .line 452
+    .line 449
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 9
+    .registers 8
 
     .prologue
-    const/16 v6, 0x8
-
     const/4 v5, 0x4
 
     const/4 v1, 0x0
 
     const/4 v0, 0x1
 
-    .line 456
+    .line 453
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 457
+    .line 454
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->run:Lcom/isaigu/gymapp/bodytech/BtAusRun;
 
-    .line 458
+    .line 455
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
-    if-nez v3, :cond_2b
+    if-ne v3, v0, :cond_24
 
-    .line 459
-    sget-object v0, Lcom/isaigu/gymapp/bodytech/BtAus;->ALL:[Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->arg:I
-
-    aget-object v0, v0, v1
-
-    invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->load(Lcom/isaigu/gymapp/bodytech/BtAus$T;)V
-
-    .line 460
-    const/4 v0, 0x0
-
-    iput-object v0, v2, Lcom/isaigu/gymapp/bodytech/BtAusRun;->error:Ljava/lang/String;
-
-    .line 461
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->subtitle:Landroid/widget/TextView;
-
-    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setVisibility(I)V
-
-    .line 491
-    :cond_25
-    :goto_25
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->render()V
-
-    .line 492
-    :goto_2a
-    return-void
-
-    .line 462
-    :cond_2b
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
-
-    if-ne v3, v0, :cond_40
-
-    .line 463
+    .line 456
     iget-object v3, v2, Lcom/isaigu/gymapp/bodytech/BtAusRun;->chans:[Z
 
     iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->arg:I
@@ -148,166 +104,178 @@
 
     aget-boolean v2, v2, v5
 
-    if-nez v2, :cond_3e
+    if-nez v2, :cond_22
 
-    :goto_3b
+    :goto_1a
     aput-boolean v0, v3, v4
 
-    goto :goto_25
+    .line 484
+    :cond_1c
+    :goto_1c
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
-    :cond_3e
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->render()V
+
+    .line 485
+    :goto_21
+    return-void
+
+    :cond_22
     move v0, v1
 
-    goto :goto_3b
+    .line 456
+    goto :goto_1a
 
-    .line 464
-    :cond_40
+    .line 457
+    :cond_24
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
     const/4 v4, 0x2
 
-    if-ne v3, v4, :cond_4a
+    if-ne v3, v4, :cond_2e
 
-    .line 465
+    .line 458
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->arg:I
 
     iput v0, v2, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
 
-    goto :goto_25
+    goto :goto_1c
 
-    .line 466
-    :cond_4a
+    .line 459
+    :cond_2e
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
     const/4 v4, 0x3
 
-    if-ne v3, v4, :cond_5c
+    if-ne v3, v4, :cond_40
 
-    .line 467
+    .line 460
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     iget-boolean v3, v3, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->more:Z
 
-    if-nez v3, :cond_5a
+    if-nez v3, :cond_3e
 
-    :goto_57
+    :goto_3b
     iput-boolean v0, v2, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->more:Z
 
-    goto :goto_25
+    goto :goto_1c
 
-    :cond_5a
+    :cond_3e
     move v0, v1
 
-    goto :goto_57
+    goto :goto_3b
 
-    .line 468
-    :cond_5c
+    .line 461
+    :cond_40
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
-    if-ne v0, v5, :cond_6f
+    if-ne v0, v5, :cond_53
 
-    .line 469
+    .line 462
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->arg:I
 
     iput v0, v2, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:I
 
-    .line 470
+    .line 463
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->arg:I
 
-    if-lez v0, :cond_25
+    if-lez v0, :cond_1c
 
     iget v0, v2, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:I
 
-    if-nez v0, :cond_25
+    if-nez v0, :cond_1c
 
     iput v5, v2, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:I
 
-    goto :goto_25
+    goto :goto_1c
 
-    .line 471
-    :cond_6f
+    .line 464
+    :cond_53
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
     const/4 v1, 0x5
 
-    if-ne v0, v1, :cond_79
+    if-ne v0, v1, :cond_5d
 
-    .line 472
+    .line 465
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->arg:I
 
     iput v0, v2, Lcom/isaigu/gymapp/bodytech/BtAusRun;->wave:I
 
-    goto :goto_25
+    goto :goto_1c
 
-    .line 473
-    :cond_79
+    .line 466
+    :cond_5d
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
     const/4 v1, 0x6
 
-    if-ne v0, v1, :cond_87
+    if-ne v0, v1, :cond_6b
+
+    .line 467
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->start()V
+
+    .line 468
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->render()V
+
+    goto :goto_21
+
+    .line 470
+    :cond_6b
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
+
+    const/4 v1, 0x7
+
+    if-ne v0, v1, :cond_74
+
+    .line 471
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pause()V
+
+    goto :goto_21
+
+    .line 473
+    :cond_74
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
+
+    const/16 v1, 0x8
+
+    if-ne v0, v1, :cond_83
 
     .line 474
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->start()V
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->stop()V
 
     .line 475
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->render()V
 
-    goto :goto_2a
+    goto :goto_21
 
     .line 477
-    :cond_87
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
-
-    const/4 v1, 0x7
-
-    if-ne v0, v1, :cond_90
-
-    .line 478
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pause()V
-
-    goto :goto_2a
-
-    .line 480
-    :cond_90
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
-
-    if-ne v0, v6, :cond_9d
-
-    .line 481
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->stop()V
-
-    .line 482
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->render()V
-
-    goto :goto_2a
-
-    .line 484
-    :cond_9d
+    :cond_83
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->what:I
 
     const/16 v1, 0x9
 
-    if-ne v0, v1, :cond_a9
+    if-ne v0, v1, :cond_8f
 
-    .line 485
+    .line 478
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->info()V
 
-    goto :goto_2a
+    goto :goto_21
 
-    .line 488
-    :cond_a9
+    .line 481
+    :cond_8f
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Do;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->contra()V
 
-    goto/16 :goto_2a
+    goto :goto_21
 .end method

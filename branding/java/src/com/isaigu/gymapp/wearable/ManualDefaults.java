@@ -26,6 +26,7 @@ public final class ManualDefaults {
             return;
         }
         ClientPrograms.init(c);
+        SecondParts.tick(c, items);
         try {
             for (int i = 0; i < items.size(); i++) {
                 TrainItem it = items.get(i);

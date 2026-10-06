@@ -38,6 +38,7 @@ public final class XemsDossier {
 
     static final String PREFS = "xems_dossier";
     static final String FORM = "xems_user_profiles";
+    static final String SECOND = "xems_second_parts";          // wearable/SecondParts
     static final long DEBOUNCE_MS = 5000L;
     static final int BATCH = 20;
     static final long DEMO_ID = -1L;
@@ -331,6 +332,7 @@ public final class XemsDossier {
         fill(u, d);
         sink.save(u, !created);                                  // a new one gets its tablet id here
         writeForm(u.id, d.optJSONObject("form"));
+        writeSecondParts(u.id, d.optJSONObject("sp"));
         String hash = Integer.toHexString(data(u).toString().hashCode());
         p.edit().putString("cid" + u.id, cid).putString("h" + u.id, hash).putLong("t" + u.id, t).apply();
         byCid.put(cid, String.valueOf(u.id));
@@ -371,7 +373,45 @@ public final class XemsDossier {
         form.put("own", f.getBoolean("own" + u.id, false));
         form.put("misport", f.getInt("misport" + u.id, 0));
         d.put("form", form);
+        JSONObject sp = secondParts(u.id);
+        if (sp.length() > 0) {
+            d.put("sp", sp);                                    // only when set: other records keep their hash
+        }
         return d;
+    }
+
+    /** The second impulse's own channel percents (wearable/SecondParts): "program|mode" → "p,p,…". */
+    static JSONObject secondParts(long id) throws Exception {
+        JSONObject o = new JSONObject();
+        String pre = "u" + id + "|";
+        for (Map.Entry<String, ?> e : app.getSharedPreferences(SECOND, Context.MODE_PRIVATE).getAll().entrySet()) {
+            if (e.getKey().startsWith(pre) && e.getValue() instanceof String && ((String) e.getValue()).length() > 0) {
+                o.put(e.getKey().substring(pre.length()), e.getValue());
+            }
+        }
+        return o;
+    }
+
+    /** A newer record from the server: its second impulse percents replace this tablet's for the client. */
+    private static void writeSecondParts(long id, JSONObject sp) {
+        SharedPreferences p = app.getSharedPreferences(SECOND, Context.MODE_PRIVATE);
+        SharedPreferences.Editor e = p.edit();
+        String pre = "u" + id + "|";
+        for (String k : new ArrayList<String>(p.getAll().keySet())) {
+            if (k.startsWith(pre)) {
+                e.remove(k);
+            }
+        }
+        if (sp != null) {
+            for (java.util.Iterator<String> it = sp.keys(); it.hasNext(); ) {
+                String k = it.next();
+                String v = sp.optString(k, "");
+                if (k.length() > 0 && v.matches("[0-9]{1,3}(,[0-9]{1,3}){0,15}")) {
+                    e.putString(pre + k, v);
+                }
+            }
+        }
+        e.apply();
     }
 
     private static void fill(TrainUser u, JSONObject d) {

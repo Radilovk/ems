@@ -36,13 +36,15 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
   their `$Inner` classes — never mix dx outer + d8 inner) and `git checkout` the rest of `branding/smali/`.
   Then build the APK with `SKIP_JAVA_RECOMPILE=1 bash build-apk.sh` (else it recompiles everything with dx).
 - Patch scripts find anchors in vendor smali (`*_MARKER`, `OLD`/`NEW` constants) — outline shows them as `const`.
-- Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/ai-sim/run-auto.sh`, `bash scripts/music-sim/run.sh`, `bash scripts/fit-sim/run.sh`,
+- Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/ai-sim/run-auto.sh`, `bash scripts/music-sim/run.sh`, `bash scripts/fit-sim/run.sh`, `bash scripts/part-sim/run.sh`,
   `cd band-app && bash scripts/test-band.sh`, `cd server && npm test`, `python3 scripts/ui-map.py --check`.
 
 ## Invariants (breaking one = broken release)
 - Never edit `build/decompiled/`; change `scripts/apply-*.py`, `branding/`, or Java.
 - Java edited → run its compile script (MAP: `compile:X`) and commit the regenerated `branding/smali/`.
 - New patch script → add to `build-apk.sh` at the right spot (MAP flags `NOT-IN-BUILD`).
+- `branding/java-stubs` can claim `public` for a package-private vendor member → IllegalAccessError on the tablet,
+  swallowed by try/catch. Check the real flag in the decompiled smali; `verify-vendor-access.py` guards the build.
 - dx-safe Java: **no lambdas, no anonymous inner classes** (use named classes); `MusicPlayerHelper$1` is a build error.
 - Never rename/remove `@id/*` (smali hooks bind to them). Login smali only via `apply-login-fix.py`.
 - Touching `band-app/src|scripts`, `branding/java|smali`, `translations/`, `scripts/apply-*|compile-*` ⇒ bump

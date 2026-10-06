@@ -29,21 +29,21 @@
     .registers 5
 
     .prologue
-    .line 114
+    .line 115
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 115
+    .line 116
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsDossier$Out;->key:Ljava/lang/String;
 
-    .line 116
+    .line 117
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsDossier$Out;->hash:Ljava/lang/String;
 
-    .line 117
+    .line 118
     iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsDossier$Out;->json:Ljava/lang/String;
 
-    .line 118
+    .line 119
     iput-boolean p4, p0, Lcom/isaigu/gymapp/widget/XemsDossier$Out;->deleted:Z
 
-    .line 119
+    .line 120
     return-void
 .end method

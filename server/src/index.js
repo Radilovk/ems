@@ -1253,10 +1253,11 @@ function checkAdmin(request, env) {
   return Boolean(sameText(user, env.ADMIN_USER || 'admin') & isAdminPassword(env, pass));
 }
 
-/** The admin password (Worker secret ADMIN_PASSWORD). No built-in default: without it the admin stays closed. */
+/** The admin password: Worker secret ADMIN_PASSWORD, else the built-in default (owner's choice: admin / kakadu1234). */
+const DEFAULT_ADMIN_PASSWORD = 'kakadu1234';
 function isAdminPassword(env, pass) {
   const p = String(pass || '').trim();
-  return Boolean(env.ADMIN_PASSWORD) && sameText(p, env.ADMIN_PASSWORD);
+  return sameText(p, env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD);
 }
 
 /** Compare without leaking where the first difference is. */

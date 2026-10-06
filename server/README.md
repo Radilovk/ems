@@ -52,7 +52,7 @@ npx wrangler secret put LICENSE_PRIVATE_KEY
 
 **Една парола за всичко (1.1.334):** тайната `ADMIN_PASSWORD` на Worker-а — вход в панела и, въведена на таблета
 в „Достъп и лиценз“, одобрява таблета и отваря настройката му. Задава се веднъж: Cloudflare → Workers →
-xems-license → Settings → Variables and Secrets → Add → Secret `ADMIN_PASSWORD`. Без нея панелът е затворен.
+xems-license → Settings → Variables and Secrets → Add → Secret `ADMIN_PASSWORD`. Без нея важи вградената парола по подразбиране (`admin` / `kakadu1234`) — задай тайната, за да я смениш.
 
 ## Разходи
 

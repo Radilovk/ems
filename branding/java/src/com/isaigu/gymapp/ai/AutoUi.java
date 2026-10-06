@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.isaigu.gymapp.ai.AutoCatalog.Program;
 import com.isaigu.gymapp.ai.AutoModel.Goal;
 import com.isaigu.gymapp.ai.AutoModel.Kind;
+import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.widget.XemsUi;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public final class AutoUi {
     private static final int A_INFO = 37;
     private static final int A_STATE = 38;
     private static final int A_EXERCISES = 41;
+    private static final int A_MOD = 45;
 
     private static XemsUi.Shell shell;
     private static Activity host;
@@ -136,6 +138,7 @@ public final class AutoUi {
                 return;
             }
             AutoSession.beginSetup(a);
+            modId = null;
             AutoModel.Input in = AutoSession.getInput();
             heightTouched = in.heightCm > 0;
             profileOpen = in.heightCm <= 0;
@@ -390,6 +393,8 @@ public final class AutoUi {
             case STEP_PROGRAM:
                 if (in.kind == Kind.ACTIVE && in.exercises) {
                     setupWorkout();                   // ready → the client step; own map → calibrated on the screen
+                } else if (modId != null) {
+                    startMod();                       // a bodytech modulation: its own screen, not the Auto engine
                 } else if (in.programId != null) {
                     go(STEP_CLIENT);
                 }
@@ -561,7 +566,12 @@ public final class AutoUi {
             List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
             Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
             Program chosen = AutoCatalog.get(in.programId);
-            if (chosen == null || !menu.contains(chosen) || AutoCatalog.blockReason(chosen, in.goal, in, false) != null) {
+            if (in.kind != Kind.PASSIVE || modRow() == null) {
+                modId = null;
+            }
+            if (modId != null) {
+                in.programId = null;
+            } else if (chosen == null || !menu.contains(chosen) || AutoCatalog.blockReason(chosen, in.goal, in, false) != null) {
                 in.programId = AutoCatalog.blockReason(rec, in.goal, in, false) == null ? rec.id : null;
             }
             // every template of the goal as a card: the colour is the difficulty, the three times the plan
@@ -583,6 +593,13 @@ public final class AutoUi {
                 strip.addView(programCard(c, on, p.level, art, (p == rec ? "★ " : "") + p.name(), null,
                         AutoCatalog.times(p, in.goal, in), null, new Act(A_PROGRAM, i)), cardParams(c));
                 shown++;
+            }
+            if (in.kind == Kind.PASSIVE) {
+                shown += modCards(c, strip, in);
+                com.isaigu.gymapp.bodytech.BtAus.T mt = com.isaigu.gymapp.bodytech.BtAus.byId(modId);
+                if (mt != null) {
+                    pickedLine = mt.goal + " " + mt.feel;
+                }
             }
             if (shown == 0) {
                 body.addView(banner(c, XemsUi.AMBER, firstBlock != null ? firstBlock
@@ -615,7 +632,66 @@ public final class AutoUi {
             ownMap |= w.id.equals(workoutId) && presetProgram(w) == null;
         }
         footer(c, ownMap ? AiText.t("Към настройване  ›", "To setup  ›") : AiText.t("Напред", "Next"), false);
-        enable(withEx ? workoutId != null : in.programId != null);
+        enable(withEx ? workoutId != null : in.programId != null || modId != null);
+    }
+
+    /**
+     * "Модулация" (owner, 1.1.372): the passive procedures of a bodytech suit (bodytech/BtAus), offered as separate
+     * cards after the passive templates — only while a client's row runs on a bodytech suit. The chosen one's id
+     * (null = a template or nothing); "Напред" hands that row's suit to the procedure's own screen.
+     */
+    private static String modId;
+
+    /** The first row with a client on a bodytech suit, null if none. */
+    private static TrainItem modRow() {
+        for (TrainItem it : AutoSession.items()) {
+            try {
+                if (it.data != null && it.data.trainUser != null
+                        && com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(it.data.macAddress)) {
+                    return it;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return null;
+    }
+
+    /** The modulation cards of the passive strip; the number added. */
+    private static int modCards(Context c, LinearLayout strip, AutoModel.Input in) {
+        if (modRow() == null) {
+            modId = null;
+            return 0;
+        }
+        com.isaigu.gymapp.bodytech.BtAus.T[] all = com.isaigu.gymapp.bodytech.BtAus.ALL;
+        for (int i = 0; i < all.length; i++) {
+            com.isaigu.gymapp.bodytech.BtAus.T t = all[i];
+            strip.addView(programCard(c, t.id.equals(modId), 0, ProgramArt.passiveKey(in.sex),
+                    AiText.t("Модулация · ", "Modulation · ") + t.name, AiText.t("само bodytech", "bodytech only"),
+                    null, "≈ " + t.minutes + AiText.t(" мин", " min"), new Act(A_MOD, i)), cardParams(c));
+        }
+        return all.length;
+    }
+
+    /** "Напред" on a modulation card: the automatic mode steps aside, the procedure opens for that row's suit. */
+    private static void startMod() {
+        TrainItem row = modRow();
+        Activity a = host;
+        String id = modId;
+        if (row == null || a == null) {
+            modId = null;
+            go(STEP_PROGRAM);
+            return;
+        }
+        String who = "";
+        try {
+            who = row.data.trainUser.nickName != null && row.data.trainUser.nickName.length() > 0
+                    ? row.data.trainUser.nickName : row.data.trainUser.name;
+        } catch (Throwable ignored) {
+        }
+        modId = null;
+        AutoSession.close();
+        dismiss();
+        com.isaigu.gymapp.bodytech.BtAusScreen.open(a, row.data.macAddress, id, who);
     }
 
     /** The programs of "С упражнения" on screen (the card index is the position here) and the chosen one. */
@@ -1816,9 +1892,17 @@ public final class AutoUi {
                 List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
                 if (arg < menu.size()) {
                     in.programId = menu.get(arg).id;
+                    modId = null;
                 }
                 break;
             }
+            case A_MOD:
+                stripX = programStrip != null ? programStrip.getScrollX() : 0;
+                if (arg < com.isaigu.gymapp.bodytech.BtAus.ALL.length) {
+                    modId = com.isaigu.gymapp.bodytech.BtAus.ALL[arg].id;
+                    in.programId = null;
+                }
+                break;
             case A_SEX: in.sex = value == 0 ? AiModel.Sex.FEMALE : AiModel.Sex.MALE; break;
             case A_FITNESS: in.fitness = AiModel.Fitness.values()[value]; break;
             case A_AGE: in.age = Math.max(14, Math.min(95, in.age + value)); break;

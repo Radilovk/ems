@@ -91,7 +91,7 @@ final class BtFull {
         card.addView(acts, XemsUi.matchWrap(a, 14));
         sh.body.addView(card, XemsUi.matchWrap(a, 10));
 
-        TextView note = XemsUi.text(a, "Изпитай стойностите първо в „Тестов режим“. Силата на костюма е най-много 99 %. "
+        TextView note = XemsUi.text(a, "Нови стойности — първо с ниска сила. Силата на костюма е най-много 99 %. "
                 + "Вторият импулс се включва от настройките на програмата (двоен импулс) — тук само казваш какъв е на този канал.",
                 12, XemsUi.HINT, false);
         note.setPadding(0, XemsUi.dp(a, 10), 0, 0);

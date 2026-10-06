@@ -36,7 +36,10 @@ public class BtAusTest {
             eq(t.id + " minutes", true, t.minutes >= 1 && t.minutes <= 90);
             if (t.burstHz > 0) eq(t.id + " burst fits", true, BtAus.burst(t.burstHz, t.burstMs)[0] > 0);
         }
-        eq("8 templates", 8, BtAus.ALL.length);
+        eq("4 passive procedures", 4, BtAus.ALL.length);
+        for (BtAus.T t : BtAus.ALL) eq(t.id + " passive", BtAus.PASSIVE, t.kind);
+        eq("byId", "ifc-acute", BtAus.byId("ifc-acute").id);
+        eq("byId none", null, BtAus.byId("strength"));
 
         // timeline: on 10 (ramps 2) off 30
         BtAus.Pos p = BtAus.at(10, 30, 2, 0);

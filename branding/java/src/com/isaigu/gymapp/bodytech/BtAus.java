@@ -1,7 +1,9 @@
 package com.isaigu.gymapp.bodytech;
 
 /**
- * Australian current (1 kHz carrier, bursts) — the templates and the timeline, pure logic (no Android; tested offline).
+ * "Модулация" (owner, 1.1.372; was "Австралийски ток"): the passive 1–2 kHz procedures of a bodytech suit — the
+ * templates and the timeline, pure logic (no Android; tested offline). Offered only in the automatic mode, as separate
+ * passive procedures, when a client's row runs on a bodytech suit (ai/AutoUi).
  * <p>
  * What it is on the suit: the "Hz" register is the pulse rate, so the carrier is 1000 Hz with a 500 µs pulse (half the
  * period) and a sine wave; the bursts are the suit's own T2 / T4 (on / off ms: burst 50 Hz × 4 ms = 4 / 16 ms). The
@@ -10,7 +12,7 @@ package com.isaigu.gymapp.bodytech;
  * <p>
  * Interferential (IFC) programs use two carriers a few Hz apart on a pair of channels; the beat is where their fields
  * cross. The suit's period is a whole number of µs, so only some beats exist ({@link #ifcB}) — the real one is shown.
- * Source of the numbers: docs/xems-australian.md.
+ * Source of the numbers: docs/xems-modulation.md.
  */
 public final class BtAus {
     private BtAus() {}
@@ -70,47 +72,11 @@ public final class BtAus {
     }
 
     // BtSettings.SLIDERS: 0 Гърди, 1 Корем, 2 Предно бедро, 3 Прасец, 4 Ръце, 5 Трапец, 6 Гръб, 7 Кръст, 8 Седалище, 9 Задно бедро
-    private static final int[] LEGS = {2, 9, 8};
-    private static final int[] LEGS_ABS = {2, 9, 8, 1};
-    private static final int[] BODY = {2, 9, 8, 1, 7};
     private static final int[] SHAPE = {8, 2, 9, 1, 7};
     private static final int[] CALF_LEGS = {2, 9, 3};
     private static final int[] BACK = {7, 6};
 
     public static final T[] ALL = {
-            new T("strength", "Сила и хипертрофия", ACTIVE,
-                    "Мускулна сила и обем; пази от загуба на мускул.",
-                    "Силна контракция, която още се търпи — вдигай, докато мускулът се стяга ясно.",
-                    1000, 500, 50, 4, 10, 40, 2, 18, 5, LEGS, false, 0, 0, 0,
-                    "1) загрявка 5–10 мин; 2) 10 мин само ток върху бедра и седалище; 3) ток + движение: клек 3×8–12, "
-                            + "разгъване 3×10–15, сгъване 3×10–15, напади 2×10 на крак, почивка 60–90 с; 4) разтягане 5 мин. "
-                            + "Прогресия: по-високо ниво, почивка към 1:2 (10 с ток / 20 с), повече тежест.",
-                    "3 пъти седмично, 4–6 седмици. Контракция 10 с, почивка 30–50 с (1:3 – 1:5), 15–20 мин на група.",
-                    "Най-добре заедно с волеви упражнения."),
-            new T("hiit", "HIIT + ток (липолиза)", ACTIVE,
-                    "Мазнини и глюкозен толеранс: ток преди интервалната тренировка.",
-                    "Леко, равно усещане до лека контракция — без да пречи на движението.",
-                    1000, 500, 10, 2, 0, 0, 2, 18, 4, BODY, false, 0, 0, 0,
-                    "1) 15–20 мин ток върху големите групи (непрекъснато); 2) HIIT: загрявка 5 мин, 4–8 цикъла по 30 с "
-                            + "силно / 90 с леко, охлаждане 5 мин; 3) разтягане. За метаболитно действие: пакети 50 Hz, "
-                            + "10 с ток / 30 с почивка.",
-                    "3 пъти седмично, 8–12 седмици.",
-                    "С HIIT: съчетани, дават по-силно изгаряне и метаболитно изчистване."),
-            new T("prediabetes", "Преддиабет / метаболитен синдром", ACTIVE,
-                    "Инсулинова чувствителност и усвояване на глюкоза.",
-                    "Видима контракция, която се търпи без напрежение.",
-                    1000, 500, 50, 4, 10, 30, 2, 30, 5, LEGS_ABS, false, 0, 0, 0,
-                    "30 мин ток върху долни крайници и корем, цикъл 10 с / 30 с. Заедно със 150 мин седмично умерена "
-                            + "активност (ходене, колело).",
-                    "3 пъти седмично, поне 4 седмици (12 сеанса).",
-                    "150 мин/седмично умерено движение."),
-            new T("cellulite", "Целулит и лимфен дренаж", ACTIVE,
-                    "Кръвоток и лимфа в бедра, седалище, корем, хълбоци.",
-                    "Подрусване, под прага на движение (около 4–6 от 10).",
-                    1000, 500, 100, 4, 5, 5, 1, 25, 3, SHAPE, false, 0, 0, 0,
-                    "20–30 мин на бедра, седалище, корем и хълбоци; пакети 100 Hz, 5 с ток / 5 с пауза (или непрекъснато).",
-                    "3 пъти седмично, 8–10 сеанса.",
-                    "Пасва с карбокситерапия, ултразвукова липолиза, ръчен лимфен дренаж."),
             new T("atrophy", "Атрофия и циркулация", PASSIVE,
                     "При обездвижване и възстановяване: пази мускула и кръвотока.",
                     "Лека, видима контракция.",
@@ -141,6 +107,14 @@ public final class BtAus {
                     "Всеки ден или през ден.",
                     "Не го прави едновременно с обикновен TENS на същото място."),
     };
+
+    /** The template with this id, null if none. */
+    public static T byId(String id) {
+        for (T t : ALL) {
+            if (t.id.equals(id)) return t;
+        }
+        return null;
+    }
 
     // ------------------------------------------------------------------ bursts
 

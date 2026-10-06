@@ -12,7 +12,7 @@
                                the start waits (no clock, no lost impulse) and goes by itself when the program is in
   TrainViewHolder.updateUI    end: BtLoad.mark(item, row) — "Зареждане на програмата… N %" over a waiting row
   TrainViewHolder$1.onNoDoubleClick (the row's gear) start: BtGear.open(item, view) → true = on a bodytech row the
-                               gear first asks "Настройки на програмата" / "Тестов режим" (BtTestMode)
+                               gear first asks "Настройки на програмата" / "Пълни параметри" (BtFull)
   SettingFragment.onCreateView after the Band section: BtSettingsSection.attach(activity, root) — Settings →
                                "Костюм bodytech" (channel → slider map, impulse group, waveform, strength scale)
 Doc: docs/xems-bodytech.md. Runs after apply-suit-reconnect.py (everything that rewrites these methods is done).

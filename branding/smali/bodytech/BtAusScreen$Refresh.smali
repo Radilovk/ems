@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 418
+    .line 415
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 419
+    .line 416
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Refresh;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
-    .line 420
+    .line 417
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 2
 
     .prologue
-    .line 424
+    .line 421
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusScreen$Refresh;->s:Lcom/isaigu/gymapp/bodytech/BtAusScreen;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtAusScreen;->refresh()V
 
-    .line 425
+    .line 422
     return-void
 .end method

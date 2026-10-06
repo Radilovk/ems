@@ -12,12 +12,13 @@ import android.widget.TextView;
 import com.isaigu.gymapp.widget.XemsUi;
 
 /**
- * The row's gear on a bodytech suit → "Австралийски ток": ready protocols of the 1 kHz burst current (strength,
- * HIIT, metabolic, cellulite / lymph, atrophy, passive lipolysis, interferential pain), run by {@link BtAusRun}.
- * Setup: protocols on the left, the chosen one on the right (zones, level, time, ON / OFF). Running: the clock, the
- * phase and the level, big. Landscape; nothing is saved into the training program. Docs: docs/xems-australian.md.
+ * "Модулация" (owner, 1.1.372; was "Австралийски ток"): one passive procedure of the 1–2 kHz current (atrophy,
+ * passive lipolysis, interferential pain), run by {@link BtAusRun} on one bodytech suit. Opened from the automatic
+ * mode's passive cards ({@link #open}), only for a row whose suit is a bodytech one. Setup: what it is on the left,
+ * zones / level / time on the right. Running: the clock, the phase and the level, big. Landscape; nothing is saved
+ * into the training program. Docs: docs/xems-modulation.md.
  */
-final class BtAusScreen {
+public final class BtAusScreen {
     static final int[] LEVELS = {1, 3, 5, 10, 20, 30, 50};
     static final int[] BURST_HZ = {0, 10, 50, 100};
     static final String CONTRA = "Не се пуска при: пейсмейкър, дефибрилатор или друг имплантиран уред; бременност (корем, "
@@ -39,14 +40,25 @@ final class BtAusScreen {
     TextView[] chTv = new TextView[BtSettings.CHANNELS + 1];
     XemsUi.Stepper lvl;
 
-    BtAusScreen(Activity a, String mac) {
+    /** The automatic mode's modulation card → this procedure on that row's suit. false = no such procedure. */
+    public static boolean open(Activity a, String mac, String id, String who) {
+        BtAus.T t = BtAus.byId(id);
+        if (a == null || t == null) return false;
+        BtSettings.load(a);
+        new BtAusScreen(a, mac, t, who).show();
+        return true;
+    }
+
+    BtAusScreen(Activity a, String mac, BtAus.T t, String who) {
         this.a = a;
         this.mac = mac;
         XemsUi.init(a);
         String tail = mac != null && mac.length() >= 8 ? mac.substring(mac.length() - 8) : "";
-        sh = XemsUi.shell(a, "Австралийски ток", tail.length() > 0 ? "Костюм …" + tail : null, 1060);
+        String sub = who != null && who.length() > 0 ? who : "";
+        if (tail.length() > 0) sub += (sub.length() > 0 ? " · " : "") + "костюм …" + tail;
+        sh = XemsUi.shell(a, "Модулация · " + t.name, sub.length() > 0 ? sub : null, 1060);
         run = new BtAusRun(mac, new Refresh(this));
-        run.load(BtAus.ALL[0]);
+        run.load(t);
         sh.dialog.setOnDismissListener(new Stop(run));
         render();
     }
@@ -85,47 +97,32 @@ final class BtAusScreen {
         LinearLayout row = XemsUi.horizontal(a);
         row.setGravity(Gravity.TOP);
 
-        // left: protocols
+        // left: what the procedure is (one procedure per card in the automatic mode)
         LinearLayout left = XemsUi.vertical(a);
-        left.addView(XemsUi.label(a, "Протокол"));
-        for (int i = 0; i < BtAus.ALL.length; i++) {
-            BtAus.T x = BtAus.ALL[i];
-            boolean sel = x == t;
-            LinearLayout card = XemsUi.vertical(a);
-            card.setPadding(XemsUi.dp(a, 14), XemsUi.dp(a, 10), XemsUi.dp(a, 14), XemsUi.dp(a, 10));
-            card.setBackgroundDrawable(sel
-                    ? XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x26), XemsUi.dp(a, 14), XemsUi.GO, XemsUi.dp(a, 2))
-                    : XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(a, 14), XemsUi.STROKE, XemsUi.dp(a, 1)));
-            LinearLayout top = XemsUi.horizontal(a);
-            top.setGravity(Gravity.CENTER_VERTICAL);
-            TextView nm = XemsUi.text(a, x.name, 15, sel ? XemsUi.GO_TEXT : XemsUi.TEXT, true);
-            top.addView(nm, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            top.addView(XemsUi.badge(a, x.kind == BtAus.ACTIVE ? "активно" : "пасивно",
-                    x.kind == BtAus.ACTIVE ? XemsUi.AMBER : XemsUi.MUTED));
-            card.addView(top);
-            if (sel) {
-                TextView g = XemsUi.text(a, x.goal, 12.5f, XemsUi.MUTED, false);
-                g.setPadding(0, XemsUi.dp(a, 4), 0, 0);
-                card.addView(g);
-            }
-            XemsUi.pressable(card);
-            card.setOnClickListener(new Do(this, Do.PICK, i));
-            left.addView(card, XemsUi.matchWrap(a, 8));
-        }
+        left.addView(XemsUi.label(a, "Цел"));
+        left.addView(XemsUi.text(a, t.goal, 14, XemsUi.TEXT, false));
+        TextView how = XemsUi.label(a, "Как");
+        how.setPadding(0, XemsUi.dp(a, 12), 0, 0);
+        left.addView(how);
+        left.addView(XemsUi.text(a, t.how, 13, XemsUi.MUTED, false));
+        TextView cr = XemsUi.label(a, "Курс");
+        cr.setPadding(0, XemsUi.dp(a, 12), 0, 0);
+        left.addView(cr);
+        left.addView(XemsUi.text(a, t.course, 13, XemsUi.MUTED, false));
         row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 4f));
 
         // right: the chosen one
         LinearLayout right = XemsUi.vertical(a);
         LinearLayout head = XemsUi.horizontal(a);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(XemsUi.text(a, t.name, 21, XemsUi.TEXT, true),
+        head.addView(XemsUi.text(a, "Усещане", 13, XemsUi.MUTED, true),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView info = XemsUi.iconButton(a, "i", XemsUi.SURFACE, XemsUi.TEXT, 40);
         info.setOnClickListener(new Do(this, Do.INFO, 0));
         head.addView(info, new LinearLayout.LayoutParams(XemsUi.dp(a, 40), XemsUi.dp(a, 40)));
         right.addView(head);
         TextView feel = XemsUi.text(a, t.feel, 15, XemsUi.GO_TEXT, true);
-        feel.setPadding(0, XemsUi.dp(a, 6), 0, XemsUi.dp(a, 10));
+        feel.setPadding(0, XemsUi.dp(a, 2), 0, XemsUi.dp(a, 10));
         right.addView(feel);
 
         right.addView(XemsUi.label(a, "Зони (канали)"));
@@ -315,7 +312,7 @@ final class BtAusScreen {
         }
         sh.body.addView(chips, XemsUi.matchWrap(a, 18));
 
-        TextView stop = XemsUi.button(a, done ? "Към протоколите" : "■ Стоп", XemsUi.SECONDARY);
+        TextView stop = XemsUi.button(a, done ? "Към настройката" : "■ Стоп", XemsUi.SECONDARY);
         stop.setOnClickListener(new Do(this, Do.STOP, 0));
         sh.footer.addView(stop);
         sh.footer.addView(XemsUi.spacer(a));
@@ -397,7 +394,7 @@ final class BtAusScreen {
         cb.setPadding(0, XemsUi.dp(a, 12), 0, 0);
         d.body.addView(cb);
         TextView hint = XemsUi.text(a, "Силата на тока е по усещане: започни ниско и вдигай, докато стане това, което "
-                + "пише под името на протокола. Ефектът върху тялото при този костюм не е измерен — костюмът не "
+                + "пише под „Усещане“. Ефектът върху тялото при този костюм не е измерен — костюмът не "
                 + "връща обратна връзка.", 12, XemsUi.HINT, false);
         hint.setPadding(0, XemsUi.dp(a, 14), 0, 0);
         d.body.addView(hint);
@@ -440,7 +437,7 @@ final class BtAusScreen {
 
     /** A tap on a protocol, a zone, a chip or a button. */
     static final class Do implements View.OnClickListener {
-        static final int PICK = 0, CHAN = 1, LEVEL = 2, MORE = 3, BURST = 4, WAVE = 5, START = 6, PAUSE = 7, STOP = 8,
+        static final int CHAN = 1, LEVEL = 2, MORE = 3, BURST = 4, WAVE = 5, START = 6, PAUSE = 7, STOP = 8,
                 INFO = 9, CONTRA = 10;
         final BtAusScreen s;
         final int what, arg;
@@ -455,11 +452,7 @@ final class BtAusScreen {
         public void onClick(View v) {
             XemsUi.haptic(v);
             BtAusRun r = s.run;
-            if (what == PICK) {
-                r.load(BtAus.ALL[arg]);
-                r.error = null;
-                s.sh.subtitle.setVisibility(View.GONE);
-            } else if (what == CHAN) {
+            if (what == CHAN) {
                 r.chans[arg] = !r.chans[arg];
             } else if (what == LEVEL) {
                 r.level = arg;

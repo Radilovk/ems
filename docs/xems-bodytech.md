@@ -1,6 +1,7 @@
 # Bodytech suit in XEMS — plain training (1.1.351-ai)
 
-> Australian-current protocols (gear → «Австралийски ток», 1.1.362): `docs/xems-australian.md`.
+> «Модулация» (passive 1–2 kHz procedures, only in the automatic mode for a client on a bodytech suit, 1.1.372):
+> `docs/xems-modulation.md`. The test mode, the impulse test and the Australian / Russian currents are gone (1.1.372).
 
 A bodytech suit (EMSFIT 5.1 hardware, BLE service `FE50`, name `EMS08-…` / `TZLJ…` / `ADT…`) trains from the stock XEMS
 row: same screen, same ＋/− and sliders, same programs, ramp, double impulse, timer, battery, reconnect.
@@ -72,26 +73,14 @@ Changes are saved at once and used by the next command the row sends.
 - The training row's header icons are shared by all rows and stay the XEMS muscle icons: a channel appears under the
   slider (icon) it is mapped to. The channel names are the owner's labels in this sheet.
 
-## Test of the impulse: protocols, Hz 1–10000, width, waveform, bursts, gain (1.1.347, 1.1.360)
-The same sheet has "Тест на импулс": Hz (1–1000, presets 1 … 1000 and − / +), width (50–511 µs), waveform (the suit's own /
-square / sine / trapezoid / trapezoid 2) and the level. Hold **▶** on a channel to feel it on that muscle.
-- The level goes up to **99 %** (the suit reads 100 as 0). Since 1.1.360 there is **no charge cap** (owner); level chips
-  1 … 99 and − / + (1, 2, 5 steps).
-- **Protocols (1.1.360, waveform 1.1.361):** chips "Обикновен" (85 Hz, 360 µs, continuous, square), "Австралийски 1 kHz"
-  (1000 Hz, 500 µs, bursts 4 ms / 16 ms = 50/s, **sine**), "Руски 2,5 kHz" (2500 Hz, 200 µs, bursts 10 / 10 ms,
-  **sine**) — both are burst-modulated sinusoidal AC in the literature; changing any value by hand leaves the protocol. Bursts are the suit's own T2 / T4 (set
-  per channel for the test, back to continuous T2 = 100 s, T4 = 0 for training); own values with − / + (0 = continuous,
-  up to 1000 ms). Hz up to **10 000**; width up to **half the period** (`BtTranslator.maxUsAt`: 500 µs at 1 kHz, 200 µs
-  at 2.5 kHz) and past the vendor's 511 µs up to the register's 1638 µs (`BtProto.widthRaw`) at low Hz.
-- **Gain (опит):** STEP_NOR byte ×1 … ×31 (`BtProto.stepNorByte`; the vendor always sends ×1, the effect is not measured).
-  Raising it brings the level down to 10 % at most; training always gets ×1 back.
-- The waveform goes back to the owner's setting (square when "the suit's own") when the test ends or another channel
-  is tested. The effect of Hz > 120, width > the program's and the waveform on the body is **not known yet** (frames are ACKed,
-  nothing reads back) — this test is how to find out.
-- Since 1.1.350 the values proven in the test can be used in training through "Пълни параметри" (see above).
+## Feel a channel (1.1.372)
+The same sheet has one line on top: hold **▶** on a channel and the plain impulse (85 Hz, 360 µs, the owner's waveform)
+runs on that muscle at the chosen level (chips 1–30 %, − / + up to 99 %) — to find which electrode is which
+(`BtTest`). The free impulse test (Hz 1–10 000, width, bursts, STEP_NOR gain, the plain / Australian / Russian
+protocols, 1.1.347–1.1.361) was for choosing what to work with and is removed (owner, 1.1.372).
 
 ## Full parameters from the row's gear (1.1.350) — no limits
-The gear on a bodytech row now offers three things: **Настройки на програмата** (stock), **Пълни параметри**, **Тестов режим**.
+The gear on a bodytech row offers two things: **Настройки на програмата** (stock) and **Пълни параметри**.
 "Пълни параметри" (`BtFull`) sets, for the selected channel, separately for the **main** and the **2nd impulse**: Hz
 (1–1000), width (50–511 µs), waveform (square / sine / trapezoid / trapezoid 2 / "Авто" = the global one), plus the channel's
 strength (0–300 % of the slider, ≤ 99 % on the suit). "Авто" = as the program says. Chips for quick values, − / + with fine
@@ -101,15 +90,7 @@ steps low and coarse high, "Копирай на всички канали", "В�
   only lower the program's value (the old rule).
 - The waveform is sent per channel when the impulse changes (main ↔ 2nd) and put back to square when a channel returns to "Авто".
 - Not limited by the app anymore: only by the suit's own ranges. The effect on the body of > 120 Hz, wide pulses and the
-  waveforms is the owner's to judge (use the test mode first).
-
-## Test mode from the row's gear (1.1.348)
-On a row whose suit is a bodytech one the gear (⚙) first asks **"Настройки на програмата"** (the stock dialog) or **"Тестов режим"**.
-Rows with an XEMS suit open the stock dialog at once. Test mode (`BtTestMode`) is a screen apart from the training: the
-impulse test above (Hz 1–1000, width 50–511 µs, waveform, level with the charge cap) and the eight channels left → right
-with name and slider, each with a hold ▶, on **that row's suit**. Nothing is saved into the program; closing the screen
-or releasing ▶ switches the output off; refused while a training runs on the suit. Hook: `TrainViewHolder$1.onNoDoubleClick`
-→ `BtGear.open` (the stock dialog is replayed through the gear's own click once, past the hook).
+  waveforms is the owner's to judge (start low).
 
 ## What bodytech has that the XEMS suit has not (and what is used)
 | bodytech | used |

@@ -6,8 +6,8 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
-        Lcom/isaigu/gymapp/bodytech/BtAus$Pos;,
-        Lcom/isaigu/gymapp/bodytech/BtAus$T;
+        Lcom/isaigu/gymapp/bodytech/BtAus$T;,
+        Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
     }
 .end annotation
 
@@ -19,15 +19,9 @@
 
 .field private static final BACK:[I
 
-.field private static final BODY:[I
-
 .field private static final CALF_LEGS:[I
 
 .field public static final HOLD:I = 0x1
-
-.field private static final LEGS:[I
-
-.field private static final LEGS_ABS:[I
 
 .field public static final PASSIVE:I = 0x1
 
@@ -47,276 +41,41 @@
     .registers 26
 
     .prologue
-    .line 73
-    const/4 v1, 0x3
-
-    new-array v1, v1, [I
-
-    fill-array-data v1, :array_1b6
-
-    sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->LEGS:[I
-
-    .line 74
-    const/4 v1, 0x4
-
-    new-array v1, v1, [I
-
-    fill-array-data v1, :array_1c0
-
-    sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->LEGS_ABS:[I
-
     .line 75
     const/4 v1, 0x5
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_1cc
-
-    sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->BODY:[I
-
-    .line 76
-    const/4 v1, 0x5
-
-    new-array v1, v1, [I
-
-    fill-array-data v1, :array_1da
+    fill-array-data v1, :array_dc
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->SHAPE:[I
 
-    .line 77
+    .line 76
     const/4 v1, 0x3
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_1e8
+    fill-array-data v1, :array_ea
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->CALF_LEGS:[I
 
-    .line 78
+    .line 77
     const/4 v1, 0x2
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_1f2
+    fill-array-data v1, :array_f4
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->BACK:[I
 
-    .line 80
-    const/16 v1, 0x8
+    .line 79
+    const/4 v1, 0x4
 
     new-array v0, v1, [Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
     move-object/from16 v24, v0
 
     const/16 v25, 0x0
-
-    new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    const-string v2, "strength"
-
-    const-string v3, "\u0421\u0438\u043b\u0430 \u0438 \u0445\u0438\u043f\u0435\u0440\u0442\u0440\u043e\u0444\u0438\u044f"
-
-    const/4 v4, 0x0
-
-    const-string v5, "\u041c\u0443\u0441\u043a\u0443\u043b\u043d\u0430 \u0441\u0438\u043b\u0430 \u0438 \u043e\u0431\u0435\u043c; \u043f\u0430\u0437\u0438 \u043e\u0442 \u0437\u0430\u0433\u0443\u0431\u0430 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b."
-
-    const-string v6, "\u0421\u0438\u043b\u043d\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f, \u043a\u043e\u044f\u0442\u043e \u043e\u0449\u0435 \u0441\u0435 \u0442\u044a\u0440\u043f\u0438 \u2014 \u0432\u0434\u0438\u0433\u0430\u0439, \u0434\u043e\u043a\u0430\u0442\u043e \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430 \u044f\u0441\u043d\u043e."
-
-    const/16 v7, 0x3e8
-
-    const/16 v8, 0x1f4
-
-    const/16 v9, 0x32
-
-    const/4 v10, 0x4
-
-    const/16 v11, 0xa
-
-    const/16 v12, 0x28
-
-    const/4 v13, 0x2
-
-    const/16 v14, 0x12
-
-    const/4 v15, 0x5
-
-    sget-object v16, Lcom/isaigu/gymapp/bodytech/BtAus;->LEGS:[I
-
-    const/16 v17, 0x0
-
-    const/16 v18, 0x0
-
-    const/16 v19, 0x0
-
-    const/16 v20, 0x0
-
-    const-string v21, "1) \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430 5\u201310 \u043c\u0438\u043d; 2) 10 \u043c\u0438\u043d \u0441\u0430\u043c\u043e \u0442\u043e\u043a \u0432\u044a\u0440\u0445\u0443 \u0431\u0435\u0434\u0440\u0430 \u0438 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435; 3) \u0442\u043e\u043a + \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435: \u043a\u043b\u0435\u043a 3\u00d78\u201312, \u0440\u0430\u0437\u0433\u044a\u0432\u0430\u043d\u0435 3\u00d710\u201315, \u0441\u0433\u044a\u0432\u0430\u043d\u0435 3\u00d710\u201315, \u043d\u0430\u043f\u0430\u0434\u0438 2\u00d710 \u043d\u0430 \u043a\u0440\u0430\u043a, \u043f\u043e\u0447\u0438\u0432\u043a\u0430 60\u201390 \u0441; 4) \u0440\u0430\u0437\u0442\u044f\u0433\u0430\u043d\u0435 5 \u043c\u0438\u043d. \u041f\u0440\u043e\u0433\u0440\u0435\u0441\u0438\u044f: \u043f\u043e-\u0432\u0438\u0441\u043e\u043a\u043e \u043d\u0438\u0432\u043e, \u043f\u043e\u0447\u0438\u0432\u043a\u0430 \u043a\u044a\u043c 1:2 (10 \u0441 \u0442\u043e\u043a / 20 \u0441), \u043f\u043e\u0432\u0435\u0447\u0435 \u0442\u0435\u0436\u0435\u0441\u0442."
-
-    const-string v22, "3 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, 4\u20136 \u0441\u0435\u0434\u043c\u0438\u0446\u0438. \u041a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f 10 \u0441, \u043f\u043e\u0447\u0438\u0432\u043a\u0430 30\u201350 \u0441 (1:3 \u2013 1:5), 15\u201320 \u043c\u0438\u043d \u043d\u0430 \u0433\u0440\u0443\u043f\u0430."
-
-    const-string v23, "\u041d\u0430\u0439-\u0434\u043e\u0431\u0440\u0435 \u0437\u0430\u0435\u0434\u043d\u043e \u0441 \u0432\u043e\u043b\u0435\u0432\u0438 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f."
-
-    invoke-direct/range {v1 .. v23}, Lcom/isaigu/gymapp/bodytech/BtAus$T;-><init>(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;IIIIIIIII[IZIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-
-    aput-object v1, v24, v25
-
-    const/16 v25, 0x1
-
-    new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    const-string v2, "hiit"
-
-    const-string v3, "HIIT + \u0442\u043e\u043a (\u043b\u0438\u043f\u043e\u043b\u0438\u0437\u0430)"
-
-    const/4 v4, 0x0
-
-    const-string v5, "\u041c\u0430\u0437\u043d\u0438\u043d\u0438 \u0438 \u0433\u043b\u044e\u043a\u043e\u0437\u0435\u043d \u0442\u043e\u043b\u0435\u0440\u0430\u043d\u0441: \u0442\u043e\u043a \u043f\u0440\u0435\u0434\u0438 \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u043d\u0430\u0442\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430."
-
-    const-string v6, "\u041b\u0435\u043a\u043e, \u0440\u0430\u0432\u043d\u043e \u0443\u0441\u0435\u0449\u0430\u043d\u0435 \u0434\u043e \u043b\u0435\u043a\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f \u2014 \u0431\u0435\u0437 \u0434\u0430 \u043f\u0440\u0435\u0447\u0438 \u043d\u0430 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435\u0442\u043e."
-
-    const/16 v7, 0x3e8
-
-    const/16 v8, 0x1f4
-
-    const/16 v9, 0xa
-
-    const/4 v10, 0x2
-
-    const/4 v11, 0x0
-
-    const/4 v12, 0x0
-
-    const/4 v13, 0x2
-
-    const/16 v14, 0x12
-
-    const/4 v15, 0x4
-
-    sget-object v16, Lcom/isaigu/gymapp/bodytech/BtAus;->BODY:[I
-
-    const/16 v17, 0x0
-
-    const/16 v18, 0x0
-
-    const/16 v19, 0x0
-
-    const/16 v20, 0x0
-
-    const-string v21, "1) 15\u201320 \u043c\u0438\u043d \u0442\u043e\u043a \u0432\u044a\u0440\u0445\u0443 \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u0433\u0440\u0443\u043f\u0438 (\u043d\u0435\u043f\u0440\u0435\u043a\u044a\u0441\u043d\u0430\u0442\u043e); 2) HIIT: \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430 5 \u043c\u0438\u043d, 4\u20138 \u0446\u0438\u043a\u044a\u043b\u0430 \u043f\u043e 30 \u0441 \u0441\u0438\u043b\u043d\u043e / 90 \u0441 \u043b\u0435\u043a\u043e, \u043e\u0445\u043b\u0430\u0436\u0434\u0430\u043d\u0435 5 \u043c\u0438\u043d; 3) \u0440\u0430\u0437\u0442\u044f\u0433\u0430\u043d\u0435. \u0417\u0430 \u043c\u0435\u0442\u0430\u0431\u043e\u043b\u0438\u0442\u043d\u043e \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435: \u043f\u0430\u043a\u0435\u0442\u0438 50 Hz, 10 \u0441 \u0442\u043e\u043a / 30 \u0441 \u043f\u043e\u0447\u0438\u0432\u043a\u0430."
-
-    const-string v22, "3 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, 8\u201312 \u0441\u0435\u0434\u043c\u0438\u0446\u0438."
-
-    const-string v23, "\u0421 HIIT: \u0441\u044a\u0447\u0435\u0442\u0430\u043d\u0438, \u0434\u0430\u0432\u0430\u0442 \u043f\u043e-\u0441\u0438\u043b\u043d\u043e \u0438\u0437\u0433\u0430\u0440\u044f\u043d\u0435 \u0438 \u043c\u0435\u0442\u0430\u0431\u043e\u043b\u0438\u0442\u043d\u043e \u0438\u0437\u0447\u0438\u0441\u0442\u0432\u0430\u043d\u0435."
-
-    invoke-direct/range {v1 .. v23}, Lcom/isaigu/gymapp/bodytech/BtAus$T;-><init>(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;IIIIIIIII[IZIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-
-    aput-object v1, v24, v25
-
-    const/16 v25, 0x2
-
-    new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    const-string v2, "prediabetes"
-
-    const-string v3, "\u041f\u0440\u0435\u0434\u0434\u0438\u0430\u0431\u0435\u0442 / \u043c\u0435\u0442\u0430\u0431\u043e\u043b\u0438\u0442\u0435\u043d \u0441\u0438\u043d\u0434\u0440\u043e\u043c"
-
-    const/4 v4, 0x0
-
-    const-string v5, "\u0418\u043d\u0441\u0443\u043b\u0438\u043d\u043e\u0432\u0430 \u0447\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u043d\u043e\u0441\u0442 \u0438 \u0443\u0441\u0432\u043e\u044f\u0432\u0430\u043d\u0435 \u043d\u0430 \u0433\u043b\u044e\u043a\u043e\u0437\u0430."
-
-    const-string v6, "\u0412\u0438\u0434\u0438\u043c\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f, \u043a\u043e\u044f\u0442\u043e \u0441\u0435 \u0442\u044a\u0440\u043f\u0438 \u0431\u0435\u0437 \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435."
-
-    const/16 v7, 0x3e8
-
-    const/16 v8, 0x1f4
-
-    const/16 v9, 0x32
-
-    const/4 v10, 0x4
-
-    const/16 v11, 0xa
-
-    const/16 v12, 0x1e
-
-    const/4 v13, 0x2
-
-    const/16 v14, 0x1e
-
-    const/4 v15, 0x5
-
-    sget-object v16, Lcom/isaigu/gymapp/bodytech/BtAus;->LEGS_ABS:[I
-
-    const/16 v17, 0x0
-
-    const/16 v18, 0x0
-
-    const/16 v19, 0x0
-
-    const/16 v20, 0x0
-
-    const-string v21, "30 \u043c\u0438\u043d \u0442\u043e\u043a \u0432\u044a\u0440\u0445\u0443 \u0434\u043e\u043b\u043d\u0438 \u043a\u0440\u0430\u0439\u043d\u0438\u0446\u0438 \u0438 \u043a\u043e\u0440\u0435\u043c, \u0446\u0438\u043a\u044a\u043b 10 \u0441 / 30 \u0441. \u0417\u0430\u0435\u0434\u043d\u043e \u0441\u044a\u0441 150 \u043c\u0438\u043d \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u0443\u043c\u0435\u0440\u0435\u043d\u0430 \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442 (\u0445\u043e\u0434\u0435\u043d\u0435, \u043a\u043e\u043b\u0435\u043b\u043e)."
-
-    const-string v22, "3 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u043f\u043e\u043d\u0435 4 \u0441\u0435\u0434\u043c\u0438\u0446\u0438 (12 \u0441\u0435\u0430\u043d\u0441\u0430)."
-
-    const-string v23, "150 \u043c\u0438\u043d/\u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u0443\u043c\u0435\u0440\u0435\u043d\u043e \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435."
-
-    invoke-direct/range {v1 .. v23}, Lcom/isaigu/gymapp/bodytech/BtAus$T;-><init>(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;IIIIIIIII[IZIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-
-    aput-object v1, v24, v25
-
-    const/16 v25, 0x3
-
-    new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    const-string v2, "cellulite"
-
-    const-string v3, "\u0426\u0435\u043b\u0443\u043b\u0438\u0442 \u0438 \u043b\u0438\u043c\u0444\u0435\u043d \u0434\u0440\u0435\u043d\u0430\u0436"
-
-    const/4 v4, 0x0
-
-    const-string v5, "\u041a\u0440\u044a\u0432\u043e\u0442\u043e\u043a \u0438 \u043b\u0438\u043c\u0444\u0430 \u0432 \u0431\u0435\u0434\u0440\u0430, \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435, \u043a\u043e\u0440\u0435\u043c, \u0445\u044a\u043b\u0431\u043e\u0446\u0438."
-
-    const-string v6, "\u041f\u043e\u0434\u0440\u0443\u0441\u0432\u0430\u043d\u0435, \u043f\u043e\u0434 \u043f\u0440\u0430\u0433\u0430 \u043d\u0430 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435 (\u043e\u043a\u043e\u043b\u043e 4\u20136 \u043e\u0442 10)."
-
-    const/16 v7, 0x3e8
-
-    const/16 v8, 0x1f4
-
-    const/16 v9, 0x64
-
-    const/4 v10, 0x4
-
-    const/4 v11, 0x5
-
-    const/4 v12, 0x5
-
-    const/4 v13, 0x1
-
-    const/16 v14, 0x19
-
-    const/4 v15, 0x3
-
-    sget-object v16, Lcom/isaigu/gymapp/bodytech/BtAus;->SHAPE:[I
-
-    const/16 v17, 0x0
-
-    const/16 v18, 0x0
-
-    const/16 v19, 0x0
-
-    const/16 v20, 0x0
-
-    const-string v21, "20\u201330 \u043c\u0438\u043d \u043d\u0430 \u0431\u0435\u0434\u0440\u0430, \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435, \u043a\u043e\u0440\u0435\u043c \u0438 \u0445\u044a\u043b\u0431\u043e\u0446\u0438; \u043f\u0430\u043a\u0435\u0442\u0438 100 Hz, 5 \u0441 \u0442\u043e\u043a / 5 \u0441 \u043f\u0430\u0443\u0437\u0430 (\u0438\u043b\u0438 \u043d\u0435\u043f\u0440\u0435\u043a\u044a\u0441\u043d\u0430\u0442\u043e)."
-
-    const-string v22, "3 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, 8\u201310 \u0441\u0435\u0430\u043d\u0441\u0430."
-
-    const-string v23, "\u041f\u0430\u0441\u0432\u0430 \u0441 \u043a\u0430\u0440\u0431\u043e\u043a\u0441\u0438\u0442\u0435\u0440\u0430\u043f\u0438\u044f, \u0443\u043b\u0442\u0440\u0430\u0437\u0432\u0443\u043a\u043e\u0432\u0430 \u043b\u0438\u043f\u043e\u043b\u0438\u0437\u0430, \u0440\u044a\u0447\u0435\u043d \u043b\u0438\u043c\u0444\u0435\u043d \u0434\u0440\u0435\u043d\u0430\u0436."
-
-    invoke-direct/range {v1 .. v23}, Lcom/isaigu/gymapp/bodytech/BtAus$T;-><init>(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;IIIIIIIII[IZIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-
-    aput-object v1, v24, v25
-
-    const/16 v25, 0x4
 
     new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
@@ -368,7 +127,7 @@
 
     aput-object v1, v24, v25
 
-    const/16 v25, 0x5
+    const/16 v25, 0x1
 
     new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
@@ -420,7 +179,7 @@
 
     aput-object v1, v24, v25
 
-    const/16 v25, 0x6
+    const/16 v25, 0x2
 
     new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
@@ -472,7 +231,7 @@
 
     aput-object v1, v24, v25
 
-    const/16 v25, 0x7
+    const/16 v25, 0x3
 
     new-instance v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
@@ -528,55 +287,26 @@
 
     return-void
 
-    .line 73
-    nop
-
-    :array_1b6
-    .array-data 4
-        0x2
-        0x9
-        0x8
-    .end array-data
-
-    .line 74
-    :array_1c0
-    .array-data 4
-        0x2
-        0x9
-        0x8
-        0x1
-    .end array-data
-
     .line 75
-    :array_1cc
+    :array_dc
     .array-data 4
+        0x8
         0x2
         0x9
-        0x8
         0x1
         0x7
     .end array-data
 
     .line 76
-    :array_1da
-    .array-data 4
-        0x8
-        0x2
-        0x9
-        0x1
-        0x7
-    .end array-data
-
-    .line 77
-    :array_1e8
+    :array_ea
     .array-data 4
         0x2
         0x9
         0x3
     .end array-data
 
-    .line 78
-    :array_1f2
+    .line 77
+    :array_f4
     .array-data 4
         0x7
         0x6
@@ -587,7 +317,7 @@
     .registers 1
 
     .prologue
-    .line 16
+    .line 18
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -597,7 +327,7 @@
     .registers 16
 
     .prologue
-    .line 180
+    .line 154
     const-wide/16 v0, 0x0
 
     cmpg-double v0, p3, v0
@@ -606,13 +336,13 @@
 
     const-wide/16 p3, 0x0
 
-    .line 181
+    .line 155
     :cond_8
     if-lez p1, :cond_c
 
     if-gtz p0, :cond_2f
 
-    .line 182
+    .line 156
     :cond_c
     if-lez p2, :cond_25
 
@@ -644,11 +374,11 @@
 
     invoke-direct {v0, v1, v2, v3}, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;-><init>(IIF)V
 
-    .line 192
+    .line 166
     :goto_24
     return-object v0
 
-    .line 183
+    .line 157
     :cond_25
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
@@ -662,19 +392,19 @@
 
     goto :goto_24
 
-    .line 185
+    .line 159
     :cond_2f
     add-int v4, p0, p1
 
-    .line 186
+    .line 160
     int-to-double v0, v4
 
     rem-double v6, p3, v0
 
-    .line 187
+    .line 161
     int-to-double v0, p2
 
-    .line 188
+    .line 162
     const-wide/high16 v2, 0x4000000000000000L    # 2.0
 
     mul-double/2addr v2, v0
@@ -693,7 +423,7 @@
 
     move-wide v2, v0
 
-    .line 189
+    .line 163
     :goto_42
     cmpg-double v0, v6, v2
 
@@ -733,7 +463,7 @@
 
     goto :goto_59
 
-    .line 190
+    .line 164
     :cond_61
     int-to-double v0, p0
 
@@ -765,7 +495,7 @@
 
     goto :goto_24
 
-    .line 191
+    .line 165
     :cond_79
     int-to-double v0, p0
 
@@ -813,7 +543,7 @@
 
     goto :goto_94
 
-    .line 192
+    .line 166
     :cond_9b
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
@@ -847,7 +577,7 @@
     .prologue
     const-wide/high16 v4, 0x4000000000000000L    # 2.0
 
-    .line 244
+    .line 218
     if-le p1, p0, :cond_6
 
     if-gtz p2, :cond_8
@@ -855,11 +585,11 @@
     :cond_6
     int-to-double v0, p0
 
-    .line 247
+    .line 221
     :goto_7
     return-wide v0
 
-    .line 245
+    .line 219
     :cond_8
     int-to-double v0, p2
 
@@ -869,7 +599,7 @@
 
     div-double/2addr v0, v2
 
-    .line 246
+    .line 220
     const-wide/high16 v2, 0x3fe0000000000000L    # 0.5
 
     cmpg-double v2, v0, v2
@@ -878,7 +608,7 @@
 
     mul-double/2addr v0, v4
 
-    .line 247
+    .line 221
     :goto_14
     int-to-double v2, p0
 
@@ -892,7 +622,7 @@
 
     goto :goto_7
 
-    .line 246
+    .line 220
     :cond_1b
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
@@ -909,7 +639,7 @@
     .prologue
     const/4 v2, 0x2
 
-    .line 149
+    .line 123
     if-lez p0, :cond_5
 
     if-gtz p1, :cond_b
@@ -919,17 +649,17 @@
 
     fill-array-data v0, :array_22
 
-    .line 152
+    .line 126
     :goto_a
     return-object v0
 
-    .line 150
+    .line 124
     :cond_b
     const/16 v0, 0x3e8
 
     div-int v1, v0, p0
 
-    .line 151
+    .line 125
     if-lt p1, v1, :cond_17
 
     new-array v0, v2, [I
@@ -938,7 +668,7 @@
 
     goto :goto_a
 
-    .line 152
+    .line 126
     :cond_17
     new-array v0, v2, [I
 
@@ -954,7 +684,7 @@
 
     goto :goto_a
 
-    .line 149
+    .line 123
     nop
 
     :array_22
@@ -963,12 +693,58 @@
         0x0
     .end array-data
 
-    .line 151
+    .line 125
     :array_2a
     .array-data 4
         0x0
         0x0
     .end array-data
+.end method
+
+.method public static byId(Ljava/lang/String;)Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    .registers 6
+
+    .prologue
+    .line 113
+    sget-object v2, Lcom/isaigu/gymapp/bodytech/BtAus;->ALL:[Lcom/isaigu/gymapp/bodytech/BtAus$T;
+
+    array-length v3, v2
+
+    const/4 v0, 0x0
+
+    move v1, v0
+
+    :goto_5
+    if-ge v1, v3, :cond_16
+
+    aget-object v0, v2, v1
+
+    .line 114
+    iget-object v4, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->id:Ljava/lang/String;
+
+    invoke-virtual {v4, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_12
+
+    .line 116
+    :goto_11
+    return-object v0
+
+    .line 113
+    :cond_12
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_5
+
+    .line 116
+    :cond_16
+    const/4 v0, 0x0
+
+    goto :goto_11
 .end method
 
 .method public static ifcB(II)I
@@ -977,12 +753,12 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 236
+    .line 210
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtAus;->realHz(I)D
 
     move-result-wide v2
 
-    .line 237
+    .line 211
     const-wide v4, 0x412e848000000000L    # 1000000.0
 
     int-to-double v6, p1
@@ -997,10 +773,10 @@
 
     long-to-int v1, v2
 
-    .line 238
+    .line 212
     if-ge v1, v0, :cond_1b
 
-    .line 239
+    .line 213
     :goto_15
     const v1, 0xf4240
 
@@ -1018,16 +794,16 @@
     .registers 16
 
     .prologue
-    .line 216
-    .line 217
+    .line 190
+    .line 191
     const-wide v0, 0x41cdcd6500000000L    # 1.0E9
 
-    .line 218
+    .line 192
     const v2, 0xf4240
 
     div-int v9, v2, p0
 
-    .line 219
+    .line 193
     int-to-double v2, v9
 
     const-wide v4, 0x3fe6666666666666L    # 0.7
@@ -1053,12 +829,12 @@
 
     if-gt v8, v2, :cond_5c
 
-    .line 220
+    .line 194
     const/16 v2, 0x64
 
     if-ge v8, v2, :cond_27
 
-    .line 219
+    .line 193
     :cond_23
     :goto_23
     add-int/lit8 v2, v8, 0x1
@@ -1067,25 +843,25 @@
 
     goto :goto_15
 
-    .line 221
+    .line 195
     :cond_27
     const v2, 0xf4240
 
     div-int v7, v2, v8
 
-    .line 222
+    .line 196
     const-wide v2, 0x412e848000000000L    # 1000000.0
 
     int-to-double v10, v8
 
     div-double/2addr v2, v10
 
-    .line 223
+    .line 197
     invoke-static {v7, p1}, Lcom/isaigu/gymapp/bodytech/BtAus;->ifcB(II)I
 
     move-result v5
 
-    .line 224
+    .line 198
     invoke-static {v5}, Lcom/isaigu/gymapp/bodytech/BtAus;->realHz(I)D
 
     move-result-wide v10
@@ -1118,7 +894,7 @@
 
     add-double/2addr v2, v10
 
-    .line 225
+    .line 199
     cmpg-double v10, v2, v0
 
     if-gez v10, :cond_23
@@ -1129,10 +905,10 @@
 
     move v6, v7
 
-    .line 228
+    .line 202
     goto :goto_23
 
-    .line 231
+    .line 205
     :cond_5c
     const/4 v0, 0x2
 
@@ -1157,7 +933,7 @@
 
     const/4 v1, 0x1
 
-    .line 197
+    .line 171
     int-to-float v2, p0
 
     mul-float/2addr v2, p1
@@ -1174,7 +950,7 @@
 
     move-result v2
 
-    .line 198
+    .line 172
     const/4 v3, 0x0
 
     cmpl-float v3, p1, v3
@@ -1187,7 +963,7 @@
 
     if-lez p2, :cond_21
 
-    .line 199
+    .line 173
     :goto_19
     if-gez v1, :cond_1d
 
@@ -1216,7 +992,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 206
+    .line 180
     const v1, 0xf4240
 
     if-ge p0, v0, :cond_7
@@ -1226,7 +1002,7 @@
     :cond_7
     div-int v0, v1, p0
 
-    .line 207
+    .line 181
     const-wide v2, 0x412e848000000000L    # 1000000.0
 
     int-to-double v0, v0
@@ -1242,12 +1018,12 @@
     .prologue
     const/16 v0, 0x32
 
-    .line 157
+    .line 131
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->maxUsAt(I)I
 
     move-result v1
 
-    .line 158
+    .line 132
     if-ge p1, v0, :cond_a
 
     move p1, v0

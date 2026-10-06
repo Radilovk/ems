@@ -1,9 +1,14 @@
-# Australian current on a bodytech suit (1.1.362)
+# «Модулация» on a bodytech suit (1.1.372; was "Австралийски ток", 1.1.362)
 
-Gear (⚙) of a **bodytech** row → **Австралийски ток**: ready protocols of the 1 kHz burst current, run by the tablet
-on that row's suit. Not shown for an XEMS suit (the gear opens the stock dialog there). Classes in
+**Where:** only in the automatic mode (**Авто → Пасивна**), as separate cards after the passive templates
+(«Модулация · <name>», green, "само bodytech"), and only while a row with a client runs on a **bodytech** suit
+(`AutoUi.modRow`: the first such row). "Напред" closes the automatic setup and opens the procedure's own screen
+(`BtAusScreen.open`) for that row's suit — the Auto engine does not run it (its 1–2 kHz carriers are not XEMS
+parameters). Not shown for an XEMS suit, nowhere else in the app (the row's gear has no test / Australian / Russian
+any more — owner, 1.1.372: those were only to choose what to work with). Only the **passive** procedures are kept;
+the active ones (strength, HIIT, prediabetes, cellulite) are removed. Classes in
 `branding/java/src/com/isaigu/gymapp/bodytech/`: `BtAus` (templates, timeline, interferential maths — pure, tested in
-`bodytech/xems/test/BtAusTest.java`), `BtAusRun` (the session: 250 ms tick, pause / resume, finish), `BtAusScreen` (UI).
+`bodytech/xems/test/BtAusTest.java`), `BtAusRun` (the session: 250 ms tick, pause / resume, finish), `BtAusScreen` (UI: what it is | zones, level, time).
 Suit side: `BtTranslator.programOn` (several channels at once, own strength and Hz per channel, one width / waveform /
 burst) ← `BtBridge.program`; it is held like a test (renewed every tick, off 1.5 s after the last renewal, refused
 while a real training runs, the training state is restored when it ends).
@@ -19,13 +24,9 @@ while a real training runs, the training state is restored when it ends).
 | strength per muscle | level × the channel's own gain (Settings → Костюм bodytech, 0–150 %), ≤ 99 % |
 Not measured: whether the suit's burst + sine at 1 kHz feels like a classic Australian current — the suit gives no feedback.
 
-## Templates (starting values; level, minutes, ON / OFF, bursts, waveform are changed on the screen)
+## Procedures (all passive; starting values; level, minutes, ON / OFF, bursts, waveform are changed on the screen)
 | id | burst | cycle | min | start % | zones (sliders) | source part |
 |---|---|---|---|---|---|---|
-| strength | 50 Hz × 4 ms | 10 s / 40 s, ramp 2 | 18 | 5 | front / back thigh, glutes | А1 |
-| hiit | 10 Hz × 2 ms | continuous | 18 | 4 | thighs, glutes, abs, lower back | А2 (50 Hz 10 / 30 s is one tap away) |
-| prediabetes | 50 Hz × 4 ms | 10 s / 30 s | 30 | 5 | thighs, glutes, abs | А3 / Б4 |
-| cellulite | 100 Hz × 4 ms | 5 s / 5 s, ramp 1 | 25 | 3 | glutes, thighs, abs, lower back | А4 / Б2 |
 | atrophy (passive) | 50 Hz × 4 ms | 10 s / 40 s, ramp 2 | 25 | 3 | thighs, calf | Б1 |
 | lipolysis (passive) | 10 Hz × 2 ms | continuous | 40 | 3 | glutes, thighs, abs, lower back | Б3 |
 | ifc-chronic | 1.4 kHz pair, beat 2 Hz | continuous | 25 | 2 | lower back, back | Б5 |

@@ -81,6 +81,11 @@ public final class BtTranslator {
         return used;
     }
 
+    /** The suit holds the program (false = the next command writes it first, ~3 s). */
+    public synchronized boolean programmed() {
+        return programmed;
+    }
+
     public synchronized boolean isOn() {
         return on;
     }

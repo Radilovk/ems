@@ -154,3 +154,12 @@ pause (F2, the row's stop button) = one long LOW tone (880 Hz, 400 ms); stop (Tr
 is reprogrammed) = the low tone twice as long (800 ms); link problem (a write refused, or the link gone while started;
 at most every 5 s) = three short low tones. Bell-like: sine + soft 2nd / 3rd harmonic, 8 ms attack, exponential decay
 (a square wave was tried and was unpleasant). One PCM buffer on an AudioTrack.
+
+## Start waits for the program (1.1.371)
+Programming the suit (connect, stop = `TrainItem.reset`, a new link) is ~108 frames ≈ 3 s. ▶ pressed meanwhile used to start
+the row's clock at once while the frames still queued, so the first impulse was lost (or its rise ran out unseen).
+Now `BtLoad.hold` (hook: `TrainItem.start` start) holds the start: the row shows "Зареждане на програмата… N %"
+with a bar (`BtLoad.mark`, hook: `TrainViewHolder.updateUI` end) and the training starts by itself when the program is
+in. ▶ again keeps waiting; stop (`BtBridge.reset`) calls the wait off; so do a lost link and 20 s.
+`BtBridge.loadPercent(device)`: the program batch is marked when queued (`BtTranslator.programmed()` turned true) and
+ends with a marker item; frames ACKed / in all = the percent. XEMS suits never wait.

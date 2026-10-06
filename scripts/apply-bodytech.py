@@ -8,6 +8,9 @@
   CommandReceiver.onReceiveData start: BtBridge.reply(device, bytes, listener) → true = a bodytech reply (battery)
   CommandSender.sendDuration / sendActivePause / sendPause  start: BtBridge.phase(device, 1 / 2 / 0)
   TrainItem.reset (stop)      start: BtBridge.reset(device) → all off, strengths 0, the suit programmed afresh
+  TrainItem.start             start: BtLoad.hold(item, device) → true = the suit is still being programmed (~3 s):
+                               the start waits (no clock, no lost impulse) and goes by itself when the program is in
+  TrainViewHolder.updateUI    end: BtLoad.mark(item, row) — "Зареждане на програмата… N %" over a waiting row
   TrainViewHolder$1.onNoDoubleClick (the row's gear) start: BtGear.open(item, view) → true = on a bodytech row the
                                gear first asks "Настройки на програмата" / "Тестов режим" (BtTestMode)
   SettingFragment.onCreateView after the Band section: BtSettingsSection.attach(activity, root) — Settings →
@@ -102,8 +105,46 @@ def patch_settings() -> None:
     print("SettingFragment: Settings → Костюм bodytech hooked")
 
 
+LOAD = "Lcom/isaigu/gymapp/bodytech/BtLoad;"
+TI = "Lcom/isaigu/gymapp/train/model/TrainItem;"
+TVH = "Lcom/isaigu/gymapp/train/TrainViewHolder;"
+BIND = "Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;"
+SR_MARK = f"->mark({TI}Landroid/view/View;)V\n"
+
+
+def patch_load_banner() -> None:
+    """TrainViewHolder.updateUI: BtLoad.mark(item, row) right after SuitReconnect.mark (or before the return)."""
+    f = APP / "train/TrainViewHolder.smali"
+    text = f.read_text(encoding="utf-8")
+    if f"{LOAD}->mark(" in text:
+        print("TrainViewHolder: load banner already hooked")
+        return
+    a = text.find(".method private updateUI()V")
+    if a < 0:
+        sys.exit("apply-bodytech: TrainViewHolder.updateUI not found")
+    b = text.find(".end method", a)
+    body = text[a:b]
+    call = f"    invoke-static {{v1, v0}}, {LOAD}->mark({TI}Landroid/view/View;)V\n\n"
+    sr = f"    invoke-static {{v1, v0}}, Lcom/isaigu/gymapp/wearable/SuitReconnect;{SR_MARK}"
+    if sr in body:
+        body = body.replace(sr, sr + "\n" + call, 1)
+    else:
+        if body.count("    return-void\n") != 1:
+            sys.exit("apply-bodytech: TrainViewHolder.updateUI has not exactly one return-void")
+        add = (
+            f"    iget-object v0, p0, {TVH}->binding:{BIND}\n\n"
+            f"    invoke-virtual {{v0}}, {BIND}->getRoot()Landroid/widget/LinearLayout;\n\n"
+            "    move-result-object v0\n\n"
+            f"    iget-object v1, p0, {TVH}->item:{TI}\n\n" + call
+        )
+        body = body.replace("    return-void\n", add + "    return-void\n", 1)
+    f.write_text(text[:a] + body + text[b:], encoding="utf-8")
+    print("TrainViewHolder.updateUI: the program-load banner")
+
+
 def main() -> None:
     install_classes()
+    patch_load_banner()
     patch_settings()
     insert_at_start(
         APP / "train/ble/BleDeviceManager.smali",
@@ -143,6 +184,14 @@ def main() -> None:
         f"    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->device:{DEV}\n\n"
         f"    invoke-static {{v0}}, {BB}->reset({DEV})V\n",
         "reset",
+    )
+    insert_at_start(
+        APP / "train/model/TrainItem.smali",
+        ".method public start()V",
+        f"    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->device:{DEV}\n\n"
+        f"    invoke-static {{p0, v0}}, {LOAD}->hold({TI}{DEV})Z\n\n    move-result v0\n\n"
+        f"    if-eqz v0, :cond_{MARK}_hold\n\n    return-void\n\n    :cond_{MARK}_hold\n",
+        "hold",
     )
     for sig, ph in (
         (".method public sendDuration(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)V", 1),

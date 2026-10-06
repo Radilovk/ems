@@ -69,7 +69,10 @@ public final class BtBridge {
             Dev v = dev(d);
             v.begin();
             boolean ran = v.tr.ran();
-            v.add(v.tr.reset(), null, null, false);
+            BtLoad.cancel(d);                               // a start that waited for the program is called off
+            boolean was = v.tr.programmed();
+            List<byte[]> frames = v.tr.reset();
+            v.add(frames, null, null, false, !was && v.tr.programmed());
             if (ran) BtBeep.stop();                         // a real stop (the suit ran since its program), not a connect
         } catch (Throwable t) {
             Log.e(TAG, "reset: " + t);
@@ -91,7 +94,9 @@ public final class BtBridge {
             Dev v = dev(d);
             v.begin();
             boolean was = v.tr.armed();
-            v.add(v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime()), cb, data, false);
+            boolean prog = v.tr.programmed();
+            List<byte[]> frames = v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime());
+            v.add(frames, cb, data, false, !prog && v.tr.programmed());
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
             else if (was && !now) BtBeep.pause();
@@ -165,6 +170,27 @@ public final class BtBridge {
         } catch (Throwable t) {
             Log.e(TAG, "program: " + t);
             return "no_suit";
+        }
+    }
+
+    /**
+     * The suit's program is being written (connect / stop, ~3 s): percent done 0..99; −1 = not loading (or not a
+     * bodytech suit). BtLoad holds a start until it is −1.
+     */
+    public static int loadPercent(BleDevice d) {
+        try {
+            if (d == null || d.getMac() == null) return -1;
+            Dev v;
+            synchronized (BtBridge.class) {
+                v = DEVS.get(d.getMac());
+            }
+            if (v == null) return -1;
+            synchronized (v) {
+                if (!v.loading) return -1;
+                return v.loadTotal <= 0 ? 0 : Math.min(99, v.loadDone * 100 / v.loadTotal);
+            }
+        } catch (Throwable t) {
+            return -1;
         }
     }
 
@@ -271,11 +297,18 @@ public final class BtBridge {
         final byte[] frame;
         final BleWriteCallback cb;
         final byte[] orig;
+        /** The end of a program load (no frame): BtLoad's waiting start may go. */
+        final boolean endLoad;
 
         Item(byte[] frame, BleWriteCallback cb, byte[] orig) {
+            this(frame, cb, orig, false);
+        }
+
+        Item(byte[] frame, BleWriteCallback cb, byte[] orig, boolean endLoad) {
             this.frame = frame;
             this.cb = cb;
             this.orig = orig;
+            this.endLoad = endLoad;
         }
     }
 
@@ -289,6 +322,9 @@ public final class BtBridge {
         Object gatt;
         long lastSync;
         final Ack ack = new Ack(this);
+        /** A program is being written: frames of it written / in all (BtLoad's percent). */
+        boolean loading;
+        int loadDone, loadTotal;
 
         Dev(BleDevice d) {
             this.d = d;
@@ -300,6 +336,7 @@ public final class BtBridge {
             busy = false;
             inflight = null;
             q.clear();
+            loading = false;
             tr.forget();
         }
 
@@ -314,6 +351,21 @@ public final class BtBridge {
                 Log.w(TAG, "priority: " + t);
             }
             startBeat();
+        }
+
+        /** As {@link #add(List, BleWriteCallback, byte[], boolean)}; load = these frames write the suit's program. */
+        synchronized void add(List<byte[]> frames, BleWriteCallback cb, byte[] orig, boolean urgent, boolean load) {
+            if (!load || frames.isEmpty()) {
+                add(frames, cb, orig, urgent);
+                return;
+            }
+            loading = true;
+            loadDone = 0;
+            loadTotal = frames.size();
+            int n = frames.size();
+            for (int i = 0; i < n; i++) q.addLast(new Item(frames.get(i), i == n - 1 ? cb : null, orig));
+            q.addLast(new Item(null, null, null, true));
+            pump();
         }
 
         synchronized void add(List<byte[]> frames, BleWriteCallback cb, byte[] orig, boolean urgent) {
@@ -334,6 +386,7 @@ public final class BtBridge {
                 Item it = q.pollFirst();
                 if (it == null) return;
                 if (it.frame == null) {
+                    if (it.endLoad) loading = false;
                     done(it);
                     continue;
                 }
@@ -359,6 +412,7 @@ public final class BtBridge {
             busy = false;
             Item it = inflight;
             inflight = null;
+            loading = false;
             tr.forget();
             if (it != null && it.cb != null) it.cb.onWriteFailure(e);
             while ((it = q.pollFirst()) != null) {
@@ -371,6 +425,7 @@ public final class BtBridge {
             Item it = inflight;
             inflight = null;
             busy = false;
+            if (loading) loadDone++;
             if (it != null) done(it);
             pump();
         }

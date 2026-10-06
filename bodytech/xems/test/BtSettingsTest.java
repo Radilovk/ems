@@ -21,7 +21,33 @@ public class BtSettingsTest {
         BtSettings.reset();
         eq("default name C1", "Кръст", BtSettings.name(1));
         eq("default name C8", "Корем", BtSettings.name(8));
-        eq("default slider C5", 0, BtSettings.slider(5));
+        eq("default slider C5 = front thigh (left leg)", 2, BtSettings.slider(5));
+        eq("default slider C7 = back thigh (right leg)", 9, BtSettings.slider(7));
+        eq("default name C5", "Ляво бедро", BtSettings.name(5));
+        eq("default name C7", "Дясно бедро", BtSettings.name(7));
+        BtSettings.loaded = true;
+        eq("row tag front thigh", "Л", BtSettings.rowTag(2));
+        eq("row tag back thigh", "Д", BtSettings.rowTag(9));
+        eq("row tag glutes none", null, BtSettings.rowTag(8));
+        // a tablet still on the old EMSFIT defaults moves to the legs once; an owner's own map stays
+        BtSettings.names[5] = "Гърди";
+        BtSettings.slider[5] = 0;
+        BtSettings.names[7] = "Бедра";
+        BtSettings.slider[7] = 2;
+        eq("old defaults migrate", true, BtSettings.legs());
+        eq("migrated C5", "Ляво бедро/2", BtSettings.name(5) + "/" + BtSettings.slider(5));
+        eq("migrated C7", "Дясно бедро/9", BtSettings.name(7) + "/" + BtSettings.slider(7));
+        eq("second pass no-op", false, BtSettings.legs());
+        BtSettings.names[5] = "Гърди";
+        BtSettings.slider[5] = 4;
+        eq("own map kept", false, BtSettings.legs());
+        BtSettings.names[5] = "Дясно бедро";
+        BtSettings.slider[5] = 9;
+        eq("swap follows the names", "Д", BtSettings.rowTag(9));
+        BtSettings.names[5] = "Ляво бедро";
+        eq("mixed names → no tag", null, BtSettings.rowTag(9));
+        BtSettings.loaded = false;
+        BtSettings.reset();
         eq("slider name 7", "Кръст", BtSettings.sliderName(BtSettings.slider(1)));
         eq("default group", BtSettings.GROUP_BOTH, BtSettings.group(3));
         eq("default wave", BtSettings.WAVE_SUIT, BtSettings.wave());
@@ -42,7 +68,7 @@ public class BtSettingsTest {
 
         BtSettings.setSlider(6, 2);
         int[] ch = BtSettings.channelsOf(2);
-        eq("two channels on one slider", "7,6", ch.length == 2 ? (ch[1] + "," + ch[0]) : ch.length);
+        eq("two channels on one slider", "6,5", ch.length == 2 ? (ch[1] + "," + ch[0]) : ch.length);
         eq("no channel on a free slider", 0, BtSettings.channelsOf(3).length);
 
         BtSettings.setGroup(5, BtSettings.GROUP_SECOND);
@@ -95,9 +121,10 @@ public class BtSettingsTest {
 
         BtSettings.reset();
         BtSettings.sortLeftToRight();
-        // defaults: C1 lower back(7), C2 glutes(8), C3 traps(5), C4 back(6), C5 chest(0), C6 arms(4), C7 front thigh(2), C8 abs(1)
+        // defaults: C1 lower back(7), C2 glutes(8), C3 traps(5), C4 back(6), C5 left thigh → front thigh(2), C6 arms(4),
+        // C7 right thigh → back thigh(9), C8 abs(1)
         // row order: calf, front thigh, back thigh, glutes, abs, lower back, back, traps, chest, arms
-        eq("left to right", "7,2,8,1,4,3,5,6", order());
+        eq("left to right", "5,7,2,8,1,4,3,6", order());
         BtSettings.setSlider(1, BtSettings.NO_SLIDER);
         BtSettings.sortLeftToRight();
         eq("no slider goes last", 1, BtSettings.channelAt(7));

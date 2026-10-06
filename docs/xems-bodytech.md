@@ -59,7 +59,16 @@ Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two co
   (main limits of `docs/xems-safety-limits.md` stay upstream).
 Global: waveform (the suit's own / square / sine / trapezoid) and a strength scale 50–150 %.
 Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C2 Седалище→Седалище, C3 Рамене→Трапец, C4 Среден
-гръб→Гръб, C5 Гърди→Гърди, C6 Ръце→Ръце, C7 Бедра→Предно бедро, C8 Корем→Корем. "По подразбиране" resets everything.
+гръб→Гръб, **C5 Ляво бедро→Предно бедро**, C6 Ръце→Ръце, **C7 Дясно бедро→Задно бедро**, C8 Корем→Корем.
+"По подразбиране" resets everything.
+- **The legs (owner, 1.1.376):** on bodytech EMSFIT's "Гърди" (C5) and "Бедра" (C7) are the left and right thigh (each
+  front + back). Each leg has its own slider: the row's front-thigh slider drives the left leg, the back-thigh slider
+  the right one, and on a bodytech row their percents read **"Л 45%" / "Д 45%"** (`PartLook.legTags` ←
+  `BtSettings.rowTag`: the tag comes from the channel names — "Ляв…" / "Дясн…" — so renaming or swapping in the
+  settings moves it; mixed or other names = no tag). The muscle icons above are shared by every row and stay.
+  A tablet that still holds the old untouched C5 Гърди→Гърди / C7 Бедра→Предно бедро is moved once on load
+  (`BtSettings.legs`); an owner's own map is not touched. Which leg is C5 is still to be confirmed on a person.
+  Note: a program that gives front and back thigh different values gives the two legs different strengths.
 Changes are saved at once and used by the next command the row sends.
 
 ## Test of a channel and the left → right order (1.1.346)

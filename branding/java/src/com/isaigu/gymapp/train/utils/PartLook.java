@@ -182,6 +182,7 @@ public final class PartLook {
             if (ring != null) {
                 lookRing(ring, ringSecond(item, b, live));
             }
+            legTags(item, texts);
             if (bars.length > 0 && bars[0] != null && bars[0].isAttachedToWindow()) {
                 View root = bars[0].getRootView();
                 if (holds == null || holds.get() != root) {
@@ -190,6 +191,29 @@ public final class PartLook {
                 }
             }
         } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * A bodytech row (owner, 1.1.376): the legs are left / right, not front / back — the two thigh sliders carry
+     * "Л" / "Д" before their percent (the muscle icons above are shared by every row, so the tag is on the row).
+     */
+    static void legTags(TrainItem item, TextView[] texts) {
+        if (texts == null || item == null || item.data == null
+                || !com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(item.data.macAddress)) {
+            return;
+        }
+        for (int i = 0; i < texts.length; i++) {
+            TextView t = texts[i];
+            String tag = t != null ? com.isaigu.gymapp.bodytech.BtSettings.rowTag(i) : null;
+            if (tag == null) {
+                continue;
+            }
+            CharSequence cur = t.getText();
+            String s = cur == null ? "" : cur.toString();
+            if (!s.startsWith(tag + " ")) {
+                t.setText(tag + " " + s);
+            }
         }
     }
 

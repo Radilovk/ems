@@ -213,7 +213,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtGear.java` (132L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtLoad.java` (272L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (162L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
-- `BtSettings.java` (364L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
+- `BtSettings.java` (406L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
 - `BtSettingsSection.java` (446L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
 - `BtTranslator.java` (451L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
@@ -245,7 +245,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (33L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartLook.java` (354L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
+- `PartLook.java` (378L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
 - `PartStrength.java` (435L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
@@ -768,23 +768,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
   - L669 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
 
-`docs/xems-bodytech.md` (147L)
+`docs/xems-bodytech.md` (156L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L11 ## How it works
   - L33 ## Translation (XEMS → bodytech)
   - L51 ## Owner's settings (Settings → Костюм bodytech)
-  - L65 ## Test of a channel and the left → right order (1.1.346)
-  - L76 ## Feel a channel (1.1.372)
-  - L82 ## Full parameters from the row's gear (1.1.350) — no limits
-  - L95 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L104 ## Safety
-  - L112 ## Not verified on a person yet
-  - L118 ## Tests
-  - L122 ## What still limits (not the app)
-  - L126 ## Second impulse without limits (1.1.353)
-  - L129 ## Own device names (1.1.353)
-  - L132 ## Sound signals (1.1.360)
-  - L139 ## Start waits for the program (1.1.371)
+  - L74 ## Test of a channel and the left → right order (1.1.346)
+  - L85 ## Feel a channel (1.1.372)
+  - L91 ## Full parameters from the row's gear (1.1.350) — no limits
+  - L104 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L113 ## Safety
+  - L121 ## Not verified on a person yet
+  - L127 ## Tests
+  - L131 ## What still limits (not the app)
+  - L135 ## Second impulse without limits (1.1.353)
+  - L138 ## Own device names (1.1.353)
+  - L141 ## Sound signals (1.1.360)
+  - L148 ## Start waits for the program (1.1.371)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

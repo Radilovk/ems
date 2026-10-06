@@ -28,6 +28,19 @@ public final class BtTranslator {
     static final int CMD_SETTING = 1, CMD_RUN = 3, CMD_BATTERY = 5, CMD_START = 0xF1, CMD_STOP = 0xF2;
 
     private final int[] parts = new int[10];
+    /** The last 10 sliders the row sent, per phase (PAUSE / MAIN / SECOND): a change of one slider alone is a hand. */
+    private final int[][] seen = new int[3][];
+    /**
+     * The legs (owner, 1.1.377): until a hand moves one leg, both legs get the same strength — the higher of the two
+     * ({@link #legValue}). A hand on one leg sets that leg to what the finger shows and keeps the other where it is;
+     * from then on (until the stop) each leg is its row value × its own factor, so a program step or ± moves both in
+     * proportion and 0 stays 0.
+     */
+    private boolean legsOwn;
+    private final float[] legK = new float[10];
+    {
+        for (int i = 0; i < 10; i++) legK[i] = 1f;
+    }
     private int phase = MAIN;
     private int hz = DEF_HZ, widthUs = DEF_US;
     private boolean on;
@@ -106,6 +119,9 @@ public final class BtTranslator {
     public synchronized List<byte[]> reset() {
         List<byte[]> out = new ArrayList<byte[]>();
         armed = false;
+        legsOwn = false;                    // a new session: the legs are equal again until a hand moves one
+        for (int i = 0; i < 10; i++) legK[i] = 1f;
+        seen[0] = seen[1] = seen[2] = null;
         testCh = 0;
         zero(out);
         if (used) programmed = false;       // a suit that never ran since its program (connect) is not done twice
@@ -124,7 +140,21 @@ public final class BtTranslator {
         if (cmd == CMD_SETTING) {
             // kept; the cmd 3 that always follows it (CommandSender: sendDuration / sendActivePause) applies it, so
             // strength, Hz and width reach the suit as one coherent step
-            for (int i = 0; i < 10; i++) parts[i] = at(pdu, 1 + i);
+            int[] raw = new int[10];
+            for (int i = 0; i < 10; i++) raw[i] = at(pdu, 1 + i);
+            int[] legs = BtSettings.legSliders();
+            int ph = phase < 0 || phase > 2 ? MAIN : phase;
+            int hand = byHand(seen[ph], raw, legs);
+            if (hand >= 0) {
+                // the other legs stay at what they get now; the moved one at the finger's value
+                for (int s : legs) {
+                    int want = s == hand ? raw[s] : legValue(seen[ph], s);
+                    legK[s] = raw[s] > 0 ? want / (float) raw[s] : 1f;
+                }
+                legsOwn = true;
+            }
+            seen[ph] = raw;
+            for (int i = 0; i < 10; i++) parts[i] = legValue(raw, i);
         } else if (cmd == CMD_RUN) {
             int workLen = (at(pdu, 1) << 8) | at(pdu, 2);
             int h = at(pdu, 3);
@@ -166,6 +196,41 @@ public final class BtTranslator {
     /** Strength of a held test: no cap (owner, 1.1.360) — the suit's own 99 % at any Hz / width. */
     public static int testCap(int hz, int us) {
         return TEST_MAX_PCT;
+    }
+
+
+    /**
+     * What slider i of the row (raw 0..100) gives the suit: not a leg → as is; a leg → the higher of the legs while
+     * they are kept equal, else its value × its own factor. PartLook shows the row with this too.
+     */
+    public synchronized int legValue(int[] raw, int i) {
+        if (raw == null || i < 0 || i >= raw.length) return 0;
+        int[] legs = BtSettings.legSliders();
+        boolean leg = false;
+        for (int s : legs) leg |= s == i;
+        if (!leg) return raw[i];
+        if (!legsOwn) {
+            int max = 0;
+            for (int s : legs) if (s < raw.length && raw[s] > max) max = raw[s];
+            return max;
+        }
+        int v = Math.round(raw[i] * legK[i]);
+        return v < 0 ? 0 : (v > 100 ? 100 : v);
+    }
+
+    /** One slider alone changed and it is a leg: that slider (the owner's hand; a program or ± moves several), else −1. */
+    static int byHand(int[] prev, int[] now, int[] legs) {
+        if (prev == null || legs.length == 0) return -1;
+        int changed = -1, n = 0;
+        for (int i = 0; i < 10; i++) {
+            if (prev[i] != now[i]) {
+                changed = i;
+                n++;
+            }
+        }
+        if (n != 1) return -1;
+        for (int s : legs) if (s == changed) return s;
+        return -1;
     }
 
     /** Widest pulse at hz: half the period (a longer one fills the period — steady current), at most the register's. */

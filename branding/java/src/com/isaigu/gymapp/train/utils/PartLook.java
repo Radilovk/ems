@@ -182,6 +182,7 @@ public final class PartLook {
             if (ring != null) {
                 lookRing(ring, ringSecond(item, b, live));
             }
+            legs(item, b, bars, texts);
             legTags(item, texts);
             if (bars.length > 0 && bars[0] != null && bars[0].isAttachedToWindow()) {
                 View root = bars[0].getRootView();
@@ -198,6 +199,44 @@ public final class PartLook {
      * A bodytech row (owner, 1.1.376): the legs are left / right, not front / back — the two thigh sliders carry
      * "Л" / "Д" before their percent (the muscle icons above are shared by every row, so the tag is on the row).
      */
+    /**
+     * A bodytech row (owner, 1.1.377): the two leg bars and texts show what the suit gets (BtTranslator.legValue —
+     * equal legs until a hand moves one, then each in proportion). A bar under the finger or in the second impulse's
+     * look is left alone.
+     */
+    static void legs(TrainItem item, ProgramDataBean b, VerticalColorSeekBar[] bars, TextView[] texts) {
+        if (item == null || item.data == null) {
+            return;
+        }
+        String mac = item.data.macAddress;
+        if (!com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(mac)) {
+            return;
+        }
+        int[] legs = com.isaigu.gymapp.bodytech.BtSettings.legSliders();
+        int[] main = b.strenthBean.buwei;
+        boolean live = live(item, b);
+        for (int s : legs) {
+            if (s >= bars.length || s >= main.length || bars[s] == null) {
+                continue;
+            }
+            int v = com.isaigu.gymapp.bodytech.BtBridge.legValue(mac, main, s);
+            if (v < 0 || v == main[s]) {
+                continue;
+            }
+            VerticalColorSeekBar bar = bars[s];
+            Lock l = held(bar);
+            if ((l != null && l.dragging) || barSecond(item, b, bar, s, live)) {
+                continue;
+            }
+            float shown = ChannelStrengthScale.shown(s, v, b.pulseWidth);
+            bar.setProgress(shown);
+            TextView t = texts != null && s < texts.length ? texts[s] : null;
+            if (t != null) {
+                t.setText(percent((int) (shown / 100.0f * b.strenth)));
+            }
+        }
+    }
+
     static void legTags(TrainItem item, TextView[] texts) {
         if (texts == null || item == null || item.data == null
                 || !com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(item.data.macAddress)) {

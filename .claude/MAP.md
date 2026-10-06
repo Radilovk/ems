@@ -208,15 +208,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtAusRun.java` (278L, compile:music-sync*) — Runs one "Модулация" procedure ({@link BtAus}) on a bodytech suit, phase after phase: every {@link #TICK_MS} it works o…
 - `BtAusScreen.java` (635L, compile:music-sync*) — "Модулация" (owner, 1.1.372; was "Австралийски ток"): one passive procedure of the 1–2 kHz current (atrophy, passive li…
 - `BtBeep.java` (106L, compile:music-sync*) — Sound signals of a bodytech suit, from the tablet (owner; 1.1.360 scheme): start = one long HIGH tone, pause = one long…
-- `BtBridge.java` (500L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `BtBridge.java` (516L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtFull.java` (267L, compile:music-sync*) — The row's gear on a bodytech suit → "Пълни параметри": every channel's own strength, Hz, width and waveform, separately…
 - `BtGear.java` (132L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtLoad.java` (272L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (162L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
-- `BtSettings.java` (406L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
+- `BtSettings.java` (424L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
 - `BtSettingsSection.java` (446L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
-- `BtTranslator.java` (451L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (516L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -245,7 +245,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (33L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartLook.java` (378L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
+- `PartLook.java` (417L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
 - `PartStrength.java` (435L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
@@ -768,23 +768,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
   - L669 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
 
-`docs/xems-bodytech.md` (156L)
+`docs/xems-bodytech.md` (162L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L11 ## How it works
   - L33 ## Translation (XEMS → bodytech)
   - L51 ## Owner's settings (Settings → Костюм bodytech)
-  - L74 ## Test of a channel and the left → right order (1.1.346)
-  - L85 ## Feel a channel (1.1.372)
-  - L91 ## Full parameters from the row's gear (1.1.350) — no limits
-  - L104 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L113 ## Safety
-  - L121 ## Not verified on a person yet
-  - L127 ## Tests
-  - L131 ## What still limits (not the app)
-  - L135 ## Second impulse without limits (1.1.353)
-  - L138 ## Own device names (1.1.353)
-  - L141 ## Sound signals (1.1.360)
-  - L148 ## Start waits for the program (1.1.371)
+  - L80 ## Test of a channel and the left → right order (1.1.346)
+  - L91 ## Feel a channel (1.1.372)
+  - L97 ## Full parameters from the row's gear (1.1.350) — no limits
+  - L110 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L119 ## Safety
+  - L127 ## Not verified on a person yet
+  - L133 ## Tests
+  - L137 ## What still limits (not the app)
+  - L141 ## Second impulse without limits (1.1.353)
+  - L144 ## Own device names (1.1.353)
+  - L147 ## Sound signals (1.1.360)
+  - L154 ## Start waits for the program (1.1.371)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

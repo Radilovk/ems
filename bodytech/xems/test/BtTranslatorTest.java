@@ -395,6 +395,44 @@ public class BtTranslatorTest {
         eq("name ems", false, BtProto.nameIsBodytech("ems"));
         eq("battery reply", 1571, BtProto.batteryRaw(new byte[]{0x36, 0, 1, 8, 1, 0x06, 0x23, (byte) 0xC9}));
 
+        // the legs (1.1.377): C5 left thigh → slider 2, C7 right thigh → slider 9
+        BtSettings.reset();
+        BtSettings.loaded = true;
+        BtTranslator lg = new BtTranslator();
+        lg.reset();
+        int[] r1 = {50, 50, 60, 50, 50, 50, 50, 50, 50, 40};
+        lg.command(1, setting(r1), 0);
+        eq("legs equal: left", 60, lg.legValue(r1, 2));
+        eq("legs equal: right gets the higher", 60, lg.legValue(r1, 9));
+        eq("not a leg: as is", 50, lg.legValue(r1, 8));
+        int[] r2 = {50, 50, 66, 50, 50, 50, 50, 50, 50, 44};      // a ± moves everything: still equal
+        lg.command(1, setting(r2), 0);
+        eq("± keeps them equal", 66, lg.legValue(r2, 9));
+        int[] r3 = {50, 50, 66, 50, 50, 50, 50, 50, 50, 55};      // the hand on the right leg alone
+        lg.command(1, setting(r3), 0);
+        eq("hand: right at the finger", 55, lg.legValue(r3, 9));
+        eq("hand: left stays", 66, lg.legValue(r3, 2));
+        int[] r4 = {25, 25, 33, 25, 25, 25, 25, 25, 25, 28};      // then a ± halves the row: both in proportion
+        lg.command(1, setting(r4), 0);
+        eq("after hand, ± left", 33, lg.legValue(r4, 2));
+        eq("after hand, ± right", 28, lg.legValue(r4, 9));
+        int[] r5 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        lg.command(1, setting(r5), 0);
+        eq("0 stays 0", 0, lg.legValue(r5, 9));
+        int[] r6 = {50, 50, 60, 50, 50, 50, 50, 50, 50, 40};      // left raised by hand from an equal start
+        BtTranslator lg2 = new BtTranslator();
+        lg2.reset();
+        lg2.command(1, setting(r6), 0);
+        int[] r7 = {50, 50, 70, 50, 50, 50, 50, 50, 50, 40};
+        lg2.command(1, setting(r7), 0);
+        eq("hand on left: left at the finger", 70, lg2.legValue(r7, 2));
+        eq("hand on left: right keeps the equal 60, not the program's 40", 60, lg2.legValue(r7, 9));
+        lg2.reset();
+        lg2.command(1, setting(r6), 0);
+        eq("stop: equal again", 60, lg2.legValue(r6, 9));
+        BtSettings.loaded = false;
+        BtSettings.reset();
+
         if (fails == 0) System.out.println("BtTranslatorTest: OK");
         else {
             System.out.println("BtTranslatorTest: " + fails + " FAILED");

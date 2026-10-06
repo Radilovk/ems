@@ -133,6 +133,24 @@ public final class BtSettings {
         return tag;
     }
 
+    /** The sliders of the two legs (a Л one and a Д one, {@link #rowTag}); empty when the map has no such pair. */
+    public static synchronized int[] legSliders() {
+        int[] tmp = new int[10];
+        int n = 0;
+        boolean l = false, r = false;
+        for (int s = 0; s < 10; s++) {
+            String t = rowTag(s);
+            if (t == null) continue;
+            l |= "Л".equals(t);
+            r |= "Д".equals(t);
+            tmp[n++] = s;
+        }
+        if (!l || !r) return new int[0];
+        int[] out = new int[n];
+        System.arraycopy(tmp, 0, out, 0, n);
+        return out;
+    }
+
     static void save() {
         if (app == null) return;
         SharedPreferences.Editor e = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();

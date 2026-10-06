@@ -130,6 +130,13 @@ def main() -> None:
     DEST.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SRC, DEST)
     print(f"installed {DEST.relative_to(ROOT)}")
+    # what the row shows, main or second impulse (PartLook, PartLook$Lock) — same package, compiled with it
+    looks = sorted(SRC.parent.glob("PartLook*.smali"))
+    if not looks:
+        raise FileNotFoundError("branding/smali/PartLook.smali missing — run compile-music-sync-java.sh")
+    for f in looks:
+        shutil.copy2(f, DEST.parent / f.name)
+        print(f"installed {(DEST.parent / f.name).relative_to(ROOT)}")
     patch_manager()
     patch_slider_end()
     patch_display()

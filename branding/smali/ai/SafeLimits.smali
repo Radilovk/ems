@@ -26,7 +26,7 @@
 
 .field public static final PAUSE_HZ_MAX:I = 0xa
 
-.field public static final PAUSE_PCT_MAX:I = 0x64
+.field public static final PAUSE_PCT_MAX:I = 0x96
 
 .field public static final PHZ:I = 0x5
 
@@ -44,6 +44,8 @@
 
 .field public static final RAMP_MIN_MS:I = 0x12c
 
+.field public static final STRENGTH_MAX:I = 0x64
+
 .field public static final TETANIC_HZ:I = 0x14
 
 
@@ -52,7 +54,7 @@
     .registers 1
 
     .prologue
-    .line 33
+    .line 37
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -62,7 +64,7 @@
     .registers 5
 
     .prologue
-    .line 46
+    .line 55
     const/4 v0, 0x0
 
     invoke-static {p0, p1, p2, p3, v0}, Lcom/isaigu/gymapp/ai/SafeLimits;->apply([IILjava/lang/StringBuilder;Ljava/lang/StringBuilder;Z)[I
@@ -76,26 +78,26 @@
     .registers 13
 
     .prologue
-    .line 51
+    .line 60
     invoke-virtual {p0}, [I->clone()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, [I
 
-    .line 52
+    .line 61
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/SafeLimits;->hzMax(I)I
 
     move-result v2
 
-    .line 53
+    .line 62
     const/4 v1, 0x0
 
     aget v1, v0, v1
 
     if-le v1, v2, :cond_75
 
-    .line 54
+    .line 63
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -179,7 +181,7 @@
 
     move-result-object v4
 
-    .line 55
+    .line 64
     const/16 v1, 0x3c
 
     if-lt p1, v1, :cond_27f
@@ -195,15 +197,15 @@
 
     move-result-object v1
 
-    .line 54
+    .line 63
     invoke-static {p2, p3, v3, v1}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 56
+    .line 65
     const/4 v1, 0x0
 
     aput v2, v0, v1
 
-    .line 58
+    .line 67
     :cond_75
     const/4 v1, 0x0
 
@@ -219,7 +221,7 @@
 
     aput v2, v0, v1
 
-    .line 59
+    .line 68
     const/4 v1, 0x0
 
     aget v1, v0, v1
@@ -230,7 +232,7 @@
 
     const/16 v1, 0x12c
 
-    .line 60
+    .line 69
     :goto_89
     const/4 v2, 0x1
 
@@ -238,7 +240,7 @@
 
     if-le v2, v1, :cond_fa
 
-    .line 61
+    .line 70
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -345,12 +347,12 @@
 
     invoke-static {p2, p3, v2, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 63
+    .line 72
     const/4 v2, 0x1
 
     aput v1, v0, v2
 
-    .line 65
+    .line 74
     :cond_fa
     const/4 v1, 0x1
 
@@ -366,7 +368,7 @@
 
     aput v2, v0, v1
 
-    .line 66
+    .line 75
     const/4 v1, 0x2
 
     const/4 v2, 0x1
@@ -381,7 +383,7 @@
 
     aput v2, v0, v1
 
-    .line 67
+    .line 76
     const/4 v1, 0x3
 
     const/4 v2, 0x1
@@ -396,7 +398,7 @@
 
     aput v2, v0, v1
 
-    .line 68
+    .line 77
     const/4 v1, 0x0
 
     aget v1, v0, v1
@@ -409,11 +411,11 @@
 
     move v2, v1
 
-    .line 69
+    .line 78
     :goto_125
     if-eqz v2, :cond_1ac
 
-    .line 70
+    .line 79
     const/4 v1, 0x0
 
     aget v1, v0, v1
@@ -424,7 +426,7 @@
 
     const/4 v1, 0x6
 
-    .line 71
+    .line 80
     :goto_12f
     const/4 v3, 0x2
 
@@ -432,7 +434,7 @@
 
     if-le v3, v1, :cond_1a0
 
-    .line 72
+    .line 81
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -539,12 +541,12 @@
 
     invoke-static {p2, p3, v3, v4}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 74
+    .line 83
     const/4 v3, 0x2
 
     aput v1, v0, v3
 
-    .line 76
+    .line 85
     :cond_1a0
     const/4 v1, 0x7
 
@@ -554,14 +556,14 @@
 
     if-ge v1, v3, :cond_1ac
 
-    .line 77
+    .line 86
     const/4 v1, 0x7
 
     const/16 v3, 0x12c
 
     aput v3, v0, v1
 
-    .line 80
+    .line 89
     :cond_1ac
     const/4 v1, 0x4
 
@@ -573,7 +575,7 @@
 
     if-nez p4, :cond_1cd
 
-    .line 81
+    .line 90
     const/16 v1, 0xa
 
     const/4 v3, 0x0
@@ -586,31 +588,31 @@
 
     move-result v1
 
-    .line 82
+    .line 91
     const/4 v3, 0x1
 
     if-ge v1, v3, :cond_28f
 
-    .line 83
+    .line 92
     const-string v1, "\u0412\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d: \u043e\u0441\u043d\u043e\u0432\u043d\u0430\u0442\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0435 \u0442\u0432\u044a\u0440\u0434\u0435 \u043d\u0438\u0441\u043a\u0430"
 
     const-string v3, "Second impulse off: the main frequency is too low"
 
     invoke-static {p2, p3, v1, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 85
+    .line 94
     const/4 v1, 0x4
 
     const/4 v3, 0x0
 
     aput v3, v0, v1
 
-    .line 100
+    .line 109
     :cond_1cd
     :goto_1cd
     if-eqz v2, :cond_27a
 
-    .line 101
+    .line 110
     const/4 v1, 0x0
 
     aget v4, v0, v1
@@ -655,14 +657,14 @@
 
     move-result v1
 
-    .line 102
+    .line 111
     const/4 v2, 0x3
 
     aget v2, v0, v2
 
     if-ge v2, v1, :cond_27a
 
-    .line 103
+    .line 112
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -797,34 +799,34 @@
 
     invoke-static {p2, p3, v2, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 107
+    .line 116
     const/4 v2, 0x3
 
     aput v1, v0, v2
 
-    .line 110
+    .line 119
     :cond_27a
     return-object v0
 
-    .line 54
+    .line 63
     :cond_27b
     const-string v1, ""
 
     goto/16 :goto_37
 
-    .line 55
+    .line 64
     :cond_27f
     const-string v1, ""
 
     goto/16 :goto_67
 
-    .line 59
+    .line 68
     :cond_283
     const/16 v1, 0x190
 
     goto/16 :goto_89
 
-    .line 68
+    .line 77
     :cond_287
     const/4 v1, 0x0
 
@@ -832,13 +834,13 @@
 
     goto/16 :goto_125
 
-    .line 70
+    .line 79
     :cond_28b
     const/16 v1, 0xa
 
     goto/16 :goto_12f
 
-    .line 87
+    .line 96
     :cond_28f
     const/4 v3, 0x5
 
@@ -846,7 +848,7 @@
 
     if-le v3, v1, :cond_2e6
 
-    .line 88
+    .line 97
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -925,12 +927,12 @@
 
     invoke-static {p2, p3, v3, v4}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 90
+    .line 99
     const/4 v3, 0x5
 
     aput v1, v0, v3
 
-    .line 92
+    .line 101
     :cond_2e6
     const/4 v1, 0x5
 
@@ -946,32 +948,32 @@
 
     aput v3, v0, v1
 
-    .line 93
+    .line 102
     const/4 v1, 0x6
 
     aget v1, v0, v1
 
-    const/16 v3, 0x64
+    const/16 v3, 0x96
 
     if-le v1, v3, :cond_1cd
 
-    .line 94
-    const-string v1, "\u0412\u0442\u043e\u0440\u0438\u044f\u0442 \u0438\u043c\u043f\u0443\u043b\u0441 \u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043f\u043e-\u0441\u0438\u043b\u0435\u043d \u043e\u0442 \u043e\u0441\u043d\u043e\u0432\u043d\u0438\u044f"
+    .line 103
+    const-string v1, "\u0412\u0442\u043e\u0440\u0438\u044f\u0442 \u0438\u043c\u043f\u0443\u043b\u0441 \u0435 \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e 1,5 \u043f\u044a\u0442\u0438 \u043f\u043e-\u0441\u0438\u043b\u0435\u043d \u043e\u0442 \u043e\u0441\u043d\u043e\u0432\u043d\u0438\u044f"
 
-    const-string v3, "The second impulse cannot be stronger than the main one"
+    const-string v3, "The second impulse is at most 1.5 times the main one"
 
     invoke-static {p2, p3, v1, v3}, Lcom/isaigu/gymapp/ai/SafeLimits;->note(Ljava/lang/StringBuilder;Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 96
+    .line 105
     const/4 v1, 0x6
 
-    const/16 v3, 0x64
+    const/16 v3, 0x96
 
     aput v3, v0, v1
 
     goto/16 :goto_1cd
 
-    .line 101
+    .line 110
     :cond_306
     const/4 v1, 0x0
 
@@ -993,7 +995,7 @@
 
     const/4 v2, 0x0
 
-    .line 119
+    .line 128
     if-lez p4, :cond_35
 
     const-wide/16 v4, 0x0
@@ -1004,7 +1006,7 @@
 
     move v0, v1
 
-    .line 120
+    .line 129
     :goto_c
     const/16 v3, 0x8
 
@@ -1060,13 +1062,13 @@
     :cond_35
     move v0, v2
 
-    .line 119
+    .line 128
     goto :goto_c
 
     :cond_37
     move v1, v2
 
-    .line 120
+    .line 129
     goto :goto_1d
 .end method
 
@@ -1074,7 +1076,7 @@
     .registers 2
 
     .prologue
-    .line 37
+    .line 46
     const/16 v0, 0x3c
 
     if-lt p0, v0, :cond_7
@@ -1096,16 +1098,16 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 155
+    .line 164
     const/16 v0, 0x14
 
     if-ge p0, v0, :cond_6
 
-    .line 163
+    .line 172
     :cond_5
     return v2
 
-    .line 158
+    .line 167
     :cond_6
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->HIGH:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
@@ -1113,7 +1115,7 @@
 
     move-result-object v8
 
-    .line 160
+    .line 169
     :goto_c
     const/16 v0, 0x1e
 
@@ -1147,7 +1149,7 @@
 
     if-lez v0, :cond_5
 
-    .line 161
+    .line 170
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_c
@@ -1157,10 +1159,10 @@
     .registers 5
 
     .prologue
-    .line 177
+    .line 186
     if-eqz p0, :cond_11
 
-    .line 178
+    .line 187
     invoke-virtual {p0}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1176,11 +1178,11 @@
 
     invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 180
+    .line 189
     :cond_11
     if-eqz p1, :cond_22
 
-    .line 181
+    .line 190
     invoke-virtual {p1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1196,28 +1198,52 @@
 
     invoke-virtual {v0, p3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 183
+    .line 192
     :cond_22
     return-void
 
-    .line 178
+    .line 187
     :cond_23
     const-string v0, ""
 
     goto :goto_a
 
-    .line 181
+    .line 190
     :cond_26
     const-string v0, ""
 
     goto :goto_1b
 .end method
 
+.method public static pauseCap(I)I
+    .registers 4
+
+    .prologue
+    .line 41
+    const/4 v0, 0x0
+
+    const/16 v1, 0x64
+
+    mul-int/lit16 v2, p0, 0x96
+
+    div-int/lit8 v2, v2, 0x64
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    return v0
+.end method
+
 .method public static pauseSend(IIZII)[I
     .registers 11
 
     .prologue
-    .line 131
+    .line 140
     const/4 v5, 0x0
 
     move v0, p0
@@ -1249,20 +1275,20 @@
 
     const/4 v3, 0x1
 
-    .line 136
+    .line 145
     if-eqz p5, :cond_16
 
-    .line 137
+    .line 146
     if-eqz p2, :cond_a
 
     if-gtz p4, :cond_b
 
-    .line 150
+    .line 159
     :cond_a
     :goto_a
     return-object v0
 
-    .line 140
+    .line 149
     :cond_b
     new-array v0, v5, [I
 
@@ -1276,13 +1302,13 @@
 
     goto :goto_a
 
-    .line 142
+    .line 151
     :cond_16
     if-eqz p2, :cond_a
 
     if-lez p0, :cond_a
 
-    .line 145
+    .line 154
     const/16 v1, 0xa
 
     add-int/lit8 v2, p1, -0x1
@@ -1291,23 +1317,21 @@
 
     move-result v1
 
-    .line 146
-    const/16 v2, 0x64
-
-    invoke-static {v2, p4}, Ljava/lang/Math;->min(II)I
+    .line 155
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/SafeLimits;->pauseCap(I)I
 
     move-result v2
 
-    invoke-static {v2, p0}, Ljava/lang/Math;->min(II)I
+    invoke-static {p4, v2}, Ljava/lang/Math;->min(II)I
 
     move-result v2
 
-    .line 147
+    .line 156
     if-lt v1, v3, :cond_a
 
     if-lez v2, :cond_a
 
-    .line 150
+    .line 159
     new-array v0, v5, [I
 
     invoke-static {v1, p3}, Ljava/lang/Math;->min(II)I
@@ -1329,7 +1353,7 @@
     .registers 20
 
     .prologue
-    .line 168
+    .line 177
     neg-int v0, p1
 
     int-to-double v0, v0
@@ -1340,7 +1364,7 @@
 
     move-result-wide v2
 
-    .line 169
+    .line 178
     const/4 v0, 0x1
 
     invoke-static {v0, p2}, Ljava/lang/Math;->max(II)I
@@ -1357,14 +1381,14 @@
 
     move-result-wide v4
 
-    .line 170
+    .line 179
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
 
     move-result-wide v0
 
     mul-double v6, v0, p6
 
-    .line 171
+    .line 180
     if-lez p3, :cond_4b
 
     invoke-static {p3}, Lcom/isaigu/gymapp/ai/AiPlanner;->fatigueWeight(I)D
@@ -1375,7 +1399,7 @@
 
     mul-double v0, v0, p6
 
-    .line 172
+    .line 181
     :goto_25
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
@@ -1407,7 +1431,7 @@
 
     div-double/2addr v0, v4
 
-    .line 173
+    .line 182
     mul-double v4, v0, v2
 
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
@@ -1424,7 +1448,7 @@
 
     return-wide v0
 
-    .line 171
+    .line 180
     :cond_4b
     const-wide/16 v0, 0x0
 

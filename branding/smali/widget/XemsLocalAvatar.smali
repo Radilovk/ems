@@ -147,7 +147,7 @@
     .registers 3
 
     .prologue
-    .line 726
+    .line 747
     move-object v0, p0
 
     :goto_1
@@ -159,7 +159,7 @@
 
     if-nez v1, :cond_10
 
-    .line 727
+    .line 748
     check-cast v0, Landroid/content/ContextWrapper;
 
     invoke-virtual {v0}, Landroid/content/ContextWrapper;->getBaseContext()Landroid/content/Context;
@@ -168,7 +168,7 @@
 
     goto :goto_1
 
-    .line 729
+    .line 750
     :cond_10
     instance-of v1, v0, Landroid/app/Activity;
 
@@ -302,26 +302,26 @@
     .registers 5
 
     .prologue
-    .line 602
+    .line 623
     if-nez p0, :cond_3
 
-    .line 611
+    .line 632
     :goto_2
     return-void
 
-    .line 605
+    .line 626
     :cond_3
     const/4 v0, 0x0
 
     :try_start_4
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 606
+    .line 627
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setClickable(Z)V
 
-    .line 607
+    .line 628
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;
 
     const/4 v1, 0x0
@@ -334,11 +334,11 @@
 
     goto :goto_2
 
-    .line 608
+    .line 629
     :catch_15
     move-exception v0
 
-    .line 609
+    .line 630
     const-string v1, "xems"
 
     const-string v2, "XemsLocalAvatar.bindCard"
@@ -411,26 +411,26 @@
     .prologue
     const/16 v2, 0x12
 
-    .line 940
+    .line 961
     const/4 v0, 0x1
 
     invoke-static {p0, p1, v2, p3, v0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->tv(Landroid/content/Context;Ljava/lang/String;IIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 941
+    .line 962
     const/16 v1, 0x11
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 942
+    .line 963
     invoke-static {p0, p2, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->round(Landroid/content/Context;II)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 943
+    .line 964
     return-object v0
 .end method
 
@@ -444,7 +444,7 @@
 
     const/4 v5, -0x2
 
-    .line 898
+    .line 919
     const/16 v0, 0xf
 
     const/4 v1, 0x1
@@ -453,12 +453,12 @@
 
     move-result-object v0
 
-    .line 899
+    .line 920
     new-instance v1, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v1}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 900
+    .line 921
     const v2, 0xffffff
 
     and-int/2addr v2, p3
@@ -469,7 +469,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 901
+    .line 922
     const/16 v2, 0xe
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
@@ -480,10 +480,10 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 902
+    .line 923
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 903
+    .line 924
     invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
 
     move-result v1
@@ -502,12 +502,12 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 904
+    .line 925
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v1, v5, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 905
+    .line 926
     const/16 v2, 0x8
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
@@ -516,10 +516,10 @@
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    .line 906
+    .line 927
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 907
+    .line 928
     return-void
 .end method
 
@@ -725,7 +725,7 @@
     .registers 4
 
     .prologue
-    .line 1015
+    .line 1036
     int-to-float v0, p1
 
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -757,15 +757,15 @@
 
     const/16 v3, 0x10
 
-    .line 962
+    .line 983
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 963
+    .line 984
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 964
+    .line 985
     const v1, -0xdfdbd4
 
     invoke-static {p0, v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->round(Landroid/content/Context;II)Landroid/graphics/drawable/GradientDrawable;
@@ -774,7 +774,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 965
+    .line 986
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
 
     move-result v1
@@ -793,7 +793,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 966
+    .line 987
     const/16 v1, 0xe
 
     const v2, -0x675d4d
@@ -806,7 +806,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 967
+    .line 988
     const/16 v1, 0x13
 
     const v2, -0xd0b09
@@ -817,7 +817,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 968
+    .line 989
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, -0x1
@@ -826,7 +826,7 @@
 
     invoke-direct {v1, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 969
+    .line 990
     const/16 v2, 0x8
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
@@ -835,10 +835,10 @@
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->bottomMargin:I
 
-    .line 970
+    .line 991
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 971
+    .line 992
     return-void
 .end method
 
@@ -1242,36 +1242,36 @@
 
     const/high16 v12, 0x40000000    # 2.0f
 
-    .line 974
+    .line 995
     const/16 v0, 0x96
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
 
     move-result v3
 
-    .line 975
+    .line 996
     sget-object v0, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
 
     invoke-static {v3, v3, v0}, Landroid/graphics/Bitmap;->createBitmap(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;
 
     move-result-object v4
 
-    .line 976
+    .line 997
     new-instance v5, Landroid/graphics/Canvas;
 
     invoke-direct {v5, v4}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
 
-    .line 977
+    .line 998
     new-instance v6, Landroid/graphics/Paint;
 
     invoke-direct {v6, v13}, Landroid/graphics/Paint;-><init>(I)V
 
-    .line 978
+    .line 999
     const v0, -0xdfdbd4
 
     invoke-virtual {v6, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 979
+    .line 1000
     int-to-float v0, v3
 
     div-float/2addr v0, v12
@@ -1286,13 +1286,13 @@
 
     invoke-virtual {v5, v0, v1, v7, v6}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 980
+    .line 1001
     const-string v0, ""
 
-    .line 981
+    .line 1002
     if-eqz p1, :cond_66
 
-    .line 982
+    .line 1003
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
@@ -1312,7 +1312,7 @@
 
     aget-object v9, v7, v1
 
-    .line 983
+    .line 1004
     invoke-virtual {v9}, Ljava/lang/String;->length()I
 
     move-result v10
@@ -1327,7 +1327,7 @@
 
     if-ge v10, v11, :cond_63
 
-    .line 984
+    .line 1005
     new-instance v10, Ljava/lang/StringBuilder;
 
     invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
@@ -1352,19 +1352,19 @@
 
     move-result-object v0
 
-    .line 982
+    .line 1003
     :cond_63
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_39
 
-    .line 988
+    .line 1009
     :cond_66
     const v1, -0xd0b09
 
     invoke-virtual {v6, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 989
+    .line 1010
     int-to-float v1, v3
 
     const v2, 0x3ec28f5c    # 0.38f
@@ -1373,15 +1373,15 @@
 
     invoke-virtual {v6, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 990
+    .line 1011
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v6, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 991
+    .line 1012
     invoke-virtual {v6, v13}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 992
+    .line 1013
     int-to-float v1, v3
 
     div-float/2addr v1, v12
@@ -1406,7 +1406,7 @@
 
     invoke-virtual {v5, v0, v1, v2, v6}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 993
+    .line 1014
     return-object v4
 .end method
 
@@ -1666,24 +1666,24 @@
 
     const/4 v2, 0x0
 
-    .line 450
+    .line 471
     :try_start_2
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->pickedItems()Ljava/util/List;
 
     move-result-object v4
 
-    .line 451
+    .line 472
     invoke-interface {v4}, Ljava/util/List;->isEmpty()Z
 
     move-result v0
 
     if-eqz v0, :cond_d
 
-    .line 468
+    .line 489
     :goto_c
     return v2
 
-    .line 455
+    .line 476
     :cond_d
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -1704,7 +1704,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 456
+    .line 477
     iget-object v6, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     if-eqz v6, :cond_2c
@@ -1722,16 +1722,16 @@
 
     move v3, v0
 
-    .line 457
+    .line 478
     goto :goto_12
 
     :cond_2c
     move v0, v2
 
-    .line 456
+    .line 477
     goto :goto_29
 
-    .line 458
+    .line 479
     :cond_2e
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -1750,21 +1750,21 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 459
+    .line 480
     if-eqz v3, :cond_4d
 
-    .line 460
+    .line 481
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->stop()V
     :try_end_43
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_43} :catch_44
 
     goto :goto_32
 
-    .line 466
+    .line 487
     :catch_44
     move-exception v0
 
-    .line 467
+    .line 488
     const-string v1, "xems"
 
     const-string v3, "XemsLocalAvatar.masterStartOrStop"
@@ -1773,7 +1773,7 @@
 
     goto :goto_c
 
-    .line 462
+    .line 483
     :cond_4d
     :try_start_4d
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->start()V
@@ -1785,7 +1785,81 @@
     :cond_51
     move v2, v1
 
-    .line 465
+    .line 486
+    goto :goto_c
+.end method
+
+.method public static masterStop()Z
+    .registers 4
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 449
+    :try_start_1
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->pickedItems()Ljava/util/List;
+
+    move-result-object v0
+
+    .line 450
+    invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_d
+
+    move v0, v1
+
+    .line 459
+    :goto_c
+    return v0
+
+    .line 453
+    :cond_d
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v2
+
+    :goto_11
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_2b
+
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    .line 454
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->reset()V
+    :try_end_20
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_20} :catch_21
+
+    goto :goto_11
+
+    .line 457
+    :catch_21
+    move-exception v0
+
+    .line 458
+    const-string v2, "xems"
+
+    const-string v3, "XemsLocalAvatar.masterStop"
+
+    invoke-static {v2, v3, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    move v0, v1
+
+    .line 459
+    goto :goto_c
+
+    .line 456
+    :cond_2b
+    const/4 v0, 0x1
+
     goto :goto_c
 .end method
 
@@ -1797,7 +1871,7 @@
 
     const/4 v2, 0x0
 
-    .line 696
+    .line 717
     invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -1808,7 +1882,7 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 697
+    .line 718
     invoke-virtual {p0}, Landroid/view/View;->getWidth()I
 
     move-result v1
@@ -1829,7 +1903,7 @@
 
     sub-float/2addr v1, v3
 
-    .line 698
+    .line 719
     div-float/2addr v1, v4
 
     const/high16 v3, 0x42380000    # 46.0f
@@ -1838,19 +1912,19 @@
 
     sub-float v0, v1, v0
 
-    .line 699
+    .line 720
     const/4 v1, 0x0
 
     cmpg-float v1, v0, v1
 
     if-gtz v1, :cond_2a
 
-    .line 722
+    .line 743
     :cond_29
     :goto_29
     return v2
 
-    .line 702
+    .line 723
     :cond_2a
     invoke-virtual {p0}, Landroid/view/View;->getWidth()I
 
@@ -1862,7 +1936,7 @@
 
     sub-float v1, p1, v1
 
-    .line 703
+    .line 724
     invoke-virtual {p0}, Landroid/view/View;->getHeight()I
 
     move-result v3
@@ -1873,7 +1947,7 @@
 
     sub-float v3, p2, v3
 
-    .line 704
+    .line 725
     mul-float/2addr v1, v1
 
     mul-float/2addr v3, v3
@@ -1886,7 +1960,7 @@
 
     if-gez v0, :cond_29
 
-    .line 707
+    .line 728
     invoke-virtual {p0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
@@ -1895,14 +1969,14 @@
 
     if-eqz v0, :cond_a3
 
-    .line 708
+    .line 729
     invoke-virtual {p0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 709
+    .line 730
     invoke-virtual {p0}, Landroid/view/View;->getLeft()I
 
     move-result v1
@@ -1911,7 +1985,7 @@
 
     add-float v3, v1, p1
 
-    .line 710
+    .line 731
     invoke-virtual {p0}, Landroid/view/View;->getTop()I
 
     move-result v1
@@ -1922,7 +1996,7 @@
 
     move v1, v2
 
-    .line 711
+    .line 732
     :goto_5f
     invoke-virtual {v0}, Landroid/view/ViewGroup;->getChildCount()I
 
@@ -1930,12 +2004,12 @@
 
     if-ge v1, v5, :cond_a3
 
-    .line 712
+    .line 733
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v5
 
-    .line 713
+    .line 734
     if-eq v5, p0, :cond_7b
 
     invoke-virtual {v5}, Landroid/view/View;->getVisibility()I
@@ -1954,13 +2028,13 @@
 
     if-eqz v6, :cond_7e
 
-    .line 711
+    .line 732
     :cond_7b
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_5f
 
-    .line 717
+    .line 738
     :cond_7e
     invoke-virtual {v5}, Landroid/view/View;->getLeft()I
 
@@ -2004,7 +2078,7 @@
 
     goto :goto_29
 
-    .line 722
+    .line 743
     :cond_a3
     const/4 v2, 0x1
 
@@ -2436,15 +2510,15 @@
     .registers 5
 
     .prologue
-    .line 1008
+    .line 1029
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 1009
+    .line 1030
     invoke-virtual {v0, p1}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 1010
+    .line 1031
     invoke-static {p0, p2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
 
     move-result v1
@@ -2453,7 +2527,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 1011
+    .line 1032
     return-object v0
 .end method
 
@@ -2465,7 +2539,7 @@
 
     const/16 v4, 0xc
 
-    .line 931
+    .line 952
     const/16 v0, 0x12
 
     const/4 v1, 0x1
@@ -2474,7 +2548,7 @@
 
     move-result-object v0
 
-    .line 932
+    .line 953
     const v1, -0xdfdbd4
 
     const/16 v2, 0xe
@@ -2485,7 +2559,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 933
+    .line 954
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
 
     move-result v1
@@ -2504,7 +2578,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 934
+    .line 955
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, -0x1
@@ -2513,7 +2587,7 @@
 
     invoke-direct {v1, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 935
+    .line 956
     const/4 v2, 0x6
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
@@ -2522,10 +2596,10 @@
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->bottomMargin:I
 
-    .line 936
+    .line 957
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 937
+    .line 958
     return-void
 .end method
 
@@ -2662,7 +2736,7 @@
     .registers 8
 
     .prologue
-    .line 924
+    .line 945
     invoke-virtual {p2}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
 
     move-result-object v0
@@ -2677,12 +2751,12 @@
 
     move-result-object v0
 
-    .line 925
+    .line 946
     const v1, 0x3da3d70a    # 0.08f
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setLetterSpacing(F)V
 
-    .line 926
+    .line 947
     const/4 v1, 0x4
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
@@ -2705,10 +2779,10 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 927
+    .line 948
     invoke-virtual {p1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 928
+    .line 949
     return-void
 .end method
 
@@ -2716,24 +2790,24 @@
     .registers 5
 
     .prologue
-    .line 947
+    .line 968
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 948
+    .line 969
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
     if-eqz v0, :cond_1a
 
-    .line 949
+    .line 970
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
     sget-object v2, Lcom/isaigu/gymapp/bean/Gender;->Female:Lcom/isaigu/gymapp/bean/Gender;
 
     if-ne v0, v2, :cond_4a
 
-    .line 950
+    .line 971
     const-string v0, "\u0416\u0435\u043d\u0430"
 
     const-string v2, "Female"
@@ -2742,31 +2816,31 @@
 
     move-result-object v0
 
-    .line 949
+    .line 970
     :goto_17
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 952
+    .line 973
     :cond_1a
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
     if-eqz v0, :cond_45
 
-    .line 953
+    .line 974
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->yearsSince(Ljava/util/Date;)I
 
     move-result v2
 
-    .line 954
+    .line 975
     if-lez v2, :cond_45
 
     const/16 v0, 0x78
 
     if-ge v2, v0, :cond_45
 
-    .line 955
+    .line 976
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -2794,7 +2868,7 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 958
+    .line 979
     :cond_45
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2802,7 +2876,7 @@
 
     return-object v0
 
-    .line 950
+    .line 971
     :cond_4a
     const-string v0, "\u041c\u044a\u0436"
 
@@ -2814,7 +2888,7 @@
 
     goto :goto_17
 
-    .line 955
+    .line 976
     :cond_53
     const-string v0, ""
 
@@ -2825,7 +2899,7 @@
     .registers 19
 
     .prologue
-    .line 744
+    .line 765
     :try_start_0
     new-instance v4, Landroid/app/Dialog;
 
@@ -2833,29 +2907,29 @@
 
     invoke-direct {v4, v0}, Landroid/app/Dialog;-><init>(Landroid/content/Context;)V
 
-    .line 745
+    .line 766
     const/4 v2, 0x1
 
     invoke-virtual {v4, v2}, Landroid/app/Dialog;->requestWindowFeature(I)Z
 
-    .line 746
+    .line 767
     const/4 v2, 0x1
 
     invoke-virtual {v4, v2}, Landroid/app/Dialog;->setCanceledOnTouchOutside(Z)V
 
-    .line 748
+    .line 769
     new-instance v5, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v5, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 749
+    .line 770
     const/4 v2, 0x1
 
     invoke-virtual {v5, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 750
+    .line 771
     const v2, -0xebe8e4
 
     const/16 v3, 0x1c
@@ -2868,31 +2942,31 @@
 
     invoke-virtual {v5, v2}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 752
+    .line 773
     new-instance v6, Landroid/widget/ScrollView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v6, v0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
 
-    .line 753
+    .line 774
     const/4 v2, 0x0
 
     invoke-virtual {v6, v2}, Landroid/widget/ScrollView;->setVerticalScrollBarEnabled(Z)V
 
-    .line 754
+    .line 775
     new-instance v7, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v7, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 755
+    .line 776
     const/4 v2, 0x1
 
     invoke-virtual {v7, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 756
+    .line 777
     const/16 v2, 0x18
 
     move-object/from16 v0, p0
@@ -2927,27 +3001,27 @@
 
     invoke-virtual {v7, v2, v3, v8, v9}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 757
+    .line 778
     invoke-virtual {v6, v7}, Landroid/widget/ScrollView;->addView(Landroid/view/View;)V
 
-    .line 760
+    .line 781
     new-instance v3, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v3, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 761
+    .line 782
     const/4 v2, 0x0
 
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 762
+    .line 783
     const/16 v2, 0x10
 
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 763
+    .line 784
     const/16 v2, 0x14
 
     move-object/from16 v0, p0
@@ -2982,7 +3056,7 @@
 
     invoke-virtual {v3, v2, v8, v9, v10}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 764
+    .line 785
     new-instance v2, Landroid/graphics/drawable/GradientDrawable;
 
     sget-object v8, Landroid/graphics/drawable/GradientDrawable$Orientation;->TL_BR:Landroid/graphics/drawable/GradientDrawable$Orientation;
@@ -2995,7 +3069,7 @@
 
     invoke-direct {v2, v8, v9}, Landroid/graphics/drawable/GradientDrawable;-><init>(Landroid/graphics/drawable/GradientDrawable$Orientation;[I)V
 
-    .line 766
+    .line 787
     const/16 v8, 0x16
 
     move-object/from16 v0, p0
@@ -3008,17 +3082,17 @@
 
     invoke-virtual {v2, v8}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 767
+    .line 788
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 768
+    .line 789
     new-instance v8, Landroid/widget/ImageView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v8, v0}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 769
+    .line 790
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->iconUrl:Ljava/lang/String;
@@ -3029,7 +3103,7 @@
 
     move-result-object v2
 
-    .line 770
+    .line 791
     if-eqz v2, :cond_339
 
     invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->circle(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;
@@ -3039,7 +3113,7 @@
     :goto_c9
     invoke-virtual {v8, v2}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
 
-    .line 771
+    .line 792
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/16 v9, 0x78
@@ -3062,19 +3136,19 @@
 
     invoke-virtual {v3, v8, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 772
+    .line 793
     new-instance v8, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v8, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 773
+    .line 794
     const/4 v2, 0x1
 
     invoke-virtual {v8, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 774
+    .line 795
     const/16 v2, 0x14
 
     move-object/from16 v0, p0
@@ -3091,7 +3165,7 @@
 
     invoke-virtual {v8, v2, v9, v10, v11}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 775
+    .line 796
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
@@ -3117,19 +3191,19 @@
 
     invoke-virtual {v8, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 776
+    .line 797
     new-instance v9, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v9, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 777
+    .line 798
     const/4 v2, 0x0
 
     invoke-virtual {v9, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 778
+    .line 799
     const/4 v2, 0x0
 
     const/16 v10, 0xa
@@ -3146,14 +3220,14 @@
 
     invoke-virtual {v9, v2, v10, v11, v12}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 779
+    .line 800
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
     if-eqz v2, :cond_14d
 
-    .line 780
+    .line 801
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
@@ -3162,7 +3236,7 @@
 
     if-ne v2, v10, :cond_349
 
-    .line 781
+    .line 802
     const-string v2, "\u0416\u0435\u043d\u0430"
 
     const-string v10, "Female"
@@ -3174,12 +3248,12 @@
     :goto_145
     const v10, -0xbc5fb9
 
-    .line 780
+    .line 801
     move-object/from16 v0, p0
 
     invoke-static {v0, v9, v2, v10}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->chip(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 783
+    .line 804
     :cond_14d
     move-object/from16 v0, p1
 
@@ -3187,7 +3261,7 @@
 
     if-eqz v2, :cond_182
 
-    .line 784
+    .line 805
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
@@ -3196,14 +3270,14 @@
 
     move-result v2
 
-    .line 785
+    .line 806
     if-lez v2, :cond_182
 
     const/16 v10, 0x78
 
     if-ge v2, v10, :cond_182
 
-    .line 786
+    .line 807
     new-instance v10, Ljava/lang/StringBuilder;
 
     invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
@@ -3234,11 +3308,11 @@
 
     invoke-static {v0, v9, v2, v10}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->chip(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 789
+    .line 810
     :cond_182
     invoke-virtual {v8, v9}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 790
+    .line 811
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v9, 0x0
@@ -3251,7 +3325,7 @@
 
     invoke-virtual {v3, v8, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 791
+    .line 812
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, -0x1
@@ -3262,19 +3336,19 @@
 
     invoke-virtual {v7, v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 794
+    .line 815
     new-instance v3, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v3, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 795
+    .line 816
     const/4 v2, 0x0
 
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 796
+    .line 817
     const/4 v2, 0x0
 
     const/16 v8, 0xe
@@ -3291,7 +3365,7 @@
 
     invoke-virtual {v3, v2, v8, v9, v10}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 797
+    .line 818
     const-string v2, "\u0420\u044a\u0441\u0442"
 
     const-string v8, "Height"
@@ -3333,7 +3407,7 @@
 
     invoke-static {v0, v3, v8, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->tile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 798
+    .line 819
     const-string v2, "\u0422\u0435\u0433\u043b\u043e"
 
     const-string v8, "Weight"
@@ -3383,10 +3457,10 @@
 
     invoke-static {v0, v3, v8, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->tile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 799
+    .line 820
     const-string v2, "\u2014"
 
-    .line 800
+    .line 821
     move-object/from16 v0, p1
 
     iget v8, v0, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
@@ -3403,7 +3477,7 @@
 
     if-lez v8, :cond_242
 
-    .line 801
+    .line 822
     move-object/from16 v0, p1
 
     iget v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
@@ -3414,7 +3488,7 @@
 
     div-double/2addr v8, v10
 
-    .line 802
+    .line 823
     sget-object v2, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v10, "%.1f"
@@ -3445,7 +3519,7 @@
 
     move-result-object v2
 
-    .line 804
+    .line 825
     :cond_242
     const-string v8, "BMI"
 
@@ -3453,7 +3527,7 @@
 
     invoke-static {v0, v3, v8, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->tile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 805
+    .line 826
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, -0x1
@@ -3464,7 +3538,7 @@
 
     invoke-virtual {v7, v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 808
+    .line 829
     const-string v2, "xems_user_profiles"
 
     const/4 v3, 0x0
@@ -3499,7 +3573,7 @@
 
     const-string v8, ""
 
-    .line 809
+    .line 830
     invoke-interface {v2, v3, v8}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -3512,14 +3586,14 @@
 
     move-result-object v3
 
-    .line 810
+    .line 831
     array-length v2, v3
 
     const/4 v8, 0x3
 
     if-lt v2, v8, :cond_37f
 
-    .line 811
+    .line 832
     const-string v2, "\u0426\u0435\u043b \u0438 \u0444\u043e\u0440\u043c\u0430"
 
     const-string v8, "Goal and fitness"
@@ -3532,19 +3606,19 @@
 
     invoke-static {v0, v7, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->section(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    .line 812
+    .line 833
     new-instance v8, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v8, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 813
+    .line 834
     const/4 v2, 0x0
 
     invoke-virtual {v8, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 814
+    .line 835
     const-string v2, "\u0426\u0435\u043b"
 
     const-string v9, "Goal"
@@ -3553,7 +3627,7 @@
 
     move-result-object v9
 
-    .line 815
+    .line 836
     const/4 v2, 0x0
 
     aget-object v2, v3, v2
@@ -3572,13 +3646,13 @@
 
     move-result-object v2
 
-    .line 814
+    .line 835
     :goto_2b4
     move-object/from16 v0, p0
 
     invoke-static {v0, v8, v9, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->tile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 816
+    .line 837
     const-string v2, "\u0424\u043e\u0440\u043c\u0430"
 
     const-string v9, "Fitness"
@@ -3587,7 +3661,7 @@
 
     move-result-object v9
 
-    .line 817
+    .line 838
     const/4 v2, 0x1
 
     aget-object v2, v3, v2
@@ -3606,13 +3680,13 @@
 
     move-result-object v2
 
-    .line 816
+    .line 837
     :goto_2d1
     move-object/from16 v0, p0
 
     invoke-static {v0, v8, v9, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->tile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 818
+    .line 839
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v9, -0x1
@@ -3623,7 +3697,7 @@
 
     invoke-virtual {v7, v8, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 819
+    .line 840
     const-string v2, "\u041f\u0440\u043e\u0442\u0438\u0432\u043e\u043f\u043e\u043a\u0430\u0437\u0430\u043d\u0438\u044f"
 
     const-string v8, "Contraindications"
@@ -3636,22 +3710,22 @@
 
     invoke-static {v0, v7, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->section(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    .line 820
+    .line 841
     new-instance v8, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v8, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 821
+    .line 842
     const/4 v2, 0x1
 
     invoke-virtual {v8, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 822
+    .line 843
     const/4 v2, 0x0
 
-    .line 823
+    .line 844
     const/4 v9, 0x2
 
     aget-object v3, v3, v9
@@ -3671,7 +3745,7 @@
 
     aget-object v11, v9, v3
 
-    .line 824
+    .line 845
     invoke-virtual {v11}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v12
@@ -3682,10 +3756,10 @@
 
     if-lez v12, :cond_336
 
-    .line 825
+    .line 846
     const/4 v2, 0x1
 
-    .line 826
+    .line 847
     new-instance v12, Ljava/lang/StringBuilder;
 
     invoke-direct {v12}, Ljava/lang/StringBuilder;-><init>()V
@@ -3718,13 +3792,13 @@
 
     invoke-static {v0, v8, v11, v12}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->row(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 823
+    .line 844
     :cond_336
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_304
 
-    .line 770
+    .line 791
     :cond_339
     move-object/from16 v0, p1
 
@@ -3738,13 +3812,13 @@
 
     goto/16 :goto_c9
 
-    .line 775
+    .line 796
     :cond_345
     const-string v2, ""
 
     goto/16 :goto_107
 
-    .line 781
+    .line 802
     :cond_349
     const-string v2, "\u041c\u044a\u0436"
 
@@ -3756,35 +3830,35 @@
 
     goto/16 :goto_145
 
-    .line 797
+    .line 818
     :cond_353
     const-string v2, "\u2014"
 
     goto/16 :goto_1d9
 
-    .line 798
+    .line 819
     :cond_357
     const-string v2, "\u2014"
 
     goto/16 :goto_20a
 
-    .line 815
+    .line 836
     :cond_35b
     const-string v2, "\u2014"
 
     goto/16 :goto_2b4
 
-    .line 817
+    .line 838
     :cond_35f
     const-string v2, "\u2014"
 
     goto/16 :goto_2d1
 
-    .line 829
+    .line 850
     :cond_363
     if-nez v2, :cond_375
 
-    .line 830
+    .line 851
     const-string v2, "\u041d\u044f\u043c\u0430"
 
     const-string v3, "None"
@@ -3799,7 +3873,7 @@
 
     invoke-static {v0, v8, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->row(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 832
+    .line 853
     :cond_375
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -3811,7 +3885,7 @@
 
     invoke-virtual {v7, v8, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 836
+    .line 857
     :cond_37f
     move-object/from16 v0, p1
 
@@ -3837,7 +3911,7 @@
 
     move v3, v2
 
-    .line 837
+    .line 858
     :goto_395
     move-object/from16 v0, p1
 
@@ -3861,13 +3935,13 @@
 
     const/4 v2, 0x1
 
-    .line 838
+    .line 859
     :goto_3aa
     if-nez v3, :cond_3ae
 
     if-eqz v2, :cond_3e9
 
-    .line 839
+    .line 860
     :cond_3ae
     const-string v8, "\u041a\u043e\u043d\u0442\u0430\u043a\u0442"
 
@@ -3881,10 +3955,10 @@
 
     invoke-static {v0, v7, v8}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->section(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    .line 840
+    .line 861
     if-eqz v3, :cond_3d2
 
-    .line 841
+    .line 862
     const-string v3, "\u0422\u0435\u043b\u0435\u0444\u043e\u043d"
 
     const-string v8, "Phone"
@@ -3905,11 +3979,11 @@
 
     invoke-static {v0, v7, v3, v8}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->fact(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 843
+    .line 864
     :cond_3d2
     if-eqz v2, :cond_3e9
 
-    .line 844
+    .line 865
     const-string v2, "\u0418\u043c\u0435\u0439\u043b"
 
     const-string v3, "Email"
@@ -3930,7 +4004,7 @@
 
     invoke-static {v0, v7, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->fact(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 847
+    .line 868
     :cond_3e9
     const-string v2, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430"
 
@@ -3944,7 +4018,7 @@
 
     invoke-static {v0, v7, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->section(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    .line 848
+    .line 869
     if-eqz p2, :cond_419
 
     move-object/from16 v0, p2
@@ -3963,7 +4037,7 @@
 
     if-lez v2, :cond_419
 
-    .line 849
+    .line 870
     const-string v2, "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430"
 
     const-string v3, "Program"
@@ -3980,7 +4054,7 @@
 
     invoke-static {v0, v7, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->fact(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 851
+    .line 872
     :cond_419
     move-object/from16 v0, p1
 
@@ -3988,7 +4062,7 @@
 
     if-eqz v2, :cond_43d
 
-    .line 852
+    .line 873
     const-string v2, "\u041a\u043b\u0438\u0435\u043d\u0442 \u043e\u0442"
 
     const-string v3, "Client since"
@@ -4009,17 +4083,17 @@
 
     iget-object v8, v0, Lcom/isaigu/gymapp/bean/TrainUser;->createTime:Ljava/util/Date;
 
-    .line 853
+    .line 874
     invoke-virtual {v3, v8}, Ljava/text/SimpleDateFormat;->format(Ljava/util/Date;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 852
+    .line 873
     move-object/from16 v0, p0
 
     invoke-static {v0, v7, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->fact(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 855
+    .line 876
     :cond_43d
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -4033,19 +4107,19 @@
 
     invoke-virtual {v5, v6, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 858
+    .line 879
     new-instance v2, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v2, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 859
+    .line 880
     const/4 v3, 0x0
 
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 860
+    .line 881
     const/16 v3, 0x18
 
     move-object/from16 v0, p0
@@ -4080,7 +4154,7 @@
 
     invoke-virtual {v2, v3, v6, v7, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 861
+    .line 882
     const-string v3, "\u0417\u0430\u0442\u0432\u043e\u0440\u0438"
 
     const-string v6, "Close"
@@ -4099,7 +4173,7 @@
 
     move-result-object v3
 
-    .line 862
+    .line 883
     const-string v6, "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u0430\u0439"
 
     const-string v7, "Edit"
@@ -4118,7 +4192,7 @@
 
     move-result-object v6
 
-    .line 863
+    .line 884
     new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, 0x0
@@ -4135,10 +4209,10 @@
 
     invoke-direct {v7, v8, v9, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 864
+    .line 885
     invoke-virtual {v2, v3, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 865
+    .line 886
     new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, 0x0
@@ -4155,7 +4229,7 @@
 
     invoke-direct {v7, v8, v9, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 866
+    .line 887
     const/16 v8, 0xc
 
     move-object/from16 v0, p0
@@ -4166,10 +4240,10 @@
 
     iput v8, v7, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 867
+    .line 888
     invoke-virtual {v2, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 868
+    .line 889
     new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, -0x1
@@ -4180,14 +4254,14 @@
 
     invoke-virtual {v5, v2, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 869
+    .line 890
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$1;
 
     invoke-direct {v2, v4}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$1;-><init>(Landroid/app/Dialog;)V
 
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 874
+    .line 895
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;
 
     move-object/from16 v0, p0
@@ -4198,18 +4272,18 @@
 
     invoke-virtual {v6, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 881
+    .line 902
     invoke-virtual {v4, v5}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 882
+    .line 903
     invoke-virtual {v4}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v2
 
-    .line 883
+    .line 904
     if-eqz v2, :cond_542
 
-    .line 884
+    .line 905
     new-instance v3, Landroid/graphics/drawable/ColorDrawable;
 
     const/4 v5, 0x0
@@ -4218,12 +4292,12 @@
 
     invoke-virtual {v2, v3}, Landroid/view/Window;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 885
+    .line 906
     const v3, 0x3f266666    # 0.65f
 
     invoke-virtual {v2, v3}, Landroid/view/Window;->setDimAmount(F)V
 
-    .line 886
+    .line 907
     invoke-virtual/range {p0 .. p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v3
@@ -4232,7 +4306,7 @@
 
     move-result-object v3
 
-    .line 887
+    .line 908
     iget v5, v3, Landroid/util/DisplayMetrics;->widthPixels:I
 
     const/16 v6, 0x30
@@ -4261,7 +4335,7 @@
 
     const/16 v6, 0x30
 
-    .line 888
+    .line 909
     move-object/from16 v0, p0
 
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
@@ -4282,25 +4356,25 @@
 
     move-result v3
 
-    .line 887
+    .line 908
     invoke-virtual {v2, v5, v3}, Landroid/view/Window;->setLayout(II)V
 
-    .line 889
+    .line 910
     const v3, 0x1030002
 
     invoke-virtual {v2, v3}, Landroid/view/Window;->setWindowAnimations(I)V
 
-    .line 891
+    .line 912
     :cond_542
     invoke-virtual {v4}, Landroid/app/Dialog;->show()V
     :try_end_545
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_545} :catch_54d
 
-    .line 895
+    .line 916
     :goto_545
     return-void
 
-    .line 836
+    .line 857
     :cond_546
     const/4 v2, 0x0
 
@@ -4308,17 +4382,17 @@
 
     goto/16 :goto_395
 
-    .line 837
+    .line 858
     :cond_54a
     const/4 v2, 0x0
 
     goto/16 :goto_3aa
 
-    .line 892
+    .line 913
     :catch_54d
     move-exception v2
 
-    .line 893
+    .line 914
     const-string v3, "xems"
 
     const-string v4, "XemsLocalAvatar.showCard"
@@ -4327,7 +4401,7 @@
 
     goto :goto_545
 
-    .line 764
+    .line 785
     :array_556
     .array-data 4
         -0xe0c5d9
@@ -4339,46 +4413,46 @@
     .registers 9
 
     .prologue
-    .line 501
+    .line 522
     :try_start_0
     invoke-virtual {p0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v1
 
-    .line 502
+    .line 523
     const v0, 0x7f5a7e01
 
     invoke-virtual {p0, v0}, Landroid/view/View;->getTag(I)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 503
+    .line 524
     instance-of v2, v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;
 
     if-eqz v2, :cond_1b
 
-    .line 504
+    .line 525
     check-cast v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;
 
     invoke-virtual {v1, v0}, Landroid/view/ViewOverlay;->remove(Landroid/graphics/drawable/Drawable;)V
 
-    .line 505
+    .line 526
     const v0, 0x7f5a7e01
 
     const/4 v2, 0x0
 
     invoke-virtual {p0, v0, v2}, Landroid/view/View;->setTag(ILjava/lang/Object;)V
 
-    .line 507
+    .line 528
     :cond_1b
     if-eqz p1, :cond_42
 
-    .line 508
+    .line 529
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;-><init>(Landroid/view/View;)V
 
-    .line 509
+    .line 530
     const/4 v2, 0x0
 
     const/4 v3, 0x0
@@ -4405,29 +4479,29 @@
 
     invoke-virtual {v0, v2, v3, v4, v5}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Glow;->setBounds(IIII)V
 
-    .line 510
+    .line 531
     invoke-virtual {v1, v0}, Landroid/view/ViewOverlay;->add(Landroid/graphics/drawable/Drawable;)V
 
-    .line 511
+    .line 532
     const v1, 0x7f5a7e01
 
     invoke-virtual {p0, v1, v0}, Landroid/view/View;->setTag(ILjava/lang/Object;)V
 
-    .line 513
+    .line 534
     :cond_42
     invoke-virtual {p0}, Landroid/view/View;->invalidate()V
     :try_end_45
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_45} :catch_46
 
-    .line 517
+    .line 538
     :goto_45
     return-void
 
-    .line 514
+    .line 535
     :catch_46
     move-exception v0
 
-    .line 515
+    .line 536
     const-string v1, "xems"
 
     const-string v2, "XemsLocalAvatar.showPick"
@@ -4632,15 +4706,15 @@
 
     const/4 v5, 0x0
 
-    .line 910
+    .line 931
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 911
+    .line 932
     invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 912
+    .line 933
     const v1, -0xdfdbd4
 
     const/16 v2, 0x12
@@ -4651,7 +4725,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 913
+    .line 934
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
 
     move-result v1
@@ -4670,7 +4744,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 914
+    .line 935
     const/16 v1, 0xe
 
     const v2, -0x675d4d
@@ -4681,7 +4755,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 915
+    .line 936
     const/16 v1, 0x16
 
     const v2, -0xd0b09
@@ -4692,7 +4766,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 916
+    .line 937
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, -0x2
@@ -4701,14 +4775,14 @@
 
     invoke-direct {v1, v5, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 917
+    .line 938
     invoke-virtual {p1}, Landroid/widget/LinearLayout;->getChildCount()I
 
     move-result v2
 
     if-lez v2, :cond_5b
 
-    .line 918
+    .line 939
     const/16 v2, 0xa
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->dp(Landroid/content/Context;I)I
@@ -4717,11 +4791,11 @@
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 920
+    .line 941
     :cond_5b
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 921
+    .line 942
     return-void
 .end method
 
@@ -4804,13 +4878,13 @@
 
     const/4 v1, 0x0
 
-    .line 477
+    .line 498
     :try_start_2
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->itemsOf:Ljava/lang/reflect/Method;
 
     if-nez v0, :cond_17
 
-    .line 478
+    .line 499
     const-string v0, "com.isaigu.gymapp.wearable.WearableSyncHelper"
 
     invoke-static {v0}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
@@ -4829,7 +4903,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->itemsOf:Ljava/lang/reflect/Method;
 
-    .line 480
+    .line 501
     :cond_17
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->itemsOf:Ljava/lang/reflect/Method;
 
@@ -4843,17 +4917,17 @@
 
     move-result-object v0
 
-    .line 481
+    .line 502
     if-nez v0, :cond_25
 
     move v1, v2
 
-    .line 494
+    .line 515
     :cond_24
     :goto_24
     return v1
 
-    .line 484
+    .line 505
     :cond_25
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -4879,7 +4953,7 @@
 
     check-cast v0, Ljava/util/List;
 
-    .line 486
+    .line 507
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
@@ -4895,14 +4969,14 @@
 
     move-result-object v0
 
-    .line 487
+    .line 508
     instance-of v4, v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
     if-eqz v4, :cond_5c
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 488
+    .line 509
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
     :try_end_52
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_52} :catch_59
@@ -4911,22 +4985,22 @@
 
     if-nez v0, :cond_5c
 
-    .line 489
+    .line 510
     add-int/lit8 v0, v1, 0x1
 
     :goto_57
     move v1, v0
 
-    .line 491
+    .line 512
     goto :goto_3f
 
-    .line 493
+    .line 514
     :catch_59
     move-exception v0
 
     move v1, v2
 
-    .line 494
+    .line 515
     goto :goto_24
 
     :cond_5c
@@ -4939,33 +5013,33 @@
     .registers 8
 
     .prologue
-    .line 997
+    .line 1018
     new-instance v0, Landroid/widget/TextView;
 
     invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 998
+    .line 1019
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 999
+    .line 1020
     const/4 v1, 0x2
 
     int-to-float v2, p2
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 1000
+    .line 1021
     invoke-virtual {v0, p3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 1001
+    .line 1022
     if-eqz p4, :cond_17
 
-    .line 1002
+    .line 1023
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 1004
+    .line 1025
     :cond_17
     return-object v0
 .end method

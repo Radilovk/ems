@@ -129,7 +129,7 @@ public final class SoftRamp {
     /**
      * Hook: the pause-phase send of TrainItem.sendPulse (phase start and every change in it) — every mode. The
      * second impulse goes out only within the limits (wearable/SafeGuard.pause): none at strength 0, at most 10 Hz,
-     * never above the main strength; otherwise a plain pause. It rises and falls like the main one.
+     * at most 1.5 × the main strength; otherwise a plain pause. It rises and falls like the main one.
      */
     public static void sendPause(TrainItem item, ProgramDataBean b, boolean[] parts, int workLength) {
         CommandSender s = item != null ? item.sender : null;

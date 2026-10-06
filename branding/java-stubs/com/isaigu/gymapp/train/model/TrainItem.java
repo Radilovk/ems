@@ -73,4 +73,7 @@ public class TrainItem {
     public void xemsRebind(com.clj.fastble.data.BleDevice device) {}
 
     public void stop() {}
+
+    /** Vendor: stops the slot and resets its time (the ■ of one row). */
+    public void reset() {}
 }

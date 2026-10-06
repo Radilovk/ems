@@ -29,6 +29,9 @@ public class BtSettingsTest {
         eq("row tag front thigh", "Л", BtSettings.rowTag(2));
         eq("row tag back thigh", "Д", BtSettings.rowTag(9));
         eq("row tag glutes none", null, BtSettings.rowTag(8));
+        eq("no chest channel on bodytech", false, BtSettings.hasChannel(0));
+        eq("no calf channel by default", false, BtSettings.hasChannel(3));
+        eq("front thigh has one", true, BtSettings.hasChannel(2));
         // a tablet still on the old EMSFIT defaults moves to the legs once; an owner's own map stays
         BtSettings.names[5] = "Гърди";
         BtSettings.slider[5] = 0;

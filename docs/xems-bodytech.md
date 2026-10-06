@@ -75,6 +75,10 @@ Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C
   each leg is its row value × its own factor, so a program step or ± moves both in proportion and 0 stays 0. Stop
   (`reset`) = equal again. A program step that happens to change exactly one leg and nothing else reads as a hand.
   The second impulse's (yellow) look is not redrawn — the suit still gets the equal value.
+- **No chest on bodytech (owner, 1.1.378):** EMSFIT's "Гърди" channel is a leg, so the suit has no chest. On a bodytech
+  row every slider that no channel answers (`BtSettings.hasChannel`: the chest, and the calf with the default map) is
+  hidden — INVISIBLE, so the other columns stay under the shared muscle icons (`PartLook.columns`; recycled rows get
+  their columns back). Settings → Костюм bodytech no longer offers "Гърди" as a slider (only while a channel still has it).
 Changes are saved at once and used by the next command the row sends.
 
 ## Test of a channel and the left → right order (1.1.346)

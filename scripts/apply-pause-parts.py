@@ -14,6 +14,7 @@ Patches (idempotent; each site is checked and the build stops if it is not found
   NewTrainFragment.updateMuscleSelectionVisual  at its end PartPick.tintAll: yellow channels get the yellow frame
   NewTrainFragment.xemsRefreshParts()     new: adapter + icons redraw (the 5 s clear runs off the UI thread)
   CommandSender.sendActivePause           the second impulse's channel packet through PartStrength.secondPdu
+  TrainViewHolder$5.onStopTrackingTouch   a channel's own bar: yellow → second impulse alone (PartStrength.bar)
 """
 from __future__ import annotations
 
@@ -122,9 +123,35 @@ def patch_sender() -> None:
     print("patched CommandSender.sendActivePause: second impulse's own channel percents")
 
 
+def patch_bar() -> None:
+    """A channel's bar in the row: yellow → its second impulse alone (PartStrength.bar), green → main as stock."""
+    path = DEC / "train" / "TrainViewHolder$5.smali"
+    text = path.read_text(encoding="utf-8")
+    a, b = method_span(text, ".method public onStopTrackingTouch(")
+    body = text[a:b]
+    if f"{PS}->bar(" in body:
+        print("TrainViewHolder$5.onStopTrackingTouch: bar already through PartStrength")
+        return
+    old = "    aput v3, v1, v2\n"
+    if body.count(old) != 1:
+        raise RuntimeError("TrainViewHolder$5.onStopTrackingTouch: the buwei store not found once")
+    holder = "Lcom/isaigu/gymapp/train/TrainViewHolder"
+    new = (
+        f"    iget-object v1, p0, {holder}$5;->this$0:{holder};\n\n"
+        f"    invoke-virtual {{v1}}, {holder};->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;\n\n"
+        "    move-result-object v1\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;\n\n"
+        f"    invoke-static {{v1, v0, v2, v3}}, {PS}->bar(Lcom/isaigu/gymapp/bean/TrainProgram;{BEAN}II)V\n"
+    )
+    text = text[:a] + body.replace(old, new, 1) + text[b:]
+    path.write_text(text, encoding="utf-8")
+    print("patched TrainViewHolder$5.onStopTrackingTouch: yellow bar → second impulse alone")
+
+
 def main() -> None:
     patch_fragment()
     patch_sender()
+    patch_bar()
 
 
 if __name__ == "__main__":

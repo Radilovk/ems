@@ -164,6 +164,10 @@ public final class PartStrength {
      * set so their second impulse stays exactly where it was. The main impulse is not touched.
      */
     static void changeSecond(TrainItem item, ProgramDataBean b, boolean[] yel, int delta) {
+        changeSecond(item, item != null ? item.getTrainProgram() : null, b, yel, delta);
+    }
+
+    static void changeSecond(TrainItem item, TrainProgram prog, ProgramDataBean b, boolean[] yel, int delta) {
         int[] parts = b.strenthBean.buwei;
         int[] e = SecondParts.effective(b, parts);
         int cap = secondCap(item, b);
@@ -188,7 +192,7 @@ public final class PartStrength {
         }
         if (np != p) {
             b.pauseStrenthPercent = np;
-            saveProgram(item);
+            saveProgram(prog);
         }
         SecondParts.set(b, parts, e);
     }
@@ -257,9 +261,47 @@ public final class PartStrength {
     }
 
     static void saveProgram(TrainItem item) {
+        saveProgram(item != null ? item.getTrainProgram() : null);
+    }
+
+    static void saveProgram(TrainProgram prog) {
         try {
-            ActivePauseStorage.save(item.getTrainProgram());
+            if (prog != null) {
+                ActivePauseStorage.save(prog);
+            }
         } catch (Throwable ignored) {
+        }
+    }
+
+    // ================================================================ a channel's own bar (row)
+
+    /**
+     * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the stock
+     * percent of the main impulse). Yellow channel: the bar's strength goes to its second impulse alone, the main
+     * impulse stays where it was. Otherwise the main impulse takes it as stock; with the second impulse on the
+     * second impulse of the channel stays where it was (green = main alone).
+     */
+    public static void bar(TrainProgram prog, ProgramDataBean b, int i, int stored) {
+        int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+        if (parts == null || i < 0 || i >= parts.length) {
+            return;
+        }
+        try {
+            PartPick.touch();
+            if (b.activePause && PartPick.isYellow(i)) {
+                boolean[] y = new boolean[parts.length];
+                y[i] = true;
+                int now = real(SecondParts.effective(b, parts)[i], Math.min(b.pauseStrenthPercent, secondCap(null, b)));
+                changeSecond(null, prog, b, y, real(stored, b.strenth) - now);
+                return;
+            }
+            int[] second = b.activePause ? SecondParts.effective(b, parts) : SecondParts.get(b);
+            parts[i] = stored;
+            if (second != null && second.length == parts.length) {
+                SecondParts.set(b, parts, second);
+            }
+        } catch (Throwable t) {
+            parts[i] = stored;
         }
     }
 

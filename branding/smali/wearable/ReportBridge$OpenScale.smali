@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 516
+    .line 522
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 517
+    .line 523
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$OpenScale;->a:Landroid/app/Activity;
 
-    .line 518
+    .line 524
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$OpenScale;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 519
+    .line 525
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 3
 
     .prologue
-    .line 523
+    .line 529
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$OpenScale;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$OpenScale;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen;->open(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;)V
 
-    .line 524
+    .line 530
     return-void
 .end method

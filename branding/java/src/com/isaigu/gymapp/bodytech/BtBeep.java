@@ -8,37 +8,44 @@ import android.os.SystemClock;
 import android.util.Log;
 
 /**
- * Sound signals of a bodytech suit, from the tablet (owner, 1.1.355), in Morse marks: start "...-", pause / stop "-",
- * link problem "..." (at most once every {@link #LOST_GAP_MS}). Made to be pleasant yet heard in a gym (1.1.359):
- * a bell-like tone — a sine with a soft 2nd and 3rd harmonic (carries over noise, not harsh like a square wave),
- * 8 ms soft attack, exponential decay; dot 880 Hz (A5) 120 ms, dash 1319 Hz (E6, a perfect fifth up) 240 ms, gap 120 ms.
- * The whole signal is one PCM buffer on one AudioTrack: exact timing, no timers. A new signal cuts the old one.
+ * Sound signals of a bodytech suit, from the tablet (owner; 1.1.360 scheme): start = one long HIGH tone, pause =
+ * one long LOW tone, stop (full reset) = the low tone twice as long, link problem = three short low tones (at most
+ * once every {@link #LOST_GAP_MS}). A bell-like tone — a sine with a soft 2nd and 3rd harmonic (carries over noise,
+ * not harsh), 8 ms soft attack, exponential decay. High 1319 Hz (E6), low 880 Hz (A5). One PCM buffer on one
+ * AudioTrack: exact timing, no timers. A new signal cuts the old one.
  */
 public final class BtBeep {
     private static final String TAG = "BtBeep";
-    static final int RATE = 24000, FREQ_DOT = 880, FREQ_DASH = 1319, DOT_MS = 120, DASH_MS = 240, GAP_MS = 120, ATTACK_MS = 8, RELEASE_MS = 8;
+    static final int RATE = 24000, LOW = 880, HIGH = 1319, SHORT_MS = 120, LONG_MS = 400, GAP_MS = 120, ATTACK_MS = 8, RELEASE_MS = 8;
     static final long LOST_GAP_MS = 5000L;
     private static AudioTrack track;
     private static long lastLost;
 
     private BtBeep() {}
 
+    /** Start: one long high tone. */
     public static void start() {
-        play("...-");
+        play("H");
     }
 
+    /** Pause: one long low tone. */
+    public static void pause() {
+        play("L");
+    }
+
+    /** Stop (full reset): the low tone twice as long. */
     public static void stop() {
-        play("-");
+        play("W");
     }
 
     public static synchronized void lost() {
         long now = SystemClock.elapsedRealtime();
         if (now - lastLost < LOST_GAP_MS) return;
         lastLost = now;
-        play("...");
+        play("...");   // short low x3
     }
 
-    /** The PCM (16 bit mono) of a pattern of '.' and '-'. */
+    /** The PCM (16 bit mono) of a pattern: '.' short low, 'L' long low, 'W' double-long low, 'H' long high. */
     static short[] pcm(String marks) {
         int n = 0;
         for (int i = 0; i < marks.length(); i++) n += ms(marks.charAt(i)) + (i + 1 < marks.length() ? GAP_MS : 0);
@@ -46,7 +53,7 @@ public final class BtBeep {
         int at = 0;
         for (int i = 0; i < marks.length(); i++) {
             int len = ms(marks.charAt(i)) * RATE / 1000;
-            int freq = marks.charAt(i) == '-' ? FREQ_DASH : FREQ_DOT;
+            int freq = marks.charAt(i) == 'H' ? HIGH : LOW;
             int att = ATTACK_MS * RATE / 1000;
             int rel = RELEASE_MS * RATE / 1000;
             for (int k = 0; k < len; k++) {
@@ -63,7 +70,7 @@ public final class BtBeep {
     }
 
     private static int ms(char c) {
-        return c == '-' ? DASH_MS : DOT_MS;
+        return c == 'W' ? 2 * LONG_MS : (c == '.' ? SHORT_MS : LONG_MS);
     }
 
     private static synchronized void play(String marks) {

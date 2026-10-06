@@ -15,15 +15,7 @@
 
 
 # instance fields
-.field public final beatHi:I
-
-.field public final beatLo:I
-
-.field public final burstHz:I
-
-.field public final burstMs:I
-
-.field public final carrier:I
+.field public final advanced:Z
 
 .field public final combine:Ljava/lang/String;
 
@@ -41,124 +33,102 @@
 
 .field public final kind:I
 
-.field public final level:I
-
 .field public final minutes:I
 
 .field public final name:Ljava/lang/String;
 
-.field public final offS:I
-
-.field public final onS:I
-
-.field public final rampS:I
-
-.field public final sweepS:I
-
-.field public final us:I
-
-.field public final wave:I
+.field public final ph:[Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
 .field public final zones:[I
 
 
 # direct methods
-.method constructor <init>(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;IIIIIIIII[IZIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-    .registers 25
+.method varargs constructor <init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[IZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Lcom/isaigu/gymapp/bodytech/BtAus$Ph;)V
+    .registers 18
 
     .prologue
-    .line 47
+    .line 85
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 48
+    .line 86
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->id:Ljava/lang/String;
 
-    .line 49
+    .line 87
     iput-object p2, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->name:Ljava/lang/String;
 
-    .line 50
-    iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->kind:I
-
-    .line 51
-    iput-object p4, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->goal:Ljava/lang/String;
-
-    .line 52
-    iput-object p5, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->feel:Ljava/lang/String;
-
-    .line 53
-    iput p6, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->carrier:I
-
-    .line 54
-    iput p7, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->us:I
-
-    .line 55
-    iput p8, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->burstHz:I
-
-    .line 56
-    iput p9, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->burstMs:I
-
-    .line 57
+    .line 88
     const/4 v1, 0x1
 
-    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->wave:I
+    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->kind:I
 
-    .line 58
-    iput p10, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->onS:I
+    .line 89
+    iput-object p3, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->goal:Ljava/lang/String;
 
-    .line 59
-    iput p11, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->offS:I
+    .line 90
+    iput-object p4, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->feel:Ljava/lang/String;
 
-    .line 60
-    iput p12, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->rampS:I
+    .line 91
+    iput-object p5, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->zones:[I
 
-    .line 61
-    iput p13, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->minutes:I
+    .line 92
+    iput-boolean p6, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->advanced:Z
 
-    .line 62
-    move/from16 v0, p14
+    .line 93
+    iput-object p7, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->how:Ljava/lang/String;
 
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->level:I
+    .line 94
+    iput-object p8, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->course:Ljava/lang/String;
 
-    .line 63
-    move-object/from16 v0, p15
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->zones:[I
-
-    .line 64
-    move/from16 v0, p16
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ifc:Z
-
-    .line 65
-    move/from16 v0, p17
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatLo:I
-
-    .line 66
-    move/from16 v0, p18
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatHi:I
-
-    .line 67
-    move/from16 v0, p19
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->sweepS:I
-
-    .line 68
-    move-object/from16 v0, p20
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->how:Ljava/lang/String;
-
-    .line 69
-    move-object/from16 v0, p21
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->course:Ljava/lang/String;
-
-    .line 70
-    move-object/from16 v0, p22
+    .line 95
+    move-object/from16 v0, p9
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->combine:Ljava/lang/String;
 
-    .line 71
+    .line 96
+    move-object/from16 v0, p10
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ph:[Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
+
+    .line 97
+    const/4 v3, 0x0
+
+    .line 98
+    const/4 v2, 0x0
+
+    .line 99
+    move-object/from16 v0, p10
+
+    array-length v4, v0
+
+    const/4 v1, 0x0
+
+    :goto_24
+    if-ge v1, v4, :cond_31
+
+    aget-object v5, p10, v1
+
+    .line 100
+    iget v6, v5, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->minutes:I
+
+    add-int/2addr v3, v6
+
+    .line 101
+    iget-boolean v5, v5, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->ifc:Z
+
+    or-int/2addr v2, v5
+
+    .line 99
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_24
+
+    .line 103
+    :cond_31
+    iput v3, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->minutes:I
+
+    .line 104
+    iput-boolean v2, p0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ifc:Z
+
+    .line 105
     return-void
 .end method

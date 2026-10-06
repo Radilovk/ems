@@ -194,6 +194,22 @@ public final class BtBridge {
         }
     }
 
+    /** What leg slider i of the row gives this suit (raw = the row's 10 values); −1 for an unknown suit. */
+    public static int legValue(String mac, int[] raw, int i) {
+        try {
+            if (mac == null) return -1;
+            Dev v = null;
+            synchronized (BtBridge.class) {
+                for (Dev x : DEVS.values()) {
+                    if (mac.equalsIgnoreCase(x.d.getMac())) v = x;
+                }
+            }
+            return v != null ? v.tr.legValue(raw, i) : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
     /** Is the suit with this MAC a bodytech one (seen as such when it was connected)? */
     public static synchronized boolean isBodytechMac(String mac) {
         if (mac == null) return false;

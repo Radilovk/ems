@@ -27,10 +27,18 @@ public final class BtSettings {
      *  lower back, back, trapezius, chest, arms — as indexes into {@link #SLIDERS}. */
     public static final int[] ROW_ORDER = {3, 2, 9, 8, 1, 7, 6, 5, 0, 4};
 
-    /** EMSFIT labels (customButtonN → CH): C1 WAIST … C8 ABDOMEN. Index 0 unused. */
-    static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Гърди", "Ръце",
-            "Бедра", "Корем"};
-    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 0, 4, 2, 1};
+    /**
+     * EMSFIT labels (customButtonN → CH): C1 WAIST … C8 ABDOMEN. Index 0 unused. On the bodytech suit EMSFIT's "Гърди"
+     * (C5) and "Бедра" (C7) are the two legs (owner, 1.1.376): left thigh → the row's front-thigh slider, right thigh →
+     * its back-thigh slider, so each leg has its own slider (the row tags them Л / Д, {@link #rowTag}). Which leg is
+     * which is the owner's to confirm — swapping is a rename in Settings → Костюм bodytech.
+     */
+    static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Ляво бедро", "Ръце",
+            "Дясно бедро", "Корем"};
+    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 2, 4, 9, 1};
+    /** The EMSFIT defaults before 1.1.376: a tablet still holding them untouched is moved to the legs once. */
+    static final String OLD_C5 = "Гърди", OLD_C7 = "Бедра";
+    static final int OLD_C5_SLIDER = 0, OLD_C7_SLIDER = 2;
 
     public static final int GROUP_BOTH = 0, GROUP_MAIN = 1, GROUP_SECOND = 2;
     public static final String[] GROUPS = {"И двата", "Основен", "Втори"};
@@ -84,11 +92,63 @@ public final class BtSettings {
             chHzMain[ch] = clampHz(p.getInt("chzm" + ch, 0), HZ_MAIN_MAX);
             chHzSecond[ch] = clampHz(p.getInt("chzs" + ch, 0), HZ_SECOND_MAX);
         }
+        if (legs()) save();
         unlimited = p.getBoolean("unlimited", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
         loaded = true;
+    }
+
+    /** C5 / C7 still as the old EMSFIT defaults (name and slider untouched) → the two legs. true = changed. */
+    static boolean legs() {
+        boolean changed = false;
+        if (OLD_C5.equals(names[5]) && slider[5] == OLD_C5_SLIDER) {
+            names[5] = DEFAULT_NAMES[5];
+            slider[5] = DEFAULT_SLIDER[5];
+            changed = true;
+        }
+        if (OLD_C7.equals(names[7]) && slider[7] == OLD_C7_SLIDER) {
+            names[7] = DEFAULT_NAMES[7];
+            slider[7] = DEFAULT_SLIDER[7];
+            changed = true;
+        }
+        return changed;
+    }
+
+    /**
+     * The training row's tag for slider s on a bodytech row: "Л" / "Д" when every channel on that slider is named
+     * left / right (Ляв… / Дясн…), else null. Derived from the owner's names, so a swap in the settings follows.
+     */
+    public static synchronized String rowTag(int s) {
+        if (!loaded) return null;
+        String tag = null;
+        for (int ch = 1; ch <= CHANNELS; ch++) {
+            if (slider[ch] != s) continue;
+            String n = names[ch] == null ? "" : names[ch].trim().toLowerCase();
+            String t = n.startsWith("ляв") ? "Л" : (n.startsWith("дясн") ? "Д" : null);
+            if (t == null || (tag != null && !tag.equals(t))) return null;
+            tag = t;
+        }
+        return tag;
+    }
+
+    /** The sliders of the two legs (a Л one and a Д one, {@link #rowTag}); empty when the map has no such pair. */
+    public static synchronized int[] legSliders() {
+        int[] tmp = new int[10];
+        int n = 0;
+        boolean l = false, r = false;
+        for (int s = 0; s < 10; s++) {
+            String t = rowTag(s);
+            if (t == null) continue;
+            l |= "Л".equals(t);
+            r |= "Д".equals(t);
+            tmp[n++] = s;
+        }
+        if (!l || !r) return new int[0];
+        int[] out = new int[n];
+        System.arraycopy(tmp, 0, out, 0, n);
+        return out;
     }
 
     static void save() {

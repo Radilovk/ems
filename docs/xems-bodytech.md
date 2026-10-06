@@ -59,7 +59,22 @@ Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two co
   (main limits of `docs/xems-safety-limits.md` stay upstream).
 Global: waveform (the suit's own / square / sine / trapezoid) and a strength scale 50–150 %.
 Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C2 Седалище→Седалище, C3 Рамене→Трапец, C4 Среден
-гръб→Гръб, C5 Гърди→Гърди, C6 Ръце→Ръце, C7 Бедра→Предно бедро, C8 Корем→Корем. "По подразбиране" resets everything.
+гръб→Гръб, **C5 Ляво бедро→Предно бедро**, C6 Ръце→Ръце, **C7 Дясно бедро→Задно бедро**, C8 Корем→Корем.
+"По подразбиране" resets everything.
+- **The legs (owner, 1.1.376):** on bodytech EMSFIT's "Гърди" (C5) and "Бедра" (C7) are the left and right thigh (each
+  front + back). Each leg has its own slider: the row's front-thigh slider drives the left leg, the back-thigh slider
+  the right one, and on a bodytech row their percents read **"Л 45%" / "Д 45%"** (`PartLook.legTags` ←
+  `BtSettings.rowTag`: the tag comes from the channel names — "Ляв…" / "Дясн…" — so renaming or swapping in the
+  settings moves it; mixed or other names = no tag). The muscle icons above are shared by every row and stay.
+  A tablet that still holds the old untouched C5 Гърди→Гърди / C7 Бедра→Предно бедро is moved once on load
+  (`BtSettings.legs`); an owner's own map is not touched. Which leg is C5 is still to be confirmed on a person.
+- **Equal legs (owner, 1.1.377):** a program that gives front and back thigh different values would give the two legs
+  different strengths, so on bodytech the legs get **the same strength — the higher of the two** (`BtTranslator.legValue`;
+  the row's two leg bars and texts show it, `PartLook.legs`). A hand on **one** leg (its bar, or ± with only that leg
+  picked — one slider changes alone) sets that leg to the finger's value and keeps the other where it is; from then on
+  each leg is its row value × its own factor, so a program step or ± moves both in proportion and 0 stays 0. Stop
+  (`reset`) = equal again. A program step that happens to change exactly one leg and nothing else reads as a hand.
+  The second impulse's (yellow) look is not redrawn — the suit still gets the equal value.
 Changes are saved at once and used by the next command the row sends.
 
 ## Test of a channel and the left → right order (1.1.346)

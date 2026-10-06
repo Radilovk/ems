@@ -21,13 +21,15 @@
 
 
 # instance fields
-.field burstHz:I
+.field burstHz:[I
 
-.field burstMs:I
+.field burstMs:[I
 
-.field carrier:I
+.field carrier:[I
 
 .field final chans:[Z
+
+.field cur:I
 
 .field elapsed:D
 
@@ -43,21 +45,27 @@
 
 .field private last:J
 
-.field level:I
+.field level:[I
 
 .field final mac:Ljava/lang/String;
 
-.field minutes:I
+.field minutes:[I
 
-.field offS:I
+.field n:I
 
-.field onS:I
+.field offS:[I
+
+.field onS:[I
 
 .field final pcts:[I
 
+.field phaseStart:D
+
 .field pos:Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
-.field rampS:I
+.field rampS:[I
+
+.field sel:I
 
 .field private sentOff:Z
 
@@ -69,7 +77,7 @@
 
 .field final ui:Ljava/lang/Runnable;
 
-.field wave:I
+.field wave:[I
 
 
 # direct methods
@@ -81,10 +89,10 @@
 
     const/16 v3, 0x9
 
-    .line 36
+    .line 43
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 18
+    .line 19
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -95,15 +103,20 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
 
-    .line 24
+    .line 26
     new-array v0, v3, [Z
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->chans:[Z
 
-    .line 26
+    .line 30
+    const/4 v0, -0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    .line 32
     iput v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    .line 29
+    .line 36
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
     const/4 v1, 0x3
@@ -114,24 +127,132 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pos:Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
-    .line 30
+    .line 37
     new-array v0, v3, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pcts:[I
 
-    .line 31
+    .line 38
     new-array v0, v3, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->hzs:[I
 
-    .line 37
+    .line 44
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->mac:Ljava/lang/String;
 
-    .line 38
+    .line 45
     iput-object p2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ui:Ljava/lang/Runnable;
 
-    .line 39
+    .line 46
     return-void
+.end method
+
+.method private enter(IDJ)V
+    .registers 10
+
+    .prologue
+    .line 178
+    iput p1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    .line 179
+    iput p1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sel:I
+
+    .line 180
+    iput-wide p2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->phaseStart:D
+
+    .line 181
+    iput-wide p4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->softFrom:J
+
+    .line 182
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ph(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
+
+    move-result-object v0
+
+    .line 183
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->ifc:Z
+
+    if-eqz v1, :cond_28
+
+    .line 184
+    iget v1, v0, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatHi:I
+
+    iget v2, v0, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatLo:I
+
+    if-le v1, v2, :cond_32
+
+    .line 185
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:[I
+
+    aget v1, v1, p1
+
+    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcA:I
+
+    .line 186
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:[I
+
+    aget v1, v1, p1
+
+    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatLo:I
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/bodytech/BtAus;->ifcB(II)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcB:I
+
+    .line 193
+    :cond_28
+    :goto_28
+    const-wide/16 v0, 0x0
+
+    cmpl-double v0, p2, v0
+
+    if-lez v0, :cond_31
+
+    .line 195
+    :try_start_2e
+    invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBeep;->start()V
+    :try_end_31
+    .catch Ljava/lang/Throwable; {:try_start_2e .. :try_end_31} :catch_47
+
+    .line 199
+    :cond_31
+    :goto_31
+    return-void
+
+    .line 188
+    :cond_32
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:[I
+
+    aget v1, v1, p1
+
+    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatLo:I
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/bodytech/BtAus;->ifcPair(II)[I
+
+    move-result-object v0
+
+    .line 189
+    const/4 v1, 0x0
+
+    aget v1, v0, v1
+
+    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcA:I
+
+    .line 190
+    const/4 v1, 0x1
+
+    aget v0, v0, v1
+
+    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcB:I
+
+    goto :goto_28
+
+    .line 196
+    :catch_47
+    move-exception v0
+
+    goto :goto_31
 .end method
 
 .method private halt()V
@@ -144,7 +265,7 @@
 
     const/4 v3, 0x0
 
-    .line 130
+    .line 171
     move v0, v7
 
     :goto_4
@@ -160,7 +281,7 @@
 
     goto :goto_4
 
-    .line 131
+    .line 172
     :cond_f
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->mac:Ljava/lang/String;
 
@@ -176,14 +297,14 @@
 
     invoke-static/range {v0 .. v8}, Lcom/isaigu/gymapp/bodytech/BtBridge;->program(Ljava/lang/String;[I[IIIIIIZ)Ljava/lang/String;
 
-    .line 132
+    .line 173
     iput-boolean v7, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sentOff:Z
 
-    .line 133
+    .line 174
     return-void
 .end method
 
-.method private ifcHz(D)V
+.method private ifcHz(Lcom/isaigu/gymapp/bodytech/BtAus$Ph;D)V
     .registers 14
 
     .prologue
@@ -193,34 +314,34 @@
 
     const/4 v4, 0x0
 
-    .line 137
+    .line 203
     new-array v6, v7, [I
 
     move v2, v4
 
     move v1, v4
 
-    .line 139
+    .line 205
     :goto_8
     if-ge v2, v7, :cond_1c
 
-    .line 140
+    .line 206
     invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->channelAt(I)I
 
     move-result v5
 
-    .line 141
+    .line 207
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->chans:[Z
 
     aget-boolean v0, v0, v5
 
-    if-eqz v0, :cond_68
+    if-eqz v0, :cond_5e
 
     add-int/lit8 v0, v1, 0x1
 
     aput v5, v6, v1
 
-    .line 139
+    .line 205
     :goto_18
     add-int/lit8 v2, v2, 0x1
 
@@ -228,36 +349,26 @@
 
     goto :goto_8
 
-    .line 143
+    .line 209
     :cond_1c
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcB:I
 
-    .line 144
-    iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    .line 210
+    iget v2, p1, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatHi:I
 
-    iget v2, v2, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatHi:I
+    iget v5, p1, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatLo:I
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v5, v5, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatLo:I
-
-    if-le v2, v5, :cond_43
+    if-le v2, v5, :cond_39
 
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcA:I
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    iget v2, p1, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatLo:I
 
-    iget v2, v2, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatLo:I
+    iget v5, p1, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->beatHi:I
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    iget v7, p1, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->sweepS:I
 
-    iget v5, v5, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatHi:I
-
-    iget-object v7, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v7, v7, Lcom/isaigu/gymapp/bodytech/BtAus$T;->sweepS:I
-
-    invoke-static {v2, v5, v7, p1, p2}, Lcom/isaigu/gymapp/bodytech/BtAus;->beatAt(IIID)D
+    invoke-static {v2, v5, v7, p2, p3}, Lcom/isaigu/gymapp/bodytech/BtAus;->beatAt(IIID)D
 
     move-result-wide v8
 
@@ -271,71 +382,71 @@
 
     move-result v0
 
-    :cond_43
+    :cond_39
     move v5, v4
 
-    .line 145
-    :goto_44
-    if-ge v5, v1, :cond_67
+    .line 211
+    :goto_3a
+    if-ge v5, v1, :cond_5d
 
-    .line 146
+    .line 212
     aget v7, v6, v5
 
-    .line 147
+    .line 213
     add-int/lit8 v2, v1, -0x1
 
-    if-ne v5, v2, :cond_5c
+    if-ne v5, v2, :cond_52
 
     rem-int/lit8 v2, v1, 0x2
 
-    if-ne v2, v3, :cond_5c
+    if-ne v2, v3, :cond_52
 
     move v2, v3
 
-    .line 148
-    :goto_51
+    .line 214
+    :goto_47
     iget-object v8, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->hzs:[I
 
-    if-eqz v2, :cond_5e
+    if-eqz v2, :cond_54
 
     move v2, v4
 
-    :goto_56
+    :goto_4c
     aput v2, v8, v7
 
-    .line 145
+    .line 211
     add-int/lit8 v2, v5, 0x1
 
     move v5, v2
 
-    goto :goto_44
+    goto :goto_3a
 
-    :cond_5c
+    :cond_52
     move v2, v4
 
-    .line 147
-    goto :goto_51
+    .line 213
+    goto :goto_47
 
-    .line 148
-    :cond_5e
+    .line 214
+    :cond_54
     rem-int/lit8 v2, v5, 0x2
 
-    if-nez v2, :cond_65
+    if-nez v2, :cond_5b
 
     iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcA:I
 
-    goto :goto_56
+    goto :goto_4c
 
-    :cond_65
+    :cond_5b
     move v2, v0
 
-    goto :goto_56
+    goto :goto_4c
 
-    .line 150
-    :cond_67
+    .line 216
+    :cond_5d
     return-void
 
-    :cond_68
+    :cond_5e
     move v0, v1
 
     goto :goto_18
@@ -347,21 +458,21 @@
     .registers 3
 
     .prologue
-    .line 69
+    .line 95
     invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->channelCount()I
 
     move-result v0
 
-    .line 70
+    .line 96
     if-nez v0, :cond_9
 
     const-string v0, "\u0418\u0437\u0431\u0435\u0440\u0438 \u043f\u043e\u043d\u0435 \u0435\u0434\u043d\u0430 \u0437\u043e\u043d\u0430"
 
-    .line 72
+    .line 98
     :goto_8
     return-object v0
 
-    .line 71
+    .line 97
     :cond_9
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
@@ -377,7 +488,7 @@
 
     goto :goto_8
 
-    .line 72
+    .line 98
     :cond_15
     const/4 v0, 0x0
 
@@ -388,10 +499,10 @@
     .registers 4
 
     .prologue
-    .line 62
+    .line 88
     const/4 v0, 0x0
 
-    .line 63
+    .line 89
     const/4 v1, 0x1
 
     :goto_2
@@ -412,7 +523,7 @@
 
     goto :goto_2
 
-    .line 64
+    .line 90
     :cond_11
     return v0
 .end method
@@ -421,111 +532,239 @@
     .registers 9
 
     .prologue
-    const/4 v3, 0x1
+    const/4 v2, 0x1
 
     const/4 v1, 0x0
 
-    .line 43
+    .line 50
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
-    .line 44
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->level:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
-
-    .line 45
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->minutes:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:I
-
-    .line 46
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->onS:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
-
-    .line 47
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->offS:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
-
-    .line 48
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->rampS:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:I
-
-    .line 49
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->burstHz:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:I
-
-    .line 50
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->burstMs:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:I
-
     .line 51
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->wave:I
+    iget-object v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ph:[Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->wave:I
+    array-length v0, v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
 
     .line 52
-    iget v0, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->carrier:I
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
 
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:I
+    new-array v0, v0, [I
 
-    move v4, v3
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:[I
 
     .line 53
-    :goto_29
-    const/16 v0, 0x8
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
 
-    if-gt v4, v0, :cond_4a
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
+
+    .line 54
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
 
     .line 55
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
+
+    .line 56
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:[I
+
+    .line 57
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:[I
+
+    .line 58
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:[I
+
+    .line 59
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->wave:[I
+
+    .line 60
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    new-array v0, v0, [I
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:[I
+
+    move v0, v1
+
+    .line 61
+    :goto_40
+    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    if-ge v0, v3, :cond_81
+
+    .line 62
+    iget-object v3, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ph:[Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
+
+    aget-object v3, v3, v0
+
+    .line 63
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->level:I
+
+    aput v5, v4, v0
+
+    .line 64
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->minutes:I
+
+    aput v5, v4, v0
+
+    .line 65
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->onS:I
+
+    aput v5, v4, v0
+
+    .line 66
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->offS:I
+
+    aput v5, v4, v0
+
+    .line 67
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->rampS:I
+
+    aput v5, v4, v0
+
+    .line 68
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->burstHz:I
+
+    aput v5, v4, v0
+
+    .line 69
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->burstMs:I
+
+    aput v5, v4, v0
+
+    .line 70
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->wave:[I
+
+    iget v5, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->wave:I
+
+    aput v5, v4, v0
+
+    .line 71
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:[I
+
+    iget v3, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->carrier:I
+
+    aput v3, v4, v0
+
+    .line 61
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_40
+
+    .line 73
+    :cond_81
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    if-le v0, v2, :cond_a5
+
+    move v0, v2
+
+    :goto_86
+    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sel:I
+
+    .line 74
+    const/4 v0, -0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    move v4, v2
+
+    .line 75
+    :goto_8c
+    const/16 v0, 0x8
+
+    if-gt v4, v0, :cond_af
+
+    .line 77
     invoke-static {v4}, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider(I)I
 
     move-result v5
 
     move v0, v1
 
-    move v2, v1
+    move v3, v1
 
-    .line 56
-    :goto_33
+    .line 78
+    :goto_96
     iget-object v6, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->zones:[I
 
     array-length v6, v6
 
-    if-ge v0, v6, :cond_42
+    if-ge v0, v6, :cond_a7
 
     iget-object v6, p1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->zones:[I
 
     aget v6, v6, v0
 
-    if-ne v6, v5, :cond_3f
+    if-ne v6, v5, :cond_a2
 
-    move v2, v3
+    move v3, v2
 
-    :cond_3f
+    :cond_a2
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_33
+    goto :goto_96
 
-    .line 57
-    :cond_42
+    :cond_a5
+    move v0, v1
+
+    .line 73
+    goto :goto_86
+
+    .line 79
+    :cond_a7
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->chans:[Z
 
-    aput-boolean v2, v0, v4
+    aput-boolean v3, v0, v4
 
-    .line 53
+    .line 75
     add-int/lit8 v0, v4, 0x1
 
     move v4, v0
 
-    goto :goto_29
+    goto :goto_8c
 
-    .line 59
-    :cond_4a
+    .line 81
+    :cond_af
     return-void
 .end method
 
@@ -533,32 +772,32 @@
     .registers 3
 
     .prologue
-    .line 108
+    .line 133
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
     const/4 v1, 0x1
 
     if-eq v0, v1, :cond_6
 
-    .line 113
+    .line 138
     :goto_5
     return-void
 
-    .line 109
+    .line 134
     :cond_6
     const/4 v0, 0x2
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    .line 110
+    .line 135
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 111
+    .line 136
     invoke-direct {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->halt()V
 
-    .line 112
+    .line 137
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ui:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
@@ -566,47 +805,124 @@
     goto :goto_5
 .end method
 
-.method public run()V
-    .registers 10
+.method ph(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
+    .registers 4
 
     .prologue
-    .line 154
+    .line 84
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ph:[Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
+
+    if-gez p1, :cond_a
+
+    const/4 p1, 0x0
+
+    :cond_7
+    :goto_7
+    aget-object v0, v0, p1
+
+    return-object v0
+
+    :cond_a
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    if-lt p1, v1, :cond_7
+
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
+
+    add-int/lit8 p1, v1, -0x1
+
+    goto :goto_7
+.end method
+
+.method phaseLeft()D
+    .registers 9
+
+    .prologue
+    .line 109
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    if-gez v0, :cond_1a
+
+    const/4 v0, 0x0
+
+    .line 110
+    :goto_5
+    const-wide/16 v2, 0x0
+
+    iget-wide v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->phaseStart:D
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
+
+    aget v0, v1, v0
+
+    int-to-double v0, v0
+
+    const-wide/high16 v6, 0x404e000000000000L    # 60.0
+
+    mul-double/2addr v0, v6
+
+    add-double/2addr v0, v4
+
+    iget-wide v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
+
+    sub-double/2addr v0, v4
+
+    invoke-static {v2, v3, v0, v1}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v0
+
+    return-wide v0
+
+    .line 109
+    :cond_1a
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    goto :goto_5
+.end method
+
+.method public run()V
+    .registers 13
+
+    .prologue
+    .line 220
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
     const/4 v1, 0x1
 
     if-eq v0, v1, :cond_6
 
-    .line 205
+    .line 276
     :goto_5
     return-void
 
-    .line 155
+    .line 221
     :cond_6
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
-    move-result-wide v2
+    move-result-wide v4
 
-    .line 156
+    .line 222
     iget-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->last:J
 
-    sub-long v0, v2, v0
+    sub-long v0, v4, v0
 
-    .line 157
-    iput-wide v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->last:J
+    .line 223
+    iput-wide v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->last:J
 
-    .line 158
-    const-wide/16 v4, 0x3e8
+    .line 224
+    const-wide/16 v2, 0x3e8
 
-    cmp-long v4, v0, v4
+    cmp-long v2, v0, v2
 
-    if-lez v4, :cond_18
+    if-lez v2, :cond_18
 
     const-wide/16 v0, 0x3e8
 
-    .line 159
+    .line 225
     :cond_18
-    iget-wide v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
+    iget-wide v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
 
     long-to-double v0, v0
 
@@ -614,74 +930,122 @@
 
     div-double/2addr v0, v6
 
-    add-double/2addr v0, v4
+    add-double/2addr v0, v2
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
 
-    .line 160
-    iget-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
+    .line 226
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
 
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->totalSec()D
+    iget-wide v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
 
-    move-result-wide v4
+    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/bodytech/BtAus;->phaseAt([ID)[I
 
-    cmpl-double v0, v0, v4
+    move-result-object v0
 
-    if-ltz v0, :cond_43
+    .line 227
+    const/4 v1, 0x0
 
-    .line 161
+    aget v1, v0, v1
+
+    if-gez v1, :cond_46
+
+    .line 228
     invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->totalSec()D
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
 
-    .line 162
+    .line 229
     invoke-direct {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->halt()V
 
-    .line 163
+    .line 230
     const/4 v0, 0x3
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    .line 165
-    :try_start_3a
+    .line 232
+    :try_start_3d
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBeep;->stop()V
-    :try_end_3d
-    .catch Ljava/lang/Throwable; {:try_start_3a .. :try_end_3d} :catch_119
+    :try_end_40
+    .catch Ljava/lang/Throwable; {:try_start_3d .. :try_end_40} :catch_144
 
-    .line 168
-    :goto_3d
+    .line 235
+    :goto_40
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ui:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
     goto :goto_5
 
-    .line 171
-    :cond_43
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:I
+    .line 238
+    :cond_46
+    const/4 v1, 0x0
 
-    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:I
+    aget v1, v0, v1
 
-    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:I
+    iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
 
-    iget-wide v6, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
+    if-eq v1, v2, :cond_58
 
-    invoke-static {v0, v1, v4, v6, v7}, Lcom/isaigu/gymapp/bodytech/BtAus;->at(IIID)Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
+    const/4 v1, 0x0
+
+    aget v1, v0, v1
+
+    const/4 v2, 0x1
+
+    aget v0, v0, v2
+
+    int-to-double v2, v0
+
+    move-object v0, p0
+
+    invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->enter(IDJ)V
+
+    .line 239
+    :cond_58
+    iget v6, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    .line 240
+    invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ph(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
+
+    move-result-object v3
+
+    .line 241
+    iget-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
+
+    iget-wide v8, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->phaseStart:D
+
+    sub-double v8, v0, v8
+
+    .line 242
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->onS:[I
+
+    aget v0, v0, v6
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->offS:[I
+
+    aget v1, v1, v6
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->rampS:[I
+
+    aget v2, v2, v6
+
+    invoke-static {v0, v1, v2, v8, v9}, Lcom/isaigu/gymapp/bodytech/BtAus;->at(IIID)Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pos:Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
-    .line 172
+    .line 243
     const/high16 v0, 0x3f800000    # 1.0f
 
-    iget-wide v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->softFrom:J
+    iget-wide v10, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->softFrom:J
 
-    sub-long/2addr v2, v4
+    sub-long/2addr v4, v10
 
-    long-to-float v1, v2
+    long-to-float v1, v4
 
     const/high16 v2, 0x44fa0000    # 2000.0f
 
@@ -691,119 +1055,119 @@
 
     move-result v0
 
-    .line 173
+    .line 244
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pos:Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
     iget v1, v1, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;->factor:F
 
     mul-float v2, v1, v0
 
-    .line 174
+    .line 245
     const/4 v0, 0x1
 
-    :goto_65
+    :goto_8a
     const/16 v1, 0x8
 
-    if-gt v0, v1, :cond_77
+    if-gt v0, v1, :cond_9e
 
-    .line 175
+    .line 246
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->hzs:[I
 
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:I
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:[I
 
-    aput v3, v1, v0
+    aget v4, v4, v6
 
-    .line 176
+    aput v4, v1, v0
+
+    .line 247
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pcts:[I
 
-    const/4 v3, 0x0
+    const/4 v4, 0x0
 
-    aput v3, v1, v0
+    aput v4, v1, v0
 
-    .line 174
+    .line 245
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_65
+    goto :goto_8a
 
-    .line 178
-    :cond_77
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    .line 249
+    :cond_9e
+    iget-boolean v0, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->ifc:Z
 
-    iget-boolean v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ifc:Z
+    if-eqz v0, :cond_a5
 
-    if-eqz v0, :cond_82
+    invoke-direct {p0, v3, v8, v9}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcHz(Lcom/isaigu/gymapp/bodytech/BtAus$Ph;D)V
 
-    iget-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
-
-    invoke-direct {p0, v0, v1}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcHz(D)V
-
-    .line 179
-    :cond_82
+    .line 250
+    :cond_a5
     const/4 v0, 0x0
 
-    .line 180
+    .line 251
     const/4 v1, 0x1
 
-    :goto_84
-    const/16 v3, 0x8
+    :goto_a7
+    const/16 v4, 0x8
 
-    if-gt v1, v3, :cond_ab
+    if-gt v1, v4, :cond_d0
 
-    .line 181
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->chans:[Z
+    .line 252
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->chans:[Z
 
-    aget-boolean v3, v3, v1
+    aget-boolean v4, v4, v1
 
-    if-eqz v3, :cond_94
+    if-eqz v4, :cond_b7
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->hzs:[I
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->hzs:[I
 
-    aget v3, v3, v1
+    aget v4, v4, v1
 
-    if-gtz v3, :cond_97
+    if-gtz v4, :cond_ba
 
-    .line 180
-    :cond_94
-    :goto_94
+    .line 251
+    :cond_b7
+    :goto_b7
     add-int/lit8 v1, v1, 0x1
 
-    goto :goto_84
+    goto :goto_a7
 
-    .line 182
-    :cond_97
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pcts:[I
+    .line 253
+    :cond_ba
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pcts:[I
 
-    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:I
+    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->level:[I
+
+    aget v5, v5, v6
 
     invoke-static {v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->chGain(I)I
 
+    move-result v7
+
+    invoke-static {v5, v2, v7}, Lcom/isaigu/gymapp/bodytech/BtAus;->pct(IFI)I
+
     move-result v5
 
-    invoke-static {v4, v2, v5}, Lcom/isaigu/gymapp/bodytech/BtAus;->pct(IFI)I
+    aput v5, v4, v1
 
-    move-result v4
+    .line 254
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pcts:[I
 
-    aput v4, v3, v1
+    aget v4, v4, v1
 
-    .line 183
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pcts:[I
+    add-int/2addr v0, v4
 
-    aget v3, v3, v1
+    goto :goto_b7
 
-    add-int/2addr v0, v3
+    .line 256
+    :cond_d0
+    if-nez v0, :cond_f4
 
-    goto :goto_94
-
-    .line 185
-    :cond_ab
-    if-nez v0, :cond_cf
-
-    .line 186
+    .line 257
     iget-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sentOff:Z
 
-    if-nez v0, :cond_c1
+    if-nez v0, :cond_e6
 
-    .line 187
+    .line 258
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->mac:Ljava/lang/String;
 
     const/4 v1, 0x0
@@ -824,18 +1188,18 @@
 
     invoke-static/range {v0 .. v8}, Lcom/isaigu/gymapp/bodytech/BtBridge;->program(Ljava/lang/String;[I[IIIIIIZ)Ljava/lang/String;
 
-    .line 188
+    .line 259
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sentOff:Z
 
-    .line 203
-    :cond_c1
+    .line 274
+    :cond_e6
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ui:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 204
+    .line 275
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
 
     const-wide/16 v2, 0xfa
@@ -844,42 +1208,48 @@
 
     goto/16 :goto_5
 
-    .line 191
-    :cond_cf
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:I
+    .line 262
+    :cond_f4
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstHz:[I
 
-    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:I
+    aget v0, v0, v6
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->burstMs:[I
+
+    aget v1, v1, v6
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtAus;->burst(II)[I
 
-    move-result-object v6
+    move-result-object v7
 
-    .line 192
+    .line 263
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->mac:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->pcts:[I
 
     iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->hzs:[I
 
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:I
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:[I
 
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    aget v4, v4, v6
 
-    iget v4, v4, Lcom/isaigu/gymapp/bodytech/BtAus$T;->us:I
+    iget v3, v3, Lcom/isaigu/gymapp/bodytech/BtAus$Ph;->us:I
 
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/bodytech/BtAus;->widthFor(II)I
+    invoke-static {v4, v3}, Lcom/isaigu/gymapp/bodytech/BtAus;->widthFor(II)I
 
     move-result v3
 
-    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->wave:I
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->wave:[I
+
+    aget v4, v4, v6
 
     const/4 v5, 0x0
 
-    aget v5, v6, v5
+    aget v5, v7, v5
 
-    const/4 v7, 0x1
+    const/4 v6, 0x1
 
-    aget v6, v6, v7
+    aget v6, v7, v6
 
     const/4 v7, 0x1
 
@@ -889,215 +1259,261 @@
 
     move-result-object v0
 
-    .line 193
+    .line 264
     const/4 v1, 0x0
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sentOff:Z
 
-    .line 194
+    .line 265
     const-string v1, "ok"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-nez v1, :cond_c1
+    if-nez v1, :cond_e6
 
-    .line 195
+    .line 266
     const-string v1, "no_suit"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_116
+    if-eqz v0, :cond_141
 
-    .line 196
+    .line 267
     const-string v0, "\u041d\u044f\u043c\u0430 \u0441\u0432\u044a\u0440\u0437\u0430\u043d bodytech \u043a\u043e\u0441\u0442\u044e\u043c \u2014 \u0441\u0432\u044a\u0440\u0436\u0438 \u0433\u043e \u043e\u0442 \u0435\u043a\u0440\u0430\u043d\u0430 \u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430"
 
-    .line 197
-    :goto_10a
+    .line 268
+    :goto_135
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->error:Ljava/lang/String;
 
-    .line 198
+    .line 269
     invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->stop()V
 
-    .line 199
+    .line 270
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ui:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
     goto/16 :goto_5
 
-    .line 197
-    :cond_116
+    .line 268
+    :cond_141
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0432\u044a\u0440\u0432\u0438 \u043d\u0430 \u043a\u043e\u0441\u0442\u044e\u043c\u0430 \u2014 \u0441\u043f\u0440\u0438 \u044f, \u0437\u0430 \u0434\u0430 \u043f\u0443\u0441\u043d\u0435\u0448 \u0442\u043e\u043a"
 
-    goto :goto_10a
+    goto :goto_135
 
-    .line 166
-    :catch_119
+    .line 233
+    :catch_144
     move-exception v0
 
-    goto/16 :goto_3d
+    goto/16 :goto_40
 .end method
 
-.method start()V
-    .registers 5
+.method skip()V
+    .registers 7
 
     .prologue
-    const/4 v3, 0x0
+    const-wide/high16 v4, 0x404e000000000000L    # 60.0
 
-    const/4 v2, 0x1
-
-    .line 80
+    .line 157
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    if-eq v0, v2, :cond_10
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    if-eqz v0, :cond_10
-
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->blocker()Ljava/lang/String;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_11
-
-    .line 105
-    :cond_10
-    :goto_10
-    return-void
-
-    .line 81
-    :cond_11
-    const/4 v0, 0x0
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->error:Ljava/lang/String;
-
-    .line 82
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
-
-    if-eqz v0, :cond_1d
+    if-eqz v0, :cond_f
 
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
     const/4 v1, 0x3
 
-    if-ne v0, v1, :cond_44
+    if-eq v0, v1, :cond_f
 
-    .line 83
-    :cond_1d
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    if-gez v0, :cond_10
+
+    .line 168
+    :cond_f
+    :goto_f
+    return-void
+
+    .line 159
+    :cond_10
+    iget-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
+
+    iget-wide v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->phaseStart:D
+
+    sub-double/2addr v0, v2
+
+    div-double/2addr v0, v4
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->ceil(D)D
+
+    move-result-wide v0
+
+    double-to-int v0, v0
+
+    .line 160
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
+
+    iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    aget v1, v1, v2
+
+    if-ge v0, v1, :cond_29
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
+
+    iget v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    aput v0, v1, v2
+
+    .line 161
+    :cond_29
+    iget-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->phaseStart:D
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
+
+    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    aget v2, v2, v3
+
+    int-to-double v2, v2
+
+    mul-double/2addr v2, v4
+
+    add-double/2addr v0, v2
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
+
+    .line 162
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
+
+    const/4 v1, 0x1
+
+    if-ne v0, v1, :cond_46
+
+    .line 163
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
+
+    invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
+
+    .line 164
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
+
+    invoke-virtual {v0, p0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    goto :goto_f
+
+    .line 166
+    :cond_46
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ui:Ljava/lang/Runnable;
+
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+
+    goto :goto_f
+.end method
+
+.method start()V
+    .registers 4
+
+    .prologue
+    const/4 v2, 0x1
+
+    .line 114
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
+
+    if-eq v0, v2, :cond_f
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+
+    if-eqz v0, :cond_f
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->blocker()Ljava/lang/String;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_10
+
+    .line 130
+    :cond_f
+    :goto_f
+    return-void
+
+    .line 115
+    :cond_10
+    const/4 v0, 0x0
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->error:Ljava/lang/String;
+
+    .line 116
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
+
+    if-eqz v0, :cond_1c
+
+    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
+
+    const/4 v1, 0x3
+
+    if-ne v0, v1, :cond_26
+
+    .line 117
+    :cond_1c
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->elapsed:D
 
-    .line 84
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
+    .line 118
+    const/4 v0, -0x1
 
-    iget-boolean v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->ifc:Z
+    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
 
-    if-eqz v0, :cond_41
-
-    .line 85
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatHi:I
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v1, v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatLo:I
-
-    if-le v0, v1, :cond_5d
-
-    .line 86
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:I
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcA:I
-
-    .line 87
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:I
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v1, v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatLo:I
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtAus;->ifcB(II)I
-
-    move-result v0
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcB:I
-
-    .line 95
-    :cond_41
-    :goto_41
-    :try_start_41
+    .line 120
+    :try_start_23
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBeep;->start()V
-    :try_end_44
-    .catch Ljava/lang/Throwable; {:try_start_41 .. :try_end_44} :catch_70
+    :try_end_26
+    .catch Ljava/lang/Throwable; {:try_start_23 .. :try_end_26} :catch_40
 
-    .line 99
-    :cond_44
-    :goto_44
+    .line 124
+    :cond_26
+    :goto_26
     iput v2, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    .line 100
+    .line 125
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->last:J
 
-    .line 101
+    .line 126
     iget-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->last:J
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->softFrom:J
 
-    .line 102
-    iput-boolean v3, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sentOff:Z
+    .line 127
+    const/4 v0, 0x0
 
-    .line 103
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->sentOff:Z
+
+    .line 128
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 104
+    .line 129
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    goto :goto_10
+    goto :goto_f
 
-    .line 89
-    :cond_5d
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->carrier:I
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->t:Lcom/isaigu/gymapp/bodytech/BtAus$T;
-
-    iget v1, v1, Lcom/isaigu/gymapp/bodytech/BtAus$T;->beatLo:I
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtAus;->ifcPair(II)[I
-
-    move-result-object v0
-
-    .line 90
-    aget v1, v0, v3
-
-    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcA:I
-
-    .line 91
-    aget v0, v0, v2
-
-    iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->ifcB:I
-
-    goto :goto_41
-
-    .line 96
-    :catch_70
+    .line 121
+    :catch_40
     move-exception v0
 
-    goto :goto_44
+    goto :goto_26
 .end method
 
 .method stop()V
@@ -1106,64 +1522,89 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 117
+    .line 142
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    if-eqz v0, :cond_16
+    if-eqz v0, :cond_19
 
     const/4 v0, 0x1
 
-    .line 118
+    .line 143
     :goto_6
     iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->state:I
 
-    .line 119
+    .line 144
+    const/4 v1, -0x1
+
+    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->cur:I
+
+    .line 145
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->handler:Landroid/os/Handler;
 
     invoke-virtual {v1, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 120
+    .line 146
     invoke-direct {p0}, Lcom/isaigu/gymapp/bodytech/BtAusRun;->halt()V
 
-    .line 121
-    if-eqz v0, :cond_15
+    .line 147
+    if-eqz v0, :cond_18
 
-    .line 123
-    :try_start_12
+    .line 149
+    :try_start_15
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBeep;->stop()V
-    :try_end_15
-    .catch Ljava/lang/Throwable; {:try_start_12 .. :try_end_15} :catch_18
+    :try_end_18
+    .catch Ljava/lang/Throwable; {:try_start_15 .. :try_end_18} :catch_1b
 
-    .line 127
-    :cond_15
-    :goto_15
+    .line 153
+    :cond_18
+    :goto_18
     return-void
 
-    :cond_16
+    :cond_19
     move v0, v1
 
-    .line 117
+    .line 142
     goto :goto_6
 
-    .line 124
-    :catch_18
+    .line 150
+    :catch_1b
     move-exception v0
 
-    goto :goto_15
+    goto :goto_18
 .end method
 
 .method totalSec()D
-    .registers 5
+    .registers 9
 
     .prologue
-    .line 76
-    iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:I
+    .line 102
+    const-wide/16 v2, 0x0
 
-    int-to-double v0, v0
+    .line 103
+    const/4 v0, 0x0
 
-    const-wide/high16 v2, 0x404e000000000000L    # 60.0
+    :goto_3
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->n:I
 
-    mul-double/2addr v0, v2
+    if-ge v0, v1, :cond_13
 
-    return-wide v0
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtAusRun;->minutes:[I
+
+    aget v1, v1, v0
+
+    int-to-double v4, v1
+
+    const-wide/high16 v6, 0x404e000000000000L    # 60.0
+
+    mul-double/2addr v4, v6
+
+    add-double/2addr v2, v4
+
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_3
+
+    .line 104
+    :cond_13
+    return-wide v2
 .end method

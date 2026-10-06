@@ -33,6 +33,12 @@ import java.util.WeakHashMap;
 public final class SoftRamp {
     private static final long TICK_MS = 50L;
     private static final long SAME_PHASE_MS = 500L;
+    /**
+     * A rise whose link stays busy longer than this stops its clock until the link is free: a bodytech suit being
+     * programmed (~3 s after connect / stop, docs/xems-bodytech.md) would else let the rise run out unseen and the
+     * first value after it would be the full strength. A normal step (up to ~10 bodytech frames) is shorter.
+     */
+    private static final long STALL_MS = 400L;
     private static final int MAX_MS = 3000;
     private static final Handler main = new Handler(Looper.getMainLooper());
 
@@ -56,6 +62,10 @@ public final class SoftRamp {
         /** The fall is done: the phase stays at the floor until it ends. */
         boolean held;
         int lastSent = -1;
+        /** Rise clock stop: when the link got busy (0 = free), the last tick, the clock is stopped. */
+        long busySince;
+        long lastTick;
+        boolean stalled;
         /** The one running step of this row (a + / − during the ramp re-arms it, never adds a second one). */
         Tick ticker;
     }
@@ -229,6 +239,9 @@ public final class SoftRamp {
         st.rampAt = now;
         st.rampMs = Math.max(1, ms);
         st.held = false;
+        st.busySince = 0;
+        st.lastTick = now;
+        st.stalled = false;
     }
 
     private static void kick(TrainItem item, Slot st, long delay) {
@@ -316,6 +329,22 @@ public final class SoftRamp {
                     return;
                 }
                 long now = System.currentTimeMillis();
+                long dt = now - st.lastTick;
+                st.lastTick = now;
+                boolean busy = item.sender.isBusy();
+                if (!busy) {
+                    st.busySince = 0;
+                    st.stalled = false;
+                } else if (st.busySince == 0) {
+                    st.busySince = now;
+                } else if (st.rising) {
+                    if (st.stalled) {
+                        st.rampAt += dt;                            // the clock still stands
+                    } else if (now - st.busySince > STALL_MS) {
+                        st.stalled = true;
+                        st.rampAt += now - st.busySince;            // back to where the link got stuck
+                    }
+                }
                 boolean done = now - st.rampAt >= st.rampMs;
                 double f = frac(st, now);
                 ProgramDataBean b = item.getTrainProgram().matchProgram();
@@ -333,7 +362,7 @@ public final class SoftRamp {
                 }
                 int v = level(full, f);
                 if (v != st.lastSent) {
-                    if (item.sender.isBusy()) {
+                    if (busy) {
                         main.postDelayed(this, TICK_MS);            // the link still sends the last step: wait
                         return;
                     }
@@ -375,7 +404,10 @@ public final class SoftRamp {
                     return;
                 }
                 Slot st = slots.get(item);
-                startRamp(st, false, downMs, System.currentTimeMillis());
+                long now = System.currentTimeMillis();
+                double f = frac(st, now);                           // a late rise (stopped clock): fall from here
+                startRamp(st, false, downMs, now);
+                st.rampAt = now - Math.round((1 - f) * downMs);
                 kick(item, st, 0L);
             } catch (Throwable t) {
                 XemsGuard.report("SoftRamp.fall", t);

@@ -30,29 +30,29 @@
     .registers 4
 
     .prologue
-    .line 365
+    .line 394
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 366
+    .line 395
     iput-object p1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 367
+    .line 396
     iput p2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->g:I
 
-    .line 368
+    .line 397
     iput p3, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->downMs:I
 
-    .line 369
+    .line 398
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .registers 7
+    .registers 9
 
     .prologue
-    .line 374
+    .line 403
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -64,11 +64,11 @@
 
     if-nez v0, :cond_b
 
-    .line 383
+    .line 415
     :goto_a
     return-void
 
-    .line 377
+    .line 406
     :cond_b
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->slots:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$000()Ljava/util/WeakHashMap;
@@ -83,35 +83,60 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;
 
-    .line 378
-    const/4 v1, 0x0
-
-    iget v2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->downMs:I
-
+    .line 407
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v2
+
+    .line 408
+    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/train/model/SoftRamp;->frac(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;J)D
 
     move-result-wide v4
 
-    # invokes: Lcom/isaigu/gymapp/train/model/SoftRamp;->startRamp(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;ZIJ)V
-    invoke-static {v0, v1, v2, v4, v5}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$200(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;ZIJ)V
+    .line 409
+    const/4 v1, 0x0
 
-    .line 379
+    iget v6, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->downMs:I
+
+    # invokes: Lcom/isaigu/gymapp/train/model/SoftRamp;->startRamp(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;ZIJ)V
+    invoke-static {v0, v1, v6, v2, v3}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$200(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;ZIJ)V
+
+    .line 410
+    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
+
+    sub-double v4, v6, v4
+
+    iget v1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->downMs:I
+
+    int-to-double v6, v1
+
+    mul-double/2addr v4, v6
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v4
+
+    sub-long/2addr v2, v4
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->rampAt:J
+
+    .line 411
     iget-object v1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     const-wide/16 v2, 0x0
 
     # invokes: Lcom/isaigu/gymapp/train/model/SoftRamp;->kick(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;J)V
     invoke-static {v1, v0, v2, v3}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$300(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;J)V
-    :try_end_28
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_28} :catch_29
+    :try_end_3b
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3b} :catch_3c
 
     goto :goto_a
 
-    .line 380
-    :catch_29
+    .line 412
+    :catch_3c
     move-exception v0
 
-    .line 381
+    .line 413
     const-string v1, "SoftRamp.fall"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

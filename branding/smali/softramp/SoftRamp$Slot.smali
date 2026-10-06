@@ -17,6 +17,8 @@
 # instance fields
 .field beganAt:J
 
+.field busySince:J
+
 .field fresh:Z
 
 .field gen:I
@@ -26,6 +28,8 @@
 .field known:Z
 
 .field lastSent:I
+
+.field lastTick:J
 
 .field lenMs:J
 
@@ -39,6 +43,8 @@
 
 .field rising:Z
 
+.field stalled:Z
+
 .field ticker:Lcom/isaigu/gymapp/train/model/SoftRamp$Tick;
 
 .field upAllowed:Z
@@ -49,10 +55,10 @@
     .registers 2
 
     .prologue
-    .line 42
+    .line 48
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 58
+    .line 64
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->lastSent:I

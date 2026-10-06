@@ -42,6 +42,10 @@ final class CardPublisher {
     static String state(android.content.Context c, TrainUser u, long lastMs) {
         android.content.SharedPreferences p = c.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE);
         String url = p.getString("url_" + u.id, "");
+        if (com.isaigu.gymapp.widget.XemsDossier.isDemo(u.id)) {
+            return WearableUi.tr("Демо клиентът е само на този таблет — нищо не се качва.",
+                    "The demo client lives on this tablet only — nothing is uploaded.");
+        }
         if (ReportBridge.lookupFields(u).length() == 0) {
             return WearableUi.tr("✗ Няма имейл или телефон — клиентът не може да намери анализа си. Добави ги в картона.",
                     "✗ No e-mail or phone — the client cannot find the analysis. Add them to the client form.");
@@ -72,6 +76,9 @@ final class CardPublisher {
         @Override
         public void run() {
             try {
+                if (com.isaigu.gymapp.widget.XemsDossier.isDemo(user.id)) {
+                    return;                           // the demo client stays on the tablet
+                }
                 if (ReportBridge.lookupFields(user).length() == 0
                         && !hasCard(user)) {
                     WearableBleDiagLog.log("report", "card skipped user " + user.id + ": no e-mail / phone");

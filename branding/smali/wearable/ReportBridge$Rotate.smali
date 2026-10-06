@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 330
+    .line 336
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 331
+    .line 337
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Rotate;->a:Landroid/app/Activity;
 
-    .line 332
+    .line 338
     iput-boolean p2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Rotate;->portrait:Z
 
-    .line 333
+    .line 339
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 5
 
     .prologue
-    .line 338
+    .line 344
     :try_start_0
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Rotate;->a:Landroid/app/Activity;
 
@@ -55,30 +55,30 @@
 
     if-eqz v0, :cond_b
 
-    .line 339
+    .line 345
     const/4 v0, 0x7
 
-    .line 338
+    .line 344
     :goto_7
     invoke-virtual {v1, v0}, Landroid/app/Activity;->setRequestedOrientation(I)V
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_a} :catch_d
 
-    .line 344
+    .line 350
     :goto_a
     return-void
 
-    .line 340
+    .line 346
     :cond_b
     const/4 v0, 0x6
 
     goto :goto_7
 
-    .line 341
+    .line 347
     :catch_d
     move-exception v0
 
-    .line 342
+    .line 348
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;

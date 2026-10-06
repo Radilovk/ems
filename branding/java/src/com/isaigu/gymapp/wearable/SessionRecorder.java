@@ -259,7 +259,6 @@ public final class SessionRecorder {
         }
         ManualDefaults.tick(app, items);
         TrainIndex.tick(items);
-        PartPick.tick(items);
         NextClient.tick(app, now, items, OPEN.size());
         // Recovery heart rate after the end.
         for (int k = POST.size() - 1; k >= 0; k--) {

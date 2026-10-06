@@ -10,7 +10,7 @@ Without the second impulse a tap marks / unmarks as the stock code does.
 
 Patches (idempotent; each site is checked and the build stops if it is not found):
   NewTrainFragment.changePartControl      the tap goes through PartPick.click first (true = handled)
-  NewTrainFragment.applyMuscleIndexVisual a yellow channel gets the yellow frame (PartPick.tint)
+  NewTrainFragment.applyMuscleIndexVisual a yellow channel gets the yellow frame (PartPick.tint; v0 / v2 start null)
   NewTrainFragment.xemsRefreshParts()     new: adapter + icons redraw (the 5 s clear runs off the UI thread)
   CommandSender.sendActivePause           the second impulse's channel packet through PartStrength.secondPdu
 """
@@ -65,6 +65,12 @@ def patch_fragment() -> None:
     if f"{PICK}->tint(" in body:
         print("NewTrainFragment.applyMuscleIndexVisual: tint already applied")
     else:
+        # The end label is shared with the switch's default path, where v0 / v2 are never set: the verifier
+        # rejects the whole class (VerifyError at `new NewTrainFragment`). Both start as null (tint ignores null).
+        sw = "    packed-switch p1, :pswitch_data_0\n"
+        if body.count(sw) != 1:
+            raise RuntimeError("NewTrainFragment.applyMuscleIndexVisual: packed-switch not found once")
+        body = body.replace(sw, "    const/4 v0, 0x0\n\n    const/4 v2, 0x0\n\n" + sw, 1)
         tail = re.search(r"\n(    return-void\n\n    nop\n\n    :pswitch_data_0)", body)
         if not tail:
             raise RuntimeError("NewTrainFragment.applyMuscleIndexVisual: end not found")

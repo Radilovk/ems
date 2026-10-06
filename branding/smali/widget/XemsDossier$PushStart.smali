@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 87
+    .line 88
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 90
+    .line 91
     # getter for: Lcom/isaigu/gymapp/widget/XemsDossier;->pushing:Z
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsDossier;->access$000()Z
 
@@ -44,22 +44,22 @@
 
     if-eqz v0, :cond_b
 
-    .line 91
+    .line 92
     # setter for: Lcom/isaigu/gymapp/widget/XemsDossier;->queued:Z
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsDossier;->access$102(Z)Z
 
-    .line 104
+    .line 105
     :cond_a
     :goto_a
     return-void
 
-    .line 94
+    .line 95
     :cond_b
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->token()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 95
+    .line 96
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->serverConfigured()Z
 
     move-result v1
@@ -74,23 +74,23 @@
 
     if-eqz v1, :cond_a
 
-    .line 98
+    .line 99
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsDossier;->collect()Ljava/util/List;
 
     move-result-object v1
 
-    .line 99
+    .line 100
     invoke-interface {v1}, Ljava/util/List;->isEmpty()Z
 
     move-result v2
 
     if-nez v2, :cond_a
 
-    .line 102
+    .line 103
     # setter for: Lcom/isaigu/gymapp/widget/XemsDossier;->pushing:Z
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsDossier;->access$002(Z)Z
 
-    .line 103
+    .line 104
     new-instance v2, Ljava/lang/Thread;
 
     new-instance v3, Lcom/isaigu/gymapp/widget/XemsDossier$PushRun;

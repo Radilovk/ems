@@ -214,6 +214,33 @@ public class PartSim {
         } catch (Exception e) {
             check(false, "tick: " + e);
         }
+        // a channel's own bar: yellow → second impulse alone, main stays; green → main alone, second stays
+        b.activePause = true;
+        b.strenth = 60;
+        b.pauseStrenthPercent = 40;
+        for (int i = 0; i < 10; i++) {
+            b.strenthBean.buwei[i] = 80;
+        }
+        SecondParts.set(b, b.strenthBean.buwei, null);
+        marks[7] = false;
+        PartPick.click(f, m, marks, 7);
+        PartPick.click(f, m, marks, 7);
+        int[] mb = mainReal(b), sb = secondReal(it, b);
+        PartStrength.bar(tp, b, 7, 50);                       // bar → 30 of 60
+        int[] ma = mainReal(b), sa = secondReal(it, b);
+        check(ma[7] == mb[7], "yellow bar moved the main impulse");
+        check(sa[7] == 30, "yellow bar: second impulse " + sa[7] + " instead of 30");
+        for (int i = 0; i < 10; i++) {
+            if (i != 7) {
+                check(ma[i] == mb[i] && sa[i] == sb[i], "yellow bar moved channel " + i);
+            }
+        }
+        PartPick.click(f, m, marks, 7);                       // off
+        PartPick.click(f, m, marks, 7);                       // green
+        sb = secondReal(it, b);
+        PartStrength.bar(tp, b, 7, 100);
+        check(mainReal(b)[7] == 60 && secondReal(it, b)[7] == sb[7], "green bar: main alone");
+        marks[7] = false;
         // own percents are dropped when they equal the main ones
         b.activePause = true;
         int[] same = b.strenthBean.buwei.clone();

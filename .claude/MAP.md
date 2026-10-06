@@ -62,7 +62,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-music-training-sync.py` (207L, build:L116[BETA_MUSIC]) — Music-sync BLE hooks.
 - `scripts/apply-no-vendor-network.py` (111L, build:L131[BETA_MUSIC]) — No request ever leaves the tablet for the vendor's server (xemsplus.com) or any other host through the vendor's code.
 - `scripts/apply-part-strength.py` (140L, build:L162) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
-- `scripts/apply-pause-parts.py` (132L, build:L164) — Second impulse per channel: the muscle icon cycles green → yellow → off, yellow changes the second impulse alone.
+- `scripts/apply-pause-parts.py` (159L, build:L164) — Second impulse per channel: the muscle icon cycles green → yellow → off, yellow changes the second impulse alone.
 - `scripts/apply-picker-colors.py` (40L, build:L57) — Client / program / device picker in the app's colours.
 - `scripts/apply-plan-tab.py` (68L, build:L139[BETA_MUSIC]) — The "План" tab shows wearable/PlanScreen (appointments from the tablet's calendar, next client) instead of the vendor's…
 - `scripts/apply-program-fit.py` (166L, build:L133[BETA_MUSIC]) — Saved program = the base of the manual mode; the diskette saves it, the gear works while training.
@@ -120,7 +120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
-- `scripts/part-sim/PartSim.java` (233L) — Offline test of the muscle icon cycle (green → yellow → off) and of the second impulse per channel (PartStrength.change…
+- `scripts/part-sim/PartSim.java` (260L) — Offline test of the muscle icon cycle (green → yellow → off) and of the second impulse per channel (PartStrength.change…
 - `scripts/part-sim/run.sh` (16L) — Offline test of the muscle icon cycle (green → yellow → off) and the second impulse per channel
 - `scripts/part-sim/shim/android/os/Handler.java` (8L) — Test shim: the android.jar stub throws in the constructor.
 - `scripts/part-sim/shim/android/os/Looper.java` (7L) — Test shim.
@@ -245,7 +245,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (33L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartStrength.java` (382L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
+- `PartStrength.java` (424L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
 
@@ -475,14 +475,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (96L)
+`CLAUDE.md` (98L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L42 ## Invariants (breaking one = broken release)
-  - L55 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
-  - L69 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L93 ## Keeping the map true
+  - L57 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
+  - L71 ## Deeper context (read only the section you need — headings/lines are in MAP)
+  - L95 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -870,16 +870,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L168 ## Какво остава за сървъра
   - L175 ## Проверки (без Android)
 
-`docs/xems-part-strength.md` (83L)
+`docs/xems-part-strength.md` (85L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
   - L28 ## Къде е вързано (`scripts/apply-part-strength.py`, последен в `build-apk.sh`)
   - L35 ## Проверки
   - L43 ## Зелено / жълто / изключено (1.1.366-ai)
-  - L59 ### Как работи
-  - L68 ### Съхранение по клиент и сървър
-  - L72 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
-  - L79 ### Защо 1.1.362–365 не работеше
+  - L60 ### Как работи
+  - L69 ### Съхранение по клиент и сървър
+  - L73 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
+  - L81 ### Защо 1.1.362–365 не работеше
 
 `docs/xems-plan.md` (62L)
   - L1 # XEMS — „План“ и следващ клиент (1.1.188-ai)

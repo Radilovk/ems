@@ -508,6 +508,15 @@ const W=CH.map(c=>c[1]*c[2]);const WS=W.reduce((a,b)=>a+b,0);
 const kf=f=>(f/(f+25))/(85/110);
 const ffr=f=>{const x=Math.pow(Math.max(0,f),2.5);return x/(x+Math.pow(15,2.5));};
 const kF=f=>ffr(f)/ffr(85);
+// The load of a training (owner, 1.1.386): what the suit does — frequency, pulse width, impulse / pause, the double
+// impulse, the channels that work, time, rests — and the client's fitness and pulse. NOT the strength (mA): it is
+// set by feeling, so a channel above 0 counts in full and a channel at 0 not at all.
+//  kP — pulse width: the depth the current reaches = how many fibres work (§5, AutoEngine.reach): √(µs/350);
+//  wF — fatigue weight of a frequency (§3.1, AiPlanner): kF·(0.7 + 0.3·f/85);
+//  FIT — recovery τ and the tolerated fatigue F_max per fitness (§3.2–3.3, AiPlanner.fatigueParams).
+const kP=us=>Math.sqrt(clamp((us>0?us:350)/350,.3,1.3));
+const wF=f=>kF(f)*(.7+.3*Math.min(f,120)/85);
+const FIT={low:{tau:50,tol:.8},mid:{tau:40,tol:1},high:{tau:30,tol:1.15}};
 // Target region per goal: stimulus S (or M, basis "M") and heart-rate reserve C; dose = stimulus per minute aimed at.
 const GOALS={
   tone:{n:tr("тонус","tone"),N:tr("Тонус","Tone"),s:[.55,.85],c:[.30,.70],dose:.62},
@@ -576,7 +585,7 @@ function blocks(r,T){
 // The exercise's own work on its muscles: a main muscle counts like a channel at EX_LOAD of full current
 // (SessionRec.EXERCISE_LOAD / 100), EX_PAUSE of it in the pause (AiEnergy.EXERCISE_PAUSE_SHARE). Estimates.
 const EX_LOAD=.25,EX_PAUSE=.3;
-function fromRec(r,tol){
+function fromRec(r){
   const T=r.run.length,pers=r.person||{};
   const rest=pers.restHr||CLIENT.restHr||65,age=pers.age||CLIENT.age||35,max=Math.round((pers.sex||CLIENT.sex)==="F"?206-.88*age:208-.7*age);
   const hasHr=r.hr.some(v=>v>0);const PHs=blocks(r,T);
@@ -584,18 +593,24 @@ function fromRec(r,tol){
   for(let t=0;t<T;t++){
     const paused=!r.run[t];const on=r.on[t],off=r.off[t],cyc=Math.max(1,on+off);const pas=!!(r.pv&&r.pv[t]===1);
     const imp=r.imp?r.imp[t]===1:(!paused&&(off===0||t%cyc<on));
-    const chs=[];let sum=0;
-    for(let i=0;i<10;i++){const dis=(r.dis[t]>>i)&1;const real=dis?0:r.ch[i][t]*r.st[t]/100;chs.push(real/100);sum+=W[i]*clamp(real/Math.max(tol[i],1),0,1);}
-    let S=0,M=0;
-    if(!paused){const g=off===0?.92:clamp(1.55*on/cyc,0,1);const hz=r.hz[t]||1,phz=r.phz[t]||hz;
-      S=sum/WS*kF(hz)*g;M=sum/WS*kf(hz)*g;
-      if(r.ap[t]&&off>0){apOn=true;const a=(off/cyc)*(r.ps[t]/100)*(sum/WS)*.8;S+=a*kF(phz);M+=a*kf(phz);}S=clamp(S,0,1);M=clamp(M,0,1);
-      if(pas){S*=.3;M*=.3;}else act++;}   // phase 2 (massage) is passive: a light stimulus, not training time
+    // a channel works when its current is above 0 (strength and channel share both > 0, not switched off);
+    // the second impulse's own channels from "p2" (older records: the main ones, when its strength is > 0)
+    const chs=[];let sum=0,sum2=0;const two=!!(r.ap[t]&&off>0&&r.ps[t]>0);
+    for(let i=0;i<10;i++){const dis=(r.dis[t]>>i)&1;const work=!dis&&r.ch[i][t]>0&&r.st[t]>0?1:0;chs.push(work);sum+=W[i]*work;
+      if(two)sum2+=W[i]*(r.p2?((r.p2[t]>>i)&1):work);}
+    let S=0,M=0,Xf=0;
+    if(!paused){const g=off===0?.92:clamp(1.55*on/cyc,0,1);const hz=r.hz[t]||1,phz=r.phz[t]||hz,d=kP(r.pw[t]);
+      S=d*sum/WS*kF(hz)*g;M=d*sum/WS*kf(hz)*g;
+      if(two){apOn=true;const a=d*(off/cyc)*(sum2/WS);S+=a*kF(phz);M+=a*kf(phz);}S=clamp(S,0,1);M=clamp(M,0,1);
+      // what the muscle takes this second (the fatigue model's input): the impulse, or the 2nd impulse in the pause
+      Xf=off===0?d*sum/WS*wF(hz):r.imp?(imp?d*sum/WS*wF(hz):two?d*sum2/WS*wF(phz):0)
+        :d*((on/cyc)*sum/WS*wF(hz)+(two?(off/cyc)*sum2/WS*wF(phz):0));
+      if(pas){S*=.3;M*=.3;Xf*=.3;}else act++;}   // phase 2 (massage) is passive: a light stimulus, not training time
     let hr=r.hr[t]||0;if(hr){last=hr;if(!paused)hrN++;}else if(hasHr)hr=last;
     const C=hasHr&&hr?clamp((hr-rest)/(max-rest),0,1):0;
     const b=PHs.find(x=>t>=x.a&&t<x.b)||PHs[PHs.length-1];
     const xi=r.ex?r.ex[t]|0:0,X=xi&&r.exs?r.exs[xi]:null;if(X)hasEx=true;   // the exercise of an automatic program
-    s.push({t,ph:b?b.id:"",paused,pas,on:imp,S,M,C,I:hasHr?.55*S+.45*C:S,hr,hz:r.hz[t],us:r.pw[t],ma:r.st[t],chs,mx:X?X.met:0,xw:X?X.mus:null});
+    s.push({t,ph:b?b.id:"",paused,pas,on:imp,S,M,X:Xf,C,I:hasHr?.55*S+.45*C:S,hr,hz:r.hz[t],us:r.pw[t],ma:r.st[t],chs,mx:X?X.met:0,xw:X?X.mus:null});
   }
   const pauses=[];let p0=-1;for(let t=0;t<=T;t++){const pz=t<T&&!r.run[t];if(pz&&p0<0)p0=t;if(!pz&&p0>=0){pauses.push([p0,t]);p0=-1;}}
   let recDrop=null;if(hasHr&&r.post&&r.post.filter(v=>v>0).length>=30){const endHr=last;const post=r.post.filter(v=>v>0);recDrop=Math.round(endHr-post[Math.min(59,post.length-1)]);}
@@ -638,7 +653,18 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const avgPrev=prevDoses.length?prevDoses.reduce((a,b)=>a+b,0)/prevDoses.length:dose;
   const P=avgPrev>0?clamp(.6+(dose-avgPrev)/avgPrev*2,0,1):.6;
   const eff=Math.round(100*(.40*Tg+.30*D+.15*Q+.15*P));
-  const load=Math.round(s.reduce((a,p)=>a+p.I,0)/60*10);
+  // Load = the client's own strain, second by second (owner, 1.1.386). The stimulus S (frequency, pulse width,
+  // impulse / pause, double impulse, working channels — no strength) runs the fatigue model of the AI (§3.1):
+  // F' = X − F/τ, recovery all the time, the rests included; R = F / F_max of the client's fitness. The same
+  // training weighs more on a beginner (lower capacity P0.k: fitness, BMI, age, sex, first sessions) and more as
+  // the fatigue builds: E = S / k · (0.5 + 0.5·R), R ≤ 1.5. With a pulse 45 % is the heart-rate reserve.
+  const FP=FIT[pers&&pers.fitness]||FIT.mid,Fmax=FP.tol*FP.tau/(1+Math.exp(-4/FP.tau));
+  let F=0,Rsum=0,Rmax=0,Rn=0;
+  for(const p of s){const x=p.paused?0:(p.X!=null?p.X:p.S*.65);F+=x-F/FP.tau;const R=Math.min(1.5,F/Fmax);p.R=R;
+    const E=p.paused?0:clamp(p.S/P0.k*(.5+.5*R),0,1.5);
+    p.L=sim.hasHr?.55*E+.45*p.C:sim.hasEx&&!p.paused?Math.max(E,.55*E+.45*p.C):E;   // the heart, or its stand-in
+    if(!p.paused&&!p.pas){Rsum+=R;Rn++;if(R>Rmax)Rmax=R;}}
+  const load=Math.round(s.reduce((a,p)=>a+p.L,0)/60*10);
   const Wkg=weight||70,musc=female?.31/.38:1;
   // the client's own resting and maximal uptake, as in AiEnergy: Schofield from sex, age, weight (not a flat 3.5);
   // VO2max = the measured-HR ratio (Uth) averaged with the population value of fitness, sex and age
@@ -678,7 +704,7 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const phases=sim.PH.map(ph=>{const xs=s.slice(ph.a,Math.min(ph.b,T));const a=xs.filter(p=>!p.paused);const hh=a.filter(p=>p.hr>0);
     return{...ph,dur:xs.length,act:a.length,S:a.reduce((q,p)=>q+p.S,0)/Math.max(1,a.length),hr:hh.length?Math.round(hh.reduce((q,p)=>q+p.hr,0)/hh.length):0,hrMax:hh.length?Math.max(...hh.map(p=>p.hr)):0,ma:xs.length?Math.max(...xs.map(p=>p.ma)):0};});
   const met=Wkg>0&&T>0?kcal/(Wkg*T/3600):0;
-  return{met,over,under,persona:P0,goalP:goal,onSec:s.filter(p=>p.on&&!p.paused).length,eff,T:Tg,D,Q,P,dose,load,kcal:Math.round(kcal),kcalGly:Math.round(kcalGly),kcalAct:Math.max(0,Math.round(kcal-vr*4.83*T/60)),pauseS,act:act.length,
+  return{met,over,under,persona:P0,goalP:goal,strain:Rn?Rsum/Rn:0,strainMax:Rmax,onSec:s.filter(p=>p.on&&!p.paused).length,eff,T:Tg,D,Q,P,dose,load,kcal:Math.round(kcal),kcalGly:Math.round(kcalGly),kcalAct:Math.max(0,Math.round(kcal-vr*4.83*T/60)),pauseS,act:act.length,
     hrAvg:hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):0,hrMax:hrs.length?Math.max(...hrs):0,modes,chDose,exDose,phases,maMax:Math.max(0,...s.map(p=>p.ma))};
 }
 function typeLabel(m){if(m.type==="ai")return "Smart Session";if(m.type==="auto")return tr("Авто · ","Auto · ")+(m.program||"");const md=m.modes|0,massage=(md&8)!==0,work=(md&7)!==0;
@@ -689,13 +715,12 @@ function typeLabel(m){if(m.type==="ai")return "Smart Session";if(m.type==="auto"
 function loadReal(){
   CLIENT=JSON.parse(BR.client()||"{}");
   const L=(JSON.parse(BR.sessions()||"[]")||[]).sort((a,b)=>a.start-b.start);
-  const tol=Array(10).fill(1);L.forEach(x=>(x.chPeak||[]).forEach((v,i)=>{if(v>tol[i])tol[i]=v;}));
   const doses=[];sessions=[];
   L.forEach(m=>{let r=null;try{r=JSON.parse(BR.session(String(m.id)));}catch(e){}
     if(!r||!r.run||r.run.length<10)return;
     const md=m.modes|0,passive=(md&8)!==0&&(md&7)===0;   // a massage alone: a passive procedure, not a training
     const goalKey=passive?"massage":(r.person&&r.person.goal)||CLIENT.goal||"tone";const goal=GOALS[goalKey]||GOALS.tone;
-    const sim=fromRec(r,tol);const pr=Object.assign({},CLIENT,r.person||{});const a=analyse(sim,doses.slice(-3),goal,pr.weight,pr,sessions.length);doses.push(a.dose);
+    const sim=fromRec(r);const pr=Object.assign({},CLIENT,r.person||{});const a=analyse(sim,doses.slice(-3),goal,pr.weight,pr,sessions.length);doses.push(a.dose);
     sessions.push({i:sessions.length,id:m.id,date:new Date(m.start),type:typeLabel(m),sim,a,goal:goalKey,meta:m});
     const sc=m.scores||{};if(sc.eff!==a.eff||sc.load!==a.load||sc.kcal!==a.kcal){try{BR.putScores(String(m.id),JSON.stringify({eff:a.eff,load:a.load,kcal:a.kcal,dose:Math.round(a.dose*100)/100}));}catch(e){}}});
 }
@@ -853,7 +878,7 @@ function draw(){
     [tr("Активно време","Active time"),mmss(a.act),"",`${tr("от ","of ")}${mmss(s.sim.T)}${tr(" общо"," total")}`,d(a.act/60,p&&p.act/60,tr(" мин"," min"))],
     [tr("Калории","Calories"),a.kcal,"kcal",`≈ ${a.met.toFixed(1)}${tr(" MET · оценка XEMS"," MET · XEMS estimate")}${tr(" · над покоя "+a.kcalAct," · above rest "+a.kcalAct)}${a.kcalGly>=5?tr(" · ~"+a.kcalGly+" се плащат след края (лактат, гликоген)"," · ~"+a.kcalGly+" paid after the end (lactate, glycogen)"):""}`,d(a.kcal,p&&p.kcal," kcal")],
     [tr("Пулс","Heart rate"),a.hrAvg||"—",a.hrMax?"/ "+a.hrMax:"",s.sim.hasHr?tr("среден / макс.","average / max"):tr("няма данни от гривна","no band data"),d(a.hrAvg,p&&p.hrAvg,tr(" уд"," bpm"))],
-    [tr("Общо натоварване","Total load"),a.load,tr("т.","pts"),tr("интензивност × време","intensity × time"),d(a.load,p&&p.load,tr(" т."," pts"))]
+    [tr("Общо натоварване","Total load"),a.load,tr("т.","pts"),a.strainMax>0?tr("умора на мускулите до "+Math.round(a.strainMax*100)+" % от прага","muscle fatigue up to "+Math.round(a.strainMax*100)+" % of the limit"):tr("интензивност × време","intensity × time"),d(a.load,p&&p.load,tr(" т."," pts"))]
   ],K2=[
     [tr("Паузи","Pauses"),s.sim.pauses.length,"",`${mmss(a.pauseS)}${tr(" общо"," total")}`,d(a.pauseS,p&&p.pauseS," s",true)],
     [tr("Възстановяване","Recovery"),s.sim.recDrop!=null?s.sim.recDrop:"—",s.sim.recDrop!=null?tr("уд","bpm"):"",tr("спад за 60 s след края","drop in 60 s after the end"),d(s.sim.recDrop||0,ps&&ps.sim.recDrop,tr(" уд"," bpm"))],

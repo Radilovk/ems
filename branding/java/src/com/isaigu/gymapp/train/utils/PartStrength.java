@@ -20,7 +20,8 @@ import com.isaigu.gymapp.wearable.SecondParts;
  * <ul>
  *   <li>green — the main impulse, and with the double impulse on the second one moves with it, keeping the channel's
  *       ratio of the two (owner, 1.1.385);</li>
- *   <li>yellow (the row is in the second impulse's setup, wearable/DoubleImpulse) — the second impulse alone.</li>
+ *   <li>yellow (2nd tap on the channel's icon, wearable/PartPick, or the row in the second impulse's setup,
+ *       wearable/DoubleImpulse) — the second impulse alone.</li>
  * </ul>
  * The unit gets one percent per channel for each impulse packet; the second impulse's percents are kept apart
  * (wearable/SecondParts, per client) whenever they differ from the main ones and go out with the second
@@ -283,13 +284,14 @@ public final class PartStrength {
      * setup (wearable/DoubleImpulse), else none; null when none.
      */
     static boolean[] yellow(TrainItem item, ProgramDataBean b, boolean[] sel) {
-        if (b == null || !b.activePause || !DoubleImpulse.active(item)) {
+        if (b == null || !b.activePause) {
             return null;
         }
+        boolean setup = DoubleImpulse.active(item);
         boolean[] y = new boolean[sel.length];
         boolean any = false;
         for (int i = 0; i < sel.length; i++) {
-            y[i] = sel[i];
+            y[i] = sel[i] && (setup || PartPick.tappedYellow(i));   // the setup, or the channel's 2nd tap
             any |= y[i];
         }
         return any ? y : null;
@@ -376,7 +378,7 @@ public final class PartStrength {
             PartLook.release(view);
             PartPick.touch();
             boolean marked = PartPick.isMarked(i);
-            if (b.activePause && (DoubleImpulse.active(prog) || seenSecond)) {
+            if (b.activePause && (DoubleImpulse.active(prog) || seenSecond || PartPick.tappedYellow(i))) {
                 boolean[] y = new boolean[parts.length];
                 y[i] = true;
                 int p2 = Math.min(b.pauseStrenthPercent, secondCap(null, b));

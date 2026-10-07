@@ -120,7 +120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
-- `scripts/part-sim/PartSim.java` (417L) — Offline test of the double-impulse button (wearable/DoubleImpulse: tap = setup / off, 5 s → normal, hold = sync) and of…
+- `scripts/part-sim/PartSim.java` (451L) — Offline test of the double-impulse button (wearable/DoubleImpulse: tap = setup / off, 5 s → normal, hold = sync) and of…
 - `scripts/part-sim/run.sh` (16L) — Offline test of the double-impulse button (setup / off / 5 s / sync) and the second impulse per channel
 - `scripts/part-sim/shim/android/os/Handler.java` (10L) — Test shim: the android.jar stub throws in the constructor.
 - `scripts/part-sim/shim/android/os/Looper.java` (7L) — Test shim.
@@ -245,8 +245,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (33L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartLook.java` (519L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
-- `PartStrength.java` (523L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
+- `PartLook.java` (524L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
+- `PartStrength.java` (525L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
 
@@ -273,7 +273,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `NextPlan.java` (418L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (732L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `PartPick.java` (218L, compile:music-sync*,wearable) — The muscle-group icons on the training screen (owner, 1.1.383): a tap marks / unmarks a channel; + / − and the avatar s…
+- `PartPick.java` (276L, compile:music-sync*,wearable) — The muscle-group icons on the training screen (owner, 1.1.386 — the cycle of 1.1.366 back): <ul> <li>1st tap — green: +…
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
 - `ProgramFit.java` (178L, compile:music-sync*,wearable) — The manual mode's programs, exactly as the trainer sets them (owner, 1.1.323: no automatic adaptation in the manual mod…
 - `QuickStart.java` (259L, compile:music-sync*,wearable) — Client list (Потребители): <ul> <li>▶ at the end of every row: the client's last program (their saved one, else the las…
@@ -284,12 +284,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SearchPad.java` (580L, compile:music-sync*,wearable) — Our own search keyboard for the client searches (Потребители, the client / program / device picker), made for a tablet …
 - `SecondParts.java` (182L, compile:music-sync*,wearable) — The second impulse's own strength per channel, kept per client.
 - `SessionInts.java` (41L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
-- `SessionRec.java` (410L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
+- `SessionRec.java` (424L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
 - `SessionRecorder.java` (455L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
 - `SessionUploader.java` (162L, compile:music-sync*,wearable) — Sends what the client's training analysis needs (the summary + the per-second record from files/xems_sessions, gzip-com…
 - `SuitReconnect.java` (425L, compile:music-sync*,wearable) — The suit's Bluetooth link dropped during a training: the row stays (client, program, time left, all settings), paused a…
-- `TrainIndex.java` (151L, compile:music-sync*,wearable) — The index buttons around the avatar (MA, Hz, 2nd-impulse MA, 2nd-impulse Hz): <ul> <li>a selection clears itself 5 s af…
+- `TrainIndex.java` (158L, compile:music-sync*,wearable) — The index buttons around the avatar (MA, Hz, 2nd-impulse MA, 2nd-impulse Hz): <ul> <li>a selection clears itself 5 s af…
 - `WearableBandPicker.java` (207L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
 - `WearableBlePermissions.java` (176L, compile:music-sync*,wearable) — Runtime BLUETOOTH_CONNECT + BLUETOOTH_SCAN (Android 12+) — required for GATT connect/discover.
@@ -431,7 +431,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
-- `server/src/report.js` (137L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
+- `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
 - `server/src/sweep.js` (13L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
 - `server/src/utils.js` (102L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/test/card.test.js` (104L) — 
@@ -445,7 +445,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/measures.test.js` (116L) — 
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (57L) — 
-- `server/test/report.test.js` (14L) — 
+- `server/test/report.test.js` (23L) — 
 - `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
 - `server/test/utils.test.js` (99L) — 
 - `server/migrations/0001_init.sql` (63L) — 
@@ -821,7 +821,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L117 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
   - L143 ## Кодът на студиото
 
-`docs/xems-ems-physiology.md` (214L)
+`docs/xems-ems-physiology.md` (242L)
   - L1 # EMS physiology — the knowledge the algorithms stand on
   - L8 ## 1. What the frequency does
   - L25 ## 2. Force–frequency curve (one function everywhere)
@@ -840,8 +840,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L154 ## 6. Between sessions
   - L166 ## 7. Heart rate
   - L175 ## 8. Where it is used
-  - L189 ## Not yet
-  - L192 ## References (from the literature the team works with; check the exact source before quoting outside)
+  - L189 ## 9. Load and efficiency of a training (report, 1.1.386-ai — owner)
+  - L217 ## Not yet
+  - L220 ## References (from the literature the team works with; check the exact source before quoting outside)
 
 `docs/xems-exercise-templates.md` (114L)
   - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them
@@ -881,19 +882,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-part-strength.md` (190L)
+`docs/xems-part-strength.md` (201L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
   - L28 ## Къде е вързано (`scripts/apply-part-strength.py`, последен в `build-apk.sh`)
   - L35 ## Проверки
   - L43 ## Бутонът „Двоен импулс“ на реда (1.1.383-ai) — заменя цикъла зелено → жълто и задържането 3 s
-  - L100 ## Зелено / жълто / изключено (1.1.366-ai)
-  - L119 ### Как работи
-  - L128 ### Съхранение по клиент и сървър
-  - L132 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
-  - L140 ### Защо 1.1.362–365 не работеше
-  - L145 ## Жълто = вторият импулс на екрана (1.1.369-ai)
-  - L177 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
+  - L111 ## Зелено / жълто / изключено (1.1.366-ai)
+  - L130 ### Как работи
+  - L139 ### Съхранение по клиент и сървър
+  - L143 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
+  - L151 ### Защо 1.1.362–365 не работеше
+  - L156 ## Жълто = вторият импулс на екрана (1.1.369-ai)
+  - L188 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
 
 `docs/xems-plan.md` (62L)
   - L1 # XEMS — „План“ и следващ клиент (1.1.188-ai)

@@ -63,11 +63,6 @@ public final class BtProto {
     public static byte[] allOff() { return frame(0, G_SEL, EN_ALL_OFF); }
 
     // ---- channel commands (ch = 1..8) ----
-    /** Period straight in 1 MHz ticks (1 µs each): 11764 = 85 Hz. Pulse slots slide a channel with it (BtTranslator). */
-    public static byte[] period(int ch, int ticks) {
-        return frame(ch, R_LENGTH_CLOCK, ticks & 0xFFFFF);
-    }
-
     public static byte[] hz(int ch, int hz) {
         return frame(ch, R_LENGTH_CLOCK, (hz <= 0 || hz > 1000000) ? 0 : (1000000 / hz) & 0xFFFFF);
     }

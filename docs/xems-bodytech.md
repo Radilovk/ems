@@ -170,17 +170,15 @@ in. ▶ again keeps waiting; stop (`BtBridge.reset`) calls the wait off; so do a
 `BtBridge.loadPercent(device)`: the program batch is marked when queued (`BtTranslator.programmed()` turned true) and
 ends with a marker item; frames ACKed / in all = the percent. XEMS suits never wait.
 
-## Pulse slots (1.1.380, Settings → Костюм bodytech → «Разделени импулси», off by default)
-Two channels of the suit act on each other only where their pulses overlap (probe 0.5: the felt knock followed the
-beat of two slightly different Hz, 9.9 s / 4.5 s; a channel at intensity 0 or in its T4 pause is isolated). With the
-switch on, the channels take turns inside one period instead of pulsing together:
-- all working channels get one Hz (the lowest any of them is held to); at every impulse start (pause = SEL off), a new
-  Hz or a channel added / dropped, one SEL starts them, then channel k of n runs slower by d_k µs for 2 s
-  (`BtTranslator.startSlide`, d_k = off·P / (2 000 000 − off), off = k·P/n) and so falls k/n of the period behind the
-  first; `BtBridge.SlideAnchor` starts the 2 s when those frames are ACKed, `SlideEnd` puts the channels back on the
-  plain period (fastest first). Same period on the suit's one clock keeps the places (probe 0.7: 62 s clean, a
-  strength write does not move them); laid again every impulse, so a wrong start lasts one impulse at most;
-- below 30 Hz (2nd impulse ≤ 10 Hz) no slots — pulses that rare hardly meet;
-- assumption not proven: one SEL from all-off starts the channels in step (probe: in step at 85 Hz twice, apart
-  twice). If not, the places are random — the same as without slots, never worse.
-Tests: `bash bodytech/xems/test/run.sh` (BtTranslatorTest «slots: …»).
+## Pulses together (1.1.381, Settings → Костюм bodytech → «Импулси заедно», on by default)
+The suit has no galvanic isolation. Owner, on a person: a channel pulsing **alone** leaks into its neighbours (a
+strong channel even into one at 0); channels pulsing **together** do not — equal strength on the legs (1.1.377) removed
+the leaks, and 1.1.380's pulse slots (each channel in its own place of the period — the opposite) brought them back,
+so they are gone. Probe 0.5–0.7 (`bodytech/PROTOCOL.md`) saw the overlap as the thing that matters; the person in a
+real training showed which way: overlap = good.
+With the switch on, BtTranslator.reconcile:
+- every working channel gets one Hz (the lowest any of them is held to — a channel's own Hz from Параметри ▾ then
+  sets all of them); off = each channel on its own Hz, as before;
+- channels are started by ONE SEL: from all-off at an impulse start (as before), and again — all off, all on — when a
+  channel joins or leaves or the Hz changes while they run (before, one SEL added a channel out of step with the rest).
+Tests: `bash bodytech/xems/test/run.sh` (BtTranslatorTest «sync: …»).

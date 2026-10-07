@@ -97,8 +97,6 @@ public final class BtBridge {
             boolean prog = v.tr.programmed();
             List<byte[]> frames = v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime());
             v.add(frames, cb, data, false, !prog && v.tr.programmed());
-            long[] slide = v.tr.takeSlide();
-            if (slide != null) v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
             else if (was && !now) BtBeep.pause();
@@ -466,48 +464,6 @@ public final class BtBridge {
         public void onWriteFailure(BleException e) {
             BtBeep.lost();                                  // a write refused: the link is in trouble
             v.fail(e);
-        }
-    }
-
-    /** Pulse slots: answered when the slide's slow frames are ACKed — from then on the slide's time runs. */
-    static final class SlideAnchor extends BleWriteCallback {
-        final Dev v;
-        final long gen, ms;
-
-        SlideAnchor(Dev v, long gen, long ms) {
-            this.v = v;
-            this.gen = gen;
-            this.ms = ms;
-        }
-
-        @Override
-        public void onWriteSuccess(int current, int total, byte[] justWrite) {
-            main.postDelayed(new SlideEnd(v, gen), ms);
-        }
-
-        @Override
-        public void onWriteFailure(BleException e) {
-        }
-    }
-
-    /** The slide's time is up: its slow channels go back on the plain period, ahead of anything queued. */
-    static final class SlideEnd implements Runnable {
-        final Dev v;
-        final long gen;
-
-        SlideEnd(Dev v, long gen) {
-            this.v = v;
-            this.gen = gen;
-        }
-
-        @Override
-        public void run() {
-            try {
-                List<byte[]> f = v.tr.slideEnd(gen);
-                if (!f.isEmpty()) v.add(f, null, null, true);
-            } catch (Throwable t) {
-                Log.e(TAG, "slide: " + t);
-            }
         }
     }
 

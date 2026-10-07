@@ -9,7 +9,7 @@
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Open;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Done;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Reset;,
-        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sync;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Slots;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Gain;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Group;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;,

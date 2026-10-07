@@ -149,10 +149,11 @@ public final class BtSettingsSection {
             extra.addView(wave, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             extra.addView(gain, XemsUi.weight(1f, 12, a));
             sh.body.addView(extra, XemsUi.matchWrap(a, 16));
-            sh.body.addView(XemsUi.toggleRow(a, "Импулси заедно",
-                    "Всички канали на една честота и бият в един и същ момент — така токът на един канал не изтича към "
-                            + "съседите. Изкл: всеки канал със своята честота (Параметри ▾).",
-                    BtSettings.sync(), new Sync()), XemsUi.matchWrap(a, 16));
+            sh.body.addView(XemsUi.toggleRow(a, "Разделени импулси",
+                    "Вкл: каналите бият по ред, всеки на свое място в периода — утечката към съседите е слаба и равна "
+                            + "към двата електрода. Изкл: бият заедно — утечката отива силно към един електрод. "
+                            + "Всички канали тогава са на една честота.",
+                    BtSettings.slots(), new Slots()), XemsUi.matchWrap(a, 16));
         }
 
         View channel(int ch) {
@@ -419,10 +420,10 @@ public final class BtSettingsSection {
         }
     }
 
-    static final class Sync implements XemsUi.OnToggle {
+    static final class Slots implements XemsUi.OnToggle {
         @Override
         public void onToggle(boolean on) {
-            BtSettings.setSync(on);
+            BtSettings.setSlots(on);
         }
     }
 

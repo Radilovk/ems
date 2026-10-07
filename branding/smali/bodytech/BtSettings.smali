@@ -92,7 +92,7 @@
 
 .field static final slider:[I
 
-.field static sync:Z
+.field static slots:Z
 
 .field static unlimited:Z
 
@@ -345,7 +345,7 @@
     sput-boolean v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->unlimited:Z
 
     .line 79
-    sput-boolean v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->sync:Z
+    sput-boolean v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
 
     .line 80
     new-array v0, v3, [I
@@ -2118,7 +2118,7 @@
     sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->unlimited:Z
 
     .line 110
-    const-string v0, "sync"
+    const-string v0, "slots2"
 
     const/4 v1, 0x1
 
@@ -2126,7 +2126,7 @@
 
     move-result v0
 
-    sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->sync:Z
+    sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
 
     .line 111
     const-string v0, "order"
@@ -2645,7 +2645,7 @@
     .line 254
     const/4 v0, 0x1
 
-    sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->sync:Z
+    sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
 
     .line 255
     const/4 v0, -0x1
@@ -3174,9 +3174,9 @@
     invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
     .line 232
-    const-string v0, "sync"
+    const-string v0, "slots2"
 
-    sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->sync:Z
+    sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
 
     invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
@@ -3712,7 +3712,7 @@
     throw v0
 .end method
 
-.method public static declared-synchronized setSync(Z)V
+.method public static declared-synchronized setSlots(Z)V
     .registers 3
 
     .prologue
@@ -3722,7 +3722,7 @@
     monitor-enter v1
 
     :try_start_3
-    sput-boolean p0, Lcom/isaigu/gymapp/bodytech/BtSettings;->sync:Z
+    sput-boolean p0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
 
     .line 375
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
@@ -3873,6 +3873,32 @@
     const-string v0, "\u041d\u044f\u043c\u0430"
 
     goto :goto_b
+.end method
+
+.method public static declared-synchronized slots()Z
+    .registers 2
+
+    .prologue
+    .line 300
+    const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
+
+    monitor-enter v0
+
+    :try_start_3
+    sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
+    :try_end_5
+    .catchall {:try_start_3 .. :try_end_5} :catchall_7
+
+    monitor-exit v0
+
+    return v1
+
+    :catchall_7
+    move-exception v1
+
+    monitor-exit v0
+
+    throw v1
 .end method
 
 .method public static declared-synchronized sortLeftToRight()V
@@ -4041,32 +4067,6 @@
     monitor-exit v5
 
     throw v0
-.end method
-
-.method public static declared-synchronized sync()Z
-    .registers 2
-
-    .prologue
-    .line 300
-    const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
-
-    monitor-enter v0
-
-    :try_start_3
-    sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->sync:Z
-    :try_end_5
-    .catchall {:try_start_3 .. :try_end_5} :catchall_7
-
-    monitor-exit v0
-
-    return v1
-
-    :catchall_7
-    move-exception v1
-
-    monitor-exit v0
-
-    throw v1
 .end method
 
 .method public static declared-synchronized unlimited()Z

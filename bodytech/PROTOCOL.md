@@ -32,6 +32,8 @@ slide is a guess — 0.7 finds the overlap by feel (tap on the knock) and steps 
 XEMS 1.1.380 pulse slots on a person (owner): the leaks came BACK with the channels in separate places, and were
 small with them pulsing together — a channel pulsing alone leaks, channels pulsing together (and at equal strength)
 do not. 1.1.381 keeps them together (one Hz, one SEL) instead.
+Then (owner, closer look): together, the leak goes hard into ONE electrode of the neighbour and jumps to far
+electrodes; in slots it is weak and even on both — slots preferred, back on by default in 1.1.382.
 Still open (needs a person): muscle check of the channel map, watchdog stop time, battery under a real load.
 
 ## Link

@@ -71,12 +71,12 @@ public final class BtSettings {
     /** true = the owner's per-channel values rule as they are (Hz up to 1000, width up to 511 µs); false = they can only lower the program's. */
     static boolean unlimited = true;
     /**
-     * Pulses together (owner, 1.1.381; on by default): every working channel on one Hz, all started by one SEL, so they
-     * pulse at the same moment. The suit has no galvanic isolation: a channel pulsing alone leaks into its neighbours,
-     * channels pulsing together do not (owner, on a person: 1.1.380's pulse slots — the opposite — brought the leaks
-     * back; equal strength on the legs removed them).
+     * Pulse slots (owner, 1.1.380; on by default since 1.1.382): the working channels share one Hz and each gets its own
+     * place in the period, so no two channels pulse at the same moment. Owner, on a person: pulsing together, a strong
+     * channel leaks hard into ONE electrode of its neighbour (the one of opposite polarity at that moment) and jumps to
+     * far electrodes; in slots the leak is weak and even on both — preferred.
      */
-    static boolean sync = true;
+    static boolean slots = true;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
 
@@ -107,7 +107,7 @@ public final class BtSettings {
         }
         if (legs()) save();
         unlimited = p.getBoolean("unlimited", true);
-        sync = p.getBoolean("sync", true);
+        slots = p.getBoolean("slots2", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -229,7 +229,7 @@ public final class BtSettings {
         for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
         e.putString("order", o.toString());
         e.putBoolean("unlimited", unlimited);
-        e.putBoolean("sync", sync);
+        e.putBoolean("slots2", slots);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -251,7 +251,7 @@ public final class BtSettings {
         }
         loadOrder("");
         unlimited = true;
-        sync = true;
+        slots = true;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -297,7 +297,7 @@ public final class BtSettings {
 
     public static synchronized boolean unlimited() { return unlimited; }
 
-    public static synchronized boolean sync() { return sync; }
+    public static synchronized boolean slots() { return slots; }
 
     /** Hz this channel is held to in the main (second = false) or 2nd impulse (never above the program's); 0 = the program's. */
     public static synchronized int chHz(int ch, boolean second) {
@@ -370,8 +370,8 @@ public final class BtSettings {
         save();
     }
 
-    public static synchronized void setSync(boolean on) {
-        sync = on;
+    public static synchronized void setSlots(boolean on) {
+        slots = on;
         save();
     }
 

@@ -24,6 +24,12 @@ public final class BtTranslator {
     static final int DEF_HZ = 85, DEF_US = 360;
     static final int MIN_US = 50, MAX_US = 511;
     static final long GRACE_MS = 3000L;
+    /**
+     * Pulse slots ({@link BtSettings#slots}): below this Hz the period is so long that pulses hardly ever meet (2nd
+     * impulse ≤ 10 Hz) — channels then run as without slots. The slide that spreads the channels lasts SLIDE_MS.
+     */
+    static final int SLOT_MIN_HZ = 30;
+    static final int SLIDE_MS = 2000;
 
     static final int CMD_SETTING = 1, CMD_RUN = 3, CMD_BATTERY = 5, CMD_START = 0xF1, CMD_STOP = 0xF2;
 
@@ -78,6 +84,14 @@ public final class BtTranslator {
     private final int[] devOn = new int[BtSettings.CHANNELS + 1];     // T2 ms the suit holds (CYCLE_ON_MS = continuous)
     private final int[] devOff = new int[BtSettings.CHANNELS + 1];    // T4 ms
     private final int[] devStep = new int[BtSettings.CHANNELS + 1];   // STEP_NOR byte
+    /**
+     * Pulse slots. One SEL from all-off starts the channels in step; then channel k of n runs a little slower
+     * (period + d_k µs) for {@link #SLIDE_MS} and so falls k/n of a period behind the first — the bridge sends the
+     * frames that bring it back ({@link #slideEnd}). Same period on the suit's one clock keeps the places (probe 0.7:
+     * 62 s clean, a strength write does not move them). slideMask = channels still slow; slideGen tells a stale end.
+     */
+    private int slideMask, slideGen;
+    private long slidePending = -1;
 
     /** Hook: CommandSender.sendDuration (MAIN) / sendActivePause (SECOND) / sendPause (PAUSE) begins. */
     public synchronized void phase(int p) {
@@ -105,6 +119,9 @@ public final class BtTranslator {
 
     /** Write failed / link dropped: the suit state is unknown. */
     public synchronized void forget() {
+        slideMask = 0;
+        slideGen++;
+        slidePending = -1;
         programmed = false;
         waveMask = 0;
         unsafe = true;
@@ -418,6 +435,7 @@ public final class BtTranslator {
     }
 
     private void off(List<byte[]> out) {
+        stopSlide(out);
         on = false;
         testCh = 0;
         if (devMask != 0) out.add(BtProto.allOff());
@@ -465,12 +483,7 @@ public final class BtTranslator {
         return t < 0 ? 0 : (t > MAX_PCT ? MAX_PCT : t);
     }
 
-    /**
-     * Bring the suit to the wanted Hz / width / strength; the channel mask (SEL) goes last. With
-     * {@link BtSettings#sync} every working channel takes one Hz (the lowest any of them is held to) and the channels
-     * are started by ONE SEL — from all-off at an impulse start, and again (all off, all on) when a channel joins or
-     * leaves or the Hz changes while they run — so they pulse at the same moment and nothing leaks between them.
-     */
+    /** Bring the suit to the wanted Hz / width / strength; the channel mask (SEL) goes last. */
     private void reconcile(List<byte[]> out) {
         int[] want = new int[BtSettings.CHANNELS + 1];
         int common = 0, n = 0;
@@ -482,19 +495,22 @@ public final class BtTranslator {
                 if (common == 0 || e < common) common = e;
             }
         }
-        boolean sync = testCh == 0 && BtSettings.sync() && n >= 2;
+        // slots: a real training, two channels or more, one Hz for all of them (the lowest any channel is held to)
+        boolean slots = testCh == 0 && BtSettings.slots() && n >= 2 && common >= SLOT_MIN_HZ;
+        if (!slots) stopSlide(out);
         int mask = 0;
         boolean hzNew = false;
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             int t = want[ch];
             if (t > 0) {
-                int h = sync ? common : (testCh != 0 ? testHzs[ch] : effHz(ch, hz));
+                int h = slots ? common : (testCh != 0 ? testHzs[ch] : effHz(ch, hz));
                 int u = testCh != 0 ? widthUs : effUs(ch, widthUs);
                 if (u < MIN_US) u = MIN_US;
                 if (testCh == 0) sendWave(out, ch, BtSettings.waveFor(ch, phase == SECOND));
                 if (devHz[ch] != h) {
                     out.add(BtProto.hz(ch, h));
                     devHz[ch] = h;
+                    slideMask &= ~(1 << (ch - 1));      // back on the plain period
                     hzNew = true;
                 }
                 if (devUs[ch] != u) {
@@ -525,14 +541,70 @@ public final class BtTranslator {
             }
         }
         if (mask != 0) used = true;
-        if (sync && devMask != 0 && mask != 0 && (mask != devMask || hzNew)) {
-            // running channels would go out of step with the one that joins / the new Hz: all off, all on together
-            out.add(BtProto.allOff());
+        if (slots && (mask != devMask || hzNew)) {
+            // every impulse start (pause = SEL off), a channel added / dropped or a new Hz: the places are laid again
+            stopSlide(out);
+            if (devMask != 0) out.add(BtProto.allOff());
             out.add(BtProto.enable(mask));
             devMask = mask;
+            startSlide(out, mask, common);
         } else if (mask != devMask) {
             out.add(BtProto.enable(mask));
             devMask = mask;
         }
+    }
+
+    /** Channels of mask 2nd..nth slower by d_k µs for SLIDE_MS: channel k falls k/n of the period behind the first. */
+    private void startSlide(List<byte[]> out, int mask, int h) {
+        int p = 1000000 / h;
+        int n = Integer.bitCount(mask);
+        double win = SLIDE_MS * 1000.0;
+        int k = 0;
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if ((mask & (1 << (ch - 1))) == 0) continue;
+            if (k > 0) {
+                // slower by d per own period, for win µs: slip = d · win / (p + d) = k·p/n
+                double off = (double) k * p / n;
+                int d = (int) Math.round(off * p / (win - off));
+                if (d < 1) d = 1;
+                out.add(BtProto.period(ch, p + d));
+                slideMask |= 1 << (ch - 1);
+            }
+            k++;
+        }
+        if (slideMask != 0) {
+            slideGen++;
+            slidePending = SLIDE_MS;
+        }
+    }
+
+    /** The slide is cut short (pause, stop, new Hz, slots off): the slow channels back on the plain period now. */
+    private void stopSlide(List<byte[]> out) {
+        if (slideMask == 0) return;
+        for (int ch = BtSettings.CHANNELS; ch >= 1; ch--) {
+            if ((slideMask & (1 << (ch - 1))) != 0) out.add(BtProto.hz(ch, devHz[ch]));
+        }
+        slideMask = 0;
+        slideGen++;
+        slidePending = -1;
+    }
+
+    /**
+     * Bridge: a slide was laid by the last command → {ms, gen}: after the command's frames are ACKed, wait ms and
+     * call {@link #slideEnd}(gen). null = none. Taken once.
+     */
+    public synchronized long[] takeSlide() {
+        if (slidePending < 0) return null;
+        long[] r = {slidePending, slideGen};
+        slidePending = -1;
+        return r;
+    }
+
+    /** The slide's time is up: the slow channels back on the plain period (the last channel, the fastest, first). */
+    public synchronized List<byte[]> slideEnd(long gen) {
+        List<byte[]> out = new ArrayList<byte[]>();
+        if (gen != slideGen) return out;
+        stopSlide(out);
+        return out;
     }
 }

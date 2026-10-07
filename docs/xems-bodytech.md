@@ -218,3 +218,13 @@ cycle, so every change other than strength needs RESET + the whole program (its 
 one 100 s burst and times every phase on the tablet; Hz, width, waveform and strength are per-channel registers written
 live (probe 0.6: a write does not restart the channel). The program is written only at connect, stop and a new link
 (`BtLoad`, ~3 s) — nothing else needs it.
+
+## All ten XEMS channels (owner, 1.1.388)
+The settings map **bodytech channel → XEMS channel**, and every one of the row's ten channels may be picked —
+Гърди and Прасец too (1.1.379–1.1.387 hid them and, on every load, moved a channel left on them to a leg, so e.g. the
+left thigh put on "Гърди" could not work). The chips carry the row's own names (Гърди, Корем, Предно бедро, Прасец, Ръце,
+Трапец, Гръб, Кръст, Седалище, Задно бедро); a bodytech row shows all ten columns.
+- The legs are **bodytech channels** (`BtSettings.legL / legR`, default C5 / C7, «Крака» picks them); a leg is on whatever
+  XEMS channel its bodytech channel is on. The row's Л / Д tags, the equal-legs rule and the header's "Ляв крак" /
+  "Десен крак" follow that XEMS channel (both legs on one channel → none of these).
+- The old-name migration (`BtSettings.legs`) runs once (`legsdone`); after that the owner's map is never rewritten.

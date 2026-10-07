@@ -138,7 +138,7 @@ public final class BtAus {
                 1000, 500, 10, 2, SINE, 0, 0, 2, min, 3, false, 0, 0, 0);
     }
 
-    // BtSettings.SLIDERS: 1 Корем, 2 Ляв крак, 4 Ръце, 5 Трапец, 6 Гръб, 7 Кръст, 8 Седалище, 9 Десен крак (no chest, no calf)
+    // BtSettings.SLIDERS: 0 Гърди, 1 Корем, 2 Предно бедро, 3 Прасец, 4 Ръце, 5 Трапец, 6 Гръб, 7 Кръст, 8 Седалище, 9 Задно бедро
     private static final int[] SHAPE = {8, 2, 9, 1, 7};
     private static final int[] LEGS_GLUTES = {2, 9, 8};
     private static final int[] HIPS = {8, 2, 9};

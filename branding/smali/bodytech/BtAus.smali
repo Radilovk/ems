@@ -54,8 +54,8 @@
     .registers 32
 
     .prologue
-    .line 142
-    const/4 v1, 0x5
+    .line 143
+    const/4 v1, 0x6
 
     new-array v1, v1, [I
 
@@ -63,34 +63,34 @@
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->SHAPE:[I
 
-    .line 143
-    const/4 v1, 0x3
+    .line 144
+    const/4 v1, 0x4
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_2b4
+    fill-array-data v1, :array_2b6
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->LEGS_GLUTES:[I
 
-    .line 144
+    .line 145
+    const/4 v1, 0x4
+
+    new-array v1, v1, [I
+
+    fill-array-data v1, :array_2c2
+
+    sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->HIPS:[I
+
+    .line 146
     const/4 v1, 0x3
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_2be
-
-    sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->HIPS:[I
-
-    .line 145
-    const/4 v1, 0x2
-
-    new-array v1, v1, [I
-
-    fill-array-data v1, :array_2c8
+    fill-array-data v1, :array_2ce
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->LEGS:[I
 
-    .line 146
+    .line 147
     const/4 v1, 0x1
 
     new-array v1, v1, [I
@@ -103,16 +103,16 @@
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->ABS:[I
 
-    .line 147
+    .line 148
     const/4 v1, 0x2
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_2d0
+    fill-array-data v1, :array_2d8
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtAus;->BACK:[I
 
-    .line 152
+    .line 153
     const/16 v1, 0x9
 
     new-array v0, v1, [Lcom/isaigu/gymapp/bodytech/BtAus$T;
@@ -149,7 +149,7 @@
 
     const/4 v14, 0x5
 
-    .line 160
+    .line 161
     invoke-static {v14}, Lcom/isaigu/gymapp/bodytech/BtAus;->adapt(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
     move-result-object v14
@@ -226,7 +226,7 @@
 
     const/4 v14, 0x5
 
-    .line 169
+    .line 170
     invoke-static {v14}, Lcom/isaigu/gymapp/bodytech/BtAus;->adapt(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
     move-result-object v14
@@ -531,7 +531,7 @@
 
     const/4 v14, 0x6
 
-    .line 197
+    .line 198
     invoke-static {v14}, Lcom/isaigu/gymapp/bodytech/BtAus;->adapt(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
     move-result-object v14
@@ -598,7 +598,7 @@
 
     const/4 v14, 0x6
 
-    .line 204
+    .line 205
     invoke-static {v14}, Lcom/isaigu/gymapp/bodytech/BtAus;->adapt(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
     move-result-object v14
@@ -665,7 +665,7 @@
 
     const/4 v14, 0x6
 
-    .line 211
+    .line 212
     invoke-static {v14}, Lcom/isaigu/gymapp/bodytech/BtAus;->adapt(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
     move-result-object v14
@@ -728,7 +728,7 @@
 
     const/4 v14, 0x6
 
-    .line 218
+    .line 219
     invoke-static {v14}, Lcom/isaigu/gymapp/bodytech/BtAus;->adapt(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
     move-result-object v14
@@ -795,7 +795,7 @@
 
     const/4 v14, 0x6
 
-    .line 225
+    .line 226
     invoke-static {v14}, Lcom/isaigu/gymapp/bodytech/BtAus;->adapt(I)Lcom/isaigu/gymapp/bodytech/BtAus$Ph;
 
     move-result-object v14
@@ -834,44 +834,48 @@
 
     sput-object v18, Lcom/isaigu/gymapp/bodytech/BtAus;->ALL:[Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
-    .line 152
+    .line 153
     return-void
 
-    .line 142
+    .line 143
     :array_2a6
     .array-data 4
         0x8
+        0x0
         0x2
         0x9
         0x1
         0x7
     .end array-data
 
-    .line 143
-    :array_2b4
-    .array-data 4
-        0x2
-        0x9
-        0x8
-    .end array-data
-
     .line 144
-    :array_2be
+    :array_2b6
     .array-data 4
-        0x8
+        0x0
         0x2
         0x9
+        0x8
     .end array-data
 
     .line 145
-    :array_2c8
+    :array_2c2
     .array-data 4
+        0x8
+        0x0
         0x2
         0x9
     .end array-data
 
-    .line 147
-    :array_2d0
+    .line 146
+    :array_2ce
+    .array-data 4
+        0x0
+        0x2
+        0x9
+    .end array-data
+
+    .line 148
+    :array_2d8
     .array-data 4
         0x7
         0x6
@@ -936,7 +940,7 @@
     .registers 16
 
     .prologue
-    .line 282
+    .line 283
     const-wide/16 v0, 0x0
 
     cmpg-double v0, p3, v0
@@ -945,13 +949,13 @@
 
     const-wide/16 p3, 0x0
 
-    .line 283
+    .line 284
     :cond_8
     if-lez p1, :cond_c
 
     if-gtz p0, :cond_2f
 
-    .line 284
+    .line 285
     :cond_c
     if-lez p2, :cond_25
 
@@ -983,11 +987,11 @@
 
     invoke-direct {v0, v1, v2, v3}, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;-><init>(IIF)V
 
-    .line 294
+    .line 295
     :goto_24
     return-object v0
 
-    .line 285
+    .line 286
     :cond_25
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
@@ -1001,19 +1005,19 @@
 
     goto :goto_24
 
-    .line 287
+    .line 288
     :cond_2f
     add-int v4, p0, p1
 
-    .line 288
+    .line 289
     int-to-double v0, v4
 
     rem-double v6, p3, v0
 
-    .line 289
+    .line 290
     int-to-double v0, p2
 
-    .line 290
+    .line 291
     const-wide/high16 v2, 0x4000000000000000L    # 2.0
 
     mul-double/2addr v2, v0
@@ -1032,7 +1036,7 @@
 
     move-wide v2, v0
 
-    .line 291
+    .line 292
     :goto_42
     cmpg-double v0, v6, v2
 
@@ -1072,7 +1076,7 @@
 
     goto :goto_59
 
-    .line 292
+    .line 293
     :cond_61
     int-to-double v0, p0
 
@@ -1104,7 +1108,7 @@
 
     goto :goto_24
 
-    .line 293
+    .line 294
     :cond_79
     int-to-double v0, p0
 
@@ -1152,7 +1156,7 @@
 
     goto :goto_94
 
-    .line 294
+    .line 295
     :cond_9b
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtAus$Pos;
 
@@ -1186,7 +1190,7 @@
     .prologue
     const-wide/high16 v4, 0x4000000000000000L    # 2.0
 
-    .line 346
+    .line 347
     if-le p1, p0, :cond_6
 
     if-gtz p2, :cond_8
@@ -1194,11 +1198,11 @@
     :cond_6
     int-to-double v0, p0
 
-    .line 349
+    .line 350
     :goto_7
     return-wide v0
 
-    .line 347
+    .line 348
     :cond_8
     int-to-double v0, p2
 
@@ -1208,7 +1212,7 @@
 
     div-double/2addr v0, v2
 
-    .line 348
+    .line 349
     const-wide/high16 v2, 0x3fe0000000000000L    # 0.5
 
     cmpg-double v2, v0, v2
@@ -1217,7 +1221,7 @@
 
     mul-double/2addr v0, v4
 
-    .line 349
+    .line 350
     :goto_14
     int-to-double v2, p0
 
@@ -1231,7 +1235,7 @@
 
     goto :goto_7
 
-    .line 348
+    .line 349
     :cond_1b
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
@@ -1248,7 +1252,7 @@
     .prologue
     const/4 v2, 0x2
 
-    .line 251
+    .line 252
     if-lez p0, :cond_5
 
     if-gtz p1, :cond_b
@@ -1258,17 +1262,17 @@
 
     fill-array-data v0, :array_22
 
-    .line 254
+    .line 255
     :goto_a
     return-object v0
 
-    .line 252
+    .line 253
     :cond_b
     const/16 v0, 0x3e8
 
     div-int v1, v0, p0
 
-    .line 253
+    .line 254
     if-lt p1, v1, :cond_17
 
     new-array v0, v2, [I
@@ -1277,7 +1281,7 @@
 
     goto :goto_a
 
-    .line 254
+    .line 255
     :cond_17
     new-array v0, v2, [I
 
@@ -1293,7 +1297,7 @@
 
     goto :goto_a
 
-    .line 251
+    .line 252
     nop
 
     :array_22
@@ -1302,7 +1306,7 @@
         0x0
     .end array-data
 
-    .line 253
+    .line 254
     :array_2a
     .array-data 4
         0x0
@@ -1314,7 +1318,7 @@
     .registers 6
 
     .prologue
-    .line 241
+    .line 242
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtAus;->ALL:[Lcom/isaigu/gymapp/bodytech/BtAus$T;
 
     array-length v3, v2
@@ -1328,7 +1332,7 @@
 
     aget-object v0, v2, v1
 
-    .line 242
+    .line 243
     iget-object v4, v0, Lcom/isaigu/gymapp/bodytech/BtAus$T;->id:Ljava/lang/String;
 
     invoke-virtual {v4, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1337,11 +1341,11 @@
 
     if-eqz v4, :cond_12
 
-    .line 244
+    .line 245
     :goto_11
     return-object v0
 
-    .line 241
+    .line 242
     :cond_12
     add-int/lit8 v0, v1, 0x1
 
@@ -1349,7 +1353,7 @@
 
     goto :goto_5
 
-    .line 244
+    .line 245
     :cond_16
     const/4 v0, 0x0
 
@@ -1362,12 +1366,12 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 338
+    .line 339
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtAus;->realHz(I)D
 
     move-result-wide v2
 
-    .line 339
+    .line 340
     const-wide v4, 0x412e848000000000L    # 1000000.0
 
     int-to-double v6, p1
@@ -1382,10 +1386,10 @@
 
     long-to-int v1, v2
 
-    .line 340
+    .line 341
     if-ge v1, v0, :cond_1b
 
-    .line 341
+    .line 342
     :goto_15
     const v1, 0xf4240
 
@@ -1403,16 +1407,16 @@
     .registers 16
 
     .prologue
-    .line 318
     .line 319
+    .line 320
     const-wide v0, 0x41cdcd6500000000L    # 1.0E9
 
-    .line 320
+    .line 321
     const v2, 0xf4240
 
     div-int v9, v2, p0
 
-    .line 321
+    .line 322
     int-to-double v2, v9
 
     const-wide v4, 0x3fe6666666666666L    # 0.7
@@ -1438,12 +1442,12 @@
 
     if-gt v8, v2, :cond_5c
 
-    .line 322
+    .line 323
     const/16 v2, 0x64
 
     if-ge v8, v2, :cond_27
 
-    .line 321
+    .line 322
     :cond_23
     :goto_23
     add-int/lit8 v2, v8, 0x1
@@ -1452,25 +1456,25 @@
 
     goto :goto_15
 
-    .line 323
+    .line 324
     :cond_27
     const v2, 0xf4240
 
     div-int v7, v2, v8
 
-    .line 324
+    .line 325
     const-wide v2, 0x412e848000000000L    # 1000000.0
 
     int-to-double v10, v8
 
     div-double/2addr v2, v10
 
-    .line 325
+    .line 326
     invoke-static {v7, p1}, Lcom/isaigu/gymapp/bodytech/BtAus;->ifcB(II)I
 
     move-result v5
 
-    .line 326
+    .line 327
     invoke-static {v5}, Lcom/isaigu/gymapp/bodytech/BtAus;->realHz(I)D
 
     move-result-wide v10
@@ -1503,7 +1507,7 @@
 
     add-double/2addr v2, v10
 
-    .line 327
+    .line 328
     cmpg-double v10, v2, v0
 
     if-gez v10, :cond_23
@@ -1514,10 +1518,10 @@
 
     move v6, v7
 
-    .line 330
+    .line 331
     goto :goto_23
 
-    .line 333
+    .line 334
     :cond_5c
     const/4 v0, 0x2
 
@@ -1598,7 +1602,7 @@
 
     const/4 v1, 0x1
 
-    .line 299
+    .line 300
     int-to-float v2, p0
 
     mul-float/2addr v2, p1
@@ -1615,7 +1619,7 @@
 
     move-result v2
 
-    .line 300
+    .line 301
     const/4 v3, 0x0
 
     cmpl-float v3, p1, v3
@@ -1628,7 +1632,7 @@
 
     if-lez p2, :cond_21
 
-    .line 301
+    .line 302
     :goto_19
     if-gez v1, :cond_1d
 
@@ -1661,25 +1665,25 @@
 
     const/4 v1, 0x0
 
-    .line 230
+    .line 231
     move v0, v1
 
     move v2, v1
 
-    .line 231
+    .line 232
     :goto_5
     array-length v3, p0
 
     if-ge v0, v3, :cond_1e
 
-    .line 232
+    .line 233
     aget v3, p0, v0
 
     mul-int/lit8 v3, v3, 0x3c
 
     add-int/2addr v3, v2
 
-    .line 233
+    .line 234
     int-to-double v4, v3
 
     cmpg-double v4, p1, v4
@@ -1694,11 +1698,11 @@
 
     move-object v0, v3
 
-    .line 236
+    .line 237
     :goto_19
     return-object v0
 
-    .line 231
+    .line 232
     :cond_1a
     add-int/lit8 v0, v0, 0x1
 
@@ -1706,7 +1710,7 @@
 
     goto :goto_5
 
-    .line 236
+    .line 237
     :cond_1e
     new-array v0, v7, [I
 
@@ -1769,7 +1773,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 308
+    .line 309
     const v1, 0xf4240
 
     if-ge p0, v0, :cond_7
@@ -1779,7 +1783,7 @@
     :cond_7
     div-int v0, v1, p0
 
-    .line 309
+    .line 310
     const-wide v2, 0x412e848000000000L    # 1000000.0
 
     int-to-double v0, v0
@@ -1883,12 +1887,12 @@
     .prologue
     const/16 v0, 0x32
 
-    .line 259
+    .line 260
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->maxUsAt(I)I
 
     move-result v1
 
-    .line 260
+    .line 261
     if-ge p1, v0, :cond_a
 
     move p1, v0

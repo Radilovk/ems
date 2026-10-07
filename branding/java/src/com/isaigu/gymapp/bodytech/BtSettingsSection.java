@@ -171,7 +171,7 @@ public final class BtSettingsSection {
             int cur = BtSettings.legChannel(right);
             LinearLayout head = XemsUi.horizontal(a);
             head.setGravity(Gravity.CENTER_VERTICAL);
-            head.addView(XemsUi.text(a, right ? "Десен крак" : "Ляв крак", 17, XemsUi.TEXT, true),
+            head.addView(XemsUi.text(a, right ? "Дясно бедро" : "Ляво бедро", 17, XemsUi.TEXT, true),
                     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             int xs = BtSettings.slider(cur);
             head.addView(XemsUi.text(a, "C" + cur + " → " + BtSettings.sliderName(xs), 14,

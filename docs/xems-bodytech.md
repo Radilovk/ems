@@ -228,3 +228,14 @@ left thigh put on "Гърди" could not work). The chips carry the row's own na
   XEMS channel its bodytech channel is on. The row's Л / Д tags, the equal-legs rule and the header's "Ляв крак" /
   "Десен крак" follow that XEMS channel (both legs on one channel → none of these).
 - The old-name migration (`BtSettings.legs`) runs once (`legsdone`); after that the owner's map is never rewritten.
+
+## The thighs (owner, 1.1.389)
+Every bodytech channel answers to exactly one of the ten XEMS channels. EMSFIT's names stay, except two:
+| bodytech | name | XEMS channel |
+|---|---|---|
+| C5 (EMSFIT "Гърди") | **Ляво бедро** | Гърди |
+| C7 (EMSFIT "Крака") | **Дясно бедро** | Предно бедро |
+C1 Кръст → Кръст, C2 Седалище → Седалище, C3 Рамене → Трапец, C4 Среден гръб → Гръб, C6 Ръце → Ръце, C8 Корем → Корем
+as before. A tablet on the 1.1.379–1.1.388 legs ("Ляв / Десен крак" on front / back thigh) or the EMSFIT names is moved
+once (`BtSettings.legs`, flag `legs389`); a slider the owner picked himself stays, only the name follows. The row's
+header reads "Ляво бедро" / "Дясно бедро" over the legs' XEMS columns; «Модулация» leg zones include the chest slider.

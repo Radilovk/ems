@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.isaigu.gymapp.bean.ProgramDataBean;
+import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.fragment.NewTrainFragment;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
@@ -18,13 +20,17 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 /**
- * The muscle-group icons on the training screen (owner, 1.1.383): a tap marks / unmarks a channel; + / − and the
- * avatar slider then change the marked channels only. Which impulse they change follows the row's double-impulse
- * button (wearable/DoubleImpulse): in the second impulse's setup the marks are yellow and set the second impulse,
- * otherwise they are green and set the main one. A mark clears itself 5 s after the last action with it (tap, + / −,
- * slider). The marks are the fragment's own {@code partsControl}; this class only keeps their time and paints the
- * yellow ones. (Before 1.1.383: a 2nd tap made a channel yellow, a 3 s hold on its icon synced it — both gone, the
- * double-impulse button does it for the whole row.)
+ * The muscle-group icons on the training screen (owner, 1.1.386 — the cycle of 1.1.366 back):
+ * <ul>
+ *   <li>1st tap — green: + / −, the avatar ring and the channel's bar change <b>both impulses</b> of the channel (the
+ *       second keeps its ratio to the main, PartStrength.follow);</li>
+ *   <li>2nd tap, still green (double impulse on) — yellow: they change the channel's <b>second impulse alone</b>
+ *       (SecondParts);</li>
+ *   <li>3rd tap, on yellow — off; a mark also clears itself 5 s after the last action with it (tap, + / −, ring).</li>
+ * </ul>
+ * Without the double impulse a tap marks / unmarks (green). In the second impulse's setup (wearable/DoubleImpulse)
+ * every mark is yellow — the suit gives impulse 2 alone there. The marks are the fragment's own {@code partsControl}
+ * (a yellow channel is marked there too); this class keeps their time and which ones are yellow, and paints them.
  * Hooks: NewTrainFragment.changePartControl (click, with the fragment's own manager: the field is package-private),
  * end of updateMuscleSelectionVisual (tint), SessionRecorder tick (scripts/apply-pause-parts.py).
  */
@@ -33,6 +39,8 @@ public final class PartPick {
     static final int N = 10;
 
     private static final long[] LAST = new long[N];
+    /** Marked channels the 2nd tap made yellow (second impulse alone). */
+    private static final boolean[] YELLOW = new boolean[N];
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static boolean[] ctl;
     private static WeakReference<NewTrainFragment> frag;
@@ -43,9 +51,14 @@ public final class PartPick {
 
     private PartPick() {}
 
-    /** The channel is marked and a row is in the second impulse's setup: its changes go to the second impulse. */
+    /** The channel is marked yellow (2nd tap, or a row in the second impulse's setup): its changes go to the second impulse. */
     public static boolean isYellow(int i) {
-        return isMarked(i) && DoubleImpulse.anyActive();
+        return isMarked(i) && (YELLOW[i] || DoubleImpulse.anyActive());
+    }
+
+    /** The channel was made yellow by its 2nd tap (the setup aside). */
+    public static boolean tappedYellow(int i) {
+        return isMarked(i) && YELLOW[i];
     }
 
     /** The channel is marked, green or yellow. */
@@ -63,21 +76,56 @@ public final class PartPick {
     }
 
     /**
-     * Hook: the tap on a channel icon. Always false: the original toggle runs; here only the mark's time and the
-     * fragment (for the redraw after the 5 s).
+     * Hook: the tap on a channel icon. True = handled here (the original toggle is skipped); false = the original
+     * toggle runs (no double impulse, or the setup: a plain mark / unmark).
      */
     public static boolean click(NewTrainFragment f, TrainItemManager m, boolean[] marks, int i) {
         if (marks == null || i < 0 || i >= marks.length || i >= N) {
             return false;
         }
-        LAST[i] = System.currentTimeMillis();
-        ctl = marks;
-        frag = new WeakReference<NewTrainFragment>(f);
-        DoubleImpulse.touchAll();
+        LAST[i] = System.currentTimeMillis();                   // first: whatever happens below, 5 s from now
+        try {
+            ctl = marks;
+            frag = new WeakReference<NewTrainFragment>(f);
+            DoubleImpulse.touchAll();
+            List<TrainItem> items = m != null ? m.getItemList() : null;
+            if (!secondOn(items) || DoubleImpulse.anyActive()) {
+                YELLOW[i] = false;
+                return false;                                   // plain mark / unmark
+            }
+            if (!marks[i]) {
+                marks[i] = true;                                // 1st tap: green — both impulses
+                YELLOW[i] = false;
+            } else if (!YELLOW[i]) {
+                YELLOW[i] = true;                               // 2nd tap, still green: yellow — the second alone
+            } else {
+                marks[i] = false;                               // 3rd tap: off
+                YELLOW[i] = false;
+            }
+            return true;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("index", "part click: " + t);
+            return false;
+        }
+    }
+
+    /** Any row's running mode has the second impulse on. */
+    static boolean secondOn(List<TrainItem> items) {
+        if (items == null) {
+            return false;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            TrainItem it = items.get(i);
+            TrainProgram p = it != null && !it.isEmpty() ? it.getTrainProgram() : null;
+            ProgramDataBean b = p != null ? p.matchProgram() : null;
+            if (b != null && b.activePause) {
+                return true;
+            }
+        }
         return false;
     }
 
-    /** SessionRecorder, every second: a mark that had no action for 5 s goes off. */
+    /** SessionRecorder, every second: a mark that had no action for 5 s goes off; yellow without a second impulse is green. */
     static void tick(List<TrainItem> items) {
         try {
             if (items == null || ManualDefaults.assisted() || MusicSync.isRunning()) {
@@ -95,10 +143,20 @@ public final class PartPick {
             }
             ctl = marks;
             long now = System.currentTimeMillis();
+            boolean second = secondOn(items);
             boolean changed = false;
             for (int i = 0; i < N && i < marks.length; i++) {
-                if (marks[i] && now - LAST[i] >= IDLE_MS) {
+                if (!marks[i]) {
+                    YELLOW[i] = false;
+                    continue;
+                }
+                if (!second && YELLOW[i]) {
+                    YELLOW[i] = false;                          // the second impulse went off: yellow is green again
+                    changed = true;
+                }
+                if (now - LAST[i] >= IDLE_MS) {
                     marks[i] = false;
+                    YELLOW[i] = false;
                     changed = true;
                 }
             }

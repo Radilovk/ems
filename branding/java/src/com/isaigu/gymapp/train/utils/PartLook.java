@@ -105,7 +105,7 @@ public final class PartLook {
         return b != null && b.activePause && live;
     }
 
-    /** The avatar ring: true = second impulse look (the setup only, unless the main MA / Hz is picked). */
+    /** The avatar ring: true = second impulse look (the setup, unless the main MA / Hz is picked; or only yellow channels marked). */
     static boolean ringSecond(TrainItem item, ProgramDataBean b, boolean live) {
         if (b == null || !b.activePause || MusicSync.isRunning()) {
             return false;                                 // music drives the ring
@@ -114,7 +114,12 @@ public final class PartLook {
         if (l != null) {
             return l.second;
         }
-        return DoubleImpulse.active(item) && !item.isMaSelected() && !item.isHzSelected();
+        if (DoubleImpulse.active(item) && !item.isMaSelected() && !item.isHzSelected()) {
+            return true;
+        }
+        boolean[] sel = PartStrength.selection(item, b);     // only yellow channels marked: the ring is their 2nd impulse
+        boolean[] yel = sel != null ? PartStrength.yellow(item, b, sel) : null;
+        return yel != null && !PartStrength.any(PartStrength.without(sel, yel));
     }
 
     /** A bar under the finger (or just released) in the second impulse's look: its release sets the second impulse. */

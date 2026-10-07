@@ -140,7 +140,7 @@
 
     const/4 v0, -0x1
 
-    .line 123
+    .line 128
     if-eqz p0, :cond_1a
 
     array-length v1, p0
@@ -165,12 +165,12 @@
 
     if-eq v1, v2, :cond_1b
 
-    .line 125
+    .line 130
     :cond_1a
     :goto_1a
     return v0
 
-    .line 124
+    .line 129
     :cond_1b
     aget-byte v1, p0, v3
 
@@ -180,7 +180,7 @@
 
     if-eqz v1, :cond_1a
 
-    .line 125
+    .line 130
     :cond_23
     aget-byte v0, p0, v3
 
@@ -295,10 +295,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 147
+    .line 152
     move v0, v1
 
-    .line 148
+    .line 153
     :goto_2
     add-int/lit8 v2, v0, 0x1
 
@@ -306,12 +306,12 @@
 
     if-ge v2, v3, :cond_12
 
-    .line 149
+    .line 154
     aget-byte v2, p0, v0
 
     and-int/lit16 v3, v2, 0xff
 
-    .line 150
+    .line 155
     if-eqz v3, :cond_12
 
     add-int v2, v0, v3
@@ -320,12 +320,12 @@
 
     if-lt v2, v4, :cond_13
 
-    .line 159
+    .line 164
     :cond_12
     :goto_12
     return v1
 
-    .line 151
+    .line 156
     :cond_13
     add-int/lit8 v2, v0, 0x1
 
@@ -333,7 +333,7 @@
 
     and-int/lit16 v2, v2, 0xff
 
-    .line 152
+    .line 157
     const/4 v4, 0x2
 
     if-eq v2, v4, :cond_1f
@@ -342,7 +342,7 @@
 
     if-ne v2, v4, :cond_3b
 
-    .line 153
+    .line 158
     :cond_1f
     add-int/lit8 v2, v0, 0x2
 
@@ -353,7 +353,7 @@
 
     if-gt v4, v5, :cond_3b
 
-    .line 154
+    .line 159
     aget-byte v4, p0, v2
 
     and-int/lit16 v4, v4, 0xff
@@ -374,19 +374,19 @@
 
     goto :goto_12
 
-    .line 153
+    .line 158
     :cond_38
     add-int/lit8 v2, v2, 0x2
 
     goto :goto_21
 
-    .line 157
+    .line 162
     :cond_3b
     add-int/lit8 v2, v3, 0x1
 
     add-int/2addr v0, v2
 
-    .line 158
+    .line 163
     goto :goto_2
 .end method
 
@@ -398,7 +398,7 @@
 
     const/4 v1, 0x0
 
-    .line 67
+    .line 72
     if-lez p1, :cond_8
 
     if-le p1, v0, :cond_e
@@ -427,7 +427,7 @@
     .registers 4
 
     .prologue
-    .line 75
+    .line 80
     const/4 v1, 0x2
 
     if-ltz p1, :cond_7
@@ -462,23 +462,23 @@
 
     const/4 v1, 0x0
 
-    .line 139
+    .line 144
     if-nez p0, :cond_7
 
     move v0, v1
 
-    .line 142
+    .line 147
     :cond_6
     :goto_6
     return v0
 
-    .line 140
+    .line 145
     :cond_7
     invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
 
     move-result-object v2
 
-    .line 141
+    .line 146
     const-string v3, "TZLJ"
 
     invoke-virtual {v2, v3}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -495,7 +495,7 @@
 
     if-nez v3, :cond_6
 
-    .line 142
+    .line 147
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v3
@@ -540,12 +540,12 @@
     .registers 5
 
     .prologue
-    .line 132
+    .line 137
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtProto;->volts(I)F
 
     move-result v0
 
-    .line 133
+    .line 138
     const/16 v1, 0x64
 
     const/4 v2, 0x0
@@ -575,6 +575,24 @@
     return v0
 .end method
 
+.method public static period(II)[B
+    .registers 4
+
+    .prologue
+    .line 68
+    const/4 v0, 0x0
+
+    const v1, 0xfffff
+
+    and-int/2addr v1, p1
+
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/bodytech/BtProto;->frame(III)[B
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 .method public static reset()[B
     .registers 2
 
@@ -595,7 +613,7 @@
     .registers 4
 
     .prologue
-    .line 71
+    .line 76
     const/4 v1, 0x1
 
     if-lez p1, :cond_8
@@ -630,12 +648,12 @@
 
     const/4 v0, 0x1
 
-    .line 93
+    .line 98
     if-ge p1, v0, :cond_14
 
     move p1, v0
 
-    .line 94
+    .line 99
     :cond_6
     :goto_6
     shl-int/lit8 v0, p1, 0x8
@@ -656,7 +674,7 @@
 
     return-object v0
 
-    .line 93
+    .line 98
     :cond_14
     if-le p1, v1, :cond_6
 
@@ -703,12 +721,12 @@
     .prologue
     const v1, 0xfffff
 
-    .line 106
+    .line 111
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_1d
 
-    .line 107
+    .line 112
     if-lez p2, :cond_c
 
     mul-int/lit8 v0, p2, 0xa
@@ -718,7 +736,7 @@
     :cond_c
     const/16 v0, 0x2625
 
-    .line 111
+    .line 116
     :goto_e
     add-int/lit8 v1, p1, 0x7
 
@@ -730,7 +748,7 @@
 
     return-object v0
 
-    .line 107
+    .line 112
     :cond_17
     mul-int/lit16 v0, p2, 0x2710
 
@@ -740,7 +758,7 @@
 
     goto :goto_e
 
-    .line 109
+    .line 114
     :cond_1d
     if-ltz p2, :cond_23
 
@@ -767,7 +785,7 @@
     .registers 4
 
     .prologue
-    .line 114
+    .line 119
     const/16 v1, 0xb
 
     if-ltz p1, :cond_8
@@ -796,7 +814,7 @@
     .registers 4
 
     .prologue
-    .line 115
+    .line 120
     const/16 v1, 0xc
 
     if-ltz p1, :cond_8
@@ -827,7 +845,7 @@
     .registers 4
 
     .prologue
-    .line 116
+    .line 121
     const/16 v1, 0xd
 
     if-ltz p1, :cond_8
@@ -856,7 +874,7 @@
     .registers 4
 
     .prologue
-    .line 117
+    .line 122
     const/16 v1, 0xe
 
     if-ltz p1, :cond_8
@@ -887,7 +905,7 @@
     .registers 4
 
     .prologue
-    .line 100
+    .line 105
     const/4 v1, 0x6
 
     if-lez p1, :cond_7
@@ -918,7 +936,7 @@
     .registers 3
 
     .prologue
-    .line 128
+    .line 133
     int-to-float v0, p0
 
     const v1, 0x3b1d4952    # 0.0024f
@@ -932,7 +950,7 @@
     .registers 4
 
     .prologue
-    .line 97
+    .line 102
     const/4 v0, 0x4
 
     and-int/lit8 v1, p1, 0x3
@@ -948,7 +966,7 @@
     .registers 4
 
     .prologue
-    .line 80
+    .line 85
     const/4 v1, 0x3
 
     if-lez p1, :cond_7
@@ -985,12 +1003,12 @@
 
     const/4 v0, 0x1
 
-    .line 85
+    .line 90
     if-ge p1, v0, :cond_12
 
     move p1, v0
 
-    .line 86
+    .line 91
     :cond_6
     :goto_6
     const/4 v0, 0x3
@@ -1007,7 +1025,7 @@
 
     return-object v0
 
-    .line 85
+    .line 90
     :cond_12
     if-le p1, v1, :cond_6
 

@@ -70,6 +70,12 @@ public final class BtSettings {
     static final int[] chWaveSecond = new int[CHANNELS + 1];
     /** true = the owner's per-channel values rule as they are (Hz up to 1000, width up to 511 µs); false = they can only lower the program's. */
     static boolean unlimited = true;
+    /**
+     * Pulse slots (owner, 1.1.380; off by default): the working channels share one Hz and each gets its own place in the
+     * period, so no two channels pulse at the same moment (probe 0.5–0.7: two channels act on each other only where
+     * their pulses overlap). BtTranslator does it at every impulse start.
+     */
+    static boolean slots;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
 
@@ -100,6 +106,7 @@ public final class BtSettings {
         }
         if (legs()) save();
         unlimited = p.getBoolean("unlimited", true);
+        slots = p.getBoolean("slots", false);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -221,6 +228,7 @@ public final class BtSettings {
         for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
         e.putString("order", o.toString());
         e.putBoolean("unlimited", unlimited);
+        e.putBoolean("slots", slots);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -242,6 +250,7 @@ public final class BtSettings {
         }
         loadOrder("");
         unlimited = true;
+        slots = false;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -286,6 +295,8 @@ public final class BtSettings {
     }
 
     public static synchronized boolean unlimited() { return unlimited; }
+
+    public static synchronized boolean slots() { return slots; }
 
     /** Hz this channel is held to in the main (second = false) or 2nd impulse (never above the program's); 0 = the program's. */
     public static synchronized int chHz(int ch, boolean second) {
@@ -355,6 +366,11 @@ public final class BtSettings {
         if (!valid(ch)) return;
         if (second) chWaveSecond[ch] = clampChWave(w);
         else chWaveMain[ch] = clampChWave(w);
+        save();
+    }
+
+    public static synchronized void setSlots(boolean on) {
+        slots = on;
         save();
     }
 

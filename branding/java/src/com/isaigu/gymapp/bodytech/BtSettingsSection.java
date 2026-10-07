@@ -149,6 +149,10 @@ public final class BtSettingsSection {
             extra.addView(wave, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             extra.addView(gain, XemsUi.weight(1f, 12, a));
             sh.body.addView(extra, XemsUi.matchWrap(a, 16));
+            sh.body.addView(XemsUi.toggleRow(a, "Разделени импулси",
+                    "Каналите бият по ред, всеки на свое място в периода, а не едновременно — така не си влияят и "
+                            + "кръстът и трапецът могат да работят с останалите. Всички канали тогава са на една честота.",
+                    BtSettings.slots(), new Slots()), XemsUi.matchWrap(a, 16));
         }
 
         View channel(int ch) {
@@ -412,6 +416,13 @@ public final class BtSettingsSection {
         public void onStep(int direction) {
             BtSettings.setGain(BtSettings.gain() + 5 * direction);
             sheet.render();
+        }
+    }
+
+    static final class Slots implements XemsUi.OnToggle {
+        @Override
+        public void onToggle(boolean on) {
+            BtSettings.setSlots(on);
         }
     }
 

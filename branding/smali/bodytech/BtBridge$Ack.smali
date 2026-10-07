@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 454
+    .line 456
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleWriteCallback;-><init>()V
 
-    .line 455
+    .line 457
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 456
+    .line 458
     return-void
 .end method
 
@@ -39,15 +39,15 @@
     .registers 3
 
     .prologue
-    .line 465
+    .line 467
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBeep;->lost()V
 
-    .line 466
+    .line 468
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->fail(Lcom/clj/fastble/exception/BleException;)V
 
-    .line 467
+    .line 469
     return-void
 .end method
 
@@ -55,11 +55,11 @@
     .registers 5
 
     .prologue
-    .line 460
+    .line 462
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->acked()V
 
-    .line 461
+    .line 463
     return-void
 .end method

@@ -424,13 +424,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
-- `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1279L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
+- `server/src/index.js` (1286L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
-- `server/src/measures.js` (69L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
+- `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
-- `server/src/report.js` (42L) — The bridge the report page expects (window.XemsReport), made from one fetch of /v1/history/<cardId> (the id comes from …
+- `server/src/report.js` (137L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
 - `server/src/sweep.js` (13L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
 - `server/src/utils.js` (102L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/test/card.test.js` (104L) — 
@@ -441,7 +441,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/ems.test.js` (15L) — 
 - `server/test/exercises.test.js` (78L) — 
 - `server/test/history.test.js` (97L) — D1-shaped wrapper over node:sqlite with the real migration.
-- `server/test/measures.test.js` (75L) — 
+- `server/test/measures.test.js` (116L) — 
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (57L) — 
 - `server/test/report.test.js` (14L) — 
@@ -807,7 +807,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L46 ## Програмите на началния екран (1.1.263-ai)
   - L52 ## Общите контроли и избраните клиенти (1.1.372-ai)
 
-`docs/xems-client-sync.md` (129L)
+`docs/xems-client-sync.md` (146L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
   - L5 ## Досие на клиента на сървъра (етап 1)
   - L16 ## Кой е собственик на кои данни
@@ -816,8 +816,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L50 ## Сливане на профил на таблета (`widget/XemsClientSync`)
   - L63 ## Днес — моментно състояние (1.1.265-ai, `AiPersonal.TODAY`)
   - L71 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
-  - L100 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
-  - L126 ## Кодът на студиото
+  - L100 ## „Моят прогрес“ = всичко на клиента, без нов разход
+  - L117 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
+  - L143 ## Кодът на студиото
 
 `docs/xems-ems-physiology.md` (214L)
   - L1 # EMS physiology — the knowledge the algorithms stand on
@@ -854,7 +855,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-license-api.md` (180L)
+`docs/xems-license-api.md` (183L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -865,9 +866,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L84 ### 2. Опресняване (веднъж на 24 h, във фон)
   - L97 ### 3. Проверка за нова версия
   - L114 ### 4. Клиентски картон (линк за клиента)
-  - L152 ## Жетон (подписан от сървъра)
-  - L168 ## Какво остава за сървъра
-  - L175 ## Проверки (без Android)
+  - L155 ## Жетон (подписан от сървъра)
+  - L171 ## Какво остава за сървъра
+  - L178 ## Проверки (без Android)
 
 `docs/xems-modulation.md` (109L)
   - L1 # «Модулация» on a bodytech suit (1.1.375 phases; 1.1.372 name; was "Австралийски ток", 1.1.362)

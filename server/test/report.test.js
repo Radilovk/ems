@@ -11,3 +11,12 @@ test('the bridge goes before the page script and takes the card id from the path
   const m = '/r/AbCdEfGhJkMn'.match(new RegExp(js.match(/location\.pathname\.match\((\/.*?\/)\)/)[1].slice(1, -1)));
   assert.equal(m[1], 'AbCdEfGhJkMn');
 });
+
+test('the older trainings script goes after the page and parses', () => {
+  const html = renderReport('<html><head></head><body><script>run()</script></body></html>');
+  const i = html.lastIndexOf('<script>');
+  assert.ok(i > html.indexOf('run()'));
+  assert.ok(html.includes("getElementById('older')"));
+  const js = html.slice(i + 8, html.lastIndexOf('</script>'));
+  assert.doesNotThrow(() => new Function(js));
+});

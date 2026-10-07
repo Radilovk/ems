@@ -404,8 +404,10 @@ public class BtTranslatorTest {
         eq("name ems", false, BtProto.nameIsBodytech("ems"));
         eq("battery reply", 1571, BtProto.batteryRaw(new byte[]{0x36, 0, 1, 8, 1, 0x06, 0x23, (byte) 0xC9}));
 
-        // the legs (1.1.377): C5 left thigh → slider 2, C7 right thigh → slider 9
+        // the legs (1.1.377): C5 left thigh, C7 right thigh — here on sliders 2 / 9 (any XEMS channel works alike)
         BtSettings.reset();
+        BtSettings.setSlider(5, 2);
+        BtSettings.setSlider(7, 9);
         BtSettings.setSlots(false);
         BtSettings.loaded = true;
         BtTranslator lg = new BtTranslator();

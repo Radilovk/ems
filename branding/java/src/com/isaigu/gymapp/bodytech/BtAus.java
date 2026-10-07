@@ -139,10 +139,11 @@ public final class BtAus {
     }
 
     // BtSettings.SLIDERS: 0 Гърди, 1 Корем, 2 Предно бедро, 3 Прасец, 4 Ръце, 5 Трапец, 6 Гръб, 7 Кръст, 8 Седалище, 9 Задно бедро
-    private static final int[] SHAPE = {8, 2, 9, 1, 7};
-    private static final int[] LEGS_GLUTES = {2, 9, 8};
-    private static final int[] HIPS = {8, 2, 9};
-    private static final int[] LEGS = {2, 9};
+    // the thighs of a bodytech suit: 0 (left thigh, owner 1.1.389), 2 (right thigh), 9 — a slider without a channel picks none
+    private static final int[] SHAPE = {8, 0, 2, 9, 1, 7};
+    private static final int[] LEGS_GLUTES = {0, 2, 9, 8};
+    private static final int[] HIPS = {8, 0, 2, 9};
+    private static final int[] LEGS = {0, 2, 9};
     private static final int[] ABS = {1};
     private static final int[] BACK = {7, 6};
 

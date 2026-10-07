@@ -224,7 +224,7 @@ public final class PartLook {
     /**
      * The muscle header above the rows (shared by every row; cells buwei1..10, icon + label): when every row on the
      * screen with a suit runs a bodytech one, the columns of the two legs (the XEMS channels their bodytech channels
-     * are on, Settings → Костюм bodytech) read "Ляв крак" / "Десен крак"; all ten columns stay (owner, 1.1.388: chest
+     * are on, Settings → Костюм bodytech) read "Ляво бедро" / "Дясно бедро"; all ten columns stay (owner, 1.1.388: chest
      * and calf are XEMS channels a bodytech channel may be on). Any XEMS suit → the stock header.
      */
     static void header(TrainItem item, View bar, boolean bt) {
@@ -282,9 +282,9 @@ public final class PartLook {
                 }
                 CharSequence want = (CharSequence) HEADER_ORIG.get(label);
                 if (on && i == legL && legL != legR) {
-                    want = "Ляв крак";
+                    want = "Ляво бедро";
                 } else if (on && i == legR && legL != legR) {
-                    want = "Десен крак";
+                    want = "Дясно бедро";
                 }
                 if (want != null && !want.toString().equals(label.getText().toString())) {
                     label.setText(want);

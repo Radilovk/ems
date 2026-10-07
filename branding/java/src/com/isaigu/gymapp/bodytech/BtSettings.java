@@ -37,11 +37,18 @@ public final class BtSettings {
      * row's front-thigh slider, right leg → its back-thigh slider (the row tags them Л / Д, {@link #rowTag}). Which leg is
      * which is the owner's to confirm — Settings → Костюм bodytech → «Крака» picks each leg's channel.
      */
-    static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Ляв крак", "Ръце",
-            "Десен крак", "Корем"};
-    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 2, 4, 9, 1};
+    static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Ляво бедро", "Ръце",
+            "Дясно бедро", "Корем"};
+    /**
+     * Owner, 1.1.389: EMSFIT's "Гърди" (C5) is the left thigh, on the XEMS chest channel; EMSFIT's "Крака" (C7) is the
+     * right thigh, on the XEMS front-thigh channel; the rest as EMSFIT names them.
+     */
+    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 0, 4, 2, 1};
     /** The EMSFIT defaults before 1.1.376: a tablet still holding them untouched is moved to the legs once. */
     static final String OLD_C5 = "Гърди", OLD_C7 = "Бедра";
+    /** The 1.1.379–1.1.388 leg names and their sliders (front thigh = left, back thigh = right) → the thighs (1.1.389). */
+    static final String OLD_LEFT = "Ляв крак", OLD_RIGHT = "Десен крак";
+    static final int OLD_LEFT_SLIDER = 2, OLD_RIGHT_SLIDER = 9;
     /** The 1.1.376 names (a thigh) → the whole leg. */
     static final String THIGH_L = "Ляво бедро", THIGH_R = "Дясно бедро";
     static final int OLD_C5_SLIDER = 0, OLD_C7_SLIDER = 2;
@@ -117,7 +124,7 @@ public final class BtSettings {
         }
         // the old names / sliders are moved once; after that (any save) the owner's map is left as it is — C5 may be
         // put on Гърди and named so (owner, 1.1.388)
-        if (!p.getBoolean("legsdone", false) && legs()) save();
+        if (!p.getBoolean("legs389", false) && legs()) save();
         unlimited = p.getBoolean("unlimited", true);
         slots = p.getBoolean("slots2", true);
         loadOrder(p.getString("order", ""));
@@ -129,22 +136,21 @@ public final class BtSettings {
     /** C5 / C7 still as the old EMSFIT defaults (name and slider untouched) → the two legs. true = changed. */
     static boolean legs() {
         boolean changed = false;
-        if (OLD_C5.equals(names[5]) && slider[5] == OLD_C5_SLIDER) {
-            names[5] = DEFAULT_NAMES[5];
-            slider[5] = DEFAULT_SLIDER[5];
-            changed = true;
-        }
-        if (OLD_C7.equals(names[7]) && slider[7] == OLD_C7_SLIDER) {
-            names[7] = DEFAULT_NAMES[7];
-            slider[7] = DEFAULT_SLIDER[7];
-            changed = true;
-        }
         for (int ch = 1; ch <= CHANNELS; ch++) {
-            if (THIGH_L.equals(names[ch])) {
-                names[ch] = DEFAULT_NAMES[5];
+            String n = names[ch];
+            boolean left = OLD_LEFT.equals(n) || THIGH_L.equals(n) || (ch == 5 && OLD_C5.equals(n));
+            boolean right = OLD_RIGHT.equals(n) || THIGH_R.equals(n) || (ch == 7 && OLD_C7.equals(n));
+            if (!left && !right) continue;
+            String want = left ? THIGH_L : THIGH_R;
+            // the slider moves only from what an older version put there (2 / 9); the owner's own pick stays
+            int was = left ? OLD_LEFT_SLIDER : OLD_RIGHT_SLIDER;
+            int now = left ? DEFAULT_SLIDER[5] : DEFAULT_SLIDER[7];
+            if (!want.equals(n)) {
+                names[ch] = want;
                 changed = true;
-            } else if (THIGH_R.equals(names[ch])) {
-                names[ch] = DEFAULT_NAMES[7];
+            }
+            if (slider[ch] == was && was != now) {
+                slider[ch] = now;
                 changed = true;
             }
         }
@@ -264,7 +270,7 @@ public final class BtSettings {
             e.putInt("chzm" + ch, chHzMain[ch]);
             e.putInt("chzs" + ch, chHzSecond[ch]);
         }
-        e.putBoolean("legsdone", true);
+        e.putBoolean("legs389", true);
         e.putInt("legl", legL);
         e.putInt("legr", legR);
         StringBuilder o = new StringBuilder();

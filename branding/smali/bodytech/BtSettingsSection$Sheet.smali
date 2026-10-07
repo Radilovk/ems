@@ -782,7 +782,7 @@
 
     if-eqz p1, :cond_dd
 
-    const-string v0, "\u0414\u0435\u0441\u0435\u043d \u043a\u0440\u0430\u043a"
+    const-string v0, "\u0414\u044f\u0441\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
 
     :goto_1f
     const/high16 v7, 0x41880000    # 17.0f
@@ -993,7 +993,7 @@
 
     .line 174
     :cond_dd
-    const-string v0, "\u041b\u044f\u0432 \u043a\u0440\u0430\u043a"
+    const-string v0, "\u041b\u044f\u0432\u043e \u0431\u0435\u0434\u0440\u043e"
 
     goto/16 :goto_1f
 

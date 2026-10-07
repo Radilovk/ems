@@ -117,6 +117,11 @@ public final class BtSettingsSection {
         void render() {
             sh.body.removeAllViews();
             sh.body.addView(test.panel(), XemsUi.matchWrap(a, 0));
+            LinearLayout legs = XemsUi.horizontal(a);
+            legs.setGravity(Gravity.TOP);
+            legs.addView(leg(false), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            legs.addView(leg(true), XemsUi.weight(1f, 12, a));
+            sh.body.addView(legs, XemsUi.matchWrap(a, 12));
             LinearLayout cols = XemsUi.horizontal(a);
             cols.setGravity(Gravity.TOP);
             LinearLayout left = XemsUi.vertical(a);
@@ -154,6 +159,39 @@ public final class BtSettingsSection {
                             + "към двата електрода. Изкл: бият заедно — утечката отива силно към един електрод. "
                             + "Всички канали тогава са на една честота.",
                     BtSettings.slots(), new Slots()), XemsUi.matchWrap(a, 16));
+        }
+
+        /**
+         * «Ляв крак» / «Десен крак» (owner, 1.1.386): which channel of the suit is this leg — one tap on C1..C8. The leg
+         * (its slider, name and own values) moves to the picked channel, what that channel was moves to the old one
+         * ({@link BtSettings#setLegChannel}). Hold ▶ to feel the leg's channel.
+         */
+        View leg(boolean right) {
+            LinearLayout s = XemsUi.surface(a);
+            int cur = BtSettings.legChannel(right);
+            LinearLayout head = XemsUi.horizontal(a);
+            head.setGravity(Gravity.CENTER_VERTICAL);
+            head.addView(XemsUi.text(a, right ? "Десен крак" : "Ляв крак", 17, XemsUi.TEXT, true),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            head.addView(XemsUi.text(a, cur == 0 ? "няма канал" : "канал C" + cur, 14,
+                    cur == 0 ? XemsUi.HINT : XemsUi.GO_TEXT, true));
+            if (cur != 0) {
+                TextView play = XemsUi.iconButton(a, "▶", XemsUi.GO, 0xFFFFFFFF, 34);
+                play.setOnTouchListener(test.touch(cur));
+                LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));
+                ml.leftMargin = XemsUi.dp(a, 10);
+                head.addView(play, ml);
+            }
+            s.addView(head);
+            LinearLayout[] holder = new LinearLayout[1];
+            HorizontalScrollView hs = XemsUi.chipRow(a, holder);
+            for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+                TextView c = XemsUi.chip(a, "C" + ch, ch == cur, XemsUi.GO_TEXT);
+                c.setOnClickListener(new Leg(this, right, ch));
+                XemsUi.addChip(a, holder[0], c);
+            }
+            s.addView(hs, XemsUi.matchWrap(a, 10));
+            return s;
         }
 
         View channel(int ch) {
@@ -386,6 +424,27 @@ public final class BtSettingsSection {
             XemsUi.haptic(v);
             if (what == SLIDER) BtSettings.setSlider(ch, value);
             else BtSettings.setWave(value);
+            sheet.render();
+        }
+    }
+
+    /** A channel chip of «Ляв крак» / «Десен крак»: that channel is the leg now. */
+    static final class Leg implements View.OnClickListener {
+        final Sheet sheet;
+        final boolean right;
+        final int ch;
+
+        Leg(Sheet sheet, boolean right, int ch) {
+            this.sheet = sheet;
+            this.right = right;
+            this.ch = ch;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            sheet.stopHold();
+            BtSettings.setLegChannel(right, ch);
             sheet.render();
         }
     }

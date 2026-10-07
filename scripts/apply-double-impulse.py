@@ -67,9 +67,82 @@ def patch_item() -> None:
     print("TrainItem.setUserType: a mode change keeps each mode's 2nd impulse")
 
 
+TI = "Lcom/isaigu/gymapp/train/model/TrainItem;"
+WR = "Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;"
+RESTART = f""".method public xemsRestartPulse()Z
+    .locals 3
+
+    # xems: restart pulse — the ON phase begins afresh now — whole length, with its rise, the row's clock with it
+
+    iget-object v0, p0, {TI}->data:{WR}
+
+    iget-boolean v1, v0, {WR}->start:Z
+
+    if-eqz v1, :cond_xems_rp_no
+
+    iget-boolean v1, v0, {WR}->connected:Z
+
+    if-eqz v1, :cond_xems_rp_no
+
+    invoke-virtual {{p0}}, {TI}->getTrainProgram(){TP}
+
+    move-result-object v1
+
+    invoke-virtual {{v1}}, {TP}->matchProgram(){PDB}
+
+    move-result-object v1
+
+    iget v1, v1, {PDB}->pulseContinue:I
+
+    if-lez v1, :cond_xems_rp_no
+
+    iget-object v2, p0, {TI}->pulseCountDown:Landroid/os/CountDownTimer;
+
+    if-eqz v2, :cond_xems_rp_go
+
+    invoke-virtual {{v2}}, Landroid/os/CountDownTimer;->cancel()V
+
+    :cond_xems_rp_go
+    const/4 v2, 0x1
+
+    iput-boolean v2, v0, {WR}->inStart:Z
+
+    iput v1, v0, {WR}->secondValue:I
+
+    invoke-direct {{p0}}, {TI}->startPulse()V
+
+    return v2
+
+    :cond_xems_rp_no
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+"""
+
+
+def patch_restart() -> None:
+    """TrainItem.xemsRestartPulse(): the second impulse's setup ends mid-phase → the ON phase starts whole (1.1.386)."""
+    text = ITEM.read_text(encoding="utf-8")
+    if ".method public xemsRestartPulse()Z" in text:
+        print("TrainItem: xemsRestartPulse already present")
+        return
+    for need in (".method private declared-synchronized startPulse()V",
+                 " pulseCountDown:Landroid/os/CountDownTimer;\n"):
+        if need not in text:
+            sys.exit(f"apply-double-impulse: TrainItem has no {need}")
+    a = text.find(".method public reset()V")
+    if a < 0:
+        sys.exit("apply-double-impulse: TrainItem.reset not found")
+    ITEM.write_text(text[:a] + RESTART + text[a:], encoding="utf-8")
+    print("TrainItem: xemsRestartPulse()")
+
+
 def main() -> None:
     patch_holder()
     patch_item()
+    patch_restart()
 
 
 if __name__ == "__main__":

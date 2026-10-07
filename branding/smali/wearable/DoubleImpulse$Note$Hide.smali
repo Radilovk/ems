@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1173
+    .line 1202
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,15 +34,15 @@
     .registers 2
 
     .prologue
-    .line 1175
+    .line 1204
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->sticky:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->access$202(Z)Z
 
-    .line 1176
+    .line 1205
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hide()V
 
-    .line 1177
+    .line 1206
     return-void
 .end method

@@ -29,6 +29,8 @@ public class TrainItem {
 
     /** Added by apply-program-fit.py: onTrainItemChange() (the row redraws). */
     public void xemsRefresh() {}
+    /** Added by apply-double-impulse.py: a running row's ON phase begins afresh now (true = it did). */
+    public boolean xemsRestartPulse() { return false; }
     /** Sets data.trainProgram, applies the active-pause setting and resets the slot (stops it). */
     public void setTrainProgram(TrainProgram program) {}
 

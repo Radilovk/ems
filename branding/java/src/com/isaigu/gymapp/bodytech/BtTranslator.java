@@ -187,7 +187,9 @@ public final class BtTranslator {
             } else {
                 hz = h;
                 widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
-                int sec = phase == SECOND ? at(pdu, 6) : at(pdu, 5);
+                // the longer of impulse / pause: the second impulse's setup (DoubleImpulse) sends it in the ON phase too,
+                // and the pause's length then cut it off mid-phase (1.1.386); the keep-alive only needs an upper bound
+                int sec = Math.max(at(pdu, 5), at(pdu, 6));
                 if (sec <= 0) sec = workLen;
                 if (workLen > 0 && workLen < sec) sec = workLen;
                 deadlineMs = nowMs + (sec > 0 ? sec * 1000L : 7000L) + GRACE_MS;

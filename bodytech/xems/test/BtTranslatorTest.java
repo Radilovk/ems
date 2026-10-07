@@ -213,13 +213,14 @@ public class BtTranslatorTest {
         tr.command(1, setting(50), 0);
         tr.command(3, run(2, 85, 360, 20, 4, 1), 0);
         eq("session end is the limit", 1, tr.heartbeat(5100).size());
-        // second-impulse phase counts the pause length
+        // the second impulse counts the longer of impulse / pause (its setup sends it in the ON phase too, 1.1.386)
         tr = new BtTranslator();
         tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         tr.phase(BtTranslator.SECOND);
         tr.command(1, setting(50), 0);
         tr.command(3, run(600, 8, 360, 20, 2, 1), 0);
-        eq("second phase: pause length", 1, tr.heartbeat(5100).size());
+        eq("second impulse not cut at pause + 3 s", 0, tr.heartbeat(5100).size());
+        eq("second impulse off after the longer phase + 3 s", 1, tr.heartbeat(23100).size());
 
         // --- a failed write: the next frame is SEL all off, then the program again
         tr = new BtTranslator();

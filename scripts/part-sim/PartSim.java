@@ -216,6 +216,7 @@ public class PartSim {
 
     public static void main(String[] a) {
         Random rnd = new Random(7);
+        int ratioKept = 0;
         int yellowUp = 0, ops = 0, secondShift = 0, secondShiftBig = 0, capped = 0, exact = 0;
         for (int round = 0; round < 3; round++) {
             for (int n = 0; n < 20000; n++) {
@@ -300,7 +301,16 @@ public class PartSim {
                         }
                     }
                     if (onlyGreen) {
-                        check(s1[i] == s0[i], "green changed the second impulse of " + i);
+                        if (!sel || m1[i] == m0[i]) {
+                            check(s1[i] == s0[i], "green changed the second impulse of " + i);
+                        } else if (m0[i] > 0) {
+                            int want = (int) Math.round(s0[i] * (double) m1[i] / m0[i]);
+                            boolean capped2 = b.pauseStrenthPercent >= com.isaigu.gymapp.ai.SafeLimits.pauseCap(b.strenth)
+                                    && s1[i] < want;
+                            check(Math.abs(s1[i] - want) <= 1 || capped2, "green: second off its ratio " + i
+                                    + " (" + s0[i] + "/" + m0[i] + " → " + s1[i] + "/" + m1[i] + ")");
+                            ratioKept++;
+                        }
                     }
                 }
                 if (onlyYellow) {
@@ -375,7 +385,9 @@ public class PartSim {
         PartPick.click(f, m, marks, 7);
         sb = secondReal(it, b);
         PartStrength.bar(null, tp, b, 7, 100);
-        check(mainReal(b)[7] == 60 && secondReal(it, b)[7] == sb[7], "normal, marked bar: main alone");
+        check(mainReal(b)[7] == 60, "normal, marked bar: main " + mainReal(b)[7]);
+        check(Math.abs(secondReal(it, b)[7] - (int) Math.round(sb[7] * 60.0 / mb[7])) <= 1,
+                "normal, marked bar: second keeps its ratio " + secondReal(it, b)[7]);
         marks[7] = false;
         // normal, not marked: the bar sets both impulses (the second follows the main)
         SecondParts.set(b, b.strenthBean.buwei, new int[] {50, 50, 50, 50, 50, 50, 50, 50, 50, 50});
@@ -393,6 +405,7 @@ public class PartSim {
 
         looks(f, m);
 
+        System.out.println("green steps with the ratio kept: " + ratioKept);
         System.out.println("operations: " + ops + ", yellow + steps: " + yellowUp + " (exactly +1: " + exact + ", at the limit: " + capped + ")"
                 + ", second impulse of others moved: " + secondShift + " (by more than 1: " + secondShiftBig + ")");
         System.out.println(fails == 0 ? "PartSim: OK" : "PartSim: " + fails + " FAILED");

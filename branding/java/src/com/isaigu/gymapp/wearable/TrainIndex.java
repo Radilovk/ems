@@ -14,8 +14,8 @@ import java.util.WeakHashMap;
  *   <li>a selection clears itself 5 s after the last action with it (click, + / −, slider) — then + / − act
  *       on the selected muscle groups again; not while the row is in the second impulse's setup (its own 5 s end
  *       clears it, wearable/DoubleImpulse);</li>
- *   <li>the 2nd-impulse buttons (right of the avatar) are seen only in that setup and only pick what the ring and
- *       + / − set there: the second impulse's strength or Hz. The second impulse itself goes on / off with the row's
+ *   <li>the 2nd-impulse buttons (right of the avatar) are seen while the double impulse is on; a tap picks what the
+ *       ring and + / − set: the second impulse's strength or Hz — outside the setup it begins the setup first. The second impulse itself goes on / off with the row's
  *       double-impulse button (1.1.383; before, these two buttons turned it on and off). Мускули has none.</li>
  * </ul>
  * Hooks: TrainPause{Hz,Ma}ValueClickListener.onClick (scripts/apply-train-index.py), SessionRecorder tick.
@@ -44,6 +44,11 @@ public final class TrainIndex {
             if (p.useType == MUSCLE || !b.activePause) {
                 it.setPauseHzSelected(false);              // no second impulse: nothing to pick
                 it.setPauseMaSelected(false);
+                return;
+            }
+            if (!DoubleImpulse.active(it)) {
+                DoubleImpulse.enterFrom(it, hz);           // the normal double impulse: its setup, this one picked
+                touch(it);
                 return;
             }
             select(it, hz);

@@ -242,8 +242,6 @@ public final class XemsLocalAvatar {
         }
     }
 
-    private static final java.util.WeakHashMap<android.view.View, Boolean> GRAB =
-            new java.util.WeakHashMap<android.view.View, Boolean>();
     private static int ringId;
     private static long lastRingHint;
     private static java.lang.reflect.Method autoOn;
@@ -260,10 +258,25 @@ public final class XemsLocalAvatar {
         }
     }
 
+    /** A drag of the ring: where it is (its own angle) and the finger's last angle. */
+    static final class Drag {
+        double cur;
+        double finger;
+        float radius;
+    }
+
+    private static final java.util.WeakHashMap<android.view.View, Drag> DRAGS =
+            new java.util.WeakHashMap<android.view.View, Drag>();
+    /** Half the width of the band around the ring where a touch takes it (owner, 1.1.385: the handle alone was too small). */
+    private static final float BAND_DP = 40f;
+    private static java.lang.reflect.Field oneCircle;
+
     /**
-     * Hook: start of CircleSeekBar.onTouchEvent (thumb centre and radius in view coordinates). The ring
-     * around the avatar moves only when the gesture starts on its handle; a tap or drag anywhere else on
-     * the track is ignored (and left to the row). Other CircleSeekBars (music seek) are untouched.
+     * Hook: start of CircleSeekBar.onTouchEvent (thumb centre and radius in view coordinates). The ring around the
+     * avatar is taken by a touch anywhere on its band (not only on the handle — 1.1.385) and then moves <b>relative</b>
+     * to the finger: it turns by the angle the finger turns, from where it was, so taking it never makes it jump to
+     * the finger. Every event is rewritten to the point on the ring where the value should be. A touch in the middle
+     * (the client's photo) or away from the band is not the ring's. Other CircleSeekBars (music seek) are untouched.
      */
     public static boolean grab(android.view.View v, android.view.MotionEvent e, float tx, float ty, float pr) {
         try {
@@ -287,26 +300,62 @@ public final class XemsLocalAvatar {
                 return false;
             }
             int a = e.getActionMasked();
+            float cx = v.getWidth() / 2f;
+            float cy = v.getHeight() / 2f;
             if (a == android.view.MotionEvent.ACTION_DOWN) {
                 float d = v.getResources().getDisplayMetrics().density;
-                float r = Math.max(pr * 1.8f, 30 * d);
-                float dx = e.getX() - tx;
-                float dy = e.getY() - ty;
-                boolean ok = dx * dx + dy * dy <= r * r;
-                GRAB.put(v, ok ? Boolean.TRUE : Boolean.FALSE);
-                if (ok && v.getParent() != null) {
+                float rx = tx - cx;
+                float ry = ty - cy;
+                float ring = (float) Math.sqrt(rx * rx + ry * ry);
+                float fx = e.getX() - cx;
+                float fy = e.getY() - cy;
+                float dist = (float) Math.sqrt(fx * fx + fy * fy);
+                float hx = e.getX() - tx;
+                float hy = e.getY() - ty;
+                float hr = Math.max(pr * 1.8f, 30 * d);
+                boolean onHandle = hx * hx + hy * hy <= hr * hr;
+                boolean onBand = ring > 1 && Math.abs(dist - ring) <= BAND_DP * d && dist >= ring * DEAD_CORE;
+                if (!onHandle && !onBand) {
+                    DRAGS.remove(v);
+                    return false;
+                }
+                Drag g = new Drag();
+                g.radius = ring;
+                g.cur = angle(rx, ry, Math.max(1f, ring));
+                g.finger = angle(fx, fy, Math.max(1f, dist));
+                DRAGS.put(v, g);
+                if (v.getParent() != null) {
                     v.getParent().requestDisallowInterceptTouchEvent(true);
                 }
-                return ok;
+                e.setLocation(tx, ty);                      // the ring is taken where it is: no jump
+                return true;
             }
-            Boolean g = GRAB.get(v);
+            Drag g = DRAGS.get(v);
             if (a == android.view.MotionEvent.ACTION_UP || a == android.view.MotionEvent.ACTION_CANCEL) {
-                GRAB.remove(v);
+                DRAGS.remove(v);
             }
-            if (g == null || !g.booleanValue()) {
+            if (g == null) {
                 return false;
             }
-            steady(v, e, tx, ty);
+            float fx = e.getX() - cx;
+            float fy = e.getY() - cy;
+            float dist = (float) Math.sqrt(fx * fx + fy * fy);
+            if (dist >= g.radius * DEAD_CORE * 0.6f) {      // near the centre the angle is noise: the ring waits
+                double fa = angle(fx, fy, Math.max(1f, dist));
+                double step = fa - g.finger;
+                while (step > 180) {
+                    step -= 360;
+                }
+                while (step < -180) {
+                    step += 360;
+                }
+                g.finger = fa;
+                if (Math.abs(step) <= MAX_STEP) {
+                    g.cur = Math.max(0, Math.min(maxAngle(v), g.cur + step));
+                }
+            }
+            double rad = Math.toRadians(g.cur);
+            e.setLocation(cx + (float) (g.radius * Math.sin(rad)), cy - (float) (g.radius * Math.cos(rad)));
             return true;
         } catch (Throwable t) {
             return true;
@@ -318,36 +367,16 @@ public final class XemsLocalAvatar {
     /** One move event never turns the ring more than this (a jump across the gap or the centre). */
     private static final double MAX_STEP = 50;
 
-    /**
-     * The ring's value follows the finger's direction from the centre, so a finger drifting towards the
-     * centre (or across the ends of the ring) swung it to 0 or max. Such a point is moved onto the thumb:
-     * the ring stays where it is and follows again once the finger is back on a sane line.
-     */
-    static void steady(android.view.View v, android.view.MotionEvent e, float tx, float ty) {
-        float cx = v.getWidth() / 2;
-        float cy = v.getHeight() / 2;
-        float rx = tx - cx;
-        float ry = ty - cy;
-        float ring = (float) Math.sqrt(rx * rx + ry * ry);
-        if (ring < 1) {
-            return;
-        }
-        float fx = e.getX() - cx;
-        float fy = e.getY() - cy;
-        float dist = (float) Math.sqrt(fx * fx + fy * fy);
-        boolean hold = dist < ring * DEAD_CORE;
-        if (!hold) {
-            double step = angle(fx, fy, dist) - angle(rx, ry, ring);
-            while (step > 180) {
-                step -= 360;
+    /** The ring's end: 270° when it turns one part of a circle (the strength ring), else just short of 360°. */
+    static double maxAngle(android.view.View v) {
+        try {
+            if (oneCircle == null) {
+                oneCircle = v.getClass().getDeclaredField("isScrollOneCircle");
+                oneCircle.setAccessible(true);
             }
-            while (step < -180) {
-                step += 360;
-            }
-            hold = Math.abs(step) > MAX_STEP;
-        }
-        if (hold) {
-            e.setLocation(tx, ty);
+            return oneCircle.getBoolean(v) ? 270 : 359.5;
+        } catch (Throwable t) {
+            return 270;
         }
     }
 

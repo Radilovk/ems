@@ -18,7 +18,8 @@ import com.isaigu.gymapp.wearable.SecondParts;
  * Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the
  * impulse strength of those channels only.
  * <ul>
- *   <li>green — the main impulse alone;</li>
+ *   <li>green — the main impulse, and with the double impulse on the second one moves with it, keeping the channel's
+ *       ratio of the two (owner, 1.1.385);</li>
  *   <li>yellow (the row is in the second impulse's setup, wearable/DoubleImpulse) — the second impulse alone.</li>
  * </ul>
  * The unit gets one percent per channel for each impulse packet; the second impulse's percents are kept apart
@@ -50,7 +51,11 @@ public final class PartStrength {
             boolean[] green = without(sel, yel);
             PartPick.touch();
             if (any(green)) {
+                int[] m0 = mainReal(b), s0 = b.activePause ? secondReal(item, b) : null;
                 change(item, b, green, delta);
+                if (s0 != null) {
+                    follow(item, item.getTrainProgram(), b, green, m0, s0);   // both impulses, same ratio
+                }
             }
             if (any(yel)) {
                 changeSecond(item, b, yel, delta);
@@ -80,7 +85,11 @@ public final class PartStrength {
             // the same step (their differences stay, as with + / −)
             PartPick.touch();
             if (any(green)) {
+                int[] m0 = mainReal(b), s0 = b.activePause ? secondReal(item, b) : null;
                 change(item, b, green, to - now);
+                if (s0 != null) {
+                    follow(item, item.getTrainProgram(), b, green, m0, s0);
+                }
             }
             if (any(yel)) {
                 changeSecond(item, b, yel, to - now);
@@ -176,23 +185,38 @@ public final class PartStrength {
     static void changeSecond(TrainItem item, TrainProgram prog, ProgramDataBean b, boolean[] yel, int delta) {
         int[] parts = b.strenthBean.buwei;
         int[] e = SecondParts.effective(b, parts);
-        int cap = secondCap(item, b);
-        int p = Math.min(b.pauseStrenthPercent, cap);
+        int p = Math.min(b.pauseStrenthPercent, secondCap(item, b));
         int[] target = new int[parts.length];
-        int maxSel = 0;
         for (int i = 0; i < parts.length; i++) {
             int r = real(e[i], p);
             target[i] = yel[i] ? clamp(r + delta) : r;
-            if (yel[i]) {
+        }
+        secondTo(item, prog, b, yel, target);
+    }
+
+    /**
+     * The second impulse of the {@code sel} channels to {@code target} (real strength); the others keep theirs
+     * exactly. Above the second impulse's strength it goes up (up to the limit) and the other channels' percents are
+     * set so their second impulse stays where it was. The main impulse is not touched.
+     */
+    static void secondTo(TrainItem item, TrainProgram prog, ProgramDataBean b, boolean[] sel, int[] target) {
+        int[] parts = b.strenthBean.buwei;
+        int[] e = SecondParts.effective(b, parts);
+        int cap = secondCap(item, b);
+        int p = Math.min(b.pauseStrenthPercent, cap);
+        int maxSel = 0;
+        for (int i = 0; i < parts.length; i++) {
+            target[i] = clamp(target[i]);
+            if (sel[i]) {
                 maxSel = Math.max(maxSel, target[i]);
             }
         }
         int np = p;
         if (maxSel > p && cap > p) {
-            np = Math.min(cap, raisedStrength(target, yel, Math.min(100, maxSel)));
+            np = Math.min(cap, raisedStrength(target, sel, Math.min(100, maxSel)));
         }
         for (int i = 0; i < parts.length; i++) {
-            if (yel[i] || np != p) {
+            if (sel[i] || np != p) {
                 e[i] = percentFor(Math.min(target[i], np), np, e[i]);
             }
         }
@@ -201,6 +225,57 @@ public final class PartStrength {
             saveProgram(prog);
         }
         SecondParts.set(b, parts, e);
+    }
+
+    /** Real strength of every channel in the second impulse (as it goes out). */
+    static int[] secondReal(TrainItem item, ProgramDataBean b) {
+        int[] parts = b.strenthBean.buwei;
+        int[] e = SecondParts.effective(b, parts);
+        int p = Math.min(b.pauseStrenthPercent, secondCap(item, b));
+        int[] r = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            r[i] = real(e[i], p);
+        }
+        return r;
+    }
+
+    /** Real strength of every channel in the main impulse. */
+    static int[] mainReal(ProgramDataBean b) {
+        int[] parts = b.strenthBean.buwei;
+        int[] r = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            r[i] = real(parts[i], b.strenth);
+        }
+        return r;
+    }
+
+    /**
+     * Green channels with the double impulse on (owner, 1.1.385): after their main impulse moved from {@code m0},
+     * their second impulse moves with it and keeps its ratio to the main ({@code s0} before); a channel at 0 takes the
+     * ratio of the two strengths. The other channels' second impulse stays exactly.
+     */
+    static void follow(TrainItem item, TrainProgram prog, ProgramDataBean b, boolean[] sel, int[] m0, int[] s0) {
+        if (b == null || !b.activePause || sel == null) {
+            return;
+        }
+        int[] m1 = mainReal(b);
+        int[] target = secondReal(item, b);
+        boolean any = false;
+        for (int i = 0; i < target.length; i++) {
+            if (!sel[i] || m1[i] == m0[i]) {
+                continue;
+            }
+            any = true;
+            if (m0[i] > 0) {
+                target[i] = (int) Math.round(s0[i] * (double) m1[i] / m0[i]);
+            } else if (b.strenth > 0) {
+                target[i] = (int) Math.round(m1[i] * (double) Math.min(b.pauseStrenthPercent, secondCap(item, b))
+                        / b.strenth);
+            }
+        }
+        if (any) {
+            secondTo(item, prog, b, sel, target);
+        }
     }
 
     /**
@@ -288,8 +363,8 @@ public final class PartStrength {
      * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the bar's
      * percent). The row in the second impulse's setup, or the bar in the yellow look when the finger went down (the
      * pause phase, PartLook) — the channel's second impulse alone (percent of the second impulse's strength), the main
-     * stays; otherwise a marked (green) channel — its main impulse alone, the second stays; not marked — both impulses
-     * get the percent (the second keeps following the main, as its strength does).
+     * stays; otherwise a marked (green) channel — both impulses, the second keeping its ratio to the main (1.1.385); not
+     * marked — both impulses get the percent (the second keeps following the main, as its strength does).
      */
     public static void bar(View view, TrainProgram prog, ProgramDataBean b, int i, int stored) {
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
@@ -310,12 +385,19 @@ public final class PartStrength {
                 return;
             }
             int[] second = b.activePause ? SecondParts.effective(b, parts) : SecondParts.get(b);
+            int[] m0 = b.activePause && marked ? mainReal(b) : null;
+            int[] s0 = m0 != null ? secondReal(null, b) : null;
             parts[i] = stored;
             if (second != null && second.length == parts.length) {
                 if (!marked) {
                     second[i] = stored;                 // not marked: both impulses
                 }
                 SecondParts.set(b, parts, second);
+            }
+            if (m0 != null) {
+                boolean[] one = new boolean[parts.length];
+                one[i] = true;
+                follow(null, prog, b, one, m0, s0);     // marked (green): both impulses, same ratio
             }
         } catch (Throwable t) {
             parts[i] = stored;

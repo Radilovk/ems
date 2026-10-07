@@ -21,11 +21,11 @@ public final class BtSettings {
 
     /** XEMS sliders = PartStrenthBean.buwei index 0..9 (buwei1..10). */
     /**
-     * The row's 10 sliders as a bodytech suit has them (owner, 1.1.379): the front / back thigh sliders are the whole
-     * left / right leg; chest and calf do not exist on the suit ({@link #hidden}).
+     * The 10 channels of the XEMS row, as the row names them (owner, 1.1.388: every bodytech channel may be on any of
+     * them — chest and calf too; 1.1.379–1.1.387 hid those two and called the thighs "Ляв / Десен крак").
      */
-    public static final String[] SLIDERS = {"Гърди", "Корем", "Ляв крак", "Прасец", "Ръце", "Трапец",
-            "Гръб", "Кръст", "Седалище", "Десен крак"};
+    public static final String[] SLIDERS = {"Гърди", "Корем", "Предно бедро", "Прасец", "Ръце", "Трапец",
+            "Гръб", "Кръст", "Седалище", "Задно бедро"};
     public static final int NO_SLIDER = -1;
     /** The training row's sliders, left to right (reorder-muscles.py): calf, front thigh, back thigh, glutes, abs,
      *  lower back, back, trapezius, chest, arms — as indexes into {@link #SLIDERS}. */
@@ -58,6 +58,8 @@ public final class BtSettings {
     static final int[] slider = new int[CHANNELS + 1];
     static final int[] group = new int[CHANNELS + 1];
     static int wave = WAVE_SUIT;
+    /** The bodytech channels of the left / right leg (owner, 1.1.386 / 1.1.388); the leg is on that channel's slider. */
+    static int legL = 5, legR = 7;
     static int gain = 100;
     /** Display order: order[pos] = channel (pos 0..7). */
     static final int[] order = new int[CHANNELS];
@@ -105,7 +107,17 @@ public final class BtSettings {
             chHzMain[ch] = clampHz(p.getInt("chzm" + ch, 0), HZ_MAIN_MAX);
             chHzSecond[ch] = clampHz(p.getInt("chzs" + ch, 0), HZ_SECOND_MAX);
         }
-        if (legs()) save();
+        legL = p.getInt("legl", 0);
+        legR = p.getInt("legr", 0);
+        if (!valid(legL) || !valid(legR) || legL == legR) {
+            // before 1.1.388 the legs were the channels on the front / back thigh sliders
+            int l = firstOn(DEFAULT_SLIDER[5]), r = firstOn(DEFAULT_SLIDER[7]);
+            legL = l != 0 ? l : 5;
+            legR = r != 0 && r != legL ? r : (legL == 7 ? 5 : 7);
+        }
+        // the old names / sliders are moved once; after that (any save) the owner's map is left as it is — C5 may be
+        // put on Гърди and named so (owner, 1.1.388)
+        if (!p.getBoolean("legsdone", false) && legs()) save();
         unlimited = p.getBoolean("unlimited", true);
         slots = p.getBoolean("slots2", true);
         loadOrder(p.getString("order", ""));
@@ -136,70 +148,51 @@ public final class BtSettings {
                 changed = true;
             }
         }
-        // the suit has no chest and no calf (owner, 1.1.379): a channel still on one of them is a leg — it goes to the
-        // leg slider that has no channel yet (left = front thigh, right = back thigh) and gets that leg's name
-        for (int ch = 1; ch <= CHANNELS; ch++) {
-            if (!hidden(slider[ch])) continue;
-            int to = !onSlider(LEFT_LEG) ? LEFT_LEG : RIGHT_LEG;
-            slider[ch] = to;
-            String n = names[ch] == null ? "" : names[ch].trim().toLowerCase();
-            if (!n.startsWith("ляв") && !n.startsWith("дясн") && !n.startsWith("дес")) {
-                names[ch] = to == LEFT_LEG ? DEFAULT_NAMES[5] : DEFAULT_NAMES[7];
-            }
-            changed = true;
-        }
         return changed;
     }
 
-    /** The row's sliders of the two legs on a bodytech suit (front thigh = left, back thigh = right). */
-    public static final int LEFT_LEG = 2, RIGHT_LEG = 9;
-    /** The row's sliders a bodytech suit has no electrodes for: chest and calf (owner, 1.1.379). */
-    public static final int CHEST = 0, CALF = 3;
-
-    /** Slider s does not exist on a bodytech suit (hidden on its row, not offered in the settings). */
-    public static boolean hidden(int s) {
-        return s == CHEST || s == CALF;
-    }
-
-    private static boolean onSlider(int s) {
-        for (int ch = 1; ch <= CHANNELS; ch++) if (slider[ch] == s) return true;
-        return false;
-    }
-
-    /**
-     * The training row's tag for slider s on a bodytech row: "Л" on the left-leg slider, "Д" on the right-leg one, when
-     * a channel of the suit is on it; else null. The slider is the leg (owner, 1.1.386: Settings → Костюм bodytech →
-     * «Крака» picks the channel of each leg), so a renamed channel keeps its tag (before 1.1.386 it came from the names).
-     */
-    public static synchronized String rowTag(int s) {
-        if (!loaded) return null;
-        if (s != LEFT_LEG && s != RIGHT_LEG) return null;
-        return onSlider(s) ? (s == LEFT_LEG ? "Л" : "Д") : null;
-    }
-
-    /** The channel of the left (right = false) or right leg: the first channel on that leg's slider; 0 = none. */
-    public static synchronized int legChannel(boolean right) {
-        int s = right ? RIGHT_LEG : LEFT_LEG;
+    private static int firstOn(int s) {
         for (int ch = 1; ch <= CHANNELS; ch++) if (slider[ch] == s) return ch;
         return 0;
     }
 
     /**
-     * Settings → «Крака» (owner, 1.1.386): channel ch is now the left / right leg. The leg's role — name, slider,
-     * impulse, own strength / Hz / width / waveform and its place in the sheet — moves to ch, and what ch was moves to
-     * the channel that had the leg (left ⇄ right is a plain swap); no muscle loses its channel. A leg nobody had:
-     * ch just takes it (its old muscle is left without a channel — the sheet shows that).
+     * The training row's tag for slider s on a bodytech row: "Л" on the XEMS channel the left leg's bodytech channel is
+     * on, "Д" on the right one's; null elsewhere, and when both legs are on one slider (owner, 1.1.388).
+     */
+    public static synchronized String rowTag(int s) {
+        if (!loaded || s < 0) return null;
+        int l = legSlider(false), r = legSlider(true);
+        if (l == r) return null;
+        return s == l ? "Л" : (s == r ? "Д" : null);
+    }
+
+    /** The bodytech channel of the left (right = false) or right leg (Settings → Костюм bodytech → «Крака»). */
+    public static synchronized int legChannel(boolean right) {
+        return right ? legR : legL;
+    }
+
+    /** The XEMS channel (slider 0..9) the leg's bodytech channel is on; {@link #NO_SLIDER} = none. */
+    public static synchronized int legSlider(boolean right) {
+        return slider[right ? legR : legL];
+    }
+
+    /**
+     * Settings → «Крака» (owner, 1.1.386): bodytech channel ch is now the left / right leg. The leg's role — name, XEMS
+     * channel, impulse, own strength / Hz / width / waveform and its place in the sheet — moves to ch, and what ch was
+     * moves to the channel that had the leg (left ⇄ right is a plain swap); no XEMS channel loses its bodytech one.
      */
     public static synchronized void setLegChannel(boolean right, int ch) {
         if (!valid(ch)) return;
-        int s = right ? RIGHT_LEG : LEFT_LEG;
-        if (slider[ch] == s) return;
-        int prev = legChannel(right);
-        if (prev != 0) {
-            swapRole(prev, ch);
+        int prev = right ? legR : legL;
+        if (prev == ch) return;
+        swapRole(prev, ch);
+        if (right) {
+            if (legL == ch) legL = prev;
+            legR = ch;
         } else {
-            slider[ch] = s;
-            names[ch] = right ? DEFAULT_NAMES[7] : DEFAULT_NAMES[5];
+            if (legR == ch) legR = prev;
+            legL = ch;
         }
         save();
     }
@@ -271,6 +264,9 @@ public final class BtSettings {
             e.putInt("chzm" + ch, chHzMain[ch]);
             e.putInt("chzs" + ch, chHzSecond[ch]);
         }
+        e.putBoolean("legsdone", true);
+        e.putInt("legl", legL);
+        e.putInt("legr", legR);
         StringBuilder o = new StringBuilder();
         for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
         e.putString("order", o.toString());
@@ -296,6 +292,8 @@ public final class BtSettings {
             chHzSecond[ch] = 0;
         }
         loadOrder("");
+        legL = 5;
+        legR = 7;
         unlimited = true;
         slots = true;
         wave = WAVE_SUIT;
@@ -381,7 +379,7 @@ public final class BtSettings {
     }
 
     public static synchronized void setSlider(int ch, int s) {
-        if (!valid(ch) || hidden(s)) return;     // no chest / calf on the suit
+        if (!valid(ch)) return;
         slider[ch] = clampSlider(s);
         save();
     }

@@ -85,7 +85,7 @@ public final class BtSettingsSection {
         Sheet(Activity a) {
             this.a = a;
             XemsUi.init(a);
-            sh = XemsUi.shell(a, "Костюм bodytech", "Канали C1–C8 → слайдери на XEMS", 980);
+            sh = XemsUi.shell(a, "Костюм bodytech", "Канал на bodytech → канал на XEMS", 980);
             test = new BtTest(a, null, sh, new Redraw(this));
             render();
             TextView reset = XemsUi.button(a, "По подразбиране", XemsUi.SECONDARY);
@@ -173,8 +173,9 @@ public final class BtSettingsSection {
             head.setGravity(Gravity.CENTER_VERTICAL);
             head.addView(XemsUi.text(a, right ? "Десен крак" : "Ляв крак", 17, XemsUi.TEXT, true),
                     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            head.addView(XemsUi.text(a, cur == 0 ? "няма канал" : "канал C" + cur, 14,
-                    cur == 0 ? XemsUi.HINT : XemsUi.GO_TEXT, true));
+            int xs = BtSettings.slider(cur);
+            head.addView(XemsUi.text(a, "C" + cur + " → " + BtSettings.sliderName(xs), 14,
+                    xs < 0 ? XemsUi.HINT : XemsUi.GO_TEXT, true));
             if (cur != 0) {
                 TextView play = XemsUi.iconButton(a, "▶", XemsUi.GO, 0xFFFFFFFF, 34);
                 play.setOnTouchListener(test.touch(cur));
@@ -230,8 +231,7 @@ public final class BtSettingsSection {
             HorizontalScrollView hs = XemsUi.chipRow(a, holder);
             for (int k = -1; k < BtSettings.ROW_ORDER.length; k++) {
                 int i = k < 0 ? -1 : BtSettings.ROW_ORDER[k];       // the row's order, left to right
-                // the bodytech suit has no chest and no calf (owner, 1.1.379): they are not offered
-                if (BtSettings.hidden(i)) continue;
+                // all ten XEMS channels, chest and calf too (owner, 1.1.388)
                 TextView c = XemsUi.chip(a, BtSettings.sliderName(i), BtSettings.slider(ch) == i, XemsUi.GO_TEXT);
                 c.setOnClickListener(new Pick(this, Pick.SLIDER, ch, i));
                 XemsUi.addChip(a, holder[0], c);

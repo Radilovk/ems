@@ -195,9 +195,9 @@ public final class PartLook {
      * "Л" / "Д" before their percent (the muscle icons above are shared by every row, so the tag is on the row).
      */
     /**
-     * A bodytech row (owner, 1.1.379): chest and calf do not exist on the suit — their columns are hidden; the legs
-     * are whole left / right legs. INVISIBLE, not GONE: the columns stay under the muscle icons above, which every row
-     * shares. Rows are recycled, so every other row gets its columns back. The header follows ({@link #header}).
+     * Every row shows all ten columns: chest and calf were hidden on a bodytech row 1.1.379–1.1.387; since 1.1.388
+     * (owner) any XEMS channel may drive a bodytech channel, so a recycled row gets its columns back here. The header
+     * follows ({@link #header}).
      */
     static void columns(TrainItem item, VerticalColorSeekBar[] bars) {
         boolean bt = item != null && item.data != null
@@ -210,9 +210,8 @@ public final class PartLook {
                 continue;
             }
             View col = (View) bars[i].getParent();
-            int want = bt && com.isaigu.gymapp.bodytech.BtSettings.hidden(i) ? View.INVISIBLE : View.VISIBLE;
-            if (col.getVisibility() != want) {
-                col.setVisibility(want);
+            if (col.getVisibility() != View.VISIBLE) {
+                col.setVisibility(View.VISIBLE);           // every XEMS channel can drive a bodytech one (1.1.388)
             }
         }
     }
@@ -224,8 +223,9 @@ public final class PartLook {
 
     /**
      * The muscle header above the rows (shared by every row; cells buwei1..10, icon + label): when every row on the
-     * screen with a suit runs a bodytech one (owner, 1.1.379), chest and calf go, and the two leg columns read
-     * "Ляв крак" / "Десен крак" with the same leg icon (no front / back thigh). Any XEMS suit → the stock header.
+     * screen with a suit runs a bodytech one, the columns of the two legs (the XEMS channels their bodytech channels
+     * are on, Settings → Костюм bodytech) read "Ляв крак" / "Десен крак"; all ten columns stay (owner, 1.1.388: chest
+     * and calf are XEMS channels a bodytech channel may be on). Any XEMS suit → the stock header.
      */
     static void header(TrainItem item, View bar, boolean bt) {
         try {
@@ -256,7 +256,8 @@ public final class PartLook {
                 return;
             }
             String pkg = root.getContext().getPackageName();
-            android.view.ViewGroup left = null;
+            int legL = com.isaigu.gymapp.bodytech.BtSettings.legSlider(false);
+            int legR = com.isaigu.gymapp.bodytech.BtSettings.legSlider(true);
             for (int i = 0; i < 10; i++) {
                 int id = root.getResources().getIdentifier("buwei" + (i + 1), "id", pkg);
                 View cell = id != 0 ? root.findViewById(id) : null;
@@ -264,46 +265,29 @@ public final class PartLook {
                     continue;
                 }
                 android.view.ViewGroup g = (android.view.ViewGroup) cell;
-                if (com.isaigu.gymapp.bodytech.BtSettings.hidden(i)) {
-                    int want = on ? View.INVISIBLE : View.VISIBLE;
-                    if (g.getVisibility() != want) {
-                        g.setVisibility(want);
-                    }
-                    continue;
+                if (g.getVisibility() != View.VISIBLE) {
+                    g.setVisibility(View.VISIBLE);             // chest / calf were hidden 1.1.379–1.1.387
                 }
-                if (i != com.isaigu.gymapp.bodytech.BtSettings.LEFT_LEG
-                        && i != com.isaigu.gymapp.bodytech.BtSettings.RIGHT_LEG) {
-                    continue;
-                }
-                boolean isLeft = i == com.isaigu.gymapp.bodytech.BtSettings.LEFT_LEG;
                 View icon = g.getChildCount() > 0 ? g.getChildAt(0) : null;
+                if (icon != null && icon.getTag() == LEG_TAG) {   // the copied leg icon of 1.1.379–1.1.387
+                    icon.setBackgroundDrawable((android.graphics.drawable.Drawable) HEADER_ORIG.get(icon));
+                    icon.setTag(null);
+                }
                 TextView label = g.getChildCount() > 1 && g.getChildAt(1) instanceof TextView ? (TextView) g.getChildAt(1) : null;
-                if (isLeft) {
-                    left = g;
+                if (label == null) {
+                    continue;
                 }
-                if (label != null) {
-                    if (!HEADER_ORIG.containsKey(label)) {
-                        HEADER_ORIG.put(label, label.getText());
-                    }
-                    CharSequence want = on ? com.isaigu.gymapp.bodytech.BtSettings.SLIDERS[i] : (CharSequence) HEADER_ORIG.get(label);
-                    if (want != null && !want.toString().equals(label.getText().toString())) {
-                        label.setText(want);
-                    }
+                if (!HEADER_ORIG.containsKey(label)) {
+                    HEADER_ORIG.put(label, label.getText());
                 }
-                if (!isLeft && icon != null && left != null && left.getChildAt(0) != null) {
-                    if (!HEADER_ORIG.containsKey(icon)) {
-                        HEADER_ORIG.put(icon, icon.getBackground());
-                    }
-                    android.graphics.drawable.Drawable src = left.getChildAt(0).getBackground();
-                    if (on && src != null && src.getConstantState() != null) {
-                        if (icon.getTag() != LEG_TAG) {
-                            icon.setBackgroundDrawable(src.getConstantState().newDrawable());
-                            icon.setTag(LEG_TAG);
-                        }
-                    } else if (!on && icon.getTag() == LEG_TAG) {
-                        icon.setBackgroundDrawable((android.graphics.drawable.Drawable) HEADER_ORIG.get(icon));
-                        icon.setTag(null);
-                    }
+                CharSequence want = (CharSequence) HEADER_ORIG.get(label);
+                if (on && i == legL && legL != legR) {
+                    want = "Ляв крак";
+                } else if (on && i == legR && legL != legR) {
+                    want = "Десен крак";
+                }
+                if (want != null && !want.toString().equals(label.getText().toString())) {
+                    label.setText(want);
                 }
             }
         } catch (Throwable ignored) {

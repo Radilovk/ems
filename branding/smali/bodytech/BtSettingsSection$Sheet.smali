@@ -325,41 +325,21 @@
 
     array-length v2, v2
 
-    if-gt v0, v2, :cond_d7
+    if-gt v0, v2, :cond_d0
 
-    .line 174
+    .line 175
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->ROW_ORDER:[I
 
     array-length v2, v2
 
-    if-ge v0, v2, :cond_b0
+    if-ge v0, v2, :cond_cc
 
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->ROW_ORDER:[I
 
     aget v2, v2, v0
 
-    .line 175
-    :goto_a7
-    invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->unused(I)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_b2
-
-    .line 172
-    :goto_ad
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_99
-
-    .line 174
-    :cond_b0
-    const/4 v2, -0x1
-
-    goto :goto_a7
-
     .line 176
-    :cond_b2
+    :goto_a7
     iget-object v8, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
 
     invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->sliderName(I)Ljava/lang/String;
@@ -370,11 +350,11 @@
 
     move-result v3
 
-    if-ne v3, v2, :cond_d5
+    if-ne v3, v2, :cond_ce
 
     move v3, v4
 
-    :goto_bf
+    :goto_b4
     sget v10, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     invoke-static {v8, v9, v3, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->chip(Landroid/content/Context;Ljava/lang/String;ZI)Landroid/widget/TextView;
@@ -395,16 +375,25 @@
 
     invoke-static {v2, v8, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    goto :goto_ad
+    .line 172
+    add-int/lit8 v0, v0, 0x1
 
-    :cond_d5
+    goto :goto_99
+
+    .line 175
+    :cond_cc
+    const/4 v2, -0x1
+
+    goto :goto_a7
+
+    :cond_ce
     move v3, v1
 
     .line 176
-    goto :goto_bf
+    goto :goto_b4
 
     .line 180
-    :cond_d7
+    :cond_d0
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
 
     invoke-static {v0, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -420,11 +409,11 @@
 
     aget-boolean v0, v0, p1
 
-    if-eqz v0, :cond_14c
+    if-eqz v0, :cond_145
 
     const-string v0, "\u041e\u0449\u0435 \u25b4"
 
-    :goto_ea
+    :goto_e3
     iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->open:[Z
 
     aget-boolean v3, v3, p1
@@ -462,7 +451,7 @@
 
     aget-boolean v0, v0, p1
 
-    if-eqz v0, :cond_14b
+    if-eqz v0, :cond_144
 
     .line 188
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->a:Landroid/app/Activity;
@@ -526,14 +515,14 @@
     invoke-virtual {v5, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 194
-    :cond_14b
+    :cond_144
     return-object v5
 
     .line 182
-    :cond_14c
+    :cond_145
     const-string v0, "\u041e\u0449\u0435 \u25be"
 
-    goto :goto_ea
+    goto :goto_e3
 .end method
 
 .method field(Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/widget/XemsUi$OnStep;)Landroid/view/View;

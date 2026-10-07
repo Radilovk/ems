@@ -251,5 +251,5 @@ editing the names. Above the cards: the test level; below: waveform, strength sc
 A bodytech row shows only the 8 zones of the suit: Ляво бедро (XEMS chest column, renamed), Дясно бедро (XEMS front
 thigh column, renamed), Седалище, Корем, Кръст, Гръб, Трапец, Ръце. The XEMS columns no bodytech channel is on — back
 thigh and calf (no electrodes) — are hidden (INVISIBLE) on the row and, when every row on screen is bodytech, in the
-header (`PartLook.columns / header`, `BtSettings.hasChannel`). The settings chips offer only those 8 XEMS channels
-(`BtSettings.unused`: back thigh, calf) + "Няма".
+header (`PartLook.columns / header`, `BtSettings.hasChannel`). The settings chips offer **all ten** XEMS channels + "Няма" (1.1.392 — the owner
+ties any of them by hand; 1.1.391 left back thigh and calf out by mistake): a tied one appears on the row by itself.

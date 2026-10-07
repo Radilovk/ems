@@ -135,7 +135,8 @@ row_controls:
       Взаимно изключващи се index modes; само един active per row. Selection clears 5 s after the last action
       (wearable/TrainIndex.tick), not while the row is in the 2nd-impulse setup. 2nd impulse (1.1.383): on / off only
       with the row's double-impulse button (@id/save → wearable/DoubleImpulse); pauseMaValue / pauseHzValue are
-      VISIBLE only in that setup (INVISIBLE otherwise, GONE in Мускули) and only pick (TrainIndex.pauseClick).
+      VISIBLE while the 2nd impulse is on (INVISIBLE with a plain pause, GONE in Мускули); a tap picks — outside the
+      setup it starts the setup first (TrainIndex.pauseClick → DoubleImpulse.enterFrom).
       Per mode (Основен / Кардио / Масаж; none in Мускули): the running mode's bean, set in ⚙ by dialog/PauseSetting
       (apply-double-impulse.py).
     modes:
@@ -188,7 +189,7 @@ row_controls:
       pause_ma_mode: { write: pauseStrenthPercent = slider*100/75 }
       pause_hz_mode: { write: pauseHz = slider*120/75 }
     after_change: updateUI + onParamsChange / sendPulse
-    touch: only a gesture that starts on the handle moves it (XemsLocalAvatar.grab, apply-avatar-card.py)
+    touch: taken anywhere on its band (±40 dp around the arc), moves relative to the finger — no jump (XemsLocalAvatar.grab, apply-avatar-card.py, 1.1.385)
     parallel_api: yes
     entry: MasterStrengthControl (MA mode only)
     blocked_when: MusicSyncBridge.shouldBlockManualControls()

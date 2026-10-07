@@ -46,8 +46,8 @@ import java.util.WeakHashMap;
  *       and the marked channels set the second impulse: its strength, its Hz, the strength of single or marked
  *       channels.</li>
  *   <li>5 s without an action: back to the normal double impulse (the two take turns again); there every control
- *       sets the main impulse (the second one keeps its share of the main strength, as always) and the 2nd-impulse
- *       index buttons are hidden.</li>
+ *       sets the main impulse (the second one keeps its share of the main strength, as always). The 2nd-impulse
+ *       index buttons stay while the double impulse is on (1.1.385); a tap on one begins the setup with it picked.</li>
  *   <li><b>Tap</b> during the setup: the second impulse goes off — the plain pause again. Tap with the double impulse
  *       on but not in setup: the setup again.</li>
  *   <li><b>Hold</b> {@link #HOLD_MS} (a ring fills): sync — the second impulse takes the main one's strength and
@@ -248,6 +248,27 @@ public final class DoubleImpulse {
         changed(it);
         noteSetup(v, it);
         run();
+    }
+
+    /**
+     * A tap on a 2nd-impulse index button (TrainIndex.pauseClick) while the double impulse runs normally: the setup
+     * begins with that button picked (its strength or its Hz).
+     */
+    public static void enterFrom(TrainItem it, boolean hz) {
+        try {
+            if (it == null || active(it) || muscle(it) || blocked(it) != null) {
+                return;
+            }
+            ProgramDataBean b = bean(it);
+            if (b == null || !b.activePause) {
+                return;
+            }
+            enter(it, button(it));
+            it.setPauseMaSelected(!hz);
+            it.setPauseHzSelected(hz);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("index", "double enter: " + t);
+        }
     }
 
     /** Tap during the setup: the second impulse goes off, the plain pause again. */
@@ -487,6 +508,7 @@ public final class DoubleImpulse {
             if (it == null || ring == null) {
                 return;
             }
+            MasterKeys.install(ring.getRootView());           // the + / − keys' colours
             View row = row(ring);
             if (row == null) {
                 return;
@@ -500,11 +522,13 @@ public final class DoubleImpulse {
                 face(it);
             }
             boolean on = active(it);
+            ProgramDataBean b = bean(it);
+            boolean dbl = b != null && b.activePause;           // the 2nd-impulse buttons: while it is on (1.1.385)
             View pm = row.findViewById(idPauseMa);
             View ph = row.findViewById(idPauseHz);
             for (View x : new View[] {pm, ph}) {
                 if (x != null && x.getVisibility() != View.GONE) {   // GONE: Мускули (the stock display)
-                    int want = on ? View.VISIBLE : View.INVISIBLE;
+                    int want = dbl ? View.VISIBLE : View.INVISIBLE;
                     if (x.getVisibility() != want) {
                         x.setVisibility(want);
                     }
@@ -679,20 +703,73 @@ public final class DoubleImpulse {
             v.animate().scaleX(1f).scaleY(1f).setDuration(120L).start();
             if (!done) {
                 MAIN.removeCallbacks(this);
-                face.hold = 0f;
-                face.invalidateSelf();
+                ring(false);
             }
+        }
+
+        /** The big hold ring over the screen, around the key (at least the size of the client's photo). */
+        BigRing big;
+
+        void ring(boolean show) {
+            try {
+                View root = btn.getRootView();
+                if (root == null) {
+                    return;
+                }
+                if (!show) {
+                    if (big != null) {
+                        root.getOverlay().remove(big);
+                    }
+                    return;
+                }
+                if (big == null) {
+                    big = new BigRing(btn.getResources().getDisplayMetrics().density);
+                }
+                int[] a = new int[2];
+                int[] r = new int[2];
+                btn.getLocationInWindow(a);
+                root.getLocationInWindow(r);
+                big.cx = a[0] - r[0] + btn.getWidth() / 2f;
+                big.cy = a[1] - r[1] + btn.getHeight() / 2f;
+                big.r = radius();
+                big.setBounds(0, 0, root.getWidth(), root.getHeight());
+                root.getOverlay().remove(big);
+                root.getOverlay().add(big);
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("index", "double ring: " + t);
+            }
+        }
+
+        /** The client's photo's radius (+ a margin); never smaller than a big circle around the key. */
+        float radius() {
+            float d = btn.getResources().getDisplayMetrics().density;
+            float r = 64f * d;
+            try {
+                View row = row(btn);
+                int id = btn.getResources().getIdentifier("userIcon", "id", btn.getContext().getPackageName());
+                View icon = row != null && id != 0 ? row.findViewById(id) : null;
+                if (icon != null && icon.getWidth() > 0) {
+                    r = Math.max(r, Math.max(icon.getWidth(), icon.getHeight()) / 2f + 8f * d);
+                }
+            } catch (Throwable ignored) {
+            }
+            return r;
         }
 
         public void run() {
             long now = System.currentTimeMillis();
             if (inside && !done && holdable) {
                 long t = now - down;
-                face.hold = t < HOLD_SHOW_MS ? 0f : Math.min(1f, t / (float) HOLD_MS);
+                if (t >= HOLD_SHOW_MS) {
+                    if (big == null || big.progress <= 0f) {
+                        ring(true);
+                    }
+                    big.flash = 0f;
+                    big.progress = Math.min(1f, (t - HOLD_SHOW_MS) / (float) (HOLD_MS - HOLD_SHOW_MS));
+                    big.invalidateSelf();
+                }
                 if (t >= HOLD_MS) {
                     done = true;
-                    face.hold = 0f;
-                    face.flash = 1f;
                     down = now;
                     TrainItem it = item();
                     boolean ok = false;
@@ -703,21 +780,89 @@ public final class DoubleImpulse {
                     }
                     if (ok) {
                         btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                        if (big != null) {
+                            big.flash = 1f;
+                        }
                     } else {
-                        face.flash = 0f;
+                        ring(false);
+                        return;
                     }
                 }
-                face.invalidateSelf();
                 MAIN.postDelayed(this, 16L);
                 return;
             }
-            if (face.flash > 0f) {                       // after the sync: the full ring glows and fades out
-                face.flash = Math.max(0f, 1f - (now - down) / 500f);
-                face.invalidateSelf();
-                if (face.flash > 0f) {
+            if (big != null && big.flash > 0f) {         // after the sync: the full ring glows and fades out
+                big.flash = Math.max(0f, 1f - (now - down) / 550f);
+                big.invalidateSelf();
+                if (big.flash > 0f) {
                     MAIN.postDelayed(this, 16L);
+                    return;
                 }
             }
+            if (big != null) {
+                big.progress = 0f;
+            }
+            ring(false);
+        }
+    }
+
+    /** The hold ring over the screen: a faint track, a green arc that fills in the hold time, a bright head. */
+    static final class BigRing extends Drawable {
+        final float d;
+        final Paint track = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final Paint arc = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final Paint head = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final RectF oval = new RectF();
+        float cx, cy, r, progress, flash;
+
+        BigRing(float density) {
+            d = density;
+            track.setStyle(Paint.Style.STROKE);
+            arc.setStyle(Paint.Style.STROKE);
+            arc.setStrokeCap(Paint.Cap.ROUND);
+            head.setStyle(Paint.Style.FILL);
+        }
+
+        public void draw(Canvas c) {
+            if (r <= 0f || (progress <= 0f && flash <= 0f)) {
+                return;
+            }
+            oval.set(cx - r, cy - r, cx + r, cy + r);
+            track.setStrokeWidth(10f * d);
+            track.setColor(0x26000000);
+            c.drawCircle(cx, cy, r, track);
+            track.setStrokeWidth(5f * d);
+            track.setColor(0x40FFFFFF);
+            c.drawCircle(cx, cy, r, track);
+            if (flash > 0f) {
+                arc.setStrokeWidth((5f + 6f * flash) * d);
+                arc.setColor(GREEN);
+                arc.setAlpha(Math.round(255 * flash));
+                c.drawCircle(cx, cy, r, arc);
+                return;
+            }
+            arc.setStrokeWidth(5f * d);
+            arc.setColor(GREEN);
+            arc.setAlpha(255);
+            float sweep = 360f * progress;
+            c.drawArc(oval, -90f, sweep, false, arc);
+            double ang = Math.toRadians(-90f + sweep);
+            float hx = cx + (float) (r * Math.cos(ang));
+            float hy = cy + (float) (r * Math.sin(ang));
+            head.setColor(0x66FFFFFF);
+            c.drawCircle(hx, hy, 7f * d, head);
+            head.setColor(0xFFFFFFFF);
+            c.drawCircle(hx, hy, 3.5f * d, head);
+        }
+
+        public void setAlpha(int alpha) {
+        }
+
+        public void setColorFilter(ColorFilter cf) {
+        }
+
+        public int getOpacity() {
+            return PixelFormat.TRANSLUCENT;
         }
     }
 

@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 394
+    .line 434
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 395
+    .line 435
     iput-object p1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 396
+    .line 436
     iput p2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->g:I
 
-    .line 397
+    .line 437
     iput p3, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->downMs:I
 
-    .line 398
+    .line 438
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 9
 
     .prologue
-    .line 403
+    .line 443
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -64,11 +64,11 @@
 
     if-nez v0, :cond_b
 
-    .line 415
+    .line 455
     :goto_a
     return-void
 
-    .line 406
+    .line 446
     :cond_b
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->slots:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$000()Ljava/util/WeakHashMap;
@@ -83,17 +83,17 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;
 
-    .line 407
+    .line 447
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 408
+    .line 448
     invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/train/model/SoftRamp;->frac(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;J)D
 
     move-result-wide v4
 
-    .line 409
+    .line 449
     const/4 v1, 0x0
 
     iget v6, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->downMs:I
@@ -101,7 +101,7 @@
     # invokes: Lcom/isaigu/gymapp/train/model/SoftRamp;->startRamp(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;ZIJ)V
     invoke-static {v0, v1, v6, v2, v3}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$200(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;ZIJ)V
 
-    .line 410
+    .line 450
     const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
 
     sub-double v4, v6, v4
@@ -120,7 +120,7 @@
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->rampAt:J
 
-    .line 411
+    .line 451
     iget-object v1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Fall;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     const-wide/16 v2, 0x0
@@ -132,11 +132,11 @@
 
     goto :goto_a
 
-    .line 412
+    .line 452
     :catch_3c
     move-exception v0
 
-    .line 413
+    .line 453
     const-string v1, "SoftRamp.fall"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

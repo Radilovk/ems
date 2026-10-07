@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.ThemeUtils;
+import com.isaigu.gymapp.wearable.DoubleImpulse;
 import com.isaigu.gymapp.wearable.PartPick;
 import com.isaigu.gymapp.wearable.SafeGuard;
 import com.isaigu.gymapp.wearable.SecondParts;
@@ -17,17 +18,16 @@ import com.isaigu.gymapp.widget.VerticalColorSeekBar;
 import java.util.WeakHashMap;
 
 /**
- * What the row shows, main impulse (green) or second impulse (yellow), per control.
+ * What the row shows, main impulse (green) or second impulse (yellow), per control (owner, 1.1.383).
  * <ul>
- *   <li><b>Follows the impulse that runs:</b> while the second impulse goes out (pause phase of a running row) the
- *       channel bars fill yellow and show the second impulse's own percents and strength per channel, the avatar
- *       ring shows its total strength in yellow; in the impulse phase all is green again.</li>
- *   <li><b>What is being set keeps its look:</b> a marked channel (green = main, yellow = second), the selected index
- *       (MA / Hz = main, 2nd MA / 2nd Hz = second), a bar or the ring under the finger (the look it had when the
- *       finger went down) — plus {@link #HOLD_MS} after the release, so the result is seen where it was set.</li>
- *   <li>What a release changes follows one rule (owner): nothing selected — both impulses; green — the main
- *       impulse; yellow — the second. A yellow-looking ring with nothing selected moves both impulses by the same
- *       ratio (the value under the finger is the second impulse's).</li>
+ *   <li><b>Follows the row's double-impulse button</b> (wearable/DoubleImpulse): in the second impulse's setup — the
+ *       suit gets the second impulse only then — the channel bars fill yellow and show its own percents and strength
+ *       per channel, the avatar ring shows its total strength in yellow (unless the main MA / Hz is picked); in the
+ *       normal mode all is green and every control sets the main impulse.</li>
+ *   <li><b>What is being set keeps its look:</b> a bar or the ring under the finger (the look it had when the finger
+ *       went down) — plus {@link #HOLD_MS} after the release, so the result is seen where it was set.</li>
+ *   <li>What a release changes: in the setup the second impulse alone; otherwise the main one (the second keeps its
+ *       share of it — the stock coupling).</li>
  * </ul>
  * Hooks (scripts/apply-part-look.py): end of TrainViewHolder.updateUI ({@link #paint}), the bar's move
  * ({@link #drag}) and release (PartStrength.bar), the ring's move ({@link #ringMove}) and release ({@link #ringEnd});
@@ -56,19 +56,14 @@ public final class PartLook {
     /** Bar / ring → the look it is painted in now (TRUE = second). */
     private static final WeakHashMap<View, Boolean> PAINTED = new WeakHashMap<View, Boolean>();
 
-    /** The window whose channel icons got their hold listeners (again for a new window). */
-    private static java.lang.ref.WeakReference<View> holds;
-
     private PartLook() {}
 
     // ================================================================ which look
 
-    /** The second impulse goes out on this row right now: a running row in its pause phase, within the limits. */
+    /** The row is in the second impulse's setup (its controls set the second impulse; the suit gets only it). */
     public static boolean live(TrainItem item, ProgramDataBean b) {
         try {
-            return item != null && item.data != null && b != null && b.activePause
-                    && item.data.start && !item.data.inStart
-                    && SafeGuard.pause(b, SafeGuard.free2(item)) != null;
+            return item != null && b != null && b.activePause && DoubleImpulse.active(item);
         } catch (Throwable t) {
             return false;
         }
@@ -88,28 +83,16 @@ public final class PartLook {
         return null;
     }
 
-    /** Channel {@code i}'s bar: true = second impulse look. */
+    /** Channel {@code i}'s bar: true = second impulse look (the setup). */
     static boolean barSecond(TrainItem item, ProgramDataBean b, Object bar, int i, boolean live) {
         Lock l = held(bar);
         if (l != null) {
             return l.second;
         }
-        if (b == null || !b.activePause) {
-            return false;
-        }
-        if (item.partsControl != null && i < item.partsControl.length && item.partsControl[i]) {
-            return PartPick.isYellow(i);                  // a marked channel: its mark
-        }
-        if (item.isPauseMaSelected() || item.isPauseHzSelected()) {
-            return true;
-        }
-        if (item.isMaSelected() || item.isHzSelected()) {
-            return false;
-        }
-        return live;
+        return b != null && b.activePause && live;
     }
 
-    /** The avatar ring: true = second impulse look. */
+    /** The avatar ring: true = second impulse look (the setup, unless the main MA / Hz is picked). */
     static boolean ringSecond(TrainItem item, ProgramDataBean b, boolean live) {
         if (b == null || !b.activePause || MusicSync.isRunning()) {
             return false;                                 // music drives the ring
@@ -118,18 +101,7 @@ public final class PartLook {
         if (l != null) {
             return l.second;
         }
-        if (item.isPauseMaSelected() || item.isPauseHzSelected()) {
-            return true;
-        }
-        if (item.isMaSelected() || item.isHzSelected()) {
-            return false;
-        }
-        boolean[] sel = PartStrength.selection(item, b);
-        if (sel != null) {
-            return PartStrength.any(PartStrength.yellow(b, sel))
-                    && !PartStrength.any(PartStrength.without(sel, PartStrength.yellow(b, sel)));
-        }
-        return live;
+        return live && !item.isMaSelected() && !item.isHzSelected();
     }
 
     /** No index and no channel selected: the ring stands for the row's strength (main, or second when yellow). */
@@ -149,6 +121,9 @@ public final class PartLook {
         try {
             if (bars != null) {
                 columns(item, bars);
+            }
+            if (ring != null) {
+                DoubleImpulse.paint(item, ring, bars, texts);   // the button, the 2nd-impulse index buttons, the glow
             }
             if (item == null || b == null || bars == null || b.strenthBean == null || b.strenthBean.buwei == null) {
                 return;
@@ -187,13 +162,6 @@ public final class PartLook {
             }
             legs(item, b, bars, texts);
             legTags(item, texts);
-            if (bars.length > 0 && bars[0] != null && bars[0].isAttachedToWindow()) {
-                View root = bars[0].getRootView();
-                if (holds == null || holds.get() != root) {
-                    holds = new java.lang.ref.WeakReference<View>(root);
-                    PartPick.installHolds(root);          // press and hold on a channel icon (sync)
-                }
-            }
         } catch (Throwable ignored) {
         }
     }
@@ -435,6 +403,7 @@ public final class PartLook {
             }
             l.dragging = true;
             l.last = System.currentTimeMillis();
+            DoubleImpulse.touch(item);
             return l.second && ringFree(item, b);
         } catch (Throwable t) {
             return false;
@@ -443,9 +412,8 @@ public final class PartLook {
 
     /**
      * Hook: the ring released (TrainViewHolder$4.onChangedEnd, after the selected channels' turn), {@code level}
-     * 0–100. Nothing selected and the ring in the second impulse's look (it showed the second impulse's strength):
-     * both impulses move by the same ratio, so the second one lands on the finger's value — the main one at most +20
-     * in one release, the second within its limit. True = handled.
+     * 0–100. Nothing selected and the ring in the second impulse's look (the setup): the second impulse's strength
+     * goes to the finger's value, within its limit; the main one stays. True = handled.
      */
     public static boolean ringEnd(TrainItem item, int level) {
         try {
@@ -455,17 +423,11 @@ public final class PartLook {
                 l.dragging = false;
                 l.until = System.currentTimeMillis() + HOLD_MS;
             }
-            if (b == null || !b.activePause || l == null || !l.second || !ringFree(item, b)
-                    || b.pauseStrenthPercent <= 0 || b.strenth <= 0) {
+            DoubleImpulse.touch(item);
+            if (b == null || !b.activePause || l == null || !l.second || !ringFree(item, b)) {
                 return false;
             }
-            int to = Math.min(PartStrength.clamp(level), PartStrength.secondCap(item, b));
-            int main = (int) Math.round(to * (double) b.strenth / b.pauseStrenthPercent);
-            main = Math.max(0, Math.min(Math.min(100, b.strenth + PartStrength.MAX_RAISE), main));
-            // the stock coupling (TrainItem.setMainAndPauseStrenthFromSlider): the second keeps its share of the main
-            int pause = (int) ((main * (long) b.pauseStrenthPercent + b.strenth / 2) / b.strenth);
-            b.pauseStrenthPercent = Math.max(0, Math.min(100, pause));
-            b.strenth = main;
+            b.pauseStrenthPercent = Math.max(0, Math.min(PartStrength.clamp(level), PartStrength.secondCap(item, b)));
             PartStrength.saveProgram(item);
             return true;
         } catch (Throwable t) {

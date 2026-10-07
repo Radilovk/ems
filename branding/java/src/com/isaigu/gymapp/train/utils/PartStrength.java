@@ -8,6 +8,7 @@ import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.dialog.ActivePauseStorage;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.wearable.DoubleImpulse;
 import com.isaigu.gymapp.wearable.PartPick;
 import com.isaigu.gymapp.wearable.SafeGuard;
 import com.isaigu.gymapp.wearable.SecondParts;
@@ -18,7 +19,7 @@ import com.isaigu.gymapp.wearable.SecondParts;
  * impulse strength of those channels only.
  * <ul>
  *   <li>green — the main impulse alone;</li>
- *   <li>yellow (second impulse on) — the second impulse alone.</li>
+ *   <li>yellow (the row is in the second impulse's setup, wearable/DoubleImpulse) — the second impulse alone.</li>
  * </ul>
  * The unit gets one percent per channel for each impulse packet; the second impulse's percents are kept apart
  * (wearable/SecondParts, per client) whenever they differ from the main ones and go out with the second
@@ -45,7 +46,7 @@ public final class PartStrength {
             if (sel == null) {
                 return false;
             }
-            boolean[] yel = yellow(b, sel);
+            boolean[] yel = yellow(item, b, sel);
             boolean[] green = without(sel, yel);
             PartPick.touch();
             if (any(green)) {
@@ -71,7 +72,7 @@ public final class PartStrength {
             if (sel == null) {
                 return false;
             }
-            boolean[] yel = yellow(b, sel);
+            boolean[] yel = yellow(item, b, sel);
             boolean[] green = without(sel, yel);
             int now = any(green) ? level(b, green) : level2(item, b, yel);
             int to = Math.min(clamp(level), now + MAX_RAISE);
@@ -102,7 +103,7 @@ public final class PartStrength {
             if (sel == null) {
                 return b != null ? PartLook.ringValue(item, b, current) : current;
             }
-            boolean[] yel = yellow(b, sel);
+            boolean[] yel = yellow(item, b, sel);
             boolean[] green = without(sel, yel);
             int lv = any(green) ? level(b, green) : level2(item, b, yel);
             return lv * 75 / 100;
@@ -202,15 +203,18 @@ public final class PartStrength {
         SecondParts.set(b, parts, e);
     }
 
-    /** The selected channels of {@code sel} that are yellow and can take it (second impulse on); null when none. */
-    static boolean[] yellow(ProgramDataBean b, boolean[] sel) {
-        if (b == null || !b.activePause) {
+    /**
+     * The selected channels of {@code sel} that are yellow: all of them while the row is in the second impulse's
+     * setup (wearable/DoubleImpulse), else none; null when none.
+     */
+    static boolean[] yellow(TrainItem item, ProgramDataBean b, boolean[] sel) {
+        if (b == null || !b.activePause || !DoubleImpulse.active(item)) {
             return null;
         }
         boolean[] y = new boolean[sel.length];
         boolean any = false;
         for (int i = 0; i < sel.length; i++) {
-            y[i] = sel[i] && PartPick.isYellow(i);
+            y[i] = sel[i];
             any |= y[i];
         }
         return any ? y : null;
@@ -282,9 +286,9 @@ public final class PartStrength {
 
     /**
      * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the bar's
-     * percent). As everywhere: a yellow channel — its second impulse alone (percent of the second impulse's strength),
-     * the main stays; a green channel — its main impulse alone, the second stays; not marked — both impulses get the
-     * percent.
+     * percent). The row in the second impulse's setup — the channel's second impulse alone (percent of the second
+     * impulse's strength), the main stays; otherwise a marked (green) channel — its main impulse alone, the second
+     * stays; not marked — both impulses get the percent (the second keeps following the main, as its strength does).
      */
     public static void bar(View view, TrainProgram prog, ProgramDataBean b, int i, int stored) {
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
@@ -295,7 +299,7 @@ public final class PartStrength {
             PartLook.release(view);
             PartPick.touch();
             boolean marked = PartPick.isMarked(i);
-            if (marked && b.activePause && PartPick.isYellow(i)) {
+            if (b.activePause && DoubleImpulse.active(prog)) {
                 boolean[] y = new boolean[parts.length];
                 y[i] = true;
                 int p2 = Math.min(b.pauseStrenthPercent, secondCap(null, b));

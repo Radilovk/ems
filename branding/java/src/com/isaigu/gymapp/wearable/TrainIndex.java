@@ -12,10 +12,11 @@ import java.util.WeakHashMap;
  * The index buttons around the avatar (MA, Hz, 2nd-impulse MA, 2nd-impulse Hz):
  * <ul>
  *   <li>a selection clears itself 5 s after the last action with it (click, + / −, slider) — then + / − act
- *       on the selected muscle groups again;</li>
- *   <li>the second impulse (active pause) turns on from either of its buttons, Hz or MA, and always starts
- *       at the main impulse's strength. It belongs to the running mode (Основен, Кардио, Масаж each have their
- *       own, set in ⚙ too); Мускули has none. A click on the selected (green) Hz or MA turns it off.</li>
+ *       on the selected muscle groups again; not while the row is in the second impulse's setup (its own 5 s end
+ *       clears it, wearable/DoubleImpulse);</li>
+ *   <li>the 2nd-impulse buttons (right of the avatar) are seen only in that setup and only pick what the ring and
+ *       + / − set there: the second impulse's strength or Hz. The second impulse itself goes on / off with the row's
+ *       double-impulse button (1.1.383; before, these two buttons turned it on and off). Мускули has none.</li>
  * </ul>
  * Hooks: TrainPause{Hz,Ma}ValueClickListener.onClick (scripts/apply-train-index.py), SessionRecorder tick.
  */
@@ -32,7 +33,7 @@ public final class TrainIndex {
 
     private TrainIndex() {}
 
-    /** A click on the 2nd-impulse Hz (hz = true) or MA button. */
+    /** A click on the 2nd-impulse Hz (hz = true) or MA button: it is picked (seen in the setup only). */
     public static void pauseClick(TrainItem it, boolean hz) {
         try {
             TrainProgram p = it != null ? it.getTrainProgram() : null;
@@ -40,24 +41,14 @@ public final class TrainIndex {
             if (b == null) {
                 return;
             }
-            if (p.useType == MUSCLE) {
-                b.activePause = false;                     // Мускули: no second impulse
-                clear(it);
+            if (p.useType == MUSCLE || !b.activePause) {
+                it.setPauseHzSelected(false);              // no second impulse: nothing to pick
+                it.setPauseMaSelected(false);
                 return;
             }
-            boolean selected = hz ? it.isPauseHzSelected() : it.isPauseMaSelected();
-            if (!b.activePause) {
-                b.activePause = true;                      // on from either button, at the main strength
-                b.pauseStrenthPercent = Math.max(0, Math.min(100, b.strenth));
-                select(it, hz);
-            } else if (selected) {
-                b.activePause = false;                     // the selected (green) Hz or MA again: off
-                clear(it);
-            } else {
-                select(it, hz);
-            }
+            select(it, hz);
             touch(it);
-            it.onParamsChange();                           // the suit gets the new impulse pattern now
+            DoubleImpulse.touch(it);
         } catch (Throwable t) {
             WearableBleDiagLog.log("index", "pause click: " + t);
         }
@@ -140,7 +131,7 @@ public final class TrainIndex {
                     s.lastAction = now;
                     continue;
                 }
-                if (any && !assisted && now - s.lastAction >= IDLE_MS) {
+                if (any && !assisted && !DoubleImpulse.active(it) && now - s.lastAction >= IDLE_MS) {
                     clear(it);
                     s.seen = snapshot(it);
                     s.lastAction = now;

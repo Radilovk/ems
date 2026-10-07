@@ -125,11 +125,11 @@ train_row:
           label_bg: "Горе-ляво: mA (импулс)"
           config_keys: [avatar.index_button_size_dp, avatar.index_button_edge_dp, avatar.index_button_vertical_dp]
         - id: pauseMaValue
-          label_bg: "Горе-дясно: pause mA %"
+          label_bg: "Горе-дясно: pause mA % (само в настройка на импулс 2)"
         - id: hzValue
           label_bg: "Долу-ляво: Hz"
         - id: pauseHzValue
-          label_bg: "Долу-дясно: pause Hz"
+          label_bg: "Долу-дясно: pause Hz (само в настройка на импулс 2)"
         - id: userIcon
           label_bg: "Снимка на потребителя — докосване: избор за мастър контролите (свети), задържане: картон"
           config_key: avatar.icon_padding_dp
@@ -155,7 +155,7 @@ train_row:
       contains:
         - id: stop
         - id: startpaulse
-        - id: save
+        - id: save   # жълтият бутон „Двоен импулс“ (DoubleImpulse), не дискета
 
   row_height:
     editor_key: row.height_dp

@@ -1,16 +1,11 @@
 package com.isaigu.gymapp.wearable;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
-import com.isaigu.gymapp.BaseActivity;
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
-import com.isaigu.gymapp.bean.TrainUser;
-import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 import com.isaigu.gymapp.dialog.ActivePauseStorage;
 import com.isaigu.gymapp.mgr.DataMgr;
 import com.isaigu.gymapp.message.MessageDispatcher;
@@ -18,15 +13,15 @@ import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.BeanUtils;
 import com.isaigu.gymapp.utils.FileUtils;
 import com.isaigu.gymapp.widget.XemsGuard;
-import com.isaigu.gymapp.widget.XemsLang;
 import java.util.List;
 
 /**
  * The manual mode's programs, exactly as the trainer sets them (owner, 1.1.323: no automatic adaptation in the
  * manual mode — the only automatic thing is the absolute limits at every send, wearable/SafeGuard):
  * <ul>
- *   <li>The diskette and the row's ⚙ save the row's settings for its client in that program ({@link ClientPrograms});
- *       they come back whenever the client is on that program again. Holding the diskette = the stock "save as".</li>
+ *   <li>The row's ⚙ saves the row's settings for its client in that program ({@link ClientPrograms}); they come back
+ *       whenever the client is on that program again. (The diskette and its "save as" are gone since 1.1.383: its
+ *       place is the double-impulse button, {@link DoubleImpulse}.)</li>
  *   <li>⚙ Master saves its values into the program (the base everybody starts from).</li>
  *   <li>The parameters dialog gets the XEMS look (dialog/ParamDialogUi).</li>
  * </ul>
@@ -124,16 +119,6 @@ public final class ProgramFit {
         }
     }
 
-    /** The row's program for "save as" (a copy). */
-    public static TrainProgram forSave(TrainUserProgramDataWrapper w) {
-        TrainProgram row = w != null ? w.trainProgram : null;
-        if (row == null) {
-            return null;
-        }
-        TrainProgram out = (TrainProgram) BeanUtils.cloneObject(row);
-        return out != null ? out : row;
-    }
-
     /** Saves the values under the program's name (id kept); the saved live strength stays as it was. */
     static void saveBase(TrainProgram values, String name) {
         TrainProgram old = stored(name);
@@ -187,69 +172,6 @@ public final class ProgramFit {
             }
         } catch (Throwable t) {
             XemsGuard.report("ProgramFit.attachSwitch", t);
-        }
-    }
-
-    // ------------------------------------------------------------------ the diskette
-
-    /** Hook: TrainViewHolder.bindListener — hold the diskette = "save as" (new name). */
-    public static void bindSaveAs(View save, Object holder) {
-        if (save != null) {
-            save.setOnLongClickListener(new SaveAs(holder));
-        }
-    }
-
-    static final class SaveAs implements View.OnLongClickListener {
-        private final Object holder;
-
-        SaveAs(Object holder) {
-            this.holder = holder;
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            try {
-                Activity a = activity(v.getContext());
-                TrainUserProgramDataWrapper w = ((com.isaigu.gymapp.train.TrainViewHolder) holder).getData();
-                TrainProgram out = forSave(w);
-                if (a instanceof BaseActivity && out != null) {
-                    com.isaigu.gymapp.widget.XemsUi.haptic(v);
-                    com.isaigu.gymapp.train.utils.OperationUtil.save((BaseActivity) a, out);
-                    return true;
-                }
-            } catch (Throwable t) {
-                XemsGuard.report("ProgramFit.saveAs", t);
-            }
-            return false;
-        }
-    }
-
-    static Activity activity(Context c) {
-        while (c instanceof ContextWrapper) {
-            if (c instanceof Activity) {
-                return (Activity) c;
-            }
-            c = ((ContextWrapper) c).getBaseContext();
-        }
-        return null;
-    }
-
-    /** Hook: the diskette's click (TrainViewHolder$2) — the row's settings into its client's profile. */
-    public static void onSaveClick(BaseActivity a, TrainUserProgramDataWrapper w) {
-        try {
-            ClientPrograms.init(a);
-            TrainUser u = w != null ? w.trainUser : null;
-            if (a != null && u != null && w.trainProgram != null && ClientPrograms.save(u, w.trainProgram)) {
-                a.showTips(XemsLang.tr("✓ Записано за " + u.name + " · " + w.trainProgram.name,
-                        "✓ Saved for " + u.name + " · " + w.trainProgram.name));
-                return;
-            }
-            TrainProgram out = forSave(w);                 // no client in the slot: the stock "save as"
-            if (a != null && out != null) {
-                com.isaigu.gymapp.train.utils.OperationUtil.save(a, out);
-            }
-        } catch (Throwable t) {
-            XemsGuard.report("ProgramFit.onSaveClick", t);
         }
     }
 }

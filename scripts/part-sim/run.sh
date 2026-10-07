@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Offline test of the muscle icon cycle (green → yellow → off) and the second impulse per channel
-# (train.utils.PartStrength, wearable.PartPick, wearable.SecondParts) on the JVM.
+# Offline test of the double-impulse button (setup / off / 5 s / sync) and the second impulse per channel
+# (wearable.DoubleImpulse, train.utils.PartStrength / PartLook, wearable.PartPick, wearable.SecondParts) on the JVM.
 # Needs android-sdk/platforms/android-30/android.jar (scripts/setup-android-toolchain.sh).
 set -euo pipefail
 D="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "${D}/../.." && pwd)"

@@ -65,5 +65,5 @@
 
 Маркировката на каналите (зелено / жълто) е обща — тя казва *какво* се мени; изборът на клиенти казва *на кого*.
 Кръгът и бутоните около аватара са в реда на клиента — винаги само за него.
-Код: `XemsLocalAvatar.masterApplies` / `masterStartOrStop` / `masterStop`, `PartPick.sync`; закачки в
+Код: `XemsLocalAvatar.masterApplies` / `masterStartOrStop` / `masterStop`, `DoubleImpulse.sync` (бутонът на реда, от 1.1.383); закачки в
 `scripts/apply-avatar-card.py` и `apply-part-strength.py`.

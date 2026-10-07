@@ -26,6 +26,10 @@ import java.util.WeakHashMap;
  *
  * <p>Every phase and every ON-phase send first goes through wearable/SafeGuard (the absolute limits, 1.1.323).
  *
+ * <p>The second impulse's setup (wearable/DoubleImpulse, 1.1.383): while a row is in it, both phases send the second
+ * impulse, steady (no ramp, no switching), so the trainer feels what is being set; the phase clock runs on. When the
+ * setup ends, the next send starts its phase afresh (with its rise).
+ *
  * <p>Hooks (scripts/apply-soft-ramp.py): TrainItem.startPulse → {@link #phase}; TrainItem.sendPulse → {@link
  * #sendDuration} (ON) / {@link #sendPause} (pause). Every step checks that the slot still runs, is connected and is in
  * the same phase, so nothing reaches the suit after pause / stop. Any error → the stock send.
@@ -92,6 +96,9 @@ public final class SoftRamp {
             return;
         }
         com.isaigu.gymapp.wearable.SafeGuard.enforce(item, b);      // never out of the limits, whoever set it
+        if (held(item, b, parts, workLength)) {
+            return;
+        }
         try {
             Slot st = slots.get(item);
             if (st == null || !st.known || !st.on) {
@@ -134,6 +141,9 @@ public final class SoftRamp {
     public static void sendPause(TrainItem item, ProgramDataBean b, boolean[] parts, int workLength) {
         CommandSender s = item != null ? item.sender : null;
         if (s == null || b == null) {
+            return;
+        }
+        if (held(item, b, parts, workLength)) {
             return;
         }
         int[] p = null;
@@ -180,6 +190,36 @@ public final class SoftRamp {
             s.sendActivePause(b, parts, workLength, p[0], p[1]);
         } else {
             s.sendPause(b, workLength);
+        }
+    }
+
+    /**
+     * The row is in the second impulse's setup: the second impulse goes out steady, whatever the phase; any running
+     * ramp of the phase stops (its steps see a new generation). True = sent.
+     */
+    private static boolean held(TrainItem item, ProgramDataBean b, boolean[] parts, int workLength) {
+        try {
+            if (b == null || !com.isaigu.gymapp.wearable.DoubleImpulse.holding(item)) {
+                return false;
+            }
+            Slot st = slots.get(item);
+            if (st != null) {
+                st.gen++;
+                st.known = false;                                   // the next normal send starts its phase
+                st.ramping = false;
+                st.held = false;
+                st.lastSent = -1;
+            }
+            int[] p = second(item, b);
+            if (p != null) {
+                item.sender.sendActivePause(b, parts, workLength, p[0], p[1]);
+            } else {
+                item.sender.sendPause(b, workLength);              // out of the limits (strength 0): a plain pause
+            }
+            return true;
+        } catch (Throwable t) {
+            XemsGuard.report("SoftRamp.held", t);
+            return false;
         }
     }
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Saved program = the base of the manual mode; the diskette saves it, the gear works while training.
+"""Saved program = the base of the manual mode; the row's gear saves it and works while training.
 
 wearable/ProgramFit (compile-wearable-java.sh) does the work; this wires it into the vendor smali:
-- TrainViewHolder$2 (the row's diskette): ProgramFit.onSaveClick(activity, wrapper) — the row's settings
-  into the client's profile (ClientPrograms, per program), ✓; the stock "save as" when the slot has no client.
-- TrainViewHolder.bindListener: holding the diskette = the stock "save as" (ProgramFit.bindSaveAs).
+- TrainViewHolder$2 (the row's former diskette, @id/save): its stock "save as" is gone (1.1.383) — the row's ⚙
+  saves the settings for the client (ClientPrograms).
+- TrainViewHolder.bindListener: @id/save becomes the yellow double-impulse button (wearable/DoubleImpulse.bind:
+  tap = the second impulse's setup / off, hold = sync).
 - TrainViewHolder$1 (the row's gear): opens while the training runs too (the vendor returned when
   data.start); ProgramLive applies the new parameters and time live, for this client only.
 - OperationUtil.lambda$settingAllUser$0 (⚙ Master): ProgramLive.stash(wrapper, originalProgram) before the
@@ -30,6 +31,7 @@ DIALOG = S2 / "dialog" / "EditUserProgramDataDialog.smali"
 ITEM = S2 / "train" / "model" / "TrainItem.smali"
 
 PF = "Lcom/isaigu/gymapp/wearable/ProgramFit;"
+DI = "Lcom/isaigu/gymapp/wearable/DoubleImpulse;"
 PL = "Lcom/isaigu/gymapp/train/utils/ProgramLive;"
 TP = "Lcom/isaigu/gymapp/bean/TrainProgram;"
 W = "Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;"
@@ -48,8 +50,8 @@ def method(text: str, sig: str) -> tuple[int, int]:
 
 def patch_save() -> None:
     text = SAVE.read_text(encoding="utf-8")
-    if PF in text:
-        print("TrainViewHolder$2: already quick save")
+    if MARK in text:
+        print("TrainViewHolder$2: diskette already gone")
         return
     pat = re.compile(
         r"(invoke-virtual \{v1\}, " + re.escape(TVH) + r"->getData\(\)" + re.escape(W) + r"\n\s*\n"
@@ -57,18 +59,17 @@ def patch_save() -> None:
         r"\s*iget-object v1, v1, " + re.escape(W) + r"->trainProgram:" + re.escape(TP) + r"\n((?:\s*\n|\s*\.line \d+\n)*)"
         r"\s*invoke-static \{v0, v1\}, Lcom/isaigu/gymapp/train/utils/OperationUtil;->save\(" + re.escape(BA + TP) + r"\)V\n"
     )
-    new, n = pat.subn(
-        lambda m: m.group(1) + f"\n    {MARK}\n    invoke-static {{v0, v1}}, {PF}->onSaveClick({BA}{W})V\n", text)
+    new, n = pat.subn(lambda m: m.group(1) + f"\n    {MARK}: no diskette (the double-impulse button)\n", text)
     if n != 1:
         sys.exit("apply-program-fit: TrainViewHolder$2 save call not found")
     SAVE.write_text(new, encoding="utf-8")
-    print("TrainViewHolder$2: diskette = quick save into the saved program")
+    print("TrainViewHolder$2: the diskette's save is gone")
 
 
 def patch_hold() -> None:
     text = HOLDER.read_text(encoding="utf-8")
-    if PF in text:
-        print("TrainViewHolder: already save-as on hold")
+    if DI in text:
+        print("TrainViewHolder: double-impulse button already bound")
         return
     a, b = method(text, ".method private bindListener()V")
     body = text[a:b]
@@ -77,10 +78,10 @@ def patch_hold() -> None:
               "(Landroid/view/View$OnClickListener;)V\n")
     if body.count(anchor) != 1:
         sys.exit("apply-program-fit: bindListener diskette listener not found")
-    body = body.replace(anchor, anchor + f"\n    {MARK}\n    invoke-static {{v0, p0}}, {PF}->bindSaveAs("
+    body = body.replace(anchor, anchor + f"\n    {MARK}\n    invoke-static {{v0, p0}}, {DI}->bind("
                                           "Landroid/view/View;Ljava/lang/Object;)V\n")
     HOLDER.write_text(text[:a] + body + text[b:], encoding="utf-8")
-    print("TrainViewHolder: hold the diskette = save as")
+    print("TrainViewHolder: @id/save = the double-impulse button")
 
 
 def patch_gear() -> None:

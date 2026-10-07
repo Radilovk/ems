@@ -133,11 +133,11 @@ row_controls:
   avatar_index:
     description: |
       Взаимно изключващи се index modes; само един active per row. Selection clears 5 s after the last action
-      (wearable/TrainIndex.tick). 2nd impulse: on from pause Hz OR pause MA, pause MA = main MA at switch-on
-      (TrainIndex.pauseClick, apply-train-index.py). Both 2nd-impulse buttons share the states: off = black
-      (still clickable — a tap turns it on), on = yellow, selected = green (a tap on green turns it off);
-      updatePauseMaDisplay mirrors updatePauseHzDisplay (apply-active-pause-avatar-button.py, 1.1.257). Per mode (Основен / Кардио / Масаж; none in Мускули):
-      the running mode's bean, set in ⚙ by dialog/PauseSetting (apply-double-impulse.py).
+      (wearable/TrainIndex.tick), not while the row is in the 2nd-impulse setup. 2nd impulse (1.1.383): on / off only
+      with the row's double-impulse button (@id/save → wearable/DoubleImpulse); pauseMaValue / pauseHzValue are
+      VISIBLE only in that setup (INVISIBLE otherwise, GONE in Мускули) and only pick (TrainIndex.pauseClick).
+      Per mode (Основен / Кардио / Масаж; none in Мускули): the running mode's bean, set in ⚙ by dialog/PauseSetting
+      (apply-double-impulse.py).
     modes:
       - id: ma
         flag: TrainItem.maSelected
@@ -246,8 +246,11 @@ row_controls:
       parallel_api: none
     - id: save
       effect: |
-        Tap: ProgramFit.onSaveClick → ClientPrograms.save — the row's settings for this client in this program
-        (loaded again whenever the client is on that program). Hold: stock "save as" (OperationUtil.save).
+        The yellow double-impulse button since 1.1.383 (no diskette; the row's ⚙ "Запази" saves for the client).
+        wearable/DoubleImpulse.bind (apply-program-fit.py). Tap: plain pause → 2nd impulse on + setup (5 s: suit gets
+        only impulse 2 — SoftRamp.held, controls set impulse 2, 2nd-impulse index buttons shown, glow ×3); tap in
+        setup → off; tap in normal double → setup again; 5 s idle → normal double. Hold 1.5 s: sync impulse 2 to
+        the main strength + channel shares (Hz stays). Bottom note on every mode change.
       parallel_api: none
 
   quick_start:

@@ -6,7 +6,10 @@
   BleDeviceManager.write       start: BtBridge.write(device, frame, cb) → true = the XEMS frame was translated and
                                queued (cb fires after the last bodytech frame), false = the stock write goes on
   CommandReceiver.onReceiveData start: BtBridge.reply(device, bytes, listener) → true = a bodytech reply (battery)
-  CommandSender.sendDuration / sendActivePause / sendPause  start: BtBridge.phase(device, 1 / 2 / 0)
+  CommandSender.sendDuration / sendActivePause / sendPause  start: BtBridge.phase(device, 1 / 2 / 0) — the phase
+                               of the commands queued next
+  CommandSender.sendCommend    start: BtBridge.tag(device, pdu) — the queued command keeps that phase
+  CommandSender.writeCommend   start: BtBridge.sending(device, pdu) — the translator takes it when the command goes
   TrainItem.reset (stop)      start: BtBridge.reset(device) → all off, strengths 0, the suit programmed afresh
   TrainItem.start             start: BtLoad.hold(item, device) → true = the suit is still being programmed (~3 s):
                                the start waits (no clock, no lost impulse) and goes by itself when the program is in
@@ -33,6 +36,7 @@ CFG = "Lcom/isaigu/gymapp/train/ble/BleDeviceConfig;"
 LIS = "Lcom/isaigu/gymapp/train/listener/OnReceiveCommandListener;"
 CS = "Lcom/isaigu/gymapp/train/model/CommandSender;"
 CR = "Lcom/isaigu/gymapp/train/model/CommandReceiver;"
+BDC = "Lcom/isaigu/gymapp/train/ble/BleDeviceCommend;"
 MARK = "xems_bt"
 
 
@@ -205,6 +209,22 @@ def main() -> None:
             f"    invoke-static {{v0, v1}}, {BB}->phase({DEV}I)V\n",
             f"phase{ph}",
         )
+    # every queued command carries its phase; the translator gets it when the command is written (1.1.386)
+    insert_at_start(
+        APP / "train/model/CommandSender.smali",
+        ".method public sendCommend(B[B)V",
+        f"    iget-object v0, p0, {CS}->device:{DEV}\n\n"
+        f"    invoke-static {{v0, p2}}, {BB}->tag({DEV}[B)V\n",
+        "tag",
+    )
+    insert_at_start(
+        APP / "train/model/CommandSender.smali",
+        f".method private writeCommend({BDC})V",
+        f"    iget-object v0, p0, {CS}->device:{DEV}\n\n"
+        f"    invoke-virtual {{p1}}, {BDC}->getPdu()[B\n\n    move-result-object v1\n\n"
+        f"    invoke-static {{v0, v1}}, {BB}->sending({DEV}[B)V\n",
+        "sending",
+    )
 
 
 if __name__ == "__main__":

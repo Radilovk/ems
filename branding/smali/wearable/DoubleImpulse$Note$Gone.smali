@@ -35,17 +35,17 @@
     .registers 3
 
     .prologue
-    .line 1183
+    .line 1212
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1184
+    .line 1213
     new-instance v0, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v0, p1}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note$Gone;->ref:Ljava/lang/ref/WeakReference;
 
-    .line 1185
+    .line 1214
     return-void
 .end method
 
@@ -55,7 +55,7 @@
     .registers 4
 
     .prologue
-    .line 1188
+    .line 1217
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note$Gone;->ref:Ljava/lang/ref/WeakReference;
 
     invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
@@ -64,7 +64,7 @@
 
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 1189
+    .line 1218
     if-eqz v0, :cond_25
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->getTag()Ljava/lang/Object;
@@ -86,7 +86,7 @@
 
     if-eqz v1, :cond_25
 
-    .line 1190
+    .line 1219
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
@@ -95,7 +95,7 @@
 
     invoke-virtual {v1, v0}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
 
-    .line 1192
+    .line 1221
     :cond_25
     return-void
 .end method

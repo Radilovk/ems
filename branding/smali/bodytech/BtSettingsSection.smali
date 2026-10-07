@@ -12,6 +12,7 @@
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Slots;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Gain;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Group;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Leg;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Pick;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Name;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Stop;,

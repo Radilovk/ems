@@ -35,7 +35,7 @@ public final class BtSettings {
      * EMSFIT labels (customButtonN → CH): C1 WAIST … C8 ABDOMEN. Index 0 unused. On the bodytech suit EMSFIT's "Гърди"
      * (C5) and "Бедра" (C7) are the two whole legs, separate electrodes (owner, 1.1.376 / 1.1.379): left leg → the
      * row's front-thigh slider, right leg → its back-thigh slider (the row tags them Л / Д, {@link #rowTag}). Which leg is
-     * which is the owner's to confirm — swapping is a rename in Settings → Костюм bodytech.
+     * which is the owner's to confirm — Settings → Костюм bodytech → «Крака» picks each leg's channel.
      */
     static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Ляв крак", "Ръце",
             "Десен крак", "Корем"};
@@ -167,20 +167,66 @@ public final class BtSettings {
     }
 
     /**
-     * The training row's tag for slider s on a bodytech row: "Л" / "Д" when every channel on that slider is named
-     * left / right (Ляв… / Десен… / Дясн…), else null. Derived from the owner's names, so a swap in the settings follows.
+     * The training row's tag for slider s on a bodytech row: "Л" on the left-leg slider, "Д" on the right-leg one, when
+     * a channel of the suit is on it; else null. The slider is the leg (owner, 1.1.386: Settings → Костюм bodytech →
+     * «Крака» picks the channel of each leg), so a renamed channel keeps its tag (before 1.1.386 it came from the names).
      */
     public static synchronized String rowTag(int s) {
         if (!loaded) return null;
-        String tag = null;
-        for (int ch = 1; ch <= CHANNELS; ch++) {
-            if (slider[ch] != s) continue;
-            String n = names[ch] == null ? "" : names[ch].trim().toLowerCase();
-            String t = n.startsWith("ляв") ? "Л" : (n.startsWith("дясн") || n.startsWith("дес") ? "Д" : null);
-            if (t == null || (tag != null && !tag.equals(t))) return null;
-            tag = t;
+        if (s != LEFT_LEG && s != RIGHT_LEG) return null;
+        return onSlider(s) ? (s == LEFT_LEG ? "Л" : "Д") : null;
+    }
+
+    /** The channel of the left (right = false) or right leg: the first channel on that leg's slider; 0 = none. */
+    public static synchronized int legChannel(boolean right) {
+        int s = right ? RIGHT_LEG : LEFT_LEG;
+        for (int ch = 1; ch <= CHANNELS; ch++) if (slider[ch] == s) return ch;
+        return 0;
+    }
+
+    /**
+     * Settings → «Крака» (owner, 1.1.386): channel ch is now the left / right leg. The leg's role — name, slider,
+     * impulse, own strength / Hz / width / waveform and its place in the sheet — moves to ch, and what ch was moves to
+     * the channel that had the leg (left ⇄ right is a plain swap); no muscle loses its channel. A leg nobody had:
+     * ch just takes it (its old muscle is left without a channel — the sheet shows that).
+     */
+    public static synchronized void setLegChannel(boolean right, int ch) {
+        if (!valid(ch)) return;
+        int s = right ? RIGHT_LEG : LEFT_LEG;
+        if (slider[ch] == s) return;
+        int prev = legChannel(right);
+        if (prev != 0) {
+            swapRole(prev, ch);
+        } else {
+            slider[ch] = s;
+            names[ch] = right ? DEFAULT_NAMES[7] : DEFAULT_NAMES[5];
         }
-        return tag;
+        save();
+    }
+
+    /** Channels a and b trade everything the owner set for them (the hardware channels stay where they are). */
+    static void swapRole(int a, int b) {
+        String n = names[a];
+        names[a] = names[b];
+        names[b] = n;
+        swap(slider, a, b);
+        swap(group, a, b);
+        swap(chGain, a, b);
+        swap(chWidth, a, b);
+        swap(chWidthSecond, a, b);
+        swap(chWaveMain, a, b);
+        swap(chWaveSecond, a, b);
+        swap(chHzMain, a, b);
+        swap(chHzSecond, a, b);
+        int pa = positionOf(a), pb = positionOf(b);
+        order[pa] = b;
+        order[pb] = a;
+    }
+
+    private static void swap(int[] v, int a, int b) {
+        int t = v[a];
+        v[a] = v[b];
+        v[b] = t;
     }
 
     /** Slider s drives some channel of the suit (false = nothing on the suit answers it). true before the map is loaded. */

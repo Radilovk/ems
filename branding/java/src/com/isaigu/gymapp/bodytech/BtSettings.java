@@ -71,11 +71,12 @@ public final class BtSettings {
     /** true = the owner's per-channel values rule as they are (Hz up to 1000, width up to 511 µs); false = they can only lower the program's. */
     static boolean unlimited = true;
     /**
-     * Pulse slots (owner, 1.1.380; off by default): the working channels share one Hz and each gets its own place in the
-     * period, so no two channels pulse at the same moment (probe 0.5–0.7: two channels act on each other only where
-     * their pulses overlap). BtTranslator does it at every impulse start.
+     * Pulse slots (owner, 1.1.380; on by default since 1.1.382): the working channels share one Hz and each gets its own
+     * place in the period, so no two channels pulse at the same moment. Owner, on a person: pulsing together, a strong
+     * channel leaks hard into ONE electrode of its neighbour (the one of opposite polarity at that moment) and jumps to
+     * far electrodes; in slots the leak is weak and even on both — preferred.
      */
-    static boolean slots;
+    static boolean slots = true;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
 
@@ -106,7 +107,7 @@ public final class BtSettings {
         }
         if (legs()) save();
         unlimited = p.getBoolean("unlimited", true);
-        slots = p.getBoolean("slots", false);
+        slots = p.getBoolean("slots2", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -228,7 +229,7 @@ public final class BtSettings {
         for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
         e.putString("order", o.toString());
         e.putBoolean("unlimited", unlimited);
-        e.putBoolean("slots", slots);
+        e.putBoolean("slots2", slots);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -250,7 +251,7 @@ public final class BtSettings {
         }
         loadOrder("");
         unlimited = true;
-        slots = false;
+        slots = true;
         wave = WAVE_SUIT;
         gain = 100;
         save();

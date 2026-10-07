@@ -213,8 +213,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtGear.java` (132L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtLoad.java` (272L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (167L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
-- `BtSettings.java` (489L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
-- `BtSettingsSection.java` (459L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
+- `BtSettings.java` (490L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
+- `BtSettingsSection.java` (460L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
 - `BtTranslator.java` (611L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
@@ -599,15 +599,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L29 ## Възможни следващи стъпки (не са започнати)
   - L33 ## Среда за build (облачна сесия)
 
-`bodytech/PROTOCOL.md` (97L)
+`bodytech/PROTOCOL.md` (102L)
   - L1 # Bodytech (EMSFIT 5.1) suit — BLE protocol
-  - L34 ## Link
-  - L43 ## Frame — 8 bytes, big endian
-  - L47 ### Global registers (channel 0)
-  - L56 ### Channel registers
-  - L75 ## Sequences (EMSFIT)
-  - L83 ## Replies
-  - L88 ## XEMS → bodytech mapping
+  - L39 ## Link
+  - L48 ## Frame — 8 bytes, big endian
+  - L52 ### Global registers (channel 0)
+  - L61 ### Channel registers
+  - L80 ## Sequences (EMSFIT)
+  - L88 ## Replies
+  - L93 ## XEMS → bodytech mapping
 
 `bodytech/probe/README.md` (57L)
   - L1 # XEMS BT Probe — тест на bodytech костюма
@@ -770,7 +770,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
   - L669 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
 
-`docs/xems-bodytech.md` (187L)
+`docs/xems-bodytech.md` (191L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L11 ## How it works
   - L33 ## Translation (XEMS → bodytech)
@@ -787,7 +787,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L154 ## Own device names (1.1.353)
   - L157 ## Sound signals (1.1.360)
   - L164 ## Start waits for the program (1.1.371)
-  - L173 ## Pulse slots (1.1.380, Settings → Костюм bodytech → «Разделени импулси», off by default)
+  - L173 ## Pulse slots (1.1.380; on by default since 1.1.382, Settings → Костюм bodytech → «Разделени импулси»)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

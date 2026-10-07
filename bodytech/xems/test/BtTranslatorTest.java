@@ -70,6 +70,7 @@ public class BtTranslatorTest {
 
     public static void main(String[] a) {
         BtSettings.reset();
+        BtSettings.setSlots(false);
         long t = 1000;
 
         // --- first command: SEL all off, then the vendor's program, outputs at 0
@@ -172,6 +173,7 @@ public class BtTranslatorTest {
         eq("main: C2 never left 85 Hz: no Hz frame", false, has(f, BtProto.hz(2, 85)));
         eq("main: C7 (was at 8 Hz, now silent) keeps no Hz frame", false, has(f, BtProto.hz(7, 85)));
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         // --- gain and the 99 % ceiling
         tr = new BtTranslator();
@@ -184,6 +186,7 @@ public class BtTranslatorTest {
         eq("ceiling 99", true, has(f, BtProto.intensity(1, 99)));
         eq("never above 99", false, has(f, BtProto.intensity(1, 100)));
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         // --- a slider with no channel does nothing; a channel without slider never works
         tr = new BtTranslator();
@@ -193,6 +196,7 @@ public class BtTranslatorTest {
         f = tr.command(3, run(600, 85, 360, 4, 4, 1), t);
         eq("no slider: C3 not in SEL", hex(BtProto.enable(0xFF & ~0x04)), hex(f.get(f.size() - 1)));
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         // --- keep-alive: an output nobody renewed goes off after the phase + 3 s
         tr = new BtTranslator();
@@ -259,6 +263,7 @@ public class BtTranslatorTest {
         eq("C4 second Hz 5", true, has(f, BtProto.hz(4, 5)));
         eq("C6 second Hz = program's 8", true, has(f, BtProto.hz(6, 8)));
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         // --- unlimited (default): the owner's per-channel values rule as they are, up to the suit's own range
         tr = new BtTranslator();
@@ -295,6 +300,7 @@ public class BtTranslatorTest {
         BtSettings.clearChannel(7);
         eq("cleared: C7 Hz auto", 0, BtSettings.chHz(7, false));
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         // --- the same channel can work in one impulse only, another in the other, another in none
         tr = new BtTranslator();
@@ -309,6 +315,7 @@ public class BtTranslatorTest {
         f = pair(tr, setting(40), run(600, 8, 350, 4, 4, 1), t);
         eq("second: C1 no C2 yes C3 none", hex(BtProto.enable(0xFF & ~0x01 & ~0x04)), hex(f.get(f.size() - 1)));
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         // --- held test of one channel: only that channel, low, refused during a training, off on release / timeout
         tr = new BtTranslator();
@@ -376,6 +383,7 @@ public class BtTranslatorTest {
         f = tr.testOff();
         eq("release: waveform back to the owner's", true, has(f, BtProto.waveform(2, 2)));
         BtSettings.reset();
+        BtSettings.setSlots(false);
         tr.testOn(2, 5, 85, 360, 1, 2000);
         f = tr.testOn(5, 5, 85, 360, 1, 2100);
         eq("other channel: the first one is restored", true, has(f, BtProto.waveform(2, 0)));
@@ -397,6 +405,7 @@ public class BtTranslatorTest {
 
         // the legs (1.1.377): C5 left thigh → slider 2, C7 right thigh → slider 9
         BtSettings.reset();
+        BtSettings.setSlots(false);
         BtSettings.loaded = true;
         BtTranslator lg = new BtTranslator();
         lg.reset();
@@ -432,9 +441,11 @@ public class BtTranslatorTest {
         eq("stop: equal again", 60, lg2.legValue(r6, 9));
         BtSettings.loaded = false;
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         // --- pulse slots: one SEL from all-off, then channels 2..n slower by d_k for SLIDE_MS (k/n of the period)
         BtSettings.reset();
+        eq("slots on by default", true, BtSettings.slots());
         BtSettings.setSlots(true);
         tr = new BtTranslator();
         tr.command(0xF2, new byte[1], t);
@@ -491,6 +502,7 @@ public class BtTranslatorTest {
         f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
         eq("slots off: only SEL", hexAll(java.util.Arrays.asList(BtProto.enable(0xFF))), hexAll(f));
         BtSettings.reset();
+        BtSettings.setSlots(false);
 
         if (fails == 0) System.out.println("BtTranslatorTest: OK");
         else {

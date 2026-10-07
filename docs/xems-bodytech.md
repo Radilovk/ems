@@ -170,17 +170,21 @@ in. ▶ again keeps waiting; stop (`BtBridge.reset`) calls the wait off; so do a
 `BtBridge.loadPercent(device)`: the program batch is marked when queued (`BtTranslator.programmed()` turned true) and
 ends with a marker item; frames ACKed / in all = the percent. XEMS suits never wait.
 
-## Pulse slots (1.1.380, Settings → Костюм bodytech → «Разделени импулси», off by default)
-Two channels of the suit act on each other only where their pulses overlap (probe 0.5: the felt knock followed the
-beat of two slightly different Hz, 9.9 s / 4.5 s; a channel at intensity 0 or in its T4 pause is isolated). With the
-switch on, the channels take turns inside one period instead of pulsing together:
-- all working channels get one Hz (the lowest any of them is held to); at every impulse start (pause = SEL off), a new
-  Hz or a channel added / dropped, one SEL starts them, then channel k of n runs slower by d_k µs for 2 s
-  (`BtTranslator.startSlide`, d_k = off·P / (2 000 000 − off), off = k·P/n) and so falls k/n of the period behind the
-  first; `BtBridge.SlideAnchor` starts the 2 s when those frames are ACKed, `SlideEnd` puts the channels back on the
-  plain period (fastest first). Same period on the suit's one clock keeps the places (probe 0.7: 62 s clean, a
-  strength write does not move them); laid again every impulse, so a wrong start lasts one impulse at most;
+## Pulse slots (1.1.380; on by default since 1.1.382, Settings → Костюм bodytech → «Разделени импулси»)
+The suit has no galvanic isolation. Owner, on a person:
+- channels pulsing **together** (switch off; as before 1.1.380): a strong channel leaks hard into ONE electrode of its
+  neighbour — the one of opposite polarity at that moment — and jumps to far electrodes, the other electrode gets none;
+- channels in **slots** (switch on): the leak is weak and even on both electrodes of the neighbour — preferred.
+(1.1.381 kept them together on the reading «together = less leak»; the owner then saw where the leak went and asked
+for the slots back.)
+With the switch on, BtTranslator.reconcile:
+- all working channels get one Hz (the lowest any of them is held to); at every impulse start (pause = SEL off), a
+  new Hz or a channel added / dropped, one SEL starts them, then channel k of n runs slower by d_k µs for 2 s
+  (`startSlide`, d_k = off·P / (2 000 000 − off), off = k·P/n) and so falls k/n of the period behind the first;
+  `BtBridge.SlideAnchor` starts the 2 s when those frames are ACKed, `SlideEnd` puts the channels back on the plain
+  period (fastest first). Same period on the suit's one clock keeps the places (probe 0.7: 62 s clean, a strength
+  write does not move them); laid again every impulse;
 - below 30 Hz (2nd impulse ≤ 10 Hz) no slots — pulses that rare hardly meet;
-- assumption not proven: one SEL from all-off starts the channels in step (probe: in step at 85 Hz twice, apart
-  twice). If not, the places are random — the same as without slots, never worse.
+- not proven: that one SEL from all-off starts the channels in step (probe: twice yes, twice no) — if not, the places
+  are random for that impulse.
 Tests: `bash bodytech/xems/test/run.sh` (BtTranslatorTest «slots: …»).

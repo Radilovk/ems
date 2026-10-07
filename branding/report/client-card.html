@@ -165,6 +165,21 @@ footer{text-align:center;color:var(--faint);font-size:11.5px;padding-top:6px}
 .bodyc .zn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .bodyc .zn span{display:grid;justify-items:center;gap:2px;padding:8px 2px;border:1.5px solid;border-radius:12px}
 .bodyc .zn small{font-size:10.5px;color:var(--muted);white-space:nowrap}.bodyc .zn b{font:800 18px/1 var(--f-disp)}
+.bodyc .h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.bodyc .h small{color:var(--faint);font-size:12px}
+/* every weigh-in: one tap opens it (newest first, the open one lit) */
+.bodyc .wh{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;margin:0 -18px;padding:2px 18px 4px}
+.bodyc .wh::-webkit-scrollbar{display:none}
+.bodyc .wh button{all:unset;cursor:pointer;flex:none;scroll-snap-align:start;display:grid;justify-items:center;gap:2px;min-width:54px;padding:8px 10px;border-radius:14px;background:var(--glass);border:1.5px solid var(--edge);transition:background .2s,border-color .2s,transform .12s}
+.bodyc .wh button:active{transform:scale(.95)}
+.bodyc .wh button small{font-size:11px;color:var(--muted);white-space:nowrap}.bodyc .wh button b{font:700 15px/1 var(--f-disp)}
+.bodyc .wh button[aria-pressed="true"]{background:var(--glass2);border-color:var(--c2)}
+.bodyc .wh button[aria-pressed="true"] small{color:var(--text)}
+.bodyc.swap>:not(.wh):not(.h){animation:bswap .28s ease}
+@keyframes bswap{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion:reduce){.bodyc.swap>*{animation:none}}
+/* measured on the scale, no training yet (n = 0): the card is the body */
+html.nt .rings,html.nt #ana,html.nt .per,html.nt .bodyc:not(#bodyc),html.nt .stats,html.nt #trend{display:none!important}
+.ntnote{margin:14px 0 0;padding:14px 18px;border-radius:18px;color:var(--muted);font-size:14px}
 </style>
 
 <div class="aura" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -228,20 +243,24 @@ return'<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2.5" stroke-li
 function own(){try{var t=document.getElementById("card-data").textContent.trim();var d=t.charAt(0)==="{"?JSON.parse(t):null;return d&&d.body&&d.body.length?d.body:null}catch(e){return null}}
 function zones(x){var z=x.zm;if(!z||z.length!==5)return"";var N=EN?["Trunk","L arm","R arm","L leg","R leg"]:["Торс","Л ръка","Д ръка","Л крак","Д крак"],o=[1,2,0,3,4],h='<h3>'+T("Мускули по зони · % от нормата","Muscle by zone · % of normal")+'</h3><div class="zn">';
 o.forEach(function(i){var v=z[i];if(v==null)return;var c=v<90?"#F59E0B":v>110?"#06B6D4":"#22C55E";h+='<span style="border-color:'+c+'66"><small>'+N[i]+'</small><b style="color:'+c+'">'+Math.round(v)+'</b></span>'});return h+'</div>'}
-function show(a){if(!a||!a.length)return;var x=a[a.length-1],f=a[0],p=a.length>1?a[a.length-2]:null;
+function show(a,k){if(!a||!a.length)return;if(k==null||k<0||k>=a.length)k=a.length-1;var x=a[k],f=a[0],p=k>0?a[k-1]:null,newest=k===a.length-1;
 var FN=EN?["very low","lean","normal","overweight","obese"]:["много ниски","стегнато","норма","наднормено","затлъстяване"],
 MN=EN?["very low","low","normal","athletic","very high"]:["много малко","малко","норма","атлетично","много"],
 WN=EN?["very low","low","normal","high","very high"]:["много ниско","ниско","норма","високо","много високо"];
-var h='<h3>'+T("Тяло · кантар","Body · scale")+'</h3><div class="bt">';var ty=TYPES[x.type];if(ty)h+='<span class="chip" style="color:'+ty[1]+';background:'+ty[1]+'22">'+esc(ty[0])+'</span>';
+var h='<div class="h"><h3>'+T("Тяло · кантар","Body · scale")+'</h3>'+(a.length>1?'<small>'+a.length+T(" измервания"," weigh-ins")+'</small>':'')+'</div>';
+if(a.length>1){h+='<div class="wh" role="group" aria-label="'+T("Измервания","Weigh-ins")+'">';for(var j=a.length-1;j>=0;j--){var dj=new Date(a[j].t);
+  h+='<button type="button" data-k="'+j+'" aria-pressed="'+(j===k)+'"><small>'+dj.getDate()+"."+(dj.getMonth()+1)+(dj.getFullYear()!==new Date().getFullYear()?"."+String(dj.getFullYear()).slice(2):"")+'</small><b>'+(a[j].w!=null?f1(a[j].w):"—")+'</b></button>'}h+='</div>'}
+h+='<div class="bt">';var ty=TYPES[x.type];if(ty)h+='<span class="chip" style="color:'+ty[1]+';background:'+ty[1]+'22">'+esc(ty[0])+'</span>';
 if(x.page!=null)h+='<span class="age"><b>'+Math.round(x.page)+'</b><small>'+T("възраст на тялото","body age")+'</small></span>';h+='</div>';
-if(x.w!=null){var dw=p&&p.w!=null?x.w-p.w:null;h+='<div class="wt"><b>'+f1(x.w)+'<small style="font:600 15px var(--f-body);color:var(--muted)">'+T(" кг"," kg")+'</small></b>'+(dw!=null&&Math.abs(dw)>=0.1?'<small>'+(dw>0?"+":"−")+f1(Math.abs(dw))+T(" от предишното"," since the last")+'</small>':'')+(x.visc!=null?'<small>'+T("висцерални ","visceral ")+'<b style="color:'+(x.visc<10?"#22C55E":x.visc<15?"#F59E0B":"#EF4444")+'">'+x.visc+'</b></small>':'')+'</div>'}
+if(x.w!=null){var dw=p&&p.w!=null?x.w-p.w:null;h+='<div class="wt"><b>'+f1(x.w)+'<small style="font:600 15px var(--f-body);color:var(--muted)">'+T(" кг"," kg")+'</small></b>'+(dw!=null&&Math.abs(dw)>=0.1?'<small>'+(dw>0?"+":"−")+f1(Math.abs(dw))+T(" от предишното"," since the one before")+'</small>':'')+(x.visc!=null?'<small>'+T("висцерални ","visceral ")+'<b style="color:'+(x.visc<10?"#22C55E":x.visc<15?"#F59E0B":"#EF4444")+'">'+x.visc+'</b></small>':'')+'</div>'}
 h+=bar(T("Мазнини","Body fat"),x.fat," %",x.nf,LESS,FN)+bar(T("Мускули","Muscle"),x.ffmi,"",x.nm,MORE,MN)+bar(T("Вода","Water"),x.water," %",x.nw,BOTH,WN);
 h+=zones(x);
-if(a.length>1&&x.muscle!=null&&f.muscle!=null&&x.fatKg!=null&&f.fatKg!=null){var dm=x.muscle-f.muscle,df=x.fatKg-f.fatKg,days=Math.round((x.t-f.t)/864e5);
+if(k>0&&x.muscle!=null&&f.muscle!=null&&x.fatKg!=null&&f.fatKg!=null){var dm=x.muscle-f.muscle,df=x.fatKg-f.fatKg,days=Math.round((x.t-f.t)/864e5);
 h+='<h3>'+T("От първото мерене · ","Since the first · ")+days+T(" дни"," days")+'</h3><div class="dl"><span style="color:'+(dm>=0?"#22C55E":"#F59E0B")+'">'+(dm>=0?"+":"−")+f1(Math.abs(dm))+T(" кг мускули"," kg muscle")+'</span><span style="color:'+(df<=0?"#22C55E":"#F59E0B")+'">'+(df>=0?"+":"−")+f1(Math.abs(df))+T(" кг мазнини"," kg fat")+'</span></div>';
 h+='<svg viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">'+spark(a,"muscle","#22C55E")+spark(a,"fatKg","#F59E0B")+'</svg>'}
-var d=new Date(x.t);h+='<div class="when">'+T("Последно мерене: ","Last measured: ")+d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()+'</div>';
-box.innerHTML=h;box.hidden=false;requestAnimationFrame(function(){requestAnimationFrame(function(){box.querySelectorAll("em[data-x]").forEach(function(e){e.style.left=e.dataset.x+"%"})})})}
+var d=new Date(x.t);h+='<div class="when">'+(newest?T("Последно мерене: ","Last measured: "):T("Мерене от ","Measured on "))+d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()+'</div>';
+var sl=box.querySelector(".wh"),sx=sl?sl.scrollLeft:0;box.innerHTML=h;box.hidden=false;
+var wh=box.querySelector(".wh");if(wh){wh.scrollLeft=sx;wh.onclick=function(e){var b=e.target.closest("button");if(!b||+b.dataset.k===k)return;box.classList.remove("swap");void box.offsetWidth;box.classList.add("swap");show(a,+b.dataset.k)}}requestAnimationFrame(function(){requestAnimationFrame(function(){box.querySelectorAll("em[data-x]").forEach(function(e){e.style.left=e.dataset.x+"%"})})})}
 // the web card asks the server (fresh after every weigh-in); the card sent as a file carries its own (D.body)
 document.addEventListener("DOMContentLoaded",function(){var mine=own();if(!m){show(mine);return}
 fetch("/v1/history/"+m[1]).then(function(r){return r.ok?r.json():null}).then(function(j){var a=j&&j.body;show(a&&a.length?a:mine)}).catch(function(){show(mine)})})})();</script>
@@ -253,6 +272,9 @@ fetch("/v1/history/"+m[1]).then(function(r){return r.ok?r.json():null}).then(fun
 "use strict";
 let D=null;try{const t=document.getElementById("card-data").textContent.trim();if(t.charAt(0)==="{")D=JSON.parse(t);}catch(e){}
 const SAMPLE=!D;if(!D)D=sample();
+if(!SAMPLE&&D.n===0){document.documentElement.classList.add("nt");const w=document.createElement("p");w.className="ntnote glass";
+  w.textContent=D.lang==="en"?"Your trainings appear here after the first one — efficiency, muscles and progress.":"Тренировките Ви ще се появят тук след първата — ефективност, мускули и напредък.";
+  const b=document.getElementById("bodyc");b.parentNode.insertBefore(w,b.nextSibling);}
 const EN=D.lang==="en",tr=(bg,en)=>EN?en:bg,$=s=>document.querySelector(s);
 const nf=new Intl.NumberFormat(EN?"en-GB":"bg-BG"),fmt=v=>nf.format(Math.round(v)),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const MON=EN?["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]:["яну","фев","мар","апр","май","юни","юли","авг","сеп","окт","ное","дек"];

@@ -22,7 +22,9 @@ import cardTemplate from '../../branding/report/client-card.html';
 import reportTemplate from '../../branding/report/session-report.html';
 import { renderReport } from './report.js';
 import { putClients, pullClients, CLIENT_MAX_BYTES, CLIENTS_PUSH_MAX } from './clients.js';
-import { validMeasure, putMeasures, measuresJson, MEASURE_MAX_BYTES, MEASURES_PUSH_MAX } from './measures.js';
+import {
+  validMeasure, putMeasures, measuresJson, findBodyCard, MEASURE_MAX_BYTES, MEASURES_PUSH_MAX,
+} from './measures.js';
 import {
   studioCode, isStudioCode, cleanProfile, allowHit,
   PROFILE_MAX_BYTES, INBOX_KEEP_SEC, INBOX_MAX_PER_STUDIO, INBOX_BATCH, INBOX_TOKEN_MAX_AGE_SEC,
@@ -419,15 +421,20 @@ async function handleCardFind(request, env) {
   const lic = await env.DB.prepare('SELECT id FROM licenses WHERE studio_code = ?').bind(body.studio).first();
   if (!lic) return cors(json({ ok: false, error: 'not_found' }, 404));
   const { results } = await env.DB.prepare(
-    `SELECT id, email_hash, phone_hash, updated_at FROM client_cards
+    `SELECT id, email_hash, phone_hash, updated_at, json_extract(data, '$.n') AS n FROM client_cards
      WHERE license_id = ? AND expires_at > ? AND (email_hash = ? OR phone_hash = ?)
      ORDER BY updated_at DESC LIMIT 20`,
   ).bind(lic.id, now(), ek || '-', pk || '-').all();
-  const hit = (results || []).find((r) => lookupMatches(r, ek, pk));
+  let hit = (results || []).find((r) => lookupMatches(r, ek, pk));
+  // measured on the studio's scale, not trained yet: the card of the body is made now (once)
+  if (!hit) {
+    try { hit = await findBodyCard(env.DB, lic.id, ek, pk, now(), cardId(), CARD_TTL_SEC); } catch { hit = null; }
+  }
   if (!hit) return cors(json({ ok: false, error: 'not_found' }, 404));
   const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
-  // at: the card's last update — the PWA shows a report it has not opened yet as news
-  return cors(json({ ok: true, url: `${base}/c/${hit.id}`, at: hit.updated_at }));
+  // at: the card's last update — the PWA shows a report it has not opened yet as news;
+  // n: the trainings on it (0 = the scale's measurements only: the PWA words it so)
+  return cors(json({ ok: true, url: `${base}/c/${hit.id}`, at: hit.updated_at, n: hit.n ?? null }));
 }
 
 /**

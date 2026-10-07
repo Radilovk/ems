@@ -1,0 +1,11 @@
+XEMS BT Probe 0.6 · LENOVO TB128XU · 20261007-034553 — slot test, person in the suit (excerpt, owner's paste)
+Hz stepper was at 160 → the test ran at 160 Hz (period 6250 µs), 360 µs, continuous. (An earlier 0.6 try ran at
+2 Hz — the blind half-period slide would have taken ~21 min; the question never came.)
+Run 1: A = C1 47, B = C4 50 (owner: an impulse ran before the test)
+  1 together: none · 2 slid ≈3354 µs (B 100 µs slower for 198 ms): INTERACTION · 3 (115 s): still there
+  4 after a strength write: still there · 5 after B SEL off 2 s / on: none
+Run 2: A = C1 39, B = C4 32
+  1 together: none · 2 slid ≈3354 µs: none · 3 (68 s): clean · 4 strength write: none · 5 SEL off/on: none
+Reading: after RESET + one SEL the two channels did not start in step at 160 Hz (0.5 at 85 Hz: they did); the blind
+slide moved run 1 INTO overlap; B's SEL off/on moved it out again (SEL restarts B against a running A). The overlap,
+once there, held 115 s and through a strength write → same period keeps the offset, intensity writes do not reset it.

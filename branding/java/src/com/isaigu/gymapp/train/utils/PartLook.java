@@ -195,9 +195,9 @@ public final class PartLook {
      * "Л" / "Д" before their percent (the muscle icons above are shared by every row, so the tag is on the row).
      */
     /**
-     * Every row shows all ten columns: chest and calf were hidden on a bodytech row 1.1.379–1.1.387; since 1.1.388
-     * (owner) any XEMS channel may drive a bodytech channel, so a recycled row gets its columns back here. The header
-     * follows ({@link #header}).
+     * A bodytech row (owner, 1.1.391) shows its 8 zones only: the XEMS columns no bodytech channel is on (by default
+     * back thigh and calf) are INVISIBLE, so the columns stay under the shared header; recycled rows get theirs back.
+     * The header follows ({@link #header}).
      */
     static void columns(TrainItem item, VerticalColorSeekBar[] bars) {
         boolean bt = item != null && item.data != null
@@ -210,8 +210,11 @@ public final class PartLook {
                 continue;
             }
             View col = (View) bars[i].getParent();
-            if (col.getVisibility() != View.VISIBLE) {
-                col.setVisibility(View.VISIBLE);           // every XEMS channel can drive a bodytech one (1.1.388)
+            // a bodytech row shows only the XEMS channels a bodytech channel is on (owner, 1.1.391: 8 zones — no back
+            // thigh, no calf); INVISIBLE keeps the columns under the shared header
+            int want = bt && !com.isaigu.gymapp.bodytech.BtSettings.hasChannel(i) ? View.INVISIBLE : View.VISIBLE;
+            if (col.getVisibility() != want) {
+                col.setVisibility(want);
             }
         }
     }
@@ -224,8 +227,8 @@ public final class PartLook {
     /**
      * The muscle header above the rows (shared by every row; cells buwei1..10, icon + label): when every row on the
      * screen with a suit runs a bodytech one, the columns of the two legs (the XEMS channels their bodytech channels
-     * are on, Settings → Костюм bodytech) read "Ляво бедро" / "Дясно бедро"; all ten columns stay (owner, 1.1.388: chest
-     * and calf are XEMS channels a bodytech channel may be on). Any XEMS suit → the stock header.
+     * are on: by default XEMS chest and front thigh) read "Ляво бедро" / "Дясно бедро", and the columns no bodytech
+     * channel is on go (owner, 1.1.391: 8 zones). Any XEMS suit → the stock header.
      */
     static void header(TrainItem item, View bar, boolean bt) {
         try {
@@ -265,8 +268,9 @@ public final class PartLook {
                     continue;
                 }
                 android.view.ViewGroup g = (android.view.ViewGroup) cell;
-                if (g.getVisibility() != View.VISIBLE) {
-                    g.setVisibility(View.VISIBLE);             // chest / calf were hidden 1.1.379–1.1.387
+                int vis = on && !com.isaigu.gymapp.bodytech.BtSettings.hasChannel(i) ? View.INVISIBLE : View.VISIBLE;
+                if (g.getVisibility() != vis) {
+                    g.setVisibility(vis);                      // bodytech: only the 8 zones the suit has (1.1.391)
                 }
                 View icon = g.getChildCount() > 0 ? g.getChildAt(0) : null;
                 if (icon != null && icon.getTag() == LEG_TAG) {   // the copied leg icon of 1.1.379–1.1.387

@@ -92,6 +92,8 @@
 
 .field static final slider:[I
 
+.field static slots:Z
+
 .field static unlimited:Z
 
 .field static wave:I
@@ -342,12 +344,12 @@
     .line 72
     sput-boolean v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->unlimited:Z
 
-    .line 73
+    .line 79
     new-array v0, v3, [I
 
     sput-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzMain:[I
 
-    .line 74
+    .line 80
     new-array v0, v3, [I
 
     sput-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzSecond:[I
@@ -398,7 +400,7 @@
     .registers 3
 
     .prologue
-    .line 268
+    .line 277
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -438,7 +440,7 @@
     .registers 4
 
     .prologue
-    .line 292
+    .line 303
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -490,7 +492,7 @@
     .registers 4
 
     .prologue
-    .line 279
+    .line 288
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -542,7 +544,7 @@
     .registers 3
 
     .prologue
-    .line 271
+    .line 280
     const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v0
@@ -572,7 +574,7 @@
     .registers 4
 
     .prologue
-    .line 274
+    .line 283
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -624,7 +626,7 @@
     .registers 3
 
     .prologue
-    .line 296
+    .line 307
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -670,7 +672,7 @@
 
     const/4 v1, 0x0
 
-    .line 309
+    .line 320
     const-class v4, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v4
@@ -679,7 +681,7 @@
 
     move v0, v1
 
-    .line 310
+    .line 321
     :goto_9
     if-gt v3, v6, :cond_16
 
@@ -697,11 +699,11 @@
 
     goto :goto_9
 
-    .line 311
+    .line 322
     :cond_16
     new-array v3, v0, [I
 
-    .line 313
+    .line 324
     :goto_18
     if-gt v2, v6, :cond_28
 
@@ -724,13 +726,13 @@
 
     goto :goto_18
 
-    .line 314
+    .line 325
     :cond_28
     monitor-exit v4
 
     return-object v3
 
-    .line 309
+    .line 320
     :catchall_2a
     move-exception v0
 
@@ -748,7 +750,7 @@
     .registers 3
 
     .prologue
-    .line 459
+    .line 475
     const/4 v0, 0x0
 
     const/16 v1, 0x12c
@@ -768,7 +770,7 @@
     .registers 2
 
     .prologue
-    .line 469
+    .line 485
     if-ltz p0, :cond_6
 
     const/4 v0, 0x3
@@ -788,7 +790,7 @@
     .registers 3
 
     .prologue
-    .line 471
+    .line 487
     const/16 v0, 0x32
 
     const/16 v1, 0x12c
@@ -808,7 +810,7 @@
     .registers 2
 
     .prologue
-    .line 465
+    .line 481
     if-ltz p0, :cond_6
 
     const/4 v0, 0x2
@@ -828,7 +830,7 @@
     .registers 3
 
     .prologue
-    .line 457
+    .line 473
     if-gtz p0, :cond_4
 
     const/4 v0, 0x0
@@ -848,7 +850,7 @@
     .registers 2
 
     .prologue
-    .line 463
+    .line 479
     if-ltz p0, :cond_8
 
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->SLIDERS:[Ljava/lang/String;
@@ -870,7 +872,7 @@
     .registers 2
 
     .prologue
-    .line 467
+    .line 483
     if-ltz p0, :cond_6
 
     const/4 v0, 0x3
@@ -890,7 +892,7 @@
     .registers 3
 
     .prologue
-    .line 455
+    .line 471
     if-gtz p0, :cond_4
 
     const/4 v0, 0x0
@@ -918,7 +920,7 @@
     .registers 5
 
     .prologue
-    .line 384
+    .line 400
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -932,13 +934,13 @@
 
     if-nez v0, :cond_b
 
-    .line 390
+    .line 406
     :goto_9
     monitor-exit v1
 
     return-void
 
-    .line 385
+    .line 401
     :cond_b
     :try_start_b
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chGain:[I
@@ -947,7 +949,7 @@
 
     aput v2, v0, p0
 
-    .line 386
+    .line 402
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzMain:[I
 
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzSecond:[I
@@ -958,7 +960,7 @@
 
     aput v3, v0, p0
 
-    .line 387
+    .line 403
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth:[I
 
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidthSecond:[I
@@ -969,7 +971,7 @@
 
     aput v3, v0, p0
 
-    .line 388
+    .line 404
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveMain:[I
 
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveSecond:[I
@@ -980,14 +982,14 @@
 
     aput v3, v0, p0
 
-    .line 389
+    .line 405
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_2f
     .catchall {:try_start_b .. :try_end_2f} :catchall_30
 
     goto :goto_9
 
-    .line 384
+    .line 400
     :catchall_30
     move-exception v0
 
@@ -1000,7 +1002,7 @@
     .registers 5
 
     .prologue
-    .line 368
+    .line 384
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -1014,13 +1016,13 @@
 
     if-nez v0, :cond_b
 
-    .line 380
+    .line 396
     :goto_9
     monitor-exit v1
 
     return-void
 
-    .line 369
+    .line 385
     :cond_b
     const/4 v0, 0x1
 
@@ -1029,16 +1031,16 @@
 
     if-gt v0, v2, :cond_51
 
-    .line 370
+    .line 386
     if-ne v0, p0, :cond_15
 
-    .line 369
+    .line 385
     :goto_12
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_c
 
-    .line 371
+    .line 387
     :cond_15
     :try_start_15
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chGain:[I
@@ -1049,7 +1051,7 @@
 
     aput v3, v2, v0
 
-    .line 372
+    .line 388
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzMain:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzMain:[I
@@ -1058,7 +1060,7 @@
 
     aput v3, v2, v0
 
-    .line 373
+    .line 389
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzSecond:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzSecond:[I
@@ -1067,7 +1069,7 @@
 
     aput v3, v2, v0
 
-    .line 374
+    .line 390
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth:[I
@@ -1076,7 +1078,7 @@
 
     aput v3, v2, v0
 
-    .line 375
+    .line 391
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidthSecond:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidthSecond:[I
@@ -1085,7 +1087,7 @@
 
     aput v3, v2, v0
 
-    .line 376
+    .line 392
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveMain:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveMain:[I
@@ -1094,7 +1096,7 @@
 
     aput v3, v2, v0
 
-    .line 377
+    .line 393
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveSecond:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveSecond:[I
@@ -1107,7 +1109,7 @@
 
     goto :goto_12
 
-    .line 368
+    .line 384
     :catchall_4e
     move-exception v0
 
@@ -1115,7 +1117,7 @@
 
     throw v0
 
-    .line 379
+    .line 395
     :cond_51
     :try_start_51
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
@@ -1129,7 +1131,7 @@
     .registers 2
 
     .prologue
-    .line 265
+    .line 274
     const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v0
@@ -1155,7 +1157,7 @@
     .registers 3
 
     .prologue
-    .line 261
+    .line 270
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -1197,7 +1199,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 180
+    .line 187
     const-class v2, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v2
@@ -1209,7 +1211,7 @@
 
     if-nez v1, :cond_a
 
-    .line 182
+    .line 189
     :cond_8
     :goto_8
     monitor-exit v2
@@ -1219,7 +1221,7 @@
     :cond_a
     move v1, v0
 
-    .line 181
+    .line 188
     :goto_b
     const/16 v3, 0x8
 
@@ -1238,13 +1240,13 @@
 
     goto :goto_b
 
-    .line 182
+    .line 189
     :cond_18
     const/4 v0, 0x0
 
     goto :goto_8
 
-    .line 180
+    .line 187
     :catchall_1a
     move-exception v0
 
@@ -1257,7 +1259,7 @@
     .registers 2
 
     .prologue
-    .line 153
+    .line 160
     if-eqz p0, :cond_5
 
     const/4 v0, 0x3
@@ -1284,7 +1286,7 @@
 
     const/4 v3, 0x0
 
-    .line 187
+    .line 194
     const-class v5, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v5
@@ -1302,19 +1304,19 @@
 
     move v2, v3
 
-    .line 190
+    .line 197
     :goto_e
     if-ge v4, v8, :cond_2e
 
-    .line 191
+    .line 198
     invoke-static {v4}, Lcom/isaigu/gymapp/bodytech/BtSettings;->rowTag(I)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 192
+    .line 199
     if-nez v3, :cond_1a
 
-    .line 190
+    .line 197
     :goto_16
     add-int/lit8 v3, v4, 0x1
 
@@ -1322,7 +1324,7 @@
 
     goto :goto_e
 
-    .line 193
+    .line 200
     :cond_1a
     const-string v7, "\u041b"
 
@@ -1332,7 +1334,7 @@
 
     or-int/2addr v1, v7
 
-    .line 194
+    .line 201
     const-string v7, "\u0414"
 
     invoke-virtual {v7, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1341,7 +1343,7 @@
 
     or-int/2addr v0, v3
 
-    .line 195
+    .line 202
     add-int/lit8 v3, v2, 0x1
 
     aput v4, v6, v2
@@ -1350,7 +1352,7 @@
 
     goto :goto_16
 
-    .line 197
+    .line 204
     :cond_2e
     if-eqz v1, :cond_32
 
@@ -1363,18 +1365,18 @@
     :try_end_35
     .catchall {:try_start_8 .. :try_end_35} :catchall_3f
 
-    .line 200
+    .line 207
     :goto_35
     monitor-exit v5
 
     return-object v0
 
-    .line 198
+    .line 205
     :cond_37
     :try_start_37
     new-array v0, v2, [I
 
-    .line 199
+    .line 206
     const/4 v1, 0x0
 
     const/4 v3, 0x0
@@ -1385,7 +1387,7 @@
 
     goto :goto_35
 
-    .line 187
+    .line 194
     :catchall_3f
     move-exception v0
 
@@ -1408,10 +1410,10 @@
 
     const/4 v6, 0x5
 
-    .line 111
+    .line 118
     const/4 v0, 0x0
 
-    .line 112
+    .line 119
     const-string v3, "\u0413\u044a\u0440\u0434\u0438"
 
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
@@ -1430,7 +1432,7 @@
 
     if-nez v3, :cond_2a
 
-    .line 113
+    .line 120
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_NAMES:[Ljava/lang/String;
@@ -1439,7 +1441,7 @@
 
     aput-object v3, v0, v6
 
-    .line 114
+    .line 121
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_SLIDER:[I
@@ -1450,7 +1452,7 @@
 
     move v0, v1
 
-    .line 117
+    .line 124
     :cond_2a
     const-string v3, "\u0411\u0435\u0434\u0440\u0430"
 
@@ -1470,7 +1472,7 @@
 
     if-ne v3, v2, :cond_4d
 
-    .line 118
+    .line 125
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_NAMES:[Ljava/lang/String;
@@ -1479,7 +1481,7 @@
 
     aput-object v3, v0, v7
 
-    .line 119
+    .line 126
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_SLIDER:[I
@@ -1493,11 +1495,11 @@
     :cond_4d
     move v3, v1
 
-    .line 122
+    .line 129
     :goto_4e
     if-gt v3, v8, :cond_7e
 
-    .line 123
+    .line 130
     const-string v4, "\u041b\u044f\u0432\u043e \u0431\u0435\u0434\u0440\u043e"
 
     sget-object v5, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
@@ -1510,7 +1512,7 @@
 
     if-eqz v4, :cond_68
 
-    .line 124
+    .line 131
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_NAMES:[Ljava/lang/String;
@@ -1521,14 +1523,14 @@
 
     move v0, v1
 
-    .line 122
+    .line 129
     :cond_65
     :goto_65
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_4e
 
-    .line 126
+    .line 133
     :cond_68
     const-string v4, "\u0414\u044f\u0441\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
 
@@ -1542,7 +1544,7 @@
 
     if-eqz v4, :cond_65
 
-    .line 127
+    .line 134
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_NAMES:[Ljava/lang/String;
@@ -1553,17 +1555,17 @@
 
     move v0, v1
 
-    .line 128
+    .line 135
     goto :goto_65
 
     :cond_7e
     move v4, v1
 
-    .line 133
+    .line 140
     :goto_7f
     if-gt v4, v8, :cond_db
 
-    .line 134
+    .line 141
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
 
     aget v3, v3, v4
@@ -1574,7 +1576,7 @@
 
     if-nez v3, :cond_8f
 
-    .line 133
+    .line 140
     :goto_8b
     add-int/lit8 v3, v4, 0x1
 
@@ -1582,7 +1584,7 @@
 
     goto :goto_7f
 
-    .line 135
+    .line 142
     :cond_8f
     invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtSettings;->onSlider(I)Z
 
@@ -1592,13 +1594,13 @@
 
     move v0, v2
 
-    .line 136
+    .line 143
     :goto_96
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
 
     aput v0, v3, v4
 
-    .line 137
+    .line 144
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     aget-object v3, v3, v4
@@ -1607,7 +1609,7 @@
 
     const-string v3, ""
 
-    .line 138
+    .line 145
     :goto_a2
     const-string v5, "\u043b\u044f\u0432"
 
@@ -1633,7 +1635,7 @@
 
     if-nez v3, :cond_c4
 
-    .line 139
+    .line 146
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     if-ne v0, v2, :cond_d6
@@ -1648,16 +1650,16 @@
     :cond_c4
     move v0, v1
 
-    .line 141
+    .line 148
     goto :goto_8b
 
-    .line 135
+    .line 142
     :cond_c6
     const/16 v0, 0x9
 
     goto :goto_96
 
-    .line 137
+    .line 144
     :cond_c9
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
@@ -1673,7 +1675,7 @@
 
     goto :goto_a2
 
-    .line 139
+    .line 146
     :cond_d6
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_NAMES:[Ljava/lang/String;
 
@@ -1681,7 +1683,7 @@
 
     goto :goto_c2
 
-    .line 143
+    .line 150
     :cond_db
     return v0
 .end method
@@ -1694,7 +1696,7 @@
 
     const/4 v0, 0x1
 
-    .line 84
+    .line 90
     const-class v2, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v2
@@ -1702,20 +1704,20 @@
     :try_start_6
     sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->loaded:Z
     :try_end_8
-    .catchall {:try_start_6 .. :try_end_8} :catchall_1ad
+    .catchall {:try_start_6 .. :try_end_8} :catchall_1b6
 
     if-nez v1, :cond_c
 
     if-nez p0, :cond_e
 
-    .line 107
+    .line 114
     :cond_c
     :goto_c
     monitor-exit v2
 
     return-void
 
-    .line 85
+    .line 91
     :cond_e
     :try_start_e
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
@@ -1724,7 +1726,7 @@
 
     sput-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->app:Landroid/content/Context;
 
-    .line 86
+    .line 92
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->app:Landroid/content/Context;
 
     const-string v3, "xems_bodytech"
@@ -1737,11 +1739,11 @@
 
     move v1, v0
 
-    .line 87
+    .line 93
     :goto_1e
     if-gt v1, v7, :cond_85
 
-    .line 88
+    .line 94
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -1772,7 +1774,7 @@
 
     aput-object v5, v4, v1
 
-    .line 89
+    .line 95
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -1807,7 +1809,7 @@
 
     aput v5, v4, v1
 
-    .line 90
+    .line 96
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->group:[I
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -1840,17 +1842,17 @@
 
     aput v5, v4, v1
 
-    .line 87
+    .line 93
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1e
 
-    .line 92
+    .line 98
     :cond_85
     :goto_85
     if-gt v0, v7, :cond_170
 
-    .line 93
+    .line 99
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->chGain:[I
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -1883,7 +1885,7 @@
 
     aput v4, v1, v0
 
-    .line 94
+    .line 100
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth:[I
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -1916,7 +1918,7 @@
 
     aput v4, v1, v0
 
-    .line 95
+    .line 101
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidthSecond:[I
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -1949,7 +1951,7 @@
 
     aput v4, v1, v0
 
-    .line 96
+    .line 102
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveMain:[I
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -1982,7 +1984,7 @@
 
     aput v4, v1, v0
 
-    .line 97
+    .line 103
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveSecond:[I
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -2015,7 +2017,7 @@
 
     aput v4, v1, v0
 
-    .line 98
+    .line 104
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzMain:[I
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -2050,7 +2052,7 @@
 
     aput v4, v1, v0
 
-    .line 99
+    .line 105
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzSecond:[I
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -2085,12 +2087,12 @@
 
     aput v4, v1, v0
 
-    .line 92
+    .line 98
     add-int/lit8 v0, v0, 0x1
 
     goto/16 :goto_85
 
-    .line 101
+    .line 107
     :cond_170
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->legs()Z
 
@@ -2100,7 +2102,7 @@
 
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
 
-    .line 102
+    .line 108
     :cond_179
     const-string v0, "unlimited"
 
@@ -2112,7 +2114,18 @@
 
     sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->unlimited:Z
 
-    .line 103
+    .line 109
+    const-string v0, "slots"
+
+    const/4 v1, 0x0
+
+    invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
+
+    .line 110
     const-string v0, "order"
 
     const-string v1, ""
@@ -2123,7 +2136,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->loadOrder(Ljava/lang/String;)V
 
-    .line 104
+    .line 111
     const-string v0, "wave"
 
     const/4 v1, -0x1
@@ -2138,7 +2151,7 @@
 
     sput v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->wave:I
 
-    .line 105
+    .line 112
     const-string v0, "gain"
 
     const/16 v1, 0x64
@@ -2153,17 +2166,17 @@
 
     sput v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->gain:I
 
-    .line 106
+    .line 113
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->loaded:Z
-    :try_end_1ab
-    .catchall {:try_start_e .. :try_end_1ab} :catchall_1ad
+    :try_end_1b4
+    .catchall {:try_start_e .. :try_end_1b4} :catchall_1b6
 
     goto/16 :goto_c
 
-    .line 84
-    :catchall_1ad
+    .line 90
+    :catchall_1b6
     move-exception v0
 
     monitor-exit v2
@@ -2181,12 +2194,12 @@
 
     const/4 v2, 0x0
 
-    .line 444
+    .line 460
     const/16 v0, 0x9
 
     new-array v4, v0, [Z
 
-    .line 445
+    .line 461
     if-eqz p0, :cond_28
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -2200,20 +2213,20 @@
     :goto_11
     move v3, v2
 
-    .line 446
+    .line 462
     :goto_12
     if-eqz v0, :cond_2d
 
     if-ge v3, v7, :cond_2d
 
-    .line 447
+    .line 463
     invoke-virtual {p0, v3}, Ljava/lang/String;->charAt(I)C
 
     move-result v5
 
     add-int/lit8 v5, v5, -0x30
 
-    .line 448
+    .line 464
     if-lt v5, v1, :cond_24
 
     if-gt v5, v7, :cond_24
@@ -2225,7 +2238,7 @@
     :cond_24
     move v0, v2
 
-    .line 446
+    .line 462
     :goto_25
     add-int/lit8 v3, v3, 0x1
 
@@ -2234,16 +2247,16 @@
     :cond_28
     move v0, v2
 
-    .line 445
+    .line 461
     goto :goto_11
 
-    .line 449
+    .line 465
     :cond_2a
     aput-boolean v1, v4, v5
 
     goto :goto_25
 
-    .line 451
+    .line 467
     :cond_2d
     :goto_2d
     if-ge v2, v7, :cond_41
@@ -2270,7 +2283,7 @@
 
     goto :goto_39
 
-    .line 452
+    .line 468
     :cond_41
     return-void
 .end method
@@ -2279,7 +2292,7 @@
     .registers 8
 
     .prologue
-    .line 422
+    .line 438
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -2291,31 +2304,31 @@
 
     move-result v0
 
-    .line 423
+    .line 439
     add-int v2, v0, p1
 
-    .line 424
+    .line 440
     if-ltz v2, :cond_f
 
     const/16 v3, 0x8
 
     if-lt v2, v3, :cond_11
 
-    .line 429
+    .line 445
     :cond_f
     :goto_f
     monitor-exit v1
 
     return-void
 
-    .line 425
+    .line 441
     :cond_11
     :try_start_11
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->order:[I
 
     aget v3, v3, v0
 
-    .line 426
+    .line 442
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtSettings;->order:[I
 
     sget-object v5, Lcom/isaigu/gymapp/bodytech/BtSettings;->order:[I
@@ -2324,19 +2337,19 @@
 
     aput v5, v4, v0
 
-    .line 427
+    .line 443
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->order:[I
 
     aput v3, v0, v2
 
-    .line 428
+    .line 444
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_24
     .catchall {:try_start_11 .. :try_end_24} :catchall_25
 
     goto :goto_f
 
-    .line 422
+    .line 438
     :catchall_25
     move-exception v0
 
@@ -2349,7 +2362,7 @@
     .registers 4
 
     .prologue
-    .line 254
+    .line 263
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -2365,20 +2378,20 @@
     :try_end_b
     .catchall {:try_start_3 .. :try_end_b} :catchall_36
 
-    .line 256
+    .line 265
     :goto_b
     monitor-exit v1
 
     return-object v0
 
-    .line 255
+    .line 264
     :cond_d
     :try_start_d
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
     aget-object v0, v0, p0
 
-    .line 256
+    .line 265
     if-eqz v0, :cond_1d
 
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -2421,7 +2434,7 @@
 
     goto :goto_b
 
-    .line 254
+    .line 263
     :catchall_36
     move-exception v0
 
@@ -2436,7 +2449,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 157
+    .line 164
     move v1, v0
 
     :goto_2
@@ -2450,17 +2463,17 @@
 
     if-ne v2, p0, :cond_d
 
-    .line 158
+    .line 165
     :goto_c
     return v0
 
-    .line 157
+    .line 164
     :cond_d
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_2
 
-    .line 158
+    .line 165
     :cond_10
     const/4 v0, 0x0
 
@@ -2471,7 +2484,7 @@
     .registers 4
 
     .prologue
-    .line 299
+    .line 310
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -2492,25 +2505,25 @@
 
     if-ne v2, p0, :cond_10
 
-    .line 300
+    .line 311
     :goto_e
     monitor-exit v1
 
     return v0
 
-    .line 299
+    .line 310
     :cond_10
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_4
 
-    .line 300
+    .line 311
     :cond_13
     add-int/lit8 v0, p0, -0x1
 
     goto :goto_e
 
-    .line 299
+    .line 310
     :catchall_16
     move-exception v0
 
@@ -2525,7 +2538,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 231
+    .line 239
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -2535,7 +2548,7 @@
 
     if-gt v0, v2, :cond_44
 
-    .line 232
+    .line 240
     :try_start_8
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
@@ -2545,7 +2558,7 @@
 
     aput-object v3, v2, v0
 
-    .line 233
+    .line 241
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
 
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->DEFAULT_SLIDER:[I
@@ -2554,100 +2567,105 @@
 
     aput v3, v2, v0
 
-    .line 234
+    .line 242
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->group:[I
 
     const/4 v3, 0x0
 
     aput v3, v2, v0
 
-    .line 235
+    .line 243
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chGain:[I
 
     const/16 v3, 0x64
 
     aput v3, v2, v0
 
-    .line 236
+    .line 244
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth:[I
 
     const/4 v3, 0x0
 
     aput v3, v2, v0
 
-    .line 237
+    .line 245
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidthSecond:[I
 
     const/4 v3, 0x0
 
     aput v3, v2, v0
 
-    .line 238
+    .line 246
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveMain:[I
 
     const/4 v3, -0x1
 
     aput v3, v2, v0
 
-    .line 239
+    .line 247
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveSecond:[I
 
     const/4 v3, -0x1
 
     aput v3, v2, v0
 
-    .line 240
+    .line 248
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzMain:[I
 
     const/4 v3, 0x0
 
     aput v3, v2, v0
 
-    .line 241
+    .line 249
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzSecond:[I
 
     const/4 v3, 0x0
 
     aput v3, v2, v0
 
-    .line 231
+    .line 239
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_4
 
-    .line 243
+    .line 251
     :cond_44
     const-string v0, ""
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->loadOrder(Ljava/lang/String;)V
 
-    .line 244
+    .line 252
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->unlimited:Z
 
-    .line 245
+    .line 253
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
+
+    .line 254
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->wave:I
 
-    .line 246
+    .line 255
     const/16 v0, 0x64
 
     sput v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->gain:I
 
-    .line 247
+    .line 256
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
-    :try_end_56
-    .catchall {:try_start_8 .. :try_end_56} :catchall_58
+    :try_end_59
+    .catchall {:try_start_8 .. :try_end_59} :catchall_5b
 
-    .line 248
+    .line 257
     monitor-exit v1
 
     return-void
 
-    .line 231
-    :catchall_58
+    .line 239
+    :catchall_5b
     move-exception v0
 
     monitor-exit v1
@@ -2661,7 +2679,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 166
+    .line 173
     const-class v4, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v4
@@ -2675,14 +2693,14 @@
 
     move-object v0, v2
 
-    .line 175
+    .line 182
     :cond_9
     :goto_9
     monitor-exit v4
 
     return-object v0
 
-    .line 168
+    .line 175
     :cond_b
     const/4 v1, 0x1
 
@@ -2695,7 +2713,7 @@
 
     if-gt v3, v1, :cond_9
 
-    .line 169
+    .line 176
     :try_start_12
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
 
@@ -2703,7 +2721,7 @@
 
     if-eq v1, p0, :cond_1c
 
-    .line 168
+    .line 175
     :goto_18
     add-int/lit8 v1, v3, 0x1
 
@@ -2711,7 +2729,7 @@
 
     goto :goto_e
 
-    .line 170
+    .line 177
     :cond_1c
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
@@ -2721,7 +2739,7 @@
 
     const-string v1, ""
 
-    .line 171
+    .line 178
     :goto_24
     const-string v5, "\u043b\u044f\u0432"
 
@@ -2733,7 +2751,7 @@
 
     const-string v1, "\u041b"
 
-    .line 172
+    .line 179
     :goto_2e
     if-eqz v1, :cond_38
 
@@ -2750,7 +2768,7 @@
 
     goto :goto_9
 
-    .line 170
+    .line 177
     :cond_3a
     sget-object v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
 
@@ -2766,7 +2784,7 @@
 
     goto :goto_24
 
-    .line 171
+    .line 178
     :cond_47
     const-string v5, "\u0434\u044f\u0441\u043d"
 
@@ -2799,10 +2817,10 @@
     :cond_5c
     move-object v0, v1
 
-    .line 173
+    .line 180
     goto :goto_18
 
-    .line 166
+    .line 173
     :catchall_5e
     move-exception v0
 
@@ -2821,16 +2839,16 @@
 
     const/16 v6, 0x8
 
-    .line 204
+    .line 211
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->app:Landroid/content/Context;
 
     if-nez v2, :cond_9
 
-    .line 227
+    .line 235
     :goto_8
     return-void
 
-    .line 205
+    .line 212
     :cond_9
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtSettings;->app:Landroid/content/Context;
 
@@ -2846,11 +2864,11 @@
 
     move v2, v1
 
-    .line 206
+    .line 213
     :goto_16
     if-gt v2, v6, :cond_69
 
-    .line 207
+    .line 214
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -2875,7 +2893,7 @@
 
     invoke-interface {v3, v4, v5}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 208
+    .line 215
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -2900,7 +2918,7 @@
 
     invoke-interface {v3, v4, v5}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 209
+    .line 216
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -2925,17 +2943,17 @@
 
     invoke-interface {v3, v4, v5}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 206
+    .line 213
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_16
 
-    .line 211
+    .line 218
     :cond_69
     :goto_69
     if-gt v1, v6, :cond_125
 
-    .line 212
+    .line 219
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -2960,7 +2978,7 @@
 
     invoke-interface {v3, v2, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 213
+    .line 220
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -2985,7 +3003,7 @@
 
     invoke-interface {v3, v2, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 214
+    .line 221
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -3010,7 +3028,7 @@
 
     invoke-interface {v3, v2, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 215
+    .line 222
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -3035,7 +3053,7 @@
 
     invoke-interface {v3, v2, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 216
+    .line 223
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -3060,7 +3078,7 @@
 
     invoke-interface {v3, v2, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 217
+    .line 224
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -3085,7 +3103,7 @@
 
     invoke-interface {v3, v2, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 218
+    .line 225
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -3110,18 +3128,18 @@
 
     invoke-interface {v3, v2, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 211
+    .line 218
     add-int/lit8 v1, v1, 0x1
 
     goto/16 :goto_69
 
-    .line 220
+    .line 227
     :cond_125
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 221
+    .line 228
     :goto_12a
     if-ge v0, v6, :cond_136
 
@@ -3135,7 +3153,7 @@
 
     goto :goto_12a
 
-    .line 222
+    .line 229
     :cond_136
     const-string v0, "order"
 
@@ -3145,28 +3163,35 @@
 
     invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 223
+    .line 230
     const-string v0, "unlimited"
 
     sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->unlimited:Z
 
     invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
-    .line 224
+    .line 231
+    const-string v0, "slots"
+
+    sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
+
+    invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    .line 232
     const-string v0, "wave"
 
     sget v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->wave:I
 
     invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 225
+    .line 233
     const-string v0, "gain"
 
     sget v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->gain:I
 
     invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 226
+    .line 234
     invoke-interface {v3}, Landroid/content/SharedPreferences$Editor;->apply()V
 
     goto/16 :goto_8
@@ -3176,7 +3201,7 @@
     .registers 5
 
     .prologue
-    .line 338
+    .line 349
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3190,13 +3215,13 @@
 
     if-nez v0, :cond_b
 
-    .line 341
+    .line 352
     :goto_9
     monitor-exit v1
 
     return-void
 
-    .line 339
+    .line 350
     :cond_b
     :try_start_b
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chGain:[I
@@ -3207,14 +3232,14 @@
 
     aput v2, v0, p0
 
-    .line 340
+    .line 351
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_16
     .catchall {:try_start_b .. :try_end_16} :catchall_17
 
     goto :goto_9
 
-    .line 338
+    .line 349
     :catchall_17
     move-exception v0
 
@@ -3227,7 +3252,7 @@
     .registers 6
 
     .prologue
-    .line 393
+    .line 409
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3241,13 +3266,13 @@
 
     if-nez v0, :cond_b
 
-    .line 397
+    .line 413
     :goto_9
     monitor-exit v1
 
     return-void
 
-    .line 394
+    .line 410
     :cond_b
     if-eqz p1, :cond_1e
 
@@ -3262,7 +3287,7 @@
 
     aput v2, v0, p0
 
-    .line 396
+    .line 412
     :goto_17
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_1a
@@ -3270,7 +3295,7 @@
 
     goto :goto_9
 
-    .line 393
+    .line 409
     :catchall_1b
     move-exception v0
 
@@ -3278,7 +3303,7 @@
 
     throw v0
 
-    .line 395
+    .line 411
     :cond_1e
     :try_start_1e
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chHzMain:[I
@@ -3300,7 +3325,7 @@
     .registers 6
 
     .prologue
-    .line 355
+    .line 366
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3314,13 +3339,13 @@
 
     if-nez v0, :cond_b
 
-    .line 359
+    .line 370
     :goto_9
     monitor-exit v1
 
     return-void
 
-    .line 356
+    .line 367
     :cond_b
     if-eqz p1, :cond_1c
 
@@ -3333,7 +3358,7 @@
 
     aput v2, v0, p0
 
-    .line 358
+    .line 369
     :goto_15
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_18
@@ -3341,7 +3366,7 @@
 
     goto :goto_9
 
-    .line 355
+    .line 366
     :catchall_19
     move-exception v0
 
@@ -3349,7 +3374,7 @@
 
     throw v0
 
-    .line 357
+    .line 368
     :cond_1c
     :try_start_1c
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWaveMain:[I
@@ -3369,7 +3394,7 @@
     .registers 4
 
     .prologue
-    .line 344
+    .line 355
     const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v0
@@ -3381,12 +3406,12 @@
     :try_end_7
     .catchall {:try_start_4 .. :try_end_7} :catchall_9
 
-    .line 345
+    .line 356
     monitor-exit v0
 
     return-void
 
-    .line 344
+    .line 355
     :catchall_9
     move-exception v1
 
@@ -3399,7 +3424,7 @@
     .registers 6
 
     .prologue
-    .line 348
+    .line 359
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3413,13 +3438,13 @@
 
     if-nez v0, :cond_b
 
-    .line 352
+    .line 363
     :goto_9
     monitor-exit v1
 
     return-void
 
-    .line 349
+    .line 360
     :cond_b
     if-eqz p1, :cond_1c
 
@@ -3432,7 +3457,7 @@
 
     aput v2, v0, p0
 
-    .line 351
+    .line 362
     :goto_15
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_18
@@ -3440,7 +3465,7 @@
 
     goto :goto_9
 
-    .line 348
+    .line 359
     :catchall_19
     move-exception v0
 
@@ -3448,7 +3473,7 @@
 
     throw v0
 
-    .line 350
+    .line 361
     :cond_1c
     :try_start_1c
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->chWidth:[I
@@ -3468,7 +3493,7 @@
     .registers 3
 
     .prologue
-    .line 437
+    .line 453
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3480,17 +3505,17 @@
 
     sput v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->gain:I
 
-    .line 438
+    .line 454
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_c
     .catchall {:try_start_3 .. :try_end_c} :catchall_e
 
-    .line 439
+    .line 455
     monitor-exit v1
 
     return-void
 
-    .line 437
+    .line 453
     :catchall_e
     move-exception v0
 
@@ -3503,7 +3528,7 @@
     .registers 5
 
     .prologue
-    .line 332
+    .line 343
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3517,13 +3542,13 @@
 
     if-nez v0, :cond_b
 
-    .line 335
+    .line 346
     :goto_9
     monitor-exit v1
 
     return-void
 
-    .line 333
+    .line 344
     :cond_b
     :try_start_b
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->group:[I
@@ -3534,14 +3559,14 @@
 
     aput v2, v0, p0
 
-    .line 334
+    .line 345
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_16
     .catchall {:try_start_b .. :try_end_16} :catchall_17
 
     goto :goto_9
 
-    .line 332
+    .line 343
     :catchall_17
     move-exception v0
 
@@ -3556,7 +3581,7 @@
     .prologue
     const/16 v3, 0x18
 
-    .line 320
+    .line 331
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3570,13 +3595,13 @@
 
     if-nez v0, :cond_d
 
-    .line 323
+    .line 334
     :goto_b
     monitor-exit v1
 
     return-void
 
-    .line 321
+    .line 332
     :cond_d
     :try_start_d
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->names:[Ljava/lang/String;
@@ -3589,14 +3614,14 @@
     :goto_13
     aput-object p1, v0, p0
 
-    .line 322
+    .line 333
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_18
     .catchall {:try_start_d .. :try_end_18} :catchall_19
 
     goto :goto_b
 
-    .line 320
+    .line 331
     :catchall_19
     move-exception v0
 
@@ -3604,7 +3629,7 @@
 
     throw v0
 
-    .line 321
+    .line 332
     :cond_1c
     :try_start_1c
     invoke-virtual {p1}, Ljava/lang/String;->length()I
@@ -3630,7 +3655,7 @@
     .registers 5
 
     .prologue
-    .line 326
+    .line 337
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3650,14 +3675,14 @@
 
     if-eqz v0, :cond_11
 
-    .line 329
+    .line 340
     :cond_f
     :goto_f
     monitor-exit v1
 
     return-void
 
-    .line 327
+    .line 338
     :cond_11
     :try_start_11
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slider:[I
@@ -3668,15 +3693,46 @@
 
     aput v2, v0, p0
 
-    .line 328
+    .line 339
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_1c
     .catchall {:try_start_11 .. :try_end_1c} :catchall_1d
 
     goto :goto_f
 
-    .line 326
+    .line 337
     :catchall_1d
+    move-exception v0
+
+    monitor-exit v1
+
+    throw v0
+.end method
+
+.method public static declared-synchronized setSlots(Z)V
+    .registers 3
+
+    .prologue
+    .line 373
+    const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
+
+    monitor-enter v1
+
+    :try_start_3
+    sput-boolean p0, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
+
+    .line 374
+    invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
+    :try_end_8
+    .catchall {:try_start_3 .. :try_end_8} :catchall_a
+
+    .line 375
+    monitor-exit v1
+
+    return-void
+
+    .line 373
+    :catchall_a
     move-exception v0
 
     monitor-exit v1
@@ -3688,7 +3744,7 @@
     .registers 3
 
     .prologue
-    .line 362
+    .line 378
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3696,17 +3752,17 @@
     :try_start_3
     sput-boolean p0, Lcom/isaigu/gymapp/bodytech/BtSettings;->unlimited:Z
 
-    .line 363
+    .line 379
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_8
     .catchall {:try_start_3 .. :try_end_8} :catchall_a
 
-    .line 364
+    .line 380
     monitor-exit v1
 
     return-void
 
-    .line 362
+    .line 378
     :catchall_a
     move-exception v0
 
@@ -3719,7 +3775,7 @@
     .registers 3
 
     .prologue
-    .line 432
+    .line 448
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3731,17 +3787,17 @@
 
     sput v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->wave:I
 
-    .line 433
+    .line 449
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_c
     .catchall {:try_start_3 .. :try_end_c} :catchall_e
 
-    .line 434
+    .line 450
     monitor-exit v1
 
     return-void
 
-    .line 432
+    .line 448
     :catchall_e
     move-exception v0
 
@@ -3754,7 +3810,7 @@
     .registers 3
 
     .prologue
-    .line 259
+    .line 268
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -3794,7 +3850,7 @@
     .registers 2
 
     .prologue
-    .line 304
+    .line 315
     if-ltz p0, :cond_c
 
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->SLIDERS:[Ljava/lang/String;
@@ -3816,6 +3872,32 @@
     goto :goto_b
 .end method
 
+.method public static declared-synchronized slots()Z
+    .registers 2
+
+    .prologue
+    .line 299
+    const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
+
+    monitor-enter v0
+
+    :try_start_3
+    sget-boolean v1, Lcom/isaigu/gymapp/bodytech/BtSettings;->slots:Z
+    :try_end_5
+    .catchall {:try_start_3 .. :try_end_5} :catchall_7
+
+    monitor-exit v0
+
+    return v1
+
+    :catchall_7
+    move-exception v1
+
+    monitor-exit v0
+
+    throw v1
+.end method
+
 .method public static declared-synchronized sortLeftToRight()V
     .registers 10
 
@@ -3826,7 +3908,7 @@
 
     const/16 v9, 0x8
 
-    .line 401
+    .line 417
     const-class v5, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v5
@@ -3838,16 +3920,16 @@
 
     move v4, v2
 
-    .line 402
+    .line 418
     :goto_c
     if-gt v4, v9, :cond_2d
 
-    .line 403
+    .line 419
     const/16 v0, 0x64
 
     move v1, v3
 
-    .line 404
+    .line 420
     :goto_11
     sget-object v7, Lcom/isaigu/gymapp/bodytech/BtSettings;->ROW_ORDER:[I
 
@@ -3872,7 +3954,7 @@
 
     goto :goto_11
 
-    .line 405
+    .line 421
     :cond_24
     mul-int/lit8 v0, v0, 0xa
 
@@ -3880,7 +3962,7 @@
 
     aput v0, v6, v4
 
-    .line 402
+    .line 418
     add-int/lit8 v0, v4, 0x1
 
     move v4, v0
@@ -3890,7 +3972,7 @@
     :cond_2d
     move v0, v3
 
-    .line 407
+    .line 423
     :goto_2e
     if-ge v0, v9, :cond_39
 
@@ -3907,19 +3989,19 @@
     :cond_39
     move v1, v2
 
-    .line 408
+    .line 424
     :goto_3a
     if-ge v1, v9, :cond_65
 
-    .line 409
+    .line 425
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtSettings;->order:[I
 
     aget v2, v0, v1
 
-    .line 410
+    .line 426
     add-int/lit8 v0, v1, -0x1
 
-    .line 411
+    .line 427
     :goto_42
     if-ltz v0, :cond_5b
 
@@ -3933,7 +4015,7 @@
 
     if-le v3, v4, :cond_5b
 
-    .line 412
+    .line 428
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->order:[I
 
     add-int/lit8 v4, v0, 0x1
@@ -3944,12 +4026,12 @@
 
     aput v7, v3, v4
 
-    .line 413
+    .line 429
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_42
 
-    .line 415
+    .line 431
     :cond_5b
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtSettings;->order:[I
 
@@ -3957,25 +4039,25 @@
 
     aput v2, v3, v0
 
-    .line 408
+    .line 424
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_3a
 
-    .line 417
+    .line 433
     :cond_65
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->save()V
     :try_end_68
     .catchall {:try_start_9 .. :try_end_68} :catchall_6a
 
-    .line 418
+    .line 434
     monitor-exit v5
 
     return-void
 
-    .line 401
+    .line 417
     :catchall_6a
     move-exception v0
 
@@ -3988,7 +4070,7 @@
     .registers 2
 
     .prologue
-    .line 288
+    .line 297
     const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v0
@@ -4016,7 +4098,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 461
+    .line 477
     if-lt p0, v0, :cond_8
 
     const/16 v1, 0x8
@@ -4036,7 +4118,7 @@
     .registers 2
 
     .prologue
-    .line 263
+    .line 272
     const-class v0, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v0
@@ -4062,7 +4144,7 @@
     .registers 4
 
     .prologue
-    .line 284
+    .line 293
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtSettings;
 
     monitor-enter v1
@@ -4074,7 +4156,7 @@
 
     move-result v0
 
-    .line 285
+    .line 294
     if-ltz v0, :cond_b
 
     :goto_9
@@ -4090,7 +4172,7 @@
 
     goto :goto_9
 
-    .line 284
+    .line 293
     :catchall_e
     move-exception v0
 

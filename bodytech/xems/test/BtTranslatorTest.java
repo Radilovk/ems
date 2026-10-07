@@ -433,6 +433,65 @@ public class BtTranslatorTest {
         BtSettings.loaded = false;
         BtSettings.reset();
 
+        // --- pulse slots: one SEL from all-off, then channels 2..n slower by d_k for SLIDE_MS (k/n of the period)
+        BtSettings.reset();
+        BtSettings.setSlots(true);
+        tr = new BtTranslator();
+        tr.command(0xF2, new byte[1], t);
+        tr.command(0xF1, new byte[1], t);
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
+        int sel = indexOf(f, BtProto.enable(0xFF));
+        eq("slots: one SEL with all channels", true, sel >= 0);
+        eq("slots: no slide frame for the first channel", false, has(f, BtProto.period(1, 11764)));
+        // channel k of 8 (k = 1..7, C2..C8): off = k·P/8, d = round(off·P / (2e6 − off)); after SEL
+        for (int ch = 2; ch <= 8; ch++) {
+            double off = (ch - 1) * 11764.0 / 8;
+            int d = (int) Math.round(off * 11764 / (2e6 - off));
+            int at = indexOf(f, BtProto.period(ch, 11764 + d));
+            eq("slots: C" + ch + " slower by " + d + " µs, after SEL", true, at > sel);
+        }
+        long[] sl = tr.takeSlide();
+        eq("slots: slide pending 2 s", "2000", sl == null ? "null" : String.valueOf(sl[0]));
+        eq("slots: taken once", null, tr.takeSlide());
+        // a strength step during the slide: no new SEL, no slide end
+        f = pair(tr, setting(55), run(600, 85, 350, 4, 4, 1), t);
+        eq("slots: strength step keeps the slide", false, has(f, BtProto.hz(2, 85)) || has(f, BtProto.enable(0xFF)));
+        // slide end → C8..C2 back on the plain period (85 Hz)
+        f = tr.slideEnd(sl[1]);
+        eq("slots: slide end, 7 channels back", 7, f.size());
+        eq("slots: slide end, fastest (C8) first", hex(BtProto.hz(8, 85)), hex(f.get(0)));
+        eq("slots: stale slide end does nothing", 0, tr.slideEnd(sl[1]).size());
+        // pause → SEL off; next impulse → SEL + slide again (places laid every impulse)
+        tr.phase(BtTranslator.PAUSE);
+        tr.command(3, run(600, 85, 350, 4, 4, 0), t);
+        tr.phase(BtTranslator.MAIN);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
+        eq("slots: next impulse lays the places again", true, has(f, BtProto.enable(0xFF))
+                && f.size() == 8 && tr.takeSlide() != null);
+        // pause in the middle of a slide: the slow channels go back at once
+        tr.phase(BtTranslator.PAUSE);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 0), t);
+        eq("slots: pause mid-slide restores the periods", true, has(f, BtProto.hz(2, 85)) && has(f, BtProto.allOff()));
+        // 2nd impulse at 8 Hz: no slots (pulses hardly meet), plain SEL, no slide
+        tr.phase(BtTranslator.SECOND);
+        f = tr.command(3, run(600, 8, 350, 4, 4, 1), t);
+        eq("slots: 8 Hz has no slide", null, tr.takeSlide());
+        // back to 85 Hz in the main impulse: new Hz → laid again
+        tr.phase(BtTranslator.PAUSE);
+        tr.command(3, run(600, 8, 350, 4, 4, 0), t);
+        tr.phase(BtTranslator.MAIN);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
+        eq("slots: back to 85 Hz lays the places", true, tr.takeSlide() != null && has(f, BtProto.hz(1, 85)));
+        // slots off: as before (no slide)
+        BtSettings.setSlots(false);
+        tr.phase(BtTranslator.PAUSE);
+        tr.command(3, run(600, 85, 350, 4, 4, 0), t);
+        tr.phase(BtTranslator.MAIN);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
+        eq("slots off: only SEL", hexAll(java.util.Arrays.asList(BtProto.enable(0xFF))), hexAll(f));
+        BtSettings.reset();
+
         if (fails == 0) System.out.println("BtTranslatorTest: OK");
         else {
             System.out.println("BtTranslatorTest: " + fails + " FAILED");

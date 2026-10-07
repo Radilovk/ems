@@ -1,13 +1,9 @@
 package com.isaigu.gymapp.bodytech;
 
 import android.app.Activity;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,8 +12,9 @@ import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsUi;
 
 /**
- * Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which
- * impulse it works in when the double impulse is on, the impulse waveform and a strength scale. Landscape sheet:
+ * Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that
+ * drives it — one tap (owner, 1.1.390); folded per channel: which impulse it works in, its own values. Below: the
+ * impulse waveform, a strength scale, pulse slots. Landscape sheet:
  * the eight channels in two columns. Hooked after the Band section in SettingFragment.onCreateView
  * (scripts/apply-bodytech.py). Every change is saved at once ({@link BtSettings}) and used by the next command
  * the row sends — no restart, nothing to apply.
@@ -92,13 +89,7 @@ public final class BtSettingsSection {
             reset.setOnClickListener(new Reset(this));
             TextView done = XemsUi.button(a, "Готово", XemsUi.PRIMARY);
             done.setOnClickListener(new Done(sh));
-            TextView sort = XemsUi.button(a, "Подреди ляво → дясно", XemsUi.SECONDARY);
-            sort.setOnClickListener(new Sort(this));
             sh.footer.addView(reset);
-            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            sp.leftMargin = XemsUi.dp(a, 10);
-            sh.footer.addView(sort, sp);
             sh.dialog.setOnDismissListener(new Stop(this));
             sh.footer.addView(XemsUi.spacer(a));
             sh.footer.addView(done);
@@ -117,18 +108,13 @@ public final class BtSettingsSection {
         void render() {
             sh.body.removeAllViews();
             sh.body.addView(test.panel(), XemsUi.matchWrap(a, 0));
-            LinearLayout legs = XemsUi.horizontal(a);
-            legs.setGravity(Gravity.TOP);
-            legs.addView(leg(false), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            legs.addView(leg(true), XemsUi.weight(1f, 12, a));
-            sh.body.addView(legs, XemsUi.matchWrap(a, 12));
             LinearLayout cols = XemsUi.horizontal(a);
             cols.setGravity(Gravity.TOP);
             LinearLayout left = XemsUi.vertical(a);
             LinearLayout right = XemsUi.vertical(a);
             for (int pos = 0; pos < BtSettings.CHANNELS; pos++) {
                 LinearLayout col = pos < 4 ? left : right;
-                col.addView(channel(BtSettings.channelAt(pos)), XemsUi.matchWrap(a, pos == 0 || pos == 4 ? 0 : 10));
+                col.addView(channel(pos + 1), XemsUi.matchWrap(a, pos == 0 || pos == 4 ? 0 : 10));   // C1..C8
             }
             cols.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             cols.addView(right, XemsUi.weight(1f, 12, a));
@@ -162,92 +148,48 @@ public final class BtSettingsSection {
         }
 
         /**
-         * «Ляв крак» / «Десен крак» (owner, 1.1.386): which channel of the suit is this leg — one tap on C1..C8. The leg
-         * (its slider, name and own values) moves to the picked channel, what that channel was moves to the old one
-         * ({@link BtSettings#setLegChannel}). Hold ▶ to feel the leg's channel.
+         * One bodytech channel (owner, 1.1.390 — simple): its number and name, ▶ (hold = feel it), and under them the ten
+         * XEMS channels — one tap picks the one that drives it. The rest (which impulse, own strength / Hz / width) is
+         * folded under "Още ▾".
          */
-        View leg(boolean right) {
-            LinearLayout s = XemsUi.surface(a);
-            int cur = BtSettings.legChannel(right);
-            LinearLayout head = XemsUi.horizontal(a);
-            head.setGravity(Gravity.CENTER_VERTICAL);
-            head.addView(XemsUi.text(a, right ? "Дясно бедро" : "Ляво бедро", 17, XemsUi.TEXT, true),
-                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            int xs = BtSettings.slider(cur);
-            head.addView(XemsUi.text(a, "C" + cur + " → " + BtSettings.sliderName(xs), 14,
-                    xs < 0 ? XemsUi.HINT : XemsUi.GO_TEXT, true));
-            if (cur != 0) {
-                TextView play = XemsUi.iconButton(a, "▶", XemsUi.GO, 0xFFFFFFFF, 34);
-                play.setOnTouchListener(test.touch(cur));
-                LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));
-                ml.leftMargin = XemsUi.dp(a, 10);
-                head.addView(play, ml);
-            }
-            s.addView(head);
-            LinearLayout[] holder = new LinearLayout[1];
-            HorizontalScrollView hs = XemsUi.chipRow(a, holder);
-            for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
-                TextView c = XemsUi.chip(a, "C" + ch, ch == cur, XemsUi.GO_TEXT);
-                c.setOnClickListener(new Leg(this, right, ch));
-                XemsUi.addChip(a, holder[0], c);
-            }
-            s.addView(hs, XemsUi.matchWrap(a, 10));
-            return s;
-        }
-
         View channel(int ch) {
             LinearLayout s = XemsUi.surface(a);
             LinearLayout head = XemsUi.horizontal(a);
+            head.setGravity(Gravity.CENTER_VERTICAL);
             head.addView(XemsUi.badge(a, "C" + ch, XemsUi.GO_TEXT));
-            EditText name = new EditText(a);
-            name.setText(BtSettings.name(ch).equals("C" + ch) ? "" : BtSettings.name(ch));
-            name.setHint("Име на канала");
-            name.setSingleLine(true);
-            name.setInputType(InputType.TYPE_CLASS_TEXT);
-            name.setTextSize(16);
-            name.setTextColor(XemsUi.TEXT);
-            name.setHintTextColor(XemsUi.HINT);
-            name.setBackgroundDrawable(null);
+            TextView name = XemsUi.text(a, BtSettings.name(ch), 17, XemsUi.TEXT, true);
             name.setPadding(XemsUi.dp(a, 12), 0, 0, 0);
-            name.addTextChangedListener(new Name(ch));
             head.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            int pos = BtSettings.positionOf(ch);
-            TextView up = XemsUi.iconButton(a, "▲", XemsUi.SURFACE, pos > 0 ? XemsUi.TEXT : XemsUi.HINT, 34);
-            up.setOnClickListener(new Move(this, ch, -1));
-            TextView down = XemsUi.iconButton(a, "▼", XemsUi.SURFACE,
-                    pos < BtSettings.CHANNELS - 1 ? XemsUi.TEXT : XemsUi.HINT, 34);
-            down.setOnClickListener(new Move(this, ch, +1));
-            LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));
-            ml.leftMargin = XemsUi.dp(a, 6);
-            head.addView(up, ml);
-            head.addView(down, ml);
             TextView play = XemsUi.iconButton(a, "▶", XemsUi.GO, 0xFFFFFFFF, 34);
             play.setOnTouchListener(test.touch(ch));
+            LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));
+            ml.leftMargin = XemsUi.dp(a, 6);
             head.addView(play, ml);
             s.addView(head);
 
-            LinearLayout.LayoutParams gap = XemsUi.matchWrap(a, 10);
             LinearLayout[] holder = new LinearLayout[1];
             HorizontalScrollView hs = XemsUi.chipRow(a, holder);
-            for (int k = -1; k < BtSettings.ROW_ORDER.length; k++) {
-                int i = k < 0 ? -1 : BtSettings.ROW_ORDER[k];       // the row's order, left to right
-                // all ten XEMS channels, chest and calf too (owner, 1.1.388)
+            for (int k = 0; k <= BtSettings.ROW_ORDER.length; k++) {
+                // the ten XEMS channels in the row's order, left to right, then "Няма"
+                int i = k < BtSettings.ROW_ORDER.length ? BtSettings.ROW_ORDER[k] : BtSettings.NO_SLIDER;
                 TextView c = XemsUi.chip(a, BtSettings.sliderName(i), BtSettings.slider(ch) == i, XemsUi.GO_TEXT);
                 c.setOnClickListener(new Pick(this, Pick.SLIDER, ch, i));
                 XemsUi.addChip(a, holder[0], c);
             }
-            s.addView(hs, gap);
-            TextView in = XemsUi.label(a, "Работи в импулс");
-            in.setPadding(0, XemsUi.dp(a, 10), 0, XemsUi.dp(a, 6));
-            s.addView(in);
-            s.addView(XemsUi.segmented(a, BtSettings.GROUPS, BtSettings.group(ch), new Group(this, ch)));
+            s.addView(hs, XemsUi.matchWrap(a, 10));
 
-            TextView more = XemsUi.chip(a, open[ch] ? "Параметри ▴" : "Параметри ▾", open[ch], XemsUi.ACCENT);
+            TextView more = XemsUi.chip(a, open[ch] ? "Още ▴" : "Още ▾", open[ch], XemsUi.ACCENT);
             more.setOnClickListener(new Toggle(this, ch));
             LinearLayout.LayoutParams mp = XemsUi.matchWrap(a, 10);
             mp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
             s.addView(more, mp);
-            if (open[ch]) s.addView(params(ch), XemsUi.matchWrap(a, 8));
+            if (open[ch]) {
+                TextView in = XemsUi.label(a, "Работи в импулс");
+                in.setPadding(0, XemsUi.dp(a, 10), 0, XemsUi.dp(a, 6));
+                s.addView(in);
+                s.addView(XemsUi.segmented(a, BtSettings.GROUPS, BtSettings.group(ch), new Group(this, ch)));
+                s.addView(params(ch), XemsUi.matchWrap(a, 10));
+            }
             return s;
         }
 
@@ -283,25 +225,6 @@ public final class BtSettingsSection {
             f.addView(XemsUi.label(a, label));
             f.addView(XemsUi.stepper(a, value, null, 16, cb).view);
             return f;
-        }
-    }
-
-    /** ▲ / ▼: the channel one place up / down in the sheet. */
-    static final class Move implements View.OnClickListener {
-        final Sheet sheet;
-        final int ch, dir;
-
-        Move(Sheet sheet, int ch, int dir) {
-            this.sheet = sheet;
-            this.ch = ch;
-            this.dir = dir;
-        }
-
-        @Override
-        public void onClick(View v) {
-            XemsUi.haptic(v);
-            BtSettings.move(ch, dir);
-            sheet.render();
         }
     }
 
@@ -360,20 +283,6 @@ public final class BtSettingsSection {
         }
     }
 
-    static final class Sort implements View.OnClickListener {
-        final Sheet sheet;
-
-        Sort(Sheet sheet) {
-            this.sheet = sheet;
-        }
-
-        @Override
-        public void onClick(View v) {
-            BtSettings.sortLeftToRight();
-            sheet.render();
-        }
-    }
-
     static final class Stop implements android.content.DialogInterface.OnDismissListener {
         final Sheet sheet;
 
@@ -384,25 +293,6 @@ public final class BtSettingsSection {
         @Override
         public void onDismiss(android.content.DialogInterface d) {
             sheet.stopHold();
-        }
-    }
-
-    static final class Name implements TextWatcher {
-        final int ch;
-
-        Name(int ch) {
-            this.ch = ch;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int st, int c, int af) {}
-
-        @Override
-        public void onTextChanged(CharSequence s, int st, int b, int c) {}
-
-        @Override
-        public void afterTextChanged(Editable e) {
-            BtSettings.setName(ch, e.toString());
         }
     }
 
@@ -424,27 +314,6 @@ public final class BtSettingsSection {
             XemsUi.haptic(v);
             if (what == SLIDER) BtSettings.setSlider(ch, value);
             else BtSettings.setWave(value);
-            sheet.render();
-        }
-    }
-
-    /** A channel chip of «Ляв крак» / «Десен крак»: that channel is the leg now. */
-    static final class Leg implements View.OnClickListener {
-        final Sheet sheet;
-        final boolean right;
-        final int ch;
-
-        Leg(Sheet sheet, boolean right, int ch) {
-            this.sheet = sheet;
-            this.right = right;
-            this.ch = ch;
-        }
-
-        @Override
-        public void onClick(View v) {
-            XemsUi.haptic(v);
-            sheet.stopHold();
-            BtSettings.setLegChannel(right, ch);
             sheet.render();
         }
     }

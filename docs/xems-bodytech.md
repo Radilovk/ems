@@ -239,3 +239,10 @@ C1 Кръст → Кръст, C2 Седалище → Седалище, C3 Ра�
 as before. A tablet on the 1.1.379–1.1.388 legs ("Ляв / Десен крак" on front / back thigh) or the EMSFIT names is moved
 once (`BtSettings.legs`, flag `legs389`); a slider the owner picked himself stays, only the name follows. The row's
 header reads "Ляво бедро" / "Дясно бедро" over the legs' XEMS columns; «Модулация» leg zones include the chest slider.
+
+## The settings sheet, simple (owner, 1.1.390)
+Settings → Костюм bodytech = the eight bodytech channels C1–C8 (two columns, fixed order), each card: number, name,
+▶ (hold = feel it) and under them the ten XEMS channels in the row's order (+ "Няма") — one tap ties that bodytech
+channel to that XEMS channel, so any mismatch is fixed by hand. "Още ▾" folds the rest (which impulse, own strength /
+width / Hz). Gone: the «Крака» block (1.1.386 — the thighs are C5 / C7 by the suit's own wiring), ▲ ▼, "Подреди",
+editing the names. Above the cards: the test level; below: waveform, strength scale, «Разделени импулси».

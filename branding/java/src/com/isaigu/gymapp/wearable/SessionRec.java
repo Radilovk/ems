@@ -58,6 +58,8 @@ final class SessionRec {
     final SessionInts ps = new SessionInts();
     final SessionInts phz = new SessionInts();
     final SessionInts dis = new SessionInts();
+    /** Channels whose second impulse really runs (bit i; its own percent > 0, not disabled) — the load counts them. */
+    final SessionInts p2 = new SessionInts();
     final SessionInts ph = new SessionInts();
     /** The exercise done this second: AutoTemplates index + 1, 0 = none. */
     final SessionInts ex = new SessionInts();
@@ -211,13 +213,24 @@ final class SessionRec {
                     chPeak[i] = real;
                 }
                 if (item.data.inStart && !passive) {
-                    // muscle work: strength × the contraction its frequency gives (7 Hz twitches ≈ 13 % of 85 Hz;
-                    // docs/xems-ems-physiology.md); the passive phase does not count
-                    chLoad[i] += real * com.isaigu.gymapp.ai.AiPlanner.forceWeight(b != null ? b.hz : 85);
+                    // muscle work: a working channel counts in full — the strength is the client's feeling, not
+                    // the load (owner, 1.1.386) — × the contraction its frequency gives (7 Hz twitches ≈ 13 % of
+                    // 85 Hz; docs/xems-ems-physiology.md); a channel at 0 and the passive phase do not count
+                    chLoad[i] += (real > 0 ? 100 : 0) * com.isaigu.gymapp.ai.AiPlanner.forceWeight(b != null ? b.hz : 85);
                 }
             }
         }
         dis.add(mask);
+        int m2 = 0;
+        if (b != null && b.activePause && b.pauseStrenthPercent > 0 && parts != null) {
+            int[] sec = SecondParts.effective(b, parts);
+            for (int i = 0; i < CH && i < sec.length; i++) {
+                if (sec[i] > 0 && (mask & (1 << i)) == 0) {
+                    m2 |= 1 << i;
+                }
+            }
+        }
+        p2.add(m2);
         ph.add(aiPhase);
         int[] mus = running && !passive && exercise >= 0 ? com.isaigu.gymapp.ai.AutoTemplates.muscles(exercise) : null;
         ex.add(mus != null ? exercise + 1 : 0);
@@ -323,6 +336,7 @@ final class SessionRec {
         col(b, "ps", ps);
         col(b, "phz", phz);
         col(b, "dis", dis);
+        col(b, "p2", p2);
         col(b, "ph", ph);
         col(b, "ex", ex);
         exercises(b);

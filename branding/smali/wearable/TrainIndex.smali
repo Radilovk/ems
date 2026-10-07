@@ -34,7 +34,7 @@
     .registers 1
 
     .prologue
-    .line 32
+    .line 34
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
@@ -48,7 +48,7 @@
     .registers 1
 
     .prologue
-    .line 34
+    .line 36
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -60,19 +60,19 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 70
+    .line 77
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
 
-    .line 71
+    .line 78
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
 
-    .line 72
+    .line 79
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
-    .line 73
+    .line 80
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
-    .line 74
+    .line 81
     return-void
 .end method
 
@@ -82,7 +82,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 39
+    .line 45
     if-eqz p0, :cond_10
 
     :try_start_3
@@ -90,7 +90,7 @@
 
     move-result-object v1
 
-    .line 40
+    .line 46
     :goto_7
     if-eqz v1, :cond_d
 
@@ -98,21 +98,21 @@
 
     move-result-object v0
 
-    .line 41
+    .line 47
     :cond_d
     if-nez v0, :cond_12
 
-    .line 60
+    .line 67
     :goto_f
     return-void
 
     :cond_10
     move-object v1, v0
 
-    .line 39
+    .line 45
     goto :goto_7
 
-    .line 44
+    .line 50
     :cond_12
     iget v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
 
@@ -124,13 +124,13 @@
 
     if-nez v0, :cond_3e
 
-    .line 45
+    .line 51
     :cond_1b
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
-    .line 46
+    .line 52
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
@@ -139,11 +139,11 @@
 
     goto :goto_f
 
-    .line 57
+    .line 64
     :catch_24
     move-exception v0
 
-    .line 58
+    .line 65
     const-string v1, "index"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -168,36 +168,53 @@
 
     goto :goto_f
 
-    .line 49
+    .line 55
     :cond_3e
-    :try_start_3e
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->active(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+    if-eqz p1, :cond_55
+
+    :try_start_40
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseHzSelected()Z
 
     move-result v0
 
-    if-nez v0, :cond_4b
+    .line 56
+    :goto_44
+    if-eqz v0, :cond_5a
 
-    .line 50
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->enterFrom(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
+    .line 57
+    const/4 v0, 0x0
 
-    .line 51
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
+
+    .line 58
+    const/4 v0, 0x0
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    .line 62
+    :goto_4e
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/TrainIndex;->touch(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    goto :goto_f
+    .line 63
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->touch(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 54
-    :cond_4b
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/TrainIndex;->select(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
+    goto :goto_f
 
     .line 55
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/TrainIndex;->touch(Lcom/isaigu/gymapp/train/model/TrainItem;)V
+    :cond_55
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
 
-    .line 56
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->touch(Lcom/isaigu/gymapp/train/model/TrainItem;)V
-    :try_end_54
-    .catch Ljava/lang/Throwable; {:try_start_3e .. :try_end_54} :catch_24
+    move-result v0
 
-    goto :goto_f
+    goto :goto_44
+
+    .line 60
+    :cond_5a
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/TrainIndex;->select(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
+    :try_end_5d
+    .catch Ljava/lang/Throwable; {:try_start_40 .. :try_end_5d} :catch_24
+
+    goto :goto_4e
 .end method
 
 .method private static select(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
@@ -206,16 +223,16 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 63
+    .line 70
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
 
-    .line 64
+    .line 71
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
 
-    .line 65
+    .line 72
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
-    .line 66
+    .line 73
     if-nez p1, :cond_d
 
     const/4 v0, 0x1
@@ -223,7 +240,7 @@
     :cond_d
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
-    .line 67
+    .line 74
     return-void
 .end method
 
@@ -235,25 +252,25 @@
 
     const/4 v3, 0x0
 
-    .line 89
+    .line 96
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    .line 90
+    .line 97
     if-eqz v0, :cond_52
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    .line 92
+    .line 99
     :goto_c
     const/16 v1, 0x8
 
     new-array v4, v1, [I
 
-    .line 93
+    .line 100
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
 
     move-result v1
@@ -278,7 +295,7 @@
 
     const/4 v5, 0x2
 
-    .line 94
+    .line 101
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
 
     move-result v1
@@ -303,7 +320,7 @@
 
     const/4 v2, 0x4
 
-    .line 95
+    .line 102
     if-eqz v0, :cond_5c
 
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
@@ -322,7 +339,7 @@
 
     const/4 v2, 0x6
 
-    .line 96
+    .line 103
     if-eqz v0, :cond_60
 
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
@@ -339,10 +356,10 @@
     :cond_4f
     aput v3, v4, v1
 
-    .line 92
+    .line 99
     return-object v4
 
-    .line 90
+    .line 97
     :cond_52
     const/4 v0, 0x0
 
@@ -351,7 +368,7 @@
     :cond_54
     move v1, v3
 
-    .line 93
+    .line 100
     goto :goto_17
 
     :cond_56
@@ -362,7 +379,7 @@
     :cond_58
     move v1, v3
 
-    .line 94
+    .line 101
     goto :goto_2a
 
     :cond_5a
@@ -373,7 +390,7 @@
     :cond_5c
     move v1, v3
 
-    .line 95
+    .line 102
     goto :goto_3a
 
     :cond_5e
@@ -384,7 +401,7 @@
     :cond_60
     move v1, v3
 
-    .line 96
+    .line 103
     goto :goto_48
 .end method
 
@@ -405,27 +422,27 @@
 
     const/4 v3, 0x0
 
-    .line 101
+    .line 108
     if-nez p0, :cond_5
 
-    .line 149
+    .line 156
     :cond_4
     return-void
 
-    .line 104
+    .line 111
     :cond_5
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
 
-    .line 105
+    .line 112
     invoke-static {}, Lcom/isaigu/gymapp/wearable/ManualDefaults;->assisted()Z
 
     move-result v8
 
     move v2, v3
 
-    .line 106
+    .line 113
     :goto_e
     invoke-interface {p0}, Ljava/util/List;->size()I
 
@@ -433,14 +450,14 @@
 
     if-ge v2, v0, :cond_4
 
-    .line 107
+    .line 114
     invoke-interface {p0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 108
+    .line 115
     if-eqz v0, :cond_28
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -455,7 +472,7 @@
 
     if-nez v1, :cond_2c
 
-    .line 106
+    .line 113
     :cond_28
     :goto_28
     add-int/lit8 v0, v2, 0x1
@@ -464,14 +481,14 @@
 
     goto :goto_e
 
-    .line 112
+    .line 119
     :cond_2c
     :try_start_2c
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
 
-    .line 113
+    .line 120
     if-nez v8, :cond_53
 
     iget v4, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
@@ -488,36 +505,36 @@
 
     if-eqz v4, :cond_53
 
-    .line 115
+    .line 122
     iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     const/4 v4, 0x0
 
     iput-boolean v4, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 116
+    .line 123
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
-    .line 117
+    .line 124
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
-    .line 118
+    .line 125
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
 
-    .line 119
+    .line 126
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->xemsRefresh()V
 
-    .line 121
+    .line 128
     :cond_53
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/TrainIndex;->snapshot(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
 
     move-result-object v9
 
-    .line 122
+    .line 129
     const/4 v1, 0x0
 
     aget v1, v9, v1
@@ -544,7 +561,7 @@
 
     move v4, v5
 
-    .line 124
+    .line 131
     :goto_69
     sget-object v10, Lcom/isaigu/gymapp/wearable/TrainIndex;->STATES:Ljava/util/Map;
 
@@ -552,7 +569,7 @@
     :try_end_6c
     .catch Ljava/lang/Throwable; {:try_start_2c .. :try_end_6c} :catch_89
 
-    .line 125
+    .line 132
     :try_start_6c
     sget-object v1, Lcom/isaigu/gymapp/wearable/TrainIndex;->STATES:Ljava/util/Map;
 
@@ -562,31 +579,31 @@
 
     check-cast v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;
 
-    .line 126
+    .line 133
     if-nez v1, :cond_a5
 
-    .line 127
+    .line 134
     new-instance v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/wearable/TrainIndex$State;-><init>()V
 
-    .line 128
+    .line 135
     iput-wide v6, v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->lastAction:J
 
-    .line 129
+    .line 136
     iput-object v9, v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->seen:[I
 
-    .line 130
+    .line 137
     sget-object v4, Lcom/isaigu/gymapp/wearable/TrainIndex;->STATES:Ljava/util/Map;
 
     invoke-interface {v4, v0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 131
+    .line 138
     monitor-exit v10
 
     goto :goto_28
 
-    .line 133
+    .line 140
     :catchall_86
     move-exception v0
 
@@ -599,11 +616,11 @@
     :try_end_89
     .catch Ljava/lang/Throwable; {:try_start_88 .. :try_end_89} :catch_89
 
-    .line 145
+    .line 152
     :catch_89
     move-exception v0
 
-    .line 146
+    .line 153
     const-string v1, "index"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -631,17 +648,17 @@
     :cond_a3
     move v4, v3
 
-    .line 122
+    .line 129
     goto :goto_69
 
-    .line 133
+    .line 140
     :cond_a5
     :try_start_a5
     monitor-exit v10
     :try_end_a6
     .catchall {:try_start_a5 .. :try_end_a6} :catchall_86
 
-    .line 134
+    .line 141
     :try_start_a6
     iget-object v10, v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->seen:[I
 
@@ -651,15 +668,15 @@
 
     if-nez v10, :cond_b4
 
-    .line 135
+    .line 142
     iput-object v9, v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->seen:[I
 
-    .line 136
+    .line 143
     iput-wide v6, v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->lastAction:J
 
     goto/16 :goto_28
 
-    .line 139
+    .line 146
     :cond_b4
     if-eqz v4, :cond_28
 
@@ -681,20 +698,20 @@
 
     if-ltz v4, :cond_28
 
-    .line 140
+    .line 147
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/TrainIndex;->clear(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 141
+    .line 148
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/TrainIndex;->snapshot(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
 
     move-result-object v4
 
     iput-object v4, v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->seen:[I
 
-    .line 142
+    .line 149
     iput-wide v6, v1, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->lastAction:J
 
-    .line 143
+    .line 150
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->xemsRefresh()V
     :try_end_d6
     .catch Ljava/lang/Throwable; {:try_start_a6 .. :try_end_d6} :catch_89
@@ -706,12 +723,12 @@
     .registers 5
 
     .prologue
-    .line 77
+    .line 84
     sget-object v1, Lcom/isaigu/gymapp/wearable/TrainIndex;->STATES:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 78
+    .line 85
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/wearable/TrainIndex;->STATES:Ljava/util/Map;
 
@@ -721,20 +738,20 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/TrainIndex$State;
 
-    .line 79
+    .line 86
     if-nez v0, :cond_17
 
-    .line 80
+    .line 87
     new-instance v0, Lcom/isaigu/gymapp/wearable/TrainIndex$State;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/TrainIndex$State;-><init>()V
 
-    .line 81
+    .line 88
     sget-object v2, Lcom/isaigu/gymapp/wearable/TrainIndex;->STATES:Ljava/util/Map;
 
     invoke-interface {v2, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 83
+    .line 90
     :cond_17
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -742,20 +759,20 @@
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->lastAction:J
 
-    .line 84
+    .line 91
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/TrainIndex;->snapshot(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
 
     move-result-object v2
 
     iput-object v2, v0, Lcom/isaigu/gymapp/wearable/TrainIndex$State;->seen:[I
 
-    .line 85
+    .line 92
     monitor-exit v1
 
-    .line 86
+    .line 93
     return-void
 
-    .line 85
+    .line 92
     :catchall_25
     move-exception v0
 

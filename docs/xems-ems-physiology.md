@@ -178,13 +178,41 @@ one-frequency scale drier legs alone do not cut.
 | force–frequency, fatigue model, τ, F_max, continuous cap, block end | `ai/AiPlanner`, `ai/AiEngine` |
 | warm-up 7 Hz | `AiPlanner.WARMUP_HZ`, `AutoCatalog.WARMUP_HZ` |
 | muscle work per zone | `wearable/SessionRec.chLoad`, report `chDose` |
-| EMS load S / metabolic M, modes, goal zones | `branding/report/session-report.html` (`kF`, `kf`, `GOALS`) |
+| EMS load S / metabolic M, strain, load, modes, goal zones | `branding/report/session-report.html` (`kF`, `kf`, `kP`, `wF`, `FIT`, `GOALS`) — §9 |
 | energy | `ai/AiEnergy`, report `kcal` |
 | rest between sessions | `ai/AutoPlanner`, `ai/AiPlanner` |
 | rest after an Auto set: τ·ln(F / F_rec), 15 s floor tetanic | `ai/AutoEngine.enterRest` (docs/xems-auto-mode-spec.md §11) |
 | pulse module lever order (k(f) above / below fusion, pressor reflex) | `wearable/HrGuardCore.ladder` (docs/xems-pulse-control.md) |
 | resting HR | `ai/AiRestHr`, `AiUi.screenRest` |
 | tests | `scripts/ai-sim/run.sh` (REST_HR, PAUSE, scenarios), `run-auto.sh` |
+
+## 9. Load and efficiency of a training (report, 1.1.386-ai — owner)
+**The strength (mA) is not in any formula of load or efficiency:** it is set by the client's feeling. A channel above 0
+(strength and channel share > 0, not switched off) counts in full; a channel at 0 does not count. Everything else does:
+
+| Input | How |
+|---|---|
+| frequency | `kF(f)` for the stimulus S, `wF(f) = kF·(0.7 + 0.3·f/85)` for the fatigue (§2, §3.1) |
+| pulse width | `kP = √(µs / 350)` (0.55 … 1.14) — depth = fibres recruited (§5, `AutoEngine.reach`) |
+| impulse / pause | `g = 1.55·on / cycle` (≤ 1), continuous 0.92; the fatigue gets the real impulse phase (`imp`) |
+| double impulse | its frequency over the pause share, on **its own working channels** (record `p2`, 1.1.386; older records: the main ones); its strength only gates it (0 = off) |
+| channels | share of muscle mass `W = mass × depth` of the working channels (`CH`) |
+| time, pauses, rests | the fatigue model runs every second: F' = X − F/τ (recovery all the time, also in rests) |
+| fitness | τ and F_max per fitness (§3.2–3.3) → strain R = F / F_max; capacity `k` (fitness 0.75 / 1 / 1.2 × BMI × age × sex × first 4 sessions) |
+| heart rate | 45 % of the per-second load = HR reserve (with exercises and no band: the stand-in heart) |
+
+```
+S = kP · Σ W_work / ΣW · kF(f) · g  +  kP · (off/cycle) · Σ W_work2 / ΣW · kF(f2)      (0–1, stimulus)
+E = S / k · (0.5 + 0.5·R)            R = F / F_max ≤ 1.5                                   (personal strain)
+L = 0.55·E + 0.45·C (pulse)  |  E                                                         load = Σ L / 60 · 10
+```
+Efficiency (`eff`) keeps its parts (time in the personal goal zone of S and pulse, dose vs the personal dose,
+pauses, progress), now on the strength-free S. kcal from M (same channels, no strength). The muscle map
+(`SessionRec.chLoad`, report `chDose`) counts a working channel in full × kF. Check (node, 20 min, MID, all
+channels, 350 µs): 85 Hz 4/4 → 152 pts at any strength; LOW 227, HIGH 118; two channels at 0 → 91; 200 µs → 101;
++ 2nd impulse 7 Hz → 172, 30 Hz → 251; 6/4 → 200; 4/8 → 85; 7 Hz continuous → 14. Before: strength / the client's
+peak strength per channel (`chPeak`) scaled S, the second impulse counted by its strength × 0.8, pulse width and
+fitness were not in the load. The live kcal of the manual mode (`HrGuardCore`) still uses the current (energy).
 
 ## Not yet
 Validate τ, F_max, w(f) and kf on recorded sessions (CR10 answers, HR recovery, repeated sessions) — the [D] values.

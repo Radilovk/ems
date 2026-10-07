@@ -82,6 +82,9 @@ public class MainActivity extends Activity implements Link.Listener {
     final int[] isoAns = new int[6];
     final List<Long> isoTaps = new ArrayList<Long>();
     final double[] isoBeat = new double[2];
+    long isoBeatFrom;
+    /** A steady answer counts only after this long: one knock comes every ~10 s, 0.4 saw only 12 s. */
+    static final int ISO_WATCH_S = 30;
     int lastBatteryRaw = -1;
 
     // parameters (defaults = EMSFIT program: 85 Hz, 360 µs, 0.4 s up, 4 s work, 0.4 s down, 4 s pause)
@@ -117,7 +120,7 @@ public class MainActivity extends Activity implements Link.Listener {
         setContentView(buildUi());
         link = new Link(this, this);
         adapter = BluetoothAdapter.getDefaultAdapter();
-        onLog("XEMS BT Probe 0.4 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
+        onLog("XEMS BT Probe 0.5 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
                 + " (API " + Build.VERSION.SDK_INT + ") · " + startedAt);
         if (Build.VERSION.SDK_INT >= 23
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -1268,6 +1271,8 @@ public class MainActivity extends Activity implements Link.Listener {
         final int d = Math.max(1, (int) Math.round((double) isoP * isoP / (beatS * 1e6)));
         final int a = isoA, b = isoB, p = isoP;
         isoTaps.clear();
+        isoBeatFrom = SystemClock.elapsedRealtime();
+        main.postDelayed(new IsoClock(k), 1000);
         link.post(new Runnable() {
             @Override public void run() {
                 link.write(Proto.period(b, p + d), "изолация " + (4 + k) + ": B период " + (p + d) + " µs");
@@ -1286,6 +1291,12 @@ public class MainActivity extends Activity implements Link.Listener {
                             + "тласък, после „Готово“.");
                     return;
                 }
+                int watched = (int) ((SystemClock.elapsedRealtime() - isoBeatFrom) / 1000);
+                if ((i == 1 || i == 2) && watched < ISO_WATCH_S) {
+                    askTitle.setText((4 + k) + "/5 · Наблюдавай още " + (ISO_WATCH_S - watched) + " s — тласъкът идва "
+                            + "веднъж на ~" + (k == 0 ? 10 : 5) + " s и трае под секунда.");
+                    return;
+                }
                 if (i == 3 && isoTaps.size() < 3) {
                     askTitle.setText((4 + k) + "/5 · Нужни са поне 3 натискания на „Сега!“ (имаш " + isoTaps.size()
                             + "). Или избери „Постоянно“ / „Няма“.");
@@ -1300,7 +1311,7 @@ public class MainActivity extends Activity implements Link.Listener {
                     isoBeat[k] = med;
                 }
                 isoAns[3 + k] = i == 3 ? BEAT_RHYTHM : i == 1 ? BEAT_CONSTANT : BEAT_NONE;
-                onLog(String.format(Locale.US, "ИЗОЛАЦИЯ %d (ритъм %.0f s): %s%s", 4 + k, expect,
+                onLog(String.format(Locale.US, "ИЗОЛАЦИЯ %d (ритъм %.0f s, наблюдавано %d s): %s%s", 4 + k, expect, watched,
                         i == 3 ? "РИТЪМ" : ISO_BEAT[i], i == 3 ? String.format(Locale.US,
                                 ", %d натискания, медиана %.1f s", isoTaps.size(), med) : ""));
                 if (k == 0 && i == 3) isoBeatStep(1);
@@ -1309,17 +1320,24 @@ public class MainActivity extends Activity implements Link.Listener {
         });
     }
 
-    /** B on its own cycle, 2 s work / 2 s pause, the suit runs it; A keeps going. Does B's pause isolate it? */
+    /**
+     * B on its own cycle, 2 s work / 2 s pause, the suit runs it; A keeps going. Does B's pause isolate it?
+     * Full RESET + program like EMSFIT: in 0.4 the T registers written alone did not change the running cycle.
+     */
     void isoCycle() {
-        final int a = isoA, b = isoB, p = isoP;
+        final int a = isoA, b = isoB, p = isoP, la = isoLvA, lb = isoLvB, fW = widthUs;
         link.post(new Runnable() {
             @Override public void run() {
-                link.write(Proto.enable(1 << (a - 1)), "изолация 5: B спрян за новия цикъл");
+                link.write(Proto.allOff(), "изолация 5: нова програма");
+                link.write(Proto.reset(), null);
+                for (int ch = 1; ch <= 8; ch++) {
+                    if (ch == b) writeChannelProgram(ch, 1000000 / p, fW, 0, 2000, 0, 2000, -1, true);
+                    else writeChannelProgram(ch, 1000000 / p, fW, 0, 60000, 0, 0, -1, true);
+                }
+                link.write(Proto.period(a, p), null);
                 link.write(Proto.period(b, p), null);
-                link.write(Proto.t(b, 1, 0), null);
-                link.write(Proto.t(b, 2, 2000), null);
-                link.write(Proto.t(b, 3, 0), null);
-                link.write(Proto.t(b, 4, 2000), null);
+                link.write(Proto.intensity(a, la), null);
+                link.write(Proto.intensity(b, lb), null);
                 link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), "изолация 5: B 2 s работа / 2 s пауза");
             }
         });
@@ -1333,6 +1351,19 @@ public class MainActivity extends Activity implements Link.Listener {
                 isoFinish(null);
             }
         });
+    }
+
+    /** Seconds watched on the beat step, in the question itself. */
+    class IsoClock implements Runnable {
+        final int k;
+        IsoClock(int k) { this.k = k; }
+        @Override public void run() {
+            if (!uiTest || isoAns[3 + k] != -1) return;
+            int s = (int) ((SystemClock.elapsedRealtime() - isoBeatFrom) / 1000);
+            String t = askTitle.getText().toString().replaceFirst(" ⏱ \\d+ s$", "");
+            askTitle.setText(t + " ⏱ " + s + " s");
+            main.postDelayed(this, 1000);
+        }
     }
 
     void isoFinish(String early) {

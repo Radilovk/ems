@@ -246,3 +246,10 @@ Settings → Костюм bodytech = the eight bodytech channels C1–C8 (two co
 channel to that XEMS channel, so any mismatch is fixed by hand. "Още ▾" folds the rest (which impulse, own strength /
 width / Hz). Gone: the «Крака» block (1.1.386 — the thighs are C5 / C7 by the suit's own wiring), ▲ ▼, "Подреди",
 editing the names. Above the cards: the test level; below: waveform, strength scale, «Разделени импулси».
+
+## The bodytech training row: 8 zones (owner, 1.1.391)
+A bodytech row shows only the 8 zones of the suit: Ляво бедро (XEMS chest column, renamed), Дясно бедро (XEMS front
+thigh column, renamed), Седалище, Корем, Кръст, Гръб, Трапец, Ръце. The XEMS columns no bodytech channel is on — back
+thigh and calf (no electrodes) — are hidden (INVISIBLE) on the row and, when every row on screen is bodytech, in the
+header (`PartLook.columns / header`, `BtSettings.hasChannel`). The settings chips offer only those 8 XEMS channels
+(`BtSettings.unused`: back thigh, calf) + "Няма".

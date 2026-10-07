@@ -157,11 +157,6 @@ public final class BtSettings {
         return changed;
     }
 
-    /** XEMS channels a bodytech suit has no electrodes for: back thigh and calf (owner, 1.1.391); not offered. */
-    public static boolean unused(int s) {
-        return s == 9 || s == 3;
-    }
-
     private static int firstOn(int s) {
         for (int ch = 1; ch <= CHANNELS; ch++) if (slider[ch] == s) return ch;
         return 0;

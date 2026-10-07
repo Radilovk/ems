@@ -170,9 +170,9 @@ public final class BtSettingsSection {
             LinearLayout[] holder = new LinearLayout[1];
             HorizontalScrollView hs = XemsUi.chipRow(a, holder);
             for (int k = 0; k <= BtSettings.ROW_ORDER.length; k++) {
-                // the XEMS channels of the 8 zones in the row's order, then "Няма" (no back thigh, no calf: owner, 1.1.391)
+                // all ten XEMS channels in the row's order, then "Няма" — any of them may be tied to a bodytech channel
+                // by hand (owner, 1.1.392); the training row shows the columns that are tied
                 int i = k < BtSettings.ROW_ORDER.length ? BtSettings.ROW_ORDER[k] : BtSettings.NO_SLIDER;
-                if (BtSettings.unused(i)) continue;
                 TextView c = XemsUi.chip(a, BtSettings.sliderName(i), BtSettings.slider(ch) == i, XemsUi.GO_TEXT);
                 c.setOnClickListener(new Pick(this, Pick.SLIDER, ch, i));
                 XemsUi.addChip(a, holder[0], c);

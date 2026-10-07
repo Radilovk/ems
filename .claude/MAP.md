@@ -599,23 +599,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L29 ## Възможни следващи стъпки (не са започнати)
   - L33 ## Среда за build (облачна сесия)
 
-`bodytech/PROTOCOL.md` (84L)
+`bodytech/PROTOCOL.md` (89L)
   - L1 # Bodytech (EMSFIT 5.1) suit — BLE protocol
-  - L21 ## Link
-  - L30 ## Frame — 8 bytes, big endian
-  - L34 ### Global registers (channel 0)
-  - L43 ### Channel registers
-  - L62 ## Sequences (EMSFIT)
-  - L70 ## Replies
-  - L75 ## XEMS → bodytech mapping
+  - L26 ## Link
+  - L35 ## Frame — 8 bytes, big endian
+  - L39 ### Global registers (channel 0)
+  - L48 ### Channel registers
+  - L67 ## Sequences (EMSFIT)
+  - L75 ## Replies
+  - L80 ## XEMS → bodytech mapping
 
-`bodytech/probe/README.md` (46L)
+`bodytech/probe/README.md` (48L)
   - L1 # XEMS BT Probe — тест на bodytech костюма
   - L7 ## Инсталиране
   - L12 ## Авто тест (версия 0.3) — без човек в костюма
   - L23 ## Ръчни тестове (когато има човек в костюма)
-  - L28 ## Изолация между два канала (версия 0.4) — човек в костюма
-  - L44 ## Сглобяване
+  - L28 ## Изолация между два канала (версия 0.5) — човек в костюма
+  - L46 ## Сглобяване
 
 `bodytech/xems/README.md` (5L)
   - L1 # bodytech in XEMS — tests only

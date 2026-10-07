@@ -16,6 +16,11 @@ battery answers, whatever the low bytes; the suit once echoed a request frame ba
 no change with outputs on (all, or one channel at 30, open circuit), none 16 s without heartbeat — the suit gives
 no feedback about the output. Battery 1571 raw flat throughout (open circuit draws nothing measurable).
 Limit Hz (1–1000), width (50–511 µs) and waveform 0–3 frames are all ACKed (GATT level, effect unproven).
+Probe 0.4 isolation test (2026-10-07, person in the suit, C1 + C4 at 43, 85 Hz, 360 µs,
+`bodytech/logs/probe-0.4-isolation-20261007.txt`): the two channels act on each other; B at **intensity 0 with its
+SEL bit still on isolates it**, as does SEL off. Beat test (B 14 µs slower, the pulses meet every ~9.9 s): felt
+"steady, no rhythm" — but watched only 12 s, so not conclusive. T1–T4 written alone while running (no RESET) did
+not change the cycle within 9 s (the running 60 s T2 went on) — probe 0.5 reprograms with RESET.
 Still open (needs a person): muscle check of the channel map, watchdog stop time, battery under a real load.
 
 ## Link

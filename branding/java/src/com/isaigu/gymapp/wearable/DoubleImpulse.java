@@ -69,6 +69,8 @@ public final class DoubleImpulse {
     static final int MUSCLE = 1;
 
     static final int AMBER = 0xFFFFC107;
+    /** The key's own amber: a white symbol stays readable on it (as on the stock orange ■). */
+    static final int KEY = 0xFFF2A100;
     static final int GREEN = 0xFF43A047;
     static final int GREY = 0xFFB0BEC5;
 
@@ -720,9 +722,10 @@ public final class DoubleImpulse {
     }
 
     /**
-     * The button: a round yellow key with the double-impulse symbol (two pulses, the second lower — ai/ImpulseGlyph).
-     * Off = dark with a yellow rim and symbol; on = filled yellow; setup = filled yellow, a glow and a green ring that
-     * runs down the 5 s; hold = a white ring that fills; Мускули = off look (the view at alpha 0.4).
+     * The button: a round amber key with the double-impulse symbol (two pulses, the second lower — ai/ImpulseGlyph),
+     * the full size of the view like the stock stop / start keys above it (1.1.384). Off = dark with an amber rim and
+     * symbol; on = filled amber, white symbol; setup = the same with a white ring that runs down the 5 s; hold = a
+     * green ring that fills; Мускули = off look (the view at alpha 0.4).
      */
     static final class Face extends Drawable {
         static final int NONE = -1;
@@ -753,42 +756,39 @@ public final class DoubleImpulse {
             Rect r = getBounds();
             float cx = r.exactCenterX();
             float cy = r.exactCenterY();
-            float outer = Math.min(r.width(), r.height()) / 2f - 1.5f * d;
-            if (outer <= 0f) {
+            float body = Math.min(r.width(), r.height()) / 2f;   // the full key, as the stock ■ / ▶ next to it
+            if (body <= 0f) {
                 return;
             }
-            float body = outer - 4f * d;
             boolean filled = mode == ON || mode == SETUP;
-            if (mode == SETUP) {
-                fill.setColor(0x44FFC107);               // the glow around the key
-                c.drawCircle(cx, cy, outer, fill);
-            }
-            fill.setColor(filled ? AMBER : 0xFF262626);
+            fill.setColor(filled ? KEY : 0xFF2B2B2B);
             c.drawCircle(cx, cy, body, fill);
             if (!filled) {
-                line.setShader(null);
-                line.setColor(AMBER);
-                line.setStrokeWidth(2f * d);
-                c.drawCircle(cx, cy, body - 1f * d, line);
+                line.setColor(KEY);
+                line.setStrokeWidth(2.5f * d);
+                c.drawCircle(cx, cy, body - 1.25f * d, line);
             }
-            float s = body * 1.15f;
-            glyph.setColor(filled ? 0xFF3A2A00 : AMBER);
-            glyph.setStrokeWidth(Math.max(1.6f * d, s * 0.085f));
+            float s = body * 1.1f;
+            glyph.setColor(filled ? 0xFFFFFFFF : KEY);
+            glyph.setStrokeWidth(Math.max(2f * d, s * 0.1f));
             ImpulseGlyph.draw(c, ImpulseGlyph.DOUBLE, cx - s / 2f, cy - s / 2f, s, glyph);
-            oval.set(cx - outer + 1.5f * d, cy - outer + 1.5f * d, cx + outer - 1.5f * d, cy + outer - 1.5f * d);
-            line.setStrokeWidth(3f * d);
+            float in = 3f * d;
+            oval.set(cx - body + in, cy - body + in, cx + body - in, cy + body - in);
+            line.setStrokeWidth(2.5f * d);
             if (mode == SETUP && left > 0f && hold <= 0f && flash <= 0f) {
-                line.setColor(GREEN);                    // the 5 s of the setup, running down
+                line.setColor(0xE6FFFFFF);               // the 5 s of the setup, running down
                 c.drawArc(oval, -90f, 360f * left, false, line);
             }
             if (hold > 0f) {
-                line.setColor(0x55FFFFFF);
+                line.setColor(0x40FFFFFF);
                 c.drawCircle(cx, cy, oval.width() / 2f, line);
-                line.setColor(0xFFFFFFFF);
+                line.setColor(GREEN);
+                line.setStrokeWidth(3.5f * d);
                 c.drawArc(oval, -90f, 360f * hold, false, line);
             }
             if (flash > 0f) {
                 line.setColor(GREEN);
+                line.setStrokeWidth(3.5f * d);
                 line.setAlpha(Math.round(255 * flash));
                 c.drawCircle(cx, cy, oval.width() / 2f, line);
                 line.setAlpha(255);
@@ -808,7 +808,7 @@ public final class DoubleImpulse {
 
     // ================================================================ the glow, three times
 
-    /** Three quick glows on the second impulse's controls; texts blink with it. */
+    /** Three quick, soft glows on the second impulse's controls; texts dim with it. */
     static final class Blink implements Runnable {
         final List<View> views;
         final List<Glow> glows = new ArrayList<Glow>();
@@ -853,7 +853,7 @@ public final class DoubleImpulse {
                 }
             }
             for (View v : fade) {
-                v.setAlpha(end ? 1f : 1f - 0.65f * a);
+                v.setAlpha(end ? 1f : 1f - 0.4f * a);
             }
             if (!end) {
                 MAIN.postDelayed(this, 16L);
@@ -879,25 +879,27 @@ public final class DoubleImpulse {
                 return;
             }
             Rect r = getBounds();
-            float rad = round ? Math.min(r.width(), r.height()) / 2f : 8f * d;
-            for (int k = 0; k < 3; k++) {                // a few strokes of falling strength: a glow, no blur needed
-                float in = (1.5f + 3f * k) * d;
-                box.set(r.left + in, r.top + in, r.right - in, r.bottom - in);
-                if (box.width() <= 0f || box.height() <= 0f) {
-                    break;
-                }
-                p.setStyle(Paint.Style.STROKE);
-                p.setStrokeWidth(3f * d);
-                p.setColor(AMBER);
-                p.setAlpha(Math.round(level * (k == 0 ? 235 : k == 1 ? 120 : 55)));
-                float rr = Math.max(0f, rad - in);
-                c.drawRoundRect(box, rr, rr, p);
-            }
-            p.setStyle(Paint.Style.FILL);
+            float rad = round ? Math.min(r.width(), r.height()) / 2f : 6f * d;
+            p.setStyle(Paint.Style.FILL);              // a faint veil
             p.setColor(AMBER);
-            p.setAlpha(Math.round(level * 60));
+            p.setAlpha(Math.round(level * 22));
             box.set(r.left, r.top, r.right, r.bottom);
             c.drawRoundRect(box, rad, rad, p);
+            p.setStyle(Paint.Style.STROKE);            // a soft halo inside the edge, then a fine bright line
+            float in = 2.5f * d;
+            box.set(r.left + in, r.top + in, r.right - in, r.bottom - in);
+            float rr = Math.max(0f, rad - in);
+            if (box.width() > 0f && box.height() > 0f) {
+                p.setStrokeWidth(4f * d);
+                p.setAlpha(Math.round(level * 34));
+                c.drawRoundRect(box, rr, rr, p);
+            }
+            in = 0.75f * d;
+            box.set(r.left + in, r.top + in, r.right - in, r.bottom - in);
+            rr = Math.max(0f, rad - in);
+            p.setStrokeWidth(1.5f * d);
+            p.setAlpha(Math.round(level * 150));
+            c.drawRoundRect(box, rr, rr, p);
         }
 
         public void setAlpha(int alpha) {

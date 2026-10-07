@@ -18,16 +18,19 @@ import com.isaigu.gymapp.widget.VerticalColorSeekBar;
 import java.util.WeakHashMap;
 
 /**
- * What the row shows, main impulse (green) or second impulse (yellow), per control (owner, 1.1.383).
+ * What the row shows, main impulse (green) or second impulse (yellow), per control.
  * <ul>
- *   <li><b>Follows the row's double-impulse button</b> (wearable/DoubleImpulse): in the second impulse's setup — the
- *       suit gets the second impulse only then — the channel bars fill yellow and show its own percents and strength
- *       per channel, the avatar ring shows its total strength in yellow (unless the main MA / Hz is picked); in the
- *       normal mode all is green and every control sets the main impulse.</li>
+ *   <li><b>The channel bars and their percents follow the impulse that runs</b> (owner, 1.1.384): in the pause phase of
+ *       a running row with the double impulse they fill yellow and show the second impulse's own percents and strength
+ *       per channel; in the impulse phase all is green again. In the second impulse's setup (wearable/DoubleImpulse —
+ *       the suit gets the second impulse only then) they stay yellow.</li>
+ *   <li><b>The avatar ring</b> is the main impulse's, except in the setup (yellow, the second impulse's strength,
+ *       unless the main MA / Hz is picked): it is the row's master control and never jumps with the phase.</li>
  *   <li><b>What is being set keeps its look:</b> a bar or the ring under the finger (the look it had when the finger
- *       went down) — plus {@link #HOLD_MS} after the release, so the result is seen where it was set.</li>
- *   <li>What a release changes: in the setup the second impulse alone; otherwise the main one (the second keeps its
- *       share of it — the stock coupling).</li>
+ *       went down) — plus {@link #HOLD_MS} after the release, so the result is seen where it was set. A bar released
+ *       in the yellow look sets that channel's second impulse (what was seen is what is set); the setup sets the
+ *       second impulse everywhere; otherwise the main one (the second keeps its share of its strength — the stock
+ *       coupling).</li>
  * </ul>
  * Hooks (scripts/apply-part-look.py): end of TrainViewHolder.updateUI ({@link #paint}), the bar's move
  * ({@link #drag}) and release (PartStrength.bar), the ring's move ({@link #ringMove}) and release ({@link #ringEnd});
@@ -60,10 +63,20 @@ public final class PartLook {
 
     // ================================================================ which look
 
-    /** The row is in the second impulse's setup (its controls set the second impulse; the suit gets only it). */
+    /**
+     * The second impulse is what the row shows now: the setup (wearable/DoubleImpulse), or a running row in its pause
+     * phase with the second impulse within the limits.
+     */
     public static boolean live(TrainItem item, ProgramDataBean b) {
         try {
-            return item != null && b != null && b.activePause && DoubleImpulse.active(item);
+            if (item == null || b == null || !b.activePause) {
+                return false;
+            }
+            if (DoubleImpulse.active(item)) {
+                return true;
+            }
+            return item.data != null && item.data.start && !item.data.inStart
+                    && SafeGuard.pause(b, SafeGuard.free2(item)) != null;
         } catch (Throwable t) {
             return false;
         }
@@ -83,7 +96,7 @@ public final class PartLook {
         return null;
     }
 
-    /** Channel {@code i}'s bar: true = second impulse look (the setup). */
+    /** Channel {@code i}'s bar: true = second impulse look (the setup, or the pause phase it shows). */
     static boolean barSecond(TrainItem item, ProgramDataBean b, Object bar, int i, boolean live) {
         Lock l = held(bar);
         if (l != null) {
@@ -92,7 +105,7 @@ public final class PartLook {
         return b != null && b.activePause && live;
     }
 
-    /** The avatar ring: true = second impulse look (the setup, unless the main MA / Hz is picked). */
+    /** The avatar ring: true = second impulse look (the setup only, unless the main MA / Hz is picked). */
     static boolean ringSecond(TrainItem item, ProgramDataBean b, boolean live) {
         if (b == null || !b.activePause || MusicSync.isRunning()) {
             return false;                                 // music drives the ring
@@ -101,7 +114,13 @@ public final class PartLook {
         if (l != null) {
             return l.second;
         }
-        return live && !item.isMaSelected() && !item.isHzSelected();
+        return DoubleImpulse.active(item) && !item.isMaSelected() && !item.isHzSelected();
+    }
+
+    /** A bar under the finger (or just released) in the second impulse's look: its release sets the second impulse. */
+    static boolean lockedSecond(View bar) {
+        Lock l = bar != null ? held(bar) : null;
+        return l != null && l.second;
     }
 
     /** No index and no channel selected: the ring stands for the row's strength (main, or second when yellow). */

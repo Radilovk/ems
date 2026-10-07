@@ -63,150 +63,276 @@
 
 # virtual methods
 .method public draw(Landroid/graphics/Canvas;)V
-    .registers 14
+    .registers 11
 
     .prologue
-    const/16 v11, -0x3ef9
-
-    const/high16 v10, 0x40400000    # 3.0f
-
-    const/4 v9, 0x0
+    const/4 v8, 0x0
 
     .line 878
     iget v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->level:F
 
-    cmpg-float v0, v0, v9
+    cmpg-float v0, v0, v8
 
-    if-gtz v0, :cond_c
+    if-gtz v0, :cond_8
 
-    .line 901
-    :goto_b
+    .line 903
+    :goto_7
     return-void
 
     .line 881
-    :cond_c
+    :cond_8
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->getBounds()Landroid/graphics/Rect;
 
-    move-result-object v3
+    move-result-object v1
 
     .line 882
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->round:Z
 
-    if-eqz v0, :cond_8e
+    if-eqz v0, :cond_ee
 
-    invoke-virtual {v3}, Landroid/graphics/Rect;->width()I
+    invoke-virtual {v1}, Landroid/graphics/Rect;->width()I
 
     move-result v0
 
-    invoke-virtual {v3}, Landroid/graphics/Rect;->height()I
+    invoke-virtual {v1}, Landroid/graphics/Rect;->height()I
 
-    move-result v1
+    move-result v2
 
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
+    invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
 
     move-result v0
 
     int-to-float v0, v0
 
-    const/high16 v1, 0x40000000    # 2.0f
+    const/high16 v2, 0x40000000    # 2.0f
 
-    div-float/2addr v0, v1
+    div-float/2addr v0, v2
 
     .line 883
-    :goto_24
-    const/4 v1, 0x0
+    :goto_20
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
 
-    move v2, v1
+    sget-object v3, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
-    :goto_26
-    const/4 v1, 0x3
-
-    if-ge v2, v1, :cond_5a
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
     .line 884
-    const/high16 v1, 0x3fc00000    # 1.5f
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
 
-    int-to-float v4, v2
+    const/16 v3, -0x3ef9
 
-    mul-float/2addr v4, v10
-
-    add-float/2addr v1, v4
-
-    iget v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
-
-    mul-float/2addr v4, v1
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 885
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
 
-    iget v5, v3, Landroid/graphics/Rect;->left:I
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->level:F
+
+    const/high16 v4, 0x41b00000    # 22.0f
+
+    mul-float/2addr v3, v4
+
+    invoke-static {v3}, Ljava/lang/Math;->round(F)I
+
+    move-result v3
+
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setAlpha(I)V
+
+    .line 886
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+
+    iget v3, v1, Landroid/graphics/Rect;->left:I
+
+    int-to-float v3, v3
+
+    iget v4, v1, Landroid/graphics/Rect;->top:I
+
+    int-to-float v4, v4
+
+    iget v5, v1, Landroid/graphics/Rect;->right:I
 
     int-to-float v5, v5
 
-    add-float/2addr v5, v4
-
-    iget v6, v3, Landroid/graphics/Rect;->top:I
+    iget v6, v1, Landroid/graphics/Rect;->bottom:I
 
     int-to-float v6, v6
 
-    add-float/2addr v6, v4
+    invoke-virtual {v2, v3, v4, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
 
-    iget v7, v3, Landroid/graphics/Rect;->right:I
+    .line 887
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v2, v0, v0, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+
+    .line 888
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
+
+    sget-object v3, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
+
+    invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+
+    .line 889
+    const/high16 v2, 0x40200000    # 2.5f
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
+
+    mul-float/2addr v2, v3
+
+    .line 890
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+
+    iget v4, v1, Landroid/graphics/Rect;->left:I
+
+    int-to-float v4, v4
+
+    add-float/2addr v4, v2
+
+    iget v5, v1, Landroid/graphics/Rect;->top:I
+
+    int-to-float v5, v5
+
+    add-float/2addr v5, v2
+
+    iget v6, v1, Landroid/graphics/Rect;->right:I
+
+    int-to-float v6, v6
+
+    sub-float/2addr v6, v2
+
+    iget v7, v1, Landroid/graphics/Rect;->bottom:I
 
     int-to-float v7, v7
 
-    sub-float/2addr v7, v4
+    sub-float/2addr v7, v2
 
-    iget v8, v3, Landroid/graphics/Rect;->bottom:I
+    invoke-virtual {v3, v4, v5, v6, v7}, Landroid/graphics/RectF;->set(FFFF)V
 
-    int-to-float v8, v8
+    .line 891
+    sub-float v2, v0, v2
 
-    sub-float/2addr v8, v4
+    invoke-static {v8, v2}, Ljava/lang/Math;->max(FF)F
 
-    invoke-virtual {v1, v5, v6, v7, v8}, Landroid/graphics/RectF;->set(FFFF)V
+    move-result v2
 
-    .line 886
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+    .line 892
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
 
-    invoke-virtual {v1}, Landroid/graphics/RectF;->width()F
+    invoke-virtual {v3}, Landroid/graphics/RectF;->width()F
 
-    move-result v1
+    move-result v3
 
-    cmpg-float v1, v1, v9
+    cmpl-float v3, v3, v8
 
-    if-lez v1, :cond_5a
+    if-lez v3, :cond_ae
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
 
-    invoke-virtual {v1}, Landroid/graphics/RectF;->height()F
+    invoke-virtual {v3}, Landroid/graphics/RectF;->height()F
 
-    move-result v1
+    move-result v3
 
-    cmpg-float v1, v1, v9
+    cmpl-float v3, v3, v8
 
-    if-gtz v1, :cond_94
+    if-lez v3, :cond_ae
 
-    .line 896
-    :cond_5a
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
+    .line 893
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
 
-    sget-object v2, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
+    const/high16 v4, 0x40800000    # 4.0f
 
-    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+    iget v5, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
+
+    mul-float/2addr v4, v5
+
+    invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 894
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
+
+    iget v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->level:F
+
+    const/high16 v5, 0x42080000    # 34.0f
+
+    mul-float/2addr v4, v5
+
+    invoke-static {v4}, Ljava/lang/Math;->round(F)I
+
+    move-result v4
+
+    invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setAlpha(I)V
+
+    .line 895
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
+
+    invoke-virtual {p1, v3, v2, v2, v4}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
     .line 897
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
+    :cond_ae
+    const/high16 v2, 0x3f400000    # 0.75f
 
-    invoke-virtual {v1, v11}, Landroid/graphics/Paint;->setColor(I)V
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
+
+    mul-float/2addr v2, v3
 
     .line 898
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
+
+    iget v4, v1, Landroid/graphics/Rect;->left:I
+
+    int-to-float v4, v4
+
+    add-float/2addr v4, v2
+
+    iget v5, v1, Landroid/graphics/Rect;->top:I
+
+    int-to-float v5, v5
+
+    add-float/2addr v5, v2
+
+    iget v6, v1, Landroid/graphics/Rect;->right:I
+
+    int-to-float v6, v6
+
+    sub-float/2addr v6, v2
+
+    iget v1, v1, Landroid/graphics/Rect;->bottom:I
+
+    int-to-float v1, v1
+
+    sub-float/2addr v1, v2
+
+    invoke-virtual {v3, v4, v5, v6, v1}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 899
+    sub-float/2addr v0, v2
+
+    invoke-static {v8, v0}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    .line 900
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
+
+    const/high16 v2, 0x3fc00000    # 1.5f
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
+
+    mul-float/2addr v2, v3
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+
+    .line 901
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->level:F
 
-    const/high16 v4, 0x42700000    # 60.0f
+    const/high16 v3, 0x43160000    # 150.0f
 
-    mul-float/2addr v2, v4
+    mul-float/2addr v2, v3
 
     invoke-static {v2}, Ljava/lang/Math;->round(F)I
 
@@ -214,130 +340,31 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 899
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
-
-    iget v2, v3, Landroid/graphics/Rect;->left:I
-
-    int-to-float v2, v2
-
-    iget v4, v3, Landroid/graphics/Rect;->top:I
-
-    int-to-float v4, v4
-
-    iget v5, v3, Landroid/graphics/Rect;->right:I
-
-    int-to-float v5, v5
-
-    iget v3, v3, Landroid/graphics/Rect;->bottom:I
-
-    int-to-float v3, v3
-
-    invoke-virtual {v1, v2, v4, v5, v3}, Landroid/graphics/RectF;->set(FFFF)V
-
-    .line 900
+    .line 902
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v1, v0, v0, v2}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    goto/16 :goto_b
+    goto/16 :goto_7
 
     .line 882
-    :cond_8e
-    const/high16 v0, 0x41000000    # 8.0f
+    :cond_ee
+    const/high16 v0, 0x40c00000    # 6.0f
 
-    iget v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
 
-    mul-float/2addr v0, v1
+    mul-float/2addr v0, v2
 
-    goto :goto_24
-
-    .line 889
-    :cond_94
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
-
-    sget-object v5, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
-
-    invoke-virtual {v1, v5}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
-
-    .line 890
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
-
-    iget v5, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->d:F
-
-    mul-float/2addr v5, v10
-
-    invoke-virtual {v1, v5}, Landroid/graphics/Paint;->setStrokeWidth(F)V
-
-    .line 891
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
-
-    invoke-virtual {v1, v11}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 892
-    iget-object v5, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
-
-    iget v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->level:F
-
-    if-nez v2, :cond_cb
-
-    const/16 v1, 0xeb
-
-    :goto_b0
-    int-to-float v1, v1
-
-    mul-float/2addr v1, v6
-
-    invoke-static {v1}, Ljava/lang/Math;->round(F)I
-
-    move-result v1
-
-    invoke-virtual {v5, v1}, Landroid/graphics/Paint;->setAlpha(I)V
-
-    .line 893
-    sub-float v1, v0, v4
-
-    invoke-static {v9, v1}, Ljava/lang/Math;->max(FF)F
-
-    move-result v1
-
-    .line 894
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->box:Landroid/graphics/RectF;
-
-    iget-object v5, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;->p:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v4, v1, v1, v5}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
-
-    .line 883
-    add-int/lit8 v1, v2, 0x1
-
-    move v2, v1
-
-    goto/16 :goto_26
-
-    .line 892
-    :cond_cb
-    const/4 v1, 0x1
-
-    if-ne v2, v1, :cond_d1
-
-    const/16 v1, 0x78
-
-    goto :goto_b0
-
-    :cond_d1
-    const/16 v1, 0x37
-
-    goto :goto_b0
+    goto/16 :goto_20
 .end method
 
 .method public getOpacity()I
     .registers 2
 
     .prologue
-    .line 910
+    .line 912
     const/4 v0, -0x3
 
     return v0
@@ -347,7 +374,7 @@
     .registers 2
 
     .prologue
-    .line 904
+    .line 906
     return-void
 .end method
 
@@ -355,6 +382,6 @@
     .registers 2
 
     .prologue
-    .line 907
+    .line 909
     return-void
 .end method

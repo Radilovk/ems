@@ -405,7 +405,7 @@
     goto :goto_6d
 
     :cond_80
-    const v1, 0x3f266666    # 0.65f
+    const v1, 0x3ecccccd    # 0.4f
 
     mul-float/2addr v1, v2
 

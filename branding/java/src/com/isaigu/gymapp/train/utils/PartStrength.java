@@ -286,9 +286,10 @@ public final class PartStrength {
 
     /**
      * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the bar's
-     * percent). The row in the second impulse's setup — the channel's second impulse alone (percent of the second
-     * impulse's strength), the main stays; otherwise a marked (green) channel — its main impulse alone, the second
-     * stays; not marked — both impulses get the percent (the second keeps following the main, as its strength does).
+     * percent). The row in the second impulse's setup, or the bar in the yellow look when the finger went down (the
+     * pause phase, PartLook) — the channel's second impulse alone (percent of the second impulse's strength), the main
+     * stays; otherwise a marked (green) channel — its main impulse alone, the second stays; not marked — both impulses
+     * get the percent (the second keeps following the main, as its strength does).
      */
     public static void bar(View view, TrainProgram prog, ProgramDataBean b, int i, int stored) {
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
@@ -296,10 +297,11 @@ public final class PartStrength {
             return;
         }
         try {
+            boolean seenSecond = PartLook.lockedSecond(view);   // the look the bar had under the finger
             PartLook.release(view);
             PartPick.touch();
             boolean marked = PartPick.isMarked(i);
-            if (b.activePause && DoubleImpulse.active(prog)) {
+            if (b.activePause && (DoubleImpulse.active(prog) || seenSecond)) {
                 boolean[] y = new boolean[parts.length];
                 y[i] = true;
                 int p2 = Math.min(b.pauseStrenthPercent, secondCap(null, b));

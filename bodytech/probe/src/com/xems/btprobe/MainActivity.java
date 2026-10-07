@@ -89,8 +89,19 @@ public class MainActivity extends Activity implements Link.Listener {
     final int[] slotAns = new int[5];
     double slotShiftUs;
     long slotFrom;
-    /** Slide speed: B's period this many µs longer while it slides (≈ 8 µs per ms at 85 Hz). */
-    static final int SLOT_D = 100;
+    /** The two-channel tests run at the Hz stepper only inside 50–150 Hz, else at 85 (0.6 ran at 2 Hz: 21 min slide). */
+    static final int TEST_HZ_MIN = 50, TEST_HZ_MAX = 150, TEST_HZ = 85;
+
+    int testHz() { return hz >= TEST_HZ_MIN && hz <= TEST_HZ_MAX ? hz : TEST_HZ; }
+
+    /** Worker: sleeps until the time is up, the test is stopped (■ СТОП) or left. Keeps SYNC going. */
+    void sleepTest(long ms) {
+        long end = SystemClock.elapsedRealtime() + ms;
+        while (!abort && uiTest && SystemClock.elapsedRealtime() < end) {
+            link.keepAlive(4000);
+            SystemClock.sleep(Math.min(20, Math.max(1, end - SystemClock.elapsedRealtime())));
+        }
+    }
     int lastBatteryRaw = -1;
 
     // parameters (defaults = EMSFIT program: 85 Hz, 360 µs, 0.4 s up, 4 s work, 0.4 s down, 4 s pause)
@@ -126,7 +137,7 @@ public class MainActivity extends Activity implements Link.Listener {
         setContentView(buildUi());
         link = new Link(this, this);
         adapter = BluetoothAdapter.getDefaultAdapter();
-        onLog("XEMS BT Probe 0.6 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
+        onLog("XEMS BT Probe 0.7 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
                 + " (API " + Build.VERSION.SDK_INT + ") · " + startedAt);
         if (Build.VERSION.SDK_INT >= 23
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -1197,7 +1208,7 @@ public class MainActivity extends Activity implements Link.Listener {
         isoB = 32 - Integer.numberOfLeadingZeros(m);
         isoLvA = level[isoA];
         isoLvB = level[isoB];
-        isoP = 1000000 / Math.max(1, hz);
+        isoP = 1000000 / testHz();
         Arrays.fill(isoAns, -1);
         isoBeat[0] = isoBeat[1] = Double.NaN;
         testBusy = true;
@@ -1425,7 +1436,7 @@ public class MainActivity extends Activity implements Link.Listener {
         isoB = 32 - Integer.numberOfLeadingZeros(m);
         isoLvA = level[isoA];
         isoLvB = level[isoB];
-        isoP = 1000000 / Math.max(1, hz);
+        isoP = 1000000 / testHz();
         Arrays.fill(slotAns, -1);
         slotShiftUs = Double.NaN;
         testBusy = true;
@@ -1459,7 +1470,7 @@ public class MainActivity extends Activity implements Link.Listener {
     }
 
     void slotAligned() {
-        ask("1/5 · C" + isoA + " и C" + isoB + " тръгнаха заедно, еднаква честота. Взаимодействие?", SLOT_SEEN,
+        ask("1/5 · C" + isoA + " и C" + isoB + " тръгнаха заедно, еднаква честота (" + (1000000 / isoP) + " Hz). Взаимодействие?", SLOT_SEEN,
                 new Pick() {
                     @Override public void pick(int i) {
                         if (!uiTest) return;
@@ -1470,31 +1481,62 @@ public class MainActivity extends Activity implements Link.Listener {
                 });
     }
 
-    /** B a little slower for exactly long enough to fall half a period behind A, then back to A's period. */
+    /**
+     * Find the overlap by feel, then step half a period away from it. 0.6 slid blind from an unknown start: after
+     * RESET + one SEL the two channels are not always in step (at 160 Hz they started apart, and the blind slide moved
+     * them INTO each other). Here B runs a little slower (they meet once per ~10 s); the person taps on the knock =
+     * the pulses overlap right now; B stays slow exactly until it has slipped half a period further, then goes back.
+     */
     void slotSlide() {
-        askTitle.setText("2/5 · Отмествам импулсите на C" + isoB + " с половин период…");
-        askButtons.removeAllViews();
         final int b = isoB, p = isoP;
+        final int d = Math.max(1, (int) Math.round((double) p * p / (10 * 1e6)));
+        // half a period of slip at d µs per period of B → that many of B's periods, in ms
+        final long halfMs = Math.round((p / 2.0) / d * (p + d) / 1000.0);
         link.post(new Runnable() {
             @Override public void run() {
-                double want = p / 2.0;
-                long ms = Math.round(want / SLOT_D * (p + SLOT_D) / 1000.0);
-                link.write(Proto.period(b, p + SLOT_D), "подреждане 2: B по-бавен");
-                long t0 = SystemClock.elapsedRealtime();
-                SystemClock.sleep(Math.max(0, ms - 30));
-                while (SystemClock.elapsedRealtime() - t0 < ms) { /* last few ms exactly */ }
-                long t1 = SystemClock.elapsedRealtime();
-                link.write(Proto.period(b, p), "подреждане 2: B обратно");
-                // the second frame lands ~half its write time after t1 → slide ≈ D per period of B while it was slower
-                double slid = (t1 - t0 + 15) * 1000.0 / (p + SLOT_D) * SLOT_D;
-                slotShiftUs = slid % p;
-                link.log(String.format(Locale.US, "  отместване ≈ %.0f µs (цел %.0f µs, %d ms по-бавен)", slotShiftUs, want,
-                        t1 - t0));
-                main.post(new Runnable() {
+                link.write(Proto.period(b, p + d), "подреждане 2: B по-бавен с " + d + " µs — търся застъпването");
+            }
+        });
+        slotFrom = SystemClock.elapsedRealtime();
+        final String[] opts = {"Сега!", "Нищо не усещам"};
+        ask("2/5 · Импулсите на C" + isoB + " бавно се разминават с тези на C" + isoA + " и се срещат веднъж на ~10 s. "
+                + "Натисни „Сега!“ в момента, в който усетиш тласъка.", opts, new Pick() {
+            @Override public void pick(int i) {
+                if (!uiTest) return;
+                final long tap = SystemClock.elapsedRealtime();
+                if (i == 1) {
+                    int watched = (int) ((tap - slotFrom) / 1000);
+                    if (watched < ISO_WATCH_S) {
+                        askTitle.setText("2/5 · Наблюдавай още " + (ISO_WATCH_S - watched) + " s — тласъкът идва веднъж "
+                                + "на ~10 s. Натисни „Сега!“ при него.");
+                        return;
+                    }
+                    onLog("ПОДРЕЖДАНЕ 2: тласък не се усеща за " + watched + " s");
+                    slotAns[1] = 2;
+                    link.post(new Runnable() {
+                        @Override public void run() { link.write(Proto.period(b, p), "подреждане 2: B обратно"); }
+                    });
+                    slotHold();
+                    return;
+                }
+                onLog(String.format(Locale.US, "ПОДРЕЖДАНЕ 2: тласък на %.1f s → още %d ms по-бавен (половин период)",
+                        (tap - slotFrom) / 1000.0, halfMs));
+                askTitle.setText("2/5 · Отмествам с половин период (~" + (halfMs + 500) / 1000 + " s)…");
+                askButtons.removeAllViews();
+                link.post(new Runnable() {
                     @Override public void run() {
-                        if (!uiTest) return;
-                        ask("2/5 · Импулсите на C" + isoB + " са отместени с ~половин период. Взаимодействието:",
-                                SLOT_SEEN, new Pick() {
+                        sleepTest(halfMs - (SystemClock.elapsedRealtime() - tap) - 15);
+                        if (abort || !uiTest) return;
+                        link.write(Proto.period(b, p), "подреждане 2: B обратно (половин период от застъпването)");
+                        long took = SystemClock.elapsedRealtime() - tap;
+                        slotShiftUs = took * 1000.0 / (p + d) * d;
+                        link.log(String.format(Locale.US, "  отместване от застъпването ≈ %.0f µs (цел %d µs)",
+                                slotShiftUs, p / 2));
+                        main.post(new Runnable() {
+                            @Override public void run() {
+                                if (!uiTest) return;
+                                ask("2/5 · Импулсите на C" + isoB + " са на половин период от C" + isoA
+                                        + ". Взаимодействието:", SLOT_SEEN, new Pick() {
                                     @Override public void pick(int i) {
                                         if (!uiTest) return;
                                         slotAns[1] = i;
@@ -1502,6 +1544,8 @@ public class MainActivity extends Activity implements Link.Listener {
                                         slotHold();
                                     }
                                 });
+                            }
+                        });
                     }
                 });
             }
@@ -1533,7 +1577,8 @@ public class MainActivity extends Activity implements Link.Listener {
         link.post(new Runnable() {
             @Override public void run() {
                 link.write(Proto.intensity(b, Math.max(1, lb - 1)), "подреждане 4: корекция на силата на B");
-                SystemClock.sleep(1500);
+                sleepTest(1500);
+                if (abort || !uiTest) return;
                 link.write(Proto.intensity(b, lb), null);
             }
         });
@@ -1554,7 +1599,8 @@ public class MainActivity extends Activity implements Link.Listener {
         link.post(new Runnable() {
             @Override public void run() {
                 link.write(Proto.enable(1 << (a - 1)), "подреждане 5: B изкл (като пауза)");
-                SystemClock.sleep(2000);
+                sleepTest(2000);
+                if (abort || !uiTest) return;
                 link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), "подреждане 5: B вкл");
             }
         });
@@ -1578,14 +1624,16 @@ public class MainActivity extends Activity implements Link.Listener {
         r.append("• След корекция на силата: ").append(slotWord(slotAns[3])).append('\n');
         r.append("• След пауза (SEL изкл/вкл): ").append(slotWord(slotAns[4])).append('\n');
         r.append("→ ");
-        if (slotAns[0] == 1 && slotAns[1] == 0 && slotAns[2] == 0) {
+        if (slotAns[1] == 0 && slotAns[2] == 0) {
             r.append("Подреждането РАБОТИ и се държи. ");
             r.append(slotAns[3] == 0 ? "Корекциите на силата не го развалят. " : "Корекцията на силата го разваля → "
                     + "след всяка корекция подреждане наново. ");
             r.append(slotAns[4] == 0 ? "Паузата (SEL) не го разваля."
                     : "Паузата (SEL) го разваля → B тръгва отново заедно с A: подреждане след всяка пауза.");
         } else if (slotAns[1] == 1) {
-            r.append("Отместването не помогна — началото на каналите не е общо или отместването не е точно. Прати лога.");
+            r.append("Отместването не помогна — прати лога.");
+        } else if (slotAns[1] == 2) {
+            r.append("Тласъкът не се усети — вдигни силата на двата канала и пусни пак.");
         } else {
             r.append("Неясно — прати лога.");
         }

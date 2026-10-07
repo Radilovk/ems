@@ -141,7 +141,7 @@ public class PartSim {
         // plain pause: all green, nothing in setup
         it.data.start = true;
         it.data.inStart = false;
-        check(!DoubleImpulse.active(it) && !PartLook.live(it, b), "plain pause: no setup");
+        check(!DoubleImpulse.active(it) && !PartLook.live(it, b), "plain pause: no setup, nothing yellow");
         // tap: the second impulse on, the setup — 2nd MA picked, all yellow, the suit gets the second only
         tap(it);
         check(b.activePause && DoubleImpulse.active(it), "tap: second impulse on, setup");
@@ -181,8 +181,12 @@ public class PartSim {
         }
         check(b.activePause && !DoubleImpulse.active(it), "5 s idle: normal double impulse");
         check(!it.isPauseMaSelected(), "normal: the 2nd MA pick is gone");
+        it.data.inStart = false;
+        check(PartLook.barSecond(it, b, null, 3, PartLook.live(it, b)), "normal, pause phase: bars show impulse 2");
+        check(!PartLook.ringSecond(it, b, PartLook.live(it, b)), "normal, pause phase: the ring stays main");
+        it.data.inStart = true;
         check(!PartLook.barSecond(it, b, null, 3, PartLook.live(it, b))
-                && !PartLook.ringSecond(it, b, PartLook.live(it, b)), "normal: all green");
+                && !PartLook.ringSecond(it, b, PartLook.live(it, b)), "normal, impulse phase: all green");
         check(!DoubleImpulse.holding(it), "normal: the two impulses take turns");
         // normal: the free ring is the stock (main) one
         PartLook.ringMove(it);

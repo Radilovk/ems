@@ -120,7 +120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
-- `scripts/part-sim/PartSim.java` (400L) — Offline test of the double-impulse button (wearable/DoubleImpulse: tap = setup / off, 5 s → normal, hold = sync) and of…
+- `scripts/part-sim/PartSim.java` (404L) — Offline test of the double-impulse button (wearable/DoubleImpulse: tap = setup / off, 5 s → normal, hold = sync) and of…
 - `scripts/part-sim/run.sh` (16L) — Offline test of the double-impulse button (setup / off / 5 s / sync) and the second impulse per channel
 - `scripts/part-sim/shim/android/os/Handler.java` (10L) — Test shim: the android.jar stub throws in the constructor.
 - `scripts/part-sim/shim/android/os/Looper.java` (7L) — Test shim.
@@ -245,8 +245,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (33L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartLook.java` (500L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control (owner, 1.1.383).
-- `PartStrength.java` (439L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
+- `PartLook.java` (519L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
+- `PartStrength.java` (441L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
 
@@ -260,7 +260,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `CardPublisher.java` (136L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
-- `DoubleImpulse.java` (1049L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
+- `DoubleImpulse.java` (1051L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -879,19 +879,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-part-strength.md` (167L)
+`docs/xems-part-strength.md` (176L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
   - L28 ## Къде е вързано (`scripts/apply-part-strength.py`, последен в `build-apk.sh`)
   - L35 ## Проверки
   - L43 ## Бутонът „Двоен импулс“ на реда (1.1.383-ai) — заменя цикъла зелено → жълто и задържането 3 s
-  - L77 ## Зелено / жълто / изключено (1.1.366-ai)
-  - L96 ### Как работи
-  - L105 ### Съхранение по клиент и сървър
-  - L109 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
-  - L117 ### Защо 1.1.362–365 не работеше
-  - L122 ## Жълто = вторият импулс на екрана (1.1.369-ai)
-  - L154 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
+  - L86 ## Зелено / жълто / изключено (1.1.366-ai)
+  - L105 ### Как работи
+  - L114 ### Съхранение по клиент и сървър
+  - L118 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
+  - L126 ### Защо 1.1.362–365 не работеше
+  - L131 ## Жълто = вторият импулс на екрана (1.1.369-ai)
+  - L163 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
 
 `docs/xems-plan.md` (62L)
   - L1 # XEMS — „План“ и следващ клиент (1.1.188-ai)

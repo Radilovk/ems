@@ -21,6 +21,10 @@ Probe 0.4 isolation test (2026-10-07, person in the suit, C1 + C4 at 43, 85 Hz, 
 SEL bit still on isolates it**, as does SEL off. Beat test (B 14 µs slower, the pulses meet every ~9.9 s): felt
 "steady, no rhythm" — but watched only 12 s, so not conclusive. T1–T4 written alone while running (no RESET) did
 not change the cycle within 9 s (the running 60 s T2 went on) — probe 0.5 reprograms with RESET.
+Probe 0.5 (same day, same pair, `bodytech/logs/probe-0.5-isolation-20261007.txt`): **the interaction is pulse
+overlap.** With B 14 µs slower the felt knock came every 9.9 s (expected 9.9 s, 6 taps over 72 s); 28 µs slower →
+4.5 s (expected 4.9 s). Two channels on the same period started by one SEL stay in step (felt constantly). The
+suit's own cycle works after RESET + full program, and B's T4 pause isolates it like intensity 0.
 Still open (needs a person): muscle check of the channel map, watchdog stop time, battery under a real load.
 
 ## Link

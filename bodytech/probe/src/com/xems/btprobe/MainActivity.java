@@ -85,6 +85,12 @@ public class MainActivity extends Activity implements Link.Listener {
     long isoBeatFrom;
     /** A steady answer counts only after this long: one knock comes every ~10 s, 0.4 saw only 12 s. */
     static final int ISO_WATCH_S = 30;
+    /** Slot test (0.6): answers 0 aligned, 1 after the slide, 2 after 60 s, 3 after a strength write, 4 after SEL off/on. */
+    final int[] slotAns = new int[5];
+    double slotShiftUs;
+    long slotFrom;
+    /** Slide speed: B's period this many µs longer while it slides (≈ 8 µs per ms at 85 Hz). */
+    static final int SLOT_D = 100;
     int lastBatteryRaw = -1;
 
     // parameters (defaults = EMSFIT program: 85 Hz, 360 µs, 0.4 s up, 4 s work, 0.4 s down, 4 s pause)
@@ -120,7 +126,7 @@ public class MainActivity extends Activity implements Link.Listener {
         setContentView(buildUi());
         link = new Link(this, this);
         adapter = BluetoothAdapter.getDefaultAdapter();
-        onLog("XEMS BT Probe 0.5 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
+        onLog("XEMS BT Probe 0.6 · " + Build.MANUFACTURER + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE
                 + " (API " + Build.VERSION.SDK_INT + ") · " + startedAt);
         if (Build.VERSION.SDK_INT >= 23
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -286,6 +292,10 @@ public class MainActivity extends Activity implements Link.Listener {
             @Override public void onClick(View v) { isoStart(); }
         });
         c2.addView(iso, new LinearLayout.LayoutParams(-1, dp(54)));
+        Button slot = button("Подреждане на импулсите (2 канала)", BLUE, new View.OnClickListener() {
+            @Override public void onClick(View v) { slotStart(); }
+        });
+        c2.addView(slot, new LinearLayout.LayoutParams(-1, dp(54)));
         askBox = new LinearLayout(this);
         askBox.setOrientation(LinearLayout.VERTICAL);
         askBox.setPadding(dp(10), dp(8), dp(10), dp(10));
@@ -1275,7 +1285,7 @@ public class MainActivity extends Activity implements Link.Listener {
         main.postDelayed(new IsoClock(k), 1000);
         link.post(new Runnable() {
             @Override public void run() {
-                link.write(Proto.period(b, p + d), "изолация " + (4 + k) + ": B период " + (p + d) + " µs");
+                link.write(Proto.period(b, p + d), "изолация 4" + (k == 0 ? "" : "б") + ": B период " + (p + d) + " µs");
                 link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), null);
             }
         });
@@ -1395,6 +1405,209 @@ public class MainActivity extends Activity implements Link.Listener {
                 });
             }
         });
+    }
+
+    // =====================================================================================
+    // slot test (0.6): 0.5 showed the two channels act on each other only where their pulses overlap (the knock
+    // followed the beat, 9.9 s / 4.5 s). Here B's pulses are slid half a period away from A's and kept there.
+
+    static final String[] SLOT_SEEN = {"Няма взаимодействие", "Има взаимодействие", "Не мога да кажа"};
+
+    void slotStart() {
+        if (!requireReady() || testBusy) return;
+        int m = onMask();
+        if (Integer.bitCount(m) != 2) {
+            result.setText("Вдигни сила само на ДВА канала — толкова, че да усещаш взаимодействието. После натисни "
+                    + "„Подреждане“.");
+            return;
+        }
+        isoA = Integer.numberOfTrailingZeros(m) + 1;
+        isoB = 32 - Integer.numberOfLeadingZeros(m);
+        isoLvA = level[isoA];
+        isoLvB = level[isoB];
+        isoP = 1000000 / Math.max(1, hz);
+        Arrays.fill(slotAns, -1);
+        slotShiftUs = Double.NaN;
+        testBusy = true;
+        uiTest = true;
+        running = false;
+        showRunState();
+        final int a = isoA, b = isoB, la = isoLvA, lb = isoLvB, fW = widthUs, p = isoP;
+        result.setText("Подреждане: C" + a + " (A) и C" + b + " (B)…");
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.log("===== ПОДРЕЖДАНЕ: A = C" + a + " сила " + la + ", B = C" + b + " сила " + lb + ", период "
+                        + p + " µs, " + fW + " µs, без пауза =====");
+                slotProgram(a, b, la, lb, p, fW);
+                main.post(new Runnable() {
+                    @Override public void run() { if (uiTest) slotAligned(); }
+                });
+            }
+        });
+    }
+
+    /** Worker: RESET, every channel continuous, A and B on the same period, both on together. */
+    void slotProgram(int a, int b, int la, int lb, int p, int fW) {
+        link.write(Proto.allOff(), "подреждане: програма");
+        link.write(Proto.reset(), null);
+        for (int ch = 1; ch <= 8; ch++) writeChannelProgram(ch, 1000000 / p, fW, 0, 60000, 0, 0, -1, true);
+        link.write(Proto.period(a, p), null);
+        link.write(Proto.period(b, p), null);
+        link.write(Proto.intensity(a, la), null);
+        link.write(Proto.intensity(b, lb), null);
+        link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), "подреждане: A и B заедно");
+    }
+
+    void slotAligned() {
+        ask("1/5 · C" + isoA + " и C" + isoB + " тръгнаха заедно, еднаква честота. Взаимодействие?", SLOT_SEEN,
+                new Pick() {
+                    @Override public void pick(int i) {
+                        if (!uiTest) return;
+                        slotAns[0] = i;
+                        onLog("ПОДРЕЖДАНЕ 1 (заедно): " + SLOT_SEEN[i]);
+                        slotSlide();
+                    }
+                });
+    }
+
+    /** B a little slower for exactly long enough to fall half a period behind A, then back to A's period. */
+    void slotSlide() {
+        askTitle.setText("2/5 · Отмествам импулсите на C" + isoB + " с половин период…");
+        askButtons.removeAllViews();
+        final int b = isoB, p = isoP;
+        link.post(new Runnable() {
+            @Override public void run() {
+                double want = p / 2.0;
+                long ms = Math.round(want / SLOT_D * (p + SLOT_D) / 1000.0);
+                link.write(Proto.period(b, p + SLOT_D), "подреждане 2: B по-бавен");
+                long t0 = SystemClock.elapsedRealtime();
+                SystemClock.sleep(Math.max(0, ms - 30));
+                while (SystemClock.elapsedRealtime() - t0 < ms) { /* last few ms exactly */ }
+                long t1 = SystemClock.elapsedRealtime();
+                link.write(Proto.period(b, p), "подреждане 2: B обратно");
+                // the second frame lands ~half its write time after t1 → slide ≈ D per period of B while it was slower
+                double slid = (t1 - t0 + 15) * 1000.0 / (p + SLOT_D) * SLOT_D;
+                slotShiftUs = slid % p;
+                link.log(String.format(Locale.US, "  отместване ≈ %.0f µs (цел %.0f µs, %d ms по-бавен)", slotShiftUs, want,
+                        t1 - t0));
+                main.post(new Runnable() {
+                    @Override public void run() {
+                        if (!uiTest) return;
+                        ask("2/5 · Импулсите на C" + isoB + " са отместени с ~половин период. Взаимодействието:",
+                                SLOT_SEEN, new Pick() {
+                                    @Override public void pick(int i) {
+                                        if (!uiTest) return;
+                                        slotAns[1] = i;
+                                        onLog("ПОДРЕЖДАНЕ 2 (отместени): " + SLOT_SEEN[i]);
+                                        slotHold();
+                                    }
+                                });
+                    }
+                });
+            }
+        });
+    }
+
+    /** Same period on a common clock → the gap must not move: 60 s without anything sent but SYNC. */
+    void slotHold() {
+        slotFrom = SystemClock.elapsedRealtime();
+        final String[] opts = {"Чисто през цялото време", "Върна се", "Не мога да кажа"};
+        ask("3/5 · Нищо не пращам 60 s (само SYNC). Наблюдавай — връща ли се взаимодействието?", opts, new Pick() {
+            @Override public void pick(int i) {
+                if (!uiTest) return;
+                int watched = (int) ((SystemClock.elapsedRealtime() - slotFrom) / 1000);
+                if (i == 0 && watched < 60) {
+                    askTitle.setText("3/5 · Още " + (60 - watched) + " s, после „Чисто“.");
+                    return;
+                }
+                slotAns[2] = i == 0 ? 0 : i == 1 ? 1 : 2;
+                onLog("ПОДРЕЖДАНЕ 3 (" + watched + " s): " + opts[i]);
+                slotWrite();
+            }
+        });
+    }
+
+    /** A strength correction on B (−1, then back): does writing a register restart B's pulses? */
+    void slotWrite() {
+        final int b = isoB, lb = isoLvB;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.intensity(b, Math.max(1, lb - 1)), "подреждане 4: корекция на силата на B");
+                SystemClock.sleep(1500);
+                link.write(Proto.intensity(b, lb), null);
+            }
+        });
+        ask("4/5 · Сменям силата на C" + isoB + " с −1 и обратно (като корекция). След това взаимодействието:",
+                SLOT_SEEN, new Pick() {
+                    @Override public void pick(int i) {
+                        if (!uiTest) return;
+                        slotAns[3] = i;
+                        onLog("ПОДРЕЖДАНЕ 4 (след запис на сила): " + SLOT_SEEN[i]);
+                        slotSel();
+                    }
+                });
+    }
+
+    /** B out of SEL for 2 s and back in, like a pause between two impulses: does SEL restart B in step with A? */
+    void slotSel() {
+        final int a = isoA, b = isoB;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.enable(1 << (a - 1)), "подреждане 5: B изкл (като пауза)");
+                SystemClock.sleep(2000);
+                link.write(Proto.enable((1 << (a - 1)) | (1 << (b - 1))), "подреждане 5: B вкл");
+            }
+        });
+        ask("5/5 · C" + isoB + " спира за 2 s и тръгва пак (като пауза). След като тръгне, взаимодействието:",
+                SLOT_SEEN, new Pick() {
+                    @Override public void pick(int i) {
+                        if (!uiTest) return;
+                        slotAns[4] = i;
+                        onLog("ПОДРЕЖДАНЕ 5 (след SEL изкл/вкл): " + SLOT_SEEN[i]);
+                        slotFinish();
+                    }
+                });
+    }
+
+    void slotFinish() {
+        hideAsk();
+        StringBuilder r = new StringBuilder("ПОДРЕЖДАНЕ C" + isoA + " / C" + isoB + ":\n");
+        r.append("• Заедно: ").append(slotWord(slotAns[0])).append('\n');
+        r.append(String.format(Locale.US, "• Отместени (~%.0f µs): ", slotShiftUs)).append(slotWord(slotAns[1])).append('\n');
+        r.append("• 60 s без команди: ").append(slotAns[2] == 0 ? "чисто" : slotAns[2] == 1 ? "върна се" : "неясно").append('\n');
+        r.append("• След корекция на силата: ").append(slotWord(slotAns[3])).append('\n');
+        r.append("• След пауза (SEL изкл/вкл): ").append(slotWord(slotAns[4])).append('\n');
+        r.append("→ ");
+        if (slotAns[0] == 1 && slotAns[1] == 0 && slotAns[2] == 0) {
+            r.append("Подреждането РАБОТИ и се държи. ");
+            r.append(slotAns[3] == 0 ? "Корекциите на силата не го развалят. " : "Корекцията на силата го разваля → "
+                    + "след всяка корекция подреждане наново. ");
+            r.append(slotAns[4] == 0 ? "Паузата (SEL) не го разваля."
+                    : "Паузата (SEL) го разваля → B тръгва отново заедно с A: подреждане след всяка пауза.");
+        } else if (slotAns[1] == 1) {
+            r.append("Отместването не помогна — началото на каналите не е общо или отместването не е точно. Прати лога.");
+        } else {
+            r.append("Неясно — прати лога.");
+        }
+        final String text = r.toString();
+        result.setText(text);
+        uiTest = false;
+        link.post(new Runnable() {
+            @Override public void run() {
+                link.write(Proto.allOff(), "подреждане край");
+                for (int ch = 1; ch <= 8; ch++) link.write(Proto.intensity(ch, 0), null);
+                link.log("===== КРАЙ НА ПОДРЕЖДАНЕТО =====\n" + text);
+                uploadProgramOnWorker();
+                testBusy = false;
+                main.post(new Runnable() {
+                    @Override public void run() { Arrays.fill(level, 0); refreshLevels(); saveLog(false); }
+                });
+            }
+        });
+    }
+
+    static String slotWord(int a) {
+        return a == 0 ? "няма взаимодействие" : a == 1 ? "ИМА взаимодействие" : "неясно";
     }
 
     static String isoWord(int a) {

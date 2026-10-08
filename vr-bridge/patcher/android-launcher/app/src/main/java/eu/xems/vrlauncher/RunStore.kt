@@ -20,9 +20,12 @@ class RunStore(context: Context) {
     val runId: Long get() = prefs.getLong(K_RUN, 0L)
     val running: Boolean get() = prefs.getBoolean(K_RUNNING, false)
     val command: String get() = prefs.getString(K_COMMAND, "").orEmpty()
+    /** The running command shows its progress in a Termux session (the result still comes back here). */
+    val runVisible: Boolean get() = prefs.getBoolean(K_RUN_VISIBLE, false)
 
-    fun start(runId: Long, command: String, waitForResult: Boolean) {
-        prefs.edit().putLong(K_RUN, runId).putString(K_COMMAND, command).putBoolean(K_RUNNING, waitForResult)
+    fun start(runId: Long, command: String, visible: Boolean) {
+        prefs.edit().putLong(K_RUN, runId).putString(K_COMMAND, command).putBoolean(K_RUNNING, true)
+            .putBoolean(K_RUN_VISIBLE, visible)
             .remove(K_EXIT).remove(K_OUT).remove(K_ERR).remove(K_TERR).remove(K_TERRMSG).apply()
     }
 
@@ -52,6 +55,7 @@ class RunStore(context: Context) {
         private const val K_VISIBLE = "show_in_termux"
         private const val K_RUN = "run_id"
         private const val K_RUNNING = "running"
+        private const val K_RUN_VISIBLE = "run_visible"
         private const val K_COMMAND = "command"
         private const val K_EXIT = "exit"
         private const val K_OUT = "stdout"

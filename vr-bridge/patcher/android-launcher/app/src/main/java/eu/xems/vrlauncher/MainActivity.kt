@@ -1,6 +1,7 @@
 package eu.xems.vrlauncher
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -106,6 +107,23 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
             showProblem(R.string.status_no_termux, R.string.detail_no_termux)
             return
         }
+        confirmReinstall(request)
+    }
+
+    /**
+     * The script runs with --yes (no stdin in Termux), so its "reinstall?" question is asked here instead:
+     * the game's internal saves are lost (new signature), Android/data + obb are kept.
+     */
+    private fun confirmReinstall(request: PatchRequest) {
+        AlertDialog.Builder(this, R.style.Xems_Dialog)
+            .setTitle(getString(R.string.confirm_title, request.targetPackage))
+            .setMessage(getString(R.string.confirm_message, request.targetPackage))
+            .setPositiveButton(R.string.confirm_yes) { _, _ -> checkPermissionAndLaunch(request) }
+            .setNegativeButton(R.string.confirm_no, null)
+            .show()
+    }
+
+    private fun checkPermissionAndLaunch(request: PatchRequest) {
         if (checkSelfPermission(TermuxBridge.PERMISSION) != PackageManager.PERMISSION_GRANTED) {
             pending = request
             requestPermissions(arrayOf(TermuxBridge.PERMISSION), REQ_RUN_COMMAND)
@@ -125,7 +143,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     private fun launch(request: PatchRequest) {
         val runId = System.currentTimeMillis()
         val visible = showInTermux.isChecked
-        store.start(runId, request.commandLine(), waitForResult = !visible)
+        store.start(runId, request.commandLine(), visible)
         try {
             TermuxBridge.run(this, request, runId, visible)
         } catch (e: Exception) {
@@ -141,15 +159,15 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     private fun render() {
         val result = store.lastResult()
         when {
+            store.running && store.runVisible -> setStatus(
+                getString(R.string.status_in_termux), getString(R.string.detail_in_termux),
+                R.color.amber, running = true, log = store.command,
+            )
             store.running -> setStatus(
                 getString(R.string.status_running), getString(R.string.detail_running),
                 R.color.amber, running = true, log = store.command,
             )
             result != null -> renderResult(result)
-            store.runId != 0L -> setStatus(
-                getString(R.string.status_in_termux), getString(R.string.detail_in_termux),
-                R.color.go_text, running = false, log = store.command,
-            )
             else -> setStatus(getString(R.string.status_idle), getString(R.string.detail_idle), R.color.text, false, "")
         }
     }

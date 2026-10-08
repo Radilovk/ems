@@ -1,42 +1,48 @@
 # XEMS VR Launcher (on-device front end)
 
-A tiny Android app that runs the **existing** `../xems_vr_patch.py` locally on the
-phone instead of on a PC. It does not patch, decompile or sign anything itself —
-it only hands a ready-made command line to **Termux** over the documented
-`RunCommandService` IPC. All the real work stays in the Python script.
+A one-screen tablet app that runs the **existing** `../xems_vr_patch.py` inside **Termux** on the same tablet,
+instead of on a PC. It patches nothing itself: it hands a command line to Termux over the documented
+`RunCommandService` IPC and shows what came back.
 
 ```
-GUI (this app)  ──Intent──▶  Termux RunCommandService  ──▶  python3 xems_vr_patch.py <pkg> --tablet <ip> --yes
+app ──RUN_COMMAND──▶ Termux: bash android-launcher/termux-run.sh <quest-ip[:port]> <pkg> [tablet-ip]
+                               ├─ adb connect <quest-ip>:5555, waits for "device"
+                               └─ ANDROID_SERIAL=<quest> python3 xems_vr_patch.py <pkg> --yes [--tablet <tablet-ip>]
+app ◀──PendingIntent (stdout, stderr, exit code)── Termux  →  PatchResultReceiver → RunStore → screen
 ```
 
-## UI
-- **Target Package Name** — the Quest game package (`xems_vr_patch.py --list fight` to find it).
-- **Quest / Tablet IP Address** — passed through as `--tablet <ip>`.
-- **Execute Local Patch** — builds the Intent and fires it.
+## Screen (landscape, XemsUi tokens, light + dark)
+- Left card: **IP на шлема** (`192.168.1.23`, optional `:port`), **Игра** (package — `xems_vr_patch.py --list`),
+  **IP на таблета** — filled automatically with this tablet's Wi-Fi IPv4 (↻ re-detects; empty = the layer
+  finds the tablet by broadcast). Fields are remembered.
+- Right: one green button **Сложи хаптиката** and the status card — running (spinner, 1–3 min), done ✓, or
+  the reason with the last lines of the output.
+- Folded option *Гледай хода в Termux*: a visible Termux session instead (no result comes back then).
 
-## What the button sends
-A `com.termux.RUN_COMMAND` Intent targeting `com.termux.app.RunCommandService`, with:
-
-| Extra | Value |
+## Pieces
+| File | Role |
 |---|---|
-| `RUN_COMMAND_PATH` | `/data/data/com.termux/files/usr/bin/python3` |
-| `RUN_COMMAND_ARGUMENTS` | `["xems_vr_patch.py", "<pkg>", "--tablet", "<ip>", "--yes"]` |
-| `RUN_COMMAND_WORKDIR` | `…/files/home/ems/vr-bridge/patcher` |
-| `RUN_COMMAND_BACKGROUND` | `true` |
+| `termux-run.sh` | Termux side: validates args, `adb connect`, waits for authorisation, runs the patcher |
+| `PatchRequest.kt` | Field validation → argv (pure, unit-tested) |
+| `LanAddress.kt` | Picks the tablet's Wi-Fi IPv4 (wlan → eth → other private; no cellular/VPN) |
+| `TermuxBridge.kt` | RUN_COMMAND Intent + mutable PendingIntent for the result |
+| `PatchResultReceiver.kt`, `RunStore.kt` | Result bundle → prefs; the screen listens and redraws |
+| `PatchResult.kt` | Exit code → outcome, output tail (pure, unit-tested) |
 
-`--yes` is added so the headless background run does not hang on the reinstall
-confirmation prompt.
+`termux-run.sh` exit codes: `0` done · `2` bad arguments · `3` no adb in Termux · `4` `adb connect` failed ·
+`5` headset not authorised · anything else = the patcher's own code.
 
 ## Device setup (one time)
-1. Install Termux, then inside it:
-   `pkg install python android-tools` and clone/copy the `ems/` tree so that
-   `~/ems/vr-bridge/patcher/` (with `../prebuilt/`) exists.
-2. Add `allow-external-apps=true` to `~/.termux/termux.properties`, then
-   `termux-reload-settings`.
-3. Install this app; grant it `com.termux.permission.RUN_COMMAND`.
-4. Same adb prerequisites as a PC run: the Quest in developer mode, reachable by
-   `adb` from Termux (USB-OTG or `adb connect`).
+1. Termux (F-Droid), then inside it: `pkg install python openjdk-17 android-tools git` and clone the repo so
+   that `~/ems/vr-bridge/patcher/` (with `../prebuilt/`) exists.
+2. `echo allow-external-apps=true >> ~/.termux/termux.properties && termux-reload-settings`.
+3. Install this app; allow *Run commands in Termux* when it asks.
+4. Quest 3 in developer mode; once over USB from any computer: `adb tcpip 5555` (Wi-Fi adb stays on until the
+   headset reboots). First `adb connect` → accept *Allow USB debugging* in the headset.
 
-## Build
-`./gradlew :app:assembleDebug` (standard Android/Gradle; not part of the XEMS
-APK-patch pipeline).
+## Build & test
+```
+./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug   # needs ANDROID_HOME (platform 34)
+bash test/termux-run-test.sh                                          # fake adb/python3, no device
+```
+Standalone Gradle project — not part of the XEMS APK-patch pipeline (`build-apk.sh`).

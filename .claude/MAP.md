@@ -264,7 +264,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `ClientSort.java` (608L, compile:music-sync*,wearable) — Order and filters of the client lists — the Потребители tab and the client / program / device picker.
-- `DoubleImpulse.java` (1286L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
+- `DoubleImpulse.java` (1331L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -386,7 +386,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLicenseSection.java` (365L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (223L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here; nothing goes to…
-- `XemsLocalAvatar.java` (1068L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
+- `XemsLocalAvatar.java` (1072L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (351L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
@@ -1212,17 +1212,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Deploy
   - L57 ## Разходи
 
-`vr-bridge/README.md` (76L)
+`vr-bridge/README.md` (78L)
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
   - L43 ## Build (layer)
   - L48 ## Deploy on Quest 3 — `vr-bridge/patcher/xems_vr_patch.py`
-  - L65 ## Protocol
-  - L72 ## Test
+  - L67 ## Protocol
+  - L74 ## Test
 
-`vr-bridge/patcher/android-launcher/README.md` (43L)
+`vr-bridge/patcher/android-launcher/README.md` (49L)
   - L1 # XEMS VR Launcher (on-device front end)
-  - L12 ## UI
-  - L17 ## What the button sends
-  - L30 ## Device setup (one time)
-  - L40 ## Build
+  - L14 ## Screen (landscape, XemsUi tokens, light + dark)
+  - L22 ## Pieces
+  - L35 ## Device setup (one time)
+  - L43 ## Build & test

@@ -11,17 +11,18 @@ android {
         applicationId "eu.xems.vrlauncher"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "1.8" }
+    kotlinOptions { jvmTarget = "17" }
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:1.7.0"
+    // Plain android.app.Activity + Material theme: no AndroidX needed for a one-screen launcher.
+    testImplementation "junit:junit:4.13.2"
 }

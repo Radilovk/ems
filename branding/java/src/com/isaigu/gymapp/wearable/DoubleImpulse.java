@@ -1091,8 +1091,14 @@ public final class DoubleImpulse {
             int[] rt = new int[2];
             v.getLocationInWindow(at);
             root.getLocationInWindow(rt);
+            // Every transform on the way up (owner, 1.1.400): the avatar ring is turned 180° in its layout, so a
+            // plain window position put its glow (handle and arc) mirrored below the row, where nothing is.
             m.setScale(1f / SCALE, 1f / SCALE);
-            m.postTranslate(at[0] - rt[0] + offX, at[1] - rt[1] + offY);
+            m.postTranslate(offX, offY);
+            if (!toRoot(v, root, m)) {
+                m.setScale(1f / SCALE, 1f / SCALE);
+                m.postTranslate(at[0] - rt[0] + offX, at[1] - rt[1] + offY);
+            }
             // What of the control the screen really shows: on a short screen the row clips some of them (owner,
             // 1.1.399) — a clipped control does not glow, a cut one glows only around its visible part.
             android.graphics.Rect vis = new android.graphics.Rect();
@@ -1114,6 +1120,25 @@ public final class DoubleImpulse {
         }
 
         android.graphics.Rect clip;
+
+        /** Maps the view's own coordinates into the root's, rotation / scale / translation of each level included. */
+        static boolean toRoot(View v, View root, android.graphics.Matrix out) {
+            View cur = v;
+            for (int k = 0; k < 64 && cur != null && cur != root; k++) {
+                android.graphics.Matrix own = cur.getMatrix();
+                if (own != null && !own.isIdentity()) {
+                    out.postConcat(own);
+                }
+                out.postTranslate(cur.getLeft(), cur.getTop());
+                if (!(cur.getParent() instanceof View)) {
+                    return false;
+                }
+                View p = (View) cur.getParent();
+                out.postTranslate(-p.getScrollX(), -p.getScrollY());
+                cur = p;
+            }
+            return cur == root;
+        }
 
         static Halo of(View v, View root) {
             int w = v.getWidth(), h = v.getHeight();

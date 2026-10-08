@@ -984,15 +984,15 @@ public final class DoubleImpulse {
 
     /**
      * Three soft glows on the second impulse's controls (owner, 1.1.386: a real glow, no outlines). Each control gets
-     * a halo made from its own shape — the text, the icon, the round key, the bar — blurred and tinted amber, drawn
-     * over the screen (so it spreads beyond the control) and breathing in and out three times. Built once, after the
-     * row has drawn, at half size (the blur hides it).
+     * a halo made from its own shape — the text, the icon, the round key, the bar — blurred and tinted amber, and the
+     * halo lives in <b>that view's own overlay</b> (owner, 1.1.401): it is drawn in the control's own coordinates, so it
+     * moves, turns (the avatar ring is rotated 180°), scales, hides and clips exactly with the control — there is no
+     * position to work out and nothing can drift. It breathes in and out three times.
      */
     static final class Blink implements Runnable {
         final List<View> views;
         final List<View> fade;
         final List<Halo> halos = new ArrayList<Halo>();
-        View root;
         long start;
         boolean built;
 
@@ -1008,16 +1008,25 @@ public final class DoubleImpulse {
         void build() {
             built = true;
             for (View v : views) {
-                if (root == null) {
-                    root = v.getRootView();
-                }
-                Halo h = Halo.of(v, root);
+                Halo h = Halo.of(v);
                 if (h != null) {
-                    root.getOverlay().add(h);
+                    v.getOverlay().add(h);
                     halos.add(h);
                 }
             }
             start = System.currentTimeMillis();
+        }
+
+        void clear() {
+            for (Halo h : halos) {
+                View v = h.view != null ? h.view.get() : null;
+                if (v != null) {
+                    v.getOverlay().remove(h);
+                    v.invalidate();
+                }
+                h.recycle();
+            }
+            halos.clear();
         }
 
         public void run() {
@@ -1026,27 +1035,20 @@ public final class DoubleImpulse {
                     build();
                 }
                 long t = System.currentTimeMillis() - start;
-                boolean end = t >= BLINK_MS * BLINKS || root == null;
+                boolean end = t >= BLINK_MS * BLINKS || halos.isEmpty();
                 float a = 0f;
                 if (!end) {
                     float ph = (t % BLINK_MS) / (float) BLINK_MS;
                     a = (float) Math.sin(Math.PI * ph);
                     a = a * a * (3f - 2f * a);           // smooth in, smooth out
                 }
-                for (Halo h : halos) {
-                    if (end) {
-                        if (root != null) {
-                            root.getOverlay().remove(h);
-                        }
-                        h.recycle();
-                    } else {
+                if (end) {
+                    clear();
+                } else {
+                    for (Halo h : halos) {
                         h.level = a;
-                        h.place(root);
                         h.invalidateSelf();
                     }
-                }
-                if (root != null) {
-                    root.invalidate();
                 }
                 for (View v : fade) {
                     v.setAlpha(end ? 1f : 1f - 0.2f * a);
@@ -1056,10 +1058,10 @@ public final class DoubleImpulse {
                 }
             } catch (Throwable x) {
                 WearableBleDiagLog.log("index", "double glow: " + x);
-                for (Halo h : halos) {
-                    if (root != null) {
-                        root.getOverlay().remove(h);
-                    }
+                try {
+                    clear();
+                } catch (Throwable ignored) {
+                    // the overlay is gone with its view
                 }
                 for (View v : fade) {
                     v.setAlpha(1f);
@@ -1068,81 +1070,18 @@ public final class DoubleImpulse {
         }
     }
 
-    /** A view's glow: its own shape blurred twice (a wide halo and a closer one), tinted amber, at its place. */
+    /** A view's glow: its own shape blurred twice (a wide halo and a closer one), tinted amber, in the view's coordinates. */
     static final class Halo extends Drawable {
         static final float SCALE = 0.5f;
         android.graphics.Bitmap bmp;
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         final android.graphics.Matrix m = new android.graphics.Matrix();
-        float level;
         WeakReference<View> view;
-        float offX, offY;
+        float level;
 
-        /**
-         * Follows its control: the 2nd-impulse buttons have just turned visible and the row may still lay them out
-         * (owner, 1.1.398: halos stayed where the buttons were a frame earlier, apart from them).
-         */
-        void place(View root) {
-            View v = view != null ? view.get() : null;
-            if (v == null || root == null) {
-                return;
-            }
-            int[] at = new int[2];
-            int[] rt = new int[2];
-            v.getLocationInWindow(at);
-            root.getLocationInWindow(rt);
-            // Every transform on the way up (owner, 1.1.400): the avatar ring is turned 180° in its layout, so a
-            // plain window position put its glow (handle and arc) mirrored below the row, where nothing is.
-            m.setScale(1f / SCALE, 1f / SCALE);
-            m.postTranslate(offX, offY);
-            if (!toRoot(v, root, m)) {
-                m.setScale(1f / SCALE, 1f / SCALE);
-                m.postTranslate(at[0] - rt[0] + offX, at[1] - rt[1] + offY);
-            }
-            // What of the control the screen really shows: on a short screen the row clips some of them (owner,
-            // 1.1.399) — a clipped control does not glow, a cut one glows only around its visible part.
-            android.graphics.Rect vis = new android.graphics.Rect();
-            boolean seen = v.isShown() && v.getGlobalVisibleRect(vis);
-            long full = (long) v.getWidth() * v.getHeight();
-            if (!seen || full <= 0 || (long) vis.width() * vis.height() * 2 < full) {
-                level = 0f;
-                clip = null;
-                return;
-            }
-            if (vis.width() < v.getWidth() || vis.height() < v.getHeight()) {
-                int pad = Math.round(10f * v.getResources().getDisplayMetrics().density);
-                // getGlobalVisibleRect is already in the root's frame
-                vis.inset(-pad, -pad);
-                clip = vis;
-            } else {
-                clip = null;
-            }
-        }
-
-        android.graphics.Rect clip;
-
-        /** Maps the view's own coordinates into the root's, rotation / scale / translation of each level included. */
-        static boolean toRoot(View v, View root, android.graphics.Matrix out) {
-            View cur = v;
-            for (int k = 0; k < 64 && cur != null && cur != root; k++) {
-                android.graphics.Matrix own = cur.getMatrix();
-                if (own != null && !own.isIdentity()) {
-                    out.postConcat(own);
-                }
-                out.postTranslate(cur.getLeft(), cur.getTop());
-                if (!(cur.getParent() instanceof View)) {
-                    return false;
-                }
-                View p = (View) cur.getParent();
-                out.postTranslate(-p.getScrollX(), -p.getScrollY());
-                cur = p;
-            }
-            return cur == root;
-        }
-
-        static Halo of(View v, View root) {
+        static Halo of(View v) {
             int w = v.getWidth(), h = v.getHeight();
-            if (w <= 0 || h <= 0 || root == null || !v.isShown()) {
+            if (w <= 0 || h <= 0 || !v.isShown()) {
                 return null;
             }
             float d = v.getResources().getDisplayMetrics().density;
@@ -1161,7 +1100,6 @@ public final class DoubleImpulse {
             blur.setMaskFilter(new android.graphics.BlurMaskFilter(near, android.graphics.BlurMaskFilter.Blur.NORMAL));
             int[] offN = new int[2];
             android.graphics.Bitmap an = src.extractAlpha(blur, offN);
-            src.recycle();
             android.graphics.Bitmap out = android.graphics.Bitmap.createBitmap(aw.getWidth(), aw.getHeight(),
                     android.graphics.Bitmap.Config.ARGB_8888);
             Canvas co = new Canvas(out);
@@ -1172,15 +1110,23 @@ public final class DoubleImpulse {
             tint.setColor(0xFFFFD54F);
             tint.setAlpha(170);
             co.drawBitmap(an, offN[0] - offW[0], offN[1] - offW[1], tint);
+            // A backlight, not a coat of paint (owner, 1.1.404): the control's own shape is cut out of its glow, so the
+            // glow shows only around it and never covers the button, the icon or the text.
+            android.graphics.Bitmap sharp = src.extractAlpha();
+            Paint cut = new Paint();
+            cut.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_OUT));
+            co.drawBitmap(sharp, -offW[0], -offW[1], cut);
+            sharp.recycle();
+            src.recycle();
             aw.recycle();
             an.recycle();
             Halo hl = new Halo();
             hl.bmp = out;
             hl.view = new WeakReference<View>(v);
-            hl.offX = offW[0] / SCALE;
-            hl.offY = offW[1] / SCALE;
-            hl.place(root);
-            hl.setBounds(0, 0, root.getWidth(), root.getHeight());
+            hl.m.setScale(1f / SCALE, 1f / SCALE);
+            hl.m.postTranslate(offW[0] / SCALE, offW[1] / SCALE);   // the view's own coordinates: (0, 0) is its corner
+            int pad = Math.round(40f * d);
+            hl.setBounds(-pad, -pad, w + pad, h + pad);
             return hl;
         }
 
@@ -1189,14 +1135,7 @@ public final class DoubleImpulse {
                 return;
             }
             p.setAlpha(Math.round(level * 235));
-            if (clip != null) {
-                c.save();
-                c.clipRect(clip);
-                c.drawBitmap(bmp, m, p);
-                c.restore();
-            } else {
-                c.drawBitmap(bmp, m, p);
-            }
+            c.drawBitmap(bmp, m, p);
         }
 
         void recycle() {

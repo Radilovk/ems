@@ -13,8 +13,17 @@ object TermuxReport {
         Quest(ip, model.takeIf { it.isNotEmpty() && it != "?" })
     }.distinct()
 
-    /** "game <package>". */
-    fun games(stdout: String): List<String> = lines(stdout, "game ").map(String::trim).filter(String::isNotEmpty).distinct()
+    /** OK = OpenXR loader in the APK (the layer goes in) · VRAPI = old VrApi/OVRPlugin (cannot) · UNKNOWN = neither. */
+    enum class Fit { OK, UNKNOWN, VRAPI }
+
+    data class Game(val pkg: String, val fit: Fit)
+
+    /** "game <package> [ok|vrapi|?]", the ones that can be patched first. */
+    fun games(stdout: String): List<Game> = lines(stdout, "game ").mapNotNull { rest ->
+        val parts = rest.trim().split(Regex("\\s+"))
+        val pkg = parts.firstOrNull()?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        Game(pkg, when (parts.getOrNull(1)) { "ok" -> Fit.OK; "vrapi" -> Fit.VRAPI; else -> Fit.UNKNOWN })
+    }.distinctBy { it.pkg }.sortedBy { it.fit.ordinal }
 
     /** "ok <what>" / "missing <what>" → what → present. */
     fun checks(stdout: String): List<Pair<String, Boolean>> =

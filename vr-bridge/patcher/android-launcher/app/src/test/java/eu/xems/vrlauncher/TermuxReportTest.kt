@@ -13,7 +13,14 @@ class TermuxReportTest {
 
     @Test fun gamesFromATerminalTranscript() {
         val out = "~ $ bash termux-run.sh games 1.2.3.4\n→ adb connect 1.2.3.4:5555\ngame com.a.fight\r\ngame com.beat.games\n[Process completed]"
-        assertEquals(listOf("com.a.fight", "com.beat.games"), TermuxReport.games(out))
+        assertEquals(listOf("com.a.fight", "com.beat.games"), TermuxReport.games(out).map { it.pkg })
+    }
+
+    @Test fun gamesWithFitOkFirst() {
+        val out = "game com.old.one vrapi\ngame com.web.app ?\r\ngame com.new.one ok\n"
+        val g = TermuxReport.games(out)
+        assertEquals(listOf("com.new.one", "com.web.app", "com.old.one"), g.map { it.pkg })
+        assertEquals(listOf(TermuxReport.Fit.OK, TermuxReport.Fit.UNKNOWN, TermuxReport.Fit.VRAPI), g.map { it.fit })
     }
 
     @Test fun checks() {

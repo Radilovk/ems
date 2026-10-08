@@ -375,25 +375,44 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         if (packageField.text.isNullOrBlank()) listGames()
     }
 
-    private fun onGamesListed(games: List<String>) {
+    private fun onGamesListed(games: List<TermuxReport.Game>) {
+        val fit = games.count { it.fit == TermuxReport.Fit.OK }
         setStatus(
             getString(if (games.isEmpty()) R.string.status_no_games else R.string.status_pick_game),
             if (games.isEmpty()) getString(R.string.detail_no_games)
-            else resources.getQuantityString(R.plurals.detail_pick_game, games.size, games.size),
+            else resources.getQuantityString(R.plurals.detail_pick_game, games.size, games.size) + " " +
+                getString(R.string.detail_games_fit, fit),
             if (games.isEmpty()) R.color.danger else R.color.go_text, false, "", null,
         )
         if (store.consumed || games.isEmpty()) return
         store.consume()
+        val labels = games.map {
+            when (it.fit) {
+                TermuxReport.Fit.OK -> "✓  " + it.pkg
+                TermuxReport.Fit.UNKNOWN -> getString(R.string.game_unknown, it.pkg)
+                TermuxReport.Fit.VRAPI -> getString(R.string.game_vrapi, it.pkg)
+            }
+        }
         showDialog(
             AlertDialog.Builder(this, R.style.Xems_Dialog)
                 .setTitle(R.string.pick_game)
-                .setItems(games.toTypedArray()) { _, i ->
-                    packageField.setText(games[i])
-                    packageField.error = null
-                    store.targetPackage = games[i]
-                    setStatus(getString(R.string.status_idle), getString(R.string.detail_game_picked), R.color.text, false, "", null)
-                }
+                .setItems(labels.toTypedArray()) { _, i -> pickGame(games[i]) }
         )
+    }
+
+    /** A VrApi game is not filled in: the patcher would refuse it anyway — say why right here. */
+    private fun pickGame(g: TermuxReport.Game) {
+        if (g.fit == TermuxReport.Fit.VRAPI) {
+            setStatus(getString(R.string.status_game_vrapi), getString(R.string.detail_game_vrapi, g.pkg),
+                R.color.danger, false, "", Action.GAMES)
+            return
+        }
+        packageField.setText(g.pkg)
+        packageField.error = null
+        store.targetPackage = g.pkg
+        setStatus(getString(R.string.status_idle),
+            getString(if (g.fit == TermuxReport.Fit.OK) R.string.detail_game_picked else R.string.detail_game_unknown),
+            R.color.text, false, "", null)
     }
 
     private fun checklist(stdout: String): String = TermuxReport.checks(stdout).joinToString("\n") { (what, ok) ->

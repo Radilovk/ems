@@ -18,6 +18,7 @@ import shutil
 import struct
 import subprocess
 import sys
+import tarfile
 import tempfile
 import urllib.request
 import zipfile
@@ -218,15 +219,32 @@ def has_internet(adb: Adb, pkg: str) -> bool:
 
 
 def backup(adb: Adb, pkg: str, into: Path) -> list[tuple[str, Path]]:
+    """tar on the headset, not adb pull: pull stops at the first unreadable file (a journal the game holds open);
+    tar skips it and carries on. cache/ is left out (the game rebuilds it)."""
     saved = []
     for kind in ("data", "obb"):
-        remote = f"/sdcard/Android/{kind}/{pkg}"
-        if adb.shell(f"[ -d {remote} ] && echo yes", check=False).strip() == "yes":
-            local = into / kind
-            local.mkdir(parents=True, exist_ok=True)
-            say(f"… пазя Android/{kind} (може да отнеме минута при големи игри)")
-            adb("pull", remote, str(local))
-            saved.append((kind, local / pkg))
+        remote = f"/sdcard/Android/{kind}"
+        if adb.shell(f"[ -d {remote}/{pkg} ] && echo yes", check=False).strip() != "yes":
+            continue
+        local = into / kind
+        local.mkdir(parents=True, exist_ok=True)
+        say(f"… пазя Android/{kind} (може да отнеме минута при големи игри)")
+        archive = into / f"{kind}.tar"
+        with open(archive, "wb") as out:
+            subprocess.run([adb.exe, "exec-out", f"cd {remote} && tar -cf - --exclude={pkg}/cache {pkg} 2>/dev/null"],
+                           stdout=out, stderr=subprocess.DEVNULL)
+        try:
+            with tarfile.open(archive) as t:
+                if hasattr(tarfile, "data_filter"):
+                    t.extractall(local, filter="data")
+                else:
+                    t.extractall(local)
+        except (tarfile.TarError, OSError) as e:
+            fail(f"не можах да запазя Android/{kind}/{pkg} ({e}) — играта не е пипната")
+        archive.unlink(missing_ok=True)
+        if not (local / pkg).is_dir():
+            fail(f"не можах да запазя Android/{kind}/{pkg} — играта не е пипната")
+        saved.append((kind, local / pkg))
     return saved
 
 

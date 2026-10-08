@@ -39,26 +39,54 @@
 
             <TextView style="@style/Xems.Label" android:text="@string/label_quest_ip" />
 
-            <EditText
-                android:id="@+id/input_quest_ip"
-                style="@style/Xems.Field"
-                android:importantForAutofill="no"
-                android:digits="0123456789.:"
-                android:hint="@string/hint_quest_ip"
-                android:imeOptions="actionNext"
-                android:inputType="number|numberDecimal" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/input_quest_ip"
+                    style="@style/Xems.Field"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:importantForAutofill="no"
+                    android:digits="0123456789.:"
+                    android:hint="@string/hint_quest_ip"
+                    android:imeOptions="actionNext"
+                    android:inputType="number|numberDecimal" />
+
+                <ImageButton
+                    android:id="@+id/btn_find_quest"
+                    style="@style/Xems.IconButton"
+                    android:contentDescription="@string/action_find"
+                    android:src="@android:drawable/ic_menu_search" />
+            </LinearLayout>
 
             <TextView style="@style/Xems.Help" android:text="@string/help_quest_ip" />
 
             <TextView style="@style/Xems.Label" android:text="@string/label_package" />
 
-            <EditText
-                android:id="@+id/input_package"
-                style="@style/Xems.Field"
-                android:importantForAutofill="no"
-                android:hint="@string/hint_package"
-                android:imeOptions="actionNext"
-                android:inputType="textNoSuggestions|textUri" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/input_package"
+                    style="@style/Xems.Field"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:importantForAutofill="no"
+                    android:hint="@string/hint_package"
+                    android:imeOptions="actionNext"
+                    android:inputType="textNoSuggestions|textUri" />
+
+                <ImageButton
+                    android:id="@+id/btn_pick_game"
+                    style="@style/Xems.IconButton"
+                    android:contentDescription="@string/action_games"
+                    android:src="@android:drawable/ic_menu_sort_by_size" />
+            </LinearLayout>
 
             <TextView style="@style/Xems.Help" android:text="@string/help_package" />
 
@@ -82,13 +110,9 @@
 
                 <ImageButton
                     android:id="@+id/btn_detect_ip"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_icon_button"
+                    style="@style/Xems.IconButton"
                     android:contentDescription="@string/detect_ip"
-                    android:src="@android:drawable/ic_popup_sync"
-                    android:tint="@color/muted" />
+                    android:src="@android:drawable/ic_popup_sync" />
             </LinearLayout>
 
             <TextView
@@ -103,6 +127,25 @@
                 android:text="@string/show_in_termux"
                 android:textColor="@color/muted"
                 android:textSize="13sp" />
+
+            <!-- Rare: one-time setup and a readiness check. The status card also offers them when needed. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_setup"
+                    style="@style/Xems.SmallButton"
+                    android:text="@string/action_setup" />
+
+                <Button
+                    android:id="@+id/btn_check"
+                    style="@style/Xems.SmallButton"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/action_check" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
@@ -167,6 +210,15 @@
                 android:layout_marginTop="6dp"
                 android:textColor="@color/muted"
                 android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/status_action"
+                style="@style/Xems.SmallButton"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minWidth="160dp"
+                android:textColor="@color/accent"
+                android:visibility="gone" />
 
             <ScrollView
                 android:layout_width="match_parent"

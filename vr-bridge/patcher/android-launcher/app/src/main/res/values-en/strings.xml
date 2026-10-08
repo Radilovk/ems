@@ -4,9 +4,9 @@
     <string name="subtitle">Hits from the game — into the suit</string>
 
     <string name="label_quest_ip">Headset IP</string>
-    <string name="help_quest_ip">Headset on the same Wi-Fi. Once over USB: adb tcpip 5555</string>
+    <string name="help_quest_ip">Found by itself (🔍). Headset on the same Wi-Fi; after a reboot once over USB: adb tcpip 5555</string>
     <string name="label_package">Game</string>
-    <string name="help_package">The package name — xems_vr_patch.py &#8209;&#8209;list</string>
+    <string name="help_package">Pick from the headset list (☰) or type the package</string>
     <string name="label_tablet_ip">Tablet IP</string>
     <string name="hint_tablet_ip">empty — the headset finds it itself</string>
     <string name="tablet_ip_found">✓ Found on Wi-Fi</string>
@@ -23,7 +23,7 @@
     <string name="btn_run_again">Run again</string>
 
     <string name="status_idle">Ready</string>
-    <string name="detail_idle">Enter the headset IP and the game, then press the green button.</string>
+    <string name="detail_idle">The headset and the game are found by themselves — then press the green button.</string>
     <string name="status_running">Adding haptics…</string>
     <string name="detail_running">Termux connects the headset, pulls the game, injects the layer, signs and reinstalls it. Usually 1–3 minutes.</string>
     <string name="status_in_termux">Running in Termux…</string>
@@ -32,16 +32,47 @@
     <string name="detail_done">Open the workout on the tablet, start the row and launch the game on the headset.</string>
     <string name="status_bad_input">Something in the fields is off</string>
     <string name="detail_bad_input">Check the IP addresses and the game name.</string>
-    <string name="status_no_adb">No adb in Termux</string>
-    <string name="detail_no_adb">In Termux: pkg install android-tools</string>
     <string name="status_no_quest">The headset does not answer</string>
-    <string name="detail_no_quest">Same Wi-Fi? Was adb tcpip 5555 run once over USB? Check the IP.</string>
+    <string name="detail_no_quest">Same Wi-Fi? After a headset reboot, run adb tcpip 5555 once over USB.</string>
     <string name="status_unauthorized">The headset waits for permission</string>
     <string name="detail_unauthorized">Put the headset on, accept “Allow USB debugging” and press again.</string>
     <string name="status_failed">It did not work</string>
     <string name="detail_failed">The reason is in the last lines below. The original game stays on the headset.</string>
     <string name="status_termux">Termux refused the command</string>
-    <string name="detail_termux">In ~/.termux/termux.properties: allow-external-apps=true, then termux-reload-settings.</string>
+    <string name="detail_termux">Termux does not accept commands from other apps yet. One line in Termux fixes it — copy it with the button, paste, Enter.</string>
+    <string name="status_finding">Looking for the headset…</string>
+    <string name="detail_finding">Scanning the Wi-Fi for a Quest with adb on. A few seconds.</string>
+    <string name="status_found">Headset found ✓</string>
+    <string name="quest_unauthorized">%1$s · waiting for permission in the headset</string>
+    <string name="pick_quest">Which headset?</string>
+    <string name="status_listing">Reading the games…</string>
+    <string name="detail_listing">If the headset asks “Allow USB debugging” — accept.</string>
+    <string name="status_pick_game">Pick a game</string>
+    <plurals name="detail_pick_game">
+        <item quantity="one">%1$d game on the headset.</item>
+        <item quantity="other">%1$d games on the headset.</item>
+    </plurals>
+    <string name="pick_game">Which game?</string>
+    <string name="status_no_games">No games on the headset</string>
+    <string name="detail_no_games">Install the game on the headset and try again.</string>
+    <string name="detail_game_picked">Game picked — press the green button.</string>
+    <string name="status_checking">Checking Termux…</string>
+    <string name="detail_checking">python, java, adb, git and the XEMS VR files.</string>
+    <string name="status_setting_up">Setting up Termux…</string>
+    <string name="detail_setting_up">Installing python, java, adb and git and fetching the XEMS VR files. First time 5–10 minutes, needs internet.</string>
+    <string name="status_ready">Termux is ready ✓</string>
+    <string name="detail_ready">Everything needed is in place.</string>
+    <string name="status_not_set_up">Termux is not set up yet</string>
+    <string name="detail_not_set_up">Press “Set up Termux” — everything installs by itself.</string>
+    <string name="err_no_wifi">No Wi-Fi — connect the tablet to the headset\'s network</string>
+
+    <string name="action_setup">Set up Termux</string>
+    <string name="action_check">Check</string>
+    <string name="action_find">Find the headset</string>
+    <string name="action_games">Show the games</string>
+    <string name="action_allow">Copy the line and open Termux</string>
+    <string name="allow_copied">Line copied — paste it in Termux, press Enter, then come back</string>
+
     <string name="status_no_termux">Termux is missing</string>
     <string name="detail_no_termux">Install Termux (F-Droid) and the ems/ folder inside it — see README.</string>
     <string name="status_no_permission">No Termux permission</string>

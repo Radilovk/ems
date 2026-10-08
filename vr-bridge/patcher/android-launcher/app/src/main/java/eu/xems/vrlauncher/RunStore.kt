@@ -20,12 +20,15 @@ class RunStore(context: Context) {
     val runId: Long get() = prefs.getLong(K_RUN, 0L)
     val running: Boolean get() = prefs.getBoolean(K_RUNNING, false)
     val command: String get() = prefs.getString(K_COMMAND, "").orEmpty()
+    val task: Task get() = runCatching { Task.valueOf(prefs.getString(K_TASK, "")!!) }.getOrDefault(Task.PATCH)
+    /** The answer to a FIND / GAMES run was already acted on (field filled, picker shown). */
+    val consumed: Boolean get() = prefs.getBoolean(K_CONSUMED, false)
     /** The running command shows its progress in a Termux session (the result still comes back here). */
     val runVisible: Boolean get() = prefs.getBoolean(K_RUN_VISIBLE, false)
 
-    fun start(runId: Long, command: String, visible: Boolean) {
-        prefs.edit().putLong(K_RUN, runId).putString(K_COMMAND, command).putBoolean(K_RUNNING, true)
-            .putBoolean(K_RUN_VISIBLE, visible)
+    fun start(runId: Long, task: Task, command: String, visible: Boolean) {
+        prefs.edit().putLong(K_RUN, runId).putString(K_TASK, task.name).putString(K_COMMAND, command)
+            .putBoolean(K_RUNNING, true).putBoolean(K_RUN_VISIBLE, visible).putBoolean(K_CONSUMED, false)
             .remove(K_EXIT).remove(K_OUT).remove(K_ERR).remove(K_TERR).remove(K_TERRMSG).apply()
     }
 
@@ -37,6 +40,8 @@ class RunStore(context: Context) {
             .putString(K_OUT, r.stdout.takeLast(MAX_TEXT)).putString(K_ERR, r.stderr.takeLast(MAX_TEXT))
             .putInt(K_TERR, r.termuxErr).putString(K_TERRMSG, r.termuxErrMsg).apply()
     }
+
+    fun consume() = prefs.edit().putBoolean(K_CONSUMED, true).apply()
 
     fun lastResult(): PatchResult? {
         if (!prefs.contains(K_TERR)) return null
@@ -56,6 +61,8 @@ class RunStore(context: Context) {
         private const val K_RUN = "run_id"
         private const val K_RUNNING = "running"
         private const val K_RUN_VISIBLE = "run_visible"
+        private const val K_TASK = "task"
+        private const val K_CONSUMED = "consumed"
         private const val K_COMMAND = "command"
         private const val K_EXIT = "exit"
         private const val K_OUT = "stdout"

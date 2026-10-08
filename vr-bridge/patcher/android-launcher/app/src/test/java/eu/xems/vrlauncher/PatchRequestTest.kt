@@ -1,6 +1,5 @@
 package eu.xems.vrlauncher
 
-import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -17,17 +16,14 @@ class PatchRequestTest {
     @Test fun defaultPortAndTabletIp() {
         val r = ok(" 192.168.1.23 ", "com.a.game", "192.168.1.50")
         assertEquals(PatchRequest("192.168.1.23", 5555, "com.a.game", "192.168.1.50"), r)
-        assertArrayEquals(
-            arrayOf("android-launcher/termux-run.sh", "192.168.1.23:5555", "com.a.game", "192.168.1.50"),
-            r.scriptArgs(),
-        )
+        assertEquals("192.168.1.23:5555", r.questSerial)
     }
 
     @Test fun explicitPortAndBlankTablet() {
         val r = ok("10.0.0.7:5037", "com.a.game", "  ")
         assertEquals(5037, r.questPort)
         assertEquals(null, r.tabletIp)
-        assertArrayEquals(arrayOf("android-launcher/termux-run.sh", "10.0.0.7:5037", "com.a.game"), r.scriptArgs())
+        assertEquals("10.0.0.7:5037", r.questSerial)
     }
 
     @Test fun rejectsBadInput() {
@@ -39,6 +35,13 @@ class PatchRequestTest {
         assertEquals(PatchRequest.Problem.PACKAGE, problem("192.168.1.2", "game", ""))
         assertEquals(PatchRequest.Problem.PACKAGE, problem("192.168.1.2", "com.a; rm -rf /", ""))
         assertEquals(PatchRequest.Problem.TABLET_IP, problem("192.168.1.2", "com.a.game", "tablet"))
+    }
+
+    @Test fun questSerial() {
+        assertEquals("192.168.1.23:5555", PatchRequest.questSerial(" 192.168.1.23 "))
+        assertEquals("192.168.1.23:5037", PatchRequest.questSerial("192.168.1.23:5037"))
+        assertEquals(null, PatchRequest.questSerial(""))
+        assertEquals(null, PatchRequest.questSerial("quest"))
     }
 
     @Test fun ipv4() {

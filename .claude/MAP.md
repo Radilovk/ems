@@ -264,7 +264,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `ClientSort.java` (608L, compile:music-sync*,wearable) — Order and filters of the client lists — the Потребители tab and the client / program / device picker.
-- `DoubleImpulse.java` (1331L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
+- `DoubleImpulse.java` (1356L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -1221,9 +1221,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L69 ## Protocol
   - L76 ## Test
 
-`vr-bridge/patcher/android-launcher/README.md` (52L)
+`vr-bridge/patcher/android-launcher/README.md` (71L)
   - L1 # XEMS VR Launcher (on-device front end)
-  - L14 ## Screen (landscape, XemsUi tokens, light + dark)
-  - L25 ## Pieces
-  - L38 ## Device setup (one time)
-  - L46 ## Build & test
+  - L18 ## Install (once)
+  - L29 ## Every time
+  - L34 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
+  - L43 ## Pieces
+  - L57 ## Limits (what still needs a hand)
+  - L64 ## Build & test

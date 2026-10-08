@@ -21,15 +21,9 @@
 # instance fields
 .field bmp:Landroid/graphics/Bitmap;
 
-.field clip:Landroid/graphics/Rect;
-
 .field level:F
 
 .field final m:Landroid/graphics/Matrix;
-
-.field offX:F
-
-.field offY:F
 
 .field final p:Landroid/graphics/Paint;
 
@@ -50,10 +44,10 @@
     .registers 3
 
     .prologue
-    .line 1072
+    .line 1074
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 1075
+    .line 1077
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x3
@@ -62,7 +56,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->p:Landroid/graphics/Paint;
 
-    .line 1076
+    .line 1078
     new-instance v0, Landroid/graphics/Matrix;
 
     invoke-direct {v0}, Landroid/graphics/Matrix;-><init>()V
@@ -72,408 +66,340 @@
     return-void
 .end method
 
-.method static of(Landroid/view/View;Landroid/view/View;)Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;
-    .registers 14
+.method static of(Landroid/view/View;)Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;
+    .registers 13
 
     .prologue
-    const/4 v7, 0x2
-
-    const/4 v8, 0x0
-
-    const/4 v11, 0x0
-
-    const/4 v10, 0x1
-
-    const/high16 v9, 0x3f000000    # 0.5f
-
-    .line 1144
+    .line 1083
     invoke-virtual {p0}, Landroid/view/View;->getWidth()I
 
-    move-result v0
+    move-result v1
 
     invoke-virtual {p0}, Landroid/view/View;->getHeight()I
 
-    move-result v1
+    move-result v2
 
-    .line 1145
-    if-lez v0, :cond_1a
+    .line 1084
+    if-lez v1, :cond_12
 
-    if-lez v1, :cond_1a
-
-    if-eqz p1, :cond_1a
+    if-lez v2, :cond_12
 
     invoke-virtual {p0}, Landroid/view/View;->isShown()Z
 
-    move-result v2
+    move-result v0
 
-    if-nez v2, :cond_1c
+    if-nez v0, :cond_14
 
-    .line 1146
-    :cond_1a
+    .line 1085
+    :cond_12
     const/4 v0, 0x0
 
-    .line 1184
-    :goto_1b
+    .line 1123
+    :goto_13
     return-object v0
 
-    .line 1148
-    :cond_1c
+    .line 1087
+    :cond_14
     invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
-
-    move-result-object v2
-
-    iget v2, v2, Landroid/util/DisplayMetrics;->density:F
-
-    .line 1149
-    int-to-float v0, v0
-
-    mul-float/2addr v0, v9
-
-    invoke-static {v0}, Ljava/lang/Math;->round(F)I
-
-    move-result v0
-
-    invoke-static {v10, v0}, Ljava/lang/Math;->max(II)I
-
-    move-result v0
-
-    int-to-float v1, v1
-
-    mul-float/2addr v1, v9
-
-    invoke-static {v1}, Ljava/lang/Math;->round(F)I
-
-    move-result v1
-
-    invoke-static {v10, v1}, Ljava/lang/Math;->max(II)I
-
-    move-result v1
-
-    .line 1150
-    sget-object v3, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
-
-    invoke-static {v0, v1, v3}, Landroid/graphics/Bitmap;->createBitmap(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;
 
     move-result-object v0
 
-    .line 1152
-    new-instance v1, Landroid/graphics/Canvas;
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
 
-    invoke-direct {v1, v0}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
+    move-result-object v0
 
-    .line 1153
-    invoke-virtual {v1, v9, v9}, Landroid/graphics/Canvas;->scale(FF)V
+    iget v3, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 1154
-    invoke-virtual {p0, v1}, Landroid/view/View;->draw(Landroid/graphics/Canvas;)V
+    .line 1088
+    const/4 v0, 0x1
 
-    .line 1155
-    const/high16 v1, 0x40000000    # 2.0f
+    int-to-float v4, v1
 
-    const/high16 v3, 0x41300000    # 11.0f
+    const/high16 v5, 0x3f000000    # 0.5f
 
-    mul-float/2addr v3, v2
+    mul-float/2addr v4, v5
 
-    mul-float/2addr v3, v9
+    invoke-static {v4}, Ljava/lang/Math;->round(F)I
 
-    invoke-static {v1, v3}, Ljava/lang/Math;->max(FF)F
+    move-result v4
 
-    move-result v1
-
-    .line 1156
-    const/high16 v3, 0x3f800000    # 1.0f
-
-    const/high16 v4, 0x40800000    # 4.0f
-
-    mul-float/2addr v2, v4
-
-    mul-float/2addr v2, v9
-
-    invoke-static {v3, v2}, Ljava/lang/Math;->max(FF)F
-
-    move-result v2
-
-    .line 1157
-    new-instance v3, Landroid/graphics/Paint;
-
-    invoke-direct {v3}, Landroid/graphics/Paint;-><init>()V
-
-    .line 1158
-    new-instance v4, Landroid/graphics/BlurMaskFilter;
-
-    sget-object v5, Landroid/graphics/BlurMaskFilter$Blur;->NORMAL:Landroid/graphics/BlurMaskFilter$Blur;
-
-    invoke-direct {v4, v1, v5}, Landroid/graphics/BlurMaskFilter;-><init>(FLandroid/graphics/BlurMaskFilter$Blur;)V
-
-    invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setMaskFilter(Landroid/graphics/MaskFilter;)Landroid/graphics/MaskFilter;
-
-    .line 1159
-    new-array v1, v7, [I
-
-    .line 1160
-    invoke-virtual {v0, v3, v1}, Landroid/graphics/Bitmap;->extractAlpha(Landroid/graphics/Paint;[I)Landroid/graphics/Bitmap;
-
-    move-result-object v4
-
-    .line 1161
-    new-instance v5, Landroid/graphics/BlurMaskFilter;
-
-    sget-object v6, Landroid/graphics/BlurMaskFilter$Blur;->NORMAL:Landroid/graphics/BlurMaskFilter$Blur;
-
-    invoke-direct {v5, v2, v6}, Landroid/graphics/BlurMaskFilter;-><init>(FLandroid/graphics/BlurMaskFilter$Blur;)V
-
-    invoke-virtual {v3, v5}, Landroid/graphics/Paint;->setMaskFilter(Landroid/graphics/MaskFilter;)Landroid/graphics/MaskFilter;
-
-    .line 1162
-    new-array v2, v7, [I
-
-    .line 1163
-    invoke-virtual {v0, v3, v2}, Landroid/graphics/Bitmap;->extractAlpha(Landroid/graphics/Paint;[I)Landroid/graphics/Bitmap;
-
-    move-result-object v3
-
-    .line 1164
-    invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
-
-    .line 1165
-    invoke-virtual {v4}, Landroid/graphics/Bitmap;->getWidth()I
+    invoke-static {v0, v4}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
-    invoke-virtual {v4}, Landroid/graphics/Bitmap;->getHeight()I
+    const/4 v4, 0x1
+
+    int-to-float v5, v2
+
+    const/high16 v6, 0x3f000000    # 0.5f
+
+    mul-float/2addr v5, v6
+
+    invoke-static {v5}, Ljava/lang/Math;->round(F)I
 
     move-result v5
 
-    sget-object v6, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
+    invoke-static {v4, v5}, Ljava/lang/Math;->max(II)I
 
-    invoke-static {v0, v5, v6}, Landroid/graphics/Bitmap;->createBitmap(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;
+    move-result v4
 
-    move-result-object v5
+    .line 1089
+    sget-object v5, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
 
-    .line 1167
-    new-instance v0, Landroid/graphics/Canvas;
+    invoke-static {v0, v4, v5}, Landroid/graphics/Bitmap;->createBitmap(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;
 
-    invoke-direct {v0, v5}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
+    move-result-object v0
 
-    .line 1168
+    .line 1091
+    new-instance v4, Landroid/graphics/Canvas;
+
+    invoke-direct {v4, v0}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
+
+    .line 1092
+    const/high16 v5, 0x3f000000    # 0.5f
+
+    const/high16 v6, 0x3f000000    # 0.5f
+
+    invoke-virtual {v4, v5, v6}, Landroid/graphics/Canvas;->scale(FF)V
+
+    .line 1093
+    invoke-virtual {p0, v4}, Landroid/view/View;->draw(Landroid/graphics/Canvas;)V
+
+    .line 1094
+    const/high16 v4, 0x40000000    # 2.0f
+
+    const/high16 v5, 0x41300000    # 11.0f
+
+    mul-float/2addr v5, v3
+
+    const/high16 v6, 0x3f000000    # 0.5f
+
+    mul-float/2addr v5, v6
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->max(FF)F
+
+    move-result v4
+
+    .line 1095
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    const/high16 v6, 0x40800000    # 4.0f
+
+    mul-float/2addr v6, v3
+
+    const/high16 v7, 0x3f000000    # 0.5f
+
+    mul-float/2addr v6, v7
+
+    invoke-static {v5, v6}, Ljava/lang/Math;->max(FF)F
+
+    move-result v5
+
+    .line 1096
     new-instance v6, Landroid/graphics/Paint;
 
-    invoke-direct {v6, v10}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v6}, Landroid/graphics/Paint;-><init>()V
 
-    .line 1169
-    const/16 v7, -0x4d00
+    .line 1097
+    new-instance v7, Landroid/graphics/BlurMaskFilter;
 
-    invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setColor(I)V
+    sget-object v8, Landroid/graphics/BlurMaskFilter$Blur;->NORMAL:Landroid/graphics/BlurMaskFilter$Blur;
 
-    .line 1170
-    invoke-virtual {v0, v4, v8, v8, v6}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
+    invoke-direct {v7, v4, v8}, Landroid/graphics/BlurMaskFilter;-><init>(FLandroid/graphics/BlurMaskFilter$Blur;)V
 
-    .line 1171
-    invoke-virtual {v0, v4, v8, v8, v6}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
+    invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setMaskFilter(Landroid/graphics/MaskFilter;)Landroid/graphics/MaskFilter;
 
-    .line 1172
-    const/16 v7, -0x2ab1
+    .line 1098
+    const/4 v4, 0x2
 
-    invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setColor(I)V
+    new-array v4, v4, [I
 
-    .line 1173
-    const/16 v7, 0xaa
+    .line 1099
+    invoke-virtual {v0, v6, v4}, Landroid/graphics/Bitmap;->extractAlpha(Landroid/graphics/Paint;[I)Landroid/graphics/Bitmap;
 
-    invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setAlpha(I)V
+    move-result-object v7
 
-    .line 1174
-    aget v7, v2, v11
+    .line 1100
+    new-instance v8, Landroid/graphics/BlurMaskFilter;
 
-    aget v8, v1, v11
+    sget-object v9, Landroid/graphics/BlurMaskFilter$Blur;->NORMAL:Landroid/graphics/BlurMaskFilter$Blur;
 
-    sub-int/2addr v7, v8
+    invoke-direct {v8, v5, v9}, Landroid/graphics/BlurMaskFilter;-><init>(FLandroid/graphics/BlurMaskFilter$Blur;)V
 
-    int-to-float v7, v7
+    invoke-virtual {v6, v8}, Landroid/graphics/Paint;->setMaskFilter(Landroid/graphics/MaskFilter;)Landroid/graphics/MaskFilter;
 
-    aget v2, v2, v10
+    .line 1101
+    const/4 v5, 0x2
 
-    aget v8, v1, v10
+    new-array v5, v5, [I
 
-    sub-int/2addr v2, v8
+    .line 1102
+    invoke-virtual {v0, v6, v5}, Landroid/graphics/Bitmap;->extractAlpha(Landroid/graphics/Paint;[I)Landroid/graphics/Bitmap;
 
-    int-to-float v2, v2
+    move-result-object v6
 
-    invoke-virtual {v0, v3, v7, v2, v6}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
+    .line 1103
+    invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 1175
-    invoke-virtual {v4}, Landroid/graphics/Bitmap;->recycle()V
+    .line 1104
+    invoke-virtual {v7}, Landroid/graphics/Bitmap;->getWidth()I
 
-    .line 1176
-    invoke-virtual {v3}, Landroid/graphics/Bitmap;->recycle()V
+    move-result v0
 
-    .line 1177
+    invoke-virtual {v7}, Landroid/graphics/Bitmap;->getHeight()I
+
+    move-result v8
+
+    sget-object v9, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
+
+    invoke-static {v0, v8, v9}, Landroid/graphics/Bitmap;->createBitmap(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;
+
+    move-result-object v8
+
+    .line 1106
+    new-instance v0, Landroid/graphics/Canvas;
+
+    invoke-direct {v0, v8}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
+
+    .line 1107
+    new-instance v9, Landroid/graphics/Paint;
+
+    const/4 v10, 0x1
+
+    invoke-direct {v9, v10}, Landroid/graphics/Paint;-><init>(I)V
+
+    .line 1108
+    const/16 v10, -0x4d00
+
+    invoke-virtual {v9, v10}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 1109
+    const/4 v10, 0x0
+
+    const/4 v11, 0x0
+
+    invoke-virtual {v0, v7, v10, v11, v9}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
+
+    .line 1110
+    const/4 v10, 0x0
+
+    const/4 v11, 0x0
+
+    invoke-virtual {v0, v7, v10, v11, v9}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
+
+    .line 1111
+    const/16 v10, -0x2ab1
+
+    invoke-virtual {v9, v10}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 1112
+    const/16 v10, 0xaa
+
+    invoke-virtual {v9, v10}, Landroid/graphics/Paint;->setAlpha(I)V
+
+    .line 1113
+    const/4 v10, 0x0
+
+    aget v10, v5, v10
+
+    const/4 v11, 0x0
+
+    aget v11, v4, v11
+
+    sub-int/2addr v10, v11
+
+    int-to-float v10, v10
+
+    const/4 v11, 0x1
+
+    aget v5, v5, v11
+
+    const/4 v11, 0x1
+
+    aget v11, v4, v11
+
+    sub-int/2addr v5, v11
+
+    int-to-float v5, v5
+
+    invoke-virtual {v0, v6, v10, v5, v9}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
+
+    .line 1114
+    invoke-virtual {v7}, Landroid/graphics/Bitmap;->recycle()V
+
+    .line 1115
+    invoke-virtual {v6}, Landroid/graphics/Bitmap;->recycle()V
+
+    .line 1116
     new-instance v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;-><init>()V
 
-    .line 1178
-    iput-object v5, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->bmp:Landroid/graphics/Bitmap;
+    .line 1117
+    iput-object v8, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->bmp:Landroid/graphics/Bitmap;
 
-    .line 1179
-    new-instance v2, Ljava/lang/ref/WeakReference;
+    .line 1118
+    new-instance v5, Ljava/lang/ref/WeakReference;
 
-    invoke-direct {v2, p0}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
+    invoke-direct {v5, p0}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
 
-    iput-object v2, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->view:Ljava/lang/ref/WeakReference;
+    iput-object v5, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->view:Ljava/lang/ref/WeakReference;
 
-    .line 1180
-    aget v2, v1, v11
+    .line 1119
+    iget-object v5, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
 
-    int-to-float v2, v2
+    const/high16 v6, 0x40000000    # 2.0f
 
-    div-float/2addr v2, v9
+    const/high16 v7, 0x40000000    # 2.0f
 
-    iput v2, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->offX:F
+    invoke-virtual {v5, v6, v7}, Landroid/graphics/Matrix;->setScale(FF)V
 
-    .line 1181
-    aget v1, v1, v10
+    .line 1120
+    iget-object v5, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
 
-    int-to-float v1, v1
+    const/4 v6, 0x0
 
-    div-float/2addr v1, v9
+    aget v6, v4, v6
 
-    iput v1, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->offY:F
+    int-to-float v6, v6
 
-    .line 1182
-    invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->place(Landroid/view/View;)V
+    const/high16 v7, 0x3f000000    # 0.5f
 
-    .line 1183
-    invoke-virtual {p1}, Landroid/view/View;->getWidth()I
+    div-float/2addr v6, v7
 
-    move-result v1
+    const/4 v7, 0x1
 
-    invoke-virtual {p1}, Landroid/view/View;->getHeight()I
-
-    move-result v2
-
-    invoke-virtual {v0, v11, v11, v1, v2}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->setBounds(IIII)V
-
-    goto/16 :goto_1b
-.end method
-
-.method static toRoot(Landroid/view/View;Landroid/view/View;Landroid/graphics/Matrix;)Z
-    .registers 8
-
-    .prologue
-    const/4 v1, 0x0
-
-    .line 1126
-    move v2, v1
-
-    .line 1127
-    :goto_2
-    const/16 v0, 0x40
-
-    if-ge v2, v0, :cond_48
-
-    if-eqz p0, :cond_48
-
-    if-eq p0, p1, :cond_48
-
-    .line 1128
-    invoke-virtual {p0}, Landroid/view/View;->getMatrix()Landroid/graphics/Matrix;
-
-    move-result-object v0
-
-    .line 1129
-    if-eqz v0, :cond_19
-
-    invoke-virtual {v0}, Landroid/graphics/Matrix;->isIdentity()Z
-
-    move-result v3
-
-    if-nez v3, :cond_19
-
-    .line 1130
-    invoke-virtual {p2, v0}, Landroid/graphics/Matrix;->postConcat(Landroid/graphics/Matrix;)Z
-
-    .line 1132
-    :cond_19
-    invoke-virtual {p0}, Landroid/view/View;->getLeft()I
-
-    move-result v0
-
-    int-to-float v0, v0
-
-    invoke-virtual {p0}, Landroid/view/View;->getTop()I
-
-    move-result v3
-
-    int-to-float v3, v3
-
-    invoke-virtual {p2, v0, v3}, Landroid/graphics/Matrix;->postTranslate(FF)Z
-
-    .line 1133
-    invoke-virtual {p0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
-
-    move-result-object v0
-
-    instance-of v0, v0, Landroid/view/View;
-
-    if-nez v0, :cond_2f
-
-    .line 1140
-    :goto_2e
-    return v1
-
-    .line 1136
-    :cond_2f
-    invoke-virtual {p0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
-
-    move-result-object v0
-
-    check-cast v0, Landroid/view/View;
-
-    .line 1137
-    invoke-virtual {v0}, Landroid/view/View;->getScrollX()I
-
-    move-result v3
-
-    neg-int v3, v3
-
-    int-to-float v3, v3
-
-    invoke-virtual {v0}, Landroid/view/View;->getScrollY()I
-
-    move-result v4
-
-    neg-int v4, v4
+    aget v4, v4, v7
 
     int-to-float v4, v4
 
-    invoke-virtual {p2, v3, v4}, Landroid/graphics/Matrix;->postTranslate(FF)Z
+    const/high16 v7, 0x3f000000    # 0.5f
 
-    .line 1127
-    add-int/lit8 v2, v2, 0x1
+    div-float/2addr v4, v7
 
-    move-object p0, v0
+    invoke-virtual {v5, v6, v4}, Landroid/graphics/Matrix;->postTranslate(FF)Z
 
-    goto :goto_2
+    .line 1121
+    const/high16 v4, 0x42200000    # 40.0f
 
-    .line 1140
-    :cond_48
-    if-ne p0, p1, :cond_4d
+    mul-float/2addr v3, v4
 
-    const/4 v0, 0x1
+    invoke-static {v3}, Ljava/lang/Math;->round(F)I
 
-    :goto_4b
-    move v1, v0
+    move-result v3
 
-    goto :goto_2e
+    .line 1122
+    neg-int v4, v3
 
-    :cond_4d
-    move v0, v1
+    neg-int v5, v3
 
-    goto :goto_4b
+    add-int/2addr v1, v3
+
+    add-int/2addr v2, v3
+
+    invoke-virtual {v0, v4, v5, v1, v2}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->setBounds(IIII)V
+
+    goto/16 :goto_13
 .end method
 
 
@@ -482,7 +408,7 @@
     .registers 5
 
     .prologue
-    .line 1188
+    .line 1127
     iget v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->level:F
 
     const/4 v1, 0x0
@@ -503,12 +429,12 @@
 
     if-eqz v0, :cond_14
 
-    .line 1200
+    .line 1132
     :cond_13
     :goto_13
     return-void
 
-    .line 1191
+    .line 1130
     :cond_14
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->p:Landroid/graphics/Paint;
 
@@ -524,35 +450,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 1192
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->clip:Landroid/graphics/Rect;
-
-    if-eqz v0, :cond_3b
-
-    .line 1193
-    invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
-
-    .line 1194
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->clip:Landroid/graphics/Rect;
-
-    invoke-virtual {p1, v0}, Landroid/graphics/Canvas;->clipRect(Landroid/graphics/Rect;)Z
-
-    .line 1195
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->bmp:Landroid/graphics/Bitmap;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->p:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v1, v2}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;Landroid/graphics/Matrix;Landroid/graphics/Paint;)V
-
-    .line 1196
-    invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
-
-    goto :goto_13
-
-    .line 1198
-    :cond_3b
+    .line 1131
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->bmp:Landroid/graphics/Bitmap;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
@@ -568,293 +466,31 @@
     .registers 2
 
     .prologue
-    .line 1217
+    .line 1149
     const/4 v0, -0x3
 
     return v0
-.end method
-
-.method place(Landroid/view/View;)V
-    .registers 12
-
-    .prologue
-    const/4 v5, 0x2
-
-    const/4 v4, 0x0
-
-    const/4 v1, 0x1
-
-    const/4 v2, 0x0
-
-    const/high16 v9, 0x40000000    # 2.0f
-
-    .line 1086
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->view:Ljava/lang/ref/WeakReference;
-
-    if-eqz v0, :cond_18
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->view:Ljava/lang/ref/WeakReference;
-
-    invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Landroid/view/View;
-
-    move-object v3, v0
-
-    .line 1087
-    :goto_13
-    if-eqz v3, :cond_17
-
-    if-nez p1, :cond_1a
-
-    .line 1120
-    :cond_17
-    :goto_17
-    return-void
-
-    :cond_18
-    move-object v3, v4
-
-    .line 1086
-    goto :goto_13
-
-    .line 1090
-    :cond_1a
-    new-array v0, v5, [I
-
-    .line 1091
-    new-array v5, v5, [I
-
-    .line 1092
-    invoke-virtual {v3, v0}, Landroid/view/View;->getLocationInWindow([I)V
-
-    .line 1093
-    invoke-virtual {p1, v5}, Landroid/view/View;->getLocationInWindow([I)V
-
-    .line 1096
-    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
-
-    invoke-virtual {v6, v9, v9}, Landroid/graphics/Matrix;->setScale(FF)V
-
-    .line 1097
-    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
-
-    iget v7, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->offX:F
-
-    iget v8, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->offY:F
-
-    invoke-virtual {v6, v7, v8}, Landroid/graphics/Matrix;->postTranslate(FF)Z
-
-    .line 1098
-    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
-
-    invoke-static {v3, p1, v6}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->toRoot(Landroid/view/View;Landroid/view/View;Landroid/graphics/Matrix;)Z
-
-    move-result v6
-
-    if-nez v6, :cond_56
-
-    .line 1099
-    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
-
-    invoke-virtual {v6, v9, v9}, Landroid/graphics/Matrix;->setScale(FF)V
-
-    .line 1100
-    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->m:Landroid/graphics/Matrix;
-
-    aget v7, v0, v2
-
-    aget v8, v5, v2
-
-    sub-int/2addr v7, v8
-
-    int-to-float v7, v7
-
-    iget v8, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->offX:F
-
-    add-float/2addr v7, v8
-
-    aget v0, v0, v1
-
-    aget v5, v5, v1
-
-    sub-int/2addr v0, v5
-
-    int-to-float v0, v0
-
-    iget v5, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->offY:F
-
-    add-float/2addr v0, v5
-
-    invoke-virtual {v6, v7, v0}, Landroid/graphics/Matrix;->postTranslate(FF)Z
-
-    .line 1104
-    :cond_56
-    new-instance v5, Landroid/graphics/Rect;
-
-    invoke-direct {v5}, Landroid/graphics/Rect;-><init>()V
-
-    .line 1105
-    invoke-virtual {v3}, Landroid/view/View;->isShown()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_93
-
-    invoke-virtual {v3, v5}, Landroid/view/View;->getGlobalVisibleRect(Landroid/graphics/Rect;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_93
-
-    move v0, v1
-
-    .line 1106
-    :goto_68
-    invoke-virtual {v3}, Landroid/view/View;->getWidth()I
-
-    move-result v1
-
-    int-to-long v6, v1
-
-    invoke-virtual {v3}, Landroid/view/View;->getHeight()I
-
-    move-result v1
-
-    int-to-long v8, v1
-
-    mul-long/2addr v6, v8
-
-    .line 1107
-    if-eqz v0, :cond_8d
-
-    const-wide/16 v0, 0x0
-
-    cmp-long v0, v6, v0
-
-    if-lez v0, :cond_8d
-
-    invoke-virtual {v5}, Landroid/graphics/Rect;->width()I
-
-    move-result v0
-
-    int-to-long v0, v0
-
-    invoke-virtual {v5}, Landroid/graphics/Rect;->height()I
-
-    move-result v2
-
-    int-to-long v8, v2
-
-    mul-long/2addr v0, v8
-
-    const-wide/16 v8, 0x2
-
-    mul-long/2addr v0, v8
-
-    cmp-long v0, v0, v6
-
-    if-gez v0, :cond_95
-
-    .line 1108
-    :cond_8d
-    const/4 v0, 0x0
-
-    iput v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->level:F
-
-    .line 1109
-    iput-object v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->clip:Landroid/graphics/Rect;
-
-    goto :goto_17
-
-    :cond_93
-    move v0, v2
-
-    .line 1105
-    goto :goto_68
-
-    .line 1112
-    :cond_95
-    invoke-virtual {v5}, Landroid/graphics/Rect;->width()I
-
-    move-result v0
-
-    invoke-virtual {v3}, Landroid/view/View;->getWidth()I
-
-    move-result v1
-
-    if-lt v0, v1, :cond_a9
-
-    invoke-virtual {v5}, Landroid/graphics/Rect;->height()I
-
-    move-result v0
-
-    invoke-virtual {v3}, Landroid/view/View;->getHeight()I
-
-    move-result v1
-
-    if-ge v0, v1, :cond_c3
-
-    .line 1113
-    :cond_a9
-    const/high16 v0, 0x41200000    # 10.0f
-
-    invoke-virtual {v3}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
-
-    move-result-object v1
-
-    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
-
-    mul-float/2addr v0, v1
-
-    invoke-static {v0}, Ljava/lang/Math;->round(F)I
-
-    move-result v0
-
-    .line 1115
-    neg-int v1, v0
-
-    neg-int v0, v0
-
-    invoke-virtual {v5, v1, v0}, Landroid/graphics/Rect;->inset(II)V
-
-    .line 1116
-    iput-object v5, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->clip:Landroid/graphics/Rect;
-
-    goto/16 :goto_17
-
-    .line 1118
-    :cond_c3
-    iput-object v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->clip:Landroid/graphics/Rect;
-
-    goto/16 :goto_17
 .end method
 
 .method recycle()V
     .registers 3
 
     .prologue
-    .line 1203
+    .line 1135
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->bmp:Landroid/graphics/Bitmap;
 
-    .line 1204
+    .line 1136
     const/4 v1, 0x0
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->bmp:Landroid/graphics/Bitmap;
 
-    .line 1205
+    .line 1137
     if-eqz v0, :cond_a
 
-    .line 1206
+    .line 1138
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 1208
+    .line 1140
     :cond_a
     return-void
 .end method
@@ -863,7 +499,7 @@
     .registers 2
 
     .prologue
-    .line 1211
+    .line 1143
     return-void
 .end method
 
@@ -871,6 +507,6 @@
     .registers 2
 
     .prologue
-    .line 1214
+    .line 1146
     return-void
 .end method

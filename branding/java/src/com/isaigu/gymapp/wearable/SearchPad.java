@@ -328,7 +328,10 @@ public final class SearchPad {
         int n = 0;
         if (kind == USERS) {
             List<TrainUser> all = DataMgr.getInstance() != null ? DataMgr.getInstance().trainUsers : null;
-            List<TrainUser> list = all != null ? new ArrayList<TrainUser>(all) : new ArrayList<TrainUser>();
+            android.app.Activity act = QuickStart.activity(et.getContext());
+            boolean picker = act != null && et.getRootView() != act.getWindow().getDecorView();
+            // the list's order and filters (ClientSort); in the picker without the clients already in a row
+            List<TrainUser> list = ClientSort.forPad(all != null ? all : new ArrayList<TrainUser>(), picker);
             for (int i = 0; i < list.size() && n < 12; i++) {
                 TrainUser u = list.get(i);
                 String name = u != null ? (u.name != null && u.name.length() > 0 ? u.name : u.nickName) : null;

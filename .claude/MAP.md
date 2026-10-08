@@ -1192,3 +1192,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L32 ## Тестове
   - L39 ## Deploy
   - L57 ## Разходи
+
+`vr-bridge/README.md` (56L)
+  - L1 # XEMS VR haptic bridge
+  - L25 ## Build (layer)
+  - L34 ## Deploy on Quest 3
+  - L46 ## Protocol
+  - L53 ## Test

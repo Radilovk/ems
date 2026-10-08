@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 459
+    .line 465
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 462
+    .line 468
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->listeningActive:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$900()Z
 
@@ -42,11 +42,11 @@
 
     if-nez v0, :cond_7
 
-    .line 471
+    .line 477
     :goto_6
     return-void
 
-    .line 466
+    .line 472
     :cond_7
     :try_start_7
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
@@ -57,7 +57,7 @@
     :try_end_e
     .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_e} :catch_18
 
-    .line 470
+    .line 476
     :goto_e
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$1000()Landroid/os/Handler;
@@ -70,11 +70,11 @@
 
     goto :goto_6
 
-    .line 467
+    .line 473
     :catch_18
     move-exception v0
 
-    .line 468
+    .line 474
     const-string v1, "NotifyWearableBridge.hrPolicy"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

@@ -41,25 +41,26 @@ VrDrive (main thread, 10 ms tick while linked and the target row runs)
   CHANGE_WIFI_MULTICAST_STATE and fails the build if the receiver → drive → controller / zones calls are missing.
 
 ## Build (layer)
-```
-cmake -S vr-bridge/quest-layer -B build-vr -G Ninja \
-  -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
-  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-29 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release
-cmake --build build-vr
-```
-Offline: add `-DOPENXR_SDK_DIR=<OpenXR-SDK checkout>` (headers only).
+`bash vr-bridge/quest-layer/build-ndk.sh` — downloads NDK r27c if `$ANDROID_NDK_HOME` is not set, builds arm64-v8a
+and refreshes `vr-bridge/prebuilt/` (committed: `arm64-v8a/libXrApiLayer_xems_haptics.so` + the manifest json).
+Offline headers: `OPENXR_SDK_DIR=<OpenXR-SDK checkout>`.
 
-## Deploy on Quest 3
-Retail Quest apps load layers only from their own APK, so each game is repacked (sideload, own device):
-- `lib/arm64-v8a/libXrApiLayer_xems_haptics.so`
-- `assets/openxr/1/api_layers/implicit.d/XrApiLayer_xems_haptics.json`
-- `android.permission.INTERNET` in the manifest (most games already have it); re-sign, reinstall.
-
-Works only for games that drive haptics through the Khronos OpenXR loader. Games on the legacy
-VrApi / OVRPlugin-native haptics path never call `xrApplyHapticFeedback` — check with
-`adb logcat -s XemsVrLayer` (`active, session …` then `paired with …`).
-Kill switch: env `DISABLE_XR_APILAYER_XEMS_HAPTICS`. Fixed tablet IP (skips broadcast discovery):
-`adb shell setprop debug.xems.vr.target 192.168.1.50`.
+## Deploy on Quest 3 — `vr-bridge/tools/xems_vr_patch.py`
+Retail Quest apps load layers only from their own APK, so each game is repacked. One command on a PC with adb +
+Java 8+ + Python 3, headset in developer mode on USB:
+```
+python3 vr-bridge/tools/xems_vr_patch.py --list fight          # find the package name
+python3 vr-bridge/tools/xems_vr_patch.py <package> [--tablet <ip>]
+```
+It pulls every split, refuses games without `lib/arm64-v8a/libopenxr_loader.so` (VrApi / OVRPlugin-native: the
+layer cannot load there) or without INTERNET, puts the `.so` next to the loader (stored, 16 KB page-aligned) and the
+json into `base.apk` (`assets/openxr/1/api_layers/implicit.d/`), re-signs all splits with one debug key
+(uber-apk-signer `--skipZipAlign`, alignment done by the script), backs up `Android/data` + `Android/obb`,
+reinstalls, restores them, and on an install failure puts the original back. Internal save data is lost
+(new signature). Originals stay in `xems-vr-out/original/<package>/`. Offline: `--apk base.apk [--apk split.apk] --out DIR`.
+Check on the headset: `adb logcat -s XemsVrLayer` (`active, session …` then `paired with …`).
+Kill switch: env `DISABLE_XR_APILAYER_XEMS_HAPTICS`. Fixed tablet IP: `--tablet` (= `setprop debug.xems.vr.target`,
+until reboot).
 
 ## Protocol
 See the header comment of `xems_wire.h`. Layer: HELLO broadcast every 0.5 s until ACKed, then unicast

@@ -8,3 +8,4 @@ branding/smali/** -diff linguist-generated=true
 *.zip binary
 *.jar binary
 *.keystore binary
+*.so binary

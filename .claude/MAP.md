@@ -1207,10 +1207,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Deploy
   - L57 ## Разходи
 
-`vr-bridge/README.md` (75L)
+`vr-bridge/README.md` (76L)
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
   - L43 ## Build (layer)
-  - L52 ## Deploy on Quest 3
-  - L64 ## Protocol
-  - L71 ## Test
+  - L48 ## Deploy on Quest 3 — `vr-bridge/tools/xems_vr_patch.py`
+  - L65 ## Protocol
+  - L72 ## Test

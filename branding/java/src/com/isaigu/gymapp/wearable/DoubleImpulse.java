@@ -1002,7 +1002,7 @@ public final class DoubleImpulse {
         }
 
         static void start(List<View> views, List<View> fade) {
-            MAIN.post(new Blink(views, fade));        // after the row's layout and texts are final
+            MAIN.postDelayed(new Blink(views, fade), 48L);   // after the row's layout and texts are final
         }
 
         void build() {
@@ -1041,6 +1041,7 @@ public final class DoubleImpulse {
                         h.recycle();
                     } else {
                         h.level = a;
+                        h.place(root);
                         h.invalidateSelf();
                     }
                 }
@@ -1074,6 +1075,45 @@ public final class DoubleImpulse {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         final android.graphics.Matrix m = new android.graphics.Matrix();
         float level;
+        WeakReference<View> view;
+        float offX, offY;
+
+        /**
+         * Follows its control: the 2nd-impulse buttons have just turned visible and the row may still lay them out
+         * (owner, 1.1.398: halos stayed where the buttons were a frame earlier, apart from them).
+         */
+        void place(View root) {
+            View v = view != null ? view.get() : null;
+            if (v == null || root == null) {
+                return;
+            }
+            int[] at = new int[2];
+            int[] rt = new int[2];
+            v.getLocationInWindow(at);
+            root.getLocationInWindow(rt);
+            m.setScale(1f / SCALE, 1f / SCALE);
+            m.postTranslate(at[0] - rt[0] + offX, at[1] - rt[1] + offY);
+            // What of the control the screen really shows: on a short screen the row clips some of them (owner,
+            // 1.1.399) — a clipped control does not glow, a cut one glows only around its visible part.
+            android.graphics.Rect vis = new android.graphics.Rect();
+            boolean seen = v.isShown() && v.getGlobalVisibleRect(vis);
+            long full = (long) v.getWidth() * v.getHeight();
+            if (!seen || full <= 0 || (long) vis.width() * vis.height() * 2 < full) {
+                level = 0f;
+                clip = null;
+                return;
+            }
+            if (vis.width() < v.getWidth() || vis.height() < v.getHeight()) {
+                int pad = Math.round(10f * v.getResources().getDisplayMetrics().density);
+                // getGlobalVisibleRect is already in the root's frame
+                vis.inset(-pad, -pad);
+                clip = vis;
+            } else {
+                clip = null;
+            }
+        }
+
+        android.graphics.Rect clip;
 
         static Halo of(View v, View root) {
             int w = v.getWidth(), h = v.getHeight();
@@ -1109,14 +1149,12 @@ public final class DoubleImpulse {
             co.drawBitmap(an, offN[0] - offW[0], offN[1] - offW[1], tint);
             aw.recycle();
             an.recycle();
-            int[] at = new int[2];
-            int[] rt = new int[2];
-            v.getLocationInWindow(at);
-            root.getLocationInWindow(rt);
             Halo hl = new Halo();
             hl.bmp = out;
-            hl.m.setScale(1f / SCALE, 1f / SCALE);
-            hl.m.postTranslate(at[0] - rt[0] + offW[0] / SCALE, at[1] - rt[1] + offW[1] / SCALE);
+            hl.view = new WeakReference<View>(v);
+            hl.offX = offW[0] / SCALE;
+            hl.offY = offW[1] / SCALE;
+            hl.place(root);
             hl.setBounds(0, 0, root.getWidth(), root.getHeight());
             return hl;
         }
@@ -1126,7 +1164,14 @@ public final class DoubleImpulse {
                 return;
             }
             p.setAlpha(Math.round(level * 235));
-            c.drawBitmap(bmp, m, p);
+            if (clip != null) {
+                c.save();
+                c.clipRect(clip);
+                c.drawBitmap(bmp, m, p);
+                c.restore();
+            } else {
+                c.drawBitmap(bmp, m, p);
+            }
         }
 
         void recycle() {

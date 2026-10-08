@@ -322,6 +322,10 @@ public final class XemsLocalAvatar {
                 Drag g = new Drag();
                 g.radius = ring;
                 g.cur = angle(rx, ry, Math.max(1f, ring));
+                double end = maxAngle(v);
+                if (g.cur > end) {                          // at 0 the handle's angle reads ~360 (dx = -0.0): the start
+                    g.cur = g.cur > (end + 360) / 2 ? 0 : end;
+                }
                 g.finger = angle(fx, fy, Math.max(1f, dist));
                 DRAGS.put(v, g);
                 if (v.getParent() != null) {
@@ -354,7 +358,7 @@ public final class XemsLocalAvatar {
                     g.cur = Math.max(0, Math.min(maxAngle(v), g.cur + step));
                 }
             }
-            double rad = Math.toRadians(g.cur);
+            double rad = Math.toRadians(Math.min(g.cur, maxAngle(v) - 0.01));   // never a hair past the end (wraps to 0)
             e.setLocation(cx + (float) (g.radius * Math.sin(rad)), cy - (float) (g.radius * Math.cos(rad)));
             return true;
         } catch (Throwable t) {

@@ -90,7 +90,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Body-composition scale (Lescale P1, direct BLE, WLA25) | `docs/xems-scale.md` |
 | Pulse / strength control | `docs/xems-pulse-control.md`, `docs/xems-part-strength.md` |
 | EMS physiology (frequency, fatigue model, recovery, energy, rest between sessions) — before touching any of it | `docs/xems-ems-physiology.md` |
-| Quest 3 VR haptics → suit (OpenXR layer, UDP, SafeGuard VR fatigue) | `vr-bridge/README.md` |
+| Quest 3 VR haptics → suit (OpenXR layer, UDP, manual mode, zones off) | `vr-bridge/README.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |
 
 ## Keeping the map true

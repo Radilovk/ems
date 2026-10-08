@@ -83,41 +83,44 @@
     return-void
 .end method
 
-.method private static engage()V
-    .registers 3
+.method private static engage(Lcom/isaigu/gymapp/train/model/TrainItem;)V
+    .registers 4
 
     .prologue
     const/4 v2, 0x1
 
-    .line 137
+    .line 136
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->captureCeilingFromSlider()I
 
-    .line 138
+    .line 137
     invoke-static {v2}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setSyncActive(Z)V
 
-    .line 139
+    .line 138
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->ensureMaMode()V
 
-    .line 140
+    .line 139
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->resetApplied()V
 
-    .line 141
+    .line 140
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->lastSent:I
 
-    .line 142
+    .line 141
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
 
-    .line 143
+    .line 142
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLastMs:J
 
-    .line 144
+    .line 143
     sput-boolean v2, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
+
+    .line 144
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/vr/VrZones;->engage(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
     .line 145
     return-void
@@ -127,7 +130,7 @@
     .registers 1
 
     .prologue
-    .line 182
+    .line 183
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
 
     return v0
@@ -137,7 +140,7 @@
     .registers 1
 
     .prologue
-    .line 178
+    .line 179
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->linked:Z
 
     return v0
@@ -149,12 +152,12 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 164
+    .line 165
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v4
 
-    .line 165
+    .line 166
     sget-wide v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLastMs:J
 
     const-wide/16 v6, 0x0
@@ -165,11 +168,11 @@
 
     const-wide/16 v0, 0xa
 
-    .line 166
+    .line 167
     :goto_f
     sput-wide v4, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLastMs:J
 
-    .line 167
+    .line 168
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getSmoothness()I
 
     move-result v3
@@ -178,7 +181,7 @@
 
     div-int/lit8 v3, v3, 0x64
 
-    .line 168
+    .line 169
     if-lez v3, :cond_49
 
     int-to-float v4, p0
@@ -189,7 +192,7 @@
 
     if-lez v4, :cond_49
 
-    .line 169
+    .line 170
     int-to-float v4, p0
 
     sget v5, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
@@ -218,7 +221,7 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
 
-    .line 173
+    .line 174
     :goto_38
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
 
@@ -226,7 +229,7 @@
 
     move-result v0
 
-    .line 174
+    .line 175
     if-lez p0, :cond_43
 
     if-ge v0, v2, :cond_43
@@ -236,7 +239,7 @@
     :cond_43
     return v0
 
-    .line 165
+    .line 166
     :cond_44
     sget-wide v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLastMs:J
 
@@ -244,7 +247,7 @@
 
     goto :goto_f
 
-    .line 171
+    .line 172
     :cond_49
     int-to-float v0, p0
 
@@ -411,24 +414,26 @@
 .end method
 
 .method public static onTrainingStopped()V
-    .registers 1
+    .registers 2
 
     .prologue
     .line 79
-    const/4 v0, 0x3
+    sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->PULSES:Lcom/isaigu/gymapp/wearable/vr/VrPulses;
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/SafeGuard;->vrStop(I)V
+    const/4 v1, 0x3
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;->stop(I)V
 
     .line 80
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
 
-    if-eqz v0, :cond_b
+    if-eqz v0, :cond_d
 
     .line 81
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->release()V
 
     .line 83
-    :cond_b
+    :cond_d
     return-void
 .end method
 
@@ -462,7 +467,7 @@
 
     if-nez v0, :cond_6
 
-    .line 160
+    .line 161
     :goto_5
     return-void
 
@@ -471,30 +476,33 @@
     sput-boolean v2, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
 
     .line 153
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrZones;->release()V
+
+    .line 154
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->getCeiling()I
 
     move-result v0
 
-    .line 154
+    .line 155
     invoke-static {v2}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->sendImpulseLevel(I)V
 
-    .line 155
+    .line 156
     invoke-static {v2}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setSyncActive(Z)V
 
-    .line 156
+    .line 157
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->resetApplied()V
 
-    .line 157
+    .line 158
     const/4 v1, 0x1
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(IZZ)V
 
-    .line 158
+    .line 159
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->lastSent:I
 
-    .line 159
+    .line 160
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
@@ -530,14 +538,14 @@
     .registers 3
 
     .prologue
-    .line 186
+    .line 187
     const/16 v0, 0x2e
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->lastIndexOf(I)I
 
     move-result v0
 
-    .line 187
+    .line 188
     if-ltz v0, :cond_16
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -581,31 +589,26 @@
 
     move-result v5
 
-    if-eqz v5, :cond_2d
+    if-eqz v5, :cond_29
 
     .line 101
-    const/4 v0, 0x0
-
-    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/SafeGuard;->vrLevel(Lcom/isaigu/gymapp/train/model/TrainItem;J)I
-
-    .line 102
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
 
-    if-eqz v0, :cond_1b
+    if-eqz v0, :cond_17
 
-    .line 103
+    .line 102
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->release()V
 
-    .line 105
-    :cond_1b
+    .line 104
+    :cond_17
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->yieldedToMusic:Z
 
-    if-nez v0, :cond_2c
+    if-nez v0, :cond_28
 
-    .line 106
+    .line 105
     sput-boolean v1, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->yieldedToMusic:Z
 
-    .line 107
+    .line 106
     const-string v0, "VR \u0447\u0430\u043a\u0430 \u2014 \u043c\u0443\u0437\u0438\u043a\u0430\u0442\u0430 \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0432\u0430 \u0441\u0438\u043b\u0430\u0442\u0430"
 
     const-string v1, "VR waits \u2014 music drives the strength"
@@ -616,55 +619,65 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->toast(Ljava/lang/String;)V
 
-    .line 133
-    :cond_2c
-    :goto_2c
+    .line 132
+    :cond_28
+    :goto_28
     return-void
 
-    .line 111
-    :cond_2d
+    .line 110
+    :cond_29
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->yieldedToMusic:Z
 
+    .line 111
+    if-eqz v4, :cond_37
+
+    iget-object v5, v4, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v5, :cond_37
+
+    iget-object v5, v4, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v5, v5, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
+
+    if-nez v5, :cond_3f
+
     .line 112
-    invoke-static {v4, v2, v3}, Lcom/isaigu/gymapp/wearable/SafeGuard;->vrLevel(Lcom/isaigu/gymapp/train/model/TrainItem;J)I
+    :cond_37
+    sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
+
+    if-eqz v0, :cond_28
+
+    .line 113
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->release()V
+
+    goto :goto_28
+
+    .line 117
+    :cond_3f
+    sget-boolean v5, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
+
+    if-nez v5, :cond_46
+
+    .line 118
+    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->engage(Lcom/isaigu/gymapp/train/model/TrainItem;)V
+
+    .line 120
+    :cond_46
+    sget-object v5, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->PULSES:Lcom/isaigu/gymapp/wearable/vr/VrPulses;
+
+    invoke-virtual {v5, v2, v3}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;->level(J)F
 
     move-result v2
 
-    .line 113
-    if-eqz v4, :cond_3f
+    const/high16 v3, 0x42c80000    # 100.0f
 
-    iget-object v3, v4, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+    mul-float/2addr v2, v3
 
-    if-eqz v3, :cond_3f
+    invoke-static {v2}, Ljava/lang/Math;->round(F)I
 
-    iget-object v3, v4, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+    move-result v2
 
-    iget-boolean v3, v3, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
-
-    if-nez v3, :cond_47
-
-    .line 114
-    :cond_3f
-    sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
-
-    if-eqz v0, :cond_2c
-
-    .line 115
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->release()V
-
-    goto :goto_2c
-
-    .line 119
-    :cond_47
-    sget-boolean v3, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
-
-    if-nez v3, :cond_4e
-
-    .line 120
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->engage()V
-
-    .line 122
-    :cond_4e
+    .line 121
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->limitRise(I)I
 
     move-result v2
@@ -673,23 +686,23 @@
 
     move-result v2
 
-    .line 123
+    .line 122
     sget v3, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->lastSent:I
 
-    if-eq v2, v3, :cond_2c
+    if-eq v2, v3, :cond_28
 
     invoke-virtual {v4}, Lcom/isaigu/gymapp/train/model/TrainItem;->isSenderBusy()Z
 
     move-result v3
 
-    if-nez v3, :cond_2c
+    if-nez v3, :cond_28
 
-    .line 126
+    .line 125
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v4
 
-    .line 127
+    .line 126
     sget-wide v6, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->lastUiMs:J
 
     sub-long v6, v4, v6
@@ -698,25 +711,25 @@
 
     cmp-long v3, v6, v8
 
-    if-ltz v3, :cond_6f
+    if-ltz v3, :cond_74
 
     move v0, v1
 
-    .line 128
-    :cond_6f
-    if-eqz v0, :cond_73
+    .line 127
+    :cond_74
+    if-eqz v0, :cond_78
 
-    .line 129
+    .line 128
     sput-wide v4, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->lastUiMs:J
 
-    .line 131
-    :cond_73
+    .line 130
+    :cond_78
     invoke-static {v2, v0, v1}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(IZZ)V
 
-    .line 132
+    .line 131
     sput v2, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->lastSent:I
 
-    goto :goto_2c
+    goto :goto_28
 .end method
 
 .method static tick()V
@@ -767,13 +780,13 @@
     .registers 3
 
     .prologue
-    .line 191
+    .line 192
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->context:Landroid/content/Context;
 
-    .line 192
+    .line 193
     if-eqz v0, :cond_c
 
-    .line 193
+    .line 194
     const/4 v1, 0x0
 
     invoke-static {v0, p0, v1}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
@@ -782,7 +795,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 195
+    .line 196
     :cond_c
     return-void
 .end method

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 229
+    .line 172
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 230
+    .line 173
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/SafeGuard$Tip;->text:Ljava/lang/String;
 
-    .line 231
+    .line 174
     return-void
 .end method
 
@@ -42,18 +42,18 @@
     .registers 3
 
     .prologue
-    .line 236
+    .line 179
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 237
+    .line 180
     instance-of v1, v0, Lcom/isaigu/gymapp/BaseActivity;
 
     if-eqz v1, :cond_f
 
-    .line 238
+    .line 181
     check-cast v0, Lcom/isaigu/gymapp/BaseActivity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SafeGuard$Tip;->text:Ljava/lang/String;
@@ -62,12 +62,12 @@
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_f} :catch_10
 
-    .line 242
+    .line 185
     :cond_f
     :goto_f
     return-void
 
-    .line 240
+    .line 183
     :catch_10
     move-exception v0
 

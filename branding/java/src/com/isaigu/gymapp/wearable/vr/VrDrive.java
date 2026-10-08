@@ -9,19 +9,19 @@ import android.widget.Toast;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
 import com.isaigu.gymapp.train.utils.MusicSync;
-import com.isaigu.gymapp.wearable.SafeGuard;
 import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsLang;
 
 /**
- * SafeGuard's VR level → the XEMS controller, the way MusicSync drives it: the trainer's strength on the MA slider
+ * The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength on the MA slider
  * is the ceiling ({@link MasterStrengthControl#captureCeilingFromSlider}), the level goes through MusicSync's rise
  * limit (its smoothness), is mapped onto [floor, ceiling] ({@link MasterStrengthControl#scaleFromSound}) and only
  * the newest value is written, when the suit's command queue is empty
  * ({@link MasterStrengthControl#setMasterStrength} → row.onParamsChange → SoftRamp → SafeGuard.enforce).
  * Main thread; ticks every {@link #TICK_MS} ms while a headset is linked. While MusicSync runs it owns the strength
- * and VR waits.
+ * and VR waits. Manual mode: the row's program and the absolute limits at every send are the only limits; while
+ * VR drives, traps / back / lower back / calf are off ({@link VrZones}).
  */
 public final class VrDrive {
     static final long TICK_MS = 10L;
@@ -76,7 +76,7 @@ public final class VrDrive {
 
     /** Training stopped by the trainer: pulses off now; the link (and the fatigue) stay. */
     public static void onTrainingStopped() {
-        SafeGuard.vrStop(VrWire.HAND_BOTH);
+        VrHapticRouter.PULSES.stop(VrWire.HAND_BOTH);
         if (driving) {
             release();
         }
@@ -98,7 +98,6 @@ public final class VrDrive {
         long nowNs = System.nanoTime();
         TrainItem item = MasterStrengthControl.getTarget();
         if (MusicSync.isRunning()) {
-            SafeGuard.vrLevel(null, nowNs);              // nothing sent; the fatigue keeps recovering
             if (driving) {
                 release();
             }
@@ -109,7 +108,6 @@ public final class VrDrive {
             return;
         }
         yieldedToMusic = false;
-        int level = SafeGuard.vrLevel(item, nowNs);       // fatigue τ = 30 s + 6 s cap, 0 when the row is not running
         if (item == null || item.data == null || !item.data.start) {
             if (driving) {
                 release();
@@ -117,8 +115,9 @@ public final class VrDrive {
             return;
         }
         if (!driving) {
-            engage();
+            engage(item);
         }
+        int level = Math.round(VrHapticRouter.PULSES.level(nowNs) * 100f);
         int applied = MasterStrengthControl.scaleFromSound(limitRise(level));
         if (applied == lastSent || item.isSenderBusy()) {
             return;                                     // newest value wins on the next tick
@@ -132,8 +131,8 @@ public final class VrDrive {
         lastSent = applied;
     }
 
-    /** The slider's strength becomes the ceiling, MA mode, sync label — as MusicSync does on start. */
-    private static void engage() {
+    /** The slider's strength becomes the ceiling, MA mode, sync label — as MusicSync does on start; zones off. */
+    private static void engage(TrainItem item) {
         MasterStrengthControl.captureCeilingFromSlider();
         MasterStrengthControl.setSyncActive(true);
         MasterStrengthControl.ensureMaMode();
@@ -142,6 +141,7 @@ public final class VrDrive {
         slewLevel = 0f;
         slewLastMs = 0L;
         driving = true;
+        VrZones.engage(item);
     }
 
     /** Suit to 0 now; the row keeps the trainer's strength (the ceiling) for the next phase. */
@@ -150,6 +150,7 @@ public final class VrDrive {
             return;
         }
         driving = false;
+        VrZones.release();
         int ceiling = MasterStrengthControl.getCeiling();
         MasterStrengthControl.sendImpulseLevel(0);
         MasterStrengthControl.setSyncActive(false);

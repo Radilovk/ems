@@ -17,12 +17,12 @@ c++ -std=c++17 -O2 -I"$SDK/include" "$HERE/host_driver.cpp" -ldl -o "$OUT/host_d
 
 rm -rf "$OUT/cls"; mkdir -p "$OUT/cls"
 V="$ROOT/branding/java/src/com/isaigu/gymapp/wearable/vr"   # the app-independent part of the tablet side
-VR=("$V/VrWire.java" "$V/VrHapticEvent.java" "$V/VrHapticSink.java" "$V/VrClockSync.java" "$V/VrTelemetryReceiver.java" "$V/VrFatigue.java")
+VR=("$V/VrWire.java" "$V/VrHapticEvent.java" "$V/VrHapticSink.java" "$V/VrClockSync.java" "$V/VrTelemetryReceiver.java" "$V/VrPulses.java")
 javac -source 8 -target 8 -nowarn -d "$OUT/cls" -cp "$JAR" \
-  "$HERE"/stubs/android/*/*.java "${VR[@]}" "$HERE/VrReceiverHostTest.java" "$HERE/VrFatigueHostTest.java" 2>&1 \
+  "$HERE"/stubs/android/*/*.java "${VR[@]}" "$HERE/VrReceiverHostTest.java" "$HERE/VrPulsesHostTest.java" 2>&1 \
   | grep -v 'bootstrap classpath' || true
 
-java -cp "$OUT/cls:$JAR" VrFatigueHostTest
+java -cp "$OUT/cls:$JAR" VrPulsesHostTest
 java -cp "$OUT/cls:$JAR" VrReceiverHostTest "$PORT" 4500 > "$OUT/rx.log" 2>&1 &
 RX=$!
 until grep -q READY "$OUT/rx.log" 2>/dev/null; do sleep 0.1; done

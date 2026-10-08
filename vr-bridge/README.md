@@ -1,13 +1,15 @@
 # XEMS VR haptic bridge
 
-Quest 3 game haptics → XEMS tablet → suit. The headset only reports; **all safety is on the tablet**
-(SafeGuard: fatigue model τ = 30 s, 6 s continuous-pulse cap) before anything reaches the BLE channels.
+Quest 3 game haptics → XEMS tablet → suit. The headset only reports. On the tablet VR runs in **manual mode**
+(owner, 1.1.396): the row's own program (impulse / pause as the trainer set it — below 20 Hz no pause is needed)
+and the owner's absolute limits at every send (`SafeGuard.enforce` → `ai/SafeLimits`, docs/xems-safety-limits.md)
+are the only limits. Less fatigue comes from zones: while VR drives, traps, back, lower back and calf are off.
 
 ```
 game ──xrApplyHapticFeedback──▶ quest-layer (implicit OpenXR API layer) ──▶ runtime (unchanged)
                                      │ UDP 47800, 40 B/event, MSG_DONTWAIT, DSCP EF
                                      ▼
-                     tablet: VrTelemetryReceiver ──▶ VrHapticSink ──▶ SafeGuard ─▶ MusicSync ─▶ BLE
+                     tablet: VrTelemetryReceiver ─▶ VrPulses ─▶ VrDrive (MusicSync way) ─▶ SoftRamp ─▶ SafeGuard.enforce ─▶ BLE
 ```
 
 | Path | What |
@@ -19,16 +21,16 @@ game ──xrApplyHapticFeedback──▶ quest-layer (implicit OpenXR API layer
 | `branding/java/src/com/isaigu/gymapp/wearable/vr/` | Tablet side (compile: `compile-wearable-java.sh`) — see below |
 | `test/run.sh` | Host end-to-end: real layer `.so` + fake loader/runtime → loopback → real receiver |
 
-## Tablet (in the APK since 1.1.395-ai)
+## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
 ```
 VrTelemetryReceiver (UDP thread: pairing, clock sync, seq / stale filter)
-  └▶ VrHapticRouter (the VrHapticSink) ──▶ SafeGuard.vrPulse / vrStop      (records only)
-VrDrive (main thread, 10 ms tick while linked)
-  └▶ SafeGuard.vrLevel(row, now)  = VrFatigue: τ 30 s, F_max 18.4, soft limit from 0.6·F_max to 0.3 output at F_max,
-  │                                 lockout until F_rec; 6 s continuous (gaps < 1 s) → 4 s rest; pulse ≥ 120 ms
+  └▶ VrHapticRouter (the VrHapticSink) ──▶ VrPulses   (per hand: amplitude until the pulse ends, ≥ 120 ms)
+VrDrive (main thread, 10 ms tick while linked and the target row runs)
   └▶ MusicSync algorithm: rise limit (MusicSync smoothness) → MasterStrengthControl.scaleFromSound (floor..ceiling =
      MA slider) → newest value only when the row's BLE queue is empty → setMasterStrength → onParamsChange →
-     SoftRamp → SafeGuard.enforce (absolute row limits)
+     SoftRamp → SafeGuard.enforce (the owner's absolute limits)
+  └▶ VrZones: TrainItem.partsDisabled on for traps (buwei6), back (buwei7), lower back (buwei8), calf (buwei4)
+     while driving; only the channels it switched off are switched back on (the trainer's own off stays)
 ```
 - Lifecycle: `VrBridge.attach/detach/onTrainingStopped` from `wearable/NotifyWearableBridge` (training screen
   open / closed / full stop). Driven row = MusicSync's target (`MasterStrengthControl.getTarget()`), only while it runs.
@@ -36,7 +38,7 @@ VrDrive (main thread, 10 ms tick while linked)
   (`MusicSyncBridge.onMaStrengthDelta`); manual slider edits are blocked like in music sync.
 - Whole-suit strength for now; the hand (L/R/both) is carried to the guard but not yet mapped to arm channels.
 - Build: `scripts/apply-vr-bridge.py` (after `apply-wearable-permissions.py`) adds WAKE_LOCK +
-  CHANGE_WIFI_MULTICAST_STATE and fails the build if the receiver → SafeGuard → controller calls are missing.
+  CHANGE_WIFI_MULTICAST_STATE and fails the build if the receiver → drive → controller / zones calls are missing.
 
 ## Build (layer)
 ```
@@ -67,6 +69,6 @@ Tablet: PING every 250 ms, min-RTT offset over 16 samples, drops duplicate/reord
 Session left FOCUSED → STOP(BOTH, UNFOCUS).
 
 ## Test
-`bash vr-bridge/test/run.sh` (needs `bash scripts/setup-android-toolchain.sh` for android.jar): the fatigue model
-(`VrFatigueHostTest`: 6 s cap, gaps, boxing 10 min, heavy 10 min, τ recovery, min pulse) + the layer → receiver run.
+`bash vr-bridge/test/run.sh` (needs `bash scripts/setup-android-toolchain.sh` for android.jar): the pulse envelope
+(`VrPulsesHostTest`: min pulse, two hands, append, infinite, stops) + the layer → receiver run.
 Host loopback: hook cost ≈ 50–80 µs worst case, call → tablet dispatch ≈ 0.4 ms.

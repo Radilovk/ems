@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Quest 3 haptic bridge (wearable/vr, vr-bridge/): manifest permissions for the UDP receiver's Wi-Fi locks
 (WAKE_LOCK → low-latency WifiLock, CHANGE_WIFI_MULTICAST_STATE → MulticastLock for the HELLO broadcast; INTERNET
-is the vendor's) and a check that the receiver, the guard and the hooks reached the decompiled tree.
+is the vendor's) and a check that the receiver, the drive, the zones switch and the hooks reached the decompiled tree.
 The bridge itself is started from wearable/NotifyWearableBridge (attach / detach / full stop) — no smali hook here."""
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ DECOMPILED = ROOT / "build" / "decompiled"
 MANIFEST = DECOMPILED / "AndroidManifest.xml"
 PERMISSIONS = ("android.permission.WAKE_LOCK", "android.permission.CHANGE_WIFI_MULTICAST_STATE",
                "android.permission.INTERNET")
-VR_CLASSES = ("VrTelemetryReceiver", "VrHapticRouter", "VrDrive", "VrFatigue", "VrBridge", "VrMainCall")
+VR_CLASSES = ("VrTelemetryReceiver", "VrHapticRouter", "VrDrive", "VrPulses", "VrZones", "VrBridge", "VrMainCall")
 CALLS = {
     "wearable/NotifyWearableBridge.smali": (
         "Lcom/isaigu/gymapp/wearable/vr/VrBridge;->attach(Landroid/content/Context;)V",
@@ -22,11 +22,16 @@ CALLS = {
         "Lcom/isaigu/gymapp/wearable/vr/VrBridge;->onTrainingStopped()V",
     ),
     "wearable/vr/VrHapticRouter.smali": (
-        "Lcom/isaigu/gymapp/wearable/SafeGuard;->vrPulse(Lcom/isaigu/gymapp/wearable/vr/VrHapticEvent;)V",
+        "Lcom/isaigu/gymapp/wearable/vr/VrPulses;->pulse(IFJZZJ)V",
     ),
     "wearable/vr/VrDrive.smali": (
-        "Lcom/isaigu/gymapp/wearable/SafeGuard;->vrLevel(Lcom/isaigu/gymapp/train/model/TrainItem;J)I",
+        "Lcom/isaigu/gymapp/wearable/vr/VrPulses;->level(J)F",
         "Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(IZZ)V",
+        "Lcom/isaigu/gymapp/wearable/vr/VrZones;->engage(Lcom/isaigu/gymapp/train/model/TrainItem;)V",
+        "Lcom/isaigu/gymapp/wearable/vr/VrZones;->release()V",
+    ),
+    "wearable/vr/VrZones.smali": (
+        "Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z",
     ),
 }
 
@@ -67,7 +72,7 @@ def main() -> int:
             if n not in body:
                 print(f"ERROR: {rel} lacks {n}", file=sys.stderr)
                 return 1
-    print("VR bridge: receiver → SafeGuard → MasterStrengthControl wired")
+    print("VR bridge: receiver → pulses → MasterStrengthControl (→ SoftRamp → SafeGuard.enforce), zones wired")
     return 0
 
 

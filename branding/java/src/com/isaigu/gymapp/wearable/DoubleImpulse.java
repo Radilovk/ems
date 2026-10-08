@@ -1100,7 +1100,6 @@ public final class DoubleImpulse {
             blur.setMaskFilter(new android.graphics.BlurMaskFilter(near, android.graphics.BlurMaskFilter.Blur.NORMAL));
             int[] offN = new int[2];
             android.graphics.Bitmap an = src.extractAlpha(blur, offN);
-            src.recycle();
             android.graphics.Bitmap out = android.graphics.Bitmap.createBitmap(aw.getWidth(), aw.getHeight(),
                     android.graphics.Bitmap.Config.ARGB_8888);
             Canvas co = new Canvas(out);
@@ -1111,6 +1110,14 @@ public final class DoubleImpulse {
             tint.setColor(0xFFFFD54F);
             tint.setAlpha(170);
             co.drawBitmap(an, offN[0] - offW[0], offN[1] - offW[1], tint);
+            // A backlight, not a coat of paint (owner, 1.1.404): the control's own shape is cut out of its glow, so the
+            // glow shows only around it and never covers the button, the icon or the text.
+            android.graphics.Bitmap sharp = src.extractAlpha();
+            Paint cut = new Paint();
+            cut.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_OUT));
+            co.drawBitmap(sharp, -offW[0], -offW[1], cut);
+            sharp.recycle();
+            src.recycle();
             aw.recycle();
             an.recycle();
             Halo hl = new Halo();

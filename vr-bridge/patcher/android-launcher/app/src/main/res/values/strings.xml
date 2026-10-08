@@ -1,20 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">XEMS VR Launcher</string>
+    <string name="app_name">XEMS VR</string>
+    <string name="subtitle">Ударите от играта — в костюма</string>
 
-    <string name="label_package">Target Package Name</string>
-    <string name="hint_package">com.example.vrgame</string>
+    <string name="label_quest_ip">IP на шлема</string>
+    <string name="hint_quest_ip" translatable="false">192.168.1.23</string>
+    <string name="help_quest_ip">Шлемът в същия Wi-Fi. Веднъж по кабел: adb tcpip 5555</string>
 
-    <string name="label_tablet_ip">Quest / Tablet IP Address</string>
-    <string name="hint_tablet_ip">192.168.1.50</string>
+    <string name="label_package">Игра</string>
+    <string name="hint_package" translatable="false">com.studio.game</string>
+    <string name="help_package">Името на пакета — xems_vr_patch.py &#8209;&#8209;list</string>
 
-    <string name="btn_execute">Execute Local Patch</string>
+    <string name="label_tablet_ip">IP на таблета</string>
+    <string name="hint_tablet_ip">празно — шлемът го търси сам</string>
+    <string name="tablet_ip_found">✓ Намерен сам по Wi-Fi</string>
+    <string name="tablet_ip_missing">Не виждам Wi-Fi — въведи го или остави празно</string>
+    <string name="detect_ip">Намери пак IP-то на таблета</string>
 
-    <string name="status_idle">Ready. Fill both fields and press Execute.</string>
-    <string name="status_sent">Sent to Termux:\n  xems_vr_patch.py %1$s --tablet %2$s --yes\nWatch Termux for progress.</string>
-    <string name="status_failed">Could not reach Termux: %1$s</string>
+    <string name="show_in_termux">Гледай хода в Termux (тогава резултатът не идва тук)</string>
 
-    <string name="err_no_package">Enter the target package name.</string>
-    <string name="err_no_ip">Enter the tablet IP address.</string>
-    <string name="err_termux">Is Termux installed, RUN_COMMAND granted, and allow-external-apps=true?</string>
+    <string name="btn_execute">Сложи хаптиката</string>
+    <string name="btn_run_again">Пусни пак</string>
+
+    <string name="status_idle">Готово за старт</string>
+    <string name="detail_idle">Въведи IP на шлема и играта, после натисни зеления бутон.</string>
+    <string name="status_running">Слагам хаптиката…</string>
+    <string name="detail_running">Termux свързва шлема, изтегля играта, вгражда слоя, подписва и я връща. Обикновено 1–3 минути.</string>
+    <string name="status_in_termux">Пуснато в Termux</string>
+    <string name="detail_in_termux">Ходът и резултатът се виждат в Termux.</string>
+    <string name="status_done">Готово ✓</string>
+    <string name="detail_done">Отвори тренировката на таблета, пусни реда и стартирай играта в шлема.</string>
+    <string name="status_bad_input">Нещо в полетата не е наред</string>
+    <string name="detail_bad_input">Провери IP-тата и името на играта.</string>
+    <string name="status_no_adb">В Termux няма adb</string>
+    <string name="detail_no_adb">В Termux: pkg install android-tools</string>
+    <string name="status_no_quest">Шлемът не отговаря</string>
+    <string name="detail_no_quest">Същият Wi-Fi ли е? Пуснат ли е веднъж adb tcpip 5555 по кабел? Провери IP-то.</string>
+    <string name="status_unauthorized">Шлемът чака разрешение</string>
+    <string name="detail_unauthorized">Сложи шлема, приеми „Allow USB debugging“ и натисни пак.</string>
+    <string name="status_failed">Не стана</string>
+    <string name="detail_failed">Причината е в последните редове отдолу. Оригиналната игра остава на шлема.</string>
+    <string name="status_termux">Termux не пусна командата</string>
+    <string name="detail_termux">В ~/.termux/termux.properties: allow-external-apps=true, после termux-reload-settings.</string>
+    <string name="status_no_termux">Няма Termux</string>
+    <string name="detail_no_termux">Инсталирай Termux (F-Droid) и папката ems/ в него — виж README.</string>
+    <string name="status_no_permission">Няма разрешение за Termux</string>
+    <string name="detail_no_permission">Разреши „Изпълнение на команди в Termux“ от настройките на приложението.</string>
+    <string name="result_no_bundle">Termux върна празен отговор</string>
+
+    <string name="err_quest_ip">Напр. 192.168.1.23 (по желание :порт)</string>
+    <string name="err_package">Напр. com.studio.game</string>
+    <string name="err_tablet_ip">Напр. 192.168.1.50 — или остави празно</string>
 </resources>

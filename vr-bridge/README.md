@@ -59,6 +59,8 @@ json into `base.apk` (`assets/openxr/1/api_layers/implicit.d/`), re-signs all sp
 reinstalls, restores them, and on an install failure puts the original back. Internal save data is lost
 (new signature). Originals stay in `xems-vr-out/original/<package>/`. Offline: `--apk base.apk [--apk split.apk] --out DIR`.
 Check on the headset: `adb logcat -s XemsVrLayer` (`active, session …` then `paired with …`).
+No PC: `vr-bridge/patcher/android-launcher/` — a tablet app that runs the same script in Termux over Wi-Fi adb
+(`adb connect`, the tablet's own IP as `--tablet`, result shown in the app).
 Kill switch: env `DISABLE_XR_APILAYER_XEMS_HAPTICS`. Fixed tablet IP: `--tablet` (= `setprop debug.xems.vr.target`,
 until reboot).
 

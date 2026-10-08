@@ -8,12 +8,17 @@ package com.isaigu.gymapp.wearable.vr;
  */
 public final class VrHapticRouter implements VrHapticSink {
     static final VrPulses PULSES = new VrPulses();
+    /** Since the headset linked: haptics that became an impulse / that the gate dropped (VrPanel shows them). */
+    static volatile int passed;
+    static volatile int dropped;
 
     @Override
     public void onVrHaptic(VrHapticEvent e) {
         if (!VrNoiseGate.passes(e)) {
+            dropped++;                                  // receiver thread is the only writer
             return;                                     // UI click / hover / weak rumble: no impulse
         }
+        passed++;
         PULSES.pulse(e.hand, e.amplitude, e.durationUs, e.isMinDuration(), e.isAppend(), e.eventTimeNs);
     }
 
@@ -26,6 +31,9 @@ public final class VrHapticRouter implements VrHapticSink {
     public void onVrLink(boolean up, String app) {
         if (!up) {
             PULSES.stop(VrWire.HAND_BOTH);
+        } else {
+            passed = 0;
+            dropped = 0;
         }
         VrDrive.postLink(up, app);
     }

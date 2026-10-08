@@ -9,6 +9,8 @@
 # static fields
 .field static final LINK:I = 0x1
 
+.field static final SETTINGS:I = 0x2
+
 .field static final TICK:I
 
 
@@ -25,19 +27,19 @@
     .registers 4
 
     .prologue
-    .line 12
+    .line 13
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 13
+    .line 14
     iput p1, p0, Lcom/isaigu/gymapp/wearable/vr/VrMainCall;->op:I
 
-    .line 14
+    .line 15
     iput-boolean p2, p0, Lcom/isaigu/gymapp/wearable/vr/VrMainCall;->up:Z
 
-    .line 15
+    .line 16
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/vr/VrMainCall;->app:Ljava/lang/String;
 
-    .line 16
+    .line 17
     return-void
 .end method
 
@@ -47,20 +49,33 @@
     .registers 3
 
     .prologue
-    .line 20
+    .line 21
     iget v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrMainCall;->op:I
 
     if-nez v0, :cond_8
 
-    .line 21
+    .line 22
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->tick()V
 
-    .line 25
+    .line 28
     :goto_7
     return-void
 
     .line 23
     :cond_8
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrMainCall;->op:I
+
+    const/4 v1, 0x2
+
+    if-ne v0, v1, :cond_11
+
+    .line 24
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->onSettingsChanged()V
+
+    goto :goto_7
+
+    .line 26
+    :cond_11
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrMainCall;->up:Z
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrMainCall;->app:Ljava/lang/String;

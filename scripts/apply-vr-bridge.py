@@ -14,7 +14,8 @@ DECOMPILED = ROOT / "build" / "decompiled"
 MANIFEST = DECOMPILED / "AndroidManifest.xml"
 PERMISSIONS = ("android.permission.WAKE_LOCK", "android.permission.CHANGE_WIFI_MULTICAST_STATE",
                "android.permission.INTERNET")
-VR_CLASSES = ("VrTelemetryReceiver", "VrHapticRouter", "VrDrive", "VrPulses", "VrNoiseGate", "VrZones", "VrBridge", "VrMainCall")
+VR_CLASSES = ("VrTelemetryReceiver", "VrHapticRouter", "VrDrive", "VrPulses", "VrNoiseGate", "VrZones", "VrBridge", "VrMainCall",
+              "VrSettings", "VrPanel")
 CALLS = {
     "wearable/NotifyWearableBridge.smali": (
         "Lcom/isaigu/gymapp/wearable/vr/VrBridge;->attach(Landroid/content/Context;)V",
@@ -33,6 +34,14 @@ CALLS = {
     ),
     "wearable/vr/VrZones.smali": (
         "Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z",
+        "Lcom/isaigu/gymapp/wearable/vr/VrSettings;->rests(I)Z",
+    ),
+}
+# Installed later by apply-xems-nav.py: checked in branding/smali, the copy it installs.
+BRANDING_CALLS = {
+    "widget/XemsNav.smali": (                       # the "VR" tile → VrPanel (settings sheet, 1.1.402)
+        "Lcom/isaigu/gymapp/wearable/vr/VrPanel;->open(Landroid/app/Activity;)V",
+        "Lcom/isaigu/gymapp/wearable/vr/VrPanel;->status()Ljava/lang/String;",
     ),
 }
 
@@ -73,7 +82,14 @@ def main() -> int:
             if n not in body:
                 print(f"ERROR: {rel} lacks {n}", file=sys.stderr)
                 return 1
-    print("VR bridge: receiver → pulses → MasterStrengthControl (→ SoftRamp → SafeGuard.enforce), zones wired")
+    for rel, needles in BRANDING_CALLS.items():
+        p = ROOT / "branding" / "smali" / rel
+        body = p.read_text(encoding="utf-8") if p.is_file() else ""
+        for n in needles:
+            if n not in body:
+                print(f"ERROR: branding/smali/{rel} lacks {n}", file=sys.stderr)
+                return 1
+    print("VR bridge: receiver → gate (preset) → pulses → MasterStrengthControl (→ SoftRamp → SafeGuard.enforce), zones, VR tile + panel wired")
     return 0
 
 

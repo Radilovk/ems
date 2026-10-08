@@ -45,12 +45,12 @@ VrDrive (main thread, 10 ms tick while linked and the target row runs)
 and refreshes `vr-bridge/prebuilt/` (committed: `arm64-v8a/libXrApiLayer_xems_haptics.so` + the manifest json).
 Offline headers: `OPENXR_SDK_DIR=<OpenXR-SDK checkout>`.
 
-## Deploy on Quest 3 — `vr-bridge/tools/xems_vr_patch.py`
+## Deploy on Quest 3 — `vr-bridge/patcher/xems_vr_patch.py`
 Retail Quest apps load layers only from their own APK, so each game is repacked. One command on a PC with adb +
 Java 8+ + Python 3, headset in developer mode on USB:
 ```
-python3 vr-bridge/tools/xems_vr_patch.py --list fight          # find the package name
-python3 vr-bridge/tools/xems_vr_patch.py <package> [--tablet <ip>]
+python3 vr-bridge/patcher/xems_vr_patch.py --list fight          # find the package name
+python3 vr-bridge/patcher/xems_vr_patch.py <package> [--tablet <ip>]
 ```
 It pulls every split, refuses games without `lib/arm64-v8a/libopenxr_loader.so` (VrApi / OVRPlugin-native: the
 layer cannot load there) or without INTERNET, puts the `.so` next to the loader (stored, 16 KB page-aligned) and the

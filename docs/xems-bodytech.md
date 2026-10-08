@@ -253,3 +253,11 @@ thigh column, renamed), Седалище, Корем, Кръст, Гръб, Тр
 thigh and calf (no electrodes) — are hidden (INVISIBLE) on the row and, when every row on screen is bodytech, in the
 header (`PartLook.columns / header`, `BtSettings.hasChannel`). The settings chips offer **all ten** XEMS channels + "Няма" (1.1.392 — the owner
 ties any of them by hand; 1.1.391 left back thigh and calf out by mistake): a tied one appears on the row by itself.
+
+## The bodytech row's column order (owner, 1.1.393)
+Settings as in 1.1.392 (all ten XEMS channels, untouched). On the training screen, when the header is the bodytech one
+(every row with a suit is bodytech), the row and the header put the columns in the XEMS order with the two legs — Л, Д
+(the XEMS channels of the leg channels, by default chest and front thigh) — right after the calf, side by side
+(`PartLook.order / arrange`, the ten column views moved among their own places). A column no bodytech channel is on
+(by default calf and back thigh) stays in its place, at 0 %, dimmed, its bar not touchable (`PartLook.Block`) and its
+header cell not clickable — no empty gap. Any XEMS suit on the screen → the stock order and look.

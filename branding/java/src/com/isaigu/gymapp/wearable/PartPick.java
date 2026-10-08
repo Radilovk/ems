@@ -169,7 +169,7 @@ public final class PartPick {
     }
 
     /** The marks or their colour changed from outside a tap: the avatar sliders and the icons redraw. */
-    static void refresh() {
+    public static void refresh() {
         MAIN.post(new Refresh());
     }
 

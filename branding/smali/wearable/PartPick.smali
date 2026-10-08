@@ -475,7 +475,7 @@
     goto :goto_13
 .end method
 
-.method static refresh()V
+.method public static refresh()V
     .registers 2
 
     .prologue

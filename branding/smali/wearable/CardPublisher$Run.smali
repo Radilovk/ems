@@ -42,12 +42,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 113
+    .line 114
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 114
+    .line 115
     if-eqz v1, :cond_2f
 
     const-string v2, "xems_client_cards"
@@ -78,7 +78,7 @@
 
     const-string v3, ""
 
-    .line 115
+    .line 116
     invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -91,7 +91,7 @@
 
     const/4 v0, 0x1
 
-    .line 114
+    .line 115
     :cond_2f
     return v0
 .end method
@@ -114,7 +114,7 @@
 
     if-eqz v0, :cond_b
 
-    .line 110
+    .line 111
     :cond_a
     :goto_a
     return-void
@@ -179,11 +179,11 @@
 
     goto :goto_a
 
-    .line 107
+    .line 108
     :catch_42
     move-exception v0
 
-    .line 108
+    .line 109
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -223,7 +223,10 @@
 
     invoke-direct {v6, v1}, Landroid/webkit/WebView;-><init>(Landroid/content/Context;)V
 
-    .line 93
+    .line 92
+    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLang;->afterWebView(Landroid/app/Activity;)V
+
+    .line 94
     const/16 v0, 0x500
 
     const/high16 v2, 0x40000000    # 2.0f
@@ -236,15 +239,15 @@
 
     const/high16 v3, 0x40000000    # 2.0f
 
-    .line 94
+    .line 95
     invoke-static {v2, v3}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v2
 
-    .line 93
+    .line 94
     invoke-virtual {v6, v0, v2}, Landroid/webkit/WebView;->measure(II)V
 
-    .line 95
+    .line 96
     const/4 v0, 0x0
 
     const/4 v2, 0x0
@@ -255,27 +258,27 @@
 
     invoke-virtual {v6, v0, v2, v3, v4}, Landroid/webkit/WebView;->layout(IIII)V
 
-    .line 96
+    .line 97
     invoke-virtual {v6}, Landroid/webkit/WebView;->getSettings()Landroid/webkit/WebSettings;
 
     move-result-object v0
 
-    .line 97
+    .line 98
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V
 
-    .line 98
+    .line 99
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/webkit/WebSettings;->setDomStorageEnabled(Z)V
 
-    .line 99
+    .line 100
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/webkit/WebSettings;->setAllowFileAccess(Z)V
 
-    .line 100
+    .line 101
     new-instance v0, Lcom/isaigu/gymapp/wearable/ReportBridge;
 
     const/4 v2, 0x0
@@ -286,25 +289,25 @@
 
     invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/ReportBridge;-><init>(Landroid/app/Activity;Landroid/app/Dialog;Lcom/isaigu/gymapp/bean/TrainUser;J)V
 
-    .line 101
+    .line 102
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/ReportBridge;->auto:Z
 
-    .line 102
+    .line 103
     invoke-virtual {v0, v6}, Lcom/isaigu/gymapp/wearable/ReportBridge;->setWebView(Landroid/webkit/WebView;)V
 
-    .line 103
+    .line 104
     const-string v1, "XemsReport"
 
     invoke-virtual {v6, v0, v1}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 104
+    .line 105
     const-string v0, "file:///android_asset/report/session-report.html"
 
     invoke-virtual {v6, v0}, Landroid/webkit/WebView;->loadUrl(Ljava/lang/String;)V
 
-    .line 105
+    .line 106
     # getter for: Lcom/isaigu/gymapp/wearable/CardPublisher;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/CardPublisher;->access$000()Landroid/os/Handler;
 
@@ -318,7 +321,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 106
+    .line 107
     const-string v0, "report"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -344,8 +347,8 @@
     move-result-object v1
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_d7
-    .catch Ljava/lang/Throwable; {:try_start_5c .. :try_end_d7} :catch_42
+    :try_end_da
+    .catch Ljava/lang/Throwable; {:try_start_5c .. :try_end_da} :catch_42
 
     goto/16 :goto_a
 .end method

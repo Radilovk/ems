@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 482
+    .line 485
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 483
+    .line 486
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Back;->pad:Lcom/isaigu/gymapp/wearable/SearchPad;
 
-    .line 484
+    .line 487
     return-void
 .end method
 
@@ -44,25 +44,25 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 488
+    .line 491
     const/4 v1, 0x4
 
     if-ne p2, v1, :cond_10
 
-    .line 489
+    .line 492
     invoke-virtual {p3}, Landroid/view/KeyEvent;->getAction()I
 
     move-result v1
 
     if-ne v1, v0, :cond_f
 
-    .line 490
+    .line 493
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Back;->pad:Lcom/isaigu/gymapp/wearable/SearchPad;
 
     # invokes: Lcom/isaigu/gymapp/wearable/SearchPad;->close()V
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/SearchPad;->access$400(Lcom/isaigu/gymapp/wearable/SearchPad;)V
 
-    .line 494
+    .line 497
     :cond_f
     :goto_f
     return v0

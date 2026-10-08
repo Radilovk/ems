@@ -25,7 +25,7 @@
     .end annotation
 .end field
 
-.field private static final REFRESH_TAG:Ljava/lang/String; = "xems_refresh"
+.field static final REFRESH_TAG:Ljava/lang/String; = "xems_refresh"
 
 .field private static final TAG:Ljava/lang/String; = "xems_quick"
 

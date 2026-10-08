@@ -9,6 +9,7 @@ import java.util.List;
 public class DataMgr {
     public static boolean singleMode;
     public List<TrainUser> trainUsers;
+    public List<com.isaigu.gymapp.bean.TrainUserProgramDataWrapper> trainingUsers;
     public List<TrainProgram> trainData;
     public List<DeviceBean> deviceBeanList;
     public TrainUser loginUser;

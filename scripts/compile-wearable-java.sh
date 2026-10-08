@@ -94,6 +94,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/SuitReconnect.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/QuickStart.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ClientRow.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/ClientSort.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleProtocol.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleSenssun.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleBody.java"

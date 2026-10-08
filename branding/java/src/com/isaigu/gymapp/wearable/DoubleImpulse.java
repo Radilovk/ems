@@ -564,21 +564,11 @@ public final class DoubleImpulse {
                 }
             }
             if (on && BLINK.remove(it) != null) {
+                // Only what the double impulse has just brought on the screen glows — the two new index buttons around
+                // the avatar (owner, 1.1.406); the rest of the row stays calm.
                 List<View> glow = new ArrayList<View>();
-                List<View> fade = new ArrayList<View>();
-                View label = idLabel != 0 ? row.findViewById(idLabel) : null;
-                View amount = idAmount != 0 ? row.findViewById(idAmount) : null;
-                add(glow, pm, ph, ring, btn, amount);
-                add(fade, label, pm, ph);
-                if (bars != null) {
-                    add(glow, bars);
-                }
-                if (texts != null) {
-                    add(glow, texts);
-                    add(fade, texts);
-                }
-                add(glow, PartPick.icons(ring.getRootView()));
-                Blink.start(glow, fade);
+                add(glow, pm, ph);
+                Blink.start(glow, new ArrayList<View>());
             } else if (!on) {
                 BLINK.remove(it);
             }
@@ -1092,7 +1082,7 @@ public final class DoubleImpulse {
 
     /** A view's glow: its own shape blurred twice (a wide halo and a closer one), tinted amber, in the view's coordinates. */
     static final class Halo extends Drawable {
-        static final float SCALE = 0.5f;
+        static final float SCALE = 0.75f;
         android.graphics.Bitmap bmp;
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         final android.graphics.Matrix m = new android.graphics.Matrix();
@@ -1123,7 +1113,7 @@ public final class DoubleImpulse {
             } else {
                 v.draw(cs);
             }
-            float wide = Math.max(2f, 11f * d * SCALE);
+            float wide = Math.max(2f, 9f * d * SCALE);
             float near = Math.max(1f, 4f * d * SCALE);
             Paint blur = new Paint();
             blur.setMaskFilter(new android.graphics.BlurMaskFilter(wide, android.graphics.BlurMaskFilter.Blur.NORMAL));

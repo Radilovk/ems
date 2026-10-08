@@ -1,8 +1,9 @@
 package com.isaigu.gymapp.wearable.vr;
 
 /**
- * The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrPulses} → {@link VrDrive} (MusicSync's way to the
- * controller) → row.onParamsChange → SoftRamp → wearable/SafeGuard.enforce (the owner's absolute limits).
+ * The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrNoiseGate} → {@link VrPulses} → {@link VrDrive}
+ * (MusicSync's way to the controller) → row.onParamsChange → SoftRamp → wearable/SafeGuard.enforce (the owner's
+ * absolute limits).
  * Manual mode: no limits of its own. Receiver thread; must not block.
  */
 public final class VrHapticRouter implements VrHapticSink {
@@ -10,6 +11,9 @@ public final class VrHapticRouter implements VrHapticSink {
 
     @Override
     public void onVrHaptic(VrHapticEvent e) {
+        if (!VrNoiseGate.passes(e)) {
+            return;                                     // UI click / hover / weak rumble: no impulse
+        }
         PULSES.pulse(e.hand, e.amplitude, e.durationUs, e.isMinDuration(), e.isAppend(), e.eventTimeNs);
     }
 

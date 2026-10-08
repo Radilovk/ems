@@ -17,18 +17,20 @@ import java.util.List;
 /**
  * Three quick taps on a row's Bluetooth signal icon show how close the suit is — 0..100 %, no metres or dBm (owner,
  * 1.1.407). The suit's link (stock XEMS or bodytech — both go through FastBle) is asked for its real RSSI; while the
- * note shows it is asked again every 0.7 s, so walking closer or away can be watched.
+ * note shows it is asked again every 0.7 s, so walking closer or away can be watched. The note stays until the signal
+ * icon is tapped once more (owner, 1.1.409).
  */
 public final class SignalProbe {
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final long WINDOW_MS = 1200L;
-    private static final long WATCH_MS = 9000L;
     private static final long EVERY_MS = 700L;
+    /** Each reading's note lasts this long; the next one (0.7 s) renews it — a stopped poll lets it fade. */
+    private static final long NOTE_MS = 1500L;
 
     private static volatile int lastRssi = Integer.MIN_VALUE;
     private static WeakReference<View> anchor;
     private static String mac;
-    private static long watchUntil;
+    private static volatile boolean watching;
 
     private SignalProbe() {
     }
@@ -63,6 +65,12 @@ public final class SignalProbe {
 
         public void onClick(View v) {
             long now = System.currentTimeMillis();
+            if (watching) {
+                stop();                                // the closeness is up: one tap hides it
+                count = 0;
+                first = 0L;
+                return;
+            }
             if (now - first > WINDOW_MS) {
                 first = now;
                 count = 0;
@@ -81,7 +89,7 @@ public final class SignalProbe {
             anchor = new WeakReference<View>(v);
             mac = address;
             lastRssi = Integer.MIN_VALUE;
-            watchUntil = System.currentTimeMillis() + WATCH_MS;
+            watching = true;
             MAIN.removeCallbacks(POLL);
             MAIN.post(POLL);
         } catch (Throwable t) {
@@ -89,22 +97,39 @@ public final class SignalProbe {
         }
     }
 
-    /** Asks the link for its RSSI every 0.7 s while the note should be up, and shows the last one. */
+    /** The closeness note goes (a tap on the signal icon while it is up). */
+    static void stop() {
+        watching = false;
+        try {
+            MAIN.removeCallbacks(POLL);
+            DoubleImpulse.Note.hide();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("index", "signal stop: " + t);
+        }
+    }
+
+    /** Asks the link for its RSSI every 0.7 s while the note is up, and shows the last one. */
     static final class Poll implements Runnable {
         public void run() {
             try {
                 View a = anchor != null ? anchor.get() : null;
-                if (a == null || System.currentTimeMillis() > watchUntil) {
+                if (!watching) {
+                    return;
+                }
+                if (a == null || a.getWindowToken() == null) {
+                    watching = false;                  // the row / screen is gone: the note fades by itself
                     return;
                 }
                 BleDevice dev = device(mac);
                 if (dev == null) {
+                    lastRssi = Integer.MIN_VALUE;      // keeps watching: shows the closeness again once it is back
                     DoubleImpulse.Note.show(a, XemsLang.tr("Костюмът не е свързан", "The suit is not connected"),
-                            XemsLang.tr("Няма сигнал", "No signal"), 0xFFFF5252, 2500L);
-                    return;
+                            XemsLang.tr("Няма сигнал · кликни иконата за скриване", "No signal · tap the icon to hide"),
+                            0xFFFF5252, NOTE_MS);
+                } else {
+                    BleManager.getInstance().readRssi(dev, new Reading());
+                    show(a, lastRssi);
                 }
-                BleManager.getInstance().readRssi(dev, new Reading());
-                show(a, lastRssi);
                 MAIN.postDelayed(this, EVERY_MS);
             } catch (Throwable t) {
                 WearableBleDiagLog.log("index", "signal poll: " + t);
@@ -116,8 +141,8 @@ public final class SignalProbe {
 
     static void show(View a, int rssi) {
         if (rssi == Integer.MIN_VALUE) {
-            DoubleImpulse.Note.show(a, XemsLang.tr("Близост до костюма…", "Closeness to the suit…"), "", 0xFFFFC107,
-                    1500L);
+            DoubleImpulse.Note.show(a, XemsLang.tr("Близост до костюма…", "Closeness to the suit…"), hint(), 0xFFFFC107,
+                    NOTE_MS);
             return;
         }
         int pct = percent(rssi);
@@ -127,7 +152,11 @@ public final class SignalProbe {
         }
         int accent = pct >= 60 ? 0xFF4CAF50 : pct >= 30 ? 0xFFFFC107 : 0xFFFF5252;
         DoubleImpulse.Note.show(a, XemsLang.tr("Близост до костюма: ", "Closeness to the suit: ") + pct + " %",
-                bar.toString(), accent, 1500L);
+                bar.toString() + "\n" + hint(), accent, NOTE_MS);
+    }
+
+    static String hint() {
+        return XemsLang.tr("кликни иконата за скриване", "tap the icon to hide");
     }
 
     /** The link's RSSI as closeness: −40 dBm and stronger = 100 %, −90 dBm and weaker = 0 %. */

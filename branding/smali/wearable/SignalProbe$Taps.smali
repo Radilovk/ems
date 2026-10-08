@@ -50,24 +50,24 @@
     .registers 4
 
     .prologue
-    .line 59
+    .line 61
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 60
+    .line 62
     new-instance v0, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v0, p1}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->item:Ljava/lang/ref/WeakReference;
 
-    .line 61
+    .line 63
     new-instance v0, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v0, p2}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->icon:Ljava/lang/ref/WeakReference;
 
-    .line 62
+    .line 64
     return-void
 .end method
 
@@ -79,12 +79,37 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 65
+    .line 67
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 66
+    .line 68
+    # getter for: Lcom/isaigu/gymapp/wearable/SignalProbe;->watching:Z
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/SignalProbe;->access$000()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_15
+
+    .line 69
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/SignalProbe;->stop()V
+
+    .line 70
+    iput v6, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->count:I
+
+    .line 71
+    const-wide/16 v0, 0x0
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->first:J
+
+    .line 84
+    :cond_14
+    :goto_14
+    return-void
+
+    .line 74
+    :cond_15
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->first:J
 
     sub-long v2, v0, v2
@@ -93,16 +118,16 @@
 
     cmp-long v2, v2, v4
 
-    if-lez v2, :cond_13
+    if-lez v2, :cond_23
 
-    .line 67
+    .line 75
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->first:J
 
-    .line 68
+    .line 76
     iput v6, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->count:I
 
-    .line 70
-    :cond_13
+    .line 78
+    :cond_23
     iget v0, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->count:I
 
     add-int/lit8 v0, v0, 0x1
@@ -111,12 +136,12 @@
 
     const/4 v1, 0x3
 
-    if-lt v0, v1, :cond_33
+    if-lt v0, v1, :cond_14
 
-    .line 71
+    .line 79
     iput v6, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->count:I
 
-    .line 72
+    .line 80
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;->item:Ljava/lang/ref/WeakReference;
 
     invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
@@ -125,28 +150,26 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 73
-    if-eqz v0, :cond_34
+    .line 81
+    if-eqz v0, :cond_44
 
     iget-object v1, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    if-eqz v1, :cond_34
+    if-eqz v1, :cond_44
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
 
-    .line 74
-    :goto_30
+    .line 82
+    :goto_40
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/SignalProbe;->begin(Landroid/view/View;Ljava/lang/String;)V
 
-    .line 76
-    :cond_33
-    return-void
+    goto :goto_14
 
-    .line 73
-    :cond_34
+    .line 81
+    :cond_44
     const/4 v0, 0x0
 
-    goto :goto_30
+    goto :goto_40
 .end method

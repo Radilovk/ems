@@ -19,7 +19,7 @@
     .registers 1
 
     .prologue
-    .line 159
+    .line 188
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleRssiCallback;-><init>()V
 
     return-void
@@ -31,7 +31,7 @@
     .registers 2
 
     .prologue
-    .line 166
+    .line 195
     return-void
 .end method
 
@@ -39,10 +39,10 @@
     .registers 2
 
     .prologue
-    .line 161
+    .line 190
     # setter for: Lcom/isaigu/gymapp/wearable/SignalProbe;->lastRssi:I
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/SignalProbe;->access$302(I)I
 
-    .line 162
+    .line 191
     return-void
 .end method

@@ -423,12 +423,61 @@ public class PartSim {
         check(it.isPauseHzSelected() && !it.isPauseMaSelected(), "2nd Hz: picked instead");
         com.isaigu.gymapp.wearable.TrainIndex.pauseClick(it, true);
         check(!it.isPauseHzSelected() && !it.isPauseMaSelected(), "2nd Hz again: let go");
-        // normal, not marked: the bar sets both impulses (the second follows the main)
+        // normal, not marked (owner, 1.1.409): the bar moves both impulses, the second keeping its ratio to the main
         SecondParts.set(b, b.strenthBean.buwei, new int[] {50, 50, 50, 50, 50, 50, 50, 50, 50, 50});
+        mb = mainReal(b);
+        sb = secondReal(it, b);
         PartStrength.bar(null, tp, b, 2, 70);
-        check(b.strenthBean.buwei[2] == 70 && SecondParts.effective(b, b.strenthBean.buwei)[2] == 70,
-                "unmarked bar: both impulses");
-        check(SecondParts.effective(b, b.strenthBean.buwei)[3] == 50, "unmarked bar: other channels stay");
+        check(b.strenthBean.buwei[2] == 70, "unmarked bar: main percent " + b.strenthBean.buwei[2]);
+        check(Math.abs(secondReal(it, b)[2] - (int) Math.round(sb[2] * (double) mainReal(b)[2] / mb[2])) <= 1,
+                "unmarked bar: second keeps its ratio " + secondReal(it, b)[2] + " (was " + sb[2] + " / " + mb[2] + ")");
+        check(secondReal(it, b)[2] != sb[2], "unmarked bar: second moved too");
+        for (int i = 0; i < 10; i++) {
+            if (i != 2) {
+                check(mainReal(b)[i] == mb[i] && secondReal(it, b)[i] == sb[i], "unmarked bar moved channel " + i);
+            }
+        }
+        // no own percents yet (second = main's percents): the unmarked bar still keeps the ratio, others exact
+        SecondParts.set(b, b.strenthBean.buwei, null);
+        mb = mainReal(b);
+        sb = secondReal(it, b);
+        PartStrength.bar(null, tp, b, 5, 40);
+        check(Math.abs(secondReal(it, b)[5] - (int) Math.round(sb[5] * (double) mainReal(b)[5] / mb[5])) <= 1,
+                "unmarked bar, no own percents: ratio " + secondReal(it, b)[5]);
+        for (int i = 0; i < 10; i++) {
+            if (i != 5) {
+                check(mainReal(b)[i] == mb[i] && secondReal(it, b)[i] == sb[i], "unmarked bar (no own) moved channel " + i);
+            }
+        }
+        // not marked, the bar held in the yellow look (pause phase): the second goes to the finger, the main follows
+        try {
+            java.lang.reflect.Field uf = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            uf.setAccessible(true);
+            android.view.View bar = (android.view.View) ((sun.misc.Unsafe) uf.get(null)).allocateInstance(android.view.View.class);
+            java.lang.reflect.Field lf = PartLook.class.getDeclaredField("LOCKS");
+            lf.setAccessible(true);
+            PartLook.Lock lk = new PartLook.Lock();
+            lk.second = true;
+            lk.dragging = true;
+            lk.last = System.currentTimeMillis();
+            ((java.util.Map<Object, PartLook.Lock>) lf.get(null)).put(bar, lk);
+            SecondParts.set(b, b.strenthBean.buwei, new int[] {60, 60, 60, 60, 60, 60, 60, 60, 60, 60});
+            mb = mainReal(b);
+            sb = secondReal(it, b);
+            PartStrength.bar(bar, tp, b, 4, 30);              // 30 % of the second impulse's strength
+            int s1 = PartStrength.real(30, Math.min(b.pauseStrenthPercent, PartStrength.secondCap(it, b)));
+            check(secondReal(it, b)[4] == s1, "yellow-look bar: second " + secondReal(it, b)[4] + " instead of " + s1);
+            check(Math.abs(mainReal(b)[4] - (int) Math.round(mb[4] * (double) s1 / sb[4])) <= 1,
+                    "yellow-look bar: main keeps the ratio " + mainReal(b)[4] + " (was " + mb[4] + " / " + sb[4] + ")");
+            check(mainReal(b)[4] != mb[4], "yellow-look bar: main moved too");
+            for (int i = 0; i < 10; i++) {
+                if (i != 4) {
+                    check(mainReal(b)[i] == mb[i] && secondReal(it, b)[i] == sb[i], "yellow-look bar moved channel " + i);
+                }
+            }
+        } catch (Exception e) {
+            check(false, "yellow-look bar: " + e);
+        }
         // own percents are dropped when they equal the main ones
         b.activePause = true;
         int[] same = b.strenthBean.buwei.clone();

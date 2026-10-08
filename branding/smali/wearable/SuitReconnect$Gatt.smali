@@ -76,6 +76,9 @@
 
     .prologue
     .line 266
+    invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtBridge;->linked(Lcom/clj/fastble/data/BleDevice;)V
+
+    .line 267
     # getter for: Lcom/isaigu/gymapp/wearable/SuitReconnect;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->access$300()Landroid/os/Handler;
 
@@ -89,7 +92,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 267
+    .line 268
     return-void
 .end method
 
@@ -97,8 +100,11 @@
     .registers 9
 
     .prologue
-    .line 273
-    :try_start_0
+    .line 272
+    invoke-static {p2, p1, p4}, Lcom/isaigu/gymapp/bodytech/BtBridge;->dropped(Lcom/clj/fastble/data/BleDevice;ZI)V
+
+    .line 275
+    :try_start_3
     invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()Lorg/greenrobot/eventbus/EventBus;
 
     move-result-object v0
@@ -108,18 +114,18 @@
     invoke-direct {v1, p2}, Lcom/isaigu/gymapp/train/events/DeviceDisConnectedEvent;-><init>(Lcom/clj/fastble/data/BleDevice;)V
 
     invoke-virtual {v0, v1}, Lorg/greenrobot/eventbus/EventBus;->post(Ljava/lang/Object;)V
-    :try_end_c
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
+    :try_end_f
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_f} :catch_10
 
-    .line 277
-    :goto_c
+    .line 279
+    :goto_f
     return-void
 
-    .line 274
-    :catch_d
+    .line 276
+    :catch_10
     move-exception v0
 
-    .line 275
+    .line 277
     const-string v1, "suit"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -142,7 +148,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_c
+    goto :goto_f
 .end method
 
 .method public onStartConnect()V

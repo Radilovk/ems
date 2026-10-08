@@ -261,3 +261,15 @@ Settings as in 1.1.392 (all ten XEMS channels, untouched). On the training scree
 (`PartLook.order / arrange`, the ten column views moved among their own places). A column no bodytech channel is on
 (by default calf and back thigh) stays in its place, at 0 %, dimmed, its bar not touchable (`PartLook.Block`) and its
 header cell not clickable — no empty gap. Any XEMS suit on the screen → the stock order and look.
+
+## Link drops: keep-alive from the connect, the reason in the log (1.1.410)
+Owner: the tablet loses a bodytech suit every few minutes. The app never closes the link itself (only when a row is
+closed), so the drop comes from the radio or from the suit.
+- **Keep-alive from the connect:** `BtBridge.linked` (hook `BleDeviceManager$2.onConnectSuccess` and
+  `SuitReconnect.Gatt`) starts SYNC 6 s every 4.5 s 1.5 s after the link is up — before, it started with the first
+  command, so an idle row (or one bound again after a drop) could leave the suit's watchdog silent.
+- **Every drop is logged** (`BtBridge.dropped`, hook `BleDeviceManager$2.onDisConnected` and `SuitReconnect.Gatt`) to
+  `wearable-ble.log` (`suit` lines): Android's status (8 = signal lost — distance / interference, 19 = the suit
+  closed it, 22 = the tablet, 34 = link-layer timeout), how long the link was up, ms since the last ACK and the last
+  SYNC, the queue, whether outputs were on, refused writes. A refused write is logged too.
+- Not verified on a suit. Next step depends on the status the log shows.

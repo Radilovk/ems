@@ -14,6 +14,7 @@ import com.clj.fastble.exception.BleException;
 import com.isaigu.gymapp.train.ble.BleDeviceConfig;
 import com.isaigu.gymapp.train.ble.BleDeviceManager;
 import com.isaigu.gymapp.train.listener.OnReceiveCommandListener;
+import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -28,8 +29,12 @@ import java.util.Map;
  * the one before. The row's own CommandSender waits for the last of them, so its pacing, SoftRamp, safety limits
  * and reconnect work unchanged. Hooks: scripts/apply-bodytech.py.
  * <p>
- * Keep-alive: SYNC 6 s every 4.5 s (the suit's watchdog) while the link is up; an output nobody renewed in time is
- * switched off ({@link BtTranslator#heartbeat}). Battery answers become the percent the row expects.
+ * Keep-alive: SYNC 6 s every 4.5 s (the suit's watchdog) from the moment the link is up (1.1.410: no longer from the
+ * first command — EMSFIT keeps it beating all the time); an output nobody renewed in time is switched off
+ * ({@link BtTranslator#heartbeat}). Battery answers become the percent the row expects.
+ * <p>
+ * Every drop of a suit's link (XEMS or bodytech) is written to the diag log with Android's reason
+ * ({@link #dropped}): 8 = the signal was lost (distance / interference), 19 = the suit closed it, 22 = the tablet.
  */
 public final class BtBridge {
     private BtBridge() {}
@@ -39,6 +44,8 @@ public final class BtBridge {
     static final String CHR = "0000fe51-0000-1000-8000-00805f9b34fb";
     static final long SYNC_EVERY_MS = 4500L;
     static final long TICK_MS = 500L;
+    /** After a connect the vendor first sets up its notify: the keep-alive starts this much later. */
+    static final long LINK_BEAT_MS = 1500L;
 
     private static final Handler main = new Handler(Looper.getMainLooper());
     private static final Map<String, Boolean> KIND = new HashMap<String, Boolean>();
@@ -271,6 +278,92 @@ public final class BtBridge {
         }
     }
 
+    // ------------------------------------------------------------------ link up / down (diag)
+
+    /**
+     * Hook: a suit connected (BleDeviceManager$2.onConnectSuccess, SuitReconnect). A bodytech suit gets its
+     * keep-alive at once, not only with the first command: an idle row (or one bound again after a drop) must not
+     * leave the suit's watchdog without SYNC.
+     */
+    public static void linked(BleDevice d) {
+        try {
+            if (d == null) return;
+            boolean bt = isBodytech(d);
+            WearableBleDiagLog.log("suit", "linked " + d.getMac() + (bt ? " bodytech" : " xems"));
+            if (!bt) return;
+            Dev v = dev(d);
+            v.linkedAt = SystemClock.elapsedRealtime();
+            main.postDelayed(new Link(v), LINK_BEAT_MS);
+        } catch (Throwable t) {
+            Log.e(TAG, "linked: " + t);
+        }
+    }
+
+    static final class Link implements Runnable {
+        final Dev v;
+
+        Link(Dev v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (BleManager.getInstance().isConnected(v.d)) v.begin();
+            } catch (Throwable t) {
+                Log.e(TAG, "link beat: " + t);
+            }
+        }
+    }
+
+    /**
+     * Hook: a suit's link dropped (BleDeviceManager$2.onDisConnected, SuitReconnect) — the reason into the diag log
+     * (Settings → diag / wearable-ble.log): Android's status, who closed it, how long it was up, how long since the
+     * suit last ACKed a frame, whether the outputs were on.
+     */
+    public static void dropped(BleDevice d, boolean active, int status) {
+        try {
+            String mac = d != null ? d.getMac() : "?";
+            StringBuilder sb = new StringBuilder("drop ").append(mac).append(" status=").append(status)
+                    .append(" (").append(reason(status)).append(")").append(active ? " by the app" : "");
+            Dev v;
+            synchronized (BtBridge.class) {
+                v = mac != null ? DEVS.get(mac) : null;
+            }
+            if (v != null) {
+                long now = SystemClock.elapsedRealtime();
+                synchronized (v) {
+                    sb.append(" bodytech up=").append(v.linkedAt > 0 ? (now - v.linkedAt) / 1000 + "s" : "?")
+                            .append(" lastAck=").append(v.lastAck > 0 ? (now - v.lastAck) + "ms" : "never")
+                            .append(" lastSync=").append(v.lastSync > 0 ? (now - v.lastSync) + "ms" : "never")
+                            .append(" beat=").append(v.started).append(" queue=").append(v.q.size())
+                            .append(" busy=").append(v.busy).append(" outputs=").append(v.tr.armed())
+                            .append(" writeFails=").append(v.writeFails);
+                }
+            } else {
+                sb.append(isBodytechMac(mac) ? " bodytech (no link state)" : " xems");
+            }
+            WearableBleDiagLog.log("suit", sb.toString());
+        } catch (Throwable t) {
+            Log.e(TAG, "dropped: " + t);
+        }
+    }
+
+    /** Android's GATT disconnect status in words. */
+    static String reason(int status) {
+        switch (status) {
+            case 0: return "closed normally";
+            case 8: return "signal lost: distance / interference";
+            case 19: return "the suit closed it";
+            case 22: return "the tablet closed it";
+            case 34: return "link layer timeout";
+            case 62: return "could not set up the link";
+            case 133: return "GATT error 133";
+            case 257: return "GATT failure";
+            default: return "other";
+        }
+    }
+
     // ------------------------------------------------------------------ which suit
 
     /**
@@ -376,6 +469,9 @@ public final class BtBridge {
         boolean started;
         Object gatt;
         long lastSync;
+        /** Diag: when the link came up, when the suit last ACKed a frame, writes refused on this link. */
+        long linkedAt, lastAck;
+        int writeFails;
         final Ack ack = new Ack(this);
         /** A program is being written: frames of it written / in all (BtLoad's percent). */
         boolean loading;
@@ -390,6 +486,7 @@ public final class BtBridge {
         /** The link is new: forget the old one's state and whatever waited for it. */
         synchronized void relink() {
             started = false;
+            writeFails = 0;
             busy = false;
             inflight = null;
             q.clear();
@@ -482,6 +579,7 @@ public final class BtBridge {
             Item it = inflight;
             inflight = null;
             busy = false;
+            lastAck = SystemClock.elapsedRealtime();
             if (loading) loadDone++;
             if (it != null) done(it);
             pump();
@@ -504,6 +602,8 @@ public final class BtBridge {
         @Override
         public void onWriteFailure(BleException e) {
             BtBeep.lost();                                  // a write refused: the link is in trouble
+            v.writeFails++;
+            WearableBleDiagLog.log("suit", "bodytech write failed " + v.d.getMac() + ": " + e);
             v.fail(e);
         }
     }

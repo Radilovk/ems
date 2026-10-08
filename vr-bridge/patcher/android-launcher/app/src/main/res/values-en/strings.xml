@@ -12,7 +12,12 @@
     <string name="tablet_ip_found">✓ Found on Wi-Fi</string>
     <string name="tablet_ip_missing">No Wi-Fi seen — type it or leave it empty</string>
     <string name="detect_ip">Find the tablet IP again</string>
-    <string name="show_in_termux">Watch it in Termux (the result then stays there)</string>
+    <string name="show_in_termux">Watch it in Termux (the result still comes here)</string>
+
+    <string name="confirm_title">Reinstall %1$s?</string>
+    <string name="confirm_message">The game will be reinstalled with haptics. Its internal saves, unless in the cloud, will be lost. Android/data and Android/obb are kept and restored.\n\nThe original stays in xems-vr-out/original/%1$s — it puts the game back as it was.</string>
+    <string name="confirm_yes">Yes, add haptics</string>
+    <string name="confirm_no">Cancel</string>
 
     <string name="btn_execute">Add haptics</string>
     <string name="btn_run_again">Run again</string>
@@ -21,8 +26,8 @@
     <string name="detail_idle">Enter the headset IP and the game, then press the green button.</string>
     <string name="status_running">Adding haptics…</string>
     <string name="detail_running">Termux connects the headset, pulls the game, injects the layer, signs and reinstalls it. Usually 1–3 minutes.</string>
-    <string name="status_in_termux">Running in Termux</string>
-    <string name="detail_in_termux">Progress and result are shown in Termux.</string>
+    <string name="status_in_termux">Running in Termux…</string>
+    <string name="detail_in_termux">Progress is shown in Termux. The result comes here when it ends.</string>
     <string name="status_done">Done ✓</string>
     <string name="detail_done">Open the workout on the tablet, start the row and launch the game on the headset.</string>
     <string name="status_bad_input">Something in the fields is off</string>

@@ -10,8 +10,8 @@ import android.os.Build
  * Termux RunCommandService IPC. Runs `bash android-launcher/termux-run.sh <quest> <pkg> [tablet]` from the
  * patcher directory inside Termux's $HOME.
  *
- * Background runs carry a PendingIntent to [PatchResultReceiver]: Termux fills it with stdout / stderr / exit
- * code when the command ends. A visible run opens a Termux session instead (Termux returns no result then).
+ * Every run carries a PendingIntent to [PatchResultReceiver]; Termux (0.118+) fills it when the command ends:
+ * background → stdout / stderr / exit code; visible session → exit code + the terminal transcript as stdout.
  */
 @SuppressLint("SdCardPath") // Termux's fixed install paths, not ours
 object TermuxBridge {
@@ -57,7 +57,7 @@ object TermuxBridge {
             .putExtra(EXTRA_BACKGROUND, !showInTermux)
             .putExtra(EXTRA_SESSION_ACTION, "0")           // new session, switch to it (visible runs only)
             .putExtra(EXTRA_LABEL, "XEMS VR · ${request.targetPackage}")
-        if (!showInTermux) intent.putExtra(EXTRA_PENDING_INTENT, resultIntent(context, runId))
+            .putExtra(EXTRA_PENDING_INTENT, resultIntent(context, runId))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent)
         else context.startService(intent)

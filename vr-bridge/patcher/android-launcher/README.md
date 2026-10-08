@@ -8,7 +8,7 @@ instead of on a PC. It patches nothing itself: it hands a command line to Termux
 app ──RUN_COMMAND──▶ Termux: bash android-launcher/termux-run.sh <quest-ip[:port]> <pkg> [tablet-ip]
                                ├─ adb connect <quest-ip>:5555, waits for "device"
                                └─ ANDROID_SERIAL=<quest> python3 xems_vr_patch.py <pkg> --yes [--tablet <tablet-ip>]
-app ◀──PendingIntent (stdout, stderr, exit code)── Termux  →  PatchResultReceiver → RunStore → screen
+app ◀──PendingIntent (exit code + output, background or session)── Termux  →  PatchResultReceiver → RunStore → screen
 ```
 
 ## Screen (landscape, XemsUi tokens, light + dark)
@@ -17,7 +17,10 @@ app ◀──PendingIntent (stdout, stderr, exit code)── Termux  →  PatchR
   finds the tablet by broadcast). Fields are remembered.
 - Right: one green button **Сложи хаптиката** and the status card — running (spinner, 1–3 min), done ✓, or
   the reason with the last lines of the output.
-- Folded option *Гледай хода в Termux*: a visible Termux session instead (no result comes back then).
+- Before every run: a confirmation (the script runs with `--yes`, so its own reinstall question is asked here) —
+  internal saves are lost, `Android/data` + `obb` are kept, the original stays in `xems-vr-out/original/<pkg>`.
+- Folded option *Гледай хода в Termux*: the run opens a Termux session; the result (exit code + terminal
+  transcript) still comes back to the app when it ends (Termux 0.118+).
 
 ## Pieces
 | File | Role |

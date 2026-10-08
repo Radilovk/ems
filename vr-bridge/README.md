@@ -63,8 +63,11 @@ reinstalls, restores them, and on an install failure puts the original back. Int
 Check on the headset: `adb logcat -s XemsVrLayer` (`active, session …` then `paired with …`).
 No PC: `vr-bridge/patcher/android-launcher/xems-vr-launcher.apk` — a tablet app that sets Termux up, finds the
 headset on the Wi-Fi, lists its games and runs the same script there (tablet IP as `--tablet`, result in the app).
-Kill switch: env `DISABLE_XR_APILAYER_XEMS_HAPTICS`. Fixed tablet IP: `--tablet` (= `setprop debug.xems.vr.target`,
-until reboot).
+Kill switch: env `DISABLE_XR_APILAYER_XEMS_HAPTICS`. Fixed tablet IP: `--tablet` is written into the layer `.so`
+inside the game (slot after `XEMS_VR_TARGET_SLOT=`, `bake_target()`), so it survives headset reboots; a new tablet IP
+= patch again. `setprop debug.xems.vr.target` still overrides it until reboot (the patcher clears it).
+Headset reboot → Wi-Fi adb is off: plug the Quest into the tablet's USB-C, the launcher opens and runs
+`adb tcpip 5555` itself (`UsbAdb`), then finds the headset on the Wi-Fi.
 
 ## Tablet UI — the "VR" tile (1.1.402)
 `wearable/vr/VrPanel` (sheet) + `VrSettings` (prefs `xems_vr`, one set for the tablet, every client). The tile sits in

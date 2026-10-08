@@ -1218,20 +1218,20 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Deploy
   - L57 ## Разходи
 
-`vr-bridge/README.md` (93L)
+`vr-bridge/README.md` (96L)
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
   - L45 ## Build (layer)
   - L50 ## Deploy on Quest 3 — `vr-bridge/patcher/xems_vr_patch.py`
-  - L69 ## Tablet UI — the "VR" tile (1.1.402)
-  - L82 ## Protocol
-  - L89 ## Test
+  - L72 ## Tablet UI — the "VR" tile (1.1.402)
+  - L85 ## Protocol
+  - L92 ## Test
 
-`vr-bridge/patcher/android-launcher/README.md` (71L)
+`vr-bridge/patcher/android-launcher/README.md` (74L)
   - L1 # XEMS VR Launcher (on-device front end)
   - L18 ## Install (once)
-  - L29 ## Every time
-  - L34 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
-  - L43 ## Pieces
-  - L57 ## Limits (what still needs a hand)
-  - L64 ## Build & test
+  - L30 ## Every time
+  - L35 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
+  - L44 ## Pieces
+  - L60 ## Limits (what still needs a hand)
+  - L67 ## Build & test

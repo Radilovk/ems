@@ -34,7 +34,7 @@ connect() {
   out="$(adb connect "$serial" 2>&1)"; echo "$out"
   case "$out" in
     *"connected to"*) ;;
-    *) die 4 "шлемът не отговаря на $serial — същият Wi-Fi ли е и пуснат ли е adb tcpip 5555?" ;;
+    *) die 4 "шлемът не отговаря на $serial — същият Wi-Fi ли е? След рестарт на шлема го включи веднъж с кабел в таблета." ;;
   esac
   for _ in 1 2 3 4 5 6 7 8 9 10; do
     state="$(adb -s "$serial" get-state 2>/dev/null)"
@@ -85,7 +85,7 @@ cmd_find() {
     fi
   done
   rm -rf "$tmp"
-  [[ $found -eq 1 ]] || die 4 "не намерих шлем — Wi-Fi същият ли е и пуснат ли е adb tcpip 5555 (след всеки рестарт)?"
+  [[ $found -eq 1 ]] || die 4 "не намерих шлем — същият Wi-Fi ли е? След рестарт на шлема го включи веднъж с кабел в таблета."
 }
 
 cmd_games() {

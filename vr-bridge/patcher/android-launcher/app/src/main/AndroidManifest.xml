@@ -6,6 +6,9 @@
          allow-external-apps=true in ~/.termux/termux.properties. -->
     <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
 
+    <!-- Headset on the tablet's USB-C: adb tcpip 5555 straight from the app (UsbAdb). -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+
     <!-- Android 11+ package visibility: resolve the Termux service. -->
     <queries>
         <package android:name="com.termux" />
@@ -21,6 +24,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:screenOrientation="sensorLandscape"
             tools:ignore="DiscouragedApi"
             android:windowSoftInputMode="adjustResize|stateHidden">
@@ -28,6 +32,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/usb_quest" />
         </activity>
 
         <!-- Termux's result for a background run arrives through our own PendingIntent. -->

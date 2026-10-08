@@ -32,6 +32,8 @@ JSON_ENTRY = "assets/openxr/1/api_layers/implicit.d/XrApiLayer_xems_haptics.json
 LOADER = "lib/arm64-v8a/libopenxr_loader.so"
 SIGNER_URL = "https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar"
 CACHE = Path.home() / ".xems-vr"
+TARGET_MARKER = b"XEMS_VR_TARGET_SLOT="   # g_bakedTarget in xems_haptic_layer.cpp: marker + 43 free bytes
+TARGET_ROOM = 64 - len(TARGET_MARKER) - 1
 
 
 def say(msg: str) -> None:
@@ -95,7 +97,21 @@ def put(zout: zipfile.ZipFile, name: str, data: bytes, method: int, date=(2026, 
     zout.writestr(zi, data)
 
 
-def inject(src: Path, dst: Path, add_so: bool, add_json: bool) -> None:
+def bake_target(so: bytes, target: str | None) -> bytes:
+    """Write the tablet "ip[:port]" into the layer's slot, so it holds after a headset reboot (empty = discovery)."""
+    if not target:
+        return so
+    raw = target.encode("ascii")
+    at = so.find(TARGET_MARKER)
+    if at < 0:
+        fail("слоят е стар (няма място за IP) — bash vr-bridge/quest-layer/build-ndk.sh")
+    if len(raw) > TARGET_ROOM:
+        fail(f"--tablet е твърде дълъг: {target}")
+    at += len(TARGET_MARKER)
+    return so[:at] + raw + bytes(TARGET_ROOM + 1 - len(raw)) + so[at + TARGET_ROOM + 1:]
+
+
+def inject(src: Path, dst: Path, add_so: bool, add_json: bool, target: str | None = None) -> None:
     """Copy the APK without its old signature (aligned), add the layer (.so stored and page-aligned)."""
     with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
         for info in zin.infolist():
@@ -104,7 +120,7 @@ def inject(src: Path, dst: Path, add_so: bool, add_json: bool) -> None:
             with zin.open(info) as f:
                 put(zout, info.filename, f.read(), info.compress_type, info.date_time, info.external_attr)
         if add_so:
-            put(zout, SO_ENTRY, LAYER_SO.read_bytes(), zipfile.ZIP_STORED)
+            put(zout, SO_ENTRY, bake_target(LAYER_SO.read_bytes(), target), zipfile.ZIP_STORED)
         if add_json:
             put(zout, JSON_ENTRY, LAYER_JSON.read_bytes(), zipfile.ZIP_DEFLATED)
 
@@ -146,7 +162,7 @@ def sign(apks: list[Path], out: Path) -> list[Path]:
     return signed
 
 
-def patch_set(apks: list[Path], out: Path) -> list[Path]:
+def patch_set(apks: list[Path], out: Path, target: str | None = None) -> list[Path]:
     """Decide where the layer goes (next to the OpenXR loader; json in base), inject, sign."""
     if not LAYER_SO.is_file():
         fail(f"липсва {LAYER_SO} — bash vr-bridge/quest-layer/build-ndk.sh")
@@ -162,9 +178,11 @@ def patch_set(apks: list[Path], out: Path) -> list[Path]:
     patched = []
     for i, a in enumerate(apks):
         dst = tmp / a.name
-        inject(a, dst, add_so=i == so_at, add_json=i == base)
+        inject(a, dst, add_so=i == so_at, add_json=i == base, target=target)
         patched.append(dst)
     say(f"✓ слоят е добавен ({apks[so_at].name}), манифестът ({apks[base].name})")
+    if target:
+        say(f"✓ таблет: {target} (записан в играта — важи и след рестарт на шлема)")
     signed = sign(patched, out)
     shutil.rmtree(tmp, ignore_errors=True)
     say("✓ подписано: " + ", ".join(p.name for p in signed))
@@ -244,7 +262,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="XEMS VR: haptic layer into a Quest 3 game")
     ap.add_argument("package", nargs="?", help="пакет на играта (виж --list)")
     ap.add_argument("--list", nargs="?", const="", metavar="WORD", help="игрите на шлема")
-    ap.add_argument("--tablet", metavar="IP", help="IP на таблета (иначе се намира сам по Wi-Fi)")
+    ap.add_argument("--tablet", metavar="IP", help="IP на таблета, записва се в играта (иначе се намира сам по Wi-Fi)")
     ap.add_argument("--apk", action="append", type=Path, help="офлайн: локален APK (повтаря се за split-ове)")
     ap.add_argument("--out", type=Path, default=Path("xems-vr-out"), help="папка за резултата")
     ap.add_argument("--adb", default=os.environ.get("ADB", "adb"))
@@ -253,7 +271,7 @@ def main() -> int:
 
     if a.apk:
         a.out.mkdir(parents=True, exist_ok=True)
-        patch_set(a.apk, a.out)
+        patch_set(a.apk, a.out, a.tablet)
         say(f"готово: {a.out}")
         return 0
 
@@ -282,7 +300,7 @@ def main() -> int:
     keep.mkdir(parents=True, exist_ok=True)
     for f in orig:
         shutil.copy(f, keep / f.name)                 # the untouched game, to go back with adb install-multiple
-    signed = patch_set(orig, a.out / pkg)
+    signed = patch_set(orig, a.out / pkg, a.tablet)
 
     if not a.yes:
         say(f"\nИграта ще се преинсталира. Вътрешните записи на {pkg} (ако не са в облака) ще се загубят;\n"
@@ -293,9 +311,7 @@ def main() -> int:
     saved = backup(adb, pkg, work / "backup")
     install(adb, pkg, signed, [keep / f.name for f in orig], saved)
     restore(adb, pkg, saved)
-    if a.tablet:
-        adb.shell(f"setprop debug.xems.vr.target {a.tablet}", check=False)
-        say(f"✓ таблет: {a.tablet} (до рестарт на шлема)")
+    adb.shell("setprop debug.xems.vr.target ''", check=False)   # an old until-reboot value must not win
     shutil.rmtree(work, ignore_errors=True)
     say("\nГотово. Отвори тренировката на таблета, пусни реда и стартирай играта.\n"
         f"Проверка: {a.adb} logcat -s XemsVrLayer   → „active“ и „paired with …“")

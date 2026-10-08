@@ -29,4 +29,16 @@ until grep -q READY "$OUT/rx.log" 2>/dev/null; do sleep 0.1; done
 XEMS_VR_TARGET="127.0.0.1:$PORT" "$OUT/host_driver" "$OUT/layer/libXrApiLayer_xems_haptics.so"
 wait "$RX" && rc=0 || rc=$?
 cat "$OUT/rx.log"
+[[ $rc -eq 0 ]] || exit "$rc"
+
+# Again with the tablet baked into the .so by the patcher (no env, no property) — what --tablet ships.
+PYTHONPATH="$HERE/../patcher" python3 -c 'import sys, xems_vr_patch as p
+open(sys.argv[2], "wb").write(p.bake_target(open(sys.argv[1], "rb").read(), sys.argv[3]))' \
+  "$OUT/layer/libXrApiLayer_xems_haptics.so" "$OUT/baked.so" "127.0.0.1:$PORT"
+java -cp "$OUT/cls:$JAR" VrReceiverHostTest "$PORT" 4500 > "$OUT/rx2.log" 2>&1 &
+RX=$!
+until grep -q READY "$OUT/rx2.log" 2>/dev/null; do sleep 0.1; done
+env -u XEMS_VR_TARGET "$OUT/host_driver" "$OUT/baked.so"
+wait "$RX" && rc=0 || rc=$?
+echo "— baked target:"; cat "$OUT/rx2.log"
 exit "$rc"

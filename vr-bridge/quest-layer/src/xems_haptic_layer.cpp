@@ -140,18 +140,25 @@ uint64_t parseTarget(char* v) {
     return packAddr(ip.s_addr, htons(uint16_t(port)));
 }
 
-// Fixed tablet "ip[:port]", skips broadcast discovery.
+// Baked tablet "ip[:port]": xems_vr_patch.py --tablet writes it after the marker inside this .so (in the game's
+// APK), so it survives headset reboots. Volatile: the compiler must not fold the empty slot into a constant.
+constexpr size_t kBakedMarkerLen = 20;
+__attribute__((used)) volatile char g_bakedTarget[64] = "XEMS_VR_TARGET_SLOT=";
+
+// Fixed tablet "ip[:port]", skips broadcast discovery. Order: property (until reboot) → baked slot.
 // Quest: adb shell setprop debug.xems.vr.target 192.168.1.50   Host tests: XEMS_VR_TARGET=127.0.0.1:47800
 uint64_t readFixedTarget() {
     char v[92] = {};
 #if defined(__ANDROID__)
-    if (__system_property_get("debug.xems.vr.target", v) <= 0) return 0;
+    if (__system_property_get("debug.xems.vr.target", v) > 0) return parseTarget(v);
 #else
-    const char* e = getenv("XEMS_VR_TARGET");
-    if (!e) return 0;
-    strncpy(v, e, sizeof v - 1);
+    if (const char* e = getenv("XEMS_VR_TARGET")) {
+        strncpy(v, e, sizeof v - 1);
+        return parseTarget(v);
+    }
 #endif
-    return parseTarget(v);
+    for (size_t i = 0; kBakedMarkerLen + i < sizeof g_bakedTarget - 1; ++i) v[i] = g_bakedTarget[kBakedMarkerLen + i];
+    return v[0] ? parseTarget(v) : 0;
 }
 
 void sendHello(uint64_t addr) {

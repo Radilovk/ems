@@ -5,7 +5,7 @@
 
     <string name="label_quest_ip">IP на шлема</string>
     <string name="hint_quest_ip" translatable="false">192.168.1.23</string>
-    <string name="help_quest_ip">Намира се сам (🔍). Шлемът в същия Wi-Fi; след рестарт веднъж по кабел: adb tcpip 5555</string>
+    <string name="help_quest_ip">Намира се сам (🔍). Шлемът в същия Wi-Fi; след рестарт — веднъж с кабел в таблета</string>
 
     <string name="label_package">Игра</string>
     <string name="hint_package" translatable="false">com.studio.game</string>
@@ -38,7 +38,7 @@
     <string name="status_bad_input">Нещо в полетата не е наред</string>
     <string name="detail_bad_input">Провери IP-тата и името на играта.</string>
     <string name="status_no_quest">Шлемът не отговаря</string>
-    <string name="detail_no_quest">Същият Wi-Fi ли е? След рестарт на шлема трябва веднъж по кабел adb tcpip 5555.</string>
+    <string name="detail_no_quest">Същият Wi-Fi ли е? След рестарт на шлема го включи веднъж с кабел в таблета.</string>
     <string name="status_unauthorized">Шлемът чака разрешение</string>
     <string name="detail_unauthorized">Сложи шлема, приеми „Allow USB debugging“ и натисни пак.</string>
     <string name="status_failed">Не стана</string>
@@ -87,4 +87,14 @@
     <string name="err_quest_ip">Напр. 192.168.1.23 (по желание :порт)</string>
     <string name="err_package">Напр. com.studio.game</string>
     <string name="err_tablet_ip">Напр. 192.168.1.50 — или остави празно</string>
+    <string name="status_usb">Шлемът е на кабела…</string>
+    <string name="detail_usb">Пускам adb по Wi-Fi. Ако в шлема излезе „Allow USB debugging“ — Always allow + Allow.</string>
+    <string name="status_usb_ok">Шлемът е готов по Wi-Fi ✓</string>
+    <string name="detail_usb_ok">Извади кабела — търся шлема по Wi-Fi.</string>
+    <string name="status_usb_allow">Шлемът не разреши връзката</string>
+    <string name="detail_usb_allow">Сложи шлема, приеми „Allow USB debugging“ (Always allow) и включи кабела пак.</string>
+    <string name="status_usb_failed">По кабела не стана</string>
+    <string name="detail_usb_failed">Извади и включи кабела пак. Developer mode включен ли е на шлема?</string>
+    <string name="status_usb_denied">Няма достъп до кабела</string>
+    <string name="detail_usb_denied">Включи кабела пак и натисни OK, когато таблетът попита за шлема.</string>
 </resources>

@@ -23,8 +23,9 @@ app ◀──PendingIntent (exit code + output, background or session)── Ter
    come back. That one line (`allow-external-apps=true`) is the only thing ever typed in Termux.
 5. The card then offers **Подготви Termux** → python, java, adb, git and the `vr-bridge/` files install by
    themselves (5–10 min, internet). Afterwards it looks for the headset on its own.
-6. **Quest 3:** developer mode; once over USB from anything with adb: `adb tcpip 5555` (lost on headset reboot).
-   The first connection asks *Allow USB debugging* in the headset → accept (remembered).
+6. **Quest 3:** developer mode. After every headset reboot: plug it into the tablet's USB-C (OTG cable) → the app
+   opens by itself and runs `adb tcpip 5555` (`UsbAdb`, no PC), then searches the Wi-Fi. The first time the
+   headset asks *Allow USB debugging* for the app's key → Always allow + Allow (remembered).
 
 ## Every time
 Open the app → it finds the headset on the Wi-Fi → shows its games → **tap a game** → **Сложи хаптиката** →
@@ -50,12 +51,14 @@ Fields are remembered; 🔍 / ☰ redo the search / the game list.
 | `TermuxBridge.kt` | RUN_COMMAND Intent + mutable PendingIntent for the result |
 | `PatchResultReceiver.kt`, `RunStore.kt` | Result bundle → prefs; the screen listens, acts once (fill / pick) |
 | `PatchResult.kt` | Exit code → outcome, output tail (pure) |
+| `AdbProtocol.kt` | adb packets, RSA token signing, adb public-key format (pure) |
+| `UsbAdb.kt` | USB host: headset (vendor 0x2833, adb interface) → CNXN/AUTH → `tcpip:5555`; `res/xml/usb_quest.xml` |
 
 Exit codes: `0` done · `2` bad arguments · `3` no adb · `4` headset not reachable / not found · `5` headset not
 authorised · `6` setup incomplete · `127` (no `~/ems` script) = not set up · else the patcher's own code.
 
 ## Limits (what still needs a hand)
-- `adb tcpip 5555` after every headset reboot (Quest has no persistent Wi-Fi adb without it).
+- After a headset reboot the cable has to go in once (Quest drops Wi-Fi adb on reboot; the app does the rest).
 - A game update from the store replaces the patched build → run it again.
 - Games without `lib/arm64-v8a/libopenxr_loader.so` or INTERNET are refused by the patcher (clear message).
 - `termux-setup.sh` clones `main`: the new `termux/` scripts must be merged there (`XEMS_BRANCH` overrides).

@@ -4,8 +4,13 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.app.PendingIntent
+import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -44,6 +49,9 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     /** The automatic find → games chain runs once per screen. */
     private var autoDone = false
     private var dialog: AlertDialog? = null
+    /** USB device id already switched to Wi-Fi adb (once per plug-in); -1 = none. */
+    private var usbHandled = -1
+    private var usbBusy = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +84,13 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         findViewById<View>(R.id.btn_check).setOnClickListener { withTermux { start(Task.CHECK, TermuxScript.check()) } }
         showInTermux.setOnCheckedChangeListener { _, on -> store.showInTermux = on }
         runButton.setOnClickListener { onRunClicked() }
+        handleUsb(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleUsb(intent)
     }
 
     override fun onSaveInstanceState(out: Bundle) {
@@ -87,7 +102,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         super.onStart()
         store.prefs.registerOnSharedPreferenceChangeListener(this)
         render()
-        autoStart()
+        if (!checkUsb()) autoStart()
     }
 
     override fun onStop() {
@@ -115,6 +130,60 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
             tabletNote.setText(R.string.tablet_ip_found)
         } else {
             tabletNote.setText(R.string.tablet_ip_missing)
+        }
+    }
+
+    // ---------------------------------------------------------------- headset on the USB cable
+
+    /** Attach / permission answer → [checkUsb]. A denied permission is shown, not asked again in a loop. */
+    private fun handleUsb(i: Intent?) {
+        if (i?.action == ACTION_USB_PERMISSION && !i.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+            setStatus(getString(R.string.status_usb_denied), getString(R.string.detail_usb_denied), R.color.danger, false, "", null)
+            return
+        }
+        if (i?.action == UsbManager.ACTION_USB_DEVICE_ATTACHED || i?.action == ACTION_USB_PERMISSION) checkUsb()
+    }
+
+    /** A Quest on the cable → adb tcpip 5555, then the Wi-Fi search. true = the cable path took over. */
+    private fun checkUsb(): Boolean {
+        val d = UsbAdb.findQuest(this) ?: return false
+        if (usbBusy || d.deviceId == usbHandled) return usbBusy
+        val usb = getSystemService(UsbManager::class.java)
+        if (!usb.hasPermission(d)) {
+            val flags = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
+            val pi = PendingIntent.getActivity(this, 1,
+                Intent(this, MainActivity::class.java).setAction(ACTION_USB_PERMISSION), flags or PendingIntent.FLAG_UPDATE_CURRENT)
+            usb.requestPermission(d, pi)
+            return true
+        }
+        usbBusy = true
+        setStatus(getString(R.string.status_usb), getString(R.string.detail_usb), R.color.amber, true, "", null)
+        Thread(UsbRun(d), "xems-usb-adb").start()
+        return true
+    }
+
+    private inner class UsbRun(private val d: UsbDevice) : Runnable {
+        override fun run() {
+            val r = UsbAdb(this@MainActivity).run(d)
+            runOnUiThread { onUsbDone(d, r) }
+        }
+    }
+
+    private fun onUsbDone(d: UsbDevice, r: UsbAdb.Result) {
+        usbBusy = false
+        if (isFinishing) return
+        when (r.outcome) {
+            UsbAdb.Outcome.OK -> {
+                usbHandled = d.deviceId
+                setStatus(getString(R.string.status_usb_ok), getString(R.string.detail_usb_ok), R.color.go_text, false, r.detail, null)
+                autoDone = true
+                // adbd restarts on the Wi-Fi port in ~1–2 s; then the usual search finds it.
+                runButton.postDelayed({ if (!isFinishing && !store.running) findQuest() }, 3_000)
+            }
+            UsbAdb.Outcome.NOT_ALLOWED -> setStatus(getString(R.string.status_usb_allow), getString(R.string.detail_usb_allow),
+                R.color.danger, false, r.detail, null)
+            UsbAdb.Outcome.FAILED -> setStatus(getString(R.string.status_usb_failed), getString(R.string.detail_usb_failed),
+                R.color.danger, false, r.detail, null)
         }
     }
 
@@ -375,5 +444,6 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     companion object {
         private const val REQ_RUN_COMMAND = 7
         private const val STATE_AUTO = "auto_done"
+        private const val ACTION_USB_PERMISSION = "eu.xems.vrlauncher.USB_PERMISSION"
     }
 }

@@ -1219,3 +1219,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L48 ## Deploy on Quest 3 — `vr-bridge/patcher/xems_vr_patch.py`
   - L65 ## Protocol
   - L72 ## Test
+
+`vr-bridge/patcher/android-launcher/README.md` (43L)
+  - L1 # XEMS VR Launcher (on-device front end)
+  - L12 ## UI
+  - L17 ## What the button sends
+  - L30 ## Device setup (one time)
+  - L40 ## Build

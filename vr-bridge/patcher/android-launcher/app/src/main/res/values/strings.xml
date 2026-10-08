@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XEMS VR Launcher</string>
+
+    <string name="label_package">Target Package Name</string>
+    <string name="hint_package">com.example.vrgame</string>
+
+    <string name="label_tablet_ip">Quest / Tablet IP Address</string>
+    <string name="hint_tablet_ip">192.168.1.50</string>
+
+    <string name="btn_execute">Execute Local Patch</string>
+
+    <string name="status_idle">Ready. Fill both fields and press Execute.</string>
+    <string name="status_sent">Sent to Termux:\n  xems_vr_patch.py %1$s --tablet %2$s --yes\nWatch Termux for progress.</string>
+    <string name="status_failed">Could not reach Termux: %1$s</string>
+
+    <string name="err_no_package">Enter the target package name.</string>
+    <string name="err_no_ip">Enter the tablet IP address.</string>
+    <string name="err_termux">Is Termux installed, RUN_COMMAND granted, and allow-external-apps=true?</string>
+</resources>

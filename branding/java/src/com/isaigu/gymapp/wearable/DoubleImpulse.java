@@ -90,7 +90,7 @@ public final class DoubleImpulse {
     private static Runner runner;
     private static boolean running;
 
-    private static int idSave, idPauseMa, idPauseHz, idLabel, idAmount;
+    private static int idSave, idPauseMa, idPauseHz, idLabel, idAmount, idSignal;
 
     private DoubleImpulse() {}
 
@@ -542,6 +542,7 @@ public final class DoubleImpulse {
             if (row == null) {
                 return;
             }
+            SignalProbe.attach(it, row, idSignal);            // three taps on the signal icon: closeness 0..100 %
             View btn = idSave != 0 ? row.findViewById(idSave) : null;
             if (btn != null) {
                 BUTTONS.put(it, new WeakReference<View>(btn));
@@ -610,6 +611,7 @@ public final class DoubleImpulse {
         idPauseHz = c.getResources().getIdentifier("pauseHzValue", "id", pkg);
         idLabel = c.getResources().getIdentifier("pulsePauseLabel", "id", pkg);
         idAmount = c.getResources().getIdentifier("paulsestop", "id", pkg);
+        idSignal = c.getResources().getIdentifier("signalImage", "id", pkg);
         idSave = c.getResources().getIdentifier("save", "id", pkg);
     }
 
@@ -1011,6 +1013,10 @@ public final class DoubleImpulse {
                     View cur = v;
                     for (int k = 0; k < 24 && cur.getParent() instanceof ViewGroup; k++) {
                         ViewGroup g = (ViewGroup) cur.getParent();
+                        String gn = g.getClass().getName();
+                        if (gn.contains("SwipeMenu") || gn.contains("RecyclerView")) {
+                            break;      // the list row: unclipped it shows the red "Delete" menu hiding behind it (1.1.407)
+                        }
                         if (g.getClipChildren() && !unclipped.contains(g)) {
                             g.setClipChildren(false);
                             unclipped.add(g);

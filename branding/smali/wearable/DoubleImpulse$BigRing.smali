@@ -43,69 +43,69 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 847
+    .line 839
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 841
+    .line 833
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->track:Landroid/graphics/Paint;
 
-    .line 842
+    .line 834
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
-    .line 843
+    .line 835
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->head:Landroid/graphics/Paint;
 
-    .line 844
+    .line 836
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->oval:Landroid/graphics/RectF;
 
-    .line 848
+    .line 840
     iput p1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->d:F
 
-    .line 849
+    .line 841
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->track:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 850
+    .line 842
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 851
+    .line 843
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 852
+    .line 844
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->head:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 853
+    .line 845
     return-void
 .end method
 
@@ -123,7 +123,7 @@
 
     const/4 v7, 0x0
 
-    .line 856
+    .line 848
     iget v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->r:F
 
     cmpg-float v0, v0, v7
@@ -142,12 +142,12 @@
 
     if-gtz v0, :cond_1b
 
-    .line 885
+    .line 877
     :cond_1a
     :goto_1a
     return-void
 
-    .line 859
+    .line 851
     :cond_1b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->oval:Landroid/graphics/RectF;
 
@@ -177,7 +177,7 @@
 
     invoke-virtual {v0, v1, v3, v4, v5}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 860
+    .line 852
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->track:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41200000    # 10.0f
@@ -188,14 +188,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 861
+    .line 853
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->track:Landroid/graphics/Paint;
 
     const/high16 v1, 0x26000000
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 862
+    .line 854
     iget v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cx:F
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cy:F
@@ -206,7 +206,7 @@
 
     invoke-virtual {p1, v0, v1, v3, v4}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 863
+    .line 855
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->track:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->d:F
@@ -215,14 +215,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 864
+    .line 856
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->track:Landroid/graphics/Paint;
 
     const v1, 0x40ffffff    # 7.9999995f
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 865
+    .line 857
     iget v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cx:F
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cy:F
@@ -233,14 +233,14 @@
 
     invoke-virtual {p1, v0, v1, v3, v4}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 866
+    .line 858
     iget v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->flash:F
 
     cmpl-float v0, v0, v7
 
     if-lez v0, :cond_9f
 
-    .line 867
+    .line 859
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
     const/high16 v1, 0x40c00000    # 6.0f
@@ -257,12 +257,12 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 868
+    .line 860
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v9}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 869
+    .line 861
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
     const/high16 v1, 0x437f0000    # 255.0f
@@ -277,7 +277,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 870
+    .line 862
     iget v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cx:F
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cy:F
@@ -290,7 +290,7 @@
 
     goto/16 :goto_1a
 
-    .line 873
+    .line 865
     :cond_9f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
@@ -300,26 +300,26 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 874
+    .line 866
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v9}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 875
+    .line 867
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->arc:Landroid/graphics/Paint;
 
     const/16 v1, 0xff
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 876
+    .line 868
     const/high16 v0, 0x43b40000    # 360.0f
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->progress:F
 
     mul-float v3, v0, v1
 
-    .line 877
+    .line 869
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->oval:Landroid/graphics/RectF;
 
     const/4 v4, 0x0
@@ -330,7 +330,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 878
+    .line 870
     add-float v0, v2, v3
 
     float-to-double v0, v0
@@ -339,7 +339,7 @@
 
     move-result-wide v0
 
-    .line 879
+    .line 871
     iget v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cx:F
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->r:F
@@ -356,7 +356,7 @@
 
     add-float/2addr v2, v3
 
-    .line 880
+    .line 872
     iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cy:F
 
     iget v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->r:F
@@ -373,14 +373,14 @@
 
     add-float/2addr v0, v3
 
-    .line 881
+    .line 873
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->head:Landroid/graphics/Paint;
 
     const v3, 0x66ffffff
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 882
+    .line 874
     const/high16 v1, 0x40e00000    # 7.0f
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->d:F
@@ -391,14 +391,14 @@
 
     invoke-virtual {p1, v2, v0, v1, v3}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 883
+    .line 875
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->head:Landroid/graphics/Paint;
 
     const/4 v3, -0x1
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 884
+    .line 876
     const/high16 v1, 0x40600000    # 3.5f
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->d:F
@@ -416,7 +416,7 @@
     .registers 2
 
     .prologue
-    .line 894
+    .line 886
     const/4 v0, -0x3
 
     return v0
@@ -426,7 +426,7 @@
     .registers 2
 
     .prologue
-    .line 888
+    .line 880
     return-void
 .end method
 
@@ -434,6 +434,6 @@
     .registers 2
 
     .prologue
-    .line 891
+    .line 883
     return-void
 .end method

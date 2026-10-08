@@ -1,6 +1,10 @@
 package eu.xems.vrlauncher
 
+import android.content.Context
+import android.net.ConnectivityManager
+import java.net.DatagramSocket
 import java.net.Inet4Address
+import java.net.InetAddress
 import java.net.NetworkInterface
 
 /**
@@ -19,14 +23,46 @@ object LanAddress {
             ?: usable.firstOrNull()?.address
     }
 
-    fun current(): String? = try {
+    /**
+     * Android 11+ hides most interfaces from NetworkInterface for ordinary apps, so ask ConnectivityManager first
+     * (every network with its link addresses), then NetworkInterface, then the address a UDP socket would use.
+     */
+    fun current(context: Context): String? =
+        pick(fromConnectivity(context)) ?: pick(fromInterfaces()) ?: viaSocket()
+
+    private fun fromConnectivity(context: Context): List<Candidate> = try {
+        val cm = context.getSystemService(ConnectivityManager::class.java)
+        val list = mutableListOf<Candidate>()
+        for (n in cm.allNetworks) {
+            val lp = cm.getLinkProperties(n) ?: continue
+            for (la in lp.linkAddresses) {
+                val a = la.address
+                if (a is Inet4Address) list += Candidate(lp.interfaceName ?: "wlan?", a.hostAddress ?: continue)
+            }
+        }
+        list
+    } catch (e: Exception) {
+        emptyList()
+    }
+
+    private fun fromInterfaces(): List<Candidate> = try {
         val list = mutableListOf<Candidate>()
         for (ni in NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()) {
             for (a in ni.inetAddresses.toList()) {
                 if (a is Inet4Address) list += Candidate(ni.name, a.hostAddress ?: continue, ni.isUp && !ni.isLoopback)
             }
         }
-        pick(list)
+        list
+    } catch (e: Exception) {
+        emptyList()
+    }
+
+    /** connect() on a UDP socket sends nothing; it only makes the kernel choose the outgoing address. */
+    private fun viaSocket(): String? = try {
+        DatagramSocket().use { s ->
+            s.connect(InetAddress.getByName("192.168.1.1"), 9)
+            s.localAddress.hostAddress?.takeIf { PatchRequest.isIpv4(it) && isPrivate(it) }
+        }
     } catch (e: Exception) {
         null
     }

@@ -12,8 +12,8 @@ set -uo pipefail
 PATCHER="$(cd "$(dirname "$0")/../.." && pwd)"
 IPV4='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
 PKG='^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$'
-# System / store packages that are never a game to patch.
-SYSTEM='^(android|com\.android\.|com\.oculus\.|com\.meta\.|com\.facebook\.|com\.qualcomm\.|com\.google\.|horizonos\.|oculus\.)'
+# Store / shell apps that come as third-party but are never a game (Meta's own games stay: com.oculus.* can be one).
+SYSTEM='^(com\.oculus\.(vrshell|store|horizon|systemux|socialplatform|tv|browser|explore)|com\.meta\.(store|horizon)|com\.facebook\.|com\.google\.|com\.android\.|android$)'
 
 die() { echo "✗ $2" >&2; exit "$1"; }
 need_adb() { command -v adb >/dev/null 2>&1 || die 3 "няма adb в Termux — pkg install android-tools"; }
@@ -127,6 +127,19 @@ cmd_patch() {
 
 [[ $# -ge 1 ]] || die 2 "употреба: termux-run.sh check | find <IP> | games <IP> | patch <IP> <пакет> [IP]"
 verb="$1"
+# games / patch: take the newest scripts from the repo first (setup ran once, fixes land later). Offline = as is.
+self_update() {
+  local dir="$PATCHER/../.." branch="${XEMS_BRANCH:-main}"
+  [[ -z "${XEMS_UPDATED:-}" && -d "$dir/.git" ]] || return 0
+  command -v git >/dev/null 2>&1 || return 0
+  timeout 25 git -C "$dir" fetch -q --depth 1 origin "$branch" 2>/dev/null || return 0
+  [[ "$(git -C "$dir" rev-parse HEAD)" == "$(git -C "$dir" rev-parse FETCH_HEAD)" ]] && return 0
+  git -C "$dir" checkout -q -B "$branch" FETCH_HEAD 2>/dev/null || return 0
+  echo "→ скриптовете са обновени"
+  XEMS_UPDATED=1 exec bash "$0" "$@"
+}
+[[ "$verb" != check && "$verb" != find ]] && self_update "$@"
+
 case "$verb" in
   check) shift; cmd_check "$@" ;;
   find)  shift; cmd_find "$@" ;;

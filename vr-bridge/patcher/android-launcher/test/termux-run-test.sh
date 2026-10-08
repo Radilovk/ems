@@ -37,6 +37,7 @@ ip="$(echo "$*" | sed -n 's|.*/dev/tcp/\([0-9.]*\)/.*|\1|p')"
 S
 printf '#!/usr/bin/env bash\n' > "$T/bin/sleep"
 chmod +x "$T/bin/"*
+export XEMS_UPDATED=1
 export FAKE_LOG="$T/log" FAKE_OUT="$T/out"
 fails=0
 check() { # name expected-exit expected-text-in-log-or-stdout -- args...

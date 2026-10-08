@@ -4,6 +4,7 @@ package com.isaigu.gymapp.wearable.vr;
 final class VrMainCall implements Runnable {
     static final int TICK = 0;
     static final int LINK = 1;
+    static final int SETTINGS = 2;
 
     private final int op;
     private final boolean up;
@@ -19,6 +20,8 @@ final class VrMainCall implements Runnable {
     public void run() {
         if (op == TICK) {
             VrDrive.tick();
+        } else if (op == SETTINGS) {
+            VrDrive.onSettingsChanged();
         } else {
             VrDrive.link(up, app);
         }

@@ -41,6 +41,15 @@ public final class VrPulsesHostTest {
         check(VrNoiseGate.passes(0.5f, 40000, false, false), "gate: medium 40 ms pulse passes");
         check(VrNoiseGate.passes(1.0f, 20000, false, false), "gate: strong 20 ms hit passes");
         check(VrNoiseGate.passes(0.5f, 10000, false, true), "gate: PCM append chunk of a passed pulse continues");
+        // sensitivity presets (VrPanel → VrSettings): strong only · normal · all
+        check(!VrNoiseGate.passes(0.5f, 40000, false, false, VrNoiseGate.STRONG), "gate strong: medium 40 ms pulse dropped");
+        check(!VrNoiseGate.passes(0.7f, 20000, false, false, VrNoiseGate.STRONG), "gate strong: 0.7 short buzz dropped");
+        check(VrNoiseGate.passes(0.9f, 20000, false, false, VrNoiseGate.STRONG), "gate strong: full 20 ms hit passes");
+        check(VrNoiseGate.passes(0.65f, 60000, false, false, VrNoiseGate.STRONG), "gate strong: 0.65 60 ms hit passes");
+        check(VrNoiseGate.passes(0.2f, 10000, false, false, VrNoiseGate.ALL), "gate all: weak short tick passes");
+        check(!VrNoiseGate.passes(0.05f, 2000000, false, false, VrNoiseGate.ALL), "gate all: faintest buzz still dropped");
+        VrNoiseGate.setPreset(9);
+        check(VrNoiseGate.preset() == VrNoiseGate.NORMAL, "gate: unknown preset falls back to normal");
         check(!VrNoiseGate.passes(Float.NaN, 100000, false, false), "gate: NaN dropped");
         System.out.println(fails == 0 ? "PULSES PASS" : "PULSES FAIL " + fails);
         if (fails != 0) System.exit(1);

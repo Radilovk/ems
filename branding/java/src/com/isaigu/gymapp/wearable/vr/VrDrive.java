@@ -40,11 +40,38 @@ public final class VrDrive {
     private static long lastUiMs;
     private static float slewLevel;
     private static long slewLastMs;
+    /** The trainer's floor while VR is not driving (music keeps its own); put back on release. */
+    private static int savedFloor = -1;
+    /** Live, for VrPanel: the game's level 0–100 and the strength sent (−1 = not driving). */
+    private static volatile int liveLevel;
+    private static volatile int liveApplied = -1;
 
     private VrDrive() {}
 
     static void setContext(Context c) {
         context = c != null ? c.getApplicationContext() : null;
+        VrSettings.load(context);
+    }
+
+    /** VrPanel changed a setting (main thread): apply it at once if VR is driving a row. */
+    static void onSettingsChanged() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            MAIN.post(new VrMainCall(VrMainCall.SETTINGS, false, null));
+            return;
+        }
+        try {
+            if (!driving) {
+                return;
+            }
+            if (VrSettings.isPaused()) {
+                release();
+                return;
+            }
+            MasterStrengthControl.setFloorPercent(VrSettings.floorPercent());
+            VrZones.reapply();
+        } catch (Throwable t) {
+            XemsGuard.report("VrDrive.settings", t);
+        }
     }
 
     /** Receiver thread → main. */
@@ -64,6 +91,7 @@ public final class VrDrive {
                 MAIN.removeCallbacks(TICK);
                 MAIN.post(TICK);
                 toast(XemsLang.tr("VR е свързан: ", "VR connected: ") + shortName(app));
+                com.isaigu.gymapp.widget.XemsNav.onVrLinked();   // first headset ever → "VR" tile onto the bar
             } else {
                 MAIN.removeCallbacks(TICK);
                 release();
@@ -108,7 +136,7 @@ public final class VrDrive {
             return;
         }
         yieldedToMusic = false;
-        if (item == null || item.data == null || !item.data.start) {
+        if (VrSettings.isPaused() || item == null || item.data == null || !item.data.start) {
             if (driving) {
                 release();
             }
@@ -119,6 +147,8 @@ public final class VrDrive {
         }
         int level = Math.round(VrHapticRouter.PULSES.level(nowNs) * 100f);
         int applied = MasterStrengthControl.scaleFromSound(limitRise(level));
+        liveLevel = level;
+        liveApplied = applied;
         if (applied == lastSent || item.isSenderBusy()) {
             return;                                     // newest value wins on the next tick
         }
@@ -134,6 +164,8 @@ public final class VrDrive {
     /** The slider's strength becomes the ceiling, MA mode, sync label — as MusicSync does on start; zones off. */
     private static void engage(TrainItem item) {
         MasterStrengthControl.captureCeilingFromSlider();
+        savedFloor = MasterStrengthControl.getFloorPercent();
+        MasterStrengthControl.setFloorPercent(VrSettings.floorPercent());
         MasterStrengthControl.setSyncActive(true);
         MasterStrengthControl.ensureMaMode();
         MasterStrengthControl.resetApplied();
@@ -151,6 +183,12 @@ public final class VrDrive {
         }
         driving = false;
         VrZones.release();
+        if (savedFloor >= 0) {
+            MasterStrengthControl.setFloorPercent(savedFloor);
+            savedFloor = -1;
+        }
+        liveLevel = 0;
+        liveApplied = -1;
         int ceiling = MasterStrengthControl.getCeiling();
         MasterStrengthControl.sendImpulseLevel(0);
         MasterStrengthControl.setSyncActive(false);
@@ -165,7 +203,7 @@ public final class VrDrive {
         long now = SystemClock.elapsedRealtime();
         long dt = slewLastMs == 0L ? TICK_MS : now - slewLastMs;
         slewLastMs = now;
-        int riseMs = MusicSync.getSmoothness() * RISE_TIME_MAX_MS / 100;
+        int riseMs = VrSettings.smoothness() * RISE_TIME_MAX_MS / 100;
         if (riseMs > 0 && level > slewLevel) {
             slewLevel = Math.min(level, slewLevel + 100f * Math.max(1L, dt) / riseMs);
         } else {
@@ -181,6 +219,36 @@ public final class VrDrive {
 
     public static boolean isDriving() {
         return driving;
+    }
+
+    /** The linked game's package ("" when none). */
+    public static String appName() {
+        return linked ? app : "";
+    }
+
+    public static String shortAppName() {
+        return shortName(appName());
+    }
+
+    public static int liveLevel() {
+        return driving ? liveLevel : 0;
+    }
+
+    public static int liveApplied() {
+        return liveApplied;
+    }
+
+    /** Waiting because the music player drives the strength. */
+    public static boolean isYieldedToMusic() {
+        return linked && yieldedToMusic;
+    }
+
+    public static int hitsPassed() {
+        return VrHapticRouter.passed;
+    }
+
+    public static int hitsDropped() {
+        return VrHapticRouter.dropped;
     }
 
     private static String shortName(String pkg) {

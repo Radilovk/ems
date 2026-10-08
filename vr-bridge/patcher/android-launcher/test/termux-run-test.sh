@@ -19,6 +19,7 @@ case "$1" in
         case "$4 $5" in
           "getprop ro.product.manufacturer") [[ " ${FAKE_QUESTS:-} " == *" $ip "* ]] && echo $'Oculus\r' || echo $'samsung\r' ;;
           "getprop ro.product.model") echo $'Quest 3\r' ;;
+          *libopenxr_loader*) printf 'com.a.fight ok\r\ncom.beat.games vrapi\r\n' ;;
           "pm list") printf 'package:com.oculus.vrshell\r\npackage:com.beat.games\r\npackage:com.meta.store\r\npackage:com.a.fight\r\n' ;;
         esac ;;
     esac ;;
@@ -59,9 +60,9 @@ FAKE_CONNECT=no check "patch: connect refused" 4 "adb connect" patch 192.168.1.2
 FAKE_STATE=unauthorized check "patch: unauthorized" 5 "" patch 192.168.1.23 com.a.game
 FAKE_PY_EXIT=1 check "patch: patcher exit code passes" 1 "python3" patch 192.168.1.23 com.a.game
 # games
-check "games: filters system packages" 0 "game com.a.fight" games 192.168.1.23
+check "games: filters system packages" 0 "game com.a.fight ok" games 192.168.1.23
 out="$(PATH="$T/bin:$PATH" bash "$RUN" games 192.168.1.23 2>/dev/null | grep '^game ')"
-[[ "$out" == $'game com.a.fight\ngame com.beat.games' ]] && echo "ok   games: exact list" || { echo "FAIL games list: $out"; fails=$((fails+1)); }
+[[ "$out" == $'game com.a.fight ok\ngame com.beat.games vrapi' ]] && echo "ok   games: exact list" || { echo "FAIL games list: $out"; fails=$((fails+1)); }
 FAKE_CONNECT=no check "games: headset away" 4 "" games 192.168.1.23
 # find
 FAKE_OPEN="192.168.1.23 192.168.1.40" FAKE_QUESTS="192.168.1.23" check "find: Quest among other adb devices" 0 "quest 192.168.1.23 Quest 3" find 192.168.1.50

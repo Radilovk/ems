@@ -92,4 +92,10 @@
     <string name="detail_usb_failed">Unplug and plug the cable in again. Is developer mode on in the headset?</string>
     <string name="status_usb_denied">No access to the cable</string>
     <string name="detail_usb_denied">Plug the cable in again and press OK when the tablet asks about the headset.</string>
+    <string name="detail_games_fit">✓ fit: %1$d.</string>
+    <string name="game_unknown">\?  %1$s — not a VR game or not recognised</string>
+    <string name="game_vrapi">✗  %1$s — old VrApi, will not work</string>
+    <string name="status_game_vrapi">This game will not work</string>
+    <string name="detail_game_vrapi">%1$s runs on Meta\'s old VrApi — haptics hook into OpenXR games only. Pick a game with ✓.</string>
+    <string name="detail_game_unknown">Not recognised as an OpenXR game — it may not work. Press the green button to try.</string>
 </resources>

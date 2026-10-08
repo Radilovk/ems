@@ -91,13 +91,23 @@ cmd_find() {
 cmd_games() {
   [[ $# -eq 1 ]] || die 2 "употреба: termux-run.sh games <IP на шлема[:порт]>"
   parse_quest "$1"; need_adb; connect
-  local n=0 p
+  local p pkgs=()
   while read -r p; do
     p="${p#package:}"; p="${p%$'\r'}"
     [[ -z "$p" || "$p" =~ $SYSTEM ]] && continue
-    echo "game $p"; n=$((n+1))
+    pkgs+=("$p")
   done < <(adb -s "$serial" shell pm list packages -3 2>/dev/null | sort)
-  [[ $n -gt 0 ]] || echo "(няма инсталирани игри от трети страни)"
+  [[ ${#pkgs[@]} -gt 0 ]] || { echo "(няма инсталирани игри от трети страни)"; return 0; }
+  # Fit, in one round trip: the zip central directory (end of every APK/split) names the native libs.
+  #   ok = OpenXR loader (the layer can go in) · vrapi = old VrApi/OVRPlugin (cannot) · ? = neither (not VR?)
+  local probe='for p in '"${pkgs[*]}"'; do f="?"; for a in $(pm path $p | sed "s/^package://"); do
+    if tail -c 4194304 "$a" 2>/dev/null | grep -q -F lib/arm64-v8a/libopenxr_loader.so; then f=ok; break; fi
+    tail -c 4194304 "$a" 2>/dev/null | grep -q -F lib/arm64-v8a/libvrapi.so && f=vrapi; done; echo "$p $f"; done'
+  local fit; fit="$(adb -s "$serial" shell "$probe" 2>/dev/null | tr -d '\r')"
+  for p in "${pkgs[@]}"; do
+    local f; f="$(awk -v p="$p" '$1==p {print $2}' <<<"$fit")"
+    echo "game $p ${f:-?}"
+  done
 }
 
 cmd_patch() {

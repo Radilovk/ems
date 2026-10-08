@@ -97,4 +97,10 @@
     <string name="detail_usb_failed">Извади и включи кабела пак. Developer mode включен ли е на шлема?</string>
     <string name="status_usb_denied">Няма достъп до кабела</string>
     <string name="detail_usb_denied">Включи кабела пак и натисни OK, когато таблетът попита за шлема.</string>
+    <string name="detail_games_fit">✓ стават: %1$d.</string>
+    <string name="game_unknown">\?  %1$s — не е VR игра или не се разпознава</string>
+    <string name="game_vrapi">✗  %1$s — стар VrApi, не става</string>
+    <string name="status_game_vrapi">Тази игра не става</string>
+    <string name="detail_game_vrapi">%1$s е на стария VrApi на Meta — хаптиката се закача само към OpenXR игри. Избери игра с ✓.</string>
+    <string name="detail_game_unknown">Не я разпознах като OpenXR игра — може да не стане. Натисни зеления бутон, за да пробваш.</string>
 </resources>

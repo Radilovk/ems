@@ -8,7 +8,7 @@ reads the answers and does the next step by itself.
 app ──RUN_COMMAND──▶ Termux: bash ~/ems/…/termux/termux-run.sh <verb> …
      check                          → ok/missing lines (python3, java, adb, git, patcher, layer)
      find  <tablet-ip>              → scans the /24 for :5555, keeps Oculus/Meta devices → "quest <ip> <model>"
-     games <quest-ip>               → adb connect, third-party packages → "game <pkg>"
+     games <quest-ip>               → adb connect, third-party packages → "game <pkg> ok|vrapi|?" (OpenXR loader in the APK?)
      patch <quest-ip> <pkg> [tablet] → adb connect, ANDROID_SERIAL=… python3 xems_vr_patch.py <pkg> --yes [--tablet]
    + bash -c <termux-setup.sh shipped in the APK>  → pkg install python openjdk-17 android-tools git,
                                                      sparse clone of vr-bridge/ into ~/ems, then check
@@ -28,7 +28,7 @@ app ◀──PendingIntent (exit code + output, background or session)── Ter
    headset asks *Allow USB debugging* for the app's key → Always allow + Allow (remembered).
 
 ## Every time
-Open the app → it finds the headset on the Wi-Fi → shows its games → **tap a game** → **Сложи хаптиката** →
+Open the app → it finds the headset on the Wi-Fi → shows its games (✓ OpenXR = works · ✗ old VrApi = cannot, not filled in · ? = not recognised) → **tap a game** → **Сложи хаптиката** →
 confirm → 1–3 min → ✓ (or the reason + what to press). The tablet's own Wi-Fi IP goes to `--tablet` by itself.
 Fields are remembered; 🔍 / ☰ redo the search / the game list.
 

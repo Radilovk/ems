@@ -15,7 +15,7 @@
     .registers 1
 
     .prologue
-    .line 9
+    .line 10
     new-instance v0, Lcom/isaigu/gymapp/wearable/vr/VrPulses;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;-><init>()V
@@ -29,7 +29,7 @@
     .registers 1
 
     .prologue
-    .line 8
+    .line 9
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,7 +41,19 @@
     .registers 12
 
     .prologue
-    .line 13
+    .line 14
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/vr/VrNoiseGate;->passes(Lcom/isaigu/gymapp/wearable/vr/VrHapticEvent;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_7
+
+    .line 18
+    :goto_6
+    return-void
+
+    .line 17
+    :cond_7
     sget-object v1, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->PULSES:Lcom/isaigu/gymapp/wearable/vr/VrPulses;
 
     iget v2, p1, Lcom/isaigu/gymapp/wearable/vr/VrHapticEvent;->hand:I
@@ -62,29 +74,28 @@
 
     invoke-virtual/range {v1 .. v9}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;->pulse(IFJZZJ)V
 
-    .line 14
-    return-void
+    goto :goto_6
 .end method
 
 .method public onVrLink(ZLjava/lang/String;)V
     .registers 5
 
     .prologue
-    .line 23
+    .line 27
     if-nez p1, :cond_8
 
-    .line 24
+    .line 28
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->PULSES:Lcom/isaigu/gymapp/wearable/vr/VrPulses;
 
     const/4 v1, 0x3
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;->stop(I)V
 
-    .line 26
+    .line 30
     :cond_8
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->postLink(ZLjava/lang/String;)V
 
-    .line 27
+    .line 31
     return-void
 .end method
 
@@ -92,11 +103,11 @@
     .registers 6
 
     .prologue
-    .line 18
+    .line 22
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->PULSES:Lcom/isaigu/gymapp/wearable/vr/VrPulses;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;->stop(I)V
 
-    .line 19
+    .line 23
     return-void
 .end method

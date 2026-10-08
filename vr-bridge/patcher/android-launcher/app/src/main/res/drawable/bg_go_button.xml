@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- XemsUi GO button: green gradient, 14dp radius, ripple press feedback. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/press">
+    <item>
+        <shape>
+            <gradient android:angle="270" android:startColor="@color/go" android:endColor="@color/go_dark" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+</ripple>

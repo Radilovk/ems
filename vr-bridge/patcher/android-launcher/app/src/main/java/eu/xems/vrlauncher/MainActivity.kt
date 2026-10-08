@@ -1,141 +1,202 @@
 package eu.xems.vrlauncher
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.os.Build
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.text.TextUtils
+import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 
 /**
- * XEMS VR launcher — a thin on-device front end for the already-shipped
- * vr-bridge/patcher/xems_vr_patch.py.
+ * XEMS VR launcher — a thin tablet front end for vr-bridge/patcher/xems_vr_patch.py running in Termux.
  *
- * It does NOT patch anything itself: it only hands a ready-made command line to
- * Termux's RunCommandService so the existing script runs locally on the phone
- * (instead of on a PC). All decompile / inject / re-sign logic stays in the
- * Python script; this Activity is just a two-field + one-button trigger.
- *
- * Prerequisites on the device:
- *   - Termux installed, with the vr-bridge/ tree present under
- *     $HOME (so the prebuilt layer sits next to the script).
- *   - python3 + adb available inside Termux (pkg install python android-tools).
- *   - ~/.termux/termux.properties contains `allow-external-apps=true`.
- *   - This app granted com.termux.permission.RUN_COMMAND (declared below).
+ * One tap: Termux runs termux-run.sh, which does `adb connect <Quest IP>` and then the patcher with
+ * `--tablet <this tablet's Wi-Fi IP>` (found automatically) and `--yes`. The result (exit code + last lines)
+ * comes back through a PendingIntent → [PatchResultReceiver] → [RunStore] → this screen.
+ * Nothing is patched here; all the work stays in the Python script.
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private lateinit var store: RunStore
+    private lateinit var questField: EditText
     private lateinit var packageField: EditText
-    private lateinit var tabletIpField: EditText
-    private lateinit var statusView: TextView
+    private lateinit var tabletField: EditText
+    private lateinit var tabletNote: TextView
+    private lateinit var showInTermux: CheckBox
+    private lateinit var runButton: Button
+    private lateinit var statusTitle: TextView
+    private lateinit var statusDetail: TextView
+    private lateinit var progress: ProgressBar
+    private lateinit var logView: TextView
+
+    /** A run waiting for the RUN_COMMAND permission dialog. */
+    private var pending: PatchRequest? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        store = RunStore(this)
 
+        questField = findViewById(R.id.input_quest_ip)
         packageField = findViewById(R.id.input_package)
-        tabletIpField = findViewById(R.id.input_tablet_ip)
-        statusView = findViewById(R.id.status)
-        val runButton = findViewById<Button>(R.id.btn_execute)
+        tabletField = findViewById(R.id.input_tablet_ip)
+        tabletNote = findViewById(R.id.tablet_ip_note)
+        showInTermux = findViewById(R.id.check_show_termux)
+        runButton = findViewById(R.id.btn_execute)
+        statusTitle = findViewById(R.id.status_title)
+        statusDetail = findViewById(R.id.status_detail)
+        progress = findViewById(R.id.status_progress)
+        logView = findViewById(R.id.status_log)
 
-        runButton.setOnClickListener { onExecuteClicked() }
+        if (savedInstanceState == null) {
+            questField.setText(store.questIp)
+            packageField.setText(store.targetPackage)
+            showInTermux.isChecked = store.showInTermux
+            detectTabletIp()
+        }
+        findViewById<View>(R.id.btn_detect_ip).setOnClickListener { detectTabletIp() }
+        runButton.setOnClickListener { onRunClicked() }
     }
 
-    private fun onExecuteClicked() {
-        val pkg = packageField.text.toString().trim()
-        val ip = tabletIpField.text.toString().trim()
+    override fun onStart() {
+        super.onStart()
+        store.prefs.registerOnSharedPreferenceChangeListener(this)
+        render()
+    }
 
-        if (TextUtils.isEmpty(pkg)) {
-            toast(getString(R.string.err_no_package))
+    override fun onStop() {
+        store.prefs.unregisterOnSharedPreferenceChangeListener(this)
+        super.onStop()
+    }
+
+    override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) = render()
+
+    private fun detectTabletIp() {
+        val ip = LanAddress.current()
+        if (ip != null) {
+            tabletField.setText(ip)
+            tabletNote.setText(R.string.tablet_ip_found)
+        } else {
+            tabletNote.setText(R.string.tablet_ip_missing)
+        }
+    }
+
+    private fun onRunClicked() {
+        val parsed = PatchRequest.parse(questField.text.toString(), packageField.text.toString(), tabletField.text.toString())
+        if (parsed is PatchRequest.Parsed.Invalid) {
+            val (field, msg) = when (parsed.problem) {
+                PatchRequest.Problem.QUEST_IP -> questField to R.string.err_quest_ip
+                PatchRequest.Problem.PACKAGE -> packageField to R.string.err_package
+                PatchRequest.Problem.TABLET_IP -> tabletField to R.string.err_tablet_ip
+            }
+            field.error = getString(msg)
+            field.requestFocus()
             return
         }
-        if (TextUtils.isEmpty(ip)) {
-            toast(getString(R.string.err_no_ip))
+        val request = (parsed as PatchRequest.Parsed.Ok).request
+        store.questIp = questField.text.toString().trim()
+        store.targetPackage = request.targetPackage
+        store.showInTermux = showInTermux.isChecked
+
+        if (!TermuxBridge.isInstalled(this)) {
+            showProblem(R.string.status_no_termux, R.string.detail_no_termux)
             return
         }
-
-        try {
-            sendPatchCommand(pkg, ip)
-            statusView.text = getString(R.string.status_sent, pkg, ip)
-        } catch (e: Exception) {
-            // Most common cause: Termux not installed, or RUN_COMMAND not granted,
-            // or allow-external-apps still false.
-            statusView.text = getString(R.string.status_failed, e.message ?: e.javaClass.simpleName)
-            toast(getString(R.string.err_termux))
-        }
+        confirmReinstall(request)
     }
 
     /**
-     * Build and dispatch the IPC Intent to Termux's RunCommandService.
-     *
-     * Equivalent shell command that Termux ends up running (in the background):
-     *
-     *   cd $PATCHER_WORKDIR
-     *   python3 xems_vr_patch.py <package> --tablet <ip> --yes
-     *
-     * `--yes` is added because a background Termux run has no stdin to answer the
-     * reinstall confirmation; without it the script would hang on the prompt.
+     * The script runs with --yes (no stdin in Termux), so its "reinstall?" question is asked here instead:
+     * the game's internal saves are lost (new signature), Android/data + obb are kept.
      */
-    private fun sendPatchCommand(targetPackage: String, tabletIp: String) {
-        val intent = Intent(RUN_COMMAND_ACTION)
-        intent.setClassName(TERMUX_PACKAGE, RUN_COMMAND_SERVICE)
+    private fun confirmReinstall(request: PatchRequest) {
+        AlertDialog.Builder(this, R.style.Xems_Dialog)
+            .setTitle(getString(R.string.confirm_title, request.targetPackage))
+            .setMessage(getString(R.string.confirm_message, request.targetPackage))
+            .setPositiveButton(R.string.confirm_yes) { _, _ -> checkPermissionAndLaunch(request) }
+            .setNegativeButton(R.string.confirm_no, null)
+            .show()
+    }
 
-        // Absolute path to the Termux python3 binary.
-        intent.putExtra(EXTRA_COMMAND_PATH, "$TERMUX_PREFIX/bin/python3")
+    private fun checkPermissionAndLaunch(request: PatchRequest) {
+        if (checkSelfPermission(TermuxBridge.PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+            pending = request
+            requestPermissions(arrayOf(TermuxBridge.PERMISSION), REQ_RUN_COMMAND)
+            return
+        }
+        launch(request)
+    }
 
-        // Argument vector passed verbatim to the executable (no shell parsing),
-        // so each token is its own array element.
-        intent.putExtra(
-            EXTRA_COMMAND_ARGUMENTS,
-            arrayOf(
-                "xems_vr_patch.py",
-                targetPackage,
-                "--tablet", tabletIp,
-                "--yes"
-            )
-        )
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode != REQ_RUN_COMMAND) return
+        val request = pending
+        pending = null
+        if (request != null && grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) launch(request)
+        else showProblem(R.string.status_no_permission, R.string.detail_no_permission)
+    }
 
-        // Run from the patcher directory so the prebuilt layer (../prebuilt/…)
-        // resolves relative to the script, exactly as on a PC.
-        intent.putExtra(EXTRA_WORKDIR, PATCHER_WORKDIR)
-
-        // true => headless background run; the Termux session UI is not opened.
-        intent.putExtra(EXTRA_BACKGROUND, true)
-
-        // Group background runs so Termux reuses one session for them.
-        intent.putExtra(EXTRA_SESSION_ACTION, "0")
-
-        // RunCommandService must be started as a foreground service on O+.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
+    private fun launch(request: PatchRequest) {
+        val runId = System.currentTimeMillis()
+        val visible = showInTermux.isChecked
+        store.start(runId, request.commandLine(), visible)
+        try {
+            TermuxBridge.run(this, request, runId, visible)
+        } catch (e: Exception) {
+            // Termux refused: RUN_COMMAND not granted or allow-external-apps still false.
+            store.finish(runId, PatchResult(null, "", "", 1, e.message ?: e.javaClass.simpleName))
         }
     }
 
-    private fun toast(msg: String) =
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+    private fun showProblem(title: Int, detail: Int) {
+        setStatus(getString(title), getString(detail), R.color.danger, running = false, log = "")
+    }
+
+    private fun render() {
+        val result = store.lastResult()
+        when {
+            store.running && store.runVisible -> setStatus(
+                getString(R.string.status_in_termux), getString(R.string.detail_in_termux),
+                R.color.amber, running = true, log = store.command,
+            )
+            store.running -> setStatus(
+                getString(R.string.status_running), getString(R.string.detail_running),
+                R.color.amber, running = true, log = store.command,
+            )
+            result != null -> renderResult(result)
+            else -> setStatus(getString(R.string.status_idle), getString(R.string.detail_idle), R.color.text, false, "")
+        }
+    }
+
+    private fun renderResult(r: PatchResult) {
+        val (title, detail) = when (r.outcome) {
+            PatchResult.Outcome.DONE -> R.string.status_done to R.string.detail_done
+            PatchResult.Outcome.BAD_INPUT -> R.string.status_bad_input to R.string.detail_bad_input
+            PatchResult.Outcome.NO_ADB -> R.string.status_no_adb to R.string.detail_no_adb
+            PatchResult.Outcome.NO_QUEST -> R.string.status_no_quest to R.string.detail_no_quest
+            PatchResult.Outcome.UNAUTHORIZED -> R.string.status_unauthorized to R.string.detail_unauthorized
+            PatchResult.Outcome.FAILED -> R.string.status_failed to R.string.detail_failed
+            PatchResult.Outcome.TERMUX -> R.string.status_termux to R.string.detail_termux
+        }
+        val color = if (r.outcome == PatchResult.Outcome.DONE) R.color.go_text else R.color.danger
+        setStatus(getString(title), getString(detail), color, running = false, log = r.tail())
+    }
+
+    private fun setStatus(title: String, detail: String, colorRes: Int, running: Boolean, log: String) {
+        statusTitle.text = title
+        statusTitle.setTextColor(getColor(colorRes))
+        statusDetail.text = detail
+        progress.visibility = if (running) View.VISIBLE else View.GONE
+        logView.text = log
+        logView.visibility = if (log.isEmpty()) View.GONE else View.VISIBLE
+        runButton.setText(if (running) R.string.btn_run_again else R.string.btn_execute)
+    }
 
     companion object {
-        // Termux RunCommandService IPC contract.
-        private const val TERMUX_PACKAGE = "com.termux"
-        private const val RUN_COMMAND_SERVICE = "com.termux.app.RunCommandService"
-        private const val RUN_COMMAND_ACTION = "com.termux.RUN_COMMAND"
-        private const val TERMUX_PREFIX = "/data/data/com.termux/files/usr"
-
-        private const val EXTRA_COMMAND_PATH = "com.termux.RUN_COMMAND_PATH"
-        private const val EXTRA_COMMAND_ARGUMENTS = "com.termux.RUN_COMMAND_ARGUMENTS"
-        private const val EXTRA_WORKDIR = "com.termux.RUN_COMMAND_WORKDIR"
-        private const val EXTRA_BACKGROUND = "com.termux.RUN_COMMAND_BACKGROUND"
-        private const val EXTRA_SESSION_ACTION = "com.termux.RUN_COMMAND_SESSION_ACTION"
-
-        // Where the vr-bridge/patcher/ tree lives inside Termux's $HOME.
-        private const val PATCHER_WORKDIR =
-            "/data/data/com.termux/files/home/ems/vr-bridge/patcher"
+        private const val REQ_RUN_COMMAND = 7
     }
 }

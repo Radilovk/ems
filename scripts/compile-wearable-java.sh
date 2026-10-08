@@ -91,6 +91,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrClockSync.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrTelemetryReceiver.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrPulses.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrNoiseGate.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrZones.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrHapticRouter.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrMainCall.java"

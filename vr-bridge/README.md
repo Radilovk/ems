@@ -24,7 +24,9 @@ game ──xrApplyHapticFeedback──▶ quest-layer (implicit OpenXR API layer
 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
 ```
 VrTelemetryReceiver (UDP thread: pairing, clock sync, seq / stale filter)
-  └▶ VrHapticRouter (the VrHapticSink) ──▶ VrPulses   (per hand: amplitude until the pulse ends, ≥ 120 ms)
+  └▶ VrHapticRouter (the VrHapticSink) ──▶ VrNoiseGate ──▶ VrPulses (per hand: amplitude until the end, ≥ 120 ms)
+     gate (1.1.397): amplitude < 0.4 → out; < 35 ms (runtime-shortest = 0 ms) → out unless ≥ 0.7 (a hit);
+     PCM append chunks only need the amplitude
 VrDrive (main thread, 10 ms tick while linked and the target row runs)
   └▶ MusicSync algorithm: rise limit (MusicSync smoothness) → MasterStrengthControl.scaleFromSound (floor..ceiling =
      MA slider) → newest value only when the row's BLE queue is empty → setMasterStrength → onParamsChange →
@@ -59,6 +61,8 @@ json into `base.apk` (`assets/openxr/1/api_layers/implicit.d/`), re-signs all sp
 reinstalls, restores them, and on an install failure puts the original back. Internal save data is lost
 (new signature). Originals stay in `xems-vr-out/original/<package>/`. Offline: `--apk base.apk [--apk split.apk] --out DIR`.
 Check on the headset: `adb logcat -s XemsVrLayer` (`active, session …` then `paired with …`).
+No PC: `vr-bridge/patcher/android-launcher/` — a tablet app that runs the same script in Termux over Wi-Fi adb
+(`adb connect`, the tablet's own IP as `--tablet`, result shown in the app).
 Kill switch: env `DISABLE_XR_APILAYER_XEMS_HAPTICS`. Fixed tablet IP: `--tablet` (= `setprop debug.xems.vr.target`,
 until reboot).
 

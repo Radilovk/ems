@@ -14,7 +14,7 @@ DECOMPILED = ROOT / "build" / "decompiled"
 MANIFEST = DECOMPILED / "AndroidManifest.xml"
 PERMISSIONS = ("android.permission.WAKE_LOCK", "android.permission.CHANGE_WIFI_MULTICAST_STATE",
                "android.permission.INTERNET")
-VR_CLASSES = ("VrTelemetryReceiver", "VrHapticRouter", "VrDrive", "VrPulses", "VrZones", "VrBridge", "VrMainCall")
+VR_CLASSES = ("VrTelemetryReceiver", "VrHapticRouter", "VrDrive", "VrPulses", "VrNoiseGate", "VrZones", "VrBridge", "VrMainCall")
 CALLS = {
     "wearable/NotifyWearableBridge.smali": (
         "Lcom/isaigu/gymapp/wearable/vr/VrBridge;->attach(Landroid/content/Context;)V",
@@ -22,6 +22,7 @@ CALLS = {
         "Lcom/isaigu/gymapp/wearable/vr/VrBridge;->onTrainingStopped()V",
     ),
     "wearable/vr/VrHapticRouter.smali": (
+        "Lcom/isaigu/gymapp/wearable/vr/VrNoiseGate;->passes(Lcom/isaigu/gymapp/wearable/vr/VrHapticEvent;)Z",
         "Lcom/isaigu/gymapp/wearable/vr/VrPulses;->pulse(IFJZZJ)V",
     ),
     "wearable/vr/VrDrive.smali": (

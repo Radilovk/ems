@@ -212,33 +212,36 @@
     invoke-direct {v2, p0}, Landroid/webkit/WebView;-><init>(Landroid/content/Context;)V
 
     .line 81
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLang;->afterWebView(Landroid/app/Activity;)V
+
+    .line 82
     invoke-virtual {v2}, Landroid/webkit/WebView;->getSettings()Landroid/webkit/WebSettings;
 
     move-result-object v3
 
-    .line 82
+    .line 83
     invoke-virtual {v3, v7}, Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V
 
-    .line 83
+    .line 84
     invoke-virtual {v3, v7}, Landroid/webkit/WebSettings;->setDomStorageEnabled(Z)V
 
-    .line 84
+    .line 85
     invoke-virtual {v3, v7}, Landroid/webkit/WebSettings;->setLoadWithOverviewMode(Z)V
 
-    .line 85
+    .line 86
     invoke-virtual {v3, v7}, Landroid/webkit/WebSettings;->setUseWideViewPort(Z)V
 
-    .line 86
+    .line 87
     invoke-virtual {v2, v9}, Landroid/webkit/WebView;->setBackgroundColor(I)V
 
-    .line 87
+    .line 88
     new-instance v3, Landroid/webkit/WebViewClient;
 
     invoke-direct {v3}, Landroid/webkit/WebViewClient;-><init>()V
 
     invoke-virtual {v2, v3}, Landroid/webkit/WebView;->setWebViewClient(Landroid/webkit/WebViewClient;)V
 
-    .line 88
+    .line 89
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v4, 0x0
@@ -247,50 +250,50 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 89
+    .line 90
     invoke-virtual {v2, p2}, Landroid/webkit/WebView;->loadUrl(Ljava/lang/String;)V
 
-    .line 91
+    .line 92
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 92
+    .line 93
     new-instance v3, Lcom/isaigu/gymapp/widget/XemsExercisePage$Gone;
 
     invoke-direct {v3, v2}, Lcom/isaigu/gymapp/widget/XemsExercisePage$Gone;-><init>(Landroid/webkit/WebView;)V
 
     invoke-virtual {v0, v3}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
 
-    .line 93
+    .line 94
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v2
 
-    .line 94
-    if-eqz v2, :cond_d6
-
     .line 95
+    if-eqz v2, :cond_d9
+
+    .line 96
     new-instance v3, Landroid/graphics/drawable/ColorDrawable;
 
     invoke-direct {v3, v9}, Landroid/graphics/drawable/ColorDrawable;-><init>(I)V
 
     invoke-virtual {v2, v3}, Landroid/view/Window;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 96
+    .line 97
     invoke-virtual {v2, v8, v8}, Landroid/view/Window;->setLayout(II)V
 
-    .line 97
+    .line 98
     const/16 v3, 0x10
 
     invoke-virtual {v2, v3}, Landroid/view/Window;->setSoftInputMode(I)V
 
-    .line 99
-    :cond_d6
+    .line 100
+    :cond_d9
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 100
+    .line 101
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsFullscreen;->immersive(Landroid/view/View;)V
 
-    .line 101
+    .line 102
     return-void
 .end method
 

@@ -89,6 +89,7 @@ final class CardPublisher {
                     return;
                 }
                 WebView w = new WebView(a);
+                com.isaigu.gymapp.widget.XemsLang.afterWebView(a);   // the first WebView puts the system locale back
                 // never shown, but laid out like a screen: the page draws its charts before it sends the card
                 w.measure(android.view.View.MeasureSpec.makeMeasureSpec(1280, android.view.View.MeasureSpec.EXACTLY),
                         android.view.View.MeasureSpec.makeMeasureSpec(800, android.view.View.MeasureSpec.EXACTLY));

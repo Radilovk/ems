@@ -38,7 +38,7 @@ import java.util.List;
  */
 public final class QuickStart {
     private static final String TAG = "xems_quick";
-    private static final String REFRESH_TAG = "xems_refresh";
+    static final String REFRESH_TAG = "xems_refresh";
     /** Button → its live-state loop (a recycled row gets a new client: the old loop stops). */
     private static final java.util.WeakHashMap<View, Go> LOOPS = new java.util.WeakHashMap<View, Go>();
 

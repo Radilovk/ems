@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 501
+    .line 504
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 502
+    .line 505
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Close;->pad:Lcom/isaigu/gymapp/wearable/SearchPad;
 
-    .line 503
+    .line 506
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 3
 
     .prologue
-    .line 507
+    .line 510
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Close;->pad:Lcom/isaigu/gymapp/wearable/SearchPad;
 
     # invokes: Lcom/isaigu/gymapp/wearable/SearchPad;->close()V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/SearchPad;->access$400(Lcom/isaigu/gymapp/wearable/SearchPad;)V
 
-    .line 508
+    .line 511
     return-void
 .end method

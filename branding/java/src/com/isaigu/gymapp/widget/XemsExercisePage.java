@@ -78,6 +78,7 @@ public final class XemsExercisePage {
         root.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(a, 60)));
 
         WebView web = new WebView(a);
+        XemsLang.afterWebView(a);                                    // the first WebView puts the system locale back
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);

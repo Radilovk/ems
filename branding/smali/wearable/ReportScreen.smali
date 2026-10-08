@@ -51,7 +51,7 @@
 
     if-nez v2, :cond_7
 
-    .line 55
+    .line 56
     :cond_6
     :goto_6
     return-void
@@ -70,48 +70,51 @@
     invoke-direct {v8, p0}, Landroid/webkit/WebView;-><init>(Landroid/content/Context;)V
 
     .line 34
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLang;->afterWebView(Landroid/app/Activity;)V
+
+    .line 35
     invoke-static {}, Lcom/isaigu/gymapp/wearable/ReportBridge;->isDark()Z
 
     move-result v2
 
-    if-eqz v2, :cond_84
+    if-eqz v2, :cond_87
 
     const v2, -0xf4f2ef
 
-    :goto_1d
+    :goto_20
     invoke-virtual {v8, v2}, Landroid/webkit/WebView;->setBackgroundColor(I)V
 
-    .line 35
+    .line 36
     invoke-virtual {v8}, Landroid/webkit/WebView;->getSettings()Landroid/webkit/WebSettings;
 
     move-result-object v2
 
-    .line 36
+    .line 37
     const/4 v3, 0x1
 
     invoke-virtual {v2, v3}, Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V
 
-    .line 37
+    .line 38
     const/4 v3, 0x1
 
     invoke-virtual {v2, v3}, Landroid/webkit/WebSettings;->setDomStorageEnabled(Z)V
 
-    .line 38
+    .line 39
     const/4 v3, 0x1
 
     invoke-virtual {v2, v3}, Landroid/webkit/WebSettings;->setAllowFileAccess(Z)V
 
-    .line 39
+    .line 40
     const/4 v3, 0x0
 
     invoke-virtual {v2, v3}, Landroid/webkit/WebSettings;->setBuiltInZoomControls(Z)V
 
-    .line 40
+    .line 41
     const/4 v3, 0x0
 
     invoke-virtual {v2, v3}, Landroid/webkit/WebSettings;->setSupportZoom(Z)V
 
-    .line 41
+    .line 42
     new-instance v2, Lcom/isaigu/gymapp/wearable/ReportBridge;
 
     move-object v0, p1
@@ -126,20 +129,20 @@
 
     invoke-direct/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/ReportBridge;-><init>(Landroid/app/Activity;Landroid/app/Dialog;Lcom/isaigu/gymapp/bean/TrainUser;J)V
 
-    .line 42
+    .line 43
     invoke-virtual {v2, v8}, Lcom/isaigu/gymapp/wearable/ReportBridge;->setWebView(Landroid/webkit/WebView;)V
 
-    .line 43
+    .line 44
     const-string v3, "XemsReport"
 
     invoke-virtual {v8, v2, v3}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 44
+    .line 45
     const-string v2, "file:///android_asset/report/session-report.html"
 
     invoke-virtual {v8, v2}, Landroid/webkit/WebView;->loadUrl(Ljava/lang/String;)V
 
-    .line 45
+    .line 46
     new-instance v2, Landroid/view/ViewGroup$LayoutParams;
 
     const/4 v3, -0x1
@@ -150,30 +153,30 @@
 
     invoke-virtual {v4, v8, v2}, Landroid/app/Dialog;->setContentView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 49
+    .line 50
     invoke-virtual {p0}, Landroid/app/Activity;->getRequestedOrientation()I
 
     move-result v2
 
-    .line 50
+    .line 51
     new-instance v3, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;
 
     invoke-direct {v3, v8, p0, v2}, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;-><init>(Landroid/webkit/WebView;Landroid/app/Activity;I)V
 
     invoke-virtual {v4, v3}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
 
-    .line 51
+    .line 52
     invoke-virtual {v4}, Landroid/app/Dialog;->show()V
-    :try_end_69
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_69} :catch_6a
+    :try_end_6c
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_6c} :catch_6d
 
     goto :goto_6
 
-    .line 52
-    :catch_6a
+    .line 53
+    :catch_6d
     move-exception v2
 
-    .line 53
+    .line 54
     const-string v3, "report"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -198,9 +201,9 @@
 
     goto :goto_6
 
-    .line 34
-    :cond_84
+    .line 35
+    :cond_87
     const v2, -0x110e0b
 
-    goto :goto_1d
+    goto :goto_20
 .end method

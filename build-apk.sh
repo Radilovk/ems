@@ -133,6 +133,10 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-ramp-setting.py"
   python3 "${ROOT}/scripts/apply-program-fit.py"
   python3 "${ROOT}/scripts/apply-quick-start.py"
+  # Order + filters of the client lists; the picker hides clients already in a row (ClientSort).
+  python3 "${ROOT}/scripts/apply-client-sort.py"
+  # The app's language again after a WebView / configuration change reset it to the system one.
+  python3 "${ROOT}/scripts/apply-lang-keep.py"
   python3 "${ROOT}/scripts/apply-soft-ramp.py"
   python3 "${ROOT}/scripts/apply-avatar-card.py"
   python3 "${ROOT}/scripts/apply-band-app.py"

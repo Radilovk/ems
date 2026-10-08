@@ -31,6 +31,7 @@ public final class ReportScreen {
             }
             Dialog d = new Dialog(a, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
             WebView w = new WebView(a);
+            com.isaigu.gymapp.widget.XemsLang.afterWebView(a);   // the first WebView puts the system locale back
             w.setBackgroundColor(ReportBridge.isDark() ? 0xFF0B0D11 : 0xFFEEF1F5);
             WebSettings s = w.getSettings();
             s.setJavaScriptEnabled(true);

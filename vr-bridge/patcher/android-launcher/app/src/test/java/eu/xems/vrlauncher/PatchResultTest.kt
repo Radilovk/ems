@@ -15,6 +15,8 @@ class PatchResultTest {
         assertEquals(Outcome.NO_ADB, r(3).outcome)
         assertEquals(Outcome.NO_QUEST, r(4).outcome)
         assertEquals(Outcome.UNAUTHORIZED, r(5).outcome)
+        assertEquals(Outcome.NOT_SET_UP, r(6).outcome)
+        assertEquals(Outcome.NOT_SET_UP, r(127).outcome)
         assertEquals(Outcome.FAILED, r(1).outcome)
         assertEquals(Outcome.FAILED, r(null).outcome)
         assertEquals(Outcome.TERMUX, r(0, err = 1).outcome)

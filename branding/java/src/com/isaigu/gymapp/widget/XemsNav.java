@@ -54,6 +54,8 @@ public final class XemsNav {
     static final int M_PULSE = 2;
     static final int M_AI = 3;
     static final int M_AUTO = 4;
+    /** VR haptics (Quest 3, wearable/vr): no licence; on the bar by itself once a headset has linked. */
+    static final int M_VR = 5;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable tick = new Tick();
@@ -64,7 +66,7 @@ public final class XemsNav {
     private static MenuLayer menu;
     /** When the menu last closed: a tap on "Меню" that closed it (outside touch) must not reopen it. */
     private static long menuClosedAt;
-    private static final Tile[] tiles = new Tile[5];
+    private static final Tile[] tiles = new Tile[6];
     private static int currentPage = ID_TAB_FIRST;
     private static boolean ticking;
 
@@ -180,7 +182,9 @@ public final class XemsNav {
     static final String K_PROGRAMS = "programs";
     private static final String PREFS = "xems_nav";
     private static final int BAR_MAX = 7;
-    private static final int[] MOD_ORDER = {M_TIMER, M_MUSIC, M_PULSE, M_AUTO, M_AI};
+    private static final int[] MOD_ORDER = {M_TIMER, M_MUSIC, M_PULSE, M_AUTO, M_AI, M_VR};
+    /** The bar of a fresh tablet: VR waits in the menu until a headset links ({@link #onVrLinked}). */
+    private static final int[] BAR_DEFAULT = {M_TIMER, M_MUSIC, M_PULSE, M_AUTO, M_AI};
 
     static String modGlyph(int m) {
         switch (m) {
@@ -188,6 +192,7 @@ public final class XemsNav {
             case M_MUSIC: return "♫";
             case M_PULSE: return "♥";
             case M_AUTO: return "A";
+            case M_VR: return "VR";
             default: return "AI";
         }
     }
@@ -198,6 +203,7 @@ public final class XemsNav {
             case M_MUSIC: return tr("Музика", "Music");
             case M_PULSE: return tr("Пулс", "Heart rate");
             case M_AUTO: return tr("Авто", "Auto");
+            case M_VR: return tr("VR", "VR");
             default: return tr("AI тренировка", "AI session");
         }
     }
@@ -208,6 +214,7 @@ public final class XemsNav {
             case M_MUSIC: return XemsUi.GO;
             case M_PULSE: return XemsUi.ACCENT;
             case M_AUTO: return 0xFF26A69A;
+            case M_VR: return com.isaigu.gymapp.wearable.vr.VrPanel.TINT;
             default: return XemsUi.ORANGE;
         }
     }
@@ -243,7 +250,7 @@ public final class XemsNav {
     /** The bar's items in order (the modes by default). */
     static List<String> barKeys(Context c) {
         StringBuilder def = new StringBuilder();
-        for (int m : MOD_ORDER) {
+        for (int m : BAR_DEFAULT) {
             def.append(def.length() > 0 ? "," : "").append("mod:").append(m);
         }
         return read(c, "bar", def.toString());
@@ -611,7 +618,7 @@ public final class XemsNav {
         tile.setOnClickListener(new TileClick(module));
         XemsUi.pressable(tile);
 
-        TextView icon = XemsUi.text(c, glyph, "AI".equals(glyph) || "A".equals(glyph) ? 15 : 19, tint, true);
+        TextView icon = XemsUi.text(c, glyph, glyph.length() > 1 || "A".equals(glyph) ? 15 : 19, tint, true);
         icon.setGravity(Gravity.CENTER);
         int is = XemsUi.dp(c, 38);
         tile.addView(icon, new LinearLayout.LayoutParams(is, is));
@@ -987,9 +994,13 @@ public final class XemsNav {
             return;
         }
         XemsUi.haptic(from);
-        if (!XemsLicense.has(licenseId(module))) {
+        if (!unlocked(module)) {
             // locked: what it is and what it gives, with "Абонирай се"
             showInfo(module);
+            return;
+        }
+        if (module == M_VR) {
+            clickModule(module);                       // a settings sheet: opens over any page
             return;
         }
         if (currentPage != ID_TAB_FIRST) {
@@ -1007,8 +1018,8 @@ public final class XemsNav {
             return;
         }
         android.app.Activity a = AiSession.activityOf(mainRoot);
-        String id = licenseId(module);
-        XemsModuleInfo.show(a, id, XemsLicense.has(id) ? new OpenFromInfo(module) : null);
+        String id = module == M_VR ? XemsModuleInfo.VR : licenseId(module);
+        XemsModuleInfo.show(a, id, unlocked(module) ? new OpenFromInfo(module) : null);
     }
 
     /** The training page is on screen (the automatic mode's hint card shows only there). */
@@ -1017,6 +1028,11 @@ public final class XemsNav {
     }
 
     static void clickModule(int module) {
+        if (module == M_VR) {
+            com.isaigu.gymapp.wearable.vr.VrPanel.open(AiSession.activityOf(mainRoot));
+            refreshTiles();
+            return;
+        }
         if (module == M_AUTO) {
             android.app.Activity a = AiSession.activityOf(mainRoot);
             if (a != null) {
@@ -1095,6 +1111,36 @@ public final class XemsNav {
         }
     }
 
+    /** A tile's module may be used: VR has no licence, the rest need theirs. */
+    static boolean unlocked(int module) {
+        return module == M_VR || XemsLicense.has(licenseId(module));
+    }
+
+    /**
+     * A Quest headset linked (VrDrive): the first time ever, the "VR" tile moves from the menu to the bar
+     * (derive, don't ask) — if the bar has room and the trainer has not placed it themselves.
+     */
+    public static void onVrLinked() {
+        try {
+            if (mainRoot == null) {
+                return;
+            }
+            Context c = mainRoot.getContext();
+            android.content.SharedPreferences p = prefs(c);
+            if (p.getBoolean("vr_auto", false)) {
+                return;
+            }
+            p.edit().putBoolean("vr_auto", true).apply();
+            List<String> bar = barKeys(c);
+            String k = "mod:" + M_VR;
+            if (!bar.contains(k) && bar.size() < BAR_MAX) {
+                drop(c, k, true, bar.size());
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("XemsNav.vr", t);
+        }
+    }
+
     /** Licence module id of a tile. */
     static String licenseId(int module) {
         switch (module) {
@@ -1130,7 +1176,7 @@ public final class XemsNav {
     private static void refreshTile(Tile t) {
         int state = 0;
         String text = tr("Изключен", "Off");
-        if (!XemsLicense.has(licenseId(t.module))) {
+        if (!unlocked(t.module)) {
             state = 3;
             text = tr("🔒 Няма достъп", "🔒 No access");
         } else switch (t.module) {
@@ -1171,6 +1217,10 @@ public final class XemsNav {
                 } else {
                     text = tr("Гривната не слуша", "Band idle");
                 }
+                break;
+            case M_VR:
+                state = com.isaigu.gymapp.wearable.vr.VrPanel.tileState();
+                text = com.isaigu.gymapp.wearable.vr.VrPanel.status();
                 break;
             case M_AUTO:
                 if (com.isaigu.gymapp.ai.MapRunner.isRunning()) {

@@ -2,7 +2,7 @@ package eu.xems.vrlauncher
 
 /**
  * Termux's answer to one background run (the "result" bundle it puts into our PendingIntent), reduced to
- * what the status card shows. Pure Kotlin; exit codes come from termux-run.sh / xems_vr_patch.py.
+ * what the status card shows. Pure Kotlin; exit codes come from termux/termux-run.sh / xems_vr_patch.py.
  */
 data class PatchResult(
     val exitCode: Int?,
@@ -12,7 +12,7 @@ data class PatchResult(
     val termuxErr: Int,
     val termuxErrMsg: String?,
 ) {
-    enum class Outcome { DONE, BAD_INPUT, NO_ADB, NO_QUEST, UNAUTHORIZED, FAILED, TERMUX }
+    enum class Outcome { DONE, BAD_INPUT, NO_ADB, NO_QUEST, UNAUTHORIZED, NOT_SET_UP, FAILED, TERMUX }
 
     val outcome: Outcome
         get() = when {
@@ -22,6 +22,7 @@ data class PatchResult(
             exitCode == 3 -> Outcome.NO_ADB
             exitCode == 4 -> Outcome.NO_QUEST
             exitCode == 5 -> Outcome.UNAUTHORIZED
+            exitCode == 6 || exitCode == 127 -> Outcome.NOT_SET_UP     // check found gaps / no ~/ems script
             else -> Outcome.FAILED
         }
 

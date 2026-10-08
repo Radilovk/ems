@@ -85,7 +85,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-train-ui-refinements.py` (271L, build:L64) — Factory-style status icons and compact impulse/pause button labels.
 - `scripts/apply-ui-theme.py` (592L, build:L53) — Apply comprehensive UI theme across all app screens.
 - `scripts/apply-version.py` (56L, build:L48) — Stamp RELEASE_VERSION (versionName / versionCode) into build/decompiled/apktool.yml — its own step since 1.1.333 (it us…
-- `scripts/apply-vr-bridge.py` (82L, build:L122[BETA_MUSIC]) — Quest 3 haptic bridge (wearable/vr, vr-bridge/): manifest permissions for the UDP receiver's Wi-Fi locks (WAKE_LOCK → l…
+- `scripts/apply-vr-bridge.py` (98L, build:L122[BETA_MUSIC]) — Quest 3 haptic bridge (wearable/vr, vr-bridge/): manifest permissions for the UDP receiver's Wi-Fi locks (WAKE_LOCK → l…
 - `scripts/apply-wearable-bridge.py` (486L, build:L120[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
 - `scripts/apply-wearable-permissions.py` (90L, build:L121[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
 - `scripts/apply-xems-nav.py` (91L, build:L129[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
@@ -104,7 +104,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (218L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (245L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (247L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (84L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -264,7 +264,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `ClientSort.java` (608L, compile:music-sync*,wearable) — Order and filters of the client lists — the Потребители tab and the client / program / device picker.
-- `DoubleImpulse.java` (1331L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
+- `DoubleImpulse.java` (1356L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -328,16 +328,18 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 **wearable/vr/** (`branding/java/src/com/isaigu/gymapp/wearable/vr/`)
 - `VrBridge.java` (57L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
 - `VrClockSync.java` (61L, compile:music-sync*,wearable) — Quest ↔ tablet monotonic clock offset from PING/PONG.
-- `VrDrive.java` (198L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
+- `VrDrive.java` (266L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
 - `VrHapticEvent.java` (56L, compile:music-sync*,wearable) — One xrApplyHapticFeedback call from the game, already time-mapped to this tablet's clock.
-- `VrHapticRouter.java` (33L, compile:music-sync*,wearable) — The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrNoiseGate} → {@link VrPulses} → {@link VrDrive} (MusicSync…
+- `VrHapticRouter.java` (41L, compile:music-sync*,wearable) — The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrNoiseGate} → {@link VrPulses} → {@link VrDrive} (MusicSync…
 - `VrHapticSink.java` (17L, compile:music-sync*,wearable) — Where VR telemetry leaves the network layer (implementation: {@link VrHapticRouter}).
-- `VrMainCall.java` (27L, compile:music-sync*,wearable) — Main-thread hops for {@link VrDrive} (named, dx-safe: no anonymous Runnables).
-- `VrNoiseGate.java` (35L, compile:music-sync*,wearable) — Which game haptics become an impulse (owner, 1.1.397): UI clicks, hovers and background rumble are dropped, hits pass.
+- `VrMainCall.java` (30L, compile:music-sync*,wearable) — Main-thread hops for {@link VrDrive} (named, dx-safe: no anonymous Runnables).
+- `VrNoiseGate.java` (60L, compile:music-sync*,wearable) — Which game haptics become an impulse (owner, 1.1.397): UI clicks, hovers and background rumble are dropped, hits pass.
+- `VrPanel.java` (461L, compile:music-sync*,wearable) — VR haptics sheet (owner, 1.1.402), opened from the "VR" tile of the module bar.
 - `VrPulses.java` (73L, compile:music-sync*,wearable) — The game's haptics as one level 0..1 (share of the trainer's strength): per hand, the pulse's amplitude until it ends.
+- `VrSettings.java` (147L, compile:music-sync*,wearable) — The trainer's VR settings (owner, 1.1.402): one set for the tablet, the same for every client (prefs "xems_vr").
 - `VrTelemetryReceiver.java` (325L, compile:music-sync*,wearable) — UDP gateway for the Quest 3 OpenXR haptic layer (vr-bridge/quest-layer).
 - `VrWire.java` (39L, compile:music-sync*,wearable) — Wire constants — mirror of vr-bridge/quest-layer/src/xems_wire.h (little-endian, packed).
-- `VrZones.java` (63L, compile:music-sync*,wearable) — Less fatigue in VR (owner, 1.1.396): while VR drives a row, traps, back, lower back and calf get no impulse — the row's…
+- `VrZones.java` (64L, compile:music-sync*,wearable) — Less fatigue in VR (owner, 1.1.396): while VR drives a row, the resting channels ({@link VrSettings#rests}; by default …
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
 - `MiFitnessLogImport.java` (697L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
@@ -392,8 +394,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalSection.java` (351L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (973L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
-- `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (1388L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
+- `XemsNav.java` (1438L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (381L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (674L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -1063,7 +1065,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## Стоково (преди)
   - L21 ## Кукички
 
-`docs/xems-ui-kit.md` (182L)
+`docs/xems-ui-kit.md` (183L)
   - L1 # XEMS UI kit — таймер, плейър, пулс, AI, навигация (v1.1.66)
   - L5 ## Принцип
   - L21 ## Интервален таймер
@@ -1077,9 +1079,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L101 ## Цял екран (`widget/XemsFullscreen`)
   - L105 ## Пулс модул по подразбиране
   - L110 ## Навигация (v1.1.64)
-  - L130 ## Съкратено
-  - L141 ## v1.1.69
-  - L151 ## Плавно нарастване и спад (v1.1.69, `dialog/RampSetting`, `ai/AiRamp`)
+  - L131 ## Съкратено
+  - L142 ## v1.1.69
+  - L152 ## Плавно нарастване и спад (v1.1.69, `dialog/RampSetting`, `ai/AiRamp`)
 
 `docs/xems-ux-golden-rules.md` (73L)
   - L1 # UX golden rules — every screen, every level (tablet, band, report, card, PWA)
@@ -1213,17 +1215,20 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Deploy
   - L57 ## Разходи
 
-`vr-bridge/README.md` (80L)
+`vr-bridge/README.md` (93L)
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
   - L45 ## Build (layer)
   - L50 ## Deploy on Quest 3 — `vr-bridge/patcher/xems_vr_patch.py`
-  - L69 ## Protocol
-  - L76 ## Test
+  - L69 ## Tablet UI — the "VR" tile (1.1.402)
+  - L82 ## Protocol
+  - L89 ## Test
 
-`vr-bridge/patcher/android-launcher/README.md` (52L)
+`vr-bridge/patcher/android-launcher/README.md` (71L)
   - L1 # XEMS VR Launcher (on-device front end)
-  - L14 ## Screen (landscape, XemsUi tokens, light + dark)
-  - L25 ## Pieces
-  - L38 ## Device setup (one time)
-  - L46 ## Build & test
+  - L18 ## Install (once)
+  - L29 ## Every time
+  - L34 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
+  - L43 ## Pieces
+  - L57 ## Limits (what still needs a hand)
+  - L64 ## Build & test

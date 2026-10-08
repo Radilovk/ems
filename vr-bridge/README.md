@@ -61,10 +61,23 @@ json into `base.apk` (`assets/openxr/1/api_layers/implicit.d/`), re-signs all sp
 reinstalls, restores them, and on an install failure puts the original back. Internal save data is lost
 (new signature). Originals stay in `xems-vr-out/original/<package>/`. Offline: `--apk base.apk [--apk split.apk] --out DIR`.
 Check on the headset: `adb logcat -s XemsVrLayer` (`active, session …` then `paired with …`).
-No PC: `vr-bridge/patcher/android-launcher/` — a tablet app that runs the same script in Termux over Wi-Fi adb
-(`adb connect`, the tablet's own IP as `--tablet`, result shown in the app).
+No PC: `vr-bridge/patcher/android-launcher/xems-vr-launcher.apk` — a tablet app that sets Termux up, finds the
+headset on the Wi-Fi, lists its games and runs the same script there (tablet IP as `--tablet`, result in the app).
 Kill switch: env `DISABLE_XR_APILAYER_XEMS_HAPTICS`. Fixed tablet IP: `--tablet` (= `setprop debug.xems.vr.target`,
 until reboot).
+
+## Tablet UI — the "VR" tile (1.1.402)
+`wearable/vr/VrPanel` (sheet) + `VrSettings` (prefs `xems_vr`, one set for the tablet, every client). The tile sits in
+the ☰ menu and moves onto the module bar by itself the first time a headset links (`XemsNav.onVrLinked`); its
+status: `● <game>` / `Чака играта` / `Чака — музиката води` / `⏸ На пауза` / `Няма шлем`.
+- Left: the game, the strength sent to the suit (hero %), the game's level bar, hits passed / dropped, and
+  *Играта управлява силата* (off = pause for the moment, not saved: VrDrive lets go, the row keeps the trainer's
+  strength).
+- Right: *Кои удари минават* = `VrNoiseGate` preset — Само силни (amp ≥ 0.6, ≥ 50 ms or ≥ 0.85) · Нормално
+  (0.4 / 35 ms / 0.7, the 1.1.397 values) · Всички (≥ 0.12); *Най-слаб удар* = floor % of the trainer's
+  strength while VR drives (default 20, the music floor is put back on release); *Нарастване* = rise smoothness
+  Рязко 0 · Средно 20 · Меко 50; *Почиват във VR* = channels `VrZones` switches off (default traps, back, lower
+  back, calf). Every change applies at once, mid-row too. Explanations: the header ⓘ (`XemsModuleInfo.VR`).
 
 ## Protocol
 See the header comment of `xems_wire.h`. Layer: HELLO broadcast every 0.5 s until ACKed, then unicast

@@ -20,7 +20,14 @@ import android.widget.TextView;
  */
 public final class XemsModuleInfo {
 
+    /** VR haptics (Quest 3): not a licence module — always open; its "i" lives in VrPanel's header and tile. */
+    public static final String VR = "vr";
+
     private XemsModuleInfo() {}
+
+    private static boolean open(String id) {
+        return VR.equals(id) || XemsLicense.has(id);
+    }
 
     /** One module's text; value lines are "Lead — rest" (the lead is bold). */
     static final class Entry {
@@ -170,6 +177,33 @@ public final class XemsModuleInfo {
                 tr("„Затвори“ приключва сесията и отваря отчета в клиентския картон.",
                         "Close ends the session and opens the report in the client's card."),
             };
+        } else if (VR.equals(id)) {
+            e.glyph = "VR";
+            e.tint = 0xFF5C6BC0;                        // = VrPanel.TINT
+            e.name = tr("VR хаптика", "VR haptics");
+            e.tagline = tr("Ударите в играта на Quest 3 стават импулси в костюма", "Hits in a Quest 3 game become impulses in the suit");
+            e.value = new String[] {
+                tr("Тренировка-игра — клиентът боксира, сече или стреля във VR и усеща всеки удар с мускулите.",
+                        "A training game — the client boxes, slices or shoots in VR and feels every hit in the muscles."),
+                tr("Безопасно — силата никога не минава тавана на треньора и абсолютните граници на костюма.",
+                        "Safe — the strength never goes above the trainer's ceiling and the suit's absolute limits."),
+                tr("Само истинските удари — щраквания в менюта и фоново бръмчене се отрязват; колко строго решаваш ти.",
+                        "Only the real hits — menu clicks and background rumble are dropped; you decide how strictly."),
+                tr("По-малко умора — избраните мускулни групи почиват, докато играта води силата.",
+                        "Less fatigue — the chosen muscle groups rest while the game drives the strength."),
+            };
+            e.how = new String[] {
+                tr("Веднъж: подготви играта с приложението XEMS VR (Termux) на таблета.",
+                        "Once: prepare the game with the XEMS VR app (Termux) on the tablet."),
+                tr("Отвори „Тренировка“, добави клиента и задай силата — тя е таванът.",
+                        "Open Training, add the client and set the strength — it is the ceiling."),
+                tr("Пусни играта в шлема — плочката „VR“ показва „● игра“.", "Start the game on the headset — the VR tile shows \"● game\"."),
+                tr("Пусни реда — ударите в играта движат силата.", "Start the row — hits in the game move the strength."),
+                tr("„Кои удари минават“: „Само силни“ при много шум, „Всички“ при тихи игри.",
+                        "Which hits pass: Strong only for noisy games, All for quiet ones."),
+                tr("„Най-слаб удар“ вдига слабите удари; „Нарастване“ ги омекотява.",
+                        "Weakest hit lifts the faint hits; Rise softens them."),
+            };
         } else {
             e.glyph = "⌚";
             e.tint = 0xFF42A5F5;
@@ -208,7 +242,7 @@ public final class XemsModuleInfo {
 
     private static void build(Activity a, String id, Runnable open) {
         Entry e = entry(id);
-        boolean on = XemsLicense.has(id);
+        boolean on = open(id);
         XemsUi.Shell s = XemsUi.shell(a, e.name, null, 640);
 
         // hero: the module's mark + what it is + whether it is in the subscription
@@ -227,7 +261,8 @@ public final class XemsModuleInfo {
         TextView tagline = XemsUi.text(a, e.tagline, 17, XemsUi.TEXT, true);
         tagline.setLineSpacing(0, 1.15f);
         heroText.addView(tagline);
-        TextView state = XemsUi.text(a, on ? tr("✓ Включено в абонамента ти", "✓ Included in your subscription")
+        TextView state = XemsUi.text(a, VR.equals(id) ? tr("✓ Винаги включено", "✓ Always on")
+                : on ? tr("✓ Включено в абонамента ти", "✓ Included in your subscription")
                 : tr("🔒 Не е включено в абонамента ти", "🔒 Not in your subscription"), 13, on ? XemsUi.GO_TEXT : XemsUi.AMBER, true);
         heroText.addView(state, XemsUi.matchWrap(a, 6));
         LinearLayout.LayoutParams htp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);

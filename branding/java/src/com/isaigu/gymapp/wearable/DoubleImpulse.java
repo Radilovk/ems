@@ -1093,8 +1093,27 @@ public final class DoubleImpulse {
             root.getLocationInWindow(rt);
             m.setScale(1f / SCALE, 1f / SCALE);
             m.postTranslate(at[0] - rt[0] + offX, at[1] - rt[1] + offY);
-            level = v.isShown() ? level : 0f;
+            // What of the control the screen really shows: on a short screen the row clips some of them (owner,
+            // 1.1.399) — a clipped control does not glow, a cut one glows only around its visible part.
+            android.graphics.Rect vis = new android.graphics.Rect();
+            boolean seen = v.isShown() && v.getGlobalVisibleRect(vis);
+            long full = (long) v.getWidth() * v.getHeight();
+            if (!seen || full <= 0 || (long) vis.width() * vis.height() * 2 < full) {
+                level = 0f;
+                clip = null;
+                return;
+            }
+            if (vis.width() < v.getWidth() || vis.height() < v.getHeight()) {
+                int pad = Math.round(10f * v.getResources().getDisplayMetrics().density);
+                // getGlobalVisibleRect is already in the root's frame
+                vis.inset(-pad, -pad);
+                clip = vis;
+            } else {
+                clip = null;
+            }
         }
+
+        android.graphics.Rect clip;
 
         static Halo of(View v, View root) {
             int w = v.getWidth(), h = v.getHeight();
@@ -1145,7 +1164,14 @@ public final class DoubleImpulse {
                 return;
             }
             p.setAlpha(Math.round(level * 235));
-            c.drawBitmap(bmp, m, p);
+            if (clip != null) {
+                c.save();
+                c.clipRect(clip);
+                c.drawBitmap(bmp, m, p);
+                c.restore();
+            } else {
+                c.drawBitmap(bmp, m, p);
+            }
         }
 
         void recycle() {

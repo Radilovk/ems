@@ -1,3 +1,4 @@
+import com.isaigu.gymapp.wearable.vr.VrNoiseGate;
 import com.isaigu.gymapp.wearable.vr.VrPulses;
 import com.isaigu.gymapp.wearable.vr.VrWire;
 
@@ -32,6 +33,15 @@ public final class VrPulsesHostTest {
         p.pulse(VrWire.HAND_UNKNOWN, 0.4f, 200000, false, false, t0 + 2000 * MS);
         p.stop(VrWire.HAND_BOTH);
         check(p.level(t0 + 2100 * MS) == 0f, "stop both");
+        // noise gate (VrNoiseGate): clicks / hovers / rumble out, hits in
+        check(!VrNoiseGate.passes(0.2f, 10000, false, false), "gate: weak short click dropped");
+        check(!VrNoiseGate.passes(0.3f, 2000000, false, false), "gate: weak long rumble dropped");
+        check(!VrNoiseGate.passes(0.5f, 20000, false, false), "gate: medium 20 ms tick dropped");
+        check(!VrNoiseGate.passes(0.5f, 0, true, false), "gate: medium runtime-shortest pulse dropped");
+        check(VrNoiseGate.passes(0.5f, 40000, false, false), "gate: medium 40 ms pulse passes");
+        check(VrNoiseGate.passes(1.0f, 20000, false, false), "gate: strong 20 ms hit passes");
+        check(VrNoiseGate.passes(0.5f, 10000, false, true), "gate: PCM append chunk of a passed pulse continues");
+        check(!VrNoiseGate.passes(Float.NaN, 100000, false, false), "gate: NaN dropped");
         System.out.println(fails == 0 ? "PULSES PASS" : "PULSES FAIL " + fails);
         if (fails != 0) System.exit(1);
     }

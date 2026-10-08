@@ -17,7 +17,7 @@ c++ -std=c++17 -O2 -I"$SDK/include" "$HERE/host_driver.cpp" -ldl -o "$OUT/host_d
 
 rm -rf "$OUT/cls"; mkdir -p "$OUT/cls"
 V="$ROOT/branding/java/src/com/isaigu/gymapp/wearable/vr"   # the app-independent part of the tablet side
-VR=("$V/VrWire.java" "$V/VrHapticEvent.java" "$V/VrHapticSink.java" "$V/VrClockSync.java" "$V/VrTelemetryReceiver.java" "$V/VrPulses.java")
+VR=("$V/VrWire.java" "$V/VrHapticEvent.java" "$V/VrHapticSink.java" "$V/VrClockSync.java" "$V/VrTelemetryReceiver.java" "$V/VrPulses.java" "$V/VrNoiseGate.java")
 javac -source 8 -target 8 -nowarn -d "$OUT/cls" -cp "$JAR" \
   "$HERE"/stubs/android/*/*.java "${VR[@]}" "$HERE/VrReceiverHostTest.java" "$HERE/VrPulsesHostTest.java" 2>&1 \
   | grep -v 'bootstrap classpath' || true

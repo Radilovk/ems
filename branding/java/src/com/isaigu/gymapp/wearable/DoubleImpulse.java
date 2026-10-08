@@ -1005,6 +1005,9 @@ public final class DoubleImpulse {
             MAIN.postDelayed(new Blink(views, fade), 48L);   // after the row's layout and texts are final
         }
 
+        /** Parents that clip their children: Android cuts a child's drawing (its overlay too) at its own bounds. */
+        final List<ViewGroup> unclipped = new ArrayList<ViewGroup>();
+
         void build() {
             built = true;
             for (View v : views) {
@@ -1012,6 +1015,18 @@ public final class DoubleImpulse {
                 if (h != null) {
                     v.getOverlay().add(h);
                     halos.add(h);
+                    // ROOT CAUSE of the boxed / cut glows (owner, 1.1.405): a glow is wider than its control, and a
+                    // view is clipped to its bounds by every parent with clipChildren — so a glow must switch the
+                    // clipping off up the tree while it shows (and give it back after). Never draw a halo without it.
+                    View cur = v;
+                    for (int k = 0; k < 24 && cur.getParent() instanceof ViewGroup; k++) {
+                        ViewGroup g = (ViewGroup) cur.getParent();
+                        if (g.getClipChildren() && !unclipped.contains(g)) {
+                            g.setClipChildren(false);
+                            unclipped.add(g);
+                        }
+                        cur = g;
+                    }
                 }
             }
             start = System.currentTimeMillis();
@@ -1027,6 +1042,11 @@ public final class DoubleImpulse {
                 h.recycle();
             }
             halos.clear();
+            for (ViewGroup g : unclipped) {
+                g.setClipChildren(true);
+                g.invalidate();
+            }
+            unclipped.clear();
         }
 
         public void run() {

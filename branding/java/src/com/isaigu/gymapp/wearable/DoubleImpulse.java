@@ -1110,7 +1110,19 @@ public final class DoubleImpulse {
                     android.graphics.Bitmap.Config.ARGB_8888);
             Canvas cs = new Canvas(src);
             cs.scale(SCALE, SCALE);
-            v.draw(cs);
+            if (v.getClass().getSimpleName().equals("CircleSeekBar")) {
+                // The avatar ring draws only a faint arc and its handle, so its own picture lights up two stray bits
+                // (owner, 1.1.405). Its glow is the whole ring: a circle where the wheel runs (the same centre and
+                // radius its touch uses).
+                Paint ringP = new Paint(Paint.ANTI_ALIAS_FLAG);
+                ringP.setStyle(Paint.Style.STROKE);
+                ringP.setStrokeWidth(12f * d);
+                ringP.setColor(0xFFFFFFFF);
+                float rr = (w - v.getPaddingLeft() - v.getPaddingRight()) / 2f;
+                cs.drawCircle(w / 2f, h / 2f, rr, ringP);
+            } else {
+                v.draw(cs);
+            }
             float wide = Math.max(2f, 11f * d * SCALE);
             float near = Math.max(1f, 4f * d * SCALE);
             Paint blur = new Paint();

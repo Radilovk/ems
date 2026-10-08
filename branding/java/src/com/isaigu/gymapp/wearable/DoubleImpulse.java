@@ -65,7 +65,7 @@ public final class DoubleImpulse {
     /** A press shorter than this shows no hold ring (a tap). */
     static final long HOLD_SHOW_MS = 180L;
     static final long TICK_MS = 100L;
-    static final long BLINK_MS = 280L;
+    static final long BLINK_MS = 420L;
     static final int BLINKS = 3;
     static final int MUSCLE = 1;
 
@@ -982,12 +982,19 @@ public final class DoubleImpulse {
 
     // ================================================================ the glow, three times
 
-    /** Three quick, soft glows on the second impulse's controls; texts dim with it. */
+    /**
+     * Three soft glows on the second impulse's controls (owner, 1.1.386: a real glow, no outlines). Each control gets
+     * a halo made from its own shape — the text, the icon, the round key, the bar — blurred and tinted amber, drawn
+     * over the screen (so it spreads beyond the control) and breathing in and out three times. Built once, after the
+     * row has drawn, at half size (the blur hides it).
+     */
     static final class Blink implements Runnable {
         final List<View> views;
-        final List<Glow> glows = new ArrayList<Glow>();
         final List<View> fade;
-        final long start = System.currentTimeMillis();
+        final List<Halo> halos = new ArrayList<Halo>();
+        View root;
+        long start;
+        boolean built;
 
         Blink(List<View> views, List<View> fade) {
             this.views = views;
@@ -995,85 +1002,139 @@ public final class DoubleImpulse {
         }
 
         static void start(List<View> views, List<View> fade) {
-            Blink b = new Blink(views, fade);
+            MAIN.post(new Blink(views, fade));        // after the row's layout and texts are final
+        }
+
+        void build() {
+            built = true;
             for (View v : views) {
-                Glow g = new Glow(v.getResources().getDisplayMetrics().density,
-                        Math.abs(v.getWidth() - v.getHeight()) <= Math.max(4, v.getWidth() / 8));
-                g.setBounds(0, 0, v.getWidth(), v.getHeight());
-                v.getOverlay().add(g);
-                b.glows.add(g);
+                if (root == null) {
+                    root = v.getRootView();
+                }
+                Halo h = Halo.of(v, root);
+                if (h != null) {
+                    root.getOverlay().add(h);
+                    halos.add(h);
+                }
             }
-            MAIN.post(b);
+            start = System.currentTimeMillis();
         }
 
         public void run() {
-            long t = System.currentTimeMillis() - start;
-            boolean end = t >= BLINK_MS * BLINKS;
-            float a = 0f;
-            if (!end) {
-                float ph = (t % BLINK_MS) / (float) BLINK_MS;
-                a = (float) Math.sin(Math.PI * ph);
-            }
-            for (int i = 0; i < views.size(); i++) {
-                View v = views.get(i);
-                Glow g = glows.get(i);
-                if (end) {
-                    v.getOverlay().remove(g);
-                } else {
-                    g.setBounds(0, 0, v.getWidth(), v.getHeight());
-                    g.level = a;
-                    g.invalidateSelf();
-                    v.invalidate();
+            try {
+                if (!built) {
+                    build();
                 }
-            }
-            for (View v : fade) {
-                v.setAlpha(end ? 1f : 1f - 0.4f * a);
-            }
-            if (!end) {
-                MAIN.postDelayed(this, 16L);
+                long t = System.currentTimeMillis() - start;
+                boolean end = t >= BLINK_MS * BLINKS || root == null;
+                float a = 0f;
+                if (!end) {
+                    float ph = (t % BLINK_MS) / (float) BLINK_MS;
+                    a = (float) Math.sin(Math.PI * ph);
+                    a = a * a * (3f - 2f * a);           // smooth in, smooth out
+                }
+                for (Halo h : halos) {
+                    if (end) {
+                        if (root != null) {
+                            root.getOverlay().remove(h);
+                        }
+                        h.recycle();
+                    } else {
+                        h.level = a;
+                        h.invalidateSelf();
+                    }
+                }
+                if (root != null) {
+                    root.invalidate();
+                }
+                for (View v : fade) {
+                    v.setAlpha(end ? 1f : 1f - 0.2f * a);
+                }
+                if (!end) {
+                    MAIN.postDelayed(this, 16L);
+                }
+            } catch (Throwable x) {
+                WearableBleDiagLog.log("index", "double glow: " + x);
+                for (Halo h : halos) {
+                    if (root != null) {
+                        root.getOverlay().remove(h);
+                    }
+                }
+                for (View v : fade) {
+                    v.setAlpha(1f);
+                }
             }
         }
     }
 
-    /** A soft yellow glow over a view (oval for round keys, rounded box for the rest). */
-    static final class Glow extends Drawable {
-        final float d;
-        final boolean round;
-        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        final RectF box = new RectF();
+    /** A view's glow: its own shape blurred twice (a wide halo and a closer one), tinted amber, at its place. */
+    static final class Halo extends Drawable {
+        static final float SCALE = 0.5f;
+        android.graphics.Bitmap bmp;
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+        final android.graphics.Matrix m = new android.graphics.Matrix();
         float level;
 
-        Glow(float density, boolean round) {
-            d = density;
-            this.round = round;
+        static Halo of(View v, View root) {
+            int w = v.getWidth(), h = v.getHeight();
+            if (w <= 0 || h <= 0 || root == null || !v.isShown()) {
+                return null;
+            }
+            float d = v.getResources().getDisplayMetrics().density;
+            int sw = Math.max(1, Math.round(w * SCALE)), sh = Math.max(1, Math.round(h * SCALE));
+            android.graphics.Bitmap src = android.graphics.Bitmap.createBitmap(sw, sh,
+                    android.graphics.Bitmap.Config.ARGB_8888);
+            Canvas cs = new Canvas(src);
+            cs.scale(SCALE, SCALE);
+            v.draw(cs);
+            float wide = Math.max(2f, 11f * d * SCALE);
+            float near = Math.max(1f, 4f * d * SCALE);
+            Paint blur = new Paint();
+            blur.setMaskFilter(new android.graphics.BlurMaskFilter(wide, android.graphics.BlurMaskFilter.Blur.NORMAL));
+            int[] offW = new int[2];
+            android.graphics.Bitmap aw = src.extractAlpha(blur, offW);
+            blur.setMaskFilter(new android.graphics.BlurMaskFilter(near, android.graphics.BlurMaskFilter.Blur.NORMAL));
+            int[] offN = new int[2];
+            android.graphics.Bitmap an = src.extractAlpha(blur, offN);
+            src.recycle();
+            android.graphics.Bitmap out = android.graphics.Bitmap.createBitmap(aw.getWidth(), aw.getHeight(),
+                    android.graphics.Bitmap.Config.ARGB_8888);
+            Canvas co = new Canvas(out);
+            Paint tint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            tint.setColor(0xFFFFB300);
+            co.drawBitmap(aw, 0, 0, tint);
+            co.drawBitmap(aw, 0, 0, tint);           // the wide halo twice: a fuller glow, still soft at the edge
+            tint.setColor(0xFFFFD54F);
+            tint.setAlpha(170);
+            co.drawBitmap(an, offN[0] - offW[0], offN[1] - offW[1], tint);
+            aw.recycle();
+            an.recycle();
+            int[] at = new int[2];
+            int[] rt = new int[2];
+            v.getLocationInWindow(at);
+            root.getLocationInWindow(rt);
+            Halo hl = new Halo();
+            hl.bmp = out;
+            hl.m.setScale(1f / SCALE, 1f / SCALE);
+            hl.m.postTranslate(at[0] - rt[0] + offW[0] / SCALE, at[1] - rt[1] + offW[1] / SCALE);
+            hl.setBounds(0, 0, root.getWidth(), root.getHeight());
+            return hl;
         }
 
         public void draw(Canvas c) {
-            if (level <= 0f) {
+            if (level <= 0f || bmp == null || bmp.isRecycled()) {
                 return;
             }
-            Rect r = getBounds();
-            float rad = round ? Math.min(r.width(), r.height()) / 2f : 6f * d;
-            p.setStyle(Paint.Style.FILL);              // a faint veil
-            p.setColor(AMBER);
-            p.setAlpha(Math.round(level * 22));
-            box.set(r.left, r.top, r.right, r.bottom);
-            c.drawRoundRect(box, rad, rad, p);
-            p.setStyle(Paint.Style.STROKE);            // a soft halo inside the edge, then a fine bright line
-            float in = 2.5f * d;
-            box.set(r.left + in, r.top + in, r.right - in, r.bottom - in);
-            float rr = Math.max(0f, rad - in);
-            if (box.width() > 0f && box.height() > 0f) {
-                p.setStrokeWidth(4f * d);
-                p.setAlpha(Math.round(level * 34));
-                c.drawRoundRect(box, rr, rr, p);
+            p.setAlpha(Math.round(level * 235));
+            c.drawBitmap(bmp, m, p);
+        }
+
+        void recycle() {
+            android.graphics.Bitmap b = bmp;
+            bmp = null;
+            if (b != null) {
+                b.recycle();
             }
-            in = 0.75f * d;
-            box.set(r.left + in, r.top + in, r.right - in, r.bottom - in);
-            rr = Math.max(0f, rad - in);
-            p.setStrokeWidth(1.5f * d);
-            p.setAlpha(Math.round(level * 150));
-            c.drawRoundRect(box, rr, rr, p);
         }
 
         public void setAlpha(int alpha) {

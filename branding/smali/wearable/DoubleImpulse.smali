@@ -12,7 +12,7 @@
         Lcom/isaigu/gymapp/wearable/DoubleImpulse$Face;,
         Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;,
         Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;,
-        Lcom/isaigu/gymapp/wearable/DoubleImpulse$Glow;,
+        Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;,
         Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
     }
 .end annotation
@@ -35,7 +35,7 @@
 
 .field static final BLINKS:I = 0x3
 
-.field static final BLINK_MS:J = 0x118L
+.field static final BLINK_MS:J = 0x1a4L
 
 .field private static final BUTTONS:Ljava/util/Map;
     .annotation system Ldalvik/annotation/Signature;

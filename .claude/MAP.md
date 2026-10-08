@@ -260,7 +260,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `CardPublisher.java` (136L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
-- `DoubleImpulse.java` (1225L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
+- `DoubleImpulse.java` (1286L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -888,19 +888,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-part-strength.md` (201L)
+`docs/xems-part-strength.md` (203L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
   - L28 ## Къде е вързано (`scripts/apply-part-strength.py`, последен в `build-apk.sh`)
   - L35 ## Проверки
   - L43 ## Бутонът „Двоен импулс“ на реда (1.1.383-ai) — заменя цикъла зелено → жълто и задържането 3 s
-  - L111 ## Зелено / жълто / изключено (1.1.366-ai)
-  - L130 ### Как работи
-  - L139 ### Съхранение по клиент и сървър
-  - L143 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
-  - L151 ### Защо 1.1.362–365 не работеше
-  - L156 ## Жълто = вторият импулс на екрана (1.1.369-ai)
-  - L188 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
+  - L113 ## Зелено / жълто / изключено (1.1.366-ai)
+  - L132 ### Как работи
+  - L141 ### Съхранение по клиент и сървър
+  - L145 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
+  - L153 ### Защо 1.1.362–365 не работеше
+  - L158 ## Жълто = вторият импулс на екрана (1.1.369-ai)
+  - L190 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
 
 `docs/xems-plan.md` (62L)
   - L1 # XEMS — „План“ и следващ клиент (1.1.188-ai)

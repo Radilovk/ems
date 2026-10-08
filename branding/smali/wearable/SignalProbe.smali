@@ -18,9 +18,9 @@
 
 .field private static final MAIN:Landroid/os/Handler;
 
-.field static final POLL:Ljava/lang/Runnable;
+.field private static final NOTE_MS:J = 0x5dcL
 
-.field private static final WATCH_MS:J = 0x2328L
+.field static final POLL:Ljava/lang/Runnable;
 
 .field private static final WINDOW_MS:J = 0x4b0L
 
@@ -39,7 +39,7 @@
 
 .field private static mac:Ljava/lang/String;
 
-.field private static watchUntil:J
+.field private static volatile watching:Z
 
 
 # direct methods
@@ -47,7 +47,7 @@
     .registers 2
 
     .prologue
-    .line 23
+    .line 24
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -58,12 +58,12 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->MAIN:Landroid/os/Handler;
 
-    .line 28
+    .line 30
     const/high16 v0, -0x80000000
 
     sput v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->lastRssi:I
 
-    .line 115
+    .line 140
     new-instance v0, Lcom/isaigu/gymapp/wearable/SignalProbe$Poll;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/SignalProbe$Poll;-><init>()V
@@ -77,38 +77,48 @@
     .registers 1
 
     .prologue
-    .line 33
+    .line 35
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 34
+    .line 36
     return-void
 .end method
 
-.method static synthetic access$000()Ljava/lang/ref/WeakReference;
+.method static synthetic access$000()Z
     .registers 1
 
     .prologue
-    .line 22
+    .line 23
+    sget-boolean v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->watching:Z
+
+    return v0
+.end method
+
+.method static synthetic access$002(Z)Z
+    .registers 1
+
+    .prologue
+    .line 23
+    sput-boolean p0, Lcom/isaigu/gymapp/wearable/SignalProbe;->watching:Z
+
+    return p0
+.end method
+
+.method static synthetic access$100()Ljava/lang/ref/WeakReference;
+    .registers 1
+
+    .prologue
+    .line 23
     sget-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->anchor:Ljava/lang/ref/WeakReference;
 
     return-object v0
-.end method
-
-.method static synthetic access$100()J
-    .registers 2
-
-    .prologue
-    .line 22
-    sget-wide v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->watchUntil:J
-
-    return-wide v0
 .end method
 
 .method static synthetic access$200()Ljava/lang/String;
     .registers 1
 
     .prologue
-    .line 22
+    .line 23
     sget-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->mac:Ljava/lang/String;
 
     return-object v0
@@ -118,7 +128,7 @@
     .registers 1
 
     .prologue
-    .line 22
+    .line 23
     sget v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->lastRssi:I
 
     return v0
@@ -128,7 +138,7 @@
     .registers 1
 
     .prologue
-    .line 22
+    .line 23
     sput p0, Lcom/isaigu/gymapp/wearable/SignalProbe;->lastRssi:I
 
     return p0
@@ -138,7 +148,7 @@
     .registers 1
 
     .prologue
-    .line 22
+    .line 23
     sget-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->MAIN:Landroid/os/Handler;
 
     return-object v0
@@ -148,29 +158,29 @@
     .registers 7
 
     .prologue
-    .line 39
+    .line 41
     if-eqz p1, :cond_6
 
     if-eqz p2, :cond_6
 
     if-nez p0, :cond_7
 
-    .line 50
+    .line 52
     :cond_6
     :goto_6
     return-void
 
-    .line 42
+    .line 44
     :cond_7
     :try_start_7
     invoke-virtual {p1, p2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 43
+    .line 45
     if-eqz v0, :cond_6
 
-    .line 46
+    .line 48
     new-instance v1, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;
 
     invoke-direct {v1, p0, v0}, Lcom/isaigu/gymapp/wearable/SignalProbe$Taps;-><init>(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;)V
@@ -181,11 +191,11 @@
 
     goto :goto_6
 
-    .line 47
+    .line 49
     :catch_16
     move-exception v0
 
-    .line 48
+    .line 50
     const-string v1, "index"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -215,7 +225,7 @@
     .registers 6
 
     .prologue
-    .line 81
+    .line 89
     :try_start_0
     new-instance v0, Ljava/lang/ref/WeakReference;
 
@@ -223,50 +233,44 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->anchor:Ljava/lang/ref/WeakReference;
 
-    .line 82
+    .line 90
     sput-object p1, Lcom/isaigu/gymapp/wearable/SignalProbe;->mac:Ljava/lang/String;
 
-    .line 83
+    .line 91
     const/high16 v0, -0x80000000
 
     sput v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->lastRssi:I
 
-    .line 84
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+    .line 92
+    const/4 v0, 0x1
 
-    move-result-wide v0
+    sput-boolean v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->watching:Z
 
-    const-wide/16 v2, 0x2328
-
-    add-long/2addr v0, v2
-
-    sput-wide v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->watchUntil:J
-
-    .line 85
+    .line 93
     sget-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->MAIN:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/SignalProbe;->POLL:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 86
+    .line 94
     sget-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->MAIN:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/SignalProbe;->POLL:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-    :try_end_24
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_24} :catch_25
+    :try_end_1e
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_1e} :catch_1f
 
-    .line 90
-    :goto_24
+    .line 98
+    :goto_1e
     return-void
 
-    .line 87
-    :catch_25
+    .line 95
+    :catch_1f
     move-exception v0
 
-    .line 88
+    .line 96
     const-string v1, "index"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -289,7 +293,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_24
+    goto :goto_1e
 .end method
 
 .method static device(Ljava/lang/String;)Lcom/clj/fastble/data/BleDevice;
@@ -298,16 +302,16 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 141
+    .line 170
     if-nez p0, :cond_5
 
     move-object v0, v1
 
-    .line 155
+    .line 184
     :goto_4
     return-object v0
 
-    .line 144
+    .line 173
     :cond_5
     :try_start_5
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
@@ -318,10 +322,10 @@
 
     move-result-object v0
 
-    .line 145
+    .line 174
     if-eqz v0, :cond_45
 
-    .line 146
+    .line 175
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
@@ -339,7 +343,7 @@
 
     check-cast v0, Lcom/clj/fastble/data/BleDevice;
 
-    .line 147
+    .line 176
     if-eqz v0, :cond_13
 
     invoke-virtual {v0}, Lcom/clj/fastble/data/BleDevice;->getMac()Ljava/lang/String;
@@ -356,11 +360,11 @@
 
     goto :goto_4
 
-    .line 152
+    .line 181
     :catch_2c
     move-exception v0
 
-    .line 153
+    .line 182
     const-string v2, "index"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -386,15 +390,31 @@
     :cond_45
     move-object v0, v1
 
-    .line 155
+    .line 184
     goto :goto_4
+.end method
+
+.method static hint()Ljava/lang/String;
+    .registers 2
+
+    .prologue
+    .line 159
+    const-string v0, "\u043a\u043b\u0438\u043a\u043d\u0438 \u0438\u043a\u043e\u043d\u0430\u0442\u0430 \u0437\u0430 \u0441\u043a\u0440\u0438\u0432\u0430\u043d\u0435"
+
+    const-string v1, "tap the icon to hide"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
 .end method
 
 .method static percent(I)I
     .registers 4
 
     .prologue
-    .line 135
+    .line 164
     const/4 v0, 0x0
 
     const/16 v1, 0x64
@@ -422,12 +442,12 @@
 
     const/16 v3, -0x3ef9
 
-    .line 118
+    .line 143
     const/high16 v0, -0x80000000
 
-    if-ne p1, v0, :cond_17
+    if-ne p1, v0, :cond_19
 
-    .line 119
+    .line 144
     const-string v0, "\u0411\u043b\u0438\u0437\u043e\u0441\u0442 \u0434\u043e \u043a\u043e\u0441\u0442\u044e\u043c\u0430\u2026"
 
     const-string v1, "Closeness to the suit\u2026"
@@ -436,71 +456,73 @@
 
     move-result-object v1
 
-    const-string v2, ""
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/SignalProbe;->hint()Ljava/lang/String;
+
+    move-result-object v2
 
     move-object v0, p0
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->show(Landroid/view/View;Ljava/lang/String;Ljava/lang/String;IJ)V
 
-    .line 131
-    :goto_16
+    .line 156
+    :goto_18
     return-void
 
-    .line 123
-    :cond_17
+    .line 148
+    :cond_19
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/SignalProbe;->percent(I)I
 
     move-result v2
 
-    .line 124
+    .line 149
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 125
+    .line 150
     const/4 v0, 0x0
 
     move v1, v0
 
-    :goto_22
+    :goto_24
     const/16 v0, 0xa
 
-    if-ge v1, v0, :cond_36
+    if-ge v1, v0, :cond_38
 
-    .line 126
+    .line 151
     mul-int/lit8 v0, v1, 0xa
 
-    if-ge v0, v2, :cond_33
+    if-ge v0, v2, :cond_35
 
     const/16 v0, 0x25ae
 
-    :goto_2c
+    :goto_2e
     invoke-virtual {v6, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 125
+    .line 150
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
-    goto :goto_22
+    goto :goto_24
 
-    .line 126
-    :cond_33
+    .line 151
+    :cond_35
     const/16 v0, 0x25af
 
-    goto :goto_2c
+    goto :goto_2e
 
-    .line 128
-    :cond_36
+    .line 153
+    :cond_38
     const/16 v0, 0x3c
 
-    if-lt v2, v0, :cond_65
+    if-lt v2, v0, :cond_82
 
     const v3, -0xb350b0
 
-    .line 129
-    :cond_3d
-    :goto_3d
+    .line 154
+    :cond_3f
+    :goto_3f
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -531,25 +553,107 @@
 
     move-result-object v1
 
-    .line 130
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 155
     invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v2, "\n"
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/SignalProbe;->hint()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v2
 
     move-object v0, p0
 
-    .line 129
+    .line 154
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->show(Landroid/view/View;Ljava/lang/String;Ljava/lang/String;IJ)V
 
-    goto :goto_16
+    goto :goto_18
 
-    .line 128
-    :cond_65
+    .line 153
+    :cond_82
     const/16 v0, 0x1e
 
-    if-ge v2, v0, :cond_3d
+    if-ge v2, v0, :cond_3f
 
     const v3, -0xadae
 
-    goto :goto_3d
+    goto :goto_3f
+.end method
+
+.method static stop()V
+    .registers 4
+
+    .prologue
+    .line 102
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->watching:Z
+
+    .line 104
+    :try_start_3
+    sget-object v0, Lcom/isaigu/gymapp/wearable/SignalProbe;->MAIN:Landroid/os/Handler;
+
+    sget-object v1, Lcom/isaigu/gymapp/wearable/SignalProbe;->POLL:Ljava/lang/Runnable;
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
+
+    .line 105
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hide()V
+    :try_end_d
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_d} :catch_e
+
+    .line 109
+    :goto_d
+    return-void
+
+    .line 106
+    :catch_e
+    move-exception v0
+
+    .line 107
+    const-string v1, "index"
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "signal stop: "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_d
 .end method

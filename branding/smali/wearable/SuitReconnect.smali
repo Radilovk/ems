@@ -183,20 +183,20 @@
     .registers 3
 
     .prologue
-    .line 325
+    .line 327
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->find(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
     move-result-object v0
 
-    .line 326
+    .line 328
     if-eqz v0, :cond_b
 
-    .line 327
+    .line 329
     sget-object v1, Lcom/isaigu/gymapp/wearable/SuitReconnect;->LOST:Ljava/util/List;
 
     invoke-interface {v1, v0}, Ljava/util/List;->remove(Ljava/lang/Object;)Z
 
-    .line 329
+    .line 331
     :cond_b
     return-void
 .end method
@@ -205,7 +205,7 @@
     .registers 3
 
     .prologue
-    .line 316
+    .line 318
     const/4 v0, 0x0
 
     move v1, v0
@@ -219,7 +219,7 @@
 
     if-ge v1, v0, :cond_23
 
-    .line 317
+    .line 319
     sget-object v0, Lcom/isaigu/gymapp/wearable/SuitReconnect;->LOST:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -232,7 +232,7 @@
 
     if-ne v0, p0, :cond_1f
 
-    .line 318
+    .line 320
     sget-object v0, Lcom/isaigu/gymapp/wearable/SuitReconnect;->LOST:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -241,11 +241,11 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
-    .line 321
+    .line 323
     :goto_1e
     return-object v0
 
-    .line 316
+    .line 318
     :cond_1f
     add-int/lit8 v0, v1, 0x1
 
@@ -253,7 +253,7 @@
 
     goto :goto_2
 
-    .line 321
+    .line 323
     :cond_23
     const/4 v0, 0x0
 
@@ -1277,7 +1277,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 344
+    .line 346
     :try_start_1
     sget-object v0, Lcom/isaigu/gymapp/wearable/SuitReconnect;->anyRow:Ljava/lang/ref/WeakReference;
 
@@ -1291,7 +1291,7 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 345
+    .line 347
     :goto_d
     if-eqz v0, :cond_24
 
@@ -1299,7 +1299,7 @@
 
     move-result-object v0
 
-    .line 346
+    .line 348
     :goto_13
     instance-of v1, v0, Landroid/content/ContextWrapper;
 
@@ -1309,7 +1309,7 @@
 
     if-nez v1, :cond_26
 
-    .line 347
+    .line 349
     check-cast v0, Landroid/content/ContextWrapper;
 
     invoke-virtual {v0}, Landroid/content/ContextWrapper;->getBaseContext()Landroid/content/Context;
@@ -1321,22 +1321,22 @@
     :cond_22
     move-object v0, v1
 
-    .line 344
+    .line 346
     goto :goto_d
 
     :cond_24
     move-object v0, v1
 
-    .line 345
+    .line 347
     goto :goto_13
 
-    .line 349
+    .line 351
     :cond_26
     instance-of v1, v0, Lcom/isaigu/gymapp/BaseActivity;
 
     if-eqz v1, :cond_33
 
-    .line 350
+    .line 352
     check-cast v0, Lcom/isaigu/gymapp/BaseActivity;
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1347,12 +1347,12 @@
     :try_end_33
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_33} :catch_34
 
-    .line 354
+    .line 356
     :cond_33
     :goto_33
     return-void
 
-    .line 352
+    .line 354
     :catch_34
     move-exception v0
 
@@ -1363,7 +1363,7 @@
     .registers 2
 
     .prologue
-    .line 333
+    .line 335
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -1379,18 +1379,18 @@
 
     if-eqz v0, :cond_15
 
-    .line 334
+    .line 336
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 338
+    .line 340
     :goto_14
     return-object v0
 
-    .line 336
+    .line 338
     :cond_15
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -1411,11 +1411,11 @@
 
     goto :goto_14
 
-    .line 337
+    .line 339
     :catch_23
     move-exception v0
 
-    .line 338
+    .line 340
     const-string v0, ""
 
     goto :goto_14

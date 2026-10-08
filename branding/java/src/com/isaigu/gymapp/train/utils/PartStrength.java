@@ -363,10 +363,11 @@ public final class PartStrength {
 
     /**
      * Hook: a channel's bar in the row released (TrainViewHolder$5.onStopTrackingTouch, {@code stored} = the bar's
-     * percent). The row in the second impulse's setup, or the bar in the yellow look when the finger went down (the
-     * pause phase, PartLook) — the channel's second impulse alone (percent of the second impulse's strength), the main
-     * stays; otherwise a marked (green) channel — both impulses, the second keeping its ratio to the main (1.1.385); not
-     * marked — both impulses get the percent (the second keeps following the main, as its strength does).
+     * percent). The row in the second impulse's setup, or a yellow-marked channel — the channel's second impulse alone
+     * (percent of the second impulse's strength), the main stays. Otherwise (owner, 1.1.409: nothing picked = both,
+     * whatever phase the bar showed under the finger) both impulses move and keep their ratio on this channel: a bar
+     * held in the yellow look (pause phase) sets the second impulse and the main follows; a green one sets the main and
+     * the second follows.
      */
     public static void bar(View view, TrainProgram prog, ProgramDataBean b, int i, int stored) {
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
@@ -377,29 +378,42 @@ public final class PartStrength {
             boolean seenSecond = PartLook.lockedSecond(view);   // the look the bar had under the finger
             PartLook.release(view);
             PartPick.touch();
-            boolean marked = PartPick.isMarked(i);
-            if (b.activePause && (DoubleImpulse.active(prog) || seenSecond || PartPick.tappedYellow(i))) {
-                boolean[] y = new boolean[parts.length];
-                y[i] = true;
+            boolean[] one = new boolean[parts.length];
+            one[i] = true;
+            if (b.activePause && (DoubleImpulse.active(prog) || PartPick.tappedYellow(i))) {
                 int p2 = Math.min(b.pauseStrenthPercent, secondCap(null, b));
                 int now = real(SecondParts.effective(b, parts)[i], p2);
-                changeSecond(null, prog, b, y, real(stored, p2) - now);
+                changeSecond(null, prog, b, one, real(stored, p2) - now);   // picked yellow: the second alone
+                return;
+            }
+            if (b.activePause && seenSecond) {
+                // the bar showed the second impulse: it goes to the finger, the main follows with the same ratio
+                int p2 = Math.min(b.pauseStrenthPercent, secondCap(null, b));
+                int s0 = secondReal(null, b)[i];
+                int s1 = real(stored, p2);
+                int m0 = real(parts[i], b.strenth);
+                long m1 = s0 > 0 ? Math.round(m0 * (double) s1 / s0)
+                        : p2 > 0 ? Math.round(s1 * (double) b.strenth / p2) : m0;
+                int[] target = secondReal(null, b);
+                int[] second = SecondParts.effective(b, parts);   // before the main moves (no own percents = the main's)
+                parts[i] = percentFor((int) Math.min(m1, b.strenth), b.strenth, parts[i]);
+                SecondParts.set(b, parts, second);
+                target[i] = s1;
+                secondTo(null, prog, b, one, target);
                 return;
             }
             int[] second = b.activePause ? SecondParts.effective(b, parts) : SecondParts.get(b);
-            int[] m0 = b.activePause && marked ? mainReal(b) : null;
+            int[] m0 = b.activePause ? mainReal(b) : null;
             int[] s0 = m0 != null ? secondReal(null, b) : null;
             parts[i] = stored;
             if (second != null && second.length == parts.length) {
-                if (!marked) {
-                    second[i] = stored;                 // not marked: both impulses
+                if (m0 == null) {
+                    second[i] = stored;                 // no double impulse: the stored own percent follows
                 }
                 SecondParts.set(b, parts, second);
             }
             if (m0 != null) {
-                boolean[] one = new boolean[parts.length];
-                one[i] = true;
-                follow(null, prog, b, one, m0, s0);     // marked (green): both impulses, same ratio
+                follow(null, prog, b, one, m0, s0);     // both impulses, same ratio
             }
         } catch (Throwable t) {
             parts[i] = stored;

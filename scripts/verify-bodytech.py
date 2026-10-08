@@ -16,6 +16,8 @@ CLASSES = ["BtBridge", "BtBridge$Ack", "BtBridge$Beat", "BtBridge$Dev", "BtBridg
 HOOKS = [
     ("train/ble/BleDeviceManager.smali", ".method private static getConfig(", f"{BB}->config(", 1),
     ("train/ble/BleDeviceManager.smali", ".method public static write(", f"{BB}->write(", 1),
+    ("train/ble/BleDeviceManager$2.smali", ".method public onConnectSuccess(", f"{BB}->linked(", 1),
+    ("train/ble/BleDeviceManager$2.smali", ".method public onDisConnected(", f"{BB}->dropped(", 1),
     ("train/model/CommandReceiver.smali", ".method private onReceiveData(", f"{BB}->reply(", 1),
     ("train/TrainViewHolder$1.smali", ".method public onNoDoubleClick(", "bodytech/BtGear;->open(", 1),
     ("train/model/CommandSender.smali", ".method public sendDuration(", f"{BB}->phase(", 1),

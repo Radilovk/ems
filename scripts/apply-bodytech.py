@@ -18,6 +18,9 @@
                                gear first asks "Настройки на програмата" / "Пълни параметри" (BtFull)
   SettingFragment.onCreateView after the Band section: BtSettingsSection.attach(activity, root) — Settings →
                                "Костюм bodytech" (channel → slider map, impulse group, waveform, strength scale)
+  BleDeviceManager$2.onConnectSuccess start: BtBridge.linked(device) — a bodytech suit's keep-alive from the connect
+  BleDeviceManager$2.onDisConnected   start: BtBridge.dropped(device, active, status) — every drop's reason in the
+                               diag log (1.1.410)
 Doc: docs/xems-bodytech.md. Runs after apply-suit-reconnect.py (everything that rewrites these methods is done).
 """
 from __future__ import annotations
@@ -163,6 +166,18 @@ def main() -> None:
         f"    invoke-static {{p0, p1, p2}}, {BB}->write({DEV}[B{CB})Z\n\n    move-result v0\n\n"
         f"    if-eqz v0, :cond_{MARK}_write\n\n    return-void\n\n    :cond_{MARK}_write\n",
         "write",
+    )
+    insert_at_start(
+        APP / "train/ble/BleDeviceManager$2.smali",
+        ".method public onConnectSuccess(" + DEV + "Landroid/bluetooth/BluetoothGatt;I)V",
+        f"    invoke-static {{p1}}, {BB}->linked({DEV})V\n",
+        "linked",
+    )
+    insert_at_start(
+        APP / "train/ble/BleDeviceManager$2.smali",
+        ".method public onDisConnected(Z" + DEV + "Landroid/bluetooth/BluetoothGatt;I)V",
+        f"    invoke-static {{p2, p1, p4}}, {BB}->dropped({DEV}ZI)V\n",
+        "dropped",
     )
     insert_at_start(
         APP / "train/model/CommandReceiver.smali",

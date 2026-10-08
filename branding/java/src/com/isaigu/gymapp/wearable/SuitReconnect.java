@@ -263,11 +263,13 @@ public final class SuitReconnect {
 
         @Override
         public void onConnectSuccess(BleDevice device, BluetoothGatt gatt, int status) {
+            com.isaigu.gymapp.bodytech.BtBridge.linked(device);   // a bodytech suit: keep-alive at once
             handler.post(new Back(lost, device));
         }
 
         @Override
         public void onDisConnected(boolean active, BleDevice device, BluetoothGatt gatt, int status) {
+            com.isaigu.gymapp.bodytech.BtBridge.dropped(device, active, status);   // the reason, into the diag log
             // the stock path again: TrainItemManager.disConnected → lost() (a later drop is a new wait)
             try {
                 EventBus.getDefault().post(new DeviceDisConnectedEvent(device));

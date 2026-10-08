@@ -6,6 +6,10 @@
          allow-external-apps=true in ~/.termux/termux.properties. -->
     <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
 
+    <!-- Own Wi-Fi address (ConnectivityManager) and the UDP-socket fallback. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Headset on the tablet's USB-C: adb tcpip 5555 straight from the app (UsbAdb). -->
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
 

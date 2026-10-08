@@ -124,7 +124,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     }
 
     private fun detectTabletIp() {
-        val ip = LanAddress.current()
+        val ip = LanAddress.current(this)
         if (ip != null) {
             tabletField.setText(ip)
             tabletNote.setText(R.string.tablet_ip_found)
@@ -190,7 +190,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     // ---------------------------------------------------------------- tasks
 
     private fun findQuest() {
-        val tablet = tabletField.text.toString().trim().ifEmpty { LanAddress.current().orEmpty() }
+        val tablet = tabletField.text.toString().trim().ifEmpty { LanAddress.current(this).orEmpty() }
         if (!PatchRequest.isIpv4(tablet)) {
             tabletField.error = getString(R.string.err_no_wifi)
             return

@@ -105,7 +105,7 @@ public final class PartLook {
         return b != null && b.activePause && live;
     }
 
-    /** The avatar ring: true = second impulse look (the setup only, unless the main MA / Hz is picked). */
+    /** The avatar ring: true = second impulse look (the setup, unless the main MA / Hz is picked; or only yellow channels marked). */
     static boolean ringSecond(TrainItem item, ProgramDataBean b, boolean live) {
         if (b == null || !b.activePause || MusicSync.isRunning()) {
             return false;                                 // music drives the ring
@@ -114,7 +114,12 @@ public final class PartLook {
         if (l != null) {
             return l.second;
         }
-        return DoubleImpulse.active(item) && !item.isMaSelected() && !item.isHzSelected();
+        if (DoubleImpulse.active(item) && !item.isMaSelected() && !item.isHzSelected()) {
+            return true;
+        }
+        boolean[] sel = PartStrength.selection(item, b);     // only yellow channels marked: the ring is their 2nd impulse
+        boolean[] yel = sel != null ? PartStrength.yellow(item, b, sel) : null;
+        return yel != null && !PartStrength.any(PartStrength.without(sel, yel));
     }
 
     /** A bar under the finger (or just released) in the second impulse's look: its release sets the second impulse. */
@@ -181,6 +186,7 @@ public final class PartLook {
             }
             legs(item, b, bars, texts);
             legTags(item, texts);
+            idle(bars, texts);
         } catch (Throwable ignored) {
         }
     }
@@ -190,24 +196,142 @@ public final class PartLook {
      * "Л" / "Д" before their percent (the muscle icons above are shared by every row, so the tag is on the row).
      */
     /**
-     * A bodytech row (owner, 1.1.379): chest and calf do not exist on the suit — their columns are hidden; the legs
-     * are whole left / right legs. INVISIBLE, not GONE: the columns stay under the muscle icons above, which every row
-     * shares. Rows are recycled, so every other row gets its columns back. The header follows ({@link #header}).
+     * A bodytech row (owner, 1.1.394): the columns in the XEMS order, but the two legs (Л, Д — the XEMS channels the
+     * leg channels are on) right after the calf, side by side, when the header above is the bodytech one; a column no
+     * bodytech channel is on (by default calf and back thigh) stays in its place, at 0, dimmed and not touchable — no
+     * empty gap. Recycled rows get the stock order and every column back. The header follows ({@link #header}).
      */
     static void columns(TrainItem item, VerticalColorSeekBar[] bars) {
         boolean bt = item != null && item.data != null
                 && com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(item.data.macAddress);
+        boolean on = false;
         if (bars.length > 0 && bars[0] != null) {
-            header(item, bars[0], bt);
+            on = header(item, bars[0], bt);
         }
+        View[] cols = new View[bars.length];
         for (int i = 0; i < bars.length; i++) {
             if (bars[i] == null || !(bars[i].getParent() instanceof View)) {
                 continue;
             }
             View col = (View) bars[i].getParent();
-            int want = bt && com.isaigu.gymapp.bodytech.BtSettings.hidden(i) ? View.INVISIBLE : View.VISIBLE;
-            if (col.getVisibility() != want) {
-                col.setVisibility(want);
+            cols[i] = col;
+            if (col.getVisibility() != View.VISIBLE) {
+                col.setVisibility(View.VISIBLE);           // 1.1.391–1.1.393 hid them (an empty gap)
+            }
+            boolean idle = bt && !com.isaigu.gymapp.bodytech.BtSettings.hasChannel(i);
+            if (idle) {
+                IDLE.put(bars[i], Boolean.TRUE);
+            } else {
+                IDLE.remove(bars[i]);
+            }
+            bars[i].setOnTouchListener(BLOCK);
+            float a = idle ? IDLE_ALPHA : 1f;
+            if (col.getAlpha() != a) {
+                col.setAlpha(a);
+            }
+        }
+        arrange(cols, order(bt && on));
+    }
+
+    private static final float IDLE_ALPHA = 0.35f;
+    /** Bars of columns a bodytech suit has no channel for: not touchable, shown at 0. */
+    private static final WeakHashMap<View, Boolean> IDLE = new WeakHashMap<View, Boolean>();
+    private static final Block BLOCK = new Block();
+
+    /** Swallows a touch on an idle bar (VerticalColorSeekBar ignores setEnabled). */
+    static final class Block implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            return IDLE.containsKey(v);
+        }
+    }
+
+    /** Idle bars at 0 (after the stock code and the looks drew them). */
+    static void idle(VerticalColorSeekBar[] bars, TextView[] texts) {
+        for (int i = 0; i < bars.length; i++) {
+            if (bars[i] == null || !IDLE.containsKey(bars[i])) {
+                continue;
+            }
+            bars[i].setProgress(0f);
+            TextView t = texts != null && i < texts.length ? texts[i] : null;
+            if (t != null) {
+                t.setText(percent(0));
+            }
+        }
+    }
+
+    /** XEMS order (calf, front thigh, back thigh, glutes, abs, lower back, back, traps, chest, arms) as slider indexes. */
+    private static final int[] STOCK = {3, 2, 9, 8, 1, 7, 6, 5, 0, 4};
+
+    /** The column order: stock, or (bodytech) the legs moved right after the calf, the rest as in XEMS. */
+    static int[] order(boolean bt) {
+        if (!bt) {
+            return STOCK;
+        }
+        int l = com.isaigu.gymapp.bodytech.BtSettings.legSlider(false);
+        int r = com.isaigu.gymapp.bodytech.BtSettings.legSlider(true);
+        if (l < 0 || r < 0 || l > 9 || r > 9 || l == r) {
+            return STOCK;
+        }
+        int[] out = new int[10];
+        int n = 0;
+        for (int s : STOCK) {
+            if (s == l || s == r) {
+                continue;
+            }
+            out[n++] = s;
+            if (s == 3) {                                  // after the calf: Л, Д
+                out[n++] = l;
+                out[n++] = r;
+            }
+        }
+        if (n != 10) {                                     // a leg on the calf itself: Л, Д first
+            out[0] = l;
+            out[1] = r;
+            n = 2;
+            for (int s : STOCK) {
+                if (s != l && s != r) {
+                    out[n++] = s;
+                }
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Puts the views (by slider index) in this order, in the places they hold now in their parent. Only when the ten
+     * are siblings next to each other (the row's columns, the header's cells); anything else is left as it is.
+     */
+    static void arrange(View[] byIndex, int[] order) {
+        if (byIndex == null || byIndex.length < 10 || byIndex[0] == null
+                || !(byIndex[0].getParent() instanceof android.view.ViewGroup)) {
+            return;
+        }
+        android.view.ViewGroup g = (android.view.ViewGroup) byIndex[0].getParent();
+        int min = Integer.MAX_VALUE, max = -1;
+        for (int i = 0; i < 10; i++) {
+            if (byIndex[i] == null || byIndex[i].getParent() != g) {
+                return;
+            }
+            int k = g.indexOfChild(byIndex[i]);
+            min = Math.min(min, k);
+            max = Math.max(max, k);
+        }
+        if (max - min != 9) {
+            return;
+        }
+        boolean same = true;
+        for (int k = 0; k < 10 && same; k++) {
+            same = g.getChildAt(min + k) == byIndex[order[k]];
+        }
+        if (same) {
+            return;
+        }
+        for (int k = 0; k < 10; k++) {
+            View v = byIndex[order[k]];
+            if (g.indexOfChild(v) != min + k) {
+                g.removeView(v);
+                g.addView(v, min + k);
             }
         }
     }
@@ -219,10 +343,12 @@ public final class PartLook {
 
     /**
      * The muscle header above the rows (shared by every row; cells buwei1..10, icon + label): when every row on the
-     * screen with a suit runs a bodytech one (owner, 1.1.379), chest and calf go, and the two leg columns read
-     * "Ляв крак" / "Десен крак" with the same leg icon (no front / back thigh). Any XEMS suit → the stock header.
+     * screen with a suit runs a bodytech one, the columns of the two legs (the XEMS channels their bodytech channels
+     * are on: by default XEMS chest and front thigh) read "Ляво бедро" / "Дясно бедро", and the columns no bodytech
+     * channel is on go (owner, 1.1.391: 8 zones). Any XEMS suit → the stock header.
      */
-    static void header(TrainItem item, View bar, boolean bt) {
+    static boolean header(TrainItem item, View bar, boolean bt) {
+        boolean on = false;
         try {
             if (item != null) {
                 boolean suit = item.data != null && item.data.macAddress != null && item.data.macAddress.length() > 0;
@@ -245,13 +371,15 @@ public final class PartLook {
                     anyXems = true;
                 }
             }
-            boolean on = anyBt && !anyXems;
+            on = anyBt && !anyXems;
             View root = bar.getRootView();
             if (root == null) {
-                return;
+                return on;
             }
+            View[] cells = new View[10];
             String pkg = root.getContext().getPackageName();
-            android.view.ViewGroup left = null;
+            int legL = com.isaigu.gymapp.bodytech.BtSettings.legSlider(false);
+            int legR = com.isaigu.gymapp.bodytech.BtSettings.legSlider(true);
             for (int i = 0; i < 10; i++) {
                 int id = root.getResources().getIdentifier("buwei" + (i + 1), "id", pkg);
                 View cell = id != 0 ? root.findViewById(id) : null;
@@ -259,50 +387,45 @@ public final class PartLook {
                     continue;
                 }
                 android.view.ViewGroup g = (android.view.ViewGroup) cell;
-                if (com.isaigu.gymapp.bodytech.BtSettings.hidden(i)) {
-                    int want = on ? View.INVISIBLE : View.VISIBLE;
-                    if (g.getVisibility() != want) {
-                        g.setVisibility(want);
-                    }
-                    continue;
+                cells[i] = g;
+                if (g.getVisibility() != View.VISIBLE) {
+                    g.setVisibility(View.VISIBLE);             // 1.1.391–1.1.393 hid them (an empty gap)
                 }
-                if (i != com.isaigu.gymapp.bodytech.BtSettings.LEFT_LEG
-                        && i != com.isaigu.gymapp.bodytech.BtSettings.RIGHT_LEG) {
-                    continue;
+                // bodytech: a column no bodytech channel is on stays, dimmed and not clickable (owner, 1.1.394)
+                boolean idle = on && !com.isaigu.gymapp.bodytech.BtSettings.hasChannel(i);
+                float alpha = idle ? IDLE_ALPHA : 1f;
+                if (g.getAlpha() != alpha) {
+                    g.setAlpha(alpha);
                 }
-                boolean isLeft = i == com.isaigu.gymapp.bodytech.BtSettings.LEFT_LEG;
+                if (g.isClickable() == idle && (idle || g.hasOnClickListeners())) {
+                    g.setClickable(!idle);
+                }
                 View icon = g.getChildCount() > 0 ? g.getChildAt(0) : null;
+                if (icon != null && icon.getTag() == LEG_TAG) {   // the copied leg icon of 1.1.379–1.1.387
+                    icon.setBackgroundDrawable((android.graphics.drawable.Drawable) HEADER_ORIG.get(icon));
+                    icon.setTag(null);
+                }
                 TextView label = g.getChildCount() > 1 && g.getChildAt(1) instanceof TextView ? (TextView) g.getChildAt(1) : null;
-                if (isLeft) {
-                    left = g;
+                if (label == null) {
+                    continue;
                 }
-                if (label != null) {
-                    if (!HEADER_ORIG.containsKey(label)) {
-                        HEADER_ORIG.put(label, label.getText());
-                    }
-                    CharSequence want = on ? com.isaigu.gymapp.bodytech.BtSettings.SLIDERS[i] : (CharSequence) HEADER_ORIG.get(label);
-                    if (want != null && !want.toString().equals(label.getText().toString())) {
-                        label.setText(want);
-                    }
+                if (!HEADER_ORIG.containsKey(label)) {
+                    HEADER_ORIG.put(label, label.getText());
                 }
-                if (!isLeft && icon != null && left != null && left.getChildAt(0) != null) {
-                    if (!HEADER_ORIG.containsKey(icon)) {
-                        HEADER_ORIG.put(icon, icon.getBackground());
-                    }
-                    android.graphics.drawable.Drawable src = left.getChildAt(0).getBackground();
-                    if (on && src != null && src.getConstantState() != null) {
-                        if (icon.getTag() != LEG_TAG) {
-                            icon.setBackgroundDrawable(src.getConstantState().newDrawable());
-                            icon.setTag(LEG_TAG);
-                        }
-                    } else if (!on && icon.getTag() == LEG_TAG) {
-                        icon.setBackgroundDrawable((android.graphics.drawable.Drawable) HEADER_ORIG.get(icon));
-                        icon.setTag(null);
-                    }
+                CharSequence want = (CharSequence) HEADER_ORIG.get(label);
+                if (on && i == legL && legL != legR) {
+                    want = "Ляво бедро";
+                } else if (on && i == legR && legL != legR) {
+                    want = "Дясно бедро";
+                }
+                if (want != null && !want.toString().equals(label.getText().toString())) {
+                    label.setText(want);
                 }
             }
+            arrange(cells, order(on));
         } catch (Throwable ignored) {
         }
+        return on;
     }
 
     private static final Object LEG_TAG = new Object();

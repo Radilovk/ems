@@ -2,11 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
-import { validMeasure, cleanMeasure, putMeasures, measuresJson, MEASURE_KEEP, MEASURE_SEND } from '../src/measures.js';
+import {
+  validMeasure, cleanMeasure, putMeasures, measuresJson, findBodyCard, bodyCardData, MEASURE_KEEP, MEASURE_SEND,
+} from '../src/measures.js';
+import { validCardData } from '../src/card.js';
 
 function fakeD1() {
   const db = new DatabaseSync(':memory:');
-  db.exec(readFileSync(new URL('../migrations/0013_body_measures.sql', import.meta.url), 'utf8'));
+  for (const f of ['0004_client_cards', '0005_client_card_lookup', '0009_clients', '0013_body_measures']) {
+    db.exec(readFileSync(new URL(`../migrations/${f}.sql`, import.meta.url), 'utf8'));
+  }
   const stmt = (sql, args = []) => ({
     sql, args,
     bind: (...a) => stmt(sql, a),
@@ -71,4 +76,40 @@ test('a measurement removed on the tablet is removed on the server', async () =>
   const a = JSON.parse(await measuresJson(db, 'L', 'c1'));
   assert.equal(a.length, 1);
   assert.equal(a[0].t, 1790000100000);
+});
+
+test('measured, not trained yet: the card of the body is made once, found by e-mail or phone', async () => {
+  const db = fakeD1();
+  const dossier = (cid, ek, pk, name) => db.raw.prepare(
+    'INSERT INTO clients (license_id, cid, ek, pk, data, t, srv_at, created_at) VALUES (?, ?, ?, ?, ?, 1, 1, 1)',
+  ).run('L', cid, ek, pk, JSON.stringify({ name, sex: 'M' }));
+  const E = 'e'.repeat(64), P = 'p'.repeat(64), X = 'x'.repeat(64);
+  dossier('cidAAAAAAAAA', E, P, 'Иван Петров');
+  dossier('cidBBBBBBBBB', X, null, 'Друг');
+  assert.equal(await findBodyCard(db, 'L', E, null, 100, 'card11111111', 1000), null, 'no measurement: no card');
+  await putMeasures(db, 'L', 'cidAAAAAAAAA', [m(1790000000000), m(1790000500000)], 1);
+  const a = await findBodyCard(db, 'L', null, P, 100, 'card11111111', 1000);
+  assert.equal(a.id, 'card11111111');
+  assert.equal(a.n, 0);
+  const row = db.raw.prepare('SELECT * FROM client_cards').get();
+  const d = JSON.parse(row.data);
+  assert.equal(d.name, 'Иван');
+  assert.equal(d.sex, 'M');
+  assert.equal(d.since, 1790000500000);
+  assert.equal(validCardData(d), null, 'the card page reads it like any card');
+  assert.equal(row.email_hash, E);
+  assert.equal(row.expires_at, 1100);
+  // asked again: the same card (no second row), the link does not change
+  const b = await findBodyCard(db, 'L', E, null, 200, 'card22222222', 1000);
+  assert.equal(b.id, 'card11111111');
+  assert.equal(db.raw.prepare('SELECT COUNT(*) n FROM client_cards').get().n, 1);
+  // another studio, another person: nothing
+  assert.equal(await findBodyCard(db, 'L2', E, P, 100, 'card33333333', 1000), null);
+  assert.equal(await findBodyCard(db, 'L', X, null, 100, 'card33333333', 1000), null, 'no measurement of that one');
+});
+
+test('the body card names the client by the first name only', () => {
+  assert.equal(bodyCardData({ name: '  Мария  Иванова ' }, 5).name, 'Мария');
+  assert.equal(bodyCardData(null, 5).name, 'Клиент');
+  assert.equal(bodyCardData(null, 5).sex, 'F');
 });

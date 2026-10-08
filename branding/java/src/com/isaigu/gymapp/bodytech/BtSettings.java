@@ -21,11 +21,11 @@ public final class BtSettings {
 
     /** XEMS sliders = PartStrenthBean.buwei index 0..9 (buwei1..10). */
     /**
-     * The row's 10 sliders as a bodytech suit has them (owner, 1.1.379): the front / back thigh sliders are the whole
-     * left / right leg; chest and calf do not exist on the suit ({@link #hidden}).
+     * The 10 channels of the XEMS row, as the row names them (owner, 1.1.388: every bodytech channel may be on any of
+     * them — chest and calf too; 1.1.379–1.1.387 hid those two and called the thighs "Ляв / Десен крак").
      */
-    public static final String[] SLIDERS = {"Гърди", "Корем", "Ляв крак", "Прасец", "Ръце", "Трапец",
-            "Гръб", "Кръст", "Седалище", "Десен крак"};
+    public static final String[] SLIDERS = {"Гърди", "Корем", "Предно бедро", "Прасец", "Ръце", "Трапец",
+            "Гръб", "Кръст", "Седалище", "Задно бедро"};
     public static final int NO_SLIDER = -1;
     /** The training row's sliders, left to right (reorder-muscles.py): calf, front thigh, back thigh, glutes, abs,
      *  lower back, back, trapezius, chest, arms — as indexes into {@link #SLIDERS}. */
@@ -35,13 +35,20 @@ public final class BtSettings {
      * EMSFIT labels (customButtonN → CH): C1 WAIST … C8 ABDOMEN. Index 0 unused. On the bodytech suit EMSFIT's "Гърди"
      * (C5) and "Бедра" (C7) are the two whole legs, separate electrodes (owner, 1.1.376 / 1.1.379): left leg → the
      * row's front-thigh slider, right leg → its back-thigh slider (the row tags them Л / Д, {@link #rowTag}). Which leg is
-     * which is the owner's to confirm — swapping is a rename in Settings → Костюм bodytech.
+     * which is the owner's to confirm — Settings → Костюм bodytech → «Крака» picks each leg's channel.
      */
-    static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Ляв крак", "Ръце",
-            "Десен крак", "Корем"};
-    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 2, 4, 9, 1};
+    static final String[] DEFAULT_NAMES = {"", "Кръст", "Седалище", "Рамене", "Среден гръб", "Ляво бедро", "Ръце",
+            "Дясно бедро", "Корем"};
+    /**
+     * Owner, 1.1.389: EMSFIT's "Гърди" (C5) is the left thigh, on the XEMS chest channel; EMSFIT's "Крака" (C7) is the
+     * right thigh, on the XEMS front-thigh channel; the rest as EMSFIT names them.
+     */
+    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 0, 4, 2, 1};
     /** The EMSFIT defaults before 1.1.376: a tablet still holding them untouched is moved to the legs once. */
     static final String OLD_C5 = "Гърди", OLD_C7 = "Бедра";
+    /** The 1.1.379–1.1.388 leg names and their sliders (front thigh = left, back thigh = right) → the thighs (1.1.389). */
+    static final String OLD_LEFT = "Ляв крак", OLD_RIGHT = "Десен крак";
+    static final int OLD_LEFT_SLIDER = 2, OLD_RIGHT_SLIDER = 9;
     /** The 1.1.376 names (a thigh) → the whole leg. */
     static final String THIGH_L = "Ляво бедро", THIGH_R = "Дясно бедро";
     static final int OLD_C5_SLIDER = 0, OLD_C7_SLIDER = 2;
@@ -58,6 +65,8 @@ public final class BtSettings {
     static final int[] slider = new int[CHANNELS + 1];
     static final int[] group = new int[CHANNELS + 1];
     static int wave = WAVE_SUIT;
+    /** The bodytech channels of the left / right leg (owner, 1.1.386 / 1.1.388); the leg is on that channel's slider. */
+    static int legL = 5, legR = 7;
     static int gain = 100;
     /** Display order: order[pos] = channel (pos 0..7). */
     static final int[] order = new int[CHANNELS];
@@ -105,7 +114,17 @@ public final class BtSettings {
             chHzMain[ch] = clampHz(p.getInt("chzm" + ch, 0), HZ_MAIN_MAX);
             chHzSecond[ch] = clampHz(p.getInt("chzs" + ch, 0), HZ_SECOND_MAX);
         }
-        if (legs()) save();
+        legL = p.getInt("legl", 0);
+        legR = p.getInt("legr", 0);
+        if (!valid(legL) || !valid(legR) || legL == legR) {
+            // before 1.1.388 the legs were the channels on the front / back thigh sliders
+            int l = firstOn(DEFAULT_SLIDER[5]), r = firstOn(DEFAULT_SLIDER[7]);
+            legL = l != 0 ? l : 5;
+            legR = r != 0 && r != legL ? r : (legL == 7 ? 5 : 7);
+        }
+        // the old names / sliders are moved once; after that (any save) the owner's map is left as it is — C5 may be
+        // put on Гърди and named so (owner, 1.1.388)
+        if (!p.getBoolean("legs389", false) && legs()) save();
         unlimited = p.getBoolean("unlimited", true);
         slots = p.getBoolean("slots2", true);
         loadOrder(p.getString("order", ""));
@@ -117,70 +136,96 @@ public final class BtSettings {
     /** C5 / C7 still as the old EMSFIT defaults (name and slider untouched) → the two legs. true = changed. */
     static boolean legs() {
         boolean changed = false;
-        if (OLD_C5.equals(names[5]) && slider[5] == OLD_C5_SLIDER) {
-            names[5] = DEFAULT_NAMES[5];
-            slider[5] = DEFAULT_SLIDER[5];
-            changed = true;
-        }
-        if (OLD_C7.equals(names[7]) && slider[7] == OLD_C7_SLIDER) {
-            names[7] = DEFAULT_NAMES[7];
-            slider[7] = DEFAULT_SLIDER[7];
-            changed = true;
-        }
         for (int ch = 1; ch <= CHANNELS; ch++) {
-            if (THIGH_L.equals(names[ch])) {
-                names[ch] = DEFAULT_NAMES[5];
-                changed = true;
-            } else if (THIGH_R.equals(names[ch])) {
-                names[ch] = DEFAULT_NAMES[7];
+            String n = names[ch];
+            boolean left = OLD_LEFT.equals(n) || THIGH_L.equals(n) || (ch == 5 && OLD_C5.equals(n));
+            boolean right = OLD_RIGHT.equals(n) || THIGH_R.equals(n) || (ch == 7 && OLD_C7.equals(n));
+            if (!left && !right) continue;
+            String want = left ? THIGH_L : THIGH_R;
+            // the slider moves only from what an older version put there (2 / 9); the owner's own pick stays
+            int was = left ? OLD_LEFT_SLIDER : OLD_RIGHT_SLIDER;
+            int now = left ? DEFAULT_SLIDER[5] : DEFAULT_SLIDER[7];
+            if (!want.equals(n)) {
+                names[ch] = want;
                 changed = true;
             }
-        }
-        // the suit has no chest and no calf (owner, 1.1.379): a channel still on one of them is a leg — it goes to the
-        // leg slider that has no channel yet (left = front thigh, right = back thigh) and gets that leg's name
-        for (int ch = 1; ch <= CHANNELS; ch++) {
-            if (!hidden(slider[ch])) continue;
-            int to = !onSlider(LEFT_LEG) ? LEFT_LEG : RIGHT_LEG;
-            slider[ch] = to;
-            String n = names[ch] == null ? "" : names[ch].trim().toLowerCase();
-            if (!n.startsWith("ляв") && !n.startsWith("дясн") && !n.startsWith("дес")) {
-                names[ch] = to == LEFT_LEG ? DEFAULT_NAMES[5] : DEFAULT_NAMES[7];
+            if (slider[ch] == was && was != now) {
+                slider[ch] = now;
+                changed = true;
             }
-            changed = true;
         }
         return changed;
     }
 
-    /** The row's sliders of the two legs on a bodytech suit (front thigh = left, back thigh = right). */
-    public static final int LEFT_LEG = 2, RIGHT_LEG = 9;
-    /** The row's sliders a bodytech suit has no electrodes for: chest and calf (owner, 1.1.379). */
-    public static final int CHEST = 0, CALF = 3;
-
-    /** Slider s does not exist on a bodytech suit (hidden on its row, not offered in the settings). */
-    public static boolean hidden(int s) {
-        return s == CHEST || s == CALF;
-    }
-
-    private static boolean onSlider(int s) {
-        for (int ch = 1; ch <= CHANNELS; ch++) if (slider[ch] == s) return true;
-        return false;
+    private static int firstOn(int s) {
+        for (int ch = 1; ch <= CHANNELS; ch++) if (slider[ch] == s) return ch;
+        return 0;
     }
 
     /**
-     * The training row's tag for slider s on a bodytech row: "Л" / "Д" when every channel on that slider is named
-     * left / right (Ляв… / Десен… / Дясн…), else null. Derived from the owner's names, so a swap in the settings follows.
+     * The training row's tag for slider s on a bodytech row: "Л" on the XEMS channel the left leg's bodytech channel is
+     * on, "Д" on the right one's; null elsewhere, and when both legs are on one slider (owner, 1.1.388).
      */
     public static synchronized String rowTag(int s) {
-        if (!loaded) return null;
-        String tag = null;
-        for (int ch = 1; ch <= CHANNELS; ch++) {
-            if (slider[ch] != s) continue;
-            String n = names[ch] == null ? "" : names[ch].trim().toLowerCase();
-            String t = n.startsWith("ляв") ? "Л" : (n.startsWith("дясн") || n.startsWith("дес") ? "Д" : null);
-            if (t == null || (tag != null && !tag.equals(t))) return null;
-            tag = t;
+        if (!loaded || s < 0) return null;
+        int l = legSlider(false), r = legSlider(true);
+        if (l == r) return null;
+        return s == l ? "Л" : (s == r ? "Д" : null);
+    }
+
+    /** The bodytech channel of the left (right = false) or right leg (Settings → Костюм bodytech → «Крака»). */
+    public static synchronized int legChannel(boolean right) {
+        return right ? legR : legL;
+    }
+
+    /** The XEMS channel (slider 0..9) the leg's bodytech channel is on; {@link #NO_SLIDER} = none. */
+    public static synchronized int legSlider(boolean right) {
+        return slider[right ? legR : legL];
+    }
+
+    /**
+     * Settings → «Крака» (owner, 1.1.386): bodytech channel ch is now the left / right leg. The leg's role — name, XEMS
+     * channel, impulse, own strength / Hz / width / waveform and its place in the sheet — moves to ch, and what ch was
+     * moves to the channel that had the leg (left ⇄ right is a plain swap); no XEMS channel loses its bodytech one.
+     */
+    public static synchronized void setLegChannel(boolean right, int ch) {
+        if (!valid(ch)) return;
+        int prev = right ? legR : legL;
+        if (prev == ch) return;
+        swapRole(prev, ch);
+        if (right) {
+            if (legL == ch) legL = prev;
+            legR = ch;
+        } else {
+            if (legR == ch) legR = prev;
+            legL = ch;
         }
-        return tag;
+        save();
+    }
+
+    /** Channels a and b trade everything the owner set for them (the hardware channels stay where they are). */
+    static void swapRole(int a, int b) {
+        String n = names[a];
+        names[a] = names[b];
+        names[b] = n;
+        swap(slider, a, b);
+        swap(group, a, b);
+        swap(chGain, a, b);
+        swap(chWidth, a, b);
+        swap(chWidthSecond, a, b);
+        swap(chWaveMain, a, b);
+        swap(chWaveSecond, a, b);
+        swap(chHzMain, a, b);
+        swap(chHzSecond, a, b);
+        int pa = positionOf(a), pb = positionOf(b);
+        order[pa] = b;
+        order[pb] = a;
+    }
+
+    private static void swap(int[] v, int a, int b) {
+        int t = v[a];
+        v[a] = v[b];
+        v[b] = t;
     }
 
     /** Slider s drives some channel of the suit (false = nothing on the suit answers it). true before the map is loaded. */
@@ -225,6 +270,9 @@ public final class BtSettings {
             e.putInt("chzm" + ch, chHzMain[ch]);
             e.putInt("chzs" + ch, chHzSecond[ch]);
         }
+        e.putBoolean("legs389", true);
+        e.putInt("legl", legL);
+        e.putInt("legr", legR);
         StringBuilder o = new StringBuilder();
         for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
         e.putString("order", o.toString());
@@ -250,6 +298,8 @@ public final class BtSettings {
             chHzSecond[ch] = 0;
         }
         loadOrder("");
+        legL = 5;
+        legR = 7;
         unlimited = true;
         slots = true;
         wave = WAVE_SUIT;
@@ -335,7 +385,7 @@ public final class BtSettings {
     }
 
     public static synchronized void setSlider(int ch, int s) {
-        if (!valid(ch) || hidden(s)) return;     // no chest / calf on the suit
+        if (!valid(ch)) return;
         slider[ch] = clampSlider(s);
         save();
     }

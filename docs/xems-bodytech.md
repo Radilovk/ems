@@ -85,6 +85,12 @@ Defaults: EMSFIT labels and the nearest slider — C1 Кръст→Кръст, C
   - **The header** (muscle icons + labels above all rows, `PartLook.header`): when every row on the screen with a suit
     runs a bodytech one, chest and calf go and the leg columns read "Ляв крак" / "Десен крак" with the same leg icon.
     Any XEMS suit on the screen → the stock header (its rows need front / back thigh).
+- **«Крака» — the channel of each leg (owner, 1.1.386):** on top of the sheet, "Ляв крак" | "Десен крак", each a row of
+  chips C1–C8 (one tap) and ▶ (hold = feel that channel). The picked channel takes the leg's whole role — slider, name,
+  impulse, own strength / Hz / width / waveform, place in the sheet — and gives its own role to the channel that had the
+  leg (left ⇄ right is a plain swap; no muscle loses its channel; `BtSettings.setLegChannel`). The row's Л / Д tags and
+  the equal-legs rule now follow the **slider** (front thigh = left, back thigh = right, when a channel is on it), no
+  longer the channel names — a renamed leg channel stays a leg (`BtSettings.rowTag`).
 Changes are saved at once and used by the next command the row sends.
 
 ## Test of a channel and the left → right order (1.1.346)
@@ -188,3 +194,70 @@ With the switch on, BtTranslator.reconcile:
 - not proven: that one SEL from all-off starts the channels in step (probe: twice yes, twice no) — if not, the places
   are random for that impulse.
 Tests: `bash bodytech/xems/test/run.sh` (BtTranslatorTest «slots: …»).
+
+## Phase of every command; the second impulse's setup (1.1.386)
+Owner: after the double impulse was switched on, a pause of over 3 s came before the first impulse and that impulse
+was cut short; legs and channels sometimes misbehaved at the switch between the impulses. Three causes, all fixed:
+- **The phase went with the queue, not with the command.** `BtBridge.phase` (hook: start of `CommandSender.sendDuration /
+  sendActivePause / sendPause`) set the translator's phase at once, but CommandSender writes its queue later, one command
+  after the other — and a bodytech command is many frames, so at a phase switch the last ramp step of the phase before
+  was often still queued and went out as the new phase (other channels, Hz, the leg "hand" detection, the off-time).
+  Now every queued command keeps its phase: `BtBridge.tag` (hook: `CommandSender.sendCommend`, by the pdu's identity)
+  and `BtBridge.sending` (hook: `CommandSender.writeCommend`) gives it to the translator when that command is written.
+- **The keep-alive cut the second impulse.** It switches off an output not renewed within its phase + 3 s; a second
+  impulse counted the *pause* length — but the setup (`DoubleImpulse`, 1.1.383) sends it in the ON phase too, so a
+  long ON phase lost it mid-way (silence). Now the limit is the longer of impulse / pause.
+- **The setup ended mid-phase.** While the double impulse's setup lasts (from the tap until 5 s without an action), the
+  suit gets the second impulse only — felt as a long pause; then the row went on in whatever was left of the phase, so
+  the first main impulse was its remainder. Now the end of the setup (and a tap back to the plain pause) starts the ON
+  phase afresh — the whole main impulse with its rise, the row's clock with it (`TrainItem.xemsRestartPulse`, added by
+  `scripts/apply-double-impulse.py`; `DoubleImpulse.resume`). Taken away elsewhere (⚙, mode, Smart) → as before.
+
+**No program load after a change (unlike EMSFIT).** EMSFIT runs the impulse / pause / ramps on the suit's own T1–T4
+cycle, so every change other than strength needs RESET + the whole program (its "loading"). XEMS keeps that cycle as
+one 100 s burst and times every phase on the tablet; Hz, width, waveform and strength are per-channel registers written
+live (probe 0.6: a write does not restart the channel). The program is written only at connect, stop and a new link
+(`BtLoad`, ~3 s) — nothing else needs it.
+
+## All ten XEMS channels (owner, 1.1.388)
+The settings map **bodytech channel → XEMS channel**, and every one of the row's ten channels may be picked —
+Гърди and Прасец too (1.1.379–1.1.387 hid them and, on every load, moved a channel left on them to a leg, so e.g. the
+left thigh put on "Гърди" could not work). The chips carry the row's own names (Гърди, Корем, Предно бедро, Прасец, Ръце,
+Трапец, Гръб, Кръст, Седалище, Задно бедро); a bodytech row shows all ten columns.
+- The legs are **bodytech channels** (`BtSettings.legL / legR`, default C5 / C7, «Крака» picks them); a leg is on whatever
+  XEMS channel its bodytech channel is on. The row's Л / Д tags, the equal-legs rule and the header's "Ляв крак" /
+  "Десен крак" follow that XEMS channel (both legs on one channel → none of these).
+- The old-name migration (`BtSettings.legs`) runs once (`legsdone`); after that the owner's map is never rewritten.
+
+## The thighs (owner, 1.1.389)
+Every bodytech channel answers to exactly one of the ten XEMS channels. EMSFIT's names stay, except two:
+| bodytech | name | XEMS channel |
+|---|---|---|
+| C5 (EMSFIT "Гърди") | **Ляво бедро** | Гърди |
+| C7 (EMSFIT "Крака") | **Дясно бедро** | Предно бедро |
+C1 Кръст → Кръст, C2 Седалище → Седалище, C3 Рамене → Трапец, C4 Среден гръб → Гръб, C6 Ръце → Ръце, C8 Корем → Корем
+as before. A tablet on the 1.1.379–1.1.388 legs ("Ляв / Десен крак" on front / back thigh) or the EMSFIT names is moved
+once (`BtSettings.legs`, flag `legs389`); a slider the owner picked himself stays, only the name follows. The row's
+header reads "Ляво бедро" / "Дясно бедро" over the legs' XEMS columns; «Модулация» leg zones include the chest slider.
+
+## The settings sheet, simple (owner, 1.1.390)
+Settings → Костюм bodytech = the eight bodytech channels C1–C8 (two columns, fixed order), each card: number, name,
+▶ (hold = feel it) and under them the ten XEMS channels in the row's order (+ "Няма") — one tap ties that bodytech
+channel to that XEMS channel, so any mismatch is fixed by hand. "Още ▾" folds the rest (which impulse, own strength /
+width / Hz). Gone: the «Крака» block (1.1.386 — the thighs are C5 / C7 by the suit's own wiring), ▲ ▼, "Подреди",
+editing the names. Above the cards: the test level; below: waveform, strength scale, «Разделени импулси».
+
+## The bodytech training row: 8 zones (owner, 1.1.391)
+A bodytech row shows only the 8 zones of the suit: Ляво бедро (XEMS chest column, renamed), Дясно бедро (XEMS front
+thigh column, renamed), Седалище, Корем, Кръст, Гръб, Трапец, Ръце. The XEMS columns no bodytech channel is on — back
+thigh and calf (no electrodes) — are hidden (INVISIBLE) on the row and, when every row on screen is bodytech, in the
+header (`PartLook.columns / header`, `BtSettings.hasChannel`). The settings chips offer **all ten** XEMS channels + "Няма" (1.1.392 — the owner
+ties any of them by hand; 1.1.391 left back thigh and calf out by mistake): a tied one appears on the row by itself.
+
+## The bodytech row's column order (owner, 1.1.393)
+Settings as in 1.1.392 (all ten XEMS channels, untouched). On the training screen, when the header is the bodytech one
+(every row with a suit is bodytech), the row and the header put the columns in the XEMS order with the two legs — Л, Д
+(the XEMS channels of the leg channels, by default chest and front thigh) — right after the calf, side by side
+(`PartLook.order / arrange`, the ten column views moved among their own places). A column no bodytech channel is on
+(by default calf and back thigh) stays in its place, at 0 %, dimmed, its bar not touchable (`PartLook.Block`) and its
+header cell not clickable — no empty gap. Any XEMS suit on the screen → the stock order and look.

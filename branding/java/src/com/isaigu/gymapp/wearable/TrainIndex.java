@@ -14,9 +14,11 @@ import java.util.WeakHashMap;
  *   <li>a selection clears itself 5 s after the last action with it (click, + / −, slider) — then + / − act
  *       on the selected muscle groups again; not while the row is in the second impulse's setup (its own 5 s end
  *       clears it, wearable/DoubleImpulse);</li>
- *   <li>the 2nd-impulse buttons (right of the avatar) are seen while the double impulse is on; a tap picks what the
- *       ring and + / − set: the second impulse's strength or Hz — outside the setup it begins the setup first. The second impulse itself goes on / off with the row's
- *       double-impulse button (1.1.383; before, these two buttons turned it on and off). Мускули has none.</li>
+ *   <li>every button, in the single or the double impulse: 1st click — picked (green), the ring and + / − set it;
+ *       2nd click on it or 5 s without an action — let go (MA / Hz: the stock toggle);</li>
+ *   <li>the 2nd-impulse buttons (right of the avatar) are seen while the double impulse is on; picking one does not
+ *       begin the setup (1.1.386; 1.1.385 did). The second impulse itself goes on / off with the row's
+ *       double-impulse button. Мускули has none.</li>
  * </ul>
  * Hooks: TrainPause{Hz,Ma}ValueClickListener.onClick (scripts/apply-train-index.py), SessionRecorder tick.
  */
@@ -33,7 +35,11 @@ public final class TrainIndex {
 
     private TrainIndex() {}
 
-    /** A click on the 2nd-impulse Hz (hz = true) or MA button: it is picked (seen in the setup only). */
+    /**
+     * A click on the 2nd-impulse Hz (hz = true) or MA button (owner, 1.1.386): the 1st click picks it (green) — the
+     * ring and + / − set it while the two impulses keep taking turns; a 2nd click on the picked one, or 5 s without
+     * an action, lets it go. No setup begins from here (that is the row's double-impulse button).
+     */
     public static void pauseClick(TrainItem it, boolean hz) {
         try {
             TrainProgram p = it != null ? it.getTrainProgram() : null;
@@ -46,12 +52,13 @@ public final class TrainIndex {
                 it.setPauseMaSelected(false);
                 return;
             }
-            if (!DoubleImpulse.active(it)) {
-                DoubleImpulse.enterFrom(it, hz);           // the normal double impulse: its setup, this one picked
-                touch(it);
-                return;
+            boolean was = hz ? it.isPauseHzSelected() : it.isPauseMaSelected();
+            if (was) {
+                it.setPauseHzSelected(false);              // 2nd click: out of it
+                it.setPauseMaSelected(false);
+            } else {
+                select(it, hz);
             }
-            select(it, hz);
             touch(it);
             DoubleImpulse.touch(it);
         } catch (Throwable t) {

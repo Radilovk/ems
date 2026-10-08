@@ -1,13 +1,15 @@
 // The data behind the client's training analysis, in D1 (no separate storage). The tablet sends each training's
 // summary and its per-second record gzip-compressed (base64); the server never unpacks it — the analysis page
-// in the client's browser does. Full records are kept for the newest REC_KEEP trainings of a client, summaries
-// for up to SUM_KEEP. The client reads everything with one request, by the id of their card.
+// in the client's browser does. Full records are kept for the newest REC_KEEP trainings of a client (all of them
+// reach the client), summaries for up to SUM_KEEP — an older training shows as a short report built from its
+// summary, and the client's browser keeps the full records it has seen (src/report.js). The client reads
+// everything with one request, by the id of their card.
 
 export const SESSION_MAX_BYTES = 512 * 1024;
 export const SUMMARY_MAX_BYTES = 8 * 1024;
 export const REC_MAX_CHARS = 400 * 1024;   // base64 of the gzip; a real training is ~10–40 KB
-export const REC_KEEP = 12;                 // full records per client (the analysis page shows the last REC_SEND)
-export const REC_SEND = 8;
+export const REC_KEEP = 12;                 // full records per client (D1 free plan: 500 MB per database)
+export const REC_SEND = REC_KEEP;           // every stored record goes to the client (one cached request)
 export const SUM_KEEP = 600;
 
 /** A training id is its start time in ms: digits only, else null. */

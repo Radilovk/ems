@@ -97,6 +97,20 @@ public class PartSim {
 
     static final Class<?>[] ITEM_VIEW = {TrainItem.class, android.view.View.class};
 
+    /** Bring channel {@code i} to {@code want} (0 off, 1 green, 2 yellow) by taps on its icon from off. */
+    static void taps(Frag f, Mgr m, boolean[] marks, int i, int want) {
+        for (int k = 0; k < 3 && (marks[i] || PartPick.isYellow(i)); k++) {
+            PartPick.click(f, m, marks, i);             // to off first
+        }
+        if (marks[i]) {
+            marks[i] = false;                           // the setup: the stock toggle (not run here)
+        }
+        for (int k = 0; k < want; k++) {
+            PartPick.click(f, m, marks, i);
+        }
+        check(want == 0 ? !marks[i] : marks[i] && (want == 2) == PartPick.tappedYellow(i), "taps " + i + " → " + want);
+    }
+
     /** A tap on the row's double-impulse button. */
     static void tap(TrainItem it) {
         di("click", ITEM_VIEW, it, null);
@@ -236,15 +250,16 @@ public class PartSim {
                 m.list.add(it);
                 Frag f = new Frag(m);
                 boolean setup = rnd.nextBoolean();            // the row in the second impulse's setup: yellow
+                boolean tapYellow = !setup && round == 1;     // outside the setup: yellow by the icon's 2nd tap
                 boolean[] yel = new boolean[10];
                 boolean[] grn = new boolean[10];
                 boolean any = false;
                 for (int i = 0; i < 10; i++) {
                     boolean mark = rnd.nextInt(3) != 0;
-                    it.partsControl[i] = mark;
-                    PartPick.click(f, m, it.partsControl, i);    // the time of the mark (the toggle is the stock one)
-                    yel[i] = mark && setup;
-                    grn[i] = mark && !setup;
+                    boolean y = mark && (setup || (tapYellow && rnd.nextBoolean()));
+                    taps(f, m, it.partsControl, i, !mark ? 0 : y && !setup ? 2 : 1);
+                    yel[i] = y;
+                    grn[i] = mark && !y;
                     any |= mark;
                 }
                 if (setup) {
@@ -326,7 +341,7 @@ public class PartSim {
                 leaveSetup(it);
             }
         }
-        // the marks: a tap is the stock toggle, PartPick only keeps the time; yellow = a row in setup
+        // the marks (1.1.386): 1st tap green, 2nd yellow (double impulse on), 3rd off; in the setup all marks yellow
         Mgr m = new Mgr();
         ProgramDataBean b = new ProgramDataBean();
         b.strenthBean = new PartStrenthBean();
@@ -338,8 +353,13 @@ public class PartSim {
         m.list.add(it);
         Frag f = new Frag(m);
         boolean[] marks = it.partsControl;
-        marks[3] = true;
-        check(!PartPick.click(f, m, marks, 3) && PartPick.isMarked(3) && !PartPick.isYellow(3), "mark: green");
+        check(PartPick.click(f, m, marks, 3) && PartPick.isMarked(3) && !PartPick.isYellow(3), "1st tap: green");
+        check(PartPick.click(f, m, marks, 3) && PartPick.isMarked(3) && PartPick.isYellow(3), "2nd tap: yellow");
+        check(PartPick.click(f, m, marks, 3) && !PartPick.isMarked(3) && !PartPick.isYellow(3), "3rd tap: off");
+        b.activePause = false;
+        check(!PartPick.click(f, m, marks, 3), "no double impulse: the stock toggle");
+        b.activePause = true;
+        taps(f, m, marks, 3, 1);
         enterSetup(it);
         check(PartPick.isYellow(3), "mark in the setup: yellow");
         leaveSetup(it);
@@ -381,14 +401,28 @@ public class PartSim {
             }
         }
         leaveSetup(it);
-        marks[7] = true;
-        PartPick.click(f, m, marks, 7);
+        taps(f, m, marks, 7, 1);
         sb = secondReal(it, b);
         PartStrength.bar(null, tp, b, 7, 100);
         check(mainReal(b)[7] == 60, "normal, marked bar: main " + mainReal(b)[7]);
         check(Math.abs(secondReal(it, b)[7] - (int) Math.round(sb[7] * 60.0 / mb[7])) <= 1,
                 "normal, marked bar: second keeps its ratio " + secondReal(it, b)[7]);
-        marks[7] = false;
+        // normal, yellow by the 2nd tap: the bar sets the second impulse alone
+        taps(f, m, marks, 7, 2);
+        mb = mainReal(b);
+        PartStrength.bar(null, tp, b, 7, 50);
+        check(mainReal(b)[7] == mb[7], "tapped yellow bar moved the main impulse");
+        check(secondReal(it, b)[7] == 20, "tapped yellow bar: second impulse " + secondReal(it, b)[7] + " instead of 20");
+        taps(f, m, marks, 7, 0);
+        // the 2nd-impulse index buttons: a click picks (green), a 2nd click lets go; no setup from them
+        it.setPauseMaSelected(false);
+        it.setPauseHzSelected(false);
+        com.isaigu.gymapp.wearable.TrainIndex.pauseClick(it, false);
+        check(it.isPauseMaSelected() && !it.isPauseHzSelected() && !DoubleImpulse.active(it), "2nd MA: picked, no setup");
+        com.isaigu.gymapp.wearable.TrainIndex.pauseClick(it, true);
+        check(it.isPauseHzSelected() && !it.isPauseMaSelected(), "2nd Hz: picked instead");
+        com.isaigu.gymapp.wearable.TrainIndex.pauseClick(it, true);
+        check(!it.isPauseHzSelected() && !it.isPauseMaSelected(), "2nd Hz again: let go");
         // normal, not marked: the bar sets both impulses (the second follows the main)
         SecondParts.set(b, b.strenthBean.buwei, new int[] {50, 50, 50, 50, 50, 50, 50, 50, 50, 50});
         PartStrength.bar(null, tp, b, 2, 70);

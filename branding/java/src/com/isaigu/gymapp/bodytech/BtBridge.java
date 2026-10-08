@@ -56,10 +56,47 @@ public final class BtBridge {
         return config;
     }
 
-    /** CommandSender.sendDuration / sendActivePause / sendPause start: which phase the next commands belong to. */
+    /**
+     * CommandSender.sendDuration / sendActivePause / sendPause start: which phase the commands queued next belong to.
+     * Only remembered here: CommandSender writes its queue later, one command after the other, and a phase switch
+     * often comes while the last ramp step of the phase before is still queued (each bodytech command is many
+     * frames). Until 1.1.386 the translator took the phase at once, so that step went out as the new phase — wrong
+     * channels, Hz and leg values, and the impulse's off-time taken from the other phase. Now every queued command
+     * carries its phase ({@link #tag}) and the translator gets it when the command is written ({@link #sending}).
+     */
     public static void phase(BleDevice d, int p) {
         if (d == null || !isBodytech(d)) return;
-        dev(d).tr.phase(p);
+        dev(d).enqPhase = p;
+    }
+
+    /** Queued XEMS commands (their pdu, by identity) → the phase they were queued in. */
+    private static final Map<byte[], Integer> TAGS = new java.util.WeakHashMap<byte[], Integer>();
+
+    /** CommandSender.sendCommend start: the command with this pdu was queued in the phase set last by {@link #phase}. */
+    public static void tag(BleDevice d, byte[] pdu) {
+        try {
+            if (d == null || pdu == null || !isBodytech(d)) return;
+            int p = dev(d).enqPhase;
+            synchronized (TAGS) {
+                TAGS.put(pdu, Integer.valueOf(p));
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "tag: " + t);
+        }
+    }
+
+    /** CommandSender.writeCommend start: the command with this pdu goes out now — the translator is in its phase. */
+    public static void sending(BleDevice d, byte[] pdu) {
+        try {
+            if (d == null || pdu == null) return;
+            Integer p;
+            synchronized (TAGS) {
+                p = TAGS.remove(pdu);
+            }
+            if (p != null && isBodytech(d)) dev(d).tr.phase(p.intValue());
+        } catch (Throwable t) {
+            Log.e(TAG, "sending: " + t);
+        }
     }
 
     /** TrainItem.reset start (stop, end of the time, connect): all off, strengths 0, the suit programmed afresh. */
@@ -343,6 +380,8 @@ public final class BtBridge {
         /** A program is being written: frames of it written / in all (BtLoad's percent). */
         boolean loading;
         int loadDone, loadTotal;
+        /** The phase the row queues its commands in now ({@link BtBridge#phase}); MAIN until the first one. */
+        volatile int enqPhase = BtTranslator.MAIN;
 
         Dev(BleDevice d) {
             this.d = d;

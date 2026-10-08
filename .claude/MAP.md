@@ -29,7 +29,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-band-app.py` (77L, build:L137[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
 - `scripts/apply-beta-features.py` (95L, build:L105[BETA_MUSIC]) — BETA music sync core: install MusicSync smali + shared strings (player only, no mic).
 - `scripts/apply-ble-scan-lifecycle.py` (151L, build:L100) — Stop background BleDeviceManager scan outside the device-connect flow.
-- `scripts/apply-bodytech.py` (212L, build:L171) — Bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `scripts/apply-bodytech.py` (232L, build:L171) — Bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `scripts/apply-branding-train-layouts.py` (97L, build:L70[DESIGN_PIPELINE]) — Apply canonical train-screen layouts from branding/design/ at end of build.
 - `scripts/apply-branding.py` (235L, build:L50) — Apply branding images to decompiled APK resources.
 - `scripts/apply-bt-latency.py` (99L, build:L99) — Minimize Bluetooth command queue latency — write immediately after each ACK.
@@ -39,7 +39,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-design-config.py` (423L, build:L68[DESIGN_PIPELINE]) — Apply branding/design-config.yaml to train row layouts in branding/design/.
 - `scripts/apply-device-alias.py` (63L, build:L174) — Own names for the suits in the device list (both connect dialogs), kept on the tablet only.
 - `scripts/apply-diag-logging.py` (83L, build:L141[BETA_MUSIC]) — Install MusicDiagLog smali and hook crash handler + application init.
-- `scripts/apply-double-impulse.py` (77L, build:L167) — The double impulse (2nd impulse / active pause) per mode: Основен, Кардио, Масаж — not Мускули.
+- `scripts/apply-double-impulse.py` (150L, build:L167) — The double impulse (2nd impulse / active pause) per mode: Основен, Кардио, Масаж — not Мускули.
 - `scripts/apply-edit-parameter-scroll.py` (68L, build:L93) — Make the impulse/parameter settings dialog scrollable on smaller tablet viewports.
 - `scripts/apply-exercise-assets.py` (96L, build:L124[BETA_MUSIC]) — Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program pictures: br…
 - `scripts/apply-form-theme.py` (96L, build:L59) — Fix dark-theme form fields: LineEditText underline + add-user layout text colors.
@@ -120,7 +120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
-- `scripts/part-sim/PartSim.java` (417L) — Offline test of the double-impulse button (wearable/DoubleImpulse: tap = setup / off, 5 s → normal, hold = sync) and of…
+- `scripts/part-sim/PartSim.java` (451L) — Offline test of the double-impulse button (wearable/DoubleImpulse: tap = setup / off, 5 s → normal, hold = sync) and of…
 - `scripts/part-sim/run.sh` (16L) — Offline test of the double-impulse button (setup / off / 5 s / sync) and the second impulse per channel
 - `scripts/part-sim/shim/android/os/Handler.java` (10L) — Test shim: the android.jar stub throws in the constructor.
 - `scripts/part-sim/shim/android/os/Looper.java` (7L) — Test shim.
@@ -142,7 +142,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-apk-shipped.py` (227L) — Fail when APK-shipping source changed but xems27.apk was not rebuilt and committed.
 - `scripts/verify-arms-channel-scale.py` (67L, build:L160) — Verify arms channel strength scale hook is present in decompiled smali.
 - `scripts/verify-beta-safety.py` (73L, build:L143[BETA_MUSIC]) — Fail the build if BETA music hooks touch login-critical classes.
-- `scripts/verify-bodytech.py` (55L, build:L172) — Verify the bodytech suit hooks and classes are in the decompiled app (apply-bodytech.py ran, once each).
+- `scripts/verify-bodytech.py` (57L, build:L172) — Verify the bodytech suit hooks and classes are in the decompiled app (apply-bodytech.py ran, once each).
 - `scripts/verify-interval-timer-smali.py` (56L, build:L149[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
 - `scripts/verify-login-path.py` (89L) — Fail the build if login -> MainFragment -> NewTrainFragment path looks broken.
 - `scripts/verify-music-sync-smali.py` (183L, build:L142[BETA_MUSIC]) — Music player → MasterStrengthControl.setMasterStrength (no PDU hook).
@@ -204,19 +204,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WorkoutsUi.java` (1703L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
 
 **bodytech/** (`branding/java/src/com/isaigu/gymapp/bodytech/`)
-- `BtAus.java` (352L, compile:music-sync*) — "Модулация" (owner, 1.1.372 / 1.1.375): the passive procedures of a bodytech suit — the templates, their phases and the…
+- `BtAus.java` (353L, compile:music-sync*) — "Модулация" (owner, 1.1.372 / 1.1.375): the passive procedures of a bodytech suit — the templates, their phases and the…
 - `BtAusRun.java` (278L, compile:music-sync*) — Runs one "Модулация" procedure ({@link BtAus}) on a bodytech suit, phase after phase: every {@link #TICK_MS} it works o…
 - `BtAusScreen.java` (635L, compile:music-sync*) — "Модулация" (owner, 1.1.372; was "Австралийски ток"): one passive procedure of the 1–2 kHz current (atrophy, passive li…
 - `BtBeep.java` (106L, compile:music-sync*) — Sound signals of a bodytech suit, from the tablet (owner; 1.1.360 scheme): start = one long HIGH tone, pause = one long…
-- `BtBridge.java` (560L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `BtBridge.java` (599L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtFull.java` (267L, compile:music-sync*) — The row's gear on a bodytech suit → "Пълни параметри": every channel's own strength, Hz, width and waveform, separately…
 - `BtGear.java` (132L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtLoad.java` (272L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (167L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
-- `BtSettings.java` (490L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
-- `BtSettingsSection.java` (460L, compile:music-sync*) — Settings → "Костюм bodytech": which XEMS slider (muscle) drives each channel C1..C8 of a bodytech suit, which impulse i…
+- `BtSettings.java` (540L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
+- `BtSettingsSection.java` (389L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
-- `BtTranslator.java` (611L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (613L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -245,8 +245,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (33L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartLook.java` (519L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
-- `PartStrength.java` (523L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
+- `PartLook.java` (642L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
+- `PartStrength.java` (525L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
 
@@ -260,7 +260,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `CardPublisher.java` (136L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
-- `DoubleImpulse.java` (1257L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
+- `DoubleImpulse.java` (1286L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -273,7 +273,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `NextPlan.java` (418L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (732L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `PartPick.java` (218L, compile:music-sync*,wearable) — The muscle-group icons on the training screen (owner, 1.1.383): a tap marks / unmarks a channel; + / − and the avatar s…
+- `PartPick.java` (276L, compile:music-sync*,wearable) — The muscle-group icons on the training screen (owner, 1.1.386 — the cycle of 1.1.366 back): <ul> <li>1st tap — green: +…
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
 - `ProgramFit.java` (178L, compile:music-sync*,wearable) — The manual mode's programs, exactly as the trainer sets them (owner, 1.1.323: no automatic adaptation in the manual mod…
 - `QuickStart.java` (259L, compile:music-sync*,wearable) — Client list (Потребители): <ul> <li>▶ at the end of every row: the client's last program (their saved one, else the las…
@@ -284,12 +284,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SearchPad.java` (580L, compile:music-sync*,wearable) — Our own search keyboard for the client searches (Потребители, the client / program / device picker), made for a tablet …
 - `SecondParts.java` (182L, compile:music-sync*,wearable) — The second impulse's own strength per channel, kept per client.
 - `SessionInts.java` (41L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
-- `SessionRec.java` (410L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
+- `SessionRec.java` (424L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
 - `SessionRecorder.java` (455L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
 - `SessionUploader.java` (162L, compile:music-sync*,wearable) — Sends what the client's training analysis needs (the summary + the per-second record from files/xems_sessions, gzip-com…
 - `SuitReconnect.java` (425L, compile:music-sync*,wearable) — The suit's Bluetooth link dropped during a training: the row stays (client, program, time left, all settings), paused a…
-- `TrainIndex.java` (151L, compile:music-sync*,wearable) — The index buttons around the avatar (MA, Hz, 2nd-impulse MA, 2nd-impulse Hz): <ul> <li>a selection clears itself 5 s af…
+- `TrainIndex.java` (158L, compile:music-sync*,wearable) — The index buttons around the avatar (MA, Hz, 2nd-impulse MA, 2nd-impulse Hz): <ul> <li>a selection clears itself 5 s af…
 - `WearableBandPicker.java` (207L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
 - `WearableBlePermissions.java` (176L, compile:music-sync*,wearable) — Runtime BLUETOOTH_CONNECT + BLUETOOTH_SCAN (Android 12+) — required for GATT connect/discover.
@@ -425,13 +425,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
-- `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1279L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
+- `server/src/index.js` (1286L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
-- `server/src/measures.js` (69L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
+- `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
-- `server/src/report.js` (42L) — The bridge the report page expects (window.XemsReport), made from one fetch of /v1/history/<cardId> (the id comes from …
+- `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
 - `server/src/sweep.js` (13L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
 - `server/src/utils.js` (102L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/test/card.test.js` (104L) — 
@@ -442,10 +442,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/ems.test.js` (15L) — 
 - `server/test/exercises.test.js` (78L) — 
 - `server/test/history.test.js` (97L) — D1-shaped wrapper over node:sqlite with the real migration.
-- `server/test/measures.test.js` (75L) — 
+- `server/test/measures.test.js` (116L) — 
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (57L) — 
-- `server/test/report.test.js` (14L) — 
+- `server/test/report.test.js` (23L) — 
 - `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
 - `server/test/utils.test.js` (99L) — 
 - `server/migrations/0001_init.sql` (63L) — 
@@ -772,24 +772,30 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
   - L669 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
 
-`docs/xems-bodytech.md` (191L)
+`docs/xems-bodytech.md` (264L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L11 ## How it works
   - L33 ## Translation (XEMS → bodytech)
   - L51 ## Owner's settings (Settings → Костюм bodytech)
-  - L90 ## Test of a channel and the left → right order (1.1.346)
-  - L101 ## Feel a channel (1.1.372)
-  - L107 ## Full parameters from the row's gear (1.1.350) — no limits
-  - L120 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L129 ## Safety
-  - L137 ## Not verified on a person yet
-  - L143 ## Tests
-  - L147 ## What still limits (not the app)
-  - L151 ## Second impulse without limits (1.1.353)
-  - L154 ## Own device names (1.1.353)
-  - L157 ## Sound signals (1.1.360)
-  - L164 ## Start waits for the program (1.1.371)
-  - L173 ## Pulse slots (1.1.380; on by default since 1.1.382, Settings → Костюм bodytech → «Разделени импулси»)
+  - L96 ## Test of a channel and the left → right order (1.1.346)
+  - L107 ## Feel a channel (1.1.372)
+  - L113 ## Full parameters from the row's gear (1.1.350) — no limits
+  - L126 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L135 ## Safety
+  - L143 ## Not verified on a person yet
+  - L149 ## Tests
+  - L153 ## What still limits (not the app)
+  - L157 ## Second impulse without limits (1.1.353)
+  - L160 ## Own device names (1.1.353)
+  - L163 ## Sound signals (1.1.360)
+  - L170 ## Start waits for the program (1.1.371)
+  - L179 ## Pulse slots (1.1.380; on by default since 1.1.382, Settings → Костюм bodytech → «Разделени импулси»)
+  - L198 ## Phase of every command; the second impulse's setup (1.1.386)
+  - L222 ## All ten XEMS channels (owner, 1.1.388)
+  - L232 ## The thighs (owner, 1.1.389)
+  - L243 ## The settings sheet, simple (owner, 1.1.390)
+  - L250 ## The bodytech training row: 8 zones (owner, 1.1.391)
+  - L257 ## The bodytech row's column order (owner, 1.1.393)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят
@@ -808,7 +814,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L46 ## Програмите на началния екран (1.1.263-ai)
   - L52 ## Общите контроли и избраните клиенти (1.1.372-ai)
 
-`docs/xems-client-sync.md` (129L)
+`docs/xems-client-sync.md` (146L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
   - L5 ## Досие на клиента на сървъра (етап 1)
   - L16 ## Кой е собственик на кои данни
@@ -817,10 +823,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L50 ## Сливане на профил на таблета (`widget/XemsClientSync`)
   - L63 ## Днес — моментно състояние (1.1.265-ai, `AiPersonal.TODAY`)
   - L71 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
-  - L100 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
-  - L126 ## Кодът на студиото
+  - L100 ## „Моят прогрес“ = всичко на клиента, без нов разход
+  - L117 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
+  - L143 ## Кодът на студиото
 
-`docs/xems-ems-physiology.md` (214L)
+`docs/xems-ems-physiology.md` (242L)
   - L1 # EMS physiology — the knowledge the algorithms stand on
   - L8 ## 1. What the frequency does
   - L25 ## 2. Force–frequency curve (one function everywhere)
@@ -839,8 +846,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L154 ## 6. Between sessions
   - L166 ## 7. Heart rate
   - L175 ## 8. Where it is used
-  - L189 ## Not yet
-  - L192 ## References (from the literature the team works with; check the exact source before quoting outside)
+  - L189 ## 9. Load and efficiency of a training (report, 1.1.386-ai — owner)
+  - L217 ## Not yet
+  - L220 ## References (from the literature the team works with; check the exact source before quoting outside)
 
 `docs/xems-exercise-templates.md` (114L)
   - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them
@@ -855,7 +863,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-license-api.md` (180L)
+`docs/xems-license-api.md` (183L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -866,9 +874,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L84 ### 2. Опресняване (веднъж на 24 h, във фон)
   - L97 ### 3. Проверка за нова версия
   - L114 ### 4. Клиентски картон (линк за клиента)
-  - L152 ## Жетон (подписан от сървъра)
-  - L168 ## Какво остава за сървъра
-  - L175 ## Проверки (без Android)
+  - L155 ## Жетон (подписан от сървъра)
+  - L171 ## Какво остава за сървъра
+  - L178 ## Проверки (без Android)
 
 `docs/xems-modulation.md` (109L)
   - L1 # «Модулация» on a bodytech suit (1.1.375 phases; 1.1.372 name; was "Австралийски ток", 1.1.362)
@@ -880,19 +888,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-part-strength.md` (192L)
+`docs/xems-part-strength.md` (203L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
   - L28 ## Къде е вързано (`scripts/apply-part-strength.py`, последен в `build-apk.sh`)
   - L35 ## Проверки
   - L43 ## Бутонът „Двоен импулс“ на реда (1.1.383-ai) — заменя цикъла зелено → жълто и задържането 3 s
-  - L102 ## Зелено / жълто / изключено (1.1.366-ai)
-  - L121 ### Как работи
-  - L130 ### Съхранение по клиент и сървър
-  - L134 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
-  - L142 ### Защо 1.1.362–365 не работеше
-  - L147 ## Жълто = вторият импулс на екрана (1.1.369-ai)
-  - L179 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
+  - L113 ## Зелено / жълто / изключено (1.1.366-ai)
+  - L132 ### Как работи
+  - L141 ### Съхранение по клиент и сървър
+  - L145 ### Къде е вързано (`scripts/apply-pause-parts.py`, след `apply-part-strength.py`)
+  - L153 ### Защо 1.1.362–365 не работеше
+  - L158 ## Жълто = вторият импулс на екрана (1.1.369-ai)
+  - L190 ## Задържане 3 s върху иконата на канал = изравняване (1.1.371-ai)
 
 `docs/xems-plan.md` (62L)
   - L1 # XEMS — „План“ и следващ клиент (1.1.188-ai)

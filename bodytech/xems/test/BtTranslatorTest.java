@@ -213,13 +213,14 @@ public class BtTranslatorTest {
         tr.command(1, setting(50), 0);
         tr.command(3, run(2, 85, 360, 20, 4, 1), 0);
         eq("session end is the limit", 1, tr.heartbeat(5100).size());
-        // second-impulse phase counts the pause length
+        // the second impulse counts the longer of impulse / pause (its setup sends it in the ON phase too, 1.1.386)
         tr = new BtTranslator();
         tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
         tr.phase(BtTranslator.SECOND);
         tr.command(1, setting(50), 0);
         tr.command(3, run(600, 8, 360, 20, 2, 1), 0);
-        eq("second phase: pause length", 1, tr.heartbeat(5100).size());
+        eq("second impulse not cut at pause + 3 s", 0, tr.heartbeat(5100).size());
+        eq("second impulse off after the longer phase + 3 s", 1, tr.heartbeat(23100).size());
 
         // --- a failed write: the next frame is SEL all off, then the program again
         tr = new BtTranslator();
@@ -403,8 +404,10 @@ public class BtTranslatorTest {
         eq("name ems", false, BtProto.nameIsBodytech("ems"));
         eq("battery reply", 1571, BtProto.batteryRaw(new byte[]{0x36, 0, 1, 8, 1, 0x06, 0x23, (byte) 0xC9}));
 
-        // the legs (1.1.377): C5 left thigh → slider 2, C7 right thigh → slider 9
+        // the legs (1.1.377): C5 left thigh, C7 right thigh — here on sliders 2 / 9 (any XEMS channel works alike)
         BtSettings.reset();
+        BtSettings.setSlider(5, 2);
+        BtSettings.setSlider(7, 9);
         BtSettings.setSlots(false);
         BtSettings.loaded = true;
         BtTranslator lg = new BtTranslator();

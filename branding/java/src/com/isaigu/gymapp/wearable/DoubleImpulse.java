@@ -45,7 +45,8 @@ import java.util.WeakHashMap;
  *       the channel bars and percents, the muscle icons) glows three times. While it lasts the ring, + / −, the bars
  *       and the marked channels set the second impulse: its strength, its Hz, the strength of single or marked
  *       channels.</li>
- *   <li>5 s without an action: back to the normal double impulse (the two take turns again); there every control
+ *   <li>5 s without an action: back to the normal double impulse (the two take turns again), a running row starting
+ *       with a whole main impulse — its phase clock begins afresh ({@link #resume}, 1.1.386); there every control
  *       sets the main impulse (the second one keeps its share of the main strength, as always). The 2nd-impulse
  *       index buttons stay while the double impulse is on (1.1.385); a tap on one begins the setup with it picked.</li>
  *   <li><b>Tap</b> during the setup: the second impulse goes off — the plain pause again. Tap with the double impulse
@@ -283,7 +284,7 @@ public final class DoubleImpulse {
         clearSecond(it);
         save(it);
         haptic(v);
-        changed(it);
+        resume(it);
         Note.show(v, title(it, XemsLang.tr("Режим с пауза", "Pause mode")),
                 XemsLang.tr("Вторият импулс е изключен", "The second impulse is off"), GREY, 2400L);
     }
@@ -294,7 +295,11 @@ public final class DoubleImpulse {
             SETUP.remove(it);
         }
         clearSecond(it);
-        changed(it);
+        if (say) {
+            resume(it);                                 // the 5 s end: the main impulse whole, in step with the row
+        } else {
+            changed(it);                                // taken away elsewhere (⚙, mode, Smart): they lead the phase
+        }
         if (say && v != null) {
             Note.show(v, title(it, XemsLang.tr("Двоен импулс", "Double impulse")),
                     XemsLang.tr("Импулс 1 ⇄ импулс 2 · настройките са за главния импулс",
@@ -325,6 +330,30 @@ public final class DoubleImpulse {
     static void clearSecond(TrainItem it) {
         it.setPauseHzSelected(false);
         it.setPauseMaSelected(false);
+    }
+
+    /**
+     * The setup is over (5 s idle, or a tap back to the plain pause): a running row starts its ON phase afresh — the
+     * whole main impulse with its rise, the row's clock with it (owner, 1.1.386). Before, the row went on in the phase
+     * the setup happened to end in: the suit had given only the second impulse until then (felt as a long pause) and the
+     * main impulse came as the rest of a phase already half gone (felt cut short). A row that does not run: as before.
+     */
+    static void resume(TrainItem it) {
+        boolean restarted = false;
+        try {
+            restarted = it.xemsRestartPulse();
+        } catch (Throwable ignored) {
+        }
+        if (!restarted) {
+            changed(it);
+            return;
+        }
+        try {
+            it.xemsRefresh();
+        } catch (Throwable ignored) {
+        }
+        PartPick.refresh();
+        face(it);
     }
 
     /** The suit gets the new pattern now, the row redraws, the muscle icons follow. */

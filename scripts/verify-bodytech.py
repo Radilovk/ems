@@ -21,6 +21,8 @@ HOOKS = [
     ("train/model/CommandSender.smali", ".method public sendDuration(", f"{BB}->phase(", 1),
     ("train/model/CommandSender.smali", ".method public sendActivePause(", f"{BB}->phase(", 1),
     ("train/model/CommandSender.smali", ".method public sendPause(", f"{BB}->phase(", 1),
+    ("train/model/CommandSender.smali", ".method public sendCommend(", f"{BB}->tag(", 1),
+    ("train/model/CommandSender.smali", ".method private writeCommend(", f"{BB}->sending(", 1),
     ("train/model/TrainItem.smali", ".method public reset()V", f"{BB}->reset(", 1),
     ("train/model/TrainItem.smali", ".method public start()V", "bodytech/BtLoad;->hold(", 1),
     ("train/TrainViewHolder.smali", ".method private updateUI()V", "bodytech/BtLoad;->mark(", 1),

@@ -1,4 +1,4 @@
-package com.isaigu.gymapp.vr;
+package com.isaigu.gymapp.wearable.vr;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;

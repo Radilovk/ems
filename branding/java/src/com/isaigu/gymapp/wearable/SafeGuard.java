@@ -9,6 +9,9 @@ import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.bean.TrainUser;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.wearable.vr.VrFatigue;
+import com.isaigu.gymapp.wearable.vr.VrHapticEvent;
+import com.isaigu.gymapp.wearable.vr.VrWire;
 import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsLang;
 import java.util.Calendar;
@@ -138,6 +141,60 @@ public final class SafeGuard {
             return null;
         }
         return SafeLimits.pauseSend(b.strenth, b.hz, b.activePause, b.pauseHz, b.pauseStrenthPercent, free2);
+    }
+
+    // ---- VR haptics (wearable/vr): every game pulse passes here before the controller sees it -------------------
+
+    private static final VrFatigue VR = new VrFatigue();
+    private static boolean vrWasLimited;
+
+    /** A game haptic (receiver thread): only recorded; what reaches the suit is decided in {@link #vrLevel}. */
+    public static void vrPulse(VrHapticEvent e) {
+        synchronized (VR) {
+            VR.pulse(e.hand, e.amplitude, e.durationUs, e.isMinDuration(), e.isAppend(), e.eventTimeNs);
+        }
+    }
+
+    public static void vrStop(int hand) {
+        synchronized (VR) {
+            if (hand == VrWire.HAND_BOTH) {
+                VR.stopAll();
+            } else {
+                VR.stop(hand);
+            }
+        }
+    }
+
+    /**
+     * The guarded VR level 0–100 (% of the trainer's set strength) at {@code nowNs}: fatigue τ = 30 s and the 6 s
+     * continuous cap ({@link VrFatigue}). {@code item} = the driven row, null / not running → 0 (fatigue keeps
+     * recovering). The trainer gets one line when the guard starts holding the output back.
+     */
+    public static int vrLevel(TrainItem item, long nowNs) {
+        boolean open = item != null && item.data != null && item.data.start;
+        float out;
+        boolean limited;
+        boolean locked;
+        synchronized (VR) {
+            out = VR.level(nowNs, open);
+            locked = VR.isLocked();
+            limited = locked || VR.isCapResting(nowNs);
+        }
+        if (limited && !vrWasLimited && item != null) {
+            tip(item, locked
+                    ? XemsLang.tr("VR: мускулите са уморени — пауза, докато се възстановят",
+                            "VR: muscles tired — paused until they recover")
+                    : XemsLang.tr("VR: 6 s непрекъснат импулс — 4 s почивка", "VR: 6 s continuous impulse — 4 s rest"));
+        }
+        vrWasLimited = limited;
+        return Math.round(out * 100f);
+    }
+
+    /** F / F_max of the VR guard (1 = limit), for the screen and the log. */
+    public static double vrLoad() {
+        synchronized (VR) {
+            return VR.load();
+        }
     }
 
     /** The client's age, −1 when not known. */

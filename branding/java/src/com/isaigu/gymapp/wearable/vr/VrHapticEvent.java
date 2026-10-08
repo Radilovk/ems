@@ -1,4 +1,4 @@
-package com.isaigu.gymapp.vr;
+package com.isaigu.gymapp.wearable.vr;
 
 /** One xrApplyHapticFeedback call from the game, already time-mapped to this tablet's clock. */
 public final class VrHapticEvent {

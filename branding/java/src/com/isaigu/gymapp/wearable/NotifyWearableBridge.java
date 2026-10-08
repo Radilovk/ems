@@ -9,6 +9,7 @@ import com.isaigu.gymapp.dialog.IntervalTimerHelper;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MusicSync;
+import com.isaigu.gymapp.wearable.vr.VrBridge;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBand;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
@@ -150,6 +151,9 @@ public final class NotifyWearableBridge {
 
     private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         WearableSyncHelper.attachMasterPanel(root, manager);
+        if (root != null) {
+            VrBridge.attach(root.getContext());   // Quest 3 haptics: listen while the training screen is open
+        }
     }
 
     public static void syncTrainingState() {
@@ -180,6 +184,7 @@ public final class NotifyWearableBridge {
 
     private static void detachTrainingHostImpl() {
         WearableSyncHelper.detachTrainingHost();
+        VrBridge.detach();
     }
 
     public static void onTrainingFullStop() {
@@ -191,6 +196,7 @@ public final class NotifyWearableBridge {
     }
 
     private static void onTrainingFullStopImpl() {
+        VrBridge.onTrainingStopped();
         WearableSyncHelper.onTrainingRunningChanged(false);
         BandRemote.onManualStop();
     }

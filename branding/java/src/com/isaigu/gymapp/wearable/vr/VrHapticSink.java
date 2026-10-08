@@ -1,4 +1,4 @@
-package com.isaigu.gymapp.vr;
+package com.isaigu.gymapp.wearable.vr;
 
 /**
  * Where VR telemetry leaves the network layer: SafeGuard (fatigue model, 6 s continuous-pulse cap) and

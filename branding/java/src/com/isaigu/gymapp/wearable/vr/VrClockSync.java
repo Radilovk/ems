@@ -1,4 +1,4 @@
-package com.isaigu.gymapp.vr;
+package com.isaigu.gymapp.wearable.vr;
 
 /**
  * Quest ↔ tablet monotonic clock offset from PING/PONG. Min-RTT filter over the last {@link #WINDOW}

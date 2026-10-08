@@ -1,4 +1,4 @@
-package com.isaigu.gymapp.vr;
+package com.isaigu.gymapp.wearable.vr;
 
 /** Wire constants — mirror of vr-bridge/quest-layer/src/xems_wire.h (little-endian, packed). */
 public final class VrWire {

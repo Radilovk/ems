@@ -1,7 +1,7 @@
-import com.isaigu.gymapp.vr.VrHapticEvent;
-import com.isaigu.gymapp.vr.VrHapticSink;
-import com.isaigu.gymapp.vr.VrTelemetryReceiver;
-import com.isaigu.gymapp.vr.VrWire;
+import com.isaigu.gymapp.wearable.vr.VrHapticEvent;
+import com.isaigu.gymapp.wearable.vr.VrHapticSink;
+import com.isaigu.gymapp.wearable.vr.VrTelemetryReceiver;
+import com.isaigu.gymapp.wearable.vr.VrWire;
 
 /** Host test: receiver on 127.0.0.1:port, checks what the scripted host_driver run delivers. */
 public final class VrReceiverHostTest implements VrHapticSink {

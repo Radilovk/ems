@@ -119,6 +119,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   fi
   python3 "${ROOT}/scripts/apply-wearable-bridge.py"
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
+  python3 "${ROOT}/scripts/apply-vr-bridge.py"
   python3 "${ROOT}/scripts/apply-pulse-cycle-hook.py"
   python3 "${ROOT}/scripts/apply-ai-session.py"
   python3 "${ROOT}/scripts/apply-exercise-assets.py"

@@ -8,7 +8,7 @@
 //   PING.h.tNs = t0 (tablet send)  ->  PONG.t0 = t0, PONG.t1 = quest receive, PONG.h.tNs = t2 (quest send)
 //   tablet receive = t3;  offset(quest - tablet) = ((t1 - t0) + (t2 - t3)) / 2;  rtt = (t3 - t0) - (t2 - t1)
 //
-// Java mirror: vr-bridge/tablet/src/com/isaigu/gymapp/vr/VrWire.java — keep both in sync.
+// Java mirror: branding/java/src/com/isaigu/gymapp/wearable/vr/VrWire.java — keep both in sync.
 #pragma once
 #include <cstddef>
 #include <cstdint>

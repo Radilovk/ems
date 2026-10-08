@@ -3,6 +3,7 @@ package com.clj.fastble;
 import android.bluetooth.BluetoothGatt;
 
 import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleRssiCallback;
 import com.clj.fastble.data.BleDevice;
 
 public class BleManager {
@@ -19,6 +20,12 @@ public class BleManager {
     public BluetoothGatt getBluetoothGatt(BleDevice device) {
         return null;
     }
+
+    public java.util.List<BleDevice> getAllConnectedDevice() {
+        return null;
+    }
+
+    public void readRssi(BleDevice device, BleRssiCallback callback) {}
 
     public boolean isConnected(BleDevice device) {
         return false;

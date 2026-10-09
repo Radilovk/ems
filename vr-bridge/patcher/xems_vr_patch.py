@@ -32,6 +32,11 @@ LAYER_JSON = PREBUILT / "XrApiLayer_xems_haptics.json"
 SO_ENTRY = "lib/arm64-v8a/libXrApiLayer_xems_haptics.so"
 JSON_ENTRY = "assets/openxr/1/api_layers/implicit.d/XrApiLayer_xems_haptics.json"
 LOADER = "lib/arm64-v8a/libopenxr_loader.so"
+# Loader shim (default): the game's loader is renamed to ORIG_ENTRY and the shim takes its name. Works with
+# loaders that never read implicit layers from the APK (Godot's). Asset layer (SO_ENTRY + JSON_ENTRY) = fallback.
+ORIG_ENTRY = "lib/arm64-v8a/libopenxr_loader_orig_xems.so"
+SHIM_SO = PREBUILT / "arm64-v8a" / "libopenxr_loader_xems_shim.so"
+SHIM_EXPORTS = HERE.parent / "quest-layer" / "src" / "loader_exports.txt"
 SIGNER_URL = "https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar"
 CACHE = Path.home() / ".xems-vr"
 TARGET_MARKER = b"XEMS_VR_TARGET_SLOT="   # g_bakedTarget in xems_haptic_layer.cpp: marker + 43 free bytes
@@ -113,6 +118,55 @@ def bake_target(so: bytes, target: str | None) -> bytes:
     return so[:at] + raw + bytes(TARGET_ROOM + 1 - len(raw)) + so[at + TARGET_ROOM + 1:]
 
 
+def elf_exports(so: bytes) -> set[str]:
+    """Defined global FUNC symbols of an ELF64 little-endian .so (.dynsym) — what the game can link against."""
+    if so[:4] != b"\x7fELF" or so[4] != 2:
+        return set()
+    shoff, = struct.unpack_from("<Q", so, 0x28)
+    shentsize, shnum = struct.unpack_from("<HH", so, 0x3A)
+    secs = [struct.unpack_from("<IIQQQQIIQQ", so, shoff + i * shentsize) for i in range(shnum)]
+    out = set()
+    for name, stype, _f, _a, off, size, link, _i, _al, entsize in secs:
+        if stype != 11 or not entsize:                    # SHT_DYNSYM
+            continue
+        stroff = secs[link][4]
+        for k in range(size // entsize):
+            st_name, st_info, _o, st_shndx = struct.unpack_from("<IBBH", so, off + k * entsize)
+            if st_shndx and (st_info >> 4) in (1, 2) and (st_info & 0xF) == 2:   # GLOBAL/WEAK, FUNC, defined
+                end = so.index(b"\0", stroff + st_name)
+                out.add(so[stroff + st_name:end].decode("ascii", "replace"))
+    return out
+
+
+def shim_fits(loader: bytes) -> bool:
+    """The shim can stand in only if it exports every xr* entry point the game's loader does."""
+    if not SHIM_SO.is_file() or not SHIM_EXPORTS.is_file():
+        return False
+    ours = set(SHIM_EXPORTS.read_text().split())
+    missing = {n for n in elf_exports(loader) if n.startswith("xr")} - ours
+    if missing:
+        say("… loader-ът на играта има функции, които посредникът не познава: " + ", ".join(sorted(missing)[:5]))
+    return not missing
+
+
+def inject_shim(src: Path, dst: Path, target: str | None) -> None:
+    """Loader shim: the game's loader → ORIG_ENTRY, our shim → LOADER. A game patched before keeps its original."""
+    with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
+        names = set(zin.namelist())
+        repatch = ORIG_ENTRY in names
+        for info in zin.infolist():
+            n = info.filename
+            if info.is_dir() or is_signature(n) or n in (SO_ENTRY, JSON_ENTRY):
+                continue
+            if n == LOADER:
+                if repatch:
+                    continue                                      # our old shim — replaced below
+                n = ORIG_ENTRY                                    # the real loader moves aside, bytes untouched
+            with zin.open(info) as f:
+                put(zout, n, f.read(), info.compress_type, info.date_time, info.external_attr)
+        put(zout, LOADER, bake_target(SHIM_SO.read_bytes(), target), zipfile.ZIP_STORED)
+
+
 def inject(src: Path, dst: Path, add_so: bool, add_json: bool, target: str | None = None) -> None:
     """Copy the APK without its old signature (aligned), add the layer (.so stored and page-aligned)."""
     with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
@@ -177,12 +231,24 @@ def patch_set(apks: list[Path], out: Path, target: str | None = None) -> list[Pa
     so_at = with_loader[0]
     tmp = out / "_patched"
     tmp.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(apks[so_at]) as z:
+        names = set(z.namelist())
+        loader = z.read(ORIG_ENTRY if ORIG_ENTRY in names else LOADER)
+    use_shim = shim_fits(loader)
     patched = []
     for i, a in enumerate(apks):
         dst = tmp / a.name
-        inject(a, dst, add_so=i == so_at, add_json=i == base, target=target)
+        if use_shim and i == so_at:
+            inject_shim(a, dst, target)
+        elif use_shim:
+            inject(a, dst, add_so=False, add_json=False)              # other splits: re-signed, old layer json out
+        else:
+            inject(a, dst, add_so=i == so_at, add_json=i == base, target=target)
         patched.append(dst)
-    say(f"✓ слоят е добавен ({apks[so_at].name}), манифестът ({apks[base].name})")
+    if use_shim:
+        say(f"✓ посредникът е сложен на мястото на OpenXR loader-а ({apks[so_at].name})")
+    else:
+        say(f"✓ слоят е добавен ({apks[so_at].name}), манифестът ({apks[base].name})")
     if target:
         say(f"✓ таблет: {target} (записан в играта — важи и след рестарт на шлема)")
     signed = sign(patched, out)

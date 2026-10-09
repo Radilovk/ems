@@ -11,65 +11,9 @@
 #include <cstring>
 #include <thread>
 
-namespace {
-const XrInstance kInst = reinterpret_cast<XrInstance>(uintptr_t(0x1001));
-const XrSession  kSess = reinterpret_cast<XrSession>(uintptr_t(0x2002));
-const XrAction   kBoth = reinterpret_cast<XrAction>(uintptr_t(0x3003));
-const XrPath     kLeft = 11, kRight = 12, kLeftHaptic = 21, kRightHaptic = 22;
-int g_applied = 0, g_stopped = 0;
-XrSessionState g_nextState = XR_SESSION_STATE_FOCUSED;
-bool g_pendingEvent = false;
+#include "fake_runtime.h"
 
-XRAPI_ATTR XrResult XRAPI_CALL rtCreate(const XrInstanceCreateInfo*, const XrApiLayerCreateInfo*, XrInstance* i) {
-    *i = kInst;
-    return XR_SUCCESS;
-}
-XRAPI_ATTR XrResult XRAPI_CALL rtDestroyInstance(XrInstance) { return XR_SUCCESS; }
-XRAPI_ATTR XrResult XRAPI_CALL rtApply(XrSession, const XrHapticActionInfo*, const XrHapticBaseHeader*) {
-    ++g_applied;
-    return XR_SUCCESS;
-}
-XRAPI_ATTR XrResult XRAPI_CALL rtStop(XrSession, const XrHapticActionInfo*) {
-    ++g_stopped;
-    return XR_SUCCESS;
-}
-XRAPI_ATTR XrResult XRAPI_CALL rtPoll(XrInstance, XrEventDataBuffer* b) {
-    if (!g_pendingEvent) return XR_EVENT_UNAVAILABLE;
-    g_pendingEvent = false;
-    auto* e = reinterpret_cast<XrEventDataSessionStateChanged*>(b);
-    e->type    = XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED;
-    e->session = kSess;
-    e->state   = g_nextState;
-    return XR_SUCCESS;
-}
-XRAPI_ATTR XrResult XRAPI_CALL rtDestroyAction(XrAction) { return XR_SUCCESS; }
-XRAPI_ATTR XrResult XRAPI_CALL rtStringToPath(XrInstance, const char* s, XrPath* p) {
-    *p = !strcmp(s, "/user/hand/left") ? kLeft : !strcmp(s, "/user/hand/right") ? kRight : 99;
-    return XR_SUCCESS;
-}
-XRAPI_ATTR XrResult XRAPI_CALL rtPathToString(XrInstance, XrPath p, uint32_t cap, uint32_t* n, char* buf) {
-    const char* s = p == kLeftHaptic ? "/user/hand/left/output/haptic"
-                  : p == kRightHaptic ? "/user/hand/right/output/haptic" : "/user/gamepad";
-    *n = uint32_t(strlen(s) + 1);
-    if (cap >= *n) memcpy(buf, s, *n);
-    return XR_SUCCESS;
-}
-XRAPI_ATTR XrResult XRAPI_CALL rtEnumBound(XrSession, const XrBoundSourcesForActionEnumerateInfo*, uint32_t cap,
-                                           uint32_t* n, XrPath* out) {
-    *n = 2;
-    if (cap >= 2) { out[0] = kLeftHaptic; out[1] = kRightHaptic; }
-    return XR_SUCCESS;
-}
-XRAPI_ATTR XrResult XRAPI_CALL rtGipa(XrInstance, const char* n, PFN_xrVoidFunction* f) {
-#define R(name, fn) if (!strcmp(n, name)) { *f = reinterpret_cast<PFN_xrVoidFunction>(fn); return XR_SUCCESS; }
-    R("xrDestroyInstance", rtDestroyInstance) R("xrApplyHapticFeedback", rtApply)
-    R("xrStopHapticFeedback", rtStop) R("xrPollEvent", rtPoll) R("xrDestroyAction", rtDestroyAction)
-    R("xrStringToPath", rtStringToPath) R("xrPathToString", rtPathToString)
-    R("xrEnumerateBoundSourcesForAction", rtEnumBound)
-#undef R
-    *f = nullptr;
-    return XR_ERROR_FUNCTION_UNSUPPORTED;
-}
+namespace {
 template <typename T> T get(PFN_xrGetInstanceProcAddr g, const char* n) {
     PFN_xrVoidFunction f = nullptr;
     g(kInst, n, &f);
@@ -79,39 +23,66 @@ void sleepMs(int ms) { std::this_thread::sleep_for(std::chrono::milliseconds(ms)
 }  // namespace
 
 int main(int argc, char** argv) {
+    // host_driver <layer.so>              — plays the loader: negotiate + create through the layer
+    // host_driver <loader_shim.so> shim   — plays the game: the shim is the loader (fake original beside it)
     if (argc < 2) return 2;
+    const bool shimMode = argc > 2 && !strcmp(argv[2], "shim");
     void* so = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL);
     if (!so) { fprintf(stderr, "dlopen: %s\n", dlerror()); return 1; }
-    auto negotiate = reinterpret_cast<PFN_xrNegotiateLoaderApiLayerInterface>(
-        dlsym(so, "xrNegotiateLoaderApiLayerInterface"));
 
-    XrNegotiateLoaderInfo li{XR_LOADER_INTERFACE_STRUCT_LOADER_INFO, XR_LOADER_INFO_STRUCT_VERSION,
-                             sizeof li, 1, XR_CURRENT_LOADER_API_LAYER_VERSION, XR_MAKE_VERSION(1, 0, 0),
-                             XR_MAKE_VERSION(1, 0, 34)};
-    XrNegotiateApiLayerRequest rq{XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST, XR_API_LAYER_INFO_STRUCT_VERSION,
-                                  sizeof rq, 0, 0, nullptr, nullptr};
-    if (negotiate(&li, "XR_APILAYER_XEMS_haptic_bridge", &rq) != XR_SUCCESS) { puts("negotiate FAIL"); return 1; }
-    if (rq.layerApiVersion != XR_MAKE_VERSION(1, 0, 34)) { puts("api version FAIL"); return 1; }
-
-    XrApiLayerNextInfo next{XR_LOADER_INTERFACE_STRUCT_API_LAYER_NEXT_INFO, XR_API_LAYER_NEXT_INFO_STRUCT_VERSION,
-                            sizeof next, "XR_APILAYER_XEMS_haptic_bridge", rtGipa, rtCreate, nullptr};
-    XrApiLayerCreateInfo ci{};
-    ci.structType = XR_LOADER_INTERFACE_STRUCT_API_LAYER_CREATE_INFO;
-    ci.structVersion = XR_API_LAYER_CREATE_INFO_STRUCT_VERSION;
-    ci.structSize = sizeof ci;
-    ci.nextInfo = &next;
+    int* applied = &g_applied; int* stopped = &g_stopped;
+    XrSessionState* nextState = &g_nextState; bool* pendingEvent = &g_pendingEvent;
+    PFN_xrGetInstanceProcAddr gipa = nullptr;
     XrInstanceCreateInfo info{XR_TYPE_INSTANCE_CREATE_INFO};
     XrInstance inst = XR_NULL_HANDLE;
-    if (rq.createApiLayerInstance(&info, &ci, &inst) != XR_SUCCESS || inst != kInst) { puts("create FAIL"); return 1; }
 
-    auto apply   = get<PFN_xrApplyHapticFeedback>(rq.getInstanceProcAddr, "xrApplyHapticFeedback");
-    auto stop    = get<PFN_xrStopHapticFeedback>(rq.getInstanceProcAddr, "xrStopHapticFeedback");
-    auto poll    = get<PFN_xrPollEvent>(rq.getInstanceProcAddr, "xrPollEvent");
-    auto destroy = get<PFN_xrDestroyInstance>(rq.getInstanceProcAddr, "xrDestroyInstance");
-    if (reinterpret_cast<void*>(apply) == reinterpret_cast<void*>(rtApply)) { puts("hook FAIL"); return 1; }
+    if (shimMode) {
+        void* orig = dlopen("libopenxr_loader_orig_xems.so", RTLD_NOW | RTLD_NOLOAD);
+        if (!orig) { puts("shim did not load the original loader FAIL"); return 1; }
+        reinterpret_cast<void (*)(int**, int**, XrSessionState**, bool**)>(dlsym(orig, "fake_state"))(
+            &applied, &stopped, &nextState, &pendingEvent);
+        gipa = reinterpret_cast<PFN_xrGetInstanceProcAddr>(dlsym(so, "xrGetInstanceProcAddr"));
+        PFN_xrVoidFunction f = nullptr;
+        gipa(XR_NULL_HANDLE, "xrCreateInstance", &f);
+        if (reinterpret_cast<void*>(f) != dlsym(so, "xrCreateInstance")) { puts("shim create not ours FAIL"); return 1; }
+        if (reinterpret_cast<PFN_xrCreateInstance>(f)(&info, &inst) != XR_SUCCESS || inst != kInst) { puts("create FAIL"); return 1; }
+        // Trampolines: one the original has, one it lacks.
+        XrPath p = 0;
+        auto s2p = reinterpret_cast<PFN_xrStringToPath>(dlsym(so, "xrStringToPath"));
+        if (s2p(inst, "/user/hand/left", &p) != XR_SUCCESS || p != kLeft) { puts("trampoline FAIL"); return 1; }
+        auto beginFrame = reinterpret_cast<PFN_xrBeginFrame>(dlsym(so, "xrBeginFrame"));
+        if (!beginFrame || beginFrame(kSess, nullptr) != XR_ERROR_FUNCTION_UNSUPPORTED) { puts("missing-fn trampoline FAIL"); return 1; }
+    } else {
+        auto negotiate = reinterpret_cast<PFN_xrNegotiateLoaderApiLayerInterface>(
+            dlsym(so, "xrNegotiateLoaderApiLayerInterface"));
+        XrNegotiateLoaderInfo li{XR_LOADER_INTERFACE_STRUCT_LOADER_INFO, XR_LOADER_INFO_STRUCT_VERSION,
+                                 sizeof li, 1, XR_CURRENT_LOADER_API_LAYER_VERSION, XR_MAKE_VERSION(1, 0, 0),
+                                 XR_MAKE_VERSION(1, 0, 34)};
+        XrNegotiateApiLayerRequest rq{XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST, XR_API_LAYER_INFO_STRUCT_VERSION,
+                                      sizeof rq, 0, 0, nullptr, nullptr};
+        if (negotiate(&li, "XR_APILAYER_XEMS_haptic_bridge", &rq) != XR_SUCCESS) { puts("negotiate FAIL"); return 1; }
+        if (rq.layerApiVersion != XR_MAKE_VERSION(1, 0, 34)) { puts("api version FAIL"); return 1; }
+        XrApiLayerNextInfo next{XR_LOADER_INTERFACE_STRUCT_API_LAYER_NEXT_INFO, XR_API_LAYER_NEXT_INFO_STRUCT_VERSION,
+                                sizeof next, "XR_APILAYER_XEMS_haptic_bridge", rtGipa, rtCreate, nullptr};
+        XrApiLayerCreateInfo ci{};
+        ci.structType = XR_LOADER_INTERFACE_STRUCT_API_LAYER_CREATE_INFO;
+        ci.structVersion = XR_API_LAYER_CREATE_INFO_STRUCT_VERSION;
+        ci.structSize = sizeof ci;
+        ci.nextInfo = &next;
+        if (rq.createApiLayerInstance(&info, &ci, &inst) != XR_SUCCESS || inst != kInst) { puts("create FAIL"); return 1; }
+        gipa = rq.getInstanceProcAddr;
+    }
+
+    auto apply   = get<PFN_xrApplyHapticFeedback>(gipa, "xrApplyHapticFeedback");
+    auto stop    = get<PFN_xrStopHapticFeedback>(gipa, "xrStopHapticFeedback");
+    auto poll    = get<PFN_xrPollEvent>(gipa, "xrPollEvent");
+    auto destroy = get<PFN_xrDestroyInstance>(gipa, "xrDestroyInstance");
+    if (!shimMode && reinterpret_cast<void*>(apply) == reinterpret_cast<void*>(rtApply)) { puts("hook FAIL"); return 1; }
+    // Shim: a game that links xrApplyHapticFeedback directly must go through the layer too (used for i == 0).
+    auto applyExport = shimMode ? reinterpret_cast<PFN_xrApplyHapticFeedback>(dlsym(so, "xrApplyHapticFeedback")) : apply;
 
     XrEventDataBuffer ev{XR_TYPE_EVENT_DATA_BUFFER};
-    g_pendingEvent = true;  // -> FOCUSED
+    *pendingEvent = true;  // -> FOCUSED
     poll(inst, &ev);
 
     sleepMs(1500);  // pairing + a few PING/PONG rounds
@@ -122,7 +93,7 @@ int main(int argc, char** argv) {
         XrHapticVibration v{XR_TYPE_HAPTIC_VIBRATION, nullptr, 40'000'000, XR_FREQUENCY_UNSPECIFIED,
                             0.025f * float(i + 1)};
         auto t = std::chrono::steady_clock::now();
-        apply(kSess, &ai, reinterpret_cast<XrHapticBaseHeader*>(&v));
+        (i == 0 ? applyExport : apply)(kSess, &ai, reinterpret_cast<XrHapticBaseHeader*>(&v));
         worstUs = std::max(worstUs, std::chrono::duration<double, std::micro>(std::chrono::steady_clock::now() - t).count());
         sleepMs(11);
     }
@@ -139,11 +110,11 @@ int main(int argc, char** argv) {
         stop(kSess, &al);
     }
     sleepMs(20);
-    g_nextState = XR_SESSION_STATE_VISIBLE;  // unfocus -> STOP both
-    g_pendingEvent = true;
+    *nextState = XR_SESSION_STATE_VISIBLE;  // unfocus -> STOP both
+    *pendingEvent = true;
     poll(inst, &ev);
     sleepMs(50);
     destroy(inst);
-    printf("driver applied=%d stopped=%d worst_hook_us=%.1f\n", g_applied, g_stopped, worstUs);
-    return g_applied == 41 && g_stopped == 1 ? 0 : 1;
+    printf("driver%s applied=%d stopped=%d worst_hook_us=%.1f\n", shimMode ? " (shim)" : "", *applied, *stopped, worstUs);
+    return *applied == 41 && *stopped == 1 ? 0 : 1;
 }

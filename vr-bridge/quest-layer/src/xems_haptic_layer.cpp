@@ -471,6 +471,7 @@ XRAPI_ATTR XrResult XRAPI_CALL Layer_CreateApiLayerInstance(const XrInstanceCrea
 extern "C" XRAPI_ATTR XrResult XRAPI_CALL __attribute__((visibility("default")))
 xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo* loaderInfo, const char* layerName,
                                    XrNegotiateApiLayerRequest* req) {
+    XLOG("negotiate (asset layer) %s", layerName ? layerName : "?");
     if (!loaderInfo || !req || !layerName || strcmp(layerName, kLayerName) != 0 ||
         loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO ||
         loaderInfo->structVersion != XR_LOADER_INFO_STRUCT_VERSION ||

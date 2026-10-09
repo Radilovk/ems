@@ -15,6 +15,6 @@ cmake -S "$HERE" -B "$OUT" -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.tool
   -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-29 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release \
   ${OPENXR_SDK_DIR:+-DOPENXR_SDK_DIR="$OPENXR_SDK_DIR"} >/dev/null
 cmake --build "$OUT"
-cp "$OUT/libXrApiLayer_xems_haptics.so" "$ROOT/vr-bridge/prebuilt/arm64-v8a/"
+cp "$OUT/libXrApiLayer_xems_haptics.so" "$OUT/libopenxr_loader_xems_shim.so" "$ROOT/vr-bridge/prebuilt/arm64-v8a/"
 cp "$HERE/manifest/XrApiLayer_xems_haptics.json" "$ROOT/vr-bridge/prebuilt/"
 echo "prebuilt updated: vr-bridge/prebuilt/arm64-v8a/libXrApiLayer_xems_haptics.so"

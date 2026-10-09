@@ -27,7 +27,8 @@ esac
 A
 cat > "$T/bin/python3" <<'P'
 #!/usr/bin/env bash
-echo "python3 $* serial=$ANDROID_SERIAL cwd=$(basename "$PWD")" >> "$FAKE_LOG"
+echo "python3 $* serial=${ANDROID_SERIAL:-} cwd=$(basename "$PWD")" >> "$FAKE_LOG"
+if [[ "$1 $2" == "catalog.py resolve" ]]; then printf '%b\n' "${FAKE_RESOLVE:-apk /dl/OpenSaber.apk}"; exit "${FAKE_RESOLVE_EXIT:-0}"; fi
 exit "${FAKE_PY_EXIT:-0}"
 P
 cat > "$T/bin/timeout" <<'S'
@@ -60,6 +61,15 @@ check "no args"                  2 ""
 FAKE_CONNECT=no check "patch: connect refused" 4 "adb connect" patch 192.168.1.23 com.a.game
 FAKE_STATE=unauthorized check "patch: unauthorized" 5 "" patch 192.168.1.23 com.a.game
 FAKE_PY_EXIT=1 check "patch: patcher exit code passes" 1 "python3" patch 192.168.1.23 com.a.game
+# catalog / install
+check "catalog: lists via catalog.py" 0 "python3 catalog.py list" catalog
+check "install: download → patch with --install" 0 "python3 xems_vr_patch.py --install /dl/OpenSaber.apk --yes --tablet 192.168.1.50 serial=192.168.1.23:5555" \
+      install 192.168.1.23 opensaber 192.168.1.50
+FAKE_RESOLVE='page https://x.itch.io/g' FAKE_RESOLVE_EXIT=7 check "install: page game → 7 + url" 7 "page https://x.itch.io/g" install 192.168.1.23 opensaber
+FAKE_RESOLVE_EXIT=8 check "install: no Downloads access → 8" 8 "" install 192.168.1.23 opensaber
+check "install: bad id"             2 "" install 192.168.1.23 'Bad;id'
+FAKE_CONNECT=no check "install: headset away" 4 "" install 192.168.1.23 opensaber
+
 # games
 check "games: filters system packages" 0 "game com.a.fight ok" games 192.168.1.23
 out="$(PATH="$T/bin:$PATH" bash "$RUN" games 192.168.1.23 2>/dev/null | grep '^game ')"

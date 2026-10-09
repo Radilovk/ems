@@ -57,6 +57,27 @@ else()
     target_link_libraries(XrApiLayer_xems_haptics PRIVATE Threads::Threads)
 endif()
 
+# Loader shim (libopenxr_loader.so in the game, the original renamed beside it): for loaders that never read
+# implicit layers from the APK. Same layer code, compiled into one .so with every xr* entry point.
+add_library(XrLoaderShim_xems SHARED src/loader_shim.cpp)
+set_target_properties(XrLoaderShim_xems PROPERTIES OUTPUT_NAME openxr_loader_xems_shim NO_SONAME ON)
+target_include_directories(XrLoaderShim_xems PRIVATE ${OPENXR_SDK_DIR}/include src)
+target_compile_definitions(XrLoaderShim_xems PRIVATE XR_NO_PROTOTYPES)
+target_compile_options(XrLoaderShim_xems PRIVATE
+    -Wall -Wextra -Werror=return-type -fvisibility=hidden -fvisibility-inlines-hidden -fno-exceptions -fno-rtti
+    -ffunction-sections -fdata-sections $<$<CONFIG:Release>:-O2 -DNDEBUG>)
+set(XEMS_SHIM_EXPORTS ${CMAKE_CURRENT_BINARY_DIR}/shim_exports.map)
+file(WRITE ${XEMS_SHIM_EXPORTS} "{ global: xr*; local: *; };\n")
+target_link_options(XrLoaderShim_xems PRIVATE
+    -Wl,-soname,libopenxr_loader.so   # the name the game links / dlopens
+    -Wl,--version-script=${XEMS_SHIM_EXPORTS} -Wl,--gc-sections -Wl,--as-needed -Wl,-z,defs
+    -Wl,-z,max-page-size=16384 $<$<CONFIG:Release>:-s>)
+if(ANDROID)
+    target_link_libraries(XrLoaderShim_xems PRIVATE ${ANDROID_LOG_LIB} dl)
+else()
+    target_link_libraries(XrLoaderShim_xems PRIVATE Threads::Threads dl)
+endif()
+
 add_custom_command(TARGET XrApiLayer_xems_haptics POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/manifest/XrApiLayer_xems_haptics.json

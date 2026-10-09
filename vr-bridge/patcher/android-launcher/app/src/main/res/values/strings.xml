@@ -103,4 +103,26 @@
     <string name="status_game_vrapi">Тази игра не става</string>
     <string name="detail_game_vrapi">%1$s е на стария VrApi на Meta — хаптиката се закача само към OpenXR игри. Избери игра с ✓.</string>
     <string name="detail_game_unknown">Не я разпознах като OpenXR игра — може да не стане. Натисни зеления бутон, за да пробваш.</string>
+    <string name="btn_catalog">🎮 Каталог — изтегли игра, която става</string>
+    <string name="status_catalog">Отварям каталога…</string>
+    <string name="detail_catalog">Игри извън магазина, с които хаптиката работи.</string>
+    <string name="status_catalog_ready">Каталог</string>
+    <string name="detail_catalog_ready">Избери игра — сваля се, слага се хаптиката и се инсталира на шлема.</string>
+    <string name="catalog_title">Игри за хаптиката</string>
+    <string name="install_message_direct">Таблетът ще я свали, ще сложи хаптиката с IP-то на таблета и ще я инсталира на шлема. 1–3 мин.</string>
+    <string name="install_message_page">Тази игра се тегли само от страницата ѝ (↗). Ще се отвори браузърът — натисни Download там. После се върни и натисни „Инсталирай“ — таблетът намира файла в Downloads.</string>
+    <string name="install_yes">Инсталирай</string>
+    <string name="status_installing">Свалям и инсталирам…</string>
+    <string name="detail_installing">Сваляне → хаптика → инсталиране на шлема. 1–3 минути.</string>
+    <string name="detail_installed">Играта е на шлема с хаптиката. Пусни реда на таблета и стартирай играта.</string>
+    <string name="status_page">Свали я от страницата</string>
+    <string name="detail_page">В браузъра натисни Download (Meta Quest APK). Като свърши — натисни „Инсталирай“ отдолу.</string>
+    <string name="status_no_storage">Termux не вижда Downloads</string>
+    <string name="detail_no_storage">Веднъж: разреши на Termux достъп до файловете.</string>
+    <string name="status_storage">Разреши достъп до файловете</string>
+    <string name="detail_storage">В Termux излиза въпрос — натисни Allow. После се върни тук.</string>
+    <string name="status_storage_ok">Достъпът е разрешен ✓</string>
+    <string name="detail_storage_ok">Сега натисни „Инсталирай“.</string>
+    <string name="action_install_again">Инсталирай</string>
+    <string name="action_storage">Разреши достъп</string>
 </resources>

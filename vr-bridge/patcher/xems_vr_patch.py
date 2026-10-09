@@ -32,6 +32,11 @@ LAYER_JSON = PREBUILT / "XrApiLayer_xems_haptics.json"
 SO_ENTRY = "lib/arm64-v8a/libXrApiLayer_xems_haptics.so"
 JSON_ENTRY = "assets/openxr/1/api_layers/implicit.d/XrApiLayer_xems_haptics.json"
 LOADER = "lib/arm64-v8a/libopenxr_loader.so"
+# Loader shim (default): the game's loader is renamed to ORIG_ENTRY and the shim takes its name. Works with
+# loaders that never read implicit layers from the APK (Godot's). Asset layer (SO_ENTRY + JSON_ENTRY) = fallback.
+ORIG_ENTRY = "lib/arm64-v8a/libopenxr_loader_orig_xems.so"
+SHIM_SO = PREBUILT / "arm64-v8a" / "libopenxr_loader_xems_shim.so"
+SHIM_EXPORTS = HERE.parent / "quest-layer" / "src" / "loader_exports.txt"
 SIGNER_URL = "https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar"
 CACHE = Path.home() / ".xems-vr"
 TARGET_MARKER = b"XEMS_VR_TARGET_SLOT="   # g_bakedTarget in xems_haptic_layer.cpp: marker + 43 free bytes
@@ -113,6 +118,55 @@ def bake_target(so: bytes, target: str | None) -> bytes:
     return so[:at] + raw + bytes(TARGET_ROOM + 1 - len(raw)) + so[at + TARGET_ROOM + 1:]
 
 
+def elf_exports(so: bytes) -> set[str]:
+    """Defined global FUNC symbols of an ELF64 little-endian .so (.dynsym) — what the game can link against."""
+    if so[:4] != b"\x7fELF" or so[4] != 2:
+        return set()
+    shoff, = struct.unpack_from("<Q", so, 0x28)
+    shentsize, shnum = struct.unpack_from("<HH", so, 0x3A)
+    secs = [struct.unpack_from("<IIQQQQIIQQ", so, shoff + i * shentsize) for i in range(shnum)]
+    out = set()
+    for name, stype, _f, _a, off, size, link, _i, _al, entsize in secs:
+        if stype != 11 or not entsize:                    # SHT_DYNSYM
+            continue
+        stroff = secs[link][4]
+        for k in range(size // entsize):
+            st_name, st_info, _o, st_shndx = struct.unpack_from("<IBBH", so, off + k * entsize)
+            if st_shndx and (st_info >> 4) in (1, 2) and (st_info & 0xF) == 2:   # GLOBAL/WEAK, FUNC, defined
+                end = so.index(b"\0", stroff + st_name)
+                out.add(so[stroff + st_name:end].decode("ascii", "replace"))
+    return out
+
+
+def shim_fits(loader: bytes) -> bool:
+    """The shim can stand in only if it exports every xr* entry point the game's loader does."""
+    if not SHIM_SO.is_file() or not SHIM_EXPORTS.is_file():
+        return False
+    ours = set(SHIM_EXPORTS.read_text().split())
+    missing = {n for n in elf_exports(loader) if n.startswith("xr")} - ours
+    if missing:
+        say("… loader-ът на играта има функции, които посредникът не познава: " + ", ".join(sorted(missing)[:5]))
+    return not missing
+
+
+def inject_shim(src: Path, dst: Path, target: str | None) -> None:
+    """Loader shim: the game's loader → ORIG_ENTRY, our shim → LOADER. A game patched before keeps its original."""
+    with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
+        names = set(zin.namelist())
+        repatch = ORIG_ENTRY in names
+        for info in zin.infolist():
+            n = info.filename
+            if info.is_dir() or is_signature(n) or n in (SO_ENTRY, JSON_ENTRY):
+                continue
+            if n == LOADER:
+                if repatch:
+                    continue                                      # our old shim — replaced below
+                n = ORIG_ENTRY                                    # the real loader moves aside, bytes untouched
+            with zin.open(info) as f:
+                put(zout, n, f.read(), info.compress_type, info.date_time, info.external_attr)
+        put(zout, LOADER, bake_target(SHIM_SO.read_bytes(), target), zipfile.ZIP_STORED)
+
+
 def inject(src: Path, dst: Path, add_so: bool, add_json: bool, target: str | None = None) -> None:
     """Copy the APK without its old signature (aligned), add the layer (.so stored and page-aligned)."""
     with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
@@ -177,12 +231,24 @@ def patch_set(apks: list[Path], out: Path, target: str | None = None) -> list[Pa
     so_at = with_loader[0]
     tmp = out / "_patched"
     tmp.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(apks[so_at]) as z:
+        names = set(z.namelist())
+        loader = z.read(ORIG_ENTRY if ORIG_ENTRY in names else LOADER)
+    use_shim = shim_fits(loader)
     patched = []
     for i, a in enumerate(apks):
         dst = tmp / a.name
-        inject(a, dst, add_so=i == so_at, add_json=i == base, target=target)
+        if use_shim and i == so_at:
+            inject_shim(a, dst, target)
+        elif use_shim:
+            inject(a, dst, add_so=False, add_json=False)              # other splits: re-signed, old layer json out
+        else:
+            inject(a, dst, add_so=i == so_at, add_json=i == base, target=target)
         patched.append(dst)
-    say(f"✓ слоят е добавен ({apks[so_at].name}), манифестът ({apks[base].name})")
+    if use_shim:
+        say(f"✓ посредникът е сложен на мястото на OpenXR loader-а ({apks[so_at].name})")
+    else:
+        say(f"✓ слоят е добавен ({apks[so_at].name}), манифестът ({apks[base].name})")
     if target:
         say(f"✓ таблет: {target} (записан в играта — важи и след рестарт на шлема)")
     signed = sign(patched, out)
@@ -213,6 +279,47 @@ def pull_game(adb: Adb, pkg: str, into: Path) -> list[Path]:
         out.append(local)
     say(f"✓ изтеглени {len(out)} APK от шлема")
     return out
+
+
+def manifest_info(apk: Path) -> tuple[str, bool]:
+    """(package, asks for INTERNET) from the binary AndroidManifest.xml — no aapt needed in Termux."""
+    with zipfile.ZipFile(apk) as z:
+        d = z.read("AndroidManifest.xml")
+    u16 = lambda o: struct.unpack_from("<H", d, o)[0]
+    u32 = lambda o: struct.unpack_from("<I", d, o)[0]
+    strings: list[str] = []
+    pkg = ""
+    off = u16(2)                                       # file header size
+    while off + 8 <= len(d):
+        ctype, hsize, csize = u16(off), u16(off + 2), u32(off + 4)
+        if csize < 8:
+            break
+        if ctype == 0x0001 and not strings:            # string pool
+            count, flags, sstart = u32(off + 8), u32(off + 16), u32(off + 20)
+            utf8 = flags & 0x100
+            for i in range(count):
+                so = off + sstart + u32(off + hsize + i * 4)
+                if utf8:
+                    so += 2 if d[so] & 0x80 else 1     # utf-16 length
+                    n = d[so] & 0x7F
+                    if d[so] & 0x80:
+                        n = ((d[so] & 0x7F) << 8) | d[so + 1]; so += 1
+                    so += 1
+                    strings.append(d[so:so + n].decode("utf-8", "replace"))
+                else:
+                    n = u16(so)
+                    if n & 0x8000:
+                        n = ((n & 0x7FFF) << 16) | u16(so + 2); so += 2
+                    strings.append(d[so + 2:so + 2 + n * 2].decode("utf-16le", "replace"))
+        elif ctype == 0x0102 and not pkg:              # first start tag = <manifest>
+            astart, acount = u16(off + 24), u16(off + 28)
+            for i in range(acount):
+                ao = off + 16 + astart + i * 20
+                name, raw = u32(ao + 4), u32(ao + 8)
+                if name < len(strings) and strings[name] == "package" and raw < len(strings):
+                    pkg = strings[raw]
+        off += csize
+    return pkg, "android.permission.INTERNET" in strings
 
 
 def has_internet(adb: Adb, pkg: str) -> bool:
@@ -313,6 +420,8 @@ def main() -> int:
     ap.add_argument("--apk", action="append", type=Path, help="офлайн: локален APK (повтаря се за split-ове)")
     ap.add_argument("--out", type=Path, default=Path("xems-vr-out"), help="папка за резултата")
     ap.add_argument("--adb", default=os.environ.get("ADB", "adb"))
+    ap.add_argument("--install", type=Path, metavar="APK",
+                    help="APK файл (напр. свален на таблета): пач + инсталиране на шлема; пакетът се чете от файла")
     ap.add_argument("--yes", action="store_true", help="без въпрос преди преинсталиране")
     a = ap.parse_args()
 
@@ -333,15 +442,31 @@ def main() -> int:
             if a.list.lower() in p.lower():
                 say(p)
         return 0
-    if not a.package:
+    if not a.package and not a.install:
         ap.print_help()
         return 1
 
-    pkg = a.package
-    if not has_internet(adb, pkg):
-        fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
     work = Path(tempfile.mkdtemp(prefix="xems-vr-"))
-    orig = pull_game(adb, pkg, work / "orig")
+    if a.install:
+        if not a.install.is_file():
+            fail(f"няма файл {a.install}")
+        try:
+            pkg, internet = manifest_info(a.install)
+        except (zipfile.BadZipFile, KeyError, struct.error) as e:
+            fail(f"{a.install.name} не е APK ({e})")
+        if not pkg:
+            fail(f"не можах да прочета пакета от {a.install.name}")
+        if not internet:
+            fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
+        say(f"✓ {a.install.name} → {pkg}")
+        (work / "orig").mkdir(parents=True)
+        orig = [work / "orig" / "base.apk"]
+        shutil.copy(a.install, orig[0])
+    else:
+        pkg = a.package
+        if not has_internet(adb, pkg):
+            fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
+        orig = pull_game(adb, pkg, work / "orig")
     a.out.mkdir(parents=True, exist_ok=True)
     keep = a.out / "original" / pkg
     keep.mkdir(parents=True, exist_ok=True)

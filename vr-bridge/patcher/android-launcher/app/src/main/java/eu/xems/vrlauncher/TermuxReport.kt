@@ -25,6 +25,17 @@ object TermuxReport {
         Game(pkg, when (parts.getOrNull(1)) { "ok" -> Fit.OK; "vrapi" -> Fit.VRAPI; else -> Fit.UNKNOWN })
     }.distinctBy { it.pkg }.sortedBy { it.fit.ordinal }
 
+    data class CatalogGame(val id: String, val name: String, val direct: Boolean, val note: String)
+
+    /** "item <id>\t<name>\t<github|page>\t<note>" (catalog.json through catalog.py). */
+    fun catalog(stdout: String): List<CatalogGame> = lines(stdout, "item ").mapNotNull { rest ->
+        val f = rest.split('\t')
+        if (f.size < 3 || f[0].isBlank()) null else CatalogGame(f[0].trim(), f[1].trim(), f[2].trim() == "github", f.getOrElse(3) { "" }.trim())
+    }.distinctBy { it.id }
+
+    /** "page <url>": where the APK has to be downloaded by hand. */
+    fun page(stdout: String): String? = lines(stdout, "page ").lastOrNull()?.trim()?.takeIf { it.startsWith("https://") }
+
     /** "ok <what>" / "missing <what>" → what → present. */
     fun checks(stdout: String): List<Pair<String, Boolean>> =
         lines(stdout, "ok ").map { it.trim() to true } + lines(stdout, "missing ").map { it.trim() to false }

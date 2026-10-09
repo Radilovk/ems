@@ -47,6 +47,17 @@ VrDrive (main thread, 10 ms tick while linked and the target row runs)
 and refreshes `vr-bridge/prebuilt/` (committed: `arm64-v8a/libXrApiLayer_xems_haptics.so` + the manifest json).
 Offline headers: `OPENXR_SDK_DIR=<OpenXR-SDK checkout>`.
 
+## Loader shim (default since the Open Saber test)
+Many Quest loaders (Godot's) never read implicit layers from `assets/openxr/…` — the layer then never loads and
+`logcat -s XemsVrLayer` stays empty. So the patcher renames the game's `libopenxr_loader.so` →
+`libopenxr_loader_orig_xems.so` and puts `libopenxr_loader_xems_shim.so` (built from `quest-layer/src/loader_shim.cpp`,
+which compiles the layer in) under the loader's name. The shim builds the one-layer chain itself
+(`xrGetInstanceProcAddr` / `xrCreateInstance`), routes the five hooked calls through the layer and trampolines every
+other `xr*` (283, `loader_exports.txt`, regenerate with `gen_exports.py`) into the original. If the game's loader
+exports an `xr*` the shim doesn't know, the patcher falls back to the asset layer. Re-patching keeps the original.
+Host test: `test/run.sh` third run (`fake_loader.cpp` = original). Log: `loader shim: original loader loaded`, then
+`active, session …`.
+
 ## Deploy on Quest 3 — `vr-bridge/patcher/xems_vr_patch.py`
 Retail Quest apps load layers only from their own APK, so each game is repacked. One command on a PC with adb +
 Java 8+ + Python 3, headset in developer mode on USB:

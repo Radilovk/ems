@@ -4,9 +4,13 @@
 #   termux-run.sh find <tablet-ip>                     → "quest <ip> <model>" per Quest on the /24 (adb :5555)
 #   termux-run.sh games <quest-ip[:port]>              → "game <package>" per third-party app on the headset
 #   termux-run.sh patch <quest-ip[:port]> <pkg> [tablet-ip]   adb connect + xems_vr_patch.py --yes [--tablet]
+#   termux-run.sh catalog                              → "item <id>\t<name>\t<github|page>\t<note>" (catalog.json)
+#   termux-run.sh install <quest-ip[:port]> <id> [tablet-ip]   catalog game: download / find in Downloads →
+#                                                      patch → install on the headset ("page <url>" + exit 7 = open it)
 #   (a first argument that is not a verb = patch, the pre-verb form)
 # Exit codes the app maps: 0 done · 2 bad arguments · 3 adb missing · 4 headset not reachable / none found
-#   5 headset unauthorized/offline · 6 setup incomplete · anything else = xems_vr_patch.py's own code.
+#   5 headset unauthorized/offline · 6 setup incomplete · 7 download it from the page (browser) ·
+#   8 Termux cannot read Downloads (termux-setup-storage) · anything else = xems_vr_patch.py's own code.
 set -uo pipefail
 
 PATCHER="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -127,6 +131,30 @@ cmd_patch() {
 
 [[ $# -ge 1 ]] || die 2 "употреба: termux-run.sh check | find <IP> | games <IP> | patch <IP> <пакет> [IP]"
 verb="$1"
+cmd_catalog() {
+  cd "$PATCHER" || die 6 "няма $PATCHER"
+  exec python3 catalog.py list
+}
+
+cmd_install() {
+  [[ $# -ge 2 && $# -le 3 ]] || die 2 "употреба: termux-run.sh install <IP на шлема[:порт]> <id> [IP на таблета]"
+  parse_quest "$1"
+  local id="$2" tablet="${3:-}" out apk rc
+  [[ "$id" =~ ^[a-z0-9_-]+$ ]] || die 2 "грешно id: $id"
+  [[ -z "$tablet" || "$tablet" =~ $IPV4 ]] || die 2 "грешен IP на таблета: $tablet"
+  cd "$PATCHER" || die 6 "няма $PATCHER"
+  out="$(python3 catalog.py resolve "$id")"; rc=$?
+  echo "$out"
+  [[ $rc -eq 0 ]] || exit "$rc"                    # 7 = open the page, 8 = no Downloads access
+  apk="$(sed -n 's/^apk //p' <<<"$out" | tail -1)"
+  need_adb; connect
+  export ANDROID_SERIAL="$serial"
+  local args=(xems_vr_patch.py --install "$apk" --yes)
+  [[ -n "$tablet" ]] && args+=(--tablet "$tablet")
+  echo "→ python3 ${args[*]}"
+  exec python3 "${args[@]}"
+}
+
 # games / patch: take the newest scripts from the repo first (setup ran once, fixes land later). Offline = as is.
 self_update() {
   local dir="$PATCHER/../.." branch="${XEMS_BRANCH:-main}"
@@ -138,12 +166,14 @@ self_update() {
   echo "→ скриптовете са обновени"
   XEMS_UPDATED=1 exec bash "$0" "$@"
 }
-[[ "$verb" != check && "$verb" != find ]] && self_update "$@"
+[[ "$verb" != check && "$verb" != find ]] && self_update "$@"   # catalog/install too: new games land in main
 
 case "$verb" in
   check) shift; cmd_check "$@" ;;
   find)  shift; cmd_find "$@" ;;
   games) shift; cmd_games "$@" ;;
+  catalog) shift; cmd_catalog "$@" ;;
+  install) shift; cmd_install "$@" ;;
   patch) shift; cmd_patch "$@" ;;
   *)     cmd_patch "$@" ;;
 esac

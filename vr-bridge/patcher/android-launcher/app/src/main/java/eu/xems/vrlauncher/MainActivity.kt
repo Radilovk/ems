@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.app.PendingIntent
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -80,6 +81,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         findViewById<View>(R.id.btn_detect_ip).setOnClickListener { detectTabletIp() }
         findViewById<View>(R.id.btn_find_quest).setOnClickListener { findQuest() }
         findViewById<View>(R.id.btn_pick_game).setOnClickListener { listGames() }
+        findViewById<View>(R.id.btn_catalog).setOnClickListener { withTermux { start(Task.CATALOG, TermuxScript.catalog()) } }
         findViewById<View>(R.id.btn_setup).setOnClickListener { setupTermux() }
         findViewById<View>(R.id.btn_check).setOnClickListener { withTermux { start(Task.CHECK, TermuxScript.check()) } }
         showInTermux.setOnCheckedChangeListener { _, on -> store.showInTermux = on }
@@ -271,7 +273,9 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     private fun start(task: Task, args: Array<String>) {
         val runId = System.currentTimeMillis()
         // Only the long runs may open a Termux session; lookups always run in the background.
-        val visible = showInTermux.isChecked && (task == Task.PATCH || task == Task.SETUP)
+        val long = task == Task.PATCH || task == Task.SETUP || task == Task.INSTALL
+        // Termux's file-access dialog only shows over a visible session.
+        val visible = task == Task.STORAGE || (showInTermux.isChecked && long)
         store.start(runId, task, TermuxScript.display(args), visible)
         try {
             TermuxBridge.run(this, args, "XEMS VR · ${task.name.lowercase()}", runId, visible)
@@ -302,6 +306,9 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         Task.GAMES -> R.string.status_listing
         Task.CHECK -> R.string.status_checking
         Task.SETUP -> R.string.status_setting_up
+        Task.CATALOG -> R.string.status_catalog
+        Task.INSTALL -> if (store.runVisible) R.string.status_in_termux else R.string.status_installing
+        Task.STORAGE -> R.string.status_storage
     }
 
     private fun runningDetail(task: Task) = when (task) {
@@ -310,6 +317,9 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         Task.GAMES -> R.string.detail_listing
         Task.CHECK -> R.string.detail_checking
         Task.SETUP -> R.string.detail_setting_up
+        Task.CATALOG -> R.string.detail_catalog
+        Task.INSTALL -> if (store.runVisible) R.string.detail_in_termux else R.string.detail_installing
+        Task.STORAGE -> R.string.detail_storage
     }
 
     private fun renderResult(task: Task, r: PatchResult) {
@@ -329,6 +339,15 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
                     }
                     return
                 }
+                Task.CATALOG -> return onCatalog(TermuxReport.catalog(r.stdout))
+                Task.STORAGE -> return setStatus(
+                    getString(R.string.status_storage_ok), getString(R.string.detail_storage_ok),
+                    R.color.go_text, false, "", if (store.catalogId.isNotEmpty()) Action.INSTALL else null,
+                )
+                Task.INSTALL -> return setStatus(
+                    getString(R.string.status_done), getString(R.string.detail_installed),
+                    R.color.go_text, false, r.tail(), null,
+                )
                 Task.PATCH -> return setStatus(
                     getString(R.string.status_done), getString(R.string.detail_done),
                     R.color.go_text, false, r.tail(), null,
@@ -343,6 +362,17 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
             PatchResult.Outcome.UNAUTHORIZED ->
                 Triple(R.string.status_unauthorized, R.string.detail_unauthorized, if (task == Task.PATCH) null else Action.GAMES)
             PatchResult.Outcome.TERMUX -> Triple(R.string.status_termux, R.string.detail_termux, Action.ALLOW)
+            PatchResult.Outcome.PAGE -> {
+                // A page-only game (itch.io…): open it once; the APK lands in Downloads, the second tap finds it.
+                val url = TermuxReport.page(r.stdout)
+                if (url != null && !store.consumed) {
+                    store.consume()
+                    runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                }
+                return setStatus(getString(R.string.status_page), getString(R.string.detail_page),
+                    R.color.amber, false, url.orEmpty(), Action.INSTALL)
+            }
+            PatchResult.Outcome.NO_STORAGE -> Triple(R.string.status_no_storage, R.string.detail_no_storage, Action.STORAGE)
             else -> Triple(R.string.status_failed, R.string.detail_failed, null)
         }
         val log = if (task == Task.CHECK || task == Task.SETUP) checklist(r.stdout).ifEmpty { r.tail() } else r.tail()
@@ -415,18 +445,66 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
             R.color.text, false, "", null)
     }
 
+    // ---------------------------------------------------------------- catalog
+
+    private fun onCatalog(games: List<TermuxReport.CatalogGame>) {
+        setStatus(getString(R.string.status_catalog_ready), getString(R.string.detail_catalog_ready),
+            R.color.go_text, false, "", null)
+        if (store.consumed || games.isEmpty()) return
+        store.consume()
+        val labels = games.map { g ->
+            g.name + (if (g.direct) "" else "  ↗") + if (g.note.isNotEmpty()) "\n" + g.note else ""
+        }
+        showDialog(
+            AlertDialog.Builder(this, R.style.Xems_Dialog)
+                .setTitle(R.string.catalog_title)
+                .setItems(labels.toTypedArray()) { _, i -> confirmInstall(games[i]) }
+        )
+    }
+
+    private fun confirmInstall(g: TermuxReport.CatalogGame) {
+        if (PatchRequest.questSerial(questField.text.toString()) == null) {
+            questField.error = getString(R.string.err_quest_ip)
+            questField.requestFocus()
+            return
+        }
+        showDialog(
+            AlertDialog.Builder(this, R.style.Xems_Dialog)
+                .setTitle(g.name)
+                .setMessage(getString(if (g.direct) R.string.install_message_direct else R.string.install_message_page))
+                .setPositiveButton(R.string.install_yes) { _, _ -> installCatalog(g.id) }
+                .setNegativeButton(R.string.confirm_no, null)
+        )
+    }
+
+    /** Download (or find in Downloads) → patch with the tablet IP → install on the headset. */
+    private fun installCatalog(id: String) {
+        val serial = PatchRequest.questSerial(questField.text.toString())
+        if (id.isEmpty() || serial == null) {
+            questField.error = getString(R.string.err_quest_ip)
+            return
+        }
+        val tablet = tabletField.text.toString().trim().takeIf { PatchRequest.isIpv4(it) }
+        store.catalogId = id
+        store.questIp = questField.text.toString().trim()
+        withTermux { start(Task.INSTALL, TermuxScript.install(serial, id, tablet)) }
+    }
+
     private fun checklist(stdout: String): String = TermuxReport.checks(stdout).joinToString("\n") { (what, ok) ->
         (if (ok) "✓ " else "✗ ") + what
     }
 
     private enum class Action(val label: Int) {
-        SETUP(R.string.action_setup), FIND(R.string.action_find), GAMES(R.string.action_games), ALLOW(R.string.action_allow)
+        SETUP(R.string.action_setup), FIND(R.string.action_find), GAMES(R.string.action_games), ALLOW(R.string.action_allow),
+        INSTALL(R.string.action_install_again), STORAGE(R.string.action_storage)
     }
 
     private fun runAction(a: Action) = when (a) {
         Action.SETUP -> setupTermux()
         Action.FIND -> findQuest()
         Action.GAMES -> listGames()
+        Action.INSTALL -> installCatalog(store.catalogId)
+        Action.STORAGE -> withTermux { start(Task.STORAGE, TermuxScript.storage()) }
         Action.ALLOW -> {
             // The only line the user has to type in Termux: copy it and open Termux to paste it.
             getSystemService(ClipboardManager::class.java)

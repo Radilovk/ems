@@ -463,7 +463,8 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
 
     private fun onVrCheck(c: TermuxReport.VrCheck) {
         val games = c.patched.joinToString("\n") { (pkg, shim) -> "✓ " + pkg + if (shim) "" else "  (стар начин)" }
-        val log = listOf(games, c.log.joinToString("\n")).filter { it.isNotEmpty() }.joinToString("\n\n")
+        val log = listOf(games, c.log.joinToString("\n"), c.evidence.joinToString("\n"))
+            .filter { it.isNotEmpty() }.joinToString("\n\n")
         val (title, detail, color) = when (c.verdict) {
             TermuxReport.VrCheck.Verdict.PAIRED -> Triple(R.string.vr_paired, R.string.vr_paired_detail, R.color.go_text)
             TermuxReport.VrCheck.Verdict.ACTIVE -> Triple(R.string.vr_active, R.string.vr_active_detail, R.color.amber)

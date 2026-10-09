@@ -165,7 +165,20 @@ cmd_vrcheck() {
     t=$(tail -c 4194304 "$a" 2>/dev/null | grep -c -F -e libopenxr_loader_orig_xems.so -e XrApiLayer_xems_haptics.json)
     if tail -c 4194304 "$a" 2>/dev/null | grep -q -F libopenxr_loader_orig_xems.so; then echo "patched $p shim"; break; fi
     [ "$t" != 0 ] && echo "patched $p asset" && break; done; done'
-  adb -s "$serial" shell "$probe" 2>/dev/null | tr -d '\r'
+  local out p pid dir
+  out="$(adb -s "$serial" shell "$probe" 2>/dev/null | tr -d '\r')"
+  [[ -n "$out" ]] && echo "$out"
+  # Per patched game: which libopenxr_loader*.so the installer unpacked (ours ≈ 280 KB) and what the game's
+  # process said about loading libraries — the evidence when the layer stays silent.
+  for p in $(sed -n 's/^patched \([^ ]*\) .*/\1/p' <<<"$out"); do
+    dir="$(adb -s "$serial" shell pm path "$p" 2>/dev/null | head -1 | tr -d '\r' | sed 's/^package://; s|/[^/]*$||')"
+    adb -s "$serial" shell "ls -l $dir/lib/arm64/ 2>&1 | grep -i -e openxr -e 'No such'" 2>/dev/null | tr -d '\r' \
+      | awk -v p="$p" '{print "lib " p " " $5 " " $NF}'
+    pid="$(adb -s "$serial" shell pidof "$p" 2>/dev/null | tr -d '\r')"
+    if [[ -z "$pid" ]]; then echo "plog $p не е пусната"; continue; fi
+    adb -s "$serial" logcat -d --pid="$pid" 2>/dev/null | tr -d '\r' \
+      | grep -i -e openxr -e loader -e dlopen -e linker -e xems -e 'cannot locate' | tail -12 | sed "s/^/plog /"
+  done
   adb -s "$serial" logcat -d -s XemsVrLayer 2>/dev/null | tr -d '\r' | grep -v '^-----' | tail -15 | sed 's/^/log /'
   return 0
 }

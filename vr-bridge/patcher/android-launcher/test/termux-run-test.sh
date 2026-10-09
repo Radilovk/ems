@@ -14,11 +14,13 @@ case "$1" in
   -s)
     ip="${2%%:*}"
     case "$3" in
+      logcat) printf 'I XemsVrLayer: loader shim: original loader loaded\r\nI XemsVrLayer: paired with 192.168.43.1:47800\r\n' ;;
       get-state) [[ " ${FAKE_UNAUTH:-} " == *" $ip "* ]] && echo unauthorized || echo "${FAKE_STATE:-device}" ;;
       shell)
         case "$4 $5" in
           "getprop ro.product.manufacturer") [[ " ${FAKE_QUESTS:-} " == *" $ip "* ]] && echo $'Oculus\r' || echo $'samsung\r' ;;
           "getprop ro.product.model") echo $'Quest 3\r' ;;
+          *libopenxr_loader_orig_xems*) printf 'patched org.saber shim\r\n' ;;
           *libopenxr_loader*) printf 'com.a.fight ok\r\ncom.beat.games vrapi\r\n' ;;
           "pm list") printf 'package:com.oculus.vrshell\r\npackage:com.beat.games\r\npackage:com.meta.store\r\npackage:com.a.fight\r\n' ;;
         esac ;;
@@ -69,6 +71,9 @@ FAKE_RESOLVE='page https://x.itch.io/g' FAKE_RESOLVE_EXIT=7 check "install: page
 FAKE_RESOLVE_EXIT=8 check "install: no Downloads access → 8" 8 "" install 192.168.1.23 opensaber
 check "install: bad id"             2 "" install 192.168.1.23 'Bad;id'
 FAKE_CONNECT=no check "install: headset away" 4 "" install 192.168.1.23 opensaber
+
+check "vrcheck: patched games + layer log" 0 "log I XemsVrLayer: paired with 192.168.43.1:47800" vrcheck 192.168.1.23
+check "vrcheck: which game"         0 "patched org.saber shim" vrcheck 192.168.1.23
 
 # games
 check "games: filters system packages" 0 "game com.a.fight ok" games 192.168.1.23

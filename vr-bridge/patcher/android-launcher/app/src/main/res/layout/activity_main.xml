@@ -91,6 +91,14 @@
             <TextView style="@style/Xems.Help" android:text="@string/help_package" />
 
             <Button
+                android:id="@+id/btn_vrcheck"
+                style="@style/Xems.SmallButton"
+                android:layout_width="match_parent"
+                android:layout_weight="0"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_vrcheck" />
+
+            <Button
                 android:id="@+id/btn_catalog"
                 style="@style/Xems.SmallButton"
                 android:layout_width="match_parent"

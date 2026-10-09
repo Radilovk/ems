@@ -7,6 +7,8 @@
 #   termux-run.sh catalog                              → "item <id>\t<name>\t<github|page>\t<note>" (catalog.json)
 #   termux-run.sh install <quest-ip[:port]> <id> [tablet-ip]   catalog game: download / find in Downloads →
 #                                                      patch → install on the headset ("page <url>" + exit 7 = open it)
+#   termux-run.sh vrcheck <quest-ip[:port]>            → "patched <pkg> shim|asset" per patched game + "log <line>"
+#                                                      (the layer's logcat: shim loaded / active / paired)
 #   (a first argument that is not a verb = patch, the pre-verb form)
 # Exit codes the app maps: 0 done · 2 bad arguments · 3 adb missing · 4 headset not reachable / none found
 #   5 headset unauthorized/offline · 6 setup incomplete · 7 download it from the page (browser) ·
@@ -155,6 +157,19 @@ cmd_install() {
   exec python3 "${args[@]}"
 }
 
+cmd_vrcheck() {
+  [[ $# -eq 1 ]] || die 2 "употреба: termux-run.sh vrcheck <IP на шлема[:порт]>"
+  parse_quest "$1"; need_adb; connect
+  # Which games carry the haptics, and how (one round trip; the zip central directory names the entries).
+  local probe='for p in $(pm list packages -3 | sed "s/^package://"); do for a in $(pm path $p | sed "s/^package://"); do
+    t=$(tail -c 4194304 "$a" 2>/dev/null | grep -c -F -e libopenxr_loader_orig_xems.so -e XrApiLayer_xems_haptics.json)
+    if tail -c 4194304 "$a" 2>/dev/null | grep -q -F libopenxr_loader_orig_xems.so; then echo "patched $p shim"; break; fi
+    [ "$t" != 0 ] && echo "patched $p asset" && break; done; done'
+  adb -s "$serial" shell "$probe" 2>/dev/null | tr -d '\r'
+  adb -s "$serial" logcat -d -s XemsVrLayer 2>/dev/null | tr -d '\r' | grep -v '^-----' | tail -15 | sed 's/^/log /'
+  return 0
+}
+
 # games / patch: take the newest scripts from the repo first (setup ran once, fixes land later). Offline = as is.
 self_update() {
   local dir="$PATCHER/../.." branch="${XEMS_BRANCH:-main}"
@@ -174,6 +189,7 @@ case "$verb" in
   games) shift; cmd_games "$@" ;;
   catalog) shift; cmd_catalog "$@" ;;
   install) shift; cmd_install "$@" ;;
+  vrcheck) shift; cmd_vrcheck "$@" ;;
   patch) shift; cmd_patch "$@" ;;
   *)     cmd_patch "$@" ;;
 esac

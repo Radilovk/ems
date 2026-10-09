@@ -120,4 +120,18 @@
     <string name="detail_storage_ok">Now press "Install".</string>
     <string name="action_install_again">Install</string>
     <string name="action_storage">Allow access</string>
+    <string name="btn_vrcheck">🔎 Check the haptics in the game</string>
+    <string name="status_vrcheck">Checking the headset…</string>
+    <string name="detail_vrcheck">Which game has the haptics and what the layer says. Keep the game running.</string>
+    <string name="vr_paired">Haptics working ✓</string>
+    <string name="vr_paired_detail">The game is linked with the tablet. Open VR in XEMS — the hits come in.</string>
+    <string name="vr_active">The layer runs, the tablet does not answer</string>
+    <string name="vr_active_detail">The game sends but XEMS does not take it. Is XEMS open on this device and the headset on its hotspot?</string>
+    <string name="vr_shim">The shim is loaded, the game has not started VR yet</string>
+    <string name="vr_shim_detail">Enter the game itself (not the headset menu) and check again.</string>
+    <string name="vr_not_loaded">The game is patched but the layer is silent</string>
+    <string name="vr_not_loaded_detail">Start the game, wait until it is in VR and check again.</string>
+    <string name="vr_not_loaded_old">Patched the old way — install it again (🎮 Catalog or ☰ + the green button) so the shim goes in.</string>
+    <string name="vr_none">No patched game on the headset</string>
+    <string name="vr_none_detail">Add the haptics through 🎮 Catalog or pick a game (☰) and press the green button.</string>
 </resources>

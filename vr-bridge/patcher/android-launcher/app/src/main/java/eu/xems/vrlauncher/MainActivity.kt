@@ -81,6 +81,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         findViewById<View>(R.id.btn_detect_ip).setOnClickListener { detectTabletIp() }
         findViewById<View>(R.id.btn_find_quest).setOnClickListener { findQuest() }
         findViewById<View>(R.id.btn_pick_game).setOnClickListener { listGames() }
+        findViewById<View>(R.id.btn_vrcheck).setOnClickListener { vrCheck() }
         findViewById<View>(R.id.btn_catalog).setOnClickListener { withTermux { start(Task.CATALOG, TermuxScript.catalog()) } }
         findViewById<View>(R.id.btn_setup).setOnClickListener { setupTermux() }
         findViewById<View>(R.id.btn_check).setOnClickListener { withTermux { start(Task.CHECK, TermuxScript.check()) } }
@@ -309,6 +310,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         Task.CATALOG -> R.string.status_catalog
         Task.INSTALL -> if (store.runVisible) R.string.status_in_termux else R.string.status_installing
         Task.STORAGE -> R.string.status_storage
+        Task.VRCHECK -> R.string.status_vrcheck
     }
 
     private fun runningDetail(task: Task) = when (task) {
@@ -320,6 +322,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         Task.CATALOG -> R.string.detail_catalog
         Task.INSTALL -> if (store.runVisible) R.string.detail_in_termux else R.string.detail_installing
         Task.STORAGE -> R.string.detail_storage
+        Task.VRCHECK -> R.string.detail_vrcheck
     }
 
     private fun renderResult(task: Task, r: PatchResult) {
@@ -340,6 +343,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
                     return
                 }
                 Task.CATALOG -> return onCatalog(TermuxReport.catalog(r.stdout))
+                Task.VRCHECK -> return onVrCheck(TermuxReport.vrcheck(r.stdout))
                 Task.STORAGE -> return setStatus(
                     getString(R.string.status_storage_ok), getString(R.string.detail_storage_ok),
                     R.color.go_text, false, "", if (store.catalogId.isNotEmpty()) Action.INSTALL else null,
@@ -443,6 +447,32 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         setStatus(getString(R.string.status_idle),
             getString(if (g.fit == TermuxReport.Fit.OK) R.string.detail_game_picked else R.string.detail_game_unknown),
             R.color.text, false, "", null)
+    }
+
+    // ---------------------------------------------------------------- is the haptics alive in the game?
+
+    private fun vrCheck() {
+        val serial = PatchRequest.questSerial(questField.text.toString())
+        if (serial == null) {
+            questField.error = getString(R.string.err_quest_ip)
+            questField.requestFocus()
+            return
+        }
+        withTermux { start(Task.VRCHECK, TermuxScript.vrcheck(serial)) }
+    }
+
+    private fun onVrCheck(c: TermuxReport.VrCheck) {
+        val games = c.patched.joinToString("\n") { (pkg, shim) -> "✓ " + pkg + if (shim) "" else "  (стар начин)" }
+        val log = listOf(games, c.log.joinToString("\n")).filter { it.isNotEmpty() }.joinToString("\n\n")
+        val (title, detail, color) = when (c.verdict) {
+            TermuxReport.VrCheck.Verdict.PAIRED -> Triple(R.string.vr_paired, R.string.vr_paired_detail, R.color.go_text)
+            TermuxReport.VrCheck.Verdict.ACTIVE -> Triple(R.string.vr_active, R.string.vr_active_detail, R.color.amber)
+            TermuxReport.VrCheck.Verdict.SHIM_ONLY -> Triple(R.string.vr_shim, R.string.vr_shim_detail, R.color.amber)
+            TermuxReport.VrCheck.Verdict.NOT_LOADED -> Triple(R.string.vr_not_loaded,
+                if (c.patched.any { !it.second }) R.string.vr_not_loaded_old else R.string.vr_not_loaded_detail, R.color.danger)
+            TermuxReport.VrCheck.Verdict.NONE_PATCHED -> Triple(R.string.vr_none, R.string.vr_none_detail, R.color.danger)
+        }
+        setStatus(getString(title), getString(detail), color, false, log, null)
     }
 
     // ---------------------------------------------------------------- catalog

@@ -33,6 +33,16 @@ object TermuxReport {
         if (f.size < 3 || f[0].isBlank()) null else CatalogGame(f[0].trim(), f[1].trim(), f[2].trim() == "github", f.getOrElse(3) { "" }.trim())
     }.distinctBy { it.id }
 
+    data class DownloadedApk(val path: String, val file: String, val fit: Fit, val mb: Int)
+
+    /** "dl <path>\t<file>\t<ok|vrapi|?>\t<MB>" — APKs in Downloads, the ones that take the haptics first. */
+    fun downloads(stdout: String): List<DownloadedApk> = lines(stdout, "dl ").mapNotNull { rest ->
+        val f = rest.split('\t')
+        if (f.size < 3 || !f[0].startsWith("/")) return@mapNotNull null
+        DownloadedApk(f[0], f[1], when (f[2].trim()) { "ok" -> Fit.OK; "vrapi" -> Fit.VRAPI; else -> Fit.UNKNOWN },
+            f.getOrNull(3)?.trim()?.toIntOrNull() ?: 0)
+    }.sortedBy { it.fit.ordinal }
+
     /** "page <url>": where the APK has to be downloaded by hand. */
     fun page(stdout: String): String? = lines(stdout, "page ").lastOrNull()?.trim()?.takeIf { it.startsWith("https://") }
 

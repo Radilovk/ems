@@ -37,6 +37,12 @@ app runs it) → `xems_vr_patch.py --install <apk>` (package read from the binar
 Android/data+obb if already installed → install. Add a game = one entry in `catalog.json` (merged to main, the
 Termux side updates itself).
 
+## Any APK — 📥 Downloads (1.6)
+`catalog.py downloads` lists every APK in Downloads with its fit (✓ OpenXR loader inside / ✗ VrApi / ?), OpenXR first;
+tap one → `termux-run.sh installfile <quest> <apk> [tablet]` → `xems_vr_patch.py --install`. Covers games from
+anywhere (itch.io, SideQuest, GitHub) without a catalog entry. Catalog page games (fitness/boxing first) open their page;
+the downloaded file is found by the entry's `file` regex or picked here.
+
 ## Every time
 Open the app → it finds the headset on the Wi-Fi → shows its games (✓ OpenXR = works · ✗ old VrApi = cannot, not filled in · ? = not recognised) → **tap a game** → **Сложи хаптиката** →
 confirm → 1–3 min → ✓ (or the reason + what to press). The tablet's own Wi-Fi IP goes to `--tablet` by itself.

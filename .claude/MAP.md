@@ -1222,18 +1222,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
   - L45 ## Build (layer)
-  - L50 ## Loader shim (default since the Open Saber test)
+  - L50 ## Loader shim (default — confirmed on a Quest 3 with Open Saber, Godot 4)
   - L61 ## Deploy on Quest 3 — `vr-bridge/patcher/xems_vr_patch.py`
   - L83 ## Tablet UI — the "VR" tile (1.1.402)
   - L96 ## Protocol
   - L103 ## Test
 
-`vr-bridge/patcher/android-launcher/README.md` (84L)
+`vr-bridge/patcher/android-launcher/README.md` (90L)
   - L1 # XEMS VR Launcher (on-device front end)
   - L18 ## Install (once)
   - L30 ## Game catalog (1.5) — `../catalog.json`
-  - L40 ## Every time
-  - L45 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
-  - L54 ## Pieces
-  - L70 ## Limits (what still needs a hand)
-  - L77 ## Build & test
+  - L40 ## Any APK — 📥 Downloads (1.6)
+  - L46 ## Every time
+  - L51 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
+  - L60 ## Pieces
+  - L76 ## Limits (what still needs a hand)
+  - L83 ## Build & test

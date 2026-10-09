@@ -7,6 +7,8 @@
 #   termux-run.sh catalog                              → "item <id>\t<name>\t<github|page>\t<note>" (catalog.json)
 #   termux-run.sh install <quest-ip[:port]> <id> [tablet-ip]   catalog game: download / find in Downloads →
 #                                                      patch → install on the headset ("page <url>" + exit 7 = open it)
+#   termux-run.sh downloads                            → "dl <path>\t<file>\t<ok|vrapi|?>\t<MB>" (APKs in Downloads)
+#   termux-run.sh installfile <quest-ip[:port]> <apk> [tablet-ip]   any downloaded APK → patch → install
 #   termux-run.sh vrcheck <quest-ip[:port]>            → "patched <pkg> shim|asset" per patched game + "log <line>"
 #                                                      (the layer's logcat: shim loaded / active / paired)
 #   (a first argument that is not a verb = patch, the pre-verb form)
@@ -157,6 +159,26 @@ cmd_install() {
   exec python3 "${args[@]}"
 }
 
+cmd_downloads() {
+  cd "$PATCHER" || die 6 "няма $PATCHER"
+  exec python3 catalog.py downloads
+}
+
+cmd_installfile() {
+  [[ $# -ge 2 && $# -le 3 ]] || die 2 "употреба: termux-run.sh installfile <IP на шлема[:порт]> <файл.apk> [IP на таблета]"
+  parse_quest "$1"
+  local apk="$2" tablet="${3:-}"
+  [[ -f "$apk" && "${apk,,}" == *.apk ]] || die 2 "няма такъв APK: $apk"
+  [[ -z "$tablet" || "$tablet" =~ $IPV4 ]] || die 2 "грешен IP на таблета: $tablet"
+  need_adb; connect
+  export ANDROID_SERIAL="$serial"
+  cd "$PATCHER" || die 6 "няма $PATCHER"
+  local args=(xems_vr_patch.py --install "$apk" --yes)
+  [[ -n "$tablet" ]] && args+=(--tablet "$tablet")
+  echo "→ python3 ${args[*]}"
+  exec python3 "${args[@]}"
+}
+
 cmd_vrcheck() {
   [[ $# -eq 1 ]] || die 2 "употреба: termux-run.sh vrcheck <IP на шлема[:порт]>"
   parse_quest "$1"; need_adb; connect
@@ -203,6 +225,8 @@ case "$verb" in
   catalog) shift; cmd_catalog "$@" ;;
   install) shift; cmd_install "$@" ;;
   vrcheck) shift; cmd_vrcheck "$@" ;;
+  downloads) shift; cmd_downloads "$@" ;;
+  installfile) shift; cmd_installfile "$@" ;;
   patch) shift; cmd_patch "$@" ;;
   *)     cmd_patch "$@" ;;
 esac

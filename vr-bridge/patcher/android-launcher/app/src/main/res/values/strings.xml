@@ -139,4 +139,14 @@
     <string name="vr_not_loaded_old">Пачната е по стария начин — инсталирай я пак (🎮 Каталог или ☰ + зеления бутон), за да влезе посредникът.</string>
     <string name="vr_none">Няма пачната игра на шлема</string>
     <string name="vr_none_detail">Сложи хаптиката през 🎮 Каталог или избери игра (☰) и натисни зеления бутон.</string>
+    <string name="btn_downloads">📥 Игра от Downloads (всеки APK)</string>
+    <string name="status_downloads">Гледам Downloads…</string>
+    <string name="detail_downloads">APK файловете на таблета — ✓ стават за хаптиката.</string>
+    <string name="status_pick_download">Избери APK</string>
+    <string name="detail_pick_download">✓ = OpenXR, хаптиката влиза. Сваля се → пач → инсталира на шлема.</string>
+    <string name="pick_download">APK от Downloads</string>
+    <string name="status_no_downloads">Няма APK в Downloads</string>
+    <string name="detail_no_downloads">Свали играта (itch.io, SideQuest, GitHub…) и натисни пак.</string>
+    <string name="detail_download_vrapi">%1$s е на стария VrApi — хаптиката се закача само към OpenXR игри.</string>
+    <string name="detail_download_unknown">%1$s няма OpenXR — не е VR игра за Quest или не става.</string>
 </resources>

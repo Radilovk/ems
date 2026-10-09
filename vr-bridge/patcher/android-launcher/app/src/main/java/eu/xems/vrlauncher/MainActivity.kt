@@ -82,6 +82,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         findViewById<View>(R.id.btn_find_quest).setOnClickListener { findQuest() }
         findViewById<View>(R.id.btn_pick_game).setOnClickListener { listGames() }
         findViewById<View>(R.id.btn_vrcheck).setOnClickListener { vrCheck() }
+        findViewById<View>(R.id.btn_downloads).setOnClickListener { withTermux { start(Task.DOWNLOADS, TermuxScript.downloads()) } }
         findViewById<View>(R.id.btn_catalog).setOnClickListener { withTermux { start(Task.CATALOG, TermuxScript.catalog()) } }
         findViewById<View>(R.id.btn_setup).setOnClickListener { setupTermux() }
         findViewById<View>(R.id.btn_check).setOnClickListener { withTermux { start(Task.CHECK, TermuxScript.check()) } }
@@ -274,7 +275,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     private fun start(task: Task, args: Array<String>) {
         val runId = System.currentTimeMillis()
         // Only the long runs may open a Termux session; lookups always run in the background.
-        val long = task == Task.PATCH || task == Task.SETUP || task == Task.INSTALL
+        val long = task == Task.PATCH || task == Task.SETUP || task == Task.INSTALL || task == Task.INSTALLFILE
         // Termux's file-access dialog only shows over a visible session.
         val visible = task == Task.STORAGE || (showInTermux.isChecked && long)
         store.start(runId, task, TermuxScript.display(args), visible)
@@ -311,6 +312,8 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         Task.INSTALL -> if (store.runVisible) R.string.status_in_termux else R.string.status_installing
         Task.STORAGE -> R.string.status_storage
         Task.VRCHECK -> R.string.status_vrcheck
+        Task.DOWNLOADS -> R.string.status_downloads
+        Task.INSTALLFILE -> if (store.runVisible) R.string.status_in_termux else R.string.status_installing
     }
 
     private fun runningDetail(task: Task) = when (task) {
@@ -323,6 +326,8 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         Task.INSTALL -> if (store.runVisible) R.string.detail_in_termux else R.string.detail_installing
         Task.STORAGE -> R.string.detail_storage
         Task.VRCHECK -> R.string.detail_vrcheck
+        Task.DOWNLOADS -> R.string.detail_downloads
+        Task.INSTALLFILE -> if (store.runVisible) R.string.detail_in_termux else R.string.detail_installing
     }
 
     private fun renderResult(task: Task, r: PatchResult) {
@@ -344,11 +349,12 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
                 }
                 Task.CATALOG -> return onCatalog(TermuxReport.catalog(r.stdout))
                 Task.VRCHECK -> return onVrCheck(TermuxReport.vrcheck(r.stdout))
+                Task.DOWNLOADS -> return onDownloads(TermuxReport.downloads(r.stdout))
                 Task.STORAGE -> return setStatus(
                     getString(R.string.status_storage_ok), getString(R.string.detail_storage_ok),
                     R.color.go_text, false, "", if (store.catalogId.isNotEmpty()) Action.INSTALL else null,
                 )
-                Task.INSTALL -> return setStatus(
+                Task.INSTALL, Task.INSTALLFILE -> return setStatus(
                     getString(R.string.status_done), getString(R.string.detail_installed),
                     R.color.go_text, false, r.tail(), null,
                 )
@@ -474,6 +480,53 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
             TermuxReport.VrCheck.Verdict.NONE_PATCHED -> Triple(R.string.vr_none, R.string.vr_none_detail, R.color.danger)
         }
         setStatus(getString(title), getString(detail), color, false, log, null)
+    }
+
+    // ---------------------------------------------------------------- any APK from Downloads
+
+    private fun onDownloads(apks: List<TermuxReport.DownloadedApk>) {
+        setStatus(getString(if (apks.isEmpty()) R.string.status_no_downloads else R.string.status_pick_download),
+            getString(if (apks.isEmpty()) R.string.detail_no_downloads else R.string.detail_pick_download),
+            if (apks.isEmpty()) R.color.danger else R.color.go_text, false, "", null)
+        if (store.consumed || apks.isEmpty()) return
+        store.consume()
+        val labels = apks.map { a ->
+            when (a.fit) {
+                TermuxReport.Fit.OK -> "✓  "
+                TermuxReport.Fit.UNKNOWN -> "?  "
+                TermuxReport.Fit.VRAPI -> "✗  "
+            } + a.file + "  (" + a.mb + " MB)"
+        }
+        showDialog(
+            AlertDialog.Builder(this, R.style.Xems_Dialog)
+                .setTitle(R.string.pick_download)
+                .setItems(labels.toTypedArray()) { _, i -> pickDownload(apks[i]) }
+        )
+    }
+
+    private fun pickDownload(a: TermuxReport.DownloadedApk) {
+        if (a.fit != TermuxReport.Fit.OK) {
+            setStatus(getString(R.string.status_game_vrapi),
+                getString(if (a.fit == TermuxReport.Fit.VRAPI) R.string.detail_download_vrapi else R.string.detail_download_unknown, a.file),
+                R.color.danger, false, "", null)
+            return
+        }
+        val serial = PatchRequest.questSerial(questField.text.toString())
+        if (serial == null) {
+            questField.error = getString(R.string.err_quest_ip)
+            questField.requestFocus()
+            return
+        }
+        val tablet = tabletField.text.toString().trim().takeIf { PatchRequest.isIpv4(it) }
+        showDialog(
+            AlertDialog.Builder(this, R.style.Xems_Dialog)
+                .setTitle(a.file)
+                .setMessage(R.string.install_message_direct)
+                .setPositiveButton(R.string.install_yes) { _, _ ->
+                    withTermux { start(Task.INSTALLFILE, TermuxScript.installFile(serial, a.path, tablet)) }
+                }
+                .setNegativeButton(R.string.confirm_no, null)
+        )
     }
 
     // ---------------------------------------------------------------- catalog

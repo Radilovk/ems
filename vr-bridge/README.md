@@ -57,7 +57,7 @@ python3 vr-bridge/patcher/xems_vr_patch.py <package> [--tablet <ip>]
 It pulls every split, refuses games without `lib/arm64-v8a/libopenxr_loader.so` (VrApi / OVRPlugin-native: the
 layer cannot load there) or without INTERNET, puts the `.so` next to the loader (stored, 16 KB page-aligned) and the
 json into `base.apk` (`assets/openxr/1/api_layers/implicit.d/`), re-signs all splits with one debug key
-(uber-apk-signer `--skipZipAlign`, alignment done by the script), backs up `Android/data` + `Android/obb`,
+(uber-apk-signer `--skipZipAlign`, alignment done by the script), moves `Android/data` + `Android/obb` aside on the headset (`/sdcard/xems-vr-backup`, instant; tar to the PC only if the move is refused),
 reinstalls, restores them, and on an install failure puts the original back. Internal save data is lost
 (new signature). Originals stay in `xems-vr-out/original/<package>/`. Offline: `--apk base.apk [--apk split.apk] --out DIR`.
 Check on the headset: `adb logcat -s XemsVrLayer` (`active, session …` then `paired with …`).

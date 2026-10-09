@@ -134,4 +134,14 @@
     <string name="vr_not_loaded_old">Patched the old way — install it again (🎮 Catalog or ☰ + the green button) so the shim goes in.</string>
     <string name="vr_none">No patched game on the headset</string>
     <string name="vr_none_detail">Add the haptics through 🎮 Catalog or pick a game (☰) and press the green button.</string>
+    <string name="btn_downloads">📥 Game from Downloads (any APK)</string>
+    <string name="status_downloads">Looking in Downloads…</string>
+    <string name="detail_downloads">The APK files on the tablet — ✓ take the haptics.</string>
+    <string name="status_pick_download">Pick an APK</string>
+    <string name="detail_pick_download">✓ = OpenXR, the haptics go in. Patch → install on the headset.</string>
+    <string name="pick_download">APK from Downloads</string>
+    <string name="status_no_downloads">No APK in Downloads</string>
+    <string name="detail_no_downloads">Download the game (itch.io, SideQuest, GitHub…) and press again.</string>
+    <string name="detail_download_vrapi">%1$s runs on the old VrApi — the haptics hook into OpenXR games only.</string>
+    <string name="detail_download_unknown">%1$s has no OpenXR — not a Quest VR game, or it will not work.</string>
 </resources>

@@ -16,6 +16,22 @@ class TermuxReportTest {
         assertEquals(listOf("com.a.fight", "com.beat.games"), TermuxReport.games(out).map { it.pkg })
     }
 
+    @Test fun gamesCarryTheirRealNames() {
+        val out = "game org.godot.saber ok\ngame com.b.zed ok\ngame com.old vrapi\nlabel org.godot.saber\tOpen Saber\r\nlabel com.b.zed\tAim XR\n"
+        val g = TermuxReport.games(out)
+        assertEquals(listOf("Aim XR", "Open Saber", "com.old"), g.map { it.name })
+        assertEquals("org.godot.saber", g[1].pkg)
+    }
+
+    @Test fun downloadsOkFirst() {
+        val out = "dl /sdcard/Download/Old.apk\tOld.apk\tvrapi\t80\r\ndl /sdcard/Download/My Game.apk\tMy Game.apk\tok\t120\nnoise\n"
+        val d = TermuxReport.downloads(out)
+        assertEquals(listOf("My Game.apk", "Old.apk"), d.map { it.file })
+        assertEquals("/sdcard/Download/My Game.apk", d[0].path)
+        assertEquals(120, d[0].mb)
+        assertEquals(TermuxReport.Fit.VRAPI, d[1].fit)
+    }
+
     @Test fun vrcheckVerdicts() {
         val v = { s: String -> TermuxReport.vrcheck(s).verdict }
         assertEquals(TermuxReport.VrCheck.Verdict.NONE_PATCHED, v("noise\n"))

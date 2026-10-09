@@ -16,14 +16,18 @@ object TermuxReport {
     /** OK = OpenXR loader in the APK (the layer goes in) · VRAPI = old VrApi/OVRPlugin (cannot) · UNKNOWN = neither. */
     enum class Fit { OK, UNKNOWN, VRAPI }
 
-    data class Game(val pkg: String, val fit: Fit)
+    /** [name] = the game's own label from its APK (falls back to the package). */
+    data class Game(val pkg: String, val fit: Fit, val name: String = pkg)
 
     /** "game <package> [ok|vrapi|?]", the ones that can be patched first. */
     fun games(stdout: String): List<Game> = lines(stdout, "game ").mapNotNull { rest ->
         val parts = rest.trim().split(Regex("\\s+"))
         val pkg = parts.firstOrNull()?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
         Game(pkg, when (parts.getOrNull(1)) { "ok" -> Fit.OK; "vrapi" -> Fit.VRAPI; else -> Fit.UNKNOWN })
-    }.distinctBy { it.pkg }.sortedBy { it.fit.ordinal }
+    }.distinctBy { it.pkg }.let { games ->
+        val names = lines(stdout, "label ").associate { it.substringBefore('\t').trim() to it.substringAfter('\t', "").trim() }
+        games.map { g -> names[g.pkg]?.takeIf { it.isNotEmpty() }?.let { g.copy(name = it) } ?: g }
+    }.sortedWith(compareBy<Game> { it.fit.ordinal }.thenBy { it.name.lowercase() })
 
     data class CatalogGame(val id: String, val name: String, val direct: Boolean, val note: String)
 
@@ -32,6 +36,16 @@ object TermuxReport {
         val f = rest.split('\t')
         if (f.size < 3 || f[0].isBlank()) null else CatalogGame(f[0].trim(), f[1].trim(), f[2].trim() == "github", f.getOrElse(3) { "" }.trim())
     }.distinctBy { it.id }
+
+    data class DownloadedApk(val path: String, val file: String, val fit: Fit, val mb: Int)
+
+    /** "dl <path>\t<file>\t<ok|vrapi|?>\t<MB>" — APKs in Downloads, the ones that take the haptics first. */
+    fun downloads(stdout: String): List<DownloadedApk> = lines(stdout, "dl ").mapNotNull { rest ->
+        val f = rest.split('\t')
+        if (f.size < 3 || !f[0].startsWith("/")) return@mapNotNull null
+        DownloadedApk(f[0], f[1], when (f[2].trim()) { "ok" -> Fit.OK; "vrapi" -> Fit.VRAPI; else -> Fit.UNKNOWN },
+            f.getOrNull(3)?.trim()?.toIntOrNull() ?: 0)
+    }.sortedBy { it.fit.ordinal }
 
     /** "page <url>": where the APK has to be downloaded by hand. */
     fun page(stdout: String): String? = lines(stdout, "page ").lastOrNull()?.trim()?.takeIf { it.startsWith("https://") }

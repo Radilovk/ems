@@ -33,6 +33,7 @@ A
 cat > "$T/bin/python3" <<'P'
 #!/usr/bin/env bash
 echo "python3 $* serial=${ANDROID_SERIAL:-} cwd=$(basename "$PWD")" >> "$FAKE_LOG"
+if [[ "$1 $2" == "apkinfo.py headset" ]]; then shift 3; for p in "$@"; do printf 'label %s\tName of %s\n' "$p" "$p"; done; exit 0; fi
 if [[ "$1 $2" == "catalog.py resolve" ]]; then printf '%b\n' "${FAKE_RESOLVE:-apk /dl/OpenSaber.apk}"; exit "${FAKE_RESOLVE_EXIT:-0}"; fi
 exit "${FAKE_PY_EXIT:-0}"
 P
@@ -80,8 +81,16 @@ check "vrcheck: which game"         0 "patched org.saber shim" vrcheck 192.168.1
 check "vrcheck: unpacked loader"    0 "lib org.saber 281552 libopenxr_loader.so" vrcheck 192.168.1.23
 check "vrcheck: game process log"   0 "plog I XemsVrLayer: loader shim" vrcheck 192.168.1.23
 
+touch "$T/My Game.apk"
+check "downloads: via catalog.py"   0 "python3 catalog.py downloads" downloads
+check "installfile: patch + install" 0 "python3 xems_vr_patch.py --install $T/My Game.apk --yes --tablet 192.168.1.50 serial=192.168.1.23:5555" \
+      installfile 192.168.1.23 "$T/My Game.apk" 192.168.1.50
+check "installfile: missing file"   2 "" installfile 192.168.1.23 "$T/nope.apk"
+check "installfile: not an apk"     2 "" installfile 192.168.1.23 "$T/log"
+
 # games
 check "games: filters system packages" 0 "game com.a.fight ok" games 192.168.1.23
+check "games: real names"           0 "label com.a.fight	Name of com.a.fight" games 192.168.1.23
 out="$(PATH="$T/bin:$PATH" bash "$RUN" games 192.168.1.23 2>/dev/null | grep '^game ')"
 [[ "$out" == $'game com.a.fight ok\ngame com.beat.games vrapi' ]] && echo "ok   games: exact list" || { echo "FAIL games list: $out"; fails=$((fails+1)); }
 FAKE_CONNECT=no check "games: headset away" 4 "" games 192.168.1.23

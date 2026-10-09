@@ -47,7 +47,7 @@ VrDrive (main thread, 10 ms tick while linked and the target row runs)
 and refreshes `vr-bridge/prebuilt/` (committed: `arm64-v8a/libXrApiLayer_xems_haptics.so` + the manifest json).
 Offline headers: `OPENXR_SDK_DIR=<OpenXR-SDK checkout>`.
 
-## Loader shim (default since the Open Saber test)
+## Loader shim (default — confirmed on a Quest 3 with Open Saber, Godot 4)
 Many Quest loaders (Godot's) never read implicit layers from `assets/openxr/…` — the layer then never loads and
 `logcat -s XemsVrLayer` stays empty. So the patcher renames the game's `libopenxr_loader.so` →
 `libopenxr_loader_orig_xems.so` and puts `libopenxr_loader_xems_shim.so` (built from `quest-layer/src/loader_shim.cpp`,

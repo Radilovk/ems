@@ -1,6 +1,42 @@
 {
-  "_doc": "Games outside the Meta Store that can take the haptic layer (OpenXR loader in the APK, controller vibration). source.github = the tablet downloads the newest release APK by itself; source.page = only a web page (itch.io…): the browser opens, the APK lands in Downloads and is picked up from there by `file`. The patcher still refuses an APK without the OpenXR loader.",
+  "_doc": "Games outside the Meta Store that can take the haptic layer (OpenXR loader in the APK, controller vibration). source.github = the tablet downloads the newest release APK by itself; source.page = only a web page (itch.io…): the browser opens, the APK lands in Downloads and is picked up from there by `file`. The patcher still refuses an APK without the OpenXR loader. Fitness / boxing first. Any other APK: the launcher's 📥 Downloads button.",
   "games": [
+    {
+      "id": "challengebox",
+      "name": "ChallengeBox Fitness",
+      "note": "Бокс фитнес: загрявка, горна/долна част, HIIT, бокс срещу други. Безплатна, от SideQuest.",
+      "source": {
+        "page": "https://sidequestvr.com/app/10739",
+        "file": "(?i)challenge.?box.*\\.apk$"
+      }
+    },
+    {
+      "id": "punchfit",
+      "name": "Punch Fit",
+      "note": "Бокс тренировки от 2 до 30 мин. Безплатна, от SideQuest.",
+      "source": {
+        "page": "https://sidequestvr.com/app/5279",
+        "file": "(?i)punch.?fit.*\\.apk$"
+      }
+    },
+    {
+      "id": "boxingtrainer",
+      "name": "Boxing Trainer VR",
+      "note": "Бокс тренировка с треньор, нива и продължителност. Платена (~20 €), от itch.io.",
+      "source": {
+        "page": "https://fitnessvr.itch.io/boxing-trainer-vr",
+        "file": "(?i)boxing.?trainer.*\\.apk$"
+      }
+    },
+    {
+      "id": "songbeater",
+      "name": "Song Beater",
+      "note": "Ритъм бокс по музика. От itch.io — виж цената на страницата.",
+      "source": {
+        "page": "https://playito.itch.io/song-beater-quite-my-tempo",
+        "file": "(?i)song.?beater.*\\.apk$"
+      }
+    },
     {
       "id": "opensaber",
       "name": "Open Saber",

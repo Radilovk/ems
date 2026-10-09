@@ -36,6 +36,29 @@ object TermuxReport {
     /** "page <url>": where the APK has to be downloaded by hand. */
     fun page(stdout: String): String? = lines(stdout, "page ").lastOrNull()?.trim()?.takeIf { it.startsWith("https://") }
 
+    /** What `vrcheck` saw: games carrying the haptics and the layer's own log, read into one verdict. */
+    data class VrCheck(val patched: List<Pair<String, Boolean>>, val log: List<String>) {
+        enum class Verdict { PAIRED, ACTIVE, SHIM_ONLY, NOT_LOADED, NONE_PATCHED }
+
+        val verdict: Verdict
+            get() = when {
+                log.any { "paired with" in it } -> Verdict.PAIRED
+                log.any { "active, session" in it } -> Verdict.ACTIVE
+                log.any { "loader shim" in it } -> Verdict.SHIM_ONLY
+                patched.isNotEmpty() -> Verdict.NOT_LOADED
+                else -> Verdict.NONE_PATCHED
+            }
+    }
+
+    /** "patched <pkg> shim|asset" + "log <logcat line>". */
+    fun vrcheck(stdout: String) = VrCheck(
+        lines(stdout, "patched ").mapNotNull { r ->
+            val f = r.trim().split(' ')
+            if (f.isEmpty() || f[0].isEmpty()) null else f[0] to (f.getOrNull(1) == "shim")
+        },
+        lines(stdout, "log ").map { it.trim() },
+    )
+
     /** "ok <what>" / "missing <what>" → what → present. */
     fun checks(stdout: String): List<Pair<String, Boolean>> =
         lines(stdout, "ok ").map { it.trim() to true } + lines(stdout, "missing ").map { it.trim() to false }

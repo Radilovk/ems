@@ -125,4 +125,18 @@
     <string name="detail_storage_ok">Сега натисни „Инсталирай“.</string>
     <string name="action_install_again">Инсталирай</string>
     <string name="action_storage">Разреши достъп</string>
+    <string name="btn_vrcheck">🔎 Провери хаптиката в играта</string>
+    <string name="status_vrcheck">Проверявам шлема…</string>
+    <string name="detail_vrcheck">Коя игра е с хаптика и какво казва слоят. Играта да е пусната.</string>
+    <string name="vr_paired">Хаптиката работи ✓</string>
+    <string name="vr_paired_detail">Играта е свързана с таблета. Отвори VR в XEMS — ударите идват.</string>
+    <string name="vr_active">Слоят работи, таблетът не отговаря</string>
+    <string name="vr_active_detail">Играта праща, но XEMS не приема. XEMS на това устройство ли е отворен и шлемът на неговия hotspot?</string>
+    <string name="vr_shim">Посредникът е зареден, играта още не е стартирала VR</string>
+    <string name="vr_shim_detail">Влез в самата игра (не в менюто на шлема) и провери пак.</string>
+    <string name="vr_not_loaded">Играта е пачната, но слоят мълчи</string>
+    <string name="vr_not_loaded_detail">Пусни играта, изчакай да влезе във VR и провери пак.</string>
+    <string name="vr_not_loaded_old">Пачната е по стария начин — инсталирай я пак (🎮 Каталог или ☰ + зеления бутон), за да влезе посредникът.</string>
+    <string name="vr_none">Няма пачната игра на шлема</string>
+    <string name="vr_none_detail">Сложи хаптиката през 🎮 Каталог или избери игра (☰) и натисни зеления бутон.</string>
 </resources>

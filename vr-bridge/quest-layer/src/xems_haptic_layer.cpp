@@ -82,7 +82,7 @@ struct Link {
     int                   fd       = -1;
     int                   wakeFd   = -1;
     uint32_t              session  = 0;
-    uint64_t              fixed    = 0;   // from kTargetProp, never expires
+    uint64_t              fixed    = 0;   // tablet hint (property / baked): HELLO goes there too while unpaired
     std::atomic<uint64_t> target{0};      // 0 = unpaired -> HAPTIC/STOP are dropped
     std::atomic<uint32_t> seq{0};
     std::atomic<bool>     focused{false};
@@ -173,18 +173,26 @@ void sendHello(uint64_t addr) {
 // Discovery + heartbeat + clock-sync responder. Never touches the game thread.
 void controlLoop() {
     const uint64_t broadcast = packAddr(htonl(INADDR_BROADCAST), htons(wire::kPort));
-    uint64_t lastAck = 0, nextHello = 0;
+    uint64_t lastAck = 0, nextHello = 0, nextNote = nowNs() + 10'000'000'000ull;
     alignas(8) uint8_t buf[256];
 
     for (;;) {
         uint64_t now = nowNs();
         const uint64_t paired = g_link.target.load(std::memory_order_relaxed);
-        if (paired && !g_link.fixed && now - lastAck > uint64_t(kAckTimeoutNs)) {
+        if (paired && now - lastAck > uint64_t(kAckTimeoutNs)) {
             g_link.target.store(0, std::memory_order_release);
             XLOG("tablet lost, rediscovering");
         }
+        if (now >= nextNote) {         // a fresh line for `logcat -d` however long the game has been running
+            nextNote = now + 10'000'000'000ull;
+            if (paired) XLOG("linked to the tablet");
+            else XLOG("still looking for the tablet");
+        }
         if (now >= nextHello) {
             const uint64_t t = g_link.target.load(std::memory_order_relaxed);
+            // Unpaired: the baked / property tablet is only a hint — broadcast too, so a wrong or changed IP
+            // (another hotspot, DHCP) still finds the tablet.
+            if (!t && g_link.fixed) sendHello(g_link.fixed);
             sendHello(t ? t : broadcast);
             nextHello = now + uint64_t(t ? kHelloPairedNs : kHelloUnpairedNs);
         }
@@ -209,7 +217,6 @@ void controlLoop() {
             const uint64_t from = packAddr(src.sin_addr.s_addr, src.sin_port);
 
             if (h.type == wire::T_ACK) {
-                if (g_link.fixed && from != g_link.fixed) continue;
                 lastAck = tRecv;
                 if (g_link.target.exchange(from, std::memory_order_acq_rel) != from)
                     XLOG("paired with %s:%u", inet_ntoa(src.sin_addr), ntohs(src.sin_port));
@@ -242,7 +249,8 @@ bool linkStart() {
     g_link.seq.store(0);
     readAppName();
     g_link.fixed = readFixedTarget();
-    g_link.target.store(g_link.fixed);
+    g_link.target.store(0);            // pair on the first ACK, from the hint or from the broadcast
+    XLOG("looking for the tablet%s", g_link.fixed ? " (hint + broadcast)" : " (broadcast)");
     g_link.control = std::thread(controlLoop);
     return true;
 }

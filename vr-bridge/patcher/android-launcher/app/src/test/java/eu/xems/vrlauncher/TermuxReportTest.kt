@@ -16,6 +16,16 @@ class TermuxReportTest {
         assertEquals(listOf("com.a.fight", "com.beat.games"), TermuxReport.games(out).map { it.pkg })
     }
 
+    @Test fun vrcheckVerdicts() {
+        val v = { s: String -> TermuxReport.vrcheck(s).verdict }
+        assertEquals(TermuxReport.VrCheck.Verdict.NONE_PATCHED, v("noise\n"))
+        assertEquals(TermuxReport.VrCheck.Verdict.NOT_LOADED, v("patched org.saber shim\r\n"))
+        assertEquals(TermuxReport.VrCheck.Verdict.SHIM_ONLY, v("patched a shim\nlog I XemsVrLayer: loader shim: original loader loaded\n"))
+        assertEquals(TermuxReport.VrCheck.Verdict.ACTIVE, v("log I XemsVrLayer: active, session 1a2b\n"))
+        assertEquals(TermuxReport.VrCheck.Verdict.PAIRED, v("log x active, session 1\nlog x paired with 192.168.43.1:47800\n"))
+        assertEquals(listOf("org.saber" to true, "b" to false), TermuxReport.vrcheck("patched org.saber shim\npatched b asset\n").patched)
+    }
+
     @Test fun catalogAndPage() {
         val out = "item opensaber\tOpen Saber\tpage\tРитъм\r\nitem q\tQuestZDoom\tgithub\t\nnoise\npage https://x.itch.io/g\n"
         val c = TermuxReport.catalog(out)

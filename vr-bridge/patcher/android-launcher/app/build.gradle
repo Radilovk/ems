@@ -11,8 +11,8 @@ android {
         applicationId "eu.xems.vrlauncher"
         minSdk 24
         targetSdk 34
-        versionCode 8
-        versionName "1.5"
+        versionCode 9
+        versionName "1.5.1"
     }
 
     // termux/termux-setup.sh travels inside the APK; the app hands it to Termux (no typing in Termux).

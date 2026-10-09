@@ -20,6 +20,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -218,41 +219,69 @@ def has_internet(adb: Adb, pkg: str) -> bool:
     return "android.permission.INTERNET" in adb.shell(f"dumpsys package {pkg}", check=False)
 
 
-def backup(adb: Adb, pkg: str, into: Path) -> list[tuple[str, Path]]:
-    """tar on the headset, not adb pull: pull stops at the first unreadable file (a journal the game holds open);
-    tar skips it and carries on. cache/ is left out (the game rebuilds it)."""
-    saved = []
+HOLD = "/sdcard/xems-vr-backup"   # Android/data + obb wait here (on the headset) while the game is reinstalled
+
+
+def backup(adb: Adb, pkg: str, into: Path) -> list[tuple[str, Path | str]]:
+    """Move Android/data|obb/<pkg> aside on the headset itself — instant, nothing crosses the Wi-Fi (obb can be
+    GBs), files the game holds open don't matter. Where the move is refused: tar to this machine, minus cache/."""
+    saved: list[tuple[str, Path | str]] = []
+    stamp = str(int(time.time()))
     for kind in ("data", "obb"):
-        remote = f"/sdcard/Android/{kind}"
-        if adb.shell(f"[ -d {remote}/{pkg} ] && echo yes", check=False).strip() != "yes":
+        remote = f"/sdcard/Android/{kind}/{pkg}"
+        if adb.shell(f"[ -d {remote} ] && echo yes", check=False).strip() != "yes":
             continue
-        local = into / kind
-        local.mkdir(parents=True, exist_ok=True)
-        say(f"… пазя Android/{kind} (може да отнеме минута при големи игри)")
-        archive = into / f"{kind}.tar"
-        with open(archive, "wb") as out:
-            subprocess.run([adb.exe, "exec-out", f"cd {remote} && tar -cf - --exclude={pkg}/cache {pkg} 2>/dev/null"],
-                           stdout=out, stderr=subprocess.DEVNULL)
-        try:
-            with tarfile.open(archive) as t:
-                if hasattr(tarfile, "data_filter"):
-                    t.extractall(local, filter="data")
-                else:
-                    t.extractall(local)
-        except (tarfile.TarError, OSError) as e:
-            fail(f"не можах да запазя Android/{kind}/{pkg} ({e}) — играта не е пипната")
-        archive.unlink(missing_ok=True)
-        if not (local / pkg).is_dir():
-            fail(f"не можах да запазя Android/{kind}/{pkg} — играта не е пипната")
-        saved.append((kind, local / pkg))
+        held = f"{HOLD}/{pkg}-{kind}-{stamp}"
+        moved = adb.shell(f"mkdir -p {HOLD} && mv {remote} {held} && [ -d {held} ] && [ ! -e {remote} ] && echo yes",
+                          check=False).strip()
+        if moved == "yes":
+            say(f"✓ Android/{kind} е преместен настрана на шлема ({held})")
+            saved.append((kind, held))
+            continue
+        saved.append((kind, pull_tar(adb, kind, pkg, into)))
     return saved
 
 
-def restore(adb: Adb, pkg: str, saved: list[tuple[str, Path]]) -> None:
-    for kind, local in saved:
-        if local.is_dir():
+def pull_tar(adb: Adb, kind: str, pkg: str, into: Path) -> Path:
+    """tar on the headset, not adb pull: pull stops at the first unreadable file; tar skips it and carries on."""
+    local = into / kind
+    local.mkdir(parents=True, exist_ok=True)
+    say(f"… копирам Android/{kind} (може да отнеме минута при големи игри)")
+    archive = into / f"{kind}.tar"
+    with open(archive, "wb") as out:
+        subprocess.run([adb.exe, "exec-out",
+                        f"cd /sdcard/Android/{kind} && tar -cf - --exclude={pkg}/cache {pkg} 2>/dev/null"],
+                       stdout=out, stderr=subprocess.DEVNULL)
+    try:
+        with tarfile.open(archive) as t:
+            if hasattr(tarfile, "data_filter"):
+                t.extractall(local, filter="data")
+            else:
+                t.extractall(local)
+    except (tarfile.TarError, OSError) as e:
+        fail(f"не можах да запазя Android/{kind}/{pkg} ({e}) — играта не е пипната")
+    archive.unlink(missing_ok=True)
+    if not (local / pkg).is_dir():
+        fail(f"не можах да запазя Android/{kind}/{pkg} — играта не е пипната")
+    return local / pkg
+
+
+def restore(adb: Adb, pkg: str, saved: list[tuple[str, Path | str]]) -> None:
+    for kind, src in saved:
+        dst = f"/sdcard/Android/{kind}/{pkg}"
+        if isinstance(src, str):
+            # The fresh install may already have made an (empty) dir there: merge into it, else just move back.
+            ok = adb.shell(f"mkdir -p /sdcard/Android/{kind}; rmdir {dst} 2>/dev/null; "
+                           f"if [ -e {dst} ]; then cp -a {src}/. {dst}/ && rm -rf {src}; else mv {src} {dst}; fi "
+                           f"&& [ -d {dst} ] && echo yes", check=False).strip()
+            if ok.endswith("yes"):
+                adb.shell(f"rmdir {HOLD} 2>/dev/null", check=False)
+                say(f"✓ Android/{kind} е върнат")
+            else:
+                say(f"✗ Android/{kind} не се върна — стои на шлема в {src}")
+        elif src.is_dir():
             adb.shell(f"mkdir -p /sdcard/Android/{kind}", check=False)
-            adb("push", str(local), f"/sdcard/Android/{kind}/")
+            adb("push", str(src), f"/sdcard/Android/{kind}/")
             say(f"✓ Android/{kind} е върнат")
 
 
@@ -262,7 +291,7 @@ def install_set(adb: Adb, apks: list[Path]) -> bool:
     return "Success" in out
 
 
-def install(adb: Adb, pkg: str, apks: list[Path], originals: list[Path], saved: list[tuple[str, Path]]) -> None:
+def install(adb: Adb, pkg: str, apks: list[Path], originals: list[Path], saved: list[tuple[str, Path | str]]) -> None:
     adb("uninstall", pkg, check=False)
     if install_set(adb, apks):
         say("✓ инсталирано")

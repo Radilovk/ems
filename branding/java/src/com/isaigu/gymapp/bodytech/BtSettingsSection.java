@@ -21,6 +21,7 @@ import com.isaigu.gymapp.widget.XemsUi;
  */
 public final class BtSettingsSection {
     private static final String TAG = "xems_bodytech_settings";
+    private static final String TAG_HZ = "xems_hz_test_settings";
 
     private BtSettingsSection() {}
 
@@ -37,6 +38,8 @@ public final class BtSettingsSection {
         BtSettings.load(a);
         ViewGroup parent = XemsUi.scrollContent(a, root);
         if (parent == null) return;
+        View oldHz = parent.findViewWithTag(TAG_HZ);
+        if (oldHz != null && oldHz.getParent() instanceof ViewGroup) ((ViewGroup) oldHz.getParent()).removeView(oldHz);
         View old = parent.findViewWithTag(TAG);
         if (old != null && old.getParent() instanceof ViewGroup) ((ViewGroup) old.getParent()).removeView(old);
         XemsUi.init(a);
@@ -53,6 +56,9 @@ public final class BtSettingsSection {
         card.addView(open, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 XemsUi.dp(a, 50)));
         parent.addView(card, XemsUi.matchWrap(a, 28));
+        View hz = com.isaigu.gymapp.wearable.XemsHzTest.card(a);
+        hz.setTag(TAG_HZ);
+        parent.addView(hz, XemsUi.matchWrap(a, 14));
     }
 
     static final class Open implements View.OnClickListener {

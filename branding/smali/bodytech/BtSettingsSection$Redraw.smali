@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 277
+    .line 283
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 278
+    .line 284
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Redraw;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 279
+    .line 285
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 2
 
     .prologue
-    .line 283
+    .line 289
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Redraw;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 284
+    .line 290
     return-void
 .end method

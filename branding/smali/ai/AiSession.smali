@@ -2738,7 +2738,7 @@
     goto :goto_31
 .end method
 
-.method static manager()Lcom/isaigu/gymapp/train/TrainItemManager;
+.method public static manager()Lcom/isaigu/gymapp/train/TrainItemManager;
     .registers 1
 
     .prologue

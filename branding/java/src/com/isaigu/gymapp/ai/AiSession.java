@@ -151,7 +151,7 @@ public final class AiSession {
         return plan;
     }
 
-    static TrainItemManager manager() {
+    public static TrainItemManager manager() {
         return manager;
     }
 

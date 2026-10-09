@@ -1227,11 +1227,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L85 ## Protocol
   - L92 ## Test
 
-`vr-bridge/patcher/android-launcher/README.md` (74L)
+`vr-bridge/patcher/android-launcher/README.md` (84L)
   - L1 # XEMS VR Launcher (on-device front end)
   - L18 ## Install (once)
-  - L30 ## Every time
-  - L35 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
-  - L44 ## Pieces
-  - L60 ## Limits (what still needs a hand)
-  - L67 ## Build & test
+  - L30 ## Game catalog (1.5) — `../catalog.json`
+  - L40 ## Every time
+  - L45 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
+  - L54 ## Pieces
+  - L70 ## Limits (what still needs a hand)
+  - L77 ## Build & test

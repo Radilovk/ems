@@ -17,6 +17,11 @@ class RunStore(context: Context) {
         get() = prefs.getBoolean(K_VISIBLE, false)
         set(v) = prefs.edit().putBoolean(K_VISIBLE, v).apply()
 
+    /** Last catalog game asked for (the "download it, then install" second tap). */
+    var catalogId: String
+        get() = prefs.getString(K_CATALOG, "").orEmpty()
+        set(v) = prefs.edit().putString(K_CATALOG, v).apply()
+
     val runId: Long get() = prefs.getLong(K_RUN, 0L)
     val running: Boolean get() = prefs.getBoolean(K_RUNNING, false)
     val command: String get() = prefs.getString(K_COMMAND, "").orEmpty()
@@ -56,6 +61,7 @@ class RunStore(context: Context) {
     companion object {
         private const val MAX_TEXT = 8_000
         private const val K_QUEST = "quest_ip"
+        private const val K_CATALOG = "catalog_id"
         private const val K_PACKAGE = "package"
         private const val K_VISIBLE = "show_in_termux"
         private const val K_RUN = "run_id"

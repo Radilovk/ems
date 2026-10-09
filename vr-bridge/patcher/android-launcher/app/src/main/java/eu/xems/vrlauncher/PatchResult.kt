@@ -12,7 +12,7 @@ data class PatchResult(
     val termuxErr: Int,
     val termuxErrMsg: String?,
 ) {
-    enum class Outcome { DONE, BAD_INPUT, NO_ADB, NO_QUEST, UNAUTHORIZED, NOT_SET_UP, FAILED, TERMUX }
+    enum class Outcome { DONE, BAD_INPUT, NO_ADB, NO_QUEST, UNAUTHORIZED, NOT_SET_UP, PAGE, NO_STORAGE, FAILED, TERMUX }
 
     val outcome: Outcome
         get() = when {
@@ -23,6 +23,8 @@ data class PatchResult(
             exitCode == 4 -> Outcome.NO_QUEST
             exitCode == 5 -> Outcome.UNAUTHORIZED
             exitCode == 6 || exitCode == 127 -> Outcome.NOT_SET_UP     // check found gaps / no ~/ems script
+            exitCode == 7 -> Outcome.PAGE                                // catalog game: download it from its page
+            exitCode == 8 -> Outcome.NO_STORAGE                          // Termux cannot read Downloads
             else -> Outcome.FAILED
         }
 

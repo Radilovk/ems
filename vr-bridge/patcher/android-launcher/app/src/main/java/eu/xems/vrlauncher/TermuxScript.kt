@@ -3,7 +3,7 @@ package eu.xems.vrlauncher
 import android.annotation.SuppressLint
 
 /** What the launcher asks Termux to do; each run remembers its task so the answer is read the right way. */
-enum class Task { PATCH, CHECK, FIND, GAMES, SETUP }
+enum class Task { PATCH, CHECK, FIND, GAMES, SETUP, CATALOG, INSTALL, STORAGE }
 
 /**
  * argv for each task. Everything runs from Termux's $HOME with absolute paths, so a missing ~/ems shows up as
@@ -20,6 +20,14 @@ object TermuxScript {
     fun check() = arrayOf(RUN, "check")
     fun find(tabletIp: String) = arrayOf(RUN, "find", tabletIp)
     fun games(questSerial: String) = arrayOf(RUN, "games", questSerial)
+
+    fun catalog() = arrayOf(RUN, "catalog")
+
+    fun install(questSerial: String, id: String, tabletIp: String?): Array<String> =
+        if (tabletIp != null) arrayOf(RUN, "install", questSerial, id, tabletIp) else arrayOf(RUN, "install", questSerial, id)
+
+    /** Termux's own one-time "allow access to files" dialog (Downloads for page games). */
+    fun storage() = arrayOf("/data/data/com.termux/files/usr/bin/termux-setup-storage")
 
     fun patch(r: PatchRequest): Array<String> =
         if (r.tabletIp != null) arrayOf(RUN, "patch", r.questSerial, r.targetPackage, r.tabletIp)

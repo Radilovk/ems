@@ -1,0 +1,64 @@
+{
+  "_doc": "Games outside the Meta Store that can take the haptic layer (OpenXR loader in the APK, controller vibration). source.github = the tablet downloads the newest release APK by itself; source.page = only a web page (itch.io…): the browser opens, the APK lands in Downloads and is picked up from there by `file`. The patcher still refuses an APK without the OpenXR loader.",
+  "games": [
+    {
+      "id": "opensaber",
+      "name": "Open Saber",
+      "note": "Ритъм със саби — всеки срязан блок вибрира. Godot 4 + OpenXR. Безплатна.",
+      "source": {
+        "page": "https://leandrodreamer.itch.io/open-saber",
+        "file": "(?i)open.?saber.*quest.*\\.apk$"
+      }
+    },
+    {
+      "id": "opensaberplus",
+      "name": "Open Saber Plus",
+      "note": "Ритъм със саби (форк на Open Saber). Безплатна. Дали е OpenXR — проверява се при пача.",
+      "source": {
+        "github": "arpruss/OpenSaberPlus",
+        "asset": "(?i)\\.apk$",
+        "page": "https://sidequestvr.com/app/41477/open-saber-plus"
+      }
+    },
+    {
+      "id": "questzdoom",
+      "name": "QuestZDoom (Doom)",
+      "note": "Стрелба и удари вибрират. Team Beef. Иска файловете на оригиналния Doom (Steam/GOG).",
+      "source": {
+        "github": "DrBeef/QuestZDoom",
+        "asset": "(?i)\\.apk$",
+        "page": "https://github.com/DrBeef/QuestZDoom/releases"
+      }
+    },
+    {
+      "id": "doom3quest",
+      "name": "Doom3Quest (Doom 3)",
+      "note": "Team Beef. Иска файловете на Doom 3 (Steam/GOG).",
+      "source": {
+        "github": "DrBeef/Doom3Quest",
+        "asset": "(?i)\\.apk$",
+        "page": "https://github.com/DrBeef/Doom3Quest/releases"
+      }
+    },
+    {
+      "id": "quake3quest",
+      "name": "Quake3Quest (Quake III)",
+      "note": "Team Beef. Иска файловете на Quake III (Steam/GOG).",
+      "source": {
+        "github": "DrBeef/ioq3quest",
+        "asset": "(?i)\\.apk$",
+        "page": "https://github.com/DrBeef/ioq3quest/releases"
+      }
+    },
+    {
+      "id": "lambda1vr",
+      "name": "Lambda1VR (Half-Life)",
+      "note": "Team Beef. Иска файловете на Half-Life (Steam).",
+      "source": {
+        "github": "DrBeef/Lambda1VR",
+        "asset": "(?i)\\.apk$",
+        "page": "https://github.com/DrBeef/Lambda1VR/releases"
+      }
+    }
+  ]
+}

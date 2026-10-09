@@ -215,6 +215,47 @@ def pull_game(adb: Adb, pkg: str, into: Path) -> list[Path]:
     return out
 
 
+def manifest_info(apk: Path) -> tuple[str, bool]:
+    """(package, asks for INTERNET) from the binary AndroidManifest.xml — no aapt needed in Termux."""
+    with zipfile.ZipFile(apk) as z:
+        d = z.read("AndroidManifest.xml")
+    u16 = lambda o: struct.unpack_from("<H", d, o)[0]
+    u32 = lambda o: struct.unpack_from("<I", d, o)[0]
+    strings: list[str] = []
+    pkg = ""
+    off = u16(2)                                       # file header size
+    while off + 8 <= len(d):
+        ctype, hsize, csize = u16(off), u16(off + 2), u32(off + 4)
+        if csize < 8:
+            break
+        if ctype == 0x0001 and not strings:            # string pool
+            count, flags, sstart = u32(off + 8), u32(off + 16), u32(off + 20)
+            utf8 = flags & 0x100
+            for i in range(count):
+                so = off + sstart + u32(off + hsize + i * 4)
+                if utf8:
+                    so += 2 if d[so] & 0x80 else 1     # utf-16 length
+                    n = d[so] & 0x7F
+                    if d[so] & 0x80:
+                        n = ((d[so] & 0x7F) << 8) | d[so + 1]; so += 1
+                    so += 1
+                    strings.append(d[so:so + n].decode("utf-8", "replace"))
+                else:
+                    n = u16(so)
+                    if n & 0x8000:
+                        n = ((n & 0x7FFF) << 16) | u16(so + 2); so += 2
+                    strings.append(d[so + 2:so + 2 + n * 2].decode("utf-16le", "replace"))
+        elif ctype == 0x0102 and not pkg:              # first start tag = <manifest>
+            astart, acount = u16(off + 24), u16(off + 28)
+            for i in range(acount):
+                ao = off + 16 + astart + i * 20
+                name, raw = u32(ao + 4), u32(ao + 8)
+                if name < len(strings) and strings[name] == "package" and raw < len(strings):
+                    pkg = strings[raw]
+        off += csize
+    return pkg, "android.permission.INTERNET" in strings
+
+
 def has_internet(adb: Adb, pkg: str) -> bool:
     return "android.permission.INTERNET" in adb.shell(f"dumpsys package {pkg}", check=False)
 
@@ -313,6 +354,8 @@ def main() -> int:
     ap.add_argument("--apk", action="append", type=Path, help="офлайн: локален APK (повтаря се за split-ове)")
     ap.add_argument("--out", type=Path, default=Path("xems-vr-out"), help="папка за резултата")
     ap.add_argument("--adb", default=os.environ.get("ADB", "adb"))
+    ap.add_argument("--install", type=Path, metavar="APK",
+                    help="APK файл (напр. свален на таблета): пач + инсталиране на шлема; пакетът се чете от файла")
     ap.add_argument("--yes", action="store_true", help="без въпрос преди преинсталиране")
     a = ap.parse_args()
 
@@ -333,15 +376,31 @@ def main() -> int:
             if a.list.lower() in p.lower():
                 say(p)
         return 0
-    if not a.package:
+    if not a.package and not a.install:
         ap.print_help()
         return 1
 
-    pkg = a.package
-    if not has_internet(adb, pkg):
-        fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
     work = Path(tempfile.mkdtemp(prefix="xems-vr-"))
-    orig = pull_game(adb, pkg, work / "orig")
+    if a.install:
+        if not a.install.is_file():
+            fail(f"няма файл {a.install}")
+        try:
+            pkg, internet = manifest_info(a.install)
+        except (zipfile.BadZipFile, KeyError, struct.error) as e:
+            fail(f"{a.install.name} не е APK ({e})")
+        if not pkg:
+            fail(f"не можах да прочета пакета от {a.install.name}")
+        if not internet:
+            fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
+        say(f"✓ {a.install.name} → {pkg}")
+        (work / "orig").mkdir(parents=True)
+        orig = [work / "orig" / "base.apk"]
+        shutil.copy(a.install, orig[0])
+    else:
+        pkg = a.package
+        if not has_internet(adb, pkg):
+            fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
+        orig = pull_game(adb, pkg, work / "orig")
     a.out.mkdir(parents=True, exist_ok=True)
     keep = a.out / "original" / pkg
     keep.mkdir(parents=True, exist_ok=True)

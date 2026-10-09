@@ -16,6 +16,16 @@ class TermuxReportTest {
         assertEquals(listOf("com.a.fight", "com.beat.games"), TermuxReport.games(out).map { it.pkg })
     }
 
+    @Test fun catalogAndPage() {
+        val out = "item opensaber\tOpen Saber\tpage\tРитъм\r\nitem q\tQuestZDoom\tgithub\t\nnoise\npage https://x.itch.io/g\n"
+        val c = TermuxReport.catalog(out)
+        assertEquals(listOf("opensaber", "q"), c.map { it.id })
+        assertEquals(listOf(false, true), c.map { it.direct })
+        assertEquals("Ритъм", c[0].note)
+        assertEquals("https://x.itch.io/g", TermuxReport.page(out))
+        assertEquals(null, TermuxReport.page("page javascript:x"))
+    }
+
     @Test fun gamesWithFitOkFirst() {
         val out = "game com.old.one vrapi\ngame com.web.app ?\r\ngame com.new.one ok\n"
         val g = TermuxReport.games(out)

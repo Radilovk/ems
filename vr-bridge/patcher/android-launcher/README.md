@@ -27,6 +27,16 @@ app ◀──PendingIntent (exit code + output, background or session)── Ter
    opens by itself and runs `adb tcpip 5555` (`UsbAdb`, no PC), then searches the Wi-Fi. The first time the
    headset asks *Allow USB debugging* for the app's key → Always allow + Allow (remembered).
 
+## Game catalog (1.5) — `../catalog.json`
+**🎮 Каталог** lists games outside the Meta Store that take the layer (a store game re-signed by the patcher is
+refused by Horizon OS / its entitlement check — catalog games are installed as plain APKs, so that never applies).
+Tap one → `termux-run.sh install <quest> <id> [tablet]` → `catalog.py resolve`: `github` = newest release APK
+downloaded by the tablet (cached in `~/.xems-vr/apk`); `page` (itch.io) = exit 7 + `page <url>`, the app opens it,
+the user presses Download, the second tap finds the file in Downloads (`termux-setup-storage` once, exit 8 → the
+app runs it) → `xems_vr_patch.py --install <apk>` (package read from the binary manifest, no aapt) → backup/move
+Android/data+obb if already installed → install. Add a game = one entry in `catalog.json` (merged to main, the
+Termux side updates itself).
+
 ## Every time
 Open the app → it finds the headset on the Wi-Fi → shows its games (✓ OpenXR = works · ✗ old VrApi = cannot, not filled in · ? = not recognised) → **tap a game** → **Сложи хаптиката** →
 confirm → 1–3 min → ✓ (or the reason + what to press). The tablet's own Wi-Fi IP goes to `--tablet` by itself.

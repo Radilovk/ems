@@ -16,7 +16,7 @@ pkg install "${APT[@]}" python openjdk-17 android-tools git
 echo "→ 2/3 XEMS VR файлове ($DIR, само vr-bridge/)"
 if [[ -d "$DIR/.git" ]]; then
   git -C "$DIR" fetch --depth 1 origin "$BRANCH"
-  git -C "$DIR" checkout -q -B "$BRANCH" FETCH_HEAD
+  git -C "$DIR" checkout -q -f -B "$BRANCH" FETCH_HEAD   # -f: a stray local edit must not block the update
 else
   git clone -q --depth 1 --filter=blob:none --no-checkout --branch "$BRANCH" "$REPO" "$DIR"
   git -C "$DIR" sparse-checkout set --no-cone '/vr-bridge/'      # skip the tablet APKs and the rest

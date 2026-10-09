@@ -134,7 +134,7 @@ self_update() {
   command -v git >/dev/null 2>&1 || return 0
   timeout 25 git -C "$dir" fetch -q --depth 1 origin "$branch" 2>/dev/null || return 0
   [[ "$(git -C "$dir" rev-parse HEAD)" == "$(git -C "$dir" rev-parse FETCH_HEAD)" ]] && return 0
-  git -C "$dir" checkout -q -B "$branch" FETCH_HEAD 2>/dev/null || return 0
+  git -C "$dir" checkout -q -f -B "$branch" FETCH_HEAD 2>/dev/null || return 0
   echo "→ скриптовете са обновени"
   XEMS_UPDATED=1 exec bash "$0" "$@"
 }

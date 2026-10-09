@@ -22,6 +22,9 @@ case "$1" in
           "getprop ro.product.model") echo $'Quest 3\r' ;;
           *libopenxr_loader_orig_xems*) printf 'patched org.saber shim\r\n' ;;
           *libopenxr_loader*) printf 'com.a.fight ok\r\ncom.beat.games vrapi\r\n' ;;
+          "pm path") printf 'package:/data/app/~~x/org.saber-y/base.apk\r\n' ;;
+          "pidof org.saber") printf '4242\r\n' ;;
+          ls*) printf -- '-rwxr-xr-x 1 system system 281552 2026-10-09 05:00 libopenxr_loader.so\r\n' ;;
           "pm list") printf 'package:com.oculus.vrshell\r\npackage:com.beat.games\r\npackage:com.meta.store\r\npackage:com.a.fight\r\n' ;;
         esac ;;
     esac ;;
@@ -74,6 +77,8 @@ FAKE_CONNECT=no check "install: headset away" 4 "" install 192.168.1.23 opensabe
 
 check "vrcheck: patched games + layer log" 0 "log I XemsVrLayer: paired with 192.168.43.1:47800" vrcheck 192.168.1.23
 check "vrcheck: which game"         0 "patched org.saber shim" vrcheck 192.168.1.23
+check "vrcheck: unpacked loader"    0 "lib org.saber 281552 libopenxr_loader.so" vrcheck 192.168.1.23
+check "vrcheck: game process log"   0 "plog I XemsVrLayer: loader shim" vrcheck 192.168.1.23
 
 # games
 check "games: filters system packages" 0 "game com.a.fight ok" games 192.168.1.23

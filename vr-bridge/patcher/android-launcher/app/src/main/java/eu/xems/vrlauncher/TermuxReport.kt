@@ -37,7 +37,7 @@ object TermuxReport {
     fun page(stdout: String): String? = lines(stdout, "page ").lastOrNull()?.trim()?.takeIf { it.startsWith("https://") }
 
     /** What `vrcheck` saw: games carrying the haptics and the layer's own log, read into one verdict. */
-    data class VrCheck(val patched: List<Pair<String, Boolean>>, val log: List<String>) {
+    data class VrCheck(val patched: List<Pair<String, Boolean>>, val log: List<String>, val evidence: List<String> = emptyList()) {
         enum class Verdict { PAIRED, ACTIVE, SHIM_ONLY, NOT_LOADED, NONE_PATCHED }
 
         val verdict: Verdict
@@ -57,6 +57,7 @@ object TermuxReport {
             if (f.isEmpty() || f[0].isEmpty()) null else f[0] to (f.getOrNull(1) == "shim")
         },
         lines(stdout, "log ").map { it.trim() },
+        lines(stdout, "lib ").map { "📦 " + it.trim() } + lines(stdout, "plog ").map { "· " + it.trim() },
     )
 
     /** "ok <what>" / "missing <what>" → what → present. */

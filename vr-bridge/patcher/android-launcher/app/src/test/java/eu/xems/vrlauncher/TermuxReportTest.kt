@@ -24,6 +24,8 @@ class TermuxReportTest {
         assertEquals(TermuxReport.VrCheck.Verdict.ACTIVE, v("log I XemsVrLayer: active, session 1a2b\n"))
         assertEquals(TermuxReport.VrCheck.Verdict.PAIRED, v("log x active, session 1\nlog x paired with 192.168.43.1:47800\n"))
         assertEquals(listOf("org.saber" to true, "b" to false), TermuxReport.vrcheck("patched org.saber shim\npatched b asset\n").patched)
+        assertEquals(listOf("📦 org.saber 281552 libopenxr_loader.so", "· E linker: x"),
+            TermuxReport.vrcheck("lib org.saber 281552 libopenxr_loader.so\nplog E linker: x\n").evidence)
     }
 
     @Test fun catalogAndPage() {

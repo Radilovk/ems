@@ -2,7 +2,7 @@
 # Termux side of the XEMS VR launcher (workdir = vr-bridge/patcher). The app parses the machine lines.
 #   termux-run.sh check                                → "ok <what>" / "missing <what>" lines
 #   termux-run.sh find <tablet-ip>                     → "quest <ip> <model>" per Quest on the /24 (adb :5555)
-#   termux-run.sh games <quest-ip[:port]>              → "game <package>" per third-party app on the headset
+#   termux-run.sh games <quest-ip[:port]>              → "game <package> <ok|vrapi|?>" + "label <package>\t<name>"
 #   termux-run.sh patch <quest-ip[:port]> <pkg> [tablet-ip]   adb connect + xems_vr_patch.py --yes [--tablet]
 #   termux-run.sh catalog                              → "item <id>\t<name>\t<github|page>\t<note>" (catalog.json)
 #   termux-run.sh install <quest-ip[:port]> <id> [tablet-ip]   catalog game: download / find in Downloads →
@@ -116,6 +116,8 @@ cmd_games() {
     local f; f="$(awk -v p="$p" '$1==p {print $2}' <<<"$fit")"
     echo "game $p ${f:-?}"
   done
+  # The names people know ("Open Saber", not org.godotengine.opensaber): read from each APK, cached.
+  (cd "$PATCHER" && python3 apkinfo.py headset "$serial" "${pkgs[@]}") 2>/dev/null
 }
 
 cmd_patch() {

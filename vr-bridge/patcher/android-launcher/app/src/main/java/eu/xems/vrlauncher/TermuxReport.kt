@@ -16,14 +16,18 @@ object TermuxReport {
     /** OK = OpenXR loader in the APK (the layer goes in) · VRAPI = old VrApi/OVRPlugin (cannot) · UNKNOWN = neither. */
     enum class Fit { OK, UNKNOWN, VRAPI }
 
-    data class Game(val pkg: String, val fit: Fit)
+    /** [name] = the game's own label from its APK (falls back to the package). */
+    data class Game(val pkg: String, val fit: Fit, val name: String = pkg)
 
     /** "game <package> [ok|vrapi|?]", the ones that can be patched first. */
     fun games(stdout: String): List<Game> = lines(stdout, "game ").mapNotNull { rest ->
         val parts = rest.trim().split(Regex("\\s+"))
         val pkg = parts.firstOrNull()?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
         Game(pkg, when (parts.getOrNull(1)) { "ok" -> Fit.OK; "vrapi" -> Fit.VRAPI; else -> Fit.UNKNOWN })
-    }.distinctBy { it.pkg }.sortedBy { it.fit.ordinal }
+    }.distinctBy { it.pkg }.let { games ->
+        val names = lines(stdout, "label ").associate { it.substringBefore('\t').trim() to it.substringAfter('\t', "").trim() }
+        games.map { g -> names[g.pkg]?.takeIf { it.isNotEmpty() }?.let { g.copy(name = it) } ?: g }
+    }.sortedWith(compareBy<Game> { it.fit.ordinal }.thenBy { it.name.lowercase() })
 
     data class CatalogGame(val id: String, val name: String, val direct: Boolean, val note: String)
 

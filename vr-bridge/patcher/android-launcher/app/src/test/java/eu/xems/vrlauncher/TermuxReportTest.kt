@@ -16,6 +16,13 @@ class TermuxReportTest {
         assertEquals(listOf("com.a.fight", "com.beat.games"), TermuxReport.games(out).map { it.pkg })
     }
 
+    @Test fun gamesCarryTheirRealNames() {
+        val out = "game org.godot.saber ok\ngame com.b.zed ok\ngame com.old vrapi\nlabel org.godot.saber\tOpen Saber\r\nlabel com.b.zed\tAim XR\n"
+        val g = TermuxReport.games(out)
+        assertEquals(listOf("Aim XR", "Open Saber", "com.old"), g.map { it.name })
+        assertEquals("org.godot.saber", g[1].pkg)
+    }
+
     @Test fun downloadsOkFirst() {
         val out = "dl /sdcard/Download/Old.apk\tOld.apk\tvrapi\t80\r\ndl /sdcard/Download/My Game.apk\tMy Game.apk\tok\t120\nnoise\n"
         val d = TermuxReport.downloads(out)

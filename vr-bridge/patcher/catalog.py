@@ -2,7 +2,7 @@
 """XEMS VR game catalog (catalog.json) for the launcher's Termux side.
 
   python3 catalog.py list                 → "item <id>\\t<name>\\t<page|github>\\t<note>" per game
-  python3 catalog.py downloads            → "dl <path>\t<file>\t<ok|vrapi|?>\t<MB>" per APK in Downloads (newest first)
+  python3 catalog.py downloads            → "dl <path>\t<game name>\t<ok|vrapi|?>\t<MB>" per APK in Downloads
   python3 catalog.py resolve <id>         → prints the local APK path (exit 0)
       github: newest release asset → ~/.xems-vr/apk/ (kept, not downloaded twice)
       page or github without an APK: newest matching file in Downloads, else "page <url>" + exit 7
@@ -16,6 +16,8 @@ import re
 import sys
 import urllib.request
 from pathlib import Path
+
+import apkinfo
 
 HERE = Path(__file__).resolve().parent
 CACHE = Path.home() / ".xems-vr" / "apk"
@@ -97,7 +99,11 @@ def downloads() -> int:
                 seen.add(f.resolve())
                 apks.append(f)
     for f in sorted(apks, key=lambda f: f.stat().st_mtime, reverse=True)[:40]:
-        say(f"dl {f}\t{f.name}\t{fit(f)}\t{f.stat().st_size // 1048576}")
+        try:
+            name = apkinfo.local_label(f)[1]                 # the game's real name, not the file name
+        except Exception:  # noqa: BLE001
+            name = f.name
+        say(f"dl {f}\t{name}\t{fit(f)}\t{f.stat().st_size // 1048576}")
     return 0
 
 

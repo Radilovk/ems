@@ -23,7 +23,8 @@ var ex_index := 0
 var ex_time := -4.0          # < 0: "next up" preview before the first rep
 var paused := false
 
-var trainer: Mannequin
+var trainer: Coach
+var coach_rep := -1
 var body: Mannequin
 var title: Label3D
 var cue: Label3D
@@ -146,7 +147,7 @@ func _ring(pos: Vector3, size: float) -> ShaderMaterial:
 
 
 func _build_coach() -> void:
-	trainer = Mannequin.new()
+	trainer = Coach.new()
 	trainer.position = TRAINER_POS
 	trainer.rotation_degrees.y = TRAINER_TURN
 	add_child(trainer)
@@ -242,6 +243,16 @@ func _setup_view() -> void:
 		if view == "side":
 			cam.position = Vector3(2.6, 1.55, -0.6)
 			cam.look_at(Vector3(0.3, 1.05, -1.9))
+		elif view == "coach":
+			cam.position = TRAINER_POS + Vector3(0.4, 1.3, 2.0)
+			cam.look_at(TRAINER_POS + Vector3(0, 1.0, 0))
+		elif view == "profile":                    # the coach exactly from his left side
+			var side_dir := Basis(Vector3.UP, deg_to_rad(TRAINER_TURN)) * Vector3(2.4, 0, 0)
+			cam.position = TRAINER_POS + side_dir + Vector3(0, 1.0, 0)
+			cam.look_at(TRAINER_POS + Vector3(0, 0.85, 0))
+		elif view == "back":
+			cam.position = TRAINER_POS + Vector3(-0.9, 1.4, -1.9)
+			cam.look_at(TRAINER_POS + Vector3(0, 1.0, 0))
 		elif view == "wide":
 			cam.position = Vector3(0.0, 1.7, 1.6)
 			cam.look_at(Vector3(0, 1.1, -2.0))
@@ -282,7 +293,12 @@ func _process(delta: float) -> void:
 	var preview := ex_time < 0.0
 	var t: float = max(ex_time, 0.0) if not preview else fmod(ex_time + 100.0, Exercises.rep_length(e))
 	var ph := Exercises.phase(e, t)
-	trainer.set_pose(Exercises.pose_at(e, t))
+	var clips: Array = e.get("clips", [])
+	if clips.is_empty():
+		trainer.set_pose(Exercises.pose_at(e, t))
+	elif ph.rep != coach_rep:                    # a ready-made move per rep (jab, cross, jab…)
+		coach_rep = ph.rep
+		trainer.play(clips[ph.rep % clips.size()], 1.1)
 
 	var impulse: float = 0.0 if preview else ph.impulse
 	trainer.set_active(e.muscles, impulse * 0.8)
@@ -316,6 +332,7 @@ func _next_exercise() -> void:
 	ex_index = (ex_index + 1) % program.size()
 	ex_time = -4.0
 	last_hold_rep = -1
+	coach_rep = -1
 
 
 ## The EMS beat: one pulse per hold. Through the XEMS layer the tablet turns it into the suit's impulse.

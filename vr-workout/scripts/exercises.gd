@@ -24,7 +24,7 @@ static func list() -> Array:
 			"muscles": [Mannequin.QUAD, Mannequin.GLUTE, Mannequin.HAM, Mannequin.CALF, Mannequin.ABS],
 			"down": 1.5, "hold": 1.4, "up": 1.3, "rest": 0.7,
 			"a": {"sh_l": Vector2(0, 8), "sh_r": Vector2(0, 8), "el_l": 15, "el_r": 15},
-			"b": {"lean": 6, "hip_l": Vector2(80, 0), "kn_l": 82, "hip_r": Vector2(-28, 0), "kn_r": 95,
+			"b": {"lean": 4, "hip_l": Vector2(88, 0), "kn_l": 92, "hip_r": Vector2(-8, 0), "kn_r": 100, "ft_r": 45,
 				"sh_l": Vector2(0, 14), "sh_r": Vector2(0, 14), "el_l": 20, "el_r": 20},
 		},
 		{
@@ -33,11 +33,12 @@ static func list() -> Array:
 			"muscles": [Mannequin.ARMS, Mannequin.CHEST, Mannequin.ABS],
 			"down": 1.4, "hold": 1.4, "up": 1.6, "rest": 0.5,
 			"a": {"sh_l": Vector2(4, 6), "sh_r": Vector2(4, 6), "el_l": 8, "el_r": 8, "hip_l": Vector2(0, 6), "hip_r": Vector2(0, 6)},
-			"b": {"sh_l": Vector2(12, 6), "sh_r": Vector2(12, 6), "el_l": 140, "el_r": 140, "hip_l": Vector2(0, 6), "hip_r": Vector2(0, 6),
+			"b": {"sh_l": Vector2(12, 6), "sh_r": Vector2(12, 6), "el_l": 128, "el_r": 128, "hip_l": Vector2(0, 6), "hip_r": Vector2(0, 6),
 				"kn_l": 8, "kn_r": 8},
 		},
 		{
 			"id": "punch", "name": "Прави удари", "reps": 24, "alternate": true, "targets": true,
+			"clips": ["Punch_Jab", "Punch_Cross"],
 			"cue": "Удряй светлите цели с бърз прав удар и връщай ръката в гард.",
 			"muscles": [Mannequin.ARMS, Mannequin.CHEST, Mannequin.TRAPS, Mannequin.ABS, Mannequin.BACK],
 			"down": 0.22, "hold": 0.18, "up": 0.3, "rest": 0.25,

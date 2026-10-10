@@ -2,6 +2,14 @@
   "_doc": "Games outside the Meta Store that can take the haptic layer (OpenXR loader in the APK, controller vibration). source.github = the tablet downloads the newest release APK by itself; source.page = only a web page (itch.io…): the browser opens, the APK lands in Downloads and is picked up from there by `file`. The patcher still refuses an APK without the OpenXR loader. Fitness / boxing first. Any other APK: the launcher's 📥 Downloads button.",
   "games": [
     {
+      "id": "xemsstudio",
+      "name": "XEMS Studio",
+      "note": "Нашата EMS тренировка: треньор показва упражнението, костюмът работи в такт.",
+      "source": {
+        "repo": "vr-workout/xems-studio.apk"
+      }
+    },
+    {
       "id": "challengebox",
       "name": "ChallengeBox Fitness",
       "note": "Бокс фитнес: загрявка, горна/долна част, HIIT, бокс срещу други. Безплатна, от SideQuest.",

@@ -442,14 +442,14 @@
 
     .line 708
     :cond_5a
-    const v0, -0xedebe8
+    const v0, -0xf9f4ec
 
     move v2, v0
 
     goto :goto_2b
 
     :cond_5f
-    const v0, -0xd3cec5
+    const v0, -0xe3c5ae
 
     goto :goto_2e
 .end method
@@ -587,14 +587,14 @@
 
     .line 798
     :cond_39
-    const v0, -0xe3e0da
+    const v0, -0xf4e9dd
 
     move v2, v0
 
     goto :goto_2a
 
     :cond_3e
-    const v0, -0xd3cec5
+    const v0, -0xe3c5ae
 
     goto :goto_2d
 .end method
@@ -645,9 +645,9 @@
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
     .line 689
-    const v2, -0xe3e0da
+    const v2, -0xf4e9dd
 
-    const v3, -0xd3cec5
+    const v3, -0xe3c5ae
 
     invoke-virtual {p0, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->round(II)Landroid/graphics/drawable/GradientDrawable;
 
@@ -660,7 +660,7 @@
 
     move-result-object v2
 
-    const v3, -0x675e50
+    const v3, -0x6c503a
 
     invoke-virtual {p0, v2, v7, v3, v6}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->text(Ljava/lang/String;IIZ)Landroid/widget/TextView;
 
@@ -884,7 +884,7 @@
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextColor(I)V
 
     .line 787
-    const v1, -0x675e50
+    const v1, -0x6c503a
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setHintTextColor(I)V
 
@@ -915,9 +915,9 @@
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/EditText;->setPadding(IIII)V
 
     .line 790
-    const v1, -0xedebe8
+    const v1, -0xf9f4ec
 
-    const v2, -0xd3cec5
+    const v2, -0xe3c5ae
 
     invoke-virtual {p0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->round(II)Landroid/graphics/drawable/GradientDrawable;
 
@@ -1790,7 +1790,7 @@
     invoke-virtual {v1, v9}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
     .line 192
-    const v0, -0xedebe8
+    const v0, -0xf9f4ec
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setBackgroundColor(I)V
 
@@ -2395,7 +2395,7 @@
     invoke-virtual {v1, v5}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
     .line 300
-    const v2, -0xedebe8
+    const v2, -0xf9f4ec
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
@@ -2540,7 +2540,7 @@
 
     const/16 v2, 0xd
 
-    const v3, -0x675e50
+    const v3, -0x6c503a
 
     invoke-virtual {p0, v0, v2, v3, v10}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->text(Ljava/lang/String;IIZ)Landroid/widget/TextView;
 
@@ -3295,7 +3295,7 @@
     .registers 16
 
     .prologue
-    const v14, -0x675e50
+    const v14, -0x6c503a
 
     const/4 v13, 0x4
 
@@ -4461,14 +4461,14 @@
 
     .line 601
     :cond_1a
-    const v0, -0xe3e0da
+    const v0, -0xf4e9dd
 
     move v1, v0
 
     goto :goto_6
 
     :cond_1f
-    const v0, -0xd3cec5
+    const v0, -0xe3c5ae
 
     goto :goto_b
 
@@ -4634,7 +4634,7 @@
     .prologue
     const/16 v8, 0x11
 
-    const v7, -0x675e50
+    const v7, -0x6c503a
 
     const/4 v6, 0x1
 

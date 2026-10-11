@@ -15,8 +15,8 @@
     <color name="calendar_month_text">#ff4b4b4b</color>
     <color name="calendar_week_text">#ff9e9e9d</color>
     <color name="section_header_bg">#ffe8e8e8</color>
-    <color name="accent_primary">#ffe53935</color>
-    <color name="accent_primary_dark">#ffc62828</color>
+    <color name="accent_primary">#ff0284c7</color>
+    <color name="accent_primary_dark">#ff03669e</color>
     <color name="list_selected_bg">#ffd8f0ee</color>
     <color name="list_selected_stroke">#ff80cbc4</color>
     <color name="list_training_bg">#ffe3f2fd</color>

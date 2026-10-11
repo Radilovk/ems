@@ -22,7 +22,7 @@ final class AiViews {
     static int TEXT = 0xFFE8E8E8;
     static int MUTED = 0xFFB0B0B0;
     /** Brand accent (app red: active tab, primary actions, strength). */
-    static int VIOLET = 0xFFE53935;
+    static int VIOLET = 0xFF22C3F5;
     static int ACCENT_DARK = 0xFFB71C1C;
     /** Impulse / recovery green (app impulse_accent). */
     static int CYAN = 0xFF81C784;

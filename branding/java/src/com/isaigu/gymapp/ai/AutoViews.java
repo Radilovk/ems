@@ -149,9 +149,9 @@ public final class AutoViews {
 
         private void colors(int m) {
             switch (m) {
-                case WORK:                    // the kit's impulse colours: orange → accent red
+                case WORK:                    // the kit's impulse colours: orange → red
                     colA = XemsUi.ORANGE;
-                    colB = XemsUi.ACCENT;
+                    colB = XemsUi.DANGER;
                     break;
                 case READY:
                     colA = XemsUi.GO_TEXT;
@@ -399,6 +399,12 @@ public final class AutoViews {
             Bitmap over;
             Bitmap glow;
             int[] idx;          // pixel index of every zone pixel
+            /** Leader anchor of a zone (image px), per half of the figure: [zone * 2 + half], half 0 = left. */
+            float[] ax;
+            float[] ay;
+            /** Zone + 1 of every idx pixel (0 = none), for hit tests; mw = its width. */
+            byte[] map;
+            int mw;
             byte[] zone;
             byte[] shade;
             byte[] cov;
@@ -470,6 +476,117 @@ public final class AutoViews {
             }
         }
 
+        /** Where figure {@code i} (0 front, 1 back) is drawn in this view: side by side, centred, fitted. */
+        boolean figRect(int i, RectF out) {
+            float gap = dp(this, 22);
+            float h = getHeight();
+            float totalW = 0;
+            for (Fig f : figs) {
+                if (f != null && f.art != null) {
+                    totalW += f.art.getWidth() * h / f.art.getHeight();
+                }
+            }
+            if (totalW <= 0 || figs[i] == null || figs[i].art == null) {
+                return false;
+            }
+            float scale = 1f;
+            if (totalW + gap > getWidth()) {
+                scale = (getWidth() - gap) / Math.max(1f, totalW);
+            }
+            float x = (getWidth() - (totalW * scale + gap)) / 2f;
+            float fh = h * scale;
+            float top = (h - fh) / 2f;
+            for (int k = 0; k < 2; k++) {
+                Fig f = figs[k];
+                if (f == null || f.art == null) {
+                    continue;
+                }
+                float fw = f.art.getWidth() * fh / f.art.getHeight();
+                if (k == i) {
+                    out.set(x, top, x + fw, top + fh);
+                    return true;
+                }
+                x += fw + gap;
+            }
+            return false;
+        }
+
+        /**
+         * The point of {@code zone} on figure {@code i} (0 front, 1 back) in this view, on the figure's {@code half}
+         * (0 = the left half of the picture, 1 = the right): where a leader line from a label ends. False = unknown.
+         */
+        public boolean anchor(int i, int zone, int half, float[] out) {
+            Fig f = i >= 0 && i < 2 ? figs[i] : null;
+            if (f == null || f.ax == null || f.art == null || zone < 0 || zone >= Z) {
+                return false;
+            }
+            int k = zone * 2 + half;
+            if (f.ax[k] < 0) {
+                k = zone * 2 + (1 - half);       // only on the other half
+                if (f.ax[k] < 0) {
+                    return false;
+                }
+            }
+            RectF r = new RectF();
+            if (!figRect(i, r)) {
+                return false;
+            }
+            out[0] = r.left + f.ax[k] * r.width() / f.art.getWidth();
+            out[1] = r.top + f.ay[k] * r.height() / f.art.getHeight();
+            return true;
+        }
+
+        /**
+         * The suit zone (0…9) under a finger at (x, y) in this view, the nearest within {@code tolPx} when the finger
+         * lands just off it; −1 = none (outside the figures, or the deltoid, which no channel drives).
+         */
+        public int zoneAt(float x, float y, float tolPx) {
+            RectF r = new RectF();
+            for (int i = 0; i < 2; i++) {
+                Fig f = figs[i];
+                if (f == null || f.map == null || f.art == null || !figRect(i, r) || r.width() <= 0) {
+                    continue;
+                }
+                float k = f.art.getWidth() / r.width();
+                float t = tolPx * k;
+                if (x < r.left - tolPx || x > r.right + tolPx || y < r.top - tolPx || y > r.bottom + tolPx) {
+                    continue;
+                }
+                int cx = Math.round((x - r.left) * k);
+                int cy = Math.round((y - r.top) * k);
+                int mh = f.map.length / f.mw;
+                int best = -1;
+                float bestD = Float.MAX_VALUE;
+                int rad = Math.max(1, Math.round(t));
+                for (int dy = -rad; dy <= rad; dy += 2) {
+                    for (int dx = -rad; dx <= rad; dx += 2) {
+                        int px = cx + dx;
+                        int py = cy + dy;
+                        if (px < 0 || py < 0 || px >= f.mw || py >= mh) {
+                            continue;
+                        }
+                        int z = f.map[py * f.mw + px] - 1;
+                        if (z < 0 || z >= AutoModel.CHANNELS) {
+                            continue;
+                        }
+                        float d = dx * dx + dy * dy;
+                        if (d < bestD && d <= t * t) {
+                            bestD = d;
+                            best = z;
+                        }
+                    }
+                }
+                int z0 = cx >= 0 && cy >= 0 && cx < f.mw && cy < mh ? f.map[cy * f.mw + cx] - 1 : -1;
+                if (z0 >= 0 && z0 < AutoModel.CHANNELS) {
+                    return z0;                       // right on a zone
+                }
+                if (best >= 0) {
+                    return best;
+                }
+            }
+            return -1;
+        }
+
         /** The value the colour shows at {@code now}: the held value, faded in from the previous one. */
         private double shownAt(int k, long now) {
             if (fadeMs[k] <= 0) {
@@ -504,16 +621,34 @@ public final class AutoViews {
                 f.shade = new byte[n];
                 f.cov = new byte[n];
                 int j = 0;
+                byte[] map = new byte[w * h];
+                f.map = map;
+                f.mw = w;
+                double[] sx = new double[Z * 2];
+                double[] sy = new double[Z * 2];
+                int[] sn = new int[Z * 2];
                 for (int i = 0; i < all.length; i++) {
                     int p = all[i];
                     int z = zoneOf(p);
                     if (z >= 0) {
+                        map[i] = (byte) (z + 1);
+                        int px = i % w;
+                        int hk = z * 2 + (px < w / 2 ? 0 : 1);
+                        sx[hk] += px;
+                        sy[hk] += i / w;
+                        sn[hk]++;
                         f.idx[j] = i;
                         f.zone[j] = (byte) z;
                         f.shade[j] = (byte) ((p >> 8) & 0xFF);
                         f.cov[j] = (byte) (p & 0xFF);
                         j++;
                     }
+                }
+                f.ax = new float[Z * 2];
+                f.ay = new float[Z * 2];
+                for (int k = 0; k < Z * 2; k++) {
+                    f.ax[k] = sn[k] > 0 ? (float) (sx[k] / sn[k]) : -1f;
+                    f.ay[k] = sn[k] > 0 ? (float) (sy[k] / sn[k]) : -1f;
                 }
                 f.px = new int[w * h];
                 f.over = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -628,29 +763,12 @@ public final class AutoViews {
             // the pulse: the working zones breathe between a faint and a strong glow
             double ph = (now % PULSE_MS) / (double) PULSE_MS;
             glowPaint.setAlpha((int) (255 * (0.15 + 0.85 * (0.5 - 0.5 * Math.cos(2 * Math.PI * ph)))));
-            float gap = dp(this, 22);
-            float h = getHeight();
-            float totalW = 0;
-            for (Fig f : figs) {
-                if (f != null && f.art != null) {
-                    totalW += f.art.getWidth() * h / f.art.getHeight();
-                }
-            }
-            float scale = 1f;
-            if (totalW + gap > getWidth()) {
-                scale = (getWidth() - gap) / Math.max(1f, totalW);
-            }
-            float x = (getWidth() - (totalW * scale + gap)) / 2f;
             for (int i = 0; i < 2; i++) {
                 Fig f = figs[i];
-                if (f == null || f.art == null) {
+                if (f == null || f.art == null || !figRect(i, dst)) {
                     continue;
                 }
-                float fh = h * scale;
-                float fw = f.art.getWidth() * fh / f.art.getHeight();
-                float top = (h - fh) / 2f;
                 src.set(0, 0, f.art.getWidth(), f.art.getHeight());
-                dst.set(x, top, x + fw, top + fh);
                 c.drawBitmap(f.art, src, dst, paint);
                 if (f.over != null) {
                     c.drawBitmap(f.over, src, dst, paint);
@@ -658,7 +776,6 @@ public final class AutoViews {
                 if (any && f.glow != null) {
                     c.drawBitmap(f.glow, src, dst, glowPaint);
                 }
-                x += fw + gap;
             }
             if (any || fading) {
                 postInvalidateOnAnimation();
@@ -863,7 +980,7 @@ public final class AutoViews {
                     p.setColor(XemsUi.ORANGE);
                 } else if (i == done) {
                     p.setStyle(Paint.Style.FILL);
-                    p.setColor(XemsUi.ACCENT);
+                    p.setColor(XemsUi.DANGER);
                 } else {
                     p.setStyle(Paint.Style.STROKE);
                     p.setColor(XemsUi.alpha(XemsUi.TEXT, 0x66));

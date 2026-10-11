@@ -24,6 +24,12 @@ public class RecyclerView extends ViewGroup {
         return null;
     }
 
+    public int getChildAdapterPosition(View child) {
+        return -1;
+    }
+
+    public void scrollToPosition(int position) {}
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {}
 

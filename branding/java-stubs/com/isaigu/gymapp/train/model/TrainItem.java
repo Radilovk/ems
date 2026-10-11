@@ -21,6 +21,9 @@ public class TrainItem {
     public void addStrenth(int delta) {}
 
     public void addMainAndPauseStrenth(int delta) {}
+    public void addPauseStrenth(int delta) {}
+    public void addHz(int delta) {}
+    public void addPauseHz(int delta) {}
 
     /** Adds to the part (channel) values; all parts when ignoreControl, else the selected ones. Sends. */
     public void addAllPartValue(int value, boolean ignoreControl) {}

@@ -16,9 +16,9 @@
 
 .field private static final ACCENT_TEXT:I = -0x1
 
-.field private static final BG:I = -0xedebe8
+.field private static final BG:I = -0xf9f4ec
 
-.field private static final CARD:I = -0xe3e0da
+.field private static final CARD:I = -0xf4e9dd
 
 .field static final COND:[Ljava/lang/String;
 
@@ -34,11 +34,11 @@
 
 .field static final GOALS:[Ljava/lang/String;
 
-.field private static final MUTED:I = -0x675e50
+.field private static final MUTED:I = -0x6c503a
 
 .field static final PREFS:Ljava/lang/String; = "xems_user_profiles"
 
-.field private static final STROKE:I = -0xd3cec5
+.field private static final STROKE:I = -0xe3c5ae
 
 .field private static final TEXT:I = -0x13100c
 

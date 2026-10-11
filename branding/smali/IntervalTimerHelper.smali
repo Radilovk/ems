@@ -3101,7 +3101,7 @@
     .line 961
     sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     const/4 v1, 0x1
 
@@ -5000,7 +5000,7 @@
 
     move-result-object v2
 
-    const/4 v3, 0x1
+    const/4 v3, 0x4
 
     invoke-static {p0, v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->button(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
 

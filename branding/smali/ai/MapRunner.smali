@@ -3014,7 +3014,7 @@
     move-result-object v1
 
     :goto_6e
-    const/4 v4, 0x1
+    const/4 v4, 0x4
 
     invoke-static {p0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->button(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
 

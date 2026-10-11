@@ -206,7 +206,7 @@
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colA:I
 
     .line 154
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoViews$SetRing;->colB:I
 

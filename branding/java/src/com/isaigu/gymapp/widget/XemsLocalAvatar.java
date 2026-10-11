@@ -783,11 +783,11 @@ public final class XemsLocalAvatar {
         return c instanceof Activity ? (Activity) c : null;
     }
 
-    private static final int C_BG = 0xFF14171C;
-    private static final int C_HERO = 0xFF1B2A20;
-    private static final int C_CARD = 0xFF20242C;
+    private static final int C_BG = 0xFF060B14;
+    private static final int C_HERO = 0xFF0D2236;
+    private static final int C_CARD = 0xFF0B1623;
     private static final int C_TEXT = 0xFFF2F4F7;
-    private static final int C_DIM = 0xFF98A2B3;
+    private static final int C_DIM = 0xFF93AFC6;
     private static final int C_ACCENT = 0xFF43A047;
     private static final int C_WARN = 0xFFE5484D;
 

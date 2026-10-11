@@ -1,0 +1,1559 @@
+package com.isaigu.gymapp.ai;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.isaigu.gymapp.bean.ProgramDataBean;
+import com.isaigu.gymapp.bean.TrainProgram;
+import com.isaigu.gymapp.train.TrainItemManager;
+import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.train.utils.MusicSyncBridge;
+import com.isaigu.gymapp.train.utils.PartStrength;
+import com.isaigu.gymapp.wearable.PartPick;
+import com.isaigu.gymapp.widget.XemsGuard;
+import com.isaigu.gymapp.widget.XemsIcon;
+import com.isaigu.gymapp.widget.XemsUi;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
+ * <pre>
+ *  [client chips · +]          [Основен | Мускули | Кардио | Масаж]           time  battery  ⚙  ☰ Редове
+ *  ┌ Гърди ┐                                   ┌ Трапец ┐   │ ( Интензитет 1 )  ( Интензитет 2 ) │
+ *  │ Ръце  │      body, front | back           │ Гръб   │   │   −  +               −  +          │
+ *  │ Корем │      (each zone lit by its        │ Кръст  │   │ Импулс 1  4 s ±   Импулс 2  4 s ±  │
+ *  │ Бедро │       channel's real output)      │ Глутеус│   │   40 Hz ±           7 Hz ±         │
+ *  └Прасец ┘                                   └З.бедро ┘   │  [∿]     [ ▶ Старт ]     [■]       │
+ * </pre>
+ * Nothing here holds training logic: every control presses the client's own row (still laid out under the board)
+ * or calls the same TrainItem step the + / − of the right panel calls, so every hook — selected muscles
+ * (PartStrength / PartPick), the double impulse, music sync, the safety guard at send time — stays in force.
+ * The chips at the top switch the client on the board (more clients = more chips); "☰ Редове" gives back the
+ * classic rows, the "◎ Фокус" pill over them brings the board back. Engines that own the rows (Auto, AI, a map)
+ * get the classic rows.
+ */
+public final class FocusBoard {
+    private static final String PREFS = "xems_focus";
+    private static final String K_ROWS = "rows";
+    private static final long REFRESH_MS = 300L;
+    private static final Handler H = new Handler(Looper.getMainLooper());
+    private static final Refresh REFRESH = new Refresh();
+
+    /** The mock-up's order: front muscles left, back muscles right (indices = PartStrenthBean.buwei). */
+    private static final int[] LEFT = {AutoModel.CHEST, AutoModel.ARMS, AutoModel.ABS, AutoModel.FRONT_THIGH, AutoModel.CALF};
+    private static final int[] RIGHT = {AutoModel.TRAPS, AutoModel.BACK, AutoModel.LOWER_BACK, AutoModel.GLUTES,
+            AutoModel.BACK_THIGH};
+    /** The factory muscle icons (header of the rows), buwei1 … buwei10. */
+    private static final String[] ICONS = {"xiong", "fubu", "xiazhi", "xiaotui", "shoubi", "houxie", "bei", "yao",
+            "bibu", "tui"};
+    private static final String[] MODE_IDS = {"mainModeBtn", "strenthExist", "youyangyundong", "anmo"};
+
+    static final int INT1 = 0;
+    static final int INT2 = 1;
+    static final int HZ1 = 2;
+    static final int HZ2 = 3;
+    static final int T1 = 4;
+    static final int T2 = 5;
+
+    private static View root;
+    private static View left;
+    private static FrameLayout frame;
+    private static View board;
+    private static TextView pill;
+    private static TrainItem focus;
+    private static boolean looping;
+
+    private static LinearLayout clientRow;
+    private static String clientsKey = "";
+    private static final TextView[] modeTabs = new TextView[4];
+    private static TextView timeText;
+    private static TextView battText;
+    private static AutoViews.BodyHeat body;
+    private static Leaders leaders;
+    private static final Chip[] chips = new Chip[AutoModel.CHANNELS];
+    private static Ring ring1;
+    private static Ring ring2;
+    private static TextView ring1Label;
+    private static TextView imp1Val;
+    private static TextView hz1Val;
+    private static TextView imp2Title;
+    private static TextView imp2Val;
+    private static TextView hz2Val;
+    private static View hz2Row;
+    private static View ring2Steps;
+    private static TextView waveKey;
+    private static LinearLayout startKey;
+    private static ImageView startIcon;
+    private static TextView startLabel;
+    private static int shownStart = -1;
+    private static AiModel.Sex sex = AiModel.Sex.MALE;
+    private static TrainItem sexOf;
+
+    private FocusBoard() {}
+
+    // ================================================================ attach
+
+    public static boolean isShowing() {
+        return board != null && board.getVisibility() == View.VISIBLE && board.isAttachedToWindow();
+    }
+
+    /** XemsNav: the training panel was (re)built. */
+    public static void sync(View any) {
+        if (any != null) {
+            root = any.getRootView();
+        }
+        tick();
+    }
+
+    /** Every second (XemsNav tick) and after every action: builds, shows or hides the board. */
+    public static void tick() {
+        try {
+            View r = root;
+            if (r == null) {
+                return;
+            }
+            Context c = r.getContext();
+            View l = find(r, "leftLayout");
+            if (l == null || !com.isaigu.gymapp.widget.XemsNav.isTrainingPage()) {
+                return;
+            }
+            if (l != left || frame == null || l.getParent() != frame) {
+                wrap(c, l);
+            }
+            int n = clients().size();
+            boolean free = engineFree();
+            boolean showBoard = free && n > 0 && !rowsMode(c);
+            if (showBoard) {
+                if (board == null) {
+                    board = build(c);
+                    frame.addView(board, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT));
+                    board.setAlpha(0f);
+                    board.animate().alpha(1f).setDuration(220).start();
+                }
+                board.setVisibility(View.VISIBLE);
+                startLoop();
+            } else if (board != null) {
+                board.setVisibility(View.GONE);
+            }
+            if (pill != null) {
+                pill.setVisibility(!showBoard && free && n > 0 ? View.VISIBLE : View.GONE);
+                pill.bringToFront();
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.tick", t);
+        }
+    }
+
+    /** The rows' column goes into a frame of the same size; the board and the pill lie over it. */
+    private static void wrap(Context c, View l) {
+        board = null;
+        clientRow = null;
+        clientsKey = "";
+        frame = null;
+        left = l;
+        if (!(l.getParent() instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup parent = (ViewGroup) l.getParent();
+        if (parent instanceof FrameLayout && "xems_focus_frame".equals(parent.getTag())) {
+            frame = (FrameLayout) parent;
+            frame.removeAllViews();
+            frame.addView(l, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+        } else {
+            int at = parent.indexOfChild(l);
+            ViewGroup.LayoutParams lp = l.getLayoutParams();
+            parent.removeViewAt(at);
+            FrameLayout f = new FrameLayout(c);
+            f.setTag("xems_focus_frame");
+            f.addView(l, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            parent.addView(f, at, lp);
+            frame = f;
+        }
+        pill = XemsUi.text(c, "◎  " + AiText.t("Фокус", "Focus"), 14, XemsUi.TEXT, true);
+        pill.setGravity(Gravity.CENTER);
+        pill.setPadding(XemsUi.dp(c, 16), XemsUi.dp(c, 8), XemsUi.dp(c, 16), XemsUi.dp(c, 8));
+        float r = XemsUi.dp(c, 18);
+        pill.setBackgroundDrawable(XemsUi.ripple(XemsUi.glow(c, XemsUi.ACCENT, r), XemsUi.TEXT, r));
+        XemsUi.pressable(pill);
+        pill.setOnClickListener(new RowsClick(false));
+        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.RIGHT);
+        plp.topMargin = XemsUi.dp(c, 6);
+        plp.rightMargin = XemsUi.dp(c, 6);
+        pill.setVisibility(View.GONE);
+        frame.addView(pill, plp);
+    }
+
+    /** Auto, AI and the map own the rows (their own boards / looks); music sync only holds the ceiling. */
+    private static boolean engineFree() {
+        if (AutoBoard.isAttached()) {
+            return false;
+        }
+        String h = OutputOwner.holder();
+        return h == null || OutputOwner.MUSIC.equals(h);
+    }
+
+    private static boolean rowsMode(Context c) {
+        try {
+            return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(K_ROWS, false);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    static final class RowsClick implements View.OnClickListener {
+        private final boolean rows;
+
+        RowsClick(boolean rows) {
+            this.rows = rows;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            try {
+                SharedPreferences.Editor e = v.getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+                e.putBoolean(K_ROWS, rows).apply();
+            } catch (Throwable ignored) {
+            }
+            tick();
+        }
+    }
+
+    // ================================================================ clients / rows
+
+    private static List<TrainItem> clients() {
+        List<TrainItem> out = new ArrayList<TrainItem>();
+        try {
+            TrainItemManager m = com.isaigu.gymapp.wearable.WearableSyncHelper.getItemManager();
+            List<TrainItem> all = m != null ? m.getItemList() : null;
+            if (all != null) {
+                for (int i = 0; i < all.size(); i++) {
+                    TrainItem it = all.get(i);
+                    if (it != null && !it.isEmpty()) {
+                        out.add(it);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return out;
+    }
+
+    private static int position(TrainItem it) {
+        try {
+            TrainItemManager m = com.isaigu.gymapp.wearable.WearableSyncHelper.getItemManager();
+            List<TrainItem> all = m != null ? m.getItemList() : null;
+            return all != null ? all.indexOf(it) : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    /** The client on the board: the chosen one while it is in a slot, else the first. */
+    private static TrainItem current() {
+        List<TrainItem> list = clients();
+        if (focus != null && list.contains(focus)) {
+            return focus;
+        }
+        focus = list.isEmpty() ? null : list.get(0);
+        return focus;
+    }
+
+    /** The row of a slot, when the list has it laid out; else the list is moved to it (next refresh finds it). */
+    private static View rowAt(int pos, boolean bring) {
+        if (pos < 0 || root == null) {
+            return null;
+        }
+        View rv = find(root, "recyclerView");
+        if (!(rv instanceof RecyclerView)) {
+            return null;
+        }
+        RecyclerView list = (RecyclerView) rv;
+        for (int i = 0; i < list.getChildCount(); i++) {
+            View ch = list.getChildAt(i);
+            if (list.getChildAdapterPosition(ch) == pos) {
+                return ch;
+            }
+        }
+        if (bring) {
+            list.scrollToPosition(pos);
+        }
+        return null;
+    }
+
+    private static View row() {
+        TrainItem it = current();
+        return it != null ? rowAt(position(it), true) : null;
+    }
+
+    private static View inRow(String name) {
+        View row = row();
+        return row != null ? find(row, name) : null;
+    }
+
+    /** Presses a control of the client's own row. */
+    static boolean press(String name) {
+        View v = inRow(name);
+        if (v == null) {
+            hint(AiText.t("Редът на клиента още се зарежда — опитай пак.", "The client's row is loading — try again."));
+            return false;
+        }
+        if ("save".equals(name)) {
+            tap(v);                             // the double-impulse key reads touches (wearable/DoubleImpulse.Press)
+        } else {
+            v.performClick();
+        }
+        later();
+        return true;
+    }
+
+    /** A short finger tap in the middle of a view: down, then up. */
+    private static void tap(View v) {
+        long t = android.os.SystemClock.uptimeMillis();
+        float x = v.getWidth() / 2f;
+        float y = v.getHeight() / 2f;
+        android.view.MotionEvent d = android.view.MotionEvent.obtain(t, t, android.view.MotionEvent.ACTION_DOWN, x, y, 0);
+        android.view.MotionEvent u = android.view.MotionEvent.obtain(t, t + 60, android.view.MotionEvent.ACTION_UP, x, y, 0);
+        try {
+            v.dispatchTouchEvent(d);
+            v.dispatchTouchEvent(u);
+        } finally {
+            d.recycle();
+            u.recycle();
+        }
+    }
+
+    /** − / + of the row's own impulse / pause time (its AmountView buttons). */
+    static void time(boolean pause, int dir) {
+        View av = inRow(pause ? "paulsestop" : "paulsecontinue");
+        View b = av != null ? find(av, dir > 0 ? "btnIncrease" : "btnDecrease") : null;
+        if (b != null) {
+            b.performClick();
+        }
+        later();
+    }
+
+    /** The + / − of the right panel, for the client on the board only. */
+    static void step(int what, int d) {
+        TrainItem it = current();
+        ProgramDataBean b = bean(it);
+        if (b == null) {
+            return;
+        }
+        try {
+            switch (what) {
+                case INT1:
+                    if (PartStrength.addSelected(it, d)) {
+                        break;
+                    }
+                    if (!MusicSyncBridge.onMaStrengthDelta(it, d)) {
+                        it.addStrenth(d);
+                    }
+                    break;
+                case INT2:
+                    if (!second(it, b)) {
+                        hint(AiText.t("Включи втория импулс с ∿.", "Turn the second impulse on with ∿."));
+                        return;
+                    }
+                    it.addPauseStrenth(d);
+                    break;
+                case HZ1:
+                    it.addHz(d);
+                    break;
+                case HZ2:
+                    if (!second(it, b)) {
+                        hint(AiText.t("Включи втория импулс с ∿.", "Turn the second impulse on with ∿."));
+                        return;
+                    }
+                    it.addPauseHz(d);
+                    break;
+                case T1:
+                    time(false, d);
+                    return;
+                case T2:
+                    time(true, d);
+                    return;
+                default:
+                    return;
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.step", t);
+        }
+        refresh();
+    }
+
+    static ProgramDataBean bean(TrainItem it) {
+        try {
+            TrainProgram p = it != null ? it.getTrainProgram() : null;
+            return p != null ? p.matchProgram() : null;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static int mode(TrainItem it) {
+        TrainProgram p = it != null ? it.getTrainProgram() : null;
+        return p != null ? p.useType : 0;
+    }
+
+    /** The second impulse runs (never in Мускули). */
+    private static boolean second(TrainItem it, ProgramDataBean b) {
+        return b != null && b.activePause && mode(it) != 1;
+    }
+
+    private static boolean marked(TrainItem it, int k) {
+        return it != null && it.partsControl != null && k < it.partsControl.length && it.partsControl[k]
+                && !off(it, k);
+    }
+
+    private static boolean off(TrainItem it, int k) {
+        return it != null && it.partsDisabled != null && k < it.partsDisabled.length && it.partsDisabled[k];
+    }
+
+    // ================================================================ build
+
+    private static View build(Context c) {
+        XemsUi.init(c);
+        LinearLayout page = XemsUi.vertical(c);
+        page.setBackgroundColor(XemsUi.BG);
+        page.setClickable(true);
+        int pad = XemsUi.dp(c, 6);
+        page.setPadding(pad, pad, pad, pad);
+
+        page.addView(topBar(c), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 54)));
+
+        LinearLayout main = XemsUi.horizontal(c);
+        main.setGravity(Gravity.FILL_VERTICAL);
+        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        mlp.topMargin = XemsUi.dp(c, 6);
+        page.addView(main, mlp);
+
+        main.addView(bodyPane(c), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 372),
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        rlp.leftMargin = XemsUi.dp(c, 8);
+        main.addView(controlPane(c), rlp);
+        shownStart = -1;
+        return page;
+    }
+
+    private static View topBar(Context c) {
+        LinearLayout bar = XemsUi.horizontal(c);
+        bar.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 14)));
+        bar.setPadding(XemsUi.dp(c, 6), 0, XemsUi.dp(c, 6), 0);
+
+        HorizontalScrollView hs = new HorizontalScrollView(c);
+        hs.setHorizontalScrollBarEnabled(false);
+        hs.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        clientRow = XemsUi.horizontal(c);
+        hs.addView(clientRow);
+        bar.addView(hs, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        LinearLayout tabs = XemsUi.horizontal(c);
+        tabs.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(c, 12), XemsUi.STROKE, XemsUi.dp(c, 1)));
+        tabs.setPadding(XemsUi.dp(c, 3), XemsUi.dp(c, 3), XemsUi.dp(c, 3), XemsUi.dp(c, 3));
+        String[] names = {AiText.t("ОСНОВЕН", "MAIN"), AiText.t("МУСКУЛИ", "MUSCLE"), AiText.t("КАРДИО", "CARDIO"),
+                AiText.t("МАСАЖ", "MASSAGE")};
+        for (int i = 0; i < 4; i++) {
+            TextView t = XemsUi.text(c, names[i], 13.5f, XemsUi.MUTED, true);
+            t.setGravity(Gravity.CENTER);
+            t.setLetterSpacing(0.04f);
+            t.setPadding(XemsUi.dp(c, 14), XemsUi.dp(c, 9), XemsUi.dp(c, 14), XemsUi.dp(c, 9));
+            t.setOnClickListener(new PressRow(MODE_IDS[i]));
+            XemsUi.pressable(t);
+            modeTabs[i] = t;
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(XemsUi.dp(c, 104),
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            tabs.addView(t, lp);
+        }
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        tlp.leftMargin = XemsUi.dp(c, 8);
+        tlp.rightMargin = XemsUi.dp(c, 8);
+        bar.addView(tabs, tlp);
+
+        timeText = XemsUi.text(c, "—", 24, XemsUi.TEXT, true);
+        timeText.setPadding(XemsUi.dp(c, 6), 0, XemsUi.dp(c, 10), 0);
+        bar.addView(timeText);
+        battText = XemsUi.text(c, "", 13, XemsUi.GO_TEXT, true);
+        battText.setPadding(0, 0, XemsUi.dp(c, 10), 0);
+        bar.addView(battText);
+
+        TextView gear = XemsUi.iconButton(c, "⚙", XemsUi.SURFACE, XemsUi.TEXT, 40);
+        gear.setOnClickListener(new PressRow("setting"));
+        gear.setContentDescription(AiText.t("Параметри на клиента", "Client parameters"));
+        bar.addView(gear);
+
+        TextView rows = XemsUi.text(c, "☰  " + AiText.t("Редове", "Rows"), 13.5f, XemsUi.MUTED, true);
+        rows.setGravity(Gravity.CENTER);
+        rows.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 9), XemsUi.dp(c, 12), XemsUi.dp(c, 9));
+        float r = XemsUi.dp(c, 12);
+        rows.setBackgroundDrawable(XemsUi.ripple(XemsUi.rounded(XemsUi.SURFACE, r, XemsUi.STROKE, XemsUi.dp(c, 1)),
+                XemsUi.TEXT, r));
+        XemsUi.pressable(rows);
+        rows.setOnClickListener(new RowsClick(true));
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        rlp.leftMargin = XemsUi.dp(c, 8);
+        bar.addView(rows, rlp);
+        return bar;
+    }
+
+    private static View bodyPane(Context c) {
+        LinearLayout pane = XemsUi.horizontal(c);
+        pane.setGravity(Gravity.FILL_VERTICAL);
+        pane.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 18)));
+        int p = XemsUi.dp(c, 8);
+        pane.setPadding(p, p, p, p);
+        pane.addView(chipColumn(c, LEFT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        body = new AutoViews.BodyHeat(c);
+        body.setOnTouchListener(new BodyTap());
+        body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        blp.leftMargin = p;
+        blp.rightMargin = p;
+        pane.addView(body, blp);
+        pane.addView(chipColumn(c, RIGHT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        FrameLayout holder = new FrameLayout(c);
+        holder.addView(pane, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        leaders = new Leaders(c);
+        holder.addView(leaders, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        return holder;
+    }
+
+    private static View chipColumn(Context c, int[] ks) {
+        LinearLayout col = XemsUi.vertical(c);
+        for (int i = 0; i < ks.length; i++) {
+            Chip ch = new Chip(c, ks[i]);
+            chips[ks[i]] = ch;
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+            lp.topMargin = i == 0 ? 0 : XemsUi.dp(c, 6);
+            col.addView(ch.view, lp);
+        }
+        return col;
+    }
+
+    private static View controlPane(Context c) {
+        LinearLayout col = XemsUi.vertical(c);
+
+        // the two intensities
+        LinearLayout rings = XemsUi.horizontal(c);
+        rings.setGravity(Gravity.FILL_VERTICAL);
+        rings.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 18)));
+        rings.setPadding(XemsUi.dp(c, 6), XemsUi.dp(c, 8), XemsUi.dp(c, 6), XemsUi.dp(c, 6));
+        ring1 = new Ring(c, XemsUi.ACCENT);
+        ring2 = new Ring(c, XemsUi.GO_TEXT);
+        ring1Label = XemsUi.text(c, AiText.t("Интензитет 1", "Intensity 1"), 13, XemsUi.ACCENT, true);
+        TextView ring2Label = XemsUi.text(c, AiText.t("Интензитет 2", "Intensity 2"), 13, XemsUi.GO_TEXT, true);
+        rings.addView(ringColumn(c, ring1, ring1Label, INT1, null),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        View[] steps2 = new View[1];
+        rings.addView(ringColumn(c, ring2, ring2Label, INT2, steps2),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        ring2Steps = steps2[0];
+        col.addView(rings, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.25f));
+
+        // impulse | pause (second impulse)
+        LinearLayout imps = XemsUi.horizontal(c);
+        imps.setGravity(Gravity.FILL_VERTICAL);
+        TextView[] v1 = new TextView[3];
+        TextView[] v2 = new TextView[3];
+        View[] hzRow2 = new View[1];
+        imps.addView(impulseCard(c, AiText.t("Импулс 1", "Impulse 1"), XemsUi.ACCENT, T1, HZ1, v1, null),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        LinearLayout.LayoutParams i2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        i2.leftMargin = XemsUi.dp(c, 8);
+        imps.addView(impulseCard(c, AiText.t("Импулс 2", "Impulse 2"), XemsUi.GO_TEXT, T2, HZ2, v2, hzRow2), i2);
+        imp1Val = v1[1];
+        hz1Val = v1[2];
+        imp2Title = v2[0];
+        imp2Val = v2[1];
+        hz2Val = v2[2];
+        hz2Row = hzRow2[0];
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        ilp.topMargin = XemsUi.dp(c, 8);
+        col.addView(imps, ilp);
+
+        // ∿ · ▶ · ■
+        LinearLayout keys = XemsUi.horizontal(c);
+        keys.setGravity(Gravity.FILL_VERTICAL);
+        float r = XemsUi.dp(c, 16);
+        waveKey = XemsUi.text(c, "∿", 34, XemsUi.ACCENT, true);
+        waveKey.setGravity(Gravity.CENTER);
+        waveKey.setOnClickListener(new PressRow("save"));
+        waveKey.setContentDescription(AiText.t("Втори импулс", "Second impulse"));
+        XemsUi.pressable(waveKey);
+        keys.addView(waveKey, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+
+        startKey = XemsUi.horizontal(c);
+        startKey.setGravity(Gravity.CENTER);
+        startIcon = new ImageView(c);
+        startKey.addView(startIcon, new LinearLayout.LayoutParams(XemsUi.dp(c, 30), XemsUi.dp(c, 30)));
+        startLabel = XemsUi.text(c, "", 17, 0xFFFFFFFF, true);
+        startLabel.setPadding(XemsUi.dp(c, 10), 0, 0, 0);
+        startKey.addView(startLabel);
+        startKey.setClickable(true);
+        startKey.setOnClickListener(new PressRow("startpaulse"));
+        XemsUi.pressable(startKey);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.7f);
+        slp.leftMargin = XemsUi.dp(c, 8);
+        keys.addView(startKey, slp);
+
+        FrameLayout stop = new FrameLayout(c);
+        GradientDrawable sg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[] {XemsUi.mix(XemsUi.DANGER, 0xFFFFFFFF, 0.08f), XemsUi.mix(XemsUi.DANGER, 0xFF000000, 0.25f)});
+        sg.setCornerRadius(r);
+        stop.setBackgroundDrawable(XemsUi.ripple(sg, 0xFFFFFFFF, r));
+        ImageView si = new ImageView(c);
+        si.setImageDrawable(new XemsIcon(XemsIcon.STOP, 0xFFFFFFFF));
+        stop.addView(si, new FrameLayout.LayoutParams(XemsUi.dp(c, 26), XemsUi.dp(c, 26), Gravity.CENTER));
+        stop.setClickable(true);
+        stop.setOnClickListener(new PressRow("stop"));
+        stop.setContentDescription(AiText.t("Стоп", "Stop"));
+        XemsUi.pressable(stop);
+        LinearLayout.LayoutParams stl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        stl.leftMargin = XemsUi.dp(c, 8);
+        keys.addView(stop, stl);
+
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                XemsUi.dp(c, 78));
+        klp.topMargin = XemsUi.dp(c, 8);
+        col.addView(keys, klp);
+        return col;
+    }
+
+    private static View ringColumn(Context c, Ring ring, TextView label, int what, View[] stepsOut) {
+        LinearLayout col = XemsUi.vertical(c);
+        col.setGravity(Gravity.CENTER_HORIZONTAL);
+        label.setGravity(Gravity.CENTER);
+        col.addView(label, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        rlp.topMargin = XemsUi.dp(c, 4);
+        col.addView(ring, rlp);
+        View steps = stepper(c, what, 46);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        slp.topMargin = XemsUi.dp(c, 4);
+        col.addView(steps, slp);
+        if (stepsOut != null) {
+            stepsOut[0] = steps;
+        }
+        return col;
+    }
+
+    /** Round − and + (hold = repeat, faster the longer). */
+    private static LinearLayout stepper(Context c, int what, int sizeDp) {
+        LinearLayout row = XemsUi.horizontal(c);
+        TextView minus = XemsUi.iconButton(c, "−", XemsUi.SURFACE, XemsUi.TEXT, sizeDp);
+        TextView plus = XemsUi.iconButton(c, "+", XemsUi.SURFACE, XemsUi.TEXT, sizeDp);
+        Step s = new Step(what);
+        XemsUi.repeatOnHold(minus, s, -1);
+        XemsUi.repeatOnHold(plus, s, +1);
+        row.addView(minus);
+        View gap = new View(c);
+        row.addView(gap, new LinearLayout.LayoutParams(XemsUi.dp(c, sizeDp > 40 ? 22 : 10), 1));
+        row.addView(plus);
+        return row;
+    }
+
+    /** out = {title, time value, Hz value}; hzOut = the Hz line (hidden without a second impulse). */
+    private static View impulseCard(Context c, String title, int tint, int timeWhat, int hzWhat, TextView[] out,
+            View[] hzOut) {
+        LinearLayout card = XemsUi.vertical(c);
+        card.setGravity(Gravity.CENTER_HORIZONTAL);
+        card.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 16)));
+        card.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 8));
+        TextView t = XemsUi.text(c, title, 13, tint, true);
+        card.addView(t);
+
+        LinearLayout tr = XemsUi.horizontal(c);
+        tr.setGravity(Gravity.CENTER);
+        TextView minus = XemsUi.iconButton(c, "−", XemsUi.SURFACE, XemsUi.TEXT, 38);
+        TextView plus = XemsUi.iconButton(c, "+", XemsUi.SURFACE, XemsUi.TEXT, 38);
+        Step st = new Step(timeWhat);
+        XemsUi.repeatOnHold(minus, st, -1);
+        XemsUi.repeatOnHold(plus, st, +1);
+        TextView v = XemsUi.text(c, "—", 26, tint, true);
+        v.setGravity(Gravity.CENTER);
+        tr.addView(minus);
+        tr.addView(v, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        tr.addView(plus);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        tlp.topMargin = XemsUi.dp(c, 2);
+        card.addView(tr, tlp);
+
+        LinearLayout hr = XemsUi.horizontal(c);
+        hr.setGravity(Gravity.CENTER);
+        TextView hm = XemsUi.iconButton(c, "−", XemsUi.CARD, XemsUi.MUTED, 30);
+        TextView hp = XemsUi.iconButton(c, "+", XemsUi.CARD, XemsUi.MUTED, 30);
+        Step sh = new Step(hzWhat);
+        XemsUi.repeatOnHold(hm, sh, -1);
+        XemsUi.repeatOnHold(hp, sh, +1);
+        TextView hz = XemsUi.text(c, "—", 17, XemsUi.TEXT, true);
+        hz.setGravity(Gravity.CENTER);
+        hr.addView(hm);
+        hr.addView(hz, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        hr.addView(hp);
+        card.addView(hr, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        out[0] = t;
+        out[1] = v;
+        out[2] = hz;
+        if (hzOut != null) {
+            hzOut[0] = hr;
+        }
+        return card;
+    }
+
+    // ================================================================ refresh
+
+    private static void startLoop() {
+        if (!looping) {
+            looping = true;
+            H.post(REFRESH);
+        }
+    }
+
+    static final class Refresh implements Runnable {
+        @Override
+        public void run() {
+            if (!isShowing()) {
+                looping = false;
+                return;
+            }
+            refresh();
+            H.postDelayed(this, REFRESH_MS);
+        }
+    }
+
+    static final class Later implements Runnable {
+        @Override
+        public void run() {
+            refresh();
+        }
+    }
+
+    private static void later() {
+        H.postDelayed(new Later(), 120);
+        H.postDelayed(new Later(), 450);
+    }
+
+    static void refresh() {
+        try {
+            if (board == null) {
+                return;
+            }
+            Context c = board.getContext();
+            List<TrainItem> list = clients();
+            TrainItem it = current();
+            fillClients(c, list, it);
+            ProgramDataBean b = bean(it);
+            if (it == null || b == null) {
+                return;
+            }
+            View row = rowAt(position(it), true);
+            int mode = mode(it);
+            for (int i = 0; i < 4; i++) {
+                boolean sel = i == mode;
+                TextView t = modeTabs[i];
+                if (t == null) {
+                    continue;
+                }
+                Object was = t.getTag();
+                if (!(was instanceof Boolean) || ((Boolean) was) != sel) {
+                    t.setTag(sel);
+                    float r = XemsUi.dp(c, 10);
+                    t.setTextColor(sel ? XemsUi.TEXT : XemsUi.MUTED);
+                    t.setBackgroundDrawable(XemsUi.ripple(sel ? XemsUi.glow(c, XemsUi.ACCENT, r)
+                            : XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
+                }
+            }
+            timeText.setText(textOf(row, "time", "—"));
+            String batt = textOf(row, "batteryValueTextView", "");
+            battText.setText(it.data != null && !it.data.connected ? AiText.t("няма връзка", "offline")
+                    : batt.length() > 0 ? "▮ " + batt : "");
+            battText.setTextColor(it.data != null && !it.data.connected ? XemsUi.DANGER : XemsUi.GO_TEXT);
+
+            boolean two = second(it, b);
+            int[] parts = b.strenthBean != null ? b.strenthBean.buwei : null;
+            boolean anyMark = false;
+            int markLevel = 0;
+            double[] prog = new double[AutoModel.CHANNELS];
+            boolean[] dis = new boolean[AutoModel.CHANNELS];
+            for (int k = 0; k < AutoModel.CHANNELS; k++) {
+                int part = parts != null && k < parts.length ? parts[k] : 0;
+                int real = (int) (part / 100f * b.strenth);
+                boolean m = marked(it, k);
+                if (m) {
+                    anyMark = true;
+                    markLevel = Math.max(markLevel, real);
+                }
+                dis[k] = off(it, k);
+                prog[k] = Math.min(1.25, real / 60.0);
+                if (chips[k] != null) {
+                    chips[k].set(part, m, m && PartPick.isYellow(k), dis[k]);
+                }
+            }
+            if (body != null) {
+                if (sexOf != it) {
+                    sexOf = it;
+                    try {
+                        AiProfile p = AiProfile.of(it);
+                        sex = p != null && p.sex != null ? p.sex : AiModel.Sex.MALE;
+                    } catch (Throwable t) {
+                        sex = AiModel.Sex.MALE;
+                    }
+                }
+                body.set(sex, prog, null, dis, null);
+                if (leaders != null) {
+                    leaders.invalidate();
+                }
+            }
+
+            ring1Label.setText(anyMark ? AiText.t("Избрани мускули", "Selected muscles")
+                    : AiText.t("Интензитет 1", "Intensity 1"));
+            ring1.set(anyMark ? markLevel : b.strenth, true, running(it));
+            ring2.set(b.pauseStrenthPercent, two, running(it));
+            ring2Steps.setAlpha(two ? 1f : 0.35f);
+            imp1Val.setText(b.pulseContinue + " s");
+            hz1Val.setText(b.hz + " Hz");
+            imp2Title.setText(two ? AiText.t("Импулс 2", "Impulse 2") : AiText.t("Пауза", "Pause"));
+            imp2Val.setText(b.pulsePause + " s");
+            hz2Val.setText(b.pauseHz + " Hz");
+            hz2Row.setVisibility(two ? View.VISIBLE : View.INVISIBLE);
+
+            float r = XemsUi.dp(c, 16);
+            boolean musc = mode == 1;
+            Object wt = waveKey.getTag();
+            String wkey = (two ? "on" : "off") + (musc ? "m" : "");
+            if (!wkey.equals(wt)) {
+                waveKey.setTag(wkey);
+                waveKey.setTextColor(two ? XemsUi.TEXT : XemsUi.ACCENT);
+                waveKey.setBackgroundDrawable(XemsUi.ripple(two ? XemsUi.glow(c, XemsUi.AMBER, r) : XemsUi.glass(c, r),
+                        XemsUi.TEXT, r));
+                waveKey.setAlpha(musc ? 0.35f : 1f);
+            }
+            int st = running(it) ? 1 : 0;
+            if (st != shownStart) {
+                shownStart = st;
+                int col = st == 1 ? XemsUi.AMBER : XemsUi.GO;
+                GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                        new int[] {XemsUi.mix(col, 0xFFFFFFFF, 0.12f), XemsUi.mix(col, 0xFF000000, 0.22f)});
+                g.setCornerRadius(r);
+                g.setStroke(XemsUi.dp(c, 1), XemsUi.alpha(XemsUi.mix(col, 0xFFFFFFFF, 0.35f), 0xAA));
+                startKey.setBackgroundDrawable(XemsUi.ripple(g, 0xFFFFFFFF, r));
+                startIcon.setImageDrawable(new XemsIcon(st == 1 ? XemsIcon.PAUSE : XemsIcon.PLAY, 0xFFFFFFFF));
+                startLabel.setText(st == 1 ? AiText.t("Пауза", "Pause") : AiText.t("Старт", "Start"));
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.refresh", t);
+        }
+    }
+
+    private static boolean running(TrainItem it) {
+        return it != null && it.data != null && it.data.start;
+    }
+
+    private static void fillClients(Context c, List<TrainItem> list, TrainItem cur) {
+        if (clientRow == null) {
+            return;
+        }
+        StringBuilder key = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            TrainItem it = list.get(i);
+            key.append(System.identityHashCode(it)).append(':').append(name(it)).append(':')
+                    .append(it == cur).append(':').append(running(it)).append(':')
+                    .append(it.data != null && it.data.connected).append(';');
+        }
+        String k = key.toString();
+        if (k.equals(clientsKey)) {
+            return;
+        }
+        clientsKey = k;
+        clientRow.removeAllViews();
+        for (int i = 0; i < list.size(); i++) {
+            TrainItem it = list.get(i);
+            clientRow.addView(clientChip(c, it, it == cur));
+        }
+        TextView add = XemsUi.iconButton(c, "+", XemsUi.SURFACE, XemsUi.ACCENT, 40);
+        add.setContentDescription(AiText.t("Добави клиент", "Add client"));
+        add.setOnClickListener(new AddClick());
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 40));
+        alp.leftMargin = XemsUi.dp(c, 4);
+        clientRow.addView(add, alp);
+    }
+
+    private static View clientChip(Context c, TrainItem it, boolean sel) {
+        LinearLayout chip = XemsUi.horizontal(c);
+        chip.setPadding(XemsUi.dp(c, 5), XemsUi.dp(c, 4), XemsUi.dp(c, 14), XemsUi.dp(c, 4));
+        float r = XemsUi.dp(c, 22);
+        chip.setBackgroundDrawable(XemsUi.ripple(sel ? XemsUi.glow(c, XemsUi.ACCENT, r)
+                : XemsUi.rounded(XemsUi.SURFACE, r, XemsUi.STROKE, XemsUi.dp(c, 1)), XemsUi.TEXT, r));
+        String n = name(it);
+        View photo = photo(c, it, n);
+        chip.addView(photo, new LinearLayout.LayoutParams(XemsUi.dp(c, 34), XemsUi.dp(c, 34)));
+        TextView t = XemsUi.text(c, n, 15, sel ? XemsUi.TEXT : XemsUi.MUTED, sel);
+        t.setPadding(XemsUi.dp(c, 8), 0, XemsUi.dp(c, 6), 0);
+        t.setSingleLine(true);
+        chip.addView(t);
+        View dot = new View(c);
+        GradientDrawable d = new GradientDrawable();
+        d.setShape(GradientDrawable.OVAL);
+        boolean conn = it.data != null && it.data.connected;
+        d.setColor(!conn ? XemsUi.DANGER : running(it) ? XemsUi.GO_TEXT : XemsUi.HINT);
+        dot.setBackgroundDrawable(d);
+        chip.addView(dot, new LinearLayout.LayoutParams(XemsUi.dp(c, 8), XemsUi.dp(c, 8)));
+        chip.setClickable(true);
+        chip.setOnClickListener(new FocusClick(it));
+        XemsUi.pressable(chip);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                XemsUi.dp(c, 42));
+        lp.rightMargin = XemsUi.dp(c, 6);
+        chip.setLayoutParams(lp);
+        return chip;
+    }
+
+    /** The photo the row shows (when the row is laid out), else the initial in a disc. */
+    private static View photo(Context c, TrainItem it, String n) {
+        try {
+            View row = rowAt(position(it), false);
+            View icon = row != null ? find(row, "userIcon") : null;
+            Drawable src = icon instanceof ImageView ? ((ImageView) icon).getDrawable() : null;
+            Drawable.ConstantState cs = src != null ? src.getConstantState() : null;
+            if (cs != null) {
+                ImageView iv = new ImageView(c);
+                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                iv.setImageDrawable(cs.newDrawable(c.getResources()));
+                iv.setClipToOutline(true);
+                GradientDrawable mask = new GradientDrawable();
+                mask.setShape(GradientDrawable.OVAL);
+                mask.setColor(XemsUi.CARD);
+                iv.setBackgroundDrawable(mask);
+                return iv;
+            }
+        } catch (Throwable ignored) {
+        }
+        TextView t = XemsUi.text(c, n.length() > 0 ? n.substring(0, 1).toUpperCase() : "?", 15, XemsUi.TEXT, true);
+        t.setGravity(Gravity.CENTER);
+        GradientDrawable g = new GradientDrawable();
+        g.setShape(GradientDrawable.OVAL);
+        g.setColor(XemsUi.alpha(XemsUi.ACCENT, 0x40));
+        g.setStroke(XemsUi.dp(c, 1), XemsUi.ACCENT);
+        t.setBackgroundDrawable(g);
+        return t;
+    }
+
+    private static String name(TrainItem it) {
+        try {
+            String n = it.data != null && it.data.trainUser != null ? it.data.trainUser.name : null;
+            if (n == null || n.trim().length() == 0) {
+                n = it.data != null ? it.data.deviceName : null;
+            }
+            return n != null ? n.trim() : "";
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    private static String textOf(View row, String id, String def) {
+        View v = row != null ? find(row, id) : null;
+        if (v instanceof TextView) {
+            CharSequence s = ((TextView) v).getText();
+            return s != null ? s.toString() : def;
+        }
+        return def;
+    }
+
+    // ================================================================ listeners
+
+    static final class PressRow implements View.OnClickListener {
+        private final String id;
+
+        PressRow(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            press(id);
+        }
+    }
+
+    static final class Step implements XemsUi.OnStep {
+        private final int what;
+
+        Step(int what) {
+            this.what = what;
+        }
+
+        @Override
+        public void onStep(int direction) {
+            step(what, direction);
+        }
+    }
+
+    static final class FocusClick implements View.OnClickListener {
+        private final TrainItem item;
+
+        FocusClick(TrainItem item) {
+            this.item = item;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            focus = item;
+            sexOf = null;
+            rowAt(position(item), true);
+            later();
+            refresh();
+        }
+    }
+
+    /** "+": the list's own empty slot ("Добави") — brought into view, then pressed. */
+    static final class AddClick implements View.OnClickListener, Runnable {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            try {
+                TrainItemManager m = com.isaigu.gymapp.wearable.WearableSyncHelper.getItemManager();
+                List<TrainItem> all = m != null ? m.getItemList() : null;
+                if (all == null) {
+                    return;
+                }
+                for (int i = all.size() - 1; i >= 0; i--) {
+                    TrainItem it = all.get(i);
+                    if (it == null || it.isEmpty()) {
+                        rowAt(i, true);
+                        addPos = i;
+                        H.postDelayed(this, 160);
+                        return;
+                    }
+                }
+                hint(AiText.t("Няма свободно място за клиент.", "No free slot for a client."));
+            } catch (Throwable t) {
+                XemsGuard.report("FocusBoard.add", t);
+            }
+        }
+
+        private int addPos = -1;
+
+        @Override
+        public void run() {
+            View row = rowAt(addPos, false);
+            View b = row != null ? find(row, "typeButton") : null;
+            if (b != null) {
+                b.performClick();
+            } else if (row != null) {
+                row.performClick();
+            }
+        }
+    }
+
+    static void chipClick(int k) {
+        View h = root != null ? find(root, "buwei" + (k + 1)) : null;
+        if (h != null) {
+            h.performClick();
+        }
+        later();
+    }
+
+    static final class ChipClick implements View.OnClickListener {
+        private final int k;
+
+        ChipClick(int k) {
+            this.k = k;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            chipClick(k);
+        }
+    }
+
+    /**
+     * A muscle chip under the finger: a tap marks it (the header's icon, PartPick); a sideways slide is the channel's
+     * own slider — relative to where the finger went down (no jump), right = more, the value sent on release exactly
+     * as the row's channel bar sends it (PartStrength.bar: both impulses keep their ratio, yellow = the second alone).
+     */
+    static final class ChipTouch implements View.OnTouchListener {
+        private final Chip chip;
+        private float x0;
+        private float y0;
+        private int start;
+        private boolean sliding;
+        private boolean refused;
+
+        ChipTouch(Chip chip) {
+            this.chip = chip;
+        }
+
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            float slop = XemsUi.dp(v.getContext(), 10);
+            switch (e.getActionMasked()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    x0 = e.getRawX();
+                    y0 = e.getRawY();
+                    start = chip.lastPart;
+                    sliding = false;
+                    refused = false;
+                    v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(70).start();
+                    return true;
+                case android.view.MotionEvent.ACTION_MOVE: {
+                    float dx = e.getRawX() - x0;
+                    float dy = e.getRawY() - y0;
+                    if (!sliding && !refused && Math.abs(dx) > slop && Math.abs(dx) > Math.abs(dy)) {
+                        if (chip.off || MusicSyncBridge.shouldBlockManualControls()) {
+                            refused = true;
+                            hint(chip.off ? AiText.t("Мускулът е изключен.", "The muscle is off.")
+                                    : AiText.t("Музиката държи силата сега.", "Music holds the strength now."));
+                        } else {
+                            sliding = true;
+                            x0 = e.getRawX();
+                            if (v.getParent() != null) {
+                                v.getParent().requestDisallowInterceptTouchEvent(true);
+                            }
+                            XemsUi.haptic(v);
+                        }
+                    }
+                    if (sliding) {
+                        float span = Math.max(1f, v.getWidth() * 1.2f);
+                        int val = Math.max(0, Math.min(100, start + Math.round((e.getRawX() - x0) / span * 100f)));
+                        if (val != chip.dragValue) {
+                            if (val % 10 == 0) {
+                                XemsUi.haptic(v);
+                            }
+                            chip.dragValue = val;
+                            chip.set(chip.lastPart, chip.sel, chip.yellow, chip.off);
+                            if (leaders != null) {
+                                leaders.invalidate();
+                            }
+                        }
+                    }
+                    return true;
+                }
+                case android.view.MotionEvent.ACTION_UP: {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    if (sliding) {
+                        int val = chip.dragValue;
+                        chip.dragValue = -1;
+                        sliding = false;
+                        if (val >= 0 && val != start) {
+                            channel(chip.k, val);
+                        } else {
+                            refresh();
+                        }
+                    } else if (!refused && Math.abs(e.getRawX() - x0) <= slop && Math.abs(e.getRawY() - y0) <= slop) {
+                        XemsUi.haptic(v);
+                        chipClick(chip.k);
+                    }
+                    return true;
+                }
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    chip.dragValue = -1;
+                    sliding = false;
+                    refresh();
+                    return true;
+                default:
+                    return true;
+            }
+        }
+    }
+
+    /** One channel's own percent set to {@code stored} (0–100), then sent — the row's channel-bar path. */
+    static void channel(int k, int stored) {
+        TrainItem it = current();
+        ProgramDataBean b = bean(it);
+        if (b == null) {
+            return;
+        }
+        try {
+            PartStrength.bar(chips[k] != null ? chips[k].view : null, it.getTrainProgram(), b, k, stored);
+            it.addAllPartValue(0, true);            // nothing added: just send and refresh the row
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.channel", t);
+        }
+        refresh();
+    }
+
+    /** A tap on a muscle of the figures marks it, like its chip (a slide there does nothing). */
+    static final class BodyTap implements View.OnTouchListener {
+        private float x0;
+        private float y0;
+
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            int a = e.getActionMasked();
+            if (a == android.view.MotionEvent.ACTION_DOWN) {
+                x0 = e.getX();
+                y0 = e.getY();
+                return true;
+            }
+            if (a == android.view.MotionEvent.ACTION_UP) {
+                float slop = XemsUi.dp(v.getContext(), 12);
+                if (Math.abs(e.getX() - x0) > slop || Math.abs(e.getY() - y0) > slop || body == null) {
+                    return true;
+                }
+                int z = body.zoneAt(e.getX(), e.getY(), XemsUi.dp(v.getContext(), 16));
+                if (z >= 0 && z < AutoModel.CHANNELS) {
+                    XemsUi.haptic(v);
+                    Chip ch = chips[z];
+                    if (ch != null) {
+                        ch.view.animate().scaleX(1.06f).scaleY(1.06f).setDuration(90).withEndAction(new Unpop(ch.view))
+                                .start();
+                    }
+                    chipClick(z);
+                }
+                return true;
+            }
+            return true;
+        }
+    }
+
+    static final class Unpop implements Runnable {
+        private final View v;
+
+        Unpop(View v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.animate().scaleX(1f).scaleY(1f).setDuration(140).start();
+        }
+    }
+
+    // ================================================================ views
+
+    /** A muscle on the side of the figures: icon, name, the channel's share; selected = lit (green / yellow). */
+    static final class Chip {
+        final LinearLayout view;
+        final TextView value;
+        final TextView name;
+        final View bar;
+        final View barFill;
+        private String shown = "";
+        boolean sel;
+        boolean yellow;
+        boolean off;
+        final int k;
+        /** While the finger slides the chip: the value under it (−1 = not sliding). */
+        int dragValue = -1;
+        int lastPart;
+
+        Chip(Context c, int k) {
+            view = XemsUi.horizontal(c);
+            view.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 4), XemsUi.dp(c, 10), XemsUi.dp(c, 4));
+            this.k = k;
+            view.setClickable(true);
+            view.setOnTouchListener(new ChipTouch(this));
+            view.setOnClickListener(new ChipClick(k));      // accessibility "click"; touches go through ChipTouch
+
+            FrameLayout disc = new FrameLayout(c);
+            GradientDrawable dg = new GradientDrawable();
+            dg.setShape(GradientDrawable.OVAL);
+            dg.setColor(XemsUi.SURFACE);
+            dg.setStroke(XemsUi.dp(c, 1), XemsUi.mix(XemsUi.STROKE, XemsUi.ACCENT, 0.35f));
+            disc.setBackgroundDrawable(dg);
+            int ic = c.getResources().getIdentifier(ICONS[k], "mipmap", c.getPackageName());
+            if (ic != 0) {
+                ImageView iv = new ImageView(c);
+                iv.setImageResource(ic);
+                iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                int p = XemsUi.dp(c, 6);
+                iv.setPadding(p, p, p, p);
+                disc.addView(iv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+            view.addView(disc, new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 40)));
+
+            LinearLayout col = XemsUi.vertical(c);
+            col.setPadding(XemsUi.dp(c, 8), 0, 0, 0);
+            name = XemsUi.text(c, AutoUi.zoneNames()[k], 14, XemsUi.TEXT, true);
+            name.setSingleLine(true);
+            col.addView(name);
+            value = XemsUi.text(c, "", 13, XemsUi.ACCENT, true);
+            value.setPadding(0, XemsUi.dp(c, 3), 0, XemsUi.dp(c, 4));
+            col.addView(value);
+            FrameLayout track = new FrameLayout(c);
+            track.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.STROKE, 0xAA), XemsUi.dp(c, 2), 0, 0));
+            barFill = new View(c);
+            bar = track;
+            track.addView(barFill, new FrameLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT));
+            col.addView(track, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 3)));
+            view.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            view.setGravity(Gravity.CENTER_VERTICAL);
+        }
+
+        void set(int part, boolean sel, boolean yellow, boolean off) {
+            this.sel = sel;
+            this.yellow = yellow;
+            this.off = off;
+            lastPart = part;
+            boolean sliding = dragValue >= 0;
+            if (sliding) {
+                part = dragValue;
+            }
+            String key = part + ":" + sel + ":" + yellow + ":" + off + ":" + sliding;
+            if (key.equals(shown)) {
+                return;
+            }
+            shown = key;
+            Context c = view.getContext();
+            float r = XemsUi.dp(c, 14);
+            int tint = yellow ? XemsUi.AMBER : XemsUi.GO_TEXT;
+            if (sliding) {
+                tint = XemsUi.ACCENT;
+            }
+            view.setBackgroundDrawable(XemsUi.ripple(sel || sliding ? XemsUi.glow(c, tint, r)
+                    : XemsUi.rounded(XemsUi.alpha(XemsUi.SURFACE, 0xCC), r, XemsUi.alpha(XemsUi.STROKE, 0xCC),
+                    XemsUi.dp(c, 1)), XemsUi.TEXT, r));
+            view.setAlpha(off ? 0.4f : 1f);
+            value.setText(off ? AiText.t("изкл.", "off") : part + " %");
+            value.setTextColor(sel || sliding ? tint : XemsUi.ACCENT);
+            int fill = sel || sliding ? tint : XemsUi.ACCENT;
+            barFill.setBackgroundDrawable(XemsUi.rounded(fill, XemsUi.dp(c, 2), 0, 0));
+            int w = bar.getWidth();
+            ViewGroup.LayoutParams lp = barFill.getLayoutParams();
+            lp.width = w > 0 ? Math.round(w * Math.max(0, Math.min(100, part)) / 100f) : 0;
+            barFill.setLayoutParams(lp);
+            if (w <= 0) {
+                shown = "";                     // not laid out yet: once more on the next refresh
+            }
+        }
+    }
+
+    /**
+     * Leader lines (the mock-up): from each muscle chip's inner edge, a short level run, then straight to the
+     * muscle on the figure — front muscles to the front figure (its outer half on the chips' side), back muscles to
+     * the back one — ending in a dot. A marked muscle's line is lit in its colour (green / yellow); an off one is faint.
+     * Draws only; touches go through to the chips.
+     */
+    static final class Leaders extends View {
+        private final Paint line = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint halo = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint dot = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final android.graphics.Path path = new android.graphics.Path();
+        private final int[] me = new int[2];
+        private final int[] at = new int[2];
+        private final float[] pt = new float[2];
+
+        Leaders(Context c) {
+            super(c);
+            line.setStyle(Paint.Style.STROKE);
+            line.setStrokeJoin(Paint.Join.ROUND);
+            line.setStrokeCap(Paint.Cap.ROUND);
+            halo.setStyle(Paint.Style.STROKE);
+            halo.setStrokeJoin(Paint.Join.ROUND);
+            halo.setStrokeCap(Paint.Cap.ROUND);
+            dot.setStyle(Paint.Style.FILL);
+            setClickable(false);
+            setFocusable(false);
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            AutoViews.BodyHeat b = body;
+            if (b == null || b.getWidth() <= 0) {
+                return;
+            }
+            getLocationInWindow(me);
+            b.getLocationInWindow(at);
+            float bx = at[0] - me[0];
+            float by = at[1] - me[1];
+            float knee = XemsUi.dp(getContext(), 18);
+            boolean pulsing = false;
+            float w1 = XemsUi.dp(getContext(), 1.4f);
+            for (int side = 0; side < 2; side++) {
+                int[] ks = side == 0 ? LEFT : RIGHT;
+                for (int k : ks) {
+                    Chip ch = chips[k];
+                    if (ch == null || ch.view.getWidth() <= 0 || !b.anchor(side, k, side, pt)) {
+                        continue;
+                    }
+                    ch.view.getLocationInWindow(at);
+                    float y0 = at[1] - me[1] + ch.view.getHeight() / 2f;
+                    float x0 = side == 0 ? at[0] - me[0] + ch.view.getWidth() : at[0] - me[0];
+                    float x1 = side == 0 ? x0 + knee : x0 - knee;
+                    float ex = bx + pt[0];
+                    float ey = by + pt[1];
+                    int col = ch.sel ? (ch.yellow ? XemsUi.AMBER : XemsUi.GO_TEXT) : XemsUi.ACCENT;
+                    int a = ch.off ? 0x30 : ch.sel ? 0xF0 : 0x8C;
+                    path.reset();
+                    path.moveTo(x0, y0);
+                    path.lineTo(x1, y0);
+                    path.lineTo(ex, ey);
+                    halo.setStrokeWidth(w1 * (ch.sel ? 5f : 3.5f));
+                    halo.setColor(XemsUi.alpha(col, ch.off ? 0x08 : ch.sel ? 0x40 : 0x1C));
+                    c.drawPath(path, halo);
+                    line.setStrokeWidth(ch.sel ? w1 * 1.6f : w1);
+                    line.setColor(XemsUi.alpha(col, a));
+                    c.drawPath(path, line);
+                    float rr = XemsUi.dp(getContext(), ch.sel ? 5 : 3.5f);
+                    dot.setColor(XemsUi.alpha(col, ch.off ? 0x40 : 0x50));
+                    c.drawCircle(ex, ey, rr * 2.1f, dot);
+                    dot.setColor(XemsUi.alpha(ch.off ? col : 0xFFFFFFFF, ch.off ? 0x60 : 0xFF));
+                    c.drawCircle(ex, ey, rr, dot);
+                    dot.setColor(XemsUi.alpha(col, a));
+                    c.drawCircle(x0, y0, w1 * 1.8f, dot);
+                    if (ch.sel && !ch.off) {
+                        // marked = picked for control: a ring breathes out of the point
+                        double ph = (android.os.SystemClock.uptimeMillis() % 1400L) / 1400.0;
+                        halo.setStrokeWidth(w1 * 1.4f);
+                        halo.setColor(XemsUi.alpha(col, (int) (0xC0 * (1 - ph))));
+                        c.drawCircle(ex, ey, rr * (2.2f + 2.4f * (float) ph), halo);
+                        pulsing = true;
+                    }
+                }
+            }
+            if (pulsing) {
+                postInvalidateOnAnimation();
+            }
+        }
+    }
+
+    /** Intensity ring: 270° arc, glowing progress, the value in the middle. */
+    static final class Ring extends View {
+        private final Paint track = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint arc = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint glowP = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint num = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint unit = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final RectF box = new RectF();
+        private final int color;
+        private int value;
+        private float shown = -1f;
+        private boolean enabled = true;
+        private boolean live;
+
+        Ring(Context c, int color) {
+            super(c);
+            this.color = color;
+            float w = XemsUi.dp(c, 9);
+            track.setStyle(Paint.Style.STROKE);
+            track.setStrokeWidth(w);
+            track.setStrokeCap(Paint.Cap.ROUND);
+            track.setColor(XemsUi.alpha(XemsUi.STROKE, 0xDD));
+            arc.setStyle(Paint.Style.STROKE);
+            arc.setStrokeWidth(w);
+            arc.setStrokeCap(Paint.Cap.ROUND);
+            arc.setColor(color);
+            glowP.setStyle(Paint.Style.STROKE);
+            glowP.setStrokeWidth(w * 2.4f);
+            glowP.setStrokeCap(Paint.Cap.ROUND);
+            glowP.setColor(XemsUi.alpha(color, 0x30));
+            num.setColor(XemsUi.TEXT);
+            num.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            num.setTextAlign(Paint.Align.CENTER);
+            unit.setColor(XemsUi.MUTED);
+            unit.setTextAlign(Paint.Align.CENTER);
+            unit.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 13, c.getResources().getDisplayMetrics()));
+        }
+
+        void set(int v, boolean on, boolean running) {
+            if (v != value || on != enabled || running != live) {
+                value = v;
+                enabled = on;
+                live = running;
+                invalidate();
+            }
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            float w = getWidth();
+            float h = getHeight();
+            float s = Math.min(w, h) - glowP.getStrokeWidth();
+            if (s <= 0) {
+                return;
+            }
+            float cx = w / 2f;
+            float cy = h / 2f + s * 0.04f;
+            box.set(cx - s / 2f, cy - s / 2f, cx + s / 2f, cy + s / 2f);
+            c.drawArc(box, 135, 270, false, track);
+            if (shown < 0) {
+                shown = value;
+            }
+            float target = Math.max(0, Math.min(100, value));
+            shown += (target - shown) * 0.25f;
+            if (Math.abs(target - shown) < 0.3f) {
+                shown = target;
+            } else {
+                postInvalidateOnAnimation();
+            }
+            float sweep = 270f * shown / 100f;
+            if (enabled && sweep > 0.5f) {
+                if (live) {
+                    double ph = (android.os.SystemClock.uptimeMillis() % 1600L) / 1600.0;
+                    glowP.setAlpha((int) (0x20 + 0x40 * (0.5 - 0.5 * Math.cos(2 * Math.PI * ph))));
+                    postInvalidateOnAnimation();
+                } else {
+                    glowP.setAlpha(0x30);
+                }
+                c.drawArc(box, 135, sweep, false, glowP);
+                c.drawArc(box, 135, sweep, false, arc);
+            }
+            num.setTextSize(s * 0.24f);
+            num.setColor(enabled ? XemsUi.TEXT : XemsUi.HINT);
+            String t = enabled ? Math.round(shown) + "%" : "—";
+            c.drawText(t, cx, cy + num.getTextSize() * 0.35f, num);
+            if (!enabled) {
+                c.drawText(AiText.t("изкл.", "off"), cx, cy + num.getTextSize() * 0.35f + unit.getTextSize() * 1.6f, unit);
+            }
+        }
+    }
+
+    // ================================================================ util
+
+    private static View find(View in, String name) {
+        try {
+            Context c = in.getContext();
+            int id = c.getResources().getIdentifier(name, "id", c.getPackageName());
+            return id != 0 ? in.findViewById(id) : null;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static void hint(String s) {
+        try {
+            if (board != null) {
+                android.widget.Toast.makeText(board.getContext(), s, android.widget.Toast.LENGTH_SHORT).show();
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+}

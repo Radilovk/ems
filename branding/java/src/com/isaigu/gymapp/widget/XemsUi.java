@@ -30,33 +30,35 @@ import android.widget.TextView;
  * XEMS UI kit — one look for every module (interval timer, player, HR, AI).
  * <p>
  * Colours come from the app theme (values / values-night): surfaces bg_card / bg_surface,
- * hairline card_stroke, text_primary / text_secondary, red accent (active tab), green
- * (impulse / start), amber (pause). Controls get a ripple and a short press-scale; steppers
+ * hairline card_stroke, text_primary / text_secondary, cyan accent (active tab, brand), green
+ * (impulse / start), amber (pause), red (stop). Dark theme = "neon" skin: navy glass cards with a
+ * cyan-tinted rim, glowing selected states. Controls get a ripple and a short press-scale; steppers
  * repeat while held. No XML, no lambdas (dx).
  */
 public final class XemsUi {
-    public static int BG = 0xFF121212;
-    public static int CARD = 0xFF1E1E1E;
-    public static int SURFACE = 0xFF2A2A2A;
-    public static int ELEVATED = 0xFF333333;
-    public static int STROKE = 0xFF444444;
-    public static int TEXT = 0xFFE8E8E8;
-    public static int MUTED = 0xFFB0B0B0;
-    public static int HINT = 0xFF888888;
-    public static int ACCENT = 0xFFE53935;
-    public static int ACCENT_DARK = 0xFFB71C1C;
-    public static int GO = 0xFF43A047;
-    public static int GO_TEXT = 0xFF81C784;
-    public static int AMBER = 0xFFF9A825;
-    public static int DANGER = 0xFFEF5350;
-    public static int ORANGE = 0xFFF57C00;
+    public static int BG = 0xFF060B14;
+    public static int CARD = 0xFF0B1623;
+    public static int SURFACE = 0xFF10202F;
+    public static int ELEVATED = 0xFF15293B;
+    public static int STROKE = 0xFF1C3A52;
+    public static int TEXT = 0xFFE6F3FF;
+    public static int MUTED = 0xFF93AFC6;
+    public static int HINT = 0xFF5E7A92;
+    public static int ACCENT = 0xFF22C3F5;
+    public static int ACCENT_DARK = 0xFF0A79B8;
+    public static int GO = 0xFF22C55E;
+    public static int GO_TEXT = 0xFF4ADE80;
+    public static int AMBER = 0xFFF5B021;
+    public static int DANGER = 0xFFEF4444;
+    public static int ORANGE = 0xFFF59E0B;
     public static int ON_ACCENT = 0xFFFFFFFF;
     public static boolean dark = true;
 
     public static final int PRIMARY = 0;   // green solid — start / activate / save
-    public static final int ACCENT_BTN = 1; // red solid — brand / stop
+    public static final int ACCENT_BTN = 1; // accent solid — brand
     public static final int SECONDARY = 2;  // surface + hairline
     public static final int GHOST = 3;      // text only
+    public static final int DANGER_BTN = 4; // red solid — stop / delete
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -227,7 +229,7 @@ public final class XemsUi {
 
     public static LinearLayout card(Context c) {
         LinearLayout l = vertical(c);
-        l.setBackgroundDrawable(rounded(CARD, dp(c, 16), STROKE, dp(c, 1)));
+        l.setBackgroundDrawable(glass(c, dp(c, 16)));
         l.setPadding(dp(c, 16), dp(c, 14), dp(c, 16), dp(c, 14));
         return l;
     }
@@ -238,6 +240,28 @@ public final class XemsUi {
         l.setBackgroundDrawable(rounded(SURFACE, dp(c, 14), alpha(STROKE, 0x88), dp(c, 1)));
         l.setPadding(dp(c, 14), dp(c, 12), dp(c, 14), dp(c, 12));
         return l;
+    }
+
+    /** Neon skin card: top lit a touch, cyan-tinted rim. Light theme: plain card + hairline. */
+    public static GradientDrawable glass(Context c, float radiusPx) {
+        if (!dark) {
+            return rounded(CARD, radiusPx, STROKE, dp(c, 1));
+        }
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[] {mix(CARD, ACCENT, 0.06f), CARD});
+        g.setCornerRadius(radiusPx);
+        g.setStroke(dp(c, 1), mix(STROKE, ACCENT, 0.25f));
+        return g;
+    }
+
+    /** Selected state as in the neon skin: tinted glass with a bright rim. */
+    public static GradientDrawable glow(Context c, int tint, float radiusPx) {
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[] {alpha(tint, dark ? 0x55 : 0xFF), alpha(dark ? tint : mix(tint, 0xFF000000, 0.15f),
+                        dark ? 0x22 : 0xFF)});
+        g.setCornerRadius(radiusPx);
+        g.setStroke(dp(c, 1.5f), dark ? tint : alpha(tint, 0x00));
+        return g;
     }
 
     public static LinearLayout.LayoutParams matchWrap(Context c, int topDp) {
@@ -270,7 +294,14 @@ public final class XemsUi {
         int fg;
         switch (style) {
             case PRIMARY:
-                bg = gradient(GO, mix(GO, 0xFF000000, 0.18f), r);
+                bg = gradient(mix(GO, 0xFFFFFFFF, 0.12f), mix(GO, 0xFF000000, 0.22f), r);
+                if (dark) {
+                    ((GradientDrawable) bg).setStroke(dp(c, 1), alpha(GO_TEXT, 0xAA));
+                }
+                fg = 0xFFFFFFFF;
+                break;
+            case DANGER_BTN:
+                bg = gradient(mix(DANGER, 0xFFFFFFFF, 0.08f), mix(DANGER, 0xFF000000, 0.25f), r);
                 fg = 0xFFFFFFFF;
                 break;
             case ACCENT_BTN:
@@ -354,11 +385,11 @@ public final class XemsUi {
         for (int i = 0; i < labels.length; i++) {
             final int idx = i;
             boolean sel = i == selected;
-            TextView t = text(c, labels[i], 15, sel ? ON_ACCENT : TEXT, sel);
+            TextView t = text(c, labels[i], 15, sel ? (dark ? TEXT : ON_ACCENT) : TEXT, sel);
             t.setGravity(Gravity.CENTER);
             t.setPadding(dp(c, 12), dp(c, 11), dp(c, 12), dp(c, 11));
             float r = dp(c, 19);
-            Drawable bg = sel ? gradient(ACCENT, ACCENT_DARK, r) : new ColorDrawable(0x00000000);
+            Drawable bg = sel ? glow(c, ACCENT, r) : new ColorDrawable(0x00000000);
             t.setBackgroundDrawable(ripple(bg, sel ? ON_ACCENT : TEXT, r));
             t.setOnClickListener(new View.OnClickListener() {
                 @Override

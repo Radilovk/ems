@@ -95,7 +95,7 @@ public final class XemsModuleInfo {
             };
         } else if (XemsLicense.PULSE.equals(id)) {
             e.glyph = "♥";
-            e.tint = XemsUi.ACCENT;
+            e.tint = XemsUi.DANGER;
             e.name = tr("Пулс", "Heart rate");
             e.tagline = tr("Пулсът на живо и защита от претоварване", "Live heart rate and overload protection");
             e.value = new String[] {

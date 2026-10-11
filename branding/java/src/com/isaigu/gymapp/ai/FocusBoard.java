@@ -89,6 +89,7 @@ public final class FocusBoard {
     private static TextView timeText;
     private static TextView battText;
     private static AutoViews.BodyHeat body;
+    private static Leaders leaders;
     private static final Chip[] chips = new Chip[AutoModel.CHANNELS];
     private static Ring ring1;
     private static Ring ring2;
@@ -537,7 +538,13 @@ public final class FocusBoard {
         pane.addView(body, blp);
         pane.addView(chipColumn(c, RIGHT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        return pane;
+        FrameLayout holder = new FrameLayout(c);
+        holder.addView(pane, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        leaders = new Leaders(c);
+        holder.addView(leaders, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        return holder;
     }
 
     private static View chipColumn(Context c, int[] ks) {
@@ -825,6 +832,9 @@ public final class FocusBoard {
                     }
                 }
                 body.set(sex, prog, null, dis, null);
+                if (leaders != null) {
+                    leaders.invalidate();
+                }
             }
 
             ring1Label.setText(anyMark ? AiText.t("Избрани мускули", "Selected muscles")
@@ -1100,6 +1110,9 @@ public final class FocusBoard {
         final View bar;
         final View barFill;
         private String shown = "";
+        boolean sel;
+        boolean yellow;
+        boolean off;
 
         Chip(Context c, int k) {
             view = XemsUi.horizontal(c);
@@ -1145,6 +1158,9 @@ public final class FocusBoard {
         }
 
         void set(int part, boolean sel, boolean yellow, boolean off) {
+            this.sel = sel;
+            this.yellow = yellow;
+            this.off = off;
             String key = part + ":" + sel + ":" + yellow + ":" + off;
             if (key.equals(shown)) {
                 return;
@@ -1167,6 +1183,83 @@ public final class FocusBoard {
             barFill.setLayoutParams(lp);
             if (w <= 0) {
                 shown = "";                     // not laid out yet: once more on the next refresh
+            }
+        }
+    }
+
+    /**
+     * Leader lines (the mock-up): from each muscle chip's inner edge, a short level run, then straight to the
+     * muscle on the figure — front muscles to the front figure (its outer half on the chips' side), back muscles to
+     * the back one — ending in a dot. A marked muscle's line is lit in its colour (green / yellow); an off one is faint.
+     * Draws only; touches go through to the chips.
+     */
+    static final class Leaders extends View {
+        private final Paint line = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint halo = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint dot = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final android.graphics.Path path = new android.graphics.Path();
+        private final int[] me = new int[2];
+        private final int[] at = new int[2];
+        private final float[] pt = new float[2];
+
+        Leaders(Context c) {
+            super(c);
+            line.setStyle(Paint.Style.STROKE);
+            line.setStrokeJoin(Paint.Join.ROUND);
+            line.setStrokeCap(Paint.Cap.ROUND);
+            halo.setStyle(Paint.Style.STROKE);
+            halo.setStrokeJoin(Paint.Join.ROUND);
+            halo.setStrokeCap(Paint.Cap.ROUND);
+            dot.setStyle(Paint.Style.FILL);
+            setClickable(false);
+            setFocusable(false);
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            AutoViews.BodyHeat b = body;
+            if (b == null || b.getWidth() <= 0) {
+                return;
+            }
+            getLocationInWindow(me);
+            b.getLocationInWindow(at);
+            float bx = at[0] - me[0];
+            float by = at[1] - me[1];
+            float knee = XemsUi.dp(getContext(), 18);
+            float w1 = XemsUi.dp(getContext(), 1.4f);
+            for (int side = 0; side < 2; side++) {
+                int[] ks = side == 0 ? LEFT : RIGHT;
+                for (int k : ks) {
+                    Chip ch = chips[k];
+                    if (ch == null || ch.view.getWidth() <= 0 || !b.anchor(side, k, side, pt)) {
+                        continue;
+                    }
+                    ch.view.getLocationInWindow(at);
+                    float y0 = at[1] - me[1] + ch.view.getHeight() / 2f;
+                    float x0 = side == 0 ? at[0] - me[0] + ch.view.getWidth() : at[0] - me[0];
+                    float x1 = side == 0 ? x0 + knee : x0 - knee;
+                    float ex = bx + pt[0];
+                    float ey = by + pt[1];
+                    int col = ch.sel ? (ch.yellow ? XemsUi.AMBER : XemsUi.GO_TEXT) : XemsUi.ACCENT;
+                    int a = ch.off ? 0x30 : ch.sel ? 0xF0 : 0x8C;
+                    path.reset();
+                    path.moveTo(x0, y0);
+                    path.lineTo(x1, y0);
+                    path.lineTo(ex, ey);
+                    halo.setStrokeWidth(w1 * (ch.sel ? 5f : 3.5f));
+                    halo.setColor(XemsUi.alpha(col, ch.off ? 0x08 : ch.sel ? 0x40 : 0x1C));
+                    c.drawPath(path, halo);
+                    line.setStrokeWidth(ch.sel ? w1 * 1.6f : w1);
+                    line.setColor(XemsUi.alpha(col, a));
+                    c.drawPath(path, line);
+                    float rr = XemsUi.dp(getContext(), ch.sel ? 5 : 3.5f);
+                    dot.setColor(XemsUi.alpha(col, ch.off ? 0x40 : 0x50));
+                    c.drawCircle(ex, ey, rr * 2.1f, dot);
+                    dot.setColor(XemsUi.alpha(ch.off ? col : 0xFFFFFFFF, ch.off ? 0x60 : 0xFF));
+                    c.drawCircle(ex, ey, rr, dot);
+                    dot.setColor(XemsUi.alpha(col, a));
+                    c.drawCircle(x0, y0, w1 * 1.8f, dot);
+                }
             }
         }
     }

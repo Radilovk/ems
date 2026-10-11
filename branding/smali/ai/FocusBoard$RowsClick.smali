@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 229
+    .line 230
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 230
+    .line 231
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RowsClick;->rows:Z
 
-    .line 231
+    .line 232
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 5
 
     .prologue
-    .line 235
+    .line 236
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 237
+    .line 238
     :try_start_3
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
@@ -63,7 +63,7 @@
 
     move-result-object v0
 
-    .line 238
+    .line 239
     const-string v1, "rows"
 
     iget-boolean v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RowsClick;->rows:Z
@@ -76,14 +76,14 @@
     :try_end_1d
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_1d} :catch_21
 
-    .line 241
+    .line 242
     :goto_1d
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->tick()V
 
-    .line 242
+    .line 243
     return-void
 
-    .line 239
+    .line 240
     :catch_21
     move-exception v0
 

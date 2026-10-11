@@ -17,6 +17,10 @@
 # instance fields
 .field art:Landroid/graphics/Bitmap;
 
+.field ax:[F
+
+.field ay:[F
+
 .field cov:[B
 
 .field glow:Landroid/graphics/Bitmap;

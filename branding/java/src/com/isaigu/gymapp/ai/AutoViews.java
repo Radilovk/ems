@@ -399,6 +399,9 @@ public final class AutoViews {
             Bitmap over;
             Bitmap glow;
             int[] idx;          // pixel index of every zone pixel
+            /** Leader anchor of a zone (image px), per half of the figure: [zone * 2 + half], half 0 = left. */
+            float[] ax;
+            float[] ay;
             byte[] zone;
             byte[] shade;
             byte[] cov;
@@ -470,6 +473,66 @@ public final class AutoViews {
             }
         }
 
+        /** Where figure {@code i} (0 front, 1 back) is drawn in this view: side by side, centred, fitted. */
+        boolean figRect(int i, RectF out) {
+            float gap = dp(this, 22);
+            float h = getHeight();
+            float totalW = 0;
+            for (Fig f : figs) {
+                if (f != null && f.art != null) {
+                    totalW += f.art.getWidth() * h / f.art.getHeight();
+                }
+            }
+            if (totalW <= 0 || figs[i] == null || figs[i].art == null) {
+                return false;
+            }
+            float scale = 1f;
+            if (totalW + gap > getWidth()) {
+                scale = (getWidth() - gap) / Math.max(1f, totalW);
+            }
+            float x = (getWidth() - (totalW * scale + gap)) / 2f;
+            float fh = h * scale;
+            float top = (h - fh) / 2f;
+            for (int k = 0; k < 2; k++) {
+                Fig f = figs[k];
+                if (f == null || f.art == null) {
+                    continue;
+                }
+                float fw = f.art.getWidth() * fh / f.art.getHeight();
+                if (k == i) {
+                    out.set(x, top, x + fw, top + fh);
+                    return true;
+                }
+                x += fw + gap;
+            }
+            return false;
+        }
+
+        /**
+         * The point of {@code zone} on figure {@code i} (0 front, 1 back) in this view, on the figure's {@code half}
+         * (0 = the left half of the picture, 1 = the right): where a leader line from a label ends. False = unknown.
+         */
+        public boolean anchor(int i, int zone, int half, float[] out) {
+            Fig f = i >= 0 && i < 2 ? figs[i] : null;
+            if (f == null || f.ax == null || f.art == null || zone < 0 || zone >= Z) {
+                return false;
+            }
+            int k = zone * 2 + half;
+            if (f.ax[k] < 0) {
+                k = zone * 2 + (1 - half);       // only on the other half
+                if (f.ax[k] < 0) {
+                    return false;
+                }
+            }
+            RectF r = new RectF();
+            if (!figRect(i, r)) {
+                return false;
+            }
+            out[0] = r.left + f.ax[k] * r.width() / f.art.getWidth();
+            out[1] = r.top + f.ay[k] * r.height() / f.art.getHeight();
+            return true;
+        }
+
         /** The value the colour shows at {@code now}: the held value, faded in from the previous one. */
         private double shownAt(int k, long now) {
             if (fadeMs[k] <= 0) {
@@ -504,16 +567,30 @@ public final class AutoViews {
                 f.shade = new byte[n];
                 f.cov = new byte[n];
                 int j = 0;
+                double[] sx = new double[Z * 2];
+                double[] sy = new double[Z * 2];
+                int[] sn = new int[Z * 2];
                 for (int i = 0; i < all.length; i++) {
                     int p = all[i];
                     int z = zoneOf(p);
                     if (z >= 0) {
+                        int px = i % w;
+                        int hk = z * 2 + (px < w / 2 ? 0 : 1);
+                        sx[hk] += px;
+                        sy[hk] += i / w;
+                        sn[hk]++;
                         f.idx[j] = i;
                         f.zone[j] = (byte) z;
                         f.shade[j] = (byte) ((p >> 8) & 0xFF);
                         f.cov[j] = (byte) (p & 0xFF);
                         j++;
                     }
+                }
+                f.ax = new float[Z * 2];
+                f.ay = new float[Z * 2];
+                for (int k = 0; k < Z * 2; k++) {
+                    f.ax[k] = sn[k] > 0 ? (float) (sx[k] / sn[k]) : -1f;
+                    f.ay[k] = sn[k] > 0 ? (float) (sy[k] / sn[k]) : -1f;
                 }
                 f.px = new int[w * h];
                 f.over = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -628,29 +705,12 @@ public final class AutoViews {
             // the pulse: the working zones breathe between a faint and a strong glow
             double ph = (now % PULSE_MS) / (double) PULSE_MS;
             glowPaint.setAlpha((int) (255 * (0.15 + 0.85 * (0.5 - 0.5 * Math.cos(2 * Math.PI * ph)))));
-            float gap = dp(this, 22);
-            float h = getHeight();
-            float totalW = 0;
-            for (Fig f : figs) {
-                if (f != null && f.art != null) {
-                    totalW += f.art.getWidth() * h / f.art.getHeight();
-                }
-            }
-            float scale = 1f;
-            if (totalW + gap > getWidth()) {
-                scale = (getWidth() - gap) / Math.max(1f, totalW);
-            }
-            float x = (getWidth() - (totalW * scale + gap)) / 2f;
             for (int i = 0; i < 2; i++) {
                 Fig f = figs[i];
-                if (f == null || f.art == null) {
+                if (f == null || f.art == null || !figRect(i, dst)) {
                     continue;
                 }
-                float fh = h * scale;
-                float fw = f.art.getWidth() * fh / f.art.getHeight();
-                float top = (h - fh) / 2f;
                 src.set(0, 0, f.art.getWidth(), f.art.getHeight());
-                dst.set(x, top, x + fw, top + fh);
                 c.drawBitmap(f.art, src, dst, paint);
                 if (f.over != null) {
                     c.drawBitmap(f.over, src, dst, paint);
@@ -658,7 +718,6 @@ public final class AutoViews {
                 if (any && f.glow != null) {
                     c.drawBitmap(f.glow, src, dst, glowPaint);
                 }
-                x += fw + gap;
             }
             if (any || fading) {
                 postInvalidateOnAnimation();

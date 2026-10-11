@@ -27,10 +27,10 @@
     .registers 2
 
     .prologue
-    .line 1032
+    .line 1042
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1057
+    .line 1067
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$AddClick;->addPos:I
@@ -44,16 +44,16 @@
     .registers 6
 
     .prologue
-    .line 1035
+    .line 1045
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1037
+    .line 1047
     :try_start_3
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
 
     move-result-object v0
 
-    .line 1038
+    .line 1048
     if-eqz v0, :cond_11
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
@@ -62,15 +62,15 @@
 
     move-object v2, v0
 
-    .line 1039
+    .line 1049
     :goto_e
     if-nez v2, :cond_14
 
-    .line 1055
+    .line 1065
     :goto_10
     return-void
 
-    .line 1038
+    .line 1048
     :cond_11
     const/4 v0, 0x0
 
@@ -78,7 +78,7 @@
 
     goto :goto_e
 
-    .line 1042
+    .line 1052
     :cond_14
     invoke-interface {v2}, Ljava/util/List;->size()I
 
@@ -91,14 +91,14 @@
     :goto_1b
     if-ltz v1, :cond_46
 
-    .line 1043
+    .line 1053
     invoke-interface {v2, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1044
+    .line 1054
     if-eqz v0, :cond_2b
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -107,17 +107,17 @@
 
     if-eqz v0, :cond_42
 
-    .line 1045
+    .line 1055
     :cond_2b
     const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->rowAt(IZ)Landroid/view/View;
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500(IZ)Landroid/view/View;
 
-    .line 1046
+    .line 1056
     iput v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$AddClick;->addPos:I
 
-    .line 1047
+    .line 1057
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100()Landroid/os/Handler;
 
@@ -131,18 +131,18 @@
 
     goto :goto_10
 
-    .line 1052
+    .line 1062
     :catch_3b
     move-exception v0
 
-    .line 1053
+    .line 1063
     const-string v1, "FocusBoard.add"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_10
 
-    .line 1042
+    .line 1052
     :cond_42
     add-int/lit8 v0, v1, -0x1
 
@@ -150,7 +150,7 @@
 
     goto :goto_1b
 
-    .line 1051
+    .line 1061
     :cond_46
     :try_start_46
     const-string v0, "\u041d\u044f\u043c\u0430 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e \u043c\u044f\u0441\u0442\u043e \u0437\u0430 \u043a\u043b\u0438\u0435\u043d\u0442."
@@ -173,7 +173,7 @@
     .registers 3
 
     .prologue
-    .line 1061
+    .line 1071
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$AddClick;->addPos:I
 
     const/4 v1, 0x0
@@ -183,7 +183,7 @@
 
     move-result-object v1
 
-    .line 1062
+    .line 1072
     if-eqz v1, :cond_15
 
     const-string v0, "typeButton"
@@ -193,29 +193,29 @@
 
     move-result-object v0
 
-    .line 1063
+    .line 1073
     :goto_f
     if-eqz v0, :cond_17
 
-    .line 1064
+    .line 1074
     invoke-virtual {v0}, Landroid/view/View;->performClick()Z
 
-    .line 1068
+    .line 1078
     :cond_14
     :goto_14
     return-void
 
-    .line 1062
+    .line 1072
     :cond_15
     const/4 v0, 0x0
 
     goto :goto_f
 
-    .line 1065
+    .line 1075
     :cond_17
     if-eqz v1, :cond_14
 
-    .line 1066
+    .line 1076
     invoke-virtual {v1}, Landroid/view/View;->performClick()Z
 
     goto :goto_14

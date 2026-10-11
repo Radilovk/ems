@@ -21,13 +21,13 @@
 
 .field private static final C_ACCENT:I = -0xbc5fb9
 
-.field private static final C_BG:I = -0xebe8e4
+.field private static final C_BG:I = -0xf9f4ec
 
-.field private static final C_CARD:I = -0xdfdbd4
+.field private static final C_CARD:I = -0xf4e9dd
 
-.field private static final C_DIM:I = -0x675d4d
+.field private static final C_DIM:I = -0x6c503a
 
-.field private static final C_HERO:I = -0xe4d5e0
+.field private static final C_HERO:I = -0xf2ddca
 
 .field private static final C_TEXT:I = -0xd0b09
 
@@ -771,7 +771,7 @@
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
     .line 1018
-    const v1, -0xdfdbd4
+    const v1, -0xf4e9dd
 
     invoke-static {p0, v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->round(Landroid/content/Context;II)Landroid/graphics/drawable/GradientDrawable;
 
@@ -801,7 +801,7 @@
     .line 1020
     const/16 v1, 0xe
 
-    const v2, -0x675d4d
+    const v2, -0x6c503a
 
     const/4 v3, 0x0
 
@@ -1629,7 +1629,7 @@
     invoke-direct {v6, v13}, Landroid/graphics/Paint;-><init>(I)V
 
     .line 1032
-    const v0, -0xdfdbd4
+    const v0, -0xf4e9dd
 
     invoke-virtual {v6, v0}, Landroid/graphics/Paint;->setColor(I)V
 
@@ -2972,7 +2972,7 @@
     move-result-object v0
 
     .line 986
-    const v1, -0xdfdbd4
+    const v1, -0xf4e9dd
 
     const/16 v2, 0xe
 
@@ -3166,7 +3166,7 @@
 
     const/16 v1, 0xd
 
-    const v2, -0x675d4d
+    const v2, -0x6c503a
 
     const/4 v3, 0x1
 
@@ -3353,7 +3353,7 @@
     invoke-virtual {v5, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
     .line 804
-    const v2, -0xebe8e4
+    const v2, -0xf9f4ec
 
     const/16 v3, 0x1c
 
@@ -4586,7 +4586,7 @@
 
     move-result-object v3
 
-    const v6, -0xdfdbd4
+    const v6, -0xf4e9dd
 
     const v7, -0xd0b09
 
@@ -4955,7 +4955,7 @@
     invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
     .line 966
-    const v1, -0xdfdbd4
+    const v1, -0xf4e9dd
 
     const/16 v2, 0x12
 
@@ -4987,7 +4987,7 @@
     .line 968
     const/16 v1, 0xe
 
-    const v2, -0x675d4d
+    const v2, -0x6c503a
 
     invoke-static {p0, p2, v1, v2, v5}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->tv(Landroid/content/Context;Ljava/lang/String;IIZ)Landroid/widget/TextView;
 

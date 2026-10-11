@@ -3591,7 +3591,7 @@
 
     .line 215
     :pswitch_c
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     goto :goto_5
 

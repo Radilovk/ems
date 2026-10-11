@@ -711,7 +711,7 @@ public final class MapRunner {
             head = XemsUi.text(a, "", 13, XemsUi.MUTED, true);
             top.addView(head, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             TextView stop = XemsUi.button(a, waiting ? AiText.t("✕  Отказ", "✕  Cancel") : AiText.t("■  Стоп", "■  Stop"),
-                    XemsUi.ACCENT_BTN);
+                    XemsUi.DANGER_BTN);
             stop.setOnClickListener(new StopClick());
             stopButton = stop;
             top.addView(stop, new LinearLayout.LayoutParams(XemsUi.dp(a, 130), XemsUi.dp(a, 42)));

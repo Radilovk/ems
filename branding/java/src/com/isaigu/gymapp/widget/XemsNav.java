@@ -212,7 +212,7 @@ public final class XemsNav {
         switch (m) {
             case M_TIMER: return XemsUi.AMBER;
             case M_MUSIC: return XemsUi.GO;
-            case M_PULSE: return XemsUi.ACCENT;
+            case M_PULSE: return XemsUi.DANGER;
             case M_AUTO: return 0xFF26A69A;
             case M_VR: return com.isaigu.gymapp.wearable.vr.VrPanel.TINT;
             default: return XemsUi.ORANGE;

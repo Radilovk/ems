@@ -86,7 +86,7 @@ public final class TimerRingView extends View {
         strokeColor = themeColor(context, "card_stroke", strokeColor);
         textColor = themeColor(context, "text_primary", textColor);
         okColor = themeColor(context, "impulse_accent", okColor);
-        dangerColor = themeColor(context, "accent_primary", dangerColor);
+        dangerColor = themeColor(context, "pause_accent", dangerColor);
 
         faceStroke.setStyle(Paint.Style.STROKE);
         faceStroke.setStrokeWidth(dp(context, 1f));

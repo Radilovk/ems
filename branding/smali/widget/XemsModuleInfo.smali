@@ -1020,7 +1020,7 @@
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->glyph:Ljava/lang/String;
 
     .line 98
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     iput v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->tint:I
 

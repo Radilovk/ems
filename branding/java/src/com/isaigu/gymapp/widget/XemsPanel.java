@@ -125,7 +125,7 @@ public final class XemsPanel {
 
         Square stop = new Square(c);
         stop.addView(icon(c, XemsIcon.STOP, XemsUi.ON_ACCENT, null), centered(c, 0.55f));
-        style(stop, XemsUi.ACCENT, true);
+        style(stop, XemsUi.DANGER, true);
         stop.setOnClickListener(new Delegate(panelRoot, ID_STOP));
         col.addView(stop, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));

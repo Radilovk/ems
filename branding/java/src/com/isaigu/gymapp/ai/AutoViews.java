@@ -149,9 +149,9 @@ public final class AutoViews {
 
         private void colors(int m) {
             switch (m) {
-                case WORK:                    // the kit's impulse colours: orange → accent red
+                case WORK:                    // the kit's impulse colours: orange → red
                     colA = XemsUi.ORANGE;
-                    colB = XemsUi.ACCENT;
+                    colB = XemsUi.DANGER;
                     break;
                 case READY:
                     colA = XemsUi.GO_TEXT;
@@ -863,7 +863,7 @@ public final class AutoViews {
                     p.setColor(XemsUi.ORANGE);
                 } else if (i == done) {
                     p.setStyle(Paint.Style.FILL);
-                    p.setColor(XemsUi.ACCENT);
+                    p.setColor(XemsUi.DANGER);
                 } else {
                     p.setStyle(Paint.Style.STROKE);
                     p.setColor(XemsUi.alpha(XemsUi.TEXT, 0x66));

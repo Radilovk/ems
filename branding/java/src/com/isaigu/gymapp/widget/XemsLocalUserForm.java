@@ -41,11 +41,11 @@ public final class XemsLocalUserForm {
     static final String PREFS = "xems_user_profiles";
 
     // Colours (the app is dark).
-    private static final int BG = 0xFF121418;
-    private static final int CARD = 0xFF1C1F26;
-    private static final int STROKE = 0xFF2C313B;
+    private static final int BG = 0xFF060B14;
+    private static final int CARD = 0xFF0B1623;
+    private static final int STROKE = 0xFF1C3A52;
     private static final int TEXT = 0xFFECEFF4;
-    private static final int MUTED = 0xFF98A1B0;
+    private static final int MUTED = 0xFF93AFC6;
     private static final int ACCENT = 0xFF43A047;
     private static final int ACCENT_TEXT = 0xFFFFFFFF;
     private static final int WARN = 0xFFFFB74D;

@@ -51,6 +51,7 @@
 .method static constructor <clinit>()V
     .registers 1
 
+    .prologue
     .line 18
     const v0, -0xededee
 
@@ -82,7 +83,7 @@
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->MUTED:I
 
     .line 25
-    const v0, -0x1ac6cb
+    const v0, -0xdd3c0b
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
 
@@ -137,6 +138,7 @@
 .method private constructor <init>()V
     .registers 1
 
+    .prologue
     .line 91
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -144,216 +146,219 @@
 .end method
 
 .method static alpha(II)I
-    .registers 3
+    .registers 4
 
+    .prologue
     .line 70
     const v0, 0xffffff
 
-    and-int/2addr p0, v0
+    and-int/2addr v0, p0
 
-    and-int/lit16 p1, p1, 0xff
+    and-int/lit16 v1, p1, 0xff
 
-    shl-int/lit8 p1, p1, 0x18
+    shl-int/lit8 v1, v1, 0x18
 
-    or-int/2addr p0, p1
+    or-int/2addr v0, v1
 
-    return p0
+    return v0
 .end method
 
 .method static applyTheme(Landroid/content/Context;)V
     .registers 5
 
+    .prologue
     .line 40
     if-nez p0, :cond_3
 
-    .line 41
+    .line 58
+    :goto_2
     return-void
 
     .line 43
     :cond_3
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->BG:I
+    const-string v0, "bg_screen"
 
-    const-string v1, "bg_screen"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->BG:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->BG:I
 
     .line 44
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->CARD:I
+    const-string v0, "bg_card"
 
-    const-string v1, "bg_card"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->CARD:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->CARD:I
 
     .line 45
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->CARD2:I
+    const-string v0, "bg_surface"
 
-    const-string v1, "bg_surface"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->CARD2:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->CARD2:I
 
     .line 46
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->STROKE:I
+    const-string v0, "card_stroke"
 
-    const-string v1, "card_stroke"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->STROKE:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->STROKE:I
 
     .line 47
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->TEXT:I
+    const-string v0, "text_primary"
 
-    const-string v1, "text_primary"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->TEXT:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->TEXT:I
 
     .line 48
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->MUTED:I
+    const-string v0, "text_secondary"
 
-    const-string v1, "text_secondary"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->MUTED:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->MUTED:I
 
     .line 49
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
+    const-string v0, "accent_primary"
 
-    const-string v1, "accent_primary"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
 
     .line 50
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->ACCENT_DARK:I
+    const-string v0, "accent_primary_dark"
 
-    const-string v1, "accent_primary_dark"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->ACCENT_DARK:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->ACCENT_DARK:I
 
     .line 51
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->CYAN:I
+    const-string v0, "impulse_accent"
 
-    const-string v1, "impulse_accent"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->CYAN:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->CYAN:I
 
     .line 52
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->OK:I
+    const-string v0, "light_green_color"
 
-    const-string v1, "light_green_color"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->OK:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->OK:I
 
     .line 53
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->WARN:I
+    const-string v0, "ma_badge_pause_bg"
 
-    const-string v1, "ma_badge_pause_bg"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->WARN:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->WARN:I
 
     .line 54
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->DANGER:I
+    const-string v0, "pause_accent"
 
-    const-string v1, "pause_accent"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->DANGER:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->DANGER:I
 
     .line 55
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->ORANGE:I
+    const-string v0, "light_orange_exister"
 
-    const-string v1, "light_orange_exister"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->ORANGE:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->ORANGE:I
 
     .line 56
-    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->ON_ACCENT:I
+    const-string v0, "text_on_accent"
 
-    const-string v1, "text_on_accent"
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->ON_ACCENT:I
 
-    invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiViews;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
-    move-result p0
+    move-result v0
 
-    sput p0, Lcom/isaigu/gymapp/ai/AiViews;->ON_ACCENT:I
+    sput v0, Lcom/isaigu/gymapp/ai/AiViews;->ON_ACCENT:I
 
     .line 57
-    sget p0, Lcom/isaigu/gymapp/ai/AiViews;->BG:I
+    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->BG:I
 
-    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiViews;->luminance(I)D
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiViews;->luminance(I)D
 
     move-result-wide v0
 
     const-wide v2, 0x3fd999999999999aL    # 0.4
 
-    cmpg-double p0, v0, v2
+    cmpg-double v0, v0, v2
 
-    if-gez p0, :cond_a0
+    if-gez v0, :cond_a3
 
-    const/4 p0, 0x1
+    const/4 v0, 0x1
 
-    goto :goto_a1
+    :goto_9f
+    sput-boolean v0, Lcom/isaigu/gymapp/ai/AiViews;->dark:Z
 
-    :cond_a0
-    const/4 p0, 0x0
+    goto/16 :goto_2
 
-    :goto_a1
-    sput-boolean p0, Lcom/isaigu/gymapp/ai/AiViews;->dark:Z
+    :cond_a3
+    const/4 v0, 0x0
 
-    .line 58
-    return-void
+    goto :goto_9f
 .end method
 
 .method static color(Landroid/content/Context;Ljava/lang/String;I)I
     .registers 6
 
+    .prologue
     .line 62
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -368,45 +373,47 @@
 
     invoke-virtual {v0, p1, v1, v2}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
-    move-result p1
+    move-result v0
 
     .line 63
-    if-eqz p1, :cond_18
+    if-eqz v0, :cond_18
 
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
-    move-result-object p0
+    move-result-object v1
 
-    invoke-virtual {p0, p1}, Landroid/content/res/Resources;->getColor(I)I
+    invoke-virtual {v1, v0}, Landroid/content/res/Resources;->getColor(I)I
+    :try_end_17
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_17} :catch_19
 
     move-result p2
-    :try_end_18
-    .catchall {:try_start_0 .. :try_end_18} :catchall_19
 
+    .line 65
     :cond_18
+    :goto_18
     return p2
 
     .line 64
-    :catchall_19
-    move-exception p0
+    :catch_19
+    move-exception v0
 
-    .line 65
-    return p2
+    goto :goto_18
 .end method
 
 .method static heatGradient()[I
     .registers 3
 
+    .prologue
     .line 79
     const/4 v0, 0x4
 
     new-array v0, v0, [I
 
-    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->CYAN:I
+    const/4 v1, 0x0
 
-    const/4 v2, 0x0
+    sget v2, Lcom/isaigu/gymapp/ai/AiViews;->CYAN:I
 
-    aput v1, v0, v2
+    aput v2, v0, v1
 
     const/4 v1, 0x1
 
@@ -414,17 +421,17 @@
 
     aput v2, v0, v1
 
-    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->ORANGE:I
+    const/4 v1, 0x2
 
-    const/4 v2, 0x2
+    sget v2, Lcom/isaigu/gymapp/ai/AiViews;->ORANGE:I
 
-    aput v1, v0, v2
+    aput v2, v0, v1
 
-    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
+    const/4 v1, 0x3
 
-    const/4 v2, 0x3
+    sget v2, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
 
-    aput v1, v0, v2
+    aput v2, v0, v1
 
     return-object v0
 .end method
@@ -432,36 +439,37 @@
 .method static luminance(I)D
     .registers 7
 
+    .prologue
     .line 74
-    shr-int/lit8 v0, p0, 0x10
+    const-wide v0, 0x3fd322d0e5604189L    # 0.299
 
-    and-int/lit16 v0, v0, 0xff
-
-    int-to-double v0, v0
-
-    const-wide v2, 0x3fd322d0e5604189L    # 0.299
-
-    mul-double v0, v0, v2
-
-    shr-int/lit8 v2, p0, 0x8
+    shr-int/lit8 v2, p0, 0x10
 
     and-int/lit16 v2, v2, 0xff
 
     int-to-double v2, v2
 
-    const-wide v4, 0x3fe2c8b439581062L    # 0.587
+    mul-double/2addr v0, v2
 
-    mul-double v2, v2, v4
+    const-wide v2, 0x3fe2c8b439581062L    # 0.587
+
+    shr-int/lit8 v4, p0, 0x8
+
+    and-int/lit16 v4, v4, 0xff
+
+    int-to-double v4, v4
+
+    mul-double/2addr v2, v4
 
     add-double/2addr v0, v2
 
-    and-int/lit16 p0, p0, 0xff
+    const-wide v2, 0x3fbd2f1a9fbe76c9L    # 0.114
 
-    int-to-double v2, p0
+    and-int/lit16 v4, p0, 0xff
 
-    const-wide v4, 0x3fbd2f1a9fbe76c9L    # 0.114
+    int-to-double v4, v4
 
-    mul-double v2, v2, v4
+    mul-double/2addr v2, v4
 
     add-double/2addr v0, v2
 
@@ -473,49 +481,51 @@
 .end method
 
 .method static phaseColor(Lcom/isaigu/gymapp/ai/AiModel$PhaseId;)I
-    .registers 2
+    .registers 3
 
+    .prologue
     .line 83
     sget-object v0, Lcom/isaigu/gymapp/ai/AiViews$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$PhaseId:[I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiModel$PhaseId;->ordinal()I
 
-    move-result p0
+    move-result v1
 
-    aget p0, v0, p0
+    aget v0, v0, v1
 
-    const/4 v0, 0x1
-
-    if-eq p0, v0, :cond_1a
-
-    const/4 v0, 0x2
-
-    if-eq p0, v0, :cond_17
-
-    const/4 v0, 0x3
-
-    if-eq p0, v0, :cond_14
+    packed-switch v0, :pswitch_data_18
 
     .line 87
-    sget p0, Lcom/isaigu/gymapp/ai/AiViews;->CYAN:I
+    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->CYAN:I
 
-    return p0
-
-    .line 86
-    :cond_14
-    sget p0, Lcom/isaigu/gymapp/ai/AiViews;->PINK:I
-
-    return p0
-
-    .line 85
-    :cond_17
-    sget p0, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
-
-    return p0
+    :goto_d
+    return v0
 
     .line 84
-    :cond_1a
-    sget p0, Lcom/isaigu/gymapp/ai/AiViews;->WARN:I
+    :pswitch_e
+    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->WARN:I
 
-    return p0
+    goto :goto_d
+
+    .line 85
+    :pswitch_11
+    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
+
+    goto :goto_d
+
+    .line 86
+    :pswitch_14
+    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->PINK:I
+
+    goto :goto_d
+
+    .line 83
+    nop
+
+    :pswitch_data_18
+    .packed-switch 0x1
+        :pswitch_e
+        :pswitch_11
+        :pswitch_14
+    .end packed-switch
 .end method

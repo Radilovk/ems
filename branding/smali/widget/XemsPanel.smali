@@ -308,7 +308,7 @@
     invoke-virtual {v2, v8, v9}, Lcom/isaigu/gymapp/widget/XemsPanel$Square;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 128
-    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     invoke-static {v2, v8, v4}, Lcom/isaigu/gymapp/widget/XemsPanel;->style(Landroid/view/View;IZ)V
 

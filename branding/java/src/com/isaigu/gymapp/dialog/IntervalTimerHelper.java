@@ -958,7 +958,7 @@ public final class IntervalTimerHelper {
         int n = loops > 0 ? loops : 12;
         for (int i = 0; i < n; i++) {
             View seg = new View(a);
-            int col = XemsUi.mix(XemsUi.GO, XemsUi.ACCENT, n > 1 ? i / (float) (n - 1) : 0f);
+            int col = XemsUi.mix(XemsUi.GO, XemsUi.DANGER, n > 1 ? i / (float) (n - 1) : 0f);
             if (loops <= 0) {
                 col = XemsUi.alpha(XemsUi.GO_TEXT, Math.max(0x22, 0xFF - i * 18));
             }
@@ -1040,7 +1040,7 @@ public final class IntervalTimerHelper {
     private static void presetMenu(final Activity a, final TimerPreset p) {
         final XemsUi.Shell s = XemsUi.shell(a, p.name, tr("Запазена програма", "Saved program"), 420);
         TextView rename = XemsUi.button(a, tr("Преименувай", "Rename"), XemsUi.SECONDARY);
-        TextView delete = XemsUi.button(a, tr("Изтрий", "Delete"), XemsUi.ACCENT_BTN);
+        TextView delete = XemsUi.button(a, tr("Изтрий", "Delete"), XemsUi.DANGER_BTN);
         rename.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -197,7 +197,7 @@
     .line 866
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoViews$Dots;->p:Landroid/graphics/Paint;
 
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setColor(I)V
 

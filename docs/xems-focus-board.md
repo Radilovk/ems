@@ -30,3 +30,20 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 - Shown when: training page, ≥ 1 client, not in rows mode (`xems_focus` prefs `rows`), and no engine owns the rows
   (Auto board, AI, map — `OutputOwner`; music sync is fine). Otherwise classic rows; the `◎ Фокус` pill brings it back.
 - The right panel (■ ▶ + − ⚙) stays global: picked clients (photo tap) or everyone.
+
+## 1.1.415 — phase, rings, lock, colours
+- **Phase timeline** over the figures (`Timeline`): the cycle as one thin bar, impulse 1 (cyan) | impulse 2 (yellow) or
+  pause (grey), widths = their seconds, a mark per second; the running phase fills with a glowing head, its name and
+  the seconds left above it. Clock = `SoftRamp.clock(item)` (the ramp's own phase clock, read only).
+- **Colours:** impulse 1 = cyan (`ACCENT`), impulse 2 = yellow (`AMBER`) — ring, card, ∿, "2=1".
+- **One key size** (`KEY` = 46 dp) for every − / + of the panel (rings, times, Hz) — inside the original proportions
+  (rings 1.25 : impulse cards 1, keys 78 dp; owner 1.1.416: no window grows for it).
+- Visualisation from the code (1280×800, not a device shot): `docs/xems-focus-board-phase1.png` (impulse 1 runs),
+  `docs/xems-focus-board-phase2.png` (impulse 2 runs).
+- **Ring = slider:** slide around the arc, relative (no jump), clockwise = more, ≤ +20 per slide (master slider rule),
+  live preview, sent on release as that many − / + steps (`setTo` → `step`).
+- **Lock 🔒** between the rings (top): 1 and 2 move together at the ratio taken when it closed (per client,
+  `RATIO`; prefs `lock`). **2=1** (bottom): `DoubleImpulse.syncSecond` (= the double-impulse key's hold).
+- **Muscles show real strength** (`PartStrength.levels`: part % × the impulse's strength) of the impulse shown — the
+  live phase while running, else the ring touched last — in its colour (number + bar); the chip slide works in that
+  real value (converted to the channel's share; capped at the impulse's strength).

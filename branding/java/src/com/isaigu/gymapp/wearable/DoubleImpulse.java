@@ -307,6 +307,15 @@ public final class DoubleImpulse {
         }
     }
 
+    /** The hold's sync from elsewhere (FocusBoard "2 = 1" key). False = not possible now (no 2nd impulse, Мускули…). */
+    public static boolean syncSecond(TrainItem it, View v) {
+        try {
+            return sync(it, v);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     /** Hold: the second impulse takes the main one's strength and channel shares; its Hz stays. */
     static boolean sync(TrainItem it, View v) {
         ProgramDataBean b = bean(it);

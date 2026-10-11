@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 444
+    .line 453
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,8 +36,8 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 446
-    .line 448
+    .line 455
+    .line 457
     :try_start_1
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -49,11 +49,11 @@
 
     move-result v0
 
-    .line 452
+    .line 461
     :goto_9
     if-eqz v0, :cond_30
 
-    .line 453
+    .line 462
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -63,15 +63,15 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 457
+    .line 466
     :goto_14
     return-void
 
-    .line 449
+    .line 458
     :catch_15
     move-exception v0
 
-    .line 450
+    .line 459
     const-string v2, "index"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -98,7 +98,7 @@
 
     goto :goto_9
 
-    .line 455
+    .line 464
     :cond_30
     # setter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->running:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$102(Z)Z

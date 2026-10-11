@@ -240,6 +240,15 @@ public final class PartStrength {
         return r;
     }
 
+    /** Real strength (0–100) of every channel, main impulse ({@code second} false) or second — for the screen. */
+    public static int[] levels(TrainItem item, ProgramDataBean b, boolean second) {
+        try {
+            return second ? secondReal(item, b) : mainReal(b);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
     /** Real strength of every channel in the main impulse. */
     static int[] mainReal(ProgramDataBean b) {
         int[] parts = b.strenthBean.buwei;

@@ -532,6 +532,8 @@ public final class FocusBoard {
         pane.addView(chipColumn(c, LEFT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
                 ViewGroup.LayoutParams.MATCH_PARENT));
         body = new AutoViews.BodyHeat(c);
+        body.setOnTouchListener(new BodyTap());
+        body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
         LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         blp.leftMargin = p;
         blp.rightMargin = p;
@@ -1100,6 +1102,160 @@ public final class FocusBoard {
         }
     }
 
+    /**
+     * A muscle chip under the finger: a tap marks it (the header's icon, PartPick); a sideways slide is the channel's
+     * own slider — relative to where the finger went down (no jump), right = more, the value sent on release exactly
+     * as the row's channel bar sends it (PartStrength.bar: both impulses keep their ratio, yellow = the second alone).
+     */
+    static final class ChipTouch implements View.OnTouchListener {
+        private final Chip chip;
+        private float x0;
+        private float y0;
+        private int start;
+        private boolean sliding;
+        private boolean refused;
+
+        ChipTouch(Chip chip) {
+            this.chip = chip;
+        }
+
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            float slop = XemsUi.dp(v.getContext(), 10);
+            switch (e.getActionMasked()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    x0 = e.getRawX();
+                    y0 = e.getRawY();
+                    start = chip.lastPart;
+                    sliding = false;
+                    refused = false;
+                    v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(70).start();
+                    return true;
+                case android.view.MotionEvent.ACTION_MOVE: {
+                    float dx = e.getRawX() - x0;
+                    float dy = e.getRawY() - y0;
+                    if (!sliding && !refused && Math.abs(dx) > slop && Math.abs(dx) > Math.abs(dy)) {
+                        if (chip.off || MusicSyncBridge.shouldBlockManualControls()) {
+                            refused = true;
+                            hint(chip.off ? AiText.t("Мускулът е изключен.", "The muscle is off.")
+                                    : AiText.t("Музиката държи силата сега.", "Music holds the strength now."));
+                        } else {
+                            sliding = true;
+                            x0 = e.getRawX();
+                            if (v.getParent() != null) {
+                                v.getParent().requestDisallowInterceptTouchEvent(true);
+                            }
+                            XemsUi.haptic(v);
+                        }
+                    }
+                    if (sliding) {
+                        float span = Math.max(1f, v.getWidth() * 1.2f);
+                        int val = Math.max(0, Math.min(100, start + Math.round((e.getRawX() - x0) / span * 100f)));
+                        if (val != chip.dragValue) {
+                            if (val % 10 == 0) {
+                                XemsUi.haptic(v);
+                            }
+                            chip.dragValue = val;
+                            chip.set(chip.lastPart, chip.sel, chip.yellow, chip.off);
+                            if (leaders != null) {
+                                leaders.invalidate();
+                            }
+                        }
+                    }
+                    return true;
+                }
+                case android.view.MotionEvent.ACTION_UP: {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    if (sliding) {
+                        int val = chip.dragValue;
+                        chip.dragValue = -1;
+                        sliding = false;
+                        if (val >= 0 && val != start) {
+                            channel(chip.k, val);
+                        } else {
+                            refresh();
+                        }
+                    } else if (!refused && Math.abs(e.getRawX() - x0) <= slop && Math.abs(e.getRawY() - y0) <= slop) {
+                        XemsUi.haptic(v);
+                        chipClick(chip.k);
+                    }
+                    return true;
+                }
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    chip.dragValue = -1;
+                    sliding = false;
+                    refresh();
+                    return true;
+                default:
+                    return true;
+            }
+        }
+    }
+
+    /** One channel's own percent set to {@code stored} (0–100), then sent — the row's channel-bar path. */
+    static void channel(int k, int stored) {
+        TrainItem it = current();
+        ProgramDataBean b = bean(it);
+        if (b == null) {
+            return;
+        }
+        try {
+            PartStrength.bar(chips[k] != null ? chips[k].view : null, it.getTrainProgram(), b, k, stored);
+            it.addAllPartValue(0, true);            // nothing added: just send and refresh the row
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.channel", t);
+        }
+        refresh();
+    }
+
+    /** A tap on a muscle of the figures marks it, like its chip (a slide there does nothing). */
+    static final class BodyTap implements View.OnTouchListener {
+        private float x0;
+        private float y0;
+
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            int a = e.getActionMasked();
+            if (a == android.view.MotionEvent.ACTION_DOWN) {
+                x0 = e.getX();
+                y0 = e.getY();
+                return true;
+            }
+            if (a == android.view.MotionEvent.ACTION_UP) {
+                float slop = XemsUi.dp(v.getContext(), 12);
+                if (Math.abs(e.getX() - x0) > slop || Math.abs(e.getY() - y0) > slop || body == null) {
+                    return true;
+                }
+                int z = body.zoneAt(e.getX(), e.getY(), XemsUi.dp(v.getContext(), 16));
+                if (z >= 0 && z < AutoModel.CHANNELS) {
+                    XemsUi.haptic(v);
+                    Chip ch = chips[z];
+                    if (ch != null) {
+                        ch.view.animate().scaleX(1.06f).scaleY(1.06f).setDuration(90).withEndAction(new Unpop(ch.view))
+                                .start();
+                    }
+                    chipClick(z);
+                }
+                return true;
+            }
+            return true;
+        }
+    }
+
+    static final class Unpop implements Runnable {
+        private final View v;
+
+        Unpop(View v) {
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            v.animate().scaleX(1f).scaleY(1f).setDuration(140).start();
+        }
+    }
+
     // ================================================================ views
 
     /** A muscle on the side of the figures: icon, name, the channel's share; selected = lit (green / yellow). */
@@ -1113,13 +1269,18 @@ public final class FocusBoard {
         boolean sel;
         boolean yellow;
         boolean off;
+        final int k;
+        /** While the finger slides the chip: the value under it (−1 = not sliding). */
+        int dragValue = -1;
+        int lastPart;
 
         Chip(Context c, int k) {
             view = XemsUi.horizontal(c);
             view.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 4), XemsUi.dp(c, 10), XemsUi.dp(c, 4));
+            this.k = k;
             view.setClickable(true);
-            view.setOnClickListener(new ChipClick(k));
-            XemsUi.pressable(view);
+            view.setOnTouchListener(new ChipTouch(this));
+            view.setOnClickListener(new ChipClick(k));      // accessibility "click"; touches go through ChipTouch
 
             FrameLayout disc = new FrameLayout(c);
             GradientDrawable dg = new GradientDrawable();
@@ -1161,7 +1322,12 @@ public final class FocusBoard {
             this.sel = sel;
             this.yellow = yellow;
             this.off = off;
-            String key = part + ":" + sel + ":" + yellow + ":" + off;
+            lastPart = part;
+            boolean sliding = dragValue >= 0;
+            if (sliding) {
+                part = dragValue;
+            }
+            String key = part + ":" + sel + ":" + yellow + ":" + off + ":" + sliding;
             if (key.equals(shown)) {
                 return;
             }
@@ -1169,13 +1335,16 @@ public final class FocusBoard {
             Context c = view.getContext();
             float r = XemsUi.dp(c, 14);
             int tint = yellow ? XemsUi.AMBER : XemsUi.GO_TEXT;
-            view.setBackgroundDrawable(XemsUi.ripple(sel ? XemsUi.glow(c, tint, r)
+            if (sliding) {
+                tint = XemsUi.ACCENT;
+            }
+            view.setBackgroundDrawable(XemsUi.ripple(sel || sliding ? XemsUi.glow(c, tint, r)
                     : XemsUi.rounded(XemsUi.alpha(XemsUi.SURFACE, 0xCC), r, XemsUi.alpha(XemsUi.STROKE, 0xCC),
                     XemsUi.dp(c, 1)), XemsUi.TEXT, r));
             view.setAlpha(off ? 0.4f : 1f);
             value.setText(off ? AiText.t("изкл.", "off") : part + " %");
-            value.setTextColor(sel ? tint : XemsUi.ACCENT);
-            int fill = sel ? tint : XemsUi.ACCENT;
+            value.setTextColor(sel || sliding ? tint : XemsUi.ACCENT);
+            int fill = sel || sliding ? tint : XemsUi.ACCENT;
             barFill.setBackgroundDrawable(XemsUi.rounded(fill, XemsUi.dp(c, 2), 0, 0));
             int w = bar.getWidth();
             ViewGroup.LayoutParams lp = barFill.getLayoutParams();
@@ -1226,6 +1395,7 @@ public final class FocusBoard {
             float bx = at[0] - me[0];
             float by = at[1] - me[1];
             float knee = XemsUi.dp(getContext(), 18);
+            boolean pulsing = false;
             float w1 = XemsUi.dp(getContext(), 1.4f);
             for (int side = 0; side < 2; side++) {
                 int[] ks = side == 0 ? LEFT : RIGHT;
@@ -1259,7 +1429,18 @@ public final class FocusBoard {
                     c.drawCircle(ex, ey, rr, dot);
                     dot.setColor(XemsUi.alpha(col, a));
                     c.drawCircle(x0, y0, w1 * 1.8f, dot);
+                    if (ch.sel && !ch.off) {
+                        // marked = picked for control: a ring breathes out of the point
+                        double ph = (android.os.SystemClock.uptimeMillis() % 1400L) / 1400.0;
+                        halo.setStrokeWidth(w1 * 1.4f);
+                        halo.setColor(XemsUi.alpha(col, (int) (0xC0 * (1 - ph))));
+                        c.drawCircle(ex, ey, rr * (2.2f + 2.4f * (float) ph), halo);
+                        pulsing = true;
+                    }
                 }
+            }
+            if (pulsing) {
+                postInvalidateOnAnimation();
             }
         }
     }

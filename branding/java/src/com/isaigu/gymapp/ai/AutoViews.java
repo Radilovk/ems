@@ -402,6 +402,9 @@ public final class AutoViews {
             /** Leader anchor of a zone (image px), per half of the figure: [zone * 2 + half], half 0 = left. */
             float[] ax;
             float[] ay;
+            /** Zone + 1 of every idx pixel (0 = none), for hit tests; mw = its width. */
+            byte[] map;
+            int mw;
             byte[] zone;
             byte[] shade;
             byte[] cov;
@@ -533,6 +536,57 @@ public final class AutoViews {
             return true;
         }
 
+        /**
+         * The suit zone (0…9) under a finger at (x, y) in this view, the nearest within {@code tolPx} when the finger
+         * lands just off it; −1 = none (outside the figures, or the deltoid, which no channel drives).
+         */
+        public int zoneAt(float x, float y, float tolPx) {
+            RectF r = new RectF();
+            for (int i = 0; i < 2; i++) {
+                Fig f = figs[i];
+                if (f == null || f.map == null || f.art == null || !figRect(i, r) || r.width() <= 0) {
+                    continue;
+                }
+                float k = f.art.getWidth() / r.width();
+                float t = tolPx * k;
+                if (x < r.left - tolPx || x > r.right + tolPx || y < r.top - tolPx || y > r.bottom + tolPx) {
+                    continue;
+                }
+                int cx = Math.round((x - r.left) * k);
+                int cy = Math.round((y - r.top) * k);
+                int mh = f.map.length / f.mw;
+                int best = -1;
+                float bestD = Float.MAX_VALUE;
+                int rad = Math.max(1, Math.round(t));
+                for (int dy = -rad; dy <= rad; dy += 2) {
+                    for (int dx = -rad; dx <= rad; dx += 2) {
+                        int px = cx + dx;
+                        int py = cy + dy;
+                        if (px < 0 || py < 0 || px >= f.mw || py >= mh) {
+                            continue;
+                        }
+                        int z = f.map[py * f.mw + px] - 1;
+                        if (z < 0 || z >= AutoModel.CHANNELS) {
+                            continue;
+                        }
+                        float d = dx * dx + dy * dy;
+                        if (d < bestD && d <= t * t) {
+                            bestD = d;
+                            best = z;
+                        }
+                    }
+                }
+                int z0 = cx >= 0 && cy >= 0 && cx < f.mw && cy < mh ? f.map[cy * f.mw + cx] - 1 : -1;
+                if (z0 >= 0 && z0 < AutoModel.CHANNELS) {
+                    return z0;                       // right on a zone
+                }
+                if (best >= 0) {
+                    return best;
+                }
+            }
+            return -1;
+        }
+
         /** The value the colour shows at {@code now}: the held value, faded in from the previous one. */
         private double shownAt(int k, long now) {
             if (fadeMs[k] <= 0) {
@@ -567,6 +621,9 @@ public final class AutoViews {
                 f.shade = new byte[n];
                 f.cov = new byte[n];
                 int j = 0;
+                byte[] map = new byte[w * h];
+                f.map = map;
+                f.mw = w;
                 double[] sx = new double[Z * 2];
                 double[] sy = new double[Z * 2];
                 int[] sn = new int[Z * 2];
@@ -574,6 +631,7 @@ public final class AutoViews {
                     int p = all[i];
                     int z = zoneOf(p);
                     if (z >= 0) {
+                        map[i] = (byte) (z + 1);
                         int px = i % w;
                         int hk = z * 2 + (px < w / 2 ? 0 : 1);
                         sx[hk] += px;

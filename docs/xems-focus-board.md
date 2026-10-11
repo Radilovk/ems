@@ -9,6 +9,10 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   (presses the list's empty slot); modes Основен / Мускули / Кардио / Масаж (press the row's mode buttons);
   time left and battery (read from the row); ⚙ (the row's `setting`); `☰ Редове` → classic rows.
 - **Middle:** 5 front muscles left, 5 back muscles right (tap = the header's `buweiN` → PartPick green / yellow / off),
+  a sideways slide on a chip = that channel's slider (1.1.414: relative to the finger, right = more, 1.2 × chip width
+  = 100 %, sent on release via `PartStrength.bar` + `addAllPartValue(0, true)` — the row's channel-bar path; refused
+  while music holds the strength or the muscle is off); a tap on a muscle of the figure marks it like its chip
+  (`BodyHeat.zoneAt`, 16 dp tolerance; the deltoid has no channel); a marked muscle's point pulses a ring.
   body front | back (`AutoViews.BodyHeat`) lit by each channel's real output (part % × strength).
   Leader lines (`FocusBoard.Leaders`, 1.1.413): chip edge → short level run → the muscle's point on the figure
   (front chips → front figure, back chips → back figure, the half on the chips' side; points = centroid of the zone in

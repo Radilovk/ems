@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1026
+    .line 1028
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1027
+    .line 1029
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1028
+    .line 1030
     return-void
 .end method
 
@@ -42,22 +42,22 @@
     .registers 4
 
     .prologue
-    .line 1032
+    .line 1034
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1033
+    .line 1035
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->focus:Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$202(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1034
+    .line 1036
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->sexOf:Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$302(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1035
+    .line 1037
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->position(Lcom/isaigu/gymapp/train/model/TrainItem;)I
@@ -70,13 +70,13 @@
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->rowAt(IZ)Landroid/view/View;
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500(IZ)Landroid/view/View;
 
-    .line 1036
+    .line 1038
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$600()V
 
-    .line 1037
+    .line 1039
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
-    .line 1038
+    .line 1040
     return-void
 .end method

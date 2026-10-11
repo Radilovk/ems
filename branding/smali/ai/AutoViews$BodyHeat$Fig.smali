@@ -27,6 +27,10 @@
 
 .field idx:[I
 
+.field map:[B
+
+.field mw:I
+
 .field over:Landroid/graphics/Bitmap;
 
 .field px:[I

@@ -982,8 +982,9 @@ public final class FocusBoard {
                 timeline.set(run, clk, b.pulseContinue, b.pulsePause, two);
             }
 
-            int[] lv = PartStrength.levels(it, b, shown == 2);
-            int[] main = shown == 2 ? PartStrength.levels(it, b, false) : lv;
+            int[] main = PartStrength.levels(it, b, false);
+            int[] sec = two ? PartStrength.levels(it, b, true) : null;
+            int[] lv = shown == 2 && sec != null ? sec : main;
             boolean anyMark = false;
             int markLevel = 0;
             double[] prog = new double[AutoModel.CHANNELS];
@@ -998,7 +999,19 @@ public final class FocusBoard {
                 dis[k] = off(it, k);
                 prog[k] = Math.min(1.25, level / 60.0);
                 if (chips[k] != null) {
-                    chips[k].set(level, shownTint, m, m && PartPick.isYellow(k), dis[k]);
+                    // marked: 1st tap red = the main impulse under control, 2nd tap yellow = the second one;
+                    // unmarked: the impulse on the screen (cyan / yellow)
+                    boolean yel = m && PartPick.isYellow(k);
+                    int cl = level;
+                    int ct = shownTint;
+                    if (yel) {
+                        cl = sec != null && k < sec.length ? sec[k] : 0;
+                        ct = XemsUi.AMBER;
+                    } else if (m) {
+                        cl = main != null && k < main.length ? main[k] : 0;
+                        ct = XemsUi.DANGER;
+                    }
+                    chips[k].set(cl, ct, m, yel, dis[k]);
                 }
             }
             if (body != null) {
@@ -1388,7 +1401,7 @@ public final class FocusBoard {
         try {
             int part = b.strenthBean.buwei[k];
             int stored;
-            if (shownTint == XemsUi.AMBER) {
+            if (chips[k] != null && chips[k].tint == XemsUi.AMBER) {
                 int[] s = PartStrength.levels(it, b, true);
                 int now = s != null && k < s.length ? s[k] : 0;
                 stored = now > 0 ? Math.round(part * target / (float) now)
@@ -1456,7 +1469,7 @@ public final class FocusBoard {
 
     /**
      * A muscle on the side of the figures: icon, name, the channel's real strength in the impulse shown (number and
-     * bar in that impulse's colour: cyan = 1, yellow = 2); marked = lit (green = both impulses, yellow = the second).
+     * bar in that impulse's colour: cyan = 1, yellow = 2); marked = 1st tap red (the main impulse, its level), 2nd tap yellow (the second impulse, its level).
      */
     static final class Chip {
         final LinearLayout view;
@@ -1542,7 +1555,7 @@ public final class FocusBoard {
             shown = key;
             Context c = view.getContext();
             float r = XemsUi.dp(c, 14);
-            int mark = sliding ? tint : yellow ? XemsUi.AMBER : XemsUi.GO_TEXT;
+            int mark = tint;
             view.setBackgroundDrawable(XemsUi.ripple(sel || sliding ? XemsUi.glow(c, mark, r)
                     : XemsUi.rounded(XemsUi.alpha(XemsUi.SURFACE, 0xCC), r, XemsUi.alpha(XemsUi.STROKE, 0xCC),
                     XemsUi.dp(c, 1)), XemsUi.TEXT, r));
@@ -1614,7 +1627,7 @@ public final class FocusBoard {
                     float x1 = side == 0 ? x0 + knee : x0 - knee;
                     float ex = bx + pt[0];
                     float ey = by + pt[1];
-                    int col = ch.sel ? (ch.yellow ? XemsUi.AMBER : XemsUi.GO_TEXT) : ch.tint;
+                    int col = ch.tint;
                     int a = ch.off ? 0x30 : ch.sel ? 0xF0 : 0x8C;
                     path.reset();
                     path.moveTo(x0, y0);

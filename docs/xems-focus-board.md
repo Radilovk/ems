@@ -47,3 +47,9 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 - **Muscles show real strength** (`PartStrength.levels`: part % × the impulse's strength) of the impulse shown — the
   live phase while running, else the ring touched last — in its colour (number + bar); the chip slide works in that
   real value (converted to the channel's share; capped at the impulse's strength).
+
+## 1.1.417 — colours of a marked muscle
+- 1st tap = **red**: frame, number and bar in red, the bar = the channel's **main** impulse level.
+- 2nd tap = **yellow**: the same in yellow, the bar = the channel's **second** impulse level.
+- Unmarked chips follow the impulse on the screen (cyan / yellow). Leader line and pulsing ring take the chip's colour;
+  a slide on a marked chip changes the impulse it shows. (Green marks were the old row's; not in this skin.)

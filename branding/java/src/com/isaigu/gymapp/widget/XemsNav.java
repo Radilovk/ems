@@ -118,6 +118,7 @@ public final class XemsNav {
         try {
             hideSidebarModules(panelRoot);
             XemsPanel.attach(panelRoot);
+            com.isaigu.gymapp.ai.FocusBoard.sync(panelRoot);
         } catch (Throwable t) {
             XemsGuard.report("XemsNav.onTrainingPanel", t);
         }
@@ -1311,6 +1312,7 @@ public final class XemsNav {
                 if (currentPage == ID_TAB_FIRST) {
                     hideSidebarModules(null);
                     XemsPanel.refresh();
+                    com.isaigu.gymapp.ai.FocusBoard.tick();
                 }
             } catch (Throwable t) {
                 XemsGuard.report("XemsNav.tick", t);

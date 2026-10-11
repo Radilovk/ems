@@ -104,7 +104,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (218L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (248L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (249L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (84L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -193,6 +193,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
+- `FocusBoard.java` (1286L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
 - `ImpulseGlyph.java` (132L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (579L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (128L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -396,10 +397,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (973L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (1438L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (1440L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (381L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
-- `XemsUi.java` (674L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
+- `XemsUi.java` (705L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
 
 ## band-app (Xiaomi Vela quick app, Band 10)
 - `band-app/src/app.ux` (465L) — 
@@ -499,14 +500,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (99L)
+`CLAUDE.md` (100L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L42 ## Invariants (breaking one = broken release)
   - L57 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L71 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L96 ## Keeping the map true
+  - L97 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -888,6 +889,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
+`docs/xems-focus-board.md` (26L)
+  - L1 # Training screen — focus layout (1.1.412)
+  - L7 ## Layout
+  - L17 ## Rules
+
 `docs/xems-license-api.md` (183L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
@@ -1068,23 +1074,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## Стоково (преди)
   - L21 ## Кукички
 
-`docs/xems-ui-kit.md` (183L)
+`docs/xems-ui-kit.md` (186L)
   - L1 # XEMS UI kit — таймер, плейър, пулс, AI, навигация (v1.1.66)
   - L5 ## Принцип
-  - L21 ## Интервален таймер
-  - L42 ## Плейър — компактен режим (v1.1.63)
-  - L53 ## Плейър — пълен режим
-  - L66 ## Пулс
-  - L70 ## Принцип „само необходимото“ (v1.1.66)
-  - L82 ## Език
-  - L86 ## Главен панел (`widget/XemsPanel`)
-  - L97 ## Меню ☰
-  - L101 ## Цял екран (`widget/XemsFullscreen`)
-  - L105 ## Пулс модул по подразбиране
-  - L110 ## Навигация (v1.1.64)
-  - L131 ## Съкратено
-  - L142 ## v1.1.69
-  - L152 ## Плавно нарастване и спад (v1.1.69, `dialog/RampSetting`, `ai/AiRamp`)
+  - L24 ## Интервален таймер
+  - L45 ## Плейър — компактен режим (v1.1.63)
+  - L56 ## Плейър — пълен режим
+  - L69 ## Пулс
+  - L73 ## Принцип „само необходимото“ (v1.1.66)
+  - L85 ## Език
+  - L89 ## Главен панел (`widget/XemsPanel`)
+  - L100 ## Меню ☰
+  - L104 ## Цял екран (`widget/XemsFullscreen`)
+  - L108 ## Пулс модул по подразбиране
+  - L113 ## Навигация (v1.1.64)
+  - L134 ## Съкратено
+  - L145 ## v1.1.69
+  - L155 ## Плавно нарастване и спад (v1.1.69, `dialog/RampSetting`, `ai/AiRamp`)
 
 `docs/xems-ux-golden-rules.md` (73L)
   - L1 # UX golden rules — every screen, every level (tablet, band, report, card, PWA)

@@ -56,6 +56,7 @@ public final class FocusBoard {
     private static final String PREFS = "xems_focus";
     private static final String K_ROWS = "rows";
     private static final String K_LOCK = "lock";
+    private static final String K_UPRIGHT = "upright";
     private static final long REFRESH_MS = 300L;
     private static final Handler H = new Handler(Looper.getMainLooper());
     private static final Refresh REFRESH = new Refresh();
@@ -154,6 +155,7 @@ public final class FocusBoard {
             int n = clients().size();
             boolean free = engineFree();
             boolean showBoard = free && n > 0 && !rowsMode(c);
+            orient(showBoard && wantUpright(c));
             if (showBoard) {
                 if (board == null) {
                     board = build(c);
@@ -203,6 +205,7 @@ public final class FocusBoard {
             parent.addView(f, at, lp);
             frame = f;
         }
+        frame.addOnLayoutChangeListener(new Shape());
         pill = XemsUi.text(c, "◎  " + AiText.t("Фокус", "Focus"), 14, XemsUi.TEXT, true);
         pill.setGravity(Gravity.CENTER);
         pill.setPadding(XemsUi.dp(c, 16), XemsUi.dp(c, 8), XemsUi.dp(c, 16), XemsUi.dp(c, 8));
@@ -569,30 +572,43 @@ public final class FocusBoard {
 
     private static View build(Context c) {
         XemsUi.init(c);
+        builtPortrait = framePortrait();
         LinearLayout page = XemsUi.vertical(c);
         page.setBackgroundColor(XemsUi.BG);
         page.setClickable(true);
         int pad = XemsUi.dp(c, 6);
         page.setPadding(pad, pad, pad, pad);
 
-        page.addView(topBar(c), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 54)));
-
-        LinearLayout main = XemsUi.horizontal(c);
-        main.setGravity(Gravity.FILL_VERTICAL);
-        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
-        mlp.topMargin = XemsUi.dp(c, 6);
-        page.addView(main, mlp);
-
-        main.addView(bodyPane(c), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 372),
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        rlp.leftMargin = XemsUi.dp(c, 8);
-        main.addView(controlPane(c), rlp);
+        if (builtPortrait) {
+            // upright (owner, 1.1.419): top bar on two lines, the cycle, the figures across the whole width, the ten
+            // muscles in two rows of five under them, the controls at the bottom
+            page.addView(topBar(c, true), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            LinearLayout.LayoutParams fl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.2f);
+            fl.topMargin = XemsUi.dp(c, 6);
+            page.addView(figurePane(c), fl);
+            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+            cl.topMargin = XemsUi.dp(c, 8);
+            page.addView(controlPane(c), cl);
+        } else {
+            page.addView(topBar(c, false), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    XemsUi.dp(c, 54)));
+            LinearLayout main = XemsUi.horizontal(c);
+            main.setGravity(Gravity.FILL_VERTICAL);
+            LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+            mlp.topMargin = XemsUi.dp(c, 6);
+            page.addView(main, mlp);
+            main.addView(bodyPane(c), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(XemsUi.dp(c, 372),
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            rlp.leftMargin = XemsUi.dp(c, 8);
+            main.addView(controlPane(c), rlp);
+        }
         shownStart = -1;
         return page;
     }
 
-    private static View topBar(Context c) {
+    private static View topBar(Context c, boolean upright) {
         LinearLayout bar = XemsUi.horizontal(c);
         bar.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 14)));
         bar.setPadding(XemsUi.dp(c, 6), 0, XemsUi.dp(c, 6), 0);
@@ -613,25 +629,27 @@ public final class FocusBoard {
             TextView t = XemsUi.text(c, names[i], 13.5f, XemsUi.MUTED, true);
             t.setGravity(Gravity.CENTER);
             t.setLetterSpacing(0.04f);
-            t.setPadding(XemsUi.dp(c, 14), XemsUi.dp(c, 9), XemsUi.dp(c, 14), XemsUi.dp(c, 9));
+            t.setPadding(XemsUi.dp(c, upright ? 4 : 14), XemsUi.dp(c, 9), XemsUi.dp(c, upright ? 4 : 14), XemsUi.dp(c, 9));
+            t.setSingleLine(true);
             t.setOnClickListener(new PressRow(MODE_IDS[i]));
             XemsUi.pressable(t);
             modeTabs[i] = t;
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(XemsUi.dp(c, 104),
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            tabs.addView(t, lp);
+            tabs.addView(t, upright ? new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                    : new LinearLayout.LayoutParams(XemsUi.dp(c, 104), ViewGroup.LayoutParams.WRAP_CONTENT));
         }
-        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        tlp.leftMargin = XemsUi.dp(c, 8);
-        tlp.rightMargin = XemsUi.dp(c, 8);
-        bar.addView(tabs, tlp);
+        if (!upright) {
+            LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            tlp.leftMargin = XemsUi.dp(c, 8);
+            tlp.rightMargin = XemsUi.dp(c, 8);
+            bar.addView(tabs, tlp);
+        }
 
-        timeText = XemsUi.text(c, "—", 24, XemsUi.TEXT, true);
-        timeText.setPadding(XemsUi.dp(c, 6), 0, XemsUi.dp(c, 10), 0);
+        timeText = XemsUi.text(c, "—", upright ? 22 : 24, XemsUi.TEXT, true);
+        timeText.setPadding(XemsUi.dp(c, 6), 0, XemsUi.dp(c, 8), 0);
         bar.addView(timeText);
         battText = XemsUi.text(c, "", 13, XemsUi.GO_TEXT, true);
-        battText.setPadding(0, 0, XemsUi.dp(c, 10), 0);
+        battText.setPadding(0, 0, XemsUi.dp(c, 8), 0);
         bar.addView(battText);
 
         TextView gear = XemsUi.iconButton(c, "⚙", XemsUi.SURFACE, XemsUi.TEXT, 40);
@@ -639,9 +657,25 @@ public final class FocusBoard {
         gear.setContentDescription(AiText.t("Параметри на клиента", "Client parameters"));
         bar.addView(gear);
 
-        TextView rows = XemsUi.text(c, "☰  " + AiText.t("Редове", "Rows"), 13.5f, XemsUi.MUTED, true);
+        ImageView turn = new ImageView(c);
+        int ip = XemsUi.dp(c, 9);
+        turn.setPadding(ip, ip, ip, ip);
+        turn.setImageDrawable(new Turn(XemsUi.TEXT, !upright));
+        float tr = XemsUi.dp(c, 20);
+        turn.setBackgroundDrawable(XemsUi.ripple(upright ? XemsUi.glow(c, XemsUi.ACCENT, tr)
+                : XemsUi.rounded(XemsUi.SURFACE, tr, XemsUi.STROKE, XemsUi.dp(c, 1)), XemsUi.TEXT, tr));
+        turn.setClickable(true);
+        turn.setOnClickListener(new TurnClick());
+        turn.setContentDescription(upright ? AiText.t("Хоризонтално", "Landscape") : AiText.t("Изправено", "Upright"));
+        XemsUi.pressable(turn);
+        LinearLayout.LayoutParams ulp = new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 40));
+        ulp.leftMargin = XemsUi.dp(c, 6);
+        bar.addView(turn, ulp);
+
+        TextView rows = XemsUi.text(c, upright ? "☰" : "☰  " + AiText.t("Редове", "Rows"), 13.5f, XemsUi.MUTED, true);
         rows.setGravity(Gravity.CENTER);
         rows.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 9), XemsUi.dp(c, 12), XemsUi.dp(c, 9));
+        rows.setContentDescription(AiText.t("Редове", "Rows"));
         float r = XemsUi.dp(c, 12);
         rows.setBackgroundDrawable(XemsUi.ripple(XemsUi.rounded(XemsUi.SURFACE, r, XemsUi.STROKE, XemsUi.dp(c, 1)),
                 XemsUi.TEXT, r));
@@ -649,9 +683,56 @@ public final class FocusBoard {
         rows.setOnClickListener(new RowsClick(true));
         LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        rlp.leftMargin = XemsUi.dp(c, 8);
+        rlp.leftMargin = XemsUi.dp(c, 6);
         bar.addView(rows, rlp);
-        return bar;
+        if (!upright) {
+            return bar;
+        }
+        LinearLayout two = XemsUi.vertical(c);
+        two.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 52)));
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        tlp.topMargin = XemsUi.dp(c, 6);
+        two.addView(tabs, tlp);
+        return two;
+    }
+
+    /** Upright: the cycle over the figures (whole width), the ten muscles in two rows of five under them. */
+    private static View figurePane(Context c) {
+        LinearLayout pane = XemsUi.vertical(c);
+        pane.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 18)));
+        int p = XemsUi.dp(c, 8);
+        pane.setPadding(p, XemsUi.dp(c, 4), p, p);
+        timeline = new Timeline(c);
+        pane.addView(timeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 46)));
+        body = new AutoViews.BodyHeat(c);
+        body.setOnTouchListener(new BodyTap());
+        body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
+        FrameLayout figs = new FrameLayout(c);
+        figs.addView(body, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        leaders = new Leaders(c);
+        figs.addView(leaders, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        flp.topMargin = XemsUi.dp(c, 2);
+        pane.addView(figs, flp);
+        for (int r = 0; r < 2; r++) {
+            int[] ks = r == 0 ? LEFT : RIGHT;
+            LinearLayout line = XemsUi.horizontal(c);
+            for (int i = 0; i < ks.length; i++) {
+                Chip ch = new Chip(c, ks[i], true);
+                chips[ks[i]] = ch;
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                lp.leftMargin = i == 0 ? 0 : XemsUi.dp(c, 5);
+                line.addView(ch.view, lp);
+            }
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    XemsUi.dp(c, 58));
+            llp.topMargin = XemsUi.dp(c, 6);
+            pane.addView(line, llp);
+        }
+        return pane;
     }
 
     private static View bodyPane(Context c) {
@@ -689,13 +770,243 @@ public final class FocusBoard {
     private static View chipColumn(Context c, int[] ks) {
         LinearLayout col = XemsUi.vertical(c);
         for (int i = 0; i < ks.length; i++) {
-            Chip ch = new Chip(c, ks[i]);
+            Chip ch = new Chip(c, ks[i], false);
             chips[ks[i]] = ch;
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
             lp.topMargin = i == 0 ? 0 : XemsUi.dp(c, 6);
             col.addView(ch.view, lp);
         }
         return col;
+    }
+
+    // ================================================================ upright (button)
+
+    /** The board as it is laid out now is upright (the rows' frame is taller than wide). */
+    private static boolean framePortrait() {
+        FrameLayout f = frame;
+        if (f != null && f.getWidth() > 0 && f.getHeight() > 0) {
+            return f.getHeight() > f.getWidth();
+        }
+        try {
+            return f != null && f.getResources().getConfiguration().orientation
+                    == android.content.res.Configuration.ORIENTATION_PORTRAIT;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private static boolean wantUpright(Context c) {
+        try {
+            return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(K_UPRIGHT, false);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    static final class TurnClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            boolean up = !wantUpright(v.getContext());
+            try {
+                v.getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(K_UPRIGHT, up).apply();
+            } catch (Throwable ignored) {
+            }
+            tick();
+        }
+    }
+
+    private static android.app.Activity activity(Context c) {
+        while (c instanceof android.content.ContextWrapper) {
+            if (c instanceof android.app.Activity) {
+                return (android.app.Activity) c;
+            }
+            c = ((android.content.ContextWrapper) c).getBaseContext();
+        }
+        return null;
+    }
+
+    /**
+     * Upright only while the board shows and the trainer asked for it; across again everywhere else. The app sizes
+     * dp by the landscape width (AutoSize): upright the landscape density is held, so nothing shrinks and the rows
+     * under the board keep their sizes (the 1.1.310 lesson: mixed sizes after a turn), and it is put back after.
+     */
+    static void orient(boolean upright) {
+        try {
+            View r = root;
+            android.app.Activity a = r != null ? activity(r.getContext()) : null;
+            if (a == null) {
+                return;
+            }
+            if (upright) {
+                if (!turned) {
+                    turned = true;
+                    Dens.begin(a);
+                    hostOrientation = a.getRequestedOrientation();
+                }
+                Dens.hold(a);
+                if (a.getRequestedOrientation() != android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
+                    a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                }
+            } else if (turned) {
+                turned = false;
+                a.setRequestedOrientation(hostOrientation);
+                Dens.end(a);
+                H.postDelayed(new DensBack(a), 700);
+            }
+            View side = r != null ? find(r, "rightLayout") : null;
+            if (side != null) {
+                side.setVisibility(turned ? View.GONE : View.VISIBLE);   // the global panel: across only
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.orient", t);
+        }
+    }
+
+    /** XemsNav: a page was opened — anything but training goes across again. */
+    public static void onPage(boolean training) {
+        if (!training && turned) {
+            orient(false);
+        }
+    }
+
+    private static boolean turned;
+    private static int hostOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    private static boolean builtPortrait;
+
+    /** The landscape density, held while upright (as ScaleScreen.Dens). */
+    static final class Dens {
+        static float density;
+        static float scaled;
+        static int dpi;
+        static float aDensity;
+        static float aScaled;
+        static int aDpi;
+
+        static void begin(android.app.Activity a) {
+            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            android.util.DisplayMetrics am = a.getApplicationContext().getResources().getDisplayMetrics();
+            density = dm.density;
+            scaled = dm.scaledDensity;
+            dpi = dm.densityDpi;
+            aDensity = am.density;
+            aScaled = am.scaledDensity;
+            aDpi = am.densityDpi;
+        }
+
+        static void hold(android.app.Activity a) {
+            if (density <= 0) {
+                return;
+            }
+            set(a.getResources().getDisplayMetrics(), density, scaled, dpi);
+            set(a.getApplicationContext().getResources().getDisplayMetrics(), aDensity, aScaled, aDpi);
+        }
+
+        static void end(android.app.Activity a) {
+            hold(a);
+        }
+
+        static void set(android.util.DisplayMetrics dm, float d, float s, int dpi) {
+            dm.density = d;
+            dm.scaledDensity = s;
+            dm.densityDpi = dpi;
+        }
+    }
+
+    static final class DensBack implements Runnable {
+        private final android.app.Activity a;
+
+        DensBack(android.app.Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void run() {
+            if (!turned) {
+                Dens.hold(a);
+                Dens.density = 0;
+            }
+        }
+    }
+
+    /** The frame changed shape (a turn): hold the density, rebuild the board for the new shape. */
+    static final class Shape implements View.OnLayoutChangeListener, Runnable {
+        @Override
+        public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
+            if (turned && root != null) {
+                android.app.Activity a = activity(root.getContext());
+                if (a != null) {
+                    Dens.hold(a);
+                }
+            }
+            if (board != null && r - l > 0 && (b - t > r - l) != builtPortrait) {
+                v.post(this);
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (board != null && framePortrait() != builtPortrait && frame != null) {
+                    frame.removeView(board);
+                    board = null;
+                    clientsKey = "";
+                    tick();
+                }
+            } catch (Throwable t) {
+                XemsGuard.report("FocusBoard.shape", t);
+            }
+        }
+    }
+
+    /** A screen with a turn arrow: to upright ({@code toUpright}) or back across. */
+    static final class Turn extends Drawable {
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final boolean toUpright;
+
+        Turn(int color, boolean toUpright) {
+            this.toUpright = toUpright;
+            p.setColor(color);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeCap(Paint.Cap.ROUND);
+            p.setStrokeJoin(Paint.Join.ROUND);
+        }
+
+        @Override
+        public void draw(Canvas c) {
+            android.graphics.Rect b = getBounds();
+            float w = b.width();
+            float h = b.height();
+            p.setStrokeWidth(w * 0.09f);
+            // the device in the shape it turns to
+            float dw = toUpright ? w * 0.42f : w * 0.7f;
+            float dh = toUpright ? h * 0.7f : h * 0.42f;
+            float dx = b.left + (w - dw) / 2f + (toUpright ? w * 0.12f : 0f);
+            float dy = b.top + (h - dh) / 2f + (toUpright ? 0f : h * 0.12f);
+            c.drawRoundRect(new RectF(dx, dy, dx + dw, dy + dh), w * 0.08f, w * 0.08f, p);
+            // the turn arrow in the free corner
+            RectF arc = new RectF(b.left + w * 0.04f, b.top + h * 0.04f, b.left + w * 0.5f, b.top + h * 0.5f);
+            c.drawArc(arc, 180, 90, false, p);
+            float ax = arc.centerX();
+            float ay = arc.top;
+            c.drawLine(ax, ay, ax - w * 0.1f, ay - h * 0.07f, p);
+            c.drawLine(ax, ay, ax - w * 0.1f, ay + h * 0.07f, p);
+        }
+
+        @Override
+        public void setAlpha(int a) {
+            p.setAlpha(a);
+        }
+
+        @Override
+        public void setColorFilter(android.graphics.ColorFilter cf) {
+            p.setColorFilter(cf);
+        }
+
+        @Override
+        public int getOpacity() {
+            return android.graphics.PixelFormat.TRANSLUCENT;
+        }
     }
 
     private static View controlPane(Context c) {
@@ -1489,9 +1800,10 @@ public final class FocusBoard {
         /** The most the slide reaches: the impulse's own strength (a share is at most 100 % of it). */
         int cap = 100;
 
-        Chip(Context c, int k) {
+        Chip(Context c, int k, boolean compact) {
             view = XemsUi.horizontal(c);
-            view.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 4), XemsUi.dp(c, 10), XemsUi.dp(c, 4));
+            view.setPadding(XemsUi.dp(c, compact ? 7 : 8), XemsUi.dp(c, 4), XemsUi.dp(c, compact ? 7 : 10),
+                    XemsUi.dp(c, 4));
             this.k = k;
             view.setClickable(true);
             view.setOnTouchListener(new ChipTouch(this));
@@ -1503,7 +1815,7 @@ public final class FocusBoard {
             dg.setColor(XemsUi.SURFACE);
             dg.setStroke(XemsUi.dp(c, 1), XemsUi.mix(XemsUi.STROKE, XemsUi.ACCENT, 0.35f));
             disc.setBackgroundDrawable(dg);
-            int ic = c.getResources().getIdentifier(ICONS[k], "mipmap", c.getPackageName());
+            int ic = compact ? 0 : c.getResources().getIdentifier(ICONS[k], "mipmap", c.getPackageName());
             if (ic != 0) {
                 ImageView iv = new ImageView(c);
                 iv.setImageResource(ic);
@@ -1513,11 +1825,13 @@ public final class FocusBoard {
                 disc.addView(iv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
             }
-            view.addView(disc, new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 40)));
+            if (!compact) {                    // upright: two rows of five, name and value only
+                view.addView(disc, new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 40)));
+            }
 
             LinearLayout col = XemsUi.vertical(c);
-            col.setPadding(XemsUi.dp(c, 8), 0, 0, 0);
-            name = XemsUi.text(c, AutoUi.zoneNames()[k], 14, XemsUi.TEXT, true);
+            col.setPadding(XemsUi.dp(c, compact ? 0 : 8), 0, 0, 0);
+            name = XemsUi.text(c, AutoUi.zoneNames()[k], compact ? 13 : 14, XemsUi.TEXT, true);
             name.setSingleLine(true);
             col.addView(name);
             value = XemsUi.text(c, "", 15, XemsUi.ACCENT, true);
@@ -1625,6 +1939,7 @@ public final class FocusBoard {
                     float y0 = at[1] - me[1] + ch.view.getHeight() / 2f;
                     float x0 = side == 0 ? at[0] - me[0] + ch.view.getWidth() : at[0] - me[0];
                     float x1 = side == 0 ? x0 + knee : x0 - knee;
+                    boolean noLine = builtPortrait;          // upright the chips are under the figures: points only
                     float ex = bx + pt[0];
                     float ey = by + pt[1];
                     int col = ch.tint;
@@ -1633,19 +1948,23 @@ public final class FocusBoard {
                     path.moveTo(x0, y0);
                     path.lineTo(x1, y0);
                     path.lineTo(ex, ey);
-                    halo.setStrokeWidth(w1 * (ch.sel ? 5f : 3.5f));
-                    halo.setColor(XemsUi.alpha(col, ch.off ? 0x08 : ch.sel ? 0x40 : 0x1C));
-                    c.drawPath(path, halo);
-                    line.setStrokeWidth(ch.sel ? w1 * 1.6f : w1);
-                    line.setColor(XemsUi.alpha(col, a));
-                    c.drawPath(path, line);
+                    if (!noLine) {
+                        halo.setStrokeWidth(w1 * (ch.sel ? 5f : 3.5f));
+                        halo.setColor(XemsUi.alpha(col, ch.off ? 0x08 : ch.sel ? 0x40 : 0x1C));
+                        c.drawPath(path, halo);
+                        line.setStrokeWidth(ch.sel ? w1 * 1.6f : w1);
+                        line.setColor(XemsUi.alpha(col, a));
+                        c.drawPath(path, line);
+                    }
                     float rr = XemsUi.dp(getContext(), ch.sel ? 5 : 3.5f);
                     dot.setColor(XemsUi.alpha(col, ch.off ? 0x40 : 0x50));
                     c.drawCircle(ex, ey, rr * 2.1f, dot);
                     dot.setColor(XemsUi.alpha(ch.off ? col : 0xFFFFFFFF, ch.off ? 0x60 : 0xFF));
                     c.drawCircle(ex, ey, rr, dot);
                     dot.setColor(XemsUi.alpha(col, a));
-                    c.drawCircle(x0, y0, w1 * 1.8f, dot);
+                    if (!noLine) {
+                        c.drawCircle(x0, y0, w1 * 1.8f, dot);
+                    }
                     if (ch.sel && !ch.off) {
                         // marked = picked for control: a ring breathes out of the point
                         double ph = (android.os.SystemClock.uptimeMillis() % 1400L) / 1400.0;

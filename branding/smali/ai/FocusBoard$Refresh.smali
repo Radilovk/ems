@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 746
+    .line 909
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,30 +34,30 @@
     .registers 5
 
     .prologue
-    .line 749
+    .line 912
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->isShowing()Z
 
     move-result v0
 
     if-nez v0, :cond_b
 
-    .line 750
+    .line 913
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->looping:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$002(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$802(Z)Z
 
-    .line 755
+    .line 918
     :goto_a
     return-void
 
-    .line 753
+    .line 916
     :cond_b
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
-    .line 754
+    .line 917
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->H:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Landroid/os/Handler;
 
     move-result-object v0
 

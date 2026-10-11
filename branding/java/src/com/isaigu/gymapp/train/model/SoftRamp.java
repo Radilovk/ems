@@ -76,6 +76,18 @@ public final class SoftRamp {
 
     private SoftRamp() {}
 
+    /**
+     * The row's phase clock for the screen (FocusBoard timeline): {on ? 1 : 0, began (wall ms), length ms}; null before
+     * the first phase. Read only — the clock is the ramp's own.
+     */
+    public static long[] clock(TrainItem item) {
+        Slot st = item != null ? slots.get(item) : null;
+        if (st == null || !st.known) {
+            return null;
+        }
+        return new long[] {st.on ? 1L : 0L, st.beganAt, st.lenMs};
+    }
+
     /** Hook: TrainItem.startPulse, before its sendPulse — a phase (ON or pause) begins. */
     public static void phase(TrainItem item) {
         try {

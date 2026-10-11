@@ -55,6 +55,7 @@ import java.util.List;
 public final class FocusBoard {
     private static final String PREFS = "xems_focus";
     private static final String K_ROWS = "rows";
+    private static final String K_LOCK = "lock";
     private static final long REFRESH_MS = 300L;
     private static final Handler H = new Handler(Looper.getMainLooper());
     private static final Refresh REFRESH = new Refresh();
@@ -90,6 +91,16 @@ public final class FocusBoard {
     private static TextView battText;
     private static AutoViews.BodyHeat body;
     private static Leaders leaders;
+    private static Timeline timeline;
+    private static ImageView lockKey;
+    private static TextView syncKey;
+    /** The impulse the controls touched last (1 / 2): what the muscles show while the client stands still. */
+    private static int pick = 1;
+    /** The 1 : 2 ratio lock and each client's ratio taken when it closed. */
+    private static boolean locked;
+    private static final java.util.WeakHashMap<TrainItem, Float> RATIO = new java.util.WeakHashMap<TrainItem, Float>();
+    /** Colour of the impulse the muscles show (cyan 1, yellow 2, grey pause). */
+    static int shownTint = 0xFF22C3F5;
     private static final Chip[] chips = new Chip[AutoModel.CHANNELS];
     private static Ring ring1;
     private static Ring ring2;
@@ -361,25 +372,24 @@ public final class FocusBoard {
     static void step(int what, int d) {
         TrainItem it = current();
         ProgramDataBean b = bean(it);
-        if (b == null) {
+        if (b == null || d == 0) {
             return;
         }
+        pick = what == INT2 || what == HZ2 || what == T2 ? 2 : 1;
         try {
             switch (what) {
                 case INT1:
                     if (PartStrength.addSelected(it, d)) {
                         break;
                     }
-                    if (!MusicSyncBridge.onMaStrengthDelta(it, d)) {
-                        it.addStrenth(d);
-                    }
+                    main(it, b, d);
                     break;
                 case INT2:
                     if (!second(it, b)) {
                         hint(AiText.t("Включи втория импулс с ∿.", "Turn the second impulse on with ∿."));
                         return;
                     }
-                    it.addPauseStrenth(d);
+                    pause(it, b, d);
                     break;
                 case HZ1:
                     it.addHz(d);
@@ -404,6 +414,127 @@ public final class FocusBoard {
             XemsGuard.report("FocusBoard.step", t);
         }
         refresh();
+    }
+
+    /** A ring released at {@code target} (0–100): the same path as that many steps of its + / −. */
+    static void setTo(int what, int target) {
+        TrainItem it = current();
+        ProgramDataBean b = bean(it);
+        if (b == null) {
+            return;
+        }
+        int now = what == INT2 ? b.pauseStrenthPercent : ringLevel(it, b);
+        step(what, target - now);
+    }
+
+    /** Main strength by d; with the ratio locked the second impulse follows (same ratio). */
+    private static void main(TrainItem it, ProgramDataBean b, int d) {
+        int m0 = b.strenth;
+        int p0 = b.pauseStrenthPercent;
+        if (!MusicSyncBridge.onMaStrengthDelta(it, d)) {
+            it.addStrenth(d);
+        }
+        int m1 = b.strenth;
+        if (locked && second(it, b) && m1 != m0) {
+            float r = ratio(it, m0, p0);
+            int p1 = Math.max(0, Math.min(100, Math.round(m1 * r)));
+            if (p1 != b.pauseStrenthPercent) {
+                it.addPauseStrenth(p1 - b.pauseStrenthPercent);
+            }
+        }
+    }
+
+    /** Second impulse's strength by d; with the ratio locked the main follows (same ratio). */
+    private static void pause(TrainItem it, ProgramDataBean b, int d) {
+        int m0 = b.strenth;
+        int p0 = b.pauseStrenthPercent;
+        it.addPauseStrenth(d);
+        int p1 = b.pauseStrenthPercent;
+        if (locked && p1 != p0) {
+            float r = ratio(it, m0, p0);
+            if (r > 0.001f) {
+                int m1 = Math.max(0, Math.min(100, Math.round(p1 / r)));
+                if (m1 != b.strenth && !MusicSyncBridge.onMaStrengthDelta(it, m1 - b.strenth)) {
+                    it.addStrenth(m1 - b.strenth);
+                }
+            }
+        }
+    }
+
+    /** Impulse 2 ÷ impulse 1, taken when the lock closed (kept exact while both move), else from now. */
+    private static float ratio(TrainItem it, int m0, int p0) {
+        Float r = RATIO.get(it);
+        if (r == null) {
+            r = m0 > 0 ? p0 / (float) m0 : 1f;
+            RATIO.put(it, r);
+        }
+        return r;
+    }
+
+    /** What ring 1 stands for: the marked muscles' level, or the main strength. */
+    private static int ringLevel(TrainItem it, ProgramDataBean b) {
+        int[] lv = PartStrength.levels(it, b, false);
+        int max = -1;
+        for (int k = 0; lv != null && k < lv.length; k++) {
+            if (marked(it, k)) {
+                max = Math.max(max, lv[k]);
+            }
+        }
+        return max >= 0 ? max : b.strenth;
+    }
+
+    static final class LockClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            locked = !locked;
+            RATIO.clear();
+            TrainItem it = current();
+            ProgramDataBean b = bean(it);
+            if (locked && b != null) {
+                ratio(it, b.strenth, b.pauseStrenthPercent);
+                hint(AiText.t("Съотношението е заключено: 1 и 2 се движат заедно.",
+                        "Ratio locked: 1 and 2 move together."));
+            }
+            try {
+                v.getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(K_LOCK, locked)
+                        .apply();
+            } catch (Throwable ignored) {
+            }
+            paintLock(v.getContext());
+        }
+    }
+
+    static final class SyncClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            TrainItem it = current();
+            if (it == null) {
+                return;
+            }
+            if (!com.isaigu.gymapp.wearable.DoubleImpulse.syncSecond(it, v)) {
+                hint(AiText.t("Включи втория импулс с ∿ (не и в Мускули).",
+                        "Turn the second impulse on with ∿ (not in Muscle)."));
+                return;
+            }
+            RATIO.remove(it);
+            pick = 2;
+            later();
+            refresh();
+        }
+    }
+
+    private static void paintLock(Context c) {
+        if (lockKey == null) {
+            return;
+        }
+        float r = XemsUi.dp(c, 23);
+        lockKey.setImageDrawable(new Padlock(locked ? XemsUi.TEXT : XemsUi.MUTED, locked));
+        lockKey.setBackgroundDrawable(XemsUi.ripple(locked ? XemsUi.glow(c, XemsUi.mix(XemsUi.ACCENT, XemsUi.AMBER,
+                0.5f), r) : XemsUi.rounded(XemsUi.SURFACE, r, XemsUi.STROKE, XemsUi.dp(c, 1)), XemsUi.TEXT, r));
+        lockKey.setContentDescription(locked ? AiText.t("Съотношението е заключено", "Ratio locked")
+                : AiText.t("Заключи съотношението 1 : 2", "Lock the 1 : 2 ratio"));
     }
 
     static ProgramDataBean bean(TrainItem it) {
@@ -531,13 +662,19 @@ public final class FocusBoard {
         pane.setPadding(p, p, p, p);
         pane.addView(chipColumn(c, LEFT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
                 ViewGroup.LayoutParams.MATCH_PARENT));
+        LinearLayout mid = XemsUi.vertical(c);
+        timeline = new Timeline(c);
+        mid.addView(timeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 46)));
         body = new AutoViews.BodyHeat(c);
         body.setOnTouchListener(new BodyTap());
         body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
+        LinearLayout.LayoutParams bodyLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        bodyLp.topMargin = XemsUi.dp(c, 4);
+        mid.addView(body, bodyLp);
         LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         blp.leftMargin = p;
         blp.rightMargin = p;
-        pane.addView(body, blp);
+        pane.addView(mid, blp);
         pane.addView(chipColumn(c, RIGHT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
                 ViewGroup.LayoutParams.MATCH_PARENT));
         FrameLayout holder = new FrameLayout(c);
@@ -563,42 +700,71 @@ public final class FocusBoard {
 
     private static View controlPane(Context c) {
         LinearLayout col = XemsUi.vertical(c);
+        locked = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(K_LOCK, false);
 
-        // the two intensities
+        // the two intensities, the lock between them on top, "2 = 1" between them at the bottom
         LinearLayout rings = XemsUi.horizontal(c);
         rings.setGravity(Gravity.FILL_VERTICAL);
         rings.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 18)));
-        rings.setPadding(XemsUi.dp(c, 6), XemsUi.dp(c, 8), XemsUi.dp(c, 6), XemsUi.dp(c, 6));
-        ring1 = new Ring(c, XemsUi.ACCENT);
-        ring2 = new Ring(c, XemsUi.GO_TEXT);
+        rings.setPadding(XemsUi.dp(c, 6), XemsUi.dp(c, 8), XemsUi.dp(c, 6), XemsUi.dp(c, 8));
+        ring1 = new Ring(c, XemsUi.ACCENT, INT1);
+        ring2 = new Ring(c, XemsUi.AMBER, INT2);
         ring1Label = XemsUi.text(c, AiText.t("Интензитет 1", "Intensity 1"), 13, XemsUi.ACCENT, true);
-        TextView ring2Label = XemsUi.text(c, AiText.t("Интензитет 2", "Intensity 2"), 13, XemsUi.GO_TEXT, true);
+        TextView ring2Label = XemsUi.text(c, AiText.t("Интензитет 2", "Intensity 2"), 13, XemsUi.AMBER, true);
         rings.addView(ringColumn(c, ring1, ring1Label, INT1, null),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+
+        LinearLayout mid = XemsUi.vertical(c);
+        mid.setGravity(Gravity.CENTER_HORIZONTAL);
+        lockKey = new ImageView(c);
+        int ip = XemsUi.dp(c, 11);
+        lockKey.setPadding(ip, ip, ip, ip);
+        lockKey.setClickable(true);
+        lockKey.setOnClickListener(new LockClick());
+        XemsUi.pressable(lockKey);
+        mid.addView(lockKey, new LinearLayout.LayoutParams(XemsUi.dp(c, KEY), XemsUi.dp(c, KEY)));
+        paintLock(c);
+        View link = new View(c);
+        link.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.STROKE, 0xCC), XemsUi.dp(c, 1), 0, 0));
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(XemsUi.dp(c, 2), 0, 1f);
+        llp.topMargin = XemsUi.dp(c, 6);
+        llp.bottomMargin = XemsUi.dp(c, 6);
+        mid.addView(link, llp);
+        syncKey = XemsUi.text(c, "2=1", 13, XemsUi.AMBER, true);
+        syncKey.setGravity(Gravity.CENTER);
+        float kr = XemsUi.dp(c, KEY / 2f);
+        syncKey.setBackgroundDrawable(XemsUi.ripple(XemsUi.rounded(XemsUi.SURFACE, kr,
+                XemsUi.alpha(XemsUi.AMBER, 0x99), XemsUi.dp(c, 1)), XemsUi.AMBER, kr));
+        syncKey.setContentDescription(AiText.t("Импулс 2 = импулс 1", "Impulse 2 = impulse 1"));
+        syncKey.setOnClickListener(new SyncClick());
+        XemsUi.pressable(syncKey);
+        mid.addView(syncKey, new LinearLayout.LayoutParams(XemsUi.dp(c, KEY), XemsUi.dp(c, KEY)));
+        rings.addView(mid, new LinearLayout.LayoutParams(XemsUi.dp(c, KEY), ViewGroup.LayoutParams.MATCH_PARENT));
+
         View[] steps2 = new View[1];
         rings.addView(ringColumn(c, ring2, ring2Label, INT2, steps2),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         ring2Steps = steps2[0];
-        col.addView(rings, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.25f));
+        col.addView(rings, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        // impulse | pause (second impulse)
+        // impulse 1 | impulse 2 (pause without it)
         LinearLayout imps = XemsUi.horizontal(c);
-        imps.setGravity(Gravity.FILL_VERTICAL);
         TextView[] v1 = new TextView[3];
         TextView[] v2 = new TextView[3];
         View[] hzRow2 = new View[1];
         imps.addView(impulseCard(c, AiText.t("Импулс 1", "Impulse 1"), XemsUi.ACCENT, T1, HZ1, v1, null),
-                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-        LinearLayout.LayoutParams i2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams i2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         i2.leftMargin = XemsUi.dp(c, 8);
-        imps.addView(impulseCard(c, AiText.t("Импулс 2", "Impulse 2"), XemsUi.GO_TEXT, T2, HZ2, v2, hzRow2), i2);
+        imps.addView(impulseCard(c, AiText.t("Импулс 2", "Impulse 2"), XemsUi.AMBER, T2, HZ2, v2, hzRow2), i2);
         imp1Val = v1[1];
         hz1Val = v1[2];
         imp2Title = v2[0];
         imp2Val = v2[1];
         hz2Val = v2[2];
         hz2Row = hzRow2[0];
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         ilp.topMargin = XemsUi.dp(c, 8);
         col.addView(imps, ilp);
 
@@ -606,7 +772,7 @@ public final class FocusBoard {
         LinearLayout keys = XemsUi.horizontal(c);
         keys.setGravity(Gravity.FILL_VERTICAL);
         float r = XemsUi.dp(c, 16);
-        waveKey = XemsUi.text(c, "∿", 34, XemsUi.ACCENT, true);
+        waveKey = XemsUi.text(c, "∿", 34, XemsUi.AMBER, true);
         waveKey.setGravity(Gravity.CENTER);
         waveKey.setOnClickListener(new PressRow("save"));
         waveKey.setContentDescription(AiText.t("Втори импулс", "Second impulse"));
@@ -644,11 +810,14 @@ public final class FocusBoard {
         keys.addView(stop, stl);
 
         LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                XemsUi.dp(c, 78));
+                XemsUi.dp(c, 72));
         klp.topMargin = XemsUi.dp(c, 8);
         col.addView(keys, klp);
         return col;
     }
+
+    /** One size for every − / + of the panel (owner, 1.1.415: the intensity ones). */
+    static final int KEY = 46;
 
     private static View ringColumn(Context c, Ring ring, TextView label, int what, View[] stepsOut) {
         LinearLayout col = XemsUi.vertical(c);
@@ -657,12 +826,12 @@ public final class FocusBoard {
         col.addView(label, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
-        rlp.topMargin = XemsUi.dp(c, 4);
+        rlp.topMargin = XemsUi.dp(c, 2);
         col.addView(ring, rlp);
-        View steps = stepper(c, what, 46);
+        View steps = stepper(c, what);
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        slp.topMargin = XemsUi.dp(c, 4);
+        slp.topMargin = XemsUi.dp(c, 2);
         col.addView(steps, slp);
         if (stepsOut != null) {
             stepsOut[0] = steps;
@@ -670,19 +839,20 @@ public final class FocusBoard {
         return col;
     }
 
-    /** Round − and + (hold = repeat, faster the longer). */
-    private static LinearLayout stepper(Context c, int what, int sizeDp) {
+    /** Round − and + (hold = repeat, faster the longer), the one size of the panel. */
+    private static LinearLayout stepper(Context c, int what) {
         LinearLayout row = XemsUi.horizontal(c);
-        TextView minus = XemsUi.iconButton(c, "−", XemsUi.SURFACE, XemsUi.TEXT, sizeDp);
-        TextView plus = XemsUi.iconButton(c, "+", XemsUi.SURFACE, XemsUi.TEXT, sizeDp);
-        Step s = new Step(what);
-        XemsUi.repeatOnHold(minus, s, -1);
-        XemsUi.repeatOnHold(plus, s, +1);
-        row.addView(minus);
+        row.addView(key(c, "−", what, -1));
         View gap = new View(c);
-        row.addView(gap, new LinearLayout.LayoutParams(XemsUi.dp(c, sizeDp > 40 ? 22 : 10), 1));
-        row.addView(plus);
+        row.addView(gap, new LinearLayout.LayoutParams(XemsUi.dp(c, 22), 1));
+        row.addView(key(c, "+", what, +1));
         return row;
+    }
+
+    private static TextView key(Context c, String glyph, int what, int dir) {
+        TextView k = XemsUi.iconButton(c, glyph, XemsUi.SURFACE, XemsUi.TEXT, KEY);
+        XemsUi.repeatOnHold(k, new Step(what), dir);
+        return k;
     }
 
     /** out = {title, time value, Hz value}; hzOut = the Hz line (hidden without a second impulse). */
@@ -691,40 +861,33 @@ public final class FocusBoard {
         LinearLayout card = XemsUi.vertical(c);
         card.setGravity(Gravity.CENTER_HORIZONTAL);
         card.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 16)));
-        card.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 8));
+        card.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 7), XemsUi.dp(c, 8), XemsUi.dp(c, 8));
         TextView t = XemsUi.text(c, title, 13, tint, true);
         card.addView(t);
 
         LinearLayout tr = XemsUi.horizontal(c);
         tr.setGravity(Gravity.CENTER);
-        TextView minus = XemsUi.iconButton(c, "−", XemsUi.SURFACE, XemsUi.TEXT, 38);
-        TextView plus = XemsUi.iconButton(c, "+", XemsUi.SURFACE, XemsUi.TEXT, 38);
-        Step st = new Step(timeWhat);
-        XemsUi.repeatOnHold(minus, st, -1);
-        XemsUi.repeatOnHold(plus, st, +1);
-        TextView v = XemsUi.text(c, "—", 26, tint, true);
+        TextView v = XemsUi.text(c, "—", 24, tint, true);
         v.setGravity(Gravity.CENTER);
-        tr.addView(minus);
+        tr.addView(key(c, "−", timeWhat, -1));
         tr.addView(v, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        tr.addView(plus);
-        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
-        tlp.topMargin = XemsUi.dp(c, 2);
+        tr.addView(key(c, "+", timeWhat, +1));
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        tlp.topMargin = XemsUi.dp(c, 4);
         card.addView(tr, tlp);
 
         LinearLayout hr = XemsUi.horizontal(c);
         hr.setGravity(Gravity.CENTER);
-        TextView hm = XemsUi.iconButton(c, "−", XemsUi.CARD, XemsUi.MUTED, 30);
-        TextView hp = XemsUi.iconButton(c, "+", XemsUi.CARD, XemsUi.MUTED, 30);
-        Step sh = new Step(hzWhat);
-        XemsUi.repeatOnHold(hm, sh, -1);
-        XemsUi.repeatOnHold(hp, sh, +1);
-        TextView hz = XemsUi.text(c, "—", 17, XemsUi.TEXT, true);
+        TextView hz = XemsUi.text(c, "—", 18, XemsUi.TEXT, true);
         hz.setGravity(Gravity.CENTER);
-        hr.addView(hm);
+        hr.addView(key(c, "−", hzWhat, -1));
         hr.addView(hz, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        hr.addView(hp);
-        card.addView(hr, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        hr.addView(key(c, "+", hzWhat, +1));
+        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        hlp.topMargin = XemsUi.dp(c, 6);
+        card.addView(hr, hlp);
         out[0] = t;
         out[1] = v;
         out[2] = hz;
@@ -804,23 +967,37 @@ public final class FocusBoard {
             battText.setTextColor(it.data != null && !it.data.connected ? XemsUi.DANGER : XemsUi.GO_TEXT);
 
             boolean two = second(it, b);
-            int[] parts = b.strenthBean != null ? b.strenthBean.buwei : null;
+            boolean run = running(it);
+            long[] clk = run ? com.isaigu.gymapp.train.model.SoftRamp.clock(it) : null;
+            // which impulse the muscles show: the live phase while running, else the ring last touched
+            int shown;
+            if (clk != null) {
+                shown = clk[0] == 1L ? 1 : two ? 2 : 0;
+            } else {
+                shown = pick == 2 && two ? 2 : 1;
+            }
+            shownTint = shown == 2 ? XemsUi.AMBER : shown == 1 ? XemsUi.ACCENT : XemsUi.MUTED;
+            if (timeline != null) {
+                timeline.set(run, clk, b.pulseContinue, b.pulsePause, two);
+            }
+
+            int[] lv = PartStrength.levels(it, b, shown == 2);
+            int[] main = shown == 2 ? PartStrength.levels(it, b, false) : lv;
             boolean anyMark = false;
             int markLevel = 0;
             double[] prog = new double[AutoModel.CHANNELS];
             boolean[] dis = new boolean[AutoModel.CHANNELS];
             for (int k = 0; k < AutoModel.CHANNELS; k++) {
-                int part = parts != null && k < parts.length ? parts[k] : 0;
-                int real = (int) (part / 100f * b.strenth);
+                int level = lv != null && k < lv.length ? lv[k] : 0;
                 boolean m = marked(it, k);
                 if (m) {
                     anyMark = true;
-                    markLevel = Math.max(markLevel, real);
+                    markLevel = Math.max(markLevel, main != null && k < main.length ? main[k] : 0);
                 }
                 dis[k] = off(it, k);
-                prog[k] = Math.min(1.25, real / 60.0);
+                prog[k] = Math.min(1.25, level / 60.0);
                 if (chips[k] != null) {
-                    chips[k].set(part, m, m && PartPick.isYellow(k), dis[k]);
+                    chips[k].set(level, shownTint, m, m && PartPick.isYellow(k), dis[k]);
                 }
             }
             if (body != null) {
@@ -841,13 +1018,17 @@ public final class FocusBoard {
 
             ring1Label.setText(anyMark ? AiText.t("Избрани мускули", "Selected muscles")
                     : AiText.t("Интензитет 1", "Intensity 1"));
-            ring1.set(anyMark ? markLevel : b.strenth, true, running(it));
-            ring2.set(b.pauseStrenthPercent, two, running(it));
+            ring1.set(anyMark ? markLevel : b.strenth, true, run && shown == 1);
+            ring2.set(b.pauseStrenthPercent, two, run && shown == 2);
             ring2Steps.setAlpha(two ? 1f : 0.35f);
+            lockKey.setAlpha(two ? 1f : 0.35f);
+            syncKey.setAlpha(two ? 1f : 0.35f);
             imp1Val.setText(b.pulseContinue + " s");
             hz1Val.setText(b.hz + " Hz");
             imp2Title.setText(two ? AiText.t("Импулс 2", "Impulse 2") : AiText.t("Пауза", "Pause"));
+            imp2Title.setTextColor(two ? XemsUi.AMBER : XemsUi.MUTED);
             imp2Val.setText(b.pulsePause + " s");
+            imp2Val.setTextColor(two ? XemsUi.AMBER : XemsUi.MUTED);
             hz2Val.setText(b.pauseHz + " Hz");
             hz2Row.setVisibility(two ? View.VISIBLE : View.INVISIBLE);
 
@@ -857,12 +1038,12 @@ public final class FocusBoard {
             String wkey = (two ? "on" : "off") + (musc ? "m" : "");
             if (!wkey.equals(wt)) {
                 waveKey.setTag(wkey);
-                waveKey.setTextColor(two ? XemsUi.TEXT : XemsUi.ACCENT);
+                waveKey.setTextColor(two ? XemsUi.TEXT : XemsUi.AMBER);
                 waveKey.setBackgroundDrawable(XemsUi.ripple(two ? XemsUi.glow(c, XemsUi.AMBER, r) : XemsUi.glass(c, r),
                         XemsUi.TEXT, r));
                 waveKey.setAlpha(musc ? 0.35f : 1f);
             }
-            int st = running(it) ? 1 : 0;
+            int st = run ? 1 : 0;
             if (st != shownStart) {
                 shownStart = st;
                 int col = st == 1 ? XemsUi.AMBER : XemsUi.GO;
@@ -1104,8 +1285,9 @@ public final class FocusBoard {
 
     /**
      * A muscle chip under the finger: a tap marks it (the header's icon, PartPick); a sideways slide is the channel's
-     * own slider — relative to where the finger went down (no jump), right = more, the value sent on release exactly
-     * as the row's channel bar sends it (PartStrength.bar: both impulses keep their ratio, yellow = the second alone).
+     * own slider in the impulse the chips show — relative to where the finger went down (no jump), right = more,
+     * sent on release exactly as the row's channel bar sends it (PartStrength.bar: both impulses keep their ratio,
+     * yellow = the second alone).
      */
     static final class ChipTouch implements View.OnTouchListener {
         private final Chip chip;
@@ -1126,7 +1308,7 @@ public final class FocusBoard {
                 case android.view.MotionEvent.ACTION_DOWN:
                     x0 = e.getRawX();
                     y0 = e.getRawY();
-                    start = chip.lastPart;
+                    start = chip.level;
                     sliding = false;
                     refused = false;
                     v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(70).start();
@@ -1150,13 +1332,13 @@ public final class FocusBoard {
                     }
                     if (sliding) {
                         float span = Math.max(1f, v.getWidth() * 1.2f);
-                        int val = Math.max(0, Math.min(100, start + Math.round((e.getRawX() - x0) / span * 100f)));
+                        int val = Math.max(0, Math.min(chip.cap, start + Math.round((e.getRawX() - x0) / span * 100f)));
                         if (val != chip.dragValue) {
                             if (val % 10 == 0) {
                                 XemsUi.haptic(v);
                             }
                             chip.dragValue = val;
-                            chip.set(chip.lastPart, chip.sel, chip.yellow, chip.off);
+                            chip.repaint();
                             if (leaders != null) {
                                 leaders.invalidate();
                             }
@@ -1168,13 +1350,12 @@ public final class FocusBoard {
                     v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
                     if (sliding) {
                         int val = chip.dragValue;
-                        chip.dragValue = -1;
                         sliding = false;
                         if (val >= 0 && val != start) {
                             channel(chip.k, val);
-                        } else {
-                            refresh();
                         }
+                        chip.dragValue = -1;
+                        refresh();
                     } else if (!refused && Math.abs(e.getRawX() - x0) <= slop && Math.abs(e.getRawY() - y0) <= slop) {
                         XemsUi.haptic(v);
                         chipClick(chip.k);
@@ -1193,14 +1374,28 @@ public final class FocusBoard {
         }
     }
 
-    /** One channel's own percent set to {@code stored} (0–100), then sent — the row's channel-bar path. */
-    static void channel(int k, int stored) {
+    /**
+     * Channel {@code k} to the real strength {@code target} in the impulse the chips show: its share (percent of the
+     * impulse) is worked out from it and sent the row's channel-bar way (both impulses keep their ratio).
+     */
+    static void channel(int k, int target) {
         TrainItem it = current();
         ProgramDataBean b = bean(it);
-        if (b == null) {
+        if (b == null || b.strenthBean == null || b.strenthBean.buwei == null || k >= b.strenthBean.buwei.length) {
             return;
         }
         try {
+            int part = b.strenthBean.buwei[k];
+            int stored;
+            if (shownTint == XemsUi.AMBER) {
+                int[] s = PartStrength.levels(it, b, true);
+                int now = s != null && k < s.length ? s[k] : 0;
+                stored = now > 0 ? Math.round(part * target / (float) now)
+                        : b.pauseStrenthPercent > 0 ? Math.round(target * 100f / b.pauseStrenthPercent) : part;
+            } else {
+                stored = b.strenth > 0 ? (int) Math.ceil(target * 100.0 / b.strenth) : part;
+            }
+            stored = Math.max(0, Math.min(100, stored));
             PartStrength.bar(chips[k] != null ? chips[k].view : null, it.getTrainProgram(), b, k, stored);
             it.addAllPartValue(0, true);            // nothing added: just send and refresh the row
         } catch (Throwable t) {
@@ -1258,7 +1453,10 @@ public final class FocusBoard {
 
     // ================================================================ views
 
-    /** A muscle on the side of the figures: icon, name, the channel's share; selected = lit (green / yellow). */
+    /**
+     * A muscle on the side of the figures: icon, name, the channel's real strength in the impulse shown (number and
+     * bar in that impulse's colour: cyan = 1, yellow = 2); marked = lit (green = both impulses, yellow = the second).
+     */
     static final class Chip {
         final LinearLayout view;
         final TextView value;
@@ -1272,7 +1470,10 @@ public final class FocusBoard {
         final int k;
         /** While the finger slides the chip: the value under it (−1 = not sliding). */
         int dragValue = -1;
-        int lastPart;
+        int level;
+        int tint = XemsUi.ACCENT;
+        /** The most the slide reaches: the impulse's own strength (a share is at most 100 % of it). */
+        int cap = 100;
 
         Chip(Context c, int k) {
             view = XemsUi.horizontal(c);
@@ -1305,50 +1506,52 @@ public final class FocusBoard {
             name = XemsUi.text(c, AutoUi.zoneNames()[k], 14, XemsUi.TEXT, true);
             name.setSingleLine(true);
             col.addView(name);
-            value = XemsUi.text(c, "", 13, XemsUi.ACCENT, true);
-            value.setPadding(0, XemsUi.dp(c, 3), 0, XemsUi.dp(c, 4));
+            value = XemsUi.text(c, "", 15, XemsUi.ACCENT, true);
+            value.setPadding(0, XemsUi.dp(c, 2), 0, XemsUi.dp(c, 4));
             col.addView(value);
             FrameLayout track = new FrameLayout(c);
             track.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.STROKE, 0xAA), XemsUi.dp(c, 2), 0, 0));
             barFill = new View(c);
             bar = track;
             track.addView(barFill, new FrameLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT));
-            col.addView(track, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 3)));
+            col.addView(track, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 4)));
             view.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             view.setGravity(Gravity.CENTER_VERTICAL);
         }
 
-        void set(int part, boolean sel, boolean yellow, boolean off) {
+        void set(int level, int tint, boolean sel, boolean yellow, boolean off) {
+            this.level = level;
+            this.tint = tint;
             this.sel = sel;
             this.yellow = yellow;
             this.off = off;
-            lastPart = part;
+            TrainItem it = focus;
+            ProgramDataBean b = bean(it);
+            cap = b == null ? 100 : tint == XemsUi.AMBER ? Math.max(level, b.pauseStrenthPercent) : b.strenth;
+            repaint();
+        }
+
+        void repaint() {
             boolean sliding = dragValue >= 0;
-            if (sliding) {
-                part = dragValue;
-            }
-            String key = part + ":" + sel + ":" + yellow + ":" + off + ":" + sliding;
+            int lv = sliding ? dragValue : level;
+            String key = lv + ":" + tint + ":" + sel + ":" + yellow + ":" + off + ":" + sliding;
             if (key.equals(shown)) {
                 return;
             }
             shown = key;
             Context c = view.getContext();
             float r = XemsUi.dp(c, 14);
-            int tint = yellow ? XemsUi.AMBER : XemsUi.GO_TEXT;
-            if (sliding) {
-                tint = XemsUi.ACCENT;
-            }
-            view.setBackgroundDrawable(XemsUi.ripple(sel || sliding ? XemsUi.glow(c, tint, r)
+            int mark = sliding ? tint : yellow ? XemsUi.AMBER : XemsUi.GO_TEXT;
+            view.setBackgroundDrawable(XemsUi.ripple(sel || sliding ? XemsUi.glow(c, mark, r)
                     : XemsUi.rounded(XemsUi.alpha(XemsUi.SURFACE, 0xCC), r, XemsUi.alpha(XemsUi.STROKE, 0xCC),
                     XemsUi.dp(c, 1)), XemsUi.TEXT, r));
             view.setAlpha(off ? 0.4f : 1f);
-            value.setText(off ? AiText.t("изкл.", "off") : part + " %");
-            value.setTextColor(sel || sliding ? tint : XemsUi.ACCENT);
-            int fill = sel || sliding ? tint : XemsUi.ACCENT;
-            barFill.setBackgroundDrawable(XemsUi.rounded(fill, XemsUi.dp(c, 2), 0, 0));
+            value.setText(off ? AiText.t("изкл.", "off") : lv + " %");
+            value.setTextColor(tint);
+            barFill.setBackgroundDrawable(XemsUi.rounded(tint, XemsUi.dp(c, 2), 0, 0));
             int w = bar.getWidth();
             ViewGroup.LayoutParams lp = barFill.getLayoutParams();
-            lp.width = w > 0 ? Math.round(w * Math.max(0, Math.min(100, part)) / 100f) : 0;
+            lp.width = w > 0 ? Math.round(w * Math.max(0, Math.min(100, lv)) / 100f) : 0;
             barFill.setLayoutParams(lp);
             if (w <= 0) {
                 shown = "";                     // not laid out yet: once more on the next refresh
@@ -1410,7 +1613,7 @@ public final class FocusBoard {
                     float x1 = side == 0 ? x0 + knee : x0 - knee;
                     float ex = bx + pt[0];
                     float ey = by + pt[1];
-                    int col = ch.sel ? (ch.yellow ? XemsUi.AMBER : XemsUi.GO_TEXT) : XemsUi.ACCENT;
+                    int col = ch.sel ? (ch.yellow ? XemsUi.AMBER : XemsUi.GO_TEXT) : ch.tint;
                     int a = ch.off ? 0x30 : ch.sel ? 0xF0 : 0x8C;
                     path.reset();
                     path.moveTo(x0, y0);
@@ -1445,23 +1648,34 @@ public final class FocusBoard {
         }
     }
 
-    /** Intensity ring: 270° arc, glowing progress, the value in the middle. */
+    /**
+     * Intensity ring: 270° arc, glowing progress, the value in the middle. A finger sliding around it is the slider:
+     * relative to where it went down (no jump), clockwise = more, at most +20 in one slide (the master slider's
+     * safety); the value is shown live and sent on release — the same path as that many − / + steps.
+     */
     static final class Ring extends View {
         private final Paint track = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint arc = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint glowP = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint num = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint unit = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint knob = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final RectF box = new RectF();
         private final int color;
+        private final int what;
         private int value;
         private float shown = -1f;
         private boolean enabled = true;
         private boolean live;
+        /** Slide: the value it started from, the value under the finger now, the last arc position. */
+        private int dragFrom = -1;
+        private float dragValue;
+        private float lastT;
 
-        Ring(Context c, int color) {
+        Ring(Context c, int color, int what) {
             super(c);
             this.color = color;
+            this.what = what;
             float w = XemsUi.dp(c, 9);
             track.setStyle(Paint.Style.STROKE);
             track.setStrokeWidth(w);
@@ -1475,12 +1689,15 @@ public final class FocusBoard {
             glowP.setStrokeWidth(w * 2.4f);
             glowP.setStrokeCap(Paint.Cap.ROUND);
             glowP.setColor(XemsUi.alpha(color, 0x30));
+            knob.setStyle(Paint.Style.FILL);
             num.setColor(XemsUi.TEXT);
             num.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             num.setTextAlign(Paint.Align.CENTER);
             unit.setColor(XemsUi.MUTED);
             unit.setTextAlign(Paint.Align.CENTER);
             unit.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 13, c.getResources().getDisplayMetrics()));
+            setContentDescription(what == INT2 ? AiText.t("Интензитет 2 — плъзни по кръга", "Intensity 2 — slide around")
+                    : AiText.t("Интензитет 1 — плъзни по кръга", "Intensity 1 — slide around"));
         }
 
         void set(int v, boolean on, boolean running) {
@@ -1489,6 +1706,80 @@ public final class FocusBoard {
                 enabled = on;
                 live = running;
                 invalidate();
+            }
+        }
+
+        /** Position on the arc, 0 (start, lower left) … 1 (end, lower right); outside the arc → the nearer end. */
+        private float arcPos(float x, float y) {
+            double deg = Math.toDegrees(Math.atan2(y - getHeight() / 2f, x - getWidth() / 2f));
+            double rel = ((deg - 135) % 360 + 360) % 360;
+            if (rel > 270) {
+                return rel > 315 ? 0f : 1f;
+            }
+            return (float) (rel / 270.0);
+        }
+
+        @Override
+        public boolean onTouchEvent(android.view.MotionEvent e) {
+            switch (e.getActionMasked()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    if (!enabled) {
+                        hint(AiText.t("Включи втория импулс с ∿.", "Turn the second impulse on with ∿."));
+                        return false;
+                    }
+                    if (what == INT1 && MusicSyncBridge.shouldBlockManualControls()) {
+                        hint(AiText.t("Музиката държи силата сега — ползвай − / +.",
+                                "Music holds the strength now — use − / +."));
+                        return false;
+                    }
+                    dragFrom = value;
+                    dragValue = value;
+                    lastT = arcPos(e.getX(), e.getY());
+                    if (getParent() != null) {
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+                    XemsUi.haptic(this);
+                    invalidate();
+                    return true;
+                case android.view.MotionEvent.ACTION_MOVE: {
+                    if (dragFrom < 0) {
+                        return false;
+                    }
+                    float t = arcPos(e.getX(), e.getY());
+                    float dt = t - lastT;
+                    lastT = t;
+                    if (Math.abs(dt) > 0.5f) {
+                        return true;                            // across the gap at the bottom: no jump
+                    }
+                    int before = Math.round(dragValue);
+                    dragValue = Math.max(0f, Math.min(Math.min(100f, dragFrom + 20f), dragValue + dt * 100f));
+                    int after = Math.round(dragValue);
+                    if (after != before) {
+                        if (after % 5 == 0) {
+                            XemsUi.haptic(this);
+                        }
+                        invalidate();
+                    }
+                    return true;
+                }
+                case android.view.MotionEvent.ACTION_UP:
+                case android.view.MotionEvent.ACTION_CANCEL: {
+                    if (dragFrom < 0) {
+                        return false;
+                    }
+                    int target = Math.round(dragValue);
+                    int from = dragFrom;
+                    dragFrom = -1;
+                    if (e.getActionMasked() == android.view.MotionEvent.ACTION_UP && target != from) {
+                        value = target;                         // shown at once; the refresh confirms it
+                        shown = target;
+                        setTo(what, target);
+                    }
+                    invalidate();
+                    return true;
+                }
+                default:
+                    return true;
             }
         }
 
@@ -1504,35 +1795,239 @@ public final class FocusBoard {
             float cy = h / 2f + s * 0.04f;
             box.set(cx - s / 2f, cy - s / 2f, cx + s / 2f, cy + s / 2f);
             c.drawArc(box, 135, 270, false, track);
+            boolean dragging = dragFrom >= 0;
             if (shown < 0) {
                 shown = value;
             }
-            float target = Math.max(0, Math.min(100, value));
-            shown += (target - shown) * 0.25f;
-            if (Math.abs(target - shown) < 0.3f) {
+            float target = dragging ? dragValue : Math.max(0, Math.min(100, value));
+            if (dragging) {
                 shown = target;
             } else {
-                postInvalidateOnAnimation();
+                shown += (target - shown) * 0.25f;
+                if (Math.abs(target - shown) < 0.3f) {
+                    shown = target;
+                } else {
+                    postInvalidateOnAnimation();
+                }
             }
             float sweep = 270f * shown / 100f;
             if (enabled && sweep > 0.5f) {
-                if (live) {
+                if (live && !dragging) {
                     double ph = (android.os.SystemClock.uptimeMillis() % 1600L) / 1600.0;
-                    glowP.setAlpha((int) (0x20 + 0x40 * (0.5 - 0.5 * Math.cos(2 * Math.PI * ph))));
+                    glowP.setAlpha((int) (0x20 + 0x50 * (0.5 - 0.5 * Math.cos(2 * Math.PI * ph))));
                     postInvalidateOnAnimation();
                 } else {
-                    glowP.setAlpha(0x30);
+                    glowP.setAlpha(dragging ? 0x60 : 0x30);
                 }
                 c.drawArc(box, 135, sweep, false, glowP);
                 c.drawArc(box, 135, sweep, false, arc);
             }
+            if (enabled) {
+                // the knob at the end of the arc: where the finger takes it
+                double a = Math.toRadians(135 + sweep);
+                float kx = cx + (float) Math.cos(a) * s / 2f;
+                float ky = cy + (float) Math.sin(a) * s / 2f;
+                float kr = arc.getStrokeWidth() * (dragging ? 1.05f : 0.8f);
+                knob.setColor(XemsUi.alpha(color, 0x55));
+                c.drawCircle(kx, ky, kr * 1.7f, knob);
+                knob.setColor(0xFFFFFFFF);
+                c.drawCircle(kx, ky, kr, knob);
+            }
             num.setTextSize(s * 0.24f);
-            num.setColor(enabled ? XemsUi.TEXT : XemsUi.HINT);
+            num.setColor(enabled ? (dragging ? color : XemsUi.TEXT) : XemsUi.HINT);
             String t = enabled ? Math.round(shown) + "%" : "—";
             c.drawText(t, cx, cy + num.getTextSize() * 0.35f, num);
             if (!enabled) {
                 c.drawText(AiText.t("изкл.", "off"), cx, cy + num.getTextSize() * 0.35f + unit.getTextSize() * 1.6f, unit);
+            } else if (dragging && Math.round(dragValue) >= Math.min(100, dragFrom + 20)) {
+                c.drawText(AiText.t("+20 наведнъж", "+20 at once"), cx,
+                        cy + num.getTextSize() * 0.35f + unit.getTextSize() * 1.6f, unit);
             }
+        }
+    }
+
+    /**
+     * The phase timeline over the figures (owner, 1.1.415): the cycle as one thin bar — impulse 1 (cyan) then
+     * impulse 2 (yellow) or the pause (grey), each as long as its time — with a mark per second; the phase that runs
+     * fills with a glowing head, and its name and the seconds left stand above it. Stopped: the cycle at rest.
+     */
+    static final class Timeline extends View {
+        private final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint tick = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint big = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint small = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final RectF r = new RectF();
+        private boolean run;
+        private long[] clk;
+        private int t1;
+        private int t2;
+        private boolean two;
+
+        Timeline(Context c) {
+            super(c);
+            tick.setStrokeWidth(XemsUi.dp(c, 1));
+            big.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            big.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 19, c.getResources().getDisplayMetrics()));
+            small.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            small.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, c.getResources().getDisplayMetrics()));
+            small.setLetterSpacing(0.08f);
+        }
+
+        void set(boolean run, long[] clk, int t1, int t2, boolean two) {
+            this.run = run;
+            this.clk = clk;
+            this.t1 = Math.max(0, t1);
+            this.t2 = Math.max(0, t2);
+            this.two = two;
+            invalidate();
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            float w = getWidth();
+            float h = getHeight();
+            float pad = XemsUi.dp(getContext(), 6);
+            float th = XemsUi.dp(getContext(), 6);
+            float gap = XemsUi.dp(getContext(), 5);
+            float y = h - th - XemsUi.dp(getContext(), 4);
+            int total = t1 + t2;
+            if (total <= 0 || w <= 0) {
+                return;
+            }
+            int c2 = two ? XemsUi.AMBER : XemsUi.MUTED;
+            boolean hasPause = t2 > 0;
+            float usable = w - 2 * pad - (hasPause ? gap : 0);
+            float w1 = usable * t1 / total;
+            float x1 = pad;
+            float x2 = x1 + w1 + gap;
+            float w2 = usable - w1;
+
+            // which phase, how far
+            int phase = -1;                                   // 0 = impulse 1, 1 = impulse 2 / pause
+            float p = 0f;
+            long left = 0;
+            if (run && clk != null && clk[2] > 0) {
+                phase = clk[0] == 1L ? 0 : 1;
+                long el = System.currentTimeMillis() - clk[1];
+                p = Math.max(0f, Math.min(1f, el / (float) clk[2]));
+                left = Math.max(0L, (clk[2] - el + 999L) / 1000L);
+            }
+
+            seg(c, x1, y, w1, th, XemsUi.ACCENT, t1, phase == 0 ? p : -1f);
+            if (hasPause) {
+                seg(c, x2, y, w2, th, c2, t2, phase == 1 ? p : -1f);
+            }
+
+            // above the bar: the phase running and its seconds left (or the cycle at rest)
+            float ty = y - XemsUi.dp(getContext(), 8);
+            int col = phase == 0 ? XemsUi.ACCENT : phase == 1 ? c2 : XemsUi.MUTED;
+            String name;
+            if (phase == 0) {
+                name = AiText.t("ИМПУЛС 1", "IMPULSE 1");
+            } else if (phase == 1) {
+                name = two ? AiText.t("ИМПУЛС 2", "IMPULSE 2") : AiText.t("ПАУЗА", "PAUSE");
+            } else {
+                name = run ? AiText.t("ТРЕНИРОВКА", "TRAINING") : AiText.t("ЦИКЪЛ", "CYCLE");
+            }
+            small.setColor(col);
+            small.setTextAlign(Paint.Align.LEFT);
+            float ax = phase == 1 ? x2 : x1;
+            c.drawText("●  " + name, ax, ty, small);
+            big.setColor(col);
+            String sec = phase >= 0 ? left + " s" : t1 + " s" + (hasPause ? "  +  " + t2 + " s" : "");
+            if (phase >= 0) {
+                big.setTextAlign(Paint.Align.RIGHT);
+                c.drawText(sec, phase == 1 ? x2 + w2 : x1 + w1, ty + XemsUi.dp(getContext(), 1), big);
+                postInvalidateOnAnimation();
+            } else {
+                small.setTextAlign(Paint.Align.RIGHT);
+                small.setColor(XemsUi.MUTED);
+                c.drawText(sec, w - pad, ty, small);
+            }
+        }
+
+        /** One phase: track, a mark per second, the fill to {@code p} (−1 = not running) with a glowing head. */
+        private void seg(Canvas c, float x, float y, float w, float th, int col, int secs, float p) {
+            float rr = th / 2f;
+            r.set(x, y, x + w, y + th);
+            bar.setColor(XemsUi.alpha(col, p >= 0 ? 0x38 : 0x26));
+            c.drawRoundRect(r, rr, rr, bar);
+            if (secs > 1 && secs <= 120) {
+                tick.setColor(XemsUi.alpha(XemsUi.BG, 0xB0));
+                for (int i = 1; i < secs; i++) {
+                    float tx = x + w * i / secs;
+                    c.drawLine(tx, y, tx, y + th, tick);
+                }
+            }
+            if (p >= 0f) {
+                float fx = x + w * p;
+                if (fx > x + 0.5f) {
+                    r.set(x, y, fx, y + th);
+                    fill.setColor(col);
+                    c.drawRoundRect(r, rr, rr, fill);
+                }
+                fill.setColor(XemsUi.alpha(col, 0x45));
+                c.drawCircle(fx, y + th / 2f, th * 1.6f, fill);
+                fill.setColor(0xFFFFFFFF);
+                c.drawCircle(fx, y + th / 2f, th * 0.75f, fill);
+            }
+        }
+    }
+
+    /** A padlock, shut or open (the 1 : 2 ratio lock). */
+    static final class Padlock extends Drawable {
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final boolean shut;
+        private final int color;
+
+        Padlock(int color, boolean shut) {
+            this.shut = shut;
+            this.color = color;
+            p.setColor(color);
+        }
+
+        @Override
+        public void draw(Canvas c) {
+            android.graphics.Rect b = getBounds();
+            float w = b.width();
+            float h = b.height();
+            float bx = b.left + w * 0.18f;
+            float by = b.top + h * 0.46f;
+            float bw = w * 0.64f;
+            float bh = h * 0.46f;
+            p.setStyle(Paint.Style.FILL);
+            c.drawRoundRect(new RectF(bx, by, bx + bw, by + bh), w * 0.08f, w * 0.08f, p);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(w * 0.11f);
+            p.setStrokeCap(Paint.Cap.ROUND);
+            float sw = bw * 0.62f;
+            float sx = bx + (bw - sw) / 2f;
+            float lift = shut ? 0f : h * 0.14f;
+            RectF arcBox = new RectF(sx, b.top + h * 0.08f - lift, sx + sw, by + h * 0.1f - lift);
+            float cy = arcBox.centerY();
+            c.drawArc(arcBox, 180, 180, false, p);
+            c.drawLine(sx + sw, cy, sx + sw, by, p);                       // the leg that stays in the body
+            c.drawLine(sx, cy, sx, shut ? by : cy + h * 0.05f, p);         // open: the free leg is out
+            p.setStyle(Paint.Style.FILL);
+            p.setColor(XemsUi.BG);
+            c.drawCircle(bx + bw / 2f, by + bh * 0.45f, w * 0.06f, p);
+            p.setColor(color);
+        }
+
+        @Override
+        public void setAlpha(int a) {
+            p.setAlpha(a);
+        }
+
+        @Override
+        public void setColorFilter(android.graphics.ColorFilter cf) {
+            p.setColorFilter(cf);
+        }
+
+        @Override
+        public int getOpacity() {
+            return android.graphics.PixelFormat.TRANSLUCENT;
         }
     }
 

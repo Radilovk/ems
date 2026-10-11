@@ -8,6 +8,7 @@ uniform sampler2D pano : source_color, filter_linear, repeat_enable;
 uniform vec3 capture = vec3(0.0, 1.55, 0.0);   // where the camera stood (floor = 0)
 uniform float yaw = 0.0;                         // turn the room (0..1)
 uniform float exposure = 1.0;
+uniform bool hdr = false;                        // a float photo: expose and tone-map it here
 varying vec3 world_pos;
 
 void vertex() {
@@ -18,5 +19,9 @@ void fragment() {
 	vec3 d = normalize(world_pos - capture);
 	float u = fract(atan(d.x, -d.z) / (2.0 * PI) + 0.5 + yaw);
 	float v = acos(clamp(d.y, -1.0, 1.0)) / PI;
-	ALBEDO = texture(pano, vec2(u, v)).rgb * exposure;
+	vec3 c = texture(pano, vec2(u, v)).rgb * exposure;
+	if (hdr) {
+		c = clamp((c * (2.51 * c + 0.03)) / (c * (2.43 * c + 0.59) + 0.14), 0.0, 1.0);   // ACES fit
+	}
+	ALBEDO = c;
 }

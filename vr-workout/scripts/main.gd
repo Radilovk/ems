@@ -24,6 +24,19 @@ var ex_time := -4.0          # < 0: "next up" preview before the first rep
 var paused := false
 
 var trainer: Coach
+var coaches: Array = []
+var rooms: Array = []
+var coach_i := 0
+var room_i := 0
+var room_shell: MeshInstance3D
+var room_mat: ShaderMaterial
+var sky_mat: PanoramaSkyMaterial
+var sky: Sky
+var plain_sky := ProceduralSkyMaterial.new()      # behind 3D scene rooms
+var env: Environment
+var room_scene: Node3D
+var toast: Label3D
+var toast_left := 0.0
 var coach_rep := -1
 var body: Mannequin
 var title: Label3D
@@ -44,8 +57,14 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--") and "=" in a:
 			args[a.substr(2, a.find("=") - 2)] = a.substr(a.find("=") + 1)
+	Library.prepare(args.get("lib", ""))
+	coaches = Library.coaches(args.get("lib", ""))
+	rooms = Library.rooms(args.get("lib", ""))
+	coach_i = _pick(coaches, args.get("coach", "0"))
+	room_i = _pick(rooms, args.get("room", "0"))
 	_build_world()
 	_build_room()
+	_apply_room()
 	_build_coach()
 	_build_body_map()
 	_build_texts()
@@ -61,12 +80,22 @@ func _ready() -> void:
 
 # ---------------------------------------------------------------- world
 
+## A coach / room by number or by a part of its name (desktop: --coach=Michelle --room=2).
+static func _pick(list: Array, key: String) -> int:
+	if key.is_valid_int():
+		return clampi(int(key), 0, list.size() - 1)
+	for i in list.size():
+		if key.to_lower() in String(list[i].name).to_lower() or key.to_lower() in String(list[i].path).to_lower():
+			return i
+	return 0
+
+
 func _build_world() -> void:
-	var sky_mat := PanoramaSkyMaterial.new()
+	sky_mat = PanoramaSkyMaterial.new()
 	sky_mat.panorama = PANO
-	var sky := Sky.new()
+	sky = Sky.new()
 	sky.sky_material = sky_mat
-	var env := Environment.new()
+	env = Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
@@ -95,15 +124,14 @@ func _build_room() -> void:
 	shell.rings = 1
 	var mat := ShaderMaterial.new()
 	mat.shader = ROOM_SHADER
-	mat.set_shader_parameter("pano", PANO)
-	mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", "1.45")), 0))
-	mat.set_shader_parameter("yaw", float(args.get("yaw", str(ROOM_YAW))))
+	room_mat = mat
 	var room := MeshInstance3D.new()
 	room.mesh = shell
 	room.material_override = mat
 	room.position.y = 1.9
 	room.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(room)
+	room_shell = room
 
 	# Soft contact shadow under the coach (the photographed floor has no real shadows).
 	var blob := MeshInstance3D.new()
@@ -146,11 +174,131 @@ func _ring(pos: Vector3, size: float) -> ShaderMaterial:
 	return m
 
 
+## The room: a 360° photo on the shell (and as the sky), or a 3D scene in place of the shell.
+func _apply_room() -> void:
+	var r: Dictionary = rooms[room_i]
+	if room_scene:
+		room_scene.queue_free()
+		room_scene = null
+	if r.kind == "pano":
+		var pano := Library.load_pano(r.path)
+		if pano.is_empty():
+			_show_toast("Не мога да отворя " + String(r.path).get_file())
+			return
+		room_mat.set_shader_parameter("pano", pano.tex)
+		room_mat.set_shader_parameter("hdr", pano.hdr)
+		room_mat.set_shader_parameter("exposure", pano.exposure)
+		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.5))), 0))
+		room_mat.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))))
+		sky_mat.panorama = pano.tex
+		sky.sky_material = sky_mat
+		env.background_energy_multiplier = pano.exposure if pano.hdr else 1.0
+		room_shell.visible = true
+		return
+	var scene := Library.load_scene(r.path)
+	if scene == null:
+		_show_toast("Не мога да отворя " + String(r.path).get_file())
+		return
+	room_scene = Node3D.new()
+	room_scene.add_child(scene)
+	add_child(room_scene)
+	# Fit it: centimetres → metres, the floor at 0, the middle of the room between you and the coach.
+	var box := _bounds(scene)
+	var sc: float = r.get("scale", 0.01 if box.size.length() > 400.0 else 1.0)
+	scene.scale = Vector3.ONE * sc
+	scene.rotation_degrees.y = float(r.get("turn", 0.0))
+	box = _bounds(scene)
+	var off: Array = r.get("offset", [])
+	if off.size() == 3:
+		scene.position = Vector3(off[0], off[1], off[2])
+	else:
+		scene.position = Vector3(-box.get_center().x, 0.0, -1.2 - box.get_center().z)
+		scene.position.y = -_floor_under(scene, Vector2(0, -1.2), box.position.y)
+	room_shell.visible = false
+	sky.sky_material = plain_sky
+	env.background_energy_multiplier = 1.0
+
+
+## Height of the floor of a scene under a point: the lowest upward-facing surface there (a table or a step above
+## it does not count). Falls back to the bottom of the scene.
+func _floor_under(scene: Node3D, xz: Vector2, fallback: float) -> float:
+	var best := INF
+	for mi in scene.find_children("*", "MeshInstance3D", true, false):
+		var m: Mesh = (mi as MeshInstance3D).mesh
+		if m == null:
+			continue
+		var t := _global_to(mi, scene.get_parent())
+		var faces := m.get_faces()
+		for i in range(0, faces.size(), 3):
+			var a: Vector3 = t * faces[i]
+			var b: Vector3 = t * faces[i + 1]
+			var c: Vector3 = t * faces[i + 2]
+			var nrm := (b - a).cross(c - a)
+			if absf(nrm.normalized().y) < 0.8:
+				continue
+			var hit = Geometry3D.ray_intersects_triangle(Vector3(xz.x, 1e4, xz.y), Vector3.DOWN, a, b, c)
+			if hit != null and hit.y < best:
+				best = hit.y
+	return best if best < INF else fallback
+
+
+func _bounds(n: Node) -> AABB:
+	var box := AABB()
+	var first := true
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		var b: AABB = _global_to(mi, n) * (mi as MeshInstance3D).get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	return box
+
+
+static func _global_to(node: Node3D, top: Node) -> Transform3D:
+	var t := node.transform
+	var p := node.get_parent()
+	while p != null and p != top.get_parent() and p is Node3D:
+		t = (p as Node3D).transform * t
+		p = p.get_parent()
+	return t
+
+
 func _build_coach() -> void:
-	trainer = Coach.new()
+	if trainer:
+		trainer.queue_free()
+	var c: Dictionary = coaches[coach_i]
+	var src = null
+	if c.path != "":
+		src = Library.load_scene(c.path)
+		if src == null:
+			_show_toast("Не мога да отворя " + String(c.path).get_file())
+	trainer = Coach.new(src)
 	trainer.position = TRAINER_POS
 	trainer.rotation_degrees.y = TRAINER_TURN
 	add_child(trainer)
+	coach_rep = -1
+	if not trainer.ok:
+		_show_toast(String(c.name) + ": няма човешки скелет")
+
+
+func _next_coach() -> void:
+	coach_i = (coach_i + 1) % coaches.size()
+	_build_coach()
+	_show_toast("Треньор %d/%d · %s" % [coach_i + 1, coaches.size(), coaches[coach_i].name])
+
+
+func _next_room() -> void:
+	room_i = (room_i + 1) % rooms.size()
+	_apply_room()
+	_show_toast("Зала %d/%d · %s" % [room_i + 1, rooms.size(), rooms[room_i].name])
+
+
+func _show_toast(text: String) -> void:
+	if toast == null:
+		toast = _label("", 40, TRAINER_POS + Vector3(0, 2.25, 0.3), FONT_BOLD, Color.WHITE)
+		toast.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		toast.outline_size = 12
+	toast.text = text
+	toast.visible = true
+	toast_left = 3.0
 
 
 func _card(pos: Vector3, size: Vector2, turn: float) -> Node3D:
@@ -250,6 +398,10 @@ func _setup_view() -> void:
 			var side_dir := Basis(Vector3.UP, deg_to_rad(TRAINER_TURN)) * Vector3(2.4, 0, 0)
 			cam.position = TRAINER_POS + side_dir + Vector3(0, 1.0, 0)
 			cam.look_at(TRAINER_POS + Vector3(0, 0.85, 0))
+		elif view == "close":                      # the coach's face and chest, from the front
+			var fwd := Basis(Vector3.UP, deg_to_rad(TRAINER_TURN)) * Vector3(0, 0, 1.1)
+			cam.position = TRAINER_POS + fwd + Vector3(0, 1.5, 0)
+			cam.look_at(TRAINER_POS + Vector3(0, 1.35, 0))
 		elif view == "back":
 			cam.position = TRAINER_POS + Vector3(-0.9, 1.4, -1.9)
 			cam.look_at(TRAINER_POS + Vector3(0, 1.0, 0))
@@ -275,7 +427,13 @@ func _glove(parent: Node3D) -> void:
 	parent.add_child(m)
 
 
-func _on_button(name: String, _side: String) -> void:
+func _on_button(name: String, side: String) -> void:
+	if name == "by_button":                     # right B: the next coach, left Y: the next room
+		if side == "right":
+			_next_coach()
+		else:
+			_next_room()
+		return
 	if name == "trigger_click" or name == "ax_button":
 		if ex_time < -0.5:
 			ex_time = -0.5          # skip the preview
@@ -287,6 +445,9 @@ func _on_button(name: String, _side: String) -> void:
 
 func _process(delta: float) -> void:
 	_track_hands(delta)
+	if toast and toast.visible:
+		toast_left -= delta
+		toast.visible = toast_left > 0.0
 	var e: Dictionary = program[ex_index]
 	if not paused and not args.has("shot"):
 		ex_time += delta
@@ -294,6 +455,8 @@ func _process(delta: float) -> void:
 	var t: float = max(ex_time, 0.0) if not preview else fmod(ex_time + 100.0, Exercises.rep_length(e))
 	var ph := Exercises.phase(e, t)
 	var clips: Array = e.get("clips", [])
+	if not clips.is_empty() and not trainer.has_clip(clips[0]):
+		clips = []                               # a coach without the clip library does the punches by pose
 	if clips.is_empty():
 		trainer.set_pose(Exercises.pose_at(e, t))
 	elif ph.rep != coach_rep:                    # a ready-made move per rep (jab, cross, jab…)

@@ -18,6 +18,17 @@ studio, a "glass" coach that shows each exercise, and your body map that glows w
   counterweight; lunge: weight shift → low swing → reach → heel plant → straight down), run through a monotone
   cubic (a planted foot never drifts, no overshoot) on a minimum-jerk clock; arms and head lag the pelvis.
   Punches spawn targets at arm's reach; hit = speed > 2 m/s within 14 cm.
+- **Coaches & rooms to try (`scripts/library.gd`):** right **B** = next coach, left **Y** = next room (a name shows
+  above the coach). Built in: Алекс (Quaternius), 8 generated people (`assets/coaches/gen_*.glb` — men/women, 25 and
+  55 y, three ethnicities, made by `gen/make_humans.py` from MakeHuman/MPFB2 CC0 data: body, Unreal-named rig and
+  weights, painted outfit / hair / eyes), 3 Mixamo test rigs (Michelle, Soldier, X Bot, from the three.js examples).
+  **No rebuild for new ones:** copy files to the Quest under `Android/data/eu.xems.studio/files/XEMS/coaches|rooms`
+  (made with a README on the first start; USB or SideQuest). Coaches: .glb/.gltf, any humanoid rig (Unreal, Mixamo,
+  MakeHuman, Rigify names); `Coach` finds bones by role, turns the model to face +Z, fixes cm scale, stands it on the
+  floor and straightens T/A-pose arms. Rooms: 360° .jpg/.png/.webp/.hdr (2:1, up to 8192 px; .hdr is exposed and
+  tone-mapped) or a .glb scene (cm → m, floor found under you, centred between you and the coach). Optional
+  `<file>.json`: `name`, `cam`, `yaw` (photo) / `scale`, `turn`, `offset` (scene). Desktop: `--lib=<dir>
+  --coach=<n|name> --room=<n|name> --view=close`.
 - **Cards:** frosted glass (`shaders/glass.gdshader`) — exercise name / cue / reps left, "Работят сега" body map right.
 - **Suit link:** one controller haptic pulse per hold (and per punch hit). Installed through the XEMS VR Launcher
   (catalog "XEMS Studio" or 📥 Downloads) the loader shim forwards it to the tablet like any patched game.
@@ -33,4 +44,6 @@ Desktop args (after `--`): `--shot=out.png --ex=squat|lunge|curl|punch --t=<s> -
 --cam=<capture height> --yaw=<0..1>`. `addons/`, `android/`, `.godot/`, `build/` are fetched / generated.
 
 ## Licences
-Godot (MIT), godot_openxr_vendors (MIT), Inter font (OFL, `assets/fonts/LICENSE-Inter.txt`), room HDRI from the owner.
+Godot (MIT), godot_openxr_vendors (MIT), Inter font (OFL, `assets/fonts/LICENSE-Inter.txt`), room HDRI from the owner,
+Quaternius coach (CC0), generated coaches from MakeHuman/MPFB2 data (CC0), Michelle / Soldier / X Bot = Mixamo
+characters from the three.js examples (test only).

@@ -7,10 +7,17 @@ studio, a "glass" coach that shows each exercise, and your body map that glows w
 - **Room:** `assets/yoga_room.jpg` — the owner's 360° HDRI (`yoga_room_4k.exr`), tone-mapped to 4096×2048, projected
   onto a room-sized shell from the camera height (`shaders/room.gdshader`): the parquet floor sits under your feet
   with depth, not as a far-away sky. `ROOM_YAW` puts the arched window ahead.
-- **Coach:** `scripts/mannequin.gd` — capsule figure posed by joint angles, feet kept on the floor automatically,
-  turned 3/4 so depth reads. Each body part knows its XEMS channels (Прасец … Ръце) and glows warm in the impulse.
+- **Coach:** `scripts/coach.gd` — a human (Quaternius Universal Base Character, CC0), turned 3/4 so depth reads.
+  Moves like a person, not joint by joint: the pelvis is placed and tilted (hip hinge, long spine), the feet are
+  planted and the legs reach them by two-bone IK (no sliding or floating, knees over the toes, heel rises on the
+  ball, toes stay flat), arms and head hang off the trunk with the gaze level; breathing and a small sway at rest;
+  a change of exercise eases over 0.7 s. Punches play the Universal Animation Library clips.
+  `scripts/mannequin.gd` = the small glass body map (each part knows its XEMS channels and glows in the impulse).
 - **Exercises:** `scripts/exercises.gd` — Клек, Напад, Бицепс сгъване, Прави удари. One rep = down → **hold (EMS
-  impulse)** → up → rest. Punches spawn targets at arm's reach; hit = speed > 2 m/s within 14 cm.
+  impulse)** → up → rest. Each exercise is a path of key poses (squat: hips lead, then knees, arms rise as a
+  counterweight; lunge: weight shift → low swing → reach → heel plant → straight down), run through a monotone
+  cubic (a planted foot never drifts, no overshoot) on a minimum-jerk clock; arms and head lag the pelvis.
+  Punches spawn targets at arm's reach; hit = speed > 2 m/s within 14 cm.
 - **Cards:** frosted glass (`shaders/glass.gdshader`) — exercise name / cue / reps left, "Работят сега" body map right.
 - **Suit link:** one controller haptic pulse per hold (and per punch hit). Installed through the XEMS VR Launcher
   (catalog "XEMS Studio" or 📥 Downloads) the loader shim forwards it to the tablet like any patched game.
@@ -20,6 +27,7 @@ studio, a "glass" coach that shows each exercise, and your body map that glows w
 ```
 ANDROID_HOME=<sdk with platform 34 + build-tools 34> bash vr-workout/build.sh     # → vr-workout/xems-studio.apk
 bash vr-workout/build.sh shot squat 2.0 player                                     # desktop PNG via Xvfb
+bash vr-workout/build.sh repack        # no SDK (cloud): new project data into the committed APK, same signing key
 ```
 Desktop args (after `--`): `--shot=out.png --ex=squat|lunge|curl|punch --t=<s> --view=player|side|wide
 --cam=<capture height> --yaw=<0..1>`. `addons/`, `android/`, `.godot/`, `build/` are fetched / generated.

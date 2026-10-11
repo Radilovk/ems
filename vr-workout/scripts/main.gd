@@ -333,6 +333,7 @@ func _next_exercise() -> void:
 	ex_time = -4.0
 	last_hold_rep = -1
 	coach_rep = -1
+	trainer.ease_into_next()
 
 
 ## The EMS beat: one pulse per hold. Through the XEMS layer the tablet turns it into the suit's impulse.

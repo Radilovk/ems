@@ -4,6 +4,9 @@
 # plugin and JDK 17 into $XEMS_TOOLS (default /tmp/xems-godot) once.
 #   bash vr-workout/build.sh            needs: an Android SDK (platform 34, build-tools 34) in $ANDROID_HOME
 #   bash vr-workout/build.sh shot squat 2.0 player   → a desktop preview PNG (Xvfb), no headset
+#   bash vr-workout/build.sh repack     no SDK (cloud): exports the project data and swaps it into the committed APK,
+#                                       re-signed with the same key. Only for changes in scripts/assets/scenes —
+#                                       the engine, the plugin and the Android manifest stay as last built.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "$HERE/.." && pwd)"
 T="${XEMS_TOOLS:-/tmp/xems-godot}"; V=4.4.1
@@ -22,6 +25,18 @@ if [[ "${1:-}" == shot ]]; then
   xvfb-run -a -s "-screen 0 1600x900x24" "$G" --path "$HERE" --rendering-driver opengl3 -- \
     --shot="$out" --ex="${2:-squat}" --t="${3:-2.0}" --view="${4:-player}" >/dev/null 2>&1
   echo "$out"; exit 0
+fi
+
+if [[ "${1:-}" == repack ]]; then
+  [[ -d "$HERE/.godot" ]] || timeout 300 "$G" --headless --path "$HERE" --import >/dev/null 2>&1 || true
+  mkdir -p "$HERE/build" && touch "$HERE/build/.gdignore" && rm -rf "$HERE/build/signed"
+  timeout 900 "$G" --headless --path "$HERE" --export-pack "Quest 3" build/data.zip > "$HERE/build/pack.log" 2>&1
+  python3 -I "$HERE/repack.py" "$HERE/xems-studio.apk" "$HERE/build/data.zip" "$HERE/build/unsigned.apk"
+  [[ -s "$T/uas.jar" ]] || curl -fsSL -o "$T/uas.jar" "$GH/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar"
+  java -jar "$T/uas.jar" -a "$HERE/build/unsigned.apk" -o "$HERE/build/signed" --ks "$ROOT/vr-bridge/patcher/android-launcher/debug.keystore" \
+    --ksAlias androiddebugkey --ksPass android --ksKeyPass android | grep -E 'success|verified|ERROR'
+  cp "$HERE/build/signed/unsigned-aligned-signed.apk" "$HERE/xems-studio.apk"
+  echo "repacked: vr-workout/xems-studio.apk ($(du -h "$HERE/xems-studio.apk" | cut -f1))"; exit 0
 fi
 
 [[ -f "$TPL/android_source.zip" ]] || { curl -fsSL -o "$T/t.tpz" "$GH/godotengine/godot-builds/releases/download/${V}-stable/Godot_v${V}-stable_export_templates.tpz"

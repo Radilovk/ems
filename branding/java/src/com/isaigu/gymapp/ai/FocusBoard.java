@@ -827,9 +827,10 @@ public final class FocusBoard {
     }
 
     /**
-     * Upright only while the board shows and the trainer asked for it; across again everywhere else. The app sizes
-     * dp by the landscape width (AutoSize): upright the landscape density is held, so nothing shrinks and the rows
-     * under the board keep their sizes (the 1.1.310 lesson: mixed sizes after a turn), and it is put back after.
+     * Upright only while the board shows and the trainer asked for it; across again everywhere else. The app sizes dp
+     * by the screen's width (AutoSize), so upright the kit (XemsUi: this board, the module bar, the modules' windows)
+     * is held at the landscape density; the module bar shows icons only. Back across, the rows' list makes its rows
+     * afresh — rows made upright had the upright size (the 1.1.310 lesson: rows of mixed sizes after a turn).
      */
     static void orient(boolean upright) {
         try {
@@ -838,28 +839,61 @@ public final class FocusBoard {
             if (a == null) {
                 return;
             }
+            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            if (!turned && dm.widthPixels > dm.heightPixels) {
+                landDensity = dm.density;                    // across: the size every screen is made for
+                landScaled = dm.scaledDensity;
+            }
             if (upright) {
                 if (!turned) {
                     turned = true;
-                    Dens.begin(a);
                     hostOrientation = a.getRequestedOrientation();
                 }
-                Dens.hold(a);
+                if (landDensity > 0) {
+                    XemsUi.forcedDensity = landDensity;
+                    XemsUi.forcedScaled = landScaled;
+                }
                 if (a.getRequestedOrientation() != android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
                     a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
                 }
             } else if (turned) {
                 turned = false;
+                XemsUi.forcedDensity = 0;
+                XemsUi.forcedScaled = 0;
                 a.setRequestedOrientation(hostOrientation);
-                Dens.end(a);
-                H.postDelayed(new DensBack(a), 700);
+                H.postDelayed(new RowsAfresh(), 700);
             }
+            com.isaigu.gymapp.widget.XemsNav.compact(turned);
             View side = r != null ? find(r, "rightLayout") : null;
             if (side != null) {
                 side.setVisibility(turned ? View.GONE : View.VISIBLE);   // the global panel: across only
             }
         } catch (Throwable t) {
             XemsGuard.report("FocusBoard.orient", t);
+        }
+    }
+
+    /** Back across: the list drops its rows and makes them again at the landscape size. */
+    static final class RowsAfresh implements Runnable {
+        @Override
+        public void run() {
+            try {
+                View rv = root != null ? find(root, "recyclerView") : null;
+                if (rv == null || turned) {
+                    return;
+                }
+                Object adapter = rv.getClass().getMethod("getAdapter").invoke(rv);
+                Object pool = rv.getClass().getMethod("getRecycledViewPool").invoke(rv);
+                if (pool != null) {
+                    pool.getClass().getMethod("clear").invoke(pool);
+                }
+                if (adapter != null) {
+                    Class<?> ad = Class.forName("android.support.v7.widget.RecyclerView$Adapter");
+                    rv.getClass().getMethod("setAdapter", ad).invoke(rv, adapter);
+                }
+            } catch (Throwable t) {
+                XemsGuard.report("FocusBoard.rowsAfresh", t);
+            }
         }
     }
 
@@ -871,74 +905,15 @@ public final class FocusBoard {
     }
 
     private static boolean turned;
+    private static float landDensity;
+    private static float landScaled;
     private static int hostOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
     private static boolean builtPortrait;
 
-    /** The landscape density, held while upright (as ScaleScreen.Dens). */
-    static final class Dens {
-        static float density;
-        static float scaled;
-        static int dpi;
-        static float aDensity;
-        static float aScaled;
-        static int aDpi;
-
-        static void begin(android.app.Activity a) {
-            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
-            android.util.DisplayMetrics am = a.getApplicationContext().getResources().getDisplayMetrics();
-            density = dm.density;
-            scaled = dm.scaledDensity;
-            dpi = dm.densityDpi;
-            aDensity = am.density;
-            aScaled = am.scaledDensity;
-            aDpi = am.densityDpi;
-        }
-
-        static void hold(android.app.Activity a) {
-            if (density <= 0) {
-                return;
-            }
-            set(a.getResources().getDisplayMetrics(), density, scaled, dpi);
-            set(a.getApplicationContext().getResources().getDisplayMetrics(), aDensity, aScaled, aDpi);
-        }
-
-        static void end(android.app.Activity a) {
-            hold(a);
-        }
-
-        static void set(android.util.DisplayMetrics dm, float d, float s, int dpi) {
-            dm.density = d;
-            dm.scaledDensity = s;
-            dm.densityDpi = dpi;
-        }
-    }
-
-    static final class DensBack implements Runnable {
-        private final android.app.Activity a;
-
-        DensBack(android.app.Activity a) {
-            this.a = a;
-        }
-
-        @Override
-        public void run() {
-            if (!turned) {
-                Dens.hold(a);
-                Dens.density = 0;
-            }
-        }
-    }
-
-    /** The frame changed shape (a turn): hold the density, rebuild the board for the new shape. */
+    /** The frame changed shape (a turn): rebuild the board for the new shape. */
     static final class Shape implements View.OnLayoutChangeListener, Runnable {
         @Override
         public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
-            if (turned && root != null) {
-                android.app.Activity a = activity(root.getContext());
-                if (a != null) {
-                    Dens.hold(a);
-                }
-            }
             if (board != null && r - l > 0 && (b - t > r - l) != builtPortrait) {
                 v.post(this);
             }
@@ -2028,7 +2003,7 @@ public final class FocusBoard {
             num.setTextAlign(Paint.Align.CENTER);
             unit.setColor(XemsUi.MUTED);
             unit.setTextAlign(Paint.Align.CENTER);
-            unit.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 13, c.getResources().getDisplayMetrics()));
+            unit.setTextSize(XemsUi.sp(c, 13));
             setContentDescription(what == INT2 ? AiText.t("Интензитет 2 — плъзни по кръга", "Intensity 2 — slide around")
                     : AiText.t("Интензитет 1 — плъзни по кръга", "Intensity 1 — slide around"));
         }
@@ -2201,9 +2176,9 @@ public final class FocusBoard {
             super(c);
             tick.setStrokeWidth(XemsUi.dp(c, 1));
             big.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-            big.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 19, c.getResources().getDisplayMetrics()));
+            big.setTextSize(XemsUi.sp(c, 19));
             small.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-            small.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, c.getResources().getDisplayMetrics()));
+            small.setTextSize(XemsUi.sp(c, 12));
             small.setLetterSpacing(0.08f);
         }
 

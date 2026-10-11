@@ -61,6 +61,10 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 - Upright layout: top bar on two lines (clients · time · battery · ⚙ · turn · ☰ / the four modes across), the
   cycle, the figures across the whole width (leader lines → points only), the ten muscles in two rows of five
   (compact chips: name, value, bar), then the controls (rings · impulse cards · ∿ ▶ ■).
-- AutoSize sizes dp by the landscape width; upright the landscape density is held (`Dens`, as ScaleScreen) on every
-  layout change and put back after the turn back (+700 ms) — the 1.1.310 lesson (rows of mixed sizes after a turn).
 - The global right panel (■ ▶ + − ⚙) is hidden while upright (the board's own ▶ ■ act on the client on it).
+- **Sizes upright (1.1.420, phone screenshot: the board came out ~2× too small):** holding the system density did not
+  stick (AutoSize recomputes it by the upright width). Now the kit itself is held: `XemsUi.forcedDensity / forcedScaled`
+  = the landscape density while upright (`dp`, `text`, `sp`), so the board, the module bar and the modules' windows keep
+  their landscape size; the module bar shows icons only (`XemsNav.compact`). Back across, the rows' list makes its
+  rows afresh (+700 ms, `RowsAfresh`: pool cleared, same adapter set again) — no rows of mixed sizes. Vendor windows
+  (e.g. the row's ⚙) opened upright come at the upright system size.

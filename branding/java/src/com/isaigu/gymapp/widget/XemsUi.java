@@ -125,7 +125,23 @@ public final class XemsUi {
         return (0.299 * ((c >> 16) & 0xFF) + 0.587 * ((c >> 8) & 0xFF) + 0.114 * (c & 0xFF)) / 255.0;
     }
 
+    /**
+     * The landscape density while the training board stands upright (FocusBoard, 1.1.420): the app's AutoSize sizes dp
+     * by the screen's width, so upright everything of the kit would come out about half as big. 0 = the system's.
+     */
+    public static float forcedDensity;
+    public static float forcedScaled;
+
+    /** sp → px with the kit's density (forced upright). */
+    public static float sp(Context c, float v) {
+        return forcedScaled > 0 ? v * forcedScaled
+                : TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, v, c.getResources().getDisplayMetrics());
+    }
+
     public static int dp(Context c, float v) {
+        if (forcedDensity > 0) {
+            return Math.round(v * forcedDensity);
+        }
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v,
                 c.getResources().getDisplayMetrics()));
     }
@@ -153,7 +169,11 @@ public final class XemsUi {
     public static TextView text(Context c, String s, float sp, int color, boolean bold) {
         TextView t = new TextView(c);
         t.setText(s);
-        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+        if (forcedScaled > 0) {
+            t.setTextSize(TypedValue.COMPLEX_UNIT_PX, sp * forcedScaled);
+        } else {
+            t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+        }
         t.setTextColor(color);
         t.setIncludeFontPadding(false);
         if (bold) {

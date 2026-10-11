@@ -41,108 +41,108 @@
 
     const/4 v1, 0x1
 
-    .line 1906
+    .line 1881
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 1897
+    .line 1872
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->line:Landroid/graphics/Paint;
 
-    .line 1898
+    .line 1873
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
 
-    .line 1899
+    .line 1874
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->dot:Landroid/graphics/Paint;
 
-    .line 1900
+    .line 1875
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->path:Landroid/graphics/Path;
 
-    .line 1901
+    .line 1876
     new-array v0, v2, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->me:[I
 
-    .line 1902
+    .line 1877
     new-array v0, v2, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->at:[I
 
-    .line 1903
+    .line 1878
     new-array v0, v2, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->pt:[F
 
-    .line 1907
+    .line 1882
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->line:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1908
+    .line 1883
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->line:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 1909
+    .line 1884
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->line:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 1910
+    .line 1885
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1911
+    .line 1886
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 1912
+    .line 1887
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 1913
+    .line 1888
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->dot:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1914
+    .line 1889
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->setClickable(Z)V
 
-    .line 1915
+    .line 1890
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->setFocusable(Z)V
 
-    .line 1916
+    .line 1891
     return-void
 .end method
 
@@ -152,13 +152,13 @@
     .registers 30
 
     .prologue
-    .line 1920
+    .line 1895
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->body:Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2500()Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2400()Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
 
     move-result-object v14
 
-    .line 1921
+    .line 1896
     if-eqz v14, :cond_c
 
     invoke-virtual {v14}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->getWidth()I
@@ -167,12 +167,12 @@
 
     if-gtz v4, :cond_d
 
-    .line 1981
+    .line 1956
     :cond_c
     :goto_c
     return-void
 
-    .line 1924
+    .line 1899
     :cond_d
     move-object/from16 v0, p0
 
@@ -182,14 +182,14 @@
 
     invoke-virtual {v0, v4}, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->getLocationInWindow([I)V
 
-    .line 1925
+    .line 1900
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->at:[I
 
     invoke-virtual {v14, v4}, Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;->getLocationInWindow([I)V
 
-    .line 1926
+    .line 1901
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->at:[I
@@ -210,7 +210,7 @@
 
     int-to-float v15, v4
 
-    .line 1927
+    .line 1902
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->at:[I
@@ -233,7 +233,7 @@
 
     move/from16 v16, v0
 
-    .line 1928
+    .line 1903
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->getContext()Landroid/content/Context;
 
     move-result-object v4
@@ -248,10 +248,10 @@
 
     move/from16 v17, v0
 
-    .line 1929
+    .line 1904
     const/4 v10, 0x0
 
-    .line 1930
+    .line 1905
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->getContext()Landroid/content/Context;
 
     move-result-object v4
@@ -264,7 +264,7 @@
 
     int-to-float v7, v4
 
-    .line 1931
+    .line 1906
     const/4 v4, 0x0
 
     move v13, v4
@@ -274,15 +274,15 @@
 
     if-ge v13, v4, :cond_2a7
 
-    .line 1932
+    .line 1907
     if-nez v13, :cond_91
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->LEFT:[I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2800()[I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2700()[I
 
     move-result-object v4
 
-    .line 1933
+    .line 1908
     :goto_64
     array-length v0, v4
 
@@ -299,15 +299,15 @@
 
     aget v5, v4, v12
 
-    .line 1934
+    .line 1909
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->chips:[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2600()[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2500()[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     move-result-object v6
 
     aget-object v19, v6, v5
 
-    .line 1935
+    .line 1910
     if-eqz v19, :cond_2ae
 
     move-object/from16 v0, v19
@@ -332,7 +332,7 @@
 
     move v5, v10
 
-    .line 1933
+    .line 1908
     :goto_8c
     add-int/lit8 v6, v12, 0x1
 
@@ -342,16 +342,16 @@
 
     goto :goto_69
 
-    .line 1932
+    .line 1907
     :cond_91
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->RIGHT:[I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2900()[I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2800()[I
 
     move-result-object v4
 
     goto :goto_64
 
-    .line 1938
+    .line 1913
     :cond_96
     move-object/from16 v0, v19
 
@@ -363,7 +363,7 @@
 
     invoke-virtual {v5, v6}, Landroid/widget/LinearLayout;->getLocationInWindow([I)V
 
-    .line 1939
+    .line 1914
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->at:[I
@@ -400,7 +400,7 @@
 
     add-float v20, v5, v6
 
-    .line 1940
+    .line 1915
     if-nez v13, :cond_259
 
     move-object/from16 v0, p0
@@ -435,20 +435,20 @@
 
     move v11, v5
 
-    .line 1941
+    .line 1916
     :goto_db
     if-nez v13, :cond_26c
 
     add-float v5, v11, v17
 
-    .line 1942
+    .line 1917
     :goto_df
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->builtPortrait:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Z
 
     move-result v21
 
-    .line 1943
+    .line 1918
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->pt:[F
@@ -459,7 +459,7 @@
 
     add-float v22, v15, v6
 
-    .line 1944
+    .line 1919
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->pt:[F
@@ -470,12 +470,12 @@
 
     add-float v23, v16, v6
 
-    .line 1945
+    .line 1920
     move-object/from16 v0, v19
 
     iget v8, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
 
-    .line 1946
+    .line 1921
     move-object/from16 v0, v19
 
     iget-boolean v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->off:Z
@@ -484,7 +484,7 @@
 
     const/16 v6, 0x30
 
-    .line 1947
+    .line 1922
     :goto_101
     move-object/from16 v0, p0
 
@@ -492,7 +492,7 @@
 
     invoke-virtual {v9}, Landroid/graphics/Path;->reset()V
 
-    .line 1948
+    .line 1923
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->path:Landroid/graphics/Path;
@@ -501,7 +501,7 @@
 
     invoke-virtual {v9, v11, v0}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 1949
+    .line 1924
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->path:Landroid/graphics/Path;
@@ -510,7 +510,7 @@
 
     invoke-virtual {v9, v5, v0}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 1950
+    .line 1925
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->path:Landroid/graphics/Path;
@@ -521,10 +521,10 @@
 
     invoke-virtual {v5, v0, v1}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 1951
+    .line 1926
     if-nez v21, :cond_180
 
-    .line 1952
+    .line 1927
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
@@ -542,7 +542,7 @@
 
     invoke-virtual {v9, v5}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1953
+    .line 1928
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
@@ -562,7 +562,7 @@
 
     invoke-virtual {v9, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1954
+    .line 1929
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->path:Landroid/graphics/Path;
@@ -575,7 +575,7 @@
 
     invoke-virtual {v0, v5, v9}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 1955
+    .line 1930
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->line:Landroid/graphics/Paint;
@@ -593,7 +593,7 @@
     :goto_165
     invoke-virtual {v9, v5}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1956
+    .line 1931
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->line:Landroid/graphics/Paint;
@@ -604,7 +604,7 @@
 
     invoke-virtual {v5, v9}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1957
+    .line 1932
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->path:Landroid/graphics/Path;
@@ -617,7 +617,7 @@
 
     invoke-virtual {v0, v5, v9}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 1959
+    .line 1934
     :cond_180
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->getContext()Landroid/content/Context;
 
@@ -640,7 +640,7 @@
 
     move/from16 v24, v0
 
-    .line 1960
+    .line 1935
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->dot:Landroid/graphics/Paint;
@@ -660,7 +660,7 @@
 
     invoke-virtual {v9, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1961
+    .line 1936
     const v5, 0x40066666    # 2.1f
 
     mul-float v5, v5, v24
@@ -677,7 +677,7 @@
 
     invoke-virtual {v0, v1, v2, v5, v9}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1962
+    .line 1937
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->dot:Landroid/graphics/Paint;
@@ -710,7 +710,7 @@
 
     invoke-virtual {v0, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1963
+    .line 1938
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->dot:Landroid/graphics/Paint;
@@ -725,7 +725,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1964
+    .line 1939
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->dot:Landroid/graphics/Paint;
@@ -736,10 +736,10 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1965
+    .line 1940
     if-nez v21, :cond_201
 
-    .line 1966
+    .line 1941
     const v5, 0x3fe66666    # 1.8f
 
     mul-float/2addr v5, v7
@@ -754,7 +754,7 @@
 
     invoke-virtual {v0, v11, v1, v5, v6}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1968
+    .line 1943
     :cond_201
     move-object/from16 v0, v19
 
@@ -768,7 +768,7 @@
 
     if-nez v5, :cond_2ae
 
-    .line 1970
+    .line 1945
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v10
@@ -783,7 +783,7 @@
 
     div-double v10, v10, v20
 
-    .line 1971
+    .line 1946
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
@@ -794,7 +794,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1972
+    .line 1947
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->halo:Landroid/graphics/Paint;
@@ -817,7 +817,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1973
+    .line 1948
     const v5, 0x400ccccd    # 2.2f
 
     const v6, 0x4019999a    # 2.4f
@@ -842,12 +842,12 @@
 
     invoke-virtual {v0, v1, v2, v5, v6}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1974
+    .line 1949
     const/4 v5, 0x1
 
     goto/16 :goto_8c
 
-    .line 1940
+    .line 1915
     :cond_259
     move-object/from16 v0, p0
 
@@ -873,13 +873,13 @@
 
     goto/16 :goto_db
 
-    .line 1941
+    .line 1916
     :cond_26c
     sub-float v5, v11, v17
 
     goto/16 :goto_df
 
-    .line 1946
+    .line 1921
     :cond_270
     move-object/from16 v0, v19
 
@@ -896,13 +896,13 @@
 
     goto/16 :goto_101
 
-    .line 1952
+    .line 1927
     :cond_27e
     const/high16 v5, 0x40600000    # 3.5f
 
     goto/16 :goto_133
 
-    .line 1953
+    .line 1928
     :cond_282
     move-object/from16 v0, v19
 
@@ -922,22 +922,22 @@
     :cond_290
     move v5, v7
 
-    .line 1955
+    .line 1930
     goto/16 :goto_165
 
-    .line 1959
+    .line 1934
     :cond_293
     const/high16 v5, 0x40600000    # 3.5f
 
     goto/16 :goto_18c
 
-    .line 1960
+    .line 1935
     :cond_297
     const/16 v5, 0x50
 
     goto/16 :goto_19f
 
-    .line 1962
+    .line 1937
     :cond_29b
     const/4 v5, -0x1
 
@@ -948,7 +948,7 @@
 
     goto/16 :goto_1cd
 
-    .line 1931
+    .line 1906
     :cond_2a2
     add-int/lit8 v4, v13, 0x1
 
@@ -956,11 +956,11 @@
 
     goto/16 :goto_5b
 
-    .line 1978
+    .line 1953
     :cond_2a7
     if-eqz v10, :cond_c
 
-    .line 1979
+    .line 1954
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;->postInvalidateOnAnimation()V
 
     goto/16 :goto_c

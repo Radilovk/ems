@@ -83,7 +83,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-train-info-column.py` (243L, build:L181) — Training row, column right of the avatar: name on its own line, time + status icons on one row, battery number readable…
 - `scripts/apply-train-swipe-delete-fix.py` (81L, build:L145[BETA_MUSIC]) — Disable swipe-delete on empty train slots; guard delete handler against empty items.
 - `scripts/apply-train-ui-refinements.py` (271L, build:L64) — Factory-style status icons and compact impulse/pause button labels.
-- `scripts/apply-ui-theme.py` (592L, build:L53) — Apply comprehensive UI theme across all app screens.
+- `scripts/apply-ui-theme.py` (615L, build:L53) — Apply comprehensive UI theme across all app screens.
 - `scripts/apply-version.py` (56L, build:L48) — Stamp RELEASE_VERSION (versionName / versionCode) into build/decompiled/apktool.yml — its own step since 1.1.333 (it us…
 - `scripts/apply-vr-bridge.py` (98L, build:L122[BETA_MUSIC]) — Quest 3 haptic bridge (wearable/vr, vr-bridge/): manifest permissions for the UDP receiver's Wi-Fi locks (WAKE_LOCK → l…
 - `scripts/apply-wearable-bridge.py` (486L, build:L120[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
@@ -672,7 +672,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L229 ## Agent checklist
   - L243 ## Локални инструменти
 
-`branding/UI-PITFALLS.md` (261L)
+`branding/UI-PITFALLS.md` (268L)
   - L1 # UI и функции — чести грешки и правилен подход
   - L12 ## 1. Промяната не се вижда в APK
   - L28 ## 2. CircleSeekBar (кръгов слайдер)
@@ -696,10 +696,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L177 ## 8. Координация music ↔ training ↔ timer
   - L189 ## 9. Smali patch — добри практики
   - L200 ## 10. Design pipeline vs factory UI
-  - L212 ## 11a. Свечение / сянка извън контрола се реже
-  - L218 ## 11. Шаблон за нова UI функция
-  - L234 ## 12. Бърз указател по симптом
-  - L250 ## Референции в кода
+  - L212 ## 11b. Цветовете на темата не стигат до таблета
+  - L219 ## 11a. Свечение / сянка извън контрола се реже
+  - L225 ## 11. Шаблон за нова UI функция
+  - L241 ## 12. Бърз указател по симптом
+  - L257 ## Референции в кода
 
 `diag-logs/README.md` (42L)
   - L1 # Diagnostic logs (music player)

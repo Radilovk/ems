@@ -36,7 +36,10 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   pause (grey), widths = their seconds, a mark per second; the running phase fills with a glowing head, its name and
   the seconds left above it. Clock = `SoftRamp.clock(item)` (the ramp's own phase clock, read only).
 - **Colours:** impulse 1 = cyan (`ACCENT`), impulse 2 = yellow (`AMBER`) — ring, card, ∿, "2=1".
-- **One key size** (`KEY` = 46 dp) for every − / + of the panel (rings, times, Hz).
+- **One key size** (`KEY` = 46 dp) for every − / + of the panel (rings, times, Hz) — inside the original proportions
+  (rings 1.25 : impulse cards 1, keys 78 dp; owner 1.1.416: no window grows for it).
+- Visualisation from the code (1280×800, not a device shot): `docs/xems-focus-board-phase1.png` (impulse 1 runs),
+  `docs/xems-focus-board-phase2.png` (impulse 2 runs).
 - **Ring = slider:** slide around the arc, relative (no jump), clockwise = more, ≤ +20 per slide (master slider rule),
   live preview, sent on release as that many − / + steps (`setTo` → `step`).
 - **Lock 🔒** between the rings (top): 1 and 2 move together at the ratio taken when it closed (per client,

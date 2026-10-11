@@ -745,16 +745,17 @@ public final class FocusBoard {
         rings.addView(ringColumn(c, ring2, ring2Label, INT2, steps2),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         ring2Steps = steps2[0];
-        col.addView(rings, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        col.addView(rings, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.25f));
 
         // impulse 1 | impulse 2 (pause without it)
         LinearLayout imps = XemsUi.horizontal(c);
         TextView[] v1 = new TextView[3];
         TextView[] v2 = new TextView[3];
         View[] hzRow2 = new View[1];
+        imps.setGravity(Gravity.FILL_VERTICAL);
         imps.addView(impulseCard(c, AiText.t("Импулс 1", "Impulse 1"), XemsUi.ACCENT, T1, HZ1, v1, null),
-                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        LinearLayout.LayoutParams i2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        LinearLayout.LayoutParams i2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         i2.leftMargin = XemsUi.dp(c, 8);
         imps.addView(impulseCard(c, AiText.t("Импулс 2", "Impulse 2"), XemsUi.AMBER, T2, HZ2, v2, hzRow2), i2);
         imp1Val = v1[1];
@@ -763,8 +764,7 @@ public final class FocusBoard {
         imp2Val = v2[1];
         hz2Val = v2[2];
         hz2Row = hzRow2[0];
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
         ilp.topMargin = XemsUi.dp(c, 8);
         col.addView(imps, ilp);
 
@@ -810,7 +810,7 @@ public final class FocusBoard {
         keys.addView(stop, stl);
 
         LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                XemsUi.dp(c, 72));
+                XemsUi.dp(c, 78));
         klp.topMargin = XemsUi.dp(c, 8);
         col.addView(keys, klp);
         return col;
@@ -861,6 +861,7 @@ public final class FocusBoard {
         LinearLayout card = XemsUi.vertical(c);
         card.setGravity(Gravity.CENTER_HORIZONTAL);
         card.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 16)));
+        card.setGravity(Gravity.CENTER);
         card.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 7), XemsUi.dp(c, 8), XemsUi.dp(c, 8));
         TextView t = XemsUi.text(c, title, 13, tint, true);
         card.addView(t);

@@ -113,6 +113,18 @@ def resolve(gid: str) -> int:
         say(f"✗ няма такава игра в каталога: {gid}")
         return 2
     src = g["source"]
+    if "repo" in src:                                     # built in this repo (vr-workout/): sparse-fetch just that file
+        apk = HERE.parents[1] / src["repo"]
+        if not apk.is_file():
+            import subprocess
+            say(f"… тегля {src['repo']} от repo-то")
+            subprocess.run(["git", "-C", str(HERE.parents[1]), "sparse-checkout", "add", "/" + src["repo"]],
+                           capture_output=True)
+        if apk.is_file():
+            say(f"apk {apk}")
+            return 0
+        say(f"✗ няма {src['repo']} в repo-то")
+        return 2
     if "github" in src:
         apk = github_apk(src["github"], src.get("asset", r"\.apk$"))
         if apk:
@@ -132,7 +144,7 @@ def resolve(gid: str) -> int:
 def main(argv: list[str]) -> int:
     if argv[:1] == ["list"]:
         for g in games():
-            kind = "github" if "github" in g["source"] else "page"
+            kind = "page" if "page" in g["source"] and "github" not in g["source"] else "github"
             say(f"item {g['id']}\t{g['name']}\t{kind}\t{g.get('note', '')}")
         return 0
     if argv[:1] == ["downloads"]:

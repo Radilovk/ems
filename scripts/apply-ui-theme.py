@@ -118,10 +118,33 @@ def remove_duplicate_theme_resource_files() -> None:
             DECOMPILED / "res" / "values-night" / "ui_colors.xml",
         ),
     )
+    import re
+
+    item = re.compile(r'(<(color|dimen) name="([^"]+)">)([^<]*)(</\2>)')
     for merged_path, marker, duplicate_path in pairs:
         if merged_path.exists() and duplicate_path.exists() and marker in merged_path.read_text(encoding="utf-8"):
+            # The base APK already carries an older copy of the theme: OUR values win (before 1.1.418 the new file was
+            # simply dropped, so theme changes such as the neon skin never reached the tablet).
+            ours = {m.group(3): m.group(4) for m in item.finditer(duplicate_path.read_text(encoding="utf-8"))}
+            merged = merged_path.read_text(encoding="utf-8")
+            seen = set()
+
+            def take(m):
+                name = m.group(3)
+                seen.add(name)
+                return m.group(1) + ours.get(name, m.group(4)) + m.group(5) if name in ours else m.group(0)
+
+            merged = item.sub(take, merged)
+            extra = [n for n in ours if n not in seen]
+            if extra:
+                lines = "".join(
+                    f'    <{"dimen" if "dimens" in merged_path.name else "color"} name="{n}">{ours[n]}'
+                    f'</{"dimen" if "dimens" in merged_path.name else "color"}>\n' for n in extra)
+                merged = merged.replace("</resources>", lines + "</resources>", 1)
+            merged_path.write_text(merged, encoding="utf-8")
             duplicate_path.unlink()
-            print(f"removed duplicate {duplicate_path.relative_to(DECOMPILED)} (already in {merged_path.name})")
+            print(f"merged {duplicate_path.relative_to(DECOMPILED)} into {merged_path.name} "
+                  f"({len(ours)} values, {len(extra)} new)")
 
 
 def patch_app_theme() -> None:

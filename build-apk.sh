@@ -175,6 +175,8 @@ python3 "${ROOT}/scripts/apply-suit-reconnect.py"
 # patch that rewrites BleDeviceManager / CommandSender / CommandReceiver.
 python3 "${ROOT}/scripts/apply-bodytech.py"
 python3 "${ROOT}/scripts/verify-bodytech.py"
+# Suit standard XEMS / X-Body: the parts PDU reordered to the suit's channels (SuitStandard, Settings card).
+python3 "${ROOT}/scripts/apply-suit-standard.py"
 # Own names for the suits in the device list (DeviceAlias, kept on the tablet only).
 python3 "${ROOT}/scripts/apply-device-alias.py"
 # After every train row layout patch: name / time / status icons / big + and − (column right of the avatar).

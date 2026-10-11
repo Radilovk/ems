@@ -135,6 +135,8 @@ public final class BtBridge {
             if (!isBodytech(d)) return false;
             byte[] pdu = new byte[data.length - 4];
             System.arraycopy(data, 3, pdu, 0, pdu.length);
+            // cmd 1 (strength of the 10 sliders) went out in the suit standard's order: back to XEMS channels
+            if ((data[2] & 0xFF) == 1) SuitStandard.fromSuit(pdu);
             Dev v = dev(d);
             v.begin();
             boolean was = v.tr.armed();

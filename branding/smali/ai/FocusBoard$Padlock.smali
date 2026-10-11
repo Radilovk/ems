@@ -27,10 +27,10 @@
     .registers 5
 
     .prologue
-    .line 1998
+    .line 2317
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 1994
+    .line 2313
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -39,18 +39,18 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
 
-    .line 1999
+    .line 2318
     iput-boolean p2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->shut:Z
 
-    .line 2000
+    .line 2319
     iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->color:I
 
-    .line 2001
+    .line 2320
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2002
+    .line 2321
     return-void
 .end method
 
@@ -60,26 +60,26 @@
     .registers 18
 
     .prologue
-    .line 2006
+    .line 2325
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v3
 
-    .line 2007
+    .line 2326
     invoke-virtual {v3}, Landroid/graphics/Rect;->width()I
 
     move-result v1
 
     int-to-float v8, v1
 
-    .line 2008
+    .line 2327
     invoke-virtual {v3}, Landroid/graphics/Rect;->height()I
 
     move-result v1
 
     int-to-float v9, v1
 
-    .line 2009
+    .line 2328
     iget v1, v3, Landroid/graphics/Rect;->left:I
 
     int-to-float v1, v1
@@ -90,7 +90,7 @@
 
     add-float v10, v1, v2
 
-    .line 2010
+    .line 2329
     iget v1, v3, Landroid/graphics/Rect;->top:I
 
     int-to-float v1, v1
@@ -101,17 +101,17 @@
 
     add-float v7, v1, v2
 
-    .line 2011
+    .line 2330
     const v1, 0x3f23d70a    # 0.64f
 
     mul-float v11, v8, v1
 
-    .line 2012
+    .line 2331
     const v1, 0x3eeb851f    # 0.46f
 
     mul-float v12, v9, v1
 
-    .line 2013
+    .line 2332
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
@@ -120,7 +120,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 2014
+    .line 2333
     new-instance v1, Landroid/graphics/RectF;
 
     add-float v2, v10, v11
@@ -145,7 +145,7 @@
 
     invoke-virtual {v0, v1, v2, v4, v5}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 2015
+    .line 2334
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
@@ -154,7 +154,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 2016
+    .line 2335
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
@@ -165,7 +165,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 2017
+    .line 2336
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
@@ -174,12 +174,12 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 2018
+    .line 2337
     const v1, 0x3f1eb852    # 0.62f
 
     mul-float v13, v11, v1
 
-    .line 2019
+    .line 2338
     sub-float v1, v11, v13
 
     const/high16 v2, 0x40000000    # 2.0f
@@ -188,7 +188,7 @@
 
     add-float v14, v10, v1
 
-    .line 2020
+    .line 2339
     move-object/from16 v0, p0
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->shut:Z
@@ -197,7 +197,7 @@
 
     const/4 v1, 0x0
 
-    .line 2021
+    .line 2340
     :goto_7d
     new-instance v2, Landroid/graphics/RectF;
 
@@ -225,12 +225,12 @@
 
     invoke-direct {v2, v14, v3, v4, v1}, Landroid/graphics/RectF;-><init>(FFFF)V
 
-    .line 2022
+    .line 2341
     invoke-virtual {v2}, Landroid/graphics/RectF;->centerY()F
 
     move-result v15
 
-    .line 2023
+    .line 2342
     const/high16 v3, 0x43340000    # 180.0f
 
     const/high16 v4, 0x43340000    # 180.0f
@@ -245,7 +245,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 2024
+    .line 2343
     add-float v2, v14, v13
 
     add-float v4, v14, v13
@@ -262,7 +262,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 2025
+    .line 2344
     move-object/from16 v0, p0
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->shut:Z
@@ -286,7 +286,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 2026
+    .line 2345
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
@@ -295,7 +295,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 2027
+    .line 2346
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
@@ -304,7 +304,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2028
+    .line 2347
     const/high16 v1, 0x40000000    # 2.0f
 
     div-float v1, v11, v1
@@ -329,7 +329,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 2029
+    .line 2348
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
@@ -340,10 +340,10 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2030
+    .line 2349
     return-void
 
-    .line 2020
+    .line 2339
     :cond_fd
     const v1, 0x3e0f5c29    # 0.14f
 
@@ -351,7 +351,7 @@
 
     goto/16 :goto_7d
 
-    .line 2025
+    .line 2344
     :cond_103
     const v1, 0x3d4ccccd    # 0.05f
 
@@ -366,7 +366,7 @@
     .registers 2
 
     .prologue
-    .line 2044
+    .line 2363
     const/4 v0, -0x3
 
     return v0
@@ -376,12 +376,12 @@
     .registers 3
 
     .prologue
-    .line 2034
+    .line 2353
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 2035
+    .line 2354
     return-void
 .end method
 
@@ -389,11 +389,11 @@
     .registers 3
 
     .prologue
-    .line 2039
+    .line 2358
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Padlock;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColorFilter(Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
-    .line 2040
+    .line 2359
     return-void
 .end method

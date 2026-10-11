@@ -105,6 +105,7 @@ public final class XemsNav {
                 } catch (Throwable ignored) {
                 }
             }
+            com.isaigu.gymapp.ai.FocusBoard.onPage(currentPage == ID_TAB_FIRST);
             if (menu != null && menu.isShowing()) {
                 menu.dismiss();
             }

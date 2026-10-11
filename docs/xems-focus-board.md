@@ -53,3 +53,14 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 - 2nd tap = **yellow**: the same in yellow, the bar = the channel's **second** impulse level.
 - Unmarked chips follow the impulse on the screen (cyan / yellow). Leader line and pulsing ring take the chip's colour;
   a slide on a marked chip changes the impulse it shows. (Green marks were the old row's; not in this skin.)
+
+## 1.1.419 — upright (button)
+- A turn key in the top bar (screen + arrow; lit while upright). The choice is kept (prefs `upright`); the board turns
+  upright only while it shows — leaving the training page, rows mode, or an engine taking the rows (Auto / AI / map)
+  puts the app across again (`orient(false)`, `onPage` hook in `XemsNav.onPage`).
+- Upright layout: top bar on two lines (clients · time · battery · ⚙ · turn · ☰ / the four modes across), the
+  cycle, the figures across the whole width (leader lines → points only), the ten muscles in two rows of five
+  (compact chips: name, value, bar), then the controls (rings · impulse cards · ∿ ▶ ■).
+- AutoSize sizes dp by the landscape width; upright the landscape density is held (`Dens`, as ScaleScreen) on every
+  layout change and put back after the turn back (+700 ms) — the 1.1.310 lesson (rows of mixed sizes after a turn).
+- The global right panel (■ ▶ + − ⚙) is hidden while upright (the board's own ▶ ■ act on the client on it).

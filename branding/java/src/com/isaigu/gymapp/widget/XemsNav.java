@@ -115,6 +115,33 @@ public final class XemsNav {
         }
     }
 
+    /**
+     * Upright training board (FocusBoard, 1.1.420): the bar is too narrow for labels — every tile shows its icon only,
+     * centred; across again, the labels and the "i" come back.
+     */
+    public static void compact(boolean on) {
+        try {
+            LinearLayout bar = barView;
+            if (bar == null || (bar.getTag() instanceof Boolean && (Boolean) bar.getTag() == on)) {
+                return;
+            }
+            bar.setTag(on);
+            for (int i = 0; i < bar.getChildCount(); i++) {
+                View t = bar.getChildAt(i);
+                if (!(t instanceof LinearLayout)) {
+                    continue;
+                }
+                LinearLayout tile = (LinearLayout) t;
+                tile.setGravity(on ? Gravity.CENTER : Gravity.CENTER_VERTICAL);
+                for (int k = 1; k < tile.getChildCount(); k++) {
+                    tile.getChildAt(k).setVisibility(on ? View.GONE : View.VISIBLE);
+                }
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("XemsNav.compact", t);
+        }
+    }
+
     public static void onTrainingPanel(View panelRoot) {
         try {
             hideSidebarModules(panelRoot);
@@ -290,6 +317,7 @@ public final class XemsNav {
     private static void fillBar(LinearLayout bar) {
         Context c = bar.getContext();
         bar.removeAllViews();
+        bar.setTag(null);                               // new tiles: compact() applies again
         java.util.Arrays.fill(tiles, null);
         addMenuTile(bar);
         for (String k : barKeys(c)) {

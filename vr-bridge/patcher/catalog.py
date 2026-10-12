@@ -4,6 +4,7 @@
   python3 catalog.py list                 → "item <id>\\t<name>\\t<page|github>\\t<note>" per game
   python3 catalog.py downloads            → "dl <path>\t<game name>\t<ok|vrapi|?>\t<MB>" per APK in Downloads
   python3 catalog.py resolve <id>         → prints the local APK path (exit 0)
+      url: a fixed link (XEMS Studio: release xems-studio-latest) → ~/.xems-vr/apk/, fetched again only when it changed
       github: newest release asset → ~/.xems-vr/apk/ (kept, not downloaded twice)
       page or github without an APK: newest matching file in Downloads, else "page <url>" + exit 7
       Downloads not readable (termux-setup-storage not run) → exit 8
@@ -107,12 +108,44 @@ def downloads() -> int:
     return 0
 
 
+def url_apk(url: str) -> Path | None:
+    """A fixed download link; downloaded again only when the server's size or date differs from the kept copy."""
+    CACHE.mkdir(parents=True, exist_ok=True)
+    dst = CACHE / url.rstrip("/").rsplit("/", 1)[-1]
+    stamp = dst.with_suffix(".stamp")
+    head = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "xems-vr"})
+    try:
+        with urllib.request.urlopen(head, timeout=20) as r:
+            remote = f"{r.headers.get('Content-Length', '')} {r.headers.get('Last-Modified', '')}"
+    except Exception as e:  # noqa: BLE001 — offline: use the kept copy if there is one
+        say(f"… сайтът не отговори ({e})")
+        return dst if dst.is_file() else None
+    if dst.is_file() and stamp.is_file() and stamp.read_text() == remote:
+        say(f"✓ вече свалено: {dst.name}")
+        return dst
+    size = remote.split(" ")[0]
+    say(f"… тегля {dst.name}" + (f" ({int(size) // 1048576} MB)" if size.isdigit() else ""))
+    tmp = dst.with_suffix(".part")
+    urllib.request.urlretrieve(url, tmp)
+    tmp.rename(dst)
+    stamp.write_text(remote)
+    say(f"✓ свалено: {dst.name}")
+    return dst
+
+
 def resolve(gid: str) -> int:
     g = next((g for g in games() if g["id"] == gid), None)
     if g is None:
         say(f"✗ няма такава игра в каталога: {gid}")
         return 2
     src = g["source"]
+    if "url" in src:                                      # our own builds, published next to the web version
+        apk = url_apk(src["url"])
+        if apk:
+            say(f"apk {apk}")
+            return 0
+        say(f"✗ не можах да сваля {src['url']}")
+        return 2
     if "repo" in src:                                     # built in this repo (vr-workout/): sparse-fetch just that file
         apk = HERE.parents[1] / src["repo"]
         if not apk.is_file():

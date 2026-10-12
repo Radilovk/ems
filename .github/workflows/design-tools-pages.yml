@@ -1,6 +1,8 @@
 # Publish branding/ dev reference + the XEMS Studio VR workout (WebXR) to GitHub Pages
 # URL: https://radilovk.github.io/ems/  (after Settings → Pages → Source: GitHub Actions)
-#      https://radilovk.github.io/ems/vr/  ← open in the Meta Quest browser, "Влез във VR"
+#      https://radilovk.github.io/ems/vr/  ← open in the Meta Quest browser, "Влез във VR" (preview, no suit)
+# The Quest app with the suit link: release "xems-studio-latest" → xems-studio.apk (the tablet's VR Launcher
+# catalog installs it on the headset and adds the haptic bridge).
 name: Branding Dev Reference + VR (WebXR) — GitHub Pages
 
 on:
@@ -18,7 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # the rolling "xems-studio-latest" release with the Quest APK
   pages: write
   id-token: write
 
@@ -39,12 +41,14 @@ jobs:
       - name: Keep the signing key out of the public site
         run: rm -f branding/release.keystore branding/*.jks branding/*.keystore
 
-      - name: Godot 4.4.1 + web templates (cached)
+      - name: Godot 4.4.1 + export templates (cached)
         id: godot
         uses: actions/cache@v4
         with:
-          path: ~/godot
-          key: godot-4.4.1-web
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-4.4.1-templates
 
       - name: Fetch Godot
         if: steps.godot.outputs.cache-hit != 'true'
@@ -53,20 +57,37 @@ jobs:
           GH=https://github.com/godotengine/godot-builds/releases/download/4.4.1-stable
           curl -fsSL -o g.zip $GH/Godot_v4.4.1-stable_linux.x86_64.zip && unzip -q g.zip && rm g.zip
           curl -fsSL -o t.tpz $GH/Godot_v4.4.1-stable_export_templates.tpz
-          unzip -q t.tpz 'templates/web_nothreads_*' && rm t.tpz
-
-      - name: Build the VR workout for the browser (WebXR)
-        run: |
           TPL=~/.local/share/godot/export_templates/4.4.1.stable
-          mkdir -p $TPL && cp ~/godot/templates/* $TPL/
+          mkdir -p $TPL && unzip -q t.tpz -d t && mv t/templates/* $TPL/ && rm -rf t t.tpz
+
+      - name: Import the VR workout
+        run: |
           G=~/godot/Godot_v4.4.1-stable_linux.x86_64
           cd vr-workout
           # twice: the first pass extracts the models' textures, the second imports them
           $G --headless --path . --import || true
           $G --headless --path . --import || true
-          mkdir -p ../site/vr
-          $G --headless --path . --export-release "Web" ../site/vr/index.html
-          ls -la ../site/vr
+
+      - name: Build the browser version (WebXR)
+        run: |
+          mkdir -p site/vr
+          ~/godot/Godot_v4.4.1-stable_linux.x86_64 --headless --path vr-workout --export-release "Web" ../site/vr/index.html
+          ls -la site/vr
+
+      - name: Build the Quest app (APK, full quality)
+        run: |
+          # the runner's Android SDK (platform + build-tools 34); build.sh brings JDK 17 and the OpenXR vendors plugin
+          XEMS_TOOLS=$HOME/godot bash vr-workout/build.sh
+          ls -la vr-workout/xems-studio.apk
+
+      - name: Publish the APK (release xems-studio-latest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view xems-studio-latest >/dev/null 2>&1 || gh release create xems-studio-latest --prerelease \
+            --title "XEMS Studio (Meta Quest)" \
+            --notes "Нова версия при всяка промяна във vr-workout/. Инсталира се на Quest от XEMS VR Launcher → Каталог → XEMS Studio (с връзката към костюма)."
+          gh release upload xems-studio-latest vr-workout/xems-studio.apk --clobber
 
       - name: Assemble the site
         run: cp -r branding/. site/

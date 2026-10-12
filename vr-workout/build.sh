@@ -4,7 +4,7 @@
 # plugin and JDK 17 into $XEMS_TOOLS (default /tmp/xems-godot) once.
 #   bash vr-workout/build.sh            needs: an Android SDK (platform 34, build-tools 34) in $ANDROID_HOME
 #   bash vr-workout/build.sh shot squat 2.0 player   → a desktop preview PNG (Xvfb), no headset
-#   bash vr-workout/build.sh repack     no SDK (cloud): exports the project data and swaps it into the committed APK,
+#   bash vr-workout/build.sh repack     no SDK (cloud): exports the project data and swaps it into the last released APK,
 #                                       re-signed with the same key. Only for changes in scripts/assets/scenes —
 #                                       the engine, the plugin and the Android manifest stay as last built.
 set -euo pipefail
@@ -31,6 +31,8 @@ if [[ "${1:-}" == repack ]]; then
   [[ -d "$HERE/.godot" ]] || timeout 300 "$G" --headless --path "$HERE" --import >/dev/null 2>&1 || true
   mkdir -p "$HERE/build" && touch "$HERE/build/.gdignore" && rm -rf "$HERE/build/signed"
   timeout 900 "$G" --headless --path "$HERE" --export-pack "Quest 3" build/data.zip > "$HERE/build/pack.log" 2>&1
+  [[ -s "$HERE/xems-studio.apk" ]] || curl -fsSL -o "$HERE/xems-studio.apk" \
+    "$GH/Radilovk/ems/releases/download/xems-studio-latest/xems-studio.apk"
   python3 -I "$HERE/repack.py" "$HERE/xems-studio.apk" "$HERE/build/data.zip" "$HERE/build/unsigned.apk"
   [[ -s "$T/uas.jar" ]] || curl -fsSL -o "$T/uas.jar" "$GH/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar"
   java -jar "$T/uas.jar" -a "$HERE/build/unsigned.apk" -o "$HERE/build/signed" --ks "$ROOT/vr-bridge/patcher/android-launcher/debug.keystore" \

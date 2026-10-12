@@ -48,8 +48,10 @@ are `XRController3D` as in the app, B / Y switch coach / room. First visit loads
 `godot --headless --path vr-workout --export-release Web build/web/index.html`, serve `build/web/`.
 **Not yet in the browser:** the suit link — the haptic → tablet path lives in the OpenXR layer of the APK; the web
 page needs its own channel to the tablet. Textures Godot extracts from the .glb files are not committed (`.gitignore`);
-the import re-creates them. The Quest APK (`xems-studio.apk`) is no longer rebuilt: with full-quality assets it is
-over GitHub's 100 MB file limit.
+the import re-creates them. **The Quest app with the suit link** is built by the same workflow (`build.sh`, the runner's Android SDK) and
+published as the rolling release **`xems-studio-latest`** (`xems-studio.apk`, full quality, > 100 MB, so never
+committed). The tablet's XEMS VR Launcher → 🎮 Каталог → XEMS Studio downloads it (`catalog.json` source `url`,
+fetched again only when it changed), installs it on the headset and adds the haptic bridge → the suit.
 
 ## Build / preview
 ```

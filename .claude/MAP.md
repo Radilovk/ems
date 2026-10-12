@@ -266,7 +266,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (137L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
-- `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
+- `ClientRow.java` (557L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `ClientSort.java` (608L, compile:music-sync*,wearable) — Order and filters of the client lists — the Потребители tab and the client / program / device picker.
 - `DoubleImpulse.java` (1332L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
@@ -1262,19 +1262,6 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L42 ## In the Quest browser (WebXR) — the way it ships now
   - L56 ## Build / preview
   - L65 ## Licences
-
-`vr-workout/addons/godotopenxrvendors/GodotOpenXRVendors_CHANGES.md` (100L)
-  - L1 # Change history for the Godot OpenXR loaders asset
-  - L3 ## 4.0.0
-  - L22 ## 3.1.2
-  - L26 ## 3.1.1
-  - L30 ## 3.1.0
-  - L42 ## 3.0.1
-  - L45 ## 3.0.0
-  - L65 ## 2.0.3
-  - L72 ## 2.0.0
-  - L88 ## 1.1.0
-  - L93 ## 1.0.0
 
 `vr-workout/assets/CREDITS.md` (15L)
   - L1 # Asset credits

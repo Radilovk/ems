@@ -1,4 +1,4 @@
-## XEMS Studio — the stage (room, coach, cards, the headset / browser plumbing) and the game on it (scripts/game/).
+## XEMS Studio — the stage (room, cards, the headset / browser plumbing) and the game on it (scripts/game/).
 ## Runs in the headset (OpenXR / WebXR) or on a desktop for previews and tests:
 ##   godot --path vr-workout -- --shot=out.png --wait=20 --view=player --sim=1 --skiptut=1 --level=3
 ##   godot --path vr-workout -- --sim=1 --skiptut=1 --levels=2 --timescale=4      (plays itself, prints the result)
@@ -10,8 +10,7 @@ const ROOM_SHADER := preload("res://shaders/room.gdshader")
 const RING_SHADER := preload("res://shaders/ring.gdshader")
 const GLASS_SHADER := preload("res://shaders/glass.gdshader")
 
-const TRAINER_POS := Vector3(0, 0, -2.4)
-const TRAINER_TURN := 32.0          # degrees: a 3/4 view shows how deep the movement goes
+const STAGE_POS := Vector3(0, 0, -2.4)  # the middle of what is shown ahead (cards left and right of it, toasts above)
 const BACK_WALL := 1.6              # the player stands this far from the back wall: the rest of the room is play space
 const ACCENT := Color(0.25, 0.85, 1.0)
 const WARM := Color(1.0, 0.6, 0.2)
@@ -26,10 +25,7 @@ var cam: XRCamera3D
 var origin: XROrigin3D
 var game: Game
 
-var trainer: Coach
-var coaches: Array = []
 var rooms: Array = []
-var coach_i := 0
 var room_i := 0
 var room_shell: MeshInstance3D
 var room_mat: ShaderMaterial
@@ -47,7 +43,6 @@ var cue: Label3D
 var counter: Label3D
 var body_caption: Label3D
 var player_ring: ShaderMaterial
-var coach_ring: ShaderMaterial
 var hands := {}              # "left"/"right" -> XRController3D (or a stand-in Node3D on desktop)
 
 
@@ -56,14 +51,11 @@ func _ready() -> void:
 		if a.begins_with("--") and "=" in a:
 			args[a.substr(2, a.find("=") - 2)] = a.substr(a.find("=") + 1)
 	Library.prepare(args.get("lib", ""))
-	coaches = Library.coaches(args.get("lib", ""))
 	rooms = Library.rooms(args.get("lib", ""))
-	coach_i = _pick(coaches, args.get("coach", "0"))
 	room_i = _pick(rooms, args.get("room", "0"))
 	_build_world()
 	_build_room()
 	_apply_room()
-	_build_coach()
 	_build_body_map()
 	_build_texts()
 	_setup_view()
@@ -76,7 +68,7 @@ func _ready() -> void:
 
 # ---------------------------------------------------------------- world
 
-## A coach / room by number or by a part of its name (desktop: --coach=android --room=2).
+## A room by number or by a part of its name (desktop: --room=2).
 static func _pick(list: Array, key: String) -> int:
 	if key.is_valid_int():
 		return clampi(int(key), 0, list.size() - 1)
@@ -128,17 +120,6 @@ func _build_room() -> void:
 	add_child(room)
 	room_shell = room
 
-	# Soft contact shadow under the coach (the photographed floor has no real shadows).
-	var blob := MeshInstance3D.new()
-	var bp := PlaneMesh.new()
-	bp.size = Vector2(1.1, 0.8)
-	blob.mesh = bp
-	var bm := ShaderMaterial.new()
-	bm.shader = preload("res://shaders/blob.gdshader")
-	blob.material_override = bm
-	blob.position = TRAINER_POS + Vector3(0, 0.004, 0)
-	add_child(blob)
-
 	# A training mat under you and a soft ring on your spot.
 	var mat_mesh := MeshInstance3D.new()
 	var box := BoxMesh.new()
@@ -151,7 +132,6 @@ func _build_room() -> void:
 	mat_mesh.position = Vector3(0, 0.006, 0.1)
 	add_child(mat_mesh)
 	player_ring = _ring(Vector3(0, 0.015, 0), 1.6)
-	coach_ring = _ring(TRAINER_POS + Vector3(0, 0.01, 0), 1.3)
 
 
 func _ring(pos: Vector3, size: float) -> ShaderMaterial:
@@ -206,7 +186,7 @@ func _apply_room() -> void:
 	room_scene = Node3D.new()
 	room_scene.add_child(scene)
 	add_child(room_scene)
-	# Fit it: centimetres → metres, the floor at 0, the middle of the room between you and the coach.
+	# Fit it: centimetres → metres, the floor at 0, the middle of the room ahead of you.
 	var box := _bounds(scene)
 	var sc: float = r.get("scale", 0.01 if box.size.length() > 400.0 else 1.0)
 	scene.scale = Vector3.ONE * sc
@@ -266,32 +246,6 @@ static func _global_to(node: Node3D, top: Node) -> Transform3D:
 	return t
 
 
-func _build_coach() -> void:
-	if trainer:
-		trainer.queue_free()
-	var c: Dictionary = coaches[coach_i]
-	var src = null
-	if c.path != "":
-		src = Library.load_scene(c.path)
-		if src == null:
-			_show_toast("Не мога да отворя " + String(c.path).get_file())
-	trainer = Coach.new(src)
-	for w in c.get("wear", []):
-		if trainer.wear(Library.load_scene(w)) == 0:
-			_show_toast("Не мога да облека " + String(w).get_file())
-	trainer.position = TRAINER_POS
-	trainer.rotation_degrees.y = TRAINER_TURN
-	add_child(trainer)
-	if not trainer.ok:
-		_show_toast(String(c.name) + ": няма човешки скелет")
-
-
-func _next_coach() -> void:
-	coach_i = (coach_i + 1) % coaches.size()
-	_build_coach()
-	_show_toast("Треньор %d/%d · %s" % [coach_i + 1, coaches.size(), coaches[coach_i].name])
-
-
 func _next_room() -> void:
 	room_i = (room_i + 1) % rooms.size()
 	_apply_room()
@@ -300,7 +254,7 @@ func _next_room() -> void:
 
 func _show_toast(text: String) -> void:
 	if toast == null:
-		toast = _label("", 40, TRAINER_POS + Vector3(0, 2.25, 0.3), FONT_BOLD, Color.WHITE)
+		toast = _label("", 40, STAGE_POS + Vector3(0, 2.25, 0.3), FONT_BOLD, Color.WHITE)
 		toast.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		toast.outline_size = 12
 	toast.text = text
@@ -327,7 +281,7 @@ func _card(pos: Vector3, size: Vector2, turn: float) -> Node3D:
 
 
 func _build_body_map() -> void:
-	# Your body, small, on a glass card right of the coach: the parts the suit works on now glow warm.
+	# Your body, small, on a glass card right of the middle: the parts the suit works on now glow warm.
 	var card := _card(Vector3(1.3, 2.05, -2.2), Vector2(0.62, 1.06), -24)
 	body = Mannequin.new(Color(0.88, 0.93, 0.97, 0.6))
 	body.scale = Vector3.ONE * 0.4
@@ -356,7 +310,7 @@ func _label(text: String, size: int, pos: Vector3, font: Font, color := Color.WH
 
 
 func _build_texts() -> void:
-	# The exercise card, left of the coach: name, how to do it, reps.
+	# The exercise card, left of the middle: name, how to do it, reps.
 	var card := _card(Vector3(-1.35, 2.3, -2.3), Vector2(0.9, 0.86), 24)
 	title = _label("", 72, Vector3(0, 0.31, 0.01), FONT_BOLD, Color.WHITE, card)
 	title.autowrap_mode = TextServer.AUTOWRAP_OFF       # one line; long names get a smaller font in _process
@@ -402,20 +356,6 @@ func _setup_view() -> void:
 		if view == "side":
 			cam.position = Vector3(2.6, 1.55, -0.6)
 			cam.look_at(Vector3(0.3, 1.05, -1.9))
-		elif view == "coach":
-			cam.position = TRAINER_POS + Vector3(0.4, 1.3, 2.0)
-			cam.look_at(TRAINER_POS + Vector3(0, 1.0, 0))
-		elif view == "profile":                    # the coach exactly from his left side
-			var side_dir := Basis(Vector3.UP, deg_to_rad(TRAINER_TURN)) * Vector3(2.4, 0, 0)
-			cam.position = TRAINER_POS + side_dir + Vector3(0, 1.0, 0)
-			cam.look_at(TRAINER_POS + Vector3(0, 0.85, 0))
-		elif view == "close":                      # the coach's face and chest, from the front
-			var fwd := Basis(Vector3.UP, deg_to_rad(TRAINER_TURN)) * Vector3(0, 0, 1.1)
-			cam.position = TRAINER_POS + fwd + Vector3(0, 1.5, 0)
-			cam.look_at(TRAINER_POS + Vector3(0, 1.35, 0))
-		elif view == "back":
-			cam.position = TRAINER_POS + Vector3(-0.9, 1.4, -1.9)
-			cam.look_at(TRAINER_POS + Vector3(0, 1.0, 0))
 		elif view == "wide":
 			cam.position = Vector3(0.0, 1.7, 1.6)
 			cam.look_at(Vector3(0, 1.1, -2.0))
@@ -517,11 +457,8 @@ func _glove(parent: Node3D) -> void:
 
 
 func _on_button(name: String, side: String) -> void:
-	if name == "by_button":                     # right B: the next coach, left Y: the next room
-		if side == "right":
-			_next_coach()
-		else:
-			_next_room()
+	if name == "by_button" and side == "left":  # left Y: the next room
+		_next_room()
 		return
 	if name == "grip_click" and side == "left":
 		game.next_track()

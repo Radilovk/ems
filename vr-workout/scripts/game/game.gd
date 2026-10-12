@@ -17,6 +17,11 @@ const DEMO_Z := -3.9
 const DEMO_YAW := 152.0
 const LIMB_R := {"hand": 0.12, "knee": 0.14, "foot": 0.16}
 const MIN_SPEED := {"hand": 1.0, "knee": 0.7, "foot": 0.9}
+const MOVE_LABEL := {"jab_l": "Удар с юмрук", "cross_r": "Удар с другия юмрук", "knee_l": "Коляно", "knee_r": "Другото коляно",
+	"kick_l": "Ритник", "kick_r": "Ритник с другия крак", "lean_r": "Наклон встрани", "lean_l": "Наклон на другата страна",
+	"duck": "Клек"}
+const MOVE_ROLE := {"jab_l": "hand_l", "cross_r": "hand_r", "knee_l": "calf_l", "knee_r": "calf_r", "kick_l": "ball_l",
+	"kick_r": "ball_r", "lean_l": "head", "lean_r": "head", "duck": "head"}
 const CH := {
 	Defs.Zone.ARMS: ["Ръце"],
 	Defs.Zone.LEGS: ["Предно бедро", "Задно бедро", "Прасец"],
@@ -48,9 +53,7 @@ var clock := 0.0
 var skip := false
 var last_kind := -1
 
-var coach_move := ""
-var coach_t0 := 0.0
-var coach_mode := "free"             # free: the stage poses him · guard · talk
+var legs_live := false               # the legs answered the knee test (Quest 3 estimates them; they may not follow)
 var demo_on := false
 var demo_clock := 0.0
 var demo_events: Array = []
@@ -88,9 +91,10 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 		if not tracks.is_empty():
 			next_track(0)
 		sfx.start_music()
-	if a.has("move"):
+	if a.has("move"):                                   # desktop preview: a move frozen at --mt (default: the hit)
 		_coach().position = COACH_TEACH_POS
 		_coach().rotation_degrees.y = COACH_TEACH_YAW
+		_coach().freeze(a.move, float(a.get("mt", str(MoveLib.hit(a.move)))))
 		return
 	if a.get("skiptut", "0") == "1":
 		_begin_countdown.call_deferred()
@@ -128,7 +132,6 @@ func _process(delta: float) -> void:
 	var n := clampi(int(ceil(delta / 0.02)), 1, 200)
 	for i in n:
 		_step(delta / n)
-	_coach_update()
 	for l in legend:
 		if l is Elem:
 			(l as Elem).advance(delta)
@@ -175,7 +178,7 @@ func _pick_kind(w: Dictionary) -> int:
 	var total := 0.0
 	var pool := {}
 	for k in w:
-		if (k == Defs.Kind.KNEE or k == Defs.Kind.FOOT) and not body.has_legs:
+		if (k == Defs.Kind.KNEE or k == Defs.Kind.FOOT) and not (body.has_legs and legs_live):
 			continue
 		pool[k] = float(w[k])
 		total += float(w[k])
@@ -334,7 +337,8 @@ func _begin_countdown() -> void:
 	_title("Готови?")
 	stage.cue.text = "Застани изправен и гледай напред"
 	_coach_to(COACH_PLAY_POS, COACH_PLAY_YAW, 1.0)
-	coach_mode = "guard"
+	_coach_base("guard")
+	legs_live = legs_live or (body.has_legs and sim_on)
 	for i in [3, 2, 1]:
 		stage.counter.text = str(i)
 		sfx.play("beep")
@@ -354,7 +358,8 @@ func _start_level() -> void:
 	lv_taken = 0
 	next_gap = 1.5
 	st = St.PLAY
-	if not body.has_legs and not _legs_warned and not sim_on:
+	_coach_base("guard")
+	if not legs_live and not _legs_warned and not sim_on:
 		_legs_warned = true
 		stage._show_toast("Няма данни за краката: без колене и ритници")
 	_say("Ниво %d" % (level + 1), 1.5)
@@ -364,6 +369,7 @@ func _end_level() -> void:
 	if st != St.PLAY:
 		return
 	st = St.SUMMARY
+	_coach_base("watch")
 	var total := lv_hits + lv_dodged + lv_taken
 	var acc: float = float(lv_hits + lv_dodged) / float(max(total, 1))
 	var next := level
@@ -372,6 +378,7 @@ func _end_level() -> void:
 		next = min(level + 1, Defs.LEVELS.size() - 1)
 		verdict = "Нагоре!" if next != level else "Най-високото ниво"
 		sfx.play("levelup")
+		_play_move("yes")
 	elif acc < 0.45:
 		next = max(level - 1, 0)
 		verdict = "Малко по-бавно"
@@ -478,39 +485,14 @@ func _coach_to(pos: Vector3, yaw: float, seconds: float) -> void:
 	tw.tween_property(c, "rotation_degrees:y", yaw, seconds)
 
 
-func _coach_update() -> void:
-	var c := _coach()
-	if c == null or not c.ok:
-		return
-	if args.has("move"):                                   # desktop preview: freeze a move at --mt seconds
-		c.set_pose(Moves.pose(args.move, float(args.get("mt", "0.3"))))
-		return
-	if coach_move != "":
-		var t := clock - coach_t0
-		if t >= Moves.length(coach_move):
-			coach_move = ""
-		else:
-			c.set_pose(Moves.pose(coach_move, t))
-			return
-	match coach_mode:
-		"guard":
-			c.set_pose(Moves.GUARD)
-		"talk":
-			c.set_pose(_talk_pose(clock))
+func _coach_base(name: String) -> void:
+	if _coach() != null and _coach().ok:
+		_coach().set_base(name)
 
 
 func _play_move(id: String) -> void:
-	coach_move = id
-	coach_t0 = clock
-
-
-## Arms that gesture while he explains.
-func _talk_pose(t: float) -> Dictionary:
-	var a := sin(t * 1.9)
-	var b := sin(t * 1.3 + 1.0)
-	return {"hips": Vector3(0, -0.01, 0), "head": 2 + 3 * a, "twist": 3 * b,
-		"sh_l": Vector2(28 + 22 * max(a, 0.0), 12), "sh_r": Vector2(26 + 20 * max(b, 0.0), 12),
-		"el_l": 40 + 40 * max(a, 0.0), "el_r": 38 + 36 * max(b, 0.0)}
+	if _coach() != null:
+		_coach().play(id)
 
 
 # ---------------------------------------------------------------- the tutorial
@@ -536,12 +518,13 @@ func _tutorial() -> void:
 	if not args.has("demo"):                      # --demo=1: straight to the coach's round (previews)
 		await _rules()
 		await _basic_moves()
+		await _leg_test()
 	await _demo()
 	_begin_countdown()
 
 
 func _rules() -> void:
-	coach_mode = "talk"
+	_coach_base("talk")
 	_legend_show(true)
 	var pages: Array = [
 		["Добре дошъл!", "Ще ти обясня как се играе."],
@@ -560,17 +543,49 @@ func _rules() -> void:
 
 
 func _basic_moves() -> void:
-	coach_mode = "guard"
+	_coach_base("guard")
 	_title("Основни движения")
 	stage.counter.text = ""
-	var order := ["jab_l", "cross_r", "knee_l", "knee_r", "kick_l", "kick_r", "lean_r", "lean_l", "duck"]
-	for id in order:
-		var m: Dictionary = Moves.get_move(id)
-		stage.cue.text = m.label
+	if await _wait(0.8):
+		return
+	for id in ["jab_l", "cross_r", "knee_l", "knee_r", "kick_l", "kick_r", "lean_r", "lean_l", "duck"]:
+		stage.cue.text = MOVE_LABEL[id]
 		sfx.play("pass", null, -4.0)
 		_play_move(id)
-		if await _wait(Moves.length(id) + 0.45):
+		if await _wait(MoveLib.length(id) + 0.35):
 			return
+
+
+## Quest 3 estimates the legs from the upper body: a real knee may not show. One honest test decides whether knees and
+## feet are in the game: raise a knee within a few seconds.
+func _leg_test() -> void:
+	legs_live = false
+	if not body.has_legs:
+		return
+	_coach_base("guard")
+	_title("Пробвай коляно")
+	stage.cue.text = "Вдигни едно коляно високо"
+	stage.counter.text = ""
+	sfx.play("blip")
+	var rest := {"knee_l": float(body.pos.knee_l.y), "knee_r": float(body.pos.knee_r.y)}
+	var t := 0.0
+	while t < 6.0:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		for k in rest:
+			if body.valid[k] and body.pos[k].y - rest[k] > 0.22:
+				legs_live = true
+		if legs_live or skip:
+			skip = false
+			break
+	if legs_live:
+		sfx.play("levelup", null, -6.0)
+		stage.cue.text = "Виждам го. Колене и ритници са в играта."
+		_play_move("yes")
+	else:
+		sfx.play("fail", null, -6.0)
+		stage.cue.text = "Очилата не виждат краката ти добре.\nИграем с ръце, клек и наклони."
+	await _wait(2.6)
 
 
 func _legend_show(on: bool) -> void:
@@ -605,18 +620,18 @@ func _demo() -> void:
 	_title("Гледай!")
 	stage.cue.text = "Ето как се играе."
 	stage.counter.text = ""
-	coach_mode = "guard"
+	_coach_base("guard")
 	_coach_to(Vector3(-0.5, 0, max(DEMO_Z, -(stage.room_depth - 1.2))), DEMO_YAW, 1.4)
 	if await _wait(1.6):
 		pass
 	# where his fist / knee / foot / head are at the moment of contact (read from his own skeleton)
 	demo_pts.clear()
-	for id in Moves.ids():
-		var m: Dictionary = Moves.get_move(id)
-		c.set_pose(Moves.pose(id, m.contact if m.role != "head" else Moves.length(id) * 0.5))
-		demo_pts[id] = c.joint_world(m.role)
-	c.set_pose(Moves.GUARD)
+	for id in MOVE_ROLE:
+		c.freeze(id, MoveLib.hit(id))
+		demo_pts[id] = c.joint_world(MOVE_ROLE[id])
+	c.freeze("guard", 0.0)
 	var guard_head := c.joint_world("head")
+	c.play("guard", 0.0)
 	var seq := [
 		[Defs.Kind.HAND, "jab_l"], [Defs.Kind.HAND, "cross_r"], [Defs.Kind.FOOT, "kick_l"], [Defs.Kind.KNEE, "knee_r"],
 		[Defs.Kind.DUCK, "duck"], [Defs.Kind.LEAN_L, "lean_r"], [Defs.Kind.LEAN_R, "lean_l"], [Defs.Kind.FOOT, "kick_r"],
@@ -629,7 +644,6 @@ func _demo() -> void:
 	for i in seq.size():
 		var kind: int = seq[i][0]
 		var id: String = seq[i][1]
-		var m2: Dictionary = Moves.get_move(id)
 		var aim: Vector3 = demo_pts[id]
 		if kind == Defs.Kind.DUCK:
 			aim = guard_head + Vector3(0, 0.02, 0)
@@ -638,7 +652,7 @@ func _demo() -> void:
 		elif kind == Defs.Kind.LEAN_R:
 			aim = guard_head + Vector3(Defs.LEAN_X, -0.15, 0)
 		var t_spawn := 0.4 + i * gap
-		var start: float = t_spawn + lead - (float(m2.contact) if not Defs.is_hazard(kind) else float(m2.def.down) + 0.15)
+		var start: float = t_spawn + lead - MoveLib.hit(id)
 		demo_events.append({"t": t_spawn, "kind": kind, "id": id, "aim": aim, "speed": speed, "lead": lead,
 			"move_at": start, "spawned": false, "moved": false, "elem": null})
 	demo_clock = 0.0
@@ -650,8 +664,7 @@ func _demo() -> void:
 		if is_instance_valid(ev.elem):
 			ev.elem.queue_free()
 	demo_events.clear()
-	coach_move = ""
-	coach_mode = "guard"
+	_coach_base("guard")
 	_title("Твой ред!")
 	stage.cue.text = "Заставам встрани. Ти си на ход."
 	_coach_to(COACH_PLAY_POS, COACH_PLAY_YAW, 1.2)

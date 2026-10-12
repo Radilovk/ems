@@ -1,22 +1,22 @@
-## A human coach that shows the exercises. Any humanoid rig works: the Quaternius / Unreal names (pelvis, thigh_l…),
-## Mixamo (Hips, LeftUpLeg…), MakeHuman / MPFB game rig, Rigify-style (thigh.L…). Each bone is found by its role, the
-## figure is turned to face +Z, scaled if it came in centimetres and stood on the floor, so a .glb dropped on the
-## headset just works.
-## set_pose(dict) for the exercises (model axes: the figure faces +Z, its left is +X), play(clip) for the ready-made
-## moves (Punch_Jab, Punch_Cross… — when the model brings such clips). The body is posed the way a person moves:
-##   the pelvis is placed and tilted (a hip hinge, the spine stays long), the feet are planted where the pose says and
-##   the legs reach them by two-bone IK (no sliding, no floating, the knees track over the toes), the arms and the
-##   head hang off the trunk, the gaze stays level. While standing he breathes and sways a little.
-## Poses are applied in "limbs hanging down" frames, so the T- or A-pose rest of a rig never leaks into the angles.
+## A human coach. Any humanoid rig works: the Quaternius / Unreal names (pelvis, thigh_l…), Mixamo (Hips, LeftUpLeg…),
+## MakeHuman / MPFB game rig, Rigify-style (thigh.L…). Each bone is found by its role, the figure is turned to face +Z,
+## scaled if it came in centimetres and stood on the floor, so a .glb dropped on the headset just works.
+## He moves by motion capture (MoveLib: real people recorded doing the moves), retargeted onto this rig every frame:
+##   bone = delta(recorded) · swing(this rig's rest bone → the recorded rest bone) · this rig's rest
+## so T-, A- or I-pose rests do not matter; the spine spreads the pelvis → chest turn over however many bones it has, and
+## the pelvis height scales with the leg length. A loop (guard, talk, watch, idle) is the base; a move plays once over
+## it and hands back with a cross-fade.
 class_name Coach
 extends Node3D
 
-const XFADE := 0.7
+const FADE := 0.22                  # s: cross-fade between two moves
 
 var skel: Skeleton3D
-var player: AnimationPlayer
-var clip := ""                      # "" = procedural pose mode
 var ok := false                     # false: no humanoid skeleton found (the model is shown as it is)
+var base := "guard"                 # the loop he returns to
+var cur := ""                       # the clip playing now
+var cur_t := 0.0
+var speed := 1.0
 
 var _wrap: Node3D                   # turns / scales / lifts the model into place
 var _role := {}                     # role ("pelvis", "thigh_l"…) -> bone index
@@ -24,14 +24,12 @@ var _spine: Array[int] = []         # pelvis (excl.) → chest, bottom up
 var _rest := {}                     # bone index -> rest Transform3D in coach space
 var _M := Transform3D.IDENTITY      # skeleton space -> coach space
 var _order: Array[int] = []         # parents before children
-var _base := {}                     # bone index -> Basis taking the rest arm into "hanging down"
-var _len := {}
-var _ball := {}                     # "l"/"r" -> rest ball-of-foot point (coach space)
-var _life := 0.0                    # seconds, drives breathing and sway
-var _calm := 1.0                    # 1 standing still … 0 deep in an exercise (less sway)
-var _last := {}                     # the last pose asked for
-var _from := {}                     # the pose a change of exercise eases away from
-var _xf := 0.0                      # seconds left of that easing
+var _ball := {}
+var _pel_h := 1.0                   # rest pelvis height (m)
+var _swing := {}                    # source -> role -> Quaternion (this rig's rest bone → the recorded one)
+var _prev := {}                     # the pose faded out of
+var _fade := 0.0                    # s left of the cross-fade
+var _frozen := false
 
 
 ## src: a PackedScene or an instanced Node3D = any humanoid model (null = an empty coach, ok = false).
@@ -51,16 +49,12 @@ func _init(src = null) -> void:
 		_fit_static(model)                         # not a rig: shown at human size, it cannot move
 		return
 	_place()
-	ok = true
-	var players := model.find_children("*", "AnimationPlayer", true, false)
-	if not players.is_empty():
-		player = players[0]                     # the model's own clips (punches play from them when present)
-		player.stop()
-	set_pose({})
+	for ap in model.find_children("*", "AnimationPlayer", true, false):
+		(ap as AnimationPlayer).stop()          # the model's own clips would fight the retargeted moves
+	ok = MoveLib.load_all()
+	if ok:
+		play(base, 0.0)
 
-
-## Put on clothes / hair made for this rig: every skinned mesh of `piece` moves onto our skeleton (its skin binds by
-## bone name). Returns how many meshes were put on.
 func wear(piece: Node) -> int:
 	var n := 0
 	if skel == null or piece == null:
@@ -240,59 +234,153 @@ func _place() -> void:
 	_M = _skel_to_coach()
 	for i in skel.get_bone_count():
 		_rest[i] = _M * skel.get_bone_global_rest(i)
-	for s in ["l", "r"]:
-		var ankle: Vector3 = _rest[_role["foot_" + s]].origin
-		if _role.has("ball_" + s):
-			_ball[s] = _rest[_role["ball_" + s]].origin
-		else:
-			_ball[s] = Vector3(ankle.x, 0.015, ankle.z + 0.13 * tall / 1.75)
-		# Arms: the rest arm (T-pose, A-pose, elbows bent…) → hanging straight down. Each segment is turned by the
-		# least it needs after its parent's turn, so the palms keep their natural roll.
-		var chain: Array = [_role["upperarm_" + s], _role["lowerarm_" + s]]
-		if _role.has("hand_" + s):
-			chain.append(_role["hand_" + s])
-		var tips: Array = [_role["lowerarm_" + s]]
-		if _role.has("hand_" + s):
-			tips.append(_role["hand_" + s])
-			var finger := _child_like(_role["hand_" + s], "middle")
-			tips.append(finger)
-		var down := Basis.IDENTITY
-		for k in chain.size():
-			var tip: int = tips[k] if k < tips.size() else -1
-			if tip >= 0:
-				var dir: Vector3 = down * (_rest[tip].origin - _rest[chain[k]].origin).normalized()
-				down = Basis(Quaternion(dir, Vector3.DOWN)) * down
-			_base[chain[k]] = down
-	_len["thigh"] = (_rest[_role.calf_l].origin - _rest[_role.thigh_l].origin).length()
-	_len["shin"] = (_rest[_role.foot_l].origin - _rest[_role.calf_l].origin).length()
+	_pel_h = _rest[_role.pelvis].origin.y
+
+
+# ---------------------------------------------------------------- moves
+
+## Start a clip now. A loop becomes the base he stays in; a one-shot move plays once and fades back to the base.
+func play(name: String, fade := FADE, spd := 1.0) -> void:
+	if not ok or not MoveLib.has(name):
+		return
+	if MoveLib.clips[name].loop:
+		base = name
+	if cur != "" and fade > 0.0:
+		_prev = _pose_now()
+		_fade = fade
+	else:
+		_fade = 0.0
+	cur = name
+	cur_t = 0.0
+	speed = spd
+	_frozen = false
+
+
+## Stay in this loop (and go there now if no move is playing).
+func set_base(name: String, fade := 0.4) -> void:
+	if name == base and cur == base:
+		return
+	base = name
+	if cur == "" or MoveLib.clips.get(cur, {}).get("loop", true):
+		play(name, fade)
+
+
+## True while a one-shot move is still playing.
+func busy() -> bool:
+	return cur != "" and cur != base and not MoveLib.clips[cur].loop
+
+
+## Hold `name` at `t` seconds (previews, and to measure where a fist / knee / foot is at the hit).
+func freeze(name: String, t: float) -> void:
+	if not ok or not MoveLib.has(name):
+		return
+	cur = name
+	cur_t = t
+	_fade = 0.0
+	_frozen = true
+	_apply(_pose_now())
 
 
 func _process(delta: float) -> void:
-	_life += delta
-	_xf = max(_xf - delta, 0.0)
+	if not ok or cur == "" or _frozen:
+		return
+	cur_t += delta * speed
+	_fade = max(_fade - delta, 0.0)
+	var c: Dictionary = MoveLib.clips[cur]
+	if not c.loop and cur_t >= MoveLib.length(cur) - FADE * 0.5:
+		play(base, FADE)                        # hand back to the stance a little before the end
+	_apply(_pose_now())
 
 
-## The next exercise starts from another stance: walk the feet and the arms over instead of jumping.
-func ease_into_next() -> void:
-	_from = _last
-	_xf = XFADE
+## The pose to show now: the clip at its time, cross-faded out of the previous one.
+func _pose_now() -> Dictionary:
+	var p := _target(MoveLib.sample(cur, cur_t), MoveLib.clips[cur].src)
+	if _fade > 0.0 and not _prev.is_empty():
+		var w := 1.0 - _fade / FADE
+		w = w * w * (3.0 - 2.0 * w)
+		p = MoveLib.mix(_prev, p, w)
+	return p
 
 
-static func blend(a: Dictionary, b: Dictionary, t: float) -> Dictionary:
+## A recorded pose → this rig: each role's delta gets this rig's rest-to-source swing, the pelvis scales with the legs.
+func _target(s: Dictionary, src: String) -> Dictionary:
+	var sw := _swing_for(src)
 	var out := {}
-	for k in a.keys() + b.keys():
-		if out.has(k):
-			continue
-		var va = a.get(k)
-		var vb = b.get(k)
-		var z = va if va != null else vb
-		var zero = Vector3.ZERO if z is Vector3 else (Vector2.ZERO if z is Vector2 else 0.0)
-		if va == null:
-			va = zero
-		if vb == null:
-			vb = zero
-		out[k] = lerp(va, vb, t)
+	for r in MoveLib.roles:
+		out[r] = (s[r] as Quaternion) * sw.get(r, Quaternion.IDENTITY)
+	var k: float = _pel_h / max(float(MoveLib.sources[src].pel_h), 0.1)
+	var rest: Vector3 = _rest[_role.pelvis].origin
+	var p: Vector3 = s.pel
+	out["pel"] = Vector3(rest.x + p.x * k, p.y * k, rest.z + p.z * k)
 	return out
+
+
+## The bone a role points at on this rig (its rest direction), or -1.
+func _tip(role: String) -> int:
+	var part := role.left(-2) if role.ends_with("_l") or role.ends_with("_r") else role
+	var s := role.right(1)
+	match part:
+		"clavicle":
+			return _role.get("upperarm_" + s, -1)
+		"upperarm":
+			return _role.get("lowerarm_" + s, -1)
+		"lowerarm":
+			return _role.get("hand_" + s, -1)
+		"hand":
+			return _child_like(_role["hand_" + s], "middle") if _role.has("hand_" + s) else -1
+		"thigh":
+			return _role.get("calf_" + s, -1)
+		"calf":
+			return _role.get("foot_" + s, -1)
+		"foot":
+			return _role.get("ball_" + s, -1)
+	return -1
+
+
+func _swing_for(src: String) -> Dictionary:
+	if _swing.has(src):
+		return _swing[src]
+	var out := {}
+	var dirs: Dictionary = MoveLib.sources[src].dir
+	for r in dirs:
+		if not _role.has(r):
+			continue
+		var tip := _tip(r)
+		if tip < 0:
+			continue
+		var td: Vector3 = (_rest[tip].origin - _rest[_role[r]].origin).normalized()
+		var sd: Vector3 = dirs[r]
+		if td.length() > 0.5 and td.dot(sd) < 0.99999:
+			out[r] = Quaternion(td, sd)
+	_swing[src] = out
+	return out
+
+
+## Pose the skeleton: mapped bones get their rotation, the spine shares pelvis → chest, the rest follow their parent.
+func _apply(p: Dictionary) -> void:
+	var rot := {}                                # bone index -> Quaternion (world delta incl. swing)
+	for r in MoveLib.roles:
+		if _role.has(r):
+			rot[_role[r]] = p[r]
+	var n := _spine.size()
+	for k in n:
+		var w := float(k + 1) / n
+		rot[_spine[k]] = (p.pelvis as Quaternion).slerp(p.chest, w)
+	var posed := {}
+	var to_skel := _M.affine_inverse()
+	for i in _order:
+		var parent := skel.get_bone_parent(i)
+		var rest: Transform3D = _rest[i]
+		var g: Transform3D = posed[parent] * (_rest[parent].affine_inverse() * rest) if parent >= 0 else rest
+		if rot.has(i):
+			g.basis = Basis(rot[i] as Quaternion) * rest.basis
+		if i == _role.pelvis:
+			g.origin = p.pel
+		posed[i] = g
+		var local: Transform3D = (posed[parent].affine_inverse() * g) if parent >= 0 else to_skel * g
+		skel.set_bone_pose_position(i, local.origin)
+		skel.set_bone_pose_rotation(i, local.basis.get_rotation_quaternion())
+		skel.set_bone_pose_scale(i, local.basis.get_scale())
 
 
 ## World position of a joint of the rig as it is posed now (roles: hand_l, calf_l = the knee, ball_l, head…).
@@ -306,190 +394,3 @@ func _bone_global(i: int) -> Transform3D:
 	var t := skel.get_bone_pose(i)
 	var p := skel.get_bone_parent(i)
 	return _bone_global(p) * t if p >= 0 else t
-
-
-func has_clip(name: String) -> bool:
-	return player != null and player.has_animation(name)
-
-
-## Play a ready-made move (restarts it). The pose is the animation's until set_pose() takes over again.
-func play(name: String, speed := 1.0) -> void:
-	_last = {}
-	clip = name
-	player.speed_scale = speed
-	player.stop()
-	player.play(name, 0.15)
-
-
-func set_active(_channels: Array, _amount: float) -> void:
-	pass                                        # the body map shows the muscles; the coach stays human
-
-
-static func _rx(deg: float) -> Basis:
-	return Basis(Vector3.RIGHT, deg_to_rad(deg))
-
-
-static func _rz(deg: float) -> Basis:
-	return Basis(Vector3.BACK, deg_to_rad(deg))
-
-
-static func _ry(deg: float) -> Basis:
-	return Basis(Vector3.UP, deg_to_rad(deg))
-
-
-## Pose keys (all optional; {} = standing at rest). Lengths in metres, angles in degrees:
-##   hips: Vector3 pelvis offset (x = his left, y = up, z = forward)    tilt: pelvis forward (the hip hinge)
-##   yaw: pelvis turn (+ = to his left)   roll: pelvis drop to his right   spine: extra spine flexion (+ forward)
-##   twist: chest turn on the pelvis      bend: trunk bent sideways (+ = his left)   head: gaze below the horizon (the neck undoes the trunk lean)
-##   foot_l/_r: Vector3 move of the ball of the foot (the floor contact) from standing; y > 0 = in the air
-##   ft_l/_r: heel raise (+, pivots on the ball, the toes stay flat)   toe_l/_r: toes out   knee_l/_r: knee out
-##   sh_l/_r: Vector2(flex forward, out to the side) on the chest      el_l/_r: elbow bend   sup_l/_r: palm turn up
-func set_pose(p: Dictionary) -> void:
-	if not ok:
-		return
-	if clip != "":
-		player.stop()
-		clip = ""
-	_last = p
-	if _xf > 0.0 and not _from.is_empty():
-		p = blend(_from, p, Exercises.smooth(1.0 - _xf / XFADE))
-	var f := {}                                 # bone index -> frame rotation (coach axes, limbs-down semantics)
-	var tilt: float = p.get("tilt", 0.0)
-	var spine: float = p.get("spine", 0.0)
-	var yaw: float = p.get("yaw", 0.0)
-	var twist: float = p.get("twist", 0.0)
-	var bend: float = p.get("bend", 0.0)         # sideways bend of the trunk, + = to his left
-	var hips: Vector3 = p.get("hips", Vector3.ZERO)
-	# Life: a slow breath (chest lifts, shoulders rise) and a small weight shift; calmer deep in a movement.
-	var depth: float = clamp(-hips.y / 0.3 + absf(tilt) / 40.0, 0.0, 1.0)
-	_calm = lerpf(_calm, 1.0 - depth, 0.1)
-	var breath := sin(_life * TAU / 4.2)
-	var sway := sin(_life * TAU / 7.3) * _calm
-	hips += Vector3(sway * 0.008, 0, 0)
-	var pel: Basis = _ry(yaw) * _rx(tilt) * _rz(-float(p.get("roll", 0.0)) - sway * 0.8)
-	f[_role.pelvis] = pel
-	var n: int = max(_spine.size(), 1)
-	var prev := pel
-	for k in _spine.size():
-		var upper := float(k) / n                # 0 at the waist … near 1 at the chest: the breath lifts the chest
-		prev = prev * _rx(spine / n - breath * 1.4 * upper * 2.0 / n) * _ry(twist / n) \
-			* _rz(sway * 0.8 * (1.0 - upper) / n - bend / n)
-		f[_spine[k]] = prev
-	var chest := prev
-	var trunk := tilt + spine - breath * 1.4
-	var gaze: float = float(p.get("head", 0.0)) - trunk * 0.8
-	var turn := -(yaw + twist) * 0.8
-	if _role.has("neck"):
-		f[_role.neck] = chest * _ry(turn * 0.5) * _rx(gaze * 0.5)
-		if _role.has("head"):
-			f[_role.head] = f[_role.neck] * _ry(turn * 0.5) * _rx(gaze * 0.5)
-	elif _role.has("head"):
-		f[_role.head] = chest * _ry(turn) * _rx(gaze)
-
-	# Pelvis first: the hip joints follow it, the legs then reach the planted feet.
-	var pel_pos: Vector3 = _rest[_role.pelvis].origin + hips
-	var legs := {}
-	for _pass in 3:                             # lower the pelvis if a planted foot is out of reach
-		var short := 0.0
-		for s in ["l", "r"]:
-			var leg := _leg(p, s, pel_pos, pel)
-			legs[s] = leg
-			if not leg.air:
-				short = max(short, leg.short)
-		if short <= 0.0005:
-			break
-		pel_pos.y -= short
-	for s in ["l", "r"]:
-		var side := 1.0 if s == "l" else -1.0
-		var leg: Dictionary = legs[s]
-		f[_role["thigh_" + s]] = leg.thigh
-		f[_role["calf_" + s]] = leg.calf
-		f[_role["foot_" + s]] = leg.foot
-		if _role.has("ball_" + s):
-			f[_role["ball_" + s]] = leg.ball
-		var arm_root := chest
-		if _role.has("clavicle_" + s):
-			arm_root = chest * _rz(-breath * 0.6 * side)
-			f[_role["clavicle_" + s]] = arm_root
-		var sh: Vector2 = p.get("sh_" + s, Vector2.ZERO)
-		var el: float = p.get("el_" + s, 0.0)
-		var sup: float = float(p.get("sup_" + s, 0.0)) * side * 0.5
-		f[_role["upperarm_" + s]] = arm_root * _rx(-sh.x) * _rz(sh.y * side)
-		f[_role["lowerarm_" + s]] = f[_role["upperarm_" + s]] * _rx(-el) * _ry(sup)
-		if _role.has("hand_" + s):
-			f[_role["hand_" + s]] = f[_role["lowerarm_" + s]] * _ry(sup)
-
-	var posed := {}                              # bone index -> posed Transform3D (coach space)
-	var to_skel := _M.affine_inverse()
-	for i in _order:
-		var parent := skel.get_bone_parent(i)
-		var rest: Transform3D = _rest[i]
-		var g: Transform3D
-		if f.has(i):
-			var basis: Basis = f[i] * _base.get(i, Basis.IDENTITY) * rest.basis
-			var origin: Vector3
-			if i == _role.pelvis:
-				origin = pel_pos
-			elif parent < 0:
-				origin = rest.origin
-			else:
-				var pf: Basis = f.get(parent, Basis.IDENTITY) * _base.get(parent, Basis.IDENTITY)
-				origin = posed[parent].origin + pf * (rest.origin - _rest[parent].origin)
-			g = Transform3D(basis, origin)
-		elif parent >= 0:
-			g = posed[parent] * (_rest[parent].affine_inverse() * rest)   # fingers etc. follow their parent
-		else:
-			g = rest
-		posed[i] = g
-		var local: Transform3D = (posed[parent].affine_inverse() * g) if parent >= 0 else to_skel * g
-		skel.set_bone_pose_position(i, local.origin)
-		skel.set_bone_pose_rotation(i, local.basis.get_rotation_quaternion())
-		skel.set_bone_pose_scale(i, local.basis.get_scale())
-
-
-## One leg by two-bone IK: from the hip joint (on the posed pelvis) to the ankle that puts the ball of the foot where
-## the pose plants it. The knee bends in the plane of the toes, so it tracks over the foot.
-func _leg(p: Dictionary, s: String, pel_pos: Vector3, pel: Basis) -> Dictionary:
-	var side := 1.0 if s == "l" else -1.0
-	var toe: float = p.get("toe_" + s, 0.0)
-	var heel: float = p.get("ft_" + s, 0.0)
-	var foot_off: Vector3 = p.get("foot_" + s, Vector3.ZERO)
-	var foot_rot := _ry(toe * side) * _rx(heel)
-	var thigh: Transform3D = _rest[_role["thigh_" + s]]
-	var calf: Transform3D = _rest[_role["calf_" + s]]
-	var ankle_rest: Vector3 = _rest[_role["foot_" + s]].origin
-	var ball_rest: Vector3 = _ball[s]
-	var ankle := ball_rest + foot_off - foot_rot * (ball_rest - ankle_rest)
-	var hip: Vector3 = pel_pos + pel * (thigh.origin - _rest[_role.pelvis].origin)
-	var l1: float = _len.thigh
-	var l2: float = _len.shin
-	var to := ankle - hip
-	var dist := to.length()
-	var reach := (l1 + l2) * 0.999
-	var short: float = max(dist - reach, 0.0)
-	dist = clamp(dist, absf(l1 - l2) + 0.01, reach)
-	var d := to.normalized()
-	var pole := _ry((toe + float(p.get("knee_" + s, 0.0))) * side) * Vector3.BACK     # knee points along the toes
-	var hinge := pole.cross(d).normalized()
-	var nrm := d.cross(hinge)
-	var a := (l1 * l1 - l2 * l2 + dist * dist) / (2.0 * dist)
-	var knee := hip + d * a + nrm * sqrt(max(l1 * l1 - a * a, 0.0))
-	var ank := hip + d * dist
-	var thigh_rest_dir: Vector3 = (calf.origin - thigh.origin).normalized()
-	var calf_rest_dir: Vector3 = (ankle_rest - calf.origin).normalized()
-	return {
-		"thigh": _aim((knee - hip).normalized(), hinge) * _aim(thigh_rest_dir, Vector3.RIGHT).inverse(),
-		"calf": _aim((ank - knee).normalized(), hinge) * _aim(calf_rest_dir, Vector3.RIGHT).inverse(),
-		"foot": foot_rot,
-		"ball": _ry(toe * side),                # the toes stay flat on the floor when the heel rises
-		"short": short,
-		"air": foot_off.y > 0.01,
-	}
-
-
-## A frame whose -Y runs along `dir` (a limb hanging that way) and whose X is the hinge axis.
-static func _aim(dir: Vector3, hinge: Vector3) -> Basis:
-	var y := -dir
-	var z := hinge.cross(y).normalized()
-	var x := y.cross(z)
-	return Basis(x, y, z)

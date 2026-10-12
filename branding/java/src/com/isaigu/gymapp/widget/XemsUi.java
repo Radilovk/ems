@@ -721,4 +721,125 @@ public final class XemsUi {
         int h = root.getMeasuredHeight();
         w.setLayout(width, h > max ? max : ViewGroup.LayoutParams.WRAP_CONTENT);
     }
+
+    // ================================================================ accent: cyan (default) / magenta
+
+    /** Same prefs as the dark theme (ThemeUtils "setting_share"). */
+    private static final String ACCENT_PREFS = "setting_share";
+    private static final String K_MAGENTA = "accent_magenta";
+    /** The resource qualifier that carries the magenta palette: res/values-mcc999*, made by apply-accent.py. */
+    public static final int MAGENTA_MCC = 999;
+    private static final String ACCENT_ROW = "xems_accent_row";
+
+    public static boolean isMagenta(Context c) {
+        try {
+            return c.getSharedPreferences(ACCENT_PREFS, Context.MODE_PRIVATE).getBoolean(K_MAGENTA, false);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
+     * BaseActivity.attachBaseContext: with magenta chosen the activity's resources resolve the mcc999 palette — every
+     * XML screen, @color and this kit (init reads the same names) — and keep it through turns (an override
+     * configuration, not a one-off update). Only mcc is set; everything else follows the system.
+     */
+    public static void accentAttach(Activity a) {
+        try {
+            if (a == null || !isMagenta(a)) {
+                return;
+            }
+            android.content.res.Configuration o = new android.content.res.Configuration();
+            o.fontScale = 0f;              // undefined: the user's font size stays (API < 24 sets 1 by default)
+            o.mcc = MAGENTA_MCC;
+            a.applyOverrideConfiguration(o);
+        } catch (Throwable t) {
+            XemsGuard.report("XemsUi.accentAttach", t);
+        }
+    }
+
+    /** Settings: a "Цвят" row under the dark theme switch — two one-tap swatches, the screen redraws at once. */
+    public static void accentBind(Activity a, View root) {
+        try {
+            if (a == null || root == null) {
+                return;
+            }
+            int id = a.getResources().getIdentifier("theme_switch_button", "id", a.getPackageName());
+            View sw = id != 0 ? root.findViewById(id) : null;
+            if (sw == null || !(sw.getParent() instanceof View) || !(sw.getParent().getParent() instanceof ViewGroup)) {
+                return;
+            }
+            View themeRow = (View) sw.getParent();
+            ViewGroup box = (ViewGroup) themeRow.getParent();
+            View old = box.findViewWithTag(ACCENT_ROW);
+            if (old != null) {
+                box.removeView(old);
+            }
+            init(a);
+            boolean magenta = isMagenta(a);
+            LinearLayout row = horizontal(a);
+            row.setTag(ACCENT_ROW);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            TextView label = text(a, XemsLang.tr("Цвят:", "Colour:"), 26, TEXT, false);
+            label.setPadding(0, 0, dp(a, 20), 0);
+            row.addView(label);
+            row.addView(swatch(a, XemsLang.tr("Циан", "Cyan"), 0xFF22C3F5, !magenta, false));
+            View m = swatch(a, XemsLang.tr("Магента", "Magenta"), 0xFFF522F5, magenta, true);
+            LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            ml.leftMargin = dp(a, 12);
+            row.addView(m, ml);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.topMargin = dp(a, 24);
+            box.addView(row, box.indexOfChild(themeRow) + 1, lp);
+        } catch (Throwable t) {
+            XemsGuard.report("XemsUi.accentBind", t);
+        }
+    }
+
+    /** One choice: a dot of the colour and its name; the chosen one glows in its own colour. */
+    private static View swatch(Activity a, String name, int color, boolean sel, boolean magenta) {
+        LinearLayout s = horizontal(a);
+        s.setGravity(Gravity.CENTER_VERTICAL);
+        s.setPadding(dp(a, 14), dp(a, 10), dp(a, 18), dp(a, 10));
+        float r = dp(a, 24);
+        s.setBackgroundDrawable(ripple(sel ? rounded(alpha(color, 46), r, color, dp(a, 2))
+                : rounded(SURFACE, r, STROKE, dp(a, 1)), TEXT, r));
+        View dot = new View(a);
+        dot.setBackgroundDrawable(rounded(color, dp(a, 11), sel ? 0xFFFFFFFF : 0, sel ? dp(a, 2) : 0));
+        s.addView(dot, new LinearLayout.LayoutParams(dp(a, 22), dp(a, 22)));
+        TextView t = text(a, (sel ? "✓ " : "") + name, 18, sel ? TEXT : MUTED, sel);
+        t.setPadding(dp(a, 10), 0, 0, 0);
+        s.addView(t);
+        s.setClickable(true);
+        s.setOnClickListener(new AccentPick(a, magenta));
+        pressable(s);
+        return s;
+    }
+
+    static final class AccentPick implements View.OnClickListener {
+        private final Activity a;
+        private final boolean magenta;
+
+        AccentPick(Activity a, boolean magenta) {
+            this.a = a;
+            this.magenta = magenta;
+        }
+
+        @Override
+        public void onClick(View v) {
+            haptic(v);
+            if (isMagenta(a) == magenta) {
+                return;
+            }
+            try {
+                a.getSharedPreferences(ACCENT_PREFS, Context.MODE_PRIVATE).edit().putBoolean(K_MAGENTA, magenta)
+                        .commit();
+                a.recreate();        // as the dark theme: the activity comes back with the other palette
+            } catch (Throwable t) {
+                XemsGuard.report("XemsUi.accentPick", t);
+            }
+        }
+    }
 }

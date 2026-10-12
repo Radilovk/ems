@@ -128,6 +128,8 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   fi
   python3 "${ROOT}/scripts/apply-xems-nav.py"
   python3 "${ROOT}/scripts/apply-local-mode.py"
+  # Magenta accent: a second palette (res/*-mcc999*) + Settings row; after the theme scripts and XemsUi install.
+  python3 "${ROOT}/scripts/apply-accent.py"
   # After local mode: no request to the vendor's server leaves the tablet (OKHttpUtils, video cache, Glide, update download).
   python3 "${ROOT}/scripts/apply-no-vendor-network.py"
   python3 "${ROOT}/scripts/apply-ramp-setting.py"

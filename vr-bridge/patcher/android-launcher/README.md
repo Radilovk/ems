@@ -30,7 +30,8 @@ app ◀──PendingIntent (exit code + output, background or session)── Ter
 ## Game catalog (1.5) — `../catalog.json`
 **🎮 Каталог** lists games outside the Meta Store that take the layer (a store game re-signed by the patcher is
 refused by Horizon OS / its entitlement check — catalog games are installed as plain APKs, so that never applies).
-Tap one → `termux-run.sh install <quest> <id> [tablet]` → `catalog.py resolve`: `github` = newest release APK
+Tap one → `termux-run.sh install <quest> <id> [tablet]` → `catalog.py resolve`: `url` = a fixed link (our XEMS Studio:
+release `xems-studio-latest`, built by CI, fetched again only when it changed); `github` = newest release APK
 downloaded by the tablet (cached in `~/.xems-vr/apk`); `page` (itch.io) = exit 7 + `page <url>`, the app opens it,
 the user presses Download, the second tap finds the file in Downloads (`termux-setup-storage` once, exit 8 → the
 app runs it) → `xems_vr_patch.py --install <apk>` (package read from the binary manifest, no aapt) → backup/move

@@ -1,0 +1,13 @@
+.godot/
+addons/
+android/
+*.tmp
+build/
+# textures Godot extracts from the .glb models on import (the .glb is the source; CI re-extracts them)
+assets/coaches/*_*.png
+assets/coaches/*_*.jpg
+assets/coaches/*_*.png.import
+assets/coaches/*_*.jpg.import
+assets/rooms/brutalist_*
+assets/rooms/gym_room_*
+xems-studio.apk

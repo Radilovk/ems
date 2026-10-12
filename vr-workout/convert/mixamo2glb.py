@@ -25,5 +25,5 @@ for m in bpy.data.materials:
         if k in b.inputs and not b.inputs[k].is_linked:
             b.inputs[k].default_value = min(b.inputs[k].default_value, 0.3)
 bpy.ops.export_scene.gltf(filepath=dst, export_format="GLB", export_animations=False,
-                          export_image_format="JPEG", export_jpeg_quality=88)
+                          export_image_format="AUTO")
 print("wrote", dst, os.path.getsize(dst) // 1024, "KB")

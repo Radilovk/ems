@@ -11,5 +11,5 @@ for img in bpy.data.images:
     w, h = img.size
     if max(w, h) > mx:
         img.scale(w * mx // max(w, h), h * mx // max(w, h))
-bpy.ops.export_scene.gltf(filepath=dst, export_format="GLB", export_image_format="JPEG", export_jpeg_quality=88)
+bpy.ops.export_scene.gltf(filepath=dst, export_format="GLB", export_image_format="AUTO")
 print("wrote", dst, os.path.getsize(dst) // 1024, "KB")

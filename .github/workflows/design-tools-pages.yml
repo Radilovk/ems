@@ -1,6 +1,7 @@
-# Publish branding/ dev reference to GitHub Pages
+# Publish branding/ dev reference + the XEMS Studio VR workout (WebXR) to GitHub Pages
 # URL: https://radilovk.github.io/ems/  (after Settings → Pages → Source: GitHub Actions)
-name: Branding Dev Reference — GitHub Pages
+#      https://radilovk.github.io/ems/vr/  ← open in the Meta Quest browser, "Влез във VR"
+name: Branding Dev Reference + VR (WebXR) — GitHub Pages
 
 on:
   push:
@@ -12,6 +13,7 @@ on:
       - "scripts/design_config_schema.py"
       - "branding/design-config.yaml"
       - "branding/design-presets.yaml"
+      - "vr-workout/**"
       - ".github/workflows/design-tools-pages.yml"
   workflow_dispatch:
 
@@ -37,10 +39,42 @@ jobs:
       - name: Keep the signing key out of the public site
         run: rm -f branding/release.keystore branding/*.jks branding/*.keystore
 
+      - name: Godot 4.4.1 + web templates (cached)
+        id: godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-4.4.1-web
+
+      - name: Fetch Godot
+        if: steps.godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          GH=https://github.com/godotengine/godot-builds/releases/download/4.4.1-stable
+          curl -fsSL -o g.zip $GH/Godot_v4.4.1-stable_linux.x86_64.zip && unzip -q g.zip && rm g.zip
+          curl -fsSL -o t.tpz $GH/Godot_v4.4.1-stable_export_templates.tpz
+          unzip -q t.tpz 'templates/web_nothreads_*' && rm t.tpz
+
+      - name: Build the VR workout for the browser (WebXR)
+        run: |
+          TPL=~/.local/share/godot/export_templates/4.4.1.stable
+          mkdir -p $TPL && cp ~/godot/templates/* $TPL/
+          G=~/godot/Godot_v4.4.1-stable_linux.x86_64
+          cd vr-workout
+          # twice: the first pass extracts the models' textures, the second imports them
+          $G --headless --path . --import || true
+          $G --headless --path . --import || true
+          mkdir -p ../site/vr
+          $G --headless --path . --export-release "Web" ../site/vr/index.html
+          ls -la ../site/vr
+
+      - name: Assemble the site
+        run: cp -r branding/. site/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: branding
+          path: site
 
       - name: Deploy to GitHub Pages
         id: deployment

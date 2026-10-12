@@ -236,5 +236,5 @@ mod = body.modifiers.new("Armature", "ARMATURE"); mod.object = arm_ob
 unweighted = sum(1 for v in body.data.vertices if not v.groups)
 print("vertices without weights:", unweighted, "of", len(body.data.vertices))
 bpy.ops.export_scene.gltf(filepath=dst, export_format="GLB", export_animations=False,
-                          export_image_format="JPEG", export_jpeg_quality=88)
+                          export_image_format="AUTO")
 print("wrote", dst, os.path.getsize(dst) // 1024, "KB")

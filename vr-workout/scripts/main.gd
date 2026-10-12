@@ -16,7 +16,11 @@ const ROOM_YAW := -0.135            # the big arched window straight ahead
 const ACCENT := Color(0.25, 0.85, 1.0)
 const WARM := Color(1.0, 0.6, 0.2)
 
-var xr := false
+var xr := false              # in a headset now (OpenXR app, or a WebXR session in the Quest browser)
+var web := OS.has_feature("web")
+var webxr: XRInterface
+var vr_overlay: CanvasLayer
+var vr_status: Label
 var args := {}
 var program: Array = Exercises.list()
 var ex_index := 0
@@ -80,7 +84,7 @@ func _ready() -> void:
 
 # ---------------------------------------------------------------- world
 
-## A coach / room by number or by a part of its name (desktop: --coach=Michelle --room=2).
+## A coach / room by number or by a part of its name (desktop: --coach=android --room=2).
 static func _pick(list: Array, key: String) -> int:
 	if key.is_valid_int():
 		return clampi(int(key), 0, list.size() - 1)
@@ -376,9 +380,10 @@ func _setup_view() -> void:
 	if xr:
 		get_viewport().use_xr = true
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	var tracked := xr or web                     # the browser gets real controllers once its VR session starts
 	for side in ["left", "right"]:
 		var c: Node3D
-		if xr:
+		if tracked:
 			var ctl := XRController3D.new()
 			ctl.tracker = side + "_hand"
 			ctl.button_pressed.connect(_on_button.bind(side))
@@ -388,7 +393,10 @@ func _setup_view() -> void:
 			c.position = Vector3(-0.22 if side == "left" else 0.22, 1.15, -0.25)
 		origin.add_child(c)
 		_glove(c)
+		c.visible = xr or not web                # in the browser the gloves show with the headset
 		hands[side] = c
+	if web:
+		_setup_webxr()
 	if not xr:
 		var view: String = args.get("view", "player")
 		if view == "side":
@@ -413,6 +421,84 @@ func _setup_view() -> void:
 			cam.look_at(Vector3(0, 1.1, -2.0))
 		else:
 			cam.look_at(Vector3(0.0, 1.2, -2.4))
+
+
+# ---------------------------------------------------------------- the Quest browser (WebXR)
+
+## In the Quest browser the game starts as a page; one tap on "Влез във VR" opens the headset session (browsers
+## only allow that from a click).
+func _setup_webxr() -> void:
+	vr_overlay = CanvasLayer.new()
+	add_child(vr_overlay)
+	var box := VBoxContainer.new()
+	box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	box.offset_left = -260
+	box.offset_right = 260
+	box.offset_top = -230
+	box.offset_bottom = -40
+	box.alignment = BoxContainer.ALIGNMENT_END
+	vr_overlay.add_child(box)
+	var btn := Button.new()
+	btn.text = "Влез във VR"
+	btn.custom_minimum_size = Vector2(520, 110)
+	btn.add_theme_font_override("font", FONT_BOLD)
+	btn.add_theme_font_size_override("font_size", 46)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.1, 0.55, 0.65)
+	sb.set_corner_radius_all(55)
+	btn.add_theme_stylebox_override("normal", sb)
+	var sbh := sb.duplicate() as StyleBoxFlat
+	sbh.bg_color = Color(0.14, 0.68, 0.8)
+	btn.add_theme_stylebox_override("hover", sbh)
+	btn.add_theme_stylebox_override("pressed", sbh)
+	btn.pressed.connect(_enter_vr)
+	box.add_child(btn)
+	vr_status = Label.new()
+	vr_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vr_status.add_theme_font_override("font", FONT)
+	vr_status.add_theme_font_size_override("font_size", 24)
+	vr_status.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+	vr_status.add_theme_constant_override("outline_size", 8)
+	vr_status.text = "Отвори тази страница в браузъра на Meta Quest"
+	box.add_child(vr_status)
+	webxr = XRServer.find_interface("WebXR")
+	if webxr == null:
+		vr_status.text = "Този браузър няма WebXR"
+		btn.disabled = true
+		return
+	webxr.session_supported.connect(func(mode: String, ok: bool) -> void:
+		if mode == "immersive-vr":
+			btn.disabled = not ok
+			vr_status.text = "Сложи очилата и натисни бутона" if ok else "Отвори тази страница в браузъра на Meta Quest")
+	webxr.session_started.connect(_on_webxr_started)
+	webxr.session_ended.connect(_on_webxr_ended)
+	webxr.session_failed.connect(func(msg: String) -> void: vr_status.text = "VR не тръгна: " + msg)
+	webxr.is_session_supported("immersive-vr")
+
+
+func _enter_vr() -> void:
+	webxr.session_mode = "immersive-vr"
+	webxr.requested_reference_space_types = "local-floor, local"
+	webxr.required_features = "local-floor"
+	webxr.optional_features = "bounded-floor, hand-tracking"
+	if not webxr.initialize():
+		vr_status.text = "VR не тръгна"
+
+
+func _on_webxr_started() -> void:
+	get_viewport().use_xr = true
+	xr = true
+	vr_overlay.visible = false
+	for c in hands.values():
+		c.visible = true
+
+
+func _on_webxr_ended() -> void:
+	get_viewport().use_xr = false
+	xr = false
+	vr_overlay.visible = true
+	for c in hands.values():
+		c.visible = false
 
 
 func _glove(parent: Node3D) -> void:

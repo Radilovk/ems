@@ -14,8 +14,6 @@ const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XE
 const BUILTIN_COACHES := [
 	{"name": "Треньор с худи (Mixamo)", "path": "res://assets/coaches/mixamo_ch08.glb"},
 	{"name": "Андроид", "path": "res://assets/coaches/android.glb"},
-	{"name": "Манекен (ActorCore)", "path": "res://assets/coaches/actorcore_dummy.glb"},
-	{"name": "Michelle (Mixamo)", "path": "res://assets/coaches/Michelle.glb"},
 ]
 const BUILTIN_ROOMS := [
 	{"name": "Йога зала", "path": "res://assets/yoga_room.jpg", "kind": "pano", "cam": 1.45, "yaw": -0.135},

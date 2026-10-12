@@ -20,7 +20,7 @@ studio, a "glass" coach that shows each exercise, and your body map that glows w
   Punches spawn targets at arm's reach; hit = speed > 2 m/s within 14 cm.
 - **Coaches & rooms to try (`scripts/library.gd`):** right **B** = next coach, left **Y** = next room (a name shows
   above the coach). Built in coaches: hoodie man (Mixamo Ch08, default), android (AI mesh, decimated + auto-rigged by
-  `convert/autorig.py`), ActorCore motion dummy, Michelle (Mixamo). Rooms: yoga room, brutalist interior, gym room, yoga studio (3D), boxing ring, beach, bridge (360°).
+  `convert/autorig.py`). Rooms: yoga room, brutalist interior, gym room, yoga studio (3D), boxing ring, beach, bridge (360°).
   Credits: `assets/CREDITS.md`. Converters for new downloads (Blender as a module, `pip install bpy`): `convert/`
   fbx2glb (ActorCore/Unity FBX → upright glb), mixamo2glb (Mixamo FBX → glb, textures capped, matte cloth), shrink_glb (cap textures of any glb), autorig
   (unrigged T/A/I-pose humanoid → decimated if heavy, Unreal-named rig + weights; arms resting on the body are cut free),
@@ -38,6 +38,18 @@ studio, a "glass" coach that shows each exercise, and your body map that glows w
 - **Suit link:** one controller haptic pulse per hold (and per punch hit). Installed through the XEMS VR Launcher
   (catalog "XEMS Studio" or 📥 Downloads) the loader shim forwards it to the tablet like any patched game.
   Next step: send rich events (hand, force, zone) straight to the tablet instead of haptics.
+
+## In the Quest browser (WebXR) — the way it ships now
+`https://radilovk.github.io/ems/vr/` → open in the Meta Quest browser → **Влез във VR**. Built and published by
+`.github/workflows/design-tools-pages.yml` on every push to `main` that touches `vr-workout/` (Godot 4.4.1 web,
+no threads, so GitHub Pages needs no special headers; the "Web" preset in `export_presets.cfg`). `main.gd`
+`_setup_webxr()`: a page button opens the `immersive-vr` session (browsers only allow it from a click), the controllers
+are `XRController3D` as in the app, B / Y switch coach / room. First visit loads ≈ 220 MB (cached after). Local build:
+`godot --headless --path vr-workout --export-release Web build/web/index.html`, serve `build/web/`.
+**Not yet in the browser:** the suit link — the haptic → tablet path lives in the OpenXR layer of the APK; the web
+page needs its own channel to the tablet. Textures Godot extracts from the .glb files are not committed (`.gitignore`);
+the import re-creates them. The Quest APK (`xems-studio.apk`) is no longer rebuilt: with full-quality assets it is
+over GitHub's 100 MB file limit.
 
 ## Build / preview
 ```

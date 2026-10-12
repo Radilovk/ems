@@ -183,3 +183,15 @@
   програмира ~3 s след свързване / стоп), часовникът на нарастването спира, докато се освободи — не изтича
   „на сляпо“, за да отиде първата стойност след това направо на пълна сила. Спадът тръгва от достигнатото ниво.
   Ако зареждането изяде целия импулс, той остава слаб; следващите са нормални.
+
+## Accent: cyan / magenta (1.1.424-ai)
+Settings → under "Тъмна тема" a **Цвят** row: Циан · Магента (one tap, the screen comes back in the other colour).
+- Magenta lives in its own resource qualifier: `res/values-mcc999-night` (every cyan/navy night colour turned —
+  bright → magenta 300°, dark glass → plum 280°, lightness kept), `res/values-mcc999` (light accent names),
+  `res/drawable-mcc999-night` (night drawables with a cyan hex of their own). Made at build by `scripts/apply-accent.py`
+  from the merged palette — a new colour in `branding/theme/colors-night.xml` gets its twin automatically.
+- `BaseActivity.attachBaseContext` → `XemsUi.accentAttach`: with magenta chosen the activity gets an override
+  configuration with `mcc = 999` (nothing else), so XML screens, `@color`s and this kit (`init` reads the same names)
+  all switch, and stay through turns. Prefs `setting_share` / `accent_magenta` (next to `dark_mode`).
+- Java: use `XemsUi.ACCENT` (never a literal cyan) so the choice reaches it. Not switched: the band app, the HTML
+  report pages and PNG art with cyan baked in.

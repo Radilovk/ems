@@ -328,7 +328,7 @@ func _card(pos: Vector3, size: Vector2, turn: float) -> Node3D:
 
 func _build_body_map() -> void:
 	# Your body, small, on a glass card right of the coach: the parts the suit works on now glow warm.
-	var card := _card(Vector3(1.3, 1.85, -2.2), Vector2(0.62, 1.06), -24)
+	var card := _card(Vector3(1.3, 2.05, -2.2), Vector2(0.62, 1.06), -24)
 	body = Mannequin.new(Color(0.88, 0.93, 0.97, 0.6))
 	body.scale = Vector3.ONE * 0.4
 	body.position = Vector3(0, -0.47, 0.06)
@@ -357,7 +357,7 @@ func _label(text: String, size: int, pos: Vector3, font: Font, color := Color.WH
 
 func _build_texts() -> void:
 	# The exercise card, left of the coach: name, how to do it, reps.
-	var card := _card(Vector3(-1.35, 1.95, -2.3), Vector2(0.9, 0.86), 24)
+	var card := _card(Vector3(-1.35, 2.3, -2.3), Vector2(0.9, 0.86), 24)
 	title = _label("", 72, Vector3(0, 0.31, 0.01), FONT_BOLD, Color.WHITE, card)
 	title.autowrap_mode = TextServer.AUTOWRAP_OFF       # one line; long names get a smaller font in _process
 	cue = _label("", 30, Vector3(0, 0.06, 0.01), FONT, Color(1, 1, 1, 0.88), card)

@@ -151,12 +151,41 @@
 
     invoke-virtual {v0, v2, v3}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 343
+    .line 344
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v3, "{"
+    const-string v3, "{\"studio\":\""
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->a:Landroid/app/Activity;
+
+    const-string v4, "xems_client_sync"
+
+    const/4 v5, 0x0
+
+    invoke-virtual {v3, v4, v5}, Landroid/app/Activity;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v3
+
+    const-string v4, "studio"
+
+    const-string v5, ""
+
+    .line 345
+    invoke-interface {v3, v4, v5}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, "\""
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -164,13 +193,8 @@
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
+    .line 346
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/ReportBridge;->lookupFields(Lcom/isaigu/gymapp/bean/TrainUser;)Ljava/lang/String;
-
-    move-result-object v3
-
-    const/4 v4, 0x1
-
-    invoke-virtual {v3, v4}, Ljava/lang/String;->substring(I)Ljava/lang/String;
 
     move-result-object v3
 
@@ -188,12 +212,12 @@
 
     move-result-object v2
 
-    .line 344
+    .line 347
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v3
 
-    .line 345
+    .line 348
     const-string v4, "UTF-8"
 
     invoke-virtual {v2, v4}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
@@ -202,64 +226,64 @@
 
     invoke-virtual {v3, v2}, Ljava/io/OutputStream;->write([B)V
 
-    .line 346
+    .line 349
     invoke-virtual {v3}, Ljava/io/OutputStream;->close()V
 
-    .line 347
+    .line 350
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v2
 
     const/16 v3, 0xc8
 
-    if-ne v2, v3, :cond_b2
+    if-ne v2, v3, :cond_c8
 
-    .line 348
+    .line 351
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v0
 
-    .line 349
+    .line 352
     new-instance v2, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v2}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 350
+    .line 353
     const/16 v3, 0x1000
 
     new-array v3, v3, [B
 
-    .line 352
-    :goto_a1
+    .line 355
+    :goto_b7
     invoke-virtual {v0, v3}, Ljava/io/InputStream;->read([B)I
 
     move-result v4
 
-    if-lez v4, :cond_c4
+    if-lez v4, :cond_da
 
-    .line 353
+    .line 356
     const/4 v5, 0x0
 
     invoke-virtual {v2, v3, v5, v4}, Ljava/io/ByteArrayOutputStream;->write([BII)V
-    :try_end_ab
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_ab} :catch_ac
+    :try_end_c1
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_c1} :catch_c2
 
-    goto :goto_a1
+    goto :goto_b7
 
-    .line 362
-    :catch_ac
+    .line 365
+    :catch_c2
     move-exception v0
 
-    .line 363
+    .line 366
     const-string v2, "ClientRow.findCard"
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    :cond_b2
+    :cond_c8
     move-object v0, v1
 
-    .line 365
-    :goto_b3
+    .line 368
+    :goto_c9
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->a:Landroid/app/Activity;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/ClientRow$Opened;
@@ -274,15 +298,15 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 366
+    .line 369
     return-void
 
-    .line 355
-    :cond_c4
-    :try_start_c4
+    .line 358
+    :cond_da
+    :try_start_da
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 356
+    .line 359
     new-instance v3, Lorg/json/JSONObject;
 
     const-string v0, "UTF-8"
@@ -293,7 +317,7 @@
 
     invoke-direct {v3, v0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 357
+    .line 360
     const-string v0, "url"
 
     const-string v2, ""
@@ -302,24 +326,24 @@
 
     move-result-object v0
 
-    .line 358
+    .line 361
     const-string v2, "ok"
 
     invoke-virtual {v3, v2}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_b2
+    if-eqz v2, :cond_c8
 
     const-string v2, "https://"
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    :try_end_e7
-    .catch Ljava/lang/Throwable; {:try_start_c4 .. :try_end_e7} :catch_ac
+    :try_end_fd
+    .catch Ljava/lang/Throwable; {:try_start_da .. :try_end_fd} :catch_c2
 
     move-result v2
 
-    if-eqz v2, :cond_b2
+    if-eqz v2, :cond_c8
 
-    goto :goto_b3
+    goto :goto_c9
 .end method

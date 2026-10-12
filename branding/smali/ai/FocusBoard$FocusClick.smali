@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1509
+    .line 1550
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1510
+    .line 1551
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1511
+    .line 1552
     return-void
 .end method
 
@@ -42,22 +42,22 @@
     .registers 4
 
     .prologue
-    .line 1515
+    .line 1556
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1516
+    .line 1557
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->focus:Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1902(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1517
+    .line 1558
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->sexOf:Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2002(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1518
+    .line 1559
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->position(Lcom/isaigu/gymapp/train/model/TrainItem;)I
@@ -70,13 +70,13 @@
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->rowAt(IZ)Landroid/view/View;
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2200(IZ)Landroid/view/View;
 
-    .line 1519
+    .line 1560
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$700()V
 
-    .line 1520
+    .line 1561
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
-    .line 1521
+    .line 1562
     return-void
 .end method

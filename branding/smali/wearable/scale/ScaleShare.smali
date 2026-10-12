@@ -1121,14 +1121,14 @@
 
     move-result-object v4
 
-    const-string v5, "@media(min-width:760px){.grid{grid-template-columns:300px 1fr}}.fig{max-height:380px;max-width:100%;"
+    const-string v5, "@media(min-width:760px){.grid{grid-template-columns:minmax(0,1.1fr) 1fr}}.fig{width:100%;max-width:460px;"
 
     .line 156
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    const-string v5, "display:block;margin:auto}.age{font-size:44px;font-weight:800;line-height:1}"
+    const-string v5, "height:auto;border-radius:14px;display:block;margin:auto}.age{font-size:44px;font-weight:800;line-height:1}"
 
     .line 157
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;

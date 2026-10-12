@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1744
+    .line 1873
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1745
+    .line 1874
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Unpop;->v:Landroid/view/View;
 
-    .line 1746
+    .line 1875
     return-void
 .end method
 
@@ -44,7 +44,7 @@
     .prologue
     const/high16 v1, 0x3f800000    # 1.0f
 
-    .line 1750
+    .line 1879
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Unpop;->v:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
@@ -67,6 +67,6 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 1751
+    .line 1880
     return-void
 .end method

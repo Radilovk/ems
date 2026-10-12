@@ -6,25 +6,26 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BuildGrid;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Path2Target;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Composition;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormGrow;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormBar;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$ChangeGrow;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Change;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MeterGrow;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Composition;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Path2Target;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Radar;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Change;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Body;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BuildGrid;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormGrow;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$ZoneBoard;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$ChangeGrow;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MeterGrow;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reach;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Sweep;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Gauge;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Radar;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Reveal;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Body;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleViews$OnSegment;
     }
 .end annotation
@@ -584,11 +585,171 @@
     .end array-data
 .end method
 
+.method public static settle(Landroid/view/View;)V
+    .registers 3
+
+    .prologue
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    .line 1512
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormBar;
+
+    if-eqz v0, :cond_22
+
+    move-object v0, p0
+
+    .line 1513
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormBar;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$NormBar;->grow:F
+
+    .line 1529
+    :cond_b
+    :goto_b
+    instance-of v0, p0, Landroid/view/ViewGroup;
+
+    if-eqz v0, :cond_68
+
+    .line 1530
+    check-cast p0, Landroid/view/ViewGroup;
+
+    .line 1531
+    const/4 v0, 0x0
+
+    :goto_12
+    invoke-virtual {p0}, Landroid/view/ViewGroup;->getChildCount()I
+
+    move-result v1
+
+    if-ge v0, v1, :cond_68
+
+    .line 1532
+    invoke-virtual {p0, v0}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+
+    move-result-object v1
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->settle(Landroid/view/View;)V
+
+    .line 1531
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_12
+
+    .line 1514
+    :cond_22
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;
+
+    if-eqz v0, :cond_2c
+
+    move-object v0, p0
+
+    .line 1515
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->grow:F
+
+    goto :goto_b
+
+    .line 1516
+    :cond_2c
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Composition;
+
+    if-eqz v0, :cond_36
+
+    move-object v0, p0
+
+    .line 1517
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Composition;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Composition;->grow:F
+
+    goto :goto_b
+
+    .line 1518
+    :cond_36
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Path2Target;
+
+    if-eqz v0, :cond_40
+
+    move-object v0, p0
+
+    .line 1519
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Path2Target;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Path2Target;->grow:F
+
+    goto :goto_b
+
+    .line 1520
+    :cond_40
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Radar;
+
+    if-eqz v0, :cond_4a
+
+    move-object v0, p0
+
+    .line 1521
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Radar;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Radar;->grow:F
+
+    goto :goto_b
+
+    .line 1522
+    :cond_4a
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;
+
+    if-eqz v0, :cond_54
+
+    move-object v0, p0
+
+    .line 1523
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->grow:F
+
+    goto :goto_b
+
+    .line 1524
+    :cond_54
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Change;
+
+    if-eqz v0, :cond_5e
+
+    move-object v0, p0
+
+    .line 1525
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Change;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Change;->grow:F
+
+    goto :goto_b
+
+    .line 1526
+    :cond_5e
+    instance-of v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Body;
+
+    if-eqz v0, :cond_b
+
+    move-object v0, p0
+
+    .line 1527
+    check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Body;
+
+    iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Body;->reveal:F
+
+    goto :goto_b
+
+    .line 1535
+    :cond_68
+    return-void
+.end method
+
 .method static signed(D)Ljava/lang/String;
     .registers 10
 
     .prologue
-    .line 661
+    .line 706
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V

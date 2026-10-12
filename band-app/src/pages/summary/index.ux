@@ -1,7 +1,8 @@
 <template>
   <stack class="root bg-summary">
+    <!-- Vela scrolls only a child with a set height (as home / train): two screens = 1040 px -->
     <scroll class="scr" scroll-y="true">
-      <div class="col">
+      <div class="col" style="height: {{colH}}px">
         <!-- 1 · the muscles this training worked (first when the map is there), a hint to scroll -->
         <div class="screen body-screen" if="{{hasBody}}">
           <text class="caps">МУСКУЛИ</text>
@@ -98,6 +99,7 @@ function boxes(key, col) {
 export default {
   private: {
     hasBody: false,
+    colH: 520,
     kindText: 'КРАЙ',
     durText: '0:00',
     kcal: '--',
@@ -155,6 +157,7 @@ export default {
       this.tops = lv.map((v, i) => ({ i, v })).sort((a, b) => b.v - a.v).slice(0, 3)
         .map((t) => ({ n: MUSCLE[t.i], p: Math.round(t.v * 100), c: col[t.i] }))
       this.hasBody = true
+      this.colH = 1040
     }
   },
 
@@ -375,11 +378,15 @@ export default {
   }
 }
 /* ---- page ---- */
+.col {
+  height: 520px;
+}
 .bg-summary {
   background-image: url(/common/bg/summary.png);
   background-size: cover;
 }
 .screen {
+  flex-shrink: 0;
   padding-top: 40px;
   justify-content: center;
   padding-bottom: 30px;
@@ -420,6 +427,7 @@ export default {
   padding-top: 40px;
 }
 .figs {
+  flex-shrink: 0;
   width: 200px;
   flex-direction: row;
   justify-content: space-between;
@@ -453,11 +461,13 @@ export default {
   background-image: url(/common/body/m-back.png);
 }
 .tops {
-  width: 196px;
+  flex-shrink: 0;
+  width: 200px;
   flex-direction: column;
   margin-top: 16px;
 }
 .top {
+  flex-shrink: 0;
   height: 30px;
   flex-direction: row;
   align-items: center;
@@ -466,17 +476,17 @@ export default {
   width: 12px;
   height: 12px;
   border-radius: 6px;
-  margin-right: 10px;
+  margin-right: 8px;
 }
 .tname {
   flex-grow: 1;
   lines: 1;
-  font-size: 19px;
+  font-size: 18px;
   color: #ffffff;
 }
 .tpct {
-  margin-left: 8px;
-  font-size: 19px;
+  margin-left: 4px;
+  font-size: 18px;
   font-weight: bold;
   color: #AEAEB2;
 }

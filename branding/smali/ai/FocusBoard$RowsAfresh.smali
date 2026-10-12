@@ -79,25 +79,7 @@
 
     .line 885
     :cond_1b
-    invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
-
-    move-result-object v1
-
-    const-string v2, "getAdapter"
-
-    const/4 v3, 0x0
-
-    new-array v3, v3, [Ljava/lang/Class;
-
-    invoke-virtual {v1, v2, v3}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
-
-    move-result-object v1
-
-    const/4 v2, 0x0
-
-    new-array v2, v2, [Ljava/lang/Object;
-
-    invoke-virtual {v1, v0, v2}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->rowsAdapter(Landroid/view/View;)Ljava/lang/Object;
 
     move-result-object v1
 
@@ -125,7 +107,7 @@
     move-result-object v2
 
     .line 887
-    if-eqz v2, :cond_58
+    if-eqz v2, :cond_48
 
     .line 888
     invoke-virtual {v2}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
@@ -149,7 +131,7 @@
     invoke-virtual {v3, v2, v4}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
 
     .line 890
-    :cond_58
+    :cond_48
     if-eqz v1, :cond_18
 
     .line 891
@@ -187,13 +169,13 @@
     aput-object v1, v3, v4
 
     invoke-virtual {v2, v0, v3}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
-    :try_end_79
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_79} :catch_7a
+    :try_end_69
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_69} :catch_6a
 
     goto :goto_18
 
     .line 894
-    :catch_7a
+    :catch_6a
     move-exception v0
 
     .line 895

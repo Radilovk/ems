@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 256
+    .line 258
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 257
+    .line 259
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
-    .line 258
+    .line 260
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->std:I
 
-    .line 259
+    .line 261
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 5
 
     .prologue
-    .line 264
+    .line 266
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
@@ -71,16 +71,16 @@
 
     if-nez v0, :cond_17
 
-    .line 271
+    .line 273
     :cond_16
     :goto_16
     return-void
 
-    .line 265
+    .line 267
     :cond_17
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 266
+    .line 268
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->c:Landroid/content/Context;
@@ -93,7 +93,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->set(Landroid/content/Context;Ljava/lang/String;I)V
 
-    .line 267
+    .line 269
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->render()V
@@ -102,11 +102,11 @@
 
     goto :goto_16
 
-    .line 268
+    .line 270
     :catch_2d
     move-exception v0
 
-    .line 269
+    .line 271
     const-string v1, "SuitStandard.pick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

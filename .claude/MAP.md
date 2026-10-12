@@ -194,7 +194,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
-- `FocusBoard.java` (2363L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
+- `FocusBoard.java` (2492L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
 - `ImpulseGlyph.java` (132L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (579L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (128L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -223,7 +223,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
 - `BtTranslator.java` (613L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
-- `SuitStandard.java` (274L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
+- `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -319,7 +319,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleLink.java` (925L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
 - `ScaleModel.java` (446L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
 - `ScaleProtocol.java` (385L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
-- `ScaleScreen.java` (2714L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
+- `ScaleScreen.java` (2736L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
 - `ScaleSenssun.java` (672L, compile:music-sync*,wearable) — The Senssun / MovingLife scale family (Senssun "Fat", IF_xx; Klausberg KB-7853 and the other scales sold for the Moving…
 - `ScaleSession.java` (207L, compile:music-sync*,wearable) — One measuring session = one time on the scale.
 - `ScaleShare.java` (479L, compile:music-sync*,wearable) — Sharing the scale's result from the summary: as an image (the sheet as it is on the screen, PNG) or as one HTML file th…
@@ -327,7 +327,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleStage.java` (754L, compile:music-sync*,wearable) — The measuring stage — what the client sees from "step on" to "done", one standing, no step-off: <ul> <li><b>Left</b> — …
 - `ScaleStore.java` (251L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
 - `ScaleUploader.java` (238L, compile:music-sync*,wearable) — The client's scale measurements → the server, filed under the client's dossier id (XemsDossier.cidFor) like the trainin…
-- `ScaleViews.java` (1869L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
+- `ScaleViews.java` (2037L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
 
 **wearable/vr/** (`branding/java/src/com/isaigu/gymapp/wearable/vr/`)
 - `VrBridge.java` (57L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
@@ -415,7 +415,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/src/pages/index/index.ux` (564L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
 - `band-app/src/pages/music/index.ux` (451L) — band screen: music remote — play/pause, prev/next, impulse ceiling
 - `band-app/src/pages/pulse/index.ux` (430L) — band screen: heart rate, auto control on/off, last 3 minutes chart
-- `band-app/src/pages/summary/index.ux` (534L) — band screen: session summary after training
+- `band-app/src/pages/summary/index.ux` (544L) — band screen: session summary after training
 - `band-app/src/pages/timer/index.ux` (398L) — band screen: interval timer remote
 - `band-app/src/pages/train/index.ux` (1213L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
 - `band-app/test/app-screen.test.mjs` (29L) — Verifies screen wake policy: no setKeepScreenOn during training.
@@ -580,7 +580,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L393 ## 12. Основни директории
   - L403 ## 13. Идея на проекта
 
-`band-app/CLAUDE.md` (27L)
+`band-app/CLAUDE.md` (29L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)
 
 `band-app/docs/native-first.md` (24L)
@@ -674,7 +674,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L229 ## Agent checklist
   - L243 ## Локални инструменти
 
-`branding/UI-PITFALLS.md` (268L)
+`branding/UI-PITFALLS.md` (282L)
   - L1 # UI и функции — чести грешки и правилен подход
   - L12 ## 1. Промяната не се вижда в APK
   - L28 ## 2. CircleSeekBar (кръгов слайдер)
@@ -698,11 +698,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L177 ## 8. Координация music ↔ training ↔ timer
   - L189 ## 9. Smali patch — добри практики
   - L200 ## 10. Design pipeline vs factory UI
-  - L212 ## 11b. Цветовете на темата не стигат до таблета
-  - L219 ## 11a. Свечение / сянка извън контрола се реже
-  - L225 ## 11. Шаблон за нова UI функция
-  - L241 ## 12. Бърз указател по симптом
-  - L257 ## Референции в кода
+  - L212 ## 11c. Списъкът с редове спира да следва добавяне / махане
+  - L220 ## 11d. Рисунка извън екрана: маркерите на баровете стоят вляво
+  - L226 ## 11b. Цветовете на темата не стигат до таблета
+  - L233 ## 11a. Свечение / сянка извън контрола се реже
+  - L239 ## 11. Шаблон за нова UI функция
+  - L255 ## 12. Бърз указател по симптом
+  - L271 ## Референции в кода
 
 `diag-logs/README.md` (42L)
   - L1 # Diagnostic logs (music player)
@@ -892,13 +894,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-focus-board.md` (71L)
+`docs/xems-focus-board.md` (80L)
   - L1 # Training screen — focus layout (1.1.412)
   - L7 ## Layout
   - L24 ## Rules
   - L34 ## 1.1.415 — phase, rings, lock, colours
   - L51 ## 1.1.417 — colours of a marked muscle
   - L57 ## 1.1.419 — upright (button)
+  - L72 ## 1.1.423 — board and rows in step, remove from the board
 
 `docs/xems-license-api.md` (183L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
@@ -988,7 +991,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## 3. UI / UX
   - L57 ## 4. Какво да се провери на първото истинско мерене
 
-`docs/xems-scale.md` (477L)
+`docs/xems-scale.md` (484L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
   - L10 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
   - L28 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
@@ -1008,12 +1011,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L281 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
   - L313 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
   - L326 ## Result page (`ScaleScreen`) — two views
-  - L416 ## What the hardware is
-  - L427 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L448 ## Measuring protocol (owner: no suit, thin clothes)
-  - L456 ## Validation path
-  - L461 ## Gemini / LLM
-  - L466 ## Licences of the ported code
+  - L423 ## What the hardware is
+  - L434 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L455 ## Measuring protocol (owner: no suit, thin clothes)
+  - L463 ## Validation path
+  - L468 ## Gemini / LLM
+  - L473 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (285L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

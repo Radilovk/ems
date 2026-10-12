@@ -23,4 +23,6 @@
   clipped full-image circles on the real band. State changes swap CSS colours, never images (no decode at start).
   Keep `python3 scripts/check-art.py` green (memory per page).
   Do not run `gen-icons.py` — it draws the reverted v4 set over the shipped v3 icons.
+- `<scroll>` scrolls only a child with a set height (`style="height: {{colH}}px"`, as home / train / summary) and
+  children with `flex-shrink: 0`; without them Vela squeezes the screens into one (summary before 5.9.48).
 - Lightness rules: pages redraw via app `notify` (coalesced, 150 ms); no infinite animations; lists via `putList` (ui.js); mutate list items in place for per-second text.

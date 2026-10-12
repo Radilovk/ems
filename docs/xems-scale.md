@@ -324,6 +324,13 @@ DXA of clients) (a guide, not a medical test; a few points off DXA for one
 person → re-measure, smooth, read the trend). Preview (HTML mock): `docs/scale/preview-science.png`.
 
 ## Result page (`ScaleScreen`) — two views
+**1.1.423-ai — zone board, markers** (owner: zone cards not tied to the figure; the norm dots sat at the left in the
+reports): the summary, the image and the web page show `ScaleViews.ZoneBoard` — the front figure only (`Body.frontOnly`),
+the five zone cards around it (muscle % · kg · word, fat kg in its colour), a line and a dot from each card to the
+zone's centre (`Body.anchor`, centroid of the zone in the map). The web page embeds the board drawn off screen at
+460 dp (`Page.boardPicture`). Off-screen pictures call `ScaleViews.settle` first: an animation started there stays at
+its first frame (grow = 0), which put every `MiniNorm` / `NormBar` marker at the left end of its bar. Trunk = "Торс"
+everywhere (`ScaleDetail.zoneBg` said "Тяло").
 **1.1.310-ai — landscape only, upright exports** (owner: "rows still broken after the portrait turn; portrait only
 for exporting"): the page and the report no longer unlock rotation (`ReportBridge.rotate` puts the host back across,
 the report's rotate button is gone). The summary's footer has one button **"Изпрати на клиента"** → a pop with four

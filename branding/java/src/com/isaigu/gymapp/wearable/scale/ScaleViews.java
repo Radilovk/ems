@@ -155,6 +155,8 @@ public final class ScaleViews {
         final int[] segCol = new int[6];
         final int[] chCol = new int[11];
         boolean byChannel;
+        /** Only the front view (the summary: zone cards on both sides, a line to each zone). */
+        boolean frontOnly;
         String key = "";
         int selected = -1;
         boolean dirty = true;
@@ -171,6 +173,9 @@ public final class ScaleViews {
             int[] px;
             int w;
             int h;
+            /** Centre of each segment 1..5 in map pixels (the leader lines' points). */
+            final float[] cx = new float[6];
+            final float[] cy = new float[6];
         }
 
         public Body(Context c) {
@@ -254,9 +259,13 @@ public final class ScaleViews {
                 f.ch = new byte[n];
                 f.lum = new byte[n];
                 int j = 0;
+                long[] sx = new long[6], sy = new long[6], sn = new long[6];
                 for (int i = 0; i < all.length; i++) {
                     int s = (all[i] >> 16) & 0xFF;
                     if (s >= 1 && s <= 5) {
+                        sx[s] += i % f.w;
+                        sy[s] += i / f.w;
+                        sn[s]++;
                         f.idx[j] = i;
                         f.seg[j] = (byte) s;
                         int ch = (all[i] >> 8) & 0xFF;
@@ -264,6 +273,10 @@ public final class ScaleViews {
                         f.lum[j] = (byte) (art[i] & 0xFF);
                         j++;
                     }
+                }
+                for (int s = 1; s <= 5; s++) {
+                    f.cx[s] = sn[s] > 0 ? (float) sx[s] / sn[s] : -1;
+                    f.cy[s] = sn[s] > 0 ? (float) sy[s] / sn[s] : -1;
                 }
                 f.px = new int[f.w * f.h];
                 f.over = Bitmap.createBitmap(f.w, f.h, Bitmap.Config.ARGB_8888);
@@ -317,26 +330,13 @@ public final class ScaleViews {
                 repaint(figs[0]);
                 repaint(figs[1]);
             }
-            float gap = dp(this, 14);
-            float h = getHeight();
-            float total = 0;
-            for (Fig f : figs) {
-                if (f != null && f.art != null) {
-                    total += f.art.getWidth() * h / f.art.getHeight();
-                }
-            }
-            float scale = total + gap > getWidth() ? (getWidth() - gap) / Math.max(1f, total) : 1f;
-            float x = (getWidth() - (total * scale + gap)) / 2f;
-            for (int i = 0; i < 2; i++) {
+            place();
+            for (int i = 0; i < sides(); i++) {
                 Fig f = figs[i];
                 if (f == null || f.art == null) {
                     continue;
                 }
-                float fh = h * scale;
-                float fw = f.art.getWidth() * fh / f.art.getHeight();
-                float top = (h - fh) / 2f;
                 src.set(0, 0, f.art.getWidth(), f.art.getHeight());
-                dst[i].set(x, top, x + fw, top + fh);
                 paint.setAlpha(255);
                 c.drawBitmap(f.art, src, dst[i], paint);
                 if (f.over != null) {
@@ -354,8 +354,53 @@ public final class ScaleViews {
                 String l = tr("Л", "L"), r = tr("Д", "R");
                 drawFit(c, label, i == 0 ? r : l, dst[i].left + dp(this, 6), ly, -1, this);
                 drawFit(c, label, i == 0 ? l : r, dst[i].right - dp(this, 6), ly, -1, this);
+            }
+        }
+
+        int sides() {
+            return frontOnly ? 1 : 2;
+        }
+
+        /** Where each view is drawn (dst): side by side, centred, as tall as the view allows. */
+        void place() {
+            float gap = sides() > 1 ? dp(this, 14) : 0;
+            float h = getHeight();
+            float total = 0;
+            for (int i = 0; i < sides(); i++) {
+                Fig f = figs[i];
+                if (f != null && f.art != null) {
+                    total += f.art.getWidth() * h / f.art.getHeight();
+                }
+            }
+            float scale = total + gap > getWidth() ? (getWidth() - gap) / Math.max(1f, total) : 1f;
+            float x = (getWidth() - (total * scale + gap)) / 2f;
+            for (int i = 0; i < 2; i++) {
+                Fig f = figs[i];
+                if (i >= sides() || f == null || f.art == null) {
+                    dst[i].setEmpty();
+                    continue;
+                }
+                float fh = h * scale;
+                float fw = f.art.getWidth() * fh / f.art.getHeight();
+                float top = (h - fh) / 2f;
+                dst[i].set(x, top, x + fw, top + fh);
                 x += fw + gap;
             }
+        }
+
+        /** The point of a zone (ScaleProtocol 0..4) on the front view, in this view's pixels; false when unknown. */
+        public boolean anchor(int seg, float[] out) {
+            Fig f = figs[0];
+            if (f == null || f.w <= 0 || seg < 0 || seg > 4 || f.cx[seg + 1] < 0) {
+                return false;
+            }
+            place();
+            if (dst[0].isEmpty()) {
+                return false;
+            }
+            out[0] = dst[0].left + f.cx[seg + 1] / f.w * dst[0].width();
+            out[1] = dst[0].top + f.cy[seg + 1] / f.h * dst[0].height();
+            return true;
         }
 
         @Override
@@ -363,7 +408,7 @@ public final class ScaleViews {
             if (e.getAction() != MotionEvent.ACTION_UP) {
                 return true;
             }
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < sides(); i++) {
                 Fig f = figs[i];
                 if (f == null || f.over == null || !dst[i].contains(e.getX(), e.getY())) {
                     continue;
@@ -1366,6 +1411,129 @@ public final class ScaleViews {
      * deviation to each side — the edges' numbers under the joins, each sector's name, and the client's marker with
      * its value in a bubble above. The sector the marker sits in is lit, the others muted.
      */
+    /**
+     * The figure with each zone's card beside it (the segmental analysers' report): a line from the card's inner edge,
+     * a short level run, then to a dot on the zone. The cards and the figure are ordinary children; the lines are
+     * drawn over them in the zone's colour.
+     */
+    public static final class ZoneBoard extends android.widget.LinearLayout {
+        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final android.graphics.Path path = new android.graphics.Path();
+        final View[] notes = new View[5];
+        final int[] colors = new int[5];
+        final float[] at = new float[2];
+        Body fig;
+
+        public ZoneBoard(Context c) {
+            super(c);
+            setOrientation(HORIZONTAL);
+            setWillNotDraw(false);
+        }
+
+        public void figure(Body b) {
+            fig = b;
+        }
+
+        /** The card of a zone (ScaleProtocol 0..4) and its colour. */
+        public void link(int seg, View note, int color) {
+            notes[seg] = note;
+            colors[seg] = color;
+        }
+
+        /** Left / top of a descendant in this view's pixels. */
+        float[] origin(View v, float[] out) {
+            float x = 0, y = 0;
+            View cur = v;
+            while (cur != null && cur != this) {
+                x += cur.getLeft() - cur.getScrollX();
+                y += cur.getTop() - cur.getScrollY();
+                Object parent = cur.getParent();
+                cur = parent instanceof View ? (View) parent : null;
+            }
+            out[0] = x;
+            out[1] = y;
+            return out;
+        }
+
+        @Override
+        protected void dispatchDraw(Canvas c) {
+            super.dispatchDraw(c);
+            if (fig == null || fig.getWidth() <= 0) {
+                return;
+            }
+            float[] fo = origin(fig, new float[2]);
+            float[] no = new float[2];
+            float figMid = fo[0] + fig.getWidth() / 2f;
+            for (int s = 0; s < 5; s++) {
+                View n = notes[s];
+                if (n == null || n.getWidth() <= 0 || !fig.anchor(s, at)) {
+                    continue;
+                }
+                origin(n, no);
+                float ax = fo[0] + at[0], ay = fo[1] + at[1];
+                boolean leftSide = no[0] + n.getWidth() / 2f < figMid;
+                float sx = leftSide ? no[0] + n.getWidth() : no[0];
+                float sy = no[1] + n.getHeight() / 2f;
+                float run = dp(this, 12);
+                float ex = leftSide ? sx + run : sx - run;
+                int col = colors[s] != 0 ? colors[s] : XemsUi.MUTED;
+                path.reset();
+                path.moveTo(sx, sy);
+                path.lineTo(ex, sy);
+                path.lineTo(ax, ay);
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeCap(Paint.Cap.ROUND);
+                p.setStrokeJoin(Paint.Join.ROUND);
+                p.setStrokeWidth(dp(this, 3.4f));
+                p.setColor(0x66000000);
+                c.drawPath(path, p);
+                p.setStrokeWidth(dp(this, 1.8f));
+                p.setColor(XemsUi.alpha(col, 220));
+                c.drawPath(path, p);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(col);
+                c.drawCircle(sx, sy, dp(this, 3.2f), p);
+                // the zone's point: a light ring with the status colour inside
+                p.setColor(0x66000000);
+                c.drawCircle(ax, ay + dp(this, 1), dp(this, 7.5f), p);
+                p.setColor(0xFFFFFFFF);
+                c.drawCircle(ax, ay, dp(this, 7), p);
+                p.setColor(col);
+                c.drawCircle(ax, ay, dp(this, 4.6f), p);
+            }
+        }
+    }
+
+    /**
+     * Ends every grow / reveal of the drawn views under {@code v} — for a picture drawn off screen at once (the
+     * export): an animation started there stays at its first frame (0), so every marker sat at the bar's left end.
+     */
+    public static void settle(View v) {
+        if (v instanceof NormBar) {
+            ((NormBar) v).grow = 1f;
+        } else if (v instanceof MiniNorm) {
+            ((MiniNorm) v).grow = 1f;
+        } else if (v instanceof Composition) {
+            ((Composition) v).grow = 1f;
+        } else if (v instanceof Path2Target) {
+            ((Path2Target) v).grow = 1f;
+        } else if (v instanceof Radar) {
+            ((Radar) v).grow = 1f;
+        } else if (v instanceof BandMeter) {
+            ((BandMeter) v).grow = 1f;
+        } else if (v instanceof Change) {
+            ((Change) v).grow = 1f;
+        } else if (v instanceof Body) {
+            ((Body) v).reveal = 1f;
+        }
+        if (v instanceof android.view.ViewGroup) {
+            android.view.ViewGroup g = (android.view.ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) {
+                settle(g.getChildAt(i));
+            }
+        }
+    }
+
     public static final class NormBar extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final RectF r = new RectF();

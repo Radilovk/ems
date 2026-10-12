@@ -4810,7 +4810,7 @@
 
     .line 282
     :pswitch_6
-    const-string v0, "\u0422\u044f\u043b\u043e"
+    const-string v0, "\u0422\u043e\u0440\u0441"
 
     goto :goto_5
 

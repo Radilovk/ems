@@ -41,27 +41,27 @@
 
     const-wide/high16 v2, 0x7ff8000000000000L    # Double.NaN
 
-    .line 1091
+    .line 1136
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 1084
+    .line 1129
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
 
-    .line 1085
+    .line 1130
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->r:Landroid/graphics/RectF;
 
-    .line 1086
+    .line 1131
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->male:Z
 
-    .line 1087
+    .line 1132
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->ffmi:D
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->fmi:D
@@ -70,12 +70,12 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->fmiBefore:D
 
-    .line 1088
+    .line 1133
     const/high16 v0, 0x3f800000    # 1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->grow:F
 
-    .line 1092
+    .line 1137
     return-void
 .end method
 
@@ -83,7 +83,7 @@
     .registers 7
 
     .prologue
-    .line 1123
+    .line 1168
     const/4 v0, 0x1
 
     :goto_1
@@ -93,27 +93,27 @@
 
     if-ge v0, v1, :cond_12
 
-    .line 1124
+    .line 1169
     aget-wide v2, p2, v0
 
     cmpg-double v1, p0, v2
 
     if-gez v1, :cond_f
 
-    .line 1125
+    .line 1170
     add-int/lit8 v0, v0, -0x1
 
-    .line 1128
+    .line 1173
     :goto_e
     return v0
 
-    .line 1123
+    .line 1168
     :cond_f
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 1128
+    .line 1173
     :cond_12
     array-length v0, p2
 
@@ -128,7 +128,7 @@
     .registers 19
 
     .prologue
-    .line 1109
+    .line 1154
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->getHeight()I
 
     move-result v1
@@ -139,7 +139,7 @@
 
     div-float v4, v1, v2
 
-    .line 1110
+    .line 1155
     move-object/from16 v0, p0
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->male:Z
@@ -152,7 +152,7 @@
 
     fill-array-data v6, :array_d4
 
-    .line 1111
+    .line 1156
     :goto_15
     move-object/from16 v0, p0
 
@@ -168,7 +168,7 @@
 
     move-object v14, v1
 
-    .line 1112
+    .line 1157
     :goto_22
     const/4 v1, 0x4
 
@@ -216,14 +216,14 @@
 
     const-string v3, "very high"
 
-    .line 1113
+    .line 1158
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
     aput-object v2, v7, v1
 
-    .line 1114
+    .line 1159
     const/4 v1, 0x4
 
     new-array v15, v1, [Ljava/lang/String;
@@ -270,21 +270,21 @@
 
     const-string v3, "high"
 
-    .line 1115
+    .line 1160
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
     aput-object v2, v15, v1
 
-    .line 1116
+    .line 1161
     const/4 v1, 0x4
 
     new-array v8, v1, [I
 
     fill-array-data v8, :array_104
 
-    .line 1117
+    .line 1162
     const/4 v1, 0x4
 
     new-array v0, v1, [I
@@ -293,7 +293,7 @@
 
     fill-array-data v16, :array_110
 
-    .line 1118
+    .line 1163
     const/4 v3, 0x0
 
     const-string v1, "\u041c\u0443\u0441\u043a\u0443\u043b\u043d\u0430 \u043c\u0430\u0441\u0430"
@@ -318,7 +318,7 @@
 
     invoke-virtual/range {v1 .. v12}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->row(Landroid/graphics/Canvas;FFLjava/lang/String;[D[Ljava/lang/String;[IDD)V
 
-    .line 1119
+    .line 1164
     const-string v1, "\u041c\u0430\u0437\u043d\u0438\u043d\u0438"
 
     const-string v2, "Fat"
@@ -349,10 +349,10 @@
 
     invoke-virtual/range {v2 .. v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->row(Landroid/graphics/Canvas;FFLjava/lang/String;[D[Ljava/lang/String;[IDD)V
 
-    .line 1120
+    .line 1165
     return-void
 
-    .line 1110
+    .line 1155
     :cond_c3
     const/4 v1, 0x5
 
@@ -362,7 +362,7 @@
 
     goto/16 :goto_15
 
-    .line 1111
+    .line 1156
     :cond_cb
     const/4 v1, 0x5
 
@@ -374,7 +374,7 @@
 
     goto/16 :goto_22
 
-    .line 1110
+    .line 1155
     :array_d4
     .array-data 8
         0x402c000000000000L    # 14.0
@@ -384,7 +384,7 @@
         0x403a000000000000L    # 26.0
     .end array-data
 
-    .line 1111
+    .line 1156
     :array_ec
     .array-data 8
         0x0
@@ -394,7 +394,7 @@
         0x402a000000000000L    # 13.0
     .end array-data
 
-    .line 1116
+    .line 1161
     :array_104
     .array-data 4
         -0xa61f5
@@ -403,7 +403,7 @@
         -0xf9492c
     .end array-data
 
-    .line 1117
+    .line 1162
     :array_110
     .array-data 4
         -0xc74208
@@ -412,7 +412,7 @@
         -0x10bbbc
     .end array-data
 
-    .line 1110
+    .line 1155
     :array_11c
     .array-data 8
         0x4026000000000000L    # 11.0
@@ -422,7 +422,7 @@
         0x4036000000000000L    # 22.0
     .end array-data
 
-    .line 1111
+    .line 1156
     :array_134
     .array-data 8
         0x0
@@ -437,7 +437,7 @@
     .registers 32
 
     .prologue
-    .line 1142
+    .line 1187
     const/high16 v4, 0x40000000    # 2.0f
 
     move-object/from16 v0, p0
@@ -464,14 +464,14 @@
 
     sub-float v16, v11, v7
 
-    .line 1143
+    .line 1188
     move-object/from16 v0, p5
 
     array-length v4, v0
 
     add-int/lit8 v17, v4, -0x1
 
-    .line 1144
+    .line 1189
     invoke-static/range {p8 .. p9}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v4
@@ -482,7 +482,7 @@
 
     move v15, v4
 
-    .line 1146
+    .line 1191
     :goto_26
     move-object/from16 v0, p0
 
@@ -492,7 +492,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 1147
+    .line 1192
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -501,7 +501,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 1148
+    .line 1193
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -516,7 +516,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 1149
+    .line 1194
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -525,7 +525,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1150
+    .line 1195
     const/high16 v4, 0x41800000    # 16.0f
 
     move-object/from16 v0, p0
@@ -536,7 +536,7 @@
 
     add-float v8, p2, v4
 
-    .line 1151
+    .line 1196
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -551,10 +551,10 @@
 
     invoke-static/range {v4 .. v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 1152
+    .line 1197
     if-ltz v15, :cond_ac
 
-    .line 1153
+    .line 1198
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -563,7 +563,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 1154
+    .line 1199
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -572,7 +572,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 1155
+    .line 1200
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -587,7 +587,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 1156
+    .line 1201
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -596,7 +596,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1157
+    .line 1202
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -621,7 +621,7 @@
 
     invoke-static/range {v8 .. v14}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 1159
+    .line 1204
     :cond_ac
     const/high16 v4, 0x41e00000    # 28.0f
 
@@ -641,7 +641,7 @@
 
     move-result v18
 
-    .line 1160
+    .line 1205
     const/4 v4, 0x0
 
     move v5, v4
@@ -651,7 +651,7 @@
 
     if-ge v5, v0, :cond_19f
 
-    .line 1161
+    .line 1206
     int-to-float v4, v5
 
     mul-float v4, v4, v16
@@ -671,7 +671,7 @@
     :goto_d0
     add-float/2addr v8, v4
 
-    .line 1162
+    .line 1207
     add-int/lit8 v4, v5, 0x1
 
     int-to-float v4, v4
@@ -695,7 +695,7 @@
     :goto_e1
     sub-float v13, v9, v4
 
-    .line 1163
+    .line 1208
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->r:Landroid/graphics/RectF;
@@ -704,7 +704,7 @@
 
     invoke-virtual {v4, v8, v6, v13, v9}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 1164
+    .line 1209
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -713,7 +713,7 @@
 
     invoke-virtual {v4, v9}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1165
+    .line 1210
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -725,7 +725,7 @@
     :goto_fd
     invoke-virtual {v9, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1166
+    .line 1211
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->r:Landroid/graphics/RectF;
@@ -746,7 +746,7 @@
 
     invoke-virtual {v0, v4, v9, v10, v11}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 1167
+    .line 1212
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -758,7 +758,7 @@
     :goto_11c
     invoke-virtual {v9, v4}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 1168
+    .line 1213
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -767,7 +767,7 @@
 
     invoke-virtual {v4, v9}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 1169
+    .line 1214
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -782,7 +782,7 @@
 
     invoke-virtual {v4, v9}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 1170
+    .line 1215
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -794,7 +794,7 @@
     :goto_13f
     invoke-virtual {v9, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1171
+    .line 1216
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -837,14 +837,14 @@
 
     invoke-static/range {v8 .. v14}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 1160
+    .line 1205
     add-int/lit8 v4, v5, 0x1
 
     move v5, v4
 
     goto/16 :goto_c0
 
-    .line 1144
+    .line 1189
     :cond_171
     move-wide/from16 v0, p8
 
@@ -858,7 +858,7 @@
 
     goto/16 :goto_26
 
-    .line 1161
+    .line 1206
     :cond_17c
     const/high16 v4, 0x3fc00000    # 1.5f
 
@@ -870,7 +870,7 @@
 
     goto/16 :goto_d0
 
-    .line 1162
+    .line 1207
     :cond_186
     const/high16 v4, 0x3fc00000    # 1.5f
 
@@ -882,7 +882,7 @@
 
     goto/16 :goto_e1
 
-    .line 1165
+    .line 1210
     :cond_190
     aget v4, p7, v5
 
@@ -894,19 +894,19 @@
 
     goto/16 :goto_fd
 
-    .line 1167
+    .line 1212
     :cond_19a
     const/4 v4, 0x0
 
     goto :goto_11c
 
-    .line 1170
+    .line 1215
     :cond_19c
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto :goto_13f
 
-    .line 1173
+    .line 1218
     :cond_19f
     invoke-static/range {p10 .. p11}, Ljava/lang/Double;->isNaN(D)Z
 
@@ -924,12 +924,12 @@
 
     move/from16 v14, v16
 
-    .line 1174
+    .line 1219
     invoke-virtual/range {v9 .. v14}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->xOf(D[DFF)F
 
     move-result v9
 
-    .line 1175
+    .line 1220
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -944,7 +944,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1176
+    .line 1221
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -959,7 +959,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1177
+    .line 1222
     const/high16 v4, 0x40a00000    # 5.0f
 
     move-object/from16 v0, p0
@@ -992,7 +992,7 @@
 
     invoke-virtual/range {v8 .. v13}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 1179
+    .line 1224
     :cond_1f0
     invoke-static/range {p8 .. p9}, Ljava/lang/Double;->isNaN(D)Z
 
@@ -1010,19 +1010,19 @@
 
     move/from16 v14, v16
 
-    .line 1180
+    .line 1225
     invoke-virtual/range {v9 .. v14}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->xOf(D[DFF)F
 
     move-result v4
 
-    .line 1181
+    .line 1226
     invoke-static/range {p10 .. p11}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v5
 
     if-eqz v5, :cond_279
 
-    .line 1182
+    .line 1227
     :goto_209
     sub-float/2addr v4, v7
 
@@ -1034,14 +1034,14 @@
 
     add-float v5, v7, v4
 
-    .line 1183
+    .line 1228
     const/high16 v4, 0x40000000    # 2.0f
 
     div-float v4, v18, v4
 
     add-float/2addr v6, v4
 
-    .line 1184
+    .line 1229
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -1050,7 +1050,7 @@
 
     invoke-virtual {v4, v7}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1185
+    .line 1230
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -1059,7 +1059,7 @@
 
     invoke-virtual {v4, v7}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1186
+    .line 1231
     const/high16 v4, 0x3fc00000    # 1.5f
 
     move-object/from16 v0, p0
@@ -1086,7 +1086,7 @@
 
     invoke-virtual {v0, v5, v4, v7, v8}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1187
+    .line 1232
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -1095,7 +1095,7 @@
 
     invoke-virtual {v4, v7}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1188
+    .line 1233
     const/high16 v4, 0x41180000    # 9.5f
 
     move-object/from16 v0, p0
@@ -1112,7 +1112,7 @@
 
     invoke-virtual {v0, v5, v6, v4, v7}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1189
+    .line 1234
     move-object/from16 v0, p0
 
     iget-object v7, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->p:Landroid/graphics/Paint;
@@ -1124,7 +1124,7 @@
     :goto_264
     invoke-virtual {v7, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1190
+    .line 1235
     const/high16 v4, 0x40c00000    # 6.0f
 
     move-object/from16 v0, p0
@@ -1141,7 +1141,7 @@
 
     invoke-virtual {v0, v5, v6, v4, v7}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 1192
+    .line 1237
     :cond_278
     return-void
 
@@ -1156,14 +1156,14 @@
 
     move/from16 v14, v16
 
-    .line 1181
+    .line 1226
     invoke-virtual/range {v9 .. v14}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->xOf(D[DFF)F
 
     move-result v7
 
     goto :goto_209
 
-    .line 1189
+    .line 1234
     :cond_287
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
@@ -1174,22 +1174,22 @@
     .registers 14
 
     .prologue
-    .line 1095
+    .line 1140
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->male:Z
 
-    .line 1096
+    .line 1141
     iput-wide p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->ffmi:D
 
-    .line 1097
+    .line 1142
     iput-wide p4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->fmi:D
 
-    .line 1098
+    .line 1143
     iput-wide p6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->ffmiBefore:D
 
-    .line 1099
+    .line 1144
     iput-wide p8, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->fmiBefore:D
 
-    .line 1100
+    .line 1145
     const/4 v0, 0x2
 
     new-array v0, v0, [F
@@ -1200,12 +1200,12 @@
 
     move-result-object v0
 
-    .line 1101
+    .line 1146
     const-wide/16 v2, 0x2bc
 
     invoke-virtual {v0, v2, v3}, Landroid/animation/ValueAnimator;->setDuration(J)Landroid/animation/ValueAnimator;
 
-    .line 1102
+    .line 1147
     new-instance v1, Landroid/view/animation/DecelerateInterpolator;
 
     const v2, 0x3fcccccd    # 1.6f
@@ -1214,20 +1214,20 @@
 
     invoke-virtual {v0, v1}, Landroid/animation/ValueAnimator;->setInterpolator(Landroid/animation/TimeInterpolator;)V
 
-    .line 1103
+    .line 1148
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MeterGrow;
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MeterGrow;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;)V
 
     invoke-virtual {v0, v1}, Landroid/animation/ValueAnimator;->addUpdateListener(Landroid/animation/ValueAnimator$AnimatorUpdateListener;)V
 
-    .line 1104
+    .line 1149
     invoke-virtual {v0}, Landroid/animation/ValueAnimator;->start()V
 
-    .line 1105
+    .line 1150
     return-void
 
-    .line 1100
+    .line 1145
     :array_30
     .array-data 4
         0x0
@@ -1239,12 +1239,12 @@
     .registers 15
 
     .prologue
-    .line 1132
+    .line 1177
     array-length v0, p3
 
     add-int/lit8 v0, v0, -0x1
 
-    .line 1134
+    .line 1179
     const/4 v1, 0x0
 
     aget-wide v2, p3, v1
@@ -1259,12 +1259,12 @@
 
     move-result-wide v2
 
-    .line 1135
+    .line 1180
     invoke-static {v2, v3, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$BandMeter;->band(D[D)I
 
     move-result v1
 
-    .line 1136
+    .line 1181
     aget-wide v4, p3, v1
 
     sub-double/2addr v2, v4
@@ -1279,7 +1279,7 @@
 
     div-double/2addr v2, v4
 
-    .line 1137
+    .line 1182
     int-to-double v4, v1
 
     add-double/2addr v2, v4

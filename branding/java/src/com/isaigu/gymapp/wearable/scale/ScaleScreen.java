@@ -803,9 +803,7 @@ public final class ScaleScreen {
                 XemsUi.fullScreen(sh);
                 sh.subtitle.setText(profileLine(m));
                 sh.subtitle.setVisibility(View.VISIBLE);
-                ScaleViews.Body[] figOut = new ScaleViews.Body[1];
-                LinearLayout row = summaryRow(m, figOut);
-                ScaleViews.Body fig = figOut[0];
+                LinearLayout row = summaryRow(m);
                 sh.body.addView(row, XemsUi.matchWrap(a, 4));
                 // two columns when wide, one when narrow; heights come from the content
                 Columns.follow(a, sh, row, new float[] {1.05f, 1f}, new int[] {0, 0}, 4000);
@@ -814,7 +812,7 @@ public final class ScaleScreen {
                     // one button, four one-tap choices: image or web page, short or detailed — both laid out upright
                     // for a phone (the page itself stays landscape)
                     TextView send = XemsUi.button(a, tr("Изпрати на клиента", "Send to the client"), XemsUi.SECONDARY);
-                    send.setOnClickListener(new ExportMenu(this, fig, name));
+                    send.setOnClickListener(new ExportMenu(this, name));
                     foot(sh, send, 1.6f, 0);
                 }
                 TextView sci = XemsUi.button(a, tr("Източници", "Sources"), XemsUi.SECONDARY);
@@ -840,9 +838,8 @@ public final class ScaleScreen {
         /**
          * The summary's content: (1) the figure with the zone notes, (2) four values, the build, the way to a healthy
          * weight and at most two actions. One row of two columns — {@link Columns} sets it side by side or stacked.
-         * figOut[0] gets the figure (the web page embeds its picture).
          */
-        LinearLayout summaryRow(JSONObject m, ScaleViews.Body[] figOut) {
+        LinearLayout summaryRow(JSONObject m) {
             LinearLayout row = XemsUi.horizontal(a);
             row.setGravity(Gravity.TOP);
             ScaleInsight.Body b = ScaleInsight.body(m, male, heightCm);
@@ -865,22 +862,7 @@ public final class ScaleScreen {
             top.addView(pa);
             top.addView(XemsUi.text(a, tr(" г. тяло", " y body"), 14, XemsUi.MUTED, false));
             seg.addView(top, XemsUi.matchWrap(a, 0));
-            ScaleDetail.Zone[] zn = ScaleDetail.zones(m, male, heightCm);
-            ScaleViews.Body fig = new ScaleViews.Body(a);
-            int[] cols = new int[5];
-            for (int i2 = 0; i2 < 5; i2++) {
-                cols[i2] = zn[i2].musStatus == ScaleDetail.S_NONE ? 0 : ScaleDetail.statusColor(zn[i2].musStatus);
-            }
-            fig.setSegments(!male, cols, -1);
-            LinearLayout fr = XemsUi.horizontal(a);
-            fr.setGravity(Gravity.CENTER_VERTICAL);
-            // on the front view the image's left is the client's right
-            fr.addView(zoneNotes(zn, new int[] {ScaleProtocol.RIGHT_ARM, ScaleProtocol.TRUNK,
-                    ScaleProtocol.RIGHT_LEG}, bg), new LinearLayout.LayoutParams(0, dp(360), 1f));
-            fr.addView(fig, new LinearLayout.LayoutParams(0, dp(360), 1.5f));
-            fr.addView(zoneNotes(zn, new int[] {ScaleProtocol.LEFT_ARM, -1, ScaleProtocol.LEFT_LEG}, bg),
-                    new LinearLayout.LayoutParams(0, dp(360), 1f));
-            seg.addView(fr, XemsUi.matchWrap(a, 8));
+            seg.addView(zoneBoard(ScaleDetail.zones(m, male, heightCm), bg, 400), XemsUi.matchWrap(a, 8));
             row.addView(seg);
 
             // 2. the four values that matter, the build, the way to the goal, at most two actions
@@ -975,10 +957,54 @@ public final class ScaleScreen {
             }
             right.addView(adv, XemsUi.matchWrap(a, 12));
             row.addView(right);
-            if (figOut != null) {
-                figOut[0] = fig;
-            }
             return row;
+        }
+
+        /**
+         * The front figure painted by each zone's muscle status, the zones' cards on both sides, a line and a dot from
+         * each card to its zone (as the segmental analysers' reports). On the front view the image's left is the
+         * client's right: right arm · trunk · right leg on the left, left arm · left leg on the right.
+         */
+        ScaleViews.ZoneBoard zoneBoard(ScaleDetail.Zone[] zn, boolean bg, int heightDp) {
+            ScaleViews.ZoneBoard fr = new ScaleViews.ZoneBoard(a);
+            fr.setGravity(Gravity.CENTER_VERTICAL);
+            ScaleViews.Body fig = new ScaleViews.Body(a);
+            fig.frontOnly = true;
+            int[] cols = new int[5];
+            for (int i2 = 0; i2 < 5; i2++) {
+                cols[i2] = zn[i2].musStatus == ScaleDetail.S_NONE ? 0 : ScaleDetail.statusColor(zn[i2].musStatus);
+            }
+            fig.setSegments(!male, cols, -1);
+            fr.figure(fig);
+            fr.addView(zoneNotes(fr, zn, new int[] {ScaleProtocol.RIGHT_ARM, ScaleProtocol.TRUNK,
+                    ScaleProtocol.RIGHT_LEG}, bg), new LinearLayout.LayoutParams(0, dp(heightDp), 1f));
+            fr.addView(fig, new LinearLayout.LayoutParams(0, dp(heightDp), 1.15f));
+            fr.addView(zoneNotes(fr, zn, new int[] {ScaleProtocol.LEFT_ARM, -1, ScaleProtocol.LEFT_LEG}, bg),
+                    new LinearLayout.LayoutParams(0, dp(heightDp), 1f));
+            return fr;
+        }
+
+        /** The zone board alone, drawn off screen at phone width — the web page's picture. */
+        android.graphics.Bitmap boardPicture() {
+            try {
+                boolean bg = XemsLang.tr("б", "e").equals("б");
+                LinearLayout page = XemsUi.vertical(a);
+                page.setBackgroundColor(XemsUi.BG);
+                page.setPadding(dp(10), dp(12), dp(10), dp(12));
+                page.addView(zoneBoard(ScaleDetail.zones(cur(), male, heightCm), bg, 380), XemsUi.matchWrap(a, 0));
+                int w = dp(460);
+                page.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                page.layout(0, 0, w, page.getMeasuredHeight());
+                ScaleViews.settle(page);
+                android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(w, page.getMeasuredHeight(),
+                        android.graphics.Bitmap.Config.ARGB_8888);
+                page.draw(new android.graphics.Canvas(bm));
+                return bm;
+            } catch (Throwable t) {
+                XemsGuard.report("ScaleScreen.boardPicture", t);
+                return null;
+            }
         }
 
         /**
@@ -1062,7 +1088,7 @@ public final class ScaleScreen {
                 page.addView(XemsUi.text(a, name.length() > 0 ? name : tr("Телесен анализ", "Body composition"), 28,
                         XemsUi.TEXT, true));
                 page.addView(XemsUi.text(a, profileLine(m), 14, XemsUi.MUTED, false), XemsUi.matchWrap(a, 2));
-                LinearLayout row = summaryRow(m, null);
+                LinearLayout row = summaryRow(m);
                 Columns.apply(a, row, true, new float[] {1f, 1f}, new int[] {0, 0}, 0);
                 page.addView(row, XemsUi.matchWrap(a, 14));
                 if (full) {
@@ -1076,18 +1102,20 @@ public final class ScaleScreen {
                 page.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
                 page.layout(0, 0, w, page.getMeasuredHeight());
+                ScaleViews.settle(page);       // off screen: no frame comes, the bars' markers would stay at 0
                 ScaleShare.picture(a, page, name, full);
             } catch (Throwable t) {
                 XemsGuard.report("ScaleScreen.exportImage", t);
             }
         }
 
-        /** The zones' notes beside the figure: name, % of normal, kg and the status word, each in its colour. */
-        LinearLayout zoneNotes(ScaleDetail.Zone[] zn, int[] segs, boolean bg) {
+        /**
+         * The zones' cards beside the figure: name, muscle % of normal, kg and the status word in its colour, and the
+         * zone's fat (kg, in its status colour); each card is linked to its zone on the board.
+         */
+        LinearLayout zoneNotes(ScaleViews.ZoneBoard board, ScaleDetail.Zone[] zn, int[] segs, boolean bg) {
             LinearLayout col = XemsUi.vertical(a);
             col.setGravity(Gravity.CENTER_HORIZONTAL);
-            String[] names = {tr("Торс", "Trunk"), tr("Лява ръка", "Left arm"), tr("Дясна ръка", "Right arm"),
-                    tr("Ляв крак", "Left leg"), tr("Десен крак", "Right leg")};
             for (int i = 0; i < segs.length; i++) {
                 if (i > 0) {
                     col.addView(XemsUi.spacer(a), new LinearLayout.LayoutParams(1, 0, 1f));
@@ -1102,13 +1130,19 @@ public final class ScaleScreen {
                 LinearLayout n = XemsUi.vertical(a);
                 n.setPadding(dp(10), dp(8), dp(10), dp(8));
                 n.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(color, 26), dp(12), XemsUi.alpha(color, 90), dp(1)));
-                n.addView(XemsUi.text(a, names[sg], 14, XemsUi.MUTED, true));
+                n.addView(XemsUi.text(a, bg ? ScaleDetail.zoneBg(sg) : ScaleDetail.zoneEn(sg), 14, XemsUi.MUTED, true));
                 n.addView(XemsUi.text(a, Double.isNaN(z.musPct) ? "—" : Math.round(z.musPct) + " %", 26, color, true));
                 n.addView(XemsUi.text(a, (Double.isNaN(z.musKg) ? "" : one(z.musKg) + tr(" кг · ", " kg · "))
                         + (bg ? ScaleDetail.statusBg(z.musStatus) : ScaleDetail.statusEn(z.musStatus)), 14,
                         XemsUi.TEXT, false));
+                if (!Double.isNaN(z.fatKg)) {
+                    n.addView(XemsUi.text(a, tr("мазнини ", "fat ") + one(z.fatKg) + tr(" кг", " kg"), 12,
+                            z.fatStatus == ScaleDetail.S_NONE ? XemsUi.MUTED : ScaleDetail.statusColor(z.fatStatus),
+                            true), XemsUi.matchWrap(a, 2));
+                }
                 col.addView(n, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT));
+                board.link(sg, n, color);
             }
             return col;
         }
@@ -2582,12 +2616,10 @@ public final class ScaleScreen {
     /** "Изпрати на клиента": image or web page × short or detailed, one tap each (a pop above the button). */
     static final class ExportMenu implements View.OnClickListener {
         final Page v;
-        final View fig;
         final String name;
 
-        ExportMenu(Page v, View fig, String name) {
+        ExportMenu(Page v, String name) {
             this.v = v;
-            this.fig = fig;
             this.name = name;
         }
 
@@ -2611,7 +2643,7 @@ public final class ScaleScreen {
                     TextView opt = XemsUi.button(a, full ? tr("Подробен", "Detailed") : tr("Кратък", "Short"),
                             full ? XemsUi.SECONDARY : XemsUi.PRIMARY);
                     opt.setOnClickListener("img".equals(r[1]) ? (View.OnClickListener) new ShareImage(v, name, full)
-                            : new ShareHtml(v, fig, name, full));
+                            : new ShareHtml(v, name, full));
                     LinearLayout.LayoutParams ol = new LinearLayout.LayoutParams(0, XemsUi.dp(a, 52), 1f);
                     ol.leftMargin = XemsUi.dp(a, 8);
                     line.addView(opt, ol);
@@ -2646,13 +2678,11 @@ public final class ScaleScreen {
 
     static final class ShareHtml implements View.OnClickListener {
         final Page v;
-        final View fig;
         final String name;
         final boolean full;
 
-        ShareHtml(Page v, View fig, String name, boolean full) {
+        ShareHtml(Page v, String name, boolean full) {
             this.v = v;
-            this.fig = fig;
             this.name = name;
             this.full = full;
         }
@@ -2660,16 +2690,8 @@ public final class ScaleScreen {
         @Override
         public void onClick(View b) {
             XemsUi.haptic(b);
-            android.graphics.Bitmap bm = null;
-            try {
-                if (fig.getWidth() > 0 && fig.getHeight() > 0) {
-                    bm = android.graphics.Bitmap.createBitmap(fig.getWidth(), fig.getHeight(),
-                            android.graphics.Bitmap.Config.ARGB_8888);
-                    fig.draw(new android.graphics.Canvas(bm));
-                }
-            } catch (Throwable ignored) {
-                bm = null;
-            }
+            // the figure with the zones' cards and their lines, laid out for a phone
+            android.graphics.Bitmap bm = v.boardPicture();
             if (v.exportPop != null) {
                 v.exportPop.dismiss();
                 v.exportPop = null;

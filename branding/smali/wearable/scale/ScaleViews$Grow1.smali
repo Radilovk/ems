@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1534
+    .line 1702
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1535
+    .line 1703
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
-    .line 1536
+    .line 1704
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 1540
+    .line 1708
     invoke-virtual {p1}, Landroid/animation/ValueAnimator;->getAnimatedValue()Ljava/lang/Object;
 
     move-result-object v0
@@ -53,31 +53,31 @@
 
     move-result v1
 
-    .line 1541
+    .line 1709
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
     instance-of v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;
 
     if-eqz v0, :cond_1c
 
-    .line 1542
+    .line 1710
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$MiniNorm;->grow:F
 
-    .line 1548
+    .line 1716
     :cond_16
     :goto_16
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->invalidate()V
 
-    .line 1549
+    .line 1717
     return-void
 
-    .line 1543
+    .line 1711
     :cond_1c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
@@ -85,7 +85,7 @@
 
     if-eqz v0, :cond_29
 
-    .line 1544
+    .line 1712
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Composition;
@@ -94,7 +94,7 @@
 
     goto :goto_16
 
-    .line 1545
+    .line 1713
     :cond_29
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
@@ -102,7 +102,7 @@
 
     if-eqz v0, :cond_16
 
-    .line 1546
+    .line 1714
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Grow1;->v:Landroid/view/View;
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Path2Target;

@@ -3,7 +3,7 @@
 .source "SuitStandard.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -18,73 +18,98 @@
 
 
 # instance fields
-.field final a:Landroid/app/Activity;
+.field final col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
-.field final root:Landroid/view/View;
+.field final std:I
 
 
 # direct methods
-.method constructor <init>(Landroid/app/Activity;Landroid/view/View;)V
+.method constructor <init>(Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;I)V
     .registers 3
 
     .prologue
-    .line 161
+    .line 256
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 162
-    iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->a:Landroid/app/Activity;
+    .line 257
+    iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
-    .line 163
-    iput-object p2, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->root:Landroid/view/View;
+    .line 258
+    iput p2, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->std:I
 
-    .line 164
+    .line 259
     return-void
 .end method
 
 
 # virtual methods
-.method public onIndex(I)V
-    .registers 4
+.method public onClick(Landroid/view/View;)V
+    .registers 5
 
     .prologue
-    .line 169
+    .line 264
     :try_start_0
-    invoke-static {}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->get()I
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->mac:Ljava/lang/String;
+
+    if-eqz v0, :cond_16
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->mac:Ljava/lang/String;
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    if-ne p1, v0, :cond_7
+    if-eqz v0, :cond_16
 
-    .line 175
-    :goto_6
+    invoke-static {}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->unlocked()Z
+
+    move-result v0
+
+    if-nez v0, :cond_17
+
+    .line 271
+    :cond_16
+    :goto_16
     return-void
 
-    .line 170
-    :cond_7
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->a:Landroid/app/Activity;
+    .line 265
+    :cond_17
+    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->set(Landroid/content/Context;I)V
+    .line 266
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
-    .line 171
-    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->a:Landroid/app/Activity;
+    iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->c:Landroid/content/Context;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->root:Landroid/view/View;
+    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
-    # invokes: Lcom/isaigu/gymapp/bodytech/SuitStandard;->build(Landroid/app/Activity;Landroid/view/View;)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->access$000(Landroid/app/Activity;Landroid/view/View;)V
-    :try_end_13
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_13} :catch_14
+    iget-object v1, v1, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->mac:Ljava/lang/String;
 
-    goto :goto_6
+    iget v2, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->std:I
 
-    .line 172
-    :catch_14
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->set(Landroid/content/Context;Ljava/lang/String;I)V
+
+    .line 267
+    iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/SuitStandard$Pick;->col:Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->render()V
+    :try_end_2c
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_2c} :catch_2d
+
+    goto :goto_16
+
+    .line 268
+    :catch_2d
     move-exception v0
 
-    .line 173
+    .line 269
     const-string v1, "SuitStandard.pick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_6
+    goto :goto_16
 .end method

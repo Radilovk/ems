@@ -135,8 +135,6 @@ public final class BtBridge {
             if (!isBodytech(d)) return false;
             byte[] pdu = new byte[data.length - 4];
             System.arraycopy(data, 3, pdu, 0, pdu.length);
-            // cmd 1 (strength of the 10 sliders) went out in the suit standard's order: back to XEMS channels
-            if ((data[2] & 0xFF) == 1) SuitStandard.fromSuit(pdu);
             Dev v = dev(d);
             v.begin();
             boolean was = v.tr.armed();
@@ -260,7 +258,7 @@ public final class BtBridge {
 
     /** Is the suit with this MAC a bodytech one (seen as such when it was connected)? */
     public static synchronized boolean isBodytechMac(String mac) {
-        if (mac == null) return false;
+        if (mac == null || !SuitStandard.unlocked()) return false;
         for (Map.Entry<String, Boolean> e : KIND.entrySet()) {
             if (e.getKey().equalsIgnoreCase(mac)) return e.getValue().booleanValue();
         }
@@ -373,6 +371,8 @@ public final class BtBridge {
      * (EMS08-…, TZLJ…, ADT…). A suit seen once as bodytech stays one (kept across runs).
      */
     public static synchronized boolean isBodytech(BleDevice d) {
+        // a locked tablet (customer) knows no bodytech suit at all: no translation, no menus (owner, 1.1.422)
+        if (!SuitStandard.unlocked()) return false;
         String mac = d.getMac();
         if (mac == null) return false;
         Boolean k = KIND.get(mac);

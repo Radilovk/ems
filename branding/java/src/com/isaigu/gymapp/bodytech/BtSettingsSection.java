@@ -34,6 +34,7 @@ public final class BtSettingsSection {
 
     private static void build(Activity a, View root) {
         if (a == null || !(root instanceof ViewGroup)) return;
+        if (!SuitStandard.unlocked()) return;              // a locked tablet shows nothing of bodytech
         BtSettings.load(a);
         ViewGroup parent = XemsUi.scrollContent(a, root);
         if (parent == null) return;

@@ -77,7 +77,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-slider-theme.py` (374L, build:L61) — Improve vertical slider track depth and thumb contrast via smali patches.
 - `scripts/apply-soft-ramp.py` (91L, build:L140[BETA_MUSIC]) — Tablet-side impulse ramp (train.model.SoftRamp): the suit ignores the PDU ramp bytes.
 - `scripts/apply-suit-reconnect.py` (171L, build:L173) — The suit's Bluetooth link drops during a training → the row waits for it and binds it again.
-- `scripts/apply-suit-standard.py` (66L, build:L179) — Suit standard XEMS / X-Body: the same sliders, the muscles go out on other suit channels (X-Body).
+- `scripts/apply-suit-standard.py` (76L, build:L179) — Suit standard XEMS / X-Body per suit, the fourth step of the start picker — only on an unlocked (admin) tablet.
 - `scripts/apply-tab-theme.py` (152L, build:L58) — Improve bottom-tab icon contrast in dark mode only.
 - `scripts/apply-theme-toggle.py` (112L, build:L96) — Install theme toggle via ThemeUtils (safe resource lookup, no hardcoded ids).
 - `scripts/apply-train-index.py` (82L, build:L171) — The 2nd impulse (active pause) turns on from either of its buttons and starts at the main strength.
@@ -219,11 +219,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtLoad.java` (272L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (167L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
 - `BtSettings.java` (540L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
-- `BtSettingsSection.java` (389L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
+- `BtSettingsSection.java` (390L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
 - `BtTranslator.java` (613L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
-- `SuitStandard.java` (178L, compile:music-sync*) — The suit's channel standard, one per tablet (owner, 1.1.421): XEMS (the stock wiring) or X-Body.
+- `SuitStandard.java` (274L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…

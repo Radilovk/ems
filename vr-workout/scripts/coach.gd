@@ -295,6 +295,19 @@ static func blend(a: Dictionary, b: Dictionary, t: float) -> Dictionary:
 	return out
 
 
+## World position of a joint of the rig as it is posed now (roles: hand_l, calf_l = the knee, ball_l, head…).
+func joint_world(role: String) -> Vector3:
+	if not ok or not _role.has(role):
+		return global_position
+	return skel.global_transform * _bone_global(_role[role]).origin
+
+
+func _bone_global(i: int) -> Transform3D:
+	var t := skel.get_bone_pose(i)
+	var p := skel.get_bone_parent(i)
+	return _bone_global(p) * t if p >= 0 else t
+
+
 func has_clip(name: String) -> bool:
 	return player != null and player.has_animation(name)
 
@@ -327,7 +340,7 @@ static func _ry(deg: float) -> Basis:
 ## Pose keys (all optional; {} = standing at rest). Lengths in metres, angles in degrees:
 ##   hips: Vector3 pelvis offset (x = his left, y = up, z = forward)    tilt: pelvis forward (the hip hinge)
 ##   yaw: pelvis turn (+ = to his left)   roll: pelvis drop to his right   spine: extra spine flexion (+ forward)
-##   twist: chest turn on the pelvis      head: gaze below the horizon (the neck undoes the trunk lean)
+##   twist: chest turn on the pelvis      bend: trunk bent sideways (+ = his left)   head: gaze below the horizon (the neck undoes the trunk lean)
 ##   foot_l/_r: Vector3 move of the ball of the foot (the floor contact) from standing; y > 0 = in the air
 ##   ft_l/_r: heel raise (+, pivots on the ball, the toes stay flat)   toe_l/_r: toes out   knee_l/_r: knee out
 ##   sh_l/_r: Vector2(flex forward, out to the side) on the chest      el_l/_r: elbow bend   sup_l/_r: palm turn up
@@ -345,6 +358,7 @@ func set_pose(p: Dictionary) -> void:
 	var spine: float = p.get("spine", 0.0)
 	var yaw: float = p.get("yaw", 0.0)
 	var twist: float = p.get("twist", 0.0)
+	var bend: float = p.get("bend", 0.0)         # sideways bend of the trunk, + = to his left
 	var hips: Vector3 = p.get("hips", Vector3.ZERO)
 	# Life: a slow breath (chest lifts, shoulders rise) and a small weight shift; calmer deep in a movement.
 	var depth: float = clamp(-hips.y / 0.3 + absf(tilt) / 40.0, 0.0, 1.0)
@@ -358,7 +372,8 @@ func set_pose(p: Dictionary) -> void:
 	var prev := pel
 	for k in _spine.size():
 		var upper := float(k) / n                # 0 at the waist … near 1 at the chest: the breath lifts the chest
-		prev = prev * _rx(spine / n - breath * 1.4 * upper * 2.0 / n) * _ry(twist / n) * _rz(sway * 0.8 * (1.0 - upper) / n)
+		prev = prev * _rx(spine / n - breath * 1.4 * upper * 2.0 / n) * _ry(twist / n) \
+			* _rz(sway * 0.8 * (1.0 - upper) / n - bend / n)
 		f[_spine[k]] = prev
 	var chest := prev
 	var trunk := tilt + spine - breath * 1.4

@@ -2,7 +2,8 @@
 ## into a folder on the Quest — no rebuild needed to try a new one:
 ##   Quest:   Android/data/eu.xems.studio/files/XEMS/coaches/   …/XEMS/rooms/     (USB cable or SideQuest)
 ##   desktop: <user data>/XEMS/…  or  -- --lib=<folder>
-## Coaches: .glb / .gltf (.fbx is tried too). Rooms: .jpg / .png / .webp / .hdr 360° photos (2:1), or .glb / .gltf
+## Coaches: .glb / .gltf (.fbx is tried too). Clothes / hair as separate files on the same rig: <coach>+<item>.glb
+## (e.g. anna.glb + anna+shirt.glb + anna+hair.glb) are put on that coach. Rooms: .jpg / .png / .webp / .hdr 360° photos (2:1), or .glb / .gltf
 ## scenes in metres. Optional sidecar <file>.json: {"name": "…", "cam": 1.5, "yaw": 0.0, "scale": 1.0,
 ## "offset": [x, y, z], "turn": 0} — cam = the photo's camera height, yaw = turn of a photo (0..1), turn = degrees.
 class_name Library
@@ -12,14 +13,6 @@ const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XE
 
 const BUILTIN_COACHES := [
 	{"name": "Алекс", "path": ""},
-	{"name": "Иван", "path": "res://assets/coaches/gen_ivan.glb"},
-	{"name": "Мария", "path": "res://assets/coaches/gen_maria.glb"},
-	{"name": "Кофи", "path": "res://assets/coaches/gen_kofi.glb"},
-	{"name": "Амара", "path": "res://assets/coaches/gen_amara.glb"},
-	{"name": "Кенджи", "path": "res://assets/coaches/gen_kenji.glb"},
-	{"name": "Мей", "path": "res://assets/coaches/gen_mei.glb"},
-	{"name": "Георги, 55", "path": "res://assets/coaches/gen_georgi.glb"},
-	{"name": "Елена, 55", "path": "res://assets/coaches/gen_elena.glb"},
 	{"name": "Michelle (Mixamo)", "path": "res://assets/coaches/Michelle.glb"},
 	{"name": "Soldier (Mixamo)", "path": "res://assets/coaches/Soldier.glb"},
 	{"name": "X Bot (Mixamo)", "path": "res://assets/coaches/Xbot.glb"},
@@ -34,6 +27,7 @@ const SCENE_EXT := ["glb", "gltf", "fbx"]
 const README := """XEMS Studio — сложи тук свои треньори и зали, без нов build.
 
 coaches/  човешки модел със скелет: .glb или .gltf (Mixamo, Unreal, MakeHuman…). Бутон B сменя треньора.
+          Отделни дрехи/коса за същия скелет: <име>+<нещо>.glb, напр. anna.glb, anna+shirt.glb, anna+hair.glb.
 rooms/    360° снимка 2:1 (.jpg до 8192×4096 е най-добре, .hdr също) или 3D сцена .glb в метри.
           Бутон Y сменя залата.
 
@@ -91,7 +85,18 @@ static func _scan(sub: String, exts: Array, extra: String) -> Array:
 
 
 static func coaches(extra: String = "") -> Array:
-	return BUILTIN_COACHES.duplicate(true) + _scan("coaches", COACH_EXT, extra)
+	var out := BUILTIN_COACHES.duplicate(true)
+	var found := _scan("coaches", COACH_EXT, extra)
+	for e in found:
+		var base: String = e.path.get_file().get_basename()
+		if "+" in base:
+			continue                                   # a piece of clothing, not a coach
+		e["wear"] = []
+		for w in found:
+			if w.path.get_base_dir() == e.path.get_base_dir() and w.path.get_file().begins_with(base + "+"):
+				e.wear.append(w.path)
+		out.append(e)
+	return out
 
 
 static func rooms(extra: String = "") -> Array:

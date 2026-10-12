@@ -271,6 +271,9 @@ func _build_coach() -> void:
 		if src == null:
 			_show_toast("Не мога да отворя " + String(c.path).get_file())
 	trainer = Coach.new(src)
+	for w in c.get("wear", []):
+		if trainer.wear(Library.load_scene(w)) == 0:
+			_show_toast("Не мога да облека " + String(w).get_file())
 	trainer.position = TRAINER_POS
 	trainer.rotation_degrees.y = TRAINER_TURN
 	add_child(trainer)

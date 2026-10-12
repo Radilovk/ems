@@ -70,6 +70,24 @@ func _init(src = null) -> void:
 	set_pose({})
 
 
+## Put on clothes / hair made for this rig: every skinned mesh of `piece` moves onto our skeleton (its skin binds by
+## bone name). Returns how many meshes were put on.
+func wear(piece: Node) -> int:
+	var n := 0
+	if skel == null or piece == null:
+		return 0
+	for mi in piece.find_children("*", "MeshInstance3D", true, false):
+		if (mi as MeshInstance3D).skin == null:
+			continue
+		mi.get_parent().remove_child(mi)
+		skel.add_child(mi)
+		mi.owner = null
+		(mi as MeshInstance3D).skeleton = NodePath("..")
+		n += 1
+	piece.queue_free()
+	return n
+
+
 func _dress_builtin() -> void:
 	for mi in skel.find_children("Eyebrows*", "MeshInstance3D", false, false):
 		_tint(mi, HAIR_COLOR)

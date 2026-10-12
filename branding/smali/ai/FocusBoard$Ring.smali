@@ -55,78 +55,78 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 1984
+    .line 2113
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 1965
+    .line 2094
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v4}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->track:Landroid/graphics/Paint;
 
-    .line 1966
+    .line 2095
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v4}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->arc:Landroid/graphics/Paint;
 
-    .line 1967
+    .line 2096
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v4}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->glowP:Landroid/graphics/Paint;
 
-    .line 1968
+    .line 2097
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v4}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->num:Landroid/graphics/Paint;
 
-    .line 1969
+    .line 2098
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v4}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->unit:Landroid/graphics/Paint;
 
-    .line 1970
+    .line 2099
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v4}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->knob:Landroid/graphics/Paint;
 
-    .line 1971
+    .line 2100
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->box:Landroid/graphics/RectF;
 
-    .line 1975
+    .line 2104
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->shown:F
 
-    .line 1976
+    .line 2105
     iput-boolean v4, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->enabled:Z
 
-    .line 1979
+    .line 2108
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
 
-    .line 1985
+    .line 2114
     iput p2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->color:I
 
-    .line 1986
+    .line 2115
     iput p3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->what:I
 
-    .line 1987
+    .line 2116
     const/high16 v0, 0x41100000    # 9.0f
 
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -135,26 +135,26 @@
 
     int-to-float v0, v0
 
-    .line 1988
+    .line 2117
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->track:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1989
+    .line 2118
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->track:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1990
+    .line 2119
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->track:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 1991
+    .line 2120
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->track:Landroid/graphics/Paint;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
@@ -167,38 +167,38 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1992
+    .line 2121
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->arc:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1993
+    .line 2122
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->arc:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1994
+    .line 2123
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->arc:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 1995
+    .line 2124
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->arc:Landroid/graphics/Paint;
 
     invoke-virtual {v1, p2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1996
+    .line 2125
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->glowP:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1997
+    .line 2126
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->glowP:Landroid/graphics/Paint;
 
     const v2, 0x4019999a    # 2.4f
@@ -207,14 +207,14 @@
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1998
+    .line 2127
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->glowP:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 1999
+    .line 2128
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->glowP:Landroid/graphics/Paint;
 
     const/16 v1, 0x30
@@ -225,21 +225,21 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2000
+    .line 2129
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->knob:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 2001
+    .line 2130
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->num:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2002
+    .line 2131
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->num:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
@@ -250,28 +250,28 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 2003
+    .line 2132
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->num:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 2004
+    .line 2133
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->unit:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2005
+    .line 2134
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->unit:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 2006
+    .line 2135
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->unit:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41500000    # 13.0f
@@ -282,7 +282,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 2007
+    .line 2136
     if-ne p3, v4, :cond_ea
 
     const-string v0, "\u0418\u043d\u0442\u0435\u043d\u0437\u0438\u0442\u0435\u0442 2 \u2014 \u043f\u043b\u044a\u0437\u043d\u0438 \u043f\u043e \u043a\u0440\u044a\u0433\u0430"
@@ -296,10 +296,10 @@
     :goto_e6
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->setContentDescription(Ljava/lang/CharSequence;)V
 
-    .line 2009
+    .line 2138
     return-void
 
-    .line 2008
+    .line 2137
     :cond_ea
     const-string v0, "\u0418\u043d\u0442\u0435\u043d\u0437\u0438\u0442\u0435\u0442 1 \u2014 \u043f\u043b\u044a\u0437\u043d\u0438 \u043f\u043e \u043a\u0440\u044a\u0433\u0430"
 
@@ -322,7 +322,7 @@
 
     const-wide v4, 0x4076800000000000L    # 360.0
 
-    .line 2022
+    .line 2151
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->getHeight()I
 
     move-result v0
@@ -355,7 +355,7 @@
 
     move-result-wide v0
 
-    .line 2023
+    .line 2152
     const-wide v2, 0x4060e00000000000L    # 135.0
 
     sub-double/2addr v0, v2
@@ -366,12 +366,12 @@
 
     rem-double/2addr v0, v4
 
-    .line 2024
+    .line 2153
     cmpl-double v2, v0, v6
 
     if-lez v2, :cond_41
 
-    .line 2025
+    .line 2154
     const-wide v2, 0x4073b00000000000L    # 315.0
 
     cmpl-double v0, v0, v2
@@ -380,17 +380,17 @@
 
     const/4 v0, 0x0
 
-    .line 2027
+    .line 2156
     :goto_3d
     return v0
 
-    .line 2025
+    .line 2154
     :cond_3e
     const/high16 v0, 0x3f800000    # 1.0f
 
     goto :goto_3d
 
-    .line 2027
+    .line 2156
     :cond_41
     div-double/2addr v0, v6
 
@@ -405,21 +405,21 @@
     .registers 22
 
     .prologue
-    .line 2096
+    .line 2225
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->getWidth()I
 
     move-result v2
 
     int-to-float v2, v2
 
-    .line 2097
+    .line 2226
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->getHeight()I
 
     move-result v3
 
     int-to-float v3, v3
 
-    .line 2098
+    .line 2227
     invoke-static {v2, v3}, Ljava/lang/Math;->min(FF)F
 
     move-result v4
@@ -434,25 +434,25 @@
 
     sub-float v9, v4, v5
 
-    .line 2099
+    .line 2228
     const/4 v4, 0x0
 
     cmpg-float v4, v9, v4
 
     if-gtz v4, :cond_1e
 
-    .line 2154
+    .line 2283
     :cond_1d
     :goto_1d
     return-void
 
-    .line 2102
+    .line 2231
     :cond_1e
     const/high16 v4, 0x40000000    # 2.0f
 
     div-float v10, v2, v4
 
-    .line 2103
+    .line 2232
     const/high16 v2, 0x40000000    # 2.0f
 
     div-float v2, v3, v2
@@ -463,7 +463,7 @@
 
     add-float v11, v2, v3
 
-    .line 2104
+    .line 2233
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->box:Landroid/graphics/RectF;
@@ -494,7 +494,7 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 2105
+    .line 2234
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->box:Landroid/graphics/RectF;
@@ -513,7 +513,7 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 2106
+    .line 2235
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
@@ -524,7 +524,7 @@
 
     move v8, v2
 
-    .line 2107
+    .line 2236
     :goto_63
     move-object/from16 v0, p0
 
@@ -536,7 +536,7 @@
 
     if-gez v2, :cond_75
 
-    .line 2108
+    .line 2237
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->value:I
@@ -547,7 +547,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->shown:F
 
-    .line 2110
+    .line 2239
     :cond_75
     if-eqz v8, :cond_1db
 
@@ -555,16 +555,16 @@
 
     iget v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragValue:F
 
-    .line 2111
+    .line 2240
     :goto_7b
     if-eqz v8, :cond_1ed
 
-    .line 2112
+    .line 2241
     move-object/from16 v0, p0
 
     iput v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->shown:F
 
-    .line 2121
+    .line 2250
     :goto_81
     const/high16 v2, 0x43870000    # 270.0f
 
@@ -578,7 +578,7 @@
 
     div-float v5, v2, v3
 
-    .line 2122
+    .line 2251
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->enabled:Z
@@ -591,7 +591,7 @@
 
     if-lez v2, :cond_ef
 
-    .line 2123
+    .line 2252
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->live:Z
@@ -600,7 +600,7 @@
 
     if-nez v8, :cond_21b
 
-    .line 2124
+    .line 2253
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v2
@@ -615,7 +615,7 @@
 
     div-double/2addr v2, v6
 
-    .line 2125
+    .line 2254
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->glowP:Landroid/graphics/Paint;
@@ -648,10 +648,10 @@
 
     invoke-virtual {v4, v2}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 2126
+    .line 2255
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->postInvalidateOnAnimation()V
 
-    .line 2130
+    .line 2259
     :goto_cf
     move-object/from16 v0, p0
 
@@ -669,7 +669,7 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 2131
+    .line 2260
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->box:Landroid/graphics/RectF;
@@ -686,7 +686,7 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 2133
+    .line 2262
     :cond_ef
     move-object/from16 v0, p0
 
@@ -694,7 +694,7 @@
 
     if-eqz v2, :cond_14f
 
-    .line 2135
+    .line 2264
     const/high16 v2, 0x43070000    # 135.0f
 
     add-float/2addr v2, v5
@@ -705,7 +705,7 @@
 
     move-result-wide v2
 
-    .line 2136
+    .line 2265
     invoke-static {v2, v3}, Ljava/lang/Math;->cos(D)D
 
     move-result-wide v4
@@ -720,7 +720,7 @@
 
     add-float/2addr v4, v10
 
-    .line 2137
+    .line 2266
     invoke-static {v2, v3}, Ljava/lang/Math;->sin(D)D
 
     move-result-wide v2
@@ -735,7 +735,7 @@
 
     add-float v3, v11, v2
 
-    .line 2138
+    .line 2267
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->arc:Landroid/graphics/Paint;
@@ -751,7 +751,7 @@
     :goto_11f
     mul-float/2addr v2, v5
 
-    .line 2139
+    .line 2268
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->knob:Landroid/graphics/Paint;
@@ -768,7 +768,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2140
+    .line 2269
     const v5, 0x3fd9999a    # 1.7f
 
     mul-float/2addr v5, v2
@@ -781,7 +781,7 @@
 
     invoke-virtual {v0, v4, v3, v5, v6}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 2141
+    .line 2270
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->knob:Landroid/graphics/Paint;
@@ -790,7 +790,7 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2142
+    .line 2271
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->knob:Landroid/graphics/Paint;
@@ -799,7 +799,7 @@
 
     invoke-virtual {v0, v4, v3, v2, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 2144
+    .line 2273
     :cond_14f
     move-object/from16 v0, p0
 
@@ -811,7 +811,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 2145
+    .line 2274
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->num:Landroid/graphics/Paint;
@@ -831,7 +831,7 @@
     :goto_16a
     invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2146
+    .line 2275
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->enabled:Z
@@ -864,7 +864,7 @@
 
     move-result-object v2
 
-    .line 2147
+    .line 2276
     :goto_18e
     move-object/from16 v0, p0
 
@@ -888,14 +888,14 @@
 
     invoke-virtual {v0, v2, v10, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 2148
+    .line 2277
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->enabled:Z
 
     if-nez v2, :cond_23c
 
-    .line 2149
+    .line 2278
     const-string v2, "\u0438\u0437\u043a\u043b."
 
     const-string v3, "off"
@@ -942,7 +942,7 @@
 
     goto/16 :goto_1d
 
-    .line 2106
+    .line 2235
     :cond_1d7
     const/4 v2, 0x0
 
@@ -950,7 +950,7 @@
 
     goto/16 :goto_63
 
-    .line 2110
+    .line 2239
     :cond_1db
     const/4 v2, 0x0
 
@@ -972,7 +972,7 @@
 
     goto/16 :goto_7b
 
-    .line 2114
+    .line 2243
     :cond_1ed
     move-object/from16 v0, p0
 
@@ -994,7 +994,7 @@
 
     iput v3, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->shown:F
 
-    .line 2115
+    .line 2244
     move-object/from16 v0, p0
 
     iget v3, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->shown:F
@@ -1011,20 +1011,20 @@
 
     if-gez v3, :cond_216
 
-    .line 2116
+    .line 2245
     move-object/from16 v0, p0
 
     iput v2, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->shown:F
 
     goto/16 :goto_81
 
-    .line 2118
+    .line 2247
     :cond_216
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->postInvalidateOnAnimation()V
 
     goto/16 :goto_81
 
-    .line 2128
+    .line 2257
     :cond_21b
     move-object/from16 v0, p0
 
@@ -1044,13 +1044,13 @@
 
     goto :goto_223
 
-    .line 2138
+    .line 2267
     :cond_22b
     const v2, 0x3f4ccccd    # 0.8f
 
     goto/16 :goto_11f
 
-    .line 2145
+    .line 2274
     :cond_230
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
@@ -1061,13 +1061,13 @@
 
     goto/16 :goto_16a
 
-    .line 2146
+    .line 2275
     :cond_238
     const-string v2, "\u2014"
 
     goto/16 :goto_18e
 
-    .line 2150
+    .line 2279
     :cond_23c
     if-eqz v8, :cond_1d
 
@@ -1093,7 +1093,7 @@
 
     if-lt v2, v3, :cond_1d
 
-    .line 2151
+    .line 2280
     const-string v2, "+20 \u043d\u0430\u0432\u0435\u0434\u043d\u044a\u0436"
 
     const-string v3, "+20 at once"
@@ -1106,7 +1106,7 @@
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->num:Landroid/graphics/Paint;
 
-    .line 2152
+    .line 2281
     invoke-virtual {v3}, Landroid/graphics/Paint;->getTextSize()F
 
     move-result v3
@@ -1135,7 +1135,7 @@
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->unit:Landroid/graphics/Paint;
 
-    .line 2151
+    .line 2280
     move-object/from16 v0, p1
 
     invoke-virtual {v0, v2, v10, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
@@ -1153,7 +1153,7 @@
 
     const/4 v1, 0x1
 
-    .line 2032
+    .line 2161
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v2
@@ -1162,18 +1162,18 @@
 
     move v0, v1
 
-    .line 2090
+    .line 2219
     :cond_c
     :goto_c
     return v0
 
-    .line 2034
+    .line 2163
     :pswitch_d
     iget-boolean v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->enabled:Z
 
     if-nez v2, :cond_1d
 
-    .line 2035
+    .line 2164
     const-string v1, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0432\u0442\u043e\u0440\u0438\u044f \u0438\u043c\u043f\u0443\u043b\u0441 \u0441 \u223f."
 
     const-string v2, "Turn the second impulse on with \u223f."
@@ -1187,7 +1187,7 @@
 
     goto :goto_c
 
-    .line 2038
+    .line 2167
     :cond_1d
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->what:I
 
@@ -1199,7 +1199,7 @@
 
     if-eqz v2, :cond_33
 
-    .line 2039
+    .line 2168
     const-string v1, "\u041c\u0443\u0437\u0438\u043a\u0430\u0442\u0430 \u0434\u044a\u0440\u0436\u0438 \u0441\u0438\u043b\u0430\u0442\u0430 \u0441\u0435\u0433\u0430 \u2014 \u043f\u043e\u043b\u0437\u0432\u0430\u0439 \u2212 / +."
 
     const-string v2, "Music holds the strength now \u2014 use \u2212 / +."
@@ -1213,20 +1213,20 @@
 
     goto :goto_c
 
-    .line 2043
+    .line 2172
     :cond_33
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->value:I
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
 
-    .line 2044
+    .line 2173
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->value:I
 
     int-to-float v0, v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragValue:F
 
-    .line 2045
+    .line 2174
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
@@ -1241,39 +1241,39 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->lastT:F
 
-    .line 2046
+    .line 2175
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     if-eqz v0, :cond_57
 
-    .line 2047
+    .line 2176
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     invoke-interface {v0, v1}, Landroid/view/ViewParent;->requestDisallowInterceptTouchEvent(Z)V
 
-    .line 2049
+    .line 2178
     :cond_57
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2050
+    .line 2179
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->invalidate()V
 
     move v0, v1
 
-    .line 2051
+    .line 2180
     goto :goto_c
 
-    .line 2053
+    .line 2182
     :pswitch_5f
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
 
     if-ltz v2, :cond_c
 
-    .line 2056
+    .line 2185
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
@@ -1286,15 +1286,15 @@
 
     move-result v0
 
-    .line 2057
+    .line 2186
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->lastT:F
 
     sub-float v2, v0, v2
 
-    .line 2058
+    .line 2187
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->lastT:F
 
-    .line 2059
+    .line 2188
     invoke-static {v2}, Ljava/lang/Math;->abs(F)F
 
     move-result v0
@@ -1307,10 +1307,10 @@
 
     move v0, v1
 
-    .line 2060
+    .line 2189
     goto :goto_c
 
-    .line 2062
+    .line 2191
     :cond_81
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragValue:F
 
@@ -1318,7 +1318,7 @@
 
     move-result v0
 
-    .line 2063
+    .line 2192
     const/4 v3, 0x0
 
     iget v4, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
@@ -1349,56 +1349,56 @@
 
     iput v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragValue:F
 
-    .line 2064
+    .line 2193
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragValue:F
 
     invoke-static {v2}, Ljava/lang/Math;->round(F)I
 
     move-result v2
 
-    .line 2065
+    .line 2194
     if-eq v2, v0, :cond_b2
 
-    .line 2066
+    .line 2195
     rem-int/lit8 v0, v2, 0x5
 
     if-nez v0, :cond_af
 
-    .line 2067
+    .line 2196
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2069
+    .line 2198
     :cond_af
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->invalidate()V
 
     :cond_b2
     move v0, v1
 
-    .line 2071
+    .line 2200
     goto/16 :goto_c
 
-    .line 2075
+    .line 2204
     :pswitch_b5
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
 
     if-ltz v2, :cond_c
 
-    .line 2078
+    .line 2207
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragValue:F
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
     move-result v0
 
-    .line 2079
+    .line 2208
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
 
-    .line 2080
+    .line 2209
     const/4 v3, -0x1
 
     iput v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->dragFrom:I
 
-    .line 2081
+    .line 2210
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v3
@@ -1407,29 +1407,29 @@
 
     if-eq v0, v2, :cond_d6
 
-    .line 2082
+    .line 2211
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->value:I
 
-    .line 2083
+    .line 2212
     int-to-float v2, v0
 
     iput v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->shown:F
 
-    .line 2084
+    .line 2213
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->what:I
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->setTo(II)V
 
-    .line 2086
+    .line 2215
     :cond_d6
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->invalidate()V
 
     move v0, v1
 
-    .line 2087
+    .line 2216
     goto/16 :goto_c
 
-    .line 2032
+    .line 2161
     :pswitch_data_dc
     .packed-switch 0x0
         :pswitch_d
@@ -1443,7 +1443,7 @@
     .registers 5
 
     .prologue
-    .line 2012
+    .line 2141
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->value:I
 
     if-ne p1, v0, :cond_c
@@ -1456,20 +1456,20 @@
 
     if-eq p3, v0, :cond_15
 
-    .line 2013
+    .line 2142
     :cond_c
     iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->value:I
 
-    .line 2014
+    .line 2143
     iput-boolean p2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->enabled:Z
 
-    .line 2015
+    .line 2144
     iput-boolean p3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->live:Z
 
-    .line 2016
+    .line 2145
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Ring;->invalidate()V
 
-    .line 2018
+    .line 2147
     :cond_15
     return-void
 .end method

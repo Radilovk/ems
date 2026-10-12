@@ -279,7 +279,7 @@ public final class ScaleDetail {
 
     public static String zoneBg(int seg) {
         switch (seg) {
-            case ScaleProtocol.TRUNK: return "Тяло";
+            case ScaleProtocol.TRUNK: return "Торс";
             case ScaleProtocol.LEFT_ARM: return "Лява ръка";
             case ScaleProtocol.RIGHT_ARM: return "Дясна ръка";
             case ScaleProtocol.LEFT_LEG: return "Ляв крак";

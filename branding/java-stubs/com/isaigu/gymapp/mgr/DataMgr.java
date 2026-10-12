@@ -20,4 +20,5 @@ public class DataMgr {
     public TrainProgram getProgramData(String name) { return null; }
     public TrainUser getTrainUser(long id) { return null; }
     public void addOrUpdateTrainProgram(TrainProgram program) {}
+    public void removeTrainingUser(String address) {}
 }

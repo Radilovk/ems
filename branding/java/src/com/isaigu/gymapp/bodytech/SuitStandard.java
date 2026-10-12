@@ -13,7 +13,6 @@ import com.clj.fastble.data.BleDevice;
 import com.isaigu.gymapp.bean.DeviceBean;
 import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsLang;
-import com.isaigu.gymapp.widget.XemsLocalStore;
 import com.isaigu.gymapp.widget.XemsUi;
 
 import java.lang.ref.WeakReference;
@@ -54,7 +53,10 @@ public final class SuitStandard {
     /** The admin's setup (not locked). Everything here — and every bodytech feature — exists only then. */
     public static boolean unlocked() {
         try {
-            return XemsLocalStore.isAdminSession();
+            // XemsLocalStore is compiled apart (compile-xems-local): read by reflection, as AutoHistory / ScaleScreen
+            Object r = Class.forName("com.isaigu.gymapp.widget.XemsLocalStore").getMethod("isAdminSession")
+                    .invoke(null);
+            return Boolean.TRUE.equals(r);
         } catch (Throwable t) {
             return false;
         }

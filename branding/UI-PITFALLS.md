@@ -209,6 +209,20 @@ Hooks в `apply-interval-timer.py` / `apply-music-training-sync.py`:
 
 ---
 
+## 11c. Списъкът с редове спира да следва добавяне / махане
+
+**Симптом:** клиент е зареден в скина (FocusBoard), а редовете показват празно (или обратно).
+**Корен:** `recyclerView` е `SwipeMenuRecyclerView`: `getAdapter()` връща swipe обвивката. `setAdapter(getAdapter())`
+обвива обвивката и маха наблюдателя от `TrainAdapter` → вендорското `adapter.notifyDataSetChanged()` не стига до списъка.
+**Правило:** за повторно задаване ползвай `getOriginAdapter()` (`FocusBoard.rowsAdapter`). `notifyDataSetChanged()`
+върху обвивката е безопасно (NextClient).
+
+## 11d. Рисунка извън екрана: маркерите на баровете стоят вляво
+
+**Симптом:** в споделената снимка точките на нормите са все в левия край.
+**Корен:** `ValueAnimator.start()` вика update с 0 веднага; изглед, нарисуван веднага в Bitmap, остава на grow = 0.
+**Правило:** преди `draw` в Bitmap — `ScaleViews.settle(root)`.
+
 ## 11b. Цветовете на темата не стигат до таблета
 
 **Симптом:** промяна в `branding/theme/colors*.xml` (напр. неоновият скин 1.1.411) не се вижда на таблета.

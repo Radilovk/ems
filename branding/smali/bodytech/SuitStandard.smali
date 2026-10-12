@@ -56,7 +56,7 @@
 
     const/16 v3, 0xa
 
-    .line 37
+    .line 36
     new-array v0, v3, [Ljava/lang/String;
 
     const-string v1, "\u0413\u044a\u0440\u0434\u0438"
@@ -113,7 +113,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/bodytech/SuitStandard;->BG:[Ljava/lang/String;
 
-    .line 39
+    .line 38
     new-array v0, v3, [Ljava/lang/String;
 
     const-string v1, "Chest"
@@ -170,7 +170,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/bodytech/SuitStandard;->EN:[Ljava/lang/String;
 
-    .line 47
+    .line 46
     new-array v0, v3, [I
 
     fill-array-data v0, :array_76
@@ -198,7 +198,7 @@
     .registers 1
 
     .prologue
-    .line 52
+    .line 51
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -210,7 +210,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 141
+    .line 143
     :try_start_1
     sget-object v0, Lcom/isaigu/gymapp/bodytech/SuitStandard;->column:Ljava/lang/ref/WeakReference;
 
@@ -226,21 +226,21 @@
 
     move-object v2, v0
 
-    .line 142
+    .line 144
     :goto_e
     if-nez v2, :cond_13
 
-    .line 148
+    .line 150
     :goto_10
     return-void
 
     :cond_11
     move-object v2, v1
 
-    .line 141
+    .line 143
     goto :goto_e
 
-    .line 143
+    .line 145
     :cond_13
     if-eqz p0, :cond_24
 
@@ -249,18 +249,18 @@
     :goto_17
     iput-object v0, v2, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->mac:Ljava/lang/String;
 
-    .line 144
+    .line 146
     invoke-virtual {v2}, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->render()V
     :try_end_1c
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1c} :catch_1d
 
     goto :goto_10
 
-    .line 145
+    .line 147
     :catch_1d
     move-exception v0
 
-    .line 146
+    .line 148
     const-string v1, "SuitStandard.device"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -270,7 +270,7 @@
     :cond_24
     move-object v0, v1
 
-    .line 143
+    .line 145
     goto :goto_17
 .end method
 
@@ -282,7 +282,7 @@
 
     const/4 v1, 0x0
 
-    .line 86
+    .line 88
     if-eqz p0, :cond_a
 
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->unlocked()Z
@@ -294,12 +294,12 @@
     :cond_a
     move v0, v1
 
-    .line 88
+    .line 90
     :cond_b
     :goto_b
     return v0
 
-    .line 87
+    .line 89
     :cond_c
     const/4 v2, 0x0
 
@@ -307,7 +307,7 @@
 
     move-result-object v2
 
-    .line 88
+    .line 90
     if-eqz v2, :cond_1d
 
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->key(Ljava/lang/String;)Ljava/lang/String;
@@ -330,14 +330,14 @@
     .registers 5
 
     .prologue
-    .line 76
+    .line 78
     new-instance v1, Ljava/lang/StringBuilder;
 
     const-string v0, "std_"
 
     invoke-direct {v1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    .line 77
+    .line 79
     const/4 v0, 0x0
 
     :goto_8
@@ -349,7 +349,7 @@
 
     if-ge v0, v2, :cond_2e
 
-    .line 78
+    .line 80
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -358,7 +358,7 @@
 
     move-result v2
 
-    .line 79
+    .line 81
     const/16 v3, 0x30
 
     if-lt v2, v3, :cond_20
@@ -379,13 +379,13 @@
     :cond_28
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 77
+    .line 79
     :cond_2b
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_8
 
-    .line 81
+    .line 83
     :cond_2e
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -400,13 +400,13 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 115
+    .line 117
     const/4 v2, 0x0
 
     :try_start_2
     sput-object v2, Lcom/isaigu/gymapp/bodytech/SuitStandard;->column:Ljava/lang/ref/WeakReference;
 
-    .line 116
+    .line 118
     if-eqz p0, :cond_c
 
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->unlocked()Z
@@ -415,18 +415,18 @@
 
     if-nez v2, :cond_d
 
-    .line 136
+    .line 138
     :cond_c
     :goto_c
     return-void
 
-    .line 117
+    .line 119
     :cond_d
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v4
 
-    .line 118
+    .line 120
     invoke-virtual {v4}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
@@ -443,7 +443,7 @@
 
     move-result v2
 
-    .line 119
+    .line 121
     if-eqz v2, :cond_27
 
     invoke-virtual {p0, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -453,7 +453,7 @@
     :cond_27
     move-object v3, v1
 
-    .line 120
+    .line 122
     :goto_28
     if-eqz v3, :cond_51
 
@@ -465,14 +465,14 @@
 
     if-eqz v1, :cond_51
 
-    .line 121
+    .line 123
     invoke-virtual {v3}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
 
     check-cast v1, Landroid/view/View;
 
-    .line 122
+    .line 124
     instance-of v2, v1, Landroid/widget/LinearLayout;
 
     if-eqz v2, :cond_90
@@ -495,7 +495,7 @@
 
     move-object v2, v0
 
-    .line 123
+    .line 125
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->getChildCount()I
 
     move-result v2
@@ -504,7 +504,7 @@
 
     if-lt v2, v5, :cond_90
 
-    .line 126
+    .line 128
     :cond_51
     if-eqz v3, :cond_c
 
@@ -516,32 +516,32 @@
 
     if-eqz v1, :cond_c
 
-    .line 127
+    .line 129
     invoke-virtual {v3}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
 
     check-cast v1, Landroid/widget/LinearLayout;
 
-    .line 128
+    .line 130
     const-string v2, "xems_suit_standard"
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v2
 
-    .line 129
+    .line 131
     if-eqz v2, :cond_6c
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->removeView(Landroid/view/View;)V
 
-    .line 130
+    .line 132
     :cond_6c
     new-instance v2, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;
 
     invoke-direct {v2, v4, v3}, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;-><init>(Landroid/content/Context;Landroid/view/View;)V
 
-    .line 131
+    .line 133
     iget-object v4, v2, Lcom/isaigu/gymapp/bodytech/SuitStandard$Col;->view:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v3}, Landroid/widget/LinearLayout;->indexOfChild(Landroid/view/View;)I
@@ -556,7 +556,7 @@
 
     invoke-virtual {v1, v4, v5, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;ILandroid/view/ViewGroup$LayoutParams;)V
 
-    .line 132
+    .line 134
     new-instance v1, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v1, v2}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
@@ -567,11 +567,11 @@
 
     goto :goto_c
 
-    .line 133
+    .line 135
     :catch_88
     move-exception v1
 
-    .line 134
+    .line 136
     const-string v2, "SuitStandard.picker"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -581,7 +581,7 @@
     :cond_90
     move-object v3, v1
 
-    .line 125
+    .line 127
     goto :goto_28
 .end method
 
@@ -593,7 +593,7 @@
 
     const/4 v4, 0x0
 
-    .line 64
+    .line 66
     sget-object v0, Lcom/isaigu/gymapp/bodytech/SuitStandard;->app:Landroid/content/Context;
 
     if-nez v0, :cond_14
@@ -613,13 +613,13 @@
     :cond_12
     sput-object p0, Lcom/isaigu/gymapp/bodytech/SuitStandard;->app:Landroid/content/Context;
 
-    .line 65
+    .line 67
     :cond_14
     sget-object v0, Lcom/isaigu/gymapp/bodytech/SuitStandard;->app:Landroid/content/Context;
 
     if-nez v0, :cond_37
 
-    .line 67
+    .line 69
     :try_start_18
     const-string v0, "android.app.ActivityThread"
 
@@ -647,7 +647,7 @@
 
     move-result-object v0
 
-    .line 68
+    .line 70
     instance-of v2, v0, Landroid/content/Context;
 
     if-eqz v2, :cond_37
@@ -658,7 +658,7 @@
     :try_end_37
     .catch Ljava/lang/Throwable; {:try_start_18 .. :try_end_37} :catch_46
 
-    .line 72
+    .line 74
     :cond_37
     :goto_37
     sget-object v0, Lcom/isaigu/gymapp/bodytech/SuitStandard;->app:Landroid/content/Context;
@@ -681,7 +681,7 @@
 
     goto :goto_3c
 
-    .line 69
+    .line 71
     :catch_46
     move-exception v0
 
@@ -694,22 +694,22 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 92
+    .line 94
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v1
 
-    .line 93
+    .line 95
     if-eqz v1, :cond_9
 
     if-nez p1, :cond_a
 
-    .line 95
+    .line 97
     :cond_9
     :goto_9
     return-void
 
-    .line 94
+    .line 96
     :cond_a
     invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
@@ -746,7 +746,7 @@
 
     const/4 v3, 0x1
 
-    .line 100
+    .line 102
     if-ne p1, v3, :cond_f
 
     if-eqz p0, :cond_f
@@ -760,12 +760,12 @@
 
     if-ge v1, v2, :cond_10
 
-    .line 108
+    .line 110
     :cond_f
     :goto_f
     return-void
 
-    .line 101
+    .line 103
     :cond_10
     invoke-virtual {p0}, Lcom/clj/fastble/data/BleDevice;->getMac()Ljava/lang/String;
 
@@ -783,12 +783,12 @@
 
     if-nez v1, :cond_f
 
-    .line 102
+    .line 104
     const/16 v1, 0xa
 
     new-array v1, v1, [B
 
-    .line 103
+    .line 105
     const/4 v2, 0x1
 
     const/4 v3, 0x0
@@ -797,7 +797,7 @@
 
     invoke-static {p2, v2, v1, v3, v4}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 104
+    .line 106
     :goto_2b
     if-ge v0, v5, :cond_f
 
@@ -817,11 +817,11 @@
 
     goto :goto_2b
 
-    .line 105
+    .line 107
     :catch_3a
     move-exception v0
 
-    .line 106
+    .line 108
     const-string v1, "SuitStandard.toSuit"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -830,27 +830,56 @@
 .end method
 
 .method public static unlocked()Z
-    .registers 1
+    .registers 4
 
     .prologue
+    const/4 v0, 0x0
+
     .line 57
-    :try_start_0
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
-    :try_end_3
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_5
+    :try_start_1
+    const-string v1, "com.isaigu.gymapp.widget.XemsLocalStore"
+
+    invoke-static {v1}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
+
+    move-result-object v1
+
+    const-string v2, "isAdminSession"
+
+    const/4 v3, 0x0
+
+    new-array v3, v3, [Ljava/lang/Class;
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+
+    move-result-object v1
+
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    new-array v3, v3, [Ljava/lang/Object;
+
+    .line 58
+    invoke-virtual {v1, v2, v3}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    .line 59
+    sget-object v2, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
+
+    invoke-virtual {v2, v1}, Ljava/lang/Boolean;->equals(Ljava/lang/Object;)Z
+    :try_end_1d
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1d} :catch_1f
 
     move-result v0
 
-    .line 59
-    :goto_4
+    .line 61
+    :goto_1e
     return v0
 
-    .line 58
-    :catch_5
-    move-exception v0
+    .line 60
+    :catch_1f
+    move-exception v1
 
-    .line 59
-    const/4 v0, 0x0
-
-    goto :goto_4
+    goto :goto_1e
 .end method

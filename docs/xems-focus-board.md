@@ -68,3 +68,12 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   their landscape size; the module bar shows icons only (`XemsNav.compact`). Back across, the rows' list makes its
   rows afresh (+700 ms, `RowsAfresh`: pool cleared, same adapter set again) — no rows of mixed sizes. Vendor windows
   (e.g. the row's ⚙) opened upright come at the upright system size.
+
+## 1.1.423 — board and rows in step, remove from the board
+- **Rows stuck after a turn (bug):** `RowsAfresh` set `getAdapter()` again — on the `SwipeMenuRecyclerView` that is the
+  swipe wrapper, so the list wrapped the wrapper and dropped its observer on `TrainAdapter`: after any upright → across
+  turn the rows no longer followed a client added or removed, while the board (reads the manager) did. Now
+  `FocusBoard.rowsAdapter` takes `getOriginAdapter()`; never re-set the wrapper.
+- **✕ on the board's client chip** → "Да махна ли … от тренировката?" → the rows' swipe "delete" exactly
+  (`NewTrainFragment$4`): `manager.removeTrainItem`, rows `notifyDataSetChanged`, `DataMgr.removeTrainingUser(mac)`.
+- **+** retries while the list lays the empty slot out (8 × 160 ms), then says so instead of doing nothing.

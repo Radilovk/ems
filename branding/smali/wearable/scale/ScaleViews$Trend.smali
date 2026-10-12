@@ -49,10 +49,10 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 772
+    .line 817
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 757
+    .line 802
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -61,59 +61,59 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
-    .line 758
+    .line 803
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->line:Landroid/graphics/Path;
 
-    .line 759
+    .line 804
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
 
-    .line 760
+    .line 805
     new-array v0, v2, [D
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
 
-    .line 761
+    .line 806
     new-array v0, v2, [J
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->t:[J
 
-    .line 762
+    .line 807
     const v0, -0xdd3aa2
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->color:I
 
-    .line 763
+    .line 808
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->unit:Ljava/lang/String;
 
-    .line 766
+    .line 811
     new-array v0, v2, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
 
-    .line 767
+    .line 812
     new-array v0, v2, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->py:[F
 
-    .line 768
+    .line 813
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->sel:I
 
-    .line 773
+    .line 818
     iput-boolean p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->compact:Z
 
-    .line 774
+    .line 819
     return-void
 .end method
 
@@ -123,7 +123,7 @@
     .registers 14
 
     .prologue
-    .line 828
+    .line 873
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->sel:I
 
     if-ltz v0, :cond_1e
@@ -156,12 +156,12 @@
 
     if-lt v0, v1, :cond_1f
 
-    .line 875
+    .line 920
     :cond_1e
     :goto_1e
     return-void
 
-    .line 831
+    .line 876
     :cond_1f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
 
@@ -175,14 +175,14 @@
 
     aget v6, v0, v2
 
-    .line 832
+    .line 877
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 833
+    .line 878
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const v2, 0x3f99999a    # 1.2f
@@ -193,7 +193,7 @@
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 834
+    .line 879
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->color:I
@@ -206,7 +206,7 @@
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 835
+    .line 880
     add-float v4, p2, p3
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -219,7 +219,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 836
+    .line 881
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/high16 v2, 0x40200000    # 2.5f
@@ -230,14 +230,14 @@
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 837
+    .line 882
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->color:I
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 838
+    .line 883
     const/high16 v0, 0x41000000    # 8.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
@@ -248,14 +248,14 @@
 
     invoke-virtual {p1, v1, v6, v0, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 839
+    .line 884
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 840
+    .line 885
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -300,7 +300,7 @@
 
     move-result-object v3
 
-    .line 841
+    .line 886
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->sel:I
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->t:[J
@@ -321,7 +321,7 @@
 
     if-lez v0, :cond_21a
 
-    .line 842
+    .line 887
     new-instance v0, Ljava/text/SimpleDateFormat;
 
     const-string v2, "d.MM.yyyy  HH:mm"
@@ -344,7 +344,7 @@
 
     move-result-object v0
 
-    .line 843
+    .line 888
     :goto_cf
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
@@ -356,28 +356,28 @@
 
     invoke-virtual {v2, v4}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 844
+    .line 889
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/4 v4, 0x1
 
     invoke-virtual {v2, v4}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 845
+    .line 890
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
 
     move-result v2
 
-    .line 846
+    .line 891
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/4 v5, 0x0
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 847
+    .line 892
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/high16 v5, 0x41300000    # 11.0f
@@ -388,14 +388,14 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 848
+    .line 893
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v4, v0}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
 
     move-result v4
 
-    .line 849
+    .line 894
     invoke-static {v2, v4}, Ljava/lang/Math;->max(FF)F
 
     move-result v2
@@ -408,7 +408,7 @@
 
     add-float/2addr v4, v2
 
-    .line 850
+    .line 895
     invoke-virtual {v0}, Ljava/lang/String;->isEmpty()Z
 
     move-result v2
@@ -422,7 +422,7 @@
 
     move-result v2
 
-    .line 851
+    .line 896
     const/high16 v5, 0x40000000    # 2.0f
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
@@ -459,7 +459,7 @@
 
     move-result v5
 
-    .line 852
+    .line 897
     sub-float v1, v6, v2
 
     const/high16 v7, 0x41600000    # 14.0f
@@ -470,7 +470,7 @@
 
     sub-float/2addr v1, v7
 
-    .line 853
+    .line 898
     const/high16 v7, 0x40000000    # 2.0f
 
     invoke-static {p0, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
@@ -481,7 +481,7 @@
 
     if-gez v7, :cond_14e
 
-    .line 854
+    .line 899
     const/high16 v1, 0x41600000    # 14.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
@@ -490,7 +490,7 @@
 
     add-float/2addr v1, v6
 
-    .line 856
+    .line 901
     :cond_14e
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->getHeight()I
 
@@ -512,14 +512,14 @@
 
     move-result v1
 
-    .line 857
+    .line 902
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->CARD:I
 
     invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 858
+    .line 903
     new-instance v6, Landroid/graphics/RectF;
 
     add-float v7, v5, v4
@@ -544,14 +544,14 @@
 
     invoke-virtual {p1, v6, v7, v8, v9}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 859
+    .line 904
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget-object v7, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 860
+    .line 905
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/high16 v7, 0x3fc00000    # 1.5f
@@ -562,14 +562,14 @@
 
     invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 861
+    .line 906
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     iget v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->color:I
 
     invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 862
+    .line 907
     new-instance v6, Landroid/graphics/RectF;
 
     add-float v7, v5, v4
@@ -594,21 +594,21 @@
 
     invoke-virtual {p1, v6, v2, v7, v8}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 863
+    .line 908
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget-object v6, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 864
+    .line 909
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget-object v6, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 865
+    .line 910
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/high16 v6, 0x41700000    # 15.0f
@@ -619,21 +619,21 @@
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 866
+    .line 911
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/4 v6, 0x1
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 867
+    .line 912
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v2, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 868
+    .line 913
     const/high16 v2, 0x40000000    # 2.0f
 
     div-float v2, v4, v2
@@ -652,21 +652,21 @@
 
     invoke-virtual {p1, v3, v2, v6, v7}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 869
+    .line 914
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/4 v3, 0x0
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 870
+    .line 915
     invoke-virtual {v0}, Ljava/lang/String;->isEmpty()Z
 
     move-result v2
 
     if-nez v2, :cond_1e
 
-    .line 871
+    .line 916
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     const/high16 v3, 0x41300000    # 11.0f
@@ -677,14 +677,14 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 872
+    .line 917
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 873
+    .line 918
     const/high16 v2, 0x40000000    # 2.0f
 
     div-float v2, v4, v2
@@ -705,13 +705,13 @@
 
     goto/16 :goto_1e
 
-    .line 842
+    .line 887
     :cond_21a
     const-string v0, ""
 
     goto/16 :goto_cf
 
-    .line 850
+    .line 895
     :cond_21e
     const/high16 v2, 0x42380000    # 46.0f
 
@@ -722,15 +722,15 @@
     .registers 29
 
     .prologue
-    .line 879
+    .line 924
     const/4 v10, 0x0
 
-    .line 880
+    .line 925
     const-wide v8, 0x7fefffffffffffffL    # Double.MAX_VALUE
 
     const-wide v4, -0x10000000000001L
 
-    .line 881
+    .line 926
     move-object/from16 v0, p0
 
     iget-object v12, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
@@ -746,27 +746,27 @@
 
     aget-wide v14, v12, v11
 
-    .line 882
+    .line 927
     invoke-static {v14, v15}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v6
 
     if-nez v6, :cond_4d0
 
-    .line 883
+    .line 928
     add-int/lit8 v10, v10, 0x1
 
-    .line 884
+    .line 929
     invoke-static {v8, v9, v14, v15}, Ljava/lang/Math;->min(DD)D
 
     move-result-wide v6
 
-    .line 885
+    .line 930
     invoke-static {v4, v5, v14, v15}, Ljava/lang/Math;->max(DD)D
 
     move-result-wide v4
 
-    .line 881
+    .line 926
     :goto_26
     add-int/lit8 v11, v11, 0x1
 
@@ -774,7 +774,7 @@
 
     goto :goto_12
 
-    .line 888
+    .line 933
     :cond_2a
     move-object/from16 v0, p0
 
@@ -792,7 +792,7 @@
 
     move v14, v6
 
-    .line 889
+    .line 934
     :goto_39
     move-object/from16 v0, p0
 
@@ -810,7 +810,7 @@
 
     move v7, v6
 
-    .line 890
+    .line 935
     :goto_48
     move-object/from16 v0, p0
 
@@ -826,7 +826,7 @@
 
     move-result v6
 
-    .line 891
+    .line 936
     :goto_56
     move-object/from16 v0, p0
 
@@ -842,7 +842,7 @@
 
     move-result v11
 
-    .line 892
+    .line 937
     :goto_64
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->getWidth()I
 
@@ -864,7 +864,7 @@
 
     sub-float v19, v7, v11
 
-    .line 893
+    .line 938
     if-eqz v10, :cond_80
 
     const/4 v7, 0x0
@@ -879,7 +879,7 @@
 
     if-gtz v7, :cond_f9
 
-    .line 894
+    .line 939
     :cond_80
     move-object/from16 v0, p0
 
@@ -887,7 +887,7 @@
 
     if-nez v4, :cond_ce
 
-    .line 895
+    .line 940
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -896,7 +896,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 896
+    .line 941
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -911,7 +911,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 897
+    .line 942
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -920,7 +920,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 898
+    .line 943
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -961,12 +961,12 @@
 
     invoke-static/range {v4 .. v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 985
+    .line 1030
     :cond_ce
     :goto_ce
     return-void
 
-    .line 888
+    .line 933
     :cond_cf
     const/high16 v6, 0x41000000    # 8.0f
 
@@ -980,7 +980,7 @@
 
     goto/16 :goto_39
 
-    .line 889
+    .line 934
     :cond_da
     const/high16 v6, 0x42380000    # 46.0f
 
@@ -994,7 +994,7 @@
 
     goto/16 :goto_48
 
-    .line 890
+    .line 935
     :cond_e5
     const/high16 v6, 0x41600000    # 14.0f
 
@@ -1006,7 +1006,7 @@
 
     goto/16 :goto_56
 
-    .line 891
+    .line 936
     :cond_ef
     const/high16 v11, 0x41a00000    # 20.0f
 
@@ -1018,7 +1018,7 @@
 
     goto/16 :goto_64
 
-    .line 902
+    .line 947
     :cond_f9
     sub-double v10, v4, v8
 
@@ -1042,21 +1042,21 @@
 
     move-result-wide v10
 
-    .line 903
+    .line 948
     const-wide v12, 0x3fc3333333333333L    # 0.15
 
     mul-double/2addr v12, v10
 
     sub-double v22, v8, v12
 
-    .line 904
+    .line 949
     const-wide v8, 0x3fc3333333333333L    # 0.15
 
     mul-double/2addr v8, v10
 
     add-double v24, v4, v8
 
-    .line 905
+    .line 950
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->t:[J
@@ -1100,7 +1100,7 @@
 
     move-wide/from16 v20, v4
 
-    .line 906
+    .line 951
     :goto_147
     cmp-long v4, v20, v12
 
@@ -1110,7 +1110,7 @@
 
     move v15, v4
 
-    .line 907
+    .line 952
     :goto_14d
     move-object/from16 v0, p0
 
@@ -1118,24 +1118,24 @@
 
     invoke-virtual {v4}, Landroid/graphics/Path;->reset()V
 
-    .line 908
+    .line 953
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
 
     invoke-virtual {v4}, Landroid/graphics/Path;->reset()V
 
-    .line 909
+    .line 954
     const/4 v9, 0x0
 
     const/4 v8, 0x0
 
     const/4 v7, 0x0
 
-    .line 910
+    .line 955
     const/4 v5, 0x0
 
-    .line 911
+    .line 956
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
@@ -1150,7 +1150,7 @@
 
     if-eq v4, v10, :cond_181
 
-    .line 912
+    .line 957
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
@@ -1163,7 +1163,7 @@
 
     iput-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
 
-    .line 913
+    .line 958
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
@@ -1176,7 +1176,7 @@
 
     iput-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->py:[F
 
-    .line 915
+    .line 960
     :cond_181
     move-object/from16 v0, p0
 
@@ -1186,7 +1186,7 @@
 
     invoke-static {v4, v10}, Ljava/util/Arrays;->fill([FF)V
 
-    .line 916
+    .line 961
     const/4 v4, 0x0
 
     move/from16 v16, v8
@@ -1202,7 +1202,7 @@
 
     if-ge v4, v8, :cond_231
 
-    .line 917
+    .line 962
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
@@ -1219,7 +1219,7 @@
 
     move/from16 v9, v17
 
-    .line 916
+    .line 961
     :goto_1a6
     add-int/lit8 v4, v4, 0x1
 
@@ -1229,7 +1229,7 @@
 
     goto :goto_18f
 
-    .line 905
+    .line 950
     :cond_1ad
     const-wide/16 v4, 0x0
 
@@ -1244,7 +1244,7 @@
 
     goto :goto_147
 
-    .line 906
+    .line 951
     :cond_1b6
     const/4 v4, 0x0
 
@@ -1252,7 +1252,7 @@
 
     goto :goto_14d
 
-    .line 920
+    .line 965
     :cond_1b9
     move-object/from16 v0, p0
 
@@ -1266,11 +1266,11 @@
 
     move/from16 v8, v18
 
-    .line 921
+    .line 966
     :goto_1c3
     add-float v9, v14, v8
 
-    .line 922
+    .line 967
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
@@ -1289,31 +1289,31 @@
 
     add-float/2addr v8, v6
 
-    .line 923
+    .line 968
     move-object/from16 v0, p0
 
     iget-object v10, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
 
     aput v9, v10, v4
 
-    .line 924
+    .line 969
     move-object/from16 v0, p0
 
     iget-object v10, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->py:[F
 
     aput v8, v10, v4
 
-    .line 925
+    .line 970
     if-nez v5, :cond_222
 
-    .line 926
+    .line 971
     move-object/from16 v0, p0
 
     iget-object v7, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->line:Landroid/graphics/Path;
 
     invoke-virtual {v7, v9, v8}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 927
+    .line 972
     move-object/from16 v0, p0
 
     iget-object v7, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
@@ -1322,7 +1322,7 @@
 
     invoke-virtual {v7, v9, v10}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 928
+    .line 973
     move-object/from16 v0, p0
 
     iget-object v7, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
@@ -1331,13 +1331,13 @@
 
     move v7, v9
 
-    .line 936
+    .line 981
     :goto_1fb
     add-int/lit8 v5, v5, 0x1
 
     goto :goto_1a6
 
-    .line 920
+    .line 965
     :cond_1fe
     if-eqz v15, :cond_210
 
@@ -1363,7 +1363,7 @@
 
     goto :goto_1c3
 
-    .line 921
+    .line 966
     :cond_210
     int-to-float v8, v4
 
@@ -1389,7 +1389,7 @@
 
     goto :goto_1c3
 
-    .line 931
+    .line 976
     :cond_222
     move-object/from16 v0, p0
 
@@ -1397,7 +1397,7 @@
 
     invoke-virtual {v10, v9, v8}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 932
+    .line 977
     move-object/from16 v0, p0
 
     iget-object v10, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
@@ -1406,7 +1406,7 @@
 
     goto :goto_1fb
 
-    .line 938
+    .line 983
     :cond_231
     move-object/from16 v0, p0
 
@@ -1418,7 +1418,7 @@
 
     invoke-virtual {v4, v0, v5}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 939
+    .line 984
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
@@ -1427,14 +1427,14 @@
 
     invoke-virtual {v4, v7, v5}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 940
+    .line 985
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
 
     invoke-virtual {v4}, Landroid/graphics/Path;->close()V
 
-    .line 941
+    .line 986
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1443,7 +1443,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 942
+    .line 987
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1481,7 +1481,7 @@
 
     const/4 v11, 0x0
 
-    .line 943
+    .line 988
     invoke-static {v10, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
     move-result v10
@@ -1490,12 +1490,12 @@
 
     invoke-direct/range {v4 .. v11}, Landroid/graphics/LinearGradient;-><init>(FFFFIILandroid/graphics/Shader$TileMode;)V
 
-    .line 942
+    .line 987
     move-object/from16 v0, v26
 
     invoke-virtual {v0, v4}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 944
+    .line 989
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->area:Landroid/graphics/Path;
@@ -1508,7 +1508,7 @@
 
     invoke-virtual {v0, v4, v5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 945
+    .line 990
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1517,7 +1517,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 946
+    .line 991
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1526,7 +1526,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 947
+    .line 992
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1548,7 +1548,7 @@
 
     invoke-virtual {v5, v4}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 948
+    .line 993
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1557,7 +1557,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 949
+    .line 994
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1568,7 +1568,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 950
+    .line 995
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->line:Landroid/graphics/Path;
@@ -1581,7 +1581,7 @@
 
     invoke-virtual {v0, v4, v5}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 951
+    .line 996
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1590,14 +1590,14 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 952
+    .line 997
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->compact:Z
 
     if-nez v4, :cond_37c
 
-    .line 953
+    .line 998
     const/4 v4, 0x0
 
     :goto_2e9
@@ -1609,7 +1609,7 @@
 
     if-ge v4, v5, :cond_37c
 
-    .line 954
+    .line 999
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
@@ -1622,25 +1622,25 @@
 
     if-eqz v5, :cond_307
 
-    .line 953
+    .line 998
     :goto_2fc
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_2e9
 
-    .line 942
+    .line 987
     :cond_2ff
     const/16 v9, 0x5a
 
     goto/16 :goto_26d
 
-    .line 947
+    .line 992
     :cond_303
     const v4, 0x40266666    # 2.6f
 
     goto :goto_2af
 
-    .line 957
+    .line 1002
     :cond_307
     move-object/from16 v0, p0
 
@@ -1654,11 +1654,11 @@
 
     move/from16 v5, v18
 
-    .line 958
+    .line 1003
     :goto_311
     add-float/2addr v5, v14
 
-    .line 959
+    .line 1004
     move-object/from16 v0, p0
 
     iget-object v7, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
@@ -1677,7 +1677,7 @@
 
     add-float/2addr v7, v6
 
-    .line 960
+    .line 1005
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1686,7 +1686,7 @@
 
     invoke-virtual {v8, v9}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 961
+    .line 1006
     const/high16 v8, 0x40900000    # 4.5f
 
     move-object/from16 v0, p0
@@ -1703,7 +1703,7 @@
 
     invoke-virtual {v0, v5, v7, v8, v9}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 962
+    .line 1007
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1714,7 +1714,7 @@
 
     invoke-virtual {v8, v9}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 963
+    .line 1008
     const/high16 v8, 0x40400000    # 3.0f
 
     move-object/from16 v0, p0
@@ -1733,7 +1733,7 @@
 
     goto :goto_2fc
 
-    .line 957
+    .line 1002
     :cond_358
     if-eqz v15, :cond_36a
 
@@ -1759,7 +1759,7 @@
 
     goto :goto_311
 
-    .line 958
+    .line 1003
     :cond_36a
     int-to-float v5, v4
 
@@ -1785,7 +1785,7 @@
 
     goto :goto_311
 
-    .line 966
+    .line 1011
     :cond_37c
     move-object/from16 v0, p0
 
@@ -1797,7 +1797,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 967
+    .line 1012
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->compact:Z
@@ -1825,14 +1825,14 @@
 
     invoke-virtual {v0, v1, v2, v4, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 968
+    .line 1013
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->compact:Z
 
     if-nez v4, :cond_ce
 
-    .line 969
+    .line 1014
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1847,7 +1847,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 970
+    .line 1015
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1856,7 +1856,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 971
+    .line 1016
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1865,7 +1865,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 972
+    .line 1017
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1952,7 +1952,7 @@
 
     invoke-static/range {v7 .. v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 973
+    .line 1018
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1961,7 +1961,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
-    .line 974
+    .line 1019
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1976,7 +1976,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 975
+    .line 1020
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -1985,7 +1985,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 976
+    .line 1021
     new-instance v4, Ljava/text/SimpleDateFormat;
 
     const-string v5, "d.MM"
@@ -1994,7 +1994,7 @@
 
     invoke-direct {v4, v5, v7}, Ljava/text/SimpleDateFormat;-><init>(Ljava/lang/String;Ljava/util/Locale;)V
 
-    .line 977
+    .line 1022
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->t:[J
@@ -2003,7 +2003,7 @@
 
     if-lez v5, :cond_4c1
 
-    .line 978
+    .line 1023
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -2012,7 +2012,7 @@
 
     invoke-virtual {v5, v7}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 979
+    .line 1024
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -2059,7 +2059,7 @@
 
     invoke-static/range {v7 .. v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 980
+    .line 1025
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -2068,7 +2068,7 @@
 
     invoke-virtual {v5, v7}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 981
+    .line 1026
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->p:Landroid/graphics/Paint;
@@ -2121,7 +2121,7 @@
 
     invoke-static/range {v7 .. v13}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->drawFit(Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/lang/String;FFFLandroid/view/View;)V
 
-    .line 983
+    .line 1028
     :cond_4c1
     move-object/from16 v0, p0
 
@@ -2133,7 +2133,7 @@
 
     goto/16 :goto_ce
 
-    .line 967
+    .line 1012
     :cond_4cc
     const/high16 v4, 0x40c00000    # 6.0f
 
@@ -2157,7 +2157,7 @@
 
     const/4 v5, 0x1
 
-    .line 787
+    .line 832
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->compact:Z
 
     if-nez v1, :cond_e
@@ -2168,34 +2168,34 @@
 
     if-nez v1, :cond_13
 
-    .line 788
+    .line 833
     :cond_e
     invoke-super {p0, p1}, Landroid/view/View;->onTouchEvent(Landroid/view/MotionEvent;)Z
 
     move-result v5
 
-    .line 823
+    .line 868
     :cond_12
     :goto_12
     return v5
 
-    .line 790
+    .line 835
     :cond_13
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v1
 
-    .line 791
+    .line 836
     if-nez v1, :cond_26
 
-    .line 792
+    .line 837
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->downX:F
 
-    .line 793
+    .line 838
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getY()F
 
     move-result v0
@@ -2204,11 +2204,11 @@
 
     goto :goto_12
 
-    .line 796
+    .line 841
     :cond_26
     if-ne v1, v5, :cond_aa
 
-    .line 797
+    .line 842
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -2223,7 +2223,7 @@
 
     int-to-float v1, v1
 
-    .line 798
+    .line 843
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v2
@@ -2260,7 +2260,7 @@
 
     if-gtz v1, :cond_12
 
-    .line 802
+    .line 847
     const/high16 v1, 0x41e00000    # 28.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews;->dp(Landroid/view/View;F)F
@@ -2269,7 +2269,7 @@
 
     move v2, v3
 
-    .line 803
+    .line 848
     :goto_5d
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
 
@@ -2277,7 +2277,7 @@
 
     if-ge v0, v4, :cond_95
 
-    .line 804
+    .line 849
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
 
     aget v4, v4, v0
@@ -2288,14 +2288,14 @@
 
     if-eqz v4, :cond_6f
 
-    .line 803
+    .line 848
     :cond_6c
     :goto_6c
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_5d
 
-    .line 807
+    .line 852
     :cond_6f
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->px:[F
 
@@ -2331,7 +2331,7 @@
 
     add-float/2addr v4, v6
 
-    .line 808
+    .line 853
     cmpg-float v6, v4, v1
 
     if-gez v6, :cond_6c
@@ -2340,10 +2340,10 @@
 
     move v2, v0
 
-    .line 810
+    .line 855
     goto :goto_6c
 
-    .line 813
+    .line 858
     :cond_95
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->sel:I
 
@@ -2352,12 +2352,12 @@
     :goto_99
     iput v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->sel:I
 
-    .line 814
+    .line 859
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->sel:I
 
     if-ltz v0, :cond_a3
 
-    .line 816
+    .line 861
     const/4 v0, 0x1
 
     :try_start_a0
@@ -2365,7 +2365,7 @@
     :try_end_a3
     .catch Ljava/lang/Throwable; {:try_start_a0 .. :try_end_a3} :catch_b7
 
-    .line 820
+    .line 865
     :cond_a3
     :goto_a3
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->invalidate()V
@@ -2375,10 +2375,10 @@
     :cond_a8
     move v3, v2
 
-    .line 813
+    .line 858
     goto :goto_99
 
-    .line 823
+    .line 868
     :cond_aa
     const/4 v2, 0x2
 
@@ -2398,7 +2398,7 @@
 
     goto/16 :goto_12
 
-    .line 817
+    .line 862
     :catch_b7
     move-exception v0
 
@@ -2411,51 +2411,51 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 777
+    .line 822
     if-eqz p1, :cond_16
 
     :goto_3
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->v:[D
 
-    .line 778
+    .line 823
     if-eqz p2, :cond_19
 
     :goto_7
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->t:[J
 
-    .line 779
+    .line 824
     iput p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->color:I
 
-    .line 780
+    .line 825
     if-eqz p4, :cond_1c
 
     :goto_d
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->unit:Ljava/lang/String;
 
-    .line 781
+    .line 826
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->sel:I
 
-    .line 782
+    .line 827
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleViews$Trend;->invalidate()V
 
-    .line 783
+    .line 828
     return-void
 
-    .line 777
+    .line 822
     :cond_16
     new-array p1, v0, [D
 
     goto :goto_3
 
-    .line 778
+    .line 823
     :cond_19
     new-array p2, v0, [J
 
     goto :goto_7
 
-    .line 780
+    .line 825
     :cond_1c
     const-string p4, ""
 

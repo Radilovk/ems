@@ -882,7 +882,7 @@ public final class FocusBoard {
                 if (rv == null || turned) {
                     return;
                 }
-                Object adapter = rv.getClass().getMethod("getAdapter").invoke(rv);
+                Object adapter = rowsAdapter(rv);
                 Object pool = rv.getClass().getMethod("getRecycledViewPool").invoke(rv);
                 if (pool != null) {
                     pool.getClass().getMethod("clear").invoke(pool);
@@ -894,6 +894,35 @@ public final class FocusBoard {
             } catch (Throwable t) {
                 XemsGuard.report("FocusBoard.rowsAfresh", t);
             }
+        }
+    }
+
+    /**
+     * The rows' own adapter (TrainAdapter). The list is a SwipeMenuRecyclerView: getAdapter() is its swipe wrapper,
+     * and set again it wrapped the wrapper and dropped the observer on TrainAdapter — after a turn the rows no longer
+     * followed a client added or removed (the board, which reads the manager, did: board and rows out of step).
+     */
+    static Object rowsAdapter(View rv) throws Exception {
+        try {
+            Object origin = rv.getClass().getMethod("getOriginAdapter").invoke(rv);
+            if (origin != null) {
+                return origin;
+            }
+        } catch (NoSuchMethodException ignored) {
+        }
+        return rv.getClass().getMethod("getAdapter").invoke(rv);
+    }
+
+    /** The rows redraw now (a client added or removed from the board). */
+    static void rowsChanged() {
+        try {
+            View rv = root != null ? find(root, "recyclerView") : null;
+            Object adapter = rv != null ? rowsAdapter(rv) : null;
+            if (adapter != null) {
+                adapter.getClass().getMethod("notifyDataSetChanged").invoke(adapter);
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.rowsChanged", t);
         }
     }
 
@@ -1413,6 +1442,18 @@ public final class FocusBoard {
         d.setColor(!conn ? XemsUi.DANGER : running(it) ? XemsUi.GO_TEXT : XemsUi.HINT);
         dot.setBackgroundDrawable(d);
         chip.addView(dot, new LinearLayout.LayoutParams(XemsUi.dp(c, 8), XemsUi.dp(c, 8)));
+        if (sel) {
+            // the client on the board can leave the training from here (the rows' swipe menu "delete")
+            TextView x = XemsUi.text(c, "✕", 14, XemsUi.MUTED, true);
+            x.setGravity(Gravity.CENTER);
+            x.setContentDescription(AiText.t("Махни клиента", "Remove the client"));
+            x.setOnClickListener(new RemoveClick(it));
+            XemsUi.pressable(x);
+            LinearLayout.LayoutParams xl = new LinearLayout.LayoutParams(XemsUi.dp(c, 30), XemsUi.dp(c, 34));
+            xl.leftMargin = XemsUi.dp(c, 6);
+            chip.addView(x, xl);
+            chip.setPadding(XemsUi.dp(c, 5), XemsUi.dp(c, 4), XemsUi.dp(c, 4), XemsUi.dp(c, 4));
+        }
         chip.setClickable(true);
         chip.setOnClickListener(new FocusClick(it));
         XemsUi.pressable(chip);
@@ -1537,6 +1578,8 @@ public final class FocusBoard {
                     if (it == null || it.isEmpty()) {
                         rowAt(i, true);
                         addPos = i;
+                        tries = 0;
+                        H.removeCallbacks(this);
                         H.postDelayed(this, 160);
                         return;
                     }
@@ -1548,16 +1591,102 @@ public final class FocusBoard {
         }
 
         private int addPos = -1;
+        private int tries;
 
         @Override
         public void run() {
-            View row = rowAt(addPos, false);
+            View row = rowAt(addPos, tries % 2 == 0);
             View b = row != null ? find(row, "typeButton") : null;
             if (b != null) {
                 b.performClick();
             } else if (row != null) {
                 row.performClick();
+            } else if (++tries < 8) {
+                H.postDelayed(this, 160);   // the list is still laying the slot out (after a turn / an add)
+            } else {
+                hint(AiText.t("Мястото за клиент още се зарежда — опитай пак.", "The client slot is loading — try again."));
             }
+        }
+    }
+
+    /** ✕ on the board's client: asks, then takes the client out of the training (the rows' swipe "delete"). */
+    static final class RemoveClick implements View.OnClickListener {
+        private final TrainItem item;
+
+        RemoveClick(TrainItem item) {
+            this.item = item;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            android.app.Activity a = activity(v.getContext());
+            if (a == null) {
+                return;
+            }
+            String n = name(item);
+            XemsUi.Shell q = XemsUi.shell(a, AiText.t("Да махна ли ", "Remove ") + (n.length() > 0 ? n : AiText.t("клиента",
+                    "the client")) + AiText.t(" от тренировката?", " from the training?"),
+                    running(item) ? AiText.t("Тренировката му спира и костюмът се изключва.",
+                            "Their training stops and the suit disconnects.")
+                            : AiText.t("Костюмът се изключва; клиентът остава в списъка с клиенти.",
+                            "The suit disconnects; the client stays in the client list."), 560);
+            TextView no = XemsUi.button(a, AiText.t("Остави", "Keep"), XemsUi.SECONDARY);
+            no.setOnClickListener(new RemoveAnswer(q, null));
+            q.footer.addView(no, new LinearLayout.LayoutParams(0, XemsUi.dp(a, 56), 1f));
+            TextView yes = XemsUi.button(a, AiText.t("Махни", "Remove"), XemsUi.DANGER_BTN);
+            yes.setOnClickListener(new RemoveAnswer(q, item));
+            LinearLayout.LayoutParams yl = new LinearLayout.LayoutParams(0, XemsUi.dp(a, 56), 1f);
+            yl.leftMargin = XemsUi.dp(a, 12);
+            q.footer.addView(yes, yl);
+            q.dialog.show();
+        }
+    }
+
+    static final class RemoveAnswer implements View.OnClickListener {
+        private final XemsUi.Shell q;
+        private final TrainItem item;
+
+        RemoveAnswer(XemsUi.Shell q, TrainItem item) {
+            this.q = q;
+            this.item = item;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            try {
+                q.dialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            if (item != null) {
+                remove(item);
+            }
+        }
+    }
+
+    /** As the rows' swipe menu "delete" (NewTrainFragment$4): out of the manager, the rows redraw, out of DataMgr. */
+    static void remove(TrainItem it) {
+        try {
+            TrainItemManager m = com.isaigu.gymapp.wearable.WearableSyncHelper.getItemManager();
+            if (m == null || it == null || it.isEmpty() || m.getItemList() == null || !m.getItemList().contains(it)) {
+                return;
+            }
+            String mac = it.data != null ? it.data.macAddress : null;
+            m.removeTrainItem(it);
+            rowsChanged();
+            if (mac != null) {
+                com.isaigu.gymapp.mgr.DataMgr.getInstance().removeTrainingUser(mac);
+            }
+            if (focus == it) {
+                focus = null;
+                sexOf = null;
+            }
+            clientsKey = "";
+            tick();
+            refresh();
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.remove", t);
         }
     }
 

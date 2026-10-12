@@ -15,4 +15,7 @@ public class TrainItemManager {
     public void stopAll() {}
 
     public void resetAll() {}
+
+    /** Vendor: closes the item, drops it from the list, keeps one empty slot. */
+    public void removeTrainItem(TrainItem item) {}
 }

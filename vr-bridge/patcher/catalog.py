@@ -113,10 +113,12 @@ def url_apk(url: str) -> Path | None:
     CACHE.mkdir(parents=True, exist_ok=True)
     dst = CACHE / url.rstrip("/").rsplit("/", 1)[-1]
     stamp = dst.with_suffix(".stamp")
-    head = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "xems-vr"})
+    # a 1-byte GET, not HEAD: GitHub release links redirect to storage URLs signed for GET only
+    probe = urllib.request.Request(url, headers={"User-Agent": "xems-vr", "Range": "bytes=0-0"})
     try:
-        with urllib.request.urlopen(head, timeout=20) as r:
-            remote = f"{r.headers.get('Content-Length', '')} {r.headers.get('Last-Modified', '')}"
+        with urllib.request.urlopen(probe, timeout=20) as r:
+            total = (r.headers.get("Content-Range", "") or "/").rsplit("/", 1)[-1] or r.headers.get("Content-Length", "")
+            remote = f"{total} {r.headers.get('ETag') or r.headers.get('Last-Modified', '')}"
     except Exception as e:  # noqa: BLE001 — offline: use the kept copy if there is one
         say(f"… сайтът не отговори ({e})")
         return dst if dst.is_file() else None

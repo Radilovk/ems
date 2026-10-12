@@ -47,10 +47,8 @@ func _init(src = null) -> void:
 		model = src
 	_wrap.add_child(model)
 	var sk := model.find_children("*", "Skeleton3D", true, false)
-	if sk.is_empty():
-		return
-	skel = sk[0]
-	if not _find_roles():
+	if sk.is_empty() or not _find_roles_in(sk[0]):
+		_fit_static(model)                         # not a rig: shown at human size, it cannot move
 		return
 	_place()
 	ok = true
@@ -128,6 +126,31 @@ static func _classify(raw: String) -> Array:
 	return ["", ""]
 
 
+func _find_roles_in(s: Skeleton3D) -> bool:
+	skel = s
+	return _find_roles()
+
+
+## A model without a humanoid skeleton: scale it to 1.75 m and stand it on the floor, so it is at least seen right.
+func _fit_static(model: Node3D) -> void:
+	var box := AABB()
+	var first := true
+	for mi in model.find_children("*", "MeshInstance3D", true, false):
+		var t := (mi as Node3D).transform
+		var n := mi.get_parent()
+		while n != _wrap and n is Node3D:
+			t = (n as Node3D).transform * t
+			n = n.get_parent()
+		var b: AABB = t * (mi as MeshInstance3D).get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	if first or box.size.y <= 0.0:
+		return
+	var k: float = 1.75 / box.size.y
+	_wrap.scale = Vector3.ONE * k
+	_wrap.position = Vector3(-box.get_center().x * k, -box.position.y * k, -box.get_center().z * k)
+
+
 func _find_roles() -> bool:
 	for i in skel.get_bone_count():
 		var c := _classify(skel.get_bone_name(i))
@@ -188,6 +211,12 @@ func _rest_pos(role: String) -> Vector3:
 ## Turn the figure to face +Z (its left thigh on +X), bring centimetre rigs to metres, stand the feet on the floor.
 func _place() -> void:
 	_M = _skel_to_coach()
+	# Stand it up: feet → head along +Y (FBX rigs often come Z-up or lying down).
+	var top: Vector3 = _rest_pos("head") if _role.has("head") else (_rest_pos("upperarm_l") + _rest_pos("upperarm_r")) * 0.5
+	var up := (top - (_rest_pos("foot_l") + _rest_pos("foot_r")) * 0.5).normalized()
+	if up.dot(Vector3.UP) < 0.95:
+		_wrap.transform = Transform3D(Basis(Quaternion(up, Vector3.UP)), Vector3.ZERO) * _wrap.transform
+		_M = _skel_to_coach()
 	if _rest_pos("thigh_l").x < _rest_pos("thigh_r").x:
 		_wrap.rotate_y(PI)
 		_M = _skel_to_coach()

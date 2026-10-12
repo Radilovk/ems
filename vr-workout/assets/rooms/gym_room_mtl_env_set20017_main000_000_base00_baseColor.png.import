@@ -1,0 +1,37 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://brclwsp3bqk7b"
+path="res://.godot/imported/gym_room_mtl_env_set20017_main000_000_base00_baseColor.png-6e123ac0bfc6bf02c5ebf26eabd0508f.ctex"
+metadata={
+"vram_texture": false
+}
+generator_parameters={
+"md5": "3d4bb7264f6ae8ffcd898f7da4d026eb"
+}
+
+[deps]
+
+source_file="res://assets/rooms/gym_room_mtl_env_set20017_main000_000_base00_baseColor.png"
+dest_files=["res://.godot/imported/gym_room_mtl_env_set20017_main000_000_base00_baseColor.png-6e123ac0bfc6bf02c5ebf26eabd0508f.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1

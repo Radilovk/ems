@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c05htb78ydi3h"
-path="res://.godot/imported/Soldier_file2.jpg-5ad20082a787a3550a935faeb7e235e3.ctex"
+uid="uid://bnmlkhd7etsck"
+path="res://.godot/imported/boxing_ring.jpg-c6e1fbf49f028b8378c2f414995b5e34.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "097baeaf099c995525c80dfb8d29603d"
 }
 
 [deps]
 
-source_file="res://assets/coaches/Soldier_file2.jpg"
-dest_files=["res://.godot/imported/Soldier_file2.jpg-5ad20082a787a3550a935faeb7e235e3.ctex"]
+source_file="res://assets/rooms/boxing_ring.jpg"
+dest_files=["res://.godot/imported/boxing_ring.jpg-c6e1fbf49f028b8378c2f414995b5e34.ctex"]
 
 [params]
 
@@ -24,7 +21,7 @@ compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

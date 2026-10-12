@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dbwdys4kerhyw"
-path="res://.godot/imported/Soldier.glb-91b10f7e37ed29ad15c2d373dba634c9.scn"
+uid="uid://duxvyfdrio7t8"
+path="res://.godot/imported/brutalist.glb-b6fe63db7b3963c5c933e1fb9e4e01cd.scn"
 
 [deps]
 
-source_file="res://assets/coaches/Soldier.glb"
-dest_files=["res://.godot/imported/Soldier.glb-91b10f7e37ed29ad15c2d373dba634c9.scn"]
+source_file="res://assets/rooms/brutalist.glb"
+dest_files=["res://.godot/imported/brutalist.glb-b6fe63db7b3963c5c933e1fb9e4e01cd.scn"]
 
 [params]
 

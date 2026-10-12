@@ -12,12 +12,18 @@ extends RefCounted
 const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XEMS", "/storage/emulated/0/Download/XEMS"]
 
 const BUILTIN_COACHES := [
+	{"name": "Wii Fit треньор", "path": "res://assets/coaches/wii_fit_trainer.glb"},
+	{"name": "Манекен (ActorCore)", "path": "res://assets/coaches/actorcore_dummy.glb"},
 	{"name": "Michelle (Mixamo)", "path": "res://assets/coaches/Michelle.glb"},
-	{"name": "Soldier (Mixamo)", "path": "res://assets/coaches/Soldier.glb"},
-	{"name": "X Bot (Mixamo)", "path": "res://assets/coaches/Xbot.glb"},
 ]
 const BUILTIN_ROOMS := [
 	{"name": "Йога зала", "path": "res://assets/yoga_room.jpg", "kind": "pano", "cam": 1.45, "yaw": -0.135},
+	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene"},
+	{"name": "Фитнес зала", "path": "res://assets/rooms/gym_room.glb", "kind": "scene"},
+	{"name": "Боксова зала", "path": "res://assets/rooms/boxing_ring.jpg", "kind": "pano", "cam": 1.5},
+	{"name": "Плаж", "path": "res://assets/rooms/beach.jpg", "kind": "pano", "cam": 1.6, "yaw": 0.35},
+	{"name": "Йога студио", "path": "res://assets/rooms/yoga_studio.glb", "kind": "scene"},
+	{"name": "Мост", "path": "res://assets/rooms/bridge.jpg", "kind": "pano", "cam": 1.6},
 ]
 const COACH_EXT := ["glb", "gltf", "fbx"]
 const PANO_EXT := ["jpg", "jpeg", "png", "webp", "hdr"]

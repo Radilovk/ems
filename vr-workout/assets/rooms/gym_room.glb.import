@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dfnh40858jxlx"
-path="res://.godot/imported/Xbot.glb-d1fdd4f734c5ca5cb610c139411fb1bf.scn"
+uid="uid://dytphgdghv81a"
+path="res://.godot/imported/gym_room.glb-78e58637703a4a84b962a8d626ba5baa.scn"
 
 [deps]
 
-source_file="res://assets/coaches/Xbot.glb"
-dest_files=["res://.godot/imported/Xbot.glb-d1fdd4f734c5ca5cb610c139411fb1bf.scn"]
+source_file="res://assets/rooms/gym_room.glb"
+dest_files=["res://.godot/imported/gym_room.glb-78e58637703a4a84b962a8d626ba5baa.scn"]
 
 [params]
 

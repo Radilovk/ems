@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dj4kghtdgy5a4"
-path="res://.godot/imported/wii_fit_trainer_L_Eye_baseColor.png-5cfac5e61ba38cb70b2acdc34d3b701b.ctex"
+uid="uid://dqa2ky1lk8nj4"
+path="res://.godot/imported/brutalist_Image_3.jpg-4933c1dffd9beff57d79075e7a93d992.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "2615b50a9b5b64f08b1f7bf547e9f963"
+"md5": "a18f674f60f7fac3795be0fc935ebe06"
 }
 
 [deps]
 
-source_file="res://assets/coaches/wii_fit_trainer_L_Eye_baseColor.png"
-dest_files=["res://.godot/imported/wii_fit_trainer_L_Eye_baseColor.png-5cfac5e61ba38cb70b2acdc34d3b701b.ctex"]
+source_file="res://assets/rooms/brutalist_Image_3.jpg"
+dest_files=["res://.godot/imported/brutalist_Image_3.jpg-4933c1dffd9beff57d79075e7a93d992.ctex"]
 
 [params]
 

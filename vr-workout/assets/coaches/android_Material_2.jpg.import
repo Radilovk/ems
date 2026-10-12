@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b1147dfjr62ty"
-path="res://.godot/imported/brutalist_0.jpg-a4924dd02afb0dee9f900848f31b6492.ctex"
+uid="uid://dyrdhy6s1b6b5"
+path="res://.godot/imported/android_Material_2.jpg-b3927e92612417496cc74df56eb8f2df.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "7272f89fe8413db36bddfda91c19fd58"
+"md5": "3700b4be515e15a75971ac731e8d0bd2"
 }
 
 [deps]
 
-source_file="res://assets/rooms/brutalist_0.jpg"
-dest_files=["res://.godot/imported/brutalist_0.jpg-a4924dd02afb0dee9f900848f31b6492.ctex"]
+source_file="res://assets/coaches/android_Material_2.jpg"
+dest_files=["res://.godot/imported/android_Material_2.jpg-b3927e92612417496cc74df56eb8f2df.ctex"]
 
 [params]
 

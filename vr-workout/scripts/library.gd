@@ -12,7 +12,8 @@ extends RefCounted
 const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XEMS", "/storage/emulated/0/Download/XEMS"]
 
 const BUILTIN_COACHES := [
-	{"name": "Wii Fit треньор", "path": "res://assets/coaches/wii_fit_trainer.glb"},
+	{"name": "Треньор с худи (Mixamo)", "path": "res://assets/coaches/mixamo_ch08.glb"},
+	{"name": "Андроид", "path": "res://assets/coaches/android.glb"},
 	{"name": "Манекен (ActorCore)", "path": "res://assets/coaches/actorcore_dummy.glb"},
 	{"name": "Michelle (Mixamo)", "path": "res://assets/coaches/Michelle.glb"},
 ]

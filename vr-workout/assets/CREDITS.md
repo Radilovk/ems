@@ -2,7 +2,8 @@
 
 | Asset | Source | Licence |
 |---|---|---|
-| `coaches/wii_fit_trainer.glb` | "Wii Fit Trainer" by Gamerboy94 — https://sketchfab.com/3d-models/wii-fit-trainer-74a1d22945b94b4691c884eeb4ce7a30 (rig and skin weights added by `convert/autorig.py`) | CC-BY-4.0 |
+| `coaches/mixamo_ch08.glb` | Mixamo character "Ch08" (Adobe), textures to 2K, matte cloth — `convert/mixamo2glb.py` | Mixamo terms |
+| `coaches/android.glb` | "White Android Robot - ModelAI3D vs SupaVoxel" by Cedric Ricci — https://sketchfab.com/3d-models/white-android-robot-modelai3d-vs-supavoxel-864c6eafb13f4504be041f7d2792385e (1.5 M → 45 k triangles, badge removed, rigged by `convert/autorig.py`) | CC-BY-4.0 |
 | `coaches/actorcore_dummy.glb` | ActorCore "Motion Dummy Female" (Reallusion), converted by `convert/fbx2glb.py` | ActorCore free content licence |
 | `coaches/Michelle.glb` | Mixamo character from the three.js examples | Mixamo terms (test) |
 | `rooms/brutalist.glb` | "Brutalist Interior" by vslite — https://sketchfab.com/3d-models/brutalist-interior-0eb40f2cb2bf4dfdbaae36095825788a | CC-BY-4.0 |
@@ -12,3 +13,4 @@
 | `rooms/bridge.jpg` | Poly Haven "Adams Place Bridge" (4K EXR, tone-mapped) | CC0 |
 | `rooms/beach.jpg` | Pixabay 3531358 by tomazolivier, resized to 4096×2048 | Pixabay Content Licence |
 | `yoga_room.jpg` | the owner's HDRI | — |
+

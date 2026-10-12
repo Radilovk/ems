@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dnrm5dotn21cn"
-path="res://.godot/imported/wii_fit_trainer_L_Pupil_baseColor.png-ef72d7917bfa95eb0b6d5a5010c6ec32.ctex"
+uid="uid://jvul5cyggqul"
+path="res://.godot/imported/mixamo_ch08_Ch08_1001_Diffuse.jpg-d9edbef84f44337fd2eaa179f09afcf8.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "55827ce560bbf99a10e07f64d1f9b396"
+"md5": "dd2be34d573258d4e1280a0154f380db"
 }
 
 [deps]
 
-source_file="res://assets/coaches/wii_fit_trainer_L_Pupil_baseColor.png"
-dest_files=["res://.godot/imported/wii_fit_trainer_L_Pupil_baseColor.png-ef72d7917bfa95eb0b6d5a5010c6ec32.ctex"]
+source_file="res://assets/coaches/mixamo_ch08_Ch08_1001_Diffuse.jpg"
+dest_files=["res://.godot/imported/mixamo_ch08_Ch08_1001_Diffuse.jpg-d9edbef84f44337fd2eaa179f09afcf8.ctex"]
 
 [params]
 

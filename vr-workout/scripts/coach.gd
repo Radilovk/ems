@@ -99,6 +99,8 @@ static func _classify(raw: String) -> Array:
 	for pre in ["mixamorig", "def-", "def_", "bip01", "bip001", "b-", "jnt_", "bone_", "cc_base_", "j_bip_c_"]:
 		if n.begins_with(pre):
 			n = n.substr(pre.length())
+			while n != "" and (n[0].is_valid_int() or n[0] in "_:"):    # mixamorig7_LeftUpLeg, mixamorig:Hips
+				n = n.substr(1)
 	n = n.replace(".", "_").replace("-", "_").replace(" ", "_").lstrip("_")
 	var side := ""
 	for pair in [["left", "l"], ["right", "r"]]:

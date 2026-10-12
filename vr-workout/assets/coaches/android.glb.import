@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dv0ppp54e3mb0"
-path="res://.godot/imported/wii_fit_trainer.glb-5806115e38fc9410b6e756a93365ece7.scn"
+uid="uid://cqxidegitbtts"
+path="res://.godot/imported/android.glb-a9fbdd28d2eb50e9e4057475f4003cf9.scn"
 
 [deps]
 
-source_file="res://assets/coaches/wii_fit_trainer.glb"
-dest_files=["res://.godot/imported/wii_fit_trainer.glb-5806115e38fc9410b6e756a93365ece7.scn"]
+source_file="res://assets/coaches/android.glb"
+dest_files=["res://.godot/imported/android.glb-a9fbdd28d2eb50e9e4057475f4003cf9.scn"]
 
 [params]
 

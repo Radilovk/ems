@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3afnre2x6kqg"
-path="res://.godot/imported/wii_fit_trainer_Hair_and_Pants_baseColor.png-020862b453ab84d7550d76163e76b400.ctex"
+uid="uid://cgv3pta4e1uar"
+path="res://.godot/imported/mixamo_ch08_Ch08_1001_Specular.jpg-e8dad62d8d53605c1756fd13a2e5e7cb.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "ded224ff1466d70db0e80c69ad1d2cd0"
+"md5": "e52e461add161b18fd9ffb7b0974426f"
 }
 
 [deps]
 
-source_file="res://assets/coaches/wii_fit_trainer_Hair_and_Pants_baseColor.png"
-dest_files=["res://.godot/imported/wii_fit_trainer_Hair_and_Pants_baseColor.png-020862b453ab84d7550d76163e76b400.ctex"]
+source_file="res://assets/coaches/mixamo_ch08_Ch08_1001_Specular.jpg"
+dest_files=["res://.godot/imported/mixamo_ch08_Ch08_1001_Specular.jpg-e8dad62d8d53605c1756fd13a2e5e7cb.ctex"]
 
 [params]
 

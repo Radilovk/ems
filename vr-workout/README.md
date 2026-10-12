@@ -7,7 +7,7 @@ studio, a "glass" coach that shows each exercise, and your body map that glows w
 - **Room:** `assets/yoga_room.jpg` — the owner's 360° HDRI (`yoga_room_4k.exr`), tone-mapped to 4096×2048, projected
   onto a room-sized shell from the camera height (`shaders/room.gdshader`): the parquet floor sits under your feet
   with depth, not as a far-away sky. `ROOM_YAW` puts the arched window ahead.
-- **Coach:** `scripts/coach.gd` — any ready-made clothed humanoid (default: Wii Fit trainer), turned 3/4 so depth reads.
+- **Coach:** `scripts/coach.gd` — any ready-made clothed humanoid (default: Mixamo Ch08), turned 3/4 so depth reads.
   Moves like a person, not joint by joint: the pelvis is placed and tilted (hip hinge, long spine), the feet are
   planted and the legs reach them by two-bone IK (no sliding or floating, knees over the toes, heel rises on the
   ball, toes stay flat), arms and head hang off the trunk with the gaze level; breathing and a small sway at rest;
@@ -19,10 +19,11 @@ studio, a "glass" coach that shows each exercise, and your body map that glows w
   cubic (a planted foot never drifts, no overshoot) on a minimum-jerk clock; arms and head lag the pelvis.
   Punches spawn targets at arm's reach; hit = speed > 2 m/s within 14 cm.
 - **Coaches & rooms to try (`scripts/library.gd`):** right **B** = next coach, left **Y** = next room (a name shows
-  above the coach). Built in coaches: Wii Fit trainer (default; auto-rigged by `convert/autorig.py`), ActorCore motion dummy, Michelle
-  (Mixamo). Rooms: yoga room, brutalist interior, gym room, yoga studio (3D), boxing ring, beach, bridge (360°).
+  above the coach). Built in coaches: hoodie man (Mixamo Ch08, default), android (AI mesh, decimated + auto-rigged by
+  `convert/autorig.py`), ActorCore motion dummy, Michelle (Mixamo). Rooms: yoga room, brutalist interior, gym room, yoga studio (3D), boxing ring, beach, bridge (360°).
   Credits: `assets/CREDITS.md`. Converters for new downloads (Blender as a module, `pip install bpy`): `convert/`
-  fbx2glb (ActorCore/Unity FBX → upright glb), autorig (unrigged T/A-pose humanoid → Unreal-named rig + weights),
+  fbx2glb (ActorCore/Unity FBX → upright glb), mixamo2glb (Mixamo FBX → glb, textures capped, matte cloth), shrink_glb (cap textures of any glb), autorig
+  (unrigged T/A/I-pose humanoid → decimated if heavy, Unreal-named rig + weights; arms resting on the body are cut free),
   bake_static (scene skinned to prop rigs → static), exr2jpg (EXR → tone-mapped JPG). Owner's rule: only ready-made models with real clothes, or separate clothing files — no painted-on outfits.
   **No rebuild for new ones:** copy files to the Quest under `Android/data/eu.xems.studio/files/XEMS/coaches|rooms`
   (made with a README on the first start; USB or SideQuest). Coaches: .glb/.gltf, any humanoid rig; clothes / hair as separate files on the same rig: `<coach>+<item>.glb`

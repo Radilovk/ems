@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkx6ryysy1a4y"
-path="res://.godot/imported/brutalist_3.png-837bec2a3fd9c410cc5137b5a57a0c52.ctex"
+uid="uid://hd0yfk0ys0dy"
+path="res://.godot/imported/mixamo_ch08_Ch08_1003_Normal.jpg-18fdc44ae939c3d48c1cb8d4e9e4e375.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "10bc0d9befda2ce5b9b811d46682ffb6"
+"md5": "0c14a7e3d6bcc9d53ef8da209ab586c5"
 }
 
 [deps]
 
-source_file="res://assets/rooms/brutalist_3.png"
-dest_files=["res://.godot/imported/brutalist_3.png-837bec2a3fd9c410cc5137b5a57a0c52.ctex"]
+source_file="res://assets/coaches/mixamo_ch08_Ch08_1003_Normal.jpg"
+dest_files=["res://.godot/imported/mixamo_ch08_Ch08_1003_Normal.jpg-18fdc44ae939c3d48c1cb8d4e9e4e375.ctex"]
 
 [params]
 

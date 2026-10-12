@@ -169,3 +169,12 @@ func set_active(channels: Array, amount: float) -> void:
 	for c in channels:
 		for m in _by_channel.get(c, []):
 			m.set_shader_parameter("active", amount)
+
+
+## Per-channel glow: {channel: 0..1}; channels not listed are off.
+func set_levels(levels: Dictionary) -> void:
+	for m in _all:
+		m.set_shader_parameter("active", 0.0)
+	for c in levels:
+		for m in _by_channel.get(c, []):
+			m.set_shader_parameter("active", max(float(levels[c]), float(m.get_shader_parameter("active"))))

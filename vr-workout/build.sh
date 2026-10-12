@@ -16,8 +16,11 @@ GH=https://github.com
 mkdir -p "$T"
 [[ -x "$G" ]] || { curl -fsSL -o "$T/g.zip" "$GH/godotengine/godot-builds/releases/download/${V}-stable/Godot_v${V}-stable_linux.x86_64.zip"
   unzip -oq "$T/g.zip" -d "$T" && rm "$T/g.zip"; }
-[[ -d "$HERE/addons/godotopenxrvendors" ]] || { curl -fsSL -o "$T/v.zip" "$GH/GodotVR/godot_openxr_vendors/releases/download/4.0.0-stable/godotopenxrvendorsaddon.zip"
-  rm -rf "$T/v" && unzip -oq "$T/v.zip" -d "$T/v" && cp -r "$T/v/asset/addons" "$HERE/"; }
+# Meta OpenXR vendors plugin: 4.3.1 has XR_META_body_tracking_full_body (legs, estimated) and the Godot 4.4 fixes.
+VENDORS=4.3.1-stable
+[[ "$(cat "$HERE/addons/.vendors_version" 2>/dev/null)" == "$VENDORS" ]] || { rm -rf "$HERE/addons" "$HERE/android"
+  curl -fsSL -o "$T/v.zip" "$GH/GodotVR/godot_openxr_vendors/releases/download/$VENDORS/godotopenxrvendorsaddon.zip"
+  rm -rf "$T/v" && unzip -oq "$T/v.zip" -d "$T/v" && cp -r "$T/v/asset/addons" "$HERE/" && echo "$VENDORS" > "$HERE/addons/.vendors_version"; }
 
 if [[ "${1:-}" == shot ]]; then
   [[ -d "$HERE/.godot" ]] || timeout 300 "$G" --headless --path "$HERE" --import >/dev/null 2>&1 || true

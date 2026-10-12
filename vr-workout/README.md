@@ -1,43 +1,47 @@
 # XEMS Studio — EMS VR workout for Quest 3
 
-Standalone Quest 3 app (Godot 4.4, OpenXR via the Meta vendors plugin, Compatibility renderer). A calm photo-real
-studio, a "glass" coach that shows each exercise, and your body map that glows where the suit works.
+Standalone Quest 3 app (Godot 4.4, OpenXR via the Meta vendors plugin, Compatibility renderer): an EMS game in a wide room,
+with a human coach, and your body map that glows where the suit works.
 
-## What is in it (v0.1)
-- **Room:** `assets/yoga_room.jpg` — the owner's 360° HDRI (`yoga_room_4k.exr`), tone-mapped to 4096×2048, projected
-  onto a room-sized shell from the camera height (`shaders/room.gdshader`): the parquet floor sits under your feet
-  with depth, not as a far-away sky. `ROOM_YAW` puts the arched window ahead.
-- **Coach:** `scripts/coach.gd` — any ready-made clothed humanoid (default: Mixamo Ch08), turned 3/4 so depth reads.
-  Moves like a person, not joint by joint: the pelvis is placed and tilted (hip hinge, long spine), the feet are
-  planted and the legs reach them by two-bone IK (no sliding or floating, knees over the toes, heel rises on the
-  ball, toes stay flat), arms and head hang off the trunk with the gaze level; breathing and a small sway at rest;
-  a change of exercise eases over 0.7 s. Punches are posed too (or play the model's own Punch_Jab / Punch_Cross clips).
-  `scripts/mannequin.gd` = the small glass body map (each part knows its XEMS channels and glows in the impulse).
-- **Exercises:** `scripts/exercises.gd` — Клек, Напад, Бицепс сгъване, Прави удари. One rep = down → **hold (EMS
-  impulse)** → up → rest. Each exercise is a path of key poses (squat: hips lead, then knees, arms rise as a
-  counterweight; lunge: weight shift → low swing → reach → heel plant → straight down), run through a monotone
-  cubic (a planted foot never drifts, no overshoot) on a minimum-jerk clock; arms and head lag the pelvis.
-  Punches spawn targets at arm's reach; hit = speed > 2 m/s within 14 cm.
-- **Coaches & rooms to try (`scripts/library.gd`):** right **B** = next coach, left **Y** = next room (a name shows
-  above the coach). Built in coaches: hoodie man (Mixamo Ch08, default), android (AI mesh, decimated + auto-rigged by
-  `convert/autorig.py`). Rooms: yoga room, brutalist interior, gym room, yoga studio (3D), boxing ring, beach, bridge (360°).
-  Credits: `assets/CREDITS.md`. Converters for new downloads (Blender as a module, `pip install bpy`): `convert/`
-  fbx2glb (ActorCore/Unity FBX → upright glb), mixamo2glb (Mixamo FBX → glb, textures capped, matte cloth), shrink_glb (cap textures of any glb), autorig
-  (unrigged T/A/I-pose humanoid → decimated if heavy, Unreal-named rig + weights; arms resting on the body are cut free),
-  bake_static (scene skinned to prop rigs → static), exr2jpg (EXR → tone-mapped JPG). Owner's rule: only ready-made models with real clothes, or separate clothing files — no painted-on outfits.
-  **No rebuild for new ones:** copy files to the Quest under `Android/data/eu.xems.studio/files/XEMS/coaches|rooms`
-  (made with a README on the first start; USB or SideQuest). Coaches: .glb/.gltf, any humanoid rig; clothes / hair as separate files on the same rig: `<coach>+<item>.glb`
-  (`anna.glb`, `anna+shirt.glb`, `anna+hair.glb`) — their skinned meshes move onto the coach's skeleton (bind by bone
-  name). Any rig (Unreal, Mixamo,
-  MakeHuman, Rigify names); `Coach` finds bones by role, turns the model to face +Z, fixes cm scale, stands it on the
-  floor and straightens T/A-pose arms. Rooms: 360° .jpg/.png/.webp/.hdr (2:1, up to 8192 px; .hdr is exposed and
-  tone-mapped) or a .glb scene (cm → m, floor found under you, centred between you and the coach). Optional
-  `<file>.json`: `name`, `cam`, `yaw` (photo) / `scale`, `turn`, `offset` (scene). Desktop: `--lib=<dir>
-  --coach=<n|name> --room=<n|name> --view=close`.
-- **Cards:** frosted glass (`shaders/glass.gdshader`) — exercise name / cue / reps left, "Работят сега" body map right.
-- **Suit link:** one controller haptic pulse per hold (and per punch hit). Installed through the XEMS VR Launcher
-  (catalog "XEMS Studio" or 📥 Downloads) the loader shim forwards it to the tablet like any patched game.
-  Next step: send rich events (hand, force, zone) straight to the tablet instead of haptics.
+## The game (v0.2) — plasma, fists, knees, feet, ducks and leans
+Things fly at you. **Break** the colourful spheres: cyan with a fist, violet with a knee, orange with a foot. **Dodge** the
+red striped beams (nothing else looks like them): a bar at head height → squat; a pillar beside the head → lean to the
+other side. A coach explains the rules, shows the nine basic moves, plays a round himself (breaking, ducking, leaning),
+steps aside — then it is the player's turn. The level (speed, gap, mix of elements) is chosen by how the last one went
+(≥ 75 % up, < 45 % down). Score, combo and the level are on the left card, the suit zones that are working on the right.
+
+| Part | Where |
+|---|---|
+| Rules of the game, 8 levels (speed, gap, mix, count), contact planes, suit feel constants | `scripts/game/defs.gd` |
+| Flow: tutorial → countdown → levels, judging (break / miss / dodge / hit), suit events, simulated player for tests | `scripts/game/game.gd` |
+| Elements: plasma spheres, hazard beams (shaders `plasma`, `hazard`, `halo`) | `scripts/game/elem.gd` |
+| The player's body: head, hands (controllers), knees and feet (Meta body tracking, `/user/body_tracker`) | `scripts/game/body.gd` |
+| The coach's moves: guard, jab, cross, knee ×2, kick ×2, lean ×2, duck (key poses on the IK rig) | `scripts/game/moves.gd` |
+| Suit events and the 100 Hz → 7 Hz envelope | `scripts/game/suit.gd` |
+| Sounds (synthesised) + the owner's soundtrack | `scripts/game/sfx.gd`, `gen/make_sounds.py`, `assets/sfx/` |
+
+**Input.** Hands = the two controllers. Head = the headset: lean = head sideways from the calibrated middle, squat = head
+height / standing height. Legs = Meta **body tracking** (Quest 3 estimates the legs from the upper body and the cameras;
+plugin ≥ 4.1 uses `XR_META_body_tracking_full_body`; the export asks for the permission). Without leg data (the browser,
+a desktop) the game leaves out knees and feet and plays with hands, squats and leans. A hit needs a speed (fist ≥ 1.0 m/s,
+knee ≥ 0.7, foot ≥ 0.9): holding a limb in the way does not break anything. The game logic runs in ≤ 20 ms steps.
+**Buttons.** Right A = skip the explanation · left X = "this is the middle" (stand straight, look ahead) · right B = next
+coach · left Y = next room · left grip = next track of your music.
+
+**Suit feel** (`SuitLink`, see `docs` when the tablet side lands): a broken sphere = a short burst (100 Hz, 0.15 s) in the
+limb that broke it (arms for a fist, legs for knee/foot), normal strength. A hit taken (a missed sphere, an undodged beam)
+= 100 Hz at 1.5× strength, falling over 2.5 s to the base programme (7 Hz, normal strength) — sharp start, smooth fall in
+frequency and strength. Where: head → belly, glutes, back; upper body → arms; legs → legs. The tablet clamps everything
+with its absolute limits (docs/xems-safety-limits.md).
+
+**Rooms.** Wide spaces only: 3D scenes (brutalist hall, gym, studio) and 360° photos drawn big (`radius`, `room_depth`): the
+player stands near the back wall and has the whole room ahead. **Desktop tests (no headset):**
+```
+godot --path vr-workout -- --sim=1 --skiptut=1 --levels=1 --level=4 --skill=0.8 --timescale=6   # plays itself, prints LEVEL … done
+godot --path vr-workout -- --shot=out.png --wait=8 --view=player --sim=1 --skiptut=1 --level=4     # a frame of play
+godot --path vr-workout -- --shot=out.png --move=knee_l --mt=0.3 --view=profile                    # a coach move frozen
+godot --path vr-workout -- --shot=out.png --wait=4 --demo=1 --view=player                          # the coach's own round
+```
 
 ## In the Quest browser (WebXR) — the way it ships now
 `https://radilovk.github.io/ems/vr/` → open in the Meta Quest browser → **Влез във VR**. Built and published by

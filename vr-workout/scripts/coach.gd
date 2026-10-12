@@ -3,7 +3,7 @@
 ## figure is turned to face +Z, scaled if it came in centimetres and stood on the floor, so a .glb dropped on the
 ## headset just works.
 ## set_pose(dict) for the exercises (model axes: the figure faces +Z, its left is +X), play(clip) for the ready-made
-## moves (Punch_Jab, Punch_Cross… — only the built-in coach has them). The body is posed the way a person moves:
+## moves (Punch_Jab, Punch_Cross… — when the model brings such clips). The body is posed the way a person moves:
 ##   the pelvis is placed and tilted (a hip hinge, the spine stays long), the feet are planted where the pose says and
 ##   the legs reach them by two-bone IK (no sliding, no floating, the knees track over the toes), the arms and the
 ##   head hang off the trunk, the gaze stays level. While standing he breathes and sways a little.
@@ -11,11 +11,6 @@
 class_name Coach
 extends Node3D
 
-const MODEL := preload("res://assets/coach/coach.gltf")
-const ANIMS := preload("res://assets/coach/animations.glb")
-const HAIR := [preload("res://assets/coach/Hair_SimpleParted.gltf"), preload("res://assets/coach/Hair_Beard.gltf")]
-
-const HAIR_COLOR := Color(0.22, 0.15, 0.1)
 const XFADE := 0.7
 
 var skel: Skeleton3D
@@ -39,13 +34,13 @@ var _from := {}                     # the pose a change of exercise eases away f
 var _xf := 0.0                      # seconds left of that easing
 
 
-## src: null = the built-in coach; a PackedScene or an instanced Node3D = any humanoid model.
+## src: a PackedScene or an instanced Node3D = any humanoid model (null = an empty coach, ok = false).
 func _init(src = null) -> void:
 	_wrap = Node3D.new()
 	add_child(_wrap)
 	var model: Node3D
 	if src == null:
-		model = MODEL.instantiate()
+		return
 	elif src is PackedScene:
 		model = src.instantiate()
 	else:
@@ -55,18 +50,14 @@ func _init(src = null) -> void:
 	if sk.is_empty():
 		return
 	skel = sk[0]
-	if src == null:
-		_dress_builtin()
 	if not _find_roles():
 		return
 	_place()
 	ok = true
-	if src == null:
-		player = AnimationPlayer.new()
-		model.add_child(player)
-		var a: AnimationPlayer = ANIMS.instantiate().find_children("*", "AnimationPlayer", true, false)[0]
-		player.add_animation_library("", a.get_animation_library(""))
-		player.root_node = NodePath("..")      # tracks are "Armature/Skeleton3D:bone" from the model root
+	var players := model.find_children("*", "AnimationPlayer", true, false)
+	if not players.is_empty():
+		player = players[0]                     # the model's own clips (punches play from them when present)
+		player.stop()
 	set_pose({})
 
 
@@ -86,20 +77,6 @@ func wear(piece: Node) -> int:
 		n += 1
 	piece.queue_free()
 	return n
-
-
-func _dress_builtin() -> void:
-	for mi in skel.find_children("Eyebrows*", "MeshInstance3D", false, false):
-		_tint(mi, HAIR_COLOR)
-	# Hair and beard are skinned to the same rig: move their meshes onto our skeleton (skins bind by bone name).
-	for h in HAIR:
-		var hs: Node = h.instantiate()
-		for mi in hs.find_children("*", "MeshInstance3D", true, false):
-			mi.get_parent().remove_child(mi)
-			skel.add_child(mi)
-			mi.skeleton = NodePath("..")
-			_tint(mi, HAIR_COLOR)          # the free pack ships the hair grey (the colour lives in a paid shader)
-		hs.free()
 
 
 # ---------------------------------------------------------------- rig discovery
@@ -257,15 +234,6 @@ func _place() -> void:
 			_base[chain[k]] = down
 	_len["thigh"] = (_rest[_role.calf_l].origin - _rest[_role.thigh_l].origin).length()
 	_len["shin"] = (_rest[_role.foot_l].origin - _rest[_role.calf_l].origin).length()
-
-
-static func _tint(mi: MeshInstance3D, c: Color) -> void:
-	for i in mi.mesh.get_surface_count():
-		var m := mi.get_active_material(i)
-		if m is BaseMaterial3D:
-			var d: BaseMaterial3D = m.duplicate()
-			d.albedo_color = c
-			mi.set_surface_override_material(i, d)
 
 
 func _process(delta: float) -> void:

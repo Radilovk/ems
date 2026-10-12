@@ -12,7 +12,6 @@ extends RefCounted
 const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XEMS", "/storage/emulated/0/Download/XEMS"]
 
 const BUILTIN_COACHES := [
-	{"name": "Алекс", "path": ""},
 	{"name": "Michelle (Mixamo)", "path": "res://assets/coaches/Michelle.glb"},
 	{"name": "Soldier (Mixamo)", "path": "res://assets/coaches/Soldier.glb"},
 	{"name": "X Bot (Mixamo)", "path": "res://assets/coaches/Xbot.glb"},

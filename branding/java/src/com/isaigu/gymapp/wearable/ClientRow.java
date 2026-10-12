@@ -340,7 +340,10 @@ public final class ClientRow {
                 con.setDoOutput(true);
                 con.setRequestProperty("Content-Type", "application/json; charset=utf-8");
                 con.setRequestProperty("User-Agent", "XEMS-Android");
-                String body = "{" + ReportBridge.lookupFields(u).substring(1) + "}";
+                // the server finds only this studio's cards (1.1.330): without the code it answers 400
+                String body = "{\"studio\":\"" + a.getSharedPreferences("xems_client_sync",
+                        android.content.Context.MODE_PRIVATE).getString("studio", "") + "\""
+                        + ReportBridge.lookupFields(u) + "}";
                 java.io.OutputStream out = con.getOutputStream();
                 out.write(body.getBytes("UTF-8"));
                 out.close();

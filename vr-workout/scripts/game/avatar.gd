@@ -13,12 +13,18 @@ const GLOVE_SCENE := preload("res://assets/gloves/sci_fi_glove.gltf")
 const GLOVE_GLOW := Color(0.25, 0.85, 1.0)      # cyan …
 const GLOVE_HIT := Color(1.0, 0.22, 0.85)       # … magenta for a moment when the hand lands a hit
 const GLOVE_SCALE := 0.034                      # model units → metres (a hand about 19 cm wrist to fingertip)
-const GLOVE_PALM := Vector3(-0.3, 0.3, 2.8)     # the palm's middle, in model units: it sits on the grip
+const GLOVE_PALM := Vector3(-0.2, 0.06, 3.7)    # inside the fist, in model units: it sits on the grip
+const KNUCKLE := Vector2(0.62, 3.9)             # the knuckle line in the model's (y, z): the fingers bend from here
+const CURL := 4.4                               # how far each finger rolls into the fist (radians)
+const THUMB_BASE := Vector3(-1.75, 0.3, 1.0)    # the thumb's root, and where it points: out to the side …
+const THUMB_FROM := Vector3(-0.95, -0.85, 2.1)
+const THUMB_TO := Vector3(0.6, -1.1, 2.2)        # … and folded across the curled fingers
 
 static var _glove_meshes := {}   # "plate"/"glow"/"body"/"mech" -> ArrayMesh, built once
 var gloves := {}                 # "left"/"right" -> Node3D
 var _plate_mats := {}            # side -> StandardMaterial3D
 var _glow_mats := {}             # side -> StandardMaterial3D
+var _auras := {}                 # side -> {"mat": ShaderMaterial, "nodes": [aura meshes, halo], "light": OmniLight3D}
 var _glove_body: StandardMaterial3D
 var _glove_mech: StandardMaterial3D
 var _legs := {}                  # "l"/"r" -> {"shin", "knee", "boot", "halo"}
@@ -56,9 +62,10 @@ func _unshaded(c: Color, add := false) -> StandardMaterial3D:
 
 
 ## A sci-fi glove ("Sci-fi Glove" by Hirosin, CC BY): cyan armour plates on a dark glove with a long gauntlet, its light
-## tubes and the disc on the back of the hand glow cyan and flash magenta when the hand lands a hit. The model's 35 parts
-## are merged once into four meshes (plates · glow · glove · wires), turned into the hand's grip frame (fingers ahead,
-## thumb up, palm inward) with the palm on the grip; the right hand is the left one mirrored.
+## tubes and the disc on the back of the hand glow cyan, and on a hit the whole glove blooms magenta (a glow shell in its
+## own shape, a halo and a light on what is near). The model's 35 parts are merged once into four meshes (plates · glow ·
+## glove · wires), turned into the hand's grip frame (fingers ahead, thumb up, palm inward) with the palm on the grip;
+## the right hand is the left one mirrored.
 func _glove(side: String) -> Node3D:
 	var g := Node3D.new()
 	g.top_level = true
@@ -97,8 +104,100 @@ func _glove(side: String) -> Node3D:
 		if side == "right":
 			mi.scale = Vector3(-1, 1, 1)                  # mirrored: Godot flips the faces itself
 		g.add_child(mi)
+	var aura := ShaderMaterial.new()                      # the glow on a hit: the glove's shape blooming
+	aura.shader = preload("res://shaders/glove_aura.gdshader")
+	aura.set_shader_parameter("color", GLOVE_HIT)
+	var nodes: Array[Node3D] = []
+	for k in ["plate", "body", "glow"]:
+		var am := MeshInstance3D.new()
+		am.mesh = _glove_meshes[k]
+		am.material_override = aura
+		am.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if side == "right":
+			am.scale = Vector3(-1, 1, 1)
+		g.add_child(am)
+		nodes.append(am)
+	var halo := MeshInstance3D.new()                      # and a soft light round the fist, facing the eye
+	var hq := QuadMesh.new()
+	hq.size = Vector2(0.5, 0.5)
+	halo.mesh = hq
+	var hm := ShaderMaterial.new()
+	hm.shader = preload("res://shaders/halo.gdshader")
+	hm.set_shader_parameter("color", GLOVE_HIT)
+	halo.material_override = hm
+	halo.position = Vector3(0, 0, -0.04)
+	g.add_child(halo)
+	nodes.append(halo)
+	var light := OmniLight3D.new()                        # that lights what is near: the arm, the floor, the target
+	light.light_color = GLOVE_HIT
+	light.omni_range = 1.4
+	light.shadow_enabled = false
+	light.position = Vector3(0, 0, -0.05)
+	g.add_child(light)
+	_auras[side] = {"mat": aura, "halo": hm, "nodes": nodes, "light": light}
+	for n in nodes:
+		n.visible = false
+	light.visible = false
 	g.visible = false
 	return g
+
+
+## The model's open hand closed into a fist (in model units, after rel puts the part in the model's space). Past the
+## knuckle line each finger rolls down into the palm along an arc, about 250° whatever its length; the thumb swings in from
+## the side and lies across the curled index and middle fingers. Normals turn with the surface.
+static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var norms: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var d := Vector2(-0.33, 0.94).normalized()                # the fingers' axis in (y, z): they slope down a little
+	var nrm := Vector2(d.y, -d.x)                             # up out of the back of the fingers
+	var thumb := Quaternion(THUMB_FROM.normalized(), THUMB_TO.normalized())
+	for i in verts.size():
+		var p: Vector3 = rel * verts[i]
+		var nv: Vector3 = (rel.basis * norms[i]).normalized() if i < norms.size() else Vector3.UP
+		var q := Vector2(p.y - KNUCKLE.x, p.z - KNUCKLE.y)
+		var t := q.dot(d)
+		if t > 0.0 and p.z > 3.4 and p.x > -1.68:          # (the thumb tip reaches past the knuckles too)
+			var r := _finger_len(p.x) / CURL
+			var h := q.dot(nrm)
+			var phi := t / r
+			var rho := maxf(r + h, 0.08)
+			var w := KNUCKLE + d * (rho * sin(phi)) + nrm * (rho * cos(phi) - r)
+			p = Vector3(p.x, w.x, w.y)
+			var n2 := Vector2(nv.y, nv.z)
+			var nd := n2.dot(d)
+			var nn := n2.dot(nrm)
+			var m := d * (nd * cos(phi) + nn * sin(phi)) + nrm * (nn * cos(phi) - nd * sin(phi))
+			nv = Vector3(nv.x, m.x, m.y)
+		elif p.x < -1.5 and p.z > 0.8 and p.z < 3.8:
+			var s := (p - THUMB_BASE).dot(THUMB_FROM.normalized())
+			var k := smoothstep(0.1, 0.9, s) * (1.0 - smoothstep(-1.9, -1.5, p.x))
+			if k > 0.0:
+				var qk := Quaternion.IDENTITY.slerp(thumb, k)
+				p = THUMB_BASE + qk * (p - THUMB_BASE)
+				nv = qk * nv
+		verts[i] = p
+		if i < norms.size():
+			norms[i] = nv
+	var out := []
+	out.resize(Mesh.ARRAY_MAX)
+	out[Mesh.ARRAY_VERTEX] = verts
+	out[Mesh.ARRAY_NORMAL] = norms
+	out[Mesh.ARRAY_TEX_UV] = arrays[Mesh.ARRAY_TEX_UV]
+	out[Mesh.ARRAY_INDEX] = arrays[Mesh.ARRAY_INDEX]
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, out)
+	return mesh
+
+
+## Knuckle to fingertip, by the finger (the model's x): index · middle · ring · little.
+static func _finger_len(x: float) -> float:
+	if x < -0.75:
+		return 2.4
+	if x < 0.25:
+		return 2.6
+	if x < 1.27:
+		return 2.2
+	return 1.35
 
 
 ## The glove model's parts, merged by kind into the left hand's grip frame. In the model the fingers point +z, the back
@@ -134,7 +233,7 @@ static func _merge_glove() -> Dictionary:
 				var st := SurfaceTool.new()
 				st.begin(Mesh.PRIMITIVE_TRIANGLES)
 				tools[kind] = st
-			(tools[kind] as SurfaceTool).append_from(mi.mesh, i, to_grip * rel)
+			(tools[kind] as SurfaceTool).append_from(_fist(mi.mesh.surface_get_arrays(i), rel), 0, to_grip)
 	model.free()
 	var out := {}
 	for k in tools:
@@ -221,7 +320,7 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 			var t: Transform3D = body.hand_xform[side]
 			g.global_transform = Transform3D(t.basis.orthonormalized(), t.origin)
 		g.visible = on
-		_punch[side] = maxf(_punch[side] - delta * 5.0, 0.0)
+		_punch[side] = maxf(_punch[side] - delta * 3.2, 0.0)
 		var sp: float = body.speed.get(limb, 0.0)
 		var heat: float = 1.0 if sp >= min_speed.hand else clampf(sp / min_speed.hand, 0.0, 1.0) * 0.45
 		g.scale = Vector3.ONE * (1.0 + 0.12 * _punch[side])
@@ -230,6 +329,17 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		var plate: StandardMaterial3D = _plate_mats[side]
 		plate.emission = hit
 		plate.emission_energy_multiplier = 0.15 + 0.05 * mult + 0.5 * _punch[side]
+		var au: Dictionary = _auras[side]
+		var p: float = _punch[side]
+		var lit: bool = p > 0.01
+		for n in au.nodes:
+			(n as Node3D).visible = lit
+		(au.light as OmniLight3D).visible = lit
+		if lit:
+			var e: float = p * p * (3.0 - 2.0 * p)          # eased: a bright burst that fades soft
+			(au.mat as ShaderMaterial).set_shader_parameter("energy", e)
+			(au.halo as ShaderMaterial).set_shader_parameter("energy", 1.4 * e)
+			(au.light as OmniLight3D).light_energy = 2.5 * e
 		var tr: Fx.Trail = trails[limb]
 		tr.color = color
 		tr.update(g.global_position, heat, eye, on)

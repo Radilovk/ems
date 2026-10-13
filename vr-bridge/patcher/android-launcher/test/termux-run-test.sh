@@ -101,6 +101,13 @@ out="$(FAKE_OPEN="192.168.1.23 192.168.1.40" FAKE_QUESTS="192.168.1.23" PATH="$T
 FAKE_OPEN="192.168.1.77" FAKE_UNAUTH="192.168.1.77" check "find: unauthorised headset listed" 0 "quest 192.168.1.77 ?" find 192.168.1.50
 FAKE_OPEN="" check "find: nothing" 4 "" find 192.168.1.50
 check "find: bad ip" 2 "" find nope
+# --key: the launcher's adb key lands next to Termux's own, as a PEM, and the verb still runs
+KH="$(mktemp -d)"
+HOME="$KH" FAKE_OPEN="192.168.1.23" FAKE_QUESTS="192.168.1.23" PATH="$T/bin:$PATH" bash "$RUN" --key QUJDRA== "QUJD xems@tablet" find 192.168.1.50 > "$FAKE_OUT" 2>&1; rc=$?
+if [[ $rc -eq 0 ]] && grep -q '^quest 192.168.1.23' "$FAKE_OUT" && grep -q 'BEGIN PRIVATE KEY' "$KH/.android/xems_launcher.adbkey" \
+   && grep -q '^QUJDRA==$' "$KH/.android/xems_launcher.adbkey" && [[ "$(cat "$KH/.android/xems_launcher.adbkey.pub")" == "QUJD xems@tablet" ]]; then
+  echo "ok   --key: launcher key installed, find runs"; else echo "FAIL --key (rc $rc)"; cat "$FAKE_OUT"; fails=$((fails+1)); fi
+rm -rf "$KH"
 # check (real python3/java/git may be missing on the host: only the shape is tested)
 PATH="$T/bin:$PATH" bash "$RUN" check > "$FAKE_OUT" 2>&1; rc=$?
 if grep -q '^ok adb$' "$FAKE_OUT" && grep -q '^ok patcher$' "$FAKE_OUT" && grep -q '^ok layer$' "$FAKE_OUT" && [[ $rc -eq 0 || $rc -eq 6 ]]; then

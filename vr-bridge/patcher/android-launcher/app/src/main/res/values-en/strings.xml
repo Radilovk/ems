@@ -83,7 +83,7 @@
     <string name="err_package">E.g. com.studio.game</string>
     <string name="err_tablet_ip">E.g. 192.168.1.50 — or leave it empty</string>
     <string name="status_usb">Headset on the cable…</string>
-    <string name="detail_usb">Turning on adb over Wi-Fi. If the headset shows "Allow USB debugging" — Always allow + Allow.</string>
+    <string name="detail_usb">Put the headset on now: "Allow USB debugging" shows inside it (you have a minute) → Always allow + Allow. Once for good — the Wi-Fi link is then allowed by itself.</string>
     <string name="status_usb_ok">Headset ready over Wi-Fi ✓</string>
     <string name="detail_usb_ok">Unplug the cable — looking for the headset on the Wi-Fi.</string>
     <string name="status_usb_allow">The headset did not allow the link</string>

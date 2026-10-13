@@ -26,6 +26,14 @@ class TermuxScriptTest {
         assertEquals("/data/data/com.termux/files/home/ems/vr-bridge/patcher/android-launcher/termux/termux-run.sh", run)
     }
 
+    @Test fun withKeyGoesFirstAndNeverShows() {
+        val a = TermuxScript.withKey(TermuxScript.find("192.168.1.5"), "PRIV", "PUB xems@tablet")
+        assertEquals(listOf(TermuxScript.RUN, "--key", "PRIV", "PUB xems@tablet", "find", "192.168.1.5"), a.toList())
+        assertEquals("termux-run.sh find 192.168.1.5", TermuxScript.display(a))
+        val s = TermuxScript.setup("script")
+        assertEquals(s.toList(), TermuxScript.withKey(s, "PRIV", "PUB").toList())
+    }
+
     @Test fun display() {
         assertEquals("termux-run.sh games 192.168.1.23:5555", TermuxScript.display(TermuxScript.games("192.168.1.23:5555")))
         assertEquals("termux-setup.sh", TermuxScript.display(TermuxScript.setup("long script")))

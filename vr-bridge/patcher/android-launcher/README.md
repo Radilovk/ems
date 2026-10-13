@@ -25,7 +25,10 @@ app ◀──PendingIntent (exit code + output, background or session)── Ter
    themselves (5–10 min, internet). Afterwards it looks for the headset on its own.
 6. **Quest 3:** developer mode. After every headset reboot: plug it into the tablet's USB-C (OTG cable) → the app
    opens by itself and runs `adb tcpip 5555` (`UsbAdb`, no PC), then searches the Wi-Fi. The first time the
-   headset asks *Allow USB debugging* for the app's key → Always allow + Allow (remembered).
+   headset asks *Allow USB debugging* for the app's key → Always allow + Allow (remembered). The prompt shows
+   only inside the headset, so wear it while the cable goes in. Since 1.7 Termux's adb offers the same key
+   (`--key` → `~/.android/xems_launcher.adbkey` → `ADB_VENDOR_KEYS`), so this one approval also covers Wi-Fi;
+   before, Termux used its own key and Quest never asked for it over Wi-Fi (endless "waiting for permission").
 
 ## Game catalog (1.5) — `../catalog.json`
 **🎮 Каталог** lists games outside the Meta Store that take the layer (a store game re-signed by the patcher is

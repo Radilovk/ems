@@ -41,7 +41,7 @@ class UsbAdb(private val context: Context) {
 
     /** null = connected; else why not. */
     private fun handshake(io: Io): Result? {
-        val key = key()
+        val key = key(context)
         io.send(AdbProtocol.connect())
         var signed = false
         val until = System.currentTimeMillis() + ALLOW_WAIT_MS
@@ -82,20 +82,6 @@ class UsbAdb(private val context: Context) {
         // adbd may restart before the text arrives; an empty reply after CLSE is still a success.
         val text = reply.toString().trim()
         return if (text.isEmpty() || AdbProtocol.tcpipOk(text)) Result(Outcome.OK, text) else Result(Outcome.FAILED, text)
-    }
-
-    private fun key(): KeyPair {
-        val prefs = context.getSharedPreferences("adb_key", Context.MODE_PRIVATE)
-        val priv = prefs.getString("priv", null)
-        val pub = prefs.getString("pub", null)
-        if (priv != null && pub != null) {
-            runCatching { return AdbProtocol.decodeKey(Base64.decode(priv, 0), Base64.decode(pub, 0)) }
-        }
-        val k = AdbProtocol.newKey()
-        val (p, q) = AdbProtocol.encodeKey(k)
-        prefs.edit().putString("priv", Base64.encodeToString(p, Base64.NO_WRAP))
-            .putString("pub", Base64.encodeToString(q, Base64.NO_WRAP)).apply()
-        return k
     }
 
     private class Io(private val conn: UsbDeviceConnection, iface: UsbInterface) {
@@ -146,6 +132,32 @@ class UsbAdb(private val context: Context) {
 
     companion object {
         const val META_VENDOR = 0x2833
+
+        /** The app's adb key (made once, in its prefs): the one the headset is asked to allow over the cable. */
+        fun key(context: Context): KeyPair {
+            val prefs = context.getSharedPreferences("adb_key", Context.MODE_PRIVATE)
+            val priv = prefs.getString("priv", null)
+            val pub = prefs.getString("pub", null)
+            if (priv != null && pub != null) {
+                runCatching { return AdbProtocol.decodeKey(Base64.decode(priv, 0), Base64.decode(pub, 0)) }
+            }
+            val k = AdbProtocol.newKey()
+            val (p, q) = AdbProtocol.encodeKey(k)
+            prefs.edit().putString("priv", Base64.encodeToString(p, Base64.NO_WRAP))
+                .putString("pub", Base64.encodeToString(q, Base64.NO_WRAP)).apply()
+            return k
+        }
+
+        /**
+         * The same key for Termux's adb (private key as base64 PKCS#8 DER, public key in adb's own line format), so
+         * the Wi-Fi connection is the identity the headset already allowed over the cable — no second "Allow" that
+         * Horizon OS may never show for a Wi-Fi connection.
+         */
+        fun termuxKey(context: Context): Pair<String, String> {
+            val k = key(context)
+            return AdbProtocol.base64(k.private.encoded) to
+                String(AdbProtocol.publicKeyPayload(k.public as RSAPublicKey)).trimEnd('\u0000')
+        }
         private const val ALLOW_WAIT_MS = 60_000L
 
         fun adbInterface(d: UsbDevice): UsbInterface? = (0 until d.interfaceCount).map { d.getInterface(it) }

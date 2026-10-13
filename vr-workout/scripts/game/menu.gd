@@ -192,6 +192,8 @@ func _settings(m: Control) -> void:
 		_seg(v, "Щадящ режим", ["Не", "Да"], 1 if settings.comfort else 0, func(i: int) -> void: settings.comfort = i == 1, "comfort")
 		_stepper(v, "Зала", String(room_names[settings.room]) if settings.room < room_names.size() else "",
 			func(d: int) -> void: settings.room = posmod(settings.room + d, max(room_names.size(), 1)), "room")
+		_seg(v, "Гледка", GameSettings.VIEWS.map(func(x): return x.name), settings.view,
+			func(i: int) -> void: settings.view = i, "view")
 		_text(v, "Щадящ режим: по-меки проблясъци и без червен ръб — за чувствителни очи.", 24, DIM)
 
 

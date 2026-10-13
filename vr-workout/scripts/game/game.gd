@@ -195,6 +195,8 @@ func _on_setting(key: String) -> void:
 		"room":
 			stage.set_room(settings.room)
 			_warmed = false                     # the new room has not been lit by a flash yet
+		"view":
+			stage.apply_view()
 		"offset":
 			stage.apply_room_offset()
 		"height_cm":

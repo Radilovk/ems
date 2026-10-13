@@ -14,6 +14,7 @@ const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XE
 
 const BUILTIN_ROOMS := [
 	{"name": "Арена", "path": "", "kind": "arena"},          # built from code: scripts/game/arena.gd
+	{"name": "Панорамна зала", "path": "", "kind": "loft"},  # built from code: scripts/game/skyloft.gd
 	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene", "dress": "hall"},
 	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.6, "radius": 8.0, "height": 4.2},
 	{"name": "Боксова зала", "path": "res://assets/rooms/boxing_ring.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.55, "radius": 6.0, "height": 3.0},

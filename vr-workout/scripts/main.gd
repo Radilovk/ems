@@ -9,6 +9,7 @@ const FONT := preload("res://assets/fonts/Inter-Regular.otf")
 const ROOM_SHADER := preload("res://shaders/room.gdshader")
 const RING_SHADER := preload("res://shaders/ring.gdshader")
 const GLASS_SHADER := preload("res://shaders/glass.gdshader")
+const VIEW_SKY := preload("res://shaders/view_sky.gdshader")
 
 const STAGE_POS := Vector3(0, 0, -2.4)  # the middle of what is shown ahead (cards left and right of it, toasts above)
 const BACK_WALL := 1.6              # the player stands this far from the back wall: the rest of the room is play space
@@ -31,6 +32,7 @@ var room_i := 0
 var room_shell: MeshInstance3D
 var room_mat: ShaderMaterial
 var sky_mat: PanoramaSkyMaterial
+var view_sky: ShaderMaterial        # the panoramic hall's landscape (shaders/view_sky.gdshader)
 var sky: Sky
 var plain_sky := ProceduralSkyMaterial.new()      # behind 3D scene rooms
 var env: Environment
@@ -184,6 +186,15 @@ func _apply_room() -> void:
 		return
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.9
+	if r.kind == "loft":
+		room_scene = SkyLoft.new()
+		room_root.add_child(room_scene)
+		room_shell.visible = false
+		env.background_energy_multiplier = 1.0
+		_room_depth0 = -SkyLoft.FRONT - 0.6
+		apply_view()
+		apply_room_offset()
+		return
 	if r.kind == "pano":
 		var pano := Library.load_pano(r.path)
 		if pano.is_empty():
@@ -237,6 +248,20 @@ func _apply_room() -> void:
 	sky.sky_material = plain_sky
 	env.background_energy_multiplier = 1.0
 	apply_room_offset()
+
+
+## The sky loft's view (settings: the sea or the mountains): a 360° photo as the sky, infinitely far beyond the glass.
+func apply_view() -> void:
+	if rooms[room_i].kind != "loft":
+		return
+	var v: Dictionary = GameSettings.VIEWS[clampi(settings.view, 0, GameSettings.VIEWS.size() - 1)]
+	if view_sky == null:
+		view_sky = ShaderMaterial.new()
+		view_sky.shader = VIEW_SKY
+	view_sky.set_shader_parameter("view", load(v.path))
+	view_sky.set_shader_parameter("yaw", v.yaw)
+	view_sky.set_shader_parameter("lift", v.lift)
+	sky.sky_material = view_sky
 
 
 ## The player's place in the room (settings): the room moves and turns around the player, who stays where the game
@@ -400,6 +425,8 @@ func _setup_view() -> void:
 	var ifc := XRServer.find_interface("OpenXR")
 	xr = ifc != null and ifc.is_initialized()
 	if xr:
+		if "render_target_size_multiplier" in ifc:    # the runtime's suggestion is below the Quest 3 panel: render
+			ifc.set("render_target_size_multiplier", 1.25)   # at the panel's own sharpness (rooms, views, text)
 		get_viewport().use_xr = true
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		if ifc.has_signal("session_begun"):

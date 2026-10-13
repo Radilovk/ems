@@ -20,12 +20,13 @@ c++ -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -I"$SDK/include" "$HERE/fak
 
 rm -rf "$OUT/cls"; mkdir -p "$OUT/cls"
 V="$ROOT/branding/java/src/com/isaigu/gymapp/wearable/vr"   # the app-independent part of the tablet side
-VR=("$V/VrWire.java" "$V/VrHapticEvent.java" "$V/VrHapticSink.java" "$V/VrClockSync.java" "$V/VrTelemetryReceiver.java" "$V/VrPulses.java" "$V/VrNoiseGate.java")
+VR=("$V/VrWire.java" "$V/VrHapticEvent.java" "$V/VrHapticSink.java" "$V/VrControlSink.java" "$V/VrClockSync.java" "$V/VrTelemetryReceiver.java" "$V/VrPulses.java" "$V/VrNoiseGate.java")
 javac -source 8 -target 8 -nowarn -d "$OUT/cls" -cp "$JAR" \
-  "$HERE"/stubs/android/*/*.java "${VR[@]}" "$HERE/VrReceiverHostTest.java" "$HERE/VrPulsesHostTest.java" 2>&1 \
-  | grep -v 'bootstrap classpath' || true
+  "$HERE"/stubs/android/*/*.java "${VR[@]}" "$HERE/VrReceiverHostTest.java" "$HERE/VrPulsesHostTest.java" \
+  "$HERE/VrControlHostTest.java" 2>&1 | grep -v 'bootstrap classpath' || true
 
 java -cp "$OUT/cls:$JAR" VrPulsesHostTest
+java -cp "$OUT/cls:$JAR" VrControlHostTest "$((PORT + 1))"
 java -cp "$OUT/cls:$JAR" VrReceiverHostTest "$PORT" 4500 > "$OUT/rx.log" 2>&1 &
 RX=$!
 until grep -q READY "$OUT/rx.log" 2>/dev/null; do sleep 0.1; done

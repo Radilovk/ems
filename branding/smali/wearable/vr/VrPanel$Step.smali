@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 427
+    .line 439
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 6
 
     .prologue
-    .line 431
+    .line 443
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->activity:Landroid/app/Activity;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$800()Landroid/app/Activity;
 
@@ -50,7 +50,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->setFloorPercent(Landroid/content/Context;I)V
 
-    .line 432
+    .line 444
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->floorStepper:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$500()Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -58,7 +58,7 @@
 
     if-eqz v0, :cond_3a
 
-    .line 433
+    .line 445
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->floorStepper:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$500()Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -97,11 +97,11 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 435
+    .line 447
     :cond_3a
     # invokes: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->updateReset()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$1100()V
 
-    .line 436
+    .line 448
     return-void
 .end method

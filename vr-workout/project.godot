@@ -21,4 +21,7 @@ anti_aliasing/quality/msaa_3d=2
 openxr/enabled=true
 openxr/foveation_level=2
 openxr/foveation_dynamic=true
+openxr/extensions/hand_tracking=true
+openxr/extensions/meta/body_tracking=true
+openxr/extensions/meta/simultaneous_hands_and_controllers=true
 shaders/enabled=true

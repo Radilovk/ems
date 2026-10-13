@@ -102,7 +102,7 @@
     .registers 4
 
     .prologue
-    .line 144
+    .line 149
     invoke-static {p2, p0}, Ljava/lang/Math;->min(II)I
 
     move-result v0
@@ -130,7 +130,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 88
+    .line 93
     sget v1, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->sensitivity:I
 
     if-ne v1, v0, :cond_16
@@ -164,7 +164,7 @@
     .registers 1
 
     .prologue
-    .line 84
+    .line 89
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->paused:Z
 
     return v0
@@ -318,7 +318,7 @@
     .registers 4
 
     .prologue
-    .line 140
+    .line 145
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -340,32 +340,42 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 119
+    .line 124
     sput v1, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->sensitivity:I
 
-    .line 120
+    .line 125
     const/16 v0, 0x14
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->floor:I
 
-    .line 121
+    .line 126
     sput v1, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->smooth:I
 
-    .line 122
+    .line 127
     const/16 v0, 0xe8
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->zones:I
 
-    .line 123
+    .line 128
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->sensitivity:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/vr/VrNoiseGate;->setPreset(I)V
 
-    .line 124
+    .line 129
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->save(Landroid/content/Context;)V
 
-    .line 125
+    .line 130
     return-void
+.end method
+
+.method public static restMask()I
+    .registers 1
+
+    .prologue
+    .line 85
+    sget v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->zones:I
+
+    return v0
 .end method
 
 .method public static rests(I)Z
@@ -396,10 +406,10 @@
     .registers 4
 
     .prologue
-    .line 129
+    .line 134
     if-eqz p0, :cond_2d
 
-    .line 130
+    .line 135
     :try_start_2
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -437,7 +447,7 @@
 
     sget v2, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->zones:I
 
-    .line 131
+    .line 136
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -446,19 +456,19 @@
     :try_end_2d
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_2d} :catch_31
 
-    .line 136
+    .line 141
     :cond_2d
     :goto_2d
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->onSettingsChanged()V
 
-    .line 137
+    .line 142
     return-void
 
-    .line 133
+    .line 138
     :catch_31
     move-exception v0
 
-    .line 134
+    .line 139
     const-string v1, "VrSettings.save"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -480,7 +490,7 @@
     .registers 4
 
     .prologue
-    .line 98
+    .line 103
     const/4 v0, 0x0
 
     const/16 v1, 0x5a
@@ -491,10 +501,10 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->floor:I
 
-    .line 99
+    .line 104
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->save(Landroid/content/Context;)V
 
-    .line 100
+    .line 105
     return-void
 .end method
 
@@ -502,13 +512,13 @@
     .registers 2
 
     .prologue
-    .line 113
+    .line 118
     sput-boolean p1, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->paused:Z
 
-    .line 114
+    .line 119
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->onSettingsChanged()V
 
-    .line 115
+    .line 120
     return-void
 .end method
 
@@ -518,7 +528,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 108
+    .line 113
     if-eqz p2, :cond_d
 
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->zones:I
@@ -530,13 +540,13 @@
     :goto_7
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->zones:I
 
-    .line 109
+    .line 114
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->save(Landroid/content/Context;)V
 
-    .line 110
+    .line 115
     return-void
 
-    .line 108
+    .line 113
     :cond_d
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->zones:I
 
@@ -553,7 +563,7 @@
     .registers 4
 
     .prologue
-    .line 92
+    .line 97
     const/4 v0, 0x0
 
     const/4 v1, 0x2
@@ -564,15 +574,15 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->sensitivity:I
 
-    .line 93
+    .line 98
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->sensitivity:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/vr/VrNoiseGate;->setPreset(I)V
 
-    .line 94
+    .line 99
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->save(Landroid/content/Context;)V
 
-    .line 95
+    .line 100
     return-void
 .end method
 
@@ -580,7 +590,7 @@
     .registers 4
 
     .prologue
-    .line 103
+    .line 108
     const/4 v0, 0x0
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->SMOOTHNESS:[I
@@ -595,10 +605,10 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->smooth:I
 
-    .line 104
+    .line 109
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->save(Landroid/content/Context;)V
 
-    .line 105
+    .line 110
     return-void
 .end method
 

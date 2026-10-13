@@ -131,6 +131,23 @@ func set_track(path: String, track_bpm := 0.0) -> bool:
 	return true
 
 
+## The settings: music and effects volume (dB).
+func set_volumes(music_level_db: float, sfx_level_db: float) -> void:
+	music_db = music_level_db
+	if music:
+		music.volume_db = music_db
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(_sfx_bus()), sfx_level_db)
+
+
+## Quieter and muffled while paused (db < 0), back to the full mix with 0.
+func hold_music(db: float) -> void:
+	var tw := create_tween()
+	tw.tween_property(music, "volume_db", music_db + db, 0.25)
+	if _lp:
+		var to := 900.0 if db < 0.0 else 20000.0
+		tw.parallel().tween_method(func(v: float) -> void: _lp.cutoff_hz = v, _lp.cutoff_hz, to, 0.25)
+
+
 func duck_music(db: float, seconds: float) -> void:
 	var tw := create_tween()
 	tw.tween_property(music, "volume_db", music_db + db, 0.08)

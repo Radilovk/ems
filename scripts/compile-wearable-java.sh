@@ -99,6 +99,8 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrDrive.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrBridge.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrPanel.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrControlSink.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/vr/VrControl.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ClientPrograms.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/TrainIndex.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/PartPick.java"

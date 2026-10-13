@@ -80,6 +80,11 @@ public final class VrSettings {
         return (zones & (1 << channel)) != 0;
     }
 
+    /** Resting channels as a bit mask (bit = partsDisabled index), for the game's dock. */
+    public static int restMask() {
+        return zones;
+    }
+
     public static boolean isPaused() {
         return paused;
     }

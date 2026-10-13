@@ -48,6 +48,10 @@ public final class VrDrive {
 
     private VrDrive() {}
 
+    static Context context() {
+        return context;
+    }
+
     static void setContext(Context c) {
         context = c != null ? c.getApplicationContext() : null;
         VrSettings.load(context);

@@ -3,6 +3,9 @@
 //
 //   layer  -> tablet : HELLO (heartbeat + discovery, broadcast until ACKed), HAPTIC, STOP, PONG
 //   tablet -> layer  : ACK (reply to HELLO, pairs the layer to the tablet's unicast address), PING
+//   game   -> tablet : CTRL — the game's own impulse dock (XEMS Studio, vr-workout/scripts/game/tablet.gd), from its
+//                      own socket; accepted only from the address the layer is paired from
+//   tablet -> game   : STATE — the answer to every CTRL (the suit side as the tablet sees it)
 //
 // Clock sync (NTP-style, both sides CLOCK_MONOTONIC ns):
 //   PING.h.tNs = t0 (tablet send)  ->  PONG.t0 = t0, PONG.t1 = quest receive, PONG.h.tNs = t2 (quest send)
@@ -24,8 +27,28 @@ enum Type : uint8_t {
     T_STOP   = 0x02,
     T_HELLO  = 0x03,
     T_PONG   = 0x04,
+    T_CTRL   = 0x05,
     T_ACK    = 0x81,
     T_PING   = 0x82,
+    T_STATE  = 0x83,
+};
+
+enum CtrlOp : uint8_t {
+    CTRL_QUERY    = 0,  // just the STATE
+    CTRL_PAUSE    = 1,  // arg 1 = the game stops driving the strength (the row keeps the trainer's strength)
+    CTRL_STRENGTH = 2,  // value = step of the trainer's strength (the ceiling), only while VR drives; |step| <= 5
+    CTRL_FLOOR    = 3,  // value = weakest hit, % of the trainer's strength (0..90)
+    CTRL_SENS     = 4,  // arg = which hits pass: 0 strong only, 1 normal, 2 all
+    CTRL_SMOOTH   = 5,  // arg = rise: 0 sharp, 1 normal, 2 soft
+    CTRL_REST     = 6,  // arg = channel (partsDisabled index 0..9), value 1 = rests while VR drives
+    CTRL_RESET    = 7,  // the tablet's defaults
+};
+
+enum StateFlags : uint8_t {
+    ST_LINKED  = 0x01,  // the haptic layer is paired
+    ST_DRIVING = 0x02,  // VR drives a running row now
+    ST_PAUSED  = 0x04,  // "the game drives the strength" is off
+    ST_MUSIC   = 0x08,  // the music player owns the strength; VR waits
 };
 
 enum Hand : uint8_t {
@@ -94,6 +117,29 @@ struct Pong {
     uint64_t t0;
     uint64_t t1;
 };
+
+struct Ctrl {
+    Header   h;   // h.session = the game's own random id
+    uint8_t  op;
+    uint8_t  arg;
+    uint16_t reserved;
+    int32_t  value;
+};
+
+struct State {
+    Header   h;
+    uint8_t  flags;
+    uint8_t  sens;
+    uint8_t  smooth;
+    uint8_t  floor;     // %
+    uint16_t rests;     // bit per channel (partsDisabled index)
+    uint8_t  level;     // the game's haptic level 0..100
+    int8_t   applied;   // strength sent to the suit 0..100, -1 = not driving
+    int32_t  ceiling;   // the trainer's strength while VR drives, -1 otherwise
+    uint32_t passed;    // hits that became an impulse since the link
+    uint32_t dropped;   // haptics the gate dropped
+    uint32_t reserved;
+};
 #pragma pack(pop)
 
 static_assert(sizeof(Header) == 24, "wire");
@@ -101,5 +147,7 @@ static_assert(sizeof(Haptic) == 40, "wire");
 static_assert(sizeof(Stop)   == 28, "wire");
 static_assert(sizeof(Hello)  == 120, "wire");
 static_assert(sizeof(Pong)   == 40, "wire");
+static_assert(sizeof(Ctrl)   == 32, "wire");
+static_assert(sizeof(State)  == 48, "wire");
 
 }  // namespace xems::wire

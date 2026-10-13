@@ -24,6 +24,7 @@ var args := {}
 var cam: XRCamera3D
 var origin: XROrigin3D
 var game: Game
+var settings := GameSettings.new()
 
 var rooms: Array = []
 var room_i := 0
@@ -37,6 +38,8 @@ var room_scene: Node3D
 var arena: Arena             # the game's own space (the default room), null in the other rooms
 var train_mat: MeshInstance3D
 var room_depth := 7.0        # metres of free room straight ahead of the player (the game flies things over it)
+var _room_depth0 := 7.0      # … before the player's own place in the room (settings offset) is taken into account
+var room_root: Node3D        # the photo shell / 3D scene: moved and turned around the player by the settings
 var toast: Label3D
 var toast_left := 0.0
 var body: Mannequin
@@ -45,8 +48,7 @@ var cue: Label3D
 var counter: Label3D
 var body_caption: Label3D
 var player_ring: ShaderMaterial
-var glove_mats: Array = []   # the gloves' glow (the game brightens it as a combo grows)
-var hands := {}              # "left"/"right" -> XRController3D (or a stand-in Node3D on desktop)
+var hands := {}              # "left"/"right" -> XRController3D (or a stand-in Node3D on desktop); gloves: Avatar
 
 
 func _ready() -> void:
@@ -54,8 +56,9 @@ func _ready() -> void:
 		if a.begins_with("--") and "=" in a:
 			args[a.substr(2, a.find("=") - 2)] = a.substr(a.find("=") + 1)
 	Library.prepare(args.get("lib", ""))
+	settings.load_file()
 	rooms = Library.rooms(args.get("lib", ""))
-	room_i = _pick(rooms, args.get("room", "0"))
+	room_i = _pick(rooms, args.get("room", str(settings.room)))
 	_build_world()
 	_build_room()
 	_apply_room()
@@ -105,6 +108,8 @@ func _build_world() -> void:
 
 
 func _build_room() -> void:
+	room_root = Node3D.new()
+	add_child(room_root)
 	# The photo, projected onto a room-sized shell from where it was shot: a real floor under your feet.
 	var shell := CylinderMesh.new()
 	shell.top_radius = 4.6
@@ -120,7 +125,7 @@ func _build_room() -> void:
 	room.material_override = mat
 	room.position = Vector3(0, 1.9, -3.0)
 	room.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(room)
+	room_root.add_child(room)
 	room_shell = room
 
 	# A training mat under you and a soft ring on your spot.
@@ -172,7 +177,8 @@ func _apply_room() -> void:
 		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR       # the night sky lights nothing: a cool fill
 		env.ambient_light_color = Color(0.55, 0.62, 0.75)
 		env.ambient_light_energy = 0.8
-		room_depth = 16.0
+		_room_depth0 = 16.0
+		apply_room_offset()
 		return
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.9
@@ -189,7 +195,7 @@ func _apply_room() -> void:
 		cyl.height = 3.8 * k
 		var shift := -(R - BACK_WALL)
 		room_shell.position = Vector3(0, 1.9 * k, shift)
-		room_depth = 2.0 * R - BACK_WALL - 0.3
+		_room_depth0 = 2.0 * R - BACK_WALL - 0.3
 		room_mat.set_shader_parameter("pano", pano.tex)
 		room_mat.set_shader_parameter("hdr", pano.hdr)
 		room_mat.set_shader_parameter("exposure", pano.exposure)
@@ -199,6 +205,7 @@ func _apply_room() -> void:
 		sky.sky_material = sky_mat
 		env.background_energy_multiplier = pano.exposure if pano.hdr else 1.0
 		room_shell.visible = true
+		apply_room_offset()
 		return
 	var scene := Library.load_scene(r.path)
 	if scene == null:
@@ -206,7 +213,7 @@ func _apply_room() -> void:
 		return
 	room_scene = Node3D.new()
 	room_scene.add_child(scene)
-	add_child(room_scene)
+	room_root.add_child(room_scene)
 	# Fit it: centimetres → metres, the floor at 0, the middle of the room ahead of you.
 	var box := _bounds(scene)
 	var sc: float = r.get("scale", 0.01 if box.size.length() > 400.0 else 1.0)
@@ -219,10 +226,41 @@ func _apply_room() -> void:
 	else:
 		scene.position = Vector3(-box.get_center().x, 0.0, -1.2 - box.get_center().z)
 		scene.position.y = -_floor_under(scene, Vector2(0, -1.2), box.position.y)
-	room_depth = clamp(-(box.position.z + scene.position.z) - 0.3, 3.0, 14.0)
+	_room_depth0 = clamp(-(box.position.z + scene.position.z) - 0.3, 3.0, 14.0)
 	room_shell.visible = false
 	sky.sky_material = plain_sky
 	env.background_energy_multiplier = 1.0
+	apply_room_offset()
+
+
+## The player's place in the room (settings): the room moves and turns around the player, who stays where the game
+## is. The arena is the game's own space and always stays straight ahead.
+func apply_room_offset() -> void:
+	var t := Transform3D(Basis(Vector3.UP, deg_to_rad(settings.turn_deg)), Vector3.ZERO)
+	room_root.transform = t * Transform3D(Basis.IDENTITY, -Vector3(settings.offset_x, 0, settings.offset_z))
+	if env:
+		env.sky_rotation = Vector3(0, deg_to_rad(settings.turn_deg), 0)
+	var turned := absf(wrapf(settings.turn_deg, -180.0, 180.0)) > 1.0
+	room_depth = _room_depth0 if arena else clampf(_room_depth0 + settings.offset_z * (0.0 if turned else 1.0), 3.0, 16.0)
+
+
+func set_room(i: int) -> void:
+	room_i = clampi(i, 0, rooms.size() - 1)
+	_apply_room()
+	_show_toast("Зала: %s" % rooms[room_i].name)
+
+
+## "This is the middle": the spot where the player stands and the way they look become the game's centre and
+## forward — the play space follows the player, wherever they stand in the real room.
+func recenter() -> void:
+	if not xr:
+		return
+	var t := cam.transform                          # head in the origin's space
+	var f := -t.basis.z
+	f.y = 0.0
+	var yaw := atan2(-f.x, -f.z) if f.length() > 0.01 else 0.0
+	var b := Basis(Vector3.UP, -yaw)
+	origin.transform = Transform3D(b, -(b * Vector3(t.origin.x, 0.0, t.origin.z)))
 
 
 ## Height of the floor of a scene under a point: the lowest upward-facing surface there (a table or a step above
@@ -269,6 +307,8 @@ static func _global_to(node: Node3D, top: Node) -> Transform3D:
 
 func _next_room() -> void:
 	room_i = (room_i + 1) % rooms.size()
+	settings.room = room_i
+	settings.save()
 	_apply_room()
 	_show_toast("Зала %d/%d · %s" % [room_i + 1, rooms.size(), rooms[room_i].name])
 
@@ -303,7 +343,7 @@ func _card(pos: Vector3, size: Vector2, turn: float) -> Node3D:
 
 func _build_body_map() -> void:
 	# Your body, small, on a glass card right of the middle: the parts the suit works on now glow warm.
-	var card := _card(Vector3(1.3, 2.05, -2.2), Vector2(0.62, 1.06), -24)
+	var card := _card(Vector3(1.75, 2.25, -2.55), Vector2(0.62, 1.06), -30)
 	body = Mannequin.new(Color(0.88, 0.93, 0.97, 0.6))
 	body.scale = Vector3.ONE * 0.4
 	body.position = Vector3(0, -0.47, 0.06)
@@ -332,7 +372,7 @@ func _label(text: String, size: int, pos: Vector3, font: Font, color := Color.WH
 
 func _build_texts() -> void:
 	# The exercise card, left of the middle: name, how to do it, reps.
-	var card := _card(Vector3(-1.35, 2.3, -2.3), Vector2(0.9, 0.86), 24)
+	var card := _card(Vector3(-1.8, 2.45, -2.6), Vector2(0.9, 0.86), 30)
 	title = _label("", 72, Vector3(0, 0.31, 0.01), FONT_BOLD, Color.WHITE, card)
 	title.autowrap_mode = TextServer.AUTOWRAP_OFF       # one line; long names get a smaller font in _process
 	cue = _label("", 30, Vector3(0, 0.06, 0.01), FONT, Color(1, 1, 1, 0.88), card)
@@ -356,6 +396,10 @@ func _setup_view() -> void:
 	if xr:
 		get_viewport().use_xr = true
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+		if ifc.has_signal("session_begun"):
+			ifc.connect("session_begun", _on_xr_session)
+		if ifc.has_signal("pose_recentered"):               # the headset's own recentre (hold the Meta button)
+			ifc.connect("pose_recentered", _on_pose_recentered)
 	var tracked := xr or web                     # the browser gets real controllers once its VR session starts
 	for side in ["left", "right"]:
 		var c: Node3D
@@ -368,8 +412,7 @@ func _setup_view() -> void:
 			c = Node3D.new()
 			c.position = Vector3(-0.22 if side == "left" else 0.22, 1.15, -0.25)
 		origin.add_child(c)
-		_glove(c)
-		c.visible = xr or not web                # in the browser the gloves show with the headset
+		c.visible = xr or not web                # in the browser the hands show with the headset
 		hands[side] = c
 	if web:
 		_setup_webxr()
@@ -463,41 +506,31 @@ func _on_webxr_ended() -> void:
 		c.visible = false
 
 
-## A fist of light on each controller: a dark rounded shell with a glowing core and rim.
-func _glove(parent: Node3D) -> void:
-	var shell := MeshInstance3D.new()
-	var cap := CapsuleMesh.new()
-	cap.radius = 0.042
-	cap.height = 0.11
-	shell.mesh = cap
-	shell.rotation_degrees = Vector3(90, 0, 90)          # lying across the knuckles
-	var sm := StandardMaterial3D.new()
-	sm.albedo_color = Color(0.05, 0.12, 0.15)
-	sm.metallic = 0.6
-	sm.roughness = 0.3
-	sm.rim_enabled = true
-	sm.rim = 0.8
-	sm.emission_enabled = true
-	sm.emission = ACCENT
-	sm.emission_energy_multiplier = 0.6
-	shell.material_override = sm
-	shell.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parent.add_child(shell)
-	glove_mats.append(sm)
-	var core := MeshInstance3D.new()
-	var s := SphereMesh.new()
-	s.radius = 0.026
-	s.height = 0.052
-	core.mesh = s
-	var cm := StandardMaterial3D.new()
-	cm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	cm.albedo_color = ACCENT.lightened(0.5)
-	core.material_override = cm
-	core.position = Vector3(0, 0, -0.03)
-	parent.add_child(core)
+func _on_pose_recentered() -> void:
+	if game:
+		game.recalibrate()
+
+
+## The headset session runs: ask for the best body tracking (Quest 3: the cameras follow the upper body, the legs are
+## estimated) and for hands and controllers at the same time (controllers strapped to the ankles, the hands on the
+## cameras). Both are optional: a headset or a runtime without them simply keeps what it has.
+func _on_xr_session() -> void:
+	var bt := "OpenXRFbBodyTrackingExtensionWrapper"
+	if Engine.has_singleton(bt):
+		var w := Engine.get_singleton(bt)
+		if w.has_method("is_body_tracking_fidelity_supported") and w.call("is_body_tracking_fidelity_supported"):
+			w.call("request_body_tracking_fidelity", ClassDB.class_get_integer_constant(bt, "BODY_TRACKING_FIDELITY_HIGH"))
+	var mm := "OpenXRMetaSimultaneousHandsAndControllersExtensionWrapper"
+	if Engine.has_singleton(mm):
+		var w2 := Engine.get_singleton(mm)
+		if w2.call("is_simultaneous_hands_and_controllers_supported"):
+			w2.call("resume_simultaneous_hands_and_controllers_tracking")
 
 
 func _on_button(name: String, side: String) -> void:
+	if name == "menu_button" or (name == "by_button" and side == "right"):   # ☰ / right B: pause and the menu
+		game.toggle_menu()
+		return
 	if name == "by_button" and side == "left":  # left Y: the next room
 		_next_room()
 		return

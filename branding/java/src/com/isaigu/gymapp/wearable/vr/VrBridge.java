@@ -21,6 +21,7 @@ public final class VrBridge {
         try {
             VrDrive.setContext(context);
             VrTelemetryReceiver r = new VrTelemetryReceiver(context, new VrHapticRouter());
+            r.setControl(new VrControl());              // the game's own impulse dock (XEMS Studio)
             r.start();
             receiver = r;
             WearableBleDiagLog.log("vr", "listening udp " + VrWire.PORT);

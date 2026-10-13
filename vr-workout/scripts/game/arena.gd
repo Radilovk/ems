@@ -1,7 +1,8 @@
 ## The arena — a space made for the game, built from code (nothing to download, light on the Quest): a night sky with a
 ## haze on the horizon and stars, a dark glass floor whose neon grid streams towards you, arches of light down the
 ## lane that flare one after another towards you on every beat, the portal far ahead that everything comes out of,
-## and dust in the air for depth. It listens: the bass of whatever music plays brightens it, and a long combo turns
+## and dust in the air for depth. Above it all the real Milky Way, moon rocks drifting round the arena in the dark
+## (rimmed in the arena's colour) and a ringed gas giant on the horizon — a place in space, not a void. It listens: the bass of whatever music plays brightens it, and a long combo turns
 ## its colour (cyan → magenta → gold). On a dark ground every glow and burst of the game reads twice as strong.
 class_name Arena
 extends Node3D
@@ -9,6 +10,11 @@ extends Node3D
 const SKY := preload("res://shaders/arena_sky.gdshader")
 const FLOOR := preload("res://shaders/arena_floor.gdshader")
 const PORTAL := preload("res://shaders/portal.gdshader")
+const ROCK := preload("res://shaders/rock.gdshader")
+const PLANET := preload("res://shaders/planet.gdshader")
+const PLANET_RING := preload("res://shaders/planet_ring.gdshader")
+const MILKY_WAY := preload("res://assets/arena/milky_way.jpg")
+const ROCKS := ["moon_rock_02", "moon_rock_03", "moon_rock_06"]   # Poly Haven, CC0 (assets/CREDITS.md)
 const PALETTE := [Color(0.1, 0.75, 1.0), Color(0.95, 0.2, 0.85), Color(1.0, 0.72, 0.18)]   # by combo: 0 · 10+ · 20+
 const ARCHES := 9
 const ARCH_GAP := 2.6
@@ -24,15 +30,111 @@ var _target := PALETTE[0]
 var _scroll := 0.0
 var _flare := 0.0
 var _last_beat := -1
+var _gates: Array[Node3D] = []          # side gates (the portal is gate 0): where things are thrown from on an arc
+var _gate_ring_mats: Array[StandardMaterial3D] = []
+var _gate_disc_mats: Array[ShaderMaterial] = []
+var _gate_flare: Array[float] = []
+var _rocks: Array = []                  # {node, axis, spin, base, bob, phase}
+var _rock_mats: Array[ShaderMaterial] = []
+var _planet_mat: ShaderMaterial
+var _ring_mat2: ShaderMaterial
 
 
 func _init() -> void:
 	sky_mat = ShaderMaterial.new()
 	sky_mat.shader = SKY
+	sky_mat.set_shader_parameter("milky", MILKY_WAY)
 	_build_floor()
 	_build_arches()
 	_build_portal()
 	_build_dust()
+	_build_rocks()
+	_build_planet()
+
+
+## Moon rocks floating round the arena, well clear of the lane and the gates: near ones high up, low ones far away,
+## a few behind. Each turns slowly on its own axis and rises and sinks a little.
+func _build_rocks() -> void:
+	var meshes: Array[Mesh] = []
+	for name in ROCKS:
+		var scene: PackedScene = load("res://assets/arena/%s.gltf" % name)
+		var mesh := _first_mesh(scene.instantiate())
+		if mesh == null:
+			continue
+		meshes.append(mesh)
+		var m := ShaderMaterial.new()
+		m.shader = ROCK
+		m.set_shader_parameter("albedo_tex", load("res://assets/arena/%s_diff.jpg" % name))
+		m.set_shader_parameter("normal_tex", load("res://assets/arena/%s_nor.jpg" % name))
+		_rock_mats.append(m)
+	if meshes.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 47800                                   # the same sky every time
+	# [angle from straight ahead (deg), distance (m), height (m), size (m)]
+	var spots := [[-38, 11, 6.5, 1.4], [42, 12, 7.5, 1.8], [-70, 16, 4.2, 2.6], [75, 18, 5.0, 3.0], [-15, 26, 9.5, 3.4],
+		[22, 30, 3.2, 4.5], [-110, 14, 6.0, 1.6], [120, 15, 8.0, 2.0], [170, 20, 5.5, 3.2], [-160, 24, 10.0, 2.4],
+		[55, 40, 14.0, 6.0], [-50, 45, 2.5, 7.0], [5, 55, 18.0, 5.0], [-95, 34, 12.0, 4.0]]
+	for i in spots.size():
+		var sp: Array = spots[i]
+		var a := deg_to_rad(float(sp[0]))
+		var node := MeshInstance3D.new()
+		var k := i % meshes.size()
+		node.mesh = meshes[k]
+		node.material_override = _rock_mats[k]
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var size := (meshes[k] as Mesh).get_aabb().get_longest_axis_size()
+		node.scale = Vector3.ONE * (float(sp[3]) / maxf(size, 0.001))
+		var base := Vector3(sin(a) * float(sp[1]), float(sp[2]), -cos(a) * float(sp[1]))
+		node.position = base
+		node.rotation = Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)
+		add_child(node)
+		_rocks.append({"node": node, "axis": Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1)).normalized(),
+			"spin": rng.randf_range(0.03, 0.12) * (1.0 if rng.randf() < 0.5 else -1.0), "base": base,
+			"bob": rng.randf_range(0.15, 0.5), "phase": rng.randf() * TAU})
+
+
+static func _first_mesh(n: Node) -> Mesh:
+	var found: Mesh = null
+	if n is MeshInstance3D:
+		found = (n as MeshInstance3D).mesh
+	else:
+		for c in n.get_children():
+			found = _first_mesh(c)
+			if found:
+				break
+	n.free()
+	return found
+
+
+## A ringed gas giant low on the horizon, ahead and to the left, far beyond everything (it never moves).
+func _build_planet() -> void:
+	var planet := MeshInstance3D.new()
+	var s := SphereMesh.new()
+	s.radius = 1.0
+	s.height = 2.0
+	s.radial_segments = 64
+	s.rings = 32
+	planet.mesh = s
+	_planet_mat = ShaderMaterial.new()
+	_planet_mat.shader = PLANET
+	planet.material_override = _planet_mat
+	planet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	planet.scale = Vector3.ONE * 30.0
+	planet.position = Vector3(-250, 70, -210)
+	planet.rotation_degrees = Vector3(0, 0, 18)
+	add_child(planet)
+	var ring := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(2, 2)
+	ring.mesh = q
+	_ring_mat2 = ShaderMaterial.new()
+	_ring_mat2.shader = PLANET_RING
+	ring.material_override = _ring_mat2
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	ring.rotation_degrees = Vector3(-76, 0, 0)
+	ring.scale = Vector3.ONE * 2.3
+	planet.add_child(ring)
 
 
 func _build_floor() -> void:
@@ -127,6 +229,73 @@ func _build_dust() -> void:
 	add_child(p)
 
 
+## A smaller portal on the arc, on a beam of light standing on the floor.
+func _build_gate() -> Node3D:
+	var g := Node3D.new()
+	add_child(g)
+	var ring := MeshInstance3D.new()
+	var t := TorusMesh.new()
+	t.inner_radius = 0.5
+	t.outer_radius = 0.56
+	t.rings = 36
+	t.ring_segments = 6
+	ring.mesh = t
+	ring.rotation_degrees = Vector3(90, 0, 0)
+	var rm := StandardMaterial3D.new()
+	rm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	rm.albedo_color = _color
+	ring.material_override = rm
+	g.add_child(ring)
+	var disc := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(1.08, 1.08)
+	disc.mesh = q
+	var dm := ShaderMaterial.new()
+	dm.shader = PORTAL
+	disc.material_override = dm
+	g.add_child(disc)
+	var beam := MeshInstance3D.new()
+	var b := BoxMesh.new()
+	b.size = Vector3(0.03, 1.0, 0.03)
+	beam.mesh = b
+	beam.material_override = rm
+	beam.name = "beam"
+	g.add_child(beam)
+	_gate_ring_mats.append(rm)
+	_gate_disc_mats.append(dm)
+	_gate_flare.append(0.0)
+	g.visible = false
+	return g
+
+
+## The gates of this level (world positions; [0] = the portal ahead, set by set_portal_z). show = false: only the portal.
+func set_gates(world: Array, show: bool) -> void:
+	while _gates.size() < world.size() - 1:
+		_gates.append(_build_gate())
+	for i in range(1, world.size()):
+		var g := _gates[i - 1]
+		var p: Vector3 = world[i]
+		var was := g.visible
+		g.visible = show
+		var beam := g.get_node("beam") as MeshInstance3D
+		(beam.mesh as BoxMesh).size.y = maxf(p.y - 0.56, 0.05)
+		beam.position = Vector3(0, -0.56 - (beam.mesh as BoxMesh).size.y * 0.5, 0)
+		if was:
+			var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			tw.tween_property(g, "position", p, 1.2)
+		else:
+			g.position = p
+		var to_player := Vector3(-p.x, 0, -p.z)
+		if to_player.length() > 0.1:
+			g.basis = Basis.looking_at(to_player.normalized(), Vector3.UP)    # the disc faces the player
+
+
+## Something was thrown out of side gate `i` (1…).
+func flare_gate(i: int) -> void:
+	if i >= 1 and i - 1 < _gate_flare.size():
+		_gate_flare[i - 1] = 1.0
+
+
 ## Where things come from (the game moves it to the spawn distance of the level).
 func set_portal_z(z: float, seconds := 1.2) -> void:
 	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -160,6 +329,25 @@ func tick(delta: float, beat_t: float, beat_len: float, bass: float, speed: floa
 	_portal_mat.set_shader_parameter("color", _color)
 	_ring_mat.albedo_color = _color * (0.8 + 0.6 * bass + 0.8 * _flare)
 	_portal.rotation.z += delta * 0.4
+	var t := Time.get_ticks_msec() / 1000.0
+	for r in _rocks:
+		var n: Node3D = r.node
+		n.rotate(r.axis, r.spin * delta)
+		n.position = r.base + Vector3(0, sin(t * 0.25 + r.phase) * r.bob, 0)
+	for m in _rock_mats:
+		m.set_shader_parameter("rim_color", _color)
+		m.set_shader_parameter("rim", 0.55 + 0.9 * bass + 0.6 * _flare)
+	if _planet_mat:
+		_planet_mat.set_shader_parameter("glow", _color)
+		_planet_mat.set_shader_parameter("energy", bass)
+		_ring_mat2.set_shader_parameter("color", _color)
+		_ring_mat2.set_shader_parameter("energy", bass)
+	for i in _gates.size():
+		_gate_flare[i] = maxf(_gate_flare[i] - delta * 3.0, 0.0)
+		_gate_ring_mats[i].albedo_color = _color * (0.7 + 0.5 * bass + 1.4 * _gate_flare[i])
+		_gate_disc_mats[i].set_shader_parameter("energy", bass)
+		_gate_disc_mats[i].set_shader_parameter("flare", _gate_flare[i])
+		_gate_disc_mats[i].set_shader_parameter("color", _color)
 	# the arches light up one after another towards you through the beat, the far one first
 	for i in _arch_mats.size():
 		var at := 1.0 - float(i) / (_arch_mats.size() - 1)              # 1 = far … 0 = near

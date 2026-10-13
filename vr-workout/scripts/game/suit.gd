@@ -21,6 +21,7 @@ var log: Array = []
 var count_strike := 0
 var count_punish := 0
 var enabled := true
+var punish_sec := Defs.PUNISH_SEC       # the settings: soft (shorter) or strong
 var hands := {}                       # "left"/"right" -> XRController3D (others are ignored: desktop, sim)
 var _active: Array = []               # running punishments {ev, age, next}
 
@@ -36,9 +37,18 @@ func strike(zone: int, side: int) -> Dictionary:
 func punish(zone: int, side: int) -> Dictionary:
 	count_punish += 1
 	var ev := _emit({"kind": "punish", "zone": zone, "side": side, "hz0": Defs.STRIKE_HZ, "hz1": Defs.BASE_HZ,
-		"amp0": Defs.PUNISH_AMP, "amp1": 1.0, "sec": Defs.PUNISH_SEC})
+		"amp0": Defs.PUNISH_AMP, "amp1": 1.0, "sec": punish_sec})
 	_active.append({"ev": ev, "age": 0.0, "next": 0.0})
 	return ev
+
+
+## Pause: every running punishment stops now, the controllers (and the suit) go quiet.
+func stop_all() -> void:
+	_active.clear()
+	for side in ["left", "right"]:
+		var c = hands.get(side)
+		if c is XRController3D:
+			(c as XRController3D).trigger_haptic_pulse("haptic", 0.0, 0.0, 0.01, 0.0)
 
 
 ## Once a frame: the running punishments send their next pulse.

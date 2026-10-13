@@ -7,6 +7,7 @@ uniform vec4 color : source_color = vec4(1.0, 0.1, 0.12, 1.0);
 uniform float stripes = 7.0;
 uniform bool vertical = false;
 uniform float pulse = 0.0;
+uniform float opacity = 0.95;         // a wall is see-through: what comes next must stay visible behind it
 
 void fragment() {
 	float u = vertical ? UV.y : UV.x;
@@ -16,5 +17,5 @@ void fragment() {
 	float beat = 0.85 + 0.15 * sin(TIME * 9.0);
 	vec3 base = mix(vec3(0.07, 0.0, 0.02), color.rgb * beat, band);
 	ALBEDO = mix(base, vec3(1.0, 0.85, 0.75), edge * 0.8 + pulse * 0.4);
-	ALPHA = 0.95;
+	ALPHA = clamp(opacity + edge * 0.5 + band * (1.0 - opacity) * 0.35, 0.0, 1.0);
 }

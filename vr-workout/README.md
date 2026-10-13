@@ -4,55 +4,78 @@ Standalone Quest 3 app (Godot 4.4, OpenXR via the Meta vendors plugin, Compatibi
 and your body map that glows where the suit works. No coach for now (owner, 2026-10: the motion was not good enough; a
 coach comes back only with professional mocap made for his own rig, e.g. Mixamo clips on the Mixamo character).
 
-## The game (v0.3) — on the beat, felt three ways
-Things fly at you **on the beat of the music**. **Break** the colourful spheres: cyan with a fist, violet with a knee,
-orange with a foot — each has a target ring waiting at the spot where it must be hit, tightening and brightening as it
-comes. **Dodge** the red striped beams: a bar at eye height → squat (≈ 20 % lower); a pillar beside the head → lean to the
-other side. First the rules (the real things float in front of you), then a short **try-out** — one of each, slow, a
-second chance if missed — then the levels. The level (speed, gap, mix) follows how the last one went (≥ 75 % up,
-< 45 % down).
+## The game (v0.4) — on the beat, felt three ways
+Things fly at you **on the beat of the music**, out of the portal ahead and out of **side gates** on an arc around you.
+**Break** the spheres: cyan with a fist, violet with a knee, orange with a foot (a kick), green low ones in a squat. A
+fist sphere may carry a **punch type** — a dot = straight jab, a chevron = hook from that side or an uppercut — and only
+that direction breaks it. A pink **shield** = guard up: both fists in front of the face when it arrives. **Dodge** the
+red ones: a bar at eye height → squat; a pillar beside the head → lean away; a **wall** on one half → step to the other
+side. Things come alone or in **patterns** (one-two, hook combo, run, duck-and-low, knee-then-kick, block-and-counter,
+wall-and-punch) whose share grows with the level. The level (speed, gap, mix) follows how the last one went.
+Borrowed from the best-rated VR fitness games: punch types and guard (FitXR, Les Mills Bodycombat), timing grades,
+multiplier and rank (Beat Saber), squats and side steps (Supernatural), walls (Beat Saber's obstacles).
+
+**Score.** Timing: within 70 ms of the beat *Перфектно* ×1.5, within 150 ms *Чудесно* ×1.2, else *Добре*. The combo
+multiplier climbs ×1 → ×4 (every 8 hits) and colours the gloves and trails cyan → green → magenta → gold. A session
+(5–30 min or endless) ends on a summary: score, accuracy, best combo, hits, perfect, dodged, squats, steps, minutes, a
+rank SS … D and the record.
 
 **One event, three senses on the same curve.**
-| | a sphere broken | a hit taken (missed sphere, beam not dodged) |
+| | a sphere broken | a hit taken (missed sphere, red one not dodged) |
 |---|---|---|
-| eyes | shards fly on along the strike, sparks, a shockwave, its light flashes on the room; points rise; the fist's trail turns white-hot once fast enough to count; gloves glow brighter as a combo grows | a red edge round the view that flares and fades |
+| eyes | shards along the strike, sparks, a shockwave, light on the room, the glove flares; points with the timing grade rise | a red edge round the view that flares and fades |
 | ears | spatial hit + shatter on the beat, pitch rises with the combo | a thud, the music goes muffled and opens up again |
-| body | a 150 ms controller pulse on that side → the suit (strike) | both controllers, full amplitude falling over 2.5 s → the suit (punish) |
-The red edge, the muffled music and the suit's punishment all fall over the same 2.5 s ease-out. The floor ring beats with
-the music. The suit link is the controllers' haptics: the XEMS OpenXR layer (`vr-bridge`) sends each pulse to the tablet,
-which drives the suit in manual mode under the absolute limits (docs/xems-safety-limits.md).
+| body | a 150 ms controller pulse on that side → the suit (strike) | both controllers, falling over 1.2 s (soft) or 2.5 s (strong) → the suit (punish) |
+The suit link is the controllers' haptics: the XEMS OpenXR layer (`vr-bridge`) sends each pulse to the tablet, which
+drives the suit in manual mode under the absolute limits (docs/xems-safety-limits.md). The game adds no pulses of its own
+(a pulse would reach the suit).
 
-**The arena** (default room, `scripts/game/arena.gd`, built from code — 0 MB, light on the Quest): night sky with a haze and
-stars (`arena_sky`), dark glass floor with a neon grid streaming towards you at the elements' speed and a band of light
-running down the lane to your feet on every beat (`arena_floor`), arches that flare far → near through the beat, the
-portal everything is thrown out of (it moves to each level's spawn distance; `portal`), dust in the air for depth. The
-music's bass (spectrum analyser on the Music bus — any track) brightens it all; a combo of 10 turns it magenta, 20 gold.
-On the dark ground every glow reads far stronger than in the photo rooms (left Y still switches to them).
-**Variety:** orbit rings tell the spheres apart by shape too (fist 1, knee 2, foot 3); from level 2 a rare **golden**
-fist sphere is worth triple with a bigger burst. **Sound:** every effect goes through a short hall reverb (Sfx bus), 3D
-sounds pan and bend in pitch as things fly past (Doppler).
+**Menu** (opens at start; the menu button / right B in play = pause). A panel in the room, used with the controller's
+laser + trigger or touched with a glove / finger. Pages: *Начало*, *Настройки* (tempo, where things come from: front /
+arc / wide, legs, red ones yes/no, length; music, effects, comfort mode, room), *Позиция и ръст* (center here, center at
+start, height: measured or set, your place in the room by 25 cm / 15°), *Костюм и импулси* (below), pause, summary.
+Everything is saved (`user://settings.cfg`).
 
-**Music.** The built-in bed is 128 BPM. Your tracks (XEMS/music) set the beat with `"bpm"` in `<track>.json` or `128bpm`
-in the name; without a tempo the game paces itself on a 120 BPM grid. The beat clock follows the playback position.
+**Impulse dock** — the suit side, from inside the game (`tablet.gd` ↔ the tablet's `VrControl`, CTRL / STATE on the
+bridge port). The menu page shows the strength in the suit now, the game's level, hits passed / cut, and sets: the
+trainer's strength (the ceiling, −/+), whether the game drives the strength, impulses from the game on/off, the miss
+punishment, which hits pass, the weakest hit, the rise, the channels that rest while VR drives, defaults. The **wrist
+dock**: turn the inside of the left wrist to your eyes like a watch → a small card with the strength, −/+ and pause, pressed
+with the right fist or finger, also mid-game. The tablet answers only a game on the headset its layer is paired from.
+
+**The body.** Hands: the controller while it tracks, else **hand tracking** (simultaneous hands and controllers) — put a
+controller down and play with bare hands; pick it up and it is found again by itself (a toast says which). No hands at
+all for 1.2 s → the game pauses itself and goes on when a hand is back. **Legs:** Quest 3 only *estimates* the legs from
+the upper body (Meta body tracking, high fidelity), so real kicks need a **controller strapped to each ankle**: the game
+sees a controller held low while you stand and treats it as that foot (hands then come from hand tracking). The *Крака*
+setting: auto (ankle controllers → tracking that the try-out confirmed → squat-and-step moves), ankles only, tracking
+only, moves only, none. **Seen:** boxing gloves of light, shin guards, knee pads, boots and a halo under each foot, trails
+behind fists and feet that turn white-hot once fast enough to count.
+
+**The arena** (default room, `scripts/game/arena.gd`, built from code plus < 1 MB of CC0 Poly Haven assets in
+`assets/arena/`): the real Milky Way over a night sky with a horizon haze, moon rocks drifting and turning round the
+arena with a rim in the arena's colour, a ringed gas giant up to the left (`planet`, `planet_ring`, `rock` shaders),
+neon floor streaming at the elements' speed, beat arches, the portal and the side gates (each flares as it throws), dust; the music's bass brightens
+it all, the combo turns it magenta, then gold. **Music.** The built-in bed is 128 BPM. Your tracks (XEMS/music) set the
+beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid.
 
 | Part | Where |
 |---|---|
-| Rules of the game, 8 levels (speed, gap, mix, count), contact planes, suit feel constants | `scripts/game/defs.gd` |
-| Flow: rules → try-out → countdown → levels; beat scheduling; judging (swept limbs); simulated player | `scripts/game/game.gd` |
-| Elements + target rings (shaders `plasma`, `hazard`, `halo`, `approach`) | `scripts/game/elem.gd` |
-| Effects: shards, sparks, shockwave, light flash, points, red edge, fist trails (`shock`, `vignette`, `trail`) | `scripts/game/fx.gd` |
-| The arena: sky, streaming floor, beat arches, portal, dust, bass + combo colour | `scripts/game/arena.gd` |
-| The player's body: head, hands (controllers), knees and feet (Meta body tracking, `/user/body_tracker`) | `scripts/game/body.gd` |
-| Suit events → controller haptics → the suit; the 100 Hz → 7 Hz envelope | `scripts/game/suit.gd` |
-| Sounds (synthesised), music bus with the hit low-pass, beat clock | `scripts/game/sfx.gd`, `gen/make_sounds.py`, `assets/sfx/` |
+| Kinds, levels, patterns' share, timing grades, multiplier, contact planes | `scripts/game/defs.gd` |
+| Flow (menu → rules → try-out → levels → summary), pause, patterns, gates, judging, simulated player | `scripts/game/game.gd` |
+| Saved settings | `scripts/game/settings.gd` |
+| The menu panel and its pages | `scripts/game/menu.gd` |
+| Impulse dock: line to the tablet / wrist card | `scripts/game/tablet.gd`, `scripts/game/dock.gd` |
+| Elements, flight paths, punch marks, shield, walls (shaders `plasma`, `hazard`, `halo`, `approach`) | `scripts/game/elem.gd` |
+| Gloves, leg guards, trails | `scripts/game/avatar.gd` |
+| Effects (`shock`, `vignette`, `trail`) | `scripts/game/fx.gd` |
+| The arena + side gates | `scripts/game/arena.gd` |
+| Head, hands (controller / hand tracking), ankle controllers, body tracking | `scripts/game/body.gd` |
+| Suit events → controller haptics → the suit | `scripts/game/suit.gd` |
+| Sounds, music bus, beat clock | `scripts/game/sfx.gd`, `gen/make_sounds.py`, `assets/sfx/` |
 
-**Input.** Hands = the two controllers. Head = the headset: lean = head sideways from the calibrated middle, squat = head
-height / standing height. Legs = Meta **body tracking** — Quest 3 *estimates* the legs from the upper body, so a real knee
-or kick may not show: the try-out decides (the knee / kick spheres must break), otherwise the game plays with hands,
-squats and leans and says so. A hit needs a speed (fist ≥ 1.0 m/s, knee ≥ 0.7, foot ≥ 0.9): holding a limb in the way
-does not break anything; the limbs are swept between frames (≤ 20 ms steps), so a fast fist cannot pass through.
-**Buttons.** Right A = skip (a rules page, the try-out) · left X = "this is the middle" · left Y = next room · left grip =
-next track of your music.
+**Buttons.** Menu / right B = menu and pause · right A = skip · left X = "this is the middle" · left Y = next room ·
+left grip = next track. A system recenter (hold Meta) recalibrates too.
 
 **Rooms.** Wide spaces only: 3D scenes (brutalist hall, gym, studio) and 360° photos drawn big (`radius`, `room_depth`): the
 player stands near the back wall and has the whole room ahead. **Desktop tests (no headset):**
@@ -60,6 +83,8 @@ player stands near the back wall and has the whole room ahead. **Desktop tests (
 godot --path vr-workout -- --sim=1 --skiptut=1 --levels=1 --level=4 --skill=0.8 --timescale=6   # plays itself, prints LEVEL … done
 godot --path vr-workout -- --shot=out.png --wait=8 --view=player --sim=1 --skiptut=1 --level=4     # a frame of play
 godot --path vr-workout -- --shot=out.png --wait=3 --skiptut=1 --burst=0 --bt=0.06               # an effect frozen (0/1/2 = sphere, hit)
+godot --path vr-workout -- --shot=out.png --wait=4 --menu=suit                                   # a menu page (home/settings/position/suit/pause/summary)
+godot --path vr-workout -- --shot=out.png --wait=8 --view=player --sim=1 --skiptut=1 --dock=1     # the wrist dock
 ```
 
 ## In the Quest browser (WebXR) — the way it ships now

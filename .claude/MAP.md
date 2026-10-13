@@ -1263,26 +1263,5 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L79 ## Build / preview
   - L88 ## Licences
 
-`vr-workout/addons/godotopenxrvendors/GodotOpenXRVendors_CHANGES.md` (190L)
-  - L1 # Change history for the Godot OpenXR loaders asset
-  - L3 ## 4.3.1
-  - L8 ## 4.3.0
-  - L31 ## 4.2.2
-  - L36 ## 4.2.1
-  - L43 ## 4.2.0
-  - L73 ## 4.1.1
-  - L77 ## 4.1.0
-  - L89 ## 4.0.0
-  - L108 ## 3.1.2
-  - L112 ## 3.1.1
-  - L116 ## 3.1.0
-  - L128 ## 3.0.1
-  - L131 ## 3.0.0
-  - L151 ## 2.0.4
-  - L155 ## 2.0.3
-  - L162 ## 2.0.0
-  - L178 ## 1.1.0
-  - L183 ## 1.0.0
-
 `vr-workout/assets/CREDITS.md` (12L)
   - L1 # Asset credits

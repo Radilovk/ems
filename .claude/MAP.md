@@ -1273,16 +1273,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L96 ## Protocol
   - L111 ## Test
 
-`vr-bridge/patcher/android-launcher/README.md` (94L)
+`vr-bridge/patcher/android-launcher/README.md` (100L)
   - L1 # XEMS VR Launcher (on-device front end)
   - L18 ## Install (once)
   - L33 ## Game catalog (1.5) — `../catalog.json`
   - L44 ## Any APK — 📥 Downloads (1.6)
-  - L50 ## Every time
-  - L55 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
-  - L64 ## Pieces
-  - L80 ## Limits (what still needs a hand)
-  - L87 ## Build & test
+  - L50 ## Cable mode (1.8) — the stable path
+  - L56 ## Every time
+  - L61 ## Screen (landscape, XemsUi tokens, light + dark, Bulgarian + English)
+  - L70 ## Pieces
+  - L86 ## Limits (what still needs a hand)
+  - L93 ## Build & test
 
 `vr-workout/README.md` (125L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3

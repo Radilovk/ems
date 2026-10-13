@@ -110,6 +110,11 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         super.onStart()
         store.prefs.registerOnSharedPreferenceChangeListener(this)
         render()
+        // The cable address means nothing once the cable is out → back to the Wi-Fi search.
+        if (questField.text.toString().trim() == UsbBridge.SERIAL && UsbAdb.findQuest(this) == null) {
+            bridge?.stop(); bridge = null; bridgeId = -1
+            questField.setText("")
+        }
         if (!checkUsb()) autoStart()
     }
 
@@ -152,10 +157,10 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         if (i?.action == UsbManager.ACTION_USB_DEVICE_ATTACHED || i?.action == ACTION_USB_PERMISSION) checkUsb()
     }
 
-    /** A Quest on the cable → adb tcpip 5555, then the Wi-Fi search. true = the cable path took over. */
+    /** A Quest on the cable → allowed, then reached over the cable ([UsbBridge]). true = the cable path took over. */
     private fun checkUsb(): Boolean {
         val d = UsbAdb.findQuest(this) ?: return false
-        if (usbBusy || d.deviceId == usbHandled) return usbBusy
+        if (usbBusy || d.deviceId == usbHandled || d.deviceId == bridgeId) return usbBusy
         val usb = getSystemService(UsbManager::class.java)
         if (!usb.hasPermission(d)) {
             val flags = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
@@ -183,10 +188,15 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         when (r.outcome) {
             UsbAdb.Outcome.OK -> {
                 usbHandled = d.deviceId
+                bridge?.stop()
+                bridge = UsbBridge(applicationContext, d).also { it.start() }
+                bridgeId = d.deviceId
                 setStatus(getString(R.string.status_usb_ok), getString(R.string.detail_usb_ok), R.color.go_text, false, r.detail, null)
                 autoDone = true
-                // adbd restarts on the Wi-Fi port in ~1–2 s; then the usual search finds it.
-                runButton.postDelayed({ if (!isFinishing && !store.running) findQuest() }, 3_000)
+                // Everything goes over the cable now: no Wi-Fi search, straight to the headset's games.
+                questField.setText(UsbBridge.SERIAL)
+                questField.error = null
+                if (!store.running) listGames()
             }
             UsbAdb.Outcome.NOT_ALLOWED -> setStatus(getString(R.string.status_usb_allow), getString(R.string.detail_usb_allow),
                 R.color.danger, false, r.detail, null)
@@ -643,5 +653,8 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         private const val REQ_RUN_COMMAND = 7
         private const val STATE_AUTO = "auto_done"
         private const val ACTION_USB_PERMISSION = "eu.xems.vrlauncher.USB_PERMISSION"
+        /** The cable relay outlives the screen (a long install keeps running through it). */
+        private var bridge: UsbBridge? = null
+        private var bridgeId = -1
     }
 }

@@ -1,16 +1,26 @@
-## The player's own body as seen: boxing gloves on the hands (controller or bare hand — they follow whatever tracks
+## The player's own body as seen: sci-fi gloves on the hands (controller or bare hand — they follow whatever tracks
 ## the hand now), shin guards, knee pads and boots on the legs whenever the legs are known (ankle controllers or body
 ## tracking), light trails behind fists and feet that turn white-hot once fast enough to count, and a soft halo on the
-## floor at each foot. The colour follows the combo multiplier: ×1 cyan · ×2 green · ×3 magenta · ×4 gold.
+## floor at each foot. The gloves glow cyan and flash magenta on a hit; the trails follow the combo multiplier: ×1 cyan ·
+## ×2 green · ×3 magenta · ×4 gold.
 class_name Avatar
 extends Node3D
 
 const MULT_COLORS := [Color(0.25, 0.85, 1.0), Color(0.3, 1.0, 0.5), Color(0.95, 0.3, 0.9), Color(1.0, 0.78, 0.25)]
 const FOOT_COLOR := Color(1.0, 0.55, 0.15)
 
+const GLOVE_SCENE := preload("res://assets/gloves/sci_fi_glove.gltf")
+const GLOVE_GLOW := Color(0.25, 0.85, 1.0)      # cyan …
+const GLOVE_HIT := Color(1.0, 0.22, 0.85)       # … magenta for a moment when the hand lands a hit
+const GLOVE_SCALE := 0.034                      # model units → metres (a hand about 19 cm wrist to fingertip)
+const GLOVE_PALM := Vector3(-0.3, 0.3, 2.8)     # the palm's middle, in model units: it sits on the grip
+
+static var _glove_meshes := {}   # "plate"/"glow"/"body"/"mech" -> ArrayMesh, built once
 var gloves := {}                 # "left"/"right" -> Node3D
-var _band_mats: Array[StandardMaterial3D] = []
-var _shell_mats: Array[StandardMaterial3D] = []
+var _plate_mats := {}            # side -> StandardMaterial3D
+var _glow_mats := {}             # side -> StandardMaterial3D
+var _glove_body: StandardMaterial3D
+var _glove_mech: StandardMaterial3D
 var _legs := {}                  # "l"/"r" -> {"shin", "knee", "boot", "halo"}
 var _leg_mats: Array[StandardMaterial3D] = []
 var trails := {}                 # limb -> Fx.Trail
@@ -21,7 +31,7 @@ var _punch := {"left": 0.0, "right": 0.0}       # a short flare on the glove tha
 
 func _ready() -> void:
 	for side in ["left", "right"]:
-		gloves[side] = _glove()
+		gloves[side] = _glove(side)
 	for s in ["l", "r"]:
 		_legs[s] = _leg()
 	for l in ["hand_l", "hand_r"]:
@@ -45,78 +55,91 @@ func _unshaded(c: Color, add := false) -> StandardMaterial3D:
 	return m
 
 
-## A boxing glove of light: a dark rounded shell, a glowing knuckle band and cuff, a bright core at the knuckles.
-func _glove() -> Node3D:
+## A sci-fi glove ("Sci-fi Glove" by Hirosin, CC BY): cyan armour plates on a dark glove with a long gauntlet, its light
+## tubes and the disc on the back of the hand glow cyan and flash magenta when the hand lands a hit. The model's 35 parts
+## are merged once into four meshes (plates · glow · glove · wires), turned into the hand's grip frame (fingers ahead,
+## thumb up, palm inward) with the palm on the grip; the right hand is the left one mirrored.
+func _glove(side: String) -> Node3D:
 	var g := Node3D.new()
 	g.top_level = true
 	add_child(g)
-	var shell := MeshInstance3D.new()
-	var s := SphereMesh.new()
-	s.radius = 0.055
-	s.height = 0.11
-	s.radial_segments = 20
-	s.rings = 10
-	shell.mesh = s
-	shell.scale = Vector3(1.0, 0.92, 1.28)
-	var sm := StandardMaterial3D.new()
-	sm.albedo_color = Color(0.05, 0.1, 0.13)
-	sm.metallic = 0.55
-	sm.roughness = 0.3
-	sm.rim_enabled = true
-	sm.rim = 0.9
-	sm.emission_enabled = true
-	sm.emission = MULT_COLORS[0]
-	sm.emission_energy_multiplier = 0.35
-	shell.material_override = sm
-	shell.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	g.add_child(shell)
-	_shell_mats.append(sm)
-	var band := MeshInstance3D.new()                 # across the knuckles
-	var t := TorusMesh.new()
-	t.inner_radius = 0.05
-	t.outer_radius = 0.058
-	t.rings = 24
-	t.ring_segments = 6
-	band.mesh = t
-	band.position = Vector3(0, 0, -0.035)
-	band.rotation_degrees = Vector3(90, 0, 0)
-	band.scale = Vector3(1.0, 1.0, 0.85)
-	var bm := _unshaded(MULT_COLORS[0])
-	band.material_override = bm
-	g.add_child(band)
-	_band_mats.append(bm)
-	var cuff := MeshInstance3D.new()
-	var cy := CylinderMesh.new()
-	cy.top_radius = 0.042
-	cy.bottom_radius = 0.046
-	cy.height = 0.05
-	cy.radial_segments = 16
-	cuff.mesh = cy
-	cuff.position = Vector3(0, -0.005, 0.075)
-	cuff.rotation_degrees = Vector3(90, 0, 0)
-	cuff.material_override = sm
-	g.add_child(cuff)
-	var cuff_ring := MeshInstance3D.new()
-	var cr := TorusMesh.new()
-	cr.inner_radius = 0.044
-	cr.outer_radius = 0.05
-	cr.rings = 20
-	cr.ring_segments = 4
-	cuff_ring.mesh = cr
-	cuff_ring.position = Vector3(0, -0.005, 0.1)
-	cuff_ring.rotation_degrees = Vector3(90, 0, 0)
-	cuff_ring.material_override = bm
-	g.add_child(cuff_ring)
-	var core := MeshInstance3D.new()
-	var c := SphereMesh.new()
-	c.radius = 0.022
-	c.height = 0.044
-	core.mesh = c
-	core.position = Vector3(0, 0, -0.06)
-	core.material_override = _unshaded(Color(0.8, 0.95, 1.0), true)
-	g.add_child(core)
+	if _glove_meshes.is_empty():
+		_glove_meshes = _merge_glove()
+	var plate := StandardMaterial3D.new()
+	plate.albedo_color = Color(0.12, 0.62, 0.78)
+	plate.metallic = 0.65
+	plate.roughness = 0.28
+	plate.rim_enabled = true
+	plate.rim = 0.6
+	plate.emission_enabled = true
+	plate.emission = GLOVE_GLOW
+	plate.emission_energy_multiplier = 0.15
+	var glow := _unshaded(GLOVE_GLOW)
+	_plate_mats[side] = plate
+	_glow_mats[side] = glow
+	if _glove_body == null:
+		_glove_body = StandardMaterial3D.new()
+		_glove_body.albedo_color = Color(0.07, 0.075, 0.09)
+		_glove_body.metallic = 0.3
+		_glove_body.roughness = 0.5
+		_glove_body.rim_enabled = true
+		_glove_body.rim = 0.4
+		_glove_mech = StandardMaterial3D.new()
+		_glove_mech.albedo_color = Color(0.11, 0.12, 0.14)
+		_glove_mech.metallic = 0.8
+		_glove_mech.roughness = 0.35
+	var mats := {"plate": plate, "glow": glow, "body": _glove_body, "mech": _glove_mech}
+	for k in _glove_meshes:
+		var mi := MeshInstance3D.new()
+		mi.mesh = _glove_meshes[k]
+		mi.material_override = mats[k]
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if side == "right":
+			mi.scale = Vector3(-1, 1, 1)                  # mirrored: Godot flips the faces itself
+		g.add_child(mi)
 	g.visible = false
 	return g
+
+
+## The glove model's parts, merged by kind into the left hand's grip frame. In the model the fingers point +z, the back
+## of the hand +y and the thumb −x (a left hand); in the grip the fingers point −z, the palm +x and the thumb +y.
+static func _merge_glove() -> Dictionary:
+	var model := GLOVE_SCENE.instantiate() as Node3D
+	var to_grip := Transform3D(Basis(Vector3(0, -1, 0), Vector3(-1, 0, 0), Vector3(0, 0, -1)).scaled(Vector3.ONE * GLOVE_SCALE), Vector3.ZERO) \
+			* Transform3D(Basis.IDENTITY, -GLOVE_PALM)
+	var tools := {}
+	var stack: Array[Node] = [model]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		stack.append_array(n.get_children())
+		if not n is MeshInstance3D:
+			continue
+		var mi := n as MeshInstance3D
+		var rel := Transform3D.IDENTITY
+		var up: Node = mi
+		while up != model:
+			rel = (up as Node3D).transform * rel
+			up = up.get_parent()
+		for i in mi.mesh.get_surface_count():
+			var mat := mi.mesh.surface_get_material(i)
+			var mname := mat.resource_name if mat else ""
+			var kind := "mech"
+			if mname.ends_with("PLate"):
+				kind = "plate"
+			elif mname.begins_with("Glow"):
+				kind = "glow"
+			elif mname.begins_with("Glove"):
+				kind = "body"
+			if not tools.has(kind):
+				var st := SurfaceTool.new()
+				st.begin(Mesh.PRIMITIVE_TRIANGLES)
+				tools[kind] = st
+			(tools[kind] as SurfaceTool).append_from(mi.mesh, i, to_grip * rel)
+	model.free()
+	var out := {}
+	for k in tools:
+		out[k] = (tools[k] as SurfaceTool).commit()
+	return out
 
 
 ## A leg: a glass shin guard from the knee to the ankle, a knee pad, a boot and a halo on the floor under the foot.
@@ -188,8 +211,6 @@ func flare(side: String) -> void:
 func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, eye: Vector3, delta: float, desktop := false) -> void:
 	_target = MULT_COLORS[clampi(mult - 1, 0, 3)]
 	color = color.lerp(_target, clampf(delta * 4.0, 0.0, 1.0))
-	for m in _band_mats:
-		m.albedo_color = color
 	for side in ["left", "right"]:
 		var g: Node3D = gloves[side]
 		var limb := "hand_l" if side == "left" else "hand_r"
@@ -203,13 +224,15 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		_punch[side] = maxf(_punch[side] - delta * 5.0, 0.0)
 		var sp: float = body.speed.get(limb, 0.0)
 		var heat: float = 1.0 if sp >= min_speed.hand else clampf(sp / min_speed.hand, 0.0, 1.0) * 0.45
-		g.scale = Vector3.ONE * (1.0 + 0.25 * _punch[side])
+		g.scale = Vector3.ONE * (1.0 + 0.12 * _punch[side])
+		var hit: Color = GLOVE_GLOW.lerp(GLOVE_HIT, minf(_punch[side] * 1.6, 1.0))
+		(_glow_mats[side] as StandardMaterial3D).albedo_color = hit * (1.0 + 0.6 * _punch[side])
+		var plate: StandardMaterial3D = _plate_mats[side]
+		plate.emission = hit
+		plate.emission_energy_multiplier = 0.15 + 0.05 * mult + 0.5 * _punch[side]
 		var tr: Fx.Trail = trails[limb]
 		tr.color = color
 		tr.update(g.global_position, heat, eye, on)
-	for i in _shell_mats.size():
-		_shell_mats[i].emission = color
-		_shell_mats[i].emission_energy_multiplier = 0.35 + 0.15 * mult + 1.2 * _punch["left" if i == 0 else "right"]
 	for s in ["l", "r"]:
 		var parts: Dictionary = _legs[s]
 		var kl: String = "knee_" + s

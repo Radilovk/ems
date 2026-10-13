@@ -16,7 +16,7 @@ Borrowed from the best-rated VR fitness games: punch types and guard (FitXR, Les
 multiplier and rank (Beat Saber), squats and side steps (Supernatural), walls (Beat Saber's obstacles).
 
 **Score.** Timing: within 70 ms of the beat *Перфектно* ×1.5, within 150 ms *Чудесно* ×1.2, else *Добре*. The combo
-multiplier climbs ×1 → ×4 (every 8 hits) and colours the gloves and trails cyan → green → magenta → gold. A session
+multiplier climbs ×1 → ×4 (every 8 hits) and colours the trails cyan → green → magenta → gold. A session
 (5–30 min or endless) ends on a summary: score, accuracy, best combo, hits, perfect, dodged, squats, steps, minutes, a
 rank SS … D and the record.
 
@@ -49,7 +49,7 @@ all for 1.2 s → the game pauses itself and goes on when a hand is back. **Legs
 the upper body (Meta body tracking, high fidelity), so real kicks need a **controller strapped to each ankle**: the game
 sees a controller held low while you stand and treats it as that foot (hands then come from hand tracking). The *Крака*
 setting: auto (ankle controllers → tracking that the try-out confirmed → squat-and-step moves), ankles only, tracking
-only, moves only, none. **Seen:** boxing gloves of light, shin guards, knee pads, boots and a halo under each foot, trails
+only, moves only, none. **Seen:** sci-fi gloves (cyan plates and light tubes that flash magenta on a hit), shin guards, knee pads, boots and a halo under each foot, trails
 behind fists and feet that turn white-hot once fast enough to count.
 
 **The arena** (default room, `scripts/game/arena.gd`, built from code plus < 1 MB of CC0 Poly Haven assets in

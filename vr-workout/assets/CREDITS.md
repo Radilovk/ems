@@ -3,6 +3,7 @@
 | Asset | Source | Licence |
 |---|---|---|
 | `rooms/brutalist.glb` | "Brutalist Interior" by vslite — https://sketchfab.com/3d-models/brutalist-interior-0eb40f2cb2bf4dfdbaae36095825788a | CC-BY-4.0 |
+| `gloves/sci_fi_glove.*` | "Sci-fi Glove" by Hirosin (https://sketchfab.com/vitalgolic) — https://sketchfab.com/3d-models/sci-fi-glove-aa87260a746142e1bd4266cd363c189c (recoloured in the game: cyan plates, magenta flash on a hit) | CC-BY-4.0 |
 | `rooms/crossfit_gym.jpg` | Poly Haven "Crossfit Gym" by Dimitrios Savva & Jarod Guest — https://polyhaven.com/a/crossfit_gym (8K HDR, tone-mapped to 8192×4096) | CC0 |
 | `rooms/boxing_ring.jpg` | Poly Haven "Basement Boxing Ring" — https://polyhaven.com/a/basement_boxing_ring (8K HDR, tone-mapped to 8192×4096) | CC0 |
 | `rooms/dancing_hall.jpg` | Poly Haven "Dancing Hall" by Sergej Majboroda — https://polyhaven.com/a/dancing_hall (8K HDR, tone-mapped) | CC0 |

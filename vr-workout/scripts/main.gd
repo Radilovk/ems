@@ -204,6 +204,7 @@ func _apply_room() -> void:
 		room_mat.set_shader_parameter("exposure", pano.exposure)
 		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.6))) - H * 0.5, 0))
 		room_mat.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))))
+		apply_view()
 		sky_mat.panorama = pano.tex
 		sky.sky_material = sky_mat
 		env.background_energy_multiplier = pano.exposure if pano.hdr else 1.0
@@ -237,6 +238,19 @@ func _apply_room() -> void:
 	sky.sky_material = plain_sky
 	env.background_energy_multiplier = 1.0
 	apply_room_offset()
+
+
+## The view out of the photo rooms' windows (settings: sea, mountains, or the photo as it was shot).
+func apply_view() -> void:
+	var r: Dictionary = rooms[room_i]
+	var tex: Texture2D = null
+	if r.get("windows", "") != "" and settings.view < GameSettings.VIEWS.size():
+		tex = load(GameSettings.VIEWS[settings.view].path)
+	room_mat.set_shader_parameter("view_on", tex != null)
+	if tex:
+		room_mat.set_shader_parameter("windows", load(r.windows))
+		room_mat.set_shader_parameter("view", tex)
+		room_mat.set_shader_parameter("view_yaw", float(r.get("view_yaw", 0.0)) + GameSettings.VIEWS[settings.view].yaw)
 
 
 ## The player's place in the room (settings): the room moves and turns around the player, who stays where the game

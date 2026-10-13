@@ -15,6 +15,10 @@ const SPREAD := [{"name": "Отпред", "deg": 0.0}, {"name": "Дъга", "deg
 const LEGS := ["Авто", "На глезените", "От очилата", "Клек и стъпки", "Без"]
 enum Legs { AUTO, ANKLES, TRACKING, MOVES, OFF }
 const MINUTES := [0, 5, 10, 15, 20, 30]     # 0 = until you stop
+# The landscapes the photo rooms look out on. A room's "view_yaw" brings the middle of its windows to the middle of
+# the photo (u 0.5); a view's "yaw" then brings its best part there (the open sea, the peaks).
+const VIEWS := [{"name": "Море", "path": "res://assets/views/sea.jpg", "yaw": 0.15},
+	{"name": "Планини", "path": "res://assets/views/mountain.jpg", "yaw": -0.2}]
 const PUNISH := [{"name": "Меко", "sec": 1.2}, {"name": "Силно", "sec": 2.5}]
 
 var pace := 1
@@ -33,6 +37,7 @@ var offset_z := 0.0
 var turn_deg := 0.0             # which way the room faces the player (degrees)
 var auto_center := true         # every session starts centred on where the player stands and looks
 var room := 0
+var view := 0                   # what the photo rooms' windows look out on: VIEWS, or VIEWS.size() = as shot
 var tutorial_done := false
 var best_score := 0
 
@@ -55,7 +60,7 @@ func save() -> void:
 
 func _fields() -> Array:
 	return ["pace", "spread", "legs", "hazards", "minutes", "suit", "punish", "music_db", "sfx_db", "comfort",
-		"height_cm", "offset_x", "offset_z", "turn_deg", "auto_center", "room", "tutorial_done", "best_score"]
+		"height_cm", "offset_x", "offset_z", "turn_deg", "auto_center", "room", "view", "tutorial_done", "best_score"]
 
 
 func _clamp() -> void:
@@ -71,6 +76,7 @@ func _clamp() -> void:
 	offset_x = clampf(offset_x, -2.0, 2.0)
 	offset_z = clampf(offset_z, -3.0, 2.0)
 	turn_deg = fposmod(turn_deg, 360.0)
+	view = clampi(view, 0, VIEWS.size())
 
 
 func speed_k() -> float:

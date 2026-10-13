@@ -8,6 +8,9 @@
 | `rooms/dancing_hall.jpg` | Poly Haven "Dancing Hall" by Sergej Majboroda — https://polyhaven.com/a/dancing_hall (8K HDR, tone-mapped) | CC0 |
 | `rooms/neon_studio.jpg` | Poly Haven "Neon Photostudio" by Sergej Majboroda — https://polyhaven.com/a/neon_photostudio (8K HDR, tone-mapped) | CC0 |
 | `rooms/mirrored_hall.jpg` | Poly Haven "Mirrored Hall" by Grzegorz Wronkowski — https://polyhaven.com/a/mirrored_hall (8K HDR, tone-mapped) | CC0 |
+| `views/sea.jpg` | Poly Haven "Simons Town Rocks" by Greg Zaal — https://polyhaven.com/a/simons_town_rocks (4K HDR, tone-mapped; the sea out of the rooms' windows) | CC0 |
+| `views/mountain.jpg` | Poly Haven "Champagne Castle 1" by Greg Zaal — https://polyhaven.com/a/champagne_castle_1 (4K HDR, tone-mapped; the mountains out of the windows) | CC0 |
+| `rooms/*_win.png` | own work: window masks made from the room photos (`convert/window_masks.py`) | — |
 | `rooms/bridge.jpg` | Poly Haven "Adams Place Bridge" (4K EXR, tone-mapped) | CC0 |
 | `arena/milky_way.jpg` | Poly Haven "Rogland Clear Night" by Greg Zaal — https://polyhaven.com/a/rogland_clear_night (2K HDR, sky half, own glow subtracted, tone-mapped to 2048×512) | CC0 |
 | `arena/moon_rock_02/03/06.*` | Poly Haven "Moon Rock 02 / 03 / 06" — https://polyhaven.com/a/moon_rock_02 (1K glTF geometry; diffuse + normal scaled to 512) | CC0 |

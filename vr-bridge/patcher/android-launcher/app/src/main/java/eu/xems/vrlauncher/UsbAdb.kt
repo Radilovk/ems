@@ -85,10 +85,17 @@ class UsbAdb(private val context: Context) {
         return if (text.isEmpty() || AdbProtocol.tcpipOk(text)) Result(Outcome.OK, text) else Result(Outcome.FAILED, text)
     }
 
-    class Io(private val conn: UsbDeviceConnection, iface: UsbInterface) {
+    /** One USB bulk pipe pair. A read returns when `len` bytes arrived or a short packet ended the transfer. */
+    interface Bulk {
+        /** Bytes read into buf[0, len), or -1 on timeout / error. */
+        fun read(buf: ByteArray, len: Int, timeoutMs: Int): Int
+        /** Bytes written from data[off, off+len), or -1 on timeout / error. */
+        fun write(data: ByteArray, off: Int, len: Int, timeoutMs: Int): Int
+    }
+
+    class UsbBulk(private val conn: UsbDeviceConnection, iface: UsbInterface) : Bulk {
         private val out: UsbEndpoint
         private val inp: UsbEndpoint
-        private val buf = ByteArray(16 * 1024)
 
         init {
             val eps = (0 until iface.endpointCount).map { iface.getEndpoint(it) }
@@ -96,6 +103,23 @@ class UsbAdb(private val context: Context) {
             out = eps.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT } ?: throw IOException("no bulk out")
             inp = eps.firstOrNull { it.direction == UsbConstants.USB_DIR_IN } ?: throw IOException("no bulk in")
         }
+
+        override fun read(buf: ByteArray, len: Int, timeoutMs: Int) = conn.bulkTransfer(inp, buf, 0, len, timeoutMs)
+        override fun write(data: ByteArray, off: Int, len: Int, timeoutMs: Int) = conn.bulkTransfer(out, data, off, len, timeoutMs)
+    }
+
+    /**
+     * adb messages over [Bulk]. Reads are EXACT, like libusb-based adb hosts: 24 bytes for the header, then exactly
+     * the announced payload. A USB read only ends when its buffer is full or a short packet arrives, so a read
+     * with a bigger buffer than the payload — when the payload is a multiple of 512 bytes, as most 64 KiB install
+     * chunks are — never sees a short packet and swallows the next message's header: the stream is out of step and
+     * adb drops the device ("device offline") in the middle of a big install.
+     */
+    class Io(private val bulk: Bulk) {
+        constructor(conn: UsbDeviceConnection, iface: UsbInterface) : this(UsbBulk(conn, iface))
+
+        private val head = ByteArray(AdbProtocol.HEADER)
+        private val chunk = ByteArray(CHUNK)
 
         fun send(m: AdbProtocol.Message) = sendRaw(AdbProtocol.header(m), m.payload)
 
@@ -108,27 +132,28 @@ class UsbAdb(private val context: Context) {
         private fun write(data: ByteArray) {
             var off = 0
             while (off < data.size) {
-                val n = conn.bulkTransfer(out, data, off, data.size - off, WRITE_TIMEOUT_MS)
+                val n = bulk.write(data, off, minOf(CHUNK, data.size - off), WRITE_TIMEOUT_MS)
                 if (n <= 0) throw IOException("usb write")
                 off += n
             }
         }
 
+        /** null = nothing arrived within [timeoutMs]; a message is read whole or the stream is declared broken. */
         fun receive(timeoutMs: Int): AdbProtocol.Message? {
-            val n = conn.bulkTransfer(inp, buf, buf.size, timeoutMs)
-            if (n < AdbProtocol.HEADER) return null
-            val h = AdbProtocol.parseHeader(buf.copyOf(AdbProtocol.HEADER)) ?: return null
+            val n = bulk.read(head, AdbProtocol.HEADER, timeoutMs)
+            if (n <= 0) return null
+            if (n != AdbProtocol.HEADER) throw IOException("short header $n")
+            val h = AdbProtocol.parseHeader(head) ?: throw IOException("bad header")
             val len = h[3]
             if (len < 0 || len > AdbProtocol.MAX_RELAY) throw IOException("bad length $len")
             val payload = ByteArray(len)
-            var got = minOf(n - AdbProtocol.HEADER, len)    // some stacks deliver header + payload together
-            System.arraycopy(buf, AdbProtocol.HEADER, payload, 0, got)
+            var got = 0
             while (got < len) {
-                val r = conn.bulkTransfer(inp, buf, buf.size, timeoutMs)
-                if (r <= 0) throw IOException("usb read")
-                val take = minOf(r, len - got)
-                System.arraycopy(buf, 0, payload, got, take)
-                got += take
+                val want = minOf(CHUNK, len - got)
+                val r = bulk.read(chunk, want, PAYLOAD_TIMEOUT_MS)
+                if (r <= 0 || r > want) throw IOException("usb read")
+                System.arraycopy(chunk, 0, payload, got, r)
+                got += r
             }
             return AdbProtocol.Message(h[0], h[1], h[2], payload)
         }
@@ -165,6 +190,9 @@ class UsbAdb(private val context: Context) {
         private const val ALLOW_WAIT_MS = 60_000L
         /** adbd stops reading while it writes a big install to flash — a short timeout would drop the whole relay. */
         private const val WRITE_TIMEOUT_MS = 60_000
+        private const val PAYLOAD_TIMEOUT_MS = 10_000
+        /** usbfs moves at most 16 KiB per request. */
+        private const val CHUNK = 16 * 1024
 
         fun adbInterface(d: UsbDevice): UsbInterface? = (0 until d.interfaceCount).map { d.getInterface(it) }
             .firstOrNull { it.interfaceClass == 0xFF && it.interfaceSubclass == 0x42 && it.interfaceProtocol == 0x01 }

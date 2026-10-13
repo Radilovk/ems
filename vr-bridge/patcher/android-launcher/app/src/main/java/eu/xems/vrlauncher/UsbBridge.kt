@@ -60,16 +60,20 @@ class UsbBridge(private val context: Context, private val device: UsbDevice) : R
     private fun serve(sock: Socket): Boolean {
         val usb = context.getSystemService(UsbManager::class.java)
         val iface = UsbAdb.adbInterface(device)
-        val conn = if (iface != null) usb.openDevice(device) else null
-        if (iface == null || conn == null || !conn.claimInterface(iface, true)) {
+        var conn = if (iface != null) usb.openDevice(device) else null
+        // The previous relay's last read may still hold the interface for up to a second.
+        var tries = 0
+        while (iface != null && conn != null && !conn.claimInterface(iface, true) && ++tries < 6) Thread.sleep(500)
+        if (iface == null || conn == null || tries >= 6) {
             conn?.close()
             runCatching { sock.close() }
             return false
         }
+        var back: Thread? = null
         try {
             sock.tcpNoDelay = true
             val io = UsbAdb.Io(conn, iface)
-            val back = Thread(ToTcp(context, device.deviceId, io, sock), "xems-usb-bridge-in")
+            back = Thread(ToTcp(context, device.deviceId, io, sock), "xems-usb-bridge-in")
             back.start()
             val inp = DataInputStream(sock.getInputStream())
             val header = ByteArray(AdbProtocol.HEADER)
@@ -85,6 +89,7 @@ class UsbBridge(private val context: Context, private val device: UsbDevice) : R
             // Termux's adb hung up or the cable came out.
         } finally {
             runCatching { sock.close() }
+            back?.join(3_000)                       // its read must be over before the interface goes back
             conn.releaseInterface(iface)
             conn.close()
         }

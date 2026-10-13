@@ -108,7 +108,7 @@ class UsbAdb(private val context: Context) {
         private fun write(data: ByteArray) {
             var off = 0
             while (off < data.size) {
-                val n = conn.bulkTransfer(out, data, off, data.size - off, 2_000)
+                val n = conn.bulkTransfer(out, data, off, data.size - off, WRITE_TIMEOUT_MS)
                 if (n <= 0) throw IOException("usb write")
                 off += n
             }
@@ -163,6 +163,8 @@ class UsbAdb(private val context: Context) {
                 String(AdbProtocol.publicKeyPayload(k.public as RSAPublicKey)).trimEnd('\u0000')
         }
         private const val ALLOW_WAIT_MS = 60_000L
+        /** adbd stops reading while it writes a big install to flash — a short timeout would drop the whole relay. */
+        private const val WRITE_TIMEOUT_MS = 60_000
 
         fun adbInterface(d: UsbDevice): UsbInterface? = (0 until d.interfaceCount).map { d.getInterface(it) }
             .firstOrNull { it.interfaceClass == 0xFF && it.interfaceSubclass == 0x42 && it.interfaceProtocol == 0x01 }

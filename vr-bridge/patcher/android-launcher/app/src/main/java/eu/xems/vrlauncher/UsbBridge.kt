@@ -13,31 +13,47 @@ import java.net.Socket
 /**
  * Headset on the cable → Termux's adb reaches it as `127.0.0.1:15555`, no Wi-Fi at all: adb over TCP and over USB
  * are the same messages, so this only relays them (TCP ⇄ USB bulk). Termux's adb does its own handshake with the
- * key the headset already allowed (the app's, via ADB_VENDOR_KEYS). One client at a time; ends with [stop] or
- * when the cable comes out.
+ * key the headset already allowed (the app's, via ADB_VENDOR_KEYS). One client at a time: a new adb connection
+ * replaces the previous one (adb's server keeps its socket open for good, so a leftover of a dead server must
+ * never block the next one); ends with [stop] or when the cable comes out.
  */
 class UsbBridge(private val context: Context, private val device: UsbDevice) : Runnable {
 
     @Volatile private var server: ServerSocket? = null
+    @Volatile private var current: Socket? = null
+    private val usbLock = Any()
 
     fun start() = Thread(this, "xems-usb-bridge").start()
 
     fun stop() {
         runCatching { server?.close() }
+        runCatching { current?.close() }
     }
 
     override fun run() {
         val s = try {
-            ServerSocket(PORT, 1, InetAddress.getByName(HOST))
+            ServerSocket(PORT, 8, InetAddress.getByName(HOST))
         } catch (e: IOException) {
             return
         }
         server = s
         while (!s.isClosed) {
             val c = try { s.accept() } catch (e: IOException) { break }
-            if (!serve(c)) break                    // cable gone → no point waiting for the next client
+            runCatching { current?.close() }        // the previous adb connection ends; its relay lets go of USB
+            current = c
+            Thread(Client(c), "xems-usb-bridge-client").start()
         }
         runCatching { s.close() }
+    }
+
+    /** One adb connection; waits for the previous one to release the USB interface. */
+    private inner class Client(private val sock: Socket) : Runnable {
+        override fun run() {
+            synchronized(usbLock) {
+                if (sock.isClosed) return
+                serve(sock)
+            }
+        }
     }
 
     /** Relays one Termux adb connection; false = the headset can no longer be opened. */

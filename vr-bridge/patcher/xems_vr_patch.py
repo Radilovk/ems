@@ -395,6 +395,8 @@ def restore(adb: Adb, pkg: str, saved: list[tuple[str, Path | str]]) -> None:
 def install_set(adb: Adb, apks: list[Path]) -> bool:
     args = ["install", "-r", str(apks[0])] if len(apks) == 1 else ["install-multiple", "-r", *[str(a) for a in apks]]
     out = adb(*args, check=False)
+    if "Success" not in out:
+        say("  adb: " + (out.strip()[-400:] or "(без отговор)"))
     return "Success" in out
 
 

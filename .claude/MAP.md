@@ -266,7 +266,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (137L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
-- `ClientRow.java` (554L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
+- `ClientRow.java` (557L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `ClientSort.java` (608L, compile:music-sync*,wearable) — Order and filters of the client lists — the Потребители tab and the client / program / device picker.
 - `DoubleImpulse.java` (1332L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
@@ -1256,25 +1256,33 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L77 ## Limits (what still needs a hand)
   - L84 ## Build & test
 
-`vr-workout/README.md` (69L)
+`vr-workout/README.md` (92L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
-  - L6 ## What is in it (v0.1)
-  - L42 ## In the Quest browser (WebXR) — the way it ships now
-  - L56 ## Build / preview
-  - L65 ## Licences
+  - L7 ## The game (v0.3) — on the beat, felt three ways
+  - L65 ## In the Quest browser (WebXR) — the way it ships now
+  - L79 ## Build / preview
+  - L88 ## Licences
 
-`vr-workout/addons/godotopenxrvendors/GodotOpenXRVendors_CHANGES.md` (100L)
+`vr-workout/addons/godotopenxrvendors/GodotOpenXRVendors_CHANGES.md` (190L)
   - L1 # Change history for the Godot OpenXR loaders asset
-  - L3 ## 4.0.0
-  - L22 ## 3.1.2
-  - L26 ## 3.1.1
-  - L30 ## 3.1.0
-  - L42 ## 3.0.1
-  - L45 ## 3.0.0
-  - L65 ## 2.0.3
-  - L72 ## 2.0.0
-  - L88 ## 1.1.0
-  - L93 ## 1.0.0
+  - L3 ## 4.3.1
+  - L8 ## 4.3.0
+  - L31 ## 4.2.2
+  - L36 ## 4.2.1
+  - L43 ## 4.2.0
+  - L73 ## 4.1.1
+  - L77 ## 4.1.0
+  - L89 ## 4.0.0
+  - L108 ## 3.1.2
+  - L112 ## 3.1.1
+  - L116 ## 3.1.0
+  - L128 ## 3.0.1
+  - L131 ## 3.0.0
+  - L151 ## 2.0.4
+  - L155 ## 2.0.3
+  - L162 ## 2.0.0
+  - L178 ## 1.1.0
+  - L183 ## 1.0.0
 
-`vr-workout/assets/CREDITS.md` (15L)
+`vr-workout/assets/CREDITS.md` (12L)
   - L1 # Asset credits

@@ -3,7 +3,7 @@
 # every build installs over the last). Downloads Godot 4.4.1, its export templates, the Meta OpenXR vendors
 # plugin and JDK 17 into $XEMS_TOOLS (default /tmp/xems-godot) once.
 #   bash vr-workout/build.sh            needs: an Android SDK (platform 34, build-tools 34) in $ANDROID_HOME
-#   bash vr-workout/build.sh shot squat 2.0 player   → a desktop preview PNG (Xvfb), no headset
+#   bash vr-workout/build.sh shot 8 player           → a desktop preview PNG (Xvfb), no headset: 8 s into a simulated game
 #   bash vr-workout/build.sh repack     no SDK (cloud): exports the project data and swaps it into the last released APK,
 #                                       re-signed with the same key. Only for changes in scripts/assets/scenes —
 #                                       the engine, the plugin and the Android manifest stay as last built.
@@ -16,14 +16,17 @@ GH=https://github.com
 mkdir -p "$T"
 [[ -x "$G" ]] || { curl -fsSL -o "$T/g.zip" "$GH/godotengine/godot-builds/releases/download/${V}-stable/Godot_v${V}-stable_linux.x86_64.zip"
   unzip -oq "$T/g.zip" -d "$T" && rm "$T/g.zip"; }
-[[ -d "$HERE/addons/godotopenxrvendors" ]] || { curl -fsSL -o "$T/v.zip" "$GH/GodotVR/godot_openxr_vendors/releases/download/4.0.0-stable/godotopenxrvendorsaddon.zip"
-  rm -rf "$T/v" && unzip -oq "$T/v.zip" -d "$T/v" && cp -r "$T/v/asset/addons" "$HERE/"; }
+# Meta OpenXR vendors plugin: 4.3.1 has XR_META_body_tracking_full_body (legs, estimated) and the Godot 4.4 fixes.
+VENDORS=4.3.1-stable
+[[ "$(cat "$HERE/addons/.vendors_version" 2>/dev/null)" == "$VENDORS" ]] || { rm -rf "$HERE/addons" "$HERE/android"
+  curl -fsSL -o "$T/v.zip" "$GH/GodotVR/godot_openxr_vendors/releases/download/$VENDORS/godotopenxrvendorsaddon.zip"
+  rm -rf "$T/v" && unzip -oq "$T/v.zip" -d "$T/v" && cp -r "$T/v/asset/addons" "$HERE/" && echo "$VENDORS" > "$HERE/addons/.vendors_version"; }
 
 if [[ "${1:-}" == shot ]]; then
   [[ -d "$HERE/.godot" ]] || timeout 300 "$G" --headless --path "$HERE" --import >/dev/null 2>&1 || true
-  out="${XEMS_SHOT:-$HERE/build/shot-${2:-squat}.png}"; mkdir -p "$(dirname "$out")"
+  out="${XEMS_SHOT:-$HERE/build/shot-${2:-8}.png}"; mkdir -p "$(dirname "$out")"
   xvfb-run -a -s "-screen 0 1600x900x24" "$G" --path "$HERE" --rendering-driver opengl3 -- \
-    --shot="$out" --ex="${2:-squat}" --t="${3:-2.0}" --view="${4:-player}" >/dev/null 2>&1
+    --shot="$out" --wait="${2:-8}" --view="${3:-player}" --sim=1 --skiptut=1 --level=3 --mute=1 >/dev/null 2>&1
   echo "$out"; exit 0
 fi
 

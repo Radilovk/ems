@@ -14,6 +14,11 @@
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Tick;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Step;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMinutes;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Edited;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$NewMine;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$EditMine;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMine;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Tab;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickProgram;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Go;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$StartScan;,
@@ -33,7 +38,7 @@
     .registers 1
 
     .prologue
-    .line 37
+    .line 38
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -43,7 +48,7 @@
     .registers 1
 
     .prologue
-    .line 52
+    .line 53
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
@@ -55,7 +60,7 @@
     .registers 3
 
     .prologue
-    .line 41
+    .line 42
     :try_start_0
     new-instance v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -65,15 +70,15 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_8} :catch_9
 
-    .line 45
+    .line 46
     :goto_8
     return-void
 
-    .line 42
+    .line 43
     :catch_9
     move-exception v0
 
-    .line 43
+    .line 44
     const-string v1, "BluetensScreen.open"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -85,7 +90,7 @@
     .registers 3
 
     .prologue
-    .line 48
+    .line 49
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0

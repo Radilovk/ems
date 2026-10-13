@@ -26,9 +26,10 @@ import java.util.Set;
 
 /**
  * The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
- * Landscape: program and minutes on the left, the pads (classic, or the two of a Duo) on the right with their
- * strength big; one primary button ▶ / ■. The pads are found and linked by themselves; programs are XEMS's own
- * ({@link BluetensPrograms}). Closing the page stops the output.
+ * Landscape: on the left "Готови" (XEMS's own, {@link BluetensPrograms}, with minutes) or "Мои" (the manual module:
+ * programs the trainer builds parameter by parameter, {@link BluetensEditor}); the pads (classic, or the two of a
+ * Duo) on the right with their strength big; one primary button ▶ / ■. The pads are found and linked by themselves.
+ * Closing the page stops the output.
  */
 public final class BluetensScreen {
     static final String PREFS = "xems_bluetens";
@@ -79,6 +80,11 @@ public final class BluetensScreen {
 
         int program;
         int minutes;
+        /** "Мои" tab: the trainer's own programs; {@code mineId} = the chosen one ("" = none). */
+        boolean mine;
+        String mineId = "";
+        LinearLayout tabHolder;
+        LinearLayout minuteBox;
         boolean running;
         long startedAt;
         long lengthMs;
@@ -103,6 +109,8 @@ public final class BluetensScreen {
             prefs = a.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             program = prefs.getInt("program", BluetensPrograms.RECOVER);
             minutes = prefs.getInt("minutes", BluetensPrograms.defaultMinutes(program));
+            mine = prefs.getBoolean("mine", false);
+            mineId = prefs.getString("mine_id", "");
         }
 
         int dp(float v) {
@@ -151,17 +159,30 @@ public final class BluetensScreen {
 
         LinearLayout leftColumn() {
             LinearLayout col = XemsUi.card(a);
-            col.addView(XemsUi.label(a, tr("Програма", "Program")));
+            tabHolder = XemsUi.vertical(a);
+            col.addView(tabHolder);
             programList = XemsUi.vertical(a);
-            col.addView(programList, XemsUi.matchWrap(a, 8));
-            col.addView(XemsUi.label(a, tr("Минути", "Minutes")), XemsUi.matchWrap(a, 16));
+            col.addView(programList, XemsUi.matchWrap(a, 10));
+            minuteBox = XemsUi.vertical(a);
+            minuteBox.addView(XemsUi.label(a, tr("Минути", "Minutes")), XemsUi.matchWrap(a, 16));
             minuteRow = XemsUi.horizontal(a);
-            col.addView(minuteRow, XemsUi.matchWrap(a, 8));
+            minuteBox.addView(minuteRow, XemsUi.matchWrap(a, 8));
+            col.addView(minuteBox);
             return col;
         }
 
         void fillPrograms() {
+            tabHolder.removeAllViews();
+            LinearLayout seg = XemsUi.segmented(a, new String[] {tr("Готови", "Ready"), tr("Мои · ръчно", "Mine · manual")},
+                    mine ? 1 : 0, new Tab(this));
+            seg.setAlpha(running ? 0.4f : 1f);
+            tabHolder.addView(seg);
             programList.removeAllViews();
+            minuteBox.setVisibility(mine ? View.GONE : View.VISIBLE);
+            if (mine) {
+                fillMine();
+                return;
+            }
             boolean b = bg();
             for (int p : BluetensPrograms.ALL) {
                 boolean sel = p == program;
@@ -189,6 +210,142 @@ public final class BluetensScreen {
                 r.setAlpha(running && !sel ? 0.4f : 1f);
                 programList.addView(r, XemsUi.matchWrap(a, 4));
             }
+        }
+
+        /** The trainer's own programs: tap = choose, ✎ = the manual module; ＋ makes a new one. */
+        void fillMine() {
+            List<BluetensProgram> all = BluetensStore.list(a);
+            if (find(all, mineId) == null) {
+                mineId = all.isEmpty() ? "" : all.get(0).id;
+            }
+            int tint = XemsUi.GO;
+            for (BluetensProgram p : all) {
+                boolean sel = p.id.equals(mineId);
+                LinearLayout r = XemsUi.horizontal(a);
+                r.setGravity(Gravity.CENTER_VERTICAL);
+                r.setPadding(dp(12), dp(6), dp(6), dp(6));
+                float rad = dp(14);
+                r.setBackground(XemsUi.ripple(sel ? XemsUi.rounded(XemsUi.alpha(tint, 0x26), rad, XemsUi.alpha(tint, 0xCC), dp(1.5f))
+                        : XemsUi.rounded(0x00000000, rad, 0, 0), tint, rad));
+                r.setClickable(true);
+                r.setOnClickListener(new PickMine(this, p.id));
+                XemsUi.pressable(r);
+                LinearLayout texts = XemsUi.vertical(a);
+                texts.addView(XemsUi.text(a, p.name.length() > 0 ? p.name : tr("Без име", "Untitled"), 16,
+                        sel ? XemsUi.GO_TEXT : XemsUi.TEXT, true));
+                texts.addView(XemsUi.text(a, BluetensEditor.time(p.seconds()) + " · " + p.steps.size()
+                        + tr(p.steps.size() == 1 ? " стъпка" : " стъпки", p.steps.size() == 1 ? " step" : " steps")
+                        + " · " + summary(p), 12.5f, XemsUi.MUTED, false));
+                r.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                TextView edit = XemsUi.iconButton(a, "✎", XemsUi.SURFACE, XemsUi.TEXT, 48);
+                edit.setOnClickListener(new EditMine(this, p.id));
+                edit.setEnabled(!running);
+                r.addView(edit);
+                r.setAlpha(running && !sel ? 0.4f : 1f);
+                programList.addView(r, XemsUi.matchWrap(a, 4));
+            }
+            if (all.isEmpty()) {
+                TextView none = XemsUi.text(a, tr("Още нямаш свои програми. Направи първата: ти задаваш честотата, "
+                        + "импулса, паузите и времето.", "No programs of your own yet. Make the first: you set the "
+                        + "frequency, pulse, pauses and time."), 14, XemsUi.MUTED, false);
+                none.setPadding(dp(4), dp(6), dp(4), dp(6));
+                programList.addView(none);
+            }
+            TextView add = XemsUi.button(a, tr("＋  Нова програма", "＋  New program"),
+                    all.isEmpty() ? XemsUi.PRIMARY : XemsUi.SECONDARY);
+            add.setOnClickListener(new NewMine(this));
+            add.setEnabled(!running);
+            add.setAlpha(running ? 0.4f : 1f);
+            programList.addView(add, XemsUi.matchWrap(a, 12));
+        }
+
+        static BluetensProgram find(List<BluetensProgram> all, String id) {
+            for (BluetensProgram p : all) {
+                if (p.id.equals(id)) {
+                    return p;
+                }
+            }
+            return null;
+        }
+
+        /** "5–50 Hz · 250 µs" — the range of the program at a glance. */
+        static String summary(BluetensProgram p) {
+            int lo = 999, hi = 0, us = 0;
+            for (BluetensProgram.Step st : p.steps) {
+                lo = Math.min(lo, st.hz);
+                hi = Math.max(hi, st.hz);
+                us = Math.max(us, st.us);
+            }
+            return (lo == hi ? String.valueOf(lo) : lo + "–" + hi) + " Hz · " + us + " µs";
+        }
+
+        void setTab(int i) {
+            if (running || (i == 1) == mine) {
+                return;
+            }
+            mine = i == 1;
+            prefs.edit().putBoolean("mine", mine).apply();
+            finished = false;
+            fillPrograms();
+            render();
+        }
+
+        void pickMine(String id) {
+            if (running || id.equals(mineId)) {
+                return;
+            }
+            mineId = id;
+            prefs.edit().putString("mine_id", id).apply();
+            finished = false;
+            fillPrograms();
+            render();
+        }
+
+        void editMine(String id) {
+            if (running) {
+                return;
+            }
+            BluetensProgram p = BluetensStore.find(a, id);
+            if (p != null) {
+                BluetensEditor.open(a, p, new Edited(this));
+            }
+        }
+
+        void newMine() {
+            if (running) {
+                return;
+            }
+            int n = BluetensStore.list(a).size() + 1;
+            BluetensProgram p = BluetensProgram.fresh(BluetensStore.newId(), tr("Моя програма ", "My program ") + n);
+            BluetensStore.save(a, p);
+            BluetensEditor.open(a, p, new Edited(this));
+        }
+
+        void edited(BluetensProgram p) {
+            if (p != null) {
+                mineId = p.id;
+                prefs.edit().putString("mine_id", mineId).apply();
+            }
+            finished = false;
+            fillPrograms();
+            render();
+        }
+
+        /** What ▶ would run now: null when "Мои" has nothing chosen. */
+        BluetensLok currentLok() {
+            if (!mine) {
+                return BluetensPrograms.build(program, minutes);
+            }
+            BluetensProgram p = BluetensStore.find(a, mineId);
+            return p != null ? p.toLok() : null;
+        }
+
+        String currentName() {
+            if (!mine) {
+                return BluetensPrograms.name(program, bg());
+            }
+            BluetensProgram p = BluetensStore.find(a, mineId);
+            return p != null ? p.name : "";
         }
 
         void fillMinutes() {
@@ -289,12 +446,13 @@ public final class BluetensScreen {
                 return;
             }
             boolean b = bg();
+            BluetensLok cur = running ? null : currentLok();
             long left = running ? Math.max(0, lengthMs - (System.currentTimeMillis() - startedAt))
-                    : (long) BluetensPrograms.build(program, minutes).ms();
+                    : cur != null ? (long) cur.ms() : 0;
             long secs = (left + 999) / 1000;
             clock.setText(String.format(Locale.ROOT, "%d:%02d", secs / 60, secs % 60));
-            clockLabel.setText(running ? tr("остават · ", "left · ") + BluetensPrograms.name(program, b)
-                    : finished ? tr("Готово ✓", "Done ✓") : BluetensPrograms.name(program, b));
+            clockLabel.setText(running ? tr("остават · ", "left · ") + currentName()
+                    : finished ? tr("Готово ✓", "Done ✓") : currentName());
             clockLabel.setTextColor(finished && !running ? XemsUi.GO_TEXT : XemsUi.MUTED);
             float done = running && lengthMs > 0 ? Math.min(1f, (System.currentTimeMillis() - startedAt) / (float) lengthMs) : 0f;
             ((LinearLayout.LayoutParams) barDone.getLayoutParams()).weight = done;
@@ -321,7 +479,7 @@ public final class BluetensScreen {
                 goStyle = style;
                 go.setBackgroundDrawable(XemsUi.button(a, "", style).getBackground());
             }
-            boolean can = running || ready > 0;
+            boolean can = running || (ready > 0 && cur != null);
             go.setEnabled(can && !uploading);
             go.setAlpha(can && !uploading ? 1f : 0.4f);
             String h;
@@ -331,6 +489,8 @@ public final class BluetensScreen {
                 h = tr("Качвам програмата в устройството…", "Sending the program to the pad…");
             } else if (running) {
                 h = tr("Качвай силата, докато е приятно — не до болка.", "Raise the strength until it feels good — never to pain.");
+            } else if (cur == null) {
+                h = tr("Направи своя програма с ＋ или избери от „Готови“.", "Make a program with ＋ or pick a ready one.");
             } else if (ready == 0) {
                 h = pads.isEmpty() ? "" : tr("Свързвам…", "Connecting…");
             } else {
@@ -481,9 +641,13 @@ public final class BluetensScreen {
                 }
                 return;
             }
-            BluetensLok lok = BluetensPrograms.build(program, minutes);
+            BluetensLok lok = currentLok();
+            if (lok == null) {
+                return;
+            }
             byte[] content = BluetensShell.ascii(lok.build());
-            String file = BluetensPrograms.fileName(program, minutes);
+            // own programs share one file on the pad (it is replaced when it changes — the md5 decides)
+            String file = mine ? "XMINE" : BluetensPrograms.fileName(program, minutes);
             lengthMs = (long) lok.ms();
             finished = false;
             for (Pad p : pads) {
@@ -648,6 +812,75 @@ public final class BluetensScreen {
         }
     }
 
+    static final class Tab implements XemsUi.OnIndex {
+        final Page v;
+
+        Tab(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onIndex(int index) {
+            v.setTab(index);
+        }
+    }
+
+    static final class PickMine implements View.OnClickListener {
+        final Page v;
+        final String id;
+
+        PickMine(Page v, String id) {
+            this.v = v;
+            this.id = id;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.pickMine(id);
+        }
+    }
+
+    static final class EditMine implements View.OnClickListener {
+        final Page v;
+        final String id;
+
+        EditMine(Page v, String id) {
+            this.v = v;
+            this.id = id;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.editMine(id);
+        }
+    }
+
+    static final class NewMine implements View.OnClickListener {
+        final Page v;
+
+        NewMine(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.newMine();
+        }
+    }
+
+    static final class Edited implements BluetensEditor.Listener {
+        final Page v;
+
+        Edited(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClosed(BluetensProgram p) {
+            v.edited(p);
+        }
+    }
+
     static final class PickMinutes implements View.OnClickListener {
         final Page v;
         final int m;
@@ -742,8 +975,12 @@ public final class BluetensScreen {
         @Override
         public void onClick(View view) {
             boolean b = bg();
-            XemsUi.Shell s = XemsUi.shell(v.a, BluetensPrograms.name(v.program, b),
-                    BluetensPrograms.detail(v.program, b), 620);
+            XemsUi.Shell s = XemsUi.shell(v.a, v.mine ? tr("Ръчен режим", "Manual mode") : BluetensPrograms.name(v.program, b),
+                    v.mine ? tr("Ти задаваш всяка стъпка: време, честота, ширина на импулса, импулс и пауза, "
+                            + "импулси в паузата, плавно качване. Всичко стои в границите за безопасност на костюма.",
+                            "You set every step: time, frequency, pulse width, impulse and pause, pulses in the pause, "
+                            + "soft rise. Everything stays inside the suit's safety limits.")
+                            : BluetensPrograms.detail(v.program, b), 620);
             String[] lines = b ? new String[] {
                     "• Електродите — на чиста, суха кожа, върху мускула, не върху става или кост.",
                     "• Започва от сила 1. Качвай, докато е приятно — никога до болка.",

@@ -1,5 +1,6 @@
 import com.isaigu.gymapp.wearable.bluetens.BluetensAdvert;
 import com.isaigu.gymapp.wearable.bluetens.BluetensLok;
+import com.isaigu.gymapp.wearable.bluetens.BluetensProgram;
 import com.isaigu.gymapp.wearable.bluetens.BluetensPrograms;
 import com.isaigu.gymapp.wearable.bluetens.BluetensShell;
 
@@ -318,6 +319,53 @@ public final class BluetensSim {
         check(BluetensAdvert.classify("JBL Flip", null) == 0, "not a pad");
     }
 
+    /** The manual module: limits, conversion to the pad's file, storage line. */
+    static void manual(File out) throws Exception {
+        BluetensProgram p = BluetensProgram.fresh("t1", "Тест\tс|знаци");
+        BluetensProgram.Step a = p.steps.get(0);                // 10 min · 5 Hz · 250 µs continuous
+        BluetensProgram.Step b = new BluetensProgram.Step();
+        b.seconds = 300; b.hz = 80; b.us = 350; b.workS = 9; b.restS = 1; b.restHz = 30; b.riseMs = 0;
+        p.steps.add(b);
+        BluetensProgram.Step c = new BluetensProgram.Step();
+        c.seconds = 120; c.hz = 40; c.us = 300; c.workS = 0;   // continuous at 40 Hz: not allowed
+        p.steps.add(c);
+        String[] why = BluetensProgram.safe(b.copy());
+        check(why[0].length() > 0 && why[1].length() > 0, "corrections are explained");
+        BluetensProgram.Step bs = b.copy();
+        BluetensProgram.safe(bs);
+        check(bs.hz == 80 && bs.us == 350 && bs.workS == 6 && bs.restS >= 3 && bs.restHz == 10 && bs.riseMs >= 300,
+                "80 Hz step held in limits: " + bs.workS + "s/" + bs.restS + "s " + bs.restHz + "Hz rise " + bs.riseMs);
+        BluetensProgram.Step cs = c.copy();
+        BluetensProgram.safe(cs);
+        check(!cs.continuous(), "40 Hz cannot run continuously");
+        BluetensProgram.Step hs = new BluetensProgram.Step();
+        hs.hz = 110; hs.us = 400; hs.workS = 3; hs.restS = 5;
+        BluetensProgram.safe(hs);
+        check(hs.us == 300, "≥100 Hz → at most 300 µs");
+        BluetensProgram.Step as = a.copy();
+        check(BluetensProgram.safe(as)[0].length() == 0 && as.continuous(), "5 Hz continuous untouched");
+
+        BluetensLok lok = p.toLok();
+        BluetensLok back = BluetensLok.parse(lok.build());
+        check(back.sections.size() == 3, "one section per step");
+        check(Math.abs(back.sections.get(0).ms() - 600000) < 1, "step 1 = 10 min: " + back.sections.get(0).ms());
+        check(Math.abs(back.sections.get(1).ms() - 300000) < 15000, "step 2 ≈ 5 min: " + back.sections.get(1).ms());
+        check(Math.abs(back.sections.get(2).ms() - 120000) < 15000, "step 3 ≈ 2 min: " + back.sections.get(2).ms());
+        for (BluetensLok.Section sec : back.sections) {
+            for (BluetensLok.Block k : sec.blocks) {
+                check(k.impulse <= 400 && k.freq10 <= 1200 && (k.freq10 < 1000 || k.impulse <= 300), "manual block in limits");
+            }
+        }
+        FileOutputStream f = new FileOutputStream(new File(out, "XMINE.lok"));
+        f.write(BluetensShell.ascii(lok.build()));
+        f.close();
+
+        BluetensProgram d = BluetensProgram.decode(p.encode());
+        check(d != null && d.id.equals("t1") && d.steps.size() == 3 && d.steps.get(1).restHz == 30
+                && d.name.indexOf('\t') < 0 && d.name.indexOf('|') < 0, "storage line round trip");
+        check(BluetensProgram.decode("junk") == null && BluetensProgram.decode(null) == null, "bad lines ignored");
+    }
+
     static void programs(File out) throws Exception {
         for (int p : BluetensPrograms.ALL) {
             for (int m : BluetensPrograms.MINUTES) {
@@ -360,7 +408,9 @@ public final class BluetensSim {
         parsing();
         adverts();
         shellFlow();
-        programs(new File(a.length > 0 ? a[0] : "."));
+        File out = new File(a.length > 0 ? a[0] : ".");
+        programs(out);
+        manual(out);
         if (fails > 0) {
             System.out.println(fails + " FAILED");
             System.exit(1);

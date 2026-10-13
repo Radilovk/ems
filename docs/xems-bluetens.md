@@ -60,7 +60,8 @@ of it mixes into the training screen. The owner has a classic pad and a Duo.
   − / + (hold repeats); footer — one primary ▶ Пусни / ■ Спри. Pads are found and linked by themselves (up to 2).
   Electrodes off → amber line on that pad's card. ⓘ = the impulse in numbers + how to place the electrodes.
   **Closing the page stops the pads.**
-- **Code** (compile:wearable): `BluetensLok` (format), `BluetensPrograms` (XEMS's own programs), `BluetensShell`
+- **Code** (compile:wearable): `BluetensLok` (format), `BluetensPrograms` (XEMS's ready programs), `BluetensProgram`
+  + `BluetensStore` + `BluetensEditor` (the manual module), `BluetensShell`
   (the conversation: queue, one request in flight, strength coalescing, md5 → upload only when changed, keep-alive
   `>bat` every 20 s while running), `BluetensAdvert` (tell a pad / Duo / v2 from the advert), `BluetensScan`,
   `BluetensLink` (GATT, 20-byte writes ≥ 27 ms apart, reconnect), `BluetensScreen`. All pure parts are tested
@@ -69,6 +70,13 @@ of it mixes into the training screen. The owner has a classic pad and a Duo.
   bursts of 0.1 s + 4 Hz; Облекчаване burst TENS 100 Hz × 7 / × 5 · 150 µs; Активиране 50 Hz · 300 µs, 0.5 s rise,
   3.5 s hold, 6 s rest at 4 Hz; Загряване 4 → 12 → 4 Hz. All inside docs/xems-safety-limits.md (fused ≤ 4 s,
   ≤ 300 µs from 100 Hz, rest ≤ 10 Hz). Strength always starts at 1.
+- **Manual module** (1.1.432-ai, owner: "I want control over the parameters, programs I create" — the ready ones
+  stay): the left column has two tabs, "Готови" and "Мои · ръчно". "Мои" lists the trainer's programs (name, time,
+  steps, Hz / µs range), ✎ opens `BluetensEditor`, ＋ makes a new one. The editor is full screen. Each step has
+  time, Hz, pulse width µs, impulse s (0 = continuous, only under 20 Hz), pause s, pulses in the pause (0 = silence,
+  ≤ 10 Hz) and soft rise. Steps sit side by side; ⧉ duplicates, ✕ removes. Every change goes through
+  `BluetensProgram.safe` (`ai/SafeLimits`): the value shown is what the pad gets, and an amber line says why. Saved
+  as you go (`BluetensStore`, prefs `xems_bluetens` / `progs`). On the pad all own programs share one file, `XMINE`.
 - Not done yet: no device test (protocol from the vendor app only); `>mode` (async, Eurocept) is not sent.
 
 ## Notes

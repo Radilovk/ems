@@ -15,6 +15,8 @@
 
 
 # instance fields
+.field burst:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
 .field hz:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
 .field note:Landroid/widget/TextView;

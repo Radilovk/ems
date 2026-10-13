@@ -15,6 +15,8 @@
 
 
 # static fields
+.field static final F_BURST:I = 0x7
+
 .field static final F_HZ:I = 0x1
 
 .field static final F_REST:I = 0x4
@@ -110,7 +112,7 @@
     .registers 5
 
     .prologue
-    .line 267
+    .line 274
     if-eqz p1, :cond_25
 
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->step:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;
@@ -121,7 +123,7 @@
 
     move-object v1, v0
 
-    .line 269
+    .line 276
     :goto_9
     if-eqz p1, :cond_50
 
@@ -137,7 +139,7 @@
 
     add-int/lit8 v0, v0, 0x1
 
-    .line 270
+    .line 277
     :goto_17
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
@@ -145,16 +147,16 @@
 
     invoke-interface {v2, v0, v1}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 271
+    .line 278
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->fill()V
 
-    .line 272
+    .line 279
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->save()V
 
-    .line 273
+    .line 280
     return-void
 
-    .line 268
+    .line 275
     :cond_25
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
@@ -203,7 +205,7 @@
 
     goto :goto_9
 
-    .line 269
+    .line 276
     :cond_50
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
@@ -483,6 +485,27 @@
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->us:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     .line 177
+    const-string v1, "\u0422\u043e\u043a"
+
+    const-string v4, "Current"
+
+    invoke-static {v1, v4}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    new-instance v4, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Change;
+
+    const/4 v5, 0x7
+
+    invoke-direct {v4, p0, v0, v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Change;-><init>(Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;I)V
+
+    invoke-virtual {p0, v2, v1, v4}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->field(Landroid/widget/LinearLayout;Ljava/lang/String;Lcom/isaigu/gymapp/widget/XemsUi$OnStep;)Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    move-result-object v1
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->burst:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    .line 178
     const-string v1, "\u0418\u043c\u043f\u0443\u043b\u0441"
 
     const-string v2, "Impulse"
@@ -503,7 +526,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->work:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 178
+    .line 179
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -512,12 +535,12 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restBox:Landroid/widget/LinearLayout;
 
-    .line 179
+    .line 180
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v3, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 180
+    .line 181
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restBox:Landroid/widget/LinearLayout;
 
     const-string v2, "\u041f\u0430\u0443\u0437\u0430"
@@ -540,7 +563,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->rest:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 181
+    .line 182
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restBox:Landroid/widget/LinearLayout;
 
     const-string v2, "\u0418\u043c\u043f\u0443\u043b\u0441\u0438 \u0432 \u043f\u0430\u0443\u0437\u0430\u0442\u0430"
@@ -563,7 +586,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restHz:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 182
+    .line 183
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restBox:Landroid/widget/LinearLayout;
 
     const-string v2, "\u041f\u043b\u0430\u0432\u043d\u043e \u043a\u0430\u0447\u0432\u0430\u043d\u0435"
@@ -586,7 +609,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->rise:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 184
+    .line 185
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -601,12 +624,12 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
 
-    .line 185
+    .line 186
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
 
     invoke-virtual {v1, v11}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 186
+    .line 187
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->view:Landroid/widget/LinearLayout;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
@@ -619,7 +642,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 187
+    .line 188
     return-object v0
 .end method
 
@@ -637,13 +660,14 @@
 
     const/4 v6, 0x0
 
-    .line 201
+    .line 202
     iget-object v3, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->step:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;
 
-    .line 202
-    packed-switch p2, :pswitch_data_c0
+    .line 203
+    packed-switch p2, :pswitch_data_d0
 
-    .line 227
+    .line 231
+    :pswitch_d
     const/16 v0, 0x7d0
 
     iget v1, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->riseMs:I
@@ -662,14 +686,14 @@
 
     iput v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->riseMs:I
 
-    .line 230
+    .line 234
     :cond_1e
     :goto_1e
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;->safe(Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;)[Ljava/lang/String;
 
     move-result-object v0
 
-    .line 231
+    .line 235
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->cards:Ljava/util/List;
 
     invoke-interface {v1, p1}, Ljava/util/List;->indexOf(Ljava/lang/Object;)I
@@ -680,29 +704,29 @@
 
     move-result v2
 
-    if-eqz v2, :cond_bb
+    if-eqz v2, :cond_cb
 
     aget-object v0, v0, v6
 
     :goto_30
     invoke-virtual {p0, p1, v1, v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->render(Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;ILjava/lang/String;)V
 
-    .line 232
+    .line 236
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->subtitle()V
 
-    .line 233
+    .line 237
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->save()V
 
-    .line 234
+    .line 238
     return-void
 
-    .line 204
+    .line 205
     :pswitch_3a
     if-lez p3, :cond_4a
 
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->seconds:I
 
-    .line 205
+    .line 206
     :goto_3e
     iget v4, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->seconds:I
 
@@ -721,7 +745,7 @@
 
     goto :goto_1e
 
-    .line 204
+    .line 205
     :cond_4a
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->seconds:I
 
@@ -729,7 +753,7 @@
 
     goto :goto_3e
 
-    .line 205
+    .line 206
     :cond_4f
     const/16 v1, 0x258
 
@@ -744,7 +768,7 @@
 
     goto :goto_45
 
-    .line 209
+    .line 210
     :pswitch_58
     const/16 v0, 0x78
 
@@ -762,7 +786,7 @@
 
     iput v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->hz:I
 
-    .line 210
+    .line 211
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->hz:I
 
     const/16 v1, 0x14
@@ -775,7 +799,7 @@
 
     if-eqz v0, :cond_1e
 
-    .line 211
+    .line 212
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->hz:I
 
     if-lt v0, v4, :cond_7b
@@ -792,7 +816,7 @@
 
     goto :goto_78
 
-    .line 215
+    .line 216
     :pswitch_7d
     const/16 v0, 0x190
 
@@ -814,7 +838,7 @@
 
     goto :goto_1e
 
-    .line 218
+    .line 219
     :pswitch_8f
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->workS:I
 
@@ -832,7 +856,7 @@
 
     goto :goto_1e
 
-    .line 221
+    .line 222
     :pswitch_9d
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->restS:I
 
@@ -850,7 +874,7 @@
 
     goto/16 :goto_1e
 
-    .line 224
+    .line 225
     :pswitch_ac
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->restHz:I
 
@@ -868,16 +892,36 @@
 
     goto/16 :goto_1e
 
-    .line 231
-    :cond_bb
+    .line 228
+    :pswitch_bb
+    const/4 v0, 0x5
+
+    iget v1, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->burstMs:I
+
+    add-int/2addr v1, p3
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    invoke-static {v6, v0}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    iput v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->burstMs:I
+
+    goto/16 :goto_1e
+
+    .line 235
+    :cond_cb
     aget-object v0, v0, v7
 
     goto/16 :goto_30
 
-    .line 202
+    .line 203
     nop
 
-    :pswitch_data_c0
+    :pswitch_data_d0
     .packed-switch 0x0
         :pswitch_3a
         :pswitch_58
@@ -885,6 +929,8 @@
         :pswitch_8f
         :pswitch_9d
         :pswitch_ac
+        :pswitch_d
+        :pswitch_bb
     .end packed-switch
 .end method
 
@@ -892,15 +938,15 @@
     .registers 3
 
     .prologue
-    .line 307
+    .line 314
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->deleted:Z
 
     if-nez v0, :cond_7
 
-    .line 308
+    .line 315
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->save()V
 
-    .line 310
+    .line 317
     :cond_7
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->listener:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Listener;
 
@@ -913,10 +959,10 @@
     :goto_e
     invoke-interface {v1, v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Listener;->onClosed(Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;)V
 
-    .line 311
+    .line 318
     return-void
 
-    .line 310
+    .line 317
     :cond_12
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
@@ -929,15 +975,15 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 287
+    .line 294
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->deleteArmed:Z
 
     if-nez v0, :cond_21
 
-    .line 288
+    .line 295
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->deleteArmed:Z
 
-    .line 289
+    .line 296
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->delete:Landroid/widget/TextView;
 
     const-string v1, "\u0421\u0438\u0433\u0443\u0440\u0435\u043d \u043b\u0438 \u0441\u0438? \u0418\u0437\u0442\u0440\u0438\u0439"
@@ -950,7 +996,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 290
+    .line 297
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Disarm;
@@ -961,15 +1007,15 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 296
+    .line 303
     :goto_20
     return-void
 
-    .line 293
+    .line 300
     :cond_21
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->deleted:Z
 
-    .line 294
+    .line 301
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
@@ -978,7 +1024,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensStore;->delete(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 295
+    .line 302
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
@@ -1006,7 +1052,7 @@
     .registers 8
 
     .prologue
-    .line 191
+    .line 192
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
 
     const/high16 v1, 0x41480000    # 12.5f
@@ -1019,7 +1065,7 @@
 
     move-result-object v0
 
-    .line 192
+    .line 193
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
 
     const/16 v2, 0x8
@@ -1030,7 +1076,7 @@
 
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 193
+    .line 194
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -1043,7 +1089,7 @@
 
     move-result-object v0
 
-    .line 194
+    .line 195
     iget-object v1, v0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
@@ -1056,7 +1102,7 @@
 
     invoke-virtual {p1, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 195
+    .line 196
     return-object v0
 .end method
 
@@ -1163,7 +1209,7 @@
     .registers 5
 
     .prologue
-    .line 276
+    .line 283
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;->steps:Ljava/util/List;
@@ -1176,7 +1222,7 @@
 
     if-gt v0, v1, :cond_1f
 
-    .line 277
+    .line 284
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
 
     const-string v1, "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430 \u0438\u043c\u0430 \u043f\u043e\u043d\u0435 \u0435\u0434\u043d\u0430 \u0441\u0442\u044a\u043f\u043a\u0430."
@@ -1189,18 +1235,18 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 278
+    .line 285
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 284
+    .line 291
     :goto_1e
     return-void
 
-    .line 281
+    .line 288
     :cond_1f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
@@ -1210,10 +1256,10 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(Ljava/lang/Object;)Z
 
-    .line 282
+    .line 289
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->fill()V
 
-    .line 283
+    .line 290
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->save()V
 
     goto :goto_1e
@@ -1227,15 +1273,15 @@
 
     const/4 v8, 0x0
 
-    .line 239
+    .line 243
     iget-object v3, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->step:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;
 
-    .line 240
+    .line 244
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v4
 
-    .line 241
+    .line 245
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->title:Landroid/widget/TextView;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1266,7 +1312,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 242
+    .line 246
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->time:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     iget v1, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->seconds:I
@@ -1285,20 +1331,100 @@
 
     invoke-virtual {v0, v1, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 243
-    iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->hz:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+    .line 247
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->hz:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    iget v1, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->hz:I
+    iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->hz:I
 
-    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->aussie()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_14c
+
+    const-string v0, "\u043f\u0430\u043a\u0435\u0442\u0430 \u0432 \u0441\u0435\u043a\u0443\u043d\u0434\u0430"
+
+    const-string v6, "bursts a second"
+
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_52
+    invoke-virtual {v1, v5, v0}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 248
+    iget-object v5, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->burst:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->aussie()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_150
+
+    const-string v0, "\u0430\u0432\u0441\u0442\u0440\u0430\u043b\u0438\u0439\u0441\u043a\u0438"
+
+    const-string v1, "Australian"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 249
+    :goto_65
+    invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->aussie()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_15a
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v6, "\u043f\u0430\u043a\u0435\u0442\u0438 \u043f\u043e "
+
+    const-string v7, "bursts of "
+
+    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
-    const-string v5, "Hz"
+    iget v6, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->burstMs:I
 
-    invoke-virtual {v0, v1, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 244
+    move-result-object v1
+
+    const-string v6, " \u043c\u0441 \u00b7 1 kHz"
+
+    const-string v7, " ms \u00b7 1 kHz"
+
+    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 248
+    :goto_92
+    invoke-virtual {v5, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 251
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->us:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     iget v1, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->us:I
@@ -1311,14 +1437,14 @@
 
     invoke-virtual {v0, v1, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 245
+    .line 252
     iget-object v5, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->work:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->continuous()Z
 
     move-result v0
 
-    if-eqz v0, :cond_100
+    if-eqz v0, :cond_164
 
     const-string v0, "\u0431\u0435\u0437 \u043f\u0430\u0443\u0437\u0430"
 
@@ -1328,13 +1454,13 @@
 
     move-result-object v0
 
-    .line 246
-    :goto_66
+    .line 253
+    :goto_b2
     invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->continuous()Z
 
     move-result v1
 
-    if-eqz v1, :cond_117
+    if-eqz v1, :cond_17b
 
     const-string v1, "\u043f\u043e\u0434 20 Hz"
 
@@ -1344,25 +1470,25 @@
 
     move-result-object v1
 
-    .line 245
-    :goto_74
+    .line 252
+    :goto_c0
     invoke-virtual {v5, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 247
+    .line 254
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->continuous()Z
 
     move-result v0
 
-    if-eqz v0, :cond_121
+    if-eqz v0, :cond_185
 
     const v0, 0x3eb33333    # 0.35f
 
-    :goto_82
+    :goto_ce
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
-    .line 248
+    .line 255
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->rest:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1389,12 +1515,12 @@
 
     invoke-virtual {v0, v1, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 249
+    .line 256
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->restHz:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     iget v0, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram$Step;->restHz:I
 
-    if-nez v0, :cond_125
+    if-nez v0, :cond_189
 
     const-string v0, "\u0442\u0438\u0448\u0438\u043d\u0430"
 
@@ -1404,12 +1530,12 @@
 
     move-result-object v0
 
-    :goto_af
+    :goto_fb
     const-string v5, ""
 
     invoke-virtual {v1, v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 250
+    .line 257
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->rise:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
@@ -1438,11 +1564,11 @@
 
     move-result-object v3
 
-    if-eqz v4, :cond_13c
+    if-eqz v4, :cond_1a0
 
     const/16 v0, 0x2c
 
-    :goto_d1
+    :goto_11d
     invoke-virtual {v3, v2, v0}, Ljava/lang/String;->replace(CC)Ljava/lang/String;
 
     move-result-object v0
@@ -1451,16 +1577,16 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 251
-    if-eqz p3, :cond_13e
+    .line 258
+    if-eqz p3, :cond_1a3
 
     invoke-virtual {p3}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    if-lez v0, :cond_13e
+    if-lez v0, :cond_1a3
 
-    .line 252
+    .line 259
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1483,18 +1609,48 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 253
+    .line 260
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
 
     invoke-virtual {v0, v8}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 257
-    :cond_ff
-    :goto_ff
+    .line 264
+    :cond_14b
+    :goto_14b
     return-void
 
-    .line 245
-    :cond_100
+    .line 247
+    :cond_14c
+    const-string v0, "Hz"
+
+    goto/16 :goto_52
+
+    .line 248
+    :cond_150
+    const-string v0, "\u043e\u0431\u0438\u043a\u043d\u043e\u0432\u0435\u043d"
+
+    const-string v1, "ordinary"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_65
+
+    .line 250
+    :cond_15a
+    const-string v1, "\u0435\u0434\u0438\u043d\u0438\u0447\u043d\u0438 \u0438\u043c\u043f\u0443\u043b\u0441\u0438"
+
+    const-string v6, "single pulses"
+
+    invoke-static {v1, v6}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    goto/16 :goto_92
+
+    .line 252
+    :cond_164
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1515,10 +1671,10 @@
 
     move-result-object v0
 
-    goto/16 :goto_66
+    goto/16 :goto_b2
 
-    .line 246
-    :cond_117
+    .line 253
+    :cond_17b
     const-string v1, "\u043f\u043e\u0441\u043b\u0435 \u043f\u0430\u0443\u0437\u0430"
 
     const-string v6, "then a pause"
@@ -1527,16 +1683,16 @@
 
     move-result-object v1
 
-    goto/16 :goto_74
+    goto/16 :goto_c0
 
-    .line 247
-    :cond_121
+    .line 254
+    :cond_185
     const/high16 v0, 0x3f800000    # 1.0f
 
-    goto/16 :goto_82
+    goto/16 :goto_ce
 
-    .line 249
-    :cond_125
+    .line 256
+    :cond_189
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1557,33 +1713,33 @@
 
     move-result-object v0
 
-    goto/16 :goto_af
+    goto/16 :goto_fb
 
-    :cond_13c
+    :cond_1a0
     move v0, v2
 
-    .line 250
-    goto :goto_d1
+    .line 257
+    goto/16 :goto_11d
 
-    .line 254
-    :cond_13e
-    if-eqz p3, :cond_ff
+    .line 261
+    :cond_1a3
+    if-eqz p3, :cond_14b
 
-    .line 255
+    .line 262
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;->note:Landroid/widget/TextView;
 
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    goto :goto_ff
+    goto :goto_14b
 .end method
 
 .method save()V
     .registers 3
 
     .prologue
-    .line 299
+    .line 306
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->name:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -1606,7 +1762,7 @@
 
     move-result-object v0
 
-    .line 300
+    .line 307
     :goto_16
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -1614,12 +1770,12 @@
 
     if-lez v1, :cond_20
 
-    .line 301
+    .line 308
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
     iput-object v0, v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;->name:Ljava/lang/String;
 
-    .line 303
+    .line 310
     :cond_20
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->a:Landroid/app/Activity;
 
@@ -1627,10 +1783,10 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensStore;->save(Landroid/content/Context;Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;)V
 
-    .line 304
+    .line 311
     return-void
 
-    .line 299
+    .line 306
     :cond_28
     const-string v0, ""
 
@@ -2075,7 +2231,7 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 260
+    .line 267
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->subtitle:Landroid/widget/TextView;
@@ -2084,7 +2240,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 261
+    .line 268
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->subtitle:Landroid/widget/TextView;
@@ -2137,7 +2293,7 @@
 
     move-result-object v3
 
-    .line 262
+    .line 269
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->prog:Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensProgram;->steps:Ljava/util/List;
@@ -2176,7 +2332,7 @@
 
     const-string v3, " \u00b7 saved as you go"
 
-    .line 263
+    .line 270
     invoke-static {v1, v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -2189,13 +2345,13 @@
 
     move-result-object v0
 
-    .line 261
+    .line 268
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 264
+    .line 271
     return-void
 
-    .line 262
+    .line 269
     :cond_72
     const-string v0, " \u0441\u0442\u044a\u043f\u043a\u0438"
 

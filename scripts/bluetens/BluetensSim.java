@@ -70,6 +70,10 @@ public final class BluetensSim {
         int strength;
         final List<String> log = new ArrayList<String>();
         boolean mute;
+        /** Firmware variants we cannot rule out: no upload while running; a stop line when a new program starts. */
+        boolean busyCat;
+        boolean stopOnSwitch;
+        int stopsSent;
         final Random rnd = new Random(7);
 
         @Override
@@ -114,12 +118,18 @@ public final class BluetensSim {
             } else if (">md5".equals(k)) {
                 byte[] f = files.get(p[1]);
                 answer(f == null ? "-2: no such file" : BluetensShell.md5(f).toLowerCase());
+            } else if (">cat".equals(k) && busyCat && running != null) {
+                answer("-5: busy");
             } else if (">cat".equals(k)) {
                 catName = p[1];
                 catLeft = Integer.parseInt(p[2].substring(3));
                 catBuf = new java.io.ByteArrayOutputStream();
             } else if (">ssta".equals(k)) {
                 if (files.containsKey(p[1])) {
+                    if (stopOnSwitch && running != null) {
+                        stopsSent++;
+                        answer("NOTIFY stop");
+                    }
                     running = p[1];
                     strength = 1;
                     answer("0: ok");
@@ -178,6 +188,7 @@ public final class BluetensSim {
         int uploads;
         boolean info;
         boolean fromPad;
+        int stops;
 
         @Override
         public void onInfo(BluetensShell s) {
@@ -193,6 +204,9 @@ public final class BluetensSim {
         @Override
         public void onRunning(BluetensShell s, boolean running) {
             this.running = running;
+            if (!running) {
+                stops++;
+            }
         }
 
         @Override
@@ -283,6 +297,121 @@ public final class BluetensSim {
         pad.files.remove("NOPE");
         advance(1000);
         check(ev.failed.size() >= 1, "a start of nothing fails, no crash");
+    }
+
+    /** Real-time change: the running program is replaced and the strength comes back, on every firmware variant. */
+    static void liveSwap() {
+        for (int variant = 0; variant < 3; variant++) {
+            Pad pad = new Pad();
+            Ev ev = new Ev();
+            BluetensShell sh = new BluetensShell(pad, ev, true);
+            pad.shell = sh;
+            String tag = "variant " + variant + ": ";
+            byte[] a = BluetensShell.ascii(live(5, 0).toLok().build());
+            sh.start("XLIVA", a);
+            advance(2000);
+            sh.strength(20);
+            advance(500);
+            check(pad.strength == 20 && ev.running, tag + "live running at 20");
+            pad.stopOnSwitch = variant == 1;
+            pad.busyCat = variant == 2;
+            byte[] b = BluetensShell.ascii(live(50, 4).toLok().build());
+            sh.swap("XLIVB", b);
+            check(sh.swapping, tag + "swapping shown");
+            advance(4000);
+            check("XLIVB".equals(pad.running) && java.util.Arrays.equals(pad.files.get("XLIVB"), b),
+                    tag + "new program runs: " + pad.running);
+            check(pad.strength == 20 && ev.strength == 20, tag + "strength back to 20: " + pad.strength);
+            check(ev.stops == 0 && ev.running && !sh.swapping, tag + "no stop seen by the page: " + ev.stops);
+            check(ev.failed.isEmpty(), tag + "no failure " + ev.failed);
+            if (variant == 2) {
+                check(pad.log.contains(">osto"), tag + "busy pad: stop first");
+            }
+
+            byte[] c = BluetensShell.ascii(live(8, 0).toLok().build());
+            byte[] d = BluetensShell.ascii(live(9, 0).toLok().build());
+            sh.swap("XLIVA", c);
+            sh.strength(25);                                       // turned while the swap is on its way
+            sh.swap("XLIVB", d);                                   // a newer change replaces the waiting one
+            advance(5000);
+            check(java.util.Arrays.equals(pad.files.get(pad.running), d), tag + "the newest values win");
+            check(pad.strength == 25, tag + "strength turned during the swap kept: " + pad.strength);
+            check(ev.stops == 0 && ev.running, tag + "still running");
+
+            sh.stop();
+            advance(1000);
+            check(pad.running == null && !ev.running && ev.stops == 1, tag + "■ still stops");
+        }
+    }
+
+    static BluetensProgram live(int hz, int burst) {
+        BluetensProgram p = BluetensProgram.fresh("live", "");
+        BluetensProgram.Step st = p.steps.get(0);
+        st.hz = hz;
+        st.burstMs = burst;
+        st.us = 200;
+        st.seconds = 600;
+        BluetensProgram.safe(st);
+        return p;
+    }
+
+    /** Australian current: 1 kHz pulses in bursts, the burst rate as the frequency, the pad's 1200 Hz ceiling. */
+    static void aussie(File out) throws Exception {
+        BluetensProgram p = BluetensProgram.fresh("au", "Австралийски");
+        BluetensProgram.Step st = p.steps.get(0);
+        st.seconds = 600; st.hz = 50; st.us = 300; st.burstMs = 4; st.workS = 0; st.restS = 8; st.riseMs = 1000;
+        String[] why = BluetensProgram.safe(st);
+        check(st.us == BluetensProgram.BURST_US_MAX && why[0].contains("Австралийски"), "aussie width capped: " + st.us);
+        check(!st.continuous() && st.workS == 4, "50 bursts/s is tetanic → impulse " + st.workS);
+        BluetensProgram.Step slow = new BluetensProgram.Step();
+        slow.seconds = 300; slow.hz = 10; slow.us = 200; slow.burstMs = 2;
+        BluetensProgram.safe(slow);
+        check(slow.continuous(), "10 bursts/s may run continuously");
+        p.steps.add(slow);
+        BluetensProgram.Step pause = new BluetensProgram.Step();
+        pause.seconds = 120; pause.hz = 100; pause.us = 150; pause.burstMs = 4; pause.workS = 3; pause.restS = 6;
+        pause.restHz = 4;
+        BluetensProgram.safe(pause);
+        p.steps.add(pause);
+
+        BluetensLok lok = p.toLok();
+        String text = lok.build();
+        BluetensLok back = BluetensLok.parse(text);
+        check(back.sections.size() == 3, "aussie: one section per step");
+        double[] want = {600000, 300000, 120000};
+        for (int i = 0; i < 3; i++) {
+            double ms = back.sections.get(i).ms();
+            check(Math.abs(ms - want[i]) < want[i] * 0.03, "aussie step " + (i + 1) + " length " + ms);
+        }
+        int bursts = 0;
+        for (BluetensLok.Section sec : back.sections) {
+            for (BluetensLok.Block k : sec.blocks) {
+                check(k.freq10 <= BluetensLok.MAX_FREQ * 10, "aussie within the pad's 1200 Hz");
+                if (k.freq10 == BluetensProgram.CARRIER_HZ * 10) {
+                    bursts++;
+                    check(k.impulse <= BluetensProgram.BURST_US_MAX, "aussie pulse width " + k.impulse);
+                    check(k.cluster >= 1 && k.cluster <= BluetensProgram.BURST_MAX_MS, "burst pulses " + k.cluster);
+                }
+            }
+        }
+        check(bursts > 0, "aussie bursts present");
+        // step 1 hold block: 4 pulses at 1 kHz then 16 ms → 50 bursts a second
+        BluetensLok.Block hold = null;
+        for (BluetensLok.Block k : back.sections.get(0).blocks) {
+            if (k.freq10 == 10000 && k.impulse == BluetensProgram.BURST_US_MAX) {
+                hold = k;
+                break;
+            }
+        }
+        check(hold != null && hold.cluster == 4 && hold.interval == 16, "50 Hz × 4 ms bursts: "
+                + (hold == null ? "none" : hold.cluster + " pulses + " + hold.interval + " ms"));
+        BluetensProgram d = BluetensProgram.decode(p.encode());
+        check(d != null && d.steps.get(0).burstMs == 4 && d.steps.get(1).burstMs == 2, "burst kept in storage");
+        BluetensProgram old = BluetensProgram.decode("x\tOld\t600,5,250,0,4,0,0");
+        check(old != null && old.steps.get(0).burstMs == 0, "old 7-number lines still read");
+        FileOutputStream f = new FileOutputStream(new File(out, "XAUS.lok"));
+        f.write(BluetensShell.ascii(text));
+        f.close();
     }
 
     static void parsing() {
@@ -408,9 +537,11 @@ public final class BluetensSim {
         parsing();
         adverts();
         shellFlow();
+        liveSwap();
         File out = new File(a.length > 0 ? a[0] : ".");
         programs(out);
         manual(out);
+        aussie(out);
         if (fails > 0) {
             System.out.println(fails + " FAILED");
             System.exit(1);

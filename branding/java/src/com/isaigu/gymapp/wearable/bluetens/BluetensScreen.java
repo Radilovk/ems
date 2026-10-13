@@ -27,13 +27,17 @@ import java.util.Set;
 /**
  * The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
  * Landscape: on the left "Готови" (XEMS's own, {@link BluetensPrograms}, with minutes) or "Мои" (the manual module:
- * programs the trainer builds parameter by parameter, {@link BluetensEditor}); the pads (classic, or the two of a
+ * programs the trainer builds parameter by parameter, {@link BluetensEditor}) or "На живо" (owner, 2026-10-13: real-time
+ * control — frequency, width, impulse / pause and the Australian current change while the pads run,
+ * {@link BluetensShell#swap}); the pads (classic, or the two of a
  * Duo) on the right with their strength big; one primary button ▶ / ■. The pads are found and linked by themselves.
  * Closing the page stops the output.
  */
 public final class BluetensScreen {
     static final String PREFS = "xems_bluetens";
     static final int MAX_PADS = 2;
+    /** Live mode swaps between two files so the one playing is never overwritten. */
+    static final String LIVE_A = "XLIVA", LIVE_B = "XLIVB";
 
     private BluetensScreen() {}
 
@@ -83,6 +87,17 @@ public final class BluetensScreen {
         /** "Мои" tab: the trainer's own programs; {@code mineId} = the chosen one ("" = none). */
         boolean mine;
         String mineId = "";
+        /** "На живо" tab: one step whose values change while it runs. */
+        boolean live;
+        BluetensProgram.Step liveStep;
+        String liveFile = LIVE_A;
+        String liveWhy = "";
+        int liveToken;
+        boolean wasSwapping;
+        XemsUi.Stepper lHz, lUs, lBurst, lWork, lRest;
+        View lRestBox;
+        View lBurstBox;
+        TextView lNote;
         LinearLayout tabHolder;
         LinearLayout minuteBox;
         boolean running;
@@ -111,6 +126,18 @@ public final class BluetensScreen {
             minutes = prefs.getInt("minutes", BluetensPrograms.defaultMinutes(program));
             mine = prefs.getBoolean("mine", false);
             mineId = prefs.getString("mine_id", "");
+            live = prefs.getBoolean("live", false);
+            BluetensProgram lp = BluetensProgram.decode(prefs.getString("live_step", ""));
+            liveStep = lp != null ? lp.steps.get(0) : liveDefault();
+            BluetensProgram.safe(liveStep);
+        }
+
+        /** A first live setting: 5 Hz massage, continuous. */
+        static BluetensProgram.Step liveDefault() {
+            BluetensProgram.Step st = new BluetensProgram.Step();
+            st.hz = 5;
+            st.us = 200;
+            return st;
         }
 
         int dp(float v) {
@@ -173,12 +200,16 @@ public final class BluetensScreen {
 
         void fillPrograms() {
             tabHolder.removeAllViews();
-            LinearLayout seg = XemsUi.segmented(a, new String[] {tr("Готови", "Ready"), tr("Мои · ръчно", "Mine · manual")},
-                    mine ? 1 : 0, new Tab(this));
+            LinearLayout seg = XemsUi.segmented(a, new String[] {tr("Готови", "Ready"), tr("Мои · ръчно", "Mine · manual"),
+                    tr("На живо", "Live")}, live ? 2 : mine ? 1 : 0, new Tab(this));
             seg.setAlpha(running ? 0.4f : 1f);
             tabHolder.addView(seg);
             programList.removeAllViews();
-            minuteBox.setVisibility(mine ? View.GONE : View.VISIBLE);
+            minuteBox.setVisibility(mine && !live ? View.GONE : View.VISIBLE);
+            if (live) {
+                fillLive();
+                return;
+            }
             if (mine) {
                 fillMine();
                 return;
@@ -259,6 +290,162 @@ public final class BluetensScreen {
             programList.addView(add, XemsUi.matchWrap(a, 12));
         }
 
+        /**
+         * "На живо": the values you turn act on the running pads within about a second (the pad gets a new
+         * program and the strength comes straight back). Kind of current on top; the steppers side by side.
+         */
+        void fillLive() {
+            LinearLayout kind = XemsUi.segmented(a, new String[] {tr("Импулси", "Pulses"),
+                    tr("Австралийски ток", "Australian current")}, liveStep.aussie() ? 1 : 0, new LiveKind(this));
+            programList.addView(kind, XemsUi.matchWrap(a, 2));
+            LinearLayout cols = XemsUi.horizontal(a);
+            LinearLayout left = XemsUi.vertical(a);
+            LinearLayout right = XemsUi.vertical(a);
+            cols.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            rp.leftMargin = dp(10);
+            cols.addView(right, rp);
+            programList.addView(cols, XemsUi.matchWrap(a, 4));
+            lHz = liveField(left, tr("Честота", "Frequency"), L_HZ);
+            lUs = liveField(left, tr("Ширина на импулса", "Pulse width"), L_US);
+            LinearLayout bb = XemsUi.vertical(a);
+            left.addView(bb);
+            lBurstBox = bb;
+            lBurst = liveField(bb, tr("Дължина на пакета", "Burst length"), L_BURST);
+            lWork = liveField(right, tr("Импулс", "Impulse"), L_WORK);
+            LinearLayout rb = XemsUi.vertical(a);
+            right.addView(rb);
+            lRestBox = rb;
+            lRest = liveField(rb, tr("Пауза", "Pause"), L_REST);
+            lNote = XemsUi.text(a, "", 13, XemsUi.AMBER, true);
+            programList.addView(lNote, XemsUi.matchWrap(a, 8));
+            TextView keep = XemsUi.button(a, tr("Запази като моя програма", "Save as my program"), XemsUi.GHOST);
+            keep.setOnClickListener(new LiveSave(this));
+            programList.addView(keep, XemsUi.matchWrap(a, 4));
+            renderLive();
+        }
+
+        XemsUi.Stepper liveField(LinearLayout col, String label, int f) {
+            col.addView(XemsUi.text(a, label, 12.5f, XemsUi.MUTED, true), XemsUi.matchWrap(a, 8));
+            XemsUi.Stepper st = XemsUi.stepper(a, "", "", 22, new LiveChange(this, f));
+            col.addView(st.view, XemsUi.matchWrap(a, 4));
+            return st;
+        }
+
+        static final int L_HZ = 0, L_US = 1, L_BURST = 2, L_WORK = 3, L_REST = 4;
+
+        void renderLive() {
+            if (lHz == null) {
+                return;
+            }
+            BluetensProgram.Step st = liveStep;
+            boolean aus = st.aussie();
+            lHz.set(String.valueOf(st.hz), aus ? tr("пакета в секунда", "bursts a second") : "Hz");
+            lUs.set(String.valueOf(st.us), "µs");
+            lBurstBox.setVisibility(aus ? View.VISIBLE : View.GONE);
+            lBurst.set(st.burstMs + tr(" мс", " ms"), tr("при 1 kHz", "at 1 kHz"));
+            lWork.set(st.continuous() ? tr("без пауза", "continuous") : st.workS + " s",
+                    st.continuous() ? tr("под 20 Hz", "under 20 Hz") : tr("после пауза", "then a pause"));
+            lRestBox.setAlpha(st.continuous() ? 0.35f : 1f);
+            lRest.set(st.restS + " s", "");
+            lNote.setText(liveWhy.length() > 0 ? "⚠ " + liveWhy : "");
+            lNote.setVisibility(liveWhy.length() > 0 ? View.VISIBLE : View.GONE);
+        }
+
+        void liveKind(int i) {
+            if ((i == 1) == liveStep.aussie()) {
+                return;
+            }
+            if (i == 1) {
+                liveStep.burstMs = 4;                         // the classic: 4 ms bursts at 1 kHz, 50 a second
+                liveStep.hz = 50;
+                liveStep.us = Math.min(liveStep.us, BluetensProgram.BURST_US_MAX);
+            } else {
+                liveStep.burstMs = 0;
+            }
+            liveChanged();
+            fillPrograms();
+        }
+
+        void liveChange(int f, int dir) {
+            BluetensProgram.Step st = liveStep;
+            switch (f) {
+                case L_HZ:
+                    st.hz = Math.max(1, Math.min(120, st.hz + dir));
+                    if (st.hz >= 20 && st.continuous()) {
+                        st.workS = st.hz >= 50 ? 4 : 6;
+                    }
+                    break;
+                case L_US:
+                    st.us = Math.max(50, Math.min(400, st.us + dir * 10));
+                    break;
+                case L_BURST:
+                    st.burstMs = Math.max(1, Math.min(BluetensProgram.BURST_MAX_MS, st.burstMs + dir));
+                    break;
+                case L_WORK:
+                    st.workS = Math.max(0, Math.min(BluetensProgram.WORK_MAX, st.workS + dir));
+                    break;
+                default:
+                    st.restS = Math.max(1, Math.min(BluetensProgram.REST_MAX, st.restS + dir));
+                    break;
+            }
+            liveChanged();
+            renderLive();
+        }
+
+        /** Held inside the limits, remembered, and — while running — sent once the turning stops. */
+        void liveChanged() {
+            liveStep.seconds = BluetensProgram.SEC_MAX;
+            String[] why = BluetensProgram.safe(liveStep);
+            liveWhy = bg() ? why[0] : why[1];
+            BluetensProgram one = new BluetensProgram();
+            one.id = "live";
+            one.steps.add(liveStep);
+            prefs.edit().putString("live_step", one.encode()).apply();
+            if (running && live) {
+                main.postDelayed(new LiveApply(this, ++liveToken), 600);
+            }
+            render();
+        }
+
+        BluetensLok liveLok(long ms) {
+            BluetensProgram one = new BluetensProgram();
+            BluetensProgram.Step st = liveStep.copy();
+            st.seconds = (int) Math.max(BluetensProgram.SEC_MIN, Math.min(BluetensProgram.SEC_MAX, ms / 1000));
+            one.steps.add(st);
+            return one.toLok();
+        }
+
+        /** The new values to the running pads, under the other live file name (never over the one playing). */
+        void liveApply(int t) {
+            if (t != liveToken || closed || !running || !live) {
+                return;
+            }
+            long left = lengthMs - (System.currentTimeMillis() - startedAt);
+            if (left < 15000) {
+                return;
+            }
+            liveFile = LIVE_A.equals(liveFile) ? LIVE_B : LIVE_A;
+            byte[] content = BluetensShell.ascii(liveLok(left).build());
+            for (Pad p : pads) {
+                if (p.link.state == BluetensLink.READY && p.link.shell.running) {
+                    p.link.shell.swap(liveFile, content);
+                }
+            }
+            render();
+        }
+
+        void liveSave() {
+            int n = BluetensStore.list(a).size() + 1;
+            BluetensProgram p = BluetensProgram.fresh(BluetensStore.newId(), tr("На живо ", "Live ") + n);
+            BluetensProgram.Step st = liveStep.copy();
+            st.seconds = minutes * 60;
+            p.steps.set(0, st);
+            BluetensStore.save(a, p);
+            hintText = tr("✓ Записана в „Мои“ като „", "✓ Saved in “Mine” as “") + p.name + tr("“", "”");
+            render();
+        }
+
         static BluetensProgram find(List<BluetensProgram> all, String id) {
             for (BluetensProgram p : all) {
                 if (p.id.equals(id)) {
@@ -280,11 +467,12 @@ public final class BluetensScreen {
         }
 
         void setTab(int i) {
-            if (running || (i == 1) == mine) {
+            if (running || i == (live ? 2 : mine ? 1 : 0)) {
                 return;
             }
             mine = i == 1;
-            prefs.edit().putBoolean("mine", mine).apply();
+            live = i == 2;
+            prefs.edit().putBoolean("mine", mine).putBoolean("live", live).apply();
             finished = false;
             fillPrograms();
             render();
@@ -333,6 +521,9 @@ public final class BluetensScreen {
 
         /** What ▶ would run now: null when "Мои" has nothing chosen. */
         BluetensLok currentLok() {
+            if (live) {
+                return liveLok(minutes * 60000L);
+            }
             if (!mine) {
                 return BluetensPrograms.build(program, minutes);
             }
@@ -341,6 +532,9 @@ public final class BluetensScreen {
         }
 
         String currentName() {
+            if (live) {
+                return tr("На живо", "Live");
+            }
             if (!mine) {
                 return BluetensPrograms.name(program, bg());
             }
@@ -461,6 +655,7 @@ public final class BluetensScreen {
 
             int ready = 0;
             boolean uploading = false;
+            boolean swapping = false;
             for (int i = 0; i < pads.size(); i++) {
                 Pad p = pads.get(i);
                 renderPad(p, i);
@@ -468,7 +663,12 @@ public final class BluetensScreen {
                     ready++;
                 }
                 uploading |= p.link.shell.uploading;
+                swapping |= p.link.shell.swapping;
             }
+            if (wasSwapping && !swapping && running) {
+                hintText = tr("✓ Новите стойности работят", "✓ The new values are on");
+            }
+            wasSwapping = swapping;
             empty.setVisibility(pads.isEmpty() ? View.VISIBLE : View.GONE);
             emptyText.setText(scan == null ? tr("Bluetooth е изключен", "Bluetooth is off")
                     : tr("Търся Bluetens…", "Looking for Bluetens…"));
@@ -480,13 +680,19 @@ public final class BluetensScreen {
                 go.setBackgroundDrawable(XemsUi.button(a, "", style).getBackground());
             }
             boolean can = running || (ready > 0 && cur != null);
-            go.setEnabled(can && !uploading);
-            go.setAlpha(can && !uploading ? 1f : 0.4f);
+            boolean busy = uploading && !swapping;           // a live change never locks ■
+            go.setEnabled(can && !busy);
+            go.setAlpha(can && !busy ? 1f : 0.4f);
             String h;
-            if (hintText != null) {
+            if (swapping) {
+                h = tr("Прилагам новите стойности…", "Applying the new values…");
+            } else if (hintText != null) {
                 h = hintText;
             } else if (uploading) {
                 h = tr("Качвам програмата в устройството…", "Sending the program to the pad…");
+            } else if (running && live) {
+                h = tr("Променяй отляво — устройството следва за около секунда.",
+                        "Change the values on the left — the pad follows in about a second.");
             } else if (running) {
                 h = tr("Качвай силата, докато е приятно — не до болка.", "Raise the strength until it feels good — never to pain.");
             } else if (cur == null) {
@@ -647,7 +853,8 @@ public final class BluetensScreen {
             }
             byte[] content = BluetensShell.ascii(lok.build());
             // own programs share one file on the pad (it is replaced when it changes — the md5 decides)
-            String file = mine ? "XMINE" : BluetensPrograms.fileName(program, minutes);
+            liveFile = LIVE_A;
+            String file = live ? LIVE_A : mine ? "XMINE" : BluetensPrograms.fileName(program, minutes);
             lengthMs = (long) lok.ms();
             finished = false;
             for (Pad p : pads) {
@@ -965,6 +1172,66 @@ public final class BluetensScreen {
         }
     }
 
+    static final class LiveKind implements XemsUi.OnIndex {
+        final Page v;
+
+        LiveKind(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onIndex(int index) {
+            v.liveKind(index);
+        }
+    }
+
+    static final class LiveChange implements XemsUi.OnStep {
+        final Page v;
+        final int f;
+
+        LiveChange(Page v, int f) {
+            this.v = v;
+            this.f = f;
+        }
+
+        @Override
+        public void onStep(int direction) {
+            v.liveChange(f, direction);
+        }
+    }
+
+    static final class LiveApply implements Runnable {
+        final Page v;
+        final int t;
+
+        LiveApply(Page v, int t) {
+            this.v = v;
+            this.t = t;
+        }
+
+        @Override
+        public void run() {
+            try {
+                v.liveApply(t);
+            } catch (Throwable e) {
+                XemsGuard.report("BluetensScreen.live", e);
+            }
+        }
+    }
+
+    static final class LiveSave implements View.OnClickListener {
+        final Page v;
+
+        LiveSave(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.liveSave();
+        }
+    }
+
     static final class Info implements View.OnClickListener {
         final Page v;
 
@@ -975,8 +1242,17 @@ public final class BluetensScreen {
         @Override
         public void onClick(View view) {
             boolean b = bg();
-            XemsUi.Shell s = XemsUi.shell(v.a, v.mine ? tr("Ръчен режим", "Manual mode") : BluetensPrograms.name(v.program, b),
-                    v.mine ? tr("Ти задаваш всяка стъпка: време, честота, ширина на импулса, импулс и пауза, "
+            XemsUi.Shell s = XemsUi.shell(v.a, v.live ? tr("На живо", "Live") : v.mine ? tr("Ръчен режим", "Manual mode")
+                    : BluetensPrograms.name(v.program, b),
+                    v.live ? tr("Стойностите се сменят, докато устройството работи: то получава нова програма за около "
+                            + "секунда и силата се връща там, където беше. Австралийски ток — пакети по 1–5 мс от импулси "
+                            + "с 1 kHz (най-високото, което устройството може, е 1,2 kHz — вариантът с 4 kHz не става); "
+                            + "класиката е 4 мс пакети, 50 в секунда. Всичко стои в границите за безопасност на костюма.",
+                            "The values change while the pad runs: it gets a new program in about a second and the "
+                            + "strength comes back to where it was. Australian current — 1–5 ms bursts of 1 kHz pulses "
+                            + "(the pad tops out at 1.2 kHz — the 4 kHz kind is out of reach); the classic is 4 ms bursts, "
+                            + "50 a second. Everything stays inside the suit's safety limits.")
+                    : v.mine ? tr("Ти задаваш всяка стъпка: време, честота, ширина на импулса, импулс и пауза, "
                             + "импулси в паузата, плавно качване. Всичко стои в границите за безопасност на костюма.",
                             "You set every step: time, frequency, pulse width, impulse and pause, pulses in the pause, "
                             + "soft rise. Everything stays inside the suit's safety limits.")

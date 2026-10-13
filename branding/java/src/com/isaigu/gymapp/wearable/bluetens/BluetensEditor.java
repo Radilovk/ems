@@ -56,7 +56,7 @@ public final class BluetensEditor {
         BluetensProgram.Step step;
         LinearLayout view;
         TextView title;
-        XemsUi.Stepper time, hz, us, work, rest, restHz, rise;
+        XemsUi.Stepper time, hz, us, burst, work, rest, restHz, rise;
         LinearLayout restBox;
         TextView note;
     }
@@ -174,6 +174,7 @@ public final class BluetensEditor {
             c.time = field(left, tr("Време", "Time"), new Change(this, c, F_TIME));
             c.hz = field(left, tr("Честота", "Frequency"), new Change(this, c, F_HZ));
             c.us = field(left, tr("Ширина на импулса", "Pulse width"), new Change(this, c, F_US));
+            c.burst = field(left, tr("Ток", "Current"), new Change(this, c, F_BURST));
             c.work = field(right, tr("Импулс", "Impulse"), new Change(this, c, F_WORK));
             c.restBox = XemsUi.vertical(a);
             right.addView(c.restBox);
@@ -195,7 +196,7 @@ public final class BluetensEditor {
             return st;
         }
 
-        static final int F_TIME = 0, F_HZ = 1, F_US = 2, F_WORK = 3, F_REST = 4, F_REST_HZ = 5, F_RISE = 6;
+        static final int F_TIME = 0, F_HZ = 1, F_US = 2, F_WORK = 3, F_REST = 4, F_REST_HZ = 5, F_RISE = 6, F_BURST = 7;
 
         void change(Card c, int f, int dir) {
             BluetensProgram.Step st = c.step;
@@ -223,6 +224,9 @@ public final class BluetensEditor {
                 case F_REST_HZ:
                     st.restHz = Math.max(0, Math.min(10, st.restHz + dir));
                     break;
+                case F_BURST:
+                    st.burstMs = Math.max(0, Math.min(BluetensProgram.BURST_MAX_MS, st.burstMs + dir));
+                    break;
                 default:
                     st.riseMs = Math.max(0, Math.min(BluetensProgram.RISE_MAX_MS, st.riseMs + dir * 100));
                     break;
@@ -240,7 +244,10 @@ public final class BluetensEditor {
             boolean b = XemsLang.isBg();
             c.title.setText(tr("Стъпка ", "Step ") + (index + 1));
             c.time.set(time(st.seconds), tr("мин:сек", "min:sec"));
-            c.hz.set(String.valueOf(st.hz), "Hz");
+            c.hz.set(String.valueOf(st.hz), st.aussie() ? tr("пакета в секунда", "bursts a second") : "Hz");
+            c.burst.set(st.aussie() ? tr("австралийски", "Australian") : tr("обикновен", "ordinary"),
+                    st.aussie() ? tr("пакети по ", "bursts of ") + st.burstMs + tr(" мс · 1 kHz", " ms · 1 kHz")
+                            : tr("единични импулси", "single pulses"));
             c.us.set(String.valueOf(st.us), "µs");
             c.work.set(st.continuous() ? tr("без пауза", "continuous") : st.workS + " s",
                     st.continuous() ? tr("под 20 Hz", "under 20 Hz") : tr("после пауза", "then a pause"));

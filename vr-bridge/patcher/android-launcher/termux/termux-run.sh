@@ -49,7 +49,7 @@ connect() {
     [[ "$state" == "device" ]] && break
     sleep 1
   done
-  [[ "$state" == "device" ]] || die 5 "шлемът е свързан, но не е разрешен — приеми „Allow USB debugging“ в шлема и опитай пак"
+  [[ "$state" == "device" ]] || die 5 "шлемът не е разрешил таблета — включи шлема с кабел в таблета, сложи го на главата и натисни „Always allow“ + „Allow“ (веднъж завинаги)"
   echo "✓ шлем: $serial"
 }
 
@@ -93,7 +93,7 @@ cmd_find() {
     fi
   done
   rm -rf "$tmp"
-  [[ $found -eq 1 ]] || die 4 "не намерих шлем — същият Wi-Fi ли е? След рестарт на шлема го включи веднъж с кабел в таблета."
+  [[ $found -eq 1 ]] || die 4 "не намерих шлем — събуди го (сложи го или натисни бутона), същият Wi-Fi ли е? След рестарт на шлема го включи веднъж с кабел в таблета."
 }
 
 cmd_games() {
@@ -136,6 +136,25 @@ cmd_patch() {
 }
 
 [[ $# -ge 1 ]] || die 2 "употреба: termux-run.sh check | find <IP> | games <IP> | patch <IP> <пакет> [IP]"
+# --key <pkcs8 base64> <adb public key line>: the launcher's own adb key, the one the headset allows over the cable.
+# Termux's adb offers it next to its own (ADB_VENDOR_KEYS), so the Wi-Fi connection is already allowed — Horizon OS
+# may never show "Allow" for a Wi-Fi connection — and a headset that allowed Termux's own key before still works.
+APPKEY="$HOME/.android/xems_launcher.adbkey"
+if [[ "${1:-}" == "--key" && $# -ge 3 ]]; then
+  if [[ "$2" =~ ^[A-Za-z0-9+/=]+$ ]]; then
+    mkdir -p "$HOME/.android"
+    new="$(printf -- '-----BEGIN PRIVATE KEY-----\n%s\n-----END PRIVATE KEY-----\n' "$(printf '%s' "$2" | fold -w 64)")"
+    if [[ "$(cat "$APPKEY" 2>/dev/null)" != "$new" ]]; then
+      printf '%s' "$new" > "$APPKEY"
+      printf '%s\n' "$3" > "$APPKEY.pub"
+      chmod 600 "$APPKEY"
+      command -v adb >/dev/null 2>&1 && adb kill-server >/dev/null 2>&1   # the server reads the keys when it starts
+    fi
+  fi
+  shift 3
+fi
+[[ -f "$APPKEY" ]] && export ADB_VENDOR_KEYS="$APPKEY"
+[[ $# -ge 1 ]] || die 2 "употреба: termux-run.sh <check|find|games|…> …"
 verb="$1"
 cmd_catalog() {
   cd "$PATCHER" || die 6 "няма $PATCHER"

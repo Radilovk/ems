@@ -41,8 +41,13 @@ object TermuxScript {
     /** The setup script travels inside the argv: `bash -c <script> xems-setup`. */
     fun setup(script: String) = arrayOf("-c", script, "xems-setup")
 
-    /** Short form for the status card. */
+    /** The app's adb key goes first, so Termux's adb connects as the identity allowed over the cable. */
+    fun withKey(args: Array<String>, priv: String, pub: String): Array<String> =
+        if (args.firstOrNull() == RUN) arrayOf(RUN, "--key", priv, pub) + args.drop(1) else args
+
+    /** Short form for the status card (never the key). */
     fun display(args: Array<String>): String =
         if (args.firstOrNull() == "-c") "termux-setup.sh"
-        else args.joinToString(" ").replace(RUN, "termux-run.sh")
+        else (if (args.getOrNull(1) == "--key") listOf(args[0]) + args.drop(4) else args.toList())
+            .joinToString(" ").replace(RUN, "termux-run.sh")
 }

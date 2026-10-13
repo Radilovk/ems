@@ -276,8 +276,11 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         else setStatus(getString(R.string.status_no_permission), getString(R.string.detail_no_permission), R.color.danger, false, "", null)
     }
 
-    private fun start(task: Task, args: Array<String>) {
+    private fun start(task: Task, plain: Array<String>) {
         val runId = System.currentTimeMillis()
+        val adb = task == Task.FIND || task == Task.GAMES || task == Task.PATCH || task == Task.INSTALL ||
+            task == Task.INSTALLFILE || task == Task.VRCHECK
+        val args = if (adb) UsbAdb.termuxKey(this).let { (k, p) -> TermuxScript.withKey(plain, k, p) } else plain
         // Only the long runs may open a Termux session; lookups always run in the background.
         val long = task == Task.PATCH || task == Task.SETUP || task == Task.INSTALL || task == Task.INSTALLFILE
         // Termux's file-access dialog only shows over a visible session.

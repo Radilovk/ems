@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 366
+    .line 373
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 367
+    .line 374
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Delete;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
-    .line 368
+    .line 375
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 372
+    .line 379
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Delete;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->delete()V
 
-    .line 373
+    .line 380
     return-void
 .end method

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 393
+    .line 400
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 394
+    .line 401
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Done;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
-    .line 395
+    .line 402
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 399
+    .line 406
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Done;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -51,6 +51,6 @@
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 400
+    .line 407
     return-void
 .end method

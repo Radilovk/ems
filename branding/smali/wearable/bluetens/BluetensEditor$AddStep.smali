@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 337
+    .line 344
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 338
+    .line 345
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$AddStep;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
-    .line 339
+    .line 346
     iput p2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$AddStep;->mode:I
 
-    .line 340
+    .line 347
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 4
 
     .prologue
-    .line 344
+    .line 351
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$AddStep;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$AddStep;->mode:I
@@ -71,10 +71,10 @@
     :goto_14
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->addStep(Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Card;)V
 
-    .line 345
+    .line 352
     return-void
 
-    .line 344
+    .line 351
     :cond_18
     const/4 v0, 0x0
 

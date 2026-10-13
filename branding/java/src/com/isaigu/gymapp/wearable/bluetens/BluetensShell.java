@@ -43,7 +43,8 @@ public final class BluetensShell {
     public static final long TIMEOUT_MS = 8000;
     public static final long KEEP_ALIVE_MS = 20000;
 
-    static final int VER = 1, BAT = 2, STAT = 3, MD5 = 4, CAT = 5, SSTA = 6, STR = 7, OSTO = 8;
+    static final int VER = 1, BAT = 2, STAT = 3, MD5 = 4, CAT = 5, SSTA = 6, STR = 7, OSTO = 8, FLUSH = 9;
+    static final long FLUSH_MS = 500;
 
     final Io io;
     final Events ev;
@@ -57,6 +58,8 @@ public final class BluetensShell {
     /** Seconds the pad says the program has run (from {@code >stat}). */
     public int tickS;
     public boolean uploading;
+    /** A running program is being replaced ({@link #swap}): a stop on the way is not the end of the session. */
+    public boolean swapping;
 
     final List<Req> queue = new ArrayList<Req>();
     Req cur;
@@ -79,6 +82,9 @@ public final class BluetensShell {
         byte[] content;
         String md5;
         int value;
+        /** Part of a {@link #swap}; {@code retried} once it went the stop-first way. */
+        boolean swap;
+        boolean retried;
 
         Req(int kind, String cmd) {
             this.kind = kind;
@@ -107,6 +113,43 @@ public final class BluetensShell {
         add(s);
     }
 
+    /**
+     * Real-time change: replace the running program with {@code content} and bring the strength straight back to
+     * where it was ({@code >ssta} restarts at 1). Use a different file name than the one running. A newer swap
+     * replaces one still waiting. If the pad will not take a file while it runs, it is stopped and started again.
+     */
+    public void swap(String file, byte[] content) {
+        int keep = strength;
+        for (int i = queue.size() - 1; i >= 0; i--) {
+            Req q = queue.get(i);
+            if (q.kind == STR) {
+                keep = q.value;
+            }
+            if (q.kind == STR || q.kind == SSTA || q.kind == MD5 || q.kind == CAT) {
+                queue.remove(i);
+            }
+        }
+        swapping = true;
+        addSwap(file, content, Math.max(1, keep), false);
+    }
+
+    void addSwap(String file, byte[] content, int keep, boolean retried) {
+        Req c = new Req(CAT, ">cat " + file + " -l=" + content.length);
+        c.file = file;
+        c.content = content;
+        c.swap = true;
+        c.retried = retried;
+        c.value = keep;
+        add(c);
+        Req s = new Req(SSTA, ">ssta " + file);
+        s.file = file;
+        s.swap = true;
+        add(s);
+        Req k = new Req(STR, ">str");
+        k.value = keep;
+        add(k);
+    }
+
     /** Strength 1..60; while one is on its way only the newest waits behind it. */
     public void strength(int v) {
         v = Math.max(1, Math.min(MAX_STRENGTH, v));
@@ -128,6 +171,7 @@ public final class BluetensShell {
                 queue.remove(i);
             }
         }
+        swapping = false;
         add(new Req(OSTO, ">osto"));
     }
 
@@ -182,6 +226,10 @@ public final class BluetensShell {
             ev.onUpload(this, true);
             send(cur.cmd);
             io.send(cur.content);
+        } else if (cur.kind == FLUSH) {
+            io.send(ascii("\r\n"));
+            io.later(new Timeout(this, t), FLUSH_MS);
+            return;
         } else {
             send(cur.cmd);
         }
@@ -209,15 +257,51 @@ public final class BluetensShell {
             return;
         }
         Req r = cur;
+        if (r.kind == FLUSH) {                               // nothing to say back is fine
+            done();
+            return;
+        }
         if (r.kind == STR) {
             strength = r.value;                              // as the vendor app: assume it took
             ev.onStrength(this, strength, false);
         }
         if (r.kind == SSTA || r.kind == CAT || r.kind == MD5) {
             dropStart();
+            endSwap();
         }
         ev.onFailed(this, r.cmd.substring(1).split(" ")[0]);
         done();
+    }
+
+    void retrySwap(Req failed) {
+        Req newer = null;
+        int keep = failed.value;
+        for (int i = queue.size() - 1; i >= 0; i--) {
+            Req q = queue.get(i);
+            if (q.kind == CAT && q.swap && newer == null) {
+                newer = q;
+            }
+            if (q.kind == STR) {
+                keep = q.value;
+            }
+        }
+        dropStart();
+        if (newer != null) {
+            failed = newer;
+        }
+        queue.add(0, new Req(OSTO, ">osto"));
+        queue.add(0, new Req(FLUSH, ""));
+        addSwap(failed.file, failed.content, keep, true);
+    }
+
+    /** A swap ended without the new program: the pad may have stopped — say so if it did. */
+    void endSwap() {
+        if (swapping) {
+            swapping = false;
+            if (!running) {
+                ev.onRunning(this, false);
+            }
+        }
     }
 
     /** A start that failed half way: forget the rest of it (the screen offers ▶ again). */
@@ -312,8 +396,16 @@ public final class BluetensShell {
                 if (code == 3) {
                     done();
                 } else if (code < 0 && code != Integer.MIN_VALUE) {
-                    dropStart();
-                    ev.onFailed(this, "cat");
+                    Req r = cur;
+                    if (r.swap && !r.retried) {
+                        // the pad would not take a file while running: the bytes we sent after >cat went into its
+                        // command line — end that line, stop, then the newest swap again (from a stopped pad)
+                        retrySwap(r);
+                    } else {
+                        dropStart();
+                        endSwap();
+                        ev.onFailed(this, "cat");
+                    }
                     done();
                 }
                 break;
@@ -322,14 +414,23 @@ public final class BluetensShell {
                 int code = status(l);
                 if (code != Integer.MIN_VALUE) {
                     if (code >= 0) {                         // the vendor app takes any status as started
+                        boolean was = running;
                         running = true;
                         strength = 1;
                         tickS = 0;
-                        ev.onRunning(this, true);
-                        ev.onStrength(this, 1, false);
+                        if (cur.swap) {
+                            swapping = false;                // the queued >str brings the strength back
+                            if (!was) {
+                                ev.onRunning(this, true);
+                            }
+                        } else {
+                            ev.onRunning(this, true);
+                            ev.onStrength(this, 1, false);
+                        }
                         startKeepAlive();
                     } else {
                         dropStart();
+                        endSwap();
                         ev.onFailed(this, "ssta");
                     }
                     done();
@@ -345,6 +446,9 @@ public final class BluetensShell {
                 }
                 break;
             }
+            case FLUSH:
+                done();
+                break;
             case OSTO:
                 if (status(l) != Integer.MIN_VALUE) {
                     setStopped();
@@ -374,12 +478,15 @@ public final class BluetensShell {
         } else if ("noload".equals(k)) {
             ev.onNotice(this, NOTICE_NOLOAD);
         } else if ("low".equals(k)) {
+            swapping = false;
             setStopped();
             ev.onNotice(this, NOTICE_LOW);
         } else if ("shutdown".equals(k) || "disconnect".equals(k)) {
+            swapping = false;
             setStopped();
             ev.onNotice(this, NOTICE_OFF);
         } else if ("error".equals(k)) {
+            swapping = false;
             setStopped();
             ev.onNotice(this, NOTICE_ERROR);
         } else if (what.startsWith("insufficient")) {
@@ -391,7 +498,9 @@ public final class BluetensShell {
         keepAliveToken++;
         if (running) {
             running = false;
-            ev.onRunning(this, false);
+            if (!swapping) {
+                ev.onRunning(this, false);
+            }
         }
     }
 

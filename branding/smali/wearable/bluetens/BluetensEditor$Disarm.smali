@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 379
+    .line 386
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 380
+    .line 387
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Disarm;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
-    .line 381
+    .line 388
     return-void
 .end method
 
@@ -42,14 +42,14 @@
     .registers 4
 
     .prologue
-    .line 385
+    .line 392
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Disarm;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
     const/4 v1, 0x0
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->deleteArmed:Z
 
-    .line 386
+    .line 393
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Disarm;->e:Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensEditor$Ed;->delete:Landroid/widget/TextView;
@@ -64,6 +64,6 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 387
+    .line 394
     return-void
 .end method

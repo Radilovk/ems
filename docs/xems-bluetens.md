@@ -77,6 +77,20 @@ of it mixes into the training screen. The owner has a classic pad and a Duo.
   ≤ 10 Hz) and soft rise. Steps sit side by side; ⧉ duplicates, ✕ removes. Every change goes through
   `BluetensProgram.safe` (`ai/SafeLimits`): the value shown is what the pad gets, and an amber line says why. Saved
   as you go (`BluetensStore`, prefs `xems_bluetens` / `progs`). On the pad all own programs share one file, `XMINE`.
+- **На живо** (1.1.433-ai, owner: "real-time control of the parameters"): a third tab. Kind of current
+  (Импулси / Австралийски ток), Hz, µs, burst ms, impulse s, pause s, and the minutes. While the pads run, a change
+  is sent 0.6 s after the last tap. The protocol has no live parameter command; only `>str` is live. So
+  `BluetensShell.swap` uploads a program for the time left under the other file (`XLIVA` ↔ `XLIVB`, never over the
+  one playing), sends `>ssta` and then `>str <the strength before>` (`>ssta` restarts at 1). A newer change replaces
+  one still waiting, and a `NOTIFY stop` during the swap is not the end of the session. If the pad refuses `>cat`
+  while running, the shell ends the line it polluted (bare CRLF), sends `>osto`, and does the newest swap again.
+  The simulated pad covers all three firmware variants. "Запази като моя програма" copies the values into "Мои".
+- **Australian current** (`Step.burstMs`, 1–5 ms; storage adds an 8th number; old 7-number lines still read):
+  bursts of 1 kHz pulses (`F1000`, `C = burst ms`, `I = 1000/rate − burst`), with the step's Hz as the burst rate.
+  The pad tops out at 1200 Hz (vendor `MAX_FREQ`), and its own `PAIN.lok` runs 1200 Hz bursts of 3–9 pulses at
+  100 µs. So 1 kHz works, but the 2.5–4 kHz kind (and a true sine) is out of the pad's reach: these are rectangular
+  biphasic pulses. Width ≤ 250 µs. The burst rate goes through the same limits as Hz, so ≥ 20 bursts/s is an
+  impulse with a pause. The classic setting is 4 ms × 50/s.
 - Not done yet: no device test (protocol from the vendor app only); `>mode` (async, Eurocept) is not sent.
 
 ## Notes

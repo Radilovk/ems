@@ -8,6 +8,10 @@
     value = {
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Info;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveSave;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveApply;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveChange;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveKind;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Dismissed;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$CloseLinks;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$HideWarn;,
@@ -28,6 +32,10 @@
 
 
 # static fields
+.field static final LIVE_A:Ljava/lang/String; = "XLIVA"
+
+.field static final LIVE_B:Ljava/lang/String; = "XLIVB"
+
 .field static final MAX_PADS:I = 0x2
 
 .field static final PREFS:Ljava/lang/String; = "xems_bluetens"
@@ -38,7 +46,7 @@
     .registers 1
 
     .prologue
-    .line 38
+    .line 42
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -48,7 +56,7 @@
     .registers 1
 
     .prologue
-    .line 53
+    .line 57
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
@@ -60,7 +68,7 @@
     .registers 3
 
     .prologue
-    .line 42
+    .line 46
     :try_start_0
     new-instance v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -70,15 +78,15 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_8} :catch_9
 
-    .line 46
+    .line 50
     :goto_8
     return-void
 
-    .line 43
+    .line 47
     :catch_9
     move-exception v0
 
-    .line 44
+    .line 48
     const-string v1, "BluetensScreen.open"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -90,7 +98,7 @@
     .registers 3
 
     .prologue
-    .line 49
+    .line 53
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0

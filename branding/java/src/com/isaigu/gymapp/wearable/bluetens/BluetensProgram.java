@@ -15,6 +15,12 @@ import java.util.List;
 public final class BluetensProgram {
     public static final int SEC_MIN = 10, SEC_MAX = 3600;
     public static final int WORK_MAX = 10, REST_MAX = 30, RISE_MAX_MS = 2000;
+    /**
+     * Australian current (burst-modulated medium frequency): the pad's own top rate is 1200 Hz (vendor MAX_FREQ;
+     * its PAIN.lok runs 1200 Hz bursts), so the carrier is 1 kHz — the 4 kHz kind is out of the pad's reach. The
+     * step's {@link Step#hz} is then the burst rate, {@link Step#burstMs} the burst length.
+     */
+    public static final int CARRIER_HZ = 1000, BURST_MAX_MS = 5, BURST_US_MAX = 250;
 
     public String id = "";
     public String name = "";
@@ -34,6 +40,8 @@ public final class BluetensProgram {
         public int restHz;
         /** Soft rise at the start of each impulse, ms. */
         public int riseMs;
+        /** Australian current: burst length in ms at {@link #CARRIER_HZ} (0 = ordinary pulses). */
+        public int burstMs;
 
         public Step copy() {
             Step s = new Step();
@@ -44,11 +52,16 @@ public final class BluetensProgram {
             s.restS = restS;
             s.restHz = restHz;
             s.riseMs = riseMs;
+            s.burstMs = burstMs;
             return s;
         }
 
         public boolean continuous() {
             return workS <= 0;
+        }
+
+        public boolean aussie() {
+            return burstMs > 0;
         }
     }
 
@@ -81,6 +94,7 @@ public final class BluetensProgram {
         s.seconds = Math.max(SEC_MIN, Math.min(SEC_MAX, s.seconds));
         s.riseMs = Math.max(0, Math.min(RISE_MAX_MS, s.riseMs));
         s.restHz = Math.max(0, Math.min(SafeLimits.PAUSE_HZ_MAX, s.restHz));
+        s.burstMs = Math.max(0, Math.min(BURST_MAX_MS, s.burstMs));
         boolean tet = s.hz >= SafeLimits.TETANIC_HZ;
         if (s.continuous() && tet) {
             bg.append("От ").append(SafeLimits.TETANIC_HZ).append(" Hz нагоре — само импулс с пауза");
@@ -102,6 +116,16 @@ public final class BluetensProgram {
             s.restHz = 0;
             s.riseMs = 0;
         }
+        if (s.aussie()) {
+            // a burst must end before the next one starts (burst rate 1..120 Hz × ≤ 5 ms always fits), and at a 1 ms
+            // carrier period the pulses stay short — the vendor's own 1200 Hz program uses 100 µs
+            s.hz = Math.min(s.hz, 1000 / (s.burstMs + 1));
+            if (s.us > BURST_US_MAX) {
+                s.us = BURST_US_MAX;
+                bg.append(bg.length() > 0 ? "; " : "").append("Австралийски ток — до ").append(BURST_US_MAX).append(" µs");
+                en.append(en.length() > 0 ? "; " : "").append("Australian current — up to ").append(BURST_US_MAX).append(" µs");
+            }
+        }
         return new String[] {bg.toString(), en.toString()};
     }
 
@@ -118,6 +142,10 @@ public final class BluetensProgram {
     }
 
     static void add(BluetensLok lok, Step s) {
+        if (s.aussie()) {
+            addBursts(lok, s);
+            return;
+        }
         BluetensLok.Section sec = lok.section(1);
         int hz10 = s.hz * 10;
         if (s.continuous()) {
@@ -145,9 +173,47 @@ public final class BluetensProgram {
         sec.repeat = (int) Math.max(1, Math.round(s.seconds * 1000.0 / cycle));
     }
 
+    /** Australian current: bursts of {@code burstMs} pulses at 1 kHz, {@code hz} bursts a second. */
+    static void addBursts(BluetensLok lok, Step s) {
+        int car10 = CARRIER_HZ * 10;
+        int gap = Math.max(1, Math.round(1000f / s.hz) - s.burstMs);
+        int c = s.burstMs * CARRIER_HZ / 1000;
+        double burst = c * 1000.0 / CARRIER_HZ + gap;               // ms per burst as the pad counts it
+        if (s.continuous()) {
+            BluetensLok.Section sec = lok.section(1);
+            int perSec = (int) Math.max(1, Math.round(1000.0 / burst));
+            BluetensLok.block(sec, perSec, gap, s.us, car10, c);
+            sec.repeat = (int) Math.max(1, Math.round(s.seconds * 1000.0 / (perSec * burst)));
+            return;
+        }
+        BluetensLok.Section sec = lok.section(1);
+        int riseMs = s.hz >= 10 ? s.riseMs : 0;
+        int steps = riseMs / 100;
+        int per100 = (int) Math.max(1, Math.round(100 / burst));
+        for (int i = 0; i < steps; i++) {
+            int w = Math.max(20, s.us * (40 + 60 * (i + 1) / steps) / 100);
+            BluetensLok.block(sec, per100, gap, w, car10, c);
+        }
+        int hold = (int) Math.max(1, Math.round((s.workS * 1000.0 - steps * per100 * burst) / burst));
+        if (s.restHz > 0) {
+            BluetensLok.block(sec, hold, gap, s.us, car10, c);
+            BluetensLok.block(sec, 1, 0, s.us, s.restHz * 10, Math.max(1, s.restHz * s.restS));
+        } else {
+            if (hold > 1) {
+                BluetensLok.block(sec, hold - 1, gap, s.us, car10, c);
+            }
+            BluetensLok.block(sec, 1, gap + s.restS * 1000, s.us, car10, c);
+        }
+        double cycle = 0;
+        for (BluetensLok.Block b : sec.blocks) {
+            cycle += b.ms();
+        }
+        sec.repeat = (int) Math.max(1, Math.round(s.seconds * 1000.0 / cycle));
+    }
+
     // ------------------------------------------------------------------ storage line (no org.json: tested on the JVM)
 
-    /** {@code id \t name \t step | step …}, a step = 7 numbers with commas. */
+    /** {@code id \t name \t step | step …}, a step = 7 numbers with commas (+ the burst ms when set). */
     public String encode() {
         StringBuilder b = new StringBuilder();
         b.append(clean(id)).append('\t').append(clean(name)).append('\t');
@@ -158,6 +224,9 @@ public final class BluetensProgram {
             }
             b.append(s.seconds).append(',').append(s.hz).append(',').append(s.us).append(',').append(s.workS)
                     .append(',').append(s.restS).append(',').append(s.restHz).append(',').append(s.riseMs);
+            if (s.burstMs > 0) {
+                b.append(',').append(s.burstMs);
+            }
         }
         return b.toString();
     }
@@ -188,6 +257,7 @@ public final class BluetensProgram {
                 s.restS = Integer.parseInt(n[4]);
                 s.restHz = Integer.parseInt(n[5]);
                 s.riseMs = Integer.parseInt(n[6]);
+                s.burstMs = n.length > 7 ? Integer.parseInt(n[7]) : 0;
                 out.steps.add(s);
             } catch (NumberFormatException ignored) {
             }

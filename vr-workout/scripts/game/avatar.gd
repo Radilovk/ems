@@ -18,10 +18,12 @@ const KNUCKLE := Vector2(0.62, 3.9)             # the knuckle line in the model'
 const JOINTS := [Vector3(0.0, 1.62, -0.3),      # a punching fist, joint by joint: (where along the finger 0…1, bend in
 		Vector3(0.43, 1.75, -0.22),              # radians, hinge height under the finger's middle): the knuckle 93°,
 		Vector3(0.72, 1.2, -0.2)]                # the middle joint 100°, the last 69° — tight, the knuckles flat ahead
-const THUMB_BASE := Vector3(-1.75, 0.3, 1.0)    # the thumb's root, and where it points: out to the side …
-const THUMB_FROM := Vector3(-0.95, -0.85, 2.1)
-const THUMB_TO := Vector3(1.15, -1.65, 2.5)     # … and folded under, across the curled fingers' middle joints
-const THUMB_SHIFT := Vector3(0.15, -0.65, 0.3)   # (and moved a little forward and down to lie on them)
+const THUMB_BASE := Vector3(-1.75, 0.3, 1.0)    # the thumb's root and its tip as modelled (pointing out to the side)
+const THUMB_TIP := Vector3(-2.75, -0.5, 3.3)
+const THUMB_IP := 1.5                           # its middle joint, along it from the root
+const THUMB_KNEE := Vector3(-1.85, -1.35, 3.35) # where that joint goes: under the index finger's middle joint …
+const THUMB_DOWN := Vector3(0.25, -0.75, 0.6)   # … the near half reaching there forward and down,
+const THUMB_ACROSS := Vector3(1.0, -0.05, 0.15) # the far half lying across the index and middle fingers (a boxer's fist)
 
 static var _glove_meshes := {}   # "plate"/"glow"/"body"/"mech" -> ArrayMesh, built once
 var gloves := {}                 # "left"/"right" -> Node3D
@@ -146,14 +148,18 @@ func _glove(side: String) -> Node3D:
 
 
 ## The model's open hand closed into a fist (in model units, after rel puts the part in the model's space). Past the
-## knuckle line each finger rolls down into the palm along an arc, about 250° whatever its length; the thumb swings in from
-## the side and lies across the curled index and middle fingers. Normals turn with the surface.
+## knuckle line each finger rolls down into the palm along an arc, about 250° whatever its length; the thumb bends at its
+## two joints and lies across the curled index and middle fingers, outside them, as in a boxer's fist. Normals turn with the surface.
 static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var norms: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var d := Vector2(-0.33, 0.94).normalized()                # the fingers' axis in (y, z): they slope down a little
 	var nrm := Vector2(d.y, -d.x)                             # up out of the back of the fingers
-	var thumb := Quaternion(THUMB_FROM.normalized(), THUMB_TO.normalized())
+	var ta := (THUMB_TIP - THUMB_BASE).normalized()          # the thumb: root joint, then the middle joint
+	var td := THUMB_DOWN.normalized()
+	var tq1 := Quaternion(ta, td)
+	var tq2 := Quaternion(ta, tq1.inverse() * THUMB_ACROSS.normalized())
+	var tshift := THUMB_KNEE - td * THUMB_IP - THUMB_BASE
 	for i in verts.size():
 		var p: Vector3 = rel * verts[i]
 		var nv: Vector3 = (rel.basis * norms[i]).normalized() if i < norms.size() else Vector3.UP
@@ -179,13 +185,17 @@ static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
 			var nl := Vector2(n2.dot(d), n2.dot(nrm)).rotated(turn)
 			var m := d * nl.x + nrm * nl.y
 			nv = Vector3(nv.x, m.x, m.y)
-		elif p.x < -1.5 and p.z > 0.8 and p.z < 3.8:
-			var s := (p - THUMB_BASE).dot(THUMB_FROM.normalized())
-			var k := smoothstep(0.1, 0.9, s) * (1.0 - smoothstep(-1.9, -1.5, p.x))
-			if k > 0.0:
-				var qk := Quaternion.IDENTITY.slerp(thumb, k)
-				p = THUMB_BASE + qk * (p - THUMB_BASE) + THUMB_SHIFT * k
-				nv = qk * nv
+		elif p.x < -1.5 and p.z > 0.8:
+			var s := (p - THUMB_BASE).dot(ta)
+			var kx := 1.0 - smoothstep(-1.9, -1.5, p.x)
+			var k1 := smoothstep(0.2, 0.8, s) * kx
+			var k2 := smoothstep(THUMB_IP - 0.15, THUMB_IP + 0.15, s) * kx
+			if k1 > 0.0:
+				var q2 := Quaternion.IDENTITY.slerp(tq2, k2)
+				var q1 := Quaternion.IDENTITY.slerp(tq1, k1)
+				var mid := THUMB_BASE + ta * THUMB_IP
+				p = THUMB_BASE + tshift * k1 + q1 * (mid + q2 * (p - mid) - THUMB_BASE)
+				nv = q1 * q2 * nv
 		verts[i] = p
 		if i < norms.size():
 			norms[i] = nv

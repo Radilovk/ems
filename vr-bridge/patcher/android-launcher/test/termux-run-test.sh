@@ -11,6 +11,7 @@ echo "adb $*" >> "$FAKE_LOG"
 case "$1" in
   connect) [[ "${FAKE_CONNECT:-ok}" == ok ]] && echo "connected to $2" || echo "failed to connect to $2" ;;
   disconnect) ;;
+  version) [[ -e "${FAKE_BROKEN:-/nonexistent}" ]] && { echo 'CANNOT LINK EXECUTABLE "adb"' >&2; exit 1; }; echo "Android Debug Bridge" ;;
   -s)
     ip="${2%%:*}"
     case "$3" in
@@ -42,6 +43,7 @@ cat > "$T/bin/timeout" <<'S'
 ip="$(echo "$*" | sed -n 's|.*/dev/tcp/\([0-9.]*\)/.*|\1|p')"
 [[ " ${FAKE_OPEN:-} " == *" $ip "* ]]
 S
+printf '#!/usr/bin/env bash\necho "pkg $*" >> "$FAKE_LOG"\n[[ "${FAKE_PKG_FIXES:-yes}" == yes ]] && rm -f "${FAKE_BROKEN:-/nonexistent}"\nexit 0\n' > "$T/bin/pkg"
 printf '#!/usr/bin/env bash\n' > "$T/bin/sleep"
 chmod +x "$T/bin/"*
 export XEMS_UPDATED=1
@@ -101,6 +103,10 @@ out="$(FAKE_OPEN="192.168.1.23 192.168.1.40" FAKE_QUESTS="192.168.1.23" PATH="$T
 FAKE_OPEN="192.168.1.77" FAKE_UNAUTH="192.168.1.77" check "find: unauthorised headset listed" 0 "quest 192.168.1.77 ?" find 192.168.1.50
 FAKE_OPEN="" check "find: nothing" 4 "" find 192.168.1.50
 check "find: bad ip" 2 "" find nope
+# a broken adb (libc++ mismatch) is repaired through pkg, once, before it is used
+BR="$T/broken"; : > "$BR"
+FAKE_BROKEN="$BR" FAKE_OPEN="192.168.1.23" FAKE_QUESTS="192.168.1.23" check "find: broken adb repaired via pkg" 0 "pkg install -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold libc++ android-tools" find 192.168.1.50
+: > "$BR"; FAKE_PKG_FIXES=no FAKE_BROKEN="$BR" check "find: adb stays broken" 3 "pkg upgrade -y" find 192.168.1.50
 # --key: the launcher's adb key lands next to Termux's own, as a PEM, and the verb still runs
 KH="$(mktemp -d)"
 HOME="$KH" FAKE_OPEN="192.168.1.23" FAKE_QUESTS="192.168.1.23" PATH="$T/bin:$PATH" bash "$RUN" --key QUJDRA== "QUJD xems@tablet" find 192.168.1.50 > "$FAKE_OUT" 2>&1; rc=$?

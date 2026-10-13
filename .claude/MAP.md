@@ -1256,12 +1256,33 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L77 ## Limits (what still needs a hand)
   - L84 ## Build & test
 
-`vr-workout/README.md` (73L)
+`vr-workout/README.md` (81L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
-  - L6 ## The game (v0.2) — plasma, fists, knees, feet, ducks and leans
-  - L46 ## In the Quest browser (WebXR) — the way it ships now
-  - L60 ## Build / preview
-  - L69 ## Licences
+  - L7 ## The game (v0.3) — on the beat, felt three ways
+  - L54 ## In the Quest browser (WebXR) — the way it ships now
+  - L68 ## Build / preview
+  - L77 ## Licences
 
-`vr-workout/assets/CREDITS.md` (14L)
+`vr-workout/addons/godotopenxrvendors/GodotOpenXRVendors_CHANGES.md` (190L)
+  - L1 # Change history for the Godot OpenXR loaders asset
+  - L3 ## 4.3.1
+  - L8 ## 4.3.0
+  - L31 ## 4.2.2
+  - L36 ## 4.2.1
+  - L43 ## 4.2.0
+  - L73 ## 4.1.1
+  - L77 ## 4.1.0
+  - L89 ## 4.0.0
+  - L108 ## 3.1.2
+  - L112 ## 3.1.1
+  - L116 ## 3.1.0
+  - L128 ## 3.0.1
+  - L131 ## 3.0.0
+  - L151 ## 2.0.4
+  - L155 ## 2.0.3
+  - L162 ## 2.0.0
+  - L178 ## 1.1.0
+  - L183 ## 1.0.0
+
+`vr-workout/assets/CREDITS.md` (12L)
   - L1 # Asset credits

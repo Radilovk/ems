@@ -6,6 +6,7 @@ extends Node3D
 const PLASMA := preload("res://shaders/plasma.gdshader")
 const HALO := preload("res://shaders/halo.gdshader")
 const HAZARD := preload("res://shaders/hazard.gdshader")
+const APPROACH := preload("res://shaders/approach.gdshader")
 
 var kind: int
 var speed := 3.0
@@ -20,6 +21,9 @@ var _mat: ShaderMaterial
 var _halo_mat: ShaderMaterial
 var _spin := Vector3.ZERO
 var _t := 0.0
+var _trail: CPUParticles3D
+var marker: MeshInstance3D          # a sphere's target ring, waiting at the contact spot (a sibling: it does not fly)
+var _marker_mat: ShaderMaterial
 
 
 static func make(k: int, s: int, spd: float, height: float) -> Elem:
@@ -74,6 +78,8 @@ func _build_orb(height: float) -> void:
 	trail.initial_velocity_max = 0.5
 	trail.scale_amount_min = 0.6
 	trail.scale_amount_max = 1.2
+	trail.gravity = Vector3.ZERO                  # a wake that stays on the line of flight, not falling dust
+	_trail = trail
 	var tm := SphereMesh.new()
 	tm.radius = 0.02
 	tm.height = 0.04
@@ -145,6 +151,50 @@ func _build_hazard(height: float) -> void:
 		add_child(cap)
 
 
+## The ring at the spot where this sphere must be hit: faint and a little wide while the sphere is far, tightening and
+## brightening as it comes — strike when the sphere fills it.
+## Shown still (the rules' examples): no wake behind it.
+func still() -> void:
+	if _trail:
+		_trail.emitting = false
+
+
+func make_marker(parent: Node3D) -> void:
+	marker = MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2.ONE
+	marker.mesh = q
+	_marker_mat = ShaderMaterial.new()
+	_marker_mat.shader = APPROACH
+	_marker_mat.set_shader_parameter("color", Defs.COLOR[kind])
+	marker.material_override = _marker_mat
+	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(marker)
+	marker.position = Vector3(position.x, position.y, contact_z)
+	_update_marker()
+
+
+func _update_marker() -> void:
+	if marker == null:
+		return
+	var lead := maxf(speed * 1.3, 0.5)                        # the ring starts closing 1.3 s before contact
+	var k := clampf((contact_z - position.z) / lead, 0.0, 1.0)
+	marker.scale = Vector3.ONE * lerpf(radius * 2.25, radius * 3.4, k)
+	_marker_mat.set_shader_parameter("k", k)
+	_marker_mat.set_shader_parameter("alpha", clampf(_t / 0.5, 0.0, 1.0) * (0.2 + 0.8 * (1.0 - k)))
+	marker.visible = position.z < contact_z + 0.25 and not done
+
+
+func free_marker() -> void:
+	if marker and is_instance_valid(marker):
+		marker.queue_free()
+	marker = null
+
+
+func _exit_tree() -> void:
+	free_marker()
+
+
 func flash(amount: float) -> void:
 	if _mat:
 		_mat.set_shader_parameter("pulse", amount)
@@ -159,3 +209,4 @@ func advance(delta: float) -> void:
 		rotation += _spin * delta
 	if _halo_mat and not is_hazard():
 		_halo_mat.set_shader_parameter("energy", 0.55 + 0.2 * sin(_t * 8.0))
+	_update_marker()

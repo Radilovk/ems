@@ -1,10 +1,9 @@
-## What the headset can show: coaches (humanoid models) and rooms (360° photos or 3D scenes), built in or dropped
-## into a folder on the Quest — no rebuild needed to try a new one:
-##   Quest:   Android/data/eu.xems.studio/files/XEMS/coaches/   …/XEMS/rooms/     (USB cable or SideQuest)
+## What the headset can show: rooms (360° photos or 3D scenes) and the owner's music, built in or dropped into a
+## folder on the Quest — no rebuild needed to try a new one:
+##   Quest:   Android/data/eu.xems.studio/files/XEMS/rooms/   …/XEMS/music/     (USB cable or SideQuest)
 ##   desktop: <user data>/XEMS/…  or  -- --lib=<folder>
-## Coaches: .glb / .gltf (.fbx is tried too). Clothes / hair as separate files on the same rig: <coach>+<item>.glb
-## (e.g. anna.glb + anna+shirt.glb + anna+hair.glb) are put on that coach. Rooms: .jpg / .png / .webp / .hdr 360° photos (2:1), or .glb / .gltf
-## scenes in metres. Optional sidecar <file>.json: {"name": "…", "cam": 1.5, "yaw": 0.0, "radius": 8.0, "scale": 1.0,
+## Rooms: .jpg / .png / .webp / .hdr 360° photos (2:1), or .glb / .gltf scenes in metres. Music: .mp3 / .ogg; the
+## tempo ("bpm" in the .json, or "128bpm" in the name) puts the game on its beat. Optional sidecar <file>.json: {"name": "…", "cam": 1.5, "yaw": 0.0, "radius": 8.0, "scale": 1.0,
 ## "offset": [x, y, z], "turn": 0} — cam = the photo's camera height, yaw = turn of a photo (0..1), radius = how big the
 ## room of a photo is drawn (m, default 4.6; the game flies things at you over ~2 radii), turn = degrees.
 class_name Library
@@ -12,10 +11,6 @@ extends RefCounted
 
 const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XEMS", "/storage/emulated/0/Download/XEMS"]
 
-const BUILTIN_COACHES := [
-	{"name": "Треньор с худи (Mixamo)", "path": "res://assets/coaches/mixamo_ch08.glb"},
-	{"name": "Андроид", "path": "res://assets/coaches/android.glb"},
-]
 const BUILTIN_ROOMS := [
 	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene"},
 	{"name": "Фитнес зала", "path": "res://assets/rooms/gym_room.glb", "kind": "scene"},
@@ -24,15 +19,13 @@ const BUILTIN_ROOMS := [
 	{"name": "Йога студио", "path": "res://assets/rooms/yoga_studio.glb", "kind": "scene"},
 	{"name": "Мост", "path": "res://assets/rooms/bridge.jpg", "kind": "pano", "cam": 1.6, "radius": 7.0},
 ]
-const COACH_EXT := ["glb", "gltf", "fbx"]
 const PANO_EXT := ["jpg", "jpeg", "png", "webp", "hdr"]
 const SCENE_EXT := ["glb", "gltf", "fbx"]
 
-const README := """XEMS Studio — сложи тук свои треньори и зали, без нов build.
+const README := """XEMS Studio — сложи тук свои зали и музика, без нов build.
 
-coaches/  човешки модел със скелет: .glb или .gltf (Mixamo, Unreal, MakeHuman…). Бутон B сменя треньора.
-          Отделни дрехи/коса за същия скелет: <име>+<нещо>.glb, напр. anna.glb, anna+shirt.glb, anna+hair.glb.
 music/    твоят саундтрак: .mp3 или .ogg (свири по ред, на кръг). Лява „grip“ бутон = следваща песен.
+          Темпото в името („… 128bpm.mp3“) или в .json ({"bpm": 128}) пуска нещата точно в ритъма.
 rooms/    360° снимка 2:1 (.jpg до 8192×4096 е най-добре, .hdr също) или 3D сцена .glb в метри.
           Бутон Y сменя залата.
 
@@ -56,7 +49,7 @@ static func dirs(extra: String = "") -> Array:
 ## Make the drop folders (with a how-to) where the app may write, so they show up over USB after the first start.
 static func prepare(extra: String = "") -> void:
 	for d in dirs(extra):
-		for sub in ["coaches", "rooms", "music"]:
+		for sub in ["rooms", "music"]:
 			DirAccess.make_dir_recursive_absolute(d.path_join(sub))
 		if DirAccess.dir_exists_absolute(d) and not FileAccess.file_exists(d.path_join("README.txt")):
 			var f := FileAccess.open(d.path_join("README.txt"), FileAccess.WRITE)
@@ -92,21 +85,6 @@ static func _scan(sub: String, exts: Array, extra: String) -> Array:
 ## The owner's soundtrack: .mp3 / .ogg files in XEMS/music (played in name order, looped).
 static func tracks(extra: String = "") -> Array:
 	return _scan("music", ["mp3", "ogg"], extra)
-
-
-static func coaches(extra: String = "") -> Array:
-	var out := BUILTIN_COACHES.duplicate(true)
-	var found := _scan("coaches", COACH_EXT, extra)
-	for e in found:
-		var base: String = e.path.get_file().get_basename()
-		if "+" in base:
-			continue                                   # a piece of clothing, not a coach
-		e["wear"] = []
-		for w in found:
-			if w.path.get_base_dir() == e.path.get_base_dir() and w.path.get_file().begins_with(base + "+"):
-				e.wear.append(w.path)
-		out.append(e)
-	return out
 
 
 static func rooms(extra: String = "") -> Array:

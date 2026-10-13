@@ -1,46 +1,42 @@
-## The game: things fly at the player; break the colourful ones with a fist / knee / foot, dodge the red ones by
-## squatting or leaning. A coach first explains the rules, shows the basic moves, then plays a round himself, then it is
-## the player's turn. Level (speed, gap, mix) rises and falls with how well the player does.
+## The game: things fly at the player on the beat of the music; break the colourful ones with a fist / knee / foot,
+## dodge the red ones by squatting or leaning. First the rules (with the real things floating in front of you), then a
+## short try-out — one of each, slow — then the levels. Level (speed, gap, mix) rises and falls with how well it goes.
+##
+## Every event is felt three ways at once: the eyes (shards, a shockwave, light; a red edge when hit), the ears
+## (spatial sound on the beat; the music muffled under a hit and opening up again) and the body (SuitLink: the
+## controllers' haptics, which the XEMS layer turns into impulses in the suit) — on the same curve.
 ##
 ## Frame: this node sits where the player stood at calibration (floor = 0); −Z is ahead. Elements and the body's
-## limbs are in that frame. The suit gets SuitLink events (see suit.gd).
+## limbs are in that frame.
 class_name Game
 extends Node3D
 
-enum St { IDLE, TUTORIAL, COUNTDOWN, PLAY, SUMMARY }
+enum St { IDLE, TUTORIAL, PRACTICE, COUNTDOWN, PLAY, SUMMARY }
 
-const COACH_PLAY_POS := Vector3(-2.3, 0, -3.1)
-const COACH_PLAY_YAW := 36.0
-const COACH_TEACH_POS := Vector3(0, 0, -2.4)
-const COACH_TEACH_YAW := 32.0
-const DEMO_Z := -3.9
-const DEMO_YAW := 152.0
 const LIMB_R := {"hand": 0.12, "knee": 0.14, "foot": 0.16}
 const MIN_SPEED := {"hand": 1.0, "knee": 0.7, "foot": 0.9}
-const MOVE_LABEL := {"jab_l": "Удар с юмрук", "cross_r": "Удар с другия юмрук", "knee_l": "Коляно", "knee_r": "Другото коляно",
-	"kick_l": "Ритник", "kick_r": "Ритник с другия крак", "lean_r": "Наклон встрани", "lean_l": "Наклон на другата страна",
-	"duck": "Клек"}
-const MOVE_ROLE := {"jab_l": "hand_l", "cross_r": "hand_r", "knee_l": "calf_l", "knee_r": "calf_r", "kick_l": "ball_l",
-	"kick_r": "ball_r", "lean_l": "head", "lean_r": "head", "duck": "head"}
+const FREE_BPM := 120.0              # pacing grid when the track's tempo is unknown
+const TRAIL_COLOR := Color(0.25, 0.85, 1.0)
 const CH := {
 	Defs.Zone.ARMS: ["Ръце"],
 	Defs.Zone.LEGS: ["Предно бедро", "Задно бедро", "Прасец"],
 	Defs.Zone.TORSO: ["Корем", "Глутеус", "Кръст", "Гръб"],
 }
 
-var stage: Node3D                    # main.gd: room, coach, cards, hands
+var stage: Node3D                    # main.gd: room, cards, hands, camera
 var body := PlayerBody.new()
 var sfx: Sfx
+var fx: Fx
 var suit := SuitLink.new()
 var st: int = St.IDLE
 var elems: Array[Elem] = []
 var legend: Array[Node3D] = []
 var args := {}
+var trails := {}                     # "hand_l"/"hand_r" -> Fx.Trail
 
 var level := 0                       # index into Defs.LEVELS
 var level_total := 0
 var level_spawned := 0
-var next_gap := 1.0
 var score := 0
 var combo := 0
 var best_combo := 0
@@ -52,17 +48,15 @@ var message_t := 0.0
 var clock := 0.0
 var skip := false
 var last_kind := -1
+var legs_live := false               # the legs answered in the try-out (Quest 3 estimates them; they may not follow)
 
-var legs_live := false               # the legs answered the knee test (Quest 3 estimates them; they may not follow)
-var demo_on := false
-var demo_clock := 0.0
-var demo_events: Array = []
-var demo_pts := {}
+var bt := 0.0                        # the beat clock: seconds, kept in phase with the music
+var next_arrival := 0.0              # bt at which the next element reaches the player
 
 var sim_on := false
 var sim_skill := 0.8
 var _sim_rest := {}
-var _glow: Array = []                # {"zone", "t0", "kind", "ev"}
+var _glow: Array = []                # {"zone", "t0", "ev"}
 var _legs_warned := false
 var _selftest_levels := 0
 var tracks: Array = []
@@ -74,8 +68,16 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 	args = a
 	sfx = Sfx.new()
 	add_child(sfx)
+	fx = Fx.new()
+	stage.add_child(fx)
+	fx.attach_vignette(stage.cam)
+	suit.hands = stage.hands
 	suit.fired.connect(_on_suit)
 	body.setup(stage.cam, stage.origin, stage.hands)
+	for l in ["hand_l", "hand_r"]:
+		var t := Fx.Trail.new(TRAIL_COLOR, 0.04)
+		stage.add_child(t)
+		trails[l] = t
 	level = clampi(int(a.get("level", "1")) - 1, 0, Defs.LEVELS.size() - 1)
 	sim_on = a.get("sim", "0") == "1"
 	sim_skill = float(a.get("skill", "0.8"))
@@ -91,11 +93,6 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 		if not tracks.is_empty():
 			next_track(0)
 		sfx.start_music()
-	if a.has("move"):                                   # desktop preview: a move frozen at --mt (default: the hit)
-		_coach().position = COACH_TEACH_POS
-		_coach().rotation_degrees.y = COACH_TEACH_YAW
-		_coach().freeze(a.move, float(a.get("mt", str(MoveLib.hit(a.move)))))
-		return
 	if a.get("skiptut", "0") == "1":
 		_begin_countdown.call_deferred()
 	else:
@@ -103,12 +100,18 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 
 
 ## The owner's tracks (XEMS/music): the next one, wrapping round. The built-in bed plays when there are none.
+## A track's tempo: "bpm" in its .json, or in its name ("… 128bpm"); without one the game paces itself.
 func next_track(step := 1) -> void:
 	if tracks.is_empty():
 		return
 	track_i = (track_i + step) % tracks.size()
-	if sfx.set_track(tracks[track_i].path):
-		stage._show_toast("♪ " + String(tracks[track_i].name))
+	var t: Dictionary = tracks[track_i]
+	var bpm := float(t.get("bpm", 0.0))
+	if bpm <= 0.0:
+		var m := RegEx.create_from_string("(?i)(\\d{2,3})\\s*bpm").search(String(t.name))
+		bpm = float(m.get_string(1)) if m else 0.0
+	if sfx.set_track(t.path, bpm):
+		stage._show_toast("♪ " + String(t.name))
 
 
 func skip_stage() -> void:
@@ -127,37 +130,46 @@ func recalibrate() -> void:
 func _process(delta: float) -> void:
 	if stage == null:
 		return
-	# Logic runs in small fixed steps (≤ 20 ms): a frame that takes long (a slow device, a hitch) must not let a fast
-	# fist pass through a sphere between two samples.
+	if sim_on:
+		_sim(delta)
+	body.update(delta)
+	_beat(delta)
+	# Logic runs in small steps (≤ 20 ms) with the limbs swept between their two samples: a long frame must not let a
+	# fast fist pass through a sphere unnoticed.
 	var n := clampi(int(ceil(delta / 0.02)), 1, 200)
 	for i in n:
-		_step(delta / n)
+		_step(delta / n, float(i + 1) / n)
 	for l in legend:
 		if l is Elem:
 			(l as Elem).advance(delta)
+	suit.tick(delta)
 	_suit_fx()
+	_limbs_fx()
 	_hud(delta)
 
 
-func _step(dt: float) -> void:
+func _step(dt: float, u: float) -> void:
 	clock += dt
-	body.update(dt)
-	if sim_on:
-		_sim(dt)
-	if demo_on:
-		_demo_update(dt)
-	if st == St.PLAY:
-		_play_update(dt)
+	if st == St.PLAY or st == St.PRACTICE:
+		_play_update(dt, u)
 
 
-func _play_update(delta: float) -> void:
-	var lv: Dictionary = Defs.LEVELS[level]
-	if level_spawned < level_total:
-		next_gap -= delta
-		if next_gap <= 0.0:
-			_spawn(_pick_kind(lv.w))
-			var g: Array = lv.gap
-			next_gap = randf_range(g[0], g[1])
+## The beat clock runs with the frames and is pulled gently into phase with what is heard.
+func _beat(delta: float) -> void:
+	bt += delta
+	var song := sfx.song_time()
+	if song >= 0.0 and sfx.bpm > 0.0:
+		var b := 60.0 / sfx.bpm
+		bt += wrapf(song - bt, -b * 0.5, b * 0.5) * 0.08
+
+
+func beat_len() -> float:
+	return 60.0 / (sfx.bpm if sfx.bpm > 0.0 else FREE_BPM)
+
+
+func _play_update(delta: float, u: float) -> void:
+	if st == St.PLAY and level_spawned < level_total:
+		_schedule()
 	for e in elems.duplicate():
 		e.advance(delta)
 		if e.done:
@@ -167,12 +179,26 @@ func _play_update(delta: float) -> void:
 		if e.is_hazard():
 			_judge_hazard(e)
 		else:
-			_judge_orb(e)
-	if level_spawned >= level_total and elems.is_empty() and st == St.PLAY:
+			_judge_orb(e, u)
+	if st == St.PLAY and level_spawned >= level_total and elems.is_empty():
 		_end_level.call_deferred()
 
 
-# ---------------------------------------------------------------- spawning
+# ---------------------------------------------------------------- spawning, on the beat
+
+## When the next element must leave the far wall to reach the player exactly on its beat, it goes.
+func _schedule() -> void:
+	var lv: Dictionary = Defs.LEVELS[level]
+	var speed: float = lv.speed
+	var travel := _spawn_dist(speed) / speed
+	if bt < next_arrival - travel:
+		return
+	_spawn(_pick_kind(lv.w), speed, next_arrival)
+	var g: Array = lv.gap
+	var b := beat_len()
+	var step := 0.5 if level >= 5 else 1.0                       # fast levels may land on the half beat
+	next_arrival += max(round(randf_range(g[0], g[1]) / b / step) * step, 1.0) * b
+
 
 func _pick_kind(w: Dictionary) -> int:
 	var total := 0.0
@@ -194,8 +220,9 @@ func _pick_kind(w: Dictionary) -> int:
 	return pool.keys()[0]
 
 
-func _spawn(kind: int) -> void:
-	var lv: Dictionary = Defs.LEVELS[level]
+## One element of `kind` that reaches the player at beat-clock time `arrival` (spheres: the contact plane; beams:
+## the player's own plane).
+func _spawn(kind: int, speed: float, arrival: float) -> Elem:
 	var h := body.stand_h
 	var x := 0.0
 	var y := 0.0
@@ -222,18 +249,26 @@ func _spawn(kind: int) -> void:
 			side = 1
 			x = Defs.LEAN_X
 			y = h * 0.97
-	var e := Elem.make(kind, side, lv.speed, h)
-	e.position = Vector3(x, y, Defs.CONTACT_Z - _spawn_dist(lv.speed))
+	return _spawn_at(kind, side, Vector3(x, y, 0), speed, arrival)
+
+
+func _spawn_at(kind: int, side: int, p: Vector3, speed: float, arrival: float) -> Elem:
+	var e := Elem.make(kind, side, speed, body.stand_h)
+	var target_z := 0.0 if Defs.is_hazard(kind) else Defs.CONTACT_Z
+	e.position = Vector3(p.x, p.y, target_z - speed * maxf(arrival - bt, 0.3))
 	add_child(e)
 	elems.append(e)
-	level_spawned += 1
+	if st == St.PLAY:
+		level_spawned += 1
 	last_kind = kind
 	if e.is_hazard():
 		sfx.attach(e, "hum", -4.0, true)
 		sfx.play("alarm", e.global_position, -6.0)
 	else:
-		var delay: float = max(_spawn_dist(lv.speed) / lv.speed - 0.75, 0.05)
-		get_tree().create_timer(delay).timeout.connect(_late_whoosh.bind(e))
+		e.make_marker(self)
+		var delay: float = max(arrival - bt - 0.75, 0.05)
+		get_tree().create_timer(delay, false).timeout.connect(_late_whoosh.bind(e))
+	return e
 
 
 ## How far ahead things appear: the lead time, but never beyond the far wall.
@@ -249,20 +284,19 @@ func _late_whoosh(e: Elem) -> void:
 func _remove(e: Elem) -> void:
 	elems.erase(e)
 	if is_instance_valid(e):
+		e.free_marker()
 		e.queue_free()
 
 
 # ---------------------------------------------------------------- judging
 
-func _judge_orb(e: Elem) -> void:
+func _judge_orb(e: Elem, u: float) -> void:
 	var limb := Defs.limb_of(e.kind)
-	if args.has("dbg") and e.position.z > -1.6 and e.position.z < 0.1:
-		print("DBG kind=%d z=%.2f e=%s hand_l=%s v=%.1f hand_r=%s v=%.1f valid=%s" % [e.kind, e.position.z, e.position.snapped(Vector3.ONE*0.01), body.pos["hand_l"].snapped(Vector3.ONE*0.01), body.speed["hand_l"], body.pos["hand_r"].snapped(Vector3.ONE*0.01), body.speed["hand_r"], body.valid["hand_l"]])
 	for s in ["l", "r"]:
 		var n: String = limb + "_" + s
 		if not body.valid.get(n, false):
 			continue
-		var p: Vector3 = body.pos[n]
+		var p: Vector3 = body.at(n, u)
 		if p.distance_to(e.position) < e.radius + LIMB_R[limb] and body.speed[n] >= MIN_SPEED[limb]:
 			_break(e, n)
 			return
@@ -276,18 +310,25 @@ func _break(e: Elem, limb: String) -> void:
 	lv_hits += 1
 	combo += 1
 	best_combo = max(best_combo, combo)
-	score += 100 + 10 * min(combo, 20)
+	var pts: int = 100 + 10 * min(combo, 20)
+	score += pts
 	var kind_name: String = limb.split("_")[0]
 	var zone := Defs.Zone.ARMS if kind_name == "hand" else Defs.Zone.LEGS
 	var side := -1 if limb.ends_with("_l") else 1
 	suit.strike(zone, side)
 	var at := e.global_position
-	sfx.play(kind_name if kind_name != "hand" else "punch", at, 0.0, randf_range(0.94, 1.06))
+	var col: Color = Defs.COLOR[e.kind]
+	var dir: Vector3 = body.pos[limb] - body.prev.get(limb, body.pos[limb])     # the shards fly on with the strike
+	if dir.length() < 0.005:
+		dir = Vector3(0, 0, -1)
+	sfx.play(kind_name if kind_name != "hand" else "punch", at, 0.0, randf_range(0.94, 1.06) + min(combo, 20) * 0.006)
 	sfx.play("shatter", at, -2.0, randf_range(0.92, 1.08))
-	_burst(at, Defs.COLOR[e.kind], 46)
+	fx.shatter(at, col, dir, 1.0 + min(combo, 20) * 0.02)
+	fx.popup(at, "+%d" % pts, col.lightened(0.45))
 	_say("Точен удар!" if combo < 5 else "Серия ×%d!" % combo, 0.7)
 	if combo > 0 and combo % 5 == 0:
 		sfx.play("combo", null, -3.0, 1.0 + min(combo / 5, 6) * 0.06)
+		fx.popup(at + Vector3(0, 0.18, 0), "×%d" % combo, Color(1.0, 0.85, 0.35), 80)
 	_remove(e)
 
 
@@ -299,11 +340,13 @@ func _take_hit(e: Elem, zone: int, at_local: Vector3) -> void:
 	suit.punish(zone, side)
 	var at := to_global(at_local)
 	sfx.play("damage", at, 1.0)
-	sfx.duck_music(-6.0, 0.5)
-	_burst(at, Color(1.0, 0.2, 0.15), 60)
+	sfx.muffle(Defs.PUNISH_SEC)
+	fx.impact(at if not e.is_hazard() else to_global(at_local + Vector3(0, 0, -0.45)))
 	_say("Улучи те!" if not e.is_hazard() else "Не избегна!", 1.2)
 	if not e.is_hazard():
 		_remove(e)
+	else:
+		e.flash(1.0)
 
 
 func _judge_hazard(e: Elem) -> void:
@@ -320,8 +363,11 @@ func _judge_hazard(e: Elem) -> void:
 		lv_dodged += 1
 		combo += 1
 		best_combo = max(best_combo, combo)
-		score += 60 + 5 * min(combo, 20)
-		sfx.play("dodge", to_global(Vector3(e.position.x, e.position.y, 0.0)), -1.0)
+		var pts: int = 60 + 5 * min(combo, 20)
+		score += pts
+		sfx.play("dodge", to_global(Vector3(e.position.x, e.position.y, -0.3)), -1.0)
+		fx.passed(to_global(body.head + Vector3(0, 0, -0.35)))
+		fx.popup(to_global(body.head + Vector3(0, 0.05, -0.7)), "+%d" % pts, Color(0.85, 1.0, 0.92))
 		_say("Избегнато!", 0.7)
 
 
@@ -336,13 +382,12 @@ func _begin_countdown() -> void:
 	st = St.COUNTDOWN
 	_title("Готови?")
 	stage.cue.text = "Застани изправен и гледай напред"
-	_coach_to(COACH_PLAY_POS, COACH_PLAY_YAW, 1.0)
-	_coach_base("guard")
-	legs_live = legs_live or (body.has_legs and sim_on)
+	if sim_on:
+		legs_live = body.has_legs
 	for i in [3, 2, 1]:
 		stage.counter.text = str(i)
 		sfx.play("beep")
-		await _wait(1.0)
+		await _wait(beat_len() * 2.0)
 	body.calibrate()
 	position = Vector3(body.center.x, 0, body.center.z)
 	sfx.play("go")
@@ -356,12 +401,12 @@ func _start_level() -> void:
 	lv_hits = 0
 	lv_dodged = 0
 	lv_taken = 0
-	next_gap = 1.5
+	var b := beat_len()
+	next_arrival = ceil((bt + _spawn_dist(lv.speed) / lv.speed + 1.0) / b) * b     # the first one lands on a beat
 	st = St.PLAY
-	_coach_base("guard")
 	if not legs_live and not _legs_warned and not sim_on:
 		_legs_warned = true
-		stage._show_toast("Няма данни за краката: без колене и ритници")
+		stage._show_toast("Без колене и ритници: очилата не виждат краката")
 	_say("Ниво %d" % (level + 1), 1.5)
 
 
@@ -369,7 +414,6 @@ func _end_level() -> void:
 	if st != St.PLAY:
 		return
 	st = St.SUMMARY
-	_coach_base("watch")
 	var total := lv_hits + lv_dodged + lv_taken
 	var acc: float = float(lv_hits + lv_dodged) / float(max(total, 1))
 	var next := level
@@ -378,7 +422,6 @@ func _end_level() -> void:
 		next = min(level + 1, Defs.LEVELS.size() - 1)
 		verdict = "Нагоре!" if next != level else "Най-високото ниво"
 		sfx.play("levelup")
-		_play_move("yes")
 	elif acc < 0.45:
 		next = max(level - 1, 0)
 		verdict = "Малко по-бавно"
@@ -386,7 +429,8 @@ func _end_level() -> void:
 	else:
 		sfx.play("combo")
 	_title("Ниво %d: %d%%" % [level + 1, int(round(acc * 100))])
-	stage.cue.text = "Разбити %d · избегнати %d · улучен %d\n%s" % [lv_hits, lv_dodged, lv_taken, verdict]
+	stage.cue.text = "Разбити %d · избегнати %d · улучен %d\nНай-дълга серия ×%d\n%s" % [lv_hits, lv_dodged, lv_taken,
+		best_combo, verdict]
 	print("LEVEL %d done: hits=%d dodged=%d taken=%d acc=%.2f score=%d best_combo=%d -> %d" % [level + 1, lv_hits, lv_dodged, lv_taken, acc, score, best_combo, next + 1])
 	_selftest_levels -= 1 if _selftest_levels > 0 else 0
 	if args.has("levels") and _selftest_levels <= 0:
@@ -417,7 +461,7 @@ func _hud(delta: float) -> void:
 	stage.counter.text = "%d" % score + ("  ×%d" % combo if combo > 1 else "")
 
 
-# ---------------------------------------------------------------- the suit, as seen in the room
+# ---------------------------------------------------------------- the suit, the beat and the limbs, as seen
 
 func _on_suit(ev: Dictionary) -> void:
 	_glow.append({"zone": ev.zone, "t0": clock, "ev": ev})
@@ -426,6 +470,7 @@ func _on_suit(ev: Dictionary) -> void:
 func _suit_fx() -> void:
 	var levels := {}
 	var pulse := 0.0
+	var red := 0.0
 	for g in _glow.duplicate():
 		var age: float = clock - g.t0
 		var ev: Dictionary = g.ev
@@ -435,67 +480,37 @@ func _suit_fx() -> void:
 			_glow.erase(g)
 			continue
 		var amp := float(env.amp) / Defs.PUNISH_AMP if ev.kind == "punish" else 0.85 * (1.0 - age / show)
+		if ev.kind == "punish":                          # the red edge follows the suit's curve down to nothing
+			red = max(red, (float(env.amp) - 1.0) / (Defs.PUNISH_AMP - 1.0) * 0.75 + 0.25 * (1.0 - age / show))
 		pulse = max(pulse, amp)
 		for c in CH[g.zone]:
 			levels[c] = max(float(levels.get(c, 0.0)), amp)
 	stage.body.set_levels(levels)
-	stage.player_ring.set_shader_parameter("pulse", pulse)
+	# the floor ring beats with the music while you play, and flares with the suit
+	var beat := 0.0
+	if st == St.PLAY or st == St.PRACTICE or st == St.COUNTDOWN:
+		var ph := fposmod(bt, beat_len()) / beat_len()
+		beat = exp(-ph * 7.0) * 0.45
+	stage.player_ring.set_shader_parameter("pulse", max(pulse, beat))
+	fx.vignette(red)
 
 
-func _burst(at: Vector3, color: Color, amount: int) -> void:
-	var p := CPUParticles3D.new()
-	p.one_shot = true
-	p.amount = amount
-	p.lifetime = 0.55
-	p.explosiveness = 1.0
-	p.direction = Vector3(0, 0, 1)
-	p.spread = 180
-	p.initial_velocity_min = 1.0
-	p.initial_velocity_max = 3.4
-	p.gravity = Vector3(0, -1.5, 0)
-	p.scale_amount_min = 0.5
-	p.scale_amount_max = 1.4
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.014
-	mesh.height = 0.028
-	mesh.radial_segments = 6
-	mesh.rings = 3
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	mat.albedo_color = color.lightened(0.35)
-	mesh.material = mat
-	p.mesh = mesh
-	stage.add_child(p)
-	p.global_position = at
-	p.emitting = true
-	get_tree().create_timer(1.2).timeout.connect(p.queue_free)
+## The fists: light trails that turn white-hot when fast enough to break, gloves that glow brighter as a combo grows.
+func _limbs_fx() -> void:
+	var eye: Vector3 = stage.cam.global_position
+	for l in trails:
+		var hand: Node3D = stage.hands["left" if l == "hand_l" else "right"]
+		if sim_on and not stage.xr:
+			hand.global_position = to_global(body.pos[l])          # desktop: show the simulated fists
+		var sp: float = body.speed.get(l, 0.0)
+		var heat: float = 1.0 if sp >= MIN_SPEED.hand else clampf(sp / MIN_SPEED.hand, 0.0, 1.0) * 0.45
+		(trails[l] as Fx.Trail).update(hand.global_position, heat, eye, hand.visible and body.valid.get(l, false))
+	var glow: float = 0.6 + min(combo, 20) * 0.07
+	for m in stage.glove_mats:
+		(m as StandardMaterial3D).emission_energy_multiplier = glow
 
 
-# ---------------------------------------------------------------- the coach
-
-func _coach() -> Coach:
-	return stage.trainer
-
-
-func _coach_to(pos: Vector3, yaw: float, seconds: float) -> void:
-	var c := _coach()
-	var tw := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(c, "position", pos, seconds)
-	tw.tween_property(c, "rotation_degrees:y", yaw, seconds)
-
-
-func _coach_base(name: String) -> void:
-	if _coach() != null and _coach().ok:
-		_coach().set_base(name)
-
-
-func _play_move(id: String) -> void:
-	if _coach() != null:
-		_coach().play(id)
-
-
-# ---------------------------------------------------------------- the tutorial
+# ---------------------------------------------------------------- the tutorial (no coach: the things themselves teach)
 
 ## True when the player skipped (the flag is consumed).
 func _wait(seconds: float) -> bool:
@@ -512,80 +527,84 @@ func _wait(seconds: float) -> bool:
 func _tutorial() -> void:
 	st = St.TUTORIAL
 	position = Vector3.ZERO
-	var c := _coach()
-	c.position = COACH_TEACH_POS
-	c.rotation_degrees.y = COACH_TEACH_YAW
-	if not args.has("demo"):                      # --demo=1: straight to the coach's round (previews)
-		await _rules()
-		await _basic_moves()
-		await _leg_test()
-	await _demo()
+	await _rules()
+	await _practice()
 	_begin_countdown()
 
 
 func _rules() -> void:
-	_coach_base("talk")
 	_legend_show(true)
 	var pages: Array = [
-		["Добре дошъл!", "Ще ти обясня как се играе."],
-		["Сферите се разбиват", "Циан — с ръка. Лилав — с коляно. Оранжев — с крак."],
-		["Червеното не се удря", "Лъч на височината на главата — клекни. Лъч отстрани — наклони се на другата страна."],
-		["Импулсите", "Точен удар — кратък импулс. Пропуснеш ли или те удари — силен импулс, който бавно затихва."],
+		["Добре дошъл!", "Нещата летят към теб в ритъма на музиката."],
+		["Разбий сферите", "Синя — с юмрук. Лилава — с коляно. Оранжева — с крак. Удряй, когато влезе в своя кръг."],
+		["Червеното не се удря", "Лъч на нивото на главата — клекни. Колона до главата — наклони се на другата страна."],
+		["Костюмът участва", "Точен удар — кратък импулс. Пропуснеш ли — силен импулс, който бавно затихва."],
 	]
 	for p in pages:
 		_title(p[0])
 		stage.cue.text = p[1]
 		stage.counter.text = ""
 		sfx.play("blip")
-		if await _wait(5.5):
-			continue
+		await _wait(6.0)
 	_legend_show(false)
 
 
-func _basic_moves() -> void:
-	_coach_base("guard")
-	_title("Основни движения")
+## One of each, slow, with a word for each: you learn by doing it. The knee and the kick decide whether the legs
+## are in the game (Quest 3 estimates them; a real knee may not show).
+func _practice() -> void:
+	st = St.PRACTICE
+	_title("Пробвай")
 	stage.counter.text = ""
-	if await _wait(0.8):
-		return
-	for id in ["jab_l", "cross_r", "knee_l", "knee_r", "kick_l", "kick_r", "lean_r", "lean_l", "duck"]:
-		stage.cue.text = MOVE_LABEL[id]
-		sfx.play("pass", null, -4.0)
-		_play_move(id)
-		if await _wait(MoveLib.length(id) + 0.35):
-			return
-
-
-## Quest 3 estimates the legs from the upper body: a real knee may not show. One honest test decides whether knees and
-## feet are in the game: raise a knee within a few seconds.
-func _leg_test() -> void:
-	legs_live = false
-	if not body.has_legs:
-		return
-	_coach_base("guard")
-	_title("Пробвай коляно")
-	stage.cue.text = "Вдигни едно коляно високо"
-	stage.counter.text = ""
-	sfx.play("blip")
-	var rest := {"knee_l": float(body.pos.knee_l.y), "knee_r": float(body.pos.knee_r.y)}
-	var t := 0.0
-	while t < 6.0:
-		await get_tree().process_frame
-		t += get_process_delta_time()
-		for k in rest:
-			if body.valid[k] and body.pos[k].y - rest[k] > 0.22:
-				legs_live = true
-		if legs_live or skip:
+	var steps: Array = [
+		[Defs.Kind.HAND, Vector3(-0.15, Defs.HAND_Y, 0), "Удари синята сфера с юмрук"],
+		[Defs.Kind.HAND, Vector3(0.15, Defs.HAND_Y, 0), "Сега с другата ръка"],
+		[Defs.Kind.DUCK, Vector3(0, Defs.DUCK_Y, 0), "Червен лъч — клекни под него"],
+		[Defs.Kind.LEAN_R, Vector3(Defs.LEAN_X, 0.97, 0), "Колона отдясно — наклони се наляво"],
+		[Defs.Kind.LEAN_L, Vector3(-Defs.LEAN_X, 0.97, 0), "Колона отляво — наклони се надясно"],
+	]
+	if body.has_legs:
+		steps.append([Defs.Kind.KNEE, Vector3(-0.15, Defs.KNEE_Y, 0), "Вдигни коляно в лилавата сфера"])
+		steps.append([Defs.Kind.FOOT, Vector3(0.15, Defs.FOOT_Y, 0), "Ритни оранжевата сфера"])
+	var legs_ok := false
+	var skipped := false
+	for s in steps:
+		var kind: int = s[0]
+		var p: Vector3 = s[1]
+		var ok := false
+		for attempt in 2:
+			stage.cue.text = s[2] if attempt == 0 else "Още веднъж. " + String(s[2])
+			var before := lv_hits + lv_dodged
+			var b := beat_len()
+			var arrival: float = ceil((bt + 3.2) / b) * b
+			var e := _spawn_at(kind, int(signf(p.x)), Vector3(p.x, p.y * body.stand_h, 0), 2.4, arrival)
+			while is_instance_valid(e) and elems.has(e) and not (e.done and e.position.z > 0.5) and not skip:
+				await get_tree().process_frame
+			if skip:
+				break
+			ok = lv_hits + lv_dodged > before
+			if ok:
+				sfx.play("pass", null, -6.0)
+				break
+			await _wait(0.6)
+		if skip:
 			skip = false
+			skipped = true
 			break
-	if legs_live:
-		sfx.play("levelup", null, -6.0)
-		stage.cue.text = "Виждам го. Колене и ритници са в играта."
-		_play_move("yes")
-	else:
-		sfx.play("fail", null, -6.0)
-		stage.cue.text = "Очилата не виждат краката ти добре.\nИграем с ръце, клек и наклони."
-	await _wait(2.6)
+		if kind == Defs.Kind.KNEE or kind == Defs.Kind.FOOT:
+			legs_ok = legs_ok or ok
+		await _wait(0.5)
+	for e in elems.duplicate():
+		_remove(e)
+	legs_live = body.has_legs and (legs_ok or skipped)
+	if body.has_legs and not skipped:
+		stage.cue.text = "Колене и ритници са в играта." if legs_live else "Очилата не виждат краката ти добре.\nИграем с ръце, клек и наклони."
+		await _wait(2.5)
+	score = 0
+	combo = 0
+	best_combo = 0
+	lv_hits = 0
+	lv_dodged = 0
+	lv_taken = 0
 
 
 func _legend_show(on: bool) -> void:
@@ -597,126 +616,23 @@ func _legend_show(on: bool) -> void:
 	var kinds := [Defs.Kind.HAND, Defs.Kind.KNEE, Defs.Kind.FOOT, Defs.Kind.DUCK]
 	for i in kinds.size():
 		var e := Elem.make(kinds[i], 0, 0.0, 1.7)
-		e.scale = Vector3.ONE * (0.55 if not e.is_hazard() else 0.28)
-		e.position = Vector3(-1.95 + i * 0.3, 0.62, -1.95)
+		e.scale = Vector3.ONE * (0.8 if not e.is_hazard() else 0.32)
+		e.position = Vector3(-0.66 + i * 0.44, 1.32, -1.9)
+		e.still()
 		add_child(e)
 		legend.append(e)
-		var lb := Label3D.new()
+		var lb := Label3D.new()                  # a sibling: the sphere spins, its name must not
 		lb.text = Defs.NAMES[kinds[i]]
-		lb.font = stage.FONT
-		lb.font_size = 22
+		lb.font = stage.FONT_BOLD
+		lb.font_size = 26
 		lb.pixel_size = 0.0016
-		lb.modulate = Defs.COLOR[kinds[i]].lightened(0.3)
-		lb.position = Vector3(0, -0.22, 0.0)
+		lb.modulate = Defs.COLOR[kinds[i]].lightened(0.35)
+		lb.outline_size = 8
+		lb.outline_modulate = Color(0, 0, 0, 0.5)
+		lb.position = e.position + Vector3(0, -0.22, 0)
 		lb.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		lb.scale = Vector3.ONE * (1.0 / e.scale.x)
-		e.add_child(lb)
-
-
-# ---- the coach plays a round himself
-
-func _demo() -> void:
-	var c := _coach()
-	_title("Гледай!")
-	stage.cue.text = "Ето как се играе."
-	stage.counter.text = ""
-	_coach_base("guard")
-	_coach_to(Vector3(-0.5, 0, max(DEMO_Z, -(stage.room_depth - 1.2))), DEMO_YAW, 1.4)
-	if await _wait(1.6):
-		pass
-	# where his fist / knee / foot / head are at the moment of contact (read from his own skeleton)
-	demo_pts.clear()
-	for id in MOVE_ROLE:
-		c.freeze(id, MoveLib.hit(id))
-		demo_pts[id] = c.joint_world(MOVE_ROLE[id])
-	c.freeze("guard", 0.0)
-	var guard_head := c.joint_world("head")
-	c.play("guard", 0.0)
-	var seq := [
-		[Defs.Kind.HAND, "jab_l"], [Defs.Kind.HAND, "cross_r"], [Defs.Kind.FOOT, "kick_l"], [Defs.Kind.KNEE, "knee_r"],
-		[Defs.Kind.DUCK, "duck"], [Defs.Kind.LEAN_L, "lean_r"], [Defs.Kind.LEAN_R, "lean_l"], [Defs.Kind.FOOT, "kick_r"],
-		[Defs.Kind.KNEE, "knee_l"], [Defs.Kind.HAND, "cross_r"], [Defs.Kind.DUCK, "duck"],
-	]
-	var speed := 3.0
-	var lead := 2.2
-	var gap := 2.15
-	demo_events.clear()
-	for i in seq.size():
-		var kind: int = seq[i][0]
-		var id: String = seq[i][1]
-		var aim: Vector3 = demo_pts[id]
-		if kind == Defs.Kind.DUCK:
-			aim = guard_head + Vector3(0, 0.02, 0)
-		elif kind == Defs.Kind.LEAN_L:
-			aim = guard_head + Vector3(-Defs.LEAN_X, -0.15, 0)
-		elif kind == Defs.Kind.LEAN_R:
-			aim = guard_head + Vector3(Defs.LEAN_X, -0.15, 0)
-		var t_spawn := 0.4 + i * gap
-		var start: float = t_spawn + lead - MoveLib.hit(id)
-		demo_events.append({"t": t_spawn, "kind": kind, "id": id, "aim": aim, "speed": speed, "lead": lead,
-			"move_at": start, "spawned": false, "moved": false, "elem": null})
-	demo_clock = 0.0
-	demo_on = true
-	var total: float = demo_events.back().t + lead + 2.2
-	var skipped := await _wait(total)
-	demo_on = false
-	for ev in demo_events:
-		if is_instance_valid(ev.elem):
-			ev.elem.queue_free()
-	demo_events.clear()
-	_coach_base("guard")
-	_title("Твой ред!")
-	stage.cue.text = "Заставам встрани. Ти си на ход."
-	_coach_to(COACH_PLAY_POS, COACH_PLAY_YAW, 1.2)
-	sfx.play("go", null, -4.0)
-	await _wait(2.4)
-
-
-func _demo_update(delta: float) -> void:
-	if args.has("dbg") and int(demo_clock * 4) != int((demo_clock + delta) * 4):
-		print("DEMO clock=%.2f events=%d" % [demo_clock, demo_events.size()])
-	demo_clock += delta
-	var c := _coach()
-	for ev in demo_events:
-		if not ev.spawned and demo_clock >= ev.t:
-			ev.spawned = true
-			var kind: int = ev.kind
-			var e := Elem.make(kind, 0, ev.speed, 1.7)
-			add_child(e)
-			e.global_position = ev.aim + Vector3(0, 0, -ev.speed * ev.lead)
-			ev.elem = e
-			if e.is_hazard():
-				sfx.attach(e, "hum", -4.0, true)
-				sfx.play("alarm", e.global_position, -6.0)
-			else:
-				get_tree().create_timer(max(ev.lead - 0.75, 0.05)).timeout.connect(_late_whoosh_demo.bind(e))
-		if not ev.moved and demo_clock >= ev.move_at:
-			ev.moved = true
-			_play_move(ev.id)
-		var e2 = ev.elem if is_instance_valid(ev.elem) else null
-		if e2 != null and not e2.done:
-			e2.advance(delta)
-			if e2.is_hazard():
-				if e2.global_position.z >= ev.aim.z + 0.4:
-					e2.done = true
-					sfx.play("dodge", e2.global_position, -2.0)
-			elif e2.global_position.z >= ev.aim.z:
-				e2.done = true
-				var at: Vector3 = e2.global_position
-				var kn: String = Defs.limb_of(e2.kind)
-				sfx.play("punch" if kn == "hand" else kn, at, 0.0, randf_range(0.95, 1.05))
-				sfx.play("shatter", at, -2.0)
-				_burst(at, Defs.COLOR[e2.kind], 46)
-				e2.queue_free()
-		elif e2 != null and e2.done:
-			e2.advance(delta)
-			if e2.global_position.z > ev.aim.z + 3.0:
-				e2.queue_free()
-
-
-func _late_whoosh_demo(e: Elem) -> void:
-	if is_instance_valid(e) and not e.done:
-		sfx.attach(e, "whoosh", -3.0)
+		add_child(lb)
+		legend.append(lb)
 
 
 # ---------------------------------------------------------------- a simulated player (desktop tests, no headset)
@@ -751,7 +667,7 @@ func _sim(delta: float) -> void:
 			if will and target.position.z > -3.2:
 				match target.kind:
 					Defs.Kind.DUCK:
-						want.head = Vector3(0, 1.1, 0.0)
+						want.head = Vector3(0, 1.25, 0.0)
 					Defs.Kind.LEAN_L:
 						want.head = Vector3(0.42, 1.62, 0)
 					Defs.Kind.LEAN_R:

@@ -15,6 +15,10 @@ const S := {
 	"fail": preload("res://assets/sfx/fail.ogg"),
 }
 const BED := preload("res://assets/sfx/music_bed.ogg")
+const BED_BPM := 128.0
+
+var bpm := BED_BPM                   # 0 = unknown (an owner's track without a tempo): the game paces itself
+var _lp: AudioEffectLowPassFilter
 
 var music: AudioStreamPlayer
 var music_db := -9.0
@@ -29,7 +33,42 @@ func _ready() -> void:
 	music = AudioStreamPlayer.new()
 	music.stream = BED
 	music.volume_db = music_db
+	music.bus = _music_bus()
 	add_child(music)
+
+
+## The music on its own bus with a low-pass: a hit taken muffles it, then it opens up again with the suit's fall.
+func _music_bus() -> String:
+	var i := AudioServer.get_bus_index("Music")
+	if i < 0:
+		AudioServer.add_bus()
+		i = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(i, "Music")
+		AudioServer.set_bus_send(i, "Master")
+		_lp = AudioEffectLowPassFilter.new()
+		_lp.cutoff_hz = 20000.0
+		_lp.resonance = 0.6
+		AudioServer.add_bus_effect(i, _lp)
+	else:
+		_lp = AudioServer.get_bus_effect(i, 0) as AudioEffectLowPassFilter
+	return "Music"
+
+
+## Under water for a moment: the cutoff drops, then rises back over `seconds`, easing out like the suit's punishment.
+func muffle(seconds: float) -> void:
+	if _lp == null:
+		return
+	var tw := create_tween()
+	tw.tween_method(func(v: float) -> void: _lp.cutoff_hz = v, 20000.0, 420.0, 0.06)
+	tw.tween_method(func(v: float) -> void: _lp.cutoff_hz = 420.0 * pow(20000.0 / 420.0, v), 0.0, 1.0, seconds) \
+		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
+
+
+## Seconds into the playing track, as heard now (the mix and the output delay taken off). -1 = no music.
+func song_time() -> float:
+	if muted or not music.playing:
+		return -1.0
+	return music.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
 
 
 func start_music() -> void:
@@ -38,7 +77,7 @@ func start_music() -> void:
 
 
 ## A user soundtrack (mp3 / ogg) instead of the bed.
-func set_track(path: String) -> bool:
+func set_track(path: String, track_bpm := 0.0) -> bool:
 	var st: AudioStream = null
 	match path.get_extension().to_lower():
 		"ogg":
@@ -53,6 +92,7 @@ func set_track(path: String) -> bool:
 		(st as AudioStreamMP3).loop = true
 	var was := music.playing
 	music.stream = st
+	bpm = track_bpm
 	if was:
 		music.play()
 	return true

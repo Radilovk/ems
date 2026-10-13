@@ -19,7 +19,7 @@ var has_legs := false
 var center := Vector3.ZERO              # where the player stood at calibration (x, z)
 var stand_h := 1.7                      # head height standing
 var sim: Dictionary = {}                # desktop tests: limb/head -> Vector3 overrides (frame space)
-var _prev := {}
+var prev := {}                          # limb -> where it was the frame before (the game sweeps between the two)
 
 const JOINT := {"knee_l": XRBodyTracker.JOINT_LEFT_LOWER_LEG, "knee_r": XRBodyTracker.JOINT_RIGHT_LOWER_LEG,
 	"foot_l": XRBodyTracker.JOINT_LEFT_TOES, "foot_r": XRBodyTracker.JOINT_RIGHT_TOES}
@@ -49,6 +49,19 @@ func squat() -> float:                  # 1 = standing tall, 0.6 = deep squat
 	return head.y / stand_h
 
 
+var _seen := {}
+
+
+func valid_before(l: String) -> bool:
+	return _seen.get(l, false)
+
+
+## Where a limb was a fraction `u` of the way through the last frame (0 = the frame before, 1 = now).
+func at(l: String, u: float) -> Vector3:
+	return (prev.get(l, pos[l]) as Vector3).lerp(pos[l], u)
+
+
+## Once a frame (the samples come once a frame; the game sweeps between them in small steps).
 func update(delta: float) -> void:
 	head_prev = head
 	var to_frame := Transform3D(Basis.IDENTITY, center).affine_inverse()
@@ -75,11 +88,14 @@ func update(delta: float) -> void:
 				p = origin.global_transform * tracker.get_joint_transform(j).origin if origin else tracker.get_joint_transform(j).origin
 				ok = true
 		valid[l] = ok
+		if not ok:
+			_seen[l] = false
 		if ok:
 			var f := p if sim.has(l) else to_frame * p
-			if _prev.has(l) and delta > 0.0:
-				speed[l] = lerpf(speed[l], f.distance_to(_prev[l]) / delta, 0.6)    # a little smoothing: the legs are estimates
+			prev[l] = pos[l] if valid_before(l) else f
+			if delta > 0.0:
+				speed[l] = lerpf(speed[l], f.distance_to(prev[l]) / delta, 0.6)    # a little smoothing: the legs are estimates
 			pos[l] = f
-			_prev[l] = f
+			_seen[l] = true
 	if not sim.has("head"):
 		head = to_frame * world_head

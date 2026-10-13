@@ -3,7 +3,7 @@
 # every build installs over the last). Downloads Godot 4.4.1, its export templates, the Meta OpenXR vendors
 # plugin and JDK 17 into $XEMS_TOOLS (default /tmp/xems-godot) once.
 #   bash vr-workout/build.sh            needs: an Android SDK (platform 34, build-tools 34) in $ANDROID_HOME
-#   bash vr-workout/build.sh shot squat 2.0 player   → a desktop preview PNG (Xvfb), no headset
+#   bash vr-workout/build.sh shot 8 player           → a desktop preview PNG (Xvfb), no headset: 8 s into a simulated game
 #   bash vr-workout/build.sh repack     no SDK (cloud): exports the project data and swaps it into the last released APK,
 #                                       re-signed with the same key. Only for changes in scripts/assets/scenes —
 #                                       the engine, the plugin and the Android manifest stay as last built.
@@ -24,9 +24,9 @@ VENDORS=4.3.1-stable
 
 if [[ "${1:-}" == shot ]]; then
   [[ -d "$HERE/.godot" ]] || timeout 300 "$G" --headless --path "$HERE" --import >/dev/null 2>&1 || true
-  out="${XEMS_SHOT:-$HERE/build/shot-${2:-squat}.png}"; mkdir -p "$(dirname "$out")"
+  out="${XEMS_SHOT:-$HERE/build/shot-${2:-8}.png}"; mkdir -p "$(dirname "$out")"
   xvfb-run -a -s "-screen 0 1600x900x24" "$G" --path "$HERE" --rendering-driver opengl3 -- \
-    --shot="$out" --ex="${2:-squat}" --t="${3:-2.0}" --view="${4:-player}" >/dev/null 2>&1
+    --shot="$out" --wait="${2:-8}" --view="${3:-player}" --sim=1 --skiptut=1 --level=3 --mute=1 >/dev/null 2>&1
   echo "$out"; exit 0
 fi
 

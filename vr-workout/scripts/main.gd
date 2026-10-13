@@ -43,6 +43,7 @@ var cue: Label3D
 var counter: Label3D
 var body_caption: Label3D
 var player_ring: ShaderMaterial
+var glove_mats: Array = []   # the gloves' glow (the game brightens it as a combo grows)
 var hands := {}              # "left"/"right" -> XRController3D (or a stand-in Node3D on desktop)
 
 
@@ -441,19 +442,38 @@ func _on_webxr_ended() -> void:
 		c.visible = false
 
 
+## A fist of light on each controller: a dark rounded shell with a glowing core and rim.
 func _glove(parent: Node3D) -> void:
-	var m := MeshInstance3D.new()
+	var shell := MeshInstance3D.new()
+	var cap := CapsuleMesh.new()
+	cap.radius = 0.042
+	cap.height = 0.11
+	shell.mesh = cap
+	shell.rotation_degrees = Vector3(90, 0, 90)          # lying across the knuckles
+	var sm := StandardMaterial3D.new()
+	sm.albedo_color = Color(0.05, 0.12, 0.15)
+	sm.metallic = 0.6
+	sm.roughness = 0.3
+	sm.rim_enabled = true
+	sm.rim = 0.8
+	sm.emission_enabled = true
+	sm.emission = ACCENT
+	sm.emission_energy_multiplier = 0.6
+	shell.material_override = sm
+	shell.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(shell)
+	glove_mats.append(sm)
+	var core := MeshInstance3D.new()
 	var s := SphereMesh.new()
-	s.radius = 0.045
-	s.height = 0.09
-	m.mesh = s
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.1, 0.5, 0.6)
-	mat.emission_enabled = true
-	mat.emission = ACCENT
-	mat.emission_energy_multiplier = 0.6
-	m.material_override = mat
-	parent.add_child(m)
+	s.radius = 0.026
+	s.height = 0.052
+	core.mesh = s
+	var cm := StandardMaterial3D.new()
+	cm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	cm.albedo_color = ACCENT.lightened(0.5)
+	core.material_override = cm
+	core.position = Vector3(0, 0, -0.03)
+	parent.add_child(core)
 
 
 func _on_button(name: String, side: String) -> void:
@@ -478,8 +498,27 @@ func _process(_delta: float) -> void:
 
 # ---------------------------------------------------------------- desktop preview
 
+func _slow_particles(k: float) -> void:
+	for ch in game.fx.get_children():
+		if ch is CPUParticles3D:
+			(ch as CPUParticles3D).speed_scale = k
+
+
 func _shoot() -> void:
 	await get_tree().create_timer(float(args.get("wait", "0.2"))).timeout
+	if args.has("burst"):                       # --burst=0..2 (HAND/KNEE/FOOT) or hit: an effect frozen --bt s in
+		Engine.time_scale = 0.03                # the software renderer is slow: run the moment in slow motion
+		var at := Vector3(0.05, 1.35, -1.1)
+		if args.burst == "hit":
+			game.fx.impact(at)
+			game.suit.punish(Defs.Zone.TORSO, 0)       # drives the red edge and the body map as in play
+		else:
+			game.fx.shatter(at, Defs.COLOR[int(args.burst)], Vector3(0.1, 0.1, -1.0))
+			game.fx.popup(at, "+150", Defs.COLOR[int(args.burst)].lightened(0.45))
+		_slow_particles(0.03)
+		await get_tree().create_timer(float(args.get("bt", "0.08"))).timeout
+		Engine.time_scale = 0.0001
+		_slow_particles(0.0)
 	for i in 6:
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw

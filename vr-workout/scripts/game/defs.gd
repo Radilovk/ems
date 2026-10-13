@@ -23,7 +23,7 @@ const MISS_Z := 0.0                # past this plane an unbroken element has hit
 const HAND_Y := 0.80               # × standing height (≈ 1.35 m: chest)
 const KNEE_Y := 0.52               # × standing height (≈ 0.9 m: a knee raised to the hip)
 const FOOT_Y := 0.27               # × standing height (≈ 0.45 m: a low kick)
-const DUCK_Y := 0.84               # × standing height: the bar's centre; the head must get under it (≈ 25 % of the height)
+const DUCK_Y := 0.93               # × eye height: the bar's centre, right at the eyes; get the head ≈ 20 % lower to pass
 const LEAN_X := 0.10               # the pillar's offset from the middle: lean to the other side by ≥ ~0.2 m
 
 # Suit feel (relative strength 1.0 = what the row is set to; the tablet clamps with its absolute limits).

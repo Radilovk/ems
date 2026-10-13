@@ -52,8 +52,10 @@ setting: auto (ankle controllers → tracking that the try-out confirmed → squ
 only, moves only, none. **Seen:** boxing gloves of light, shin guards, knee pads, boots and a halo under each foot, trails
 behind fists and feet that turn white-hot once fast enough to count.
 
-**The arena** (default room, `scripts/game/arena.gd`, built from code — 0 MB): night sky, neon floor streaming at the
-elements' speed, beat arches, the portal and the side gates (each flares as it throws), dust; the music's bass brightens
+**The arena** (default room, `scripts/game/arena.gd`, built from code plus < 1 MB of CC0 Poly Haven assets in
+`assets/arena/`): the real Milky Way over a night sky with a horizon haze, moon rocks drifting and turning round the
+arena with a rim in the arena's colour, a ringed gas giant up to the left (`planet`, `planet_ring`, `rock` shaders),
+neon floor streaming at the elements' speed, beat arches, the portal and the side gates (each flares as it throws), dust; the music's bass brightens
 it all, the combo turns it magenta, then gold. **Music.** The built-in bed is 128 BPM. Your tracks (XEMS/music) set the
 beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid.
 

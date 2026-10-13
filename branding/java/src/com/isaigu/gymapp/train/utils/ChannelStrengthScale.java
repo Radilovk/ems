@@ -36,6 +36,11 @@ public final class ChannelStrengthScale {
     /** Pulse width of the program being encoded; set by CommandUtil before the per-channel values. */
     private static int currentPulseWidth = ARMS_PW_HIGH;
 
+    /** The last arms value encoded: the byte sent, the exact value it was rounded from and the width it was reduced for. */
+    private static int lastArmsByte = -1;
+    private static float lastArmsExact;
+    private static int lastArmsPw = ARMS_PW_HIGH;
+
     private ChannelStrengthScale() {
     }
 
@@ -46,7 +51,11 @@ public final class ChannelStrengthScale {
 
     public static float scaleOutput(int channelIndex, float encodedValue) {
         if (channelIndex == ARMS_CHANNEL_INDEX) {
-            return encodedValue * armsFactor(currentPulseWidth);
+            // to the nearest step, not down: at ÷10 the arms have only ~10 steps and flooring cost up to a whole one
+            float exact = encodedValue * armsFactor(currentPulseWidth);
+            int sent = Math.round(exact);
+            rememberArms(sent, exact, currentPulseWidth);
+            return sent;
         }
         return encodedValue * balance(channelIndex, currentPulseWidth);
     }
@@ -83,6 +92,25 @@ public final class ChannelStrengthScale {
     /** How much more current the zone needs at pwUs than at the reference width (strength–duration). */
     private static float gain(float chronaxie, int pwUs) {
         return (1f + chronaxie / pwUs) / (1f + chronaxie / BAL_REF_PW);
+    }
+
+    private static synchronized void rememberArms(int sent, float exact, int pwUs) {
+        lastArmsByte = sent;
+        lastArmsExact = exact;
+        lastArmsPw = pwUs;
+    }
+
+    /**
+     * The arms value behind byte {@code sent} before it was rounded (a suit that multiplies it, e.g. bodytech, then
+     * does not multiply the rounding too), or {@code sent} itself when it is not the last arms byte encoded.
+     * {@code pwUs} > 0: the channel runs at its own width, so the reduction is moved to that width.
+     */
+    public static synchronized float armsExact(int sent, int pwUs) {
+        float v = sent == lastArmsByte ? lastArmsExact : sent;
+        if (pwUs > 0 && pwUs != lastArmsPw) {
+            v = v * armsFactor(pwUs) / armsFactor(lastArmsPw);
+        }
+        return v;
     }
 
     /** The arms factor for the pulse width last encoded. */

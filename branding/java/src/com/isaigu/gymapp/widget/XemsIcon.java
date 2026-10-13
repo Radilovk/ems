@@ -39,6 +39,8 @@ public final class XemsIcon extends Drawable {
     public static final int NEXT = 17;
     /** A bathroom scale with its display: the body-composition measurement. */
     public static final int SCALE = 18;
+    /** Two electrode pads joined by a wire with a pulse: Bluetens. */
+    public static final int PADS = 19;
 
     private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -230,6 +232,22 @@ public final class XemsIcon extends Drawable {
                 c.drawRoundRect(r, 1.2f, 1.2f, fill);
                 c.drawLine(8.5f, 15.5f, 8.5f, 17f, stroke);
                 c.drawLine(15.5f, 15.5f, 15.5f, 17f, stroke);
+                break;
+            case PADS:
+                r.set(2.5f, 13f, 9.5f, 20.5f);
+                c.drawRoundRect(r, 2.2f, 2.2f, stroke);
+                r.set(14.5f, 13f, 21.5f, 20.5f);
+                c.drawRoundRect(r, 2.2f, 2.2f, stroke);
+                path.reset();
+                path.moveTo(6f, 13f);
+                path.lineTo(6f, 8f);
+                path.lineTo(9f, 8f);
+                path.lineTo(10.5f, 4f);
+                path.lineTo(13.5f, 12f);
+                path.lineTo(15f, 8f);
+                path.lineTo(18f, 8f);
+                path.lineTo(18f, 13f);
+                c.drawPath(path, stroke);
                 break;
             default:
                 break;

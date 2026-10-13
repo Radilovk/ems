@@ -46,16 +46,31 @@ ASCII, e.g. `V1D16{|R1P96F6C708}{R47|R2P96F6|F7}`: `V` version, `D` digit base (
 The script parses all 334 vendor programs and rebuilds 332 of them byte-for-byte (the other 2 differ only in a
 redundant token), so XEMS can **write its own programs** — the device needs no vendor file and no vendor server.
 
-## How it fits XEMS
-- A new Java module `wearable/bluetens/` next to `wearable/scale/` (same pattern as `ScaleLink`: own BLE link,
-  own screen, no vendor smali touched): `BluetensLink` (scan by name, FFE0/FFE1, line queue, keep-alive),
-  `BluetensLok` (port of `lok.py`), `BluetensScreen` (landscape: device | program | big strength dial).
-- Programs come from XEMS's own impulse maps (Hz, µs, work/pause) → `.lok`, so a Bluetens pad can run the same
-  block plan as the suit for one body part, or a home/recovery session after the suit training.
-- Limits from `docs/xems-safety-limits.md` apply to generated programs too (pause from Hz, 60+ ≤ 85 Hz …).
+## Unsolicited lines
+`NOTIFY strength <n>` (the pad's own button), `NOTIFY stop` (program ended), `NOTIFY noload` (electrodes off the
+skin), `NOTIFY low` (battery), `NOTIFY shutdown` / `NOTIFY disconnect`, `NOTIFY error`, `NOTIFY insufficient space`.
 
-## Open questions (owner)
-- Role: an extra pad during the suit session, or a separate recovery / home mode?
-- Which device is in hand (Classic, Sport/Duo, Eurocept) and its firmware — async mode and `ndef` depend on it.
+## In XEMS (1.1.431-ai) — a page of its own, apart from the suit (owner, 2026-10-13)
+Owner: Bluetens is **totally separate** from the suit and its training — only a button in the dock opens it; nothing
+of it mixes into the training screen. The owner has a classic pad and a Duo.
+- **Dock:** link tile "Bluetens" (`XemsNav.K_BLUETENS`, icon `XemsIcon.PADS`); on a fresh bar by default, and put on
+  an existing bar once if there is room (`bluetens_docked`); movable like every tile.
+- **Page** `wearable/bluetens/BluetensScreen` (landscape, full screen): left — program (5) and minutes (10/15/20/30);
+  right — time left with a bar, then one card per pad (classic, or Duo 1 / Duo 2) with its strength 0–60 big and
+  − / + (hold repeats); footer — one primary ▶ Пусни / ■ Спри. Pads are found and linked by themselves (up to 2).
+  Electrodes off → amber line on that pad's card. ⓘ = the impulse in numbers + how to place the electrodes.
+  **Closing the page stops the pads.**
+- **Code** (compile:wearable): `BluetensLok` (format), `BluetensPrograms` (XEMS's own programs), `BluetensShell`
+  (the conversation: queue, one request in flight, strength coalescing, md5 → upload only when changed, keep-alive
+  `>bat` every 20 s while running), `BluetensAdvert` (tell a pad / Duo / v2 from the advert), `BluetensScan`,
+  `BluetensLink` (GATT, 20-byte writes ≥ 27 ms apart, reconnect), `BluetensScreen`. All pure parts are tested
+  offline: `bash scripts/bluetens/run.sh` (a simulated pad + every program re-read by `lok.py`).
+- **Programs** (`BluetensPrograms`, files `X<code><min>` on the pad): Възстановяване 3–8 Hz · 250 µs; Масаж 80 Hz
+  bursts of 0.1 s + 4 Hz; Облекчаване burst TENS 100 Hz × 7 / × 5 · 150 µs; Активиране 50 Hz · 300 µs, 0.5 s rise,
+  3.5 s hold, 6 s rest at 4 Hz; Загряване 4 → 12 → 4 Hz. All inside docs/xems-safety-limits.md (fused ≤ 4 s,
+  ≤ 300 µs from 100 Hz, rest ≤ 10 Hz). Strength always starts at 1.
+- Not done yet: no device test (protocol from the vendor app only); `>mode` (async, Eurocept) is not sent.
+
+## Notes
 - Legal: talking to the device for interoperability is normally allowed; copying the vendor's programs or app
   code is not — XEMS ships only programs it generates itself.

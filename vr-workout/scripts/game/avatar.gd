@@ -165,20 +165,24 @@ static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
 		var nv: Vector3 = (rel.basis * norms[i]).normalized() if i < norms.size() else Vector3.UP
 		var q := Vector2(p.y - KNUCKLE.x, p.z - KNUCKLE.y)
 		var t := q.dot(d)
-		if t > 0.0 and p.z > 3.4 and p.x > -1.68:          # (the thumb tip reaches past the knuckles too)
-			var len := _finger_len(p.x)
+		var fg := _finger(p.x)                           # (root along, root up, slope, length) of this finger
+		if t > fg.x and p.z > 3.3 and p.x > -1.68:         # (the thumb tip reaches past the knuckles too)
+			var len: float = fg.w
 			var h := q.dot(nrm)
-			var at := Vector2(t, h)                       # the finger's own (along, up) plane
+			var root := Vector2(fg.x, fg.y)
+			var at := (Vector2(t, h) - root).rotated(-fg.z)   # the finger's own (along, up) plane, from its root
+			var along := at.x
 			var turn := 0.0
 			for j in range(JOINTS.size() - 1, -1, -1):    # the far joints first, then the near ones carry them
 				var jt: float = JOINTS[j].x * len
-				var k := smoothstep(jt - 0.1, jt + 0.1, t)
+				var k := smoothstep(jt - 0.1, jt + 0.1, along)
 				if k <= 0.0:
 					continue
 				var ang: float = -JOINTS[j].y * k         # down, towards the palm
 				var hinge := Vector2(jt, JOINTS[j].z)
 				at = hinge + (at - hinge).rotated(ang)
 				turn += ang
+			at = root + at.rotated(fg.z)
 			var w := KNUCKLE + d * at.x + nrm * at.y
 			p = Vector3(p.x + _finger_close(p.x) * smoothstep(-0.05, 0.5, t), w.x, w.y)
 			var n2 := Vector2(nv.y, nv.z)
@@ -210,15 +214,17 @@ static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
 	return mesh
 
 
-## Knuckle to fingertip, by the finger (the model's x): index · middle · ring · little.
-static func _finger_len(x: float) -> float:
+## Each finger by the model's x (index · middle · ring · little): where its root knuckle sits from the common
+## knuckle line (along, up), how much steeper it points (radians) and root to tip. The little finger starts further
+## back and lower and points down more, so it curls about its own root, not the others'.
+static func _finger(x: float) -> Vector4:
 	if x < -0.75:
-		return 2.4
+		return Vector4(0.0, 0.0, 0.0, 2.4)
 	if x < 0.25:
-		return 2.6
+		return Vector4(0.0, 0.0, 0.0, 2.6)
 	if x < 1.16:
-		return 2.2
-	return 1.35
+		return Vector4(0.0, 0.0, 0.0, 2.2)
+	return Vector4(-0.2, -0.15, -0.19, 1.58)
 
 
 ## How far each finger moves sideways to close the gaps of the open hand (index · middle · ring · little), so the

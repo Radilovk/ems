@@ -81,6 +81,7 @@ var _sim_rest := {}
 var _glow: Array = []                # {"zone", "t0", "ev"}
 var _legs_warned := false
 var _selftest_levels := 0
+var _warmed := false
 var tracks: Array = []
 var track_i := -1
 var _mix := {}                       # desktop tests: what was thrown this level (kind name / punch -> count)
@@ -193,6 +194,7 @@ func _on_setting(key: String) -> void:
 	match key:
 		"room":
 			stage.set_room(settings.room)
+			_warmed = false                     # the new room has not been lit by a flash yet
 		"offset":
 			stage.apply_room_offset()
 		"height_cm":
@@ -936,6 +938,7 @@ func _begin_countdown() -> void:
 	st = St.COUNTDOWN
 	_title("Готови?")
 	stage.cue.text = "Застани изправен и гледай напред"
+	_prewarm()
 	for i in [3, 2, 1]:
 		stage.counter.text = str(i)
 		sfx.play("beep")
@@ -951,6 +954,46 @@ func _begin_countdown() -> void:
 		legs_live = body.has_legs
 	sfx.play("go")
 	_start_level()
+
+
+## The headset compiles a shader the first time it draws it, and a lit pass the first time a light touches a
+## surface: done mid-game, the first spheres stutter in flight and on the hit. So once per session, on "Ready?",
+## a small row of every kind of element shows up ahead of you for a few frames and bursts: everything the play
+## will draw (spheres, halos, trails, rings, shields, beams, shards, sparks, shock rings, flashes, points) is
+## compiled before the first real one flies.
+func _prewarm() -> void:
+	if _warmed or stage.cam == null:
+		return
+	_warmed = true
+	var f: Vector3 = -stage.cam.global_basis.z
+	f.y = 0.0
+	f = f.normalized() if f.length() > 0.01 else Vector3.FORWARD
+	var right: Vector3 = f.cross(Vector3.UP)
+	var base: Vector3 = stage.cam.global_position + f * 1.8 + Vector3(0, -0.35, 0)
+	var kinds := [Defs.Kind.HAND, Defs.Kind.KNEE, Defs.Kind.FOOT, Defs.Kind.LOW, Defs.Kind.BLOCK, Defs.Kind.DUCK,
+			Defs.Kind.WALL_L]
+	var made: Array[Elem] = []
+	for i in kinds.size():
+		var e := Elem.make(kinds[i], 0, 0.0, body.stand_h)
+		e.scale = Vector3.ONE * 0.22
+		add_child(e)
+		e.global_position = base + right * ((i - 3) * 0.2)
+		if not e.is_hazard() and e.kind != Defs.Kind.BLOCK:
+			e.make_marker(self)
+			e.marker.global_position = e.global_position
+			e.marker.scale = Vector3.ONE * 0.3
+			e.marker.visible = true
+		made.append(e)
+	made[0].set_bonus()
+	for _i in 4:
+		await get_tree().process_frame
+	for e in made:
+		fx.shatter(e.global_position, Defs.COLOR[e.kind], -f, 0.35)
+		if e.marker:
+			e.marker.queue_free()
+		e.queue_free()
+	fx.impact(base)
+	fx.popup(base, "Давай!", Color(1, 1, 1), 34)
 
 
 func _start_level() -> void:

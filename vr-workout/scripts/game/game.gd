@@ -143,6 +143,10 @@ func _process(delta: float) -> void:
 		if l is Elem:
 			(l as Elem).advance(delta)
 	suit.tick(delta)
+	if stage.arena:
+		var lv: Dictionary = Defs.LEVELS[level]
+		stage.arena.set_flow(combo)
+		stage.arena.tick(delta, bt, beat_len(), sfx.bass(), lv.speed * (1.0 if st == St.PLAY else 0.4))
 	_suit_fx()
 	_limbs_fx()
 	_hud(delta)
@@ -249,7 +253,10 @@ func _spawn(kind: int, speed: float, arrival: float) -> Elem:
 			side = 1
 			x = Defs.LEAN_X
 			y = h * 0.97
-	return _spawn_at(kind, side, Vector3(x, y, 0), speed, arrival)
+	var e := _spawn_at(kind, side, Vector3(x, y, 0), speed, arrival)
+	if kind == Defs.Kind.HAND and level >= 1 and randf() < 0.08:
+		e.set_bonus()
+	return e
 
 
 func _spawn_at(kind: int, side: int, p: Vector3, speed: float, arrival: float) -> Elem:
@@ -261,6 +268,9 @@ func _spawn_at(kind: int, side: int, p: Vector3, speed: float, arrival: float) -
 	if st == St.PLAY:
 		level_spawned += 1
 	last_kind = kind
+	if stage.arena:                                    # it is thrown out of the portal
+		stage.arena.flare()
+		fx.shock(e.global_position, Defs.COLOR[kind], 0.9, 0.5)
 	if e.is_hazard():
 		sfx.attach(e, "hum", -4.0, true)
 		sfx.play("alarm", e.global_position, -6.0)
@@ -310,21 +320,23 @@ func _break(e: Elem, limb: String) -> void:
 	lv_hits += 1
 	combo += 1
 	best_combo = max(best_combo, combo)
-	var pts: int = 100 + 10 * min(combo, 20)
+	var pts: int = (100 + 10 * min(combo, 20)) * (3 if e.bonus else 1)
 	score += pts
 	var kind_name: String = limb.split("_")[0]
 	var zone := Defs.Zone.ARMS if kind_name == "hand" else Defs.Zone.LEGS
 	var side := -1 if limb.ends_with("_l") else 1
 	suit.strike(zone, side)
 	var at := e.global_position
-	var col: Color = Defs.COLOR[e.kind]
+	var col: Color = Elem.BONUS_COLOR if e.bonus else Defs.COLOR[e.kind]
 	var dir: Vector3 = body.pos[limb] - body.prev.get(limb, body.pos[limb])     # the shards fly on with the strike
 	if dir.length() < 0.005:
 		dir = Vector3(0, 0, -1)
 	sfx.play(kind_name if kind_name != "hand" else "punch", at, 0.0, randf_range(0.94, 1.06) + min(combo, 20) * 0.006)
 	sfx.play("shatter", at, -2.0, randf_range(0.92, 1.08))
-	fx.shatter(at, col, dir, 1.0 + min(combo, 20) * 0.02)
-	fx.popup(at, "+%d" % pts, col.lightened(0.45))
+	fx.shatter(at, col, dir, (1.6 if e.bonus else 1.0) + min(combo, 20) * 0.02)
+	fx.popup(at, ("Бонус +%d" if e.bonus else "+%d") % pts, col.lightened(0.45), 60 if e.bonus else 46)
+	if e.bonus:
+		sfx.play("levelup", at, -6.0, 1.25)
 	_say("Точен удар!" if combo < 5 else "Серия ×%d!" % combo, 0.7)
 	if combo > 0 and combo % 5 == 0:
 		sfx.play("combo", null, -3.0, 1.0 + min(combo / 5, 6) * 0.06)
@@ -403,6 +415,8 @@ func _start_level() -> void:
 	lv_taken = 0
 	var b := beat_len()
 	next_arrival = ceil((bt + _spawn_dist(lv.speed) / lv.speed + 1.0) / b) * b     # the first one lands on a beat
+	if stage.arena:
+		stage.arena.set_portal_z(position.z + Defs.CONTACT_Z - _spawn_dist(lv.speed) - 0.4)
 	st = St.PLAY
 	if not legs_live and not _legs_warned and not sim_on:
 		_legs_warned = true

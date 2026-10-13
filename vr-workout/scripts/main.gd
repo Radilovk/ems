@@ -34,6 +34,8 @@ var sky: Sky
 var plain_sky := ProceduralSkyMaterial.new()      # behind 3D scene rooms
 var env: Environment
 var room_scene: Node3D
+var arena: Arena             # the game's own space (the default room), null in the other rooms
+var train_mat: MeshInstance3D
 var room_depth := 7.0        # metres of free room straight ahead of the player (the game flies things over it)
 var toast: Label3D
 var toast_left := 0.0
@@ -132,6 +134,7 @@ func _build_room() -> void:
 	mat_mesh.material_override = mat_m
 	mat_mesh.position = Vector3(0, 0.006, 0.1)
 	add_child(mat_mesh)
+	train_mat = mat_mesh
 	player_ring = _ring(Vector3(0, 0.015, 0), 1.6)
 
 
@@ -156,6 +159,23 @@ func _apply_room() -> void:
 	if room_scene:
 		room_scene.queue_free()
 		room_scene = null
+	if arena:
+		arena.queue_free()
+		arena = null
+	train_mat.visible = r.kind != "arena"
+	if r.kind == "arena":
+		arena = Arena.new()
+		add_child(arena)
+		room_shell.visible = false
+		sky.sky_material = arena.sky_mat
+		env.background_energy_multiplier = 1.0
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR       # the night sky lights nothing: a cool fill
+		env.ambient_light_color = Color(0.55, 0.62, 0.75)
+		env.ambient_light_energy = 0.8
+		room_depth = 16.0
+		return
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_energy = 0.9
 	if r.kind == "pano":
 		var pano := Library.load_pano(r.path)
 		if pano.is_empty():
@@ -329,6 +349,7 @@ func _setup_view() -> void:
 	cam = XRCamera3D.new()
 	cam.position = Vector3(0, 1.6, 0)
 	cam.fov = 72
+	cam.doppler_tracking = Camera3D.DOPPLER_TRACKING_IDLE_STEP
 	origin.add_child(cam)
 	var ifc := XRServer.find_interface("OpenXR")
 	xr = ifc != null and ifc.is_initialized()

@@ -1256,12 +1256,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L77 ## Limits (what still needs a hand)
   - L84 ## Build & test
 
-`vr-workout/README.md` (81L)
+`vr-workout/README.md` (92L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.3) — on the beat, felt three ways
-  - L54 ## In the Quest browser (WebXR) — the way it ships now
-  - L68 ## Build / preview
-  - L77 ## Licences
+  - L65 ## In the Quest browser (WebXR) — the way it ships now
+  - L79 ## Build / preview
+  - L88 ## Licences
 
 `vr-workout/addons/godotopenxrvendors/GodotOpenXRVendors_CHANGES.md` (190L)
   - L1 # Change history for the Godot OpenXR loaders asset

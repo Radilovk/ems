@@ -22,6 +22,10 @@ var _halo_mat: ShaderMaterial
 var _spin := Vector3.ZERO
 var _t := 0.0
 var _trail: CPUParticles3D
+var bonus := false                  # a golden sphere: rare, worth triple, a bigger burst
+var _rings: Array[MeshInstance3D] = []
+var _ring_mat: StandardMaterial3D
+const BONUS_COLOR := Color(1.0, 0.78, 0.2)
 var marker: MeshInstance3D          # a sphere's target ring, waiting at the contact spot (a sibling: it does not fly)
 var _marker_mat: ShaderMaterial
 
@@ -68,6 +72,24 @@ func _build_orb(height: float) -> void:
 	h.material_override = _halo_mat
 	h.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(h)
+	# Orbit rings tell the kinds apart by shape too (fist 1, knee 2, foot 3), and make it turn like a machine part.
+	_ring_mat = StandardMaterial3D.new()
+	_ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ring_mat.albedo_color = c.lightened(0.35)
+	var n: int = {Defs.Kind.HAND: 1, Defs.Kind.KNEE: 2, Defs.Kind.FOOT: 3}.get(kind, 1)
+	for i in n:
+		var r := MeshInstance3D.new()
+		var t := TorusMesh.new()
+		t.inner_radius = radius * 1.42
+		t.outer_radius = radius * 1.5
+		t.rings = 32
+		t.ring_segments = 4
+		r.mesh = t
+		r.material_override = _ring_mat
+		r.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		r.rotation_degrees = Vector3(70 + i * 55, i * 60, 0)
+		add_child(r)
+		_rings.append(r)
 	var trail := CPUParticles3D.new()
 	trail.amount = 22
 	trail.lifetime = 0.45
@@ -159,6 +181,18 @@ func still() -> void:
 		_trail.emitting = false
 
 
+## Turn this sphere golden (a rare bonus).
+func set_bonus() -> void:
+	bonus = true
+	_mat.set_shader_parameter("color", BONUS_COLOR)
+	_halo_mat.set_shader_parameter("color", BONUS_COLOR)
+	_ring_mat.albedo_color = BONUS_COLOR.lightened(0.4)
+	if _trail:
+		(_trail.mesh as PrimitiveMesh).material.albedo_color = BONUS_COLOR
+	if _marker_mat:
+		_marker_mat.set_shader_parameter("color", BONUS_COLOR)
+
+
 func make_marker(parent: Node3D) -> void:
 	marker = MeshInstance3D.new()
 	var q := QuadMesh.new()
@@ -166,7 +200,7 @@ func make_marker(parent: Node3D) -> void:
 	marker.mesh = q
 	_marker_mat = ShaderMaterial.new()
 	_marker_mat.shader = APPROACH
-	_marker_mat.set_shader_parameter("color", Defs.COLOR[kind])
+	_marker_mat.set_shader_parameter("color", BONUS_COLOR if bonus else Defs.COLOR[kind])
 	marker.material_override = _marker_mat
 	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(marker)
@@ -207,6 +241,8 @@ func advance(delta: float) -> void:
 		scale = Vector3.ONE * clamp(_t / 0.4, 0.2, 1.0)
 	if _mat and not is_hazard():
 		rotation += _spin * delta
+		for i in _rings.size():
+			_rings[i].rotate_object_local(Vector3.UP, delta * (2.5 + i * 1.3) * (1 if i % 2 == 0 else -1))
 	if _halo_mat and not is_hazard():
 		_halo_mat.set_shader_parameter("energy", 0.55 + 0.2 * sin(_t * 8.0))
 	_update_marker()

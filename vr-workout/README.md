@@ -22,6 +22,16 @@ The red edge, the muffled music and the suit's punishment all fall over the same
 the music. The suit link is the controllers' haptics: the XEMS OpenXR layer (`vr-bridge`) sends each pulse to the tablet,
 which drives the suit in manual mode under the absolute limits (docs/xems-safety-limits.md).
 
+**The arena** (default room, `scripts/game/arena.gd`, built from code — 0 MB, light on the Quest): night sky with a haze and
+stars (`arena_sky`), dark glass floor with a neon grid streaming towards you at the elements' speed and a band of light
+running down the lane to your feet on every beat (`arena_floor`), arches that flare far → near through the beat, the
+portal everything is thrown out of (it moves to each level's spawn distance; `portal`), dust in the air for depth. The
+music's bass (spectrum analyser on the Music bus — any track) brightens it all; a combo of 10 turns it magenta, 20 gold.
+On the dark ground every glow reads far stronger than in the photo rooms (left Y still switches to them).
+**Variety:** orbit rings tell the spheres apart by shape too (fist 1, knee 2, foot 3); from level 2 a rare **golden**
+fist sphere is worth triple with a bigger burst. **Sound:** every effect goes through a short hall reverb (Sfx bus), 3D
+sounds pan and bend in pitch as things fly past (Doppler).
+
 **Music.** The built-in bed is 128 BPM. Your tracks (XEMS/music) set the beat with `"bpm"` in `<track>.json` or `128bpm`
 in the name; without a tempo the game paces itself on a 120 BPM grid. The beat clock follows the playback position.
 
@@ -31,6 +41,7 @@ in the name; without a tempo the game paces itself on a 120 BPM grid. The beat c
 | Flow: rules → try-out → countdown → levels; beat scheduling; judging (swept limbs); simulated player | `scripts/game/game.gd` |
 | Elements + target rings (shaders `plasma`, `hazard`, `halo`, `approach`) | `scripts/game/elem.gd` |
 | Effects: shards, sparks, shockwave, light flash, points, red edge, fist trails (`shock`, `vignette`, `trail`) | `scripts/game/fx.gd` |
+| The arena: sky, streaming floor, beat arches, portal, dust, bass + combo colour | `scripts/game/arena.gd` |
 | The player's body: head, hands (controllers), knees and feet (Meta body tracking, `/user/body_tracker`) | `scripts/game/body.gd` |
 | Suit events → controller haptics → the suit; the 100 Hz → 7 Hz envelope | `scripts/game/suit.gd` |
 | Sounds (synthesised), music bus with the hit low-pass, beat clock | `scripts/game/sfx.gd`, `gen/make_sounds.py`, `assets/sfx/` |

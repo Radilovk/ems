@@ -12,6 +12,7 @@ extends RefCounted
 const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XEMS", "/storage/emulated/0/Download/XEMS"]
 
 const BUILTIN_ROOMS := [
+	{"name": "Арена", "path": "", "kind": "arena"},          # built from code: scripts/game/arena.gd
 	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene"},
 	{"name": "Фитнес зала", "path": "res://assets/rooms/gym_room.glb", "kind": "scene"},
 	{"name": "Боксова зала", "path": "res://assets/rooms/boxing_ring.jpg", "kind": "pano", "cam": 1.5, "radius": 6.5},

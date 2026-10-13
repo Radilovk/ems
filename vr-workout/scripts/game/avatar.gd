@@ -21,7 +21,7 @@ const JOINTS := [Vector3(0.0, 1.62, -0.3),      # a punching fist, joint by join
 const THUMB_BASE := Vector3(-1.75, 0.3, 1.0)    # the thumb's root, and where it points: out to the side …
 const THUMB_FROM := Vector3(-0.95, -0.85, 2.1)
 const THUMB_TO := Vector3(1.15, -1.65, 2.5)     # … and folded under, across the curled fingers' middle joints
-const THUMB_SHIFT := Vector3(0.1, -0.3, 0.35)   # (and moved a little forward and down to lie on them)
+const THUMB_SHIFT := Vector3(0.15, -0.65, 0.3)   # (and moved a little forward and down to lie on them)
 
 static var _glove_meshes := {}   # "plate"/"glow"/"body"/"mech" -> ArrayMesh, built once
 var gloves := {}                 # "left"/"right" -> Node3D

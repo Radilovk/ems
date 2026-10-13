@@ -223,7 +223,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtSettings.java` (540L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
 - `BtSettingsSection.java` (390L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
-- `BtTranslator.java` (613L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (625L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 - `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 
@@ -245,7 +245,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SoftRamp.java` (470L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
-- `ChannelStrengthScale.java` (122L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
+- `ChannelStrengthScale.java` (150L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
 - `MasterStrengthControl.java` (346L, compile:music-sync*) — External control channel for master impulse strength (MA / circle slider).
 - `MusicAutoTune.java` (348L, compile:music-sync*) — Picks music-sync settings from a track's own envelope so the impulse follows how the body reads it: separate hits versu…
 - `MusicDiagLog.java` (151L, compile:music-sync*) — Persistent diagnostic log for music player and uncaught crashes.
@@ -966,7 +966,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L60 ## ⚙ на реда и ⚙ Master
   - L67 ## Базови настройки на „Main“ (1.1.334)
 
-`docs/xems-pulse-control.md` (192L)
+`docs/xems-pulse-control.md` (195L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
   - L8 ## Граници
   - L18 ## Решение (всяка секунда) — задържане в зона (1.1.270)

@@ -34,6 +34,9 @@ public final class BtTranslator {
     static final int CMD_SETTING = 1, CMD_RUN = 3, CMD_BATTERY = 5, CMD_START = 0xF1, CMD_STOP = 0xF2;
 
     private final int[] parts = new int[10];
+    /** XEMS slider of the arms (PartStrenthBean.buwei index 4) and the value it came with in the last setting. */
+    static final int ARMS_SLIDER = 4;
+    private int seenArms = -1;
     /** The last 10 sliders the row sent, per phase (PAUSE / MAIN / SECOND): a change of one slider alone is a hand. */
     private final int[][] seen = new int[3][];
     /**
@@ -172,6 +175,7 @@ public final class BtTranslator {
             }
             seen[ph] = raw;
             for (int i = 0; i < 10; i++) parts[i] = legValue(raw, i);
+            seenArms = raw[ARMS_SLIDER];
         } else if (cmd == CMD_RUN) {
             int workLen = (at(pdu, 1) << 8) | at(pdu, 2);
             int h = at(pdu, 3);
@@ -481,7 +485,15 @@ public final class BtTranslator {
         int g = BtSettings.group(ch);
         if (phase == SECOND && g == BtSettings.GROUP_MAIN) return 0;
         if (phase == MAIN && g == BtSettings.GROUP_SECOND) return 0;
-        int t = (int) (((long) parts[s] * BtSettings.gain() * BtSettings.chGain(ch) + 5000L) / 10000L);
+        float v = parts[s];
+        if (s == ARMS_SLIDER && parts[s] == seenArms) {
+            // the arms come reduced and rounded to a whole step: take the exact value, so the gains below multiply
+            // the strength and not the rounding; a width of the channel's own moves the reduction to that width
+            int u = BtSettings.chWidth(ch, phase == SECOND) > 0 ? effUs(ch, widthUs) : 0;
+            if (u == widthUs) u = 0;
+            v = com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsExact(parts[s], u);
+        }
+        int t = Math.round(v * BtSettings.gain() * BtSettings.chGain(ch) / 10000f);
         return t < 0 ? 0 : (t > MAX_PCT ? MAX_PCT : t);
     }
 

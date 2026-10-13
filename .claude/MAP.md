@@ -1284,12 +1284,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L77 ## Limits (what still needs a hand)
   - L84 ## Build & test
 
-`vr-workout/README.md` (121L)
+`vr-workout/README.md` (124L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.4) — on the beat, felt three ways
-  - L94 ## In the Quest browser (WebXR) — the way it ships now
-  - L108 ## Build / preview
-  - L117 ## Licences
+  - L97 ## In the Quest browser (WebXR) — the way it ships now
+  - L111 ## Build / preview
+  - L120 ## Licences
 
-`vr-workout/assets/CREDITS.md` (15L)
+`vr-workout/assets/CREDITS.md` (18L)
   - L1 # Asset credits

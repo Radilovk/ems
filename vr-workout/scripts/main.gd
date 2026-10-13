@@ -36,6 +36,7 @@ var plain_sky := ProceduralSkyMaterial.new()      # behind 3D scene rooms
 var env: Environment
 var room_scene: Node3D
 var arena: Arena             # the game's own space (the default room), null in the other rooms
+var dressing: HallDressing   # what the brutalist hall is dressed with (LED wall, neon, kit), null elsewhere
 var train_mat: MeshInstance3D
 var room_depth := 7.0        # metres of free room straight ahead of the player (the game flies things over it)
 var _room_depth0 := 7.0      # … before the player's own place in the room (settings offset) is taken into account
@@ -164,6 +165,7 @@ func _apply_room() -> void:
 	if room_scene:
 		room_scene.queue_free()
 		room_scene = null
+	dressing = null
 	if arena:
 		arena.queue_free()
 		arena = null
@@ -187,19 +189,20 @@ func _apply_room() -> void:
 		if pano.is_empty():
 			_show_toast("Не мога да отворя " + String(r.path).get_file())
 			return
-		var R: float = float(r.get("radius", 4.6))
-		var k := R / 4.6                          # the photographed room, drawn k times as big
+		# The player stands where the camera stood: the only spot from which a photo is undistorted. The shell is a
+		# cylinder of the real room's size round that spot (it only sets the depth of walls and floor in stereo).
+		var R: float = float(r.get("radius", 6.0))
+		var H: float = float(r.get("height", 3.6))
 		var cyl := room_shell.mesh as CylinderMesh
 		cyl.top_radius = R
 		cyl.bottom_radius = R
-		cyl.height = 3.8 * k
-		var shift := -(R - BACK_WALL)
-		room_shell.position = Vector3(0, 1.9 * k, shift)
-		_room_depth0 = 2.0 * R - BACK_WALL - 0.3
+		cyl.height = H
+		room_shell.position = Vector3(0, H * 0.5, 0)
+		_room_depth0 = R - 0.4
 		room_mat.set_shader_parameter("pano", pano.tex)
 		room_mat.set_shader_parameter("hdr", pano.hdr)
 		room_mat.set_shader_parameter("exposure", pano.exposure)
-		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.5))) * k, shift))
+		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.6))) - H * 0.5, 0))
 		room_mat.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))))
 		sky_mat.panorama = pano.tex
 		sky.sky_material = sky_mat
@@ -227,6 +230,9 @@ func _apply_room() -> void:
 		scene.position = Vector3(-box.get_center().x, 0.0, -1.2 - box.get_center().z)
 		scene.position.y = -_floor_under(scene, Vector2(0, -1.2), box.position.y)
 	_room_depth0 = clamp(-(box.position.z + scene.position.z) - 0.3, 3.0, 14.0)
+	if r.get("dress", "") == "hall":
+		dressing = HallDressing.new()
+		room_scene.add_child(dressing)
 	room_shell.visible = false
 	sky.sky_material = plain_sky
 	env.background_energy_multiplier = 1.0

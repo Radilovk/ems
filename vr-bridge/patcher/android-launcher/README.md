@@ -47,6 +47,12 @@ tap one → `termux-run.sh installfile <quest> <apk> [tablet]` → `xems_vr_patc
 anywhere (itch.io, SideQuest, GitHub) without a catalog entry. Catalog page games (fitness/boxing first) open their page;
 the downloaded file is found by the entry's `file` regex or picked here.
 
+## Cable mode (1.8) — the stable path
+Headset on the tablet's USB-C → the app allows it once (`UsbAdb`, headset on: Always allow + Allow) and then relays
+adb over the cable (`UsbBridge`: `127.0.0.1:15555` TCP ⇄ USB bulk, same adb messages). Termux's adb connects to
+that address with the already-allowed key, so finding games, patching and installing need no Wi-Fi, no `tcpip`,
+and survive the headset going to sleep. Keep the cable in while a game goes on; unplugged → the Wi-Fi search again.
+
 ## Every time
 Open the app → it finds the headset on the Wi-Fi → shows its games (✓ OpenXR = works · ✗ old VrApi = cannot, not filled in · ? = not recognised) → **tap a game** → **Сложи хаптиката** →
 confirm → 1–3 min → ✓ (or the reason + what to press). The tablet's own Wi-Fi IP goes to `--tablet` by itself.
@@ -78,7 +84,7 @@ Exit codes: `0` done · `2` bad arguments · `3` no adb · `4` headset not reach
 authorised · `6` setup incomplete · `127` (no `~/ems` script) = not set up · else the patcher's own code.
 
 ## Limits (what still needs a hand)
-- After a headset reboot the cable has to go in once (Quest drops Wi-Fi adb on reboot; the app does the rest).
+- Without the cable, Wi-Fi adb needs port 5555 open on the headset (lost on reboot and often on sleep) — use the cable.
 - A game update from the store replaces the patched build → run it again.
 - Games without `lib/arm64-v8a/libopenxr_loader.so` or INTERNET are refused by the patcher (clear message).
 - `termux-setup.sh` clones `main`: the new `termux/` scripts must be merged there (`XEMS_BRANCH` overrides).

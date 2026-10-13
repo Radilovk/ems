@@ -22,7 +22,8 @@ class UsbAdb(private val context: Context) {
     enum class Outcome { OK, NOT_ALLOWED, FAILED }
     class Result(val outcome: Outcome, val detail: String)
 
-    fun run(device: UsbDevice, port: Int = 5555): Result {
+    /** Allow over the cable; then `adb tcpip [port]` when given (null = stay on the cable, see [UsbBridge]). */
+    fun run(device: UsbDevice, port: Int? = null): Result {
         val usb = context.getSystemService(UsbManager::class.java)
         val iface = adbInterface(device) ?: return Result(Outcome.FAILED, "no adb interface")
         val conn = usb.openDevice(device) ?: return Result(Outcome.FAILED, "openDevice refused")
@@ -30,7 +31,7 @@ class UsbAdb(private val context: Context) {
             if (!conn.claimInterface(iface, true)) return Result(Outcome.FAILED, "claimInterface refused")
             val io = Io(conn, iface)
             handshake(io)?.let { return it }
-            return tcpip(io, port)
+            return if (port == null) Result(Outcome.OK, "usb") else tcpip(io, port)
         } catch (e: IOException) {
             return Result(Outcome.FAILED, e.message ?: "usb io")
         } finally {
@@ -84,7 +85,7 @@ class UsbAdb(private val context: Context) {
         return if (text.isEmpty() || AdbProtocol.tcpipOk(text)) Result(Outcome.OK, text) else Result(Outcome.FAILED, text)
     }
 
-    private class Io(private val conn: UsbDeviceConnection, iface: UsbInterface) {
+    class Io(private val conn: UsbDeviceConnection, iface: UsbInterface) {
         private val out: UsbEndpoint
         private val inp: UsbEndpoint
         private val buf = ByteArray(16 * 1024)
@@ -96,9 +97,12 @@ class UsbAdb(private val context: Context) {
             inp = eps.firstOrNull { it.direction == UsbConstants.USB_DIR_IN } ?: throw IOException("no bulk in")
         }
 
-        fun send(m: AdbProtocol.Message) {
-            write(AdbProtocol.header(m))
-            if (m.payload.isNotEmpty()) write(m.payload)
+        fun send(m: AdbProtocol.Message) = sendRaw(AdbProtocol.header(m), m.payload)
+
+        /** Header as it came (e.g. from Termux's adb over the bridge) + payload, each its own transfer. */
+        fun sendRaw(header: ByteArray, payload: ByteArray) {
+            write(header)
+            if (payload.isNotEmpty()) write(payload)
         }
 
         private fun write(data: ByteArray) {
@@ -115,7 +119,7 @@ class UsbAdb(private val context: Context) {
             if (n < AdbProtocol.HEADER) return null
             val h = AdbProtocol.parseHeader(buf.copyOf(AdbProtocol.HEADER)) ?: return null
             val len = h[3]
-            if (len < 0 || len > AdbProtocol.MAX_DATA) throw IOException("bad length $len")
+            if (len < 0 || len > AdbProtocol.MAX_RELAY) throw IOException("bad length $len")
             val payload = ByteArray(len)
             var got = minOf(n - AdbProtocol.HEADER, len)    // some stacks deliver header + payload together
             System.arraycopy(buf, AdbProtocol.HEADER, payload, 0, got)

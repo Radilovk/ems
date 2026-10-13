@@ -4,7 +4,7 @@
     <string name="subtitle">Hits from the game — into the suit</string>
 
     <string name="label_quest_ip">Headset IP</string>
-    <string name="help_quest_ip">Found by itself (🔍). Headset on the same Wi-Fi; after a reboot — once by cable into the tablet</string>
+    <string name="help_quest_ip">Surest: the headset on a cable into the tablet (everything runs over it). Otherwise found by itself on the Wi-Fi (🔍)</string>
     <string name="label_package">Game</string>
     <string name="help_package">Pick from the headset list (☰) or type the package</string>
     <string name="label_tablet_ip">Tablet IP</string>
@@ -33,7 +33,7 @@
     <string name="status_bad_input">Something in the fields is off</string>
     <string name="detail_bad_input">Check the IP addresses and the game name.</string>
     <string name="status_no_quest">The headset does not answer</string>
-    <string name="detail_no_quest">Same Wi-Fi? After a headset reboot, plug it into the tablet once with a cable.</string>
+    <string name="detail_no_quest">Surest: plug the headset into the tablet with a cable — everything runs over it. Otherwise: same Wi-Fi, headset awake?</string>
     <string name="status_unauthorized">The headset waits for permission</string>
     <string name="detail_unauthorized">Put the headset on, accept “Allow USB debugging” and press again.</string>
     <string name="status_failed">It did not work</string>
@@ -83,9 +83,9 @@
     <string name="err_package">E.g. com.studio.game</string>
     <string name="err_tablet_ip">E.g. 192.168.1.50 — or leave it empty</string>
     <string name="status_usb">Headset on the cable…</string>
-    <string name="detail_usb">Put the headset on now: "Allow USB debugging" shows inside it (you have a minute) → Always allow + Allow. Once for good — the Wi-Fi link is then allowed by itself.</string>
-    <string name="status_usb_ok">Headset ready over Wi-Fi ✓</string>
-    <string name="detail_usb_ok">Unplug the cable — looking for the headset on the Wi-Fi.</string>
+    <string name="detail_usb">Put the headset on now: "Allow USB debugging" shows inside it (you have a minute) → Always allow + Allow. Once for good.</string>
+    <string name="status_usb_ok">Headset connected by cable ✓</string>
+    <string name="detail_usb_ok">Keep the cable in while a game goes on — everything runs over it, no Wi-Fi.</string>
     <string name="status_usb_allow">The headset did not allow the link</string>
     <string name="detail_usb_allow">Put the headset on, accept "Allow USB debugging" (Always allow) and plug the cable in again.</string>
     <string name="status_usb_failed">The cable did not work</string>

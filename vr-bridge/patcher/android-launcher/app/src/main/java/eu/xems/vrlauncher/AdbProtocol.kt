@@ -32,6 +32,8 @@ object AdbProtocol {
     const val VERSION = 0x01000001        // checksum optional for both sides
     const val MAX_DATA = 256 * 1024
     const val HEADER = 24
+    /** Largest payload adbd may send once Termux's adb (1 MiB) negotiated through [UsbBridge]. */
+    const val MAX_RELAY = 1024 * 1024
 
     class Message(val command: Int, val arg0: Int, val arg1: Int, val payload: ByteArray = ByteArray(0)) {
         override fun toString() = "${name(command)}($arg0, $arg1, ${payload.size} B)"

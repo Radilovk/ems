@@ -371,6 +371,9 @@ func _process(delta: float) -> void:
 		var lv: Dictionary = Defs.LEVELS[level]
 		stage.arena.set_flow(combo)
 		stage.arena.tick(delta, bt, beat_len(), sfx.bass(), _speed() * (1.0 if st == St.PLAY and not paused else 0.4))
+	if stage.dressing:
+		stage.dressing.set_flow(combo)
+		stage.dressing.tick(delta, bt, beat_len(), sfx.bass())
 	_suit_fx()
 	avatar.update(body, self, Defs.multiplier(combo), MIN_SPEED, stage.cam.global_position, delta, sim_on and not stage.xr)
 	if menu.visible:

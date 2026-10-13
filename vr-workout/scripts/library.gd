@@ -4,8 +4,9 @@
 ##   desktop: <user data>/XEMS/…  or  -- --lib=<folder>
 ## Rooms: .jpg / .png / .webp / .hdr 360° photos (2:1), or .glb / .gltf scenes in metres. Music: .mp3 / .ogg; the
 ## tempo ("bpm" in the .json, or "128bpm" in the name) puts the game on its beat. Optional sidecar <file>.json: {"name": "…", "cam": 1.5, "yaw": 0.0, "radius": 8.0, "scale": 1.0,
-## "offset": [x, y, z], "turn": 0} — cam = the photo's camera height, yaw = turn of a photo (0..1), radius = how big the
-## room of a photo is drawn (m, default 4.6; the game flies things at you over ~2 radii), turn = degrees.
+## "offset": [x, y, z], "turn": 0} — cam = the photo's camera height, yaw = turn of a photo (0..1), radius / height =
+## the photographed room's size round the camera (m, default 6 / 3.6; the player stands at the camera, things fly in
+## from up to radius − 0.4 m), turn = degrees.
 class_name Library
 extends RefCounted
 
@@ -13,12 +14,13 @@ const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XE
 
 const BUILTIN_ROOMS := [
 	{"name": "Арена", "path": "", "kind": "arena"},          # built from code: scripts/game/arena.gd
-	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene"},
-	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "cam": 1.5, "radius": 7.0},
-	{"name": "Боксова зала", "path": "res://assets/rooms/boxing_ring.jpg", "kind": "pano", "cam": 1.5, "radius": 6.5},
-	{"name": "Плаж", "path": "res://assets/rooms/beach.jpg", "kind": "pano", "cam": 1.6, "yaw": 0.35, "radius": 14.0},
-	{"name": "Йога студио", "path": "res://assets/rooms/yoga_studio.glb", "kind": "scene"},
-	{"name": "Мост", "path": "res://assets/rooms/bridge.jpg", "kind": "pano", "cam": 1.6, "radius": 7.0},
+	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene", "dress": "hall"},
+	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.6, "radius": 8.0, "height": 4.2},
+	{"name": "Боксова зала", "path": "res://assets/rooms/boxing_ring.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.55, "radius": 6.0, "height": 3.0},
+	{"name": "Танцова зала", "path": "res://assets/rooms/dancing_hall.jpg", "kind": "pano", "yaw": 0.25, "cam": 1.6, "radius": 11.0, "height": 4.5},
+	{"name": "Неоново студио", "path": "res://assets/rooms/neon_studio.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.6, "radius": 6.0, "height": 3.6},
+	{"name": "Огледална зала", "path": "res://assets/rooms/mirrored_hall.jpg", "kind": "pano", "yaw": 0.0, "cam": 1.6, "radius": 8.0, "height": 6.0},
+	{"name": "Мост", "path": "res://assets/rooms/bridge.jpg", "kind": "pano", "cam": 1.6, "radius": 8.0, "height": 6.0},
 ]
 const PANO_EXT := ["jpg", "jpeg", "png", "webp", "hdr"]
 const SCENE_EXT := ["glb", "gltf", "fbx"]

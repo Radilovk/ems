@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bcfudh645pa6p"
-path="res://.godot/imported/beach.jpg-e78853cbfc808a8f2f36da30badb0bd4.ctex"
+uid="uid://dvpvrsj2tpx6e"
+path="res://.godot/imported/neon_studio.jpg-a4c3a2f6ec7274be27d3241196ad15e6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/rooms/beach.jpg"
-dest_files=["res://.godot/imported/beach.jpg-e78853cbfc808a8f2f36da30badb0bd4.ctex"]
+source_file="res://assets/rooms/neon_studio.jpg"
+dest_files=["res://.godot/imported/neon_studio.jpg-a4c3a2f6ec7274be27d3241196ad15e6.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.9
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

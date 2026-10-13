@@ -77,8 +77,12 @@ beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid
 **Buttons.** Menu / right B = menu and pause · right A = skip · left X = "this is the middle" · left Y = next room ·
 left grip = next track. A system recenter (hold Meta) recalibrates too.
 
-**Rooms.** Wide spaces only: 3D scenes (brutalist hall, gym, studio) and 360° photos drawn big (`radius`, `room_depth`): the
-player stands near the back wall and has the whole room ahead. **Desktop tests (no headset):**
+**Rooms.** The arena; the brutalist hall (3D, dressed by `scripts/game/hall.gd`: an LED wall playing the music, neon
+strips whose cross bars run with the beat, light tubes down both sides, boxing bags, a corner of gym kit, lane lines,
+two lit words — all in the combo's colour); and 8K 360° photos (Poly Haven, CC0): gym, boxing ring, dancing hall, neon
+studio, mirrored hall, bridge. A photo is painted on a cylinder the size of the real room (`radius`, `height`) round
+the spot it was shot from, and **the player stands on that spot** — the only place a photo is undistorted; `yaw` turns
+the open floor ahead; things fly in from up to `radius − 0.4` m. **Desktop tests (no headset):**
 ```
 godot --path vr-workout -- --sim=1 --skiptut=1 --levels=1 --level=4 --skill=0.8 --timescale=6   # plays itself, prints LEVEL … done
 godot --path vr-workout -- --shot=out.png --wait=8 --view=player --sim=1 --skiptut=1 --level=4     # a frame of play

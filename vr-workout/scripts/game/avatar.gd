@@ -180,7 +180,7 @@ static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
 				at = hinge + (at - hinge).rotated(ang)
 				turn += ang
 			var w := KNUCKLE + d * at.x + nrm * at.y
-			p = Vector3(p.x, w.x, w.y)
+			p = Vector3(p.x + _finger_close(p.x) * smoothstep(-0.05, 0.5, t), w.x, w.y)
 			var n2 := Vector2(nv.y, nv.z)
 			var nl := Vector2(n2.dot(d), n2.dot(nrm)).rotated(turn)
 			var m := d * nl.x + nrm * nl.y
@@ -216,9 +216,21 @@ static func _finger_len(x: float) -> float:
 		return 2.4
 	if x < 0.25:
 		return 2.6
-	if x < 1.27:
+	if x < 1.16:
 		return 2.2
 	return 1.35
+
+
+## How far each finger moves sideways to close the gaps of the open hand (index · middle · ring · little), so the
+## fist's fingers lie side by side.
+static func _finger_close(x: float) -> float:
+	if x < -0.75:
+		return 0.27
+	if x < 0.25:
+		return 0.0
+	if x < 1.16:
+		return -0.42
+	return -0.56
 
 
 ## The glove model's parts, merged by kind into the left hand's grip frame. In the model the fingers point +z, the back

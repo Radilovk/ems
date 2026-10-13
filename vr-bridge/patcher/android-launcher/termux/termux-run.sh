@@ -24,7 +24,16 @@ PKG='^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$'
 SYSTEM='^(com\.oculus\.(vrshell|store|horizon|systemux|socialplatform|tv|browser|explore)|com\.meta\.(store|horizon)|com\.facebook\.|com\.google\.|com\.android\.|android$)'
 
 die() { echo "✗ $2" >&2; exit "$1"; }
-need_adb() { command -v adb >/dev/null 2>&1 || die 3 "няма adb в Termux — pkg install android-tools"; }
+need_adb() {
+  command -v adb >/dev/null 2>&1 || die 3 "няма adb в Termux — pkg install android-tools"
+  adb version >/dev/null 2>&1 && return 0
+  # "CANNOT LINK EXECUTABLE adb … cannot locate symbol": adb and libc++ came from different Termux repo states.
+  echo "→ adb не тръгва (несъвместими библиотеки) — обновявам libc++ и android-tools"
+  local apt=(-y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+  DEBIAN_FRONTEND=noninteractive pkg update "${apt[@]}" >&2
+  DEBIAN_FRONTEND=noninteractive pkg install "${apt[@]}" libc++ android-tools >&2
+  adb version >/dev/null 2>&1 || die 3 "adb пак не тръгва — в Termux пусни: pkg upgrade -y"
+}
 
 # "ip[:port]" → $serial, or die 2
 parse_quest() {

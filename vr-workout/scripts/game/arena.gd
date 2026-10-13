@@ -24,6 +24,10 @@ var _target := PALETTE[0]
 var _scroll := 0.0
 var _flare := 0.0
 var _last_beat := -1
+var _gates: Array[Node3D] = []          # side gates (the portal is gate 0): where things are thrown from on an arc
+var _gate_ring_mats: Array[StandardMaterial3D] = []
+var _gate_disc_mats: Array[ShaderMaterial] = []
+var _gate_flare: Array[float] = []
 
 
 func _init() -> void:
@@ -127,6 +131,73 @@ func _build_dust() -> void:
 	add_child(p)
 
 
+## A smaller portal on the arc, on a beam of light standing on the floor.
+func _build_gate() -> Node3D:
+	var g := Node3D.new()
+	add_child(g)
+	var ring := MeshInstance3D.new()
+	var t := TorusMesh.new()
+	t.inner_radius = 0.5
+	t.outer_radius = 0.56
+	t.rings = 36
+	t.ring_segments = 6
+	ring.mesh = t
+	ring.rotation_degrees = Vector3(90, 0, 0)
+	var rm := StandardMaterial3D.new()
+	rm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	rm.albedo_color = _color
+	ring.material_override = rm
+	g.add_child(ring)
+	var disc := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(1.08, 1.08)
+	disc.mesh = q
+	var dm := ShaderMaterial.new()
+	dm.shader = PORTAL
+	disc.material_override = dm
+	g.add_child(disc)
+	var beam := MeshInstance3D.new()
+	var b := BoxMesh.new()
+	b.size = Vector3(0.03, 1.0, 0.03)
+	beam.mesh = b
+	beam.material_override = rm
+	beam.name = "beam"
+	g.add_child(beam)
+	_gate_ring_mats.append(rm)
+	_gate_disc_mats.append(dm)
+	_gate_flare.append(0.0)
+	g.visible = false
+	return g
+
+
+## The gates of this level (world positions; [0] = the portal ahead, set by set_portal_z). show = false: only the portal.
+func set_gates(world: Array, show: bool) -> void:
+	while _gates.size() < world.size() - 1:
+		_gates.append(_build_gate())
+	for i in range(1, world.size()):
+		var g := _gates[i - 1]
+		var p: Vector3 = world[i]
+		var was := g.visible
+		g.visible = show
+		var beam := g.get_node("beam") as MeshInstance3D
+		(beam.mesh as BoxMesh).size.y = maxf(p.y - 0.56, 0.05)
+		beam.position = Vector3(0, -0.56 - (beam.mesh as BoxMesh).size.y * 0.5, 0)
+		if was:
+			var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			tw.tween_property(g, "position", p, 1.2)
+		else:
+			g.position = p
+		var to_player := Vector3(-p.x, 0, -p.z)
+		if to_player.length() > 0.1:
+			g.basis = Basis.looking_at(to_player.normalized(), Vector3.UP)    # the disc faces the player
+
+
+## Something was thrown out of side gate `i` (1…).
+func flare_gate(i: int) -> void:
+	if i >= 1 and i - 1 < _gate_flare.size():
+		_gate_flare[i - 1] = 1.0
+
+
 ## Where things come from (the game moves it to the spawn distance of the level).
 func set_portal_z(z: float, seconds := 1.2) -> void:
 	var tw := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -160,6 +231,12 @@ func tick(delta: float, beat_t: float, beat_len: float, bass: float, speed: floa
 	_portal_mat.set_shader_parameter("color", _color)
 	_ring_mat.albedo_color = _color * (0.8 + 0.6 * bass + 0.8 * _flare)
 	_portal.rotation.z += delta * 0.4
+	for i in _gates.size():
+		_gate_flare[i] = maxf(_gate_flare[i] - delta * 3.0, 0.0)
+		_gate_ring_mats[i].albedo_color = _color * (0.7 + 0.5 * bass + 1.4 * _gate_flare[i])
+		_gate_disc_mats[i].set_shader_parameter("energy", bass)
+		_gate_disc_mats[i].set_shader_parameter("flare", _gate_flare[i])
+		_gate_disc_mats[i].set_shader_parameter("color", _color)
 	# the arches light up one after another towards you through the beat, the far one first
 	for i in _arch_mats.size():
 		var at := 1.0 - float(i) / (_arch_mats.size() - 1)              # 1 = far … 0 = near

@@ -10,6 +10,7 @@ const VIGNETTE := preload("res://shaders/vignette.gdshader")
 const TRAIL := preload("res://shaders/trail.gdshader")
 const FONT := preload("res://assets/fonts/Inter-SemiBold.otf")
 
+var comfort := false                 # softer: fewer sparks, a dimmer flash (light-sensitive players)
 var _vig_mat: ShaderMaterial
 var _shard_mesh: PrismMesh
 var _spark_mesh: SphereMesh
@@ -64,12 +65,12 @@ func shatter(at: Vector3, color: Color, dir: Vector3, big := 1.0) -> void:
 	shards.scale_amount_min = 0.6
 	shards.scale_amount_max = 1.5
 	_spawn(shards, at)
-	var sparks := _particles(_spark_mesh, Color(1, 1, 1).lerp(color, 0.35), 34, 0.3, 1.8, 4.5 * big, d, 180.0)
+	var sparks := _particles(_spark_mesh, Color(1, 1, 1).lerp(color, 0.35), 14 if comfort else 34, 0.3, 1.8, 4.5 * big, d, 180.0)
 	sparks.damping_min = 4.0
 	sparks.damping_max = 8.0
 	_spawn(sparks, at)
 	shock(at, color, 0.5 * big, 0.32)
-	_flash(at, color, 3.5 * big, 0.28)
+	_flash(at, color, (1.0 if comfort else 3.5) * big, 0.28)
 
 
 ## Something red landed on you: a dark red burst at the spot.
@@ -77,7 +78,7 @@ func impact(at: Vector3) -> void:
 	var c := Color(1.0, 0.15, 0.1)
 	_spawn(_particles(_spark_mesh, c, 50, 0.5, 1.0, 3.0, Vector3.BACK, 180.0), at)
 	shock(at, c, 0.6, 0.4)
-	_flash(at, c, 2.5, 0.35)
+	_flash(at, c, 0.8 if comfort else 2.5, 0.35)
 
 
 ## A beam slid past: a soft white ring where it would have hit.

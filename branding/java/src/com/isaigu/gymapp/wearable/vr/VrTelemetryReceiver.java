@@ -19,7 +19,8 @@ import java.nio.ByteOrder;
  * UDP gateway for the Quest 3 OpenXR haptic layer (vr-bridge/quest-layer). One thread does everything:
  * receive, pairing (ACK), clock sync (PING every {@link #PING_INTERVAL_MS}), session / sequence filtering,
  * staleness drop and dispatch to the {@link VrHapticSink}. One headset at a time; a new game session
- * (new HELLO session id) replaces the old one.
+ * (new HELLO session id) replaces the old one. A game's own impulse controls (T_CTRL, XEMS Studio's dock) go to the
+ * {@link VrControlSink} and are answered with a T_STATE — only from the paired headset's address.
  */
 public final class VrTelemetryReceiver implements Runnable {
     private static final String TAG = "XemsVr";
@@ -40,6 +41,10 @@ public final class VrTelemetryReceiver implements Runnable {
     private final ByteBuffer txb = ByteBuffer.wrap(tx).order(ByteOrder.LITTLE_ENDIAN);
     private final DatagramPacket rxp = new DatagramPacket(rx, rx.length);
     private final DatagramPacket txp = new DatagramPacket(tx, tx.length);
+    private final byte[] stx = new byte[VrWire.LEN_STATE];
+    private final ByteBuffer stxb = ByteBuffer.wrap(stx).order(ByteOrder.LITTLE_ENDIAN);
+    private final DatagramPacket stxp = new DatagramPacket(stx, stx.length);
+    private volatile VrControlSink control;
 
     private volatile boolean running;
     private volatile DatagramSocket socket;
@@ -76,6 +81,11 @@ public final class VrTelemetryReceiver implements Runnable {
         this.sink = sink;
         this.port = port;
         this.maxStaleNs = maxStaleMs * 1000000L;
+    }
+
+    /** The game's impulse dock (null = T_CTRL ignored). Set before {@link #start}. */
+    public void setControl(VrControlSink c) {
+        control = c;
     }
 
     public synchronized void start() throws SocketException {
@@ -179,6 +189,15 @@ public final class VrTelemetryReceiver implements Runnable {
         InetAddress from = rxp.getAddress();
         int fromPort = rxp.getPort();
 
+        if (type == VrWire.T_CTRL) {
+            // The game itself (its own socket, not the layer's): only from the headset the layer is paired with.
+            VrControlSink c = control;
+            if (len >= VrWire.LEN_CTRL && c != null && peerUp && from.equals(peerAddr)) {
+                c.onVrControl(rx[24] & 0xFF, rx[25] & 0xFF, rxb.getInt(28));
+                sendState(s, c, from, fromPort, session, t3);
+            }
+            return;
+        }
         boolean fromPeer = peerUp && session == peerSession && fromPort == peerPort && from.equals(peerAddr);
         if (!fromPeer) {
             // Only a HELLO opens a session (it carries the app name); anything else from a stranger is ignored.
@@ -291,6 +310,24 @@ public final class VrTelemetryReceiver implements Runnable {
             s.send(txp);
         } catch (Exception e) {
             if (running) Log.w(TAG, "send", e);
+        }
+    }
+
+    private void sendState(DatagramSocket s, VrControlSink c, InetAddress to, int toPort, int session, long tNs) {
+        stxb.putInt(0, VrWire.MAGIC);
+        stx[4] = (byte) VrWire.VERSION;
+        stx[5] = (byte) VrWire.T_STATE;
+        stxb.putShort(6, (short) 0);
+        stxb.putInt(8, session);
+        stxb.putInt(12, txSeq++);
+        stxb.putLong(16, tNs);
+        c.fillState(stxb, VrWire.HEADER);
+        stxp.setAddress(to);
+        stxp.setPort(toPort);
+        try {
+            s.send(stxp);
+        } catch (Exception e) {
+            if (running) Log.w(TAG, "send state", e);
         }
     }
 

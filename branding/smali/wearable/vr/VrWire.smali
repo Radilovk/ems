@@ -4,6 +4,22 @@
 
 
 # static fields
+.field public static final CTRL_FLOOR:I = 0x3
+
+.field public static final CTRL_PAUSE:I = 0x1
+
+.field public static final CTRL_QUERY:I = 0x0
+
+.field public static final CTRL_RESET:I = 0x7
+
+.field public static final CTRL_REST:I = 0x6
+
+.field public static final CTRL_SENS:I = 0x4
+
+.field public static final CTRL_SMOOTH:I = 0x5
+
+.field public static final CTRL_STRENGTH:I = 0x2
+
 .field public static final HAND_BOTH:I = 0x3
 
 .field public static final HAND_LEFT:I = 0x1
@@ -24,11 +40,15 @@
 
 .field public static final HF_PCM:I = 0x8
 
+.field public static final LEN_CTRL:I = 0x20
+
 .field public static final LEN_HAPTIC:I = 0x28
 
 .field public static final LEN_HELLO:I = 0x78
 
 .field public static final LEN_PONG:I = 0x28
+
+.field public static final LEN_STATE:I = 0x30
 
 .field public static final LEN_STOP:I = 0x1c
 
@@ -42,7 +62,17 @@
 
 .field public static final SR_UNFOCUS:I = 0x1
 
+.field public static final ST_DRIVING:I = 0x2
+
+.field public static final ST_LINKED:I = 0x1
+
+.field public static final ST_MUSIC:I = 0x8
+
+.field public static final ST_PAUSED:I = 0x4
+
 .field public static final T_ACK:I = 0x81
+
+.field public static final T_CTRL:I = 0x5
 
 .field public static final T_HAPTIC:I = 0x1
 
@@ -51,6 +81,8 @@
 .field public static final T_PING:I = 0x82
 
 .field public static final T_PONG:I = 0x4
+
+.field public static final T_STATE:I = 0x83
 
 .field public static final T_STOP:I = 0x2
 

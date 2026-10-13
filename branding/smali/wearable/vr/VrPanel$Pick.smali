@@ -32,13 +32,13 @@
     .registers 2
 
     .prologue
-    .line 411
+    .line 423
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 412
+    .line 424
     iput p1, p0, Lcom/isaigu/gymapp/wearable/vr/VrPanel$Pick;->what:I
 
-    .line 413
+    .line 425
     return-void
 .end method
 
@@ -48,29 +48,29 @@
     .registers 4
 
     .prologue
-    .line 417
+    .line 429
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->activity:Landroid/app/Activity;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$800()Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 418
+    .line 430
     iget v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrPanel$Pick;->what:I
 
     if-nez v1, :cond_f
 
-    .line 419
+    .line 431
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->setSensitivity(Landroid/content/Context;I)V
 
-    .line 423
+    .line 435
     :goto_b
     # invokes: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->fillFeel()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$900()V
 
-    .line 424
+    .line 436
     return-void
 
-    .line 421
+    .line 433
     :cond_f
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->setSmoothIndex(Landroid/content/Context;I)V
 

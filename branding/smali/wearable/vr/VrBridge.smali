@@ -30,13 +30,13 @@
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrBridge;->receiver:Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;
     :try_end_5
-    .catchall {:try_start_3 .. :try_end_5} :catchall_2c
+    .catchall {:try_start_3 .. :try_end_5} :catchall_34
 
     if-nez v0, :cond_9
 
     if-nez p0, :cond_b
 
-    .line 30
+    .line 31
     :cond_9
     :goto_9
     monitor-exit v1
@@ -58,39 +58,46 @@
     invoke-direct {v0, p0, v2}, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;-><init>(Landroid/content/Context;Lcom/isaigu/gymapp/wearable/vr/VrHapticSink;)V
 
     .line 24
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->start()V
+    new-instance v2, Lcom/isaigu/gymapp/wearable/vr/VrControl;
+
+    invoke-direct {v2}, Lcom/isaigu/gymapp/wearable/vr/VrControl;-><init>()V
+
+    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->setControl(Lcom/isaigu/gymapp/wearable/vr/VrControlSink;)V
 
     .line 25
-    sput-object v0, Lcom/isaigu/gymapp/wearable/vr/VrBridge;->receiver:Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->start()V
 
     .line 26
+    sput-object v0, Lcom/isaigu/gymapp/wearable/vr/VrBridge;->receiver:Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;
+
+    .line 27
     const-string v0, "vr"
 
     const-string v2, "listening udp 47800"
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_24
-    .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_24} :catch_25
-    .catchall {:try_start_b .. :try_end_24} :catchall_2c
+    :try_end_2c
+    .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_2c} :catch_2d
+    .catchall {:try_start_b .. :try_end_2c} :catchall_34
 
     goto :goto_9
 
-    .line 27
-    :catch_25
+    .line 28
+    :catch_2d
     move-exception v0
 
-    .line 28
-    :try_start_26
+    .line 29
+    :try_start_2e
     const-string v2, "VrBridge.attach"
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
-    :try_end_2b
-    .catchall {:try_start_26 .. :try_end_2b} :catchall_2c
+    :try_end_33
+    .catchall {:try_start_2e .. :try_end_33} :catchall_34
 
     goto :goto_9
 
     .line 18
-    :catchall_2c
+    :catchall_34
     move-exception v0
 
     monitor-exit v1
@@ -102,7 +109,7 @@
     .registers 3
 
     .prologue
-    .line 33
+    .line 34
     const-class v1, Lcom/isaigu/gymapp/wearable/vr/VrBridge;
 
     monitor-enter v1
@@ -110,23 +117,23 @@
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrBridge;->receiver:Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;
 
-    .line 34
+    .line 35
     const/4 v2, 0x0
 
     sput-object v2, Lcom/isaigu/gymapp/wearable/vr/VrBridge;->receiver:Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;
     :try_end_8
     .catchall {:try_start_3 .. :try_end_8} :catchall_17
 
-    .line 35
+    .line 36
     if-nez v0, :cond_c
 
-    .line 43
+    .line 44
     :goto_a
     monitor-exit v1
 
     return-void
 
-    .line 39
+    .line 40
     :cond_c
     :try_start_c
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stop()V
@@ -136,11 +143,11 @@
 
     goto :goto_a
 
-    .line 40
+    .line 41
     :catch_10
     move-exception v0
 
-    .line 41
+    .line 42
     :try_start_11
     const-string v2, "VrBridge.detach"
 
@@ -150,7 +157,7 @@
 
     goto :goto_a
 
-    .line 33
+    .line 34
     :catchall_17
     move-exception v0
 
@@ -163,7 +170,7 @@
     .registers 2
 
     .prologue
-    .line 54
+    .line 55
     const-class v1, Lcom/isaigu/gymapp/wearable/vr/VrBridge;
 
     monitor-enter v1
@@ -199,21 +206,21 @@
     .registers 2
 
     .prologue
-    .line 47
+    .line 48
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->onTrainingStopped()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 51
+    .line 52
     :goto_3
     return-void
 
-    .line 48
+    .line 49
     :catch_4
     move-exception v0
 
-    .line 49
+    .line 50
     const-string v1, "VrBridge.onTrainingStopped"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

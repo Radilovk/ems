@@ -65,6 +65,18 @@ public final class VrPanel {
         }
     }
 
+    /** The game's dock changed a setting (main thread): the open sheet shows it at once. */
+    static void onRemoteChange() {
+        try {
+            XemsUi.Shell s = shell;
+            if (s != null && s.dialog.isShowing()) {
+                fillFeel();
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("VrPanel.remote", t);
+        }
+    }
+
     /** Tile status line (XemsNav). */
     public static String status() {
         if (VrSettings.isPaused()) {

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 358
+    .line 370
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 359
+    .line 371
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/vr/VrPanel$Dismiss;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 360
+    .line 372
     return-void
 .end method
 
@@ -44,7 +44,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 364
+    .line 376
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$300()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -54,35 +54,35 @@
 
     if-ne v0, v1, :cond_1e
 
-    .line 365
+    .line 377
     # setter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$302(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 366
+    .line 378
     # setter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->refresh:Lcom/isaigu/gymapp/wearable/vr/VrPanel$Refresh;
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$002(Lcom/isaigu/gymapp/wearable/vr/VrPanel$Refresh;)Lcom/isaigu/gymapp/wearable/vr/VrPanel$Refresh;
 
-    .line 367
+    .line 379
     # setter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->feel:Landroid/widget/LinearLayout;
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$402(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
 
-    .line 368
+    .line 380
     # setter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->floorStepper:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$502(Lcom/isaigu/gymapp/widget/XemsUi$Stepper;)Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 369
+    .line 381
     # setter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->heroRow:Landroid/view/View;
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$602(Landroid/view/View;)Landroid/view/View;
 
-    .line 370
+    .line 382
     # setter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->levelBox:Landroid/view/View;
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$702(Landroid/view/View;)Landroid/view/View;
 
-    .line 371
+    .line 383
     # setter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->activity:Landroid/app/Activity;
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$802(Landroid/app/Activity;)Landroid/app/Activity;
 
-    .line 373
+    .line 385
     :cond_1e
     return-void
 .end method

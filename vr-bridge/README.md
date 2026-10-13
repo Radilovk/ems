@@ -100,7 +100,16 @@ Tablet: PING every 250 ms, min-RTT offset over 16 samples, drops duplicate/reord
 (> 60 ms, configurable) haptics, never drops STOP; silence > 5 s or STOP(SHUTDOWN) → link down + stop all.
 Session left FOCUSED → STOP(BOTH, UNFOCUS).
 
+**Game impulse dock (CTRL / STATE, 1.1.427-ai).** A game may send CTRL (0x05, 32 B: op, arg, value) from its own socket
+to port 47800; the tablet takes it only from the address its layer is paired from and answers every CTRL with a STATE
+(0x83, 48 B: flags linked / driving / paused / music, which hits pass, rise, weakest hit, resting channels, the game's
+level, the strength sent to the suit, the trainer's strength, hits passed / dropped). Ops: QUERY, PAUSE, STRENGTH (±5 of
+the trainer's strength, only while VR drives), FLOOR, SENS, SMOOTH, REST (channel), RESET — the same settings as the VR
+sheet on the tablet, which refreshes when a game changes them (`VrControl`, `VrControlSink`). XEMS Studio uses it for its
+"Костюм и импулси" page and the wrist dock (`vr-workout/scripts/game/tablet.gd`).
+
 ## Test
 `bash vr-bridge/test/run.sh` (needs `bash scripts/setup-android-toolchain.sh` for android.jar): the pulse envelope
-(`VrPulsesHostTest`: min pulse, two hands, append, infinite, stops) + the layer → receiver run.
+(`VrPulsesHostTest`: min pulse, two hands, append, infinite, stops) + the game's CTRL / STATE (`VrControlHostTest`:
+nothing before pairing, the paired address answered, a stranger ignored) + the layer → receiver run.
 Host loopback: hook cost ≈ 50–80 µs worst case, call → tablet dispatch ≈ 0.4 ms.

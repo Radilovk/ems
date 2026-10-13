@@ -9,7 +9,7 @@ ROOMS = {
  "dancing_hall": (0.80, [(0.0, 0.25, 0.44, 0.535), (0.515, 0.775, 0.44, 0.535), (0.985, 1.0, 0.44, 0.535)]),
  "mirrored_hall": (0.80, [(0.42, 0.635, 0.43, 0.54), (0.66, 0.72, 0.28, 0.555),
                           (0.76, 0.88, 0.42, 0.55)]),
- "neon_studio": (0.80, [(0.68, 0.90, 0.44, 0.565)]),
+ "neon_studio": (0.80, [(0.68, 0.90, 0.44, 0.556)]),
 }
 src_dir, out_dir = sys.argv[1], sys.argv[2]
 W, H = 2048, 1024
@@ -25,6 +25,7 @@ for name, (thr, boxes) in ROOMS.items():
     mi = Image.fromarray((m * 255).astype(np.uint8))
     mi = mi.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3))
     mi = mi.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))
+    mi = mi.filter(ImageFilter.MaxFilter(5))      # a little over the frame: no bright fringe of the old glass left
     mi = mi.filter(ImageFilter.GaussianBlur(1.0))
     mi.save(f"{out_dir}/{name}_win.png", optimize=True)
     a = np.asarray(mi)[..., None] / 255

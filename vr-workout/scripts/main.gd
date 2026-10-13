@@ -9,6 +9,7 @@ const FONT := preload("res://assets/fonts/Inter-Regular.otf")
 const ROOM_SHADER := preload("res://shaders/room.gdshader")
 const RING_SHADER := preload("res://shaders/ring.gdshader")
 const GLASS_SHADER := preload("res://shaders/glass.gdshader")
+const VIEW_SKY := preload("res://shaders/view_sky.gdshader")
 
 const STAGE_POS := Vector3(0, 0, -2.4)  # the middle of what is shown ahead (cards left and right of it, toasts above)
 const BACK_WALL := 1.6              # the player stands this far from the back wall: the rest of the room is play space
@@ -31,6 +32,7 @@ var room_i := 0
 var room_shell: MeshInstance3D
 var room_mat: ShaderMaterial
 var sky_mat: PanoramaSkyMaterial
+var view_sky: ShaderMaterial        # the landscape out of the windows (shaders/view_sky.gdshader)
 var sky: Sky
 var plain_sky := ProceduralSkyMaterial.new()      # behind 3D scene rooms
 var env: Environment
@@ -204,9 +206,8 @@ func _apply_room() -> void:
 		room_mat.set_shader_parameter("exposure", pano.exposure)
 		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.6))) - H * 0.5, 0))
 		room_mat.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))))
-		apply_view()
 		sky_mat.panorama = pano.tex
-		sky.sky_material = sky_mat
+		apply_view()                                  # the sky: the photo, or the landscape out of its windows
 		env.background_energy_multiplier = pano.exposure if pano.hdr else 1.0
 		room_shell.visible = true
 		apply_room_offset()
@@ -240,17 +241,28 @@ func _apply_room() -> void:
 	apply_room_offset()
 
 
-## The view out of the photo rooms' windows (settings: sea, mountains, or the photo as it was shot).
+## The view out of the photo rooms' windows (settings: sea, mountains, or the photo as it was shot): the room
+## shader cuts the panes out of the shell and the sky behind them becomes the landscape, infinitely far away.
 func apply_view() -> void:
 	var r: Dictionary = rooms[room_i]
+	if r.kind != "pano":
+		return
 	var tex: Texture2D = null
 	if r.get("windows", "") != "" and settings.view < GameSettings.VIEWS.size():
 		tex = load(GameSettings.VIEWS[settings.view].path)
 	room_mat.set_shader_parameter("view_on", tex != null)
-	if tex:
-		room_mat.set_shader_parameter("windows", load(r.windows))
-		room_mat.set_shader_parameter("view", tex)
-		room_mat.set_shader_parameter("view_yaw", float(r.get("view_yaw", 0.0)) + GameSettings.VIEWS[settings.view].yaw)
+	if tex == null:
+		sky.sky_material = sky_mat
+		return
+	room_mat.set_shader_parameter("windows", load(r.windows))
+	if view_sky == null:
+		view_sky = ShaderMaterial.new()
+		view_sky.shader = VIEW_SKY
+	view_sky.set_shader_parameter("view", tex)
+	view_sky.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))) + float(r.get("view_yaw", 0.0))
+			+ GameSettings.VIEWS[settings.view].yaw)
+	view_sky.set_shader_parameter("lift", GameSettings.VIEWS[settings.view].lift)
+	sky.sky_material = view_sky
 
 
 ## The player's place in the room (settings): the room moves and turns around the player, who stays where the game

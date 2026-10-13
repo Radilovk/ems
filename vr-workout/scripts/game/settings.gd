@@ -16,9 +16,10 @@ const LEGS := ["Авто", "На глезените", "От очилата", "К
 enum Legs { AUTO, ANKLES, TRACKING, MOVES, OFF }
 const MINUTES := [0, 5, 10, 15, 20, 30]     # 0 = until you stop
 # The landscapes the photo rooms look out on. A room's "view_yaw" brings the middle of its windows to the middle of
-# the photo (u 0.5); a view's "yaw" then brings its best part there (the open sea, the peaks).
-const VIEWS := [{"name": "Море", "path": "res://assets/views/sea.jpg", "yaw": 0.15},
-	{"name": "Планини", "path": "res://assets/views/mountain.jpg", "yaw": -0.2}]
+# the photo (u 0.5); a view's "yaw" then brings its best part there (the open sea, the peaks); "lift" lowers its
+# horizon in the windows so the photo's near ground (a quay, people) stays out.
+const VIEWS := [{"name": "Море", "path": "res://assets/views/sea.jpg", "yaw": 0.02, "lift": 0.02},
+	{"name": "Планини", "path": "res://assets/views/mountain.jpg", "yaw": -0.2, "lift": 0.0}]
 const PUNISH := [{"name": "Меко", "sec": 1.2}, {"name": "Силно", "sec": 2.5}]
 
 var pace := 1

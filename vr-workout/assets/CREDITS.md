@@ -12,7 +12,7 @@
 | `views/mountain.jpg` | Poly Haven "Champagne Castle 1" by Greg Zaal — https://polyhaven.com/a/champagne_castle_1 (8K HDR, tone-mapped; the mountains beyond the glass) | CC0 |
 | `loft/laminate_floor_02_*` | Poly Haven "Laminate Floor 02" — https://polyhaven.com/a/laminate_floor_02 (2K diffuse + normal) | CC0 |
 | `loft/wood_floor_deck_*` | Poly Haven "Wood Floor Deck" — https://polyhaven.com/a/wood_floor_deck (1K diffuse + normal) | CC0 |
-| `rooms/bridge.jpg` | Poly Haven "Adams Place Bridge" (4K EXR, tone-mapped) | CC0 |
-| `arena/milky_way.jpg` | Poly Haven "Rogland Clear Night" by Greg Zaal — https://polyhaven.com/a/rogland_clear_night (2K HDR, sky half, own glow subtracted, tone-mapped to 2048×512) | CC0 |
+| `rooms/bridge.jpg` | Poly Haven "Adams Place Bridge" — https://polyhaven.com/a/adams_place_bridge (8K HDR, tone-mapped to 8192×4096) | CC0 |
+| `arena/milky_way.jpg` | Poly Haven "Rogland Clear Night" by Greg Zaal — https://polyhaven.com/a/rogland_clear_night (8K HDR, sky half, own glow subtracted, tone-mapped to 8192×2048) | CC0 |
 | `arena/moon_rock_02/03/06.*` | Poly Haven "Moon Rock 02 / 03 / 06" — https://polyhaven.com/a/moon_rock_02 (1K glTF geometry; diffuse + normal scaled to 512) | CC0 |
 | `sfx/*.ogg` | synthesised by `gen/make_sounds.py` (no samples) | the project's own |

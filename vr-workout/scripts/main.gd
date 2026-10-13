@@ -425,6 +425,8 @@ func _setup_view() -> void:
 	var ifc := XRServer.find_interface("OpenXR")
 	xr = ifc != null and ifc.is_initialized()
 	if xr:
+		if "render_target_size_multiplier" in ifc:    # the runtime's suggestion is below the Quest 3 panel: render
+			ifc.set("render_target_size_multiplier", 1.25)   # at the panel's own sharpness (rooms, views, text)
 		get_viewport().use_xr = true
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		if ifc.has_signal("session_begun"):

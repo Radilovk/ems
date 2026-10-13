@@ -16,10 +16,11 @@ renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=2
+textures/default_filters/anisotropic_filtering_level=3
 
 [xr]
 openxr/enabled=true
-openxr/foveation_level=2
+openxr/foveation_level=1
 openxr/foveation_dynamic=true
 openxr/extensions/hand_tracking=true
 openxr/extensions/meta/body_tracking=true

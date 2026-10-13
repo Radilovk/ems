@@ -6,3 +6,7 @@ tools/
 fixed-aligned-debugSigned.apk
 __pycache__/
 band-app/preview/out/
+
+# signing keys never go in the repo
+*.keystore
+*.jks

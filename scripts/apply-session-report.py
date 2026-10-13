@@ -3,6 +3,8 @@
 and the shareable client card template: branding/report/client-card.html → assets/report/client-card.html.
 The page (history, training report, muscle map) is opened by wearable/ReportScreen in a WebView and
 reads the recorded sessions through window.XemsReport (wearable/ReportBridge).
+Also the licences & credits page: branding/report/licenses.html → assets/report/licenses.html
+(Settings → "Достъп и лиценз" → "Лицензи и автори", widget/XemsLicenseSection).
 """
 
 from __future__ import annotations
@@ -34,6 +36,11 @@ def main() -> int:
             raise SystemExit(f"client-card.html: figure {key} missing — run scripts/gen-card-art.py")
     shutil.copy2(card, DEST.parent / "client-card.html")
     print(f"assets/report/client-card.html ({card.stat().st_size} B)")
+    lic = SRC.parent / "licenses.html"
+    if "CC BY-SA 4.0" not in lic.read_text(encoding="utf-8"):
+        raise SystemExit("licenses.html: not the licences page")
+    shutil.copy2(lic, DEST.parent / "licenses.html")
+    print(f"assets/report/licenses.html ({lic.stat().st_size} B)")
     return 0
 
 

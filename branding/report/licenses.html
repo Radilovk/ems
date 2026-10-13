@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лицензи и автори</title>
+<style>
+  :root { --bg:#0D1117; --card:#161B22; --line:#30363D; --text:#E6EDF3; --hint:#8B949E; --acc:#2F81F7; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:1200px; margin:0 auto; padding:20px 24px 40px; }
+  .lead { color:var(--hint); margin:0 0 18px; max-width:780px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+  h2 { font-size:16px; margin:0 0 8px; }
+  ul { list-style:none; margin:0; padding:0; }
+  li { padding:7px 0; border-top:1px solid var(--line); }
+  li:first-child { border-top:0; }
+  b { font-weight:600; }
+  .lic { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; background:#1F6FEB33; color:#79C0FF; font-size:12px; }
+  .src { display:block; color:var(--hint); font-size:13px; overflow-wrap:anywhere; }
+  details { margin-top:18px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 16px; }
+  summary { cursor:pointer; font-weight:600; }
+  pre { white-space:pre-wrap; color:var(--hint); font-size:12px; }
+</style>
+</head>
+<body>
+<main>
+<p class="lead" data-en="This app is built on open-source software and freely licensed content. Thank you to their authors.">Приложението ползва софтуер с отворен код и съдържание със свободен лиценз. Благодарим на авторите им.</p>
+
+<div class="grid">
+<section>
+  <h2 data-en="Content">Съдържание</h2>
+  <ul>
+    <li><b data-en="Exercise figures, names and muscle data">Фигури на упражненията, имена и мускули</b><span class="lic">CC BY-SA 4.0</span>
+      <span class="src">bryllim/workout-guide — github.com/bryllim/workout-guide · <span data-en="changed: normalised outlines, Bulgarian names and steps, suit-channel weights">променени: нормализирани контури, български имена и стъпки, тегла по канали на костюма</span></span></li>
+    <li><b data-en="Body composition (scale)">Телесен състав (кантар)</b><span class="lic">MIT</span>
+      <span class="src">sacoma-lib — github.com/ynsgnr/sacoma-lib · Fitman — github.com/DaveNijhuis/Fitman</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2 data-en="Libraries">Библиотеки</h2>
+  <ul>
+    <li><b>Android Support / AndroidX, Gson, OkHttp, Okio, EventBus, FastBle, fastjson</b><span class="lic">Apache 2.0</span></li>
+    <li><b>AndroidAutoSize, HiPermission, XRecyclerView, Android-PickerView, yanzhenjie RecyclerView, AndroidVideoCache, UpdateLibrary</b><span class="lic">Apache 2.0</span></li>
+    <li><b>Apache POI, Apache Commons, Apache Harmony AWT</b><span class="lic">Apache 2.0</span></li>
+    <li><b>Glide</b><span class="lic">BSD · MIT · Apache 2.0</span></li>
+    <li><b>JavaMail, JavaBeans Activation</b><span class="lic">CDDL 1.1</span></li>
+    <li><b>SLF4J</b><span class="lic">MIT</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2 data-en="VR (headset app)">VR (приложение за очилата)</h2>
+  <ul>
+    <li><b>"Brutalist Interior" — vslite</b><span class="lic">CC BY 4.0</span><span class="src">sketchfab.com</span></li>
+    <li><b>"Yoga Studio" — guerreronapoleon</b><span class="lic">CC BY 4.0</span><span class="src">sketchfab.com</span></li>
+    <li><b>Basement Boxing Ring · Adams Place Bridge · Crossfit Gym</b><span class="lic">CC0</span><span class="src">polyhaven.com</span></li>
+    <li><b data-en="Beach — tomazolivier">Плаж — tomazolivier</b><span class="lic">Pixabay</span><span class="src">pixabay.com</span></li>
+    <li><b>Inter — Rasmus Andersson</b><span class="lic">SIL OFL 1.1</span></li>
+  </ul>
+</section>
+</div>
+
+<details>
+  <summary data-en="Licence texts">Текстове на лицензите</summary>
+  <pre>Apache License 2.0 — https://www.apache.org/licenses/LICENSE-2.0
+MIT License — https://opensource.org/license/mit
+BSD 2-Clause — https://opensource.org/license/bsd-2-clause
+CDDL 1.1 — https://opensource.org/license/cddl-1-0 (version 1.1: https://javaee.github.io/glassfish/LICENSE)
+Creative Commons Attribution 4.0 — https://creativecommons.org/licenses/by/4.0/
+Creative Commons Attribution-ShareAlike 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+SIL Open Font License 1.1 — https://openfontlicense.org
+Pixabay Content License — https://pixabay.com/service/license-summary/
+
+Software distributed under these licences is provided "AS IS", without warranties or conditions of any kind.</pre>
+</details>
+</main>
+<script>
+  if (location.hash === "#en") {
+    document.documentElement.lang = "en";
+    document.title = "Licences & credits";
+    document.querySelectorAll("[data-en]").forEach(function (e) { e.textContent = e.getAttribute("data-en"); });
+  }
+</script>
+</body>
+</html>

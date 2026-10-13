@@ -7,4 +7,4 @@
 - Maps: `ui-map.yaml` (screens, `@id`s, pipeline), `train-controls-map.yaml` (every control → bean field → BLE).
   Outline them (`python3 scripts/repo-map.py outline branding/ui-map.yaml`) and read only the needed block.
 - Before any new UI: the relevant section of `UI-PITFALLS.md`; reuse `widget/XemsUi` (see `docs/xems-ui-kit.md`).
-- `release.keystore` — signing key (not used by build-apk.sh, which debug-signs); never print or modify.
+- Signing keys never go in the repo (`*.keystore`/`*.jks` are gitignored). build-apk.sh debug-signs with uber-apk-signer's embedded key (pinned SHA-256 check).

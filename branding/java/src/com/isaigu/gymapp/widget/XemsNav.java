@@ -209,6 +209,9 @@ public final class XemsNav {
     private static LinearLayout barView;
     private static LinearLayout menuBox;
     static final String K_PROGRAMS = "programs";
+    /** Bluetens pads (wearable/bluetens): a page of its own, apart from the suit (owner, 2026-10-13). */
+    static final String K_BLUETENS = "bluetens";
+    static final int BLUETENS_TINT = 0xFF34D399;
     private static final String PREFS = "xems_nav";
     private static final int BAR_MAX = 7;
     private static final int[] MOD_ORDER = {M_TIMER, M_MUSIC, M_PULSE, M_AUTO, M_AI, M_VR};
@@ -255,6 +258,7 @@ public final class XemsNav {
             out.add("page:" + i);
         }
         out.add(K_PROGRAMS);
+        out.add(K_BLUETENS);
         for (int m : MOD_ORDER) {
             out.add("mod:" + m);
         }
@@ -282,7 +286,24 @@ public final class XemsNav {
         for (int m : BAR_DEFAULT) {
             def.append(def.length() > 0 ? "," : "").append("mod:").append(m);
         }
-        return read(c, "bar", def.toString());
+        def.append(",").append(K_BLUETENS);
+        List<String> bar = read(c, "bar", def.toString());
+        // tablets set up before Bluetens: put it on the bar once, if there is room (the trainer can move it)
+        android.content.SharedPreferences p = prefs(c);
+        if (!p.getBoolean("bluetens_docked", false)) {
+            p.edit().putBoolean("bluetens_docked", true).apply();
+            if (!bar.contains(K_BLUETENS) && bar.size() < BAR_MAX && p.contains("bar")) {
+                bar.add(K_BLUETENS);
+                List<String> menu = new ArrayList<String>();
+                for (String k : read(c, "menu", "")) {
+                    if (!K_BLUETENS.equals(k)) {
+                        menu.add(k);
+                    }
+                }
+                save(c, bar, menu);
+            }
+        }
+        return bar;
     }
 
     /** The menu's items in order: everything not on the bar (new items at the end). */
@@ -349,6 +370,11 @@ public final class XemsNav {
             label = tr("Програми", "Programs");
             tint = 0xFF22E3FF;
             click = new WorkoutsClick();
+        } else if (K_BLUETENS.equals(k)) {
+            glyph = XemsIcon.PADS;
+            label = "Bluetens";
+            tint = BLUETENS_TINT;
+            click = new BluetensClick();
         } else {
             int i = Integer.parseInt(k.substring(5));
             View tab = mainRoot != null ? mainRoot.findViewById(ID_TAB_FIRST + i) : null;
@@ -420,6 +446,8 @@ public final class XemsNav {
                 }
             } else if (K_PROGRAMS.equals(k)) {
                 row = extraRow(c, XemsIcon.DUMBBELL, tr("Програми", "Programs"), 0xFF22E3FF, new WorkoutsClick());
+            } else if (K_BLUETENS.equals(k)) {
+                row = extraRow(c, XemsIcon.PADS, "Bluetens", BLUETENS_TINT, new BluetensClick());
             } else {
                 row = moduleRow(c, Integer.parseInt(k.substring(4)));
             }
@@ -994,6 +1022,19 @@ public final class XemsNav {
             Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
             if (a != null) {
                 com.isaigu.gymapp.ai.WorkoutsUi.open(a);
+            }
+        }
+    }
+
+    static final class BluetensClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (menu != null) {
+                menu.dismiss();
+            }
+            Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
+            if (a != null) {
+                com.isaigu.gymapp.wearable.bluetens.BluetensScreen.open(a);
             }
         }
     }

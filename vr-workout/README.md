@@ -82,10 +82,10 @@ strips whose cross bars run with the beat, light tubes down both sides, boxing b
 two lit words — all in the combo's colour); and 8K 360° photos (Poly Haven, CC0): gym, boxing ring, dancing hall, neon
 studio, mirrored hall, bridge. A photo is painted on a cylinder the size of the real room (`radius`, `height`) round
 the spot it was shot from, and **the player stands on that spot** — the only place a photo is undistorted; `yaw` turns
-the open floor ahead; things fly in from up to `radius − 0.4` m. The rooms with windows (`windows`: a mask from
-`convert/window_masks.py`) look out on the sea or the mountains (`assets/views`, setting "Прозорци"): the room
-shader cuts the panes out and the sky behind becomes the landscape (`shaders/view_sky.gdshader`), infinitely far,
-so in the headset it is out there behind the glass; `view_yaw` aims it.
+the open floor ahead; things fly in from up to `radius − 0.4` m. The panoramic hall (`scripts/game/skyloft.gd`, built from code) has glass walls
+from floor to ceiling on three sides, a terrace with a glass railing outside, and the sea or the mountains beyond
+(setting "Гледка"; `assets/views`, a 360° photo drawn as the sky by `shaders/view_sky.gdshader`): infinitely far,
+so in the headset the view is truly out there behind crisp panes.
 **Desktop tests (no headset):**
 ```
 godot --path vr-workout -- --sim=1 --skiptut=1 --levels=1 --level=4 --skill=0.8 --timescale=6   # plays itself, prints LEVEL … done

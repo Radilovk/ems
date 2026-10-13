@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6632xjt4kbwb"
-path="res://.godot/imported/neon_studio_win.png-ca8700259ec38a481d589ccdb2a906d5.ctex"
+uid="uid://b1rqi6p6y3etk"
+path="res://.godot/imported/laminate_floor_02_nor_gl.jpg-914404d5d0d1c6c45bfa38e2519f8b47.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/rooms/neon_studio_win.png"
-dest_files=["res://.godot/imported/neon_studio_win.png-ca8700259ec38a481d589ccdb2a906d5.ctex"]
+source_file="res://assets/loft/laminate_floor_02_nor_gl.jpg"
+dest_files=["res://.godot/imported/laminate_floor_02_nor_gl.jpg-914404d5d0d1c6c45bfa38e2519f8b47.ctex"]
 
 [params]
 

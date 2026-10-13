@@ -32,7 +32,7 @@ var room_i := 0
 var room_shell: MeshInstance3D
 var room_mat: ShaderMaterial
 var sky_mat: PanoramaSkyMaterial
-var view_sky: ShaderMaterial        # the landscape out of the windows (shaders/view_sky.gdshader)
+var view_sky: ShaderMaterial        # the panoramic hall's landscape (shaders/view_sky.gdshader)
 var sky: Sky
 var plain_sky := ProceduralSkyMaterial.new()      # behind 3D scene rooms
 var env: Environment
@@ -186,6 +186,15 @@ func _apply_room() -> void:
 		return
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.9
+	if r.kind == "loft":
+		room_scene = SkyLoft.new()
+		room_root.add_child(room_scene)
+		room_shell.visible = false
+		env.background_energy_multiplier = 1.0
+		_room_depth0 = -SkyLoft.FRONT - 0.6
+		apply_view()
+		apply_room_offset()
+		return
 	if r.kind == "pano":
 		var pano := Library.load_pano(r.path)
 		if pano.is_empty():
@@ -207,7 +216,7 @@ func _apply_room() -> void:
 		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.6))) - H * 0.5, 0))
 		room_mat.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))))
 		sky_mat.panorama = pano.tex
-		apply_view()                                  # the sky: the photo, or the landscape out of its windows
+		sky.sky_material = sky_mat
 		env.background_energy_multiplier = pano.exposure if pano.hdr else 1.0
 		room_shell.visible = true
 		apply_room_offset()
@@ -241,27 +250,17 @@ func _apply_room() -> void:
 	apply_room_offset()
 
 
-## The view out of the photo rooms' windows (settings: sea, mountains, or the photo as it was shot): the room
-## shader cuts the panes out of the shell and the sky behind them becomes the landscape, infinitely far away.
+## The sky loft's view (settings: the sea or the mountains): a 360° photo as the sky, infinitely far beyond the glass.
 func apply_view() -> void:
-	var r: Dictionary = rooms[room_i]
-	if r.kind != "pano":
+	if rooms[room_i].kind != "loft":
 		return
-	var tex: Texture2D = null
-	if r.get("windows", "") != "" and settings.view < GameSettings.VIEWS.size():
-		tex = load(GameSettings.VIEWS[settings.view].path)
-	room_mat.set_shader_parameter("view_on", tex != null)
-	if tex == null:
-		sky.sky_material = sky_mat
-		return
-	room_mat.set_shader_parameter("windows", load(r.windows))
+	var v: Dictionary = GameSettings.VIEWS[clampi(settings.view, 0, GameSettings.VIEWS.size() - 1)]
 	if view_sky == null:
 		view_sky = ShaderMaterial.new()
 		view_sky.shader = VIEW_SKY
-	view_sky.set_shader_parameter("view", tex)
-	view_sky.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))) + float(r.get("view_yaw", 0.0))
-			+ GameSettings.VIEWS[settings.view].yaw)
-	view_sky.set_shader_parameter("lift", GameSettings.VIEWS[settings.view].lift)
+	view_sky.set_shader_parameter("view", load(v.path))
+	view_sky.set_shader_parameter("yaw", v.yaw)
+	view_sky.set_shader_parameter("lift", v.lift)
 	sky.sky_material = view_sky
 
 

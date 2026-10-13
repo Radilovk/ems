@@ -1291,5 +1291,5 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L112 ## Build / preview
   - L121 ## Licences
 
-`vr-workout/assets/CREDITS.md` (18L)
+`vr-workout/assets/CREDITS.md` (19L)
   - L1 # Asset credits

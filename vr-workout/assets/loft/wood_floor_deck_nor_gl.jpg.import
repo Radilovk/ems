@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cx6q5tmqcqk76"
-path="res://.godot/imported/dancing_hall_win.png-ffae96ccda12646d738d8e30ce97cdb9.ctex"
+uid="uid://viywwr2pqf7t"
+path="res://.godot/imported/wood_floor_deck_nor_gl.jpg-f679dd8238efbf590d21b6ba705d7f0d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/rooms/dancing_hall_win.png"
-dest_files=["res://.godot/imported/dancing_hall_win.png-ffae96ccda12646d738d8e30ce97cdb9.ctex"]
+source_file="res://assets/loft/wood_floor_deck_nor_gl.jpg"
+dest_files=["res://.godot/imported/wood_floor_deck_nor_gl.jpg-f679dd8238efbf590d21b6ba705d7f0d.ctex"]
 
 [params]
 

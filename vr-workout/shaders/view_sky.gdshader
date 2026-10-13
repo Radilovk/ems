@@ -1,10 +1,9 @@
-// The landscape outside the photo rooms, as the sky: infinitely far, so in the headset it sits behind the window
-// glass (the room shader cuts the panes out) with true depth, instead of being painted on the wall.
-// Same direction maths as room.gdshader: EYEDIR is already turned with the room (Environment.sky_rotation).
+// The landscape outside the panoramic hall's glass, as the sky: infinitely far, so in the headset it is truly out
+// there, with depth. EYEDIR is already turned with the room (Environment.sky_rotation).
 shader_type sky;
 
-uniform sampler2D view : source_color, filter_linear, repeat_enable;
-uniform float yaw = 0.0;            // the room's yaw + its view_yaw + the view's own yaw (0..1)
+uniform sampler2D view : source_color, filter_linear_mipmap, repeat_enable;
+uniform float yaw = 0.0;            // turn the landscape (0..1): its best part to the main window ahead
 uniform float lift = 0.0;           // > 0 lowers the horizon in the windows (keeps the near ground of a photo out)
 uniform float gain = 1.05;          // outside is a little brighter than in
 

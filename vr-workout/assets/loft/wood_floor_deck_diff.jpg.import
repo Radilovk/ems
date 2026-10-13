@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://6q7miffktcv2"
-path="res://.godot/imported/mirrored_hall_win.png-8be50de2a9ec125a6adf03ac2bd7d87a.ctex"
+uid="uid://d3mlpiwxmpfk1"
+path="res://.godot/imported/wood_floor_deck_diff.jpg-2867eb1836db9c830dc99bce83a406f3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/rooms/mirrored_hall_win.png"
-dest_files=["res://.godot/imported/mirrored_hall_win.png-8be50de2a9ec125a6adf03ac2bd7d87a.ctex"]
+source_file="res://assets/loft/wood_floor_deck_diff.jpg"
+dest_files=["res://.godot/imported/wood_floor_deck_diff.jpg-2867eb1836db9c830dc99bce83a406f3.ctex"]
 
 [params]
 

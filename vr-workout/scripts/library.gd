@@ -14,12 +14,13 @@ const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XE
 
 const BUILTIN_ROOMS := [
 	{"name": "Арена", "path": "", "kind": "arena"},          # built from code: scripts/game/arena.gd
+	{"name": "Панорамна зала", "path": "", "kind": "loft"},  # built from code: scripts/game/skyloft.gd
 	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene", "dress": "hall"},
-	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "windows": "res://assets/rooms/crossfit_gym_win.png", "view_yaw": 0.145, "yaw": 0.5, "cam": 1.6, "radius": 8.0, "height": 4.2},
+	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.6, "radius": 8.0, "height": 4.2},
 	{"name": "Боксова зала", "path": "res://assets/rooms/boxing_ring.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.55, "radius": 6.0, "height": 3.0},
-	{"name": "Танцова зала", "path": "res://assets/rooms/dancing_hall.jpg", "kind": "pano", "windows": "res://assets/rooms/dancing_hall_win.png", "view_yaw": -0.145, "yaw": 0.25, "cam": 1.6, "radius": 11.0, "height": 4.5},
-	{"name": "Неоново студио", "path": "res://assets/rooms/neon_studio.jpg", "kind": "pano", "windows": "res://assets/rooms/neon_studio_win.png", "view_yaw": -0.29, "yaw": 0.5, "cam": 1.6, "radius": 6.0, "height": 3.6},
-	{"name": "Огледална зала", "path": "res://assets/rooms/mirrored_hall.jpg", "kind": "pano", "windows": "res://assets/rooms/mirrored_hall_win.png", "view_yaw": -0.15, "yaw": 0.0, "cam": 1.6, "radius": 8.0, "height": 6.0},
+	{"name": "Танцова зала", "path": "res://assets/rooms/dancing_hall.jpg", "kind": "pano", "yaw": 0.25, "cam": 1.6, "radius": 11.0, "height": 4.5},
+	{"name": "Неоново студио", "path": "res://assets/rooms/neon_studio.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.6, "radius": 6.0, "height": 3.6},
+	{"name": "Огледална зала", "path": "res://assets/rooms/mirrored_hall.jpg", "kind": "pano", "yaw": 0.0, "cam": 1.6, "radius": 8.0, "height": 6.0},
 	{"name": "Мост", "path": "res://assets/rooms/bridge.jpg", "kind": "pano", "cam": 1.6, "radius": 8.0, "height": 6.0},
 ]
 const PANO_EXT := ["jpg", "jpeg", "png", "webp", "hdr"]

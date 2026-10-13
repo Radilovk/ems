@@ -15,10 +15,9 @@ const SPREAD := [{"name": "Отпред", "deg": 0.0}, {"name": "Дъга", "deg
 const LEGS := ["Авто", "На глезените", "От очилата", "Клек и стъпки", "Без"]
 enum Legs { AUTO, ANKLES, TRACKING, MOVES, OFF }
 const MINUTES := [0, 5, 10, 15, 20, 30]     # 0 = until you stop
-# The landscapes the photo rooms look out on. A room's "view_yaw" brings the middle of its windows to the middle of
-# the photo (u 0.5); a view's "yaw" then brings its best part there (the open sea, the peaks); "lift" lowers its
-# horizon in the windows so the photo's near ground (a quay, people) stays out.
-const VIEWS := [{"name": "Море", "path": "res://assets/views/sea.jpg", "yaw": 0.02, "lift": 0.02},
+# The landscapes the panoramic hall looks out on (a 360° photo as the sky). "yaw" brings its best part (the open
+# sea, the peaks) to the main window ahead; "lift" > 0 would lower its horizon.
+const VIEWS := [{"name": "Море", "path": "res://assets/views/sea.jpg", "yaw": 0.02, "lift": 0.0},
 	{"name": "Планини", "path": "res://assets/views/mountain.jpg", "yaw": -0.2, "lift": 0.0}]
 const PUNISH := [{"name": "Меко", "sec": 1.2}, {"name": "Силно", "sec": 2.5}]
 
@@ -38,7 +37,7 @@ var offset_z := 0.0
 var turn_deg := 0.0             # which way the room faces the player (degrees)
 var auto_center := true         # every session starts centred on where the player stands and looks
 var room := 0
-var view := 0                   # what the photo rooms' windows look out on: VIEWS, or VIEWS.size() = as shot
+var view := 0                   # what the panoramic hall looks out on: VIEWS
 var tutorial_done := false
 var best_score := 0
 
@@ -77,7 +76,7 @@ func _clamp() -> void:
 	offset_x = clampf(offset_x, -2.0, 2.0)
 	offset_z = clampf(offset_z, -3.0, 2.0)
 	turn_deg = fposmod(turn_deg, 360.0)
-	view = clampi(view, 0, VIEWS.size())
+	view = clampi(view, 0, VIEWS.size() - 1)
 
 
 func speed_k() -> float:

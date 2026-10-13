@@ -15,10 +15,13 @@ const GLOVE_HIT := Color(1.0, 0.22, 0.85)       # … magenta for a moment when 
 const GLOVE_SCALE := 0.034                      # model units → metres (a hand about 19 cm wrist to fingertip)
 const GLOVE_PALM := Vector3(-0.2, 0.06, 3.7)    # inside the fist, in model units: it sits on the grip
 const KNUCKLE := Vector2(0.62, 3.9)             # the knuckle line in the model's (y, z): the fingers bend from here
-const CURL := 4.4                               # how far each finger rolls into the fist (radians)
+const JOINTS := [Vector3(0.0, 1.62, -0.3),      # a punching fist, joint by joint: (where along the finger 0…1, bend in
+		Vector3(0.43, 1.75, -0.22),              # radians, hinge height under the finger's middle): the knuckle 93°,
+		Vector3(0.72, 1.2, -0.2)]                # the middle joint 100°, the last 69° — tight, the knuckles flat ahead
 const THUMB_BASE := Vector3(-1.75, 0.3, 1.0)    # the thumb's root, and where it points: out to the side …
 const THUMB_FROM := Vector3(-0.95, -0.85, 2.1)
-const THUMB_TO := Vector3(0.6, -1.1, 2.2)        # … and folded across the curled fingers
+const THUMB_TO := Vector3(1.15, -1.65, 2.5)     # … and folded under, across the curled fingers' middle joints
+const THUMB_SHIFT := Vector3(0.1, -0.3, 0.35)   # (and moved a little forward and down to lie on them)
 
 static var _glove_meshes := {}   # "plate"/"glow"/"body"/"mech" -> ArrayMesh, built once
 var gloves := {}                 # "left"/"right" -> Node3D
@@ -157,23 +160,31 @@ static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
 		var q := Vector2(p.y - KNUCKLE.x, p.z - KNUCKLE.y)
 		var t := q.dot(d)
 		if t > 0.0 and p.z > 3.4 and p.x > -1.68:          # (the thumb tip reaches past the knuckles too)
-			var r := _finger_len(p.x) / CURL
+			var len := _finger_len(p.x)
 			var h := q.dot(nrm)
-			var phi := t / r
-			var rho := maxf(r + h, 0.08)
-			var w := KNUCKLE + d * (rho * sin(phi)) + nrm * (rho * cos(phi) - r)
+			var at := Vector2(t, h)                       # the finger's own (along, up) plane
+			var turn := 0.0
+			for j in range(JOINTS.size() - 1, -1, -1):    # the far joints first, then the near ones carry them
+				var jt: float = JOINTS[j].x * len
+				var k := smoothstep(jt - 0.1, jt + 0.1, t)
+				if k <= 0.0:
+					continue
+				var ang: float = -JOINTS[j].y * k         # down, towards the palm
+				var hinge := Vector2(jt, JOINTS[j].z)
+				at = hinge + (at - hinge).rotated(ang)
+				turn += ang
+			var w := KNUCKLE + d * at.x + nrm * at.y
 			p = Vector3(p.x, w.x, w.y)
 			var n2 := Vector2(nv.y, nv.z)
-			var nd := n2.dot(d)
-			var nn := n2.dot(nrm)
-			var m := d * (nd * cos(phi) + nn * sin(phi)) + nrm * (nn * cos(phi) - nd * sin(phi))
+			var nl := Vector2(n2.dot(d), n2.dot(nrm)).rotated(turn)
+			var m := d * nl.x + nrm * nl.y
 			nv = Vector3(nv.x, m.x, m.y)
 		elif p.x < -1.5 and p.z > 0.8 and p.z < 3.8:
 			var s := (p - THUMB_BASE).dot(THUMB_FROM.normalized())
 			var k := smoothstep(0.1, 0.9, s) * (1.0 - smoothstep(-1.9, -1.5, p.x))
 			if k > 0.0:
 				var qk := Quaternion.IDENTITY.slerp(thumb, k)
-				p = THUMB_BASE + qk * (p - THUMB_BASE)
+				p = THUMB_BASE + qk * (p - THUMB_BASE) + THUMB_SHIFT * k
 				nv = qk * nv
 		verts[i] = p
 		if i < norms.size():

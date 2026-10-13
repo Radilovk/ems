@@ -174,6 +174,17 @@ public final class XemsLicenseSection {
         exRow.addView(exBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, XemsUi.dp(a, 48)));
         card.addView(exRow, XemsUi.matchWrap(a, 16));
 
+        // licences & credits of the libraries and content the app ships (assets/report/licenses.html)
+        LinearLayout licRow = XemsUi.horizontal(a);
+        licRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout licText = XemsUi.vertical(a);
+        licText.addView(XemsUi.text(a, tr("Лицензи и автори", "Licences & credits"), 15, XemsUi.TEXT, true));
+        licRow.addView(licText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView licBtn = XemsUi.button(a, tr("Виж", "View"), XemsUi.SECONDARY);
+        licBtn.setOnClickListener(new OpenLicences(a));
+        licRow.addView(licBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, XemsUi.dp(a, 48)));
+        card.addView(licRow, XemsUi.matchWrap(a, 10));
+
         // server address (advanced, folded)
         final TextView adv = XemsUi.text(a, tr("Сървър ›", "Server ›"), 13, XemsUi.HINT, false);
         adv.setPadding(0, XemsUi.dp(a, 14), 0, XemsUi.dp(a, 4));
@@ -211,6 +222,21 @@ public final class XemsLicenseSection {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = XemsUi.dp(a, 28);
         parent.addView(card, lp);
+    }
+
+    static final class OpenLicences implements View.OnClickListener {
+        private final Activity a;
+
+        OpenLicences(Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            XemsExercisePage.openUrl(a, tr("Лицензи и автори", "Licences & credits"),
+                    "file:///android_asset/report/licenses.html" + (XemsLang.isBg() ? "" : "#en"));
+        }
     }
 
     static final class OpenExercises implements View.OnClickListener {

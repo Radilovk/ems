@@ -130,7 +130,9 @@ def patch_common_utils() -> None:
 
 
 def patch_app_name() -> None:
-    app_name = "X-EMS PRO"
+    # the launcher label comes from branding/brand.json (scripts/rebrand.py changes it with every text)
+    import json
+    app_name = json.loads((ROOT / "branding" / "brand.json").read_text(encoding="utf-8"))["app_name"]
     for rel in ("values/strings.xml", "values-en/strings.xml", "values-bg/strings.xml"):
         path = DECOMPILED / "res" / rel
         if not path.exists():

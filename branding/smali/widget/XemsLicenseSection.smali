@@ -6,7 +6,8 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
-        Lcom/isaigu/gymapp/widget/XemsLicenseSection$OpenExercises;
+        Lcom/isaigu/gymapp/widget/XemsLicenseSection$OpenExercises;,
+        Lcom/isaigu/gymapp/widget/XemsLicenseSection$OpenLicences;
     }
 .end annotation
 
@@ -63,7 +64,7 @@
 
     if-nez v0, :cond_7
 
-    .line 214
+    .line 225
     :cond_6
     :goto_6
     return-void
@@ -838,6 +839,101 @@
     invoke-virtual {v3, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 178
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    .line 179
+    const/16 v1, 0x10
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
+
+    .line 180
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    .line 181
+    const-string v4, "\u041b\u0438\u0446\u0435\u043d\u0437\u0438 \u0438 \u0430\u0432\u0442\u043e\u0440\u0438"
+
+    const-string v5, "Licences & credits"
+
+    invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    const/high16 v5, 0x41700000    # 15.0f
+
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    const/4 v7, 0x1
+
+    invoke-static {p0, v4, v5, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v4
+
+    invoke-virtual {v1, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 182
+    new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v5, 0x0
+
+    const/4 v6, -0x2
+
+    const/high16 v7, 0x3f800000    # 1.0f
+
+    invoke-direct {v4, v5, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v0, v1, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 183
+    const-string v1, "\u0412\u0438\u0436"
+
+    const-string v4, "View"
+
+    invoke-static {v1, v4}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v4, 0x2
+
+    invoke-static {p0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->button(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
+
+    move-result-object v1
+
+    .line 184
+    new-instance v4, Lcom/isaigu/gymapp/widget/XemsLicenseSection$OpenLicences;
+
+    invoke-direct {v4, p0}, Lcom/isaigu/gymapp/widget/XemsLicenseSection$OpenLicences;-><init>(Landroid/app/Activity;)V
+
+    invoke-virtual {v1, v4}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 185
+    new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v5, -0x2
+
+    const/high16 v6, 0x42400000    # 48.0f
+
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v6
+
+    invoke-direct {v4, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v0, v1, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 186
+    const/16 v1, 0xa
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v1
+
+    invoke-virtual {v3, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 189
     const-string v0, "\u0421\u044a\u0440\u0432\u044a\u0440 \u203a"
 
     const-string v1, "Server \u203a"
@@ -856,7 +952,7 @@
 
     move-result-object v0
 
-    .line 179
+    .line 190
     const/4 v1, 0x0
 
     const/high16 v4, 0x41600000    # 14.0f
@@ -875,44 +971,44 @@
 
     invoke-virtual {v0, v1, v4, v5, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 180
+    .line 191
     invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 181
+    .line 192
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 182
+    .line 193
     const/16 v4, 0x10
 
     invoke-virtual {v1, v4}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 183
+    .line 194
     const/16 v4, 0x8
 
     invoke-virtual {v1, v4}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 184
+    .line 195
     const-string v4, "https://\u2026"
 
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->field(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/EditText;
 
     move-result-object v4
 
-    .line 185
+    .line 196
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->server()Ljava/lang/String;
 
     move-result-object v5
 
     invoke-virtual {v4, v5}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 186
+    .line 197
     const/16 v5, 0x11
 
     invoke-virtual {v4, v5}, Landroid/widget/EditText;->setInputType(I)V
 
-    .line 187
+    .line 198
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v6, 0x0
@@ -929,7 +1025,7 @@
 
     invoke-virtual {v1, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 188
+    .line 199
     const-string v5, "\u0417\u0430\u043f\u0430\u0437\u0438"
 
     const-string v6, "Save"
@@ -944,21 +1040,21 @@
 
     move-result-object v5
 
-    .line 189
+    .line 200
     new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v7, -0x2
 
     const/high16 v8, 0x42300000    # 44.0f
 
-    .line 190
+    .line 201
     invoke-static {p0, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v8
 
     invoke-direct {v6, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 191
+    .line 202
     const/high16 v7, 0x41200000    # 10.0f
 
     invoke-static {p0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -967,27 +1063,27 @@
 
     iput v7, v6, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 192
+    .line 203
     invoke-virtual {v1, v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 193
+    .line 204
     invoke-virtual {v3, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 194
+    .line 205
     new-instance v6, Lcom/isaigu/gymapp/widget/XemsLicenseSection$3;
 
     invoke-direct {v6, v1, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseSection$3;-><init>(Landroid/widget/LinearLayout;Landroid/widget/TextView;)V
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 202
+    .line 213
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsLicenseSection$4;
 
     invoke-direct {v1, v4, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseSection$4;-><init>(Landroid/widget/EditText;Landroid/widget/TextView;)V
 
     invoke-virtual {v5, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 210
+    .line 221
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x1
@@ -996,7 +1092,7 @@
 
     invoke-direct {v0, v1, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 212
+    .line 223
     const/high16 v1, 0x41e00000    # 28.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -1005,7 +1101,7 @@
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 213
+    .line 224
     invoke-virtual {v2, v3, v0}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     goto/16 :goto_6
@@ -1019,43 +1115,43 @@
 
     const/high16 v2, 0x41400000    # 12.0f
 
-    .line 345
+    .line 371
     new-instance v0, Landroid/widget/EditText;
 
     invoke-direct {v0, p0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 346
+    .line 372
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
-    .line 347
+    .line 373
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 348
+    .line 374
     const/high16 v1, 0x41800000    # 16.0f
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextSize(F)V
 
-    .line 349
+    .line 375
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 350
+    .line 376
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 351
+    .line 377
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 352
+    .line 378
     invoke-virtual {v0, v1, v3, v1, v3}, Landroid/widget/EditText;->setPadding(IIII)V
 
-    .line 353
+    .line 379
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -1078,7 +1174,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 354
+    .line 380
     return-object v0
 .end method
 
@@ -1086,7 +1182,7 @@
     .registers 3
 
     .prologue
-    .line 326
+    .line 352
     const-string v0, "timer"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1095,7 +1191,7 @@
 
     if-eqz v0, :cond_11
 
-    .line 327
+    .line 353
     const-string v0, "\u0422\u0430\u0439\u043c\u0435\u0440"
 
     const-string v1, "Timer"
@@ -1104,11 +1200,11 @@
 
     move-result-object v0
 
-    .line 341
+    .line 367
     :goto_10
     return-object v0
 
-    .line 329
+    .line 355
     :cond_11
     const-string v0, "music"
 
@@ -1118,7 +1214,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 330
+    .line 356
     const-string v0, "\u041c\u0443\u0437\u0438\u043a\u0430"
 
     const-string v1, "Music"
@@ -1129,7 +1225,7 @@
 
     goto :goto_10
 
-    .line 332
+    .line 358
     :cond_22
     const-string v0, "pulse"
 
@@ -1139,7 +1235,7 @@
 
     if-eqz v0, :cond_33
 
-    .line 333
+    .line 359
     const-string v0, "\u041f\u0443\u043b\u0441"
 
     const-string v1, "Heart rate"
@@ -1150,7 +1246,7 @@
 
     goto :goto_10
 
-    .line 335
+    .line 361
     :cond_33
     const-string v0, "ai"
 
@@ -1160,12 +1256,12 @@
 
     if-eqz v0, :cond_3e
 
-    .line 336
+    .line 362
     const-string v0, "AI"
 
     goto :goto_10
 
-    .line 338
+    .line 364
     :cond_3e
     const-string v0, "auto"
 
@@ -1175,7 +1271,7 @@
 
     if-eqz v0, :cond_4f
 
-    .line 339
+    .line 365
     const-string v0, "\u0410\u0432\u0442\u043e"
 
     const-string v1, "Auto"
@@ -1186,7 +1282,7 @@
 
     goto :goto_10
 
-    .line 341
+    .line 367
     :cond_4f
     const-string v0, "\u0427\u0430\u0441\u043e\u0432\u043d\u0438\u043a"
 
@@ -1203,10 +1299,10 @@
     .registers 7
 
     .prologue
-    .line 231
+    .line 257
     if-eqz p3, :cond_3b
 
-    .line 232
+    .line 258
     const-string v0, "reset"
 
     invoke-virtual {v0, p4}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1223,29 +1319,29 @@
 
     move-result-object v0
 
-    .line 234
+    .line 260
     :goto_12
     const/4 v1, 0x0
 
-    .line 232
+    .line 258
     invoke-static {p0, v0, v1}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
     move-result-object v0
 
-    .line 234
+    .line 260
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 236
+    .line 262
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->attach(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 237
+    .line 263
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->onLicenseChanged()V
 
-    .line 242
+    .line 268
     :goto_20
     return-void
 
-    .line 233
+    .line 259
     :cond_21
     const-string v0, "setup"
 
@@ -1265,7 +1361,7 @@
 
     goto :goto_12
 
-    .line 234
+    .line 260
     :cond_32
     const-string v0, "\u041c\u043e\u0434\u0443\u043b\u0438\u0442\u0435 \u0441\u0430 \u043e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u0438"
 
@@ -1277,13 +1373,13 @@
 
     goto :goto_12
 
-    .line 240
+    .line 266
     :cond_3b
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
     invoke-virtual {p2, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 241
+    .line 267
     invoke-static {p4}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->reason(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
@@ -1297,7 +1393,7 @@
     .registers 4
 
     .prologue
-    .line 282
+    .line 308
     const-string v0, "no_server"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1306,7 +1402,7 @@
 
     if-eqz v0, :cond_11
 
-    .line 283
+    .line 309
     const-string v0, "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u0435\u043d \u043a\u043b\u044e\u0447. \u041e\u0442\u043a\u043b\u044e\u0447\u0432\u0430\u043d\u0435 \u043f\u0440\u0435\u0437 \u0438\u043d\u0442\u0435\u0440\u043d\u0435\u0442 \u043e\u0449\u0435 \u043d\u0435 \u0435 \u043d\u0430\u043b\u0438\u0447\u043d\u043e."
 
     const-string v1, "Invalid key. Online unlocking is not available yet."
@@ -1315,11 +1411,11 @@
 
     move-result-object v0
 
-    .line 322
+    .line 348
     :goto_10
     return-object v0
 
-    .line 286
+    .line 312
     :cond_11
     const-string v0, "offline"
 
@@ -1329,7 +1425,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 287
+    .line 313
     const-string v0, "\u041d\u044f\u043c\u0430 \u0432\u0440\u044a\u0437\u043a\u0430 \u0441\u044a\u0441 \u0441\u044a\u0440\u0432\u044a\u0440\u0430. \u041e\u043f\u0438\u0442\u0430\u0439 \u043f\u0430\u043a."
 
     const-string v1, "Cannot reach the server. Try again."
@@ -1340,7 +1436,7 @@
 
     goto :goto_10
 
-    .line 289
+    .line 315
     :cond_22
     const-string v0, "invalid_key"
 
@@ -1350,7 +1446,7 @@
 
     if-eqz v0, :cond_33
 
-    .line 290
+    .line 316
     const-string v0, "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u0435\u043d \u043a\u043b\u044e\u0447"
 
     const-string v1, "Invalid key"
@@ -1361,7 +1457,7 @@
 
     goto :goto_10
 
-    .line 292
+    .line 318
     :cond_33
     const-string v0, "expired"
 
@@ -1371,7 +1467,7 @@
 
     if-eqz v0, :cond_44
 
-    .line 293
+    .line 319
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u0438\u0437\u0442\u0435\u043a\u044a\u043b"
 
     const-string v1, "The key has expired"
@@ -1382,7 +1478,7 @@
 
     goto :goto_10
 
-    .line 295
+    .line 321
     :cond_44
     const-string v0, "device_limit"
 
@@ -1392,7 +1488,7 @@
 
     if-eqz v0, :cond_55
 
-    .line 296
+    .line 322
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0432\u0435\u0447\u0435 \u0435 \u043f\u043e\u043b\u0437\u0432\u0430\u043d \u043d\u0430 \u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c\u0430 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0430"
 
     const-string v1, "The key is already used on the maximum number of devices"
@@ -1403,7 +1499,7 @@
 
     goto :goto_10
 
-    .line 298
+    .line 324
     :cond_55
     const-string v0, "pending"
 
@@ -1413,7 +1509,7 @@
 
     if-eqz v0, :cond_66
 
-    .line 299
+    .line 325
     const-string v0, "\u0422\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u0447\u0430\u043a\u0430 \u043e\u0434\u043e\u0431\u0440\u0435\u043d\u0438\u0435 \u043e\u0442 \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440\u0430"
 
     const-string v1, "The tablet is waiting for the admin\'s approval"
@@ -1424,7 +1520,7 @@
 
     goto :goto_10
 
-    .line 301
+    .line 327
     :cond_66
     const-string v0, "not_setup_code"
 
@@ -1434,7 +1530,7 @@
 
     if-eqz v0, :cond_77
 
-    .line 302
+    .line 328
     const-string v0, "\u0413\u0440\u0435\u0448\u043d\u0430 \u043f\u0430\u0440\u043e\u043b\u0430"
 
     const-string v1, "Wrong password"
@@ -1445,7 +1541,7 @@
 
     goto :goto_10
 
-    .line 304
+    .line 330
     :cond_77
     const-string v0, "revoked"
 
@@ -1463,7 +1559,7 @@
 
     if-eqz v0, :cond_90
 
-    .line 305
+    .line 331
     :cond_87
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u0441\u043f\u0440\u044f\u043d"
 
@@ -1475,7 +1571,7 @@
 
     goto :goto_10
 
-    .line 307
+    .line 333
     :cond_90
     const-string v0, "no_server_key"
 
@@ -1501,7 +1597,7 @@
 
     if-eqz v0, :cond_b2
 
-    .line 308
+    .line 334
     :cond_a8
     const-string v0, "\u041e\u0442\u0433\u043e\u0432\u043e\u0440\u044a\u0442 \u043d\u0430 \u0441\u044a\u0440\u0432\u044a\u0440\u0430 \u043d\u0435 \u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d (\u043f\u043e\u0434\u043f\u0438\u0441)"
 
@@ -1513,7 +1609,7 @@
 
     goto/16 :goto_10
 
-    .line 310
+    .line 336
     :cond_b2
     const-string v0, "other_device"
 
@@ -1523,7 +1619,7 @@
 
     if-eqz v0, :cond_c4
 
-    .line 311
+    .line 337
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u0438\u0437\u0434\u0430\u0434\u0435\u043d \u0437\u0430 \u0434\u0440\u0443\u0433\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e"
 
     const-string v1, "The key was issued for another device"
@@ -1534,7 +1630,7 @@
 
     goto/16 :goto_10
 
-    .line 313
+    .line 339
     :cond_c4
     const-string v0, "bad_checksum"
 
@@ -1544,7 +1640,7 @@
 
     if-eqz v0, :cond_d6
 
-    .line 314
+    .line 340
     const-string v0, "\u0418\u0437\u0442\u0435\u0433\u043b\u0435\u043d\u0438\u044f\u0442 \u0444\u0430\u0439\u043b \u0435 \u043f\u043e\u0432\u0440\u0435\u0434\u0435\u043d"
 
     const-string v1, "The download is damaged"
@@ -1555,7 +1651,7 @@
 
     goto/16 :goto_10
 
-    .line 316
+    .line 342
     :cond_d6
     const-string v0, "download_failed"
 
@@ -1565,7 +1661,7 @@
 
     if-eqz v0, :cond_e8
 
-    .line 317
+    .line 343
     const-string v0, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u0442\u043e \u043d\u0435 \u043c\u0438\u043d\u0430"
 
     const-string v1, "Download failed"
@@ -1576,7 +1672,7 @@
 
     goto/16 :goto_10
 
-    .line 319
+    .line 345
     :cond_e8
     const-string v0, "install_failed"
 
@@ -1586,7 +1682,7 @@
 
     if-eqz v0, :cond_fa
 
-    .line 320
+    .line 346
     const-string v0, "\u0418\u043d\u0441\u0442\u0430\u043b\u0430\u0442\u043e\u0440\u044a\u0442 \u043d\u0435 \u0441\u0435 \u043e\u0442\u0432\u043e\u0440\u0438"
 
     const-string v1, "The installer did not open"
@@ -1597,7 +1693,7 @@
 
     goto/16 :goto_10
 
-    .line 322
+    .line 348
     :cond_fa
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -1630,12 +1726,12 @@
     .registers 10
 
     .prologue
-    .line 258
+    .line 284
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->source()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 259
+    .line 285
     const-string v0, "arms_full"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->hasFeature(Ljava/lang/String;)Z
@@ -1644,7 +1740,7 @@
 
     if-eqz v0, :cond_3e
 
-    .line 260
+    .line 286
     const-string v0, " \u00b7 \u0440\u044a\u0446\u0435\u0442\u0435 \u0441 \u043d\u043e\u0440\u043c\u0430\u043b\u043d\u0430 \u0441\u0438\u043b\u0430 (\u0441\u0442\u044a\u043f\u043a\u0430 1:1)"
 
     const-string v2, " \u00b7 arms at normal strength (step 1:1)"
@@ -1653,7 +1749,7 @@
 
     move-result-object v0
 
-    .line 261
+    .line 287
     :goto_14
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isPending()Z
 
@@ -1667,7 +1763,7 @@
 
     if-nez v2, :cond_41
 
-    .line 262
+    .line 288
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1684,7 +1780,7 @@
 
     move-result-object v0
 
-    .line 265
+    .line 291
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->deviceIdShown()Ljava/lang/String;
 
     move-result-object v1
@@ -1697,17 +1793,17 @@
 
     move-result-object v0
 
-    .line 277
+    .line 303
     :goto_3d
     return-object v0
 
-    .line 260
+    .line 286
     :cond_3e
     const-string v0, ""
 
     goto :goto_14
 
-    .line 267
+    .line 293
     :cond_41
     const-string v2, "server"
 
@@ -1717,17 +1813,17 @@
 
     if-eqz v1, :cond_100
 
-    .line 268
+    .line 294
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->expiresS()J
 
     move-result-wide v2
 
-    .line 269
+    .line 295
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->plan()Ljava/lang/String;
 
     move-result-object v4
 
-    .line 270
+    .line 296
     const-wide/16 v6, 0x0
 
     cmp-long v1, v2, v6
@@ -1742,13 +1838,13 @@
 
     move-result-object v1
 
-    .line 272
+    .line 298
     :goto_5f
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->graceDaysLeft()I
 
     move-result v3
 
-    .line 273
+    .line 299
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -1798,7 +1894,7 @@
 
     move-result-object v2
 
-    .line 274
+    .line 300
     if-ltz v3, :cond_fd
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1852,7 +1948,7 @@
 
     goto/16 :goto_3d
 
-    .line 271
+    .line 297
     :cond_ca
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -1900,19 +1996,19 @@
 
     goto/16 :goto_5f
 
-    .line 273
+    .line 299
     :cond_fa
     const-string v2, ""
 
     goto :goto_8d
 
-    .line 274
+    .line 300
     :cond_fd
     const-string v1, ""
 
     goto :goto_bc
 
-    .line 277
+    .line 303
     :cond_100
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0431\u0435\u0437 \u0434\u043e\u043f\u044a\u043b\u043d\u0438\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u043c\u043e\u0434\u0443\u043b\u0438. \u0412\u044a\u0432\u0435\u0434\u0438 \u043a\u043b\u044e\u0447, \u0437\u0430 \u0434\u0430 \u0433\u0438 \u043e\u0442\u043a\u043b\u044e\u0447\u0438\u0448."
 
@@ -1929,7 +2025,7 @@
     .registers 2
 
     .prologue
-    .line 245
+    .line 271
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isPending()Z
 
     move-result v0
@@ -1946,7 +2042,7 @@
 
     if-nez v0, :cond_19
 
-    .line 246
+    .line 272
     const-string v0, "\u0427\u0430\u043a\u0430 \u043e\u0434\u043e\u0431\u0440\u0435\u043d\u0438\u0435"
 
     const-string v1, "Waiting for approval"
@@ -1955,11 +2051,11 @@
 
     move-result-object v0
 
-    .line 254
+    .line 280
     :goto_18
     return-object v0
 
-    .line 248
+    .line 274
     :cond_19
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isFull()Z
 
@@ -1967,7 +2063,7 @@
 
     if-eqz v0, :cond_28
 
-    .line 249
+    .line 275
     const-string v0, "\u041f\u044a\u043b\u0435\u043d \u0434\u043e\u0441\u0442\u044a\u043f"
 
     const-string v1, "Full access"
@@ -1978,7 +2074,7 @@
 
     goto :goto_18
 
-    .line 251
+    .line 277
     :cond_28
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->unlockedList()Ljava/util/List;
 
@@ -1990,7 +2086,7 @@
 
     if-nez v0, :cond_3b
 
-    .line 252
+    .line 278
     const-string v0, "\u0427\u0430\u0441\u0442\u0438\u0447\u0435\u043d \u0434\u043e\u0441\u0442\u044a\u043f"
 
     const-string v1, "Partial access"
@@ -2001,7 +2097,7 @@
 
     goto :goto_18
 
-    .line 254
+    .line 280
     :cond_3b
     const-string v0, "\u0411\u0430\u0437\u043e\u0432 \u0440\u0435\u0436\u0438\u043c"
 
@@ -2018,7 +2114,7 @@
     .registers 3
 
     .prologue
-    .line 359
+    .line 385
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     :try_end_3
@@ -2026,11 +2122,11 @@
 
     move-result-object p0
 
-    .line 361
+    .line 387
     :goto_4
     return-object p0
 
-    .line 360
+    .line 386
     :catch_5
     move-exception v0
 

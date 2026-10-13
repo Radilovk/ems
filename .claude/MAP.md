@@ -50,7 +50,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-impulse-display.py` (42L, build:L60) — Show impulse strength as percent instead of milliamps on the training screen.
 - `scripts/apply-interval-timer.py` (701L, build:L115[BETA_MUSIC]) — Interval timer: master button, draggable dial overlay, training sync hooks (settings sheet is Java/XemsUi).
 - `scripts/apply-lang-keep.py` (72L, build:L141[BETA_MUSIC]) — Keep the app's language (bg / en) after Android puts the system locale back.
-- `scripts/apply-languages.py` (185L, build:L52) — Limit app languages to Bulgarian and English.
+- `scripts/apply-languages.py` (187L, build:L52) — Limit app languages to Bulgarian and English.
 - `scripts/apply-list-theme.py` (46L, build:L55) — Fix connect-dialog list row colors set programmatically in adapters.
 - `scripts/apply-live-settings.py` (132L, build:L106[BETA_MUSIC]) — Settings saved from ⚙ Master (right panel) or a row's gear do not interrupt the training.
 - `scripts/apply-local-mode.py` (577L, build:L130[BETA_MUSIC]) — Local-only mode: users, programs, history and suits without xemsplus cloud sync.
@@ -72,7 +72,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-pulse-cycle-hook.py` (97L, build:L123[BETA_MUSIC]) — The pulse-cycle hook of TrainItem$2.onFinish (an ON phase begins) → AiSession.onPulseCycle, which drives the AI session…
 - `scripts/apply-quick-start.py` (111L, build:L137[BETA_MUSIC]) — Client list: ▶ quick start in every row, ↻ refresh next to the search (wearable/QuickStart).
 - `scripts/apply-ramp-setting.py` (77L, build:L135[BETA_MUSIC]) — Soft rise / fall (ramp) back in the program parameters dialog, in seconds (0.0–2.0 s).
-- `scripts/apply-session-report.py` (42L, build:L145[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
+- `scripts/apply-session-report.py` (49L, build:L145[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
 - `scripts/apply-settings-ui.py` (230L, build:L95) — Settings screen: language + dark/light theme only.
 - `scripts/apply-settings-username-theme.py` (64L, build:L92) — Dark-theme username label above avatar in operational settings dialog.
 - `scripts/apply-slider-theme.py` (374L, build:L61) — Improve vertical slider track depth and thumb contrast via smali patches.
@@ -131,6 +131,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/part-sim/shim/android/os/Looper.java` (7L) — Test shim.
 - `scripts/prune-languages.py` (73L) — Remove unused locale resource folders, keep only English and Bulgarian.
 - `scripts/pull-diag-logs.sh` (69L) — Pull music/crash diagnostic logs from a connected device into diag-logs/ (repo root).
+- `scripts/rebrand.py` (99L) — Rename the product in one go: the name lives in branding/brand.json ("name" = the short brand shown in texts, "app_name…
 - `scripts/remove-active-pause-settings.py` (106L, build:L91) — Remove active pause controls from program settings; operational screen only.
 - `scripts/remove-demo-mode.py` (262L, build:L97) — Remove all demo-mode smali patches and UI hooks from the decompiled APK.
 - `scripts/remove-ramp.py` (458L, build:L90) — Remove ramp UI and always send zero ramp bytes to the device.
@@ -354,7 +355,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XiaomiBandAuthStartRunnable.java` (17L, compile:music-sync*,wearable) — Deferred auth start after CCCD writes complete.
 - `XiaomiBandAuthTimeoutTask.java` (15L, compile:music-sync*,wearable) — 
 - `XiaomiBandBleClient.java` (1167L, compile:music-sync*,wearable) — Direct BLE client for Xiaomi Band 8 (encrypted V1 protocol on service 0xFE95).
-- `XiaomiBandCrypto.java` (182L, compile:music-sync*,wearable) — Crypto helpers for Xiaomi encrypted BLE V1 (ported from Gadgetbridge / miband-7-pro-monitor).
+- `XiaomiBandCrypto.java` (199L, compile:music-sync*,wearable) — Crypto of the Xiaomi encrypted BLE V1 link, written from the protocol description in docs/xiaomi-band8-direct-ble.md §4…
 - `XiaomiBandFraming.java` (110L, compile:music-sync*,wearable) — Xiaomi V1 BLE framing layer (service 0xFE95).
 - `XiaomiBandGattCallback.java` (154L, compile:music-sync*,wearable) — Top-level GATT callback (separate file for d8 compatibility).
 - `XiaomiBandInstaller.java` (209L, compile:music-sync*,wearable) — Installs a quick app (.rpk) on the band over the link XEMS already holds (Band 9 / 10, SPP).
@@ -391,7 +392,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLang.java` (114L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (430L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
 - `XemsLicenseClient.java` (628L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
-- `XemsLicenseSection.java` (365L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
+- `XemsLicenseSection.java` (391L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (223L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here; nothing goes to…
 - `XemsLocalAvatar.java` (1072L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
@@ -1262,27 +1263,6 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L65 ## In the Quest browser (WebXR) — the way it ships now
   - L79 ## Build / preview
   - L88 ## Licences
-
-`vr-workout/addons/godotopenxrvendors/GodotOpenXRVendors_CHANGES.md` (190L)
-  - L1 # Change history for the Godot OpenXR loaders asset
-  - L3 ## 4.3.1
-  - L8 ## 4.3.0
-  - L31 ## 4.2.2
-  - L36 ## 4.2.1
-  - L43 ## 4.2.0
-  - L73 ## 4.1.1
-  - L77 ## 4.1.0
-  - L89 ## 4.0.0
-  - L108 ## 3.1.2
-  - L112 ## 3.1.1
-  - L116 ## 3.1.0
-  - L128 ## 3.0.1
-  - L131 ## 3.0.0
-  - L151 ## 2.0.4
-  - L155 ## 2.0.3
-  - L162 ## 2.0.0
-  - L178 ## 1.1.0
-  - L183 ## 1.0.0
 
 `vr-workout/assets/CREDITS.md` (12L)
   - L1 # Asset credits

@@ -46,7 +46,7 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   `RATIO`; prefs `lock`). **2=1** (bottom): `DoubleImpulse.syncSecond` (= the double-impulse key's hold).
 - **Muscles show real strength** (`PartStrength.levels`: part % × the impulse's strength) of the impulse shown — the
   live phase while running, else the ring touched last — in its colour (number + bar); the chip slide works in that
-  real value (converted to the channel's share; since 1.1.440 it raises the impulse past its strength).
+  real value (converted to the channel's share; since 1.1.441 a slide = ± on that muscle alone).
 
 ## 1.1.417 — colours of a marked muscle
 - 1st tap = **red**: frame, number and bar in red, the bar = the channel's **main** impulse level.
@@ -79,9 +79,11 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 - **+** retries while the list lays the empty slot out (8 × 160 ms), then says so instead of doing nothing.
 
 ## 1.1.440 — chip slide past Интензитет 1, massage from the left mode
-- **Chip slide:** edge to edge of the chip = 20 of real strength (`SLIDE`), ≤ +20 per slide, up to 100. Above the
-  impulse's strength the impulse goes up and every other muscle keeps its real strength — the same as ± on a picked
-  muscle (`PartStrength.channelTo` → `apply(…, mayRaise)` + `follow` / `secondTo`). Before, it stopped at Интензитет 1.
+- **Chip slide (1.1.441, replaces 1.1.440's):** the slide = that many + / − on the muscle picked alone
+  (`PartStrength.channelBy` → `change` + `follow`, or `changeSecond` for a yellow muscle / the 2nd impulse's setup):
+  edge to edge of the chip = +20 of strength (`SLIDE`), ≤ +20 per slide, from 0 up to 100; both impulses together
+  unless the muscle is marked for the second alone; above Интензитет 1 the strength goes up and the other muscles
+  keep their real strength.
 - **Into Масаж** (board tab or the row's key): the massage starts from the strength and channel percents of the
   mode it leaves — the preset Основен or the client's own (`PartStrength.modeCarry`, hooked at the start of
   `TrainItem.setUserType` by `scripts/apply-double-impulse.py`). Before, it started at the massage's own 100 %.

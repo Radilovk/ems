@@ -1223,102 +1223,55 @@
 .end method
 
 .method static channel(II)V
-    .registers 7
+    .registers 5
 
     .prologue
-    const/4 v0, 0x1
-
-    const/4 v1, 0x0
-
     .line 1816
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    move-result-object v2
+    move-result-object v0
 
     .line 1817
-    invoke-static {v2}, Lcom/isaigu/gymapp/ai/FocusBoard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    move-result-object v3
+    move-result-object v1
 
-    .line 1818
-    if-eqz v3, :cond_1d
-
-    iget-object v4, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
-
-    if-eqz v4, :cond_1d
-
-    iget-object v4, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
-
-    iget-object v4, v4, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
-
-    if-eqz v4, :cond_1d
-
-    iget-object v3, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
-
-    iget-object v3, v3, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
-
-    array-length v3, v3
-
-    if-lt p0, v3, :cond_1e
-
-    .line 1828
-    :cond_1d
-    :goto_1d
-    return-void
-
-    .line 1822
-    :cond_1e
-    :try_start_1e
-    sget-object v3, Lcom/isaigu/gymapp/ai/FocusBoard;->chips:[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
-
-    aget-object v3, v3, p0
-
-    if-eqz v3, :cond_3a
-
-    sget-object v3, Lcom/isaigu/gymapp/ai/FocusBoard;->chips:[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
-
-    aget-object v3, v3, p0
-
-    iget v3, v3, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
-
-    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
-
-    if-ne v3, v4, :cond_3a
-
-    :goto_2e
-    invoke-static {v2, p0, p1, v0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->channelTo(Lcom/isaigu/gymapp/train/model/TrainItem;IIZ)V
-
-    .line 1823
-    const/4 v0, 0x0
-
-    const/4 v1, 0x1
-
-    invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addAllPartValue(IZ)V
-    :try_end_36
-    .catch Ljava/lang/Throwable; {:try_start_1e .. :try_end_36} :catch_3c
+    if-nez v1, :cond_b
 
     .line 1827
-    :goto_36
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
+    :goto_a
+    return-void
 
-    goto :goto_1d
-
-    :cond_3a
-    move v0, v1
+    .line 1821
+    :cond_b
+    :try_start_b
+    invoke-static {v0, p0, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->channelBy(Lcom/isaigu/gymapp/train/model/TrainItem;II)V
 
     .line 1822
-    goto :goto_2e
+    const/4 v1, 0x0
 
-    .line 1824
-    :catch_3c
+    const/4 v2, 0x1
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->addAllPartValue(IZ)V
+    :try_end_13
+    .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_13} :catch_17
+
+    .line 1826
+    :goto_13
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
+
+    goto :goto_a
+
+    .line 1823
+    :catch_17
     move-exception v0
 
-    .line 1825
+    .line 1824
     const-string v1, "FocusBoard.channel"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_36
+    goto :goto_13
 .end method
 
 .method static chipClick(I)V
@@ -3593,13 +3546,13 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 2467
+    .line 2466
     :try_start_1
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 2468
+    .line 2467
     invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
@@ -3614,7 +3567,7 @@
 
     move-result v1
 
-    .line 2469
+    .line 2468
     if-eqz v1, :cond_19
 
     invoke-virtual {p0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3623,12 +3576,12 @@
 
     move-result-object v0
 
-    .line 2471
+    .line 2470
     :cond_19
     :goto_19
     return-object v0
 
-    .line 2470
+    .line 2469
     :catch_1a
     move-exception v1
 
@@ -3721,13 +3674,13 @@
     .registers 3
 
     .prologue
-    .line 2477
+    .line 2476
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
 
     if-eqz v0, :cond_12
 
-    .line 2478
+    .line 2477
     sget-object v0, Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -3744,12 +3697,12 @@
     :try_end_12
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_12} :catch_13
 
-    .line 2482
+    .line 2481
     :cond_12
     :goto_12
     return-void
 
-    .line 2480
+    .line 2479
     :catch_13
     move-exception v0
 

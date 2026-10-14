@@ -368,54 +368,31 @@ public final class PartStrength {
         }
     }
 
-    // ================================================================ one channel to a real strength (focus board)
+    // ================================================================ one channel by a step (focus board)
 
     /**
-     * The focus board's chip slide released (owner, 1.1.440): channel {@code k} to the real strength {@code target}
-     * of the impulse the chip shows ({@code second}). Like + / − on a picked muscle — above the impulse's strength
-     * the impulse goes up (up to 100 / the second impulse's limit) and every other channel keeps its real strength.
-     * A yellow channel (2nd tap) or the second impulse's setup: the second impulse alone; otherwise both impulses
-     * move and keep this channel's ratio.
+     * The focus board's chip slide released (owner, 1.1.441): channel {@code k} by {@code delta} of real strength —
+     * exactly what that many + / − do on the muscle picked alone ({@link #addSelected}): both impulses move and keep
+     * the channel's ratio; a yellow channel (2nd tap) or the second impulse's setup — the second impulse alone. Above
+     * the impulse's strength it goes up and every other channel keeps its real strength.
      */
-    public static void channelTo(TrainItem item, int k, int target, boolean second) {
+    public static void channelBy(TrainItem item, int k, int delta) {
         ProgramDataBean b = bean(item);
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
-        if (parts == null || k < 0 || k >= parts.length) {
+        if (parts == null || k < 0 || k >= parts.length || delta == 0) {
             return;
         }
-        TrainProgram prog = item.getTrainProgram();
-        PartPick.touch();
         boolean[] one = new boolean[parts.length];
         one[k] = true;
-        target = clamp(target);
+        PartPick.touch();
         if (b.activePause && (DoubleImpulse.active(item) || PartPick.tappedYellow(k))) {
-            int[] t = secondReal(item, b);
-            t[k] = target;
-            secondTo(item, prog, b, one, t);       // picked yellow: the second alone
+            changeSecond(item, b, one, delta);
             return;
         }
-        int[] m0 = mainReal(b);
-        int[] s0 = b.activePause ? secondReal(item, b) : null;
-        int main = target;
-        if (second && s0 != null) {
-            // the chip showed the second impulse: the main goes where this channel's ratio puts it
-            int p2 = Math.min(b.pauseStrenthPercent, secondCap(item, b));
-            main = s0[k] > 0 ? clamp(Math.round(m0[k] * (double) target / s0[k]))
-                    : p2 > 0 ? clamp(Math.round(target * (double) b.strenth / p2)) : target;
-        }
-        int[] keep = b.activePause ? SecondParts.effective(b, parts) : SecondParts.get(b);
-        b.strenth = apply(parts, b.strenth, one, main, true, !MusicSync.isRunning());
-        if (keep != null && keep.length == parts.length) {
-            SecondParts.set(b, parts, keep);
-        }
+        int[] m0 = mainReal(b), s0 = b.activePause ? secondReal(item, b) : null;
+        change(item, b, one, delta);
         if (s0 != null) {
-            if (second) {
-                int[] t = secondReal(item, b);
-                t[k] = target;
-                secondTo(item, prog, b, one, t);   // the second exactly where the finger left it
-            } else {
-                follow(item, prog, b, one, m0, s0);
-            }
+            follow(item, item.getTrainProgram(), b, one, m0, s0);   // both impulses, same ratio
         }
     }
 

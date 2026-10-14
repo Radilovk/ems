@@ -44,13 +44,13 @@
     .end annotation
 
     .prologue
-    .line 1150
+    .line 1461
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1151
+    .line 1462
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$CloseLinks;->pads:Ljava/util/List;
 
-    .line 1152
+    .line 1463
     return-void
 .end method
 
@@ -60,7 +60,7 @@
     .registers 3
 
     .prologue
-    .line 1156
+    .line 1467
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$CloseLinks;->pads:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -80,14 +80,14 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
-    .line 1157
+    .line 1468
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->close()V
 
     goto :goto_6
 
-    .line 1159
+    .line 1470
     :cond_18
     return-void
 .end method

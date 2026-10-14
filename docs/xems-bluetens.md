@@ -2,7 +2,7 @@
 
 Source: the Bluetens Android app 7.0.105 (APKPure), an Ionic/Cordova app — the whole device logic is plain JS in
 `assets/www/build/main.js` (UltraCreation "loki" shell), so nothing below is guessed from traffic. Read on 2026-10-13.
-The vendor's 334 programs (`assets/www/assets/lok/*.lok`) are **not** in this repo (their content, not ours).
+The vendor's catalogued programs are in `branding/bluetens/programs.json` (scripts/bluetens/import-vendor.py); the APK is not.
 
 ## Device
 - Small TENS/EMS unit; the app drives one output per device with one strength step **1..60** (no per-channel control in the protocol).
@@ -59,7 +59,7 @@ of it mixes into the training screen. The owner has a classic pad and a Duo.
   right — time left with a bar, then one card per pad (classic, or Duo 1 / Duo 2) with its strength 0–60 big and
   − / + (hold repeats); footer — one primary ▶ Пусни / ■ Спри. Pads are found and linked by themselves (up to 2).
   Electrodes off → amber line on that pad's card. ⓘ = the impulse in numbers + how to place the electrodes.
-  **Closing the page stops the pads.**
+  **✕ stops the pads; "—" folds the window and they keep running (1.1.438).**
 - **Code** (compile:wearable): `BluetensLok` (format), `BluetensPrograms` (XEMS's ready programs), `BluetensProgram`
   + `BluetensStore` + `BluetensEditor` (the manual module), `BluetensShell`
   (the conversation: queue, one request in flight, strength coalescing, md5 → upload only when changed, keep-alive
@@ -91,8 +91,33 @@ of it mixes into the training screen. The owner has a classic pad and a Duo.
   100 µs. So 1 kHz works, but the 2.5–4 kHz kind (and a true sine) is out of the pad's reach: these are rectangular
   biphasic pulses. Width ≤ 250 µs. The burst rate goes through the same limits as Hz, so ≥ 20 bursts/s is an
   impulse with a pause. The classic setting is 4 ms × 50/s.
+- **Window over XEMS + the native programs** (1.1.438-ai, owner, 2026-10-14: "a modal window; minimised, Bluetens keeps
+  working; XEMS and Bluetens run together; every program of the native Bluetens app in our module; only on an unlocked
+  tablet"):
+  - The page is a large modal (96 % × 94 %), XEMS visible around it. **"—"** in the header (or Back while pads are
+    linked) folds it to a floating pill (`BluetensMini`): time left with a blinking dot, the program, ⚡ strength per
+    pad, ■ stop. The pill floats over XEMS (`FLAG_NOT_TOUCH_MODAL | FLAG_NOT_FOCUSABLE`: touches outside go to XEMS),
+    drags anywhere (place kept in prefs `mini_x` / `mini_y`), a tap opens the window again. The links, the shell and
+    the timers stay alive while folded — only **✕** closes and stops the pads. One window at a time
+    (`BluetensScreen.current`): the dock tile reopens the folded one.
+  - Fourth tab **"Bluetens"** (1.1.439-ai, owner: "every program of the native app, by body part — no dependency on
+    that app being installed"): the Bluetens app's own catalog, **shipped inside XEMS** — 219 programs, 17 body parts,
+    9 categories, Bulgarian names and descriptions. `scripts/bluetens/import-vendor.py <unpacked APK>/assets/www` reads
+    `assets/i18n/scriptfile.json` (FileName → category, mode, program family, body parts), `light.json` (the long
+    30–600 min variants), `bg|en/master.json, cat.json, ui.json` (names) and `assets/lok/*.lok`, checks every file with
+    `lok.py`, and writes `branding/bluetens/programs.json` (one file: catalog + the .lok text, ~165 KB);
+    apply-exercise-assets.py ships it as `assets/xems/bluetens.json`; `BluetensLibrary` reads it off the main thread.
+    The vendor's 132 other .lok files (not in its catalog — no name, not shown by the app) are left out. The
+    `Override` entries of scriptfile.json only change the exercise picture / text, not the file.
+    UI: chips "where on the body" (head → feet) → chips of the categories that part has → programs two to a row
+    (time · Hz · µs), a 📍 line where the electrodes go (`BluetensLibrary.placement`); ⓘ = the program's own
+    description. Played byte for byte, file `XNAT` on the pad; all inside 400 µs and ≤ 300 µs from 100 Hz (checked).
+    The vendor APK itself is not in the repo (owner's Google Drive copy, Bluetens 7.0.105 APKPure).
+  - **Only on an unlocked (admin) tablet** (`SuitStandard.unlocked()`): a locked tablet has no dock tile, no menu row,
+    and `BluetensScreen.open` does nothing.
 - Not done yet: no device test (protocol from the vendor app only); `>mode` (async, Eurocept) is not sent.
 
 ## Notes
 - Legal: talking to the device for interoperability is normally allowed; copying the vendor's programs or app
-  code is not — XEMS ships only programs it generates itself.
+  code is not. The owner decided (2026-10-14) to ship the Bluetens app's program files and catalog in XEMS
+  ("Bluetens" tab); XEMS's own programs ("Готови", "Мои", "На живо") are generated here.

@@ -8,11 +8,16 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.isaigu.gymapp.bodytech.SuitStandard;
 import com.isaigu.gymapp.wearable.WearableBlePermissions;
 import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsLang;
@@ -31,7 +36,11 @@ import java.util.Set;
  * control — frequency, width, impulse / pause and the Australian current change while the pads run,
  * {@link BluetensShell#swap}); the pads (classic, or the two of a
  * Duo) on the right with their strength big; one primary button ▶ / ■. The pads are found and linked by themselves.
- * Closing the page stops the output.
+ * "Bluetens" tab: the Bluetens app's own programs, shipped inside XEMS ({@link BluetensLibrary}) — body part, then
+ * category, then program; it says where the electrodes go.
+ * A modal window over XEMS (owner, 2026-10-14): "—" (or Back while pads are linked) folds it to a floating pill
+ * ({@link BluetensMini}) and the pads keep running while the trainer works in XEMS; a tap on the pill opens it again,
+ * the dock tile too. Only ✕ closes it — and closing stops the output. Only on an unlocked (admin) tablet.
  */
 public final class BluetensScreen {
     static final String PREFS = "xems_bluetens";
@@ -41,9 +50,32 @@ public final class BluetensScreen {
 
     private BluetensScreen() {}
 
+    /** The open window (shown or folded to the pill): one at a time, so the dock tile brings it back. */
+    static Page current;
+
+    /** Bluetens exists only on an unlocked (admin) tablet (owner, 2026-10-14). */
+    public static boolean allowed() {
+        return SuitStandard.unlocked();
+    }
+
     public static void open(Activity a) {
         try {
-            new Page(a).show();
+            if (!allowed()) {
+                return;
+            }
+            Page c = current;
+            if (c != null && !c.closed) {
+                if (c.a == a && !a.isFinishing()) {
+                    c.restore();
+                    return;
+                }
+                try {
+                    c.s.dialog.dismiss();                     // another activity: end the old window cleanly
+                } catch (Throwable ignored) {
+                }
+            }
+            current = new Page(a);
+            current.show();
         } catch (Throwable t) {
             XemsGuard.report("BluetensScreen.open", t);
         }
@@ -89,6 +121,17 @@ public final class BluetensScreen {
         String mineId = "";
         /** "На живо" tab: one step whose values change while it runs. */
         boolean live;
+        /** "Bluetens" tab: the library ({@code lib} null until read), the chosen body part / category / program. */
+        boolean libTab;
+        BluetensLibrary.Lib lib;
+        boolean libLoading;
+        String libPart = "";
+        String libCat = "";
+        String libFile = "";
+        BluetensLok libLok;
+        String libLokFile = "";
+        BluetensMini mini;
+        boolean minimized;
         BluetensProgram.Step liveStep;
         String liveFile = LIVE_A;
         String liveWhy = "";
@@ -127,6 +170,10 @@ public final class BluetensScreen {
             mine = prefs.getBoolean("mine", false);
             mineId = prefs.getString("mine_id", "");
             live = prefs.getBoolean("live", false);
+            libTab = prefs.getBoolean("lib", false);
+            libPart = prefs.getString("lib_part", "");
+            libCat = prefs.getString("lib_cat", "");
+            libFile = prefs.getString("lib_file", "");
             BluetensProgram lp = BluetensProgram.decode(prefs.getString("live_step", ""));
             liveStep = lp != null ? lp.steps.get(0) : liveDefault();
             BluetensProgram.safe(liveStep);
@@ -150,9 +197,16 @@ public final class BluetensScreen {
             XemsUi.init(a);
             s = XemsUi.shell(a, "Bluetens", tr("Електростимулация с Bluetens — отделно от костюма",
                     "Bluetens stimulation — apart from the suit"), 1280);
-            XemsUi.fullScreen(s);
+            modal();
             s.info.setVisibility(View.VISIBLE);
             s.info.setOnClickListener(new Info(this));
+            ViewGroup head = (ViewGroup) s.close.getParent();
+            TextView fold = XemsUi.iconButton(a, "—", XemsUi.SURFACE, XemsUi.TEXT, 36);
+            fold.setOnClickListener(new Minimize(this));
+            LinearLayout.LayoutParams fl = new LinearLayout.LayoutParams(dp(36), dp(36));
+            fl.leftMargin = dp(8);
+            head.addView(fold, head.indexOfChild(s.close), fl);
+            s.dialog.setOnKeyListener(new BackKey(this));
 
             LinearLayout row = XemsUi.horizontal(a);
             row.addView(leftColumn(), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -184,6 +238,65 @@ public final class BluetensScreen {
             WearableBlePermissions.ensureConnectPermission(a, new StartScan(this));
         }
 
+        /** A large window over XEMS (not a full page): XEMS stays in sight around it. */
+        void modal() {
+            Window w = s.dialog.getWindow();
+            if (w == null) {
+                return;
+            }
+            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            w.setLayout(Math.min(dp(1280), (int) (dm.widthPixels * 0.96f)), (int) (dm.heightPixels * 0.94f));
+            WindowManager.LayoutParams lp = w.getAttributes();
+            lp.dimAmount = 0.45f;
+            w.setAttributes(lp);
+        }
+
+        // ------------------------------------------------------------------ fold to the pill / open again
+
+        /** The window folds to the pill; the pads keep running, XEMS is free. */
+        void minimize() {
+            if (closed || minimized) {
+                return;
+            }
+            minimized = true;
+            if (mini == null) {
+                mini = new BluetensMini(a, this, prefs);
+            }
+            try {
+                s.dialog.hide();
+            } catch (Throwable ignored) {
+            }
+            mini.show();
+            render();
+        }
+
+        void restore() {
+            if (closed) {
+                return;
+            }
+            minimized = false;
+            if (mini != null) {
+                mini.hide();
+            }
+            try {
+                s.dialog.show();
+            } catch (Throwable t) {
+                XemsGuard.report("BluetensScreen.restore", t);
+            }
+            render();
+        }
+
+        /** ■ on the pill: every pad stops (the window stays folded, showing it stopped). */
+        void stopAll() {
+            hintText = null;
+            for (Pad p : pads) {
+                if (p.link.shell.running) {
+                    p.link.shell.stop();
+                }
+            }
+            render();
+        }
+
         LinearLayout leftColumn() {
             LinearLayout col = XemsUi.card(a);
             tabHolder = XemsUi.vertical(a);
@@ -201,11 +314,15 @@ public final class BluetensScreen {
         void fillPrograms() {
             tabHolder.removeAllViews();
             LinearLayout seg = XemsUi.segmented(a, new String[] {tr("Готови", "Ready"), tr("Мои · ръчно", "Mine · manual"),
-                    tr("На живо", "Live")}, live ? 2 : mine ? 1 : 0, new Tab(this));
+                    tr("На живо", "Live"), "Bluetens"}, tab(), new Tab(this));
             seg.setAlpha(running ? 0.4f : 1f);
             tabHolder.addView(seg);
             programList.removeAllViews();
-            minuteBox.setVisibility(mine && !live ? View.GONE : View.VISIBLE);
+            minuteBox.setVisibility(libTab || (mine && !live) ? View.GONE : View.VISIBLE);
+            if (libTab) {
+                fillLibrary();
+                return;
+            }
             if (live) {
                 fillLive();
                 return;
@@ -288,6 +405,160 @@ public final class BluetensScreen {
             add.setEnabled(!running);
             add.setAlpha(running ? 0.4f : 1f);
             programList.addView(add, XemsUi.matchWrap(a, 12));
+        }
+
+        // ------------------------------------------------------------------ "Bluetens": the vendor app's programs, in XEMS
+
+        /** The chosen library program (null while the library is read, or none chosen). */
+        BluetensLibrary.Prog libProg() {
+            return lib != null ? lib.find(libFile) : null;
+        }
+
+        /** Body part chips (head → feet), then the categories that part has, then its programs two to a row. */
+        void fillLibrary() {
+            if (lib == null) {
+                if (!libLoading) {
+                    libLoading = true;
+                    new LibraryLoader(this).start();
+                }
+                TextView wait = XemsUi.text(a, tr("Зареждам програмите…", "Loading the programs…"), 15, XemsUi.MUTED, false);
+                wait.setPadding(dp(4), dp(10), dp(4), dp(10));
+                programList.addView(wait);
+                return;
+            }
+            boolean b = bg();
+            int tint = BluetensMini.TINT;
+            programList.addView(XemsUi.label(a, tr("Къде на тялото", "Where on the body")), XemsUi.matchWrap(a, 4));
+            List<String[]> partChips = new ArrayList<String[]>();
+            partChips.add(new String[] {"", tr("Всички", "All")});
+            for (String[] p : lib.parts) {
+                partChips.add(new String[] {p[0], b ? p[1] : p[2]});
+            }
+            programList.addView(chipRow(partChips, libPart, true), XemsUi.matchWrap(a, 4));
+
+            List<String[]> catChips = new ArrayList<String[]>();
+            for (String[] c : lib.cats) {
+                for (BluetensLibrary.Prog p : lib.progs) {
+                    if (p.on(libPart) && p.cat.equals(c[0])) {
+                        catChips.add(new String[] {c[0], b ? c[1] : c[2]});
+                        break;
+                    }
+                }
+            }
+            boolean catKnown = libCat.length() == 0;
+            for (String[] c : catChips) {
+                catKnown |= c[0].equals(libCat);
+            }
+            if (!catKnown) {
+                libCat = "";
+            }
+            if (catChips.size() > 1) {
+                catChips.add(0, new String[] {"", tr("Всичко", "Everything")});
+                programList.addView(chipRow(catChips, libCat, false), XemsUi.matchWrap(a, 2));
+            }
+            String where = BluetensLibrary.placement(libPart, b);
+            if (where.length() > 0) {
+                TextView w = XemsUi.text(a, "📍 " + where, 13, XemsUi.MUTED, false);
+                w.setPadding(dp(4), dp(6), dp(4), dp(2));
+                programList.addView(w);
+            }
+
+            LinearLayout line = null;
+            int shown = 0;
+            for (BluetensLibrary.Prog p : lib.progs) {
+                if (!p.on(libPart) || (libCat.length() > 0 && !libCat.equals(p.cat))) {
+                    continue;
+                }
+                if (shown % 2 == 0) {
+                    line = XemsUi.horizontal(a);
+                    programList.addView(line, XemsUi.matchWrap(a, 4));
+                }
+                boolean sel = p.file.equals(libFile);
+                LinearLayout r = XemsUi.vertical(a);
+                r.setPadding(dp(12), dp(8), dp(10), dp(8));
+                float rad = dp(14);
+                r.setBackground(XemsUi.ripple(sel ? XemsUi.rounded(XemsUi.alpha(tint, 0x26), rad, XemsUi.alpha(tint, 0xCC), dp(1.5f))
+                        : XemsUi.rounded(XemsUi.alpha(XemsUi.SURFACE, 0x99), rad, 0, 0), tint, rad));
+                r.setClickable(true);
+                r.setOnClickListener(new PickLibrary(this, p.file));
+                XemsUi.pressable(r);
+                TextView nm = XemsUi.text(a, p.name(b), 15, sel ? XemsUi.GO_TEXT : XemsUi.TEXT, true);
+                nm.setMaxLines(2);
+                r.addView(nm);
+                String sub = String.format(Locale.ROOT, "%d:%02d", p.secs / 60, p.secs % 60) + " · "
+                        + (p.hzLo == p.hzHi ? String.valueOf(p.hzHi) : p.hzLo + "–" + p.hzHi) + " Hz · " + p.usHi + " µs";
+                if (libPart.length() == 0 && p.parts.length == 1) {
+                    sub = lib.partName(p.parts[0], b) + " · " + sub;
+                }
+                r.addView(XemsUi.text(a, sub, 12, XemsUi.MUTED, false));
+                r.setAlpha(running && !sel ? 0.4f : 1f);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                if (shown % 2 == 1) {
+                    lp.leftMargin = dp(6);
+                }
+                line.addView(r, lp);
+                shown++;
+            }
+            if (shown % 2 == 1 && line != null) {
+                line.addView(new View(a), new LinearLayout.LayoutParams(0, 1, 1f));
+            }
+        }
+
+        /** One sideways-sliding row of chips (body parts or categories). */
+        View chipRow(List<String[]> chips, String selected, boolean parts) {
+            HorizontalScrollView hs = new HorizontalScrollView(a);
+            hs.setHorizontalScrollBarEnabled(false);
+            LinearLayout row = XemsUi.horizontal(a);
+            for (String[] c : chips) {
+                boolean sel = c[0].equals(selected);
+                TextView chip = XemsUi.chip(a, c[1], sel, parts ? BluetensMini.TINT : XemsUi.GO);
+                chip.setOnClickListener(new LibraryChip(this, c[0], parts));
+                chip.setMinHeight(dp(44));
+                chip.setAlpha(running && !sel ? 0.4f : 1f);
+                XemsUi.addChip(a, row, chip);
+            }
+            hs.addView(row);
+            return hs;
+        }
+
+        void libraryLoaded(BluetensLibrary.Lib l) {
+            libLoading = false;
+            if (closed) {
+                return;
+            }
+            lib = l;
+            if (lib.find(libFile) == null) {
+                libFile = "";
+            }
+            if (tab() == 3) {
+                fillPrograms();
+            }
+            render();
+        }
+
+        void pickLibrary(String file) {
+            if (running || file.equals(libFile)) {
+                return;
+            }
+            libFile = file;
+            prefs.edit().putString("lib_file", file).apply();
+            finished = false;
+            fillPrograms();
+            render();
+        }
+
+        void libraryChip(String id, boolean part) {
+            if (running) {
+                return;
+            }
+            if (part) {
+                libPart = id;
+                libCat = "";
+            } else {
+                libCat = id;
+            }
+            prefs.edit().putString("lib_part", libPart).putString("lib_cat", libCat).apply();
+            fillPrograms();
         }
 
         /**
@@ -466,13 +737,18 @@ public final class BluetensScreen {
             return (lo == hi ? String.valueOf(lo) : lo + "–" + hi) + " Hz · " + us + " µs";
         }
 
+        int tab() {
+            return libTab ? 3 : live ? 2 : mine ? 1 : 0;
+        }
+
         void setTab(int i) {
-            if (running || i == (live ? 2 : mine ? 1 : 0)) {
+            if (running || i == tab()) {
                 return;
             }
             mine = i == 1;
             live = i == 2;
-            prefs.edit().putBoolean("mine", mine).putBoolean("live", live).apply();
+            libTab = i == 3;
+            prefs.edit().putBoolean("mine", mine).putBoolean("live", live).putBoolean("lib", libTab).apply();
             finished = false;
             fillPrograms();
             render();
@@ -521,6 +797,17 @@ public final class BluetensScreen {
 
         /** What ▶ would run now: null when "Мои" has nothing chosen. */
         BluetensLok currentLok() {
+            if (libTab) {
+                BluetensLibrary.Prog p = libProg();
+                if (p == null) {
+                    return null;
+                }
+                if (!p.file.equals(libLokFile)) {
+                    libLokFile = p.file;
+                    libLok = BluetensLok.parse(p.lok);
+                }
+                return libLok;
+            }
             if (live) {
                 return liveLok(minutes * 60000L);
             }
@@ -532,6 +819,10 @@ public final class BluetensScreen {
         }
 
         String currentName() {
+            if (libTab) {
+                BluetensLibrary.Prog p = libProg();
+                return p != null ? p.name(bg()) : "";
+            }
             if (live) {
                 return tr("На живо", "Live");
             }
@@ -703,6 +994,17 @@ public final class BluetensScreen {
                 h = tr("Сложи електродите и пусни. Силата започва от 1.", "Place the electrodes and start. Strength starts at 1.");
             }
             hint.setText(h);
+            if (mini != null && minimized) {
+                StringBuilder str = new StringBuilder();
+                for (Pad p : pads) {
+                    if (p.link.shell.running) {
+                        str.append(str.length() > 0 ? " · " : "⚡ ").append(p.link.shell.strength);
+                    }
+                }
+                mini.update(clock.getText().toString(), running ? currentName() : finished ? tr("Готово", "Done")
+                        : pads.isEmpty() ? tr("Търся Bluetens…", "Looking for Bluetens…") : currentName(),
+                        str.toString(), running, finished);
+            }
         }
 
         void renderPad(Pad p, int index) {
@@ -851,10 +1153,12 @@ public final class BluetensScreen {
             if (lok == null) {
                 return;
             }
-            byte[] content = BluetensShell.ascii(lok.build());
+            // a Bluetens program goes to the pad exactly as written; ours are built from the model
+            byte[] content = BluetensShell.ascii(libTab ? libProg().lok : lok.build());
             // own programs share one file on the pad (it is replaced when it changes — the md5 decides)
             liveFile = LIVE_A;
-            String file = live ? LIVE_A : mine ? "XMINE" : BluetensPrograms.fileName(program, minutes);
+            String file = libTab ? BluetensLibrary.FILE : live ? LIVE_A : mine ? "XMINE"
+                    : BluetensPrograms.fileName(program, minutes);
             lengthMs = (long) lok.ms();
             finished = false;
             for (Pad p : pads) {
@@ -959,6 +1263,13 @@ public final class BluetensScreen {
 
         void dismissed() {
             closed = true;
+            minimized = false;
+            if (mini != null) {
+                mini.hide();
+            }
+            if (current == this) {
+                current = null;
+            }
             if (scan != null) {
                 scan.stop();
             }
@@ -1232,6 +1543,112 @@ public final class BluetensScreen {
         }
     }
 
+    static final class Minimize implements View.OnClickListener {
+        final Page v;
+
+        Minimize(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.minimize();
+        }
+    }
+
+    /** Back with pads linked folds the window (they keep running); with none it closes, as before. */
+    static final class BackKey implements DialogInterface.OnKeyListener {
+        final Page v;
+
+        BackKey(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public boolean onKey(DialogInterface d, int code, KeyEvent e) {
+            if (code != KeyEvent.KEYCODE_BACK || (!v.running && v.pads.isEmpty())) {
+                return false;
+            }
+            if (e.getAction() == KeyEvent.ACTION_UP) {
+                v.minimize();
+            }
+            return true;
+        }
+    }
+
+    /** Reads the library off the main thread, then hands it to the page. */
+    static final class LibraryLoader extends Thread {
+        final Page v;
+
+        LibraryLoader(Page v) {
+            super("bluetens-library");
+            this.v = v;
+        }
+
+        @Override
+        public void run() {
+            BluetensLibrary.Lib l;
+            try {
+                l = BluetensLibrary.load(v.a.getApplicationContext());
+            } catch (Throwable t) {
+                XemsGuard.report("BluetensLibrary.load", t);
+                l = new BluetensLibrary.Lib();
+            }
+            v.main.post(new LibraryLoaded(v, l));
+        }
+    }
+
+    static final class LibraryLoaded implements Runnable {
+        final Page v;
+        final BluetensLibrary.Lib l;
+
+        LibraryLoaded(Page v, BluetensLibrary.Lib l) {
+            this.v = v;
+            this.l = l;
+        }
+
+        @Override
+        public void run() {
+            try {
+                v.libraryLoaded(l);
+            } catch (Throwable t) {
+                XemsGuard.report("BluetensScreen.library", t);
+            }
+        }
+    }
+
+    static final class PickLibrary implements View.OnClickListener {
+        final Page v;
+        final String file;
+
+        PickLibrary(Page v, String file) {
+            this.v = v;
+            this.file = file;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.pickLibrary(file);
+        }
+    }
+
+    static final class LibraryChip implements View.OnClickListener {
+        final Page v;
+        final String id;
+        final boolean part;
+
+        LibraryChip(Page v, String id, boolean part) {
+            this.v = v;
+            this.id = id;
+            this.part = part;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.libraryChip(id, part);
+        }
+    }
+
     static final class Info implements View.OnClickListener {
         final Page v;
 
@@ -1242,9 +1659,15 @@ public final class BluetensScreen {
         @Override
         public void onClick(View view) {
             boolean b = bg();
-            XemsUi.Shell s = XemsUi.shell(v.a, v.live ? tr("На живо", "Live") : v.mine ? tr("Ръчен режим", "Manual mode")
+            BluetensLibrary.Prog lp = v.libTab ? v.libProg() : null;
+            String[] ld = lp != null && v.lib != null ? v.lib.desc.get(lp.master) : null;
+            XemsUi.Shell s = XemsUi.shell(v.a, v.libTab ? (lp != null ? lp.name(b) : "Bluetens")
+                    : v.live ? tr("На живо", "Live") : v.mine ? tr("Ръчен режим", "Manual mode")
                     : BluetensPrograms.name(v.program, b),
-                    v.live ? tr("Стойностите се сменят, докато устройството работи: то получава нова програма за около "
+                    v.libTab ? (lp != null && v.lib != null ? v.lib.catName(lp.cat, b) + " · " + lp.secs / 60
+                            + tr(" мин", " min") : tr("Програмите на приложението Bluetens, вградени в XEMS.",
+                            "The Bluetens app's programs, built into XEMS."))
+                    : v.live ? tr("Стойностите се сменят, докато устройството работи: то получава нова програма за около "
                             + "секунда и силата се връща там, където беше. Австралийски ток — пакети по 1–5 мс от импулси "
                             + "с 1 kHz (най-високото, което устройството може, е 1,2 kHz — вариантът с 4 kHz не става); "
                             + "класиката е 4 мс пакети, 50 в секунда. Всичко стои в границите за безопасност на костюма.",
@@ -1262,16 +1685,29 @@ public final class BluetensScreen {
                     "• Започва от сила 1. Качвай, докато е приятно — никога до болка.",
                     "• Не върху гърдите при пейсмейкър, не по време на бременност, не върху рани.",
                     "• Duo: двете устройства тръгват заедно, силата е отделна за всяко.",
-                    "• Затвориш ли страницата, устройствата спират."}
+                    "• „—“ свива прозореца: устройствата продължават, а ти работиш в XEMS. Докосни балончето, за да го отвориш.",
+                    "• ✕ затваря прозореца и спира устройствата."}
                     : new String[] {
                     "• Electrodes on clean, dry skin over the muscle — not on a joint or bone.",
                     "• It starts at strength 1. Raise it until it feels good — never to pain.",
                     "• Not on the chest with a pacemaker, not in pregnancy, not on wounds.",
                     "• Duo: both pads start together; each has its own strength.",
-                    "• Closing the page stops the pads."};
+                    "• “—” folds the window: the pads keep going while you work in XEMS. Tap the pill to open it again.",
+                    "• ✕ closes the window and stops the pads."};
+            if (ld != null && (b ? ld[0] : ld[1]).length() > 0) {
+                s.body.addView(XemsUi.text(v.a, b ? ld[0] : ld[1], 15, XemsUi.TEXT, false), XemsUi.matchWrap(v.a, 4));
+            }
+            if (lp != null) {
+                String where = BluetensLibrary.placement(v.libPart.length() > 0 ? v.libPart
+                        : lp.parts.length == 1 ? lp.parts[0] : "", b);
+                if (where.length() > 0) {
+                    s.body.addView(XemsUi.text(v.a, "📍 " + where, 15, XemsUi.GO_TEXT, true), XemsUi.matchWrap(v.a, 12));
+                }
+            }
             for (String l : lines) {
                 s.body.addView(XemsUi.text(v.a, l, 15, XemsUi.TEXT, false), XemsUi.matchWrap(v.a, 8));
             }
+            XemsUi.fitHeight(v.a, s, 0.9f);
             s.dialog.show();
         }
     }

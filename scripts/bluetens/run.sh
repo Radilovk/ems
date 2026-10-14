@@ -11,6 +11,6 @@ mkdir -p "${OUT}/classes" "${OUT}/lok"
 javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${OUT}/classes" -cp "${JAR}" \
   -sourcepath "${ROOT}/branding/java/src:${ROOT}/branding/java-stubs" \
   "${D}/BluetensSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true
-java -Dfile.encoding=UTF-8 -cp "${OUT}/classes:${JAR}" BluetensSim "${OUT}/lok" 2>&1 | grep -v "Picked up"
+java -Drepo="${ROOT}" -Dfile.encoding=UTF-8 -cp "${OUT}/classes:${JAR}" BluetensSim "${OUT}/lok" 2>&1 | grep -v "Picked up"
 python3 "${D}/lok.py" --selftest
 python3 "${D}/lok.py" "${OUT}"/lok/*.lok | sed -n '1,40p'

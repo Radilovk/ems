@@ -1,4 +1,5 @@
 import com.isaigu.gymapp.wearable.bluetens.BluetensAdvert;
+import com.isaigu.gymapp.wearable.bluetens.BluetensLibrary;
 import com.isaigu.gymapp.wearable.bluetens.BluetensLok;
 import com.isaigu.gymapp.wearable.bluetens.BluetensProgram;
 import com.isaigu.gymapp.wearable.bluetens.BluetensPrograms;
@@ -533,6 +534,35 @@ public final class BluetensSim {
         }
     }
 
+    /** The Bluetens library shipped in XEMS (branding/bluetens/programs.json): every program reads, every part has some. */
+    static void library(File repo) throws Exception {
+        File f = new File(repo, "branding/bluetens/programs.json");
+        String json = new String(java.nio.file.Files.readAllBytes(f.toPath()), "UTF-8");
+        BluetensLibrary.Lib lib = BluetensLibrary.parse(json);
+        org.json.JSONObject root = new org.json.JSONObject(json);
+        int all = root.getJSONArray("programs").length();
+        check(lib.progs.size() == all, "library: all " + all + " programs read, got " + lib.progs.size());
+        check(lib.progs.size() >= 200, "library: 200+ programs");
+        check(lib.parts.size() >= 15, "library: 15+ body parts");
+        for (String[] part : lib.parts) {
+            int n = 0;
+            for (BluetensLibrary.Prog p : lib.progs) {
+                n += p.on(part[0]) ? 1 : 0;
+            }
+            check(n > 0, "library: programs for " + part[0]);
+            check(BluetensLibrary.placement(part[0], true).length() > 0, "library: placement for " + part[0]);
+            check(!part[1].matches("[A-Za-z ]+"), "library: Bulgarian name for " + part[0]);
+        }
+        for (BluetensLibrary.Prog p : lib.progs) {
+            check(p.secs > 0 && p.usHi <= 400, "library: " + p.file + " time / width");
+            check(p.nameBg.length() > 0 && p.cat.length() > 0, "library: " + p.file + " name + category");
+            check(BluetensShell.ascii(p.lok).length == p.lok.length(), "library: " + p.file + " is plain ASCII");
+        }
+        BluetensLibrary.Prog abs = lib.find("AEB_A");
+        check(abs != null && abs.on("abdomen") && "Тонизиране на корема".equals(abs.nameBg), "library: AEB_A = belly toning");
+        check(lib.desc.get("abdominal_tonicity") != null, "library: description kept");
+    }
+
     public static void main(String[] a) throws Exception {
         parsing();
         adverts();
@@ -542,6 +572,7 @@ public final class BluetensSim {
         programs(out);
         manual(out);
         aussie(out);
+        library(new File(System.getProperty("repo", ".")));
         if (fails > 0) {
             System.out.println(fails + " FAILED");
             System.exit(1);

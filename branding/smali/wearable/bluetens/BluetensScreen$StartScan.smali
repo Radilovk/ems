@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 979
+    .line 1290
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 980
+    .line 1291
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$StartScan;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 981
+    .line 1292
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 986
+    .line 1297
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$StartScan;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -50,15 +50,15 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 990
+    .line 1301
     :goto_5
     return-void
 
-    .line 987
+    .line 1298
     :catch_6
     move-exception v0
 
-    .line 988
+    .line 1299
     const-string v1, "BluetensScreen.scan"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

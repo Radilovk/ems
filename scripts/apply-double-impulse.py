@@ -5,6 +5,8 @@ The pulse engine already reads the running mode's bean (TrainProgram.matchProgra
 - TrainViewHolder: the 2nd-impulse MA / Hz buttons showed only in Основен (useType 0) and read
   programDataBean → shown in every mode but Мускули (useType 1), values of the running mode's bean.
 - TrainItem.setUserType: a mode change switched Основен's 2nd impulse off → each mode keeps its own.
+- TrainItem.setUserType: into Масаж → the massage starts from the left mode's strength and channel percents
+  (train/utils/PartStrength.modeCarry, owner 1.1.440; it started at the massage's own 100 %).
 The ⚙ dialog sets it per mode (dialog/PauseSetting); the buttons turn it on (wearable/TrainIndex).
 Runs after apply-train-index.py.
 """
@@ -139,9 +141,34 @@ def patch_restart() -> None:
     print("TrainItem: xemsRestartPulse()")
 
 
+CARRY_MARK = "# xems: massage starts from the left mode's strength"
+CARRY = ("    invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->modeCarry("
+         + TI + "I)V\n\n")
+
+
+def patch_carry() -> None:
+    """Hook PartStrength.modeCarry at the start of TrainItem.setUserType, before the mode changes."""
+    text = ITEM.read_text(encoding="utf-8")
+    if CARRY_MARK in text:
+        print("TrainItem.setUserType: mode carry already hooked")
+        return
+    a = text.find(".method public setUserType(I)V")
+    if a < 0:
+        sys.exit("apply-double-impulse: TrainItem.setUserType not found")
+    b = text.find(".end method", a)
+    body = text[a:b]
+    anchor = f"    iput p1, v0, {TP}->useType:I\n"
+    if body.count(anchor) != 1:
+        sys.exit("apply-double-impulse: setUserType has no single useType write")
+    body = body.replace(anchor, f"    {CARRY_MARK}\n" + CARRY + anchor, 1)
+    ITEM.write_text(text[:a] + body + text[b:], encoding="utf-8")
+    print("TrainItem.setUserType: massage starts from the left mode's strength")
+
+
 def main() -> None:
     patch_holder()
     patch_item()
+    patch_carry()
     patch_restart()
 
 

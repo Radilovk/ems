@@ -76,6 +76,8 @@ public final class FocusBoard {
     static final int HZ2 = 3;
     static final int T1 = 4;
     static final int T2 = 5;
+    /** A chip slide edge to edge = this much real strength (owner, 1.1.440). */
+    static final int SLIDE = 20;
 
     private static View root;
     private static View left;
@@ -1760,8 +1762,10 @@ public final class FocusBoard {
                         }
                     }
                     if (sliding) {
-                        float span = Math.max(1f, v.getWidth() * 1.2f);
-                        int val = Math.max(0, Math.min(chip.cap, start + Math.round((e.getRawX() - x0) / span * 100f)));
+                        // edge to edge of the chip = 20 (owner, 1.1.440); up to 100, ≤ +20 per slide (master rule)
+                        float span = Math.max(1f, v.getWidth());
+                        int top = Math.min(chip.cap, start + SLIDE);
+                        int val = Math.max(0, Math.min(top, start + Math.round((e.getRawX() - x0) / span * SLIDE)));
                         if (val != chip.dragValue) {
                             if (val % 10 == 0) {
                                 XemsUi.haptic(v);
@@ -1804,8 +1808,9 @@ public final class FocusBoard {
     }
 
     /**
-     * Channel {@code k} to the real strength {@code target} in the impulse the chips show: its share (percent of the
-     * impulse) is worked out from it and sent the row's channel-bar way (both impulses keep their ratio).
+     * Channel {@code k} to the real strength {@code target} in the impulse the chip shows — as + / − on a picked
+     * muscle: above the impulse's strength the impulse goes up and the other muscles keep their real strength
+     * ({@code PartStrength.channelTo}, owner 1.1.440; before, the slide stopped at Интензитет 1).
      */
     static void channel(int k, int target) {
         TrainItem it = current();
@@ -1814,18 +1819,7 @@ public final class FocusBoard {
             return;
         }
         try {
-            int part = b.strenthBean.buwei[k];
-            int stored;
-            if (chips[k] != null && chips[k].tint == XemsUi.AMBER) {
-                int[] s = PartStrength.levels(it, b, true);
-                int now = s != null && k < s.length ? s[k] : 0;
-                stored = now > 0 ? Math.round(part * target / (float) now)
-                        : b.pauseStrenthPercent > 0 ? Math.round(target * 100f / b.pauseStrenthPercent) : part;
-            } else {
-                stored = b.strenth > 0 ? (int) Math.ceil(target * 100.0 / b.strenth) : part;
-            }
-            stored = Math.max(0, Math.min(100, stored));
-            PartStrength.bar(chips[k] != null ? chips[k].view : null, it.getTrainProgram(), b, k, stored);
+            PartStrength.channelTo(it, k, target, chips[k] != null && chips[k].tint == XemsUi.AMBER);
             it.addAllPartValue(0, true);            // nothing added: just send and refresh the row
         } catch (Throwable t) {
             XemsGuard.report("FocusBoard.channel", t);
@@ -1901,7 +1895,7 @@ public final class FocusBoard {
         int dragValue = -1;
         int level;
         int tint = XemsUi.ACCENT;
-        /** The most the slide reaches: the impulse's own strength (a share is at most 100 % of it). */
+        /** The most the slide reaches: 100 (the impulse goes up with it; the second impulse's limit at send). */
         int cap = 100;
 
         Chip(Context c, int k, boolean compact) {
@@ -1957,9 +1951,7 @@ public final class FocusBoard {
             this.sel = sel;
             this.yellow = yellow;
             this.off = off;
-            TrainItem it = focus;
-            ProgramDataBean b = bean(it);
-            cap = b == null ? 100 : tint == XemsUi.AMBER ? Math.max(level, b.pauseStrenthPercent) : b.strenth;
+            cap = 100;
             repaint();
         }
 

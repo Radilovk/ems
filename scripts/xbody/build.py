@@ -122,6 +122,9 @@ def build_usb(entries, removes, version):
     (usb / "updater.sh").write_bytes(upd)
     os.chmod(usb / "updater.sh", 0o755)
     (usb / "README.txt").write_text(README.format(v=version))
+    uf2 = XB / "bridge/xems-bridge.uf2"
+    if uf2.exists():   # handy on the stick: the XIAO is flashed from any PC
+        shutil.copyfile(uf2, usb / "xems-bridge.uf2")
     zpath = OUT / f"xbody-usb-v{version}.zip"
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
         for p in sorted(usb.rglob("*")):
@@ -247,6 +250,16 @@ README = """XEMS мод за XBody — версия {v}
 4. Извади флашката, включи пак. Нашите стъпки (hooks) вървят при този старт.
 Дневник: xems-update.log на флашката. updater.sh става updater.done.sh,
 за да не се пуска отново.
+
+XEMS ЕКРАН (XIAO МОСТ)
+След инсталирането горе вдясно на XBody има малко копче "XEMS".
+1. XIAO nRF52840: с кабел към компютър, натисни бутона RESET два пъти бързо —
+   появява се нов диск (името започва с XIAO). Пусни върху него xems-bridge.uf2
+   от тази флашка. Платката се рестартира сама.
+2. Включи XIAO в USB порта на машината (по-добре на къс удължител, извън кутията).
+3. Докосни "XEMS" -> избери костюма -> сила, канали, Старт.
+   Последният костюм се свързва сам при следващото включване.
+Синя мигаща светлина на XIAO = търси, зелена = свързан костюм.
 
 ВРЪЩАНЕ НАЗАД
 Копието на заменените файлове е на флашката: xems/backup-ДАТА.*

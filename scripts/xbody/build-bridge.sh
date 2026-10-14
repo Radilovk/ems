@@ -1,6 +1,6 @@
 #!/bin/sh
 # XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
-# the XIAO-SENSE / XIAO-BOOT drive). arduino-cli + Seeeduino:nrf52 1.1.13 go to build/xtool/arduino.
+# the XIAO… drive that appears). arduino-cli + Seeeduino:nrf52 1.1.13 go to build/xtool/arduino.
 set -eu
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 T=$REPO/build/xtool

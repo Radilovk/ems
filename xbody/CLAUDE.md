@@ -1,6 +1,6 @@
-# xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app v1.7.14b)
+# xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
 
-System map: `docs/xbody-os.md`. Vendor layout: grep `xbody/base-manifest.tsv` (Bash grep; it is in `.ignore`).
+System map: `docs/xbody-os.md`. XEMS panel + XIAO bridge: `docs/xbody-xems-panel.md`. XBody internals: `docs/xbody-protocol.md`. Vendor layout: grep `xbody/base-manifest.tsv` (Bash grep; it is in `.ignore`).
 
 ## Model
 Only **our changes** live in git, never the vendor rootfs:
@@ -23,6 +23,12 @@ sh scripts/xbody/test.sh                               # must print ALL OK befor
 - SD-image route needs the raw card image (`fetch-base.py --id <drive id of .img/.img.gz/.zip>`); the
   current Drive file is a 7z **file dump** (symlinks flattened) — analysis only, never a base to write.
 - Outputs are gitignored; hand them over with SendUserFile, don't commit them.
+
+## Panel / bridge
+- Changed `xbody/panel/**` → `sh scripts/xbody/build-panel.sh` (tests + ARM build into the overlay, symbol check),
+  bump `overlay/opt/xems/VERSION`, commit the binary. Changed the firmware → `sh scripts/xbody/build-bridge.sh`, commit the `.uf2`.
+- C++98 (Qt 4 headers), no moc (virtual handlers only), no new GLIBC/GLIBCXX symbols (`compat.cpp`).
+- Check UI in qemu (`scripts/xbody/emu-panel.sh … client`) before shipping.
 
 ## Rules
 - Device shell is busybox 1.22 ash: no bash-isms, no `sha256sum`, no `tar -T`; LF line endings.

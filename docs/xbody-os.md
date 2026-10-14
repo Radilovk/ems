@@ -1,7 +1,8 @@
 # XBody unit — operating system map
 
 The XBody EMS machine's SD card, as dumped from the owner's card (Drive `xb.7z`, see
-`scripts/xbody/fetch-base.py`). Vendor app **v1.7.14b**. Full path list: `xbody/base-manifest.tsv`
+`scripts/xbody/fetch-base.py`). Vendor app **XBody Newave 3.2.0** (built 2017-06-20, log header;
+`v1.7.14b.version` is a stale marker). Full path list: `xbody/base-manifest.tsv`
 (grep it; `z` rows = 0-byte in the dump = symlinks on the real card). How we change it: `xbody/CLAUDE.md`.
 
 ## Platform
@@ -24,6 +25,7 @@ The XBody EMS machine's SD card, as dumped from the owner's card (Drive `xb.7z`,
 | S30 | `xbody-updater` | **USB update hook** (below) |
 | **S35** | `xems-firstboot` | **ours** — runs `/opt/xems/hooks/*.sh` once per mod version |
 | S40 | `xbody-start` | `/opt/xbody/xbody.sh &` |
+| **S41** | `xems-panel` | **ours** — XEMS panel over XBody (docs/xbody-xems-panel.md) |
 | S99 | qtdemo, rmnologin, stop-bootlogd | |
 
 Shutdown: `emsc-poweroff.sh` sends a power-off frame to the stimulator board over `ttymxc3`.
@@ -39,14 +41,15 @@ Shutdown: `emsc-poweroff.sh` sends a power-off frame to the stimulator board ove
 | `translations/<lang>/` | Qt translations, `bg` included |
 | `xbody.conf` | `online=0` |
 | `log.txt` | app log (75 MB on the owner's card) |
-| `v1.7.14b.version` | version marker (empty file) |
+| `v1.7.14b.version` | stale marker (empty); the app is Newave 3.2.0 |
 
 Qt settings: `/Settings/XBody/*.conf` (`translation=en`, `XBodyOnlineEnabled=false`), `/Settings/Trolltech.conf`.
 
 ## Stimulator link
-The GUI does not open the UART itself: `emsc-tcpseriald` bridges **TCP localhost:1235 ⇄ `/dev/ttymxc3`
-115200 8N1**. Frames are ASCII lines ending CRLF (the power-off script shows the shape). The TCP port is
-the natural point to observe or proxy the traffic without touching the vendor binaries.
+Full decode: `docs/xbody-protocol.md`.
+The GUI talks to `xbody_control`, which runs the impulse / pause clock and sends the board's state every 50 ms
+over **TCP localhost:1235**; `emsc-tcpseriald` bridges that to **`/dev/ttymxc3` 115200 8N1**. Frames are ASCII
+lines ending CRLF (`'S'` + hex + CRC-16/MODBUS).
 
 ## Network
 `/etc/network/interfaces`: `eth0` dhcp (auto), `wlan0` dhcp (auto, essid `xbodynetwork`, wpa_supplicant),

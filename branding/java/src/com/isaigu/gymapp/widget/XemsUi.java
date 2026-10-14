@@ -44,8 +44,8 @@ public final class XemsUi {
     public static int TEXT = 0xFFE6F3FF;
     public static int MUTED = 0xFF93AFC6;
     public static int HINT = 0xFF5E7A92;
-    public static int ACCENT = 0xFF22C3F5;
-    public static int ACCENT_DARK = 0xFF0A79B8;
+    public static int ACCENT = 0xFF37D0EB;
+    public static int ACCENT_DARK = 0xFF0C9AB6;
     public static int GO = 0xFF22C55E;
     public static int GO_TEXT = 0xFF4ADE80;
     public static int AMBER = 0xFFF5B021;
@@ -783,8 +783,8 @@ public final class XemsUi {
             TextView label = text(a, XemsLang.tr("Цвят:", "Colour:"), 26, TEXT, false);
             label.setPadding(0, 0, dp(a, 20), 0);
             row.addView(label);
-            row.addView(swatch(a, XemsLang.tr("Циан", "Cyan"), 0xFF22C3F5, !magenta, false));
-            View m = swatch(a, XemsLang.tr("Магента", "Magenta"), 0xFFF522F5, magenta, true);
+            row.addView(swatch(a, XemsLang.tr("Циан", "Cyan"), 0xFF37D0EB, !magenta, false));
+            View m = swatch(a, XemsLang.tr("Магента", "Magenta"), 0xFFE650AF, magenta, true);
             LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             ml.leftMargin = dp(a, 12);

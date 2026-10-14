@@ -320,7 +320,7 @@
     sput-object v0, Lcom/isaigu/gymapp/ai/FocusBoard;->RATIO:Ljava/util/WeakHashMap;
 
     .line 106
-    const v0, -0xdd3c0b
+    const v0, -0xc82f15
 
     sput v0, Lcom/isaigu/gymapp/ai/FocusBoard;->shownTint:I
 

@@ -103,7 +103,7 @@ public final class FocusBoard {
     private static boolean locked;
     private static final java.util.WeakHashMap<TrainItem, Float> RATIO = new java.util.WeakHashMap<TrainItem, Float>();
     /** Colour of the impulse the muscles show (cyan 1, yellow 2, grey pause). */
-    static int shownTint = 0xFF22C3F5;
+    static int shownTint = 0xFF37D0EB;
     private static final Chip[] chips = new Chip[AutoModel.CHANNELS];
     private static Ring ring1;
     private static Ring ring2;

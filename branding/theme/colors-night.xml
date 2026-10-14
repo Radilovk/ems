@@ -16,17 +16,17 @@
     <color name="calendar_month_text">#ffdcebfa</color>
     <color name="calendar_week_text">#ff8aa4ba</color>
     <color name="section_header_bg">#ff10202f</color>
-    <color name="accent_primary">#ff22c3f5</color>
-    <color name="accent_primary_dark">#ff0a79b8</color>
+    <color name="accent_primary">#ff37d0eb</color>
+    <color name="accent_primary_dark">#ff0c9ab6</color>
     <color name="list_selected_bg">#ff0d3a55</color>
-    <color name="list_selected_stroke">#ff22c3f5</color>
+    <color name="list_selected_stroke">#ff37d0eb</color>
     <color name="list_training_bg">#ff0e2a44</color>
     <color name="text_on_accent">#ffffffff</color>
     <color name="text_on_selected">#ffe8e8e8</color>
     <color name="channel_active">#ff4ade80</color>
     <color name="channel_inactive">#ff93afc6</color>
     <color name="device_available">#ff4ade80</color>
-    <color name="device_connected">#ff22c3f5</color>
+    <color name="device_connected">#ff37d0eb</color>
 
     <!-- Legacy color overrides so every screen picks up dark values -->
     <color name="light_gray_1">#ff060b14</color>
@@ -53,7 +53,7 @@
     <color name="pickerview_wheelview_textcolor_divider">#ff1c3a52</color>
     <color name="seekbar_back_gray">#ff1a3044</color>
     <color name="indicator_normal">#ff15293b</color>
-    <color name="indicator_select">#ff22c3f5</color>
+    <color name="indicator_select">#ff37d0eb</color>
     <color name="recycler_swipe_color_text_gray">#ff8aa4ba</color>
     <color name="black_color">#ffe6f3ff</color>
     <color name="white_color">#ffffffff</color>
@@ -61,7 +61,7 @@
     <color name="select_color_user_device_program_light">#7f0d3a55</color>
     <color name="cpb_red2">#ffdcebfa</color>
     <color name="green_color_font">#ff4ade80</color>
-    <color name="light_blue_exister">#ff0a79b8</color>
+    <color name="light_blue_exister">#ff0c9ab6</color>
     <color name="light_green_color">#ff4ade80</color>
     <color name="dark_green_color">#ff0f3d24</color>
     <color name="light_red_exister">#ffef4444</color>
@@ -80,7 +80,7 @@
     <color name="mode_button_text">#ffa9c2d6</color>
     <color name="mode_button_text_active">#ffffffff</color>
     <color name="tab_icon_unselected">#ffc9dcec</color>
-    <color name="ui_list_icon">#ff22c3f5</color>
+    <color name="ui_list_icon">#ff37d0eb</color>
     <color name="underline_color">#ff3b5770</color>
     <color name="ma_badge_bg">#ff132536</color>
     <color name="ma_badge_active_bg">#ff22c55e</color>

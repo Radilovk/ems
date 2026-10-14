@@ -384,7 +384,7 @@ public final class FocusBoard {
         try {
             switch (what) {
                 case INT1:
-                    if (PartStrength.addSelected(it, d)) {
+                    if (PartStrength.boardSelected(it, d, false)) {   // marked: as their chips (1.1.445)
                         break;
                     }
                     main(it, b, d);
@@ -394,7 +394,7 @@ public final class FocusBoard {
                         hint(AiText.t("Включи втория импулс с ∿.", "Turn the second impulse on with ∿."));
                         return;
                     }
-                    if (PartStrength.addSecondSelected(it, d)) {
+                    if (PartStrength.boardSelected(it, d, true)) {
                         break;                      // marked muscles: their second impulse (owner, 1.1.444)
                     }
                     pause(it, b, d);

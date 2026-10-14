@@ -129,7 +129,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
-- `scripts/part-sim/ChanFuzz.java` (43L) — Offline test of the focus board's chip slide (PartStrength.channelBy, 1.1.444): random rows, a channel slid up by 20 up…
+- `scripts/part-sim/ChanFuzz.java` (70L) — Offline test of the focus board's chip slide (PartStrength.channelBy, 1.1.444): random rows, a channel slid up by 20 up…
 - `scripts/part-sim/PartSim.java` (500L) — Offline test of the double-impulse button (wearable/DoubleImpulse: tap = setup / off, 5 s → normal, hold = sync) and of…
 - `scripts/part-sim/run.sh` (17L) — Offline test of the double-impulse button (setup / off / 5 s / sync) and the second impulse per channel
 - `scripts/part-sim/shim/android/os/Handler.java` (10L) — Test shim: the android.jar stub throws in the constructor.
@@ -259,7 +259,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSyncBridge.java` (39L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
 - `PartLook.java` (642L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
-- `PartStrength.java` (779L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
+- `PartStrength.java` (832L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
 
@@ -927,7 +927,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-focus-board.md` (104L)
+`docs/xems-focus-board.md` (111L)
   - L1 # Training screen — focus layout (1.1.412)
   - L7 ## Layout
   - L24 ## Rules
@@ -937,6 +937,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L72 ## 1.1.423 — board and rows in step, remove from the board
   - L81 ## 1.1.440 — chip slide past Интензитет 1, massage from the left mode
   - L94 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
+  - L105 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
 
 `docs/xems-license-api.md` (183L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

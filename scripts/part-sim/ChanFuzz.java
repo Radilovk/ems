@@ -35,6 +35,33 @@ public class ChanFuzz {
             if (room && (m2[k] != om[k] || (b.activePause && Math.abs(s2[k] - os[k]) > 1))) { backK++; if (backK < 4) System.out.println("k not back n=" + n + " " + om[k] + "/" + os[k] + " -> " + m2[k] + "/" + s2[k] + " yel=" + yellow + " ups=" + ups + " I1 " + I1 + "->" + b.strenth + " I2 " + I2 + "->" + b.pauseStrenthPercent); }
             if (Math.abs(b.strenth - I1) > 1 || (b.activePause && Math.abs(b.pauseStrenthPercent - I2) > 1)) { notBack++; if (notBack < 4) System.out.println("not back n=" + n + " I1 " + I1 + "->" + b.strenth + " I2 " + I2 + "->" + b.pauseStrenthPercent + " yellow=" + yellow + " om=" + om[k] + " os=" + os[k]); }
         }
+        // ring ± with 1–3 marked muscles (boardSelected, 1.1.445): ring 1 (green both / yellow second) and ring 2
+        int bFails = 0, bBack = 0, bRuns = 0;
+        for (int n = 0; n < 20000; n++) {
+            ProgramDataBean b = new ProgramDataBean(); b.strenthBean = new PartStrenthBean(); b.strenthBean.buwei = new int[10];
+            for (int i = 0; i < 10; i++) b.strenthBean.buwei[i] = r.nextInt(5) == 0 ? 0 : 20 + r.nextInt(81);
+            b.strenth = 10 + r.nextInt(80); b.activePause = true; b.pauseStrenthPercent = 5 + r.nextInt(Math.max(1, b.strenth));
+            TrainProgram tp = new TrainProgram(); tp.programDataBean = b; PartSim.Item it = new PartSim.Item(tp);
+            PartSim.Mgr mg = new PartSim.Mgr(); mg.list.add(it); PartSim.Frag fr = new PartSim.Frag(mg);
+            for (int i = 0; i < 10; i++) PartSim.taps(fr, mg, it.partsControl, i, 0);
+            int marks = 1 + r.nextInt(3);
+            for (int c = 0; c < marks; c++) PartSim.taps(fr, mg, it.partsControl, r.nextInt(10), 1 + r.nextInt(2));
+            boolean ring2 = r.nextInt(3) == 0;
+            int I1 = b.strenth, I2 = b.pauseStrenthPercent;
+            int[] om = PartSim.mainReal(b), os = PartSim.secondReal(it, b);
+            int ups = 1 + r.nextInt(30); bRuns++;
+            for (int u = 0; u < ups; u++) PartStrength.boardSelected(it, 1, ring2);
+            int[] m = PartSim.mainReal(b), s2 = PartSim.secondReal(it, b);
+            for (int i = 0; i < 10; i++) if (!it.partsControl[i] && (m[i] != om[i] || s2[i] != os[i])) { bFails++; if (bFails < 4) System.out.println("ring: other moved n=" + n + " ch" + i); }
+            for (int u = 0; u < ups; u++) PartStrength.boardSelected(it, -1, ring2);
+            int[] mb = PartSim.mainReal(b), sb = PartSim.secondReal(it, b);
+            for (int i = 0; i < 10; i++) if (!it.partsControl[i] && (mb[i] != om[i] || sb[i] != os[i])) { bFails++; if (bFails < 4) System.out.println("ring: other moved after n=" + n + " ch" + i); }
+            boolean clipped = false;
+            for (int i = 0; i < 10; i++) if (it.partsControl[i] && (om[i] + ups > 100 || os[i] + ups > 99 || om[i] < 1)) clipped = true;
+            if (!clipped && (Math.abs(b.strenth - I1) > 1 || Math.abs(b.pauseStrenthPercent - I2) > 1)) { bBack++; if (bBack < 4) System.out.println("ring: not back n=" + n + " I1 " + I1 + "->" + b.strenth + " I2 " + I2 + "->" + b.pauseStrenthPercent + " ring2=" + ring2); }
+        }
+        System.out.println("ChanFuzz ring runs=" + bRuns + " otherMoved=" + bFails + " notBack=" + bBack);
+        fails += bFails; notBack += bBack;
         System.out.println("ChanFuzz runs=" + runs + " otherMoved=" + fails + " notBack=" + notBack + " ratioOff=" + ratioOff + " notMax=" + notMax + " kNotBack=" + backK);
         if (fails > 0 || notBack > 0 || notMax > 0) { System.out.println("ChanFuzz: FAIL"); System.exit(1); }
         System.out.println("ChanFuzz: OK");

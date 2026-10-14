@@ -380,7 +380,7 @@ public final class PartStrength {
     /**
      * The focus board's chip slide released (owner, 1.1.444): channel {@code k} by {@code delta} of real strength.
      * <ul>
-     *   <li>green / unmarked — both impulses of the channel, its ratio kept ({@link #change} + {@link #follow});</li>
+     *   <li>green / unmarked — both impulses of the channel, its ratio kept;</li>
      *   <li>yellow (2nd tap) or the second impulse's setup — its second impulse alone, up to 100: above the 1.5 ×
      *       limit Интензитет 1 goes up first with every channel's main output kept exactly;</li>
      *   <li>then {@link #settle}: what the slides lifted Интензитет 1 / 2 by comes back down as the channel comes
@@ -390,11 +390,47 @@ public final class PartStrength {
     public static void channelBy(TrainItem item, int k, int delta) {
         ProgramDataBean b = bean(item);
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
-        if (parts == null || k < 0 || k >= parts.length || delta == 0) {
+        if (parts == null || k < 0 || k >= parts.length) {
             return;
         }
         boolean[] one = new boolean[parts.length];
         one[k] = true;
+        boolean y = b.activePause && (DoubleImpulse.active(item) || PartPick.tappedYellow(k));
+        move(item, b, y ? null : one, y ? one : null, delta);
+    }
+
+    /**
+     * The focus board's ring ± (and ring slide) with muscles marked (owner, 1.1.445): ring 1 — the marked muscles as
+     * their chips slide (green both impulses, yellow the second alone); ring 2 — their second impulse alone. Интензитет
+     * 1 / 2 go up as needed and come back down the same way. False when nothing is marked (the ring's own path).
+     */
+    public static boolean boardSelected(TrainItem item, int delta, boolean secondRing) {
+        try {
+            ProgramDataBean b = bean(item);
+            boolean[] sel = selection(item, b);
+            if (sel == null || (secondRing && !b.activePause)) {
+                return false;
+            }
+            if (secondRing) {
+                move(item, b, null, sel, delta);
+            } else {
+                boolean[] yel = yellow(item, b, sel);
+                boolean[] green = without(sel, yel);
+                move(item, b, any(green) ? green : null, yel, delta);
+            }
+            item.addAllPartValue(0, true);          // nothing added: just send and refresh
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** {@code green} channels: both impulses by delta (ratio kept); {@code yel}: the second alone; then settle. */
+    static void move(TrainItem item, ProgramDataBean b, boolean[] green, boolean[] yel, int delta) {
+        int[] parts = b.strenthBean.buwei;
+        if (delta == 0 || (!any(green) && !any(yel))) {
+            return;
+        }
         PartPick.touch();
         boolean music = MusicSync.isRunning();
         int[] lift = LIFT.get(b);
@@ -403,43 +439,77 @@ public final class PartStrength {
         }
         int base1 = lift != null ? lift[0] : b.strenth;
         int base2 = lift != null ? lift[1] : b.pauseStrenthPercent;
-        if (b.activePause && (DoubleImpulse.active(item) || PartPick.tappedYellow(k))) {
-            int t = clamp(secondReal(item, b)[k] + (long) delta);
+        int top = -1;                               // the strongest moved channel (a step short at the unit's top)
+        int[] m0 = mainReal(b);
+        for (int i = 0; i < parts.length; i++) {
+            if (((green != null && green[i]) || (yel != null && yel[i])) && (top < 0 || m0[i] > m0[top])) {
+                top = i;
+            }
+        }
+        if (any(yel) && b.activePause) {
+            int[] s = secondReal(item, b);
+            int t = 0;
+            for (int i = 0; i < parts.length; i++) {
+                if (yel[i]) {
+                    t = Math.max(t, clamp(s[i] + (long) delta));
+                }
+            }
             if (!music && t > secondCap(item, b)) {
                 int need = (int) Math.ceil(t * 100.0 / SafeLimits.PAUSE_PCT_MAX);
                 int[] m = mainReal(b);
-                write(item, b, m, secondReal(item, b), exactFrom(Math.max(b.strenth, need), 100, m, k),
-                        b.pauseStrenthPercent);
+                write(item, b, m, s, exactFrom(Math.max(b.strenth, need), 100, m, top), b.pauseStrenthPercent);
             }
-            changeSecond(item, b, one, delta);
-        } else {
-            int[] m0 = mainReal(b), s0 = b.activePause ? secondReal(item, b) : null;
-            change(item, b, one, delta);
+            changeSecond(item, b, yel, delta);
+        }
+        if (any(green)) {
+            int[] s0 = b.activePause ? secondReal(item, b) : null;
+            m0 = mainReal(b);
+            change(item, b, green, delta);
             if (s0 != null) {
-                // both impulses, the channel's ratio as it was when its slides began (no rounding creep)
+                // both impulses, each channel's ratio as it was when its changes began (no rounding creep)
                 double[] r = RATIO.get(b);
                 if (r == null || r.length != parts.length * 3) {
                     r = new double[parts.length * 3];
                     RATIO.put(b, r);
                 }
-                boolean same = r[3 * k + 1] == m0[k] && r[3 * k + 2] == s0[k];
-                double q = same ? r[3 * k] : m0[k] > 0 ? s0[k] / (double) m0[k] : -1;
-                int m1 = mainReal(b)[k];
-                if (q >= 0) {
-                    int[] t = secondReal(item, b);
-                    t[k] = clamp(Math.round(m1 * q));
-                    secondTo(item, item.getTrainProgram(), b, one, t);
-                } else {
-                    follow(item, item.getTrainProgram(), b, one, m0, s0);
-                    q = m1 > 0 ? secondReal(item, b)[k] / (double) m1 : -1;
+                int[] m1 = mainReal(b);
+                int[] t = secondReal(item, b);
+                boolean[] byRatio = new boolean[parts.length];
+                boolean[] byFollow = new boolean[parts.length];
+                for (int i = 0; i < parts.length; i++) {
+                    if (!green[i]) {
+                        continue;
+                    }
+                    boolean same = r[3 * i + 1] == m0[i] && r[3 * i + 2] == s0[i];
+                    double q = same ? r[3 * i] : m0[i] > 0 ? s0[i] / (double) m0[i] : -1;
+                    r[3 * i] = q;
+                    if (q >= 0) {
+                        t[i] = clamp(Math.round(m1[i] * q));
+                        byRatio[i] = true;
+                    } else {
+                        byFollow[i] = true;
+                    }
                 }
-                r[3 * k] = q;
-                r[3 * k + 1] = mainReal(b)[k];
-                r[3 * k + 2] = secondReal(item, b)[k];
+                if (any(byRatio)) {
+                    secondTo(item, item.getTrainProgram(), b, byRatio, t);
+                }
+                if (any(byFollow)) {
+                    follow(item, item.getTrainProgram(), b, byFollow, m0, s0);
+                }
+                int[] m2 = mainReal(b), s2 = secondReal(item, b);
+                for (int i = 0; i < parts.length; i++) {
+                    if (green[i]) {
+                        if (byFollow[i]) {
+                            r[3 * i] = m2[i] > 0 ? s2[i] / (double) m2[i] : -1;
+                        }
+                        r[3 * i + 1] = m2[i];
+                        r[3 * i + 2] = s2[i];
+                    }
+                }
             }
         }
         if (!music) {
-            settle(item, b, k, base1, base2);
+            settle(item, b, top, base1, base2);
         }
     }
 
@@ -532,23 +602,6 @@ public final class PartStrength {
             m = Math.max(m, a[i]);
         }
         return m;
-    }
-
-    /** Ring 2 ± with muscles marked: their second impulse alone (owner, 1.1.444). True when handled. */
-    public static boolean addSecondSelected(TrainItem item, int delta) {
-        try {
-            ProgramDataBean b = bean(item);
-            boolean[] sel = selection(item, b);
-            if (sel == null || !b.activePause) {
-                return false;
-            }
-            PartPick.touch();
-            changeSecond(item, b, sel, delta);
-            item.addAllPartValue(0, true);
-            return true;
-        } catch (Throwable t) {
-            return false;
-        }
     }
 
     /** The marked channels' second impulse (the strongest), −1 when none is marked. */

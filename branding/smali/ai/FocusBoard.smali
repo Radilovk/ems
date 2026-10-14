@@ -7396,39 +7396,41 @@
     sput v0, Lcom/isaigu/gymapp/ai/FocusBoard;->pick:I
 
     .line 385
-    packed-switch p0, :pswitch_data_72
+    packed-switch p0, :pswitch_data_74
 
     goto :goto_d
 
     .line 387
     :pswitch_1d
-    :try_start_1d
-    invoke-static {v1, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->addSelected(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
-    :try_end_20
-    .catch Ljava/lang/Throwable; {:try_start_1d .. :try_end_20} :catch_2b
+    const/4 v0, 0x0
+
+    :try_start_1e
+    invoke-static {v1, p1, v0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->boardSelected(Lcom/isaigu/gymapp/train/model/TrainItem;IZ)Z
+    :try_end_21
+    .catch Ljava/lang/Throwable; {:try_start_1e .. :try_end_21} :catch_2c
 
     move-result v0
 
-    if-eqz v0, :cond_27
+    if-eqz v0, :cond_28
 
     .line 424
-    :cond_23
-    :goto_23
+    :cond_24
+    :goto_24
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
     goto :goto_d
 
     .line 390
-    :cond_27
-    :try_start_27
+    :cond_28
+    :try_start_28
     invoke-static {v1, v2, p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->main(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;I)V
-    :try_end_2a
-    .catch Ljava/lang/Throwable; {:try_start_27 .. :try_end_2a} :catch_2b
+    :try_end_2b
+    .catch Ljava/lang/Throwable; {:try_start_28 .. :try_end_2b} :catch_2c
 
-    goto :goto_23
+    goto :goto_24
 
     .line 421
-    :catch_2b
+    :catch_2c
     move-exception v0
 
     .line 422
@@ -7436,16 +7438,16 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_23
+    goto :goto_24
 
     .line 393
-    :pswitch_32
-    :try_start_32
+    :pswitch_33
+    :try_start_33
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/FocusBoard;->second(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
     move-result v0
 
-    if-nez v0, :cond_44
+    if-nez v0, :cond_45
 
     .line 394
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0432\u0442\u043e\u0440\u0438\u044f \u0438\u043c\u043f\u0443\u043b\u0441 \u0441 \u223f."
@@ -7461,31 +7463,33 @@
     goto :goto_d
 
     .line 397
-    :cond_44
-    invoke-static {v1, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->addSecondSelected(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
+    :cond_45
+    const/4 v0, 0x1
+
+    invoke-static {v1, p1, v0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->boardSelected(Lcom/isaigu/gymapp/train/model/TrainItem;IZ)Z
 
     move-result v0
 
-    if-nez v0, :cond_23
+    if-nez v0, :cond_24
 
     .line 400
     invoke-static {v1, v2, p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->pause(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;I)V
 
-    goto :goto_23
+    goto :goto_24
 
     .line 403
-    :pswitch_4e
+    :pswitch_50
     invoke-virtual {v1, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addHz(I)V
 
-    goto :goto_23
+    goto :goto_24
 
     .line 406
-    :pswitch_52
+    :pswitch_54
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/FocusBoard;->second(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
     move-result v0
 
-    if-nez v0, :cond_64
+    if-nez v0, :cond_66
 
     .line 407
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0432\u0442\u043e\u0440\u0438\u044f \u0438\u043c\u043f\u0443\u043b\u0441 \u0441 \u223f."
@@ -7501,13 +7505,13 @@
     goto :goto_d
 
     .line 410
-    :cond_64
+    :cond_66
     invoke-virtual {v1, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addPauseHz(I)V
 
-    goto :goto_23
+    goto :goto_24
 
     .line 413
-    :pswitch_68
+    :pswitch_6a
     const/4 v0, 0x0
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->time(ZI)V
@@ -7515,24 +7519,24 @@
     goto :goto_d
 
     .line 416
-    :pswitch_6d
+    :pswitch_6f
     const/4 v0, 0x1
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->time(ZI)V
-    :try_end_71
-    .catch Ljava/lang/Throwable; {:try_start_32 .. :try_end_71} :catch_2b
+    :try_end_73
+    .catch Ljava/lang/Throwable; {:try_start_33 .. :try_end_73} :catch_2c
 
     goto :goto_d
 
     .line 385
-    :pswitch_data_72
+    :pswitch_data_74
     .packed-switch 0x0
         :pswitch_1d
-        :pswitch_32
-        :pswitch_4e
-        :pswitch_52
-        :pswitch_68
-        :pswitch_6d
+        :pswitch_33
+        :pswitch_50
+        :pswitch_54
+        :pswitch_6a
+        :pswitch_6f
     .end packed-switch
 .end method
 

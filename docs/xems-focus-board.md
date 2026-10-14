@@ -101,3 +101,10 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 - **Ring 2** with muscles marked shows their second impulse and its ± / slide moves it (`PartStrength.addSecondSelected`),
   as ring 1 shows / moves their main.
 - Checked offline: 20 000 random rows × up to 5 slides up and back (other muscles never move, rings come back).
+
+## 1.1.445 — ring ± with muscles marked: same as the chip slide
+- Ring 1 ± / slide with muscles marked = their chips' slide (`PartStrength.boardSelected` → `move`): green both
+  impulses (each channel's ratio fixed), yellow the second alone; ring 2 ± = their second impulse alone. Интензитет 1 / 2
+  go up as needed and come back down to where they were (`settle`). Nothing marked: the rings as before (2 follows 1
+  only with 🔒).
+- Checked offline (`scripts/part-sim/ChanFuzz.java`): 20 000 rows × 1–3 marked muscles, up to 30 steps up and back.

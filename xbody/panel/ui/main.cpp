@@ -2,7 +2,7 @@
 // On the unit: a QWS client of the running XBody GUI (/etc/init.d/xems-panel). In the emulator: `-qws` and
 //   XEMS_FAKE_BRIDGE=1  in-process bridge with two suits around
 //   XEMS_OPEN=1         start with the panel open (else only the corner tab)
-//   XEMS_SCRIPT="ms tap x y;ms shot file.png;ms quit"   taps in 1920×1080 design coordinates
+//   XEMS_SCRIPT="ms tap x y;ms shot file.png;ms quit"   taps in screen pixels (the unit: 800×600)
 #include "app.h"
 #include "panel.h"
 #include <QApplication>
@@ -27,10 +27,8 @@ protected:
             QStringList w = steps_[i_].trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
             if (w.isEmpty() || app_->now() < (unsigned)w[0].toInt()) return;
             i_++;
-            QRect scr = QApplication::desktop()->screenGeometry();
-            double k = scr.height() / 1080.0;
             if (w.size() >= 4 && w[1] == QLatin1String("tap")) {
-                QPoint g((int)(w[2].toInt() * k), (int)(w[3].toInt() * k));
+                QPoint g(w[2].toInt(), w[3].toInt());
                 if (panel_->isVisible()) panel_->tapAt(panel_->mapFromGlobal(g));
                 else if (tab_->isVisible() && tab_->geometry().contains(g)) tab_->tapAt(tab_->mapFromGlobal(g));
             } else if (w.size() >= 3 && w[1] == QLatin1String("shot")) {

@@ -9,6 +9,21 @@ static const char *XEMS_NAMES[10] = {"Гърди", "Корем", "Предно �
 // EMSFIT C1..C8 as the owner's bodytech setup names them (docs/xems-bodytech.md, 1.1.389).
 static const char *BT_NAMES[8] = {"Кръст", "Седалище", "Трапец", "Гръб", "Ляво бедро", "Ръце", "Дясно бедро", "Корем"};
 
+// XBody's training screen (TrainingWindow: two columns of BodyPartButton) — column 1: legext, legflex, bottom,
+// abdomen, waist; column 2: back, trapez, chest, arm, optional (= calf). XEMS indices as in XEMS_NAMES.
+static const Zone XEMS_ZONES[10] = {
+    {"Предно бедро", {2, 0}, 1, {"BodyLegFront", 0}}, {"Задно бедро", {9, 0}, 1, {"BodyLegBack", 0}},
+    {"Седалище", {8, 0}, 1, {"BodyBottom", 0}},       {"Корем", {1, 0}, 1, {"BodyAbdomen", 0}},
+    {"Кръст", {7, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {6, 0}, 1, {"BodyBack", 0}},
+    {"Трапец", {5, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {0, 0}, 1, {"BodyChest", 0}},
+    {"Ръце", {4, 0}, 1, {"BodyArm", 0}},              {"Прасец", {3, 0}, 1, {"BodyOptional", 0}}};
+// bodytech in the same order; its two thigh channels are one zone (owner: the same strength on both).
+static const Zone BT_ZONES[7] = {
+    {"Бедра", {4, 6}, 2, {"BodyLegFront", "BodyLegBack"}}, {"Седалище", {1, 0}, 1, {"BodyBottom", 0}},
+    {"Корем", {7, 0}, 1, {"BodyAbdomen", 0}},              {"Кръст", {0, 0}, 1, {"BodyWaist", 0}},
+    {"Гръб", {3, 0}, 1, {"BodyBack", 0}},                  {"Трапец", {2, 0}, 1, {"BodyTrapezius", 0}},
+    {"Ръце", {5, 0}, 1, {"BodyArm", 0}}};
+
 // ms from `since` to `now`, never negative (a stamp taken a moment later by the caller gives 0, not a wrap).
 static unsigned age(unsigned now, unsigned since) {
     int d = (int)(now - since);
@@ -28,6 +43,13 @@ const char *Suit::channelName(Kind k, int i) {
     if (k == XEMS) return i >= 0 && i < 10 ? XEMS_NAMES[i] : "";
     return i >= 0 && i < 8 ? BT_NAMES[i] : "";
 }
+
+int Suit::zones(Kind k, const Zone **out) {
+    *out = k == XEMS ? XEMS_ZONES : BT_ZONES;
+    return k == XEMS ? 10 : 7;
+}
+
+int Suit::zonesLeft(Kind k) { return k == XEMS ? 5 : 4; }
 
 void Suit::push(const Bytes &b, int tag) { out_.push_back(Item(b, tag)); }
 
@@ -112,6 +134,13 @@ void Suit::setStrength(int s) {
 void Suit::setChannel(int i, int pct) {
     if (i < 0 || i >= channels()) return;
     ch_[i] = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
+    if (impulse()) levels(rampStep_);
+}
+
+void Suit::setZone(const Zone &z, int pct) {
+    pct = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
+    for (int j = 0; j < z.n; j++)
+        if (z.ch[j] >= 0 && z.ch[j] < channels()) ch_[z.ch[j]] = pct;
     if (impulse()) levels(rampStep_);
 }
 

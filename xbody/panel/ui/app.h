@@ -42,6 +42,7 @@ public:
     void stopRun();
     void strengthStep(int d);
     void setChannel(int i, int pct);
+    void setZone(const Zone &z, int pct);
     void applyProgram(const Program &p, bool age60);   // through the safety limits, note if corrected
     void openPanel();
     void hidePanel();

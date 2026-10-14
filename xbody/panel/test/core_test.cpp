@@ -198,7 +198,34 @@ static void bridgeLines() {
     if (bridgecmd::write("AA:BB:CC:DD:EE:FF", xems::battery()) != "W AA:BB:CC:DD:EE:FF 5304055C\n") fails++;
 }
 
+static void zones() {
+    // Every channel on the screen exactly once, column 1 / column 2 as on XBody's screen.
+    for (int k = 0; k < 2; k++) {
+        Suit::Kind kind = k ? Suit::BODYTECH : Suit::XEMS;
+        Suit s(kind);
+        const Zone *z;
+        int n = Suit::zones(kind, &z), seen[Suit::MAX_CH] = {0}, total = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < z[i].n; j++) { seen[z[i].ch[j]]++; total++; }
+        eqInt(k ? "bt zones cover" : "x zones cover", s.channels(), total);
+        for (int c = 0; c < s.channels(); c++) eqInt("zone channel once", 1, seen[c]);
+    }
+    const Zone *z;
+    Suit::zones(Suit::BODYTECH, &z);
+    eqInt("bt zone 0 = thighs", 2, z[0].n);
+    Suit b(Suit::BODYTECH);
+    b.setZone(z[0], 35);
+    eqInt("thigh L", 35, b.channel(4));
+    eqInt("thigh R", 35, b.channel(6));
+    eqInt("thigh zone", 35, b.zone(z[0]));
+    eqInt("others kept", 100, b.channel(0));
+    Suit::zones(Suit::XEMS, &z);
+    eqInt("x col1 first = legext", 2, z[0].ch[0]);
+    eqInt("x col2 first = back", 6, z[Suit::zonesLeft(Suit::XEMS)].ch[0]);
+}
+
 int main() {
+    zones();
     bodytechGolden();
     xemsFrames();
     safety();

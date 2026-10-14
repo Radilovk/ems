@@ -164,7 +164,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/build-bridge.sh` (23L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (17L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
 - `scripts/xbody/build.py` (300L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
-- `scripts/xbody/emu-panel.sh` (34L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
+- `scripts/xbody/emu-panel.sh` (40L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
 - `scripts/xbody/qt-headers.sh` (33L) — Qt 4.8.6 headers matching the card's Qt Embedded (build key "arm linux g++-4 full-config", ARMv7 NEON softfp,
@@ -802,15 +802,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L50 ## Hardware channel ↔ XBody body part
   - L71 ## How it was read
 
-`docs/xbody-xems-panel.md` (74L)
-  - L1 # XEMS panel on the XBody unit (mod v2)
+`docs/xbody-xems-panel.md` (92L)
+  - L1 # XEMS panel on the XBody unit (mod v3)
   - L11 ## Status
   - L19 ## Use (owner)
   - L26 ## Panel
-  - L37 ## Bridge line protocol (USB CDC, 115200)
-  - L46 ## Files
-  - L56 ## Build / test
-  - L67 ## First test on the unit (when the XIAO arrives)
+  - L50 ## Bridge line protocol (USB CDC, 115200)
+  - L59 ## Files
+  - L69 ## Build / test
+  - L85 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1312,16 +1312,6 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L32 ## Тестове
   - L39 ## Deploy
   - L57 ## Разходи
-
-`tools/jadx/README.md` (206L)
-  - L3 ## JADX
-  - L40 ### Download
-  - L53 ### Install
-  - L67 ### Use jadx as a library
-  - L70 ### Build from source
-  - L83 ### Usage
-  - L195 ### Troubleshooting
-  - L198 ### Contributing
 
 `vr-bridge/README.md` (116L)
   - L1 # XEMS VR haptic bridge

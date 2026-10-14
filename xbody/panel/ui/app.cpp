@@ -138,6 +138,10 @@ void App::setChannel(int i, int pct) {
     if (suit_) suit_->setChannel(i, pct);
 }
 
+void App::setZone(const Zone &z, int pct) {
+    if (suit_) suit_->setZone(z, pct);
+}
+
 void App::applyProgram(const Program &p, bool age60) {
     std::string why;
     Suit probe(Suit::XEMS);

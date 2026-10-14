@@ -368,6 +368,91 @@ public final class PartStrength {
         }
     }
 
+    // ================================================================ one channel to a real strength (focus board)
+
+    /**
+     * The focus board's chip slide released (owner, 1.1.440): channel {@code k} to the real strength {@code target}
+     * of the impulse the chip shows ({@code second}). Like + / − on a picked muscle — above the impulse's strength
+     * the impulse goes up (up to 100 / the second impulse's limit) and every other channel keeps its real strength.
+     * A yellow channel (2nd tap) or the second impulse's setup: the second impulse alone; otherwise both impulses
+     * move and keep this channel's ratio.
+     */
+    public static void channelTo(TrainItem item, int k, int target, boolean second) {
+        ProgramDataBean b = bean(item);
+        int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+        if (parts == null || k < 0 || k >= parts.length) {
+            return;
+        }
+        TrainProgram prog = item.getTrainProgram();
+        PartPick.touch();
+        boolean[] one = new boolean[parts.length];
+        one[k] = true;
+        target = clamp(target);
+        if (b.activePause && (DoubleImpulse.active(item) || PartPick.tappedYellow(k))) {
+            int[] t = secondReal(item, b);
+            t[k] = target;
+            secondTo(item, prog, b, one, t);       // picked yellow: the second alone
+            return;
+        }
+        int[] m0 = mainReal(b);
+        int[] s0 = b.activePause ? secondReal(item, b) : null;
+        int main = target;
+        if (second && s0 != null) {
+            // the chip showed the second impulse: the main goes where this channel's ratio puts it
+            int p2 = Math.min(b.pauseStrenthPercent, secondCap(item, b));
+            main = s0[k] > 0 ? clamp(Math.round(m0[k] * (double) target / s0[k]))
+                    : p2 > 0 ? clamp(Math.round(target * (double) b.strenth / p2)) : target;
+        }
+        int[] keep = b.activePause ? SecondParts.effective(b, parts) : SecondParts.get(b);
+        b.strenth = apply(parts, b.strenth, one, main, true, !MusicSync.isRunning());
+        if (keep != null && keep.length == parts.length) {
+            SecondParts.set(b, parts, keep);
+        }
+        if (s0 != null) {
+            if (second) {
+                int[] t = secondReal(item, b);
+                t[k] = target;
+                secondTo(item, prog, b, one, t);   // the second exactly where the finger left it
+            } else {
+                follow(item, prog, b, one, m0, s0);
+            }
+        }
+    }
+
+    // ================================================================ mode change (row's mode keys)
+
+    /**
+     * Hook: start of TrainItem.setUserType (scripts/apply-double-impulse.py) — the row's mode keys, the focus board's
+     * mode tabs press them. Going into Масаж (useType 3) the massage starts from the strength and the channel
+     * percents of the mode it leaves — the preset Основен or what the client had (owner, 1.1.440: it started at the
+     * massage's own 100 %). The massage's times, Hz and 2nd impulse stay its own.
+     */
+    public static void modeCarry(TrainItem item, int to) {
+        try {
+            TrainProgram p = item != null ? item.getTrainProgram() : null;
+            if (p == null || to != 3 || p.useType == to) {
+                return;
+            }
+            ProgramDataBean from = p.matchProgram();
+            ProgramDataBean m = p.massageModeProgramDataBean;
+            if (from == null || m == null || from == m || from.strenthBean == null || from.strenthBean.buwei == null) {
+                return;
+            }
+            int[] src = from.strenthBean.buwei;
+            if (m.strenthBean == null) {
+                m.strenthBean = new PartStrenthBean();
+            }
+            int[] dst = m.strenthBean.buwei;
+            if (dst == null || dst.length != src.length) {
+                m.strenthBean.buwei = src.clone();
+            } else {
+                System.arraycopy(src, 0, dst, 0, src.length);
+            }
+            m.strenth = clamp(from.strenth);
+        } catch (Throwable ignored) {
+        }
+    }
+
     // ================================================================ a channel's own bar (row)
 
     /**

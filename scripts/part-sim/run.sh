@@ -9,7 +9,8 @@ JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 OUT="$(mktemp -d)"; SHIM="$(mktemp -d)"; trap 'rm -rf "${OUT}" "${SHIM}"' EXIT
 javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${OUT}" -cp "${JAR}" \
   -sourcepath "${ROOT}/branding/java/src:${ROOT}/branding/java-stubs" \
-  "${D}/PartSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true
+  "${D}/PartSim.java" "${D}/ChanFuzz.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true
 # android.os.Handler / Looper shims first at run time only: the android.jar stubs throw "Stub!"
 javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${SHIM}" "${D}/shim/android/os/Handler.java" "${D}/shim/android/os/Looper.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true
 java -cp "${SHIM}:${OUT}:${JAR}" com.isaigu.gymapp.train.utils.PartSim 2>&1 | grep -v "Picked up"
+java -cp "${SHIM}:${OUT}:${JAR}" com.isaigu.gymapp.train.utils.ChanFuzz 2>&1 | grep -v "Picked up\|^FAIL: taps\|^ratio n=\|^k not back" | tail -3

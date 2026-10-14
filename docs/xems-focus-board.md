@@ -90,3 +90,21 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   mode it leaves — the preset Основен or the client's own (`PartStrength.modeCarry`, hooked at the start of
   `TrainItem.setUserType` by `scripts/apply-double-impulse.py`). Before, it started at the massage's own 100 %.
   The massage's times, Hz and 2nd impulse stay its own.
+
+## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
+- **Green / unmarked:** both impulses of the channel, its ratio fixed when its slides began (`PartStrength.RATIO`, no
+  rounding creep). Above Интензитет 1 both rings go up, 2 in proportion to 1; going down they come back to where they
+  were (`settle`, the lift kept in `LIFT` while nothing else moves the strengths). Every other muscle's output (both
+  impulses) stays exactly; at the unit's top (100) the slid muscle stops a step short rather than move another.
+- **Yellow (2nd tap / the setup):** its second impulse alone, up to 100: above the 1.5 × limit Интензитет 1 goes up
+  first with every channel's main output kept exactly (the limit holds for the strengths), and comes back down.
+- **Ring 2** with muscles marked shows their second impulse and its ± / slide moves it (`PartStrength.addSecondSelected`),
+  as ring 1 shows / moves their main.
+- Checked offline: 20 000 random rows × up to 5 slides up and back (other muscles never move, rings come back).
+
+## 1.1.445 — ring ± with muscles marked: same as the chip slide
+- Ring 1 ± / slide with muscles marked = their chips' slide (`PartStrength.boardSelected` → `move`): green both
+  impulses (each channel's ratio fixed), yellow the second alone; ring 2 ± = their second impulse alone. Интензитет 1 / 2
+  go up as needed and come back down to where they were (`settle`). Nothing marked: the rings as before (2 follows 1
+  only with 🔒).
+- Checked offline (`scripts/part-sim/ChanFuzz.java`): 20 000 rows × 1–3 marked muscles, up to 30 steps up and back.

@@ -384,7 +384,7 @@ public final class FocusBoard {
         try {
             switch (what) {
                 case INT1:
-                    if (PartStrength.addSelected(it, d)) {
+                    if (PartStrength.boardSelected(it, d, false)) {   // marked: as their chips (1.1.445)
                         break;
                     }
                     main(it, b, d);
@@ -393,6 +393,9 @@ public final class FocusBoard {
                     if (!second(it, b)) {
                         hint(AiText.t("Включи втория импулс с ∿.", "Turn the second impulse on with ∿."));
                         return;
+                    }
+                    if (PartStrength.boardSelected(it, d, true)) {
+                        break;                      // marked muscles: their second impulse (owner, 1.1.444)
                     }
                     pause(it, b, d);
                     break;
@@ -428,7 +431,7 @@ public final class FocusBoard {
         if (b == null) {
             return;
         }
-        int now = what == INT2 ? b.pauseStrenthPercent : ringLevel(it, b);
+        int now = what == INT2 ? ring2Level(it, b) : ringLevel(it, b);
         step(what, target - now);
     }
 
@@ -474,6 +477,12 @@ public final class FocusBoard {
             RATIO.put(it, r);
         }
         return r;
+    }
+
+    /** What ring 2 stands for: the marked muscles' second impulse, or the second impulse's strength. */
+    private static int ring2Level(TrainItem it, ProgramDataBean b) {
+        int lv = PartStrength.selectedSecond(it);
+        return lv >= 0 ? lv : b.pauseStrenthPercent;
     }
 
     /** What ring 1 stands for: the marked muscles' level, or the main strength. */
@@ -1350,7 +1359,7 @@ public final class FocusBoard {
             ring1Label.setText(anyMark ? AiText.t("Избрани мускули", "Selected muscles")
                     : AiText.t("Интензитет 1", "Intensity 1"));
             ring1.set(anyMark ? markLevel : b.strenth, true, run && shown == 1);
-            ring2.set(b.pauseStrenthPercent, two, run && shown == 2);
+            ring2.set(anyMark && two ? ring2Level(it, b) : b.pauseStrenthPercent, two, run && shown == 2);
             ring2Steps.setAlpha(two ? 1f : 0.35f);
             lockKey.setAlpha(two ? 1f : 0.35f);
             syncKey.setAlpha(two ? 1f : 0.35f);

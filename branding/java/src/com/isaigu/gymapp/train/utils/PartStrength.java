@@ -370,29 +370,251 @@ public final class PartStrength {
 
     // ================================================================ one channel by a step (focus board)
 
+    /** Per program bean: what the chip slides lifted — {Интензитет 1, 2 before; 1, 2 as set}. */
+    private static final java.util.Map<ProgramDataBean, int[]> LIFT =
+            new java.util.WeakHashMap<ProgramDataBean, int[]>();
+    /** Per program bean, per channel: {second ÷ main when its slides began, main, second as left}. */
+    private static final java.util.Map<ProgramDataBean, double[]> RATIO =
+            new java.util.WeakHashMap<ProgramDataBean, double[]>();
+
     /**
-     * The focus board's chip slide released (owner, 1.1.441): channel {@code k} by {@code delta} of real strength —
-     * exactly what that many + / − do on the muscle picked alone ({@link #addSelected}): both impulses move and keep
-     * the channel's ratio; a yellow channel (2nd tap) or the second impulse's setup — the second impulse alone. Above
-     * the impulse's strength it goes up and every other channel keeps its real strength.
+     * The focus board's chip slide released (owner, 1.1.444): channel {@code k} by {@code delta} of real strength.
+     * <ul>
+     *   <li>green / unmarked — both impulses of the channel, its ratio kept;</li>
+     *   <li>yellow (2nd tap) or the second impulse's setup — its second impulse alone, up to 100: above the 1.5 ×
+     *       limit Интензитет 1 goes up first with every channel's main output kept exactly;</li>
+     *   <li>then {@link #settle}: what the slides lifted Интензитет 1 / 2 by comes back down as the channel comes
+     *       down, never under where they were; 2 moves in proportion to 1; every other channel keeps its output.</li>
+     * </ul>
      */
     public static void channelBy(TrainItem item, int k, int delta) {
         ProgramDataBean b = bean(item);
         int[] parts = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
-        if (parts == null || k < 0 || k >= parts.length || delta == 0) {
+        if (parts == null || k < 0 || k >= parts.length) {
             return;
         }
         boolean[] one = new boolean[parts.length];
         one[k] = true;
-        PartPick.touch();
-        if (b.activePause && (DoubleImpulse.active(item) || PartPick.tappedYellow(k))) {
-            changeSecond(item, b, one, delta);
+        boolean y = b.activePause && (DoubleImpulse.active(item) || PartPick.tappedYellow(k));
+        move(item, b, y ? null : one, y ? one : null, delta);
+    }
+
+    /**
+     * The focus board's ring ± (and ring slide) with muscles marked (owner, 1.1.445): ring 1 — the marked muscles as
+     * their chips slide (green both impulses, yellow the second alone); ring 2 — their second impulse alone. Интензитет
+     * 1 / 2 go up as needed and come back down the same way. False when nothing is marked (the ring's own path).
+     */
+    public static boolean boardSelected(TrainItem item, int delta, boolean secondRing) {
+        try {
+            ProgramDataBean b = bean(item);
+            boolean[] sel = selection(item, b);
+            if (sel == null || (secondRing && !b.activePause)) {
+                return false;
+            }
+            if (secondRing) {
+                move(item, b, null, sel, delta);
+            } else {
+                boolean[] yel = yellow(item, b, sel);
+                boolean[] green = without(sel, yel);
+                move(item, b, any(green) ? green : null, yel, delta);
+            }
+            item.addAllPartValue(0, true);          // nothing added: just send and refresh
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** {@code green} channels: both impulses by delta (ratio kept); {@code yel}: the second alone; then settle. */
+    static void move(TrainItem item, ProgramDataBean b, boolean[] green, boolean[] yel, int delta) {
+        int[] parts = b.strenthBean.buwei;
+        if (delta == 0 || (!any(green) && !any(yel))) {
             return;
         }
-        int[] m0 = mainReal(b), s0 = b.activePause ? secondReal(item, b) : null;
-        change(item, b, one, delta);
-        if (s0 != null) {
-            follow(item, item.getTrainProgram(), b, one, m0, s0);   // both impulses, same ratio
+        PartPick.touch();
+        boolean music = MusicSync.isRunning();
+        int[] lift = LIFT.get(b);
+        if (lift != null && (lift[2] != b.strenth || lift[3] != b.pauseStrenthPercent)) {
+            lift = null;                            // the strengths moved some other way since: start afresh
+        }
+        int base1 = lift != null ? lift[0] : b.strenth;
+        int base2 = lift != null ? lift[1] : b.pauseStrenthPercent;
+        int top = -1;                               // the strongest moved channel (a step short at the unit's top)
+        int[] m0 = mainReal(b);
+        for (int i = 0; i < parts.length; i++) {
+            if (((green != null && green[i]) || (yel != null && yel[i])) && (top < 0 || m0[i] > m0[top])) {
+                top = i;
+            }
+        }
+        if (any(yel) && b.activePause) {
+            int[] s = secondReal(item, b);
+            int t = 0;
+            for (int i = 0; i < parts.length; i++) {
+                if (yel[i]) {
+                    t = Math.max(t, clamp(s[i] + (long) delta));
+                }
+            }
+            if (!music && t > secondCap(item, b)) {
+                int need = (int) Math.ceil(t * 100.0 / SafeLimits.PAUSE_PCT_MAX);
+                int[] m = mainReal(b);
+                write(item, b, m, s, exactFrom(Math.max(b.strenth, need), 100, m, top), b.pauseStrenthPercent);
+            }
+            changeSecond(item, b, yel, delta);
+        }
+        if (any(green)) {
+            int[] s0 = b.activePause ? secondReal(item, b) : null;
+            m0 = mainReal(b);
+            change(item, b, green, delta);
+            if (s0 != null) {
+                // both impulses, each channel's ratio as it was when its changes began (no rounding creep)
+                double[] r = RATIO.get(b);
+                if (r == null || r.length != parts.length * 3) {
+                    r = new double[parts.length * 3];
+                    RATIO.put(b, r);
+                }
+                int[] m1 = mainReal(b);
+                int[] t = secondReal(item, b);
+                boolean[] byRatio = new boolean[parts.length];
+                boolean[] byFollow = new boolean[parts.length];
+                for (int i = 0; i < parts.length; i++) {
+                    if (!green[i]) {
+                        continue;
+                    }
+                    boolean same = r[3 * i + 1] == m0[i] && r[3 * i + 2] == s0[i];
+                    double q = same ? r[3 * i] : m0[i] > 0 ? s0[i] / (double) m0[i] : -1;
+                    r[3 * i] = q;
+                    if (q >= 0) {
+                        t[i] = clamp(Math.round(m1[i] * q));
+                        byRatio[i] = true;
+                    } else {
+                        byFollow[i] = true;
+                    }
+                }
+                if (any(byRatio)) {
+                    secondTo(item, item.getTrainProgram(), b, byRatio, t);
+                }
+                if (any(byFollow)) {
+                    follow(item, item.getTrainProgram(), b, byFollow, m0, s0);
+                }
+                int[] m2 = mainReal(b), s2 = secondReal(item, b);
+                for (int i = 0; i < parts.length; i++) {
+                    if (green[i]) {
+                        if (byFollow[i]) {
+                            r[3 * i] = m2[i] > 0 ? s2[i] / (double) m2[i] : -1;
+                        }
+                        r[3 * i + 1] = m2[i];
+                        r[3 * i + 2] = s2[i];
+                    }
+                }
+            }
+        }
+        if (!music) {
+            settle(item, b, top, base1, base2);
+        }
+    }
+
+    /**
+     * Интензитет 1 / 2 after a chip slide: as low as the channels' outputs allow, never under {@code base1 / base2}
+     * (where they were before the slides); 2 in proportion to 1. Every channel's output stays exactly.
+     */
+    static void settle(TrainItem item, ProgramDataBean b, int k, int base1, int base2) {
+        int[] m = mainReal(b);
+        int[] s = b.activePause ? secondReal(item, b) : null;
+        boolean free = SafeGuard.free2(item);
+        int need1 = Math.max(base1, max(m));
+        if (s != null && !free) {
+            need1 = Math.max(need1, (int) Math.ceil(max(s) * 100.0 / SafeLimits.PAUSE_PCT_MAX));
+        }
+        int i1 = exactFrom(need1, 100, m, k);
+        int i2 = b.pauseStrenthPercent;
+        if (s != null) {
+            int want = i1 == base1 ? base2 : base1 > 0 ? (int) Math.round(base2 * (double) i1 / base1) : base2;
+            int cap = free ? 150 : SafeLimits.pauseCap(i1);
+            i2 = Math.max(want, max(s));
+            if (i1 != base1 || i2 != base2) {
+                i2 = exactFrom(Math.min(i2, cap), cap, s, k);
+            }
+        }
+        if (i1 != b.strenth || i2 != b.pauseStrenthPercent) {
+            write(item, b, m, s, i1, i2);
+        }
+        if (b.strenth != base1 || b.pauseStrenthPercent != base2) {
+            LIFT.put(b, new int[] {base1, base2, b.strenth, b.pauseStrenthPercent});
+        } else {
+            LIFT.remove(b);
+        }
+    }
+
+    /** Интензитет 1 / 2 to {@code i1 / i2}, the percents set so every channel gives {@code m} / {@code s} again. */
+    static void write(TrainItem item, ProgramDataBean b, int[] m, int[] s, int i1, int i2) {
+        int[] parts = b.strenthBean.buwei;
+        int[] e = s != null ? SecondParts.effective(b, parts).clone() : SecondParts.get(b);
+        for (int i = 0; i < parts.length; i++) {
+            parts[i] = percentFor(Math.min(m[i], i1), i1, parts[i]);
+        }
+        b.strenth = i1;
+        if (s != null) {
+            int p2 = Math.min(i2, secondCap(item, b));
+            for (int i = 0; i < parts.length; i++) {
+                e[i] = percentFor(Math.min(s[i], p2), p2, e[i]);
+            }
+        }
+        if (e != null && e.length == parts.length) {
+            SecondParts.set(b, parts, e);
+        }
+        if (i2 != b.pauseStrenthPercent) {
+            b.pauseStrenthPercent = i2;
+            saveProgram(item);
+        }
+    }
+
+    /**
+     * The lowest strength from {@code lo} up to {@code hi} at which every value of {@code t} comes out exactly; at
+     * the top, the highest one under {@code lo} that keeps every channel but {@code k} exact (k a step short instead).
+     */
+    static int exactFrom(int lo, int hi, int[] t, int k) {
+        lo = clamp(lo);
+        for (int st = lo; st <= hi; st++) {
+            if (exactAt(st, t, -1)) {
+                return st;
+            }
+        }
+        for (int st = lo - 1; st > 0; st--) {
+            if (exactAt(st, t, k)) {
+                return st;
+            }
+        }
+        return lo;
+    }
+
+    private static boolean exactAt(int st, int[] t, int skip) {
+        for (int i = 0; i < t.length; i++) {
+            if (i != skip && (t[i] > st || real(percentFor(t[i], st, 0), st) != t[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static int max(int[] a) {
+        int m = 0;
+        for (int i = 0; a != null && i < a.length; i++) {
+            m = Math.max(m, a[i]);
+        }
+        return m;
+    }
+
+    /** The marked channels' second impulse (the strongest), −1 when none is marked. */
+    public static int selectedSecond(TrainItem item) {
+        try {
+            ProgramDataBean b = bean(item);
+            boolean[] sel = selection(item, b);
+            if (sel == null || !b.activePause) {
+                return -1;
+            }
+            return level2(item, b, sel);
+        } catch (Throwable t) {
+            return -1;
         }
     }
 

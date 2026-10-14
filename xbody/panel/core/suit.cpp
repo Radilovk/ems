@@ -9,8 +9,14 @@ static const char *XEMS_NAMES[10] = {"Гърди", "Корем", "Предно �
 // EMSFIT C1..C8 as the owner's bodytech setup names them (docs/xems-bodytech.md, 1.1.389).
 static const char *BT_NAMES[8] = {"Кръст", "Седалище", "Трапец", "Гръб", "Ляво бедро", "Ръце", "Дясно бедро", "Корем"};
 
+// ms from `since` to `now`, never negative (a stamp taken a moment later by the caller gives 0, not a wrap).
+static unsigned age(unsigned now, unsigned since) {
+    int d = (int)(now - since);
+    return d < 0 ? 0u : (unsigned)d;
+}
+
 Suit::Suit(Kind kind)
-    : kind_(kind), strength_(0), state_(IDLE), on_(false), finished_(false), endMs_(0), phaseEndMs_(0),
+    : kind_(kind), strength_(0), state_(IDLE), on_(false), finished_(false), startWanted_(false), endMs_(0), phaseEndMs_(0),
       rampStartMs_(0), remainMs_(0), rampStep_(0), lastBattMs_(0), lastSyncMs_(0), battery_(-1), btHz_(0), btUs_(0),
       inflight_(false), sentMs_(0) {
     for (int i = 0; i < MAX_CH; i++) { ch_[i] = 100; btSent_[i] = -1; }
@@ -63,24 +69,24 @@ void Suit::linked(unsigned now) {
 
 void Suit::btProgram() {
     // The suit's own cycle as one long burst (T2 100 s, no ramps / pause): the unit runs the phases with SEL.
-    push(bt::reset());
+    push(bt::reset(), T_PROG);
     for (int c = 1; c <= bt::CHANNELS; c++) {
-        push(bt::hz(c, prog_.hz));
-        push(bt::stepNor(c, 0x01010101));
-        push(bt::intensity(c, 0));
-        push(bt::width(c, prog_.us));
-        push(bt::tPeriod(c, 0));
-        push(bt::t(c, 1, 0));
-        push(bt::t(c, 2, 100000));
-        push(bt::t(c, 3, 0));
-        push(bt::t(c, 4, 0));
-        push(bt::t1IntStep(c, 1));
-        push(bt::t1WidthStep(c, 0));
-        push(bt::t3IntStep(c, 1));
-        push(bt::t3WidthStep(c, 0));
+        push(bt::hz(c, prog_.hz), T_PROG);
+        push(bt::stepNor(c, 0x01010101), T_PROG);
+        push(bt::intensity(c, 0), T_PROG);
+        push(bt::width(c, prog_.us), T_PROG);
+        push(bt::tPeriod(c, 0), T_PROG);
+        push(bt::t(c, 1, 0), T_PROG);
+        push(bt::t(c, 2, 100000), T_PROG);
+        push(bt::t(c, 3, 0), T_PROG);
+        push(bt::t(c, 4, 0), T_PROG);
+        push(bt::t1IntStep(c, 1), T_PROG);
+        push(bt::t1WidthStep(c, 0), T_PROG);
+        push(bt::t3IntStep(c, 1), T_PROG);
+        push(bt::t3WidthStep(c, 0), T_PROG);
         btSent_[c - 1] = 0;
     }
-    push(bt::allOff());
+    push(bt::allOff(), T_PROG);
     btHz_ = prog_.hz;
     btUs_ = prog_.us;
 }
@@ -144,8 +150,15 @@ void Suit::outputsOff(bool stopSuit) {
     }
 }
 
+bool Suit::preparing() const {
+    for (size_t i = 0; i < out_.size(); i++) if (out_[i].tag == T_PROG) return true;
+    return false;
+}
+
 void Suit::start(unsigned now) {
     if (state_ == RUNNING) return;
+    if (preparing()) { startWanted_ = true; return; }   // the clock starts when the suit can follow it
+    startWanted_ = false;
     if (state_ == IDLE) remainMs_ = (unsigned)prog_.totalS * 1000u;
     finished_ = false;
     state_ = RUNNING;
@@ -164,6 +177,7 @@ void Suit::start(unsigned now) {
 }
 
 void Suit::pause(unsigned now) {
+    startWanted_ = false;
     if (state_ != RUNNING) return;
     remainMs_ = endMs_ > now ? endMs_ - now : 0;
     state_ = PAUSED;
@@ -172,6 +186,7 @@ void Suit::pause(unsigned now) {
 }
 
 void Suit::stop() {
+    startWanted_ = false;
     bool was = state_ != IDLE;
     state_ = IDLE;
     on_ = false;
@@ -181,11 +196,12 @@ void Suit::stop() {
 
 void Suit::tick(unsigned now) {
     if (kind_ == XEMS) {
-        if (now - lastBattMs_ >= 10000) { lastBattMs_ = now; push(xems::battery()); }
+        if (age(now, lastBattMs_) >= 10000) { lastBattMs_ = now; push(xems::battery()); }
     } else {
-        if (now - lastSyncMs_ >= 4500) { lastSyncMs_ = now; push(bt::sync(6)); }
-        if (now - lastBattMs_ >= 10000) { lastBattMs_ = now; push(bt::batterySync()); }
+        if (age(now, lastSyncMs_) >= 4500) { lastSyncMs_ = now; push(bt::sync(6)); }
+        if (age(now, lastBattMs_) >= 10000) { lastBattMs_ = now; push(bt::batterySync()); }
     }
+    if (startWanted_ && !preparing()) start(now);
     if (state_ != RUNNING) return;
     remainMs_ = endMs_ > now ? endMs_ - now : 0;
     if ((int)(now - endMs_) >= 0) {
@@ -207,7 +223,7 @@ void Suit::tick(unsigned now) {
         return;
     }
     if (on_ && rampStep_ < RAMP_STEPS) {
-        int want = 1 + (int)((now - rampStartMs_) * (unsigned)RAMP_STEPS / (unsigned)(prog_.rampMs > 0 ? prog_.rampMs : 1));
+        int want = 1 + (int)(age(now, rampStartMs_) * (unsigned)RAMP_STEPS / (unsigned)(prog_.rampMs > 0 ? prog_.rampMs : 1));
         if (want > RAMP_STEPS) want = RAMP_STEPS;
         if (want > rampStep_) { rampStep_ = want; levels(rampStep_); }
     }

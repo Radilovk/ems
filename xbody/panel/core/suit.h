@@ -43,17 +43,20 @@ public:
     int phaseMsLeft(unsigned now) const;
     int battery() const { return battery_; }         // %, −1 unknown
     bool finished() const { return finished_; }      // the last run ended by its clock
+    // The suit is still being programmed (bodytech: ~110 frames, ~3 s after a link); a start waits for it.
+    bool preparing() const;
+    bool startPending() const { return startWanted_; }
     Bytes safeFrame() const;                         // outputs off (the bridge sends it when the unit goes silent)
 
     // ---- link (one frame in flight) ----
     const Bytes *next(unsigned now);                 // the frame to send now, or null
     void ack(bool ok);
-    bool ackLate(unsigned now) const { return inflight_ && now - sentMs_ > (unsigned)ACK_TIMEOUT_MS; }
+    bool ackLate(unsigned now) const { return inflight_ && (int)(now - sentMs_) > (int)ACK_TIMEOUT_MS; }
     size_t queued() const { return out_.size(); }
     void clearQueue() { out_.clear(); inflight_ = false; }
 
 private:
-    enum Tag { T_PLAIN, T_LEVELS };
+    enum Tag { T_PLAIN, T_LEVELS, T_PROG };
     struct Item { Bytes b; int tag; Item(const Bytes &x, int t) : b(x), tag(t) {} };
     void push(const Bytes &b, int tag = T_PLAIN);
     void dropLevels();
@@ -66,7 +69,7 @@ private:
     Program prog_;
     int strength_, ch_[MAX_CH];
     State state_;
-    bool on_, finished_;
+    bool on_, finished_, startWanted_;
     unsigned endMs_, phaseEndMs_, rampStartMs_, remainMs_;
     int rampStep_;
     unsigned lastBattMs_, lastSyncMs_;

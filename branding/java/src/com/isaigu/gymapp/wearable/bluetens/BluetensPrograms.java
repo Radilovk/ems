@@ -59,7 +59,7 @@ public final class BluetensPrograms {
 
     public static int tint(int p) {
         switch (p) {
-            case RECOVER: return 0xFF22C3F5;
+            case RECOVER: return 0xFF37D0EB;
             case MASSAGE: return 0xFFA78BFA;
             case RELIEF: return 0xFF34D399;
             case ACTIVATE: return 0xFFF59E0B;

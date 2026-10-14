@@ -83,7 +83,7 @@
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->MUTED:I
 
     .line 25
-    const v0, -0xdd3c0b
+    const v0, -0xc82f15
 
     sput v0, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
 

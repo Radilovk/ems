@@ -124,12 +124,12 @@
     sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     .line 47
-    const v0, -0xdd3c0b
+    const v0, -0xc82f15
 
     sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
     .line 48
-    const v0, -0xf58648
+    const v0, -0xf3654a
 
     sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT_DARK:I
 
@@ -411,7 +411,7 @@
 
     move-result-object v6
 
-    const v7, -0xdd3c0b
+    const v7, -0xc82f15
 
     if-nez v4, :cond_db
 
@@ -433,7 +433,7 @@
 
     move-result-object v2
 
-    const v3, -0xadd0b
+    const v3, -0x19af51
 
     const/4 v6, 0x1
 

@@ -103,7 +103,7 @@ public final class FocusBoard {
     private static boolean locked;
     private static final java.util.WeakHashMap<TrainItem, Float> RATIO = new java.util.WeakHashMap<TrainItem, Float>();
     /** Colour of the impulse the muscles show (cyan 1, yellow 2, grey pause). */
-    static int shownTint = 0xFF22C3F5;
+    static int shownTint = 0xFF37D0EB;
     private static final Chip[] chips = new Chip[AutoModel.CHANNELS];
     private static Ring ring1;
     private static Ring ring2;
@@ -1715,10 +1715,10 @@ public final class FocusBoard {
     }
 
     /**
-     * A muscle chip under the finger: a tap marks it (the header's icon, PartPick); a sideways slide is the channel's
-     * own slider in the impulse the chips show — relative to where the finger went down (no jump), right = more,
-     * sent on release exactly as the row's channel bar sends it (PartStrength.bar: both impulses keep their ratio,
-     * yellow = the second alone).
+     * A muscle chip under the finger: a tap marks it (the header's icon, PartPick); a sideways slide marks an unmarked
+     * one first (as its 1st tap) and is then that muscle's ± — relative to where the finger went down (no jump), right
+     * = more, chip width = 20, sent on release (PartStrength.channelBy: both impulses keep their ratio, yellow = the
+     * second alone).
      */
     static final class ChipTouch implements View.OnTouchListener {
         private final Chip chip;
@@ -1755,6 +1755,16 @@ public final class FocusBoard {
                         } else {
                             sliding = true;
                             x0 = e.getRawX();
+                            if (!chip.sel) {
+                                // a slide on an unmarked muscle marks it first, as its 1st tap (owner, 1.1.442):
+                                // red, both impulses; the slide goes from its main impulse's level
+                                chipClick(chip.k);
+                                TrainItem it = current();
+                                int[] lv = PartStrength.levels(it, bean(it), false);
+                                start = lv != null && chip.k < lv.length ? lv[chip.k] : start;
+                                chip.sel = true;
+                                chip.tint = XemsUi.DANGER;
+                            }
                             if (v.getParent() != null) {
                                 v.getParent().requestDisallowInterceptTouchEvent(true);
                             }
@@ -1762,10 +1772,10 @@ public final class FocusBoard {
                         }
                     }
                     if (sliding) {
-                        // edge to edge of the chip = 20 (owner, 1.1.440); up to 100, ≤ +20 per slide (master rule)
+                        // edge to edge of the chip = 20 of strength, ≤ +20 per slide (owner, 1.1.441)
                         float span = Math.max(1f, v.getWidth());
-                        int top = Math.min(chip.cap, start + SLIDE);
-                        int val = Math.max(0, Math.min(top, start + Math.round((e.getRawX() - x0) / span * SLIDE)));
+                        int d = Math.min(SLIDE, Math.round((e.getRawX() - x0) / span * SLIDE));
+                        int val = Math.max(0, Math.min(chip.cap, start + d));
                         if (val != chip.dragValue) {
                             if (val % 10 == 0) {
                                 XemsUi.haptic(v);
@@ -1785,7 +1795,7 @@ public final class FocusBoard {
                         int val = chip.dragValue;
                         sliding = false;
                         if (val >= 0 && val != start) {
-                            channel(chip.k, val);
+                            channel(chip.k, val - start);
                         }
                         chip.dragValue = -1;
                         refresh();
@@ -1808,18 +1818,17 @@ public final class FocusBoard {
     }
 
     /**
-     * Channel {@code k} to the real strength {@code target} in the impulse the chip shows — as + / − on a picked
-     * muscle: above the impulse's strength the impulse goes up and the other muscles keep their real strength
-     * ({@code PartStrength.channelTo}, owner 1.1.440; before, the slide stopped at Интензитет 1).
+     * Channel {@code k} by {@code delta} of real strength — the same as that many + / − on the muscle picked alone
+     * ({@code PartStrength.channelBy}, owner 1.1.441): both impulses together unless it is marked for the second
+     * alone; above Интензитет 1 the strength goes up and the other muscles keep theirs.
      */
-    static void channel(int k, int target) {
+    static void channel(int k, int delta) {
         TrainItem it = current();
-        ProgramDataBean b = bean(it);
-        if (b == null || b.strenthBean == null || b.strenthBean.buwei == null || k >= b.strenthBean.buwei.length) {
+        if (bean(it) == null) {
             return;
         }
         try {
-            PartStrength.channelTo(it, k, target, chips[k] != null && chips[k].tint == XemsUi.AMBER);
+            PartStrength.channelBy(it, k, delta);
             it.addAllPartValue(0, true);            // nothing added: just send and refresh the row
         } catch (Throwable t) {
             XemsGuard.report("FocusBoard.channel", t);

@@ -4,7 +4,7 @@
 The app's cyan family moves to magenta in a resource qualifier the app turns on itself (mcc999 — no device has
 it, the activity sets it as an override configuration when "Магента" is chosen):
 - res/values-mcc999-night/colors.xml: every night colour of the cyan / navy family (hue 185–225°) turned — bright
-  ones to magenta (300°), the dark glass to deep plum (280°), lightness kept;
+  ones to pink-leaning magenta (322°, a touch lighter), the dark glass to deep plum (280°), lightness kept;
 - res/values-mcc999/colors.xml: the light theme's accent names to magenta;
 - res/drawable-mcc999-night/: the night drawables that carry a cyan hex of their own, recoloured the same way;
 - BaseActivity.attachBaseContext → XemsUi.accentAttach; SettingFragment → XemsUi.accentBind after the theme switch.
@@ -28,10 +28,10 @@ HEX_RE = re.compile(r"#([0-9a-fA-F]{8}|[0-9a-fA-F]{6})\b")
 
 # light theme: only the accent names (the rest of the light palette is grey / white)
 LIGHT = {
-    "accent_primary": "ffc026d3",
-    "accent_primary_dark": "ff86198f",
-    "device_connected": "ffa21caf",
-    "mainColor": "ffd946ef",
+    "accent_primary": "ffce2286",
+    "accent_primary_dark": "ff8f195e",
+    "device_connected": "ffaf1d72",
+    "mainColor": "fff042b0",
 }
 
 THEME_HOOK = (
@@ -63,9 +63,10 @@ def turn(argb: str) -> str | None:
     if not (185 / 360 <= h <= 225 / 360) or s < 0.15:
         return None
     if l >= 0.8:
-        nh, ns = 300 / 360, s * 0.7          # near-white text: a hint of pink, not candy
+        nh, ns = 322 / 360, s * 0.7          # near-white text: a hint of pink, not candy
     elif l >= 0.3:
-        nh, ns = 300 / 360, s                # the accent and its mid tones: magenta
+        nh, ns = 322 / 360, s * 0.92         # the accent and its mid tones: pink-leaning magenta (owner, 1.1.443)
+        l = min(0.7, l + 0.04)
     else:
         nh, ns = 280 / 360, s                # dark glass: deep plum
     nr, ng, nb = colorsys.hls_to_rgb(nh, l, ns)

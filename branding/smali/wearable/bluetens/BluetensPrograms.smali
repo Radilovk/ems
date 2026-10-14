@@ -933,7 +933,7 @@
 
     .line 62
     :pswitch_7
-    const v0, -0xdd3c0b
+    const v0, -0xc82f15
 
     goto :goto_6
 

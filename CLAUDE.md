@@ -37,7 +37,8 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
   Then build the APK with `SKIP_JAVA_RECOMPILE=1 bash build-apk.sh` (else it recompiles everything with dx).
 - Patch scripts find anchors in vendor smali (`*_MARKER`, `OLD`/`NEW` constants) — outline shows them as `const`.
 - Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/ai-sim/run-auto.sh`, `bash scripts/music-sim/run.sh`, `bash scripts/bluetens/run.sh`, `bash scripts/fit-sim/run.sh`, `bash scripts/part-sim/run.sh`,
-  `cd band-app && bash scripts/test-band.sh`, `cd server && npm test`, `python3 scripts/ui-map.py --check`.
+  `cd band-app && bash scripts/test-band.sh`, `cd server && npm test`, `python3 scripts/ui-map.py --check`,
+  `sh scripts/xbody/test.sh`.
 
 ## Invariants (breaking one = broken release)
 - Never edit `build/decompiled/`; change `scripts/apply-*.py`, `branding/`, or Java.
@@ -94,6 +95,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Bluetens TENS pads: BLE text shell (FFE0/FFE1), .lok programs, XEMS module plan | `docs/xems-bluetens.md` |
 | Quest 3 VR haptics → suit (OpenXR layer, UDP, manual mode, zones off) | `vr-bridge/README.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |
+| XBody EMS unit OS (i.MX53 Yocto, Qt app), our mod → USB stick / SD image | `xbody/CLAUDE.md`, `docs/xbody-os.md` |
 
 ## Keeping the map true
 Added/renamed a script, Java class, page or doc heading → `python3 scripts/repo-map.py` and commit

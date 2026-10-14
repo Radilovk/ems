@@ -2,3 +2,5 @@
 # Need them? Bash: grep -rn PATTERN branding/smali/   or   rg -uu PATTERN
 branding/smali/
 **/package-lock.json
+# XBody vendor rootfs listing (~9k lines). Grep it on purpose: grep -n X xbody/base-manifest.tsv
+xbody/base-manifest.tsv

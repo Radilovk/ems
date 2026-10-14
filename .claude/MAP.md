@@ -161,6 +161,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-no-vendor-network.py` (53L, build:L191[BETA_MUSIC]) — Fail the build if a request path to the vendor's server is still open (apply-no-vendor-network.py).
 - `scripts/verify-vendor-access.py` (62L, build:L189) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L158[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
+- `scripts/xbody/build.py` (287L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
+- `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
+- `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
+- `scripts/xbody/test.sh` (86L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/updater.sh` (94L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
 
 ## Java sources → smali (compile:X = scripts/compile-X-java.sh; X* = catch-all find)
@@ -525,14 +530,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (101L)
+`CLAUDE.md` (103L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
-  - L42 ## Invariants (breaking one = broken release)
-  - L57 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
-  - L71 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L98 ## Keeping the map true
+  - L43 ## Invariants (breaking one = broken release)
+  - L58 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
+  - L72 ## Deeper context (read only the section you need — headings/lines are in MAP)
+  - L100 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -768,6 +773,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## Personal context (1.1.158-ai)
   - L54 ## Languages (1.1.160-ai)
   - L60 ## One training, shown at the end (1.1.162-ai)
+
+`docs/xbody-os.md` (66L)
+  - L1 # XBody unit — operating system map
+  - L7 ## Platform
+  - L15 ## Boot chain
+  - L31 ## The app — `/opt/xbody/`
+  - L46 ## Stimulator link
+  - L51 ## Network
+  - L55 ## USB update hook (vendor)
+  - L60 ## Pitfalls
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1301,3 +1316,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 `vr-workout/assets/CREDITS.md` (17L)
   - L1 # Asset credits
+
+`xbody/CLAUDE.md` (31L)
+  - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app v1.7.14b)
+  - L5 ## Model
+  - L16 ## Build (on request: "дай файла за картата")
+  - L27 ## Rules

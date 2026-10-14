@@ -13,21 +13,20 @@ extends RefCounted
 
 const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XEMS", "/storage/emulated/0/Download/XEMS"]
 
-# Photo rooms: "box" = the photographed room's floor round the camera, measured on the photo itself (a top-down
-# projection of its floor: x left/right, z ahead(−)/behind(+), metres, after "yaw"); "height" = its ceiling. The photo is
-# painted on a box of exactly that size, so floor and walls meet where they really meet — no wall smeared over the
-# floor, no floor climbing a wall. Without "box" a cylinder of "radius" is used (the owner's own photos).
+# 360° rooms (Poly Haven 8K, tone-mapped): you stand in the real place, the photo painted round you from where it was
+# shot, its ground under your feet at its real distance. "box" = a measured place's walls round the camera (x left/right,
+# z ahead(−)/behind(+), metres, after "yaw"), from a top-down projection of its ground; open land gets a "radius" a
+# little short of where its ground stops being flat (beyond it the far land stands on the cylinder's wall).
 const BUILTIN_ROOMS := [
 	{"name": "Арена", "path": "", "kind": "arena"},          # built from code: scripts/game/arena.gd
 	{"name": "Панорамна зала", "path": "", "kind": "loft"},  # built from code: scripts/game/skyloft.gd
-	{"name": "Лофт", "path": "", "kind": "factory"},          # built from code: scripts/game/factory_loft.gd
-	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene", "dress": "hall", "view": true},
-	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "yaw": 0.125, "cam": 1.6,
-		"box": [-8.6, 5.0, -7.0, 5.6], "height": 4.5},
-	{"name": "Танцова зала", "path": "res://assets/rooms/dancing_hall.jpg", "kind": "pano", "yaw": 0.375, "cam": 1.6,
-		"box": [-12.3, 11.6, -13.2, 13.8], "height": 7.0},
-	{"name": "Огледална зала", "path": "res://assets/rooms/mirrored_hall.jpg", "kind": "pano", "yaw": -0.012, "cam": 1.6,
-		"box": [-4.5, 4.1, -9.4, 7.0], "height": 6.5},
+	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene", "dress": "hall"},
+	{"name": "Ливада на хълма", "path": "res://assets/rooms/hill.jpg", "kind": "pano", "yaw": 0.0, "cam": 1.6,
+		"radius": 12.0, "height": 30.0},
+	{"name": "Площадът в Улм", "path": "res://assets/rooms/ulm_square.jpg", "kind": "pano", "yaw": 0.75, "cam": 1.6,
+		"box": [-25.0, 40.0, -35.0, 13.0], "height": 25.0},
+	{"name": "Нощно плато", "path": "res://assets/rooms/night_plateau.jpg", "kind": "pano", "yaw": 0.1, "cam": 1.6,
+		"radius": 12.0, "height": 30.0},
 ]
 const PANO_EXT := ["jpg", "jpeg", "png", "webp", "hdr"]
 const SCENE_EXT := ["glb", "gltf", "fbx"]

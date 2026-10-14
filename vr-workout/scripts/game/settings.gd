@@ -15,23 +15,24 @@ const SPREAD := [{"name": "Отпред", "deg": 0.0}, {"name": "Дъга", "deg
 const LEGS := ["Авто", "На глезените", "От очилата", "Клек и стъпки", "Без"]
 enum Legs { AUTO, ANKLES, TRACKING, MOVES, OFF }
 const MINUTES := [0, 5, 10, 15, 20, 30]     # 0 = until you stop
-# What the windows look out on (the panoramic hall, the loft, the brutalist hall's openings), drawn as the sky by
-# shaders/view_sky.gdshader. A 360° photo ("yaw" brings its best part to the main window ahead) or an ordinary photo
-# hung on a cylinder round the player: "span" = how wide it hangs (degrees; 120 fills every window of the halls from
-# where you stand, past that it continues mirrored), "horizon" = the row of its horizon (0 top … 1 bottom), set at eye
-# level; "lift" lowers it by that many degrees. Photos: assets/views (from vr-workout/land, see assets/CREDITS.md).
+# What the panoramic hall's glass looks out on, drawn as the sky by shaders/view_sky.gdshader. A 360° photo ("yaw"
+# brings its best part to the main window ahead), or one of the owner's photos (vr-workout/land → assets/views by
+# convert/crop_views.py): kept at full width and hung exactly across the hall's three glass walls ("span" 220° from where
+# you stand), only the band of rows the glass can show kept (25° below to 25° above eye level, "horizon" = the row at
+# eye level), so it is sharp (32–37 pixels a degree, more than the headset shows) and never stretched.
 const VIEWS := [{"name": "Планини", "path": "res://assets/views/mountain.jpg", "yaw": -0.2, "lift": 0.0},
-	{"name": "Алпийско езеро", "path": "res://assets/views/alps_lake.jpg", "span": 125.0, "horizon": 0.3, "lift": 2.0},
-	{"name": "Гранд Тетън", "path": "res://assets/views/tetons.jpg", "span": 115.0, "horizon": 0.54},
-	{"name": "Доломити", "path": "res://assets/views/dolomites.jpg", "span": 115.0, "horizon": 0.42},
-	{"name": "Есенно езеро", "path": "res://assets/views/autumn_lake.jpg", "span": 105.0, "horizon": 0.55},
-	{"name": "Скалите на Етрета", "path": "res://assets/views/etretat.jpg", "span": 125.0, "horizon": 0.31},
-	{"name": "Тропически бряг", "path": "res://assets/views/tropical.jpg", "span": 120.0, "horizon": 0.52},
-	{"name": "Сен Мишел", "path": "res://assets/views/saint_michel.jpg", "span": 110.0, "horizon": 0.66},
-	{"name": "Зелено поле", "path": "res://assets/views/field.jpg", "span": 170.0, "horizon": 0.37},
-	{"name": "Залез над езеро", "path": "res://assets/views/lake_sunset.jpg", "span": 165.0, "horizon": 0.6},
-	{"name": "Залез над дюни", "path": "res://assets/views/dunes.jpg", "span": 120.0, "horizon": 0.42},
-	{"name": "Мост при залез", "path": "res://assets/views/bridge_sunset.jpg", "span": 120.0, "horizon": 0.47}]
+	{"name": "Ливада на хълма", "path": "res://assets/rooms/hill.jpg", "yaw": 0.0, "lift": 0.0},
+	{"name": "Нощ в планината", "path": "res://assets/rooms/night_plateau.jpg", "yaw": 0.1, "lift": 0.0},
+	{"name": "Алпийско езеро", "path": "res://assets/views/alps_lake.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Гранд Тетън", "path": "res://assets/views/tetons.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Доломити", "path": "res://assets/views/dolomites.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Скалите на Етрета", "path": "res://assets/views/etretat.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Тропически бряг", "path": "res://assets/views/tropical.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Сен Мишел", "path": "res://assets/views/saint_michel.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Зелено поле", "path": "res://assets/views/field.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Залез над езеро", "path": "res://assets/views/lake_sunset.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Залез над дюни", "path": "res://assets/views/dunes.jpg", "span": 220.0, "horizon": 0.5},
+	{"name": "Мост при залез", "path": "res://assets/views/bridge_sunset.jpg", "span": 220.0, "horizon": 0.5}]
 const PUNISH := [{"name": "Меко", "sec": 1.2}, {"name": "Силно", "sec": 2.5}]
 
 var pace := 1
@@ -50,7 +51,7 @@ var offset_z := 0.0
 var turn_deg := 0.0             # which way the room faces the player (degrees)
 var auto_center := true         # every session starts centred on where the player stands and looks
 var room := 0
-var view := 0                   # what the windows look out on: VIEWS
+var view := 0                   # what the panoramic hall looks out on: VIEWS
 var track := "auto"             # the song: "auto" = the first of your own (else the built-in) · "bed" = built-in · a file name
 var tutorial_done := false
 var best_score := 0

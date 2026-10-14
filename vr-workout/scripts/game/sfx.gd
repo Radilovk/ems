@@ -109,6 +109,15 @@ func start_music() -> void:
 		music.play()
 
 
+## Back to the built-in bed.
+func set_bed() -> void:
+	var was := music.playing
+	music.stream = BED
+	bpm = BED_BPM
+	if was:
+		music.play()
+
+
 ## A user soundtrack (mp3 / ogg) instead of the bed.
 func set_track(path: String, track_bpm := 0.0) -> bool:
 	var st: AudioStream = null

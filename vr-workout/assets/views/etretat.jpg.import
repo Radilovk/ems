@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ppmbwt5bnkps"
-path="res://.godot/imported/sea.jpg-6dad7bbbb21daa6a34314b46bb863cf6.ctex"
+uid="uid://d1grk24onqqir"
+path="res://.godot/imported/etretat.jpg-716ed28610c1e4c86d33c76959f6fa5c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/views/sea.jpg"
-dest_files=["res://.godot/imported/sea.jpg-6dad7bbbb21daa6a34314b46bb863cf6.ctex"]
+source_file="res://assets/views/etretat.jpg"
+dest_files=["res://.godot/imported/etretat.jpg-716ed28610c1e4c86d33c76959f6fa5c.ctex"]
 
 [params]
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.95
+compress/lossy_quality=0.92
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

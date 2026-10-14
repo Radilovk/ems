@@ -24,6 +24,9 @@ var tablet: TabletLink                   # the line to the XEMS tablet (the suit
 var _live := {}                          # the suit page's labels that follow the tablet without a rebuild
 var _suit_sig := ""
 var room_names: Array = []
+var track_names: Array = []             # the player's own songs (XEMS/music); the game keeps it current
+var track_now := -1                      # the one playing: −1 = the built-in bed
+var track_pick := -2                     # set by the "Песен" stepper (−1 = the bed), read by the game on changed("track")
 var status_text := ""                    # e.g. which controllers are found (the game keeps it current)
 var last_result := ""
 var summary := {}                        # the last session's numbers (summary page)
@@ -173,8 +176,8 @@ func _settings(m: Control) -> void:
 	v.add_child(top)
 	_small(top, "‹  Назад", func() -> void: show_page(_back_page()))
 	_text(top, "Настройки", 46, INK, true).size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for i in 2:
-		var b := _small(top, ["Игра", "Звук и вид"][i], func() -> void:
+	for i in 3:
+		var b := _small(top, ["Игра", "Звук", "Зала и гледка"][i], func() -> void:
 			tab = i
 			show_page("settings"))
 		_selected(b, tab == i)
@@ -186,15 +189,22 @@ func _settings(m: Control) -> void:
 		_seg(v, "Препятствия", ["Да", "Не"], 0 if settings.hazards else 1, func(i: int) -> void: settings.hazards = i == 0, "hazards")
 		_seg(v, "Време", GameSettings.MINUTES.map(func(x): return "∞" if x == 0 else "%d мин" % x),
 			GameSettings.MINUTES.find(settings.minutes), func(i: int) -> void: settings.minutes = GameSettings.MINUTES[i], "minutes")
-	else:
+	elif tab == 1:
 		_seg(v, "Музика", MUSIC.map(func(x): return x.name), _nearest(MUSIC, settings.music_db), func(i: int) -> void: settings.music_db = MUSIC[i].db, "music_db")
 		_seg(v, "Ефекти", EFFECTS.map(func(x): return x.name), _nearest(EFFECTS, settings.sfx_db), func(i: int) -> void: settings.sfx_db = EFFECTS[i].db, "sfx_db")
-		_seg(v, "Щадящ режим", ["Не", "Да"], 1 if settings.comfort else 0, func(i: int) -> void: settings.comfort = i == 1, "comfort")
+		var names: Array = ["Вградена"] + track_names
+		_stepper(v, "Песен", String(names[clampi(track_now + 1, 0, names.size() - 1)]),
+			func(d: int) -> void: track_pick = posmod(track_now + 1 + d, names.size()) - 1, "track")
+		_button(v, "＋  Добави свои песни (mp3)", func() -> void: action.emit("add_music"))
+		_text(v, ("Твоите песни: %d. " % track_names.size() if not track_names.is_empty() else "")
+			+ "Избираш файлове от устройството — остават в играта. Лява „grip“ = следваща песен. Темпо в името („… 128bpm“) пуска нещата точно в ритъма.", 24, DIM)
+	else:
 		_stepper(v, "Зала", String(room_names[settings.room]) if settings.room < room_names.size() else "",
 			func(d: int) -> void: settings.room = posmod(settings.room + d, max(room_names.size(), 1)), "room")
-		_seg(v, "Гледка", GameSettings.VIEWS.map(func(x): return x.name), settings.view,
-			func(i: int) -> void: settings.view = i, "view")
-		_text(v, "Щадящ режим: по-меки проблясъци и без червен ръб — за чувствителни очи.", 24, DIM)
+		_stepper(v, "Гледка", String(GameSettings.VIEWS[settings.view].name),
+			func(d: int) -> void: settings.view = posmod(settings.view + d, GameSettings.VIEWS.size()), "view")
+		_seg(v, "Щадящ режим", ["Не", "Да"], 1 if settings.comfort else 0, func(i: int) -> void: settings.comfort = i == 1, "comfort")
+		_text(v, "Гледката е пейзажът зад прозорците (панорамна зала, лофт, бруталистка зала). Бутон Y сменя залата. Щадящ режим: по-меки проблясъци и без червен ръб.", 24, DIM)
 
 
 func _position(m: Control) -> void:
@@ -724,6 +734,14 @@ func tick(pointers: Dictionary, touch: Dictionary) -> void:
 			_click(px, on)
 			_poke[side] = on
 	_dot.visible = best_hit.x >= 0
+
+
+## A hand is at the panel (in front of it, within a hand's reach of its face): the game lifts that hand's index finger.
+func near(p: Vector3) -> bool:
+	if not visible:
+		return false
+	var local := quad.global_transform.affine_inverse() * p
+	return absf(local.x) < SIZE.x * 0.5 + 0.1 and absf(local.y) < SIZE.y * 0.5 + 0.1 and local.z > -0.06 and local.z < 0.3
 
 
 func _to_px(local: Vector3) -> Vector2:

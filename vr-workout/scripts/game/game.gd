@@ -39,6 +39,7 @@ var avatar: Avatar
 var menu: Menu
 var tablet: TabletLink               # the line to the XEMS tablet: the impulse dock and the "Костюм" page
 var dock: WristDock
+var music_import: MusicImport      # the player adds own songs from the menu
 var suit := SuitLink.new()
 var st: int = St.IDLE
 var elems: Array[Elem] = []
@@ -84,6 +85,8 @@ var _selftest_levels := 0
 var _warmed := false
 var tracks: Array = []
 var track_i := -1
+var _lib := ""
+var _force_point := false            # desktop: --point=1 shows the pointing hands
 var _mix := {}                       # desktop tests: what was thrown this level (kind name / punch -> count)
 
 
@@ -111,6 +114,10 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 	menu.set_meta("sfx", sfx)
 	stage.add_child(menu)
 	menu.action.connect(_on_menu)
+	music_import = MusicImport.new()
+	add_child(music_import)
+	music_import.imported.connect(_on_music_imported)
+	music_import.failed.connect(func(why: String) -> void: stage._show_toast(why))
 	menu.changed.connect(_on_setting)
 	suit.hands = stage.hands
 	suit.fired.connect(_on_suit)
@@ -124,13 +131,14 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 	if sim_on:
 		_sim_init()
 	_apply_settings()
-	tracks = Library.tracks(a.get("lib", ""))
+	_lib = a.get("lib", "")
+	_rescan_tracks()
 	if a.get("mute", "0") == "1":
 		sfx.muted = true
 	else:
-		if not tracks.is_empty():
-			next_track(0)
+		_play_saved_track()
 		sfx.start_music()
+	_force_point = a.get("point", "0") == "1"
 	if a.get("dock", "0") == "1":                       # desktop preview of the wrist dock
 		dock.forced = true
 		dock.global_transform = stage.cam.global_transform * Transform3D(Basis.IDENTITY, Vector3(0, -0.02, -0.3))
@@ -141,24 +149,73 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 		if a.menu == "summary":                 # desktop preview: a made-up session
 			menu.summary = {"score": 48210, "acc": 91, "best_combo": 37, "hits": 212, "perfect": 118, "dodged": 41,
 				"squats": 26, "steps": 19, "minutes": 10, "record": true, "rank": _rank(91)}
+		menu.tab = int(a.get("tab", "0"))         # desktop: --tab=<n> the settings page's tab
 		_show_menu.call_deferred(String(a.menu))
 	else:
 		_show_menu.call_deferred("home")
 
 
-## The owner's tracks (XEMS/music): the next one, wrapping round. The built-in bed plays when there are none.
-## A track's tempo: "bpm" in its .json, or in its name ("… 128bpm"); without one the game paces itself.
+## The owner's tracks (XEMS/music, or added from the menu): the next one, wrapping round. The built-in bed plays
+## when there are none. A track's tempo: "bpm" in its .json, or in its name ("… 128bpm"); without one the game paces itself.
 func next_track(step := 1) -> void:
 	if tracks.is_empty():
 		return
-	track_i = (track_i + step) % tracks.size()
-	var t: Dictionary = tracks[track_i]
-	var bpm := float(t.get("bpm", 0.0))
-	if bpm <= 0.0:
-		var m := RegEx.create_from_string("(?i)(\\d{2,3})\\s*bpm").search(String(t.name))
-		bpm = float(m.get_string(1)) if m else 0.0
-	if sfx.set_track(t.path, bpm):
+	_play_track(posmod(track_i + step, tracks.size()))
+
+
+func _play_track(i: int) -> void:
+	if i < 0 or i >= tracks.size():
+		track_i = -1
+		sfx.set_bed()
+		settings.track = "bed"
+	else:
+		track_i = i
+		var t: Dictionary = tracks[i]
+		var bpm := float(t.get("bpm", 0.0))
+		if bpm <= 0.0:
+			var m := RegEx.create_from_string("(?i)(\\d{2,3})\\s*bpm").search(String(t.name))
+			bpm = float(m.get_string(1)) if m else 0.0
+		if not sfx.set_track(t.path, bpm):
+			stage._show_toast("Не мога да пусна " + String(t.path).get_file())
+			return
+		settings.track = String(t.path).get_file()
 		stage._show_toast("♪ " + String(t.name))
+	settings.save()
+	menu.track_now = track_i
+
+
+func _rescan_tracks() -> void:
+	tracks = Library.tracks(_lib)
+	menu.track_names = tracks.map(func(t): return String(t.name))
+	track_i = -1
+	for i in tracks.size():
+		if String(tracks[i].path).get_file() == settings.track:
+			track_i = i
+	menu.track_now = track_i
+
+
+## At the start: the song chosen last time ("auto": the first of the player's own, else the built-in bed).
+func _play_saved_track() -> void:
+	if settings.track == "bed" or tracks.is_empty():
+		return
+	if track_i < 0:
+		track_i = 0
+	_play_track(track_i)
+
+
+func _on_music_imported(names: Array) -> void:
+	if names.is_empty():
+		return
+	_rescan_tracks()
+	for i in tracks.size():
+		if String(tracks[i].path).get_file() == names[0]:
+			_play_track(i)
+			sfx.start_music()
+	stage._show_toast("Добавени: %d ♪" % names.size())
+	if stage.vr_status:
+		stage.vr_status.text = "Добавени песни: %d — свирят в играта (лява „grip“ = следваща)" % names.size()
+	if menu.visible:
+		menu.show_page(menu.page)
 
 
 func skip_stage() -> void:
@@ -197,6 +254,8 @@ func _on_setting(key: String) -> void:
 			_warmed = false                     # the new room has not been lit by a flash yet
 		"view":
 			stage.apply_view()
+		"track":
+			_play_track(menu.track_pick)
 		"offset":
 			stage.apply_room_offset()
 		"height_cm":
@@ -261,6 +320,8 @@ func _on_menu(id: String) -> void:
 			_finish_session()
 		"recenter":
 			recalibrate()
+		"add_music":
+			music_import.pick()
 
 
 func _pause(reason: String) -> void:
@@ -379,12 +440,13 @@ func _process(delta: float) -> void:
 		stage.dressing.set_flow(combo)
 		stage.dressing.tick(delta, bt, beat_len(), sfx.bass())
 	_suit_fx()
+	_pointing()
 	avatar.update(body, self, Defs.multiplier(combo), MIN_SPEED, stage.cam.global_position, delta, sim_on and not stage.xr)
 	if menu.visible:
 		var touch := {}
 		for side in ["left", "right"]:
 			if body.src[side] != "none":
-				touch[side] = (avatar.gloves[side] as Node3D).global_position
+				touch[side] = avatar.press_point(side)
 		var pointers := {}
 		for side in ["left", "right"]:
 			if not body.on_foot[side]:
@@ -396,6 +458,20 @@ func _process(delta: float) -> void:
 	_hud(delta)
 
 
+## A hand at a button lifts its index finger, as if to click with it: the right one at the wrist dock, either one
+## near the menu panel. Away from them it closes back into the fist.
+func _pointing() -> void:
+	for side in ["left", "right"]:
+		var on := _force_point
+		if body.src[side] != "none" and not body.on_foot[side]:
+			var g: Vector3 = (avatar.gloves[side] as Node3D).global_position
+			if menu.visible and menu.near(g):
+				on = true
+			elif side == "right" and dock.visible and g.distance_to(dock.global_position) < 0.28:
+				on = true
+		avatar.set_point(side, on)
+
+
 ## The wrist dock follows the left hand (controller: its inner side, +X · bare hand: the palm side, −Y).
 func _dock(delta: float) -> void:
 	var src: String = body.src.left
@@ -403,7 +479,7 @@ func _dock(delta: float) -> void:
 	var face := t.basis.x.normalized() if src == "controller" else -t.basis.y.normalized()
 	var finger = null
 	if body.src.right != "none":
-		finger = (avatar.gloves.right as Node3D).global_position
+		finger = avatar.press_point("right")
 	var allowed: bool = src != "none" and not menu.visible and not body.on_foot.left and stage.xr
 	dock.tick(delta, t, face, stage.cam.global_position, finger, allowed)
 

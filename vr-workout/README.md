@@ -49,7 +49,10 @@ all for 1.2 s → the game pauses itself and goes on when a hand is back. **Legs
 the upper body (Meta body tracking, high fidelity), so real kicks need a **controller strapped to each ankle**: the game
 sees a controller held low while you stand and treats it as that foot (hands then come from hand tracking). The *Крака*
 setting: auto (ankle controllers → tracking that the try-out confirmed → squat-and-step moves), ankles only, tracking
-only, moves only, none. **Seen:** sci-fi gloves (cyan plates and light tubes that flash magenta on a hit), shin guards, knee pads, boots and a halo under each foot, trails
+only, moves only, none. **Seen:** sci-fi gloves (cyan plates and light tubes that flash magenta on a hit; at a button — the wrist dock, the
+menu — the index finger lifts out of the fist and presses with its tip), leg armour in the same kit (the glove's gauntlet
+as the shin guard, its back-hand plate and disc as the knee pad, a boot with a cyan toe cap, heel plate, instep disc and a
+light strip on the sole) and a halo under each foot, trails
 behind fists and feet that turn white-hot once fast enough to count.
 
 **The arena** (default room, `scripts/game/arena.gd`, built from code plus < 1 MB of CC0 Poly Haven assets in
@@ -67,9 +70,11 @@ beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid
 | The menu panel and its pages | `scripts/game/menu.gd` |
 | Impulse dock: line to the tablet / wrist card | `scripts/game/tablet.gd`, `scripts/game/dock.gd` |
 | Elements, flight paths, punch marks, shield, walls (shaders `plasma`, `hazard`, `halo`, `approach`) | `scripts/game/elem.gd` |
-| Gloves, leg guards, trails | `scripts/game/avatar.gd` |
+| Gloves (fist / pointing), leg armour, trails | `scripts/game/avatar.gd` |
 | Effects (`shock`, `vignette`, `trail`) | `scripts/game/fx.gd` |
 | The arena + side gates | `scripts/game/arena.gd` |
+| The panoramic hall · the loft (built from code) | `scripts/game/skyloft.gd`, `scripts/game/factory_loft.gd` |
+| Adding the player's own songs (file picker → XEMS/music) | `scripts/game/music_import.gd` |
 | Head, hands (controller / hand tracking), ankle controllers, body tracking | `scripts/game/body.gd` |
 | Suit events → controller haptics → the suit | `scripts/game/suit.gd` |
 | Sounds, music bus, beat clock | `scripts/game/sfx.gd`, `gen/make_sounds.py`, `assets/sfx/` |
@@ -77,15 +82,27 @@ beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid
 **Buttons.** Menu / right B = menu and pause · right A = skip · left X = "this is the middle" · left Y = next room ·
 left grip = next track. A system recenter (hold Meta) recalibrates too.
 
-**Rooms.** The arena; the brutalist hall (3D, dressed by `scripts/game/hall.gd`: an LED wall playing the music, neon
-strips whose cross bars run with the beat, light tubes down both sides, boxing bags, a corner of gym kit, lane lines,
-two lit words — all in the combo's colour); and 8K 360° photos (Poly Haven, CC0): gym, boxing ring, dancing hall, neon
-studio, mirrored hall, bridge. A photo is painted on a cylinder the size of the real room (`radius`, `height`) round
-the spot it was shot from, and **the player stands on that spot** — the only place a photo is undistorted; `yaw` turns
-the open floor ahead; things fly in from up to `radius − 0.4` m. The panoramic hall (`scripts/game/skyloft.gd`, built from code) has glass walls
-from floor to ceiling on three sides, a terrace with a glass railing outside, and the sea or the mountains beyond
-(setting "Гледка"; `assets/views`, a 360° photo drawn as the sky by `shaders/view_sky.gdshader`): infinitely far,
-so in the headset the view is truly out there behind crisp panes.
+**Rooms.** The arena; the panoramic hall (`scripts/game/skyloft.gd`: glass from floor to ceiling ahead and on the
+front half of both sides, a terrace with a glass railing, warm wooden slats behind); the loft (`scripts/game/factory_loft.gd`:
+an old brick factory hall, tall steel-framed windows of small panes ahead and on both sides, trusses, pendant lamps,
+polished concrete); the brutalist hall (3D, dressed by `scripts/game/hall.gd`: an LED wall playing the music, neon strips
+whose cross bars run with the beat, light tubes, boxing bags, gym kit, lane lines, two lit words — all in the combo's
+colour; its openings look out on the view too); and three 360° photos (Poly Haven, CC0): gym, dancing hall, mirrored hall.
+**Photo rooms are boxes of their real size:** each was measured on the photo itself (a top-down projection of its floor,
+`box` = the walls' x/z from the camera, `height` = the ceiling, in `scripts/library.gd`), and the photo is painted on a box
+of exactly that size round the spot it was shot from — floor and walls meet where they really meet (a cylinder bigger than
+the room smeared the walls over the floor). **The player stands on that spot**; `yaw` turns the most open side ahead;
+things fly in from up to the front wall − 0.4 m. The owner's own photos without `box` still get a cylinder of `radius`.
+**Views** (setting "Гледка", `GameSettings.VIEWS`, drawn as the sky by `shaders/view_sky.gdshader`, infinitely far, so in
+the headset the landscape is truly out there behind crisp panes): the mountains (a 360° photo) and 11 ordinary photos the
+owner picked (`land/` → `assets/views/`, ≈ 7 MP each). An ordinary photo hangs on a cylinder round the player: `span`
+degrees wide (120 fills every window of the halls from where you stand; the glass is laid out to that, ±60°), its `horizon`
+row at eye level, its height from its own proportions (nothing stretched); past its sides it continues mirrored, above and
+below it fades into its own sky and ground colour.
+**Your music.** Settings → Звук: "Песен" picks the track (the built-in bed or one of yours), "Добави свои песни (mp3)" opens
+the device's file picker (`scripts/game/music_import.gd`): in the Quest browser the page's own picker, the songs kept by
+the browser for the site; in the Quest app the system picker, copied to `XEMS/music`. The page has the same button under
+"Влез във VR". Left grip = the next song; the choice is remembered.
 **Desktop tests (no headset):**
 ```
 godot --path vr-workout -- --sim=1 --skiptut=1 --levels=1 --level=4 --skill=0.8 --timescale=6   # plays itself, prints LEVEL … done
@@ -93,6 +110,10 @@ godot --path vr-workout -- --shot=out.png --wait=8 --view=player --sim=1 --skipt
 godot --path vr-workout -- --shot=out.png --wait=3 --skiptut=1 --burst=0 --bt=0.06               # an effect frozen (0/1/2 = sphere, hit)
 godot --path vr-workout -- --shot=out.png --wait=4 --menu=suit                                   # a menu page (home/settings/position/suit/pause/summary)
 godot --path vr-workout -- --shot=out.png --wait=8 --view=player --sim=1 --skiptut=1 --dock=1     # the wrist dock
+godot --path vr-workout -- --shot=out.png --wait=3 --room=1 --land=3 --look=40 --pitch=5          # a room, a view, a direction
+godot --path vr-workout -- --shot=out.png --wait=3 --glove=right --point=1 --gt=1                  # a glove close-up, pointing
+godot --path vr-workout -- --shot=out.png --wait=4 --sim=1 --skiptut=1 --leg=l --lx=0.4 --lz=-0.3 # the leg armour close-up
+godot --path vr-workout -- --shot=out.png --wait=3 --menu=settings --tab=1                         # a settings tab
 ```
 
 ## In the Quest browser (WebXR) — the way it ships now

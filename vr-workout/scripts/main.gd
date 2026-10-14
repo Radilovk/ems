@@ -60,6 +60,8 @@ func _ready() -> void:
 			args[a.substr(2, a.find("=") - 2)] = a.substr(a.find("=") + 1)
 	Library.prepare(args.get("lib", ""))
 	settings.load_file()
+	if args.has("land"):                      # desktop: --land=<n> the window view (settings "Гледка")
+		settings.view = clampi(int(args.land), 0, GameSettings.VIEWS.size() - 1)
 	rooms = Library.rooms(args.get("lib", ""))
 	room_i = _pick(rooms, args.get("room", str(settings.room)))
 	_build_world()
@@ -186,12 +188,15 @@ func _apply_room() -> void:
 		return
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.9
-	if r.kind == "loft":
-		room_scene = SkyLoft.new()
+	env.ambient_light_sky_contribution = 1.0
+	if r.kind == "loft" or r.kind == "factory":
+		env.ambient_light_color = Color(0.78, 0.77, 0.75)    # half of the fill neutral: a sunset or a meadow outside
+		env.ambient_light_sky_contribution = 0.35             # tints the hall, it does not paint the ceiling
+		room_scene = SkyLoft.new() if r.kind == "loft" else FactoryLoft.new()
 		room_root.add_child(room_scene)
 		room_shell.visible = false
 		env.background_energy_multiplier = 1.0
-		_room_depth0 = -SkyLoft.FRONT - 0.6
+		_room_depth0 = (-SkyLoft.FRONT if r.kind == "loft" else -FactoryLoft.FRONT) - 0.6
 		apply_view()
 		apply_room_offset()
 		return
@@ -202,18 +207,32 @@ func _apply_room() -> void:
 			return
 		# The player stands where the camera stood: the only spot from which a photo is undistorted. The shell is a
 		# cylinder of the real room's size round that spot (it only sets the depth of walls and floor in stereo).
-		var R: float = float(r.get("radius", 6.0))
+		# A measured room ("box") gets a box of its real size with the camera where it stood in it: floor and walls
+		# meet where they really meet. Else a cylinder of the given radius round the camera.
 		var H: float = float(r.get("height", 3.6))
-		var cyl := room_shell.mesh as CylinderMesh
-		cyl.top_radius = R
-		cyl.bottom_radius = R
-		cyl.height = H
-		room_shell.position = Vector3(0, H * 0.5, 0)
-		_room_depth0 = R - 0.4
+		var centre := Vector3(0, H * 0.5, 0)
+		var bx: Array = r.get("box", [])
+		if bx.size() == 4:
+			var b := BoxMesh.new()
+			b.size = Vector3(bx[1] - bx[0], H, bx[3] - bx[2])
+			room_shell.mesh = b
+			centre = Vector3((bx[0] + bx[1]) * 0.5, H * 0.5, (bx[2] + bx[3]) * 0.5)
+			_room_depth0 = -float(bx[2]) - 0.4
+		else:
+			var R: float = float(r.get("radius", 6.0))
+			var cyl := CylinderMesh.new()
+			cyl.top_radius = R
+			cyl.bottom_radius = R
+			cyl.height = H
+			cyl.radial_segments = 96
+			cyl.rings = 1
+			room_shell.mesh = cyl
+			_room_depth0 = R - 0.4
+		room_shell.position = centre
 		room_mat.set_shader_parameter("pano", pano.tex)
 		room_mat.set_shader_parameter("hdr", pano.hdr)
 		room_mat.set_shader_parameter("exposure", pano.exposure)
-		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.6))) - H * 0.5, 0))
+		room_mat.set_shader_parameter("capture", Vector3(0, float(args.get("cam", r.get("cam", 1.6))), 0) - centre)
 		room_mat.set_shader_parameter("yaw", float(args.get("yaw", r.get("yaw", 0.0))))
 		sky_mat.panorama = pano.tex
 		sky.sky_material = sky_mat
@@ -247,20 +266,32 @@ func _apply_room() -> void:
 	room_shell.visible = false
 	sky.sky_material = plain_sky
 	env.background_energy_multiplier = 1.0
+	if r.get("view", false):                 # openings to the outside: the chosen landscape beyond them
+		apply_view()
 	apply_room_offset()
 
 
-## The sky loft's view (settings: the sea or the mountains): a 360° photo as the sky, infinitely far beyond the glass.
+## What the windows look out on (settings "Гледка"): a 360° photo or an ordinary one hung round the player
+## (shaders/view_sky.gdshader), infinitely far beyond the glass. Rooms with windows: the panoramic hall, the loft and
+## the brutalist hall's openings.
 func apply_view() -> void:
-	if rooms[room_i].kind != "loft":
+	var r: Dictionary = rooms[room_i]
+	if not (r.kind in ["loft", "factory"] or r.get("view", false)):
 		return
 	var v: Dictionary = GameSettings.VIEWS[clampi(settings.view, 0, GameSettings.VIEWS.size() - 1)]
 	if view_sky == null:
 		view_sky = ShaderMaterial.new()
 		view_sky.shader = VIEW_SKY
-	view_sky.set_shader_parameter("view", load(v.path))
-	view_sky.set_shader_parameter("yaw", v.yaw)
-	view_sky.set_shader_parameter("lift", v.lift)
+	var tex: Texture2D = load(v.path)
+	var photo := v.has("span")
+	view_sky.set_shader_parameter("view", tex)
+	view_sky.set_shader_parameter("is_photo", photo)
+	view_sky.set_shader_parameter("yaw", float(v.get("yaw", 0.0)))
+	view_sky.set_shader_parameter("lift", float(v.get("lift", 0.0)))
+	if photo:
+		view_sky.set_shader_parameter("span", deg_to_rad(float(v.span)))
+		view_sky.set_shader_parameter("aspect", float(tex.get_width()) / tex.get_height())
+		view_sky.set_shader_parameter("horizon", float(v.horizon))
 	sky.sky_material = view_sky
 
 
@@ -459,6 +490,8 @@ func _setup_view() -> void:
 			cam.look_at(Vector3(0, 1.1, -2.0))
 		else:
 			cam.look_at(Vector3(0.0, 1.2, -2.4))
+		if args.has("look"):                      # --look=<deg left> [--pitch=<deg up>]: look round a room
+			cam.rotation_degrees = Vector3(float(args.get("pitch", "0")), float(args.look), 0)
 
 
 # ---------------------------------------------------------------- the Quest browser (WebXR)
@@ -472,7 +505,7 @@ func _setup_webxr() -> void:
 	box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	box.offset_left = -260
 	box.offset_right = 260
-	box.offset_top = -230
+	box.offset_top = -320
 	box.offset_bottom = -40
 	box.alignment = BoxContainer.ALIGNMENT_END
 	vr_overlay.add_child(box)
@@ -491,6 +524,23 @@ func _setup_webxr() -> void:
 	btn.add_theme_stylebox_override("pressed", sbh)
 	btn.pressed.connect(_enter_vr)
 	box.add_child(btn)
+	var add := Button.new()                  # your own songs: picked here, kept by the browser for this site
+	add.text = "♪  Добави своя музика (mp3)"
+	add.custom_minimum_size = Vector2(520, 72)
+	add.add_theme_font_override("font", FONT)
+	add.add_theme_font_size_override("font_size", 30)
+	var sa := sb.duplicate() as StyleBoxFlat
+	sa.bg_color = Color(0.1, 0.16, 0.2, 0.85)
+	sa.set_corner_radius_all(36)
+	add.add_theme_stylebox_override("normal", sa)
+	var sah := sa.duplicate() as StyleBoxFlat
+	sah.bg_color = Color(0.14, 0.24, 0.3, 0.95)
+	add.add_theme_stylebox_override("hover", sah)
+	add.add_theme_stylebox_override("pressed", sah)
+	add.pressed.connect(func() -> void:
+		if game:
+			game.music_import.pick())
+	box.add_child(add)
 	vr_status = Label.new()
 	vr_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vr_status.add_theme_font_override("font", FONT)
@@ -606,6 +656,18 @@ func _shoot() -> void:
 		await get_tree().create_timer(float(args.get("bt", "0.08"))).timeout
 		Engine.time_scale = 0.0001
 		_slow_particles(0.0)
+	if args.has("glove"):                       # --glove=left|right: a close-up of that glove (pose checks)
+		var g: Node3D = game.avatar.gloves[args.glove]
+		Engine.time_scale = 0.0001
+		await get_tree().create_timer(float(args.get("gt", "0.3")) * 0.0001).timeout
+		cam.global_position = g.global_position + g.global_basis.x * float(args.get("gx", "0.3")) + Vector3(0, 0.08, 0)
+		cam.look_at(g.global_position + g.global_basis * Vector3(0, 0, -0.05))
+	if args.has("leg"):                         # --leg=l|r: a close-up of that leg's armour from the side
+		Engine.time_scale = 0.0001
+		var sh: Node3D = game.avatar._legs[args.leg].shin
+		var at := sh.global_position + Vector3(0, float(args.get("ly", "0.15")), 0)
+		cam.global_position = at + Vector3(float(args.get("lx", "0.9")), 0.25, float(args.get("lz", "-0.6")))
+		cam.look_at(at)
 	for i in 6:
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw

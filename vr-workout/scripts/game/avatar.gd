@@ -1,6 +1,6 @@
 ## The player's own body as seen: sci-fi gloves on the hands (controller or bare hand — they follow whatever tracks
-## the hand now), shin guards, knee pads and boots on the legs whenever the legs are known (ankle controllers or body
-## tracking), light trails behind fists and feet that turn white-hot once fast enough to count, and a soft halo on the
+## the hand now), shin guards, knee pads and boots cut from the same glove model on the legs whenever the legs are
+## known (ankle controllers or body tracking), light trails behind fists and feet that turn white-hot once fast enough to count, and a soft halo on the
 ## floor at each foot. The gloves glow cyan and flash magenta on a hit; the trails follow the combo multiplier: ×1 cyan ·
 ## ×2 green · ×3 magenta · ×4 gold.
 class_name Avatar
@@ -25,19 +25,23 @@ const THUMB_KNEE := Vector3(-1.85, -1.35, 3.35) # where that joint goes: under t
 const THUMB_DOWN := Vector3(0.25, -0.75, 0.6)   # … the near half reaching there forward and down,
 const THUMB_ACROSS := Vector3(1.0, -0.05, 0.15) # the far half lying across the index and middle fingers (a boxer's fist)
 
-static var _glove_meshes := {}   # "plate"/"glow"/"body"/"mech" -> ArrayMesh, built once
+static var _glove_meshes := {}   # "plate"/"glow"/"body"/"mech" -> ArrayMesh, built once (blend shape 0 = "point")
+static var _tip := Vector3.ZERO  # the pointing index fingertip in the left glove's frame (metres)
 var gloves := {}                 # "left"/"right" -> Node3D
 var _plate_mats := {}            # side -> StandardMaterial3D
 var _glow_mats := {}             # side -> StandardMaterial3D
 var _auras := {}                 # side -> {"mat": ShaderMaterial, "nodes": [aura meshes, halo], "light": OmniLight3D}
 var _glove_body: StandardMaterial3D
 var _glove_mech: StandardMaterial3D
-var _legs := {}                  # "l"/"r" -> {"shin", "knee", "boot", "halo"}
+var _legs := {}                  # "l"/"r" -> {"shin", "knee", "boot", "halo"} (Node3D each)
 var _leg_mats: Array[StandardMaterial3D] = []
 var trails := {}                 # limb -> Fx.Trail
 var color: Color = MULT_COLORS[0]
 var _target: Color = MULT_COLORS[0]
 var _punch := {"left": 0.0, "right": 0.0}       # a short flare on the glove that just landed a hit
+var _point := {"left": 0.0, "right": 0.0}       # 0 fist … 1 index finger out (pressing buttons), eased
+var _point_want := {"left": false, "right": false}
+var _glove_mis := {"left": [], "right": []}     # the glove's mesh instances (they carry the "point" blend shape)
 
 
 func _ready() -> void:
@@ -109,6 +113,7 @@ func _glove(side: String) -> Node3D:
 		if side == "right":
 			mi.scale = Vector3(-1, 1, 1)                  # mirrored: Godot flips the faces itself
 		g.add_child(mi)
+		_glove_mis[side].append(mi)
 	var aura := ShaderMaterial.new()                      # the glow on a hit: the glove's shape blooming
 	aura.shader = preload("res://shaders/glove_aura.gdshader")
 	aura.set_shader_parameter("color", GLOVE_HIT)
@@ -122,6 +127,7 @@ func _glove(side: String) -> Node3D:
 			am.scale = Vector3(-1, 1, 1)
 		g.add_child(am)
 		nodes.append(am)
+		_glove_mis[side].append(am)
 	var halo := MeshInstance3D.new()                      # and a soft light round the fist, facing the eye
 	var hq := QuadMesh.new()
 	hq.size = Vector2(0.5, 0.5)
@@ -150,7 +156,8 @@ func _glove(side: String) -> Node3D:
 ## The model's open hand closed into a fist (in model units, after rel puts the part in the model's space). Past the
 ## knuckle line each finger rolls down into the palm along an arc, about 250° whatever its length; the thumb bends at its
 ## two joints and lies across the curled index and middle fingers, outside them, as in a boxer's fist. Normals turn with the surface.
-static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
+## point: the index finger stays out straight (pressing a button), the others curl as in the fist.
+static func _fist(arrays: Array, rel: Transform3D, point := false) -> ArrayMesh:
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var norms: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var d := Vector2(-0.33, 0.94).normalized()                # the fingers' axis in (y, z): they slope down a little
@@ -166,7 +173,9 @@ static func _fist(arrays: Array, rel: Transform3D) -> ArrayMesh:
 		var q := Vector2(p.y - KNUCKLE.x, p.z - KNUCKLE.y)
 		var t := q.dot(d)
 		var fg := _finger(p.x)                           # (root along, root up, slope, length) of this finger
-		if t > fg.x and p.z > 3.3 and p.x > -1.68:         # (the thumb tip reaches past the knuckles too)
+		if point and t > fg.x and p.x < -0.75 and p.x > -1.68 and p.z > 3.3:   # the index finger, pointing: straight out,
+			p.x += _finger_close(p.x) * smoothstep(-0.05, 0.5, t)       # only closed up to the middle finger
+		elif t > fg.x and p.z > 3.3 and p.x > -1.68:         # (the thumb tip reaches past the knuckles too)
 			var len: float = fg.w
 			var h := q.dot(nrm)
 			var root := Vector2(fg.x, fg.y)
@@ -268,60 +277,268 @@ static func _merge_glove() -> Dictionary:
 				kind = "glow"
 			elif mname.begins_with("Glove"):
 				kind = "body"
-			if not tools.has(kind):
-				var st := SurfaceTool.new()
-				st.begin(Mesh.PRIMITIVE_TRIANGLES)
-				tools[kind] = st
-			(tools[kind] as SurfaceTool).append_from(_fist(mi.mesh.surface_get_arrays(i), rel), 0, to_grip)
+			for v in ["fist", "point"]:
+				var key: String = kind + "/" + v
+				if not tools.has(key):
+					var st := SurfaceTool.new()
+					st.begin(Mesh.PRIMITIVE_TRIANGLES)
+					tools[key] = st
+				(tools[key] as SurfaceTool).append_from(_fist(mi.mesh.surface_get_arrays(i), rel, v == "point"), 0, to_grip)
 	model.free()
 	var out := {}
-	for k in tools:
-		out[k] = (tools[k] as SurfaceTool).commit()
+	var tip := Vector3(0, 0, INF)
+	for key in tools:
+		if not String(key).ends_with("/fist"):
+			continue
+		var kind: String = String(key).get_slice("/", 0)
+		var a: Array = (tools[key] as SurfaceTool).commit_to_arrays()
+		var b: Array = (tools[kind + "/point"] as SurfaceTool).commit_to_arrays()
+		for p in (b[Mesh.ARRAY_VERTEX] as PackedVector3Array):         # the fingertip: the point furthest ahead
+			if p.z < tip.z:
+				tip = p
+		var shape := []                                     # the same vertices, index finger out: a blend shape,
+		shape.resize(Mesh.ARRAY_MAX)                        # so the finger lifts smoothly instead of popping
+		shape[Mesh.ARRAY_VERTEX] = b[Mesh.ARRAY_VERTEX]
+		shape[Mesh.ARRAY_NORMAL] = b[Mesh.ARRAY_NORMAL]
+		if a[Mesh.ARRAY_TANGENT] != null:
+			shape[Mesh.ARRAY_TANGENT] = b[Mesh.ARRAY_TANGENT]
+		var m := ArrayMesh.new()
+		m.blend_shape_mode = Mesh.BLEND_SHAPE_MODE_NORMALIZED
+		m.add_blend_shape("point")
+		m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a, [shape])
+		out[kind] = m
+	_tip = tip
 	return out
 
 
-## A leg: a glass shin guard from the knee to the ankle, a knee pad, a boot and a halo on the floor under the foot.
+## The leg armour, in the gloves' own parts and materials, so legs and hands are one suit: the gauntlet (the forearm
+## part of the "Sci-fi Glove" model: cyan plates, light tubes, the dark sleeve) becomes the shin guard, the back-of-hand
+## plate with its glowing disc the knee pad; the boot is is shaped here in the same kit — a
+## dark shell, cyan toe cap and heel plate, a light strip along the sole. Built once: part -> kind -> ArrayMesh, in each
+## part's own frame (shin: +y from the ankle up to the knee, −z ahead · knee: its middle, facing −z · boot: the ankle,
+## toes −z, the sole 9 cm below). The instep carries the gloves' glowing disc in a cyan ring.
+static var _leg_meshes := {}
+static var _shin_len := 1.0      # the shin guard's length as built (it is stretched to each leg)
+
+
+static func _merge_legs() -> Dictionary:
+	var model := GLOVE_SCENE.instantiate() as Node3D
+	# model: fingers +z, back of the hand +y, the forearm towards −z (wrist at z ≈ 0), thumb −x
+	var shin_b := Basis(Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(0, -1, 0))   # −z → up, +y → ahead
+	var knee_b := Basis(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0))     # +z → up, +y → ahead
+	var xf := {
+		"shin": Transform3D(shin_b * Basis.from_scale(Vector3(0.04, 0.047, 0.04)), Vector3.ZERO) * Transform3D(Basis.IDENTITY, -Vector3(-0.35, 0.75, 0.3)),
+		"knee": Transform3D(knee_b * Basis.from_scale(Vector3(0.045, 0.045, 0.045)), Vector3.ZERO) * Transform3D(Basis.IDENTITY, -Vector3(-0.55, 0.6, 1.3)),
+	}
+	var tools := {}
+	var stack: Array[Node] = [model]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		stack.append_array(n.get_children())
+		if not n is MeshInstance3D:
+			continue
+		var mi := n as MeshInstance3D
+		var rel := Transform3D.IDENTITY
+		var up: Node = mi
+		while up != model:
+			rel = (up as Node3D).transform * rel
+			up = up.get_parent()
+		for i in mi.mesh.get_surface_count():
+			var mat := mi.mesh.surface_get_material(i)
+			var mname := mat.resource_name if mat else ""
+			var kind := "mech"
+			if mname.ends_with("PLate"):
+				kind = "plate"
+			elif mname.begins_with("Glow"):
+				kind = "glow"
+			elif mname.begins_with("Glove"):
+				kind = "body"
+			var arr := mi.mesh.surface_get_arrays(i)
+			var knee_part := String(mi.name).begins_with("polySurface30") or String(mi.name).begins_with("pSphere1")
+			for part in ["shin", "knee", "boot"]:
+				if part == "boot" or (part == "knee" and not knee_part):
+					continue
+				var key: String = part + "/" + kind
+				var st: SurfaceTool = tools.get(key)
+				var added = _cut(arr, rel, part, xf[part], st)
+				if added != null:
+					tools[key] = added
+	model.free()
+	_boot(tools)
+	var out := {"shin": {}, "knee": {}, "boot": {}}
+	var top := 0.0
+	for key in tools:
+		var m := (tools[key] as SurfaceTool).commit()
+		out[String(key).get_slice("/", 0)][String(key).get_slice("/", 1)] = m
+		if String(key).begins_with("shin/"):
+			top = maxf(top, m.get_aabb().end.y)
+	_shin_len = maxf(top, 0.1)
+	return out
+
+
+## The triangles of one model part that belong to a leg piece, moved into that piece's frame. Returns the SurfaceTool
+## (made on the first triangle) or null when nothing belongs.
+static func _cut(arrays: Array, rel: Transform3D, part: String, to: Transform3D, st: SurfaceTool):
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var norms: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var uvs = arrays[Mesh.ARRAY_TEX_UV]
+	var idx = arrays[Mesh.ARRAY_INDEX]
+	var count: int = idx.size() if idx != null else verts.size()
+	var nb := to.basis.inverse().transposed()
+	for t in range(0, count, 3):
+		var ids := [idx[t], idx[t + 1], idx[t + 2]] if idx != null else [t, t + 1, t + 2]
+		var c := Vector3.ZERO
+		for k in ids:
+			c += rel * verts[k]
+		c /= 3.0
+		var keep := false
+		match part:
+			"shin":
+				keep = c.z < 0.2
+			"knee":
+				keep = true
+		if not keep:
+			continue
+		if st == null:
+			st = SurfaceTool.new()
+			st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for k in ids:
+			var p: Vector3 = rel * verts[k]
+			var nv: Vector3 = (rel.basis * norms[k]).normalized() if k < norms.size() else Vector3.UP
+			st.set_normal((nb * nv).normalized())
+			if uvs != null and k < (uvs as PackedVector2Array).size():
+				st.set_uv(uvs[k])
+			st.add_vertex(to * p)
+	return st
+
+
+## The boot's own shape (metres, the ankle at the origin, toes −z): (z, width, height) of its cross-sections from
+## the heel to the toe, rounded-box profiles standing on the sole.
+const SOLE := -0.09
+const BOOT := [Vector3(0.075, 0.07, 0.10), Vector3(0.045, 0.086, 0.118), Vector3(0.0, 0.092, 0.112),
+	Vector3(-0.05, 0.096, 0.094), Vector3(-0.1, 0.1, 0.074), Vector3(-0.145, 0.097, 0.06), Vector3(-0.18, 0.084, 0.05),
+	Vector3(-0.2, 0.06, 0.04), Vector3(-0.208, 0.03, 0.026)]
+
+
+static func _boot(tools: Dictionary) -> void:
+	_loft(tools, "boot/body", BOOT, Vector3(1, 1, 1), SOLE)                                 # the dark shell
+	var sole := []
+	for c in BOOT:
+		sole.append(Vector3(c.x, c.y * 1.08 + 0.006, 0.018))
+	_loft(tools, "boot/mech", sole, Vector3.ONE, SOLE - 0.018)                           # the sole
+	var toe := []
+	for c in BOOT:
+		if c.x <= -0.095:
+			toe.append(c)
+	_loft(tools, "boot/plate", toe, Vector3(1.06, 1.07, 1), SOLE + 0.004)                 # the toe cap
+	var heel := []
+	for c in BOOT:
+		if c.x >= 0.0:
+			heel.append(c)
+	_loft(tools, "boot/plate", heel, Vector3(1.06, 0.8, 1), SOLE + 0.004)                 # the heel plate
+	var mid := []
+	for c in BOOT:
+		if c.x <= 0.01 and c.x >= -0.105:
+			mid.append(Vector3(c.x, c.y * 0.8, c.z))
+	_loft(tools, "boot/plate", mid, Vector3(1.0, 1.03, 1), SOLE + 0.004)                  # the instep plate (narrower)
+	var glow := SurfaceTool.new()
+	glow.begin(Mesh.PRIMITIVE_TRIANGLES)
+	tools["boot/glow"] = glow
+	for sx in [-1.0, 1.0]:                                                               # a light strip on each side
+		var b := BoxMesh.new()
+		b.size = Vector3(0.004, 0.006, 0.17)
+		glow.append_from(b, 0, Transform3D(Basis.IDENTITY, Vector3(sx * 0.0575, SOLE - 0.009, -0.045)))
+	var tilt := Basis(Vector3.RIGHT, 0.42)                                              # the instep's slope
+	var at := Vector3(0, SOLE + 0.1, -0.045)
+	var disc := CylinderMesh.new()                                                      # the glowing disc …
+	disc.top_radius = 0.017
+	disc.bottom_radius = 0.017
+	disc.height = 0.006
+	disc.radial_segments = 20
+	glow.append_from(disc, 0, Transform3D(tilt, at))
+	var ring := TorusMesh.new()                                                         # … in a cyan ring
+	ring.inner_radius = 0.019
+	ring.outer_radius = 0.027
+	ring.rings = 20
+	ring.ring_segments = 8
+	var into: SurfaceTool = tools["boot/plate"]
+	into.append_from(ring, 0, Transform3D(tilt.scaled(Vector3(1, 0.35, 1)), at - tilt.y * 0.001))
+
+
+## A closed shell through cross-sections (z, width, height) standing on y = base: rounded-box profiles, end caps.
+static func _loft(tools: Dictionary, key: String, sections: Array, k: Vector3, base: float) -> void:
+	const N := 24
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rings := []
+	for c in sections:
+		var ring := []
+		for i in N:
+			var a := TAU * i / N
+			var cx := cos(a)
+			var sy := sin(a)
+			var x: float = signf(cx) * pow(absf(cx), 0.5) * c.y * 0.5 * k.x
+			var y: float = signf(sy) * pow(absf(sy), 0.5) * c.z * 0.5 * k.y
+			ring.append(Vector3(x, base + c.z * 0.5 * k.y + y, c.x))
+		rings.append(ring)
+	for r in range(rings.size() - 1):
+		for i in N:
+			var a: Vector3 = rings[r][i]
+			var b: Vector3 = rings[r][(i + 1) % N]
+			var c: Vector3 = rings[r + 1][i]
+			var d: Vector3 = rings[r + 1][(i + 1) % N]
+			for p in [a, b, c, b, d, c]:
+				st.add_vertex(p)
+	for e in [0, rings.size() - 1]:                     # the end caps
+		var ctr := Vector3.ZERO
+		for p in rings[e]:
+			ctr += p
+		ctr /= N
+		for i in N:
+			var a: Vector3 = rings[e][i]
+			var b: Vector3 = rings[e][(i + 1) % N]
+			for p in ([ctr, b, a] if e == 0 else [ctr, a, b]):
+				st.add_vertex(p)
+	st.index()                                          # shared corners → smooth normals over the shell
+	st.generate_normals()
+	var mesh := st.commit()
+	var into: SurfaceTool = tools.get(key)
+	if into == null:
+		into = SurfaceTool.new()
+		into.begin(Mesh.PRIMITIVE_TRIANGLES)
+		tools[key] = into
+	into.append_from(mesh, 0, Transform3D.IDENTITY)
+
+
+## A leg: the shin guard from the ankle to the knee, the knee pad, the boot (all in the gloves' materials) and a
+## halo on the floor under the foot.
 func _leg() -> Dictionary:
-	var glass := StandardMaterial3D.new()
-	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	glass.albedo_color = Color(0.1, 0.2, 0.25, 0.35)
-	glass.metallic = 0.3
-	glass.roughness = 0.15
-	glass.rim_enabled = true
-	glass.rim = 1.0
-	glass.emission_enabled = true
-	glass.emission = FOOT_COLOR
-	glass.emission_energy_multiplier = 0.45
-	_leg_mats.append(glass)
-	var shin := MeshInstance3D.new()
-	var cap := CapsuleMesh.new()
-	cap.radius = 0.052
-	cap.height = 0.4
-	cap.radial_segments = 14
-	cap.rings = 4
-	shin.mesh = cap
-	shin.material_override = glass
-	shin.top_level = true
-	shin.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(shin)
-	var knee := MeshInstance3D.new()
-	var ks := SphereMesh.new()
-	ks.radius = 0.055
-	ks.height = 0.11
-	knee.mesh = ks
-	knee.scale = Vector3(1.0, 0.8, 0.7)
-	knee.material_override = _unshaded(FOOT_COLOR.lightened(0.2))
-	knee.top_level = true
-	add_child(knee)
-	var boot := MeshInstance3D.new()
-	var bs := SphereMesh.new()
-	bs.radius = 0.06
-	bs.height = 0.12
-	boot.mesh = bs
-	boot.scale = Vector3(0.95, 0.65, 1.7)
-	boot.material_override = glass
-	boot.top_level = true
-	add_child(boot)
+	if _leg_meshes.is_empty():
+		_leg_meshes = _merge_legs()
+	var plate := StandardMaterial3D.new()
+	plate.albedo_color = Color(0.12, 0.62, 0.78)
+	plate.metallic = 0.65
+	plate.roughness = 0.28
+	plate.rim_enabled = true
+	plate.rim = 0.6
+	plate.emission_enabled = true
+	plate.emission = GLOVE_GLOW
+	plate.emission_energy_multiplier = 0.15
+	_leg_mats.append(plate)
+	var glow := _unshaded(GLOVE_GLOW)
+	var out := {}
+	for part in ["shin", "knee", "boot"]:
+		var holder := Node3D.new()
+		holder.top_level = true
+		add_child(holder)
+		var meshes: Dictionary = _leg_meshes[part]
+		for k in meshes:
+			var mi := MeshInstance3D.new()
+			mi.mesh = meshes[k]
+			mi.material_override = {"plate": plate, "glow": glow, "body": _glove_body, "mech": _glove_mech}[k]
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			holder.add_child(mi)
+		out[part] = holder
 	var halo := MeshInstance3D.new()
 	var hq := QuadMesh.new()
 	hq.size = Vector2(0.36, 0.36)
@@ -334,9 +551,26 @@ func _leg() -> Dictionary:
 	halo.material_override = hm
 	halo.top_level = true
 	add_child(halo)
-	for n in [shin, knee, boot, halo]:
+	out["halo"] = halo
+	for n in out.values():
 		(n as Node3D).visible = false
-	return {"shin": shin, "knee": knee, "boot": boot, "halo": halo}
+	return out
+
+
+## The index finger out (true) while the hand is at a button (the wrist dock, the menu), back into the fist after.
+func set_point(side: String, on: bool) -> void:
+	_point_want[side] = on
+
+
+## Where the hand presses: the index fingertip while pointing, else the fist (world).
+func press_point(side: String) -> Vector3:
+	var g: Node3D = gloves[side]
+	if _point[side] < 0.5:
+		return g.global_position
+	var t := _tip
+	if side == "right":
+		t.x = -t.x
+	return g.global_transform * t
 
 
 ## A hit landed with this hand: its glove flares for a moment.
@@ -360,6 +594,12 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 			g.global_transform = Transform3D(t.basis.orthonormalized(), t.origin)
 		g.visible = on
 		_punch[side] = maxf(_punch[side] - delta * 3.2, 0.0)
+		var pw: float = move_toward(_point[side], 1.0 if _point_want[side] else 0.0, delta * 7.0)   # ~0.15 s
+		if pw != _point[side]:
+			_point[side] = pw
+			var e := pw * pw * (3.0 - 2.0 * pw)
+			for mi in _glove_mis[side]:
+				(mi as MeshInstance3D).set_blend_shape_value(0, e)
 		var sp: float = body.speed.get(limb, 0.0)
 		var heat: float = 1.0 if sp >= min_speed.hand else clampf(sp / min_speed.hand, 0.0, 1.0) * 0.45
 		g.scale = Vector3.ONE * (1.0 + 0.12 * _punch[side])
@@ -395,15 +635,20 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 			continue
 		var k: Vector3 = frame.to_global(body.pos[kl])
 		var f: Vector3 = frame.to_global(body.pos[fl])
-		var shin: MeshInstance3D = parts.shin
 		var len := maxf(k.distance_to(f), 0.15)
-		(shin.mesh as CapsuleMesh).height = len + 0.06
-		var y := (k - f) / len
-		var x := y.cross(Vector3.FORWARD if absf(y.z) < 0.9 else Vector3.RIGHT).normalized()
-		shin.global_transform = Transform3D(Basis(x, y, x.cross(y)), (k + f) * 0.5)
-		(parts.knee as Node3D).global_position = k
-		var boot: MeshInstance3D = parts.boot
-		boot.global_position = f + Vector3(0, -0.02, -0.04)
+		var y := (k - f) / len                              # the shin's axis, ankle → knee
+		var ahead := -frame.global_basis.z                  # the player's forward: the plates face it
+		ahead = (ahead - y * ahead.dot(y))
+		if ahead.length() < 0.1:
+			ahead = Vector3.FORWARD - y * Vector3.FORWARD.dot(y)
+		var z := -ahead.normalized()
+		var b := Basis(y.cross(z).normalized(), y, z)
+		var shin: Node3D = parts.shin
+		shin.global_transform = Transform3D(b * Basis.from_scale(Vector3(1, (len - 0.1) / _shin_len, 1)), f + y * 0.05)
+		var knee: Node3D = parts.knee
+		knee.global_transform = Transform3D(b, k - z * 0.06 - y * 0.02)
+		var boot: Node3D = parts.boot
+		boot.global_transform = Transform3D(b, f)
 		var halo: Node3D = parts.halo
 		halo.global_position = Vector3(f.x, frame.global_position.y + 0.012, f.z)
 		halo.scale = Vector3.ONE * clampf(1.2 - (f.y - frame.global_position.y) * 1.5, 0.3, 1.2)
@@ -411,4 +656,5 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		var heat: float = 1.0 if sp >= min_speed.foot else clampf(sp / min_speed.foot, 0.0, 1.0) * 0.4
 		tr.update(f, heat, eye, true)
 	for m in _leg_mats:
-		m.emission_energy_multiplier = 0.4 + 0.12 * mult
+		m.emission = color
+		m.emission_energy_multiplier = 0.15 + 0.05 * mult

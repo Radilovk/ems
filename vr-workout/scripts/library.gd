@@ -6,22 +6,28 @@
 ## tempo ("bpm" in the .json, or "128bpm" in the name) puts the game on its beat. Optional sidecar <file>.json: {"name": "…", "cam": 1.5, "yaw": 0.0, "radius": 8.0, "scale": 1.0,
 ## "offset": [x, y, z], "turn": 0} — cam = the photo's camera height, yaw = turn of a photo (0..1), radius / height =
 ## the photographed room's size round the camera (m, default 6 / 3.6; the player stands at the camera, things fly in
-## from up to radius − 0.4 m), turn = degrees.
+## from up to radius − 0.4 m) — or "box": [left, right, ahead, behind] (x/z of its walls from the camera, m) for an exact
+## rectangular room; turn = degrees.
 class_name Library
 extends RefCounted
 
 const ANDROID_DIRS := ["/storage/emulated/0/Android/data/eu.xems.studio/files/XEMS", "/storage/emulated/0/Download/XEMS"]
 
+# Photo rooms: "box" = the photographed room's floor round the camera, measured on the photo itself (a top-down
+# projection of its floor: x left/right, z ahead(−)/behind(+), metres, after "yaw"); "height" = its ceiling. The photo is
+# painted on a box of exactly that size, so floor and walls meet where they really meet — no wall smeared over the
+# floor, no floor climbing a wall. Without "box" a cylinder of "radius" is used (the owner's own photos).
 const BUILTIN_ROOMS := [
 	{"name": "Арена", "path": "", "kind": "arena"},          # built from code: scripts/game/arena.gd
 	{"name": "Панорамна зала", "path": "", "kind": "loft"},  # built from code: scripts/game/skyloft.gd
-	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene", "dress": "hall"},
-	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.6, "radius": 8.0, "height": 4.2},
-	{"name": "Боксова зала", "path": "res://assets/rooms/boxing_ring.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.55, "radius": 6.0, "height": 3.0},
-	{"name": "Танцова зала", "path": "res://assets/rooms/dancing_hall.jpg", "kind": "pano", "yaw": 0.25, "cam": 1.6, "radius": 11.0, "height": 4.5},
-	{"name": "Неоново студио", "path": "res://assets/rooms/neon_studio.jpg", "kind": "pano", "yaw": 0.5, "cam": 1.6, "radius": 6.0, "height": 3.6},
-	{"name": "Огледална зала", "path": "res://assets/rooms/mirrored_hall.jpg", "kind": "pano", "yaw": 0.0, "cam": 1.6, "radius": 8.0, "height": 6.0},
-	{"name": "Мост", "path": "res://assets/rooms/bridge.jpg", "kind": "pano", "cam": 1.6, "radius": 8.0, "height": 6.0},
+	{"name": "Лофт", "path": "", "kind": "factory"},          # built from code: scripts/game/factory_loft.gd
+	{"name": "Бруталистка зала", "path": "res://assets/rooms/brutalist.glb", "kind": "scene", "dress": "hall", "view": true},
+	{"name": "Фитнес зала", "path": "res://assets/rooms/crossfit_gym.jpg", "kind": "pano", "yaw": 0.125, "cam": 1.6,
+		"box": [-8.6, 5.0, -7.0, 5.6], "height": 4.5},
+	{"name": "Танцова зала", "path": "res://assets/rooms/dancing_hall.jpg", "kind": "pano", "yaw": 0.375, "cam": 1.6,
+		"box": [-12.3, 11.6, -13.2, 13.8], "height": 7.0},
+	{"name": "Огледална зала", "path": "res://assets/rooms/mirrored_hall.jpg", "kind": "pano", "yaw": -0.012, "cam": 1.6,
+		"box": [-4.5, 4.1, -9.4, 7.0], "height": 6.5},
 ]
 const PANO_EXT := ["jpg", "jpeg", "png", "webp", "hdr"]
 const SCENE_EXT := ["glb", "gltf", "fbx"]

@@ -89,7 +89,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-version.py` (56L, build:L48) — Stamp RELEASE_VERSION (versionName / versionCode) into build/decompiled/apktool.yml — its own step since 1.1.333 (it us…
 - `scripts/apply-vr-bridge.py` (98L, build:L122[BETA_MUSIC]) — Quest 3 haptic bridge (wearable/vr, vr-bridge/): manifest permissions for the UDP receiver's Wi-Fi locks (WAKE_LOCK → l…
 - `scripts/apply-wearable-bridge.py` (486L, build:L120[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
-- `scripts/apply-wearable-permissions.py` (90L, build:L121[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
+- `scripts/apply-wearable-permissions.py` (107L, build:L121[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
 - `scripts/apply-xems-nav.py` (91L, build:L129[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
 - `scripts/ble-sim/run-dual.sh` (25L) — Two bands (Settings → Band → second band): the same simulated Band 9/10 as the client's band (ROLE=hr) and as
@@ -99,7 +99,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/ble-sim/snoop_decode.py` (306L) — Decode a Xiaomi Band 9/10 session (Bluetooth Classic / SPP) from an Android btsnoop_hci.log.
 - `scripts/ble-sim/spp_band.py` (391L) — Xiaomi Band 9/10 simulator over Bluetooth Classic (SPP) — written for the XEMS test, independent of the Java client. By…
 - `scripts/ble-sim/test_snoop_decode.py` (77L) — Offline test for snoop_decode.py: builds a btsnoop log (v2 auth + encrypted workout-like command, ACL split in two frag…
-- `scripts/bluetens/BluetensSim.java` (552L) — Offline test of the Bluetens module (no Android, no pad): the real BluetensShell talks to a simulated pad that answers …
+- `scripts/bluetens/BluetensSim.java` (589L) — Offline test of the Bluetens module (no Android, no pad): the real BluetensShell talks to a simulated pad that answers …
 - `scripts/bluetens/lok.py` (243L) — Bluetens .lok program format — parse, build, time estimate (reference for a future Java port).
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
@@ -109,7 +109,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (218L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (261L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (263L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (84L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -320,10 +320,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BluetensEditor.java` (427L, compile:music-sync*,wearable) — The manual module of the Bluetens page: the trainer sets every parameter and keeps the result as a program of their own…
 - `BluetensLink.java` (364L, compile:music-sync*,wearable) — One Bluetens pad over BLE for as long as the Bluetens screen is open: connect, notify on FFE1, then hand the bytes to {…
 - `BluetensLok.java` (276L, compile:music-sync*,wearable) — The Bluetens program file (.lok) — pure Java, the same grammar and serialisation as the vendor app (see docs/xems-bluet…
+- `BluetensMini.java` (282L, compile:music-sync*,wearable) — The Bluetens window folded to a pill that floats over XEMS (owner, 2026-10-14: "minimised, Bluetens keeps working; XEMS…
+- `BluetensNative.java` (389L, compile:music-sync*,wearable) — Every program of the native Bluetens app, read from that app where it is installed on this tablet (owner, 2026-10-14: "…
 - `BluetensProgram.java` (272L, compile:music-sync*,wearable) — A Bluetens program the trainer makes (owner, 2026-10-13: "I want control over the parameters, with programs I create — …
 - `BluetensPrograms.java` (156L, compile:music-sync*,wearable) — XEMS's own programs for the Bluetens pads — built here, never copied from the vendor (docs/xems-bluetens.md).
 - `BluetensScan.java` (99L, compile:music-sync*,wearable) — Finds Bluetens pads while the screen is open ({@link BluetensAdvert} tells a pad); results on the main thread.
-- `BluetensScreen.java` (1279L, compile:music-sync*,wearable) — The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
+- `BluetensScreen.java` (1743L, compile:music-sync*,wearable) — The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
 - `BluetensShell.java` (657L, compile:music-sync*,wearable) — The conversation with one Bluetens pad — pure Java, no Android (the BLE link only moves bytes; the offline test drives …
 - `BluetensStore.java` (78L, compile:music-sync*,wearable) — The trainer's own Bluetens programs on this tablet (prefs "xems_bluetens", key "progs": one line each).
 
@@ -418,7 +420,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (973L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (1510L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (1517L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (381L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (846L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -819,7 +821,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
   - L669 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
 
-`docs/xems-bluetens.md` (99L)
+`docs/xems-bluetens.md` (118L)
   - L1 # Bluetens — protocol and the XEMS module plan
   - L7 ## Device
   - L13 ## Transport
@@ -827,7 +829,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L42 ## Program format (.lok) — `scripts/bluetens/lok.py`
   - L49 ## Unsolicited lines
   - L53 ## In XEMS (1.1.431-ai) — a page of its own, apart from the suit (owner, 2026-10-13)
-  - L96 ## Notes
+  - L114 ## Notes
 
 `docs/xems-bodytech.md` (276L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)

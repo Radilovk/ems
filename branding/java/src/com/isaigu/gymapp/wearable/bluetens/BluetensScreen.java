@@ -8,11 +8,16 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.isaigu.gymapp.bodytech.SuitStandard;
 import com.isaigu.gymapp.wearable.WearableBlePermissions;
 import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsLang;
@@ -31,7 +36,10 @@ import java.util.Set;
  * control — frequency, width, impulse / pause and the Australian current change while the pads run,
  * {@link BluetensShell#swap}); the pads (classic, or the two of a
  * Duo) on the right with their strength big; one primary button ▶ / ■. The pads are found and linked by themselves.
- * Closing the page stops the output.
+ * "Bluetens" tab: every program of the native app installed on this tablet ({@link BluetensNative}).
+ * A modal window over XEMS (owner, 2026-10-14): "—" (or Back while pads are linked) folds it to a floating pill
+ * ({@link BluetensMini}) and the pads keep running while the trainer works in XEMS; a tap on the pill opens it again,
+ * the dock tile too. Only ✕ closes it — and closing stops the output. Only on an unlocked (admin) tablet.
  */
 public final class BluetensScreen {
     static final String PREFS = "xems_bluetens";
@@ -41,9 +49,32 @@ public final class BluetensScreen {
 
     private BluetensScreen() {}
 
+    /** The open window (shown or folded to the pill): one at a time, so the dock tile brings it back. */
+    static Page current;
+
+    /** Bluetens exists only on an unlocked (admin) tablet (owner, 2026-10-14). */
+    public static boolean allowed() {
+        return SuitStandard.unlocked();
+    }
+
     public static void open(Activity a) {
         try {
-            new Page(a).show();
+            if (!allowed()) {
+                return;
+            }
+            Page c = current;
+            if (c != null && !c.closed) {
+                if (c.a == a && !a.isFinishing()) {
+                    c.restore();
+                    return;
+                }
+                try {
+                    c.s.dialog.dismiss();                     // another activity: end the old window cleanly
+                } catch (Throwable ignored) {
+                }
+            }
+            current = new Page(a);
+            current.show();
         } catch (Throwable t) {
             XemsGuard.report("BluetensScreen.open", t);
         }
@@ -89,6 +120,16 @@ public final class BluetensScreen {
         String mineId = "";
         /** "На живо" tab: one step whose values change while it runs. */
         boolean live;
+        /** "Bluetens" tab: the native app's programs ({@code natList} null while they are read). */
+        boolean nat;
+        String natEntry = "";
+        String natGroup = "";
+        List<BluetensNative.Prog> natList;
+        boolean natLoading;
+        BluetensLok natLok;
+        String natLokEntry = "";
+        BluetensMini mini;
+        boolean minimized;
         BluetensProgram.Step liveStep;
         String liveFile = LIVE_A;
         String liveWhy = "";
@@ -127,6 +168,9 @@ public final class BluetensScreen {
             mine = prefs.getBoolean("mine", false);
             mineId = prefs.getString("mine_id", "");
             live = prefs.getBoolean("live", false);
+            nat = prefs.getBoolean("nat", false);
+            natEntry = prefs.getString("nat_entry", "");
+            natGroup = prefs.getString("nat_group", "");
             BluetensProgram lp = BluetensProgram.decode(prefs.getString("live_step", ""));
             liveStep = lp != null ? lp.steps.get(0) : liveDefault();
             BluetensProgram.safe(liveStep);
@@ -150,9 +194,16 @@ public final class BluetensScreen {
             XemsUi.init(a);
             s = XemsUi.shell(a, "Bluetens", tr("Електростимулация с Bluetens — отделно от костюма",
                     "Bluetens stimulation — apart from the suit"), 1280);
-            XemsUi.fullScreen(s);
+            modal();
             s.info.setVisibility(View.VISIBLE);
             s.info.setOnClickListener(new Info(this));
+            ViewGroup head = (ViewGroup) s.close.getParent();
+            TextView fold = XemsUi.iconButton(a, "—", XemsUi.SURFACE, XemsUi.TEXT, 36);
+            fold.setOnClickListener(new Minimize(this));
+            LinearLayout.LayoutParams fl = new LinearLayout.LayoutParams(dp(36), dp(36));
+            fl.leftMargin = dp(8);
+            head.addView(fold, head.indexOfChild(s.close), fl);
+            s.dialog.setOnKeyListener(new BackKey(this));
 
             LinearLayout row = XemsUi.horizontal(a);
             row.addView(leftColumn(), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -184,6 +235,65 @@ public final class BluetensScreen {
             WearableBlePermissions.ensureConnectPermission(a, new StartScan(this));
         }
 
+        /** A large window over XEMS (not a full page): XEMS stays in sight around it. */
+        void modal() {
+            Window w = s.dialog.getWindow();
+            if (w == null) {
+                return;
+            }
+            android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+            w.setLayout(Math.min(dp(1280), (int) (dm.widthPixels * 0.96f)), (int) (dm.heightPixels * 0.94f));
+            WindowManager.LayoutParams lp = w.getAttributes();
+            lp.dimAmount = 0.45f;
+            w.setAttributes(lp);
+        }
+
+        // ------------------------------------------------------------------ fold to the pill / open again
+
+        /** The window folds to the pill; the pads keep running, XEMS is free. */
+        void minimize() {
+            if (closed || minimized) {
+                return;
+            }
+            minimized = true;
+            if (mini == null) {
+                mini = new BluetensMini(a, this, prefs);
+            }
+            try {
+                s.dialog.hide();
+            } catch (Throwable ignored) {
+            }
+            mini.show();
+            render();
+        }
+
+        void restore() {
+            if (closed) {
+                return;
+            }
+            minimized = false;
+            if (mini != null) {
+                mini.hide();
+            }
+            try {
+                s.dialog.show();
+            } catch (Throwable t) {
+                XemsGuard.report("BluetensScreen.restore", t);
+            }
+            render();
+        }
+
+        /** ■ on the pill: every pad stops (the window stays folded, showing it stopped). */
+        void stopAll() {
+            hintText = null;
+            for (Pad p : pads) {
+                if (p.link.shell.running) {
+                    p.link.shell.stop();
+                }
+            }
+            render();
+        }
+
         LinearLayout leftColumn() {
             LinearLayout col = XemsUi.card(a);
             tabHolder = XemsUi.vertical(a);
@@ -201,11 +311,15 @@ public final class BluetensScreen {
         void fillPrograms() {
             tabHolder.removeAllViews();
             LinearLayout seg = XemsUi.segmented(a, new String[] {tr("Готови", "Ready"), tr("Мои · ръчно", "Mine · manual"),
-                    tr("На живо", "Live")}, live ? 2 : mine ? 1 : 0, new Tab(this));
+                    tr("На живо", "Live"), "Bluetens"}, tab(), new Tab(this));
             seg.setAlpha(running ? 0.4f : 1f);
             tabHolder.addView(seg);
             programList.removeAllViews();
-            minuteBox.setVisibility(mine && !live ? View.GONE : View.VISIBLE);
+            minuteBox.setVisibility(nat || (mine && !live) ? View.GONE : View.VISIBLE);
+            if (nat) {
+                fillNative();
+                return;
+            }
             if (live) {
                 fillLive();
                 return;
@@ -288,6 +402,208 @@ public final class BluetensScreen {
             add.setEnabled(!running);
             add.setAlpha(running ? 0.4f : 1f);
             programList.addView(add, XemsUi.matchWrap(a, 12));
+        }
+
+        // ------------------------------------------------------------------ "Bluetens": the native app's programs
+
+        /** The chosen native program, parsed once (render asks every second). */
+        BluetensLok natLok() {
+            if (!natEntry.equals(natLokEntry)) {
+                natLokEntry = natEntry;
+                natLok = null;
+                byte[] raw = BluetensNative.read(a, BluetensNative.find(natList, natEntry));
+                try {
+                    natLok = raw != null ? BluetensLok.parse(new String(raw, "US-ASCII")) : null;
+                } catch (Throwable t) {
+                    natLok = null;
+                }
+            }
+            return natLok;
+        }
+
+        /** The groups to pick from: the vendor's categories, or (none named) the alphabet in slices of ~40. */
+        List<String[]> natGroups() {
+            List<String[]> out = new ArrayList<String[]>();
+            List<String> named = new ArrayList<String>();
+            for (BluetensNative.Prog p : natList) {
+                if (p.group.length() > 0 && !named.contains(p.group)) {
+                    named.add(p.group);
+                }
+            }
+            if (named.size() >= 2) {
+                for (String g : named) {
+                    out.add(new String[] {g, "g:" + g});
+                }
+                return out;
+            }
+            StringBuilder letters = new StringBuilder();
+            int n = 0;
+            char first = 0, last = 0;
+            for (BluetensNative.Prog p : natList) {
+                char c = initial(p);
+                if (c != last && n >= 40) {
+                    out.add(new String[] {first == last ? String.valueOf(first) : first + "–" + last, "l:" + letters});
+                    letters.setLength(0);
+                    n = 0;
+                }
+                if (letters.indexOf(String.valueOf(c)) < 0) {
+                    if (letters.length() == 0) {
+                        first = c;
+                    }
+                    letters.append(c);
+                }
+                last = c;
+                n++;
+            }
+            if (n > 0) {
+                out.add(new String[] {first == last ? String.valueOf(first) : first + "–" + last, "l:" + letters});
+            }
+            return out;
+        }
+
+        static char initial(BluetensNative.Prog p) {
+            return p.name.length() > 0 ? Character.toUpperCase(p.name.charAt(0)) : '#';
+        }
+
+        static boolean inGroup(BluetensNative.Prog p, String key) {
+            if (key.startsWith("g:")) {
+                return p.group.equals(key.substring(2));
+            }
+            if (key.startsWith("l:")) {
+                return key.indexOf(initial(p), 2) >= 0;
+            }
+            return true;
+        }
+
+        void fillNative() {
+            if (natList == null) {
+                if (!natLoading) {
+                    natLoading = true;
+                    new NativeLoader(this, bg()).start();
+                }
+                TextView wait = XemsUi.text(a, tr("Чета програмите на Bluetens…", "Reading the Bluetens programs…"),
+                        15, XemsUi.MUTED, false);
+                wait.setPadding(dp(4), dp(10), dp(4), dp(10));
+                programList.addView(wait);
+                return;
+            }
+            if (natList.isEmpty()) {
+                TextView none = XemsUi.text(a, "none".equals(BluetensNative.why)
+                        ? tr("Приложението Bluetens не е инсталирано на този таблет. Инсталирай го — всичките му "
+                        + "програми се появяват тук сами.", "The Bluetens app is not installed on this tablet. Install "
+                        + "it — all its programs show up here by themselves.")
+                        : tr("Не намерих програми в приложението Bluetens.", "No programs found in the Bluetens app."),
+                        15, XemsUi.MUTED, false);
+                none.setPadding(dp(4), dp(10), dp(4), dp(10));
+                programList.addView(none);
+                return;
+            }
+            List<String[]> groups = natGroups();
+            boolean known = false;
+            for (String[] g : groups) {
+                known |= g[1].equals(natGroup);
+            }
+            if (!known) {
+                // the group of the chosen program, else the first
+                BluetensNative.Prog chosen = BluetensNative.find(natList, natEntry);
+                natGroup = groups.isEmpty() ? "" : groups.get(0)[1];
+                for (String[] g : groups) {
+                    if (chosen != null && inGroup(chosen, g[1])) {
+                        natGroup = g[1];
+                        break;
+                    }
+                }
+            }
+            if (groups.size() > 1) {
+                HorizontalScrollView hs = new HorizontalScrollView(a);
+                hs.setHorizontalScrollBarEnabled(false);
+                LinearLayout chips = XemsUi.horizontal(a);
+                for (String[] g : groups) {
+                    boolean sel = g[1].equals(natGroup);
+                    TextView c = XemsUi.chip(a, g[0], sel, BluetensMini.TINT);
+                    c.setOnClickListener(new NativeGroup(this, g[1]));
+                    c.setMinHeight(dp(44));
+                    c.setAlpha(running && !sel ? 0.4f : 1f);
+                    XemsUi.addChip(a, chips, c);
+                }
+                hs.addView(chips);
+                programList.addView(hs, XemsUi.matchWrap(a, 2));
+            }
+            int tint = BluetensMini.TINT;
+            LinearLayout line = null;
+            int shown = 0;
+            for (BluetensNative.Prog p : natList) {
+                if (!inGroup(p, natGroup)) {
+                    continue;
+                }
+                if (shown % 2 == 0) {
+                    line = XemsUi.horizontal(a);
+                    programList.addView(line, XemsUi.matchWrap(a, 4));
+                }
+                boolean sel = p.entry.equals(natEntry);
+                LinearLayout r = XemsUi.vertical(a);
+                r.setPadding(dp(12), dp(8), dp(10), dp(8));
+                float rad = dp(14);
+                r.setBackground(XemsUi.ripple(sel ? XemsUi.rounded(XemsUi.alpha(tint, 0x26), rad, XemsUi.alpha(tint, 0xCC), dp(1.5f))
+                        : XemsUi.rounded(XemsUi.alpha(XemsUi.SURFACE, 0x99), rad, 0, 0), tint, rad));
+                r.setClickable(true);
+                r.setOnClickListener(new PickNative(this, p.entry));
+                XemsUi.pressable(r);
+                TextView nm = XemsUi.text(a, p.name, 15, sel ? XemsUi.GO_TEXT : XemsUi.TEXT, true);
+                nm.setMaxLines(2);
+                r.addView(nm);
+                long secs = ((long) p.ms + 999) / 1000;
+                r.addView(XemsUi.text(a, String.format(Locale.ROOT, "%d:%02d", secs / 60, secs % 60) + " · "
+                        + (p.hzLo == p.hzHi ? String.valueOf(p.hzHi) : p.hzLo + "–" + p.hzHi) + " Hz · " + p.usHi
+                        + " µs", 12, XemsUi.MUTED, false));
+                r.setAlpha(running && !sel ? 0.4f : 1f);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                if (shown % 2 == 1) {
+                    lp.leftMargin = dp(6);
+                }
+                line.addView(r, lp);
+                shown++;
+            }
+            if (shown % 2 == 1 && line != null) {
+                line.addView(new View(a), new LinearLayout.LayoutParams(0, 1, 1f));
+            }
+        }
+
+        void nativeLoaded(List<BluetensNative.Prog> list) {
+            natLoading = false;
+            if (closed) {
+                return;
+            }
+            natList = list;
+            if (BluetensNative.find(list, natEntry) == null) {
+                natEntry = list.isEmpty() ? "" : list.get(0).entry;
+            }
+            natLokEntry = "";                                 // parse again from the new list
+            natLok = null;
+            if (nat) {
+                fillPrograms();
+            }
+            render();
+        }
+
+        void pickNative(String entry) {
+            if (running || entry.equals(natEntry)) {
+                return;
+            }
+            natEntry = entry;
+            prefs.edit().putString("nat_entry", entry).apply();
+            finished = false;
+            fillPrograms();
+            render();
+        }
+
+        void pickGroup(String key) {
+            if (running || key.equals(natGroup)) {
+                return;
+            }
+            natGroup = key;
+            prefs.edit().putString("nat_group", key).apply();
+            fillPrograms();
         }
 
         /**
@@ -466,13 +782,18 @@ public final class BluetensScreen {
             return (lo == hi ? String.valueOf(lo) : lo + "–" + hi) + " Hz · " + us + " µs";
         }
 
+        int tab() {
+            return nat ? 3 : live ? 2 : mine ? 1 : 0;
+        }
+
         void setTab(int i) {
-            if (running || i == (live ? 2 : mine ? 1 : 0)) {
+            if (running || i == tab()) {
                 return;
             }
             mine = i == 1;
             live = i == 2;
-            prefs.edit().putBoolean("mine", mine).putBoolean("live", live).apply();
+            nat = i == 3;
+            prefs.edit().putBoolean("mine", mine).putBoolean("live", live).putBoolean("nat", nat).apply();
             finished = false;
             fillPrograms();
             render();
@@ -521,6 +842,9 @@ public final class BluetensScreen {
 
         /** What ▶ would run now: null when "Мои" has nothing chosen. */
         BluetensLok currentLok() {
+            if (nat) {
+                return natLok();
+            }
             if (live) {
                 return liveLok(minutes * 60000L);
             }
@@ -532,6 +856,10 @@ public final class BluetensScreen {
         }
 
         String currentName() {
+            if (nat) {
+                BluetensNative.Prog p = BluetensNative.find(natList, natEntry);
+                return p != null ? p.name : "";
+            }
             if (live) {
                 return tr("На живо", "Live");
             }
@@ -703,6 +1031,17 @@ public final class BluetensScreen {
                 h = tr("Сложи електродите и пусни. Силата започва от 1.", "Place the electrodes and start. Strength starts at 1.");
             }
             hint.setText(h);
+            if (mini != null && minimized) {
+                StringBuilder str = new StringBuilder();
+                for (Pad p : pads) {
+                    if (p.link.shell.running) {
+                        str.append(str.length() > 0 ? " · " : "⚡ ").append(p.link.shell.strength);
+                    }
+                }
+                mini.update(clock.getText().toString(), running ? currentName() : finished ? tr("Готово", "Done")
+                        : pads.isEmpty() ? tr("Търся Bluetens…", "Looking for Bluetens…") : currentName(),
+                        str.toString(), running, finished);
+            }
         }
 
         void renderPad(Pad p, int index) {
@@ -851,10 +1190,16 @@ public final class BluetensScreen {
             if (lok == null) {
                 return;
             }
-            byte[] content = BluetensShell.ascii(lok.build());
+            // a native program goes to the pad byte for byte, as the vendor ships it
+            byte[] content = nat ? BluetensNative.read(a, BluetensNative.find(natList, natEntry))
+                    : BluetensShell.ascii(lok.build());
+            if (content == null) {
+                return;
+            }
             // own programs share one file on the pad (it is replaced when it changes — the md5 decides)
             liveFile = LIVE_A;
-            String file = live ? LIVE_A : mine ? "XMINE" : BluetensPrograms.fileName(program, minutes);
+            String file = nat ? BluetensNative.FILE : live ? LIVE_A : mine ? "XMINE"
+                    : BluetensPrograms.fileName(program, minutes);
             lengthMs = (long) lok.ms();
             finished = false;
             for (Pad p : pads) {
@@ -959,6 +1304,13 @@ public final class BluetensScreen {
 
         void dismissed() {
             closed = true;
+            minimized = false;
+            if (mini != null) {
+                mini.hide();
+            }
+            if (current == this) {
+                current = null;
+            }
             if (scan != null) {
                 scan.stop();
             }
@@ -1232,6 +1584,112 @@ public final class BluetensScreen {
         }
     }
 
+    static final class Minimize implements View.OnClickListener {
+        final Page v;
+
+        Minimize(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.minimize();
+        }
+    }
+
+    /** Back with pads linked folds the window (they keep running); with none it closes, as before. */
+    static final class BackKey implements DialogInterface.OnKeyListener {
+        final Page v;
+
+        BackKey(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public boolean onKey(DialogInterface d, int code, KeyEvent e) {
+            if (code != KeyEvent.KEYCODE_BACK || (!v.running && v.pads.isEmpty())) {
+                return false;
+            }
+            if (e.getAction() == KeyEvent.ACTION_UP) {
+                v.minimize();
+            }
+            return true;
+        }
+    }
+
+    /** Reads the native app's programs off the main thread, then hands them to the page. */
+    static final class NativeLoader extends Thread {
+        final Page v;
+        final boolean bg;
+
+        NativeLoader(Page v, boolean bg) {
+            super("bluetens-native");
+            this.v = v;
+            this.bg = bg;
+        }
+
+        @Override
+        public void run() {
+            List<BluetensNative.Prog> list;
+            try {
+                list = BluetensNative.load(v.a.getApplicationContext(), bg);
+            } catch (Throwable t) {
+                XemsGuard.report("BluetensNative.load", t);
+                list = new ArrayList<BluetensNative.Prog>();
+            }
+            v.main.post(new NativeLoaded(v, list));
+        }
+    }
+
+    static final class NativeLoaded implements Runnable {
+        final Page v;
+        final List<BluetensNative.Prog> list;
+
+        NativeLoaded(Page v, List<BluetensNative.Prog> list) {
+            this.v = v;
+            this.list = list;
+        }
+
+        @Override
+        public void run() {
+            try {
+                v.nativeLoaded(list);
+            } catch (Throwable t) {
+                XemsGuard.report("BluetensScreen.native", t);
+            }
+        }
+    }
+
+    static final class PickNative implements View.OnClickListener {
+        final Page v;
+        final String entry;
+
+        PickNative(Page v, String entry) {
+            this.v = v;
+            this.entry = entry;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.pickNative(entry);
+        }
+    }
+
+    static final class NativeGroup implements View.OnClickListener {
+        final Page v;
+        final String key;
+
+        NativeGroup(Page v, String key) {
+            this.v = v;
+            this.key = key;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.pickGroup(key);
+        }
+    }
+
     static final class Info implements View.OnClickListener {
         final Page v;
 
@@ -1242,9 +1700,13 @@ public final class BluetensScreen {
         @Override
         public void onClick(View view) {
             boolean b = bg();
-            XemsUi.Shell s = XemsUi.shell(v.a, v.live ? tr("На живо", "Live") : v.mine ? tr("Ръчен режим", "Manual mode")
+            XemsUi.Shell s = XemsUi.shell(v.a, v.nat ? tr("Програмите на Bluetens", "The Bluetens programs")
+                    : v.live ? tr("На живо", "Live") : v.mine ? tr("Ръчен режим", "Manual mode")
                     : BluetensPrograms.name(v.program, b),
-                    v.live ? tr("Стойностите се сменят, докато устройството работи: то получава нова програма за около "
+                    v.nat ? tr("Всички програми на приложението Bluetens, инсталирано на този таблет — четат се от "
+                            + "него и вървят точно както там. Силата започва от 1.", "Every program of the Bluetens app "
+                            + "installed on this tablet — read from it and played exactly as there. Strength starts at 1.")
+                    : v.live ? tr("Стойностите се сменят, докато устройството работи: то получава нова програма за около "
                             + "секунда и силата се връща там, където беше. Австралийски ток — пакети по 1–5 мс от импулси "
                             + "с 1 kHz (най-високото, което устройството може, е 1,2 kHz — вариантът с 4 kHz не става); "
                             + "класиката е 4 мс пакети, 50 в секунда. Всичко стои в границите за безопасност на костюма.",
@@ -1262,13 +1724,15 @@ public final class BluetensScreen {
                     "• Започва от сила 1. Качвай, докато е приятно — никога до болка.",
                     "• Не върху гърдите при пейсмейкър, не по време на бременност, не върху рани.",
                     "• Duo: двете устройства тръгват заедно, силата е отделна за всяко.",
-                    "• Затвориш ли страницата, устройствата спират."}
+                    "• „—“ свива прозореца: устройствата продължават, а ти работиш в XEMS. Докосни балончето, за да го отвориш.",
+                    "• ✕ затваря прозореца и спира устройствата."}
                     : new String[] {
                     "• Electrodes on clean, dry skin over the muscle — not on a joint or bone.",
                     "• It starts at strength 1. Raise it until it feels good — never to pain.",
                     "• Not on the chest with a pacemaker, not in pregnancy, not on wounds.",
                     "• Duo: both pads start together; each has its own strength.",
-                    "• Closing the page stops the pads."};
+                    "• “—” folds the window: the pads keep going while you work in XEMS. Tap the pill to open it again.",
+                    "• ✕ closes the window and stops the pads."};
             for (String l : lines) {
                 s.body.addView(XemsUi.text(v.a, l, 15, XemsUi.TEXT, false), XemsUi.matchWrap(v.a, 8));
             }

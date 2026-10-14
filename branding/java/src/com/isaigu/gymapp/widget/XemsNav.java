@@ -251,6 +251,11 @@ public final class XemsNav {
         }
     }
 
+    /** Bluetens only on an unlocked (admin) tablet (owner, 2026-10-14): a locked one has no tile and no menu row. */
+    static boolean bluetensAllowed() {
+        return com.isaigu.gymapp.bodytech.SuitStandard.unlocked();
+    }
+
     /** Every item once: the pages, "Програми", the modes. */
     static List<String> allKeys() {
         List<String> out = new ArrayList<String>();
@@ -258,7 +263,9 @@ public final class XemsNav {
             out.add("page:" + i);
         }
         out.add(K_PROGRAMS);
-        out.add(K_BLUETENS);
+        if (bluetensAllowed()) {
+            out.add(K_BLUETENS);
+        }
         for (int m : MOD_ORDER) {
             out.add("mod:" + m);
         }
@@ -290,7 +297,7 @@ public final class XemsNav {
         List<String> bar = read(c, "bar", def.toString());
         // tablets set up before Bluetens: put it on the bar once, if there is room (the trainer can move it)
         android.content.SharedPreferences p = prefs(c);
-        if (!p.getBoolean("bluetens_docked", false)) {
+        if (bluetensAllowed() && !p.getBoolean("bluetens_docked", false)) {
             p.edit().putBoolean("bluetens_docked", true).apply();
             if (!bar.contains(K_BLUETENS) && bar.size() < BAR_MAX && p.contains("bar")) {
                 bar.add(K_BLUETENS);

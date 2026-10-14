@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1391
+    .line 1350
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1392
+    .line 1351
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMine;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 1393
+    .line 1352
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMine;->id:Ljava/lang/String;
 
-    .line 1394
+    .line 1353
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 4
 
     .prologue
-    .line 1398
+    .line 1357
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMine;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMine;->id:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->pickMine(Ljava/lang/String;)V
 
-    .line 1399
+    .line 1358
     return-void
 .end method

@@ -139,7 +139,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensStore.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensEditor.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensScreen.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensNative.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensLibrary.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensMini.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/SearchPad.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NextClient.java"

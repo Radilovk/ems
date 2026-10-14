@@ -2,7 +2,7 @@
 
 Source: the Bluetens Android app 7.0.105 (APKPure), an Ionic/Cordova app — the whole device logic is plain JS in
 `assets/www/build/main.js` (UltraCreation "loki" shell), so nothing below is guessed from traffic. Read on 2026-10-13.
-The vendor's 334 programs (`assets/www/assets/lok/*.lok`) are **not** in this repo (their content, not ours).
+The vendor's catalogued programs are in `branding/bluetens/programs.json` (scripts/bluetens/import-vendor.py); the APK is not.
 
 ## Device
 - Small TENS/EMS unit; the app drives one output per device with one strength step **1..60** (no per-channel control in the protocol).
@@ -100,18 +100,24 @@ of it mixes into the training screen. The owner has a classic pad and a Duo.
     drags anywhere (place kept in prefs `mini_x` / `mini_y`), a tap opens the window again. The links, the shell and
     the timers stay alive while folded — only **✕** closes and stops the pads. One window at a time
     (`BluetensScreen.current`): the dock tile reopens the folded one.
-  - Fourth tab **"Bluetens"** (`BluetensNative`): every `.lok` under `assets/` of the native app **installed on the
-    tablet** (`com.bluetens`, manifest `<queries>` from apply-wearable-permissions.py), read at run time off the main
-    thread; names / categories from the vendor's JSON assets when they carry them (any object naming a .lok next to
-    a name / title and a category; translation keys translated, tablet language → English), else the file name.
-    Grouped by category chips (or alphabet slices of ~40), two per row with time · Hz · µs. Played byte for byte as
-    the vendor ships them (made for this pad), file `XNAT` on the pad. Not installed → one line telling to install it.
-    Still nothing of the vendor in the repo or the APK. Offline test: `BluetensSim.nativeApp` (a fake vendor APK).
+  - Fourth tab **"Bluetens"** (1.1.439-ai, owner: "every program of the native app, by body part — no dependency on
+    that app being installed"): the Bluetens app's own catalog, **shipped inside XEMS** — 219 programs, 17 body parts,
+    9 categories, Bulgarian names and descriptions. `scripts/bluetens/import-vendor.py <unpacked APK>/assets/www` reads
+    `assets/i18n/scriptfile.json` (FileName → category, mode, program family, body parts), `light.json` (the long
+    30–600 min variants), `bg|en/master.json, cat.json, ui.json` (names) and `assets/lok/*.lok`, checks every file with
+    `lok.py`, and writes `branding/bluetens/programs.json` (one file: catalog + the .lok text, ~165 KB);
+    apply-exercise-assets.py ships it as `assets/xems/bluetens.json`; `BluetensLibrary` reads it off the main thread.
+    The vendor's 132 other .lok files (not in its catalog — no name, not shown by the app) are left out. The
+    `Override` entries of scriptfile.json only change the exercise picture / text, not the file.
+    UI: chips "where on the body" (head → feet) → chips of the categories that part has → programs two to a row
+    (time · Hz · µs), a 📍 line where the electrodes go (`BluetensLibrary.placement`); ⓘ = the program's own
+    description. Played byte for byte, file `XNAT` on the pad; all inside 400 µs and ≤ 300 µs from 100 Hz (checked).
+    The vendor APK itself is not in the repo (owner's Google Drive copy, Bluetens 7.0.105 APKPure).
   - **Only on an unlocked (admin) tablet** (`SuitStandard.unlocked()`): a locked tablet has no dock tile, no menu row,
     and `BluetensScreen.open` does nothing.
 - Not done yet: no device test (protocol from the vendor app only); `>mode` (async, Eurocept) is not sent.
 
 ## Notes
 - Legal: talking to the device for interoperability is normally allowed; copying the vendor's programs or app
-  code is not — XEMS ships only programs it generates itself. The "Bluetens" tab reads the vendor's programs from
-  the vendor app the owner installed on that tablet; nothing of it is copied into XEMS.
+  code is not. The owner decided (2026-10-14) to ship the Bluetens app's program files and catalog in XEMS
+  ("Bluetens" tab); XEMS's own programs ("Готови", "Мои", "На живо") are generated here.

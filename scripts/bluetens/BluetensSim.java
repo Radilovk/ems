@@ -1,5 +1,5 @@
 import com.isaigu.gymapp.wearable.bluetens.BluetensAdvert;
-import com.isaigu.gymapp.wearable.bluetens.BluetensNative;
+import com.isaigu.gymapp.wearable.bluetens.BluetensLibrary;
 import com.isaigu.gymapp.wearable.bluetens.BluetensLok;
 import com.isaigu.gymapp.wearable.bluetens.BluetensProgram;
 import com.isaigu.gymapp.wearable.bluetens.BluetensPrograms;
@@ -534,39 +534,33 @@ public final class BluetensSim {
         }
     }
 
-    /** The native app's programs: read from a fake vendor APK (zip) — files, names from JSON, groups, time. */
-    static void nativeApp(File dir) throws Exception {
-        File apk = new File(dir, "vendor.apk");
-        java.util.zip.ZipOutputStream z = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(apk));
-        String[][] files = {
-            {"assets/www/assets/lok/PAIN.lok", "V1D10{R10|R1P100F1000C5I95}"},
-            {"assets/www/assets/lok/NECK_RELAX2.lok", "V1D16{R3|P96F6C708}"},
-            {"assets/www/assets/lok/ODD.lok", "V1D10{R1|P100F50C50}"},
-            {"assets/www/assets/lok/BROKEN.lok", "V1D10{R1|Q}"},
-            {"assets/www/assets/i18n/en.json", "{\"lok\":{\"pain\":\"Pain relief\"},\"NECK_RELAX2\":\"Neck relax\"}"},
-            {"assets/www/assets/catalog.json", "[{\"file\":\"PAIN.lok\",\"name\":\"lok.pain\",\"category\":\"Pain\"},"
-                + "{\"file\":\"NECK_RELAX2\",\"name\":\"NECK_RELAX2\",\"category\":\"Relax\"}]"},
-            {"assets/www/main.js", "x"},
-        };
-        for (String[] f : files) {
-            z.putNextEntry(new java.util.zip.ZipEntry(f[0]));
-            z.write(f[1].getBytes("UTF-8"));
-            z.closeEntry();
+    /** The Bluetens library shipped in XEMS (branding/bluetens/programs.json): every program reads, every part has some. */
+    static void library(File repo) throws Exception {
+        File f = new File(repo, "branding/bluetens/programs.json");
+        String json = new String(java.nio.file.Files.readAllBytes(f.toPath()), "UTF-8");
+        BluetensLibrary.Lib lib = BluetensLibrary.parse(json);
+        org.json.JSONObject root = new org.json.JSONObject(json);
+        int all = root.getJSONArray("programs").length();
+        check(lib.progs.size() == all, "library: all " + all + " programs read, got " + lib.progs.size());
+        check(lib.progs.size() >= 200, "library: 200+ programs");
+        check(lib.parts.size() >= 15, "library: 15+ body parts");
+        for (String[] part : lib.parts) {
+            int n = 0;
+            for (BluetensLibrary.Prog p : lib.progs) {
+                n += p.on(part[0]) ? 1 : 0;
+            }
+            check(n > 0, "library: programs for " + part[0]);
+            check(BluetensLibrary.placement(part[0], true).length() > 0, "library: placement for " + part[0]);
+            check(!part[1].matches("[A-Za-z ]+"), "library: Bulgarian name for " + part[0]);
         }
-        z.close();
-        List<BluetensNative.Prog> all = BluetensNative.loadZip(apk, false);
-        check(all.size() == 3, "native: 3 readable programs (the broken one left out), got " + all.size());
-        BluetensNative.Prog pain = BluetensNative.find(all, "assets/www/assets/lok/PAIN.lok");
-        check(pain != null && "Pain relief".equals(pain.name), "native: name through catalog + translation, got "
-                + (pain != null ? pain.name : null));
-        check(pain != null && "Pain".equals(pain.group), "native: group from the catalog");
-        check(pain != null && pain.hzHi == 1000 && pain.usHi == 100, "native: Hz / us range");
-        BluetensNative.Prog neck = BluetensNative.find(all, "assets/www/assets/lok/NECK_RELAX2.lok");
-        check(neck != null && "Neck relax".equals(neck.name) && "Relax".equals(neck.group), "native: second name");
-        BluetensNative.Prog odd = BluetensNative.find(all, "assets/www/assets/lok/ODD.lok");
-        check(odd != null && "Odd".equals(odd.name) && Math.abs(odd.ms - 1000) < 1, "native: unnamed → file name, 1 s");
-        check(all.get(0).group.compareTo(all.get(all.size() - 1).group) <= 0, "native: sorted by group");
-        check("Neck relax 2".equals(BluetensNative.pretty("NECK_RELAX2")), "native: pretty name");
+        for (BluetensLibrary.Prog p : lib.progs) {
+            check(p.secs > 0 && p.usHi <= 400, "library: " + p.file + " time / width");
+            check(p.nameBg.length() > 0 && p.cat.length() > 0, "library: " + p.file + " name + category");
+            check(BluetensShell.ascii(p.lok).length == p.lok.length(), "library: " + p.file + " is plain ASCII");
+        }
+        BluetensLibrary.Prog abs = lib.find("AEB_A");
+        check(abs != null && abs.on("abdomen") && "Тонизиране на корема".equals(abs.nameBg), "library: AEB_A = belly toning");
+        check(lib.desc.get("abdominal_tonicity") != null, "library: description kept");
     }
 
     public static void main(String[] a) throws Exception {
@@ -578,7 +572,7 @@ public final class BluetensSim {
         programs(out);
         manual(out);
         aussie(out);
-        nativeApp(out);
+        library(new File(System.getProperty("repo", ".")));
         if (fails > 0) {
             System.out.println(fails + " FAILED");
             System.exit(1);

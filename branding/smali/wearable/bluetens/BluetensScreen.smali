@@ -8,10 +8,10 @@
     value = {
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Info;,
-        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$NativeGroup;,
-        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickNative;,
-        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$NativeLoaded;,
-        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$NativeLoader;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryChip;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickLibrary;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoaded;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoader;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$BackKey;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Minimize;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveSave;,
@@ -54,7 +54,7 @@
     .registers 1
 
     .prologue
-    .line 50
+    .line 51
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -64,7 +64,7 @@
     .registers 1
 
     .prologue
-    .line 57
+    .line 58
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->unlocked()Z
 
     move-result v0
@@ -76,7 +76,7 @@
     .registers 1
 
     .prologue
-    .line 88
+    .line 89
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
@@ -88,7 +88,7 @@
     .registers 3
 
     .prologue
-    .line 62
+    .line 63
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen;->allowed()Z
 
@@ -96,22 +96,22 @@
 
     if-nez v0, :cond_7
 
-    .line 81
+    .line 82
     :goto_6
     return-void
 
-    .line 65
+    .line 66
     :cond_7
     sget-object v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen;->current:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 66
+    .line 67
     if-eqz v0, :cond_2b
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->closed:Z
 
     if-nez v1, :cond_2b
 
-    .line 67
+    .line 68
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->a:Landroid/app/Activity;
 
     if-ne v1, p0, :cond_24
@@ -122,25 +122,25 @@
 
     if-nez v1, :cond_24
 
-    .line 68
+    .line 69
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->restore()V
     :try_end_1c
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_1c} :catch_1d
 
     goto :goto_6
 
-    .line 78
+    .line 79
     :catch_1d
     move-exception v0
 
-    .line 79
+    .line 80
     const-string v1, "BluetensScreen.open"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_6
 
-    .line 72
+    .line 73
     :cond_24
     :try_start_24
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -151,7 +151,7 @@
     :try_end_2b
     .catch Ljava/lang/Throwable; {:try_start_24 .. :try_end_2b} :catch_38
 
-    .line 76
+    .line 77
     :cond_2b
     :goto_2b
     :try_start_2b
@@ -161,7 +161,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen;->current:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 77
+    .line 78
     sget-object v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen;->current:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->show()V
@@ -170,7 +170,7 @@
 
     goto :goto_6
 
-    .line 73
+    .line 74
     :catch_38
     move-exception v0
 
@@ -181,7 +181,7 @@
     .registers 3
 
     .prologue
-    .line 84
+    .line 85
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own
 storage check at start (HiPermission, its own activity; on Android 13+ it is refused without a dialog and nags) is
-removed — and open the app by itself after an update (wearable/XemsAutoStart, a MY_PACKAGE_REPLACED receiver in the manifest).
-Also <queries> com.bluetens: the Bluetens page reads the native Bluetens app's programs (Android 11+ package visibility)."""
+removed — and open the app by itself after an update (wearable/XemsAutoStart, a MY_PACKAGE_REPLACED receiver in the manifest)."""
 
 from __future__ import annotations
 
@@ -20,23 +19,7 @@ RECEIVER = (
 )
 
 
-# Android 11+ hides other apps unless the manifest names them: the Bluetens page reads the programs of the native
-# Bluetens app installed on the tablet (wearable/bluetens/BluetensNative).
-QUERIES = '<queries><package android:name="com.bluetens"/></queries>'
-
-
-def patch_queries(text: str) -> str:
-    if 'android:name="com.bluetens"' in text:
-        print("AndroidManifest: <queries> com.bluetens already there")
-        return text
-    if "<application" not in text:
-        raise RuntimeError("AndroidManifest: <application not found")
-    print("AndroidManifest: <queries> com.bluetens (native Bluetens programs)")
-    return text.replace("<application", QUERIES + "<application", 1)
-
-
 def patch_manifest(text: str) -> str:
-    text = patch_queries(text)
     if "XemsAutoStart" in text:
         print("AndroidManifest: auto-start receiver already there")
         return text

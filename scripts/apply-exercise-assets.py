@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program
-pictures: branding/programs/*.webp → assets/xems/programs/ (ai/ProgramArt).
+pictures: branding/programs/*.webp → assets/xems/programs/ (ai/ProgramArt), and the Bluetens library:
+branding/bluetens/programs.json → assets/xems/bluetens.json (wearable/bluetens/BluetensLibrary).
 ai/ExerciseFigure reads it (paths already normalized to absolute M/L/C/Z by scripts/exercise-paths.py);
 ai/AutoTemplateData holds the names and program stations (scripts/gen-exercises.py). docs/xems-exercise-templates.md
 """
@@ -78,6 +79,12 @@ def main() -> int:
     for p in scale:
         shutil.copy2(p, sout / p.name)
     print(f"assets/xems/body/scale/ ({len(scale)} files, {sum(p.stat().st_size for p in scale)} B)")
+    blt = ROOT / "branding" / "bluetens" / "programs.json"   # the Bluetens library (scripts/bluetens/import-vendor.py)
+    bltd = json.loads(blt.read_text(encoding="utf-8"))
+    if len(bltd.get("programs", [])) < 200 or not bltd.get("parts"):
+        raise SystemExit("branding/bluetens/programs.json: incomplete — run scripts/bluetens/import-vendor.py")
+    shutil.copy2(blt, DEST.parent / "bluetens.json")
+    print(f"assets/xems/bluetens.json ({len(bltd['programs'])} Bluetens programs, {blt.stat().st_size} B)")
     # the measuring stage: the client on the scale (by sex), a still picture (ScaleStage; no video)
     measure = sorted((body / "scale" / "measure").glob("*.*"))
     want = {"female-hero.webp", "male-hero.webp"}

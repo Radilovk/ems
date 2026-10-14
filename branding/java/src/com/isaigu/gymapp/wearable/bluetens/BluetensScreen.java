@@ -36,7 +36,8 @@ import java.util.Set;
  * control — frequency, width, impulse / pause and the Australian current change while the pads run,
  * {@link BluetensShell#swap}); the pads (classic, or the two of a
  * Duo) on the right with their strength big; one primary button ▶ / ■. The pads are found and linked by themselves.
- * "Bluetens" tab: every program of the native app installed on this tablet ({@link BluetensNative}).
+ * "Bluetens" tab: the Bluetens app's own programs, shipped inside XEMS ({@link BluetensLibrary}) — body part, then
+ * category, then program; it says where the electrodes go.
  * A modal window over XEMS (owner, 2026-10-14): "—" (or Back while pads are linked) folds it to a floating pill
  * ({@link BluetensMini}) and the pads keep running while the trainer works in XEMS; a tap on the pill opens it again,
  * the dock tile too. Only ✕ closes it — and closing stops the output. Only on an unlocked (admin) tablet.
@@ -120,14 +121,15 @@ public final class BluetensScreen {
         String mineId = "";
         /** "На живо" tab: one step whose values change while it runs. */
         boolean live;
-        /** "Bluetens" tab: the native app's programs ({@code natList} null while they are read). */
-        boolean nat;
-        String natEntry = "";
-        String natGroup = "";
-        List<BluetensNative.Prog> natList;
-        boolean natLoading;
-        BluetensLok natLok;
-        String natLokEntry = "";
+        /** "Bluetens" tab: the library ({@code lib} null until read), the chosen body part / category / program. */
+        boolean libTab;
+        BluetensLibrary.Lib lib;
+        boolean libLoading;
+        String libPart = "";
+        String libCat = "";
+        String libFile = "";
+        BluetensLok libLok;
+        String libLokFile = "";
         BluetensMini mini;
         boolean minimized;
         BluetensProgram.Step liveStep;
@@ -168,9 +170,10 @@ public final class BluetensScreen {
             mine = prefs.getBoolean("mine", false);
             mineId = prefs.getString("mine_id", "");
             live = prefs.getBoolean("live", false);
-            nat = prefs.getBoolean("nat", false);
-            natEntry = prefs.getString("nat_entry", "");
-            natGroup = prefs.getString("nat_group", "");
+            libTab = prefs.getBoolean("lib", false);
+            libPart = prefs.getString("lib_part", "");
+            libCat = prefs.getString("lib_cat", "");
+            libFile = prefs.getString("lib_file", "");
             BluetensProgram lp = BluetensProgram.decode(prefs.getString("live_step", ""));
             liveStep = lp != null ? lp.steps.get(0) : liveDefault();
             BluetensProgram.safe(liveStep);
@@ -315,9 +318,9 @@ public final class BluetensScreen {
             seg.setAlpha(running ? 0.4f : 1f);
             tabHolder.addView(seg);
             programList.removeAllViews();
-            minuteBox.setVisibility(nat || (mine && !live) ? View.GONE : View.VISIBLE);
-            if (nat) {
-                fillNative();
+            minuteBox.setVisibility(libTab || (mine && !live) ? View.GONE : View.VISIBLE);
+            if (libTab) {
+                fillLibrary();
                 return;
             }
             if (live) {
@@ -404,158 +407,90 @@ public final class BluetensScreen {
             programList.addView(add, XemsUi.matchWrap(a, 12));
         }
 
-        // ------------------------------------------------------------------ "Bluetens": the native app's programs
+        // ------------------------------------------------------------------ "Bluetens": the vendor app's programs, in XEMS
 
-        /** The chosen native program, parsed once (render asks every second). */
-        BluetensLok natLok() {
-            if (!natEntry.equals(natLokEntry)) {
-                natLokEntry = natEntry;
-                natLok = null;
-                byte[] raw = BluetensNative.read(a, BluetensNative.find(natList, natEntry));
-                try {
-                    natLok = raw != null ? BluetensLok.parse(new String(raw, "US-ASCII")) : null;
-                } catch (Throwable t) {
-                    natLok = null;
-                }
-            }
-            return natLok;
+        /** The chosen library program (null while the library is read, or none chosen). */
+        BluetensLibrary.Prog libProg() {
+            return lib != null ? lib.find(libFile) : null;
         }
 
-        /** The groups to pick from: the vendor's categories, or (none named) the alphabet in slices of ~40. */
-        List<String[]> natGroups() {
-            List<String[]> out = new ArrayList<String[]>();
-            List<String> named = new ArrayList<String>();
-            for (BluetensNative.Prog p : natList) {
-                if (p.group.length() > 0 && !named.contains(p.group)) {
-                    named.add(p.group);
+        /** Body part chips (head → feet), then the categories that part has, then its programs two to a row. */
+        void fillLibrary() {
+            if (lib == null) {
+                if (!libLoading) {
+                    libLoading = true;
+                    new LibraryLoader(this).start();
                 }
-            }
-            if (named.size() >= 2) {
-                for (String g : named) {
-                    out.add(new String[] {g, "g:" + g});
-                }
-                return out;
-            }
-            StringBuilder letters = new StringBuilder();
-            int n = 0;
-            char first = 0, last = 0;
-            for (BluetensNative.Prog p : natList) {
-                char c = initial(p);
-                if (c != last && n >= 40) {
-                    out.add(new String[] {first == last ? String.valueOf(first) : first + "–" + last, "l:" + letters});
-                    letters.setLength(0);
-                    n = 0;
-                }
-                if (letters.indexOf(String.valueOf(c)) < 0) {
-                    if (letters.length() == 0) {
-                        first = c;
-                    }
-                    letters.append(c);
-                }
-                last = c;
-                n++;
-            }
-            if (n > 0) {
-                out.add(new String[] {first == last ? String.valueOf(first) : first + "–" + last, "l:" + letters});
-            }
-            return out;
-        }
-
-        static char initial(BluetensNative.Prog p) {
-            return p.name.length() > 0 ? Character.toUpperCase(p.name.charAt(0)) : '#';
-        }
-
-        static boolean inGroup(BluetensNative.Prog p, String key) {
-            if (key.startsWith("g:")) {
-                return p.group.equals(key.substring(2));
-            }
-            if (key.startsWith("l:")) {
-                return key.indexOf(initial(p), 2) >= 0;
-            }
-            return true;
-        }
-
-        void fillNative() {
-            if (natList == null) {
-                if (!natLoading) {
-                    natLoading = true;
-                    new NativeLoader(this, bg()).start();
-                }
-                TextView wait = XemsUi.text(a, tr("Чета програмите на Bluetens…", "Reading the Bluetens programs…"),
-                        15, XemsUi.MUTED, false);
+                TextView wait = XemsUi.text(a, tr("Зареждам програмите…", "Loading the programs…"), 15, XemsUi.MUTED, false);
                 wait.setPadding(dp(4), dp(10), dp(4), dp(10));
                 programList.addView(wait);
                 return;
             }
-            if (natList.isEmpty()) {
-                TextView none = XemsUi.text(a, "none".equals(BluetensNative.why)
-                        ? tr("Приложението Bluetens не е инсталирано на този таблет. Инсталирай го — всичките му "
-                        + "програми се появяват тук сами.", "The Bluetens app is not installed on this tablet. Install "
-                        + "it — all its programs show up here by themselves.")
-                        : tr("Не намерих програми в приложението Bluetens.", "No programs found in the Bluetens app."),
-                        15, XemsUi.MUTED, false);
-                none.setPadding(dp(4), dp(10), dp(4), dp(10));
-                programList.addView(none);
-                return;
+            boolean b = bg();
+            int tint = BluetensMini.TINT;
+            programList.addView(XemsUi.label(a, tr("Къде на тялото", "Where on the body")), XemsUi.matchWrap(a, 4));
+            List<String[]> partChips = new ArrayList<String[]>();
+            partChips.add(new String[] {"", tr("Всички", "All")});
+            for (String[] p : lib.parts) {
+                partChips.add(new String[] {p[0], b ? p[1] : p[2]});
             }
-            List<String[]> groups = natGroups();
-            boolean known = false;
-            for (String[] g : groups) {
-                known |= g[1].equals(natGroup);
-            }
-            if (!known) {
-                // the group of the chosen program, else the first
-                BluetensNative.Prog chosen = BluetensNative.find(natList, natEntry);
-                natGroup = groups.isEmpty() ? "" : groups.get(0)[1];
-                for (String[] g : groups) {
-                    if (chosen != null && inGroup(chosen, g[1])) {
-                        natGroup = g[1];
+            programList.addView(chipRow(partChips, libPart, true), XemsUi.matchWrap(a, 4));
+
+            List<String[]> catChips = new ArrayList<String[]>();
+            for (String[] c : lib.cats) {
+                for (BluetensLibrary.Prog p : lib.progs) {
+                    if (p.on(libPart) && p.cat.equals(c[0])) {
+                        catChips.add(new String[] {c[0], b ? c[1] : c[2]});
                         break;
                     }
                 }
             }
-            if (groups.size() > 1) {
-                HorizontalScrollView hs = new HorizontalScrollView(a);
-                hs.setHorizontalScrollBarEnabled(false);
-                LinearLayout chips = XemsUi.horizontal(a);
-                for (String[] g : groups) {
-                    boolean sel = g[1].equals(natGroup);
-                    TextView c = XemsUi.chip(a, g[0], sel, BluetensMini.TINT);
-                    c.setOnClickListener(new NativeGroup(this, g[1]));
-                    c.setMinHeight(dp(44));
-                    c.setAlpha(running && !sel ? 0.4f : 1f);
-                    XemsUi.addChip(a, chips, c);
-                }
-                hs.addView(chips);
-                programList.addView(hs, XemsUi.matchWrap(a, 2));
+            boolean catKnown = libCat.length() == 0;
+            for (String[] c : catChips) {
+                catKnown |= c[0].equals(libCat);
             }
-            int tint = BluetensMini.TINT;
+            if (!catKnown) {
+                libCat = "";
+            }
+            if (catChips.size() > 1) {
+                catChips.add(0, new String[] {"", tr("Всичко", "Everything")});
+                programList.addView(chipRow(catChips, libCat, false), XemsUi.matchWrap(a, 2));
+            }
+            String where = BluetensLibrary.placement(libPart, b);
+            if (where.length() > 0) {
+                TextView w = XemsUi.text(a, "📍 " + where, 13, XemsUi.MUTED, false);
+                w.setPadding(dp(4), dp(6), dp(4), dp(2));
+                programList.addView(w);
+            }
+
             LinearLayout line = null;
             int shown = 0;
-            for (BluetensNative.Prog p : natList) {
-                if (!inGroup(p, natGroup)) {
+            for (BluetensLibrary.Prog p : lib.progs) {
+                if (!p.on(libPart) || (libCat.length() > 0 && !libCat.equals(p.cat))) {
                     continue;
                 }
                 if (shown % 2 == 0) {
                     line = XemsUi.horizontal(a);
                     programList.addView(line, XemsUi.matchWrap(a, 4));
                 }
-                boolean sel = p.entry.equals(natEntry);
+                boolean sel = p.file.equals(libFile);
                 LinearLayout r = XemsUi.vertical(a);
                 r.setPadding(dp(12), dp(8), dp(10), dp(8));
                 float rad = dp(14);
                 r.setBackground(XemsUi.ripple(sel ? XemsUi.rounded(XemsUi.alpha(tint, 0x26), rad, XemsUi.alpha(tint, 0xCC), dp(1.5f))
                         : XemsUi.rounded(XemsUi.alpha(XemsUi.SURFACE, 0x99), rad, 0, 0), tint, rad));
                 r.setClickable(true);
-                r.setOnClickListener(new PickNative(this, p.entry));
+                r.setOnClickListener(new PickLibrary(this, p.file));
                 XemsUi.pressable(r);
-                TextView nm = XemsUi.text(a, p.name, 15, sel ? XemsUi.GO_TEXT : XemsUi.TEXT, true);
+                TextView nm = XemsUi.text(a, p.name(b), 15, sel ? XemsUi.GO_TEXT : XemsUi.TEXT, true);
                 nm.setMaxLines(2);
                 r.addView(nm);
-                long secs = ((long) p.ms + 999) / 1000;
-                r.addView(XemsUi.text(a, String.format(Locale.ROOT, "%d:%02d", secs / 60, secs % 60) + " · "
-                        + (p.hzLo == p.hzHi ? String.valueOf(p.hzHi) : p.hzLo + "–" + p.hzHi) + " Hz · " + p.usHi
-                        + " µs", 12, XemsUi.MUTED, false));
+                String sub = String.format(Locale.ROOT, "%d:%02d", p.secs / 60, p.secs % 60) + " · "
+                        + (p.hzLo == p.hzHi ? String.valueOf(p.hzHi) : p.hzLo + "–" + p.hzHi) + " Hz · " + p.usHi + " µs";
+                if (libPart.length() == 0 && p.parts.length == 1) {
+                    sub = lib.partName(p.parts[0], b) + " · " + sub;
+                }
+                r.addView(XemsUi.text(a, sub, 12, XemsUi.MUTED, false));
                 r.setAlpha(running && !sel ? 0.4f : 1f);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
                 if (shown % 2 == 1) {
@@ -569,40 +504,60 @@ public final class BluetensScreen {
             }
         }
 
-        void nativeLoaded(List<BluetensNative.Prog> list) {
-            natLoading = false;
+        /** One sideways-sliding row of chips (body parts or categories). */
+        View chipRow(List<String[]> chips, String selected, boolean parts) {
+            HorizontalScrollView hs = new HorizontalScrollView(a);
+            hs.setHorizontalScrollBarEnabled(false);
+            LinearLayout row = XemsUi.horizontal(a);
+            for (String[] c : chips) {
+                boolean sel = c[0].equals(selected);
+                TextView chip = XemsUi.chip(a, c[1], sel, parts ? BluetensMini.TINT : XemsUi.GO);
+                chip.setOnClickListener(new LibraryChip(this, c[0], parts));
+                chip.setMinHeight(dp(44));
+                chip.setAlpha(running && !sel ? 0.4f : 1f);
+                XemsUi.addChip(a, row, chip);
+            }
+            hs.addView(row);
+            return hs;
+        }
+
+        void libraryLoaded(BluetensLibrary.Lib l) {
+            libLoading = false;
             if (closed) {
                 return;
             }
-            natList = list;
-            if (BluetensNative.find(list, natEntry) == null) {
-                natEntry = list.isEmpty() ? "" : list.get(0).entry;
+            lib = l;
+            if (lib.find(libFile) == null) {
+                libFile = "";
             }
-            natLokEntry = "";                                 // parse again from the new list
-            natLok = null;
-            if (nat) {
+            if (tab() == 3) {
                 fillPrograms();
             }
             render();
         }
 
-        void pickNative(String entry) {
-            if (running || entry.equals(natEntry)) {
+        void pickLibrary(String file) {
+            if (running || file.equals(libFile)) {
                 return;
             }
-            natEntry = entry;
-            prefs.edit().putString("nat_entry", entry).apply();
+            libFile = file;
+            prefs.edit().putString("lib_file", file).apply();
             finished = false;
             fillPrograms();
             render();
         }
 
-        void pickGroup(String key) {
-            if (running || key.equals(natGroup)) {
+        void libraryChip(String id, boolean part) {
+            if (running) {
                 return;
             }
-            natGroup = key;
-            prefs.edit().putString("nat_group", key).apply();
+            if (part) {
+                libPart = id;
+                libCat = "";
+            } else {
+                libCat = id;
+            }
+            prefs.edit().putString("lib_part", libPart).putString("lib_cat", libCat).apply();
             fillPrograms();
         }
 
@@ -783,7 +738,7 @@ public final class BluetensScreen {
         }
 
         int tab() {
-            return nat ? 3 : live ? 2 : mine ? 1 : 0;
+            return libTab ? 3 : live ? 2 : mine ? 1 : 0;
         }
 
         void setTab(int i) {
@@ -792,8 +747,8 @@ public final class BluetensScreen {
             }
             mine = i == 1;
             live = i == 2;
-            nat = i == 3;
-            prefs.edit().putBoolean("mine", mine).putBoolean("live", live).putBoolean("nat", nat).apply();
+            libTab = i == 3;
+            prefs.edit().putBoolean("mine", mine).putBoolean("live", live).putBoolean("lib", libTab).apply();
             finished = false;
             fillPrograms();
             render();
@@ -842,8 +797,16 @@ public final class BluetensScreen {
 
         /** What ▶ would run now: null when "Мои" has nothing chosen. */
         BluetensLok currentLok() {
-            if (nat) {
-                return natLok();
+            if (libTab) {
+                BluetensLibrary.Prog p = libProg();
+                if (p == null) {
+                    return null;
+                }
+                if (!p.file.equals(libLokFile)) {
+                    libLokFile = p.file;
+                    libLok = BluetensLok.parse(p.lok);
+                }
+                return libLok;
             }
             if (live) {
                 return liveLok(minutes * 60000L);
@@ -856,9 +819,9 @@ public final class BluetensScreen {
         }
 
         String currentName() {
-            if (nat) {
-                BluetensNative.Prog p = BluetensNative.find(natList, natEntry);
-                return p != null ? p.name : "";
+            if (libTab) {
+                BluetensLibrary.Prog p = libProg();
+                return p != null ? p.name(bg()) : "";
             }
             if (live) {
                 return tr("На живо", "Live");
@@ -1190,15 +1153,11 @@ public final class BluetensScreen {
             if (lok == null) {
                 return;
             }
-            // a native program goes to the pad byte for byte, as the vendor ships it
-            byte[] content = nat ? BluetensNative.read(a, BluetensNative.find(natList, natEntry))
-                    : BluetensShell.ascii(lok.build());
-            if (content == null) {
-                return;
-            }
+            // a Bluetens program goes to the pad exactly as written; ours are built from the model
+            byte[] content = BluetensShell.ascii(libTab ? libProg().lok : lok.build());
             // own programs share one file on the pad (it is replaced when it changes — the md5 decides)
             liveFile = LIVE_A;
-            String file = nat ? BluetensNative.FILE : live ? LIVE_A : mine ? "XMINE"
+            String file = libTab ? BluetensLibrary.FILE : live ? LIVE_A : mine ? "XMINE"
                     : BluetensPrograms.fileName(program, minutes);
             lengthMs = (long) lok.ms();
             finished = false;
@@ -1617,76 +1576,76 @@ public final class BluetensScreen {
         }
     }
 
-    /** Reads the native app's programs off the main thread, then hands them to the page. */
-    static final class NativeLoader extends Thread {
+    /** Reads the library off the main thread, then hands it to the page. */
+    static final class LibraryLoader extends Thread {
         final Page v;
-        final boolean bg;
 
-        NativeLoader(Page v, boolean bg) {
-            super("bluetens-native");
+        LibraryLoader(Page v) {
+            super("bluetens-library");
             this.v = v;
-            this.bg = bg;
         }
 
         @Override
         public void run() {
-            List<BluetensNative.Prog> list;
+            BluetensLibrary.Lib l;
             try {
-                list = BluetensNative.load(v.a.getApplicationContext(), bg);
+                l = BluetensLibrary.load(v.a.getApplicationContext());
             } catch (Throwable t) {
-                XemsGuard.report("BluetensNative.load", t);
-                list = new ArrayList<BluetensNative.Prog>();
+                XemsGuard.report("BluetensLibrary.load", t);
+                l = new BluetensLibrary.Lib();
             }
-            v.main.post(new NativeLoaded(v, list));
+            v.main.post(new LibraryLoaded(v, l));
         }
     }
 
-    static final class NativeLoaded implements Runnable {
+    static final class LibraryLoaded implements Runnable {
         final Page v;
-        final List<BluetensNative.Prog> list;
+        final BluetensLibrary.Lib l;
 
-        NativeLoaded(Page v, List<BluetensNative.Prog> list) {
+        LibraryLoaded(Page v, BluetensLibrary.Lib l) {
             this.v = v;
-            this.list = list;
+            this.l = l;
         }
 
         @Override
         public void run() {
             try {
-                v.nativeLoaded(list);
+                v.libraryLoaded(l);
             } catch (Throwable t) {
-                XemsGuard.report("BluetensScreen.native", t);
+                XemsGuard.report("BluetensScreen.library", t);
             }
         }
     }
 
-    static final class PickNative implements View.OnClickListener {
+    static final class PickLibrary implements View.OnClickListener {
         final Page v;
-        final String entry;
+        final String file;
 
-        PickNative(Page v, String entry) {
+        PickLibrary(Page v, String file) {
             this.v = v;
-            this.entry = entry;
+            this.file = file;
         }
 
         @Override
         public void onClick(View view) {
-            v.pickNative(entry);
+            v.pickLibrary(file);
         }
     }
 
-    static final class NativeGroup implements View.OnClickListener {
+    static final class LibraryChip implements View.OnClickListener {
         final Page v;
-        final String key;
+        final String id;
+        final boolean part;
 
-        NativeGroup(Page v, String key) {
+        LibraryChip(Page v, String id, boolean part) {
             this.v = v;
-            this.key = key;
+            this.id = id;
+            this.part = part;
         }
 
         @Override
         public void onClick(View view) {
-            v.pickGroup(key);
+            v.libraryChip(id, part);
         }
     }
 
@@ -1700,12 +1659,14 @@ public final class BluetensScreen {
         @Override
         public void onClick(View view) {
             boolean b = bg();
-            XemsUi.Shell s = XemsUi.shell(v.a, v.nat ? tr("Програмите на Bluetens", "The Bluetens programs")
+            BluetensLibrary.Prog lp = v.libTab ? v.libProg() : null;
+            String[] ld = lp != null && v.lib != null ? v.lib.desc.get(lp.master) : null;
+            XemsUi.Shell s = XemsUi.shell(v.a, v.libTab ? (lp != null ? lp.name(b) : "Bluetens")
                     : v.live ? tr("На живо", "Live") : v.mine ? tr("Ръчен режим", "Manual mode")
                     : BluetensPrograms.name(v.program, b),
-                    v.nat ? tr("Всички програми на приложението Bluetens, инсталирано на този таблет — четат се от "
-                            + "него и вървят точно както там. Силата започва от 1.", "Every program of the Bluetens app "
-                            + "installed on this tablet — read from it and played exactly as there. Strength starts at 1.")
+                    v.libTab ? (lp != null && v.lib != null ? v.lib.catName(lp.cat, b) + " · " + lp.secs / 60
+                            + tr(" мин", " min") : tr("Програмите на приложението Bluetens, вградени в XEMS.",
+                            "The Bluetens app's programs, built into XEMS."))
                     : v.live ? tr("Стойностите се сменят, докато устройството работи: то получава нова програма за около "
                             + "секунда и силата се връща там, където беше. Австралийски ток — пакети по 1–5 мс от импулси "
                             + "с 1 kHz (най-високото, което устройството може, е 1,2 kHz — вариантът с 4 kHz не става); "
@@ -1733,9 +1694,20 @@ public final class BluetensScreen {
                     "• Duo: both pads start together; each has its own strength.",
                     "• “—” folds the window: the pads keep going while you work in XEMS. Tap the pill to open it again.",
                     "• ✕ closes the window and stops the pads."};
+            if (ld != null && (b ? ld[0] : ld[1]).length() > 0) {
+                s.body.addView(XemsUi.text(v.a, b ? ld[0] : ld[1], 15, XemsUi.TEXT, false), XemsUi.matchWrap(v.a, 4));
+            }
+            if (lp != null) {
+                String where = BluetensLibrary.placement(v.libPart.length() > 0 ? v.libPart
+                        : lp.parts.length == 1 ? lp.parts[0] : "", b);
+                if (where.length() > 0) {
+                    s.body.addView(XemsUi.text(v.a, "📍 " + where, 15, XemsUi.GO_TEXT, true), XemsUi.matchWrap(v.a, 12));
+                }
+            }
             for (String l : lines) {
                 s.body.addView(XemsUi.text(v.a, l, 15, XemsUi.TEXT, false), XemsUi.matchWrap(v.a, 8));
             }
+            XemsUi.fitHeight(v.a, s, 0.9f);
             s.dialog.show();
         }
     }

@@ -1,0 +1,17 @@
+#!/bin/sh
+# XEMS mod: run /opt/xems/hooks/*.sh once per mod version, before XBody starts
+# (rc5.d S35 < S40xbody-start). Log: /opt/xems/xems.log. busybox 1.22 ash.
+case "$1" in start) ;; *) exit 0 ;; esac
+
+D=${XEMS_DIR:-/opt/xems}
+V=$(cat "$D/VERSION" 2>/dev/null)
+[ -n "$V" ] || exit 0
+[ "$(cat "$D/hooks.done" 2>/dev/null)" = "$V" ] && exit 0
+
+for h in "$D"/hooks/*.sh; do
+	[ -f "$h" ] || continue
+	echo "$(date) v$V hook $h" >> "$D/xems.log"
+	sh "$h" >> "$D/xems.log" 2>&1 || echo "  FAILED rc=$?" >> "$D/xems.log"
+done
+echo "$V" > "$D/hooks.done"
+sync

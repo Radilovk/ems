@@ -1,0 +1,28 @@
+#!/bin/sh
+# XEMS panel (rc5 S41, after xbody-start S40): waits for XBody's screen (its QWS server socket), then runs
+# /opt/xems/bin/xems-panel as a client on top of it — the corner tab, XEMS / bodytech suits through the XIAO bridge.
+# Restarts it if it falls; gives up after 5 quick falls in a row (XBody keeps working either way).
+case "$1" in
+start)
+	(
+		SOCK=/tmp/qtembedded-0/QtEmbedded-0
+		n=0
+		while [ ! -S "$SOCK" ] && [ $n -lt 120 ]; do sleep 1; n=$((n + 1)); done
+		sleep 3
+		LOG=/opt/xems/panel.log
+		[ -f $LOG ] && [ $(wc -c < $LOG) -gt 1000000 ] && : > $LOG
+		fails=0
+		while [ $fails -lt 5 ]; do
+			t0=$(date +%s)
+			/opt/xems/bin/xems-panel >> $LOG 2>&1
+			[ $(( $(date +%s) - t0 )) -lt 30 ] && fails=$((fails + 1)) || fails=0
+			[ -S "$SOCK" ] || break   # XBody is gone (the unit powers off)
+			sleep 3
+		done
+	) > /dev/null 2>&1 &
+	;;
+stop)
+	killall xems-panel 2> /dev/null
+	;;
+esac
+exit 0

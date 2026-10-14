@@ -161,6 +161,20 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-no-vendor-network.py` (53L, build:L191[BETA_MUSIC]) — Fail the build if a request path to the vendor's server is still open (apply-no-vendor-network.py).
 - `scripts/verify-vendor-access.py` (62L, build:L189) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L158[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
+- `scripts/xbody/build-bridge.sh` (23L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
+- `scripts/xbody/build-panel.sh` (17L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
+- `scripts/xbody/build.py` (300L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
+- `scripts/xbody/emu-panel.sh` (34L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
+- `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
+- `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
+- `scripts/xbody/qt-headers.sh` (33L) — Qt 4.8.6 headers matching the card's Qt Embedded (build key "arm linux g++-4 full-config", ARMv7 NEON softfp,
+- `scripts/xbody/relink.py` (54L) — Restore the shared-library symlinks the 7z dump flattened to 0-byte files.
+- `scripts/xbody/runroot.sh` (15L) — Runtime root for qemu-arm (-L): the card's /lib, /usr/lib (Qt, fonts, plugins) with the flattened symlinks
+- `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
+- `scripts/xbody/test-panel.sh` (9L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines) + the ARM build.
+- `scripts/xbody/test.sh` (86L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/updater.sh` (94L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
+- `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
 
 ## Java sources → smali (compile:X = scripts/compile-X-java.sh; X* = catch-all find)
@@ -525,14 +539,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (101L)
+`CLAUDE.md` (103L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
-  - L42 ## Invariants (breaking one = broken release)
-  - L57 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
-  - L71 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L98 ## Keeping the map true
+  - L43 ## Invariants (breaking one = broken release)
+  - L58 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
+  - L72 ## Deeper context (read only the section you need — headings/lines are in MAP)
+  - L100 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -768,6 +782,35 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## Personal context (1.1.158-ai)
   - L54 ## Languages (1.1.160-ai)
   - L60 ## One training, shown at the end (1.1.162-ai)
+
+`docs/xbody-os.md` (69L)
+  - L1 # XBody unit — operating system map
+  - L8 ## Platform
+  - L16 ## Boot chain
+  - L33 ## The app — `/opt/xbody/`
+  - L48 ## Stimulator link
+  - L54 ## Network
+  - L58 ## USB update hook (vendor)
+  - L63 ## Pitfalls
+
+`docs/xbody-protocol.md` (76L)
+  - L1 # XBody unit — internal protocols (decoded statically, no capture)
+  - L7 ## Processes
+  - L17 ## Framing (both sockets, `XBCommPacket::Encode`)
+  - L21 ## GUI → xbody_control
+  - L33 ## xbody_control → board: `pc_emse` (38 bytes)
+  - L50 ## Hardware channel ↔ XBody body part
+  - L71 ## How it was read
+
+`docs/xbody-xems-panel.md` (74L)
+  - L1 # XEMS panel on the XBody unit (mod v2)
+  - L11 ## Status
+  - L19 ## Use (owner)
+  - L26 ## Panel
+  - L37 ## Bridge line protocol (USB CDC, 115200)
+  - L46 ## Files
+  - L56 ## Build / test
+  - L67 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1270,6 +1313,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Deploy
   - L57 ## Разходи
 
+`tools/jadx/README.md` (206L)
+  - L3 ## JADX
+  - L40 ### Download
+  - L53 ### Install
+  - L67 ### Use jadx as a library
+  - L70 ### Build from source
+  - L83 ### Usage
+  - L195 ### Troubleshooting
+  - L198 ### Contributing
+
 `vr-bridge/README.md` (116L)
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
@@ -1301,3 +1354,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 `vr-workout/assets/CREDITS.md` (17L)
   - L1 # Asset credits
+
+`xbody/CLAUDE.md` (37L)
+  - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
+  - L5 ## Model
+  - L16 ## Build (on request: "дай файла за картата")
+  - L27 ## Panel / bridge
+  - L33 ## Rules

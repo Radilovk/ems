@@ -1,9 +1,7 @@
-## The sky loft: a training hall high up with glass from floor to ceiling ahead and on the front half of both sides,
-## built from code. Real window frames and glass, a terrace outside them with a glass railing, and the landscape (the
-## "Гледка" setting, drawn as the sky) infinitely far beyond — so in the headset the view is truly out there, with
-## depth, and every pane is crisp. The glass spans what a photo view fills from where the player stands (±60°, the
-## photos hang 120° wide); behind that the side walls are solid, warm wood with a light line. The player stands near
-## the solid back wall, the open floor and the main window ahead.
+## The sky loft: a training hall high up with glass walls from floor to ceiling on three sides, built from code. Real
+## window frames and glass, a terrace outside them with a glass railing, and the landscape (the sea or the mountains,
+## a 360° photo as the sky) infinitely far beyond — so in the headset the view is truly out there, with depth, and
+## every pane is crisp. The player stands near the solid back wall, the open floor and the main window ahead.
 class_name SkyLoft
 extends Node3D
 
@@ -15,8 +13,7 @@ const DECK_NOR := preload("res://assets/loft/wood_floor_deck_nor_gl.jpg")
 const HALF_W := 7.0                 # the hall: x −7 … 7
 const FRONT := -11.0                # the main window, ahead
 const BACK := 2.5                   # the solid wall behind the player
-const H := 4.4                      # floor to ceiling: tall windows, more of the view
-const GLASS_END := -4.0             # the side glass runs from the front to here (±60° from the player); solid behind
+const H := 3.6                      # floor to ceiling
 const BAY := 2.0                    # a pane between two mullions (about)
 const TERRACE := 5.0                # the terrace outside the glass: it hides the photo's near ground
 const RAIL := 1.05
@@ -43,11 +40,10 @@ func _ready() -> void:
 	_build_ceiling()
 	_build_back_wall()
 	_glass_wall(Vector3(-HALF_W, 0, FRONT), Vector3(HALF_W, 0, FRONT))          # ahead
-	_glass_wall(Vector3(-HALF_W, 0, GLASS_END), Vector3(-HALF_W, 0, FRONT))     # left
-	_glass_wall(Vector3(HALF_W, 0, FRONT), Vector3(HALF_W, 0, GLASS_END))       # right
-	for c in [Vector3(-HALF_W, 0, FRONT), Vector3(HALF_W, 0, FRONT), Vector3(-HALF_W, 0, GLASS_END), Vector3(HALF_W, 0, GLASS_END)]:
-		_box(Vector3(0.16, H, 0.16), c + Vector3(0, H * 0.5, 0), _frame)          # the corner posts
-	_build_side_walls()
+	_glass_wall(Vector3(-HALF_W, 0, BACK), Vector3(-HALF_W, 0, FRONT))          # left
+	_glass_wall(Vector3(HALF_W, 0, FRONT), Vector3(HALF_W, 0, BACK))            # right
+	for c in [Vector3(-HALF_W, 0, FRONT), Vector3(HALF_W, 0, FRONT)]:            # the corner posts
+		_box(Vector3(0.16, H, 0.16), c + Vector3(0, H * 0.5, 0), _frame)
 	_build_terrace()
 
 
@@ -112,38 +108,6 @@ func _build_back_wall() -> void:
 	line.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	line.albedo_color = Color(0.25, 0.85, 1.0) * 1.4
 	_box(Vector3(HALF_W * 2.0 - 0.6, 0.03, 0.02), Vector3(0, 1.2, BACK - 0.01), line)
-
-
-## The back half of both sides: solid walls clad in warm wooden slats, a cyan light line along them (as on the back
-## wall) and a soft wash of light from below.
-func _build_side_walls() -> void:
-	var wall := StandardMaterial3D.new()
-	wall.albedo_color = Color(0.16, 0.165, 0.17)
-	wall.roughness = 0.8
-	var wood := _textured(DECK_ALB, DECK_NOR, 1.2, 0.6)
-	wood.albedo_color = Color(0.8, 0.66, 0.52)
-	var line := StandardMaterial3D.new()
-	line.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	line.albedo_color = Color(0.25, 0.85, 1.0) * 1.4
-	var run := BACK - GLASS_END
-	var mid := (BACK + GLASS_END) * 0.5
-	for s in [-1.0, 1.0]:
-		_box(Vector3(0.2, H, run), Vector3(s * (HALF_W + 0.1), H * 0.5, mid), wall)
-		var n := int(run / 0.16)                     # vertical slats with a shadow gap between them (one draw call)
-		var slat := BoxMesh.new()
-		slat.size = Vector3(0.05, H - 0.5, 0.11)
-		var mm := MultiMesh.new()
-		mm.transform_format = MultiMesh.TRANSFORM_3D
-		mm.mesh = slat
-		mm.instance_count = n
-		for i in n:
-			var z := GLASS_END + 0.08 + i * (run - 0.16) / float(n - 1)
-			mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, Vector3(s * (HALF_W - 0.03), 0.25 + (H - 0.5) * 0.5, z)))
-		var mmi := MultiMeshInstance3D.new()
-		mmi.multimesh = mm
-		mmi.material_override = wood
-		add_child(mmi)
-		_box(Vector3(0.02, 0.03, run - 0.4), Vector3(s * (HALF_W - 0.07), 1.2, mid), line)
 
 
 ## Floor-to-ceiling glass from a to b (on the floor): slim black mullions, a sill and a head, panes between.

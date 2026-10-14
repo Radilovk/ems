@@ -204,7 +204,7 @@ func _settings(m: Control) -> void:
 		_stepper(v, "Гледка", String(GameSettings.VIEWS[settings.view].name),
 			func(d: int) -> void: settings.view = posmod(settings.view + d, GameSettings.VIEWS.size()), "view")
 		_seg(v, "Щадящ режим", ["Не", "Да"], 1 if settings.comfort else 0, func(i: int) -> void: settings.comfort = i == 1, "comfort")
-		_text(v, "Гледката е пейзажът зад прозорците (панорамна зала, лофт, бруталистка зала). Бутон Y сменя залата. Щадящ режим: по-меки проблясъци и без червен ръб.", 24, DIM)
+		_text(v, "Гледката е пейзажът зад стъклата на панорамната зала. Бутон Y сменя залата. Щадящ режим: по-меки проблясъци и без червен ръб.", 24, DIM)
 
 
 func _position(m: Control) -> void:

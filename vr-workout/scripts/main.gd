@@ -189,14 +189,14 @@ func _apply_room() -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.9
 	env.ambient_light_sky_contribution = 1.0
-	if r.kind == "loft" or r.kind == "factory":
-		env.ambient_light_color = Color(0.78, 0.77, 0.75)    # half of the fill neutral: a sunset or a meadow outside
+	if r.kind == "loft":
+		env.ambient_light_color = Color(0.78, 0.77, 0.75)    # most of the fill neutral: a sunset or a meadow outside
 		env.ambient_light_sky_contribution = 0.35             # tints the hall, it does not paint the ceiling
-		room_scene = SkyLoft.new() if r.kind == "loft" else FactoryLoft.new()
+		room_scene = SkyLoft.new()
 		room_root.add_child(room_scene)
 		room_shell.visible = false
 		env.background_energy_multiplier = 1.0
-		_room_depth0 = (-SkyLoft.FRONT if r.kind == "loft" else -FactoryLoft.FRONT) - 0.6
+		_room_depth0 = -SkyLoft.FRONT - 0.6
 		apply_view()
 		apply_room_offset()
 		return
@@ -266,17 +266,13 @@ func _apply_room() -> void:
 	room_shell.visible = false
 	sky.sky_material = plain_sky
 	env.background_energy_multiplier = 1.0
-	if r.get("view", false):                 # openings to the outside: the chosen landscape beyond them
-		apply_view()
 	apply_room_offset()
 
 
-## What the windows look out on (settings "Гледка"): a 360° photo or an ordinary one hung round the player
-## (shaders/view_sky.gdshader), infinitely far beyond the glass. Rooms with windows: the panoramic hall, the loft and
-## the brutalist hall's openings.
+## What the panoramic hall looks out on (settings "Гледка"): a 360° photo or one of the owner's photos hung across
+## its glass (shaders/view_sky.gdshader), infinitely far beyond it.
 func apply_view() -> void:
-	var r: Dictionary = rooms[room_i]
-	if not (r.kind in ["loft", "factory"] or r.get("view", false)):
+	if rooms[room_i].kind != "loft":
 		return
 	var v: Dictionary = GameSettings.VIEWS[clampi(settings.view, 0, GameSettings.VIEWS.size() - 1)]
 	if view_sky == null:

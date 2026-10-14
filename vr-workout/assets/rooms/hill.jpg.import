@@ -2,26 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cgls4bieg3xme"
-path="res://.godot/imported/hangar_concrete_floor_nor_gl.jpg-b03a322a45ab04718d7bb4dfcd0c61bc.ctex"
+uid="uid://c38wnaid07w1s"
+path="res://.godot/imported/hill.jpg-9270076380ea73c2a1694cb77c6a340f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/factory/hangar_concrete_floor_nor_gl.jpg"
-dest_files=["res://.godot/imported/hangar_concrete_floor_nor_gl.jpg-b03a322a45ab04718d7bb4dfcd0c61bc.ctex"]
+source_file="res://assets/rooms/hill.jpg"
+dest_files=["res://.godot/imported/hill.jpg-9270076380ea73c2a1694cb77c6a340f.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.95
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

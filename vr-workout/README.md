@@ -73,7 +73,7 @@ beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid
 | Gloves (fist / pointing), leg armour, trails | `scripts/game/avatar.gd` |
 | Effects (`shock`, `vignette`, `trail`) | `scripts/game/fx.gd` |
 | The arena + side gates | `scripts/game/arena.gd` |
-| The panoramic hall · the loft (built from code) | `scripts/game/skyloft.gd`, `scripts/game/factory_loft.gd` |
+| The panoramic hall (built from code) | `scripts/game/skyloft.gd` |
 | Adding the player's own songs (file picker → XEMS/music) | `scripts/game/music_import.gd` |
 | Head, hands (controller / hand tracking), ankle controllers, body tracking | `scripts/game/body.gd` |
 | Suit events → controller haptics → the suit | `scripts/game/suit.gd` |
@@ -82,23 +82,24 @@ beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid
 **Buttons.** Menu / right B = menu and pause · right A = skip · left X = "this is the middle" · left Y = next room ·
 left grip = next track. A system recenter (hold Meta) recalibrates too.
 
-**Rooms.** The arena; the panoramic hall (`scripts/game/skyloft.gd`: glass from floor to ceiling ahead and on the
-front half of both sides, a terrace with a glass railing, warm wooden slats behind); the loft (`scripts/game/factory_loft.gd`:
-an old brick factory hall, tall steel-framed windows of small panes ahead and on both sides, trusses, pendant lamps,
-polished concrete); the brutalist hall (3D, dressed by `scripts/game/hall.gd`: an LED wall playing the music, neon strips
-whose cross bars run with the beat, light tubes, boxing bags, gym kit, lane lines, two lit words — all in the combo's
-colour; its openings look out on the view too); and three 360° photos (Poly Haven, CC0): gym, dancing hall, mirrored hall.
-**Photo rooms are boxes of their real size:** each was measured on the photo itself (a top-down projection of its floor,
-`box` = the walls' x/z from the camera, `height` = the ceiling, in `scripts/library.gd`), and the photo is painted on a box
-of exactly that size round the spot it was shot from — floor and walls meet where they really meet (a cylinder bigger than
-the room smeared the walls over the floor). **The player stands on that spot**; `yaw` turns the most open side ahead;
-things fly in from up to the front wall − 0.4 m. The owner's own photos without `box` still get a cylinder of `radius`.
-**Views** (setting "Гледка", `GameSettings.VIEWS`, drawn as the sky by `shaders/view_sky.gdshader`, infinitely far, so in
-the headset the landscape is truly out there behind crisp panes): the mountains (a 360° photo) and 11 ordinary photos the
-owner picked (`land/` → `assets/views/`, ≈ 7 MP each). An ordinary photo hangs on a cylinder round the player: `span`
-degrees wide (120 fills every window of the halls from where you stand; the glass is laid out to that, ±60°), its `horizon`
-row at eye level, its height from its own proportions (nothing stretched); past its sides it continues mirrored, above and
-below it fades into its own sky and ground colour.
+**Rooms.** The arena (3D space); the panoramic hall (`scripts/game/skyloft.gd`: glass from floor to ceiling on three
+sides, a terrace with a glass railing, the view beyond); the brutalist hall (3D, dressed by `scripts/game/hall.gd`: an LED
+wall playing the music, neon strips whose cross bars run with the beat, light tubes, boxing bags, gym kit, lane lines,
+two lit words — all in the combo's colour); and three real places, 8K 360° photos (Poly Haven, CC0): a meadow on a hill,
+the cathedral square in Ulm, a mountain plateau at night. **The player stands where the camera stood**, the photo
+painted round that spot on a shell of the place's real size (`scripts/library.gd`): the square is a measured box (`box`
+= its walls' x/z from the camera, from a top-down projection of its ground), open land a cylinder (`radius`) a little
+short of where its ground stops being flat — so the ground under your feet is at its real distance. `yaw` turns the
+best side ahead; things fly in from up to the front wall − 0.4 m (16 m at most). The owner's own photos (XEMS/rooms)
+get a cylinder of `radius` unless they give a `box`.
+**Views of the panoramic hall** (setting "Гледка", `GameSettings.VIEWS`, drawn as the sky by `shaders/view_sky.gdshader`,
+infinitely far, so in the headset the landscape is truly out there behind crisp panes): three 360° photos (the
+mountains, the meadow, the night plateau) and 10 of the owner's photos (`land/` → `assets/views/` by
+`convert/crop_views.py`). Each photo keeps its full width and is hung exactly across the hall's three glass walls (220°
+from where you stand), its height from its own proportions (never stretched), only the band of rows the glass can show
+kept (25° below to 25° above eye level, the chosen row at eye level): 32–37 pixels a degree, sharper than the headset.
+Above and below that band it fades into its own sky and ground colour. (The 1920 px "Dolomites in autumn" is left out:
+too small to be sharp that wide.)
 **Your music.** Settings → Звук: "Песен" picks the track (the built-in bed or one of yours), "Добави свои песни (mp3)" opens
 the device's file picker (`scripts/game/music_import.gd`): in the Quest browser the page's own picker, the songs kept by
 the browser for the site; in the Quest app the system picker, copied to `XEMS/music`. The page has the same button under

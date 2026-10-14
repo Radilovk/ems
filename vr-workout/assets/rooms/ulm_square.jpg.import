@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bn87mdm25gwuc"
-path="res://.godot/imported/mirrored_hall.jpg-1716bec15de605ef5f0ce044c7af0a2c.ctex"
+uid="uid://sdkmofytih54"
+path="res://.godot/imported/ulm_square.jpg-4f76338c17f286bcff2488ea2d16ab19.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/rooms/mirrored_hall.jpg"
-dest_files=["res://.godot/imported/mirrored_hall.jpg-1716bec15de605ef5f0ce044c7af0a2c.ctex"]
+source_file="res://assets/rooms/ulm_square.jpg"
+dest_files=["res://.godot/imported/ulm_square.jpg-4f76338c17f286bcff2488ea2d16ab19.ctex"]
 
 [params]
 

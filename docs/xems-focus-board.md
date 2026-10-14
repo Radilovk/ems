@@ -84,6 +84,8 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   edge to edge of the chip = +20 of strength (`SLIDE`), ≤ +20 per slide, from 0 up to 100; both impulses together
   unless the muscle is marked for the second alone; above Интензитет 1 the strength goes up and the other muscles
   keep their real strength.
+- **Slide on an unmarked muscle (1.1.442):** it is marked first, as its 1st tap (red, both impulses), then the
+  slide runs from its main impulse's level.
 - **Into Масаж** (board tab or the row's key): the massage starts from the strength and channel percents of the
   mode it leaves — the preset Основен or the client's own (`PartStrength.modeCarry`, hooked at the start of
   `TrainItem.setUserType` by `scripts/apply-double-impulse.py`). Before, it started at the massage's own 100 %.

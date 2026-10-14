@@ -1715,10 +1715,10 @@ public final class FocusBoard {
     }
 
     /**
-     * A muscle chip under the finger: a tap marks it (the header's icon, PartPick); a sideways slide is the channel's
-     * own slider in the impulse the chips show — relative to where the finger went down (no jump), right = more,
-     * sent on release exactly as the row's channel bar sends it (PartStrength.bar: both impulses keep their ratio,
-     * yellow = the second alone).
+     * A muscle chip under the finger: a tap marks it (the header's icon, PartPick); a sideways slide marks an unmarked
+     * one first (as its 1st tap) and is then that muscle's ± — relative to where the finger went down (no jump), right
+     * = more, chip width = 20, sent on release (PartStrength.channelBy: both impulses keep their ratio, yellow = the
+     * second alone).
      */
     static final class ChipTouch implements View.OnTouchListener {
         private final Chip chip;
@@ -1755,6 +1755,16 @@ public final class FocusBoard {
                         } else {
                             sliding = true;
                             x0 = e.getRawX();
+                            if (!chip.sel) {
+                                // a slide on an unmarked muscle marks it first, as its 1st tap (owner, 1.1.442):
+                                // red, both impulses; the slide goes from its main impulse's level
+                                chipClick(chip.k);
+                                TrainItem it = current();
+                                int[] lv = PartStrength.levels(it, bean(it), false);
+                                start = lv != null && chip.k < lv.length ? lv[chip.k] : start;
+                                chip.sel = true;
+                                chip.tint = XemsUi.DANGER;
+                            }
                             if (v.getParent() != null) {
                                 v.getParent().requestDisallowInterceptTouchEvent(true);
                             }

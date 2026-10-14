@@ -1226,28 +1226,28 @@
     .registers 5
 
     .prologue
-    .line 1816
+    .line 1826
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 1817
+    .line 1827
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
     if-nez v1, :cond_b
 
-    .line 1827
+    .line 1837
     :goto_a
     return-void
 
-    .line 1821
+    .line 1831
     :cond_b
     :try_start_b
     invoke-static {v0, p0, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->channelBy(Lcom/isaigu/gymapp/train/model/TrainItem;II)V
 
-    .line 1822
+    .line 1832
     const/4 v1, 0x0
 
     const/4 v2, 0x1
@@ -1256,17 +1256,17 @@
     :try_end_13
     .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_13} :catch_17
 
-    .line 1826
+    .line 1836
     :goto_13
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
     goto :goto_a
 
-    .line 1823
+    .line 1833
     :catch_17
     move-exception v0
 
-    .line 1824
+    .line 1834
     const-string v1, "FocusBoard.channel"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -3546,13 +3546,13 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 2466
+    .line 2476
     :try_start_1
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 2467
+    .line 2477
     invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
@@ -3567,7 +3567,7 @@
 
     move-result v1
 
-    .line 2468
+    .line 2478
     if-eqz v1, :cond_19
 
     invoke-virtual {p0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3576,12 +3576,12 @@
 
     move-result-object v0
 
-    .line 2470
+    .line 2480
     :cond_19
     :goto_19
     return-object v0
 
-    .line 2469
+    .line 2479
     :catch_1a
     move-exception v1
 
@@ -3674,13 +3674,13 @@
     .registers 3
 
     .prologue
-    .line 2476
+    .line 2486
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
 
     if-eqz v0, :cond_12
 
-    .line 2477
+    .line 2487
     sget-object v0, Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -3697,12 +3697,12 @@
     :try_end_12
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_12} :catch_13
 
-    .line 2481
+    .line 2491
     :cond_12
     :goto_12
     return-void
 
-    .line 2479
+    .line 2489
     :catch_13
     move-exception v0
 

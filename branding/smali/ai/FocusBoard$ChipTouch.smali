@@ -56,9 +56,9 @@
 
     const v2, 0x3f7851ec    # 0.97f
 
-    const/4 v6, 0x0
+    const/high16 v6, 0x3f800000    # 1.0f
 
-    const/high16 v5, 0x3f800000    # 1.0f
+    const/4 v5, 0x0
 
     const/4 v4, 0x1
 
@@ -80,9 +80,9 @@
 
     move-result v1
 
-    packed-switch v1, :pswitch_data_190
+    packed-switch v1, :pswitch_data_1c8
 
-    .line 1805
+    .line 1815
     :cond_1a
     :goto_1a
     return v4
@@ -110,10 +110,10 @@
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->start:I
 
     .line 1743
-    iput-boolean v6, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
+    iput-boolean v5, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
 
     .line 1744
-    iput-boolean v6, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->refused:Z
+    iput-boolean v5, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->refused:Z
 
     .line 1745
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
@@ -222,25 +222,25 @@
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->hint(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$400(Ljava/lang/String;)V
 
-    .line 1764
+    .line 1774
     :cond_90
     :goto_90
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
 
     if-eqz v0, :cond_1a
 
-    .line 1766
+    .line 1776
     invoke-virtual {p1}, Landroid/view/View;->getWidth()I
 
     move-result v0
 
     int-to-float v0, v0
 
-    invoke-static {v5, v0}, Ljava/lang/Math;->max(FF)F
+    invoke-static {v6, v0}, Ljava/lang/Math;->max(FF)F
 
     move-result v0
 
-    .line 1767
+    .line 1777
     const/16 v1, 0x14
 
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
@@ -265,7 +265,7 @@
 
     move-result v0
 
-    .line 1768
+    .line 1778
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->cap:I
@@ -278,37 +278,37 @@
 
     move-result v0
 
-    invoke-static {v6, v0}, Ljava/lang/Math;->max(II)I
+    invoke-static {v5, v0}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
-    .line 1769
+    .line 1779
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
     if-eq v0, v1, :cond_1a
 
-    .line 1770
+    .line 1780
     rem-int/lit8 v1, v0, 0xa
 
     if-nez v1, :cond_cf
 
-    .line 1771
+    .line 1781
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1773
+    .line 1783
     :cond_cf
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
-    .line 1774
+    .line 1784
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->repaint()V
 
-    .line 1775
+    .line 1785
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->leaders:Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2600()Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;
 
@@ -316,7 +316,7 @@
 
     if-eqz v0, :cond_1a
 
-    .line 1776
+    .line 1786
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->leaders:Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2600()Lcom/isaigu/gymapp/ai/FocusBoard$Leaders;
 
@@ -350,36 +350,104 @@
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->x0:F
 
     .line 1758
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->sel:Z
+
+    if-nez v0, :cond_12c
+
+    .line 1761
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
+
+    iget v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->k:I
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->chipClick(I)V
+
+    .line 1762
+    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$200()Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    move-result-object v0
+
+    .line 1763
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    invoke-static {v0, v1, v5}, Lcom/isaigu/gymapp/train/utils/PartStrength;->levels(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;Z)[I
+
+    move-result-object v0
+
+    .line 1764
+    if-eqz v0, :cond_13e
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
+
+    iget v1, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->k:I
+
+    array-length v2, v0
+
+    if-ge v1, v2, :cond_13e
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
+
+    iget v1, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->k:I
+
+    aget v0, v0, v1
+
+    :goto_120
+    iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->start:I
+
+    .line 1765
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
+
+    iput-boolean v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->sel:Z
+
+    .line 1766
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
+
+    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
+
+    .line 1768
+    :cond_12c
     invoke-virtual {p1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
-    if-eqz v0, :cond_105
+    if-eqz v0, :cond_139
 
-    .line 1759
+    .line 1769
     invoke-virtual {p1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     invoke-interface {v0, v4}, Landroid/view/ViewParent;->requestDisallowInterceptTouchEvent(Z)V
 
-    .line 1761
-    :cond_105
+    .line 1771
+    :cond_139
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    goto :goto_90
+    goto/16 :goto_90
 
-    .line 1783
-    :pswitch_109
+    .line 1764
+    :cond_13e
+    iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->start:I
+
+    goto :goto_120
+
+    .line 1793
+    :pswitch_141
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v1
 
-    invoke-virtual {v1, v5}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
+    invoke-virtual {v1, v6}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
 
     move-result-object v1
 
-    invoke-virtual {v1, v5}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
+    invoke-virtual {v1, v6}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
 
     move-result-object v1
 
@@ -391,27 +459,27 @@
 
     invoke-virtual {v1}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 1784
+    .line 1794
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
 
-    if-eqz v1, :cond_141
+    if-eqz v1, :cond_179
 
-    .line 1785
+    .line 1795
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iget v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
-    .line 1786
-    iput-boolean v6, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
+    .line 1796
+    iput-boolean v5, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
 
-    .line 1787
-    if-ltz v0, :cond_138
+    .line 1797
+    if-ltz v0, :cond_170
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->start:I
 
-    if-eq v0, v1, :cond_138
+    if-eq v0, v1, :cond_170
 
-    .line 1788
+    .line 1798
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->k:I
@@ -422,19 +490,19 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->channel(II)V
 
-    .line 1790
-    :cond_138
+    .line 1800
+    :cond_170
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iput v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
-    .line 1791
+    .line 1801
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
     goto/16 :goto_1a
 
-    .line 1792
-    :cond_141
+    .line 1802
+    :cond_179
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->refused:Z
 
     if-nez v1, :cond_1a
@@ -471,10 +539,10 @@
 
     if-gtz v0, :cond_1a
 
-    .line 1793
+    .line 1803
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1794
+    .line 1804
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iget v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->k:I
@@ -483,17 +551,17 @@
 
     goto/16 :goto_1a
 
-    .line 1799
-    :pswitch_16f
+    .line 1809
+    :pswitch_1a7
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
-    invoke-virtual {v0, v5}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
+    invoke-virtual {v0, v6}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
-    invoke-virtual {v0, v5}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
+    invoke-virtual {v0, v6}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
@@ -505,15 +573,15 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 1800
+    .line 1810
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
     iput v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
-    .line 1801
-    iput-boolean v6, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
+    .line 1811
+    iput-boolean v5, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->sliding:Z
 
-    .line 1802
+    .line 1812
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
     goto/16 :goto_1a
@@ -521,11 +589,11 @@
     .line 1738
     nop
 
-    :pswitch_data_190
+    :pswitch_data_1c8
     .packed-switch 0x0
         :pswitch_1b
-        :pswitch_109
+        :pswitch_141
         :pswitch_47
-        :pswitch_16f
+        :pswitch_1a7
     .end packed-switch
 .end method

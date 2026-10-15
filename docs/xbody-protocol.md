@@ -13,6 +13,8 @@ xbody (Qt GUI)  ──TCP, GUIMsg──▶  xbody_control (XBGUIServer)  ──T
   INITIAL_DELAY → START_STIMULATION → STIMULATION ⇄ START_PAUSE / PAUSE) and sends the board's **full state every
   50 ms** (`RefreshHardware`). It never reads anything back from the board (no read path in `XBHWCommunication`).
 - Status to the GUI every 30 ms.
+- Nothing comes back from the suit: no read path from the board, the GUI's "myopotential" test is a stimulation
+  timer only (docs/xbody-xems-panel.md "Feedback"); `xems-xbproxy` logs any board bytes to find out on the unit.
 
 ## Framing (both sockets, `XBCommPacket::Encode`)
 `'S'` + every byte of the message as two upper-case hex digits + `"\r\n"`. The message's last two bytes are

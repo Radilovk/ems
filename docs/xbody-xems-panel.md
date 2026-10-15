@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v6, fixed v7)
+# XEMS panel on the XBody unit (mod v8)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -60,6 +60,35 @@ xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──�
   pills, live status in the header, autosave ("✓ Запазено"); the XIAO card at the bottom. The tab shows ⇄ (XEMS
   suit) and 2× (double impulse) whenever XBody's output is changed by us.
 - Tests: `test-panel.sh` (Shaper + table, 211 checks; the proxy end to end over sockets), `test.sh` 5b (stock path).
+
+## Ready passive programs on XBody's cable (mod v8)
+`xbody/panel/core/xbprog.*` — the auto-mode's passive procedures (docs/xems-auto-mode-spec.md §6.6–6.10):
+Дренаж (wave up the body, 35 Hz 3:1, previous group at 50 %), Антицелулит, Болки в гърба, След раждане (spec 5:10 at
+40 Hz breaks L1 → 4:8), Регенерация (3 ↔ 8 Hz), Пасивен метаболизъм. XBody keeps START / STOP / time and the zone
+levels; the proxy plays the program over the training (own rhythm, Hz, µs, envelope, wave), **never above a zone's
+XBody level** (only Антицелулит's own second impulse in the pause, ≤ 50 %). Latched at START; STOP ends it; when
+it is over the outputs stay off until XBody ends. Tests: every program against L1–L5, L12, soft end; "never above"
+over every 50-ms frame of every program; wave order; via the real `xbody_control` in qemu (35 Hz, 300 µs, 3:1).
+Screen: "Кабел на XBody" → tab **Програми**: a tile per program = XBody's body picture with the main segment's zones
+(≥ 70 %) lit + its Hz badge; right: what it does, its phases (bar + list), the running time, "Без програма".
+
+## Feedback from the stimulator (what XBody can know)
+- `xbody_control` has **no read path** from the board (only `SendPacketToHardware`; `XBHWCommunication` connects no
+  readyRead) and sends nothing but the pc_emse frames: no impedance, contact, current or error from the suit.
+- The GUI's "myopotential measurement" (`DiagnosticsView::beginMyoMeasurement`, MyoWidget) builds a stimulation
+  setting from its combo boxes and runs a timer — it reads no signal. No heart-rate / sensor input anywhere.
+- Whether the board itself sends anything is unknown statically: `xems-xbproxy` logs every byte from the board to
+  `/opt/xems/board-rx.log` (64 KB cap) and counts it in the state; the USB installer copies `/opt/xems/*.log` to the
+  stick (`xems-logs/`). Empty after a training = the board is silent.
+- Real feedback can come from outside: the XIAO bridge can read a BLE heart-rate strap / the Band 10 (not done).
+
+## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+`xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
+`assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a
+folder is refused) → "Инсталирай версия N": copies, reads the payload back and checks its md5; "Върни назад" when
+the stick holds a backup; a XIAO in UF2 mode picked instead gets the bridge firmware. FAT32 can't be checked
+through SAF (the screen asks for FAT32 ≤ 32 GB). Source `scripts/xbody/android/` (one Activity, no XML layouts,
+dx-safe); javac → dx → baksmali → apktool b → uber-apk-signer. Not run on a device yet.
 
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's

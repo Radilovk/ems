@@ -4,9 +4,10 @@
     {
       "id": "xemsstudio",
       "name": "XEMS Studio",
-      "note": "Нашата EMS тренировка: треньор показва упражнението, костюмът работи в такт.",
+      "note": "Нашата EMS тренировка в ритъма на музиката. Идва готова с връзката към костюма — само се инсталира.",
       "source": {
-        "url": "https://github.com/Radilovk/ems/releases/download/xems-studio-latest/xems-studio.apk"
+        "url": "https://github.com/Radilovk/ems/releases/download/xems-studio-latest/xems-studio-xems.apk",
+        "ready": true
       }
     },
     {

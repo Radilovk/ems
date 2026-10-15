@@ -48,18 +48,22 @@ parse_quest() {
 connect() {
   echo "→ adb connect $serial"
   local out state=""
-  out="$(adb connect "$serial" 2>&1)"; echo "$out"
+  # A cable relay that was re-made (headset slept, cable re-plugged) leaves adb's server holding a dead socket that
+  # it reports as "already connected" / offline for good: always start this address afresh.
+  adb disconnect "$serial" >/dev/null 2>&1
+  out="$(timeout 20 adb connect "$serial" 2>&1)"; echo "$out"
   case "$out" in
     *"connected to"*) ;;
     *) die 4 "шлемът не отговаря на $serial — най-сигурно: включи го с кабел в таблета (всичко минава по кабела). Иначе: същият Wi-Fi ли е, буден ли е?" ;;
   esac
-  for _ in 1 2 3 4 5 6 7 8 9 10; do
-    state="$(adb -s "$serial" get-state 2>/dev/null)"
+  for _ in $(seq 1 15); do
+    state="$(timeout 5 adb -s "$serial" get-state 2>/dev/null)"
     [[ "$state" == "device" ]] && break
     sleep 1
   done
-  [[ "$state" == "device" ]] || die 5 "шлемът не е разрешил таблета — включи шлема с кабел в таблета, сложи го на главата и натисни „Always allow“ + „Allow“ (веднъж завинаги)"
-  echo "✓ шлем: $serial"
+  [[ "$state" == "device" ]] && { echo "✓ шлем: $serial"; return 0; }
+  [[ "$state" == "unauthorized" ]] && die 5 "шлемът не е разрешил таблета — включи шлема с кабел в таблета, сложи го на главата и натисни „Always allow“ + „Allow“ (веднъж завинаги)"
+  die 5 "шлемът не отговаря (${state:-няма връзка}) — извади кабела, пъхни го пак и натисни отново"
 }
 
 cmd_check() {
@@ -184,6 +188,7 @@ cmd_install() {
   need_adb; connect
   export ANDROID_SERIAL="$serial"
   local args=(xems_vr_patch.py --install "$apk" --yes)
+  grep -q '^ready 1$' <<<"$out" && args+=(--ready)   # XEMS Studio comes with the layer: install only
   [[ -n "$tablet" ]] && args+=(--tablet "$tablet")
   echo "→ python3 ${args[*]}"
   exec python3 "${args[@]}"

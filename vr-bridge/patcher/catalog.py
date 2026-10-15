@@ -4,7 +4,8 @@
   python3 catalog.py list                 → "item <id>\\t<name>\\t<page|github>\\t<note>" per game
   python3 catalog.py downloads            → "dl <path>\t<game name>\t<ok|vrapi|?>\t<MB>" per APK in Downloads
   python3 catalog.py resolve <id>         → prints the local APK path (exit 0)
-      url: a fixed link (XEMS Studio: release xems-studio-latest) → ~/.xems-vr/apk/, fetched again only when it changed
+      url: a fixed link (XEMS Studio: release xems-studio-latest) → ~/.xems-vr/apk/, fetched again only when it changed;
+           "ready": true = CI already put the layer in and signed it → "ready 1" (the tablet only installs it)
       github: newest release asset → ~/.xems-vr/apk/ (kept, not downloaded twice)
       page or github without an APK: newest matching file in Downloads, else "page <url>" + exit 7
       Downloads not readable (termux-setup-storage not run) → exit 8
@@ -128,7 +129,22 @@ def url_apk(url: str) -> Path | None:
     size = remote.split(" ")[0]
     say(f"… тегля {dst.name}" + (f" ({int(size) // 1048576} MB)" if size.isdigit() else ""))
     tmp = dst.with_suffix(".part")
-    urllib.request.urlretrieve(url, tmp)
+    step = {"next": 10}
+
+    def progress(blocks: int, bs: int, total_b: int) -> None:      # a line every 10 %: the run shows it moves
+        if total_b > 0 and blocks * bs * 100 // total_b >= step["next"]:
+            say(f"… {step['next']}%")
+            step["next"] += 10
+    try:
+        urllib.request.urlretrieve(url, tmp, progress)
+    except Exception as e:  # noqa: BLE001 — a broken download must not leave a half file that looks whole
+        tmp.unlink(missing_ok=True)
+        say(f"✗ свалянето прекъсна ({e})")
+        return dst if dst.is_file() and stamp.is_file() else None
+    if size.isdigit() and tmp.stat().st_size != int(size):
+        tmp.unlink(missing_ok=True)
+        say("✗ файлът не се свали цял — пусни пак")
+        return None
     tmp.rename(dst)
     stamp.write_text(remote)
     say(f"✓ свалено: {dst.name}")
@@ -144,6 +160,8 @@ def resolve(gid: str) -> int:
     if "url" in src:                                      # our own builds, published next to the web version
         apk = url_apk(src["url"])
         if apk:
+            if src.get("ready"):                          # built with the layer by CI: install only, no repacking
+                say("ready 1")
             say(f"apk {apk}")
             return 0
         say(f"✗ не можах да сваля {src['url']}")

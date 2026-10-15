@@ -392,11 +392,25 @@ def restore(adb: Adb, pkg: str, saved: list[tuple[str, Path | str]]) -> None:
             say(f"✓ Android/{kind} е върнат")
 
 
+INSTALL_TIMEOUT = 900   # s: a 250 MB game goes over the cable in 1–3 min; a stuck adb must end, not hang for good
+
+
 def install_set(adb: Adb, apks: list[Path]) -> bool:
     args = ["install", "-r", str(apks[0])] if len(apks) == 1 else ["install-multiple", "-r", *[str(a) for a in apks]]
-    out = adb(*args, check=False)
+    mb = sum(a.stat().st_size for a in apks) // 1048576
+    say(f"… качвам на шлема ({mb} MB) — обикновено 1–3 мин по кабела")
+    t0 = time.time()
+    try:
+        p = subprocess.run([adb.exe, *args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                           timeout=INSTALL_TIMEOUT)
+        out = p.stdout
+    except subprocess.TimeoutExpired:
+        say(f"  adb: няма отговор от шлема за {INSTALL_TIMEOUT // 60} мин — връзката е прекъснала")
+        return False
     if "Success" not in out:
         say("  adb: " + (out.strip()[-400:] or "(без отговор)"))
+    else:
+        say(f"✓ качено за {int(time.time() - t0)} s")
     return "Success" in out
 
 
@@ -405,6 +419,9 @@ def install(adb: Adb, pkg: str, apks: list[Path], originals: list[Path], saved: 
     if install_set(adb, apks):
         say("✓ инсталирано")
         return
+    if not originals:
+        restore(adb, pkg, saved)
+        fail("шлемът не прие играта — виж реда „adb:“ по-горе; пусни пак (кабелът добре ли е включен?)")
     say("✗ шлемът не прие променената игра — връщам оригинала")
     ok = install_set(adb, originals)
     restore(adb, pkg, saved)
@@ -425,6 +442,8 @@ def main() -> int:
     ap.add_argument("--install", type=Path, metavar="APK",
                     help="APK файл (напр. свален на таблета): пач + инсталиране на шлема; пакетът се чете от файла")
     ap.add_argument("--yes", action="store_true", help="без въпрос преди преинсталиране")
+    ap.add_argument("--ready", action="store_true",
+                    help="с --install: APK-ът вече носи слоя и е подписан (XEMS Studio от CI) — само инсталиране")
     a = ap.parse_args()
 
     if a.apk:
@@ -461,9 +480,12 @@ def main() -> int:
         if not internet:
             fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
         say(f"✓ {a.install.name} → {pkg}")
-        (work / "orig").mkdir(parents=True)
-        orig = [work / "orig" / "base.apk"]
-        shutil.copy(a.install, orig[0])
+        if a.ready:
+            orig = [a.install]                    # used as it is: no 250 MB copies on the tablet
+        else:
+            (work / "orig").mkdir(parents=True)
+            orig = [work / "orig" / "base.apk"]
+            shutil.copy(a.install, orig[0])
     else:
         pkg = a.package
         if not has_internet(adb, pkg):
@@ -472,9 +494,13 @@ def main() -> int:
     a.out.mkdir(parents=True, exist_ok=True)
     keep = a.out / "original" / pkg
     keep.mkdir(parents=True, exist_ok=True)
-    for f in orig:
+    for f in ([] if a.ready else orig):
         shutil.copy(f, keep / f.name)                 # the untouched game, to go back with adb install-multiple
-    signed = patch_set(orig, a.out / pkg, a.tablet)
+    if a.ready:                                   # built with the layer already: nothing to repack or sign here
+        say("✓ играта вече носи връзката с костюма — само инсталиране")
+        signed = orig
+    else:
+        signed = patch_set(orig, a.out / pkg, a.tablet)
 
     if not a.yes:
         say(f"\nИграта ще се преинсталира. Вътрешните записи на {pkg} (ако не са в облака) ще се загубят;\n"
@@ -482,10 +508,18 @@ def main() -> int:
         if input("Продължаваме? [y/N] ").strip().lower() not in ("y", "yes", "д", "да"):
             say("спряно, нищо не е пипнато на шлема")
             return 1
-    saved = backup(adb, pkg, work / "backup")
-    install(adb, pkg, signed, [keep / f.name for f in orig], saved)
-    restore(adb, pkg, saved)
-    adb.shell("setprop debug.xems.vr.target ''", check=False)   # an old until-reboot value must not win
+    if a.ready and install_set(adb, signed):      # same key as before: an update in place, the game's data stays
+        say("✓ инсталирано (обновено, записите са запазени)")
+    else:
+        if a.ready:
+            say("… шлемът иска чиста инсталация (друг подпис) — пазя Android/data и инсталирам наново")
+        saved = backup(adb, pkg, work / "backup")
+        install(adb, pkg, signed, [] if a.ready else [keep / f.name for f in orig], saved)
+        restore(adb, pkg, saved)
+    if a.ready and a.tablet:                      # no IP baked into a ready build: the hint lives until the reboot
+        adb.shell(f"setprop debug.xems.vr.target {a.tablet}", check=False)    # (the layer also finds the tablet itself)
+    else:
+        adb.shell("setprop debug.xems.vr.target ''", check=False)   # an old until-reboot value must not win
     shutil.rmtree(work, ignore_errors=True)
     say("\nГотово. Отвори тренировката на таблета, пусни реда и стартирай играта.\n"
         f"Проверка: {a.adb} logcat -s XemsVrLayer   → „active“ и „paired with …“")

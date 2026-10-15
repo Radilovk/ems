@@ -90,6 +90,8 @@
     <string name="detail_usb_allow">Put the headset on, accept "Allow USB debugging" (Always allow) and plug the cable in again.</string>
     <string name="status_usb_failed">The cable did not work</string>
     <string name="detail_usb_failed">Unplug and plug the cable in again. Is developer mode on in the headset?</string>
+    <string name="status_usb_out">The cable is out</string>
+    <string name="detail_usb_out">Plug it in again — the headset connects by itself. If not, press 🔍.</string>
     <string name="status_usb_denied">No access to the cable</string>
     <string name="detail_usb_denied">Plug the cable in again and press OK when the tablet asks about the headset.</string>
     <string name="detail_games_fit">✓ fit: %1$d.</string>

@@ -20,20 +20,33 @@ import java.net.Socket
 class UsbBridge(private val context: Context, private val device: UsbDevice) : Runnable {
 
     @Volatile private var server: ServerSocket? = null
+    /** The relay listens (false once it ended or could not take its port). */
+    @Volatile var alive = true
+        private set
     @Volatile private var current: Socket? = null
     private val usbLock = Any()
 
     fun start() = Thread(this, "xems-usb-bridge").start()
 
     fun stop() {
+        alive = false
         runCatching { server?.close() }
         runCatching { current?.close() }
     }
 
     override fun run() {
-        val s = try {
-            ServerSocket(PORT, 8, InetAddress.getByName(HOST))
-        } catch (e: IOException) {
+        var s: ServerSocket? = null
+        for (attempt in 1..10) {                    // the previous relay's port may take a moment to come free
+            s = try {
+                ServerSocket().apply { reuseAddress = true; bind(java.net.InetSocketAddress(InetAddress.getByName(HOST), PORT), 8) }
+            } catch (e: IOException) {
+                null
+            }
+            if (s != null) break
+            Thread.sleep(300)
+        }
+        if (s == null) {
+            alive = false
             return
         }
         server = s
@@ -44,6 +57,7 @@ class UsbBridge(private val context: Context, private val device: UsbDevice) : R
             Thread(Client(c), "xems-usb-bridge-client").start()
         }
         runCatching { s.close() }
+        alive = false
     }
 
     /** One adb connection; waits for the previous one to release the USB interface. */

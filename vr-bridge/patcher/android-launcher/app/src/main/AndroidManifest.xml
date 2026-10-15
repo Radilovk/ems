@@ -10,6 +10,14 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- The cable relay runs as a foreground service (CableService): Termux in front must not freeze it mid-install. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <!-- Android 14: a "connected device" service also needs one of a list; this one is granted on install. -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <!-- Headset on the tablet's USB-C: adb tcpip 5555 straight from the app (UsbAdb). -->
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
 
@@ -43,6 +51,11 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/usb_quest" />
         </activity>
+
+        <service
+            android:name=".CableService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
 
         <!-- Termux's result for a background run arrives through our own PendingIntent. -->
         <receiver

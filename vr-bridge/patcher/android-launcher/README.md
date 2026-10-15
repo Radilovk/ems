@@ -57,6 +57,12 @@ relay that died is made again, a failure inside the USB handshake comes back as 
 "busy" until a reinstall, the screen looks again on every return, and 🔍 with the headset on the cable reconnects over
 the cable from scratch. Termux's side always drops the old `127.0.0.1:15555` connection before connecting.
 
+**1.8.4 — the relay is a foreground service** (`CableService`, type *connected device*, its own notification "XEMS
+VR: шлемът е на кабела", a partial wake lock). Before, the relay ran as threads of the app's screen: with Termux in
+front (*Гледай хода в Termux*) Android froze the app as a cached background process and a 250 MB install stood still at
+"качвам на шлема" until adb's 15 min limit. Now it keeps relaying whatever is on screen, the screen off too; it
+ends with the cable (or when the relay dies).
+
 ## XEMS Studio comes ready (1.8.3)
 CI puts the suit link into the game itself (`xems_vr_patch.py --apk`, release asset `xems-studio-xems.apk`); the catalog
 entry has `"ready": true`, so the tablet only downloads it (progress every 10 %, checked for a whole file) and installs it

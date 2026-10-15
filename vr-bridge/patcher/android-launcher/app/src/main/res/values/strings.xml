@@ -151,4 +151,7 @@
     <string name="detail_no_downloads">Свали играта (itch.io, SideQuest, GitHub…) и натисни пак.</string>
     <string name="detail_download_vrapi">%1$s е на стария VrApi — хаптиката се закача само към OpenXR игри.</string>
     <string name="detail_download_unknown">%1$s няма OpenXR — не е VR игра за Quest или не става.</string>
+    <string name="cable_channel">Връзка с шлема по кабела</string>
+    <string name="cable_title">XEMS VR: шлемът е на кабела</string>
+    <string name="cable_text">Връзката е отворена — играта се качва и с Termux отпред.</string>
 </resources>

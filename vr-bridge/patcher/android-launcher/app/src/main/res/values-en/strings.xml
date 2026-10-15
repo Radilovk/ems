@@ -146,4 +146,7 @@
     <string name="detail_no_downloads">Download the game (itch.io, SideQuest, GitHub…) and press again.</string>
     <string name="detail_download_vrapi">%1$s runs on the old VrApi — the haptics hook into OpenXR games only.</string>
     <string name="detail_download_unknown">%1$s has no OpenXR — not a Quest VR game, or it will not work.</string>
+    <string name="cable_channel">Headset cable link</string>
+    <string name="cable_title">XEMS VR: headset on the cable</string>
+    <string name="cable_text">The link stays open — the game installs with Termux in front too.</string>
 </resources>

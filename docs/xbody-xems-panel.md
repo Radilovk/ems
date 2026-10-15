@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v2)
+# XEMS panel on the XBody unit (mod v4)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -17,21 +17,44 @@ XBody's own stimulator path (`xbody_control` → port 1235 → `/dev/ttymxc3`) i
 | On the unit, with suits | **not done** — first test when the XIAO arrives (checklist below) |
 
 ## Use (owner)
-1. Stick: `python3 scripts/xbody/build.py` → `build/xbody-dist/xbody-usb-v2.zip` (contents to a FAT32 stick root;
+1. Stick: `python3 scripts/xbody/build.py` → `build/xbody-dist/xbody-usb-v4.zip` (contents to a FAT32 stick root;
    README.txt in Bulgarian; `xems-bridge.uf2` is on the stick too).
 2. XIAO: double-tap RESET while on a PC → a drive appears → copy `xems-bridge.uf2` onto it.
 3. Unit off → stick in → on → "Updater finished" → off → stick out → on. Plug the XIAO (short extension cable).
-4. Tap the **XEMS** tab (top right, draggable) → pick the suit → strength, channels, ▶.
+4. Tap the **XEMS** tab (top right, draggable) → pick the suit → СТАРТ, raise СИЛА with + (or tap zones first).
 
 ## Panel
-- Views: no bridge (picture: plug the XIAO) · pick a suit (cards, strongest signal first; the last suit reconnects by
-  itself) · training (ring = phase progress, time left, strength ± with hold-repeat, channel bars tap/drag in 5 %
-  steps, ▶ / ❚❚, ■ Стоп, program sheet: Hz, µs, impulse, pause, minutes, "Клиент над 60").
-- ✕ hides the panel, the session goes on; the tab shows the time (green running, amber paused).
-- Program values pass `safe::apply` (port of `ai/SafeLimits`) — corrections show as an amber line.
+The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's
+800×600 (4:3; `/etc/pointercal`, XBody's pictures are all 800-wide):
+- Header as XBody's: `← XBODY` (back to XBody, the session goes on) · suit name, kind, battery (or the note line,
+  red = warning) — tap it while idle to disconnect · program block (Hz, impulse/pause, µs) → the program sheet.
+- Body picture front/back at (153, 45); zone buttons 175×50 in XBody's two columns, **same order as XBody**
+  (`TrainingWindow`: column 1 legext, legflex, bottom, abdomen, waist; column 2 back, trapez, chest, arm, optional):
+  XEMS Предно бедро, Задно бедро, Седалище, Корем, Кръст | Гръб, Трапец, Гърди, Ръце, Прасец.
+  **bodytech**: Бедра (one zone = both thigh channels, same %), Седалище, Корем, Кръст | Гръб, Трапец, Ръце.
+- As on XBody: tap zones to select them (red, the zone lights on the body); nothing selected = the **СИЛА** hump
+  (MASTER) is selected. − / + and the slider bar act on the selection: strength ±1, zones in 5 % steps; hold repeats.
+  Timer hump: elapsed · **ВСИЧКИ** (select every zone) · time left; under it the phase box (impulse seconds green,
+  pause grey, `II` paused). СТАРТ (green) / ПАУЗА (yellow) bottom left, СТОП (red) bottom right.
+- **Настройки на сесията** (tap the program block; while running it says "Програмата се сменя на пауза"):
+  landscape, two groups. Left = program: Hz, µs, minutes as − value + pills, the impulse/pause rhythm as a bar
+  (green work, grey rest) with a pill each. Right = this suit and client: **connector standard** XBody | XEMS
+  (XEMS suits only; ⓘ opens the lead → channel table, rerouted rows marked red), "Над 60 години" switch, and a
+  derived summary (impulses, work minutes). Откажи left, ✓ Готово bottom right. Values pass `safe::apply`
+  (port of `ai/SafeLimits`) — corrections show as a red note. Dialogs use XBody's dark-red band.
+- **Connector standard** (`Suit::Wiring`, saved as `suit/wiring`): an XEMS suit on XBody-standard cables. Zones stay
+  body parts; each drives the XEMS channel its XBody lead lands on (owner's table, XEMS → XBody): Ръце→Корем,
+  Гърди→Допълнителен (calf), Корем→Задно бедро, Предно бедро→same, Гръб→Седалище, Трапец→Кръст, Кръст→Гръб,
+  Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди. Switching keeps every zone's %. Header shows "XEMS · кабели XBody".
+- While a value changes, a big % card over the body says what it belongs to (XBody's showPercent); idle zones at
+  0 % read grey; the phase box has a thin progress line.
+- **XBody's pictures and Arial are read at start from `/opt/xbody/xbody`** (Qt rcc resources in the not-stripped
+  ELF, `ui/xbres.cpp`) — nothing of XBody's is in git. Missing binary / resource → the same layout painted
+  (plain figure, flat buttons). `XEMS_XBODY_BIN` overrides the path.
+- Repaints only on a change (a text signature of the state, checked every 50 ms); the running clock repaints only
+  its hump + phase box. The tab repaints when its text changes.
 - A new link starts at strength 0. A lost link, a bridge pulled out or a suit that stops ACKing stops the training;
-  nothing restarts by itself.
-- bodytech: ~110 programming frames after the link; ▶ meanwhile shows "Миг…" and starts when they are out.
+  nothing restarts by itself. bodytech: ~110 programming frames after the link; СТАРТ meanwhile shows "МИГ…".
 - Settings: `/opt/xems/panel.conf` (last suit, program, tab position). Log: `/opt/xems/panel.log`.
 
 ## Bridge line protocol (USB CDC, 115200)
@@ -48,7 +71,7 @@ green = a suit linked.
 |---|---|
 | `xbody/bridge/xems_bridge/` | firmware source (`links.h` holds the types: the Arduino builder's prototypes) |
 | `xbody/panel/core/` | `xemsproto` (stock app frames), `btproto` (BtProto port), `safe` (SafeLimits port), `suit` (clock + queue), `bridge` (lines) |
-| `xbody/panel/ui/` | `app` (bridge, suits, notes, settings), `panel` (painted screens, no moc), `serial` (tty + fake bridge), `compat.cpp` |
+| `xbody/panel/ui/` | `app` (bridge, suits, notes, settings), `panel` (XBody-style screens, no moc), `xbres` (XBody's rcc pictures/fonts from its ELF), `serial` (tty + fake bridge), `compat.cpp` |
 | `xbody/overlay/etc/init.d/xems-panel` | rc5 S41: waits for `/tmp/qtembedded-0/QtEmbedded-0`, runs the panel, restarts it (≤ 5 quick falls) |
 | `xbody/overlay/opt/xems/bin/xems-panel` | the ARM binary (`scripts/xbody/build-panel.sh`) |
 | `xbody/emu/` | qemu helpers: `fbshim.cpp` (fake /dev/fb0), `stand_in_server.cpp` |
@@ -59,8 +82,13 @@ python3 scripts/xbody/fetch-base.py && sh scripts/xbody/sysroot.sh && sh scripts
 sh scripts/xbody/build-panel.sh          # tests + ARM build → overlay (checks glibc ≤ 2.20, GLIBCXX ≤ 3.4.20)
 sh scripts/xbody/build-bridge.sh         # firmware → xbody/bridge/xems-bridge.uf2
 sh scripts/xbody/runroot.sh              # + build/xtool/qemu (qemu-user-static deb) for:
-sh scripts/xbody/emu-panel.sh OUT "4000 tap 260 380;5600 shot a.png;6000 quit" [client]
+sh scripts/xbody/emu-panel.sh OUT "3000 tap 152 155;5600 shot a.png;6000 quit" [client]
 ```
+Emulator screen 800×600 (`XEMS_FB_W` / `XEMS_FB_H`), taps in screen pixels; `EMU_NO_BRIDGE=1` (plug-the-XIAO view),
+`EMU_TAB=1` (only the corner tab). XBody's pictures in the emulator: copy the dump's `opt/xbody` into
+`build/xbody-runroot/opt/` (and `chmod +x` its two programs). To see XBody's own screens: run `xbody_control` and
+`xbody -qws` in qemu with a TCP sink on 127.0.0.1:1235 and Qt's `QVFbMouse:<fifo>` mouse for taps (16-byte packets
+x, y, buttons, wheel); log in with a trainer of the dump's DB (emulator copy only).
 Toolchain: Ubuntu `g++-arm-linux-gnueabi` with Debian jessie glibc 2.19 headers/crt (`sysroot.sh`) and the card's
 Qt / libstdc++; Qt 4.8.6 headers with a hand-written `qconfig.h` (qreal = float, `Q_WS_QWS`, little endian).
 

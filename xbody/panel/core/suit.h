@@ -6,6 +6,14 @@
 #include <deque>
 #include <string>
 
+// One control on the screen: a body zone driving one or two of the suit's channels at the same % (bodytech
+// "Бедра" = left + right thigh). Screen order follows XBody's own training screen: column 1, then column 2.
+struct Zone {
+    const char *name;
+    int ch[2], n;
+    const char *mask[2];   // XBody's body picture(s) lit for it (BodyLegFront …), 0 = none
+};
+
 struct Program {
     int hz, us, onS, offS, totalS, rampMs;
     Program() : hz(85), us(350), onS(4), offS(4), totalS(20 * 60), rampMs(500) {}
@@ -16,11 +24,17 @@ public:
     enum Kind { XEMS, BODYTECH };
     enum State { IDLE, RUNNING, PAUSED };
     enum { MAX_CH = 10, RAMP_STEPS = 4, ACK_TIMEOUT_MS = 1500 };
+    // Which connector standard the XEMS suit's cables follow: its own, or XBody's (the same plug feeds another
+    // body part, e.g. XBody's "Корем" lead lands on XEMS channel "Ръце"). bodytech has one layout only.
+    enum Wiring { WIRE_XEMS, WIRE_XBODY };
 
     explicit Suit(Kind kind);
     Kind kind() const { return kind_; }
     int channels() const;
     static const char *channelName(Kind k, int i);   // Bulgarian, the suit's own channel order
+    // The screen's zones (count) for the cables' standard; the first zonesLeft() are column 1.
+    static int zones(Kind k, const Zone **out, int wiring = WIRE_XEMS);
+    static int zonesLeft(Kind k);
 
     // ---- control (the screen) ----
     void linked(unsigned now);                       // just connected: init sequence
@@ -31,6 +45,8 @@ public:
     int strength() const { return strength_; }
     void setChannel(int i, int pct);                 // 0..100 % of the master
     int channel(int i) const { return ch_[i]; }
+    void setZone(const Zone &z, int pct);            // every channel of the zone, one output update
+    int zone(const Zone &z) const { return ch_[z.ch[0]]; }
     void start(unsigned now);                        // also resumes after pause
     void pause(unsigned now);
     void stop();

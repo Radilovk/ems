@@ -1,6 +1,6 @@
 // Emulator only (never shipped): LD_PRELOAD for qemu-arm that turns /dev/fb0 into a plain file so the card's Qt
 // (LinuxFb driver) draws into it; scripts/xbody/screen.py turns the file into a PNG.
-//   XEMS_FB=/path/file XEMS_FB_W=1920 XEMS_FB_H=1080 (32 bpp ARGB)
+//   XEMS_FB=/path/file XEMS_FB_W=800 XEMS_FB_H=600 (32 bpp ARGB; the unit is 800×600)
 #include <dlfcn.h>
 #define XEMS_O_RDWR 02  // not <fcntl.h>: its open64 declaration clashes with the wrapper below
 #include <stdarg.h>
@@ -44,14 +44,14 @@ extern "C" int ioctl(int fd, unsigned long req, ...) {
     static int (*real)(int, unsigned long, ...) = (int (*)(int, unsigned long, ...))dlsym(RTLD_NEXT, "ioctl");
     va_list ap; va_start(ap, req); void *arg = va_arg(ap, void *); va_end(ap);
     if (fd != fbfd || fbfd < 0) return real(fd, req, arg);
-    int w = env_int("XEMS_FB_W", 1920), h = env_int("XEMS_FB_H", 1080);
+    int w = env_int("XEMS_FB_W", 800), h = env_int("XEMS_FB_H", 600);
     if (req == FBIOGET_VSCREENINFO) {
         struct fb_var_screeninfo *v = (struct fb_var_screeninfo *)arg;
         memset(v, 0, sizeof *v);
         v->xres = v->xres_virtual = w; v->yres = v->yres_virtual = h; v->bits_per_pixel = 32;
         v->red.offset = 16; v->red.length = 8; v->green.offset = 8; v->green.length = 8;
         v->blue.offset = 0; v->blue.length = 8; v->transp.offset = 24; v->transp.length = 8;
-        v->width = 476; v->height = 268;   // mm, ~21.5" 16:9
+        v->width = w * 211 / 800; v->height = h * 158 / 600;   // mm (4:3 panel; the panel uses pixel fonts, size is cosmetic)
         return 0;
     }
     if (req == FBIOGET_FSCREENINFO) {

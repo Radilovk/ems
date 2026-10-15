@@ -198,7 +198,40 @@ static void bridgeLines() {
     if (bridgecmd::write("AA:BB:CC:DD:EE:FF", xems::battery()) != "W AA:BB:CC:DD:EE:FF 5304055C\n") fails++;
 }
 
+static void zones() {
+    // Every channel on the screen exactly once, column 1 / column 2 as on XBody's screen.
+    for (int k = 0; k < 3; k++) {
+        Suit::Kind kind = k == 1 ? Suit::BODYTECH : Suit::XEMS;
+        Suit s(kind);
+        const Zone *z;
+        int n = Suit::zones(kind, &z, k == 2 ? Suit::WIRE_XBODY : Suit::WIRE_XEMS), seen[Suit::MAX_CH] = {0}, total = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < z[i].n; j++) { seen[z[i].ch[j]]++; total++; }
+        eqInt(k == 1 ? "bt zones cover" : "x zones cover", s.channels(), total);
+        for (int c = 0; c < s.channels(); c++) eqInt("zone channel once", 1, seen[c]);
+    }
+    const Zone *z;
+    Suit::zones(Suit::BODYTECH, &z);
+    eqInt("bt zone 0 = thighs", 2, z[0].n);
+    Suit b(Suit::BODYTECH);
+    b.setZone(z[0], 35);
+    eqInt("thigh L", 35, b.channel(4));
+    eqInt("thigh R", 35, b.channel(6));
+    eqInt("thigh zone", 35, b.zone(z[0]));
+    eqInt("others kept", 100, b.channel(0));
+    Suit::zones(Suit::XEMS, &z);
+    eqInt("x col1 first = legext", 2, z[0].ch[0]);
+    eqInt("x col2 first = back", 6, z[Suit::zonesLeft(Suit::XEMS)].ch[0]);
+    // XBody cables: the "Корем" zone is fed by XEMS channel "Ръце" (owner's example), names stay body parts.
+    Suit::zones(Suit::XEMS, &z, Suit::WIRE_XBODY);
+    eqInt("xbody wiring: Корем → ch Ръце", 4, z[3].ch[0]);
+    eqInt("xbody wiring: Предно бедро stays", 2, z[0].ch[0]);
+    eqInt("xbody wiring: Прасец (optional) → ch Гърди", 0, z[9].ch[0]);
+    eqInt("bt ignores wiring", 2, Suit::zones(Suit::BODYTECH, &z, Suit::WIRE_XBODY) == 7 ? z[0].n : 0);
+}
+
 int main() {
+    zones();
     bodytechGolden();
     xemsFrames();
     safety();

@@ -14,7 +14,9 @@ connection handle (`cNN`) on every line.
 
 ## Route 1 — HCI log from the iPad (no jailbreak, no IPA; do this first)
 The iPad logs every Bluetooth packet *after* link-layer decryption, so pairing/bonding hides nothing.
-1. On the iPad / iPhone (Safari): developer.apple.com/bug-reporting/profiles-and-logs → **Bluetooth for iOS/iPadOS** →
+1. On the iPad / iPhone (Safari): open
+   `https://developer.apple.com/services-account/download?path=/iOS/iOS_Logs/iOSBluetoothLogging.mobileconfig`
+   (sign in with any Apple ID; page: developer.apple.com/bug-reporting/profiles-and-logs/?platform=ios → "Bluetooth") →
    install the profile (Settings → Profile downloaded), **restart** the device. (Free Apple ID is enough; the profile
    expires after a few days.)
 2. Open Wiems Easy (or Wiems) **after** the restart and connect the unit (the GATT discovery must be in the log — it names the

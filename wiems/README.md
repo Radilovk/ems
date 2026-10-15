@@ -66,5 +66,7 @@ like `BtBridge`, keep-alive, write-after-ACK pacing), settings page; patch `scri
 
 ## Status
 - [x] Store research, plan, decoder `wiems/pklg_att.py` (offline test: `sh wiems/test/run.sh`).
-- [ ] Owner: capture (route 1) with the step list + timestamps → `wiems/logs/`.
-- [ ] `wiems/PROTOCOL.md`, then probe, then the XEMS driver.
+- [x] Capture 1 (2026-10-16, Wiems 1.8.45, no step list) → `wiems/logs/capture1-…-att.txt`, decoded in
+      `wiems/PROTOCOL.md` (service, start/stop, live strengths, clock, XOR checksum).
+- [ ] Capture 2 — controlled changes (PROTOCOL.md "Open") → Hz / width / times bytes.
+- [ ] Probe on the Android tablet (replay start / strength / stop), then the XEMS driver.

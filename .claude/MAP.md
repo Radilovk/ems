@@ -1350,13 +1350,21 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
-`wiems/README.md` (63L)
+`wiems/PROTOCOL.md` (63L)
+  - L1 # WiEMS unit — BLE protocol (from capture 1)
+  - L8 ## Device
+  - L16 ## Characteristics (value handle on this unit; match by UUID, never by handle)
+  - L31 ## Sequences seen
+  - L54 ## Open — capture 2 (one change at a time, note the clock time of each)
+
+`wiems/README.md` (73L)
   - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol
   - L15 ## Route 1 — HCI log from the iPad (no jailbreak, no IPA; do this first)
   - L37 ## Route 2 — the binary (cross-check, constants, checksum, limits)
   - L47 ## Route 3 — active probe from the Android tablet
   - L51 ## Into XEMS (after the protocol is written down in `wiems/PROTOCOL.md`)
-  - L59 ## Status
+  - L59 ## Facts so far
+  - L67 ## Status
 
 `xbody/CLAUDE.md` (43L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)

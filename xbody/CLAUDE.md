@@ -22,7 +22,8 @@ sh scripts/xbody/test.sh                               # must print ALL OK befor
 - USB route works on the live card (backup on the stick, `xems/RESTORE` undoes). Preferred.
 - SD-image route needs the raw card image (`fetch-base.py --id <drive id of .img/.img.gz/.zip>`); the
   current Drive file is a 7z **file dump** (symlinks flattened) — analysis only, never a base to write.
-- Outputs are gitignored; hand them over with SendUserFile, don't commit them.
+- Outputs in `build/` are gitignored; hand them over with SendUserFile. Exception: the Android stick app — the latest
+  one is committed as `xbody/dist/xems-fleshka.apk` (build-android.sh copies it there; commit it with the mod).
 - The zip = `PROCHETI.txt` + `PODGOTVI-FLESHKA.cmd|.command` + `tools/podgotvi.ps1` + `fleshka/` (stick contents).
   The tools live in `scripts/xbody/stick/` (.cmd CRLF, .ps1 UTF-8 BOM — test.sh checks; the .ps1 is run under pwsh
   with mocked drives when `build/xtool/pwsh` exists).

@@ -1335,16 +1335,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L86 ## Limits (what still needs a hand)
   - L93 ## Build & test
 
-`vr-workout/README.md` (185L)
+`vr-workout/README.md` (187L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.4) — on the beat, felt three ways
   - L18 ## The chef — scenario "Готвачът" (home menu → Сценарий)
-  - L40 ## Power of a hit — every scenario (`scripts/game/power.gd`)
-  - L158 ## In the Quest browser (WebXR) — the way it ships now
-  - L172 ## Build / preview
-  - L181 ## Licences
+  - L42 ## Power of a hit — every scenario (`scripts/game/power.gd`)
+  - L160 ## In the Quest browser (WebXR) — the way it ships now
+  - L174 ## Build / preview
+  - L183 ## Licences
 
-`vr-workout/assets/CREDITS.md` (25L)
+`vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
 `xbody/CLAUDE.md` (37L)

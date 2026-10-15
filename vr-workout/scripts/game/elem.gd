@@ -99,10 +99,10 @@ func _build_food(f: Dictionary) -> void:
 	radius = float(f.size) * 0.55
 	_model = food_model(food)
 	add_child(_model)
-	var c: Color = Defs.COLOR[kind] if food != "mega" else BONUS_COLOR
+	var c: Color = Defs.COLOR[kind] if not Defs.boss(food) else BONUS_COLOR
 	var h := MeshInstance3D.new()                  # a soft glow behind it: food is the target, the square is not
 	var q := QuadMesh.new()
-	q.size = Vector2.ONE * radius * (4.2 if food == "mega" else 3.4)
+	q.size = Vector2.ONE * radius * (4.2 if Defs.boss(food) else 3.4)
 	h.mesh = q
 	_halo_mat = ShaderMaterial.new()
 	_halo_mat.shader = HALO
@@ -110,7 +110,7 @@ func _build_food(f: Dictionary) -> void:
 	h.material_override = _halo_mat
 	h.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(h)
-	_spin = Vector3(randf_range(-2.0, 2.0), randf_range(2.0, 4.0), randf_range(-1.0, 1.0)) * (0.4 if food == "mega" else 1.0)
+	_spin = Vector3(randf_range(-2.0, 2.0), randf_range(2.0, 4.0), randf_range(-1.0, 1.0)) * (0.4 if Defs.boss(food) else 1.0)
 
 
 ## A hit that was not enough (the MEGA burger): it shakes, flashes and flies on, a little slower.

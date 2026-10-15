@@ -20,5 +20,6 @@
 | `chef/cheeseburger.glb` | "Hamburguesa Explosiva Con Queso" by Roberto Domínguez — https://sketchfab.com/3d-models/hamburguesa-explosiva-con-queso-93bb230cefa845708dc4f88a7334f274 | CC-BY-4.0 |
 | `chef/ice_cream.glb` | "ice cream in marble bowl" by HQ3DMOD — https://sketchfab.com/3d-models/ice-cream-in-marble-bowl-b8e81546b3bd4b7199883277f553b6c2 | CC-BY-4.0 |
 | `chef/burger.glb`, `chef/burger_bits.glb` | the owner's `burger.glb` (Sketchfab download; a burger and its parts), split by `convert/burger_split.py` | as downloaded by the owner |
+| `chef/croissant.glb`, `chef/cake.glb` | Poly Haven "Croissant", "Strawberry Chocolate Cake" — https://polyhaven.com/a/croissant · https://polyhaven.com/a/strawberry_chocolate_cake (decimated to 5k) | CC0 |
 | `chef/apple.glb` | Poly Haven "Food Apple 01" — https://polyhaven.com/a/food_apple_01 | CC0 |
 | `sfx/splat, chomp, boom, weak, laugh.ogg` | synthesised by `gen/make_sounds.py --only=food` | the project's own |

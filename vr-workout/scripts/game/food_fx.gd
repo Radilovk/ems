@@ -34,7 +34,7 @@ func _ready() -> void:
 func burst(at: Vector3, id: String, dir: Vector3, tier: int) -> void:
 	var f: Dictionary = Defs.FOODS[id]
 	var d := dir.normalized() if dir.length() > 0.01 else Vector3.FORWARD
-	var n := (5 if tier < 2 else 9) * (2 if id == "mega" else 1)
+	var n := (5 if tier < 2 else 9) * (2 if Defs.boss(id) else 1)
 	var c: Color = f.splash
 	for i in n:
 		var p := Debris.new()
@@ -42,7 +42,7 @@ func burst(at: Vector3, id: String, dir: Vector3, tier: int) -> void:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		if id in BURGERS and not _bits.is_empty() and i % 3 != 2:
 			mi.mesh = _bits[randi() % _bits.size()]
-			mi.scale = Vector3.ONE * randf_range(0.25, 0.4) * (1.6 if id == "mega" else 1.0)
+			mi.scale = Vector3.ONE * randf_range(0.25, 0.4) * (1.6 if Defs.boss(id) else 1.0)
 		else:
 			mi.mesh = _lump
 			var m := StandardMaterial3D.new()

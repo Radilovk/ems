@@ -1143,7 +1143,7 @@ func _chef_dist() -> float:
 func _schedule_chef() -> void:
 	var lv := _lv()
 	var speed := _speed()
-	var lead := _chef_dist() / speed + Chef.RELEASE + 0.6
+	var lead := _chef_dist() / speed + Chef.RELEASE + Chef.REACH_MAX + 0.6
 	while level_planned < level_total and bt >= next_arrival - lead:
 		_plan_chef_moment(lv, speed)
 	for p in pending.duplicate():
@@ -1162,19 +1162,17 @@ func _plan_chef_moment(lv: Dictionary, speed: float) -> void:
 	var at := next_arrival
 	var last := at
 	var h := body.stand_h
-	if bool(lv.mega) and level_planned == level_total - 1:
-		last = _plan_food("mega", at + b, speed, {"x": 0.0, "y": h * 0.82})      # the level's last: the MEGA burger
-	elif level >= 1 and randf() < float(lv.pat):
-		match ["double", "rapid", "fake", "double", "rapid"][randi() % (3 if level >= 2 else 2)]:
+	if bool(lv.mega) and level_planned >= level_total - 1:
+		var boss: String = Defs.BOSSES[randi() % Defs.BOSSES.size()]                  # the level's last: a big one
+		last = _plan_food(boss, at + b, speed, {"x": 0.0, "y": h * 0.82})
+	elif level >= 1 and level_planned < level_total - 4 and randf() < float(lv.pat):
+		match ["double", "rapid"][randi() % 2]:
 			"double":                                 # two portions in one throw, left and right
 				last = _plan_food(_junk(), at, speed, {"x": -0.26, "dx": -0.12})
 				_plan_food(_junk(), last, speed, {"x": 0.26, "dx": 0.12, "follow": true})
 			"rapid":                                  # three doughnuts, one per beat (he hurries)
 				for i in 3:
 					last = _plan_food("donut", last + (b if i > 0 else 0.0), speed, {"x": (i - 1) * 0.24})
-			"fake":                                   # an apple first (let it come), then the real thing
-				last = _plan_food("apple", at, speed, {})
-				last = _plan_food(_junk(), last + b, speed, {})
 	else:
 		_plan_food("apple" if randf() < float(lv.apple) else _junk(), at, speed, {})
 	var g: Array = lv.gap
@@ -1194,11 +1192,11 @@ func _plan_food(id: String, arrival: float, speed: float, o: Dictionary) -> floa
 	var wide := 0.45 if level >= 3 else 0.3
 	var x: float = float(o.get("x", randf_range(-wide, wide)))
 	var y: float = float(o.get("y", h * randf_range(0.74, 0.9)))
-	if level >= 3 and id != "mega" and not o.has("y") and randf() < 0.2:
+	if level >= 3 and not Defs.boss(id) and not o.has("y") and randf() < 0.2:
 		y = h * 0.6                                       # low: bend your knees to reach it
 	var target := Vector3(x, y, Defs.CONTACT_Z)
 	var hand := Vector3(-0.05, 1.55, -_chef_dist() + 0.55)   # where his hand lets go (the game frame; measured)
-	var sp := speed * (0.72 if id == "mega" else 1.0)
+	var sp := speed * (0.72 if Defs.boss(id) else 1.0)
 	var travel := maxf(hand.distance_to(target) / sp, 0.7)
 	var throw_at := arrival - travel
 	var follow: bool = o.get("follow", false)
@@ -1213,7 +1211,7 @@ func _plan_food(id: String, arrival: float, speed: float, o: Dictionary) -> floa
 		_last_throw = throw_at
 	pending.append({"food": id, "target": target, "arrival": arrival, "travel": travel, "speed": sp,
 		"dx": float(o.get("dx", 0.0)), "follow": follow, "wound": false,
-		"wind": throw_at if follow else maxf(throw_at - Chef.RELEASE, prev + 0.02)})   # (after his last throw left)
+		"wind": throw_at if follow else maxf(throw_at - Chef.RELEASE - Chef.REACH_MAX, prev + 0.02)})   # (after his last throw left)
 	level_planned += 1
 	return arrival
 
@@ -1225,7 +1223,7 @@ func _throw_food(p: Dictionary) -> void:
 	var e := Elem.make_food(p.food, p.speed)
 	add_child(e)
 	var d: float = from.distance_to(p.target)
-	e.arc = clampf(0.09 * d, 0.25, 0.8) * (1.4 if p.food == "mega" else 1.0) * (1.15 - 0.06 * level)
+	e.arc = clampf(0.09 * d, 0.25, 0.8) * (1.4 if Defs.boss(p.food) else 1.0) * (1.15 - 0.06 * level)
 	e.fly(from, p.target, p.arrival, bt)
 	elems.append(e)
 	if st == St.PLAY:
@@ -1283,7 +1281,7 @@ func _hit_food(e: Elem, limb: String) -> void:
 		fx.shock(at, Color(1.0, 0.5, 0.2), 0.7, 0.3)
 		fx.popup(at, "Още по-силно!", Power.COLORS[Power.Tier.MIGHTY], 58)
 		_power_popup(at, pw)
-		_say("МЕГА бургерът иска МОЩЕН удар!", 1.4)
+		_say("%s иска МОЩЕН удар!" % String(f.name), 1.4)
 		return
 	e.done = true
 	lv_hits += 1
@@ -1298,7 +1296,7 @@ func _hit_food(e: Elem, limb: String) -> void:
 	var ahead: Vector3 = -global_basis.z
 	var back := tier == Power.Tier.MIGHTY and wdir.dot(ahead) > 0.5      # a mighty straight one: back at the chef
 	var burn: float = float(f.kcal) * (float(Defs.BURN[tier]) + (Defs.RETURN_BONUS if back else 0.0))
-	var pts := int(round(100.0 * float(t[2]) * mult * float(Power.POINTS[tier]) * (3.0 if e.food == "mega" else 1.0)))
+	var pts := int(round(100.0 * float(t[2]) * mult * float(Power.POINTS[tier]) * (3.0 if Defs.boss(e.food) else 1.0)))
 	score += pts
 	kcal.add(burn, 0.0)
 	suit.strike(Defs.Zone.ARMS, side, tier)
@@ -1327,9 +1325,9 @@ func _hit_food(e: Elem, limb: String) -> void:
 				chef.react("angry")
 	fx.popup(at, "−%d ккал" % int(round(burn)), KcalHud.GREEN, [46, 54, 66][tier])
 	_power_popup(at, pw)
-	if e.food == "mega":
+	if Defs.boss(e.food):
 		sfx.play("levelup", at, -4.0, 1.1)
-		_say("МЕГА бургерът е на парчета!", 1.6)
+		_say("%s — на парчета!" % String(f.name), 1.6)
 	else:
 		_say(String(t[1]) + "!" if combo < 5 else "Серия ×%d!" % combo, 0.7)
 	if combo > 0 and combo % 8 == 0 and mult <= 4:
@@ -1377,7 +1375,7 @@ func _eat(e: Elem) -> void:
 	sfx.muffle(suit.punish_sec * 0.6)
 	food_fx.visor(stage.cam, f.splash)
 	fx.popup(face + Vector3(0, 0.12, -0.25), "+%d ккал" % int(f.kcal), KcalHud.RED, 80)
-	_say("Изяде %s: +%d ккал (%s)" % [String(f.name).to_lower() if e.food != "mega" else String(f.name), int(f.kcal),
+	_say("Изяде %s: +%d ккал (%s)" % [String(f.name).to_lower() if not Defs.boss(e.food) else String(f.name), int(f.kcal),
 		KcalHud.kg_text(float(f.kcal))], 1.8)
 	chef.react("laugh", sfx)
 	_remove(e)
@@ -1389,7 +1387,7 @@ func _chef_rules() -> void:
 		["Готвачът", "Той иска да те нахрани. Разбий храната с юмрук, преди да стигне до теб."],
 		["Калориите", "Пропуснеш ли — изяждаш я: всичките ѝ калории отиват отгоре. Разбитата сваля само малко."],
 		["Силата", "Засилка + скорост = МОЩЕН удар: гори повече. Мощен прав удар я връща право в готвача!"],
-		["Ябълката", "Зелената ябълка не я удряй — остави я да дойде и я изяж. МЕГА бургерът иска мощен удар."],
+		["Ябълката", "Рядко идва и ябълка — нея не я удряй, остави я да дойде и я изяж. МЕГА бургерът и тортата искат мощен удар."],
 	]
 	for p in pages:
 		_title(p[0])

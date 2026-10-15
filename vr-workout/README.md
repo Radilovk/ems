@@ -16,19 +16,21 @@ Borrowed from the best-rated VR fitness games: punch types and guard (FitXR, Les
 multiplier and rank (Beat Saber), squats and side steps (Supernatural), walls (Beat Saber's obstacles).
 
 ## The chef — scenario "Готвачът" (home menu → Сценарий)
-On the **square in Ulm** (choosing it moves you there) a cook stands at his street-food cart 4.5–6.5 m ahead and
-**throws food at you on the beat**: a burger, a double cheeseburger, a doughnut, ice cream — lobbed in an arc out of
-his right hand (his real overarm throw; he hurries it on fast levels). You see the portion in his hand before it flies.
+On the **square in Ulm** (choosing it moves you there) a cook works **behind the counter of his street-food cart**
+4.5–6.5 m ahead (the counter, 1.03 m, between you; his stock laid out on its trays) and **throws junk food at you on
+the beat**: a burger, a double cheeseburger, a doughnut, ice cream, a croissant. Before each throw he **bends over the
+counter, reaches for the portion and takes it** (a skeleton modifier over the animation: spine and right arm), then
+straightens into his real overarm throw and lobs it over the counter (on fast levels he skips the reach and hurries).
 **Smash it** with a fist and it burns a little; **miss it and you have eaten it** — all its real calories go on
-(burger 550, cheeseburger 920, doughnut 310, ice cream 280). A hit takes off far less than a miss puts on
+(burger 550, cheeseburger 920, doughnut 310, ice cream 280, croissant 270). A hit takes off far less than a miss puts on
 (`Defs.BURN`: 5 / 10 / 18 % of the portion by the hit's power), so a few misses are hard to win back.
 **The heads-up card** above your line of sight (`kcal_hud.gd`) shows the balance biggest — red "+1 240 ккал · +0,16
 кг" or green "−…" — with a bar left (burned) / right (eaten) and both sides under it (1 kg = 7700 kcal, real kilos).
-**Twists:** a green **apple** — let it come and eat it (vitamins, points, the combo goes on; smashing it breaks the
-combo). The **MEGA burger** (1650 kcal) closes every level from 2: only a **mighty** hit breaks it (or a medium and a
-weak one; less cracks it and it flies on). A **mighty straight punch** sends the portion **back into the chef** (+12 %
-of it burned, he staggers, a splat on his apron). Combinations: two portions at once, three doughnuts on three beats, an
-apple then the real thing. Six levels (`Defs.CHEF_LEVELS`): faster, wider, lower (bend your knees).
+**Twists:** now and then (6–10 %) an **apple** — the one healthy thing, not for smashing: let it come and eat it
+(points, the combo goes on; smashing it breaks the combo). A big one closes every level from 2 — the **MEGA burger**
+(1650 kcal) or a **whole cake** (2900 kcal): only a **mighty** hit breaks it (or a medium and a weak one; less cracks
+it and it flies on). A **mighty straight punch** sends the portion **back into the chef** (+12 %
+of it burned, he staggers, a splat on his apron). Combinations: two portions at once, three doughnuts on three beats. Six levels (`Defs.CHEF_LEVELS`): faster, wider, lower (bend your knees).
 **Seen and felt:** smashed food bursts along your punch — a burger into its bun, patty, cheese and tomato
 (`burger_bits.glb`), the rest into lumps of its colour, with a wet splat (`food_fx.gd`, `shaders/splat.gdshader`); a
 weak hit only knocks it down, it tumbles and bounces. Eaten food splats across your eyes and slides off, a chomp, the

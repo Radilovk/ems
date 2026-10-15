@@ -104,6 +104,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/lok.py` (243L) — Bluetens .lok program format — parse, build, time estimate (reference for a future Java port).
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
+- `scripts/build-wiems-app.sh` (56L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
@@ -548,14 +549,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (104L)
+`CLAUDE.md` (105L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L43 ## Invariants (breaking one = broken release)
   - L58 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L72 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L101 ## Keeping the map true
+  - L102 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -1206,6 +1207,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L53 ## 5. Touch and feedback
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
+
+`docs/xems-wiems-app.md` (37L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.0)
+  - L7 ## What it is
+  - L27 ## Build / test
+  - L34 ## Not verified yet
 
 `docs/xems-wiems.md` (71L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

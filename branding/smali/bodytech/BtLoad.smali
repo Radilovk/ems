@@ -134,7 +134,7 @@
     .registers 7
 
     .prologue
-    .line 82
+    .line 86
     if-eqz p0, :cond_8
 
     invoke-virtual {p0}, Lcom/clj/fastble/data/BleDevice;->getMac()Ljava/lang/String;
@@ -143,22 +143,22 @@
 
     if-nez v0, :cond_9
 
-    .line 99
+    .line 103
     :cond_8
     return-void
 
-    .line 85
+    .line 89
     :cond_9
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 86
+    .line 90
     const-class v3, Lcom/isaigu/gymapp/bodytech/BtLoad;
 
     monitor-enter v3
 
-    .line 87
+    .line 91
     :try_start_11
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtLoad;->WAITING:Ljava/util/WeakHashMap;
 
@@ -184,7 +184,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 88
+    .line 92
     invoke-virtual {p0}, Lcom/clj/fastble/data/BleDevice;->getMac()Ljava/lang/String;
 
     move-result-object v5
@@ -207,7 +207,7 @@
 
     if-eqz v1, :cond_1b
 
-    .line 89
+    .line 93
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v0
@@ -218,7 +218,7 @@
 
     goto :goto_1b
 
-    .line 95
+    .line 99
     :catchall_47
     move-exception v0
 
@@ -228,7 +228,7 @@
 
     throw v0
 
-    .line 92
+    .line 96
     :cond_4a
     :try_start_4a
     invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -248,20 +248,20 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 93
+    .line 97
     sget-object v4, Lcom/isaigu/gymapp/bodytech/BtLoad;->WAITING:Ljava/util/WeakHashMap;
 
     invoke-virtual {v4, v0}, Ljava/util/WeakHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
     goto :goto_4e
 
-    .line 95
+    .line 99
     :cond_60
     monitor-exit v3
     :try_end_61
     .catchall {:try_start_4a .. :try_end_61} :catchall_47
 
-    .line 96
+    .line 100
     invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -279,7 +279,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 97
+    .line 101
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtLoad;->refresh(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
     goto :goto_65
@@ -318,7 +318,7 @@
     :cond_16
     move v0, v1
 
-    .line 76
+    .line 80
     :goto_17
     return v0
 
@@ -345,7 +345,7 @@
 
     goto :goto_17
 
-    .line 70
+    .line 74
     :catchall_25
     move-exception v0
 
@@ -358,11 +358,11 @@
     :try_end_28
     .catch Ljava/lang/Throwable; {:try_start_27 .. :try_end_28} :catch_28
 
-    .line 74
+    .line 78
     :catch_28
     move-exception v0
 
-    .line 75
+    .line 79
     const-string v2, "xems-bt"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -387,27 +387,48 @@
 
     move v0, v1
 
-    .line 76
+    .line 80
     goto :goto_17
 
-    .line 66
+    .line 67
     :cond_43
     :try_start_43
-    invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtBridge;->loadPercent(Lcom/clj/fastble/data/BleDevice;)I
+    invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/WiBridge;->isWiems(Lcom/clj/fastble/data/BleDevice;)Z
 
     move-result v3
 
-    if-gez v3, :cond_4c
+    if-eqz v3, :cond_52
 
-    .line 67
+    invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/WiBridge;->armForStart(Lcom/clj/fastble/data/BleDevice;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_52
+
+    .line 68
     monitor-exit v2
 
     move v0, v1
 
     goto :goto_17
 
-    .line 69
-    :cond_4c
+    .line 70
+    :cond_52
+    invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtBridge;->loadPercent(Lcom/clj/fastble/data/BleDevice;)I
+
+    move-result v3
+
+    if-gez v3, :cond_5b
+
+    .line 71
+    monitor-exit v2
+
+    move v0, v1
+
+    goto :goto_17
+
+    .line 73
+    :cond_5b
     sget-object v3, Lcom/isaigu/gymapp/bodytech/BtLoad;->WAITING:Ljava/util/WeakHashMap;
 
     new-instance v4, Lcom/isaigu/gymapp/bodytech/BtLoad$Wait;
@@ -420,19 +441,19 @@
 
     invoke-virtual {v3, p0, v4}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 70
+    .line 74
     monitor-exit v2
-    :try_end_5b
-    .catchall {:try_start_43 .. :try_end_5b} :catchall_25
+    :try_end_6a
+    .catchall {:try_start_43 .. :try_end_6a} :catchall_25
 
-    .line 71
-    :try_start_5b
+    .line 75
+    :try_start_6a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->xemsRefresh()V
 
-    .line 72
+    .line 76
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtLoad;->tick()V
-    :try_end_61
-    .catch Ljava/lang/Throwable; {:try_start_5b .. :try_end_61} :catch_28
+    :try_end_70
+    .catch Ljava/lang/Throwable; {:try_start_6a .. :try_end_70} :catch_28
 
     goto :goto_17
 .end method
@@ -441,22 +462,22 @@
     .registers 8
 
     .prologue
-    .line 182
+    .line 186
     if-nez p1, :cond_3
 
-    .line 206
+    .line 210
     :cond_2
     :goto_2
     return-void
 
-    .line 185
+    .line 189
     :cond_3
     :try_start_3
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/BtLoad;->percent(Lcom/isaigu/gymapp/train/model/TrainItem;)I
 
     move-result v1
 
-    .line 186
+    .line 190
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtLoad;->BANNERS:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p1}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -465,20 +486,20 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;
 
-    .line 187
+    .line 191
     if-gez v1, :cond_3a
 
-    .line 188
+    .line 192
     if-eqz v0, :cond_2
 
-    .line 189
+    .line 193
     invoke-virtual {p1}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v1
 
     invoke-virtual {v1, v0}, Landroid/view/ViewOverlay;->remove(Landroid/graphics/drawable/Drawable;)V
 
-    .line 190
+    .line 194
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtLoad;->BANNERS:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p1}, Ljava/util/WeakHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
@@ -487,11 +508,11 @@
 
     goto :goto_2
 
-    .line 203
+    .line 207
     :catch_20
     move-exception v0
 
-    .line 204
+    .line 208
     const-string v1, "xems-bt"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -516,11 +537,11 @@
 
     goto :goto_2
 
-    .line 194
+    .line 198
     :cond_3a
     if-nez v0, :cond_57
 
-    .line 195
+    .line 199
     :try_start_3c
     new-instance v0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;
 
@@ -536,19 +557,19 @@
 
     invoke-direct {v0, v2}, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;-><init>(F)V
 
-    .line 196
+    .line 200
     sget-object v2, Lcom/isaigu/gymapp/bodytech/BtLoad;->BANNERS:Ljava/util/WeakHashMap;
 
     invoke-virtual {v2, p1, v0}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 197
+    .line 201
     invoke-virtual {p1}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v2
 
     invoke-virtual {v2, v0}, Landroid/view/ViewOverlay;->add(Landroid/graphics/drawable/Drawable;)V
 
-    .line 199
+    .line 203
     :cond_57
     const/4 v2, 0x0
 
@@ -564,7 +585,7 @@
 
     invoke-virtual {v0, v2, v3, v4, v5}, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->setBounds(IIII)V
 
-    .line 200
+    .line 204
     const-string v2, "\u0417\u0430\u0440\u0435\u0436\u0434\u0430\u043d\u0435 \u043d\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430\u2026"
 
     const-string v3, "Loading the program\u2026"
@@ -577,15 +598,15 @@
 
     const-string v4, "The training starts by itself"
 
-    .line 201
+    .line 205
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 200
+    .line 204
     invoke-virtual {v0, v2, v3, v1}, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->set(Ljava/lang/String;Ljava/lang/String;I)V
 
-    .line 202
+    .line 206
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->invalidateSelf()V
     :try_end_7a
     .catch Ljava/lang/Throwable; {:try_start_3c .. :try_end_7a} :catch_20
@@ -597,12 +618,12 @@
     .registers 3
 
     .prologue
-    .line 104
+    .line 108
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtLoad;
 
     monitor-enter v1
 
-    .line 105
+    .line 109
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtLoad;->WAITING:Ljava/util/WeakHashMap;
 
@@ -612,21 +633,21 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bodytech/BtLoad$Wait;
 
-    .line 106
+    .line 110
     monitor-exit v1
 
-    .line 107
+    .line 111
     if-nez v0, :cond_13
 
-    .line 108
+    .line 112
     const/4 v0, -0x1
 
-    .line 111
+    .line 115
     :cond_f
     :goto_f
     return v0
 
-    .line 106
+    .line 110
     :catchall_10
     move-exception v0
 
@@ -636,7 +657,7 @@
 
     throw v0
 
-    .line 110
+    .line 114
     :cond_13
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtLoad$Wait;->d:Lcom/clj/fastble/data/BleDevice;
 
@@ -644,7 +665,7 @@
 
     move-result v0
 
-    .line 111
+    .line 115
     if-gez v0, :cond_f
 
     const/16 v0, 0x64
@@ -656,21 +677,21 @@
     .registers 5
 
     .prologue
-    .line 173
+    .line 177
     :try_start_0
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->xemsRefresh()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 177
+    .line 181
     :goto_3
     return-void
 
-    .line 174
+    .line 178
     :catch_4
     move-exception v0
 
-    .line 175
+    .line 179
     const-string v1, "xems-bt"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -700,36 +721,36 @@
     .registers 4
 
     .prologue
-    .line 115
+    .line 119
     const-class v1, Lcom/isaigu/gymapp/bodytech/BtLoad;
 
     monitor-enter v1
 
-    .line 116
+    .line 120
     :try_start_3
     sget-boolean v0, Lcom/isaigu/gymapp/bodytech/BtLoad;->ticking:Z
 
     if-eqz v0, :cond_9
 
-    .line 117
+    .line 121
     monitor-exit v1
 
-    .line 122
+    .line 126
     :goto_8
     return-void
 
-    .line 119
+    .line 123
     :cond_9
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/bodytech/BtLoad;->ticking:Z
 
-    .line 120
+    .line 124
     monitor-exit v1
     :try_end_d
     .catchall {:try_start_3 .. :try_end_d} :catchall_1a
 
-    .line 121
+    .line 125
     sget-object v0, Lcom/isaigu/gymapp/bodytech/BtLoad;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/bodytech/BtLoad$Tick;
@@ -742,7 +763,7 @@
 
     goto :goto_8
 
-    .line 120
+    .line 124
     :catchall_1a
     move-exception v0
 

@@ -7,6 +7,7 @@
 #include "../core/safe.h"
 #include "../core/suit.h"
 #include "../core/xemsproto.h"
+#include "../core/wiproto.h"
 #include <cstdio>
 #include <cstring>
 
@@ -184,6 +185,167 @@ static void bodytechSession() {
     s.start(5000);
     f = drain(s, 5000);
     eqHex("bt new Hz before output", "36 00 10 00 00 27 10 C9", f[0]);
+}
+
+static void wiemsGolden() {
+    // The vendor app's writes in the owner's capture (wiems/PROTOCOL.md), with the bridge's selector byte first.
+    eqHex("wi prog 84 arm", "01 29 54 04 08 00 00 7E 05 02 08", wi::program(84, 4, 8, 0, 0, wi::PHASE_ARM));
+    eqHex("wi prog 84 run", "01 29 54 04 08 00 00 7E 05 00 0A", wi::program(84, 4, 8, 0, 0, wi::PHASE_RUN));
+    eqHex("wi prog 92 rd1", "01 29 5C 04 08 00 01 7E 05 00 03", wi::program(92, 4, 8, 0, 1, wi::PHASE_RUN));
+    eqHex("wi rest 5", "02 05 64 00 00 00 00 00 00 A5 C4", wi::rest(5, 100));
+    eqHex("wi rest 7", "02 07 64 00 00 00 00 00 00 A5 C6", wi::rest(7, 100));
+    eqHex("wi widths", "03 7F 7F 6D 49 7F 7F 64 52 7F 52", wi::widths());
+    int c[10] = {12, 0, 2, 15, 15, 15, 13, 13, 0, 15};
+    eqHex("wi currents", "00 0C 00 02 0F 0F 0F 0D 0D 00 0F", wi::currents(c));
+    int big[10] = {300, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    eqHex("wi currents cap", "00 64 00 00 00 00 00 00 00 00 00", wi::currents(big));
+    eqHex("wi start", "04 25", wi::run(true));
+    eqHex("wi stop", "04 00", wi::run(false));
+    Bytes n;
+    fromHex("0401", n);
+    eqInt("wi run tick", 1, wi::runTick(n) ? 1 : 0);
+    fromHex("1051", n);
+    eqInt("wi battery", 81, wi::battery(n));
+}
+
+static void wiemsSession() {
+    Suit s(Suit::WIEMS);
+    eqInt("wi channels", 10, s.channels());
+    s.linked(0);
+    std::vector<Bytes> f = drain(s, 0);
+    eqInt("wi link frames", 2, (int)f.size());
+    eqHex("wi link stop", "04 00", f.back());
+    eqHex("wi safe", "04 00", s.safeFrame());
+    s.setStrength(40);
+    s.setChannel(1, 50);
+    s.start(1000);
+    eqInt("wi waits for its count-down", Suit::IDLE, s.state());
+    eqInt("wi preparing", 1, s.preparing() ? 1 : 0);
+    f = drain(s, 1000);
+    eqInt("wi start frames", 5, (int)f.size());
+    eqHex("wi start prog (Ru 1 s)", "01 29 55 04 04 01 00 7E 05 02 04", f[0]);
+    eqHex("wi rest: nothing in the pause", "02 05 00 00 00 00 00 00 00 A5 A0", f[1]);
+    eqHex("wi start run", "04 25", f.back());
+    s.tick(2000);
+    eqInt("wi still counting", Suit::IDLE, s.state());
+    Bytes n;
+    fromHex("0401", n);
+    s.notify(n);   // the unit's first "01"
+    s.tick(5100);
+    f = drain(s, 5100);
+    eqInt("wi running", Suit::RUNNING, s.state());
+    eqInt("wi begin frames", 3, (int)f.size());
+    eqHex("wi begin zero", "00 00 00 00 00 00 00 00 00 00 00", f[0]);
+    eqHex("wi begin prog", "01 29 55 04 04 01 00 7E 05 00 06", f[1]);
+    eqHex("wi full at once: the unit rises by itself", "00 28 14 28 28 28 28 28 28 28 28", f[2]);
+    s.tick(9200);   // impulse over → pause: strengths 0, the unit keeps running
+    f = drain(s, 9200);
+    eqInt("wi pause frames", 1, (int)f.size());
+    eqHex("wi pause zero", "00 00 00 00 00 00 00 00 00 00 00", f.empty() ? Bytes() : f[0]);
+    s.pause(9500);
+    f = drain(s, 9500);
+    eqHex("wi pause → stop", "04 00", f.empty() ? Bytes() : f.back());
+    // stop during a count-down stops the unit
+    s.start(10000);
+    drain(s, 10000);
+    s.stop();
+    f = drain(s, 10100);
+    eqHex("wi stop in count-down", "04 00", f.empty() ? Bytes() : f.back());
+    eqInt("wi idle", Suit::IDLE, s.state());
+    // no "01" from the unit: it runs after 6 s anyway
+    Suit u(Suit::WIEMS);
+    u.linked(0);
+    drain(u, 0);
+    u.start(100);
+    drain(u, 100);
+    u.tick(6000);
+    eqInt("wi no tick yet", Suit::IDLE, u.state());
+    u.tick(6200);
+    eqInt("wi timeout → running", Suit::RUNNING, u.state());
+    // XBody's channel order: the "Ръце" zone drives unit channel 4, "Трапец" channel 0
+    const Zone *z;
+    int nz = Suit::zones(Suit::WIEMS, &z);
+    eqInt("wi zones", 10, nz);
+    eqInt("wi arms ch", 4, z[8].ch[0]);
+    eqInt("wi trapez ch", 0, z[6].ch[0]);
+    eqInt("wi ch0 name trapez", 1, std::strcmp(Suit::channelName(Suit::WIEMS, 0), "Трапец") == 0 ? 1 : 0);
+    Suit w(Suit::WIEMS);
+    w.linked(0);
+    drain(w, 0);
+    for (int i = 0; i < 10; i++) w.setZone(z[i], 0);
+    w.setZone(z[8], 100);   // only the arms
+    w.setStrength(20);
+    w.start(0);
+    drain(w, 0);
+    fromHex("0401", n);
+    w.notify(n);
+    w.tick(100);
+    w.tick(700);
+    f = drain(w, 700);
+    eqHex("wi arms only → ch 4", "00 00 00 00 00 14 00 00 00 00 00", f.empty() ? Bytes() : f.back());
+    BridgeEvent e = parseBridgeLine("ADV 88:6B:0F:CC:BE:49 -58 WIEMS WIEMS_-_EMS_Device");
+    eqInt("wi adv kind", Suit::WIEMS, suitKind(e.svc, e.name));
+    eqInt("wi kind by name", Suit::WIEMS, suitKind("-", "WIEMS - EMS Device"));
+}
+
+static void doubleImpulse() {
+    // XEMS: the pause carries the second impulse — its strength share and its Hz, output on
+    Suit x(Suit::XEMS);
+    x.linked(0);
+    drain(x, 0);
+    Program p;
+    p.dbl = true;
+    p.dblHz = 6;
+    p.dblPct = 50;
+    p.onS = 4;
+    p.offS = 8;
+    std::string why;
+    x.setProgram(p, -1, &why);
+    eqInt("x dbl kept", 1, x.program().dbl ? 1 : 0);
+    x.setStrength(40);
+    x.start(0);
+    x.tick(600);
+    drain(x, 600);
+    x.tick(4000);   // impulse over → the second impulse
+    std::vector<Bytes> f = drain(x, 4000);
+    eqInt("x dbl frames", 2, (int)f.size());
+    eqInt("x dbl strength 50 %", 20, f.size() ? f[0][4] : -1);
+    eqInt("x dbl Hz", 6, f.size() > 1 ? f[1][6] : -1);
+    eqInt("x dbl output on", 1, f.size() > 1 ? f[1][13] : -1);
+    eqInt("x dbl live level", 20, x.liveLevel(0));
+    // the safety limits: Hz₂ ≤ 10 and under the main
+    p.dblHz = 30;
+    x.stop();
+    x.setProgram(p, -1, &why);
+    eqInt("x dbl Hz capped", 10, x.program().dblHz);
+    // bodytech: the pause's Hz on every channel, back to the main at the next impulse
+    Suit b(Suit::BODYTECH);
+    b.linked(0);
+    drain(b, 0);
+    p.dblHz = 5;
+    b.setProgram(p, -1, 0);
+    b.setStrength(60);
+    b.start(0);
+    b.tick(600);
+    drain(b, 600);
+    b.tick(4000);
+    f = drain(b, 4000);
+    eqHex("bt dbl Hz ch1", "36 00 10 00 03 0D 40 C9", f.empty() ? Bytes() : f[0]);
+    b.tick(12000);
+    f = drain(b, 12000);
+    Bytes back;
+    for (size_t i = 0; i < f.size(); i++) if (toHex(f[i]).compare(0, 6, "360010") == 0) { back = f[i]; break; }
+    eqHex("bt main Hz back", "36 00 10 00 00 2D F4 C9", back);
+    // WiEMS: the unit's own rest = Hz₂ at its %
+    Suit w(Suit::WIEMS);
+    w.linked(0);
+    drain(w, 0);
+    p.dblHz = 7;
+    p.dblPct = 60;
+    w.setProgram(p, -1, 0);
+    w.start(0);
+    f = drain(w, 0);
+    eqHex("wi dbl rest", "02 07 3C 00 00 00 00 00 00 A5 9E", f.size() > 1 ? f[1] : Bytes());
 }
 
 static void bridgeLines() {
@@ -567,6 +729,9 @@ int main() {
     safety();
     xemsSession();
     bodytechSession();
+    wiemsGolden();
+    wiemsSession();
+    doubleImpulse();
     bridgeLines();
     std::printf("%s: %d checks, %d failed\n", fails ? "FAIL" : "OK", checks, fails);
     return fails ? 1 : 0;

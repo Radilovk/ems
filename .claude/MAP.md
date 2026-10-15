@@ -104,6 +104,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/lok.py` (243L) — Bluetens .lok program format — parse, build, time estimate (reference for a future Java port).
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
+- `scripts/build-wiems-app.sh` (62L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
@@ -120,6 +121,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/fit-sim/SafeSim.java` (90L) — Offline checks of SafeLimits: the absolute limits of every mode (docs/xems-safety-limits.md).
 - `scripts/fit-sim/SearchSim.java` (30L) — Offline check of the client search: Cyrillic ↔ Latin phonetic matches (XemsSearch.matches).
 - `scripts/fit-sim/run.sh` (15L) — Offline test of ai/SafeLimits (the absolute limits of every mode) and the
+- `scripts/fix-body-holes.py` (39L) — Close a gap in the body figures' art (branding/body/*-art.webp) that is not a real gap of the body: male_back had a tra…
 - `scripts/gen-body-figures.py` (54L) — The body figures of the Auto live board (ai/BodyHeatView): the report's anatomical art and channel maps (branding/repor…
 - `scripts/gen-card-art.py` (249L) — Client card figures from the illustrated art in branding/report/figures/.
 - `scripts/gen-exercise-library.py` (117L) — branding/exercises/library-src.json (all 302 exercises: names, steps, muscles, pattern) → library.json, the library the…
@@ -171,6 +173,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
+- `scripts/xbody/gen-panel-body.py` (30L) — The XBody panel's body figures: the tablet's XEMS figures (branding/body: art + zone map, scripts/gen-body-figures.py) …
 - `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
 - `scripts/xbody/qt-headers.sh` (33L) — Qt 4.8.6 headers matching the card's Qt Embedded (build key "arm linux g++-4 full-config", ARMv7 NEON softfp,
 - `scripts/xbody/relink.py` (54L) — Restore the shared-library symlinks the 7z dump flattened to 0-byte files.
@@ -240,10 +243,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtAusRun.java` (278L, compile:music-sync*) — Runs one "Модулация" procedure ({@link BtAus}) on a bodytech suit, phase after phase: every {@link #TICK_MS} it works o…
 - `BtAusScreen.java` (635L, compile:music-sync*) — "Модулация" (owner, 1.1.372; was "Австралийски ток"): one passive procedure of the 1–2 kHz current (atrophy, passive li…
 - `BtBeep.java` (106L, compile:music-sync*) — Sound signals of a bodytech suit, from the tablet (owner; 1.1.360 scheme): start = one long HIGH tone, pause = one long…
-- `BtBridge.java` (701L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
+- `BtBridge.java` (716L, compile:music-sync*) — A bodytech suit (EMSFIT 5.1 hardware, service FE50) driven from the stock XEMS training row.
 - `BtFull.java` (267L, compile:music-sync*) — The row's gear on a bodytech suit → "Пълни параметри": every channel's own strength, Hz, width and waveform, separately…
 - `BtGear.java` (132L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
-- `BtLoad.java` (272L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
+- `BtLoad.java` (276L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (167L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
 - `BtSettings.java` (540L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
 - `BtSettingsSection.java` (390L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
@@ -251,6 +254,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtTranslator.java` (625L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 - `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
+- `WiBridge.java` (484L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
+- `WiProto.java` (131L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
+- `WiTranslator.java` (256L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -545,14 +551,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (103L)
+`CLAUDE.md` (105L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L43 ## Invariants (breaking one = broken release)
   - L58 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L72 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L100 ## Keeping the map true
+  - L102 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -808,21 +814,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (212L)
-  - L1 # XEMS panel on the XBody unit (mod v9)
+`docs/xbody-xems-panel.md` (242L)
+  - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
   - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
-  - L64 ## Ready passive programs on XBody's cable (mod v8)
-  - L76 ### Length and after-training procedures (mod v10)
-  - L105 ## Feedback from the stimulator (what XBody can know)
-  - L115 ## Phone → XBody over a USB cable (mod v9, no stick)
-  - L126 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L134 ## Panel
-  - L168 ## Bridge line protocol (USB CDC, 115200)
-  - L177 ## Files
-  - L189 ## Build / test
-  - L205 ## First test on the unit (when the XIAO arrives)
+  - L64 ## Body figures, double impulse, ramp (mod v13, owner)
+  - L78 ## Cable and wireless side by side, several wireless suits (mod v12)
+  - L92 ## Ready passive programs on XBody's cable (mod v8)
+  - L104 ### Length and after-training procedures (mod v10)
+  - L133 ## Feedback from the stimulator (what XBody can know)
+  - L143 ## Phone → XBody over a USB cable (mod v9, no stick)
+  - L154 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L162 ## Panel
+  - L196 ## Bridge line protocol (USB CDC, 115200)
+  - L207 ## Files
+  - L219 ## Build / test
+  - L235 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1203,6 +1211,24 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
+`docs/xems-wiems-app.md` (79L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.4)
+  - L7 ## What it is
+  - L28 ## Look (v1.1, owner: XBody's design level or better, never lower)
+  - L38 ## v1.2 — lighter figures, double impulse, ramp (owner)
+  - L45 ## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
+  - L69 ## Build / test
+  - L76 ## Not verified yet
+
+`docs/xems-wiems.md` (71L)
+  - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
+  - L11 ## How it works (tablet)
+  - L35 ## Translation
+  - L44 ## Safety
+  - L52 ## XBody machine (panel + XIAO bridge)
+  - L60 ## Tests
+  - L64 ## First test on the unit
+
 `docs/xems-workouts.md` (179L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library
   - L12 ## The library (302 exercises)
@@ -1360,7 +1386,24 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
-`xbody/CLAUDE.md` (47L)
+`wiems/PROTOCOL.md` (73L)
+  - L1 # WiEMS unit — BLE protocol (from capture 1)
+  - L16 ## Device
+  - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)
+  - L39 ## Sequences seen
+  - L62 ## Still open
+  - L70 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
+
+`wiems/README.md` (74L)
+  - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol
+  - L15 ## Route 1 — HCI log from the iPad (no jailbreak, no IPA; do this first)
+  - L37 ## Route 2 — the binary (cross-check, constants, checksum, limits)
+  - L47 ## Route 3 — active probe from the Android tablet
+  - L51 ## Into XEMS (after the protocol is written down in `wiems/PROTOCOL.md`)
+  - L59 ## Facts so far
+  - L67 ## Status
+
+`xbody/CLAUDE.md` (49L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
   - L5 ## Model
   - L16 ## Build (on request: "дай файла за картата")

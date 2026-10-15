@@ -11,6 +11,7 @@
 #include <QPainterPath>
 #include <QPixmap>
 #include <QSettings>
+#include <cmath>
 #include <cstdlib>
 
 // XBody's palette (sampled from its own training screen and pictures).
@@ -107,10 +108,19 @@ static void signalBars(QPainter &p, const QRect &r, int rssi, const QColor &on, 
 PanelWidget::PanelWidget(App *app)
     : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), app_(app), pressMs_(0), repeatMs_(0),
       sheet_(false), confirm_(false), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
-      bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0) {
+      bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0), figsSex_(-1) {
     loadLook();
     setAttribute(Qt::WA_OpaquePaintEvent);
     timer_.start(50, this);   // stepper repeat + change check; paints only on a change
+}
+
+void PanelWidget::sessionChanged() {
+    sel_ = 0;
+    selKind_ = -1;
+    sheet_ = confirm_ = info_ = false;
+    showCable_ = false;
+    pressed_.clear();
+    sig_.clear();   // repaint
 }
 
 void PanelWidget::layout() {
@@ -783,10 +793,11 @@ void PanelWidget::paintPick(QPainter &p) {
         QRect tile(cx[k % 3] - 75, 80 + (int)(k / 3) * 236, 150, 150);
         QString id = U("suit:") + QString::fromStdString(d.mac);
         outlined(p, tile, app_->linkingMac().empty() ? id : QString(), QString(), 0, linking);
-        bool bt = d.kind == Suit::BODYTECH;
+        bool bt = d.kind == Suit::BODYTECH, wi = d.kind == Suit::WIEMS;
         p.setPen(linking ? WHITE : RED);
-        p.setFont(uiFont(bt ? 22 : 30, true));
-        p.drawText(QRect(tile.left(), tile.top() + 20, 150, 60), Qt::AlignCenter, bt ? U("bodytech") : U("XEMS"));
+        p.setFont(uiFont(bt || wi ? 22 : 30, true));
+        p.drawText(QRect(tile.left(), tile.top() + 20, 150, 60), Qt::AlignCenter,
+                   bt ? U("bodytech") : wi ? U("WiEMS") : U("XEMS"));
         if (linking) {
             p.setFont(uiFont(16));
             p.drawText(QRect(tile.left(), tile.top() + 86, 150, 40), Qt::AlignCenter,
@@ -819,6 +830,66 @@ void PanelWidget::paintZone(QPainter &p, const QRect &r, int zi, bool right) {
     p.drawText(in, (right ? Qt::AlignLeft : Qt::AlignRight) | Qt::AlignVCenter, QString::number(pct) + U("%"));
 }
 
+// The zone of the screen that drives figure region `region` (XEMS channel order); −1 = none on this suit.
+int PanelWidget::zoneOfRegion(int region) const {
+    static const char *REGION[BodyFig::REGIONS] = {"Гърди", "Корем", "Предно бедро", "Прасец", "Ръце",
+                                                   "Трапец", "Гръб", "Кръст", "Седалище", "Задно бедро"};
+    const Zone *z;
+    int n = zonesOf(&z);
+    for (int i = 0; i < n; i++) {
+        if (!qstrcmp(z[i].name, REGION[region])) return i;
+        if (!qstrcmp(z[i].name, "Бедра") && (region == 2 || region == 9)) return i;   // bodytech: both thighs
+    }
+    return -1;
+}
+
+// The XEMS figures of the session's sex (owner: female by default), front | back, every zone in XBody's red as strong
+// as its impulse now; a selected zone that gives nothing is tinted lightly (as XBody lights its selection). false =
+// the figures are not on the card (an old mod): XBody's own picture is painted instead.
+bool PanelWidget::paintFigures(QPainter &p) {
+    Suit *s = app_->suit();
+    int sex = app_->female() ? 1 : 0;
+    if (figsSex_ != sex) {
+        const char *d = std::getenv("XEMS_BODY");
+        QString dir = QString::fromLocal8Bit(d ? d : "/opt/xems/body"), key = sex ? U("female") : U("male");
+        figs_[0].load(dir, key + U("_front"));
+        figs_[1].load(dir, key + U("_back"));
+        figsSex_ = sex;
+    }
+    if (!figs_[0].ok() || !figs_[1].ok()) return false;
+    const QColor light(0xF4, 0xA0, 0xA3);
+    unsigned col[BodyFig::REGIONS];
+    int alpha[BodyFig::REGIONS];
+    const Zone *z;
+    zonesOf(&z);
+    for (int r = 0; r < BodyFig::REGIONS; r++) {
+        int zi = zoneOfRegion(r);
+        col[r] = RED.rgb() & 0xFFFFFF;
+        alpha[r] = 0;
+        if (zi < 0) continue;
+        double t = s->liveLevel(z[zi].ch[0]) / 100.0;
+        if (t > 0) {
+            double k = t / 0.8 > 1 ? 1.0 : t / 0.8;   // in step with the impulse: deep red from 80 % (as the tablet app)
+            // the second impulse (double impulse, in the pause) in XBody's yellow — the main one in its red
+            bool second = s->state() == Suit::RUNNING && !s->impulse();
+            col[r] = (second ? mix(QColor(0xFF, 0xE2, 0x8A), QColor(0xF5, 0xA6, 0x00), k) : mix(light, RED, k)).rgb() & 0xFFFFFF;
+            alpha[r] = (int)(28 + 72 * k);
+        } else if (sel_ & (1u << zi)) {
+            alpha[r] = 30;
+        }
+    }
+    for (int f = 0; f < 2; f++) {
+        BodyFig &b = figs_[f];
+        b.paint(col, alpha);
+        QRect r((f ? 510 : 300) - b.width() / 2, 106, b.width(), b.height());
+        figRect_[f] = r;
+        p.drawImage(r.topLeft(), b.art());
+        p.drawImage(r.topLeft(), b.over());
+        hit(r, U("fig:%1").arg(f));
+    }
+    return true;
+}
+
 void PanelWidget::paintTrain(QPainter &p) {
     Suit *s = app_->suit();
     const Program &pr = s->program();
@@ -829,8 +900,9 @@ void PanelWidget::paintTrain(QPainter &p) {
 
     const Zone *z;
     int nz = zonesOf(&z), nl = Suit::zonesLeft(s->kind());
-    // ---- the body, front and back; the selected zones lit ----
-    if (const QPixmap *body = pix("BodyNormal")) {
+    // ---- the body, front and back: the XEMS figures (each zone as red as its impulse), else XBody's own ----
+    if (paintFigures(p)) {
+    } else if (const QPixmap *body = pix("BodyNormal")) {
         p.drawPixmap(153, 45, *body);
         for (int i = 0; i < nz; i++)
             for (int m = 0; m < 2; m++)
@@ -854,7 +926,7 @@ void PanelWidget::paintTrain(QPainter &p) {
     bool warn = toastOn || app_->noteWarn();
     QString sub = n;
     if (sub.isEmpty())
-        sub = (bt ? U("bodytech") : app_->wiring() == Suit::WIRE_XBODY ? U("XEMS · кабели XBody") : U("XEMS")) +
+        sub = (bt ? U("bodytech") : s->kind() == Suit::WIEMS ? U("WiEMS") : app_->wiring() == Suit::WIRE_XBODY ? U("XEMS · кабели XBody") : U("XEMS")) +
               U("   ·   батерия ") + (s->battery() < 0 ? U("—") : QString::number(s->battery()) + U("%"));
     paintHeader(p, QString::fromStdString(app_->suitName()).toUpper(), sub, !n.isEmpty() && warn, !n.isEmpty() && !warn);
     if (n.isEmpty()) battery(p, QRect(400 + QFontMetrics(uiFont(14, true)).width(sub) / 2 + 10, 37, 24, 12), s->battery());
@@ -867,7 +939,9 @@ void PanelWidget::paintTrain(QPainter &p) {
     p.setPen(running ? GREY : SOFT);
     p.setFont(uiFont(14, true));
     p.drawText(QRect(653, 30, 147, 22), Qt::AlignCenter,
-               QString::number(pr.onS) + U("/") + QString::number(pr.offS) + U(" s · ") + QString::number(pr.us) + U(" µs"));
+               QString::number(pr.onS) + U("/") + QString::number(pr.offS) + U(" s · ") +
+                   (s->kind() == Suit::WIEMS ? QString::number(pr.totalS / 60) + U(" мин") : QString::number(pr.us) + U(" µs")) +
+                   (pr.dbl ? U(" · 2×") : QString()));
     hit(prog, U("prog"));
 
     // ---- the zone buttons in XBody's two columns ----
@@ -1041,7 +1115,7 @@ void PanelWidget::pill(QPainter &p, const QRect &r, const QString &value, const 
             p.setBrush(PRESS);
             p.drawEllipse(QRectF(k).adjusted(4, 4, -4, -4));
         }
-        p.setPen(QPen(INK, 2.5, Qt::SolidLine, Qt::RoundCap));
+        p.setPen(QPen(enabled ? INK : LINE, 2.5, Qt::SolidLine, Qt::RoundCap));
         QPointF c = QRectF(k).center();
         p.drawLine(QPointF(c.x() - 9, c.y()), QPointF(c.x() + 9, c.y()));
         if (i) p.drawLine(QPointF(c.x(), c.y() - 9), QPointF(c.x(), c.y() + 9));
@@ -1072,35 +1146,38 @@ void PanelWidget::paintSheet(QPainter &p) {
 
     // ---- left: the program ----
     const Program &q = sheetProg_;
-    caption(p, 64, 98, U("ПРОГРАМА"));
-    const char *labels[3] = {"Честота", "Ширина на импулса", "Времетраене"};
-    QString values[3] = {QString::number(q.hz) + U(" Hz"), QString::number(q.us) + U(" µs"),
-                         QString::number(q.totalS / 60) + U(" мин")};
-    const char *fields[3] = {"hz", "us", "total"};
-    for (int i = 0; i < 3; i++) {
-        int y = 124 + i * 64;
+    Suit *running = app_->suit() && app_->suit()->state() == Suit::RUNNING ? app_->suit() : 0;
+    caption(p, 64, 98, running ? U("ПРОГРАМА · СМЕНЯ СЕ НА ПАУЗА") : U("ПРОГРАМА"));
+    const char *labels[4] = {"Честота", "Ширина на импулса", "Времетраене", "Рампа"};
+    QString values[4] = {QString::number(q.hz) + U(" Hz"), QString::number(q.us) + U(" µs"),
+                         QString::number(q.totalS / 60) + U(" мин"),
+                         QString::number(q.rampMs / 1000) + U(",") + QString::number(q.rampMs % 1000 / 100) + U(" s")};
+    const char *fields[4] = {"hz", "us", "total", "ramp"};
+    for (int i = 0; i < 4; i++) {
+        int y = 116 + i * 56;
         p.setPen(INK);
         p.setFont(uiFont(16));
-        p.drawText(QRect(64, y, 160, 52), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap, U(labels[i]));
-        pill(p, QRect(222, y, 186, 52), values[i], U(fields[i]));
+        p.drawText(QRect(64, y, 160, 48), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap, U(labels[i]));
+        bool unitOwn = i == 1 && app_->suit() && app_->suit()->kind() == Suit::WIEMS;   // WiEMS keeps its own widths
+        pill(p, QRect(222, y, 186, 48), unitOwn ? U("по модула") : values[i], U(fields[i]), !running && !unitOwn);
     }
-    // Impulse / pause: the rhythm as a picture (green = work, grey = rest), each part with its own pill.
+    // Impulse / pause: the rhythm as a picture (green = work, grey = rest — yellow with the double impulse).
     p.setPen(INK);
     p.setFont(uiFont(16));
-    p.drawText(QRect(64, 316, 300, 24), Qt::AlignLeft | Qt::AlignVCenter, U("Ритъм"));
-    QRect bar(64, 346, 344, 12);
+    p.drawText(QRect(64, 342, 300, 24), Qt::AlignLeft | Qt::AlignVCenter, U("Ритъм"));
+    QRect bar(64, 370, 344, 10);
     int on = q.onS, off = q.offS, wOn = bar.width() * on / (on + off > 0 ? on + off : 1);
     p.setPen(Qt::NoPen);
-    p.setBrush(QColor(0xE3, 0xE4, 0xE6));
-    p.drawRoundedRect(QRectF(bar), 6, 6);
+    p.setBrush(q.dbl ? QColor(0xFF, 0xD9, 0x66) : QColor(0xE3, 0xE4, 0xE6));
+    p.drawRoundedRect(QRectF(bar), 5, 5);
     p.setBrush(GREEN);
-    p.drawRoundedRect(QRectF(bar.left(), bar.top(), wOn, bar.height()), 6, 6);
-    QRect pOn(64, 372, 166, 52), pOff(242, 372, 166, 52);
-    pill(p, pOn, QString::number(on) + U(" s"), U("on"));
-    pill(p, pOff, QString::number(off) + U(" s"), U("off"));
+    p.drawRoundedRect(QRectF(bar.left(), bar.top(), wOn, bar.height()), 5, 5);
+    QRect pOn(64, 390, 166, 48), pOff(242, 390, 166, 48);
+    pill(p, pOn, QString::number(on) + U(" s"), U("on"), !running);
+    pill(p, pOff, QString::number(off) + U(" s"), U("off"), !running);
     p.setFont(uiFont(14, true));
     p.setPen(GREEN);
-    p.drawText(QRect(pOn.left(), 426, pOn.width(), 22), Qt::AlignCenter, U("импулс"));
+    p.drawText(QRect(pOn.left(), 438, pOn.width(), 22), Qt::AlignCenter, U("импулс"));
     p.setPen(SOFT);
     p.drawText(QRect(pOff.left(), 426, pOff.width(), 22), Qt::AlignCenter, U("пауза"));
 
@@ -1138,7 +1215,7 @@ void PanelWidget::paintSheet(QPainter &p) {
             p.setPen(sel ? WHITE : INK);
             p.setFont(uiFont(18, sel));
             p.drawText(h, Qt::AlignCenter, (sel ? U("✓ ") : QString()) + (i ? U("XEMS") : U("XBody")));
-            hit(h, id);
+            if (!running) hit(h, id);
         }
         p.setPen(SOFT);
         p.setFont(uiFont(14));
@@ -1148,8 +1225,27 @@ void PanelWidget::paintSheet(QPainter &p) {
         y += 160;
     }
     caption(p, 456, y, U("КЛИЕНТ"));
+    // the figures' sex on the caption's line: a small segmented control, the chosen half red; works mid-training too
+    QRect sx(566, y - 9, 170, 38);
+    p.setPen(QPen(LINE, 2));
+    p.setBrush(WHITE);
+    p.drawRoundedRect(QRectF(sx).adjusted(1, 1, -1, -1), 8, 8);
+    for (int i = 0; i < 2; i++) {
+        QRect h(sx.left() + i * 85, sx.top(), 85, sx.height());
+        bool chosen = app_->female() == (i == 0);
+        QString id = i ? U("sex-m") : U("sex-f");
+        if (chosen || pressed_ == id) {
+            p.setPen(Qt::NoPen);
+            p.setBrush(chosen ? RED : PRESS);
+            p.drawRoundedRect(QRectF(h).adjusted(3, 3, -3, -3), 6, 6);
+        }
+        p.setPen(chosen ? WHITE : INK);
+        p.setFont(uiFont(15, chosen));
+        p.drawText(h, Qt::AlignCenter, i ? U("Мъж") : U("Жена"));
+        hit(h, id);
+    }
     QRect age(456, y + 28, 280, 56);
-    outlined(p, age, U("age60"), QString(), 0, false);
+    outlined(p, age, running ? QString() : U("age60"), QString(), 0, false);
     p.setPen(INK);
     p.setFont(uiFont(17));
     p.drawText(age.adjusted(16, 0, -90, 0), Qt::AlignLeft | Qt::AlignVCenter, U("Над 60 години"));
@@ -1165,23 +1261,23 @@ void PanelWidget::paintSheet(QPainter &p) {
         p.drawText(QRect(456, y + 88, 280, 22), Qt::AlignLeft | Qt::AlignVCenter, U("✓ Честотата спира до 85 Hz"));
     }
 
-    // ---- what the session will be, derived from the values (nothing to set here) ----
-    QRect sum(456, 352, 280, 100);
+    // ---- the double impulse: a second, low impulse in the pause (switch on the caption's line, then Hz / %) ----
+    caption(p, 456, 356, U("ДВОЕН ИМПУЛС"));
+    QRect dsw(656, 350, 80, 30);
     p.setPen(Qt::NoPen);
-    p.setBrush(QColor(0xF4, 0xF5, 0xF6));
-    p.drawRoundedRect(QRectF(sum), 10, 10);
-    caption(p, 472, 362, U("СЕСИЯТА"));
+    p.setBrush(q.dbl ? YELLOW : QColor(0xD5, 0xD7, 0xDA));
+    p.drawRoundedRect(QRectF(dsw), 15, 15);
+    p.setBrush(WHITE);
+    p.drawEllipse(QRectF(q.dbl ? dsw.right() - 27 : dsw.left() + 3, dsw.top() + 3, 24, 24));
+    if (!running) hit(dsw.adjusted(-90, -6, 0, 6), U("dbl"));
+    pill(p, QRect(456, 388, 136, 48), QString::number(q.dblHz) + U(" Hz"), U("dblhz"), q.dbl && !running);
+    pill(p, QRect(600, 388, 136, 48), QString::number(q.dblPct) + U("%"), U("dblpct"), q.dbl && !running);
+    // what the session will be, derived (nothing to set): one line
     int cycles = q.onS + q.offS > 0 ? q.totalS / (q.onS + q.offS) : 0;
-    p.setPen(INK);
-    p.setFont(uiFont(34, true));
-    QString cn = QString::number(cycles);
-    int cw = QFontMetrics(uiFont(34, true)).width(cn);
-    p.drawText(QRect(472, 384, cw + 4, 44), Qt::AlignLeft | Qt::AlignVCenter, cn);
     p.setPen(SOFT);
-    p.setFont(uiFont(15));
-    p.drawText(QRect(480 + cw, 384, 240 - cw, 22), Qt::AlignLeft | Qt::AlignVCenter, U("импулса"));
-    p.drawText(QRect(480 + cw, 406, 240 - cw, 22), Qt::AlignLeft | Qt::AlignVCenter,
-               QString::number(q.onS * cycles / 60) + U(" мин работа"));
+    p.setFont(uiFont(14));
+    p.drawText(QRect(456, 440, 280, 24), Qt::AlignLeft | Qt::AlignVCenter,
+               QString::number(cycles) + U(" импулса · ") + QString::number(q.onS * cycles / 60) + U(" мин работа"));
 
     // ---- footer ----
     p.setPen(QPen(QColor(0xE3, 0xE4, 0xE6), 1));
@@ -1292,6 +1388,9 @@ static void stepField(Program &q, const QString &f, int d, bool age60) {
     else if (f == QLatin1String("on")) q.onS = qBound(1, q.onS + d, 10);
     else if (f == QLatin1String("off")) q.offS = qBound(1, q.offS + d, 30);
     else if (f == QLatin1String("total")) q.totalS = qBound(60, q.totalS + d * 60, 3600);
+    else if (f == QLatin1String("ramp")) q.rampMs = qBound(500, q.rampMs + d * 500, 5000);
+    else if (f == QLatin1String("dblhz")) q.dblHz = qBound(1, q.dblHz + d, q.hz - 1 < 10 ? (q.hz > 1 ? q.hz - 1 : 1) : 10);
+    else if (f == QLatin1String("dblpct")) q.dblPct = qBound(10, q.dblPct + d * 10, 150);
 }
 
 static bool isStepper(const QString &id) {
@@ -1353,6 +1452,13 @@ void PanelWidget::act(const QString &id, bool repeat) {
         return;
     }
     if (id.startsWith(QLatin1String("suit:"))) { app_->connectTo(id.mid(5).toStdString()); return; }
+    if (id.startsWith(QLatin1String("fig:"))) {   // a muscle on the figure: its zone into / out of the selection
+        int f = id.mid(4).toInt();
+        int r = figs_[f].regionAt(pressAt_.x() - figRect_[f].left(), pressAt_.y() - figRect_[f].top());
+        int zi = r >= 0 ? zoneOfRegion(r) : -1;
+        if (zi >= 0) sel_ ^= 1u << zi;
+        return;
+    }
     if (id.startsWith(QLatin1String("z:"))) {   // tap = into / out of the selection (as on XBody)
         unsigned b = 1u << id.mid(2).toInt();
         sel_ = (sel_ & b) ? sel_ & ~b : sel_ | b;
@@ -1363,8 +1469,7 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("go")) { app_->startPause(); return; }
     if (id == QLatin1String("stop")) { app_->stopRun(); return; }
     if (id == QLatin1String("prog") && s) {
-        if (s->state() == Suit::RUNNING) { toast(U("Програмата се сменя на пауза")); return; }
-        sheetProg_ = s->program();
+        sheetProg_ = s->program();   // running: the sheet opens for the client (sex); the program waits for a pause
         sheetAge60_ = app_->age60();
         sheetWiring_ = app_->wiring();
         info_ = false;
@@ -1377,10 +1482,17 @@ void PanelWidget::act(const QString &id, bool repeat) {
         return;
     }
     if (id == QLatin1String("sheet-cancel")) { sheet_ = false; return; }
+    if (id == QLatin1String("dbl")) { sheetProg_.dbl = !sheetProg_.dbl; return; }
     if (id == QLatin1String("sheet-ok")) {
-        app_->setWiring(sheetWiring_);
-        app_->applyProgram(sheetProg_, sheetAge60_);
+        if (!s || s->state() != Suit::RUNNING) {
+            app_->setWiring(sheetWiring_);
+            app_->applyProgram(sheetProg_, sheetAge60_);
+        }
         sheet_ = false;
+        return;
+    }
+    if (id == QLatin1String("sex-f") || id == QLatin1String("sex-m")) {   // the figures change at once
+        app_->setFemale(id == QLatin1String("sex-f"));
         return;
     }
     if (id == QLatin1String("wire-xbody")) { sheetWiring_ = Suit::WIRE_XBODY; return; }
@@ -1404,6 +1516,7 @@ void PanelWidget::drag(const QPoint &d) {
 
 void PanelWidget::mousePressEvent(QMouseEvent *e) {
     QPoint d = toDesign(e->pos());
+    pressAt_ = d;
     pressed_ = idAt(d);
     pressMs_ = repeatMs_ = app_->now();
     if (pressed_ == QLatin1String("slider")) drag(d);
@@ -1457,12 +1570,14 @@ QString PanelWidget::signature(QString *clock) const {
     g += U("|") + QString::fromStdString(app_->suitName()) +
          U("|%1 %2 %3 %4 %5 %6").arg(s->state()).arg(s->impulse()).arg(s->strength()).arg(s->battery())
              .arg(s->startPending()).arg(s->preparing());
-    g += U("|%1 %2 %3 %4 %5").arg(pr.hz).arg(pr.us).arg(pr.onS).arg(pr.offS).arg(pr.totalS);
-    for (int i = 0; i < s->channels(); i++) g += U(",") + QString::number(s->channel(i));
+    g += U("|%1 %2 %3 %4 %5 %6").arg(pr.hz).arg(pr.us).arg(pr.onS).arg(pr.offS).arg(pr.totalS).arg(pr.dbl);
+    for (int i = 0; i < s->channels(); i++) g += U(",") + QString::number(s->channel(i)) + U("/") + QString::number(s->liveLevel(i));
+    g += QString::number(app_->female());
     if (s->startPending()) g += QString::number((now / 400) % 4);
     if (sheet_)
         g += U("|%1 %2 %3 %4 %5 %6").arg(sheetProg_.hz).arg(sheetProg_.us).arg(sheetProg_.onS).arg(sheetProg_.offS)
-                 .arg(sheetProg_.totalS).arg(sheetAge60_);
+                 .arg(sheetProg_.totalS).arg(sheetAge60_) +
+             U("|%1 %2 %3 %4").arg(sheetProg_.rampMs).arg(sheetProg_.dbl).arg(sheetProg_.dblHz).arg(sheetProg_.dblPct);
     *clock = U("%1 %2").arg(s->secondsLeft(now)).arg(s->state() == Suit::RUNNING ? (s->phaseMsLeft(now) + 999) / 1000 : -1);
     return g;
 }
@@ -1526,6 +1641,13 @@ void TabWidget::paintEvent(QPaintEvent *) {
     p.setFont(uiFont((int)(18 * k), true));
     p.drawText(QRect((int)(12 * k), 0, (int)(64 * k), height()), Qt::AlignLeft | Qt::AlignVCenter, U("XEMS"));
     QRect st((int)(70 * k), 0, width() - (int)(82 * k), height());
+    if (app_->sessions() > 0) {   // each suit has its own tab below: this one adds another
+        bool more = app_->sessions() < App::MAX_SESSIONS;
+        p.setPen(more ? INK : LINE);
+        p.setFont(uiFont((int)(26 * k), true));
+        p.drawText(st, Qt::AlignRight | Qt::AlignVCenter, more ? U("+") : U("4/4"));
+        return;
+    }
     if (running || paused) {
         p.setPen(running ? GREEN : QColor(0xC8, 0x96, 0x00));
         p.setFont(uiFont((int)(18 * k), true));
@@ -1579,6 +1701,10 @@ void TabWidget::mouseReleaseEvent(QMouseEvent *) {
         QSettings st(QString::fromLocal8Bit(std::getenv("XEMS_CONF") ? std::getenv("XEMS_CONF") : "/opt/xems/panel.conf"),
                      QSettings::IniFormat);
         st.setValue("tab/pos", pos());
+    } else if (app_->sessions() > 0 && app_->sessions() < App::MAX_SESSIONS) {
+        app_->showPick();
+    } else if (app_->sessions() > 0) {
+        app_->showSession(app_->current() >= 0 ? app_->current() : 0);
     } else {
         app_->openPanel();
     }
@@ -1594,11 +1720,108 @@ void TabWidget::timerEvent(QTimerEvent *) {
     g += U(" %1%2").arg(app_->cable().wiring).arg(app_->cable().dbl) + QString::fromStdString(app_->cable().program) +
          app_->phoneLink().pending;
     if (s) g += U(" %1 %2").arg(s->state()).arg(s->state() == Suit::IDLE ? 0 : s->secondsLeft(app_->now()));
+    g += U(" n%1").arg(app_->sessions());
     if (g != sig_) update();
     sig_ = g;
 }
 
 void TabWidget::tapAt(const QPoint &p) {
+    QMouseEvent d(QEvent::MouseButtonPress, p, mapToGlobal(p), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(this, &d);
+    QMouseEvent u(QEvent::MouseButtonRelease, p, mapToGlobal(p), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(this, &u);
+}
+
+// ---------------------------------------------------------------- session tabs
+
+SessionTab::SessionTab(App *app, int index)
+    : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool), app_(app), index_(index), down_(false),
+      downStop_(false) {
+    QRect scr = QApplication::desktop()->screenGeometry();
+    double k = scr.height() / 600.0;
+    resize((int)(230 * k), (int)(48 * k));
+    QPainterPath shape;
+    shape.addRoundedRect(QRectF(rect()), 8 * k, 8 * k);
+    setMask(QRegion(shape.toFillPolygon().toPolygon()));
+    hide();
+    timer_.start(250, this);
+}
+
+QRect SessionTab::stopRect() const {
+    double k = height() / 48.0;
+    return QRect(width() - (int)(52 * k), (int)(5 * k), (int)(46 * k), height() - (int)(10 * k));
+}
+
+void SessionTab::paintEvent(QPaintEvent *) {
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    double k = height() / 48.0;
+    Suit *s = app_->sessionSuit(index_);
+    if (!s) return;
+    bool running = s->state() == Suit::RUNNING, paused = s->state() == Suit::PAUSED;
+    bool counting = s->startPending();
+    QColor edge = running ? GREEN : paused || counting ? YELLOW : LINE;
+    p.fillRect(rect(), WHITE);
+    p.setPen(QPen(edge, (running || paused ? 3 : 2) * k));
+    p.setBrush(down_ && !downStop_ ? PRESS : WHITE);
+    p.drawRoundedRect(QRectF(rect()).adjusted(1.5 * k, 1.5 * k, -1.5 * k, -1.5 * k), 8 * k, 8 * k);
+    QRect stop = stopRect();
+    int textRight = stop.left() - (int)(6 * k);
+    // the time (or the state) next to STOP, the suit's name in what is left
+    QString t = running || paused ? mmss(s->secondsLeft(app_->now())) : counting ? U("МИГ…") : U("готов");
+    p.setFont(uiFont((int)(17 * k), true));
+    int tw = QFontMetrics(p.font()).width(t);
+    p.setPen(running ? GREEN : paused || counting ? QColor(0xC8, 0x96, 0x00) : SOFT);
+    p.drawText(QRect(textRight - tw, 0, tw, height()), Qt::AlignRight | Qt::AlignVCenter, t);
+    p.setPen(INK);
+    p.setFont(uiFont((int)(14 * k), true));
+    QRect nr((int)(10 * k), 0, textRight - tw - (int)(16 * k), height());
+    QString n = QFontMetrics(p.font()).elidedText(QString::fromStdString(app_->sessionName(index_)), Qt::ElideRight, nr.width());
+    p.drawText(nr, Qt::AlignLeft | Qt::AlignVCenter, n);
+    // ■ STOP: red while something can be stopped, grey when the suit is idle
+    bool live = running || paused || counting;
+    p.setPen(Qt::NoPen);
+    p.setBrush(live ? (down_ && downStop_ ? QColor(0xB0, 0x10, 0x18) : RED) : PRESS);
+    p.drawRoundedRect(QRectF(stop), 6 * k, 6 * k);
+    p.setBrush(live ? WHITE : LINE);
+    int q = (int)(14 * k);
+    p.drawRect(QRect(stop.center().x() - q / 2, stop.center().y() - q / 2, q, q));
+}
+
+void SessionTab::mousePressEvent(QMouseEvent *e) {
+    down_ = true;
+    downStop_ = stopRect().contains(e->pos());
+    update();
+}
+
+void SessionTab::mouseReleaseEvent(QMouseEvent *e) {
+    bool stop = downStop_ && stopRect().contains(e->pos());
+    bool open = down_ && !downStop_ && rect().contains(e->pos());
+    down_ = downStop_ = false;
+    if (stop) app_->stopSession(index_);
+    else if (open) app_->showSession(index_);
+    update();
+}
+
+void SessionTab::timerEvent(QTimerEvent *) {
+    bool want = index_ < app_->sessions() && !app_->panelOpen();
+    if (want != isVisible()) setVisible(want);
+    if (!want) { sig_.clear(); return; }
+    // under the XEMS tab (it can be dragged): one row per session
+    QPoint c = app_->tabCorner();
+    QPoint at(c.x(), c.y() + (int)(4 * height() / 48.0) + index_ * (height() + (int)(4 * height() / 48.0)));
+    QRect scr = QApplication::desktop()->screenGeometry();
+    if (at.x() + width() > scr.right()) at.setX(scr.right() - width());
+    if (at != pos()) move(at);
+    raise();
+    Suit *s = app_->sessionSuit(index_);
+    QString g = QString::number(down_) + QString::number(downStop_) + QString::fromStdString(app_->sessionName(index_));
+    if (s) g += U(" %1 %2 %3").arg(s->state()).arg(s->startPending()).arg(s->state() == Suit::IDLE ? 0 : s->secondsLeft(app_->now()));
+    if (g != sig_) update();
+    sig_ = g;
+}
+
+void SessionTab::tapAt(const QPoint &p) {
     QMouseEvent d(QEvent::MouseButtonPress, p, mapToGlobal(p), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     QApplication::sendEvent(this, &d);
     QMouseEvent u(QEvent::MouseButtonRelease, p, mapToGlobal(p), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);

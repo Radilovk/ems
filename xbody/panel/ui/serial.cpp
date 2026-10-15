@@ -85,7 +85,8 @@ void FakeBridge::write(const std::string &s) {
     else if (cmd == "SCAN") { scanning_ = rest == "1"; say(scanning_ ? "SCANNING 1" : "SCANNING 0"); }
     else if (cmd == "CONN") {
         linked_ = mac;
-        say("LINK " + mac + (mac == "02:BC:34:D6:2D:93" ? " FE50" : " FFF0"));
+        say("LINK " + mac + (mac == "02:BC:34:D6:2D:93" ? " FE50" : mac == "88:6B:0F:CC:BE:49" ? " WIEMS" : " FFF0"));
+        if (mac == "88:6B:0F:CC:BE:49") say("N " + mac + " 1051");   // WiEMS battery notification, 81 %
     } else if (cmd == "DISC") { say("LOST " + mac + " 22"); linked_.clear(); }
     else if (cmd == "SAFE") say("SAFEOK " + mac);
     else if (cmd == "W") {
@@ -96,6 +97,8 @@ void FakeBridge::write(const std::string &s) {
             int s = 0x53 + 5 + 6 + battery_ + 0;
             std::snprintf(n, sizeof n, "N %s 530506%02X00%02X", mac.c_str(), battery_, s & 255);
             say(n);
+        } else if (hx == "0425") {   // WiEMS start: its count-down is over ("01" on the run characteristic)
+            say("N " + mac + " 0401");
         } else if (hx == "3600010801" "0000C9") {
             say("N " + mac + " 36000108010622C9");
         }
@@ -107,6 +110,7 @@ void FakeBridge::poll(unsigned now) {
         lastAdvMs_ = now;
         say("ADV C4:7F:0E:21:A3:5B -58 FFF0 NB-2231");
         say("ADV 02:BC:34:D6:2D:93 -66 FE50 EMS08-05629");
+        say("ADV 88:6B:0F:CC:BE:49 -60 WIEMS WIEMS_-_EMS_Device");
         say("ADV 5A:11:90:CC:02:7E -81 - Mi_Band_10");
     }
 }

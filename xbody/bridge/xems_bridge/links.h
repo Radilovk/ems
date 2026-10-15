@@ -2,16 +2,29 @@
 #pragma once
 #include <bluefruit.h>
 
-enum Prof { P_NONE = 0, P_FE50, P_FFF0, P_NUS };
-static const char *profName(int p) { return p == P_FE50 ? "FE50" : p == P_FFF0 ? "FFF0" : p == P_NUS ? "NUS" : "-"; }
+enum Prof { P_NONE = 0, P_FE50, P_FFF0, P_NUS, P_WIEMS };
+static const char *profName(int p) {
+  return p == P_FE50 ? "FE50" : p == P_FFF0 ? "FFF0" : p == P_NUS ? "NUS" : p == P_WIEMS ? "WIEMS" : "-";
+}
 
 static const uint8_t NUS_SVC[16] = {0x9E,0xCA,0xDC,0x24,0x0E,0xE5,0xA9,0xE0,0x93,0xF3,0xA3,0xB5,0x01,0x00,0x40,0x6E};
 static const uint8_t NUS_RX[16]  = {0x9E,0xCA,0xDC,0x24,0x0E,0xE5,0xA9,0xE0,0x93,0xF3,0xA3,0xB5,0x02,0x00,0x40,0x6E};
 static const uint8_t NUS_TX[16]  = {0x9E,0xCA,0xDC,0x24,0x0E,0xE5,0xA9,0xE0,0x93,0xF3,0xA3,0xB5,0x03,0x00,0x40,0x6E};
 
+// WiEMS unit (wiems/PROTOCOL.md): one value per characteristic of service 7764d8fe-c6a9-11e4-8731-1681e6b88ec1.
+// UUIDs little endian. A host write is [selector, value…] (wi:: in xbody/panel/core/wiproto.h).
+static const uint8_t WI_SVC[16]  = {0xC1,0x8E,0xB8,0xE6,0x81,0x16,0x31,0x87,0xE4,0x11,0xA9,0xC6,0xFE,0xD8,0x64,0x77};
+static const uint8_t WI_CUR[16]  = {0xC1,0x8E,0xB8,0xE6,0x81,0x16,0x31,0x87,0xE4,0x11,0x17,0xC7,0xC6,0x06,0x6E,0x96};  // 966e06c6-c717
+static const uint8_t WI_PROG[16] = {0xC1,0x8E,0xB8,0xE6,0x81,0x16,0x31,0x87,0xE4,0x11,0x17,0xC7,0xAF,0x39,0x64,0x77};  // 776439af-c717
+static const uint8_t WI_REST[16] = {0xC1,0x8E,0xB8,0xE6,0x81,0x16,0x31,0x87,0xE4,0x11,0xA9,0xC6,0xBC,0xE8,0x64,0x77};  // 7764e8bc-c6a9
+static const uint8_t WI_WID[16]  = {0xC1,0x8E,0xB8,0xE6,0x81,0x16,0x31,0x87,0xE4,0x11,0xA9,0xC6,0x56,0xE5,0x64,0x77};  // 7764e556-c6a9
+static const uint8_t WI_RUN[16]  = {0xC1,0x8E,0xB8,0xE6,0x81,0x16,0x31,0x87,0xE4,0x11,0xA9,0xC6,0xA8,0xED,0x64,0x77};  // 7764eda8-c6a9
+enum { WI_OPS = 5, WI_N_RUN = 0x04, WI_N_BATTERY = 0x10 };
+
 struct Link {
-  BLEClientService fe50, fff0, nus;
+  BLEClientService fe50, fff0, nus, wi, bat;
   BLEClientCharacteristic fe51, fff1, fff2, nusRx, nusTx;
+  BLEClientCharacteristic wiCur, wiProg, wiRest, wiWid, wiRun, batLvl;
   uint16_t conn;
   int prof;
   uint8_t mac[6];
@@ -19,6 +32,11 @@ struct Link {
   uint8_t safeLen;
   Link() : fe50(BLEUuid((uint16_t)0xFE50)), fff0(BLEUuid((uint16_t)0xFFF0)), nus(BLEUuid(NUS_SVC)),
            fe51(BLEUuid((uint16_t)0xFE51)), fff1(BLEUuid((uint16_t)0xFFF1)), fff2(BLEUuid((uint16_t)0xFFF2)),
-           nusRx(BLEUuid(NUS_RX)), nusTx(BLEUuid(NUS_TX)), conn(BLE_CONN_HANDLE_INVALID), prof(P_NONE), safeLen(0) {}
+           nusRx(BLEUuid(NUS_RX)), nusTx(BLEUuid(NUS_TX)), wi(BLEUuid(WI_SVC)), bat(BLEUuid((uint16_t)0x180F)),
+           wiCur(BLEUuid(WI_CUR)), wiProg(BLEUuid(WI_PROG)), wiRest(BLEUuid(WI_REST)), wiWid(BLEUuid(WI_WID)),
+           wiRun(BLEUuid(WI_RUN)), batLvl(BLEUuid((uint16_t)0x2A19)), conn(BLE_CONN_HANDLE_INVALID), prof(P_NONE), safeLen(0) {}
   BLEClientCharacteristic *writer() { return prof == P_FE50 ? &fe51 : prof == P_FFF0 ? &fff2 : prof == P_NUS ? &nusRx : 0; }
+  BLEClientCharacteristic *wiOp(int sel) {
+    return sel == 0 ? &wiCur : sel == 1 ? &wiProg : sel == 2 ? &wiRest : sel == 3 ? &wiWid : sel == 4 ? &wiRun : 0;
+  }
 };

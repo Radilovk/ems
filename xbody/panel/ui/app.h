@@ -6,11 +6,13 @@
 #include "serial.h"
 #include <QBasicTimer>
 #include <QObject>
+#include <QPoint>
 #include <QString>
 #include <vector>
 
 class PanelWidget;
 class TabWidget;
+class SessionTab;
 
 struct Seen {
     std::string mac, name;
@@ -18,23 +20,49 @@ struct Seen {
     unsigned lastMs;
 };
 
+// One wireless suit / unit in training: each has its own training screen (the panel shows one at a time — XBody's
+// layout, the same for every kind) and its own tab with a STOP under the XEMS tab while XBody is in front.
+struct Session {
+    Suit *suit;
+    std::string mac, name;
+    Program prog;
+    bool age60;
+    int wiring;
+    bool female;   // the body figures (owner: female by default)
+};
+
 class App : public QObject {
 public:
     enum View { NO_BRIDGE, PICK, LINKING, TRAIN };
+    enum { MAX_SESSIONS = 4 };   // = the bridge's links
     App();
     ~App();
     void setWidgets(PanelWidget *p, TabWidget *t) { panel_ = p; tab_ = t; }
+    void addSessionTab(SessionTab *s) { stabs_.push_back(s); }
 
     unsigned now() const;
     View view() const;
     const std::vector<Seen> &seen() const { return seen_; }
-    Suit *suit() { return suit_; }
-    const std::string &suitName() const { return suitName_; }
+    // The session the panel shows (0 = the suit list).
+    Suit *suit() { return cur_ >= 0 && cur_ < (int)ses_.size() ? ses_[cur_].suit : 0; }
+    const std::string &suitName() const;
+    // ---- every session (the tabs) ----
+    int sessions() const { return (int)ses_.size(); }
+    Suit *sessionSuit(int i) { return i >= 0 && i < (int)ses_.size() ? ses_[i].suit : 0; }
+    std::string sessionName(int i) const { return i >= 0 && i < (int)ses_.size() ? ses_[i].name : std::string(); }
+    int current() const { return cur_; }
+    void showSession(int i);                      // its training screen
+    void showPick();                              // the suit list: one more suit
+    void stopSession(int i);                      // the tab's STOP: its outputs off now
+    bool panelOpen() const;
+    QPoint tabCorner() const;                      // where the XEMS tab is (the session tabs hang under it)
     const std::string &linkingMac() const { return linkingMac_; }
     QString note() const;
     bool noteWarn() const { return noteWarn_; }
     bool age60() const { return age60_; }
     int wiring() const { return wiring_; }        // Suit::WIRE_XEMS / WIRE_XBODY: the XEMS suit's cable standard
+    bool female() const;                          // the body figures of the session on the screen
+    void setFemale(bool f);                       // at once, also mid-training
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
     // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
     bool bridgeUpdating() const { return dfuSent_; }
@@ -74,24 +102,28 @@ protected:
 
 private:
     void line(const std::string &l, unsigned t);
+    int find(const std::string &mac) const;
+    void drop(int i, const QString &why);          // a session ends (link lost / forgotten)
     void send(const std::string &s);
     void setNote(const QString &s, bool warn);
     void save();
     void load();
-    void lost(const QString &why);
 
     BridgePort *port_;
     bool fake_;
     QBasicTimer timer_;
     unsigned t0_, helloMs_, lastPingMs_, lastOpenMs_, lastRxMs_;
     std::vector<Seen> seen_;
-    Suit *suit_;
-    std::string suitMac_, suitName_, linkingMac_, lastMac_;
+    std::vector<Session> ses_;
+    int cur_;
+    std::vector<SessionTab *> stabs_;
+    std::string linkingMac_, lastMac_;
     unsigned linkingSinceMs_;
     bool scanning_;
     Program prog_;
     bool age60_;
     int wiring_;
+    bool female_;
     int bridgeVer_, bundledVer_;
     bool dfuSent_;
     xbcable::Config cable_;

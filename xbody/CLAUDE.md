@@ -41,6 +41,8 @@ sh scripts/xbody/test.sh                               # must print ALL OK befor
 - Check UI in qemu (`scripts/xbody/emu-panel.sh … client`) before shipping.
 
 ## Rules
+- **One training screen for every suit** (owner): XBody's own training screen for XBody, XEMS, bodytech and WiEMS
+  alike — a new suit adds a driver (`panel/core`), never a different layout. The tablet's XEMS row likewise stays as is.
 - Device shell is busybox 1.22 ash: no bash-isms, no `sha256sum`, no `tar -T`; LF line endings.
 - Never put client data (DB, logs, `/Settings`) in git.
 - Touching `xbody/` or `scripts/xbody/` does not touch the APK → no `RELEASE_VERSION` bump.

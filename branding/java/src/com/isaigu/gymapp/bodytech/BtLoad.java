@@ -63,6 +63,10 @@ public final class BtLoad {
                 if (WAITING.containsKey(item)) {
                     return true;                                // ▶ again while it waits: still waiting
                 }
+                // a WiEMS unit is started here and counts down ~4 s; the row's clock runs when it really works
+                if (WiBridge.isWiems(d) && !WiBridge.armForStart(d)) {
+                    return false;
+                }
                 if (BtBridge.loadPercent(d) < 0) {
                     return false;
                 }

@@ -6,6 +6,7 @@
 // when something on it changed (signature check in timerEvent). No moc: virtual event handlers only.
 #pragma once
 #include "../core/suit.h"
+#include "bodyfig.h"
 #include <QBasicTimer>
 #include <QRect>
 #include <QString>
@@ -19,6 +20,7 @@ class PanelWidget : public QWidget {
 public:
     explicit PanelWidget(App *app);
     void tapAt(const QPoint &p);   // scripted taps (emulator), screen pixels
+    void sessionChanged();         // another suit on the screen: its own selection, no sheet left open
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -85,6 +87,12 @@ private:
     double k_;                     // screen pixels per design unit
     int ox_, oy_;                  // the design's origin on the screen (centred)
     QRect clockRect_;              // design rect the running clock repaints by itself
+    BodyFig figs_[2];              // the XEMS figures, front / back, of the session's sex
+    int figsSex_;                  // −1 none loaded, 0 male, 1 female
+    QRect figRect_[2];
+    QPoint pressAt_;               // where the finger went down (design): which muscle a tap on the figure hit
+    bool paintFigures(QPainter &p);
+    int zoneOfRegion(int region) const;
     QString sig_, clockSig_;       // what is on the screen now
 };
 
@@ -105,5 +113,28 @@ private:
     QBasicTimer timer_;
     QPoint pressGlobal_, startPos_;
     bool dragging_, down_;
+    QString sig_;
+};
+
+// One per wireless session, under the XEMS tab while XBody is in front: the suit's name and clock (green running,
+// yellow paused) and a red ■ STOP that switches its outputs off at once, without opening the panel. A tap elsewhere
+// opens that suit's training screen.
+class SessionTab : public QWidget {
+public:
+    SessionTab(App *app, int index);
+    void tapAt(const QPoint &p);
+
+protected:
+    void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void timerEvent(QTimerEvent *);
+
+private:
+    QRect stopRect() const;
+    App *app_;
+    int index_;
+    QBasicTimer timer_;
+    bool down_, downStop_;
     QString sig_;
 };

@@ -7,8 +7,12 @@ import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
+import android.hardware.usb.UsbRequest
+import android.os.Build
 import android.util.Base64
 import java.io.IOException
+import java.nio.ByteBuffer
+import java.util.concurrent.TimeoutException
 import java.security.KeyPair
 import java.security.interfaces.RSAPublicKey
 
@@ -89,13 +93,24 @@ class UsbAdb(private val context: Context) {
     interface Bulk {
         /** Bytes read into buf[0, len), or -1 on timeout / error. */
         fun read(buf: ByteArray, len: Int, timeoutMs: Int): Int
-        /** Bytes written from data[off, off+len), or -1 on timeout / error. */
+        /** Bytes written from data[off, off+len), or -1 on timeout / error; len 0 sends a zero-length packet. */
         fun write(data: ByteArray, off: Int, len: Int, timeoutMs: Int): Int
+        /** The OUT endpoint's packet size (512 on USB 2, 1024 on USB 3). */
+        val outPacket: Int get() = 512
     }
 
+    /**
+     * Reads go through a queued [UsbRequest] (API 26+): a read that times out stays queued and is picked up by the
+     * next call, as adb's own host keeps its URBs queued. A timed-out bulkTransfer cancels its URB instead, and a
+     * packet arriving at that moment is lost — during an install the headset mostly sends tiny OKAYs, one lost
+     * OKAY and the host waits for it for good.
+     */
     class UsbBulk(private val conn: UsbDeviceConnection, iface: UsbInterface) : Bulk {
         private val out: UsbEndpoint
         private val inp: UsbEndpoint
+        private var req: UsbRequest? = null          // the queued read, kept across timeouts
+        private var reqBuf: ByteBuffer? = null
+        private var reqLen = 0
 
         init {
             val eps = (0 until iface.endpointCount).map { iface.getEndpoint(it) }
@@ -104,7 +119,39 @@ class UsbAdb(private val context: Context) {
             inp = eps.firstOrNull { it.direction == UsbConstants.USB_DIR_IN } ?: throw IOException("no bulk in")
         }
 
-        override fun read(buf: ByteArray, len: Int, timeoutMs: Int) = conn.bulkTransfer(inp, buf, 0, len, timeoutMs)
+        override val outPacket: Int get() = out.maxPacketSize.takeIf { it > 0 } ?: 512
+
+        override fun read(buf: ByteArray, len: Int, timeoutMs: Int): Int {
+            if (Build.VERSION.SDK_INT < 26) return conn.bulkTransfer(inp, buf, 0, len, timeoutMs)
+            if (req != null && reqLen != len) {             // (never in practice: a timeout is retried with the same length)
+                req?.cancel(); req?.close(); req = null
+            }
+            if (req == null) {
+                val r = UsbRequest()
+                if (!r.initialize(conn, inp)) { r.close(); return -1 }
+                val b = ByteBuffer.allocate(len)
+                if (!r.queue(b)) { r.close(); return -1 }
+                req = r; reqBuf = b; reqLen = len
+            }
+            val done = try {
+                if (timeoutMs <= 0) conn.requestWait() else conn.requestWait(timeoutMs.toLong())
+            } catch (e: TimeoutException) {
+                return -1                                     // still queued: nothing is lost
+            } ?: return -1.also { drop() }
+            if (done !== req) return -1.also { drop() }
+            val b = reqBuf!!
+            val n = b.position()
+            System.arraycopy(b.array(), 0, buf, 0, n)
+            done.close()
+            req = null; reqBuf = null
+            return n
+        }
+
+        private fun drop() {
+            runCatching { req?.cancel(); req?.close() }
+            req = null; reqBuf = null
+        }
+
         override fun write(data: ByteArray, off: Int, len: Int, timeoutMs: Int) = conn.bulkTransfer(out, data, off, len, timeoutMs)
     }
 
@@ -129,12 +176,22 @@ class UsbAdb(private val context: Context) {
             if (payload.isNotEmpty()) write(payload)
         }
 
+        /**
+         * One adb message part as one USB transfer (in ≤ 16 KiB requests), ended by a zero-length packet when its size
+         * is a multiple of the packet size — exactly as adb's own hosts do (usb_linux / libusb "zero_mask"). adbd
+         * reads in 16 KiB blocks and a block only ends when full or at a short packet: without the ZLP a 4096- or
+         * 65 536-byte WRTE (what installs are made of) runs on into the next header, adbd stops with "received too many
+         * bytes" and the install hangs with no word.
+         */
         private fun write(data: ByteArray) {
             var off = 0
             while (off < data.size) {
                 val n = bulk.write(data, off, minOf(CHUNK, data.size - off), WRITE_TIMEOUT_MS)
                 if (n <= 0) throw IOException("usb write")
                 off += n
+            }
+            if (data.isNotEmpty() && data.size % bulk.outPacket == 0) {
+                if (bulk.write(data, 0, 0, WRITE_TIMEOUT_MS) < 0) throw IOException("usb zlp")
             }
         }
 

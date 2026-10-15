@@ -37,7 +37,57 @@ private class FakeBulk(val maxPacket: Int = 512) : UsbAdb.Bulk {
     override fun write(data: ByteArray, off: Int, len: Int, timeoutMs: Int): Int { written.add(data.copyOfRange(off, off + len)); return len }
 }
 
+/**
+ * adbd's side of the OUT pipe (daemon/usb.cpp, FunctionFS): it reads in 16 KiB blocks, a block ends when full or at a
+ * short packet (a zero-length one too); a header block must be exactly 24 bytes, a payload block may not run past
+ * the payload ("received too many bytes" → the connection is dropped).
+ */
+private class FakeAdbd(val maxPacket: Int = 512) {
+    private val blocks = ArrayList<Int>()          // sizes of the reads as adbd sees them
+    private var cur = 0
+    fun hostWrites(n: Int) {
+        if (n == 0) { blocks.add(cur); cur = 0; return }       // ZLP ends the read
+        var left = n
+        while (left > 0) {
+            val p = minOf(maxPacket, left)
+            cur += p; left -= p
+            if (p < maxPacket || cur == 16384) { blocks.add(cur); cur = 0 }
+        }
+    }
+    /** The messages adbd would accept: true when every message parsed in step. */
+    fun parses(payloads: List<Int>): Boolean {
+        val it = blocks.filter { it > 0 }.iterator()
+        for (len in payloads) {
+            if (!it.hasNext() || it.next() != 24) return false
+            var left = len
+            while (left > 0) {
+                if (!it.hasNext()) return false
+                val b = it.next()
+                if (b > left) return false
+                left -= b
+            }
+        }
+        return !it.hasNext() && cur == 0
+    }
+}
+
 class AdbIoTest {
+    @Test fun hostWritesEndEveryMessageWhereAdbdExpectsIt() {
+        val sizes = listOf(4096, 65536, 512, 0, 3000, 16384, 16384 + 512, 1, 1048576, 7680)
+        val bulk = FakeBulk()
+        val io = UsbAdb.Io(bulk)
+        sizes.forEach { io.send(AdbProtocol.Message(AdbProtocol.WRTE, 1, 2, ByteArray(it))) }
+        val adbd = FakeAdbd()
+        bulk.written.forEach { adbd.hostWrites(it.size) }
+        assertEquals(true, adbd.parses(sizes))
+    }
+
+    @Test fun withoutTheZeroLengthPacketAdbdWouldRunIntoTheNextHeader() {
+        val adbd = FakeAdbd()
+        adbd.hostWrites(24); adbd.hostWrites(4096); adbd.hostWrites(24)   // no ZLP after the 4096 bytes
+        assertEquals(false, adbd.parses(listOf(4096, 0)))
+    }
+
     private fun msg(cmd: Int, size: Int, seed: Int = 7) =
         AdbProtocol.Message(cmd, 1, 2, ByteArray(size) { (it * 31 + seed).toByte() })
 

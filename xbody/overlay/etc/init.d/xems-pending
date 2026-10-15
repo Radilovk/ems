@@ -1,0 +1,13 @@
+#!/bin/sh
+# rc5 S29, before the vendor's stick updater (S30) and XBody (S40): a mod the phone link downloaded
+# (/opt/xems/pending, the layout of a stick) is installed here by the stick's own installer — backups stay in
+# /opt/xems/pending/xems, its RESTORE undoes like on a stick. One run per download (updater.sh renames itself).
+P=/opt/xems/pending
+[ "$1" = start ] || exit 0
+[ -f $P/updater.sh ] || exit 0
+modprobe fbcon > /dev/null 2>&1
+echo "XEMS: installing the update from the phone" > /dev/tty0 2> /dev/null
+(cd $P && sh ./updater.sh)
+[ -f $P/updater.sh ] && mv $P/updater.sh $P/updater.failed.sh   # never a boot loop
+sync
+exit 0

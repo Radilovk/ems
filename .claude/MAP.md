@@ -161,20 +161,25 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-no-vendor-network.py` (53L, build:L191[BETA_MUSIC]) — Fail the build if a request path to the vendor's server is still open (apply-no-vendor-network.py).
 - `scripts/verify-vendor-access.py` (62L, build:L189) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L158[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
+- `scripts/xbody/android/src/bg/xems/fleshka/MainActivity.java` (474L) — XEMS за XBody — prepares the USB stick for the XBody unit from an Android phone or tablet (OTG), the same job PODGOTVI-…
+- `scripts/xbody/android/src/bg/xems/fleshka/PhoneServer.java` (115L) — The phone's side of the direct USB link: with USB tethering on, the XBody unit (opt/xems/bin/xems-link) asks http://<ph…
+- `scripts/xbody/android/test/PhoneServerMain.java` (29L) — Host test of the phone's link server (scripts/xbody/test.sh 7): serves a stick folder like the app's assets.
+- `scripts/xbody/build-android.sh` (56L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
 - `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
 - `scripts/xbody/build.py` (328L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
-- `scripts/xbody/emu-panel.sh` (42L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
+- `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
+- `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
 - `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
 - `scripts/xbody/qt-headers.sh` (33L) — Qt 4.8.6 headers matching the card's Qt Embedded (build key "arm linux g++-4 full-config", ARMv7 NEON softfp,
 - `scripts/xbody/relink.py` (54L) — Restore the shared-library symlinks the 7z dump flattened to 0-byte files.
 - `scripts/xbody/runroot.sh` (15L) — Runtime root for qemu-arm (-L): the card's /lib, /usr/lib (Qt, fonts, plugins) with the flattened symlinks
 - `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
-- `scripts/xbody/test-cable.py` (93L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
+- `scripts/xbody/test-cable.py` (96L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
 - `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
-- `scripts/xbody/test.sh` (156L) — XBody mod pipeline tests, no device needed:
-- `scripts/xbody/updater.sh` (100L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
+- `scripts/xbody/test.sh` (189L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/updater.sh` (106L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
 
@@ -797,26 +802,31 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L58 ## USB update hook (vendor)
   - L63 ## Pitfalls
 
-`docs/xbody-protocol.md` (76L)
+`docs/xbody-protocol.md` (83L)
   - L1 # XBody unit — internal protocols (decoded statically, no capture)
   - L7 ## Processes
-  - L17 ## Framing (both sockets, `XBCommPacket::Encode`)
-  - L21 ## GUI → xbody_control
-  - L33 ## xbody_control → board: `pc_emse` (38 bytes)
-  - L50 ## Hardware channel ↔ XBody body part
-  - L71 ## How it was read
+  - L19 ## Framing (both sockets, `XBCommPacket::Encode`)
+  - L23 ## GUI → xbody_control
+  - L35 ## xbody_control → board: `pc_emse` (38 bytes)
+  - L52 ## Hardware channel ↔ XBody body part
+  - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (155L)
-  - L1 # XEMS panel on the XBody unit (mod v9)
+`docs/xbody-xems-panel.md` (228L)
+  - L1 # XEMS panel on the XBody unit (mod v12)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
-  - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6)
-  - L61 ## Cable and wireless side by side, several wireless suits (mod v9)
-  - L75 ## Panel
-  - L109 ## Bridge line protocol (USB CDC, 115200)
-  - L120 ## Files
-  - L132 ## Build / test
-  - L148 ## First test on the unit (when the XIAO arrives)
+  - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
+  - L64 ## Cable and wireless side by side, several wireless suits (mod v12)
+  - L78 ## Ready passive programs on XBody's cable (mod v8)
+  - L90 ### Length and after-training procedures (mod v10)
+  - L119 ## Feedback from the stimulator (what XBody can know)
+  - L129 ## Phone → XBody over a USB cable (mod v9, no stick)
+  - L140 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L148 ## Panel
+  - L182 ## Bridge line protocol (USB CDC, 115200)
+  - L193 ## Files
+  - L205 ## Build / test
+  - L221 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1380,9 +1390,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## Facts so far
   - L67 ## Status
 
-`xbody/CLAUDE.md` (45L)
+`xbody/CLAUDE.md` (49L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
   - L5 ## Model
   - L16 ## Build (on request: "дай файла за картата")
-  - L33 ## Panel / bridge
-  - L39 ## Rules
+  - L37 ## Panel / bridge
+  - L43 ## Rules
+
+`xbody/panel/art/README.md` (15L)
+  - L1 # Program icons (XBody panel, "Програми")

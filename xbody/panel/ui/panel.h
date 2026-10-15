@@ -30,7 +30,7 @@ protected:
 
 private:
     struct Hit { QRect r; QString id; };
-    void hit(const QRect &r, const QString &id) { hits_.push_back(Hit()); hits_.back().r = r; hits_.back().id = id; }
+    void hit(const QRect &r, const QString &id) { hits_.push_back(Hit()); hits_.back().r = r.translated(0, dy_); hits_.back().id = id; }
     QString idAt(const QPoint &design) const;
     QPoint toDesign(const QPoint &screen) const;
     QRect toScreen(const QRect &design) const;
@@ -45,6 +45,8 @@ private:
 
     void paintHeader(QPainter &p, const QString &title, const QString &sub, bool subWarn, bool subOk);
     void paintCable(QPainter &p);
+    void paintCableSettings(QPainter &p);
+    void paintPrograms(QPainter &p);
     void paintCableInfo(QPainter &p);
     void paintPick(QPainter &p);
     void paintTrain(QPainter &p);
@@ -74,6 +76,8 @@ private:
     bool info_;                    // the cable table (ⓘ) over the sheet
     bool cableInfo_;               // the XBody-cable table (ⓘ) over the cable page
     bool showCable_;               // the cable page while a bridge is plugged (else it is the home)
+    int cableTab_;                 // 0 programs, 1 cable + double impulse
+    int dy_;                       // design offset of what is being painted (hit rects follow it)
     unsigned bubbleUntilMs_;       // the big % over the body (XBody's showPercent) stays until then
     QString toast_;
     unsigned toastUntilMs_;

@@ -1,0 +1,14 @@
+#!/bin/sh
+# udhcpc script for the phone link (xems-link): the address on usb0 only — no default route, no DNS (XBody keeps
+# its own network); the phone's address (the router option) goes to /tmp/xems-link.gw.
+case "$1" in
+bound|renew)
+	ifconfig "$interface" "$ip" netmask "${subnet:-255.255.255.0}" up
+	echo "${router%% *}" > /tmp/xems-link.gw
+	;;
+deconfig)
+	ifconfig "$interface" 0.0.0.0 2> /dev/null
+	rm -f /tmp/xems-link.gw
+	;;
+esac
+exit 0

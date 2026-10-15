@@ -56,6 +56,14 @@ like `BtBridge`, keep-alive, write-after-ACK pacing), settings page; patch `scri
 `verify-wiems.py`; offline test vs a simulator fed with the captured frames. Safety limits from
 `docs/xems-safety-limits.md` apply unchanged; first person test at low strength.
 
+## Facts so far
+- Wiems 1.8.45: bundle `com.medcab.wiems`, team `SNQSJMRGYB`, native Objective-C (CoreData, AFNetworking) →
+  a decrypted binary gives readable class/selector names with `class-dump`.
+- 2026-10-15, owner's iPad12,1 (iPad 9th gen) on iPadOS 26.6.1: Wiems crashed 17 s after launch, 50 s after boot
+  (EXC_BREAKPOINT in `__CFBasicHashRehash` ← `-[_NSFaultingMutableSet count]` ← app code on a background
+  queue: a CoreData threading race in the app, not ours; bluetoothd was active). A race → may pass on a retry;
+  else use Wiems Easy. Crash reports (`.ips`) carry no BLE data — the capture is the sysdiagnose `.pklg`.
+
 ## Status
 - [x] Store research, plan, decoder `wiems/pklg_att.py` (offline test: `sh wiems/test/run.sh`).
 - [ ] Owner: capture (route 1) with the step list + timestamps → `wiems/logs/`.

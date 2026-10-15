@@ -164,7 +164,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/android/src/bg/xems/fleshka/MainActivity.java` (474L) — XEMS за XBody — prepares the USB stick for the XBody unit from an Android phone or tablet (OTG), the same job PODGOTVI-…
 - `scripts/xbody/android/src/bg/xems/fleshka/PhoneServer.java` (115L) — The phone's side of the direct USB link: with USB tethering on, the XBody unit (opt/xems/bin/xems-link) asks http://<ph…
 - `scripts/xbody/android/test/PhoneServerMain.java` (29L) — Host test of the phone's link server (scripts/xbody/test.sh 7): serves a stick folder like the app's assets.
-- `scripts/xbody/build-android.sh` (54L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
+- `scripts/xbody/build-android.sh` (56L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
 - `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
 - `scripts/xbody/build.py` (328L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
@@ -1360,12 +1360,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
-`xbody/CLAUDE.md` (46L)
+`xbody/CLAUDE.md` (47L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
   - L5 ## Model
   - L16 ## Build (on request: "дай файла за картата")
-  - L36 ## Panel / bridge
-  - L42 ## Rules
+  - L37 ## Panel / bridge
+  - L43 ## Rules
 
 `xbody/panel/art/README.md` (15L)
   - L1 # Program icons (XBody panel, "Програми")

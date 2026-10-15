@@ -50,4 +50,6 @@ java -jar "$TOOLS/uber-apk-signer.jar" --apks "$T/unsigned.apk" -o "$T/signed" -
 OUT=$REPO/build/xbody-dist/xems-fleshka-v$V.apk
 cp "$(ls "$T"/signed/*.apk | head -1)" "$OUT"
 unzip -l "$OUT" | grep -q 'assets/fleshka/xems/payload.tar.gz' || { echo "build-android: payload missing in the APK"; exit 1; }
-echo "build-android: $OUT ($(wc -c < "$OUT") bytes, mod v$V)"
+mkdir -p "$REPO/xbody/dist"
+cp "$OUT" "$REPO/xbody/dist/xems-fleshka.apk"   # the latest one lives in git (commit it with the mod)
+echo "build-android: $OUT ($(wc -c < "$OUT") bytes, mod v$V) → xbody/dist/xems-fleshka.apk"

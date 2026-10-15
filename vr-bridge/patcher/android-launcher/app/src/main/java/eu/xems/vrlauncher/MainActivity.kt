@@ -123,7 +123,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     }
 
     private fun forgetCable() {
-        bridge?.stop(); bridge = null; bridgeId = -1
+        CableService.stop(applicationContext)
         usbHandled = -1
         usbAsked = -1
     }
@@ -141,7 +141,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         render()
         // The cable address means nothing once the cable is out → back to the Wi-Fi search.
         if (questField.text.toString().trim() == UsbBridge.SERIAL && UsbAdb.findQuest(this) == null) {
-            bridge?.stop(); bridge = null; bridgeId = -1
+            CableService.stop(applicationContext)
             questField.setText("")
         }
         if (!checkUsb()) autoStart()
@@ -191,8 +191,8 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     private fun checkUsb(): Boolean {
         val d = UsbAdb.findQuest(this) ?: return false
         // The relay of this very plug-in died (headset slept, adb reset): it is made again instead of trusted.
-        if (d.deviceId == bridgeId && bridge?.alive != true) forgetCable()
-        if (usbBusy || d.deviceId == usbHandled || d.deviceId == bridgeId) return usbBusy
+        if (d.deviceId == CableService.bridgeId && CableService.bridge?.alive != true) forgetCable()
+        if (usbBusy || d.deviceId == usbHandled || d.deviceId == CableService.bridgeId) return usbBusy
         val usb = getSystemService(UsbManager::class.java)
         if (!usb.hasPermission(d)) {
             if (usbAsked == d.deviceId) return false
@@ -228,9 +228,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         when (r.outcome) {
             UsbAdb.Outcome.OK -> {
                 usbHandled = d.deviceId
-                bridge?.stop()
-                bridge = UsbBridge(applicationContext, d).also { it.start() }
-                bridgeId = d.deviceId
+                CableService.start(applicationContext, d)   // a foreground service: Termux in front must not freeze it
                 setStatus(getString(R.string.status_usb_ok), getString(R.string.detail_usb_ok), R.color.go_text, false, r.detail, null)
                 autoDone = true
                 // Everything goes over the cable now: no Wi-Fi search, straight to the headset's games.
@@ -698,8 +696,5 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         private const val REQ_RUN_COMMAND = 7
         private const val STATE_AUTO = "auto_done"
         private const val ACTION_USB_PERMISSION = "eu.xems.vrlauncher.USB_PERMISSION"
-        /** The cable relay outlives the screen (a long install keeps running through it). */
-        private var bridge: UsbBridge? = null
-        private var bridgeId = -1
     }
 }

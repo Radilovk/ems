@@ -123,6 +123,19 @@ else
 	ok "Windows tool skipped (no pwsh here)"
 fi
 
+echo "5b. cable proxy start (/etc/default/emsc-tcpseriald)"
+DF="$REPO/xbody/overlay/etc/default/emsc-tcpseriald"
+ST='DAEMON_ARGS="-serial /dev/ttymxc3 -baud 115200 -port 1235"'
+r=$(sh -c "$ST; set -- start; . '$DF'; echo \$DAEMON_ARGS")
+case "$r" in *"-port 1235") ;; *) no "no proxy binary must keep the stock port: $r" ;; esac
+r=$(sed 's#^P=.*#P=/bin/false#' "$DF" > "$T/df" && sh -c "$ST; set -- start; . '$T/df'; echo \$DAEMON_ARGS")
+case "$r" in *"-port 1235") ;; *) no "a failed self-test must keep the stock port: $r" ;; esac
+r=$(sed 's#^P=.*#P=/bin/true#; s#/opt/xems/cable.off#'"$T"'/nooff#g; s#( while.*#:#' "$DF" > "$T/df" && sh -c "$ST; set -- stop; . '$T/df'; echo \$DAEMON_ARGS")
+case "$r" in *"-port 1235") ;; *) no "stop must not move the port: $r" ;; esac
+r=$(sh -c "$ST; set -- start; . '$T/df'; echo \$DAEMON_ARGS")
+case "$r" in *"-port 1236") ;; *) no "a working proxy moves the daemon to 1236: $r" ;; esac
+ok "stock path unless the proxy passes its self-test; only on start"
+
 echo "6. xems-uf2 (the unit programs the XIAO)"
 U="$T/uf2"; mkdir -p "$U/shim" "$U/drive" "$U/blk/loop0" "$U/blk/big"
 printf 'UF2 Bootloader\nModel: Seeed XIAO nRF52840\n' > "$U/drive/INFO_UF2.TXT"

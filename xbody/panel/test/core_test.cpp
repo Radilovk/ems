@@ -1,5 +1,6 @@
 // Host tests of the panel core: protocol bytes, safety limits, the impulse / pause clock.
 //   sh scripts/xbody/test-panel.sh
+#include "../core/xbcable.h"
 #include "../core/bridge.h"
 #include "../core/btproto.h"
 #include "../core/safe.h"
@@ -234,7 +235,124 @@ static void zones() {
     eqInt("bt ignores wiring", 2, Suit::zones(Suit::BODYTECH, &z, Suit::WIRE_XBODY) == 7 ? z[0].n : 0);
 }
 
+// The owner's table is the one truth: a connector pin is called X by XEMS and B by XBody.
+static const char *PINS[10][2] = {{"Ръце", "Корем"},           {"Гърди", "Прасец"}, {"Корем", "Задно бедро"},
+                                  {"Предно бедро", "Предно бедро"}, {"Гръб", "Седалище"}, {"Трапец", "Кръст"},
+                                  {"Кръст", "Гръб"},             {"Седалище", "Трапец"}, {"Задно бедро", "Ръце"},
+                                  {"Прасец", "Гърди"}};
+// XBody uems index of a body part (docs/xbody-protocol.md; "Прасец" = optional).
+static int xbPart(const std::string &n) {
+    const char *N[10] = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Седалище", "Корем", "Предно бедро",
+                         "Задно бедро", "Прасец"};
+    for (int i = 0; i < 10; i++) if (n == N[i]) return i;
+    return -1;
+}
+static int xemsCh(const std::string &n) {
+    for (int i = 0; i < 10; i++) if (n == Suit::channelName(Suit::XEMS, i)) return i;
+    return -1;
+}
+
+static void cableWiring() {
+    using namespace xbcable;
+    // XBody unit + XEMS suit (cable): part p leaves on the XBody lead of the pin XEMS calls p.
+    for (int k = 0; k < 10; k++) eqInt(PINS[k][0], xbPart(PINS[k][1]), xemsLead(xbPart(PINS[k][0])));
+    // XEMS unit + XBody suit (BLE zones): zone p drives the XEMS channel of the pin XBody calls p.
+    const Zone *z;
+    int n = Suit::zones(Suit::XEMS, &z, Suit::WIRE_XBODY);
+    for (int i = 0; i < n; i++)
+        for (int k = 0; k < 10; k++)
+            if (std::string(z[i].name) == PINS[k][1]) eqInt(z[i].name, xemsCh(PINS[k][0]), z[i].ch[0]);
+    int seen[10] = {0};
+    for (int p = 0; p < 10; p++) seen[xemsLead(p)]++;
+    for (int p = 0; p < 10; p++) eqInt("lead used once", 1, seen[p]);
+}
+
+// A board frame as xbody_control sends it (captured in the emulator: 83 Hz, 350 µs, legflex 60).
+static Bytes frame(unsigned bits, unsigned tp, int ch, unsigned level) {
+    Bytes b(xbcable::FRAME, 0);
+    b[0] = 'R';
+    b[2] = bits & 0xFF; b[3] = bits >> 8;
+    b[6] = 100; b[8] = 350 & 0xFF; b[9] = 350 >> 8; b[10] = tp & 0xFF; b[11] = tp >> 8;
+    if (ch >= 0) { b[16 + ch * 2] = level & 0xFF; b[17 + ch * 2] = level >> 8; }
+    Bytes back;
+    xbcable::decodeLine(xbcable::encodeLine(b).substr(0, 77), back);   // CRC filled in
+    return back;
+}
+static unsigned lv(const Bytes &b, int ch) { return b[16 + ch * 2] | b[17 + ch * 2] << 8; }
+static unsigned w16(const Bytes &b, int o) { return b[o] | b[o + 1] << 8; }
+
+static void cableShaper() {
+    using namespace xbcable;
+    Bytes b;
+    eqInt("real frame decodes", 1, decodeLine("S52000000000000000000A0860000000000000000000000000000000000000000000000001839", b));
+    eqInt("bad crc refused", 0, decodeLine("S52000000000000000000A0860000000000000000000000000000000000000000000000001838", b));
+    Config c = parseConfig("wiring=xems\ndouble=1\ndouble_hz=50\ndouble_pct=900\n");
+    eqInt("cfg wiring", WIRE_XEMS, c.wiring);
+    eqInt("cfg hz capped", 10, c.dblHz);
+    eqInt("cfg pct capped", 150, c.dblPct);
+    eqInt("cfg roundtrip", 1, configText(parseConfig(configText(c))) == configText(c));
+
+    Shaper s;
+    Config x;
+    x.wiring = WIRE_XEMS;
+    s.setConfig(x);
+    Bytes o = s.process(frame(3, 12, 8, 60), 0);              // legflex at 60 → XEMS suit: its lead is arm (4)
+    eqInt("xems wiring moves legflex", 60, lv(o, 4));
+    eqInt("xems wiring empties legflex lead", 0, lv(o, 8));
+    s.setConfig(Config());                                    // back to XBody suit mid-training: not now
+    eqInt("wiring latched mid-run", 60, lv(s.process(frame(3, 12, 8, 60), 50), 4));
+    s.process(frame(0, 12, -1, 0), 100);                      // stop
+    eqInt("new wiring after stop", 60, lv(s.process(frame(3, 12, 8, 60), 150), 8));
+
+    // Double impulse: 5 Hz at 50 %, only from the second pause, inside the measured pause.
+    Shaper d;
+    Config dc;
+    dc.dbl = true; dc.dblHz = 5; dc.dblPct = 50;
+    d.setConfig(dc);
+    d.process(frame(3, 12, 8, 60), 0);                        // impulse 0–4 s
+    d.process(frame(2, 12, 8, 60), 4000);                     // pause 4–5 s
+    o = d.process(frame(2, 12, 8, 60), 4500);                 // first pause: length unknown → nothing
+    eqInt("1st pause: no 2nd impulse", 2, (int)w16(o, 2));
+    d.process(frame(3, 12, 8, 60), 5000);                     // impulse again: pause measured = 1000 ms
+    eqInt("pause measured", 1000, d.learnedPauseMs());
+    d.process(frame(2, 12, 8, 60), 9000);
+    o = d.process(frame(2, 12, 8, 60), 9100);
+    eqInt("relax first 300 ms", 2, (int)w16(o, 2));
+    o = d.process(frame(2, 12, 8, 60), 9400);
+    eqInt("2nd impulse on", 3, (int)w16(o, 2));
+    eqInt("2nd impulse 5 Hz → 200 ms", 200, (int)w16(o, 10));
+    eqInt("2nd impulse 50 %", 30, lv(o, 8));
+    o = d.process(frame(2, 12, 8, 60), 9850);
+    eqInt("off 200 ms before the impulse", 2, (int)w16(o, 2));
+    o = d.process(frame(2, 12, 8, 60), 12000);                // XBody kept pausing (a held pause): never longer
+    eqInt("never past the measured pause", 2, (int)w16(o, 2));
+    o = d.process(frame(0, 12, -1, 0), 12050);                // stop
+    eqInt("stop passes", 0, (int)w16(o, 2));
+    o = d.process(frame(2, 12, 8, 60), 12100);                // training again: has to measure again
+    eqInt("after stop: measured again", 0, d.learnedPauseMs());
+
+    Shaper h;                                                 // strength cap and Hz under the main one
+    dc.dblPct = 150; dc.dblHz = 10;
+    h.setConfig(dc);
+    h.process(frame(3, 250, 8, 40000), 0);                    // 4 Hz main
+    h.process(frame(2, 250, 8, 40000), 4000);
+    h.process(frame(3, 250, 8, 40000), 6000);
+    h.process(frame(2, 250, 8, 40000), 10000);
+    o = h.process(frame(2, 250, 8, 40000), 10500);
+    eqInt("capped at the board's 100 %", UEMS_MAX, lv(o, 8));
+    eqInt("under the main Hz (3 Hz)", 333, (int)w16(o, 10));
+    Shaper z;                                                 // strength 0: nothing
+    z.setConfig(dc);
+    z.process(frame(3, 12, -1, 0), 0); z.process(frame(2, 12, -1, 0), 4000); z.process(frame(3, 12, -1, 0), 5000);
+    z.process(frame(2, 12, -1, 0), 9000);
+    eqInt("no 2nd impulse at strength 0", 2, (int)w16(z.process(frame(2, 12, -1, 0), 9400), 2));
+    Bytes other(4, 0); other[0] = 0x4F;
+    eqInt("other frames pass", 1, d.process(other, 0) == other);
+}
+
 int main() {
+    cableWiring();
+    cableShaper();
     zones();
     bodytechGolden();
     xemsFrames();

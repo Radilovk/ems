@@ -19,6 +19,16 @@ static int age(unsigned t, unsigned since) {
     return d < 0 ? 0 : d;
 }
 
+static QString envPath(const char *var, const char *def) {
+    const char *p = std::getenv(var);
+    return QString::fromLocal8Bit(p ? p : def);
+}
+
+static std::string slurp(const QString &path) {
+    QFile f(path);
+    return f.open(QIODevice::ReadOnly) ? std::string(f.readAll().constData()) : std::string();
+}
+
 static QString confPath() {
     const char *p = std::getenv("XEMS_CONF");
     return QString::fromLocal8Bit(p ? p : "/opt/xems/panel.conf");
@@ -26,11 +36,15 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), suit_(0), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), bridgeVer_(0), bundledVer_(0), dfuSent_(false),
+      lastRxMs_(0), suit_(0), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       noteWarn_(false), noteUntilMs_(0),
       panel_(0), tab_(0), strengthMem_(0) {
     t0_ = now();
     load();
+    cable_ = xbcable::parseConfig(slurp(envPath("XEMS_CABLE_CONF", "/opt/xems/xbody-cable.conf")));
+    CableLive z = {false, false, false, xbcable::WIRE_XBODY};
+    cableLive_ = z;
+    readCableState();
     const char *bd = std::getenv("XEMS_BRIDGE_DIR");
     QFile vf(QString::fromLocal8Bit(bd ? bd : "/opt/xems/bridge") + U("/VERSION"));
     if (vf.open(QIODevice::ReadOnly)) bundledVer_ = vf.readAll().trimmed().toInt();
@@ -57,6 +71,32 @@ App::View App::view() const {
     if (suit_) return TRAIN;
     if (!linkingMac_.empty()) return LINKING;
     return PICK;
+}
+
+void App::setCable(const xbcable::Config &c) {
+    cable_ = c;
+    QString path = envPath("XEMS_CABLE_CONF", "/opt/xems/xbody-cable.conf"), tmp = path + U(".tmp");
+    QFile f(tmp);
+    if (f.open(QIODevice::WriteOnly)) {
+        std::string t = xbcable::configText(c);
+        f.write(t.data(), (qint64)t.size());
+        f.close();
+        std::rename(tmp.toLocal8Bit().constData(), path.toLocal8Bit().constData());   // the proxy never reads half
+    }
+}
+
+void App::readCableState() {
+    QString path = envPath("XEMS_CABLE_STATE", "/tmp/xems-cable.state");
+    QFileInfo fi(path);
+    CableLive l = {false, false, false, cable_.wiring};
+    if (fi.exists() && fi.lastModified().secsTo(QDateTime::currentDateTime()) <= 5) {
+        std::string s = slurp(path);
+        l.running = true;
+        l.training = s.find("training=1") != std::string::npos;
+        l.second = s.find("second=1") != std::string::npos;
+        if (l.training) l.wiring = s.find("wiring=xems") != std::string::npos ? xbcable::WIRE_XEMS : xbcable::WIRE_XBODY;
+    }
+    cableLive_ = l;
 }
 
 QString App::uf2State() const {
@@ -316,6 +356,7 @@ void App::timerEvent(QTimerEvent *ev) {
             if (suit_) lost(U("Мостът не отговаря — костюмът спря"));
         }
     }
+    if (age(t, cableReadMs_) >= 500) { cableReadMs_ = t; readCableState(); }
     // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----
     bool update = bridgeOk() && bridgeVer_ > 0 && bundledVer_ > bridgeVer_;
     if (update && !dfuSent_ && !suit_ && linkingMac_.empty()) {

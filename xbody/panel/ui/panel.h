@@ -43,7 +43,8 @@ private:
     void setSelValue(int v);
 
     void paintHeader(QPainter &p, const QString &title, const QString &sub, bool subWarn, bool subOk);
-    void paintNoBridge(QPainter &p);
+    void paintCable(QPainter &p);
+    void paintCableInfo(QPainter &p);
     void paintPick(QPainter &p);
     void paintTrain(QPainter &p);
     void paintClock(QPainter &p);
@@ -53,7 +54,7 @@ private:
     void paintWiringInfo(QPainter &p);
     void paintBubble(QPainter &p);
     void paintConfirm(QPainter &p);
-    void pill(QPainter &p, const QRect &r, const QString &value, const QString &field);
+    void pill(QPainter &p, const QRect &r, const QString &value, const QString &field, bool enabled = true);
     void caption(QPainter &p, int x, int y, const QString &text);
     void toast(const QString &text);
     void outlined(QPainter &p, const QRect &r, const QString &id, const QString &text, int px, bool on);
@@ -70,6 +71,8 @@ private:
     bool sheetAge60_;
     int sheetWiring_;
     bool info_;                    // the cable table (ⓘ) over the sheet
+    bool cableInfo_;               // the XBody-cable table (ⓘ) over the cable page
+    bool showCable_;               // the cable page while a bridge is plugged (else it is the home)
     unsigned bubbleUntilMs_;       // the big % over the body (XBody's showPercent) stays until then
     QString toast_;
     unsigned toastUntilMs_;

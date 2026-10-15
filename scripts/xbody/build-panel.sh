@@ -11,6 +11,12 @@ sh "$REPO/scripts/xbody/xcc.sh" "$REPO"/xbody/panel/core/*.cpp "$REPO"/xbody/pan
 	-o "$REPO/build/xpanel/xems-panel" -lQtGuiE -lQtCoreE 2>&1 | grep -v 'dynsym local symbol' || true
 arm-linux-gnueabi-strip -o "$OUT" "$REPO/build/xpanel/xems-panel"
 chmod 755 "$OUT"
-bad=$(readelf -V "$OUT" | grep -oE '(GLIBC_2\.(2[1-9]|[3-9][0-9])|GLIBCXX_3\.4\.(2[1-9]|[3-9][0-9])|CXXABI_1\.3\.(9|1[0-9]))' | sort -u || true)
+# The cable proxy (no Qt): between xbody_control and the stimulator's daemon (/etc/default/emsc-tcpseriald).
+PX=$REPO/xbody/overlay/opt/xems/bin/xems-xbproxy
+sh "$REPO/scripts/xbody/xcc.sh" "$REPO"/xbody/panel/core/bytes.cpp "$REPO"/xbody/panel/core/xbcable.cpp \
+	"$REPO/xbody/panel/proxy/xbproxy.cpp" -o "$REPO/build/xpanel/xems-xbproxy" 2>&1 | grep -v 'dynsym local symbol' || true
+arm-linux-gnueabi-strip -o "$PX" "$REPO/build/xpanel/xems-xbproxy"
+chmod 755 "$PX"
+bad=$(readelf -V "$OUT" "$PX" | grep -oE '(GLIBC_2\.(2[1-9]|[3-9][0-9])|GLIBCXX_3\.4\.(2[1-9]|[3-9][0-9])|CXXABI_1\.3\.(9|1[0-9]))' | sort -u || true)
 [ -z "$bad" ] || { echo "build-panel: needs symbols the card lacks: $bad"; exit 1; }
-echo "build-panel: $OUT ($(wc -c < "$OUT") bytes)"
+echo "build-panel: $OUT ($(wc -c < "$OUT") bytes), $PX ($(wc -c < "$PX") bytes)"

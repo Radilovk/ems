@@ -22,6 +22,7 @@ FB=$OUT/fb.raw
 rm -f "$FB" "$OUT/panel.conf"
 truncate -s $((W * H * 4)) "$FB"
 FLAGS="-E XEMS_FAKE_BRIDGE=1 -E XEMS_OPEN=1"
+ART="-E XEMS_ART=$REPO/xbody/overlay/opt/xems/art"
 [ -z "${EMU_NO_BRIDGE:-}" ] || FLAGS="-E XEMS_OPEN=1"
 [ -z "${EMU_TAB:-}" ] || FLAGS="-E XEMS_FAKE_BRIDGE=1"
 [ -z "${EMU_ENV:-}" ] || FLAGS="$FLAGS -E $EMU_ENV"   # one extra VAR=value, e.g. XEMS_UF2_STATE=/tmp/s
@@ -33,9 +34,9 @@ if [ "$MODE" = client ]; then
 	run "$OUT/stand-in" -qws >/dev/null 2>&1 &
 	SRV=$!
 	sleep 4
-	run $FLAGS -E XEMS_CONF="$OUT/panel.conf" -E "XEMS_SCRIPT=$SCRIPT" "$OUT/xems-panel" 2>&1 | grep -v icui18n || true
+	run $FLAGS $ART -E XEMS_CONF="$OUT/panel.conf" -E "XEMS_SCRIPT=$SCRIPT" "$OUT/xems-panel" 2>&1 | grep -v icui18n || true
 	kill $SRV 2>/dev/null || true
 else
-	run $FLAGS -E XEMS_CONF="$OUT/panel.conf" -E "XEMS_SCRIPT=$SCRIPT" "$OUT/xems-panel" -qws 2>&1 | grep -v icui18n || true
+	run $FLAGS $ART -E XEMS_CONF="$OUT/panel.conf" -E "XEMS_SCRIPT=$SCRIPT" "$OUT/xems-panel" -qws 2>&1 | grep -v icui18n || true
 fi
 ls "$OUT"/*.png 2>/dev/null || true

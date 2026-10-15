@@ -9,6 +9,7 @@
 //             the impulse, ending 200 ms before the next one.
 #pragma once
 #include "bytes.h"
+#include "xbprog.h"
 #include <string>
 
 namespace xbcable {
@@ -19,15 +20,17 @@ unsigned short crc16(const unsigned char *p, int n);       // MODBUS
 bool decodeLine(const std::string &line, Bytes &out);      // "S<hex>" (CR/LF stripped), CRC must match
 std::string encodeLine(Bytes b);                            // CRC rewritten, "S…\r\n"
 
-// XBody lead (uems index: 0 trapez, 1 back, 2 chest, 3 waist, 4 arm, 5 bottom, 6 abdomen, 7 legext, 8 legflex,
-// 9 optional) that carries XBody body part `part` to an XEMS suit.
+// XBody lead (uems index, measured: 0 trapez, 1 back, 2 chest, 3 waist, 4 arm, 5 abdomen, 6 bottom, 7 legext,
+// 8 legflex, 9 optional) that carries XBody body part `part` to an XEMS suit.
 int xemsLead(int part);
 
 struct Config {
     int wiring;
     bool dbl;
     int dblHz, dblPct;
-    Config() : wiring(WIRE_XBODY), dbl(false), dblHz(5), dblPct(50) {}
+    std::string program;   // a ready passive program (xbprog id) played over XBody's training; empty = none
+    int minutes;           // its length (xbprog::LENGTHS); 0 = the program's own
+    Config() : wiring(WIRE_XBODY), dbl(false), dblHz(5), dblPct(50), minutes(0) {}
 };
 Config parseConfig(const std::string &text);                // key=value lines; values clamped to the limits
 std::string configText(const Config &c);
@@ -43,11 +46,20 @@ public:
     int wiringLive() const { return live_.wiring; }
     bool secondNow() const { return second_; }
     int learnedPauseMs() const { return pauseMs_; }
+    // The program running in this training (latched at its start): id, segment index, ms since start, over.
+    const std::string &programLive() const { return live_.program; }
+    int programSeg() const { return progSeg_; }
+    unsigned programMs() const { return progMs_; }
+    bool programOver() const { return progOver_; }
+    int programMinutes() const { return plan_.info.minutes; }
 
 private:
     Config want_, live_;
     bool training_, inPause_, second_;
-    unsigned pauseStart_;
+    unsigned pauseStart_, progStart_, progMs_;
+    int progSeg_;
+    bool progOver_, hasPlan_;
+    xbprog::Plan plan_;
     int pauseMs_, mainTp_;
 };
 }

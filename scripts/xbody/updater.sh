@@ -33,6 +33,12 @@ done_self() {
 
 say "=== $STAMP XEMS updater, mod $(cat "$X/VERSION" 2>/dev/null)"
 
+# The unit's own notes come back on the stick (board-rx.log = what the stimulator board sent, panel.log, …).
+for f in "$ROOT"/opt/xems/*.log; do
+	[ -f "$f" ] || continue
+	mkdir -p "$PEN/xems-logs" && cp "$f" "$PEN/xems-logs/$STAMP-$(basename "$f")" 2>/dev/null
+done
+
 if [ -e "$X/RESTORE" ]; then
 	# Undo the newest install (repeat RESTORE to step further back).
 	A=$(ls "$X"/backup-*.added 2>/dev/null | tail -n 1)

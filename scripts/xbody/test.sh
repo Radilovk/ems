@@ -3,6 +3,7 @@
 #   1 real overlay builds   2 USB updater install + RESTORE on a fake root (dash ≈ busybox ash)
 #   3 xems-firstboot runs hooks once per version   4 SD image patched by debugfs (synthetic MBR+ext3)
 #   5 stick tool (PC side) prepares / arms undo on a stick   6 xems-uf2 programs only a XIAO UF2 drive (fake mount)
+#   7 phone link: the app's server (Java, host) → xems-link → the pending install
 set -eu
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 T=$(mktemp -d)
@@ -97,7 +98,9 @@ cmp -s "$X/xems-bridge.uf2" "$Z/fleshka/xems-bridge.uf2" || no "XIAO not program
 (cd "$S/xems" && md5sum -c payload.md5 >/dev/null) && [ -f "$S/updater.sh" ] || no "stick content"
 [ ! -e "$X/updater.sh" ] || no "the XIAO was taken for the stick"
 F2=$T/root2; mkdir -p "$F2/tmp"
+mkdir -p "$F2/opt/xems"; echo RX > "$F2/opt/xems/board-rx.log"
 (cd "$S" && XB_ROOT="$F2" dash ./updater.sh) || no "install from the stick"
+ls "$S"/xems-logs/*-board-rx.log >/dev/null 2>&1 || no "unit logs not copied to the stick"
 [ -x "$F2/opt/xems/bin/xems-panel" ] && [ -f "$F2/opt/xems/bridge/xems-bridge.uf2" ] || no "panel + bridge firmware installed"
 tool 2 || no "tool restore: $(tail -3 "$T/tool.log")"
 [ -f "$S/xems/RESTORE" ] && [ -f "$S/updater.sh" ] && [ ! -f "$S/updater.done.sh" ] || no "restore armed"
@@ -152,4 +155,34 @@ rm -f "$U/st" "$U/drive/fw.uf2" "$U/drive/INFO_UF2.TXT"
 uf2 "$U/blk/loop0"; [ ! -f "$U/st" ] && [ ! -f "$U/drive/fw.uf2" ] || no "uf2 wrote a drive without INFO_UF2.TXT"
 rm -rf /tmp/xems-uf2
 ok "copies onto the XIAO drive only; big sticks and other drives untouched"
+
+echo "7. phone link over USB tethering (app server ↔ xems-link ↔ xems-pending)"
+if command -v javac > /dev/null && command -v wget > /dev/null; then
+	J="$T/j"; mkdir -p "$J"
+	javac -nowarn -d "$J" "$REPO/scripts/xbody/android/src/bg/xems/fleshka/PhoneServer.java" \
+		"$REPO/scripts/xbody/android/test/PhoneServerMain.java" 2>/dev/null
+	PORT=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1])')
+	V=$(cat "$T/real/usb/xems/VERSION")
+	java -cp "$J" PhoneServerMain "$V" "$T/real/usb" "$PORT" > "$T/phone.log" 2>&1 &
+	PH=$!
+	sleep 1.5
+	O=$T/opt; mkdir -p "$O" "$T/usb0"; echo 1 > "$O/VERSION"
+	link() { XEMS_OPT="$O" XEMS_LINK_NET="$T/usb0" XEMS_LINK_GW=127.0.0.1 XEMS_LINK_PORT=$PORT XEMS_LINK_STATE="$T/link.state" \
+		sh "$REPO/xbody/overlay/opt/xems/bin/xems-link" once; }
+	link
+	grep -q "state=pending" "$T/link.state" && grep -q "pending=$V" "$T/link.state" || { kill $PH; no "link: $(cat "$T/link.state")"; }
+	(cd "$O/pending/xems" && md5sum -c payload.md5 > /dev/null) || { kill $PH; no "link: payload"; }
+	grep -q "UNIT have=1 pending=$V" "$T/phone.log" || { kill $PH; no "app did not see the download"; }
+	link
+	grep -q "state=pending" "$T/link.state" || { kill $PH; no "link: second pass"; }
+	rm -rf "$T/usb0"; link
+	grep -q "phone=0" "$T/link.state" || { kill $PH; no "link: cable out"; }
+	kill $PH
+	F3=$T/root3; mkdir -p "$F3/tmp"
+	(cd "$O/pending" && XB_ROOT="$F3" dash ./updater.sh) || no "pending install"
+	[ -x "$F3/opt/xems/bin/xems-panel" ] && [ -f "$O/pending/updater.done.sh" ] || no "pending installed once"
+	ok "app serves, the unit downloads + checks, installs from /opt/xems/pending; cable out = no phone"
+else
+	ok "phone link skipped (no javac / wget here)"
+fi
 echo "ALL OK"

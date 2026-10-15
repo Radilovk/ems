@@ -1,4 +1,5 @@
 #include "xbcable.h"
+#include "xbprog.h"
 #include <cstdlib>
 #include <sstream>
 
@@ -49,12 +50,19 @@ std::string encodeLine(Bytes b) {
 // Гръб→Глутеус, Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди. Read per body part:
 // the part XBody calls arm (4) must leave on XBody's abdomen lead (6), and so on.
 int xemsLead(int part) {
-    static const int LEAD[CH] = {/*trapez*/ 3, /*back*/ 5, /*chest*/ 9, /*waist*/ 1, /*arm*/ 6,
-                                 /*bottom*/ 0, /*abdomen*/ 8, /*legext*/ 7, /*legflex*/ 4, /*optional = calf*/ 2};
+    // uems index = what XBody's GUI writes for each zone, measured on the real xbody_control (abdomen 5, bottom 6;
+    // the first static decode had those two swapped).
+    static const int LEAD[CH] = {/*0 trapez*/ 3, /*1 back*/ 6, /*2 chest*/ 9, /*3 waist*/ 1, /*4 arm*/ 5,
+                                 /*5 abdomen*/ 8, /*6 bottom*/ 0, /*7 legext*/ 7, /*8 legflex*/ 4, /*9 optional = calf*/ 2};
     return part >= 0 && part < CH ? LEAD[part] : part;
 }
 
 static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+static int validMinutes(int m) {
+    for (int i = 0; i < xbprog::LEN_N; i++)
+        if (xbprog::LENGTHS[i] == m) return m;
+    return 0;
+}
 
 Config parseConfig(const std::string &text) {
     Config c;
@@ -70,6 +78,8 @@ Config parseConfig(const std::string &text) {
         else if (k == "double") c.dbl = v == "1" || v == "on";
         else if (k == "double_hz") c.dblHz = clampi(n, 1, 10);
         else if (k == "double_pct") c.dblPct = clampi(n, 10, 150);
+        else if (k == "program") c.program = xbprog::byId(v) ? v : std::string();
+        else if (k == "minutes") c.minutes = validMinutes(n);
     }
     return c;
 }
@@ -77,11 +87,15 @@ Config parseConfig(const std::string &text) {
 std::string configText(const Config &c) {
     std::ostringstream o;
     o << "wiring=" << (c.wiring == WIRE_XEMS ? "xems" : "xbody") << "\ndouble=" << (c.dbl ? 1 : 0)
-      << "\ndouble_hz=" << clampi(c.dblHz, 1, 10) << "\ndouble_pct=" << clampi(c.dblPct, 10, 150) << "\n";
+      << "\ndouble_hz=" << clampi(c.dblHz, 1, 10) << "\ndouble_pct=" << clampi(c.dblPct, 10, 150)
+      << "\nprogram=" << (xbprog::byId(c.program) ? c.program : std::string())
+      << "\nminutes=" << validMinutes(c.minutes) << "\n";
     return o.str();
 }
 
-Shaper::Shaper() : training_(false), inPause_(false), second_(false), pauseStart_(0), pauseMs_(0), mainTp_(0) {}
+Shaper::Shaper()
+    : training_(false), inPause_(false), second_(false), pauseStart_(0), progStart_(0), progMs_(0), progSeg_(-1),
+      progOver_(false), hasPlan_(false), pauseMs_(0), mainTp_(0) {}
 
 static unsigned u16(const Bytes &b, int o) { return b[o] | b[o + 1] << 8; }
 static void put16(Bytes &b, int o, unsigned v) { b[o] = v & 0xFF; b[o + 1] = (v >> 8) & 0xFF; }
@@ -93,11 +107,18 @@ Bytes Shaper::process(const Bytes &in, unsigned now) {
     unsigned bits = u16(f, 2);
     bool training = (bits & 2) != 0, stim = (bits & 1) != 0;
     if (!training) {   // idle / stopped: forget the cycle, pick up new settings for the next training
-        training_ = inPause_ = false;
+        training_ = inPause_ = progOver_ = false;
         pauseMs_ = mainTp_ = 0;
+        progSeg_ = -1;
+        progMs_ = 0;
         live_ = want_;
     } else {
-        if (!training_) live_ = want_;   // a training starts: wiring latched for all of it
+        if (!training_) {   // a training starts: wiring + program + its length latched
+            live_ = want_;
+            progStart_ = now;
+            const xbprog::Program *p = xbprog::byId(live_.program);
+            hasPlan_ = p && xbprog::plan(*p, live_.minutes, &plan_);
+        }
         training_ = true;
         live_.dbl = want_.dbl;           // the second impulse may change any time (it is capped below)
         live_.dblHz = want_.dblHz;
@@ -105,12 +126,16 @@ Bytes Shaper::process(const Bytes &in, unsigned now) {
     }
     unsigned u[CH];
     for (int i = 0; i < CH; i++) u[i] = u16(f, 16 + i * 2);
-    if (live_.wiring == WIRE_XEMS) {
-        unsigned w[CH];
-        for (int i = 0; i < CH; i++) w[xemsLead(i)] = u[i];
-        for (int i = 0; i < CH; i++) u[i] = w[i];
-    }
-    if (training && stim) {
+    if (training && hasPlan_) {   // a ready program plays the training; XBody's levels (u) are its ceiling
+        xbprog::Out o;
+        progMs_ = now - progStart_;
+        progOver_ = !xbprog::step(plan_.program(), progMs_, u, &o);
+        progSeg_ = o.seg;
+        second_ = o.second;
+        put16(f, 2, o.stim ? (bits | 1) : (bits & ~1u));
+        if (o.tp) put16(f, 10, o.tp);
+        if (o.us) put16(f, 8, o.us);
+    } else if (training && stim) {
         if (inPause_) {   // a whole pause seen: its length bounds the next ones
             int len = (int)(now - pauseStart_);
             pauseMs_ = len > 30000 ? 30000 : len;
@@ -135,6 +160,11 @@ Bytes Shaper::process(const Bytes &in, unsigned now) {
             put16(f, 10, (unsigned)((1000 + hz / 2) / hz));
             second_ = true;
         }
+    }
+    if (live_.wiring == WIRE_XEMS) {   // body part → the lead that reaches it in an XEMS suit
+        unsigned w[CH];
+        for (int i = 0; i < CH; i++) w[xemsLead(i)] = u[i];
+        for (int i = 0; i < CH; i++) u[i] = w[i];
     }
     for (int i = 0; i < CH; i++) put16(f, 16 + i * 2, u[i]);
     return f;

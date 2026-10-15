@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v6)
+# XEMS panel on the XBody unit (mod v9)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -32,7 +32,7 @@ XBody's own stimulator path (`xbody_control` → port 1235 → `/dev/ttymxc3`) i
    bridge (v2+) gets `DFU` before any suit links → outputs off, board restarts as its UF2 drive → xems-uf2 → new
    HELLO. v1 answers `ERR unknown DFU` → the note asks for RESET twice once.
 
-## XBody's own cable (no XIAO): suit standard + double impulse (mod v6)
+## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
 For the normal work on XBody's cable, with an XBody **or an XEMS** suit:
 ```
 xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──▶ emsc-tcpseriald → /dev/ttymxc3 → stimulator
@@ -48,6 +48,9 @@ xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──�
     strength 0 → none. Only from the second cycle, inside the pause length measured in the previous cycle
     (+300 ms after the impulse, −200 ms before the next): XBody has no pause button, anything longer (stop, end,
     a hang) never gets it. Settings change live.
+- **v7 fix:** the zone → uems map is now measured, not decoded (abdomen 5, bottom 6 — v6 had them swapped, so XBody's
+  "Корем" reached an XEMS suit's glutes). Checked through the ARM proxy on the live `xbody_control`: Корем → lead 8
+  (= XEMS Корем), Допълнителен → lead 2 (= XEMS Прасец), Седалище → lead 0 (= XEMS Седалище).
 - Measured on the real `xbody_control` in qemu (`board.log`): levels stay in the pause frames, stop = all 0,
   4 s / 1 s cycle; through the ARM proxy: legflex 60 → arm lead, second pause 5 Hz at 50 % from +0.3 s to −0.2 s.
 - Settings `/opt/xems/xbody-cable.conf` (`wiring=xbody|xems`, `double=0|1`, `double_hz`, `double_pct`), written by the
@@ -57,6 +60,76 @@ xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──�
   pills, live status in the header, autosave ("✓ Запазено"); the XIAO card at the bottom. The tab shows ⇄ (XEMS
   suit) and 2× (double impulse) whenever XBody's output is changed by us.
 - Tests: `test-panel.sh` (Shaper + table, 211 checks; the proxy end to end over sockets), `test.sh` 5b (stock path).
+
+## Ready passive programs on XBody's cable (mod v8)
+`xbody/panel/core/xbprog.*` — the auto-mode's passive procedures (docs/xems-auto-mode-spec.md §6.6–6.10):
+Дренаж (wave up the body, 35 Hz 3:1, previous group at 50 %), Антицелулит, Болки в гърба, След раждане (spec 5:10 at
+40 Hz breaks L1 → 4:8), Регенерация (3 ↔ 8 Hz), Пасивен метаболизъм. XBody keeps START / STOP / time and the zone
+levels; the proxy plays the program over the training (own rhythm, Hz, µs, envelope, wave), **never above a zone's
+XBody level** (only Антицелулит's own second impulse in the pause, ≤ 50 %). Latched at START; STOP ends it; when
+it is over the outputs stay off until XBody ends. Tests: every program against L1–L5, L12, soft end; "never above"
+over every 50-ms frame of every program; wave order; via the real `xbody_control` in qemu (35 Hz, 300 µs, 3:1).
+Screen: "Кабел на XBody" → tab **Програми**: a tile per program = a red line icon for the procedure (Health Icons,
+CC0, `xbody/panel/art/README.md`: lymph nodes, thigh skin, back pain, mother and baby, relaxation, weight) on white like
+XBody's own program tiles, "20 мин · 35 Hz" under it; right: what it does, its phases, the running time.
+
+### Length and after-training procedures (mod v10)
+Seventh program **Оформяне** (waist, belly, glutes, thighs, arms: 6 Hz warm-up, 85 Hz 4:6 + 8 Hz second impulse
+40 %, 50 Hz 3:5 + 6 Hz 40 %, 4 Hz end; icon symbols/waist-circumference). The side panel picks the length with one tap:
+**10 · 15 · 20 · 25 · 30 мин** (the dot = the program's own; config `minutes=`, 0 = own; latched at START with the
+program, state `program_min=`). `xbprog::plan()`:
+- **10 min = after a training** where the program has its own version (green "след трен." tag on the tile):
+  - Дренаж — opening 1 min, legs wave 5 min at 35 Hz, arms 2 min at 30 Hz, a pump 2 min at 8 Hz 2:2 with a 3-Hz
+    second impulse ≤ 30 %. L12 stays for the wave: no second impulse in its pauses, where the vessels refill.
+  - Оформяне — 85 Hz + 8 Hz second impulse 4 min, 40 Hz + 6 Hz 3 min, 3 ↔ 8 Hz massage 3 min.
+  - Антицелулит — 85 Hz + 8 Hz second impulse 4 min, legs wave 4 min, 3 ↔ 8 Hz massage 2 min.
+  - No warm-up (the body is warm), envelope starts at 80 %.
+- **A strategy per length** (mod v11, docs/xems-ems-physiology.md §1, §3) for the rest. Warm-up = a rising low-Hz
+  first phase, end = a low-Hz last phase, the work = everything between:
+  - 10: the other programs drop the warm-up (the body is warm); the work starts at ≤ 80 % and the end is 2 min.
+  - 15 (short): warm-up and end 2 min each.
+  - 20–25 (standard): warm-up and end as written.
+  - 30 (long): warm-up and end 3 min each.
+  - The work shares the rest in proportion, in ¼-min steps.
+  - ≥ 20 Hz work longer than 15 min without a break becomes two blocks with a 2-min 3 ↔ 8 Hz massage on the same
+    zones between them, so the high-frequency fatigue recovers (τ 30–50 s). E.g. Болки в гърба at 30 min: 3 min
+    warm-up, 11 min 80 Hz, 2 min massage, 11 min 80 Hz, 3 min end.
+  - Hz, µs, rhythm, ramps and the wave are unchanged, so the limits hold.
+  - The panel's yellow box names the strategy.
+  - A tile's Hz is the frequency with the most time.
+
+Tests: every program × every length against L1–L5, L12, ≥ 30 s phases, ≥ 20 Hz work ≤ 15 min in one go, no warm-up at
+10, a 2-min warm-up at 15, a ≥ 1-s window for every second impulse, the
+soft end, the exact length, "never above" and "ends on time" over every 50-ms frame; the length is latched at START.
+
+## Feedback from the stimulator (what XBody can know)
+- `xbody_control` has **no read path** from the board (only `SendPacketToHardware`; `XBHWCommunication` connects no
+  readyRead) and sends nothing but the pc_emse frames: no impedance, contact, current or error from the suit.
+- The GUI's "myopotential measurement" (`DiagnosticsView::beginMyoMeasurement`, MyoWidget) builds a stimulation
+  setting from its combo boxes and runs a timer — it reads no signal. No heart-rate / sensor input anywhere.
+- Whether the board itself sends anything is unknown statically: `xems-xbproxy` logs every byte from the board to
+  `/opt/xems/board-rx.log` (64 KB cap) and counts it in the state; the USB installer copies `/opt/xems/*.log` to the
+  stick (`xems-logs/`). Empty after a training = the board is silent.
+- Real feedback can come from outside: the XIAO bridge can read a BLE heart-rate strap / the Band 10 (not done).
+
+## Phone → XBody over a USB cable (mod v9, no stick)
+The phone's USB tethering (RNDIS) gives the unit `usb0` (`rndis_host` / `cdc_ether` / `usbnet` are on the card).
+`/opt/xems/bin/xems-link` (started by `xems-panel`) gets an address (`udhcpc`, script `xems-dhcp`: no default route,
+no DNS), asks the "XEMS флашка" app `http://<phone>:8765/xems/hello?have=N&pending=M` (`PhoneServer.java`), downloads
+a newer mod into `/opt/xems/pending` (a stick's layout), checks its md5 and version; `/etc/init.d/xems-pending`
+(rc5 S29, before the vendor's stick updater) installs it at the next boot with the stick's installer — backups stay
+in `/opt/xems/pending/xems`, one run per download (`updater.sh` → `.done.sh`, a failure → `.failed.sh`, never a boot
+loop). The panel's header says "Версия N е изтеглена — изключи и включи XBody", the tab shows ↓; the app shows the
+unit's version and when it has the download. The first time the unit needs v9 from a stick (the link comes with it).
+Tests: `test.sh` 7 — the real `PhoneServer` on the host JVM ↔ `xems-link` ↔ the pending install on a fake root.
+
+## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+`xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
+`assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a
+folder is refused) → "Инсталирай версия N": copies, reads the payload back and checks its md5; "Върни назад" when
+the stick holds a backup; a XIAO in UF2 mode picked instead gets the bridge firmware. FAT32 can't be checked
+through SAF (the screen asks for FAT32 ≤ 32 GB). Source `scripts/xbody/android/` (one Activity, no XML layouts,
+dx-safe); javac → dx → baksmali → apktool b → uber-apk-signer. Not run on a device yet.
 
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's

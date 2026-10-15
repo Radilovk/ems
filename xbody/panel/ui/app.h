@@ -41,10 +41,20 @@ public:
     QString uf2State() const;                     // flashing | done | error … (fresh only), else empty
 
     // ---- XBody's own cable output (xems-xbproxy): suit standard + double impulse ----
-    struct CableLive { bool running, training, second; int wiring; };
+    struct CableLive {
+        bool running, training, second;
+        int wiring;
+        std::string program;   // the program playing this training ("" none)
+        int programSeg, programS, programMin;   // programMin: its length this training
+        bool programOver;
+        long boardRx;          // bytes the stimulator board sent back (feedback probe)
+    };
     const xbcable::Config &cable() const { return cable_; }
     void setCable(const xbcable::Config &c);       // saved at once (the proxy picks it up within 0.5 s)
     const CableLive &cableLive() const { return cableLive_; }   // running = the proxy answers (state < 5 s old)
+    // The phone over USB (xems-link): connected, its version, a downloaded update waiting for the next boot.
+    struct PhoneLink { bool phone; QString phoneVer, pending, state; };
+    const PhoneLink &phoneLink() const { return phone_; }
 
     // ---- what the screen asks for ----
     void connectTo(const std::string &mac);
@@ -83,11 +93,12 @@ private:
     bool age60_;
     int wiring_;
     int bridgeVer_, bundledVer_;
+    bool dfuSent_;
     xbcable::Config cable_;
     CableLive cableLive_;
+    PhoneLink phone_;
     unsigned cableReadMs_;
     void readCableState();
-    bool dfuSent_;
     QString note_;
     bool noteWarn_;
     unsigned noteUntilMs_;

@@ -38,6 +38,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     boolean noteWarn;
     long noteUntil;
     boolean disconnectWhenIdle;
+    /** −1: the program screen; else Procs.MODE_* (a new link starts on the program screen, as XBody's training). */
+    int mode = -1;
+    String procId;
+    int procMin;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final Tick tick = new Tick();
     private boolean resumed;
@@ -212,15 +216,48 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         else session.start(now());
     }
 
-    /** New program from the sheet: through the safety limits, the correction (if any) as a red note. */
+    /**
+     * New program from the sheet: through the safety limits, the correction (if any) as a red note. Manual keeps it
+     * for next time; a mode's change holds for this session; a procedure takes only the client (60+ → its limits).
+     */
     public void applyProgram(Session.Program p, boolean a60) {
+        age60 = a60;
+        if (mode == Procs.MODE_PROC) {
+            if (session != null && session.state() == Session.IDLE) chooseProc(procId, procMin);
+            save();
+            return;
+        }
         Session.Program q = p.copy();
         String why = Safe.apply(q, a60);
-        prog = q;
-        age60 = a60;
-        if (session != null && session.state() != Session.RUNNING) session.setProgram(prog);
+        if (mode == Procs.MODE_MANUAL) prog = q;
+        if (session != null && session.state() != Session.RUNNING) session.setProgram(q);
         if (why.length() > 0) setNote("Граница за безопасност: " + why.replace("\n", "  ·  "), true);
         save();
+    }
+
+    public int mode() {
+        return mode;
+    }
+
+    public void chooseMode(int m) {
+        if (session == null || session.state() != Session.IDLE) return;
+        Session.Program q = m == Procs.MODE_MANUAL ? prog.copy() : Procs.mode(m);
+        Safe.apply(q, age60);          // XBody's own defaults too: the absolute limits hold for every program
+        session.setProgram(q);
+        mode = m;
+    }
+
+    public void chooseProc(String id, int minutes) {
+        Procs.Proc p = Procs.byId(id);
+        if (p == null || session == null || session.state() != Session.IDLE) return;
+        session.setPlan(Procs.plan(p, minutes), age60);
+        mode = Procs.MODE_PROC;
+        procId = id;
+        procMin = minutes;
+    }
+
+    public void backToModes() {
+        if (session != null && session.state() == Session.IDLE) mode = -1;
     }
 
     // ---------------------------------------------------------------- Ble.Listener (main thread)
@@ -248,6 +285,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         lastMac = linkingMac;
         linkingMac = null;
         disconnectWhenIdle = false;
+        mode = -1;
         save();
         setNote("Свързан ✓  " + linkedName, false);
     }

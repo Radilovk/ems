@@ -12,9 +12,10 @@ mkdir -p "$SHOTS"
 SRC=$REPO/wiems/app/src/bg/xems/wiems
 javac --release 8 -nowarn -encoding UTF-8 -classpath "$JAR" -d "$OUT" \
 	$(find "$HERE/shim" -name '*.java') "$SRC/Host.java" "$SRC/XView.java" "$SRC/Session.java" "$SRC/Safe.java" \
-	"$SRC/Seen.java" "$SRC/BodyFig.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" "$HERE/bg/xems/wiems/AppTest.java" \
+	"$SRC/Seen.java" "$SRC/BodyFig.java" "$SRC/Procs.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" "$HERE/bg/xems/wiems/AppTest.java" \
 	"$HERE/MainActivity.java" 2>&1 | grep -v '^Note\|warning' || true
-mkdir -p "$OUT/assets/body"
+mkdir -p "$OUT/assets/body" "$OUT/assets/art"
+cp "$REPO"/xbody/overlay/opt/xems/art/*.png "$OUT/assets/art/"
 python3 -c "
 import sys,glob,os
 from PIL import Image

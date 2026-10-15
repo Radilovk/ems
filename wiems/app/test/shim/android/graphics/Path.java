@@ -13,5 +13,7 @@ public class Path {
 
     public void cubicTo(float a, float b, float c, float d, float e, float f) { p.curveTo(a, b, c, d, e, f); }
 
+    public void quadTo(float a, float b, float c, float d) { p.quadTo(a, b, c, d); }
+
     public void close() { p.closePath(); }
 }

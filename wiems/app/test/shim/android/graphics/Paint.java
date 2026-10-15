@@ -11,6 +11,7 @@ public class Paint {
     public enum Style { FILL, STROKE }
 
     public enum Cap { BUTT, ROUND, SQUARE }
+    public enum Join { MITER, ROUND, BEVEL }
 
     public static class FontMetrics {
         public float ascent, descent;
@@ -32,6 +33,8 @@ public class Paint {
     public void setStrokeWidth(float w) { stroke = w; }
 
     public void setStrokeCap(Cap c) { cap = c; }
+
+    public void setStrokeJoin(Join j) {}
 
     public void setTypeface(Typeface t) { bold = t.bold; }
 

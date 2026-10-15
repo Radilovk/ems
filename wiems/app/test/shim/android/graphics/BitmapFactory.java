@@ -10,6 +10,10 @@ public class BitmapFactory {
         public Bitmap.Config inPreferredConfig;
     }
 
+    public static Bitmap decodeStream(InputStream in) {
+        return decodeStream(in, null, null);
+    }
+
     public static Bitmap decodeStream(InputStream in, Rect pad, Options o) {
         try {
             BufferedImage src = javax.imageio.ImageIO.read(in);

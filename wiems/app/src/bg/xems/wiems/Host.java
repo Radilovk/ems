@@ -19,6 +19,14 @@ interface Host {
     void startPause();
     void applyProgram(Session.Program p, boolean age60);
     void forget();
+    /** The chosen program: −1 = the program screen (XBody's "Program selection"), else a Procs.MODE_*. */
+    int mode();
+    /** One of XBody's modes (Procs.MODE_MANUAL / MUSCLE / CARDIO / RELAX) → the training screen. */
+    void chooseMode(int m);
+    /** A passive procedure at a length (minutes; 0 = its own) → the training screen. */
+    void chooseProc(String id, int minutes);
+    /** Back to the program screen (only while nothing runs). */
+    void backToModes();
     /** The figures: female (default) or male — the client's, chosen in the session's settings. */
     boolean female();
     void setFemale(boolean f);

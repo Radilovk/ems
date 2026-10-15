@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.2)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.4)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -11,6 +11,7 @@ server / band — one Activity, one painted View, ~40 KB APK, a few MB of RAM.
 | `Session.java` | the unit's training: the panel's `Suit` (WIEMS) in Java — program, strength, zones, clock, soft rise, count-down, one op in flight |
 | `Ble.java` | Android BLE: scan "WIEMS…", connect, vendor service + battery, run / battery notifications, one write at a time |
 | `MainActivity.java` | the glue: views (no BT / permission / BT off / list / linking / training), 50 ms tick, saved program + last unit |
+| `Procs.java` | the ready programs: XBody's modes (Мускули / Кардио / Релакс) and the 7 passive procedures (the XBody panel's `xbprog`, plans per length identical) |
 | `Safe.java` | the absolute limits (same rules as the tablet and the panel) |
 | `branding/…/bodytech/WiProto.java` | the unit's frames — the same file the XEMS APK uses |
 
@@ -40,6 +41,30 @@ stops the unit.
 - "Настройки на сесията": Рампа 0,5–5 s (the unit's Ru, whole seconds), Двоен импулс (switch, Hz₂, % → the unit's
   rest Hz / %; the strengths stay in the pause), limits as the tablet (Hz₂ ≤ 10 and under the main, ≤ 150 %, the
   pause from the fatigue model with the second impulse). Opens also mid-training (program greyed, sex works).
+
+## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
+After a link the app opens XBody's **program screen** ("ИЗБОР НА ПРОГРАМА", its tiles, red line icons drawn in vector):
+- **Мускули / Кардио / Релакс** — XBody's own modes with its defaults, read off its Impulse sheet in the emulator:
+  Muscle development 80 Hz, burst 4 s / 2 s, no amplification, 20 min · Cardiovascular 7 Hz **continuous**, interval
+  20 s move / 10 s rest, 25 min · Relax 100 Hz, burst 1 s / 1 s, 10 min. Through `Safe.apply` like every program
+  (the 80 Hz pause may grow — the absolute limits win). Changeable in "Настройки на сесията" for this session.
+  Continuous = the unit's rest at the same Hz, 100 % (`Program.cont`): the impulse goes on, the phase box shows the
+  rest in XBody's yellow.
+- **Ръчни настройки** — the saved manual program (as before).
+- **Пасивни процедури** (in place of XBody's video training) — the XBody panel's page: 7 tiles (Дренаж, Оформяне,
+  Антицелулит, Болки в гърба, След раждане, Регенерация, Пасивен метаболизъм; Health Icons CC0 from
+  `xbody/overlay/opt/xems/art`), the chosen one right with its length (10 = after a training / 15 / 20 / 25 / 30, its
+  own with a dot), its phases in proportion, the strategy → НАПРЕД. `Procs.plan` = `xbprog::plan` (checked: the same
+  phases for every procedure × length).
+- Playing a procedure (`Session` with a `Procs.Plan`): at a phase change outputs 0, the unit gets the phase's program
+  (Hz, work / rest, Ru / Rd) with phase 0 and its rest (the second impulse) — as the vendor's program write right after
+  the count-down — then the levels. Each impulse: channel = trainer's level × strength × the phase's share (envelope ×
+  zone weight, or the drainage wave: one group per impulse, the previous at 50 %, a rest step = 0). 3 ↔ 8 Hz alternates
+  by impulse (a program write). Pulse width stays the unit's. Header: the procedure's name, right = Hz + phase now.
+- ← Програми (header left, only while nothing runs) goes back; the unit's name still disconnects.
+
+Unverified on the unit: that it takes a program write mid-run (phases, 3 ↔ 8 Hz) — if not, it keeps the previous
+phase's rhythm (still within limits) while the shares still follow the procedure.
 
 ## Build / test
 ```

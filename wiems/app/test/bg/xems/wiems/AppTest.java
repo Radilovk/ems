@@ -66,6 +66,19 @@ public class AppTest {
         }
         public void applyProgram(Session.Program p, boolean a) {}
         public void forget() {}
+        int mode = -1;
+        public int mode() { return mode; }
+        public void chooseMode(int m) {
+            Session.Program q = Procs.mode(m);
+            Safe.apply(q, false);
+            session.setProgram(q);
+            mode = m;
+        }
+        public void chooseProc(String id, int minutes) {
+            session.setPlan(Procs.plan(Procs.byId(id), minutes), false);
+            mode = Procs.MODE_PROC;
+        }
+        public void backToModes() { mode = -1; }
         boolean female = true;
         public boolean female() { return female; }
         public void setFemale(boolean f) { female = f; }
@@ -145,6 +158,59 @@ public class AppTest {
         eq("60+ limits", "85 6", p.hz + " " + p.onS);
         eq("pause from fatigue", true, p.offS > 1 && why.contains("Пауза"));
 
+        // ---- XBody's modes: Cardio is continuous — the unit's rest at the same Hz, full; the pause keeps the output
+        Session cs = new Session();
+        cs.linked();
+        drain(cs, 0);
+        Session.Program cp = Procs.mode(Procs.MODE_CARDIO);
+        eq("cardio safe as XBody has it", "", Safe.apply(cp, false));
+        cs.setProgram(cp);
+        cs.setStrength(40);
+        cs.start(0);
+        List<String> co = drain(cs, 0);
+        eq("cardio program 7 Hz 20/10", "012907140a00007e0502", co.get(0).substring(0, 20));
+        eq("cardio rest = 7 Hz 100 %", "020764", co.get(1).substring(0, 6));
+        cs.runNotify(new byte[] {1});
+        cs.tick(100);
+        drain(cs, 100);
+        cs.tick(20200);
+        eq("cardio rest keeps the strengths", "[0028282828282828282828]", drain(cs, 20200));
+        eq("cardio rest is live", 40, cs.liveLevel(3));
+        Session.Program mp = Procs.mode(Procs.MODE_MUSCLE);
+        Safe.apply(mp, false);
+        eq("muscle 80 Hz 4 s", "80 4", mp.hz + " " + mp.onS);
+
+        // ---- a passive procedure: the phases play by the clock, each phase's rhythm goes to the unit
+        Procs.Plan cel = Procs.plan(Procs.byId("cellulite"), 0);
+        eq("cellulite own length", 25 * 60, cel.totalMs() / 1000);
+        Session ps = new Session();
+        ps.linked();
+        drain(ps, 0);
+        ps.setPlan(cel, false);
+        ps.setStrength(50);
+        eq("plan sets the time", 25 * 60, ps.secondsLeft(0));
+        ps.start(0);
+        eq("warm-up 5 Hz 10/1", "0129050a0100007e0502", drain(ps, 0).get(0).substring(0, 20));
+        ps.runNotify(new byte[] {1});
+        ps.tick(100);
+        drain(ps, 100);
+        ps.tick(300);                                      // no Ru at low Hz: the app's own soft rise, then full
+        List<String> w0 = drain(ps, 300);
+        // W_CELL in WiEMS order: ch6 Корем 75 %, ch5 Седалище 100 % — the warm-up's envelope starts at 60 %
+        eq("warm-up shares", "00000000120f1e161e1e15", w0.get(w0.size() - 1));
+        ps.tick(150200);                                   // into "Стягане": 85 Hz with its second impulse
+        List<String> w1 = drain(ps, 150200);
+        eq("phase 2 → zero first", "0000000000000000000000", w1.get(0));
+        eq("phase 2 program 85 Hz", "012955", w1.get(1).substring(0, 6));
+        eq("phase 2 rest 8 Hz 50 %", "020832", w1.get(2).substring(0, 6));
+        eq("phase 2 seg", 1, ps.seg());
+        // the drainage wave: one group per impulse, the previous at half; the first after a rest alone
+        Procs.Plan dr = Procs.plan(Procs.byId("drain"), 0);
+        Procs.Seg legs = dr.segs[1];
+        eq("wave step 0 (calf)", "0 45", Procs.share(legs, 0, 0, 8) / 2 + " " + Procs.share(legs, 0, 0, 9) / 2);
+        eq("wave step 1 (thighs, calf at half)", "90 45", Procs.share(legs, 1, 0, 7) + " " + Procs.share(legs, 1, 0, 9));
+        eq("wave rest step", 0, Procs.share(legs, 4, 0, 9) + Procs.share(legs, 4, 0, 6));
+
         // ---- screenshots at the Lenovo Tab M8 HD size ----
         String dir = args.length > 0 ? args[0] : ".";
         Fake h = new Fake();
@@ -167,6 +233,39 @@ public class AppTest {
         h.session.linked();
         h.session.setBattery(81);
         drain(h.session, h.t);
+        h.note = "Свързан ✓  WIEMS - EMS Device";
+        shot(v, dir, "2a-modes.png");                      // XBody's program screen after the link
+        h.note = "";
+        tap(v, 80 + 524, 405);                              // ПАСИВНИ ПРОЦЕДУРИ
+        tap(v, 80 + 24 + 2 * 128 + 60, 170);                // Антицелулит
+        tap(v, 80 + 566 + 4 * 39 + 18, 178);                // 30 min
+        shot(v, dir, "2b-procs.png");
+        tap(v, 80 + 566 + 98, 540);                         // НАПРЕД
+        eq("procedure chosen", Procs.MODE_PROC, h.mode);
+        eq("30 min plan", 30 * 60, h.session.secondsLeft(h.t));
+        shot(v, dir, "2c-proc-idle.png");
+        h.session.setStrength(45);
+        tap(v, 100, 470);                                   // СТАРТ
+        drain(h.session, h.t);
+        h.session.runNotify(new byte[] {1});
+        h.session.tick(h.t);
+        drain(h.session, h.t);
+        for (int i = 0; i < 18000 * 3 / 2; i++) {          // 15 min on: the wave over the legs
+            h.t += 100;
+            h.session.tick(h.t);
+            drain(h.session, h.t);
+            if (h.session.seg() == 2 && h.session.impulse() && h.session.liveLevel(7) > 30) break;
+        }
+        shot(v, dir, "2d-proc-running.png");
+        tap(v, 960 - 70, 28);                               // the phase block → the sheet
+        shot(v, dir, "2e-proc-sheet.png");
+        tap(v, 80 + 164, 524);                              // Откажи
+        h.session.stop();
+        drain(h.session, h.t);
+        tap(v, 70, 28);                                     // ← Програми
+        tap(v, 70, 28);                                     // ← (the procedures page) → the program screen
+        tap(v, 80 + 276, 405);                              // РЪЧНИ НАСТРОЙКИ
+        eq("manual chosen", Procs.MODE_MANUAL, h.mode);
         h.note = "Свързан ✓  WIEMS - EMS Device";
         shot(v, dir, "2-train-idle.png");
         h.note = "";

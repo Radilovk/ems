@@ -59,6 +59,11 @@ final class XView extends View {
     private final RectF[] figRect = {new RectF(), new RectF()};
     private float tapX, tapY;                   // the last touch (design units): which muscle a tap on the figure hit
     private Bitmap grain;                       // XBody's off-white grain, tiled
+    private boolean procPage;                   // the program screen shows the passive procedures
+    private String procSel = Procs.ALL[0].id;   // the procedure picked on that page
+    private int procMin;                        // its length (0 = its own)
+    private int sheetMin;                       // the procedure's length in the sheet
+    private final java.util.Map<String, Bitmap> art = new java.util.HashMap<String, Bitmap>();
     private final Paint bmp = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
     /** XBody's slider LEDs: green → blue → violet → red (its SliderLeds picture, sampled). */
     static final int[] LEDS = {0xFF02B28C, 0xFF1EA1A0, 0xFF498CAE, 0xFF97728F, 0xFFC06675, 0xFFDB5E64, 0xFFEC5959};
@@ -91,8 +96,10 @@ final class XView extends View {
             for (Seen s : a.seen()) b.append(s.mac).append(bars(s.rssi));
         }
         Session s = a.session();
+        b.append('|').append(a.mode()).append(procPage).append(procSel).append(procMin).append(sheetMin);
         if (s != null) {
             Session.Program q = s.program();
+            b.append(s.seg()).append(s.live().hz).append(s.continuous());
             b.append('|').append(s.state()).append(s.impulse()).append(s.strength()).append(s.battery())
                     .append(s.startPending()).append(s.preparing()).append(q.hz).append(q.onS).append(q.offS).append(q.totalS);
             for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i)).append('/').append(s.liveLevel(Session.ZONE_CH[i]));
@@ -118,9 +125,12 @@ final class XView extends View {
         hits.clear();
         paintGrain(c);
         int v = a.viewKind();
-        if (v == MainActivity.VIEW_TRAIN && a.session() != null) paintTrain(c);
-        else paintPick(c, v);
-        if (v == MainActivity.VIEW_TRAIN && !sheet && !confirm && a.now() < bubbleUntil) paintBubble(c);
+        boolean modes = a.mode() < 0;
+        if (v == MainActivity.VIEW_TRAIN && a.session() != null) {
+            if (modes) paintModes(c);
+            else paintTrain(c);
+        } else paintPick(c, v);
+        if (v == MainActivity.VIEW_TRAIN && !modes && !sheet && !confirm && a.now() < bubbleUntil) paintBubble(c);
         if (sheet) paintSheet(c);
         if (confirm) paintConfirm(c);
         c.restore();
@@ -344,6 +354,293 @@ final class XView extends View {
         }
     }
 
+    // ---------------------------------------------------------------- XBody's "Program selection"
+
+    /**
+     * XBody's program screen after "Begin training": its tiles — Мускули, Кардио, Релакс (its own modes with its
+     * defaults), Ръчни настройки, and in place of its video training the passive procedures.
+     */
+    private void paintModes(Canvas c) {
+        if (procPage) {
+            paintProcs(c);
+            return;
+        }
+        Session s = a.session();
+        String n = a.note();
+        paintHeader(c, "ИЗБОР НА ПРОГРАМА", n.length() > 0 ? n : unitLine(s), n.length() > 0 && a.noteWarn(),
+                n.length() > 0 && !a.noteWarn());
+        hit(160, 0, dw - 152, 56, "unit");
+        font(17, false);
+        text(c, "Какво тренираме днес?", 0, 70, dw, 104, 0, INK);
+        int[] m = {Procs.MODE_MUSCLE, Procs.MODE_CARDIO, Procs.MODE_RELAX, Procs.MODE_MANUAL, Procs.MODE_PROC};
+        String[] label = {"МУСКУЛИ", "КАРДИО", "РЕЛАКС", "РЪЧНИ НАСТРОЙКИ", "ПАСИВНИ ПРОЦЕДУРИ"};
+        float[] cx = {dx + 152, dx + 400, dx + 648, dx + 276, dx + 524};
+        for (int i = 0; i < 5; i++) {
+            float l = cx[i] - 75, t = i < 3 ? 120 : 330;
+            String id = i == 4 ? "procs" : "mode:" + m[i];
+            outlined(c, l, t, l + 150, t + 150, id, null, 0, false);
+            icon(c, m[i], cx[i], t + 75);
+            font(14, true);
+            p.setLetterSpacing(0.04f);
+            text(c, label[i], cx[i] - 120, t + 154, cx[i] + 120, t + 180, 0, INK);
+            p.setLetterSpacing(0);
+            font(12.5f, false);
+            String how = i == 4 ? Procs.ALL.length + " готови · 10–30 мин" : Procs.MODE_HOW[m[i]];
+            text(c, elide(how, 236), cx[i] - 120, t + 178, cx[i] + 120, t + 198, 0, SOFT);
+            hit(cx[i] - 110, t + 150, cx[i] + 110, t + 198, id);
+        }
+    }
+
+    /** The tiles' red line icons, drawn (XBody's style: one weight, round ends). */
+    private void icon(Canvas c, int m, float cx, float cy) {
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(4);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        p.setStrokeJoin(Paint.Join.ROUND);
+        p.setColor(RED);
+        path.reset();
+        if (m == Procs.MODE_MUSCLE) {                    // a torso, both arms flexed
+            c.drawCircle(cx, cy - 30, 9, p);
+            path.moveTo(cx - 16, cy - 14);
+            path.lineTo(cx - 10, cy + 32);
+            path.lineTo(cx + 10, cy + 32);
+            path.lineTo(cx + 16, cy - 14);
+            path.close();
+            for (int sgn = -1; sgn <= 1; sgn += 2) {
+                path.moveTo(cx + sgn * 16, cy - 14);
+                path.cubicTo(cx + sgn * 30, cy - 12, cx + sgn * 44, cy - 6, cx + sgn * 46, cy - 18);
+                path.cubicTo(cx + sgn * 48, cy - 30, cx + sgn * 40, cy - 38, cx + sgn * 34, cy - 42);
+                path.moveTo(cx + sgn * 22, cy - 13);
+                path.quadTo(cx + sgn * 30, cy - 26, cx + sgn * 40, cy - 24);
+            }
+            c.drawPath(path, p);
+        } else if (m == Procs.MODE_CARDIO) {             // a heart with the pulse through it
+            path.moveTo(cx, cy + 32);
+            path.cubicTo(cx - 52, cy, cx - 30, cy - 46, cx, cy - 20);
+            path.cubicTo(cx + 30, cy - 46, cx + 52, cy, cx, cy + 32);
+            c.drawPath(path, p);
+            path.reset();
+            path.moveTo(cx - 46, cy);
+            path.lineTo(cx - 18, cy);
+            path.lineTo(cx - 10, cy - 16);
+            path.lineTo(cx, cy + 16);
+            path.lineTo(cx + 8, cy - 6);
+            path.lineTo(cx + 14, cy);
+            path.lineTo(cx + 46, cy);
+            p.setColor(WHITE);
+            p.setStrokeWidth(9);
+            c.drawPath(path, p);
+            p.setColor(RED);
+            p.setStrokeWidth(4);
+            c.drawPath(path, p);
+        } else if (m == Procs.MODE_RELAX) {              // lying back on a lounger
+            path.moveTo(cx - 46, cy + 24);
+            path.lineTo(cx + 6, cy + 24);
+            path.lineTo(cx + 24, cy + 4);
+            path.lineTo(cx + 46, cy + 4);
+            path.moveTo(cx - 36, cy + 24);
+            path.lineTo(cx - 36, cy + 34);
+            path.moveTo(cx + 36, cy + 4);
+            path.lineTo(cx + 40, cy + 34);
+            path.moveTo(cx - 26, cy + 12);
+            path.lineTo(cx + 2, cy + 12);
+            path.lineTo(cx + 18, cy - 6);
+            path.lineTo(cx + 40, cy - 6);
+            c.drawPath(path, p);
+            c.drawCircle(cx - 34, cy + 6, 7, p);
+        } else if (m == Procs.MODE_MANUAL) {             // three sliders
+            float[] knob = {cx - 12, cx + 18, cx - 24};
+            for (int i = 0; i < 3; i++) {
+                float y = cy - 24 + i * 24;
+                c.drawLine(cx - 40, y, cx + 40, y, p);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(WHITE);
+                c.drawCircle(knob[i], y, 7, p);
+                p.setStyle(Paint.Style.STROKE);
+                p.setColor(RED);
+                c.drawCircle(knob[i], y, 7, p);
+            }
+        } else {                                          // lying, with the waves of a passive procedure
+            c.drawCircle(cx - 36, cy + 10, 7, p);
+            path.moveTo(cx - 26, cy + 16);
+            path.lineTo(cx + 40, cy + 16);
+            path.moveTo(cx - 48, cy + 30);
+            path.lineTo(cx + 48, cy + 30);
+            for (int i = 0; i < 3; i++) {
+                float y = cy - 30 + i * 13, x0 = cx - 18 + i * 6;
+                path.moveTo(x0, y);
+                path.cubicTo(x0 + 8, y - 8, x0 + 14, y + 8, x0 + 22, y);
+                path.cubicTo(x0 + 30, y - 8, x0 + 36, y + 8, x0 + 44, y);
+            }
+            c.drawPath(path, p);
+        }
+        p.setStyle(Paint.Style.FILL);
+        p.setStrokeJoin(Paint.Join.MITER);
+    }
+
+    private Bitmap art(String id) {
+        if (!art.containsKey(id)) {
+            Bitmap b = null;
+            try {
+                java.io.InputStream in = a.openAsset("art/" + id + ".png");
+                if (in != null) {
+                    b = android.graphics.BitmapFactory.decodeStream(in);
+                    in.close();
+                }
+            } catch (Throwable t) {
+                b = null;
+            }
+            art.put(id, b);
+        }
+        return art.get(id);
+    }
+
+    private static final int WAVE = 0xFF1F9EB0, LOW = 0xFFC4C8CC;
+
+    private static int segColor(Procs.Seg g) {
+        return g.wave != null ? WAVE : g.hz >= 20 ? GREEN : LOW;
+    }
+
+    /**
+     * The passive procedures — the XBody panel's "Програми" page: the tiles left, the chosen one right with its length
+     * (one tap; its own length has a dot, 10 = after a training), its phases in proportion and the strategy.
+     */
+    private void paintProcs(Canvas c) {
+        Session s = a.session();
+        String n = a.note();
+        paintHeader(c, "ПАСИВНИ ПРОЦЕДУРИ", n.length() > 0 ? n : unitLine(s), n.length() > 0 && a.noteWarn(),
+                n.length() > 0 && !a.noteWarn());
+        backButton(c, "procs-back");
+        float o = dx;
+        for (int i = 0; i < Procs.ALL.length; i++) {
+            Procs.Proc pr = Procs.ALL[i];
+            float l = o + 24 + (i % 4) * 128, t = 76 + (i / 4) * 216;
+            String id = "proc:" + pr.id;
+            boolean on = pr.id.equals(procSel);
+            round(c, l + 1.5f, t + 1.5f, l + 118.5f, t + 198.5f, 12, id.equals(pressed) ? PRESS : WHITE);
+            stroke(c, l + 1.5f, t + 1.5f, l + 118.5f, t + 198.5f, 12, on ? RED : LINE, on ? 3 : 2);
+            Bitmap b = art(pr.id);
+            if (b != null) {
+                rf.set(l + 14, t + 12, l + 106, t + 104);
+                c.drawBitmap(b, new Rect(0, 0, b.getWidth(), b.getHeight()), rf, bmp);
+            }
+            if (on) {                                     // ✓ badge
+                p.setColor(RED);
+                c.drawCircle(l + 100, t + 19, 13, p);
+                line(c, l + 94, t + 19.5f, l + 98.5f, t + 24, WHITE, 2.5f);
+                line(c, l + 98.5f, t + 24, l + 106, t + 15, WHITE, 2.5f);
+            }
+            String[] words = pr.name.split(" ");
+            boolean two = words.length > 1 && fit(pr.name, 15, 106) < 15;
+            String l1 = two ? words[0] : pr.name, l2 = two ? pr.name.substring(l1.length() + 1) : "";
+            font(Math.min(fit(l1, 15, 106), two ? fit(l2, 15, 106) : 15), true);   // one size, smaller rather than cut
+            if (two) {
+                text(c, l1, l, t + 112, l + 120, t + 132, 0, INK);
+                text(c, l2, l, t + 132, l + 120, t + 152, 0, INK);
+            } else text(c, l1, l, t + 118, l + 120, t + 142, 0, INK);
+            Procs.Plan pl = Procs.plan(pr, on ? procMin : 0);
+            Procs.Seg g = pl.main();
+            font(13, false);
+            text(c, pl.minutes + " мин · " + g.hz + (g.hz2 > 0 ? "↔" + g.hz2 : "") + " Hz", l, t + 168, l + 120, t + 190, 0, SOFT);
+            hit(l, t, l + 120, t + 200, id);
+        }
+
+        // ---- right: the chosen procedure ----
+        Procs.Proc pr = Procs.byId(procSel);
+        Procs.Plan pl = Procs.plan(pr, procMin);
+        float sl = o + 552, sw = 224, x = sl + 14, w = sw - 28;
+        round(c, sl, 76, sl + sw, 584, 12, 0xFFF4F5F6);
+        float tpx = 20;
+        font(tpx, true);
+        while (tpx > 15 && p.measureText(pr.name) > w) font(--tpx, true);
+        text(c, pr.name, x, 84, x + w, 112, -1, INK);
+        font(13, pl.post);
+        wrap(c, pl.how, x, 114, w, 18, 2, pl.post ? GREEN : SOFT);
+        float cw = w / Procs.LEN_N;
+        for (int i = 0; i < Procs.LEN_N; i++) {
+            int m = Procs.LENGTHS[i];
+            float hl = x + i * cw;
+            String id = "pmin:" + m;
+            boolean sel = m == pl.minutes;
+            if (sel) round(c, hl, 158, hl + cw - 4, 198, 8, INK);
+            else {
+                round(c, hl, 158, hl + cw - 4, 198, 8, id.equals(pressed) ? PRESS : WHITE);
+                stroke(c, hl + 0.75f, 158.75f, hl + cw - 4.75f, 197.25f, 8, LINE, 1.5f);
+            }
+            font(16, sel);
+            text(c, String.valueOf(m), hl, 156, hl + cw - 4, 192, 0, sel ? WHITE : INK);
+            if (m == pr.minutes) {
+                p.setColor(sel ? WHITE : SOFT);
+                c.drawCircle(hl + (cw - 4) / 2, 191, 2, p);
+            } else if (m == Procs.POST_MIN && pr.post != null) {
+                font(9, true);
+                text(c, "след", hl, 186, hl + cw - 4, 197, 0, sel ? WHITE : GREEN);
+            }
+            hit(hl, 154, hl + cw - 4, 202, id);
+        }
+        int total = pl.totalMs();
+        float bx = x;
+        for (int i = 0; i < pl.segs.length; i++) {
+            Procs.Seg g = pl.segs[i];
+            float bw = i == pl.segs.length - 1 ? x + w - bx : w * g.ms / total;
+            p.setColor(segColor(g));
+            c.drawRect(bx, 212, bx + bw - 2, 220, p);
+            bx += bw;
+        }
+        for (int i = 0; i < pl.segs.length && i < 7; i++) {
+            Procs.Seg g = pl.segs[i];
+            float y = 228 + i * 25;
+            p.setColor(segColor(g));
+            c.drawCircle(x + 4, y + 12, 4, p);
+            int sec = g.ms / 1000;
+            String len = sec % 60 != 0 ? sec / 60 + ":" + (sec % 60 < 10 ? "0" : "") + sec % 60 : sec / 60 + " мин";
+            String right = len + (g.dblHz > 0 ? " · 2×" : "");
+            font(13, false);
+            float rw = p.measureText(right) + 6;
+            text(c, elide(g.name, w - 14 - rw), x + 14, y, x + w - rw, y + 24, -1, SOFT);
+            text(c, right, x + 14, y, x + w, y + 24, 1, SOFT);
+        }
+        round(c, x, 410, x + w, 494, 8, 0xFFFFF4D6);
+        font(13, true);
+        wrap(c, pl.note, x + 10, 416, w - 20, 18, 2, 0xFF7A5500);
+        font(13, false);
+        wrap(c, "Силата по зоните остава твоя", x + 10, 456, w - 20, 17, 2, 0xFF7A5500);
+        filled(c, x, 508, x + w, 570, "proc-go", GREEN, WHITE, "НАПРЕД  ›", 22);
+    }
+
+    /** The largest bold size ≤ px (down to 11) at which s fits in w. */
+    private float fit(String s, float px, float w) {
+        float f = px;
+        font(f, true);
+        while (f > 11 && p.measureText(s) > w) font(--f, true);
+        return f;
+    }
+
+    /** Text over up to maxLines lines (word wrap), the current font. */
+    private void wrap(Canvas c, String s, float l, float t, float w, float lh, int maxLines, int color) {
+        String[] words = s.split(" ");
+        StringBuilder line = new StringBuilder();
+        int n = 0;
+        for (int i = 0; i < words.length && n < maxLines; i++) {
+            String tryL = line.length() == 0 ? words[i] : line + " " + words[i];
+            if (p.measureText(tryL) <= w || line.length() == 0) line = new StringBuilder(tryL);
+            else {
+                boolean lastLine = n == maxLines - 1;
+                text(c, lastLine ? elide(line + " " + join(words, i), w) : line.toString(), l, t + n * lh, l + w, t + (n + 1) * lh, -1, color);
+                n++;
+                if (lastLine) return;
+                line = new StringBuilder(words[i]);
+            }
+        }
+        if (n < maxLines && line.length() > 0) text(c, line.toString(), l, t + n * lh, l + w, t + (n + 1) * lh, -1, color);
+    }
+
+    private static String join(String[] w, int from) {
+        StringBuilder b = new StringBuilder();
+        for (int i = from; i < w.length; i++) b.append(i > from ? " " : "").append(w[i]);
+        return b.toString();
+    }
+
     // ---------------------------------------------------------------- training (XBody's screen)
 
     /** XBody's zone buttons are 175 wide on its 4:3 screen; the tablet's wider screen gives them room for the names. */
@@ -376,21 +673,34 @@ final class XView extends View {
         boolean toastOn = now < toastUntil;
         String n = toastOn ? toast : a.note();
         boolean warn = toastOn || a.noteWarn();
-        String sub = n.length() > 0 ? n : "WiEMS   ·   батерия " + (s.battery() < 0 ? "—" : s.battery() + "%");
-        paintHeader(c, a.linkedName() == null ? "WiEMS" : a.linkedName().toUpperCase(), sub, n.length() > 0 && warn,
-                n.length() > 0 && !warn);
+        String sub = n.length() > 0 ? n : unitLine(s);
+        paintHeader(c, modeTitle(), sub, n.length() > 0 && warn, n.length() > 0 && !warn);
         if (n.length() == 0) {
             font(14, true);
             battery(c, dw / 2 + p.measureText(sub) / 2 + 10, 37, s.battery());
         }
-        if (idle) hit(160, 0, dw - 152, 56, "unit");
+        if (idle) {
+            hit(160, 0, dw - 152, 56, "unit");
+            backButton(c, "back");                     // XBody's ← to the program screen
+        }
         float pl = dw - 147;
         if ("prog".equals(pressed)) round(c, pl + 1, 0, dw, 56, 0, PRESS);
-        font(22, true);
-        text(c, pr.hz + " Hz", pl, 3, dw, 31, 0, running ? GREY : INK);
-        font(pr.dbl ? 12.5f : 14, true);
-        text(c, pr.onS + "/" + pr.offS + " s · " + pr.totalS / 60 + " мин" + (pr.dbl ? " · 2×" : ""), pl, 30, dw, 52, 0,
-                running ? GREY : SOFT);
+        Procs.Plan plan = s.plan();
+        Session.Program lv = s.live();
+        if (plan != null) {                            // a procedure: its phase now (Hz, name), or its length
+            int si = s.seg();
+            font(22, true);
+            text(c, (si >= 0 ? lv.hz : plan.main().hz) + " Hz", pl, 3, dw, 31, 0, INK);
+            font(12.5f, true);
+            text(c, elide(si >= 0 ? plan.segs[si].name : plan.minutes + " мин · " + plan.segs.length + " фази", 140), pl, 30,
+                    dw, 52, 0, SOFT);
+        } else {
+            font(22, true);
+            text(c, pr.hz + " Hz", pl, 3, dw, 31, 0, running ? GREY : INK);
+            String rh = pr.cont ? "непрекъснато" : pr.onS + "/" + pr.offS + " s";
+            font(pr.dbl ? 12.5f : 14, true);
+            text(c, rh + " · " + pr.totalS / 60 + " мин" + (pr.dbl ? " · 2×" : ""), pl, 30, dw, 52, 0, running ? GREY : SOFT);
+        }
         hit(pl, 0, dw, 56, "prog");
 
         // ---- the zone buttons: XBody's two columns, at the screen's edges ----
@@ -496,6 +806,31 @@ final class XView extends View {
         }
     }
 
+    /** The header's title: the program (XBody's "CARDIOVASCULAR"). */
+    private String modeTitle() {
+        Session s = a.session();
+        if (a.mode() == Procs.MODE_PROC && s != null && s.plan() != null) return s.plan().proc.name.toUpperCase();
+        return a.mode() >= 0 ? Procs.MODE_NAME[a.mode()].toUpperCase() : "ИЗБОР НА ПРОГРАМА";
+    }
+
+    private String unitLine(Session s) {
+        String u = a.linkedName() == null ? "WiEMS" : a.linkedName();
+        return u + "   ·   батерия " + (s.battery() < 0 ? "—" : s.battery() + "%");
+    }
+
+    /** XBody's ← (its tray's Return), in the header's left block: over the logo. */
+    private void backButton(Canvas c, String id) {
+        p.setColor(WHITE);
+        c.drawRect(0, 0, 154, 55, p);
+        if (id.equals(pressed)) round(c, 6, 8, 148, 48, 8, PRESS);
+        line(c, 22, 28, 40, 28, INK, 2.2f);
+        line(c, 22, 28, 30, 20, INK, 2.2f);
+        line(c, 22, 28, 30, 36, INK, 2.2f);
+        font(15, true);
+        text(c, "Програми", 50, 8, 150, 48, -1, INK);
+        hit(0, 0, 155, 56, id);
+    }
+
     private void paintPhase(Canvas c, Session s, Session.Program pr, long now, boolean idle, boolean running) {
         float l = dx + 344, t = 101, r = dx + 464, b = 165;
         round(c, l + 0.5f, t - 8, r - 0.5f, b - 0.5f, 6, WHITE);
@@ -503,10 +838,11 @@ final class XView extends View {
         String txt;
         int col;
         float px = 50;
+        pr = s.live();
         if (running) {
             int sec = (s.phaseMsLeft(now) + 999) / 1000;
             txt = (sec < 10 ? "0" : "") + sec;
-            col = s.impulse() ? GREEN : GREY;
+            col = s.impulse() ? GREEN : pr.cont ? YELLOW : GREY;   // XBody: exercise green, rest yellow
         } else if (!idle) {
             txt = "II";
             col = YELLOW;
@@ -522,7 +858,7 @@ final class XView extends View {
             float f = len > 0 ? 1f - (float) s.phaseMsLeft(now) / len : 0;
             f = Math.max(0, Math.min(1, f));
             round(c, l + 14, b - 9, r - 14, b - 5, 2, HEAD_LINE);
-            round(c, l + 14, b - 9, l + 14 + (r - l - 28) * f, b - 5, 2, s.impulse() ? GREEN : GREY);
+            round(c, l + 14, b - 9, l + 14 + (r - l - 28) * f, b - 5, 2, s.impulse() ? GREEN : pr.cont ? YELLOW : GREY);
         }
     }
 
@@ -659,6 +995,9 @@ final class XView extends View {
         line(c, o + 432, 100, o + 432, 452, HEAD_LINE, 1);
         Session.Program q = sheetProg;
         boolean locked = a.session() != null && a.session().state() == Session.RUNNING;
+        Procs.Plan plan = a.mode() == Procs.MODE_PROC && a.session() != null ? a.session().plan() : null;
+        if (plan != null) sheetProc(c, o, plan, a.session().state() != Session.IDLE);
+        else {
         caption(c, o + 64, 98, locked ? "ПРОГРАМА · СМЕНЯ СЕ НА ПАУЗА" : "ПРОГРАМА");
         String[] labels = {"Честота", "Времетраене", "Рампа"};
         String[] values = {q.hz + " Hz", q.totalS / 60 + " мин", q.rampMs / 1000 + "," + q.rampMs % 1000 / 100 + " s"};
@@ -677,8 +1016,9 @@ final class XView extends View {
         pill(c, o + 64, 354, o + 230, 404, q.onS + " s", locked ? null : "on");
         pill(c, o + 242, 354, o + 408, 404, q.offS + " s", locked ? null : "off");
         font(14, true);
-        text(c, "импулс", o + 64, 406, o + 230, 428, 0, GREEN);
-        text(c, "пауза", o + 242, 406, o + 408, 428, 0, SOFT);
+        text(c, q.cont ? "движение" : "импулс", o + 64, 406, o + 230, 428, 0, GREEN);
+        text(c, q.cont ? "почивка · импулсът продължава" : "пауза", o + 242, 406, o + 408, 428, 0, q.cont ? 0xFFB08300 : SOFT);
+        }
 
         // ---- right: the client ----
         caption(c, o + 456, 98, "КЛИЕНТ");
@@ -706,6 +1046,13 @@ final class XView extends View {
             font(14, true);
             text(c, "✓ Честотата спира до 85 Hz", o + 456, 258, o + 736, 280, -1, GREEN);
         }
+        if (plan != null) {                              // a procedure: its phases carry their own second impulse
+            caption(c, o + 456, 296, "КАК");
+            font(15, false);
+            wrap(c, plan.how, o + 456, 322, 280, 22, 3, INK);
+            font(14, false);
+            text(c, "Силата по зоните остава твоя", o + 456, 400, o + 736, 424, -1, SOFT);
+        } else {
         // ---- the double impulse: a second, low impulse in the pause (the unit's own rest Hz / %) ----
         caption(c, o + 456, 296, "ДВОЕН ИМПУЛС");
         float ds = o + 736 - 80, dt = 290;
@@ -719,10 +1066,61 @@ final class XView extends View {
         int cycles = q.onS + q.offS > 0 ? q.totalS / (q.onS + q.offS) : 0;
         font(14, false);
         text(c, cycles + " импулса · " + q.onS * cycles / 60 + " мин работа", o + 456, 400, o + 736, 424, -1, SOFT);
+        }
 
         line(c, o + 64, 470, o + 736, 470, HEAD_LINE, 1);
         outlined(c, o + 64, 494, o + 264, 554, "sheet-cancel", "Откажи", 18, false);
         filled(c, o + 496, 494, o + 736, 554, "sheet-ok", GREEN, WHITE, "✓  Готово", 20);
+    }
+
+    /** The sheet's left half for a procedure: its length (while it has not started), its phases, the strategy. */
+    private void sheetProc(Canvas c, float o, Procs.Plan cur, boolean locked) {
+        Procs.Plan pl = locked ? cur : Procs.plan(cur.proc, sheetMin);
+        caption(c, o + 64, 98, locked ? "ПРОЦЕДУРА · ДЪЛЖИНАТА Е ПРЕДИ СТАРТ" : "ПРОЦЕДУРА · ДЪЛЖИНА, МИН");
+        float x = o + 64, w = 344, cw = w / Procs.LEN_N;
+        for (int i = 0; i < Procs.LEN_N; i++) {
+            int m = Procs.LENGTHS[i];
+            float hl = x + i * cw;
+            String id = "pmin:" + m;
+            boolean sel = m == pl.minutes;
+            if (sel) round(c, hl, 124, hl + cw - 6, 168, 8, locked ? GREY : INK);
+            else {
+                round(c, hl, 124, hl + cw - 6, 168, 8, id.equals(pressed) ? PRESS : WHITE);
+                stroke(c, hl + 0.75f, 124.75f, hl + cw - 6.75f, 167.25f, 8, LINE, 1.5f);
+            }
+            font(18, sel);
+            text(c, String.valueOf(m), hl, 122, hl + cw - 6, 162, 0, sel ? WHITE : locked ? GREY : INK);
+            if (m == cur.proc.minutes) {
+                p.setColor(sel ? WHITE : SOFT);
+                c.drawCircle(hl + (cw - 6) / 2, 161, 2, p);
+            }
+            if (!locked) hit(hl, 120, hl + cw - 6, 172, id);
+        }
+        int total = pl.totalMs();
+        float bx = x;
+        int now = locked ? a.session().seg() : -1;
+        for (int i = 0; i < pl.segs.length; i++) {
+            Procs.Seg g = pl.segs[i];
+            float bw = i == pl.segs.length - 1 ? x + w - bx : w * g.ms / total;
+            p.setColor(segColor(g));
+            c.drawRect(bx, 184, bx + bw - 2, 192, p);
+            bx += bw;
+        }
+        for (int i = 0; i < pl.segs.length && i < 8; i++) {
+            Procs.Seg g = pl.segs[i];
+            float y = 200 + i * 28;
+            p.setColor(segColor(g));
+            c.drawCircle(x + 5, y + 14, 5, p);
+            int sec = g.ms / 1000;
+            String len = sec % 60 != 0 ? sec / 60 + ":" + (sec % 60 < 10 ? "0" : "") + sec % 60 : sec / 60 + " мин";
+            String right = g.hz + (g.hz2 > 0 ? "↔" + g.hz2 : "") + " Hz · " + len + (g.dblHz > 0 ? " · 2×" : "");
+            font(15, i == now);
+            float rw = p.measureText(right) + 8;
+            text(c, (i == now ? "▶ " : "") + elide(g.name, w - 18 - rw), x + 16, y, x + w - rw, y + 28, -1, i == now ? INK : SOFT);
+            text(c, right, x + 16, y, x + w, y + 28, 1, i == now ? INK : SOFT);
+        }
+        font(14, true);
+        text(c, pl.note, x, 428, x + w, 452, -1, 0xFF7A5500);
     }
 
     /** XBody's message dialog: a dark red band over the whole width. */
@@ -884,6 +1282,7 @@ final class XView extends View {
         if (id.equals("prog") && s != null) {
             sheetProg = s.program().copy();
             sheetAge60 = a.age60();
+            sheetMin = s.plan() != null ? s.plan().minutes : 0;
             sheet = true;
             return;
         }
@@ -901,12 +1300,51 @@ final class XView extends View {
             return;
         }
         if (id.equals("sheet-ok")) {
+            if (a.mode() == Procs.MODE_PROC && s != null && s.plan() != null && s.state() == Session.IDLE) {
+                procMin = sheetMin;
+                a.chooseProc(s.plan().proc.id, sheetMin);
+            }
             if (s == null || s.state() != Session.RUNNING) a.applyProgram(sheetProg, sheetAge60);
             sheet = false;
             return;
         }
         if (id.equals("sex-f") || id.equals("sex-m")) {   // the figures change at once, also mid-training
             a.setFemale(id.equals("sex-f"));
+            return;
+        }
+        if (id.startsWith("mode:")) {                   // one of XBody's modes → its training screen
+            a.chooseMode(Integer.parseInt(id.substring(5)));
+            sel = 0;
+            return;
+        }
+        if (id.equals("procs")) {
+            procPage = true;
+            return;
+        }
+        if (id.equals("procs-back")) {
+            procPage = false;
+            return;
+        }
+        if (id.startsWith("proc:")) {
+            String pid = id.substring(5);
+            if (!pid.equals(procSel)) procMin = 0;      // a new procedure starts at its own length
+            procSel = pid;
+            return;
+        }
+        if (id.startsWith("pmin:")) {
+            int m = Integer.parseInt(id.substring(5));
+            if (sheet) sheetMin = m;
+            else procMin = m;
+            return;
+        }
+        if (id.equals("proc-go")) {
+            a.chooseProc(procSel, procMin);
+            sel = 0;
+            return;
+        }
+        if (id.equals("back")) {                         // ← the program screen (the procedure page if one was on)
+            procPage = a.mode() == Procs.MODE_PROC;
+            a.backToModes();
             return;
         }
         if (id.equals("unit") && s != null && s.state() == Session.IDLE) {

@@ -13,10 +13,12 @@ import java.util.Iterator;
  */
 final class Session {
     static final class Program {
-        int hz = 85, onS = 4, offS = 4, totalS = 20 * 60, rampMs = 1000;
+        int hz = 85, onS = 4, offS = 4, totalS = 20 * 60, rampMs = 1000, downS;
         /** Double impulse: a second, low impulse in the pause (Hz ≤ 10 and under the main; % of the main strength). */
         boolean dbl;
         int dblHz = 5, dblPct = 50;
+        /** Continuous (XBody's Cardio): the pause goes on at the same Hz and strength — work / rest only for the client. */
+        boolean cont;
 
         Program copy() {
             Program p = new Program();
@@ -28,6 +30,8 @@ final class Session {
             p.dbl = dbl;
             p.dblHz = dblHz;
             p.dblPct = dblPct;
+            p.downS = downS;
+            p.cont = cont;
             return p;
         }
 
@@ -59,6 +63,13 @@ final class Session {
     }
 
     private Program prog = new Program();
+    /** The rhythm the unit has now: the program, or the procedure's phase (its Hz of this cycle). */
+    private Program cur = prog;
+    /** A ready procedure (null: one rhythm, prog) — its phases play by the clock. */
+    private Procs.Plan plan;
+    private int seg = -1, cycle;
+    /** Per unit channel, % of the trainer's level the procedure gives now (its envelope, zone weights or wave). */
+    private final int[] share = new int[WiProto.CHANNELS];
     private int strength;
     private final int[] ch = new int[WiProto.CHANNELS];
     private int state = IDLE;
@@ -74,7 +85,10 @@ final class Session {
     private long sentMs;
 
     Session() {
-        for (int i = 0; i < ch.length; i++) ch[i] = 100;
+        for (int i = 0; i < ch.length; i++) {
+            ch[i] = 100;
+            share[i] = 100;
+        }
     }
 
     // ---------------------------------------------------------------- control (the screen)
@@ -93,8 +107,39 @@ final class Session {
         return prog;
     }
 
+    /** One rhythm (manual, or one of XBody's modes); drops a procedure. Not while running. */
     void setProgram(Program p) {
         prog = p.copy();
+        plan = null;
+        if (state != RUNNING) cur = prog;
+    }
+
+    /** A ready procedure at its length: the session's time is the plan's. Not while running. */
+    void setPlan(Procs.Plan p, boolean age60) {
+        plan = p;
+        prog = segProgram(0, 0, age60);
+        prog.totalS = p.totalMs() / 1000;
+        this.age60 = age60;
+        if (state != RUNNING) cur = prog;
+    }
+
+    Procs.Plan plan() {
+        return plan;
+    }
+
+    /** The procedure's phase now (−1: none). */
+    int seg() {
+        return plan == null || state == IDLE ? -1 : seg;
+    }
+
+    private boolean age60;
+
+    private Program segProgram(int i, int k, boolean a60) {
+        Procs.Seg g = plan.segs[i];
+        Program p = g.program(Procs.hzOf(g, k));
+        p.totalS = prog.totalS;
+        Safe.apply(p, a60);
+        return p;
     }
 
     int strength() {
@@ -104,7 +149,7 @@ final class Session {
     void setStrength(int s) {
         strength = Math.max(0, Math.min(Safe.STRENGTH_MAX, s));
         if (impulse()) levels(rampStep);
-        else if (second()) pauseLevels();
+        else if (second() || continuous()) pauseLevels();
     }
 
     int zone(int z) {
@@ -114,16 +159,24 @@ final class Session {
     void setZone(int z, int pct) {
         ch[ZONE_CH[z]] = Math.max(0, Math.min(100, pct));
         if (impulse()) levels(rampStep);
-        else if (second()) pauseLevels();
+        else if (second() || continuous()) pauseLevels();
     }
 
     void start(long now) {
         if (state == RUNNING) return;
+        if (state == IDLE && plan != null) {         // a procedure starts at its first phase
+            seg = 0;
+            cycle = 0;
+            cur = segProgram(0, 0, age60);
+            setShare(0, 0);
+        } else if (plan == null) {
+            cur = prog;
+            for (int i = 0; i < share.length; i++) share[i] = 100;
+        }
         if (wi == WI_IDLE) {
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
-            push(WiProto.program(prog.hz, prog.onS, prog.offS, prog.rampS(), 0, WiProto.PHASE_ARM), T_PROG);
-            // the unit's rest: the double impulse's Hz and % — or 0 % (nothing in the pause)
-            push(WiProto.rest(prog.dbl ? prog.dblHz : 5, prog.dbl ? Math.min(100, prog.dblPct) : 0), T_PROG);
+            push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_ARM), T_PROG);
+            push(rest(cur), T_PROG);
             push(WiProto.widths(), T_PROG);
             push(WiProto.zero(), T_PROG);
             push(WiProto.run(true), T_PROG);
@@ -141,10 +194,22 @@ final class Session {
         state = RUNNING;
         endMs = now + remainMs;
         on = true;
-        phaseEndMs = now + prog.onS * 1000L;
+        phaseEndMs = now + cur.onS * 1000L;
         rampStartMs = now;
-        rampStep = prog.rampS() > 0 ? RAMP_STEPS : 1;   // the unit rises by itself (Ru)
+        rampStep = cur.rampS() > 0 ? RAMP_STEPS : 1;   // the unit rises by itself (Ru)
         levels(rampStep);
+    }
+
+    /** The unit's rest: continuous = the same Hz at full; the double impulse's Hz and %; else 0 % (nothing). */
+    private static byte[] rest(Program p) {
+        if (p.cont) return WiProto.rest(p.hz, 100);
+        return WiProto.rest(p.dbl ? p.dblHz : 5, p.dbl ? Math.min(100, p.dblPct) : 0);
+    }
+
+    /** What every channel gives on cycle k of phase i (the procedure's envelope × zone weight, or its wave). */
+    private void setShare(int i, long ts) {
+        Procs.Seg g = plan.segs[i];
+        for (int c = 0; c < share.length; c++) share[c] = Procs.share(g, cycle, ts, c);
     }
 
     void pause(long now) {
@@ -179,7 +244,7 @@ final class Session {
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
         if (wi == WI_COUNT && !progQueued() && (wiGo || now - wiAt >= 6000)) {
             push(WiProto.zero(), T_PLAIN);
-            push(WiProto.program(prog.hz, prog.onS, prog.offS, prog.rampS(), 0, WiProto.PHASE_RUN), T_PLAIN);
+            push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
             wi = WI_RUN;
             wiGo = false;
         }
@@ -191,15 +256,37 @@ final class Session {
             finished = true;
             return;
         }
+        if (plan != null) {                             // a procedure: its next phase by the clock
+            long el = prog.totalS * 1000L - remainMs;
+            int i = plan.segAt(el);
+            if (i >= 0 && i != seg) {
+                // the unit takes the phase's rhythm while it runs (as the vendor's program write after the count-down)
+                seg = i;
+                cycle = 0;
+                cur = segProgram(i, 0, age60);
+                setShare(i, 0);
+                dropLevels();
+                push(WiProto.zero(), T_PLAIN);         // outputs 0 while the rhythm changes (kept: not a level)
+                push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
+                push(rest(cur), T_PLAIN);
+                on = true;
+                phaseEndMs = now + cur.onS * 1000L;
+                rampStartMs = now;
+                rampStep = cur.rampS() > 0 ? RAMP_STEPS : 1;
+                levels(rampStep);
+                return;
+            }
+        }
         if (now >= phaseEndMs) {
             on = !on;
-            phaseEndMs += (on ? prog.onS : prog.offS) * 1000L;
-            if (now >= phaseEndMs) phaseEndMs = now + (on ? prog.onS : prog.offS) * 1000L;
+            phaseEndMs += (on ? cur.onS : cur.offS) * 1000L;
+            if (now >= phaseEndMs) phaseEndMs = now + (on ? cur.onS : cur.offS) * 1000L;
             if (on) {
+                if (plan != null && seg >= 0) nextCycle(now);
                 rampStartMs = now;
-                rampStep = prog.rampS() > 0 ? RAMP_STEPS : 1;   // the unit rises by itself (Ru)
+                rampStep = cur.rampS() > 0 ? RAMP_STEPS : 1;   // the unit rises by itself (Ru)
                 levels(rampStep);
-            } else if (prog.dbl) {
+            } else if (cur.dbl || cur.cont) {
                 pauseLevels();
             } else {
                 outputsOff(false);
@@ -207,11 +294,25 @@ final class Session {
             return;
         }
         if (on && rampStep < RAMP_STEPS) {
-            int want = 1 + (int) ((now - rampStartMs) * RAMP_STEPS / Math.max(1, prog.rampMs));
+            int want = 1 + (int) ((now - rampStartMs) * RAMP_STEPS / Math.max(1, cur.rampMs));
             if (want > RAMP_STEPS) want = RAMP_STEPS;
             if (want > rampStep) {
                 rampStep = want;
                 levels(rampStep);
+            }
+        }
+    }
+
+    /** A procedure's next impulse: the wave's next group, the envelope now, and 3 ↔ 8 Hz by cycle. */
+    private void nextCycle(long now) {
+        cycle++;
+        Procs.Seg g = plan.segs[seg];
+        setShare(seg, prog.totalS * 1000L - remainMs - plan.segStart(seg));
+        if (g.hz2 > 0) {
+            Program p = segProgram(seg, cycle, age60);
+            if (p.hz != cur.hz) {
+                cur = p;
+                push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
             }
         }
     }
@@ -237,7 +338,17 @@ final class Session {
 
     /** The pause with the double impulse on: the unit gives its second impulse (rest Hz × rest %). */
     boolean second() {
-        return state == RUNNING && !on && prog.dbl;
+        return state == RUNNING && !on && cur.dbl && !cur.cont;
+    }
+
+    /** Continuous (Cardio): the pause is the client's rest, the impulse goes on. */
+    boolean continuous() {
+        return state == RUNNING && !on && cur.cont;
+    }
+
+    /** The rhythm the unit has now (the procedure's phase, or the program). */
+    Program live() {
+        return cur;
     }
 
     boolean finished() {
@@ -322,13 +433,14 @@ final class Session {
     /** What unit channel c gives out now (0..100): its level in the impulse (with the rise), 0 in the pause. */
     int liveLevel(int c) {
         if (wi != WI_RUN) return 0;
-        if (second()) return Math.min(100, ch[c] * (strength * prog.dblPct / 100) / 100);
+        if (second()) return Math.min(100, level(c, RAMP_STEPS) * cur.dblPct / 100);
+        if (continuous()) return level(c, RAMP_STEPS);
         return impulse() ? level(c, rampStep) : 0;
     }
 
     int level(int c, int k) {
         int s = strength * k / RAMP_STEPS;
-        return Math.min(WiProto.MAX_CURRENT, ch[c] * s / 100);
+        return Math.min(WiProto.MAX_CURRENT, ch[c] * s / 100 * share[c] / 100);
     }
 
     private void levels(int k) {

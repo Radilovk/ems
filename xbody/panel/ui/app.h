@@ -45,7 +45,7 @@ public:
         bool running, training, second;
         int wiring;
         std::string program;   // the program playing this training ("" none)
-        int programSeg, programS;
+        int programSeg, programS, programMin;   // programMin: its length this training
         bool programOver;
         long boardRx;          // bytes the stimulator board sent back (feedback probe)
     };

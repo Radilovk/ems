@@ -9,6 +9,7 @@
 //             the impulse, ending 200 ms before the next one.
 #pragma once
 #include "bytes.h"
+#include "xbprog.h"
 #include <string>
 
 namespace xbcable {
@@ -28,7 +29,8 @@ struct Config {
     bool dbl;
     int dblHz, dblPct;
     std::string program;   // a ready passive program (xbprog id) played over XBody's training; empty = none
-    Config() : wiring(WIRE_XBODY), dbl(false), dblHz(5), dblPct(50) {}
+    int minutes;           // its length (xbprog::LENGTHS); 0 = the program's own
+    Config() : wiring(WIRE_XBODY), dbl(false), dblHz(5), dblPct(50), minutes(0) {}
 };
 Config parseConfig(const std::string &text);                // key=value lines; values clamped to the limits
 std::string configText(const Config &c);
@@ -49,13 +51,15 @@ public:
     int programSeg() const { return progSeg_; }
     unsigned programMs() const { return progMs_; }
     bool programOver() const { return progOver_; }
+    int programMinutes() const { return plan_.info.minutes; }
 
 private:
     Config want_, live_;
     bool training_, inPause_, second_;
     unsigned pauseStart_, progStart_, progMs_;
     int progSeg_;
-    bool progOver_;
+    bool progOver_, hasPlan_;
+    xbprog::Plan plan_;
     int pauseMs_, mainTp_;
 };
 }

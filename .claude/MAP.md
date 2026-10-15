@@ -808,20 +808,21 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (183L)
+`docs/xbody-xems-panel.md` (200L)
   - L1 # XEMS panel on the XBody unit (mod v9)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
   - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
   - L64 ## Ready passive programs on XBody's cable (mod v8)
-  - L76 ## Feedback from the stimulator (what XBody can know)
-  - L86 ## Phone → XBody over a USB cable (mod v9, no stick)
-  - L97 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L105 ## Panel
-  - L139 ## Bridge line protocol (USB CDC, 115200)
-  - L148 ## Files
-  - L160 ## Build / test
-  - L176 ## First test on the unit (when the XIAO arrives)
+  - L76 ### Length and after-training procedures (mod v10)
+  - L93 ## Feedback from the stimulator (what XBody can know)
+  - L103 ## Phone → XBody over a USB cable (mod v9, no stick)
+  - L114 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L122 ## Panel
+  - L156 ## Bridge line protocol (USB CDC, 115200)
+  - L165 ## Files
+  - L177 ## Build / test
+  - L193 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1356,12 +1357,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (17L)
   - L1 # Asset credits
 
-`xbody/CLAUDE.md` (45L)
+`xbody/CLAUDE.md` (46L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
   - L5 ## Model
   - L16 ## Build (on request: "дай файла за картата")
-  - L35 ## Panel / bridge
-  - L41 ## Rules
+  - L36 ## Panel / bridge
+  - L42 ## Rules
 
-`xbody/panel/art/README.md` (14L)
+`xbody/panel/art/README.md` (15L)
   - L1 # Program icons (XBody panel, "Програми")

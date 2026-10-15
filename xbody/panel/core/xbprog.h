@@ -8,7 +8,7 @@
 #include <string>
 
 namespace xbprog {
-enum { CH = 10, WAVE_PAUSE = 0 };
+enum { CH = 10, WAVE_PAUSE = 0, MAXSEG = 8, POST_MIN = 10 };
 
 struct Seg {
     const char *name;       // shown on the panel
@@ -25,10 +25,29 @@ struct Seg {
 
 struct Program {
     const char *id, *name, *how;   // how: one line for the trainer
-    int minutes;
+    int minutes;                   // its own length
     const Seg *segs;
     int n;
+    const Seg *post;               // its own 10-min version for after a training (null: the full one, shortened)
+    int postN;
+    const char *postHow;
 };
+
+// The lengths the trainer can pick (minutes); 0 in the config = the program's own.
+enum { LEN_N = 5 };
+extern const int LENGTHS[LEN_N];
+
+// A program at a chosen length: 10 min = its after-training version where it has one, any other length = its phases
+// stretched or shortened in proportion (whole seconds, the last phase takes the rest). Rhythm, Hz, µs, ramps and
+// the wave stay as they are, so the limits hold at every length.
+struct Plan {
+    Program info;            // segs → this plan's own copy (use program())
+    Seg segs[MAXSEG];
+    bool post;               // the after-training version
+    Plan();
+    Program program() const { Program p = info; p.segs = segs; return p; }
+};
+bool plan(const Program &p, int minutes, Plan *out);
 
 int programs(const Program **out);
 const Program *byId(const std::string &id);

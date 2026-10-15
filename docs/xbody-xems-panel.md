@@ -71,7 +71,24 @@ it is over the outputs stay off until XBody ends. Tests: every program against L
 over every 50-ms frame of every program; wave order; via the real `xbody_control` in qemu (35 Hz, 300 µs, 3:1).
 Screen: "Кабел на XBody" → tab **Програми**: a tile per program = a red line icon for the procedure (Health Icons,
 CC0, `xbody/panel/art/README.md`: lymph nodes, thigh skin, back pain, mother and baby, relaxation, weight) on white like
-XBody's own program tiles, "20 мин · 35 Hz вълна" under it; right: what it does, its phases, the running time.
+XBody's own program tiles, "20 мин · 35 Hz" under it; right: what it does, its phases, the running time.
+
+### Length and after-training procedures (mod v10)
+Seventh program **Оформяне** (waist, belly, glutes, thighs, arms: 6 Hz warm-up, 85 Hz 4:6 + 8 Hz second impulse
+40 %, 50 Hz 3:5 + 6 Hz 40 %, 4 Hz end; icon symbols/waist-circumference). The side panel picks the length with one tap:
+**10 · 15 · 20 · 25 · 30 мин** (the dot = the program's own; config `minutes=`, 0 = own; latched at START with the
+program, state `program_min=`). `xbprog::plan()`:
+- **10 min = after a training** where the program has its own version (green "след трен." tag on the tile):
+  - Дренаж — opening 1 min, legs wave 5 min at 35 Hz, arms 2 min at 30 Hz, a pump 2 min at 8 Hz 2:2 with a 3-Hz
+    second impulse ≤ 30 %. L12 stays for the wave: no second impulse in its pauses, where the vessels refill.
+  - Оформяне — 85 Hz + 8 Hz second impulse 4 min, 40 Hz + 6 Hz 3 min, 3 ↔ 8 Hz massage 3 min.
+  - Антицелулит — 85 Hz + 8 Hz second impulse 4 min, legs wave 4 min, 3 ↔ 8 Hz massage 2 min.
+  - No warm-up (the body is warm), envelope starts at 80 %.
+- **Any other length** (and 10 for the rest) = the program's phases in proportion, whole seconds, the last phase takes
+  the rest; Hz, µs, rhythm, ramps and the wave are unchanged, so the limits hold.
+
+Tests: every program × every length against L1–L5, L12, ≥ 30 s phases, a ≥ 1-s window for every second impulse, the
+soft end, the exact length, "never above" and "ends on time" over every 50-ms frame; the length is latched at START.
 
 ## Feedback from the stimulator (what XBody can know)
 - `xbody_control` has **no read path** from the board (only `SendPacketToHardware`; `XBHWCommunication` connects no

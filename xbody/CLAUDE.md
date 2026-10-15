@@ -29,7 +29,8 @@ sh scripts/xbody/test.sh                               # must print ALL OK befor
 - XBody's cable output is shaped by `opt/xems/bin/xems-xbproxy` (core `xbcable`, docs/xbody-xems-panel.md "XBody's
   own cable"); it must stay transparent when off and never stimulate outside XBody's own impulse / pause frames.
 - Android stick app: `sh scripts/xbody/build-android.sh` after build.py → `build/xbody-dist/xems-fleshka-vN.apk`
-  (hand it over with the zip). Ready cable programs: `xbody/panel/core/xbprog.*` (tests: L1–L5, never above XBody).
+  (hand it over with the zip). Ready cable programs: `xbody/panel/core/xbprog.*` (7 programs × lengths 10–30 min, `plan()`; 10 = after-training
+  version where one exists; tests: L1–L5, L12, never above XBody, at every length).
 - Bridge firmware changed → bump `BRIDGE_VER` (the unit updates older bridges by itself), `build-bridge.sh`.
 
 ## Panel / bridge

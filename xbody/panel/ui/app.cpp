@@ -45,7 +45,7 @@ App::App()
     cable_ = xbcable::parseConfig(slurp(envPath("XEMS_CABLE_CONF", "/opt/xems/xbody-cable.conf")));
     cableLive_.running = cableLive_.training = cableLive_.second = cableLive_.programOver = false;
     cableLive_.wiring = xbcable::WIRE_XBODY;
-    cableLive_.programSeg = cableLive_.programS = 0;
+    cableLive_.programSeg = cableLive_.programS = cableLive_.programMin = 0;
     cableLive_.boardRx = 0;
     readCableState();
     const char *bd = std::getenv("XEMS_BRIDGE_DIR");
@@ -94,7 +94,7 @@ void App::readCableState() {
     CableLive l;
     l.running = l.training = l.second = l.programOver = false;
     l.wiring = cable_.wiring;
-    l.programSeg = l.programS = 0;
+    l.programSeg = l.programS = l.programMin = 0;
     l.boardRx = 0;
     if (fi.exists() && fi.lastModified().secsTo(QDateTime::currentDateTime()) <= 5) {
         std::string s = slurp(path);
@@ -115,6 +115,7 @@ void App::readCableState() {
         l.program = kv["program"];
         l.programSeg = std::atoi(kv["program_seg"].c_str());
         l.programS = std::atoi(kv["program_s"].c_str());
+        l.programMin = std::atoi(kv["program_min"].c_str());
         l.programOver = kv["program_over"] == "1";
         l.boardRx = std::atol(kv["board_rx"].c_str());
     }

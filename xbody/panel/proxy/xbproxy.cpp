@@ -130,11 +130,11 @@ int main(int argc, char **argv) {
             char sbuf[256];
             std::snprintf(sbuf, sizeof sbuf,
                           "training=%d\nwiring=%s\nsecond=%d\npause_ms=%d\nprogram=%s\nprogram_seg=%d\nprogram_s=%u\n"
-                          "program_over=%d\nboard_rx=%ld\n",
+                          "program_over=%d\nprogram_min=%d\nboard_rx=%ld\n",
                           shaper.training() ? 1 : 0, shaper.wiringLive() == xbcable::WIRE_XEMS ? "xems" : "xbody",
                           shaper.secondNow() ? 1 : 0, shaper.learnedPauseMs(),
                           shaper.training() ? shaper.programLive().c_str() : "", shaper.programSeg(),
-                          shaper.programMs() / 1000, shaper.programOver() ? 1 : 0, rxTotal);
+                          shaper.programMs() / 1000, shaper.programOver() ? 1 : 0, shaper.programMinutes(), rxTotal);
             if (sbuf != lastState || t - lastStateMs >= 1000) { writeState(statePath, sbuf); lastState = sbuf; lastStateMs = t; }
 
             fd_set rd;

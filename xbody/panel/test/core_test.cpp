@@ -358,33 +358,66 @@ static void cableShaper() {
     eqInt("other frames pass", 1, d.process(other, 0) == other);
 }
 
-// Every ready program against the absolute limits (docs/xems-auto-mode-spec.md §4.1) and its own length.
+static std::string numS(int v) {
+    char b[16];
+    std::snprintf(b, sizeof b, "%d", v);
+    return b;
+}
+
+// Every ready program at every length against the absolute limits (docs/xems-auto-mode-spec.md §4.1) and the length.
 static void programLimits() {
     const xbprog::Program *ps;
     int n = xbprog::programs(&ps);
-    eqInt("six passive programs", 6, n);
+    eqInt("seven passive programs", 7, n);
+    int posts = 0;
     for (int k = 0; k < n; k++) {
-        const xbprog::Program &p = ps[k];
-        eqInt(p.id, p.minutes * 60000, xbprog::totalMs(p));
-        bool noDouble = std::string(p.id) == "drain" || std::string(p.id) == "postpartum";   // L12
-        for (int i = 0; i < p.n; i++) {
-            const xbprog::Seg &g = p.segs[i];
-            std::string w = std::string(p.id) + "/" + g.name;
-            int hz = g.hz > g.hz2 ? g.hz : g.hz2;
-            if (hz >= 20) {
-                eqInt((w + " L1 on ≤ 4 s").c_str(), 1, g.onMs <= 4000);
-                eqInt((w + " L2 ramp ≥ 0.3 s").c_str(), 1, g.upMs >= 300);
-                if (!g.wave) eqInt((w + " L3 rest ≥ on").c_str(), 1, g.offMs >= g.onMs);
+        eqInt((std::string(ps[k].id) + " own length").c_str(), ps[k].minutes * 60000, xbprog::totalMs(ps[k]));
+        if (ps[k].post) posts++;
+        for (int li = -1; li < xbprog::LEN_N; li++) {
+            xbprog::Plan pl;
+            int want = li < 0 ? 0 : xbprog::LENGTHS[li];
+            eqInt("plan made", 1, xbprog::plan(ps[k], want, &pl));
+            const xbprog::Program p = pl.program();
+            std::string id = std::string(p.id) + "@" + (want ? numS(want) : std::string("own"));
+            eqInt(id.c_str(), (want ? want : ps[k].minutes) * 60000, xbprog::totalMs(p));
+            eqInt((id + " after-training version at 10").c_str(), want == 10 && ps[k].post, pl.post);
+            if (pl.post) eqInt((id + " post is 10 min of its own").c_str(), 600000, xbprog::totalMs(p));
+            bool drain = std::string(p.id) == "drain", noDouble = std::string(p.id) == "postpartum";   // L12
+            for (int i = 0; i < p.n; i++) {
+                const xbprog::Seg &g = p.segs[i];
+                std::string w = id + "/" + g.name;
+                int hz = g.hz > g.hz2 ? g.hz : g.hz2;
+                eqInt((w + " ≥ 30 s").c_str(), 1, g.ms >= 30000);
+                if (hz >= 20) {
+                    eqInt((w + " L1 on ≤ 4 s").c_str(), 1, g.onMs <= 4000);
+                    eqInt((w + " L2 ramp ≥ 0.3 s").c_str(), 1, g.upMs >= 300);
+                    if (!g.wave) eqInt((w + " L3 rest ≥ on").c_str(), 1, g.offMs >= g.onMs);
+                }
+                if (hz >= 70) eqInt((w + " L4 ≤ 400 µs").c_str(), 1, g.us <= 400);
+                if (hz >= 100) eqInt((w + " L4 ≤ 300 µs").c_str(), 1, g.us <= 300);
+                eqInt((w + " L5 150–400 µs").c_str(), 1, g.us >= 150 && g.us <= 400);
+                eqInt((w + " envelope ≤ 100").c_str(), 1, g.e0 <= 100 && g.e1 <= 100 && g.e0 > 0 && g.e1 > 0);
+                eqInt((w + " a wave or weights").c_str(), 1, (g.wave != 0) != (g.w != 0));
+                if (noDouble) eqInt((w + " L12 no 2nd impulse").c_str(), 0, g.dblHz);
+                if (drain) eqInt((w + " L12 drainage: none in the wave, ≤ 30 % ≤ 5 Hz after it").c_str(), 1,
+                                 !g.dblHz || (!g.wave && g.dblPct <= 30 && g.dblHz <= 5 && pl.post));
+                if (g.dblHz) {
+                    eqInt((w + " 2nd ≤ 10 Hz, under main, ≤ 50 %").c_str(), 1, g.dblHz <= 10 && g.dblHz < g.hz && g.dblPct <= 50);
+                    eqInt((w + " 2nd has a window ≥ 0.5 s").c_str(), 1, g.offMs >= 1000);
+                }
             }
-            if (hz >= 70) eqInt((w + " L4 ≤ 400 µs").c_str(), 1, g.us <= 400);
-            if (hz >= 100) eqInt((w + " L4 ≤ 300 µs").c_str(), 1, g.us <= 300);
-            eqInt((w + " L5 150–400 µs").c_str(), 1, g.us >= 150 && g.us <= 400);
-            eqInt((w + " envelope ≤ 100").c_str(), 1, g.e0 <= 100 && g.e1 <= 100 && g.e0 > 0 && g.e1 > 0);
-            eqInt((w + " a wave or weights").c_str(), 1, (g.wave != 0) != (g.w != 0));
-            if (noDouble) eqInt((w + " L12 no 2nd impulse").c_str(), 0, g.dblHz);
-            if (g.dblHz) eqInt((w + " 2nd ≤ 10 Hz, under main, ≤ 50 %").c_str(), 1, g.dblHz <= 10 && g.dblHz < g.hz && g.dblPct <= 50);
+            eqInt((id + " ends soft (last segment ≤ 50 %)").c_str(), 1, p.segs[p.n - 1].e1 <= 50);
         }
-        eqInt((std::string(p.id) + " ends soft (last segment ≤ 50 %)").c_str(), 1, p.segs[p.n - 1].e1 <= 50);
+    }
+    eqInt("after-training versions: drain, shaping, cellulite", 3, posts);
+    xbprog::Plan pl;
+    static const char *const POSTS[] = {"drain", "shaping", "cellulite"};
+    for (int q = 0; q < 3; q++) {
+        const char *id = POSTS[q];
+        xbprog::plan(*xbprog::byId(id), 10, &pl);
+        bool dbl = false;
+        for (int i = 0; i < pl.info.n; i++) dbl = dbl || pl.segs[i].dblHz;
+        eqInt((std::string(id) + " after training: a second impulse").c_str(), 1, dbl);
     }
 }
 
@@ -392,18 +425,25 @@ static void programLimits() {
 static void programRun() {
     const xbprog::Program *ps;
     int n = xbprog::programs(&ps);
-    for (int k = 0; k < n; k++) {
-        bool ok = true;
-        for (unsigned t = 0; t < (unsigned)xbprog::totalMs(ps[k]) + 2000; t += 50) {
-            unsigned u[10], in[10];
-            for (int i = 0; i < 10; i++) u[i] = in[i] = 1000 + i * 3000 + (t % 7);
-            xbprog::Out o;
-            xbprog::step(ps[k], t, u, &o);
-            for (int i = 0; i < 10; i++) ok = ok && u[i] <= in[i];
-            ok = ok && (!o.stim || (o.tp >= 1 && o.us >= 150 && o.us <= 400));
+    for (int k = 0; k < n; k++)
+        for (int li = 0; li < xbprog::LEN_N; li++) {
+            xbprog::Plan pl;
+            xbprog::plan(ps[k], xbprog::LENGTHS[li], &pl);
+            const xbprog::Program p = pl.program();
+            bool ok = true, ended = false;
+            for (unsigned t = 0; t < (unsigned)xbprog::totalMs(p) + 2000; t += 50) {
+                unsigned u[10], in[10];
+                for (int i = 0; i < 10; i++) u[i] = in[i] = 1000 + i * 3000 + (t % 7);
+                xbprog::Out o;
+                bool on = xbprog::step(p, t, u, &o);
+                for (int i = 0; i < 10; i++) ok = ok && u[i] <= in[i];
+                ok = ok && (!o.stim || (o.tp >= 1 && o.us >= 150 && o.us <= 400));
+                ok = ok && (on || t >= (unsigned)xbprog::totalMs(p));
+                ended = ended || !on;
+            }
+            eqInt((std::string(p.id) + "@" + numS(xbprog::LENGTHS[li]) + " never above XBody's level, ends on time").c_str(),
+                  1, ok && ended);
         }
-        eqInt((std::string(ps[k].id) + " never above XBody's level").c_str(), 1, ok);
-    }
     const xbprog::Program *d = xbprog::byId("drain");
     unsigned u[10];
     xbprog::Out o;
@@ -438,6 +478,26 @@ static void programRun() {
     eqInt("cellulite 2nd impulse 8 Hz", 1, o.second && o.tp == 125);
     eqInt("cellulite 2nd impulse half of the level", 5000, (int)u[6]);
     eqInt("cellulite back stays off", 0, (int)u[1]);
+    xbprog::Plan pl;
+    xbprog::plan(*xbprog::byId("drain"), 10, &pl);
+    xbprog::Program dp = pl.program();
+    eqInt("drain at 10 = after training", 1, pl.post && dp.n == 4);
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(dp, 480000 + 2000 + 500, u, &o);   // the pump, in its pause: a 3-Hz second impulse
+    eqInt("drain pump 2nd impulse 3 Hz", 1, o.second && o.tp == 333);
+    eqInt("drain pump 2nd impulse ≤ 30 %", 1, u[0] <= 3000 && u[0] > 0);
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(dp, 60000 + 3500, u, &o);   // the legs wave, in its pause: nothing
+    eqInt("drain wave pause clean", 0, o.stim);
+    xbprog::plan(*xbprog::byId("shaping"), 10, &pl);
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(pl.program(), 4000 + 1000, u, &o);
+    eqInt("shaping after training starts at 85 Hz + 8 Hz second", 1, o.second && o.tp == 125);
+    xbprog::plan(*xbprog::byId("metabolic"), 30, &pl);
+    eqInt("metabolic stretched to 30", 1800000, xbprog::totalMs(pl.program()));
+    eqInt("stretched: phases in proportion", 540000, pl.segs[0].ms);
+    xbprog::plan(*xbprog::byId("back"), 10, &pl);
+    eqInt("back at 10: shortened, not a post", 1, !pl.post && pl.segs[0].ms == 120000);
 
     // Through the Shaper: latched at the training's start, XBody's own clock ignored, stop ends it.
     xbcable::Shaper sh;
@@ -459,6 +519,24 @@ static void programRun() {
     eqInt("stop ends it", 0, (int)w16(fo, 2));
     eqInt("program config roundtrip", 1, xbcable::parseConfig("program=drain\n").program == "drain");
     eqInt("unknown program refused", 1, xbcable::parseConfig("program=xyz\n").program.empty());
+    eqInt("minutes roundtrip", 10, xbcable::parseConfig(xbcable::configText(xbcable::parseConfig("minutes=10\n"))).minutes);
+    eqInt("odd minutes → own", 0, xbcable::parseConfig("minutes=7\n").minutes);
+
+    xbcable::Shaper s2;   // the length latched with the program
+    cfg = xbcable::Config();
+    cfg.program = "drain";
+    cfg.minutes = 10;
+    s2.setConfig(cfg);
+    s2.process(frame(2, 12, 3, 20000), 0);
+    cfg.minutes = 30;
+    s2.setConfig(cfg);
+    s2.process(frame(2, 12, 3, 20000), 50);
+    eqInt("length latched at START", 10, s2.programMinutes());
+    s2.process(frame(2, 12, 3, 20000), 600000);
+    eqInt("10 min → over at 10", 1, s2.programOver());
+    s2.process(frame(0, 12, -1, 0), 600100);
+    s2.process(frame(2, 12, 3, 20000), 700000);
+    eqInt("next training takes the new length", 30, s2.programMinutes());
 }
 
 int main() {

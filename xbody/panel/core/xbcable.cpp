@@ -58,6 +58,11 @@ int xemsLead(int part) {
 }
 
 static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+static int validMinutes(int m) {
+    for (int i = 0; i < xbprog::LEN_N; i++)
+        if (xbprog::LENGTHS[i] == m) return m;
+    return 0;
+}
 
 Config parseConfig(const std::string &text) {
     Config c;
@@ -74,6 +79,7 @@ Config parseConfig(const std::string &text) {
         else if (k == "double_hz") c.dblHz = clampi(n, 1, 10);
         else if (k == "double_pct") c.dblPct = clampi(n, 10, 150);
         else if (k == "program") c.program = xbprog::byId(v) ? v : std::string();
+        else if (k == "minutes") c.minutes = validMinutes(n);
     }
     return c;
 }
@@ -82,13 +88,14 @@ std::string configText(const Config &c) {
     std::ostringstream o;
     o << "wiring=" << (c.wiring == WIRE_XEMS ? "xems" : "xbody") << "\ndouble=" << (c.dbl ? 1 : 0)
       << "\ndouble_hz=" << clampi(c.dblHz, 1, 10) << "\ndouble_pct=" << clampi(c.dblPct, 10, 150)
-      << "\nprogram=" << (xbprog::byId(c.program) ? c.program : std::string()) << "\n";
+      << "\nprogram=" << (xbprog::byId(c.program) ? c.program : std::string())
+      << "\nminutes=" << validMinutes(c.minutes) << "\n";
     return o.str();
 }
 
 Shaper::Shaper()
     : training_(false), inPause_(false), second_(false), pauseStart_(0), progStart_(0), progMs_(0), progSeg_(-1),
-      progOver_(false), pauseMs_(0), mainTp_(0) {}
+      progOver_(false), hasPlan_(false), pauseMs_(0), mainTp_(0) {}
 
 static unsigned u16(const Bytes &b, int o) { return b[o] | b[o + 1] << 8; }
 static void put16(Bytes &b, int o, unsigned v) { b[o] = v & 0xFF; b[o + 1] = (v >> 8) & 0xFF; }
@@ -106,7 +113,12 @@ Bytes Shaper::process(const Bytes &in, unsigned now) {
         progMs_ = 0;
         live_ = want_;
     } else {
-        if (!training_) { live_ = want_; progStart_ = now; }   // a training starts: wiring + program latched
+        if (!training_) {   // a training starts: wiring + program + its length latched
+            live_ = want_;
+            progStart_ = now;
+            const xbprog::Program *p = xbprog::byId(live_.program);
+            hasPlan_ = p && xbprog::plan(*p, live_.minutes, &plan_);
+        }
         training_ = true;
         live_.dbl = want_.dbl;           // the second impulse may change any time (it is capped below)
         live_.dblHz = want_.dblHz;
@@ -114,11 +126,10 @@ Bytes Shaper::process(const Bytes &in, unsigned now) {
     }
     unsigned u[CH];
     for (int i = 0; i < CH; i++) u[i] = u16(f, 16 + i * 2);
-    const xbprog::Program *prog = training ? xbprog::byId(live_.program) : 0;
-    if (prog) {   // a ready program plays the training; XBody's levels (u) are its ceiling
+    if (training && hasPlan_) {   // a ready program plays the training; XBody's levels (u) are its ceiling
         xbprog::Out o;
         progMs_ = now - progStart_;
-        progOver_ = !xbprog::step(*prog, progMs_, u, &o);
+        progOver_ = !xbprog::step(plan_.program(), progMs_, u, &o);
         progSeg_ = o.seg;
         second_ = o.second;
         put16(f, 2, o.stim ? (bits | 1) : (bits & ~1u));

@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v3)
+# XEMS panel on the XBody unit (mod v4)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -17,7 +17,7 @@ XBody's own stimulator path (`xbody_control` → port 1235 → `/dev/ttymxc3`) i
 | On the unit, with suits | **not done** — first test when the XIAO arrives (checklist below) |
 
 ## Use (owner)
-1. Stick: `python3 scripts/xbody/build.py` → `build/xbody-dist/xbody-usb-v3.zip` (contents to a FAT32 stick root;
+1. Stick: `python3 scripts/xbody/build.py` → `build/xbody-dist/xbody-usb-v4.zip` (contents to a FAT32 stick root;
    README.txt in Bulgarian; `xems-bridge.uf2` is on the stick too).
 2. XIAO: double-tap RESET while on a PC → a drive appears → copy `xems-bridge.uf2` onto it.
 3. Unit off → stick in → on → "Updater finished" → off → stick out → on. Plug the XIAO (short extension cable).
@@ -36,8 +36,18 @@ The screen is a copy of **XBody's own manual-training screen** (owner: same look
   (MASTER) is selected. − / + and the slider bar act on the selection: strength ±1, zones in 5 % steps; hold repeats.
   Timer hump: elapsed · **ВСИЧКИ** (select every zone) · time left; under it the phase box (impulse seconds green,
   pause grey, `II` paused). СТАРТ (green) / ПАУЗА (yellow) bottom left, СТОП (red) bottom right.
-- Program sheet: Hz, µs, impulse, pause, minutes, "Клиент над 60"; values pass `safe::apply` (port of
-  `ai/SafeLimits`) — corrections show as a red note. Dialogs use XBody's dark-red band.
+- **Настройки на сесията** (tap the program block; while running it says "Програмата се сменя на пауза"):
+  landscape, two groups. Left = program: Hz, µs, minutes as − value + pills, the impulse/pause rhythm as a bar
+  (green work, grey rest) with a pill each. Right = this suit and client: **connector standard** XBody | XEMS
+  (XEMS suits only; ⓘ opens the lead → channel table, rerouted rows marked red), "Над 60 години" switch, and a
+  derived summary (impulses, work minutes). Откажи left, ✓ Готово bottom right. Values pass `safe::apply`
+  (port of `ai/SafeLimits`) — corrections show as a red note. Dialogs use XBody's dark-red band.
+- **Connector standard** (`Suit::Wiring`, saved as `suit/wiring`): an XEMS suit on XBody-standard cables. Zones stay
+  body parts; each drives the XEMS channel its XBody lead lands on (owner's table, XEMS → XBody): Ръце→Корем,
+  Гърди→Допълнителен (calf), Корем→Задно бедро, Предно бедро→same, Гръб→Седалище, Трапец→Кръст, Кръст→Гръб,
+  Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди. Switching keeps every zone's %. Header shows "XEMS · кабели XBody".
+- While a value changes, a big % card over the body says what it belongs to (XBody's showPercent); idle zones at
+  0 % read grey; the phase box has a thin progress line.
 - **XBody's pictures and Arial are read at start from `/opt/xbody/xbody`** (Qt rcc resources in the not-stripped
   ELF, `ui/xbres.cpp`) — nothing of XBody's is in git. Missing binary / resource → the same layout painted
   (plain figure, flat buttons). `XEMS_XBODY_BIN` overrides the path.

@@ -33,6 +33,7 @@ public:
     QString note() const;
     bool noteWarn() const { return noteWarn_; }
     bool age60() const { return age60_; }
+    int wiring() const { return wiring_; }        // Suit::WIRE_XEMS / WIRE_XBODY: the XEMS suit's cable standard
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
 
     // ---- what the screen asks for ----
@@ -43,6 +44,7 @@ public:
     void strengthStep(int d);
     void setChannel(int i, int pct);
     void setZone(const Zone &z, int pct);
+    void setWiring(int w);                        // every body zone keeps its %, the channels behind it change
     void applyProgram(const Program &p, bool age60);   // through the safety limits, note if corrected
     void openPanel();
     void hidePanel();
@@ -69,6 +71,7 @@ private:
     bool scanning_;
     Program prog_;
     bool age60_;
+    int wiring_;
     QString note_;
     bool noteWarn_;
     unsigned noteUntilMs_;

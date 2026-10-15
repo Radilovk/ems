@@ -17,6 +17,16 @@ static const Zone XEMS_ZONES[10] = {
     {"Кръст", {7, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {6, 0}, 1, {"BodyBack", 0}},
     {"Трапец", {5, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {0, 0}, 1, {"BodyChest", 0}},
     {"Ръце", {4, 0}, 1, {"BodyArm", 0}},              {"Прасец", {3, 0}, 1, {"BodyOptional", 0}}};
+// The same body zones when the XEMS suit hangs on XBody-standard cables (owner's table, XEMS channel → XBody
+// lead): Ръце→Корем, Гърди→Допълнителен, Корем→Задно бедро, Предно бедро→Предно бедро, Гръб→Глутеус,
+// Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди. A zone drives the channel whose
+// lead reaches it.
+static const Zone XEMS_ZONES_XBODY[10] = {
+    {"Предно бедро", {2, 0}, 1, {"BodyLegFront", 0}}, {"Задно бедро", {1, 0}, 1, {"BodyLegBack", 0}},
+    {"Седалище", {6, 0}, 1, {"BodyBottom", 0}},       {"Корем", {4, 0}, 1, {"BodyAbdomen", 0}},
+    {"Кръст", {5, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {7, 0}, 1, {"BodyBack", 0}},
+    {"Трапец", {8, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {3, 0}, 1, {"BodyChest", 0}},
+    {"Ръце", {9, 0}, 1, {"BodyArm", 0}},              {"Прасец", {0, 0}, 1, {"BodyOptional", 0}}};
 // bodytech in the same order; its two thigh channels are one zone (owner: the same strength on both).
 static const Zone BT_ZONES[7] = {
     {"Бедра", {4, 6}, 2, {"BodyLegFront", "BodyLegBack"}}, {"Седалище", {1, 0}, 1, {"BodyBottom", 0}},
@@ -44,8 +54,8 @@ const char *Suit::channelName(Kind k, int i) {
     return i >= 0 && i < 8 ? BT_NAMES[i] : "";
 }
 
-int Suit::zones(Kind k, const Zone **out) {
-    *out = k == XEMS ? XEMS_ZONES : BT_ZONES;
+int Suit::zones(Kind k, const Zone **out, int wiring) {
+    *out = k == XEMS ? (wiring == WIRE_XBODY ? XEMS_ZONES_XBODY : XEMS_ZONES) : BT_ZONES;
     return k == XEMS ? 10 : 7;
 }
 

@@ -38,6 +38,7 @@ private:
     void act(const QString &id, bool repeat);
     void drag(const QPoint &design);
     unsigned allZones() const;
+    int zonesOf(const Zone **z) const;   // the linked suit's zones for the chosen cable standard
     int selValue() const;          // what the slider shows: the strength, or the first selected zone's %
     void setSelValue(int v);
 
@@ -49,11 +50,15 @@ private:
     void paintZone(QPainter &p, const QRect &r, int zi, bool right);
     void paintSlider(QPainter &p);
     void paintSheet(QPainter &p);
+    void paintWiringInfo(QPainter &p);
+    void paintBubble(QPainter &p);
     void paintConfirm(QPainter &p);
+    void pill(QPainter &p, const QRect &r, const QString &value, const QString &field);
+    void caption(QPainter &p, int x, int y, const QString &text);
+    void toast(const QString &text);
     void outlined(QPainter &p, const QRect &r, const QString &id, const QString &text, int px, bool on);
     void filled(QPainter &p, const QRect &r, const QString &id, const QString &pixmap, const QColor &bg,
                 const QColor &fg, const QString &text, int px);
-    void stepper(QPainter &p, int y, const QString &label, const QString &value, const QString &field);
 
     App *app_;
     std::vector<Hit> hits_;        // design coordinates
@@ -63,6 +68,11 @@ private:
     bool sheet_, confirm_;
     Program sheetProg_;
     bool sheetAge60_;
+    int sheetWiring_;
+    bool info_;                    // the cable table (ⓘ) over the sheet
+    unsigned bubbleUntilMs_;       // the big % over the body (XBody's showPercent) stays until then
+    QString toast_;
+    unsigned toastUntilMs_;
     unsigned sel_;                 // selected zones (bits); 0 = MASTER (the strength) is selected
     int selKind_;
     double k_;                     // screen pixels per design unit

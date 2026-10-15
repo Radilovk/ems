@@ -23,7 +23,7 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), suit_(0), linkingSinceMs_(0), scanning_(false), age60_(false), noteWarn_(false), noteUntilMs_(0),
+      lastRxMs_(0), suit_(0), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), noteWarn_(false), noteUntilMs_(0),
       panel_(0), tab_(0), strengthMem_(0) {
     t0_ = now();
     load();
@@ -74,6 +74,7 @@ void App::load() {
     prog_.offS = st.value("program/off", prog_.offS).toInt();
     prog_.totalS = st.value("program/total", prog_.totalS).toInt();
     age60_ = st.value("program/age60", false).toBool();
+    wiring_ = st.value("suit/wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
     // Saved values go through the limits too (an older file, a hand edit).
     int v[safe::N] = {prog_.hz, prog_.us, prog_.onS, prog_.offS, 0, 0, 0, prog_.rampMs};
     safe::apply(v, age60_ ? 65 : -1, 0);
@@ -89,6 +90,7 @@ void App::save() {
     st.setValue("program/off", prog_.offS);
     st.setValue("program/total", prog_.totalS);
     st.setValue("program/age60", age60_);
+    st.setValue("suit/wiring", wiring_);
 }
 
 void App::connectTo(const std::string &mac) {
@@ -140,6 +142,21 @@ void App::setChannel(int i, int pct) {
 
 void App::setZone(const Zone &z, int pct) {
     if (suit_) suit_->setZone(z, pct);
+}
+
+void App::setWiring(int w) {
+    w = w == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
+    if (w == wiring_) return;
+    if (suit_ && suit_->kind() == Suit::XEMS) {
+        const Zone *from, *to;
+        int n = Suit::zones(Suit::XEMS, &from, wiring_);
+        Suit::zones(Suit::XEMS, &to, w);
+        int pct[Suit::MAX_CH];
+        for (int i = 0; i < n; i++) pct[i] = suit_->zone(from[i]);
+        for (int i = 0; i < n; i++) suit_->setZone(to[i], pct[i]);
+    }
+    wiring_ = w;
+    save();
 }
 
 void App::applyProgram(const Program &p, bool age60) {

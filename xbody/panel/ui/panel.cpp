@@ -105,7 +105,8 @@ static void signalBars(QPainter &p, const QRect &r, int rssi, const QColor &on, 
 
 PanelWidget::PanelWidget(App *app)
     : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), app_(app), pressMs_(0), repeatMs_(0),
-      sheet_(false), confirm_(false), sheetAge60_(false), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0) {
+      sheet_(false), confirm_(false), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false),
+      bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0) {
     loadLook();
     setAttribute(Qt::WA_OpaquePaintEvent);
     timer_.start(50, this);   // stepper repeat + change check; paints only on a change
@@ -141,12 +142,17 @@ unsigned PanelWidget::allZones() const {
     return (1u << Suit::zones(s->kind(), &z)) - 1;
 }
 
+int PanelWidget::zonesOf(const Zone **z) const {
+    const Suit *s = const_cast<App *>(app_)->suit();
+    return Suit::zones(s ? s->kind() : Suit::XEMS, z, app_->wiring());
+}
+
 int PanelWidget::selValue() const {
     Suit *s = const_cast<App *>(app_)->suit();
     if (!s) return 0;
     if (!sel_) return s->strength();
     const Zone *z;
-    int n = Suit::zones(s->kind(), &z);
+    int n = zonesOf(&z);
     for (int i = 0; i < n; i++)
         if (sel_ & (1u << i)) return s->zone(z[i]);
     return 0;
@@ -161,7 +167,7 @@ void PanelWidget::setSelValue(int v) {
         return;
     }
     const Zone *z;
-    int n = Suit::zones(s->kind(), &z);
+    int n = zonesOf(&z);
     for (int i = 0; i < n; i++)
         if ((sel_ & (1u << i)) && s->zone(z[i]) != v) app_->setZone(z[i], v);
 }
@@ -220,6 +226,7 @@ void PanelWidget::paintEvent(QPaintEvent *) {
     case App::LINKING: paintPick(p); break;
     case App::TRAIN: paintTrain(p); break;
     }
+    if (app_->view() == App::TRAIN && !sheet_ && !confirm_ && (int)(bubbleUntilMs_ - app_->now()) > 0) paintBubble(p);
     if (sheet_) paintSheet(p);
     if (confirm_) paintConfirm(p);
 }
@@ -336,15 +343,17 @@ void PanelWidget::paintPick(QPainter &p) {
 void PanelWidget::paintZone(QPainter &p, const QRect &r, int zi, bool right) {
     Suit *s = app_->suit();
     const Zone *z;
-    Suit::zones(s->kind(), &z);
+    zonesOf(&z);
     bool on = (sel_ & (1u << zi)) != 0;
     outlined(p, r, U("z:%1").arg(zi), QString(), 0, on);
     QRect in = r.adjusted(10, 0, -12, 0);
     p.setPen(on ? WHITE : INK);
     p.setFont(uiFont(15));
     p.drawText(in, (right ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignVCenter, QString::fromUtf8(z[zi].name));
-    p.setFont(uiFont(19, true));
-    p.drawText(in, (right ? Qt::AlignLeft : Qt::AlignRight) | Qt::AlignVCenter, QString::number(s->zone(z[zi])) + U("%"));
+    int pct = s->zone(z[zi]);
+    if (!on && pct == 0) p.setPen(GREY);   // an idle zone reads as off
+    p.setFont(uiFont(18, true));
+    p.drawText(in, (right ? Qt::AlignLeft : Qt::AlignRight) | Qt::AlignVCenter, QString::number(pct) + U("%"));
 }
 
 void PanelWidget::paintTrain(QPainter &p) {
@@ -356,7 +365,7 @@ void PanelWidget::paintTrain(QPainter &p) {
     sel_ &= allZones();
 
     const Zone *z;
-    int nz = Suit::zones(s->kind(), &z), nl = Suit::zonesLeft(s->kind());
+    int nz = zonesOf(&z), nl = Suit::zonesLeft(s->kind());
     // ---- the body, front and back; the selected zones lit ----
     if (const QPixmap *body = pix("BodyNormal")) {
         p.drawPixmap(153, 45, *body);
@@ -377,12 +386,14 @@ void PanelWidget::paintTrain(QPainter &p) {
     }
 
     // ---- header over the picture's top edge (as on XBody): ← XBody | suit, kind, battery or the note | program ----
-    QString n = app_->note();
+    bool toastOn = (int)(toastUntilMs_ - app_->now()) > 0;
+    QString n = toastOn ? toast_ : app_->note();
+    bool warn = toastOn || app_->noteWarn();
     QString sub = n;
     if (sub.isEmpty())
-        sub = (bt ? U("bodytech") : U("XEMS")) + U("   ·   батерия ") + (s->battery() < 0 ? U("—") : QString::number(s->battery()) + U("%"));
-    paintHeader(p, QString::fromStdString(app_->suitName()).toUpper(), sub, !n.isEmpty() && app_->noteWarn(),
-                !n.isEmpty() && !app_->noteWarn());
+        sub = (bt ? U("bodytech") : app_->wiring() == Suit::WIRE_XBODY ? U("XEMS · кабели XBody") : U("XEMS")) +
+              U("   ·   батерия ") + (s->battery() < 0 ? U("—") : QString::number(s->battery()) + U("%"));
+    paintHeader(p, QString::fromStdString(app_->suitName()).toUpper(), sub, !n.isEmpty() && warn, !n.isEmpty() && !warn);
     if (n.isEmpty()) battery(p, QRect(400 + QFontMetrics(uiFont(14, true)).width(sub) / 2 + 10, 37, 24, 12), s->battery());
     if (idle) hit(QRect(160, 0, 488, 56), U("suit"));   // tap the suit's name: disconnect / another suit
     QRect prog(653, 0, 147, 56);
@@ -491,7 +502,17 @@ void PanelWidget::paintClock(QPainter &p) {
     }
     p.setPen(c);
     p.setFont(uiFont(px, true));
-    p.drawText(box, Qt::AlignCenter, t);
+    p.drawText(box.adjusted(0, -4, 0, -4), Qt::AlignCenter, t);
+    if (running) {   // how far the phase is: a thin line along the box's foot
+        int len = (s->impulse() ? pr.onS : pr.offS) * 1000;
+        double f = len > 0 ? 1.0 - (double)s->phaseMsLeft(now) / len : 0;
+        QRectF track(box.left() + 14, box.bottom() - 9, box.width() - 28, 4);
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(0xE3, 0xE4, 0xE6));
+        p.drawRoundedRect(track, 2, 2);
+        p.setBrush(s->impulse() ? GREEN : GREY);
+        p.drawRoundedRect(QRectF(track.left(), track.top(), track.width() * qBound(0.0, f, 1.0), 4), 2, 2);
+    }
 }
 
 // The bottom bar: − | LED scale with the fader | +, for the selection (MASTER or the lit zones).
@@ -533,40 +554,249 @@ void PanelWidget::paintSlider(QPainter &p) {
     hit(QRect(80, 535, 640, 65), U("slider"));
 }
 
-void PanelWidget::stepper(QPainter &p, int y, const QString &label, const QString &value, const QString &field) {
-    p.setPen(INK);
-    p.setFont(uiFont(19));
-    p.drawText(QRect(130, y, 230, 56), Qt::AlignLeft | Qt::AlignVCenter, label);
-    outlined(p, QRect(370, y, 70, 56), U("st:") + field + U(":-"), U("−"), 30, false);
-    p.setPen(INK);
-    p.setFont(uiFont(22, true));
-    p.drawText(QRect(440, y, 160, 56), Qt::AlignCenter, value);
-    outlined(p, QRect(600, y, 70, 56), U("st:") + field + U(":+"), U("+"), 30, false);
+// A small grey caps caption above a group (XBody's header type, letter-spaced).
+void PanelWidget::caption(QPainter &p, int x, int y, const QString &text) {
+    QFont f = uiFont(13, true);
+    f.setLetterSpacing(QFont::AbsoluteSpacing, 1.5);
+    p.setFont(f);
+    p.setPen(GREY);
+    p.drawText(QRect(x, y, 360, 20), Qt::AlignLeft | Qt::AlignVCenter, text);
 }
 
+// −  value  + in one outlined pill: one shape, one value, two big targets (hold repeats).
+void PanelWidget::pill(QPainter &p, const QRect &r, const QString &value, const QString &field) {
+    QString minus = U("st:") + field + U(":-"), plus = U("st:") + field + U(":+");
+    int b = r.height();
+    p.setPen(QPen(LINE, 2));
+    p.setBrush(WHITE);
+    p.drawRoundedRect(QRectF(r).adjusted(1, 1, -1, -1), b / 2.0, b / 2.0);
+    for (int i = 0; i < 2; i++) {
+        QRect k = i ? QRect(r.right() - b + 1, r.top(), b, b) : QRect(r.left(), r.top(), b, b);
+        QString id = i ? plus : minus;
+        if (pressed_ == id) {
+            p.setPen(Qt::NoPen);
+            p.setBrush(PRESS);
+            p.drawEllipse(QRectF(k).adjusted(4, 4, -4, -4));
+        }
+        p.setPen(QPen(INK, 2.5, Qt::SolidLine, Qt::RoundCap));
+        QPointF c = QRectF(k).center();
+        p.drawLine(QPointF(c.x() - 9, c.y()), QPointF(c.x() + 9, c.y()));
+        if (i) p.drawLine(QPointF(c.x(), c.y() - 9), QPointF(c.x(), c.y() + 9));
+        hit(k, id);
+    }
+    p.setPen(INK);
+    p.setFont(uiFont(20, true));
+    p.drawText(r.adjusted(b, 0, -b, 0), Qt::AlignCenter, value);
+}
+
+// "Настройки на сесията": landscape, two groups side by side. Left: the program (what changes the feel of the
+// session). Right: the setup of this client and suit (cables, age). Cancel left, the primary ✓ bottom right.
 void PanelWidget::paintSheet(QPainter &p) {
     p.fillRect(QRect(0, 0, 800, 600), QColor(0x30, 0x37, 0x41, 150));
     hits_.clear();   // only the sheet answers
-    p.setPen(QPen(LINE, 2));
+    const QRect card(36, 22, 728, 556);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0, 0, 0, 40));
+    p.drawRoundedRect(QRectF(card).translated(0, 4), 14, 14);   // soft shadow
     p.setBrush(WHITE);
-    p.drawRoundedRect(QRectF(100, 14, 600, 572), 10, 10);
-    p.setPen(GREY);
-    QFont tf = uiFont(20, true);
-    tf.setLetterSpacing(QFont::AbsoluteSpacing, 1.5);
-    p.setFont(tf);
-    p.drawText(QRect(100, 22, 600, 44), Qt::AlignCenter, U("ПРОГРАМА"));
-    const Program &q = sheetProg_;
-    stepper(p, 76, U("Честота"), QString::number(q.hz) + U(" Hz"), U("hz"));
-    stepper(p, 142, U("Дълбочина"), QString::number(q.us) + U(" µs"), U("us"));
-    stepper(p, 208, U("Импулс"), QString::number(q.onS) + U(" s"), U("on"));
-    stepper(p, 274, U("Пауза"), QString::number(q.offS) + U(" s"), U("off"));
-    stepper(p, 340, U("Време"), QString::number(q.totalS / 60) + U(" мин"), U("total"));
+    p.drawRoundedRect(QRectF(card), 14, 14);
     p.setPen(INK);
-    p.setFont(uiFont(19));
-    p.drawText(QRect(130, 412, 230, 56), Qt::AlignLeft | Qt::AlignVCenter, U("Клиент над 60"));
-    outlined(p, QRect(370, 412, 300, 56), U("age60"), sheetAge60_ ? U("✓ Да · до 85 Hz") : U("Не"), 19, sheetAge60_);
-    outlined(p, QRect(130, 500, 200, 66), U("sheet-cancel"), U("ОТКАЖИ"), 19, false);
-    filled(p, QRect(470, 500, 200, 66), U("sheet-ok"), QString(), GREEN, WHITE, U("ГОТОВО"), 21);
+    p.setFont(uiFont(22));
+    p.drawText(QRect(64, 34, 500, 44), Qt::AlignLeft | Qt::AlignVCenter, U("Настройки на сесията"));
+    p.setPen(QPen(QColor(0xE3, 0xE4, 0xE6), 1));
+    p.drawLine(64, 84, 736, 84);
+    p.drawLine(432, 100, 432, 452);
+
+    // ---- left: the program ----
+    const Program &q = sheetProg_;
+    caption(p, 64, 98, U("ПРОГРАМА"));
+    const char *labels[3] = {"Честота", "Ширина на импулса", "Времетраене"};
+    QString values[3] = {QString::number(q.hz) + U(" Hz"), QString::number(q.us) + U(" µs"),
+                         QString::number(q.totalS / 60) + U(" мин")};
+    const char *fields[3] = {"hz", "us", "total"};
+    for (int i = 0; i < 3; i++) {
+        int y = 124 + i * 64;
+        p.setPen(INK);
+        p.setFont(uiFont(16));
+        p.drawText(QRect(64, y, 160, 52), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap, U(labels[i]));
+        pill(p, QRect(222, y, 186, 52), values[i], U(fields[i]));
+    }
+    // Impulse / pause: the rhythm as a picture (green = work, grey = rest), each part with its own pill.
+    p.setPen(INK);
+    p.setFont(uiFont(16));
+    p.drawText(QRect(64, 316, 300, 24), Qt::AlignLeft | Qt::AlignVCenter, U("Ритъм"));
+    QRect bar(64, 346, 344, 12);
+    int on = q.onS, off = q.offS, wOn = bar.width() * on / (on + off > 0 ? on + off : 1);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0xE3, 0xE4, 0xE6));
+    p.drawRoundedRect(QRectF(bar), 6, 6);
+    p.setBrush(GREEN);
+    p.drawRoundedRect(QRectF(bar.left(), bar.top(), wOn, bar.height()), 6, 6);
+    QRect pOn(64, 372, 166, 52), pOff(242, 372, 166, 52);
+    pill(p, pOn, QString::number(on) + U(" s"), U("on"));
+    pill(p, pOff, QString::number(off) + U(" s"), U("off"));
+    p.setFont(uiFont(14, true));
+    p.setPen(GREEN);
+    p.drawText(QRect(pOn.left(), 426, pOn.width(), 22), Qt::AlignCenter, U("импулс"));
+    p.setPen(SOFT);
+    p.drawText(QRect(pOff.left(), 426, pOff.width(), 22), Qt::AlignCenter, U("пауза"));
+
+    // ---- right: this suit and this client ----
+    Suit *s = app_->suit();
+    int y = 98;
+    if (s && s->kind() == Suit::XEMS) {   // bodytech has one cable layout: no choice to show
+        caption(p, 456, y, U("КОНЕКТОРИ НА КОСТЮМА"));
+        QRect info(700, y - 8, 36, 36);   // ⓘ: the lead → channel table
+        p.setPen(QPen(pressed_ == U("info") ? RED : GREY, 2));
+        p.setBrush(pressed_ == U("info") ? PRESS : WHITE);
+        p.drawEllipse(QRectF(info).adjusted(4, 4, -4, -4));
+        p.setPen(pressed_ == U("info") ? RED : SOFT);
+        p.setFont(uiFont(16, true));
+        p.drawText(info, Qt::AlignCenter, U("i"));
+        hit(info.adjusted(-8, -8, 8, 8), U("info"));
+        // Segmented control: two equal halves in one outline, the chosen one red (XBody's selected state).
+        QRect seg(456, y + 28, 280, 56);
+        p.setPen(QPen(LINE, 2));
+        p.setBrush(WHITE);
+        p.drawRoundedRect(QRectF(seg).adjusted(1, 1, -1, -1), 10, 10);
+        for (int i = 0; i < 2; i++) {
+            QRect h(seg.left() + i * 140, seg.top(), 140, 56);
+            bool sel = sheetWiring_ == (i ? Suit::WIRE_XEMS : Suit::WIRE_XBODY);
+            QString id = i ? U("wire-xems") : U("wire-xbody");
+            if (sel) {
+                p.setPen(Qt::NoPen);
+                p.setBrush(RED);
+                p.drawRoundedRect(QRectF(h).adjusted(4, 4, -4, -4), 8, 8);
+            } else if (pressed_ == id) {
+                p.setPen(Qt::NoPen);
+                p.setBrush(PRESS);
+                p.drawRoundedRect(QRectF(h).adjusted(4, 4, -4, -4), 8, 8);
+            }
+            p.setPen(sel ? WHITE : INK);
+            p.setFont(uiFont(18, sel));
+            p.drawText(h, Qt::AlignCenter, (sel ? U("✓ ") : QString()) + (i ? U("XEMS") : U("XBody")));
+            hit(h, id);
+        }
+        p.setPen(SOFT);
+        p.setFont(uiFont(14));
+        p.drawText(QRect(456, y + 90, 280, 44), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
+                   sheetWiring_ == Suit::WIRE_XBODY ? U("Кабелите са на XBody — зоните се пренасочват сами.")
+                                                    : U("Кабелите са на XEMS — зоните са по канала."));
+        y += 160;
+    }
+    caption(p, 456, y, U("КЛИЕНТ"));
+    QRect age(456, y + 28, 280, 56);
+    outlined(p, age, U("age60"), QString(), 0, false);
+    p.setPen(INK);
+    p.setFont(uiFont(17));
+    p.drawText(age.adjusted(16, 0, -90, 0), Qt::AlignLeft | Qt::AlignVCenter, U("Над 60 години"));
+    QRect sw(age.right() - 80 - 12, age.center().y() - 15, 80, 30);   // a switch, on = green
+    p.setPen(Qt::NoPen);
+    p.setBrush(sheetAge60_ ? GREEN : QColor(0xD5, 0xD7, 0xDA));
+    p.drawRoundedRect(QRectF(sw), 15, 15);
+    p.setBrush(WHITE);
+    p.drawEllipse(QRectF(sheetAge60_ ? sw.right() - 27 : sw.left() + 3, sw.top() + 3, 24, 24));
+    if (sheetAge60_) {
+        p.setPen(GREEN);
+        p.setFont(uiFont(14, true));
+        p.drawText(QRect(456, y + 88, 280, 22), Qt::AlignLeft | Qt::AlignVCenter, U("✓ Честотата спира до 85 Hz"));
+    }
+
+    // ---- what the session will be, derived from the values (nothing to set here) ----
+    QRect sum(456, 352, 280, 100);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0xF4, 0xF5, 0xF6));
+    p.drawRoundedRect(QRectF(sum), 10, 10);
+    caption(p, 472, 362, U("СЕСИЯТА"));
+    int cycles = q.onS + q.offS > 0 ? q.totalS / (q.onS + q.offS) : 0;
+    p.setPen(INK);
+    p.setFont(uiFont(34, true));
+    QString cn = QString::number(cycles);
+    int cw = QFontMetrics(uiFont(34, true)).width(cn);
+    p.drawText(QRect(472, 384, cw + 4, 44), Qt::AlignLeft | Qt::AlignVCenter, cn);
+    p.setPen(SOFT);
+    p.setFont(uiFont(15));
+    p.drawText(QRect(480 + cw, 384, 240 - cw, 22), Qt::AlignLeft | Qt::AlignVCenter, U("импулса"));
+    p.drawText(QRect(480 + cw, 406, 240 - cw, 22), Qt::AlignLeft | Qt::AlignVCenter,
+               QString::number(q.onS * cycles / 60) + U(" мин работа"));
+
+    // ---- footer ----
+    p.setPen(QPen(QColor(0xE3, 0xE4, 0xE6), 1));
+    p.drawLine(64, 470, 736, 470);
+    outlined(p, QRect(64, 494, 200, 60), U("sheet-cancel"), U("Откажи"), 18, false);
+    filled(p, QRect(496, 494, 240, 60), U("sheet-ok"), QString(), GREEN, WHITE, U("✓  Готово"), 20);
+    if (info_) paintWiringInfo(p);
+}
+
+// ⓘ The owner's table: which XBody lead lands on which XEMS channel. Any tap closes it.
+void PanelWidget::paintWiringInfo(QPainter &p) {
+    hits_.clear();
+    p.fillRect(QRect(0, 0, 800, 600), QColor(0x30, 0x37, 0x41, 120));
+    QRect card(170, 40, 460, 520);
+    p.setPen(Qt::NoPen);
+    p.setBrush(WHITE);
+    p.drawRoundedRect(QRectF(card), 14, 14);
+    p.setPen(INK);
+    p.setFont(uiFont(20));
+    p.drawText(QRect(196, 54, 410, 36), Qt::AlignLeft | Qt::AlignVCenter, U("Кабели на XBody в костюм XEMS"));
+    caption(p, 196, 96, U("ЗОНА (КАБЕЛ XBODY)"));
+    p.setFont(uiFont(13, true));
+    p.setPen(GREY);
+    p.drawText(QRect(420, 96, 186, 20), Qt::AlignRight | Qt::AlignVCenter, U("КАНАЛ XEMS"));
+    const Zone *xb, *xe;
+    int n = Suit::zones(Suit::XEMS, &xb, Suit::WIRE_XBODY);
+    Suit::zones(Suit::XEMS, &xe, Suit::WIRE_XEMS);
+    for (int i = 0; i < n; i++) {
+        int y = 122 + i * 36;
+        if (i % 2 == 0) p.fillRect(QRect(186, y, 428, 36), QColor(0xF4, 0xF5, 0xF6));
+        const char *chName = Suit::channelName(Suit::XEMS, xb[i].ch[0]);
+        bool same = false;
+        for (int j = 0; j < n; j++)
+            if (xe[j].ch[0] == xb[i].ch[0]) same = !qstrcmp(xe[j].name, xb[i].name);
+        p.setPen(INK);
+        p.setFont(uiFont(16));
+        p.drawText(QRect(196, y, 190, 36), Qt::AlignLeft | Qt::AlignVCenter, QString::fromUtf8(xb[i].name));
+        p.setPen(same ? GREY : RED);
+        p.drawText(QRect(380, y, 40, 36), Qt::AlignCenter, U("→"));
+        p.setPen(same ? SOFT : INK);
+        p.setFont(uiFont(16, !same));
+        p.drawText(QRect(420, y, 186, 36), Qt::AlignRight | Qt::AlignVCenter, QString::fromUtf8(chName));
+    }
+    filled(p, QRect(500, 492, 110, 52), U("info-close"), QString(), INK, WHITE, U("Ясно"), 17);
+    hit(QRect(0, 0, 800, 600), U("info-close"));
+}
+
+// XBody's showPercent: while a value changes, a big % over the body with what it belongs to.
+void PanelWidget::paintBubble(QPainter &p) {
+    Suit *s = app_->suit();
+    if (!s) return;
+    QString what = U("Сила");
+    if (sel_) {
+        const Zone *z;
+        int n = zonesOf(&z), c = 0;
+        QStringList names;
+        for (int i = 0; i < n; i++)
+            if (sel_ & (1u << i)) { c++; if (names.size() < 2) names << QString::fromUtf8(z[i].name); }
+        what = c == n ? U("Всички зони") : names.join(U(", ")) + (c > 2 ? U(" +%1").arg(c - 2) : QString());
+    }
+    QRect card(260, 222, 280, 150);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0, 0, 0, 45));
+    p.drawRoundedRect(QRectF(card).translated(0, 4), 16, 16);
+    p.setBrush(QColor(0x30, 0x37, 0x41, 235));
+    p.drawRoundedRect(QRectF(card), 16, 16);
+    p.setPen(WHITE);
+    p.setFont(uiFont(64, true));
+    p.drawText(QRect(card.left(), card.top() + 10, card.width(), 86), Qt::AlignCenter, QString::number(selValue()) + U("%"));
+    p.setPen(QColor(0xBE, 0xC0, 0xC2));
+    p.setFont(uiFont(16));
+    p.drawText(QRect(card.left() + 12, card.top() + 98, card.width() - 24, 34), Qt::AlignCenter,
+               QFontMetrics(uiFont(16)).elidedText(what, Qt::ElideRight, card.width() - 24));
+}
+
+void PanelWidget::toast(const QString &text) {
+    toast_ = text;
+    toastUntilMs_ = app_->now() + 3000;
 }
 
 // XBody's message dialog: a dark red band over the whole width.
@@ -611,6 +841,7 @@ void PanelWidget::act(const QString &id, bool repeat) {
         int d = id == QLatin1String("inc") ? 1 : -1;
         if (!sel_) app_->strengthStep(d);
         else setSelValue(d > 0 ? (selValue() / 5 + 1) * 5 : (selValue() + 4) / 5 * 5 - 5);
+        bubbleUntilMs_ = app_->now() + 1200;
         return;
     }
     if (id.startsWith(QLatin1String("st:"))) {
@@ -631,9 +862,11 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("go")) { app_->startPause(); return; }
     if (id == QLatin1String("stop")) { app_->stopRun(); return; }
     if (id == QLatin1String("prog") && s) {
-        if (s->state() == Suit::RUNNING) return;   // greyed while running
+        if (s->state() == Suit::RUNNING) { toast(U("Програмата се сменя на пауза")); return; }
         sheetProg_ = s->program();
         sheetAge60_ = app_->age60();
+        sheetWiring_ = app_->wiring();
+        info_ = false;
         sheet_ = true;
         return;
     }
@@ -643,7 +876,16 @@ void PanelWidget::act(const QString &id, bool repeat) {
         return;
     }
     if (id == QLatin1String("sheet-cancel")) { sheet_ = false; return; }
-    if (id == QLatin1String("sheet-ok")) { app_->applyProgram(sheetProg_, sheetAge60_); sheet_ = false; return; }
+    if (id == QLatin1String("sheet-ok")) {
+        app_->setWiring(sheetWiring_);
+        app_->applyProgram(sheetProg_, sheetAge60_);
+        sheet_ = false;
+        return;
+    }
+    if (id == QLatin1String("wire-xbody")) { sheetWiring_ = Suit::WIRE_XBODY; return; }
+    if (id == QLatin1String("wire-xems")) { sheetWiring_ = Suit::WIRE_XEMS; return; }
+    if (id == QLatin1String("info")) { info_ = true; return; }
+    if (id == QLatin1String("info-close")) { info_ = false; return; }
     if (id == QLatin1String("suit") && s && s->state() == Suit::IDLE) { confirm_ = true; return; }
     if (id == QLatin1String("confirm-no")) { confirm_ = false; return; }
     if (id == QLatin1String("confirm-yes")) { confirm_ = false; app_->forget(); return; }
@@ -655,6 +897,7 @@ void PanelWidget::drag(const QPoint &d) {
     int v = qBound(0, (int)(100.0 * (d.x() - x0) / (x1 - x0) + 0.5), 100);
     if (sel_) v = (v + 2) / 5 * 5;   // zones in steps of 5 under a finger
     if (v != selValue()) setSelValue(v);
+    bubbleUntilMs_ = app_->now() + 1200;
     update();
 }
 
@@ -683,7 +926,9 @@ QString PanelWidget::signature(QString *clock) const {
     unsigned now = app_->now();
     App::View v = app_->view();
     QString g = QString::number(v) + U("|") + app_->note() + QString::number(app_->noteWarn()) + U("|") + pressed_ +
-                QString::number(sheet_) + QString::number(confirm_) + U("|") + QString::number(sel_);
+                QString::number(sheet_) + QString::number(confirm_) + U("|") + QString::number(sel_) +
+                U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())
+                    .arg((int)(bubbleUntilMs_ - now) > 0).arg((int)(toastUntilMs_ - now) > 0);
     *clock = QString();
     if (v == App::NO_BRIDGE || v == App::PICK || v == App::LINKING) {
         g += U("|") + QString::number((now / 400) % 4) + QString::fromStdString(app_->linkingMac());

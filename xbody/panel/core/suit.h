@@ -24,12 +24,16 @@ public:
     enum Kind { XEMS, BODYTECH };
     enum State { IDLE, RUNNING, PAUSED };
     enum { MAX_CH = 10, RAMP_STEPS = 4, ACK_TIMEOUT_MS = 1500 };
+    // Which connector standard the XEMS suit's cables follow: its own, or XBody's (the same plug feeds another
+    // body part, e.g. XBody's "Корем" lead lands on XEMS channel "Ръце"). bodytech has one layout only.
+    enum Wiring { WIRE_XEMS, WIRE_XBODY };
 
     explicit Suit(Kind kind);
     Kind kind() const { return kind_; }
     int channels() const;
     static const char *channelName(Kind k, int i);   // Bulgarian, the suit's own channel order
-    static int zones(Kind k, const Zone **out);      // the screen's zones (count); the first zonesLeft() are column 1
+    // The screen's zones (count) for the cables' standard; the first zonesLeft() are column 1.
+    static int zones(Kind k, const Zone **out, int wiring = WIRE_XEMS);
     static int zonesLeft(Kind k);
 
     // ---- control (the screen) ----

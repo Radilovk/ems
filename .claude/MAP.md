@@ -802,15 +802,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L50 ## Hardware channel ↔ XBody body part
   - L71 ## How it was read
 
-`docs/xbody-xems-panel.md` (92L)
-  - L1 # XEMS panel on the XBody unit (mod v3)
+`docs/xbody-xems-panel.md` (102L)
+  - L1 # XEMS panel on the XBody unit (mod v4)
   - L11 ## Status
   - L19 ## Use (owner)
   - L26 ## Panel
-  - L50 ## Bridge line protocol (USB CDC, 115200)
-  - L59 ## Files
-  - L69 ## Build / test
-  - L85 ## First test on the unit (when the XIAO arrives)
+  - L60 ## Bridge line protocol (USB CDC, 115200)
+  - L69 ## Files
+  - L79 ## Build / test
+  - L95 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

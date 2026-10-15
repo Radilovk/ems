@@ -152,6 +152,25 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         return age60;
     }
 
+    boolean female = true;
+
+    public boolean female() {
+        return female;
+    }
+
+    public void setFemale(boolean f) {
+        female = f;
+        save();
+    }
+
+    public java.io.InputStream openAsset(String name) {
+        try {
+            return getAssets().open(name);
+        } catch (java.io.IOException e) {
+            return null;
+        }
+    }
+
     public boolean noteWarn() {
         return noteWarn;
     }
@@ -325,12 +344,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         prog.offS = p.getInt("off", prog.offS);
         prog.totalS = p.getInt("total", prog.totalS);
         age60 = p.getBoolean("age60", false);
+        female = p.getBoolean("female", true);
         Safe.apply(prog, age60);    // a saved value goes through the limits too
     }
 
     void save() {
         getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("last", lastMac).putInt("hz", prog.hz)
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS)
-                .putBoolean("age60", age60).apply();
+                .putBoolean("age60", age60).putBoolean("female", female).apply();
     }
 }

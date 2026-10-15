@@ -1,10 +1,12 @@
 package bg.xems.wiems;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.view.MotionEvent;
@@ -52,6 +54,15 @@ final class XView extends View {
     private long bubbleUntil, toastUntil;
     private String toast = "";
     private String sig = "";
+    private BodyFig[] figs;                     // front, back of the chosen sex
+    private boolean figsFemale;
+    private final RectF[] figRect = {new RectF(), new RectF()};
+    private float tapX, tapY;                   // the last touch (design units): which muscle a tap on the figure hit
+    private Bitmap grain;                       // XBody's off-white grain, tiled
+    private final Paint bmp = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
+    /** XBody's slider LEDs: green → blue → violet → red (its SliderLeds picture, sampled). */
+    static final int[] LEDS = {0xFF02B28C, 0xFF1EA1A0, 0xFF498CAE, 0xFF97728F, 0xFFC06675, 0xFFDB5E64, 0xFFEC5959};
+    static final int LIGHT_RED = 0xFFF4A0A3;
 
     XView(Context c, Host h) {
         super(c);
@@ -84,7 +95,8 @@ final class XView extends View {
             Session.Program q = s.program();
             b.append('|').append(s.state()).append(s.impulse()).append(s.strength()).append(s.battery())
                     .append(s.startPending()).append(s.preparing()).append(q.hz).append(q.onS).append(q.offS).append(q.totalS);
-            for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i));
+            for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i)).append('/').append(s.liveLevel(Session.ZONE_CH[i]));
+            b.append(a.female());
             b.append('|').append(s.secondsLeft(now)).append(' ').append((s.phaseMsLeft(now) + 999) / 1000);
             if (s.startPending()) b.append((now / 400) % 4);
         }
@@ -103,8 +115,7 @@ final class XView extends View {
         c.translate((w - dw * k) / 2, (h - 600 * k) / 2);
         c.scale(k, k);
         hits.clear();
-        p.setColor(WHITE);
-        c.drawRect(0, 0, dw, 600, p);
+        paintGrain(c);
         int v = a.viewKind();
         if (v == MainActivity.VIEW_TRAIN && a.session() != null) paintTrain(c);
         else paintPick(c, v);
@@ -115,6 +126,39 @@ final class XView extends View {
     }
 
     // ---------------------------------------------------------------- paint helpers
+
+    /** XBody's window background: off-white with a fine grain (its MainWindowBg: 247..255). */
+    private void paintGrain(Canvas c) {
+        if (grain == null) {
+            int n = 96;
+            int[] px = new int[n * n];
+            java.util.Random r = new java.util.Random(7);
+            for (int i = 0; i < px.length; i++) {
+                int g = 250 + r.nextInt(6);
+                px[i] = 0xFF000000 | (g << 16) | (g << 8) | g;
+            }
+            grain = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888);
+            grain.setPixels(px, 0, n, 0, 0, n, n);
+        }
+        Rect src = new Rect(0, 0, grain.getWidth(), grain.getHeight());
+        for (float y = 0; y < 600; y += 96)
+            for (float x = 0; x < dw; x += 96) {
+                rf.set(x, y, x + 96, y + 96);
+                c.drawBitmap(grain, src, rf, null);
+            }
+    }
+
+    /** XBody's logo block, ours: a red disc with the X, then EMS. */
+    private void logo(Canvas c, float x, float cy) {
+        p.setColor(RED);
+        c.drawCircle(x + 11, cy, 11, p);
+        line(c, x + 6.5f, cy - 4.5f, x + 15.5f, cy + 4.5f, WHITE, 2.6f);
+        line(c, x + 15.5f, cy - 4.5f, x + 6.5f, cy + 4.5f, WHITE, 2.6f);
+        font(22, true);
+        p.setLetterSpacing(0.04f);
+        text(c, "EMS", x + 27, cy - 14, x + 120, cy + 14, -1, INK);
+        p.setLetterSpacing(0);
+    }
 
     private void hit(float l, float t, float r, float b, String id) {
         hits.add(new Hit(new RectF(l, t, r, b), id));
@@ -216,15 +260,12 @@ final class XView extends View {
     // ---------------------------------------------------------------- header (XBody's)
 
     private void paintHeader(Canvas c, String title, String sub, boolean warn, boolean ok) {
-        p.setColor(WHITE);
-        c.drawRect(0, 0, dw, 56, p);
         line(c, 0, 56, dw, 56, HEAD_LINE, 1);
         line(c, 155, 6, 155, 50, HEAD_LINE, 1);
         line(c, dw - 148, 6, dw - 148, 50, HEAD_LINE, 1);
-        font(20, true);
-        text(c, "XEMS", 24, 0, 150, 56, -1, INK);
-        font(13, true);
-        text(c, "WiEMS", 92, 4, 150, 56, -1, RED);
+        logo(c, 22, 28);
+        font(12, true);
+        text(c, "WiEMS", 106, 22, 152, 40, -1, RED);
         font(20, true);
         p.setLetterSpacing(0.08f);
         text(c, elide(title, dw - 330), 160, 2, dw - 152, 32, 0, GREY);
@@ -328,16 +369,7 @@ final class XView extends View {
         boolean idle = s.state() == Session.IDLE, running = s.state() == Session.RUNNING;
         int all = (1 << Session.ZONES) - 1;
 
-        // ---- the body, front and back (a plain figure, as the panel paints it without XBody's pictures) ----
-        for (int f = 0; f < 2; f++) {
-            float cxf = dx + (f == 1 ? 495 : 305);
-            p.setColor(FIGURE);
-            rf.set(cxf - 22, 112, cxf + 22, 164);
-            c.drawOval(rf, p);
-            round(c, cxf - 55, 170, cxf + 55, 340, 24, FIGURE);
-            round(c, cxf - 50, 330, cxf - 6, 480, 18, FIGURE);
-            round(c, cxf + 6, 330, cxf + 50, 480, 18, FIGURE);
-        }
+        paintFigures(c, s);
 
         // ---- header: XEMS | unit, battery or the note | program ----
         boolean toastOn = now < toastUntil;
@@ -405,7 +437,7 @@ final class XView extends View {
         path.cubicTo(dx + 270, 534, dx + 300, 480, dx + 400, 480);
         path.cubicTo(dx + 500, 480, dx + 530, 534, dx + 610, 534);
         path.close();
-        p.setColor(sel != 0 ? 0xCC303741 : RED);
+        p.setColor(sel != 0 ? 0xFF4C535C : RED);
         c.drawPath(path, p);
         font(15, false);
         String ms = "СИЛА ";
@@ -420,6 +452,45 @@ final class XView extends View {
         hit(dx + 250, 486, dx + 550, 534, "master");
 
         paintSlider(c);
+    }
+
+    /**
+     * The body, front and back: the XEMS figures of the client's sex. Every zone in XBody's red, as strong as its
+     * impulse now (light at a low strength, deep at a high one); a selected zone that gives nothing is tinted lightly,
+     * as XBody lights its selection. A tap on a muscle selects its zone.
+     */
+    private void paintFigures(Canvas c, Session s) {
+        if (figs == null || figsFemale != a.female()) {
+            String sex = a.female() ? "female" : "male";
+            figs = new BodyFig[] {BodyFig.load(a, sex + "_front"), BodyFig.load(a, sex + "_back")};
+            figsFemale = a.female();
+        }
+        int[] col = new int[Session.ZONES];
+        float[] alpha = new float[Session.ZONES];
+        for (int z = 0; z < Session.ZONES; z++) {
+            float t = s.liveLevel(Session.ZONE_CH[z]) / 100f;
+            boolean picked = (sel & (1 << z)) != 0;
+            if (t > 0) {
+                float k2 = (float) Math.sqrt(Math.min(1f, t * 2.2f));   // low strengths already show
+                col[z] = mix(LIGHT_RED, RED, k2);
+                alpha[z] = 0.42f + 0.58f * k2;
+            } else if (picked) {
+                col[z] = RED;
+                alpha[z] = 0.30f;
+            }
+        }
+        for (int f = 0; f < 2; f++) {
+            BodyFig b = figs[f];
+            if (b == null) continue;
+            float hgt = 372, wid = hgt * b.w / b.h, cxf = dx + (f == 0 ? 290 : 510), top = 106;
+            RectF r = figRect[f];
+            r.set(cxf - wid / 2, top, cxf + wid / 2, top + hgt);
+            Rect src = new Rect(0, 0, b.w, b.h);
+            c.drawBitmap(b.art, src, r, bmp);
+            b.paint(col, alpha);
+            c.drawBitmap(b.over, src, r, bmp);
+            hit(r.left, r.top, r.right, r.bottom, "fig:" + f);
+        }
     }
 
     private void paintPhase(Canvas c, Session s, Session.Program pr, long now, boolean idle, boolean running) {
@@ -460,22 +531,46 @@ final class XView extends View {
         return dw - 98;
     }
 
+    /** XBody's slider bar: dark slate, a recessed track, the glowing LEDs up to the value, the grey fader chip. */
     private void paintSlider(Canvas c) {
-        p.setColor(BAR);
+        p.setColor(0xFF313741);
         c.drawRect(0, 535, dw, 600, p);
-        if ("dec".equals(pressed)) round(c, 0, 535, 79, 600, 0, 0x33FFFFFF);
-        if ("inc".equals(pressed)) round(c, dw - 79, 535, dw, 600, 0, 0x33FFFFFF);
-        line(c, 28, 567, 52, 567, WHITE, 2);
-        line(c, dw - 52, 567, dw - 28, 567, WHITE, 2);
-        line(c, dw - 40, 555, dw - 40, 579, WHITE, 2);
+        if ("dec".equals(pressed)) round(c, 0, 535, 79, 600, 0, 0x22FFFFFF);
+        if ("inc".equals(pressed)) round(c, dw - 79, 535, dw, 600, 0, 0x22FFFFFF);
+        line(c, 79, 545, 79, 590, 0xFF464C56, 1);
+        line(c, dw - 79, 545, dw - 79, 590, 0xFF464C56, 1);
+        line(c, 26, 567, 54, 567, WHITE, 2);
+        line(c, dw - 54, 567, dw - 26, 567, WHITE, 2);
+        line(c, dw - 40, 553, dw - 40, 581, WHITE, 2);
         hit(0, 535, 79, 600, "dec");
         hit(dw - 79, 535, dw, 600, "inc");
         int v = selValue();
         float x0 = sliderX0(), x1 = sliderX1(), x = x0 + (x1 - x0) * v / 100f;
-        line(c, x0, 567, x1, 567, 0xFF3A3F48, 6);
-        if (x > x0) line(c, x0, 567, x, 567, GREEN, 6);
-        round(c, x - 14, 551, x + 14, 583, 4, 0xA0FFFFFF);
+        round(c, x0 - 4, 562, x1 + 4, 572, 5, 0xFF262A31);              // the recessed track
+        if (x > x0 + 1) {
+            int n = Math.max(2, (int) ((x - x0) / 6));
+            for (int pass = 0; pass < 2; pass++) {                       // the glow, then the LED line
+                for (int i = 0; i < n; i++) {
+                    float a0 = x0 + (x - x0) * i / n, a1 = x0 + (x - x0) * (i + 1) / n;
+                    int col = led((a0 + a1) / 2 - x0, x1 - x0);
+                    if (pass == 0) line(c, a0, 567, a1, 567, (col & 0x00FFFFFF) | 0x38000000, 14);
+                    else line(c, a0, 567, a1, 567, col, 6);
+                }
+            }
+        }
+        // the fader: XBody's light chip with its grip lines
+        round(c, x - 17, 549, x + 17, 585, 4, 0xFFE9EAEC);
+        round(c, x - 17, 549, x + 17, 567, 4, 0xFFF7F7F8);
+        stroke(c, x - 17, 549, x + 17, 585, 4, 0xFFB7BABF, 1);
+        for (int g = -1; g <= 1; g++) line(c, x + g * 6, 557, x + g * 6, 577, 0xFFBFC2C6, 1.5f);
         hit(80, 535, dw - 80, 600, "slider");
+    }
+
+    /** XBody's LED colour at offset d of the scale's length len. */
+    private static int led(float d, float len) {
+        float f = Math.max(0, Math.min(1, d / len)) * (LEDS.length - 1);
+        int i = Math.min(LEDS.length - 2, (int) f);
+        return mix(LEDS[i], LEDS[i + 1], f - i);
     }
 
     private int selValue() {
@@ -539,9 +634,10 @@ final class XView extends View {
                 p.setColor(PRESS);
                 c.drawCircle(cxk, cyk, h / 2 - 4, p);
             }
-            line(c, cxk - 9, cyk, cxk + 9, cyk, INK, 2.5f);
-            if (i == 1) line(c, cxk, cyk - 9, cxk, cyk + 9, INK, 2.5f);
-            hit(kl, t, kl + h, b, id);
+            int ink = field == null ? LINE : INK;
+            line(c, cxk - 9, cyk, cxk + 9, cyk, ink, 2.5f);
+            if (i == 1) line(c, cxk, cyk - 9, cxk, cyk + 9, ink, 2.5f);
+            if (field != null) hit(kl, t, kl + h, b, id);
         }
         font(20, true);
         text(c, value, l + h, t, r - h, b, 0, INK);
@@ -559,7 +655,8 @@ final class XView extends View {
         line(c, o + 64, 84, o + 736, 84, HEAD_LINE, 1);
         line(c, o + 432, 100, o + 432, 452, HEAD_LINE, 1);
         Session.Program q = sheetProg;
-        caption(c, o + 64, 98, "ПРОГРАМА");
+        boolean locked = a.session() != null && a.session().state() == Session.RUNNING;
+        caption(c, o + 64, 98, locked ? "ПРОГРАМА · СМЕНЯ СЕ НА ПАУЗА" : "ПРОГРАМА");
         String[] labels = {"Честота", "Времетраене"};
         String[] values = {q.hz + " Hz", q.totalS / 60 + " мин"};
         String[] fields = {"hz", "total"};
@@ -567,31 +664,44 @@ final class XView extends View {
             float y = 124 + i * 64;
             font(16, false);
             text(c, labels[i], o + 64, y, o + 222, y + 52, -1, INK);
-            pill(c, o + 222, y, o + 408, y + 52, values[i], fields[i]);
+            pill(c, o + 222, y, o + 408, y + 52, values[i], locked ? null : fields[i]);
         }
         font(16, false);
         text(c, "Ритъм", o + 64, 268, o + 364, 292, -1, INK);
         float bl = o + 64, bw = 344, wOn = bw * q.onS / Math.max(1, q.onS + q.offS);
         round(c, bl, 298, bl + bw, 310, 6, HEAD_LINE);
         round(c, bl, 298, bl + wOn, 310, 6, GREEN);
-        pill(c, o + 64, 324, o + 230, 376, q.onS + " s", "on");
-        pill(c, o + 242, 324, o + 408, 376, q.offS + " s", "off");
+        pill(c, o + 64, 324, o + 230, 376, q.onS + " s", locked ? null : "on");
+        pill(c, o + 242, 324, o + 408, 376, q.offS + " s", locked ? null : "off");
         font(14, true);
         text(c, "импулс", o + 64, 378, o + 230, 400, 0, GREEN);
         text(c, "пауза", o + 242, 378, o + 408, 400, 0, SOFT);
 
         // ---- right: the client ----
         caption(c, o + 456, 98, "КЛИЕНТ");
-        outlined(c, o + 456, 126, o + 736, 182, "age60", null, 0, false);
+        // the figures' sex: a segmented control, the chosen half red (XBody's selected state)
+        round(c, o + 457, 127, o + 735, 181, 10, WHITE);
+        stroke(c, o + 457, 127, o + 735, 181, 10, LINE, 2);
+        for (int i = 0; i < 2; i++) {
+            float hl = o + 456 + i * 140;
+            boolean chosen = a.female() == (i == 0);
+            String id = i == 0 ? "sex-f" : "sex-m";
+            if (chosen) round(c, hl + 4, 130, hl + 136, 178, 8, RED);
+            else if (id.equals(pressed)) round(c, hl + 4, 130, hl + 136, 178, 8, PRESS);
+            font(18, chosen);
+            text(c, (chosen ? "✓ " : "") + (i == 0 ? "Жена" : "Мъж"), hl, 126, hl + 140, 182, 0, chosen ? WHITE : INK);
+            hit(hl, 126, hl + 140, 182, id);
+        }
+        outlined(c, o + 456, 198, o + 736, 254, locked ? null : "age60", null, 0, false);
         font(17, false);
-        text(c, "Над 60 години", o + 472, 126, o + 646, 182, -1, INK);
-        float sl = o + 736 - 92, st = 154 - 15;
+        text(c, "Над 60 години", o + 472, 198, o + 646, 254, -1, locked ? GREY : INK);
+        float sl = o + 736 - 92, st = 226 - 15;
         round(c, sl, st, sl + 80, st + 30, 15, sheetAge60 ? GREEN : 0xFFD5D7DA);
         p.setColor(WHITE);
         c.drawCircle(sheetAge60 ? sl + 65 : sl + 15, st + 15, 12, p);
         if (sheetAge60) {
             font(14, true);
-            text(c, "✓ Честотата спира до 85 Hz", o + 456, 186, o + 736, 208, -1, GREEN);
+            text(c, "✓ Честотата спира до 85 Hz", o + 456, 258, o + 736, 280, -1, GREEN);
         }
         // ---- what the session will be (derived, nothing to set) ----
         round(c, o + 456, 352, o + 736, 452, 10, 0xFFF4F5F6);
@@ -654,6 +764,8 @@ final class XView extends View {
         float[] d = toDesign(e);
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                tapX = d[0];
+                tapY = d[1];
                 pressed = idAt(d[0], d[1]);
                 pressMs = repeatMs = a.now();
                 if (pressed.equals("slider")) drag(d[0]);
@@ -731,6 +843,14 @@ final class XView extends View {
             a.connectTo(id.substring(5));
             return;
         }
+        if (id.startsWith("fig:") && figs != null) {   // a muscle on the figure: its zone into / out of the selection
+            int f = id.charAt(4) - '0';
+            BodyFig b = figs[f];
+            RectF r = figRect[f];
+            int z = b == null ? -1 : b.zoneAt((tapX - r.left) / r.width(), (tapY - r.top) / r.height());
+            if (z >= 0) sel ^= 1 << z;
+            return;
+        }
         if (id.startsWith("z:")) {   // tap = into / out of the selection (as on XBody)
             int b = 1 << Integer.parseInt(id.substring(2));
             sel = (sel & b) != 0 ? sel & ~b : sel | b;
@@ -754,10 +874,6 @@ final class XView extends View {
             return;
         }
         if (id.equals("prog") && s != null) {
-            if (s.state() == Session.RUNNING) {
-                showToast("Програмата се сменя на пауза");
-                return;
-            }
             sheetProg = s.program().copy();
             sheetAge60 = a.age60();
             sheet = true;
@@ -773,8 +889,12 @@ final class XView extends View {
             return;
         }
         if (id.equals("sheet-ok")) {
-            a.applyProgram(sheetProg, sheetAge60);
+            if (s == null || s.state() != Session.RUNNING) a.applyProgram(sheetProg, sheetAge60);
             sheet = false;
+            return;
+        }
+        if (id.equals("sex-f") || id.equals("sex-m")) {   // the figures change at once, also mid-training
+            a.setFemale(id.equals("sex-f"));
             return;
         }
         if (id.equals("unit") && s != null && s.state() == Session.IDLE) {

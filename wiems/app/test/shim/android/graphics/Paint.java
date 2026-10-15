@@ -6,7 +6,7 @@ import java.awt.geom.AffineTransform;
 
 /** Render-test shim on Java2D (DejaVu Sans stands in for Roboto). */
 public class Paint {
-    public static final int ANTI_ALIAS_FLAG = 1;
+    public static final int ANTI_ALIAS_FLAG = 1, FILTER_BITMAP_FLAG = 2;
 
     public enum Style { FILL, STROKE }
 

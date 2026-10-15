@@ -59,6 +59,12 @@ public class Canvas {
 
     public void drawPath(Path path, Paint p) { shape(path.p, p); }
 
+    public void drawBitmap(Bitmap b, Rect src, RectF dst, Paint p) {
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(b.img, Math.round(dst.left), Math.round(dst.top), Math.round(dst.right), Math.round(dst.bottom),
+                src.left, src.top, src.right, src.bottom, null);
+    }
+
     public void drawText(String s, float x, float y, Paint p) {
         use(p);
         g.setFont(p.font());

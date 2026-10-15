@@ -9,5 +9,9 @@ public class RectF {
 
     public void set(float l, float t, float r, float b) { left = l; top = t; right = r; bottom = b; }
 
+    public float width() { return right - left; }
+
+    public float height() { return bottom - top; }
+
     public boolean contains(float x, float y) { return left < right && top < bottom && x >= left && x < right && y >= top && y < bottom; }
 }

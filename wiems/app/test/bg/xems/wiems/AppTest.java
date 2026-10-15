@@ -66,6 +66,16 @@ public class AppTest {
         }
         public void applyProgram(Session.Program p, boolean a) {}
         public void forget() {}
+        boolean female = true;
+        public boolean female() { return female; }
+        public void setFemale(boolean f) { female = f; }
+        public java.io.InputStream openAsset(String name) {
+            try {
+                return new java.io.FileInputStream(new File(System.getProperty("assets"), name));
+            } catch (java.io.IOException e) {
+                return null;
+            }
+        }
     }
 
     static void shot(XView v, String dir, String name) throws Exception {
@@ -157,6 +167,14 @@ public class AppTest {
         v.tick(h.t);
         tap(v, 960 - 40, 567);                              // + : zones up, the % bubble shows
         shot(v, dir, "3-train-running.png");
+        h.session.setStrength(80);
+        h.t += 600;
+        h.session.tick(h.t);
+        drain(h.session, h.t);
+        shot(v, dir, "3b-strong.png");
+        h.female = false;
+        shot(v, dir, "3c-male.png");
+        h.female = true;
         h.t += 5000;
         tap(v, 100, 470);                                   // ПАУЗА
         shot(v, dir, "4-paused.png");

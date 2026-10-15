@@ -298,6 +298,11 @@ final class Session {
         return false;
     }
 
+    /** What unit channel c gives out now (0..100): its level in the impulse (with the rise), 0 in the pause. */
+    int liveLevel(int c) {
+        return impulse() && wi == WI_RUN ? level(c, rampStep) : 0;
+    }
+
     int level(int c, int k) {
         int s = strength * k / RAMP_STEPS;
         return Math.min(WiProto.MAX_CURRENT, ch[c] * s / 100);

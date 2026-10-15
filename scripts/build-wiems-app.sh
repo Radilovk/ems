@@ -30,6 +30,8 @@ fi
 java -cp "$TOOLS/dx.jar" com.android.dx.command.Main --dex --min-sdk-version=21 --output="$T/classes.dex" "$T/classes"
 java -jar "$TOOLS/baksmali.jar" d "$T/classes.dex" -o "$T/apk/smali"
 cp "$SRC/ic_launcher.png" "$T/apk/res/drawable/ic_launcher.png"
+mkdir -p "$T/apk/assets/body"   # the XEMS body figures (art + zone maps), the same as the tablet's
+cp "$REPO"/branding/body/*.webp "$T/apk/assets/body/"
 sed "s/@NAME@/$NAME/g; s/@CODE@/$CODE/g" "$SRC/AndroidManifest.xml" > "$T/apk/AndroidManifest.xml"
 cat > "$T/apk/apktool.yml" <<YML
 version: 2.9.3
@@ -43,6 +45,8 @@ sdkInfo:
   targetSdkVersion: '29'
 packageInfo:
   forcedPackageId: '127'
+doNotCompress:
+- webp
 versionInfo:
   versionCode: '$CODE'
   versionName: '$NAME'

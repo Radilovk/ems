@@ -19,4 +19,9 @@ interface Host {
     void startPause();
     void applyProgram(Session.Program p, boolean age60);
     void forget();
+    /** The figures: female (default) or male — the client's, chosen in the session's settings. */
+    boolean female();
+    void setFemale(boolean f);
+    /** An asset of the APK (null: none). */
+    java.io.InputStream openAsset(String name);
 }

@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.0)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.1)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -23,6 +23,16 @@ when the unit does; phases set strengths (pause = 0); pause / stop = strengths 0
 order. Width is not shown (the unit keeps its own widths). The last unit reconnects by itself.
 Permissions: location (Android ≤ 11 needs it for BLE scans; targetSdk 29 also on Android 12+). Closing the app
 stops the unit.
+
+## Look (v1.1, owner: XBody's design level or better, never lower)
+- The body: the XEMS anatomical figures (`branding/body`, female by default, male by choice — Настройки на сесията →
+  КЛИЕНТ, also mid-training). Every zone in XBody's red, **as strong as its impulse now** (light at a low strength,
+  deep at a high one, nothing in the pause); a selected zone that gives nothing is tinted lightly, as XBody lights its
+  selection; a tap on a muscle selects its zone (`BodyFig`: the zone maps, the tablet's recolour that keeps the volume).
+- XBody's elements redrawn in vector from its own pictures' measurements: the off-white grain background
+  (MainWindowBg 247..255), the slider bar (slate #313741, recessed track, the LED line green → blue → violet → red with
+  its glow, sampled from SliderLeds), the light fader chip, the MASTER hump (slate / red), the timer hump. Our logo
+  (red disc with the X + EMS) in place of XBody's. No XBody picture is copied.
 
 ## Build / test
 ```

@@ -388,6 +388,12 @@ static void programLimits() {
                 std::string w = id + "/" + g.name;
                 int hz = g.hz > g.hz2 ? g.hz : g.hz2;
                 eqInt((w + " ≥ 30 s").c_str(), 1, g.ms >= 30000);
+                if (!g.wave && hz >= 20) eqInt((w + " ≥ 20 Hz work ≤ 15 min without a break").c_str(), 1, g.ms <= xbprog::WORK_MAX);
+                if (i == 0 && want == 10 && !pl.post)
+                    eqInt((w + " 10: no warm-up, starts ≤ 80 %").c_str(), 1,
+                          (g.wave || g.e0 <= 80) && (ps[k].n < 3 || std::string(g.name) != ps[k].segs[0].name || g.wave));
+                if (i == 0 && want == 15 && ps[k].n > 2 && std::string(g.name) == ps[k].segs[0].name && !g.wave)
+                    eqInt((w + " 15: warm-up 2 min").c_str(), 120000, g.ms);
                 if (hz >= 20) {
                     eqInt((w + " L1 on ≤ 4 s").c_str(), 1, g.onMs <= 4000);
                     eqInt((w + " L2 ramp ≥ 0.3 s").c_str(), 1, g.upMs >= 300);
@@ -495,9 +501,20 @@ static void programRun() {
     eqInt("shaping after training starts at 85 Hz + 8 Hz second", 1, o.second && o.tp == 125);
     xbprog::plan(*xbprog::byId("metabolic"), 30, &pl);
     eqInt("metabolic stretched to 30", 1800000, xbprog::totalMs(pl.program()));
-    eqInt("stretched: phases in proportion", 540000, pl.segs[0].ms);
+    eqInt("30: warm-up 3 min", 180000, pl.segs[0].ms);
+    eqInt("30: end 3 min", 180000, pl.segs[pl.info.n - 1].ms);
     xbprog::plan(*xbprog::byId("back"), 10, &pl);
-    eqInt("back at 10: shortened, not a post", 1, !pl.post && pl.segs[0].ms == 120000);
+    eqInt("back at 10: no warm-up, starts at the work ≤ 80 %", 1, !pl.post && pl.segs[0].hz == 80 && pl.segs[0].e0 == 80);
+    eqInt("back at 10: work 8 min + end 2 min", 1, pl.info.n == 2 && pl.segs[0].ms == 480000 && pl.segs[1].ms == 120000);
+    xbprog::plan(*xbprog::byId("back"), 15, &pl);
+    eqInt("back at 15: warm-up 2 min, work 11, end 2", 1,
+          pl.segs[0].ms == 120000 && pl.segs[1].ms == 660000 && pl.segs[2].ms == 120000);
+    xbprog::plan(*xbprog::byId("back"), 30, &pl);
+    eqInt("back at 30: the work in two blocks with a massage between", 1,
+          pl.info.n == 5 && pl.segs[1].hz == 80 && pl.segs[2].hz == 3 && pl.segs[2].hz2 == 8 && pl.segs[3].hz == 80);
+    eqInt("back at 30: massage 2 min, works the same zones", 1, pl.segs[2].ms == 120000 && pl.segs[2].w == pl.segs[1].w);
+    xbprog::plan(*xbprog::byId("back"), 0, &pl);
+    eqInt("own length = the program as written", 1, pl.info.n == 3 && pl.segs[1].ms == 660000);
 
     // Through the Shaper: latched at the training's start, XBody's own clock ignored, stop ends it.
     xbcable::Shaper sh;

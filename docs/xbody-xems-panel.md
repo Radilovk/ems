@@ -84,10 +84,22 @@ program, state `program_min=`). `xbprog::plan()`:
   - Оформяне — 85 Hz + 8 Hz second impulse 4 min, 40 Hz + 6 Hz 3 min, 3 ↔ 8 Hz massage 3 min.
   - Антицелулит — 85 Hz + 8 Hz second impulse 4 min, legs wave 4 min, 3 ↔ 8 Hz massage 2 min.
   - No warm-up (the body is warm), envelope starts at 80 %.
-- **Any other length** (and 10 for the rest) = the program's phases in proportion, whole seconds, the last phase takes
-  the rest; Hz, µs, rhythm, ramps and the wave are unchanged, so the limits hold.
+- **A strategy per length** (mod v11, docs/xems-ems-physiology.md §1, §3) for the rest. Warm-up = a rising low-Hz
+  first phase, end = a low-Hz last phase, the work = everything between:
+  - 10: the other programs drop the warm-up (the body is warm); the work starts at ≤ 80 % and the end is 2 min.
+  - 15 (short): warm-up and end 2 min each.
+  - 20–25 (standard): warm-up and end as written.
+  - 30 (long): warm-up and end 3 min each.
+  - The work shares the rest in proportion, in ¼-min steps.
+  - ≥ 20 Hz work longer than 15 min without a break becomes two blocks with a 2-min 3 ↔ 8 Hz massage on the same
+    zones between them, so the high-frequency fatigue recovers (τ 30–50 s). E.g. Болки в гърба at 30 min: 3 min
+    warm-up, 11 min 80 Hz, 2 min massage, 11 min 80 Hz, 3 min end.
+  - Hz, µs, rhythm, ramps and the wave are unchanged, so the limits hold.
+  - The panel's yellow box names the strategy.
+  - A tile's Hz is the frequency with the most time.
 
-Tests: every program × every length against L1–L5, L12, ≥ 30 s phases, a ≥ 1-s window for every second impulse, the
+Tests: every program × every length against L1–L5, L12, ≥ 30 s phases, ≥ 20 Hz work ≤ 15 min in one go, no warm-up at
+10, a 2-min warm-up at 15, a ≥ 1-s window for every second impulse, the
 soft end, the exact length, "never above" and "ends on time" over every 50-ms frame; the length is latched at START.
 
 ## Feedback from the stimulator (what XBody can know)

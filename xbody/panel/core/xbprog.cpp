@@ -84,35 +84,64 @@ static const Program PROGS[] = {
 
 const int LENGTHS[LEN_N] = {10, 15, 20, 25, 30};
 
-Plan::Plan() : post(false) {
+Plan::Plan() : post(false), note("") {
     Program z = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     info = z;
 }
 
+static bool lowHz(const Seg &g) { return !g.wave && g.hz < 20 && g.hz2 < 20; }
+static bool work(const Seg &g) { return !g.wave && (g.hz >= 20 || g.hz2 >= 20); }
+static const Seg BREAK = {"Масаж 3 ↔ 8 Hz", BREAK_MS, 3, 8, 250, 10000, 2000, 0, 0, 80, 80, 0, 0, 0, 0, 0};
+
 bool plan(const Program &p, int minutes, Plan *out) {
     out->info = p;
     out->post = minutes == POST_MIN && p.post;
-    const Seg *src = out->post ? p.post : p.segs;
-    int n = out->post ? p.postN : p.n;
-    if (n > MAXSEG) n = MAXSEG;
-    for (int i = 0; i < n; i++) out->segs[i] = src[i];
-    out->info.n = n;
     out->info.how = out->post ? p.postHow : p.how;
-    int own = 0;
-    for (int i = 0; i < n; i++) own += src[i].ms;
-    int want = minutes > 0 ? minutes * 60000 : own;
-    if (want != own) {   // in proportion, whole seconds; the last phase takes the rest
-        int t = 0;
-        for (int i = 0; i < n - 1; i++) {
-            out->segs[i].ms = (int)(((long long)src[i].ms * want / own + 500) / 1000) * 1000;
-            if (out->segs[i].ms < 1000) out->segs[i].ms = 1000;
-            t += out->segs[i].ms;
+    out->info.minutes = minutes > 0 ? minutes : p.minutes;
+    out->note = "";
+    int want = out->info.minutes * 60000, n = 0;
+    if (out->post) {   // its own after-training version, as written
+        out->note = "След тренировка — своя програма";
+        for (int i = 0; i < p.postN && i < MAXSEG; i++) out->segs[n++] = p.post[i];
+    } else {
+        // Warm-up = a rising low-Hz first phase, end = a low-Hz last phase; the rest is the work.
+        bool hasWarm = p.n > 2 && lowHz(p.segs[0]) && p.segs[0].e0 < p.segs[0].e1;
+        bool hasEnd = p.n > 1 && lowHz(p.segs[p.n - 1]);
+        int first = hasWarm ? 1 : 0, last = hasEnd ? p.n - 2 : p.n - 1;
+        int warm = hasWarm ? p.segs[0].ms : 0, end = hasEnd ? p.segs[p.n - 1].ms : 0;
+        int m = out->info.minutes;
+        if (m <= POST_MIN) { warm = 0; end = hasEnd ? 120000 : 0; out->note = "След тренировка — без загрявка, по-меко начало"; }
+        else if (m <= 15) { warm = warm ? 120000 : 0; end = end ? 120000 : 0; out->note = "Кратка — загрявка и край по 2 мин"; }
+        else if (m >= 30) { warm = warm ? 180000 : 0; end = end ? 180000 : 0; out->note = "Дълга — загрявка и край по 3 мин"; }
+        else out->note = "Стандартна";
+        if (warm) { out->segs[n] = p.segs[0]; out->segs[n++].ms = warm; }
+        int own = 0;
+        for (int i = first; i <= last; i++) own += p.segs[i].ms;
+        int mid = want - warm - end, t = 0;
+        for (int i = first; i <= last && n < MAXSEG; i++) {
+            Seg g = p.segs[i];
+            g.ms = i == last ? mid - t : (int)(((long long)p.segs[i].ms * mid / own + 7500) / 15000) * 15000;   // ¼ min
+            t += g.ms;
+            if (i == first && m <= POST_MIN && g.e0 > 80) g.e0 = 80;   // after a training: the first work starts softer
+            if (work(g) && g.ms > WORK_MAX && n + 3 <= MAXSEG) {   // too long without a break: two blocks + massage
+                Seg a = g, br = BREAK, b2 = g;
+                a.ms = (g.ms - BREAK_MS) / 30000 * 15000;
+                b2.ms = g.ms - BREAK_MS - a.ms;
+                br.w = g.w;
+                out->segs[n++] = a;
+                out->segs[n++] = br;
+                out->segs[n++] = b2;
+                out->note = "Дълга — два блока работа, между тях масаж";
+            } else
+                out->segs[n++] = g;
         }
-        out->segs[n - 1].ms = want - t;
+        if (end && n < MAXSEG) { out->segs[n] = p.segs[p.n - 1]; out->segs[n++].ms = end; }
     }
-    out->info.minutes = want / 60000;
+    out->info.n = n;
     out->info.segs = out->segs;
-    return out->segs[n - 1].ms > 0;
+    bool ok = n > 0;
+    for (int i = 0; i < n; i++) ok = ok && out->segs[i].ms > 0;
+    return ok;
 }
 
 int programs(const Program **out) {
@@ -132,10 +161,14 @@ int totalMs(const Program &p) {
     return t;
 }
 
-int mainSeg(const Program &p) {
-    int best = 0;
-    for (int k = 1; k < p.n; k++)
-        if (p.segs[k].ms > p.segs[best].ms) best = k;
+int mainSeg(const Program &p) {   // the most time at one frequency (a block split in two still counts whole)
+    int best = 0, bestMs = -1;
+    for (int k = 0; k < p.n; k++) {
+        int t = 0;
+        for (int j = 0; j < p.n; j++)
+            if (p.segs[j].hz == p.segs[k].hz && p.segs[j].hz2 == p.segs[k].hz2 && !p.segs[j].wave == !p.segs[k].wave) t += p.segs[j].ms;
+        if (t > bestMs) { best = k; bestMs = t; }
+    }
     return best;
 }
 

@@ -37,13 +37,21 @@ struct Program {
 enum { LEN_N = 5 };
 extern const int LENGTHS[LEN_N];
 
-// A program at a chosen length: 10 min = its after-training version where it has one, any other length = its phases
-// stretched or shortened in proportion (whole seconds, the last phase takes the rest). Rhythm, Hz, µs, ramps and
-// the wave stay as they are, so the limits hold at every length.
+// A program at a chosen length — a different strategy per length (docs/xems-ems-physiology.md §1, §3):
+//   10 min  after a training: its own version where it has one; else no warm-up (the body is warm), the work starts at
+//           ≤ 80 %, a 2-min end;
+//   15 min  short: warm-up and end 2 min each, the work in between;
+//   20–25   standard: warm-up and end as the program has them, the work stretched or shortened;
+//   30 min  long: warm-up and end 3 min each; ≥ 20 Hz work is never longer than WORK_MAX without a break — a longer
+//           block becomes two with a 2-min 3 ↔ 8 Hz massage between (the fatigue recovers, τ 30–50 s).
+// The work phases share the rest in proportion (whole seconds); Hz, µs, rhythm, ramps and the wave stay as they are,
+// so the limits hold at every length.
+enum { WORK_MAX = 900000, BREAK_MS = 120000 };
 struct Plan {
     Program info;            // segs → this plan's own copy (use program())
     Seg segs[MAXSEG];
     bool post;               // the after-training version
+    const char *note;        // the strategy, one line for the trainer
     Plan();
     Program program() const { Program p = info; p.segs = segs; return p; }
 };
@@ -52,7 +60,7 @@ bool plan(const Program &p, int minutes, Plan *out);
 int programs(const Program **out);
 const Program *byId(const std::string &id);
 int totalMs(const Program &p);
-// The procedure's main segment (the longest; the first of equals) — what it is about.
+// The procedure's main segment (the most time at one frequency; the first of equals) — what it is about.
 int mainSeg(const Program &p);
 // The zones that segment mainly works (weight ≥ 70 %, a wave's zones 100; the rest 0): the tile lights these.
 void zoneShare(const Program &p, int out[CH]);

@@ -661,9 +661,9 @@ void PanelWidget::paintPrograms(QPainter &p) {
         p.setPen(QPen(INK, 2));
         p.drawLine(QPointF(x + w * f, by - 4), QPointF(x + w * f, by + 12));
     }
-    for (int i = 0; i < prog.n && i < 5; i++) {
+    for (int i = 0; i < prog.n && i < 6; i++) {
         const xbprog::Seg &g = prog.segs[i];
-        int y = 280 + i * 25;
+        int y = 278 + i * 25;
         bool now = run && !live.programOver && live.programSeg == i;
         QColor col = g.wave ? QColor(0x1F, 0x9E, 0xB0) : g.hz >= 20 ? GREEN : QColor(0xC4, 0xC8, 0xCC);
         p.setPen(Qt::NoPen);
@@ -680,7 +680,7 @@ void PanelWidget::paintPrograms(QPainter &p) {
                    QFontMetrics(uiFont(13, now)).elidedText(U(g.name), Qt::ElideRight, w - 14 - rw));
         p.drawText(QRect(x + 14, y, w - 14, 24), Qt::AlignRight | Qt::AlignVCenter, right);
     }
-    QRect box(x, 412, w, 102);
+    QRect box(x, 432, w, 84);
     p.setPen(Qt::NoPen);
     if (run && live.programOver) {
         p.setBrush(QColor(0xDF, 0xF5, 0xEC));
@@ -699,14 +699,15 @@ void PanelWidget::paintPrograms(QPainter &p) {
         p.setFont(uiFont(14));
         p.drawText(box.adjusted(12, 0, -12, -10), Qt::AlignLeft | Qt::AlignBottom, U("от ") + mmss(total / 1000));
     } else {
-        p.setBrush(QColor(0xFF, 0xF4, 0xD6));
+        p.setBrush(QColor(0xFF, 0xF4, 0xD6));   // the strategy for this length, then what to do
         p.drawRoundedRect(QRectF(box), 8, 8);
         p.setPen(QColor(0x7A, 0x55, 0x00));
-        p.setFont(uiFont(14, true));
-        p.drawText(box.adjusted(10, 4, -10, -4), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap,
+        p.setFont(uiFont(13, true));
+        p.drawText(box.adjusted(10, 6, -10, -40), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, U(pl.note));
+        p.setFont(uiFont(13));
+        p.drawText(box.adjusted(10, 44, -10, -4), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
                    live.training ? U("Тръгва от следващата тренировка на XBody")
-                                 : U("Времето на XBody ≥ ") + QString::number(pl.info.minutes) +
-                                       U(" мин → START. Силата по зоните е таван."));
+                                 : U("XBody ≥ ") + QString::number(pl.info.minutes) + U(" мин → START"));
     }
 }
 

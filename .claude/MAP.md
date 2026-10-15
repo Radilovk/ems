@@ -808,21 +808,21 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (200L)
+`docs/xbody-xems-panel.md` (212L)
   - L1 # XEMS panel on the XBody unit (mod v9)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
   - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
   - L64 ## Ready passive programs on XBody's cable (mod v8)
   - L76 ### Length and after-training procedures (mod v10)
-  - L93 ## Feedback from the stimulator (what XBody can know)
-  - L103 ## Phone → XBody over a USB cable (mod v9, no stick)
-  - L114 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L122 ## Panel
-  - L156 ## Bridge line protocol (USB CDC, 115200)
-  - L165 ## Files
-  - L177 ## Build / test
-  - L193 ## First test on the unit (when the XIAO arrives)
+  - L105 ## Feedback from the stimulator (what XBody can know)
+  - L115 ## Phone → XBody over a USB cable (mod v9, no stick)
+  - L126 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L134 ## Panel
+  - L168 ## Bridge line protocol (USB CDC, 115200)
+  - L177 ## Files
+  - L189 ## Build / test
+  - L205 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

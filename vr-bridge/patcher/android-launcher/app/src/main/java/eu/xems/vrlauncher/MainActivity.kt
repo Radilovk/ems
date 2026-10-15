@@ -8,6 +8,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.net.Uri
@@ -57,6 +60,8 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     /** USB device id already switched to Wi-Fi adb (once per plug-in); -1 = none. */
     private var usbHandled = -1
     private var usbBusy = false
+    /** USB device id the permission dialog was shown for: asked once per plug-in (🔍 asks again), never in a loop. */
+    private var usbAsked = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,9 +111,33 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         out.putBoolean(STATE_AUTO, autoDone)
     }
 
+    /** Cable out → the relay and the "already handled" marks go, so the next plug-in starts from a clean slate. */
+    private val detached = object : BroadcastReceiver() {
+        override fun onReceive(c: Context, i: Intent) {
+            if (i.action != UsbManager.ACTION_USB_DEVICE_DETACHED) return
+            if (UsbAdb.findQuest(this@MainActivity) != null) return       // another USB device went, not the headset
+            forgetCable()
+            if (questField.text.toString().trim() == UsbBridge.SERIAL) questField.setText("")
+            setStatus(getString(R.string.status_usb_out), getString(R.string.detail_usb_out), R.color.amber, false, "", null)
+        }
+    }
+
+    private fun forgetCable() {
+        bridge?.stop(); bridge = null; bridgeId = -1
+        usbHandled = -1
+        usbAsked = -1
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkUsb()          // back from the permission dialog, the headset's prompt or another app: look again
+    }
+
     override fun onStart() {
         super.onStart()
         store.prefs.registerOnSharedPreferenceChangeListener(this)
+        val f = IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        if (Build.VERSION.SDK_INT >= 33) registerReceiver(detached, f, Context.RECEIVER_EXPORTED) else registerReceiver(detached, f)
         render()
         // The cable address means nothing once the cable is out → back to the Wi-Fi search.
         if (questField.text.toString().trim() == UsbBridge.SERIAL && UsbAdb.findQuest(this) == null) {
@@ -120,6 +149,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
 
     override fun onStop() {
         store.prefs.unregisterOnSharedPreferenceChangeListener(this)
+        runCatching { unregisterReceiver(detached) }
         dialog?.dismiss()
         super.onStop()
     }
@@ -160,9 +190,13 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     /** A Quest on the cable → allowed, then reached over the cable ([UsbBridge]). true = the cable path took over. */
     private fun checkUsb(): Boolean {
         val d = UsbAdb.findQuest(this) ?: return false
+        // The relay of this very plug-in died (headset slept, adb reset): it is made again instead of trusted.
+        if (d.deviceId == bridgeId && bridge?.alive != true) forgetCable()
         if (usbBusy || d.deviceId == usbHandled || d.deviceId == bridgeId) return usbBusy
         val usb = getSystemService(UsbManager::class.java)
         if (!usb.hasPermission(d)) {
+            if (usbAsked == d.deviceId) return false
+            usbAsked = d.deviceId
             val flags = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
             val pi = PendingIntent.getActivity(this, 1,
                 Intent(this, MainActivity::class.java).setAction(ACTION_USB_PERMISSION), flags or PendingIntent.FLAG_UPDATE_CURRENT)
@@ -177,7 +211,13 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
 
     private inner class UsbRun(private val d: UsbDevice) : Runnable {
         override fun run() {
-            val r = UsbAdb(this@MainActivity).run(d)
+            // Any failure must come back as a result: a thread that dies here left usbBusy set for good, and the
+            // cable was ignored until the app was reinstalled.
+            val r = try {
+                UsbAdb(this@MainActivity).run(d)
+            } catch (t: Throwable) {
+                UsbAdb.Result(UsbAdb.Outcome.FAILED, t.message ?: t.javaClass.simpleName)
+            }
             runOnUiThread { onUsbDone(d, r) }
         }
     }
@@ -208,6 +248,11 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     // ---------------------------------------------------------------- tasks
 
     private fun findQuest() {
+        // 🔍 with the headset on the cable: connect over the cable again from scratch (the dependable path).
+        if (UsbAdb.findQuest(this) != null && !usbBusy) {
+            forgetCable()
+            if (checkUsb()) return
+        }
         val tablet = tabletField.text.toString().trim().ifEmpty { LanAddress.current(this).orEmpty() }
         if (!PatchRequest.isIpv4(tablet)) {
             tabletField.error = getString(R.string.err_no_wifi)

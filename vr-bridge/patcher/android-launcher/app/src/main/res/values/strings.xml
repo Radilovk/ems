@@ -95,6 +95,8 @@
     <string name="detail_usb_allow">Сложи шлема, приеми „Allow USB debugging“ (Always allow) и включи кабела пак.</string>
     <string name="status_usb_failed">По кабела не стана</string>
     <string name="detail_usb_failed">Извади и включи кабела пак. Developer mode включен ли е на шлема?</string>
+    <string name="status_usb_out">Кабелът е изваден</string>
+    <string name="detail_usb_out">Включи го пак — шлемът се свързва сам. Ако не стане, натисни 🔍.</string>
     <string name="status_usb_denied">Няма достъп до кабела</string>
     <string name="detail_usb_denied">Включи кабела пак и натисни OK, когато таблетът попита за шлема.</string>
     <string name="detail_games_fit">✓ стават: %1$d.</string>

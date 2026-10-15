@@ -52,6 +52,16 @@ Headset on the tablet's USB-C → the app allows it once (`UsbAdb`, headset on: 
 adb over the cable (`UsbBridge`: `127.0.0.1:15555` TCP ⇄ USB bulk, same adb messages). Termux's adb connects to
 that address with the already-allowed key, so finding games, patching and installing need no Wi-Fi, no `tcpip`,
 and survive the headset going to sleep. Keep the cable in while a game goes on; unplugged → the Wi-Fi search again.
+Since 1.8.3 a plug-in is never ignored: the cable going out drops the relay and its marks (`USB_DEVICE_DETACHED`), a
+relay that died is made again, a failure inside the USB handshake comes back as a result instead of leaving the app
+"busy" until a reinstall, the screen looks again on every return, and 🔍 with the headset on the cable reconnects over
+the cable from scratch. Termux's side always drops the old `127.0.0.1:15555` connection before connecting.
+
+## XEMS Studio comes ready (1.8.3)
+CI puts the suit link into the game itself (`xems_vr_patch.py --apk`, release asset `xems-studio-xems.apk`); the catalog
+entry has `"ready": true`, so the tablet only downloads it (progress every 10 %, checked for a whole file) and installs it
+(`--install … --ready`: an update in place keeps the game's data; a clean install only if the headset refuses it). No
+250 MB repack and re-sign on the tablet any more, and `adb install` has a 15 min limit instead of waiting for ever.
 
 ## Every time
 Open the app → it finds the headset on the Wi-Fi → shows its games (✓ OpenXR = works · ✗ old VrApi = cannot, not filled in · ? = not recognised) → **tap a game** → **Сложи хаптиката** →

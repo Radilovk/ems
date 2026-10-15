@@ -1,0 +1,70 @@
+#!/bin/sh
+# Direct link to the "XEMS флашка" Android app over a USB cable: the phone turns on USB tethering (RNDIS), the unit
+# gets usb0 (rndis_host / cdc_ether), an address from the phone (udhcpc), and asks the app's server
+# (http://<phone>:8765/xems/hello?have=<installed>) which mod it carries. A newer one is downloaded into
+# /opt/xems/pending (the same layout as a stick), checked by md5, and installed at the next boot by
+# /etc/init.d/xems-pending — the stick's own installer, backups kept on the unit. Run by /etc/init.d/xems-panel.
+# State for the panel: /tmp/xems-link.state (phone=0|1, phone_ver, have, pending, state).
+#   xems-link once   one pass (tests)
+# Env (tests): XEMS_LINK_NET (/sys/class/net/usb0), XEMS_LINK_GW (skip DHCP), XEMS_LINK_PORT, XEMS_OPT (/opt/xems).
+OPT=${XEMS_OPT:-/opt/xems}
+NET=${XEMS_LINK_NET:-/sys/class/net/usb0}
+PORT=${XEMS_LINK_PORT:-8765}
+ST=${XEMS_LINK_STATE:-/tmp/xems-link.state}
+P=$OPT/pending
+[ -n "$XEMS_LINK_NET" ] || { modprobe usbnet; modprobe rndis_host; modprobe cdc_ether; } > /dev/null 2>&1
+
+state() {   # phone phone_ver pending state
+	printf 'phone=%s\nphone_ver=%s\nhave=%s\npending=%s\nstate=%s\n' "$1" "$2" "$(cat "$OPT/VERSION" 2>/dev/null)" "$3" "$4" > "$ST.tmp"
+	mv "$ST.tmp" "$ST"
+}
+
+pass() {
+	pend=$(cat "$P/xems/VERSION" 2>/dev/null)
+	[ -f "$P/updater.sh" ] || pend=""
+	if [ ! -e "$NET" ]; then state 0 "" "$pend" none; rm -f /tmp/xems-link.gw; return; fi
+	GW=${XEMS_LINK_GW:-$(cat /tmp/xems-link.gw 2>/dev/null)}
+	if [ -z "$GW" ]; then
+		ifconfig usb0 up > /dev/null 2>&1
+		udhcpc -i usb0 -n -q -t 3 -s "$OPT/bin/xems-dhcp" > /dev/null 2>&1
+		GW=$(cat /tmp/xems-link.gw 2>/dev/null)
+		[ -n "$GW" ] || { state 0 "" "$pend" no-address; return; }
+	fi
+	have=$(cat "$OPT/VERSION" 2>/dev/null)
+	resp=$(wget -q -O - "http://$GW:$PORT/xems/hello?have=$have&pending=$pend" 2>/dev/null)
+	case "$resp" in
+	"XEMS-PHONE "*) ;;
+	*) rm -f /tmp/xems-link.gw; state 0 "" "$pend" no-app; return ;;
+	esac
+	v=${resp#XEMS-PHONE }
+	v=${v%%[!0-9]*}
+	[ -n "$v" ] || v=0
+	if [ "$v" -le "${have:-0}" ] || [ "$v" = "$pend" ]; then
+		state 1 "$v" "$pend" "$([ "$v" = "$pend" ] && echo pending || echo current)"
+		return
+	fi
+	state 1 "$v" "$pend" downloading
+	D=$OPT/pending.dl
+	rm -rf "$D"
+	mkdir -p "$D/xems"
+	for f in updater.sh xems/VERSION xems/payload.md5 xems/payload.tar.gz xems/remove.list; do
+		wget -q -O "$D/$f" "http://$GW:$PORT/xems/file/$f" 2> /dev/null || { rm -rf "$D"; state 1 "$v" "$pend" error-download; return; }
+	done
+	if ! (cd "$D/xems" && md5sum -c payload.md5 > /dev/null 2>&1) || [ "$(cat "$D/xems/VERSION")" != "$v" ]; then
+		rm -rf "$D"
+		state 1 "$v" "$pend" error-check
+		return
+	fi
+	# Into the pending "stick" (its earlier backups stay), then the boot script installs it.
+	mkdir -p "$P/xems"
+	rm -f "$P/updater.done.sh" "$P/xems/RESTORE"
+	for f in xems/VERSION xems/payload.md5 xems/payload.tar.gz xems/remove.list updater.sh; do mv "$D/$f" "$P/$f"; done
+	chmod 755 "$P/updater.sh"
+	rm -rf "$D"
+	sync
+	wget -q -O /dev/null "http://$GW:$PORT/xems/hello?have=$have&pending=$v" 2> /dev/null
+	state 1 "$v" "$v" pending
+}
+
+if [ "$1" = once ]; then pass; exit 0; fi
+while [ ! -e /tmp/xems-stop ]; do pass; sleep 3; done

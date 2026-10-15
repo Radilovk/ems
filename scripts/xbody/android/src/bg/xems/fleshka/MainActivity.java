@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
+import android.provider.Settings;
+import android.view.WindowManager;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -35,7 +37,8 @@ public class MainActivity extends Activity {
     static final int INK = 0xFF303741, RED = 0xFFE21A22, GREEN = 0xFF00B38B, SOFT = 0xFF6B7178, LINE = 0xFFBFC2C5;
     static final String[] XEMS_FILES = {"VERSION", "payload.tar.gz", "payload.md5", "remove.list"};
 
-    TextView status;
+    TextView status, linkStatus;
+    PhoneServer server;
     Button pick, install, undo;
     Uri tree;
     String version = "?";
@@ -57,10 +60,31 @@ public class MainActivity extends Activity {
         col.setPadding(pad, pad, pad, pad);
         sv.addView(col);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   // the link lives while the app is open
         TextView brand = text("XEMS за XBody", 26, INK, true);
         col.addView(brand);
-        col.addView(text("Флашка за обновяване · версия " + version, 16, SOFT, false));
+        col.addView(text("Обновяване · версия " + version, 16, SOFT, false));
         col.addView(space(18));
+
+        // ---- A: straight to XBody over the phone's USB cable (no stick) ----
+        col.addView(text("С кабел до XBody — без флашка", 19, INK, true));
+        col.addView(space(6));
+        col.addView(step("1", "Свържи телефона с USB кабел към USB порта на XBody (машината е включена)."));
+        col.addView(step("2", "Включи „USB тетъринг“ на телефона."));
+        col.addView(step("3", "Остави това приложение отворено. XBody изтегля версия " + version
+                + " и я инсталира при следващото включване."));
+        col.addView(space(10));
+        Button tether = button("Отвори „USB тетъринг“", INK, false);
+        tether.setOnClickListener(new Click(4));
+        col.addView(tether);
+        col.addView(space(10));
+        linkStatus = text("Чакам XBody…", 16, SOFT, false);
+        col.addView(linkStatus);
+        col.addView(space(26));
+
+        // ---- B: a USB stick ----
+        col.addView(text("С флашка", 19, INK, true));
+        col.addView(space(6));
         col.addView(step("1", "Включи флашката с OTG кабел (FAT32, до 32 GB)."));
         col.addView(step("2", "Натисни „Избери флашката“ и посочи самата флашка — не папка в нея."));
         col.addView(step("3", "На машината: изключи XBody → вкарай флашката → включи → чакай да се изключи сама → "
@@ -87,6 +111,47 @@ public class MainActivity extends Activity {
         col.addView(text("Нова платка XIAO? Включи я с OTG, натисни RESET два пъти бързо и я избери тук — "
                 + "приложението я програмира. Или я включи в машината: тя я програмира сама.", 14, SOFT, false));
         setContentView(sv);
+        server = new PhoneServer(version, new AssetFiles(), new Unit(), PhoneServer.PORT);
+        new Thread(server).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (server != null) server.close();
+        super.onDestroy();
+    }
+
+    final class AssetFiles implements PhoneServer.Files {
+        @Override
+        public byte[] get(String path) throws Exception { return readAsset("fleshka/" + path); }
+    }
+
+    /** The unit said hello (server thread) → the line on the screen. */
+    final class Unit implements PhoneServer.Listener {
+        @Override
+        public void unit(String have, String pending) { ui.post(new LinkLine(have, pending)); }
+    }
+
+    final class LinkLine implements Runnable {
+        final String have, pending;
+
+        LinkLine(String h, String p) { have = h; pending = p; }
+
+        @Override
+        public void run() {
+            if (version.equals(have)) {
+                linkStatus.setText("✓ XBody е свързан и вече е с версия " + version + ".");
+                linkStatus.setTextColor(GREEN);
+            } else if (version.equals(pending)) {
+                linkStatus.setText("✓ XBody изтегли версия " + version + ".\nИзключи XBody (бутон Shut down) и го включи — "
+                        + "инсталира се при включване, после изключи тетъринга.");
+                linkStatus.setTextColor(GREEN);
+            } else {
+                linkStatus.setText("XBody е свързан (версия " + (have.length() > 0 ? have : "?") + ") — изпращам версия "
+                        + version + "…");
+                linkStatus.setTextColor(INK);
+            }
+        }
     }
 
     // ---------------------------------------------------------------- the UI kit (XBody's look: white, ink, red)
@@ -157,6 +222,16 @@ public class MainActivity extends Activity {
 
         @Override
         public void onClick(View v) {
+            if (what == 4) {   // the tethering screen (vendors move it; fall back to the network settings)
+                try {
+                    Intent t = new Intent();
+                    t.setClassName("com.android.settings", "com.android.settings.TetherSettings");
+                    startActivity(t);
+                } catch (Exception e) {
+                    startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
+                }
+                return;
+            }
             if (what == 0) {
                 Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                 i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);

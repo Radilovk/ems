@@ -289,7 +289,12 @@ void PanelWidget::paintCable(QPainter &p) {
     bool toastOn = (int)(toastUntilMs_ - app_->now()) > 0;
     QString sub;
     bool warn = false, ok = false;
+    const App::PhoneLink &ph = app_->phoneLink();
     if (toastOn) { sub = toast_; ok = true; }
+    else if (!ph.pending.isEmpty()) { sub = U("Версия ") + ph.pending + U(" е изтеглена — изключи и включи XBody"); ok = true; }
+    else if (ph.phone && ph.state == U("downloading")) sub = U("Телефонът е свързан — изтеглям версия ") + ph.phoneVer + U("…");
+    else if (ph.phone && ph.state.startsWith(U("error"))) { sub = U("Телефонът е свързан, но изтеглянето не стана — опитвам пак"); warn = true; }
+    else if (ph.phone && ph.state == U("current")) { sub = U("Телефонът е свързан · XBody е с последната версия"); ok = true; }
     else if (!live.running) { sub = U("Модулът за кабела не отговаря — XBody работи както без него"); warn = true; }
     else if (live.training && !live.program.empty()) {
         const xbprog::Program *pr = xbprog::byId(live.program);
@@ -488,46 +493,20 @@ void PanelWidget::paintCableSettings(QPainter &p) {
     p.drawText(QRect(204, 460, 556, 60), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, t2);
 }
 
-// A program's tile: XBody's own body picture, front and back, with exactly the zones the procedure works lit
-// (brighter = a larger share of the strength); the drainage also shows its wave's direction (up the legs).
+// A program's tile: a red line icon for the procedure (Health Icons, CC0 — xbody/panel/art) on white, like XBody's
+// own program-selection tiles (/opt/xems/art, scripts/xbody/gen-panel-art.py).
 static QPixmap programTile(const xbprog::Program &pr) {
     static QMap<QString, QPixmap> cache;
     QString key = QString::fromLatin1(pr.id);
     if (cache.contains(key)) return cache.value(key);
-    static const char *MASK[xbprog::CH] = {"BodyTrapezius", "BodyBack", "BodyChest", "BodyWaist", "BodyArm",
-                                           "BodyAbdomen", "BodyBottom", "BodyLegFront", "BodyLegBack", "BodyOptional"};
-    int share[xbprog::CH];
-    xbprog::zoneShare(pr, share);
-    QPixmap out(256, 256);
-    out.fill(QColor(0xF4, 0xF5, 0xF6));
-    QPainter p(&out);
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
-    const double sx = 60, sy = 56, k = 256.0 / 384;   // the two figures (x 80–416, y 66–434 of 500×500)
-    p.scale(k, k);
-    p.translate(-sx, -sy);
-    if (const QPixmap *body = pix("BodyNormal")) {
-        p.drawPixmap(0, 0, *body);
-        for (int i = 0; i < xbprog::CH; i++) {
-            const QPixmap *m = share[i] > 0 ? pix(MASK[i]) : 0;
-            if (!m) continue;
-            p.setOpacity(0.35 + 0.65 * share[i] / 100.0);
-            p.drawPixmap(0, 0, *m);
-        }
-        p.setOpacity(1.0);
+    QPixmap out(128, 128);
+    out.fill(Qt::white);
+    const char *dir = std::getenv("XEMS_ART");
+    QPixmap art;
+    if (art.load(QString::fromLocal8Bit(dir ? dir : "/opt/xems/art") + U("/") + key + U(".png"))) {
+        QPainter p(&out);
+        p.drawPixmap((128 - art.width()) / 2, (128 - art.height()) / 2 - 8, art);
     }
-    if (std::string(pr.id) == "drain" || std::string(pr.id) == "cellulite") {   // the wave goes up the legs
-        p.setPen(QPen(QColor(0x1F, 0x9E, 0xB0), 9, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        for (int f = 0; f < 2; f++) {
-            double cx = f ? 340 : 157;
-            for (int c = 0; c < 3; c++) {
-                double y = 420 - c * 46;
-                p.drawLine(QPointF(cx - 22, y), QPointF(cx, y - 18));
-                p.drawLine(QPointF(cx, y - 18), QPointF(cx + 22, y));
-            }
-        }
-    }
-    p.end();
     cache.insert(key, out);
     return out;
 }
@@ -555,19 +534,6 @@ void PanelWidget::paintPrograms(QPainter &p) {
             p.setClipPath(clip);
             p.drawPixmap(img, programTile(pr));
             p.restore();
-            // its signature: the main segment's frequency (and "вълна" for a wave)
-            const xbprog::Seg &g = pr.segs[xbprog::mainSeg(pr)];
-            QString sig = g.hz2 ? QString::number(g.hz) + U(" ↔ ") + QString::number(g.hz2) + U(" Hz")
-                                : QString::number(g.hz) + U(" Hz") + (g.wave ? U(" · вълна") : QString());
-            QFont sf = uiFont(13, true);
-            int sw = QFontMetrics(sf).width(sig) + 16;
-            QRectF badge(img.left() + 6, img.bottom() - 26, sw, 22);
-            p.setPen(Qt::NoPen);
-            p.setBrush(QColor(0x30, 0x37, 0x41, 220));
-            p.drawRoundedRect(badge, 11, 11);
-            p.setPen(WHITE);
-            p.setFont(sf);
-            p.drawText(badge, Qt::AlignCenter, sig);
         }
         if (sel) {   // ✓ badge
             p.setPen(Qt::NoPen);
@@ -583,8 +549,11 @@ void PanelWidget::paintPrograms(QPainter &p) {
                    U(pr.name));
         p.setPen(run ? GREEN : SOFT);
         p.setFont(uiFont(14, run));
+        const xbprog::Seg &g = pr.segs[xbprog::mainSeg(pr)];   // the procedure's signature: its main frequency
+        QString hz = g.hz2 ? QString::number(g.hz) + U("↔") + QString::number(g.hz2) + U(" Hz")
+                           : QString::number(g.hz) + U(" Hz") + (g.wave ? U(" вълна") : QString());
         p.drawText(QRect(t.left(), t.top() + 176, t.width(), 20), Qt::AlignCenter,
-                   run ? U("▶ върви") : QString::number(pr.minutes) + U(" мин"));
+                   run ? U("▶ върви") : QString::number(pr.minutes) + U(" мин · ") + hz);
         hit(t, id);
     }
 
@@ -1398,6 +1367,8 @@ QString PanelWidget::signature(QString *clock) const {
         const App::CableLive &l = app_->cableLive();
         g += U("|c%1 %2 %3 %4 %5%6%7%8 %9").arg(c.wiring).arg(c.dbl).arg(c.dblHz).arg(c.dblPct).arg(l.running)
                  .arg(l.training).arg(l.second).arg(l.wiring).arg(showCable_ * 2 + cableInfo_);
+        const App::PhoneLink &ph = app_->phoneLink();
+        g += U("|ph%1 ").arg(ph.phone) + ph.phoneVer + ph.pending + ph.state;
         g += U("|p") + QString::fromStdString(c.program + "/" + l.program) +
              U(" %1 %2 %3 %4").arg(l.programSeg).arg(l.programS).arg(l.programOver).arg(cableTab_);
     }
@@ -1494,14 +1465,15 @@ void TabWidget::paintEvent(QPaintEvent *) {
         const xbcable::Config &c = app_->cable();
         int x = st.right();
         p.setFont(uiFont((int)(14 * k), true));
-        for (int b = 0; b < 3; b++) {
-            bool on = b == 2 ? !c.program.empty() : b ? c.wiring == xbcable::WIRE_XEMS : c.dbl;
+        for (int b = 0; b < 4; b++) {
+            bool on = b == 3 ? !app_->phoneLink().pending.isEmpty()
+                     : b == 2 ? !c.program.empty() : b ? c.wiring == xbcable::WIRE_XEMS : c.dbl;
             if (!on) continue;
-            QString t = b == 2 ? U("▶") : b ? U("⇄") : U("2×");
+            QString t = b == 3 ? U("↓") : b == 2 ? U("▶") : b ? U("⇄") : U("2×");
             int w = (int)(30 * k);
             QRectF r(x - w, height() / 2 - 11 * k, w, 22 * k);
             p.setPen(Qt::NoPen);
-            p.setBrush(b == 2 ? GREEN : b ? RED : YELLOW);
+            p.setBrush(b == 3 ? INK : b == 2 ? GREEN : b ? RED : YELLOW);
             p.drawRoundedRect(r, 6 * k, 6 * k);
             p.setPen(b ? WHITE : INK);
             p.drawText(r, Qt::AlignCenter, t);
@@ -1549,7 +1521,8 @@ void TabWidget::timerEvent(QTimerEvent *) {
     raise();   // stay above XBody's windows
     Suit *s = app_->suit();
     QString g = QString::number(down_) + QString::number(app_->bridgeOk()) + QString::number(s != 0);
-    g += U(" %1%2").arg(app_->cable().wiring).arg(app_->cable().dbl) + QString::fromStdString(app_->cable().program);
+    g += U(" %1%2").arg(app_->cable().wiring).arg(app_->cable().dbl) + QString::fromStdString(app_->cable().program) +
+         app_->phoneLink().pending;
     if (s) g += U(" %1 %2").arg(s->state()).arg(s->state() == Suit::IDLE ? 0 : s->secondsLeft(app_->now()));
     if (g != sig_) update();
     sig_ = g;

@@ -119,6 +119,26 @@ void App::readCableState() {
         l.boardRx = std::atol(kv["board_rx"].c_str());
     }
     cableLive_ = l;
+    PhoneLink ph;
+    ph.phone = false;
+    std::string t = slurp(envPath("XEMS_LINK_STATE", "/tmp/xems-link.state"));
+    size_t a = 0;
+    while (a < t.size()) {
+        size_t e = t.find('\n', a);
+        std::string line = t.substr(a, e == std::string::npos ? std::string::npos : e - a);
+        size_t q = line.find('=');
+        if (q != std::string::npos) {
+            std::string k = line.substr(0, q);
+            QString v = QString::fromStdString(line.substr(q + 1));
+            if (k == "phone") ph.phone = v == U("1");
+            else if (k == "phone_ver") ph.phoneVer = v;
+            else if (k == "pending") ph.pending = v;
+            else if (k == "state") ph.state = v;
+        }
+        if (e == std::string::npos) break;
+        a = e + 1;
+    }
+    phone_ = ph;
 }
 
 QString App::uf2State() const {

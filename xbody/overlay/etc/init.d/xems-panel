@@ -8,6 +8,7 @@ case "$1" in
 start)
 	rm -f /tmp/xems-stop
 	( while [ ! -e /tmp/xems-stop ]; do /opt/xems/bin/xems-uf2; sleep 2; done ) > /dev/null 2>&1 &
+	/opt/xems/bin/xems-link > /dev/null 2>&1 &   # the phone over USB (tethering): updates without a stick
 	(
 		SOCK=/tmp/qtembedded-0/QtEmbedded-0
 		n=0

@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v8)
+# XEMS panel on the XBody unit (mod v9)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -69,8 +69,9 @@ levels; the proxy plays the program over the training (own rhythm, Hz, µs, enve
 XBody level** (only Антицелулит's own second impulse in the pause, ≤ 50 %). Latched at START; STOP ends it; when
 it is over the outputs stay off until XBody ends. Tests: every program against L1–L5, L12, soft end; "never above"
 over every 50-ms frame of every program; wave order; via the real `xbody_control` in qemu (35 Hz, 300 µs, 3:1).
-Screen: "Кабел на XBody" → tab **Програми**: a tile per program = XBody's body picture with the main segment's zones
-(≥ 70 %) lit + its Hz badge; right: what it does, its phases (bar + list), the running time, "Без програма".
+Screen: "Кабел на XBody" → tab **Програми**: a tile per program = a red line icon for the procedure (Health Icons,
+CC0, `xbody/panel/art/README.md`: lymph nodes, thigh skin, back pain, mother and baby, relaxation, weight) on white like
+XBody's own program tiles, "20 мин · 35 Hz вълна" under it; right: what it does, its phases, the running time.
 
 ## Feedback from the stimulator (what XBody can know)
 - `xbody_control` has **no read path** from the board (only `SendPacketToHardware`; `XBHWCommunication` connects no
@@ -81,6 +82,17 @@ Screen: "Кабел на XBody" → tab **Програми**: a tile per program
   `/opt/xems/board-rx.log` (64 KB cap) and counts it in the state; the USB installer copies `/opt/xems/*.log` to the
   stick (`xems-logs/`). Empty after a training = the board is silent.
 - Real feedback can come from outside: the XIAO bridge can read a BLE heart-rate strap / the Band 10 (not done).
+
+## Phone → XBody over a USB cable (mod v9, no stick)
+The phone's USB tethering (RNDIS) gives the unit `usb0` (`rndis_host` / `cdc_ether` / `usbnet` are on the card).
+`/opt/xems/bin/xems-link` (started by `xems-panel`) gets an address (`udhcpc`, script `xems-dhcp`: no default route,
+no DNS), asks the "XEMS флашка" app `http://<phone>:8765/xems/hello?have=N&pending=M` (`PhoneServer.java`), downloads
+a newer mod into `/opt/xems/pending` (a stick's layout), checks its md5 and version; `/etc/init.d/xems-pending`
+(rc5 S29, before the vendor's stick updater) installs it at the next boot with the stick's installer — backups stay
+in `/opt/xems/pending/xems`, one run per download (`updater.sh` → `.done.sh`, a failure → `.failed.sh`, never a boot
+loop). The panel's header says "Версия N е изтеглена — изключи и включи XBody", the tab shows ↓; the app shows the
+unit's version and when it has the download. The first time the unit needs v9 from a stick (the link comes with it).
+Tests: `test.sh` 7 — the real `PhoneServer` on the host JVM ↔ `xems-link` ↔ the pending install on a fake root.
 
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in

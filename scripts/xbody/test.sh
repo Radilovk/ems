@@ -182,6 +182,13 @@ if command -v javac > /dev/null && command -v wget > /dev/null; then
 	(cd "$O/pending" && XB_ROOT="$F3" dash ./updater.sh) || no "pending install"
 	[ -x "$F3/opt/xems/bin/xems-panel" ] && [ -f "$O/pending/updater.done.sh" ] || no "pending installed once"
 	ok "app serves, the unit downloads + checks, installs from /opt/xems/pending; cable out = no phone"
+	javac -nowarn -encoding UTF-8 -d "$J" "$REPO/scripts/xbody/android/src/bg/xems/fleshka/StickLog.java" \
+		"$REPO/scripts/xbody/android/test/StickLogMain.java" 2>/dev/null
+	[ "$(java -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -cp "$J" StickLogMain "$O/pending/xems-update.log")" = "XEMS v$V OK" ] || no "app: stick log OK"
+	P4=$T/pen4; cp -r "$T/real/usb" "$P4"; printf 'x' >> "$P4/xems/payload.tar.gz"   # a stick pulled out too early
+	(cd "$P4" && XB_ROOT="$T/root4" dash ./updater.sh) && no "broken payload installed"
+	java -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -cp "$J" StickLogMain "$P4/xems-update.log" | grep -q '^!пакетът на флашката е недописан' || no "app: stick log error"
+	ok "the app reads the unit's last run off the stick (OK / the error)"
 else
 	ok "phone link skipped (no javac / wget here)"
 fi

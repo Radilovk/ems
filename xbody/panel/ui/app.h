@@ -38,6 +38,7 @@ public:
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
     // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
     bool bridgeUpdating() const { return dfuSent_; }
+    int modVersion() const { return modVer_; }   // /opt/xems/VERSION (0 unknown)
     QString uf2State() const;                     // flashing | done | error … (fresh only), else empty
 
     // ---- XBody's own cable output (xems-xbproxy): suit standard + double impulse ----
@@ -92,7 +93,7 @@ private:
     Program prog_;
     bool age60_;
     int wiring_;
-    int bridgeVer_, bundledVer_;
+    int bridgeVer_, bundledVer_, modVer_;
     bool dfuSent_;
     xbcable::Config cable_;
     CableLive cableLive_;

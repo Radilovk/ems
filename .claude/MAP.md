@@ -161,9 +161,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-no-vendor-network.py` (53L, build:L191[BETA_MUSIC]) — Fail the build if a request path to the vendor's server is still open (apply-no-vendor-network.py).
 - `scripts/verify-vendor-access.py` (62L, build:L189) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L158[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
-- `scripts/xbody/android/src/bg/xems/fleshka/MainActivity.java` (474L) — XEMS за XBody — prepares the USB stick for the XBody unit from an Android phone or tablet (OTG), the same job PODGOTVI-…
+- `scripts/xbody/android/src/bg/xems/fleshka/MainActivity.java` (503L) — XEMS за XBody — prepares the USB stick for the XBody unit from an Android phone or tablet (OTG), the same job PODGOTVI-…
 - `scripts/xbody/android/src/bg/xems/fleshka/PhoneServer.java` (115L) — The phone's side of the direct USB link: with USB tethering on, the XBody unit (opt/xems/bin/xems-link) asks http://<ph…
+- `scripts/xbody/android/src/bg/xems/fleshka/StickLog.java` (31L) — The unit's note on the stick (xems-update.log, written by updater.sh): how its last run ended.
 - `scripts/xbody/android/test/PhoneServerMain.java` (29L) — Host test of the phone's link server (scripts/xbody/test.sh 7): serves a stick folder like the app's assets.
+- `scripts/xbody/android/test/StickLogMain.java` (12L) — scripts/xbody/test.sh: prints StickLog.lastRun of a stick's xems-update.log.
 - `scripts/xbody/build-android.sh` (56L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
 - `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
@@ -178,8 +180,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
 - `scripts/xbody/test-cable.py` (96L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
 - `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
-- `scripts/xbody/test.sh` (189L) — XBody mod pipeline tests, no device needed:
-- `scripts/xbody/updater.sh` (106L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
+- `scripts/xbody/test.sh` (196L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/updater.sh` (110L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
 

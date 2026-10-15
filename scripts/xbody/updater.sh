@@ -23,7 +23,11 @@ say() {
 }
 fail() {
 	say "XEMS: ERROR: $* (nothing more changed)"
+	say ""
+	say "   !!! XEMS NOT INSTALLED - the unit keeps the old version."
+	say "   Make the stick again (phone app or PC), REMOVE IT SAFELY, try again."
 	sync
+	[ -n "$XB_ROOT" ] || sleep 30   # time to read it: the vendor script powers off 5 s after us
 	exit 1
 }
 done_self() {

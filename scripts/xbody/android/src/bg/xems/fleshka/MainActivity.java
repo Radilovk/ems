@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
 import android.view.WindowManager;
@@ -21,6 +22,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
@@ -281,7 +283,14 @@ public class MainActivity extends Activity {
         }
         install.setVisibility(View.VISIBLE);
         undo.setVisibility(hasBackup() ? View.VISIBLE : View.GONE);
-        say("Флашката е избрана. Натисни „Инсталирай версия " + version + "“.", INK);
+        String last = StickLog.lastRun(readText(child(rootDoc(), "xems-update.log")));
+        if (last != null && last.startsWith("!"))
+            say("Последният опит на машината НЕ мина: " + last.substring(1) + "\nНатисни „Инсталирай версия " + version
+                    + "“ отново и извади флашката безопасно.", RED);
+        else if (last != null)
+            say("Машината последно инсталира: " + last + ".\nНатисни „Инсталирай версия " + version + "“.", INK);
+        else
+            say("Флашката е избрана. Натисни „Инсталирай версия " + version + "“.", INK);
     }
 
     // ---------------------------------------------------------------- the work (off the UI thread)
@@ -337,7 +346,8 @@ public class MainActivity extends Activity {
         String want = new String(readAsset("fleshka/xems/payload.md5"), "UTF-8").trim().split("\\s+")[0];
         String got = md5(readDoc(child(x, "payload.tar.gz")));
         if (!want.equalsIgnoreCase(got)) throw new Exception("копието на флашката не съвпада");
-        return "✓ Версия " + version + " е на флашката и е проверена.\nИзвади я и я занеси на машината (стъпка 3).";
+        return "✓ Версия " + version + " е на флашката и е проверена.\nИзвади я БЕЗОПАСНО (известия → USB → Извади), "
+                + "после я занеси на машината (стъпка 3). На екрана на машината трябва да пише „XEMS v" + version + " OK“.";
     }
 
     String doUndo() throws Exception {
@@ -409,11 +419,30 @@ public class MainActivity extends Activity {
         Uri u = id != null ? doc(id)
                 : DocumentsContract.createDocument(getContentResolver(), doc(parent), "application/octet-stream", name);
         if (u == null) throw new Exception("не мога да запиша " + name);
-        OutputStream o = getContentResolver().openOutputStream(u, "wt");
-        if (o == null) throw new Exception("не мога да запиша " + name);
-        o.write(data);
-        o.flush();
-        o.close();
+        // Straight to the stick, not just the phone's cache: a stick pulled out right after "✓" must still be whole
+        // (else the unit finds a broken payload, changes nothing and only says "Updater finished").
+        ParcelFileDescriptor pfd = null;
+        try {
+            pfd = getContentResolver().openFileDescriptor(u, "rwt");
+        } catch (Exception e) {   // a provider without "rwt"
+        }
+        if (pfd != null) {
+            FileOutputStream f = new FileOutputStream(pfd.getFileDescriptor());
+            try {
+                f.write(data);
+                f.flush();
+                f.getFD().sync();
+            } finally {
+                f.close();
+                pfd.close();
+            }
+        } else {
+            OutputStream o = getContentResolver().openOutputStream(u, "wt");
+            if (o == null) throw new Exception("не мога да запиша " + name);
+            o.write(data);
+            o.flush();
+            o.close();
+        }
         String now = id != null ? id : DocumentsContract.getDocumentId(u);
         String shown = displayName(now);
         if (shown != null && !shown.equals(name)) throw new Exception("флашката преименува " + name + " на " + shown);

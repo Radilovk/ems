@@ -51,6 +51,9 @@ App::App()
     const char *bd = std::getenv("XEMS_BRIDGE_DIR");
     QFile vf(QString::fromLocal8Bit(bd ? bd : "/opt/xems/bridge") + U("/VERSION"));
     if (vf.open(QIODevice::ReadOnly)) bundledVer_ = vf.readAll().trimmed().toInt();
+    modVer_ = 0;
+    QFile mf(envPath("XEMS_MOD_VERSION", "/opt/xems/VERSION"));
+    if (mf.open(QIODevice::ReadOnly)) modVer_ = mf.readAll().trimmed().toInt();
     timer_.start(20, this);
 }
 

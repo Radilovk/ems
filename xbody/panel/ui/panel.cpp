@@ -305,7 +305,8 @@ void PanelWidget::paintCable(QPainter &p) {
                         (live.programOver ? U(" завърши") : U(" — ") + U(pl.segs[si].name))
                   : U("XBody тренира");
     } else if (live.training) sub = live.second ? U("XBody тренира · сега върви двойният импулс") : U("XBody тренира");
-    else sub = U("Важи за всяка тренировка на XBody");
+    else sub = U("Важи за всяка тренировка на XBody") +
+               (app_->modVersion() ? U(" · XEMS v") + QString::number(app_->modVersion()) : QString());
     paintHeader(p, U("КАБЕЛ НА XBODY"), sub, warn, ok);
     if (app_->bridgeOk()) {   // back to the wireless suits
         QRect r(653, 0, 147, 56);
@@ -602,7 +603,7 @@ void PanelWidget::paintPrograms(QPainter &p) {
         p.setPen(SOFT);
         p.setFont(uiFont(15));
         p.drawText(QRect(x, 226, w, 290), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
-                   U("Избери пасивна програма вляво и времето ѝ. Тя тръгва със START на XBody и сама води честотата, "
+                   U("Избери пасивна програма вляво и колко минути да е. Тя тръгва със START на XBody и сама води честотата, "
                      "ритъма и вълната. Силата по зоните остава твоя — в XBody; програмата никога не я надвишава.\n\n"
                      "10 мин — за след тренировка."));
         return;

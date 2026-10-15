@@ -1,17 +1,23 @@
 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol
 
-Target: the WiemsPro wireless EMS units driven by the iPad app **Wiems** (WIEMSPRO SL, App Store id1083387696,
-v1.8.45, iPadOS 12.1+, also runs on Apple-silicon Macs). Siblings with the same hardware: Wiems Easy (id1633394446),
-WiemsPlus, BodStim, NooFit Pro, OnnaFit. **No Android app exists** (Play Store checked 2026-10-15), so the bodytech
-route (decompile the APK, `bodytech/PROTOCOL.md`) is not open — we read the protocol off the air instead, and
-use the iOS binary only as a cross-check.
+Target: the WiemsPro wireless EMS units. Two vendor apps, same hardware family (WIEMSPRO SL):
+- **Wiems Easy** — App Store id1633394446, v1.0.4 (2024-12-10), iOS/iPadOS **11.0+, iPhone too**, Apple-silicon Mac,
+  185 MB; "train in 3 clicks, up to **3 users at once**" (so: one BLE link per unit, three at a time).
+  **Primary target**: newest firmware/protocol, and an iPhone is enough for the capture.
+- **Wiems** — id1083387696, v1.8.45 (2022), iPad only (iPadOS 12.1+), full manual control → use it to decode
+  the fields Easy hides (per-channel Hz / width / times), if Easy's capture does not show them.
+Siblings: WiemsPlus, BodStim, NooFit Pro, OnnaFit. **No Android app exists** (Play Store checked 2026-10-15), so
+the bodytech route (decompile the APK, `bodytech/PROTOCOL.md`) is not open — we read the protocol off the air
+instead, and use the iOS binary only as a cross-check.
+For a 3-user capture, note which unit (name / MAC from the log's connect) is whose: `pklg_att.py` prints the
+connection handle (`cNN`) on every line.
 
 ## Route 1 — HCI log from the iPad (no jailbreak, no IPA; do this first)
 The iPad logs every Bluetooth packet *after* link-layer decryption, so pairing/bonding hides nothing.
-1. On the iPad (Safari): developer.apple.com/bug-reporting/profiles-and-logs → **Bluetooth for iOS/iPadOS** →
-   install the profile (Settings → Profile downloaded), **restart** the iPad. (Free Apple ID is enough; the profile
+1. On the iPad / iPhone (Safari): developer.apple.com/bug-reporting/profiles-and-logs → **Bluetooth for iOS/iPadOS** →
+   install the profile (Settings → Profile downloaded), **restart** the device. (Free Apple ID is enough; the profile
    expires after a few days.)
-2. Open Wiems **after** the restart and connect the unit (the GATT discovery must be in the log — it names the
+2. Open Wiems Easy (or Wiems) **after** the restart and connect the unit (the GATT discovery must be in the log — it names the
    handles). Run a scripted session, writing down the time of each step:
    connect → each channel 0 → 10 → 20 → 0 alone (channel map) → master up/down → Hz change (e.g. 85 → 20 → 100)
    → pulse width change → work/pause times → start / pause / stop → program switch → battery screen → disconnect.
@@ -28,9 +34,9 @@ if the link is unencrypted or the pairing is captured — `crackle` for legacy p
 
 ## Route 2 — the binary (cross-check, constants, checksum, limits)
 App Store IPAs are FairPlay-encrypted; a decrypted Mach-O needs one of:
-- iPad on iPadOS 14.0–16.6.1 / 17.0 → TrollStore + **TrollDecrypt** (no jailbreak), or a checkm8 iPad
+- iPad or iPhone on iOS 14.0–16.6.1 / 17.0 → TrollStore + **TrollDecrypt** (no jailbreak), or a checkm8 iPad
   (A9–A11, palera1n) → `bagbak` / frida-ios-dump.
-- Apple-silicon Mac: install Wiems from the Mac App Store (iPad app), SIP off → `appdecrypt`.
+- Apple-silicon Mac: install Wiems Easy / Wiems from the Mac App Store (iPad app), SIP off → `appdecrypt`.
 Then: look at the bundle first — Xamarin/.NET (`*.dll` → ILSpy), React Native/Cordova (`main.jsbundle`/`www/`),
 Flutter (`App.framework`) or native ObjC/Swift (`class-dump` + Ghidra; search `CBPeripheral writeValue`,
 `CBUUID UUIDWithString`). Only the protocol facts go into our repo, never vendor code (same rule as bodytech /

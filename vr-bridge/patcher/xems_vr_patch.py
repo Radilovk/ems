@@ -392,12 +392,84 @@ def restore(adb: Adb, pkg: str, saved: list[tuple[str, Path | str]]) -> None:
             say(f"✓ Android/{kind} е върнат")
 
 
-INSTALL_TIMEOUT = 900   # s: a 250 MB game goes over the cable in 1–3 min; a stuck adb must end, not hang for good
+INSTALL_TIMEOUT = 900   # s: install-multiple (split games) as one adb call; a stuck adb must end, not hang for good
+STALL_SEC = 60          # s without a single byte more on the headset = the transfer has stopped
+PM_TIMEOUT = 600        # s for the headset to install the copied APK (≈ 20–60 s for 250 MB)
+REMOTE_APK = "/data/local/tmp/xems-install.apk"
+
+
+def push_with_progress(adb: Adb, src: Path, dst: str) -> bool:
+    """adb push under a pseudo-terminal (adb only prints its "[ 45%]" lines to a terminal), progress every 5 %,
+    and the size on the headset as a second witness: no progress from either for STALL_SEC → stopped, said so."""
+    import pty, re, select
+    total = max(src.stat().st_size, 1)
+    master, slave = pty.openpty()
+    p = subprocess.Popen([adb.exe, "push", str(src), dst], stdin=subprocess.DEVNULL, stdout=slave, stderr=slave)
+    os.close(slave)
+    t0 = last_move = last_poll = time.time()
+    pct = shown = -1
+    remote = 0
+    tail = ""
+    try:
+        while p.poll() is None:
+            r, _, _ = select.select([master], [], [], 1.0)
+            if r:
+                try:
+                    chunk = os.read(master, 4096).decode("utf-8", "replace")
+                except OSError:
+                    chunk = ""
+                tail = (tail + chunk)[-2000:]
+                for m in re.findall(r"\[\s*(\d+)%\]", chunk):
+                    if int(m) > pct:
+                        pct, last_move = int(m), time.time()
+            if time.time() - last_poll >= 3:            # the file growing on the headset counts as progress too
+                last_poll = time.time()
+                q = subprocess.run([adb.exe, "shell", f"stat -c %s {dst} 2>/dev/null"], stdout=subprocess.PIPE,
+                                   stderr=subprocess.DEVNULL, text=True, timeout=20)
+                n = int(q.stdout.strip()) if q.stdout.strip().isdigit() else 0
+                if n > remote:
+                    remote, last_move = n, time.time()
+                pct = max(pct, remote * 100 // total)
+            if pct >= 0 and pct // 5 != shown // 5:
+                shown = pct
+                mb = total * pct // 100 // 1048576
+                rate = (total * pct / 100) / max(time.time() - t0, 0.1) / 1048576
+                say(f"  ↑ {pct:3d} %  · {mb} / {total // 1048576} MB · {rate:.1f} MB/s")
+            if time.time() - last_move > STALL_SEC:
+                p.kill()
+                say(f"  ✗ качването спря на {max(pct, 0)} % — от {STALL_SEC} s не минава нищо по кабела")
+                say("    извади и пъхни кабела, отвори XEMS VR (трябва да пише „свързан с кабела ✓“) и пусни пак")
+                return False
+    finally:
+        os.close(master)
+    if p.returncode != 0:
+        say("  adb push: " + (tail.strip()[-400:] or f"код {p.returncode}"))
+        return False
+    say(f"✓ качено за {int(time.time() - t0)} s")
+    return True
 
 
 def install_set(adb: Adb, apks: list[Path]) -> bool:
-    args = ["install", "-r", str(apks[0])] if len(apks) == 1 else ["install-multiple", "-r", *[str(a) for a in apks]]
     mb = sum(a.stat().st_size for a in apks) // 1048576
+    if len(apks) == 1:
+        # Copy first (with progress), then the headset installs its own copy: a stall is seen and named, the
+        # install itself no longer depends on the cable.
+        say(f"… качвам на шлема ({mb} MB) по кабела — ходът е по-долу")
+        adb.shell(f"rm -f {REMOTE_APK}", check=False)
+        if not push_with_progress(adb, apks[0], REMOTE_APK):
+            adb.shell(f"rm -f {REMOTE_APK}", check=False)
+            return False
+        say("… шлемът инсталира играта (до минута)")
+        try:
+            out = subprocess.run([adb.exe, "shell", f"pm install -r -t {REMOTE_APK}"], stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT, text=True, timeout=PM_TIMEOUT).stdout
+        except subprocess.TimeoutExpired:
+            out = f"pm install: няма отговор за {PM_TIMEOUT // 60} мин"
+        adb.shell(f"rm -f {REMOTE_APK}", check=False)
+        if "Success" not in out:
+            say("  adb: " + (out.strip()[-400:] or "(без отговор)"))
+        return "Success" in out
+    args = ["install-multiple", "-r", *[str(a) for a in apks]]
     say(f"… качвам на шлема ({mb} MB) — обикновено 1–3 мин по кабела")
     t0 = time.time()
     try:

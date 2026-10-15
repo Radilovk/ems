@@ -63,6 +63,15 @@ front (*Гледай хода в Termux*) Android froze the app as a cached back
 "качвам на шлема" until adb's 15 min limit. Now it keeps relaying whatever is on screen, the screen off too; it
 ends with the cable (or when the relay dies).
 
+**1.8.5 — what really stopped the install: the relay did not end its writes the way adb does.** adb's hosts end
+every USB write whose size is a multiple of the packet size (512 / 1024) with a zero-length packet; adbd reads in
+16 KiB blocks that only end when full or at a short packet, so without it a 4096- or 65 536-byte WRTE ran on into the
+next header, adbd dropped the link ("received too many bytes") and `adb install` hung without a word. `UsbAdb.Io`
+now sends the ZLP (tested against a model of adbd's reader, `AdbIoTest`). Reads go through a queued `UsbRequest`:
+a timed-out read stays queued instead of being cancelled, so no OKAY from the headset is lost between two reads.
+The patcher copies a one-APK game with `adb push` under a pseudo-terminal (progress every 5 %, MB/s), names a stall
+after 60 s without a byte instead of waiting 15 min, then the headset installs its own copy (`pm install`).
+
 ## XEMS Studio comes ready (1.8.3)
 CI puts the suit link into the game itself (`xems_vr_patch.py --apk`, release asset `xems-studio-xems.apk`); the catalog
 entry has `"ready": true`, so the tablet only downloads it (progress every 10 %, checked for a whole file) and installs it

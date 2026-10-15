@@ -28,7 +28,7 @@ App log lines that name the fields (verbatim):
 | `776439af` | 0x004a | R W | **Program** (log "Dur,fr,w,r,Ru,Rd,dec"), 10 B + XOR: `Dur fr w r Ru Rd dec_lo dec_hi phase XOR` — fr = **Hz** (84/89/92 seen), w / r = **work / rest s** (4 / 8, matches the clock), Ru / Rd = ramp up / down (0, 0–1), Dur = 41 and dec = 0x057e (1406) unknown units, phase = 2 while arming, 0 once running (log) |
 | `7764e8bc` | 0x0025 | R W | **Rest frequency** (log "frecuenciaResting: 5 - 100"): `Hz 64 00 00 00 00 00 00 a5 XOR` — Hz in the pause (5/6/7), second byte 100 (rest %?) |
 | `7764e556` | 0x001c | R W | **Pulse widths per channel** (log "Configurar anchuras", written at the same moment): `7f 7f 6d 49 7f 7f 64 52 7f 52`, unit unknown (127 = max?) |
-| `966e06c6` | 0x002e | R W | **Live channel strength**, 10 B = channels 1–10, value in bits 0–6 (seen 0–0x14), bit 7 = flag (unknown — the app logs the values without it). No checksum (log "Corrientes enviadas") |
+| `966e06c6` | 0x002e | R W | **Live channel strength**, 10 B = channels in XBody's order (owner: 0 Трапец, 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец), value in bits 0–6 (seen 0–0x14), bit 7 = flag (unknown — the app logs the values without it). No checksum (log "Corrientes enviadas") |
 | `7764f042` | 0x0035 | R N | **Session clock** (log "Segundos running"): 6 ASCII digits = elapsed time in 0.1 s; bit 7 of the first byte set = work phase started, clear = pause started. Capture: work ≈ 4 s, pause ≈ 8 s (sure for the clock, likely for the phase bit) |
 | `b1f5a058` | 0x0031 | R N | Status / current check: idle `00 0N 00… c5 5c`; at each work start the unit sends `…a5…` then 20 small values 0–3 → the app's "Curr_comp" (current comparison, calculated vs received) |
 | `7764d000` | 0x0039 | R N | **Minutes used** (log "Minutos usados"): ASCII `072323`, read after every stop. The app also gets "minutes bought" (73200) from the vendor server — a pay-per-minute scheme; whether the **unit** refuses to start at the limit is unknown (matters for XEMS) |
@@ -64,7 +64,6 @@ Byte 1 = Hz 84 → 89 → 92 (log "fr"); rest Hz 5 → 6 → 7; program 7 adds r
 - Bit 7 in 0x002e (the app's log of the same write has no such bit).
 - Watchdog: does the unit stop by itself when the tablet goes silent (the app writes 0x002e at least every few s)?
 - Minutes quota: does the unit itself refuse `25` when used ≥ bought?
-- Channel index → muscle (the app's channel names).
 Next capture, same way: change only the **pulse width** (2–3 values), then only **session length**, then leave a
 session running 2 min untouched; name the channels on screen. Then the probe on the tablet.
 

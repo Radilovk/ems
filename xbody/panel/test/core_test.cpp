@@ -263,6 +263,27 @@ static void wiemsSession() {
     eqInt("wi no tick yet", Suit::IDLE, u.state());
     u.tick(6200);
     eqInt("wi timeout → running", Suit::RUNNING, u.state());
+    // XBody's channel order: the "Ръце" zone drives unit channel 4, "Трапец" channel 0
+    const Zone *z;
+    int nz = Suit::zones(Suit::WIEMS, &z);
+    eqInt("wi zones", 10, nz);
+    eqInt("wi arms ch", 4, z[8].ch[0]);
+    eqInt("wi trapez ch", 0, z[6].ch[0]);
+    eqInt("wi ch0 name trapez", 1, std::strcmp(Suit::channelName(Suit::WIEMS, 0), "Трапец") == 0 ? 1 : 0);
+    Suit w(Suit::WIEMS);
+    w.linked(0);
+    drain(w, 0);
+    for (int i = 0; i < 10; i++) w.setZone(z[i], 0);
+    w.setZone(z[8], 100);   // only the arms
+    w.setStrength(20);
+    w.start(0);
+    drain(w, 0);
+    fromHex("0401", n);
+    w.notify(n);
+    w.tick(100);
+    w.tick(700);
+    f = drain(w, 700);
+    eqHex("wi arms only → ch 4", "00 00 00 00 00 14 00 00 00 00 00", f.empty() ? Bytes() : f.back());
     BridgeEvent e = parseBridgeLine("ADV 88:6B:0F:CC:BE:49 -58 WIEMS WIEMS_-_EMS_Device");
     eqInt("wi adv kind", Suit::WIEMS, suitKind(e.svc, e.name));
     eqInt("wi kind by name", Suit::WIEMS, suitKind("-", "WIEMS - EMS Device"));

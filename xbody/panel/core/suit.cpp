@@ -28,6 +28,16 @@ static const Zone XEMS_ZONES_XBODY[10] = {
     {"Кръст", {5, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {7, 0}, 1, {"BodyBack", 0}},
     {"Трапец", {8, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {3, 0}, 1, {"BodyChest", 0}},
     {"Ръце", {9, 0}, 1, {"BodyArm", 0}},              {"Прасец", {0, 0}, 1, {"BodyOptional", 0}}};
+// WiEMS: its channels are XBody's own (owner: a WiEMS suit is an XBody-standard suit) — uems order 0 Трапец,
+// 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец.
+static const char *WI_NAMES[10] = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце",
+                                   "Седалище", "Корем", "Предно бедро", "Задно бедро", "Прасец"};
+static const Zone WI_ZONES[10] = {
+    {"Предно бедро", {7, 0}, 1, {"BodyLegFront", 0}}, {"Задно бедро", {8, 0}, 1, {"BodyLegBack", 0}},
+    {"Седалище", {5, 0}, 1, {"BodyBottom", 0}},       {"Корем", {6, 0}, 1, {"BodyAbdomen", 0}},
+    {"Кръст", {3, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {1, 0}, 1, {"BodyBack", 0}},
+    {"Трапец", {0, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {2, 0}, 1, {"BodyChest", 0}},
+    {"Ръце", {4, 0}, 1, {"BodyArm", 0}},              {"Прасец", {9, 0}, 1, {"BodyOptional", 0}}};
 // bodytech in the same order; its two thigh channels are one zone (owner: the same strength on both).
 static const Zone BT_ZONES[7] = {
     {"Бедра", {4, 6}, 2, {"BodyLegFront", "BodyLegBack"}}, {"Седалище", {1, 0}, 1, {"BodyBottom", 0}},
@@ -51,13 +61,13 @@ Suit::Suit(Kind kind)
 int Suit::channels() const { return kind_ == BODYTECH ? (int)bt::CHANNELS : (int)xems::CHANNELS; }
 
 const char *Suit::channelName(Kind k, int i) {
-    // WiEMS: XEMS slider i drives unit channel i (as the tablet's WiTranslator) — the muscle map is not verified yet
-    if (k != BODYTECH) return i >= 0 && i < 10 ? XEMS_NAMES[i] : "";
+    if (k == WIEMS) return i >= 0 && i < 10 ? WI_NAMES[i] : "";
+    if (k == XEMS) return i >= 0 && i < 10 ? XEMS_NAMES[i] : "";
     return i >= 0 && i < 8 ? BT_NAMES[i] : "";
 }
 
 int Suit::zones(Kind k, const Zone **out, int wiring) {
-    if (k == WIEMS) { *out = XEMS_ZONES; return 10; }
+    if (k == WIEMS) { *out = WI_ZONES; return 10; }
     *out = k == XEMS ? (wiring == WIRE_XBODY ? XEMS_ZONES_XBODY : XEMS_ZONES) : BT_ZONES;
     return k == XEMS ? 10 : 7;
 }

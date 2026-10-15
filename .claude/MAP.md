@@ -248,7 +248,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 - `WiBridge.java` (484L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
 - `WiProto.java` (131L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
-- `WiTranslator.java` (248L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
+- `WiTranslator.java` (256L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -1196,14 +1196,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems.md` (70L)
+`docs/xems-wiems.md` (71L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
   - L11 ## How it works (tablet)
-  - L34 ## Translation
-  - L43 ## Safety
-  - L51 ## XBody machine (panel + XIAO bridge)
-  - L59 ## Tests
-  - L63 ## First test on the unit
+  - L35 ## Translation
+  - L44 ## Safety
+  - L52 ## XBody machine (panel + XIAO bridge)
+  - L60 ## Tests
+  - L64 ## First test on the unit
 
 `docs/xems-workouts.md` (179L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library
@@ -1362,13 +1362,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
-`wiems/PROTOCOL.md` (74L)
+`wiems/PROTOCOL.md` (73L)
   - L1 # WiEMS unit — BLE protocol (from capture 1)
   - L16 ## Device
   - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)
   - L39 ## Sequences seen
   - L62 ## Still open
-  - L71 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
+  - L70 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
 
 `wiems/README.md` (74L)
   - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol

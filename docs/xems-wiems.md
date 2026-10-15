@@ -16,6 +16,7 @@ suit only adds a driver under the existing screen.
 | `WiBridge` | same | glue: which device, write queue (one in flight, each after its write response), run notify, battery |
 | `BtBridge` / `BtLoad` | same | the existing bodytech hooks hand a WiEMS device to WiBridge first — no new smali hooks |
 
+- Channel map: XBody's (owner, 2026-10-16) — `WiTranslator.SLIDER_TO_CH`, panel `WI_ZONES`.
 - Which device: its name starts with `WIEMS` (the stock name filter "ems" already lists it); a MAC seen once is
   remembered (`xems_wiems_units`). Only on an unlocked (admin) tablet, as bodytech.
 - The row's link (`BleDeviceManager.getConfig`) is the unit's **battery service** 180F / 2A19: the stock code
@@ -34,7 +35,7 @@ suit only adds a driver under the existing screen.
 ## Translation
 | XEMS | WiEMS |
 |---|---|
-| slider i (0..9: Гърди, Корем, Предно бедро, Прасец, Ръце, Трапец, Гръб, Кръст, Седалище, Задно бедро) | unit channel i (**map not verified**) |
+| slider of a body part (Гърди, Корем, Предно бедро, Прасец, Ръце, Трапец, Гръб, Кръст, Седалище, Задно бедро) | the unit channel of that body part — **XBody's channel order** (owner: a WiEMS suit is an XBody-standard suit): 0 Трапец, 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец |
 | strength % | the unit's value 1 : 1, ≤ 100 (field is 7 bits; the vendor was seen up to 20) |
 | Hz, impulse s, pause s | program `fr`, `w`, `r` (Ru = Rd = 0: the row ramps itself) |
 | second impulse Hz | rest Hz (`frecuenciaResting`, rest strength 100 as the vendor) |
@@ -52,7 +53,7 @@ suit only adds a driver under the existing screen.
 - Bridge firmware v3 (`xbody/bridge`): profile `WIEMS` (vendor service + battery), `ADV … WIEMS <name>`, `LINK <mac>
   WIEMS`. `W` / `SAFE` values are `[selector, value…]` (0 strengths, 1 program, 2 rest, 3 widths, 4 run); `N` lines
   carry `04` (run) or `10` (battery) first. The unit updates older bridges by itself (DFU), as before.
-- Panel (`xbody/panel/core/wiproto.*`, `Suit::WIEMS`): the XEMS zones (slider i → channel i, as the tablet), the
+- Panel (`xbody/panel/core/wiproto.*`, `Suit::WIEMS`): XBody's zones on XBody's channel order (as the tablet), the
   СТАРТ waits for the count-down ("МИГ…"), phases set strengths, pause / stop = strengths 0 + run stop.
 - Tests: `sh scripts/xbody/test-panel.sh` (golden bytes + a session), emulator (fake bridge lists a WiEMS unit).
 

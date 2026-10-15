@@ -173,11 +173,19 @@ public final class WiTranslator {
         return out;
     }
 
-    /** What the unit gets now per channel (XEMS slider i → unit channel i; mapping not verified on a person). */
+    /**
+     * The unit's channels are XBody's (owner, 2026-10-16: a WiEMS suit is an XBody-standard suit): 0 Трапец, 1 Гръб,
+     * 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец. XEMS slider i (0 Гърди,
+     * 1 Корем, 2 Предно бедро, 3 Прасец, 4 Ръце, 5 Трапец, 6 Гръб, 7 Кръст, 8 Седалище, 9 Задно бедро) → that body
+     * part's unit channel.
+     */
+    static final int[] SLIDER_TO_CH = {2, 6, 7, 9, 4, 0, 1, 3, 5, 8};
+
+    /** What the unit gets now per channel. */
     synchronized int[] target() {
         int[] t = new int[WiProto.CHANNELS];
         if (!on || !armed) return t;
-        for (int i = 0; i < WiProto.CHANNELS; i++) t[i] = WiProto.clamp(parts[i], 0, WiProto.MAX_CURRENT);
+        for (int s = 0; s < 10; s++) t[SLIDER_TO_CH[s]] = WiProto.clamp(parts[s], 0, WiProto.MAX_CURRENT);
         return t;
     }
 

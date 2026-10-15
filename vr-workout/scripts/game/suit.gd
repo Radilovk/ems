@@ -26,11 +26,14 @@ var hands := {}                       # "left"/"right" -> XRController3D (others
 var _active: Array = []               # running punishments {ev, age, next}
 
 
-func strike(zone: int, side: int) -> Dictionary:
+## A hit landed. tier = its power (Power.Tier): a weak one is a shorter, softer pulse, a mighty one longer and full.
+func strike(zone: int, side: int, tier := Power.Tier.MEDIUM) -> Dictionary:
 	count_strike += 1
+	var sec: float = Power.STRIKE_SEC[tier]
+	var amp: float = Defs.STRIKE_AMP * float(Power.STRIKE_AMP[tier])
 	var ev := _emit({"kind": "strike", "zone": zone, "side": side, "hz0": Defs.STRIKE_HZ, "hz1": Defs.STRIKE_HZ,
-		"amp0": Defs.STRIKE_AMP, "amp1": Defs.STRIKE_AMP, "sec": Defs.STRIKE_SEC})
-	_pulse("left" if side < 0 else "right", 0.85, Defs.STRIKE_SEC)
+		"amp0": amp, "amp1": amp, "sec": sec, "tier": tier})
+	_pulse("left" if side < 0 else "right", maxf(float(Power.STRIKE_AMP[tier]), GATE + 0.1), sec)
 	return ev
 
 

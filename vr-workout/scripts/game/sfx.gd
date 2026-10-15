@@ -13,6 +13,9 @@ const S := {
 	"beep": preload("res://assets/sfx/beep.ogg"), "go": preload("res://assets/sfx/go.ogg"),
 	"tick": preload("res://assets/sfx/tick.ogg"), "blip": preload("res://assets/sfx/blip.ogg"),
 	"fail": preload("res://assets/sfx/fail.ogg"),
+	"splat": preload("res://assets/sfx/splat.ogg"), "chomp": preload("res://assets/sfx/chomp.ogg"),
+	"boom": preload("res://assets/sfx/boom.ogg"), "weak": preload("res://assets/sfx/weak.ogg"),
+	"laugh": preload("res://assets/sfx/laugh.ogg"),
 }
 const BED := preload("res://assets/sfx/music_bed.ogg")
 const BED_BPM := 128.0

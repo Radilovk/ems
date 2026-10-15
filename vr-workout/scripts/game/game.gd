@@ -9,6 +9,10 @@
 ## button pauses (the things stop where they are, the suit rests); losing both hands (controllers asleep, out of view)
 ## pauses by itself and the game goes on when a hand is found again.
 ##
+## The chef (settings: Сценарий → Готвачът, the square in Ulm): a cook at his cart throws food on the beat; smashed
+## food burns a little, food that gets through is eaten — its calories go on, shown heads-up in kcal and kilos.
+## Every hit, in both scenarios, has a power (Power: weak · medium · mighty) from the fist's speed and run-up.
+##
 ## Every event is felt three ways at once: the eyes (shards, a shockwave, light; a red edge when hit), the ears
 ## (spatial sound on the beat; the music muffled under a hit and opening up again) and the body (SuitLink: the
 ## controllers' haptics, which the XEMS layer turns into impulses in the suit) — on the same curve.
@@ -40,13 +44,19 @@ var menu: Menu
 var tablet: TabletLink               # the line to the XEMS tablet: the impulse dock and the "Костюм" page
 var dock: WristDock
 var music_import: MusicImport      # the player adds own songs from the menu
+var food_fx: FoodFx                  # the chef: what food does when it is hit or eaten …
+var kcal: KcalHud                    # … the calories, heads-up …
+var chef: Chef                       # … and the chef himself (null in the spheres scenario)
+var _last_throw := -INF              # bt of the chef's last planned throw (his one arm needs a moment between throws)
+var _mighty_run := 0                 # mighty hits in a row (at 4 the chef is impressed)
+var _chef_told := false              # the chef's rules were shown in this run of the app
 var suit := SuitLink.new()
 var st: int = St.IDLE
 var elems: Array[Elem] = []
 var legend: Array[Node3D] = []
 var args := {}
 
-var level := 0                       # index into Defs.LEVELS
+var level := 0                       # index into Defs.LEVELS (the chef: Defs.CHEF_LEVELS)
 var level_total := 0
 var level_planned := 0
 var level_spawned := 0
@@ -79,6 +89,7 @@ var gates: Array = []                # Vector3 per GATE_SLOTS (frame space): whe
 var sim_on := false
 var sim_skill := 0.8
 var _sim_rest := {}
+var _sim_rate := {}                  # limb -> m/s the simulated player moves it at (the food: a weak, medium or mighty punch)
 var _glow: Array = []                # {"zone", "t0", "ev"}
 var _legs_warned := false
 var _selftest_levels := 0
@@ -99,6 +110,11 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 	fx = Fx.new()
 	stage.add_child(fx)
 	fx.attach_vignette(stage.cam)
+	food_fx = FoodFx.new()
+	stage.add_child(food_fx)
+	kcal = KcalHud.new()
+	kcal.visible = false
+	stage.add_child(kcal)
 	avatar = Avatar.new()
 	stage.add_child(avatar)
 	tablet = TabletLink.new()
@@ -131,6 +147,10 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 	if sim_on:
 		_sim_init()
 	_apply_settings()
+	if a.has("scene"):                                 # desktop: --scene=chef|spheres
+		settings.scene = GameSettings.Scene.CHEF if a.scene == "chef" else GameSettings.Scene.SPHERES
+		if settings.chef() and not a.has("room"):
+			_on_setting.call_deferred("scene")
 	_lib = a.get("lib", "")
 	_rescan_tracks()
 	if a.get("mute", "0") == "1":
@@ -148,7 +168,10 @@ func start(stage_node: Node3D, a: Dictionary) -> void:
 	elif a.has("menu"):
 		if a.menu == "summary":                 # desktop preview: a made-up session
 			menu.summary = {"score": 48210, "acc": 91, "best_combo": 37, "hits": 212, "perfect": 118, "dodged": 41,
-				"squats": 26, "steps": 19, "minutes": 10, "record": true, "rank": _rank(91)}
+				"squats": 26, "steps": 19, "minutes": 10, "record": true, "rank": _rank(91), "mighty": 34, "best_kmh": 31}
+			if a.get("scene", "") == "chef":
+				menu.summary.merge({"chef": true, "burned": 1840, "eaten_kcal": 2470, "balance": 630.0, "eaten": 4,
+					"smashed": 61, "returned": 9, "apples": 6})
 		menu.tab = int(a.get("tab", "0"))         # desktop: --tab=<n> the settings page's tab
 		_show_menu.call_deferred(String(a.menu))
 	else:
@@ -240,6 +263,7 @@ func _apply_settings() -> void:
 	suit.punish_sec = settings.punish_sec()
 	sfx.set_volumes(settings.music_db, settings.sfx_db)
 	fx.comfort = settings.comfort
+	food_fx.comfort = settings.comfort
 	body.fixed_h = settings.eye_height()
 	body.feet_allowed = settings.legs == GameSettings.Legs.AUTO or settings.legs == GameSettings.Legs.ANKLES
 	if body.fixed_h > 0.0:
@@ -261,6 +285,16 @@ func _on_setting(key: String) -> void:
 		"height_cm":
 			if body.fixed_h <= 0.0:
 				body.calibrate()
+		"scene":
+			level = 0
+			if settings.chef():                   # the chef's home is the square in Ulm
+				var ulm: int = stage.rooms.map(func(r): return r.name).find(GameSettings.CHEF_ROOM)
+				if ulm >= 0 and settings.room != ulm:
+					settings.room = ulm
+					settings.save()
+					stage.set_room(ulm)
+					_warmed = false
+			_ensure_chef()
 
 
 func _show_menu(page: String) -> void:
@@ -296,7 +330,7 @@ func _on_menu(id: String) -> void:
 			paused = false
 			_clear()
 			_reset_session()
-			if not settings.tutorial_done and not sim_on:
+			if not settings.tutorial_done and not sim_on and not settings.chef():
 				_tutorial(true)
 			else:
 				_begin_countdown()
@@ -330,6 +364,8 @@ func _pause(reason: String) -> void:
 	paused = true
 	pause_reason = reason
 	_pause_bt = bt
+	if chef:
+		chef.process_mode = Node.PROCESS_MODE_DISABLED     # his throw stops mid-air, as the food does
 	suit.stop_all()
 	sfx.hold_music(-8.0)
 	if reason == "hands":
@@ -345,6 +381,11 @@ func _resume() -> void:
 	next_arrival += shift
 	for p in pending:
 		p.arrival += shift
+		if p.has("wind"):
+			p.wind += shift
+	_last_throw += shift
+	if chef:
+		chef.process_mode = Node.PROCESS_MODE_INHERIT
 	for e in elems:
 		e.arrival += shift
 	paused = false
@@ -432,8 +473,10 @@ func _process(delta: float) -> void:
 		if l is Elem:
 			(l as Elem).advance(delta)
 	suit.tick(delta)
+	if chef:
+		chef.tick(delta, body.head)
+	kcal.tick(delta, stage.cam)
 	if stage.arena:
-		var lv: Dictionary = Defs.LEVELS[level]
 		stage.arena.set_flow(combo)
 		stage.arena.tick(delta, bt, beat_len(), sfx.bass(), _speed() * (1.0 if st == St.PLAY and not paused else 0.4))
 	if stage.dressing:
@@ -467,21 +510,44 @@ func _pointing() -> void:
 			var g: Vector3 = (avatar.gloves[side] as Node3D).global_position
 			if menu.visible and menu.near(g):
 				on = true
-			elif side == "right" and dock.visible and g.distance_to(dock.global_position) < 0.28:
+			elif side == "right" and dock.visible:           # the trigger is let go: the index finger is out
 				on = true
 		avatar.set_point(side, on)
 
 
-## The wrist dock follows the left hand (controller: its inner side, +X · bare hand: the palm side, −Y).
+## The wrist dock (owner, 2026-10): only in one pose, so it never shows in play by chance — the left forearm held out
+## level in front of the body (the elbow bent at about 90°), the wrist turned open, palm up, and the right trigger let
+## go (the right index finger out, to press with). Then the impulse card appears over the open palm.
 func _dock(delta: float) -> void:
 	var src: String = body.src.left
 	var t: Transform3D = body.hand_xform.left
-	var face := t.basis.x.normalized() if src == "controller" else -t.basis.y.normalized()
+	var eye: Vector3 = stage.cam.global_position
 	var finger = null
 	if body.src.right != "none":
 		finger = avatar.press_point("right")
 	var allowed: bool = src != "none" and not menu.visible and not body.on_foot.left and stage.xr
-	dock.tick(delta, t, face, stage.cam.global_position, finger, allowed)
+	dock.tick(delta, t, eye, finger, allowed and _dock_pose(src, t, eye) and _right_trigger_free())
+
+
+## Left palm up · forearm level and ahead (elbow ≈ 90°) · wrist at the belly-to-chest height in front of the body.
+func _dock_pose(src: String, t: Transform3D, eye: Vector3) -> bool:
+	var palm := t.basis.x.normalized() if src == "controller" else -t.basis.y.normalized()   # (the palm's side)
+	var fore := -t.basis.z.normalized()                       # out of the hand, along the forearm
+	var to := t.origin - eye
+	var flat := Vector3(to.x, 0.0, to.z)
+	var look: Vector3 = -stage.cam.global_basis.z
+	look.y = 0.0
+	return palm.dot(Vector3.UP) > WristDock.PALM_UP and absf(fore.y) < WristDock.FOREARM_LEVEL \
+		and -to.y > 0.28 and -to.y < 0.85 and flat.length() > 0.12 and flat.length() < 0.62 \
+		and (look.length() < 0.01 or flat.normalized().dot(look.normalized()) > 0.2)
+
+
+## The right trigger is let go (a bare right hand has no trigger: it counts as let go).
+func _right_trigger_free() -> bool:
+	var c = stage.hands.get("right")
+	if body.src.right == "controller" and c is XRController3D:
+		return (c as XRController3D).get_float("trigger") < 0.3
+	return true
 
 
 func _step(dt: float, u: float) -> void:
@@ -504,7 +570,16 @@ func beat_len() -> float:
 
 
 func _speed() -> float:
-	return float(Defs.LEVELS[level].speed) * settings.speed_k()
+	return float(_lv().speed) * settings.speed_k()
+
+
+## The levels of the scenario being played, and the one being played now.
+func _levels() -> Array:
+	return Defs.CHEF_LEVELS if settings.chef() else Defs.LEVELS
+
+
+func _lv() -> Dictionary:
+	return _levels()[clampi(level, 0, _levels().size() - 1)]
 
 
 func _play_update(delta: float, u: float) -> void:
@@ -526,6 +601,8 @@ func _play_update(delta: float, u: float) -> void:
 			continue
 		if e.is_hazard():
 			_judge_hazard(e)
+		elif e.food != "":
+			_judge_food(e, u)
 		elif e.kind == Defs.Kind.BLOCK:
 			_judge_block(e)
 		else:
@@ -541,7 +618,10 @@ func _play_update(delta: float, u: float) -> void:
 
 ## Plans the next moment (one thing or a combination) as soon as its farthest gate must throw, and throws what is due.
 func _schedule() -> void:
-	var lv: Dictionary = Defs.LEVELS[level]
+	if settings.chef():
+		_schedule_chef()
+		return
+	var lv: Dictionary = _lv()
 	var speed := _speed()
 	var lead := _spawn_dist(speed) / speed
 	while level_planned < level_total and bt >= next_arrival - lead - 0.3:
@@ -842,6 +922,9 @@ func _clear() -> void:
 	for e in elems.duplicate():
 		_remove(e)
 	pending.clear()
+	_last_throw = -INF
+	if chef:
+		chef.release()
 
 
 # ---------------------------------------------------------------- judging
@@ -880,7 +963,9 @@ func _break(e: Elem, limb: String) -> void:
 	best_combo = max(best_combo, combo)
 	var t := Defs.timing(bt - e.arrival)
 	var mult := Defs.multiplier(combo)
-	var pts: int = int(round(100.0 * float(t[2]) * mult * (3 if e.bonus else 1)))
+	var pw := _power(limb)
+	var tier: int = pw.tier
+	var pts: int = int(round(100.0 * float(t[2]) * mult * (3 if e.bonus else 1) * float(Power.POINTS[tier])))
 	score += pts
 	tot.hits += 1
 	if t[1] == "Перфектно":
@@ -891,18 +976,26 @@ func _break(e: Elem, limb: String) -> void:
 		tot.kicks += 1
 	var kind_name: String = limb.split("_")[0]
 	var side := -1 if limb.ends_with("_l") else 1
-	suit.strike(Defs.zone_of(e.kind), side)
+	suit.strike(Defs.zone_of(e.kind), side, tier)
 	if kind_name == "hand":
-		avatar.flare("left" if side < 0 else "right")
+		avatar.flare("left" if side < 0 else "right", [0.6, 1.0, 1.6][tier])
 	var at := e.global_position
 	var col: Color = Elem.BONUS_COLOR if e.bonus else Defs.COLOR[e.kind]
 	var dir: Vector3 = body.pos[limb] - body.prev.get(limb, body.pos[limb])     # the shards fly on with the strike
 	if dir.length() < 0.005:
 		dir = Vector3(0, 0, -1)
-	sfx.play(kind_name if kind_name != "hand" else "punch", at, 0.0, randf_range(0.94, 1.06) + min(combo, 20) * 0.006)
-	sfx.play("shatter", at, -2.0, randf_range(0.92, 1.08))
-	fx.shatter(at, col, dir, (1.6 if e.bonus else 1.0) + min(combo, 20) * 0.02 + (0.3 if t[1] == "Перфектно" else 0.0))
+	if tier == Power.Tier.WEAK:                        # a tap: a dull knock, the sphere just pops
+		sfx.play("weak", at, 0.0, randf_range(0.95, 1.05))
+	else:
+		sfx.play(kind_name if kind_name != "hand" else "punch", at, 0.0, randf_range(0.94, 1.06) + min(combo, 20) * 0.006)
+	sfx.play("shatter", at, -2.0 if tier > 0 else -7.0, randf_range(0.92, 1.08))
+	fx.shatter(at, col, dir, ((1.6 if e.bonus else 1.0) + min(combo, 20) * 0.02 + (0.3 if t[1] == "Перфектно" else 0.0))
+		* float(Power.BURST[tier]))
+	if tier == Power.Tier.MIGHTY:                      # a boom, a gold shock ring, the shards fly much further
+		sfx.play("boom", at, -3.0, randf_range(0.95, 1.05))
+		fx.shock(at, Power.COLORS[tier], 1.3, 0.45)
 	fx.popup(at, "%s +%d" % [t[1], pts], (t[3] as Color) if not e.bonus else col.lightened(0.45), 60 if e.bonus else 46)
+	_power_popup(at, pw)
 	if e.bonus:
 		sfx.play("levelup", at, -6.0, 1.25)
 	_say(String(t[1]) + "!" if combo < 5 else "Серия ×%d!" % combo, 0.7)
@@ -1001,10 +1094,321 @@ static func _sphere_box(p: Vector3, r: float, c: Vector3, half: Vector3) -> bool
 	return d.length() < r
 
 
+# ---------------------------------------------------------------- power (every scenario)
+
+## How hard this limb hit just now (Power): its peak speed and run-up at contact. Counted in the session's numbers.
+func _power(limb: String) -> Dictionary:
+	var pw := Power.of(limb.split("_")[0], float(body.vpeak.get(limb, body.speed.get(limb, 0.0))), float(body.runup.get(limb, 0.0)))
+	tot.best_kmh = maxf(float(tot.best_kmh), float(pw.kmh))
+	if pw.tier == Power.Tier.MIGHTY:
+		tot.mighty += 1
+		_mighty_run += 1
+	else:
+		_mighty_run = 0
+	return pw
+
+
+## The power word and the speed, over the points: small and grey for a tap, gold and big for a mighty one.
+func _power_popup(at: Vector3, pw: Dictionary) -> void:
+	var tier: int = pw.tier
+	var text: String = Power.NAMES[tier] + ("!" if tier == Power.Tier.MIGHTY else "")
+	if tier > Power.Tier.WEAK:
+		text += " · %d км/ч" % int(round(float(pw.kmh)))
+	fx.popup(at + Vector3(0, 0.2, 0), text, Power.COLORS[tier], [34, 42, 60][tier])
+
+
+# ---------------------------------------------------------------- the chef
+
+## The chef is there in his scenario (a few metres ahead, at his cart), and nowhere else.
+func _ensure_chef() -> void:
+	if not settings.chef():
+		if chef:
+			chef.queue_free()
+			chef = null
+		kcal.visible = false
+		return
+	if chef == null:
+		chef = Chef.new()
+		add_child(chef)
+	chef.position = Vector3(0, 0, -_chef_dist())
+	kcal.visible = st in [St.COUNTDOWN, St.PLAY, St.SUMMARY] or paused
+
+
+## How far ahead he stands: near enough to read his face and his throw, as far as the room lets him: 4.5 … 6.5 m.
+func _chef_dist() -> float:
+	return clampf(stage.room_depth - 2.0, 4.5, 6.5)
+
+
+## Plans the next moments as soon as his wind-up for them must start; winds him up; throws what is due.
+func _schedule_chef() -> void:
+	var lv := _lv()
+	var speed := _speed()
+	var lead := _chef_dist() / speed + Chef.RELEASE + Chef.REACH_MAX + 0.6
+	while level_planned < level_total and bt >= next_arrival - lead:
+		_plan_chef_moment(lv, speed)
+	for p in pending.duplicate():
+		var throw_at: float = p.arrival - p.travel
+		if not p.wound and bt >= p.wind:
+			p.wound = true
+			if not p.follow:
+				chef.wind_up(p.food, throw_at - bt)
+		if bt >= throw_at:
+			pending.erase(p)
+			_throw_food(p)
+
+
+func _plan_chef_moment(lv: Dictionary, speed: float) -> void:
+	var b := beat_len()
+	var at := next_arrival
+	var last := at
+	var h := body.stand_h
+	if bool(lv.mega) and level_planned >= level_total - 1:
+		var boss: String = Defs.BOSSES[randi() % Defs.BOSSES.size()]                  # the level's last: a big one
+		last = _plan_food(boss, at + b, speed, {"x": 0.0, "y": h * 0.82})
+	elif level >= 1 and level_planned < level_total - 4 and randf() < float(lv.pat):
+		match ["double", "rapid"][randi() % 2]:
+			"double":                                 # two portions in one throw, left and right
+				last = _plan_food(_junk(), at, speed, {"x": -0.26, "dx": -0.12})
+				_plan_food(_junk(), last, speed, {"x": 0.26, "dx": 0.12, "follow": true})
+			"rapid":                                  # three doughnuts, one per beat (he hurries)
+				for i in 3:
+					last = _plan_food("donut", last + (b if i > 0 else 0.0), speed, {"x": (i - 1) * 0.24})
+	else:
+		_plan_food("apple" if randf() < float(lv.apple) else _junk(), at, speed, {})
+	var g: Array = lv.gap
+	var step := 0.5 if level >= 4 else 1.0
+	var gap: float = randf_range(g[0], g[1]) * settings.gap_k()
+	next_arrival = last + max(round(gap / b / step) * step, 1.0) * b
+
+
+func _junk() -> String:
+	return Defs.JUNK[randi() % Defs.JUNK.size()]
+
+
+## Plans one portion to reach the contact plane at `arrival` (later if his arm needs a moment); returns its arrival.
+## o: x, y (where it comes), dx (offset from his hand: a second portion of the same throw), follow (rides along).
+func _plan_food(id: String, arrival: float, speed: float, o: Dictionary) -> float:
+	var h := body.stand_h
+	var wide := 0.45 if level >= 3 else 0.3
+	var x: float = float(o.get("x", randf_range(-wide, wide)))
+	var y: float = float(o.get("y", h * randf_range(0.74, 0.9)))
+	if level >= 3 and not Defs.boss(id) and not o.has("y") and randf() < 0.2:
+		y = h * 0.6                                       # low: bend your knees to reach it
+	var target := Vector3(x, y, Defs.CONTACT_Z)
+	var hand := Vector3(-0.05, 1.55, -_chef_dist() + 0.55)   # where his hand lets go (the game frame; measured)
+	var sp := speed * (0.72 if Defs.boss(id) else 1.0)
+	var travel := maxf(hand.distance_to(target) / sp, 0.7)
+	var throw_at := arrival - travel
+	var follow: bool = o.get("follow", false)
+	var prev := _last_throw
+	if not follow:
+		var room := _last_throw + 0.42 - throw_at          # one arm: ≥ 0.42 s between throws
+		if room > 0.0:
+			var b := beat_len() * 0.5
+			var shift: float = ceil(room / b) * b              # (stays on the half beat)
+			arrival += shift
+			throw_at += shift
+		_last_throw = throw_at
+	pending.append({"food": id, "target": target, "arrival": arrival, "travel": travel, "speed": sp,
+		"dx": float(o.get("dx", 0.0)), "follow": follow, "wound": false,
+		"wind": throw_at if follow else maxf(throw_at - Chef.RELEASE - Chef.REACH_MAX, prev + 0.02)})   # (after his last throw left)
+	level_planned += 1
+	return arrival
+
+
+func _throw_food(p: Dictionary) -> void:
+	var from: Vector3 = to_local(chef.hand_world()) + Vector3(float(p.dx), 0, 0)
+	if not p.follow:
+		chef.release()
+	var e := Elem.make_food(p.food, p.speed)
+	add_child(e)
+	var d: float = from.distance_to(p.target)
+	e.arc = clampf(0.09 * d, 0.25, 0.8) * (1.4 if Defs.boss(p.food) else 1.0) * (1.15 - 0.06 * level)
+	e.fly(from, p.target, p.arrival, bt)
+	elems.append(e)
+	if st == St.PLAY:
+		level_spawned += 1
+	last_kind = e.kind
+	e.make_marker(self)
+	sfx.play("whoosh", to_global(from), -8.0, 0.8)
+	_mix[String(p.food)] = int(_mix.get(String(p.food), 0)) + 1
+
+
+## A portion in flight: a fist in reach smashes it; past the player's plane it is eaten.
+func _judge_food(e: Elem, u: float) -> void:
+	for s in ["l", "r"]:
+		var n: String = "hand_" + s
+		if not body.valid.get(n, false):
+			continue
+		var p: Vector3 = body.at(n, u)
+		if p.distance_to(e.position) < e.radius + LIMB_R.hand and body.speed[n] >= MIN_SPEED.hand:
+			if e.has_meta("cool") and clock < float(e.get_meta("cool")):
+				continue                                  # a cracked MEGA burger: one hit at a time
+			_hit_food(e, n)
+			return
+	if e.position.z >= Defs.MISS_Z:
+		_eat(e)
+
+
+func _hit_food(e: Elem, limb: String) -> void:
+	var pw := _power(limb)
+	var tier: int = pw.tier
+	var side := -1 if limb.ends_with("_l") else 1
+	var hand := "left" if side < 0 else "right"
+	var at := e.global_position
+	var dir: Vector3 = body.pos[limb] - body.prev.get(limb, body.pos[limb])
+	var wdir: Vector3 = (global_basis * dir).normalized() if dir.length() > 0.004 else -global_basis.z
+	if e.kind == Defs.Kind.APPLE:                        # the healthy one: a waste to smash it
+		e.done = true
+		lv_taken += 1
+		tot.apples_hit += 1
+		combo = 0
+		suit.strike(Defs.Zone.ARMS, side, Power.Tier.WEAK)
+		food_fx.burst(at, "apple", wdir, 1)
+		sfx.play("splat", at, -3.0, 1.25)
+		fx.popup(at, "Ябълката беше полезна!", Defs.COLOR[Defs.Kind.APPLE], 50)
+		_say("Ябълката не я удряй — изяж я!", 1.6)
+		chef.react("apple_hit")
+		_remove(e)
+		return
+	var f: Dictionary = Defs.FOODS[e.food]
+	if e.hp > tier + 1:                                   # not enough for this one (the MEGA burger): it flies on
+		e.crack(e.hp - tier - 1)
+		e.set_meta("cool", clock + 0.25)
+		suit.strike(Defs.Zone.ARMS, side, tier)
+		avatar.flare(hand, 0.8)
+		sfx.play("weak" if tier == Power.Tier.WEAK else "punch", at, 0.0, 0.8)
+		fx.shock(at, Color(1.0, 0.5, 0.2), 0.7, 0.3)
+		fx.popup(at, "Още по-силно!", Power.COLORS[Power.Tier.MIGHTY], 58)
+		_power_popup(at, pw)
+		_say("%s иска МОЩЕН удар!" % String(f.name), 1.4)
+		return
+	e.done = true
+	lv_hits += 1
+	combo += 1
+	best_combo = max(best_combo, combo)
+	tot.hits += 1
+	tot.smashed += 1
+	var t := Defs.timing(bt - e.arrival)
+	if t[1] == "Перфектно":
+		tot.perfect += 1
+	var mult := Defs.multiplier(combo)
+	var ahead: Vector3 = -global_basis.z
+	var back := tier == Power.Tier.MIGHTY and wdir.dot(ahead) > 0.5      # a mighty straight one: back at the chef
+	var burn: float = float(f.kcal) * (float(Defs.BURN[tier]) + (Defs.RETURN_BONUS if back else 0.0))
+	var pts := int(round(100.0 * float(t[2]) * mult * float(Power.POINTS[tier]) * (3.0 if Defs.boss(e.food) else 1.0)))
+	score += pts
+	kcal.add(burn, 0.0)
+	suit.strike(Defs.Zone.ARMS, side, tier)
+	avatar.flare(hand, [0.6, 1.0, 1.6][tier])
+	match tier:
+		Power.Tier.WEAK:                                  # knocked out of the air: it tumbles to the ground
+			food_fx.drop(at, e.food, wdir * 1.4 + Vector3(0, 0.6, 0))
+			sfx.play("weak", at, 0.0)
+			sfx.play("splat", at, -9.0, 1.1)
+		Power.Tier.MEDIUM:                                # it bursts along the punch
+			food_fx.burst(at, e.food, wdir, 1)
+			sfx.play("punch", at, -2.0, randf_range(0.95, 1.05))
+			sfx.play("splat", at, -1.0, randf_range(0.95, 1.1))
+		Power.Tier.MIGHTY:                                # a boom; straight ahead it flies back into the chef
+			sfx.play("boom", at, 0.0, randf_range(0.95, 1.05))
+			fx.shock(at, Power.COLORS[tier], 1.4, 0.45)
+			if back and chef:
+				food_fx.send_back(at, chef.chest_world(), e.food, 0.45, _on_returned.bind(int(round(float(f.kcal) * Defs.RETURN_BONUS))))
+			else:
+				food_fx.burst(at, e.food, wdir, 2)
+				sfx.play("splat", at, 1.0, 0.85)
+			if _mighty_run >= 4 and chef:
+				_mighty_run = 0
+				chef.react("wow")
+			elif not back and chef and randf() < 0.5:
+				chef.react("angry")
+	fx.popup(at, "−%d ккал" % int(round(burn)), KcalHud.GREEN, [46, 54, 66][tier])
+	_power_popup(at, pw)
+	if Defs.boss(e.food):
+		sfx.play("levelup", at, -4.0, 1.1)
+		_say("%s — на парчета!" % String(f.name), 1.6)
+	else:
+		_say(String(t[1]) + "!" if combo < 5 else "Серия ×%d!" % combo, 0.7)
+	if combo > 0 and combo % 8 == 0 and mult <= 4:
+		sfx.play("combo", null, -2.0, 1.0 + mult * 0.08)
+	_remove(e)
+
+
+## A portion sent back landed on the chef.
+func _on_returned(bonus_kcal: int) -> void:
+	tot.returned += 1
+	if chef == null:
+		return
+	chef.react("splat")
+	var at := chef.chest_world()
+	sfx.play("splat", at, 3.0, 0.8)
+	fx.popup(at + Vector3(0, 0.6, 0), "Обратно при готвача!  −%d ккал" % bonus_kcal, Power.COLORS[Power.Tier.MIGHTY], 90)
+
+
+## Not smashed: eaten. Junk food puts all its calories on (a splat over the eyes, the suit's punishment, the chef
+## laughs); an apple is the right thing to eat (points, the combo goes on).
+func _eat(e: Elem) -> void:
+	e.done = true
+	var f: Dictionary = Defs.FOODS[e.food]
+	var face := to_global(body.head + Vector3(0, -0.12, -0.3))
+	kcal.add(0.0, float(f.kcal))
+	if e.kind == Defs.Kind.APPLE:
+		tot.apples += 1
+		lv_dodged += 1
+		combo += 1
+		best_combo = max(best_combo, combo)
+		var pts: int = Defs.APPLE_POINTS * Defs.multiplier(combo)
+		score += pts
+		sfx.play("chomp", face, -3.0, 1.25)
+		fx.popup(face + Vector3(0, 0.1, -0.2), "Витамини! +%d" % pts, Defs.COLOR[Defs.Kind.APPLE], 50)
+		chef.react("apple")
+		_remove(e)
+		return
+	lv_taken += 1
+	tot.taken += 1
+	tot.eaten += 1
+	combo = 0
+	_mighty_run = 0
+	suit.punish(Defs.Zone.TORSO, 0)                      # (the belly)
+	sfx.play("chomp", face, 2.0)
+	sfx.muffle(suit.punish_sec * 0.6)
+	food_fx.visor(stage.cam, f.splash)
+	fx.popup(face + Vector3(0, 0.12, -0.25), "+%d ккал" % int(f.kcal), KcalHud.RED, 80)
+	_say("Изяде %s: +%d ккал (%s)" % [String(f.name).to_lower() if not Defs.boss(e.food) else String(f.name), int(f.kcal),
+		KcalHud.kg_text(float(f.kcal))], 1.8)
+	chef.react("laugh", sfx)
+	_remove(e)
+
+
+## The chef's rules, the first time in a run of the app: four short cards (A skips).
+func _chef_rules() -> void:
+	var pages: Array = [
+		["Готвачът", "Той иска да те нахрани. Разбий храната с юмрук, преди да стигне до теб."],
+		["Калориите", "Пропуснеш ли — изяждаш я: всичките ѝ калории отиват отгоре. Разбитата сваля само малко."],
+		["Силата", "Засилка + скорост = МОЩЕН удар: гори повече. Мощен прав удар я връща право в готвача!"],
+		["Ябълката", "Рядко идва и ябълка — нея не я удряй, остави я да дойде и я изяж. МЕГА бургерът и тортата искат мощен удар."],
+	]
+	for p in pages:
+		_title(p[0])
+		stage.cue.text = p[1]
+		stage.counter.text = ""
+		sfx.play("blip")
+		if chef:
+			chef.say(p[0])
+		await _wait(4.5)
+		if st != St.COUNTDOWN:
+			return
+
+
 # ---------------------------------------------------------------- levels and the session
 
 func _reset_session() -> void:
-	tot = {"hits": 0, "perfect": 0, "dodged": 0, "taken": 0, "squats": 0, "steps": 0, "kicks": 0, "blocks": 0}
+	tot = {"hits": 0, "perfect": 0, "dodged": 0, "taken": 0, "squats": 0, "steps": 0, "kicks": 0, "blocks": 0,
+		"mighty": 0, "best_kmh": 0.0, "eaten": 0, "smashed": 0, "returned": 0, "apples": 0, "apples_hit": 0}
+	kcal.reset()
+	_mighty_run = 0
+	_last_throw = -INF
 	session_t = 0.0
 	session_over = false
 	score = 0
@@ -1013,6 +1417,13 @@ func _reset_session() -> void:
 
 
 func _begin_countdown() -> void:
+	_ensure_chef()
+	if settings.chef() and not _chef_told and not sim_on:
+		_chef_told = true
+		st = St.COUNTDOWN
+		await _chef_rules()
+		if st != St.COUNTDOWN:
+			return
 	st = St.COUNTDOWN
 	_title("Готови?")
 	stage.cue.text = "Застани изправен и гледай напред"
@@ -1063,9 +1474,22 @@ func _prewarm() -> void:
 			e.marker.visible = true
 		made.append(e)
 	made[0].set_bonus()
+	if settings.chef():                                # the chef's food and its splats
+		var i := 0
+		for id in Defs.FOODS:
+			var e := Elem.make_food(id, 0.0)
+			add_child(e)
+			e.global_position = base + right * ((i - 2.5) * 0.25) + Vector3(0, 0.25, 0)
+			made.append(e)
+			i += 1
 	for _i in 4:
 		await get_tree().process_frame
 	for e in made:
+		if e.food != "":
+			food_fx.burst(e.global_position, e.food, -f, 1)
+			food_fx.visor(stage.cam, Defs.FOODS[e.food].splash)
+			e.queue_free()
+			continue
 		fx.shatter(e.global_position, Defs.COLOR[e.kind], -f, 0.35)
 		if e.marker:
 			e.marker.queue_free()
@@ -1075,7 +1499,8 @@ func _prewarm() -> void:
 
 
 func _start_level() -> void:
-	var lv: Dictionary = Defs.LEVELS[level]
+	var lv: Dictionary = _lv()
+	_ensure_chef()
 	level_total = lv.count
 	level_planned = 0
 	level_spawned = 0
@@ -1103,7 +1528,7 @@ func _end_level() -> void:
 	var next := level
 	var verdict := "Същото ниво още веднъж"
 	if acc >= 0.75:
-		next = min(level + 1, Defs.LEVELS.size() - 1)
+		next = min(level + 1, _levels().size() - 1)
 		verdict = "Нагоре!" if next != level else "Най-високото ниво"
 		sfx.play("levelup")
 	elif acc < 0.45:
@@ -1115,6 +1540,9 @@ func _end_level() -> void:
 	_title("Ниво %d: %d%%" % [level + 1, int(round(acc * 100))])
 	stage.cue.text = "Разбити %d · избегнати %d · улучен %d\nНай-дълга серия ×%d\n%s" % [lv_hits, lv_dodged, lv_taken,
 		best_combo, verdict]
+	if settings.chef():
+		stage.cue.text = "Разбита храна %d · изядена %d\nБаланс %s (%s)\n%s" % [lv_hits, lv_taken,
+			KcalHud.kcal_text(kcal.balance()), KcalHud.kg_text(kcal.balance()), verdict]
 	print("LEVEL %d done: hits=%d dodged=%d taken=%d acc=%.2f score=%d best_combo=%d -> %d" % [level + 1, lv_hits, lv_dodged, lv_taken, acc, score, best_combo, next + 1])
 	if sim_on:
 		print("  thrown: ", _mix)
@@ -1143,10 +1571,19 @@ func _finish_session() -> void:
 		settings.save()
 	menu.summary = {"score": score, "acc": acc, "best_combo": best_combo, "hits": tot.hits, "perfect": tot.perfect,
 		"dodged": tot.dodged, "squats": tot.squats, "steps": tot.steps, "kicks": tot.kicks, "blocks": tot.blocks,
-		"minutes": int(round(session_t / 60.0)), "record": record, "rank": _rank(acc)}
+		"minutes": int(round(session_t / 60.0)), "record": record, "rank": _rank(acc),
+		"mighty": tot.mighty, "best_kmh": int(round(tot.best_kmh))}
+	if settings.chef():
+		menu.summary.merge({"chef": true, "burned": int(round(kcal.burned)), "eaten_kcal": int(round(kcal.eaten)),
+			"balance": kcal.balance(), "eaten": tot.eaten, "smashed": tot.smashed, "returned": tot.returned,
+			"apples": tot.apples})
 	menu.last_result = "Последно: %s точки · %d%% · ранг %s" % [Menu._num(score), acc, _rank(acc)]
-	print("SESSION done: score=%d acc=%d best_combo=%d hits=%d perfect=%d dodged=%d squats=%d steps=%d kicks=%d blocks=%d" % [
-		score, acc, best_combo, tot.hits, tot.perfect, tot.dodged, tot.squats, tot.steps, tot.kicks, tot.blocks])
+	print("SESSION done: score=%d acc=%d best_combo=%d hits=%d perfect=%d dodged=%d squats=%d steps=%d kicks=%d blocks=%d mighty=%d best_kmh=%d" % [
+		score, acc, best_combo, tot.hits, tot.perfect, tot.dodged, tot.squats, tot.steps, tot.kicks, tot.blocks, tot.mighty, int(tot.best_kmh)])
+	if settings.chef():
+		print("  CHEF: burned=%d eaten=%d balance=%d (%s) smashed=%d eaten_n=%d returned=%d apples=%d apples_hit=%d" % [
+			kcal.burned, kcal.eaten, kcal.balance(), KcalHud.kg_text(kcal.balance()), tot.smashed, tot.eaten, tot.returned,
+			tot.apples, tot.apples_hit])
 	sfx.play("levelup")
 	paused = false
 	menu.set_meta("in_game", false)
@@ -1189,13 +1626,15 @@ func _hud(delta: float) -> void:
 	if settings.minutes > 0:
 		var r: int = max(int(settings.minutes * 60.0 - session_t), 0)
 		left = "  ·  %d:%02d" % [r / 60, r % 60]
-	_title("Ниво %d%s" % [level + 1, left])
+	_title(("Готвачът · ниво %d%s" if settings.chef() else "Ниво %d%s") % [level + 1, left])
 	stage.cue.text = message if message_t > 0.0 else _hint()
 	var mult := Defs.multiplier(combo)
 	stage.counter.text = Menu._num(score) + ("   ×%d" % mult if mult > 1 else "") + ("   серия %d" % combo if combo > 2 else "")
 
 
 func _hint() -> String:
+	if settings.chef():
+		return "Разбий храната, преди да я изядеш!\nЗасилка + скорост = мощен удар · ябълката я изяж"
 	var legs := "ритник · коляно" if _legs_allowed() else "зелената — клекни и удари"
 	return "Юмрук в ритъма · %s\nЧервеното: клек, наклон, стъпка" % legs
 
@@ -1423,6 +1862,12 @@ func _sim(delta: float) -> void:
 						want.head = Vector3(0.5, 1.62, 0)
 					Defs.Kind.WALL_R:
 						want.head = Vector3(-0.5, 1.62, 0)
+		elif target.food != "":
+			if target.kind == Defs.Kind.FOOD and will and best < 1.6:        # apples are let through (eaten)
+				var lf := "hand_l" if target.position.x < 0.0 else "hand_r"
+				var aim := target.position + (Vector3(0, 0, 0.3) if best > 0.35 else Vector3(0, 0, -0.4))   # wind up, punch through
+				want[lf] = aim
+				_sim_rate[lf] = [3.0, 6.5, 13.0][int(seed_ * 997.0) % 3]    # weak · medium · mighty
 		elif target.kind == Defs.Kind.BLOCK:
 			if will and best < 1.6:
 				want.hand_l = Vector3(-0.07, 1.58, -0.26)
@@ -1436,7 +1881,7 @@ func _sim(delta: float) -> void:
 			if target.kind == Defs.Kind.LOW:
 				want.head = Vector3(0, 1.3, 0)
 	for k in s:
-		var rate := 11.0 if k.begins_with("hand") or k.begins_with("foot") or k.begins_with("knee") else 3.5
+		var rate: float = _sim_rate.get(k, 11.0) if k.begins_with("hand") or k.begins_with("foot") or k.begins_with("knee") else 3.5
 		if k == "head":
 			rate = 4.0
 		s[k] = (s[k] as Vector3).move_toward(want[k], rate * delta)

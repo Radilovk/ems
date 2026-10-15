@@ -34,7 +34,12 @@ const VIEWS := [{"name": "Планини", "path": "res://assets/views/mountain.
 	{"name": "Залез над дюни", "path": "res://assets/views/dunes.jpg", "span": 220.0, "horizon": 0.5},
 	{"name": "Мост при залез", "path": "res://assets/views/bridge_sunset.jpg", "span": 220.0, "horizon": 0.5}]
 const PUNISH := [{"name": "Меко", "sec": 1.2}, {"name": "Силно", "sec": 2.5}]
+# What the session is: the plasma spheres on the beat · the chef throwing food (his home is the square in Ulm).
+const SCENES := ["Сфери в ритъма", "Готвачът"]
+enum Scene { SPHERES, CHEF }
+const CHEF_ROOM := "Площадът в Улм"
 
+var scene := 0                  # Scene
 var pace := 1
 var spread := 1
 var legs := 0
@@ -74,11 +79,12 @@ func save() -> void:
 
 
 func _fields() -> Array:
-	return ["pace", "spread", "legs", "hazards", "minutes", "suit", "punish", "music_db", "sfx_db", "comfort",
+	return ["scene", "pace", "spread", "legs", "hazards", "minutes", "suit", "punish", "music_db", "sfx_db", "comfort",
 		"height_cm", "offset_x", "offset_z", "turn_deg", "auto_center", "room", "view", "track", "tutorial_done", "best_score"]
 
 
 func _clamp() -> void:
+	scene = clampi(scene, 0, SCENES.size() - 1)
 	pace = clampi(pace, 0, PACE.size() - 1)
 	spread = clampi(spread, 0, SPREAD.size() - 1)
 	legs = clampi(legs, 0, LEGS.size() - 1)
@@ -92,6 +98,10 @@ func _clamp() -> void:
 	offset_z = clampf(offset_z, -3.0, 2.0)
 	turn_deg = fposmod(turn_deg, 360.0)
 	view = clampi(view, 0, VIEWS.size() - 1)
+
+
+func chef() -> bool:
+	return scene == Scene.CHEF
 
 
 func speed_k() -> float:

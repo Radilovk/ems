@@ -3,7 +3,15 @@
 Source: owner's iPad (iPad12,1, iPadOS 26.6.1), app Wiems 1.8.45, sysdiagnose 2026-10-16 00:08 with Apple's
 Bluetooth logging profile → `bluetoothd-hci-latest.pklg` → `wiems/pklg_att.py` →
 `wiems/logs/capture1-20261016-wiems1.8.45-att.txt` (one connection, ~11 min, 804 ATT ops).
-No step list came with the capture, so field meanings below are **inferred**; each says how sure it is.
+Field names come from the app's own log lines in the same sysdiagnose (`system_logs.logarchive`, parsed with
+mandiant/macos-UnifiedLogs; Wiems logs in Spanish, most values public) — lined up with the HCI writes by time
+(pklg t=0 ≈ 23:56:12.4 local). "(log)" = name confirmed by the app's log; otherwise inferred.
+
+App log lines that name the fields (verbatim):
+`CCC-Dur,fr,w,r,Ru,Rd,dec del programa:41-84-4-8-0-0-126-5-2` · `Configurar frecuenciaResting: 5 - 100` ·
+`Configurar anchuras:<private>` · `CCC-Corrientes enviadas a <unit>:12-0-2-15-15-15-13-13-0-15` ·
+`Arrancar 1` / `Arrancar 0` · `Segundos running <unit>: 43` · `Minutos usados en <unit>: 72323` ·
+`Minutos comprados en <unit>: 73200` · `Curr_comp: Calculada 0` / `Recibida 0` / `Not 0xA5` · `Bateria dispositivo: 75`.
 
 ## Device
 - Advertised name **`WIEMS - EMS Device`**, address 88:6B:0F:CC:BE:49 (this unit).
@@ -16,14 +24,14 @@ No step list came with the capture, so field meanings below are **inferred**; ea
 ## Characteristics (value handle on this unit; match by UUID, never by handle)
 | UUID prefix | handle | props | use (confidence) |
 |---|---|---|---|
-| `7764eda8` | 0x0043 | R W N | **Run control**: write `25` = start, `00` = stop. Notifies `01` every ~1 s while running, `00` on stop (sure) |
-| `776439af` | 0x004a | R W | **Program / timing block**, 10 B, last byte = XOR of bytes 0–8 (checksum sure, fields not) |
-| `7764e8bc` | 0x0025 | R W | **Program header**, 10 B: `PP 64 00 00 00 00 00 00 a5 XX`, XX = XOR of 0–8 (sure). PP = 5/6/7 changed with each program; `64` = 100 (master %?) |
-| `7764e556` | 0x001c | R W | 10 B, one per channel: `7f 7f 6d 49 7f 7f 64 52 7f 52` → per-channel cap / calibration? (byte 2 became `76` with program 7) |
-| `966e06c6` | 0x002e | R W | **Live channel strength**, 10 B = channels 1–10, value in bits 0–6 (seen 0–0x14), bit 7 = flag (unknown). No checksum (sure that it is strength: moves in single steps as the trainer turns channels up/down) |
-| `7764f042` | 0x0035 | R N | **Session clock**: 6 ASCII digits = elapsed time in 0.1 s; bit 7 of the first byte set = work phase started, clear = pause started. Capture: work ≈ 4 s, pause ≈ 8 s (sure for the clock, likely for the phase bit) |
-| `b1f5a058` | 0x0031 | R N | 20 B status every ~1–11 s: idle `00 0N 00… c5 5c` (N counts); running: 20 small values 0–3 → per-channel (×2 electrodes?) contact/load (guess) |
-| `7764d000` | 0x0039 | R N | ASCII `072323` — read after every stop (firmware date / counter?) |
+| `7764eda8` | 0x0043 | R W N | **Run control** (log "Arrancar 1/0"): write `25` = start, `00` = stop. Notifies `01` every ~1 s while running, `00` on stop (sure) |
+| `776439af` | 0x004a | R W | **Program** (log "Dur,fr,w,r,Ru,Rd,dec"), 10 B + XOR: `Dur fr w r Ru Rd dec_lo dec_hi phase XOR` — fr = **Hz** (84/89/92 seen), w / r = **work / rest s** (4 / 8, matches the clock), Ru / Rd = ramp up / down (0, 0–1), Dur = 41 and dec = 0x057e (1406) unknown units, phase = 2 while arming, 0 once running (log) |
+| `7764e8bc` | 0x0025 | R W | **Rest frequency** (log "frecuenciaResting: 5 - 100"): `Hz 64 00 00 00 00 00 00 a5 XOR` — Hz in the pause (5/6/7), second byte 100 (rest %?) |
+| `7764e556` | 0x001c | R W | **Pulse widths per channel** (log "Configurar anchuras", written at the same moment): `7f 7f 6d 49 7f 7f 64 52 7f 52`, unit unknown (127 = max?) |
+| `966e06c6` | 0x002e | R W | **Live channel strength**, 10 B = channels 1–10, value in bits 0–6 (seen 0–0x14), bit 7 = flag (unknown — the app logs the values without it). No checksum (log "Corrientes enviadas") |
+| `7764f042` | 0x0035 | R N | **Session clock** (log "Segundos running"): 6 ASCII digits = elapsed time in 0.1 s; bit 7 of the first byte set = work phase started, clear = pause started. Capture: work ≈ 4 s, pause ≈ 8 s (sure for the clock, likely for the phase bit) |
+| `b1f5a058` | 0x0031 | R N | Status / current check: idle `00 0N 00… c5 5c`; at each work start the unit sends `…a5…` then 20 small values 0–3 → the app's "Curr_comp" (current comparison, calculated vs received) |
+| `7764d000` | 0x0039 | R N | **Minutes used** (log "Minutos usados"): ASCII `072323`, read after every stop. The app also gets "minutes bought" (73200) from the vendor server — a pay-per-minute scheme; whether the **unit** refuses to start at the limit is unknown (matters for XEMS) |
 | `7764f19a` | 0x003d | R | `aa 27 ef 16 7d 28` — read once at connect (unit id / key?) |
 | `776416cb` | 0x004d | R N | `da 00 00 01 13 02 00 00 0c 00` — read once at connect (config) |
 | `7764db60 dcaa e038 e420 e678 e79a dde0 df0c a25c 5cb2` | — | — | never touched by the app in this capture |
@@ -49,14 +57,17 @@ Stop: `W 0043 00` → read 0x0039 → unit notifies 0043 `00` ~1.5 s later.
 
 Program changes in the capture (0x004a / 0x0025 PP / 0x001c byte 2):
 `29 54 04 08 00 00 7e 05` / 5 / 6d → `29 59 …` / 6 / 6d → `29 5c 04 08 00 01 7e 05` / 7 / 76.
-Byte 1 (0x54/0x59/0x5c = 84/89/92) could be Hz — **unknown until capture 2**.
+Byte 1 = Hz 84 → 89 → 92 (log "fr"); rest Hz 5 → 6 → 7; program 7 adds ramp-down 1.
 
-## Open — capture 2 (one change at a time, note the clock time of each)
-1. Same program, change only **Hz** (e.g. 85 → 20 → 100), then only **pulse width**, then only **work time**,
-   then only **pause time**, then **ramp** → maps the bytes of 0x004a / 0x0025.
-2. One channel at a time 0 → 5 → 0 with the channel's name on screen → channel index → muscle.
-3. Master/global strength, if the app has one (does it scale 0x002e or write `64` in 0x0025?).
-4. What the bit 7 in 0x002e is: tap a channel group without changing strength.
-5. Pause / resume during a session (vs stop).
-6. Leave a session running with no touches for 2 min → does the unit need a keep-alive (watchdog)?
-Without these, a driver could start / stop and set strengths, but not set Hz / width / times safely.
+## Still open
+- Units of Dur (41), dec (1406) and of the widths in 0x001c; pulse-width range.
+- Bit 7 in 0x002e (the app's log of the same write has no such bit).
+- Watchdog: does the unit stop by itself when the tablet goes silent (the app writes 0x002e at least every few s)?
+- Minutes quota: does the unit itself refuse `25` when used ≥ bought?
+- Channel index → muscle (the app's channel names).
+Next capture, same way: change only the **pulse width** (2–3 values), then only **session length**, then leave a
+session running 2 min untouched; name the channels on screen. Then the probe on the tablet.
+
+## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
+.NET MAUI app (log: `Microsoft_Maui_Controls_Handlers…`) → a decrypted bundle has .NET assemblies: type / method
+names and string literals readable with ILSpy even when IL is stripped. Its own log lines are `<private>`.

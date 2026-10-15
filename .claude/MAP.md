@@ -1350,12 +1350,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
-`wiems/PROTOCOL.md` (63L)
+`wiems/PROTOCOL.md` (74L)
   - L1 # WiEMS unit — BLE protocol (from capture 1)
-  - L8 ## Device
-  - L16 ## Characteristics (value handle on this unit; match by UUID, never by handle)
-  - L31 ## Sequences seen
-  - L54 ## Open — capture 2 (one change at a time, note the clock time of each)
+  - L16 ## Device
+  - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)
+  - L39 ## Sequences seen
+  - L62 ## Still open
+  - L71 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
 
 `wiems/README.md` (73L)
   - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol

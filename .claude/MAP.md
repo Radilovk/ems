@@ -540,14 +540,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (103L)
+`CLAUDE.md` (104L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L43 ## Invariants (breaking one = broken release)
   - L58 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L72 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L100 ## Keeping the map true
+  - L101 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -1349,6 +1349,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
+
+`wiems/README.md` (55L)
+  - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol
+  - L9 ## Route 1 — HCI log from the iPad (no jailbreak, no IPA; do this first)
+  - L29 ## Route 2 — the binary (cross-check, constants, checksum, limits)
+  - L39 ## Route 3 — active probe from the Android tablet
+  - L43 ## Into XEMS (after the protocol is written down in `wiems/PROTOCOL.md`)
+  - L51 ## Status
 
 `xbody/CLAUDE.md` (43L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)

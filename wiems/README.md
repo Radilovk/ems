@@ -1,0 +1,54 @@
+# WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol
+
+Target: the WiemsPro wireless EMS units driven by the iPad app **Wiems** (WIEMSPRO SL, App Store id1083387696,
+v1.8.45, iPadOS 12.1+, also runs on Apple-silicon Macs). Siblings with the same hardware: Wiems Easy (id1633394446),
+WiemsPlus, BodStim, NooFit Pro, OnnaFit. **No Android app exists** (Play Store checked 2026-10-15), so the bodytech
+route (decompile the APK, `bodytech/PROTOCOL.md`) is not open — we read the protocol off the air instead, and
+use the iOS binary only as a cross-check.
+
+## Route 1 — HCI log from the iPad (no jailbreak, no IPA; do this first)
+The iPad logs every Bluetooth packet *after* link-layer decryption, so pairing/bonding hides nothing.
+1. On the iPad (Safari): developer.apple.com/bug-reporting/profiles-and-logs → **Bluetooth for iOS/iPadOS** →
+   install the profile (Settings → Profile downloaded), **restart** the iPad. (Free Apple ID is enough; the profile
+   expires after a few days.)
+2. Open Wiems **after** the restart and connect the unit (the GATT discovery must be in the log — it names the
+   handles). Run a scripted session, writing down the time of each step:
+   connect → each channel 0 → 10 → 20 → 0 alone (channel map) → master up/down → Hz change (e.g. 85 → 20 → 100)
+   → pulse width change → work/pause times → start / pause / stop → program switch → battery screen → disconnect.
+   One change at a time, ~5 s apart: the diff between neighbouring writes is what decodes the fields.
+3. Take a sysdiagnose: hold **both volume buttons + top button ~1.5 s** (short vibration), wait ~10 min.
+   Settings → Privacy & Security → Analytics & Improvements → Analytics Data → `sysdiagnose_…tar.gz` → share.
+   Inside: `logs/Bluetooth/*.pklg`. (With a Mac: PacketLogger from Xcode "Additional Tools" records it live.)
+4. Decode here: `python3 wiems/pklg_att.py capture.pklg [--all] [--csv out.csv]` → service/characteristic UUIDs
+   and every write / notification with time, ready to line up with the step list.
+   Same tool reads an Android btsnoop log (if we ever drive the unit from a tablet with "HCI snoop log" on).
+
+Fallback without the iPad log: nRF52840 dongle + nRF Sniffer for Bluetooth LE in Wireshark (passive; works only
+if the link is unencrypted or the pairing is captured — `crackle` for legacy pairing).
+
+## Route 2 — the binary (cross-check, constants, checksum, limits)
+App Store IPAs are FairPlay-encrypted; a decrypted Mach-O needs one of:
+- iPad on iPadOS 14.0–16.6.1 / 17.0 → TrollStore + **TrollDecrypt** (no jailbreak), or a checkm8 iPad
+  (A9–A11, palera1n) → `bagbak` / frida-ios-dump.
+- Apple-silicon Mac: install Wiems from the Mac App Store (iPad app), SIP off → `appdecrypt`.
+Then: look at the bundle first — Xamarin/.NET (`*.dll` → ILSpy), React Native/Cordova (`main.jsbundle`/`www/`),
+Flutter (`App.framework`) or native ObjC/Swift (`class-dump` + Ghidra; search `CBPeripheral writeValue`,
+`CBUUID UUIDWithString`). Only the protocol facts go into our repo, never vendor code (same rule as bodytech /
+Bluetens).
+
+## Route 3 — active probe from the Android tablet
+After route 1 names the service: nRF Connect (or a copy of `bodytech/probe`) to replay recorded frames, read
+battery, and test the keep-alive / watchdog — everything route 1 cannot prove (safety stop time, limits).
+
+## Into XEMS (after the protocol is written down in `wiems/PROTOCOL.md`)
+Same shape as bodytech (`docs/xems-bodytech.md`): package `com.isaigu.gymapp.wiems` —
+`WiProto` (frame encodings + golden vectors from the captures), `WiTranslator` (XEMS suit command 0x53… →
+WiEMS frames: channel %, Hz, width, work/pause, start/stop), `WiBridge` (hooks `BleDeviceManager.getConfig/write`
+like `BtBridge`, keep-alive, write-after-ACK pacing), settings page; patch `scripts/apply-wiems.py` +
+`verify-wiems.py`; offline test vs a simulator fed with the captured frames. Safety limits from
+`docs/xems-safety-limits.md` apply unchanged; first person test at low strength.
+
+## Status
+- [x] Store research, plan, decoder `wiems/pklg_att.py` (offline test: `sh wiems/test/run.sh`).
+- [ ] Owner: capture (route 1) with the step list + timestamps → `wiems/logs/`.
+- [ ] `wiems/PROTOCOL.md`, then probe, then the XEMS driver.

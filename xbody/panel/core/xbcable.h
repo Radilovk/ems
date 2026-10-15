@@ -27,6 +27,7 @@ struct Config {
     int wiring;
     bool dbl;
     int dblHz, dblPct;
+    std::string program;   // a ready passive program (xbprog id) played over XBody's training; empty = none
     Config() : wiring(WIRE_XBODY), dbl(false), dblHz(5), dblPct(50) {}
 };
 Config parseConfig(const std::string &text);                // key=value lines; values clamped to the limits
@@ -43,11 +44,18 @@ public:
     int wiringLive() const { return live_.wiring; }
     bool secondNow() const { return second_; }
     int learnedPauseMs() const { return pauseMs_; }
+    // The program running in this training (latched at its start): id, segment index, ms since start, over.
+    const std::string &programLive() const { return live_.program; }
+    int programSeg() const { return progSeg_; }
+    unsigned programMs() const { return progMs_; }
+    bool programOver() const { return progOver_; }
 
 private:
     Config want_, live_;
     bool training_, inPause_, second_;
-    unsigned pauseStart_;
+    unsigned pauseStart_, progStart_, progMs_;
+    int progSeg_;
+    bool progOver_;
     int pauseMs_, mainTp_;
 };
 }

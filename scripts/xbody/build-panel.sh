@@ -13,7 +13,7 @@ arm-linux-gnueabi-strip -o "$OUT" "$REPO/build/xpanel/xems-panel"
 chmod 755 "$OUT"
 # The cable proxy (no Qt): between xbody_control and the stimulator's daemon (/etc/default/emsc-tcpseriald).
 PX=$REPO/xbody/overlay/opt/xems/bin/xems-xbproxy
-sh "$REPO/scripts/xbody/xcc.sh" "$REPO"/xbody/panel/core/bytes.cpp "$REPO"/xbody/panel/core/xbcable.cpp \
+sh "$REPO/scripts/xbody/xcc.sh" "$REPO"/xbody/panel/core/bytes.cpp "$REPO"/xbody/panel/core/xbcable.cpp "$REPO"/xbody/panel/core/xbprog.cpp \
 	"$REPO/xbody/panel/proxy/xbproxy.cpp" -o "$REPO/build/xpanel/xems-xbproxy" 2>&1 | grep -v 'dynsym local symbol' || true
 arm-linux-gnueabi-strip -o "$PX" "$REPO/build/xpanel/xems-xbproxy"
 chmod 755 "$PX"

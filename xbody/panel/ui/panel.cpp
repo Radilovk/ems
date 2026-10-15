@@ -1,6 +1,7 @@
 #include "panel.h"
 #include "app.h"
 #include "xbres.h"
+#include "../core/xbprog.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QFontDatabase>
@@ -105,7 +106,7 @@ static void signalBars(QPainter &p, const QRect &r, int rssi, const QColor &on, 
 
 PanelWidget::PanelWidget(App *app)
     : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), app_(app), pressMs_(0), repeatMs_(0),
-      sheet_(false), confirm_(false), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false),
+      sheet_(false), confirm_(false), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
       bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0) {
     loadLook();
     setAttribute(Qt::WA_OpaquePaintEvent);
@@ -290,7 +291,13 @@ void PanelWidget::paintCable(QPainter &p) {
     bool warn = false, ok = false;
     if (toastOn) { sub = toast_; ok = true; }
     else if (!live.running) { sub = U("Модулът за кабела не отговаря — XBody работи както без него"); warn = true; }
-    else if (live.training) sub = live.second ? U("XBody тренира · сега върви двойният импулс") : U("XBody тренира");
+    else if (live.training && !live.program.empty()) {
+        const xbprog::Program *pr = xbprog::byId(live.program);
+        sub = pr ? U("XBody тренира · ") + U(pr->name) +
+                       (live.programOver ? U(" завърши")
+                                         : U(" — ") + U(pr->segs[live.programSeg < 0 ? 0 : live.programSeg].name))
+                 : U("XBody тренира");
+    } else if (live.training) sub = live.second ? U("XBody тренира · сега върви двойният импулс") : U("XBody тренира");
     else sub = U("Важи за всяка тренировка на XBody");
     paintHeader(p, U("КАБЕЛ НА XBODY"), sub, warn, ok);
     if (app_->bridgeOk()) {   // back to the wireless suits
@@ -301,7 +308,39 @@ void PanelWidget::paintCable(QPainter &p) {
         p.drawText(r, Qt::AlignCenter, U("Безжични  ›"));
         hit(r, U("wireless"));
     }
+    // Two tabs: the ready programs (per session) | the suit standard and the double impulse (set once).
+    QRect seg(200, 64, 400, 44);
+    p.setPen(QPen(LINE, 2));
+    p.setBrush(WHITE);
+    p.drawRoundedRect(QRectF(seg).adjusted(1, 1, -1, -1), 10, 10);
+    for (int i = 0; i < 2; i++) {
+        QRect h(seg.left() + i * 200, seg.top(), 200, 44);
+        QString id = i ? U("tab-cable") : U("tab-prog");
+        bool sel = cableTab_ == i;
+        if (sel || pressed_ == id) {
+            p.setPen(Qt::NoPen);
+            p.setBrush(sel ? INK : PRESS);
+            p.drawRoundedRect(QRectF(h).adjusted(4, 4, -4, -4), 8, 8);
+        }
+        p.setPen(sel ? WHITE : INK);
+        p.setFont(uiFont(16, sel));
+        QString t = i ? U("Кабел и импулс") : U("Програми");
+        if (!i && !c.program.empty()) t += U("  ●");
+        p.drawText(h, Qt::AlignCenter, t);
+        hit(h, id);
+    }
+    if (cableTab_ == 0) { paintPrograms(p); return; }
+    p.save();
+    p.translate(0, 48);
+    dy_ = 48;
+    paintCableSettings(p);
+    dy_ = 0;
+    p.restore();
+}
 
+void PanelWidget::paintCableSettings(QPainter &p) {
+    const xbcable::Config &c = app_->cable();
+    const App::CableLive &live = app_->cableLive();
     // ---- left: the suit on the cable ----
     caption(p, 24, 70, U("КОСТЮМЪТ НА КАБЕЛА"));
     QRect info(352, 62, 36, 36);
@@ -416,25 +455,25 @@ void PanelWidget::paintCable(QPainter &p) {
     QString uf2 = app_->uf2State();
     bool flashing = uf2 == U("flashing"), restarting = uf2 == U("done") || app_->bridgeUpdating(),
          failed = uf2.startsWith(U("error"));
-    QRect card(24, 420, 752, 160);
+    QRect card(24, 412, 752, 120);
     p.setPen(Qt::NoPen);
     p.setBrush(QColor(0xF4, 0xF5, 0xF6));
     p.drawRoundedRect(QRectF(card), 12, 12);
-    QRectF board(52, 456, 112, 76);   // the XIAO, RESET circled
+    QRectF board(48, 440, 100, 66);   // the XIAO, RESET circled
     p.setBrush(INK);
     p.drawRoundedRect(board, 8, 8);
     p.setBrush(QColor(0x9A, 0xA0, 0xA8));
-    p.drawRect(QRectF(88, 446, 40, 14));
+    p.drawRect(QRectF(80, 431, 36, 12));
     p.setBrush(flashing ? RED : GREEN);
-    p.drawEllipse(QRectF(144, 464, 9, 9));
+    p.drawEllipse(QRectF(130, 447, 8, 8));
     p.setBrush(WHITE);
-    p.drawRoundedRect(QRectF(132, 508, 18, 14), 3, 3);
+    p.drawRoundedRect(QRectF(120, 482, 16, 12), 3, 3);
     p.setPen(QPen(RED, 2.5));
     p.setBrush(Qt::NoBrush);
-    p.drawEllipse(QRectF(124, 498, 34, 34));
+    p.drawEllipse(QRectF(112, 472, 32, 32));
     p.setPen(RED);
     p.setFont(uiFont(16, true));
-    p.drawText(QRect(168, 486, 34, 22), Qt::AlignLeft | Qt::AlignVCenter, U("2×"));
+    p.drawText(QRect(152, 462, 34, 22), Qt::AlignLeft | Qt::AlignVCenter, U("2×"));
     QString t1 = U("Безжичен костюм? Включи XEMS моста в USB"),
             t2 = U("Нова платка: натисни RESET два пъти бързо — машината сама я програмира, без компютър.");
     QColor c1 = INK;
@@ -443,10 +482,203 @@ void PanelWidget::paintCable(QPainter &p) {
     else if (failed) { t1 = U("Платката не се записа"); t2 = U("Натисни RESET на XIAO два пъти още веднъж."); c1 = RED; }
     p.setPen(c1);
     p.setFont(uiFont(18, true));
-    p.drawText(QRect(212, 444, 540, 30), Qt::AlignLeft | Qt::AlignVCenter, t1);
+    p.drawText(QRect(204, 426, 556, 30), Qt::AlignLeft | Qt::AlignVCenter, t1);
     p.setPen(SOFT);
     p.setFont(uiFont(15));
-    p.drawText(QRect(212, 478, 540, 80), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, t2);
+    p.drawText(QRect(204, 460, 556, 60), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, t2);
+}
+
+// A program's tile: XBody's own body picture, front and back, with exactly the zones the procedure works lit
+// (brighter = a larger share of the strength); the drainage also shows its wave's direction (up the legs).
+static QPixmap programTile(const xbprog::Program &pr) {
+    static QMap<QString, QPixmap> cache;
+    QString key = QString::fromLatin1(pr.id);
+    if (cache.contains(key)) return cache.value(key);
+    static const char *MASK[xbprog::CH] = {"BodyTrapezius", "BodyBack", "BodyChest", "BodyWaist", "BodyArm",
+                                           "BodyAbdomen", "BodyBottom", "BodyLegFront", "BodyLegBack", "BodyOptional"};
+    int share[xbprog::CH];
+    xbprog::zoneShare(pr, share);
+    QPixmap out(256, 256);
+    out.fill(QColor(0xF4, 0xF5, 0xF6));
+    QPainter p(&out);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    const double sx = 60, sy = 56, k = 256.0 / 384;   // the two figures (x 80–416, y 66–434 of 500×500)
+    p.scale(k, k);
+    p.translate(-sx, -sy);
+    if (const QPixmap *body = pix("BodyNormal")) {
+        p.drawPixmap(0, 0, *body);
+        for (int i = 0; i < xbprog::CH; i++) {
+            const QPixmap *m = share[i] > 0 ? pix(MASK[i]) : 0;
+            if (!m) continue;
+            p.setOpacity(0.35 + 0.65 * share[i] / 100.0);
+            p.drawPixmap(0, 0, *m);
+        }
+        p.setOpacity(1.0);
+    }
+    if (std::string(pr.id) == "drain" || std::string(pr.id) == "cellulite") {   // the wave goes up the legs
+        p.setPen(QPen(QColor(0x1F, 0x9E, 0xB0), 9, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        for (int f = 0; f < 2; f++) {
+            double cx = f ? 340 : 157;
+            for (int c = 0; c < 3; c++) {
+                double y = 420 - c * 46;
+                p.drawLine(QPointF(cx - 22, y), QPointF(cx, y - 18));
+                p.drawLine(QPointF(cx, y - 18), QPointF(cx + 22, y));
+            }
+        }
+    }
+    p.end();
+    cache.insert(key, out);
+    return out;
+}
+
+// "Програми": a tile per ready passive program (its zones on XBody's body picture) (left), what the chosen one does and where it
+// is (right). One tap chooses (it starts with XBody's START), a second tap or "Без програма" leaves XBody as set.
+void PanelWidget::paintPrograms(QPainter &p) {
+    const xbcable::Config &c = app_->cable();
+    const App::CableLive &live = app_->cableLive();
+    const xbprog::Program *ps;
+    int n = xbprog::programs(&ps);
+    for (int i = 0; i < n; i++) {
+        const xbprog::Program &pr = ps[i];
+        QRect t(24 + (i % 3) * 168, 120 + (i / 3) * 214, 152, 200);
+        QString id = U("prog:") + QString::fromLatin1(pr.id);
+        bool sel = c.program == pr.id, run = live.training && live.program == pr.id && !live.programOver;
+        p.setPen(QPen(sel ? RED : LINE, sel ? 3 : 2));
+        p.setBrush(pressed_ == id ? PRESS : WHITE);
+        p.drawRoundedRect(QRectF(t).adjusted(1.5, 1.5, -1.5, -1.5), 12, 12);
+        QRect img(t.left() + 12, t.top() + 10, 128, 128);
+        {
+            p.save();
+            QPainterPath clip;
+            clip.addRoundedRect(QRectF(img), 10, 10);
+            p.setClipPath(clip);
+            p.drawPixmap(img, programTile(pr));
+            p.restore();
+            // its signature: the main segment's frequency (and "вълна" for a wave)
+            const xbprog::Seg &g = pr.segs[xbprog::mainSeg(pr)];
+            QString sig = g.hz2 ? QString::number(g.hz) + U(" ↔ ") + QString::number(g.hz2) + U(" Hz")
+                                : QString::number(g.hz) + U(" Hz") + (g.wave ? U(" · вълна") : QString());
+            QFont sf = uiFont(13, true);
+            int sw = QFontMetrics(sf).width(sig) + 16;
+            QRectF badge(img.left() + 6, img.bottom() - 26, sw, 22);
+            p.setPen(Qt::NoPen);
+            p.setBrush(QColor(0x30, 0x37, 0x41, 220));
+            p.drawRoundedRect(badge, 11, 11);
+            p.setPen(WHITE);
+            p.setFont(sf);
+            p.drawText(badge, Qt::AlignCenter, sig);
+        }
+        if (sel) {   // ✓ badge
+            p.setPen(Qt::NoPen);
+            p.setBrush(RED);
+            p.drawEllipse(QRectF(t.right() - 36, t.top() + 6, 28, 28));
+            p.setPen(QPen(WHITE, 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            p.drawLine(QPointF(t.right() - 29, t.top() + 20), QPointF(t.right() - 24, t.top() + 25));
+            p.drawLine(QPointF(t.right() - 24, t.top() + 25), QPointF(t.right() - 15, t.top() + 15));
+        }
+        p.setPen(INK);
+        p.setFont(uiFont(16, true));
+        p.drawText(QRect(t.left() + 6, t.top() + 140, t.width() - 12, 38), Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap,
+                   U(pr.name));
+        p.setPen(run ? GREEN : SOFT);
+        p.setFont(uiFont(14, run));
+        p.drawText(QRect(t.left(), t.top() + 176, t.width(), 20), Qt::AlignCenter,
+                   run ? U("▶ върви") : QString::number(pr.minutes) + U(" мин"));
+        hit(t, id);
+    }
+
+    // ---- right: the chosen program ----
+    QRect side(536, 120, 240, 412);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0xF4, 0xF5, 0xF6));
+    p.drawRoundedRect(QRectF(side), 12, 12);
+    const xbprog::Program *pr = xbprog::byId(c.program);
+    int x = side.left() + 16, w = side.width() - 32;
+    if (!pr) {
+        caption(p, x, 136, U("БЕЗ ПРОГРАМА"));
+        p.setPen(INK);
+        p.setFont(uiFont(17));
+        p.drawText(QRect(x, 164, w, 120), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
+                   U("XBody работи точно както го настроиш."));
+        p.setPen(SOFT);
+        p.setFont(uiFont(15));
+        p.drawText(QRect(x, 226, w, 200), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
+                   U("Избери пасивна програма вляво. Тя тръгва със START на XBody и сама води честотата, ритъма и "
+                     "вълната. Силата по зоните остава твоя — в XBody, както винаги; програмата никога не я надвишава."));
+        return;
+    }
+    bool run = live.training && live.program == pr->id;
+    p.setPen(INK);
+    int tpx = 20;   // the name on one line: smaller rather than cut
+    while (tpx > 15 && QFontMetrics(uiFont(tpx, true)).width(U(pr->name)) > w) tpx--;
+    p.setFont(uiFont(tpx, true));
+    p.drawText(QRect(x, 130, w, 30), Qt::AlignLeft | Qt::AlignVCenter, U(pr->name));
+    p.setPen(SOFT);
+    p.setFont(uiFont(14));
+    p.drawText(QRect(x, 160, w, 56), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, U(pr->how));
+    // The phases: a bar in proportion (green = ≥ 20 Hz work, teal = the wave, grey = low Hz), then the list.
+    int total = xbprog::totalMs(*pr), bx = x, by = 222;
+    for (int i = 0; i < pr->n; i++) {
+        const xbprog::Seg &g = pr->segs[i];
+        int bw = (int)((double)w * g.ms / total + 0.5);
+        if (i == pr->n - 1) bw = x + w - bx;
+        QColor col = g.wave ? QColor(0x1F, 0x9E, 0xB0) : g.hz >= 20 ? GREEN : QColor(0xC4, 0xC8, 0xCC);
+        p.setPen(Qt::NoPen);
+        p.setBrush(col);
+        p.drawRect(QRectF(bx, by, bw - 2, 10));
+        bx += bw;
+    }
+    if (run) {   // where the training is
+        double f = (double)live.programS * 1000.0 / total;
+        if (f > 1) f = 1;
+        p.setPen(QPen(INK, 2));
+        p.drawLine(QPointF(x + w * f, by - 4), QPointF(x + w * f, by + 14));
+    }
+    for (int i = 0; i < pr->n && i < 6; i++) {
+        const xbprog::Seg &g = pr->segs[i];
+        int y = 242 + i * 26;
+        bool now = run && !live.programOver && live.programSeg == i;
+        QColor col = g.wave ? QColor(0x1F, 0x9E, 0xB0) : g.hz >= 20 ? GREEN : QColor(0xC4, 0xC8, 0xCC);
+        p.setPen(Qt::NoPen);
+        p.setBrush(col);
+        p.drawEllipse(QRectF(x, y + 8, 9, 9));
+        p.setPen(now ? INK : SOFT);
+        p.setFont(uiFont(14, now));
+        QString hz = g.hz2 ? QString::number(g.hz) + U("↔") + QString::number(g.hz2) : QString::number(g.hz);
+        p.drawText(QRect(x + 16, y, w - 16, 24), Qt::AlignLeft | Qt::AlignVCenter, U(g.name));
+        p.drawText(QRect(x + 16, y, w - 16, 24), Qt::AlignRight | Qt::AlignVCenter,
+                   QString::number((g.ms + 30000) / 60000) + U(" мин · ") + hz + U(" Hz"));
+    }
+    QRect box(x, 396, w, 74);
+    p.setPen(Qt::NoPen);
+    if (run && live.programOver) {
+        p.setBrush(QColor(0xDF, 0xF5, 0xEC));
+        p.drawRoundedRect(QRectF(box), 8, 8);
+        p.setPen(GREEN);
+        p.setFont(uiFont(15, true));
+        p.drawText(box.adjusted(10, 0, -10, 0), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap,
+                   U("✓ Програмата завърши — спри XBody"));
+    } else if (run) {
+        p.setBrush(WHITE);
+        p.drawRoundedRect(QRectF(box), 8, 8);
+        p.setPen(INK);
+        p.setFont(uiFont(26, true));
+        p.drawText(box.adjusted(12, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter, mmss(live.programS));
+        p.setPen(SOFT);
+        p.setFont(uiFont(15));
+        p.drawText(box.adjusted(0, 0, -12, 0), Qt::AlignRight | Qt::AlignVCenter, U("от ") + mmss(total / 1000));
+    } else {
+        p.setBrush(QColor(0xFF, 0xF4, 0xD6));
+        p.drawRoundedRect(QRectF(box), 8, 8);
+        p.setPen(QColor(0x7A, 0x55, 0x00));
+        p.setFont(uiFont(14, true));
+        p.drawText(box.adjusted(10, 4, -10, -4), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap,
+                   live.training ? U("Тръгва от следващата тренировка на XBody")
+                                 : U("Времето на XBody ≥ ") + QString::number(pr->minutes) +
+                                       U(" мин → START. Силата по зоните е таван."));
+    }
+    outlined(p, QRect(x, 480, w, 44), U("prog-none"), U("Без програма"), 15, false);
 }
 
 // ⓘ What the XEMS standard does on the cable: each XBody zone and the lead it now leaves on.
@@ -1064,6 +1296,15 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("cable")) { showCable_ = true; return; }
     if (id == QLatin1String("wireless")) { showCable_ = false; return; }
     if (id == QLatin1String("cable-info")) { cableInfo_ = true; return; }
+    if (id == QLatin1String("tab-prog") || id == QLatin1String("tab-cable")) { cableTab_ = id == QLatin1String("tab-cable"); return; }
+    if (id.startsWith(QLatin1String("prog:")) || id == QLatin1String("prog-none")) {   // one program, or none
+        xbcable::Config c = app_->cable();
+        std::string pid = id == QLatin1String("prog-none") ? std::string() : id.mid(5).toStdString();
+        c.program = c.program == pid ? std::string() : pid;
+        app_->setCable(c);
+        toast(c.program.empty() ? U("✓ Без програма — XBody както го настроиш") : U("✓ Тръгва със START на XBody"));
+        return;
+    }
     if (id == QLatin1String("cw-xbody") || id == QLatin1String("cw-xems") || id == QLatin1String("cdbl")) {
         xbcable::Config c = app_->cable();
         if (id == QLatin1String("cdbl")) c.dbl = !c.dbl;
@@ -1157,6 +1398,8 @@ QString PanelWidget::signature(QString *clock) const {
         const App::CableLive &l = app_->cableLive();
         g += U("|c%1 %2 %3 %4 %5%6%7%8 %9").arg(c.wiring).arg(c.dbl).arg(c.dblHz).arg(c.dblPct).arg(l.running)
                  .arg(l.training).arg(l.second).arg(l.wiring).arg(showCable_ * 2 + cableInfo_);
+        g += U("|p") + QString::fromStdString(c.program + "/" + l.program) +
+             U(" %1 %2 %3 %4").arg(l.programSeg).arg(l.programS).arg(l.programOver).arg(cableTab_);
     }
     if (v == App::NO_BRIDGE || v == App::PICK || v == App::LINKING) {
         g += U("|") + QString::number((now / 400) % 4) + QString::fromStdString(app_->linkingMac());
@@ -1251,14 +1494,14 @@ void TabWidget::paintEvent(QPaintEvent *) {
         const xbcable::Config &c = app_->cable();
         int x = st.right();
         p.setFont(uiFont((int)(14 * k), true));
-        for (int b = 0; b < 2; b++) {
-            bool on = b ? c.wiring == xbcable::WIRE_XEMS : c.dbl;
+        for (int b = 0; b < 3; b++) {
+            bool on = b == 2 ? !c.program.empty() : b ? c.wiring == xbcable::WIRE_XEMS : c.dbl;
             if (!on) continue;
-            QString t = b ? U("⇄") : U("2×");
+            QString t = b == 2 ? U("▶") : b ? U("⇄") : U("2×");
             int w = (int)(30 * k);
             QRectF r(x - w, height() / 2 - 11 * k, w, 22 * k);
             p.setPen(Qt::NoPen);
-            p.setBrush(b ? RED : YELLOW);
+            p.setBrush(b == 2 ? GREEN : b ? RED : YELLOW);
             p.drawRoundedRect(r, 6 * k, 6 * k);
             p.setPen(b ? WHITE : INK);
             p.drawText(r, Qt::AlignCenter, t);
@@ -1306,7 +1549,7 @@ void TabWidget::timerEvent(QTimerEvent *) {
     raise();   // stay above XBody's windows
     Suit *s = app_->suit();
     QString g = QString::number(down_) + QString::number(app_->bridgeOk()) + QString::number(s != 0);
-    g += U(" %1%2").arg(app_->cable().wiring).arg(app_->cable().dbl);
+    g += U(" %1%2").arg(app_->cable().wiring).arg(app_->cable().dbl) + QString::fromStdString(app_->cable().program);
     if (s) g += U(" %1 %2").arg(s->state()).arg(s->state() == Suit::IDLE ? 0 : s->secondsLeft(app_->now()));
     if (g != sig_) update();
     sig_ = g;

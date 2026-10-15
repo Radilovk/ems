@@ -3,8 +3,11 @@
 // --selftest; xbody_control still connects to 1235 and gets us. Frames from xbody_control run through
 // xbcable::Shaper, everything else (and the other direction) passes byte for byte.
 //   settings  /opt/xems/xbody-cable.conf   (the panel writes it; re-read when it changes)
-//   state     /tmp/xems-cable.state        (for the panel: training, live wiring, second impulse now)
-// Env (tests): XEMS_XB_LISTEN, XEMS_XB_UP (ports), XEMS_XB_CONF, XEMS_XB_STATE.
+//   state     /tmp/xems-cable.state        (for the panel: training, live wiring, second impulse, program)
+//   board     /opt/xems/board-rx.log       anything the stimulator board sends back (xbody_control never reads
+//             it; whether the board talks at all is unknown — this answers it on the unit). Capped at 64 KB, kept
+//             across boots; the USB installer copies it to the stick.
+// Env (tests): XEMS_XB_LISTEN, XEMS_XB_UP (ports), XEMS_XB_CONF, XEMS_XB_STATE, XEMS_XB_RXLOG.
 #include "../core/xbcable.h"
 #include <arpa/inet.h>
 #include <cerrno>
@@ -81,6 +84,9 @@ int main(int argc, char **argv) {
     int listenPort = envInt("XEMS_XB_LISTEN", 1235), upPort = envInt("XEMS_XB_UP", 1236);
     std::string confPath = envStr("XEMS_XB_CONF", "/opt/xems/xbody-cable.conf");
     std::string statePath = envStr("XEMS_XB_STATE", "/tmp/xems-cable.state");
+    std::string rxPath = envStr("XEMS_XB_RXLOG", "/opt/xems/board-rx.log");
+    struct stat rxst;
+    long rxTotal = 0, rxLogged = stat(rxPath.c_str(), &rxst) == 0 ? (long)rxst.st_size : 0;
 
     int ls = socket(AF_INET, SOCK_STREAM, 0);
     int one = 1;
@@ -121,10 +127,14 @@ int main(int argc, char **argv) {
                 time_t mt = stat(confPath.c_str(), &st) == 0 ? st.st_mtime : 0;
                 if (mt != confTime) { confTime = mt; shaper.setConfig(xbcable::parseConfig(readFile(confPath))); }
             }
-            char sbuf[96];
-            std::snprintf(sbuf, sizeof sbuf, "training=%d\nwiring=%s\nsecond=%d\npause_ms=%d\n", shaper.training() ? 1 : 0,
-                          shaper.wiringLive() == xbcable::WIRE_XEMS ? "xems" : "xbody", shaper.secondNow() ? 1 : 0,
-                          shaper.learnedPauseMs());
+            char sbuf[256];
+            std::snprintf(sbuf, sizeof sbuf,
+                          "training=%d\nwiring=%s\nsecond=%d\npause_ms=%d\nprogram=%s\nprogram_seg=%d\nprogram_s=%u\n"
+                          "program_over=%d\nboard_rx=%ld\n",
+                          shaper.training() ? 1 : 0, shaper.wiringLive() == xbcable::WIRE_XEMS ? "xems" : "xbody",
+                          shaper.secondNow() ? 1 : 0, shaper.learnedPauseMs(),
+                          shaper.training() ? shaper.programLive().c_str() : "", shaper.programSeg(),
+                          shaper.programMs() / 1000, shaper.programOver() ? 1 : 0, rxTotal);
             if (sbuf != lastState || t - lastStateMs >= 1000) { writeState(statePath, sbuf); lastState = sbuf; lastStateMs = t; }
 
             fd_set rd;
@@ -138,6 +148,19 @@ int main(int argc, char **argv) {
             if (FD_ISSET(up, &rd)) {   // board side → xbody_control: as is
                 ssize_t n = recv(up, buf, sizeof buf, 0);
                 if (n <= 0 || !sendAll(cl, buf, (size_t)n)) open = false;
+                if (n > 0) {   // the board said something: keep it (capped)
+                    rxTotal += n;
+                    if (rxLogged < 65536) {
+                        FILE *lf = std::fopen(rxPath.c_str(), "a");
+                        if (lf) {
+                            std::fprintf(lf, "%u ", nowMs());
+                            std::fwrite(buf, 1, (size_t)n, lf);
+                            std::fputc('\n', lf);
+                            std::fclose(lf);
+                            rxLogged += n + 12;
+                        }
+                    }
+                }
             }
             if (open && FD_ISSET(cl, &rd)) {
                 ssize_t n = recv(cl, buf, sizeof buf, 0);

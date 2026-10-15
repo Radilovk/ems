@@ -3,6 +3,7 @@
 #include "../core/bridge.h"
 #include "../core/safe.h"
 #include <QDateTime>
+#include <map>
 #include <QFile>
 #include <QFileInfo>
 #include <QSettings>
@@ -42,8 +43,10 @@ App::App()
     t0_ = now();
     load();
     cable_ = xbcable::parseConfig(slurp(envPath("XEMS_CABLE_CONF", "/opt/xems/xbody-cable.conf")));
-    CableLive z = {false, false, false, xbcable::WIRE_XBODY};
-    cableLive_ = z;
+    cableLive_.running = cableLive_.training = cableLive_.second = cableLive_.programOver = false;
+    cableLive_.wiring = xbcable::WIRE_XBODY;
+    cableLive_.programSeg = cableLive_.programS = 0;
+    cableLive_.boardRx = 0;
     readCableState();
     const char *bd = std::getenv("XEMS_BRIDGE_DIR");
     QFile vf(QString::fromLocal8Bit(bd ? bd : "/opt/xems/bridge") + U("/VERSION"));
@@ -88,13 +91,32 @@ void App::setCable(const xbcable::Config &c) {
 void App::readCableState() {
     QString path = envPath("XEMS_CABLE_STATE", "/tmp/xems-cable.state");
     QFileInfo fi(path);
-    CableLive l = {false, false, false, cable_.wiring};
+    CableLive l;
+    l.running = l.training = l.second = l.programOver = false;
+    l.wiring = cable_.wiring;
+    l.programSeg = l.programS = 0;
+    l.boardRx = 0;
     if (fi.exists() && fi.lastModified().secsTo(QDateTime::currentDateTime()) <= 5) {
         std::string s = slurp(path);
+        std::map<std::string, std::string> kv;
+        size_t a = 0;
+        while (a < s.size()) {
+            size_t e = s.find('\n', a);
+            std::string line = s.substr(a, e == std::string::npos ? std::string::npos : e - a);
+            size_t q = line.find('=');
+            if (q != std::string::npos) kv[line.substr(0, q)] = line.substr(q + 1);
+            if (e == std::string::npos) break;
+            a = e + 1;
+        }
         l.running = true;
-        l.training = s.find("training=1") != std::string::npos;
-        l.second = s.find("second=1") != std::string::npos;
-        if (l.training) l.wiring = s.find("wiring=xems") != std::string::npos ? xbcable::WIRE_XEMS : xbcable::WIRE_XBODY;
+        l.training = kv["training"] == "1";
+        l.second = kv["second"] == "1";
+        if (l.training) l.wiring = kv["wiring"] == "xems" ? xbcable::WIRE_XEMS : xbcable::WIRE_XBODY;
+        l.program = kv["program"];
+        l.programSeg = std::atoi(kv["program_seg"].c_str());
+        l.programS = std::atoi(kv["program_s"].c_str());
+        l.programOver = kv["program_over"] == "1";
+        l.boardRx = std::atol(kv["board_rx"].c_str());
     }
     cableLive_ = l;
 }

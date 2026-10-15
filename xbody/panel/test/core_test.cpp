@@ -1,6 +1,7 @@
 // Host tests of the panel core: protocol bytes, safety limits, the impulse / pause clock.
 //   sh scripts/xbody/test-panel.sh
 #include "../core/xbcable.h"
+#include "../core/xbprog.h"
 #include "../core/bridge.h"
 #include "../core/btproto.h"
 #include "../core/safe.h"
@@ -357,7 +358,112 @@ static void cableShaper() {
     eqInt("other frames pass", 1, d.process(other, 0) == other);
 }
 
+// Every ready program against the absolute limits (docs/xems-auto-mode-spec.md §4.1) and its own length.
+static void programLimits() {
+    const xbprog::Program *ps;
+    int n = xbprog::programs(&ps);
+    eqInt("six passive programs", 6, n);
+    for (int k = 0; k < n; k++) {
+        const xbprog::Program &p = ps[k];
+        eqInt(p.id, p.minutes * 60000, xbprog::totalMs(p));
+        bool noDouble = std::string(p.id) == "drain" || std::string(p.id) == "postpartum";   // L12
+        for (int i = 0; i < p.n; i++) {
+            const xbprog::Seg &g = p.segs[i];
+            std::string w = std::string(p.id) + "/" + g.name;
+            int hz = g.hz > g.hz2 ? g.hz : g.hz2;
+            if (hz >= 20) {
+                eqInt((w + " L1 on ≤ 4 s").c_str(), 1, g.onMs <= 4000);
+                eqInt((w + " L2 ramp ≥ 0.3 s").c_str(), 1, g.upMs >= 300);
+                if (!g.wave) eqInt((w + " L3 rest ≥ on").c_str(), 1, g.offMs >= g.onMs);
+            }
+            if (hz >= 70) eqInt((w + " L4 ≤ 400 µs").c_str(), 1, g.us <= 400);
+            if (hz >= 100) eqInt((w + " L4 ≤ 300 µs").c_str(), 1, g.us <= 300);
+            eqInt((w + " L5 150–400 µs").c_str(), 1, g.us >= 150 && g.us <= 400);
+            eqInt((w + " envelope ≤ 100").c_str(), 1, g.e0 <= 100 && g.e1 <= 100 && g.e0 > 0 && g.e1 > 0);
+            eqInt((w + " a wave or weights").c_str(), 1, (g.wave != 0) != (g.w != 0));
+            if (noDouble) eqInt((w + " L12 no 2nd impulse").c_str(), 0, g.dblHz);
+            if (g.dblHz) eqInt((w + " 2nd ≤ 10 Hz, under main, ≤ 50 %").c_str(), 1, g.dblHz <= 10 && g.dblHz < g.hz && g.dblPct <= 50);
+        }
+        eqInt((std::string(p.id) + " ends soft (last segment ≤ 50 %)").c_str(), 1, p.segs[p.n - 1].e1 <= 50);
+    }
+}
+
+// The runner: never above XBody's level (the ceiling), the wave's order, the end.
+static void programRun() {
+    const xbprog::Program *ps;
+    int n = xbprog::programs(&ps);
+    for (int k = 0; k < n; k++) {
+        bool ok = true;
+        for (unsigned t = 0; t < (unsigned)xbprog::totalMs(ps[k]) + 2000; t += 50) {
+            unsigned u[10], in[10];
+            for (int i = 0; i < 10; i++) u[i] = in[i] = 1000 + i * 3000 + (t % 7);
+            xbprog::Out o;
+            xbprog::step(ps[k], t, u, &o);
+            for (int i = 0; i < 10; i++) ok = ok && u[i] <= in[i];
+            ok = ok && (!o.stim || (o.tp >= 1 && o.us >= 150 && o.us <= 400));
+        }
+        eqInt((std::string(ps[k].id) + " never above XBody's level").c_str(), 1, ok);
+    }
+    const xbprog::Program *d = xbprog::byId("drain");
+    unsigned u[10];
+    xbprog::Out o;
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(*d, 1500, u, &o);   // first step: abdomen + waist, at 90 %, ramp done
+    eqInt("drain step 1 abdomen", 9000, (int)u[5]);
+    eqInt("drain step 1 waist", 9000, (int)u[3]);
+    eqInt("drain step 1 legs off", 0, (int)u[7]);
+    eqInt("drain 35 Hz", 29, (int)o.tp);
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(*d, 4000 + 1500, u, &o);   // second step: trapez full, abdomen + waist at half
+    eqInt("drain step 2 trapez", 9000, (int)u[0]);
+    eqInt("drain step 2 previous at half", 4500, (int)u[5]);
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(*d, 180000 + 1500, u, &o);   // legs wave starts at the calf
+    eqInt("legs wave starts at the calf", 9000, (int)u[9]);
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(*d, 180000 + 16000 + 2000, u, &o);   // the 5-s rest after the four leg groups
+    eqInt("wave rest: off", 0, o.stim);
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    eqInt("over after 20 min", 0, xbprog::step(*d, 20 * 60000, u, &o));
+    eqInt("over: all off", 0, (int)u[0] + o.stim);
+    const xbprog::Program *r = xbprog::byId("regen");
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(*r, 1000, u, &o);
+    eqInt("regen 1st cycle 3 Hz", 333, (int)o.tp);
+    xbprog::step(*r, 12000 + 1000, u, &o);
+    eqInt("regen 2nd cycle 8 Hz", 125, (int)o.tp);
+    const xbprog::Program *c = xbprog::byId("cellulite");
+    for (int i = 0; i < 10; i++) u[i] = 10000;
+    xbprog::step(*c, 150000 + 4000 + 1000, u, &o);   // tone segment, in the pause: its second impulse
+    eqInt("cellulite 2nd impulse 8 Hz", 1, o.second && o.tp == 125);
+    eqInt("cellulite 2nd impulse half of the level", 5000, (int)u[6]);
+    eqInt("cellulite back stays off", 0, (int)u[1]);
+
+    // Through the Shaper: latched at the training's start, XBody's own clock ignored, stop ends it.
+    xbcable::Shaper sh;
+    xbcable::Config cfg;
+    cfg.program = "back";
+    sh.setConfig(cfg);
+    Bytes fo = sh.process(frame(2, 12, 3, 20000), 0);        // XBody in its pause, the program in its 1st impulse
+    eqInt("program drives the impulse", 3, (int)w16(fo, 2));
+    eqInt("program Hz (4 Hz)", 250, (int)w16(fo, 10));
+    eqInt("program width", 250, (int)w16(fo, 8));
+    eqInt("program envelope 60 % at the start", 12000, lv(fo, 3));
+    eqInt("program seg", 0, sh.programSeg());
+    fo = sh.process(frame(3, 12, 3, 20000), 10500);          // XBody impulse, the program's 1-s rest
+    eqInt("program rest beats XBody's impulse", 2, (int)w16(fo, 2));
+    sh.setConfig(xbcable::Config());                         // unselected mid-run: plays on
+    fo = sh.process(frame(3, 12, 3, 20000), 11500);
+    eqInt("program latched mid-run", 1, sh.programLive() == "back");
+    fo = sh.process(frame(0, 12, -1, 0), 12000);
+    eqInt("stop ends it", 0, (int)w16(fo, 2));
+    eqInt("program config roundtrip", 1, xbcable::parseConfig("program=drain\n").program == "drain");
+    eqInt("unknown program refused", 1, xbcable::parseConfig("program=xyz\n").program.empty());
+}
+
 int main() {
+    programLimits();
+    programRun();
     cableWiring();
     cableShaper();
     zones();

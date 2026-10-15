@@ -19,8 +19,8 @@ unsigned short crc16(const unsigned char *p, int n);       // MODBUS
 bool decodeLine(const std::string &line, Bytes &out);      // "S<hex>" (CR/LF stripped), CRC must match
 std::string encodeLine(Bytes b);                            // CRC rewritten, "S…\r\n"
 
-// XBody lead (uems index: 0 trapez, 1 back, 2 chest, 3 waist, 4 arm, 5 bottom, 6 abdomen, 7 legext, 8 legflex,
-// 9 optional) that carries XBody body part `part` to an XEMS suit.
+// XBody lead (uems index, measured: 0 trapez, 1 back, 2 chest, 3 waist, 4 arm, 5 abdomen, 6 bottom, 7 legext,
+// 8 legflex, 9 optional) that carries XBody body part `part` to an XEMS suit.
 int xemsLead(int part);
 
 struct Config {

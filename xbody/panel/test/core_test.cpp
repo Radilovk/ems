@@ -240,9 +240,10 @@ static const char *PINS[10][2] = {{"Ръце", "Корем"},           {"Гър
                                   {"Предно бедро", "Предно бедро"}, {"Гръб", "Седалище"}, {"Трапец", "Кръст"},
                                   {"Кръст", "Гръб"},             {"Седалище", "Трапец"}, {"Задно бедро", "Ръце"},
                                   {"Прасец", "Гърди"}};
-// XBody uems index of a body part (docs/xbody-protocol.md; "Прасец" = optional).
+// XBody uems index of a body part, as the real xbody_control writes it (emulator capture, 2026-10-15: one zone
+// raised at a time; "Прасец" = optional). docs/xbody-protocol.md.
 static int xbPart(const std::string &n) {
-    const char *N[10] = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Седалище", "Корем", "Предно бедро",
+    const char *N[10] = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Корем", "Седалище", "Предно бедро",
                          "Задно бедро", "Прасец"};
     for (int i = 0; i < 10; i++) if (n == N[i]) return i;
     return -1;
@@ -262,6 +263,12 @@ static void cableWiring() {
     for (int i = 0; i < n; i++)
         for (int k = 0; k < 10; k++)
             if (std::string(z[i].name) == PINS[k][1]) eqInt(z[i].name, xemsCh(PINS[k][0]), z[i].ch[0]);
+    // Pinned to the measurement, not to a name table (owner's report: XBody's "Корем" came out on an XEMS suit's
+    // back — abdomen and bottom were swapped). XBody GUI zone → uems: abdomen 5, bottom 6, legflex 8, arm 4.
+    eqInt("GUI abdomen (uems 5) → legflex lead (= XEMS Корем)", 8, xemsLead(5));
+    eqInt("GUI bottom (uems 6) → trapez lead (= XEMS Седалище)", 0, xemsLead(6));
+    eqInt("GUI back (uems 1) → bottom lead (= XEMS Гръб)", 6, xemsLead(1));
+    eqInt("GUI arm (uems 4) → abdomen lead (= XEMS Ръце)", 5, xemsLead(4));
     int seen[10] = {0};
     for (int p = 0; p < 10; p++) seen[xemsLead(p)]++;
     for (int p = 0; p < 10; p++) eqInt("lead used once", 1, seen[p]);

@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v6)
+# XEMS panel on the XBody unit (mod v6, fixed v7)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -32,7 +32,7 @@ XBody's own stimulator path (`xbody_control` → port 1235 → `/dev/ttymxc3`) i
    bridge (v2+) gets `DFU` before any suit links → outputs off, board restarts as its UF2 drive → xems-uf2 → new
    HELLO. v1 answers `ERR unknown DFU` → the note asks for RESET twice once.
 
-## XBody's own cable (no XIAO): suit standard + double impulse (mod v6)
+## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
 For the normal work on XBody's cable, with an XBody **or an XEMS** suit:
 ```
 xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──▶ emsc-tcpseriald → /dev/ttymxc3 → stimulator
@@ -48,6 +48,9 @@ xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──�
     strength 0 → none. Only from the second cycle, inside the pause length measured in the previous cycle
     (+300 ms after the impulse, −200 ms before the next): XBody has no pause button, anything longer (stop, end,
     a hang) never gets it. Settings change live.
+- **v7 fix:** the zone → uems map is now measured, not decoded (abdomen 5, bottom 6 — v6 had them swapped, so XBody's
+  "Корем" reached an XEMS suit's glutes). Checked through the ARM proxy on the live `xbody_control`: Корем → lead 8
+  (= XEMS Корем), Допълнителен → lead 2 (= XEMS Прасец), Седалище → lead 0 (= XEMS Седалище).
 - Measured on the real `xbody_control` in qemu (`board.log`): levels stay in the pause frames, stop = all 0,
   4 s / 1 s cycle; through the ARM proxy: legflex 60 → arm lead, second pause 5 Hz at 50 % from +0.3 s to −0.2 s.
 - Settings `/opt/xems/xbody-cable.conf` (`wiring=xbody|xems`, `double=0|1`, `double_hz`, `double_pct`), written by the

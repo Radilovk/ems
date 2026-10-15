@@ -794,25 +794,25 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L58 ## USB update hook (vendor)
   - L63 ## Pitfalls
 
-`docs/xbody-protocol.md` (76L)
+`docs/xbody-protocol.md` (81L)
   - L1 # XBody unit — internal protocols (decoded statically, no capture)
   - L7 ## Processes
   - L17 ## Framing (both sockets, `XBCommPacket::Encode`)
   - L21 ## GUI → xbody_control
   - L33 ## xbody_control → board: `pc_emse` (38 bytes)
   - L50 ## Hardware channel ↔ XBody body part
-  - L71 ## How it was read
+  - L76 ## How it was read
 
-`docs/xbody-xems-panel.md` (139L)
-  - L1 # XEMS panel on the XBody unit (mod v6)
+`docs/xbody-xems-panel.md` (142L)
+  - L1 # XEMS panel on the XBody unit (mod v6, fixed v7)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
-  - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6)
-  - L61 ## Panel
-  - L95 ## Bridge line protocol (USB CDC, 115200)
-  - L104 ## Files
-  - L116 ## Build / test
-  - L132 ## First test on the unit (when the XIAO arrives)
+  - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
+  - L64 ## Panel
+  - L98 ## Bridge line protocol (USB CDC, 115200)
+  - L107 ## Files
+  - L119 ## Build / test
+  - L135 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

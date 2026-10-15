@@ -49,8 +49,10 @@ std::string encodeLine(Bytes b) {
 // Гръб→Глутеус, Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди. Read per body part:
 // the part XBody calls arm (4) must leave on XBody's abdomen lead (6), and so on.
 int xemsLead(int part) {
-    static const int LEAD[CH] = {/*trapez*/ 3, /*back*/ 5, /*chest*/ 9, /*waist*/ 1, /*arm*/ 6,
-                                 /*bottom*/ 0, /*abdomen*/ 8, /*legext*/ 7, /*legflex*/ 4, /*optional = calf*/ 2};
+    // uems index = what XBody's GUI writes for each zone, measured on the real xbody_control (abdomen 5, bottom 6;
+    // the first static decode had those two swapped).
+    static const int LEAD[CH] = {/*0 trapez*/ 3, /*1 back*/ 6, /*2 chest*/ 9, /*3 waist*/ 1, /*4 arm*/ 5,
+                                 /*5 abdomen*/ 8, /*6 bottom*/ 0, /*7 legext*/ 7, /*8 legflex*/ 4, /*9 optional = calf*/ 2};
     return part >= 0 && part < CH ? LEAD[part] : part;
 }
 

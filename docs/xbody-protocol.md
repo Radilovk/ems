@@ -59,13 +59,18 @@ Other board commands seen: `0x4F 0x00` = power off (`/etc/init.d/emsc-poweroff.s
 | 2 | chest | Гърди |
 | 3 | waist | Кръст |
 | 4 | arm | Ръце |
-| 5 | bottom | Седалище |
-| 6 | abdomen | Корем |
+| 5 | abdomen | Корем |
+| 6 | bottom | Седалище |
 | 7 | legext | Предно бедро |
 | 8 | legflex | Задно бедро |
 | 9 | optional | Прасец (owner: "optional" is the calf channel) |
 
 `shoulder` and `calf` are GUI-only (not sent to this board); owner: shoulder is the trapezius.
+
+**Measured** (2026-10-15, the real `xbody_control` + GUI in qemu, one zone raised at a time, frames recorded on
+1235): legext 7, legflex 8, bottom 6, **abdomen 5**, waist 3, back 1, trapez 0, chest 2, arm 4 (optional 9 by
+elimination). The static decode had abdomen / bottom swapped — the XEMS-suit wiring of mod v6 sent XBody's
+"Корем" out on an XEMS suit's glutes (owner's report); fixed in mod v7.
 
 
 ## How it was read

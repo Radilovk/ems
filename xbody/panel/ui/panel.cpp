@@ -465,8 +465,8 @@ void PanelWidget::paintCableInfo(QPainter &p) {
     p.setPen(GREY);
     p.drawText(QRect(420, 96, 186, 20), Qt::AlignRight | Qt::AlignVCenter, U("ИЗЛИЗА ПО КАБЕЛ"));
     // XBody uems order shown as XBody's screen lists them (column 1, then 2).
-    static const int ORDER[10] = {7, 8, 5, 6, 3, 1, 0, 2, 4, 9};
-    static const char *NAME[10] = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Седалище", "Корем", "Предно бедро",
+    static const int ORDER[10] = {7, 8, 6, 5, 3, 1, 0, 2, 4, 9};
+    static const char *NAME[10] = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Корем", "Седалище", "Предно бедро",
                                    "Задно бедро", "Прасец"};
     for (int i = 0; i < 10; i++) {
         int part = ORDER[i], lead = xbcable::xemsLead(part), y = 122 + i * 36;

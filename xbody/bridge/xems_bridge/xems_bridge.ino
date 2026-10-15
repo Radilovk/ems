@@ -9,11 +9,13 @@
 //   W <mac> <hex>                          WOK <mac> | WERR <mac> <why>           (one write in flight per link)
 //   SAFE <mac> <hex>                       N <mac> <hex>                           (notification)
 //   DISC <mac>                             LOST <mac> <reason> | FAIL <mac> <why> | ERR <text>
+//   DFU                                    DFUOK, then every link SAFE + off and the board restarts as its UF2 drive
+//                                          (the unit copies the new firmware onto it: /opt/xems/bin/xems-uf2)
 // Fail-safe: when the host is silent for HOST_TIMEOUT_MS (USB pulled, program dead) every link gets its SAFE frame
 // (the suit's "outputs off", set by the host after LINK) and is disconnected.
 #include <bluefruit.h>
 
-#define BRIDGE_VER "1"
+#define BRIDGE_VER "2"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
 #define MAX_LINKS 4
 #define HOST_TIMEOUT_MS 2500
 #define SEEN_MAX 32
@@ -163,6 +165,14 @@ static void command(char *s) {
   if (!cmd) return;
   lastHostMs = millis(); hostSeen = true;
   if (!strcmp(cmd, "PING")) { Serial.println("PONG " BRIDGE_VER); return; }
+  if (!strcmp(cmd, "DFU")) {   // firmware update from the unit: outputs off first, then the UF2 bootloader
+    failSafe();
+    Serial.println("DFUOK");
+    Serial.flush();
+    delay(300);
+    enterUf2Dfu();
+    return;
+  }
   if (!strcmp(cmd, "SCAN")) {
     if (a && a[0] == '1') { Bluefruit.Scanner.start(0); Serial.println("SCANNING 1"); }
     else { Bluefruit.Scanner.stop(); Serial.println("SCANNING 0"); }

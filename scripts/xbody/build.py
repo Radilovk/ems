@@ -20,6 +20,7 @@ XB = REPO / "xbody"
 OVERLAY = XB / "overlay"
 REMOVE = XB / "remove.list"
 MANIFEST = XB / "base-manifest.tsv"
+STICK = REPO / "scripts/xbody/stick"
 UPDATER = REPO / "scripts/xbody/updater.sh"
 OUT = REPO / "build/xbody-dist"
 SKIP = {".gitkeep"}
@@ -125,14 +126,20 @@ def build_usb(entries, removes, version):
     uf2 = XB / "bridge/xems-bridge.uf2"
     if uf2.exists():   # handy on the stick: the XIAO is flashed from any PC
         shutil.copyfile(uf2, usb / "xems-bridge.uf2")
+    # The zip the owner gets: one double-click tool per OS + the stick's contents in fleshka/.
     zpath = OUT / f"xbody-usb-v{version}.zip"
+    files = [(f"fleshka/{p.relative_to(usb).as_posix()}", p.read_bytes(), p.name == "updater.sh")
+             for p in sorted(usb.rglob("*")) if p.is_file()]
+    files += [("PROCHETI.txt", START.format(v=version).replace("\n", "\r\n").encode("utf-8-sig"), False),
+              ("PODGOTVI-FLESHKA.cmd", (STICK / "PODGOTVI-FLESHKA.cmd").read_bytes(), False),
+              ("PODGOTVI-FLESHKA.command", (STICK / "PODGOTVI-FLESHKA.command").read_bytes(), True),
+              ("tools/podgotvi.ps1", (STICK / "podgotvi.ps1").read_bytes(), False)]
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in sorted(usb.rglob("*")):
-            if p.is_file():
-                zi = zipfile.ZipInfo(p.relative_to(usb).as_posix(), (2023, 11, 14, 0, 0, 0))
-                zi.external_attr = ((0o100755 if p.name == "updater.sh" else 0o100644) << 16)
-                zi.compress_type = zipfile.ZIP_DEFLATED
-                z.writestr(zi, p.read_bytes())
+        for name, data, exe in files:
+            zi = zipfile.ZipInfo(name, (2023, 11, 14, 0, 0, 0))
+            zi.external_attr = ((0o100755 if exe else 0o100644) << 16)
+            zi.compress_type = zipfile.ZIP_DEFLATED
+            z.writestr(zi, data)
     return zpath
 
 
@@ -242,29 +249,50 @@ def verify_img(dev, entries, removes):
 
 README = """XEMS мод за XBody — версия {v}
 
-ИНСТАЛИРАНЕ ПРЕЗ USB ФЛАШКА
-1. Флашка FAT32. Копирай В КОРЕНА ѝ съдържанието на тази папка
-   (updater.sh и папка xems), не самата папка.
-2. Машината изключена -> вкарай флашката -> включи.
-3. На екрана: "Updater started" ... "Updater finished", машината се изключва сама.
-4. Извади флашката, включи пак. Нашите стъпки (hooks) вървят при този старт.
-Дневник: xems-update.log на флашката. updater.sh става updater.done.sh,
-за да не се пуска отново.
+Тази флашка е подготвена с PODGOTVI-FLESHKA (от zip-а). На машината:
+  1. Изключи XBody.  2. Вкарай флашката, включи.
+  3. Около минута: машината инсталира и се изключва сама.
+  4. Извади флашката, включи пак. Горе вдясно е копчето XEMS.
+Дневник: xems-update.log. Флашката се използва веднъж (updater.sh става
+updater.done.sh) — за нова версия или връщане назад пусни пак PODGOTVI-FLESHKA.
+Пази я: на нея е копието за връщане назад (xems/backup-ДАТА.*).
 
-XEMS ЕКРАН (XIAO МОСТ)
-След инсталирането горе вдясно на XBody има малко копче "XEMS".
-1. XIAO nRF52840: с кабел към компютър, натисни бутона RESET два пъти бързо —
-   появява се нов диск (името започва с XIAO). Пусни върху него xems-bridge.uf2
-   от тази флашка. Платката се рестартира сама.
-2. Включи XIAO в USB порта на машината (по-добре на къс удължител, извън кутията).
-3. Докосни "XEMS" -> избери костюма -> сила, канали, Старт.
-   Последният костюм се свързва сам при следващото включване.
-Синя мигаща светлина на XIAO = търси, зелена = свързан костюм.
+МОСТЪТ XIAO
+Включи го в USB на машината. Нова платка: натисни RESET два пъти бързо —
+машината сама я програмира (xems-bridge.uf2 е и тук, ако искаш от компютър).
+По-новите версии на моста се обновяват сами.
+"""
+
+START = """XEMS за XBody — версия {v}
+==============================
+
+ВСИЧКО Е В 3 СТЪПКИ
+
+1. ФЛАШКАТА (на компютъра, 1 минута)
+   Разархивирай този zip (десен бутон -> Extract All), сложи флашка и пусни:
+     Windows:  PODGOTVI-FLESHKA.cmd           (двоен клик)
+     Mac:      PODGOTVI-FLESHKA.command       (десен бутон -> Open първия път)
+     Linux:    sh PODGOTVI-FLESHKA.command
+   Той сам намира флашката, прави я FAT32 ако трябва (пита преди това),
+   копира, проверява и я изважда. Ако Windows покаже "Windows protected
+   your PC": More info -> Run anyway.
+
+2. МАШИНАТА (5 минути, без нищо друго)
+   Изключи XBody -> вкарай флашката -> включи -> чакай да се изключи сама
+   (около минута) -> извади флашката -> включи.
+   Горе вдясно на екрана се появява копче XEMS.
+
+3. МОСТЪТ XIAO (веднъж)
+   Включи XIAO в USB порта на машината (по-добре на къс удължител).
+   Нова платка: натисни малкия бутон RESET два пъти бързо. Машината сама
+   я програмира — екранът на XEMS показва "Програмирам моста…".
+   (Ако XIAO е в компютъра в този момент, PODGOTVI-FLESHKA я програмира.)
 
 ВРЪЩАНЕ НАЗАД
-Копието на заменените файлове е на флашката: xems/backup-ДАТА.*
-Преименувай updater.done.sh -> updater.sh, създай празен файл xems/RESTORE,
-вкарай флашката и включи. Всеки RESTORE връща една инсталация назад.
+   Пусни PODGOTVI-FLESHKA със СЪЩАТА флашка -> избери 2 "Върни назад"
+   -> занеси я на машината както в стъпка 2.
+
+Светлини на XIAO: синя мига = търси костюм, зелена = свързан.
 """
 
 

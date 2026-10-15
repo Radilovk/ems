@@ -265,34 +265,72 @@ void PanelWidget::paintHeader(QPainter &p, const QString &title, const QString &
 }
 
 void PanelWidget::paintNoBridge(QPainter &p) {
-    paintHeader(p, U("XEMS"), QString(), false, false);
-    // The XIAO in a USB port, drawn: port, plug, the little board with its LED.
+    QString uf2 = app_->uf2State();
+    QString dots((app_->now() / 400) % 4, QLatin1Char('.'));
+    bool flashing = uf2 == U("flashing"), restarting = uf2 == U("done") || app_->bridgeUpdating(),
+         failed = uf2.startsWith(U("error"));
+    paintHeader(p, U("XEMS МОСТ"), QString(), false, false);
+    // The XIAO in a USB port, drawn: port, plug, the little board with its LED (green = alive, red = being written).
     p.setPen(QPen(LINE, 2));
     p.setBrush(WHITE);
-    p.drawRoundedRect(QRectF(256, 150, 112, 84), 8, 8);   // the unit's USB port
+    p.drawRoundedRect(QRectF(256, 110, 112, 84), 8, 8);   // the unit's USB port
     p.setBrush(PRESS);
-    p.drawRect(QRectF(278, 178, 67, 28));
-    p.setPen(QPen(RED, 3, Qt::DashLine, Qt::RoundCap));
-    p.drawLine(QPointF(372, 192), QPointF(422, 192));
+    p.drawRect(QRectF(278, 138, 67, 28));
+    p.setPen(QPen(flashing || restarting ? GREEN : RED, 3, Qt::DashLine, Qt::RoundCap));
+    p.drawLine(QPointF(372, 152), QPointF(422, 152));
     p.setPen(Qt::NoPen);
     p.setBrush(INK);
-    p.drawRoundedRect(QRectF(434, 152, 112, 62), 8, 8);
-    p.drawRect(QRectF(422, 172, 22, 22));
-    p.setBrush(GREEN);
-    p.drawEllipse(QRectF(522, 161, 10, 10));
+    p.drawRoundedRect(QRectF(434, 112, 112, 62), 8, 8);
+    p.drawRect(QRectF(422, 132, 22, 22));
+    p.setBrush(flashing ? RED : GREEN);
+    p.drawEllipse(QRectF(522, 121, 10, 10));
     p.setPen(WHITE);
     p.setFont(uiFont(15, true));
-    p.drawText(QRect(446, 182, 90, 26), Qt::AlignCenter, U("XIAO"));
-    p.setPen(INK);
+    p.drawText(QRect(446, 142, 90, 26), Qt::AlignCenter, U("XIAO"));
+
+    QString title, sub;
+    QColor tc = INK;
+    if (flashing) { title = U("Програмирам моста") + dots; sub = U("не вади платката — отнема няколко секунди"); }
+    else if (restarting) { title = U("Мостът се рестартира") + dots; sub = U("след миг ще потърся костюмите"); }
+    else if (failed) { title = U("Платката не се записа"); sub = U("натисни RESET на XIAO два пъти още веднъж"); tc = RED; }
+    else { title = U("Включи XEMS моста в USB"); sub = U("малката платка XIAO — щом я видя, ще потърся костюмите"); }
+    p.setPen(tc);
     p.setFont(uiFont(28));
-    p.drawText(QRect(0, 270, 800, 46), Qt::AlignCenter, U("Включи XEMS моста в USB"));
+    p.drawText(QRect(0, 220, 800, 46), Qt::AlignCenter, title);
     p.setPen(SOFT);
     p.setFont(uiFont(17));
-    p.drawText(QRect(40, 320, 720, 50), Qt::AlignCenter | Qt::TextWordWrap,
-               U("малката платка XIAO — щом я видя, ще потърся костюмите"));
+    p.drawText(QRect(40, 268, 720, 30), Qt::AlignCenter, sub);
+    if (flashing || restarting) return;
+
+    // A new board (or after an error): one physical step, the unit does the rest.
+    QRect card(130, 340, 540, 150);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0xF4, 0xF5, 0xF6));
+    p.drawRoundedRect(QRectF(card), 12, 12);
+    // the board seen from above, its tiny RESET button, "2×"
+    QRectF board(156, 372, 120, 86);
+    p.setBrush(INK);
+    p.drawRoundedRect(board, 8, 8);
+    p.setBrush(QColor(0x9A, 0xA0, 0xA8));
+    p.drawRect(QRectF(196, 362, 40, 14));               // USB-C
+    p.setBrush(WHITE);
+    p.drawRoundedRect(QRectF(244, 424, 18, 14), 3, 3);   // RESET
+    p.setPen(QPen(RED, 2.5));
+    p.setBrush(Qt::NoBrush);
+    p.drawEllipse(QRectF(236, 414, 34, 34));
+    p.setPen(RED);
+    p.setFont(uiFont(18, true));
+    p.drawText(QRect(276, 396, 40, 24), Qt::AlignLeft | Qt::AlignVCenter, U("2×"));
+    p.setPen(INK);
+    p.setFont(uiFont(18, true));
+    p.drawText(QRect(316, 356, 340, 28), Qt::AlignLeft | Qt::AlignVCenter, U("Нова платка?"));
+    p.setPen(SOFT);
+    p.setFont(uiFont(16));
+    p.drawText(QRect(316, 386, 340, 92), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
+               U("Включи я тук и натисни бутона RESET два пъти бързо. Машината сама я програмира — без компютър."));
     p.setPen(GREY);
     p.setFont(uiFont(16));
-    p.drawText(QRect(0, 386, 800, 28), Qt::AlignCenter, U("Търся") + QString((app_->now() / 400) % 4, QLatin1Char('.')));
+    p.drawText(QRect(0, 516, 800, 28), Qt::AlignCenter, U("Търся") + dots);
 }
 
 // Like XBody's program selection: tiles with a red emblem, the caption under each.
@@ -930,6 +968,7 @@ QString PanelWidget::signature(QString *clock) const {
                 U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())
                     .arg((int)(bubbleUntilMs_ - now) > 0).arg((int)(toastUntilMs_ - now) > 0);
     *clock = QString();
+    if (v == App::NO_BRIDGE) g += app_->uf2State() + QString::number(app_->bridgeUpdating());
     if (v == App::NO_BRIDGE || v == App::PICK || v == App::LINKING) {
         g += U("|") + QString::number((now / 400) % 4) + QString::fromStdString(app_->linkingMac());
         const std::vector<Seen> &s = app_->seen();

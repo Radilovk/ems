@@ -2,8 +2,12 @@
 # XEMS panel (rc5 S41, after xbody-start S40): waits for XBody's screen (its QWS server socket), then runs
 # /opt/xems/bin/xems-panel as a client on top of it — the corner tab, XEMS / bodytech suits through the XIAO bridge.
 # Restarts it if it falls; gives up after 5 quick falls in a row (XBody keeps working either way).
+# Beside it: /opt/xems/bin/xems-uf2 every 2 s — a XIAO put in its UF2 mode (RESET twice, or the panel's DFU for an
+# update) gets the bundled bridge firmware without a PC.
 case "$1" in
 start)
+	rm -f /tmp/xems-stop
+	( while [ ! -e /tmp/xems-stop ]; do /opt/xems/bin/xems-uf2; sleep 2; done ) > /dev/null 2>&1 &
 	(
 		SOCK=/tmp/qtembedded-0/QtEmbedded-0
 		n=0
@@ -23,6 +27,7 @@ start)
 	;;
 stop)
 	killall xems-panel 2> /dev/null
+	touch /tmp/xems-stop
 	;;
 esac
 exit 0

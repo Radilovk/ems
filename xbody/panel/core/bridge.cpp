@@ -30,7 +30,17 @@ BridgeEvent parseBridgeLine(const std::string &line) {
     else if (w == "WERR") { e.type = BridgeEvent::WERR; in >> e.mac >> e.text; }
     else if (w == "SAFEOK") { e.type = BridgeEvent::SAFEOK; in >> e.mac; }
     else if (w == "ERR") { e.type = BridgeEvent::ERR; std::getline(in, e.text); }
+    else if (w == "DFUOK") e.type = BridgeEvent::DFUOK;
     return e;
+}
+
+int bridgeVersion(const BridgeEvent &e) {
+    std::istringstream in(e.text);
+    std::string w;
+    if (e.type == BridgeEvent::HELLO) in >> w;   // "XEMS-BRIDGE <ver> <links>"
+    else if (e.type != BridgeEvent::PONG) return 0;
+    in >> w;
+    return std::atoi(w.c_str());
 }
 
 namespace bridgecmd {
@@ -40,4 +50,5 @@ std::string conn(const std::string &mac) { return "CONN " + mac + "\n"; }
 std::string disc(const std::string &mac) { return "DISC " + mac + "\n"; }
 std::string write(const std::string &mac, const Bytes &b) { return "W " + mac + " " + toHex(b) + "\n"; }
 std::string safe(const std::string &mac, const Bytes &b) { return "SAFE " + mac + " " + toHex(b) + "\n"; }
+std::string dfu() { return "DFU\n"; }
 }

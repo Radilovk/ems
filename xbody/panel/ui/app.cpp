@@ -2,6 +2,9 @@
 #include "panel.h"
 #include "../core/bridge.h"
 #include "../core/safe.h"
+#include <QDateTime>
+#include <QFile>
+#include <QFileInfo>
 #include <QSettings>
 #include <QTimerEvent>
 #include <cstdio>
@@ -23,10 +26,14 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), suit_(0), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), noteWarn_(false), noteUntilMs_(0),
+      lastRxMs_(0), suit_(0), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), bridgeVer_(0), bundledVer_(0), dfuSent_(false),
+      noteWarn_(false), noteUntilMs_(0),
       panel_(0), tab_(0), strengthMem_(0) {
     t0_ = now();
     load();
+    const char *bd = std::getenv("XEMS_BRIDGE_DIR");
+    QFile vf(QString::fromLocal8Bit(bd ? bd : "/opt/xems/bridge") + U("/VERSION"));
+    if (vf.open(QIODevice::ReadOnly)) bundledVer_ = vf.readAll().trimmed().toInt();
     timer_.start(20, this);
 }
 
@@ -50,6 +57,15 @@ App::View App::view() const {
     if (suit_) return TRAIN;
     if (!linkingMac_.empty()) return LINKING;
     return PICK;
+}
+
+QString App::uf2State() const {
+    const char *p = std::getenv("XEMS_UF2_STATE");
+    QString path = QString::fromLocal8Bit(p ? p : "/tmp/xems-uf2.state");
+    QFileInfo fi(path);
+    if (!fi.exists() || fi.lastModified().secsTo(QDateTime::currentDateTime()) > 60) return QString();
+    QFile f(path);
+    return f.open(QIODevice::ReadOnly) ? QString::fromLatin1(f.readAll().trimmed()) : QString();
 }
 
 QString App::note() const { return now() < noteUntilMs_ ? note_ : QString(); }
@@ -190,9 +206,26 @@ void App::line(const std::string &l, unsigned t) {
     lastRxMs_ = t;
     switch (e.type) {
     case BridgeEvent::HELLO:
-    case BridgeEvent::PONG:
+    case BridgeEvent::PONG: {
         if (!helloMs_) scanning_ = false;   // a fresh bridge: say SCAN again
         helloMs_ = t;
+        int v = bridgeVersion(e);
+        if (v > 0) {
+            if (dfuSent_ && v >= bundledVer_) setNote(U("✓ Мостът е обновен"), false);
+            if (v >= bundledVer_) dfuSent_ = false;
+            bridgeVer_ = v;
+        }
+        break;
+    }
+    case BridgeEvent::DFUOK:
+        setNote(U("Обновявам моста — след миг е готов"), false);
+        break;
+    case BridgeEvent::ERR:
+        if (dfuSent_ && e.text.find("DFU") != std::string::npos) {   // v1 firmware: no DFU command yet
+            setNote(U("Мостът е стар — натисни 2 пъти RESET на XIAO, машината ще го обнови"), true);
+            dfuSent_ = false;
+            bundledVer_ = bridgeVer_;   // works as it is; no second try this run
+        }
         break;
     case BridgeEvent::ADV: {
         int k = suitKind(e.svc, e.name);
@@ -283,6 +316,12 @@ void App::timerEvent(QTimerEvent *ev) {
             if (suit_) lost(U("Мостът не отговаря — костюмът спря"));
         }
     }
+    // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----
+    bool update = bridgeOk() && bridgeVer_ > 0 && bundledVer_ > bridgeVer_;
+    if (update && !dfuSent_ && !suit_ && linkingMac_.empty()) {
+        dfuSent_ = true;
+        send(bridgecmd::dfu());
+    }
     // ---- scanning: only while choosing / looking for the last suit ----
     bool wantScan = bridgeOk() && !suit_;
     if (bridgeOk() && wantScan != scanning_) { scanning_ = wantScan; send(bridgecmd::scan(wantScan)); }
@@ -291,7 +330,7 @@ void App::timerEvent(QTimerEvent *ev) {
         else i++;
     }
     // Derive, don't ask: the last suit reconnects by itself when it shows up.
-    if (bridgeOk() && !suit_ && linkingMac_.empty() && !lastMac_.empty())
+    if (bridgeOk() && !suit_ && linkingMac_.empty() && !lastMac_.empty() && !update)
         for (size_t i = 0; i < seen_.size(); i++)
             if (seen_[i].mac == lastMac_) { connectTo(lastMac_); break; }
     if (!linkingMac_.empty() && age(t, linkingSinceMs_) > 12000) {

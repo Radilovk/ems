@@ -3,7 +3,8 @@
 #   sh scripts/xbody/emu-panel.sh OUTDIR "ms tap x y;ms shot NAME.png;…;ms quit" [client]
 # Screen: the unit's 800×600 (XEMS_FB_W / XEMS_FB_H override). Taps are in screen pixels; shots land in OUTDIR. With "client" a stand-in QWS server runs first and
 # the panel joins it as a client, the way it runs next to XBody on the unit.
-# EMU_NO_BRIDGE=1: no fake bridge (the "plug the XIAO" view); EMU_TAB=1: start with only the corner tab.
+# EMU_NO_BRIDGE=1: no fake bridge (the "plug the XIAO" view); EMU_TAB=1: start with only the corner tab;
+# EMU_ENV=VAR=value: one more variable for the panel.
 # Needs: fetch-base.py, sysroot.sh, qt-headers.sh, runroot.sh, build/xtool/qemu (see xbody/CLAUDE.md).
 set -eu
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
@@ -23,6 +24,7 @@ truncate -s $((W * H * 4)) "$FB"
 FLAGS="-E XEMS_FAKE_BRIDGE=1 -E XEMS_OPEN=1"
 [ -z "${EMU_NO_BRIDGE:-}" ] || FLAGS="-E XEMS_OPEN=1"
 [ -z "${EMU_TAB:-}" ] || FLAGS="-E XEMS_FAKE_BRIDGE=1"
+[ -z "${EMU_ENV:-}" ] || FLAGS="$FLAGS -E $EMU_ENV"   # one extra VAR=value, e.g. XEMS_UF2_STATE=/tmp/s
 SCRIPT=$(echo "$SCRIPT" | sed "s# shot # shot $OUT/#g")
 run() { QWS_KEYBOARD=none QWS_MOUSE_PROTO=none "$Q" -L "$RR" -E LD_PRELOAD=/usr/lib/libxemsfb.so -E XEMS_FB="$FB" -E XEMS_FB_W="$W" -E XEMS_FB_H="$H" "$@"; }
 if [ "$MODE" = client ]; then

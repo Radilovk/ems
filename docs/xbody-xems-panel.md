@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v4)
+# XEMS panel on the XBody unit (mod v5)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -16,12 +16,21 @@ XBody's own stimulator path (`xbody_control` → port 1235 → `/dev/ttymxc3`) i
 | Panel (`xbody/panel/ui`) | ARM build runs in qemu on the card's own Qt, as server and as a **client over a stand-in XBody**; fake bridge end to end |
 | On the unit, with suits | **not done** — first test when the XIAO arrives (checklist below) |
 
-## Use (owner)
-1. Stick: `python3 scripts/xbody/build.py` → `build/xbody-dist/xbody-usb-v4.zip` (contents to a FAT32 stick root;
-   README.txt in Bulgarian; `xems-bridge.uf2` is on the stick too).
-2. XIAO: double-tap RESET while on a PC → a drive appears → copy `xems-bridge.uf2` onto it.
-3. Unit off → stick in → on → "Updater finished" → off → stick out → on. Plug the XIAO (short extension cable).
-4. Tap the **XEMS** tab (top right, draggable) → pick the suit → СТАРТ, raise СИЛА with + (or tap zones first).
+## Use (owner) — everything in `PROCHETI.txt` of the zip
+1. **Stick (PC, ~1 min):** unzip `xbody-usb-vN.zip`, plug a stick, double-click `PODGOTVI-FLESHKA.cmd` (Windows) /
+   `PODGOTVI-FLESHKA.command` (Mac; Linux: `sh …`). It finds the stick, offers FAT32 formatting (asks "ДА"; Windows
+   ≤ 32 GB; Mac via diskutil; Linux: not formatted), copies `fleshka/` to its root, checks the payload md5, ejects.
+   A XIAO in UF2 mode on that PC gets the firmware on the way. A stick with a backup of an earlier install gets a
+   choice: 1 install / 2 **върни назад** (writes `updater.sh` + `xems/RESTORE`; backups are never touched).
+2. **Unit (~5 min):** off → stick in → on → it installs and powers off by itself → stick out → on. The **XEMS** tab
+   is top right (draggable).
+3. **XIAO (once):** plug it into the unit; a new board: press RESET twice → **the unit programs it** (no PC):
+   `/opt/xems/bin/xems-uf2` runs every 2 s (init `xems-panel`), copies `/opt/xems/bridge/xems-bridge.uf2` onto a
+   drive < 128 MB with `INFO_UF2.TXT` (nRF52840/XIAO), never a mounted or bigger one; state in `/tmp/xems-uf2.state`
+   → the "no bridge" screen says "Програмирам моста…" / "Мостът се рестартира…" / error + retry hint.
+   **Updates are automatic:** the panel compares `HELLO XEMS-BRIDGE <ver>` with `/opt/xems/bridge/VERSION`; an older
+   bridge (v2+) gets `DFU` before any suit links → outputs off, board restarts as its UF2 drive → xems-uf2 → new
+   HELLO. v1 answers `ERR unknown DFU` → the note asks for RESET twice once.
 
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's
@@ -58,9 +67,9 @@ The screen is a copy of **XBody's own manual-training screen** (owner: same look
 - Settings: `/opt/xems/panel.conf` (last suit, program, tab position). Log: `/opt/xems/panel.log`.
 
 ## Bridge line protocol (USB CDC, 115200)
-Host → bridge: `PING` · `SCAN 1|0` · `CONN <mac>` · `DISC <mac>` · `W <mac> <hex>` · `SAFE <mac> <hex>`.
+Host → bridge: `PING` · `SCAN 1|0` · `CONN <mac>` · `DISC <mac>` · `W <mac> <hex>` · `SAFE <mac> <hex>` · `DFU` (v2).
 Bridge → host: `HELLO XEMS-BRIDGE <ver> <links>` · `PONG` · `ADV <mac> <rssi> <FE50|FFF0|NUS|-> <name>` ·
-`LINK <mac> <svc>` · `LOST <mac> <reason>` · `FAIL <mac> <why>` · `N <mac> <hex>` · `WOK|WERR <mac>` · `SAFEOK`.
+`LINK <mac> <svc>` · `LOST <mac> <reason>` · `FAIL <mac> <why>` · `N <mac> <hex>` · `WOK|WERR <mac>` · `SAFEOK` · `DFUOK`.
 One write in flight per suit (write-with-response where the characteristic has it). The panel pings every second;
 **2.5 s of host silence → the bridge writes every link's SAFE frame (XEMS F2 stop / bodytech SEL all off) and
 disconnects.** bodytech additionally stops by its own 6 s SYNC watchdog. Up to 4 links. LED: blue blink = scanning,
@@ -74,6 +83,8 @@ green = a suit linked.
 | `xbody/panel/ui/` | `app` (bridge, suits, notes, settings), `panel` (XBody-style screens, no moc), `xbres` (XBody's rcc pictures/fonts from its ELF), `serial` (tty + fake bridge), `compat.cpp` |
 | `xbody/overlay/etc/init.d/xems-panel` | rc5 S41: waits for `/tmp/qtembedded-0/QtEmbedded-0`, runs the panel, restarts it (≤ 5 quick falls) |
 | `xbody/overlay/opt/xems/bin/xems-panel` | the ARM binary (`scripts/xbody/build-panel.sh`) |
+| `xbody/overlay/opt/xems/bin/xems-uf2`, `opt/xems/bridge/` | the unit programs a XIAO in UF2 mode; firmware + VERSION (`build-bridge.sh` writes them) |
+| `scripts/xbody/stick/` | PC tools in the zip: `PODGOTVI-FLESHKA.cmd` → `podgotvi.ps1` (Windows), `PODGOTVI-FLESHKA.command` (Mac/Linux) |
 | `xbody/emu/` | qemu helpers: `fbshim.cpp` (fake /dev/fb0), `stand_in_server.cpp` |
 
 ## Build / test

@@ -15,6 +15,37 @@ wall-and-punch) whose share grows with the level. The level (speed, gap, mix) fo
 Borrowed from the best-rated VR fitness games: punch types and guard (FitXR, Les Mills Bodycombat), timing grades,
 multiplier and rank (Beat Saber), squats and side steps (Supernatural), walls (Beat Saber's obstacles).
 
+## The chef — scenario "Готвачът" (home menu → Сценарий)
+On the **square in Ulm** (choosing it moves you there) a cook stands at his street-food cart 4.5–6.5 m ahead and
+**throws food at you on the beat**: a burger, a double cheeseburger, a doughnut, ice cream — lobbed in an arc out of
+his right hand (his real overarm throw; he hurries it on fast levels). You see the portion in his hand before it flies.
+**Smash it** with a fist and it burns a little; **miss it and you have eaten it** — all its real calories go on
+(burger 550, cheeseburger 920, doughnut 310, ice cream 280). A hit takes off far less than a miss puts on
+(`Defs.BURN`: 5 / 10 / 18 % of the portion by the hit's power), so a few misses are hard to win back.
+**The heads-up card** above your line of sight (`kcal_hud.gd`) shows the balance biggest — red "+1 240 ккал · +0,16
+кг" or green "−…" — with a bar left (burned) / right (eaten) and both sides under it (1 kg = 7700 kcal, real kilos).
+**Twists:** a green **apple** — let it come and eat it (vitamins, points, the combo goes on; smashing it breaks the
+combo). The **MEGA burger** (1650 kcal) closes every level from 2: only a **mighty** hit breaks it (or a medium and a
+weak one; less cracks it and it flies on). A **mighty straight punch** sends the portion **back into the chef** (+12 %
+of it burned, he staggers, a splat on his apron). Combinations: two portions at once, three doughnuts on three beats, an
+apple then the real thing. Six levels (`Defs.CHEF_LEVELS`): faster, wider, lower (bend your knees).
+**Seen and felt:** smashed food bursts along your punch — a burger into its bun, patty, cheese and tomato
+(`burger_bits.glb`), the rest into lumps of its colour, with a wet splat (`food_fx.gd`, `shaders/splat.gdshader`); a
+weak hit only knocks it down, it tumbles and bounces. Eaten food splats across your eyes and slides off, a chomp, the
+suit's punishment in the belly. **The chef** (`chef.gd`) laughs when you eat ("Ха-ха! Още едно?"), gets cross at a
+mighty smash, staggers when hit, sulks at an apple, announces the MEGA burger, is impressed by four mighty hits in a
+row — his words in a bubble over his head. The summary leads with the balance (kcal and kg), smashed, eaten, sent back,
+mighty hits, the hardest punch in km/h.
+
+## Power of a hit — every scenario (`scripts/game/power.gd`)
+Weak · medium · mighty, from the fist's (knee's, foot's) **peak speed** at contact (the controller's own tracked
+velocity while held, else from positions) and its **run-up** (how far it travelled in one fast unbroken swing).
+Energy grows with the square of speed, so speed weighs 70 %, run-up 30 %: a flick stays weak however quick, a long
+fast swing is mighty (a fist: 1.6 m/s = nothing … 6.5 m/s = full; run-up 8 … 45 cm). Each tier looks, sounds and feels
+different: weak = a dull tap, a small pop, points ×0.7, a short soft suit pulse; medium = as before; mighty = a boom, a
+gold shock ring, shards (food) flying much further, the glove blazing, points ×1.4, a longer full pulse (the tablet
+still clamps with its absolute limits). Its word and the speed rise over the points ("МОЩЕН! · 31 км/ч").
+
 **Score.** Timing: within 70 ms of the beat *Перфектно* ×1.5, within 150 ms *Чудесно* ×1.2, else *Добре*. The combo
 multiplier climbs ×1 → ×4 (every 8 hits) and colours the trails cyan → green → magenta → gold. A session
 (5–30 min or endless) ends on a summary: score, accuracy, best combo, hits, perfect, dodged, squats, steps, minutes, a
@@ -40,8 +71,9 @@ Everything is saved (`user://settings.cfg`).
 bridge port). The menu page shows the strength in the suit now, the game's level, hits passed / cut, and sets: the
 trainer's strength (the ceiling, −/+), whether the game drives the strength, impulses from the game on/off, the miss
 punishment, which hits pass, the weakest hit, the rise, the channels that rest while VR drives, defaults. The **wrist
-dock**: turn the inside of the left wrist to your eyes like a watch → a small card with the strength, −/+ and pause, pressed
-with the right fist or finger, also mid-game. The tablet answers only a game on the headset its layer is paired from.
+dock** opens only in one pose (owner, 2026-10), so it never pops up in play: the **left forearm held out level, elbow
+bent ≈ 90°, the wrist open, palm up**, and the **right trigger let go** (the right index finger out) → a small card over
+the palm with the strength, −/+ and pause, pressed with the right index finger, also mid-game (`Game._dock_pose`). The tablet answers only a game on the headset its layer is paired from.
 
 **The body.** Hands: the controller while it tracks, else **hand tracking** (simultaneous hands and controllers) — put a
 controller down and play with bare hands; pick it up and it is found again by itself (a toast says which). No hands at
@@ -64,7 +96,11 @@ beat with `"bpm"` in `<track>.json` or `128bpm` in the name; else a 120 BPM grid
 
 | Part | Where |
 |---|---|
-| Kinds, levels, patterns' share, timing grades, multiplier, contact planes | `scripts/game/defs.gd` |
+| Kinds, levels, patterns' share, timing grades, multiplier, contact planes; the chef's food, kcal, levels | `scripts/game/defs.gd` |
+| Power of a hit (weak · medium · mighty) | `scripts/game/power.gd` |
+| The chef: model, cart, throw on the beat, reactions, words | `scripts/game/chef.gd` |
+| Food bursting, falling, sent back, the splat on the visor | `scripts/game/food_fx.gd` |
+| The calorie card (heads-up) | `scripts/game/kcal_hud.gd` |
 | Flow (menu → rules → try-out → levels → summary), pause, patterns, gates, judging, simulated player | `scripts/game/game.gd` |
 | Saved settings | `scripts/game/settings.gd` |
 | The menu panel and its pages | `scripts/game/menu.gd` |
@@ -115,6 +151,8 @@ godot --path vr-workout -- --shot=out.png --wait=3 --room=1 --land=3 --look=40 -
 godot --path vr-workout -- --shot=out.png --wait=3 --glove=right --point=1 --gt=1                  # a glove close-up, pointing
 godot --path vr-workout -- --shot=out.png --wait=4 --sim=1 --skiptut=1 --leg=l --lx=0.4 --lz=-0.3 # the leg armour close-up
 godot --path vr-workout -- --shot=out.png --wait=3 --menu=settings --tab=1                         # a settings tab
+godot --path vr-workout -- --scene=chef --room=4 --sim=1 --skiptut=1 --level=3 --levels=1 --timescale=6 # the chef plays itself
+godot --path vr-workout -- --scene=chef --room=4 --sim=1 --skiptut=1 --shot=out.png --wait=8 --view=chef  # the chef up close
 ```
 
 ## In the Quest browser (WebXR) — the way it ships now

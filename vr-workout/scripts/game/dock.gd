@@ -1,7 +1,7 @@
-## The wrist dock: turn the inside of the left wrist towards your eyes (like looking at a watch) and the suit is there —
-## the strength in the suit now, the trainer's strength (−/+), and pause. Press its buttons with the right fist or a
-## finger. It shows in the game too, so the strength can be changed without stopping; the full impulse settings are
-## the "Костюм" page of the menu (pause opens it).
+## The wrist dock: hold the left forearm out level (elbow bent about 90°), turn the wrist open, palm up, and let go of
+## the right trigger — the suit is there over the palm: the strength in the suit now, the trainer's strength (−/+),
+## and pause. Press its buttons with the right index finger. Only that pose opens it (owner, 2026-10), so it never
+## pops up in play by chance; it works mid-game too. The full impulse settings are the "Костюм" page (pause opens it).
 class_name WristDock
 extends Node3D
 
@@ -11,7 +11,10 @@ const FONT_BOLD := preload("res://assets/fonts/Inter-SemiBold.otf")
 const GLASS := preload("res://shaders/glass.gdshader")
 const SIZE := Vector2(0.15, 0.095)
 const ACCENT := Color(0.25, 0.85, 1.0)
-const SHOW_DOT := 0.62                # how squarely the wrist must face the eyes
+const PALM_UP := 0.6                  # the palm faces up at least this much (cos of ≤ 53° from straight up)
+const FOREARM_LEVEL := 0.55           # … and the forearm is level within this (|sin| of its pitch: ≈ ±33°)
+const SHOW_AFTER := 0.15              # s the pose must hold before the card shows (no flicker)
+const HIDE_AFTER := 0.35              # s it stays once the pose breaks (a press moves the hand a little)
 
 var tablet: TabletLink
 var forced := false                   # desktop preview: always shown in front of the camera
@@ -20,6 +23,7 @@ var _sub: Label3D
 var _buttons: Array = []              # {node, mat, id}
 var _cool := 0.0
 var _show := 0.0                      # 0 … 1, eases in and out
+var _held := 0.0                      # s the pose has held (> 0) or been broken (< 0)
 
 
 func _ready() -> void:
@@ -81,28 +85,28 @@ func _button(text: String, pos: Vector3, id: String) -> Dictionary:
 	return {"node": n, "mat": mat, "id": id, "label": l}
 
 
-## Once a frame. wrist: the left hand's world pose · face: the wrist's facing direction (world) · eye: camera
-## position · finger: the right fist / fingertip (world) or null · allowed: the game lets it show now.
-func tick(delta: float, wrist: Transform3D, face: Vector3, eye: Vector3, finger, allowed: bool) -> void:
+## Once a frame. wrist: the left hand's world pose · eye: camera position · finger: the right fingertip / fist
+## (world) or null · pose: the opening pose is held now (Game._dock_pose and the right trigger let go).
+func tick(delta: float, wrist: Transform3D, eye: Vector3, finger, pose: bool) -> void:
 	_cool = maxf(_cool - delta, 0.0)
-	var want := false
-	if forced:
-		want = true
-	elif allowed:
-		var to_eye := (eye - wrist.origin).normalized()
-		want = face.dot(to_eye) > SHOW_DOT and wrist.origin.distance_to(eye) < 0.7
+	if pose:
+		_held = maxf(_held, 0.0) + delta
+	else:
+		_held = minf(_held, 0.0) - delta
+	var want := forced or (_held >= SHOW_AFTER) or (visible and _held > -HIDE_AFTER)
 	_show = move_toward(_show, 1.0 if want else 0.0, delta * 6.0)
 	visible = _show > 0.01
 	if not visible:
 		return
 	scale = Vector3.ONE * (0.6 + 0.4 * _show)
-	if not forced:
+	if not forced:                             # over the open palm, turned to the eyes
+		var at := wrist.origin + Vector3.UP * 0.07
+		var face := (eye - at).normalized()
 		var up := Vector3.UP - face * Vector3.UP.dot(face)
 		if up.length() < 0.2:
 			up = -wrist.basis.z
 		up = up.normalized()
-		var x := up.cross(face).normalized()
-		global_transform = Transform3D(Basis(x, up, face), wrist.origin + face * 0.05 + up * 0.02)
+		global_transform = Transform3D(Basis(up.cross(face).normalized(), up, face), at + face * 0.02)
 	_refresh()
 	if finger is Vector3:
 		for b in _buttons:

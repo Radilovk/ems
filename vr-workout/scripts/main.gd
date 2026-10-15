@@ -484,6 +484,9 @@ func _setup_view() -> void:
 		elif view == "wide":
 			cam.position = Vector3(0.0, 1.7, 1.6)
 			cam.look_at(Vector3(0, 1.1, -2.0))
+		elif view == "chef":                     # the chef up close, from the side (his throw, his reactions)
+			cam.position = Vector3(1.6, 1.5, -3.2)
+			cam.look_at(Vector3(-0.3, 1.1, -6.5))
 		else:
 			cam.look_at(Vector3(0.0, 1.2, -2.4))
 		if args.has("look"):                      # --look=<deg left> [--pitch=<deg up>]: look round a room

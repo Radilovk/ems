@@ -573,9 +573,9 @@ func press_point(side: String) -> Vector3:
 	return g.global_transform * t
 
 
-## A hit landed with this hand: its glove flares for a moment.
-func flare(side: String) -> void:
-	_punch[side] = 1.0
+## A hit landed with this hand: its glove flares for a moment (amount: 0.6 a weak hit … 1.6 a mighty one).
+func flare(side: String, amount := 1.0) -> void:
+	_punch[side] = amount
 
 
 ## Once a frame. frame: the game node (body positions are in its space) · mult: the combo multiplier 1…4 ·

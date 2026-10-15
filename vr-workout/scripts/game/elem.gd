@@ -39,6 +39,11 @@ var p1 := Vector3.ZERO              # the curve's pull: straight behind the targ
 var p2 := Vector3.ZERO              # the target (contact point / the player's plane)
 var flying := false
 static var beat := 0.0              # 0 … 1, peaks on each beat: the spheres swell with the music
+var food := ""                       # the chef's throws: a key of Defs.FOODS ("" = a sphere, a shield, a hazard)
+var hp := 1                          # power points still needed to break it (Defs.FOODS hp; the MEGA burger 3)
+var arc := 0.0                       # food is lobbed: the height of its arc over the straight line (m)
+var _model: Node3D
+static var _scenes := {}             # food model path -> PackedScene (loaded once)
 var punch := ""                     # "" any · jab · hook_l · hook_r · upper: the way the fist must travel
 var dir := Vector3.ZERO             # Defs.PUNCH[punch]
 
@@ -55,6 +60,67 @@ static func make(k: int, s: int, spd: float, height: float) -> Elem:
 	else:
 		e._build_orb(height)
 	return e
+
+
+## The chef's throw: the food's own model, sized and lit so it reads from 8 m in a photo of a square.
+static func make_food(id: String, spd: float) -> Elem:
+	var e := Elem.new()
+	var f: Dictionary = Defs.FOODS[id]
+	e.kind = Defs.Kind.APPLE if id == "apple" else Defs.Kind.FOOD
+	e.food = id
+	e.speed = spd
+	e.hp = int(f.hp)
+	e._build_food(f)
+	return e
+
+
+## The food's model, its longest side `size` metres, round its middle (also what the chef holds before he throws).
+static func food_model(id: String, size := -1.0) -> Node3D:
+	var f: Dictionary = Defs.FOODS[id]
+	if not _scenes.has(f.model):
+		_scenes[f.model] = load(f.model)
+	var n: Node3D = (_scenes[f.model] as PackedScene).instantiate()
+	var box := AABB()
+	var first := true
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		var b: AABB = (mi as MeshInstance3D).get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+		(mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var holder := Node3D.new()
+	holder.add_child(n)
+	var k: float = (size if size > 0.0 else float(f.size)) / maxf(box.get_longest_axis_size(), 0.001)
+	n.scale = Vector3.ONE * k
+	n.position = -box.get_center() * k
+	return holder
+
+
+func _build_food(f: Dictionary) -> void:
+	radius = float(f.size) * 0.55
+	_model = food_model(food)
+	add_child(_model)
+	var c: Color = Defs.COLOR[kind] if food != "mega" else BONUS_COLOR
+	var h := MeshInstance3D.new()                  # a soft glow behind it: food is the target, the square is not
+	var q := QuadMesh.new()
+	q.size = Vector2.ONE * radius * (4.2 if food == "mega" else 3.4)
+	h.mesh = q
+	_halo_mat = ShaderMaterial.new()
+	_halo_mat.shader = HALO
+	_halo_mat.set_shader_parameter("color", c)
+	h.material_override = _halo_mat
+	h.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(h)
+	_spin = Vector3(randf_range(-2.0, 2.0), randf_range(2.0, 4.0), randf_range(-1.0, 1.0)) * (0.4 if food == "mega" else 1.0)
+
+
+## A hit that was not enough (the MEGA burger): it shakes, flashes and flies on, a little slower.
+func crack(left: int) -> void:
+	hp = left
+	var tw := create_tween()
+	tw.tween_property(_model, "scale", Vector3(1.25, 0.8, 1.25), 0.06)
+	tw.tween_property(_model, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	if _halo_mat:
+		_halo_mat.set_shader_parameter("color", Color(1.0, 0.3, 0.15))
 
 
 func is_hazard() -> bool:
@@ -390,6 +456,8 @@ func at_time(t: float) -> Vector3:
 	if t >= travel:
 		return p2 + Vector3(0, 0, speed * (t - travel))
 	var s := t / travel
+	if arc > 0.0:                             # lobbed: a straight line from the hand, lifted by a parabola
+		return p0.lerp(p2, s) + Vector3(0, arc * 4.0 * s * (1.0 - s), 0)
 	return p0 * (1.0 - s) * (1.0 - s) + p1 * 2.0 * (1.0 - s) * s + p2 * s * s
 
 
@@ -404,10 +472,10 @@ func advance(delta: float) -> void:
 		scale = Vector3.ONE * clamp(_t / 0.4, 0.2, 1.0)
 	elif not is_hazard() and speed > 0.0:
 		scale = Vector3.ONE * (1.0 + 0.09 * beat)
-	if _mat and not is_hazard():
+	if (_mat or _model) and not is_hazard():
 		rotation += _spin * delta
 		for i in _rings.size():
 			_rings[i].rotate_object_local(Vector3.UP, delta * (2.5 + i * 1.3) * (1 if i % 2 == 0 else -1))
 	if _halo_mat and not is_hazard():
-		_halo_mat.set_shader_parameter("energy", 0.55 + 0.2 * sin(_t * 8.0))
+		_halo_mat.set_shader_parameter("energy", (0.3 if food != "" else 0.55) + 0.2 * sin(_t * 8.0))
 	_update_marker()

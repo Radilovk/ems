@@ -30,6 +30,8 @@ var stand_h := 1.7                      # head height standing
 var fixed_h := 0.0                      # > 0: set by hand in the settings (eye height), not measured
 var sim: Dictionary = {}                # desktop tests: limb/head -> Vector3 overrides (frame space)
 var prev := {}                          # limb -> where it was the frame before (the game sweeps between the two)
+var vpeak := {}                         # limb -> its peak speed in the last moment, m/s, unsmoothed (the power of a hit)
+var runup := {}                         # limb -> metres of the current fast, unbroken motion (the swing's run-up)
 var src := {"left": "none", "right": "none"}       # what tracks each hand now: controller · hand · none
 var hand_xform := {"left": Transform3D(), "right": Transform3D()}   # world pose of each hand now (gloves follow it)
 var changes: Array = []                 # [side, from, to] since the last frame: the game says it out loud
@@ -43,6 +45,8 @@ const FOOT_SEC := 1.5
 const HAND_HIGH := 1.0                  # … and back in a hand once held above this for HAND_SEC
 const HAND_SEC := 1.0
 const KNEE_ABOVE_ANKLE := Vector3(0, 0.42, 0.04)
+const RUN_V := 0.9                      # m/s: above this a limb is swinging (its run-up grows) …
+const RUN_MAX := 1.2                    # … up to this; below RUN_V it starts again from nothing
 
 const JOINT := {"knee_l": XRBodyTracker.JOINT_LEFT_LOWER_LEG, "knee_r": XRBodyTracker.JOINT_RIGHT_LOWER_LEG,
 	"foot_l": XRBodyTracker.JOINT_LEFT_TOES, "foot_r": XRBodyTracker.JOINT_RIGHT_TOES}
@@ -188,7 +192,15 @@ func update(delta: float) -> void:
 			var f := p if sim.has(l) else to_frame * p
 			prev[l] = pos[l] if valid_before(l) else f
 			if delta > 0.0:
-				speed[l] = lerpf(speed[l], f.distance_to(prev[l]) / delta, 0.6)    # a little smoothing: the legs are estimates
+				var step: float = f.distance_to(prev[l])
+				var raw := step / delta
+				speed[l] = lerpf(speed[l], raw, 0.6)    # a little smoothing: the legs are estimates
+				if l.begins_with("hand") and src[SIDES[l]] == "controller":
+					var c = hands.get(SIDES[l])
+					if c is XRController3D and (c as XRController3D).get_pose() != null:
+						raw = maxf(raw, (c as XRController3D).get_pose().linear_velocity.length())   # the controller's own
+				vpeak[l] = maxf(raw, float(vpeak.get(l, 0.0)) - 40.0 * delta)                 # holds ~0.1 s
+				runup[l] = minf(float(runup.get(l, 0.0)) + step, RUN_MAX) if raw >= RUN_V else 0.0
 			pos[l] = f
 			_seen[l] = true
 	if not sim.has("head"):

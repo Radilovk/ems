@@ -10,7 +10,9 @@ import numpy as np
 from scipy import signal
 
 SR = 44100
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "..", "assets", "sfx")
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+ONLY = [a[7:] for a in sys.argv[1:] if a.startswith("--only=")]      # --only=food: just that group
+OUT = ARGS[0] if ARGS else os.path.join(os.path.dirname(__file__), "..", "assets", "sfx")
 rng = np.random.default_rng(7)
 
 
@@ -279,7 +281,54 @@ def make_music():
     save("music_bed", stereo.reshape(-1, 2).reshape(-1) if False else stereo.flatten(), stereo=True, q=4)
 
 
-if __name__ == "__main__":
+# ------------------------------------------------------------------ the chef scene (food, power)
+
+def make_food():
+    # splat: a wet, heavy squelch — low thump, a burst of mushy noise with a bubbly wobble, small drips after
+    t = t_(0.7)
+    wob = 1.0 + 0.5 * np.sin(2 * np.pi * 23 * t) * np.exp(-t / 0.12)
+    mush = lp(bp(noise(len(t)), 180, 2600), 1800) * decay(t, 0.09, 0.001) * wob
+    thump = sweep(t, 160, 48, 30) * decay(t, 0.09, 0.001)
+    drips = np.zeros(len(t))
+    for _ in range(7):
+        d = rng.uniform(0.08, 0.5)
+        tt = np.clip(t - d, 0, None)
+        drips += sweep(tt, rng.uniform(900, 1500), rng.uniform(300, 500), 60) * decay(tt, 0.025, 0.001) * (t >= d) * 0.25
+    save("splat", fit(reverb(drive(mush * 1.3 + thump * 0.9 + drips, 1.8), 0.3, 0.12)))
+    # chomp: the player "eats" what got through — a crunchy bite, a second one, a gulp
+    t = t_(0.75)
+    x = np.zeros(len(t))
+    for d, g in ((0.0, 1.0), (0.17, 0.7)):
+        tt = np.clip(t - d, 0, None)
+        x += bp(noise(len(t)), 900, 5200) * decay(tt, 0.035, 0.001) * (t >= d) * g
+        x += sweep(tt, 220, 90, 40) * decay(tt, 0.05) * (t >= d) * 0.6 * g
+    tt = np.clip(t - 0.42, 0, None)
+    x += sweep(tt, 180, 420, -6) * decay(tt, 0.08, 0.01) * (t >= 0.42) * 0.7          # gulp (rising)
+    save("chomp", fit(reverb(drive(x, 1.5), 0.25, 0.1)))
+    # boom: a mighty punch — sub drop, a hard crack, air rushing out
+    t = t_(1.1)
+    sub = sweep(t, 120, 30, 7) * decay(t, 0.35, 0.002)
+    crack = bp(noise(len(t)), 1200, 6000) * decay(t, 0.025, 0.0004)
+    air = bp(noise(len(t)), 300, 3000) * decay(t, 0.25, 0.01) * 0.45
+    save("boom", fit(reverb(drive(sub * 1.6 + crack + air, 2.8), 0.6, 0.25)))
+    # weak: a soft, dull tap (a hit with no power behind it)
+    save("weak", fit(reverb(hit(150, 90, 0.05, 900, 0.25, 0.3), 0.15, 0.08), 0.6))
+    # laugh: the chef's "ho-ho-ho" — three falling formant bursts
+    t = t_(1.0)
+    x = np.zeros(len(t))
+    for i, d in enumerate((0.0, 0.22, 0.44)):
+        tt = np.clip(t - d, 0, None)
+        env = decay(tt, 0.09, 0.015) * (t >= d)
+        f0 = 165 - i * 12
+        voice = signal.sawtooth(2 * np.pi * np.cumsum(f0 * (1 - 0.15 * tt)) / SR)
+        x += (bp(voice, 400, 900) * 1.2 + bp(voice, 1000, 1500) * 0.6 + bp(noise(len(t)), 300, 2500) * 0.25) * env
+    save("laugh", fit(reverb(drive(x, 1.4), 0.3, 0.15), 0.75))
+
+
+if __name__ == "__main__" and ONLY:
+    for g in ONLY:
+        globals()["make_" + g]()
+elif __name__ == "__main__":
     make_hits()
     make_shatter()
     make_whoosh()
@@ -289,3 +338,4 @@ if __name__ == "__main__":
     make_dodge()
     make_ui()
     make_music()
+    make_food()                # last: the rest keep the random numbers they were made with

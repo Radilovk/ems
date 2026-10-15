@@ -12,17 +12,25 @@
 ## (head height and head position), so the legs train in the browser too.
 ## A breakable that is not broken, or a hazard that is not dodged, hits the player where it flies: head → torso/back
 ## (belly, glutes, back), upper body → arms, legs → legs. Those are the suit zones.
+##
+## The chef (scenario "Готвачът", the square in Ulm): a cook at his food cart throws food at the player on the beat.
+##   FOOD (a burger, a cheeseburger, a doughnut, ice cream) – smash it with a fist: it bursts and burns a little;
+##                                missed, it is eaten: all its calories go on (far more than a hit takes off)
+##   APPLE (healthy)              – let it come and eat it; smashing it is a waste (the combo breaks)
+## Every hit has a power (weak · medium · mighty) from the fist's speed and its run-up — see Power.
 class_name Defs
 extends RefCounted
 
-enum Kind { HAND, KNEE, FOOT, LOW, BLOCK, DUCK, LEAN_L, LEAN_R, WALL_L, WALL_R }
+enum Kind { HAND, KNEE, FOOT, LOW, BLOCK, DUCK, LEAN_L, LEAN_R, WALL_L, WALL_R, FOOD, APPLE }
 enum Zone { ARMS, LEGS, TORSO }
 
 const NAMES := {Kind.HAND: "РЪКА", Kind.KNEE: "КОЛЯНО", Kind.FOOT: "КРАК", Kind.LOW: "КЛЕК + УДАР", Kind.BLOCK: "БЛОК", Kind.DUCK: "КЛЕКНИ",
-	Kind.LEAN_L: "НАКЛОНИ ВДЯСНО", Kind.LEAN_R: "НАКЛОНИ ВЛЯВО", Kind.WALL_L: "СТЪПИ ВДЯСНО", Kind.WALL_R: "СТЪПИ ВЛЯВО"}
+	Kind.LEAN_L: "НАКЛОНИ ВДЯСНО", Kind.LEAN_R: "НАКЛОНИ ВЛЯВО", Kind.WALL_L: "СТЪПИ ВДЯСНО", Kind.WALL_R: "СТЪПИ ВЛЯВО",
+	Kind.FOOD: "РАЗБИЙ ХРАНАТА", Kind.APPLE: "ИЗЯЖ ЯБЪЛКАТА"}
 const RED := Color(1.0, 0.1, 0.12)
 const COLOR := {Kind.HAND: Color(0.15, 0.85, 1.0), Kind.KNEE: Color(0.72, 0.3, 1.0), Kind.FOOT: Color(1.0, 0.52, 0.08),
-	Kind.LOW: Color(0.25, 1.0, 0.45), Kind.BLOCK: Color(1.0, 0.4, 0.75), Kind.DUCK: RED, Kind.LEAN_L: RED, Kind.LEAN_R: RED, Kind.WALL_L: RED, Kind.WALL_R: RED}
+	Kind.LOW: Color(0.25, 1.0, 0.45), Kind.BLOCK: Color(1.0, 0.4, 0.75), Kind.DUCK: RED, Kind.LEAN_L: RED, Kind.LEAN_R: RED, Kind.WALL_L: RED, Kind.WALL_R: RED,
+	Kind.FOOD: Color(1.0, 0.62, 0.2), Kind.APPLE: Color(0.45, 1.0, 0.35)}
 
 # Where each kind meets the player (frame: floor under the player, −Z ahead). y is a fraction of the standing height
 # for the upper body, metres for the legs. x = lateral spread (sign = side).
@@ -68,13 +76,17 @@ const SPAWN_MAX := 7.0             # (a fast level shows things over a shorter w
 
 
 static func is_hazard(k: int) -> bool:
-	return k >= Kind.DUCK
+	return k >= Kind.DUCK and k <= Kind.WALL_R
+
+
+static func is_food(k: int) -> bool:
+	return k == Kind.FOOD or k == Kind.APPLE
 
 
 ## Which limb breaks which element.
 static func limb_of(k: int) -> String:
 	match k:
-		Kind.HAND, Kind.LOW:
+		Kind.HAND, Kind.LOW, Kind.FOOD, Kind.APPLE:
 			return "hand"
 		Kind.KNEE:
 			return "knee"
@@ -92,7 +104,7 @@ static func zone_of(k: int) -> int:
 			return Zone.LEGS
 		Kind.BLOCK:
 			return Zone.ARMS
-	return Zone.TORSO
+	return Zone.TORSO                  # (food that gets through lands in the belly)
 
 
 ## Timing on the beat: how far from its beat a sphere was broken (s) → the word and the points factor.
@@ -110,3 +122,41 @@ static func timing(err: float) -> Array:
 ## The combo multiplier: ×1 … ×4, one step every 8 in a row.
 static func multiplier(combo: int) -> int:
 	return clampi(1 + combo / 8, 1, 4)
+
+
+# ---------------------------------------------------------------- the chef
+
+## What the chef throws. kcal = a real portion (eaten when it gets through) · size = its longest side in flight (m) ·
+## splash = the colour of its splat and crumbs · hp = power points to break it (a weak hit 1, medium 2, mighty 3).
+## The MEGA burger needs a mighty hit (or a medium and a weak); anything less cracks it and it flies on.
+const FOODS := {
+	"burger": {"name": "Бургер", "model": "res://assets/chef/burger.glb", "kcal": 550, "size": 0.21,
+		"splash": Color(0.62, 0.36, 0.16), "hp": 1},
+	"donut": {"name": "Поничка", "model": "res://assets/chef/donut.glb", "kcal": 310, "size": 0.19,
+		"splash": Color(0.36, 0.2, 0.1), "hp": 1},
+	"ice_cream": {"name": "Сладолед", "model": "res://assets/chef/ice_cream.glb", "kcal": 280, "size": 0.2,
+		"splash": Color(1.0, 0.72, 0.82), "hp": 1},
+	"cheeseburger": {"name": "Двоен чийзбургер", "model": "res://assets/chef/cheeseburger.glb", "kcal": 920, "size": 0.24,
+		"splash": Color(0.95, 0.68, 0.15), "hp": 1},
+	"mega": {"name": "МЕГА бургер", "model": "res://assets/chef/cheeseburger.glb", "kcal": 1650, "size": 0.46,
+		"splash": Color(0.95, 0.6, 0.12), "hp": 3},
+	"apple": {"name": "Ябълка", "model": "res://assets/chef/apple.glb", "kcal": 95, "size": 0.14,
+		"splash": Color(0.95, 0.95, 0.75), "hp": 1},
+}
+const JUNK := ["burger", "burger", "donut", "donut", "ice_cream", "cheeseburger"]
+const KCAL_PER_KG := 7700.0        # body fat: 1 kg ≈ 7700 kcal (the HUD's kilos are real ones)
+## A smashed portion takes off a share of its calories — far less than eating it puts on (owner): weak · medium · mighty.
+const BURN := [0.05, 0.1, 0.18]
+const RETURN_BONUS := 0.12         # a mighty hit sent back onto the chef burns this much more of it
+const APPLE_POINTS := 150          # eating the apple (letting it come): healthy, the combo goes on
+
+## The chef's levels: speed m/s · gap s · count · apple = share of apples · pat = share of combinations · mega = a MEGA
+## burger closes the level. The food is aimed at the chest and face, from level 3 also low (a squat) and wide.
+const CHEF_LEVELS := [
+	{"speed": 3.2, "gap": [2.2, 2.8], "count": 10, "apple": 0.0, "pat": 0.0, "mega": false},
+	{"speed": 3.6, "gap": [1.9, 2.4], "count": 12, "apple": 0.12, "pat": 0.1, "mega": true},
+	{"speed": 4.0, "gap": [1.6, 2.1], "count": 14, "apple": 0.15, "pat": 0.2, "mega": true},
+	{"speed": 4.5, "gap": [1.4, 1.8], "count": 16, "apple": 0.18, "pat": 0.3, "mega": true},
+	{"speed": 5.0, "gap": [1.2, 1.6], "count": 18, "apple": 0.2, "pat": 0.35, "mega": true},
+	{"speed": 5.6, "gap": [1.0, 1.4], "count": 22, "apple": 0.22, "pat": 0.4, "mega": true},
+]

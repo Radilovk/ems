@@ -1313,16 +1313,6 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Deploy
   - L57 ## Разходи
 
-`tools/jadx/README.md` (206L)
-  - L3 ## JADX
-  - L40 ### Download
-  - L53 ### Install
-  - L67 ### Use jadx as a library
-  - L70 ### Build from source
-  - L83 ### Usage
-  - L195 ### Troubleshooting
-  - L198 ### Contributing
-
 `vr-bridge/README.md` (116L)
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
@@ -1345,14 +1335,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L86 ## Limits (what still needs a hand)
   - L93 ## Build & test
 
-`vr-workout/README.md` (147L)
+`vr-workout/README.md` (185L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.4) — on the beat, felt three ways
-  - L120 ## In the Quest browser (WebXR) — the way it ships now
-  - L134 ## Build / preview
-  - L143 ## Licences
+  - L18 ## The chef — scenario "Готвачът" (home menu → Сценарий)
+  - L40 ## Power of a hit — every scenario (`scripts/game/power.gd`)
+  - L158 ## In the Quest browser (WebXR) — the way it ships now
+  - L172 ## Build / preview
+  - L181 ## Licences
 
-`vr-workout/assets/CREDITS.md` (17L)
+`vr-workout/assets/CREDITS.md` (25L)
   - L1 # Asset credits
 
 `xbody/CLAUDE.md` (37L)

@@ -6,6 +6,14 @@ build/
 # textures Godot extracts from the .glb models on import (the .glb is the source; CI re-extracts them)
 assets/rooms/brutalist_*
 assets/rooms/gym_room_*
+assets/chef/*.jpg
+assets/chef/*.png
+assets/chef/*.jpg.import
+assets/chef/*.png.import
+!assets/chef/chef_albedo.png
+!assets/chef/chef_albedo.png.import
+!assets/chef/chef_normal.jpg
+!assets/chef/chef_normal.jpg.import
 xems-studio.apk
 # what Godot generates when it imports the raw downloads in incoming/ (they are sources for convert/, not game assets)
 incoming/*.import

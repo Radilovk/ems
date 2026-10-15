@@ -150,8 +150,11 @@ func _home(m: Control) -> void:
 	var row := _cols(m)
 	var left := _col(row, 1.25)
 	_text(left, "XEMS Studio", 76, INK, true)
-	_text(left, "Разбивай в ритъма. Клякай, навеждай се, стъпвай встрани — костюмът работи с теб.", 30, DIM).custom_minimum_size.x = 600
-	_gap(left, 26)
+	_text(left, ("Готвачът на площада в Улм те замерва с храна. Разбий я — гориш калории. Пропуснеш ли — изяждаш я."
+		if settings.chef() else "Разбивай в ритъма. Клякай, навеждай се, стъпвай встрани — костюмът работи с теб."), 30, DIM).custom_minimum_size.x = 600
+	_gap(left, 14)
+	_seg_v(left, "Сценарий", GameSettings.SCENES, settings.scene, func(i: int) -> void: settings.scene = i, "scene")
+	_gap(left, 14)
 	_text(left, "Рекорд  %s" % _num(settings.best_score), 34, Color(1.0, 0.85, 0.4), true)
 	if last_result != "":
 		_text(left, last_result, 28, DIM)
@@ -435,14 +438,27 @@ func _summary(m: Control) -> void:
 	_text(left, "Нов рекорд!" if summary.get("record", false) else "Браво!", 40, Color(1.0, 0.85, 0.4), true)
 	_text(left, _num(summary.get("score", 0)), 110, INK, true)
 	_text(left, "точки · %d%% точност · най-дълга серия ×%d" % [summary.get("acc", 0), summary.get("best_combo", 0)], 28, DIM)
+	if summary.get("chef", false):                      # the chef: the calorie balance is the headline
+		var bal: float = summary.get("balance", 0.0)
+		var c := KcalHud.RED if bal > 0.5 else KcalHud.GREEN
+		_text(left, "%s  ·  %s" % [KcalHud.kcal_text(bal), KcalHud.kg_text(bal)], 50, c, true)
+		_text(left, "изгорени −%s · изядени +%s ккал · ябълки %d" % [_num(summary.get("burned", 0)),
+			_num(summary.get("eaten_kcal", 0)), summary.get("apples", 0)], 26, DIM)
 	_gap(left, 14)
 	var g := GridContainer.new()
 	g.columns = 3
 	g.add_theme_constant_override("h_separation", 34)
 	g.add_theme_constant_override("v_separation", 8)
 	left.add_child(g)
-	for cell in [["Удари", summary.get("hits", 0)], ["Перфектни", summary.get("perfect", 0)], ["Избегнати", summary.get("dodged", 0)],
-			["Клекове", summary.get("squats", 0)], ["Стъпки", summary.get("steps", 0)], ["Минути", summary.get("minutes", 0)]]:
+	var cells: Array = [["Удари", summary.get("hits", 0)], ["Перфектни", summary.get("perfect", 0)], ["Избегнати", summary.get("dodged", 0)],
+			["Клекове", summary.get("squats", 0)], ["Стъпки", summary.get("steps", 0)], ["Минути", summary.get("minutes", 0)]]
+	if summary.get("chef", false):
+		cells = [["Разбити", summary.get("smashed", 0)], ["Изядени", summary.get("eaten", 0)], ["В готвача", summary.get("returned", 0)],
+			["Мощни", summary.get("mighty", 0)], ["Най-силен", "%d км/ч" % summary.get("best_kmh", 0)], ["Минути", summary.get("minutes", 0)]]
+	elif summary.get("mighty", 0) > 0:
+		cells[4] = ["Мощни", summary.get("mighty", 0)]
+		cells[5] = ["Най-силен", "%d км/ч" % summary.get("best_kmh", 0)]
+	for cell in cells:
 		var c := VBoxContainer.new()
 		c.custom_minimum_size.x = 170
 		g.add_child(c)
@@ -467,7 +483,7 @@ func _back_page() -> String:
 
 func _settings_line() -> String:
 	var mins := "без край" if settings.minutes == 0 else "%d мин" % settings.minutes
-	return "%s · %s · %s · крака: %s" % [GameSettings.PACE[settings.pace].name, GameSettings.SPREAD[settings.spread].name,
+	return ("Готвачът · " if settings.chef() else "") + "%s · %s · %s · крака: %s" % [GameSettings.PACE[settings.pace].name, GameSettings.SPREAD[settings.spread].name,
 		mins, String(GameSettings.LEGS[settings.legs]).to_lower()]
 
 

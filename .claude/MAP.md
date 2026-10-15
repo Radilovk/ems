@@ -162,7 +162,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-vendor-access.py` (62L, build:L189) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L158[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
 - `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
-- `scripts/xbody/build-panel.sh` (17L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
+- `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
 - `scripts/xbody/build.py` (328L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
 - `scripts/xbody/emu-panel.sh` (42L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
@@ -171,8 +171,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/relink.py` (54L) — Restore the shared-library symlinks the 7z dump flattened to 0-byte files.
 - `scripts/xbody/runroot.sh` (15L) — Runtime root for qemu-arm (-L): the card's /lib, /usr/lib (Qt, fonts, plugins) with the flattened symlinks
 - `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
-- `scripts/xbody/test-panel.sh` (9L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines) + the ARM build.
-- `scripts/xbody/test.sh` (143L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/test-cable.py` (93L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
+- `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
+- `scripts/xbody/test.sh` (156L) — XBody mod pipeline tests, no device needed:
 - `scripts/xbody/updater.sh` (100L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
@@ -802,15 +803,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L50 ## Hardware channel ↔ XBody body part
   - L71 ## How it was read
 
-`docs/xbody-xems-panel.md` (113L)
-  - L1 # XEMS panel on the XBody unit (mod v5)
+`docs/xbody-xems-panel.md` (139L)
+  - L1 # XEMS panel on the XBody unit (mod v6)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
-  - L35 ## Panel
-  - L69 ## Bridge line protocol (USB CDC, 115200)
-  - L78 ## Files
-  - L90 ## Build / test
-  - L106 ## First test on the unit (when the XIAO arrives)
+  - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6)
+  - L61 ## Panel
+  - L95 ## Bridge line protocol (USB CDC, 115200)
+  - L104 ## Files
+  - L116 ## Build / test
+  - L132 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1345,9 +1347,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (17L)
   - L1 # Asset credits
 
-`xbody/CLAUDE.md` (41L)
+`xbody/CLAUDE.md` (43L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
   - L5 ## Model
   - L16 ## Build (on request: "дай файла за картата")
-  - L31 ## Panel / bridge
-  - L37 ## Rules
+  - L33 ## Panel / bridge
+  - L39 ## Rules

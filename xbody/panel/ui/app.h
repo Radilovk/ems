@@ -2,6 +2,7 @@
 // Plain QObject with timerEvent (no moc on the unit's toolchain): the screen widgets read it and call it.
 #pragma once
 #include "../core/suit.h"
+#include "../core/xbcable.h"
 #include "serial.h"
 #include <QBasicTimer>
 #include <QObject>
@@ -38,6 +39,12 @@ public:
     // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
     bool bridgeUpdating() const { return dfuSent_; }
     QString uf2State() const;                     // flashing | done | error … (fresh only), else empty
+
+    // ---- XBody's own cable output (xems-xbproxy): suit standard + double impulse ----
+    struct CableLive { bool running, training, second; int wiring; };
+    const xbcable::Config &cable() const { return cable_; }
+    void setCable(const xbcable::Config &c);       // saved at once (the proxy picks it up within 0.5 s)
+    const CableLive &cableLive() const { return cableLive_; }   // running = the proxy answers (state < 5 s old)
 
     // ---- what the screen asks for ----
     void connectTo(const std::string &mac);
@@ -76,6 +83,10 @@ private:
     bool age60_;
     int wiring_;
     int bridgeVer_, bundledVer_;
+    xbcable::Config cable_;
+    CableLive cableLive_;
+    unsigned cableReadMs_;
+    void readCableState();
     bool dfuSent_;
     QString note_;
     bool noteWarn_;

@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v5)
+# XEMS panel on the XBody unit (mod v6)
 
 XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -31,6 +31,32 @@ XBody's own stimulator path (`xbody_control` → port 1235 → `/dev/ttymxc3`) i
    **Updates are automatic:** the panel compares `HELLO XEMS-BRIDGE <ver>` with `/opt/xems/bridge/VERSION`; an older
    bridge (v2+) gets `DFU` before any suit links → outputs off, board restarts as its UF2 drive → xems-uf2 → new
    HELLO. v1 answers `ERR unknown DFU` → the note asks for RESET twice once.
+
+## XBody's own cable (no XIAO): suit standard + double impulse (mod v6)
+For the normal work on XBody's cable, with an XBody **or an XEMS** suit:
+```
+xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──▶ emsc-tcpseriald → /dev/ttymxc3 → stimulator
+```
+- `/etc/default/emsc-tcpseriald` (sourced by the vendor S20 script) moves the daemon to 1236 and starts the proxy
+  loop — **only if `xems-xbproxy --selftest` passes** and `/opt/xems/cable.off` is absent; else the stock path.
+- Every `pc_emse` frame (50 ms) goes through `xbcable::Shaper` (`xbody/panel/core/xbcable.*`):
+  - **XEMS suit:** each XBody body part leaves on the lead that reaches it in an XEMS suit (`xemsLead`, from the
+    owner's table; test checks both directions — cable and BLE — against that one table). Latched when a training
+    starts; a change mid-training applies from the next one (the page says so).
+  - **Double impulse:** in XBody's pause (training bit set, stimulation bit clear) bit 0 on, `tp` = 1000/Hz₂,
+    levels × pct (cap 50000 = the board's 100 %). Hz₂ ≤ 10 and under the main Hz (1 Hz main → none), pct 10–150,
+    strength 0 → none. Only from the second cycle, inside the pause length measured in the previous cycle
+    (+300 ms after the impulse, −200 ms before the next): XBody has no pause button, anything longer (stop, end,
+    a hang) never gets it. Settings change live.
+- Measured on the real `xbody_control` in qemu (`board.log`): levels stay in the pause frames, stop = all 0,
+  4 s / 1 s cycle; through the ARM proxy: legflex 60 → arm lead, second pause 5 Hz at 50 % from +0.3 s to −0.2 s.
+- Settings `/opt/xems/xbody-cable.conf` (`wiring=xbody|xems`, `double=0|1`, `double_hz`, `double_pct`), written by the
+  panel (tmp + rename), re-read by the proxy within 0.5 s. State for the panel: `/tmp/xems-cable.state`.
+- Screen: the XEMS tab opens **Кабел на XBody** when no bridge is plugged (from the suit list: header "Кабел"):
+  two tiles XBody / XEMS suit (ⓘ = zone → lead table), double impulse switch + rhythm picture + Hz / strength
+  pills, live status in the header, autosave ("✓ Запазено"); the XIAO card at the bottom. The tab shows ⇄ (XEMS
+  suit) and 2× (double impulse) whenever XBody's output is changed by us.
+- Tests: `test-panel.sh` (Shaper + table, 211 checks; the proxy end to end over sockets), `test.sh` 5b (stock path).
 
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's

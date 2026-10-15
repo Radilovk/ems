@@ -1,0 +1,9 @@
+# XEMS (mod): sourced by the vendor /etc/init.d/emsc-serialdaemon (rc5 S20). Puts xems-xbproxy between
+# xbody_control and the stimulator: the daemon moves to port 1236, the proxy takes 1235 (where xbody_control
+# connects) and shapes XBody's cable output — suit standard XBody/XEMS, double impulse (/opt/xems/xbody-cable.conf).
+# Only when the proxy passes its self-test; /opt/xems/cable.off (or a failed self-test) = the stock path.
+P=/opt/xems/bin/xems-xbproxy
+if [ "$1" = start ] && [ -x $P ] && [ ! -e /opt/xems/cable.off ] && $P --selftest > /dev/null 2>&1; then
+	DAEMON_ARGS="-serial /dev/ttymxc3 -baud 115200 -port 1236"
+	( while [ ! -e /opt/xems/cable.off ]; do $P >> /tmp/xems-xbproxy.log 2>&1; sleep 1; done ) > /dev/null 2>&1 &
+fi

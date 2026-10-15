@@ -26,6 +26,8 @@ sh scripts/xbody/test.sh                               # must print ALL OK befor
 - The zip = `PROCHETI.txt` + `PODGOTVI-FLESHKA.cmd|.command` + `tools/podgotvi.ps1` + `fleshka/` (stick contents).
   The tools live in `scripts/xbody/stick/` (.cmd CRLF, .ps1 UTF-8 BOM — test.sh checks; the .ps1 is run under pwsh
   with mocked drives when `build/xtool/pwsh` exists).
+- XBody's cable output is shaped by `opt/xems/bin/xems-xbproxy` (core `xbcable`, docs/xbody-xems-panel.md "XBody's
+  own cable"); it must stay transparent when off and never stimulate outside XBody's own impulse / pause frames.
 - Bridge firmware changed → bump `BRIDGE_VER` (the unit updates older bridges by itself), `build-bridge.sh`.
 
 ## Panel / bridge

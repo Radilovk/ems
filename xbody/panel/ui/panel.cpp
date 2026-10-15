@@ -521,10 +521,11 @@ void PanelWidget::paintPick(QPainter &p) {
         QRect tile(cx[k % 3] - 75, 80 + (int)(k / 3) * 236, 150, 150);
         QString id = U("suit:") + QString::fromStdString(d.mac);
         outlined(p, tile, app_->linkingMac().empty() ? id : QString(), QString(), 0, linking);
-        bool bt = d.kind == Suit::BODYTECH;
+        bool bt = d.kind == Suit::BODYTECH, wi = d.kind == Suit::WIEMS;
         p.setPen(linking ? WHITE : RED);
-        p.setFont(uiFont(bt ? 22 : 30, true));
-        p.drawText(QRect(tile.left(), tile.top() + 20, 150, 60), Qt::AlignCenter, bt ? U("bodytech") : U("XEMS"));
+        p.setFont(uiFont(bt || wi ? 22 : 30, true));
+        p.drawText(QRect(tile.left(), tile.top() + 20, 150, 60), Qt::AlignCenter,
+                   bt ? U("bodytech") : wi ? U("WiEMS") : U("XEMS"));
         if (linking) {
             p.setFont(uiFont(16));
             p.drawText(QRect(tile.left(), tile.top() + 86, 150, 40), Qt::AlignCenter,
@@ -592,7 +593,7 @@ void PanelWidget::paintTrain(QPainter &p) {
     bool warn = toastOn || app_->noteWarn();
     QString sub = n;
     if (sub.isEmpty())
-        sub = (bt ? U("bodytech") : app_->wiring() == Suit::WIRE_XBODY ? U("XEMS · кабели XBody") : U("XEMS")) +
+        sub = (bt ? U("bodytech") : s->kind() == Suit::WIEMS ? U("WiEMS") : app_->wiring() == Suit::WIRE_XBODY ? U("XEMS · кабели XBody") : U("XEMS")) +
               U("   ·   батерия ") + (s->battery() < 0 ? U("—") : QString::number(s->battery()) + U("%"));
     paintHeader(p, QString::fromStdString(app_->suitName()).toUpper(), sub, !n.isEmpty() && warn, !n.isEmpty() && !warn);
     if (n.isEmpty()) battery(p, QRect(400 + QFontMetrics(uiFont(14, true)).width(sub) / 2 + 10, 37, 24, 12), s->battery());

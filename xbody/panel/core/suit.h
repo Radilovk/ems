@@ -21,7 +21,7 @@ struct Program {
 
 class Suit {
 public:
-    enum Kind { XEMS, BODYTECH };
+    enum Kind { XEMS, BODYTECH, WIEMS };
     enum State { IDLE, RUNNING, PAUSED };
     enum { MAX_CH = 10, RAMP_STEPS = 4, ACK_TIMEOUT_MS = 1500 };
     // Which connector standard the XEMS suit's cables follow: its own, or XBody's (the same plug feeds another
@@ -59,7 +59,8 @@ public:
     int phaseMsLeft(unsigned now) const;
     int battery() const { return battery_; }         // %, −1 unknown
     bool finished() const { return finished_; }      // the last run ended by its clock
-    // The suit is still being programmed (bodytech: ~110 frames, ~3 s after a link); a start waits for it.
+    // The suit is still being programmed (bodytech: ~110 frames, ~3 s after a link; WiEMS: its ~4 s count-down
+    // after a start); a start waits for it.
     bool preparing() const;
     bool startPending() const { return startWanted_; }
     Bytes safeFrame() const;                         // outputs off (the bridge sends it when the unit goes silent)
@@ -91,6 +92,13 @@ private:
     unsigned lastBattMs_, lastSyncMs_;
     int battery_;
     int btHz_, btUs_, btSent_[MAX_CH];
+    // WiEMS: the unit runs its own work / rest once started; idle → count-down (~4 s) → running.
+    enum { WI_IDLE, WI_COUNT, WI_RUN };
+    int wi_;
+    bool wiGo_;
+    unsigned wiAt_;
+    void wiStop();
+    bool preparingQueue() const;   // program frames still queued (not yet sent)
     std::deque<Item> out_;
     bool inflight_;
     unsigned sentMs_;

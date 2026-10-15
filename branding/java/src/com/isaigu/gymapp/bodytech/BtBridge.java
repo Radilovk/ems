@@ -58,6 +58,8 @@ public final class BtBridge {
 
     /** BleDeviceManager.getConfig: the service / characteristics of a bodytech suit (null = not one: stock). */
     public static synchronized BleDeviceConfig config(BleDevice d) {
+        BleDeviceConfig w = WiBridge.config(d);             // a WiEMS unit rides on the same hooks (WiBridge)
+        if (w != null) return w;
         if (!isBodytech(d)) return null;
         if (config == null) config = new BleDeviceConfig("ems", SVC, CHR, CHR);
         return config;
@@ -72,6 +74,7 @@ public final class BtBridge {
      * carries its phase ({@link #tag}) and the translator gets it when the command is written ({@link #sending}).
      */
     public static void phase(BleDevice d, int p) {
+        WiBridge.phase(d, p);
         if (d == null || !isBodytech(d)) return;
         dev(d).enqPhase = p;
     }
@@ -82,6 +85,7 @@ public final class BtBridge {
     /** CommandSender.sendCommend start: the command with this pdu was queued in the phase set last by {@link #phase}. */
     public static void tag(BleDevice d, byte[] pdu) {
         try {
+            WiBridge.tag(d, pdu);
             if (d == null || pdu == null || !isBodytech(d)) return;
             int p = dev(d).enqPhase;
             synchronized (TAGS) {
@@ -96,6 +100,7 @@ public final class BtBridge {
     public static void sending(BleDevice d, byte[] pdu) {
         try {
             if (d == null || pdu == null) return;
+            WiBridge.sending(d, pdu);
             Integer p;
             synchronized (TAGS) {
                 p = TAGS.remove(pdu);
@@ -109,6 +114,7 @@ public final class BtBridge {
     /** TrainItem.reset start (stop, end of the time, connect): all off, strengths 0, the suit programmed afresh. */
     public static void reset(BleDevice d) {
         try {
+            WiBridge.reset(d);
             if (d == null || !isBodytech(d)) return;
             Dev v = dev(d);
             v.begin();
@@ -131,6 +137,7 @@ public final class BtBridge {
     public static boolean write(BleDevice d, byte[] data, BleWriteCallback cb) {
         try {
             if (d == null || data == null || data.length < 4) return false;
+            if (WiBridge.isWiems(d)) return WiBridge.write(d, data, cb);
             if ((data[0] & 0xFF) == BtProto.BEGIN) return false;
             if (!isBodytech(d)) return false;
             byte[] pdu = new byte[data.length - 4];
@@ -226,6 +233,7 @@ public final class BtBridge {
     public static int loadPercent(BleDevice d) {
         try {
             if (d == null || d.getMac() == null) return -1;
+            if (WiBridge.isWiems(d)) return WiBridge.loadPercent(d);
             Dev v;
             synchronized (BtBridge.class) {
                 v = DEVS.get(d.getMac());
@@ -268,6 +276,7 @@ public final class BtBridge {
     /** CommandReceiver.onReceiveData start: a bodytech reply → battery percent for the row. true = handled. */
     public static boolean reply(BleDevice d, byte[] data, OnReceiveCommandListener l) {
         try {
+            if (WiBridge.isWiems(d)) return WiBridge.reply(d, data, l);
             if (d == null || data == null || !isBodytech(d)) return false;
             int raw = BtProto.batteryRaw(data);
             if (raw > 0 && l != null) l.onReceiveBattery(BtProto.percent(raw));
@@ -288,6 +297,10 @@ public final class BtBridge {
     public static void linked(BleDevice d) {
         try {
             if (d == null) return;
+            if (WiBridge.isWiems(d)) {
+                WiBridge.linked(d);
+                return;
+            }
             boolean bt = isBodytech(d);
             WearableBleDiagLog.log("suit", "linked " + d.getMac() + (bt ? " bodytech" : " xems"));
             if (!bt) return;
@@ -324,6 +337,7 @@ public final class BtBridge {
     public static void dropped(BleDevice d, boolean active, int status) {
         try {
             String mac = d != null ? d.getMac() : "?";
+            WiBridge.dropped(d);
             StringBuilder sb = new StringBuilder("drop ").append(mac).append(" status=").append(status)
                     .append(" (").append(reason(status)).append(")").append(active ? " by the app" : "");
             Dev v;
@@ -373,6 +387,7 @@ public final class BtBridge {
     public static synchronized boolean isBodytech(BleDevice d) {
         // a locked tablet (customer) knows no bodytech suit at all: no translation, no menus (owner, 1.1.422)
         if (!SuitStandard.unlocked()) return false;
+        if (WiBridge.isWiems(d)) return false;              // WiEMS: its own driver
         String mac = d.getMac();
         if (mac == null) return false;
         Boolean k = KIND.get(mac);

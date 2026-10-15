@@ -4,18 +4,20 @@
 //
 // Host → bridge                          Bridge → host
 //   PING                                   HELLO XEMS-BRIDGE <ver> <max links>   (on boot and on PING: PONG <ver>)
-//   SCAN 1 | SCAN 0                        ADV <mac> <rssi> <svc> <name>           svc = FE50 | FFF0 | NUS | -
+//   SCAN 1 | SCAN 0                        ADV <mac> <rssi> <svc> <name>           svc = FE50 | FFF0 | NUS | WIEMS | -
 //   CONN <mac>                             LINK <mac> <svc>                        (connected, characteristic found, notify on)
 //   W <mac> <hex>                          WOK <mac> | WERR <mac> <why>           (one write in flight per link)
 //   SAFE <mac> <hex>                       N <mac> <hex>                           (notification)
 //   DISC <mac>                             LOST <mac> <reason> | FAIL <mac> <why> | ERR <text>
 //   DFU                                    DFUOK, then every link SAFE + off and the board restarts as its UF2 drive
 //                                          (the unit copies the new firmware onto it: /opt/xems/bin/xems-uf2)
+// WiEMS (v3): a W / SAFE value is [selector, value…] — the selector picks the unit's characteristic (0 strengths,
+// 1 program, 2 rest, 3 widths, 4 run); N lines carry one too (04 run, 10 battery). wiems/PROTOCOL.md.
 // Fail-safe: when the host is silent for HOST_TIMEOUT_MS (USB pulled, program dead) every link gets its SAFE frame
 // (the suit's "outputs off", set by the host after LINK) and is disconnected.
 #include <bluefruit.h>
 
-#define BRIDGE_VER "2"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
+#define BRIDGE_VER "3"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
 #define MAX_LINKS 4
 #define HOST_TIMEOUT_MS 2500
 #define SEEN_MAX 32
@@ -76,7 +78,14 @@ static void notifyCb(BLEClientCharacteristic *chr, uint8_t *data, uint16_t len) 
   Link *l = byConn(chr->connHandle());
   if (!l) return;
   char line[300], mac[18], hx[260];
+  uint8_t tagged[129];
   if (len > 128) len = 128;
+  if (l->prof == P_WIEMS) {   // which characteristic: the host's selector byte first
+    tagged[0] = chr == &l->batLvl ? WI_N_BATTERY : WI_N_RUN;
+    if (len > 127) len = 127;
+    memcpy(tagged + 1, data, len);
+    data = tagged; len++;
+  }
   macStr(l->mac, mac); hexStr(data, len, hx);
   snprintf(line, sizeof line, "N %s %s", mac, hx);
   out(line);
@@ -89,7 +98,8 @@ static void scanCb(ble_gap_evt_adv_report_t *r) {
   for (char *p = name; *p; p++) if (*p == ' ' || *p < 32) *p = '_';
   int prof = Bluefruit.Scanner.checkReportForUuid(r, BLEUuid((uint16_t)0xFE50)) ? P_FE50
            : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid((uint16_t)0xFFF0)) ? P_FFF0
-           : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid(NUS_SVC)) ? P_NUS : P_NONE;
+           : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid(NUS_SVC)) ? P_NUS
+           : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid(WI_SVC)) || !strncmp(name, "WIEMS", 5) ? P_WIEMS : P_NONE;
   // Remember the address (with its type) for CONN; report each device at most once a second.
   int slot = -1, oldest = 0;
   for (int i = 0; i < SEEN_MAX; i++) {
@@ -121,9 +131,15 @@ static void connectCb(uint16_t conn) {
   if (l->fe50.discover(conn) && l->fe51.discover()) l->prof = P_FE50;
   else if (l->fff0.discover(conn) && l->fff2.discover()) { l->prof = P_FFF0; l->fff1.discover(); }
   else if (l->nus.discover(conn) && l->nusRx.discover()) { l->prof = P_NUS; l->nusTx.discover(); }
+  else if (l->wi.discover(conn) && l->wiCur.discover()) {
+    l->prof = P_WIEMS;
+    l->wiProg.discover(); l->wiRest.discover(); l->wiWid.discover(); l->wiRun.discover();
+    if (l->wiRun.discovered()) l->wiRun.enableNotify();
+    if (l->bat.discover(conn) && l->batLvl.discover()) l->batLvl.enableNotify();
+  }
   if (l->prof == P_NONE) { snprintf(line, sizeof line, "FAIL %s no-suit-service", mac); out(line); c->disconnect(); return; }
-  BLEClientCharacteristic *n = l->prof == P_FE50 ? &l->fe51 : l->prof == P_FFF0 ? &l->fff1 : &l->nusTx;
-  if (n->discovered()) n->enableNotify();
+  BLEClientCharacteristic *n = l->prof == P_FE50 ? &l->fe51 : l->prof == P_FFF0 ? &l->fff1 : l->prof == P_NUS ? &l->nusTx : 0;
+  if (n && n->discovered()) n->enableNotify();
   snprintf(line, sizeof line, "LINK %s %s", mac, profName(l->prof));
   out(line);
 }
@@ -140,6 +156,10 @@ static void disconnectCb(uint16_t conn, uint8_t reason) {
 
 static bool writeTo(Link *l, const uint8_t *b, int n) {
   BLEClientCharacteristic *w = l->writer();
+  if (l->prof == P_WIEMS) {   // [selector, value…]
+    if (n < 2 || b[0] >= WI_OPS) return false;
+    w = l->wiOp(b[0]); b++; n--;
+  }
   if (!w || !w->discovered()) return false;
   // Write with response where the suit has it (FE51: props 0x1a) — the ACK paces the host, one frame in flight.
   if (w->properties() & 0x08) return w->write_resp(b, n) == n;
@@ -219,6 +239,9 @@ void setup() {
     l.fe50.begin(); l.fe51.setNotifyCallback(notifyCb); l.fe51.begin(&l.fe50);
     l.fff0.begin(); l.fff1.setNotifyCallback(notifyCb); l.fff1.begin(&l.fff0); l.fff2.begin(&l.fff0);
     l.nus.begin();  l.nusTx.setNotifyCallback(notifyCb); l.nusTx.begin(&l.nus); l.nusRx.begin(&l.nus);
+    l.wi.begin(); l.wiCur.begin(&l.wi); l.wiProg.begin(&l.wi); l.wiRest.begin(&l.wi); l.wiWid.begin(&l.wi);
+    l.wiRun.setNotifyCallback(notifyCb); l.wiRun.begin(&l.wi);
+    l.bat.begin(); l.batLvl.setNotifyCallback(notifyCb); l.batLvl.begin(&l.bat);
   }
   Bluefruit.Central.setConnectCallback(connectCb);
   Bluefruit.Central.setDisconnectCallback(disconnectCb);

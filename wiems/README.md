@@ -69,4 +69,5 @@ like `BtBridge`, keep-alive, write-after-ACK pacing), settings page; patch `scri
 - [x] Capture 1 (2026-10-16, Wiems 1.8.45, no step list) → `wiems/logs/capture1-…-att.txt`, decoded in
       `wiems/PROTOCOL.md` (service, start/stop, live strengths, clock, XOR checksum).
 - [ ] Capture 2 — controlled changes (PROTOCOL.md "Open") → Hz / width / times bytes.
-- [ ] Probe on the Android tablet (replay start / strength / stop), then the XEMS driver.
+- [x] XEMS driver (1.1.446-ai) and XBody panel + bridge v3 (mod v7): `docs/xems-wiems.md`, built from capture 1.
+- [ ] First test on the unit (`docs/xems-wiems.md` "First test"): channel map, strength scale, watchdog.

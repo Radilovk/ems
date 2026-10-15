@@ -3,7 +3,10 @@ package com.clj.fastble;
 import android.bluetooth.BluetoothGatt;
 
 import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleNotifyCallback;
+import com.clj.fastble.callback.BleReadCallback;
 import com.clj.fastble.callback.BleRssiCallback;
+import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 
 public class BleManager {
@@ -34,4 +37,10 @@ public class BleManager {
     public boolean requestConnectionPriority(BleDevice device, int connectionPriority) {
         return false;
     }
+
+    public void write(BleDevice device, String uuidService, String uuidWrite, byte[] data, BleWriteCallback callback) {}
+
+    public void read(BleDevice device, String uuidService, String uuidRead, BleReadCallback callback) {}
+
+    public void notify(BleDevice device, String uuidService, String uuidNotify, BleNotifyCallback callback) {}
 }

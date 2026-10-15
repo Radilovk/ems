@@ -274,6 +274,8 @@ void App::line(const std::string &l, unsigned t) {
         for (; i < seen_.size(); i++) if (seen_[i].mac == e.mac) break;
         if (i == seen_.size()) { Seen s; s.mac = e.mac; seen_.push_back(s); }
         seen_[i].name = e.name.empty() ? e.mac : e.name;
+        for (size_t j = 0; j < seen_[i].name.size(); j++)   // the bridge sends a name's spaces as '_'
+            if (seen_[i].name[j] == '_') seen_[i].name[j] = ' ';
         seen_[i].kind = k;
         seen_[i].rssi = e.rssi;
         seen_[i].lastMs = t;
@@ -281,7 +283,7 @@ void App::line(const std::string &l, unsigned t) {
     }
     case BridgeEvent::LINK: {
         if (e.mac != linkingMac_ || suit_) { send(bridgecmd::disc(e.mac)); break; }
-        Suit::Kind k = e.svc == "FE50" ? Suit::BODYTECH : Suit::XEMS;
+        Suit::Kind k = e.svc == "FE50" ? Suit::BODYTECH : e.svc == "WIEMS" ? Suit::WIEMS : Suit::XEMS;
         suit_ = new Suit(k);
         suit_->setProgram(prog_, age60_ ? 65 : -1, 0);
         suit_->setStrength(0);   // a new link always starts from 0

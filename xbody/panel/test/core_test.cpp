@@ -6,6 +6,7 @@
 #include "../core/safe.h"
 #include "../core/suit.h"
 #include "../core/xemsproto.h"
+#include "../core/wiproto.h"
 #include <cstdio>
 #include <cstring>
 
@@ -185,6 +186,88 @@ static void bodytechSession() {
     eqHex("bt new Hz before output", "36 00 10 00 00 27 10 C9", f[0]);
 }
 
+static void wiemsGolden() {
+    // The vendor app's writes in the owner's capture (wiems/PROTOCOL.md), with the bridge's selector byte first.
+    eqHex("wi prog 84 arm", "01 29 54 04 08 00 00 7E 05 02 08", wi::program(84, 4, 8, 0, 0, wi::PHASE_ARM));
+    eqHex("wi prog 84 run", "01 29 54 04 08 00 00 7E 05 00 0A", wi::program(84, 4, 8, 0, 0, wi::PHASE_RUN));
+    eqHex("wi prog 92 rd1", "01 29 5C 04 08 00 01 7E 05 00 03", wi::program(92, 4, 8, 0, 1, wi::PHASE_RUN));
+    eqHex("wi rest 5", "02 05 64 00 00 00 00 00 00 A5 C4", wi::rest(5, 100));
+    eqHex("wi rest 7", "02 07 64 00 00 00 00 00 00 A5 C6", wi::rest(7, 100));
+    eqHex("wi widths", "03 7F 7F 6D 49 7F 7F 64 52 7F 52", wi::widths());
+    int c[10] = {12, 0, 2, 15, 15, 15, 13, 13, 0, 15};
+    eqHex("wi currents", "00 0C 00 02 0F 0F 0F 0D 0D 00 0F", wi::currents(c));
+    int big[10] = {300, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    eqHex("wi currents cap", "00 64 00 00 00 00 00 00 00 00 00", wi::currents(big));
+    eqHex("wi start", "04 25", wi::run(true));
+    eqHex("wi stop", "04 00", wi::run(false));
+    Bytes n;
+    fromHex("0401", n);
+    eqInt("wi run tick", 1, wi::runTick(n) ? 1 : 0);
+    fromHex("1051", n);
+    eqInt("wi battery", 81, wi::battery(n));
+}
+
+static void wiemsSession() {
+    Suit s(Suit::WIEMS);
+    eqInt("wi channels", 10, s.channels());
+    s.linked(0);
+    std::vector<Bytes> f = drain(s, 0);
+    eqInt("wi link frames", 2, (int)f.size());
+    eqHex("wi link stop", "04 00", f.back());
+    eqHex("wi safe", "04 00", s.safeFrame());
+    s.setStrength(40);
+    s.setChannel(1, 50);
+    s.start(1000);
+    eqInt("wi waits for its count-down", Suit::IDLE, s.state());
+    eqInt("wi preparing", 1, s.preparing() ? 1 : 0);
+    f = drain(s, 1000);
+    eqInt("wi start frames", 5, (int)f.size());
+    eqHex("wi start prog", "01 29 55 04 04 00 00 7E 05 02 05", f[0]);
+    eqHex("wi start run", "04 25", f.back());
+    s.tick(2000);
+    eqInt("wi still counting", Suit::IDLE, s.state());
+    Bytes n;
+    fromHex("0401", n);
+    s.notify(n);   // the unit's first "01"
+    s.tick(5100);
+    f = drain(s, 5100);
+    eqInt("wi running", Suit::RUNNING, s.state());
+    eqInt("wi begin frames", 3, (int)f.size());
+    eqHex("wi begin zero", "00 00 00 00 00 00 00 00 00 00 00", f[0]);
+    eqHex("wi begin prog", "01 29 55 04 04 00 00 7E 05 00 07", f[1]);
+    eqHex("wi ramp 1/4", "00 0A 05 0A 0A 0A 0A 0A 0A 0A 0A", f[2]);
+    s.tick(5700);
+    f = drain(s, 5700);
+    eqHex("wi ramp full", "00 28 14 28 28 28 28 28 28 28 28", f.empty() ? Bytes() : f.back());
+    s.tick(9200);   // impulse over → pause: strengths 0, the unit keeps running
+    f = drain(s, 9200);
+    eqInt("wi pause frames", 1, (int)f.size());
+    eqHex("wi pause zero", "00 00 00 00 00 00 00 00 00 00 00", f.empty() ? Bytes() : f[0]);
+    s.pause(9500);
+    f = drain(s, 9500);
+    eqHex("wi pause → stop", "04 00", f.empty() ? Bytes() : f.back());
+    // stop during a count-down stops the unit
+    s.start(10000);
+    drain(s, 10000);
+    s.stop();
+    f = drain(s, 10100);
+    eqHex("wi stop in count-down", "04 00", f.empty() ? Bytes() : f.back());
+    eqInt("wi idle", Suit::IDLE, s.state());
+    // no "01" from the unit: it runs after 6 s anyway
+    Suit u(Suit::WIEMS);
+    u.linked(0);
+    drain(u, 0);
+    u.start(100);
+    drain(u, 100);
+    u.tick(6000);
+    eqInt("wi no tick yet", Suit::IDLE, u.state());
+    u.tick(6200);
+    eqInt("wi timeout → running", Suit::RUNNING, u.state());
+    BridgeEvent e = parseBridgeLine("ADV 88:6B:0F:CC:BE:49 -58 WIEMS WIEMS_-_EMS_Device");
+    eqInt("wi adv kind", Suit::WIEMS, suitKind(e.svc, e.name));
+    eqInt("wi kind by name", Suit::WIEMS, suitKind("-", "WIEMS - EMS Device"));
+}
+
 static void bridgeLines() {
     BridgeEvent e = parseBridgeLine("ADV 02:BC:34:D6:2D:93 -61 FE50 EMS08-05629");
     eqInt("adv type", BridgeEvent::ADV, e.type);
@@ -359,6 +442,8 @@ int main() {
     safety();
     xemsSession();
     bodytechSession();
+    wiemsGolden();
+    wiemsSession();
     bridgeLines();
     std::printf("%s: %d checks, %d failed\n", fails ? "FAIL" : "OK", checks, fails);
     return fails ? 1 : 0;

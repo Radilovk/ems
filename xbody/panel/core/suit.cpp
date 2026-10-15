@@ -1,6 +1,7 @@
 #include "suit.h"
 #include "btproto.h"
 #include "safe.h"
+#include "wiproto.h"
 #include "xemsproto.h"
 #include <cctype>
 
@@ -43,23 +44,25 @@ static unsigned age(unsigned now, unsigned since) {
 Suit::Suit(Kind kind)
     : kind_(kind), strength_(0), state_(IDLE), on_(false), finished_(false), startWanted_(false), endMs_(0), phaseEndMs_(0),
       rampStartMs_(0), remainMs_(0), rampStep_(0), lastBattMs_(0), lastSyncMs_(0), battery_(-1), btHz_(0), btUs_(0),
-      inflight_(false), sentMs_(0) {
+      wi_(WI_IDLE), wiGo_(false), wiAt_(0), inflight_(false), sentMs_(0) {
     for (int i = 0; i < MAX_CH; i++) { ch_[i] = 100; btSent_[i] = -1; }
 }
 
-int Suit::channels() const { return kind_ == XEMS ? (int)xems::CHANNELS : (int)bt::CHANNELS; }
+int Suit::channels() const { return kind_ == BODYTECH ? (int)bt::CHANNELS : (int)xems::CHANNELS; }
 
 const char *Suit::channelName(Kind k, int i) {
-    if (k == XEMS) return i >= 0 && i < 10 ? XEMS_NAMES[i] : "";
+    // WiEMS: XEMS slider i drives unit channel i (as the tablet's WiTranslator) — the muscle map is not verified yet
+    if (k != BODYTECH) return i >= 0 && i < 10 ? XEMS_NAMES[i] : "";
     return i >= 0 && i < 8 ? BT_NAMES[i] : "";
 }
 
 int Suit::zones(Kind k, const Zone **out, int wiring) {
+    if (k == WIEMS) { *out = XEMS_ZONES; return 10; }
     *out = k == XEMS ? (wiring == WIRE_XBODY ? XEMS_ZONES_XBODY : XEMS_ZONES) : BT_ZONES;
     return k == XEMS ? 10 : 7;
 }
 
-int Suit::zonesLeft(Kind k) { return k == XEMS ? 5 : 4; }
+int Suit::zonesLeft(Kind k) { return k == BODYTECH ? 4 : 5; }
 
 void Suit::push(const Bytes &b, int tag) { out_.push_back(Item(b, tag)); }
 
@@ -90,6 +93,11 @@ void Suit::linked(unsigned now) {
     if (kind_ == XEMS) {
         push(xems::stop());      // the stock row's init: stop first
         push(xems::battery());
+    } else if (kind_ == WIEMS) {
+        push(wi::zero());        // it may still run from before: strengths 0, stopped (as the vendor at connect)
+        push(wi::run(false));
+        wi_ = WI_IDLE;
+        wiGo_ = false;
     } else {
         push(bt::batteryInit());
         push(bt::batteryInit2());
@@ -158,6 +166,7 @@ int Suit::lvl(int i, int k) const {
     int s = strength_ * k / RAMP_STEPS;
     if (kind_ == XEMS) return s;   // XEMS: the channel % is applied in the frame (vendor float math)
     int v = ch_[i] * s / 100;
+    if (kind_ == WIEMS) return v > wi::MAX_CURRENT ? wi::MAX_CURRENT : v;
     return v > 99 ? 99 : v;        // bodytech takes 0..99 (100 reads as 0)
 }
 
@@ -167,6 +176,13 @@ void Suit::levels(int k) {
     if (kind_ == XEMS) {
         push(xems::strengths(ch_, lvl(0, k)), T_LEVELS);
         push(xems::run((int)left, prog_.hz, prog_.us, prog_.onS, prog_.offS, true), T_LEVELS);
+        return;
+    }
+    if (kind_ == WIEMS) {
+        if (wi_ != WI_RUN) return;                // counting down: the strengths go when it runs
+        int c[wi::CHANNELS];
+        for (int i = 0; i < wi::CHANNELS; i++) c[i] = lvl(i, k);
+        push(wi::currents(c), T_LEVELS);
         return;
     }
     int mask = 0;
@@ -184,18 +200,39 @@ void Suit::outputsOff(bool stopSuit) {
     if (kind_ == XEMS) {
         push(xems::run((int)left, prog_.hz, prog_.us, prog_.onS, prog_.offS, false), T_LEVELS);
         if (stopSuit) push(xems::stop());
+    } else if (kind_ == WIEMS) {
+        push(wi::zero(), T_LEVELS);
+        if (stopSuit) wiStop();
     } else {
         push(bt::allOff(), T_LEVELS);
     }
 }
 
+void Suit::wiStop() {
+    push(wi::run(false));
+    wi_ = WI_IDLE;
+    wiGo_ = false;
+}
+
 bool Suit::preparing() const {
+    if (kind_ == WIEMS && wi_ == WI_COUNT) return true;
     for (size_t i = 0; i < out_.size(); i++) if (out_[i].tag == T_PROG) return true;
     return false;
 }
 
 void Suit::start(unsigned now) {
     if (state_ == RUNNING) return;
+    if (kind_ == WIEMS && wi_ == WI_IDLE) {
+        // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
+        push(wi::program(prog_.hz, prog_.onS, prog_.offS, 0, 0, wi::PHASE_ARM), T_PROG);
+        push(wi::rest(5, 100), T_PROG);
+        push(wi::widths(), T_PROG);
+        push(wi::zero(), T_PROG);
+        push(wi::run(true), T_PROG);
+        wi_ = WI_COUNT;
+        wiGo_ = false;
+        wiAt_ = now;
+    }
     if (preparing()) { startWanted_ = true; return; }   // the clock starts when the suit can follow it
     startWanted_ = false;
     if (state_ == IDLE) remainMs_ = (unsigned)prog_.totalS * 1000u;
@@ -203,7 +240,7 @@ void Suit::start(unsigned now) {
     state_ = RUNNING;
     endMs_ = now + remainMs_;
     if (kind_ == XEMS) push(xems::start());
-    else if (btHz_ != prog_.hz || btUs_ != prog_.us) {
+    else if (kind_ == BODYTECH && (btHz_ != prog_.hz || btUs_ != prog_.us)) {
         for (int c = 1; c <= bt::CHANNELS; c++) { push(bt::hz(c, prog_.hz)); push(bt::width(c, prog_.us)); }
         btHz_ = prog_.hz;
         btUs_ = prog_.us;
@@ -217,6 +254,7 @@ void Suit::start(unsigned now) {
 
 void Suit::pause(unsigned now) {
     startWanted_ = false;
+    if (kind_ == WIEMS && wi_ == WI_COUNT && state_ != RUNNING) { push(wi::zero()); wiStop(); }
     if (state_ != RUNNING) return;
     remainMs_ = endMs_ > now ? endMs_ - now : 0;
     state_ = PAUSED;
@@ -231,11 +269,21 @@ void Suit::stop() {
     on_ = false;
     remainMs_ = 0;
     if (was) outputsOff(true);
+    else if (kind_ == WIEMS && wi_ != WI_IDLE) { push(wi::zero()); wiStop(); }   // stopped in its count-down
 }
 
 void Suit::tick(unsigned now) {
     if (kind_ == XEMS) {
         if (age(now, lastBattMs_) >= 10000) { lastBattMs_ = now; push(xems::battery()); }
+    } else if (kind_ == WIEMS) {
+        // the count-down is over at the unit's first "01" (the vendor waits for it), else after 6 s; then, as the
+        // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
+        if (wi_ == WI_COUNT && !preparingQueue() && (wiGo_ || age(now, wiAt_) >= 6000)) {
+            push(wi::zero());
+            push(wi::program(prog_.hz, prog_.onS, prog_.offS, 0, 0, wi::PHASE_RUN));
+            wi_ = WI_RUN;
+            wiGo_ = false;
+        }
     } else {
         if (age(now, lastSyncMs_) >= 4500) { lastSyncMs_ = now; push(bt::sync(6)); }
         if (age(now, lastBattMs_) >= 10000) { lastBattMs_ = now; push(bt::batterySync()); }
@@ -272,6 +320,10 @@ void Suit::notify(const Bytes &n) {
     if (kind_ == XEMS) {
         int p = xems::batteryPct(n);
         if (p >= 0) battery_ = p;
+    } else if (kind_ == WIEMS) {
+        int p = wi::battery(n);
+        if (p >= 0) battery_ = p;
+        if (wi::runTick(n) && wi_ == WI_COUNT) wiGo_ = true;
     } else {
         int raw = bt::batteryRaw(n);
         if (raw >= 0) battery_ = bt::batteryPercent(raw);
@@ -288,7 +340,12 @@ int Suit::phaseMsLeft(unsigned now) const {
     return state_ == RUNNING && phaseEndMs_ > now ? (int)(phaseEndMs_ - now) : 0;
 }
 
-Bytes Suit::safeFrame() const { return kind_ == XEMS ? xems::stop() : bt::allOff(); }
+Bytes Suit::safeFrame() const { return kind_ == XEMS ? xems::stop() : kind_ == WIEMS ? wi::run(false) : bt::allOff(); }
+
+bool Suit::preparingQueue() const {
+    for (size_t i = 0; i < out_.size(); i++) if (out_[i].tag == T_PROG) return true;
+    return false;
+}
 
 static std::string upper(const std::string &s) {
     std::string u(s);
@@ -297,9 +354,11 @@ static std::string upper(const std::string &s) {
 }
 
 int suitKind(const std::string &svc, const std::string &name) {
+    if (svc == "WIEMS") return Suit::WIEMS;
     if (svc == "FE50") return Suit::BODYTECH;
     if (svc == "FFF0" || svc == "NUS") return Suit::XEMS;
     std::string u = upper(name);
+    if (u.compare(0, 5, "WIEMS") == 0) return Suit::WIEMS;   // "WIEMS - EMS Device" (before the EMS name rule)
     if (u.compare(0, 4, "TZLJ") == 0 || u.compare(0, 3, "ADT") == 0) return Suit::BODYTECH;
     if (u.size() > 4 && u.compare(0, 3, "EMS") == 0 && std::isdigit((unsigned char)u[3]) && u.find('-') != std::string::npos &&
         u.find('-') > 3)

@@ -1,6 +1,6 @@
-# XEMS panel on the XBody unit (mod v6)
+# XEMS panel on the XBody unit (mod v7)
 
-XEMS and bodytech suits trained from the XBody machine's own screen, next to (not inside) the XBody app. The
+XEMS and bodytech suits and WiEMS units (mod v7, `docs/xems-wiems.md`) trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
 
 ```
@@ -94,6 +94,8 @@ The screen is a copy of **XBody's own manual-training screen** (owner: same look
 
 ## Bridge line protocol (USB CDC, 115200)
 Host → bridge: `PING` · `SCAN 1|0` · `CONN <mac>` · `DISC <mac>` · `W <mac> <hex>` · `SAFE <mac> <hex>` · `DFU` (v2).
+WiEMS (v3, svc `WIEMS`): `W` / `SAFE` hex = `[selector, value…]` (0 strengths, 1 program, 2 rest, 3 widths, 4 run);
+`N` hex starts with `04` (run characteristic) or `10` (battery 2A19).
 Bridge → host: `HELLO XEMS-BRIDGE <ver> <links>` · `PONG` · `ADV <mac> <rssi> <FE50|FFF0|NUS|-> <name>` ·
 `LINK <mac> <svc>` · `LOST <mac> <reason>` · `FAIL <mac> <why>` · `N <mac> <hex>` · `WOK|WERR <mac>` · `SAFEOK` · `DFUOK`.
 One write in flight per suit (write-with-response where the characteristic has it). The panel pings every second;

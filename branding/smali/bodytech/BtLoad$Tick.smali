@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 124
+    .line 128
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,39 +34,39 @@
     .registers 15
 
     .prologue
-    .line 127
+    .line 131
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 128
+    .line 132
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 129
+    .line 133
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 130
+    .line 134
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v6
 
-    .line 131
+    .line 135
     const-class v5, Lcom/isaigu/gymapp/bodytech/BtLoad;
 
     monitor-enter v5
 
-    .line 132
+    .line 136
     const/4 v0, 0x0
 
     :try_start_17
     # setter for: Lcom/isaigu/gymapp/bodytech/BtLoad;->ticking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$002(Z)Z
 
-    .line 133
+    .line 137
     # getter for: Lcom/isaigu/gymapp/bodytech/BtLoad;->WAITING:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$100()Ljava/util/WeakHashMap;
 
@@ -93,21 +93,21 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 134
+    .line 138
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 135
+    .line 139
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bodytech/BtLoad$Wait;
 
-    .line 136
+    .line 140
     iget-object v9, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     if-eqz v9, :cond_58
@@ -134,13 +134,13 @@
 
     if-lez v9, :cond_5f
 
-    .line 137
+    .line 141
     :cond_58
     invoke-interface {v3, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_26
 
-    .line 150
+    .line 154
     :catchall_5c
     move-exception v0
 
@@ -150,7 +150,7 @@
 
     throw v0
 
-    .line 138
+    .line 142
     :cond_5f
     :try_start_5f
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/BtLoad$Wait;->d:Lcom/clj/fastble/data/BleDevice;
@@ -161,18 +161,18 @@
 
     if-gez v0, :cond_6b
 
-    .line 139
+    .line 143
     invoke-interface {v2, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_26
 
-    .line 141
+    .line 145
     :cond_6b
     invoke-interface {v4, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_26
 
-    .line 144
+    .line 148
     :cond_6f
     invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -191,7 +191,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 145
+    .line 149
     # getter for: Lcom/isaigu/gymapp/bodytech/BtLoad;->WAITING:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$100()Ljava/util/WeakHashMap;
 
@@ -201,7 +201,7 @@
 
     goto :goto_73
 
-    .line 147
+    .line 151
     :cond_87
     invoke-interface {v3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -220,7 +220,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 148
+    .line 152
     # getter for: Lcom/isaigu/gymapp/bodytech/BtLoad;->WAITING:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$100()Ljava/util/WeakHashMap;
 
@@ -230,13 +230,13 @@
 
     goto :goto_8b
 
-    .line 150
+    .line 154
     :cond_9f
     monitor-exit v5
     :try_end_a0
     .catchall {:try_start_5f .. :try_end_a0} :catchall_5c
 
-    .line 151
+    .line 155
     invoke-interface {v3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -254,13 +254,13 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 152
+    .line 156
     # invokes: Lcom/isaigu/gymapp/bodytech/BtLoad;->refresh(Lcom/isaigu/gymapp/train/model/TrainItem;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$200(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
     goto :goto_a4
 
-    .line 154
+    .line 158
     :cond_b4
     invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -279,24 +279,24 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 156
+    .line 160
     :try_start_c4
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->start()V
     :try_end_c7
     .catch Ljava/lang/Throwable; {:try_start_c4 .. :try_end_c7} :catch_cb
 
-    .line 160
+    .line 164
     :goto_c7
     # invokes: Lcom/isaigu/gymapp/bodytech/BtLoad;->refresh(Lcom/isaigu/gymapp/train/model/TrainItem;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$200(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
     goto :goto_b8
 
-    .line 157
+    .line 161
     :catch_cb
     move-exception v2
 
-    .line 158
+    .line 162
     const-string v3, "xems-bt"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -321,7 +321,7 @@
 
     goto :goto_c7
 
-    .line 162
+    .line 166
     :cond_e5
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -340,13 +340,13 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 163
+    .line 167
     # invokes: Lcom/isaigu/gymapp/bodytech/BtLoad;->refresh(Lcom/isaigu/gymapp/train/model/TrainItem;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$200(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
     goto :goto_e9
 
-    .line 165
+    .line 169
     :cond_f9
     invoke-interface {v4}, Ljava/util/List;->isEmpty()Z
 
@@ -354,11 +354,11 @@
 
     if-nez v0, :cond_102
 
-    .line 166
+    .line 170
     # invokes: Lcom/isaigu/gymapp/bodytech/BtLoad;->tick()V
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtLoad;->access$300()V
 
-    .line 168
+    .line 172
     :cond_102
     return-void
 .end method

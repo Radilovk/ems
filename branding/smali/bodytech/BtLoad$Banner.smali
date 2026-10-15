@@ -39,58 +39,58 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 219
+    .line 223
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 210
+    .line 214
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->fill:Landroid/graphics/Paint;
 
-    .line 211
+    .line 215
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->big:Landroid/graphics/Paint;
 
-    .line 212
+    .line 216
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->small:Landroid/graphics/Paint;
 
-    .line 214
+    .line 218
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->box:Landroid/graphics/RectF;
 
-    .line 215
+    .line 219
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->line1:Ljava/lang/String;
 
-    .line 216
+    .line 220
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->line2:Ljava/lang/String;
 
-    .line 220
+    .line 224
     iput p1, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->d:F
 
-    .line 221
+    .line 225
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->big:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 222
+    .line 226
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->big:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41b00000    # 22.0f
@@ -101,21 +101,21 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 223
+    .line 227
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->big:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 224
+    .line 228
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->small:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 225
+    .line 229
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->small:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41800000    # 16.0f
@@ -126,7 +126,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 226
+    .line 230
     return-void
 .end method
 
@@ -146,12 +146,12 @@
 
     const/high16 v9, 0x40400000    # 3.0f
 
-    .line 236
+    .line 240
     invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v8
 
-    .line 237
+    .line 241
     invoke-virtual {v8}, Landroid/graphics/Rect;->width()I
 
     move-result v0
@@ -164,12 +164,12 @@
 
     if-gtz v0, :cond_1c
 
-    .line 258
+    .line 262
     :cond_1b
     :goto_1b
     return-void
 
-    .line 240
+    .line 244
     :cond_1c
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->box:Landroid/graphics/RectF;
 
@@ -215,14 +215,14 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 241
+    .line 245
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->fill:Landroid/graphics/Paint;
 
     const v1, -0x1fd9d5d0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 242
+    .line 246
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->box:Landroid/graphics/RectF;
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->d:F
@@ -237,12 +237,12 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 243
+    .line 247
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v12}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 244
+    .line 248
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->box:Landroid/graphics/RectF;
 
     iget v1, v0, Landroid/graphics/RectF;->left:F
@@ -279,31 +279,31 @@
 
     invoke-virtual/range {v0 .. v7}, Landroid/graphics/Canvas;->drawRoundRect(FFFFFFLandroid/graphics/Paint;)V
 
-    .line 245
+    .line 249
     invoke-virtual {v8}, Landroid/graphics/Rect;->exactCenterX()F
 
     move-result v0
 
-    .line 246
+    .line 250
     invoke-virtual {v8}, Landroid/graphics/Rect;->exactCenterY()F
 
     move-result v2
 
-    .line 247
+    .line 251
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->big:Landroid/graphics/Paint;
 
     const v3, -0x7e2b06
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 248
+    .line 252
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->small:Landroid/graphics/Paint;
 
     const v3, -0x191613
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 249
+    .line 253
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->line1:Ljava/lang/String;
 
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->d:F
@@ -316,7 +316,7 @@
 
     invoke-virtual {p1, v1, v0, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 250
+    .line 254
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -361,7 +361,7 @@
 
     invoke-virtual {p1, v1, v0, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 251
+    .line 255
     iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->box:Landroid/graphics/RectF;
 
     invoke-virtual {v1}, Landroid/graphics/RectF;->width()F
@@ -386,14 +386,14 @@
 
     move-result v8
 
-    .line 252
+    .line 256
     const/high16 v1, 0x40000000    # 2.0f
 
     div-float v1, v8, v1
 
     sub-float v1, v0, v1
 
-    .line 253
+    .line 257
     const/high16 v0, 0x41b00000    # 22.0f
 
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->d:F
@@ -402,14 +402,14 @@
 
     add-float/2addr v2, v0
 
-    .line 254
+    .line 258
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->fill:Landroid/graphics/Paint;
 
     const v3, 0x40ffffff    # 7.9999995f
 
     invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 255
+    .line 259
     add-float v3, v1, v8
 
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->d:F
@@ -432,12 +432,12 @@
 
     invoke-virtual/range {v0 .. v7}, Landroid/graphics/Canvas;->drawRoundRect(FFFFFFLandroid/graphics/Paint;)V
 
-    .line 256
+    .line 260
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v12}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 257
+    .line 261
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->pct:I
 
     int-to-float v0, v0
@@ -477,7 +477,7 @@
     .registers 2
 
     .prologue
-    .line 268
+    .line 272
     const/4 v0, -0x3
 
     return v0
@@ -487,13 +487,13 @@
     .registers 6
 
     .prologue
-    .line 229
+    .line 233
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->line1:Ljava/lang/String;
 
-    .line 230
+    .line 234
     iput-object p2, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->line2:Ljava/lang/String;
 
-    .line 231
+    .line 235
     const/4 v0, 0x0
 
     const/16 v1, 0x64
@@ -508,7 +508,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtLoad$Banner;->pct:I
 
-    .line 232
+    .line 236
     return-void
 .end method
 
@@ -516,7 +516,7 @@
     .registers 2
 
     .prologue
-    .line 261
+    .line 265
     return-void
 .end method
 
@@ -524,6 +524,6 @@
     .registers 2
 
     .prologue
-    .line 264
+    .line 268
     return-void
 .end method

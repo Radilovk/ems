@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v7)
+# XEMS panel on the XBody unit (mod v9)
 
 XEMS and bodytech suits and WiEMS units (mod v7, `docs/xems-wiems.md`) trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -57,6 +57,20 @@ xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──�
   pills, live status in the header, autosave ("✓ Запазено"); the XIAO card at the bottom. The tab shows ⇄ (XEMS
   suit) and 2× (double impulse) whenever XBody's output is changed by us.
 - Tests: `test-panel.sh` (Shaper + table, 211 checks; the proxy end to end over sockets), `test.sh` 5b (stock path).
+
+## Cable and wireless side by side, several wireless suits (mod v9)
+- XBody's own training (cable) and the panel's wireless suits are separate windows and run at the same time: `← XBODY`
+  leaves a wireless session running; the tabs switch.
+- Up to **4 wireless sessions** (= the bridge's links), each with its own suit, program, clock and queue (`App`
+  `Session`); the panel shows one at a time — the same XBody training screen for every one (owner's rule).
+- **Session tabs** (`SessionTab`) under the XEMS tab while XBody is in front, one per session: name, time left (green
+  running, yellow paused / "МИГ…" counting down, "готов" idle) and a red **■ STOP** — the suit's outputs off at once
+  (stop + its SAFE frame straight out), without opening the panel. A tap elsewhere opens that session's screen.
+- The XEMS tab shows **+** while a session exists: a tap opens the suit list for one more (4/4: opens the current).
+  A suit already in a session is not listed; scanning only while the list is shown; the last suit reconnects by
+  itself only when no session exists; bridge DFU only with no session.
+- A lost link / WERR / no ACK ends only that session (note names it); a pulled or silent bridge ends all.
+- Emulator check: two suits running (WiEMS + XEMS), ■ on the first stops it only, the second's tab opens its screen.
 
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's

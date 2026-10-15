@@ -112,6 +112,15 @@ PanelWidget::PanelWidget(App *app)
     timer_.start(50, this);   // stepper repeat + change check; paints only on a change
 }
 
+void PanelWidget::sessionChanged() {
+    sel_ = 0;
+    selKind_ = -1;
+    sheet_ = confirm_ = info_ = false;
+    showCable_ = false;
+    pressed_.clear();
+    sig_.clear();   // repaint
+}
+
 void PanelWidget::layout() {
     double kw = width() / 800.0, kh = height() / 600.0;
     k_ = kw < kh ? kw : kh;
@@ -1243,6 +1252,13 @@ void TabWidget::paintEvent(QPaintEvent *) {
     p.setFont(uiFont((int)(18 * k), true));
     p.drawText(QRect((int)(12 * k), 0, (int)(64 * k), height()), Qt::AlignLeft | Qt::AlignVCenter, U("XEMS"));
     QRect st((int)(70 * k), 0, width() - (int)(82 * k), height());
+    if (app_->sessions() > 0) {   // each suit has its own tab below: this one adds another
+        bool more = app_->sessions() < App::MAX_SESSIONS;
+        p.setPen(more ? INK : LINE);
+        p.setFont(uiFont((int)(26 * k), true));
+        p.drawText(st, Qt::AlignRight | Qt::AlignVCenter, more ? U("+") : U("4/4"));
+        return;
+    }
     if (running || paused) {
         p.setPen(running ? GREEN : QColor(0xC8, 0x96, 0x00));
         p.setFont(uiFont((int)(18 * k), true));
@@ -1295,6 +1311,10 @@ void TabWidget::mouseReleaseEvent(QMouseEvent *) {
         QSettings st(QString::fromLocal8Bit(std::getenv("XEMS_CONF") ? std::getenv("XEMS_CONF") : "/opt/xems/panel.conf"),
                      QSettings::IniFormat);
         st.setValue("tab/pos", pos());
+    } else if (app_->sessions() > 0 && app_->sessions() < App::MAX_SESSIONS) {
+        app_->showPick();
+    } else if (app_->sessions() > 0) {
+        app_->showSession(app_->current() >= 0 ? app_->current() : 0);
     } else {
         app_->openPanel();
     }
@@ -1309,11 +1329,108 @@ void TabWidget::timerEvent(QTimerEvent *) {
     QString g = QString::number(down_) + QString::number(app_->bridgeOk()) + QString::number(s != 0);
     g += U(" %1%2").arg(app_->cable().wiring).arg(app_->cable().dbl);
     if (s) g += U(" %1 %2").arg(s->state()).arg(s->state() == Suit::IDLE ? 0 : s->secondsLeft(app_->now()));
+    g += U(" n%1").arg(app_->sessions());
     if (g != sig_) update();
     sig_ = g;
 }
 
 void TabWidget::tapAt(const QPoint &p) {
+    QMouseEvent d(QEvent::MouseButtonPress, p, mapToGlobal(p), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(this, &d);
+    QMouseEvent u(QEvent::MouseButtonRelease, p, mapToGlobal(p), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(this, &u);
+}
+
+// ---------------------------------------------------------------- session tabs
+
+SessionTab::SessionTab(App *app, int index)
+    : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool), app_(app), index_(index), down_(false),
+      downStop_(false) {
+    QRect scr = QApplication::desktop()->screenGeometry();
+    double k = scr.height() / 600.0;
+    resize((int)(230 * k), (int)(48 * k));
+    QPainterPath shape;
+    shape.addRoundedRect(QRectF(rect()), 8 * k, 8 * k);
+    setMask(QRegion(shape.toFillPolygon().toPolygon()));
+    hide();
+    timer_.start(250, this);
+}
+
+QRect SessionTab::stopRect() const {
+    double k = height() / 48.0;
+    return QRect(width() - (int)(52 * k), (int)(5 * k), (int)(46 * k), height() - (int)(10 * k));
+}
+
+void SessionTab::paintEvent(QPaintEvent *) {
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    double k = height() / 48.0;
+    Suit *s = app_->sessionSuit(index_);
+    if (!s) return;
+    bool running = s->state() == Suit::RUNNING, paused = s->state() == Suit::PAUSED;
+    bool counting = s->startPending();
+    QColor edge = running ? GREEN : paused || counting ? YELLOW : LINE;
+    p.fillRect(rect(), WHITE);
+    p.setPen(QPen(edge, (running || paused ? 3 : 2) * k));
+    p.setBrush(down_ && !downStop_ ? PRESS : WHITE);
+    p.drawRoundedRect(QRectF(rect()).adjusted(1.5 * k, 1.5 * k, -1.5 * k, -1.5 * k), 8 * k, 8 * k);
+    QRect stop = stopRect();
+    int textRight = stop.left() - (int)(6 * k);
+    // the time (or the state) next to STOP, the suit's name in what is left
+    QString t = running || paused ? mmss(s->secondsLeft(app_->now())) : counting ? U("МИГ…") : U("готов");
+    p.setFont(uiFont((int)(17 * k), true));
+    int tw = QFontMetrics(p.font()).width(t);
+    p.setPen(running ? GREEN : paused || counting ? QColor(0xC8, 0x96, 0x00) : SOFT);
+    p.drawText(QRect(textRight - tw, 0, tw, height()), Qt::AlignRight | Qt::AlignVCenter, t);
+    p.setPen(INK);
+    p.setFont(uiFont((int)(14 * k), true));
+    QRect nr((int)(10 * k), 0, textRight - tw - (int)(16 * k), height());
+    QString n = QFontMetrics(p.font()).elidedText(QString::fromStdString(app_->sessionName(index_)), Qt::ElideRight, nr.width());
+    p.drawText(nr, Qt::AlignLeft | Qt::AlignVCenter, n);
+    // ■ STOP: red while something can be stopped, grey when the suit is idle
+    bool live = running || paused || counting;
+    p.setPen(Qt::NoPen);
+    p.setBrush(live ? (down_ && downStop_ ? QColor(0xB0, 0x10, 0x18) : RED) : PRESS);
+    p.drawRoundedRect(QRectF(stop), 6 * k, 6 * k);
+    p.setBrush(live ? WHITE : LINE);
+    int q = (int)(14 * k);
+    p.drawRect(QRect(stop.center().x() - q / 2, stop.center().y() - q / 2, q, q));
+}
+
+void SessionTab::mousePressEvent(QMouseEvent *e) {
+    down_ = true;
+    downStop_ = stopRect().contains(e->pos());
+    update();
+}
+
+void SessionTab::mouseReleaseEvent(QMouseEvent *e) {
+    bool stop = downStop_ && stopRect().contains(e->pos());
+    bool open = down_ && !downStop_ && rect().contains(e->pos());
+    down_ = downStop_ = false;
+    if (stop) app_->stopSession(index_);
+    else if (open) app_->showSession(index_);
+    update();
+}
+
+void SessionTab::timerEvent(QTimerEvent *) {
+    bool want = index_ < app_->sessions() && !app_->panelOpen();
+    if (want != isVisible()) setVisible(want);
+    if (!want) { sig_.clear(); return; }
+    // under the XEMS tab (it can be dragged): one row per session
+    QPoint c = app_->tabCorner();
+    QPoint at(c.x(), c.y() + (int)(4 * height() / 48.0) + index_ * (height() + (int)(4 * height() / 48.0)));
+    QRect scr = QApplication::desktop()->screenGeometry();
+    if (at.x() + width() > scr.right()) at.setX(scr.right() - width());
+    if (at != pos()) move(at);
+    raise();
+    Suit *s = app_->sessionSuit(index_);
+    QString g = QString::number(down_) + QString::number(downStop_) + QString::fromStdString(app_->sessionName(index_));
+    if (s) g += U(" %1 %2 %3").arg(s->state()).arg(s->startPending()).arg(s->state() == Suit::IDLE ? 0 : s->secondsLeft(app_->now()));
+    if (g != sig_) update();
+    sig_ = g;
+}
+
+void SessionTab::tapAt(const QPoint &p) {
     QMouseEvent d(QEvent::MouseButtonPress, p, mapToGlobal(p), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     QApplication::sendEvent(this, &d);
     QMouseEvent u(QEvent::MouseButtonRelease, p, mapToGlobal(p), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);

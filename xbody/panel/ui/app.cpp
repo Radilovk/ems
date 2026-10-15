@@ -36,7 +36,7 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), suit_(0), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
+      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       noteWarn_(false), noteUntilMs_(0),
       panel_(0), tab_(0), strengthMem_(0) {
     t0_ = now();
@@ -52,12 +52,62 @@ App::App()
 }
 
 App::~App() {
-    if (suit_ && port_ && port_->ok()) {
-        send(bridgecmd::write(suitMac_, suit_->safeFrame()));
-        send(bridgecmd::disc(suitMac_));
+    for (size_t i = 0; i < ses_.size(); i++) {
+        if (port_ && port_->ok()) {
+            send(bridgecmd::write(ses_[i].mac, ses_[i].suit->safeFrame()));
+            send(bridgecmd::disc(ses_[i].mac));
+        }
+        delete ses_[i].suit;
     }
-    delete suit_;
     delete port_;
+}
+
+const std::string &App::suitName() const {
+    static const std::string none;
+    return cur_ >= 0 && cur_ < (int)ses_.size() ? ses_[cur_].name : none;
+}
+
+int App::find(const std::string &mac) const {
+    for (size_t i = 0; i < ses_.size(); i++) if (ses_[i].mac == mac) return (int)i;
+    return -1;
+}
+
+void App::showSession(int i) {
+    if (i < 0 || i >= (int)ses_.size()) return;
+    cur_ = i;
+    prog_ = ses_[i].prog;   // the sheet and the header show this session's values
+    age60_ = ses_[i].age60;
+    wiring_ = ses_[i].wiring;
+    if (panel_) panel_->sessionChanged();
+    openPanel();
+}
+
+void App::showPick() {
+    cur_ = -1;
+    if (panel_) panel_->sessionChanged();
+    openPanel();
+}
+
+void App::stopSession(int i) {
+    if (i < 0 || i >= (int)ses_.size()) return;
+    Suit *s = ses_[i].suit;
+    s->stop();
+    send(bridgecmd::write(ses_[i].mac, s->safeFrame()));   // straight out, not behind the queue
+}
+
+bool App::panelOpen() const { return panel_ && panel_->isVisible(); }
+
+QPoint App::tabCorner() const { return tab_ ? tab_->geometry().bottomLeft() : QPoint(); }
+
+void App::drop(int i, const QString &why) {
+    if (i < 0 || i >= (int)ses_.size()) return;
+    if (std::getenv("XEMS_DEBUG")) std::fprintf(stderr, "%6u ! lost %s: %s\n", now(), ses_[i].mac.c_str(), why.toUtf8().constData());
+    delete ses_[i].suit;   // the bridge has already switched it off (SAFE frame) or the link is gone
+    ses_.erase(ses_.begin() + i);
+    if (cur_ == i) cur_ = -1;
+    else if (cur_ > i) cur_--;
+    if (panel_) panel_->sessionChanged();
+    if (!why.isEmpty()) setNote(why, true);
 }
 
 unsigned App::now() const {
@@ -68,7 +118,7 @@ unsigned App::now() const {
 
 App::View App::view() const {
     if (!bridgeOk()) return NO_BRIDGE;
-    if (suit_) return TRAIN;
+    if (cur_ >= 0 && cur_ < (int)ses_.size()) return TRAIN;
     if (!linkingMac_.empty()) return LINKING;
     return PICK;
 }
@@ -150,68 +200,61 @@ void App::save() {
 }
 
 void App::connectTo(const std::string &mac) {
-    if (suit_) return;
+    if (find(mac) >= 0 || (int)ses_.size() >= MAX_SESSIONS || !linkingMac_.empty()) return;
     linkingMac_ = mac;
     linkingSinceMs_ = now();
     send(bridgecmd::conn(mac));
 }
 
 void App::forget() {
-    if (suit_) {
-        suit_->stop();
-        send(bridgecmd::write(suitMac_, suit_->safeFrame()));   // straight out, not behind the queue
-        send(bridgecmd::disc(suitMac_));
-        delete suit_;
-        suit_ = 0;
+    Suit *s = suit();
+    if (s) {
+        s->stop();
+        send(bridgecmd::write(ses_[cur_].mac, s->safeFrame()));   // straight out, not behind the queue
+        send(bridgecmd::disc(ses_[cur_].mac));
+        drop(cur_, QString());
     }
-    suitMac_.clear();
     lastMac_.clear();
     save();
 }
 
-void App::lost(const QString &why) {
-    if (std::getenv("XEMS_DEBUG")) std::fprintf(stderr, "%6u ! lost: %s\n", now(), why.toUtf8().constData());
-    if (!suit_) return;
-    delete suit_;   // the bridge has already switched it off (SAFE frame) or the link is gone
-    suit_ = 0;
-    suitMac_.clear();
-    setNote(why, true);
-}
-
 void App::startPause() {
-    if (!suit_) return;
-    if (suit_->state() == Suit::RUNNING || suit_->startPending()) suit_->pause(now());   // a pending start is cancelled
-    else suit_->start(now());
+    Suit *s = suit();
+    if (!s) return;
+    if (s->state() == Suit::RUNNING || s->startPending()) s->pause(now());   // a pending start is cancelled
+    else s->start(now());
 }
 
 void App::stopRun() {
-    if (suit_) suit_->stop();
+    if (suit()) suit()->stop();
 }
 
 void App::strengthStep(int d) {
-    if (suit_) suit_->setStrength(suit_->strength() + d);
+    if (suit()) suit()->setStrength(suit()->strength() + d);
 }
 
 void App::setChannel(int i, int pct) {
-    if (suit_) suit_->setChannel(i, pct);
+    if (suit()) suit()->setChannel(i, pct);
 }
 
 void App::setZone(const Zone &z, int pct) {
-    if (suit_) suit_->setZone(z, pct);
+    if (suit()) suit()->setZone(z, pct);
 }
 
 void App::setWiring(int w) {
     w = w == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
     if (w == wiring_) return;
-    if (suit_ && suit_->kind() == Suit::XEMS) {
+    Suit *s = suit();
+    if (s && s->kind() == Suit::XEMS) {
         const Zone *from, *to;
         int n = Suit::zones(Suit::XEMS, &from, wiring_);
         Suit::zones(Suit::XEMS, &to, w);
         int pct[Suit::MAX_CH];
-        for (int i = 0; i < n; i++) pct[i] = suit_->zone(from[i]);
-        for (int i = 0; i < n; i++) suit_->setZone(to[i], pct[i]);
+        for (int i = 0; i < n; i++) pct[i] = s->zone(from[i]);
+        for (int i = 0; i < n; i++) s->setZone(to[i], pct[i]);
     }
     wiring_ = w;
+    if (s) ses_[cur_].wiring = w;
     save();
 }
 
@@ -221,7 +264,12 @@ void App::applyProgram(const Program &p, bool age60) {
     probe.setProgram(p, age60 ? 65 : -1, &why);
     prog_ = probe.program();
     age60_ = age60;
-    if (suit_ && suit_->state() != Suit::RUNNING) suit_->setProgram(prog_, age60_ ? 65 : -1, 0);
+    Suit *s = suit();
+    if (s && s->state() != Suit::RUNNING) {
+        s->setProgram(prog_, age60_ ? 65 : -1, 0);
+        ses_[cur_].prog = prog_;
+        ses_[cur_].age60 = age60_;
+    }
     if (!why.empty()) {
         QString w = QString::fromUtf8(why.c_str());
         w.replace('\n', U("  ·  "));
@@ -232,12 +280,13 @@ void App::applyProgram(const Program &p, bool age60) {
 
 void App::openPanel() {
     if (tab_) tab_->hide();
+    for (size_t i = 0; i < stabs_.size(); i++) stabs_[i]->hide();
     if (panel_) { panel_->showFullScreen(); panel_->raise(); panel_->activateWindow(); }
 }
 
 void App::hidePanel() {
     if (panel_) panel_->hide();
-    if (tab_) { tab_->show(); tab_->raise(); }
+    if (tab_) { tab_->show(); tab_->raise(); }   // the session tabs show themselves (SessionTab::timerEvent)
 }
 
 void App::line(const std::string &l, unsigned t) {
@@ -282,24 +331,36 @@ void App::line(const std::string &l, unsigned t) {
         break;
     }
     case BridgeEvent::LINK: {
-        if (e.mac != linkingMac_ || suit_) { send(bridgecmd::disc(e.mac)); break; }
+        if (e.mac != linkingMac_ || find(e.mac) >= 0 || (int)ses_.size() >= MAX_SESSIONS) {
+            send(bridgecmd::disc(e.mac));
+            break;
+        }
         Suit::Kind k = e.svc == "FE50" ? Suit::BODYTECH : e.svc == "WIEMS" ? Suit::WIEMS : Suit::XEMS;
-        suit_ = new Suit(k);
-        suit_->setProgram(prog_, age60_ ? 65 : -1, 0);
-        suit_->setStrength(0);   // a new link always starts from 0
-        suit_->linked(t);
-        suitMac_ = e.mac;
-        suitName_ = e.mac;
-        for (size_t i = 0; i < seen_.size(); i++) if (seen_[i].mac == e.mac) suitName_ = seen_[i].name;
-        send(bridgecmd::safe(e.mac, suit_->safeFrame()));
+        Session n;
+        n.suit = new Suit(k);
+        n.suit->setProgram(prog_, age60_ ? 65 : -1, 0);
+        n.suit->setStrength(0);   // a new link always starts from 0
+        n.suit->linked(t);
+        n.mac = e.mac;
+        n.name = e.mac;
+        n.prog = n.suit->program();
+        n.age60 = age60_;
+        n.wiring = wiring_;
+        for (size_t i = 0; i < seen_.size(); i++)
+            if (seen_[i].mac == e.mac) { n.name = seen_[i].name; seen_.erase(seen_.begin() + i); break; }
+        ses_.push_back(n);
+        cur_ = (int)ses_.size() - 1;   // the screen goes to the new suit
+        if (panel_) panel_->sessionChanged();
+        send(bridgecmd::safe(e.mac, n.suit->safeFrame()));
         linkingMac_.clear();
         lastMac_ = e.mac;
         save();
-        setNote(U("Свързан ✓  ") + QString::fromStdString(suitName_), false);
+        setNote(U("Свързан ✓  ") + QString::fromStdString(n.name), false);
         break;
     }
     case BridgeEvent::LOST:
-        if (e.mac == suitMac_) lost(U("Връзката с костюма прекъсна — тренировката спря"));
+        if (find(e.mac) >= 0) drop(find(e.mac), U("Връзката с ") + QString::fromStdString(ses_[find(e.mac)].name) +
+                                                     U(" прекъсна — тренировката спря"));
         if (e.mac == linkingMac_) { linkingMac_.clear(); setNote(U("Костюмът не се свърза — опитай пак"), true); }
         break;
     case BridgeEvent::FAIL:
@@ -310,15 +371,15 @@ void App::line(const std::string &l, unsigned t) {
         }
         break;
     case BridgeEvent::NOTIFY:
-        if (suit_ && e.mac == suitMac_) suit_->notify(e.data);
+        if (find(e.mac) >= 0) ses_[find(e.mac)].suit->notify(e.data);
         break;
     case BridgeEvent::WOK:
-        if (suit_ && e.mac == suitMac_) suit_->ack(true);
+        if (find(e.mac) >= 0) ses_[find(e.mac)].suit->ack(true);
         break;
     case BridgeEvent::WERR:
-        if (suit_ && e.mac == suitMac_) {
-            send(bridgecmd::disc(suitMac_));
-            lost(U("Костюмът не прие команда — тренировката спря"));
+        if (find(e.mac) >= 0) {
+            send(bridgecmd::disc(e.mac));
+            drop(find(e.mac), U("Костюмът не прие команда — тренировката спря"));
         }
         break;
     default:
@@ -333,7 +394,7 @@ void App::timerEvent(QTimerEvent *ev) {
     if (!port_ || !port_->ok()) {
         if (helloMs_) {
             helloMs_ = 0;
-            if (suit_) lost(U("Мостът е изваден — костюмът спря"));
+            while (!ses_.empty()) drop((int)ses_.size() - 1, U("Мостът е изваден — костюмите спряха"));
         }
         if (age(t, lastOpenMs_) >= 1000 || !lastOpenMs_) {
             lastOpenMs_ = t;
@@ -355,25 +416,25 @@ void App::timerEvent(QTimerEvent *ev) {
         if (age(t, lastPingMs_) >= 1000) { lastPingMs_ = t; send(bridgecmd::ping()); }
         if (helloMs_ && age(t, lastRxMs_) > 4000) {   // a bridge that stopped talking (stuck, wrong device)
             helloMs_ = 0;
-            if (suit_) lost(U("Мостът не отговаря — костюмът спря"));
+            while (!ses_.empty()) drop((int)ses_.size() - 1, U("Мостът не отговаря — костюмите спряха"));
         }
     }
     if (age(t, cableReadMs_) >= 500) { cableReadMs_ = t; readCableState(); }
     // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----
     bool update = bridgeOk() && bridgeVer_ > 0 && bundledVer_ > bridgeVer_;
-    if (update && !dfuSent_ && !suit_ && linkingMac_.empty()) {
+    if (update && !dfuSent_ && ses_.empty() && linkingMac_.empty()) {
         dfuSent_ = true;
         send(bridgecmd::dfu());
     }
     // ---- scanning: only while choosing / looking for the last suit ----
-    bool wantScan = bridgeOk() && !suit_;
+    bool wantScan = bridgeOk() && cur_ < 0 && (int)ses_.size() < MAX_SESSIONS;
     if (bridgeOk() && wantScan != scanning_) { scanning_ = wantScan; send(bridgecmd::scan(wantScan)); }
     for (size_t i = 0; i < seen_.size();) {
         if (age(t, seen_[i].lastMs) > 6000) seen_.erase(seen_.begin() + i);
         else i++;
     }
     // Derive, don't ask: the last suit reconnects by itself when it shows up.
-    if (bridgeOk() && !suit_ && linkingMac_.empty() && !lastMac_.empty() && !update)
+    if (bridgeOk() && ses_.empty() && linkingMac_.empty() && !lastMac_.empty() && !update)
         for (size_t i = 0; i < seen_.size(); i++)
             if (seen_[i].mac == lastMac_) { connectTo(lastMac_); break; }
     if (!linkingMac_.empty() && age(t, linkingSinceMs_) > 12000) {
@@ -381,17 +442,20 @@ void App::timerEvent(QTimerEvent *ev) {
         linkingMac_.clear();
         setNote(U("Костюмът не отговори — включен ли е?"), true);
     }
-    // ---- the suit ----
-    if (suit_) {
-        bool wasRunning = suit_->state() != Suit::IDLE;
-        suit_->tick(t);
-        if (wasRunning && suit_->finished()) setNote(U("Тренировката завърши ✓"), false);
-        if (suit_->ackLate(t)) {
-            send(bridgecmd::disc(suitMac_));
-            lost(U("Костюмът спря да отговаря — тренировката спря"));
+    // ---- the suits: each its own clock and its own queue (one frame in flight per link) ----
+    for (int i = 0; i < (int)ses_.size(); i++) {
+        Suit *s = ses_[i].suit;
+        bool wasRunning = s->state() != Suit::IDLE;
+        s->tick(t);
+        if (wasRunning && s->finished())
+            setNote(QString::fromStdString(ses_[i].name) + U(": тренировката завърши ✓"), false);
+        if (s->ackLate(t)) {
+            send(bridgecmd::disc(ses_[i].mac));
+            drop(i, U("Костюмът спря да отговаря — тренировката спря"));
+            i--;
         } else {
-            const Bytes *b = suit_->next(t);
-            if (b) send(bridgecmd::write(suitMac_, *b));
+            const Bytes *b = s->next(t);
+            if (b) send(bridgecmd::write(ses_[i].mac, *b));
         }
     }
 }

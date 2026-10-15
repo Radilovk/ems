@@ -19,6 +19,7 @@ class PanelWidget : public QWidget {
 public:
     explicit PanelWidget(App *app);
     void tapAt(const QPoint &p);   // scripted taps (emulator), screen pixels
+    void sessionChanged();         // another suit on the screen: its own selection, no sheet left open
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -101,5 +102,28 @@ private:
     QBasicTimer timer_;
     QPoint pressGlobal_, startPos_;
     bool dragging_, down_;
+    QString sig_;
+};
+
+// One per wireless session, under the XEMS tab while XBody is in front: the suit's name and clock (green running,
+// yellow paused) and a red ■ STOP that switches its outputs off at once, without opening the panel. A tap elsewhere
+// opens that suit's training screen.
+class SessionTab : public QWidget {
+public:
+    SessionTab(App *app, int index);
+    void tapAt(const QPoint &p);
+
+protected:
+    void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void timerEvent(QTimerEvent *);
+
+private:
+    QRect stopRect() const;
+    App *app_;
+    int index_;
+    QBasicTimer timer_;
+    bool down_, downStop_;
     QString sig_;
 };

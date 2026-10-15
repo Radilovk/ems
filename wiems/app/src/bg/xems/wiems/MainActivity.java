@@ -343,6 +343,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         prog.onS = p.getInt("on", prog.onS);
         prog.offS = p.getInt("off", prog.offS);
         prog.totalS = p.getInt("total", prog.totalS);
+        prog.rampMs = p.getInt("ramp", prog.rampMs);
+        prog.dbl = p.getBoolean("dbl", false);
+        prog.dblHz = p.getInt("dbl_hz", prog.dblHz);
+        prog.dblPct = p.getInt("dbl_pct", prog.dblPct);
         age60 = p.getBoolean("age60", false);
         female = p.getBoolean("female", true);
         Safe.apply(prog, age60);    // a saved value goes through the limits too
@@ -350,7 +354,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     void save() {
         getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("last", lastMac).putInt("hz", prog.hz)
-                .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS)
+                .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
+                .putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
                 .putBoolean("age60", age60).putBoolean("female", female).apply();
     }
 }

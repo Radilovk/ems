@@ -100,7 +100,8 @@ final class XView extends View {
             b.append('|').append(s.secondsLeft(now)).append(' ').append((s.phaseMsLeft(now) + 999) / 1000);
             if (s.startPending()) b.append((now / 400) % 4);
         }
-        if (sheet) b.append(sheetProg.hz).append(sheetProg.onS).append(sheetProg.offS).append(sheetProg.totalS).append(sheetAge60);
+        if (sheet) b.append(sheetProg.hz).append(sheetProg.onS).append(sheetProg.offS).append(sheetProg.totalS).append(sheetAge60)
+                .append(sheetProg.rampMs).append(sheetProg.dbl).append(sheetProg.dblHz).append(sheetProg.dblPct);
         return b.toString();
     }
 
@@ -387,8 +388,9 @@ final class XView extends View {
         if ("prog".equals(pressed)) round(c, pl + 1, 0, dw, 56, 0, PRESS);
         font(22, true);
         text(c, pr.hz + " Hz", pl, 3, dw, 31, 0, running ? GREY : INK);
-        font(14, true);
-        text(c, pr.onS + "/" + pr.offS + " s · " + pr.totalS / 60 + " мин", pl, 30, dw, 52, 0, running ? GREY : SOFT);
+        font(pr.dbl ? 12.5f : 14, true);
+        text(c, pr.onS + "/" + pr.offS + " s · " + pr.totalS / 60 + " мин" + (pr.dbl ? " · 2×" : ""), pl, 30, dw, 52, 0,
+                running ? GREY : SOFT);
         hit(pl, 0, dw, 56, "prog");
 
         // ---- the zone buttons: XBody's two columns, at the screen's edges ----
@@ -471,9 +473,10 @@ final class XView extends View {
             float t = s.liveLevel(Session.ZONE_CH[z]) / 100f;
             boolean picked = (sel & (1 << z)) != 0;
             if (t > 0) {
-                float k2 = (float) Math.sqrt(Math.min(1f, t * 2.2f));   // low strengths already show
-                col[z] = mix(LIGHT_RED, RED, k2);
-                alpha[z] = 0.42f + 0.58f * k2;
+                float k2 = Math.min(1f, t / 0.8f);      // in step with the impulse: deep red from 80 %
+                // the second impulse (double impulse, in the pause) in XBody's yellow — the main one in its red
+                col[z] = s.second() ? mix(0xFFFFE28A, 0xFFF5A600, k2) : mix(LIGHT_RED, RED, k2);
+                alpha[z] = 0.28f + 0.72f * k2;
             } else if (picked) {
                 col[z] = RED;
                 alpha[z] = 0.30f;
@@ -657,25 +660,25 @@ final class XView extends View {
         Session.Program q = sheetProg;
         boolean locked = a.session() != null && a.session().state() == Session.RUNNING;
         caption(c, o + 64, 98, locked ? "ПРОГРАМА · СМЕНЯ СЕ НА ПАУЗА" : "ПРОГРАМА");
-        String[] labels = {"Честота", "Времетраене"};
-        String[] values = {q.hz + " Hz", q.totalS / 60 + " мин"};
-        String[] fields = {"hz", "total"};
-        for (int i = 0; i < 2; i++) {
-            float y = 124 + i * 64;
+        String[] labels = {"Честота", "Времетраене", "Рампа"};
+        String[] values = {q.hz + " Hz", q.totalS / 60 + " мин", q.rampMs / 1000 + "," + q.rampMs % 1000 / 100 + " s"};
+        String[] fields = {"hz", "total", "ramp"};
+        for (int i = 0; i < 3; i++) {
+            float y = 120 + i * 60;
             font(16, false);
-            text(c, labels[i], o + 64, y, o + 222, y + 52, -1, INK);
-            pill(c, o + 222, y, o + 408, y + 52, values[i], locked ? null : fields[i]);
+            text(c, labels[i], o + 64, y, o + 222, y + 50, -1, INK);
+            pill(c, o + 222, y, o + 408, y + 50, values[i], locked ? null : fields[i]);
         }
         font(16, false);
-        text(c, "Ритъм", o + 64, 268, o + 364, 292, -1, INK);
+        text(c, "Ритъм", o + 64, 302, o + 364, 326, -1, INK);
         float bl = o + 64, bw = 344, wOn = bw * q.onS / Math.max(1, q.onS + q.offS);
-        round(c, bl, 298, bl + bw, 310, 6, HEAD_LINE);
-        round(c, bl, 298, bl + wOn, 310, 6, GREEN);
-        pill(c, o + 64, 324, o + 230, 376, q.onS + " s", locked ? null : "on");
-        pill(c, o + 242, 324, o + 408, 376, q.offS + " s", locked ? null : "off");
+        round(c, bl, 332, bl + bw, 342, 5, q.dbl ? 0xFFFFD966 : HEAD_LINE);    // yellow pause = the double impulse
+        round(c, bl, 332, bl + wOn, 342, 5, GREEN);
+        pill(c, o + 64, 354, o + 230, 404, q.onS + " s", locked ? null : "on");
+        pill(c, o + 242, 354, o + 408, 404, q.offS + " s", locked ? null : "off");
         font(14, true);
-        text(c, "импулс", o + 64, 378, o + 230, 400, 0, GREEN);
-        text(c, "пауза", o + 242, 378, o + 408, 400, 0, SOFT);
+        text(c, "импулс", o + 64, 406, o + 230, 428, 0, GREEN);
+        text(c, "пауза", o + 242, 406, o + 408, 428, 0, SOFT);
 
         // ---- right: the client ----
         caption(c, o + 456, 98, "КЛИЕНТ");
@@ -703,17 +706,19 @@ final class XView extends View {
             font(14, true);
             text(c, "✓ Честотата спира до 85 Hz", o + 456, 258, o + 736, 280, -1, GREEN);
         }
-        // ---- what the session will be (derived, nothing to set) ----
-        round(c, o + 456, 352, o + 736, 452, 10, 0xFFF4F5F6);
-        caption(c, o + 472, 362, "СЕСИЯТА");
+        // ---- the double impulse: a second, low impulse in the pause (the unit's own rest Hz / %) ----
+        caption(c, o + 456, 296, "ДВОЕН ИМПУЛС");
+        float ds = o + 736 - 80, dt = 290;
+        round(c, ds, dt, ds + 80, dt + 30, 15, q.dbl ? YELLOW : 0xFFD5D7DA);
+        p.setColor(WHITE);
+        c.drawCircle(q.dbl ? ds + 65 : ds + 15, dt + 15, 12, p);
+        if (!locked) hit(ds - 90, dt - 6, ds + 80, dt + 36, "dbl");
+        pill(c, o + 456, 330, o + 592, 380, q.dblHz + " Hz", q.dbl && !locked ? "dblhz" : null);
+        pill(c, o + 600, 330, o + 736, 380, q.dblPct + "%", q.dbl && !locked ? "dblpct" : null);
+        // what the session will be (derived, nothing to set): one line
         int cycles = q.onS + q.offS > 0 ? q.totalS / (q.onS + q.offS) : 0;
-        font(34, true);
-        String cn = String.valueOf(cycles);
-        float cw = p.measureText(cn);
-        text(c, cn, o + 472, 384, o + 476 + cw, 428, -1, INK);
-        font(15, false);
-        text(c, "импулса", o + 480 + cw, 384, o + 720, 406, -1, SOFT);
-        text(c, q.onS * cycles / 60 + " мин работа", o + 480 + cw, 406, o + 720, 428, -1, SOFT);
+        font(14, false);
+        text(c, cycles + " импулса · " + q.onS * cycles / 60 + " мин работа", o + 456, 400, o + 736, 424, -1, SOFT);
 
         line(c, o + 64, 470, o + 736, 470, HEAD_LINE, 1);
         outlined(c, o + 64, 494, o + 264, 554, "sheet-cancel", "Откажи", 18, false);
@@ -828,6 +833,9 @@ final class XView extends View {
             else if (parts[1].equals("total")) q.totalS = bound(1, q.totalS / 60 + d, 60) * 60;
             else if (parts[1].equals("on")) q.onS = bound(1, q.onS + d, 30);
             else if (parts[1].equals("off")) q.offS = bound(1, q.offS + d, 60);
+            else if (parts[1].equals("ramp")) q.rampMs = bound(500, q.rampMs + d * 500, 5000);
+            else if (parts[1].equals("dblhz")) q.dblHz = bound(1, q.dblHz + d, Math.max(1, Math.min(10, q.hz - 1)));
+            else if (parts[1].equals("dblpct")) q.dblPct = bound(10, q.dblPct + d * 10, 150);
             return;
         }
         if (repeat) return;
@@ -882,6 +890,10 @@ final class XView extends View {
         if (id.equals("age60")) {
             sheetAge60 = !sheetAge60;
             if (sheetAge60 && sheetProg.hz > 85) sheetProg.hz = 85;
+            return;
+        }
+        if (id.equals("dbl")) {
+            sheetProg.dbl = !sheetProg.dbl;
             return;
         }
         if (id.equals("sheet-cancel")) {

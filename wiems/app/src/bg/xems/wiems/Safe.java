@@ -9,7 +9,7 @@ final class Safe {
     private Safe() {}
 
     static final int HZ_MAX = 120, HZ_MAX_60 = 85, TETANIC_HZ = 20, ON_MAX_50HZ = 6, ON_MAX_TETANIC = 10,
-            RAMP_MIN_MS = 300, OFF_MAX_SEARCH = 30, STRENGTH_MAX = 100;
+            RAMP_MIN_MS = 300, OFF_MAX_SEARCH = 30, STRENGTH_MAX = 100, PAUSE_HZ_MAX = 10, PAUSE_PCT_MAX = 150;
     private static final double TAU = 30.0;
 
     private static double fMax() {
@@ -36,6 +36,24 @@ final class Safe {
         if (p.hz < 1) p.hz = 1;
         if (p.onS < 1) p.onS = 1;
         if (p.offS < 1) p.offS = 1;
+        if (p.dbl) {
+            int phzMax = Math.min(p.hz - 1, PAUSE_HZ_MAX);
+            if (phzMax < 1) {
+                line(why, "Втори импулс изключен: основната честота е твърде ниска");
+                p.dbl = false;
+            } else {
+                if (p.dblHz > phzMax) {
+                    line(why, "Втори импулс " + p.dblHz + " → " + phzMax + " Hz (паузата е за отпускане)");
+                    p.dblHz = phzMax;
+                }
+                if (p.dblHz < 1) p.dblHz = 1;
+                if (p.dblPct > PAUSE_PCT_MAX) {
+                    line(why, "Вторият импулс е най-много 1,5 пъти по-силен от основния");
+                    p.dblPct = PAUSE_PCT_MAX;
+                }
+                if (p.dblPct < 10) p.dblPct = 10;
+            }
+        }
         if (p.hz >= TETANIC_HZ) {
             int onMax = p.hz >= 50 ? ON_MAX_50HZ : ON_MAX_TETANIC;
             if (p.onS > onMax) {
@@ -43,7 +61,7 @@ final class Safe {
                 p.onS = onMax;
             }
             if (p.rampMs < RAMP_MIN_MS) p.rampMs = RAMP_MIN_MS;
-            int min = minOff(p.hz, p.onS);
+            int min = minOff(p.hz, p.onS, p.dbl ? p.dblHz : 0, p.dbl ? p.dblPct / 100.0 : 0);
             if (p.offS < min) {
                 line(why, "Пауза " + p.offS + " → " + min + " s: при " + p.hz + " Hz · " + p.onS + " s по-кратка не е безопасна");
                 p.offS = min;
@@ -59,19 +77,20 @@ final class Safe {
         b.append(s);
     }
 
-    static int minOff(int hz, int on) {
+    static int minOff(int hz, int on, int pauseHz, double pauseSigma) {
         if (hz < TETANIC_HZ) return 1;
         double fm = fMax();
         int off = 1;
-        while (off < OFF_MAX_SEARCH && peak(hz, on, off) > fm + 1e-6) off++;
+        while (off < OFF_MAX_SEARCH && peak(hz, on, off, pauseHz, pauseSigma) > fm + 1e-6) off++;
         return off;
     }
 
-    static double peak(int hz, int on, int off) {
+    static double peak(int hz, int on, int off, int pauseHz, double pauseSigma) {
         double e1 = Math.exp(-on / TAU), e2 = Math.exp(-Math.max(off, 1) / TAU);
         double g = fatigueWeight(hz) * TAU;
+        double pz = pauseHz > 0 ? fatigueWeight(pauseHz) * pauseSigma * TAU : 0;
         double den = 1 - e1 * e2;
-        double f0 = g * (1 - e1) * e2 / (den > 1e-9 ? den : 1e-9);
+        double f0 = (g * (1 - e1) * e2 + pz * (1 - e2)) / (den > 1e-9 ? den : 1e-9);
         double a = f0 * e1 + g * (1 - e1);
         return Math.max(a, f0);
     }

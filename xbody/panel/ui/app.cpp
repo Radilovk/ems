@@ -37,7 +37,7 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
+      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), female_(true), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       noteWarn_(false), noteUntilMs_(0),
       panel_(0), tab_(0), strengthMem_(0) {
     t0_ = now();
@@ -68,6 +68,14 @@ App::~App() {
 const std::string &App::suitName() const {
     static const std::string none;
     return cur_ >= 0 && cur_ < (int)ses_.size() ? ses_[cur_].name : none;
+}
+
+bool App::female() const { return cur_ >= 0 && cur_ < (int)ses_.size() ? ses_[cur_].female : female_; }
+
+void App::setFemale(bool f) {
+    female_ = f;
+    if (cur_ >= 0 && cur_ < (int)ses_.size()) ses_[cur_].female = f;
+    save();
 }
 
 int App::find(const std::string &mac) const {
@@ -222,12 +230,18 @@ void App::load() {
     prog_.onS = st.value("program/on", prog_.onS).toInt();
     prog_.offS = st.value("program/off", prog_.offS).toInt();
     prog_.totalS = st.value("program/total", prog_.totalS).toInt();
+    prog_.rampMs = st.value("program/ramp", prog_.rampMs).toInt();
+    prog_.dbl = st.value("program/dbl", false).toBool();
+    prog_.dblHz = st.value("program/dbl_hz", prog_.dblHz).toInt();
+    prog_.dblPct = st.value("program/dbl_pct", prog_.dblPct).toInt();
     age60_ = st.value("program/age60", false).toBool();
+    female_ = st.value("client/female", true).toBool();
     wiring_ = st.value("suit/wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
     // Saved values go through the limits too (an older file, a hand edit).
-    int v[safe::N] = {prog_.hz, prog_.us, prog_.onS, prog_.offS, 0, 0, 0, prog_.rampMs};
+    int v[safe::N] = {prog_.hz, prog_.us, prog_.onS, prog_.offS, prog_.dbl ? 1 : 0, prog_.dblHz, prog_.dblPct, prog_.rampMs};
     safe::apply(v, age60_ ? 65 : -1, 0);
     prog_.hz = v[safe::HZ]; prog_.us = v[safe::PW]; prog_.onS = v[safe::ON]; prog_.offS = v[safe::OFF];
+    prog_.dbl = v[safe::AP] == 1; prog_.dblHz = v[safe::PHZ]; prog_.dblPct = v[safe::PS]; prog_.rampMs = v[safe::RAMP];
 }
 
 void App::save() {
@@ -238,7 +252,12 @@ void App::save() {
     st.setValue("program/on", prog_.onS);
     st.setValue("program/off", prog_.offS);
     st.setValue("program/total", prog_.totalS);
+    st.setValue("program/ramp", prog_.rampMs);
+    st.setValue("program/dbl", prog_.dbl);
+    st.setValue("program/dbl_hz", prog_.dblHz);
+    st.setValue("program/dbl_pct", prog_.dblPct);
     st.setValue("program/age60", age60_);
+    st.setValue("client/female", female_);
     st.setValue("suit/wiring", wiring_);
 }
 
@@ -389,6 +408,7 @@ void App::line(const std::string &l, unsigned t) {
         n.prog = n.suit->program();
         n.age60 = age60_;
         n.wiring = wiring_;
+        n.female = female_;
         for (size_t i = 0; i < seen_.size(); i++)
             if (seen_[i].mac == e.mac) { n.name = seen_[i].name; seen_.erase(seen_.begin() + i); break; }
         ses_.push_back(n);

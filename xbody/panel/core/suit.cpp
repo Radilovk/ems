@@ -142,9 +142,12 @@ void Suit::btProgram() {
 }
 
 void Suit::setProgram(const Program &p, int age, std::string *why) {
-    int v[safe::N] = {p.hz, p.us, p.onS, p.offS, 0, 0, 0, p.rampMs};
+    int v[safe::N] = {p.hz, p.us, p.onS, p.offS, p.dbl ? 1 : 0, p.dblHz, p.dblPct, p.rampMs};
     safe::apply(v, age, why);
     prog_ = p;
+    prog_.dbl = v[safe::AP] == 1;
+    prog_.dblHz = v[safe::PHZ];
+    prog_.dblPct = v[safe::PS];
     prog_.hz = v[safe::HZ];
     prog_.us = v[safe::PW];
     prog_.onS = v[safe::ON];
@@ -157,12 +160,14 @@ void Suit::setProgram(const Program &p, int age, std::string *why) {
 void Suit::setStrength(int s) {
     strength_ = s < 0 ? 0 : (s > safe::STRENGTH_MAX ? safe::STRENGTH_MAX : s);
     if (impulse()) levels(rampStep_);
+    else if (second()) pauseLevels();
 }
 
 void Suit::setChannel(int i, int pct) {
     if (i < 0 || i >= channels()) return;
     ch_[i] = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
     if (impulse()) levels(rampStep_);
+    else if (second()) pauseLevels();
 }
 
 void Suit::setZone(const Zone &z, int pct) {
@@ -170,6 +175,7 @@ void Suit::setZone(const Zone &z, int pct) {
     for (int j = 0; j < z.n; j++)
         if (z.ch[j] >= 0 && z.ch[j] < channels()) ch_[z.ch[j]] = pct;
     if (impulse()) levels(rampStep_);
+    else if (second()) pauseLevels();
 }
 
 int Suit::lvl(int i, int k) const {
@@ -195,6 +201,10 @@ void Suit::levels(int k) {
         push(wi::currents(c), T_LEVELS);
         return;
     }
+    if (btHz_ != prog_.hz) {   // back from the second impulse's Hz
+        for (int c = 1; c <= bt::CHANNELS; c++) push(bt::hz(c, prog_.hz), T_LEVELS);
+        btHz_ = prog_.hz;
+    }
     int mask = 0;
     for (int c = 0; c < bt::CHANNELS; c++) {
         int v = lvl(c, k);
@@ -202,6 +212,35 @@ void Suit::levels(int k) {
         if (v > 0) mask |= 1 << c;
     }
     push(mask ? bt::enable(mask) : bt::allOff(), T_LEVELS);
+}
+
+void Suit::pauseLevels() {
+    dropLevels();
+    int s2 = strength_ * prog_.dblPct / 100;
+    if (s2 > 100) s2 = 100;
+    if (kind_ == XEMS) {
+        push(xems::strengths(ch_, s2), T_LEVELS);
+        push(xems::run((int)(remainMs_ / 1000), prog_.dblHz, prog_.us, prog_.onS, prog_.offS, true), T_LEVELS);
+    } else if (kind_ == WIEMS) {
+        // the unit gives its own second impulse in its rest (rest Hz × rest %, set at the start): the strengths stay
+        if (wi_ != WI_RUN) return;
+        int c[wi::CHANNELS];
+        for (int i = 0; i < wi::CHANNELS; i++) c[i] = lvl(i, RAMP_STEPS);
+        push(wi::currents(c), T_LEVELS);
+    } else {
+        if (btHz_ != prog_.dblHz) {
+            for (int c = 1; c <= bt::CHANNELS; c++) push(bt::hz(c, prog_.dblHz), T_LEVELS);
+            btHz_ = prog_.dblHz;
+        }
+        int mask = 0;
+        for (int c = 0; c < bt::CHANNELS; c++) {
+            int v = ch_[c] * s2 / 100;
+            if (v > 99) v = 99;
+            if (v != btSent_[c]) { push(bt::intensity(c + 1, v), T_LEVELS); btSent_[c] = v; }
+            if (v > 0) mask |= 1 << c;
+        }
+        push(mask ? bt::enable(mask) : bt::allOff(), T_LEVELS);
+    }
 }
 
 void Suit::outputsOff(bool stopSuit) {
@@ -234,8 +273,9 @@ void Suit::start(unsigned now) {
     if (state_ == RUNNING) return;
     if (kind_ == WIEMS && wi_ == WI_IDLE) {
         // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
-        push(wi::program(prog_.hz, prog_.onS, prog_.offS, 0, 0, wi::PHASE_ARM), T_PROG);
-        push(wi::rest(5, 100), T_PROG);
+        push(wi::program(prog_.hz, prog_.onS, prog_.offS, wiRampS(), 0, wi::PHASE_ARM), T_PROG);
+        // the unit's rest: the double impulse's Hz and % — or 0 % (nothing in the pause)
+        push(wi::rest(prog_.dbl ? prog_.dblHz : 5, prog_.dbl ? (prog_.dblPct > 100 ? 100 : prog_.dblPct) : 0), T_PROG);
         push(wi::widths(), T_PROG);
         push(wi::zero(), T_PROG);
         push(wi::run(true), T_PROG);
@@ -258,7 +298,7 @@ void Suit::start(unsigned now) {
     on_ = true;
     phaseEndMs_ = now + (unsigned)prog_.onS * 1000u;
     rampStartMs_ = now;
-    rampStep_ = 1;
+    rampStep_ = kind_ == WIEMS && wiRampS() > 0 ? (int)RAMP_STEPS : 1;   // WiEMS: the unit rises by itself (Ru)
     levels(rampStep_);
 }
 
@@ -290,7 +330,7 @@ void Suit::tick(unsigned now) {
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
         if (wi_ == WI_COUNT && !preparingQueue() && (wiGo_ || age(now, wiAt_) >= 6000)) {
             push(wi::zero());
-            push(wi::program(prog_.hz, prog_.onS, prog_.offS, 0, 0, wi::PHASE_RUN));
+            push(wi::program(prog_.hz, prog_.onS, prog_.offS, wiRampS(), 0, wi::PHASE_RUN));
             wi_ = WI_RUN;
             wiGo_ = false;
         }
@@ -312,8 +352,10 @@ void Suit::tick(unsigned now) {
         if ((int)(now - phaseEndMs_) >= 0) phaseEndMs_ = now + (unsigned)(on_ ? prog_.onS : prog_.offS) * 1000u;
         if (on_) {
             rampStartMs_ = now;
-            rampStep_ = 1;
+            rampStep_ = kind_ == WIEMS && wiRampS() > 0 ? (int)RAMP_STEPS : 1;   // WiEMS: the unit rises by itself (Ru)
             levels(rampStep_);
+        } else if (prog_.dbl) {
+            pauseLevels();
         } else {
             outputsOff(false);
         }
@@ -338,6 +380,17 @@ void Suit::notify(const Bytes &n) {
         int raw = bt::batteryRaw(n);
         if (raw >= 0) battery_ = bt::batteryPercent(raw);
     }
+}
+
+int Suit::liveLevel(int i) const {
+    if (i < 0 || i >= MAX_CH || (kind_ == WIEMS && wi_ != WI_RUN)) return 0;
+    if (second()) {   // the second impulse in the pause: its share of the strength
+        int v = ch_[i] * (strength_ * prog_.dblPct / 100) / 100;
+        return v > 100 ? 100 : v;
+    }
+    if (!impulse()) return 0;
+    int v = ch_[i] * (strength_ * rampStep_ / RAMP_STEPS) / 100;
+    return v > 100 ? 100 : v;
 }
 
 int Suit::secondsLeft(unsigned now) const {

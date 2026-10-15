@@ -13,7 +13,10 @@ import java.util.Iterator;
  */
 final class Session {
     static final class Program {
-        int hz = 85, onS = 4, offS = 4, totalS = 20 * 60, rampMs = 500;
+        int hz = 85, onS = 4, offS = 4, totalS = 20 * 60, rampMs = 1000;
+        /** Double impulse: a second, low impulse in the pause (Hz ≤ 10 and under the main; % of the main strength). */
+        boolean dbl;
+        int dblHz = 5, dblPct = 50;
 
         Program copy() {
             Program p = new Program();
@@ -22,7 +25,15 @@ final class Session {
             p.offS = offS;
             p.totalS = totalS;
             p.rampMs = rampMs;
+            p.dbl = dbl;
+            p.dblHz = dblHz;
+            p.dblPct = dblPct;
             return p;
+        }
+
+        /** The unit's own rise (Ru) in whole seconds. */
+        int rampS() {
+            return (rampMs + 500) / 1000;
         }
     }
 
@@ -93,6 +104,7 @@ final class Session {
     void setStrength(int s) {
         strength = Math.max(0, Math.min(Safe.STRENGTH_MAX, s));
         if (impulse()) levels(rampStep);
+        else if (second()) pauseLevels();
     }
 
     int zone(int z) {
@@ -102,14 +114,16 @@ final class Session {
     void setZone(int z, int pct) {
         ch[ZONE_CH[z]] = Math.max(0, Math.min(100, pct));
         if (impulse()) levels(rampStep);
+        else if (second()) pauseLevels();
     }
 
     void start(long now) {
         if (state == RUNNING) return;
         if (wi == WI_IDLE) {
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
-            push(WiProto.program(prog.hz, prog.onS, prog.offS, 0, 0, WiProto.PHASE_ARM), T_PROG);
-            push(WiProto.rest(5, 100), T_PROG);
+            push(WiProto.program(prog.hz, prog.onS, prog.offS, prog.rampS(), 0, WiProto.PHASE_ARM), T_PROG);
+            // the unit's rest: the double impulse's Hz and % — or 0 % (nothing in the pause)
+            push(WiProto.rest(prog.dbl ? prog.dblHz : 5, prog.dbl ? Math.min(100, prog.dblPct) : 0), T_PROG);
             push(WiProto.widths(), T_PROG);
             push(WiProto.zero(), T_PROG);
             push(WiProto.run(true), T_PROG);
@@ -129,7 +143,7 @@ final class Session {
         on = true;
         phaseEndMs = now + prog.onS * 1000L;
         rampStartMs = now;
-        rampStep = 1;
+        rampStep = prog.rampS() > 0 ? RAMP_STEPS : 1;   // the unit rises by itself (Ru)
         levels(rampStep);
     }
 
@@ -165,7 +179,7 @@ final class Session {
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
         if (wi == WI_COUNT && !progQueued() && (wiGo || now - wiAt >= 6000)) {
             push(WiProto.zero(), T_PLAIN);
-            push(WiProto.program(prog.hz, prog.onS, prog.offS, 0, 0, WiProto.PHASE_RUN), T_PLAIN);
+            push(WiProto.program(prog.hz, prog.onS, prog.offS, prog.rampS(), 0, WiProto.PHASE_RUN), T_PLAIN);
             wi = WI_RUN;
             wiGo = false;
         }
@@ -183,8 +197,10 @@ final class Session {
             if (now >= phaseEndMs) phaseEndMs = now + (on ? prog.onS : prog.offS) * 1000L;
             if (on) {
                 rampStartMs = now;
-                rampStep = 1;
+                rampStep = prog.rampS() > 0 ? RAMP_STEPS : 1;   // the unit rises by itself (Ru)
                 levels(rampStep);
+            } else if (prog.dbl) {
+                pauseLevels();
             } else {
                 outputsOff(false);
             }
@@ -217,6 +233,11 @@ final class Session {
 
     boolean impulse() {
         return state == RUNNING && on;
+    }
+
+    /** The pause with the double impulse on: the unit gives its second impulse (rest Hz × rest %). */
+    boolean second() {
+        return state == RUNNING && !on && prog.dbl;
     }
 
     boolean finished() {
@@ -300,7 +321,9 @@ final class Session {
 
     /** What unit channel c gives out now (0..100): its level in the impulse (with the rise), 0 in the pause. */
     int liveLevel(int c) {
-        return impulse() && wi == WI_RUN ? level(c, rampStep) : 0;
+        if (wi != WI_RUN) return 0;
+        if (second()) return Math.min(100, ch[c] * (strength * prog.dblPct / 100) / 100);
+        return impulse() ? level(c, rampStep) : 0;
     }
 
     int level(int c, int k) {
@@ -313,6 +336,15 @@ final class Session {
         if (wi != WI_RUN) return;                    // counting down: the strengths go when it runs
         int[] c = new int[WiProto.CHANNELS];
         for (int i = 0; i < c.length; i++) c[i] = level(i, k);
+        push(WiProto.currents(c), T_LEVELS);
+    }
+
+    /** The second impulse is the unit's own (its rest at the program's start): the strengths stay as in the impulse. */
+    private void pauseLevels() {
+        dropLevels();
+        if (wi != WI_RUN) return;
+        int[] c = new int[WiProto.CHANNELS];
+        for (int i = 0; i < c.length; i++) c[i] = level(i, RAMP_STEPS);
         push(WiProto.currents(c), T_LEVELS);
     }
 

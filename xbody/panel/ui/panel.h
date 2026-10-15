@@ -6,6 +6,7 @@
 // when something on it changed (signature check in timerEvent). No moc: virtual event handlers only.
 #pragma once
 #include "../core/suit.h"
+#include "bodyfig.h"
 #include <QBasicTimer>
 #include <QRect>
 #include <QString>
@@ -86,6 +87,12 @@ private:
     double k_;                     // screen pixels per design unit
     int ox_, oy_;                  // the design's origin on the screen (centred)
     QRect clockRect_;              // design rect the running clock repaints by itself
+    BodyFig figs_[2];              // the XEMS figures, front / back, of the session's sex
+    int figsSex_;                  // −1 none loaded, 0 male, 1 female
+    QRect figRect_[2];
+    QPoint pressAt_;               // where the finger went down (design): which muscle a tap on the figure hit
+    bool paintFigures(QPainter &p);
+    int zoneOfRegion(int region) const;
     QString sig_, clockSig_;       // what is on the screen now
 };
 

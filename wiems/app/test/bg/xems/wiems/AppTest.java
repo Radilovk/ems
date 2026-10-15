@@ -107,20 +107,36 @@ public class AppTest {
         s.setZone(8, 50);                                // Ръце → unit channel 4
         s.start(1000);
         eq("waits for the count-down", Session.IDLE, s.state());
-        eq("start ops", "[0129550404000" + "07e050205, 0205640000000000" + "00a5c4, 037f7f6d497f7f64527f52, 0000000000000000000000, 0425]",
+        eq("start ops (Ru 1 s, nothing in the pause)", "[012955040401007e050204, 0205000000000000" + "00a5a0, 037f7f6d497f7f64527f52, 0000000000000000000000, 0425]",
                 drain(s, 1000));
         s.runNotify(new byte[] {1});
         s.tick(5100);
         eq("running", Session.RUNNING, s.state());
-        eq("begin", "[0000000000000000000000, 0129550404000" + "07e050007, 000a0a0a0a050a0a0a0a0a]", drain(s, 5100));
-        s.tick(5700);
-        List<String> f = drain(s, 5700);
-        eq("ramp full", "0028282828142828282828", f.get(f.size() - 1));
+        eq("begin: full at once, the unit rises by itself", "[0000000000000000000000, 012955040401007e050006, 0028282828142828282828]", drain(s, 5100));
         s.tick(9200);
         eq("pause → 0", "[0000000000000000000000]", drain(s, 9200));
         s.pause(9500);
         List<String> pz = drain(s, 9500);
         eq("pause → stop", "0400", pz.get(pz.size() - 1));
+        // the double impulse: the unit's own rest = Hz₂ at its %; in the pause the strengths stay
+        Session d = new Session();
+        d.linked();
+        drain(d, 0);
+        Session.Program dp = new Session.Program();
+        dp.dbl = true;
+        dp.dblHz = 7;
+        dp.dblPct = 60;
+        d.setProgram(dp);
+        d.setStrength(50);
+        d.start(0);
+        List<String> ds = drain(d, 0);
+        eq("dbl rest", "02073c000000000000a59e", ds.get(1));
+        d.runNotify(new byte[] {1});
+        d.tick(100);
+        drain(d, 100);
+        d.tick(4200);
+        eq("dbl pause keeps the strengths", "[0032323232323232323232]", drain(d, 4200));
+        eq("dbl live level", 30, d.liveLevel(0));
         Session.Program p = new Session.Program();
         p.hz = 120;
         p.onS = 10;
@@ -166,6 +182,7 @@ public class AppTest {
         tap(v, 960 - 90, 320);                              // "Ръце" (right column, row 4)
         v.tick(h.t);
         tap(v, 960 - 40, 567);                              // + : zones up, the % bubble shows
+        for (int z = 0; z < Session.ZONES; z++) h.session.setZone(z, 20 + z * 9);   // a gradient over the zones
         shot(v, dir, "3-train-running.png");
         h.session.setStrength(80);
         h.t += 600;
@@ -175,6 +192,13 @@ public class AppTest {
         h.female = false;
         shot(v, dir, "3c-male.png");
         h.female = true;
+        Session.Program dp2 = h.session.program().copy();
+        dp2.dbl = true;
+        h.session.setProgram(dp2);
+        h.t += 4000;
+        h.session.tick(h.t);                                // into the pause: the second impulse in yellow
+        drain(h.session, h.t);
+        shot(v, dir, "3d-second.png");
         h.t += 5000;
         tap(v, 100, 470);                                   // ПАУЗА
         shot(v, dir, "4-paused.png");

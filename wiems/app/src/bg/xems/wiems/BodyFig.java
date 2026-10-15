@@ -24,7 +24,7 @@ final class BodyFig {
     static BodyFig load(Host host, String key) {
         BodyFig f = new BodyFig();
         try {
-            f.art = decode(host, "body/" + key + "-art.webp", true);
+            f.art = lighten(decode(host, "body/" + key + "-art.webp", false));
             Bitmap ix = decode(host, "body/" + key + "-idx.webp", false);
             if (f.art == null || ix == null) return null;
             f.w = ix.getWidth();
@@ -57,6 +57,30 @@ final class BodyFig {
             android.util.Log.e("xems-wiems", "figure " + key + ": " + t);
             return null;
         }
+    }
+
+    /**
+     * The tablet's figures are near black; on XBody's light screen they weighed too much (owner): lifted to a light,
+     * slightly cool grey (85 + 0.65·v, blue +6) — the muscles keep their volume, the red of a working zone stands out.
+     */
+    static int lift(int argb) {
+        int r = (argb >> 16) & 0xFF, g = (argb >> 8) & 0xFF, b = argb & 0xFF;
+        r = 85 + r * 65 / 100;
+        g = 85 + g * 65 / 100;
+        b = Math.min(255, 91 + b * 65 / 100);
+        return (argb & 0xFF000000) | (r << 16) | (g << 8) | b;
+    }
+
+    private static Bitmap lighten(Bitmap a) {
+        if (a == null) return null;
+        int w = a.getWidth(), h = a.getHeight();
+        int[] px = new int[w * h];
+        a.getPixels(px, 0, w, 0, 0, w, h);
+        for (int i = 0; i < px.length; i++) px[i] = lift(px[i]);
+        Bitmap out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        out.setPixels(px, 0, w, 0, 0, w, h);
+        a.recycle();
+        return out;
     }
 
     private static Bitmap decode(Host host, String asset, boolean premultiplied) throws java.io.IOException {
@@ -113,6 +137,7 @@ final class BodyFig {
 
     /** The report's recolour: the shade keeps the volume (dark → black, mid → the colour, light → white). */
     static int shadeOf(int c, float l, int alpha) {
+        l = 0.22f + 0.78f * l;                     // softer darks: the lighter figure, the red stays red
         int r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
         if (l < 0.5f) {
             r = (int) (r * 2 * l);

@@ -22,7 +22,7 @@ FB=$OUT/fb.raw
 rm -f "$FB" "$OUT/panel.conf"
 truncate -s $((W * H * 4)) "$FB"
 FLAGS="-E XEMS_FAKE_BRIDGE=1 -E XEMS_OPEN=1"
-ART="-E XEMS_ART=$REPO/xbody/overlay/opt/xems/art"
+ART="-E XEMS_ART=$REPO/xbody/overlay/opt/xems/art -E XEMS_BODY=$REPO/xbody/overlay/opt/xems/body"
 [ -z "${EMU_NO_BRIDGE:-}" ] || FLAGS="-E XEMS_OPEN=1"
 [ -z "${EMU_TAB:-}" ] || FLAGS="-E XEMS_FAKE_BRIDGE=1"
 [ -z "${EMU_ENV:-}" ] || FLAGS="$FLAGS -E $EMU_ENV"   # one extra VAR=value, e.g. XEMS_UF2_STATE=/tmp/s

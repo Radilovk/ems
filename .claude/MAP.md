@@ -172,6 +172,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
+- `scripts/xbody/gen-panel-body.py` (30L) — The XBody panel's body figures: the tablet's XEMS figures (branding/body: art + zone map, scripts/gen-body-figures.py) …
 - `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
 - `scripts/xbody/qt-headers.sh` (33L) — Qt 4.8.6 headers matching the card's Qt Embedded (build key "arm linux g++-4 full-config", ARMv7 NEON softfp,
 - `scripts/xbody/relink.py` (54L) — Restore the shared-library symlinks the 7z dump flattened to 0-byte files.
@@ -812,22 +813,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (228L)
-  - L1 # XEMS panel on the XBody unit (mod v12)
+`docs/xbody-xems-panel.md` (242L)
+  - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
   - L35 ## XBody's own cable (no XIAO): suit standard + double impulse (mod v6, fixed v7)
-  - L64 ## Cable and wireless side by side, several wireless suits (mod v12)
-  - L78 ## Ready passive programs on XBody's cable (mod v8)
-  - L90 ### Length and after-training procedures (mod v10)
-  - L119 ## Feedback from the stimulator (what XBody can know)
-  - L129 ## Phone → XBody over a USB cable (mod v9, no stick)
-  - L140 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L148 ## Panel
-  - L182 ## Bridge line protocol (USB CDC, 115200)
-  - L193 ## Files
-  - L205 ## Build / test
-  - L221 ## First test on the unit (when the XIAO arrives)
+  - L64 ## Body figures, double impulse, ramp (mod v13, owner)
+  - L78 ## Cable and wireless side by side, several wireless suits (mod v12)
+  - L92 ## Ready passive programs on XBody's cable (mod v8)
+  - L104 ### Length and after-training procedures (mod v10)
+  - L133 ## Feedback from the stimulator (what XBody can know)
+  - L143 ## Phone → XBody over a USB cable (mod v9, no stick)
+  - L154 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L162 ## Panel
+  - L196 ## Bridge line protocol (USB CDC, 115200)
+  - L207 ## Files
+  - L219 ## Build / test
+  - L235 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1208,12 +1210,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (47L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.1)
+`docs/xems-wiems-app.md` (54L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.2)
   - L7 ## What it is
   - L27 ## Look (v1.1, owner: XBody's design level or better, never lower)
-  - L37 ## Build / test
-  - L44 ## Not verified yet
+  - L37 ## v1.2 — lighter figures, double impulse, ramp (owner)
+  - L44 ## Build / test
+  - L51 ## Not verified yet
 
 `docs/xems-wiems.md` (71L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

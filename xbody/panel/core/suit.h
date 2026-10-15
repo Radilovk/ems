@@ -16,7 +16,10 @@ struct Zone {
 
 struct Program {
     int hz, us, onS, offS, totalS, rampMs;
-    Program() : hz(85), us(350), onS(4), offS(4), totalS(20 * 60), rampMs(500) {}
+    // Double impulse: a second, low impulse in the pause (Hz ≤ 10 and under the main, % of the main strength).
+    bool dbl;
+    int dblHz, dblPct;
+    Program() : hz(85), us(350), onS(4), offS(4), totalS(20 * 60), rampMs(500), dbl(false), dblHz(5), dblPct(50) {}
 };
 
 class Suit {
@@ -58,6 +61,9 @@ public:
     int secondsLeft(unsigned now) const;
     int phaseMsLeft(unsigned now) const;
     int battery() const { return battery_; }         // %, −1 unknown
+    // What channel i gives out now (0..100, for the body figure): its share of the strength in the impulse (with the
+    // soft rise), 0 in the pause or while a WiEMS unit still counts down.
+    int liveLevel(int i) const;
     bool finished() const { return finished_; }      // the last run ended by its clock
     // The suit is still being programmed (bodytech: ~110 frames, ~3 s after a link; WiEMS: its ~4 s count-down
     // after a start); a start waits for it.
@@ -78,6 +84,8 @@ private:
     void push(const Bytes &b, int tag = T_PLAIN);
     void dropLevels();
     void levels(int k);                      // impulse output at k/RAMP_STEPS of the strength
+    void pauseLevels();                      // the pause with the double impulse: the second impulse's output
+    bool second() const { return state_ == RUNNING && !on_ && prog_.dbl; }
     void outputsOff(bool stopSuit);
     void btProgram();
     int lvl(int i, int k) const;
@@ -98,6 +106,7 @@ private:
     bool wiGo_;
     unsigned wiAt_;
     void wiStop();
+    int wiRampS() const { return (prog_.rampMs + 500) / 1000; }   // the unit's own rise, whole seconds
     bool preparingQueue() const;   // program frames still queued (not yet sent)
     std::deque<Item> out_;
     bool inflight_;

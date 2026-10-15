@@ -223,7 +223,8 @@ static void wiemsSession() {
     eqInt("wi preparing", 1, s.preparing() ? 1 : 0);
     f = drain(s, 1000);
     eqInt("wi start frames", 5, (int)f.size());
-    eqHex("wi start prog", "01 29 55 04 04 00 00 7E 05 02 05", f[0]);
+    eqHex("wi start prog (Ru 1 s)", "01 29 55 04 04 01 00 7E 05 02 04", f[0]);
+    eqHex("wi rest: nothing in the pause", "02 05 00 00 00 00 00 00 00 A5 A0", f[1]);
     eqHex("wi start run", "04 25", f.back());
     s.tick(2000);
     eqInt("wi still counting", Suit::IDLE, s.state());
@@ -235,11 +236,8 @@ static void wiemsSession() {
     eqInt("wi running", Suit::RUNNING, s.state());
     eqInt("wi begin frames", 3, (int)f.size());
     eqHex("wi begin zero", "00 00 00 00 00 00 00 00 00 00 00", f[0]);
-    eqHex("wi begin prog", "01 29 55 04 04 00 00 7E 05 00 07", f[1]);
-    eqHex("wi ramp 1/4", "00 0A 05 0A 0A 0A 0A 0A 0A 0A 0A", f[2]);
-    s.tick(5700);
-    f = drain(s, 5700);
-    eqHex("wi ramp full", "00 28 14 28 28 28 28 28 28 28 28", f.empty() ? Bytes() : f.back());
+    eqHex("wi begin prog", "01 29 55 04 04 01 00 7E 05 00 06", f[1]);
+    eqHex("wi full at once: the unit rises by itself", "00 28 14 28 28 28 28 28 28 28 28", f[2]);
     s.tick(9200);   // impulse over → pause: strengths 0, the unit keeps running
     f = drain(s, 9200);
     eqInt("wi pause frames", 1, (int)f.size());
@@ -288,6 +286,66 @@ static void wiemsSession() {
     BridgeEvent e = parseBridgeLine("ADV 88:6B:0F:CC:BE:49 -58 WIEMS WIEMS_-_EMS_Device");
     eqInt("wi adv kind", Suit::WIEMS, suitKind(e.svc, e.name));
     eqInt("wi kind by name", Suit::WIEMS, suitKind("-", "WIEMS - EMS Device"));
+}
+
+static void doubleImpulse() {
+    // XEMS: the pause carries the second impulse — its strength share and its Hz, output on
+    Suit x(Suit::XEMS);
+    x.linked(0);
+    drain(x, 0);
+    Program p;
+    p.dbl = true;
+    p.dblHz = 6;
+    p.dblPct = 50;
+    p.onS = 4;
+    p.offS = 8;
+    std::string why;
+    x.setProgram(p, -1, &why);
+    eqInt("x dbl kept", 1, x.program().dbl ? 1 : 0);
+    x.setStrength(40);
+    x.start(0);
+    x.tick(600);
+    drain(x, 600);
+    x.tick(4000);   // impulse over → the second impulse
+    std::vector<Bytes> f = drain(x, 4000);
+    eqInt("x dbl frames", 2, (int)f.size());
+    eqInt("x dbl strength 50 %", 20, f.size() ? f[0][4] : -1);
+    eqInt("x dbl Hz", 6, f.size() > 1 ? f[1][6] : -1);
+    eqInt("x dbl output on", 1, f.size() > 1 ? f[1][13] : -1);
+    eqInt("x dbl live level", 20, x.liveLevel(0));
+    // the safety limits: Hz₂ ≤ 10 and under the main
+    p.dblHz = 30;
+    x.stop();
+    x.setProgram(p, -1, &why);
+    eqInt("x dbl Hz capped", 10, x.program().dblHz);
+    // bodytech: the pause's Hz on every channel, back to the main at the next impulse
+    Suit b(Suit::BODYTECH);
+    b.linked(0);
+    drain(b, 0);
+    p.dblHz = 5;
+    b.setProgram(p, -1, 0);
+    b.setStrength(60);
+    b.start(0);
+    b.tick(600);
+    drain(b, 600);
+    b.tick(4000);
+    f = drain(b, 4000);
+    eqHex("bt dbl Hz ch1", "36 00 10 00 03 0D 40 C9", f.empty() ? Bytes() : f[0]);
+    b.tick(12000);
+    f = drain(b, 12000);
+    Bytes back;
+    for (size_t i = 0; i < f.size(); i++) if (toHex(f[i]).compare(0, 6, "360010") == 0) { back = f[i]; break; }
+    eqHex("bt main Hz back", "36 00 10 00 00 2D F4 C9", back);
+    // WiEMS: the unit's own rest = Hz₂ at its %
+    Suit w(Suit::WIEMS);
+    w.linked(0);
+    drain(w, 0);
+    p.dblHz = 7;
+    p.dblPct = 60;
+    w.setProgram(p, -1, 0);
+    w.start(0);
+    f = drain(w, 0);
+    eqHex("wi dbl rest", "02 07 3C 00 00 00 00 00 00 A5 9E", f.size() > 1 ? f[1] : Bytes());
 }
 
 static void bridgeLines() {
@@ -673,6 +731,7 @@ int main() {
     bodytechSession();
     wiemsGolden();
     wiemsSession();
+    doubleImpulse();
     bridgeLines();
     std::printf("%s: %d checks, %d failed\n", fails ? "FAIL" : "OK", checks, fails);
     return fails ? 1 : 0;

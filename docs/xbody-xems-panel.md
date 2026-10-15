@@ -1,4 +1,4 @@
-# XEMS panel on the XBody unit (mod v12)
+# XEMS panel on the XBody unit (mod v13)
 
 XEMS and bodytech suits and WiEMS units (mod v7, `docs/xems-wiems.md`) trained from the XBody machine's own screen, next to (not inside) the XBody app. The
 unit's kernel (2.6.35) has no Bluetooth LE, so a **Seeed XIAO nRF52840** on USB is its BLE radio.
@@ -60,6 +60,20 @@ xbody (GUI) → xbody_control ──1235──▶ xems-xbproxy ──1236──�
   pills, live status in the header, autosave ("✓ Запазено"); the XIAO card at the bottom. The tab shows ⇄ (XEMS
   suit) and 2× (double impulse) whenever XBody's output is changed by us.
 - Tests: `test-panel.sh` (Shaper + table, 211 checks; the proxy end to end over sockets), `test.sh` 5b (stock path).
+
+## Body figures, double impulse, ramp (mod v13, owner)
+- The body on the training screen: the **XEMS figures** (`/opt/xems/body`, made by `scripts/xbody/gen-panel-body.py`
+  from `branding/body`, lifted to a lighter grey — owner: the near-black ones were too heavy), **female by default**,
+  Жена | Мъж on the КЛИЕНТ line of "Настройки на сесията" (works mid-training). Every zone as strong as its output
+  now: XBody's red for the impulse (light → deep at 80 %), XBody's yellow for the second impulse in the pause; a
+  selected zone without output is tinted lightly; a tap on a muscle selects its zone (`ui/bodyfig.*`). Missing files →
+  XBody's own picture as before. XBody's other pictures (humps, slider, fader, logo) stay XBody's.
+- "Настройки на сесията" opens also while running: the program is greyed ("сменя се на пауза"), the client's sex works.
+- **Рампа** 0,5–5 s (the soft rise of every impulse); WiEMS uses the unit's own rise (program Ru, whole seconds).
+- **Двоен импулс** (switch + Hz₂ + %): XEMS — the pause sends the second impulse's strength share and Hz (output on);
+  bodytech — every channel to Hz₂ and the share, back to the main Hz at the next impulse; WiEMS — the unit's own rest
+  (rest Hz = Hz₂, rest % = the share ≤ 100), the strengths stay in the pause. Limits as everywhere (`safe::apply`:
+  Hz₂ ≤ 10 and under the main, ≤ 150 %, the pause long enough with it). WiEMS: the width row reads "по модула".
 
 ## Cable and wireless side by side, several wireless suits (mod v12)
 - XBody's own training (cable) and the panel's wireless suits are separate windows and run at the same time: `← XBODY`

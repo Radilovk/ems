@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.1)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.2)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -33,6 +33,13 @@ stops the unit.
   (MainWindowBg 247..255), the slider bar (slate #313741, recessed track, the LED line green → blue → violet → red with
   its glow, sampled from SliderLeds), the light fader chip, the MASTER hump (slate / red), the timer hump. Our logo
   (red disc with the X + EMS) in place of XBody's. No XBody picture is copied.
+
+## v1.2 — lighter figures, double impulse, ramp (owner)
+- Figures lifted to a light, slightly cool grey (85 + 0.65·v; `BodyFig.lift`), softer darks in the red.
+- Zone colour in step with the output: light → deep red at 80 %; the second impulse in XBody's yellow.
+- "Настройки на сесията": Рампа 0,5–5 s (the unit's Ru, whole seconds), Двоен импулс (switch, Hz₂, % → the unit's
+  rest Hz / %; the strengths stay in the pause), limits as the tablet (Hz₂ ≤ 10 and under the main, ≤ 150 %, the
+  pause from the fatigue model with the second impulse). Opens also mid-training (program greyed, sex works).
 
 ## Build / test
 ```

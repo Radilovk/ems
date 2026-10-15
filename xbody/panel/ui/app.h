@@ -28,6 +28,7 @@ struct Session {
     Program prog;
     bool age60;
     int wiring;
+    bool female;   // the body figures (owner: female by default)
 };
 
 class App : public QObject {
@@ -60,6 +61,8 @@ public:
     bool noteWarn() const { return noteWarn_; }
     bool age60() const { return age60_; }
     int wiring() const { return wiring_; }        // Suit::WIRE_XEMS / WIRE_XBODY: the XEMS suit's cable standard
+    bool female() const;                          // the body figures of the session on the screen
+    void setFemale(bool f);                       // at once, also mid-training
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
     // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
     bool bridgeUpdating() const { return dfuSent_; }
@@ -120,6 +123,7 @@ private:
     Program prog_;
     bool age60_;
     int wiring_;
+    bool female_;
     int bridgeVer_, bundledVer_;
     bool dfuSent_;
     xbcable::Config cable_;

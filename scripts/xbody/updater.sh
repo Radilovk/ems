@@ -49,6 +49,9 @@ if [ -e "$X/RESTORE" ]; then
 	mv "$A" "${A%.added}.restored.added"
 	rm -f "$X/RESTORE"
 	say "XEMS: restore done"
+	say ""
+	say "   XEMS removed (previous state back)  -  the unit powers off by itself."
+	say "   Then REMOVE THE STICK and switch it on again."
 	done_self
 	exit 0
 fi
@@ -89,5 +92,8 @@ fi
 
 rm -f "$X/.touch.list" "$X/.exist.list"
 say "XEMS: installed mod $(cat "$X/VERSION" 2>/dev/null); hooks run on next boot"
+say ""
+say "   XEMS v$(cat "$X/VERSION" 2>/dev/null) OK  -  the unit powers off by itself."
+say "   Then REMOVE THE STICK and switch it on again."
 done_self
 exit 0

@@ -1,0 +1,34 @@
+#!/bin/sh
+# One pass: a XIAO nRF52840 in its UF2 bootloader (RESET pressed twice, or the panel's DFU command) shows up as a
+# small USB drive with INFO_UF2.TXT; copy the bundled bridge firmware onto it — the board restarts into it by itself.
+# Run every 2 s by /etc/init.d/xems-panel. Never touches a real stick (size check) or a mounted drive.
+# State for the panel: /tmp/xems-uf2.state = flashing | done | error <why>.
+UF2=${XEMS_UF2:-/opt/xems/bridge/xems-bridge.uf2}
+ST=${XEMS_UF2_STATE:-/tmp/xems-uf2.state}
+M=/tmp/xems-uf2
+[ -f "$UF2" ] || exit 0
+for b in ${XEMS_UF2_BLOCKS:-/sys/block/sd?}; do   # override: host tests
+	[ -f "$b/size" ] || continue
+	[ "$(cat "$b/size")" -gt 0 ] && [ "$(cat "$b/size")" -lt 262144 ] || continue   # < 128 MB: the bootloader's drive
+	d=${b##*/}
+	for dev in /dev/$d /dev/${d}1; do
+		[ -b "$dev" ] || continue
+		grep -q "^$dev " /proc/mounts && continue
+		mkdir -p $M
+		mount -t vfat -o ro "$dev" $M 2>/dev/null || continue
+		if grep -qiE 'nrf52840|xiao' $M/INFO_UF2.TXT 2>/dev/null; then
+			umount $M
+			echo flashing > "$ST"
+			if mount -t vfat "$dev" $M 2>/dev/null && cp "$UF2" $M/ 2>/dev/null; then
+				sync
+				echo done > "$ST"
+			else
+				echo "error copy" > "$ST"   # often the board has already restarted: the panel trusts its HELLO
+			fi
+			umount $M 2>/dev/null
+			exit 0
+		fi
+		umount $M
+	done
+done
+exit 0

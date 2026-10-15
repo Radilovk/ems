@@ -196,6 +196,10 @@ static void bridgeLines() {
     eqInt("notify len", 8, (int)e.data.size());
     checks++;
     if (bridgecmd::write("AA:BB:CC:DD:EE:FF", xems::battery()) != "W AA:BB:CC:DD:EE:FF 5304055C\n") fails++;
+    eqInt("hello version", 2, bridgeVersion(parseBridgeLine("HELLO XEMS-BRIDGE 2 4")));
+    eqInt("pong version", 1, bridgeVersion(parseBridgeLine("PONG 1")));
+    eqInt("no version", 0, bridgeVersion(parseBridgeLine("SCANNING 1")));
+    eqInt("dfuok", BridgeEvent::DFUOK, parseBridgeLine("DFUOK").type);
 }
 
 static void zones() {

@@ -35,6 +35,9 @@ public:
     bool age60() const { return age60_; }
     int wiring() const { return wiring_; }        // Suit::WIRE_XEMS / WIRE_XBODY: the XEMS suit's cable standard
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
+    // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
+    bool bridgeUpdating() const { return dfuSent_; }
+    QString uf2State() const;                     // flashing | done | error … (fresh only), else empty
 
     // ---- what the screen asks for ----
     void connectTo(const std::string &mac);
@@ -72,6 +75,8 @@ private:
     Program prog_;
     bool age60_;
     int wiring_;
+    int bridgeVer_, bundledVer_;
+    bool dfuSent_;
     QString note_;
     bool noteWarn_;
     unsigned noteUntilMs_;

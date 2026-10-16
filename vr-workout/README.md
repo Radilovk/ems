@@ -16,7 +16,9 @@ Borrowed from the best-rated VR fitness games: punch types and guard (FitXR, Les
 multiplier and rank (Beat Saber), squats and side steps (Supernatural), walls (Beat Saber's obstacles).
 
 ## The chef — scenario "Готвачът" (home menu → Сценарий)
-On the **square in Ulm** (choosing it moves you there) a cook works **behind the counter of his street-food cart**
+In **one of two real places, the player's pick** (home menu → *Къде е готвачът*: **Piazza Bologni** in Palermo or
+the colourful **retro Pretville Street**, Poly Haven 8K, placed so the open ground is ahead; choosing moves you there)
+a cook works **behind the counter of his street-food cart**
 4.5–6.5 m ahead (the counter, 1.03 m, between you; his stock laid out on its trays) and **throws junk food at you on
 the beat**: a burger, a double cheeseburger, a doughnut, ice cream, a croissant. Before each throw he **bends over the
 counter, reaches for the portion and takes it** (a skeleton modifier over the animation: spine and right arm), then
@@ -31,6 +33,13 @@ straightens into his real overarm throw and lobs it over the counter (on fast le
 (1650 kcal) or a **whole cake** (2900 kcal): only a **mighty** hit breaks it (or a medium and a weak one; less cracks
 it and it flies on). A **mighty straight punch** sends the portion **back into the chef** (+12 %
 of it burned, he staggers, a splat on his apron). Combinations: two portions at once, three doughnuts on three beats. Six levels (`Defs.CHEF_LEVELS`): faster, wider, lower (bend your knees).
+**His face and body** (`chef.gd` Face, REACT): he keeps 32 of his Character Creator face shapes (`convert/chef2scn.gd`) —
+blinks every few seconds, his lips and jaw move with each syllable while his bubble speaks (teeth and tongue follow
+the jaw bone), he grunts as he throws, laughs with his eyes when you eat, frowns, winces, looks sad. Whole-body
+motions (the owner's Mixamo clips of the same character): **Spat In Face** when food sent back hits him, **Shove
+Reaction** (or its mirror) at a mighty smash, **Strong Gesture** before he throws the big one and when you eat three
+in a row, **Defeat** when you smash the big one or win a level (he shows off when you lose it). A throw that is due
+takes over from any of them.
 **Seen and felt:** smashed food bursts along your punch — a burger into its bun, patty, cheese and tomato
 (`burger_bits.glb`), the rest into lumps of its colour, with a wet splat (`food_fx.gd`, `shaders/splat.gdshader`); a
 weak hit only knocks it down, it tumbles and bounces. Eaten food splats across your eyes and slides off, a chomp, the

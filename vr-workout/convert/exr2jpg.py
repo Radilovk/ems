@@ -6,6 +6,7 @@ w, h = img.size
 px = np.empty(w * h * 4, dtype=np.float32)
 img.pixels.foreach_get(px)
 rgb = px.reshape(h, w, 4)[::-1, :, :3]
+rgb = np.clip(np.nan_to_num(rgb, nan=0.0, posinf=0.0, neginf=0.0), 0.0, None)   # some HDRIs carry NaN / negative pixels
 lum = 0.2126 * rgb[..., 0] + 0.7152 * rgb[..., 1] + 0.0722 * rgb[..., 2]
 key = np.exp(np.mean(np.log(1e-4 + lum)))
 c = rgb * (0.22 / key)

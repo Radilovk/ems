@@ -11,6 +11,12 @@
 ## Everything else is his face for the game: he laughs when the player eats, gets cross at a mighty smash, staggers
 ## back when a mighty hit sends the food back into him, announces the MEGA burger, sulks at an eaten apple. His words
 ## are a bubble over his head.
+##
+## Alive in the face too (Face): the Character Creator face shapes the converter keeps — he blinks, laughs with his
+## eyes when the player eats, frowns at a mighty smash, winces when food hits him, looks sad at a defeat, grunts as he
+## throws, and his lips and jaw move while he talks. Whole-body reactions are the owner's Mixamo motions of the same
+## character (REACT): Spat In Face (food sent back), Shove Reaction (a mighty smash), Strong Gesture (the big one
+## announced, the player eats again and again), Defeat (the big one smashed, a level won by the player).
 class_name Chef
 extends Node3D
 
@@ -29,6 +35,14 @@ const PICK := Vector3(-0.25, 1.03, 0.62)    # the spot on the counter in reach o
 const REACH_MAX := 0.55                     # s at most for bending to the counter and back up (when there is time)
 const STOCK := ["burger", "donut", "cheeseburger", "ice_cream", "croissant", "donut", "burger", "cake"]
 
+## event → [the motion ("" = stay as he is), the face, seconds of that face]
+const REACT := {
+	"laugh": ["", "laugh", 1.6], "gloat": ["gesture", "smug", 2.0], "angry": ["shove", "surprise", 1.4],
+	"splat": ["spat", "pain", 2.4], "wow": ["shove", "surprise", 1.6], "apple": ["", "disgust", 1.4],
+	"apple_hit": ["", "laugh", 1.2], "mega": ["gesture", "smug", 2.0], "cake": ["gesture", "smug", 2.0],
+	"boss_down": ["defeat", "sad", 5.0], "lost": ["defeat", "sad", 4.0], "won": ["gesture", "smug", 2.2],
+}
+const GESTURE_LEN := 1.9                    # s of Strong Gesture before a big one is thrown
 const LINES := {
 	"laugh": ["Ха-ха! Още едно?", "Мммм, вкусно ли беше?", "Яж, яж!", "Браво, още калории!", "Това ще остане по корема!",
 		"Сготвено с любов!"],
@@ -40,6 +54,10 @@ const LINES := {
 	"cake": ["Цяла торта! Честит рожден ден!", "2900 калории любов!", "Тортата е за теб!"],
 	"taunt": ["Хапни си!", "Гладен ли си?", "Поръчка!", "Топло, топло!", "Още една порция!"],
 	"wow": ["Леле, каква сила!", "Не мога да те нахраня!", "Ти си машина!"],
+	"gloat": ["Още! Още!", "Обичаш ми гозбите!", "Ще те угоя!"],
+	"boss_down": ["Не! Специалитетът ми!", "Цял ден я правих…", "Това беше върхът ми!"],
+	"lost": ["Добре де… победи ме.", "Нищо не изяде…", "Затварям за днес."],
+	"won": ["Вкусно, нали?", "Ще се върнеш пак!", "Добър апетит!"],
 }
 
 var model: Node3D
@@ -60,6 +78,10 @@ var _reach_t := -1.0                        # s into the reach (< 0: none) …
 var _reach_len := 0.0                       # … which lasts this long; the throw starts at its end
 var _throw_k := 1.0                         # the throw's pace then
 var _on_counter: Node3D                     # the portion waiting at PICK, until his hand takes it
+var _acting := ""                           # a whole-body reaction playing now (REACT), "" = idle / throwing
+var _pre_t := -1.0                          # s left of the show before a big one is thrown (< 0: none)
+var _pre_id := ""
+var face: Face
 
 
 func _ready() -> void:
@@ -74,7 +96,11 @@ func _ready() -> void:
 		_anim.play("throw")
 		_anim.seek(0.0, true)
 		_anim.pause()
+	face = Face.new(model, _skel)
 	if _skel:
+		var jaw := JawEyes.new()
+		jaw.face = face
+		_skel.add_child(jaw)
 		_reach = Reach.new()
 		_reach.influence = 0.0
 		_skel.add_child(_reach)
@@ -128,6 +154,21 @@ func _skin(n: Node) -> void:
 func wind_up(id: String, in_sec: float) -> void:
 	if _anim == null:
 		return
+	_acting = ""
+	if Defs.boss(id) and in_sec >= GESTURE_LEN + RELEASE + 0.3:   # the big one: first the show
+		_pre_t = GESTURE_LEN
+		_pre_id = id
+		_release_at = in_sec
+		_play("gesture")
+		face.mood("smug", GESTURE_LEN + 0.5)
+		say(id)
+		return
+	_wind(id, in_sec)
+
+
+func _wind(id: String, in_sec: float) -> void:
+	_pre_t = -1.0
+	face.mood("effort", in_sec + 0.3)
 	_reach_len = clampf(in_sec - RELEASE * 0.85, 0.0, REACH_MAX)
 	if _reach_len < 0.3:
 		_reach_len = 0.0                           # no time to bend down: it is already in his hand
@@ -153,9 +194,7 @@ func wind_up(id: String, in_sec: float) -> void:
 	else:
 		_take(id, size)
 		_start_throw(left)
-	if Defs.boss(id):
-		say(id)
-	elif randf() < 0.12:
+	if not Defs.boss(id) and randf() < 0.12:
 		say("taunt")
 
 
@@ -190,7 +229,10 @@ func chest_world() -> Vector3:
 
 ## He lets go: the portion leaves his hand (the game throws the real one from hand_world()).
 func release() -> void:
+	if _release_at >= 0.0 and face:
+		face.grunt()
 	_release_at = -1.0
+	_pre_t = -1.0
 	_reach_t = -1.0
 	if _on_counter:
 		_on_counter.queue_free()
@@ -205,21 +247,51 @@ func say(what: String, extra := "") -> void:
 	_bubble.text = (lines[randi() % lines.size()] if extra == "" else extra)
 	_bubble.visible = true
 	_bubble_t = 1.8
+	if face:
+		face.talk(clampf(_bubble.text.length() * 0.065, 0.5, 1.7))
 	_bubble.scale = Vector3.ONE * 0.3
 	var tw := _bubble.create_tween()
 	tw.tween_property(_bubble, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
-## What the player did, seen on him: laugh (the player ate) · angry (a mighty smash) · splat (hit by a portion sent
-## back) · apple (the player ate an apple) · apple_hit (smashed the apple) · wow (a run of mighty hits).
+## What the player did, seen on him (REACT): his face, his body, his words. laugh (the player ate) · gloat (ate
+## again and again) · angry (a mighty smash) · splat (hit by a portion sent back) · wow (a run of mighty hits) · apple
+## (the player ate an apple) · apple_hit (smashed it) · boss_down (the big one smashed) · lost / won (a level's end).
+## A whole-body motion plays only between throws: a throw that is due takes over.
 func react(what: String, sfx: Sfx = null) -> void:
+	var r: Array = REACT.get(what, ["", "neutral", 1.0])
 	_react = what
 	_react_t = 0.0
 	say(what)
-	if sfx and what == "laugh":
+	face.mood(String(r[1]), float(r[2]))
+	if _acting == "defeat" and (what == "lost" or what == "won"):
+		return                                         # (the big one smashed just before the level's end: stays down)
+	if String(r[0]) != "" and _release_at < 0.0 and _reach_t < 0.0:
+		var a := String(r[0])
+		if a == "shove" and randf() < 0.5:
+			a = "shove2"                               # (its mirror: pushed to the other side)
+		_play(a)
+	if sfx and (what == "laugh" or what == "gloat"):
 		sfx.play("laugh", chest_world() + Vector3(0, 0.4, 0), -2.0, randf_range(0.95, 1.08))
 	if what == "splat":
 		_add_stain()
+
+
+func _play(a: String) -> void:
+	if _anim == null or not _anim.has_animation(a):
+		return
+	_acting = a
+	_anim.speed_scale = 1.0
+	_anim.play(a, 0.25)
+
+
+## Back to standing at the counter, ready (the throw's first frame, held).
+func _idle() -> void:
+	_acting = ""
+	_anim.speed_scale = 1.0
+	_anim.play("throw", 0.35)
+	_anim.seek(0.0, true)
+	_anim.pause()
 
 
 func _add_stain() -> void:
@@ -247,6 +319,14 @@ func tick(delta: float, head: Vector3) -> void:
 	if to.length() > 0.1:
 		var want := atan2(to.x, to.z)                  # the model faces +Z
 		_rig.rotation.y = lerp_angle(_rig.rotation.y, want, minf(delta * 3.0, 1.0))
+	if _pre_t >= 0.0:                                 # the show before a big one, then the throw
+		_pre_t -= delta
+		_release_at -= delta
+		if _pre_t < 0.0:
+			_wind(_pre_id, _release_at)
+	elif _acting != "" and (not _anim.is_playing() or _anim.current_animation != _acting):
+		_idle()
+	face.tick(delta)
 	if _reach_t >= 0.0:                               # bending to the counter, taking it, straightening up
 		_reach_t += delta
 		var h := _reach_len * 0.5
@@ -259,7 +339,7 @@ func tick(delta: float, head: Vector3) -> void:
 			_start_throw(_release_at - delta)
 	elif _reach and _reach.influence > 0.0:
 		_reach.influence = maxf(_reach.influence - delta * 5.0, 0.0)
-	if _release_at >= 0.0:
+	if _release_at >= 0.0 and _pre_t < 0.0:
 		_release_at -= delta
 		_place_held()
 	elif _anim and not _anim.is_playing():
@@ -277,14 +357,12 @@ func tick(delta: float, head: Vector3) -> void:
 		"laugh":                                        # bounces with laughter, three times
 			_rig.position = Vector3(0, absf(sin(t * 11.0)) * 0.07 * maxf(1.0 - t / 1.3, 0.0), 0)
 			_rig.rotation.x = -0.08 * maxf(1.0 - t / 1.3, 0.0)
-		"angry", "apple_hit":                           # shakes his head and body
+		"apple_hit":                                    # shakes his head and body
 			_rig.rotation.z = sin(t * 28.0) * 0.06 * maxf(1.0 - t / 0.9, 0.0)
-		"splat":                                        # knocked back a step, and back to his cart
+		"splat" when _acting == "":                    # (no motion: knocked back a step by hand)
 			var k := maxf(1.0 - t / 1.4, 0.0)
 			_rig.rotation.x = -0.32 * sin(minf(t * 6.0, PI)) * k - 0.05 * k
 			_rig.position = Vector3(0, 0, -0.35 * sin(minf(t * 4.0, PI * 0.5)) * k)
-		"wow", "mega", "cake":                                  # arms of the anim aside: a little hop
-			_rig.position = Vector3(0, absf(sin(t * 7.0)) * 0.12 * maxf(1.0 - t / 0.9, 0.0), 0)
 		"apple":
 			_rig.rotation.z = 0.12 * sin(minf(t * 3.0, PI)) * maxf(1.0 - t / 1.2, 0.0)   # a shrug to one side
 	if t > 1.6 and _react != "":
@@ -346,3 +424,132 @@ class Reach extends SkeletonModifier3D:
 		var parent := sk.get_bone_parent(bone)
 		var pg: Basis = sk.get_bone_global_pose(parent).basis if parent >= 0 else Basis.IDENTITY
 		sk.set_bone_pose_rotation(bone, (pg.inverse() * (by * g.basis)).get_rotation_quaternion())
+
+
+
+## His face: the kept Character Creator shapes (convert/chef2scn.gd FACE) driven by a mood, blinks, a grunt as he
+## throws and visemes while he talks. Every shape eases to its target; the jaw bone follows `jaw` (JawEyes), so the
+## teeth and tongue open with the lips.
+class Face extends RefCounted:
+	const MOODS := {
+		"neutral": {"Mouth_Smile": 0.12},
+		"laugh": {"Mouth_Smile": 1.0, "Cheek_Raise_L": 0.8, "Cheek_Raise_R": 0.8, "Eye_Squint_L": 0.6, "Eye_Squint_R": 0.6,
+			"Mouth_Open": 0.25},
+		"smug": {"Mouth_Smile_L": 0.9, "Brow_Raise_Left": 0.7, "Eye_Squint_R": 0.35, "Cheek_Raise_L": 0.5},
+		"angry": {"Brow_Drop_Left": 1.0, "Brow_Drop_Right": 1.0, "Mouth_Frown": 0.7, "Nose_Scrunch": 0.6,
+			"Mouth_Snarl_Upper_L": 0.5, "Mouth_Snarl_Upper_R": 0.5, "Eye_Squint_L": 0.4, "Eye_Squint_R": 0.4},
+		"surprise": {"Brow_Raise_Left": 1.0, "Brow_Raise_Right": 1.0, "A01_Brow_Inner_Up": 0.6, "Eye_Wide_L": 1.0,
+			"Eye_Wide_R": 1.0, "V_Tight_O": 0.5},
+		"pain": {"Eye_Squint_L": 1.0, "Eye_Squint_R": 1.0, "Eyes_Blink": 0.6, "Nose_Scrunch": 1.0, "Mouth_Frown": 0.6,
+			"Mouth_Snarl_Upper_L": 0.6, "Mouth_Snarl_Upper_R": 0.6, "Brow_Drop_Left": 0.8, "Brow_Drop_Right": 0.8},
+		"sad": {"A01_Brow_Inner_Up": 1.0, "Mouth_Frown": 1.0, "Eyes_Blink": 0.3},
+		"disgust": {"Nose_Scrunch": 0.8, "Mouth_Frown": 0.5, "Mouth_Snarl_Upper_L": 0.7, "Brow_Drop_Left": 0.5,
+			"Eye_Squint_L": 0.5},
+		"effort": {"Brow_Drop_Left": 0.45, "Brow_Drop_Right": 0.45, "Mouth_Lips_Tight": 0.7, "Eye_Squint_L": 0.25,
+			"Eye_Squint_R": 0.25},
+	}
+	const JAW := {"laugh": 0.35, "surprise": 0.45, "pain": 0.15, "sad": 0.05}
+	# a syllable: [shape, its weight, how far the jaw opens]
+	const VISEMES := [["V_Open", 0.8, 0.55], ["V_Wide", 0.7, 0.3], ["V_Tight_O", 0.8, 0.35], ["V_Explosive", 0.8, 0.0],
+		["V_Dental_Lip", 0.7, 0.1], ["V_Lip_Open", 0.6, 0.25], ["", 0.0, 0.0]]
+
+	var jaw := 0.0                       # 0 … 1, read by JawEyes
+	var _mesh: MeshInstance3D
+	var _idx := {}                       # shape name → index
+	var _now := {}                       # shape name → current weight
+	var _mood := "neutral"
+	var _mood_t := 0.0
+	var _talk_t := 0.0
+	var _syl_t := 0.0
+	var _syl: Array = ["", 0.0, 0.0]
+	var _blink_in := 2.0
+	var _blink := 0.0
+	var _grunt := 0.0
+	var _t := 0.0
+
+	func _init(model: Node, _skel: Skeleton3D) -> void:
+		for mi in model.find_children("*", "MeshInstance3D", true, false):
+			var m := mi as MeshInstance3D
+			if m.mesh is ArrayMesh and (m.mesh as ArrayMesh).get_blend_shape_count() > 1:
+				_mesh = m
+				for i in (m.mesh as ArrayMesh).get_blend_shape_count():
+					_idx[String((m.mesh as ArrayMesh).get_blend_shape_name(i))] = i
+				break
+
+	func mood(name: String, sec: float) -> void:
+		_mood = name if MOODS.has(name) else "neutral"
+		_mood_t = sec
+
+	func talk(sec: float) -> void:
+		_talk_t = sec
+		_syl_t = 0.0
+
+	func grunt() -> void:
+		_grunt = 0.3
+
+	func tick(delta: float) -> void:
+		_t += delta
+		if _mood_t > 0.0:
+			_mood_t -= delta
+			if _mood_t <= 0.0:
+				_mood = "neutral"
+		var want: Dictionary = (MOODS[_mood] as Dictionary).duplicate()
+		var j: float = JAW.get(_mood, 0.0)
+		if _mood == "laugh":                              # ha-ha-ha
+			j = 0.15 + 0.35 * absf(sin(_t * 9.0))
+		if _talk_t > 0.0:                                 # syllables while the bubble speaks
+			_talk_t -= delta
+			_syl_t -= delta
+			if _syl_t <= 0.0:
+				_syl = VISEMES[randi() % VISEMES.size()]
+				_syl_t = randf_range(0.09, 0.16)
+			for k in want.keys():
+				if String(k).begins_with("Mouth") or String(k).begins_with("V_"):
+					want[k] = float(want[k]) * 0.5
+			if String(_syl[0]) != "":
+				want[_syl[0]] = maxf(float(want.get(_syl[0], 0.0)), float(_syl[1]))
+			j = maxf(j * 0.5, float(_syl[2]))
+		if _grunt > 0.0:                                  # "hup!" as the food leaves his hand
+			_grunt -= delta
+			want["V_Open"] = 0.7
+			want["Brow_Drop_Left"] = 0.8
+			want["Brow_Drop_Right"] = 0.8
+			j = maxf(j, 0.45)
+		_blink_in -= delta                                # blinks every 2–5 s (and at once after a fright)
+		if _blink_in <= 0.0:
+			_blink = 0.14
+			_blink_in = randf_range(2.0, 5.0)
+		if _blink > 0.0:
+			_blink -= delta
+			want["Eyes_Blink"] = 1.0
+		jaw = lerpf(jaw, j, minf(delta * 14.0, 1.0))
+		if _mesh == null:
+			return
+		var rate := minf(delta * 12.0, 1.0)
+		for k in _idx.keys():
+			var cur: float = _now.get(k, 0.0)
+			var v := lerpf(cur, clampf(float(want.get(k, 0.0)), 0.0, 1.0), 1.0 if k == "Eyes_Blink" else rate)
+			if absf(v - cur) > 0.001 or not _now.has(k):
+				_now[k] = v
+				_mesh.set_blend_shape_value(_idx[k], v)
+
+
+## Opens the jaw bone with Face.jaw (teeth, tongue and chin follow), over whatever motion plays.
+class JawEyes extends SkeletonModifier3D:
+	const OPEN := 0.32                        # rad at jaw = 1
+	var face: Face
+	var _jaw := -1
+
+	func _process_modification() -> void:
+		var sk := get_skeleton()
+		if sk == null or face == null or face.jaw < 0.01:
+			return
+		if _jaw < 0:
+			_jaw = sk.find_bone("CC_Base_JawRoot")
+			if _jaw < 0:
+				return
+		var g: Transform3D = sk.get_bone_global_pose(_jaw)
+		var p := sk.get_bone_parent(_jaw)
+		var pg: Basis = sk.get_bone_global_pose(p).basis if p >= 0 else Basis.IDENTITY
+		var turned := Basis(Vector3.RIGHT, OPEN * face.jaw) * g.basis
+		sk.set_bone_pose_rotation(_jaw, (pg.inverse() * turned).get_rotation_quaternion())

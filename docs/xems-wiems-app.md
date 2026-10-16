@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.7)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.8)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -109,6 +109,8 @@ the fixes below each fail it. Found and fixed:
 - Strength writes at most every **600 ms** (the vendor: ≥ 0.8 s). A held "+" on a zone changed its byte on every
   repeat (~4 writes / s) while a held "+" on СИЛА changed it every ~5th — the one difference between "one channel"
   and "all together" on the wire; a unit limit on the write rate is a candidate for the stop.
+- v1.8: the vendor's pace exactly — a strength change goes when the finger has settled (0.3 s) and ≥ 0.8 s after
+  the previous one (a start / a phase still at once).
 - With ВСИЧКИ on, a tap on a zone selects **that** zone (it used to take it out and raise the other nine).
 - **The zones and СИЛА stay as set** — across trainings, links and app restarts (owner); no reset at the end.
 

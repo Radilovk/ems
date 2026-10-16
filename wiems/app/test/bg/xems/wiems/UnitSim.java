@@ -231,7 +231,7 @@ public class UnitSim {
         }
         r.run(500);
         int n = r.u.levelWrites.size() - before;
-        ok("3 drag = few writes", n <= 14, n + " writes");
+        ok("3 drag = few writes (the vendor's pace)", n <= 5, n + " writes");
         ok("3 the last value is on the unit", r.u.cur[Session.ZONE_CH[3]] == Session.unitValue(59), "byte " + r.u.cur[Session.ZONE_CH[3]]);
         ok("3 no fault", r.u.faults.isEmpty(), r.faults());
         before = r.u.levelWrites.size();

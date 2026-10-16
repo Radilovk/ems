@@ -48,7 +48,8 @@ final class Session {
     static final int ZONES = 10, ZONES_LEFT = 5;
 
     static final int IDLE = 0, RUNNING = 1, PAUSED = 2;
-    static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 600;   // the vendor: ≥ 0.8 s between strength writes
+    /** The vendor's pace: one strength write per change, ≥ 0.8 s apart, after the finger has settled (0.3 s). */
+    static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 800, LEVELS_SETTLE_MS = 300;
     /** The unit's top strength byte (the vendor's 100 %). */
     static final int UNIT_MAX = 20;
     private static final int WI_IDLE = 0, WI_COUNT = 1, WI_RUN = 2;
@@ -58,6 +59,7 @@ final class Session {
         final byte[] op;
         final int tag;
         int[] levels;               // a strengths write: its values (they count as the unit's once it goes)
+        long at;                    // when it was asked (a newer value replaces it and starts the wait again)
 
         Item(byte[] op, int tag) {
             this.op = op;
@@ -175,7 +177,9 @@ final class Session {
         s = Math.max(0, Math.min(Safe.STRENGTH_MAX, s));
         if (s != strength) log("strength " + strength + " → " + s + "%");
         strength = s;
+        userChange = true;
         if (state == RUNNING) levels();
+        userChange = false;
     }
 
     int zone(int z) {
@@ -186,7 +190,9 @@ final class Session {
         pct = Math.max(0, Math.min(100, pct));
         if (pct != ch[ZONE_CH[z]]) log("zone " + ZONE[z] + " (ch " + ZONE_CH[z] + ") " + ch[ZONE_CH[z]] + " → " + pct + "%");
         ch[ZONE_CH[z]] = pct;
+        userChange = true;
         if (state == RUNNING) levels();
+        userChange = false;
     }
 
     void start(long now) {
@@ -485,7 +491,8 @@ final class Session {
         if (inflight || out.isEmpty()) return null;
         // strengths at most every LEVELS_GAP_MS (the vendor: one write per change, ~1 s apart); a newer one that
         // comes meanwhile replaces it, so a finger on the slider is one write, not dozens
-        if (out.peekFirst().tag == T_LEVELS && now - levelsMs < LEVELS_GAP_MS) return null;
+        if (out.peekFirst().tag == T_LEVELS
+                && (now - levelsMs < LEVELS_GAP_MS || now - out.peekFirst().at < LEVELS_SETTLE_MS)) return null;
         if (out.peekFirst().tag == T_LEVELS) {
             levelsMs = now;
             sent = out.peekFirst().levels;           // what the unit has from now on
@@ -567,6 +574,8 @@ final class Session {
     }
 
     /** The strengths now, written only when they changed (the unit keeps them through its own work / rest). */
+    private boolean userChange;
+
     private void levels() {
         dropLevels();
         if (wi != WI_RUN) return;                    // counting down: the strengths go when it runs
@@ -577,6 +586,8 @@ final class Session {
         if (java.util.Arrays.equals(c, sent)) return;
         Item it = new Item(WiProto.currents(c), T_LEVELS);
         it.levels = c;
+        it.at = userChange ? lastTick : -100000;   // a start / a phase goes at once; a finger waits to settle
+        userChange = false;
         out.addLast(it);
     }
 

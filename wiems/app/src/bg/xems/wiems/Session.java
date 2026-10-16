@@ -45,6 +45,38 @@ final class Session {
     static final String[] ZONE = {"Предно бедро", "Задно бедро", "Седалище", "Корем", "Кръст",
             "Гръб", "Трапец", "Гърди", "Ръце", "Прасец"};
     static final int[] ZONE_CH = {7, 8, 5, 6, 3, 1, 0, 2, 4, 9};
+    /**
+     * An XEMS suit on the unit's leads (XBody standard): each zone drives the lead that reaches it — the owner's table
+     * (XEMS channel → XBody lead: Ръце→Корем, Гърди→Допълнителен, Корем→Задно бедро, Предно бедро→Предно бедро,
+     * Гръб→Седалище, Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди), the same as the
+     * XBody panel's (xbcable::xemsLead, suit.cpp XEMS_ZONES_XBODY).
+     */
+    static final int[] ZONE_CH_XEMS = {7, 4, 0, 8, 1, 5, 3, 9, 6, 2};
+    private int[] zoneCh = ZONE_CH;
+
+    /** The unit channel zone z drives now (by the suit's standard). */
+    int chOf(int z) {
+        return zoneCh[z];
+    }
+
+    boolean xemsWiring() {
+        return zoneCh == ZONE_CH_XEMS;
+    }
+
+    /** The suit's standard: every zone keeps its %, the channels behind them change. Not while running. */
+    boolean setWiring(boolean xems) {
+        int[] want = xems ? ZONE_CH_XEMS : ZONE_CH;
+        if (want == zoneCh) return true;
+        if (state == RUNNING) return false;
+        int[] pct = new int[ZONES];
+        for (int z = 0; z < ZONES; z++) pct[z] = ch[zoneCh[z]];
+        zoneCh = want;
+        for (int z = 0; z < ZONES; z++) ch[zoneCh[z]] = pct[z];
+        accepted = null;
+        onAir = null;
+        log("suit standard → " + (xems ? "XEMS" : "XBody"));
+        return true;
+    }
     static final int ZONES = 10, ZONES_LEFT = 5;
 
     static final int IDLE = 0, RUNNING = 1, PAUSED = 2;
@@ -185,13 +217,13 @@ final class Session {
     }
 
     int zone(int z) {
-        return ch[ZONE_CH[z]];
+        return ch[zoneCh[z]];
     }
 
     void setZone(int z, int pct) {
         pct = Math.max(0, Math.min(100, pct));
-        if (pct != ch[ZONE_CH[z]]) log("zone " + ZONE[z] + " (ch " + ZONE_CH[z] + ") " + ch[ZONE_CH[z]] + " → " + pct + "%");
-        ch[ZONE_CH[z]] = pct;
+        if (pct != ch[zoneCh[z]]) log("zone " + ZONE[z] + " (ch " + zoneCh[z] + ") " + ch[zoneCh[z]] + " → " + pct + "%");
+        ch[zoneCh[z]] = pct;
         userChange = true;
         if (state == RUNNING) levels();
         userChange = false;
@@ -243,7 +275,9 @@ final class Session {
     /** What every channel gives on cycle k of phase i (the procedure's envelope × zone weight, or its wave). */
     private void setShare(int i, long ts) {
         Procs.Seg g = plan.segs[i];
-        for (int c = 0; c < share.length; c++) share[c] = Procs.share(g, cycle, ts, c);
+        // the procedure's weights are per body part (in the XBody-standard channel of that part): each zone's share
+        // goes to the channel the zone drives now
+        for (int z = 0; z < ZONES; z++) share[zoneCh[z]] = Procs.share(g, cycle, ts, ZONE_CH[z]);
     }
 
     void pause(long now) {
@@ -388,12 +422,12 @@ final class Session {
             tripZone = -1;
             int[] okCh = accepted != null ? accepted : null;
             for (int z = 0; z < ZONES && okCh != null; z++) {
-                int c = ZONE_CH[z];
+                int c = zoneCh[z];
                 if (onAir != null && onAir[c] != okCh[c] && tripZone < 0) tripZone = z;
             }
             if (okCh != null) {
                 for (int z = 0; z < ZONES; z++) {
-                    int c = ZONE_CH[z];
+                    int c = zoneCh[z];
                     if (ch[c] != okCh[c]) log("zone " + ZONE[z] + " " + ch[c] + " → " + okCh[c] + "% (as the unit last ran)");
                     ch[c] = okCh[c];
                 }

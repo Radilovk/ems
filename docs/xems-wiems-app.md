@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.11)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.12)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -146,6 +146,14 @@ the shared `WiProto.currents` (byte-exact with the vendor's frames) → this app
 panel (mod v15); the scale `WiProto.unit` moved there too (XEMS / XBody sent % 1 : 1 — 5× the vendor's top). The
 simulated unit now trips exactly on a missing check (UnitSim 11). The 1.9 / 1.10 "86 = channel / no load" readings
 were wrong; the restore-on-trip stays as a safety net.
+
+## v1.12 — both suit standards, switchable (owner)
+"Настройки на сесията" → КЛИЕНТ: **Костюм XBody | Костюм XEMS** (saved; changed only while not running). XBody: a
+zone drives the unit's channel of that name (`Session.ZONE_CH`). XEMS: an XEMS suit on the unit's XBody-standard
+leads — each zone drives the lead that reaches it, the owner's table as on the XBody panel (`ZONE_CH_XEMS`
+= xbcable::xemsLead: Ръце→Корем, Гърди→Допълнителен, Корем→Задно бедро, Предно бедро→Предно бедро, Гръб→Седалище,
+Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди). Zones keep their % on a switch;
+procedure weights follow the body part. The header says "XEMS костюм" when on.
 
 ## Build / test
 ```

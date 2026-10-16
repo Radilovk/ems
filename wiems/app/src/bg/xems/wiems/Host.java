@@ -31,6 +31,9 @@ interface Host {
     boolean held();
     /** Send the unit trace (long press on the logo). */
     void shareLog();
+    /** The suit's connector standard: false = XBody (zone = the unit's channel of that name), true = an XEMS suit. */
+    boolean xemsWiring();
+    void setXemsWiring(boolean xems);
     /** The figures: female (default) or male — the client's, chosen in the session's settings. */
     boolean female();
     void setFemale(boolean f);

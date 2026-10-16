@@ -102,7 +102,7 @@ final class XView extends View {
             b.append(s.seg()).append(s.live().hz).append(s.continuous());
             b.append('|').append(s.state()).append(s.impulse()).append(s.strength()).append(s.battery())
                     .append(s.startPending()).append(s.preparing()).append(q.hz).append(q.onS).append(q.offS).append(q.totalS);
-            for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i)).append('/').append(s.liveLevel(Session.ZONE_CH[i]));
+            for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i)).append('/').append(s.liveLevel(s.chOf(i)));
             b.append(a.female());
             b.append('|').append(s.secondsLeft(now)).append(' ').append((s.phaseMsLeft(now) + 999) / 1000);
             if (s.startPending()) b.append((now / 400) % 4);
@@ -802,7 +802,7 @@ final class XView extends View {
         int[] col = new int[Session.ZONES];
         float[] alpha = new float[Session.ZONES];
         for (int z = 0; z < Session.ZONES; z++) {
-            float t = s.liveLevel(Session.ZONE_CH[z]) / 100f;
+            float t = s.liveLevel(s.chOf(z)) / 100f;
             // a picked zone without output is tinted — not when all are picked (ВСИЧКИ): the body would look
             // like it works everywhere
             boolean picked = (sel & (1 << z)) != 0 && sel != (1 << Session.ZONES) - 1;
@@ -839,6 +839,7 @@ final class XView extends View {
 
     private String unitLine(Session s) {
         String u = a.linkedName() == null ? "WiEMS" : a.linkedName();
+        if (a.xemsWiring()) u += "  ·  XEMS костюм";
         return u + "   ·   батерия " + (s.battery() < 0 ? "—" : s.battery() + "%");
     }
 
@@ -1056,46 +1057,39 @@ final class XView extends View {
 
         // ---- right: the client ----
         caption(c, o + 456, 98, "КЛИЕНТ");
-        // the figures' sex: a segmented control, the chosen half red (XBody's selected state)
-        round(c, o + 457, 127, o + 735, 181, 10, WHITE);
-        stroke(c, o + 457, 127, o + 735, 181, 10, LINE, 2);
-        for (int i = 0; i < 2; i++) {
-            float hl = o + 456 + i * 140;
-            boolean chosen = a.female() == (i == 0);
-            String id = i == 0 ? "sex-f" : "sex-m";
-            if (chosen) round(c, hl + 4, 130, hl + 136, 178, 8, RED);
-            else if (id.equals(pressed)) round(c, hl + 4, 130, hl + 136, 178, 8, PRESS);
-            font(18, chosen);
-            text(c, (chosen ? "✓ " : "") + (i == 0 ? "Жена" : "Мъж"), hl, 126, hl + 140, 182, 0, chosen ? WHITE : INK);
-            hit(hl, 126, hl + 140, 182, id);
-        }
-        outlined(c, o + 456, 198, o + 736, 254, locked ? null : "age60", null, 0, false);
+        // the figures' sex, then the suit's connector standard: segmented controls, the chosen half red (XBody's
+        // selected state)
+        segmented(c, o, 120, "sex-f", "sex-m", "Жена", "Мъж", a.female(), true);
+        // XBody: zone = the unit's channel of that name; XEMS: an XEMS suit on the unit's (XBody-standard) leads —
+        // each zone drives the lead that reaches it (the owner's table, as the XBody panel). Not while running.
+        segmented(c, o, 174, "wire-xbody", "wire-xems", "Костюм XBody", "Костюм XEMS", !a.xemsWiring(), !locked);
+        outlined(c, o + 456, 230, o + 736, 276, locked ? null : "age60", null, 0, false);
         font(17, false);
-        text(c, "Над 60 години", o + 472, 198, o + 646, 254, -1, locked ? GREY : INK);
-        float sl = o + 736 - 92, st = 226 - 15;
+        text(c, "Над 60 години", o + 472, 230, o + 646, 276, -1, locked ? GREY : INK);
+        float sl = o + 736 - 92, st = 253 - 15;
         round(c, sl, st, sl + 80, st + 30, 15, sheetAge60 ? GREEN : 0xFFD5D7DA);
         p.setColor(WHITE);
         c.drawCircle(sheetAge60 ? sl + 65 : sl + 15, st + 15, 12, p);
         if (sheetAge60) {
-            font(14, true);
-            text(c, "✓ Честотата спира до 85 Hz", o + 456, 258, o + 736, 280, -1, GREEN);
+            font(13, true);
+            text(c, "✓ Честотата спира до 85 Hz", o + 456, 278, o + 736, 294, -1, GREEN);
         }
         if (plan != null) {                              // a procedure: its phases carry their own second impulse
-            caption(c, o + 456, 296, "КАК");
+            caption(c, o + 456, 300, "КАК");
             font(15, false);
             wrap(c, plan.how, o + 456, 322, 280, 22, 3, INK);
             font(14, false);
             text(c, "Силата по зоните остава твоя", o + 456, 400, o + 736, 424, -1, SOFT);
         } else {
         // ---- the double impulse: a second, low impulse in the pause (the unit's own rest Hz / %) ----
-        caption(c, o + 456, 296, "ДВОЕН ИМПУЛС");
-        float ds = o + 736 - 80, dt = 290;
+        caption(c, o + 456, 300, "ДВОЕН ИМПУЛС");
+        float ds = o + 736 - 80, dt = 296;
         round(c, ds, dt, ds + 80, dt + 30, 15, q.dbl ? YELLOW : 0xFFD5D7DA);
         p.setColor(WHITE);
         c.drawCircle(q.dbl ? ds + 65 : ds + 15, dt + 15, 12, p);
         if (!locked) hit(ds - 90, dt - 6, ds + 80, dt + 36, "dbl");
-        pill(c, o + 456, 330, o + 592, 380, q.dblHz + " Hz", q.dbl && !locked ? "dblhz" : null);
-        pill(c, o + 600, 330, o + 736, 380, q.dblPct + "%", q.dbl && !locked ? "dblpct" : null);
+        pill(c, o + 456, 336, o + 592, 384, q.dblHz + " Hz", q.dbl && !locked ? "dblhz" : null);
+        pill(c, o + 600, 336, o + 736, 384, q.dblPct + "%", q.dbl && !locked ? "dblpct" : null);
         // what the session will be (derived, nothing to set): one line
         int cycles = q.onS + q.offS > 0 ? q.totalS / (q.onS + q.offS) : 0;
         font(14, false);
@@ -1105,6 +1099,27 @@ final class XView extends View {
         line(c, o + 64, 470, o + 736, 470, HEAD_LINE, 1);
         outlined(c, o + 64, 494, o + 264, 554, "sheet-cancel", "Откажи", 18, false);
         filled(c, o + 496, 494, o + 736, 554, "sheet-ok", GREEN, WHITE, "✓  Готово", 20);
+    }
+
+    /** A two-way switch over the sheet's right column (XBody's red for the chosen half). */
+    private void segmented(Canvas c, float o, float t, String idL, String idR, String l, String r, boolean left,
+                           boolean enabled) {
+        round(c, o + 457, t + 1, o + 735, t + 47, 10, WHITE);
+        stroke(c, o + 457, t + 1, o + 735, t + 47, 10, LINE, 2);
+        for (int i = 0; i < 2; i++) {
+            float hl = o + 456 + i * 140;
+            boolean chosen = left == (i == 0);
+            String id = i == 0 ? idL : idR;
+            if (chosen) round(c, hl + 4, t + 4, hl + 136, t + 44, 8, enabled ? RED : GREY);
+            else if (id.equals(pressed)) round(c, hl + 4, t + 4, hl + 136, t + 44, 8, PRESS);
+            String lab = i == 0 ? l : r;
+            float fs = 16;
+            font(fs, chosen);
+            while (fs > 12 && p.measureText(lab) > 124) font(--fs, chosen);   // smaller rather than cut
+            if (chosen && p.measureText("✓ " + lab) <= 126) lab = "✓ " + lab;  // the tick only where it fits
+            text(c, lab, hl, t, hl + 140, t + 48, 0, chosen ? WHITE : enabled ? INK : GREY);
+            if (enabled) hit(hl, t, hl + 140, t + 48, id);
+        }
     }
 
     /** The sheet's left half for a procedure: its length (while it has not started), its phases, the strategy. */
@@ -1346,6 +1361,10 @@ final class XView extends View {
             }
             if (s == null || s.state() != Session.RUNNING) a.applyProgram(sheetProg, sheetAge60);
             sheet = false;
+            return;
+        }
+        if (id.equals("wire-xbody") || id.equals("wire-xems")) {   // the zones keep their %, the leads change
+            a.setXemsWiring(id.equals("wire-xems"));
             return;
         }
         if (id.equals("sex-f") || id.equals("sex-m")) {   // the figures change at once, also mid-training

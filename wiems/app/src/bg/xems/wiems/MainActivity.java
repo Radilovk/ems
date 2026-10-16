@@ -36,6 +36,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     /** The zones and strength as last set: kept across sessions and app restarts (owner). */
     final int[] savedZones = new int[Session.ZONES];
     int savedStrength = 100;
+    /** The suit's connector standard (owner: both, switchable): false XBody, true XEMS. */
+    boolean xemsWiring;
     private long zonesSavedMs;
     private final TraceSink sink = new TraceSink();
 
@@ -263,6 +265,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         save();
     }
 
+    public boolean xemsWiring() {
+        return xemsWiring;
+    }
+
+    public void setXemsWiring(boolean x) {
+        if (session != null && !session.setWiring(x)) {
+            setNote("Стандартът на костюма се сменя на пауза", true);
+            return;
+        }
+        xemsWiring = x;
+        save();
+    }
+
     public boolean held() {
         return held != null;
     }
@@ -324,6 +339,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         held = null;
         session.sink = sink;
         if (!back) {                  // the zones and strength as left last time (owner: they stay as set)
+            session.setWiring(xemsWiring);
             for (int z = 0; z < Session.ZONES; z++) session.setZone(z, savedZones[z]);
             session.setStrength(savedStrength);
         }
@@ -499,6 +515,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         female = p.getBoolean("female", true);
         for (int z = 0; z < Session.ZONES; z++) savedZones[z] = p.getInt("zone" + z, 0);
         savedStrength = p.getInt("strength", 100);
+        xemsWiring = p.getBoolean("wiring_xems", false);
         Safe.apply(prog, age60);    // a saved value goes through the limits too
     }
 
@@ -506,7 +523,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("last", lastMac).putInt("hz", prog.hz)
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
                 .putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
-                .putBoolean("age60", age60).putBoolean("female", female).putInt("strength", savedStrength)
+                .putBoolean("age60", age60).putBoolean("female", female).putBoolean("wiring_xems", xemsWiring).putInt("strength", savedStrength)
                 .putInt("zone0", savedZones[0]).putInt("zone1", savedZones[1]).putInt("zone2", savedZones[2])
                 .putInt("zone3", savedZones[3]).putInt("zone4", savedZones[4]).putInt("zone5", savedZones[5])
                 .putInt("zone6", savedZones[6]).putInt("zone7", savedZones[7]).putInt("zone8", savedZones[8])

@@ -81,6 +81,9 @@ public class AppTest {
         public void backToModes() { mode = -1; }
         public boolean held() { return false; }
         public void shareLog() {}
+        boolean xems;
+        public boolean xemsWiring() { return xems; }
+        public void setXemsWiring(boolean x) { xems = x; if (session != null) session.setWiring(x); }
         boolean female = true;
         public boolean female() { return female; }
         public void setFemale(boolean f) { female = f; }
@@ -166,6 +169,31 @@ public class AppTest {
         eq("vendor frame 4", "000c00020f8f8f8d0d000f", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {12, 0, 2, 15, 15, 15, 13, 13, 0, 15})));
         eq("equal = no bits", "000e0c0c0c0c0c0c0c090b", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {14, 12, 12, 12, 12, 12, 12, 12, 9, 11})));
         eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
+        // the suit's standard: an XEMS suit on the unit's leads — Ръце drives the lead "Корем" (ch 6), the zone keeps its %
+        Session w = new Session();
+        w.setStrength(100);
+        w.setZone(8, 50);                                // Ръце 50 %
+        eq("xbody standard: Ръце → ch 4", 50 + " " + 4, w.zone(8) + " " + w.chOf(8));
+        w.setWiring(true);
+        eq("xems standard: Ръце → ch 6, still 50 %", 50 + " " + 6, w.zone(8) + " " + w.chOf(8));
+        int[] seen = new int[10];
+        for (int z = 0; z < Session.ZONES; z++) seen[w.chOf(z)]++;
+        eq("xems standard: every channel once", "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]", java.util.Arrays.toString(seen));
+        String[] lead = {"Предно бедро", "Ръце", "Трапец", "Задно бедро", "Гръб", "Седалище", "Кръст", "Прасец", "Корем", "Гърди"};
+        StringBuilder owner = new StringBuilder();          // the zone → the unit lead's name (XBody's channel names)
+        String[] chName = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Седалище", "Корем", "Предно бедро", "Задно бедро", "Прасец"};
+        for (int z = 0; z < Session.ZONES; z++) owner.append(chName[w.chOf(z)]).append(z < 9 ? "," : "");
+        eq("the owner's table", String.join(",", lead), owner.toString());
+        w.linked();
+        drain(w, 0);
+        w.start(-4000);
+        drain(w, -4000);
+        w.runNotify(new byte[] {1}, 100);
+        w.tick(100);
+        List<String> wl = drain(w, 100);
+        eq("xems standard on the wire: ch 6 = 10 (+ check bits)", "000000000080008a000000", wl.get(wl.size() - 1));
+        eq("running: no switch", false, w.setWiring(false));
+
         // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
         Session d = new Session();
         d.linked();

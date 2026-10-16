@@ -77,7 +77,20 @@ final class XView extends View {
 
     // ---------------------------------------------------------------- frame
 
+    /** A selection ends by itself after this long without any touch (owner): back to СИЛА. */
+    static final int SEL_IDLE_MS = 5000;
+    /** Edge to edge of a zone label = this many % (the XEMS focus board's chip slide), ≤ this per slide. */
+    static final int SLIDE = 20;
+    private long touchedMs;
+    private int slideZone = -1, slideStart, slideValue = -1;
+    private float slideX0, slideY0;
+    private boolean sliding;
+
     void tick(long now) {
+        if (sel != 0 && pressed.length() == 0 && !sheet && !confirm && now - touchedMs > SEL_IDLE_MS) {
+            sel = 0;                                     // 5 s with no touch at all: the selection ends
+            invalidate();
+        }
         if (isStepper(pressed) && now - pressMs > 450 && now - repeatMs > 90) {
             repeatMs = now;
             act(pressed, true);
@@ -89,7 +102,7 @@ final class XView extends View {
 
     private String signature(long now) {
         StringBuilder b = new StringBuilder();
-        b.append(a.viewKind()).append('|').append(a.note()).append(a.noteWarn()).append('|').append(pressed)
+        b.append(slideZone).append(slideValue).append(a.viewKind()).append('|').append(a.note()).append(a.noteWarn()).append('|').append(pressed)
                 .append(sheet).append(confirm).append(sel).append(now < bubbleUntil).append(now < toastUntil);
         if (a.viewKind() == MainActivity.VIEW_PICK || a.viewKind() == MainActivity.VIEW_LINKING) {
             b.append((now / 400) % 4);
@@ -666,9 +679,12 @@ final class XView extends View {
         outlined(c, l, t, l + w, t + 50, "z:" + zi, null, 0, on);
         font(15, false);
         text(c, Session.ZONE[zi], l + 10, t, l + w - 12, t + 50, right ? 1 : -1, on ? WHITE : INK);
-        int pct = s.zone(zi);
+        int pct = slideZone == zi && slideValue >= 0 ? slideValue : s.zone(zi);
         font(18, true);
         text(c, pct + "%", l + 10, t, l + w - 12, t + 50, right ? -1 : 1, on ? WHITE : pct == 0 ? GREY : INK);
+        if (slideZone == zi && sliding) {                // the slide's bar: where the finger has it, in steps of 1 %
+            round(c, l + 8, t + 43, l + 8 + (w - 16) * pct / 100f, t + 46, 1.5f, on ? WHITE : RED);
+        }
     }
 
     private Session seenSession;
@@ -682,7 +698,7 @@ final class XView extends View {
             seenResets = s.resets();
             boolean zero = true;
             for (int i = 0; i < Session.ZONES; i++) zero &= s.zone(i) == 0;
-            if (zero) sel = (1 << Session.ZONES) - 1;
+            if (zero) sel = 0;                       // (selections end by themselves after 5 s — owner)
         }
         long now = a.now();
         Session.Program pr = s.program();
@@ -937,6 +953,11 @@ final class XView extends View {
         return mix(LEDS[i], LEDS[i + 1], f - i);
     }
 
+    /** Test: the picked zones (bits). */
+    int selMask() {
+        return sel;
+    }
+
     /** Test: every zone selected. */
     boolean selAll() {
         return sel == (1 << Session.ZONES) - 1;
@@ -945,6 +966,7 @@ final class XView extends View {
     private int selValue() {
         Session s = a.session();
         if (s == null) return 0;
+        if (slideZone >= 0 && slideValue >= 0) return slideValue;
         if (sel == 0) return s.strength();
         for (int i = 0; i < Session.ZONES; i++) if ((sel & (1 << i)) != 0) return s.zone(i);
         return 0;
@@ -969,7 +991,8 @@ final class XView extends View {
     /** XBody's showPercent: while a value changes, a big % over the body with what it belongs to. */
     private void paintBubble(Canvas c) {
         String what = "Сила";
-        if (sel != 0) {
+        if (sliding && slideZone >= 0) what = Session.ZONE[slideZone];
+        else if (sel != 0) {
             int cnt = 0;
             StringBuilder names = new StringBuilder();
             for (int i = 0; i < Session.ZONES; i++)
@@ -1216,32 +1239,79 @@ final class XView extends View {
         float[] d = toDesign(e);
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                touchedMs = a.now();
                 tapX = d[0];
                 tapY = d[1];
                 pressed = idAt(d[0], d[1]);
                 pressMs = repeatMs = a.now();
+                sliding = false;
+                slideZone = pressed.startsWith("z:") && a.session() != null ? Integer.parseInt(pressed.substring(2)) : -1;
+                if (slideZone >= 0) {
+                    slideX0 = d[0];
+                    slideY0 = d[1];
+                    slideStart = a.session().zone(slideZone);
+                    slideValue = -1;
+                }
                 if (pressed.equals("slider")) drag(d[0]);
                 else if (isStepper(pressed)) act(pressed, false);   // answer on touch, then repeat while held
                 invalidate();
                 return true;
             case MotionEvent.ACTION_MOVE:
+                touchedMs = a.now();
                 if (pressed.equals("slider")) drag(d[0]);
+                else if (slideZone >= 0) slideZone(d[0], d[1]);
                 return true;
             case MotionEvent.ACTION_UP: {
+                touchedMs = a.now();
                 String id = pressed;
                 pressed = "";
+                if (sliding && slideZone >= 0) {             // the slide goes out on release (as the XEMS chip)
+                    Session s = a.session();
+                    if (s != null && slideValue >= 0 && slideValue != slideStart) s.setZone(slideZone, slideValue);
+                    sliding = false;
+                    slideZone = -1;
+                    slideValue = -1;
+                    bubbleUntil = a.now() + 1200;
+                    invalidate();
+                    return true;
+                }
+                slideZone = -1;
                 if (id.equals("logo") && a.now() - pressMs > 1200) a.shareLog();   // held: the trace
                 else if (id.length() > 0 && !isStepper(id) && !id.equals("slider") && id.equals(idAt(d[0], d[1]))) act(id, false);
                 invalidate();
                 return true;
             }
             case MotionEvent.ACTION_CANCEL:
+                sliding = false;
+                slideZone = -1;
+                slideValue = -1;
                 pressed = "";
                 invalidate();
                 return true;
             default:
                 return true;
         }
+    }
+
+    /**
+     * A sideways slide on a zone label = that zone's strength — the XEMS focus board's chip slide: relative to the
+     * finger (no jump), right = more, edge to edge of the label = 20 %, ≤ 20 per slide; an unpicked zone is picked
+     * first (as its tap); it goes out on release.
+     */
+    private void slideZone(float x, float y) {
+        float dx = x - slideX0, dy = y - slideY0;
+        if (!sliding) {
+            if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy)) return;
+            sliding = true;
+            slideX0 = x;
+            int b = 1 << slideZone;
+            sel = sel == (1 << Session.ZONES) - 1 ? b : sel | b;   // picked first, as its tap
+            return;
+        }
+        int dlt = Math.max(-SLIDE, Math.min(SLIDE, Math.round(dx / zoneW() * SLIDE)));
+        slideValue = Math.max(0, Math.min(100, slideStart + dlt));
+        bubbleUntil = a.now() + 1200;
+        invalidate();
     }
 
     private void drag(float x) {

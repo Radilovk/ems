@@ -1211,8 +1211,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (168L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.12)
+`docs/xems-wiems-app.md` (178L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.13)
   - L7 ## What it is
   - L28 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L38 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1224,8 +1224,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L130 ## v1.10 — `86` is the unit's current protection, not a channel (second trace)
   - L141 ## v1.11 — the real cause: the strengths need the vendor's check bits
   - L150 ## v1.12 — both suit standards, switchable (owner)
-  - L158 ## Build / test
-  - L165 ## Not verified yet
+  - L158 ## v1.13 — picking and sliding like the XEMS focus board (owner)
+  - L168 ## Build / test
+  - L175 ## Not verified yet
 
 `docs/xems-wiems.md` (71L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

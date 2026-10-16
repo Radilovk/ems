@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.12)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.13)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -154,6 +154,16 @@ leads — each zone drives the lead that reaches it, the owner's table as on the
 = xbcable::xemsLead: Ръце→Корем, Гърди→Допълнителен, Корем→Задно бедро, Предно бедро→Предно бедро, Гръб→Седалище,
 Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди). Zones keep their % on a switch;
 procedure weights follow the body part. The header says "XEMS костюм" when on.
+
+## v1.13 — picking and sliding like the XEMS focus board (owner)
+- **A pick ends by itself after 5 s with no touch** (`XView.SEL_IDLE_MS`): back to СИЛА. Any touch counts — another
+  zone, the slider, ± (held too), the figure, anywhere on the screen. Not while a finger is down or the sheet is open.
+  The "new client = ВСИЧКИ" default is gone (it would just time out).
+- **A tap on a muscle of the figure picks its zone** like its label (then ± / the slider move it).
+- **A sideways slide on a zone label = that zone's strength** — the XEMS focus chip (`docs/xems-focus-board.md`):
+  relative to the finger (starts after 12 units, no jump), right = more on both columns, the label's width = 20 %,
+  ≤ 20 per slide, the value and a thin bar on the label and the big % card while sliding; an unpicked zone is
+  picked first; it goes out on release (one write).
 
 ## Build / test
 ```

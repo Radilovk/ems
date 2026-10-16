@@ -106,6 +106,24 @@ public class AppTest {
         javax.imageio.ImageIO.write(img, "png", new File(dir, name));
     }
 
+    /** A slide at design coordinates: down at (x0, y), moves to (x1, y); up only when {@code up} (then x0.. unused). */
+    static void slide(XView v, float x0, float y0, float x1, float y1, boolean up) {
+        BufferedImage scratch = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
+        v.draw(new Canvas(scratch.createGraphics()));
+        float k = v.getHeight() / 600f, dw = Math.max(800f, v.getWidth() / k);
+        float ox = (v.getWidth() - dw * k) / 2;
+        if (x0 != x1 || y0 != y1) {
+            v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_DOWN, ox + x0 * k, y0 * k));
+            for (int i = 1; i <= 10; i++)
+                v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_MOVE, ox + (x0 + (x1 - x0) * i / 10) * k, (y0 + (y1 - y0) * i / 10) * k));
+            lastX = ox + x1 * k;
+            lastY = y1 * k;
+        }
+        if (up) v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_UP, lastX, lastY));
+    }
+
+    static float lastX, lastY;
+
     /** A tap at design coordinates (600 high, centred). */
     static void tap(XView v, float dxDesign, float dyDesign) {
         BufferedImage scratch = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -364,14 +382,38 @@ public class AppTest {
         h.session = new Session();                          // a new client on a new link
         h.session.setStrength(100);
         tap(v, 2, 300);                                     // (a frame: nothing there)
-        eq("a new client: ВСИЧКИ selected", true, v.selAll());
-        tap(v, 480, 78);                                    // ВСИЧКИ off → СИЛА
+        eq("a new client: nothing picked (СИЛА)", 0, v.selMask());
         h.session.setZone(0, 30);
         h.session.setZone(5, 60);
         tap(v, 100, 111);                                   // Предно бедро (30 %)
         tap(v, 960 - 90, 111);                              // Гръб (60 %)
         tap(v, 960 - 40, 567);                              // + on both
         eq("two zones + keep their difference", "35 65", h.session.zone(0) + " " + h.session.zone(5));
+        // the owner's rules: a pick ends by itself after 5 s with no touch; any touch keeps it
+        h.t += 4000;
+        v.tick(h.t);
+        eq("4 s: still picked", true, v.selMask() != 0);
+        tap(v, 2, 300);                                     // a touch anywhere = activity
+        h.t += 4000;
+        v.tick(h.t);
+        eq("activity keeps it", true, v.selMask() != 0);
+        h.t += 1100;
+        v.tick(h.t);
+        eq("5 s idle → back to СИЛА", 0, v.selMask());
+        // a slide on a zone label = its strength (the XEMS focus chip): right = more, the label's width = 20 %
+        h.session.setZone(0, 35);
+        slide(v, 60, 111, 60 + 239, 111, false);           // (the slide starts after the first 12 units, as XEMS)
+        eq("slide: shown, not sent before release", 35, h.session.zone(0));
+        slide(v, 0, 0, 0, 0, true);
+        eq("slide +20 on release (picked first)", "55 true", h.session.zone(0) + " " + ((v.selMask() & 1) != 0));
+        slide(v, 200, 111, 200 - 430, 111, true);
+        eq("a slide is ≤ 20", 35, h.session.zone(0));
+        tap(v, 2, 300);
+        h.t += 5100;
+        v.tick(h.t);
+        // a tap on a muscle of the figure picks its zone like its label
+        tap(v, 80 + 290 - 30, 106 + 372 * 0.55f);           // front thigh (left figure)
+        eq("figure tap picks Предно бедро", true, (v.selMask() & 1) != 0);
         h.session = keep;
         tap(v, 100, 111);
         tap(v, 960 - 90, 111);

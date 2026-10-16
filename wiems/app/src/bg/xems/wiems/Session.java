@@ -60,6 +60,8 @@ final class Session {
         final int tag;
         int[] levels;               // a strengths write: its values (they count as the unit's once it goes)
         long at;                    // when it was asked (a newer value replaces it and starts the wait again)
+        int[] zones;                // the zones (by unit channel) and strength behind it
+        int strength;
 
         Item(byte[] op, int tag) {
             this.op = op;
@@ -373,34 +375,58 @@ final class Session {
             // a "01" left over from before a stop must not end a new count-down (it lasts ~4 s)
             if (wi == WI_COUNT && now - wiAt >= 2000) wiGo = true;
         }
-        // 0x80 | n: the unit's own protection tripped on channel n (seen on the unit: one zone raised → "86" and
-        // "00" ~30 ms later, every time that zone's strength went out again). That zone goes back to 0 — else the
-        // next ▶ sends the same strength and it trips again — and the screen names it.
+        // 0x80 | code: the unit's protection tripped (seen: "86", then "00" ~30 ms later). NOT a channel number — the
+        // owner's traces got 86 after raising Корем (ch 6) and after raising Предно бедро (ch 7). It came every time
+        // one zone went out different from the others (by even one step) with no suit on, never while all moved
+        // together: the unit's current check (the vendor's "Curr_comp": what it sets vs. what it measures, see the
+        // status characteristic). The zones and strength go back to what the unit last ran with — else the next ▶
+        // sends the same and it trips again — and the screen names what changed.
         int b = v[0] & 0xFF;
-        if ((b & 0x80) != 0 && (b & 0x7F) < WiProto.CHANNELS && wi == WI_RUN && state == RUNNING) {
-            int c = b & 0x7F;
-            faultCh = c;
-            for (int z = 0; z < ZONES; z++)
-                if (ZONE_CH[z] == c) {
-                    log("zone " + ZONE[z] + " (ch " + c + ") " + ch[c] + " → 0% (the unit tripped on it)");
-                    ch[c] = 0;
+        if ((b & 0x80) != 0 && wi == WI_RUN && state == RUNNING) {
+            tripCode = b;
+            lastTrip = b;
+            tripZone = -1;
+            int[] okCh = accepted != null ? accepted : null;
+            for (int z = 0; z < ZONES && okCh != null; z++) {
+                int c = ZONE_CH[z];
+                if (onAir != null && onAir[c] != okCh[c] && tripZone < 0) tripZone = z;
+            }
+            if (okCh != null) {
+                for (int z = 0; z < ZONES; z++) {
+                    int c = ZONE_CH[z];
+                    if (ch[c] != okCh[c]) log("zone " + ZONE[z] + " " + ch[c] + " → " + okCh[c] + "% (as the unit last ran)");
+                    ch[c] = okCh[c];
                 }
-            unitHalted("the unit reported " + Integer.toHexString(b) + ": channel " + c + " tripped");
+                if (strength != acceptedStrength) log("strength " + strength + " → " + acceptedStrength + "% (as the unit last ran)");
+                strength = acceptedStrength;
+            }
+            unitHalted("the unit reported " + Integer.toHexString(b) + " (its current protection)"
+                    + (tripZone >= 0 ? " after " + ZONE[tripZone] + " changed" : ""));
             return;
         }
         // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
         if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted("the unit notified \"00\" (it stopped)");
     }
 
-    private int faultCh = -1;
+    private int tripCode, tripZone = -1;
+    /** The zones (by unit channel) and strength the unit ran with before the write now on air / the last one. */
+    private int[] accepted, onAir;
+    private int acceptedStrength, onAirStrength;
 
-    /** The zone the unit tripped on the last time (−1: none) — taken once by the screen. */
-    int takeFaultZone() {
-        int c = faultCh;
-        faultCh = -1;
-        if (c < 0) return -1;
-        for (int z = 0; z < ZONES; z++) if (ZONE_CH[z] == c) return z;
-        return -1;
+    private int lastTrip;
+
+    /** The unit's protection code of the last trip (0: never). */
+    int tripCodeLast() {
+        return lastTrip;
+    }
+
+    /** Taken once by the screen: the zone whose change tripped the unit (−1: none / unknown); −2: a trip, no zone. */
+    int takeTripZone() {
+        if (tripCode == 0) return -1;
+        int z = tripZone;
+        tripCode = 0;
+        tripZone = -1;
+        return z < 0 ? -2 : z;
     }
 
     private void unitHalted(String why) {
@@ -522,6 +548,12 @@ final class Session {
         if (out.peekFirst().tag == T_LEVELS) {
             levelsMs = now;
             sent = out.peekFirst().levels;           // what the unit has from now on
+            if (onAir != null) {                     // the previous one ran: it is the "last good"
+                accepted = onAir;
+                acceptedStrength = onAirStrength;
+            }
+            onAir = out.peekFirst().zones;
+            onAirStrength = out.peekFirst().strength;
         }
         inflight = true;
         sentMs = now;
@@ -612,6 +644,8 @@ final class Session {
         if (java.util.Arrays.equals(c, sent)) return;
         Item it = new Item(WiProto.currents(c), T_LEVELS);
         it.levels = c;
+        it.zones = ch.clone();
+        it.strength = strength;
         it.at = userChange ? lastTick : -100000;   // a start / a phase goes at once; a finger waits to settle
         userChange = false;
         out.addLast(it);

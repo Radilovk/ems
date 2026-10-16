@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.9)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.10)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -126,6 +126,17 @@ simulated unit trips the same way (UnitSim 11). To confirm the channel meaning: 
 should follow it (`84` for Ръце, …).
 Also in the trace: the status characteristic (`b1f5a058`) at each work start sends `…a5…` then 20 values 1–2
 (per-channel load / contact, likely); idle it carries `00 00 00 00 0N … c5 5c`.
+
+## v1.10 — `86` is the unit's current protection, not a channel (second trace)
+Second trace (no suit on, Cardio 7 Hz): all zones together at bytes 2, 3, 4, 1 ran; Предно бедро (ch 7) alone one step
+higher (`01 01 01 01 01 01 01 02 01 01`) → `86`, `00` again — the same code as for Корем (ch 6). So `0x86` is a code,
+and the trigger is **one channel set apart from the others with no load**. The status characteristic at each work
+start carried per-channel readings that grow with the set level (byte 1 → ~2, byte 4 → ~4–5): the unit measures its
+outputs and, with nothing on, sees them equal while they are set unequal — its "set vs. measured" check (the vendor's
+`Curr_comp`) stops it. The vendor's capture (suit on, readings 0–1 at bytes 9–18) ran unequal channels fine.
+The app now: on `0x80|x` restores the zones and strength the unit last ran with (not "zone n → 0"), names the zone
+whose change set it off, says that without a suit the unit takes no unequal zones; a change made on pause that trips
+on ▶ is undone the same way (UnitSim 11). **To confirm on the unit: a suit on and wet, then one zone alone.**
 
 ## Build / test
 ```

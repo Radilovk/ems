@@ -415,10 +415,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
             if (session.takeUnitStopped()) {
-                int fz = session.takeFaultZone();
-                if (fz >= 0) {
-                    setNote("WiEMS спря заради зона " + Session.ZONE[fz] + " — провери електрода й (мокър ли е, допира ли). "
-                            + "Зоната е на 0, ПРОДЪЛЖИ върви без нея", true);
+                int tz = session.takeTripZone();
+                if (tz != -1) {
+                    setNote("WiEMS спря — защита на тока (код " + Integer.toHexString(session.tripCodeLast()) + ")"
+                            + (tz >= 0 ? " след промяната на " + Session.ZONE[tz] : "")
+                            + ". Силите са както вървяха. Без облечен костюм модулът не дава различни сили по зоните", true);
                     noteUntil = now() + 20000;
                 } else
                     setNote(session.haltReason().startsWith("no") ? "WiEMS не отговаря — пауза. Натисни ПРОДЪЛЖИ"

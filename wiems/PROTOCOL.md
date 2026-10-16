@@ -72,8 +72,12 @@ session running 2 min untouched; name the channels on screen. Then the probe on 
 names and string literals readable with ILSpy even when IL is stripped. Its own log lines are `<private>`.
 
 ## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
-- Run control `0x0043` notifies **`0x80 | n`** (seen: `86`) right after a strength write when channel n trips the
-  unit's protection, then `00` ~30 ms later: the unit stops. Re-sending the same strength after a new start trips it
-  again. Seen with Корем (ch 6) at byte 9 / 12 while the other channels ran at 5.
+- Run control `0x0043` notifies **`86`** right after a strength write that trips the unit's protection, then `00`
+  ~30 ms later: the unit stops; the same strengths after a new start trip it again. **Not a channel number**: seen
+  after raising ch 6 (bytes 9 / 12, others 5) and ch 7 (byte 2, others 1) — each time with no suit on and one
+  channel set apart from the others; equal channels at bytes 1–5 never tripped. Likely the set-vs-measured current
+  check (the vendor's "Curr_comp").
+- Status `b1f5a058` while running: per-channel readings that grow with the set level (no suit: byte 1 → ~2,
+  byte 4 → ~4–5; the vendor's capture with a suit: 0–1 at bytes 9–18) — the unit's output measurement.
 - Status `b1f5a058`: at each work start `00…00 a5 00…` then 20 values (1 / 2 on this unit); idle
   `00 00 00 00 0N 00 … c5 5c` (byte 4 changed 00 → 01 → 04 after the trips).

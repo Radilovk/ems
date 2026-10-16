@@ -36,7 +36,7 @@ public class UnitSim {
         final List<byte[]> notify = new ArrayList<byte[]>();
         int writes;
         boolean silent;             // stops notifying (a half-dead link)
-        int tripCh = -1, tripAbove; // its protection: this channel over this byte → "0x80|ch", "00", stopped
+        boolean noLoad;             // no suit on: channels set unequal → its current protection "86", "00", stopped
 
         void write(byte[] op, long t) {
             writes++;
@@ -52,8 +52,10 @@ public class UnitSim {
                 for (int b : cur) nonzero |= b != 0;
                 if (nonzero && state != RUN) faults.add("t=" + t + " strengths while the unit does not run");
                 levelWrites.add(t);
-                if (state == RUN && tripCh >= 0 && cur[tripCh] > tripAbove) {   // as the trace from the unit
-                    notify.add(new byte[] {(byte) (0x80 | tripCh)});
+                boolean unequal = false;
+                for (int b : cur) unequal |= b != cur[0];
+                if (state == RUN && noLoad && unequal) {   // as the owner's traces from the unit (ch 6 and ch 7: "86")
+                    notify.add(new byte[] {(byte) 0x86});
                     notify.add(new byte[] {0});
                     state = IDLE;
                     cur = new int[10];
@@ -342,22 +344,30 @@ public class UnitSim {
             ok("9 " + Procs.MODE_NAME[md] + ": no fault", r.u.faults.isEmpty(), r.faults());
         }
 
-        // 11. The unit trips on one zone (the owner's trace: Корем 5 → 9 → "86", "00", every ▶ again the same).
+        // 11. No suit: one zone set apart → "86" (the owner's traces), every ▶ again the same — unless undone.
         r = new Rig();
-        r.u.tripCh = 6;
-        r.u.tripAbove = 5;
+        r.u.noLoad = true;
         r.allZones(25);
         r.s.start(r.t);
         r.run(6000);
-        ok("11 all zones at 5: runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "");
-        r.s.setZone(3, 45);                         // Корем → ch 6
+        ok("11 all zones together: runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "");
+        r.s.setZone(3, 45);                         // Корем alone
         r.run(2000);
-        ok("11 trip → paused, Корем back to 0", r.s.state() == Session.PAUSED && r.s.zone(3) == 0, "state "
-                + r.s.state() + " zone " + r.s.zone(3));
-        ok("11 the screen learns the zone", r.s.takeFaultZone() == 3, "");
+        ok("11 trip → paused, the zones as the unit last ran", r.s.state() == Session.PAUSED && r.s.zone(3) == 25,
+                "state " + r.s.state() + " zone " + r.s.zone(3));
+        ok("11 the screen learns what changed", r.s.takeTripZone() == 3 && r.s.tripCodeLast() == 0x86, "");
         r.s.start(r.t);
         r.run(8000);
         ok("11 ПРОДЪЛЖИ runs on (no trip loop)", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "state " + r.s.state());
+        r.s.pause(r.t);
+        r.s.setZone(0, 55);                         // changed on pause, then ▶: trips on the first write …
+        r.run(1000);
+        r.s.start(r.t);
+        r.run(8000);
+        ok("11 … and goes back to what ran", r.s.zone(0) == 25 && r.s.state() == Session.PAUSED, "zone " + r.s.zone(0));
+        r.s.start(r.t);
+        r.run(8000);
+        ok("11 then runs", r.s.state() == Session.RUNNING, "");
         ok("11 no fault", r.u.faults.isEmpty(), r.faults());
 
         // 10. Strength to 0 and back mid-run; a link drop in the count-down.

@@ -31,6 +31,24 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     /** A session whose link dropped: kept (zones, strength, program, time done) until its unit is back. */
     Session held;
     String heldMac;
+    /** Every unit write, answer, notification and strength change, with times (the evidence for a fault). */
+    Trace trace;
+    /** The zones and strength as last set: kept across sessions and app restarts (owner). */
+    final int[] savedZones = new int[Session.ZONES];
+    int savedStrength = 100;
+    private long zonesSavedMs;
+    private final TraceSink sink = new TraceSink();
+
+    final class TraceSink implements Session.Sink {
+        @Override
+        public void log(String s) {
+            trace(s);
+        }
+    }
+
+    void trace(String s) {
+        if (trace != null) trace.add(now(), s);
+    }
     XView view;
     final List<Seen> seen = new ArrayList<Seen>();
     String linkingMac, linkedName, lastMac;
@@ -54,6 +72,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         super.onCreate(b);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        java.io.File dir = getExternalFilesDir(null);
+        trace = new Trace(new java.io.File(dir != null ? dir : getFilesDir(), "wiems-log.txt"));
+        trace("app start " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
         load();
         ble = new Ble(this, this);
         view = new XView(this, this);
@@ -74,7 +95,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     @Override
     protected void onPause() {
         super.onPause();
-        resumed = false;            // a running session keeps its tick (posted below while it runs)
+        resumed = false;
+        zonesSavedMs = 0;
+        rememberZones(now());
+        save();            // a running session keeps its tick (posted below while it runs)
     }
 
     @Override
@@ -298,6 +322,12 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             setNote("Свързан ✓  " + linkedName, false);
         }
         held = null;
+        session.sink = sink;
+        if (!back) {                  // the zones and strength as left last time (owner: they stay as set)
+            for (int z = 0; z < Session.ZONES; z++) session.setZone(z, savedZones[z]);
+            session.setStrength(savedStrength);
+        }
+        trace("LINKED " + linkingMac + (back ? " (the same unit back: the training goes on)" : ""));
         session.linked();             // whatever the unit does now: 0 and stopped
         lastMac = linkingMac;
         linkingMac = null;
@@ -307,6 +337,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void lost(String why) {
+        trace("LOST: " + why);
         // keep the training (unless it was being closed): the last unit reconnects by itself and it goes on
         if (session != null && !disconnectWhenIdle && lastMac != null) {
             session.lost(now());
@@ -322,6 +353,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void written(boolean ok) {
+        trace(ok ? "  ack" : "  WRITE REJECTED by the unit");
         if (session == null) return;
         if (!ok) {
             ble.disconnect(null);
@@ -333,11 +365,18 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void runNotify(byte[] v) {
+        trace("  ← run " + Trace.hex(v));
         if (session != null) session.runNotify(v, now());
     }
 
     @Override
+    public void notified(String what, byte[] v) {
+        trace("  ← " + what + " " + Trace.hex(v));
+    }
+
+    @Override
     public void battery(int pct) {
+        trace("  ← battery " + pct + "%");
         if (session != null) session.setBattery(pct);
     }
 
@@ -375,17 +414,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
-            if (session.takeUnitStopped()) setNote("WiEMS спря сам — натисни ПРОДЪЛЖИ", true);
+            if (session.takeUnitStopped())
+                setNote(session.haltReason().startsWith("no") ? "WiEMS не отговаря — пауза. Натисни ПРОДЪЛЖИ"
+                        : "WiEMS спря сам — пауза. Натисни ПРОДЪЛЖИ", true);
             if (was && session.finished()) {
                 session.clearFinished();
-                session.resetZones();   // the next client never starts on this one's strengths
-                setNote("Тренировката завърши ✓ — зоните са на 0 за следващия", false);
+                setNote("Тренировката завърши ✓", false);
             }
             if (session.ackLate(t)) {
                 ble.disconnect(null);
                 lost("WiEMS спря да отговаря — тренировката спря");
             } else if (ble.ready()) {
                 byte[] op = session.next(t);
+                if (op != null) trace("→ " + opName(op[0]) + " " + Trace.hex(com.isaigu.gymapp.bodytech.WiProto.value(op)));
                 if (op != null && !ble.write(op)) {
                     ble.disconnect(null);
                     lost("WiEMS не прие команда — тренировката спря");
@@ -396,7 +437,41 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 }
             }
         }
+        rememberZones(t);
         view.tick(t);
+    }
+
+    private static String opName(int sel) {
+        String[] n = {"currents", "program", "rest", "widths", "run"};
+        return sel >= 0 && sel < n.length ? n[sel] : "op" + sel;
+    }
+
+    /** The zones and strength as set now → kept (at most every 2 s; also when the app goes to the background). */
+    private void rememberZones(long t) {
+        Session s = session != null ? session : held;
+        if (s == null) return;
+        boolean changed = s.strength() != savedStrength;
+        for (int z = 0; z < Session.ZONES; z++) changed |= s.zone(z) != savedZones[z];
+        if (!changed) return;
+        for (int z = 0; z < Session.ZONES; z++) savedZones[z] = s.zone(z);
+        savedStrength = s.strength();
+        if (t - zonesSavedMs > 2000 || !resumed) {
+            zonesSavedMs = t;
+            save();
+        }
+    }
+
+    /** The trace to whoever should see it (a message, mail, Drive…): long press on the logo. */
+    public void shareLog() {
+        try {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType("text/plain");
+            i.putExtra(Intent.EXTRA_SUBJECT, "XEMS WiEMS дневник");
+            i.putExtra(Intent.EXTRA_TEXT, trace.dump());
+            startActivity(Intent.createChooser(i, "Изпрати дневника"));
+        } catch (Throwable t) {
+            setNote("Дневникът е във файл: Android/data/bg.xems.wiems/files/wiems-log.txt", false);
+        }
     }
 
     // ---------------------------------------------------------------- saved
@@ -414,6 +489,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         prog.dblPct = p.getInt("dbl_pct", prog.dblPct);
         age60 = p.getBoolean("age60", false);
         female = p.getBoolean("female", true);
+        for (int z = 0; z < Session.ZONES; z++) savedZones[z] = p.getInt("zone" + z, 0);
+        savedStrength = p.getInt("strength", 100);
         Safe.apply(prog, age60);    // a saved value goes through the limits too
     }
 
@@ -421,6 +498,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("last", lastMac).putInt("hz", prog.hz)
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
                 .putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
-                .putBoolean("age60", age60).putBoolean("female", female).apply();
+                .putBoolean("age60", age60).putBoolean("female", female).putInt("strength", savedStrength)
+                .putInt("zone0", savedZones[0]).putInt("zone1", savedZones[1]).putInt("zone2", savedZones[2])
+                .putInt("zone3", savedZones[3]).putInt("zone4", savedZones[4]).putInt("zone5", savedZones[5])
+                .putInt("zone6", savedZones[6]).putInt("zone7", savedZones[7]).putInt("zone8", savedZones[8])
+                .putInt("zone9", savedZones[9]).apply();
     }
 }

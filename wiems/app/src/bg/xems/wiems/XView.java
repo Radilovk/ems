@@ -275,6 +275,7 @@ final class XView extends View {
         line(c, 155, 6, 155, 50, HEAD_LINE, 1);
         line(c, dw - 148, 6, dw - 148, 50, HEAD_LINE, 1);
         logo(c, 22, 28);
+        hit(0, 0, 155, 56, "logo");                   // a long press sends the unit trace
         font(12, true);
         text(c, "WiEMS", 106, 22, 152, 40, -1, RED);
         font(20, true);
@@ -1214,7 +1215,8 @@ final class XView extends View {
             case MotionEvent.ACTION_UP: {
                 String id = pressed;
                 pressed = "";
-                if (id.length() > 0 && !isStepper(id) && !id.equals("slider") && id.equals(idAt(d[0], d[1]))) act(id, false);
+                if (id.equals("logo") && a.now() - pressMs > 1200) a.shareLog();   // held: the trace
+                else if (id.length() > 0 && !isStepper(id) && !id.equals("slider") && id.equals(idAt(d[0], d[1]))) act(id, false);
                 invalidate();
                 return true;
             }
@@ -1290,12 +1292,14 @@ final class XView extends View {
             BodyFig b = figs[f];
             RectF r = figRect[f];
             int z = b == null ? -1 : b.zoneAt((tapX - r.left) / r.width(), (tapY - r.top) / r.height());
-            if (z >= 0) sel ^= 1 << z;
+            if (z >= 0) sel = sel == (1 << Session.ZONES) - 1 ? 1 << z : sel ^ (1 << z);
             return;
         }
         if (id.startsWith("z:")) {   // tap = into / out of the selection (as on XBody)
             int b = 1 << Integer.parseInt(id.substring(2));
-            sel = (sel & b) != 0 ? sel & ~b : sel | b;
+            // with ВСИЧКИ on, a tap on one zone means THAT zone (not "all but it")
+            if (sel == (1 << Session.ZONES) - 1) sel = b;
+            else sel = (sel & b) != 0 ? sel & ~b : sel | b;
             return;
         }
         if (id.equals("all")) {

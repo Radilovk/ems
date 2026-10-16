@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.6)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.7)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -99,6 +99,18 @@ the fixes below each fail it. Found and fixed:
 - **Several zones + / slider set them all to one value** (arms 30 → 65 with legs at 60): they now move by the same step.
 - **A new client** starts with ВСИЧКИ selected (all zones 0, so the slider raises them all at once); when a training
   finishes the zones go back to 0 for the next client. A shorter length on pause keeps the time already done.
+
+## v1.7 — the unit still pauses when one channel is raised (owner): evidence first
+- **Trace** (`Trace.java`): every write to the unit (name + bytes), its ack or rejection, every notification — run,
+  battery, and now also, as the vendor subscribes them, the unit's status / current check (`b1f5a058`) and its clock
+  (`7764f042`) — every zone / strength change, START / PAUSE / STOP and why the unit was taken as stopped ("00" from the
+  unit vs. no "01" for 5 s). File: `Android/data/bg.xems.wiems/files/wiems-log.txt`; **a long press (1.2 s) on the
+  logo** sends it (any app: Viber, mail, Drive). The pause note says which of the two it was.
+- Strength writes at most every **600 ms** (the vendor: ≥ 0.8 s). A held "+" on a zone changed its byte on every
+  repeat (~4 writes / s) while a held "+" on СИЛА changed it every ~5th — the one difference between "one channel"
+  and "all together" on the wire; a unit limit on the write rate is a candidate for the stop.
+- With ВСИЧКИ on, a tap on a zone selects **that** zone (it used to take it out and raise the other nine).
+- **The zones and СИЛА stay as set** — across trainings, links and app restarts (owner); no reset at the end.
 
 ## Build / test
 ```

@@ -48,7 +48,7 @@ final class Session {
     static final int ZONES = 10, ZONES_LEFT = 5;
 
     static final int IDLE = 0, RUNNING = 1, PAUSED = 2;
-    static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 250;
+    static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 600;   // the vendor: ≥ 0.8 s between strength writes
     /** The unit's top strength byte (the vendor's 100 %). */
     static final int UNIT_MAX = 20;
     private static final int WI_IDLE = 0, WI_COUNT = 1, WI_RUN = 2;
@@ -88,6 +88,24 @@ final class Session {
     private final ArrayDeque<Item> out = new ArrayDeque<Item>();
     private boolean inflight;
     private long sentMs;
+
+    /** Where the session tells what it does and why (the trace); null = nowhere. */
+    interface Sink {
+        void log(String s);
+    }
+
+    Sink sink;
+
+    private void log(String s) {
+        if (sink != null) sink.log(s);
+    }
+
+    private String haltWhy = "";
+
+    /** Why the unit was taken as stopped the last time ("" = never). */
+    String haltReason() {
+        return haltWhy;
+    }
 
     Session() {
         for (int i = 0; i < ch.length; i++) share[i] = 100;   // every zone starts at 0 (owner): raised one by one
@@ -154,7 +172,9 @@ final class Session {
     }
 
     void setStrength(int s) {
-        strength = Math.max(0, Math.min(Safe.STRENGTH_MAX, s));
+        s = Math.max(0, Math.min(Safe.STRENGTH_MAX, s));
+        if (s != strength) log("strength " + strength + " → " + s + "%");
+        strength = s;
         if (state == RUNNING) levels();
     }
 
@@ -163,12 +183,15 @@ final class Session {
     }
 
     void setZone(int z, int pct) {
-        ch[ZONE_CH[z]] = Math.max(0, Math.min(100, pct));
+        pct = Math.max(0, Math.min(100, pct));
+        if (pct != ch[ZONE_CH[z]]) log("zone " + ZONE[z] + " (ch " + ZONE_CH[z] + ") " + ch[ZONE_CH[z]] + " → " + pct + "%");
+        ch[ZONE_CH[z]] = pct;
         if (state == RUNNING) levels();
     }
 
     void start(long now) {
         if (state == RUNNING) return;
+        if (!startWanted) log("START (state " + state + ", unit " + wi + ")");
         if (state == IDLE && plan != null) {         // a procedure starts at its first phase
             seg = 0;
             cycle = 0;
@@ -216,6 +239,7 @@ final class Session {
     }
 
     void pause(long now) {
+        log("PAUSE (state " + state + ", unit " + wi + ")");
         startWanted = false;
         if (wi == WI_COUNT && state != RUNNING) {    // cancelled in the count-down: what was not sent never goes
             dropQueued(T_PROG);
@@ -230,6 +254,7 @@ final class Session {
     }
 
     void stop() {
+        if (state != IDLE || wi != WI_IDLE) log("STOP (state " + state + ", unit " + wi + ")");
         startWanted = false;
         boolean was = state != IDLE;
         state = IDLE;
@@ -248,6 +273,7 @@ final class Session {
      * training is not lost to a radio hiccup. Nothing queued goes anywhere.
      */
     void lost(long now) {
+        log("link lost (state " + state + ")");
         if (state == RUNNING) remainMs = Math.max(0, endMs - now);
         if (state != IDLE) state = PAUSED;
         startWanted = false;
@@ -266,6 +292,7 @@ final class Session {
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
         if (wi == WI_COUNT && !progQueued() && (wiGo || now - wiAt >= 6000)) {
             runSeenMs = now;
+            log(wiGo ? "count-down over (unit \"01\")" : "count-down over (6 s, no \"01\")");
             push(WiProto.zero(), T_PLAIN);
             sent = null;
             push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
@@ -275,7 +302,7 @@ final class Session {
         if (startWanted && !preparing()) start(now);
         if (state != RUNNING) return;
         // the unit notifies "01" every second while it runs; silent for 5 s (after it did notify) = it stopped
-        if (wi == WI_RUN && runNotifies && now - runSeenMs > 5000) unitHalted();
+        if (wi == WI_RUN && runNotifies && now - runSeenMs > 5000) unitHalted("no \"01\" from the unit for 5 s");
         if (state != RUNNING) return;
         remainMs = Math.max(0, endMs - now);
         if (now >= endMs) {
@@ -341,10 +368,12 @@ final class Session {
             if (wi == WI_COUNT && now - wiAt >= 2000) wiGo = true;
         }
         // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
-        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted();
+        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted("the unit notified \"00\" (it stopped)");
     }
 
-    private void unitHalted() {
+    private void unitHalted(String why) {
+        haltWhy = why;
+        log("UNIT HALTED: " + why + " → pause");
         remainMs = Math.max(0, endMs - lastTick);
         state = PAUSED;
         on = false;

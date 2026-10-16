@@ -80,6 +80,7 @@ public class AppTest {
         }
         public void backToModes() { mode = -1; }
         public boolean held() { return false; }
+        public void shareLog() {}
         boolean female = true;
         public boolean female() { return female; }
         public void setFemale(boolean f) { female = f; }
@@ -132,11 +133,11 @@ public class AppTest {
         eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000040000000000]", drain(s, 5100));
         for (int z = 0; z < Session.ZONES; z++) s.setZone(z, 100);   // ten taps in a row …
         eq("… held a moment", "[]", drain(s, 5200));
-        eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 5400));
+        eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 5800));
         s.setZone(3, 50);                                // one zone (Корем → ch 6) mid-run: the owner's failing case
-        eq("one zone = one write, the rest unchanged", "[0008080808080804080808]", drain(s, 6000));
+        eq("one zone = one write, the rest unchanged", "[0008080808080804080808]", drain(s, 6500));
         s.setZone(3, 50);
-        eq("the same value is not written again", "[]", drain(s, 6500));
+        eq("the same value is not written again", "[]", drain(s, 7200));
         s.runNotify(new byte[] {1}, 9200);
         s.tick(9200);
         eq("the unit's own pause: nothing written", "[]", drain(s, 9200));

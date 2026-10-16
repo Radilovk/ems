@@ -10,9 +10,11 @@ import java.util.List;
  * XEMS side (train.utils.CommandUtil): cmd 1 = strength of the 10 sliders (pdu[1..10], always followed by a cmd 3); cmd 3 = run: pdu[1..2]
  * seconds left, pdu[3] Hz, pdu[4] width/50 µs, pdu[5] impulse s, pdu[6] pause s, pdu[10] 1 = output on, 0 = off;
  * F2 = stop; 5 = battery. The tablet runs the phases itself (impulse → pause → …), the ramp too (SoftRamp), so the
- * suit is programmed as one continuous burst (T1 = T3 = T4 = 0) and every phase is a SEL / intensity change.
+ * suit is programmed as one continuous burst (T1 = T3 = T4 = 0) and every phase is an intensity change; with
+ * {@link BtSettings#hold} the channels are switched on (SEL) once per start and a pause is strength 0, without it
+ * every pause is SEL off and every impulse SEL on again (a knock at each impulse start, owner 1.1.450).
  * <p>
- * Safety: intensity ≤ {@link #MAX_PCT}; a channel is on only when its slider gives it strength; an output that
+ * Safety: intensity ≤ {@link #MAX_PCT}; a channel gives output only when its slider gives it strength; an output that
  * nobody renewed for its phase length + 3 s is switched off by {@link #heartbeat}; after a write failure
  * ({@link #forget}) the next frame is SEL all off and the suit is programmed again.
  */
@@ -181,7 +183,11 @@ public final class BtTranslator {
             int h = at(pdu, 3);
             int us = at(pdu, 4) * 50;
             boolean flag = at(pdu, 10) == 1;
-            if (!flag || h <= 0) {
+            if ((!flag || h <= 0) && armed && on && devMask != 0 && testCh == 0 && BtSettings.hold()) {
+                // pause: the channels stay on, only silent — no new start (and no knock) at the next impulse
+                quiet(out);
+                deadlineMs = nowMs + keepMs(pdu, workLen);
+            } else if (!flag || h <= 0) {
                 off(out);
             } else if (!armed) {
                 // paused / stopped: the new values are kept for the next start, nothing goes out
@@ -193,10 +199,7 @@ public final class BtTranslator {
                 widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
                 // the longer of impulse / pause: the second impulse's setup (DoubleImpulse) sends it in the ON phase too,
                 // and the pause's length then cut it off mid-phase (1.1.386); the keep-alive only needs an upper bound
-                int sec = Math.max(at(pdu, 5), at(pdu, 6));
-                if (sec <= 0) sec = workLen;
-                if (workLen > 0 && workLen < sec) sec = workLen;
-                deadlineMs = nowMs + (sec > 0 ? sec * 1000L : 7000L) + GRACE_MS;
+                deadlineMs = nowMs + keepMs(pdu, workLen);
                 on = true;
                 reconcile(out);
             }
@@ -209,6 +212,14 @@ public final class BtTranslator {
             out.add(BtProto.batterySync());
         }
         return out;
+    }
+
+    /** How long an output stays on without a renewal: the longer of impulse / pause (or what is left) + grace. */
+    private static long keepMs(byte[] pdu, int workLen) {
+        int sec = Math.max(at(pdu, 5), at(pdu, 6));
+        if (sec <= 0) sec = workLen;
+        if (workLen > 0 && workLen < sec) sec = workLen;
+        return (sec > 0 ? sec * 1000L : 7000L) + GRACE_MS;
     }
 
     /** A real training is running (not just a held test). */
@@ -440,6 +451,16 @@ public final class BtTranslator {
         }
     }
 
+    /** Pause with the channels kept on ({@link BtSettings#hold}): every strength 0, SEL and the places stay. */
+    private void quiet(List<byte[]> out) {
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if (devInt[ch] != 0) {
+                out.add(BtProto.intensity(ch, 0));
+                devInt[ch] = 0;
+            }
+        }
+    }
+
     private void off(List<byte[]> out) {
         stopSlide(out);
         on = false;
@@ -497,13 +518,31 @@ public final class BtTranslator {
         return t < 0 ? 0 : (t > MAX_PCT ? MAX_PCT : t);
     }
 
-    /** Bring the suit to the wanted Hz / width / strength; the channel mask (SEL) goes last. */
+    /** The channel has a slider (it may give strength in some phase). */
+    private static boolean mapped(int ch) {
+        int s = BtSettings.slider(ch);
+        return s >= 0 && s < 10;
+    }
+
+    /** The channel works in the current phase (by the owner's map), whatever its strength now. */
+    private boolean works(int ch) {
+        if (!mapped(ch)) return false;
+        int g = BtSettings.group(ch);
+        return !(phase == SECOND && g == BtSettings.GROUP_MAIN) && !(phase == MAIN && g == BtSettings.GROUP_SECOND);
+    }
+
+    /**
+     * Bring the suit to the wanted Hz / width / strength; the channel mask (SEL) goes last. With {@link BtSettings#hold}
+     * every mapped channel is in the mask from the first impulse on (silent ones at strength 0), so a ramp that lifts
+     * the channels from 0 one by one, a pause or the switch to the 2nd impulse never starts a channel again.
+     */
     private void reconcile(List<byte[]> out) {
         int[] want = new int[BtSettings.CHANNELS + 1];
+        boolean hold = testCh == 0 && BtSettings.hold();
         int common = 0, n = 0;
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             want[ch] = target(ch);
-            if (want[ch] > 0) {
+            if (want[ch] > 0 || (hold && works(ch))) {
                 n++;
                 int e = testCh != 0 ? testHzs[ch] : effHz(ch, hz);
                 if (common == 0 || e < common) common = e;
@@ -516,7 +555,16 @@ public final class BtTranslator {
         boolean hzNew = false;
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             int t = want[ch];
-            if (t > 0) {
+            if (t == 0 && hold && mapped(ch)) {
+                // silent but kept on: in slots on the common period, so it keeps its place for when it gets strength
+                if (slots && devHz[ch] != common) {
+                    out.add(BtProto.hz(ch, common));
+                    devHz[ch] = common;
+                    slideMask &= ~(1 << (ch - 1));
+                    hzNew = true;
+                }
+                mask |= 1 << (ch - 1);
+            } else if (t > 0) {
                 int h = slots ? common : (testCh != 0 ? testHzs[ch] : effHz(ch, hz));
                 int u = testCh != 0 ? widthUs : effUs(ch, widthUs);
                 if (u < MIN_US) u = MIN_US;
@@ -555,8 +603,10 @@ public final class BtTranslator {
             }
         }
         if (mask != 0) used = true;
-        if (slots && (mask != devMask || hzNew)) {
-            // every impulse start (pause = SEL off), a channel added / dropped or a new Hz: the places are laid again
+        if (slots && (mask != devMask || (hzNew && !hold))) {
+            // every impulse start (pause = SEL off), a channel added / dropped or a new Hz: the places are laid again;
+            // channels kept on are laid at their start only (a new Hz — 2nd impulse and back — keeps them on, the
+            // places may then meet: a knock-free start goes first, owner 1.1.450)
             stopSlide(out);
             if (devMask != 0) out.add(BtProto.allOff());
             out.add(BtProto.enable(mask));

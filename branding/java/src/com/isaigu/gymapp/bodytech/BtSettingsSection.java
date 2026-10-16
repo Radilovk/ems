@@ -146,6 +146,10 @@ public final class BtSettingsSection {
                             + "към двата електрода. Изкл: бият заедно — утечката отива силно към един електрод. "
                             + "Всички канали тогава са на една честота.",
                     BtSettings.slots(), new Slots()), XemsUi.matchWrap(a, 16));
+            sh.body.addView(XemsUi.toggleRow(a, "Каналите остават включени",
+                    "Вкл: каналите се включват веднъж при старт, а в паузата само мълчат — импулсът започва меко, "
+                            + "без удар в началото. Изкл: всеки импулс включва каналите наново (както преди).",
+                    BtSettings.hold(), new Hold()), XemsUi.matchWrap(a, 16));
         }
 
         /**
@@ -354,6 +358,13 @@ public final class BtSettingsSection {
         @Override
         public void onToggle(boolean on) {
             BtSettings.setSlots(on);
+        }
+    }
+
+    static final class Hold implements XemsUi.OnToggle {
+        @Override
+        public void onToggle(boolean on) {
+            BtSettings.setHold(on);
         }
     }
 

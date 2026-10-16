@@ -34,12 +34,15 @@ const VIEWS := [{"name": "Планини", "path": "res://assets/views/mountain.
 	{"name": "Залез над дюни", "path": "res://assets/views/dunes.jpg", "span": 220.0, "horizon": 0.5},
 	{"name": "Мост при залез", "path": "res://assets/views/bridge_sunset.jpg", "span": 220.0, "horizon": 0.5}]
 const PUNISH := [{"name": "Меко", "sec": 1.2}, {"name": "Силно", "sec": 2.5}]
-# What the session is: the plasma spheres on the beat · the chef throwing food (his home is the square in Ulm).
+# What the session is: the plasma spheres on the beat · the chef throwing food (CHEF_PLACES: where his cart stands).
 const SCENES := ["Сфери в ритъма", "Готвачът"]
 enum Scene { SPHERES, CHEF }
-const CHEF_ROOM := "Площадът в Улм"
+# Where the chef has his cart (owner, 2026-10): one of two real places, the player picks.
+const CHEF_PLACES := [{"name": "Пиаца Болони", "room": "Пиаца Болони (Палермо)"},
+	{"name": "Ретро улица", "room": "Ретро улица Претвил"}]
 
 var scene := 0                  # Scene
+var chef_place := 0             # CHEF_PLACES
 var pace := 1
 var spread := 1
 var legs := 0
@@ -79,12 +82,13 @@ func save() -> void:
 
 
 func _fields() -> Array:
-	return ["scene", "pace", "spread", "legs", "hazards", "minutes", "suit", "punish", "music_db", "sfx_db", "comfort",
+	return ["scene", "chef_place", "pace", "spread", "legs", "hazards", "minutes", "suit", "punish", "music_db", "sfx_db", "comfort",
 		"height_cm", "offset_x", "offset_z", "turn_deg", "auto_center", "room", "view", "track", "tutorial_done", "best_score"]
 
 
 func _clamp() -> void:
 	scene = clampi(scene, 0, SCENES.size() - 1)
+	chef_place = clampi(chef_place, 0, CHEF_PLACES.size() - 1)
 	pace = clampi(pace, 0, PACE.size() - 1)
 	spread = clampi(spread, 0, SPREAD.size() - 1)
 	legs = clampi(legs, 0, LEGS.size() - 1)
@@ -102,6 +106,10 @@ func _clamp() -> void:
 
 func chef() -> bool:
 	return scene == Scene.CHEF
+
+
+func chef_room() -> String:
+	return String(CHEF_PLACES[chef_place].room)
 
 
 func speed_k() -> float:

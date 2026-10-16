@@ -27,6 +27,10 @@ const BUILTIN_ROOMS := [
 		"box": [-25.0, 40.0, -35.0, 13.0], "height": 25.0},
 	{"name": "Нощно плато", "path": "res://assets/rooms/night_plateau.jpg", "kind": "pano", "yaw": 0.1, "cam": 1.6,
 		"radius": 12.0, "height": 30.0},
+	{"name": "Пиаца Болони (Палермо)", "path": "res://assets/rooms/piazza_bologni.jpg", "kind": "pano", "yaw": -0.03,
+		"cam": 1.6, "box": [-16.0, 25.0, -35.0, 12.0], "height": 25.0},
+	{"name": "Ретро улица Претвил", "path": "res://assets/rooms/pretville_street.jpg", "kind": "pano", "yaw": -0.04,
+		"cam": 1.6, "box": [-9.0, 6.5, -40.0, 15.0], "height": 20.0},
 ]
 const PANO_EXT := ["jpg", "jpeg", "png", "webp", "hdr"]
 const SCENE_EXT := ["glb", "gltf", "fbx"]

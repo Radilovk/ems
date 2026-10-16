@@ -9,7 +9,7 @@
 ## button pauses (the things stop where they are, the suit rests); losing both hands (controllers asleep, out of view)
 ## pauses by itself and the game goes on when a hand is found again.
 ##
-## The chef (settings: Сценарий → Готвачът, the square in Ulm): a cook at his cart throws food on the beat; smashed
+## The chef (settings: Сценарий → Готвачът, in Piazza Bologni or Pretville Street): a cook at his cart throws food on the beat; smashed
 ## food burns a little, food that gets through is eaten — its calories go on, shown heads-up in kcal and kilos.
 ## Every hit, in both scenarios, has a power (Power: weak · medium · mighty) from the fist's speed and run-up.
 ##
@@ -49,6 +49,7 @@ var kcal: KcalHud                    # … the calories, heads-up …
 var chef: Chef                       # … and the chef himself (null in the spheres scenario)
 var _last_throw := -INF              # bt of the chef's last planned throw (his one arm needs a moment between throws)
 var _mighty_run := 0                 # mighty hits in a row (at 4 the chef is impressed)
+var _eaten_run := 0                  # portions eaten in a row (at 3 the chef shows off)
 var _chef_told := false              # the chef's rules were shown in this run of the app
 var suit := SuitLink.new()
 var st: int = St.IDLE
@@ -285,14 +286,15 @@ func _on_setting(key: String) -> void:
 		"height_cm":
 			if body.fixed_h <= 0.0:
 				body.calibrate()
-		"scene":
-			level = 0
-			if settings.chef():                   # the chef's home is the square in Ulm
-				var ulm: int = stage.rooms.map(func(r): return r.name).find(GameSettings.CHEF_ROOM)
-				if ulm >= 0 and settings.room != ulm:
-					settings.room = ulm
+		"scene", "chef_place":
+			if key == "scene":
+				level = 0
+			if settings.chef():                   # the chef has his cart in the place picked for him
+				var at: int = stage.rooms.map(func(r): return r.name).find(settings.chef_room())
+				if at >= 0 and settings.room != at:
+					settings.room = at
 					settings.save()
-					stage.set_room(ulm)
+					stage.set_room(at)
 					_warmed = false
 			_ensure_chef()
 
@@ -1325,7 +1327,10 @@ func _hit_food(e: Elem, limb: String) -> void:
 				chef.react("angry")
 	fx.popup(at, "−%d ккал" % int(round(burn)), KcalHud.GREEN, [46, 54, 66][tier])
 	_power_popup(at, pw)
+	_eaten_run = 0
 	if Defs.boss(e.food):
+		if chef and not back:
+			chef.react("boss_down")
 		sfx.play("levelup", at, -4.0, 1.1)
 		_say("%s — на парчета!" % String(f.name), 1.6)
 	else:
@@ -1377,7 +1382,10 @@ func _eat(e: Elem) -> void:
 	fx.popup(face + Vector3(0, 0.12, -0.25), "+%d ккал" % int(f.kcal), KcalHud.RED, 80)
 	_say("Изяде %s: +%d ккал (%s)" % [String(f.name).to_lower() if not Defs.boss(e.food) else String(f.name), int(f.kcal),
 		KcalHud.kg_text(float(f.kcal))], 1.8)
-	chef.react("laugh", sfx)
+	_eaten_run += 1
+	chef.react("gloat" if _eaten_run >= 3 else "laugh", sfx)
+	if _eaten_run >= 3:
+		_eaten_run = 0
 	_remove(e)
 
 
@@ -1540,6 +1548,8 @@ func _end_level() -> void:
 	_title("Ниво %d: %d%%" % [level + 1, int(round(acc * 100))])
 	stage.cue.text = "Разбити %d · избегнати %d · улучен %d\nНай-дълга серия ×%d\n%s" % [lv_hits, lv_dodged, lv_taken,
 		best_combo, verdict]
+	if settings.chef() and chef:
+		chef.react("lost" if kcal.balance() <= 0.0 else "won", sfx)
 	if settings.chef():
 		stage.cue.text = "Разбита храна %d · изядена %d\nБаланс %s (%s)\n%s" % [lv_hits, lv_taken,
 			KcalHud.kcal_text(kcal.balance()), KcalHud.kg_text(kcal.balance()), verdict]

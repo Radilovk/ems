@@ -150,10 +150,14 @@ func _home(m: Control) -> void:
 	var row := _cols(m)
 	var left := _col(row, 1.25)
 	_text(left, "XEMS Studio", 76, INK, true)
-	_text(left, ("Готвачът на площада в Улм те замерва с храна. Разбий я — гориш калории. Пропуснеш ли — изяждаш я."
+	_text(left, ("Готвачът те замерва с храна. Разбий я — гориш калории. Пропуснеш ли — изяждаш я."
 		if settings.chef() else "Разбивай в ритъма. Клякай, навеждай се, стъпвай встрани — костюмът работи с теб."), 30, DIM).custom_minimum_size.x = 600
 	_gap(left, 14)
 	_seg_v(left, "Сценарий", GameSettings.SCENES, settings.scene, func(i: int) -> void: settings.scene = i, "scene")
+	if settings.chef():
+		_gap(left, 8)
+		_seg_v(left, "Къде е готвачът", GameSettings.CHEF_PLACES.map(func(x): return x.name), settings.chef_place,
+			func(i: int) -> void: settings.chef_place = i, "chef_place")
 	_gap(left, 14)
 	_text(left, "Рекорд  %s" % _num(settings.best_score), 34, Color(1.0, 0.85, 0.4), true)
 	if last_result != "":

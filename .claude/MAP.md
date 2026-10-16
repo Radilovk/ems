@@ -249,10 +249,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtGear.java` (132L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtLoad.java` (276L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (167L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
-- `BtSettings.java` (540L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
-- `BtSettingsSection.java` (390L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
+- `BtSettings.java` (558L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
+- `BtSettingsSection.java` (401L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
-- `BtTranslator.java` (625L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
+- `BtTranslator.java` (675L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 - `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 - `WiBridge.java` (484L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
@@ -898,31 +898,31 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L53 ## In XEMS (1.1.431-ai) — a page of its own, apart from the suit (owner, 2026-10-13)
   - L120 ## Notes
 
-`docs/xems-bodytech.md` (276L)
+`docs/xems-bodytech.md` (288L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L11 ## How it works
   - L33 ## Translation (XEMS → bodytech)
-  - L51 ## Owner's settings (Settings → Костюм bodytech)
-  - L96 ## Test of a channel and the left → right order (1.1.346)
-  - L107 ## Feel a channel (1.1.372)
-  - L113 ## Full parameters from the row's gear (1.1.350) — no limits
-  - L126 ## What bodytech has that the XEMS suit has not (and what is used)
-  - L135 ## Safety
-  - L143 ## Not verified on a person yet
-  - L149 ## Tests
-  - L153 ## What still limits (not the app)
-  - L157 ## Second impulse without limits (1.1.353)
-  - L160 ## Own device names (1.1.353)
-  - L163 ## Sound signals (1.1.360)
-  - L170 ## Start waits for the program (1.1.371)
-  - L179 ## Pulse slots (1.1.380; on by default since 1.1.382, Settings → Костюм bodytech → «Разделени импулси»)
-  - L198 ## Phase of every command; the second impulse's setup (1.1.386)
-  - L222 ## All ten XEMS channels (owner, 1.1.388)
-  - L232 ## The thighs (owner, 1.1.389)
-  - L243 ## The settings sheet, simple (owner, 1.1.390)
-  - L250 ## The bodytech training row: 8 zones (owner, 1.1.391)
-  - L257 ## The bodytech row's column order (owner, 1.1.393)
-  - L265 ## Link drops: keep-alive from the connect, the reason in the log (1.1.410)
+  - L63 ## Owner's settings (Settings → Костюм bodytech)
+  - L108 ## Test of a channel and the left → right order (1.1.346)
+  - L119 ## Feel a channel (1.1.372)
+  - L125 ## Full parameters from the row's gear (1.1.350) — no limits
+  - L138 ## What bodytech has that the XEMS suit has not (and what is used)
+  - L147 ## Safety
+  - L155 ## Not verified on a person yet
+  - L161 ## Tests
+  - L165 ## What still limits (not the app)
+  - L169 ## Second impulse without limits (1.1.353)
+  - L172 ## Own device names (1.1.353)
+  - L175 ## Sound signals (1.1.360)
+  - L182 ## Start waits for the program (1.1.371)
+  - L191 ## Pulse slots (1.1.380; on by default since 1.1.382, Settings → Костюм bodytech → «Разделени импулси»)
+  - L210 ## Phase of every command; the second impulse's setup (1.1.386)
+  - L234 ## All ten XEMS channels (owner, 1.1.388)
+  - L244 ## The thighs (owner, 1.1.389)
+  - L255 ## The settings sheet, simple (owner, 1.1.390)
+  - L262 ## The bodytech training row: 8 zones (owner, 1.1.391)
+  - L269 ## The bodytech row's column order (owner, 1.1.393)
+  - L277 ## Link drops: keep-alive from the connect, the reason in the log (1.1.410)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

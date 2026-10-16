@@ -48,6 +48,18 @@ bodytech is remembered (`xems_bodytech_suits`).
 The suit's own cycle is programmed as one continuous burst (T1 = T3 = T4 = 0, T2 = 100 s): the tablet runs
 impulse / pause / ramp itself (SoftRamp), as it does for the XEMS suit; every phase is a SEL / strength change.
 
+**Channels stay on (owner, 1.1.450; Settings → Костюм bodytech → «Каналите остават включени», on by default).**
+Owner: a hard knock for a fraction of a second at the start of every impulse — after a pause and at the switch to
+the 2nd impulse alike, also while a ramp rises — then the strength settles; EMSFIT does not have it, and slots off
+only eased it. The tablet's values were already smooth (ramp from 1, strengths written before SEL), so the suspect
+is the switching itself: XEMS turned the channels off at every pause and on again at every impulse (and on a ramp,
+as each channel rose from 0, with slots also the re-laying SEL off / on), while EMSFIT switches them on once and
+lets the suit's cycle run. Now every mapped channel is switched on once per start (`BtTranslator.reconcile`,
+silent ones at strength 0), a pause is strength 0 (`quiet`; probe 0.4: strength 0 with SEL on is silent), the 2nd
+impulse only changes Hz / strengths; slots are laid only at that start (a Hz change keeps the channels on — the
+places may then meet). Pause / stop from the row (F2), the keep-alive cut and a link drop still switch all off.
+Off = as before. Not yet confirmed on a person.
+
 ## Owner's settings (Settings → Костюм bodytech)
 Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two columns, four channels each):
 - **name** (free text, up to 24 characters; empty = "C<n>");

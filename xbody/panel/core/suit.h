@@ -19,7 +19,12 @@ struct Program {
     // Double impulse: a second, low impulse in the pause (Hz ≤ 10 and under the main, % of the main strength).
     bool dbl;
     int dblHz, dblPct;
-    Program() : hz(85), us(350), onS(4), offS(4), totalS(20 * 60), rampMs(500), dbl(false), dblHz(5), dblPct(50) {}
+    // Continuous (XBody's Cardiovascular): the pause is the client's rest, the impulse goes on (WiEMS: its rest at
+    // the same Hz, 100 %; the other suits keep their pause).
+    bool cont;
+    Program() : hz(85), us(350), onS(4), offS(4), totalS(20 * 60), rampMs(500), dbl(false), dblHz(5), dblPct(50), cont(false) {}
+    // XBody's own modes with its defaults (read off its Impulse sheet): 1 Muscle development, 2 Cardiovascular, 3 Relax.
+    static Program mode(int m);
 };
 
 class Suit {
@@ -54,7 +59,14 @@ public:
     void pause(unsigned now);
     void stop();
     void tick(unsigned now);                         // call often (≥ 10 Hz)
-    void notify(const Bytes &n);                     // the suit's notification (battery)
+    void notify(const Bytes &n, unsigned now);       // the suit's notification (battery, WiEMS run state)
+    // WiEMS: the unit stopped by itself (its "00", its protection "0x80|x", or silent 5 s) — the training went on
+    // pause, 0 + stop sent. Taken once by the screen: why (Bulgarian-ready keys below), the trip code (0 none) and the
+    // zone channel whose change set it off (−1 none).
+    enum Halt { HALT_NONE, HALT_STOPPED, HALT_SILENT, HALT_TRIP };
+    int takeHalt(int *code, int *changedCh);
+    // The link dropped: kept (zones, strength, program, time done) and on pause; nothing queued goes anywhere.
+    void lost(unsigned now);
 
     State state() const { return state_; }
     bool impulse() const { return state_ == RUNNING && on_; }
@@ -80,7 +92,23 @@ public:
 
 private:
     enum Tag { T_PLAIN, T_LEVELS, T_PROG };
-    struct Item { Bytes b; int tag; Item(const Bytes &x, int t) : b(x), tag(t) {} };
+    struct Item {
+        Bytes b;
+        int tag;
+        bool hasLv;                 // WiEMS strengths: the unit bytes, the zones and strength behind them
+        int lv[MAX_CH], chs[MAX_CH], str;
+        unsigned at;                // asked when (a finger's change waits to settle); 0 = at once
+        Item(const Bytes &x, int t) : b(x), tag(t), hasLv(false), str(0), at(0) {}
+    };
+    // WiEMS: the vendor's pace — strengths only when they change, ≥ 0.8 s apart, a finger's change after 0.3 s.
+    enum { WI_GAP_MS = 800, WI_SETTLE_MS = 300, WI_SILENT_MS = 5000 };
+    int wiSent_[MAX_CH], wiOnAir_[MAX_CH], wiOk_[MAX_CH];
+    bool wiSentValid_, wiOnAirValid_, wiOkValid_, userChange_, runNotifies_;
+    int wiOnAirStr_, wiOkStr_;
+    unsigned levelsMs_, runSeenMs_, lastTick_;
+    int halt_, haltCode_, haltCh_;
+    void wiHalted(int why, int code);
+    void dropTag(int tag);
     void push(const Bytes &b, int tag = T_PLAIN);
     void dropLevels();
     void levels(int k);                      // impulse output at k/RAMP_STEPS of the strength

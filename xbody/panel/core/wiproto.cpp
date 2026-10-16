@@ -56,5 +56,7 @@ Bytes run(bool start) {
 
 bool runTick(const Bytes &n) { return n.size() >= 2 && n[0] == N_RUN && n[1] == 1; }
 
+int runCode(const Bytes &n) { return n.size() >= 2 && n[0] == N_RUN ? n[1] : -1; }
+
 int battery(const Bytes &n) { return n.size() >= 2 && n[0] == N_BATTERY && n[1] <= 100 ? n[1] : -1; }
 }

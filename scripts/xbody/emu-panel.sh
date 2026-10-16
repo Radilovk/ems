@@ -1,6 +1,6 @@
 #!/bin/sh
 # Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
-#   sh scripts/xbody/emu-panel.sh OUTDIR "ms tap x y;ms shot NAME.png;…;ms quit" [client]
+#   sh scripts/xbody/emu-panel.sh OUTDIR "ms tap x y;ms slide x0 y0 x1 y1;ms shot NAME.png;…;ms quit" [client]
 # Screen: the unit's 800×600 (XEMS_FB_W / XEMS_FB_H override). Taps are in screen pixels; shots land in OUTDIR. With "client" a stand-in QWS server runs first and
 # the panel joins it as a client, the way it runs next to XBody on the unit.
 # EMU_NO_BRIDGE=1: no fake bridge (the "plug the XIAO" view); EMU_TAB=1: start with only the corner tab;
@@ -22,7 +22,7 @@ FB=$OUT/fb.raw
 rm -f "$FB" "$OUT/panel.conf"
 truncate -s $((W * H * 4)) "$FB"
 FLAGS="-E XEMS_FAKE_BRIDGE=1 -E XEMS_OPEN=1"
-ART="-E XEMS_ART=$REPO/xbody/overlay/opt/xems/art -E XEMS_BODY=$REPO/xbody/overlay/opt/xems/body"
+ART="-E XEMS_ART=$REPO/xbody/overlay/opt/xems/art -E XEMS_BODY=$REPO/xbody/overlay/opt/xems/body -E XEMS_FIGS=$REPO/xbody/overlay/opt/xems/xbody-body"
 [ -z "${EMU_NO_BRIDGE:-}" ] || FLAGS="-E XEMS_OPEN=1"
 [ -z "${EMU_TAB:-}" ] || FLAGS="-E XEMS_FAKE_BRIDGE=1"
 [ -z "${EMU_ENV:-}" ] || FLAGS="$FLAGS -E $EMU_ENV"   # one extra VAR=value, e.g. XEMS_UF2_STATE=/tmp/s

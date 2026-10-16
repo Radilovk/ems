@@ -193,6 +193,31 @@ The screen is a copy of **XBody's own manual-training screen** (owner: same look
   nothing restarts by itself. bodytech: ~110 programming frames after the link; СТАРТ meanwhile shows "МИГ…".
 - Settings: `/opt/xems/panel.conf` (last suit, program, tab position). Log: `/opt/xems/panel.log`.
 
+## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
+- **WiEMS driver = the tablet's** (`docs/xems-wiems-app.md` v1.5–v1.13): strengths written only when they change, at
+  the vendor's pace (≥ 0.8 s apart, a finger's change after 0.3 s), never at a work / rest change, with the check bits
+  (`wi::currents`); the unit's `0x80|x` (seen 86) → paused, zones / strength back to what it last ran with, the zone
+  that changed named; `00` → paused; no `01` for 5 s → paused; a late `01` does not end a new count-down; a START
+  cancelled in its count-down never goes out. Every case in `core_test` (`wiemsSession`).
+- **A dropped link keeps the session** (all kinds): on pause with its zones, strength, program and time done; the
+  same suit is looked for and reconnects by itself (0 + stop first), ПРОДЪЛЖИ goes on.
+- **Zones and strength stay as set** per suit kind, across sessions and restarts (`zones/k<kind>` in panel.conf); a
+  first suit: zones 0, СИЛА 100.
+- **Picking like the tablet:** under ВСИЧКИ a tap on a zone (or a muscle) picks that zone; ± / the slider move several
+  zones by the same step; a pick ends after 5 s with no touch; a sideways slide on a zone button = its strength (the
+  XEMS focus chip: the button's width = 20 %, ≤ 20, sent on release). Emulator: `ms slide x0 y0 x1 y1`.
+- **Session sheet:** XBody's modes as chips by the title (Мускули 80 Hz 4/2 · Кардио 7 Hz continuous 20/10 · Релакс
+  100 Hz 1/1, its defaults); **КОСТЮМ XBody | XEMS for WiEMS** (an XEMS suit on its XBody-standard leads, the owner's
+  table, ⓘ shows it); the rise ≤ the impulse − 1 s (`safe::apply`).
+- **XEMS figures on XBody's OWN screen** ("Кабел на XBody" → **Фигури**: Жена | Мъж | Оригинал, saved in
+  `/opt/xems/xbody-figures`, female by default). XBody's config key `pixmaps_directory` makes it read its pictures from
+  a folder: `bin/xems-figures.sh` exports all of them from its binary (`xems-panel --export-pixmaps DIR`, 241 files),
+  puts ours in place of `BodyNormal.png` and the ten zone overlays (`opt/xems/xbody-body/<sex>/`, drawn by
+  `scripts/xbody/gen-xbody-body.py` in XBody's frame: front at x 157, back at 340, y 65..437) and sets the key in
+  `/opt/xbody/xbody.conf` ("original" removes it). `hooks/50-xbody-figures.sh` runs it once per mod version before
+  XBody starts. Checked on XBody's own GUI in qemu (Manual settings: our figure, Bottom lit red). A new choice
+  applies at XBody's next start.
+
 ## Bridge line protocol (USB CDC, 115200)
 Host → bridge: `PING` · `SCAN 1|0` · `CONN <mac>` · `DISC <mac>` · `W <mac> <hex>` · `SAFE <mac> <hex>` · `DFU` (v2).
 WiEMS (v3, svc `WIEMS`): `W` / `SAFE` hex = `[selector, value…]` (0 strengths, 1 program, 2 rest, 3 widths, 4 run);

@@ -20,6 +20,7 @@ class PanelWidget : public QWidget {
 public:
     explicit PanelWidget(App *app);
     void tapAt(const QPoint &p);   // scripted taps (emulator), screen pixels
+    void slideAt(const QPoint &a, const QPoint &b);   // a scripted finger slide a → b
     void sessionChanged();         // another suit on the screen: its own selection, no sheet left open
 
 protected:
@@ -49,6 +50,7 @@ private:
     void paintCableSettings(QPainter &p);
     void paintPrograms(QPainter &p);
     void paintCableInfo(QPainter &p);
+    void paintXbodyFigures(QPainter &p);
     void paintPick(QPainter &p);
     void paintTrain(QPainter &p);
     void paintClock(QPainter &p);
@@ -94,6 +96,14 @@ private:
     bool paintFigures(QPainter &p);
     int zoneOfRegion(int region) const;
     QString sig_, clockSig_;       // what is on the screen now
+    // Owner's rules from the WiEMS tablet app: a pick ends after 5 s with no touch; a sideways slide on a zone button =
+    // that zone's strength (the XEMS focus chip: relative, the button's width = 20 %, ≤ 20 per slide, on release).
+    enum { SEL_IDLE_MS = 5000, SLIDE = 20 };
+    unsigned touchedMs_;
+    int slideZone_, slideStart_, slideValue_;
+    QPoint slideFrom_;
+    bool sliding_;
+    void slideZone(const QPoint &d);
 };
 
 class TabWidget : public QWidget {

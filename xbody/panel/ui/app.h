@@ -29,6 +29,8 @@ struct Session {
     bool age60;
     int wiring;
     bool female;   // the body figures (owner: female by default)
+    bool linkOk;   // false: the link dropped — kept on pause until the same suit is back (it reconnects by itself)
+    Session() : suit(0), age60(false), wiring(0), female(true), linkOk(true) {}
 };
 
 class App : public QObject {
@@ -60,7 +62,10 @@ public:
     QString note() const;
     bool noteWarn() const { return noteWarn_; }
     bool age60() const { return age60_; }
-    int wiring() const { return wiring_; }        // Suit::WIRE_XEMS / WIRE_XBODY: the XEMS suit's cable standard
+    // The cable standard of the suit on the screen (else the XEMS default): XEMS — its own or XBody's cables; WiEMS —
+    // an XBody suit (WIRE_XEMS, native) or an XEMS suit on its XBody-standard leads (WIRE_XBODY).
+    int wiring() const { return cur_ >= 0 && cur_ < (int)ses_.size() ? ses_[cur_].wiring : wiring_; }
+    bool sessionLinked(int i) const { return i >= 0 && i < (int)ses_.size() && ses_[i].linkOk; }
     bool female() const;                          // the body figures of the session on the screen
     void setFemale(bool f);                       // at once, also mid-training
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
@@ -108,6 +113,9 @@ private:
     void setNote(const QString &s, bool warn);
     void save();
     void load();
+    void rememberZones(int i);                     // the session's zones + strength → kept per suit kind
+    void restoreZones(Session &n);
+    void lostLink(int i, const QString &why);       // kept on pause, reconnects by itself
 
     BridgePort *port_;
     bool fake_;
@@ -122,8 +130,11 @@ private:
     bool scanning_;
     Program prog_;
     bool age60_;
-    int wiring_;
+    int wiring_, wiWiring_;
     bool female_;
+    // The zones (screen order) and strength as last set, per suit kind (owner: they stay as set, also over restarts).
+    int keptZones_[3][Suit::MAX_CH], keptStrength_[3];
+    unsigned keptSavedMs_;
     int bridgeVer_, bundledVer_;
     bool dfuSent_;
     xbcable::Config cable_;

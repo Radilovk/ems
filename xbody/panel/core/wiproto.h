@@ -20,5 +20,8 @@ Bytes rest(int hz, int pct);             // the unit's pause frequency
 Bytes widths();                          // the vendor's per-channel widths
 Bytes run(bool start);                   // 0x25 start / 0x00 stop
 bool runTick(const Bytes &n);            // a run notification "01" (the unit runs: its count-down is over)
+// A run notification's value (−1: not one): 01 runs, 00 stopped, 0x80|x its protection tripped (seen "86": a
+// strengths write without the check bits — wiems/PROTOCOL.md).
+int runCode(const Bytes &n);
 int battery(const Bytes &n);             // a battery notification → %, −1 if not one
 }

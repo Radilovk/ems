@@ -230,18 +230,20 @@ static void wiemsSession() {
     eqInt("wi still counting", Suit::IDLE, s.state());
     Bytes n;
     fromHex("0401", n);
-    s.notify(n);   // the unit's first "01"
+    s.notify(n, 4000);   // the unit's first "01"
     s.tick(5100);
     f = drain(s, 5100);
     eqInt("wi running", Suit::RUNNING, s.state());
     eqInt("wi begin frames", 3, (int)f.size());
     eqHex("wi begin zero", "00 00 00 00 00 00 00 00 00 00 00", f[0]);
     eqHex("wi begin prog", "01 29 55 04 04 01 00 7E 05 00 06", f[1]);
-    eqHex("wi full at once: the unit rises by itself", "00 08 04 08 08 88 88 08 08 08 08", f[2]);
-    s.tick(9200);   // impulse over → pause: strengths 0, the unit keeps running
+    // zones start at 0 (owner): only ch 1 (50 % × 40 % = 20 % → byte 4), the check bits for XOR 4 on ch 5
+    eqHex("wi full at once: the unit rises by itself", "00 00 04 00 00 00 80 00 00 00 00", f[2]);
+    fromHex("0401", n);
+    s.notify(n, 9000);
+    s.tick(9200);   // impulse over → the unit's own pause: nothing written (as the vendor)
     f = drain(s, 9200);
-    eqInt("wi pause frames", 1, (int)f.size());
-    eqHex("wi pause zero", "00 00 00 00 00 00 00 00 00 00 00", f.empty() ? Bytes() : f[0]);
+    eqInt("wi pause: nothing written", 0, (int)f.size());
     s.pause(9500);
     f = drain(s, 9500);
     eqHex("wi pause → stop", "04 00", f.empty() ? Bytes() : f.back());
@@ -278,11 +280,91 @@ static void wiemsSession() {
     w.start(0);
     drain(w, 0);
     fromHex("0401", n);
-    w.notify(n);
-    w.tick(100);
-    w.tick(700);
-    f = drain(w, 700);
+    w.notify(n, 2500);
+    w.tick(2500);
+    w.tick(3100);
+    f = drain(w, 3100);
     eqHex("wi arms only → ch 4", "00 00 00 00 00 04 80 00 00 00 00", f.empty() ? Bytes() : f.back());
+    // ---- the owner's traces on the Lenovo app, now on the panel: the vendor's pace, a trip, a stop, a silent unit
+    Suit v(Suit::WIEMS);
+    v.linked(0);
+    drain(v, 0);
+    for (int i = 0; i < 10; i++) v.setZone(z[i], 25);
+    v.setStrength(100);
+    v.start(0);
+    drain(v, 0);
+    fromHex("0401", n);
+    v.notify(n, 4100);
+    v.tick(4100);
+    f = drain(v, 4100);
+    eqHex("wi v begin: all at 5 (XOR 0, no bits)", "00 05 05 05 05 05 05 05 05 05 05", f.empty() ? Bytes() : f.back());
+    v.tick(4200);
+    v.setZone(z[3], 30);   // Корем, a finger: waits to settle and for the gap
+    v.setZone(z[3], 35);
+    v.setZone(z[3], 45);
+    eqInt("wi v held (gap 0.8 s)", 0, (int)drain(v, 4300).size());
+    f = drain(v, 5000);
+    eqInt("wi v one write for three taps", 1, (int)f.size());
+    eqHex("wi v Корем 9, check bits (XOR 12 → ch 4, 5)", "00 05 05 05 05 85 85 09 05 05 05", f.empty() ? Bytes() : f[0]);
+    v.setZone(z[3], 45);
+    eqInt("wi v the same value: nothing", 0, (int)drain(v, 6000).size());
+    v.notify(n, 6000);
+    v.tick(6000);
+    fromHex("0486", n);    // the unit's protection: back to what ran, named, paused, 0 + stop
+    v.notify(n, 6050);
+    eqInt("wi v trip → paused", Suit::PAUSED, v.state());
+    int code = 0, hch = -1;
+    eqInt("wi v trip seen", Suit::HALT_TRIP, v.takeHalt(&code, &hch));
+    eqInt("wi v trip code", 0x86, code);
+    eqInt("wi v trip names Корем (ch 6)", 6, hch);
+    eqInt("wi v Корем back to 25", 25, v.zone(z[3]));
+    f = drain(v, 6100);
+    eqHex("wi v trip → stop", "04 00", f.empty() ? Bytes() : f.back());
+    eqInt("wi v taken once", Suit::HALT_NONE, v.takeHalt(0, 0));
+    v.start(7000);         // ▶ again: runs; then the unit goes silent → paused
+    drain(v, 7000);
+    fromHex("0401", n);
+    v.notify(n, 11100);
+    v.tick(11100);
+    drain(v, 11100);
+    eqInt("wi v runs again", Suit::RUNNING, v.state());
+    v.tick(16300);
+    eqInt("wi v silent 5 s → paused", Suit::HALT_SILENT, v.takeHalt(0, 0));
+    // a START cancelled in the count-down: the queued start never goes out
+    Suit c(Suit::WIEMS);
+    c.linked(0);
+    drain(c, 0);
+    c.start(0);
+    c.next(0);             // the program is on air
+    c.pause(10);
+    c.ack(true);
+    f = drain(c, 20);
+    bool started = false;
+    for (size_t i = 0; i < f.size(); i++) started = started || (f[i].size() == 2 && f[i][0] == 4 && f[i][1] == 0x25);
+    eqInt("wi cancelled count-down: no 25", 0, started ? 1 : 0);
+    // the link drops mid-training: kept on pause, the time done kept
+    Suit d(Suit::WIEMS);
+    d.linked(0);
+    drain(d, 0);
+    d.setZone(z[0], 40);
+    d.start(0);
+    drain(d, 0);
+    fromHex("0401", n);
+    d.notify(n, 4100);
+    d.tick(4100);
+    drain(d, 4100);
+    d.tick(64100);
+    int left = d.secondsLeft(64100);
+    d.lost(64100);
+    eqInt("wi lost → paused", Suit::PAUSED, d.state());
+    eqInt("wi lost keeps the zone", 40, d.zone(z[0]));
+    eqInt("wi lost keeps the time", left, d.secondsLeft(70000));
+    // an XEMS suit on the unit's leads (the owner's table): Ръце → the lead "Корем" (ch 6)
+    const Zone *zx;
+    Suit::zones(Suit::WIEMS, &zx, Suit::WIRE_XBODY);
+    eqInt("wi xems suit: Ръце → ch 6", 6, zx[8].ch[0]);
+    eqInt("wi xems suit: Гърди → ch 9", 9, zx[7].ch[0]);
+    eqInt("wi xems suit: Гръб → ch 5", 5, zx[5].ch[0]);
     BridgeEvent e = parseBridgeLine("ADV 88:6B:0F:CC:BE:49 -58 WIEMS WIEMS_-_EMS_Device");
     eqInt("wi adv kind", Suit::WIEMS, suitKind(e.svc, e.name));
     eqInt("wi kind by name", Suit::WIEMS, suitKind("-", "WIEMS - EMS Device"));

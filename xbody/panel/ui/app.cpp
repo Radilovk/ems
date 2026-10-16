@@ -37,7 +37,7 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), female_(true), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
+      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       noteWarn_(false), noteUntilMs_(0),
       panel_(0), tab_(0), strengthMem_(0) {
     t0_ = now();
@@ -234,9 +234,16 @@ void App::load() {
     prog_.dbl = st.value("program/dbl", false).toBool();
     prog_.dblHz = st.value("program/dbl_hz", prog_.dblHz).toInt();
     prog_.dblPct = st.value("program/dbl_pct", prog_.dblPct).toInt();
+    prog_.cont = st.value("program/cont", false).toBool();
     age60_ = st.value("program/age60", false).toBool();
     female_ = st.value("client/female", true).toBool();
     wiring_ = st.value("suit/wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
+    wiWiring_ = st.value("suit/wiems_wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
+    for (int k = 0; k < 3; k++) {
+        QStringList z = st.value(QString::fromLatin1("zones/k%1").arg(k)).toString().split(QLatin1Char(','));
+        for (int i = 0; i < Suit::MAX_CH; i++) keptZones_[k][i] = i < z.size() ? z[i].toInt() : 0;
+        keptStrength_[k] = st.value(QString::fromLatin1("zones/strength%1").arg(k), 100).toInt();
+    }
     // Saved values go through the limits too (an older file, a hand edit).
     int v[safe::N] = {prog_.hz, prog_.us, prog_.onS, prog_.offS, prog_.dbl ? 1 : 0, prog_.dblHz, prog_.dblPct, prog_.rampMs};
     safe::apply(v, age60_ ? 65 : -1, 0);
@@ -256,9 +263,51 @@ void App::save() {
     st.setValue("program/dbl", prog_.dbl);
     st.setValue("program/dbl_hz", prog_.dblHz);
     st.setValue("program/dbl_pct", prog_.dblPct);
+    st.setValue("program/cont", prog_.cont);
     st.setValue("program/age60", age60_);
     st.setValue("client/female", female_);
     st.setValue("suit/wiring", wiring_);
+    st.setValue("suit/wiems_wiring", wiWiring_);
+    for (int k = 0; k < 3; k++) {
+        QStringList z;
+        for (int i = 0; i < Suit::MAX_CH; i++) z << QString::number(keptZones_[k][i]);
+        st.setValue(QString::fromLatin1("zones/k%1").arg(k), z.join(QLatin1String(",")));
+        st.setValue(QString::fromLatin1("zones/strength%1").arg(k), keptStrength_[k]);
+    }
+}
+
+void App::restoreZones(Session &n) {
+    int k = n.suit->kind();
+    const Zone *z;
+    int nz = Suit::zones(n.suit->kind(), &z, n.wiring);
+    for (int i = 0; i < nz; i++) n.suit->setZone(z[i], keptZones_[k][i]);
+    n.suit->setStrength(keptStrength_[k]);
+}
+
+void App::rememberZones(int i) {
+    if (i < 0 || i >= (int)ses_.size()) return;
+    Suit *s = ses_[i].suit;
+    int k = s->kind();
+    const Zone *z;
+    int nz = Suit::zones(s->kind(), &z, ses_[i].wiring);
+    bool changed = keptStrength_[k] != s->strength();
+    for (int j = 0; j < nz; j++) changed = changed || keptZones_[k][j] != s->zone(z[j]);
+    if (!changed) return;
+    for (int j = 0; j < nz; j++) keptZones_[k][j] = s->zone(z[j]);
+    keptStrength_[k] = s->strength();
+    if (age(now(), keptSavedMs_) > 2000) {   // not on every step of a finger
+        keptSavedMs_ = now();
+        save();
+    }
+}
+
+void App::lostLink(int i, const QString &why) {
+    if (i < 0 || i >= (int)ses_.size()) return;
+    if (!ses_[i].linkOk) return;
+    ses_[i].linkOk = false;
+    ses_[i].suit->lost(now());
+    lastMac_ = ses_[i].mac;
+    setNote(why + U(" · свързвам отново…"), true);
 }
 
 void App::connectTo(const std::string &mac) {
@@ -305,17 +354,24 @@ void App::setZone(const Zone &z, int pct) {
 
 void App::setWiring(int w) {
     w = w == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
-    if (w == wiring_) return;
     Suit *s = suit();
-    if (s && s->kind() == Suit::XEMS) {
+    int was = wiring();
+    if (w == was) return;
+    if (s && s->kind() == Suit::WIEMS && s->state() == Suit::RUNNING) {   // the channels behind the zones: not mid-run
+        setNote(U("Стандартът на костюма се сменя на пауза"), true);
+        return;
+    }
+    if (s && (s->kind() == Suit::XEMS || s->kind() == Suit::WIEMS)) {   // every zone keeps its %
         const Zone *from, *to;
-        int n = Suit::zones(Suit::XEMS, &from, wiring_);
-        Suit::zones(Suit::XEMS, &to, w);
+        int n = Suit::zones(s->kind(), &from, was);
+        Suit::zones(s->kind(), &to, w);
         int pct[Suit::MAX_CH];
         for (int i = 0; i < n; i++) pct[i] = s->zone(from[i]);
+        for (int i = 0; i < n; i++) s->setZone(to[i], 0);
         for (int i = 0; i < n; i++) s->setZone(to[i], pct[i]);
     }
-    wiring_ = w;
+    if (s && s->kind() == Suit::WIEMS) wiWiring_ = w;
+    else wiring_ = w;
     if (s) ses_[cur_].wiring = w;
     save();
 }
@@ -393,6 +449,17 @@ void App::line(const std::string &l, unsigned t) {
         break;
     }
     case BridgeEvent::LINK: {
+        if (e.mac == linkingMac_ && find(e.mac) >= 0 && !ses_[find(e.mac)].linkOk) {
+            // the same suit is back: the training goes on from where it stopped (0 + stop first, then ПРОДЪЛЖИ)
+            Session &b = ses_[find(e.mac)];
+            b.linkOk = true;
+            b.suit->linked(t);
+            send(bridgecmd::safe(e.mac, b.suit->safeFrame()));
+            linkingMac_.clear();
+            setNote(QString::fromStdString(b.name) + (b.suit->state() == Suit::PAUSED ? U(": свързан отново ✓ — натисни ПРОДЪЛЖИ")
+                                                                                     : U(": свързан отново ✓")), false);
+            break;
+        }
         if (e.mac != linkingMac_ || find(e.mac) >= 0 || (int)ses_.size() >= MAX_SESSIONS) {
             send(bridgecmd::disc(e.mac));
             break;
@@ -401,13 +468,13 @@ void App::line(const std::string &l, unsigned t) {
         Session n;
         n.suit = new Suit(k);
         n.suit->setProgram(prog_, age60_ ? 65 : -1, 0);
-        n.suit->setStrength(0);   // a new link always starts from 0
+        n.wiring = k == Suit::WIEMS ? wiWiring_ : wiring_;
+        restoreZones(n);          // the zones and strength as left last time (owner); a new suit: zones 0, strength 100
         n.suit->linked(t);
         n.mac = e.mac;
         n.name = e.mac;
         n.prog = n.suit->program();
         n.age60 = age60_;
-        n.wiring = wiring_;
         n.female = female_;
         for (size_t i = 0; i < seen_.size(); i++)
             if (seen_[i].mac == e.mac) { n.name = seen_[i].name; seen_.erase(seen_.begin() + i); break; }
@@ -422,8 +489,8 @@ void App::line(const std::string &l, unsigned t) {
         break;
     }
     case BridgeEvent::LOST:
-        if (find(e.mac) >= 0) drop(find(e.mac), U("Връзката с ") + QString::fromStdString(ses_[find(e.mac)].name) +
-                                                     U(" прекъсна — тренировката спря"));
+        if (find(e.mac) >= 0) lostLink(find(e.mac), U("Връзката с ") + QString::fromStdString(ses_[find(e.mac)].name) +
+                                                         U(" прекъсна — тренировката е на пауза"));
         if (e.mac == linkingMac_) { linkingMac_.clear(); setNote(U("Костюмът не се свърза — опитай пак"), true); }
         break;
     case BridgeEvent::FAIL:
@@ -434,7 +501,7 @@ void App::line(const std::string &l, unsigned t) {
         }
         break;
     case BridgeEvent::NOTIFY:
-        if (find(e.mac) >= 0) ses_[find(e.mac)].suit->notify(e.data);
+        if (find(e.mac) >= 0) ses_[find(e.mac)].suit->notify(e.data, t);
         break;
     case BridgeEvent::WOK:
         if (find(e.mac) >= 0) ses_[find(e.mac)].suit->ack(true);
@@ -442,7 +509,7 @@ void App::line(const std::string &l, unsigned t) {
     case BridgeEvent::WERR:
         if (find(e.mac) >= 0) {
             send(bridgecmd::disc(e.mac));
-            drop(find(e.mac), U("Костюмът не прие команда — тренировката спря"));
+            lostLink(find(e.mac), U("Костюмът не прие команда — тренировката е на пауза"));
         }
         break;
     default:
@@ -490,7 +557,9 @@ void App::timerEvent(QTimerEvent *ev) {
         send(bridgecmd::dfu());
     }
     // ---- scanning: only while choosing / looking for the last suit ----
-    bool wantScan = bridgeOk() && cur_ < 0 && (int)ses_.size() < MAX_SESSIONS;
+    bool waiting = false;   // a session whose link dropped: look for it
+    for (size_t i = 0; i < ses_.size(); i++) waiting = waiting || !ses_[i].linkOk;
+    bool wantScan = bridgeOk() && ((cur_ < 0 && (int)ses_.size() < MAX_SESSIONS) || waiting);
     if (bridgeOk() && wantScan != scanning_) { scanning_ = wantScan; send(bridgecmd::scan(wantScan)); }
     for (size_t i = 0; i < seen_.size();) {
         if (age(t, seen_[i].lastMs) > 6000) seen_.erase(seen_.begin() + i);
@@ -500,6 +569,15 @@ void App::timerEvent(QTimerEvent *ev) {
     if (bridgeOk() && ses_.empty() && linkingMac_.empty() && !lastMac_.empty() && !update)
         for (size_t i = 0; i < seen_.size(); i++)
             if (seen_[i].mac == lastMac_) { connectTo(lastMac_); break; }
+    for (size_t j = 0; j < ses_.size() && bridgeOk() && linkingMac_.empty(); j++)   // a dropped suit is back in range
+        if (!ses_[j].linkOk)
+            for (size_t i = 0; i < seen_.size(); i++)
+                if (seen_[i].mac == ses_[j].mac) {
+                    linkingMac_ = ses_[j].mac;
+                    linkingSinceMs_ = t;
+                    send(bridgecmd::conn(ses_[j].mac));
+                    break;
+                }
     if (!linkingMac_.empty() && age(t, linkingSinceMs_) > 12000) {
         send(bridgecmd::disc(linkingMac_));
         linkingMac_.clear();
@@ -510,12 +588,31 @@ void App::timerEvent(QTimerEvent *ev) {
         Suit *s = ses_[i].suit;
         bool wasRunning = s->state() != Suit::IDLE;
         s->tick(t);
+        rememberZones(i);
         if (wasRunning && s->finished())
             setNote(QString::fromStdString(ses_[i].name) + U(": тренировката завърши ✓"), false);
+        int code = 0, hch = -1, h = s->takeHalt(&code, &hch);
+        if (h != Suit::HALT_NONE) {
+            QString who = QString::fromStdString(ses_[i].name);
+            if (h == Suit::HALT_TRIP) {
+                QString zone;
+                const Zone *z;
+                int nz = Suit::zones(s->kind(), &z, ses_[i].wiring);
+                for (int k = 0; k < nz; k++)
+                    if (z[k].ch[0] == hch) zone = QString::fromUtf8(z[k].name);
+                setNote(who + U(": спря — защита на тока (код ") + QString::number(code, 16) + U(")") +
+                            (zone.isEmpty() ? QString() : U(" след промяната на ") + zone) + U(". Силите са както вървяха"),
+                        true);
+            } else if (h == Suit::HALT_SILENT) {
+                setNote(who + U(" не отговаря — пауза. Натисни ПРОДЪЛЖИ"), true);
+            } else {
+                setNote(who + U(" спря сам — пауза. Натисни ПРОДЪЛЖИ"), true);
+            }
+        }
+        if (!ses_[i].linkOk) continue;   // waits for its suit to come back
         if (s->ackLate(t)) {
             send(bridgecmd::disc(ses_[i].mac));
-            drop(i, U("Костюмът спря да отговаря — тренировката спря"));
-            i--;
+            lostLink(i, U("Костюмът спря да отговаря — тренировката е на пауза"));
         } else {
             const Bytes *b = s->next(t);
             if (b) send(bridgecmd::write(ses_[i].mac, *b));

@@ -5,6 +5,10 @@
 //   XEMS_SCRIPT="ms tap x y;ms shot file.png;ms quit"   taps in screen pixels (the unit: 800×600)
 #include "app.h"
 #include "panel.h"
+#include "xbres.h"
+#include <QFile>
+#include <cstdio>
+#include <cstring>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QObject>
@@ -35,6 +39,9 @@ protected:
                 else
                     for (size_t j = 0; j < stabs_.size(); j++)
                         if (stabs_[j]->isVisible() && stabs_[j]->geometry().contains(g)) { stabs_[j]->tapAt(stabs_[j]->mapFromGlobal(g)); break; }
+            } else if (w.size() >= 6 && w[1] == QLatin1String("slide")) {   // ms slide x0 y0 x1 y1
+                QPoint a(w[2].toInt(), w[3].toInt()), b(w[4].toInt(), w[5].toInt());
+                if (panel_->isVisible()) panel_->slideAt(panel_->mapFromGlobal(a), panel_->mapFromGlobal(b));
             } else if (w.size() >= 3 && w[1] == QLatin1String("shot")) {
                 QPixmap::grabWindow(QApplication::desktop()->winId()).save(w[2], "PNG");
             } else if (w.size() >= 2 && w[1] == QLatin1String("quit")) {
@@ -53,7 +60,28 @@ private:
     QBasicTimer timer_;
 };
 
+// `xems-panel --export-pixmaps DIR [ELF]`: every picture XBody's GUI loads through its Pixmap class (its rcc tree
+// /please_use_the_Pixmap_class/…) → DIR/<name>, so XBody can read them from a folder (its `pixmaps_directory`) where
+// the body ones are replaced by the XEMS figures (bin/xems-figures.sh). QtCore only: runs before any display exists.
+// Exit 0 with ≥ 100 files written.
+static int exportPixmaps(const char *dir, const char *elf) {
+    QMap<QString, QByteArray> res = xbres::load(QString::fromLocal8Bit(elf), QStringList());
+    const QString pre = QLatin1String("/please_use_the_Pixmap_class/");
+    int n = 0;
+    for (QMap<QString, QByteArray>::const_iterator it = res.constBegin(); it != res.constEnd(); ++it) {
+        if (!it.key().startsWith(pre) || it.value().isEmpty()) continue;
+        QString name = it.key().mid(pre.size());
+        if (name.contains(QLatin1Char('/'))) continue;
+        QFile f(QString::fromLocal8Bit(dir) + QLatin1Char('/') + name);
+        if (f.open(QIODevice::WriteOnly) && f.write(it.value()) == it.value().size()) n++;
+    }
+    std::fprintf(stderr, "export-pixmaps: %d files → %s\n", n, dir);
+    return n >= 100 ? 0 : 1;
+}
+
 int main(int argc, char **argv) {
+    if (argc >= 3 && !std::strcmp(argv[1], "--export-pixmaps"))
+        return exportPixmaps(argv[2], argc >= 4 ? argv[3] : "/opt/xbody/xbody");
     QApplication a(argc, argv);
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));

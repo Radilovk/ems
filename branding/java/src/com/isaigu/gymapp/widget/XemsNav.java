@@ -396,6 +396,7 @@ public final class XemsNav {
         LinearLayout tile = XemsUi.horizontal(c);
         tile.setGravity(Gravity.CENTER_VERTICAL);
         tile.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
+        tile.setBackground(frame(c, tint, false, 16));
         tile.setClickable(true);
         tile.setOnClickListener(click);
         tile.setOnLongClickListener(new Lift(k));
@@ -409,6 +410,17 @@ public final class XemsNav {
         np.leftMargin = XemsUi.dp(c, 10);
         tile.addView(name, np);
         return tile;
+    }
+
+    /**
+     * One frame for every item of the bar and the menu (owner, 1.1.449: "some are in framed boxes, others are not — all
+     * of them framed, with a background"): surface + thin stroke; the open page / an active item in its own colour.
+     */
+    static Drawable frame(Context c, int tint, boolean on, float radiusDp) {
+        float r = XemsUi.dp(c, radiusDp);
+        int fill = on ? XemsUi.mix(XemsUi.SURFACE, tint, 0.16f) : XemsUi.SURFACE;
+        int stroke = on ? tint : XemsUi.STROKE;
+        return XemsUi.ripple(XemsUi.rounded(fill, r, stroke, XemsUi.dp(c, on ? 2 : 1)), on ? tint : XemsUi.TEXT, r);
     }
 
     private static View glyphDisc(Context c, int glyphType, int tint, boolean solid) {
@@ -463,7 +475,9 @@ public final class XemsNav {
             }
             row.setTag(k);
             row.setOnLongClickListener(new Lift(k));
-            box.addView(row, new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
+            LinearLayout.LayoutParams rl = new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52));
+            rl.bottomMargin = XemsUi.dp(c, 6);       // framed rows need a gap between them
+            box.addView(row, rl);
         }
         if (menuKeys(c).isEmpty()) {
             TextView empty = XemsUi.text(c, tr("Всичко е в лентата — пусни тук, за да върнеш.",
@@ -914,9 +928,7 @@ public final class XemsNav {
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
-        float r = XemsUi.dp(c, 12);
-        int fill = selected ? XemsUi.alpha(tint, 0x24) : 0x00000000;
-        row.setBackground(XemsUi.ripple(XemsUi.rounded(fill, r, 0, 0), XemsUi.TEXT, r));
+        row.setBackground(frame(c, tint, selected, 12));
         row.setClickable(true);
         row.setOnClickListener(new PageClick(id));
 
@@ -947,8 +959,7 @@ public final class XemsNav {
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
-        float r = XemsUi.dp(c, 12);
-        row.setBackground(XemsUi.ripple(XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
+        row.setBackground(frame(c, tint, false, 12));
         row.setClickable(true);
         row.setOnClickListener(click);
         View icon = new View(c);
@@ -975,11 +986,10 @@ public final class XemsNav {
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
-        float r = XemsUi.dp(c, 12);
-        row.setBackground(XemsUi.ripple(XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
+        int tint = modTint(module);
+        row.setBackground(frame(c, tint, false, 12));
         row.setClickable(true);
         row.setOnClickListener(new ModuleClick(module));
-        int tint = modTint(module);
         TextView icon = XemsUi.text(c, modGlyph(module), 13, tint, true);
         icon.setGravity(Gravity.CENTER);
         GradientDrawable disc = new GradientDrawable();

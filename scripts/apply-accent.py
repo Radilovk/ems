@@ -62,13 +62,17 @@ def turn(argb: str) -> str | None:
     h, l, s = colorsys.rgb_to_hls(r, g, b)
     if not (185 / 360 <= h <= 225 / 360) or s < 0.15:
         return None
+    # owner, 1.1.449: "the pink backgrounds look overdone, not fine" — only the accent stays vivid; the greys, text and
+    # the dark glass keep just a breath of the hue (magenta reads much louder than navy at the same saturation)
     if l >= 0.8:
-        nh, ns = 322 / 360, s * 0.7          # near-white text: a hint of pink, not candy
+        nh, ns = 322 / 360, s * 0.35         # near-white text: a whisper of pink
+    elif l >= 0.3 and s >= 0.5:
+        nh, ns = 322 / 360, s * 0.85         # the accent and its strong tones: pink-leaning magenta (owner, 1.1.443)
+        l = min(0.7, l + 0.03)
     elif l >= 0.3:
-        nh, ns = 322 / 360, s * 0.92         # the accent and its mid tones: pink-leaning magenta (owner, 1.1.443)
-        l = min(0.7, l + 0.04)
+        nh, ns = 318 / 360, s * 0.45         # secondary text, hints, lines: grey with a hint of rose
     else:
-        nh, ns = 280 / 360, s                # dark glass: deep plum
+        nh, ns = 295 / 360, s * 0.4          # dark glass: near-neutral plum-grey, not purple
     nr, ng, nb = colorsys.hls_to_rgb(nh, l, ns)
     return a.lower() + "".join(f"{round(x * 255):02x}" for x in (nr, ng, nb))
 

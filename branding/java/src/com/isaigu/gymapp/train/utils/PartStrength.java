@@ -278,6 +278,8 @@ public final class PartStrength {
             any = true;
             if (m0[i] > 0) {
                 target[i] = (int) Math.round(s0[i] * (double) m1[i] / m0[i]);
+            } else if (b.pauseStrenthPercent == 0) {
+                target[i] = m1[i];                  // Интензитет 2 not set yet: the second starts with the main
             } else if (b.strenth > 0) {
                 target[i] = (int) Math.round(m1[i] * (double) Math.min(b.pauseStrenthPercent, secondCap(item, b))
                         / b.strenth);
@@ -470,6 +472,9 @@ public final class PartStrength {
                 double[] r = RATIO.get(b);
                 if (r == null || r.length != parts.length * 3) {
                     r = new double[parts.length * 3];
+                    for (int i = 0; i < parts.length; i++) {
+                        r[3 * i + 1] = -1;              // nothing kept yet (a fresh 0/0 read as "ratio 0" kept the
+                    }                                   // second impulse at 0 from a 0 start — owner, 1.1.449)
                     RATIO.put(b, r);
                 }
                 int[] m1 = mainReal(b);
@@ -481,7 +486,9 @@ public final class PartStrength {
                         continue;
                     }
                     boolean same = r[3 * i + 1] == m0[i] && r[3 * i + 2] == s0[i];
-                    double q = same ? r[3 * i] : m0[i] > 0 ? s0[i] / (double) m0[i] : -1;
+                    // Интензитет 2 still at 0 (nothing set for the second impulse): it starts with the main, 1 : 1
+                    double q = same ? r[3 * i] : m0[i] > 0 ? (s0[i] == 0 && b.pauseStrenthPercent == 0 ? 1.0
+                            : s0[i] / (double) m0[i]) : -1;
                     r[3 * i] = q;
                     if (q >= 0) {
                         t[i] = clamp(Math.round(m1[i] * q));

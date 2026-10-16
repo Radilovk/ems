@@ -67,7 +67,7 @@ public final class SuitReconnect {
     static final class Lost {
         final TrainItem item;
         final String mac;
-        final long since = SystemClock.uptimeMillis();
+        long since = SystemClock.uptimeMillis();
         long attemptAt;
         boolean connecting;
         long doneAt;                                       // > 0: back, the "✓" banner is showing
@@ -229,6 +229,44 @@ public final class SuitReconnect {
             }
             it.xemsRefresh();                              // the banner's clock
         }
+    }
+
+    // ------------------------------------------------------------------ for the focus board (no rows on screen)
+
+    /** The row's suit link: 0 connected, 1 reconnecting, 2 just back (✓, press ▶), −1 no link and no wait. */
+    public static int state(TrainItem item) {
+        Lost l = find(item);
+        if (l != null) {
+            return l.doneAt > 0 ? 2 : 1;
+        }
+        return item != null && item.data != null && item.data.connected ? 0 : -1;
+    }
+
+    /** Seconds the row has been waiting for its suit (0 when it is not waiting). */
+    public static int waitingSeconds(TrainItem item) {
+        Lost l = find(item);
+        return l == null || l.doneAt > 0 ? 0 : (int) ((SystemClock.uptimeMillis() - l.since) / 1000);
+    }
+
+    /**
+     * "Опитай сега" (focus board's link key): a connect attempt now, and the 5-minute wait starts again — the trainer
+     * never has to leave the training for a suit that is coming back.
+     */
+    public static boolean retryNow(TrainItem item) {
+        Lost l = find(item);
+        if (l == null || l.doneAt > 0) {
+            return false;
+        }
+        long now = SystemClock.uptimeMillis();
+        if (!l.connecting || now - l.attemptAt > RETRY_MS) {
+            l.connecting = false;
+            l.attemptAt = 0;
+        }
+        l.since = now;
+        WearableBleDiagLog.log("suit", "retry now " + l.mac);
+        step();
+        tick();
+        return true;
     }
 
     /** No suit for {@link #GIVE_UP_MS}: the row closes the stock way. */

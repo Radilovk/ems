@@ -39,58 +39,58 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 369
+    .line 407
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 360
+    .line 398
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->fill:Landroid/graphics/Paint;
 
-    .line 361
+    .line 399
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->big:Landroid/graphics/Paint;
 
-    .line 362
+    .line 400
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->small:Landroid/graphics/Paint;
 
-    .line 364
+    .line 402
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
 
-    .line 365
+    .line 403
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line1:Ljava/lang/String;
 
-    .line 366
+    .line 404
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line2:Ljava/lang/String;
 
-    .line 370
+    .line 408
     iput p1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->d:F
 
-    .line 371
+    .line 409
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->big:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 372
+    .line 410
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->big:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41b00000    # 22.0f
@@ -101,21 +101,21 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 373
+    .line 411
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->big:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 374
+    .line 412
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->small:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 375
+    .line 413
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->small:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41800000    # 16.0f
@@ -126,7 +126,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 376
+    .line 414
     return-void
 .end method
 
@@ -146,12 +146,12 @@
 
     const/high16 v9, 0x40800000    # 4.0f
 
-    .line 386
+    .line 424
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v8
 
-    .line 387
+    .line 425
     invoke-virtual {v8}, Landroid/graphics/Rect;->width()I
 
     move-result v0
@@ -164,18 +164,18 @@
 
     if-gtz v0, :cond_1b
 
-    .line 413
+    .line 451
     :cond_1a
     :goto_1a
     return-void
 
-    .line 390
+    .line 428
     :cond_1b
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->ok:Z
 
     if-eqz v0, :cond_a1
 
-    .line 392
+    .line 430
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->big:Landroid/graphics/Paint;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line1:Ljava/lang/String;
@@ -204,12 +204,12 @@
 
     add-float/2addr v0, v1
 
-    .line 393
+    .line 431
     invoke-virtual {v8}, Landroid/graphics/Rect;->exactCenterX()F
 
     move-result v1
 
-    .line 394
+    .line 432
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
 
     div-float v3, v0, v6
@@ -244,14 +244,14 @@
 
     invoke-virtual {v2, v3, v4, v0, v5}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 395
+    .line 433
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->fill:Landroid/graphics/Paint;
 
     const v2, -0xfe1c5d4
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 396
+    .line 434
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->d:F
@@ -266,21 +266,21 @@
 
     invoke-virtual {p1, v0, v2, v3, v4}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 397
+    .line 435
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->big:Landroid/graphics/Paint;
 
     const v2, -0x830f58
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 398
+    .line 436
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->small:Landroid/graphics/Paint;
 
     const v2, -0x191613
 
     invoke-virtual {v0, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 399
+    .line 437
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line1:Ljava/lang/String;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
@@ -299,7 +299,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 400
+    .line 438
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line2:Ljava/lang/String;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
@@ -320,7 +320,7 @@
 
     goto/16 :goto_1a
 
-    .line 403
+    .line 441
     :cond_a1
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
 
@@ -366,7 +366,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 404
+    .line 442
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->fill:Landroid/graphics/Paint;
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->ok:Z
@@ -378,7 +378,7 @@
     :goto_cb
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 405
+    .line 443
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->d:F
@@ -393,7 +393,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 406
+    .line 444
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->fill:Landroid/graphics/Paint;
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->ok:Z
@@ -405,7 +405,7 @@
     :goto_e4
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 407
+    .line 445
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->box:Landroid/graphics/RectF;
 
     iget v1, v0, Landroid/graphics/RectF;->left:F
@@ -442,7 +442,7 @@
 
     invoke-virtual/range {v0 .. v7}, Landroid/graphics/Canvas;->drawRoundRect(FFFFFFLandroid/graphics/Paint;)V
 
-    .line 408
+    .line 446
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->big:Landroid/graphics/Paint;
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->ok:Z
@@ -454,19 +454,19 @@
     :goto_112
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 409
+    .line 447
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->small:Landroid/graphics/Paint;
 
     const v1, -0x191613
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 410
+    .line 448
     invoke-virtual {v8}, Landroid/graphics/Rect;->exactCenterY()F
 
     move-result v0
 
-    .line 411
+    .line 449
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line1:Ljava/lang/String;
 
     invoke-virtual {v8}, Landroid/graphics/Rect;->exactCenterX()F
@@ -483,7 +483,7 @@
 
     invoke-virtual {p1, v1, v2, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 412
+    .line 450
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line2:Ljava/lang/String;
 
     invoke-virtual {v8}, Landroid/graphics/Rect;->exactCenterX()F
@@ -504,19 +504,19 @@
 
     goto/16 :goto_1a
 
-    .line 404
+    .line 442
     :cond_144
     const v0, -0x1fd9d5d0
 
     goto :goto_cb
 
-    .line 406
+    .line 444
     :cond_148
     const/16 v0, -0x48b3
 
     goto :goto_e4
 
-    .line 408
+    .line 446
     :cond_14b
     const/16 v0, -0x3380
 
@@ -527,7 +527,7 @@
     .registers 2
 
     .prologue
-    .line 423
+    .line 461
     const/4 v0, -0x3
 
     return v0
@@ -537,16 +537,16 @@
     .registers 4
 
     .prologue
-    .line 379
+    .line 417
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->ok:Z
 
-    .line 380
+    .line 418
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line1:Ljava/lang/String;
 
-    .line 381
+    .line 419
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Banner;->line2:Ljava/lang/String;
 
-    .line 382
+    .line 420
     return-void
 .end method
 
@@ -554,7 +554,7 @@
     .registers 2
 
     .prologue
-    .line 416
+    .line 454
     return-void
 .end method
 
@@ -562,6 +562,6 @@
     .registers 2
 
     .prologue
-    .line 419
+    .line 457
     return-void
 .end method

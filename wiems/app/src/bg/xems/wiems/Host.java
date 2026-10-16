@@ -27,6 +27,8 @@ interface Host {
     void chooseProc(String id, int minutes);
     /** Back to the program screen (only while nothing runs). */
     void backToModes();
+    /** A training waits for its unit to come back (the link dropped). */
+    boolean held();
     /** The figures: female (default) or male — the client's, chosen in the session's settings. */
     boolean female();
     void setFemale(boolean f);

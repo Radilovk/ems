@@ -12,10 +12,11 @@ mkdir -p "$SHOTS"
 SRC=$REPO/wiems/app/src/bg/xems/wiems
 javac --release 8 -nowarn -encoding UTF-8 -classpath "$JAR" -d "$OUT" \
 	$(find "$HERE/shim" -name '*.java') "$SRC/Host.java" "$SRC/XView.java" "$SRC/Session.java" "$SRC/Safe.java" \
-	"$SRC/Seen.java" "$SRC/BodyFig.java" "$SRC/Procs.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" "$HERE/bg/xems/wiems/AppTest.java" \
+	"$SRC/Seen.java" "$SRC/BodyFig.java" "$SRC/Procs.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" "$HERE/bg/xems/wiems/AppTest.java" "$HERE/bg/xems/wiems/UnitSim.java" \
 	"$HERE/MainActivity.java" 2>&1 | grep -v '^Note\|warning' || true
 mkdir -p "$OUT/assets/body" "$OUT/assets/art"
 cp "$REPO"/xbody/overlay/opt/xems/art/*.png "$OUT/assets/art/"
+mkdir -p "$OUT/assets/xbody" && cp "$REPO"/wiems/app/xbody-art/*.png "$OUT/assets/xbody/"
 python3 -c "
 import sys,glob,os
 from PIL import Image
@@ -23,4 +24,5 @@ for f in glob.glob('$REPO/branding/body/*.webp'):
     Image.open(f).save(os.path.join('$OUT/assets/body', os.path.basename(f)), 'PNG')
 "
 java -Djava.awt.headless=true -Dassets="$OUT/assets" -cp "$OUT:$JAR" bg.xems.wiems.AppTest "$SHOTS"
+java -cp "$OUT:$JAR" bg.xems.wiems.UnitSim
 rm -rf "$OUT"

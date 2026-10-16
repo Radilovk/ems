@@ -177,13 +177,29 @@ final class Ble {
             Log.e(TAG, "safe: " + t);
         }
         BluetoothGatt g = gatt;
+        boolean safe = ready() && safeOp != null;
         gatt = null;
         setup = -1;
-        try {
-            g.disconnect();
-            g.close();
-        } catch (Throwable t) {
-            Log.e(TAG, "disconnect: " + t);
+        // the "outputs off" needs a moment on air: closing right after the write could drop it
+        if (safe) main.postDelayed(new Closer(g), 400);
+        else new Closer(g).run();
+    }
+
+    static final class Closer implements Runnable {
+        final BluetoothGatt g;
+
+        Closer(BluetoothGatt g) {
+            this.g = g;
+        }
+
+        @Override
+        public void run() {
+            try {
+                g.disconnect();
+                g.close();
+            } catch (Throwable t) {
+                Log.e(TAG, "disconnect: " + t);
+            }
         }
     }
 

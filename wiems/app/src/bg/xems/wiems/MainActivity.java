@@ -28,6 +28,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     Ble ble;
     Session session;
+    /** A session whose link dropped: kept (zones, strength, program, time done) until its unit is back. */
+    Session held;
+    String heldMac;
     XView view;
     final List<Seen> seen = new ArrayList<Seen>();
     String linkingMac, linkedName, lastMac;
@@ -206,6 +209,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             session.stop();
             disconnectWhenIdle = true;
         }
+        held = null;
         lastMac = null;
         save();
     }
@@ -233,6 +237,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null && session.state() != Session.RUNNING) session.setProgram(q);
         if (why.length() > 0) setNote("Граница за безопасност: " + why.replace("\n", "  ·  "), true);
         save();
+    }
+
+    public boolean held() {
+        return held != null;
     }
 
     public int mode() {
@@ -278,20 +286,34 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void linked() {
-        session = new Session();
-        session.setProgram(prog);
-        session.setStrength(0);       // a new link always starts from 0
-        session.linked();
+        boolean back = held != null && linkingMac != null && linkingMac.equals(heldMac);
+        if (back) {                   // the same unit is back: the training goes on from where it stopped
+            session = held;
+            setNote(session.state() == Session.PAUSED ? "Свързан отново ✓ — натисни ПРОДЪЛЖИ" : "Свързан отново ✓", false);
+        } else {
+            session = new Session();
+            session.setProgram(prog);
+            session.setStrength(100); // every zone starts at 0 (owner); СИЛА scales them all — 100 % = as set
+            mode = -1;
+            setNote("Свързан ✓  " + linkedName, false);
+        }
+        held = null;
+        session.linked();             // whatever the unit does now: 0 and stopped
         lastMac = linkingMac;
         linkingMac = null;
         disconnectWhenIdle = false;
-        mode = -1;
         save();
-        setNote("Свързан ✓  " + linkedName, false);
     }
 
     @Override
     public void lost(String why) {
+        // keep the training (unless it was being closed): the last unit reconnects by itself and it goes on
+        if (session != null && !disconnectWhenIdle && lastMac != null) {
+            session.lost(now());
+            held = session;
+            heldMac = lastMac;
+            why = why.replace("тренировката спря", "тренировката е на пауза") + " · свързвам отново…";
+        }
         session = null;
         linkingMac = null;
         disconnectWhenIdle = false;
@@ -311,7 +333,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void runNotify(byte[] v) {
-        if (session != null) session.runNotify(v);
+        if (session != null) session.runNotify(v, now());
     }
 
     @Override
@@ -331,13 +353,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 android.util.Log.e(Ble.TAG, "tick: " + e);
             }
             // keeps running while the screen is shown, or while a session runs behind another app
-            if (resumed || (session != null && session.state() != Session.IDLE)) main.postDelayed(this, 50);
+            // (and until the last "outputs off" went, so a training that ends behind another app stops the unit)
+            if (resumed || held != null || (session != null && (session.state() != Session.IDLE || session.busy())))
+                main.postDelayed(this, 50);
         }
     }
 
     private void step(long t) {
         for (int i = seen.size() - 1; i >= 0; i--) if (t - seen.get(i).lastMs > 6000) seen.remove(i);
         boolean wantScan = viewKind() == VIEW_PICK;
+        if (held != null && lastMac == null) held = null;
         ble.scan(wantScan);
         // derive, don't ask: the last unit reconnects by itself when it shows up
         if (wantScan && lastMac != null)
@@ -350,9 +375,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
+            if (session.takeUnitStopped()) setNote("WiEMS спря сам — натисни ПРОДЪЛЖИ", true);
             if (was && session.finished()) {
                 session.clearFinished();
-                setNote("Тренировката завърши ✓", false);
+                session.resetZones();   // the next client never starts on this one's strengths
+                setNote("Тренировката завърши ✓ — зоните са на 0 за следващия", false);
             }
             if (session.ackLate(t)) {
                 ble.disconnect(null);
@@ -362,7 +389,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 if (op != null && !ble.write(op)) {
                     ble.disconnect(null);
                     lost("WiEMS не прие команда — тренировката спря");
-                } else if (op == null && disconnectWhenIdle) {
+                } else if (op == null && disconnectWhenIdle && !session.busy()) {
                     ble.disconnect(null);
                     session = null;
                     disconnectWhenIdle = false;

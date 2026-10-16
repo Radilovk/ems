@@ -293,7 +293,7 @@ final class XView extends View {
         long now = a.now();
         String dots = "...".substring(0, (int) ((now / 400) % 4));
         String n = a.note();
-        String title = "ИЗБЕРИ WiEMS", sub = n.length() > 0 ? n : "Търся наблизо" + dots, big = null;
+        String title = "ИЗБЕРИ WiEMS", sub = n.length() > 0 ? n : (a.held() ? "Тренировката чака · свързвам отново" : "Търся наблизо") + dots, big = null;
         String action = null;
         if (v == MainActivity.VIEW_NO_BT) {
             sub = "";
@@ -378,8 +378,15 @@ final class XView extends View {
         for (int i = 0; i < 5; i++) {
             float l = cx[i] - 75, t = i < 3 ? 120 : 330;
             String id = i == 4 ? "procs" : "mode:" + m[i];
-            outlined(c, l, t, l + 150, t + 150, id, null, 0, false);
-            icon(c, m[i], cx[i], t + 75);
+            Bitmap tile = art("xbody/" + TILE[i] + (id.equals(pressed) ? "SelectorPressed" : "Selector"));
+            if (tile != null) {                         // XBody's own tile (owner: its native pictures)
+                rf.set(l, t, l + 150, t + 150);
+                c.drawBitmap(tile, new Rect(0, 0, tile.getWidth(), tile.getHeight()), rf, bmp);
+                hit(l, t, l + 150, t + 150, id);
+            } else {
+                outlined(c, l, t, l + 150, t + 150, id, null, 0, false);
+                icon(c, m[i], cx[i], t + 75);
+            }
             font(14, true);
             p.setLetterSpacing(0.04f);
             text(c, label[i], cx[i] - 120, t + 154, cx[i] + 120, t + 180, 0, INK);
@@ -390,6 +397,9 @@ final class XView extends View {
             hit(cx[i] - 110, t + 150, cx[i] + 110, t + 198, id);
         }
     }
+
+    /** XBody's program tiles: Muscle development, Cardiovascular (its weight-loss tile), Relax, Manual, MED. */
+    private static final String[] TILE = {"Strength", "WeightLoss", "Massage", "Manual", "Medical"};
 
     /** The tiles' red line icons, drawn (XBody's style: one weight, round ends). */
     private void icon(Canvas c, int m, float cx, float cy) {
@@ -482,7 +492,7 @@ final class XView extends View {
         if (!art.containsKey(id)) {
             Bitmap b = null;
             try {
-                java.io.InputStream in = a.openAsset("art/" + id + ".png");
+                java.io.InputStream in = a.openAsset((id.indexOf('/') >= 0 ? "" : "art/") + id + ".png");
                 if (in != null) {
                     b = android.graphics.BitmapFactory.decodeStream(in);
                     in.close();
@@ -660,8 +670,19 @@ final class XView extends View {
         text(c, pct + "%", l + 10, t, l + w - 12, t + 50, right ? -1 : 1, on ? WHITE : pct == 0 ? GREY : INK);
     }
 
+    private Session seenSession;
+    private int seenResets;
+
     private void paintTrain(Canvas c) {
         Session s = a.session();
+        if (s != seenSession || s.resets() != seenResets) {
+            // a new client (all zones 0): ВСИЧКИ selected, so the slider / ± raise every zone together at once
+            seenSession = s;
+            seenResets = s.resets();
+            boolean zero = true;
+            for (int i = 0; i < Session.ZONES; i++) zero &= s.zone(i) == 0;
+            if (zero) sel = (1 << Session.ZONES) - 1;
+        }
         long now = a.now();
         Session.Program pr = s.program();
         boolean idle = s.state() == Session.IDLE, running = s.state() == Session.RUNNING;
@@ -781,7 +802,9 @@ final class XView extends View {
         float[] alpha = new float[Session.ZONES];
         for (int z = 0; z < Session.ZONES; z++) {
             float t = s.liveLevel(Session.ZONE_CH[z]) / 100f;
-            boolean picked = (sel & (1 << z)) != 0;
+            // a picked zone without output is tinted — not when all are picked (ВСИЧКИ): the body would look
+            // like it works everywhere
+            boolean picked = (sel & (1 << z)) != 0 && sel != (1 << Session.ZONES) - 1;
             if (t > 0) {
                 float k2 = Math.min(1f, t / 0.8f);      // in step with the impulse: deep red from 80 %
                 // the second impulse (double impulse, in the pause) in XBody's yellow — the main one in its red
@@ -912,6 +935,11 @@ final class XView extends View {
         return mix(LEDS[i], LEDS[i + 1], f - i);
     }
 
+    /** Test: every zone selected. */
+    boolean selAll() {
+        return sel == (1 << Session.ZONES) - 1;
+    }
+
     private int selValue() {
         Session s = a.session();
         if (s == null) return 0;
@@ -928,7 +956,12 @@ final class XView extends View {
             s.setStrength(v);
             return;
         }
-        for (int i = 0; i < Session.ZONES; i++) if ((sel & (1 << i)) != 0 && s.zone(i) != v) s.setZone(i, v);
+        // several zones move together by the same step — their differences stay (arms 30 / legs 60 + 5 → 35 / 65,
+        // never all to one value: a weak zone would jump to the strong one's level)
+        int d = v - selValue();
+        if (d == 0) return;
+        for (int i = 0; i < Session.ZONES; i++)
+            if ((sel & (1 << i)) != 0) s.setZone(i, Math.max(0, Math.min(100, s.zone(i) + d)));
     }
 
     /** XBody's showPercent: while a value changes, a big % over the body with what it belongs to. */
@@ -1000,7 +1033,7 @@ final class XView extends View {
         else {
         caption(c, o + 64, 98, locked ? "ПРОГРАМА · СМЕНЯ СЕ НА ПАУЗА" : "ПРОГРАМА");
         String[] labels = {"Честота", "Времетраене", "Рампа"};
-        String[] values = {q.hz + " Hz", q.totalS / 60 + " мин", q.rampMs / 1000 + "," + q.rampMs % 1000 / 100 + " s"};
+        String[] values = {q.hz + " Hz", q.totalS / 60 + " мин", q.rampMs == 0 ? "без" : q.rampMs / 1000 + " s"};
         String[] fields = {"hz", "total", "ramp"};
         for (int i = 0; i < 3; i++) {
             float y = 120 + i * 60;
@@ -1229,9 +1262,12 @@ final class XView extends View {
             Session.Program q = sheetProg;
             if (parts[1].equals("hz")) q.hz = bound(1, q.hz + d, sheetAge60 ? 85 : 120);
             else if (parts[1].equals("total")) q.totalS = bound(1, q.totalS / 60 + d, 60) * 60;
-            else if (parts[1].equals("on")) q.onS = bound(1, q.onS + d, 30);
+            else if (parts[1].equals("on")) {
+                q.onS = bound(1, q.onS + d, 30);
+                q.rampMs = Math.min(q.rampMs, Math.max(0, q.onS - 1) * 1000);   // the rise stays inside the impulse
+            }
             else if (parts[1].equals("off")) q.offS = bound(1, q.offS + d, 60);
-            else if (parts[1].equals("ramp")) q.rampMs = bound(500, q.rampMs + d * 500, 5000);
+            else if (parts[1].equals("ramp")) q.rampMs = bound(0, q.rampMs / 1000 + d, Math.max(0, q.onS - 1)) * 1000;
             else if (parts[1].equals("dblhz")) q.dblHz = bound(1, q.dblHz + d, Math.max(1, Math.min(10, q.hz - 1)));
             else if (parts[1].equals("dblpct")) q.dblPct = bound(10, q.dblPct + d * 10, 150);
             return;

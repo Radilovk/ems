@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.4)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.6)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -65,6 +65,40 @@ After a link the app opens XBody's **program screen** ("ИЗБОР НА ПРОГ
 
 Unverified on the unit: that it takes a program write mid-run (phases, 3 ↔ 8 Hz) — if not, it keeps the previous
 phase's rhythm (still within limits) while the shares still follow the procedure.
+
+## v1.5 — fixes from the first test on the unit (owner)
+- **A single zone stopped the unit until a power cycle.** Our traffic differed from the vendor's (capture +
+  its log "CCC-Corrientes enviadas"): we sent strengths **0..100** (the vendor's top is ~19: 94 % → 18, 80 % → 15,
+  61 % → 12), wrote **0 in every pause and the levels at every impulse** (4 steps of an app-side rise), and a finger on
+  the slider made dozens of writes. Now as the vendor: the strengths are written **only when they change** (at most
+  every 250 ms, a newer value replaces a waiting one, the same value is never repeated), never at a work / rest change
+  (the unit runs its own phases and its rise Ru), on the vendor's scale (`Session.unitValue`, 100 % = 20). A unit
+  that stops by itself (run notify `00`) puts the session on pause with a note; ▶ arms it again.
+- **Every zone starts at 0**, raised one by one (or ВСИЧКИ); СИЛА starts at 100 % and scales them all.
+- **Ramp** = the unit's Ru in whole seconds, 0 … impulse − 1 s (a shorter impulse lowers it); ≥ 20 Hz with an
+  impulse ≥ 2 s rises at least 1 s (`Safe.apply`).
+- **The program screen uses XBody's own tiles** (its Strength / WeightLoss / Massage / Manual / MED selector pictures,
+  normal + pressed, from the machine's resources → `wiems/app/xbody-art`, owner's request); MED = the passive
+  procedures.
+
+## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
+The simulated unit follows the capture (count-down ~4 s after `25`, `01` every second, `00` ~1.5 s after a stop, a
+late `01` still on air after a stop) and flags what the vendor never does: a strength byte over its top, strengths
+while not running, > 4 strength writes / s, an arm-program while running or a run-program while not, a rise ≥ the
+impulse. Scenarios: a full training with taps and a pause, a START cancelled in the count-down, a finger on the
+slider, A → B → A quicker than a write, the unit stopping by itself, a silent unit, the link dropping mid-training and
+in the count-down, a shorter length on pause, every procedure at 10 / 30 min, XBody's modes untouched. Mutations of
+the fixes below each fail it. Found and fixed:
+- **A quick A → B → A left the unit on B** (the "already sent" mark was set when queued, not when sent).
+- **A training that ended behind another app never stopped the unit** (the tick stopped before the last
+  "outputs off" went out) — it now ticks until the queue is empty; closing the app waits 0.4 s after the stop write.
+- **A dropped link lost the training** (zones, time): it is now kept on pause; the same unit reconnects by itself,
+  gets 0 + stop first, and ПРОДЪЛЖИ goes on. A late `01` from before a stop no longer ends a new count-down early;
+  a unit silent for 5 s (no `01`) or stopping by itself puts the training on pause with 0 + stop.
+- **START cancelled in the count-down** still sent the queued start: now dropped.
+- **Several zones + / slider set them all to one value** (arms 30 → 65 with legs at 60): they now move by the same step.
+- **A new client** starts with ВСИЧКИ selected (all zones 0, so the slider raises them all at once); when a training
+  finishes the zones go back to 0 for the next client. A shorter length on pause keeps the time already done.
 
 ## Build / test
 ```

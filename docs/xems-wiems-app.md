@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.8)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.9)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -113,6 +113,19 @@ the fixes below each fail it. Found and fixed:
   the previous one (a start / a phase still at once).
 - With ВСИЧКИ on, a tap on a zone selects **that** zone (it used to take it out and raise the other nine).
 - **The zones and СИЛА stay as set** — across trainings, links and app restarts (owner); no reset at the end.
+
+## v1.9 — the trace from the unit: it trips on one channel
+Owner's trace (1.8, Lenovo MNA-LX9): all zones at 25 % (byte 5) run fine; Корем (ch 6) raised to 45 % → `currents
+05 05 05 05 05 05 09 05 05 05` → the run characteristic notifies **`86`** then `00` ~30 ms later — the unit stopped
+itself. Every ▶ after that: count-down, the same strengths → `86`, `00` again (the "it pauses and won't come back"
+of 1.4–1.8: the app re-sent the same strength each time). **`0x80 | n` = the unit's protection tripped on channel
+n** (here 6 = Корем; the vendor's own `0x80` bits in the currents bytes are likely the same channel flag). The
+strength itself is in the vendor's range (it sent up to 18), so the likely cause is that zone's electrode / contact.
+Now: the zone the unit names goes back to 0, the note names it ("провери електрода"), ПРОДЪЛЖИ runs without it; the
+simulated unit trips the same way (UnitSim 11). To confirm the channel meaning: raise another single zone — the code
+should follow it (`84` for Ръце, …).
+Also in the trace: the status characteristic (`b1f5a058`) at each work start sends `…a5…` then 20 values 1–2
+(per-channel load / contact, likely); idle it carries `00 00 00 00 0N … c5 5c`.
 
 ## Build / test
 ```

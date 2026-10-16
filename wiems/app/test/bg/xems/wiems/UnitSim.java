@@ -36,6 +36,7 @@ public class UnitSim {
         final List<byte[]> notify = new ArrayList<byte[]>();
         int writes;
         boolean silent;             // stops notifying (a half-dead link)
+        int tripCh = -1, tripAbove; // its protection: this channel over this byte → "0x80|ch", "00", stopped
 
         void write(byte[] op, long t) {
             writes++;
@@ -51,6 +52,12 @@ public class UnitSim {
                 for (int b : cur) nonzero |= b != 0;
                 if (nonzero && state != RUN) faults.add("t=" + t + " strengths while the unit does not run");
                 levelWrites.add(t);
+                if (state == RUN && tripCh >= 0 && cur[tripCh] > tripAbove) {   // as the trace from the unit
+                    notify.add(new byte[] {(byte) (0x80 | tripCh)});
+                    notify.add(new byte[] {0});
+                    state = IDLE;
+                    cur = new int[10];
+                }
                 int n = 0;
                 for (long w : levelWrites) if (t - w < 1000) n++;
                 if (n > 4) faults.add("t=" + t + " " + n + " strength writes in 1 s (the vendor: ~1)");
@@ -334,6 +341,24 @@ public class UnitSim {
             ok("9 " + Procs.MODE_NAME[md] + ": ends stopped at 0", r.u.state == Unit.IDLE && r.u.outputsOff(), "");
             ok("9 " + Procs.MODE_NAME[md] + ": no fault", r.u.faults.isEmpty(), r.faults());
         }
+
+        // 11. The unit trips on one zone (the owner's trace: Корем 5 → 9 → "86", "00", every ▶ again the same).
+        r = new Rig();
+        r.u.tripCh = 6;
+        r.u.tripAbove = 5;
+        r.allZones(25);
+        r.s.start(r.t);
+        r.run(6000);
+        ok("11 all zones at 5: runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "");
+        r.s.setZone(3, 45);                         // Корем → ch 6
+        r.run(2000);
+        ok("11 trip → paused, Корем back to 0", r.s.state() == Session.PAUSED && r.s.zone(3) == 0, "state "
+                + r.s.state() + " zone " + r.s.zone(3));
+        ok("11 the screen learns the zone", r.s.takeFaultZone() == 3, "");
+        r.s.start(r.t);
+        r.run(8000);
+        ok("11 ПРОДЪЛЖИ runs on (no trip loop)", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "state " + r.s.state());
+        ok("11 no fault", r.u.faults.isEmpty(), r.faults());
 
         // 10. Strength to 0 and back mid-run; a link drop in the count-down.
         r = new Rig();

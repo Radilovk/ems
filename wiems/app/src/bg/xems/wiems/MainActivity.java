@@ -414,9 +414,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
-            if (session.takeUnitStopped())
-                setNote(session.haltReason().startsWith("no") ? "WiEMS не отговаря — пауза. Натисни ПРОДЪЛЖИ"
-                        : "WiEMS спря сам — пауза. Натисни ПРОДЪЛЖИ", true);
+            if (session.takeUnitStopped()) {
+                int fz = session.takeFaultZone();
+                if (fz >= 0) {
+                    setNote("WiEMS спря заради зона " + Session.ZONE[fz] + " — провери електрода й (мокър ли е, допира ли). "
+                            + "Зоната е на 0, ПРОДЪЛЖИ върви без нея", true);
+                    noteUntil = now() + 20000;
+                } else
+                    setNote(session.haltReason().startsWith("no") ? "WiEMS не отговаря — пауза. Натисни ПРОДЪЛЖИ"
+                            : "WiEMS спря сам — пауза. Натисни ПРОДЪЛЖИ", true);
+            }
             if (was && session.finished()) {
                 session.clearFinished();
                 setNote("Тренировката завърши ✓", false);

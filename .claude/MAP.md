@@ -1211,8 +1211,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (125L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.7)
+`docs/xems-wiems-app.md` (140L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.9)
   - L7 ## What it is
   - L28 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L38 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1220,8 +1220,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L69 ## v1.5 — fixes from the first test on the unit (owner)
   - L84 ## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
   - L103 ## v1.7 — the unit still pauses when one channel is raised (owner): evidence first
-  - L115 ## Build / test
-  - L122 ## Not verified yet
+  - L117 ## v1.9 — the trace from the unit: it trips on one channel
+  - L130 ## Build / test
+  - L137 ## Not verified yet
 
 `docs/xems-wiems.md` (71L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
@@ -1389,13 +1390,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
-`wiems/PROTOCOL.md` (73L)
+`wiems/PROTOCOL.md` (80L)
   - L1 # WiEMS unit — BLE protocol (from capture 1)
   - L16 ## Device
   - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)
   - L39 ## Sequences seen
   - L62 ## Still open
   - L70 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
+  - L74 ## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
 
 `wiems/README.md` (74L)
   - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol

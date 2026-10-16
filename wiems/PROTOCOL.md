@@ -70,3 +70,10 @@ session running 2 min untouched; name the channels on screen. Then the probe on 
 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
 .NET MAUI app (log: `Microsoft_Maui_Controls_Handlers…`) → a decrypted bundle has .NET assemblies: type / method
 names and string literals readable with ILSpy even when IL is stripped. Its own log lines are `<private>`.
+
+## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
+- Run control `0x0043` notifies **`0x80 | n`** (seen: `86`) right after a strength write when channel n trips the
+  unit's protection, then `00` ~30 ms later: the unit stops. Re-sending the same strength after a new start trips it
+  again. Seen with Корем (ch 6) at byte 9 / 12 while the other channels ran at 5.
+- Status `b1f5a058`: at each work start `00…00 a5 00…` then 20 values (1 / 2 on this unit); idle
+  `00 00 00 00 0N 00 … c5 5c` (byte 4 changed 00 → 01 → 04 after the trips).

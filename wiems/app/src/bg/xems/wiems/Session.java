@@ -373,8 +373,34 @@ final class Session {
             // a "01" left over from before a stop must not end a new count-down (it lasts ~4 s)
             if (wi == WI_COUNT && now - wiAt >= 2000) wiGo = true;
         }
+        // 0x80 | n: the unit's own protection tripped on channel n (seen on the unit: one zone raised → "86" and
+        // "00" ~30 ms later, every time that zone's strength went out again). That zone goes back to 0 — else the
+        // next ▶ sends the same strength and it trips again — and the screen names it.
+        int b = v[0] & 0xFF;
+        if ((b & 0x80) != 0 && (b & 0x7F) < WiProto.CHANNELS && wi == WI_RUN && state == RUNNING) {
+            int c = b & 0x7F;
+            faultCh = c;
+            for (int z = 0; z < ZONES; z++)
+                if (ZONE_CH[z] == c) {
+                    log("zone " + ZONE[z] + " (ch " + c + ") " + ch[c] + " → 0% (the unit tripped on it)");
+                    ch[c] = 0;
+                }
+            unitHalted("the unit reported " + Integer.toHexString(b) + ": channel " + c + " tripped");
+            return;
+        }
         // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
         if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted("the unit notified \"00\" (it stopped)");
+    }
+
+    private int faultCh = -1;
+
+    /** The zone the unit tripped on the last time (−1: none) — taken once by the screen. */
+    int takeFaultZone() {
+        int c = faultCh;
+        faultCh = -1;
+        if (c < 0) return -1;
+        for (int z = 0; z < ZONES; z++) if (ZONE_CH[z] == c) return z;
+        return -1;
     }
 
     private void unitHalted(String why) {

@@ -1,0 +1,57 @@
+#!/bin/sh
+# Install an XEMS mod from a USB stick while the machine runs (the XEMS panel's "Обнови от USB").
+# Mounts the stick, runs its own updater.sh (backup + payload + remove.list, self-renames), reports.
+# The firstboot hooks still run on the next boot, like any stick install.
+#
+#   check : print "ver=N installed=M"; exit 0 if the stick carries a different version (an update)
+#   apply : install; print "OK <ver>" on success, else "ERR <reason>" (exit non-zero)
+#
+# Env (tests): XEMS_USB_DIR = an already-mounted stick dir (skip the real mount);
+#              XEMS_OPT (installed VERSION dir, default /opt/xems); XEMS_USB_DEV / XEMS_USB_MNT;
+#              XB_ROOT is passed through to the stick's updater.sh.
+OPT=${XEMS_OPT:-/opt/xems}
+MNT=${XEMS_USB_MNT:-/tmp/xems-usb}
+installed=$(cat "$OPT/VERSION" 2>/dev/null)
+
+mount_stick() {   # echo the stick dir, or fail
+	if [ -n "$XEMS_USB_DIR" ]; then echo "$XEMS_USB_DIR"; return 0; fi
+	mkdir -p "$MNT"
+	for dev in ${XEMS_USB_DEV:-/dev/sda1 /dev/sda}; do
+		[ -b "$dev" ] || continue
+		if mount "$dev" "$MNT" 2>/dev/null; then echo "$MNT"; return 0; fi
+	done
+	return 1
+}
+umount_stick() { [ -n "$XEMS_USB_DIR" ] || umount "$MNT" 2>/dev/null; }
+
+dir=$(mount_stick) || { echo "ERR no-stick"; exit 2; }
+ver=$(cat "$dir/xems/VERSION" 2>/dev/null)
+if [ ! -f "$dir/updater.sh" ] || [ ! -f "$dir/xems/payload.tar.gz" ] || [ -z "$ver" ]; then
+	umount_stick
+	echo "ERR not-an-xems-stick"
+	exit 2
+fi
+
+case "$1" in
+check)
+	umount_stick
+	echo "ver=$ver installed=$installed"
+	[ "$ver" != "$installed" ]
+	;;
+apply)
+	if ( cd "$dir" && sh ./updater.sh ) > /dev/null 2>&1; then r=0; else r=1; fi
+	sync
+	umount_stick
+	if [ "$r" = 0 ]; then
+		echo "OK $ver"
+	else
+		echo "ERR install-failed"
+		exit 1
+	fi
+	;;
+*)
+	umount_stick
+	echo "ERR usage"
+	exit 2
+	;;
+esac

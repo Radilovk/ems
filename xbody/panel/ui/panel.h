@@ -71,6 +71,7 @@ private:
     unsigned pressMs_, repeatMs_;
     QBasicTimer timer_;
     bool sheet_, confirm_;
+    int confirmKind_;              // 0 = disconnect the suit, 1 = install an update from USB
     Program sheetProg_;
     bool sheetAge60_;
     int sheetWiring_;

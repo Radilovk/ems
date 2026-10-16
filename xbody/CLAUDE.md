@@ -19,7 +19,10 @@ python3 scripts/xbody/build.py                         # → build/xbody-dist/xb
 python3 scripts/xbody/build.py --img build/xbody-base/sd.img   # + xbody-sd-vN.img.gz (whole card, Etcher)
 sh scripts/xbody/test.sh                               # must print ALL OK before shipping
 ```
-- USB route works on the live card (backup on the stick, `xems/RESTORE` undoes). Preferred.
+- USB route works on the live card (backup on the stick, `xems/RESTORE` undoes). Preferred. The stick also
+  carries a vendor-format `softwareupdate.newave.3.<ver>.<md5>.xbody` so XBody's own Administration Menu →
+  Software Update installs the mod while the machine runs (no reboot); the XEMS panel's "Обнови от USB"
+  (`opt/xems/bin/xems-usb-update`) is the second in-app way. Both in docs/xbody-xems-panel.md; tests 8–9.
 - SD-image route needs the raw card image (`fetch-base.py --id <drive id of .img/.img.gz/.zip>`); the
   current Drive file is a 7z **file dump** (symlinks flattened) — analysis only, never a base to write.
 - Outputs in `build/` are gitignored; hand them over with SendUserFile. Exception: the Android stick app — the latest

@@ -170,7 +170,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/build-android.sh` (56L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
 - `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
-- `scripts/xbody/build.py` (328L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
+- `scripts/xbody/build.py` (387L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
 - `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
@@ -182,7 +182,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
 - `scripts/xbody/test-cable.py` (96L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
 - `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
-- `scripts/xbody/test.sh` (189L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/test.sh` (236L) — XBody mod pipeline tests, no device needed:
 - `scripts/xbody/updater.sh` (106L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
@@ -816,7 +816,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (242L)
+`docs/xbody-xems-panel.md` (263L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -827,12 +827,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L104 ### Length and after-training procedures (mod v10)
   - L133 ## Feedback from the stimulator (what XBody can know)
   - L143 ## Phone → XBody over a USB cable (mod v9, no stick)
-  - L154 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L162 ## Panel
-  - L196 ## Bridge line protocol (USB CDC, 115200)
-  - L207 ## Files
-  - L219 ## Build / test
-  - L235 ## First test on the unit (when the XIAO arrives)
+  - L154 ## Update from USB while the machine runs (mod v15) — admin interface, no reboot dance
+  - L175 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L183 ## Panel
+  - L217 ## Bridge line protocol (USB CDC, 115200)
+  - L228 ## Files
+  - L240 ## Build / test
+  - L256 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1408,12 +1409,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## Facts so far
   - L67 ## Status
 
-`xbody/CLAUDE.md` (49L)
+`xbody/CLAUDE.md` (52L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
   - L5 ## Model
   - L16 ## Build (on request: "дай файла за картата")
-  - L37 ## Panel / bridge
-  - L43 ## Rules
+  - L40 ## Panel / bridge
+  - L46 ## Rules
 
 `xbody/panel/art/README.md` (15L)
   - L1 # Program icons (XBody panel, "Програми")

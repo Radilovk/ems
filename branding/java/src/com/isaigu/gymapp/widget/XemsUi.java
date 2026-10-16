@@ -758,6 +758,49 @@ public final class XemsUi {
         }
     }
 
+    /**
+     * The colour / dark theme changed: the app starts afresh instead of recreating the screen (owner, 1.1.449: after
+     * the old recreate() the EMS unit could not be picked again — the old screen's Bluetooth links and the trainings'
+     * state outlived it). Suits are let go, the app's start screen comes back in a moment, this process ends.
+     */
+    public static void restartApp(Activity a) {
+        try {
+            try {
+                java.util.List<com.clj.fastble.data.BleDevice> on =
+                        com.clj.fastble.BleManager.getInstance().getAllConnectedDevice();
+                for (int i = 0; on != null && i < on.size(); i++) {
+                    com.clj.fastble.BleManager.getInstance().disconnect(on.get(i));
+                }
+            } catch (Throwable ignored) {
+            }
+            Context app = a.getApplicationContext();
+            android.content.Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+            if (i == null) {
+                a.recreate();
+                return;
+            }
+            i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            android.app.PendingIntent pi = android.app.PendingIntent.getActivity(app, 0x5e17, i,
+                    android.app.PendingIntent.FLAG_CANCEL_CURRENT
+                            | (android.os.Build.VERSION.SDK_INT >= 23 ? android.app.PendingIntent.FLAG_IMMUTABLE : 0));
+            android.app.AlarmManager am = (android.app.AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) {
+                a.recreate();
+                return;
+            }
+            am.set(android.app.AlarmManager.RTC, System.currentTimeMillis() + 600, pi);
+            a.finishAffinity();
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(0);
+        } catch (Throwable t) {
+            XemsGuard.report("XemsUi.restartApp", t);
+            try {
+                a.recreate();
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
     /** Settings: a "Цвят" row under the dark theme switch — two one-tap swatches, the screen redraws at once. */
     public static void accentBind(Activity a, View root) {
         try {
@@ -836,7 +879,7 @@ public final class XemsUi {
             try {
                 a.getSharedPreferences(ACCENT_PREFS, Context.MODE_PRIVATE).edit().putBoolean(K_MAGENTA, magenta)
                         .commit();
-                a.recreate();        // as the dark theme: the activity comes back with the other palette
+                restartApp(a);       // owner, 1.1.449: recreate() left the suits unselectable — a clean start
             } catch (Throwable t) {
                 XemsGuard.report("XemsUi.accentPick", t);
             }

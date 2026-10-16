@@ -99,3 +99,31 @@ export function activationStale(act, body, ts) {
   if (Array.isArray(b.ems_local) && JSON.stringify(normMacList(b.ems_local)) !== (act.ems_local || '[]')) return true;
   return false;
 }
+
+/** AES-GCM key for sealing licence keys, derived from a server secret (no extra secret to deploy). */
+async function sealKey(secret) {
+  const raw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`xems-license-key-v1|${secret || ''}`));
+  return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']);
+}
+
+const b64 = (u8) => btoa(String.fromCharCode(...u8));
+const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+
+/** Seal a licence key so the admin can read it back later: "iv.ciphertext" (base64). */
+export async function encryptLicenseKey(rawKey, secret) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await sealKey(secret), new TextEncoder().encode(rawKey));
+  return `${b64(iv)}.${b64(new Uint8Array(ct))}`;
+}
+
+/** The sealed key back as text; null when missing or sealed with another secret. */
+export async function decryptLicenseKey(sealed, secret) {
+  if (!sealed || typeof sealed !== 'string' || !sealed.includes('.')) return null;
+  try {
+    const [iv, ct] = sealed.split('.');
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(iv) }, await sealKey(secret), unb64(ct));
+    return new TextDecoder().decode(pt);
+  } catch {
+    return null;
+  }
+}

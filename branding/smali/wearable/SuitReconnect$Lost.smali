@@ -25,7 +25,7 @@
 
 .field final mac:Ljava/lang/String;
 
-.field final since:J
+.field since:J
 
 
 # direct methods

@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 825
+    .line 868
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 826
+    .line 869
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$AccentPick;->a:Landroid/app/Activity;
 
-    .line 827
+    .line 870
     iput-boolean p2, p0, Lcom/isaigu/gymapp/widget/XemsUi$AccentPick;->magenta:Z
 
-    .line 828
+    .line 871
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 5
 
     .prologue
-    .line 832
+    .line 875
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 833
+    .line 876
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$AccentPick;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->isMagenta(Landroid/content/Context;)Z
@@ -61,11 +61,11 @@
 
     if-ne v0, v1, :cond_e
 
-    .line 843
+    .line 886
     :goto_d
     return-void
 
-    .line 837
+    .line 880
     :cond_e
     :try_start_e
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$AccentPick;->a:Landroid/app/Activity;
@@ -90,23 +90,23 @@
 
     move-result-object v0
 
-    .line 838
+    .line 881
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
 
-    .line 839
+    .line 882
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$AccentPick;->a:Landroid/app/Activity;
 
-    invoke-virtual {v0}, Landroid/app/Activity;->recreate()V
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->restartApp(Landroid/app/Activity;)V
     :try_end_2b
     .catch Ljava/lang/Throwable; {:try_start_e .. :try_end_2b} :catch_2c
 
     goto :goto_d
 
-    .line 840
+    .line 883
     :catch_2c
     move-exception v0
 
-    .line 841
+    .line 884
     const-string v1, "XemsUi.accentPick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

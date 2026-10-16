@@ -195,3 +195,7 @@ Settings → under "Тъмна тема" a **Цвят** row: Циан · Маг�
   all switch, and stay through turns. Prefs `setting_share` / `accent_magenta` (next to `dark_mode`).
 - Java: use `XemsUi.ACCENT` (never a literal cyan) so the choice reaches it. Not switched: the band app, the HTML
   report pages and PNG art with cyan baked in.
+- **1.1.449:** the magenta palette is finer — only the accent stays vivid; greys / text get a hint of rose (s × 0.45)
+  and the dark glass is a near-neutral plum-grey (295°, s × 0.4). A colour or dark-theme change restarts the app
+  cleanly (`XemsUi.restartApp`: suits let go, start screen in 0.6 s, process ends) — `recreate()` left the EMS unit
+  unselectable. Bar and menu: every item in the same frame (`XemsNav.frame`: surface + thin stroke).

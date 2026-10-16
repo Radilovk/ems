@@ -88,7 +88,9 @@
 ```sql
 licenses (
   id            TEXT PRIMARY KEY,        -- "L-2026-000123" → отива в жетона като "lic"
-  key_hash      TEXT UNIQUE NOT NULL,    -- SHA-256 на ключа (самият ключ не се пази)
+  key_hash      TEXT UNIQUE NOT NULL,    -- SHA-256 на ключа (по него се търси при активиране)
+  key_enc       TEXT,                    -- ключът, запечатан с AES-GCM (от LICENSE_PRIVATE_KEY) — админът го вижда пак
+                                         -- (GET /admin/api/licenses/:id/key); стари ключове без него → POST …/rekey
   key_hint      TEXT,                    -- последните 4 знака за админа
   customer      TEXT,                    -- зала / клиент
   plan          TEXT,                    -- "pro", "full", …

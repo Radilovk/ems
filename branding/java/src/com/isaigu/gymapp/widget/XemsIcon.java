@@ -41,6 +41,8 @@ public final class XemsIcon extends Drawable {
     public static final int SCALE = 18;
     /** Two electrode pads joined by a wire with a pulse: Bluetens. */
     public static final int PADS = 19;
+    /** The Bluetooth rune: the link with the suit (focus board's top bar). */
+    public static final int BLUETOOTH = 20;
 
     private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -247,6 +249,16 @@ public final class XemsIcon extends Drawable {
                 path.lineTo(15f, 8f);
                 path.lineTo(18f, 8f);
                 path.lineTo(18f, 13f);
+                c.drawPath(path, stroke);
+                break;
+            case BLUETOOTH:
+                path.reset();
+                path.moveTo(6.5f, 7f);
+                path.lineTo(17f, 16.5f);
+                path.lineTo(12f, 21f);
+                path.lineTo(12f, 3f);
+                path.lineTo(17f, 7.5f);
+                path.lineTo(6.5f, 17f);
                 c.drawPath(path, stroke);
                 break;
             default:

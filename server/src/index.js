@@ -33,6 +33,7 @@ import {
   now, normKey, normDevice, normMacList, parseMacList,
   parseTokenBody, parseTokenLic, isHttpsUrl,
   generateLicenseKey, generateLicenseId, activationStale,
+  encryptLicenseKey, decryptLicenseKey,
 } from './utils.js';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
@@ -776,6 +777,9 @@ async function adminApi(request, env, path) {
     // the studio code (for the booking page) is made here too, so the admin sees it before any tablet refreshes
     for (const lic of rows.results) {
       if (!lic.studio_code) lic.studio_code = await ensureStudioCode(env, lic);
+      // the key itself is opened one at a time (licenses/:id/key), never sent with the whole list
+      lic.key_viewable = Boolean(lic.key_enc);
+      delete lic.key_enc;
     }
     return json({ ok: true, licenses: rows.results });
   }
@@ -795,14 +799,38 @@ async function adminApi(request, env, path) {
     const expiresAt = b.expires_days ? now() + b.expires_days * 86400 : (b.expires_at || null);
 
     await env.DB.prepare(
-      `INSERT INTO licenses (id, key_hash, key_hint, customer, plan, mods, feat, ems, max_devices, expires_at, status, created_at, note)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+      `INSERT INTO licenses (id, key_hash, key_hint, key_enc, customer, plan, mods, feat, ems, max_devices, expires_at, status, created_at, note)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
     ).bind(
-      id, keyHash, rawKey.slice(-4), b.customer || '', plan, mods, feat, ems,
+      id, keyHash, rawKey.slice(-4), await encryptLicenseKey(rawKey, env.LICENSE_PRIVATE_KEY), b.customer || '', plan, mods, feat, ems,
       b.max_devices || 1, expiresAt, now(), b.note || '',
     ).run();
     await audit(env, 'create_license', id, null, b.customer);
     return json({ ok: true, id, key: rawKey });
+  }
+
+  // The admin sees a key again. Keys made before key_enc existed can't be read back → key: null, legacy: true.
+  const keyMatch = route.match(/^licenses\/([^/]+)\/key$/);
+  if (keyMatch && request.method === 'GET') {
+    const lic = await env.DB.prepare('SELECT id, key_enc FROM licenses WHERE id = ?').bind(keyMatch[1]).first();
+    if (!lic) return json({ ok: false, error: 'not_found' }, 404);
+    const key = await decryptLicenseKey(lic.key_enc, env.LICENSE_PRIVATE_KEY);
+    await audit(env, 'view_license_key', lic.id, null, key ? null : 'legacy');
+    return json({ ok: true, id: lic.id, key, legacy: !key });
+  }
+
+  // A new key for the same licence (lost / old unreadable key). Tablets already activated keep working
+  // (refresh goes by device, not by key); only the old key stops activating new tablets.
+  const rekeyMatch = route.match(/^licenses\/([^/]+)\/rekey$/);
+  if (rekeyMatch && request.method === 'POST') {
+    const lic = await env.DB.prepare('SELECT id FROM licenses WHERE id = ?').bind(rekeyMatch[1]).first();
+    if (!lic) return json({ ok: false, error: 'not_found' }, 404);
+    const rawKey = generateLicenseKey();
+    await env.DB.prepare('UPDATE licenses SET key_hash = ?, key_hint = ?, key_enc = ? WHERE id = ?').bind(
+      await sha256Hex(normKey(rawKey)), rawKey.slice(-4), await encryptLicenseKey(rawKey, env.LICENSE_PRIVATE_KEY), lic.id,
+    ).run();
+    await audit(env, 'rekey_license', lic.id, null, null);
+    return json({ ok: true, id: lic.id, key: rawKey });
   }
 
   if (route.startsWith('licenses/') && request.method === 'PATCH') {

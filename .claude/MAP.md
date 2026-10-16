@@ -174,7 +174,6 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
 - `scripts/xbody/gen-panel-body.py` (30L) — The XBody panel's body figures: the tablet's XEMS figures (branding/body: art + zone map, scripts/gen-body-figures.py) …
-- `scripts/xbody/gen-xbody-body.py` (86L) — XBody's OWN training-screen body pictures, redrawn from the XEMS figures (owner: "replace the human models there"). XBo…
 - `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
 - `scripts/xbody/qt-headers.sh` (33L) — Qt 4.8.6 headers matching the card's Qt Embedded (build key "arm linux g++-4 full-config", ARMv7 NEON softfp,
 - `scripts/xbody/relink.py` (54L) — Restore the shared-library symlinks the 7z dump flattened to 0-byte files.
@@ -815,7 +814,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (267L)
+`docs/xbody-xems-panel.md` (264L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -829,10 +828,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L154 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
   - L162 ## Panel
   - L196 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
-  - L221 ## Bridge line protocol (USB CDC, 115200)
-  - L232 ## Files
-  - L244 ## Build / test
-  - L260 ## First test on the unit (when the XIAO arrives)
+  - L218 ## Bridge line protocol (USB CDC, 115200)
+  - L229 ## Files
+  - L241 ## Build / test
+  - L257 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

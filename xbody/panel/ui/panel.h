@@ -50,7 +50,6 @@ private:
     void paintCableSettings(QPainter &p);
     void paintPrograms(QPainter &p);
     void paintCableInfo(QPainter &p);
-    void paintXbodyFigures(QPainter &p);
     void paintPick(QPainter &p);
     void paintTrain(QPainter &p);
     void paintClock(QPainter &p);

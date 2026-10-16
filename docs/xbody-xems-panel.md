@@ -209,14 +209,11 @@ The screen is a copy of **XBody's own manual-training screen** (owner: same look
 - **Session sheet:** XBody's modes as chips by the title (Мускули 80 Hz 4/2 · Кардио 7 Hz continuous 20/10 · Релакс
   100 Hz 1/1, its defaults); **КОСТЮМ XBody | XEMS for WiEMS** (an XEMS suit on its XBody-standard leads, the owner's
   table, ⓘ shows it); the rise ≤ the impulse − 1 s (`safe::apply`).
-- **XEMS figures on XBody's OWN screen** ("Кабел на XBody" → **Фигури**: Жена | Мъж | Оригинал, saved in
-  `/opt/xems/xbody-figures`, female by default). XBody's config key `pixmaps_directory` makes it read its pictures from
-  a folder: `bin/xems-figures.sh` exports all of them from its binary (`xems-panel --export-pixmaps DIR`, 241 files),
-  puts ours in place of `BodyNormal.png` and the ten zone overlays (`opt/xems/xbody-body/<sex>/`, drawn by
-  `scripts/xbody/gen-xbody-body.py` in XBody's frame: front at x 157, back at 340, y 65..437) and sets the key in
-  `/opt/xbody/xbody.conf` ("original" removes it). `hooks/50-xbody-figures.sh` runs it once per mod version before
-  XBody starts. Checked on XBody's own GUI in qemu (Manual settings: our figure, Bottom lit red). A new choice
-  applies at XBody's next start.
+- **XBody's own screen keeps its own figures (mod v17).** v16 put the XEMS figures there through XBody's config key
+  `pixmaps_directory`; the owner took them out ("they don't work well there"). `hooks/50-xbody-figures.sh` now removes
+  the key from `/opt/xbody/xbody.conf` and the v16 folders (`/opt/xems/xbody-pixmaps`, `xbody-body`, `xbody-figures`)
+  — XBody reads its pictures from its binary again from its next start. The "Фигури" tab is gone; the XEMS figures
+  stay on our panel's wireless screen only.
 
 ## Bridge line protocol (USB CDC, 115200)
 Host → bridge: `PING` · `SCAN 1|0` · `CONN <mac>` · `DISC <mac>` · `W <mac> <hex>` · `SAFE <mac> <hex>` · `DFU` (v2).

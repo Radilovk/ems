@@ -332,15 +332,14 @@ void PanelWidget::paintCable(QPainter &p) {
         p.drawText(r, Qt::AlignCenter, U("Безжични  ›"));
         hit(r, U("wireless"));
     }
-    // Three tabs: the ready programs (per session) | the suit standard and the double impulse (set once) | the body
-    // figures on XBody's own screen.
+    // Two tabs: the ready programs (per session) | the suit standard and the double impulse (set once).
     QRect seg(130, 64, 540, 44);
     p.setPen(QPen(LINE, 2));
     p.setBrush(WHITE);
     p.drawRoundedRect(QRectF(seg).adjusted(1, 1, -1, -1), 10, 10);
-    for (int i = 0; i < 3; i++) {
-        QRect h(seg.left() + i * 180, seg.top(), 180, 44);
-        QString id = i == 2 ? U("tab-figs") : i ? U("tab-cable") : U("tab-prog");
+    for (int i = 0; i < 2; i++) {
+        QRect h(seg.left() + i * 270, seg.top(), 270, 44);
+        QString id = i ? U("tab-cable") : U("tab-prog");
         bool sel = cableTab_ == i;
         if (sel || pressed_ == id) {
             p.setPen(Qt::NoPen);
@@ -349,13 +348,12 @@ void PanelWidget::paintCable(QPainter &p) {
         }
         p.setPen(sel ? WHITE : INK);
         p.setFont(uiFont(16, sel));
-        QString t = i == 2 ? U("Фигури") : i ? U("Кабел и импулс") : U("Програми");
+        QString t = i ? U("Кабел и импулс") : U("Програми");
         if (!i && !c.program.empty()) t += U("  ●");
         p.drawText(h, Qt::AlignCenter, t);
         hit(h, id);
     }
     if (cableTab_ == 0) { paintPrograms(p); return; }
-    if (cableTab_ == 2) { paintXbodyFigures(p); return; }
     p.save();
     p.translate(0, 48);
     dy_ = 48;
@@ -1143,53 +1141,6 @@ void PanelWidget::pill(QPainter &p, const QRect &r, const QString &value, const 
     p.drawText(r.adjusted(b, 0, -b, 0), Qt::AlignCenter, value);
 }
 
-// The XEMS dir on the unit (XEMS_DIR in the emulator / tests).
-static QString xemsDir() { return QString::fromLocal8Bit(std::getenv("XEMS_DIR") ? std::getenv("XEMS_DIR") : "/opt/xems"); }
-static QString xfigConf() { return xemsDir() + U("/xbody-figures"); }
-static QString xfigSrc() {   // our figures for XBody's screen (XEMS_FIGS in the emulator)
-    return std::getenv("XEMS_FIGS") ? QString::fromLocal8Bit(std::getenv("XEMS_FIGS")) : xemsDir() + U("/xbody-body");
-}
-
-// "Фигури": the body on XBody's OWN training screen — the XEMS figures (female / male, its zones lit in red the way
-// XBody lights them) or XBody's original. bin/xems-figures.sh exports XBody's pictures to a folder, puts ours in
-// place of its body ones and points XBody's `pixmaps_directory` there; "original" takes the key out again.
-void PanelWidget::paintXbodyFigures(QPainter &p) {
-    QFile f(xfigConf());
-    QString cur = f.open(QIODevice::ReadOnly) ? QString::fromLatin1(f.readAll()).trimmed() : QString();
-    if (cur.isEmpty()) cur = U("female");
-    const char *ids[3] = {"female", "male", "original"};
-    const char *names[3] = {"Жена", "Мъж", "Оригинал"};
-    for (int i = 0; i < 3; i++) {
-        QRect t(40 + i * 248, 130, 224, 300);
-        QString id = U("xfig:") + QString::fromLatin1(ids[i]);
-        bool sel = cur == QString::fromLatin1(ids[i]);
-        p.setPen(QPen(sel ? RED : LINE, sel ? 3 : 2));
-        p.setBrush(pressed_ == id ? PRESS : WHITE);
-        p.drawRoundedRect(QRectF(t).adjusted(1.5, 1.5, -1.5, -1.5), 12, 12);
-        static QMap<QString, QPixmap> thumbs;
-        QString key = QString::fromLatin1(ids[i]);
-        if (!thumbs.contains(key)) {
-            QPixmap px;
-            if (i < 2) px.load(xfigSrc() + U("/") + key + U("/BodyNormal.png"));
-            else if (const QPixmap *o = pix("BodyNormal")) px = *o;
-            thumbs[key] = px.isNull() ? px : px.copy(60, 50, 380, 400).scaled(196, 206, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        }
-        const QPixmap &th = thumbs[key];
-        if (!th.isNull()) p.drawPixmap(t.left() + (t.width() - th.width()) / 2, t.top() + 14, th);
-        p.setPen(sel ? RED : INK);
-        p.setFont(uiFont(20, true));
-        p.drawText(QRect(t.left(), t.top() + 226, t.width(), 30), Qt::AlignCenter, U(names[i]));
-        p.setPen(SOFT);
-        p.setFont(uiFont(14));
-        p.drawText(QRect(t.left(), t.top() + 256, t.width(), 24), Qt::AlignCenter, i < 2 ? U("XEMS фигура") : U("на XBody"));
-        hit(t, id);
-    }
-    p.setPen(SOFT);
-    p.setFont(uiFont(15));
-    p.drawText(QRect(40, 446, 720, 44), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
-               U("Фигурата на собствения екран на XBody (тренировка по кабел). Зоните светят в червено както при XBody. "
-                 "Сменя се от следващото включване на машината."));
-}
 
 // "Настройки на сесията": landscape, two groups side by side. Left: the program (what changes the feel of the
 // session). Right: the setup of this client and suit (cables, age). Cancel left, the primary ✓ bottom right.
@@ -1523,20 +1474,8 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("cable")) { showCable_ = true; return; }
     if (id == QLatin1String("wireless")) { showCable_ = false; return; }
     if (id == QLatin1String("cable-info")) { cableInfo_ = true; return; }
-    if (id == QLatin1String("tab-prog") || id == QLatin1String("tab-cable") || id == QLatin1String("tab-figs")) {
-        cableTab_ = id == QLatin1String("tab-figs") ? 2 : id == QLatin1String("tab-cable") ? 1 : 0;
-        return;
-    }
-    if (id.startsWith(QLatin1String("xfig:"))) {   // XBody's own body pictures: ours (female / male) or its original
-        QString ch = id.mid(5);
-        QFile f(xfigConf());
-        if (f.open(QIODevice::WriteOnly)) f.write(ch.toLatin1() + "\n");
-        f.close();
-        // the export + copy takes a few seconds: in the background (XBody reads its pictures when it starts)
-        QString cmd = QString::fromLatin1("sh %1/bin/xems-figures.sh %2 >> %1/xems.log 2>&1 &").arg(xemsDir()).arg(ch);
-        if (std::system(cmd.toLocal8Bit().constData()) != 0) toast(U("Не стана — опитай пак"));
-        else toast(ch == U("original") ? U("✓ Оригиналните фигури на XBody — след рестарт на машината")
-                                       : U("✓ Фигурите на XEMS — след рестарт на машината"));
+    if (id == QLatin1String("tab-prog") || id == QLatin1String("tab-cable")) {
+        cableTab_ = id == QLatin1String("tab-cable") ? 1 : 0;
         return;
     }
     if (id.startsWith(QLatin1String("prog:")) || id == QLatin1String("prog-none")) {   // one program, or none

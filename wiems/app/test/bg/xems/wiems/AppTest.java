@@ -79,6 +79,7 @@ public class AppTest {
             mode = Procs.MODE_PROC;
         }
         public void backToModes() { mode = -1; }
+        public boolean held() { return false; }
         boolean female = true;
         public boolean female() { return female; }
         public void setFemale(boolean f) { female = f; }
@@ -125,7 +126,7 @@ public class AppTest {
         eq("waits for the count-down", Session.IDLE, s.state());
         eq("start ops (Ru 1 s, nothing in the pause)", "[012955040401007e050204, 0205000000000000" + "00a5a0, 037f7f6d497f7f64527f52, 0000000000000000000000, 0425]",
                 drain(s, 1000));
-        s.runNotify(new byte[] {1});
+        s.runNotify(new byte[] {1}, 5100);
         s.tick(5100);
         eq("running", Session.RUNNING, s.state());
         eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000040000000000]", drain(s, 5100));
@@ -136,21 +137,27 @@ public class AppTest {
         eq("one zone = one write, the rest unchanged", "[0008080808080804080808]", drain(s, 6000));
         s.setZone(3, 50);
         eq("the same value is not written again", "[]", drain(s, 6500));
+        s.runNotify(new byte[] {1}, 9200);
         s.tick(9200);
         eq("the unit's own pause: nothing written", "[]", drain(s, 9200));
+        s.runNotify(new byte[] {1}, 13300);
         s.tick(13300);
         eq("the next impulse: nothing written", "[]", drain(s, 13300));
         s.pause(13500);
         eq("pause → 0 + stop", "[0000000000000000000000, 0400]", drain(s, 13500));
         s.start(14000);
         drain(s, 14000);
-        s.runNotify(new byte[] {1});
-        s.tick(14100);
-        eq("resume: the strengths again", "0008080808080804080808", drain(s, 14100).get(2));
-        s.runNotify(new byte[] {0});                     // the unit stopped by itself
+        s.runNotify(new byte[] {1}, 14600);              // a "01" left from before the stop …
+        s.tick(14600);
+        eq("… does not end the new count-down", "[]", drain(s, 14600));
+        s.runNotify(new byte[] {1}, 18100);
+        s.tick(18100);
+        eq("resume: the strengths again", "0008080808080804080808", drain(s, 18100).get(2));
+        s.runNotify(new byte[] {0}, 19000);                     // the unit stopped by itself
         eq("unit stop seen", Session.PAUSED + " true", s.state() + " " + s.takeUnitStopped());
-        s.start(15000);
-        eq("▶ arms it again", "0425", drain(s, 15000).get(4));
+        eq("… and it gets 0 + stop", "[0000000000000000000000, 0400]", drain(s, 19000));
+        s.start(20000);
+        eq("▶ arms it again", "0425", drain(s, 20000).get(4));
         eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
         // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
         Session d = new Session();
@@ -163,10 +170,10 @@ public class AppTest {
         d.setProgram(dp);
         d.setStrength(50);
         for (int z = 0; z < Session.ZONES; z++) d.setZone(z, 100);
-        d.start(0);
-        List<String> ds = drain(d, 0);
+        d.start(-4000);
+        List<String> ds = drain(d, -4000);
         eq("dbl rest", "02073c000000000000a59e", ds.get(1));
-        d.runNotify(new byte[] {1});
+        d.runNotify(new byte[] {1}, 100);
         d.tick(100);
         drain(d, 100);
         d.tick(4200);
@@ -198,13 +205,14 @@ public class AppTest {
         cs.setProgram(cp);
         cs.setStrength(40);
         for (int z = 0; z < Session.ZONES; z++) cs.setZone(z, 100);
-        cs.start(0);
-        List<String> co = drain(cs, 0);
+        cs.start(-4000);
+        List<String> co = drain(cs, -4000);
         eq("cardio program 7 Hz 20/10", "012907140a00007e0502", co.get(0).substring(0, 20));
         eq("cardio rest = 7 Hz 100 %", "020764", co.get(1).substring(0, 6));
-        cs.runNotify(new byte[] {1});
+        cs.runNotify(new byte[] {1}, 100);
         cs.tick(100);
         drain(cs, 100);
+        cs.runNotify(new byte[] {1}, 20200);
         cs.tick(20200);
         eq("cardio rest: nothing written", "[]", drain(cs, 20200));
         eq("cardio rest is live", 40, cs.liveLevel(3));
@@ -222,13 +230,14 @@ public class AppTest {
         ps.setStrength(50);
         for (int z = 0; z < Session.ZONES; z++) ps.setZone(z, 100);
         eq("plan sets the time", 25 * 60, ps.secondsLeft(0));
-        ps.start(0);
-        eq("warm-up 5 Hz 10/1", "0129050a0100007e0502", drain(ps, 0).get(0).substring(0, 20));
-        ps.runNotify(new byte[] {1});
+        ps.start(-4000);
+        eq("warm-up 5 Hz 10/1", "0129050a0100007e0502", drain(ps, -4000).get(0).substring(0, 20));
+        ps.runNotify(new byte[] {1}, 100);
         ps.tick(100);
         List<String> w0 = drain(ps, 100);
         // W_CELL in WiEMS order × the warm-up's envelope 60 % × strength 50 %, on the unit's scale
         eq("warm-up shares", "0000000004030604060604", w0.get(w0.size() - 1));
+        ps.runNotify(new byte[] {1}, 150200);
         ps.tick(150200);                                   // into "Стягане": 85 Hz with its second impulse
         List<String> w1 = drain(ps, 150200);
         eq("phase 2 → zero first", "0000000000000000000000", w1.get(0));
@@ -276,14 +285,19 @@ public class AppTest {
         eq("30 min plan", 30 * 60, h.session.secondsLeft(h.t));
         shot(v, dir, "2c-proc-idle.png");
         h.session.setStrength(45);
+        for (int z = 0; z < Session.ZONES; z++) h.session.setZone(z, 100);   // the trainer raises the zones
         tap(v, 100, 470);                                   // СТАРТ
         drain(h.session, h.t);
-        h.session.runNotify(new byte[] {1});
+        h.t += 4100;                                        // the unit's count-down
+        h.session.runNotify(new byte[] {1}, h.t);
+        if (h.session.state() == Session.RUNNING) h.session.runNotify(new byte[] {1}, h.t);
         h.session.tick(h.t);
         drain(h.session, h.t);
         for (int i = 0; i < 18000 * 3 / 2; i++) {          // 15 min on: the wave over the legs
             h.t += 100;
-            h.session.tick(h.t);
+            if (h.session.state() == Session.RUNNING) h.session.runNotify(new byte[] {1}, h.t);
+            if (h.session.state() == Session.RUNNING) h.session.runNotify(new byte[] {1}, h.t);
+        h.session.tick(h.t);
             drain(h.session, h.t);
             if (h.session.seg() == 2 && h.session.impulse() && h.session.liveLevel(7) > 30) break;
         }
@@ -303,11 +317,29 @@ public class AppTest {
         h.session.setStrength(35);
         tap(v, 100, 470);                                   // СТАРТ (left column)
         drain(h.session, h.t);                              // the unit takes the program and starts counting down
-        h.session.runNotify(new byte[] {1});
+        h.t += 4100;                                        // the unit's count-down
+        h.session.runNotify(new byte[] {1}, h.t);
+        if (h.session.state() == Session.RUNNING) h.session.runNotify(new byte[] {1}, h.t);
         h.session.tick(h.t);
         h.t += 1500;
+        if (h.session.state() == Session.RUNNING) h.session.runNotify(new byte[] {1}, h.t);
         h.session.tick(h.t);
         drain(h.session, h.t);
+        Session keep = h.session;
+        h.session = new Session();                          // a new client on a new link
+        h.session.setStrength(100);
+        tap(v, 2, 300);                                     // (a frame: nothing there)
+        eq("a new client: ВСИЧКИ selected", true, v.selAll());
+        tap(v, 480, 78);                                    // ВСИЧКИ off → СИЛА
+        h.session.setZone(0, 30);
+        h.session.setZone(5, 60);
+        tap(v, 100, 111);                                   // Предно бедро (30 %)
+        tap(v, 960 - 90, 111);                              // Гръб (60 %)
+        tap(v, 960 - 40, 567);                              // + on both
+        eq("two zones + keep their difference", "35 65", h.session.zone(0) + " " + h.session.zone(5));
+        h.session = keep;
+        tap(v, 100, 111);
+        tap(v, 960 - 90, 111);
         tap(v, 100, 300);                                   // the zone "Корем" (left column, row 4)
         tap(v, 960 - 90, 320);                              // "Ръце" (right column, row 4)
         v.tick(h.t);
@@ -316,6 +348,7 @@ public class AppTest {
         shot(v, dir, "3-train-running.png");
         h.session.setStrength(80);
         h.t += 600;
+        if (h.session.state() == Session.RUNNING) h.session.runNotify(new byte[] {1}, h.t);
         h.session.tick(h.t);
         drain(h.session, h.t);
         shot(v, dir, "3b-strong.png");

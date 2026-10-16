@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.5)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.6)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -80,6 +80,25 @@ phase's rhythm (still within limits) while the shares still follow the procedure
 - **The program screen uses XBody's own tiles** (its Strength / WeightLoss / Massage / Manual / MED selector pictures,
   normal + pressed, from the machine's resources → `wiems/app/xbody-art`, owner's request); MED = the passive
   procedures.
+
+## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
+The simulated unit follows the capture (count-down ~4 s after `25`, `01` every second, `00` ~1.5 s after a stop, a
+late `01` still on air after a stop) and flags what the vendor never does: a strength byte over its top, strengths
+while not running, > 4 strength writes / s, an arm-program while running or a run-program while not, a rise ≥ the
+impulse. Scenarios: a full training with taps and a pause, a START cancelled in the count-down, a finger on the
+slider, A → B → A quicker than a write, the unit stopping by itself, a silent unit, the link dropping mid-training and
+in the count-down, a shorter length on pause, every procedure at 10 / 30 min, XBody's modes untouched. Mutations of
+the fixes below each fail it. Found and fixed:
+- **A quick A → B → A left the unit on B** (the "already sent" mark was set when queued, not when sent).
+- **A training that ended behind another app never stopped the unit** (the tick stopped before the last
+  "outputs off" went out) — it now ticks until the queue is empty; closing the app waits 0.4 s after the stop write.
+- **A dropped link lost the training** (zones, time): it is now kept on pause; the same unit reconnects by itself,
+  gets 0 + stop first, and ПРОДЪЛЖИ goes on. A late `01` from before a stop no longer ends a new count-down early;
+  a unit silent for 5 s (no `01`) or stopping by itself puts the training on pause with 0 + stop.
+- **START cancelled in the count-down** still sent the queued start: now dropped.
+- **Several zones + / slider set them all to one value** (arms 30 → 65 with legs at 60): they now move by the same step.
+- **A new client** starts with ВСИЧКИ selected (all zones 0, so the slider raises them all at once); when a training
+  finishes the zones go back to 0 for the next client. A shorter length on pause keeps the time already done.
 
 ## Build / test
 ```

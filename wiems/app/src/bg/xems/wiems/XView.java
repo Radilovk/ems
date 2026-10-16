@@ -293,7 +293,7 @@ final class XView extends View {
         long now = a.now();
         String dots = "...".substring(0, (int) ((now / 400) % 4));
         String n = a.note();
-        String title = "ИЗБЕРИ WiEMS", sub = n.length() > 0 ? n : "Търся наблизо" + dots, big = null;
+        String title = "ИЗБЕРИ WiEMS", sub = n.length() > 0 ? n : (a.held() ? "Тренировката чака · свързвам отново" : "Търся наблизо") + dots, big = null;
         String action = null;
         if (v == MainActivity.VIEW_NO_BT) {
             sub = "";
@@ -670,8 +670,19 @@ final class XView extends View {
         text(c, pct + "%", l + 10, t, l + w - 12, t + 50, right ? -1 : 1, on ? WHITE : pct == 0 ? GREY : INK);
     }
 
+    private Session seenSession;
+    private int seenResets;
+
     private void paintTrain(Canvas c) {
         Session s = a.session();
+        if (s != seenSession || s.resets() != seenResets) {
+            // a new client (all zones 0): ВСИЧКИ selected, so the slider / ± raise every zone together at once
+            seenSession = s;
+            seenResets = s.resets();
+            boolean zero = true;
+            for (int i = 0; i < Session.ZONES; i++) zero &= s.zone(i) == 0;
+            if (zero) sel = (1 << Session.ZONES) - 1;
+        }
         long now = a.now();
         Session.Program pr = s.program();
         boolean idle = s.state() == Session.IDLE, running = s.state() == Session.RUNNING;
@@ -791,7 +802,9 @@ final class XView extends View {
         float[] alpha = new float[Session.ZONES];
         for (int z = 0; z < Session.ZONES; z++) {
             float t = s.liveLevel(Session.ZONE_CH[z]) / 100f;
-            boolean picked = (sel & (1 << z)) != 0;
+            // a picked zone without output is tinted — not when all are picked (ВСИЧКИ): the body would look
+            // like it works everywhere
+            boolean picked = (sel & (1 << z)) != 0 && sel != (1 << Session.ZONES) - 1;
             if (t > 0) {
                 float k2 = Math.min(1f, t / 0.8f);      // in step with the impulse: deep red from 80 %
                 // the second impulse (double impulse, in the pause) in XBody's yellow — the main one in its red
@@ -922,6 +935,11 @@ final class XView extends View {
         return mix(LEDS[i], LEDS[i + 1], f - i);
     }
 
+    /** Test: every zone selected. */
+    boolean selAll() {
+        return sel == (1 << Session.ZONES) - 1;
+    }
+
     private int selValue() {
         Session s = a.session();
         if (s == null) return 0;
@@ -938,7 +956,12 @@ final class XView extends View {
             s.setStrength(v);
             return;
         }
-        for (int i = 0; i < Session.ZONES; i++) if ((sel & (1 << i)) != 0 && s.zone(i) != v) s.setZone(i, v);
+        // several zones move together by the same step — their differences stay (arms 30 / legs 60 + 5 → 35 / 65,
+        // never all to one value: a weak zone would jump to the strong one's level)
+        int d = v - selValue();
+        if (d == 0) return;
+        for (int i = 0; i < Session.ZONES; i++)
+            if ((sel & (1 << i)) != 0) s.setZone(i, Math.max(0, Math.min(100, s.zone(i) + d)));
     }
 
     /** XBody's showPercent: while a value changes, a big % over the body with what it belongs to. */

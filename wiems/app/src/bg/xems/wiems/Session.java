@@ -57,6 +57,7 @@ final class Session {
     private static final class Item {
         final byte[] op;
         final int tag;
+        int[] levels;               // a strengths write: its values (they count as the unit's once it goes)
 
         Item(byte[] op, int tag) {
             this.op = op;
@@ -77,7 +78,7 @@ final class Session {
     private int state = IDLE;
     private boolean on, finished, startWanted;
     private long endMs, phaseEndMs, rampStartMs, remainMs;
-    /** The strengths the unit has (null: unknown / zero) — a change is written once, nothing is repeated. */
+    /** The strengths the unit has — sent or on air (null: unknown / zero); a change is written once, never repeated. */
     private int[] sent;
     private long levelsMs = -100000;
     private int wi = WI_IDLE;
@@ -111,6 +112,10 @@ final class Session {
 
     /** One rhythm (manual, or one of XBody's modes); drops a procedure. Not while running. */
     void setProgram(Program p) {
+        if (state == PAUSED) {                       // a new length on pause: the time already done stays done
+            long done = prog.totalS * 1000L - remainMs;
+            remainMs = Math.max(1000, p.totalS * 1000L - done);
+        }
         prog = p.copy();
         plan = null;
         if (state != RUNNING) cur = prog;
@@ -212,7 +217,8 @@ final class Session {
 
     void pause(long now) {
         startWanted = false;
-        if (wi == WI_COUNT && state != RUNNING) {
+        if (wi == WI_COUNT && state != RUNNING) {    // cancelled in the count-down: what was not sent never goes
+            dropQueued(T_PROG);
             push(WiProto.zero(), T_PLAIN);
             stopUnit();
         }
@@ -231,9 +237,26 @@ final class Session {
         remainMs = 0;
         if (was) outputsOff(true);
         else if (wi != WI_IDLE) {
+            dropQueued(T_PROG);
             push(WiProto.zero(), T_PLAIN);
             stopUnit();
         }
+    }
+
+    /**
+     * The link dropped: the session is kept (zones, strength, program, the time done) and waits on pause — a
+     * training is not lost to a radio hiccup. Nothing queued goes anywhere.
+     */
+    void lost(long now) {
+        if (state == RUNNING) remainMs = Math.max(0, endMs - now);
+        if (state != IDLE) state = PAUSED;
+        startWanted = false;
+        on = false;
+        out.clear();
+        inflight = false;
+        wi = WI_IDLE;
+        wiGo = false;
+        sent = null;
     }
 
     /** Call often (≥ 10 Hz). */
@@ -242,6 +265,7 @@ final class Session {
         // the count-down is over at the unit's first "01" (the vendor waits for it), else after 6 s; then, as the
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
         if (wi == WI_COUNT && !progQueued() && (wiGo || now - wiAt >= 6000)) {
+            runSeenMs = now;
             push(WiProto.zero(), T_PLAIN);
             sent = null;
             push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
@@ -249,6 +273,9 @@ final class Session {
             wiGo = false;
         }
         if (startWanted && !preparing()) start(now);
+        if (state != RUNNING) return;
+        // the unit notifies "01" every second while it runs; silent for 5 s (after it did notify) = it stopped
+        if (wi == WI_RUN && runNotifies && now - runSeenMs > 5000) unitHalted();
         if (state != RUNNING) return;
         remainMs = Math.max(0, endMs - now);
         if (now >= endMs) {
@@ -304,23 +331,52 @@ final class Session {
     }
 
     /** The unit's run characteristic notified ("01" each second while it runs). */
-    void runNotify(byte[] v) {
+    void runNotify(byte[] v, long now) {
         if (v == null || v.length == 0) return;
-        if (v[0] == 1 && wi == WI_COUNT) wiGo = true;
-        // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
-        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) {
-            remainMs = Math.max(0, endMs - lastTick);
-            state = PAUSED;
-            on = false;
-            wi = WI_IDLE;
-            wiGo = false;
-            sent = null;
-            dropLevels();
-            unitStopped = true;
+        if (now > lastTick) lastTick = now;
+        if (v[0] == 1) {
+            runNotifies = true;
+            runSeenMs = now;
+            // a "01" left over from before a stop must not end a new count-down (it lasts ~4 s)
+            if (wi == WI_COUNT && now - wiAt >= 2000) wiGo = true;
         }
+        // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
+        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted();
     }
 
-    private long lastTick;
+    private void unitHalted() {
+        remainMs = Math.max(0, endMs - lastTick);
+        state = PAUSED;
+        on = false;
+        dropLevels();
+        push(WiProto.zero(), T_PLAIN);              // whatever it is doing: 0 and stopped, so ▶ starts clean
+        push(WiProto.run(false), T_PLAIN);
+        wi = WI_IDLE;
+        wiGo = false;
+        sent = null;
+        unitStopped = true;
+    }
+
+    /** Something still waits to go to the unit (keep ticking until it went, also behind another app). */
+    boolean busy() {
+        return inflight || !out.isEmpty();
+    }
+
+    /** Every zone back to 0 (a finished training: the next client starts from nothing). */
+    void resetZones() {
+        for (int i = 0; i < ch.length; i++) ch[i] = 0;
+        resets++;
+    }
+
+    private int resets;
+
+    /** Counts the zone resets (a new client): the screen selects ВСИЧКИ again. */
+    int resets() {
+        return resets;
+    }
+
+    private long lastTick, runSeenMs;
+    private boolean runNotifies;
     private boolean unitStopped;
 
     /** The unit stopped by itself (once; the screen shows it). */
@@ -401,7 +457,10 @@ final class Session {
         // strengths at most every LEVELS_GAP_MS (the vendor: one write per change, ~1 s apart); a newer one that
         // comes meanwhile replaces it, so a finger on the slider is one write, not dozens
         if (out.peekFirst().tag == T_LEVELS && now - levelsMs < LEVELS_GAP_MS) return null;
-        if (out.peekFirst().tag == T_LEVELS) levelsMs = now;
+        if (out.peekFirst().tag == T_LEVELS) {
+            levelsMs = now;
+            sent = out.peekFirst().levels;           // what the unit has from now on
+        }
         inflight = true;
         sentMs = now;
         return out.peekFirst().op;
@@ -437,6 +496,21 @@ final class Session {
         }
     }
 
+    /** Drop queued, not yet sent items of a tag. */
+    private void dropQueued(int tag) {
+        Iterator<Item> it = out.iterator();
+        boolean first = true;
+        while (it.hasNext()) {
+            Item x = it.next();
+            if (first && inflight) {
+                first = false;
+                continue;
+            }
+            first = false;
+            if (x.tag == tag) it.remove();
+        }
+    }
+
     private boolean progQueued() {
         for (Item x : out) if (x.tag == T_PROG) return true;
         return false;
@@ -469,9 +543,12 @@ final class Session {
         if (wi != WI_RUN) return;                    // counting down: the strengths go when it runs
         int[] c = new int[WiProto.CHANNELS];
         for (int i = 0; i < c.length; i++) c[i] = unitValue(level(i));
+        // compared with what was really sent (a queued, dropped write never counts — else a quick A → B → A
+        // would leave the unit on B)
         if (java.util.Arrays.equals(c, sent)) return;
-        sent = c;
-        push(WiProto.currents(c), T_LEVELS);
+        Item it = new Item(WiProto.currents(c), T_LEVELS);
+        it.levels = c;
+        out.addLast(it);
     }
 
     private void outputsOff(boolean stopUnit) {

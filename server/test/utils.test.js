@@ -96,3 +96,19 @@ describe('generateLicenseId', () => {
     assert.match(id, /^L-\d{4}-\d{6}$/);
   });
 });
+
+describe('licence key sealing (admin sees a key again)', () => {
+  it('round-trips with the same secret', async () => {
+    const { encryptLicenseKey, decryptLicenseKey } = await import('../src/utils.js');
+    const sealed = await encryptLicenseKey('XEMS-ABCD-EFGH', 'secret-1');
+    assert.ok(!sealed.includes('ABCD'));
+    assert.equal(await decryptLicenseKey(sealed, 'secret-1'), 'XEMS-ABCD-EFGH');
+  });
+  it('null for another secret, missing or junk', async () => {
+    const { encryptLicenseKey, decryptLicenseKey } = await import('../src/utils.js');
+    const sealed = await encryptLicenseKey('XEMS-ABCD-EFGH', 'secret-1');
+    assert.equal(await decryptLicenseKey(sealed, 'secret-2'), null);
+    assert.equal(await decryptLicenseKey(null, 'secret-1'), null);
+    assert.equal(await decryptLicenseKey('junk', 'secret-1'), null);
+  });
+});

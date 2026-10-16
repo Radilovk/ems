@@ -34,6 +34,8 @@ mkdir -p "$T/apk/assets/body"   # the XEMS body figures (art + zone maps), the s
 cp "$REPO"/branding/body/*.webp "$T/apk/assets/body/"
 mkdir -p "$T/apk/assets/art"    # the passive procedures' icons (Health Icons CC0, the XBody panel's)
 cp "$REPO"/xbody/overlay/opt/xems/art/*.png "$T/apk/assets/art/"
+mkdir -p "$T/apk/assets/xbody"  # XBody's own program tiles (owner: its native pictures, wiems/app/xbody-art)
+cp "$SRC"/xbody-art/*.png "$T/apk/assets/xbody/"
 sed "s/@NAME@/$NAME/g; s/@CODE@/$CODE/g" "$SRC/AndroidManifest.xml" > "$T/apk/AndroidManifest.xml"
 cat > "$T/apk/apktool.yml" <<YML
 version: 2.9.3

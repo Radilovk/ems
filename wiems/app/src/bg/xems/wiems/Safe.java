@@ -9,7 +9,7 @@ final class Safe {
     private Safe() {}
 
     static final int HZ_MAX = 120, HZ_MAX_60 = 85, TETANIC_HZ = 20, ON_MAX_50HZ = 6, ON_MAX_TETANIC = 10,
-            RAMP_MIN_MS = 300, OFF_MAX_SEARCH = 30, STRENGTH_MAX = 100, PAUSE_HZ_MAX = 10, PAUSE_PCT_MAX = 150;
+            RAMP_MIN_MS = 1000, OFF_MAX_SEARCH = 30, STRENGTH_MAX = 100, PAUSE_HZ_MAX = 10, PAUSE_PCT_MAX = 150;
     private static final double TAU = 30.0;
 
     private static double fMax() {
@@ -60,12 +60,20 @@ final class Safe {
                 line(why, "Импулс " + p.onS + " → " + onMax + " s при " + p.hz + " Hz");
                 p.onS = onMax;
             }
-            if (p.rampMs < RAMP_MIN_MS) p.rampMs = RAMP_MIN_MS;
             int min = minOff(p.hz, p.onS, p.dbl ? p.dblHz : 0, p.dbl ? p.dblPct / 100.0 : 0);
             if (p.offS < min) {
                 line(why, "Пауза " + p.offS + " → " + min + " s: при " + p.hz + " Hz · " + p.onS + " s по-кратка не е безопасна");
                 p.offS = min;
             }
+        }
+        // The rise (the unit's Ru, whole seconds) lives inside the impulse: at most the impulse − 1 s (≥ 1 s at full
+        // strength, owner: a 5 s rise in a 4 s impulse is no rise); a fused impulse of ≥ 2 s rises at least 1 s.
+        int rMax = Math.max(0, p.onS - 1) * 1000;
+        p.rampMs = (Math.max(0, p.rampMs) + 500) / 1000 * 1000;
+        if (p.hz >= TETANIC_HZ && p.onS >= 2 && p.rampMs < RAMP_MIN_MS) p.rampMs = RAMP_MIN_MS;
+        if (p.rampMs > rMax) {
+            if (rMax > 0 || p.rampMs > 0) line(why, "Рампа " + p.rampMs / 1000 + " → " + rMax / 1000 + " s: не по-дълга от импулса");
+            p.rampMs = rMax;
         }
         if (p.totalS < 60) p.totalS = 60;
         if (p.totalS > 3600) p.totalS = 3600;

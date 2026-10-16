@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.4)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.5)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -65,6 +65,21 @@ After a link the app opens XBody's **program screen** ("ИЗБОР НА ПРОГ
 
 Unverified on the unit: that it takes a program write mid-run (phases, 3 ↔ 8 Hz) — if not, it keeps the previous
 phase's rhythm (still within limits) while the shares still follow the procedure.
+
+## v1.5 — fixes from the first test on the unit (owner)
+- **A single zone stopped the unit until a power cycle.** Our traffic differed from the vendor's (capture +
+  its log "CCC-Corrientes enviadas"): we sent strengths **0..100** (the vendor's top is ~19: 94 % → 18, 80 % → 15,
+  61 % → 12), wrote **0 in every pause and the levels at every impulse** (4 steps of an app-side rise), and a finger on
+  the slider made dozens of writes. Now as the vendor: the strengths are written **only when they change** (at most
+  every 250 ms, a newer value replaces a waiting one, the same value is never repeated), never at a work / rest change
+  (the unit runs its own phases and its rise Ru), on the vendor's scale (`Session.unitValue`, 100 % = 20). A unit
+  that stops by itself (run notify `00`) puts the session on pause with a note; ▶ arms it again.
+- **Every zone starts at 0**, raised one by one (or ВСИЧКИ); СИЛА starts at 100 % and scales them all.
+- **Ramp** = the unit's Ru in whole seconds, 0 … impulse − 1 s (a shorter impulse lowers it); ≥ 20 Hz with an
+  impulse ≥ 2 s rises at least 1 s (`Safe.apply`).
+- **The program screen uses XBody's own tiles** (its Strength / WeightLoss / Massage / Manual / MED selector pictures,
+  normal + pressed, from the machine's resources → `wiems/app/xbody-art`, owner's request); MED = the passive
+  procedures.
 
 ## Build / test
 ```

@@ -16,6 +16,7 @@ javac --release 8 -nowarn -encoding UTF-8 -classpath "$JAR" -d "$OUT" \
 	"$HERE/MainActivity.java" 2>&1 | grep -v '^Note\|warning' || true
 mkdir -p "$OUT/assets/body" "$OUT/assets/art"
 cp "$REPO"/xbody/overlay/opt/xems/art/*.png "$OUT/assets/art/"
+mkdir -p "$OUT/assets/xbody" && cp "$REPO"/wiems/app/xbody-art/*.png "$OUT/assets/xbody/"
 python3 -c "
 import sys,glob,os
 from PIL import Image

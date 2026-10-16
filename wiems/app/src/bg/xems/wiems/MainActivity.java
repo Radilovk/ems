@@ -280,7 +280,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     public void linked() {
         session = new Session();
         session.setProgram(prog);
-        session.setStrength(0);       // a new link always starts from 0
+        session.setStrength(100);     // every zone starts at 0 (owner); СИЛА scales them all — 100 % = as set
         session.linked();
         lastMac = linkingMac;
         linkingMac = null;
@@ -350,6 +350,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
+            if (session.takeUnitStopped()) setNote("WiEMS спря сам — натисни ПРОДЪЛЖИ", true);
             if (was && session.finished()) {
                 session.clearFinished();
                 setNote("Тренировката завърши ✓", false);

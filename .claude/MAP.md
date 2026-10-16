@@ -104,7 +104,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/lok.py` (243L) — Bluetens .lok program format — parse, build, time estimate (reference for a future Java port).
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
-- `scripts/build-wiems-app.sh` (62L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
+- `scripts/build-wiems-app.sh` (64L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
@@ -1211,14 +1211,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (79L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.4)
+`docs/xems-wiems-app.md` (94L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.5)
   - L7 ## What it is
   - L28 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L38 ## v1.2 — lighter figures, double impulse, ramp (owner)
   - L45 ## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
-  - L69 ## Build / test
-  - L76 ## Not verified yet
+  - L69 ## v1.5 — fixes from the first test on the unit (owner)
+  - L84 ## Build / test
+  - L91 ## Not verified yet
 
 `docs/xems-wiems.md` (71L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

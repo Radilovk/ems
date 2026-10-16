@@ -112,12 +112,15 @@ public class AppTest {
     }
 
     public static void main(String[] args) throws Exception {
-        // ---- the session's unit operations (golden: wiems/PROTOCOL.md, the panel's test) ----
+        // ---- the session's unit operations (golden: wiems/PROTOCOL.md + the vendor's own writes in the capture) ----
+        // The vendor writes the strengths only when they change (one write per tap, ~1 s apart) and never in the
+        // pause — the unit runs its own work / rest. Strength byte = the vendor's scale (100 % ≈ 20).
         Session s = new Session();
         s.linked();
         eq("link", "[0000000000000000000000, 0400]", drain(s, 0));
+        eq("zones start at 0", "0 0", s.zone(0) + " " + s.zone(9));
         s.setStrength(40);
-        s.setZone(8, 50);                                // Ръце → unit channel 4
+        s.setZone(8, 50);                                // Ръце → unit channel 4: 50 % × 40 % = 20 % → byte 4
         s.start(1000);
         eq("waits for the count-down", Session.IDLE, s.state());
         eq("start ops (Ru 1 s, nothing in the pause)", "[012955040401007e050204, 0205000000000000" + "00a5a0, 037f7f6d497f7f64527f52, 0000000000000000000000, 0425]",
@@ -125,13 +128,31 @@ public class AppTest {
         s.runNotify(new byte[] {1});
         s.tick(5100);
         eq("running", Session.RUNNING, s.state());
-        eq("begin: full at once, the unit rises by itself", "[0000000000000000000000, 012955040401007e050006, 0028282828142828282828]", drain(s, 5100));
+        eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000040000000000]", drain(s, 5100));
+        for (int z = 0; z < Session.ZONES; z++) s.setZone(z, 100);   // ten taps in a row …
+        eq("… held a moment", "[]", drain(s, 5200));
+        eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 5400));
+        s.setZone(3, 50);                                // one zone (Корем → ch 6) mid-run: the owner's failing case
+        eq("one zone = one write, the rest unchanged", "[0008080808080804080808]", drain(s, 6000));
+        s.setZone(3, 50);
+        eq("the same value is not written again", "[]", drain(s, 6500));
         s.tick(9200);
-        eq("pause → 0", "[0000000000000000000000]", drain(s, 9200));
-        s.pause(9500);
-        List<String> pz = drain(s, 9500);
-        eq("pause → stop", "0400", pz.get(pz.size() - 1));
-        // the double impulse: the unit's own rest = Hz₂ at its %; in the pause the strengths stay
+        eq("the unit's own pause: nothing written", "[]", drain(s, 9200));
+        s.tick(13300);
+        eq("the next impulse: nothing written", "[]", drain(s, 13300));
+        s.pause(13500);
+        eq("pause → 0 + stop", "[0000000000000000000000, 0400]", drain(s, 13500));
+        s.start(14000);
+        drain(s, 14000);
+        s.runNotify(new byte[] {1});
+        s.tick(14100);
+        eq("resume: the strengths again", "0008080808080804080808", drain(s, 14100).get(2));
+        s.runNotify(new byte[] {0});                     // the unit stopped by itself
+        eq("unit stop seen", Session.PAUSED + " true", s.state() + " " + s.takeUnitStopped());
+        s.start(15000);
+        eq("▶ arms it again", "0425", drain(s, 15000).get(4));
+        eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
+        // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
         Session d = new Session();
         d.linked();
         drain(d, 0);
@@ -141,6 +162,7 @@ public class AppTest {
         dp.dblPct = 60;
         d.setProgram(dp);
         d.setStrength(50);
+        for (int z = 0; z < Session.ZONES; z++) d.setZone(z, 100);
         d.start(0);
         List<String> ds = drain(d, 0);
         eq("dbl rest", "02073c000000000000a59e", ds.get(1));
@@ -148,7 +170,7 @@ public class AppTest {
         d.tick(100);
         drain(d, 100);
         d.tick(4200);
-        eq("dbl pause keeps the strengths", "[0032323232323232323232]", drain(d, 4200));
+        eq("dbl pause: nothing written", "[]", drain(d, 4200));
         eq("dbl live level", 30, d.liveLevel(0));
         Session.Program p = new Session.Program();
         p.hz = 120;
@@ -157,8 +179,17 @@ public class AppTest {
         String why = Safe.apply(p, true);
         eq("60+ limits", "85 6", p.hz + " " + p.onS);
         eq("pause from fatigue", true, p.offS > 1 && why.contains("Пауза"));
+        Session.Program rp = new Session.Program();
+        rp.onS = 4;
+        rp.rampMs = 5000;
+        String rw = Safe.apply(rp, false);
+        eq("ramp inside the impulse (4 s → ≤ 3 s)", 3000, rp.rampMs);
+        eq("ramp note", true, rw.contains("Рампа"));
+        rp.rampMs = 0;
+        Safe.apply(rp, false);
+        eq("85 Hz rises ≥ 1 s", 1000, rp.rampMs);
 
-        // ---- XBody's modes: Cardio is continuous — the unit's rest at the same Hz, full; the pause keeps the output
+        // ---- XBody's modes: Cardio is continuous — the unit's rest at the same Hz, full
         Session cs = new Session();
         cs.linked();
         drain(cs, 0);
@@ -166,6 +197,7 @@ public class AppTest {
         eq("cardio safe as XBody has it", "", Safe.apply(cp, false));
         cs.setProgram(cp);
         cs.setStrength(40);
+        for (int z = 0; z < Session.ZONES; z++) cs.setZone(z, 100);
         cs.start(0);
         List<String> co = drain(cs, 0);
         eq("cardio program 7 Hz 20/10", "012907140a00007e0502", co.get(0).substring(0, 20));
@@ -174,11 +206,11 @@ public class AppTest {
         cs.tick(100);
         drain(cs, 100);
         cs.tick(20200);
-        eq("cardio rest keeps the strengths", "[0028282828282828282828]", drain(cs, 20200));
+        eq("cardio rest: nothing written", "[]", drain(cs, 20200));
         eq("cardio rest is live", 40, cs.liveLevel(3));
         Session.Program mp = Procs.mode(Procs.MODE_MUSCLE);
         Safe.apply(mp, false);
-        eq("muscle 80 Hz 4 s", "80 4", mp.hz + " " + mp.onS);
+        eq("muscle 80 Hz 4 s, rise 1 s", "80 4 1000", mp.hz + " " + mp.onS + " " + mp.rampMs);
 
         // ---- a passive procedure: the phases play by the clock, each phase's rhythm goes to the unit
         Procs.Plan cel = Procs.plan(Procs.byId("cellulite"), 0);
@@ -188,16 +220,15 @@ public class AppTest {
         drain(ps, 0);
         ps.setPlan(cel, false);
         ps.setStrength(50);
+        for (int z = 0; z < Session.ZONES; z++) ps.setZone(z, 100);
         eq("plan sets the time", 25 * 60, ps.secondsLeft(0));
         ps.start(0);
         eq("warm-up 5 Hz 10/1", "0129050a0100007e0502", drain(ps, 0).get(0).substring(0, 20));
         ps.runNotify(new byte[] {1});
         ps.tick(100);
-        drain(ps, 100);
-        ps.tick(300);                                      // no Ru at low Hz: the app's own soft rise, then full
-        List<String> w0 = drain(ps, 300);
-        // W_CELL in WiEMS order: ch6 Корем 75 %, ch5 Седалище 100 % — the warm-up's envelope starts at 60 %
-        eq("warm-up shares", "00000000120f1e161e1e15", w0.get(w0.size() - 1));
+        List<String> w0 = drain(ps, 100);
+        // W_CELL in WiEMS order × the warm-up's envelope 60 % × strength 50 %, on the unit's scale
+        eq("warm-up shares", "0000000004030604060604", w0.get(w0.size() - 1));
         ps.tick(150200);                                   // into "Стягане": 85 Hz with its second impulse
         List<String> w1 = drain(ps, 150200);
         eq("phase 2 → zero first", "0000000000000000000000", w1.get(0));

@@ -185,7 +185,7 @@ public final class WiTranslator {
     synchronized int[] target() {
         int[] t = new int[WiProto.CHANNELS];
         if (!on || !armed) return t;
-        for (int s = 0; s < 10; s++) t[SLIDER_TO_CH[s]] = WiProto.clamp(parts[s], 0, WiProto.MAX_CURRENT);
+        for (int s = 0; s < 10; s++) t[SLIDER_TO_CH[s]] = WiProto.unit(parts[s]);   // % → the unit's scale
         return t;
     }
 

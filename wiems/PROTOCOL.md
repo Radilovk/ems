@@ -81,3 +81,11 @@ names and string literals readable with ILSpy even when IL is stripped. Its own 
   byte 4 → ~4–5; the vendor's capture with a suit: 0–1 at bytes 9–18) — the unit's output measurement.
 - Status `b1f5a058`: at each work start `00…00 a5 00…` then 20 values (1 / 2 on this unit); idle
   `00 00 00 00 0N 00 … c5 5c` (byte 4 changed 00 → 01 → 04 after the trips).
+
+## The strengths write carries a check (decoded 2026-10-16) — the cause of "86"
+`0x002e` = 10 channel bytes, value in bits 0–6, **bit 7 of channels 3..7 = the 5 bits of the XOR of the ten
+values** (ch 3 = bit 4 … ch 7 = bit 0). Every vendor write in the capture fits (`09 00 00 00 80 00 00 80 00 00`:
+XOR 9 = 01001 → ch 4, ch 7; `12 0f 0f 8f 0f 0f 0f 8f 0c 00`: 0x11 → ch 3, ch 7; equal channels XOR to 0 → no bits).
+A write without the bits whose XOR is not 0 makes the unit stop with `86`, `00` — any channel set apart from the
+others; all channels equal always passed. That is the vendor's log "Curr_comp: Calculada / Recibida". Scale: the
+vendor's 100 % ≈ byte 19–20 (`WiProto.UNIT_MAX` 20). The earlier "86 = channel" / "no load" readings are wrong.

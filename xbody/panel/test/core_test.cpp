@@ -196,9 +196,9 @@ static void wiemsGolden() {
     eqHex("wi rest 7", "02 07 64 00 00 00 00 00 00 A5 C6", wi::rest(7, 100));
     eqHex("wi widths", "03 7F 7F 6D 49 7F 7F 64 52 7F 52", wi::widths());
     int c[10] = {12, 0, 2, 15, 15, 15, 13, 13, 0, 15};
-    eqHex("wi currents", "00 0C 00 02 0F 0F 0F 0D 0D 00 0F", wi::currents(c));
+    eqHex("wi currents (the vendor's own frame, check bits)", "00 0C 00 02 0F 8F 8F 8D 0D 00 0F", wi::currents(c));
     int big[10] = {300, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    eqHex("wi currents cap", "00 64 00 00 00 00 00 00 00 00 00", wi::currents(big));
+    eqHex("wi currents cap", "00 14 00 00 80 00 80 00 00 00 00", wi::currents(big));
     eqHex("wi start", "04 25", wi::run(true));
     eqHex("wi stop", "04 00", wi::run(false));
     Bytes n;
@@ -237,7 +237,7 @@ static void wiemsSession() {
     eqInt("wi begin frames", 3, (int)f.size());
     eqHex("wi begin zero", "00 00 00 00 00 00 00 00 00 00 00", f[0]);
     eqHex("wi begin prog", "01 29 55 04 04 01 00 7E 05 00 06", f[1]);
-    eqHex("wi full at once: the unit rises by itself", "00 28 14 28 28 28 28 28 28 28 28", f[2]);
+    eqHex("wi full at once: the unit rises by itself", "00 08 04 08 08 88 88 08 08 08 08", f[2]);
     s.tick(9200);   // impulse over → pause: strengths 0, the unit keeps running
     f = drain(s, 9200);
     eqInt("wi pause frames", 1, (int)f.size());
@@ -282,7 +282,7 @@ static void wiemsSession() {
     w.tick(100);
     w.tick(700);
     f = drain(w, 700);
-    eqHex("wi arms only → ch 4", "00 00 00 00 00 14 00 00 00 00 00", f.empty() ? Bytes() : f.back());
+    eqHex("wi arms only → ch 4", "00 00 00 00 00 04 80 00 00 00 00", f.empty() ? Bytes() : f.back());
     BridgeEvent e = parseBridgeLine("ADV 88:6B:0F:CC:BE:49 -58 WIEMS WIEMS_-_EMS_Device");
     eqInt("wi adv kind", Suit::WIEMS, suitKind(e.svc, e.name));
     eqInt("wi kind by name", Suit::WIEMS, suitKind("-", "WIEMS - EMS Device"));

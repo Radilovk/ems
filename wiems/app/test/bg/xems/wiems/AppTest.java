@@ -130,12 +130,12 @@ public class AppTest {
         s.runNotify(new byte[] {1}, 5100);
         s.tick(5100);
         eq("running", Session.RUNNING, s.state());
-        eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000040000000000]", drain(s, 5100));
+        eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000048000000000]", drain(s, 5100));
         for (int z = 0; z < Session.ZONES; z++) s.setZone(z, 100);   // ten taps in a row …
         eq("… held a moment", "[]", drain(s, 5200));
         eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 6000));
         s.setZone(3, 50);                                // one zone (Корем → ch 6) mid-run: the owner's failing case
-        eq("one zone = one write, the rest unchanged", "[0008080808080804080808]", drain(s, 7000));
+        eq("one zone = one write, the rest unchanged", "[0008080808888804080808]", drain(s, 7000));
         s.setZone(3, 50);
         eq("the same value is not written again", "[]", drain(s, 8000));
         s.runNotify(new byte[] {1}, 9200);
@@ -153,12 +153,18 @@ public class AppTest {
         eq("… does not end the new count-down", "[]", drain(s, 14600));
         s.runNotify(new byte[] {1}, 18100);
         s.tick(18100);
-        eq("resume: the strengths again", "0008080808080804080808", drain(s, 18100).get(2));
+        eq("resume: the strengths again", "0008080808888804080808", drain(s, 18100).get(2));
         s.runNotify(new byte[] {0}, 19000);                     // the unit stopped by itself
         eq("unit stop seen", Session.PAUSED + " true", s.state() + " " + s.takeUnitStopped());
         eq("… and it gets 0 + stop", "[0000000000000000000000, 0400]", drain(s, 19000));
         s.start(20000);
         eq("▶ arms it again", "0425", drain(s, 20000).get(4));
+        // the unit's check bits = the vendor's own frames from the capture, byte for byte
+        eq("vendor frame 1", "0009000000800000800000", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {9, 0, 0, 0, 0, 0, 0, 0, 0, 0})));
+        eq("vendor frame 2", "00120f0f8f0f0f0f8f0c00", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {18, 15, 15, 15, 15, 15, 15, 15, 12, 0})));
+        eq("vendor frame 3", "00110f0e8f8e0e8f0f0b0e", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {17, 15, 14, 15, 14, 14, 15, 15, 11, 14})));
+        eq("vendor frame 4", "000c00020f8f8f8d0d000f", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {12, 0, 2, 15, 15, 15, 13, 13, 0, 15})));
+        eq("equal = no bits", "000e0c0c0c0c0c0c0c090b", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {14, 12, 12, 12, 12, 12, 12, 12, 9, 11})));
         eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
         // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
         Session d = new Session();
@@ -237,7 +243,7 @@ public class AppTest {
         ps.tick(100);
         List<String> w0 = drain(ps, 100);
         // W_CELL in WiEMS order × the warm-up's envelope 60 % × strength 50 %, on the unit's scale
-        eq("warm-up shares", "0000000004030604060604", w0.get(w0.size() - 1));
+        eq("warm-up shares", "0000000004030604860604", w0.get(w0.size() - 1));
         ps.runNotify(new byte[] {1}, 150200);
         ps.tick(150200);                                   // into "Стягане": 85 Hz with its second impulse
         List<String> w1 = drain(ps, 150200);

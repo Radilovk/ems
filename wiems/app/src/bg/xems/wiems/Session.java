@@ -51,7 +51,7 @@ final class Session {
     /** The vendor's pace: one strength write per change, ≥ 0.8 s apart, after the finger has settled (0.3 s). */
     static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 800, LEVELS_SETTLE_MS = 300;
     /** The unit's top strength byte (the vendor's 100 %). */
-    static final int UNIT_MAX = 20;
+    static final int UNIT_MAX = WiProto.UNIT_MAX;
     private static final int WI_IDLE = 0, WI_COUNT = 1, WI_RUN = 2;
     private static final int T_PLAIN = 0, T_LEVELS = 1, T_PROG = 2;
 
@@ -628,7 +628,7 @@ final class Session {
      * 94 % → 18, 80 % → 15, 61 % → 12), never the 0..100 we sent before (5× over the vendor's top).
      */
     static int unitValue(int pct) {
-        return (Math.max(0, Math.min(100, pct)) * UNIT_MAX + 50) / 100;
+        return WiProto.unit(pct);
     }
 
     /** The strengths now, written only when they changed (the unit keeps them through its own work / rest). */

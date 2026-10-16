@@ -19,9 +19,16 @@ static int xor9(const int *v) {
     return x;
 }
 
+int unit(int pct) { return (clamp(pct, 0, 100) * UNIT_MAX + 50) / 100; }
+
+// The vendor's check (decoded from its capture, the owner's traces): the XOR of the ten values, its 5 bits in bit 7
+// of channels 3..7 (ch 3 = bit 4 … ch 7 = bit 0). Without it any unequal channels make the unit stop with "86".
 Bytes currents(const int c[CHANNELS]) {
-    int v[CHANNELS];
-    for (int i = 0; i < CHANNELS; i++) v[i] = c ? clamp(c[i], 0, MAX_CURRENT) : 0;
+    int v[CHANNELS], x = 0;
+    for (int i = 0; i < CHANNELS; i++) v[i] = c ? clamp(c[i], 0, UNIT_MAX) : 0;
+    for (int i = 0; i < CHANNELS; i++) x ^= v[i];
+    for (int k = 0; k < 5; k++)
+        if (x & (0x10 >> k)) v[3 + k] |= 0x80;
     return op(OP_CURRENTS, v, CHANNELS);
 }
 

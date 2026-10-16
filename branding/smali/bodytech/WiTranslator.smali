@@ -1496,42 +1496,42 @@
 .end method
 
 .method declared-synchronized target()[I
-    .registers 8
+    .registers 6
 
     .prologue
-    const/16 v6, 0xa
-
-    const/4 v1, 0x0
+    const/16 v4, 0xa
 
     .line 186
     monitor-enter p0
 
     const/16 v0, 0xa
 
-    :try_start_6
+    :try_start_5
     new-array v0, v0, [I
 
     .line 187
-    iget-boolean v2, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->on:Z
+    iget-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->on:Z
 
-    if-eqz v2, :cond_10
+    if-eqz v1, :cond_f
 
-    iget-boolean v2, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->armed:Z
-    :try_end_e
-    .catchall {:try_start_6 .. :try_end_e} :catchall_28
+    iget-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->armed:Z
+    :try_end_d
+    .catchall {:try_start_5 .. :try_end_d} :catchall_25
 
-    if-nez v2, :cond_12
+    if-nez v1, :cond_11
 
     .line 189
-    :cond_10
+    :cond_f
     monitor-exit p0
 
     return-object v0
 
     .line 188
-    :cond_12
+    :cond_11
+    const/4 v1, 0x0
+
     :goto_12
-    if-ge v1, v6, :cond_10
+    if-ge v1, v4, :cond_f
 
     :try_start_14
     sget-object v2, Lcom/isaigu/gymapp/bodytech/WiTranslator;->SLIDER_TO_CH:[I
@@ -1542,24 +1542,20 @@
 
     aget v3, v3, v1
 
-    const/4 v4, 0x0
-
-    const/16 v5, 0x64
-
-    invoke-static {v3, v4, v5}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
+    invoke-static {v3}, Lcom/isaigu/gymapp/bodytech/WiProto;->unit(I)I
 
     move-result v3
 
     aput v3, v0, v2
-    :try_end_25
-    .catchall {:try_start_14 .. :try_end_25} :catchall_28
+    :try_end_22
+    .catchall {:try_start_14 .. :try_end_22} :catchall_25
 
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_12
 
     .line 186
-    :catchall_28
+    :catchall_25
     move-exception v0
 
     monitor-exit p0

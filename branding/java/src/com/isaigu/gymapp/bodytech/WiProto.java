@@ -72,10 +72,27 @@ public final class WiProto {
         return v < lo ? lo : (v > hi ? hi : v);
     }
 
-    /** Strengths of the 10 channels, each 0..{@link #MAX_CURRENT}. */
+    /** The unit's top strength byte: the vendor's 100 % (its capture: 94 % → 18, 80 % → 15, 61 % → 12). */
+    public static final int UNIT_MAX = 20;
+
+    /** A strength in % (0..100) → the unit's byte (0..{@link #UNIT_MAX}). */
+    public static int unit(int pct) {
+        return (clamp(pct, 0, 100) * UNIT_MAX + 50) / 100;
+    }
+
+    /**
+     * Strengths of the 10 channels in the unit's bytes (0..{@link #UNIT_MAX}) — with the vendor's check: the XOR of
+     * the ten values, its 5 bits in bit 7 of channels 3..7 (ch 3 = bit 4 … ch 7 = bit 0). Every vendor write in the
+     * capture carries it ("09 00 00 00 80 00 00 80 00 00": XOR 9 = 01001); a write without it, whose XOR is not 0
+     * (= any unequal channels), makes the unit stop with "86" (owner's traces). Equal channels XOR to 0 — why
+     * "all together" always worked.
+     */
     public static byte[] currents(int[] c) {
         int[] v = new int[CHANNELS];
-        for (int i = 0; i < CHANNELS; i++) v[i] = c != null && i < c.length ? clamp(c[i], 0, MAX_CURRENT) : 0;
+        for (int i = 0; i < CHANNELS; i++) v[i] = c != null && i < c.length ? clamp(c[i], 0, UNIT_MAX) : 0;
+        int x = 0;
+        for (int i = 0; i < CHANNELS; i++) x ^= v[i];
+        for (int k = 0; k < 5; k++) if ((x & (0x10 >> k)) != 0) v[3 + k] |= 0x80;
         return op(OP_CURRENTS, v);
     }
 

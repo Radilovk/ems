@@ -52,6 +52,8 @@
 
 .field public static final SVC:Ljava/lang/String; = "7764d8fe-c6a9-11e4-8731-1681e6b88ec1"
 
+.field public static final UNIT_MAX:I = 0x14
+
 .field static final WIDTHS:[I
 
 
@@ -208,14 +210,14 @@
 
     const/4 v0, -0x1
 
-    .line 111
+    .line 128
     if-eqz p0, :cond_8
 
     array-length v1, p0
 
     if-eq v1, v5, :cond_9
 
-    .line 118
+    .line 135
     :cond_8
     :goto_8
     return v0
@@ -225,30 +227,30 @@
 
     move v1, v3
 
-    .line 113
+    .line 130
     :goto_b
     if-ge v2, v5, :cond_1f
 
-    .line 114
+    .line 131
     aget-byte v3, p0, v2
 
     and-int/lit8 v3, v3, 0x7f
 
     add-int/lit8 v3, v3, -0x30
 
-    .line 115
+    .line 132
     if-ltz v3, :cond_8
 
     const/16 v4, 0x9
 
     if-gt v3, v4, :cond_8
 
-    .line 116
+    .line 133
     mul-int/lit8 v1, v1, 0xa
 
     add-int/2addr v1, v3
 
-    .line 113
+    .line 130
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_b
@@ -256,7 +258,7 @@
     :cond_1f
     move v0, v1
 
-    .line 118
+    .line 135
     goto :goto_8
 .end method
 
@@ -266,7 +268,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 123
+    .line 140
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/WiProto;->clockTenths([B)I
 
     move-result v1
@@ -293,12 +295,12 @@
 
     const/4 v1, 0x0
 
-    .line 77
+    .line 91
     new-array v3, v5, [I
 
     move v2, v1
 
-    .line 78
+    .line 92
     :goto_6
     if-ge v2, v5, :cond_1d
 
@@ -310,7 +312,7 @@
 
     aget v0, p0, v2
 
-    const/16 v4, 0x64
+    const/16 v4, 0x14
 
     invoke-static {v0, v1, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
 
@@ -330,8 +332,55 @@
 
     goto :goto_15
 
-    .line 79
     :cond_1d
+    move v0, v1
+
+    move v2, v1
+
+    .line 94
+    :goto_1f
+    if-ge v0, v5, :cond_27
+
+    aget v4, v3, v0
+
+    xor-int/2addr v2, v4
+
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_1f
+
+    :cond_27
+    move v0, v1
+
+    .line 95
+    :goto_28
+    const/4 v4, 0x5
+
+    if-ge v0, v4, :cond_3c
+
+    const/16 v4, 0x10
+
+    shr-int/2addr v4, v0
+
+    and-int/2addr v4, v2
+
+    if-eqz v4, :cond_39
+
+    add-int/lit8 v4, v0, 0x3
+
+    aget v5, v3, v4
+
+    or-int/lit16 v5, v5, 0x80
+
+    aput v5, v3, v4
+
+    :cond_39
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_28
+
+    .line 96
+    :cond_3c
     invoke-static {v1, v3}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -343,7 +392,7 @@
     .registers 3
 
     .prologue
-    .line 128
+    .line 145
     if-eqz p0, :cond_10
 
     invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
@@ -424,7 +473,7 @@
 
     const/4 v3, 0x0
 
-    .line 88
+    .line 105
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -463,7 +512,7 @@
 
     aput v2, v0, v1
 
-    .line 89
+    .line 106
     invoke-static {p4, v3, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
 
     move-result v1
@@ -488,14 +537,14 @@
 
     aput v3, v0, v6
 
-    .line 90
+    .line 107
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/bodytech/WiProto;->xor([II)I
 
     move-result v1
 
     aput v1, v0, v6
 
-    .line 91
+    .line 108
     invoke-static {v5, v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -515,7 +564,7 @@
 
     const/4 v3, 0x0
 
-    .line 96
+    .line 113
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -566,14 +615,14 @@
 
     aput v3, v0, v4
 
-    .line 97
+    .line 114
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->xor([II)I
 
     move-result v1
 
     aput v1, v0, v4
 
-    .line 98
+    .line 115
     invoke-static {v5, v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -587,7 +636,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 106
+    .line 123
     const/4 v2, 0x4
 
     const/4 v0, 0x1
@@ -611,6 +660,28 @@
     move v0, v1
 
     goto :goto_9
+.end method
+
+.method public static unit(I)I
+    .registers 3
+
+    .prologue
+    .line 80
+    const/4 v0, 0x0
+
+    const/16 v1, 0x64
+
+    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
+
+    move-result v0
+
+    mul-int/lit8 v0, v0, 0x14
+
+    add-int/lit8 v0, v0, 0x32
+
+    div-int/lit8 v0, v0, 0x64
+
+    return v0
 .end method
 
 .method public static value([B)[B
@@ -641,7 +712,7 @@
     .registers 2
 
     .prologue
-    .line 102
+    .line 119
     const/4 v0, 0x3
 
     sget-object v1, Lcom/isaigu/gymapp/bodytech/WiProto;->WIDTHS:[I
@@ -689,7 +760,7 @@
     .registers 1
 
     .prologue
-    .line 83
+    .line 100
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->currents([I)[B

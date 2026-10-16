@@ -182,7 +182,7 @@ int Suit::lvl(int i, int k) const {
     int s = strength_ * k / RAMP_STEPS;
     if (kind_ == XEMS) return s;   // XEMS: the channel % is applied in the frame (vendor float math)
     int v = ch_[i] * s / 100;
-    if (kind_ == WIEMS) return v > wi::MAX_CURRENT ? wi::MAX_CURRENT : v;
+    if (kind_ == WIEMS) return v > 100 ? 100 : v;   // % — wi::unit() makes the unit's byte
     return v > 99 ? 99 : v;        // bodytech takes 0..99 (100 reads as 0)
 }
 
@@ -197,7 +197,7 @@ void Suit::levels(int k) {
     if (kind_ == WIEMS) {
         if (wi_ != WI_RUN) return;                // counting down: the strengths go when it runs
         int c[wi::CHANNELS];
-        for (int i = 0; i < wi::CHANNELS; i++) c[i] = lvl(i, k);
+        for (int i = 0; i < wi::CHANNELS; i++) c[i] = wi::unit(lvl(i, k));
         push(wi::currents(c), T_LEVELS);
         return;
     }
@@ -225,7 +225,7 @@ void Suit::pauseLevels() {
         // the unit gives its own second impulse in its rest (rest Hz × rest %, set at the start): the strengths stay
         if (wi_ != WI_RUN) return;
         int c[wi::CHANNELS];
-        for (int i = 0; i < wi::CHANNELS; i++) c[i] = lvl(i, RAMP_STEPS);
+        for (int i = 0; i < wi::CHANNELS; i++) c[i] = wi::unit(lvl(i, RAMP_STEPS));
         push(wi::currents(c), T_LEVELS);
     } else {
         if (btHz_ != prog_.dblHz) {

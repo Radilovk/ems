@@ -36,30 +36,36 @@ public class UnitSim {
         final List<byte[]> notify = new ArrayList<byte[]>();
         int writes;
         boolean silent;             // stops notifying (a half-dead link)
-        boolean noLoad;             // no suit on: channels set unequal → its current protection "86", "00", stopped
 
         void write(byte[] op, long t) {
             writes++;
             byte[] v = WiProto.value(op);
             int sel = op[0];
             if (sel == WiProto.OP_CURRENTS) {
+                // the unit's check (decoded from the vendor's capture, owner's traces): the XOR of the ten 7-bit
+                // values must be in bit 7 of channels 3..7 — else "86", "00", stopped
+                int x = 0, bits = 0;
+                for (int i = 0; i < 10; i++) x ^= v[i] & 0x7F;
+                for (int k = 0; k < 5; k++) if ((v[3 + k] & 0x80) != 0) bits |= 0x10 >> k;
+                boolean badCheck = (x & 0x1F) != bits;
                 for (int i = 0; i < 10; i++) {
-                    int b = v[i] & 0xFF;
+                    int b = v[i] & 0x7F;
                     if (b > Session.UNIT_MAX) faults.add("t=" + t + " channel " + i + " byte " + b + " over the vendor's top");
                     cur[i] = b;
                 }
                 boolean nonzero = false;
                 for (int b : cur) nonzero |= b != 0;
                 if (nonzero && state != RUN) faults.add("t=" + t + " strengths while the unit does not run");
-                levelWrites.add(t);
-                boolean unequal = false;
-                for (int b : cur) unequal |= b != cur[0];
-                if (state == RUN && noLoad && unequal) {   // as the owner's traces from the unit (ch 6 and ch 7: "86")
-                    notify.add(new byte[] {(byte) 0x86});
-                    notify.add(new byte[] {0});
-                    state = IDLE;
-                    cur = new int[10];
+                if (badCheck) {
+                    faults.add("t=" + t + " currents check missing (the unit trips: 86)");
+                    if (state == RUN) {
+                        notify.add(new byte[] {(byte) 0x86});
+                        notify.add(new byte[] {0});
+                        state = IDLE;
+                        cur = new int[10];
+                    }
                 }
+                levelWrites.add(t);
                 int n = 0;
                 for (long w : levelWrites) if (t - w < 1000) n++;
                 if (n > 4) faults.add("t=" + t + " " + n + " strength writes in 1 s (the vendor: ~1)");
@@ -344,31 +350,24 @@ public class UnitSim {
             ok("9 " + Procs.MODE_NAME[md] + ": no fault", r.u.faults.isEmpty(), r.faults());
         }
 
-        // 11. No suit: one zone set apart → "86" (the owner's traces), every ▶ again the same — unless undone.
+        // 11. One zone set apart (the owner's failing case): with the check bits the unit takes it and runs on.
         r = new Rig();
-        r.u.noLoad = true;
         r.allZones(25);
         r.s.start(r.t);
         r.run(6000);
-        ok("11 all zones together: runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "");
         r.s.setZone(3, 45);                         // Корем alone
         r.run(2000);
-        ok("11 trip → paused, the zones as the unit last ran", r.s.state() == Session.PAUSED && r.s.zone(3) == 25,
-                "state " + r.s.state() + " zone " + r.s.zone(3));
-        ok("11 the screen learns what changed", r.s.takeTripZone() == 3 && r.s.tripCodeLast() == 0x86, "");
-        r.s.start(r.t);
-        r.run(8000);
-        ok("11 ПРОДЪЛЖИ runs on (no trip loop)", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "state " + r.s.state());
-        r.s.pause(r.t);
-        r.s.setZone(0, 55);                         // changed on pause, then ▶: trips on the first write …
-        r.run(1000);
-        r.s.start(r.t);
-        r.run(8000);
-        ok("11 … and goes back to what ran", r.s.zone(0) == 25 && r.s.state() == Session.PAUSED, "zone " + r.s.zone(0));
-        r.s.start(r.t);
-        r.run(8000);
-        ok("11 then runs", r.s.state() == Session.RUNNING, "");
+        r.s.setZone(0, 80);
+        r.s.setZone(7, 10);
+        r.run(2000);
+        ok("11 unequal zones run (no 86)", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN
+                && r.u.cur[Session.ZONE_CH[3]] == Session.unitValue(45), "state " + r.s.state());
         ok("11 no fault", r.u.faults.isEmpty(), r.faults());
+        // … and should the unit trip anyway ("86"): back to what ran, no loop
+        r.u.write(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, r.t);   // a frame without the check
+        r.u.faults.clear();
+        r.run(1500);
+        ok("11 a trip → paused, named", r.s.state() == Session.PAUSED && r.s.tripCodeLast() == 0x86, "state " + r.s.state());
 
         // 10. Strength to 0 and back mid-run; a link drop in the count-down.
         r = new Rig();

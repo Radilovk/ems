@@ -255,7 +255,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 - `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 - `WiBridge.java` (484L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
-- `WiProto.java` (131L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
+- `WiProto.java` (148L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
 - `WiTranslator.java` (256L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -1211,8 +1211,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (151L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.10)
+`docs/xems-wiems-app.md` (160L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.11)
   - L7 ## What it is
   - L28 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L38 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1222,8 +1222,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L103 ## v1.7 — the unit still pauses when one channel is raised (owner): evidence first
   - L117 ## v1.9 — the trace from the unit: it trips on one channel
   - L130 ## v1.10 — `86` is the unit's current protection, not a channel (second trace)
-  - L141 ## Build / test
-  - L148 ## Not verified yet
+  - L141 ## v1.11 — the real cause: the strengths need the vendor's check bits
+  - L150 ## Build / test
+  - L157 ## Not verified yet
 
 `docs/xems-wiems.md` (71L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
@@ -1391,7 +1392,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (26L)
   - L1 # Asset credits
 
-`wiems/PROTOCOL.md` (84L)
+`wiems/PROTOCOL.md` (92L)
   - L1 # WiEMS unit — BLE protocol (from capture 1)
   - L16 ## Device
   - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)
@@ -1399,6 +1400,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L62 ## Still open
   - L70 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
   - L74 ## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
+  - L85 ## The strengths write carries a check (decoded 2026-10-16) — the cause of "86"
 
 `wiems/README.md` (74L)
   - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol

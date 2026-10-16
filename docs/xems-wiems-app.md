@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.10)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.11)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -137,6 +137,15 @@ outputs and, with nothing on, sees them equal while they are set unequal — its
 The app now: on `0x80|x` restores the zones and strength the unit last ran with (not "zone n → 0"), names the zone
 whose change set it off, says that without a suit the unit takes no unequal zones; a change made on pause that trips
 on ▶ is undone the same way (UnitSim 11). **To confirm on the unit: a suit on and wet, then one zone alone.**
+
+## v1.11 — the real cause: the strengths need the vendor's check bits
+Third trace (suit on, a person in it): all zones at byte 4 ran; two zones 4 → 7 ran (`…04 07 07 04…`, XOR 0); one
+zone 4 → 8 → `86`. The vendor's capture decoded: bit 7 of channels 3..7 carries the 5-bit XOR of the ten values
+(`wiems/PROTOCOL.md`). Every write of ours lacked it — fine only while the XOR was 0 (all channels equal). Fixed in
+the shared `WiProto.currents` (byte-exact with the vendor's frames) → this app, the XEMS APK 1.1.449-ai and the XBody
+panel (mod v15); the scale `WiProto.unit` moved there too (XEMS / XBody sent % 1 : 1 — 5× the vendor's top). The
+simulated unit now trips exactly on a missing check (UnitSim 11). The 1.9 / 1.10 "86 = channel / no load" readings
+were wrong; the restore-on-trip stays as a safety net.
 
 ## Build / test
 ```

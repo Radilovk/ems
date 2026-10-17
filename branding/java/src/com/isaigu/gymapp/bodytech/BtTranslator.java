@@ -94,7 +94,7 @@ public final class BtTranslator {
      * (period + d_k µs) for {@link #SLIDE_MS} and so falls k/n of a period behind the first — the bridge sends the
      * frames that bring it back ({@link #slideEnd}). Same period on the suit's one clock keeps the places (probe 0.7:
      * 62 s clean, a strength write does not move them). slideMask = channels still slow; slideGen tells a stale end.
-     * Every slow channel must be slow for the same SLIDE_MS (1.1.454): the slow frames go out C2 → C8 one ACK apart, the
+     * Every slow channel must be slow for the same SLIDE_MS (1.1.455): the slow frames go out C2 → C8 one ACK apart, the
      * clock starts at the ACK of the FIRST of them (slideFrames = how many there are, the last frames of the command)
      * and the frames back go in the same order C2 → C8. Before, the clock started after the last slow frame and the
      * frames back went C8 → C2: C2..C7 stayed slow 2–12 ACKs too long — ≈ 270–550 µs off their place at 31 ms per

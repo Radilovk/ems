@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 911
+    .line 929
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,56 +34,56 @@
     .registers 8
 
     .prologue
-    .line 915
+    .line 933
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->root:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1000()Landroid/view/View;
 
     move-result-object v0
 
     if-eqz v0, :cond_19
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->root:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1000()Landroid/view/View;
 
     move-result-object v0
 
     const-string v1, "recyclerView"
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->find(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1000(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1100(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
 
     move-result-object v0
 
-    .line 916
+    .line 934
     :goto_10
     if-eqz v0, :cond_18
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->turned:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1100()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1200()Z
 
     move-result v1
 
     if-eqz v1, :cond_1b
 
-    .line 931
+    .line 949
     :cond_18
     :goto_18
     return-void
 
-    .line 915
+    .line 933
     :cond_19
     const/4 v0, 0x0
 
     goto :goto_10
 
-    .line 919
+    .line 937
     :cond_1b
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->rowsAdapter(Landroid/view/View;)Ljava/lang/Object;
 
     move-result-object v1
 
-    .line 920
+    .line 938
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v2
@@ -106,10 +106,10 @@
 
     move-result-object v2
 
-    .line 921
+    .line 939
     if-eqz v2, :cond_48
 
-    .line 922
+    .line 940
     invoke-virtual {v2}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v3
@@ -130,18 +130,18 @@
 
     invoke-virtual {v3, v2, v4}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 924
+    .line 942
     :cond_48
     if-eqz v1, :cond_18
 
-    .line 925
+    .line 943
     const-string v2, "android.support.v7.widget.RecyclerView$Adapter"
 
     invoke-static {v2}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
 
     move-result-object v2
 
-    .line 926
+    .line 944
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v3
@@ -174,11 +174,11 @@
 
     goto :goto_18
 
-    .line 928
+    .line 946
     :catch_6a
     move-exception v0
 
-    .line 929
+    .line 947
     const-string v1, "FocusBoard.rowsAfresh"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

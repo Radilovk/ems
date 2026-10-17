@@ -217,6 +217,15 @@ Hooks в `apply-interval-timer.py` / `apply-music-training-sync.py`:
 **Правило:** за повторно задаване ползвай `getOriginAdapter()` (`FocusBoard.rowsAdapter`). `notifyDataSetChanged()`
 върху обвивката е безопасно (NextClient).
 
+## 11c2. Бутон в реда понякога не реагира на докосване
+
+**Симптом:** двойният импулс / паузата (жълтият бутон) от време на време не се превключва.
+**Корен:** (1) вендорският `NewTrainFragment$1` (OnItemTouchListener) вика `notifyDataSetChanged()` при първото
+докосване на списъка → редовете се махат и слагат пак → натискането получава `ACTION_CANCEL`; (2) леко плъзгане →
+`SwipeMenuRecyclerView` / `SwipeMenuLayout` прихваща жеста → `ACTION_CANCEL`.
+**Правило:** собствен `OnTouchListener` в ред: `requestDisallowInterceptTouchEvent(true)` на DOWN, а ранен CANCEL
+(без движение, < 180 ms) = докосване, изпълнено с `post` след преначертаването (`DoubleImpulse.LateTap`).
+
 ## 11d. Рисунка извън екрана: маркерите на баровете стоят вляво
 
 **Симптом:** в споделената снимка точките на нормите са все в левия край.

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1466
+    .line 1484
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,26 +34,26 @@
     .registers 5
 
     .prologue
-    .line 1469
+    .line 1487
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$200()Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 1470
+    .line 1488
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->state(Lcom/isaigu/gymapp/train/model/TrainItem;)I
 
     move-result v1
 
-    .line 1471
+    .line 1489
     const/4 v2, 0x1
 
     if-ne v1, v2, :cond_1a
 
-    .line 1472
+    .line 1490
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->retryNow(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
 
-    .line 1473
+    .line 1491
     const-string v0, "\u041e\u043f\u0438\u0442\u0432\u0430\u043c \u0434\u0430 \u0441\u0432\u044a\u0440\u0436\u0430 \u043a\u043e\u0441\u0442\u044e\u043c\u0430 \u0441\u0435\u0433\u0430 \u2014 \u043e\u0441\u0442\u0430\u043d\u0438 \u043d\u0430 \u0442\u043e\u0437\u0438 \u0435\u043a\u0440\u0430\u043d."
 
     const-string v1, "Trying the suit now \u2014 stay on this screen."
@@ -63,17 +63,17 @@
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->hint(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$400(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100(Ljava/lang/String;)V
 
-    .line 1484
+    .line 1502
     :goto_19
     return-void
 
-    .line 1475
+    .line 1493
     :cond_1a
     if-nez v1, :cond_28
 
-    .line 1476
+    .line 1494
     const-string v0, "\u041a\u043e\u0441\u0442\u044e\u043c\u044a\u0442 \u0435 \u0441\u0432\u044a\u0440\u0437\u0430\u043d."
 
     const-string v1, "The suit is connected."
@@ -83,17 +83,17 @@
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->hint(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$400(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100(Ljava/lang/String;)V
 
     goto :goto_19
 
-    .line 1477
+    .line 1495
     :cond_28
     const/4 v0, 0x2
 
     if-ne v1, v0, :cond_37
 
-    .line 1478
+    .line 1496
     const-string v0, "\u041a\u043e\u0441\u0442\u044e\u043c\u044a\u0442 \u0435 \u0441\u0432\u044a\u0440\u0437\u0430\u043d \u043e\u0442\u043d\u043e\u0432\u043e \u2014 \u043d\u0430\u0442\u0438\u0441\u043d\u0438 \u25b6 \u0438 \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0430\u0432\u0430 \u043e\u0442 \u0442\u0430\u043c, \u043a\u044a\u0434\u0435\u0442\u043e \u0441\u043f\u0440\u044f."
 
     const-string v1, "The suit is back \u2014 tap \u25b6 to go on from where it stopped."
@@ -103,11 +103,11 @@
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->hint(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$400(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100(Ljava/lang/String;)V
 
     goto :goto_19
 
-    .line 1481
+    .line 1499
     :cond_37
     const-string v0, "\u041d\u044f\u043c\u0430 \u0432\u0440\u044a\u0437\u043a\u0430 \u0441 \u043a\u043e\u0441\u0442\u044e\u043c\u0430. \u0412\u043a\u043b\u044e\u0447\u0438 \u0433\u043e \u2014 \u0442\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u0449\u0435 \u0433\u043e \u0441\u0432\u044a\u0440\u0436\u0435 \u0441\u0430\u043c."
 
@@ -118,7 +118,7 @@
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->hint(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$400(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100(Ljava/lang/String;)V
 
     goto :goto_19
 .end method

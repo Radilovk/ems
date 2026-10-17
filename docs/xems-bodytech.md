@@ -214,7 +214,7 @@ With the switch on, BtTranslator.reconcile:
   period (fastest first). Same period on the suit's one clock keeps the places (probe 0.7: 62 s clean, a strength
   write does not move them); laid again every impulse;
 - below 30 Hz (2nd impulse ≤ 10 Hz) no slots — pulses that rare hardly meet;
-- **equal slide time for every channel (1.1.454):** the slow frames go C2 → C8 one ACK apart; the 2 s now start at the
+- **equal slide time for every channel (1.1.455):** the slow frames go C2 → C8 one ACK apart; the 2 s now start at the
   ACK of the first of them (`BtBridge.write` splits the command there, `takeSlide()[2]` = how many slow frames) and the
   frames back go in the same order C2 → C8 (`stopSlide`). Before, the 2 s started after the last slow frame and the
   frames back went C8 → C2, so C2..C7 stayed slow 2–12 ACKs too long — off their place by ≈ 270–550 µs at 31 ms per

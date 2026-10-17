@@ -23,7 +23,7 @@
     .registers 1
 
     .prologue
-    .line 977
+    .line 995
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -35,9 +35,9 @@
     .registers 12
 
     .prologue
-    .line 980
+    .line 998
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1200()Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Landroid/view/View;
 
     move-result-object v0
 
@@ -57,20 +57,20 @@
 
     :goto_11
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->builtPortrait:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1400()Z
 
     move-result v1
 
     if-eq v0, v1, :cond_1a
 
-    .line 981
+    .line 999
     invoke-virtual {p1, p0}, Landroid/view/View;->post(Ljava/lang/Runnable;)Z
 
-    .line 983
+    .line 1001
     :cond_1a
     return-void
 
-    .line 980
+    .line 998
     :cond_1b
     const/4 v0, 0x0
 
@@ -81,74 +81,74 @@
     .registers 3
 
     .prologue
-    .line 988
+    .line 1006
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1200()Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Landroid/view/View;
 
     move-result-object v0
 
     if-eqz v0, :cond_2d
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->framePortrait()Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1400()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1500()Z
 
     move-result v0
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->builtPortrait:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1400()Z
 
     move-result v1
 
     if-eq v0, v1, :cond_2d
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->frame:Landroid/widget/FrameLayout;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1500()Landroid/widget/FrameLayout;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1600()Landroid/widget/FrameLayout;
 
     move-result-object v0
 
     if-eqz v0, :cond_2d
 
-    .line 989
+    .line 1007
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->frame:Landroid/widget/FrameLayout;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1500()Landroid/widget/FrameLayout;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1600()Landroid/widget/FrameLayout;
 
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1200()Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Landroid/view/View;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->removeView(Landroid/view/View;)V
 
-    .line 990
+    .line 1008
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->board:Landroid/view/View;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1202(Landroid/view/View;)Landroid/view/View;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1302(Landroid/view/View;)Landroid/view/View;
 
-    .line 991
+    .line 1009
     const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->clientsKey:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1602(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1702(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 992
+    .line 1010
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->tick()V
     :try_end_2d
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_2d} :catch_2e
 
-    .line 997
+    .line 1015
     :cond_2d
     :goto_2d
     return-void
 
-    .line 994
+    .line 1012
     :catch_2e
     move-exception v0
 
-    .line 995
+    .line 1013
     const-string v1, "FocusBoard.shape"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

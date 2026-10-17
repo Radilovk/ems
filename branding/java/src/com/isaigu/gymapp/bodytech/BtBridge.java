@@ -151,7 +151,7 @@ public final class BtBridge {
             long[] slide = v.tr.takeSlide();
             int slow = slide != null ? (int) slide[2] : 0;
             if (slide != null && !load && slow > 0 && slow <= frames.size()) {
-                // the slide's clock starts at the ACK of its FIRST slow frame (1.1.454): every slow channel is then
+                // the slide's clock starts at the ACK of its FIRST slow frame (1.1.455): every slow channel is then
                 // slow for the same time, the frames back going in the same order (BtTranslator.slideEnd)
                 int first = frames.size() - slow + 1;
                 v.add(new ArrayList<byte[]>(frames.subList(0, first)), null, null, false);

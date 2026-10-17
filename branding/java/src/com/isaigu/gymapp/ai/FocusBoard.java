@@ -334,35 +334,38 @@ public final class FocusBoard {
         return row != null ? find(row, name) : null;
     }
 
-    /** Presses a control of the client's own row. */
+    /**
+     * Presses a control of the client's own row. A row out of the list's view has no views: the list is moved to it
+     * (rowAt) and the press is done once it is laid out, instead of being lost.
+     */
     static boolean press(String name) {
         View v = inRow(name);
         if (v == null) {
-            hint(AiText.t("Редът на клиента още се зарежда — опитай пак.", "The client's row is loading — try again."));
+            H.postDelayed(new PressLater(name), 150);
             return false;
         }
-        if ("save".equals(name)) {
-            tap(v);                             // the double-impulse key reads touches (wearable/DoubleImpulse.Press)
-        } else {
-            v.performClick();
-        }
+        v.performClick();
         later();
         return true;
     }
 
-    /** A short finger tap in the middle of a view: down, then up. */
-    private static void tap(View v) {
-        long t = android.os.SystemClock.uptimeMillis();
-        float x = v.getWidth() / 2f;
-        float y = v.getHeight() / 2f;
-        android.view.MotionEvent d = android.view.MotionEvent.obtain(t, t, android.view.MotionEvent.ACTION_DOWN, x, y, 0);
-        android.view.MotionEvent u = android.view.MotionEvent.obtain(t, t + 60, android.view.MotionEvent.ACTION_UP, x, y, 0);
-        try {
-            v.dispatchTouchEvent(d);
-            v.dispatchTouchEvent(u);
-        } finally {
-            d.recycle();
-            u.recycle();
+    /** The press of a row that was not laid out yet (see {@link #press}). */
+    static final class PressLater implements Runnable {
+        private final String id;
+
+        PressLater(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+            View v = inRow(id);
+            if (v == null) {
+                hint(AiText.t("Редът на клиента още се зарежда — опитай пак.", "The client's row is loading — try again."));
+                return;
+            }
+            v.performClick();
+            later();
         }
     }
 
@@ -519,6 +522,21 @@ public final class FocusBoard {
             } catch (Throwable ignored) {
             }
             paintLock(v.getContext());
+        }
+    }
+
+    /** ∿: the second impulse on / off (wearable/DoubleImpulse.toggle) — straight on the client, not via its row. */
+    static final class WaveClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            TrainItem it = current();
+            if (it == null) {
+                return;
+            }
+            com.isaigu.gymapp.wearable.DoubleImpulse.toggle(it, v);
+            later();
+            refresh();
         }
     }
 
@@ -1123,7 +1141,7 @@ public final class FocusBoard {
         float r = XemsUi.dp(c, 16);
         waveKey = XemsUi.text(c, "∿", 34, XemsUi.AMBER, true);
         waveKey.setGravity(Gravity.CENTER);
-        waveKey.setOnClickListener(new PressRow("save"));
+        waveKey.setOnClickListener(new WaveClick());
         waveKey.setContentDescription(AiText.t("Втори импулс", "Second impulse"));
         XemsUi.pressable(waveKey);
         keys.addView(waveKey, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));

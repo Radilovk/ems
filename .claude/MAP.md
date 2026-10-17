@@ -170,7 +170,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/build-android.sh` (56L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
 - `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
-- `scripts/xbody/build.py` (387L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
+- `scripts/xbody/build.py` (423L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
 - `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
@@ -182,7 +182,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
 - `scripts/xbody/test-cable.py` (96L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
 - `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
-- `scripts/xbody/test.sh` (236L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/test.sh` (246L) — XBody mod pipeline tests, no device needed:
 - `scripts/xbody/updater.sh` (106L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
@@ -816,7 +816,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (263L)
+`docs/xbody-xems-panel.md` (266L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -828,12 +828,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L133 ## Feedback from the stimulator (what XBody can know)
   - L143 ## Phone → XBody over a USB cable (mod v9, no stick)
   - L154 ## Update from USB while the machine runs (mod v15) — admin interface, no reboot dance
-  - L175 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L183 ## Panel
-  - L217 ## Bridge line protocol (USB CDC, 115200)
-  - L228 ## Files
-  - L240 ## Build / test
-  - L256 ## First test on the unit (when the XIAO arrives)
+  - L178 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L186 ## Panel
+  - L220 ## Bridge line protocol (USB CDC, 115200)
+  - L231 ## Files
+  - L243 ## Build / test
+  - L259 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1215,25 +1215,26 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (113L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.6)
+`docs/xems-wiems-app.md` (139L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.7)
   - L7 ## What it is
-  - L28 ## Look (v1.1, owner: XBody's design level or better, never lower)
-  - L38 ## v1.2 — lighter figures, double impulse, ramp (owner)
-  - L45 ## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
-  - L69 ## v1.5 — fixes from the first test on the unit (owner)
-  - L84 ## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
-  - L103 ## Build / test
-  - L110 ## Not verified yet
+  - L29 ## Look (v1.1, owner: XBody's design level or better, never lower)
+  - L39 ## v1.2 — lighter figures, double impulse, ramp (owner)
+  - L46 ## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
+  - L70 ## v1.5 — fixes from the first test on the unit (owner)
+  - L85 ## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
+  - L104 ## v1.7 — the right channel on the right muscle, for both suit standards (owner)
+  - L129 ## Build / test
+  - L136 ## Not verified yet
 
-`docs/xems-wiems.md` (71L)
+`docs/xems-wiems.md` (74L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
   - L11 ## How it works (tablet)
-  - L35 ## Translation
-  - L44 ## Safety
-  - L52 ## XBody machine (panel + XIAO bridge)
-  - L60 ## Tests
-  - L64 ## First test on the unit
+  - L38 ## Translation
+  - L47 ## Safety
+  - L55 ## XBody machine (panel + XIAO bridge)
+  - L63 ## Tests
+  - L67 ## First test on the unit
 
 `docs/xems-workouts.md` (179L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library

@@ -48,6 +48,8 @@ final class XView extends View {
     private String pressed = "";
     private long pressMs, repeatMs;
     private boolean sheet, confirm;
+    private boolean service;                    // hidden service mode: which unit channel is which body part
+    private int svcZone = -1;                   // the zone being tried there (-1: none)
     private Session.Program sheetProg;
     private boolean sheetAge60;
     private int sel;                            // selected zones (bits); 0 = MASTER (the strength)
@@ -78,6 +80,11 @@ final class XView extends View {
     // ---------------------------------------------------------------- frame
 
     void tick(long now) {
+        if (("logo".equals(pressed) || "back".equals(pressed)) && now - pressMs > 2000 && a.session() != null
+                && a.viewKind() == MainActivity.VIEW_TRAIN && a.mode() >= 0) {
+            pressed = "";                           // the finger's lift does nothing more
+            toggleService();
+        }
         if (isStepper(pressed) && now - pressMs > 450 && now - repeatMs > 90) {
             repeatMs = now;
             act(pressed, true);
@@ -90,7 +97,8 @@ final class XView extends View {
     private String signature(long now) {
         StringBuilder b = new StringBuilder();
         b.append(a.viewKind()).append('|').append(a.note()).append(a.noteWarn()).append('|').append(pressed)
-                .append(sheet).append(confirm).append(sel).append(now < bubbleUntil).append(now < toastUntil);
+                .append(sheet).append(confirm).append(sel).append(now < bubbleUntil).append(now < toastUntil)
+                .append(service).append(svcZone).append(a.channels().save());
         if (a.viewKind() == MainActivity.VIEW_PICK || a.viewKind() == MainActivity.VIEW_LINKING) {
             b.append((now / 400) % 4);
             for (Seen s : a.seen()) b.append(s.mac).append(bars(s.rssi));
@@ -102,7 +110,7 @@ final class XView extends View {
             b.append(s.seg()).append(s.live().hz).append(s.continuous());
             b.append('|').append(s.state()).append(s.impulse()).append(s.strength()).append(s.battery())
                     .append(s.startPending()).append(s.preparing()).append(q.hz).append(q.onS).append(q.offS).append(q.totalS);
-            for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i)).append('/').append(s.liveLevel(Session.ZONE_CH[i]));
+            for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i)).append('/').append(s.liveLevel(Session.ZONE_PART[i]));
             b.append(a.female());
             b.append('|').append(s.secondsLeft(now)).append(' ').append((s.phaseMsLeft(now) + 999) / 1000);
             if (s.startPending()) b.append((now / 400) % 4);
@@ -668,6 +676,13 @@ final class XView extends View {
         int pct = s.zone(zi);
         font(18, true);
         text(c, pct + "%", l + 10, t, l + w - 12, t + 50, right ? -1 : 1, on ? WHITE : pct == 0 ? GREY : INK);
+        if (service && a.channels().ok(Session.ZONE_PART[zi])) {   // checked on the body: a green ✓ badge
+            float bx = right ? l + w - 2 : l + 2;
+            p.setColor(GREEN);
+            c.drawCircle(bx, t + 2, 10, p);
+            font(13, true);
+            text(c, "✓", bx - 10, t - 8, bx + 10, t + 12, 0, WHITE);
+        }
     }
 
     private Session seenSession;
@@ -688,18 +703,19 @@ final class XView extends View {
         boolean idle = s.state() == Session.IDLE, running = s.state() == Session.RUNNING;
         int all = (1 << Session.ZONES) - 1;
 
-        paintFigures(c, s);
+        if (!service) paintFigures(c, s);
 
         // ---- header: XEMS | unit, battery or the note | program ----
         boolean toastOn = now < toastUntil;
         String n = toastOn ? toast : a.note();
-        boolean warn = toastOn || a.noteWarn();
+        boolean warn = toastOn ? !toast.startsWith("✓") : a.noteWarn();   // a "✓" toast is good news
         String sub = n.length() > 0 ? n : unitLine(s);
-        paintHeader(c, modeTitle(), sub, n.length() > 0 && warn, n.length() > 0 && !warn);
+        paintHeader(c, service ? "СЕРВИЗ · КАНАЛИ" : modeTitle(), sub, n.length() > 0 && warn, n.length() > 0 && !warn);
         if (n.length() == 0) {
             font(14, true);
             battery(c, dw / 2 + p.measureText(sub) / 2 + 10, 37, s.battery());
         }
+        hit(0, 0, 155, 56, "logo");                   // held 2 s: the service mode (← wins while idle)
         if (idle) {
             hit(160, 0, dw - 152, 56, "unit");
             backButton(c, "back");                     // XBody's ← to the program screen
@@ -785,6 +801,73 @@ final class XView extends View {
         hit(dx + 250, 486, dx + 550, 534, "master");
 
         paintSlider(c);
+        if (service) paintService(c, s);
+    }
+
+    /**
+     * The service mode's panel in place of the body: the suit standard, then — for the zone being tried — the ten
+     * body parts to tap where it was felt (the same part = checked ✓; another = that channel goes to that part, and
+     * this zone gets the channel that part had, to try next). "к.N" = the unit channel behind each part.
+     */
+    private void paintService(Canvas c, Session s) {
+        Channels ch = a.channels();
+        float l = dx + 200, r = dx + 600, t = 168, b = 474;
+        round(c, l, t, r, b, 12, WHITE);
+        stroke(c, l, t, r, b, 12, LINE, 2);
+        for (int i = 0; i < 2; i++) {
+            float hl = l + 12 + i * 190, hr = hl + 186, ht = t + 10, hb = t + 44;
+            boolean chosen = ch.suit == i;
+            String id = "svc-suit:" + i;
+            if (chosen) round(c, hl, ht, hr, hb, 8, RED);
+            else {
+                if (id.equals(pressed)) round(c, hl, ht, hr, hb, 8, PRESS);
+                stroke(c, hl, ht, hr, hb, 8, LINE, 2);
+            }
+            font(16, chosen);
+            text(c, (chosen ? "✓ " : "") + "Костюм " + Channels.SUIT[i], hl, ht, hr, hb, 0, chosen ? WHITE : INK);
+            hit(hl, ht, hr, hb, id);
+        }
+        font(15, true);
+        String q = svcZone < 0 ? "Избери зона → СТАРТ → вдигни малко силата"
+                : "„" + Session.ZONE[svcZone] + "“ (к." + (s.unitCh(svcZone) + 1) + ") се усеща в:";
+        text(c, elide(q, 376), l + 12, t + 48, r - 12, t + 72, 0, svcZone < 0 ? SOFT : INK);
+        for (int z = 0; z < Session.ZONES; z++) {
+            boolean right = z >= Session.ZONES_LEFT;
+            int row = right ? z - Session.ZONES_LEFT : z;
+            float cl = l + 12 + (right ? 190 : 0), cr = cl + 186, ct = t + 76 + row * 35, cb = ct + 31;
+            int part = Session.ZONE_PART[z];
+            boolean ok = ch.ok(part), cur = svcZone == z;
+            String id = svcZone >= 0 ? "svc:" + z : null;
+            round(c, cl, ct, cr, cb, 8, id != null && id.equals(pressed) ? PRESS : ok ? 0xFFE6F6F0 : WHITE);
+            stroke(c, cl, ct, cr, cb, 8, cur ? RED : ok ? GREEN : LINE, cur ? 2.5f : 1.5f);
+            font(14, ok || cur);
+            text(c, (ok ? "✓ " : "") + Session.ZONE[z], cl + 10, ct, cr - 38, cb, -1, ok ? GREEN : INK);
+            font(12, false);
+            text(c, "к." + (ch.map()[part] + 1), cr - 40, ct, cr - 8, cb, 1, SOFT);
+            if (id != null) hit(cl, ct, cr, cb, id);
+        }
+        font(14, true);
+        int n = ch.okCount();
+        text(c, "Проверени " + n + " / 10", l + 12, b - 44, l + 168, b - 8, -1, n == 10 ? GREEN : SOFT);
+        outlined(c, l + 172, b - 44, l + 270, b - 8, "svc-reset", "Отначало", 14, false);
+        filled(c, r - 118, b - 44, r - 12, b - 8, "svc-done", GREEN, WHITE, "✓ Готово", 16);
+    }
+
+    /** In: every zone 0 (only what is raised fires). Out: a running unit pauses, every zone 0 — the next client. */
+    private void toggleService() {
+        Session s = a.session();
+        if (!service) {
+            service = true;
+            svcZone = -1;
+            s.resetZones();
+            showToast("Сервиз: зона → СТАРТ → малко сила → къде се усети");
+            return;
+        }
+        service = false;
+        svcZone = -1;
+        if (s.state() == Session.RUNNING) a.startPause();
+        s.resetZones();
+        showToast("✓ Каналите са запазени");
     }
 
     /**
@@ -801,7 +884,7 @@ final class XView extends View {
         int[] col = new int[Session.ZONES];
         float[] alpha = new float[Session.ZONES];
         for (int z = 0; z < Session.ZONES; z++) {
-            float t = s.liveLevel(Session.ZONE_CH[z]) / 100f;
+            float t = s.liveLevel(Session.ZONE_PART[z]) / 100f;
             // a picked zone without output is tinted — not when all are picked (ВСИЧКИ): the body would look
             // like it works everywhere
             boolean picked = (sel & (1 << z)) != 0 && sel != (1 << Session.ZONES) - 1;
@@ -1293,12 +1376,44 @@ final class XView extends View {
             if (z >= 0) sel ^= 1 << z;
             return;
         }
+        if (service && id.startsWith("z:")) {       // the service mode: one zone at a time is tried
+            svcZone = Integer.parseInt(id.substring(2));
+            sel = 1 << svcZone;
+            return;
+        }
+        if (id.startsWith("svc-suit:")) {
+            a.channels().suit = id.charAt(9) - '0';
+            a.channelsChanged();
+            return;
+        }
+        if (id.startsWith("svc:") && svcZone >= 0 && s != null) {   // where the zone being tried was felt
+            int fz = Integer.parseInt(id.substring(4));
+            Channels ch = a.channels();
+            int u = s.unitCh(svcZone);
+            ch.felt(Session.ZONE_PART[svcZone], Session.ZONE_PART[fz]);
+            a.channelsChanged();
+            showToast(fz == svcZone ? "✓ " + Session.ZONE[fz] + " — вярно (к." + (u + 1) + ")"
+                    : "✓ к." + (u + 1) + " → " + Session.ZONE[fz] + ". „" + Session.ZONE[svcZone] + "“ вече е к."
+                            + (s.unitCh(svcZone) + 1) + " — пробвай пак");
+            return;
+        }
+        if (id.equals("svc-reset")) {
+            a.channels().reset(a.channels().suit);
+            a.channelsChanged();
+            showToast("Костюм " + Channels.SUIT[a.channels().suit] + ": каналите отначало");
+            return;
+        }
+        if (id.equals("svc-done")) {
+            toggleService();
+            return;
+        }
         if (id.startsWith("z:")) {   // tap = into / out of the selection (as on XBody)
             int b = 1 << Integer.parseInt(id.substring(2));
             sel = (sel & b) != 0 ? sel & ~b : sel | b;
             return;
         }
         if (id.equals("all")) {
+            svcZone = -1;
             int all = (1 << Session.ZONES) - 1;
             sel = sel == all ? 0 : all;
             return;
@@ -1378,7 +1493,8 @@ final class XView extends View {
             sel = 0;
             return;
         }
-        if (id.equals("back")) {                         // ← the program screen (the procedure page if one was on)
+        if (id.equals("back")) {
+            if (service) toggleService();                         // ← the program screen (the procedure page if one was on)
             procPage = a.mode() == Procs.MODE_PROC;
             a.backToModes();
             return;

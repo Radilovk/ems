@@ -16,7 +16,10 @@ suit only adds a driver under the existing screen.
 | `WiBridge` | same | glue: which device, write queue (one in flight, each after its write response), run notify, battery |
 | `BtBridge` / `BtLoad` | same | the existing bodytech hooks hand a WiEMS device to WiBridge first — no new smali hooks |
 
-- Channel map: XBody's (owner, 2026-10-16) — `WiTranslator.SLIDER_TO_CH`, panel `WI_ZONES`.
+- Channel map: XBody's (owner, 2026-10-16) — `WiTranslator.SLIDER_TO_CH`, panel `WI_ZONES`. **Caveat:** written
+  from the old static XBody decode (5 Седалище, 6 Корем); XBody's measured order is 5 Корем, 6 Седалище. The WiEMS
+  app (v1.7) now uses the measured order + a per-suit map set on the body (hidden service mode,
+  docs/xems-wiems-app.md v1.7); port its checked maps here.
 - Which device: its name starts with `WIEMS` (the stock name filter "ems" already lists it); a MAC seen once is
   remembered (`xems_wiems_units`). Only on an unlocked (admin) tablet, as bodytech.
 - The row's link (`BleDeviceManager.getConfig`) is the unit's **battery service** 180F / 2A19: the stock code

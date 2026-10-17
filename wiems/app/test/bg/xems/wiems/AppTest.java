@@ -81,6 +81,9 @@ public class AppTest {
         public void backToModes() { mode = -1; }
         public boolean held() { return false; }
         boolean female = true;
+        Channels channels = new Channels();
+        public Channels channels() { return channels; }
+        public void channelsChanged() { if (session != null) session.setMap(channels.map()); }
         public boolean female() { return female; }
         public void setFemale(boolean f) { female = f; }
         public java.io.InputStream openAsset(String name) {
@@ -90,6 +93,12 @@ public class AppTest {
                 return null;
             }
         }
+    }
+
+    static String digits(int[] m) {
+        StringBuilder b = new StringBuilder();
+        for (int x : m) b.append(x);
+        return b.toString();
     }
 
     static void shot(XView v, String dir, String name) throws Exception {
@@ -133,8 +142,8 @@ public class AppTest {
         for (int z = 0; z < Session.ZONES; z++) s.setZone(z, 100);   // ten taps in a row …
         eq("… held a moment", "[]", drain(s, 5200));
         eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 5400));
-        s.setZone(3, 50);                                // one zone (Корем → ch 6) mid-run: the owner's failing case
-        eq("one zone = one write, the rest unchanged", "[0008080808080804080808]", drain(s, 6000));
+        s.setZone(3, 50);                                // one zone (Корем → part 5 → ch 5, XBody's measured order)
+        eq("one zone = one write, the rest unchanged", "[0008080808080408080808]", drain(s, 6000));
         s.setZone(3, 50);
         eq("the same value is not written again", "[]", drain(s, 6500));
         s.runNotify(new byte[] {1}, 9200);
@@ -152,12 +161,42 @@ public class AppTest {
         eq("… does not end the new count-down", "[]", drain(s, 14600));
         s.runNotify(new byte[] {1}, 18100);
         s.tick(18100);
-        eq("resume: the strengths again", "0008080808080804080808", drain(s, 18100).get(2));
+        eq("resume: the strengths again", "0008080808080408080808", drain(s, 18100).get(2));
         s.runNotify(new byte[] {0}, 19000);                     // the unit stopped by itself
         eq("unit stop seen", Session.PAUSED + " true", s.state() + " " + s.takeUnitStopped());
         eq("… and it gets 0 + stop", "[0000000000000000000000, 0400]", drain(s, 19000));
         s.start(20000);
         eq("▶ arms it again", "0425", drain(s, 20000).get(4));
+
+        // ---- the service mode's channel map: one swap per wrong part; zones / procedures stay on body parts ----
+        Channels cm = new Channels();
+        eq("XBody suit starts in XBody's measured order", "0123456789", digits(cm.map()));
+        eq("XEMS suit starts from the owner's XEMS → XBody table", "3691580742", digits(cm.map[Channels.XEMS]));
+        cm.felt(5, 5);                                   // Корем's channel felt on the belly
+        eq("the same part = checked", "1 0123456789", cm.okCount() + " " + digits(cm.map()));
+        cm.felt(6, 1);                                   // Седалище's channel (6) felt on the back
+        eq("another part: that part gets the channel (checked), Седалище gets the back's (to try)",
+                "2 0623451789 true false", cm.okCount() + " " + digits(cm.map()) + " " + cm.ok(1) + " " + cm.ok(6));
+        Channels cn = new Channels();
+        cn.load(cm.save());
+        eq("saved and read back", cm.save(), cn.save());
+        Channels cb = new Channels();
+        cb.load("1;0000000000;12;0;0");                  // not a permutation / too short: the starting maps stay
+        eq("a broken saved value keeps the starting maps", "1 0123456789 3691580742", cb.suit + " "
+                + digits(cb.map[0]) + " " + digits(cb.map[1]));
+        Session sm = new Session();
+        sm.linked();
+        drain(sm, 0);
+        sm.setMap(cm.map());
+        sm.setStrength(100);
+        sm.setZone(2, 50);                               // Седалище: part 6 → unit channel 1 after the swap
+        sm.start(1000);
+        drain(sm, 1000);
+        sm.runNotify(new byte[] {1}, 5100);
+        sm.tick(5100);
+        eq("Седалище goes out on channel 1 (50 % → 10)", "00000a0000000000000000", drain(sm, 5100).get(2));
+        sm.setMap(Channels.DEFAULT[Channels.XBODY]);
+        eq("a new map while running: one write, Седалище back on channel 6", "[000000000000000a000000]", drain(sm, 5400));
         eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
         // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
         Session d = new Session();
@@ -235,8 +274,9 @@ public class AppTest {
         ps.runNotify(new byte[] {1}, 100);
         ps.tick(100);
         List<String> w0 = drain(ps, 100);
-        // W_CELL in WiEMS order × the warm-up's envelope 60 % × strength 50 %, on the unit's scale
-        eq("warm-up shares", "0000000004030604060604", w0.get(w0.size() - 1));
+        // W_CELL per body part (abdomen 75 → ch 5, bottom 100 → ch 6: XBody's measured order) × the warm-up's
+        // envelope 60 % × strength 50 %, on the unit's scale
+        eq("warm-up shares", "0000000004030406060604", w0.get(w0.size() - 1));
         ps.runNotify(new byte[] {1}, 150200);
         ps.tick(150200);                                   // into "Стягане": 85 Hz with its second impulse
         List<String> w1 = drain(ps, 150200);
@@ -368,6 +408,30 @@ public class AppTest {
         tap(v, 960 - 70, 28);                               // the program block → the sheet
         shot(v, dir, "5-sheet.png");
         tap(v, 80 + 600, 524);                              // ✓ Готово
+        // ---- the hidden service mode: hold the logo 2 s ----
+        String before = digits(h.channels.map());
+        tap(v, 2, 300);                                     // (a frame: the hits of the screen now)
+        float sk = 800 / 600f, sox = (1280 - 960 * sk) / 2;
+        v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_DOWN, sox + 40 * sk, 28 * sk));
+        h.t += 2100;
+        v.tick(h.t);
+        v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_UP, sox + 40 * sk, 28 * sk));
+        eq("service in: every zone 0", "0 0", h.session.zone(0) + " " + h.session.zone(9));
+        shot(v, dir, "7a-service.png");
+        tap(v, 100, 86 + 2 * 70 + 25);                      // try the zone Седалище
+        h.session.setZone(2, 30);
+        shot(v, dir, "7b-service-zone.png");
+        tap(v, 575, 259);                                   // felt on the back (Гръб, right column, first row)
+        eq("felt elsewhere: the back gets that channel, checked", "true " + h.session.unitCh(5) + " 6",
+                h.channels.ok(1) + " " + h.session.unitCh(5) + " " + h.channels.map()[1]);
+        eq("… and Седалище now tries the back's old channel", 1, h.session.unitCh(2));
+        shot(v, dir, "7c-service-felt.png");
+        tap(v, 615, 448);                                   // ✓ Готово: out
+        eq("service out: zones 0, the map kept", "0 " + "0623451789", h.session.zone(2) + " " + digits(h.channels.map()));
+        shot(v, dir, "7d-after-service.png");
+        h.channels.reset(Channels.XBODY);
+        h.channelsChanged();
+        eq("reset: the starting map again", before, digits(h.channels.map()));
         h.session.stop();
         tap(v, 480, 28);                                    // the unit's name while idle → disconnect?
         shot(v, dir, "6-confirm.png");

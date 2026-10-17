@@ -21,21 +21,31 @@ public class BtSettingsTest {
         BtSettings.reset();
         eq("default name C1", "Кръст", BtSettings.name(1));
         eq("default name C8", "Корем", BtSettings.name(8));
-        eq("default slider C5 = XEMS chest (left thigh)", 0, BtSettings.slider(5));
-        eq("default slider C7 = XEMS front thigh (right thigh)", 2, BtSettings.slider(7));
+        eq("default slider C5 = XEMS front thigh (thighs, one channel)", 2, BtSettings.slider(5));
+        eq("default slider C7 = XEMS front thigh (thighs, one channel)", 2, BtSettings.slider(7));
         eq("default name C5", "Ляво бедро", BtSettings.name(5));
         eq("default name C7", "Дясно бедро", BtSettings.name(7));
         BtSettings.loaded = true;
-        eq("row tag chest = left", "Л", BtSettings.rowTag(0));
-        eq("row tag front thigh = right", "Д", BtSettings.rowTag(2));
-        eq("row tag back thigh none", null, BtSettings.rowTag(9));
+        eq("one thighs channel → no Л / Д", null, BtSettings.rowTag(2));
+        eq("no chest channel by default", false, BtSettings.hasChannel(0));
+        eq("thighs slider", 2, BtSettings.thighSlider());
+        eq("row name Бедра", "Бедра", BtSettings.rowName(2));
+        eq("row name elsewhere none", null, BtSettings.rowName(0));
+        eq("no legs pair → no equal-legs rule", 0, BtSettings.legSliders().length);
         eq("no back thigh channel by default", false, BtSettings.hasChannel(9));
         eq("defaults need no migration", false, BtSettings.legs());
-        // EMSFIT defaults (Гърди / Бедра on chest / front thigh) → only renamed
+        eq("defaults: thighs already one", false, BtSettings.thighs());
+        // 1.1.389–1.1.455 thighs (left on chest, right on front thigh) → one channel, on the right leg's
+        BtSettings.slider[5] = 0;
+        eq("split → Л / Д", "Л,Д", BtSettings.rowTag(0) + "," + BtSettings.rowTag(2));
+        eq("split: no Бедра", null, BtSettings.rowName(2));
+        eq("thighs migrate", true, BtSettings.thighs());
+        eq("both on front thigh", "2/2", BtSettings.slider(5) + "/" + BtSettings.slider(7));
+        // EMSFIT defaults (Гърди / Бедра) → only renamed
         BtSettings.names[5] = "Гърди";
         BtSettings.names[7] = "Бедра";
         eq("EMSFIT names migrate", true, BtSettings.legs());
-        eq("C5", "Ляво бедро/0", BtSettings.name(5) + "/" + BtSettings.slider(5));
+        eq("C5", "Ляво бедро/2", BtSettings.name(5) + "/" + BtSettings.slider(5));
         eq("C7", "Дясно бедро/2", BtSettings.name(7) + "/" + BtSettings.slider(7));
         eq("second pass no-op", false, BtSettings.legs());
         // 1.1.379–1.1.388 legs on front / back thigh → the new scheme
@@ -44,7 +54,7 @@ public class BtSettingsTest {
         BtSettings.names[7] = "Десен крак";
         BtSettings.slider[7] = 9;
         eq("old legs migrate", true, BtSettings.legs());
-        eq("C5 new", "Ляво бедро/0", BtSettings.name(5) + "/" + BtSettings.slider(5));
+        eq("C5 new", "Ляво бедро/2", BtSettings.name(5) + "/" + BtSettings.slider(5));
         eq("C7 new", "Дясно бедро/2", BtSettings.name(7) + "/" + BtSettings.slider(7));
         // an owner's own slider stays, only the name follows
         BtSettings.names[5] = "Ляв крак";
@@ -54,6 +64,7 @@ public class BtSettingsTest {
         BtSettings.reset();
         BtSettings.setSlider(6, 3);
         eq("calf settable", 3, BtSettings.slider(6));
+        BtSettings.setSlider(5, 0);                 // split by hand
         BtSettings.names[7] = "Моят крак";
         eq("the leg channel, not the name", "Д", BtSettings.rowTag(2));
         BtSettings.setSlider(7, 0);
@@ -62,6 +73,7 @@ public class BtSettingsTest {
         BtSettings.reset();
         eq("left leg = C5", 5, BtSettings.legChannel(false));
         eq("right leg = C7", 7, BtSettings.legChannel(true));
+        BtSettings.setSlider(5, 0);                 // split legs (the owner may still split them by hand)
         BtSettings.setChGain(5, 120);
         BtSettings.setLegChannel(false, 7);
         eq("left ⇄ right swap", "7,5", BtSettings.legChannel(false) + "," + BtSettings.legChannel(true));
@@ -95,7 +107,7 @@ public class BtSettingsTest {
 
         BtSettings.setSlider(6, 2);
         int[] ch = BtSettings.channelsOf(2);
-        eq("two channels on one slider", "7,6", ch.length == 2 ? (ch[1] + "," + ch[0]) : ch.length);
+        eq("three channels on one slider (both thighs + C6)", "5,6,7", ch.length == 3 ? (ch[0] + "," + ch[1] + "," + ch[2]) : ch.length);
         eq("no channel on a free slider", 0, BtSettings.channelsOf(3).length);
 
         BtSettings.setGroup(5, BtSettings.GROUP_SECOND);
@@ -148,10 +160,10 @@ public class BtSettingsTest {
 
         BtSettings.reset();
         BtSettings.sortLeftToRight();
-        // defaults: C1 lower back(7), C2 glutes(8), C3 traps(5), C4 back(6), C5 left thigh → chest(0), C6 arms(4),
+        // defaults: C1 lower back(7), C2 glutes(8), C3 traps(5), C4 back(6), C5 left thigh → front thigh(2), C6 arms(4),
         // C7 right thigh → front thigh(2), C8 abs(1)
         // row order: calf, front thigh, back thigh, glutes, abs, lower back, back, traps, chest, arms
-        eq("left to right", "7,2,8,1,4,3,5,6", order());
+        eq("left to right", "5,7,2,8,1,4,3,6", order());
         BtSettings.setSlider(1, BtSettings.NO_SLIDER);
         BtSettings.sortLeftToRight();
         eq("no slider goes last", 1, BtSettings.channelAt(7));

@@ -268,6 +268,20 @@ as before. A tablet on the 1.1.379–1.1.388 legs ("Ляв / Десен крак
 once (`BtSettings.legs`, flag `legs389`); a slider the owner picked himself stays, only the name follows. The row's
 header reads "Ляво бедро" / "Дясно бедро" over the legs' XEMS columns; «Модулация» leg zones include the chest slider.
 
+## «Бедра» — the two thighs, one channel (owner, 1.1.456)
+Owner: the left and right leg are not two channels of the interface any more but ONE, "Бедра", under one slider —
+its strength moves both at once. Default (and moved once on every tablet, flag `thighs456`): C5 (left thigh) and C7
+(right thigh) both on the XEMS **front-thigh** channel (`BtSettings.DEFAULT_SLIDER`, `thighs()` — onto the right leg's
+channel when it has one); the chest channel is then free. `BtSettings.thighSlider()` / `rowName()` name that column
+"Бедра". Two channels on one XEMS channel already worked (1.1.388): no Л / Д tags, no equal-legs rule
+(`legSliders()` empty), each channel keeps its own strength / Hz / width on top.
+- **Classic row:** the header over that column reads "Бедра" (when every row is bodytech); chest, calf and back thigh
+  are idle columns (dimmed, 0, not touchable — 1.1.394), so no separate front / back thigh.
+- **Focus board** (`FocusBoard.zone`): for a bodytech client the chips of muscles without a bodytech channel are gone
+  (chest, calf, back thigh), the front-thigh chip reads "Бедра"; on the figure both thighs (front and back) light with
+  that one channel and a tap on either picks it.
+- Splitting them again by hand in Settings (a leg on another XEMS channel) brings back Л / Д and is not undone.
+
 ## The settings sheet, simple (owner, 1.1.390)
 Settings → Костюм bodytech = the eight bodytech channels C1–C8 (two columns, fixed order), each card: number, name,
 ▶ (hold = feel it) and under them the ten XEMS channels in the row's order (+ "Няма") — one tap ties that bodytech

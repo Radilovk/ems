@@ -346,6 +346,7 @@ public final class PartLook {
      * screen with a suit runs a bodytech one, the columns of the two legs (the XEMS channels their bodytech channels
      * are on: by default XEMS chest and front thigh) read "Ляво бедро" / "Дясно бедро", and the columns no bodytech
      * channel is on go (owner, 1.1.391: 8 zones). Any XEMS suit → the stock header.
+     * Both thighs on one channel (owner, 1.1.456, the default): that column reads "Бедра".
      */
     static boolean header(TrainItem item, View bar, boolean bt) {
         boolean on = false;
@@ -417,6 +418,8 @@ public final class PartLook {
                     want = "Ляво бедро";
                 } else if (on && i == legR && legL != legR) {
                     want = "Дясно бедро";
+                } else if (on && com.isaigu.gymapp.bodytech.BtSettings.rowName(i) != null) {
+                    want = com.isaigu.gymapp.bodytech.BtSettings.rowName(i);     // both thighs, one channel (1.1.456)
                 }
                 if (want != null && !want.toString().equals(label.getText().toString())) {
                     label.setText(want);

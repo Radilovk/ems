@@ -225,7 +225,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
-- `FocusBoard.java` (2604L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
+- `FocusBoard.java` (2656L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
 - `ImpulseGlyph.java` (132L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (579L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (128L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -249,7 +249,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtGear.java` (132L, compile:music-sync*) — Hook: TrainViewHolder$1.onNoDoubleClick (the row's gear, scripts/apply-bodytech.py).
 - `BtLoad.java` (276L, compile:music-sync*) — ▶ on a bodytech row while its suit is being programmed (~3 s after connect / stop, BtBridge): the start waits — the row…
 - `BtProto.java` (167L, compile:music-sync*) — Bodytech (EMSFIT 5.1, com.emsfit.way8) suit protocol (copy of bodytech/probe Proto without logging) — every encoding mi…
-- `BtSettings.java` (558L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
+- `BtSettings.java` (591L, compile:music-sync*) — The owner's bodytech setup, one per tablet (SharedPreferences "xems_bodytech").
 - `BtSettingsSection.java` (401L, compile:music-sync*) — Settings → "Костюм bodytech": the eight channels of a bodytech suit, each with the XEMS channel (one of ten) that drive…
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
 - `BtTranslator.java` (702L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
@@ -285,7 +285,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicSync.java` (1435L, compile:music-sync*) — Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
 - `MusicSyncBridge.java` (39L, compile:music-sync*) — Hooks from patched training UI into music sync.
 - `MusicUriSource.java` (64L, compile:music-sync*) — Open SAF/content URIs reliably for decode and playback.
-- `PartLook.java` (642L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
+- `PartLook.java` (645L, compile:music-sync*) — What the row shows, main impulse (green) or second impulse (yellow), per control.
 - `PartStrength.java` (839L, compile:music-sync*) — Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the impulse strength of th…
 - `ProgramLive.java` (205L, compile:music-sync*) — Hook: TrainItem.setTrainProgram (scripts/apply-live-settings.py) — the parameters saved from ⚙ Master (the right panel)…
 - `SoundEnvelopeMapper.java` (71L, compile:music-sync*) — Perceptual (log/dB) loudness mapping for music → impulse strength.
@@ -901,7 +901,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L53 ## In XEMS (1.1.431-ai) — a page of its own, apart from the suit (owner, 2026-10-13)
   - L120 ## Notes
 
-`docs/xems-bodytech.md` (304L)
+`docs/xems-bodytech.md` (318L)
   - L1 # Bodytech suit in XEMS — plain training (1.1.351-ai)
   - L11 ## How it works
   - L33 ## Translation (XEMS → bodytech)
@@ -922,10 +922,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L226 ## Phase of every command; the second impulse's setup (1.1.386)
   - L250 ## All ten XEMS channels (owner, 1.1.388)
   - L260 ## The thighs (owner, 1.1.389)
-  - L271 ## The settings sheet, simple (owner, 1.1.390)
-  - L278 ## The bodytech training row: 8 zones (owner, 1.1.391)
-  - L285 ## The bodytech row's column order (owner, 1.1.393)
-  - L293 ## Link drops: keep-alive from the connect, the reason in the log (1.1.410)
+  - L271 ## «Бедра» — the two thighs, one channel (owner, 1.1.456)
+  - L285 ## The settings sheet, simple (owner, 1.1.390)
+  - L292 ## The bodytech training row: 8 zones (owner, 1.1.391)
+  - L299 ## The bodytech row's column order (owner, 1.1.393)
+  - L307 ## Link drops: keep-alive from the connect, the reason in the log (1.1.410)
 
 `docs/xems-client-data.md` (54L)
   - L1 # XEMS — какви данни къде живеят

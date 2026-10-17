@@ -80,6 +80,9 @@ public class AppTest {
         }
         public void backToModes() { mode = -1; }
         public boolean held() { return false; }
+        public void shareLog() {}
+        public boolean xemsWiring() { return channels.suit == Channels.XEMS; }
+        public void setXemsWiring(boolean x) { channels.suit = x ? Channels.XEMS : Channels.XBODY; channelsChanged(); }
         boolean female = true;
         Channels channels = new Channels();
         public Channels channels() { return channels; }
@@ -110,6 +113,24 @@ public class AppTest {
         g.dispose();
         javax.imageio.ImageIO.write(img, "png", new File(dir, name));
     }
+
+    /** A slide at design coordinates: down at (x0, y), moves to (x1, y); up only when {@code up} (then x0.. unused). */
+    static void slide(XView v, float x0, float y0, float x1, float y1, boolean up) {
+        BufferedImage scratch = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
+        v.draw(new Canvas(scratch.createGraphics()));
+        float k = v.getHeight() / 600f, dw = Math.max(800f, v.getWidth() / k);
+        float ox = (v.getWidth() - dw * k) / 2;
+        if (x0 != x1 || y0 != y1) {
+            v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_DOWN, ox + x0 * k, y0 * k));
+            for (int i = 1; i <= 10; i++)
+                v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_MOVE, ox + (x0 + (x1 - x0) * i / 10) * k, (y0 + (y1 - y0) * i / 10) * k));
+            lastX = ox + x1 * k;
+            lastY = y1 * k;
+        }
+        if (up) v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_UP, lastX, lastY));
+    }
+
+    static float lastX, lastY;
 
     /** A tap at design coordinates (600 high, centred). */
     static void tap(XView v, float dxDesign, float dyDesign) {
@@ -150,14 +171,14 @@ public class AppTest {
         s.runNotify(new byte[] {1}, 5100);
         s.tick(5100);
         eq("running", Session.RUNNING, s.state());
-        eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000040000000000]", drain(s, 5100));
+        eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000048000000000]", drain(s, 5100));
         for (int z = 0; z < Session.ZONES; z++) s.setZone(z, 100);   // ten taps in a row …
         eq("… held a moment", "[]", drain(s, 5200));
-        eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 5400));
+        eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 6000));
         s.setZone(3, 50);                                // one zone (Корем → part 5 → ch 5, XBody's measured order)
-        eq("one zone = one write, the rest unchanged", "[0008080808080408080808]", drain(s, 6000));
+        eq("one zone = one write, the rest unchanged", "[0008080808888408080808]", drain(s, 7000));
         s.setZone(3, 50);
-        eq("the same value is not written again", "[]", drain(s, 6500));
+        eq("the same value is not written again", "[]", drain(s, 8000));
         s.runNotify(new byte[] {1}, 9200);
         s.tick(9200);
         eq("the unit's own pause: nothing written", "[]", drain(s, 9200));
@@ -173,12 +194,18 @@ public class AppTest {
         eq("… does not end the new count-down", "[]", drain(s, 14600));
         s.runNotify(new byte[] {1}, 18100);
         s.tick(18100);
-        eq("resume: the strengths again", "0008080808080408080808", drain(s, 18100).get(2));
+        eq("resume: the strengths again", "0008080808888408080808", drain(s, 18100).get(2));
         s.runNotify(new byte[] {0}, 19000);                     // the unit stopped by itself
         eq("unit stop seen", Session.PAUSED + " true", s.state() + " " + s.takeUnitStopped());
         eq("… and it gets 0 + stop", "[0000000000000000000000, 0400]", drain(s, 19000));
         s.start(20000);
         eq("▶ arms it again", "0425", drain(s, 20000).get(4));
+        // the unit's check bits = the vendor's own frames from the capture, byte for byte
+        eq("vendor frame 1", "0009000000800000800000", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {9, 0, 0, 0, 0, 0, 0, 0, 0, 0})));
+        eq("vendor frame 2", "00120f0f8f0f0f0f8f0c00", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {18, 15, 15, 15, 15, 15, 15, 15, 12, 0})));
+        eq("vendor frame 3", "00110f0e8f8e0e8f0f0b0e", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {17, 15, 14, 15, 14, 14, 15, 15, 11, 14})));
+        eq("vendor frame 4", "000c00020f8f8f8d0d000f", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {12, 0, 2, 15, 15, 15, 13, 13, 0, 15})));
+        eq("equal = no bits", "000e0c0c0c0c0c0c0c090b", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {14, 12, 12, 12, 12, 12, 12, 12, 9, 11})));
 
         // ---- the service mode's channel map: one swap per wrong part; zones / procedures stay on body parts ----
         Channels cm = new Channels();
@@ -206,10 +233,34 @@ public class AppTest {
         drain(sm, 1000);
         sm.runNotify(new byte[] {1}, 5100);
         sm.tick(5100);
-        eq("Седалище goes out on channel 1 (50 % → 10)", "00000a0000000000000000", drain(sm, 5100).get(2));
+        eq("Седалище goes out on channel 1 (50 % → 10)", "00000a0000800080000000", drain(sm, 5100).get(2));
         sm.setMap(Channels.DEFAULT[Channels.XBODY]);
-        eq("a new map while running: one write, Седалище back on channel 6", "[000000000000000a000000]", drain(sm, 5400));
+        eq("a new map while running: one write, Седалище back on channel 6", "[000000000080008a000000]", drain(sm, 6000));
         eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
+        // the suit's standard: an XEMS suit on the unit's leads — Ръце drives the lead "Корем" (ch 5), the zone keeps its %
+        Session w = new Session();
+        w.setStrength(100);
+        w.setZone(8, 50);                                // Ръце 50 %
+        eq("xbody standard: Ръце → ch 4", 50 + " " + 4, w.zone(8) + " " + w.unitCh(8));
+        w.setMap(Channels.DEFAULT[Channels.XEMS]);
+        eq("xems standard: Ръце → ch 5, still 50 %", 50 + " " + 5, w.zone(8) + " " + w.unitCh(8));
+        int[] seen = new int[10];
+        for (int z = 0; z < Session.ZONES; z++) seen[w.unitCh(z)]++;
+        eq("xems standard: every channel once", "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]", java.util.Arrays.toString(seen));
+        String[] lead = {"Предно бедро", "Ръце", "Трапец", "Задно бедро", "Гръб", "Седалище", "Кръст", "Прасец", "Корем", "Гърди"};
+        StringBuilder owner = new StringBuilder();          // the zone → the unit lead's name (XBody's channel names)
+        String[] chName = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Корем", "Седалище", "Предно бедро", "Задно бедро", "Прасец"};
+        for (int z = 0; z < Session.ZONES; z++) owner.append(chName[w.unitCh(z)]).append(z < 9 ? "," : "");
+        eq("the owner's table", String.join(",", lead), owner.toString());
+        w.linked();
+        drain(w, 0);
+        w.start(-4000);
+        drain(w, -4000);
+        w.runNotify(new byte[] {1}, 100);
+        w.tick(100);
+        List<String> wl = drain(w, 100);
+        eq("xems standard on the wire: ch 5 = 10 (+ check bits)", "0000000000800a80000000", wl.get(wl.size() - 1));
+
         // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
         Session d = new Session();
         d.linked();
@@ -288,7 +339,7 @@ public class AppTest {
         List<String> w0 = drain(ps, 100);
         // W_CELL per body part (abdomen 75 → ch 5, bottom 100 → ch 6: XBody's measured order) × the warm-up's
         // envelope 60 % × strength 50 %, on the unit's scale
-        eq("warm-up shares", "0000000004030406060604", w0.get(w0.size() - 1));
+        eq("warm-up shares", "0000000004030406860604", w0.get(w0.size() - 1));
         ps.runNotify(new byte[] {1}, 150200);
         ps.tick(150200);                                   // into "Стягане": 85 Hz with its second impulse
         List<String> w1 = drain(ps, 150200);
@@ -381,8 +432,7 @@ public class AppTest {
         h.session = new Session();                          // a new client on a new link
         h.session.setStrength(100);
         tap(v, 2, 300);                                     // (a frame: nothing there)
-        eq("a new client: ВСИЧКИ selected", true, v.selAll());
-        tap(v, 480, 78);                                    // ВСИЧКИ off → СИЛА
+        eq("a new client: nothing picked (СИЛА)", 0, v.selMask());
         h.session.setZone(0, 30);
         h.session.setZone(5, 60);
         tap(v, 100, 111);                                   // Предно бедро (30 %)
@@ -403,6 +453,31 @@ public class AppTest {
         eq("a drag from where the fader was: nothing", "45 75", h.session.zone(0) + " " + h.session.zone(5));
         h.session.setZone(0, 35);
         h.session.setZone(5, 65);
+        // the owner's rules: a pick ends by itself after 5 s with no touch; any touch keeps it
+        h.t += 4000;
+        v.tick(h.t);
+        eq("4 s: still picked", true, v.selMask() != 0);
+        tap(v, 2, 300);                                     // a touch anywhere = activity
+        h.t += 4000;
+        v.tick(h.t);
+        eq("activity keeps it", true, v.selMask() != 0);
+        h.t += 1100;
+        v.tick(h.t);
+        eq("5 s idle → back to СИЛА", 0, v.selMask());
+        // a slide on a zone label = its strength (the XEMS focus chip): right = more, the label's width = 20 %
+        h.session.setZone(0, 35);
+        slide(v, 60, 111, 60 + 239, 111, false);           // (the slide starts after the first 12 units, as XEMS)
+        eq("slide: shown, not sent before release", 35, h.session.zone(0));
+        slide(v, 0, 0, 0, 0, true);
+        eq("slide +20 on release (picked first)", "55 true", h.session.zone(0) + " " + ((v.selMask() & 1) != 0));
+        slide(v, 200, 111, 200 - 430, 111, true);
+        eq("a slide is ≤ 20", 35, h.session.zone(0));
+        tap(v, 2, 300);
+        h.t += 5100;
+        v.tick(h.t);
+        // a tap on a muscle of the figure picks its zone like its label
+        tap(v, 80 + 290 - 30, 106 + 372 * 0.55f);           // front thigh (left figure)
+        eq("figure tap picks Предно бедро", true, (v.selMask() & 1) != 0);
         h.session = keep;
         tap(v, 100, 111);
         tap(v, 960 - 90, 111);

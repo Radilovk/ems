@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.8)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.14)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -101,7 +101,85 @@ the fixes below each fail it. Found and fixed:
 - **A new client** starts with ВСИЧКИ selected (all zones 0, so the slider raises them all at once); when a training
   finishes the zones go back to 0 for the next client. A shorter length on pause keeps the time already done.
 
-## v1.7 — the right channel on the right muscle, for both suit standards (owner)
+## v1.7 — the unit still pauses when one channel is raised (owner): evidence first
+- **Trace** (`Trace.java`): every write to the unit (name + bytes), its ack or rejection, every notification — run,
+  battery, and now also, as the vendor subscribes them, the unit's status / current check (`b1f5a058`) and its clock
+  (`7764f042`) — every zone / strength change, START / PAUSE / STOP and why the unit was taken as stopped ("00" from the
+  unit vs. no "01" for 5 s). File: `Android/data/bg.xems.wiems/files/wiems-log.txt`; **a long press (1.2 s) on the
+  logo** sends it (any app: Viber, mail, Drive). The pause note says which of the two it was.
+- Strength writes at most every **600 ms** (the vendor: ≥ 0.8 s). A held "+" on a zone changed its byte on every
+  repeat (~4 writes / s) while a held "+" on СИЛА changed it every ~5th — the one difference between "one channel"
+  and "all together" on the wire; a unit limit on the write rate is a candidate for the stop.
+- v1.8: the vendor's pace exactly — a strength change goes when the finger has settled (0.3 s) and ≥ 0.8 s after
+  the previous one (a start / a phase still at once).
+- With ВСИЧКИ on, a tap on a zone selects **that** zone (it used to take it out and raise the other nine).
+- **The zones and СИЛА stay as set** — across trainings, links and app restarts (owner); no reset at the end.
+
+## v1.9 — the trace from the unit: it trips on one channel
+Owner's trace (1.8, Lenovo MNA-LX9): all zones at 25 % (byte 5) run fine; Корем (ch 6) raised to 45 % → `currents
+05 05 05 05 05 05 09 05 05 05` → the run characteristic notifies **`86`** then `00` ~30 ms later — the unit stopped
+itself. Every ▶ after that: count-down, the same strengths → `86`, `00` again (the "it pauses and won't come back"
+of 1.4–1.8: the app re-sent the same strength each time). **`0x80 | n` = the unit's protection tripped on channel
+n** (here 6 = Корем; the vendor's own `0x80` bits in the currents bytes are likely the same channel flag). The
+strength itself is in the vendor's range (it sent up to 18), so the likely cause is that zone's electrode / contact.
+Now: the zone the unit names goes back to 0, the note names it ("провери електрода"), ПРОДЪЛЖИ runs without it; the
+simulated unit trips the same way (UnitSim 11). To confirm the channel meaning: raise another single zone — the code
+should follow it (`84` for Ръце, …).
+Also in the trace: the status characteristic (`b1f5a058`) at each work start sends `…a5…` then 20 values 1–2
+(per-channel load / contact, likely); idle it carries `00 00 00 00 0N … c5 5c`.
+
+## v1.10 — `86` is the unit's current protection, not a channel (second trace)
+Second trace (no suit on, Cardio 7 Hz): all zones together at bytes 2, 3, 4, 1 ran; Предно бедро (ch 7) alone one step
+higher (`01 01 01 01 01 01 01 02 01 01`) → `86`, `00` again — the same code as for Корем (ch 6). So `0x86` is a code,
+and the trigger is **one channel set apart from the others with no load**. The status characteristic at each work
+start carried per-channel readings that grow with the set level (byte 1 → ~2, byte 4 → ~4–5): the unit measures its
+outputs and, with nothing on, sees them equal while they are set unequal — its "set vs. measured" check (the vendor's
+`Curr_comp`) stops it. The vendor's capture (suit on, readings 0–1 at bytes 9–18) ran unequal channels fine.
+The app now: on `0x80|x` restores the zones and strength the unit last ran with (not "zone n → 0"), names the zone
+whose change set it off, says that without a suit the unit takes no unequal zones; a change made on pause that trips
+on ▶ is undone the same way (UnitSim 11). **To confirm on the unit: a suit on and wet, then one zone alone.**
+
+## v1.11 — the real cause: the strengths need the vendor's check bits
+Third trace (suit on, a person in it): all zones at byte 4 ran; two zones 4 → 7 ran (`…04 07 07 04…`, XOR 0); one
+zone 4 → 8 → `86`. The vendor's capture decoded: bit 7 of channels 3..7 carries the 5-bit XOR of the ten values
+(`wiems/PROTOCOL.md`). Every write of ours lacked it — fine only while the XOR was 0 (all channels equal). Fixed in
+the shared `WiProto.currents` (byte-exact with the vendor's frames) → this app, the XEMS APK 1.1.449-ai and the XBody
+panel (mod v15); the scale `WiProto.unit` moved there too (XEMS / XBody sent % 1 : 1 — 5× the vendor's top). The
+simulated unit now trips exactly on a missing check (UnitSim 11). The 1.9 / 1.10 "86 = channel / no load" readings
+were wrong; the restore-on-trip stays as a safety net.
+
+## v1.12 — both suit standards, switchable (owner)
+"Настройки на сесията" → КЛИЕНТ: **Костюм XBody | Костюм XEMS** (saved; changed only while not running). XBody: a
+zone drives the unit's channel of that name (`Session.ZONE_CH`). XEMS: an XEMS suit on the unit's XBody-standard
+leads — each zone drives the lead that reaches it, the owner's table as on the XBody panel (`ZONE_CH_XEMS`
+= xbcable::xemsLead: Ръце→Корем, Гърди→Допълнителен, Корем→Задно бедро, Предно бедро→Предно бедро, Гръб→Седалище,
+Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди). Zones keep their % on a switch;
+procedure weights follow the body part. The header says "XEMS костюм" when on.
+
+## v1.13 — picking and sliding like the XEMS focus board (owner)
+- **A pick ends by itself after 5 s with no touch** (`XView.SEL_IDLE_MS`): back to СИЛА. Any touch counts — another
+  zone, the slider, ± (held too), the figure, anywhere on the screen. Not while a finger is down or the sheet is open.
+  The "new client = ВСИЧКИ" default is gone (it would just time out).
+- **A tap on a muscle of the figure picks its zone** like its label (then ± / the slider move it).
+- **A sideways slide on a zone label = that zone's strength** — the XEMS focus chip (`docs/xems-focus-board.md`):
+  relative to the finger (starts after 12 units, no jump), right = more on both columns, the label's width = 20 %,
+  ≤ 20 per slide, the value and a thin bar on the label and the big % card while sliding; an unpicked zone is
+  picked first; it goes out on release (one write).
+
+## v1.14 — the two 1.7 lines merged (owner: "the changes in main are missing here")
+Two sessions built 1.7+ at the same time: this line (1.7–1.13: trace, vendor pace, trip handling, check bits, both
+suit standards in the sheet, 5 s pick, label slide) and main's 1.7–1.8 (below). 1.14 has both:
+- **Zones are body parts** (`Session.ZONE_PART`, XBody's measured order, 5 Корем / 6 Седалище); the unit channel
+  comes from `Channels` (per suit, set by the service mode). The 1.12 tables `ZONE_CH` / `ZONE_CH_XEMS` are gone: the
+  sheet's **Костюм XBody | XEMS** now sets `Channels.suit` (not while running), the same switch as the service panel;
+  a saved `wiring_xems` from 1.12–1.13 becomes `suit = XEMS`. Note: `Channels.DEFAULT[XEMS]` follows the measured
+  order, so Гръб / Ръце of an XEMS suit land on к.7 / к.6 (1.12: к.6 / к.7).
+- Trip restore (`accepted` / `onAir`) and the zones kept across restarts work per body part, independent of the map.
+- **Logo hold:** on the training screen 2 s = the service mode (main); its panel has **Лог** (the unit trace);
+  elsewhere a 1.2 s hold still shares the trace. No 5 s auto-unpick and no label slide inside the service mode.
+- Check bits on every frame (main's tests had none): expectations recomputed.
+
+### Channel map per suit + hidden service mode (parallel 1.7)
 **Where the error came from.** The WiEMS channel order was written as "XBody's order" from the *first, static*
 decode of XBody's channel table, which had abdomen / bottom swapped (5 Седалище, 6 Корем). XBody's order was later
 **measured** (docs/xbody-protocol.md "Measured", mod v7: 5 Корем, 6 Седалище) and fixed for XBody's cable — but the
@@ -126,7 +204,7 @@ taps; shots `7a`–`7d`), `UnitSim` uses `Session.unitCh`.
 **Still open:** the XEMS tablet (`WiTranslator.SLIDER_TO_CH`) and the XBody panel (`WI_ZONES`) keep the old WiEMS
 order — once the service mode has checked both suits, port the two maps (the `к.N` column) there.
 
-## v1.8 — figures with relief, a slider that needs its fader (owner)
+### Figures with relief, a slider that needs its fader (parallel 1.8)
 - **The figures read as a grey blot** (no contrast): the art is nearly flat (half the body in 52..68 / 255) and the
   v1.2 lift (85 + 0.65·v) kept that 16-step range. `BodyFig.lighten` now spreads the figure's own range: 3×3 blur
   (no webp grain) → its 1..99.5 % luminance stretched, ⅓ by its histogram (the muscles' relief) → deep slate

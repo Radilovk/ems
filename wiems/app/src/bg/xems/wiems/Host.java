@@ -29,6 +29,11 @@ interface Host {
     void backToModes();
     /** A training waits for its unit to come back (the link dropped). */
     boolean held();
+    /** Send the unit trace (long press on the logo). */
+    void shareLog();
+    /** The suit standard in the session sheet = {@link Channels#suit} (false XBody, true XEMS); not while running. */
+    boolean xemsWiring();
+    void setXemsWiring(boolean xems);
     /** The figures: female (default) or male — the client's, chosen in the session's settings. */
     boolean female();
     void setFemale(boolean f);

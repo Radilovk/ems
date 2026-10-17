@@ -256,7 +256,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 - `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 - `WiBridge.java` (484L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
-- `WiProto.java` (131L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
+- `WiProto.java` (148L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
 - `WiTranslator.java` (256L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -816,7 +816,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (266L)
+`docs/xbody-xems-panel.md` (288L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -830,10 +830,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L154 ## Update from USB while the machine runs (mod v15) — admin interface, no reboot dance
   - L178 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
   - L186 ## Panel
-  - L220 ## Bridge line protocol (USB CDC, 115200)
-  - L231 ## Files
-  - L243 ## Build / test
-  - L259 ## First test on the unit (when the XIAO arrives)
+  - L220 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
+  - L242 ## Bridge line protocol (USB CDC, 115200)
+  - L253 ## Files
+  - L265 ## Build / test
+  - L281 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1215,18 +1216,25 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (150L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.8)
+`docs/xems-wiems-app.md` (228L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.14)
   - L7 ## What it is
   - L29 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L39 ## v1.2 — lighter figures, double impulse, ramp (owner)
   - L46 ## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
   - L70 ## v1.5 — fixes from the first test on the unit (owner)
   - L85 ## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
-  - L104 ## v1.7 — the right channel on the right muscle, for both suit standards (owner)
-  - L129 ## v1.8 — figures with relief, a slider that needs its fader (owner)
-  - L140 ## Build / test
-  - L147 ## Not verified yet
+  - L104 ## v1.7 — the unit still pauses when one channel is raised (owner): evidence first
+  - L118 ## v1.9 — the trace from the unit: it trips on one channel
+  - L131 ## v1.10 — `86` is the unit's current protection, not a channel (second trace)
+  - L142 ## v1.11 — the real cause: the strengths need the vendor's check bits
+  - L151 ## v1.12 — both suit standards, switchable (owner)
+  - L159 ## v1.13 — picking and sliding like the XEMS focus board (owner)
+  - L169 ## v1.14 — the two 1.7 lines merged (owner: "the changes in main are missing here")
+  - L182 ### Channel map per suit + hidden service mode (parallel 1.7)
+  - L207 ### Figures with relief, a slider that needs its fader (parallel 1.8)
+  - L218 ## Build / test
+  - L225 ## Not verified yet
 
 `docs/xems-wiems.md` (74L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
@@ -1394,13 +1402,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (28L)
   - L1 # Asset credits
 
-`wiems/PROTOCOL.md` (73L)
+`wiems/PROTOCOL.md` (92L)
   - L1 # WiEMS unit — BLE protocol (from capture 1)
   - L16 ## Device
   - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)
   - L39 ## Sequences seen
   - L62 ## Still open
   - L70 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
+  - L74 ## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
+  - L85 ## The strengths write carries a check (decoded 2026-10-16) — the cause of "86"
 
 `wiems/README.md` (74L)
   - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol

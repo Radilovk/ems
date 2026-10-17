@@ -52,9 +52,10 @@ final class Session {
     static final int ZONES = 10, ZONES_LEFT = 5;
 
     static final int IDLE = 0, RUNNING = 1, PAUSED = 2;
-    static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 250;
+    /** The vendor's pace: one strength write per change, ≥ 0.8 s apart, after the finger has settled (0.3 s). */
+    static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 800, LEVELS_SETTLE_MS = 300;
     /** The unit's top strength byte (the vendor's 100 %). */
-    static final int UNIT_MAX = 20;
+    static final int UNIT_MAX = WiProto.UNIT_MAX;
     private static final int WI_IDLE = 0, WI_COUNT = 1, WI_RUN = 2;
     private static final int T_PLAIN = 0, T_LEVELS = 1, T_PROG = 2;
 
@@ -62,6 +63,9 @@ final class Session {
         final byte[] op;
         final int tag;
         int[] levels;               // a strengths write: its values (they count as the unit's once it goes)
+        long at;                    // when it was asked (a newer value replaces it and starts the wait again)
+        int[] zones;                // the zones (by unit channel) and strength behind it
+        int strength;
 
         Item(byte[] op, int tag) {
             this.op = op;
@@ -93,6 +97,24 @@ final class Session {
     private final ArrayDeque<Item> out = new ArrayDeque<Item>();
     private boolean inflight;
     private long sentMs;
+
+    /** Where the session tells what it does and why (the trace); null = nowhere. */
+    interface Sink {
+        void log(String s);
+    }
+
+    Sink sink;
+
+    private void log(String s) {
+        if (sink != null) sink.log(s);
+    }
+
+    private String haltWhy = "";
+
+    /** Why the unit was taken as stopped the last time ("" = never). */
+    String haltReason() {
+        return haltWhy;
+    }
 
     Session() {
         for (int i = 0; i < ch.length; i++) share[i] = 100;   // every zone starts at 0 (owner): raised one by one
@@ -159,8 +181,12 @@ final class Session {
     }
 
     void setStrength(int s) {
-        strength = Math.max(0, Math.min(Safe.STRENGTH_MAX, s));
+        s = Math.max(0, Math.min(Safe.STRENGTH_MAX, s));
+        if (s != strength) log("strength " + strength + " → " + s + "%");
+        strength = s;
+        userChange = true;
         if (state == RUNNING) levels();
+        userChange = false;
     }
 
     int zone(int z) {
@@ -168,12 +194,18 @@ final class Session {
     }
 
     void setZone(int z, int pct) {
-        ch[ZONE_PART[z]] = Math.max(0, Math.min(100, pct));
+        pct = Math.max(0, Math.min(100, pct));
+        int c = ZONE_PART[z];
+        if (pct != ch[c]) log("zone " + ZONE[z] + " (ch " + unitCh(z) + ") " + ch[c] + " → " + pct + "%");
+        ch[c] = pct;
+        userChange = true;
         if (state == RUNNING) levels();
+        userChange = false;
     }
 
     /** The unit channel of each body part (the suit's map); a running unit gets the new layout at once. */
     void setMap(int[] partToUnit) {
+        if (!java.util.Arrays.equals(partToUnit, unitOf)) log("channel map → " + java.util.Arrays.toString(partToUnit));
         System.arraycopy(partToUnit, 0, unitOf, 0, unitOf.length);
         if (state == RUNNING) levels();
     }
@@ -185,6 +217,7 @@ final class Session {
 
     void start(long now) {
         if (state == RUNNING) return;
+        if (!startWanted) log("START (state " + state + ", unit " + wi + ")");
         if (state == IDLE && plan != null) {         // a procedure starts at its first phase
             seg = 0;
             cycle = 0;
@@ -228,10 +261,11 @@ final class Session {
     /** What every channel gives on cycle k of phase i (the procedure's envelope × zone weight, or its wave). */
     private void setShare(int i, long ts) {
         Procs.Seg g = plan.segs[i];
-        for (int c = 0; c < share.length; c++) share[c] = Procs.share(g, cycle, ts, c);
+        for (int c = 0; c < share.length; c++) share[c] = Procs.share(g, cycle, ts, c);   // per body part
     }
 
     void pause(long now) {
+        log("PAUSE (state " + state + ", unit " + wi + ")");
         startWanted = false;
         if (wi == WI_COUNT && state != RUNNING) {    // cancelled in the count-down: what was not sent never goes
             dropQueued(T_PROG);
@@ -246,6 +280,7 @@ final class Session {
     }
 
     void stop() {
+        if (state != IDLE || wi != WI_IDLE) log("STOP (state " + state + ", unit " + wi + ")");
         startWanted = false;
         boolean was = state != IDLE;
         state = IDLE;
@@ -264,6 +299,7 @@ final class Session {
      * training is not lost to a radio hiccup. Nothing queued goes anywhere.
      */
     void lost(long now) {
+        log("link lost (state " + state + ")");
         if (state == RUNNING) remainMs = Math.max(0, endMs - now);
         if (state != IDLE) state = PAUSED;
         startWanted = false;
@@ -282,6 +318,7 @@ final class Session {
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
         if (wi == WI_COUNT && !progQueued() && (wiGo || now - wiAt >= 6000)) {
             runSeenMs = now;
+            log(wiGo ? "count-down over (unit \"01\")" : "count-down over (6 s, no \"01\")");
             push(WiProto.zero(), T_PLAIN);
             sent = null;
             push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
@@ -291,7 +328,7 @@ final class Session {
         if (startWanted && !preparing()) start(now);
         if (state != RUNNING) return;
         // the unit notifies "01" every second while it runs; silent for 5 s (after it did notify) = it stopped
-        if (wi == WI_RUN && runNotifies && now - runSeenMs > 5000) unitHalted();
+        if (wi == WI_RUN && runNotifies && now - runSeenMs > 5000) unitHalted("no \"01\" from the unit for 5 s");
         if (state != RUNNING) return;
         remainMs = Math.max(0, endMs - now);
         if (now >= endMs) {
@@ -356,11 +393,63 @@ final class Session {
             // a "01" left over from before a stop must not end a new count-down (it lasts ~4 s)
             if (wi == WI_COUNT && now - wiAt >= 2000) wiGo = true;
         }
+        // 0x80 | code: the unit's protection tripped (seen: "86", then "00" ~30 ms later). NOT a channel number — the
+        // owner's traces got 86 after raising Корем (ch 6) and after raising Предно бедро (ch 7). It came every time
+        // one zone went out different from the others (by even one step) with no suit on, never while all moved
+        // together: the unit's current check (the vendor's "Curr_comp": what it sets vs. what it measures, see the
+        // status characteristic). The zones and strength go back to what the unit last ran with — else the next ▶
+        // sends the same and it trips again — and the screen names what changed.
+        int b = v[0] & 0xFF;
+        if ((b & 0x80) != 0 && wi == WI_RUN && state == RUNNING) {
+            tripCode = b;
+            lastTrip = b;
+            tripZone = -1;
+            int[] okCh = accepted != null ? accepted : null;
+            for (int z = 0; z < ZONES && okCh != null; z++) {
+                int c = ZONE_PART[z];
+                if (onAir != null && onAir[c] != okCh[c] && tripZone < 0) tripZone = z;
+            }
+            if (okCh != null) {
+                for (int z = 0; z < ZONES; z++) {
+                    int c = ZONE_PART[z];
+                    if (ch[c] != okCh[c]) log("zone " + ZONE[z] + " " + ch[c] + " → " + okCh[c] + "% (as the unit last ran)");
+                    ch[c] = okCh[c];
+                }
+                if (strength != acceptedStrength) log("strength " + strength + " → " + acceptedStrength + "% (as the unit last ran)");
+                strength = acceptedStrength;
+            }
+            unitHalted("the unit reported " + Integer.toHexString(b) + " (its current protection)"
+                    + (tripZone >= 0 ? " after " + ZONE[tripZone] + " changed" : ""));
+            return;
+        }
         // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
-        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted();
+        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted("the unit notified \"00\" (it stopped)");
     }
 
-    private void unitHalted() {
+    private int tripCode, tripZone = -1;
+    /** The zones (by body part) and strength the unit ran with before the write now on air / the last one. */
+    private int[] accepted, onAir;
+    private int acceptedStrength, onAirStrength;
+
+    private int lastTrip;
+
+    /** The unit's protection code of the last trip (0: never). */
+    int tripCodeLast() {
+        return lastTrip;
+    }
+
+    /** Taken once by the screen: the zone whose change tripped the unit (−1: none / unknown); −2: a trip, no zone. */
+    int takeTripZone() {
+        if (tripCode == 0) return -1;
+        int z = tripZone;
+        tripCode = 0;
+        tripZone = -1;
+        return z < 0 ? -2 : z;
+    }
+
+    private void unitHalted(String why) {
+        haltWhy = why;
+        log("UNIT HALTED: " + why + " → pause");
         remainMs = Math.max(0, endMs - lastTick);
         state = PAUSED;
         on = false;
@@ -472,10 +561,17 @@ final class Session {
         if (inflight || out.isEmpty()) return null;
         // strengths at most every LEVELS_GAP_MS (the vendor: one write per change, ~1 s apart); a newer one that
         // comes meanwhile replaces it, so a finger on the slider is one write, not dozens
-        if (out.peekFirst().tag == T_LEVELS && now - levelsMs < LEVELS_GAP_MS) return null;
+        if (out.peekFirst().tag == T_LEVELS
+                && (now - levelsMs < LEVELS_GAP_MS || now - out.peekFirst().at < LEVELS_SETTLE_MS)) return null;
         if (out.peekFirst().tag == T_LEVELS) {
             levelsMs = now;
             sent = out.peekFirst().levels;           // what the unit has from now on
+            if (onAir != null) {                     // the previous one ran: it is the "last good"
+                accepted = onAir;
+                acceptedStrength = onAirStrength;
+            }
+            onAir = out.peekFirst().zones;
+            onAirStrength = out.peekFirst().strength;
         }
         inflight = true;
         sentMs = now;
@@ -550,10 +646,12 @@ final class Session {
      * 94 % → 18, 80 % → 15, 61 % → 12), never the 0..100 we sent before (5× over the vendor's top).
      */
     static int unitValue(int pct) {
-        return (Math.max(0, Math.min(100, pct)) * UNIT_MAX + 50) / 100;
+        return WiProto.unit(pct);
     }
 
     /** The strengths now, written only when they changed (the unit keeps them through its own work / rest). */
+    private boolean userChange;
+
     private void levels() {
         dropLevels();
         if (wi != WI_RUN) return;                    // counting down: the strengths go when it runs
@@ -564,6 +662,10 @@ final class Session {
         if (java.util.Arrays.equals(c, sent)) return;
         Item it = new Item(WiProto.currents(c), T_LEVELS);
         it.levels = c;
+        it.zones = ch.clone();
+        it.strength = strength;
+        it.at = userChange ? lastTick : -100000;   // a start / a phase goes at once; a finger waits to settle
+        userChange = false;
         out.addLast(it);
     }
 

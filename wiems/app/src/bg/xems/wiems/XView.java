@@ -85,9 +85,21 @@ final class XView extends View {
 
     // ---------------------------------------------------------------- frame
 
+    /** A selection ends by itself after this long without any touch (owner): back to СИЛА. */
+    static final int SEL_IDLE_MS = 5000;
+    /** Edge to edge of a zone label = this many % (the XEMS focus board's chip slide), ≤ this per slide. */
+    static final int SLIDE = 20;
+    private long touchedMs;
+    private int slideZone = -1, slideStart, slideValue = -1;
+    private float slideX0, slideY0;
+    private boolean sliding;
+
     void tick(long now) {
-        if (("logo".equals(pressed) || "back".equals(pressed)) && now - pressMs > 2000 && a.session() != null
-                && a.viewKind() == MainActivity.VIEW_TRAIN && a.mode() >= 0) {
+        if (sel != 0 && !service && pressed.length() == 0 && !sheet && !confirm && now - touchedMs > SEL_IDLE_MS) {
+            sel = 0;                                     // 5 s with no touch at all: the selection ends
+            invalidate();
+        }
+        if (("logo".equals(pressed) || "back".equals(pressed)) && now - pressMs > 2000 && serviceHold()) {
             pressed = "";                           // the finger's lift does nothing more
             toggleService();
         }
@@ -102,7 +114,7 @@ final class XView extends View {
 
     private String signature(long now) {
         StringBuilder b = new StringBuilder();
-        b.append(a.viewKind()).append('|').append(a.note()).append(a.noteWarn()).append('|').append(pressed)
+        b.append(slideZone).append(slideValue).append(a.viewKind()).append('|').append(a.note()).append(a.noteWarn()).append('|').append(pressed)
                 .append(sheet).append(confirm).append(sel).append(now < bubbleUntil).append(now < toastUntil)
                 .append(service).append(svcZone).append(a.channels().save());
         if (a.viewKind() == MainActivity.VIEW_PICK || a.viewKind() == MainActivity.VIEW_LINKING) {
@@ -289,6 +301,7 @@ final class XView extends View {
         line(c, 155, 6, 155, 50, HEAD_LINE, 1);
         line(c, dw - 148, 6, dw - 148, 50, HEAD_LINE, 1);
         logo(c, 22, 28);
+        hit(0, 0, 155, 56, "logo");                   // a long press sends the unit trace
         font(12, true);
         text(c, "WiEMS", 106, 22, 152, 40, -1, RED);
         font(20, true);
@@ -679,9 +692,12 @@ final class XView extends View {
         outlined(c, l, t, l + w, t + 50, "z:" + zi, null, 0, on);
         font(15, false);
         text(c, Session.ZONE[zi], l + 10, t, l + w - 12, t + 50, right ? 1 : -1, on ? WHITE : INK);
-        int pct = s.zone(zi);
+        int pct = slideZone == zi && slideValue >= 0 ? slideValue : s.zone(zi);
         font(18, true);
         text(c, pct + "%", l + 10, t, l + w - 12, t + 50, right ? -1 : 1, on ? WHITE : pct == 0 ? GREY : INK);
+        if (slideZone == zi && sliding) {                // the slide's bar: where the finger has it, in steps of 1 %
+            round(c, l + 8, t + 43, l + 8 + (w - 16) * pct / 100f, t + 46, 1.5f, on ? WHITE : RED);
+        }
         if (service && a.channels().ok(Session.ZONE_PART[zi])) {   // checked on the body: a green ✓ badge
             float bx = right ? l + w - 2 : l + 2;
             p.setColor(GREEN);
@@ -702,7 +718,7 @@ final class XView extends View {
             seenResets = s.resets();
             boolean zero = true;
             for (int i = 0; i < Session.ZONES; i++) zero &= s.zone(i) == 0;
-            if (zero) sel = (1 << Session.ZONES) - 1;
+            if (zero) sel = 0;                       // (selections end by themselves after 5 s — owner)
         }
         long now = a.now();
         Session.Program pr = s.program();
@@ -852,11 +868,17 @@ final class XView extends View {
             text(c, "к." + (ch.map()[part] + 1), cr - 40, ct, cr - 8, cb, 1, SOFT);
             if (id != null) hit(cl, ct, cr, cb, id);
         }
-        font(14, true);
+        font(13, true);
         int n = ch.okCount();
-        text(c, "Проверени " + n + " / 10", l + 12, b - 44, l + 168, b - 8, -1, n == 10 ? GREEN : SOFT);
-        outlined(c, l + 172, b - 44, l + 270, b - 8, "svc-reset", "Отначало", 14, false);
+        text(c, "Проверени " + n + "/10", l + 12, b - 44, l + 140, b - 8, -1, n == 10 ? GREEN : SOFT);
+        outlined(c, l + 142, b - 44, l + 226, b - 8, "svc-reset", "Отначало", 13, false);
+        outlined(c, l + 230, b - 44, l + 276, b - 8, "svc-log", "Лог", 13, false);   // the unit trace
         filled(c, r - 118, b - 44, r - 12, b - 8, "svc-done", GREEN, WHITE, "✓ Готово", 16);
+    }
+
+    /** A 2 s hold on the logo / ← opens the service mode here (the training screen with a mode). */
+    private boolean serviceHold() {
+        return a.session() != null && a.viewKind() == MainActivity.VIEW_TRAIN && a.mode() >= 0;
     }
 
     /** In: every zone 0 (only what is raised fires). Out: a running unit pauses, every zone 0 — the next client. */
@@ -927,6 +949,7 @@ final class XView extends View {
 
     private String unitLine(Session s) {
         String u = a.linkedName() == null ? "WiEMS" : a.linkedName();
+        if (a.xemsWiring()) u += "  ·  XEMS костюм";
         return u + "   ·   батерия " + (s.battery() < 0 ? "—" : s.battery() + "%");
     }
 
@@ -1024,6 +1047,11 @@ final class XView extends View {
         return mix(LEDS[i], LEDS[i + 1], f - i);
     }
 
+    /** Test: the picked zones (bits). */
+    int selMask() {
+        return sel;
+    }
+
     /** Test: every zone selected. */
     boolean selAll() {
         return sel == (1 << Session.ZONES) - 1;
@@ -1032,6 +1060,7 @@ final class XView extends View {
     private int selValue() {
         Session s = a.session();
         if (s == null) return 0;
+        if (slideZone >= 0 && slideValue >= 0) return slideValue;
         if (sel == 0) return s.strength();
         for (int i = 0; i < Session.ZONES; i++) if ((sel & (1 << i)) != 0) return s.zone(i);
         return 0;
@@ -1056,7 +1085,8 @@ final class XView extends View {
     /** XBody's showPercent: while a value changes, a big % over the body with what it belongs to. */
     private void paintBubble(Canvas c) {
         String what = "Сила";
-        if (sel != 0) {
+        if (sliding && slideZone >= 0) what = Session.ZONE[slideZone];
+        else if (sel != 0) {
             int cnt = 0;
             StringBuilder names = new StringBuilder();
             for (int i = 0; i < Session.ZONES; i++)
@@ -1144,46 +1174,39 @@ final class XView extends View {
 
         // ---- right: the client ----
         caption(c, o + 456, 98, "КЛИЕНТ");
-        // the figures' sex: a segmented control, the chosen half red (XBody's selected state)
-        round(c, o + 457, 127, o + 735, 181, 10, WHITE);
-        stroke(c, o + 457, 127, o + 735, 181, 10, LINE, 2);
-        for (int i = 0; i < 2; i++) {
-            float hl = o + 456 + i * 140;
-            boolean chosen = a.female() == (i == 0);
-            String id = i == 0 ? "sex-f" : "sex-m";
-            if (chosen) round(c, hl + 4, 130, hl + 136, 178, 8, RED);
-            else if (id.equals(pressed)) round(c, hl + 4, 130, hl + 136, 178, 8, PRESS);
-            font(18, chosen);
-            text(c, (chosen ? "✓ " : "") + (i == 0 ? "Жена" : "Мъж"), hl, 126, hl + 140, 182, 0, chosen ? WHITE : INK);
-            hit(hl, 126, hl + 140, 182, id);
-        }
-        outlined(c, o + 456, 198, o + 736, 254, locked ? null : "age60", null, 0, false);
+        // the figures' sex, then the suit's connector standard: segmented controls, the chosen half red (XBody's
+        // selected state)
+        segmented(c, o, 120, "sex-f", "sex-m", "Жена", "Мъж", a.female(), true);
+        // XBody: zone = the unit's channel of that name; XEMS: an XEMS suit on the unit's (XBody-standard) leads —
+        // each zone drives the lead that reaches it (the owner's table, as the XBody panel). Not while running.
+        segmented(c, o, 174, "wire-xbody", "wire-xems", "Костюм XBody", "Костюм XEMS", !a.xemsWiring(), !locked);
+        outlined(c, o + 456, 230, o + 736, 276, locked ? null : "age60", null, 0, false);
         font(17, false);
-        text(c, "Над 60 години", o + 472, 198, o + 646, 254, -1, locked ? GREY : INK);
-        float sl = o + 736 - 92, st = 226 - 15;
+        text(c, "Над 60 години", o + 472, 230, o + 646, 276, -1, locked ? GREY : INK);
+        float sl = o + 736 - 92, st = 253 - 15;
         round(c, sl, st, sl + 80, st + 30, 15, sheetAge60 ? GREEN : 0xFFD5D7DA);
         p.setColor(WHITE);
         c.drawCircle(sheetAge60 ? sl + 65 : sl + 15, st + 15, 12, p);
         if (sheetAge60) {
-            font(14, true);
-            text(c, "✓ Честотата спира до 85 Hz", o + 456, 258, o + 736, 280, -1, GREEN);
+            font(13, true);
+            text(c, "✓ Честотата спира до 85 Hz", o + 456, 278, o + 736, 294, -1, GREEN);
         }
         if (plan != null) {                              // a procedure: its phases carry their own second impulse
-            caption(c, o + 456, 296, "КАК");
+            caption(c, o + 456, 300, "КАК");
             font(15, false);
             wrap(c, plan.how, o + 456, 322, 280, 22, 3, INK);
             font(14, false);
             text(c, "Силата по зоните остава твоя", o + 456, 400, o + 736, 424, -1, SOFT);
         } else {
         // ---- the double impulse: a second, low impulse in the pause (the unit's own rest Hz / %) ----
-        caption(c, o + 456, 296, "ДВОЕН ИМПУЛС");
-        float ds = o + 736 - 80, dt = 290;
+        caption(c, o + 456, 300, "ДВОЕН ИМПУЛС");
+        float ds = o + 736 - 80, dt = 296;
         round(c, ds, dt, ds + 80, dt + 30, 15, q.dbl ? YELLOW : 0xFFD5D7DA);
         p.setColor(WHITE);
         c.drawCircle(q.dbl ? ds + 65 : ds + 15, dt + 15, 12, p);
         if (!locked) hit(ds - 90, dt - 6, ds + 80, dt + 36, "dbl");
-        pill(c, o + 456, 330, o + 592, 380, q.dblHz + " Hz", q.dbl && !locked ? "dblhz" : null);
-        pill(c, o + 600, 330, o + 736, 380, q.dblPct + "%", q.dbl && !locked ? "dblpct" : null);
+        pill(c, o + 456, 336, o + 592, 384, q.dblHz + " Hz", q.dbl && !locked ? "dblhz" : null);
+        pill(c, o + 600, 336, o + 736, 384, q.dblPct + "%", q.dbl && !locked ? "dblpct" : null);
         // what the session will be (derived, nothing to set): one line
         int cycles = q.onS + q.offS > 0 ? q.totalS / (q.onS + q.offS) : 0;
         font(14, false);
@@ -1193,6 +1216,27 @@ final class XView extends View {
         line(c, o + 64, 470, o + 736, 470, HEAD_LINE, 1);
         outlined(c, o + 64, 494, o + 264, 554, "sheet-cancel", "Откажи", 18, false);
         filled(c, o + 496, 494, o + 736, 554, "sheet-ok", GREEN, WHITE, "✓  Готово", 20);
+    }
+
+    /** A two-way switch over the sheet's right column (XBody's red for the chosen half). */
+    private void segmented(Canvas c, float o, float t, String idL, String idR, String l, String r, boolean left,
+                           boolean enabled) {
+        round(c, o + 457, t + 1, o + 735, t + 47, 10, WHITE);
+        stroke(c, o + 457, t + 1, o + 735, t + 47, 10, LINE, 2);
+        for (int i = 0; i < 2; i++) {
+            float hl = o + 456 + i * 140;
+            boolean chosen = left == (i == 0);
+            String id = i == 0 ? idL : idR;
+            if (chosen) round(c, hl + 4, t + 4, hl + 136, t + 44, 8, enabled ? RED : GREY);
+            else if (id.equals(pressed)) round(c, hl + 4, t + 4, hl + 136, t + 44, 8, PRESS);
+            String lab = i == 0 ? l : r;
+            float fs = 16;
+            font(fs, chosen);
+            while (fs > 12 && p.measureText(lab) > 124) font(--fs, chosen);   // smaller rather than cut
+            if (chosen && p.measureText("✓ " + lab) <= 126) lab = "✓ " + lab;  // the tick only where it fits
+            text(c, lab, hl, t, hl + 140, t + 48, 0, chosen ? WHITE : enabled ? INK : GREY);
+            if (enabled) hit(hl, t, hl + 140, t + 48, id);
+        }
     }
 
     /** The sheet's left half for a procedure: its length (while it has not started), its phases, the strategy. */
@@ -1289,26 +1333,54 @@ final class XView extends View {
         float[] d = toDesign(e);
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                touchedMs = a.now();
                 tapX = d[0];
                 tapY = d[1];
                 pressed = idAt(d[0], d[1]);
                 pressMs = repeatMs = a.now();
+                sliding = false;
+                slideZone = pressed.startsWith("z:") && a.session() != null && !service ? Integer.parseInt(pressed.substring(2)) : -1;
+                if (slideZone >= 0) {
+                    slideX0 = d[0];
+                    slideY0 = d[1];
+                    slideStart = a.session().zone(slideZone);
+                    slideValue = -1;
+                }
                 if (pressed.equals("slider")) grab(d[0]);
                 else if (isStepper(pressed)) act(pressed, false);   // answer on touch, then repeat while held
                 invalidate();
                 return true;
             case MotionEvent.ACTION_MOVE:
+                touchedMs = a.now();
                 if (pressed.equals("slider")) drag(d[0]);
+                else if (slideZone >= 0) slideZone(d[0], d[1]);
                 return true;
             case MotionEvent.ACTION_UP: {
+                touchedMs = a.now();
                 String id = pressed;
                 pressed = "";
                 grabX = -1;
-                if (id.length() > 0 && !isStepper(id) && !id.equals("slider") && id.equals(idAt(d[0], d[1]))) act(id, false);
+                if (sliding && slideZone >= 0) {             // the slide goes out on release (as the XEMS chip)
+                    Session s = a.session();
+                    if (s != null && slideValue >= 0 && slideValue != slideStart) s.setZone(slideZone, slideValue);
+                    sliding = false;
+                    slideZone = -1;
+                    slideValue = -1;
+                    bubbleUntil = a.now() + 1200;
+                    invalidate();
+                    return true;
+                }
+                slideZone = -1;
+                // held: the trace (on the training screen a 2 s hold is the service mode, its panel has "Лог")
+                if (id.equals("logo") && a.now() - pressMs > 1200 && !serviceHold()) a.shareLog();
+                else if (id.length() > 0 && !isStepper(id) && !id.equals("slider") && id.equals(idAt(d[0], d[1]))) act(id, false);
                 invalidate();
                 return true;
             }
             case MotionEvent.ACTION_CANCEL:
+                sliding = false;
+                slideZone = -1;
+                slideValue = -1;
                 pressed = "";
                 grabX = -1;
                 invalidate();
@@ -1316,6 +1388,27 @@ final class XView extends View {
             default:
                 return true;
         }
+    }
+
+    /**
+     * A sideways slide on a zone label = that zone's strength — the XEMS focus board's chip slide: relative to the
+     * finger (no jump), right = more, edge to edge of the label = 20 %, ≤ 20 per slide; an unpicked zone is picked
+     * first (as its tap); it goes out on release.
+     */
+    private void slideZone(float x, float y) {
+        float dx = x - slideX0, dy = y - slideY0;
+        if (!sliding) {
+            if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy)) return;
+            sliding = true;
+            slideX0 = x;
+            int b = 1 << slideZone;
+            sel = sel == (1 << Session.ZONES) - 1 ? b : sel | b;   // picked first, as its tap
+            return;
+        }
+        int dlt = Math.max(-SLIDE, Math.min(SLIDE, Math.round(dx / zoneW() * SLIDE)));
+        slideValue = Math.max(0, Math.min(100, slideStart + dlt));
+        bubbleUntil = a.now() + 1200;
+        invalidate();
     }
 
     /** A touch on the bar: only on the fader itself does it take hold — a touch beside it changes nothing. */
@@ -1397,7 +1490,7 @@ final class XView extends View {
             BodyFig b = figs[f];
             RectF r = figRect[f];
             int z = b == null ? -1 : b.zoneAt((tapX - r.left) / r.width(), (tapY - r.top) / r.height());
-            if (z >= 0) sel ^= 1 << z;
+            if (z >= 0) sel = sel == (1 << Session.ZONES) - 1 ? 1 << z : sel ^ (1 << z);
             return;
         }
         if (service && id.startsWith("z:")) {       // the service mode: one zone at a time is tried
@@ -1427,13 +1520,19 @@ final class XView extends View {
             showToast("Костюм " + Channels.SUIT[a.channels().suit] + ": каналите отначало");
             return;
         }
+        if (id.equals("svc-log")) {                 // the unit trace (the logo's long press is the service mode here)
+            a.shareLog();
+            return;
+        }
         if (id.equals("svc-done")) {
             toggleService();
             return;
         }
         if (id.startsWith("z:")) {   // tap = into / out of the selection (as on XBody)
             int b = 1 << Integer.parseInt(id.substring(2));
-            sel = (sel & b) != 0 ? sel & ~b : sel | b;
+            // with ВСИЧКИ on, a tap on one zone means THAT zone (not "all but it")
+            if (sel == (1 << Session.ZONES) - 1) sel = b;
+            else sel = (sel & b) != 0 ? sel & ~b : sel | b;
             return;
         }
         if (id.equals("all")) {
@@ -1481,6 +1580,10 @@ final class XView extends View {
             }
             if (s == null || s.state() != Session.RUNNING) a.applyProgram(sheetProg, sheetAge60);
             sheet = false;
+            return;
+        }
+        if (id.equals("wire-xbody") || id.equals("wire-xems")) {   // the zones keep their %, the leads change
+            a.setXemsWiring(id.equals("wire-xems"));
             return;
         }
         if (id.equals("sex-f") || id.equals("sex-m")) {   // the figures change at once, also mid-training

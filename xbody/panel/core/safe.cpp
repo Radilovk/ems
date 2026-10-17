@@ -51,6 +51,13 @@ void apply(int v[N], int age, std::string *why) {
         }
         if (v[RAMP] < RAMP_MIN_MS) v[RAMP] = RAMP_MIN_MS;
     }
+    // The rise lives inside the impulse (owner: a 5 s rise in a 4 s impulse is no rise): ≤ the impulse − 1 s
+    // (≥ 1 s at full strength); a 1 s impulse keeps only the shortest soft start.
+    int rMax = v[ON] > 1 ? (v[ON] - 1) * 1000 : RAMP_MIN_MS;
+    if (v[RAMP] > rMax) {
+        note(why, "Рампа %d → %d ms: не по-дълга от импулса", v[RAMP], rMax, 0, 0);
+        v[RAMP] = rMax;
+    }
     if (v[AP] == 1) {
         int phzMax = v[HZ] - 1 < PAUSE_HZ_MAX ? v[HZ] - 1 : PAUSE_HZ_MAX;
         if (phzMax < 1) {

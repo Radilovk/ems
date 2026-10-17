@@ -39,7 +39,7 @@ suit only adds a driver under the existing screen.
 | XEMS | WiEMS |
 |---|---|
 | slider of a body part (Гърди, Корем, Предно бедро, Прасец, Ръце, Трапец, Гръб, Кръст, Седалище, Задно бедро) | the unit channel of that body part — **XBody's channel order** (owner: a WiEMS suit is an XBody-standard suit): 0 Трапец, 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец |
-| strength % | the unit's value 1 : 1, ≤ 100 (field is 7 bits; the vendor was seen up to 20) |
+| strength % | `WiProto.unit`: 100 % → byte 20 (the vendor's top, seen ≤ 18); the write carries the vendor's check bits (XOR of the ten values in bit 7 of ch 3..7) — without them unequal channels stop the unit with `86` (`wiems/PROTOCOL.md`) |
 | Hz, impulse s, pause s | program `fr`, `w`, `r` (Ru = Rd = 0: the row ramps itself) |
 | second impulse Hz | rest Hz (`frecuenciaResting`, rest strength 100 as the vendor) |
 | width | **not sent** — the unit keeps the vendor's per-channel widths (unit of 0x001c unknown) |

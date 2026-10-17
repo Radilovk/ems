@@ -70,3 +70,22 @@ session running 2 min untouched; name the channels on screen. Then the probe on 
 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
 .NET MAUI app (log: `Microsoft_Maui_Controls_Handlers…`) → a decrypted bundle has .NET assemblies: type / method
 names and string literals readable with ILSpy even when IL is stripped. Its own log lines are `<private>`.
+
+## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
+- Run control `0x0043` notifies **`86`** right after a strength write that trips the unit's protection, then `00`
+  ~30 ms later: the unit stops; the same strengths after a new start trip it again. **Not a channel number**: seen
+  after raising ch 6 (bytes 9 / 12, others 5) and ch 7 (byte 2, others 1) — each time with no suit on and one
+  channel set apart from the others; equal channels at bytes 1–5 never tripped. Likely the set-vs-measured current
+  check (the vendor's "Curr_comp").
+- Status `b1f5a058` while running: per-channel readings that grow with the set level (no suit: byte 1 → ~2,
+  byte 4 → ~4–5; the vendor's capture with a suit: 0–1 at bytes 9–18) — the unit's output measurement.
+- Status `b1f5a058`: at each work start `00…00 a5 00…` then 20 values (1 / 2 on this unit); idle
+  `00 00 00 00 0N 00 … c5 5c` (byte 4 changed 00 → 01 → 04 after the trips).
+
+## The strengths write carries a check (decoded 2026-10-16) — the cause of "86"
+`0x002e` = 10 channel bytes, value in bits 0–6, **bit 7 of channels 3..7 = the 5 bits of the XOR of the ten
+values** (ch 3 = bit 4 … ch 7 = bit 0). Every vendor write in the capture fits (`09 00 00 00 80 00 00 80 00 00`:
+XOR 9 = 01001 → ch 4, ch 7; `12 0f 0f 8f 0f 0f 0f 8f 0c 00`: 0x11 → ch 3, ch 7; equal channels XOR to 0 → no bits).
+A write without the bits whose XOR is not 0 makes the unit stop with `86`, `00` — any channel set apart from the
+others; all channels equal always passed. That is the vendor's log "Curr_comp: Calculada / Recibida". Scale: the
+vendor's 100 % ≈ byte 19–20 (`WiProto.UNIT_MAX` 20). The earlier "86 = channel" / "no load" readings are wrong.

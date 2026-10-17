@@ -4,6 +4,7 @@
 #include "../core/xbprog.h"
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QFile>
 #include <QFontDatabase>
 #include <QMap>
 #include <QMouseEvent>
@@ -108,7 +109,8 @@ static void signalBars(QPainter &p, const QRect &r, int rssi, const QColor &on, 
 PanelWidget::PanelWidget(App *app)
     : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), app_(app), pressMs_(0), repeatMs_(0),
       sheet_(false), confirm_(false), confirmKind_(0), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
-      bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0), figsSex_(-1) {
+      bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0), figsSex_(-1), touchedMs_(0),
+      slideZone_(-1), slideStart_(0), slideValue_(-1), sliding_(false) {
     loadLook();
     setAttribute(Qt::WA_OpaquePaintEvent);
     timer_.start(50, this);   // stepper repeat + change check; paints only on a change
@@ -161,6 +163,7 @@ int PanelWidget::zonesOf(const Zone **z) const {
 int PanelWidget::selValue() const {
     Suit *s = const_cast<App *>(app_)->suit();
     if (!s) return 0;
+    if (sliding_ && slideZone_ >= 0 && slideValue_ >= 0) return slideValue_;
     if (!sel_) return s->strength();
     const Zone *z;
     int n = zonesOf(&z);
@@ -177,10 +180,14 @@ void PanelWidget::setSelValue(int v) {
         app_->strengthStep(v - s->strength());
         return;
     }
+    // several zones move by the same step — their differences stay (arms 30 / legs 60 + 5 → 35 / 65, never all
+    // to one value: a weak zone would jump to the strong one's level)
+    int d = v - selValue();
+    if (d == 0) return;
     const Zone *z;
     int n = zonesOf(&z);
     for (int i = 0; i < n; i++)
-        if ((sel_ & (1u << i)) && s->zone(z[i]) != v) app_->setZone(z[i], v);
+        if (sel_ & (1u << i)) app_->setZone(z[i], qBound(0, s->zone(z[i]) + d, 100));
 }
 
 // XBody's white button with a grey outline (zone buttons, tiles, dialogs); `on` = its red selected state.
@@ -326,12 +333,12 @@ void PanelWidget::paintCable(QPainter &p) {
         hit(r, U("wireless"));
     }
     // Two tabs: the ready programs (per session) | the suit standard and the double impulse (set once).
-    QRect seg(200, 64, 400, 44);
+    QRect seg(130, 64, 540, 44);
     p.setPen(QPen(LINE, 2));
     p.setBrush(WHITE);
     p.drawRoundedRect(QRectF(seg).adjusted(1, 1, -1, -1), 10, 10);
     for (int i = 0; i < 2; i++) {
-        QRect h(seg.left() + i * 200, seg.top(), 200, 44);
+        QRect h(seg.left() + i * 270, seg.top(), 270, 44);
         QString id = i ? U("tab-cable") : U("tab-prog");
         bool sel = cableTab_ == i;
         if (sel || pressed_ == id) {
@@ -838,10 +845,15 @@ void PanelWidget::paintZone(QPainter &p, const QRect &r, int zi, bool right) {
     p.setPen(on ? WHITE : INK);
     p.setFont(uiFont(15));
     p.drawText(in, (right ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignVCenter, QString::fromUtf8(z[zi].name));
-    int pct = s->zone(z[zi]);
+    int pct = sliding_ && slideZone_ == zi && slideValue_ >= 0 ? slideValue_ : s->zone(z[zi]);
     if (!on && pct == 0) p.setPen(GREY);   // an idle zone reads as off
     p.setFont(uiFont(18, true));
     p.drawText(in, (right ? Qt::AlignLeft : Qt::AlignRight) | Qt::AlignVCenter, QString::number(pct) + U("%"));
+    if (sliding_ && slideZone_ == zi) {    // the slide's bar: where the finger has it
+        p.setPen(Qt::NoPen);
+        p.setBrush(on ? WHITE : RED);
+        p.drawRoundedRect(QRectF(r.left() + 8, r.bottom() - 7, (r.width() - 16) * pct / 100.0, 3), 1.5, 1.5);
+    }
 }
 
 // The zone of the screen that drives figure region `region` (XEMS channel order); −1 = none on this suit.
@@ -940,7 +952,8 @@ void PanelWidget::paintTrain(QPainter &p) {
     bool warn = toastOn || app_->noteWarn();
     QString sub = n;
     if (sub.isEmpty())
-        sub = (bt ? U("bodytech") : s->kind() == Suit::WIEMS ? U("WiEMS") : app_->wiring() == Suit::WIRE_XBODY ? U("XEMS · кабели XBody") : U("XEMS")) +
+        sub = (bt ? U("bodytech") : s->kind() == Suit::WIEMS ? (app_->wiring() == Suit::WIRE_XBODY ? U("WiEMS · XEMS костюм") : U("WiEMS"))
+               : app_->wiring() == Suit::WIRE_XBODY ? U("XEMS · кабели XBody") : U("XEMS")) +
               U("   ·   батерия ") + (s->battery() < 0 ? U("—") : QString::number(s->battery()) + U("%"));
     paintHeader(p, QString::fromStdString(app_->suitName()).toUpper(), sub, !n.isEmpty() && warn, !n.isEmpty() && !warn);
     if (n.isEmpty()) battery(p, QRect(400 + QFontMetrics(uiFont(14, true)).width(sub) / 2 + 10, 37, 24, 12), s->battery());
@@ -1136,9 +1149,12 @@ void PanelWidget::pill(QPainter &p, const QRect &r, const QString &value, const 
         if (enabled) hit(k, id);
     }
     p.setPen(INK);
-    p.setFont(uiFont(20, true));
+    int fpx = 20;   // smaller rather than cut ("по модула")
+    while (fpx > 13 && QFontMetrics(uiFont(fpx, true)).width(value) > r.width() - 2 * b - 4) fpx--;
+    p.setFont(uiFont(fpx, true));
     p.drawText(r.adjusted(b, 0, -b, 0), Qt::AlignCenter, value);
 }
+
 
 // "Настройки на сесията": landscape, two groups side by side. Left: the program (what changes the feel of the
 // session). Right: the setup of this client and suit (cables, age). Cancel left, the primary ✓ bottom right.
@@ -1153,7 +1169,24 @@ void PanelWidget::paintSheet(QPainter &p) {
     p.drawRoundedRect(QRectF(card), 14, 14);
     p.setPen(INK);
     p.setFont(uiFont(22));
-    p.drawText(QRect(64, 34, 500, 44), Qt::AlignLeft | Qt::AlignVCenter, U("Настройки на сесията"));
+    p.drawText(QRect(64, 34, 300, 44), Qt::AlignLeft | Qt::AlignVCenter, U("Настройки на сесията"));
+    // XBody's own modes, one tap each (its defaults); the values below can still be changed — ✓ Готово applies
+    if (!(app_->suit() && app_->suit()->state() == Suit::RUNNING)) {
+        const char *mn[3] = {"Мускули", "Кардио", "Релакс"};
+        for (int i = 0; i < 3; i++) {
+            QRect c(392 + i * 116, 40, 108, 36);
+            QString id = U("mode:%1").arg(i + 1);
+            Program m = Program::mode(i + 1);
+            bool on = sheetProg_.hz == m.hz && sheetProg_.onS == m.onS && sheetProg_.offS == m.offS && sheetProg_.cont == m.cont;
+            p.setPen(on ? Qt::NoPen : QPen(LINE, 1.5));
+            p.setBrush(on ? RED : pressed_ == id ? PRESS : WHITE);
+            p.drawRoundedRect(QRectF(c).adjusted(0.75, 0.75, -0.75, -0.75), 18, 18);
+            p.setPen(on ? WHITE : INK);
+            p.setFont(uiFont(15, on));
+            p.drawText(c, Qt::AlignCenter, U(mn[i]));
+            hit(c, id);
+        }
+    }
     p.setPen(QPen(QColor(0xE3, 0xE4, 0xE6), 1));
     p.drawLine(64, 84, 736, 84);
     p.drawLine(432, 100, 432, 452);
@@ -1198,8 +1231,11 @@ void PanelWidget::paintSheet(QPainter &p) {
     // ---- right: this suit and this client ----
     Suit *s = app_->suit();
     int y = 98;
-    if (s && s->kind() == Suit::XEMS) {   // bodytech has one cable layout: no choice to show
-        caption(p, 456, y, U("КОНЕКТОРИ НА КОСТЮМА"));
+    // XEMS: its own cables or XBody's; WiEMS (owner: both standards): an XBody suit on its leads or an XEMS suit.
+    // bodytech has one cable layout: no choice to show.
+    bool wiK = s && s->kind() == Suit::WIEMS;
+    if (s && (s->kind() == Suit::XEMS || wiK)) {
+        caption(p, 456, y, wiK ? U("КОСТЮМ") : U("КОНЕКТОРИ НА КОСТЮМА"));
         QRect info(700, y - 8, 36, 36);   // ⓘ: the lead → channel table
         p.setPen(QPen(pressed_ == U("info") ? RED : GREY, 2));
         p.setBrush(pressed_ == U("info") ? PRESS : WHITE);
@@ -1215,7 +1251,8 @@ void PanelWidget::paintSheet(QPainter &p) {
         p.drawRoundedRect(QRectF(seg).adjusted(1, 1, -1, -1), 10, 10);
         for (int i = 0; i < 2; i++) {
             QRect h(seg.left() + i * 140, seg.top(), 140, 56);
-            bool sel = sheetWiring_ == (i ? Suit::WIRE_XEMS : Suit::WIRE_XBODY);
+            // XEMS kind: XBody cables | its own; WiEMS: an XBody suit (native) | an XEMS suit on XBody leads
+            bool sel = sheetWiring_ == (wiK ? (i ? Suit::WIRE_XBODY : Suit::WIRE_XEMS) : (i ? Suit::WIRE_XEMS : Suit::WIRE_XBODY));
             QString id = i ? U("wire-xems") : U("wire-xbody");
             if (sel) {
                 p.setPen(Qt::NoPen);
@@ -1234,8 +1271,10 @@ void PanelWidget::paintSheet(QPainter &p) {
         p.setPen(SOFT);
         p.setFont(uiFont(14));
         p.drawText(QRect(456, y + 90, 280, 44), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
-                   sheetWiring_ == Suit::WIRE_XBODY ? U("Кабелите са на XBody — зоните се пренасочват сами.")
-                                                    : U("Кабелите са на XEMS — зоните са по канала."));
+                   wiK ? (sheetWiring_ == Suit::WIRE_XBODY ? U("XEMS костюм на кабелите на модула — зоните се пренасочват сами.")
+                                                           : U("XBody костюм — зоните са по канала на модула."))
+                       : sheetWiring_ == Suit::WIRE_XBODY ? U("Кабелите са на XBody — зоните се пренасочват сами.")
+                                                          : U("Кабелите са на XEMS — зоните са по канала."));
         y += 160;
     }
     caption(p, 456, y, U("КЛИЕНТ"));
@@ -1311,18 +1350,21 @@ void PanelWidget::paintWiringInfo(QPainter &p) {
     p.drawRoundedRect(QRectF(card), 14, 14);
     p.setPen(INK);
     p.setFont(uiFont(20));
-    p.drawText(QRect(196, 54, 410, 36), Qt::AlignLeft | Qt::AlignVCenter, U("Кабели на XBody в костюм XEMS"));
-    caption(p, 196, 96, U("ЗОНА (КАБЕЛ XBODY)"));
+    Suit *su = app_->suit();
+    Suit::Kind kk = su && su->kind() == Suit::WIEMS ? Suit::WIEMS : Suit::XEMS;
+    p.drawText(QRect(196, 54, 410, 36), Qt::AlignLeft | Qt::AlignVCenter,
+               kk == Suit::WIEMS ? U("XEMS костюм на кабелите на WiEMS") : U("Кабели на XBody в костюм XEMS"));
+    caption(p, 196, 96, kk == Suit::WIEMS ? U("ЗОНА") : U("ЗОНА (КАБЕЛ XBODY)"));
     p.setFont(uiFont(13, true));
     p.setPen(GREY);
-    p.drawText(QRect(420, 96, 186, 20), Qt::AlignRight | Qt::AlignVCenter, U("КАНАЛ XEMS"));
+    p.drawText(QRect(420, 96, 186, 20), Qt::AlignRight | Qt::AlignVCenter, kk == Suit::WIEMS ? U("КАБЕЛ НА МОДУЛА") : U("КАНАЛ XEMS"));
     const Zone *xb, *xe;
-    int n = Suit::zones(Suit::XEMS, &xb, Suit::WIRE_XBODY);
-    Suit::zones(Suit::XEMS, &xe, Suit::WIRE_XEMS);
+    int n = Suit::zones(kk, &xb, Suit::WIRE_XBODY);
+    Suit::zones(kk, &xe, Suit::WIRE_XEMS);
     for (int i = 0; i < n; i++) {
         int y = 122 + i * 36;
         if (i % 2 == 0) p.fillRect(QRect(186, y, 428, 36), QColor(0xF4, 0xF5, 0xF6));
-        const char *chName = Suit::channelName(Suit::XEMS, xb[i].ch[0]);
+        const char *chName = Suit::channelName(kk, xb[i].ch[0]);
         bool same = false;
         for (int j = 0; j < n; j++)
             if (xe[j].ch[0] == xb[i].ch[0]) same = !qstrcmp(xe[j].name, xb[i].name);
@@ -1344,7 +1386,10 @@ void PanelWidget::paintBubble(QPainter &p) {
     Suit *s = app_->suit();
     if (!s) return;
     QString what = U("Сила");
-    if (sel_) {
+    const Zone *zs;
+    zonesOf(&zs);
+    if (sliding_ && slideZone_ >= 0) what = QString::fromUtf8(zs[slideZone_].name);
+    else if (sel_) {
         const Zone *z;
         int n = zonesOf(&z), c = 0;
         QStringList names;
@@ -1402,10 +1447,14 @@ void PanelWidget::paintConfirm(QPainter &p) {
 static void stepField(Program &q, const QString &f, int d, bool age60) {
     if (f == QLatin1String("hz")) q.hz = qBound(1, q.hz + d, age60 ? 85 : 120);
     else if (f == QLatin1String("us")) q.us = qBound(50, q.us + d * 10, q.hz >= 100 ? 300 : 400);
-    else if (f == QLatin1String("on")) q.onS = qBound(1, q.onS + d, 10);
+    else if (f == QLatin1String("on")) {
+        q.onS = qBound(1, q.onS + d, 10);
+        int rMax = q.onS > 1 ? (q.onS - 1) * 1000 : 300;   // the rise stays inside the impulse
+        if (q.rampMs > rMax) q.rampMs = rMax;
+    }
     else if (f == QLatin1String("off")) q.offS = qBound(1, q.offS + d, 30);
     else if (f == QLatin1String("total")) q.totalS = qBound(60, q.totalS + d * 60, 3600);
-    else if (f == QLatin1String("ramp")) q.rampMs = qBound(500, q.rampMs + d * 500, 5000);
+    else if (f == QLatin1String("ramp")) q.rampMs = qBound(0, q.rampMs + d * 500, q.onS > 1 ? (q.onS - 1) * 1000 : 300);
     else if (f == QLatin1String("dblhz")) q.dblHz = qBound(1, q.dblHz + d, q.hz - 1 < 10 ? (q.hz > 1 ? q.hz - 1 : 1) : 10);
     else if (f == QLatin1String("dblpct")) q.dblPct = qBound(10, q.dblPct + d * 10, 150);
 }
@@ -1442,7 +1491,10 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("cable")) { showCable_ = true; return; }
     if (id == QLatin1String("wireless")) { showCable_ = false; return; }
     if (id == QLatin1String("cable-info")) { cableInfo_ = true; return; }
-    if (id == QLatin1String("tab-prog") || id == QLatin1String("tab-cable")) { cableTab_ = id == QLatin1String("tab-cable"); return; }
+    if (id == QLatin1String("tab-prog") || id == QLatin1String("tab-cable")) {
+        cableTab_ = id == QLatin1String("tab-cable") ? 1 : 0;
+        return;
+    }
     if (id.startsWith(QLatin1String("prog:")) || id == QLatin1String("prog-none")) {   // one program, or none
         xbcable::Config c = app_->cable();
         std::string pid = id == QLatin1String("prog-none") ? std::string() : id.mid(5).toStdString();
@@ -1473,12 +1525,13 @@ void PanelWidget::act(const QString &id, bool repeat) {
         int f = id.mid(4).toInt();
         int r = figs_[f].regionAt(pressAt_.x() - figRect_[f].left(), pressAt_.y() - figRect_[f].top());
         int zi = r >= 0 ? zoneOfRegion(r) : -1;
-        if (zi >= 0) sel_ ^= 1u << zi;
+        if (zi >= 0) sel_ = sel_ == allZones() ? 1u << zi : sel_ ^ (1u << zi);   // under ВСИЧКИ: that zone
         return;
     }
     if (id.startsWith(QLatin1String("z:"))) {   // tap = into / out of the selection (as on XBody)
         unsigned b = 1u << id.mid(2).toInt();
-        sel_ = (sel_ & b) ? sel_ & ~b : sel_ | b;
+        if (sel_ == allZones()) sel_ = b;       // with ВСИЧКИ on, a tap on one zone means THAT zone
+        else sel_ = (sel_ & b) ? sel_ & ~b : sel_ | b;
         return;
     }
     if (id == QLatin1String("all")) { sel_ = sel_ == allZones() ? 0 : allZones(); return; }
@@ -1512,8 +1565,16 @@ void PanelWidget::act(const QString &id, bool repeat) {
         app_->setFemale(id == QLatin1String("sex-f"));
         return;
     }
-    if (id == QLatin1String("wire-xbody")) { sheetWiring_ = Suit::WIRE_XBODY; return; }
-    if (id == QLatin1String("wire-xems")) { sheetWiring_ = Suit::WIRE_XEMS; return; }
+    if (id.startsWith(QLatin1String("mode:"))) {   // XBody's mode: its defaults into the sheet (✓ applies)
+        sheetProg_ = Program::mode(id.mid(5).toInt());
+        return;
+    }
+    if (id == QLatin1String("wire-xbody") || id == QLatin1String("wire-xems")) {
+        bool xb = id == QLatin1String("wire-xbody");
+        bool wiK = s && s->kind() == Suit::WIEMS;   // WiEMS: "XBody" = an XBody suit (native), "XEMS" = an XEMS suit
+        sheetWiring_ = wiK ? (xb ? Suit::WIRE_XEMS : Suit::WIRE_XBODY) : (xb ? Suit::WIRE_XBODY : Suit::WIRE_XEMS);
+        return;
+    }
     if (id == QLatin1String("info")) { info_ = true; return; }
     if (id == QLatin1String("info-close")) { info_ = cableInfo_ = false; return; }
     if (id == QLatin1String("suit") && s && s->state() == Suit::IDLE) { confirm_ = true; confirmKind_ = 0; return; }
@@ -1525,6 +1586,22 @@ void PanelWidget::act(const QString &id, bool repeat) {
         else app_->forget();
         return;
     }
+}
+
+void PanelWidget::slideZone(const QPoint &d) {
+    int dx = d.x() - slideFrom_.x(), dy = d.y() - slideFrom_.y();
+    if (!sliding_) {
+        if (std::abs(dx) < 12 || std::abs(dx) < std::abs(dy)) return;
+        sliding_ = true;
+        slideFrom_ = d;
+        unsigned b = 1u << slideZone_;
+        sel_ = sel_ == allZones() ? b : sel_ | b;   // picked first, as its tap
+        return;
+    }
+    int dl = qBound(-(int)SLIDE, (int)(dx * (double)SLIDE / 175.0 + (dx >= 0 ? 0.5 : -0.5)), (int)SLIDE);
+    slideValue_ = qBound(0, slideStart_ + dl, 100);
+    bubbleUntilMs_ = app_->now() + 1200;
+    update();
 }
 
 void PanelWidget::drag(const QPoint &d) {
@@ -1541,19 +1618,46 @@ void PanelWidget::mousePressEvent(QMouseEvent *e) {
     QPoint d = toDesign(e->pos());
     pressAt_ = d;
     pressed_ = idAt(d);
-    pressMs_ = repeatMs_ = app_->now();
+    pressMs_ = repeatMs_ = touchedMs_ = app_->now();
+    sliding_ = false;
+    slideValue_ = -1;
+    slideZone_ = pressed_.startsWith(QLatin1String("z:")) && app_->suit() ? pressed_.mid(2).toInt() : -1;
+    if (slideZone_ >= 0) {
+        const Zone *z;
+        zonesOf(&z);
+        slideFrom_ = d;
+        slideStart_ = app_->suit()->zone(z[slideZone_]);
+    }
     if (pressed_ == QLatin1String("slider")) drag(d);
     else if (isStepper(pressed_)) act(pressed_, false);   // steppers answer on touch, then repeat while held
     update();
 }
 
 void PanelWidget::mouseMoveEvent(QMouseEvent *e) {
+    touchedMs_ = app_->now();
     if (pressed_ == QLatin1String("slider")) drag(toDesign(e->pos()));
+    else if (slideZone_ >= 0) slideZone(toDesign(e->pos()));
 }
 
 void PanelWidget::mouseReleaseEvent(QMouseEvent *e) {
+    touchedMs_ = app_->now();
     QString id = pressed_;
     pressed_.clear();
+    if (sliding_ && slideZone_ >= 0) {   // the slide goes out on release (as the XEMS chip): one write
+        Suit *s = app_->suit();
+        if (s && slideValue_ >= 0 && slideValue_ != slideStart_) {
+            const Zone *z;
+            zonesOf(&z);
+            app_->setZone(z[slideZone_], slideValue_);
+        }
+        sliding_ = false;
+        slideZone_ = -1;
+        slideValue_ = -1;
+        bubbleUntilMs_ = app_->now() + 1200;
+        update();
+        return;
+    }
+    slideZone_ = -1;
     if (!id.isEmpty() && !isStepper(id) && id != QLatin1String("slider") && idAt(toDesign(e->pos())) == id) act(id, false);
     update();
 }
@@ -1564,6 +1668,7 @@ QString PanelWidget::signature(QString *clock) const {
     App::View v = app_->view();
     QString g = QString::number(v) + U("|") + app_->note() + QString::number(app_->noteWarn()) + U("|") + pressed_ +
                 QString::number(sheet_) + QString::number(confirm_) + QString::number(confirmKind_) + U("|") + QString::number(sel_) +
+                QString::number(slideZone_) + U("/") + QString::number(slideValue_) + U("|") +
                 U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())
                     .arg((int)(bubbleUntilMs_ - now) > 0).arg((int)(toastUntilMs_ - now) > 0);
     *clock = QString();
@@ -1600,13 +1705,15 @@ QString PanelWidget::signature(QString *clock) const {
     if (sheet_)
         g += U("|%1 %2 %3 %4 %5 %6").arg(sheetProg_.hz).arg(sheetProg_.us).arg(sheetProg_.onS).arg(sheetProg_.offS)
                  .arg(sheetProg_.totalS).arg(sheetAge60_) +
-             U("|%1 %2 %3 %4").arg(sheetProg_.rampMs).arg(sheetProg_.dbl).arg(sheetProg_.dblHz).arg(sheetProg_.dblPct);
+             U("|%1 %2 %3 %4").arg(sheetProg_.rampMs).arg(sheetProg_.dbl).arg(sheetProg_.dblHz).arg(sheetProg_.dblPct) +
+             U("|%1 %2 %3").arg(sheetProg_.hz).arg(sheetProg_.onS).arg(sheetProg_.cont);
     *clock = U("%1 %2").arg(s->secondsLeft(now)).arg(s->state() == Suit::RUNNING ? (s->phaseMsLeft(now) + 999) / 1000 : -1);
     return g;
 }
 
 void PanelWidget::timerEvent(QTimerEvent *) {
     unsigned t = app_->now();
+    if (sel_ && pressed_.isEmpty() && !sheet_ && !confirm_ && t - touchedMs_ > (unsigned)SEL_IDLE_MS) sel_ = 0;   // 5 s idle
     if (isStepper(pressed_) && t - pressMs_ > 450 && t - repeatMs_ > 90) { repeatMs_ = t; act(pressed_, true); }
     if (!isVisible()) { sig_.clear(); return; }
     QString clock, g = signature(&clock);
@@ -1617,6 +1724,18 @@ void PanelWidget::timerEvent(QTimerEvent *) {
     }
     sig_ = g;
     clockSig_ = clock;
+}
+
+void PanelWidget::slideAt(const QPoint &a, const QPoint &b) {
+    QMouseEvent d(QEvent::MouseButtonPress, a, mapToGlobal(a), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(this, &d);
+    for (int i = 1; i <= 10; i++) {
+        QPoint m(a.x() + (b.x() - a.x()) * i / 10, a.y() + (b.y() - a.y()) * i / 10);
+        QMouseEvent mv(QEvent::MouseMove, m, mapToGlobal(m), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(this, &mv);
+    }
+    QMouseEvent u(QEvent::MouseButtonRelease, b, mapToGlobal(b), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(this, &u);
 }
 
 void PanelWidget::tapAt(const QPoint &p) {

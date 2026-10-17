@@ -35,6 +35,9 @@ protected:
                 else
                     for (size_t j = 0; j < stabs_.size(); j++)
                         if (stabs_[j]->isVisible() && stabs_[j]->geometry().contains(g)) { stabs_[j]->tapAt(stabs_[j]->mapFromGlobal(g)); break; }
+            } else if (w.size() >= 6 && w[1] == QLatin1String("slide")) {   // ms slide x0 y0 x1 y1
+                QPoint a(w[2].toInt(), w[3].toInt()), b(w[4].toInt(), w[5].toInt());
+                if (panel_->isVisible()) panel_->slideAt(panel_->mapFromGlobal(a), panel_->mapFromGlobal(b));
             } else if (w.size() >= 3 && w[1] == QLatin1String("shot")) {
                 QPixmap::grabWindow(QApplication::desktop()->winId()).save(w[2], "PNG");
             } else if (w.size() >= 2 && w[1] == QLatin1String("quit")) {

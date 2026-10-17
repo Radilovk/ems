@@ -41,6 +41,8 @@ final class Ble {
         void written(boolean ok);
         void runNotify(byte[] v);
         void battery(int pct);
+        /** Any other notification (the unit's status / current check, its clock): for the trace. */
+        void notified(String what, byte[] v);
     }
 
     private final Context ctx;
@@ -55,8 +57,14 @@ final class Ble {
     private String mac;
     private final BluetoothGattCharacteristic[] ops = new BluetoothGattCharacteristic[5];
     private BluetoothGattCharacteristic batt;
-    /** Set-up after the services: 0 run notify, 1 battery notify, 2 battery read, 3 ready. */
+    /**
+     * Set-up after the services, as the vendor: notifications on the run control, the battery, the unit's status /
+     * current check (b1f5a058) and its clock (7764f042), then the battery read; READY after that.
+     */
     private int setup = -1;
+    static final int READY = 5;
+    static final String CHR_STATUS = "b1f5a058-c717-11e4-8731-1681e6b88ec1";
+    private BluetoothGattCharacteristic status, clock;
 
     Ble(Context ctx, Listener l) {
         this.ctx = ctx;
@@ -74,11 +82,11 @@ final class Ble {
     }
 
     boolean ready() {
-        return setup == 3 && gatt != null;
+        return setup == READY && gatt != null;
     }
 
     boolean connecting() {
-        return gatt != null && setup != 3;
+        return gatt != null && setup != READY;
     }
 
     String mac() {
@@ -241,19 +249,15 @@ final class Ble {
     private void step() {
         try {
             if (gatt == null) return;
-            if (setup == 0) {
-                if (!notifyOn(ops[WiProto.OP_RUN])) {
-                    setup = 1;
+            if (setup >= 0 && setup <= 3) {
+                BluetoothGattCharacteristic[] n = {ops[WiProto.OP_RUN], batt, status, clock};
+                if (!notifyOn(n[setup])) {
+                    setup++;
                     step();
                 }
-            } else if (setup == 1) {
-                if (batt == null || !notifyOn(batt)) {
-                    setup = 2;
-                    step();
-                }
-            } else if (setup == 2) {
+            } else if (setup == 4) {
                 if (batt == null || !gatt.readCharacteristic(batt)) {
-                    setup = 3;
+                    setup = READY;
                     l.linked();
                 }
             }
@@ -272,6 +276,16 @@ final class Ble {
         return gatt.writeDescriptor(d);
     }
 
+    /** A characteristic in any service (the status one is outside the vendor service). */
+    private static BluetoothGattCharacteristic findChr(BluetoothGatt g, String uuid) {
+        UUID u = UUID.fromString(uuid);
+        for (BluetoothGattService sv : g.getServices()) {
+            BluetoothGattCharacteristic c = sv.getCharacteristic(u);
+            if (c != null) return c;
+        }
+        return null;
+    }
+
     private void servicesFound(BluetoothGatt g) {
         BluetoothGattService s = g.getService(UUID.fromString(WiProto.SVC));
         if (s == null) {
@@ -286,6 +300,8 @@ final class Ble {
         }
         BluetoothGattService b = g.getService(UUID.fromString(WiProto.BATTERY_SVC));
         batt = b != null ? b.getCharacteristic(UUID.fromString(WiProto.BATTERY_CHR)) : null;
+        status = findChr(g, CHR_STATUS);
+        clock = findChr(g, WiProto.CHR_CLOCK);
         setup = 0;
         step();
     }
@@ -325,7 +341,7 @@ final class Ble {
                 if (e.status == BluetoothProfile.STATE_CONNECTED) {
                     if (!gatt.discoverServices()) close("Не се свърза — опитай пак");
                 } else {
-                    close(setup == 3 ? "Връзката с WiEMS прекъсна — тренировката спря" : "Не се свърза — опитай пак");
+                    close(setup == READY ? "Връзката с WiEMS прекъсна — тренировката спря" : "Не се свърза — опитай пак");
                 }
                 break;
             case EV_SERVICES:
@@ -338,8 +354,8 @@ final class Ble {
                 break;
             case EV_READ:
                 if (e.c == batt && e.v != null && e.v.length == 1) l.battery(e.v[0] & 0xFF);
-                if (setup == 2) {
-                    setup = 3;
+                if (setup == 4) {
+                    setup = READY;
                     l.linked();
                 }
                 break;
@@ -349,6 +365,7 @@ final class Ble {
             case EV_CHANGED:
                 if (e.c == batt && e.v != null && e.v.length == 1) l.battery(e.v[0] & 0xFF);
                 else if (e.c == ops[WiProto.OP_RUN]) l.runNotify(e.v);
+                else l.notified(e.c == status ? "status" : e.c == clock ? "clock" : String.valueOf(e.c.getUuid()), e.v);
                 break;
             default:
                 break;

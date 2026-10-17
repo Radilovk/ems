@@ -121,6 +121,18 @@ public class AppTest {
         v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_UP, ox + dxDesign * k, dyDesign * k));
     }
 
+    /** A finger put down at x0, moved to x1 in steps and lifted (design coordinates). */
+    static void swipe(XView v, float x0, float x1, float y) {
+        BufferedImage scratch = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
+        v.draw(new Canvas(scratch.createGraphics()));
+        float k = v.getHeight() / 600f, dw = Math.max(800f, v.getWidth() / k);
+        float ox = (v.getWidth() - dw * k) / 2;
+        v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_DOWN, ox + x0 * k, y * k));
+        for (int i = 1; i <= 8; i++)
+            v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_MOVE, ox + (x0 + (x1 - x0) * i / 8) * k, y * k));
+        v.onTouchEvent(new MotionEvent(MotionEvent.ACTION_UP, ox + x1 * k, y * k));
+    }
+
     public static void main(String[] args) throws Exception {
         // ---- the session's unit operations (golden: wiems/PROTOCOL.md + the vendor's own writes in the capture) ----
         // The vendor writes the strengths only when they change (one write per tap, ~1 s apart) and never in the
@@ -377,6 +389,20 @@ public class AppTest {
         tap(v, 960 - 90, 111);                              // Гръб (60 %)
         tap(v, 960 - 40, 567);                              // + on both
         eq("two zones + keep their difference", "35 65", h.session.zone(0) + " " + h.session.zone(5));
+        // the slider moves only from its fader (owner): a tap or a swipe beside it changes nothing
+        float sx0 = 104, sx1 = 960 - 98, knob = sx0 + (sx1 - sx0) * 0.35f;
+        tap(v, 700, 567);
+        tap(v, 150, 567);
+        swipe(v, 700, 800, 567);
+        eq("a touch on the bar beside the fader: nothing", "35 65", h.session.zone(0) + " " + h.session.zone(5));
+        tap(v, knob + 10, 567);
+        eq("a tap on the fader itself: nothing", "35 65", h.session.zone(0) + " " + h.session.zone(5));
+        swipe(v, knob + 20, knob + 20 + (sx1 - sx0) * 0.10f, 567);   // grabbed off-centre: no jump, + 10 %
+        eq("the fader dragged + 10 %", "45 75", h.session.zone(0) + " " + h.session.zone(5));
+        swipe(v, knob + 2, knob - (sx1 - sx0) * 0.20f, 567);         // the fader is at 45 % now: a grab at 35 % misses
+        eq("a drag from where the fader was: nothing", "45 75", h.session.zone(0) + " " + h.session.zone(5));
+        h.session.setZone(0, 35);
+        h.session.setZone(5, 65);
         h.session = keep;
         tap(v, 100, 111);
         tap(v, 960 - 90, 111);

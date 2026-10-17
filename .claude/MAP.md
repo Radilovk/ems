@@ -1215,8 +1215,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (139L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.7)
+`docs/xems-wiems-app.md` (150L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.8)
   - L7 ## What it is
   - L29 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L39 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1224,8 +1224,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L70 ## v1.5 — fixes from the first test on the unit (owner)
   - L85 ## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
   - L104 ## v1.7 — the right channel on the right muscle, for both suit standards (owner)
-  - L129 ## Build / test
-  - L136 ## Not verified yet
+  - L129 ## v1.8 — figures with relief, a slider that needs its fader (owner)
+  - L140 ## Build / test
+  - L147 ## Not verified yet
 
 `docs/xems-wiems.md` (74L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

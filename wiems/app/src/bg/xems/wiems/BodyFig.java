@@ -18,13 +18,13 @@ final class BodyFig {
     Bitmap art, over;
     int w, h;
     private int[] idx, px;
-    private byte[] zone, shade, cov, map;
+    private byte[] zone, shade, cov, map, tone;
     private String painted = "";
 
     static BodyFig load(Host host, String key) {
         BodyFig f = new BodyFig();
         try {
-            f.art = lighten(decode(host, "body/" + key + "-art.webp", false));
+            f.art = lighten(decode(host, "body/" + key + "-art.webp", false), f);
             Bitmap ix = decode(host, "body/" + key + "-idx.webp", false);
             if (f.art == null || ix == null) return null;
             f.w = ix.getWidth();
@@ -46,7 +46,7 @@ final class BodyFig {
                 f.map[i] = (byte) (z + 1);
                 f.idx[j] = i;
                 f.zone[j] = (byte) z;
-                f.shade[j] = (byte) ((all[i] >> 8) & 0xFF);
+                f.shade[j] = f.tone != null && f.tone.length == all.length && f.tone[i] != 0 ? f.tone[i] : (byte) ((all[i] >> 8) & 0xFF);
                 f.cov[j] = (byte) (all[i] & 0xFF);
                 j++;
             }
@@ -59,28 +59,90 @@ final class BodyFig {
         }
     }
 
-    /**
-     * The tablet's figures are near black; on XBody's light screen they weighed too much (owner): lifted to a light,
-     * slightly cool grey (85 + 0.65·v, blue +6) — the muscles keep their volume, the red of a working zone stands out.
-     */
-    static int lift(int argb) {
-        int r = (argb >> 16) & 0xFF, g = (argb >> 8) & 0xFF, b = argb & 0xFF;
-        r = 85 + r * 65 / 100;
-        g = 85 + g * 65 / 100;
-        b = Math.min(255, 91 + b * 65 / 100);
-        return (argb & 0xFF000000) | (r << 16) | (g << 8) | b;
-    }
+    /** The figure's tone: deep slate in the hollows → pale cool grey on the lights (the screen's slate family). */
+    static final int DARK = 0xFF3F4552, LIGHT = 0xFFEEF0F4;
 
-    private static Bitmap lighten(Bitmap a) {
+    /**
+     * The tablet's figures are near black and nearly flat: half the body sits in 52..68 of 255. A plain lift
+     * (v1.2: 85 + 0.65·v) kept that 16-step range, so on XBody's light screen the body read as one grey blot
+     * (owner). Now the figure's own range is spread out — its 1..99.5 % luminance stretched to slate … pale grey,
+     * a third of it by its histogram so the muscles' relief opens up — after a 3×3 blur (the webp's steps would
+     * show as grain), and its silhouette gets a soft slate rim so a light body still stands off the light background.
+     * The tone is kept: the working zones' red follows the same volume ({@link #paint}).
+     */
+    private static Bitmap lighten(Bitmap a, BodyFig f) {
         if (a == null) return null;
-        int w = a.getWidth(), h = a.getHeight();
-        int[] px = new int[w * h];
+        int w = a.getWidth(), h = a.getHeight(), n = w * h;
+        int[] px = new int[n];
         a.getPixels(px, 0, w, 0, 0, w, h);
-        for (int i = 0; i < px.length; i++) px[i] = lift(px[i]);
+        a.recycle();
+        int[] lum = new int[n];
+        for (int i = 0; i < n; i++) lum[i] = (((px[i] >> 16) & 0xFF) + ((px[i] >> 8) & 0xFF) + (px[i] & 0xFF)) / 3;
+        float[] l = new float[n];
+        int[] hist = new int[256];
+        int body = 0;
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++) {
+                int i = y * w + x;
+                if (!opaque(px[i])) continue;
+                int sum = 0, k = 0;
+                for (int dy = -1; dy <= 1; dy++)
+                    for (int dx = -1; dx <= 1; dx++) {
+                        int xx = x + dx, yy = y + dy;
+                        if (xx < 0 || yy < 0 || xx >= w || yy >= h || !opaque(px[yy * w + xx])) continue;
+                        sum += lum[yy * w + xx];
+                        k++;
+                    }
+                l[i] = (float) sum / k;
+                hist[Math.min(255, (int) l[i])]++;
+                body++;
+            }
+        float[] cdf = new float[256];
+        int acc = 0, lo = -1, hi = 255;
+        for (int v = 0; v < 256; v++) {
+            acc += hist[v];
+            cdf[v] = body == 0 ? 0 : (float) acc / body;
+            if (lo < 0 && cdf[v] >= 0.01f) lo = v;
+            if (hi == 255 && cdf[v] >= 0.995f) hi = v;
+        }
+        if (lo < 0 || hi <= lo) { lo = 0; hi = 255; }
+        f.tone = new byte[n];
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++) {
+                int i = y * w + x;
+                if (!opaque(px[i])) continue;
+                float lin = Math.max(0f, Math.min(1f, (l[i] - lo) / (hi - lo)));
+                float t = (float) Math.pow(0.35f * cdf[Math.min(255, (int) l[i])] + 0.65f * lin, 0.85);
+                f.tone[i] = (byte) (t * 255);
+                int edge = edge(px, w, h, x, y);         // the rim: 1 px → 55 % slate, 2 px → 25 %
+                if (edge > 0) t *= edge == 1 ? 0.45f : 0.75f;
+                px[i] = (px[i] & 0xFF000000) | (mix(DARK, LIGHT, t) & 0xFFFFFF);
+            }
         Bitmap out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         out.setPixels(px, 0, w, 0, 0, w, h);
-        a.recycle();
         return out;
+    }
+
+    private static boolean opaque(int argb) {
+        return (argb >>> 24) > 128;
+    }
+
+    /** 1 / 2 = the distance of a body pixel from the silhouette's edge, 0 = further in. */
+    private static int edge(int[] px, int w, int h, int x, int y) {
+        for (int r = 1; r <= 2; r++)
+            for (int dy = -r; dy <= r; dy++)
+                for (int dx = -r; dx <= r; dx++) {
+                    int xx = x + dx, yy = y + dy;
+                    if (xx < 0 || yy < 0 || xx >= w || yy >= h || !opaque(px[yy * w + xx])) return r;
+                }
+        return 0;
+    }
+
+    private static int mix(int x, int y, float t) {
+        int r = (int) (((x >> 16) & 0xFF) + (((y >> 16) & 0xFF) - ((x >> 16) & 0xFF)) * t);
+        int g = (int) (((x >> 8) & 0xFF) + (((y >> 8) & 0xFF) - ((x >> 8) & 0xFF)) * t);
+        int b = (int) ((x & 0xFF) + ((y & 0xFF) - (x & 0xFF)) * t);
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
     private static Bitmap decode(Host host, String asset, boolean premultiplied) throws java.io.IOException {
@@ -137,7 +199,7 @@ final class BodyFig {
 
     /** The report's recolour: the shade keeps the volume (dark → black, mid → the colour, light → white). */
     static int shadeOf(int c, float l, int alpha) {
-        l = 0.22f + 0.78f * l;                     // softer darks: the lighter figure, the red stays red
+        l = 0.16f + 0.84f * l;                     // the figure's tone: hollows deep, lights brighter — the red keeps its volume
         int r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
         if (l < 0.5f) {
             r = (int) (r * 2 * l);

@@ -147,9 +147,20 @@ public final class BtBridge {
             boolean was = v.tr.armed();
             boolean prog = v.tr.programmed();
             List<byte[]> frames = v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime());
-            v.add(frames, cb, data, false, !prog && v.tr.programmed());
+            boolean load = !prog && v.tr.programmed();
             long[] slide = v.tr.takeSlide();
-            if (slide != null) v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
+            int slow = slide != null ? (int) slide[2] : 0;
+            if (slide != null && !load && slow > 0 && slow <= frames.size()) {
+                // the slide's clock starts at the ACK of its FIRST slow frame (1.1.454): every slow channel is then
+                // slow for the same time, the frames back going in the same order (BtTranslator.slideEnd)
+                int first = frames.size() - slow + 1;
+                v.add(new ArrayList<byte[]>(frames.subList(0, first)), null, null, false);
+                v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
+                v.add(new ArrayList<byte[]>(frames.subList(first, frames.size())), cb, data, false);
+            } else {
+                v.add(frames, cb, data, false, load);
+                if (slide != null) v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
+            }
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
             else if (was && !now) BtBeep.pause();

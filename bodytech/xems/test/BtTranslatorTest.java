@@ -478,6 +478,9 @@ public class BtTranslatorTest {
         }
         long[] sl = tr.takeSlide();
         eq("slots: slide pending 2 s", "2000", sl == null ? "null" : String.valueOf(sl[0]));
+        eq("slots: 7 slow frames, the last of the command", "7", sl == null ? "null" : String.valueOf(sl[2]));
+        eq("slots: the first slow frame is C2's, 7 from the end", hex(BtProto.period(2, 11764
+                + (int) Math.round(11764.0 / 8 * 11764 / (2e6 - 11764.0 / 8)))), hex(f.get(f.size() - 7)));
         eq("slots: taken once", null, tr.takeSlide());
         // a strength step during the slide: no new SEL, no slide end
         f = pair(tr, setting(55), run(600, 85, 350, 4, 4, 1), t);
@@ -485,7 +488,8 @@ public class BtTranslatorTest {
         // slide end → C8..C2 back on the plain period (85 Hz)
         f = tr.slideEnd(sl[1]);
         eq("slots: slide end, 7 channels back", 7, f.size());
-        eq("slots: slide end, fastest (C8) first", hex(BtProto.hz(8, 85)), hex(f.get(0)));
+        eq("slots: slide end in the order they went slow (C2 first)", hex(BtProto.hz(2, 85)), hex(f.get(0)));
+        eq("slots: slide end, C8 last", hex(BtProto.hz(8, 85)), hex(f.get(6)));
         eq("slots: stale slide end does nothing", 0, tr.slideEnd(sl[1]).size());
         // pause → SEL off; next impulse → SEL + slide again (places laid every impulse)
         tr.phase(BtTranslator.PAUSE);

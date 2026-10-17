@@ -151,4 +151,5 @@ private:
     PanelWidget *panel_;
     TabWidget *tab_;
     int strengthMem_;
+    bool busy_;             // a suit is linked → /tmp/xems-busy is set (a USB update waits to restart the panel)
 };

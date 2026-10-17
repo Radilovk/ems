@@ -164,9 +164,13 @@ while the unit is on, through **two** interfaces — owner's "и двете":
    it reads as newer. md5 = `md5("softwareupdate.newave.3.<mod>." + <cipher> + "xbody.")[:16]` (the way
    `ArchiveInspector::verifyIntegrity` computes it; `setDataFromFileName` wants it base-16, ≥ 8 chars). The vendor
    only copies the archive's files over `/` and then restarts **its own GUI** (`App::requestRestart` →
-   `QCoreApplication::quit`, re-exec — not the machine). So the archive carries the **stick** into
-   `/opt/xems/pending` (+ `xems-pending` and its S29 link for units older than v9): the next power-on installs it
-   with the same `updater.sh` as every other path — backup in `/opt/xems/pending/xems`, `remove.list`, hooks.
+   `QCoreApplication::quit`, re-exec — **not** a reboot, so the boot installer `xems-pending` rc5 S29 never runs).
+   So the archive carries the **stick** into `/opt/xems/pending` and the real install is run by the panel's own
+   background loop (`init.d/xems-panel`, every 2 s): it sees `/opt/xems/pending/updater.sh`, runs it (backup in
+   `/opt/xems/pending/xems`, `remove.list`, the firstboot hooks), parks a failed one as `.failed.sh`, and restarts
+   the panel to the new binary once `/tmp/xems-busy` is gone (no suit linked, written by `App`) — **no reboot**. S29
+   (+ its link, for units older than v9) stays as the boot-time fallback. Mod ≤ v18 has no such loop, so the first
+   install of a loop-carrying version still needs one real power-cycle.
 2. **The XEMS panel** — "Кабел на XBody" → tab "Кабел и импулс" → **Обнови XEMS от USB** (hidden while training).
    Confirm → `App::updateFromUsb()` runs `/opt/xems/bin/xems-usb-update apply`: mounts `/dev/sda1` (else `sda`),
    runs the stick's own `updater.sh` (backup + payload + `remove.list`, self-renames), reports the version in a

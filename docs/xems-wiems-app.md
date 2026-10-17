@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.7)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.8)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -125,6 +125,17 @@ Tests: `AppTest` (swap, save / load, a broken saved value, a remap while running
 taps; shots `7a`–`7d`), `UnitSim` uses `Session.unitCh`.
 **Still open:** the XEMS tablet (`WiTranslator.SLIDER_TO_CH`) and the XBody panel (`WI_ZONES`) keep the old WiEMS
 order — once the service mode has checked both suits, port the two maps (the `к.N` column) there.
+
+## v1.8 — figures with relief, a slider that needs its fader (owner)
+- **The figures read as a grey blot** (no contrast): the art is nearly flat (half the body in 52..68 / 255) and the
+  v1.2 lift (85 + 0.65·v) kept that 16-step range. `BodyFig.lighten` now spreads the figure's own range: 3×3 blur
+  (no webp grain) → its 1..99.5 % luminance stretched, ⅓ by its histogram (the muscles' relief) → deep slate
+  #3F4552 … pale cool grey #EEF0F4, plus a soft slate rim on the silhouette (it stands off the light background).
+  The working zones' red takes the same tone (volume in the red too); a light impulse starts at 45 % opacity
+  (was 28 %: a pink haze).
+- **The slider moves only from its fader**: a touch / tap / swipe on the bar beside the chip (±34 design units)
+  changes nothing; a grabbed fader follows the finger by how far it moved (no jump to the touch point) and waits
+  for 3 units of real movement. − / + stay as they are. Tests: `AppTest` "the fader …".
 
 ## Build / test
 ```

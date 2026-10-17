@@ -60,6 +60,12 @@ final class XView extends View {
     private boolean figsFemale;
     private final RectF[] figRect = {new RectF(), new RectF()};
     private float tapX, tapY;                   // the last touch (design units): which muscle a tap on the figure hit
+    // the slider moves only when its fader is grabbed and dragged (owner: a stray touch on the bar must never raise
+    // or drop the impulses) — grabX / grabV = where the finger took the fader and the value then; −1 = not grabbed
+    private float grabX = -1;
+    private int grabV;
+    private boolean grabMoved;
+    static final float GRAB = 34;               // half the fader's catch area (design units, the chip is 34 wide)
     private Bitmap grain;                       // XBody's off-white grain, tiled
     private boolean procPage;                   // the program screen shows the passive procedures
     private String procSel = Procs.ALL[0].id;   // the procedure picked on that page
@@ -892,7 +898,7 @@ final class XView extends View {
                 float k2 = Math.min(1f, t / 0.8f);      // in step with the impulse: deep red from 80 %
                 // the second impulse (double impulse, in the pause) in XBody's yellow — the main one in its red
                 col[z] = s.second() ? mix(0xFFFFE28A, 0xFFF5A600, k2) : mix(LIGHT_RED, RED, k2);
-                alpha[z] = 0.28f + 0.72f * k2;
+                alpha[z] = 0.45f + 0.55f * k2;          // even a light impulse reads as colour, not a pink haze
             } else if (picked) {
                 col[z] = RED;
                 alpha[z] = 0.30f;
@@ -1287,7 +1293,7 @@ final class XView extends View {
                 tapY = d[1];
                 pressed = idAt(d[0], d[1]);
                 pressMs = repeatMs = a.now();
-                if (pressed.equals("slider")) drag(d[0]);
+                if (pressed.equals("slider")) grab(d[0]);
                 else if (isStepper(pressed)) act(pressed, false);   // answer on touch, then repeat while held
                 invalidate();
                 return true;
@@ -1297,12 +1303,14 @@ final class XView extends View {
             case MotionEvent.ACTION_UP: {
                 String id = pressed;
                 pressed = "";
+                grabX = -1;
                 if (id.length() > 0 && !isStepper(id) && !id.equals("slider") && id.equals(idAt(d[0], d[1]))) act(id, false);
                 invalidate();
                 return true;
             }
             case MotionEvent.ACTION_CANCEL:
                 pressed = "";
+                grabX = -1;
                 invalidate();
                 return true;
             default:
@@ -1310,11 +1318,27 @@ final class XView extends View {
         }
     }
 
-    private void drag(float x) {
+    /** A touch on the bar: only on the fader itself does it take hold — a touch beside it changes nothing. */
+    private void grab(float x) {
+        grabX = -1;
         if (a.session() == null) return;
         float x0 = sliderX0(), x1 = sliderX1();
-        int v = Math.max(0, Math.min(100, (int) (100f * (x - x0) / (x1 - x0) + 0.5f)));
-        if (sel != 0) v = (v + 2) / 5 * 5;      // zones in steps of 5 under a finger
+        int v = selValue();
+        if (Math.abs(x - (x0 + (x1 - x0) * v / 100f)) > GRAB) return;
+        grabX = x;
+        grabV = v;
+        grabMoved = false;
+    }
+
+    /** The grabbed fader follows the finger by how far it moved (no jump to where the chip was touched). */
+    private void drag(float x) {
+        if (a.session() == null || grabX < 0) return;
+        float x0 = sliderX0(), x1 = sliderX1();
+        float f = grabV + 100f * (x - grabX) / (x1 - x0);
+        if (!grabMoved && Math.abs(x - grabX) < 3) return;   // a resting finger trembles: hold until it really moves
+        grabMoved = true;
+        int v = Math.max(0, Math.min(100, Math.round(f)));
+        if (sel != 0) v = Math.abs(f - grabV) < 2.5f ? grabV : (v + 2) / 5 * 5;   // zones in steps of 5 under a finger
         if (v != selValue()) setSelValue(v);
         bubbleUntil = a.now() + 1200;
         invalidate();

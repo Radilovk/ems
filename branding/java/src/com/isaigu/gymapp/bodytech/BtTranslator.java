@@ -551,6 +551,25 @@ public final class BtTranslator {
         // slots: a real training, two channels or more, one Hz for all of them (the lowest any channel is held to)
         boolean slots = testCh == 0 && BtSettings.slots() && n >= 2 && common >= SLOT_MIN_HZ;
         if (!slots) stopSlide(out);
+        // a channel that is on and gets another Hz (the second impulse and back) is restarted: the suit applies a new
+        // period to a running channel only later (owner, 1.1.452: the double impulse's first impulse came late), a SEL
+        // off → on starts it on the new one. Taken out of the mask here, put back at the end (the mask goes last).
+        int restart = 0;
+        if (hold) {
+            for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+                if ((devMask & (1 << (ch - 1))) == 0) continue;
+                // the Hz it will get now: a working channel its own (or the slots' common), a silent one only in slots
+                if (want[ch] > 0) {
+                    if (devHz[ch] != (slots ? common : effHz(ch, hz))) restart |= 1 << (ch - 1);
+                } else if (slots && devHz[ch] != common) {
+                    restart |= 1 << (ch - 1);
+                }
+            }
+            if (restart != 0) {
+                out.add(BtProto.enable(devMask & ~restart));
+                devMask &= ~restart;
+            }
+        }
         int mask = 0;
         boolean hzNew = false;
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {

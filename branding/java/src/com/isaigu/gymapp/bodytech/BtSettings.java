@@ -43,7 +43,13 @@ public final class BtSettings {
      * Owner, 1.1.389: EMSFIT's "Гърди" (C5) is the left thigh, on the XEMS chest channel; EMSFIT's "Крака" (C7) is the
      * right thigh, on the XEMS front-thigh channel; the rest as EMSFIT names them.
      */
-    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 0, 4, 2, 1};
+    /**
+     * Owner, 1.1.456: the two thighs are ONE channel of the row, "Бедра" — C5 and C7 both on the XEMS front-thigh
+     * channel, one slider moves both (no Л / Д, no equal-legs rule: {@link #thighSlider}).
+     */
+    static final int[] DEFAULT_SLIDER = {NO_SLIDER, 7, 8, 5, 6, 2, 4, 2, 1};
+    /** The row's name of the one channel both thighs are on (owner, 1.1.456). */
+    public static final String THIGHS = "Бедра";
     /** The EMSFIT defaults before 1.1.376: a tablet still holding them untouched is moved to the legs once. */
     static final String OLD_C5 = "Гърди", OLD_C7 = "Бедра";
     /** The 1.1.379–1.1.388 leg names and their sliders (front thigh = left, back thigh = right) → the thighs (1.1.389). */
@@ -133,6 +139,11 @@ public final class BtSettings {
         // the old names / sliders are moved once; after that (any save) the owner's map is left as it is — C5 may be
         // put on Гърди and named so (owner, 1.1.388)
         if (!p.getBoolean("legs389", false) && legs()) save();
+        // owner, 1.1.456: the thighs become one channel, once; a later split by hand stays
+        if (!p.getBoolean("thighs456", false)) {
+            thighs();
+            save();
+        }
         unlimited = p.getBoolean("unlimited", true);
         slots = p.getBoolean("slots2", true);
         hold = p.getBoolean("hold", true);
@@ -164,6 +175,27 @@ public final class BtSettings {
             }
         }
         return changed;
+    }
+
+    /** The two leg channels on one XEMS channel (the right leg's, else the left's, else front thigh). true = changed. */
+    static boolean thighs() {
+        if (!valid(legL) || !valid(legR) || slider[legL] == slider[legR] && slider[legL] != NO_SLIDER) return false;
+        int s = slider[legR] != NO_SLIDER ? slider[legR] : slider[legL] != NO_SLIDER ? slider[legL] : DEFAULT_SLIDER[7];
+        slider[legL] = s;
+        slider[legR] = s;
+        return true;
+    }
+
+    /** The XEMS channel both thighs are on — the row's "Бедра" (owner, 1.1.456); {@link #NO_SLIDER} when split. */
+    public static synchronized int thighSlider() {
+        if (!loaded || !valid(legL) || !valid(legR)) return NO_SLIDER;
+        int l = slider[legL];
+        return l == slider[legR] ? l : NO_SLIDER;
+    }
+
+    /** The training row's name for slider s on a bodytech row: "Бедра" on the thighs' one channel, else null. */
+    public static synchronized String rowName(int s) {
+        return s >= 0 && s == thighSlider() ? THIGHS : null;
     }
 
     private static int firstOn(int s) {
@@ -280,6 +312,7 @@ public final class BtSettings {
             e.putInt("chzs" + ch, chHzSecond[ch]);
         }
         e.putBoolean("legs389", true);
+        e.putBoolean("thighs456", true);
         e.putInt("legl", legL);
         e.putInt("legr", legR);
         StringBuilder o = new StringBuilder();

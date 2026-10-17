@@ -1357,7 +1357,11 @@ public final class FocusBoard {
             int markLevel = 0;
             double[] prog = new double[AutoModel.CHANNELS];
             boolean[] dis = new boolean[AutoModel.CHANNELS];
+            boolean bt = bodytech(it);
             for (int k = 0; k < AutoModel.CHANNELS; k++) {
+                if (chips[k] != null) {
+                    chips[k].show(!bt || zone(it, k) == k, bt ? com.isaigu.gymapp.bodytech.BtSettings.rowName(k) : null);
+                }
                 int level = lv != null && k < lv.length ? lv[k] : 0;
                 boolean m = marked(it, k);
                 if (m) {
@@ -1390,6 +1394,16 @@ public final class FocusBoard {
                         sex = p != null && p.sex != null ? p.sex : AiModel.Sex.MALE;
                     } catch (Throwable t) {
                         sex = AiModel.Sex.MALE;
+                    }
+                }
+                if (bt) {
+                    // bodytech: a muscle without a channel is faint; the thighs' one channel lights both thighs
+                    for (int k = 0; k < AutoModel.CHANNELS; k++) {
+                        int z = zone(it, k);
+                        if (z != k) {
+                            prog[k] = z >= 0 ? prog[z] : 0;
+                            dis[k] = z < 0 || dis[z];
+                        }
                     }
                 }
                 body.set(sex, prog, null, dis, null);
@@ -1803,6 +1817,28 @@ public final class FocusBoard {
         }
     }
 
+    /** The client's row runs a bodytech suit. */
+    private static boolean bodytech(TrainItem it) {
+        return it != null && it.data != null
+                && com.isaigu.gymapp.bodytech.BtBridge.isBodytechMac(it.data.macAddress);
+    }
+
+    /**
+     * The muscle k of the board on the client's suit (owner, 1.1.456): k itself on an XEMS suit; on a bodytech one
+     * the channel it answers to — a thigh (front or back) = the thighs' one channel "Бедра", a muscle the suit has no
+     * channel for = −1 (its chip is hidden, its zone of the figure faint and not tappable).
+     */
+    static int zone(TrainItem it, int k) {
+        if (!bodytech(it)) {
+            return k;
+        }
+        int t = com.isaigu.gymapp.bodytech.BtSettings.thighSlider();
+        if (t >= 0 && (k == AutoModel.FRONT_THIGH || k == AutoModel.BACK_THIGH)) {
+            return t;
+        }
+        return com.isaigu.gymapp.bodytech.BtSettings.hasChannel(k) ? k : -1;
+    }
+
     static void chipClick(int k) {
         View h = root != null ? find(root, "buwei" + (k + 1)) : null;
         if (h != null) {
@@ -1967,6 +2003,9 @@ public final class FocusBoard {
                 }
                 int z = body.zoneAt(e.getX(), e.getY(), XemsUi.dp(v.getContext(), 16));
                 if (z >= 0 && z < AutoModel.CHANNELS) {
+                    z = zone(current(), z);
+                }
+                if (z >= 0 && z < AutoModel.CHANNELS) {
                     XemsUi.haptic(v);
                     Chip ch = chips[z];
                     if (ch != null) {
@@ -2065,6 +2104,18 @@ public final class FocusBoard {
             view.setGravity(Gravity.CENTER_VERTICAL);
         }
 
+        /** Shown or gone (a bodytech suit has no channel here), and its name (null = the muscle's own). */
+        void show(boolean on, String label) {
+            int vis = on ? View.VISIBLE : View.GONE;
+            if (view.getVisibility() != vis) {
+                view.setVisibility(vis);
+            }
+            String want = label != null ? label : AutoUi.zoneNames()[k];
+            if (!want.equals(String.valueOf(name.getText()))) {
+                name.setText(want);
+            }
+        }
+
         void set(int level, int tint, boolean sel, boolean yellow, boolean off) {
             this.level = level;
             this.tint = tint;
@@ -2148,7 +2199,8 @@ public final class FocusBoard {
                 int[] ks = side == 0 ? LEFT : RIGHT;
                 for (int k : ks) {
                     Chip ch = chips[k];
-                    if (ch == null || ch.view.getWidth() <= 0 || !b.anchor(side, k, side, pt)) {
+                    if (ch == null || ch.view.getVisibility() != View.VISIBLE || ch.view.getWidth() <= 0
+                            || !b.anchor(side, k, side, pt)) {
                         continue;
                     }
                     ch.view.getLocationInWindow(at);

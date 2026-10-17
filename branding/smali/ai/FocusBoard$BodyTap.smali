@@ -28,7 +28,7 @@
     .registers 1
 
     .prologue
-    .line 1951
+    .line 1987
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -37,45 +37,47 @@
 
 # virtual methods
 .method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .registers 10
+    .registers 11
 
     .prologue
+    const/16 v7, 0xa
+
     const v5, 0x3f87ae14    # 1.06f
 
     const/4 v6, 0x1
 
-    .line 1957
+    .line 1993
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 1958
-    if-nez v0, :cond_17
+    .line 1994
+    if-nez v0, :cond_19
 
-    .line 1959
+    .line 1995
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$BodyTap;->x0:F
 
-    .line 1960
+    .line 1996
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getY()F
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$BodyTap;->y0:F
 
-    .line 1980
-    :cond_16
-    :goto_16
+    .line 2019
+    :cond_18
+    :goto_18
     return v6
 
-    .line 1963
-    :cond_17
-    if-ne v0, v6, :cond_16
+    .line 1999
+    :cond_19
+    if-ne v0, v6, :cond_18
 
-    .line 1964
+    .line 2000
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -88,7 +90,7 @@
 
     int-to-float v0, v0
 
-    .line 1965
+    .line 2001
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getX()F
 
     move-result v1
@@ -103,7 +105,7 @@
 
     cmpl-float v1, v1, v0
 
-    if-gtz v1, :cond_16
+    if-gtz v1, :cond_18
 
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getY()F
 
@@ -119,16 +121,16 @@
 
     cmpl-float v0, v1, v0
 
-    if-gtz v0, :cond_16
+    if-gtz v0, :cond_18
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->body:Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2800()Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
 
     move-result-object v0
 
-    if-eqz v0, :cond_16
+    if-eqz v0, :cond_18
 
-    .line 1968
+    .line 2004
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->body:Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2800()Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
 
@@ -158,17 +160,31 @@
 
     move-result v0
 
-    .line 1969
-    if-ltz v0, :cond_16
+    .line 2005
+    if-ltz v0, :cond_71
 
-    const/16 v1, 0xa
+    if-ge v0, v7, :cond_71
 
-    if-ge v0, v1, :cond_16
+    .line 2006
+    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500()Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1970
+    move-result-object v1
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->zone(Lcom/isaigu/gymapp/train/model/TrainItem;I)I
+
+    move-result v0
+
+    .line 2008
+    :cond_71
+    if-ltz v0, :cond_18
+
+    if-ge v0, v7, :cond_18
+
+    .line 2009
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1971
+    .line 2010
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->chips:[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2900()[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
@@ -176,10 +192,10 @@
 
     aget-object v1, v1, v0
 
-    .line 1972
-    if-eqz v1, :cond_96
+    .line 2011
+    if-eqz v1, :cond_a2
 
-    .line 1973
+    .line 2012
     iget-object v2, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->animate()Landroid/view/ViewPropertyAnimator;
@@ -210,12 +226,12 @@
 
     move-result-object v1
 
-    .line 1974
+    .line 2013
     invoke-virtual {v1}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 1976
-    :cond_96
+    .line 2015
+    :cond_a2
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->chipClick(I)V
 
-    goto/16 :goto_16
+    goto/16 :goto_18
 .end method

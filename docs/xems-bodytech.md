@@ -60,6 +60,13 @@ impulse only changes Hz / strengths; slots are laid only at that start (a Hz cha
 places may then meet). Pause / stop from the row (F2), the keep-alive cut and a link drop still switch all off.
 Off = as before. Not yet confirmed on a person.
 
+**Two impulses: a late first impulse (owner, 1.1.452).** With the double impulse on, the pause was fine but impulse 1
+came up late after impulse 2: the suit lets a running channel take a new Hz only later (its period), and the double
+impulse changes Hz on live channels at every switch (85 → 8 Hz and back) — the pause never does. Now a switch that
+changes the Hz of a running channel restarts it: SEL off for those channels → their Hz → SEL on (`BtTranslator.reconcile`,
+`restart`). Probe 0.6 showed SEL restarts a channel on its register values. A switch with the same Hz (pause, a ramp)
+does not restart. Not yet confirmed on a person.
+
 ## Owner's settings (Settings → Костюм bodytech)
 Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two columns, four channels each):
 - **name** (free text, up to 24 characters; empty = "C<n>");

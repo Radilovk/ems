@@ -541,8 +541,10 @@ public class BtTranslatorTest {
         eq("hold: next impulse only strengths", true, f.size() == 8 && has(f, BtProto.intensity(1, 5)));
         tr.phase(BtTranslator.SECOND);
         f = pair(tr, setting(30), run(600, 8, 350, 4, 4, 1), t);
-        eq("hold: 2nd impulse: Hz + strengths, no SEL", true, has(f, BtProto.hz(1, 8))
-                && indexOf(f, BtProto.enable(0xFF)) < 0 && !has(f, BtProto.allOff()));
+        // enable(0) is the all-off frame: the restart takes the channels out before their new Hz, puts them back after
+        eq("hold: 2nd impulse restarts the channels on the new Hz", true,
+                indexOf(f, BtProto.enable(0)) >= 0 && indexOf(f, BtProto.enable(0)) < indexOf(f, BtProto.hz(1, 8))
+                && indexOf(f, BtProto.enable(0xFF)) > indexOf(f, BtProto.hz(1, 8)));
         eq("hold: unrenewed output still switched off", true, has(tr.heartbeat(t + 60000), BtProto.allOff()));
         tr.phase(BtTranslator.MAIN);
         f = pair(tr, setting(30), run(600, 85, 350, 4, 4, 1), t + 61000);
@@ -552,6 +554,24 @@ public class BtTranslatorTest {
         tr.phase(BtTranslator.PAUSE);
         f = tr.command(3, run(600, 85, 350, 4, 4, 0), t + 61000);
         eq("hold: a pause after stop sends nothing new", false, has(f, BtProto.enable(0xFF)));
+        // double impulse, channels on: a switch with another Hz restarts the running channels (SEL off → Hz → SEL on)
+        tr = new BtTranslator();
+        tr.command(0xF2, new byte[1], t);
+        tr.command(0xF1, new byte[1], t);
+        tr.phase(BtTranslator.MAIN);
+        pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(30), run(600, 8, 350, 4, 4, 1), t);
+        int off = indexOf(f, BtProto.enable(0)), hz8 = indexOf(f, BtProto.hz(1, 8)), onAt = indexOf(f, BtProto.enable(0xFF));
+        eq("double: SEL off before the new Hz", true, off >= 0 && off < hz8);
+        eq("double: SEL on after the new Hz", true, onAt > hz8);
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        off = indexOf(f, BtProto.enable(0)); int hz85 = indexOf(f, BtProto.hz(1, 85));
+        eq("double back: SEL off before 85 Hz", true, off >= 0 && off < hz85 && indexOf(f, BtProto.enable(0xFF)) > hz85);
+        // the same Hz in the next impulse (no change of Hz): no restart
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("double: same Hz again, no restart", true, indexOf(f, BtProto.enable(0)) < 0 && !has(f, BtProto.enable(0xFF)));
         // with slots: laid once at the start, not again at the next impulse
         BtSettings.setSlots(true);
         tr = new BtTranslator();

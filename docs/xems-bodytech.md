@@ -66,6 +66,10 @@ impulse changes Hz on live channels at every switch (85 → 8 Hz and back) — t
 changes the Hz of a running channel restarts it: SEL off for those channels → their Hz → SEL on (`BtTranslator.reconcile`,
 `restart`). Probe 0.6 showed SEL restarts a channel on its register values. A switch with the same Hz (pause, a ramp)
 does not restart. Not yet confirmed on a person.
+- **1.1.453 — the holes.** Owner on 1.1.452: random gaps without impulses with two impulses. 1.1.452 took the
+  channels out of SEL *before* their Hz / strength writes, so they were silent for the whole command (≈ 17 frames at
+  25–90 ms per ACK = 0.5–1.5 s, a different length every time). Now the registers go first and the SEL off → on are the
+  last two frames, back to back (one ACK apart).
 
 ## Owner's settings (Settings → Костюм bodytech)
 Per channel C1–C8 (▲ ▼ moves the channel in the sheet; the sheet is two columns, four channels each):

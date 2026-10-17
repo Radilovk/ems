@@ -551,9 +551,10 @@ public final class BtTranslator {
         // slots: a real training, two channels or more, one Hz for all of them (the lowest any channel is held to)
         boolean slots = testCh == 0 && BtSettings.slots() && n >= 2 && common >= SLOT_MIN_HZ;
         if (!slots) stopSlide(out);
-        // a channel that is on and gets another Hz (the second impulse and back) is restarted: the suit applies a new
-        // period to a running channel only later (owner, 1.1.452: the double impulse's first impulse came late), a SEL
-        // off → on starts it on the new one. Taken out of the mask here, put back at the end (the mask goes last).
+        // a channel that is on and gets another Hz (the second impulse and back) is restarted (owner, 1.1.452: the
+        // double impulse's first impulse came late): its new registers first, then SEL off → on back to back, so it
+        // starts on them at once. 1.1.452 took it out of the mask BEFORE its writes — silent for the whole command
+        // (~0.5–1.5 s with the ACK pacing), the owner's random holes with two impulses; now ≈ one frame (1.1.453).
         int restart = 0;
         if (hold) {
             for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
@@ -564,10 +565,6 @@ public final class BtTranslator {
                 } else if (slots && devHz[ch] != common) {
                     restart |= 1 << (ch - 1);
                 }
-            }
-            if (restart != 0) {
-                out.add(BtProto.enable(devMask & ~restart));
-                devMask &= ~restart;
             }
         }
         int mask = 0;
@@ -620,6 +617,10 @@ public final class BtTranslator {
                 out.add(BtProto.intensity(ch, t));
                 devInt[ch] = t;
             }
+        }
+        if (restart != 0) {
+            out.add(BtProto.enable(devMask & ~restart));        // the SEL below puts them back: one frame apart
+            devMask &= ~restart;
         }
         if (mask != 0) used = true;
         if (slots && (mask != devMask || (hzNew && !hold))) {

@@ -1017,7 +1017,7 @@
 .end method
 
 .method private reconcile(Ljava/util/List;)V
-    .registers 14
+    .registers 15
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -1030,7 +1030,7 @@
     .line 540
     const/16 v0, 0x9
 
-    new-array v9, v0, [I
+    new-array v10, v0, [I
 
     .line 541
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
@@ -1066,10 +1066,10 @@
 
     move-result v3
 
-    aput v3, v9, v4
+    aput v3, v10, v4
 
     .line 545
-    aget v3, v9, v4
+    aget v3, v10, v4
 
     if-gtz v3, :cond_29
 
@@ -1149,22 +1149,22 @@
 
     const/4 v1, 0x1
 
-    move v8, v1
+    move v9, v1
 
     .line 553
     :goto_58
-    if-nez v8, :cond_5d
+    if-nez v9, :cond_5d
 
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->stopSlide(Ljava/util/List;)V
 
-    .line 557
+    .line 558
     :cond_5d
     const/4 v1, 0x0
 
-    .line 558
-    if-eqz v0, :cond_b3
-
     .line 559
+    if-eqz v0, :cond_9e
+
+    .line 560
     const/4 v3, 0x1
 
     move v4, v3
@@ -1174,7 +1174,7 @@
 
     if-gt v4, v3, :cond_9e
 
-    .line 560
+    .line 561
     iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
 
     const/4 v5, 0x1
@@ -1187,7 +1187,7 @@
 
     if-nez v3, :cond_76
 
-    .line 559
+    .line 560
     :cond_6f
     :goto_6f
     add-int/lit8 v3, v4, 0x1
@@ -1200,22 +1200,22 @@
     :cond_73
     const/4 v1, 0x0
 
-    move v8, v1
+    move v9, v1
 
     goto :goto_58
 
-    .line 562
+    .line 563
     :cond_76
-    aget v3, v9, v4
+    aget v3, v10, v4
 
     if-lez v3, :cond_90
 
-    .line 563
+    .line 564
     iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
 
     aget v5, v3, v4
 
-    if-eqz v8, :cond_89
+    if-eqz v9, :cond_89
 
     move v3, v2
 
@@ -1241,9 +1241,9 @@
 
     goto :goto_81
 
-    .line 564
+    .line 565
     :cond_90
-    if-eqz v8, :cond_6f
+    if-eqz v9, :cond_6f
 
     iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
 
@@ -1251,7 +1251,7 @@
 
     if-eq v3, v2, :cond_6f
 
-    .line 565
+    .line 566
     const/4 v3, 0x1
 
     add-int/lit8 v5, v4, -0x1
@@ -1262,461 +1262,461 @@
 
     goto :goto_6f
 
-    .line 568
+    .line 570
     :cond_9e
-    if-eqz v1, :cond_b3
+    const/4 v7, 0x0
 
-    .line 569
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
+    .line 571
+    const/4 v3, 0x0
 
-    xor-int/lit8 v4, v1, -0x1
+    .line 572
+    const/4 v4, 0x1
+
+    move v8, v4
+
+    :goto_a2
+    const/16 v4, 0x8
+
+    if-gt v8, v4, :cond_1c3
+
+    .line 573
+    aget v11, v10, v8
+
+    .line 574
+    if-nez v11, :cond_ec
+
+    if-eqz v0, :cond_ec
+
+    invoke-static {v8}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->mapped(I)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_ec
+
+    .line 576
+    if-eqz v9, :cond_d1
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
+
+    aget v4, v4, v8
+
+    if-eq v4, v2, :cond_d1
+
+    .line 577
+    invoke-static {v8, v2}, Lcom/isaigu/gymapp/bodytech/BtProto;->hz(II)[B
+
+    move-result-object v3
+
+    invoke-interface {p1, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 578
+    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
+
+    aput v2, v3, v8
+
+    .line 579
+    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
+
+    const/4 v4, 0x1
+
+    add-int/lit8 v5, v8, -0x1
+
+    shl-int/2addr v4, v5
+
+    xor-int/lit8 v4, v4, -0x1
 
     and-int/2addr v3, v4
 
-    invoke-static {v3}, Lcom/isaigu/gymapp/bodytech/BtProto;->enable(I)[B
-
-    move-result-object v3
-
-    invoke-interface {p1, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 570
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
-
-    xor-int/lit8 v1, v1, -0x1
-
-    and-int/2addr v1, v3
-
-    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
-
-    .line 573
-    :cond_b3
-    const/4 v6, 0x0
-
-    .line 574
-    const/4 v1, 0x0
-
-    .line 575
-    const/4 v3, 0x1
-
-    move v7, v3
-
-    :goto_b7
-    const/16 v3, 0x8
-
-    if-gt v7, v3, :cond_1d8
-
-    .line 576
-    aget v10, v9, v7
-
-    .line 577
-    if-nez v10, :cond_101
-
-    if-eqz v0, :cond_101
-
-    invoke-static {v7}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->mapped(I)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_101
-
-    .line 579
-    if-eqz v8, :cond_e6
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
-
-    aget v3, v3, v7
-
-    if-eq v3, v2, :cond_e6
+    iput v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
 
     .line 580
-    invoke-static {v7, v2}, Lcom/isaigu/gymapp/bodytech/BtProto;->hz(II)[B
-
-    move-result-object v1
-
-    invoke-interface {p1, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 581
-    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
-
-    aput v2, v1, v7
+    const/4 v3, 0x1
 
     .line 582
-    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
+    :cond_d1
+    const/4 v4, 0x1
 
-    const/4 v3, 0x1
+    add-int/lit8 v5, v8, -0x1
 
-    add-int/lit8 v4, v7, -0x1
+    shl-int/2addr v4, v5
 
-    shl-int/2addr v3, v4
+    or-int/2addr v4, v7
 
-    xor-int/lit8 v3, v3, -0x1
+    .line 616
+    :goto_d6
+    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devInt:[I
 
-    and-int/2addr v1, v3
+    aget v5, v5, v8
 
-    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
+    if-eq v11, v5, :cond_e7
 
-    .line 583
-    const/4 v1, 0x1
-
-    .line 585
-    :cond_e6
-    const/4 v3, 0x1
-
-    add-int/lit8 v4, v7, -0x1
-
-    shl-int/2addr v3, v4
-
-    or-int/2addr v3, v6
-
-    .line 619
-    :goto_eb
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devInt:[I
-
-    aget v4, v4, v7
-
-    if-eq v10, v4, :cond_fc
-
-    .line 620
-    invoke-static {v7, v10}, Lcom/isaigu/gymapp/bodytech/BtProto;->intensity(II)[B
-
-    move-result-object v4
-
-    invoke-interface {p1, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 621
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devInt:[I
-
-    aput v10, v4, v7
-
-    .line 575
-    :cond_fc
-    add-int/lit8 v4, v7, 0x1
-
-    move v7, v4
-
-    move v6, v3
-
-    goto :goto_b7
-
-    .line 586
-    :cond_101
-    if-lez v10, :cond_210
-
-    .line 587
-    if-eqz v8, :cond_1aa
-
-    move v3, v2
-
-    .line 588
-    :goto_106
-    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
-
-    if-eqz v4, :cond_1bc
-
-    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->widthUs:I
-
-    .line 589
-    :goto_10c
-    const/16 v5, 0x32
-
-    if-ge v4, v5, :cond_112
-
-    const/16 v4, 0x32
-
-    .line 590
-    :cond_112
-    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
-
-    if-nez v5, :cond_123
-
-    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->phase:I
-
-    const/4 v11, 0x2
-
-    if-ne v5, v11, :cond_1c4
-
-    const/4 v5, 0x1
-
-    :goto_11c
-    invoke-static {v7, v5}, Lcom/isaigu/gymapp/bodytech/BtSettings;->waveFor(IZ)I
-
-    move-result v5
-
-    invoke-direct {p0, p1, v7, v5}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->sendWave(Ljava/util/List;II)V
-
-    .line 591
-    :cond_123
-    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
-
-    aget v5, v5, v7
-
-    if-eq v5, v3, :cond_140
-
-    .line 592
-    invoke-static {v7, v3}, Lcom/isaigu/gymapp/bodytech/BtProto;->hz(II)[B
-
-    move-result-object v1
-
-    invoke-interface {p1, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 593
-    iget-object v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
-
-    aput v3, v1, v7
-
-    .line 594
-    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
-
-    const/4 v3, 0x1
-
-    add-int/lit8 v5, v7, -0x1
-
-    shl-int/2addr v3, v5
-
-    xor-int/lit8 v3, v3, -0x1
-
-    and-int/2addr v1, v3
-
-    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
-
-    .line 595
-    const/4 v1, 0x1
-
-    .line 597
-    :cond_140
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devUs:[I
-
-    aget v3, v3, v7
-
-    if-eq v3, v4, :cond_155
-
-    .line 598
-    const/16 v3, 0x1ff
-
-    if-le v4, v3, :cond_1c7
-
-    invoke-static {v7, v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->widthRaw(II)[B
-
-    move-result-object v3
-
-    :goto_14e
-    invoke-interface {p1, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 599
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devUs:[I
-
-    aput v4, v3, v7
-
-    .line 601
-    :cond_155
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
-
-    if-eqz v3, :cond_1cc
-
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOnMs:I
-
-    if-lez v3, :cond_1cc
-
-    const/4 v3, 0x1
-
-    move v5, v3
-
-    .line 602
-    :goto_15f
-    if-eqz v5, :cond_1cf
-
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOnMs:I
-
-    move v4, v3
-
-    .line 603
-    :goto_164
-    if-eqz v5, :cond_1d4
-
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOffMs:I
-
-    .line 604
-    :goto_168
-    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOn:[I
-
-    aget v5, v5, v7
-
-    if-eq v5, v4, :cond_17a
-
-    .line 605
-    const/4 v5, 0x2
-
-    invoke-static {v7, v5, v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->t(III)[B
+    .line 617
+    invoke-static {v8, v11}, Lcom/isaigu/gymapp/bodytech/BtProto;->intensity(II)[B
 
     move-result-object v5
 
     invoke-interface {p1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 606
-    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOn:[I
+    .line 618
+    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devInt:[I
 
-    aput v4, v5, v7
+    aput v11, v5, v8
 
-    .line 608
-    :cond_17a
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOff:[I
+    .line 572
+    :cond_e7
+    add-int/lit8 v5, v8, 0x1
 
-    aget v4, v4, v7
+    move v8, v5
 
-    if-eq v4, v3, :cond_18c
+    move v7, v4
 
-    .line 609
-    const/4 v4, 0x4
+    goto :goto_a2
 
-    invoke-static {v7, v4, v3}, Lcom/isaigu/gymapp/bodytech/BtProto;->t(III)[B
+    .line 583
+    :cond_ec
+    if-lez v11, :cond_210
 
-    move-result-object v4
+    .line 584
+    if-eqz v9, :cond_195
 
-    invoke-interface {p1, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    move v4, v2
 
-    .line 610
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOff:[I
+    .line 585
+    :goto_f1
+    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
 
-    aput v3, v4, v7
+    if-eqz v5, :cond_1a7
 
-    .line 612
-    :cond_18c
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
+    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->widthUs:I
 
-    if-eqz v3, :cond_1d6
+    .line 586
+    :goto_f7
+    const/16 v6, 0x32
 
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testStep:I
+    if-ge v5, v6, :cond_fd
 
-    .line 613
-    :goto_192
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devStep:[I
-
-    aget v4, v4, v7
-
-    if-eq v4, v3, :cond_1a3
-
-    .line 614
-    invoke-static {v7, v3}, Lcom/isaigu/gymapp/bodytech/BtProto;->stepNorByte(II)[B
-
-    move-result-object v4
-
-    invoke-interface {p1, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 615
-    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devStep:[I
-
-    aput v3, v4, v7
-
-    .line 617
-    :cond_1a3
-    const/4 v3, 0x1
-
-    add-int/lit8 v4, v7, -0x1
-
-    shl-int/2addr v3, v4
-
-    or-int/2addr v3, v6
-
-    goto/16 :goto_eb
+    const/16 v5, 0x32
 
     .line 587
-    :cond_1aa
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
+    :cond_fd
+    iget v6, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
 
-    if-eqz v3, :cond_1b4
+    if-nez v6, :cond_10e
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testHzs:[I
+    iget v6, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->phase:I
 
-    aget v3, v3, v7
+    const/4 v12, 0x2
 
-    goto/16 :goto_106
+    if-ne v6, v12, :cond_1af
 
-    :cond_1b4
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->hz:I
+    const/4 v6, 0x1
 
-    invoke-direct {p0, v7, v3}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->effHz(II)I
+    :goto_107
+    invoke-static {v8, v6}, Lcom/isaigu/gymapp/bodytech/BtSettings;->waveFor(IZ)I
 
-    move-result v3
+    move-result v6
 
-    goto/16 :goto_106
+    invoke-direct {p0, p1, v8, v6}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->sendWave(Ljava/util/List;II)V
 
     .line 588
-    :cond_1bc
-    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->widthUs:I
+    :cond_10e
+    iget-object v6, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
 
-    invoke-direct {p0, v7, v4}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->effUs(II)I
+    aget v6, v6, v8
 
-    move-result v4
+    if-eq v6, v4, :cond_12b
 
-    goto/16 :goto_10c
-
-    .line 590
-    :cond_1c4
-    const/4 v5, 0x0
-
-    goto/16 :goto_11c
-
-    .line 598
-    :cond_1c7
-    invoke-static {v7, v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->width(II)[B
+    .line 589
+    invoke-static {v8, v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->hz(II)[B
 
     move-result-object v3
 
-    goto :goto_14e
+    invoke-interface {p1, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 590
+    iget-object v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devHz:[I
+
+    aput v4, v3, v8
+
+    .line 591
+    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
+
+    const/4 v4, 0x1
+
+    add-int/lit8 v6, v8, -0x1
+
+    shl-int/2addr v4, v6
+
+    xor-int/lit8 v4, v4, -0x1
+
+    and-int/2addr v3, v4
+
+    iput v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
+
+    .line 592
+    const/4 v3, 0x1
+
+    .line 594
+    :cond_12b
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devUs:[I
+
+    aget v4, v4, v8
+
+    if-eq v4, v5, :cond_140
+
+    .line 595
+    const/16 v4, 0x1ff
+
+    if-le v5, v4, :cond_1b2
+
+    invoke-static {v8, v5}, Lcom/isaigu/gymapp/bodytech/BtProto;->widthRaw(II)[B
+
+    move-result-object v4
+
+    :goto_139
+    invoke-interface {p1, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 596
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devUs:[I
+
+    aput v5, v4, v8
+
+    .line 598
+    :cond_140
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
+
+    if-eqz v4, :cond_1b7
+
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOnMs:I
+
+    if-lez v4, :cond_1b7
+
+    const/4 v4, 0x1
+
+    move v6, v4
+
+    .line 599
+    :goto_14a
+    if-eqz v6, :cond_1ba
+
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOnMs:I
+
+    move v5, v4
+
+    .line 600
+    :goto_14f
+    if-eqz v6, :cond_1bf
+
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testOffMs:I
 
     .line 601
-    :cond_1cc
-    const/4 v3, 0x0
+    :goto_153
+    iget-object v6, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOn:[I
 
-    move v5, v3
+    aget v6, v6, v8
 
-    goto :goto_15f
+    if-eq v6, v5, :cond_165
 
     .line 602
-    :cond_1cf
-    const v3, 0x186a0
+    const/4 v6, 0x2
 
-    move v4, v3
+    invoke-static {v8, v6, v5}, Lcom/isaigu/gymapp/bodytech/BtProto;->t(III)[B
 
-    goto :goto_164
+    move-result-object v6
+
+    invoke-interface {p1, v6}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     .line 603
-    :cond_1d4
-    const/4 v3, 0x0
+    iget-object v6, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOn:[I
 
-    goto :goto_168
+    aput v5, v6, v8
+
+    .line 605
+    :cond_165
+    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOff:[I
+
+    aget v5, v5, v8
+
+    if-eq v5, v4, :cond_177
+
+    .line 606
+    const/4 v5, 0x4
+
+    invoke-static {v8, v5, v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->t(III)[B
+
+    move-result-object v5
+
+    invoke-interface {p1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 607
+    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devOff:[I
+
+    aput v4, v5, v8
+
+    .line 609
+    :cond_177
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
+
+    if-eqz v4, :cond_1c1
+
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testStep:I
+
+    .line 610
+    :goto_17d
+    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devStep:[I
+
+    aget v5, v5, v8
+
+    if-eq v5, v4, :cond_18e
+
+    .line 611
+    invoke-static {v8, v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->stepNorByte(II)[B
+
+    move-result-object v5
+
+    invoke-interface {p1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     .line 612
-    :cond_1d6
-    const/4 v3, 0x1
+    iget-object v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devStep:[I
 
-    goto :goto_192
+    aput v4, v5, v8
 
-    .line 624
-    :cond_1d8
-    if-eqz v6, :cond_1dd
+    .line 614
+    :cond_18e
+    const/4 v4, 0x1
 
-    const/4 v3, 0x1
+    add-int/lit8 v5, v8, -0x1
 
-    iput-boolean v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->used:Z
+    shl-int/2addr v4, v5
+
+    or-int/2addr v4, v7
+
+    goto/16 :goto_d6
+
+    .line 584
+    :cond_195
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testCh:I
+
+    if-eqz v4, :cond_19f
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->testHzs:[I
+
+    aget v4, v4, v8
+
+    goto/16 :goto_f1
+
+    :cond_19f
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->hz:I
+
+    invoke-direct {p0, v8, v4}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->effHz(II)I
+
+    move-result v4
+
+    goto/16 :goto_f1
+
+    .line 585
+    :cond_1a7
+    iget v5, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->widthUs:I
+
+    invoke-direct {p0, v8, v5}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->effUs(II)I
+
+    move-result v5
+
+    goto/16 :goto_f7
+
+    .line 587
+    :cond_1af
+    const/4 v6, 0x0
+
+    goto/16 :goto_107
+
+    .line 595
+    :cond_1b2
+    invoke-static {v8, v5}, Lcom/isaigu/gymapp/bodytech/BtProto;->width(II)[B
+
+    move-result-object v4
+
+    goto :goto_139
+
+    .line 598
+    :cond_1b7
+    const/4 v4, 0x0
+
+    move v6, v4
+
+    goto :goto_14a
+
+    .line 599
+    :cond_1ba
+    const v4, 0x186a0
+
+    move v5, v4
+
+    goto :goto_14f
+
+    .line 600
+    :cond_1bf
+    const/4 v4, 0x0
+
+    goto :goto_153
+
+    .line 609
+    :cond_1c1
+    const/4 v4, 0x1
+
+    goto :goto_17d
+
+    .line 621
+    :cond_1c3
+    if-eqz v1, :cond_1d8
+
+    .line 622
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
+
+    xor-int/lit8 v5, v1, -0x1
+
+    and-int/2addr v4, v5
+
+    invoke-static {v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->enable(I)[B
+
+    move-result-object v4
+
+    invoke-interface {p1, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 623
+    iget v4, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
+
+    xor-int/lit8 v1, v1, -0x1
+
+    and-int/2addr v1, v4
+
+    iput v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
 
     .line 625
+    :cond_1d8
+    if-eqz v7, :cond_1dd
+
+    const/4 v1, 0x1
+
+    iput-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->used:Z
+
+    .line 626
     :cond_1dd
-    if-eqz v8, :cond_202
+    if-eqz v9, :cond_202
 
-    iget v3, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
+    iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
 
-    if-ne v6, v3, :cond_1e7
+    if-ne v7, v1, :cond_1e7
 
-    if-eqz v1, :cond_202
+    if-eqz v3, :cond_202
 
     if-nez v0, :cond_202
 
-    .line 629
+    .line 630
     :cond_1e7
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->stopSlide(Ljava/util/List;)V
 
-    .line 630
+    .line 631
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
 
     if-eqz v0, :cond_1f5
@@ -1727,47 +1727,47 @@
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 631
+    .line 632
     :cond_1f5
-    invoke-static {v6}, Lcom/isaigu/gymapp/bodytech/BtProto;->enable(I)[B
+    invoke-static {v7}, Lcom/isaigu/gymapp/bodytech/BtProto;->enable(I)[B
 
     move-result-object v0
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 632
-    iput v6, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
-
     .line 633
-    invoke-direct {p0, p1, v6, v2}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->startSlide(Ljava/util/List;II)V
+    iput v7, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
 
-    .line 638
+    .line 634
+    invoke-direct {p0, p1, v7, v2}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->startSlide(Ljava/util/List;II)V
+
+    .line 639
     :cond_201
     :goto_201
     return-void
 
-    .line 634
+    .line 635
     :cond_202
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
 
-    if-eq v6, v0, :cond_201
+    if-eq v7, v0, :cond_201
 
-    .line 635
-    invoke-static {v6}, Lcom/isaigu/gymapp/bodytech/BtProto;->enable(I)[B
+    .line 636
+    invoke-static {v7}, Lcom/isaigu/gymapp/bodytech/BtProto;->enable(I)[B
 
     move-result-object v0
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 636
-    iput v6, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
+    .line 637
+    iput v7, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->devMask:I
 
     goto :goto_201
 
     :cond_210
-    move v3, v6
+    move v4, v7
 
-    goto/16 :goto_eb
+    goto/16 :goto_d6
 .end method
 
 .method private restoreWave(Ljava/util/List;)V
@@ -1913,31 +1913,31 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 642
+    .line 643
     const v0, 0xf4240
 
     div-int v4, v0, p3
 
-    .line 643
+    .line 644
     invoke-static {p2}, Ljava/lang/Integer;->bitCount(I)I
 
     move-result v5
 
-    .line 644
+    .line 645
     const-wide v6, 0x413e848000000000L    # 2000000.0
 
-    .line 645
+    .line 646
     const/4 v2, 0x0
 
     move v3, v1
 
-    .line 646
+    .line 647
     :goto_11
     const/16 v0, 0x8
 
     if-gt v3, v0, :cond_4a
 
-    .line 647
+    .line 648
     add-int/lit8 v0, v3, -0x1
 
     shl-int v0, v1, v0
@@ -1948,7 +1948,7 @@
 
     move v0, v2
 
-    .line 646
+    .line 647
     :goto_1d
     add-int/lit8 v3, v3, 0x1
 
@@ -1956,11 +1956,11 @@
 
     goto :goto_11
 
-    .line 648
+    .line 649
     :cond_21
     if-lez v2, :cond_47
 
-    .line 650
+    .line 651
     int-to-double v8, v2
 
     int-to-double v10, v4
@@ -1971,7 +1971,7 @@
 
     div-double/2addr v8, v10
 
-    .line 651
+    .line 652
     int-to-double v10, v4
 
     mul-double/2addr v10, v8
@@ -1986,12 +1986,12 @@
 
     long-to-int v0, v8
 
-    .line 652
+    .line 653
     if-ge v0, v1, :cond_36
 
     move v0, v1
 
-    .line 653
+    .line 654
     :cond_36
     add-int/2addr v0, v4
 
@@ -2001,7 +2001,7 @@
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 654
+    .line 655
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
 
     add-int/lit8 v8, v3, -0x1
@@ -2012,31 +2012,31 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
 
-    .line 656
+    .line 657
     :cond_47
     add-int/lit8 v0, v2, 0x1
 
     goto :goto_1d
 
-    .line 658
+    .line 659
     :cond_4a
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
 
     if-eqz v0, :cond_58
 
-    .line 659
+    .line 660
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideGen:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideGen:I
 
-    .line 660
+    .line 661
     const-wide/16 v0, 0x7d0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slidePending:J
 
-    .line 662
+    .line 663
     :cond_58
     return-void
 .end method
@@ -2054,23 +2054,23 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 666
+    .line 667
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
 
     if-nez v0, :cond_6
 
-    .line 673
+    .line 674
     :goto_5
     return-void
 
-    .line 667
+    .line 668
     :cond_6
     const/16 v0, 0x8
 
     :goto_8
     if-lt v0, v3, :cond_21
 
-    .line 668
+    .line 669
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
 
     add-int/lit8 v2, v0, -0x1
@@ -2091,26 +2091,26 @@
 
     invoke-interface {p1, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 667
+    .line 668
     :cond_1e
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_8
 
-    .line 670
+    .line 671
     :cond_21
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideMask:I
 
-    .line 671
+    .line 672
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideGen:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideGen:I
 
-    .line 672
+    .line 673
     const-wide/16 v0, -0x1
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slidePending:J
@@ -3808,7 +3808,7 @@
     .end annotation
 
     .prologue
-    .line 688
+    .line 689
     monitor-enter p0
 
     :try_start_1
@@ -3816,7 +3816,7 @@
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 689
+    .line 690
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slideGen:I
     :try_end_8
     .catchall {:try_start_1 .. :try_end_8} :catchall_13
@@ -3827,13 +3827,13 @@
 
     if-eqz v1, :cond_f
 
-    .line 691
+    .line 692
     :goto_d
     monitor-exit p0
 
     return-object v0
 
-    .line 690
+    .line 691
     :cond_f
     :try_start_f
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/bodytech/BtTranslator;->stopSlide(Ljava/util/List;)V
@@ -3842,7 +3842,7 @@
 
     goto :goto_d
 
-    .line 688
+    .line 689
     :catchall_13
     move-exception v0
 
@@ -3855,7 +3855,7 @@
     .registers 5
 
     .prologue
-    .line 680
+    .line 681
     monitor-enter p0
 
     :try_start_1
@@ -3871,13 +3871,13 @@
 
     const/4 v0, 0x0
 
-    .line 683
+    .line 684
     :goto_a
     monitor-exit p0
 
     return-object v0
 
-    .line 681
+    .line 682
     :cond_c
     const/4 v0, 0x2
 
@@ -3898,7 +3898,7 @@
 
     aput-wide v2, v0, v1
 
-    .line 682
+    .line 683
     const-wide/16 v2, -0x1
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/bodytech/BtTranslator;->slidePending:J
@@ -3907,7 +3907,7 @@
 
     goto :goto_a
 
-    .line 680
+    .line 681
     :catchall_1f
     move-exception v0
 

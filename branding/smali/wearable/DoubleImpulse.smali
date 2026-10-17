@@ -13,7 +13,8 @@
         Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;,
         Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;,
         Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;,
-        Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
+        Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;,
+        Lcom/isaigu/gymapp/wearable/DoubleImpulse$LateTap;
     }
 .end annotation
 

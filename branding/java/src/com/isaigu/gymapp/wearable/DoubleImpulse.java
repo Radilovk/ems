@@ -693,6 +693,9 @@ public final class DoubleImpulse {
                     holdable = it != null && b != null && b.activePause && !muscle(it) && blocked(it) == null;
                     v.setPressed(true);
                     v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(90L).start();
+                    if (v.getParent() != null) {                // the swipe row / list must not take the press
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                    }
                     if (holdable) {
                         MAIN.removeCallbacks(this);
                         MAIN.postDelayed(this, 16L);
@@ -719,10 +722,19 @@ public final class DoubleImpulse {
                     }
                     return true;
                 }
-                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_CANCEL: {
+                    // The list redraws all its rows right at a touch (the vendor's notifyDataSetChanged on the
+                    // list's first touch, a client added…): the key is taken off and its press cancelled at once.
+                    // Still the trainer's tap — done after the redraw, on the row's item.
+                    boolean lost = inside && !done && System.currentTimeMillis() - down < HOLD_SHOW_MS;
                     inside = false;
                     release(v);
+                    TrainItem it = lost ? item() : null;
+                    if (it != null) {
+                        MAIN.post(new LateTap(it, v));
+                    }
                     return true;
+                }
                 default:
                     return true;
             }
@@ -814,6 +826,8 @@ public final class DoubleImpulse {
                             big.flash = 1f;
                         }
                     } else {
+                        done = false;                       // no sync now: the release is still a tap
+                        holdable = false;
                         ring(false);
                         return;
                     }
@@ -833,6 +847,27 @@ public final class DoubleImpulse {
                 big.progress = 0f;
             }
             ring(false);
+        }
+    }
+
+    /** A tap whose press the list's redraw cancelled (see {@link Press#onTouch}). */
+    static final class LateTap implements Runnable {
+        final TrainItem it;
+        final WeakReference<View> key;
+
+        LateTap(TrainItem it, View key) {
+            this.it = it;
+            this.key = new WeakReference<View>(key);
+        }
+
+        public void run() {
+            View v = button(it);                            // the row's key after the redraw
+            if (v == null || !v.isAttachedToWindow()) {
+                v = key.get();
+            }
+            if (v != null) {
+                click(it, v);
+            }
         }
     }
 

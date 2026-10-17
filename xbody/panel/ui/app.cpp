@@ -41,7 +41,7 @@ App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
       lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       noteWarn_(false), noteUntilMs_(0),
-      panel_(0), tab_(0), strengthMem_(0) {
+      panel_(0), tab_(0), strengthMem_(0), busy_(false) {
     t0_ = now();
     load();
     cable_ = xbcable::parseConfig(slurp(envPath("XEMS_CABLE_CONF", "/opt/xems/xbody-cable.conf")));
@@ -635,5 +635,14 @@ void App::timerEvent(QTimerEvent *ev) {
             const Bytes *b = s->next(t);
             if (b) send(bridgecmd::write(ses_[i].mac, *b));
         }
+    }
+    // A flag the boot scripts read: a wireless suit is linked, so a USB update must not restart the panel now.
+    bool busy = !ses_.empty() || !linkingMac_.empty();
+    if (busy != busy_) {
+        busy_ = busy;
+        const char *bp = std::getenv("XEMS_BUSY");
+        QString path = QString::fromLocal8Bit(bp ? bp : "/tmp/xems-busy");
+        if (busy) { QFile f(path); f.open(QIODevice::WriteOnly); f.close(); }
+        else QFile::remove(path);
     }
 }

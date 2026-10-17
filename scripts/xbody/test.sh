@@ -221,6 +221,34 @@ if command -v openssl > /dev/null; then
 	cmp "$F8/opt/xems/bin/xems-panel" "$REPO/xbody/overlay/opt/xems/bin/xems-panel" || no "panel differs after install"
 	[ -f "$P8/updater.done.sh" ] && ls "$P8/xems"/backup-*.added > /dev/null || no "pending install: one run + backup"
 	ok "name parses, md5 matches, decrypts into /opt/xems/pending, next boot installs with backup (Admin menu path)"
+	# The panel's background loop installs a dropped /opt/xems/pending without a reboot (XBody only restarts its GUI).
+	grep -q 'opt/xems/pending/updater.sh' "$REPO/xbody/overlay/etc/init.d/xems-panel" || no "xems-panel has no pending-install watcher"
+	watch() {   # one pass of the watcher's install block (OPT=root/opt/xems, root/busy gates only the restart)
+		R=$1
+		if [ -f "$R/opt/xems/pending/updater.sh" ]; then
+			( cd "$R/opt/xems/pending" && XB_ROOT="$R" sh ./updater.sh ) > /dev/null 2>&1 || true
+			[ ! -f "$R/opt/xems/pending/updater.sh" ] || mv "$R/opt/xems/pending/updater.sh" "$R/opt/xems/pending/updater.failed.sh"
+			touch "$R/opt/xems/pending/.restart"
+		fi
+		if [ -e "$R/opt/xems/pending/.restart" ] && [ ! -e "$R/busy" ]; then rm -f "$R/opt/xems/pending/.restart"; echo RESTART; fi
+	}
+	V=$(cat "$T/real/usb/xems/VERSION")
+	R8=$T/watch; mkdir -p "$R8/opt/xems/pending" "$R8/tmp"; echo 9 > "$R8/opt/xems/VERSION"
+	cp -r "$T/real/usb/xems" "$R8/opt/xems/pending/"; cp "$T/real/usb/updater.sh" "$R8/opt/xems/pending/"
+	touch "$R8/busy"                                        # a suit is linked: install, but hold the restart
+	[ "$(watch "$R8")" != RESTART ] || no "watcher restarted the panel while busy"
+	[ "$(cat "$R8/opt/xems/VERSION")" = "$V" ] || no "watcher did not install while busy (install is safe mid-training)"
+	rm -f "$R8/busy"
+	[ "$(watch "$R8")" = RESTART ] || no "watcher did not restart once idle"
+	# a corrupt pending must be parked, not retried every 2 s
+	B8=$T/watchbad; mkdir -p "$B8/opt/xems/pending/xems" "$B8/tmp"; echo 9 > "$B8/opt/xems/VERSION"
+	cp "$T/real/usb/updater.sh" "$B8/opt/xems/pending/"
+	echo bad > "$B8/opt/xems/pending/xems/payload.tar.gz"; echo "00  payload.tar.gz" > "$B8/opt/xems/pending/xems/payload.md5"
+	echo 99 > "$B8/opt/xems/pending/xems/VERSION"; : > "$B8/opt/xems/pending/xems/remove.list"
+	watch "$B8" > /dev/null
+	[ -f "$B8/opt/xems/pending/updater.failed.sh" ] && [ ! -f "$B8/opt/xems/pending/updater.sh" ] || no "a failed pending install was not parked"
+	[ "$(cat "$B8/opt/xems/VERSION")" = 9 ] || no "a corrupt pending changed the installed version"
+	ok "the running loop installs a dropped update (no reboot), waits while a suit trains, parks a bad one"
 else
 	ok "archive name + checksum ok (openssl missing: decrypt step skipped)"
 fi

@@ -182,7 +182,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
 - `scripts/xbody/test-cable.py` (96L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
 - `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
-- `scripts/xbody/test.sh` (246L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/test.sh` (274L) — XBody mod pipeline tests, no device needed:
 - `scripts/xbody/updater.sh` (106L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
@@ -816,7 +816,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (288L)
+`docs/xbody-xems-panel.md` (292L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -828,13 +828,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L133 ## Feedback from the stimulator (what XBody can know)
   - L143 ## Phone → XBody over a USB cable (mod v9, no stick)
   - L154 ## Update from USB while the machine runs (mod v15) — admin interface, no reboot dance
-  - L178 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L186 ## Panel
-  - L220 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
-  - L242 ## Bridge line protocol (USB CDC, 115200)
-  - L253 ## Files
-  - L265 ## Build / test
-  - L281 ## First test on the unit (when the XIAO arrives)
+  - L182 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L190 ## Panel
+  - L224 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
+  - L246 ## Bridge line protocol (USB CDC, 115200)
+  - L257 ## Files
+  - L269 ## Build / test
+  - L285 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

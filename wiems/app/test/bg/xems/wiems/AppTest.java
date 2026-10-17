@@ -88,6 +88,10 @@ public class AppTest {
         public Channels channels() { return channels; }
         public void channelsChanged() { if (session != null) session.setMap(channels.map()); }
         public boolean female() { return female; }
+        boolean dark;
+        public boolean dark() { return dark; }
+        public void setDark(boolean d) { dark = d; }
+        public int kind() { return session != null ? session.kind : Dev.WIEMS; }
         public void setFemale(boolean f) { female = f; }
         public java.io.InputStream openAsset(String name) {
             try {
@@ -96,6 +100,15 @@ public class AppTest {
                 return null;
             }
         }
+    }
+
+    /** The protocol checks keep the unit's channels = XBody's part order (the map is tested on its own below). */
+    static final int[] ID = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    static Session wi() {
+        Session s = new Session();
+        s.setMap(ID);
+        return s;
     }
 
     static String digits(int[] m) {
@@ -158,7 +171,7 @@ public class AppTest {
         // ---- the session's unit operations (golden: wiems/PROTOCOL.md + the vendor's own writes in the capture) ----
         // The vendor writes the strengths only when they change (one write per tap, ~1 s apart) and never in the
         // pause — the unit runs its own work / rest. Strength byte = the vendor's scale (100 % ≈ 20).
-        Session s = new Session();
+        Session s = wi();
         s.linked();
         eq("link", "[0000000000000000000000, 0400]", drain(s, 0));
         eq("zones start at 0", "0 0", s.zone(0) + " " + s.zone(9));
@@ -209,47 +222,63 @@ public class AppTest {
 
         // ---- the service mode's channel map: one swap per wrong part; zones / procedures stay on body parts ----
         Channels cm = new Channels();
-        eq("XBody suit starts in XBody's measured order", "0123456789", digits(cm.map()));
-        eq("XEMS suit starts from the owner's XEMS → XBody table", "3691580742", digits(cm.map[Channels.XEMS]));
+        // the owner's measurement (v1.15, service mode on an XBody suit): к.4 Трапец, к.5 Гръб, к.7 Гърди, к.3 Кръст,
+        // к.8 Ръце, к.6 Корем, к.2 Седалище, к.9 Предно бедро, к.1 Задно бедро, к.10 Прасец
+        eq("XBody suit starts as the owner measured it", "3462751809", digits(cm.map()));
+        eq("XEMS suit: the owner's XEMS → XBody table on that map", "2194503876", digits(cm.map[Dev.WIEMS][Channels.XEMS]));
         cm.felt(5, 5);                                   // Корем's channel felt on the belly
-        eq("the same part = checked", "1 0123456789", cm.okCount() + " " + digits(cm.map()));
-        cm.felt(6, 1);                                   // Седалище's channel (6) felt on the back
+        eq("the same part = checked", "1 3462751809", cm.okCount() + " " + digits(cm.map()));
+        cm.felt(6, 1);                                   // Седалище's channel (к.2) felt on the back
         eq("another part: that part gets the channel (checked), Седалище gets the back's (to try)",
-                "2 0623451789 true false", cm.okCount() + " " + digits(cm.map()) + " " + cm.ok(1) + " " + cm.ok(6));
+                "2 3162754809 true false", cm.okCount() + " " + digits(cm.map()) + " " + cm.ok(1) + " " + cm.ok(6));
         Channels cn = new Channels();
         cn.load(cm.save());
         eq("saved and read back", cm.save(), cn.save());
         Channels cb = new Channels();
         cb.load("1;0000000000;12;0;0");                  // not a permutation / too short: the starting maps stay
-        eq("a broken saved value keeps the starting maps", "1 0123456789 3691580742", cb.suit + " "
-                + digits(cb.map[0]) + " " + digits(cb.map[1]));
+        eq("a broken saved value keeps the starting maps", "1 3462751809 2194503876", cb.suit + " "
+                + digits(cb.map[0][0]) + " " + digits(cb.map[0][1]));
+        Channels co14 = new Channels();                  // app 1.14: the old starts, never checked → the measured ones
+        co14.load("0;0123456789;3691580742;0;0");
+        eq("1.14's unchecked starts move to the measured", "3462751809 2194503876", digits(co14.map[0][0]) + " " + digits(co14.map[0][1]));
+        Channels ck = new Channels();                    // a checked one stays as the owner set it
+        ck.load("0;0123456789;3691580742;5;0");
+        eq("a checked map stays", "0123456789 2", digits(ck.map[0][0]) + " " + ck.okCount());
+        ck.dev = Dev.XEMS;
+        eq("an XEMS unit: XBody suit / XEMS suit", "8735946210 5607418293", digits(ck.map[1][0]) + " " + digits(ck.map[1][1]));
+        ck.dev = Dev.BODYTECH;
+        eq("bodytech: fixed", false, ck.remappable());
         Session sm = new Session();
         sm.linked();
         drain(sm, 0);
         sm.setMap(cm.map());
         sm.setStrength(100);
-        sm.setZone(2, 50);                               // Седалище: part 6 → unit channel 1 after the swap
+        sm.setZone(2, 50);                               // Седалище: part 6 → unit channel 4 after the swap
         sm.start(1000);
         drain(sm, 1000);
         sm.runNotify(new byte[] {1}, 5100);
         sm.tick(5100);
-        eq("Седалище goes out on channel 1 (50 % → 10)", "00000a0000800080000000", drain(sm, 5100).get(2));
-        sm.setMap(Channels.DEFAULT[Channels.XBODY]);
-        eq("a new map while running: one write, Седалище back on channel 6", "[000000000080008a000000]", drain(sm, 6000));
+        eq("Седалище goes out on channel 4 (50 % → 10)", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 0, 0, 0, 10, 0, 0, 0, 0, 0})),
+                drain(sm, 5100).get(2));
+        sm.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);
+        eq("a new map while running: one write, Седалище back on channel 1 (к.2)",
+                "[" + hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 10, 0, 0, 0, 0, 0, 0, 0, 0})) + "]", drain(sm, 6000));
         eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
         // the suit's standard: an XEMS suit on the unit's leads — Ръце drives the lead "Корем" (ch 5), the zone keeps its %
         Session w = new Session();
         w.setStrength(100);
         w.setZone(8, 50);                                // Ръце 50 %
-        eq("xbody standard: Ръце → ch 4", 50 + " " + 4, w.zone(8) + " " + w.unitCh(8));
-        w.setMap(Channels.DEFAULT[Channels.XEMS]);
+        eq("xbody standard: Ръце → ch 7 (к.8)", 50 + " " + 7, w.zone(8) + " " + w.unitCh(8));
+        w.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XEMS]);
         eq("xems standard: Ръце → ch 5, still 50 %", 50 + " " + 5, w.zone(8) + " " + w.unitCh(8));
         int[] seen = new int[10];
         for (int z = 0; z < Session.ZONES; z++) seen[w.unitCh(z)]++;
         eq("xems standard: every channel once", "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]", java.util.Arrays.toString(seen));
         String[] lead = {"Предно бедро", "Ръце", "Трапец", "Задно бедро", "Гръб", "Седалище", "Кръст", "Прасец", "Корем", "Гърди"};
         StringBuilder owner = new StringBuilder();          // the zone → the unit lead's name (XBody's channel names)
-        String[] chName = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Корем", "Седалище", "Предно бедро", "Задно бедро", "Прасец"};
+        String[] partName = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце", "Корем", "Седалище", "Предно бедро", "Задно бедро", "Прасец"};
+        String[] chName = new String[10];                // the unit channel → the XBody lead on it (the measured map)
+        for (int q = 0; q < 10; q++) chName[Channels.DEFAULT[Dev.WIEMS][Channels.XBODY][q]] = partName[q];
         for (int z = 0; z < Session.ZONES; z++) owner.append(chName[w.unitCh(z)]).append(z < 9 ? "," : "");
         eq("the owner's table", String.join(",", lead), owner.toString());
         w.linked();
@@ -262,7 +291,7 @@ public class AppTest {
         eq("xems standard on the wire: ch 5 = 10 (+ check bits)", "0000000000800a80000000", wl.get(wl.size() - 1));
 
         // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
-        Session d = new Session();
+        Session d = wi();
         d.linked();
         drain(d, 0);
         Session.Program dp = new Session.Program();
@@ -299,7 +328,7 @@ public class AppTest {
         eq("85 Hz rises ≥ 1 s", 1000, rp.rampMs);
 
         // ---- XBody's modes: Cardio is continuous — the unit's rest at the same Hz, full
-        Session cs = new Session();
+        Session cs = wi();
         cs.linked();
         drain(cs, 0);
         Session.Program cp = Procs.mode(Procs.MODE_CARDIO);
@@ -325,7 +354,7 @@ public class AppTest {
         // ---- a passive procedure: the phases play by the clock, each phase's rhythm goes to the unit
         Procs.Plan cel = Procs.plan(Procs.byId("cellulite"), 0);
         eq("cellulite own length", 25 * 60, cel.totalMs() / 1000);
-        Session ps = new Session();
+        Session ps = wi();
         ps.linked();
         drain(ps, 0);
         ps.setPlan(cel, false);
@@ -370,6 +399,20 @@ public class AppTest {
         u2.rssi = -74;
         u2.lastMs = h.t;
         h.seen.add(u2);
+        Seen u3 = new Seen();                               // v1.15: an XEMS suit and a bodytech suit in the same list
+        u3.mac = "C4:4F:33:10:20:30";
+        u3.name = "nbee-0412";
+        u3.kind = Dev.XEMS;
+        u3.rssi = -66;
+        u3.lastMs = h.t;
+        h.seen.add(u3);
+        Seen u4 = new Seen();
+        u4.mac = "02:BC:34:D6:2D:93";
+        u4.name = "EMS08-05629";
+        u4.kind = Dev.BODYTECH;
+        u4.rssi = -70;
+        u4.lastMs = h.t;
+        h.seen.add(u4);
         shot(v, dir, "1-pick.png");
         h.kind = MainActivity.VIEW_TRAIN;
         h.session = new Session();
@@ -523,12 +566,12 @@ public class AppTest {
         h.session.setZone(2, 30);
         shot(v, dir, "7b-service-zone.png");
         tap(v, 575, 259);                                   // felt on the back (Гръб, right column, first row)
-        eq("felt elsewhere: the back gets that channel, checked", "true " + h.session.unitCh(5) + " 6",
+        eq("felt elsewhere: the back gets that channel, checked", "true " + h.session.unitCh(5) + " 1",
                 h.channels.ok(1) + " " + h.session.unitCh(5) + " " + h.channels.map()[1]);
-        eq("… and Седалище now tries the back's old channel", 1, h.session.unitCh(2));
+        eq("… and Седалище now tries the back's old channel", 4, h.session.unitCh(2));
         shot(v, dir, "7c-service-felt.png");
         tap(v, 615, 448);                                   // ✓ Готово: out
-        eq("service out: zones 0, the map kept", "0 " + "0623451789", h.session.zone(2) + " " + digits(h.channels.map()));
+        eq("service out: zones 0, the map kept", "0 " + "3162754809", h.session.zone(2) + " " + digits(h.channels.map()));
         shot(v, dir, "7d-after-service.png");
         h.channels.reset(Channels.XBODY);
         h.channelsChanged();
@@ -536,6 +579,56 @@ public class AppTest {
         h.session.stop();
         tap(v, 480, 28);                                    // the unit's name while idle → disconnect?
         shot(v, dir, "6-confirm.png");
+
+        // ---- v1.15: the dark theme, an XEMS suit and a bodytech suit on the same screen ----
+        XView v2 = new XView(new android.content.Context(), h);
+        h.session = null;
+        h.kind = MainActivity.VIEW_PICK;
+        h.mode = -1;
+        tap(v2, 960 - 70, 28);                              // the header's moon
+        eq("the moon turns the theme dark", true, h.dark);
+        shot(v2, dir, "8a-dark-pick.png");
+        h.kind = MainActivity.VIEW_TRAIN;
+        Channels bc = new Channels();
+        bc.setDev(Dev.BODYTECH);
+        h.session = new Session(Dev.BODYTECH);
+        h.session.setMap(bc.map());
+        h.session.linked();
+        h.session.setBattery(64);
+        drain(h.session, h.t);
+        shot(v2, dir, "8b-dark-modes.png");
+        h.chooseMode(Procs.MODE_MUSCLE);
+        h.session.setStrength(70);
+        for (int z = 0; z < h.session.zones(); z++) h.session.setZone(z, 40 + z * 8);
+        h.session.start(h.t);
+        drain(h.session, h.t);
+        h.t += 1500;
+        h.session.tick(h.t);
+        drain(h.session, h.t);
+        tap(v2, 100, 86 + 25);                              // Бедра
+        tap(v2, 400, 300);                                  // the figure's thigh: out of the selection again
+        tap(v2, 100, 86 + 25);
+        shot(v2, dir, "8c-dark-bodytech.png");
+        tap(v2, 960 - 70, 28);                              // the program block → the sheet
+        shot(v2, dir, "8d-dark-sheet.png");
+        tap(v2, 80 + 640, 56);                              // the sheet's sun: light again
+        eq("the sheet's sun turns it light", false, h.dark);
+        tap(v2, 80 + 160, 524);                             // Откажи
+        Channels xc = new Channels();
+        xc.setDev(Dev.XEMS);
+        h.session = new Session(Dev.XEMS);
+        h.session.setMap(xc.map());
+        h.session.linked();
+        h.session.setBattery(92);
+        drain(h.session, h.t);
+        h.chooseMode(Procs.MODE_MANUAL);
+        h.session.setStrength(55);
+        for (int z = 0; z < h.session.zones(); z++) h.session.setZone(z, 60);
+        h.session.start(h.t);
+        h.t += 1500;
+        h.session.tick(h.t);
+        drain(h.session, h.t);
+        shot(v2, dir, "8e-xems.png");
 
         System.out.println(fails == 0 ? "AppTest: ALL OK (" + checks + " checks)" : "AppTest: " + fails + " FAIL");
         if (fails != 0) System.exit(1);

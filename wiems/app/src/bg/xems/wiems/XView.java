@@ -23,9 +23,40 @@ import java.util.List;
  * column moves to the right edge, the body and the clock stay in the middle. Repaints only when something changed.
  */
 final class XView extends View {
-    static final int WHITE = 0xFFFFFFFF, INK = 0xFF303741, GREY = 0xFFB1B3B5, LINE = 0xFFBFC2C5, SOFT = 0xFF6B7178,
-            RED = 0xFFE21A22, GREEN = 0xFF00B38B, YELLOW = 0xFFFFC000, BAR = 0xFF22262E, DIALOG = 0xFF6B2F2F,
-            PRESS = 0xFFECEDEE, HEAD_LINE = 0xFFE3E4E6, FIGURE = 0xFFD9DBDE, CLOCK = 0xFFBEC0C2;
+    static final int WHITE = 0xFFFFFFFF, RED = 0xFFE21A22, GREEN = 0xFF00B38B, YELLOW = 0xFFFFC000, BAR = 0xFF22262E,
+            DIALOG = 0xFF6B2F2F, FIGURE = 0xFFD9DBDE, CLOCK = 0xFFBEC0C2;
+    /**
+     * The theme's colours (owner, v1.15: light = XBody's, and a dark one), set by {@link #theme}: SURF = a button /
+     * card / sheet, INK = text, HUMP = the timer hump. Kept in capitals as the constants they replaced.
+     */
+    int SURF, INK, GREY, LINE, SOFT, PRESS, HEAD_LINE, HUMP, PANEL, NOTE_BG, NOTE_INK, OK_BG, TRACK, SCRIM, VEIL, CONT_INK,
+            BG_LO, BG_HI;
+    private boolean darkNow;
+
+    /** Light: XBody's own colours. Dark: slate surfaces on a near-black grain, the same red / green / yellow. */
+    void theme(boolean dark) {
+        darkNow = dark;
+        SURF = dark ? 0xFF272C34 : 0xFFFFFFFF;
+        INK = dark ? 0xFFE9EBEE : 0xFF303741;
+        GREY = dark ? 0xFF7D848D : 0xFFB1B3B5;
+        LINE = dark ? 0xFF4A515B : 0xFFBFC2C5;
+        SOFT = dark ? 0xFFA6ADB5 : 0xFF6B7178;
+        PRESS = dark ? 0xFF353B45 : 0xFFECEDEE;
+        HEAD_LINE = dark ? 0xFF353B44 : 0xFFE3E4E6;
+        HUMP = dark ? 0xFF3B4350 : 0xFF303741;
+        PANEL = dark ? 0xFF20252C : 0xFFF4F5F6;
+        NOTE_BG = dark ? 0xFF3B3220 : 0xFFFFF4D6;
+        NOTE_INK = dark ? 0xFFF2C46B : 0xFF7A5500;
+        OK_BG = dark ? 0xFF16392F : 0xFFE6F6F0;
+        TRACK = dark ? 0xFF4A515B : 0xFFD5D7DA;
+        SCRIM = dark ? 0xB4000000 : 0x96303741;
+        VEIL = dark ? 0x96000000 : 0x78FFFFFF;
+        CONT_INK = dark ? 0xFFF2C46B : 0xFFB08300;
+        BG_LO = dark ? 22 : 250;
+        BG_HI = dark ? 27 : 255;
+        grain = null;
+        setBackgroundColor(dark ? 0xFF181C21 : WHITE);
+    }
 
     private final Host a;
     private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -80,7 +111,7 @@ final class XView extends View {
     XView(Context c, Host h) {
         super(c);
         a = h;
-        setBackgroundColor(WHITE);
+        theme(h.dark());
     }
 
     // ---------------------------------------------------------------- frame
@@ -116,7 +147,7 @@ final class XView extends View {
         StringBuilder b = new StringBuilder();
         b.append(slideZone).append(slideValue).append(a.viewKind()).append('|').append(a.note()).append(a.noteWarn()).append('|').append(pressed)
                 .append(sheet).append(confirm).append(sel).append(now < bubbleUntil).append(now < toastUntil)
-                .append(service).append(svcZone).append(a.channels().save());
+                .append(service).append(svcZone).append(a.channels().save()).append(a.dark());
         if (a.viewKind() == MainActivity.VIEW_PICK || a.viewKind() == MainActivity.VIEW_LINKING) {
             b.append((now / 400) % 4);
             for (Seen s : a.seen()) b.append(s.mac).append(bars(s.rssi));
@@ -128,7 +159,7 @@ final class XView extends View {
             b.append(s.seg()).append(s.live().hz).append(s.continuous());
             b.append('|').append(s.state()).append(s.impulse()).append(s.strength()).append(s.battery())
                     .append(s.startPending()).append(s.preparing()).append(q.hz).append(q.onS).append(q.offS).append(q.totalS);
-            for (int i = 0; i < Session.ZONES; i++) b.append(',').append(s.zone(i)).append('/').append(s.liveLevel(Session.ZONE_PART[i]));
+            for (int i = 0; i < Channels.PARTS; i++) b.append(',').append(s.partLevel(i)).append('/').append(s.liveLevel(i));
             b.append(a.female());
             b.append('|').append(s.secondsLeft(now)).append(' ').append((s.phaseMsLeft(now) + 999) / 1000);
             if (s.startPending()) b.append((now / 400) % 4);
@@ -141,6 +172,7 @@ final class XView extends View {
     @Override
     protected void onDraw(Canvas c) {
         float w = getWidth(), h = getHeight();
+        if (a.dark() != darkNow) theme(a.dark());
         k = h / 600f;
         dw = Math.max(800f, w / k);
         if (dw * k > w + 0.5f) k = w / dw;     // a screen narrower than 4:3
@@ -171,7 +203,7 @@ final class XView extends View {
             int[] px = new int[n * n];
             java.util.Random r = new java.util.Random(7);
             for (int i = 0; i < px.length; i++) {
-                int g = 250 + r.nextInt(6);
+                int g = BG_LO + r.nextInt(BG_HI - BG_LO + 1);
                 px[i] = 0xFF000000 | (g << 16) | (g << 8) | g;
             }
             grain = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888);
@@ -260,7 +292,7 @@ final class XView extends View {
         boolean down = id != null && id.equals(pressed);
         if (on) round(c, l + 1, t + 1, r - 1, b - 1, 8, down ? mix(RED, Color.BLACK, 0.2f) : RED);
         else {
-            round(c, l + 1, t + 1, r - 1, b - 1, 8, down ? PRESS : WHITE);
+            round(c, l + 1, t + 1, r - 1, b - 1, 8, down ? PRESS : SURF);
             stroke(c, l + 1, t + 1, r - 1, b - 1, 8, LINE, 2);
         }
         if (txt != null) {
@@ -302,8 +334,14 @@ final class XView extends View {
         line(c, dw - 148, 6, dw - 148, 50, HEAD_LINE, 1);
         logo(c, 22, 28);
         hit(0, 0, 155, 56, "logo");                   // a long press sends the unit trace
-        font(12, true);
-        text(c, "WiEMS", 106, 22, 152, 40, -1, RED);
+        boolean unit = a.session() != null || a.linkingMac() != null || a.held();
+        if (unit) {                                   // the kind in use, small, after the logo
+            String kn = Dev.SHORT[a.kind()];
+            float fs = 12;
+            font(fs, true);
+            while (fs > 8 && p.measureText(kn) > 44) font(--fs, true);   // "bodytech" fits before the divider
+            text(c, kn, 106, 22, 152, 40, -1, RED);
+        }
         font(20, true);
         p.setLetterSpacing(0.08f);
         text(c, elide(title, dw - 330), 160, 2, dw - 152, 32, 0, GREY);
@@ -314,13 +352,42 @@ final class XView extends View {
         }
     }
 
+    /** The header's right block where it is free (the list, the program screens): light ↔ dark. */
+    private void themeButton(Canvas c) {
+        float l = dw - 147, cy = 28;
+        if ("theme".equals(pressed)) round(c, l + 6, 8, dw - 6, 48, 8, PRESS);
+        themeIcon(c, l + 24, cy, !darkNow);
+        font(14, true);
+        text(c, darkNow ? "Светла" : "Тъмна", l + 42, 8, dw - 8, 48, -1, INK);
+        hit(l, 0, dw, 56, "theme");
+    }
+
+    /** A moon (go dark) or a sun (go light), drawn — no font glyphs. */
+    private void themeIcon(Canvas c, float cx, float cy, boolean moon) {
+        p.setStyle(Paint.Style.FILL);
+        if (moon) {
+            p.setColor(INK);
+            c.drawCircle(cx, cy, 9, p);
+            p.setColor(darkNow ? 0xFF1B1F25 : 0xFFFBFBFB);
+            c.drawCircle(cx + 5, cy - 4, 8, p);
+        } else {
+            p.setColor(YELLOW);
+            c.drawCircle(cx, cy, 5.5f, p);
+            for (int i = 0; i < 8; i++) {
+                double r = Math.PI * i / 4;
+                line(c, cx + (float) Math.cos(r) * 8.5f, cy + (float) Math.sin(r) * 8.5f, cx + (float) Math.cos(r) * 11.5f,
+                        cy + (float) Math.sin(r) * 11.5f, YELLOW, 2);
+            }
+        }
+    }
+
     // ---------------------------------------------------------------- the list / the states before a link
 
     private void paintPick(Canvas c, int v) {
         long now = a.now();
         String dots = "...".substring(0, (int) ((now / 400) % 4));
         String n = a.note();
-        String title = "ИЗБЕРИ WiEMS", sub = n.length() > 0 ? n : (a.held() ? "Тренировката чака · свързвам отново" : "Търся наблизо") + dots, big = null;
+        String title = "ИЗБЕРИ УСТРОЙСТВО", sub = n.length() > 0 ? n : (a.held() ? "Тренировката чака · свързвам отново" : "Търся наблизо") + dots, big = null;
         String action = null;
         if (v == MainActivity.VIEW_NO_BT) {
             sub = "";
@@ -335,6 +402,7 @@ final class XView extends View {
             action = "bt";
         }
         paintHeader(c, title, sub, n.length() > 0 && a.noteWarn(), n.length() > 0 && !a.noteWarn());
+        themeButton(c);
         if (big != null) {
             font(26, false);
             text(c, big, 0, 230, dw, 280, 0, INK);
@@ -351,7 +419,7 @@ final class XView extends View {
                 }
         if (s.isEmpty()) {
             font(24, false);
-            text(c, "Включи WiEMS — ще се появи тук", 0, 250, dw, 290, 0, INK);
+            text(c, "Включи WiEMS, XEMS или bodytech — ще се появи тук", 0, 250, dw, 290, 0, INK);
             font(15, false);
             text(c, "Не се появява ли: включи и Местоположение на таблета", 0, 296, dw, 320, 0, SOFT);
             return;
@@ -363,8 +431,9 @@ final class XView extends View {
             float l = cx[i % 3] - 75, t = 80 + (i / 3) * 236;
             String id = "unit:" + d.mac;
             outlined(c, l, t, l + 150, t + 150, a.linkingMac() == null ? id : null, null, 0, linking);
-            font(24, true);
-            text(c, "WiEMS", l, t + 20, l + 150, t + 80, 0, linking ? WHITE : RED);
+            String kn = Dev.SHORT[d.kind];
+            font(fit(kn, 24, 136), true);
+            text(c, kn, l, t + 20, l + 150, t + 80, 0, linking ? WHITE : RED);
             if (linking) {
                 font(16, false);
                 text(c, "Свързвам" + dots, l, t + 86, l + 150, t + 126, 0, WHITE);
@@ -397,6 +466,7 @@ final class XView extends View {
         paintHeader(c, "ИЗБОР НА ПРОГРАМА", n.length() > 0 ? n : unitLine(s), n.length() > 0 && a.noteWarn(),
                 n.length() > 0 && !a.noteWarn());
         hit(160, 0, dw - 152, 56, "unit");
+        themeButton(c);
         font(17, false);
         text(c, "Какво тренираме днес?", 0, 70, dw, 104, 0, INK);
         int[] m = {Procs.MODE_MUSCLE, Procs.MODE_CARDIO, Procs.MODE_RELAX, Procs.MODE_MANUAL, Procs.MODE_PROC};
@@ -405,7 +475,7 @@ final class XView extends View {
         for (int i = 0; i < 5; i++) {
             float l = cx[i] - 75, t = i < 3 ? 120 : 330;
             String id = i == 4 ? "procs" : "mode:" + m[i];
-            Bitmap tile = art("xbody/" + TILE[i] + (id.equals(pressed) ? "SelectorPressed" : "Selector"));
+            Bitmap tile = darkNow ? null : art("xbody/" + TILE[i] + (id.equals(pressed) ? "SelectorPressed" : "Selector"));
             if (tile != null) {                         // XBody's own tile (owner: its native pictures)
                 rf.set(l, t, l + 150, t + 150);
                 c.drawBitmap(tile, new Rect(0, 0, tile.getWidth(), tile.getHeight()), rf, bmp);
@@ -464,7 +534,7 @@ final class XView extends View {
             path.lineTo(cx + 8, cy - 6);
             path.lineTo(cx + 14, cy);
             path.lineTo(cx + 46, cy);
-            p.setColor(WHITE);
+            p.setColor(SURF);
             p.setStrokeWidth(9);
             c.drawPath(path, p);
             p.setColor(RED);
@@ -491,7 +561,7 @@ final class XView extends View {
                 float y = cy - 24 + i * 24;
                 c.drawLine(cx - 40, y, cx + 40, y, p);
                 p.setStyle(Paint.Style.FILL);
-                p.setColor(WHITE);
+                p.setColor(SURF);
                 c.drawCircle(knob[i], y, 7, p);
                 p.setStyle(Paint.Style.STROKE);
                 p.setColor(RED);
@@ -554,7 +624,7 @@ final class XView extends View {
             float l = o + 24 + (i % 4) * 128, t = 76 + (i / 4) * 216;
             String id = "proc:" + pr.id;
             boolean on = pr.id.equals(procSel);
-            round(c, l + 1.5f, t + 1.5f, l + 118.5f, t + 198.5f, 12, id.equals(pressed) ? PRESS : WHITE);
+            round(c, l + 1.5f, t + 1.5f, l + 118.5f, t + 198.5f, 12, id.equals(pressed) ? PRESS : SURF);
             stroke(c, l + 1.5f, t + 1.5f, l + 118.5f, t + 198.5f, 12, on ? RED : LINE, on ? 3 : 2);
             Bitmap b = art(pr.id);
             if (b != null) {
@@ -586,7 +656,7 @@ final class XView extends View {
         Procs.Proc pr = Procs.byId(procSel);
         Procs.Plan pl = Procs.plan(pr, procMin);
         float sl = o + 552, sw = 224, x = sl + 14, w = sw - 28;
-        round(c, sl, 76, sl + sw, 584, 12, 0xFFF4F5F6);
+        round(c, sl, 76, sl + sw, 584, 12, PANEL);
         float tpx = 20;
         font(tpx, true);
         while (tpx > 15 && p.measureText(pr.name) > w) font(--tpx, true);
@@ -601,7 +671,7 @@ final class XView extends View {
             boolean sel = m == pl.minutes;
             if (sel) round(c, hl, 158, hl + cw - 4, 198, 8, INK);
             else {
-                round(c, hl, 158, hl + cw - 4, 198, 8, id.equals(pressed) ? PRESS : WHITE);
+                round(c, hl, 158, hl + cw - 4, 198, 8, id.equals(pressed) ? PRESS : SURF);
                 stroke(c, hl + 0.75f, 158.75f, hl + cw - 4.75f, 197.25f, 8, LINE, 1.5f);
             }
             font(16, sel);
@@ -637,11 +707,11 @@ final class XView extends View {
             text(c, elide(g.name, w - 14 - rw), x + 14, y, x + w - rw, y + 24, -1, SOFT);
             text(c, right, x + 14, y, x + w, y + 24, 1, SOFT);
         }
-        round(c, x, 410, x + w, 494, 8, 0xFFFFF4D6);
+        round(c, x, 410, x + w, 494, 8, NOTE_BG);
         font(13, true);
-        wrap(c, pl.note, x + 10, 416, w - 20, 18, 2, 0xFF7A5500);
+        wrap(c, pl.note, x + 10, 416, w - 20, 18, 2, NOTE_INK);
         font(13, false);
-        wrap(c, "Силата по зоните остава твоя", x + 10, 456, w - 20, 17, 2, 0xFF7A5500);
+        wrap(c, "Силата по зоните остава твоя", x + 10, 456, w - 20, 17, 2, NOTE_INK);
         filled(c, x, 508, x + w, 570, "proc-go", GREEN, WHITE, "НАПРЕД  ›", 22);
     }
 
@@ -691,14 +761,14 @@ final class XView extends View {
         float w = zoneW();
         outlined(c, l, t, l + w, t + 50, "z:" + zi, null, 0, on);
         font(15, false);
-        text(c, Session.ZONE[zi], l + 10, t, l + w - 12, t + 50, right ? 1 : -1, on ? WHITE : INK);
+        text(c, s.zoneName(zi), l + 10, t, l + w - 12, t + 50, right ? 1 : -1, on ? WHITE : INK);
         int pct = slideZone == zi && slideValue >= 0 ? slideValue : s.zone(zi);
         font(18, true);
         text(c, pct + "%", l + 10, t, l + w - 12, t + 50, right ? -1 : 1, on ? WHITE : pct == 0 ? GREY : INK);
         if (slideZone == zi && sliding) {                // the slide's bar: where the finger has it, in steps of 1 %
             round(c, l + 8, t + 43, l + 8 + (w - 16) * pct / 100f, t + 46, 1.5f, on ? WHITE : RED);
         }
-        if (service && a.channels().ok(Session.ZONE_PART[zi])) {   // checked on the body: a green ✓ badge
+        if (service && a.channels().ok(s.part(zi))) {   // checked on the body: a green ✓ badge
             float bx = right ? l + w - 2 : l + 2;
             p.setColor(GREEN);
             c.drawCircle(bx, t + 2, 10, p);
@@ -717,13 +787,13 @@ final class XView extends View {
             seenSession = s;
             seenResets = s.resets();
             boolean zero = true;
-            for (int i = 0; i < Session.ZONES; i++) zero &= s.zone(i) == 0;
+            for (int i = 0; i < s.zones(); i++) zero &= s.zone(i) == 0;
             if (zero) sel = 0;                       // (selections end by themselves after 5 s — owner)
         }
         long now = a.now();
         Session.Program pr = s.program();
         boolean idle = s.state() == Session.IDLE, running = s.state() == Session.RUNNING;
-        int all = (1 << Session.ZONES) - 1;
+        int all = allMask();
 
         if (!service) paintFigures(c, s);
 
@@ -763,9 +833,9 @@ final class XView extends View {
         hit(pl, 0, dw, 56, "prog");
 
         // ---- the zone buttons: XBody's two columns, at the screen's edges ----
-        for (int i = 0; i < Session.ZONES; i++) {
-            boolean right = i >= Session.ZONES_LEFT;
-            int row = right ? i - Session.ZONES_LEFT : i;
+        for (int i = 0; i < s.zones(); i++) {
+            boolean right = i >= s.zonesLeft();
+            int row = right ? i - s.zonesLeft() : i;
             paintZone(c, right ? dw - 14 - zoneW() : 14, 86 + row * 70, i, right);
         }
 
@@ -776,7 +846,7 @@ final class XView extends View {
         path.lineTo(dx + 500, 101);
         path.cubicTo(dx + 550, 101, dx + 550, 56, dx + 609, 56);
         path.close();
-        p.setColor(INK);
+        p.setColor(HUMP);
         c.drawPath(path, p);
         int left = s.secondsLeft(now), elapsed = pr.totalS - left;
         font(16, false);
@@ -784,7 +854,7 @@ final class XView extends View {
         text(c, mmss(left), dx + 464, 56, dx + 558, 101, 0, CLOCK);
         if (!idle || s.startPending() || s.preparing()) paintPhase(c, s, pr, now, idle, running);
         boolean allSel = sel != 0 && sel == all;
-        p.setColor(allSel ? RED : "all".equals(pressed) ? PRESS : WHITE);
+        p.setColor(allSel ? RED : "all".equals(pressed) ? PRESS : SURF);
         c.drawRect(dx + 344, 56, dx + 464, 101, p);
         font(17, true);
         p.setLetterSpacing(0.06f);
@@ -834,7 +904,7 @@ final class XView extends View {
     private void paintService(Canvas c, Session s) {
         Channels ch = a.channels();
         float l = dx + 200, r = dx + 600, t = 168, b = 474;
-        round(c, l, t, r, b, 12, WHITE);
+        round(c, l, t, r, b, 12, SURF);
         stroke(c, l, t, r, b, 12, LINE, 2);
         for (int i = 0; i < 2; i++) {
             float hl = l + 12 + i * 190, hr = hl + 186, ht = t + 10, hb = t + 44;
@@ -851,26 +921,26 @@ final class XView extends View {
         }
         font(15, true);
         String q = svcZone < 0 ? "Избери зона → СТАРТ → вдигни малко силата"
-                : "„" + Session.ZONE[svcZone] + "“ (к." + (s.unitCh(svcZone) + 1) + ") се усеща в:";
+                : "„" + s.zoneName(svcZone) + "“ (к." + (s.unitCh(svcZone) + 1) + ") се усеща в:";
         text(c, elide(q, 376), l + 12, t + 48, r - 12, t + 72, 0, svcZone < 0 ? SOFT : INK);
-        for (int z = 0; z < Session.ZONES; z++) {
-            boolean right = z >= Session.ZONES_LEFT;
-            int row = right ? z - Session.ZONES_LEFT : z;
+        for (int z = 0; z < s.zones(); z++) {
+            boolean right = z >= s.zonesLeft();
+            int row = right ? z - s.zonesLeft() : z;
             float cl = l + 12 + (right ? 190 : 0), cr = cl + 186, ct = t + 76 + row * 35, cb = ct + 31;
-            int part = Session.ZONE_PART[z];
+            int part = s.part(z);
             boolean ok = ch.ok(part), cur = svcZone == z;
             String id = svcZone >= 0 ? "svc:" + z : null;
-            round(c, cl, ct, cr, cb, 8, id != null && id.equals(pressed) ? PRESS : ok ? 0xFFE6F6F0 : WHITE);
+            round(c, cl, ct, cr, cb, 8, id != null && id.equals(pressed) ? PRESS : ok ? OK_BG : SURF);
             stroke(c, cl, ct, cr, cb, 8, cur ? RED : ok ? GREEN : LINE, cur ? 2.5f : 1.5f);
             font(14, ok || cur);
-            text(c, (ok ? "✓ " : "") + Session.ZONE[z], cl + 10, ct, cr - 38, cb, -1, ok ? GREEN : INK);
+            text(c, (ok ? "✓ " : "") + s.zoneName(z), cl + 10, ct, cr - 38, cb, -1, ok ? GREEN : INK);
             font(12, false);
             text(c, "к." + (ch.map()[part] + 1), cr - 40, ct, cr - 8, cb, 1, SOFT);
             if (id != null) hit(cl, ct, cr, cb, id);
         }
         font(13, true);
         int n = ch.okCount();
-        text(c, "Проверени " + n + "/10", l + 12, b - 44, l + 140, b - 8, -1, n == 10 ? GREEN : SOFT);
+        text(c, "Проверени " + n + "/" + s.zones(), l + 12, b - 44, l + 140, b - 8, -1, n == 10 ? GREEN : SOFT);
         outlined(c, l + 142, b - 44, l + 226, b - 8, "svc-reset", "Отначало", 13, false);
         outlined(c, l + 230, b - 44, l + 276, b - 8, "svc-log", "Лог", 13, false);   // the unit trace
         filled(c, r - 118, b - 44, r - 12, b - 8, "svc-done", GREEN, WHITE, "✓ Готово", 16);
@@ -878,7 +948,7 @@ final class XView extends View {
 
     /** A 2 s hold on the logo / ← opens the service mode here (the training screen with a mode). */
     private boolean serviceHold() {
-        return a.session() != null && a.viewKind() == MainActivity.VIEW_TRAIN && a.mode() >= 0;
+        return a.session() != null && a.viewKind() == MainActivity.VIEW_TRAIN && a.mode() >= 0 && a.channels().remappable();
     }
 
     /** In: every zone 0 (only what is raised fires). Out: a running unit pauses, every zone 0 — the next client. */
@@ -909,13 +979,15 @@ final class XView extends View {
             figs = new BodyFig[] {BodyFig.load(a, sex + "_front"), BodyFig.load(a, sex + "_back")};
             figsFemale = a.female();
         }
+        // the figures' zones are the ten body parts (BodyFig, the WiEMS screen order); this unit's zone drives them
         int[] col = new int[Session.ZONES];
         float[] alpha = new float[Session.ZONES];
         for (int z = 0; z < Session.ZONES; z++) {
-            float t = s.liveLevel(Session.ZONE_PART[z]) / 100f;
+            int sz = s.zoneOfPart(Session.ZONE_PART[z]);
+            float t = sz < 0 ? 0 : s.liveLevel(Session.ZONE_PART[z]) / 100f;
             // a picked zone without output is tinted — not when all are picked (ВСИЧКИ): the body would look
             // like it works everywhere
-            boolean picked = (sel & (1 << z)) != 0 && sel != (1 << Session.ZONES) - 1;
+            boolean picked = sz >= 0 && (sel & (1 << sz)) != 0 && sel != allMask();
             if (t > 0) {
                 float k2 = Math.min(1f, t / 0.8f);      // in step with the impulse: deep red from 80 %
                 // the second impulse (double impulse, in the pause) in XBody's yellow — the main one in its red
@@ -948,14 +1020,16 @@ final class XView extends View {
     }
 
     private String unitLine(Session s) {
-        String u = a.linkedName() == null ? "WiEMS" : a.linkedName();
-        if (a.xemsWiring()) u += "  ·  XEMS костюм";
+        String u = a.linkedName() == null ? Dev.SHORT[s.kind] : a.linkedName();
+        // the suit when it is not the unit's own standard (WiEMS: XBody's leads; an XEMS unit: its own suit)
+        if (s.kind == Dev.WIEMS && a.xemsWiring()) u += "  ·  XEMS костюм";
+        else if (s.kind == Dev.XEMS && !a.xemsWiring()) u += "  ·  XBody костюм";
         return u + "   ·   батерия " + (s.battery() < 0 ? "—" : s.battery() + "%");
     }
 
     /** XBody's ← (its tray's Return), in the header's left block: over the logo. */
     private void backButton(Canvas c, String id) {
-        p.setColor(WHITE);
+        p.setColor(darkNow ? 0xFF1B1F25 : WHITE);
         c.drawRect(0, 0, 154, 55, p);
         if (id.equals(pressed)) round(c, 6, 8, 148, 48, 8, PRESS);
         line(c, 22, 28, 40, 28, INK, 2.2f);
@@ -968,7 +1042,7 @@ final class XView extends View {
 
     private void paintPhase(Canvas c, Session s, Session.Program pr, long now, boolean idle, boolean running) {
         float l = dx + 344, t = 101, r = dx + 464, b = 165;
-        round(c, l + 0.5f, t - 8, r - 0.5f, b - 0.5f, 6, WHITE);
+        round(c, l + 0.5f, t - 8, r - 0.5f, b - 0.5f, 6, SURF);
         stroke(c, l + 0.5f, t - 8, r - 0.5f, b - 0.5f, 6, LINE, 1.5f);
         String txt;
         int col;
@@ -1041,6 +1115,12 @@ final class XView extends View {
     }
 
     /** XBody's LED colour at offset d of the scale's length len. */
+    /** Every zone of the unit in use picked (ВСИЧКИ). */
+    private int allMask() {
+        Session s = a.session();
+        return (1 << (s != null ? s.zones() : Session.ZONES)) - 1;
+    }
+
     private static int led(float d, float len) {
         float f = Math.max(0, Math.min(1, d / len)) * (LEDS.length - 1);
         int i = Math.min(LEDS.length - 2, (int) f);
@@ -1054,7 +1134,7 @@ final class XView extends View {
 
     /** Test: every zone selected. */
     boolean selAll() {
-        return sel == (1 << Session.ZONES) - 1;
+        return sel == allMask();
     }
 
     private int selValue() {
@@ -1062,7 +1142,7 @@ final class XView extends View {
         if (s == null) return 0;
         if (slideZone >= 0 && slideValue >= 0) return slideValue;
         if (sel == 0) return s.strength();
-        for (int i = 0; i < Session.ZONES; i++) if ((sel & (1 << i)) != 0) return s.zone(i);
+        for (int i = 0; i < s.zones(); i++) if ((sel & (1 << i)) != 0) return s.zone(i);
         return 0;
     }
 
@@ -1078,23 +1158,24 @@ final class XView extends View {
         // never all to one value: a weak zone would jump to the strong one's level)
         int d = v - selValue();
         if (d == 0) return;
-        for (int i = 0; i < Session.ZONES; i++)
+        for (int i = 0; i < s.zones(); i++)
             if ((sel & (1 << i)) != 0) s.setZone(i, Math.max(0, Math.min(100, s.zone(i) + d)));
     }
 
     /** XBody's showPercent: while a value changes, a big % over the body with what it belongs to. */
     private void paintBubble(Canvas c) {
         String what = "Сила";
-        if (sliding && slideZone >= 0) what = Session.ZONE[slideZone];
+        Session s = a.session();
+        if (sliding && slideZone >= 0) what = s.zoneName(slideZone);
         else if (sel != 0) {
             int cnt = 0;
             StringBuilder names = new StringBuilder();
-            for (int i = 0; i < Session.ZONES; i++)
+            for (int i = 0; i < s.zones(); i++)
                 if ((sel & (1 << i)) != 0) {
                     cnt++;
-                    if (cnt <= 2) names.append(names.length() > 0 ? ", " : "").append(Session.ZONE[i]);
+                    if (cnt <= 2) names.append(names.length() > 0 ? ", " : "").append(s.zoneName(i));
                 }
-            what = cnt == Session.ZONES ? "Всички зони" : names + (cnt > 2 ? " +" + (cnt - 2) : "");
+            what = cnt == s.zones() ? "Всички зони" : names + (cnt > 2 ? " +" + (cnt - 2) : "");
         }
         float l = dx + 260, t = 222;
         round(c, l, t + 4, l + 280, t + 154, 16, 0x2D000000);
@@ -1116,7 +1197,7 @@ final class XView extends View {
 
     private void pill(Canvas c, float l, float t, float r, float b, String value, String field) {
         float h = b - t;
-        round(c, l + 1, t + 1, r - 1, b - 1, h / 2, WHITE);
+        round(c, l + 1, t + 1, r - 1, b - 1, h / 2, SURF);
         stroke(c, l + 1, t + 1, r - 1, b - 1, h / 2, LINE, 2);
         for (int i = 0; i < 2; i++) {
             float kl = i == 1 ? r - h : l, cxk = kl + h / 2, cyk = t + h / 2;
@@ -1135,14 +1216,21 @@ final class XView extends View {
     }
 
     private void paintSheet(Canvas c) {
-        p.setColor(0x96303741);
+        p.setColor(SCRIM);
         c.drawRect(0, 0, dw, 600, p);
         hits.clear();   // only the sheet answers
         float o = dx;
         round(c, o + 36, 26, o + 764, 582, 14, 0x28000000);
-        round(c, o + 36, 22, o + 764, 578, 14, WHITE);
+        round(c, o + 36, 22, o + 764, 578, 14, SURF);
         font(22, false);
-        text(c, "Настройки на сесията", o + 64, 34, o + 564, 78, -1, INK);
+        text(c, "Настройки на сесията", o + 64, 34, o + 500, 78, -1, INK);
+        // the theme: a sun / moon switch top right (also on the list and the program screen)
+        float tl = o + 556, tt = 38;
+        if ("theme".equals(pressed)) round(c, tl, tt - 2, o + 740, tt + 38, 8, PRESS);
+        themeIcon(c, tl + 18, tt + 18, !darkNow);
+        font(15, false);
+        text(c, darkNow ? "Светла тема" : "Тъмна тема", tl + 36, tt, o + 740, tt + 36, -1, INK);
+        hit(tl, tt - 4, o + 744, tt + 40, "theme");
         line(c, o + 64, 84, o + 736, 84, HEAD_LINE, 1);
         line(c, o + 432, 100, o + 432, 452, HEAD_LINE, 1);
         Session.Program q = sheetProg;
@@ -1169,7 +1257,7 @@ final class XView extends View {
         pill(c, o + 242, 354, o + 408, 404, q.offS + " s", locked ? null : "off");
         font(14, true);
         text(c, q.cont ? "движение" : "импулс", o + 64, 406, o + 230, 428, 0, GREEN);
-        text(c, q.cont ? "почивка · импулсът продължава" : "пауза", o + 242, 406, o + 408, 428, 0, q.cont ? 0xFFB08300 : SOFT);
+        text(c, q.cont ? "почивка · импулсът продължава" : "пауза", o + 242, 406, o + 408, 428, 0, q.cont ? CONT_INK : SOFT);
         }
 
         // ---- right: the client ----
@@ -1179,12 +1267,15 @@ final class XView extends View {
         segmented(c, o, 120, "sex-f", "sex-m", "Жена", "Мъж", a.female(), true);
         // XBody: zone = the unit's channel of that name; XEMS: an XEMS suit on the unit's (XBody-standard) leads —
         // each zone drives the lead that reaches it (the owner's table, as the XBody panel). Not while running.
-        segmented(c, o, 174, "wire-xbody", "wire-xems", "Костюм XBody", "Костюм XEMS", !a.xemsWiring(), !locked);
+        if (a.kind() == Dev.BODYTECH) {                 // bodytech: one layout, nothing to choose
+            font(15, false);
+            text(c, "Костюм bodytech · 8 канала", o + 466, 174, o + 736, 222, -1, SOFT);
+        } else segmented(c, o, 174, "wire-xbody", "wire-xems", "Костюм XBody", "Костюм XEMS", !a.xemsWiring(), !locked);
         outlined(c, o + 456, 230, o + 736, 276, locked ? null : "age60", null, 0, false);
         font(17, false);
         text(c, "Над 60 години", o + 472, 230, o + 646, 276, -1, locked ? GREY : INK);
         float sl = o + 736 - 92, st = 253 - 15;
-        round(c, sl, st, sl + 80, st + 30, 15, sheetAge60 ? GREEN : 0xFFD5D7DA);
+        round(c, sl, st, sl + 80, st + 30, 15, sheetAge60 ? GREEN : TRACK);
         p.setColor(WHITE);
         c.drawCircle(sheetAge60 ? sl + 65 : sl + 15, st + 15, 12, p);
         if (sheetAge60) {
@@ -1201,7 +1292,7 @@ final class XView extends View {
         // ---- the double impulse: a second, low impulse in the pause (the unit's own rest Hz / %) ----
         caption(c, o + 456, 300, "ДВОЕН ИМПУЛС");
         float ds = o + 736 - 80, dt = 296;
-        round(c, ds, dt, ds + 80, dt + 30, 15, q.dbl ? YELLOW : 0xFFD5D7DA);
+        round(c, ds, dt, ds + 80, dt + 30, 15, q.dbl ? YELLOW : TRACK);
         p.setColor(WHITE);
         c.drawCircle(q.dbl ? ds + 65 : ds + 15, dt + 15, 12, p);
         if (!locked) hit(ds - 90, dt - 6, ds + 80, dt + 36, "dbl");
@@ -1221,7 +1312,7 @@ final class XView extends View {
     /** A two-way switch over the sheet's right column (XBody's red for the chosen half). */
     private void segmented(Canvas c, float o, float t, String idL, String idR, String l, String r, boolean left,
                            boolean enabled) {
-        round(c, o + 457, t + 1, o + 735, t + 47, 10, WHITE);
+        round(c, o + 457, t + 1, o + 735, t + 47, 10, SURF);
         stroke(c, o + 457, t + 1, o + 735, t + 47, 10, LINE, 2);
         for (int i = 0; i < 2; i++) {
             float hl = o + 456 + i * 140;
@@ -1251,7 +1342,7 @@ final class XView extends View {
             boolean sel = m == pl.minutes;
             if (sel) round(c, hl, 124, hl + cw - 6, 168, 8, locked ? GREY : INK);
             else {
-                round(c, hl, 124, hl + cw - 6, 168, 8, id.equals(pressed) ? PRESS : WHITE);
+                round(c, hl, 124, hl + cw - 6, 168, 8, id.equals(pressed) ? PRESS : SURF);
                 stroke(c, hl + 0.75f, 124.75f, hl + cw - 6.75f, 167.25f, 8, LINE, 1.5f);
             }
             font(18, sel);
@@ -1286,20 +1377,20 @@ final class XView extends View {
             text(c, right, x + 16, y, x + w, y + 28, 1, i == now ? INK : SOFT);
         }
         font(14, true);
-        text(c, pl.note, x, 428, x + w, 452, -1, 0xFF7A5500);
+        text(c, pl.note, x, 428, x + w, 452, -1, NOTE_INK);
     }
 
     /** XBody's message dialog: a dark red band over the whole width. */
     private void paintConfirm(Canvas c) {
-        p.setColor(0x78FFFFFF);
+        p.setColor(VEIL);
         c.drawRect(0, 0, dw, 600, p);
         hits.clear();
         p.setColor(DIALOG);
         c.drawRect(0, 150, dw, 382, p);
         font(32, false);
-        text(c, "Прекъсни връзката с WiEMS?", 0, 170, dw, 220, 0, WHITE);
+        text(c, "Прекъсни връзката с " + Dev.SHORT[a.kind()] + "?", 0, 170, dw, 220, 0, WHITE);
         font(17, false);
-        text(c, "Изходите се изключват. Ще можеш да избереш друг модул.", 40, 222, dw - 40, 272, 0, WHITE);
+        text(c, "Изходите се изключват. Ще можеш да избереш друго устройство.", 40, 222, dw - 40, 272, 0, WHITE);
         for (int i = 0; i < 2; i++) {
             float l = i == 1 ? dw / 2 + 20 : dw / 2 - 210;
             String id = i == 1 ? "confirm-yes" : "confirm-no";
@@ -1402,7 +1493,7 @@ final class XView extends View {
             sliding = true;
             slideX0 = x;
             int b = 1 << slideZone;
-            sel = sel == (1 << Session.ZONES) - 1 ? b : sel | b;   // picked first, as its tap
+            sel = sel == allMask() ? b : sel | b;   // picked first, as its tap
             return;
         }
         int dlt = Math.max(-SLIDE, Math.min(SLIDE, Math.round(dx / zoneW() * SLIDE)));
@@ -1477,6 +1568,10 @@ final class XView extends View {
             a.askPermission();
             return;
         }
+        if (id.equals("theme")) {
+            a.setDark(!a.dark());
+            return;
+        }
         if (id.equals("bt")) {
             a.askBluetooth();
             return;
@@ -1489,8 +1584,9 @@ final class XView extends View {
             int f = id.charAt(4) - '0';
             BodyFig b = figs[f];
             RectF r = figRect[f];
-            int z = b == null ? -1 : b.zoneAt((tapX - r.left) / r.width(), (tapY - r.top) / r.height());
-            if (z >= 0) sel = sel == (1 << Session.ZONES) - 1 ? 1 << z : sel ^ (1 << z);
+            int fz = b == null ? -1 : b.zoneAt((tapX - r.left) / r.width(), (tapY - r.top) / r.height());
+            int z = fz < 0 || s == null ? -1 : s.zoneOfPart(Session.ZONE_PART[fz]);   // the figure's part → this unit's zone
+            if (z >= 0) sel = sel == allMask() ? 1 << z : sel ^ (1 << z);
             return;
         }
         if (service && id.startsWith("z:")) {       // the service mode: one zone at a time is tried
@@ -1507,10 +1603,10 @@ final class XView extends View {
             int fz = Integer.parseInt(id.substring(4));
             Channels ch = a.channels();
             int u = s.unitCh(svcZone);
-            ch.felt(Session.ZONE_PART[svcZone], Session.ZONE_PART[fz]);
+            ch.felt(s.part(svcZone), s.part(fz));
             a.channelsChanged();
-            showToast(fz == svcZone ? "✓ " + Session.ZONE[fz] + " — вярно (к." + (u + 1) + ")"
-                    : "✓ к." + (u + 1) + " → " + Session.ZONE[fz] + ". „" + Session.ZONE[svcZone] + "“ вече е к."
+            showToast(fz == svcZone ? "✓ " + s.zoneName(fz) + " — вярно (к." + (u + 1) + ")"
+                    : "✓ к." + (u + 1) + " → " + s.zoneName(fz) + ". „" + s.zoneName(svcZone) + "“ вече е к."
                             + (s.unitCh(svcZone) + 1) + " — пробвай пак");
             return;
         }
@@ -1531,13 +1627,13 @@ final class XView extends View {
         if (id.startsWith("z:")) {   // tap = into / out of the selection (as on XBody)
             int b = 1 << Integer.parseInt(id.substring(2));
             // with ВСИЧКИ on, a tap on one zone means THAT zone (not "all but it")
-            if (sel == (1 << Session.ZONES) - 1) sel = b;
+            if (sel == allMask()) sel = b;
             else sel = (sel & b) != 0 ? sel & ~b : sel | b;
             return;
         }
         if (id.equals("all")) {
             svcZone = -1;
-            int all = (1 << Session.ZONES) - 1;
+            int all = allMask();
             sel = sel == all ? 0 : all;
             return;
         }

@@ -41,6 +41,11 @@ interface Host {
     Channels channels();
     /** The service mode changed the suit or a channel: save it, the running unit gets it at once. */
     void channelsChanged();
+    /** The kind of the unit in use ({@link Dev}): linked, being linked, or the last one. */
+    int kind();
+    /** Dark theme (owner, v1.15): the header's / the sheet's sun-moon switch; saved. */
+    boolean dark();
+    void setDark(boolean d);
     /** An asset of the APK (null: none). */
     java.io.InputStream openAsset(String name);
 }

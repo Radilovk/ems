@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * XEMS WiEMS — a light tablet app for ONE WiEMS unit (docs/xems-wiems-app.md): the XBody training screen
- * ({@link XView}), the unit's driver ({@link Session}, the XBody panel's logic) and the BLE link ({@link Ble}).
+ * XEMS WiEMS — a light tablet app for ONE unit: WiEMS, an XEMS suit or a bodytech suit (docs/xems-wiems-app.md): the
+ * XBody training screen ({@link XView}), the unit's driver ({@link Session}, the XBody panel's logic) and the BLE link
+ * ({@link Ble}).
  * The brain lives here: what the screen shows, what a tap does, the 50 ms tick that paces the unit.
  */
 public final class MainActivity extends Activity implements Ble.Listener, Host {
@@ -33,8 +34,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     String heldMac;
     /** Every unit write, answer, notification and strength change, with times (the evidence for a fault). */
     Trace trace;
-    /** The zones and strength as last set: kept across sessions and app restarts (owner). */
-    final int[] savedZones = new int[Session.ZONES];
+    /** The zones (per body part, XBody's order) and strength as last set: kept across sessions and restarts (owner). */
+    final int[] savedZones = new int[Channels.PARTS];
     int savedStrength = 100;
     /** The suit's connector standard (owner: both, switchable): false XBody, true XEMS. */
     private long zonesSavedMs;
@@ -53,6 +54,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     XView view;
     final List<Seen> seen = new ArrayList<Seen>();
     String linkingMac, linkedName, lastMac;
+    /** The kind of the unit being linked / linked last ({@link Dev}). */
+    int linkingKind, lastKind;
+    /** Dark theme (owner, v1.15): saved, switched from the header / the session sheet. */
+    boolean dark;
     long linkingSince;
     Session.Program prog = new Session.Program();
     final Channels channels = new Channels();
@@ -107,7 +112,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     protected void onDestroy() {
         main.removeCallbacks(tick);
         if (session != null) session.stop();
-        ble.disconnect(Session.safeOp());
+        ble.disconnect(Session.safeOp(ble.kind()));
         ble.scan(false);
         super.onDestroy();
     }
@@ -235,8 +240,27 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         linkingMac = mac;
         linkingSince = now();
         linkedName = mac;
-        for (Seen s : seen) if (s.mac.equals(mac)) linkedName = s.name;
-        ble.connect(mac);
+        linkingKind = mac.equals(lastMac) ? lastKind : Dev.WIEMS;
+        for (Seen s : seen)
+            if (s.mac.equals(mac)) {
+                linkedName = s.name;
+                linkingKind = s.kind;
+            }
+        ble.connect(mac, linkingKind);
+    }
+
+    public boolean dark() {
+        return dark;
+    }
+
+    public void setDark(boolean d) {
+        dark = d;
+        save();
+    }
+
+    /** The kind of the unit in use (the linked one, else the one being linked / the last). */
+    public int kind() {
+        return session != null ? session.kind : held != null ? held.kind : linkingMac != null ? linkingKind : lastKind;
     }
 
     /** The header's "disconnect": outputs off first, then the link closes when the unit has taken it. */
@@ -321,7 +345,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     // ---------------------------------------------------------------- Ble.Listener (main thread)
 
     @Override
-    public void seen(String mac, String name, int rssi) {
+    public void seen(String mac, String name, int rssi, int kind) {
         Seen s = null;
         for (Seen x : seen) if (x.mac.equals(mac)) s = x;
         if (s == null) {
@@ -330,6 +354,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             seen.add(s);
         }
         s.name = name;
+        s.kind = kind;
         s.rssi = rssi;
         s.lastMs = now();
     }
@@ -341,7 +366,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             session = held;
             setNote(session.state() == Session.PAUSED ? "Свързан отново ✓ — натисни ПРОДЪЛЖИ" : "Свързан отново ✓", false);
         } else {
-            session = new Session();
+            session = new Session(linkingKind);
+            channels.setDev(linkingKind);
             session.setMap(channels.map());
             session.setProgram(prog);
             session.setStrength(100); // every zone starts at 0 (owner); СИЛА scales them all — 100 % = as set
@@ -351,12 +377,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         held = null;
         session.sink = sink;
         if (!back) {                  // the zones and strength as left last time (owner: they stay as set)
-            for (int z = 0; z < Session.ZONES; z++) session.setZone(z, savedZones[z]);
+            for (int z = 0; z < session.zones(); z++) session.setZone(z, savedZones[session.part(z)]);
             session.setStrength(savedStrength);
         }
         trace("LINKED " + linkingMac + (back ? " (the same unit back: the training goes on)" : ""));
         session.linked();             // whatever the unit does now: 0 and stopped
         lastMac = linkingMac;
+        lastKind = linkingKind;
         linkingMac = null;
         disconnectWhenIdle = false;
         save();
@@ -384,7 +411,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session == null) return;
         if (!ok) {
             ble.disconnect(null);
-            lost("WiEMS не прие команда — тренировката спря");
+            lost(Dev.SHORT[session.kind] + " не прие команда — тренировката спря");
             return;
         }
         session.ack();
@@ -394,6 +421,12 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     public void runNotify(byte[] v) {
         trace("  ← run " + Trace.hex(v));
         if (session != null) session.runNotify(v, now());
+    }
+
+    @Override
+    public void suitNotify(byte[] v) {
+        trace("  ← " + Trace.hex(v));
+        if (session != null) session.suitNotify(v);
     }
 
     @Override
@@ -436,7 +469,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (linkingMac != null && t - linkingSince > 15000) {
             ble.disconnect(null);
             linkingMac = null;
-            setNote("WiEMS не отговори — включен ли е?", true);
+            setNote(Dev.SHORT[linkingKind] + " не отговори — включен ли е?", true);
         }
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
@@ -445,7 +478,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 int tz = session.takeTripZone();
                 if (tz != -1) {
                     setNote("WiEMS спря — защита на тока (код " + Integer.toHexString(session.tripCodeLast()) + ")"
-                            + (tz >= 0 ? " след промяната на " + Session.ZONE[tz] : "")
+                            + (tz >= 0 ? " след промяната на " + session.zoneName(tz) : "")
                             + ". Силите са както вървяха. Без облечен костюм модулът не дава различни сили по зоните", true);
                     noteUntil = now() + 20000;
                 } else
@@ -456,15 +489,17 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 session.clearFinished();
                 setNote("Тренировката завърши ✓", false);
             }
+            String u = Dev.SHORT[session.kind];
             if (session.ackLate(t)) {
                 ble.disconnect(null);
-                lost("WiEMS спря да отговаря — тренировката спря");
+                lost(u + " спря да отговаря — тренировката спря");
             } else if (ble.ready()) {
                 byte[] op = session.next(t);
-                if (op != null) trace("→ " + opName(op[0]) + " " + Trace.hex(com.isaigu.gymapp.bodytech.WiProto.value(op)));
+                if (op != null) trace("→ " + (session.kind == Dev.WIEMS
+                        ? opName(op[0]) + " " + Trace.hex(com.isaigu.gymapp.bodytech.WiProto.value(op)) : Trace.hex(op)));
                 if (op != null && !ble.write(op)) {
                     ble.disconnect(null);
-                    lost("WiEMS не прие команда — тренировката спря");
+                    lost(u + " не прие команда — тренировката спря");
                 } else if (op == null && disconnectWhenIdle && !session.busy()) {
                     ble.disconnect(null);
                     session = null;
@@ -486,9 +521,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         Session s = session != null ? session : held;
         if (s == null) return;
         boolean changed = s.strength() != savedStrength;
-        for (int z = 0; z < Session.ZONES; z++) changed |= s.zone(z) != savedZones[z];
+        for (int p = 0; p < Channels.PARTS; p++) changed |= s.partLevel(p) != savedZones[p];
         if (!changed) return;
-        for (int z = 0; z < Session.ZONES; z++) savedZones[z] = s.zone(z);
+        for (int p = 0; p < Channels.PARTS; p++) savedZones[p] = s.partLevel(p);
         savedStrength = s.strength();
         if (t - zonesSavedMs > 2000 || !resumed) {
             zonesSavedMs = t;
@@ -524,11 +559,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         prog.dblPct = p.getInt("dbl_pct", prog.dblPct);
         age60 = p.getBoolean("age60", false);
         female = p.getBoolean("female", true);
-        for (int z = 0; z < Session.ZONES; z++) savedZones[z] = p.getInt("zone" + z, 0);
+        // per body part (v1.15); 1.14 kept them per WiEMS zone ("zone0".."zone9", the screen's order)
+        for (int z = 0; z < Session.ZONES; z++) savedZones[Session.ZONE_PART[z]] = p.getInt("zone" + z, 0);
+        for (int q = 0; q < Channels.PARTS; q++) savedZones[q] = p.getInt("part" + q, savedZones[q]);
+        lastKind = p.getInt("last_kind", Dev.WIEMS);
+        dark = p.getBoolean("dark", false);
         savedStrength = p.getInt("strength", 100);
         String map = p.getString("channels", null);
         if (map != null) channels.load(map);
         else if (p.getBoolean("wiring_xems", false)) channels.suit = Channels.XEMS;   // the switch of app 1.12–1.13
+        channels.setDev(lastKind);  // the maps of the kind used last (a held / reconnecting unit is that one)
         Safe.apply(prog, age60);    // a saved value goes through the limits too
     }
 
@@ -537,9 +577,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
                 .putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
                 .putBoolean("age60", age60).putBoolean("female", female).putString("channels", channels.save()).putInt("strength", savedStrength)
-                .putInt("zone0", savedZones[0]).putInt("zone1", savedZones[1]).putInt("zone2", savedZones[2])
-                .putInt("zone3", savedZones[3]).putInt("zone4", savedZones[4]).putInt("zone5", savedZones[5])
-                .putInt("zone6", savedZones[6]).putInt("zone7", savedZones[7]).putInt("zone8", savedZones[8])
-                .putInt("zone9", savedZones[9]).apply();
+                .putInt("last_kind", lastKind).putBoolean("dark", dark)
+                .putInt("part0", savedZones[0]).putInt("part1", savedZones[1]).putInt("part2", savedZones[2])
+                .putInt("part3", savedZones[3]).putInt("part4", savedZones[4]).putInt("part5", savedZones[5])
+                .putInt("part6", savedZones[6]).putInt("part7", savedZones[7]).putInt("part8", savedZones[8])
+                .putInt("part9", savedZones[9]).apply();
     }
 }

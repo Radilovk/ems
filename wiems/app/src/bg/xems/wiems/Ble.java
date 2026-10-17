@@ -26,8 +26,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The tablet's BLE side for ONE WiEMS unit: scan for "WIEMS…" names, connect, find the vendor service and the battery,
- * subscribe the run characteristic and the battery level, then one write at a time (the caller paces with
+ * The tablet's BLE side for ONE unit — WiEMS, XEMS suit or bodytech suit ({@link Dev}): scan for ours (advertised
+ * service, else the name), connect, find the unit's service; WiEMS: subscribe the run characteristic and the battery
+ * level; a suit: subscribe its notify characteristic. Then one write at a time (the caller paces with
  * {@link #write} → {@link Listener#written}). Every callback is handed to the main thread.
  */
 final class Ble {
@@ -35,7 +36,7 @@ final class Ble {
     static final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     interface Listener {
-        void seen(String mac, String name, int rssi);
+        void seen(String mac, String name, int rssi, int kind);
         void linked();
         void lost(String why);
         void written(boolean ok);
@@ -43,6 +44,8 @@ final class Ble {
         void battery(int pct);
         /** Any other notification (the unit's status / current check, its clock): for the trace. */
         void notified(String what, byte[] v);
+        /** An XEMS / bodytech suit's notification (its battery reply). */
+        void suitNotify(byte[] v);
     }
 
     private final Context ctx;
@@ -55,6 +58,10 @@ final class Ble {
     private final GattCb gattCb = new GattCb();
     private BluetoothGatt gatt;
     private String mac;
+    /** The kind being linked / linked ({@link Dev}). */
+    private int kind = Dev.WIEMS;
+    /** XEMS / bodytech: the one characteristic written and the one notifying (bodytech: the same FE51). */
+    private BluetoothGattCharacteristic suitW, suitN;
     private final BluetoothGattCharacteristic[] ops = new BluetoothGattCharacteristic[5];
     private BluetoothGattCharacteristic batt;
     /**
@@ -91,6 +98,10 @@ final class Ble {
 
     String mac() {
         return mac;
+    }
+
+    int kind() {
+        return kind;
     }
 
     // ---------------------------------------------------------------- scan
@@ -133,41 +144,58 @@ final class Ble {
                 BluetoothDevice d = r.getDevice();
                 String name = r.getScanRecord() != null ? r.getScanRecord().getDeviceName() : null;
                 if (name == null) name = d.getName();
-                if (!WiProto.nameIsWiems(name)) return;
-                main.post(new SeenPost(d.getAddress(), name, r.getRssi()));
+                int k = Dev.kindOf(svcOf(r), name);
+                if (k < 0) return;
+                main.post(new SeenPost(d.getAddress(), name != null ? name : d.getAddress(), r.getRssi(), k));
             } catch (Throwable t) {
                 Log.e(TAG, "scan result: " + t);
             }
         }
     }
 
+    /** The unit's advertised service as the panel's bridge names it: "WIEMS", "FE50", "FFF0", "NUS" or null. */
+    static String svcOf(ScanResult r) {
+        if (r.getScanRecord() == null || r.getScanRecord().getServiceUuids() == null) return null;
+        for (android.os.ParcelUuid u : r.getScanRecord().getServiceUuids()) {
+            String s = u.getUuid().toString().toLowerCase();
+            if (s.equals(WiProto.SVC)) return "WIEMS";
+            if (s.equals(Dev.BT_SVC)) return "FE50";
+            if (s.equals(Dev.XEMS_SVC)) return "FFF0";
+            if (s.equals(Dev.NUS_SVC)) return "NUS";
+        }
+        return null;
+    }
+
     final class SeenPost implements Runnable {
         final String mac, name;
-        final int rssi;
+        final int rssi, kind;
 
-        SeenPost(String mac, String name, int rssi) {
+        SeenPost(String mac, String name, int rssi, int kind) {
             this.mac = mac;
             this.name = name;
             this.rssi = rssi;
+            this.kind = kind;
         }
 
         @Override
         public void run() {
-            l.seen(mac, name, rssi);
+            l.seen(mac, name, rssi, kind);
         }
     }
 
     // ---------------------------------------------------------------- link
 
-    void connect(String address) {
+    void connect(String address, int kind) {
         if (gatt != null || !enabled()) return;
         scan(false);
         try {
             BluetoothDevice d = adapter.getRemoteDevice(address);
             mac = address;
+            this.kind = kind;
             setup = -1;
             for (int i = 0; i < ops.length; i++) ops[i] = null;
             batt = null;
+            suitW = suitN = null;
             gatt = Build.VERSION.SDK_INT >= 23 ? d.connectGatt(ctx, false, gattCb, BluetoothDevice.TRANSPORT_LE)
                     : d.connectGatt(ctx, false, gattCb);
         } catch (Throwable t) {
@@ -223,6 +251,13 @@ final class Ble {
     }
 
     private boolean writeNow(byte[] op) {
+        if (kind != Dev.WIEMS) {                    // a suit: the frame as it is, with response where it has it
+            if (suitW == null) return false;
+            suitW.setValue(op);
+            suitW.setWriteType((suitW.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0
+                    ? BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT : BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+            return gatt.writeCharacteristic(suitW);
+        }
         int sel = op[0] & 0xFF;
         BluetoothGattCharacteristic c = sel < ops.length ? ops[sel] : null;
         if (c == null) return false;
@@ -249,6 +284,12 @@ final class Ble {
     private void step() {
         try {
             if (gatt == null) return;
+            if (kind != Dev.WIEMS) {                // a suit: its notifications on, then ready
+                if (setup == 0 && notifyOn(suitN)) return;
+                setup = READY;
+                l.linked();
+                return;
+            }
             if (setup >= 0 && setup <= 3) {
                 BluetoothGattCharacteristic[] n = {ops[WiProto.OP_RUN], batt, status, clock};
                 if (!notifyOn(n[setup])) {
@@ -287,6 +328,10 @@ final class Ble {
     }
 
     private void servicesFound(BluetoothGatt g) {
+        if (kind != Dev.WIEMS) {
+            suitFound(g);
+            return;
+        }
         BluetoothGattService s = g.getService(UUID.fromString(WiProto.SVC));
         if (s == null) {
             close("Това устройство не е WiEMS");
@@ -302,6 +347,33 @@ final class Ble {
         batt = b != null ? b.getCharacteristic(UUID.fromString(WiProto.BATTERY_CHR)) : null;
         status = findChr(g, CHR_STATUS);
         clock = findChr(g, WiProto.CHR_CLOCK);
+        setup = 0;
+        step();
+    }
+
+    /** XEMS: FFF0 (FFF2 / FFF1) or the Nordic UART; bodytech: FE50 (FE51 both ways, a quick link as EMSFIT's). */
+    private void suitFound(BluetoothGatt g) {
+        if (kind == Dev.BODYTECH) {
+            BluetoothGattService s = g.getService(UUID.fromString(Dev.BT_SVC));
+            suitW = suitN = s != null ? s.getCharacteristic(UUID.fromString(Dev.BT_CHR)) : null;
+            if (suitW != null && Build.VERSION.SDK_INT >= 21)
+                g.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);   // write → ACK ≈ 25 ms
+        } else {
+            BluetoothGattService s = g.getService(UUID.fromString(Dev.XEMS_SVC));
+            if (s != null) {
+                suitW = s.getCharacteristic(UUID.fromString(Dev.XEMS_WRITE));
+                suitN = s.getCharacteristic(UUID.fromString(Dev.XEMS_NOTIFY));
+            }
+            BluetoothGattService n = g.getService(UUID.fromString(Dev.NUS_SVC));
+            if (suitW == null && n != null) {
+                suitW = n.getCharacteristic(UUID.fromString(Dev.NUS_RX));
+                suitN = n.getCharacteristic(UUID.fromString(Dev.NUS_TX));
+            }
+        }
+        if (suitW == null) {
+            close("Това устройство не е " + Dev.SHORT[kind]);
+            return;
+        }
         setup = 0;
         step();
     }
@@ -341,7 +413,7 @@ final class Ble {
                 if (e.status == BluetoothProfile.STATE_CONNECTED) {
                     if (!gatt.discoverServices()) close("Не се свърза — опитай пак");
                 } else {
-                    close(setup == READY ? "Връзката с WiEMS прекъсна — тренировката спря" : "Не се свърза — опитай пак");
+                    close(setup == READY ? "Връзката с " + Dev.NAME[kind] + " прекъсна — тренировката спря" : "Не се свърза — опитай пак");
                 }
                 break;
             case EV_SERVICES:
@@ -363,7 +435,8 @@ final class Ble {
                 l.written(e.status == BluetoothGatt.GATT_SUCCESS);
                 break;
             case EV_CHANGED:
-                if (e.c == batt && e.v != null && e.v.length == 1) l.battery(e.v[0] & 0xFF);
+                if (kind != Dev.WIEMS) l.suitNotify(e.v);
+                else if (e.c == batt && e.v != null && e.v.length == 1) l.battery(e.v[0] & 0xFF);
                 else if (e.c == ops[WiProto.OP_RUN]) l.runNotify(e.v);
                 else l.notified(e.c == status ? "status" : e.c == clock ? "clock" : String.valueOf(e.c.getUuid()), e.v);
                 break;

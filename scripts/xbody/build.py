@@ -26,6 +26,17 @@ OUT = REPO / "build/xbody-dist"
 SKIP = {".gitkeep"}
 MTIME = 1700000000  # fixed → reproducible payload
 
+# Vendor "Software Update" archive (Administration Menu → Software Update, no reboot).
+# XBody's own Maintenance code (opt/xbody/xbody) accepts a *.xbody file in the stick root:
+#   name   softwareupdate.newave.<MAJOR>.<MINOR>.<md5-16>.xbody   (lowercase; MAJOR.MINOR > 3.2)
+#   body   openssl aes-128-cbc -salt -md md5 of a gzip'd tar, with this fixed password
+#   md5    hex(md5( "<name-without-checksum-and-ext>." + <cipher bytes> + "xbody." ))[:16]
+# The password is the Hungarian pangram "Árvíztűrőtükörfúrógép9081" as the app passes it to
+# openssl: QFile::encodeName → ISO-8859-1, with ű/ő (not in Latin-1) folded to '?'.
+VENDOR_PW = bytes([0xc1, 0x72, 0x76, 0xed, 0x7a, 0x74, 0x3f, 0x72, 0x3f, 0x74, 0xfc, 0x6b,
+                   0xf6, 0x72, 0x66, 0xfa, 0x72, 0xf3, 0x67, 0xe9, 0x70, 0x39, 0x30, 0x38, 0x31])
+VENDOR_SW_MAJOR = 3   # the app's own softwareVersion() is 3.2.0; the archive must read as newer
+
 
 def die(msg):
     sys.exit(f"build.py: ERROR: {msg}")
@@ -109,6 +120,73 @@ def make_payload(entries):
     return raw.getvalue()
 
 
+def pending_tar(entries, usb):
+    """gzip'd tar that lays the stick out under /opt/xems/pending — the layout /etc/init.d/xems-pending (rc5 S29)
+    installs at the next boot with the stick's own updater.sh (backup + payload + remove.list, one run). The init
+    script and its rc link ride along for units older than mod v9, which do not have them yet."""
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w", format=tarfile.USTAR_FORMAT) as tar:
+        def add(name, data, mode):
+            ti = tarfile.TarInfo("./" + name)
+            ti.uid = ti.gid = 0
+            ti.uname = ti.gname = "root"
+            ti.mtime = MTIME
+            ti.mode = mode
+            ti.size = len(data)
+            tar.addfile(ti, io.BytesIO(data))
+        add("opt/xems/pending/updater.sh", (usb / "updater.sh").read_bytes(), 0o755)
+        for f in ("payload.tar.gz", "payload.md5", "remove.list", "VERSION"):
+            add(f"opt/xems/pending/xems/{f}", (usb / "xems" / f).read_bytes(), 0o644)
+        for rel, kind, mode, src in entries:
+            if rel == "etc/init.d/xems-pending" and kind == "f":
+                add(rel, src.read_bytes(), 0o755)
+            elif rel == "etc/rc5.d/S29xems-pending" and kind == "l":
+                ti = tarfile.TarInfo("./" + rel)
+                ti.uid = ti.gid = 0
+                ti.uname = ti.gname = "root"
+                ti.mtime = MTIME
+                ti.type = tarfile.SYMTYPE
+                ti.linkname = src
+                tar.addfile(ti)
+    raw = io.BytesIO()
+    with gzip.GzipFile(fileobj=raw, mode="wb", mtime=MTIME) as gz:
+        gz.write(buf.getvalue())
+    return raw.getvalue()
+
+
+def vendor_archive(entries, version, usb):
+    """(filename, bytes) of the XBody-format Software Update archive, or die on a bad toolchain.
+
+    The vendor only copies the archive's files over / (no backup, no remove.list) and restarts its own GUI, so
+    the archive carries the stick into /opt/xems/pending: the next power-on installs it with the same
+    updater.sh as every other path. version is the mod version (the integer in overlay/opt/xems/VERSION); it
+    rides as the archive's minor number so it reads as 3.<version> — always newer than the app's own 3.2.0."""
+    try:
+        minor = int(version)
+    except ValueError:
+        die(f"vendor archive: VERSION must be an integer for the Software Update path, got {version!r}")
+    if minor <= 2:
+        die(f"vendor archive: VERSION {minor} would not read as newer than the app's 3.2 (Software Update "
+            f"only offers 3.<minor> with minor > 2)")
+    plain = pending_tar(entries, usb)   # gzip'd tar the vendor feeds to `tar xz` after decrypting
+    if not shutil.which("openssl"):
+        die("vendor archive: openssl not found (needed to build the Software Update archive)")
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        (td / "pw").write_bytes(VENDOR_PW)
+        (td / "plain").write_bytes(plain)
+        # -md md5 so the card's OpenSSL 1.0.1j (md5-by-default) can decrypt what newer openssl writes.
+        r = subprocess.run(["openssl", "enc", "-aes-128-cbc", "-salt", "-md", "md5",
+                            "-pass", f"file:{td/'pw'}", "-in", str(td / "plain"), "-out", str(td / "ct")],
+                           capture_output=True)
+        if r.returncode != 0:
+            die("vendor archive: openssl failed: " + r.stderr.decode("utf-8", "replace").strip())
+        cipher = (td / "ct").read_bytes()
+    name_no_chk = f"softwareupdate.newave.{VENDOR_SW_MAJOR}.{minor}"
+    md5 = hashlib.md5(name_no_chk.encode() + b"." + cipher + b"xbody" + b".").hexdigest()[:16]
+    return f"{name_no_chk}.{md5}.xbody", cipher
+
+
 def build_usb(entries, removes, version):
     usb = OUT / "usb"
     if usb.exists():
@@ -126,6 +204,10 @@ def build_usb(entries, removes, version):
     uf2 = XB / "bridge/xems-bridge.uf2"
     if uf2.exists():   # handy on the stick: the XIAO is flashed from any PC
         shutil.copyfile(uf2, usb / "xems-bridge.uf2")
+    # Vendor Software Update archive at the stick root: Administration Menu → Software Update drops the stick
+    # into /opt/xems/pending while the machine runs; the next power-on installs it (xems-pending, rc5 S29).
+    arc_name, arc_bytes = vendor_archive(entries, version, usb)
+    (usb / arc_name).write_bytes(arc_bytes)
     # The zip the owner gets: one double-click tool per OS + the stick's contents in fleshka/.
     zpath = OUT / f"xbody-usb-v{version}.zip"
     files = [(f"fleshka/{p.relative_to(usb).as_posix()}", p.read_bytes(), p.name == "updater.sh")
@@ -249,10 +331,12 @@ def verify_img(dev, entries, removes):
 
 README = """XEMS мод за XBody — версия {v}
 
-Тази флашка е подготвена с PODGOTVI-FLESHKA (от zip-а). На машината:
-  1. Изключи XBody.  2. Вкарай флашката, включи.
-  3. Около минута: машината инсталира и се изключва сама.
-  4. Извади флашката, включи пак. Горе вдясно е копчето XEMS.
+Тази флашка е подготвена с PODGOTVI-FLESHKA (от zip-а). На машината, един от трите:
+  А) Изключи XBody, вкарай флашката, включи. Около минута — инсталира и се изключва
+     сама. Извади флашката, включи пак.
+  Б) Докато работи: Administration Menu -> Software Update (намира обновяването сам).
+  В) Докато работи: XEMS -> Кабел на XBody -> Кабел и импулс -> Обнови XEMS от USB.
+  След Б/В изключи и включи веднъж. Горе вдясно е копчето XEMS.
 Дневник: xems-update.log. Флашката се използва веднъж (updater.sh става
 updater.done.sh) — за нова версия или връщане назад пусни пак PODGOTVI-FLESHKA.
 Пази я: на нея е копието за връщане назад (xems/backup-ДАТА.*).
@@ -277,10 +361,21 @@ START = """XEMS за XBody — версия {v}
    копира, проверява и я изважда. Ако Windows покаже "Windows protected
    your PC": More info -> Run anyway.
 
-2. МАШИНАТА (5 минути, без нищо друго)
-   Изключи XBody -> вкарай флашката -> включи -> чакай да се изключи сама
-   (около минута) -> извади флашката -> включи.
-   Горе вдясно на екрана се появява копче XEMS.
+2. МАШИНАТА — избери един от трите начина:
+
+   А) ПРИ ИЗКЛЮЧВАНЕ (най-просто)
+      Изключи XBody -> вкарай флашката -> включи -> чакай да се изключи сама
+      (около минута) -> извади флашката -> включи.
+
+   Б) ОТ МЕНЮТО НА XBODY (докато работи, без изключване)
+      Вкарай флашката -> влез в Administration Menu -> Software Update.
+      XBody сам намира обновяването и го слага. Накрая изключи и включи веднъж.
+
+   В) ОТ ПАНЕЛА XEMS (докато работи)
+      Вкарай флашката -> отвори XEMS (копчето горе вдясно) -> „Кабел на XBody“
+      -> таб „Кабел и импулс“ -> „Обнови XEMS от USB“. Накрая изключи и включи.
+
+   След това горе вдясно на екрана е копчето XEMS.
 
 3. МОСТЪТ XIAO (веднъж)
    Включи XIAO в USB порта на машината (по-добре на къс удължител).

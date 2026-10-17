@@ -107,7 +107,7 @@ static void signalBars(QPainter &p, const QRect &r, int rssi, const QColor &on, 
 
 PanelWidget::PanelWidget(App *app)
     : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), app_(app), pressMs_(0), repeatMs_(0),
-      sheet_(false), confirm_(false), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
+      sheet_(false), confirm_(false), confirmKind_(0), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
       bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0), figsSex_(-1) {
     loadLook();
     setAttribute(Qt::WA_OpaquePaintEvent);
@@ -466,6 +466,20 @@ void PanelWidget::paintCableSettings(QPainter &p) {
     p.setFont(uiFont(14));
     p.drawText(QRect(424, 310, 352, 60), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
                U("В паузата, от втория цикъл. Винаги под честотата на импулса, до 1,5 × силата му. СТОП го спира веднага."));
+
+    // ---- update XEMS from a USB stick, here, while the machine runs (no reboot dance) ----
+    // Only when nothing is training: a machine update mid-session would cut the output.
+    if (!live.training) {
+        QRect u(24, 352, 364, 42);
+        bool pr = pressed_ == U("usb-update");
+        p.setPen(QPen(pr ? RED : GREY, 2));
+        p.setBrush(pr ? PRESS : WHITE);
+        p.drawRoundedRect(QRectF(u).adjusted(1, 1, -1, -1), 10, 10);
+        p.setPen(pr ? RED : INK);
+        p.setFont(uiFont(16, true));
+        p.drawText(u, Qt::AlignCenter, U("⟲  Обнови XEMS от USB"));
+        hit(u, U("usb-update"));
+    }
 
     // ---- bottom: the wireless suits (XIAO), only while no bridge is plugged ----
     if (app_->bridgeOk()) return;
@@ -1363,12 +1377,15 @@ void PanelWidget::paintConfirm(QPainter &p) {
     p.fillRect(QRect(0, 0, 800, 600), QColor(255, 255, 255, 120));
     hits_.clear();
     p.fillRect(QRect(0, 150, 800, 232), DIALOG);
+    bool usb = confirmKind_ == 1;
     p.setPen(WHITE);
     p.setFont(uiFont(32));
-    p.drawText(QRect(0, 170, 800, 50), Qt::AlignCenter, U("Прекъсни връзката с костюма?"));
+    p.drawText(QRect(0, 170, 800, 50), Qt::AlignCenter,
+               usb ? U("Да обновя ли XEMS от USB?") : U("Прекъсни връзката с костюма?"));
     p.setFont(uiFont(17));
     p.drawText(QRect(40, 222, 720, 50), Qt::AlignCenter | Qt::TextWordWrap,
-               U("Изходите се изключват. Ще можеш да избереш друг костюм."));
+               usb ? U("Инсталирам от поставената флашка. Накрая изключи и включи XBody, за да влезе в сила.")
+                   : U("Изходите се изключват. Ще можеш да избереш друг костюм."));
     for (int i = 0; i < 2; i++) {
         QRect r = i ? QRect(420, 294, 190, 56) : QRect(190, 294, 190, 56);
         QString id = i ? U("confirm-yes") : U("confirm-no");
@@ -1377,7 +1394,7 @@ void PanelWidget::paintConfirm(QPainter &p) {
         p.drawRoundedRect(QRectF(r).adjusted(1, 1, -1, -1), 8, 8);
         p.setPen(WHITE);
         p.setFont(uiFont(18));
-        p.drawText(r, Qt::AlignCenter, i ? U("ПРЕКЪСНИ") : U("ОСТАВИ"));
+        p.drawText(r, Qt::AlignCenter, i ? (usb ? U("ОБНОВИ") : U("ПРЕКЪСНИ")) : U("ОТКАЖИ"));
         hit(r, id);
     }
 }
@@ -1499,9 +1516,15 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("wire-xems")) { sheetWiring_ = Suit::WIRE_XEMS; return; }
     if (id == QLatin1String("info")) { info_ = true; return; }
     if (id == QLatin1String("info-close")) { info_ = cableInfo_ = false; return; }
-    if (id == QLatin1String("suit") && s && s->state() == Suit::IDLE) { confirm_ = true; return; }
+    if (id == QLatin1String("suit") && s && s->state() == Suit::IDLE) { confirm_ = true; confirmKind_ = 0; return; }
+    if (id == QLatin1String("usb-update")) { confirm_ = true; confirmKind_ = 1; return; }
     if (id == QLatin1String("confirm-no")) { confirm_ = false; return; }
-    if (id == QLatin1String("confirm-yes")) { confirm_ = false; app_->forget(); return; }
+    if (id == QLatin1String("confirm-yes")) {
+        confirm_ = false;
+        if (confirmKind_ == 1) toast(app_->updateFromUsb());   // mount the stick, install, report
+        else app_->forget();
+        return;
+    }
 }
 
 void PanelWidget::drag(const QPoint &d) {
@@ -1540,7 +1563,7 @@ QString PanelWidget::signature(QString *clock) const {
     unsigned now = app_->now();
     App::View v = app_->view();
     QString g = QString::number(v) + U("|") + app_->note() + QString::number(app_->noteWarn()) + U("|") + pressed_ +
-                QString::number(sheet_) + QString::number(confirm_) + U("|") + QString::number(sel_) +
+                QString::number(sheet_) + QString::number(confirm_) + QString::number(confirmKind_) + U("|") + QString::number(sel_) +
                 U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())
                     .arg((int)(bubbleUntilMs_ - now) > 0).arg((int)(toastUntilMs_ - now) > 0);
     *clock = QString();

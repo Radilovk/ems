@@ -151,6 +151,30 @@ loop). The panel's header says "Версия N е изтеглена — изк�
 unit's version and when it has the download. The first time the unit needs v9 from a stick (the link comes with it).
 Tests: `test.sh` 7 — the real `PhoneServer` on the host JVM ↔ `xems-link` ↔ the pending install on a fake root.
 
+## Update from USB while the machine runs (mod v15) — admin interface, no reboot dance
+Besides the stick-at-boot path (vendor `xbody-updater` auto-runs `updater.sh`, powers off), the mod is installable
+while the unit is on, through **two** interfaces — owner's "и двете":
+
+1. **XBody's own Administration Menu → Software Update** (its stock button, `AdminView::updateSoftwareClicked`
+   in `opt/xbody/xbody`). It scans the stick root for `*.xbody`, checks a filename md5, then decrypts + extracts
+   into `/`. `build.py` emits that archive at the stick root:
+   `softwareupdate.newave.3.<mod>.<md5-16>.xbody` — a gzip'd tar of the overlay, `openssl aes-128-cbc -salt -md md5`
+   with the vendor's fixed password (`Árvíztűrőtükörfúrógép9081`, as `QFile::encodeName` hands it to openssl:
+   ISO-8859-1 with ű/ő → `?`). The mod version rides as the minor (`3.<mod>`), always > the app's own `3.2.0`, so
+   it reads as newer. md5 = `md5("softwareupdate.newave.3.<mod>." + <cipher> + "xbody.")[:16]` (the way
+   `ArchiveInspector::verifyIntegrity` computes it; `setDataFromFileName` wants it base-16, ≥ 8 chars). The vendor
+   only copies the archive's files over `/` and then restarts **its own GUI** (`App::requestRestart` →
+   `QCoreApplication::quit`, re-exec — not the machine). So the archive carries the **stick** into
+   `/opt/xems/pending` (+ `xems-pending` and its S29 link for units older than v9): the next power-on installs it
+   with the same `updater.sh` as every other path — backup in `/opt/xems/pending/xems`, `remove.list`, hooks.
+2. **The XEMS panel** — "Кабел на XBody" → tab "Кабел и импулс" → **Обнови XEMS от USB** (hidden while training).
+   Confirm → `App::updateFromUsb()` runs `/opt/xems/bin/xems-usb-update apply`: mounts `/dev/sda1` (else `sda`),
+   runs the stick's own `updater.sh` (backup + payload + `remove.list`, self-renames), reports the version in a
+   toast. Full install (incl. `remove.list`); hooks still run next boot. `check` reports `ver`/`installed`.
+
+Tests: `test.sh` 8 (the `.xbody` parses, its md5 matches, `openssl -d` + `tar xz` recover the overlay) and 9
+(the helper installs onto a fake root, backs up, refuses a foreign stick).
+
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
 `assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a

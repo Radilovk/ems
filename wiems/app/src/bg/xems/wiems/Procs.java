@@ -9,8 +9,9 @@ package bg.xems.wiems;
  * docs/xems-auto-mode-spec.md §6.6–6.10): phases with their own Hz, rhythm, envelope, zone weights or a wave, a second
  * impulse in the pause, and a strategy per length (10 / 15 / 20 / 25 / 30 min).</li>
  * </ul>
- * Zone weights are in WiEMS channel order (XBody's: 0 Трапец, 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем,
- * 7 Предно бедро, 8 Задно бедро, 9 Прасец). Pure Java.
+ * Zone weights are per body part in XBody's measured order (0 Трапец, 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Корем,
+ * 6 Седалище, 7 Предно бедро, 8 Задно бедро, 9 Прасец — {@link Channels}); the unit channel comes later, from the
+ * suit's map. Pure Java.
  */
 final class Procs {
     private Procs() {}
@@ -163,17 +164,13 @@ final class Procs {
         }
     }
 
-    /** XBody uems order (trapez, back, chest, waist, arm, abdomen, bottom, legext, legflex, calf) → WiEMS channels. */
+    /** Weights in XBody uems order (trapez, back, chest, waist, arm, abdomen, bottom, legext, legflex, calf) = parts. */
     private static int[] ch(int... uems) {
-        int[] o = new int[CH];
-        for (int i = 0; i < CH; i++) o[UEMS_TO_CH[i]] = uems[i];
-        return o;
+        return uems.clone();
     }
 
-    private static final int[] UEMS_TO_CH = {0, 1, 2, 3, 4, 6, 5, 7, 8, 9};
-
     private static int z(int uems) {
-        return 1 << UEMS_TO_CH[uems];
+        return 1 << uems;
     }
 
     private static final int[] W_ALL = ch(100, 100, 100, 100, 100, 100, 100, 100, 100, 100);

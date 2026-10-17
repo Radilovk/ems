@@ -32,6 +32,10 @@ interface Host {
     /** The figures: female (default) or male — the client's, chosen in the session's settings. */
     boolean female();
     void setFemale(boolean f);
+    /** Which unit channel drives which body part, per suit standard (the hidden service mode sets it). */
+    Channels channels();
+    /** The service mode changed the suit or a channel: save it, the running unit gets it at once. */
+    void channelsChanged();
     /** An asset of the APK (null: none). */
     java.io.InputStream openAsset(String name);
 }

@@ -41,10 +41,14 @@ final class Session {
         }
     }
 
-    /** A screen zone and the unit channel behind it — XBody's order (owner: a WiEMS suit is an XBody-standard suit). */
+    /**
+     * A screen zone and the body part behind it, in XBody's measured channel order ({@link Channels}: 5 Корем,
+     * 6 Седалище — the old order had these two swapped). Zones, procedure weights and the figures work on parts;
+     * the unit channel of a part comes from the suit's map (set in the service mode) only when the strengths go out.
+     */
     static final String[] ZONE = {"Предно бедро", "Задно бедро", "Седалище", "Корем", "Кръст",
             "Гръб", "Трапец", "Гърди", "Ръце", "Прасец"};
-    static final int[] ZONE_CH = {7, 8, 5, 6, 3, 1, 0, 2, 4, 9};
+    static final int[] ZONE_PART = {7, 8, 6, 5, 3, 1, 0, 2, 4, 9};
     static final int ZONES = 10, ZONES_LEFT = 5;
 
     static final int IDLE = 0, RUNNING = 1, PAUSED = 2;
@@ -71,10 +75,11 @@ final class Session {
     /** A ready procedure (null: one rhythm, prog) — its phases play by the clock. */
     private Procs.Plan plan;
     private int seg = -1, cycle;
-    /** Per unit channel, % of the trainer's level the procedure gives now (its envelope, zone weights or wave). */
+    /** Per body part, % of the trainer's level the procedure gives now (its envelope, zone weights or wave). */
     private final int[] share = new int[WiProto.CHANNELS];
     private int strength;
-    private final int[] ch = new int[WiProto.CHANNELS];
+    private final int[] ch = new int[WiProto.CHANNELS];                 // zone % per body part
+    private final int[] unitOf = Channels.DEFAULT[Channels.XBODY].clone();   // body part → unit channel
     private int state = IDLE;
     private boolean on, finished, startWanted;
     private long endMs, phaseEndMs, rampStartMs, remainMs;
@@ -159,12 +164,23 @@ final class Session {
     }
 
     int zone(int z) {
-        return ch[ZONE_CH[z]];
+        return ch[ZONE_PART[z]];
     }
 
     void setZone(int z, int pct) {
-        ch[ZONE_CH[z]] = Math.max(0, Math.min(100, pct));
+        ch[ZONE_PART[z]] = Math.max(0, Math.min(100, pct));
         if (state == RUNNING) levels();
+    }
+
+    /** The unit channel of each body part (the suit's map); a running unit gets the new layout at once. */
+    void setMap(int[] partToUnit) {
+        System.arraycopy(partToUnit, 0, unitOf, 0, unitOf.length);
+        if (state == RUNNING) levels();
+    }
+
+    /** The unit channel zone z drives now. */
+    int unitCh(int z) {
+        return unitOf[ZONE_PART[z]];
     }
 
     void start(long now) {
@@ -516,7 +532,7 @@ final class Session {
         return false;
     }
 
-    /** What unit channel c gives out now (0..100 % of its scale): its level in the impulse, 0 in the pause. */
+    /** What body part c gets now (0..100 % of the unit's scale): its level in the impulse, 0 in the pause. */
     int liveLevel(int c) {
         if (wi != WI_RUN) return 0;
         if (second()) return Math.min(100, level(c) * cur.dblPct / 100);
@@ -524,7 +540,7 @@ final class Session {
         return impulse() ? level(c) : 0;
     }
 
-    /** Channel c in % of the unit's scale: zone % × strength % × the procedure's share. */
+    /** Body part c in % of the unit's scale: zone % × strength % × the procedure's share. */
     int level(int c) {
         return Math.min(100, ch[c] * strength / 100 * share[c] / 100);
     }
@@ -542,7 +558,7 @@ final class Session {
         dropLevels();
         if (wi != WI_RUN) return;                    // counting down: the strengths go when it runs
         int[] c = new int[WiProto.CHANNELS];
-        for (int i = 0; i < c.length; i++) c[i] = unitValue(level(i));
+        for (int i = 0; i < c.length; i++) c[unitOf[i]] = unitValue(level(i));   // part i → its unit channel
         // compared with what was really sent (a queued, dropped write never counts — else a quick A → B → A
         // would leave the unit on B)
         if (java.util.Arrays.equals(c, sent)) return;

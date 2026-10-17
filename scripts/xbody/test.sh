@@ -185,4 +185,61 @@ if command -v javac > /dev/null && command -v wget > /dev/null; then
 else
 	ok "phone link skipped (no javac / wget here)"
 fi
+
+echo "8. vendor Software Update archive (*.xbody in the stick root)"
+# The archive XBody's Administration Menu → Software Update accepts: built in step 1 to $T/real/usb.
+X=$(ls "$T/real/usb"/*.xbody 2>/dev/null) || no "no *.xbody in the stick root"
+B=$(basename "$X")
+# Name parses the way Maintenance::Archive::setDataFromFileName does (lowercase, dot-split).
+echo "$B" | grep -qE '^softwareupdate\.newave\.3\.[0-9]+\.[0-9a-f]{16}\.xbody$' || no "bad name: $B"
+CHK=$(echo "$B" | cut -d. -f5)
+NNC=$(echo "$B" | cut -d. -f1-4)            # name without checksum and extension
+python3 - "$X" "$NNC" "$CHK" <<'PY' || no "checksum (md5 the way verifyIntegrity computes it)"
+import sys, hashlib
+f, nnc, chk = sys.argv[1], sys.argv[2], sys.argv[3]
+cipher = open(f, "rb").read()
+md5 = hashlib.md5(nnc.encode() + b"." + cipher + b"xbody" + b".").hexdigest()
+assert md5[:len(chk)] == chk, (md5, chk)
+assert 8 <= len(chk) <= 16 and int(chk, 16) <= 0xFFFFFFFFFFFFFFFF   # setDataFromFileName: base-16, len>=8
+PY
+if command -v openssl > /dev/null; then
+	# The apply path: openssl aes-128-cbc -d (card default md5 KDF == our -md md5) then tar xz into /.
+	printf '\301rv\355zt?r?t\374k\366rf\372r\363g\351p9081' > "$T/vpw"
+	openssl enc -d -aes-128-cbc -salt -md md5 -pass "file:$T/vpw" -in "$X" -out "$T/va.tar.gz" 2>/dev/null \
+		|| no "openssl could not decrypt the archive"
+	mkdir -p "$T/va"; tar xzf "$T/va.tar.gz" -C "$T/va" || no "archive body is not a gzip'd tar"
+	# The vendor copies these files over /: the stick lands in /opt/xems/pending (+ the S29 installer for old units).
+	P8=$T/va/opt/xems/pending
+	[ -x "$P8/updater.sh" ] || no "archive misses an executable opt/xems/pending/updater.sh"
+	(cd "$P8/xems" && md5sum -c payload.md5 > /dev/null) || no "pending payload md5"
+	[ -x "$T/va/etc/init.d/xems-pending" ] && [ "$(readlink "$T/va/etc/rc5.d/S29xems-pending")" = ../init.d/xems-pending ] \
+		|| no "archive misses the xems-pending installer"
+	[ ! -e "$T/va/opt/xems/bin" ] || no "archive must not copy the overlay directly (no backup / remove.list that way)"
+	# The next power-on: xems-pending runs the stick's installer from /opt/xems/pending.
+	F8=$T/root8; mkdir -p "$F8/tmp"
+	(cd "$P8" && XB_ROOT="$F8" dash ./updater.sh) || no "pending install from the archive"
+	cmp "$F8/opt/xems/bin/xems-panel" "$REPO/xbody/overlay/opt/xems/bin/xems-panel" || no "panel differs after install"
+	[ -f "$P8/updater.done.sh" ] && ls "$P8/xems"/backup-*.added > /dev/null || no "pending install: one run + backup"
+	ok "name parses, md5 matches, decrypts into /opt/xems/pending, next boot installs with backup (Admin menu path)"
+else
+	ok "archive name + checksum ok (openssl missing: decrypt step skipped)"
+fi
+
+echo "9. panel USB update helper (xems-usb-update: our \"Обнови от USB\")"
+H=$REPO/xbody/overlay/opt/xems/bin/xems-usb-update
+G=$T/hroot; mkdir -p "$G/opt/xems" "$G/tmp"; echo 9 > "$G/opt/xems/VERSION"; chmod 1777 "$G/tmp"
+V=$(cat "$T/real/usb/xems/VERSION")
+# check: a stick of a different version reads as an available update (exit 0)
+OUT=$(XEMS_USB_DIR="$T/real/usb" XEMS_OPT="$G/opt/xems" dash "$H" check) \
+	&& echo "$OUT" | grep -q "ver=$V installed=9" || no "check: $OUT"
+cp -r "$T/real/usb" "$T/hstick"
+A=$(XEMS_USB_DIR="$T/hstick" XEMS_OPT="$G/opt/xems" XB_ROOT="$G" dash "$H" apply) || no "apply rc ($A)"
+[ "$A" = "OK $V" ] || no "apply said: $A"
+[ "$(cat "$G/opt/xems/VERSION")" = "$V" ] || no "apply did not install the payload"
+[ -x "$G/opt/xems/bin/xems-panel" ] || no "apply missing panel"
+[ -f "$T/hstick/updater.done.sh" ] || no "apply did not consume the stick's updater"
+ls "$T/hstick/xems"/backup-*.tar.gz > /dev/null || no "apply left no backup"
+# a stick that is not an XEMS stick is refused
+mkdir -p "$T/notstick"; XEMS_USB_DIR="$T/notstick" dash "$H" apply 2>/dev/null | grep -q "ERR not-an-xems-stick" || no "did not refuse a non-XEMS stick"
+ok "check reports the version, apply installs + backs up + refuses a foreign stick"
 echo "ALL OK"

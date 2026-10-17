@@ -96,6 +96,9 @@ public:
     void applyProgram(const Program &p, bool age60);   // through the safety limits, note if corrected
     void openPanel();
     void hidePanel();
+    // Install an XEMS update from a USB stick now (our panel's "Обнови от USB"): runs
+    // /opt/xems/bin/xems-usb-update, returns a short Bulgarian result line for a toast.
+    QString updateFromUsb();
 
 protected:
     void timerEvent(QTimerEvent *e);

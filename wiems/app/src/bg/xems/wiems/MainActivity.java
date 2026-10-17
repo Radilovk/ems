@@ -36,6 +36,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     String linkingMac, linkedName, lastMac;
     long linkingSince;
     Session.Program prog = new Session.Program();
+    final Channels channels = new Channels();
     boolean age60;
     String note = "";
     boolean noteWarn;
@@ -170,6 +171,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         save();
     }
 
+    public Channels channels() {
+        return channels;
+    }
+
+    public void channelsChanged() {
+        save();
+        if (session != null) session.setMap(channels.map());
+        if (held != null) held.setMap(channels.map());
+    }
+
     public java.io.InputStream openAsset(String name) {
         try {
             return getAssets().open(name);
@@ -292,6 +303,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             setNote(session.state() == Session.PAUSED ? "Свързан отново ✓ — натисни ПРОДЪЛЖИ" : "Свързан отново ✓", false);
         } else {
             session = new Session();
+            session.setMap(channels.map());
             session.setProgram(prog);
             session.setStrength(100); // every zone starts at 0 (owner); СИЛА scales them all — 100 % = as set
             mode = -1;
@@ -414,6 +426,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         prog.dblPct = p.getInt("dbl_pct", prog.dblPct);
         age60 = p.getBoolean("age60", false);
         female = p.getBoolean("female", true);
+        channels.load(p.getString("channels", null));
         Safe.apply(prog, age60);    // a saved value goes through the limits too
     }
 
@@ -421,6 +434,6 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("last", lastMac).putInt("hz", prog.hz)
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
                 .putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
-                .putBoolean("age60", age60).putBoolean("female", female).apply();
+                .putBoolean("age60", age60).putBoolean("female", female).putString("channels", channels.save()).apply();
     }
 }

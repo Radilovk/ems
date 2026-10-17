@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.6)
+# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.7)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -11,6 +11,7 @@ server / band — one Activity, one painted View, ~40 KB APK, a few MB of RAM.
 | `Session.java` | the unit's training: the panel's `Suit` (WIEMS) in Java — program, strength, zones, clock, soft rise, count-down, one op in flight |
 | `Ble.java` | Android BLE: scan "WIEMS…", connect, vendor service + battery, run / battery notifications, one write at a time |
 | `MainActivity.java` | the glue: views (no BT / permission / BT off / list / linking / training), 50 ms tick, saved program + last unit |
+| `Channels.java` | which unit channel drives which body part, per suit standard (XBody / XEMS): starting maps, the service mode's "felt in …" swap, saved in the prefs (`channels`) |
 | `Procs.java` | the ready programs: XBody's modes (Мускули / Кардио / Релакс) and the 7 passive procedures (the XBody panel's `xbprog`, plans per length identical) |
 | `Safe.java` | the absolute limits (same rules as the tablet and the panel) |
 | `branding/…/bodytech/WiProto.java` | the unit's frames — the same file the XEMS APK uses |
@@ -99,6 +100,31 @@ the fixes below each fail it. Found and fixed:
 - **Several zones + / slider set them all to one value** (arms 30 → 65 with legs at 60): they now move by the same step.
 - **A new client** starts with ВСИЧКИ selected (all zones 0, so the slider raises them all at once); when a training
   finishes the zones go back to 0 for the next client. A shorter length on pause keeps the time already done.
+
+## v1.7 — the right channel on the right muscle, for both suit standards (owner)
+**Where the error came from.** The WiEMS channel order was written as "XBody's order" from the *first, static*
+decode of XBody's channel table, which had abdomen / bottom swapped (5 Седалище, 6 Корем). XBody's order was later
+**measured** (docs/xbody-protocol.md "Measured", mod v7: 5 Корем, 6 Седалище) and fixed for XBody's cable — but the
+WiEMS copies kept the old one (`Session.ZONE_CH`, and `Procs.UEMS_TO_CH` swapped the procedure weights to match).
+On top of that the whole order is an assumption ("a WiEMS suit = an XBody-standard suit"): the unit's channel →
+connector pin was never measured, and an XEMS-standard suit had no map at all.
+
+**Fix, smallest that holds.** Everything on the screen and in the procedures works on **body parts** (XBody's
+measured order); the unit channel of a part comes from the **suit's map** (`Channels`) only where the strengths go
+out (`Session.levels`). Two maps: XBody suit (starts = XBody's measured order) and XEMS suit (starts from the owner's
+XEMS → XBody table). The training screen never changes — only which channel a zone drives.
+
+**Hidden service mode** — hold the logo (top left) **2 s** on the training screen (again, or "✓ Готово", to leave):
+- the body figures give way to a panel: **Костюм XBody | Костюм XEMS** (the map in use and being set — it stays the
+  suit used after leaving), and the ten body parts with the unit channel behind each (`к.N`);
+- tap a zone (one at a time), СТАРТ, raise its % a little, feel where it works, tap that part in the panel:
+  the same part → **✓ checked** (green, also a ✓ badge on the zone button); another part → that channel now belongs
+  to the part felt (✓), and the zone gets the channel that part had — try it again; "Проверени N / 10";
+- **Отначало** = the suit's starting map again; on leaving: a running unit pauses, every zone 0, the map is saved.
+Tests: `AppTest` (swap, save / load, a broken saved value, a remap while running = one write, the service screen
+taps; shots `7a`–`7d`), `UnitSim` uses `Session.unitCh`.
+**Still open:** the XEMS tablet (`WiTranslator.SLIDER_TO_CH`) and the XBody panel (`WI_ZONES`) keep the old WiEMS
+order — once the service mode has checked both suits, port the two maps (the `к.N` column) there.
 
 ## Build / test
 ```

@@ -120,11 +120,47 @@ def make_payload(entries):
     return raw.getvalue()
 
 
-def vendor_archive(entries, version):
+def pending_tar(entries, usb):
+    """gzip'd tar that lays the stick out under /opt/xems/pending — the layout /etc/init.d/xems-pending (rc5 S29)
+    installs at the next boot with the stick's own updater.sh (backup + payload + remove.list, one run). The init
+    script and its rc link ride along for units older than mod v9, which do not have them yet."""
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w", format=tarfile.USTAR_FORMAT) as tar:
+        def add(name, data, mode):
+            ti = tarfile.TarInfo("./" + name)
+            ti.uid = ti.gid = 0
+            ti.uname = ti.gname = "root"
+            ti.mtime = MTIME
+            ti.mode = mode
+            ti.size = len(data)
+            tar.addfile(ti, io.BytesIO(data))
+        add("opt/xems/pending/updater.sh", (usb / "updater.sh").read_bytes(), 0o755)
+        for f in ("payload.tar.gz", "payload.md5", "remove.list", "VERSION"):
+            add(f"opt/xems/pending/xems/{f}", (usb / "xems" / f).read_bytes(), 0o644)
+        for rel, kind, mode, src in entries:
+            if rel == "etc/init.d/xems-pending" and kind == "f":
+                add(rel, src.read_bytes(), 0o755)
+            elif rel == "etc/rc5.d/S29xems-pending" and kind == "l":
+                ti = tarfile.TarInfo("./" + rel)
+                ti.uid = ti.gid = 0
+                ti.uname = ti.gname = "root"
+                ti.mtime = MTIME
+                ti.type = tarfile.SYMTYPE
+                ti.linkname = src
+                tar.addfile(ti)
+    raw = io.BytesIO()
+    with gzip.GzipFile(fileobj=raw, mode="wb", mtime=MTIME) as gz:
+        gz.write(buf.getvalue())
+    return raw.getvalue()
+
+
+def vendor_archive(entries, version, usb):
     """(filename, bytes) of the XBody-format Software Update archive, or die on a bad toolchain.
 
-    version is the mod version (the integer in overlay/opt/xems/VERSION); it rides as the archive's
-    minor number so it reads as 3.<version> — always newer than the app's own 3.2.0."""
+    The vendor only copies the archive's files over / (no backup, no remove.list) and restarts its own GUI, so
+    the archive carries the stick into /opt/xems/pending: the next power-on installs it with the same
+    updater.sh as every other path. version is the mod version (the integer in overlay/opt/xems/VERSION); it
+    rides as the archive's minor number so it reads as 3.<version> — always newer than the app's own 3.2.0."""
     try:
         minor = int(version)
     except ValueError:
@@ -132,7 +168,7 @@ def vendor_archive(entries, version):
     if minor <= 2:
         die(f"vendor archive: VERSION {minor} would not read as newer than the app's 3.2 (Software Update "
             f"only offers 3.<minor> with minor > 2)")
-    plain = make_payload(entries)   # gzip'd tar the vendor feeds to `tar xz` after decrypting
+    plain = pending_tar(entries, usb)   # gzip'd tar the vendor feeds to `tar xz` after decrypting
     if not shutil.which("openssl"):
         die("vendor archive: openssl not found (needed to build the Software Update archive)")
     with tempfile.TemporaryDirectory() as td:
@@ -168,9 +204,9 @@ def build_usb(entries, removes, version):
     uf2 = XB / "bridge/xems-bridge.uf2"
     if uf2.exists():   # handy on the stick: the XIAO is flashed from any PC
         shutil.copyfile(uf2, usb / "xems-bridge.uf2")
-    # Vendor Software Update archive at the stick root: Administration Menu → Software Update
-    # installs it while the machine runs (no reboot), as an alternative to the boot-time updater.sh.
-    arc_name, arc_bytes = vendor_archive(entries, version)
+    # Vendor Software Update archive at the stick root: Administration Menu → Software Update drops the stick
+    # into /opt/xems/pending while the machine runs; the next power-on installs it (xems-pending, rc5 S29).
+    arc_name, arc_bytes = vendor_archive(entries, version, usb)
     (usb / arc_name).write_bytes(arc_bytes)
     # The zip the owner gets: one double-click tool per OS + the stick's contents in fleshka/.
     zpath = OUT / f"xbody-usb-v{version}.zip"

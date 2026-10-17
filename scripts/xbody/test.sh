@@ -208,9 +208,19 @@ if command -v openssl > /dev/null; then
 	openssl enc -d -aes-128-cbc -salt -md md5 -pass "file:$T/vpw" -in "$X" -out "$T/va.tar.gz" 2>/dev/null \
 		|| no "openssl could not decrypt the archive"
 	mkdir -p "$T/va"; tar xzf "$T/va.tar.gz" -C "$T/va" || no "archive body is not a gzip'd tar"
-	[ -f "$T/va/opt/xems/VERSION" ] || no "archive misses opt/xems/VERSION"
-	cmp "$T/va/opt/xems/bin/xems-panel" "$REPO/xbody/overlay/opt/xems/bin/xems-panel" || no "panel differs after apply"
-	ok "name parses, md5 matches, decrypts + extracts the overlay (Admin menu install path)"
+	# The vendor copies these files over /: the stick lands in /opt/xems/pending (+ the S29 installer for old units).
+	P8=$T/va/opt/xems/pending
+	[ -x "$P8/updater.sh" ] || no "archive misses an executable opt/xems/pending/updater.sh"
+	(cd "$P8/xems" && md5sum -c payload.md5 > /dev/null) || no "pending payload md5"
+	[ -x "$T/va/etc/init.d/xems-pending" ] && [ "$(readlink "$T/va/etc/rc5.d/S29xems-pending")" = ../init.d/xems-pending ] \
+		|| no "archive misses the xems-pending installer"
+	[ ! -e "$T/va/opt/xems/bin" ] || no "archive must not copy the overlay directly (no backup / remove.list that way)"
+	# The next power-on: xems-pending runs the stick's installer from /opt/xems/pending.
+	F8=$T/root8; mkdir -p "$F8/tmp"
+	(cd "$P8" && XB_ROOT="$F8" dash ./updater.sh) || no "pending install from the archive"
+	cmp "$F8/opt/xems/bin/xems-panel" "$REPO/xbody/overlay/opt/xems/bin/xems-panel" || no "panel differs after install"
+	[ -f "$P8/updater.done.sh" ] && ls "$P8/xems"/backup-*.added > /dev/null || no "pending install: one run + backup"
+	ok "name parses, md5 matches, decrypts into /opt/xems/pending, next boot installs with backup (Admin menu path)"
 else
 	ok "archive name + checksum ok (openssl missing: decrypt step skipped)"
 fi

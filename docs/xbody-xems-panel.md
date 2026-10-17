@@ -163,7 +163,10 @@ while the unit is on, through **two** interfaces — owner's "и двете":
    ISO-8859-1 with ű/ő → `?`). The mod version rides as the minor (`3.<mod>`), always > the app's own `3.2.0`, so
    it reads as newer. md5 = `md5("softwareupdate.newave.3.<mod>." + <cipher> + "xbody.")[:16]` (the way
    `ArchiveInspector::verifyIntegrity` computes it; `setDataFromFileName` wants it base-16, ≥ 8 chars). The vendor
-   copies files only — our `remove.list` and firstboot hooks apply on the **next boot** (so: power-cycle once after).
+   only copies the archive's files over `/` and then restarts **its own GUI** (`App::requestRestart` →
+   `QCoreApplication::quit`, re-exec — not the machine). So the archive carries the **stick** into
+   `/opt/xems/pending` (+ `xems-pending` and its S29 link for units older than v9): the next power-on installs it
+   with the same `updater.sh` as every other path — backup in `/opt/xems/pending/xems`, `remove.list`, hooks.
 2. **The XEMS panel** — "Кабел на XBody" → tab "Кабел и импулс" → **Обнови XEMS от USB** (hidden while training).
    Confirm → `App::updateFromUsb()` runs `/opt/xems/bin/xems-usb-update apply`: mounts `/dev/sda1` (else `sda`),
    runs the stick's own `updater.sh` (backup + payload + `remove.list`, self-renames), reports the version in a

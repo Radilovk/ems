@@ -6,8 +6,29 @@
 # update) gets the bundled bridge firmware without a PC.
 case "$1" in
 start)
-	rm -f /tmp/xems-stop
-	( while [ ! -e /tmp/xems-stop ]; do /opt/xems/bin/xems-uf2; sleep 2; done ) > /dev/null 2>&1 &
+	rm -f /tmp/xems-stop /tmp/xems-busy
+	# Every 2 s: flash a XIAO left in UF2 mode, and install a USB update that was dropped into /opt/xems/pending
+	# while the machine runs (Admin Menu → Software Update copies it there; XBody only restarts its own GUI, so the
+	# boot installer S29 never runs). Installing just replaces files — safe mid-training; the panel is restarted to
+	# pick up the new binary only once no suit is linked (/tmp/xems-busy), so a training is never cut.
+	(
+		while [ ! -e /tmp/xems-stop ]; do
+			/opt/xems/bin/xems-uf2
+			if [ -f /opt/xems/pending/updater.sh ]; then
+				( cd /opt/xems/pending && sh ./updater.sh ) >> /opt/xems/xems.log 2>&1
+				# updater.sh renames itself to updater.done.sh on success; if it is still here it failed —
+				# park it so the loop does not reinstall every 2 s (same as the boot installer S29).
+				[ -f /opt/xems/pending/updater.sh ] && mv /opt/xems/pending/updater.sh /opt/xems/pending/updater.failed.sh
+				/etc/init.d/xems-firstboot start >> /opt/xems/xems.log 2>&1
+				touch /opt/xems/pending/.restart
+			fi
+			if [ -e /opt/xems/pending/.restart ] && [ ! -e /tmp/xems-busy ]; then
+				rm -f /opt/xems/pending/.restart
+				killall xems-panel 2> /dev/null
+			fi
+			sleep 2
+		done
+	) > /dev/null 2>&1 &
 	/opt/xems/bin/xems-link > /dev/null 2>&1 &   # the phone over USB (tethering): updates without a stick
 	(
 		SOCK=/tmp/qtembedded-0/QtEmbedded-0

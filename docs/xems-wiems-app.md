@@ -248,8 +248,8 @@ order — once the service mode has checked both suits, port the two maps (the `
 - Tests: `SuitTest` (XEMS frames = the panel's goldens, an XEMS and a bodytech session, keep-alive, the double
   impulse's restart, advertisement kinds, maps per kind); `AppTest` keeps the WiEMS protocol checks on an identity map
   and checks the measured one on its own; shots `8a`–`8e` (dark list / programs / bodytech training / sheet, XEMS).
-- **Still open:** the XEMS tablet (`WiTranslator.SLIDER_TO_CH`) and the XBody panel (`WI_ZONES`) still drive WiEMS in
-  the old order — port the measured map there. On the tablet: XEMS / bodytech suits not yet tried with this app.
+- The measured map is also in the XEMS tablet (1.1.457-ai) and the XBody panel (mod v20) — `docs/xems-wiems.md`
+  "Channel map — measured". Not yet tried: XEMS / bodytech suits with this app on the Lenovo.
 
 ## Build / test
 ```

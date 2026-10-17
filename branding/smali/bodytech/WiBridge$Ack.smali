@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 362
+    .line 363
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleWriteCallback;-><init>()V
 
-    .line 363
+    .line 364
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
-    .line 364
+    .line 365
     return-void
 .end method
 
@@ -39,7 +39,7 @@
     .registers 5
 
     .prologue
-    .line 373
+    .line 374
     const-string v0, "suit"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -80,12 +80,12 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 374
+    .line 375
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->fail(Lcom/clj/fastble/exception/BleException;)V
 
-    .line 375
+    .line 376
     return-void
 .end method
 
@@ -93,11 +93,11 @@
     .registers 5
 
     .prologue
-    .line 368
+    .line 369
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->next()V
 
-    .line 369
+    .line 370
     return-void
 .end method

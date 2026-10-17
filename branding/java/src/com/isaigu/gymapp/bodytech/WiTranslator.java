@@ -174,18 +174,28 @@ public final class WiTranslator {
     }
 
     /**
-     * The unit's channels are XBody's (owner, 2026-10-16: a WiEMS suit is an XBody-standard suit): 0 Трапец, 1 Гръб,
-     * 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец. XEMS slider i (0 Гърди,
-     * 1 Корем, 2 Предно бедро, 3 Прасец, 4 Ръце, 5 Трапец, 6 Гръб, 7 Кръст, 8 Седалище, 9 Задно бедро) → that body
-     * part's unit channel.
+     * XEMS slider i (0 Гърди, 1 Корем, 2 Предно бедро, 3 Прасец, 4 Ръце, 5 Трапец, 6 Гръб, 7 Кръст, 8 Седалище,
+     * 9 Задно бедро) → the unit channel that reaches that muscle. An XBody suit on the unit: measured on the body by
+     * the owner (the WiEMS app's service mode, app 1.15) — к.N = channel + 1: Предно бедро к.9, Задно бедро к.1,
+     * Седалище к.2, Корем к.6, Кръст к.3, Гръб к.5, Трапец к.4, Гърди к.7, Ръце к.8, Прасец к.10.
      */
-    static final int[] SLIDER_TO_CH = {2, 6, 7, 9, 4, 0, 1, 3, 5, 8};
+    static final int[] SLIDER_TO_CH = {6, 5, 8, 9, 7, 3, 4, 2, 1, 0};
+    /**
+     * An XEMS suit on the unit's (XBody-standard) leads: the owner's XEMS → XBody lead table (Ръце→Корем,
+     * Гърди→Допълнителен, Корем→Задно бедро, Предно бедро→Предно бедро, Гръб→Седалище, Трапец→Кръст, Кръст→Гръб,
+     * Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди), each lead on its measured channel above. Same maps as
+     * wiems/app Channels.DEFAULT[WIEMS] and the XBody panel's WI_ZONES / WI_ZONES_XEMS.
+     */
+    static final int[] SLIDER_TO_CH_XEMS = {9, 0, 8, 6, 5, 2, 1, 4, 3, 7};
+    /** The suit on the unit is an XEMS suit (Избор → стандарт XEMS); else an XBody suit (the unit's own). */
+    volatile boolean xemsSuit;
 
     /** What the unit gets now per channel. */
     synchronized int[] target() {
         int[] t = new int[WiProto.CHANNELS];
         if (!on || !armed) return t;
-        for (int s = 0; s < 10; s++) t[SLIDER_TO_CH[s]] = WiProto.unit(parts[s]);   // % → the unit's scale
+        int[] m = xemsSuit ? SLIDER_TO_CH_XEMS : SLIDER_TO_CH;
+        for (int s = 0; s < 10; s++) t[m[s]] = WiProto.unit(parts[s]);   // % → the unit's scale
         return t;
     }
 

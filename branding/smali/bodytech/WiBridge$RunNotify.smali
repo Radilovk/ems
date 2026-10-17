@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 401
+    .line 402
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleNotifyCallback;-><init>()V
 
-    .line 402
+    .line 403
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$RunNotify;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
-    .line 403
+    .line 404
     return-void
 .end method
 
@@ -39,7 +39,7 @@
     .registers 6
 
     .prologue
-    .line 419
+    .line 420
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$RunNotify;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
@@ -49,7 +49,7 @@
 
     move-result-object v0
 
-    .line 420
+    .line 421
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
 
     move-result v1
@@ -66,16 +66,16 @@
     :try_end_15
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_15} :catch_16
 
-    .line 424
+    .line 425
     :cond_15
     :goto_15
     return-void
 
-    .line 421
+    .line 422
     :catch_16
     move-exception v0
 
-    .line 422
+    .line 423
     const-string v1, "xems-wiems"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -105,7 +105,7 @@
     .registers 5
 
     .prologue
-    .line 412
+    .line 413
     const-string v0, "suit"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -146,12 +146,12 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 413
+    .line 414
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$RunNotify;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->next()V
 
-    .line 414
+    .line 415
     return-void
 .end method
 
@@ -159,11 +159,11 @@
     .registers 2
 
     .prologue
-    .line 407
+    .line 408
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$RunNotify;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->next()V
 
-    .line 408
+    .line 409
     return-void
 .end method

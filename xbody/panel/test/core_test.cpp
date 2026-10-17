@@ -264,13 +264,13 @@ static void wiemsSession() {
     eqInt("wi no tick yet", Suit::IDLE, u.state());
     u.tick(6200);
     eqInt("wi timeout → running", Suit::RUNNING, u.state());
-    // XBody's channel order: the "Ръце" zone drives unit channel 4, "Трапец" channel 0
+    // the measured order (owner, WiEMS app 1.15): "Ръце" = unit channel 7 (к.8), "Трапец" channel 3 (к.4)
     const Zone *z;
     int nz = Suit::zones(Suit::WIEMS, &z);
     eqInt("wi zones", 10, nz);
-    eqInt("wi arms ch", 4, z[8].ch[0]);
-    eqInt("wi trapez ch", 0, z[6].ch[0]);
-    eqInt("wi ch0 name trapez", 1, std::strcmp(Suit::channelName(Suit::WIEMS, 0), "Трапец") == 0 ? 1 : 0);
+    eqInt("wi arms ch", 7, z[8].ch[0]);
+    eqInt("wi trapez ch", 3, z[6].ch[0]);
+    eqInt("wi ch0 name back thigh", 1, std::strcmp(Suit::channelName(Suit::WIEMS, 0), "Задно бедро") == 0 ? 1 : 0);
     Suit w(Suit::WIEMS);
     w.linked(0);
     drain(w, 0);
@@ -284,7 +284,7 @@ static void wiemsSession() {
     w.tick(2500);
     w.tick(3100);
     f = drain(w, 3100);
-    eqHex("wi arms only → ch 4", "00 00 00 00 00 04 80 00 00 00 00", f.empty() ? Bytes() : f.back());
+    eqHex("wi arms only → ch 7 (check bit on ch 5)", "00 00 00 00 00 00 80 00 04 00 00", f.empty() ? Bytes() : f.back());
     // ---- the owner's traces on the Lenovo app, now on the panel: the vendor's pace, a trip, a stop, a silent unit
     Suit v(Suit::WIEMS);
     v.linked(0);
@@ -305,7 +305,7 @@ static void wiemsSession() {
     eqInt("wi v held (gap 0.8 s)", 0, (int)drain(v, 4300).size());
     f = drain(v, 5000);
     eqInt("wi v one write for three taps", 1, (int)f.size());
-    eqHex("wi v Корем 9, check bits (XOR 12 → ch 4, 5)", "00 05 05 05 05 85 85 09 05 05 05", f.empty() ? Bytes() : f[0]);
+    eqHex("wi v Корем 9 on ch 5, check bits (XOR 12 → ch 4, 5)", "00 05 05 05 05 85 89 05 05 05 05", f.empty() ? Bytes() : f[0]);
     v.setZone(z[3], 45);
     eqInt("wi v the same value: nothing", 0, (int)drain(v, 6000).size());
     v.notify(n, 6000);
@@ -316,7 +316,7 @@ static void wiemsSession() {
     int code = 0, hch = -1;
     eqInt("wi v trip seen", Suit::HALT_TRIP, v.takeHalt(&code, &hch));
     eqInt("wi v trip code", 0x86, code);
-    eqInt("wi v trip names Корем (ch 6)", 6, hch);
+    eqInt("wi v trip names Корем (ch 5)", 5, hch);
     eqInt("wi v Корем back to 25", 25, v.zone(z[3]));
     f = drain(v, 6100);
     eqHex("wi v trip → stop", "04 00", f.empty() ? Bytes() : f.back());
@@ -359,12 +359,12 @@ static void wiemsSession() {
     eqInt("wi lost → paused", Suit::PAUSED, d.state());
     eqInt("wi lost keeps the zone", 40, d.zone(z[0]));
     eqInt("wi lost keeps the time", left, d.secondsLeft(70000));
-    // an XEMS suit on the unit's leads (the owner's table): Ръце → the lead "Корем" (ch 6)
+    // an XEMS suit on the unit's leads (the owner's table): Ръце → the lead "Корем" (measured ch 5)
     const Zone *zx;
     Suit::zones(Suit::WIEMS, &zx, Suit::WIRE_XBODY);
-    eqInt("wi xems suit: Ръце → ch 6", 6, zx[8].ch[0]);
+    eqInt("wi xems suit: Ръце → ch 5", 5, zx[8].ch[0]);
     eqInt("wi xems suit: Гърди → ch 9", 9, zx[7].ch[0]);
-    eqInt("wi xems suit: Гръб → ch 5", 5, zx[5].ch[0]);
+    eqInt("wi xems suit: Гръб → ch 1", 1, zx[5].ch[0]);
     BridgeEvent e = parseBridgeLine("ADV 88:6B:0F:CC:BE:49 -58 WIEMS WIEMS_-_EMS_Device");
     eqInt("wi adv kind", Suit::WIEMS, suitKind(e.svc, e.name));
     eqInt("wi kind by name", Suit::WIEMS, suitKind("-", "WIEMS - EMS Device"));

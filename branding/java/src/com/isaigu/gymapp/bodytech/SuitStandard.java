@@ -83,11 +83,15 @@ public final class SuitStandard {
         return b.toString();
     }
 
-    /** The standard this suit runs on; XEMS on a locked tablet, whatever was chosen before the lock. */
+    /**
+     * The standard this suit runs on; XEMS on a locked tablet, whatever was chosen before the lock. A WiEMS unit
+     * starts on X-Body (its own leads are XBody's); XEMS there = an XEMS suit on them (WiTranslator).
+     */
     public static int get(String mac) {
         if (mac == null || !unlocked()) return XEMS;
         SharedPreferences p = prefs(null);
-        return p != null && p.getInt(key(mac), XEMS) == XBODY ? XBODY : XEMS;
+        int def = WiBridge.isWiemsMac(mac) ? XBODY : XEMS;
+        return p != null && p.getInt(key(mac), def) == XBODY ? XBODY : XEMS;
     }
 
     static void set(Context c, String mac, int v) {
@@ -100,7 +104,8 @@ public final class SuitStandard {
     public static void toSuit(BleDevice d, byte cmd, byte[] pdu) {
         try {
             if (cmd != 1 || d == null || pdu == null || pdu.length < 11) return;
-            if (get(d.getMac()) != XBODY || BtBridge.isBodytech(d)) return;
+            // bodytech has its own map; WiEMS maps the muscles to its channels itself (WiTranslator)
+            if (get(d.getMac()) != XBODY || BtBridge.isBodytech(d) || WiBridge.isWiems(d)) return;
             byte[] m = new byte[10];
             System.arraycopy(pdu, 1, m, 0, 10);
             for (int ch = 0; ch < 10; ch++) pdu[1 + ch] = m[XBODY_SRC[ch]];
@@ -235,6 +240,12 @@ public final class SuitStandard {
             if (!has) {
                 note.setText(XemsLang.tr("Първо избери костюм — стандартът се пази за него.",
                         "Pick a suit first — the standard is kept for it."));
+            } else if (WiBridge.isWiemsMac(mac)) {
+                note.setText(cur == XBODY
+                        ? XemsLang.tr("WiEMS с XBody костюм — каналите, проверени на тялото.",
+                                "WiEMS with an X-Body suit — the channels checked on the body.")
+                        : XemsLang.tr("WiEMS с XEMS костюм — зоните се пренасочват сами.",
+                                "WiEMS with an XEMS suit — the zones are rerouted by themselves."));
             } else if (cur == XBODY) {
                 boolean bg = XemsLang.isBg();
                 StringBuilder sb = new StringBuilder(XemsLang.tr("Канал → мускул:", "Channel → muscle:"));

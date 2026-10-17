@@ -60,6 +60,15 @@ suit only adds a driver under the existing screen.
   СТАРТ waits for the count-down ("МИГ…"), phases set strengths, pause / stop = strengths 0 + run stop.
 - Tests: `sh scripts/xbody/test-panel.sh` (golden bytes + a session), emulator (fake bridge lists a WiEMS unit).
 
+## Channel map — measured (1.1.457-ai, XBody mod v20, WiEMS app 1.15)
+The owner checked the channels on the body in the WiEMS app's service mode (XBody suit): к.1 Задно бедро, к.2 Седалище,
+к.3 Кръст, к.4 Трапец, к.5 Гръб, к.6 Корем, к.7 Гърди, к.8 Ръце, к.9 Предно бедро, к.10 Прасец (the last, by
+elimination). All three drivers use it: `WiTranslator.SLIDER_TO_CH` (tablet), `WI_ZONES` (panel), `Channels.DEFAULT`
+(app). An **XEMS suit on WiEMS** = the owner's XEMS → XBody lead table on those channels (`SLIDER_TO_CH_XEMS`,
+`WI_ZONES_XEMS`): Корем к.1, Гръб к.2, Трапец к.3, Седалище к.4, Кръст к.5, Ръце к.6, Прасец к.7, Задно бедро к.8,
+Предно бедро к.9, Гърди к.10. On the tablet the start picker's standard column chooses it per unit: X-Body (default for a
+WiEMS unit) / XEMS; `SuitStandard.toSuit` leaves WiEMS frames alone (the translator maps).
+
 ## Tests
 `bash wiems/xems/run.sh` (WiProto / WiTranslator, 47 checks) · `sh wiems/test/run.sh` (capture decoder) ·
 `sh scripts/xbody/test-panel.sh` · `python3 scripts/verify-bodytech.py` after a build.

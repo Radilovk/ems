@@ -254,10 +254,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
 - `BtTranslator.java` (702L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
-- `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
-- `WiBridge.java` (484L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
+- `SuitStandard.java` (287L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
+- `WiBridge.java` (485L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
 - `WiProto.java` (148L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
-- `WiTranslator.java` (256L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
+- `WiTranslator.java` (266L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -1239,14 +1239,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L254 ## Build / test
   - L261 ## Not verified yet
 
-`docs/xems-wiems.md` (74L)
+`docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
   - L11 ## How it works (tablet)
   - L38 ## Translation
   - L47 ## Safety
   - L55 ## XBody machine (panel + XIAO bridge)
-  - L63 ## Tests
-  - L67 ## First test on the unit
+  - L63 ## Channel map — measured (1.1.457-ai, XBody mod v20, WiEMS app 1.15)
+  - L72 ## Tests
+  - L76 ## First test on the unit
 
 `docs/xems-workouts.md` (179L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 452
+    .line 453
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,22 +36,22 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 455
+    .line 456
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v4
 
-    .line 456
+    .line 457
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 457
+    .line 458
     const-class v1, Lcom/isaigu/gymapp/bodytech/WiBridge;
 
     monitor-enter v1
 
-    .line 458
+    .line 459
     :try_start_d
     # getter for: Lcom/isaigu/gymapp/bodytech/WiBridge;->DEVS:Ljava/util/Map;
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/WiBridge;->access$000()Ljava/util/Map;
@@ -64,12 +64,12 @@
 
     invoke-interface {v0, v3}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z
 
-    .line 459
+    .line 460
     monitor-exit v1
     :try_end_19
     .catchall {:try_start_d .. :try_end_19} :catchall_63
 
-    .line 461
+    .line 462
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v6
@@ -90,7 +90,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
-    .line 464
+    .line 465
     :try_start_2a
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
 
@@ -104,14 +104,14 @@
 
     move-result v3
 
-    .line 468
+    .line 469
     :goto_34
     if-eqz v3, :cond_1e
 
-    .line 469
+    .line 470
     const/4 v1, 0x1
 
-    .line 471
+    .line 472
     :try_start_37
     iget-object v3, v0, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->tr:Lcom/isaigu/gymapp/bodytech/WiTranslator;
 
@@ -119,7 +119,7 @@
 
     move-result-object v3
 
-    .line 472
+    .line 473
     invoke-interface {v3}, Ljava/util/List;->isEmpty()Z
 
     move-result v7
@@ -136,11 +136,11 @@
 
     goto :goto_1e
 
-    .line 473
+    .line 474
     :catch_49
     move-exception v0
 
-    .line 474
+    .line 475
     const-string v3, "xems-wiems"
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -165,7 +165,7 @@
 
     goto :goto_1e
 
-    .line 459
+    .line 460
     :catchall_63
     move-exception v0
 
@@ -176,22 +176,22 @@
 
     throw v0
 
-    .line 465
+    .line 466
     :catch_66
     move-exception v3
 
     move v3, v2
 
-    .line 466
+    .line 467
     goto :goto_34
 
-    .line 477
+    .line 478
     :cond_69
     const-class v2, Lcom/isaigu/gymapp/bodytech/WiBridge;
 
     monitor-enter v2
 
-    .line 478
+    .line 479
     if-eqz v1, :cond_79
 
     :try_start_6e
@@ -204,14 +204,14 @@
 
     invoke-virtual {v0, p0, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 480
+    .line 481
     :goto_77
     monitor-exit v2
 
-    .line 481
+    .line 482
     return-void
 
-    .line 479
+    .line 480
     :cond_79
     const/4 v0, 0x0
 
@@ -220,7 +220,7 @@
 
     goto :goto_77
 
-    .line 480
+    .line 481
     :catchall_7e
     move-exception v0
 

@@ -178,6 +178,7 @@ public final class WiBridge {
             System.arraycopy(data, 3, pdu, 0, pdu.length);
             int cmd = data[2] & 0xFF;
             Dev v = dev(d);
+            v.tr.xemsSuit = SuitStandard.get(d.getMac()) == SuitStandard.XEMS;   // the suit chosen for this unit
             List<byte[]> ops = v.tr.command(cmd, pdu, SystemClock.elapsedRealtime());
             if (cmd == WiTranslator.CMD_BATTERY) {
                 v.add(ops, null, null);

@@ -28,25 +28,27 @@ static const Zone XEMS_ZONES_XBODY[10] = {
     {"Кръст", {5, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {7, 0}, 1, {"BodyBack", 0}},
     {"Трапец", {8, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {3, 0}, 1, {"BodyChest", 0}},
     {"Ръце", {9, 0}, 1, {"BodyArm", 0}},              {"Прасец", {0, 0}, 1, {"BodyOptional", 0}}};
-// WiEMS: its channels are XBody's own (owner: a WiEMS suit is an XBody-standard suit) — uems order 0 Трапец,
-// 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец.
-static const char *WI_NAMES[10] = {"Трапец", "Гръб", "Гърди", "Кръст", "Ръце",
-                                   "Седалище", "Корем", "Предно бедро", "Задно бедро", "Прасец"};
+// WiEMS + XBody suit: measured on the body by the owner (the WiEMS app's service mode, app 1.15) — unit channel
+// (к.N = index + 1): 0 Задно бедро, 1 Седалище, 2 Кръст, 3 Трапец, 4 Гръб, 5 Корем, 6 Гърди, 7 Ръце, 8 Предно бедро,
+// 9 Прасец (the one left unchecked). Same as wiems/app Channels.DEFAULT[WIEMS].
+static const char *WI_NAMES[10] = {"Задно бедро", "Седалище", "Кръст", "Трапец", "Гръб",
+                                   "Корем", "Гърди", "Ръце", "Предно бедро", "Прасец"};
 static const Zone WI_ZONES[10] = {
-    {"Предно бедро", {7, 0}, 1, {"BodyLegFront", 0}}, {"Задно бедро", {8, 0}, 1, {"BodyLegBack", 0}},
-    {"Седалище", {5, 0}, 1, {"BodyBottom", 0}},       {"Корем", {6, 0}, 1, {"BodyAbdomen", 0}},
-    {"Кръст", {3, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {1, 0}, 1, {"BodyBack", 0}},
-    {"Трапец", {0, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {2, 0}, 1, {"BodyChest", 0}},
-    {"Ръце", {4, 0}, 1, {"BodyArm", 0}},              {"Прасец", {9, 0}, 1, {"BodyOptional", 0}}};
+    {"Предно бедро", {8, 0}, 1, {"BodyLegFront", 0}}, {"Задно бедро", {0, 0}, 1, {"BodyLegBack", 0}},
+    {"Седалище", {1, 0}, 1, {"BodyBottom", 0}},       {"Корем", {5, 0}, 1, {"BodyAbdomen", 0}},
+    {"Кръст", {2, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {4, 0}, 1, {"BodyBack", 0}},
+    {"Трапец", {3, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {6, 0}, 1, {"BodyChest", 0}},
+    {"Ръце", {7, 0}, 1, {"BodyArm", 0}},              {"Прасец", {9, 0}, 1, {"BodyOptional", 0}}};
 // An XEMS suit on the WiEMS unit's (XBody-standard) leads: each zone drives the lead that reaches it — the owner's
 // table as for XBody's cable (xbcable::xemsLead): Ръце→Корем, Гърди→Допълнителен, Корем→Задно бедро, Предно бедро→
-// Предно бедро, Гръб→Седалище, Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди.
+// Предно бедро, Гръб→Седалище, Трапец→Кръст, Кръст→Гръб, Седалище→Трапец, Задно бедро→Ръце, Прасец→Гърди — each
+// lead on its measured channel above.
 static const Zone WI_ZONES_XEMS[10] = {
-    {"Предно бедро", {7, 0}, 1, {"BodyLegFront", 0}}, {"Задно бедро", {4, 0}, 1, {"BodyLegBack", 0}},
-    {"Седалище", {0, 0}, 1, {"BodyBottom", 0}},       {"Корем", {8, 0}, 1, {"BodyAbdomen", 0}},
-    {"Кръст", {1, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {5, 0}, 1, {"BodyBack", 0}},
-    {"Трапец", {3, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {9, 0}, 1, {"BodyChest", 0}},
-    {"Ръце", {6, 0}, 1, {"BodyArm", 0}},              {"Прасец", {2, 0}, 1, {"BodyOptional", 0}}};
+    {"Предно бедро", {8, 0}, 1, {"BodyLegFront", 0}}, {"Задно бедро", {7, 0}, 1, {"BodyLegBack", 0}},
+    {"Седалище", {3, 0}, 1, {"BodyBottom", 0}},       {"Корем", {0, 0}, 1, {"BodyAbdomen", 0}},
+    {"Кръст", {4, 0}, 1, {"BodyWaist", 0}},           {"Гръб", {1, 0}, 1, {"BodyBack", 0}},
+    {"Трапец", {2, 0}, 1, {"BodyTrapezius", 0}},      {"Гърди", {9, 0}, 1, {"BodyChest", 0}},
+    {"Ръце", {5, 0}, 1, {"BodyArm", 0}},              {"Прасец", {6, 0}, 1, {"BodyOptional", 0}}};
 // bodytech in the same order; its two thigh channels are one zone (owner: the same strength on both).
 static const Zone BT_ZONES[7] = {
     {"Бедра", {4, 6}, 2, {"BodyLegFront", "BodyLegBack"}}, {"Седалище", {1, 0}, 1, {"BodyBottom", 0}},

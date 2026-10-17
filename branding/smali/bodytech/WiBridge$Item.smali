@@ -39,21 +39,21 @@
     .registers 5
 
     .prologue
-    .line 256
+    .line 257
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 257
+    .line 258
     iput p1, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Item;->kind:I
 
-    .line 258
+    .line 259
     iput-object p2, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Item;->op:[B
 
-    .line 259
+    .line 260
     iput-object p3, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Item;->cb:Lcom/clj/fastble/callback/BleWriteCallback;
 
-    .line 260
+    .line 261
     iput-object p4, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Item;->orig:[B
 
-    .line 261
+    .line 262
     return-void
 .end method

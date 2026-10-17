@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.14)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.15)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -8,8 +8,10 @@ server / band — one Activity, one painted View, ~40 KB APK, a few MB of RAM.
 | file | job |
 |---|---|
 | `wiems/app/src/bg/xems/wiems/XView.java` | the screen: XBody's manual-training screen as the XBody panel paints it (panel.cpp) — header, zones in two columns, body front / back, timer hump + ВСИЧКИ + phase box, СТАРТ / ПАУЗА / СТОП, MASTER hump, slider bar −/+, % bubble, "Настройки на сесията", XBody's red confirm band |
-| `Session.java` | the unit's training: the panel's `Suit` (WIEMS) in Java — program, strength, zones, clock, soft rise, count-down, one op in flight |
-| `Ble.java` | Android BLE: scan "WIEMS…", connect, vendor service + battery, run / battery notifications, one write at a time |
+| `Session.java` | the unit's training: the panel's `Suit` (WIEMS / XEMS / BODYTECH) in Java — program, strength, zones, clock, soft rise, count-down, one op in flight |
+| `Dev.java` | the unit kinds (WiEMS / XEMS / bodytech): which one an advertisement is (service, else name — the panel's `suitKind`), their names |
+| `XemsProto.java` | XEMS suit frames (the panel's `xemsproto.cpp`); bodytech frames = the shared `branding/…/bodytech/BtProto.java` |
+| `Ble.java` | Android BLE: scan for all three kinds, connect, WiEMS: vendor service + battery, run / battery notifications; a suit: its write + notify characteristic; one write at a time |
 | `MainActivity.java` | the glue: views (no BT / permission / BT off / list / linking / training), 50 ms tick, saved program + last unit |
 | `Channels.java` | which unit channel drives which body part, per suit standard (XBody / XEMS): starting maps, the service mode's "felt in …" swap, saved in the prefs (`channels`) |
 | `Procs.java` | the ready programs: XBody's modes (Мускули / Кардио / Релакс) and the 7 passive procedures (the XBody panel's `xbprog`, plans per length identical) |
@@ -214,6 +216,40 @@ order — once the service mode has checked both suits, port the two maps (the `
 - **The slider moves only from its fader**: a touch / tap / swipe on the bar beside the chip (±34 design units)
   changes nothing; a grabbed fader follows the finger by how far it moved (no jump to the touch point) and waits
   for 3 units of real movement. − / + stay as they are. Tests: `AppTest` "the fader …".
+
+## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
+- **Three kinds in one list** ("ИЗБЕРИ УСТРОЙСТВО"): WiEMS, an XEMS suit (service FFF0 / Nordic UART, names nbee / nord /
+  NB- / …ems…) and a bodytech suit (FE50, EMS08-… / TZLJ / ADT). The tile says the kind; the header's small label after
+  the logo too; the last unit (and its kind) reconnects by itself. Same screen, same programs, procedures, double
+  impulse, limits — only the driver differs (`Session.kind`), ported from the XBody panel's `suit.cpp`:
+  - **XEMS**: the tablet runs impulse / pause / the soft rise (4 steps over the ramp) as the stock XEMS row: link = F2 +
+    battery; ▶ = F1, then cmd 1 (every channel's % + the strength) + cmd 3 (Hz, width 350 µs — Relax 150 —, on / off
+    s, output on); pause phase = cmd 3 output off; the double impulse = its % and Hz₂ in the pause; ⏸ / ■ = output off +
+    F2; battery every 10 s. Continuous (Cardio) keeps the output through the rest.
+  - **bodytech**: the link programs the suit (~110 frames: battery init, SYNC, RESET, 8 × 13 registers, all off; ▶
+    waits for it, "МИГ…"); SYNC 6 s every 4.5 s, battery every 10 s. The XEMS row's later lessons are in: every
+    mapped channel switched on once per start, a pause = strength 0 with the channels on (1.1.450), a new Hz on running
+    channels (the double impulse) = registers first, then SEL off → on back to back (1.1.452 / 1.1.453); only what
+    changed is written (what the suit has = what was sent + what is still queued). 7 zones (4 + 3): **Бедра** (both
+    thighs, C5 + C7), Седалище, Корем, Кръст | Гръб, Трапец, Ръце — no chest / calf (the figure leaves them grey).
+    One layout (C1 Кръст … C8 Корем, the owner's from the XEMS row): no service mode, no suit switch.
+- **Channel maps per kind** (`Channels.DEFAULT[kind][suit]`), the suit standard per kind (WiEMS starts on XBody's,
+  an XEMS unit on its own suit; the sheet's Костюм XBody | XEMS switches the one in use). An XEMS unit with an XBody suit
+  = the panel's `XEMS_ZONES_XBODY`. Saved: `channels` = "suit;w0;w1;wok0;wok1;x0;x1;xok0;xok1;xsuit" (1.14's five
+  fields still load). Zones are kept per body part (`part0..9`; 1.14's `zone0..9` read once).
+- **WiEMS + XBody suit, measured** (owner's service-mode photo, 9 / 10 checked): Предно бедро к.9, Задно бедро к.1,
+  Седалище к.2, Корем к.6, Кръст к.3 | Гръб к.5, Трапец к.4, Гърди к.7, Ръце к.8, Прасец к.10 (the one left) — the new
+  start. WiEMS + XEMS suit = the owner's XEMS → XBody lead table on that map. A saved 1.14 map still at the old start
+  and never checked moves to the new one; a checked one stays.
+- **Dark theme**: the moon / sun in the header's right block (list, program screens) and top right of "Настройки на
+  сесията"; saved (`dark`). Slate surfaces on a near-black grain, the same red / green / yellow, the figures stay
+  light; XBody's own program tiles only in light (their slate lines vanish on dark — the drawn icons instead).
+  Colours are theme tokens in `XView.theme` (SURF, INK, LINE, …); WHITE stays for text on coloured fills.
+- Tests: `SuitTest` (XEMS frames = the panel's goldens, an XEMS and a bodytech session, keep-alive, the double
+  impulse's restart, advertisement kinds, maps per kind); `AppTest` keeps the WiEMS protocol checks on an identity map
+  and checks the measured one on its own; shots `8a`–`8e` (dark list / programs / bodytech training / sheet, XEMS).
+- The measured map is also in the XEMS tablet (1.1.457-ai) and the XBody panel (mod v20) — `docs/xems-wiems.md`
+  "Channel map — measured". Not yet tried: XEMS / bodytech suits with this app on the Lenovo.
 
 ## Build / test
 ```

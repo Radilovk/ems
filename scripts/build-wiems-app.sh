@@ -1,6 +1,6 @@
 #!/bin/sh
 # "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
-# screen, no XEMS stack. javac (android.jar, Java 8; WiProto from branding/ is shared with xems27.apk) → dx →
+# screen, no XEMS stack; also drives an XEMS or bodytech suit (v1.15). javac (android.jar, Java 8; WiProto from branding/ is shared with xems27.apk) → dx →
 # baksmali → apktool b → uber-apk-signer (its debug key, like xems27.apk).
 #   sh scripts/build-wiems-app.sh   → wiems/dist/xems-wiems.apk (committed, like xems27.apk)
 # Version: wiems/app/VERSION "<name> <code>" — bump on every change of wiems/app.
@@ -20,7 +20,8 @@ CODE=$(cut -d' ' -f2 "$SRC/VERSION" | tr -d '\r\n ')
 rm -rf "$T"
 mkdir -p "$T/classes" "$T/apk/res/drawable"
 javac --release 8 -nowarn -encoding UTF-8 -classpath "$JAR" -d "$T/classes" \
-	$(find "$SRC/src" -name '*.java') "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" 2>&1 \
+	$(find "$SRC/src" -name '*.java') "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" \
+	"$REPO/branding/java/src/com/isaigu/gymapp/bodytech/BtProto.java" 2>&1 \
 	| grep -v 'bootstrap\|^Note\|warning: \[options\]\|^1 warning' || true
 [ -f "$T/classes/bg/xems/wiems/MainActivity.class" ] || { echo "build-wiems-app: javac failed"; exit 1; }
 # dx-safe: no lambdas / anonymous classes (a $1 class is one)

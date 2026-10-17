@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 430
+    .line 431
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 431
+    .line 432
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Setup;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
-    .line 432
+    .line 433
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 5
 
     .prologue
-    .line 437
+    .line 438
     :try_start_0
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
 
@@ -64,16 +64,16 @@
     :try_end_13
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_13} :catch_14
 
-    .line 441
+    .line 442
     :cond_13
     :goto_13
     return-void
 
-    .line 438
+    .line 439
     :catch_14
     move-exception v0
 
-    .line 439
+    .line 440
     const-string v1, "xems-wiems"
 
     new-instance v2, Ljava/lang/StringBuilder;

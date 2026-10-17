@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 381
+    .line 382
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleReadCallback;-><init>()V
 
-    .line 382
+    .line 383
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Read;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
-    .line 383
+    .line 384
     return-void
 .end method
 
@@ -39,12 +39,12 @@
     .registers 3
 
     .prologue
-    .line 394
+    .line 395
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Read;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->next()V
 
-    .line 395
+    .line 396
     return-void
 .end method
 
@@ -52,12 +52,12 @@
     .registers 5
 
     .prologue
-    .line 387
+    .line 388
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Read;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->listener:Lcom/isaigu/gymapp/train/listener/OnReceiveCommandListener;
 
-    .line 388
+    .line 389
     if-eqz p1, :cond_14
 
     array-length v1, p1
@@ -76,12 +76,12 @@
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/train/listener/OnReceiveCommandListener;->onReceiveBattery(I)V
 
-    .line 389
+    .line 390
     :cond_14
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiBridge$Read;->v:Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/WiBridge$Dev;->next()V
 
-    .line 390
+    .line 391
     return-void
 .end method

@@ -46,6 +46,7 @@ final class Procs {
             p.offS = 1;
             p.totalS = 10 * 60;
             p.rampMs = 0;
+            p.us = 150;                          // XEMS / bodytech take it (WiEMS keeps its own widths)
         }
         return p;
     }

@@ -104,7 +104,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/lok.py` (243L) — Bluetens .lok program format — parse, build, time estimate (reference for a future Java port).
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
-- `scripts/build-wiems-app.sh` (64L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
+- `scripts/build-wiems-app.sh` (65L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
@@ -254,10 +254,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BtTest.java` (174L, compile:music-sync*) — Feel a channel in Settings → Костюм bodytech: hold ▶ on a channel and the plain EMS impulse (85 Hz, 360 µs) runs on it …
 - `BtTranslator.java` (702L, compile:music-sync*) — XEMS suit commands → bodytech frames (bodytech/PROTOCOL.md) for ONE suit.
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
-- `SuitStandard.java` (276L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
-- `WiBridge.java` (484L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
+- `SuitStandard.java` (287L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
+- `WiBridge.java` (485L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
 - `WiProto.java` (148L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
-- `WiTranslator.java` (256L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
+- `WiTranslator.java` (266L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `IntervalTimerHelper.java` (1927L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
@@ -1218,34 +1218,36 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (228L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit (wiems/app, v1.14)
+`docs/xems-wiems-app.md` (264L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.15)
   - L7 ## What it is
-  - L29 ## Look (v1.1, owner: XBody's design level or better, never lower)
-  - L39 ## v1.2 — lighter figures, double impulse, ramp (owner)
-  - L46 ## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
-  - L70 ## v1.5 — fixes from the first test on the unit (owner)
-  - L85 ## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
-  - L104 ## v1.7 — the unit still pauses when one channel is raised (owner): evidence first
-  - L118 ## v1.9 — the trace from the unit: it trips on one channel
-  - L131 ## v1.10 — `86` is the unit's current protection, not a channel (second trace)
-  - L142 ## v1.11 — the real cause: the strengths need the vendor's check bits
-  - L151 ## v1.12 — both suit standards, switchable (owner)
-  - L159 ## v1.13 — picking and sliding like the XEMS focus board (owner)
-  - L169 ## v1.14 — the two 1.7 lines merged (owner: "the changes in main are missing here")
-  - L182 ### Channel map per suit + hidden service mode (parallel 1.7)
-  - L207 ### Figures with relief, a slider that needs its fader (parallel 1.8)
-  - L218 ## Build / test
-  - L225 ## Not verified yet
+  - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
+  - L41 ## v1.2 — lighter figures, double impulse, ramp (owner)
+  - L48 ## v1.4 — ready programs, as on XBody (owner: "Както при xbody. Искам ги")
+  - L72 ## v1.5 — fixes from the first test on the unit (owner)
+  - L87 ## v1.6 — real-use scenarios against a simulated unit (`wiems/app/test/.../UnitSim.java`)
+  - L106 ## v1.7 — the unit still pauses when one channel is raised (owner): evidence first
+  - L120 ## v1.9 — the trace from the unit: it trips on one channel
+  - L133 ## v1.10 — `86` is the unit's current protection, not a channel (second trace)
+  - L144 ## v1.11 — the real cause: the strengths need the vendor's check bits
+  - L153 ## v1.12 — both suit standards, switchable (owner)
+  - L161 ## v1.13 — picking and sliding like the XEMS focus board (owner)
+  - L171 ## v1.14 — the two 1.7 lines merged (owner: "the changes in main are missing here")
+  - L184 ### Channel map per suit + hidden service mode (parallel 1.7)
+  - L209 ### Figures with relief, a slider that needs its fader (parallel 1.8)
+  - L220 ## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
+  - L254 ## Build / test
+  - L261 ## Not verified yet
 
-`docs/xems-wiems.md` (74L)
+`docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
   - L11 ## How it works (tablet)
   - L38 ## Translation
   - L47 ## Safety
   - L55 ## XBody machine (panel + XIAO bridge)
-  - L63 ## Tests
-  - L67 ## First test on the unit
+  - L63 ## Channel map — measured (1.1.457-ai, XBody mod v20, WiEMS app 1.15)
+  - L72 ## Tests
+  - L76 ## First test on the unit
 
 `docs/xems-workouts.md` (179L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library

@@ -1,19 +1,24 @@
 package bg.xems.wiems;
 
+import com.isaigu.gymapp.bodytech.BtProto;
 import com.isaigu.gymapp.bodytech.WiProto;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
 
 /**
- * One WiEMS unit's training — the XBody panel's Suit (xbody/panel/core/suit.cpp, kind WIEMS) in Java: program,
- * strength, zones, the impulse / pause clock with a soft rise, and the unit operations (WiProto) queued one at a time
- * (next() → write → ack()). The unit runs its own work / rest once started; ▶ starts it (its ~4 s count-down) and the
- * clock runs when the unit does, so the two stay in step. Pure Java, no Android.
+ * One unit's training — the XBody panel's Suit (xbody/panel/core/suit.cpp) in Java: program, strength, zones, the
+ * impulse / pause clock with a soft rise, and the unit's writes queued one at a time (next() → write → ack()).
+ * WiEMS ({@link Dev#WIEMS}): the unit runs its own work / rest once started; ▶ starts it (its ~4 s count-down) and the
+ * clock runs when the unit does, so the two stay in step; a write is [selector, value…] (WiProto).
+ * XEMS suit / bodytech suit: the tablet runs impulse / pause / rise itself (as the stock XEMS row and the panel); a
+ * write is the suit's frame (xemsproto.h / BtProto). Pure Java, no Android.
  */
 final class Session {
     static final class Program {
         int hz = 85, onS = 4, offS = 4, totalS = 20 * 60, rampMs = 1000, downS;   // ramp: whole s (the unit's Ru)
+        /** Pulse width, µs — XEMS / bodytech only (WiEMS keeps its own widths). */
+        int us = 350;
         /** Double impulse: a second, low impulse in the pause (Hz ≤ 10 and under the main; % of the main strength). */
         boolean dbl;
         int dblHz = 5, dblPct = 50;
@@ -32,6 +37,7 @@ final class Session {
             p.dblPct = dblPct;
             p.downS = downS;
             p.cont = cont;
+            p.us = us;
             return p;
         }
 
@@ -50,6 +56,12 @@ final class Session {
             "Гръб", "Трапец", "Гърди", "Ръце", "Прасец"};
     static final int[] ZONE_PART = {7, 8, 6, 5, 3, 1, 0, 2, 4, 9};
     static final int ZONES = 10, ZONES_LEFT = 5;
+    /** bodytech: no chest / calf channel, its two thighs one zone (owner, the XEMS row 1.1.456) — 4 + 3 zones. */
+    private static final String[] BT_ZONE = {"Бедра", "Седалище", "Корем", "Кръст", "Гръб", "Трапец", "Ръце"};
+    private static final int[][] BT_PARTS = {{7, 8}, {6}, {5}, {3}, {1}, {0}, {4}};
+    private static final int[][] PARTS10 = {{7}, {8}, {6}, {5}, {3}, {1}, {0}, {2}, {4}, {9}};
+    /** The ramp's steps for the suits the tablet drives (XEMS / bodytech): the panel's RAMP_STEPS. */
+    static final int RAMP_STEPS = 4;
 
     static final int IDLE = 0, RUNNING = 1, PAUSED = 2;
     /** The vendor's pace: one strength write per change, ≥ 0.8 s apart, after the finger has settled (0.3 s). */
@@ -62,6 +74,7 @@ final class Session {
     private static final class Item {
         final byte[] op;
         final int tag;
+        int btReg, btCh, btVal;     // bodytech: 1 Hz / 2 intensity of channel btCh (0..7), 3 SEL mask — tracked when sent
         int[] levels;               // a strengths write: its values (they count as the unit's once it goes)
         long at;                    // when it was asked (a newer value replaces it and starts the wait again)
         int[] zones;                // the zones (by unit channel) and strength behind it
@@ -83,12 +96,18 @@ final class Session {
     private final int[] share = new int[WiProto.CHANNELS];
     private int strength;
     private final int[] ch = new int[WiProto.CHANNELS];                 // zone % per body part
-    private final int[] unitOf = Channels.DEFAULT[Channels.XBODY].clone();   // body part → unit channel
+    private final int[] unitOf = new int[Channels.PARTS];   // body part → unit channel
     private int state = IDLE;
     private boolean on, finished, startWanted;
     private long endMs, phaseEndMs, rampStartMs, remainMs;
     /** The strengths the unit has — sent or on air (null: unknown / zero); a change is written once, never repeated. */
     private int[] sent;
+    /** Which unit ({@link Dev}): WiEMS, XEMS suit, bodytech suit. */
+    final int kind;
+    private final String[] zoneName;
+    private final int[][] zoneParts;
+    private int rampStep;
+    private long lastBattMs, lastSyncMs;
     private long levelsMs = -100000;
     private int wi = WI_IDLE;
     private boolean wiGo;
@@ -117,7 +136,49 @@ final class Session {
     }
 
     Session() {
+        this(Dev.WIEMS);
+    }
+
+    Session(int kind) {
+        this.kind = kind;
+        zoneName = kind == Dev.BODYTECH ? BT_ZONE : ZONE;
+        zoneParts = kind == Dev.BODYTECH ? BT_PARTS : PARTS10;
+        System.arraycopy(Channels.DEFAULT[kind][Channels.XBODY], 0, unitOf, 0, unitOf.length);
         for (int i = 0; i < ch.length; i++) share[i] = 100;   // every zone starts at 0 (owner): raised one by one
+        java.util.Arrays.fill(btHz, -1);
+        java.util.Arrays.fill(btInt, -1);
+    }
+
+    // ---------------------------------------------------------------- the zones of this unit
+
+    int zones() {
+        return zoneName.length;
+    }
+
+    /** Zones in the left column (XBody's): the rest go right. */
+    int zonesLeft() {
+        return kind == Dev.BODYTECH ? 4 : ZONES_LEFT;
+    }
+
+    String zoneName(int z) {
+        return zoneName[z];
+    }
+
+    /** The body part of zone z (the first, for bodytech's "Бедра"). */
+    int part(int z) {
+        return zoneParts[z][0];
+    }
+
+    /** The zone that drives body part p (−1: none on this unit — bodytech's chest / calf). */
+    int zoneOfPart(int p) {
+        for (int z = 0; z < zoneParts.length; z++)
+            for (int q : zoneParts[z]) if (q == p) return z;
+        return -1;
+    }
+
+    /** A part's zone % (also one this unit has no channel for: kept for the next unit). */
+    int partLevel(int p) {
+        return ch[p];
     }
 
     // ---------------------------------------------------------------- control (the screen)
@@ -126,6 +187,23 @@ final class Session {
     void linked() {
         out.clear();
         inflight = false;
+        lastBattMs = lastSyncMs = lastTick;
+        if (kind == Dev.XEMS) {
+            push(XemsProto.stop(), T_PLAIN);         // the stock row's init: stop first
+            push(XemsProto.battery(), T_PLAIN);
+            return;
+        }
+        if (kind == Dev.BODYTECH) {
+            java.util.Arrays.fill(btHz, -1);
+            java.util.Arrays.fill(btInt, -1);
+            btSel = -1;
+            push(BtProto.batteryInit(), T_PLAIN);
+            push(BtProto.batteryInit2(), T_PLAIN);
+            push(BtProto.batterySync(), T_PLAIN);
+            push(BtProto.sync(6), T_PLAIN);
+            btProgram();
+            return;
+        }
         push(WiProto.zero(), T_PLAIN);
         push(WiProto.run(false), T_PLAIN);
         sent = null;
@@ -185,34 +263,42 @@ final class Session {
         if (s != strength) log("strength " + strength + " → " + s + "%");
         strength = s;
         userChange = true;
-        if (state == RUNNING) levels();
+        changed();
         userChange = false;
     }
 
     int zone(int z) {
-        return ch[ZONE_PART[z]];
+        return ch[part(z)];
     }
 
     void setZone(int z, int pct) {
         pct = Math.max(0, Math.min(100, pct));
-        int c = ZONE_PART[z];
-        if (pct != ch[c]) log("zone " + ZONE[z] + " (ch " + unitCh(z) + ") " + ch[c] + " → " + pct + "%");
-        ch[c] = pct;
+        int c = part(z);
+        if (pct != ch[c]) log("zone " + zoneName[z] + " (ch " + unitCh(z) + ") " + ch[c] + " → " + pct + "%");
+        for (int q : zoneParts[z]) ch[q] = pct;
         userChange = true;
-        if (state == RUNNING) levels();
+        changed();
         userChange = false;
+    }
+
+    /** A zone / strength / map change: the output now (WiEMS keeps its strengths through its own work / rest). */
+    private void changed() {
+        if (kind == Dev.WIEMS) {
+            if (state == RUNNING) levels();
+        } else if (impulse() || continuous()) levels();
+        else if (second()) pauseLevels();
     }
 
     /** The unit channel of each body part (the suit's map); a running unit gets the new layout at once. */
     void setMap(int[] partToUnit) {
         if (!java.util.Arrays.equals(partToUnit, unitOf)) log("channel map → " + java.util.Arrays.toString(partToUnit));
         System.arraycopy(partToUnit, 0, unitOf, 0, unitOf.length);
-        if (state == RUNNING) levels();
+        changed();
     }
 
-    /** The unit channel zone z drives now. */
+    /** The unit channel zone z drives now (−1: none). */
     int unitCh(int z) {
-        return unitOf[ZONE_PART[z]];
+        return unitOf[part(z)];
     }
 
     void start(long now) {
@@ -227,7 +313,7 @@ final class Session {
             cur = prog;
             for (int i = 0; i < share.length; i++) share[i] = 100;
         }
-        if (wi == WI_IDLE) {
+        if (kind == Dev.WIEMS && wi == WI_IDLE) {
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
             push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_ARM), T_PROG);
             push(rest(cur), T_PROG);
@@ -249,7 +335,14 @@ final class Session {
         endMs = now + remainMs;
         on = true;
         phaseEndMs = now + cur.onS * 1000L;
-        levels();                                       // the unit rises by itself (Ru) — as the vendor
+        if (kind == Dev.XEMS) push(XemsProto.start(), T_PLAIN);
+        else if (kind == Dev.BODYTECH && btUs != cur.us) {
+            for (int c = 1; c <= BtProto_CH; c++) push(BtProto.width(c, cur.us), T_PLAIN);
+            btUs = cur.us;
+        }
+        rampStartMs = now;
+        rampStep = 1;                                   // XEMS / bodytech: the tablet's soft rise
+        levels();                                       // WiEMS: the unit rises by itself (Ru) — as the vendor
     }
 
     /** The unit's rest: continuous = the same Hz at full; the double impulse's Hz and %; else 0 % (nothing). */
@@ -267,7 +360,7 @@ final class Session {
     void pause(long now) {
         log("PAUSE (state " + state + ", unit " + wi + ")");
         startWanted = false;
-        if (wi == WI_COUNT && state != RUNNING) {    // cancelled in the count-down: what was not sent never goes
+        if (kind == Dev.WIEMS && wi == WI_COUNT && state != RUNNING) {    // cancelled in the count-down: what was not sent never goes
             dropQueued(T_PROG);
             push(WiProto.zero(), T_PLAIN);
             stopUnit();
@@ -309,11 +402,19 @@ final class Session {
         wi = WI_IDLE;
         wiGo = false;
         sent = null;
+        java.util.Arrays.fill(btHz, -1);
+        java.util.Arrays.fill(btInt, -1);
+        btSel = -1;
+        btUs = -1;
     }
 
     /** Call often (≥ 10 Hz). */
     void tick(long now) {
         lastTick = now;
+        if (kind != Dev.WIEMS) {
+            suitTick(now);
+            return;
+        }
         // the count-down is over at the unit's first "01" (the vendor waits for it), else after 6 s; then, as the
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
         if (wi == WI_COUNT && !progQueued() && (wiGo || now - wiAt >= 6000)) {
@@ -378,7 +479,7 @@ final class Session {
             Program p = segProgram(seg, cycle, age60);
             if (p.hz != cur.hz) {
                 cur = p;
-                push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
+                if (kind == Dev.WIEMS) push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
             }
         }
     }
@@ -551,14 +652,27 @@ final class Session {
     }
 
     /** The unit's "outputs off" — written straight out when the app closes or the screen leaves. */
-    static byte[] safeOp() {
-        return WiProto.run(false);
+    byte[] safeOp() {
+        return safeOp(kind);
+    }
+
+    static byte[] safeOp(int kind) {
+        return kind == Dev.XEMS ? XemsProto.stop() : kind == Dev.BODYTECH ? BtProto.allOff() : WiProto.run(false);
     }
 
     // ---------------------------------------------------------------- link (one write in flight)
 
     byte[] next(long now) {
         if (inflight || out.isEmpty()) return null;
+        if (kind != Dev.WIEMS) {                     // the suits: as fast as they answer (each write's ACK)
+            Item f = out.peekFirst();
+            if (f.btReg == 1) btHz[f.btCh] = f.btVal;   // what the suit has from now on
+            else if (f.btReg == 2) btInt[f.btCh] = f.btVal;
+            else if (f.btReg == 3) btSel = f.btVal;
+            inflight = true;
+            sentMs = now;
+            return f.op;
+        }
         // strengths at most every LEVELS_GAP_MS (the vendor: one write per change, ~1 s apart); a newer one that
         // comes meanwhile replaces it, so a finger on the slider is one write, not dozens
         if (out.peekFirst().tag == T_LEVELS
@@ -630,6 +744,11 @@ final class Session {
 
     /** What body part c gets now (0..100 % of the unit's scale): its level in the impulse, 0 in the pause. */
     int liveLevel(int c) {
+        if (kind != Dev.WIEMS) {
+            if (second()) return Math.min(100, level(c) * cur.dblPct / 100);
+            if (continuous()) return level(c);
+            return impulse() ? level(c) * rampStep / RAMP_STEPS : 0;
+        }
         if (wi != WI_RUN) return 0;
         if (second()) return Math.min(100, level(c) * cur.dblPct / 100);
         if (continuous()) return level(c);
@@ -654,6 +773,14 @@ final class Session {
 
     private void levels() {
         dropLevels();
+        if (kind == Dev.XEMS) {
+            xemsLevels(strength * rampStep / RAMP_STEPS, cur.hz);
+            return;
+        }
+        if (kind == Dev.BODYTECH) {
+            btLevels(rampStep, 100, cur.hz);
+            return;
+        }
         if (wi != WI_RUN) return;                    // counting down: the strengths go when it runs
         int[] c = new int[WiProto.CHANNELS];
         for (int i = 0; i < c.length; i++) c[unitOf[i]] = unitValue(level(i));   // part i → its unit channel
@@ -671,6 +798,22 @@ final class Session {
 
     private void outputsOff(boolean stopUnit) {
         dropLevels();
+        if (kind == Dev.XEMS) {
+            push(XemsProto.run(remainS(), cur.hz, cur.us, cur.onS, cur.offS, false), stopUnit ? T_PLAIN : T_LEVELS);
+            if (stopUnit) push(XemsProto.stop(), T_PLAIN);
+            return;
+        }
+        if (kind == Dev.BODYTECH) {
+            if (stopUnit) {                          // pause / stop: every channel off
+                pushBt(BtProto.allOff(), T_PLAIN, 3, 0, 0);
+                return;
+            }
+            // the phase's pause: strength 0 with the channels still on (probe 0.4: silent) — switching them off and
+            // on at every impulse gave a hard knock at its start (owner, the XEMS row 1.1.450)
+            int[] want = new int[BtProto_CH];
+            btPush(want, cur.hz);
+            return;
+        }
         push(WiProto.zero(), T_PLAIN);
         sent = null;
         if (stopUnit) stopUnit();
@@ -680,5 +823,190 @@ final class Session {
         push(WiProto.run(false), T_PLAIN);
         wi = WI_IDLE;
         wiGo = false;
+    }
+
+    // ---------------------------------------------------------------- XEMS / bodytech: the tablet runs the phases
+
+    private static final int BtProto_CH = 8;
+    /** bodytech: what the suit has (sent): Hz and intensity per channel, the SEL mask; −1 = unknown. */
+    private final int[] btHz = new int[BtProto_CH], btInt = new int[BtProto_CH];
+    private int btSel = -1, btUs = -1;
+
+    private long remainMsNow() {
+        return state == RUNNING ? Math.max(0, endMs - lastTick) : remainMs;
+    }
+
+    private int remainS() {
+        return (int) (remainMsNow() / 1000);
+    }
+
+    private void suitTick(long now) {
+        if (kind == Dev.XEMS) {
+            if (now - lastBattMs >= 10000) {
+                lastBattMs = now;
+                push(XemsProto.battery(), T_PLAIN);
+            }
+        } else {
+            if (now - lastSyncMs >= 4500) {          // the suit's 6 s watchdog
+                lastSyncMs = now;
+                push(BtProto.sync(6), T_PLAIN);
+            }
+            if (now - lastBattMs >= 10000) {
+                lastBattMs = now;
+                push(BtProto.batterySync(), T_PLAIN);
+            }
+        }
+        if (startWanted && !preparing()) start(now);
+        if (state != RUNNING) return;
+        remainMs = Math.max(0, endMs - now);
+        if (now >= endMs) {
+            stop();
+            finished = true;
+            return;
+        }
+        if (plan != null) {                             // a procedure: its next phase by the clock
+            int i = plan.segAt(prog.totalS * 1000L - remainMs);
+            if (i >= 0 && i != seg) {
+                seg = i;
+                cycle = 0;
+                cur = segProgram(i, 0, age60);
+                setShare(i, 0);
+                on = true;
+                phaseEndMs = now + cur.onS * 1000L;
+                rampStartMs = now;
+                rampStep = 1;
+                levels();
+                return;
+            }
+        }
+        if (now >= phaseEndMs) {
+            on = !on;
+            phaseEndMs += (on ? cur.onS : cur.offS) * 1000L;
+            if (now >= phaseEndMs) phaseEndMs = now + (on ? cur.onS : cur.offS) * 1000L;
+            if (on) {
+                if (plan != null && seg >= 0) nextCycle(now);
+                rampStartMs = now;
+                rampStep = 1;
+                levels();
+            } else if (cur.cont) {
+                // continuous (Cardio): the rest is the client's, the impulse goes on as it is
+            } else if (cur.dbl) {
+                pauseLevels();
+            } else {
+                outputsOff(false);
+            }
+            return;
+        }
+        if (on && rampStep < RAMP_STEPS) {
+            int want = 1 + (int) ((now - rampStartMs) * RAMP_STEPS / Math.max(1, cur.rampMs));
+            if (want > RAMP_STEPS) want = RAMP_STEPS;
+            if (want > rampStep) {
+                rampStep = want;
+                levels();
+            }
+        }
+    }
+
+    /** The double impulse's output in the pause: its Hz, its % of the strength. */
+    private void pauseLevels() {
+        dropLevels();
+        if (kind == Dev.XEMS) xemsLevels(Math.min(100, strength * cur.dblPct / 100), cur.dblHz);
+        else if (kind == Dev.BODYTECH) btLevels(RAMP_STEPS, cur.dblPct, cur.dblHz);
+    }
+
+    /** XEMS: cmd 1 (every channel's % in the suit's order, the strength) then cmd 3 (the rhythm, output on). */
+    private void xemsLevels(int str, int hz) {
+        int[] pct = new int[XemsProto.CHANNELS];
+        for (int p = 0; p < ch.length; p++) {
+            int u = unitOf[p];
+            if (u >= 0 && u < pct.length) pct[u] = Math.min(100, ch[p] * share[p] / 100);
+        }
+        push(XemsProto.strengths(pct, str), T_LEVELS);
+        push(XemsProto.run(remainS(), hz, cur.us, cur.onS, cur.offS, true), T_LEVELS);
+    }
+
+    /** bodytech: every channel's intensity at k / RAMP_STEPS of the strength × pct %, at hz. */
+    private void btLevels(int k, int pct, int hz) {
+        int[] want = new int[BtProto_CH];
+        for (int p = 0; p < ch.length; p++) {
+            int u = unitOf[p];
+            if (u >= 0 && u < BtProto_CH) want[u] = Math.min(99, level(p) * pct / 100 * k / RAMP_STEPS);   // 100 reads as 0
+        }
+        btPush(want, hz);
+    }
+
+    /** The mapped channels (switched on once per start and left on). */
+    private int btMask() {
+        int m = 0;
+        for (int u : unitOf) if (u >= 0 && u < BtProto_CH) m |= 1 << u;
+        return m;
+    }
+
+    /**
+     * The writes from what the suit has (sent + still queued) to {@code want} at {@code hz}: Hz, then intensities, then
+     * the channels on. A new Hz on running channels restarts them (SEL off → on, the last two frames back to back):
+     * the suit takes a new period only later (owner, the XEMS row 1.1.452 / 1.1.453).
+     */
+    private void btPush(int[] want, int hz) {
+        int[] h = btHz.clone(), in = btInt.clone();
+        int sl = btSel;
+        for (Item x : out) {                         // what is still queued counts as had (the dropped never does)
+            if (x.btReg == 1) h[x.btCh] = x.btVal;
+            else if (x.btReg == 2) in[x.btCh] = x.btVal;
+            else if (x.btReg == 3) sl = x.btVal;
+        }
+        int mask = btMask();
+        boolean newHz = false;
+        for (int c = 0; c < BtProto_CH; c++)
+            if ((mask >> c & 1) != 0 && h[c] != hz) {
+                pushBt(BtProto.hz(c + 1, hz), T_LEVELS, 1, c, hz);
+                newHz = true;
+            }
+        for (int c = 0; c < BtProto_CH; c++)
+            if ((mask >> c & 1) != 0 && in[c] != want[c]) pushBt(BtProto.intensity(c + 1, want[c]), T_LEVELS, 2, c, want[c]);
+        if (newHz && sl > 0) {
+            pushBt(BtProto.allOff(), T_LEVELS, 3, 0, 0);
+            sl = 0;
+        }
+        if (sl != mask) pushBt(BtProto.enable(mask), T_LEVELS, 3, 0, mask);
+    }
+
+    private void pushBt(byte[] op, int tag, int reg, int c, int v) {
+        Item it = new Item(op, tag);
+        it.btReg = reg;
+        it.btCh = c;
+        it.btVal = v;
+        out.addLast(it);
+    }
+
+    /** The suit's own cycle as one long burst (T2 100 s, no ramps / pause): the tablet runs the phases. */
+    private void btProgram() {
+        push(BtProto.reset(), T_PROG);
+        for (int c = 1; c <= BtProto_CH; c++) {
+            pushBt(BtProto.hz(c, prog.hz), T_PROG, 1, c - 1, prog.hz);
+            push(BtProto.stepNor(c, BtProto.STEP_NOR_DEFAULT), T_PROG);
+            pushBt(BtProto.intensity(c, 0), T_PROG, 2, c - 1, 0);
+            push(BtProto.width(c, prog.us), T_PROG);
+            push(BtProto.tPeriod(c, 0), T_PROG);
+            push(BtProto.t(c, 1, 0), T_PROG);
+            push(BtProto.t(c, 2, 100000), T_PROG);
+            push(BtProto.t(c, 3, 0), T_PROG);
+            push(BtProto.t(c, 4, 0), T_PROG);
+            push(BtProto.t1IntStep(c, 1), T_PROG);
+            push(BtProto.t1WidthStep(c, 0), T_PROG);
+            push(BtProto.t3IntStep(c, 1), T_PROG);
+            push(BtProto.t3WidthStep(c, 0), T_PROG);
+        }
+        pushBt(BtProto.allOff(), T_PROG, 3, 0, 0);
+        btUs = prog.us;
+    }
+
+    /** A notification from an XEMS / bodytech suit: its battery. */
+    void suitNotify(byte[] v) {
+        if (kind == Dev.XEMS) setBattery(XemsProto.batteryPct(v));
+        else if (kind == Dev.BODYTECH) {
+            int raw = BtProto.batteryRaw(v);
+            if (raw >= 0) setBattery(BtProto.percent(raw));
+        }
     }
 }

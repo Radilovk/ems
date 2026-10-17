@@ -230,6 +230,28 @@ public final class DoubleImpulse {
         }
     }
 
+    /**
+     * FocusBoard's ∿ key: a plain on / off switch (owner, 1.1.454) — on = the double impulse with its setup, as the
+     * row's tap; off = the plain pause, whether or not the setup still runs (the row's key turns it off in the setup
+     * only, so after its 5 s the board's tap only began the setup again and seemed dead). Works on the item, not on
+     * the row's key under the board (a row out of the list's view has none).
+     */
+    public static void toggle(TrainItem it, View anchor) {
+        try {
+            ProgramDataBean b = bean(it);
+            if (b == null || it.isEmpty()) {
+                return;
+            }
+            if (b.activePause && !muscle(it) && blocked(it) == null) {
+                off(it, anchor);
+                return;
+            }
+            click(it, anchor);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("index", "double toggle: " + t);
+        }
+    }
+
     /** The setup begins: the second impulse's index buttons appear (2nd MA selected), the controls glow. */
     static void enter(TrainItem it, View v) {
         Setup s = new Setup();

@@ -19,7 +19,7 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   the idx map, `BodyHeat.anchor`). Marked = lit green / yellow, off = faint.
 - **Right:** rings Интензитет 1 (main strength; with muscles marked = their level, ± goes to them via PartStrength)
   and Интензитет 2 (2nd impulse strength); cards Импулс 1 (impulse time ±, Hz ±) and Импулс 2 / Пауза (pause time ±,
-  2nd-impulse Hz ±); keys ∿ (double impulse — a synthetic tap, the key reads touches), ▶ / ❚❚, ■ (row's own).
+  2nd-impulse Hz ±); keys ∿ (plain on / off switch of the double impulse: `DoubleImpulse.toggle` on the client — not the row key, whose tap after the 5 s setup only re-opens the setup; 1.1.454), ▶ / ❚❚, ■ (row's own).
 
 ## Rules
 - No training logic of its own: row controls are pressed, ± call the same `TrainItem` steps as the right panel's

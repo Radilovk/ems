@@ -225,7 +225,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
-- `FocusBoard.java` (2586L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
+- `FocusBoard.java` (2604L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
 - `ImpulseGlyph.java` (132L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (579L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (128L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -301,7 +301,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ClientPrograms.java` (128L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
 - `ClientRow.java` (557L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `ClientSort.java` (608L, compile:music-sync*,wearable) — Order and filters of the client lists — the Потребители tab and the client / program / device picker.
-- `DoubleImpulse.java` (1332L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
+- `DoubleImpulse.java` (1389L, compile:music-sync*,wearable) — The row's yellow double-impulse button (owner, 1.1.383 — in the place of the diskette; the row's settings are saved fro…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -725,7 +725,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L229 ## Agent checklist
   - L243 ## Локални инструменти
 
-`branding/UI-PITFALLS.md` (282L)
+`branding/UI-PITFALLS.md` (291L)
   - L1 # UI и функции — чести грешки и правилен подход
   - L12 ## 1. Промяната не се вижда в APK
   - L28 ## 2. CircleSeekBar (кръгов слайдер)
@@ -750,12 +750,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L189 ## 9. Smali patch — добри практики
   - L200 ## 10. Design pipeline vs factory UI
   - L212 ## 11c. Списъкът с редове спира да следва добавяне / махане
-  - L220 ## 11d. Рисунка извън екрана: маркерите на баровете стоят вляво
-  - L226 ## 11b. Цветовете на темата не стигат до таблета
-  - L233 ## 11a. Свечение / сянка извън контрола се реже
-  - L239 ## 11. Шаблон за нова UI функция
-  - L255 ## 12. Бърз указател по симптом
-  - L271 ## Референции в кода
+  - L220 ## 11c2. Бутон в реда понякога не реагира на докосване
+  - L229 ## 11d. Рисунка извън екрана: маркерите на баровете стоят вляво
+  - L235 ## 11b. Цветовете на темата не стигат до таблета
+  - L242 ## 11a. Свечение / сянка извън контрола се реже
+  - L248 ## 11. Шаблон за нова UI функция
+  - L264 ## 12. Бърз указател по симптом
+  - L280 ## Референции в кода
 
 `diag-logs/README.md` (42L)
   - L1 # Diagnostic logs (music player)

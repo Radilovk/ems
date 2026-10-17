@@ -10,7 +10,7 @@
 # `git checkout` the rest of branding/smali — see CLAUDE.md.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-M=https://repo1.maven.org/maven2
+M=${MAVEN_MIRROR:-https://repo1.maven.org/maven2}
 JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 D8="${ROOT}/android-sdk/build-tools/30.0.3/d8"
 mkdir -p "$(dirname "${JAR}")" "$(dirname "${D8}")" "${ROOT}/tools"

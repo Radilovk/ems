@@ -6,7 +6,9 @@
 #include <map>
 #include <QFile>
 #include <QFileInfo>
+#include <QProcess>
 #include <QSettings>
+#include <QStringList>
 #include <QTimerEvent>
 #include <cstdio>
 #include <cstdlib>
@@ -207,6 +209,22 @@ QString App::uf2State() const {
     if (!fi.exists() || fi.lastModified().secsTo(QDateTime::currentDateTime()) > 60) return QString();
     QFile f(path);
     return f.open(QIODevice::ReadOnly) ? QString::fromLatin1(f.readAll().trimmed()) : QString();
+}
+
+QString App::updateFromUsb() {
+    const char *bin = std::getenv("XEMS_USB_UPDATE");
+    QString prog = QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-usb-update");
+    QProcess pr;
+    pr.start(prog, QStringList() << U("apply"));
+    if (!pr.waitForStarted(4000)) return U("Няма програма за ъпдейт на машината");
+    pr.waitForFinished(120000);          // mount + unpack can take a few seconds
+    QString out = QString::fromLocal8Bit(pr.readAllStandardOutput()).trimmed();
+    if (out.startsWith(U("OK")))
+        return U("✓ Инсталирана версия ") + out.section(QLatin1Char(' '), 1, 1) +
+               U(" — изключи и включи XBody");
+    if (out.contains(U("no-stick"))) return U("Няма USB флашка — сложи я и пробвай пак");
+    if (out.contains(U("not-an-xems"))) return U("Флашката не е XEMS ъпдейт");
+    return U("Ъпдейтът не стана — виж xems-update.log на флашката");
 }
 
 QString App::note() const { return now() < noteUntilMs_ ? note_ : QString(); }

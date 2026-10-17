@@ -92,6 +92,9 @@ public final class FocusBoard {
     private static final TextView[] modeTabs = new TextView[4];
     private static TextView timeText;
     private static TextView battText;
+    private static LinearLayout linkKey;
+    private static XemsIcon linkIcon;
+    private static TextView linkText;
     private static AutoViews.BodyHeat body;
     private static Leaders leaders;
     private static Timeline timeline;
@@ -662,6 +665,26 @@ public final class FocusBoard {
         battText = XemsUi.text(c, "", 13, XemsUi.GO_TEXT, true);
         battText.setPadding(0, 0, XemsUi.dp(c, 8), 0);
         bar.addView(battText);
+        // the suit's Bluetooth link (owner, 1.1.449: no link sign on this screen): green on, amber reconnecting with its
+        // clock (tap = try now), red none
+        linkKey = XemsUi.horizontal(c);
+        linkKey.setGravity(Gravity.CENTER_VERTICAL);
+        linkKey.setPadding(XemsUi.dp(c, 8), 0, XemsUi.dp(c, 10), 0);
+        ImageView li = new ImageView(c);
+        linkIcon = new XemsIcon(XemsIcon.BLUETOOTH, XemsUi.GO_TEXT);
+        li.setImageDrawable(linkIcon);
+        linkKey.addView(li, new LinearLayout.LayoutParams(XemsUi.dp(c, 20), XemsUi.dp(c, 20)));
+        linkText = XemsUi.text(c, "", 12.5f, XemsUi.GO_TEXT, true);
+        linkText.setSingleLine(true);
+        linkText.setPadding(XemsUi.dp(c, 4), 0, 0, 0);
+        linkKey.addView(linkText);
+        linkKey.setClickable(true);
+        linkKey.setOnClickListener(new LinkClick());
+        XemsUi.pressable(linkKey);
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                XemsUi.dp(c, 40));
+        klp.rightMargin = XemsUi.dp(c, 6);
+        bar.addView(linkKey, klp);
 
         TextView gear = XemsUi.iconButton(c, "⚙", XemsUi.SURFACE, XemsUi.TEXT, 40);
         gear.setOnClickListener(new PressRow("setting"));
@@ -1289,9 +1312,10 @@ public final class FocusBoard {
             }
             timeText.setText(textOf(row, "time", "—"));
             String batt = textOf(row, "batteryValueTextView", "");
-            battText.setText(it.data != null && !it.data.connected ? AiText.t("няма връзка", "offline")
-                    : batt.length() > 0 ? "▮ " + batt : "");
-            battText.setTextColor(it.data != null && !it.data.connected ? XemsUi.DANGER : XemsUi.GO_TEXT);
+            boolean linked = it.data != null && it.data.connected;
+            battText.setText(linked && batt.length() > 0 ? "▮ " + batt : "");
+            battText.setTextColor(XemsUi.GO_TEXT);
+            paintLink(c, it);
 
             boolean two = second(it, b);
             boolean run = running(it);
@@ -1397,6 +1421,66 @@ public final class FocusBoard {
             }
         } catch (Throwable t) {
             XemsGuard.report("FocusBoard.refresh", t);
+        }
+    }
+
+    /** The link key's look: connected / reconnecting m:ss / back (press ▶) / none. */
+    private static void paintLink(Context c, TrainItem it) {
+        if (linkKey == null) {
+            return;
+        }
+        int st = com.isaigu.gymapp.wearable.SuitReconnect.state(it);
+        int col;
+        String txt;
+        if (st == 0) {
+            col = XemsUi.GO_TEXT;
+            txt = "";
+        } else if (st == 1) {
+            int w = com.isaigu.gymapp.wearable.SuitReconnect.waitingSeconds(it);
+            col = XemsUi.AMBER;
+            txt = AiText.t("Свързвам… ", "Reconnecting… ") + (w / 60) + ":" + (w % 60 < 10 ? "0" : "") + (w % 60);
+        } else if (st == 2) {
+            col = XemsUi.GO_TEXT;
+            txt = AiText.t("✓ Пак е свързан · ▶", "✓ Back · ▶");
+        } else {
+            col = XemsUi.DANGER;
+            txt = AiText.t("Няма връзка", "No link");
+        }
+        String key = st + "|" + txt;
+        if (key.equals(linkKey.getTag())) {
+            return;
+        }
+        linkKey.setTag(key);
+        linkIcon.setColor(col);
+        linkText.setText(txt);
+        linkText.setTextColor(col);
+        linkText.setVisibility(txt.length() > 0 ? View.VISIBLE : View.GONE);
+        float r = XemsUi.dp(c, 12);
+        linkKey.setBackgroundDrawable(XemsUi.ripple(XemsUi.rounded(st == 0 ? XemsUi.SURFACE : (col & 0x00FFFFFF) | 0x22000000,
+                r, (col & 0x00FFFFFF) | 0x66000000, XemsUi.dp(c, 1)), XemsUi.TEXT, r));
+        linkKey.setContentDescription(st == 0 ? AiText.t("Костюмът е свързан", "Suit connected")
+                : txt);
+    }
+
+    /** The link key: while the suit is away — a connect attempt now (and the wait starts again). */
+    static final class LinkClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            TrainItem it = current();
+            int st = com.isaigu.gymapp.wearable.SuitReconnect.state(it);
+            if (st == 1) {
+                com.isaigu.gymapp.wearable.SuitReconnect.retryNow(it);
+                hint(AiText.t("Опитвам да свържа костюма сега — остани на този екран.",
+                        "Trying the suit now — stay on this screen."));
+            } else if (st == 0) {
+                hint(AiText.t("Костюмът е свързан.", "The suit is connected."));
+            } else if (st == 2) {
+                hint(AiText.t("Костюмът е свързан отново — натисни ▶ и продължава от там, където спря.",
+                        "The suit is back — tap ▶ to go on from where it stopped."));
+            } else {
+                hint(AiText.t("Няма връзка с костюма. Включи го — таблетът ще го свърже сам.",
+                        "No suit link. Turn the suit on — the tablet links it by itself."));
+            }
         }
     }
 

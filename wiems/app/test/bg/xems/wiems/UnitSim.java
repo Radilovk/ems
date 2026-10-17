@@ -247,7 +247,7 @@ public class UnitSim {
         r.run(500);
         int n = r.u.levelWrites.size() - before;
         ok("3 drag = few writes (the vendor's pace)", n <= 5, n + " writes");
-        ok("3 the last value is on the unit", r.u.cur[Session.ZONE_CH[3]] == Session.unitValue(59), "byte " + r.u.cur[Session.ZONE_CH[3]]);
+        ok("3 the last value is on the unit", r.u.cur[r.s.unitCh(3)] == Session.unitValue(59), "byte " + r.u.cur[r.s.unitCh(3)]);
         ok("3 no fault", r.u.faults.isEmpty(), r.faults());
         before = r.u.levelWrites.size();
         for (int k = 0; k < 10; k++) {              // "+" pressed at 100 % again and again: one write, then nothing
@@ -260,12 +260,12 @@ public class UnitSim {
         r.s.setZone(3, 40);                          // A → B → A faster than a write: the unit ends on A
         r.s.setZone(3, 100);
         r.run(600);
-        ok("3 A → B → A ends on A", r.u.cur[Session.ZONE_CH[3]] == Session.unitValue(100), "byte " + r.u.cur[Session.ZONE_CH[3]]);
+        ok("3 A → B → A ends on A", r.u.cur[r.s.unitCh(3)] == Session.unitValue(100), "byte " + r.u.cur[r.s.unitCh(3)]);
         r.s.setZone(3, 40);
         r.run(100);
         r.s.setZone(3, 100);
         r.run(600);
-        ok("3 A → B (on air) → A ends on A", r.u.cur[Session.ZONE_CH[3]] == Session.unitValue(100), "byte " + r.u.cur[Session.ZONE_CH[3]]);
+        ok("3 A → B (on air) → A ends on A", r.u.cur[r.s.unitCh(3)] == Session.unitValue(100), "byte " + r.u.cur[r.s.unitCh(3)]);
 
         // 4. The unit stops by itself (battery): the session pauses, ▶ starts it again.
         r = new Rig();
@@ -361,7 +361,7 @@ public class UnitSim {
         r.s.setZone(7, 10);
         r.run(2000);
         ok("11 unequal zones run (no 86)", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN
-                && r.u.cur[Session.ZONE_CH[3]] == Session.unitValue(45), "state " + r.s.state());
+                && r.u.cur[r.s.unitCh(3)] == Session.unitValue(45), "state " + r.s.state());
         ok("11 no fault", r.u.faults.isEmpty(), r.faults());
         // … and should the unit trip anyway ("86"): back to what ran, no loop
         r.u.write(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, r.t);   // a frame without the check

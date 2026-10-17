@@ -390,7 +390,7 @@ async function load(){
 
   const l=await api('licenses');
   window._licenses=l.licenses||[];
-  const licRows=window._licenses.map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td title="'+x.plan+'">'+planLabel(x.plan)+'</td><td>…'+x.key_hint+'</td><td>'+(x.studio_code?'<code>'+x.studio_code+'</code> ':'— ')+'<button class="secondary" onclick="setStudio(\\''+x.id+'\\',\\''+(x.studio_code||'')+'\\')">Смени</button></td><td>'+x.max_devices+'</td><td>'+emsCount(x.ems)+' <button class="secondary" onclick="openManage(\\''+x.id+'\\')">Управление</button></td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td class="actions">'+
+  const licRows=window._licenses.map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td title="'+x.plan+'">'+planLabel(x.plan)+'</td><td id="key_'+x.id+'"><code>…'+x.key_hint+'</code> <button class="secondary" onclick="revealKey(\\''+x.id+'\\')">Покажи</button></td><td>'+(x.studio_code?'<code>'+x.studio_code+'</code> ':'— ')+'<button class="secondary" onclick="setStudio(\\''+x.id+'\\',\\''+(x.studio_code||'')+'\\')">Смени</button></td><td>'+x.max_devices+'</td><td>'+emsCount(x.ems)+' <button class="secondary" onclick="openManage(\\''+x.id+'\\')">Управление</button></td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td class="actions">'+
     '<button class="secondary" onclick="showLic(\\''+x.id+'\\')">Детайли</button>'+
     (x.status==='active'?'<button class="danger" onclick="disable(\\''+x.id+'\\',\\''+(x.customer||x.id).replace(/'/g,"")+'\\')">Спри</button>':'<button class="secondary" onclick="enable(\\''+x.id+'\\')">Пусни отново</button>')+
     '</td></tr>').join('');
@@ -467,8 +467,27 @@ async function createLicense(){
     '<div class="msg">✓ Ключът е готов за <b>'+customer+'</b>:<br>'+
     '<span class="key-display"><code id="created_key">'+r.key+'</code></span>'+
     '<button class="secondary copy-btn" onclick="copyText(document.getElementById(\\'created_key\\').textContent,this)">Копирай</button><br>'+
-    '<span style="font-size:.8rem;color:#8b949e">ID: '+r.id+' · Запиши ключа — няма да се покаже отново! · На таблета: Настройки → Достъп и лиценз → Активирай</span></div>';
+    '<span style="font-size:.8rem;color:#8b949e">ID: '+r.id+' · Винаги можеш да го видиш пак от „Покажи“ в списъка · На таблета: Настройки → Достъп и лиценз → Активирай</span></div>';
   load();
+}
+
+// The key again, on demand (one licence at a time). Old keys (made before the server kept them) can't be read
+// back: the admin may issue a new one — tablets already on this licence keep working.
+async function revealKey(id){
+  const cell=document.getElementById('key_'+id);
+  const r=await api('licenses/'+id+'/key');
+  if(r.key){
+    cell.innerHTML='<code class="key-display" id="kv_'+id+'">'+r.key+'</code> '+
+      '<button class="secondary copy-btn" onclick="copyText(document.getElementById(\\'kv_'+id+'\\').textContent,this)">Копирай</button>';
+    return;
+  }
+  if(!confirm('Този ключ е създаден преди сървърът да пази ключовете и не може да се покаже.\\n\\nДа издам ли НОВ ключ за същия лиценз? Таблетите, които вече са активирани, продължават да работят; старият ключ спира да активира нови таблети.')) return;
+  const n=await api('licenses/'+id+'/rekey',{method:'POST'});
+  if(!n.key){alert('Не успях да издам нов ключ.');return;}
+  await load();
+  const c=document.getElementById('key_'+id);
+  if(c) c.innerHTML='<code class="key-display" id="kv_'+id+'">'+n.key+'</code> '+
+    '<button class="secondary copy-btn" onclick="copyText(document.getElementById(\\'kv_'+id+'\\').textContent,this)">Копирай</button>';
 }
 
 let _manageLicId=null;

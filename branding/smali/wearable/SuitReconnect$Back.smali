@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 287
+    .line 325
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 288
+    .line 326
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Back;->lost:Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
-    .line 289
+    .line 327
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Back;->device:Lcom/clj/fastble/data/BleDevice;
 
-    .line 290
+    .line 328
     return-void
 .end method
 
@@ -47,19 +47,19 @@
     .registers 5
 
     .prologue
-    .line 294
+    .line 332
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Back;->lost:Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
     const/4 v1, 0x0
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->connecting:Z
 
-    .line 295
+    .line 333
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Back;->lost:Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 297
+    .line 335
     :try_start_9
     # getter for: Lcom/isaigu/gymapp/wearable/SuitReconnect;->LOST:Ljava/util/List;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->access$100()Ljava/util/List;
@@ -92,14 +92,14 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
 
-    .line 298
+    .line 336
     invoke-virtual {v1, v2}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
 
     move-result v1
 
     if-nez v1, :cond_37
 
-    .line 299
+    .line 337
     :cond_2d
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
 
@@ -109,17 +109,17 @@
 
     invoke-virtual {v0, v1}, Lcom/clj/fastble/BleManager;->disconnect(Lcom/clj/fastble/data/BleDevice;)V
 
-    .line 312
+    .line 350
     :goto_36
     return-void
 
-    .line 302
+    .line 340
     :cond_37
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Back;->device:Lcom/clj/fastble/data/BleDevice;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->xemsRebind(Lcom/clj/fastble/data/BleDevice;)V
 
-    .line 303
+    .line 341
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Back;->lost:Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
@@ -128,7 +128,7 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->doneAt:J
 
-    .line 304
+    .line 342
     const-string v1, "suit"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -173,7 +173,7 @@
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 305
+    .line 343
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -213,7 +213,7 @@
 
     move-result-object v2
 
-    .line 306
+    .line 344
     # invokes: Lcom/isaigu/gymapp/wearable/SuitReconnect;->who(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->access$400(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
 
@@ -233,14 +233,14 @@
 
     move-result-object v2
 
-    .line 305
+    .line 343
     # invokes: Lcom/isaigu/gymapp/wearable/SuitReconnect;->tip(Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->access$500(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 307
+    .line 345
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->xemsRefresh()V
 
-    .line 308
+    .line 346
     # invokes: Lcom/isaigu/gymapp/wearable/SuitReconnect;->tick()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->access$200()V
     :try_end_b5
@@ -248,11 +248,11 @@
 
     goto :goto_36
 
-    .line 309
+    .line 347
     :catch_b6
     move-exception v0
 
-    .line 310
+    .line 348
     const-string v1, "suit"
 
     new-instance v2, Ljava/lang/StringBuilder;

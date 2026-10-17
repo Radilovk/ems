@@ -31,7 +31,7 @@
     :goto_apply
     invoke-static {v0}, Landroid/support/v7/app/AppCompatDelegate;->setDefaultNightMode(I)V
 
-    invoke-virtual {p0}, Landroid/app/Activity;->recreate()V
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->restartApp(Landroid/app/Activity;)V
 
     return-void
 .end method

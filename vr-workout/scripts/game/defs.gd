@@ -13,7 +13,7 @@
 ## A breakable that is not broken, or a hazard that is not dodged, hits the player where it flies: head → torso/back
 ## (belly, glutes, back), upper body → arms, legs → legs. Those are the suit zones.
 ##
-## The chef (scenario "Готвачът", the square in Ulm): a cook at his food cart throws food at the player on the beat.
+## The chef (scenario "Готвачът", Piazza Bologni or Pretville Street): a cook at his food cart throws food at the player on the beat.
 ##   FOOD (a burger, a cheeseburger, a doughnut, ice cream) – smash it with a fist: it bursts and burns a little;
 ##                                missed, it is eaten: all its calories go on (far more than a hit takes off)
 ##   APPLE (healthy, rare)        – not for smashing: let it come and eat it (smashing it breaks the combo)

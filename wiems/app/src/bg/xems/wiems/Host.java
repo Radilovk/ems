@@ -31,12 +31,16 @@ interface Host {
     boolean held();
     /** Send the unit trace (long press on the logo). */
     void shareLog();
-    /** The suit's connector standard: false = XBody (zone = the unit's channel of that name), true = an XEMS suit. */
+    /** The suit standard in the session sheet = {@link Channels#suit} (false XBody, true XEMS); not while running. */
     boolean xemsWiring();
     void setXemsWiring(boolean xems);
     /** The figures: female (default) or male — the client's, chosen in the session's settings. */
     boolean female();
     void setFemale(boolean f);
+    /** Which unit channel drives which body part, per suit standard (the hidden service mode sets it). */
+    Channels channels();
+    /** The service mode changed the suit or a channel: save it, the running unit gets it at once. */
+    void channelsChanged();
     /** An asset of the APK (null: none). */
     java.io.InputStream openAsset(String name);
 }

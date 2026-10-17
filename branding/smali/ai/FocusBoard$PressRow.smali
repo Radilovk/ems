@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1534
+    .line 1618
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1535
+    .line 1619
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$PressRow;->id:Ljava/lang/String;
 
-    .line 1536
+    .line 1620
     return-void
 .end method
 
@@ -42,14 +42,14 @@
     .registers 3
 
     .prologue
-    .line 1540
+    .line 1624
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1541
+    .line 1625
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$PressRow;->id:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->press(Ljava/lang/String;)Z
 
-    .line 1542
+    .line 1626
     return-void
 .end method

@@ -108,3 +108,13 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   go up as needed and come back down to where they were (`settle`). Nothing marked: the rings as before (2 follows 1
   only with 🔒).
 - Checked offline (`scripts/part-sim/ChanFuzz.java`): 20 000 rows × 1–3 marked muscles, up to 30 steps up and back.
+
+## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
+- **Bug (owner):** all muscles marked, Интензитет 1 + from the training's 0 → Интензитет 2 showed 0 and every
+  channel's second impulse stayed 0 even when Интензитет 2 went up later. The fresh `RATIO` slot (zeros) matched the
+  0 / 0 start and read as "ratio 0". Now a fresh slot is empty (−1); a channel starting from 0 takes the strengths'
+  ratio, and while Интензитет 2 is not set (0) the second impulse starts with the main, 1 : 1.
+  Offline: `scripts/part-sim/AllMarked.java` (in `run.sh`) — start 0 / 15 × Интензитет 2 0 / 10 / 30.
+- **Link key** in the top bar (Bluetooth rune): green = connected; amber "Свързвам… m:ss" while `SuitReconnect`
+  waits for the suit (tap = an attempt now, the 5-minute wait starts again); "✓ Пак е свързан · ▶" when back;
+  red "Няма връзка". The rows' banner was invisible under the board.

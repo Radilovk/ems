@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 817
+    .line 840
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,10 +36,10 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 820
+    .line 843
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 821
+    .line 844
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -53,7 +53,7 @@
 
     const/4 v0, 0x1
 
-    .line 823
+    .line 846
     :cond_f
     :try_start_f
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -82,14 +82,14 @@
     :try_end_27
     .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_27} :catch_2b
 
-    .line 826
+    .line 849
     :goto_27
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->tick()V
 
-    .line 827
+    .line 850
     return-void
 
-    .line 824
+    .line 847
     :catch_2b
     move-exception v0
 

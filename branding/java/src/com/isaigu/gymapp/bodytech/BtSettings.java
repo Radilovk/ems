@@ -86,6 +86,14 @@ public final class BtSettings {
      * far electrodes; in slots the leak is weak and even on both — preferred.
      */
     static boolean slots = true;
+    /**
+     * Channels stay on (owner, 1.1.450): a knock at the start of every impulse (pause or 2nd impulse alike) that EMSFIT
+     * does not have. EMSFIT turns the channels on once and the suit runs its own cycle; XEMS switched them off at
+     * every pause and on again at every impulse (and on a ramp, as channels rose from 0). On: the working channels are
+     * switched on once per start and the pause is strength 0 (probe 0.4: strength 0 with SEL on is silent); pause /
+     * stop from the row still switches everything off. Off: as before 1.1.450.
+     */
+    static boolean hold = true;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
 
@@ -127,6 +135,7 @@ public final class BtSettings {
         if (!p.getBoolean("legs389", false) && legs()) save();
         unlimited = p.getBoolean("unlimited", true);
         slots = p.getBoolean("slots2", true);
+        hold = p.getBoolean("hold", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -278,6 +287,7 @@ public final class BtSettings {
         e.putString("order", o.toString());
         e.putBoolean("unlimited", unlimited);
         e.putBoolean("slots2", slots);
+        e.putBoolean("hold", hold);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -302,6 +312,7 @@ public final class BtSettings {
         legR = 7;
         unlimited = true;
         slots = true;
+        hold = true;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -417,6 +428,13 @@ public final class BtSettings {
         if (!valid(ch)) return;
         if (second) chWaveSecond[ch] = clampChWave(w);
         else chWaveMain[ch] = clampChWave(w);
+        save();
+    }
+
+    public static synchronized boolean hold() { return hold; }
+
+    public static synchronized void setHold(boolean on) {
+        hold = on;
         save();
     }
 

@@ -484,6 +484,10 @@ func _setup_view() -> void:
 		elif view == "wide":
 			cam.position = Vector3(0.0, 1.7, 1.6)
 			cam.look_at(Vector3(0, 1.1, -2.0))
+		elif view == "face":                     # the chef's face (expressions, talking)
+			cam.position = Vector3(0.25, 1.62, -5.55)
+			cam.look_at(Vector3(0.0, 1.55, -6.5))
+			cam.fov = 30
 		elif view == "chef":                     # the chef up close, from the side (his throw, his reactions)
 			cam.position = Vector3(1.6, 1.5, -3.2)
 			cam.look_at(Vector3(-0.3, 1.1, -6.5))

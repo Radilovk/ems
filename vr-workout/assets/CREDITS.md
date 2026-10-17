@@ -14,7 +14,9 @@
 | `rooms/ulm_square.jpg` | Poly Haven "Ulmer Münster" — https://polyhaven.com/a/ulmer_muenster (8K HDR, tone-mapped) | CC0 |
 | `rooms/night_plateau.jpg` | Poly Haven "Qwantani Night" — https://polyhaven.com/a/qwantani_night (8K HDR, tone-mapped, haze lifted; a room and a view) | CC0 |
 | `views/*.jpg` (all but `mountain.jpg`) | the owner's picks in `vr-workout/land/` (Pixabay), full width, cut to the band the hall's glass shows by `convert/crop_views.py`: `alps_lake` fietzfotos · `tetons` raghavb29 · `dolomites` idat · `etretat` villysaufachse · `tropical` michelle-maria · `saint_michel` elg21 · `field` jplenio · `lake_sunset` Pexels · `dunes` dafacct · `bridge_sunset` erickandsari | Pixabay Content License |
-| `chef/chef.scn`, `chef/chef_albedo.png`, `chef/chef_normal.jpg` | the owner's Mixamo download (Adobe Mixamo "Man Chef" character + "Throw" motion), via `convert/chef2scn.gd` | Mixamo licence (free use in projects) |
+| `chef/chef.scn`, `chef/chef_albedo.png`, `chef/chef_normal.jpg` | the owner's Mixamo downloads (Adobe Mixamo "Man Chef" character + "Throw", "Defeat", "Strong Gesture", "Spat In Face", "Shove Reaction" motions), via `convert/chef2scn.gd` | Mixamo licence (free use in projects) |
+| `rooms/piazza_bologni.jpg` | Poly Haven "Piazza Bologni" by Andreas Mischok — https://polyhaven.com/a/piazza_bologni (8K HDR, tone-mapped) | CC0 |
+| `rooms/pretville_street.jpg` | Poly Haven "Pretville Street" by Dimitrios Savva, Jarod Guest — https://polyhaven.com/a/pretville_street (8K HDR, tone-mapped) | CC0 |
 | `chef/food_cart.glb` | "Avika Street Food Cart" by AVIKA — https://sketchfab.com/3d-models/avika-street-food-cart-d54005c378fa45c3a06090d65a53fb23 (decimated, textures ≤ 1024) | CC-BY-4.0 |
 | `chef/donut.glb` | "Chocolate Donut" by mertuzulmez — https://sketchfab.com/3d-models/chocolate-donut-5667427c214f4771aed96a6dc298ed29 (173k → 5k triangles) | CC-BY-4.0 |
 | `chef/cheeseburger.glb` | "Hamburguesa Explosiva Con Queso" by Roberto Domínguez — https://sketchfab.com/3d-models/hamburguesa-explosiva-con-queso-93bb230cefa845708dc4f88a7334f274 | CC-BY-4.0 |

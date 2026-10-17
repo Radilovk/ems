@@ -37,7 +37,6 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     final int[] savedZones = new int[Session.ZONES];
     int savedStrength = 100;
     /** The suit's connector standard (owner: both, switchable): false XBody, true XEMS. */
-    boolean xemsWiring;
     private long zonesSavedMs;
     private final TraceSink sink = new TraceSink();
 
@@ -56,6 +55,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     String linkingMac, linkedName, lastMac;
     long linkingSince;
     Session.Program prog = new Session.Program();
+    final Channels channels = new Channels();
     boolean age60;
     String note = "";
     boolean noteWarn;
@@ -196,6 +196,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         save();
     }
 
+    public Channels channels() {
+        return channels;
+    }
+
+    public void channelsChanged() {
+        save();
+        if (session != null) session.setMap(channels.map());
+        if (held != null) held.setMap(channels.map());
+    }
+
     public java.io.InputStream openAsset(String name) {
         try {
             return getAssets().open(name);
@@ -266,16 +276,17 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     }
 
     public boolean xemsWiring() {
-        return xemsWiring;
+        return channels.suit == Channels.XEMS;
     }
 
     public void setXemsWiring(boolean x) {
-        if (session != null && !session.setWiring(x)) {
+        if (x == xemsWiring()) return;
+        if (session != null && session.state() == Session.RUNNING) {
             setNote("Стандартът на костюма се сменя на пауза", true);
             return;
         }
-        xemsWiring = x;
-        save();
+        channels.suit = x ? Channels.XEMS : Channels.XBODY;
+        channelsChanged();
     }
 
     public boolean held() {
@@ -331,6 +342,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             setNote(session.state() == Session.PAUSED ? "Свързан отново ✓ — натисни ПРОДЪЛЖИ" : "Свързан отново ✓", false);
         } else {
             session = new Session();
+            session.setMap(channels.map());
             session.setProgram(prog);
             session.setStrength(100); // every zone starts at 0 (owner); СИЛА scales them all — 100 % = as set
             mode = -1;
@@ -339,7 +351,6 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         held = null;
         session.sink = sink;
         if (!back) {                  // the zones and strength as left last time (owner: they stay as set)
-            session.setWiring(xemsWiring);
             for (int z = 0; z < Session.ZONES; z++) session.setZone(z, savedZones[z]);
             session.setStrength(savedStrength);
         }
@@ -515,7 +526,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         female = p.getBoolean("female", true);
         for (int z = 0; z < Session.ZONES; z++) savedZones[z] = p.getInt("zone" + z, 0);
         savedStrength = p.getInt("strength", 100);
-        xemsWiring = p.getBoolean("wiring_xems", false);
+        String map = p.getString("channels", null);
+        if (map != null) channels.load(map);
+        else if (p.getBoolean("wiring_xems", false)) channels.suit = Channels.XEMS;   // the switch of app 1.12–1.13
         Safe.apply(prog, age60);    // a saved value goes through the limits too
     }
 
@@ -523,7 +536,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("last", lastMac).putInt("hz", prog.hz)
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
                 .putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
-                .putBoolean("age60", age60).putBoolean("female", female).putBoolean("wiring_xems", xemsWiring).putInt("strength", savedStrength)
+                .putBoolean("age60", age60).putBoolean("female", female).putString("channels", channels.save()).putInt("strength", savedStrength)
                 .putInt("zone0", savedZones[0]).putInt("zone1", savedZones[1]).putInt("zone2", savedZones[2])
                 .putInt("zone3", savedZones[3]).putInt("zone4", savedZones[4]).putInt("zone5", savedZones[5])
                 .putInt("zone6", savedZones[6]).putInt("zone7", savedZones[7]).putInt("zone8", savedZones[8])

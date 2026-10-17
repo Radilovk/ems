@@ -183,20 +183,20 @@
     .registers 3
 
     .prologue
-    .line 327
+    .line 365
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->find(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
     move-result-object v0
 
-    .line 328
+    .line 366
     if-eqz v0, :cond_b
 
-    .line 329
+    .line 367
     sget-object v1, Lcom/isaigu/gymapp/wearable/SuitReconnect;->LOST:Ljava/util/List;
 
     invoke-interface {v1, v0}, Ljava/util/List;->remove(Ljava/lang/Object;)Z
 
-    .line 331
+    .line 369
     :cond_b
     return-void
 .end method
@@ -205,7 +205,7 @@
     .registers 3
 
     .prologue
-    .line 318
+    .line 356
     const/4 v0, 0x0
 
     move v1, v0
@@ -219,7 +219,7 @@
 
     if-ge v1, v0, :cond_23
 
-    .line 319
+    .line 357
     sget-object v0, Lcom/isaigu/gymapp/wearable/SuitReconnect;->LOST:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -232,7 +232,7 @@
 
     if-ne v0, p0, :cond_1f
 
-    .line 320
+    .line 358
     sget-object v0, Lcom/isaigu/gymapp/wearable/SuitReconnect;->LOST:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -241,11 +241,11 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
 
-    .line 323
+    .line 361
     :goto_1e
     return-object v0
 
-    .line 318
+    .line 356
     :cond_1f
     add-int/lit8 v0, v1, 0x1
 
@@ -253,7 +253,7 @@
 
     goto :goto_2
 
-    .line 323
+    .line 361
     :cond_23
     const/4 v0, 0x0
 
@@ -264,7 +264,7 @@
     .registers 4
 
     .prologue
-    .line 236
+    .line 274
     const-string v1, "suit"
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -296,7 +296,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 237
+    .line 275
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -335,7 +335,7 @@
 
     move-result-object v1
 
-    .line 238
+    .line 276
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->who(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
 
     move-result-object v2
@@ -354,23 +354,23 @@
 
     move-result-object v1
 
-    .line 237
+    .line 275
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->tip(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 239
+    .line 277
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z
 
-    .line 240
+    .line 278
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->close()V
 
-    .line 241
+    .line 279
     return-void
 
-    .line 236
+    .line 274
     :cond_66
     const-string v0, "?"
 
@@ -926,6 +926,159 @@
     goto :goto_87
 .end method
 
+.method public static retryNow(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+    .registers 11
+
+    .prologue
+    const-wide/16 v8, 0x0
+
+    const/4 v0, 0x0
+
+    .line 256
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->find(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
+
+    move-result-object v1
+
+    .line 257
+    if-eqz v1, :cond_f
+
+    iget-wide v2, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->doneAt:J
+
+    cmp-long v2, v2, v8
+
+    if-lez v2, :cond_10
+
+    .line 269
+    :cond_f
+    :goto_f
+    return v0
+
+    .line 260
+    :cond_10
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
+
+    move-result-wide v2
+
+    .line 261
+    iget-boolean v4, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->connecting:Z
+
+    if-eqz v4, :cond_22
+
+    iget-wide v4, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->attemptAt:J
+
+    sub-long v4, v2, v4
+
+    const-wide/16 v6, 0xfa0
+
+    cmp-long v4, v4, v6
+
+    if-lez v4, :cond_26
+
+    .line 262
+    :cond_22
+    iput-boolean v0, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->connecting:Z
+
+    .line 263
+    iput-wide v8, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->attemptAt:J
+
+    .line 265
+    :cond_26
+    iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->since:J
+
+    .line 266
+    const-string v0, "suit"
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "retry now "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->mac:Ljava/lang/String;
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 267
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->step()V
+
+    .line 268
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->tick()V
+
+    .line 269
+    const/4 v0, 0x1
+
+    goto :goto_f
+.end method
+
+.method public static state(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+    .registers 5
+
+    .prologue
+    .line 238
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->find(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
+
+    move-result-object v0
+
+    .line 239
+    if-eqz v0, :cond_12
+
+    .line 240
+    iget-wide v0, v0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->doneAt:J
+
+    const-wide/16 v2, 0x0
+
+    cmp-long v0, v0, v2
+
+    if-lez v0, :cond_10
+
+    const/4 v0, 0x2
+
+    .line 242
+    :goto_f
+    return v0
+
+    .line 240
+    :cond_10
+    const/4 v0, 0x1
+
+    goto :goto_f
+
+    .line 242
+    :cond_12
+    if-eqz p0, :cond_20
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v0, :cond_20
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z
+
+    if-eqz v0, :cond_20
+
+    const/4 v0, 0x0
+
+    goto :goto_f
+
+    :cond_20
+    const/4 v0, -0x1
+
+    goto :goto_f
+.end method
+
 .method static step()V
     .registers 16
 
@@ -1277,7 +1430,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 346
+    .line 384
     :try_start_1
     sget-object v0, Lcom/isaigu/gymapp/wearable/SuitReconnect;->anyRow:Ljava/lang/ref/WeakReference;
 
@@ -1291,7 +1444,7 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 347
+    .line 385
     :goto_d
     if-eqz v0, :cond_24
 
@@ -1299,7 +1452,7 @@
 
     move-result-object v0
 
-    .line 348
+    .line 386
     :goto_13
     instance-of v1, v0, Landroid/content/ContextWrapper;
 
@@ -1309,7 +1462,7 @@
 
     if-nez v1, :cond_26
 
-    .line 349
+    .line 387
     check-cast v0, Landroid/content/ContextWrapper;
 
     invoke-virtual {v0}, Landroid/content/ContextWrapper;->getBaseContext()Landroid/content/Context;
@@ -1321,22 +1474,22 @@
     :cond_22
     move-object v0, v1
 
-    .line 346
+    .line 384
     goto :goto_d
 
     :cond_24
     move-object v0, v1
 
-    .line 347
+    .line 385
     goto :goto_13
 
-    .line 351
+    .line 389
     :cond_26
     instance-of v1, v0, Lcom/isaigu/gymapp/BaseActivity;
 
     if-eqz v1, :cond_33
 
-    .line 352
+    .line 390
     check-cast v0, Lcom/isaigu/gymapp/BaseActivity;
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1347,23 +1500,67 @@
     :try_end_33
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_33} :catch_34
 
-    .line 356
+    .line 394
     :cond_33
     :goto_33
     return-void
 
-    .line 354
+    .line 392
     :catch_34
     move-exception v0
 
     goto :goto_33
 .end method
 
+.method public static waitingSeconds(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+    .registers 7
+
+    .prologue
+    .line 247
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SuitReconnect;->find(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;
+
+    move-result-object v0
+
+    .line 248
+    if-eqz v0, :cond_e
+
+    iget-wide v2, v0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->doneAt:J
+
+    const-wide/16 v4, 0x0
+
+    cmp-long v1, v2, v4
+
+    if-lez v1, :cond_10
+
+    :cond_e
+    const/4 v0, 0x0
+
+    :goto_f
+    return v0
+
+    :cond_10
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
+
+    move-result-wide v2
+
+    iget-wide v0, v0, Lcom/isaigu/gymapp/wearable/SuitReconnect$Lost;->since:J
+
+    sub-long v0, v2, v0
+
+    const-wide/16 v2, 0x3e8
+
+    div-long/2addr v0, v2
+
+    long-to-int v0, v0
+
+    goto :goto_f
+.end method
+
 .method private static who(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
     .registers 2
 
     .prologue
-    .line 335
+    .line 373
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -1379,18 +1576,18 @@
 
     if-eqz v0, :cond_15
 
-    .line 336
+    .line 374
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 340
+    .line 378
     :goto_14
     return-object v0
 
-    .line 338
+    .line 376
     :cond_15
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -1411,11 +1608,11 @@
 
     goto :goto_14
 
-    .line 339
+    .line 377
     :catch_23
     move-exception v0
 
-    .line 340
+    .line 378
     const-string v0, ""
 
     goto :goto_14

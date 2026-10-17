@@ -94,8 +94,13 @@ public final class BtTranslator {
      * (period + d_k µs) for {@link #SLIDE_MS} and so falls k/n of a period behind the first — the bridge sends the
      * frames that bring it back ({@link #slideEnd}). Same period on the suit's one clock keeps the places (probe 0.7:
      * 62 s clean, a strength write does not move them). slideMask = channels still slow; slideGen tells a stale end.
+     * Every slow channel must be slow for the same SLIDE_MS (1.1.455): the slow frames go out C2 → C8 one ACK apart, the
+     * clock starts at the ACK of the FIRST of them (slideFrames = how many there are, the last frames of the command)
+     * and the frames back go in the same order C2 → C8. Before, the clock started after the last slow frame and the
+     * frames back went C8 → C2: C2..C7 stayed slow 2–12 ACKs too long — ≈ 270–550 µs off their place at 31 ms per
+     * ACK, more than the whole place (1 470 µs at 85 Hz, 8 channels) on a slow link.
      */
-    private int slideMask, slideGen;
+    private int slideMask, slideGen, slideFrames;
     private long slidePending = -1;
 
     /** Hook: CommandSender.sendDuration (MAIN) / sendActivePause (SECOND) / sendPause (PAUSE) begins. */
@@ -551,9 +556,10 @@ public final class BtTranslator {
         // slots: a real training, two channels or more, one Hz for all of them (the lowest any channel is held to)
         boolean slots = testCh == 0 && BtSettings.slots() && n >= 2 && common >= SLOT_MIN_HZ;
         if (!slots) stopSlide(out);
-        // a channel that is on and gets another Hz (the second impulse and back) is restarted: the suit applies a new
-        // period to a running channel only later (owner, 1.1.452: the double impulse's first impulse came late), a SEL
-        // off → on starts it on the new one. Taken out of the mask here, put back at the end (the mask goes last).
+        // a channel that is on and gets another Hz (the second impulse and back) is restarted (owner, 1.1.452: the
+        // double impulse's first impulse came late): its new registers first, then SEL off → on back to back, so it
+        // starts on them at once. 1.1.452 took it out of the mask BEFORE its writes — silent for the whole command
+        // (~0.5–1.5 s with the ACK pacing), the owner's random holes with two impulses; now ≈ one frame (1.1.453).
         int restart = 0;
         if (hold) {
             for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
@@ -564,10 +570,6 @@ public final class BtTranslator {
                 } else if (slots && devHz[ch] != common) {
                     restart |= 1 << (ch - 1);
                 }
-            }
-            if (restart != 0) {
-                out.add(BtProto.enable(devMask & ~restart));
-                devMask &= ~restart;
             }
         }
         int mask = 0;
@@ -621,6 +623,10 @@ public final class BtTranslator {
                 devInt[ch] = t;
             }
         }
+        if (restart != 0) {
+            out.add(BtProto.enable(devMask & ~restart));        // the SEL below puts them back: one frame apart
+            devMask &= ~restart;
+        }
         if (mask != 0) used = true;
         if (slots && (mask != devMask || (hzNew && !hold))) {
             // every impulse start (pause = SEL off), a channel added / dropped or a new Hz: the places are laid again;
@@ -643,6 +649,7 @@ public final class BtTranslator {
         int n = Integer.bitCount(mask);
         double win = SLIDE_MS * 1000.0;
         int k = 0;
+        slideFrames = 0;
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             if ((mask & (1 << (ch - 1))) == 0) continue;
             if (k > 0) {
@@ -652,6 +659,7 @@ public final class BtTranslator {
                 if (d < 1) d = 1;
                 out.add(BtProto.period(ch, p + d));
                 slideMask |= 1 << (ch - 1);
+                slideFrames++;
             }
             k++;
         }
@@ -664,7 +672,7 @@ public final class BtTranslator {
     /** The slide is cut short (pause, stop, new Hz, slots off): the slow channels back on the plain period now. */
     private void stopSlide(List<byte[]> out) {
         if (slideMask == 0) return;
-        for (int ch = BtSettings.CHANNELS; ch >= 1; ch--) {
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {        // the order they went slow: equal time for each
             if ((slideMask & (1 << (ch - 1))) != 0) out.add(BtProto.hz(ch, devHz[ch]));
         }
         slideMask = 0;
@@ -673,17 +681,17 @@ public final class BtTranslator {
     }
 
     /**
-     * Bridge: a slide was laid by the last command → {ms, gen}: after the command's frames are ACKed, wait ms and
-     * call {@link #slideEnd}(gen). null = none. Taken once.
+     * Bridge: a slide was laid by the last command → {ms, gen, n}: its last n frames are the slow ones; from the ACK of
+     * the first of them wait ms and call {@link #slideEnd}(gen). null = none. Taken once.
      */
     public synchronized long[] takeSlide() {
         if (slidePending < 0) return null;
-        long[] r = {slidePending, slideGen};
+        long[] r = {slidePending, slideGen, slideFrames};
         slidePending = -1;
         return r;
     }
 
-    /** The slide's time is up: the slow channels back on the plain period (the last channel, the fastest, first). */
+    /** The slide's time is up: the slow channels back on the plain period, in the order they went slow (C2 → C8). */
     public synchronized List<byte[]> slideEnd(long gen) {
         List<byte[]> out = new ArrayList<byte[]>();
         if (gen != slideGen) return out;

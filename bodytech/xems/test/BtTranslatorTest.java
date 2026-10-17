@@ -478,6 +478,9 @@ public class BtTranslatorTest {
         }
         long[] sl = tr.takeSlide();
         eq("slots: slide pending 2 s", "2000", sl == null ? "null" : String.valueOf(sl[0]));
+        eq("slots: 7 slow frames, the last of the command", "7", sl == null ? "null" : String.valueOf(sl[2]));
+        eq("slots: the first slow frame is C2's, 7 from the end", hex(BtProto.period(2, 11764
+                + (int) Math.round(11764.0 / 8 * 11764 / (2e6 - 11764.0 / 8)))), hex(f.get(f.size() - 7)));
         eq("slots: taken once", null, tr.takeSlide());
         // a strength step during the slide: no new SEL, no slide end
         f = pair(tr, setting(55), run(600, 85, 350, 4, 4, 1), t);
@@ -485,7 +488,8 @@ public class BtTranslatorTest {
         // slide end → C8..C2 back on the plain period (85 Hz)
         f = tr.slideEnd(sl[1]);
         eq("slots: slide end, 7 channels back", 7, f.size());
-        eq("slots: slide end, fastest (C8) first", hex(BtProto.hz(8, 85)), hex(f.get(0)));
+        eq("slots: slide end in the order they went slow (C2 first)", hex(BtProto.hz(2, 85)), hex(f.get(0)));
+        eq("slots: slide end, C8 last", hex(BtProto.hz(8, 85)), hex(f.get(6)));
         eq("slots: stale slide end does nothing", 0, tr.slideEnd(sl[1]).size());
         // pause → SEL off; next impulse → SEL + slide again (places laid every impulse)
         tr.phase(BtTranslator.PAUSE);
@@ -543,8 +547,8 @@ public class BtTranslatorTest {
         f = pair(tr, setting(30), run(600, 8, 350, 4, 4, 1), t);
         // enable(0) is the all-off frame: the restart takes the channels out before their new Hz, puts them back after
         eq("hold: 2nd impulse restarts the channels on the new Hz", true,
-                indexOf(f, BtProto.enable(0)) >= 0 && indexOf(f, BtProto.enable(0)) < indexOf(f, BtProto.hz(1, 8))
-                && indexOf(f, BtProto.enable(0xFF)) > indexOf(f, BtProto.hz(1, 8)));
+                indexOf(f, BtProto.enable(0)) > indexOf(f, BtProto.hz(1, 8)) && indexOf(f, BtProto.hz(1, 8)) >= 0
+                && indexOf(f, BtProto.enable(0xFF)) == indexOf(f, BtProto.enable(0)) + 1);
         eq("hold: unrenewed output still switched off", true, has(tr.heartbeat(t + 60000), BtProto.allOff()));
         tr.phase(BtTranslator.MAIN);
         f = pair(tr, setting(30), run(600, 85, 350, 4, 4, 1), t + 61000);
@@ -563,12 +567,13 @@ public class BtTranslatorTest {
         tr.phase(BtTranslator.SECOND);
         f = pair(tr, setting(30), run(600, 8, 350, 4, 4, 1), t);
         int off = indexOf(f, BtProto.enable(0)), hz8 = indexOf(f, BtProto.hz(1, 8)), onAt = indexOf(f, BtProto.enable(0xFF));
-        eq("double: SEL off before the new Hz", true, off >= 0 && off < hz8);
-        eq("double: SEL on after the new Hz", true, onAt > hz8);
+        eq("double: new Hz first, then SEL off", true, hz8 >= 0 && off > hz8);
+        eq("double: SEL on right after the SEL off (no silent command)", off + 1, onAt);
         tr.phase(BtTranslator.MAIN);
         f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
         off = indexOf(f, BtProto.enable(0)); int hz85 = indexOf(f, BtProto.hz(1, 85));
-        eq("double back: SEL off before 85 Hz", true, off >= 0 && off < hz85 && indexOf(f, BtProto.enable(0xFF)) > hz85);
+        eq("double back: 85 Hz, then SEL off → on back to back", true, hz85 >= 0 && off > hz85
+                && indexOf(f, BtProto.enable(0xFF)) == off + 1);
         // the same Hz in the next impulse (no change of Hz): no restart
         f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
         eq("double: same Hz again, no restart", true, indexOf(f, BtProto.enable(0)) < 0 && !has(f, BtProto.enable(0xFF)));

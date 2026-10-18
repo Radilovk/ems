@@ -24,6 +24,12 @@ sed -i 's/^#define CFG_GATT_MAX_CLIENT_CHARS .*/#define CFG_GATT_MAX_CLIENT_CHAR
 # there and everywhere else.
 sed -i 's/CDC_COMM_SUBCLASS_ABSTRACT_CONTROL_MODEL, CDC_COMM_PROTOCOL_NONE/CDC_COMM_SUBCLASS_ABSTRACT_CONTROL_MODEL, CDC_COMM_PROTOCOL_ATCOMMAND/g' \
 	"$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/libraries/Adafruit_TinyUSB_Arduino/src/device/usbd.h"
+# The SoftDevice gets 24 KB of RAM in the core's linker script (RAM from 0x20006000): enough for one link, not for 4
+# central links at MTU 247 — Bluefruit.begin() failed and the bridge's radio never started (owner's screen with v7:
+# "Bluetooth на моста не работи"). 64 KB for it (RAM from 0x20010000); the sketch uses ~27 KB of the remaining 192.
+sed -i 's/ORIGIN = 0x20006000, LENGTH = 0x20040000 - 0x20006000/ORIGIN = 0x20010000, LENGTH = 0x20040000 - 0x20010000/' \
+	"$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/cores/nRF5/linker/nrf52840_s140_v7.ld" \
+	"$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/cores/nRF5/linker/nrf52840_s140_v6.ld"
 PATH=$T/fakebin:$PATH "$T/arduino-cli" compile --fqbn Seeeduino:nrf52:xiaonRF52840 \
 	--output-dir "$REPO/build/xbridge" "$REPO/xbody/bridge/xems_bridge" | grep -E 'Sketch uses|Global'
 python3 "$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/tools/uf2conv/uf2conv.py" -f 0xADA52840 -c \

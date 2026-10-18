@@ -301,6 +301,11 @@ dark (= the sketch's setup ran), then back to "Включи XEMS моста" —
     DROP cut localhost — XBody's own stimulator link — for that moment, mid cable training too. test.sh 11 checks it.
   - Checked, fine: busybox tar unlinks before writing (no ETXTBSY on the running panel / proxy during an update);
     a lost link pauses only its session, a pulled bridge ends all; DFU only with no session.
+- **Bridge v8 (mod v28; owner's screen with v7: "Bluetooth на моста не работи"):** `Bluefruit.begin()` failed — the
+  core's linker script leaves the SoftDevice 24 KB of RAM (app RAM from 0x20006000), too little for 4 central links at
+  MTU 247 (`configCentralBandwidth(BANDWIDTH_MAX)`). `build-bridge.sh` moves the app's RAM to 0x20010000 (64 KB for the
+  SoftDevice; the sketch uses ~27 KB of the other 192). v7's `ERR ble-start` is what told us; the panel updates a
+  v7 bridge to v8 by itself (DFU over the port).
 
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in

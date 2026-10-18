@@ -1017,11 +1017,12 @@ final class XView extends View {
             if (t > 0) {
                 float k2 = Math.min(1f, t / 0.8f);      // in step with the impulse: deep red from 80 %
                 // the second impulse (double impulse, in the pause) in XBody's yellow — the main one in its red
-                col[z] = s.second() ? mix(0xFFFFE28A, 0xFFF5A600, k2) : mix(LIGHT_RED, RED, k2);
+                // (dark: a weak impulse is a deeper red, not a paler pink — pink on graphite reads as a haze)
+                col[z] = s.second() ? mix(0xFFFFE28A, 0xFFF5A600, k2) : mix(darkNow ? 0xFFA82A30 : LIGHT_RED, RED, k2);
                 alpha[z] = 0.45f + 0.55f * k2;          // even a light impulse reads as colour, not a pink haze
             } else if (picked) {
                 col[z] = RED;
-                alpha[z] = 0.30f;
+                alpha[z] = darkNow ? 0.42f : 0.30f;   // on graphite 30 % read as mud
             }
         }
         for (int f = 0; f < 2; f++) {
@@ -1031,8 +1032,9 @@ final class XView extends View {
             RectF r = figRect[f];
             r.set(cxf - wid / 2, top, cxf + wid / 2, top + hgt);
             Rect src = new Rect(0, 0, b.w, b.h);
-            c.drawBitmap(b.art, src, r, bmp);
-            b.paint(col, alpha);
+            c.drawBitmap(darkNow ? b.artDark : b.art, src, r, bmp);
+            b.paint(col, alpha, darkNow);
+            if (darkNow) c.drawBitmap(b.glow, src, r, bmp);   // the working muscles light the body around them
             c.drawBitmap(b.over, src, r, bmp);
             hit(r.left, r.top, r.right, r.bottom, "fig:" + f);
         }

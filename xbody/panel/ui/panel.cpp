@@ -108,7 +108,7 @@ static void signalBars(QPainter &p, const QRect &r, int rssi, const QColor &on, 
 
 PanelWidget::PanelWidget(App *app)
     : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), app_(app), pressMs_(0), repeatMs_(0),
-      sheet_(false), confirm_(false), confirmKind_(0), netWasBusy_(false), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
+      sheet_(false), confirm_(false), confirmKind_(0), netWasBusy_(false), wifi_(false), wifiPage_(0), kb_(false), kbShow_(false), kbLayer_(0), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
       bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0), figsSex_(-1), touchedMs_(0),
       slideZone_(-1), slideStart_(0), slideValue_(-1), sliding_(false) {
     loadLook();
@@ -246,6 +246,7 @@ void PanelWidget::paintEvent(QPaintEvent *) {
     if (app_->view() == App::TRAIN && !sheet_ && !confirm_ && (int)(bubbleUntilMs_ - app_->now()) > 0) paintBubble(p);
     if (sheet_) paintSheet(p);
     if (confirm_) paintConfirm(p);
+    if (wifi_) paintWifi(p);
 }
 
 // XBody's header: logo block (here: back to XBody) | grey title + one line under it | right block.
@@ -483,7 +484,7 @@ void PanelWidget::paintCableSettings(QPainter &p) {
         p.drawRoundedRect(QRectF(u).adjusted(1, 1, -1, -1), 10, 10);
         p.setPen(pr ? RED : INK);
         p.setFont(uiFont(16, true));
-        p.drawText(u, Qt::AlignCenter, app_->netBusy() ? U("⟲  Обновяване и лог …") : U("⟲  Обнови XEMS  ·  Прати лог"));
+        p.drawText(u, Qt::AlignCenter, app_->netBusy() ? U("Обновяване и лог …") : U("Обнови  ·  Лог  ·  Wi‑Fi"));
         hit(u, U("usb-update"));
     }
 
@@ -1447,26 +1448,28 @@ void PanelWidget::paintService(QPainter &p) {
     p.fillRect(QRect(0, 110, 800, 380), DIALOG);
     p.setPen(WHITE);
     p.setFont(uiFont(30));
-    p.drawText(QRect(0, 122, 800, 48), Qt::AlignCenter, U("Обновяване и лог"));
+    p.drawText(QRect(0, 122, 800, 48), Qt::AlignCenter, U("Обновяване, лог и Wi‑Fi"));
     bool busy = app_->netBusy(), training = app_->cableLive().training;
-    static const char *const ID[3] = {"svc-net", "svc-usb", "svc-log"};
-    static const char *const TITLE[3] = {"От интернет", "От USB флашка", "Изпрати лог"};
-    static const char *const SUB[3] = {"новата версия от сървъра", "от поставената флашка", "последните 2 минути"};
-    for (int i = 0; i < 3; i++) {
-        QRect r(40 + i * 248, 186, 224, 128);
-        QString id = U(ID[i]);
-        bool on = !busy && (i == 2 || !training);
-        bool run = busy && app_->netJob() == (i == 2 ? App::NET_LOG : App::NET_UPDATE) && i != 1;
+    static const char *const ID[4] = {"svc-net", "svc-usb", "svc-log", "svc-wifi"};
+    static const char *const TITLE[4] = {"От интернет", "От USB", "Изпрати лог", "Wi‑Fi"};
+    static const char *const SUB[4] = {"новата версия от сървъра", "от поставената флашка", "последните 2 минути", ""};
+    for (int i = 0; i < 4; i++) {
+        QRect r(40 + i * 183, 186, 170, 128);
+        QString id = U(ID[i]), sub = U(SUB[i]);
+        bool on = !busy && (i >= 2 || !training);
+        bool run = busy && i != 1 && i != 3 && app_->netJob() == (i == 2 ? App::NET_LOG : App::NET_UPDATE);
+        if (i < 2 && training && !busy) sub = U("след тренировката");
+        if (i == 3) sub = app_->wifiSsid().isEmpty() ? U("търси мрежа, свържи") : U("свързан: ") + app_->wifiSsid();
         p.setOpacity(on || run ? 1.0 : 0.4);
         p.setPen(QPen(WHITE, 2));
         p.setBrush(pressed_ == id || run ? QColor(255, 255, 255, 60) : QColor(Qt::transparent));
         p.drawRoundedRect(QRectF(r).adjusted(1, 1, -1, -1), 10, 10);
         p.setPen(WHITE);
-        p.setFont(uiFont(21, true));
-        p.drawText(QRect(r.left(), r.top() + 26, r.width(), 36), Qt::AlignCenter, U(TITLE[i]));
-        p.setFont(uiFont(15));
-        p.drawText(QRect(r.left() + 8, r.top() + 66, r.width() - 16, 40), Qt::AlignCenter | Qt::TextWordWrap,
-                   i < 2 && training && !busy ? U("след тренировката") : U(SUB[i]));
+        p.setFont(uiFont(20, true));
+        p.drawText(QRect(r.left(), r.top() + 24, r.width(), 36), Qt::AlignCenter, U(TITLE[i]));
+        p.setFont(uiFont(14));
+        p.drawText(QRect(r.left() + 8, r.top() + 64, r.width() - 16, 44), Qt::AlignCenter | Qt::TextWordWrap,
+                   QFontMetrics(uiFont(14)).elidedText(sub, Qt::ElideRight, 2 * (r.width() - 24)));
         if (on) hit(r, id);
     }
     p.setOpacity(1.0);
@@ -1481,6 +1484,163 @@ void PanelWidget::paintService(QPainter &p) {
     p.setFont(uiFont(18));
     p.drawText(c, Qt::AlignCenter, U("ЗАТВОРИ"));
     hit(c, U("svc-close"));
+}
+
+// Signal strength as XBody draws it nowhere: four bars, lit by dBm (or a 0–100 quality on drivers that give one).
+static void wifiBars(QPainter &p, int x, int y, int dbm, const QColor &on, const QColor &off) {
+    int lvl = dbm > 0 ? (dbm >= 75 ? 4 : dbm >= 50 ? 3 : dbm >= 25 ? 2 : 1)
+                      : (dbm >= -55 ? 4 : dbm >= -65 ? 3 : dbm >= -75 ? 2 : 1);
+    p.setPen(Qt::NoPen);
+    for (int b = 0; b < 4; b++) {
+        p.setBrush(b < lvl ? on : off);
+        int h = 7 + b * 5;
+        p.drawRoundedRect(QRectF(x + b * 8, y + 22 - h, 5, h), 1.5, 1.5);
+    }
+}
+
+static void padlock(QPainter &p, int x, int y, const QColor &c) {
+    p.setPen(QPen(c, 2));
+    p.setBrush(Qt::NoBrush);
+    p.drawArc(QRectF(x + 3, y, 10, 12), 0, 180 * 16);
+    p.drawLine(QPointF(x + 3, y + 6), QPointF(x + 3, y + 9));
+    p.drawLine(QPointF(x + 13, y + 6), QPointF(x + 13, y + 9));
+    p.setPen(Qt::NoPen);
+    p.setBrush(c);
+    p.drawRoundedRect(QRectF(x, y + 9, 16, 11), 2, 2);
+}
+
+// The Wi-Fi page: the networks around, strongest first (left), what is happening and the actions (right).
+// Opening it is the request for a scan; a tap on a network joins it (a password first when it has one).
+void PanelWidget::paintWifi(QPainter &p) {
+    p.fillRect(QRect(0, 0, 800, 600), WHITE);
+    hits_.clear();
+    if (kb_) { paintKeyboard(p); return; }
+    bool busy = app_->wifiBusy();
+    QString on = app_->wifiSsid(), sub;
+    bool ok = false, warn = false;
+    if (!on.isEmpty()) { sub = U("Свързан с ") + on + (app_->wifiIp().isEmpty() ? QString() : U("  ·  ") + app_->wifiIp()); ok = true; }
+    else if (app_->wifiNoRadio()) { sub = U("Wi‑Fi модулът не отговаря"); warn = true; }
+    else sub = U("Не е свързан");
+    paintHeader(p, U("WI‑FI"), sub, warn, ok);
+    // header right: search again
+    QRect sr(653, 0, 147, 56);
+    if (!busy) {
+        if (pressed_ == U("wifi-scan")) p.fillRect(sr.adjusted(1, 0, 0, 0), PRESS);
+        p.setPen(INK);
+        p.setFont(uiFont(16, true));
+        p.drawText(sr, Qt::AlignCenter, U("Търси отново"));
+        hit(sr, U("wifi-scan"));
+    }
+    // ---- left: the networks ----
+    const std::vector<App::WifiNet> &n = app_->wifiNets();
+    const int ROWS = 7;
+    int pages = ((int)n.size() + ROWS - 1) / ROWS;
+    if (wifiPage_ >= pages) wifiPage_ = 0;
+    if (n.empty()) {
+        p.setPen(SOFT);
+        p.setFont(uiFont(18));
+        p.drawText(QRect(24, 72, 496, 400), Qt::AlignCenter | Qt::TextWordWrap,
+                   busy && app_->wifiJob() == App::WIFI_SCAN ? U("Търся мрежи…") : app_->wifiLine());
+    }
+    for (int i = 0; i < ROWS && wifiPage_ * ROWS + i < (int)n.size(); i++) {
+        const App::WifiNet &w = n[wifiPage_ * ROWS + i];
+        QRect r(24, 72 + i * 62, 496, 56);
+        QString id = U("wn:") + QString::number(i);
+        bool cur = w.ssid == on;
+        p.setPen(QPen(cur ? GREEN : LINE, 2));
+        p.setBrush(pressed_ == id ? PRESS : WHITE);
+        p.drawRoundedRect(QRectF(r).adjusted(1, 1, -1, -1), 10, 10);
+        wifiBars(p, r.left() + 16, r.top() + 16, w.dbm, w.sec == 2 ? GREY : INK, LINE);
+        p.setPen(w.sec == 2 ? SOFT : INK);
+        p.setFont(uiFont(18, cur));
+        p.drawText(QRect(r.left() + 62, r.top(), 300, r.height()), Qt::AlignLeft | Qt::AlignVCenter,
+                   QFontMetrics(uiFont(18, cur)).elidedText(w.ssid, Qt::ElideRight, 296));
+        QRect rt(r.right() - 140, r.top(), 126, r.height());
+        p.setFont(uiFont(14, cur));
+        if (cur) { p.setPen(GREEN); p.drawText(rt, Qt::AlignRight | Qt::AlignVCenter, U("✓ свързан")); }
+        else if (w.sec == 2) { p.setPen(SOFT); p.drawText(rt, Qt::AlignRight | Qt::AlignVCenter, U("не се поддържа")); }
+        else if (w.sec == 1) padlock(p, r.right() - 34, r.top() + 17, SOFT);
+        if (!busy && !cur && w.sec != 2) hit(r, id);
+    }
+    if (pages > 1) {
+        QRect m(24, 72 + ROWS * 62, 496, 44);
+        outlined(p, m, U("wifi-more"), U("Още мрежи  ·  ") + QString::number(wifiPage_ + 1) + U(" / ") + QString::number(pages), 15, false);
+    }
+    // ---- right: what is happening, the actions ----
+    p.setPen(QPen(LINE, 1));
+    p.drawLine(536, 76, 536, 560);
+    caption(p, 552, 70, U("СЕГА"));
+    QString line = app_->wifiLine();
+    if (line.isEmpty()) line = on.isEmpty() ? U("Избери мрежа отляво") : U("✓ Свързан с ") + on;
+    if (busy && line.endsWith(U("…"))) line = line.left(line.length() - 1) + QString(1 + (app_->now() / 400) % 3, QLatin1Char('.'));
+    bool good = line.startsWith(U("✓"));
+    bool bad = !busy && !good && !app_->wifiOk() && app_->wifiJob() != App::WIFI_NONE && !line.startsWith(U("Избери"));
+    p.setPen(good ? GREEN : bad ? RED : INK);
+    p.setFont(uiFont(19, true));
+    p.drawText(QRect(552, 96, 224, 130), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, line);
+    if (!on.isEmpty() && !busy) outlined(p, QRect(552, 250, 224, 52), U("wifi-forget"), U("Забрави тази мрежа"), 16, false);
+    p.setPen(SOFT);
+    p.setFont(uiFont(14));
+    p.drawText(QRect(552, 316, 224, 120), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
+               U("Мрежата се помни: след рестарт машината се свързва сама. Интернет се ползва само когато поискаш обновяване или лог."));
+    filled(p, QRect(552, 492, 224, 64), U("wifi-close"), QString(), INK, WHITE, U("Готово"), 18);
+}
+
+// The password keyboard: big keys for a finger, Latin letters, digits and signs; one-shot capitals (no ⌫ glyph in
+// the unit's font: "Изтрий").
+static const char *const KB_ROWS[3][4] = {
+    {"1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm"},
+    {"1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"},
+    {"1234567890", "!@#$%^&*()", "-_=+[]{}~|", "'\",.?/:;"},
+};
+
+void PanelWidget::paintKeyboard(QPainter &p) {
+    paintHeader(p, U("ПАРОЛА"), kbSsid_, false, false);
+    QRect f(24, 72, 640, 60);
+    p.setPen(QPen(INK, 2));
+    p.setBrush(WHITE);
+    p.drawRoundedRect(QRectF(f).adjusted(1, 1, -1, -1), 10, 10);
+    QString shown = kbShow_ ? kbText_ : QString(kbText_.length(), QChar(0x2022));
+    if ((app_->now() / 500) % 2) shown += QLatin1Char('|');
+    p.setPen(INK);
+    p.setFont(uiFont(24));
+    p.drawText(f.adjusted(18, 0, -12, 0), Qt::AlignLeft | Qt::AlignVCenter,
+               QFontMetrics(uiFont(24)).elidedText(shown, Qt::ElideLeft, f.width() - 30));
+    outlined(p, QRect(680, 72, 96, 60), U("k-show"), kbShow_ ? U("Скрий") : U("Покажи"), 16, kbShow_);
+    QString hint = app_->wifiLine();
+    bool bad = hint == U("Грешна парола — опитай пак");
+    p.setPen(bad ? RED : SOFT);
+    p.setFont(uiFont(14, bad));
+    p.drawText(QRect(24, 136, 752, 28), Qt::AlignLeft | Qt::AlignVCenter,
+               bad ? hint : U("Паролата на Wi‑Fi мрежата — от 8 до 63 знака"));
+    const int Y0 = 172, PITCH = 76, H = 68;
+    double unit = 752.0 / 10;
+    for (int row = 0; row < 4; row++) {
+        QString keys = QString::fromUtf8(KB_ROWS[kbLayer_][row]);
+        int nk = keys.length();
+        double side = (10 - nk) / 2.0;   // rows 2–3 are centred; row 3 puts ⇧ and ⌫ in the sides
+        double x = 24 + (row == 3 ? 0 : side * unit);
+        int y = Y0 + row * PITCH;
+        if (row == 3) {   // shift (letters) | keys | backspace
+            QRect sh((int)x, y, (int)(side * unit) - 6, H);
+            if (kbLayer_ != 2) outlined(p, sh, U("k-shift"), U("⇧"), 22, kbLayer_ == 1);
+            x += side * unit;
+        }
+        for (int k = 0; k < nk; k++) {
+            QRect r((int)(x + k * unit), y, (int)unit - 6, H);
+            outlined(p, r, U("k:") + keys.mid(k, 1), keys.mid(k, 1), 22, false);
+        }
+        if (row == 3) outlined(p, QRect((int)(x + nk * unit), y, (int)(side * unit) - 6, H), U("k-back"), U("Изтрий"), 16, false);
+    }
+    int y = Y0 + 4 * PITCH;
+    outlined(p, QRect(24, y, (int)(1.5 * unit) - 6, H), U("k-sym"), kbLayer_ == 2 ? U("abc") : U("?123"), 18, false);
+    outlined(p, QRect(24 + (int)(1.5 * unit), y, (int)(4.5 * unit) - 6, H), U("k-space"), U("интервал"), 16, false);
+    outlined(p, QRect(24 + (int)(6 * unit), y, (int)(2 * unit) - 6, H), U("k-cancel"), U("Отказ"), 18, false);
+    bool okLen = kbText_.length() >= 8 && kbText_.length() <= 63;
+    QRect go(24 + (int)(8 * unit), y, (int)(2 * unit) - 6, H);
+    p.setOpacity(okLen ? 1.0 : 0.4);
+    filled(p, go, okLen ? U("k-ok") : QString(), QString(), GREEN, WHITE, U("Свържи"), 18);
+    p.setOpacity(1.0);
 }
 
 static void stepField(Program &q, const QString &f, int d, bool age60) {
@@ -1526,6 +1686,7 @@ void PanelWidget::act(const QString &id, bool repeat) {
         return;
     }
     if (repeat) return;
+    if (id == QLatin1String("back") && wifi_) { if (kb_) kb_ = false; else wifi_ = false; return; }
     if (id == QLatin1String("back")) { app_->hidePanel(); return; }
     if (id == QLatin1String("cable")) { showCable_ = true; return; }
     if (id == QLatin1String("wireless")) { showCable_ = false; return; }
@@ -1622,6 +1783,41 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("svc-net")) { usbLine_.clear(); app_->netStart(App::NET_UPDATE); return; }
     if (id == QLatin1String("svc-log")) { usbLine_.clear(); app_->netStart(App::NET_LOG); return; }
     if (id == QLatin1String("svc-usb")) { usbLine_ = app_->updateFromUsb(); return; }   // mount the stick, install
+    // ---- Wi-Fi: opening the page is the request for a scan ----
+    if (id == QLatin1String("svc-wifi")) { wifi_ = true; kb_ = false; wifiPage_ = 0; app_->wifiStart(App::WIFI_SCAN); return; }
+    if (id == QLatin1String("wifi-scan")) { wifiPage_ = 0; app_->wifiStart(App::WIFI_SCAN); return; }
+    if (id == QLatin1String("wifi-close")) { wifi_ = kb_ = false; return; }
+    if (id == QLatin1String("wifi-more")) { wifiPage_++; return; }
+    if (id == QLatin1String("wifi-forget")) { app_->wifiStart(App::WIFI_FORGET, app_->wifiSsid()); return; }
+    if (id.startsWith(QLatin1String("wn:"))) {
+        int i = wifiPage_ * 7 + id.mid(3).toInt();
+        const std::vector<App::WifiNet> &n = app_->wifiNets();
+        if (i < 0 || i >= (int)n.size() || n[i].sec == 2) return;
+        if (n[i].sec == 0) { app_->wifiStart(App::WIFI_CONNECT, n[i].ssid); return; }
+        kb_ = true;
+        kbSsid_ = n[i].ssid;
+        kbText_.clear();
+        kbLayer_ = 0;
+        kbShow_ = false;
+        return;
+    }
+    if (id.startsWith(QLatin1String("k:"))) {
+        if (kbText_.length() < 63) kbText_ += id.mid(2);
+        if (kbLayer_ == 1) kbLayer_ = 0;   // capitals for one letter, like a phone
+        return;
+    }
+    if (id == QLatin1String("k-shift")) { kbLayer_ = kbLayer_ == 1 ? 0 : 1; return; }
+    if (id == QLatin1String("k-sym")) { kbLayer_ = kbLayer_ == 2 ? 0 : 2; return; }
+    if (id == QLatin1String("k-back")) { kbText_.chop(1); return; }
+    if (id == QLatin1String("k-space")) { if (kbText_.length() < 63) kbText_ += QLatin1Char(' '); return; }
+    if (id == QLatin1String("k-show")) { kbShow_ = !kbShow_; return; }
+    if (id == QLatin1String("k-cancel")) { kb_ = false; kbText_.clear(); return; }
+    if (id == QLatin1String("k-ok")) {
+        app_->wifiStart(App::WIFI_CONNECT, kbSsid_, kbText_);
+        kbText_.clear();
+        kb_ = false;
+        return;
+    }
     if (id == QLatin1String("confirm-no")) { confirm_ = false; return; }
     if (id == QLatin1String("confirm-yes")) {
         confirm_ = false;
@@ -1713,6 +1909,10 @@ QString PanelWidget::signature(QString *clock) const {
                 QString::number(slideZone_) + U("/") + QString::number(slideValue_) + U("|") +
                 U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())
                     .arg((int)(bubbleUntilMs_ - now) > 0).arg((int)(toastUntilMs_ - now) > 0);
+    if (wifi_)
+        g += U("|w") + app_->wifiLine() + app_->wifiSsid() + app_->wifiIp() + QString::number(app_->wifiNets().size()) +
+             QString::number(app_->wifiBusy() ? (now / 400) % 4 : 9) + QString::number(kb_) + QString::number(kbLayer_) +
+             QString::number(kbShow_) + kbText_ + QString::number(wifiPage_) + QString::number(kb_ ? (now / 500) % 2 : 0);
     if (confirm_ && confirmKind_ == 2)
         g += U("|n") + app_->netLine() + usbLine_ + QString::number(app_->netBusy() ? (now / 400) % 4 : 9) +
              QString::number(app_->cableLive().training);

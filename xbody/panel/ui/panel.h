@@ -59,7 +59,9 @@ private:
     void paintWiringInfo(QPainter &p);
     void paintBubble(QPainter &p);
     void paintConfirm(QPainter &p);
-    void paintService(QPainter &p);   // "Обнови · лог": update from the internet / USB, send the log
+    void paintService(QPainter &p);   // "Обнови · лог · Wi‑Fi": update from the internet / USB, send the log
+    void paintWifi(QPainter &p);      // the Wi-Fi page: networks around, one tap to join
+    void paintKeyboard(QPainter &p);  // its password keyboard
     void pill(QPainter &p, const QRect &r, const QString &value, const QString &field, bool enabled = true);
     void caption(QPainter &p, int x, int y, const QString &text);
     void toast(const QString &text);
@@ -76,6 +78,11 @@ private:
     int confirmKind_;              // 0 = disconnect the suit, 2 = the update / log sheet
     QString usbLine_;              // the sheet's last USB result (empty once the internet is asked)
     bool netWasBusy_;              // a request ended while the sheet was closed → its result as a toast
+    bool wifi_;                    // the Wi-Fi page over the sheet
+    int wifiPage_;                 // which 7 networks the list shows
+    bool kb_, kbShow_;             // the password keyboard; the password shown as text
+    int kbLayer_;                  // 0 small letters, 1 capitals (one letter), 2 digits and signs
+    QString kbText_, kbSsid_;
     Program sheetProg_;
     bool sheetAge60_;
     int sheetWiring_;

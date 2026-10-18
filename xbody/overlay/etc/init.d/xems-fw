@@ -18,6 +18,8 @@ start)
 	[ -n "$XEMS_IPT" ] || for m in ip_tables iptable_filter nf_conntrack_ipv4 xt_state xt_tcpudp ipt_REJECT; do
 		modprobe $m > /dev/null 2>&1
 	done
+	# The Wi-Fi radio on before networking (S01) brings wlan0 up: XBody's scans failed with it blocked / down.
+	[ -n "$XEMS_IPT" ] || rfkill unblock wifi > /dev/null 2>&1
 	$IPT -F > /dev/null 2>&1
 	$IPT -X > /dev/null 2>&1
 	if ! $IPT -A INPUT -i lo -j ACCEPT || ! $IPT -A OUTPUT -o lo -j ACCEPT; then

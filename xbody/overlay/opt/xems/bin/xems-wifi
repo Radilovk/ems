@@ -1,0 +1,138 @@
+#!/bin/sh
+# Wi-Fi for the XEMS panel's Wi-Fi page (mod v22): XBody's own Wi-Fi screen is hidden with its "online" mode and its
+# scans always failed (the radio was never brought up: rfkill / ifconfig down). Runs only when the trainer opens the
+# page or taps a network — nothing in the background. Talks to wpa_supplicant 2.2 through wpa_cli (wext driver,
+# /etc/wpa_supplicant.conf, update_config=1: a network that connected once comes back by itself at boot).
+#   xems-wifi scan      CUR <wpa_state> <ip|-> <ssid>, then NET <dBm> <0 open|1 WPA|2 unsupported> <ssid>, strongest
+#                       first, one line per name; OK <count>
+#   xems-wifi connect   stdin: the name, then the password (empty = open) → ". join", ". address", OK <ip>
+#   xems-wifi forget    stdin: the name → OK
+# Errors: ERR no-wifi (no radio / no wpa_supplicant) | auth (wrong password) | timeout | address (no DHCP).
+# The network lock (xems-fw) lets DHCP and wpa_supplicant's own frames through; nothing else opens here.
+# Env (tests): XEMS_WPA_CLI, XEMS_WIFI_IF, XEMS_WIFI_SYS (/sys/class/net), XEMS_WIFI_RUN (/var/run/wpa_supplicant),
+#              XEMS_WIFI_WAIT (seconds to join, 25), XEMS_UDHCPC, XEMS_IFCONFIG, XEMS_WPA_PASSPHRASE.
+PATH=$PATH:/usr/sbin:/usr/bin:/sbin:/bin
+IF=${XEMS_WIFI_IF:-wlan0}
+CLI=${XEMS_WPA_CLI:-wpa_cli}
+SYS=${XEMS_WIFI_SYS:-/sys/class/net}
+RUN=${XEMS_WIFI_RUN:-/var/run/wpa_supplicant}
+WAIT=${XEMS_WIFI_WAIT:-25}
+DHCP=${XEMS_UDHCPC:-udhcpc}
+IFC=${XEMS_IFCONFIG:-ifconfig}
+PASSPH=${XEMS_WPA_PASSPHRASE:-wpa_passphrase}
+w() { $CLI -p "$RUN" -i "$IF" "$@" 2> /dev/null; }
+
+# The radio up and wpa_supplicant answering.
+ensure() {
+	[ -e "$SYS/$IF" ] || { echo "ERR no-wifi"; exit 1; }
+	if [ -z "$XEMS_WPA_CLI" ]; then
+		rfkill unblock wifi > /dev/null 2>&1
+		ifconfig "$IF" up > /dev/null 2>&1
+		if [ ! -e "$RUN/$IF" ]; then
+			wpa_supplicant -B -D wext -i "$IF" -c /etc/wpa_supplicant.conf -P "/var/run/wpa_supplicant.$IF.pid" > /dev/null 2>&1
+			n=0
+			while [ ! -e "$RUN/$IF" ] && [ $n -lt 10 ]; do sleep 1; n=$((n + 1)); done
+		fi
+	fi
+	[ "$(w ping)" = PONG ] || { echo "ERR no-wifi"; exit 1; }
+}
+
+ip_of() { $IFC "$IF" 2> /dev/null | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p'; }
+state() { w status | sed -n "s/^$1=//p"; }
+hex() {   # busybox 1.22's od has no -A: its hexdump on the unit, od where there is no hexdump (host tests)
+	h=$(printf '%s' "$1" | hexdump -v -e '/1 "%02x"' 2> /dev/null)
+	[ -n "$h" ] || h=$(printf '%s' "$1" | od -An -v -tx1 | tr -d ' \n')
+	echo "$h"
+}
+ids_of() {   # network ids saved under this name (wpa_cli shows the name as text)
+	w list_networks | awk -F '\t' -v s="$1" 'NR > 1 && $2 == s { print $1 }'
+}
+
+cur() {
+	ip=$(ip_of)
+	echo "CUR $(state wpa_state) ${ip:--} $(state ssid)"
+}
+
+scan() {
+	echo ". scan"
+	ensure
+	w scan > /dev/null
+	n=0
+	while [ $n -lt 6 ]; do
+		sleep 1
+		n=$((n + 1))
+		[ "$(w scan_results | wc -l)" -gt 1 ] && [ $n -ge 3 ] && break
+	done
+	cur
+	w scan_results | awk -F '\t' 'NR > 1 && $5 != "" {
+		sec = $4 ~ /EAP/ ? 2 : $4 ~ /WPA|RSN/ ? 1 : $4 ~ /WEP/ ? 2 : 0
+		if (!($5 in best) || $3 + 0 > best[$5] + 0) { best[$5] = $3; s[$5] = sec }
+	} END { for (k in best) print best[k] "\t" s[k] "\t" k }' | sort -t "$(printf '\t')" -k1,1nr |
+		awk -F '\t' '{ print "NET " $1 " " $2 " " $3 }' > /tmp/xems-wifi.list
+	cat /tmp/xems-wifi.list
+	echo "OK $(wc -l < /tmp/xems-wifi.list)"
+	rm -f /tmp/xems-wifi.list
+}
+
+connect() {
+	IFS= read -r ssid
+	IFS= read -r pass
+	[ -n "$ssid" ] || { echo "ERR usage"; exit 2; }
+	echo ". join"
+	ensure
+	for i in $(ids_of "$ssid"); do w remove_network "$i" > /dev/null; done
+	id=$(w add_network | tail -n 1)
+	case "$id" in *[!0-9]* | "") echo "ERR no-wifi"; exit 1 ;; esac
+	w set_network "$id" ssid "$(hex "$ssid")" > /dev/null
+	w set_network "$id" scan_ssid 1 > /dev/null
+	if [ -n "$pass" ]; then
+		[ ${#pass} -ge 8 ] && [ ${#pass} -le 63 ] || { w remove_network "$id" > /dev/null; echo "ERR auth"; exit 1; }
+		psk=$($PASSPH "$ssid" "$pass" 2> /dev/null | sed -n 's/^[[:space:]]*psk=\([0-9a-f]\{64\}\)$/\1/p')
+		[ -n "$psk" ] || { w remove_network "$id" > /dev/null; echo "ERR auth"; exit 1; }   # not 8–63 characters
+		w set_network "$id" psk "$psk" > /dev/null
+	else
+		w set_network "$id" key_mgmt NONE > /dev/null
+	fi
+	w select_network "$id" > /dev/null
+	n=0
+	st=""
+	while [ $n -lt "$WAIT" ]; do
+		sleep 1
+		n=$((n + 1))
+		st=$(state wpa_state)
+		[ "$st" = COMPLETED ] && break
+		# A wrong password: wpa_supplicant puts the network aside (TEMP-DISABLED) after the failed handshake.
+		w list_networks | awk -F '\t' -v i="$id" '$1 == i && $4 ~ /TEMP-DISABLED/ { f = 1 } END { exit !f }' && break
+	done
+	w enable_network all > /dev/null   # the other saved networks stay as fallbacks
+	if [ "$st" != COMPLETED ]; then
+		w remove_network "$id" > /dev/null
+		w save_config > /dev/null
+		[ $n -lt "$WAIT" ] && echo "ERR auth" || echo "ERR timeout"
+		exit 1
+	fi
+	w save_config > /dev/null
+	echo ". address"
+	ip=$(ip_of)
+	if [ -z "$ip" ]; then
+		$DHCP -i "$IF" -n -q -t 5 -T 3 > /dev/null 2>&1
+		ip=$(ip_of)
+	fi
+	[ -n "$ip" ] || { echo "ERR address"; exit 1; }
+	echo "OK $ip"
+}
+
+forget() {
+	IFS= read -r ssid
+	ensure
+	for i in $(ids_of "$ssid"); do w remove_network "$i" > /dev/null; done
+	w save_config > /dev/null
+	echo "OK"
+}
+
+case "$1" in
+scan) scan ;;
+connect) connect ;;
+forget) forget ;;
+*) echo "ERR usage"; exit 2 ;;
+esac

@@ -6,6 +6,7 @@
 #   7 phone link: the app's server (Java, host) → xems-link → the pending install
 #   8 vendor Software Update archive   9 panel USB update helper
 #   10 xems-net: update / log over HTTPS (a local stand-in server)   11 xems-fw: the network lock's rule order
+#   12 xems-wifi: scan / join / wrong password / forget against a stand-in wpa_cli
 set -eu
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 T=$(mktemp -d)
@@ -332,4 +333,58 @@ printf '#!/bin/sh\necho "$*" >> %s/ipt2.log\nexit 1\n' "$W" > "$W/bin/bad"; chmo
 XEMS_IPT="$W/bin/bad" XEMS_PROC="$W/proc" dash "$FW" start 2> /dev/null && no "fw with a broken iptables said ok"
 grep -q -- '-P' "$W/ipt2.log" && no "a broken iptables still got DROP policies"
 ok "lo + usb0 + DHCP + XEMSNET before DROP, IPv6 off but lo, broken iptables leaves the network as it was"
+echo "12. xems-wifi: scan, join (password on stdin), wrong password, forget — a stand-in wpa_cli"
+X=$REPO/xbody/overlay/opt/xems/bin/xems-wifi
+Y=$T/wifi; mkdir -p "$Y/sys/wlan0" "$Y/bin"; : > "$Y/nets"
+# The stand-in wpa_cli keeps its networks in $Y/nets (id<TAB>ssid<TAB>psk<TAB>flags); the "router" wants $Y/good.
+cat > "$Y/bin/wpa_cli" <<'WPA'
+#!/bin/sh
+D=$(dirname "$0")/..
+while [ "${1#-}" != "$1" ]; do shift 2; done
+cmd=$1; shift
+case "$cmd" in
+ping) echo PONG ;;
+scan) echo OK ;;
+scan_results) printf 'bssid / frequency / signal level / flags / ssid\n'
+	printf 'aa:01\t2412\t-70\t[WPA2-PSK-CCMP][ESS]\tHome Net\n'
+	printf 'aa:02\t2437\t-48\t[WPA2-PSK-CCMP][ESS]\tHome Net\n'
+	printf 'aa:03\t2462\t-60\t[ESS]\tCafe\n'
+	printf 'aa:04\t2412\t-55\t[WPA2-EAP-CCMP][ESS]\tCorp\n'
+	printf 'aa:05\t2412\t-90\t[ESS]\t\n' ;;
+status) if [ -f "$D/on" ]; then printf 'wpa_state=COMPLETED\nssid=%s\n' "$(cat "$D/on")"; else echo wpa_state=SCANNING; fi ;;
+list_networks) echo 'network id / ssid / bssid / flags'
+	while IFS="$(printf '\t')" read -r i n k f; do printf '%s\t%s\tany\t%s\n' "$i" "$n" "$f"; done < "$D/nets" ;;
+add_network) i=$(wc -l < "$D/nets"); printf '%s\t\t\t\n' "$i" >> "$D/nets"; echo "$i" ;;
+set_network) i=$1 k=$2 v=$3
+	case $k in ssid) v=$(printf '%s' "$v" | sed 's/../\\x&/g'); v=$(printf "$v") ;; esac
+	awk -F '\t' -v OFS='\t' -v i="$i" -v k="$k" -v v="$v" '$1 == i { if (k == "ssid") $2 = v; if (k == "psk") $3 = v; if (k == "key_mgmt") $3 = "open" } 1' "$D/nets" > "$D/n2" && mv "$D/n2" "$D/nets"; echo OK ;;
+select_network) l=$(awk -F '\t' -v i="$1" '$1 == i' "$D/nets"); n=$(echo "$l" | cut -f2); k=$(echo "$l" | cut -f3)
+	if [ "$k" = "$(cat "$D/good")" ] || [ "$k" = open ]; then printf '%s' "$n" > "$D/on"
+	else awk -F '\t' -v OFS='\t' -v i="$1" '$1 == i { $4 = "[TEMP-DISABLED]" } 1' "$D/nets" > "$D/n2" && mv "$D/n2" "$D/nets"; fi; echo OK ;;
+remove_network) awk -F '\t' -v i="$1" '$1 != i' "$D/nets" > "$D/n2" && mv "$D/n2" "$D/nets"; echo OK ;;
+*) echo OK ;;
+esac
+WPA
+printf '#!/bin/sh\nprintf "network={\\n\\tpsk=%%s\\n}\\n" "$(printf "%%s" "$1$2" | sha256sum | cut -c1-64)"\n' > "$Y/bin/wpa_passphrase"
+printf '#!/bin/sh\n[ -f %s/leased ] && echo "  inet addr:192.168.1.50  Bcast"\n' "$Y" > "$Y/bin/ifconfig"
+printf '#!/bin/sh\ntouch %s/leased\n' "$Y" > "$Y/bin/udhcpc"
+chmod 755 "$Y/bin"/*
+"$Y/bin/wpa_passphrase" "Home Net" "secret123" | sed -n 's/^\tpsk=//p' > "$Y/good"
+wifi() { XEMS_WPA_CLI="$Y/bin/wpa_cli" XEMS_WIFI_SYS="$Y/sys" XEMS_WIFI_WAIT=3 XEMS_UDHCPC="$Y/bin/udhcpc" \
+	XEMS_IFCONFIG="$Y/bin/ifconfig" XEMS_WPA_PASSPHRASE="$Y/bin/wpa_passphrase" dash "$X" "$@"; }
+S1=$(wifi scan)
+[ "$(echo "$S1" | grep '^NET' | head -n 1)" = "NET -48 1 Home Net" ] || no "scan: strongest first, one per name: $S1"
+echo "$S1" | grep -qx "NET -60 0 Cafe" && echo "$S1" | grep -qx "NET -55 2 Corp" || no "scan: open / unsupported: $S1"
+[ "$(echo "$S1" | grep -c '^NET')" = 3 ] && echo "$S1" | grep -qx "OK 3" || no "scan: hidden name not dropped: $S1"
+printf 'Home Net\nwrongpass\n' | wifi connect | tail -n 1 | grep -qx "ERR auth" || no "wrong password not ERR auth"
+[ ! -s "$Y/nets" ] || no "a refused network stayed saved"
+J=$(printf 'Home Net\nsecret123\n' | wifi connect) || no "join rc: $J"
+echo "$J" | tail -n 1 | grep -qx "OK 192.168.1.50" || no "join said: $J"
+[ "$(cut -f2 "$Y/nets")" = "Home Net" ] || no "joined network not saved"
+wifi scan | grep -qx "CUR COMPLETED 192.168.1.50 Home Net" || no "status after join"
+printf 'Home Net\nsecret123\n' | wifi connect > /dev/null; [ "$(wc -l < "$Y/nets")" = 1 ] || no "joining again duplicated the network"
+printf 'Home Net\n' | wifi forget | grep -qx OK && [ ! -s "$Y/nets" ] || no "forget"
+printf 'Home Net\nshort\n' | wifi connect | tail -n 1 | grep -qx "ERR auth" || no "a 5-character password was not refused"
+rm -rf "$Y/sys/wlan0"; wifi scan | tail -n 1 | grep -qx "ERR no-wifi" || no "no radio not ERR no-wifi"
+ok "scan sorted / deduped / open+WPA+unsupported, wrong password, join + address + saved once, forget, no radio"
 echo "ALL OK"

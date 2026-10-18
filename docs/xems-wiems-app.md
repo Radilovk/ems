@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.15)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.16)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -243,7 +243,8 @@ order — once the service mode has checked both suits, port the two maps (the `
   and never checked moves to the new one; a checked one stays.
 - **Dark theme**: the moon / sun in the header's right block (list, program screens) and top right of "Настройки на
   сесията"; saved (`dark`). Slate surfaces on a near-black grain, the same red / green / yellow, the figures stay
-  light; XBody's own program tiles only in light (their slate lines vanish on dark — the drawn icons instead).
+  light; XBody's own program tiles in both themes (v1.16, owner: the drawn stand-ins were ugly and unlike light) —
+  the tiles are see-through (a 30 % slate rim + the red / green icon), so on dark only the rim turns INK (`darkTile`).
   Colours are theme tokens in `XView.theme` (SURF, INK, LINE, …); WHITE stays for text on coloured fills.
 - Tests: `SuitTest` (XEMS frames = the panel's goldens, an XEMS and a bodytech session, keep-alive, the double
   impulse's restart, advertisement kinds, maps per kind); `AppTest` keeps the WiEMS protocol checks on an identity map

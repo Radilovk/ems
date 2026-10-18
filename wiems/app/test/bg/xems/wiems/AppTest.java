@@ -117,6 +117,19 @@ public class AppTest {
         return b.toString();
     }
 
+    /** The strong-red pixels in the first program tile (Мускули) of the modes screen at 1280×800. */
+    static int tileRed(XView v) {
+        BufferedImage img = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
+        v.draw(new Canvas(img.createGraphics()));
+        int n = 0;
+        for (int y = 170; y < 350; y++)
+            for (int x = 220; x < 400; x++) {
+                int c = img.getRGB(x, y), r = (c >> 16) & 255, g = (c >> 8) & 255;
+                if (r > 180 && g < 80) n++;
+            }
+        return n;
+    }
+
     static void shot(XView v, String dir, String name) throws Exception {
         BufferedImage img = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
         java.awt.Graphics2D g = img.createGraphics();
@@ -597,6 +610,12 @@ public class AppTest {
         h.session.setBattery(64);
         drain(h.session, h.t);
         shot(v2, dir, "8b-dark-modes.png");
+        int redDark = tileRed(v2);
+        h.dark = false;
+        int redLight = tileRed(v2);
+        h.dark = true;
+        eq("dark program tiles = XBody's own pictures, as in light", true,
+                redLight > 500 && Math.abs(redDark - redLight) * 20 < redLight);
         h.chooseMode(Procs.MODE_MUSCLE);
         h.session.setStrength(70);
         for (int z = 0; z < h.session.zones(); z++) h.session.setZone(z, 40 + z * 8);

@@ -1225,8 +1225,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (264L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.15)
+`docs/xems-wiems-app.md` (265L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.16)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L41 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1243,8 +1243,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L184 ### Channel map per suit + hidden service mode (parallel 1.7)
   - L209 ### Figures with relief, a slider that needs its fader (parallel 1.8)
   - L220 ## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
-  - L254 ## Build / test
-  - L261 ## Not verified yet
+  - L255 ## Build / test
+  - L262 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

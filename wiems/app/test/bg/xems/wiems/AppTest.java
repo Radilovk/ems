@@ -117,6 +117,35 @@ public class AppTest {
         return b.toString();
     }
 
+    /** The mean brightness of the front figure's shins (never a zone) at 1280×800, background left out. */
+    static int shinLight(XView v) {
+        BufferedImage img = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
+        v.draw(new Canvas(img.createGraphics()));
+        long sum = 0;
+        int n = 0;
+        for (int y = 500; y < 590; y++)
+            for (int x = 440; x < 540; x++) {
+                int c = img.getRGB(x, y), l = (((c >> 16) & 255) + ((c >> 8) & 255) + (c & 255)) / 3;
+                if (l < 40 || l > 245) continue;
+                sum += l;
+                n++;
+            }
+        return n == 0 ? 0 : (int) (sum / n);
+    }
+
+    /** The strong-red pixels in the first program tile (Мускули) of the modes screen at 1280×800. */
+    static int tileRed(XView v) {
+        BufferedImage img = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
+        v.draw(new Canvas(img.createGraphics()));
+        int n = 0;
+        for (int y = 170; y < 350; y++)
+            for (int x = 220; x < 400; x++) {
+                int c = img.getRGB(x, y), r = (c >> 16) & 255, g = (c >> 8) & 255;
+                if (r > 180 && g < 80) n++;
+            }
+        return n;
+    }
+
     static void shot(XView v, String dir, String name) throws Exception {
         BufferedImage img = new BufferedImage(v.getWidth(), v.getHeight(), BufferedImage.TYPE_INT_RGB);
         java.awt.Graphics2D g = img.createGraphics();
@@ -597,6 +626,12 @@ public class AppTest {
         h.session.setBattery(64);
         drain(h.session, h.t);
         shot(v2, dir, "8b-dark-modes.png");
+        int redDark = tileRed(v2);
+        h.dark = false;
+        int redLight = tileRed(v2);
+        h.dark = true;
+        eq("dark program tiles = XBody's own pictures, as in light", true,
+                redLight > 500 && Math.abs(redDark - redLight) * 20 < redLight);
         h.chooseMode(Procs.MODE_MUSCLE);
         h.session.setStrength(70);
         for (int z = 0; z < h.session.zones(); z++) h.session.setZone(z, 40 + z * 8);
@@ -609,6 +644,11 @@ public class AppTest {
         tap(v2, 400, 300);                                  // the figure's thigh: out of the selection again
         tap(v2, 100, 86 + 25);
         shot(v2, dir, "8c-dark-bodytech.png");
+        int shinDark = shinLight(v2);                       // v1.16: the dark figure is graphite, not silver
+        h.dark = false;
+        int shinLight = shinLight(v2);
+        h.dark = true;
+        eq("dark figures are graphite, light ones stay silver (" + shinDark + " / " + shinLight + ")", true, shinDark < 110 && shinLight > 130);
         tap(v2, 960 - 70, 28);                              // the program block → the sheet
         shot(v2, dir, "8d-dark-sheet.png");
         tap(v2, 80 + 640, 56);                              // the sheet's sun: light again

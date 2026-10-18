@@ -17,12 +17,26 @@
 // (the suit's "outputs off", set by the host after LINK) and is disconnected.
 #include <bluefruit.h>
 
-#define BRIDGE_VER "3"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
+#define BRIDGE_VER "4"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
 #define MAX_LINKS 4
 #define HOST_TIMEOUT_MS 2500
 #define SEEN_MAX 32
 
 #include "links.h"
+
+// To the host straight through TinyUSB: the core's Serial drops every byte while the host has not raised DTR
+// (Adafruit_USBD_CDC::write checks tud_cdc_connected), and the XBody unit's 2.6.35 cdc-acm is not to be trusted with
+// that — v3 on the unit flashed fine and then said nothing. Without DTR the FIFO is overwritable: never blocks.
+static void hostWrite(const uint8_t *b, int n) {
+  uint32_t t0 = millis();
+  while (n > 0 && millis() - t0 < 200) {
+    uint32_t k = tud_cdc_n_write(0, b, n);
+    b += k; n -= k;
+    tud_cdc_n_write_flush(0);
+    if (n) yield();
+  }
+}
+static void hostLine(const char *s) { hostWrite((const uint8_t *)s, strlen(s)); hostWrite((const uint8_t *)"\r\n", 2); }
 
 static Link links[MAX_LINKS];
 
@@ -45,7 +59,7 @@ static void flushOut() {
   xSemaphoreTake(outMx, portMAX_DELAY);
   n = outLen; memcpy(tmp, outBuf, n); outLen = 0;
   xSemaphoreGive(outMx);
-  if (n) Serial.write((const uint8_t *)tmp, n);
+  if (n) hostWrite((const uint8_t *)tmp, n);
 }
 
 static void macStr(const uint8_t *m, char *o) {  // BLE addr bytes are little endian
@@ -184,44 +198,44 @@ static void command(char *s) {
   uint8_t mac[6], buf[64];
   if (!cmd) return;
   lastHostMs = millis(); hostSeen = true;
-  if (!strcmp(cmd, "PING")) { Serial.println("PONG " BRIDGE_VER); return; }
+  if (!strcmp(cmd, "PING")) { hostLine("PONG " BRIDGE_VER); return; }
   if (!strcmp(cmd, "DFU")) {   // firmware update from the unit: outputs off first, then the UF2 bootloader
     failSafe();
-    Serial.println("DFUOK");
-    Serial.flush();
+    hostLine("DFUOK");
+    tud_cdc_n_write_flush(0);
     delay(300);
     enterUf2Dfu();
     return;
   }
   if (!strcmp(cmd, "SCAN")) {
-    if (a && a[0] == '1') { Bluefruit.Scanner.start(0); Serial.println("SCANNING 1"); }
-    else { Bluefruit.Scanner.stop(); Serial.println("SCANNING 0"); }
+    if (a && a[0] == '1') { Bluefruit.Scanner.start(0); hostLine("SCANNING 1"); }
+    else { Bluefruit.Scanner.stop(); hostLine("SCANNING 0"); }
     return;
   }
-  if (!a || !parseMac(a, mac)) { snprintf(line, sizeof line, "ERR bad-mac %s", cmd); Serial.println(line); return; }
+  if (!a || !parseMac(a, mac)) { snprintf(line, sizeof line, "ERR bad-mac %s", cmd); hostLine(line); return; }
   if (!strcmp(cmd, "CONN")) {
-    if (byMac(mac)) { snprintf(line, sizeof line, "ERR already-linked %s", a); Serial.println(line); return; }
+    if (byMac(mac)) { snprintf(line, sizeof line, "ERR already-linked %s", a); hostLine(line); return; }
     for (int i = 0; i < SEEN_MAX; i++)
       if (seen[i].used && !memcmp(seen[i].addr.addr, mac, 6)) {
-        if (!Bluefruit.Central.connect(&seen[i].addr)) { snprintf(line, sizeof line, "FAIL %s connect", a); Serial.println(line); }
+        if (!Bluefruit.Central.connect(&seen[i].addr)) { snprintf(line, sizeof line, "FAIL %s connect", a); hostLine(line); }
         return;
       }
-    snprintf(line, sizeof line, "FAIL %s not-seen", a); Serial.println(line);
+    snprintf(line, sizeof line, "FAIL %s not-seen", a); hostLine(line);
     return;
   }
   Link *l = byMac(mac);
-  if (!l) { snprintf(line, sizeof line, "WERR %s no-link", a); Serial.println(line); return; }
+  if (!l) { snprintf(line, sizeof line, "WERR %s no-link", a); hostLine(line); return; }
   if (!strcmp(cmd, "DISC")) { Bluefruit.disconnect(l->conn); return; }
   int n = b ? hexBytes(b, buf, sizeof buf) : -1;
-  if (n <= 0) { snprintf(line, sizeof line, "WERR %s bad-hex", a); Serial.println(line); return; }
-  if (!strcmp(cmd, "SAFE")) { memcpy(l->safe, buf, n); l->safeLen = n; snprintf(line, sizeof line, "SAFEOK %s", a); Serial.println(line); return; }
+  if (n <= 0) { snprintf(line, sizeof line, "WERR %s bad-hex", a); hostLine(line); return; }
+  if (!strcmp(cmd, "SAFE")) { memcpy(l->safe, buf, n); l->safeLen = n; snprintf(line, sizeof line, "SAFEOK %s", a); hostLine(line); return; }
   if (!strcmp(cmd, "W")) {
     snprintf(line, sizeof line, writeTo(l, buf, n) ? "WOK %s" : "WERR %s write", a);
     flushOut();          // a notification that came before the ACK goes out first
-    Serial.println(line);
+    hostLine(line);
     return;
   }
-  snprintf(line, sizeof line, "ERR unknown %s", cmd); Serial.println(line);
+  snprintf(line, sizeof line, "ERR unknown %s", cmd); hostLine(line);
 }
 
 void setup() {
@@ -263,9 +277,9 @@ void loop() {
   }
   flushOut();
   uint32_t now = millis();
-  if (!hostSeen && Serial && now - helloMs > 1000) {   // until the host speaks, say who we are once a second
+  if (!hostSeen && now - helloMs > 1000) {   // until the host speaks, say who we are once a second (DTR or not)
     helloMs = now;
-    char h[48]; snprintf(h, sizeof h, "HELLO XEMS-BRIDGE " BRIDGE_VER " %d", MAX_LINKS); Serial.println(h);
+    char h[48]; snprintf(h, sizeof h, "HELLO XEMS-BRIDGE " BRIDGE_VER " %d", MAX_LINKS); hostLine(h);
   }
   if (hostSeen && now - lastHostMs > HOST_TIMEOUT_MS) { failSafe(); hostSeen = false; }
   int linked = 0;

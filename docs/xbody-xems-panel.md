@@ -251,6 +251,22 @@ XBody's own Wi-Fi screen (`WifiView`) is hidden with its "online" mode, and its 
   `test.sh` 1 fails on any overlay program without its exec bit (in git and in the payload). Units on v21–22 need v23
   from the USB stick or the phone app once: their internet update runs the same broken file.
 
+## First XIAO on the unit (owner, mod v24 / bridge v4)
+Owner's run with v3: double RESET → the unit flashed it ("Програмирам моста" → "Мостът се рестартира…"), the LEDs went
+dark (= the sketch's setup ran), then back to "Включи XEMS моста" — the panel never heard a line.
+- Most likely cause: the core's `Serial` (Adafruit_USBD_CDC::write) **drops every byte while the host has not raised
+  DTR**; HELLO / PONG never left the board if the unit's 2.6.35 cdc-acm did not raise it. **Bridge v4** writes through
+  TinyUSB directly (`hostWrite` → `tud_cdc_n_write` + flush, FIFO overwritable without DTR, ≤ 200 ms per write) and
+  says HELLO each second until the host speaks, DTR or not. The panel also raises DTR + RTS itself (`TIOCMBIS`) and logs
+  `bridge port … open` to `panel.log`.
+- `build-bridge.sh` raises the core's `CFG_GATT_MAX_CLIENT_CHARS` 40 → 48 (4 links × 11 client characteristics = 44;
+  the 4th link lost its WiEMS / battery characteristics).
+- **Diagnosis on the card:** while no bridge answers, the "Включи XEMS моста" card has a grey line
+  "Виждам: XIAO по USB ✓|няма · ttyACM0 ✓|няма порт · отговор N байта|без отговор" (`App::readDiag`, every 2 s from
+  `/sys/bus/usb/devices` idVendor 2886 / product XIAO; also `/tmp/xems-bridge.state`). "Изпрати лог" now carries the
+  USB device list, `/dev/ttyACM*` and the USB lines of dmesg.
+- A v3 bridge that never answered cannot take the DFU command: RESET twice once more and the unit flashes v4.
+
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
 `assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a

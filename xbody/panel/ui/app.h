@@ -73,6 +73,9 @@ public:
     // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
     bool bridgeUpdating() const { return dfuSent_; }
     QString uf2State() const;                     // flashing | done | error … (fresh only), else empty
+    // What the unit sees of the bridge while it is not answering: a XIAO on USB, the port, bytes heard.
+    struct BridgeDiag { bool usb; QString port; long rx; };
+    const BridgeDiag &bridgeDiag() const { return diag_; }
 
     // ---- XBody's own cable output (xems-xbproxy): suit standard + double impulse ----
     struct CableLive {
@@ -181,6 +184,9 @@ private:
     unsigned wifiSinceMs_;
     std::vector<WifiNet> wifiNets_, wifiScan_;
     void pollWifi(unsigned t);
+    BridgeDiag diag_;
+    unsigned diagMs_;
+    void readDiag();
     void wifiSay(const QString &l);
     QString note_;
     bool noteWarn_;

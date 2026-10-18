@@ -3,6 +3,7 @@
 #include "../core/bridge.h"
 #include "../core/safe.h"
 #include <QDateTime>
+#include <QDir>
 #include <map>
 #include <QFile>
 #include <QFileInfo>
@@ -70,6 +71,9 @@ App::App()
         netLine_ = U("Версия ") + got + U(" не се инсталира — пробвай пак");
         QFile::remove(done);
     }
+    diag_.usb = false;
+    diag_.rx = 0;
+    diagMs_ = 0;
     timer_.start(20, this);
 }
 
@@ -296,6 +300,26 @@ void App::pollNet(unsigned t) {
         netLine_ = net_->exitCode() == 127 ? U("Не стана — липсва програмата xems-net") : U("Не стана — пробвай пак");
     delete net_;
     net_ = 0;
+}
+
+// The bridge as the unit sees it (only while it does not answer): a Seeed / XIAO device on the USB bus, the port the
+// panel holds, bytes heard on it. On the card and in /tmp/xems-bridge.state for the log.
+void App::readDiag() {
+    QString sys = envPath("XEMS_USB_SYS", "/sys/bus/usb/devices");
+    diag_.usb = false;
+    QStringList devs = QDir(sys).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (int i = 0; i < devs.size() && !diag_.usb; i++) {
+        QString d = sys + U("/") + devs[i];
+        QString vid = QString::fromLatin1(slurp(d + U("/idVendor")).c_str()).trimmed();
+        QString prod = QString::fromLatin1(slurp(d + U("/product")).c_str());
+        diag_.usb = vid == U("2886") || prod.contains(U("XIAO"), Qt::CaseInsensitive) || prod.contains(U("nRF52"), Qt::CaseInsensitive);
+    }
+    diag_.port = port_ && port_->ok() ? QString::fromStdString(port_->name()) : QString();
+    diag_.rx = port_ && port_->ok() ? port_->rxBytes() : 0;
+    QFile f(envPath("XEMS_BRIDGE_STATE", "/tmp/xems-bridge.state"));
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        f.write(QString(U("usb=%1\nport=%2\nrx=%3\nhello=%4\nver=%5\n")).arg(diag_.usb).arg(diag_.port).arg(diag_.rx)
+                    .arg(helloMs_ != 0).arg(bridgeVer_).toLatin1());
 }
 
 void App::wifiStart(int job, const QString &ssid, const QString &pass) {
@@ -712,6 +736,7 @@ void App::timerEvent(QTimerEvent *ev) {
         }
     }
     if (age(t, cableReadMs_) >= 500) { cableReadMs_ = t; readCableState(); }
+    if (!bridgeOk() && age(t, diagMs_) >= 2000) { diagMs_ = t; readDiag(); }
     if (net_) pollNet(t);
     if (wifiProc_) pollWifi(t);
     // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----

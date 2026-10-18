@@ -523,7 +523,15 @@ void PanelWidget::paintCableSettings(QPainter &p) {
     p.drawText(QRect(204, 426, 556, 30), Qt::AlignLeft | Qt::AlignVCenter, t1);
     p.setPen(SOFT);
     p.setFont(uiFont(15));
-    p.drawText(QRect(204, 460, 556, 60), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, t2);
+    p.drawText(QRect(204, 460, 556, 48), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, t2);
+    if (!flashing && !restarting) {   // what the unit sees — a photo of this line tells why a bridge stays silent
+        const App::BridgeDiag &d = app_->bridgeDiag();
+        QString l = U("Виждам: ") + (d.usb ? U("XIAO по USB ✓") : U("няма XIAO по USB")) + U("  ·  ") +
+                    (d.port.isEmpty() ? U("няма порт") : d.port.mid(d.port.lastIndexOf(QLatin1Char('/')) + 1) + U(" ✓")) +
+                    U("  ·  ") + (d.rx ? U("отговор ") + QString::number(d.rx) + U(" байта") : U("без отговор"));
+        p.setFont(uiFont(13));
+        p.drawText(QRect(204, 508, 556, 20), Qt::AlignLeft | Qt::AlignVCenter, l);
+    }
 }
 
 // A program's tile: a red line icon for the procedure (Health Icons, CC0 — xbody/panel/art) on white, like XBody's
@@ -1917,7 +1925,10 @@ QString PanelWidget::signature(QString *clock) const {
         g += U("|n") + app_->netLine() + usbLine_ + QString::number(app_->netBusy() ? (now / 400) % 4 : 9) +
              QString::number(app_->cableLive().training);
     *clock = QString();
-    if (v == App::NO_BRIDGE) g += app_->uf2State() + QString::number(app_->bridgeUpdating());
+    if (v == App::NO_BRIDGE) {
+        const App::BridgeDiag &d = app_->bridgeDiag();
+        g += app_->uf2State() + QString::number(app_->bridgeUpdating()) + U("|d%1%2 %3").arg(d.usb).arg(d.port).arg(d.rx);
+    }
     {
         const xbcable::Config &c = app_->cable();
         const App::CableLive &l = app_->cableLive();

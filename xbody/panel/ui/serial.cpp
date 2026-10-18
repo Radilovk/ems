@@ -3,10 +3,11 @@
 #include <cstdio>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
-SerialPort::SerialPort() : fd_(-1) {}
+SerialPort::SerialPort() : fd_(-1), rx_(0) {}
 SerialPort::~SerialPort() { close(); }
 
 void SerialPort::close() {
@@ -29,7 +30,13 @@ bool SerialPort::open() {
             t.c_cflag |= CLOCAL | CREAD;
             tcsetattr(fd, TCSANOW, &t);
         }
+        // DTR + RTS up by hand: the bridge's USB stack sends nothing until the host raises DTR, and the unit's 2.6.35
+        // cdc-acm is not trusted to (bridge v4 no longer needs it either).
+        int bits = TIOCM_DTR | TIOCM_RTS;
+        ioctl(fd, TIOCMBIS, &bits);
+        std::fprintf(stderr, "bridge port %s open\n", p);
         fd_ = fd;
+        rx_ = 0;
         path_ = p;
         return true;
     }
@@ -53,7 +60,7 @@ void SerialPort::poll(unsigned) {
     char tmp[512];
     for (;;) {
         ssize_t n = ::read(fd_, tmp, sizeof tmp);
-        if (n > 0) { buf_.append(tmp, (size_t)n); continue; }
+        if (n > 0) { buf_.append(tmp, (size_t)n); rx_ += n; continue; }
         if (n == 0 || (n < 0 && errno != EAGAIN && errno != EWOULDBLOCK)) close();   // unplugged
         break;
     }

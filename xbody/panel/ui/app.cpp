@@ -250,8 +250,9 @@ void App::netStart(int job) {
     if (net_ || (job != NET_UPDATE && job != NET_LOG)) return;
     const char *bin = std::getenv("XEMS_NET");
     net_ = new QProcess();
-    net_->start(QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-net"),
-                QStringList() << (job == NET_UPDATE ? U("update") : U("log")));
+    // Through /bin/sh: a script that lost its exec bit (mod v21 shipped xems-net 0644) still runs.
+    net_->start(U("/bin/sh"), QStringList() << QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-net")
+                                            << (job == NET_UPDATE ? U("update") : U("log")));
     netJob_ = job;
     netOk_ = false;
     netOut_.clear();
@@ -291,7 +292,8 @@ void App::pollNet(unsigned t) {
     if (!netOut_.trimmed().isEmpty()) netSay(netOut_.trimmed());
     netOut_.clear();
     // Ended without its final line (killed, missing): the last step it said is no answer.
-    if (!netOk_ && netLine_.endsWith(U("…"))) netLine_ = U("Не стана — пробвай пак");
+    if (!netOk_ && netLine_.endsWith(U("…")))
+        netLine_ = net_->exitCode() == 127 ? U("Не стана — липсва програмата xems-net") : U("Не стана — пробвай пак");
     delete net_;
     net_ = 0;
 }
@@ -301,7 +303,7 @@ void App::wifiStart(int job, const QString &ssid, const QString &pass) {
     const char *bin = std::getenv("XEMS_WIFI");
     wifiProc_ = new QProcess();
     static const char *const CMD[] = {"", "scan", "connect", "forget"};
-    wifiProc_->start(QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-wifi"), QStringList() << U(CMD[job]));
+    wifiProc_->start(U("/bin/sh"), QStringList() << QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-wifi") << U(CMD[job]));
     if (job != WIFI_SCAN) {   // the name and the password go on stdin, never on the command line
         wifiProc_->write((ssid + U("\n") + pass + U("\n")).toUtf8());
         wifiProc_->closeWriteChannel();

@@ -20,6 +20,12 @@ python3 "$REPO/scripts/xbody/build.py" --out "$T/real" >/dev/null
 grep -q "$(printf '\r')" "$T/real/usb/updater.sh" && no "CRLF in updater.sh"
 (cd "$T/real/usb/xems" && md5sum -c payload.md5 >/dev/null) || no "md5"
 gunzip -c "$T/real/usb/xems/payload.tar.gz" | tar tvf - | grep -q 'S35xems-firstboot -> ../init.d/xems-firstboot' || no "rc5 symlink"
+# Every program the unit runs must keep its exec bit (mod v21 shipped xems-net 0644: the panel could not start it).
+for f in "$REPO"/xbody/overlay/opt/xems/bin/* "$REPO"/xbody/overlay/etc/init.d/* "$REPO"/xbody/overlay/opt/xems/hooks/*.sh; do
+	[ -x "$f" ] || no "not executable: ${f#$REPO/}"
+	gunzip -c "$T/real/usb/xems/payload.tar.gz" | tar tvf - | grep -E " \./${f#$REPO/xbody/overlay/}\$" | grep -q '^-rwx' \
+		|| no "payload lost the exec bit: ${f#$REPO/xbody/overlay/}"
+done
 ok "zip $(ls "$T/real" | grep zip)"
 
 echo "2. USB updater on fake root"

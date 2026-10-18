@@ -19,6 +19,11 @@ printf '#!/bin/sh\nexit 0\n' > "$T/fakebin/adafruit-nrfutil"; chmod +x "$T/fakeb
 # 4 links × 11 client characteristics = 44 > the core's 40: raise the cap (4 × 5 services = 20 is its limit exactly).
 sed -i 's/^#define CFG_GATT_MAX_CLIENT_CHARS .*/#define CFG_GATT_MAX_CLIENT_CHARS        48/' \
 	"$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/libraries/Bluefruit52Lib/src/BLEGatt.h"
+# The XBody unit's 2.6.35 cdc-acm only binds CDC ACM interfaces with protocol 1–6 (acm_ids in its zImage); TinyUSB says
+# 0 (none) → the unit saw the XIAO on USB but made no /dev/ttyACM. Protocol 1 (AT commands, no AT is ever sent) binds
+# there and everywhere else.
+sed -i 's/CDC_COMM_SUBCLASS_ABSTRACT_CONTROL_MODEL, CDC_COMM_PROTOCOL_NONE/CDC_COMM_SUBCLASS_ABSTRACT_CONTROL_MODEL, CDC_COMM_PROTOCOL_ATCOMMAND/g' \
+	"$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/libraries/Adafruit_TinyUSB_Arduino/src/device/usbd.h"
 PATH=$T/fakebin:$PATH "$T/arduino-cli" compile --fqbn Seeeduino:nrf52:xiaonRF52840 \
 	--output-dir "$REPO/build/xbridge" "$REPO/xbody/bridge/xems_bridge" | grep -E 'Sketch uses|Global'
 python3 "$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/tools/uf2conv/uf2conv.py" -f 0xADA52840 -c \

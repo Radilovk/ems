@@ -1,5 +1,6 @@
 // XEMS BLE bridge — Seeed XIAO nRF52840 (Seeeduino:nrf52 core, Bluefruit). The XBody unit's kernel (2.6.35)
-// has no Bluetooth LE, so this board is its BLE radio: USB CDC serial (/dev/ttyACM0) ⇄ BLE central.
+// has no Bluetooth LE, so this board is its BLE radio: USB CDC serial (/dev/ttyACM0) ⇄ BLE central. v5: the CDC
+// interface says protocol 1 (build-bridge.sh patches the core) — the unit's old cdc-acm ignores protocol 0.
 // It knows no suit protocol — the unit builds every frame (xbody/panel/core). Line protocol: docs/xbody-bridge.md.
 //
 // Host → bridge                          Bridge → host
@@ -17,7 +18,7 @@
 // (the suit's "outputs off", set by the host after LINK) and is disconnected.
 #include <bluefruit.h>
 
-#define BRIDGE_VER "4"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
+#define BRIDGE_VER "5"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
 #define MAX_LINKS 4
 #define HOST_TIMEOUT_MS 2500
 #define SEEN_MAX 32

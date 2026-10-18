@@ -266,6 +266,12 @@ dark (= the sketch's setup ran), then back to "Включи XEMS моста" —
   `/sys/bus/usb/devices` idVendor 2886 / product XIAO; also `/tmp/xems-bridge.state`). "Изпрати лог" now carries the
   USB device list, `/dev/ttyACM*` and the USB lines of dmesg.
 - A v3 bridge that never answered cannot take the DFU command: RESET twice once more and the unit flashes v4.
+- **The real cause (owner's photo with v4: "Виждам: XIAO по USB ✓ · няма порт · без отговор"):** the unit's kernel
+  cdc-acm (`acm_ids` read out of `/boot/zImage-2.6.35.3…`: only class 2 / subclass 2 / **protocol 1–6**, plus a list
+  of Nokia / vendor IDs) never binds an ACM interface with protocol 0 — TinyUSB's `CDC_COMM_PROTOCOL_NONE`. So the XIAO
+  enumerated and no `/dev/ttyACM*` appeared. **Bridge v5 (mod v25):** `build-bridge.sh` patches the core's
+  `TUD_CDC_DESCRIPTOR` (IAD + interface) to protocol 1 (AT commands; nothing ever sends AT; modern hosts bind either).
+  Again RESET twice: the v4 bridge has no port to take a DFU command.
 
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in

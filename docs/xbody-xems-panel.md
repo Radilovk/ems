@@ -305,6 +305,14 @@ any install (VERSION changed). **Undo:** `UndoDev` keeps every sector before it 
 byte for byte (also after a pulled reader). Tests: `test.sh` 13 (the real payload onto mke2fs images, 1 KB and 4 KB
 blocks with an htree dir: e2fsck clean, re-apply, undo byte-identical, dirty / non-XBody card refused) — caught a
 4 KB-block bug (block 0 is the superblock's: "no block" must never be freed). Not run on a phone + reader yet.
+**The owner's card is ext4** (first real run: "непозната файлова система (incompat 242)" = filetype + extents +
+flex_bg; Yocto 1.7's ext4 with uninit_bg). `Ext3` now also does that ext4: extent trees read at any depth and freed,
+new files / directories written as extents (one contiguous run when the card has it — `findRun` — else runs, ≤ 4 in
+the inode or one leaf block), dir blocks appended to the last extent, group-descriptor crc16 kept (`descCsum`),
+BLOCK_UNINIT / INODE_UNINIT groups never used, itable_unused moved past a new inode, HUGE_FILE flag / i_blocks_hi
+cleared. Refused: 64bit, metadata_csum, bigalloc, inline data. test.sh 13 covers ext3 1/4 KB, ext4 1/4 KB made with
+the card's exact feature set (incompat 0x242, ro 0x7b) and an ext4 whose free space is only 8-block holes (extent
+leaf block); the refused-card check is unchanged: nothing is written before every check passes.
 
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's

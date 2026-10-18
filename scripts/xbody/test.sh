@@ -394,7 +394,7 @@ printf 'Home Net\n' | wifi forget | grep -qx OK && [ ! -s "$Y/nets" ] || no "for
 printf 'Home Net\nshort\n' | wifi connect | tail -n 1 | grep -qx "ERR auth" || no "a 5-character password was not refused"
 rm -rf "$Y/sys/wlan0"; wifi scan | tail -n 1 | grep -qx "ERR no-wifi" || no "no radio not ERR no-wifi"
 ok "scan sorted / deduped / open+WPA+unsupported, wrong password, join + address + saved once, forget, no radio"
-echo "13. the app's SD-card update: the real payload onto ext3 card images (1 KB / 4 KB blocks, htree), undo"
+echo "13. the app's SD-card update: the real payload onto ext3 card images (ext3 / ext4, 1 KB / 4 KB blocks, htree), undo"
 if ! command -v javac > /dev/null || ! command -v e2fsck > /dev/null; then echo "  skip: no javac / e2fsprogs"; echo "ALL OK"; exit 0; fi
 J=$T/jcard; mkdir -p "$J"
 javac -nowarn -d "$J" "$REPO"/scripts/xbody/android/src/bg/xems/fleshka/BlockDev.java \
@@ -412,14 +412,18 @@ for l in S09sshd:sshd S12rpcbind:rpcbind S15mountnfs.sh:mountnfs.sh S21avahi-dae
 	S64neard:neard S40xbody-start:xbody-start; do ln -s "../init.d/${l#*:}" "$CR/etc/rc5.d/${l%%:*}"; done
 i=0; while [ $i -lt 400 ]; do echo $i > "$CR/etc/init.d/vendor-$i"; i=$((i + 1)); done   # big enough for an htree
 STK=$T/real/usb; V=$(cat "$STK/xems/VERSION")
-for geo in 1024:128 4096:256; do
-	C=$T/card-${geo%%:*}.img
+# ext3, and ext4 the way Yocto 1.7 made the owner's card (incompat 0x242: extents + flex_bg + filetype; uninit_bg).
+EXT4="-O ^metadata_csum,^64bit,uninit_bg,^orphan_file,^metadata_csum_seed"
+for geo in ext3:1024:128 ext3:4096:256 ext4:4096:256 ext4:1024:256; do
+	fs=${geo%%:*}; bsz=${geo#*:}; bsz=${bsz%%:*}
+	C=$T/card-$fs-$bsz.img
 	truncate -s 64M "$C"
-	mke2fs -q -t ext3 -b "${geo%%:*}" -I "${geo##*:}" -O dir_index -E offset=1048576 -d "$CR" "$C" 60M 2> /dev/null
+	if [ "$fs" = ext4 ]; then O4=$EXT4; else O4="-O dir_index"; fi
+	mke2fs -q -t "$fs" -b "$bsz" -I "${geo##*:}" $O4 -E offset=1048576 -d "$CR" "$C" 60M 2> /dev/null || no "$geo: mke2fs"
 	mbr "$C"
 	e2fsck -fyD "$C?offset=1048576" > /dev/null 2>&1
 	P="$C?offset=1048576"
-	debugfs -R "stat /etc/init.d" "$P" 2> /dev/null | grep -q 'Flags: 0x1000' || no "$geo: test card has no htree dir"
+	debugfs -R "stat /etc/init.d" "$P" 2> /dev/null | grep -qE 'Flags: 0x8?1000$' || no "$geo: test card has no htree dir"
 	cp "$C" "$C.orig"
 	card apply "$C" "$STK" "$C.undo" | grep -q "^OK $V " || no "$geo: apply"
 	e2fsck -fn "$P" > /dev/null 2>&1 || no "$geo: e2fsck after the update"
@@ -431,12 +435,28 @@ for geo in 1024:128 4096:256; do
 	card apply "$C" "$STK" "$C.undo2" | grep -q "^OK $V " && e2fsck -fn "$P" > /dev/null 2>&1 || no "$geo: second apply"
 	card undo "$C" "$C.undo2" > /dev/null && card undo "$C" "$C.undo" > /dev/null && cmp -s "$C" "$C.orig" || no "$geo: undo not byte-identical"
 done
-C=$T/card-1024.img
+C=$T/card-ext3-1024.img
+# Free space in 8-block holes only (ext4, 1 KB blocks): the panel binary must go in as many runs → an extent leaf block.
+F4=$T/frag.img; truncate -s 10M "$F4"
+mke2fs -q -t ext4 -b 1024 -I 256 $EXT4 -E offset=1048576 -d "$CR" "$F4" 8M 2> /dev/null
+mbr "$F4"; FP="$F4?offset=1048576"
+head -c 8192 /dev/urandom > "$T/8k"
+i=0; while [ $i -lt 900 ]; do echo "write $T/8k f$i"; i=$((i + 1)); done > "$T/fill.cmd"
+debugfs -w -f "$T/fill.cmd" "$FP" > /dev/null 2>&1
+i=0; while [ $i -lt 900 ]; do echo "rm f$i"; i=$((i + 2)); done > "$T/holes.cmd"
+debugfs -w -f "$T/holes.cmd" "$FP" > /dev/null 2>&1
+e2fsck -fy "$FP" > /dev/null 2>&1
+cp "$F4" "$F4.orig"
+card apply "$F4" "$STK" "$F4.undo" | grep -q "^OK $V " || no "fragmented ext4: apply"
+e2fsck -fn "$FP" > /dev/null 2>&1 || no "fragmented ext4: e2fsck"
+debugfs -R "cat /opt/xems/bin/xems-panel" "$FP" 2> /dev/null | cmp -s - "$REPO/xbody/overlay/opt/xems/bin/xems-panel" || no "fragmented ext4: panel binary"
+debugfs -R "stat /opt/xems/bin/xems-panel" "$FP" 2> /dev/null | grep -q '(ETB0)' || no "fragmented ext4: no extent leaf block (test did not fragment)"
+card undo "$F4" "$F4.undo" > /dev/null && cmp -s "$F4" "$F4.orig" || no "fragmented ext4: undo"
 cp "$C" "$T/dirty.img"; debugfs -w -R "feature needs_recovery" "$T/dirty.img?offset=1048576" > /dev/null 2>&1
 cp "$T/dirty.img" "$T/dirty.before"
 card apply "$T/dirty.img" "$STK" "$T/dirty.undo" | grep -q OK && no "a card with a journal to recover was written"
 cmp -s "$T/dirty.img" "$T/dirty.before" || no "a refused card was changed"
 truncate -s 8M "$T/fat.img"
 if mkfs.vfat "$T/fat.img" > /dev/null 2>&1; then card apply "$T/fat.img" "$STK" "$T/fat.undo" | grep -q OK && no "a non-XBody card was written"; fi
-ok "both geometries: e2fsck clean, files / modes / symlinks / removals right, htree kept readable, re-apply, undo byte-identical, dirty + foreign refused"
+ok "ext3 + Yocto-style ext4 (1 KB / 4 KB), fragmented ext4: e2fsck clean, files / modes / symlinks / removals right, htree kept readable, re-apply, undo byte-identical, dirty + foreign refused"
 echo "ALL OK"

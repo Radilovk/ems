@@ -6,10 +6,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Just enough ext2/ext3 to put the XEMS mod onto the XBody unit's own SD card from a phone — what build.py --img does
+ * Just enough ext2/3/4 to put the XEMS mod onto the XBody unit's own SD card from a phone — what build.py --img does
  * with debugfs: make missing directories, replace / add regular files and symlinks, delete files, read them back.
- * Block maps only (direct, single, double indirect), 1–4 KB blocks, 128/256-byte inodes, 32-byte group descriptors.
- * Anything else (extents, 64bit, flex_bg, checksums, a journal that needs recovery) is refused before a byte changes.
+ * ext3: block maps (direct, single, double indirect). ext4 as Yocto 1.7 makes it (the owner's card: extents + flex_bg +
+ * uninit_bg): extent trees read at any depth, new files written as extents (≤ 4 in the inode, else one leaf block),
+ * group descriptor checksums (crc16) kept, uninitialised groups left alone. 1–4 KB blocks, 128/256-byte inodes,
+ * 32-byte descriptors. Anything else (64bit, metadata_csum, bigalloc, inline data, a journal that needs recovery) is
+ * refused before a byte changes.
  * Writes go straight to the disk (no journal): the card must be out of the unit, the unit shut down cleanly.
  * Directories that carry an htree index lose the index flag when they get an entry (the kernel reads them linearly).
  */
@@ -24,8 +27,10 @@ public final class Ext3 {
     final byte[] sb = new byte[1024];
     int bs, firstData, bpg, ipg, inodeSize, groups, firstIno, wantExtra;
     long blocksCount;
-    boolean fileType;
+    boolean fileType, extents, gdtCsum;
     byte[] gdt;
+    final byte[] uuid = new byte[16];
+    static final int EXTENTS_FL = 0x80000, HUGE_FILE_FL = 0x40000;
     final HashMap<Integer, byte[]> blockBm = new HashMap<Integer, byte[]>(), inodeBm = new HashMap<Integer, byte[]>();
     int now = (int) (System.currentTimeMillis() / 1000);
 
@@ -54,10 +59,16 @@ public final class Ext3 {
         int incompat = (int) u32(sb, 96), ro = (int) u32(sb, 100);
         if ((incompat & 0x4) != 0)
             throw new Exception("картата не е изключена правилно (журналът чака) — сложи я в XBody, включи и изключи с Shut down");
-        if ((incompat & ~0x2) != 0) throw new Exception("непозната файлова система (incompat " + Integer.toHexString(incompat) + ")");
-        if ((ro & ~(0x1 | 0x2 | 0x4 | 0x20 | 0x40)) != 0)
+        // filetype, extents, flex_bg — what ext3 and Yocto 1.7's ext4 use
+        if ((incompat & ~(0x2 | 0x40 | 0x200)) != 0)
+            throw new Exception("непозната файлова система (incompat " + Integer.toHexString(incompat) + ")");
+        // sparse_super, large_file, btree_dir, huge_file, gdt_csum (uninit_bg), dir_nlink, extra_isize
+        if ((ro & ~(0x1 | 0x2 | 0x4 | 0x8 | 0x10 | 0x20 | 0x40)) != 0)
             throw new Exception("непозната файлова система (ro_compat " + Integer.toHexString(ro) + ")");
         fileType = (incompat & 0x2) != 0;
+        extents = (incompat & 0x40) != 0;
+        gdtCsum = (ro & 0x10) != 0;
+        System.arraycopy(sb, 104, uuid, 0, 16);
         bs = 1024 << (int) u32(sb, 24);
         if (bs > 4096) throw new Exception("блокове " + bs);
         blocksCount = u32(sb, 4);
@@ -125,6 +136,7 @@ public final class Ext3 {
 
     /** Physical block of logical block l (0 = hole). */
     long bmap(byte[] in, long l) throws Exception {
+        if ((u32(in, 32) & EXTENTS_FL) != 0) return extMap(in, 40, l);
         int per = bs / 4;
         if (l < 12) return ptr(in, (int) l);
         l -= 12;
@@ -133,6 +145,50 @@ public final class Ext3 {
         if (l < (long) per * per) return ind(ind(ptr(in, 13), l / per), l % per);
         l -= (long) per * per;
         return ind(ind(ind(ptr(in, 14), l / per / per), l / per % per), l % per);
+    }
+
+    /** Extent tree lookup from the node at b[o] (the inode's i_block, or a tree block at 0). 0 = hole / unwritten. */
+    long extMap(byte[] b, int o, long l) throws Exception {
+        if (u16(b, o) != 0xF30A) throw new Exception("развален extent");
+        int n = u16(b, o + 2), depth = u16(b, o + 6);
+        if (depth == 0) {
+            for (int i = 0; i < n; i++) {
+                int e = o + 12 + 12 * i;
+                long first = u32(b, e);
+                int len = u16(b, e + 4);
+                boolean unwritten = len > 32768;
+                if (unwritten) len -= 32768;
+                if (l >= first && l < first + len) {
+                    if (unwritten) return 0;
+                    return ((long) u16(b, e + 6) << 32 | u32(b, e + 8)) + (l - first);
+                }
+            }
+            return 0;
+        }
+        int pick = -1;
+        for (int i = 0; i < n; i++) if (u32(b, o + 12 + 12 * i) <= l) pick = i;
+        if (pick < 0) return 0;
+        int e = o + 12 + 12 * pick;
+        long child = u32(b, e + 4) | (long) u16(b, e + 8) << 32;
+        return extMap(readBlock(child), 0, l);
+    }
+
+    void freeExt(byte[] b, int o) throws Exception {
+        if (u16(b, o) != 0xF30A) return;
+        int n = u16(b, o + 2), depth = u16(b, o + 6);
+        for (int i = 0; i < n; i++) {
+            int e = o + 12 + 12 * i;
+            if (depth == 0) {
+                int len = u16(b, e + 4);
+                if (len > 32768) len -= 32768;
+                long start = (long) u16(b, e + 6) << 32 | u32(b, e + 8);
+                for (int k = 0; k < len; k++) freeBlock(start + k);
+            } else {
+                long child = u32(b, e + 4) | (long) u16(b, e + 8) << 32;
+                freeExt(readBlock(child), 0);
+                freeBlock(child);
+            }
+        }
     }
 
     long ind(long blk, long i) throws Exception {
@@ -163,6 +219,7 @@ public final class Ext3 {
         for (int k = 0; k < groups; k++) {
             int g = (prefer + k) % groups;
             if (u16(gdt, g * 32 + 12) == 0) continue;
+            if (gdtCsum && (u16(gdt, g * 32 + 18) & 0x2) != 0) continue;   // BLOCK_UNINIT: its bitmap is not on disk
             byte[] bm = bitmap(blockBm, g, 0);
             long valid = Math.min(bpg, blocksCount - firstData - (long) g * bpg);
             for (int i = 0; i < valid; i++) {
@@ -191,6 +248,7 @@ public final class Ext3 {
         for (int k = 0; k < groups; k++) {
             int g = (prefer + k) % groups;
             if (u16(gdt, g * 32 + 14) == 0) continue;
+            if (gdtCsum && (u16(gdt, g * 32 + 18) & 0x1) != 0) continue;   // INODE_UNINIT
             byte[] bm = bitmap(inodeBm, g, 4);
             for (int i = 0; i < ipg; i++) {
                 int ino = g * ipg + i + 1;
@@ -198,6 +256,7 @@ public final class Ext3 {
                 bm[i >> 3] |= (byte) (1 << (i & 7));
                 addFree(g, 14, -1);
                 if (dir) p16(gdt, g * 32 + 16, u16(gdt, g * 32 + 16) + 1);
+                if (gdtCsum && ipg - u16(gdt, g * 32 + 28) <= i) p16(gdt, g * 32 + 28, ipg - i - 1);   // itable_unused
                 return ino;
             }
         }
@@ -222,9 +281,27 @@ public final class Ext3 {
             Map.Entry<Integer, byte[]> e = it.next();
             writeBlock(u32(gdt, e.getKey().intValue() * 32 + 4), e.getValue());
         }
+        if (gdtCsum) for (int g = 0; g < groups; g++) p16(gdt, g * 32 + 30, descCsum(g));
         d.write(base + (long) (firstData + 1) * bs, gdt, 0, gdt.length);
         d.write(base + 1024, sb, 0, 1024);
         d.sync();
+    }
+
+    /** ext4's group descriptor checksum: crc16 (0xA001, start ~0) over the uuid, the group number, the descriptor. */
+    int descCsum(int g) {
+        int c = crc16(0xFFFF, uuid, 0, 16);
+        byte[] gn = new byte[4];
+        p32(gn, 0, g);
+        c = crc16(c, gn, 0, 4);
+        return crc16(c, gdt, g * 32, 30);
+    }
+
+    static int crc16(int crc, byte[] b, int o, int n) {
+        for (int i = 0; i < n; i++) {
+            crc ^= b[o + i] & 0xff;
+            for (int k = 0; k < 8; k++) crc = (crc & 1) != 0 ? (crc >>> 1) ^ 0xA001 : crc >>> 1;
+        }
+        return crc & 0xffff;
     }
 
     // ---------------------------------------------------------------- file data
@@ -233,6 +310,13 @@ public final class Ext3 {
     void freeData(byte[] in) throws Exception {
         if (fastLink(in)) {
             for (int i = 40; i < 100; i++) in[i] = 0;
+            return;
+        }
+        if ((u32(in, 32) & EXTENTS_FL) != 0) {
+            freeExt(in, 40);
+            for (int i = 40; i < 100; i++) in[i] = 0;
+            p32(in, 28, 0);
+            p32(in, 32, u32(in, 32) & ~(EXTENTS_FL | HUGE_FILE_FL));
             return;
         }
         for (int i = 0; i < 12; i++) freeBlock(ptr(in, i));
@@ -257,6 +341,9 @@ public final class Ext3 {
 
     /** The data into freshly allocated blocks (the inode's old ones must be freed first); size and i_blocks set. */
     void writeData(byte[] in, byte[] data, int group) throws Exception {
+        p32(in, 32, u32(in, 32) & ~(EXTENTS_FL | HUGE_FILE_FL));
+        if (inodeSize >= 120) p16(in, 116, 0);   // i_blocks_hi
+        if (extents) { writeExtents(in, data, group); return; }
         int per = bs / 4;
         int n = (data.length + bs - 1) / bs;
         if (n > 12 + per + per * per) throw new Exception("файлът е твърде голям");
@@ -294,6 +381,118 @@ public final class Ext3 {
             writeBlock(db, top);
             p32(in, 40 + 52, db);
         }
+        p32(in, 4, data.length);
+        p32(in, 108, 0);
+        p32(in, 28, used * (bs / 512));
+    }
+
+    /** n blocks as up to a few contiguous runs: [start, len] pairs (len ≤ 32768). */
+    ArrayList<long[]> allocRuns(int n, int group) throws Exception {
+        ArrayList<long[]> runs = new ArrayList<long[]>();
+        long one = n <= 32768 ? findRun(n, group) : -1;   // one contiguous run when the card has it (it nearly always does)
+        if (one >= 0) {
+            for (long b = one; b < one + n; b++) {
+                int g = (int) ((b - firstData) / bpg), i = (int) ((b - firstData) % bpg);
+                bitmap(blockBm, g, 0)[i >> 3] |= (byte) (1 << (i & 7));
+                addFree(g, 12, -1);
+            }
+            runs.add(new long[] {one, n});
+            return runs;
+        }
+        while (n > 0) {
+            long first = allocBlock(group);
+            long len = 1;
+            int g = (int) ((first - firstData) / bpg);
+            byte[] bm = bitmap(blockBm, g, 0);
+            long valid = Math.min(bpg, blocksCount - firstData - (long) g * bpg);
+            while (len < n && len < 32768) {
+                long i = first + len - firstData - (long) g * bpg;
+                if (i >= valid || (bm[(int) (i >> 3)] & (1 << (i & 7))) != 0) break;
+                bm[(int) (i >> 3)] |= (byte) (1 << (i & 7));
+                addFree(g, 12, -1);
+                len++;
+            }
+            runs.add(new long[] {first, len});
+            n -= (int) len;
+        }
+        return runs;
+    }
+
+    /** First block of n free ones in a row inside one initialised group (from the preferred group on), or -1. */
+    long findRun(int n, int prefer) throws Exception {
+        for (int k = 0; k < groups; k++) {
+            int g = (prefer + k) % groups;
+            if (u16(gdt, g * 32 + 12) < n) continue;
+            if (gdtCsum && (u16(gdt, g * 32 + 18) & 0x2) != 0) continue;
+            byte[] bm = bitmap(blockBm, g, 0);
+            long valid = Math.min(bpg, blocksCount - firstData - (long) g * bpg);
+            int run = 0;
+            for (int i = 0; i < valid; i++) {
+                if ((bm[i >> 3] & (1 << (i & 7))) != 0) { run = 0; continue; }
+                if (firstData + (long) g * bpg + i == 0) { run = 0; continue; }
+                if (++run == n) return firstData + (long) g * bpg + i - n + 1;
+            }
+        }
+        return -1;
+    }
+
+    static void extHeader(byte[] b, int o, int entries, int max, int depth) {
+        p16(b, o, 0xF30A);
+        p16(b, o + 2, entries);
+        p16(b, o + 4, max);
+        p16(b, o + 6, depth);
+        p32(b, o + 8, 0);
+    }
+
+    static void extLeaf(byte[] b, int e, long logical, long start, long len) {
+        p32(b, e, logical);
+        p16(b, e + 4, (int) len);
+        p16(b, e + 6, (int) (start >>> 32));
+        p32(b, e + 8, start);
+    }
+
+    /** ext4: the data in a few contiguous runs, mapped by an extent tree (in the inode, or one leaf block). */
+    void writeExtents(byte[] in, byte[] data, int group) throws Exception {
+        int n = (data.length + bs - 1) / bs;
+        ArrayList<long[]> runs = allocRuns(n, group);
+        long logical = 0, used = n;
+        for (int r = 0; r < runs.size(); r++) {
+            long[] run = runs.get(r);
+            for (int k = 0; k < run[1]; k++) {
+                byte[] b = new byte[bs];
+                int at = (int) ((logical + k) * bs);
+                System.arraycopy(data, at, b, 0, Math.min(bs, data.length - at));
+                writeBlock(run[0] + k, b);
+            }
+            logical += run[1];
+        }
+        for (int i = 40; i < 100; i++) in[i] = 0;
+        if (runs.size() <= 4) {
+            extHeader(in, 40, runs.size(), 4, 0);
+            logical = 0;
+            for (int r = 0; r < runs.size(); r++) {
+                extLeaf(in, 52 + 12 * r, logical, runs.get(r)[0], runs.get(r)[1]);
+                logical += runs.get(r)[1];
+            }
+        } else {
+            int max = (bs - 12) / 12;
+            if (runs.size() > max) throw new Exception("картата е твърде накъсана");
+            long leaf = allocBlock(group);
+            used++;
+            byte[] b = new byte[bs];
+            extHeader(b, 0, runs.size(), max, 0);
+            logical = 0;
+            for (int r = 0; r < runs.size(); r++) {
+                extLeaf(b, 12 + 12 * r, logical, runs.get(r)[0], runs.get(r)[1]);
+                logical += runs.get(r)[1];
+            }
+            writeBlock(leaf, b);
+            extHeader(in, 40, 1, 4, 1);
+            p32(in, 52, 0);
+            p32(in, 56, leaf);
+            p16(in, 60, (int) (leaf >>> 32));
+        }
+        p32(in, 32, u32(in, 32) | EXTENTS_FL);
         p32(in, 4, data.length);
         p32(in, 108, 0);
         p32(in, 28, used * (bs / 512));
@@ -411,6 +610,20 @@ public final class Ext3 {
 
     /** Logical block l of a directory → pb (direct or single indirect; directories here stay small). */
     void setBlock(byte[] in, long l, long pb, int g) throws Exception {
+        if ((u32(in, 32) & EXTENTS_FL) != 0) {   // grow the last extent, or add one (a depth-0 tree in the inode)
+            int n = u16(in, 42), depth = u16(in, 46);
+            if (depth != 0) throw new Exception("папката е твърде сложна");
+            if (n > 0) {
+                int e = 40 + 12 + 12 * (n - 1);
+                long first = u32(in, e), start = (long) u16(in, e + 6) << 32 | u32(in, e + 8);
+                int len = u16(in, e + 4);
+                if (len < 32768 && first + len == l && start + len == pb) { p16(in, e + 4, len + 1); return; }
+            }
+            if (n >= 4) throw new Exception("папката е твърде накъсана");
+            extLeaf(in, 52 + 12 * n, l, pb, 1);
+            p16(in, 42, n + 1);
+            return;
+        }
         if (l < 12) { p32(in, 40 + 4 * (int) l, pb); return; }
         l -= 12;
         if (l >= bs / 4) throw new Exception("папката е твърде голяма");
@@ -495,7 +708,11 @@ public final class Ext3 {
         byte[] in = freshInode(S_IFDIR | 0755, now);
         p16(in, 26, 2);
         p32(in, 4, bs);
-        p32(in, 40, b0);
+        if (extents) {
+            extHeader(in, 40, 1, 4, 0);
+            extLeaf(in, 52, 0, b0, 1);
+            p32(in, 32, EXTENTS_FL);
+        } else p32(in, 40, b0);
         p32(in, 28, bs / 512);
         writeInode(ino, in);
         byte[] pin = readInode(parent);

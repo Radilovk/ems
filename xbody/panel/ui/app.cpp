@@ -41,6 +41,7 @@ App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
       lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       noteWarn_(false), noteUntilMs_(0),
+      net_(0), netJob_(NET_NONE), netOk_(false), netSinceMs_(0),
       panel_(0), tab_(0), strengthMem_(0), busy_(false) {
     t0_ = now();
     load();
@@ -53,6 +54,21 @@ App::App()
     const char *bd = std::getenv("XEMS_BRIDGE_DIR");
     QFile vf(QString::fromLocal8Bit(bd ? bd : "/opt/xems/bridge") + U("/VERSION"));
     if (vf.open(QIODevice::ReadOnly)) bundledVer_ = vf.readAll().trimmed().toInt();
+    // Back after an update from the internet (xems-net left the version it fetched): say so in the update sheet.
+    QString done = envPath("XEMS_NET_DONE", "/opt/xems/net-updated");
+    QString got = QString::fromLatin1(slurp(done).c_str()).trimmed(),
+            have = QString::fromLatin1(slurp(envPath("XEMS_VERSION", "/opt/xems/VERSION")).c_str()).trimmed();
+    QString pend = envPath("XEMS_PENDING", "/opt/xems/pending");
+    if (!got.isEmpty() && got == have) {
+        netJob_ = NET_UPDATE;
+        netOk_ = true;
+        netLine_ = U("✓ XEMS е обновен до версия ") + got;
+        QFile::remove(done);
+    } else if (!got.isEmpty() && !QFile::exists(pend + U("/updater.sh"))) {   // not waiting to install: it failed
+        netJob_ = NET_UPDATE;
+        netLine_ = U("Версия ") + got + U(" не се инсталира — пробвай пак");
+        QFile::remove(done);
+    }
     timer_.start(20, this);
 }
 
@@ -65,6 +81,7 @@ App::~App() {
         delete ses_[i].suit;
     }
     delete port_;
+    if (net_) { net_->kill(); net_->waitForFinished(1000); delete net_; }
 }
 
 const std::string &App::suitName() const {
@@ -225,6 +242,56 @@ QString App::updateFromUsb() {
     if (out.contains(U("no-stick"))) return U("Няма USB флашка — сложи я и пробвай пак");
     if (out.contains(U("not-an-xems"))) return U("Флашката не е XEMS ъпдейт");
     return U("Ъпдейтът не стана — виж xems-update.log на флашката");
+}
+
+void App::netStart(int job) {
+    if (net_ || (job != NET_UPDATE && job != NET_LOG)) return;
+    const char *bin = std::getenv("XEMS_NET");
+    net_ = new QProcess();
+    net_->start(QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-net"),
+                QStringList() << (job == NET_UPDATE ? U("update") : U("log")));
+    netJob_ = job;
+    netOk_ = false;
+    netOut_.clear();
+    netSinceMs_ = now();
+    netLine_ = job == NET_UPDATE ? U("Свързвам се със сървъра…") : U("Събирам лога…");
+}
+
+// One line of xems-net: ". step" while it runs, then OK / CURRENT / ERR.
+void App::netSay(const QString &l) {
+    QString a = l.section(QLatin1Char(' '), 1, 1);
+    if (l == U(". connect")) netLine_ = U("Свързвам се със сървъра…");
+    else if (l.startsWith(U(". download"))) netLine_ = U("Изтеглям версия ") + a + U("…");
+    else if (l == U(". collect")) netLine_ = U("Събирам лога…");
+    else if (l == U(". send")) netLine_ = U("Изпращам лога…");
+    else if (l.startsWith(U("OK "))) {
+        netOk_ = true;
+        netLine_ = netJob_ == NET_LOG ? U("✓ Логът е изпратен · № ") + a
+                                      : U("✓ Версия ") + a + U(" е изтеглена · влиза сама");
+    }
+    else if (l.startsWith(U("CURRENT "))) { netOk_ = true; netLine_ = U("✓ Това е последната версия (") + a + U(")"); }
+    else if (l == U("ERR no-net")) netLine_ = U("Няма интернет — провери кабела или Wi‑Fi");
+    else if (l == U("ERR tls")) netLine_ = U("Няма сигурна връзка със сървъра — пробвай по-късно");
+    else if (l == U("ERR check")) netLine_ = U("Изтегленото е повредено — пробвай пак");
+    else if (l.startsWith(U("ERR "))) netLine_ = U("Сървърът не отговори — пробвай пак след малко");
+}
+
+void App::pollNet(unsigned t) {
+    netOut_ += QString::fromUtf8(net_->readAllStandardOutput());
+    int nl;
+    while ((nl = netOut_.indexOf(QLatin1Char('\n'))) >= 0) {
+        netSay(netOut_.left(nl).trimmed());
+        netOut_.remove(0, nl + 1);
+    }
+    bool over = age(t, netSinceMs_) > 6 * 60 * 1000;   // xems-net's own timeouts end it long before this
+    if (net_->state() != QProcess::NotRunning && !over) return;
+    if (over) { net_->kill(); net_->waitForFinished(1000); }
+    if (!netOut_.trimmed().isEmpty()) netSay(netOut_.trimmed());
+    netOut_.clear();
+    // Ended without its final line (killed, missing): the last step it said is no answer.
+    if (!netOk_ && netLine_.endsWith(U("…"))) netLine_ = U("Не стана — пробвай пак");
+    delete net_;
+    net_ = 0;
 }
 
 QString App::note() const { return now() < noteUntilMs_ ? note_ : QString(); }
@@ -568,6 +635,7 @@ void App::timerEvent(QTimerEvent *ev) {
         }
     }
     if (age(t, cableReadMs_) >= 500) { cableReadMs_ = t; readCableState(); }
+    if (net_) pollNet(t);
     // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----
     bool update = bridgeOk() && bridgeVer_ > 0 && bundledVer_ > bridgeVer_;
     if (update && !dfuSent_ && ses_.empty() && linkingMac_.empty()) {

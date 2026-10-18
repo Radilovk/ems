@@ -179,6 +179,49 @@ while the unit is on, through **two** interfaces — owner's "и двете":
 Tests: `test.sh` 8 (the `.xbody` parses, its md5 matches, `openssl -d` + `tar xz` recover the overlay) and 9
 (the helper installs onto a fake root, backs up, refuses a foreign stick).
 
+## Internet only on request + the network lock (mod v21, owner)
+Owner: "update and a log of the last 2 minutes — both only when asked; no polling, no automatic checks; every other
+connection to native systems / servers over the network stops, only our protocol stays."
+
+- **One button, the choices behind it.** "Кабел на XBody" → "Кабел и импулс" → **Обнови XEMS · Прати лог** opens
+  XBody's dark-red dialog band with three one-tap tiles: **От интернет** · **От USB флашка** · **Изпрати лог**
+  (`PanelWidget::paintService`). Updates are greyed ("след тренировката") while XBody's cable trains; the log is always
+  there. Under the tiles: what happens / happened (`App::netLine`). Closing the sheet mid-request is fine — the result
+  comes as a toast (red when it is not a ✓).
+- **`/opt/xems/bin/xems-net update|log`** runs only from that tap (`App::netStart`, a QProcess, polled in the app's
+  timer). Progress lines `. connect` / `. download N` / `. collect` / `. send`, then one of `OK <ver|log id>`,
+  `CURRENT <ver>`, `ERR no-net|tls|server|check`.
+  - update: `GET https://license.biocode-bg.com/v1/unit/update?app=xbody&have=N&unit=<id>` → plain text
+    `version= / sha256= / size= / notes=`; newer → `GET /v1/unit/pack?app=xbody&v=N` (the server streams the pack it
+    registered, so the unit trusts one host only) → sha256 (`openssl dgst`) + the stick's own md5 + VERSION → the files
+    go into `/opt/xems/pending` (updater.sh last) → the panel's 2-s loop installs it (backup, remove.list, hooks) and
+    restarts the panel once no suit is linked — no reboot. `/opt/xems/net-updated` makes the new panel say
+    "✓ XEMS е обновен до версия N" in the sheet (or "не се инсталира" when the install failed).
+  - log: XBody's `/opt/xbody/log.txt` from 2 minutes ago on (its lines start `YYYY-MM-DD HH:MM:SS.mmm`; compared as text
+    with `date -d @(now-120)`, untimed lines follow the one before), our `/opt/xems/*.log` changed in those 2 minutes
+    (their end; `board-rx.log` stays on the USB path), `/tmp/xems-*.state`, the end of dmesg; ≤ 250 KB →
+    `POST /v1/unit/log?app=xbody&unit=<id>&ver=N` → `OK <id>`; the sheet shows "Логът е изпратен · № id" — the same
+    number as in the admin page (XBody tab).
+  - unit id = first 12 hex of md5(eth0 MAC, else wlan0) — no MAC leaves the unit.
+  - TLS: the card's own curl 7.37.1 (GnuTLS 3.3.5) with `--cacert /opt/xems/etc/ca.pem` (the card's 2014 bundle +
+    today's ISRG / GTS / GlobalSign / SSL.com / Sectigo / DigiCert roots). A clock before 2025 is set from the server's
+    `Date` header first (that one request carries nothing). Checked in qemu with the card's curl + busybox against a
+    local HTTPS stand-in.
+- **The network lock** `/etc/init.d/xems-fw` (rc5 **S00**, before networking; also started by hook `60-net-lock` so a
+  no-reboot install closes it at once): iptables `INPUT/OUTPUT/FORWARD DROP` except `lo` (XBody's own localhost link
+  :1235 and our proxy — these rules go in first, the DROP policies last; no working iptables → nothing is closed),
+  `usb0` (the phone's cable link), DHCP, established replies, and chain `XEMSNET`, which `xems-net` fills with DNS +
+  TCP to our server's addresses (curl pinned with `--resolve`) only while it runs and flushes on exit. IPv6 off on every
+  interface but lo. The vendor's network services lose their rc5 links (`xbody/remove.list`: sshd, rpcbind,
+  mountnfs, avahi, ofono, neard) and the hook stops the running ones. XBody's own "online" features were already off
+  (`online=0`, `XBodyOnlineEnabled=false`); the lock blocks them anyway. Undo: the USB stick's `xems/RESTORE`.
+- Server side: `server/src/units.js` (+ migration `0015_units.sql`), admin page tab **XBody**: publish a version
+  (version + `https://github.com/Radilovk/ems/raw/main/xbody/dist/xbody-net.tar` → the server stores sha256 / size),
+  read / delete logs (kept 60 days, nightly sweep). `build.py` writes `xbody/dist/xbody-net.tar` (commit it).
+- Tests: `test.sh` 10 (update / current / no line / foreign certificate / bad sha / the 2-minute log; the lock opened
+  and closed), 11 (rule order, IPv6, a broken iptables leaves the network as it was); `server/test/units.test.js`.
+- Not yet on the unit: the iptables rules on its 2.6.35 kernel (modules are on the card), the real Cloudflare chain.
+
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
 `assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a

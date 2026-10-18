@@ -170,7 +170,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/build-android.sh` (56L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
 - `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
-- `scripts/xbody/build.py` (423L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
+- `scripts/xbody/build.py` (448L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
 - `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
@@ -181,8 +181,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/runroot.sh` (15L) — Runtime root for qemu-arm (-L): the card's /lib, /usr/lib (Qt, fonts, plugins) with the flattened symlinks
 - `scripts/xbody/sysroot.sh` (48L) — Build the cross sysroot for the XBody unit (armel soft-float, glibc 2.20 on the card):
 - `scripts/xbody/test-cable.py` (96L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
+- `scripts/xbody/test-net-server.py` (42L) — Stand-in for the license server's /v1/unit/* (scripts/xbody/test.sh 10): HTTPS on 127.0.0.1:<port>. test-net-server.py …
 - `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
-- `scripts/xbody/test.sh` (274L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/test.sh` (336L) — XBody mod pipeline tests, no device needed:
 - `scripts/xbody/updater.sh` (106L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
@@ -492,7 +493,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/scripts/setup-emulator.mjs` (36L) — Create a Vela VVD sized like Band 10 (212×520 logical).
 
 ## server (Cloudflare Worker license server)
-- `server/src/admin.js` (647L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
+- `server/src/admin.js` (717L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
 - `server/src/card.js` (96L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/clients.js` (106L) — One pushed record: {key (tablet id), cid?, ek?, pk?, t, deleted?, data?}; null when unusable.
@@ -500,13 +501,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1314L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1326L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
-- `server/src/sweep.js` (13L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
+- `server/src/sweep.js` (15L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
+- `server/src/units.js` (138L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
 - `server/src/utils.js` (130L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/test/card.test.js` (104L) — 
 - `server/test/catalog.test.js` (29L) — 
@@ -521,6 +523,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/profile.test.js` (57L) — 
 - `server/test/report.test.js` (23L) — 
 - `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
+- `server/test/units.test.js` (109L) — 
 - `server/test/utils.test.js` (115L) — 
 - `server/migrations/0001_init.sql` (63L) — 
 - `server/migrations/0002_ems_devices.sql` (7L) — 
@@ -536,6 +539,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/migrations/0012_exercise_picks_ka.sql` (10L) — 
 - `server/migrations/0013_body_measures.sql` (12L) — 
 - `server/migrations/0014_license_key_enc.sql` (5L) — 
+- `server/migrations/0015_units.sql` (24L) — 
 - `server/scripts/seed-release.sh` (25L) — Register current APK as a release on the license server.
 
 ## Branding YAML maps (top-level keys)
@@ -798,15 +802,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L54 ## Languages (1.1.160-ai)
   - L60 ## One training, shown at the end (1.1.162-ai)
 
-`docs/xbody-os.md` (69L)
+`docs/xbody-os.md` (72L)
   - L1 # XBody unit — operating system map
   - L8 ## Platform
   - L16 ## Boot chain
   - L33 ## The app — `/opt/xbody/`
   - L48 ## Stimulator link
   - L54 ## Network
-  - L58 ## USB update hook (vendor)
-  - L63 ## Pitfalls
+  - L61 ## USB update hook (vendor)
+  - L66 ## Pitfalls
 
 `docs/xbody-protocol.md` (83L)
   - L1 # XBody unit — internal protocols (decoded statically, no capture)
@@ -817,7 +821,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (292L)
+`docs/xbody-xems-panel.md` (335L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -829,13 +833,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L133 ## Feedback from the stimulator (what XBody can know)
   - L143 ## Phone → XBody over a USB cable (mod v9, no stick)
   - L154 ## Update from USB while the machine runs (mod v15) — admin interface, no reboot dance
-  - L182 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L190 ## Panel
-  - L224 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
-  - L246 ## Bridge line protocol (USB CDC, 115200)
-  - L257 ## Files
-  - L269 ## Build / test
-  - L285 ## First test on the unit (when the XIAO arrives)
+  - L182 ## Internet only on request + the network lock (mod v21, owner)
+  - L225 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L233 ## Panel
+  - L267 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
+  - L289 ## Bridge line protocol (USB CDC, 115200)
+  - L300 ## Files
+  - L312 ## Build / test
+  - L328 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1009,7 +1014,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
   - L112 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
-`docs/xems-license-api.md` (183L)
+`docs/xems-license-api.md` (195L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -1020,9 +1025,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L84 ### 2. Опресняване (веднъж на 24 h, във фон)
   - L97 ### 3. Проверка за нова версия
   - L114 ### 4. Клиентски картон (линк за клиента)
-  - L155 ## Жетон (подписан от сървъра)
-  - L171 ## Какво остава за сървъра
-  - L178 ## Проверки (без Android)
+  - L155 ### 5. XBody машината (мод v21) — само по заявка от треньора
+  - L167 ## Жетон (подписан от сървъра)
+  - L183 ## Какво остава за сървъра
+  - L190 ## Проверки (без Android)
 
 `docs/xems-modulation.md` (109L)
   - L1 # «Модулация» on a bodytech suit (1.1.375 phases; 1.1.372 name; was "Австралийски ток", 1.1.362)
@@ -1425,12 +1431,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## Facts so far
   - L67 ## Status
 
-`xbody/CLAUDE.md` (52L)
+`xbody/CLAUDE.md` (54L)
   - L1 # xbody/ — mod for the XBody EMS unit (i.MX53, Yocto 1.7, Qt 4.8 app Newave 3.2.0)
   - L5 ## Model
   - L16 ## Build (on request: "дай файла за картата")
-  - L40 ## Panel / bridge
-  - L46 ## Rules
+  - L42 ## Panel / bridge
+  - L48 ## Rules
 
 `xbody/panel/art/README.md` (15L)
   - L1 # Program icons (XBody panel, "Програми")

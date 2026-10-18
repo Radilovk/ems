@@ -11,6 +11,7 @@ import exercisesAdminHtml from './exercises-admin.html';
 import exerciseLibrary from '../../branding/exercises/library.json';
 import { normalizePick, picksPayload, codeMatches, selectionPayload, APPS, appOf } from './exercises.js';
 import { LIMITS, limitsSummary } from './limits.js';
+import { handleUnitUpdate, handleUnitPack, handleUnitLog, adminUnits } from './units.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
 } from './history.js';
@@ -116,6 +117,13 @@ export default {
       }
       if (path === '/v1/inbox' && request.method === 'POST') {
         return handleInbox(request, env);
+      }
+
+      // The XBody unit's mod (xems-net): only when a trainer asks on the unit — update check, its pack, a log.
+      if (path === '/v1/unit/update' && request.method === 'GET') return handleUnitUpdate(url, env);
+      if (path === '/v1/unit/pack' && request.method === 'GET') return handleUnitPack(url, env);
+      if (path === '/v1/unit/log' && request.method === 'POST') {
+        return handleUnitLog(request, env, url, (k, max, sec) => rateLimit(env, k, max, sec));
       }
 
       if (path.startsWith('/releases/')) {
@@ -771,6 +779,10 @@ async function adminApi(request, env, path) {
   }
 
   const route = path.replace('/admin/api/', '');
+  if (route === 'units' || route.startsWith('units/')) {
+    const r = await adminUnits(request, env, route, json, readJsonBody);
+    if (r) return r;
+  }
 
   if (route === 'licenses' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM licenses ORDER BY created_at DESC LIMIT 200').all();

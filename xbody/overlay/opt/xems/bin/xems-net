@@ -1,0 +1,156 @@
+#!/bin/sh
+# XEMS over the internet — only when the trainer asks (the panel's "Обнови · лог" sheet). Nothing here runs on its
+# own: no polling, no background calls. The network is otherwise closed (/etc/init.d/xems-fw); while a request runs
+# this opens DNS + HTTPS to our server only (chain XEMSNET) and closes it again on exit.
+#   xems-net update  ask the server for a newer mod; download it (sha256 + the stick's md5) into /opt/xems/pending —
+#                    the panel's loop (init.d/xems-panel) installs it there and restarts the panel once no suit is
+#                    linked; /opt/xems/net-updated tells the new panel to say so
+#   xems-net log     send the last 2 minutes of XBody's log (+ our logs touched in those 2 minutes, the state files)
+# Output: progress lines ". <step>", then one final line: OK <ver | log id> | CURRENT <ver> | ERR <reason>.
+# Reasons: no-net (no line / no DNS / no answer), tls (the server's certificate), server, check (bad download).
+# Env (tests): XEMS_OPT, XEMS_NET_URL, XEMS_NET_CA, XEMS_NET_CURL, XEMS_IPT, XEMS_NET_VLOG, XEMS_NET_ROUTE,
+#              XEMS_NET_IP (skip DNS: the server's address).
+PATH=$PATH:/usr/sbin:/usr/bin:/sbin:/bin   # iptables, nslookup, curl, openssl live in */sbin, /usr/bin
+OPT=${XEMS_OPT:-/opt/xems}
+URL=${XEMS_NET_URL:-https://license.biocode-bg.com}
+CA=${XEMS_NET_CA:-$OPT/etc/ca.pem}
+CURL=${XEMS_NET_CURL:-curl}
+IPT=${XEMS_IPT:-iptables}
+VLOG=${XEMS_NET_VLOG:-/opt/xbody/log.txt}
+ROUTE=${XEMS_NET_ROUTE:-/proc/net/route}
+P=$OPT/pending
+HOST=${URL#*://}
+HOST=${HOST%%/*}
+PORT=443
+case "$HOST" in *:*) PORT=${HOST##*:}; HOST=${HOST%:*} ;; esac
+have=$(cat "$OPT/VERSION" 2> /dev/null)
+have=${have:-0}
+# The unit, without its MAC: md5 of eth0's (else wlan0's) address, first 12 hex.
+mac=$(cat /sys/class/net/eth0/address 2> /dev/null || cat /sys/class/net/wlan0/address 2> /dev/null)
+unit=$(echo "${mac:-unknown}" | md5sum | awk '{ print substr($1, 1, 12) }')
+
+close() { $IPT -F XEMSNET > /dev/null 2>&1; }
+trap close EXIT
+trap 'exit 1' INT TERM
+
+# The server through the lock: DNS for the lookup, then HTTPS to its addresses only; curl is pinned to them.
+PIN=""
+open() {
+	awk '$2 == "00000000" { f = 1 } END { exit !f }' "$ROUTE" 2> /dev/null || { echo "ERR no-net"; exit 1; }
+	$IPT -A XEMSNET -p udp --dport 53 -j ACCEPT > /dev/null 2>&1
+	$IPT -A XEMSNET -p tcp --dport 53 -j ACCEPT > /dev/null 2>&1
+	ips=${XEMS_NET_IP:-$(nslookup "$HOST" 2> /dev/null | awk '/^Name:/ { n = 1; next } n && /^Address/ { print $3 }' |
+		grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')}
+	[ -n "$ips" ] || { echo "ERR no-net"; exit 1; }
+	for ip in $ips; do $IPT -A XEMSNET -p tcp -d "$ip" --dport "$PORT" -j ACCEPT > /dev/null 2>&1; done
+	set -- $ips
+	PIN="--resolve $HOST:$PORT:$1"
+}
+
+# curl → stdout; on failure print the reason and stop. $1 = max seconds, then curl's own arguments.
+call() {
+	t=$1
+	shift
+	$CURL -sS -f --cacert "$CA" $PIN --connect-timeout 15 --max-time "$t" "$@" 2> /tmp/xems-net.err && return 0
+	rc=$?
+	case $rc in
+	6 | 7 | 28 | 52 | 55 | 56) echo "ERR no-net" ;;
+	35 | 51 | 53 | 54 | 58 | 59 | 60 | 66 | 77 | 80 | 83 | 90 | 91) echo "ERR tls" ;;
+	*) echo "ERR server" ;;
+	esac
+	exit 1
+}
+
+# A unit whose clock lost its time fails every certificate: take the time from the server's Date header first
+# (only the time — the request itself carries nothing).
+clock() {
+	[ "$(date +%Y)" -ge 2025 ] 2> /dev/null && return
+	d=$($CURL -sk -I $PIN --connect-timeout 15 --max-time 20 "$URL/health" 2> /dev/null | sed -n 's/^[Dd]ate: *//p' | tr -d '\r')
+	[ -n "$d" ] && date -u -s "$d" -D '%a, %d %b %Y %H:%M:%S GMT' > /dev/null 2>&1
+}
+
+update() {
+	echo ". connect"
+	open
+	clock
+	info=$(call 30 "$URL/v1/unit/update?app=xbody&have=$have&unit=$unit") || { echo "$info"; exit 1; }
+	ver=$(echo "$info" | sed -n 's/^version=//p')
+	sha=$(echo "$info" | sed -n 's/^sha256=//p')
+	ver=${ver%%[!0-9]*}
+	[ -n "$ver" ] || ver=0
+	if [ "$ver" -le "$have" ]; then echo "CURRENT $have"; exit 0; fi
+	if [ -f "$P/updater.sh" ] && [ "$(cat "$P/xems/VERSION" 2> /dev/null)" = "$ver" ]; then echo "OK $ver"; exit 0; fi
+	echo ". download $ver"
+	D=$OPT/pending.net
+	rm -rf "$D"
+	mkdir -p "$D"
+	r=$(call 300 --max-filesize 20000000 -o "$D/pack.tar" "$URL/v1/unit/pack?app=xbody&v=$ver") || { rm -rf "$D"; echo "$r"; exit 1; }
+	got=$(openssl dgst -sha256 "$D/pack.tar" 2> /dev/null | awk '{ print $NF }')
+	if [ -z "$sha" ] || [ "$got" != "$sha" ]; then rm -rf "$D"; echo "ERR check"; exit 1; fi
+	if ! (cd "$D" && tar xf pack.tar && cd xems && md5sum -c payload.md5) > /dev/null 2>&1 ||
+		[ "$(cat "$D/xems/VERSION" 2> /dev/null)" != "$ver" ] || [ ! -f "$D/updater.sh" ]; then
+		rm -rf "$D"
+		echo "ERR check"
+		exit 1
+	fi
+	# Into the pending "stick" the way xems-link does it (its earlier backups stay); updater.sh last — the
+	# panel's loop starts the install the moment it appears.
+	mkdir -p "$P/xems"
+	rm -f "$P/updater.done.sh" "$P/updater.failed.sh" "$P/xems/RESTORE"
+	for f in xems/VERSION xems/payload.md5 xems/payload.tar.gz xems/remove.list; do mv "$D/$f" "$P/$f"; done
+	echo "$ver" > "$OPT/net-updated"
+	chmod 755 "$D/updater.sh"
+	mv "$D/updater.sh" "$P/updater.sh"
+	rm -rf "$D"
+	sync
+	echo "OK $ver"
+}
+
+log() {
+	echo ". collect"
+	F=/tmp/xems-net-log.txt
+	now=$(date +%s)
+	since=$(date -d "@$((now - 120))" '+%Y-%m-%d %H:%M:%S' 2> /dev/null)
+	{
+		echo "XEMS log · unit $unit · mod $have · $(date '+%Y-%m-%d %H:%M:%S') · up $(cut -d' ' -f1 /proc/uptime 2> /dev/null)s"
+		for s in /tmp/xems-*.state; do
+			[ -f "$s" ] || continue
+			echo "== $s"
+			cat "$s"
+		done
+		echo "== $VLOG (from $since)"
+		# XBody's lines start "YYYY-MM-DD HH:MM:SS.mmm": from 2 minutes ago on; a line without a time follows the
+		# one before it. The last 2 MB is plenty for 2 minutes.
+		tail -c 2000000 "$VLOG" 2> /dev/null | awk -v s="$since" '
+			substr($0, 1, 19) ~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]$/ { on = substr($0, 1, 19) >= s }
+			on'
+		for f in "$OPT"/*.log; do
+			[ -f "$f" ] || continue
+			case "$f" in */board-rx.log) continue ;; esac   # raw bytes from the board; it rides the USB stick
+			m=$(stat -c %Y "$f" 2> /dev/null)
+			[ $((now - ${m:-0})) -le 120 ] || continue
+			echo "== $f (changed in the last 2 min, its end)"
+			tail -n 80 "$f" | tail -c 16000
+		done
+		echo "== dmesg"
+		dmesg 2> /dev/null | tail -n 30
+	} > "$F" 2> /dev/null
+	# The server keeps up to 256 KB: the newest end when there is more.
+	if [ "$(wc -c < "$F")" -gt 250000 ]; then tail -c 250000 "$F" > "$F.cut" && mv "$F.cut" "$F"; fi
+	echo ". send"
+	open
+	clock
+	r=$(call 60 -H 'Content-Type: text/plain; charset=utf-8' --data-binary "@$F" \
+		"$URL/v1/unit/log?app=xbody&unit=$unit&ver=$have") || { rm -f "$F"; echo "$r"; exit 1; }
+	rm -f "$F"
+	case "$r" in
+	"OK "*) echo "$r" ;;
+	*) echo "ERR server" ;;
+	esac
+}
+
+case "$1" in
+update) update ;;
+log) log ;;
+*) echo "ERR usage"; exit 2 ;;
+esac

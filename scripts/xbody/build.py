@@ -7,6 +7,7 @@
 Outputs in build/xbody-dist/:
   usb/                         copy its CONTENTS to the root of a FAT32 USB stick
   xbody-usb-vN.zip             same, zipped
+  xbody-net-vN.tar             the internet update (xems-net); also copied to xbody/dist/xbody-net.tar
   xbody-sd-vN.img.gz           (--img) whole SD card image with the mod applied
 The SD image is patched with debugfs inside its ext rootfs partition: no mount, no root,
 vendor symlinks/owners stay intact. Never rebuild the card from the 7z file dump
@@ -185,6 +186,24 @@ def vendor_archive(entries, version, usb):
     name_no_chk = f"softwareupdate.newave.{VENDOR_SW_MAJOR}.{minor}"
     md5 = hashlib.md5(name_no_chk.encode() + b"." + cipher + b"xbody" + b".").hexdigest()[:16]
     return f"{name_no_chk}.{md5}.xbody", cipher
+
+
+def net_pack(usb):
+    """Plain tar of the stick's install files — what xems-net downloads ("Обнови от интернет") and unpacks into
+    /opt/xems/pending: updater.sh + xems/{VERSION,payload.md5,payload.tar.gz,remove.list}. Deterministic."""
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w", format=tarfile.USTAR_FORMAT) as tar:
+        for name, mode in (("updater.sh", 0o755), ("xems/VERSION", 0o644), ("xems/payload.md5", 0o644),
+                           ("xems/payload.tar.gz", 0o644), ("xems/remove.list", 0o644)):
+            data = (usb / name).read_bytes()
+            ti = tarfile.TarInfo(name)
+            ti.uid = ti.gid = 0
+            ti.uname = ti.gname = "root"
+            ti.mtime = MTIME
+            ti.mode = mode
+            ti.size = len(data)
+            tar.addfile(ti, io.BytesIO(data))
+    return buf.getvalue()
 
 
 def build_usb(entries, removes, version):
@@ -413,6 +432,12 @@ def main():
     manifest_warnings(entries)
     z = build_usb(entries, removes, version)
     print(f"  USB : {z}  (or folder {OUT / 'usb'})")
+    net = net_pack(OUT / "usb")
+    (OUT / f"xbody-net-v{version}.tar").write_bytes(net)
+    if not a.overlay:   # the real mod: committed, the server's "Публикувай" fetches it from GitHub main
+        (XB / "dist").mkdir(exist_ok=True)
+        (XB / "dist/xbody-net.tar").write_bytes(net)
+    print(f"  NET : {OUT / f'xbody-net-v{version}.tar'}  (+ xbody/dist/xbody-net.tar for the server)")
     if a.img:
         g = apply_img(Path(a.img).resolve(), entries, removes, version)
         print(f"  SD  : {g}  (write with balenaEtcher; it reads .gz)")

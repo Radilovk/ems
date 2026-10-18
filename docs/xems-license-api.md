@@ -152,6 +152,18 @@ POST {server}/v1/card/find          (CORS *, 20 заявки / мин / IP)
 - Таблица `client_cards` (миграция `0004_client_cards.sql`). Без сървър или без връзка таблетът праща картона
   като HTML файл.
 
+### 5. XBody машината (мод v21) — само по заявка от треньора
+
+Без лиценз; отговорите са текст (машината ги чете с busybox). Нищо не се пита само — само при бутон в XEMS панела.
+
+```
+GET  /v1/unit/update?app=xbody&have=20&unit=<12 hex>   → version=21\nsha256=<64 hex>\nsize=788480\nnotes=…\n   (version=0 = последната е)
+GET  /v1/unit/pack?app=xbody&v=21                     → пакетът (tar), прекаран през сървъра от регистрирания HTTPS адрес
+POST /v1/unit/log?app=xbody&unit=<12 hex>&ver=21      (текст ≤ 256 KB) → OK <№>      (10 на час от IP)
+```
+Админ: `GET /admin/api/units`, `POST /admin/api/units/release {version,url,notes}` (сървърът сваля пакета и пази
+sha256/size), `DELETE /admin/api/units/release/xbody/<v>`, `GET|DELETE /admin/api/units/log/<id>`. Логовете се пазят 60 дни.
+
 ## Жетон (подписан от сървъра)
 
 ```

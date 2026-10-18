@@ -11,6 +11,7 @@
 #include <vector>
 
 class PanelWidget;
+class QProcess;
 class TabWidget;
 class SessionTab;
 
@@ -104,6 +105,14 @@ public:
     // Install an XEMS update from a USB stick now (our panel's "Обнови от USB"): runs
     // /opt/xems/bin/xems-usb-update, returns a short Bulgarian result line for a toast.
     QString updateFromUsb();
+    // The internet, only when the trainer asks (/opt/xems/bin/xems-net, in the background; nothing polls):
+    // NET_UPDATE = a newer mod from our server (the panel's loop installs it), NET_LOG = the last 2 minutes of logs.
+    enum NetJob { NET_NONE, NET_UPDATE, NET_LOG };
+    void netStart(int job);
+    bool netBusy() const { return net_ != 0; }
+    int netJob() const { return netJob_; }
+    QString netLine() const { return netLine_; }   // its progress, then its result — in Bulgarian
+    bool netOk() const { return netOk_; }
 
 protected:
     void timerEvent(QTimerEvent *e);
@@ -145,6 +154,13 @@ private:
     PhoneLink phone_;
     unsigned cableReadMs_;
     void readCableState();
+    QProcess *net_;
+    int netJob_;
+    QString netLine_, netOut_;
+    bool netOk_;
+    unsigned netSinceMs_;
+    void pollNet(unsigned t);
+    void netSay(const QString &l);
     QString note_;
     bool noteWarn_;
     unsigned noteUntilMs_;

@@ -81,6 +81,7 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
   <button data-tab="dev" onclick="tab('dev')">Таблети</button>
   <button data-tab="svc" onclick="tab('svc')">Модули & костюми</button>
   <button data-tab="rel" onclick="tab('rel')">Нова версия (APK)</button>
+  <button data-tab="xb" onclick="tab('xb')">XBody</button>
   <button data-tab="log" onclick="tab('log')">Журнал</button>
   <button onclick="location.href='/admin/exercises'">Упражнения ↗</button>
 </nav>
@@ -260,6 +261,38 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
   </div>
 </section>
 
+<section id="xb" class="panel">
+  <div class="intro">
+    <b>XBody машината</b> пита сървъра само когато треньорът натисне <b>Обнови · лог</b> в XEMS панела на машината —
+    иначе мрежата ѝ е затворена за всичко. Тук пускаш нова версия на мода и четеш изпратените логове (последните 2 минути).
+  </div>
+  <div class="card">
+    <h2>Пусни версия на мода</h2>
+    <div class="steps" style="margin-bottom:.85rem">
+      <div class="step"><b>Стъпка 1.</b> <code>xbody/dist/xbody-net.tar</code> е в GitHub (branch <code>main</code>), версията е в <code>xbody/overlay/opt/xems/VERSION</code>.</div>
+      <div class="step"><b>Стъпка 2.</b> Въведи версията и натисни „Публикувай“ — сървърът изтегля пакета и записва SHA-256.</div>
+    </div>
+    <div class="row">
+      <div><label>Версия <span class="field-hint">(число, напр. 21)</span></label><input id="xb_ver" type="number" placeholder="21" style="width:90px"></div>
+      <div style="flex:1;min-width:240px"><label>URL на пакета</label><input id="xb_url" style="width:100%" value="https://github.com/Radilovk/ems/raw/main/xbody/dist/xbody-net.tar"></div>
+    </div>
+    <div class="row">
+      <div style="flex:1"><label>Какво е ново <span class="field-hint">(за теб)</span></label><input id="xb_notes" placeholder="Поправки…" style="width:100%"></div>
+      <div><label>&nbsp;</label><button onclick="publishUnit()">Публикувай</button></div>
+    </div>
+    <div id="xb_msg"></div>
+  </div>
+  <div class="card">
+    <h2>Версии</h2>
+    <table id="xb_rel"><thead><tr><th>Версия</th><th>Размер</th><th>Публикувана</th><th>Бележка</th><th>Действия</th></tr></thead><tbody></tbody></table>
+  </div>
+  <div class="card">
+    <h2>Логове от машините</h2>
+    <p class="hint" style="margin-bottom:.5rem">Пазят се 60 дни. Номерът е същият, който машината показва след „Изпрати лог“.</p>
+    <table id="xb_logs"><thead><tr><th>№</th><th>Кога</th><th>Машина</th><th>Мод</th><th>Размер</th><th>Действия</th></tr></thead><tbody></tbody></table>
+  </div>
+</section>
+
 <section id="log" class="panel">
   <div class="intro">
     <b>История на действията</b> — създаване на ключове, активиране на таблети, спиране, обновявания.
@@ -356,6 +389,7 @@ function tab(id){
   if(id==='dev') loadDevices();
   if(id==='log') loadAudit();
   if(id==='svc') loadCatalog();
+  if(id==='xb') loadUnits();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -453,6 +487,42 @@ async function deleteRelease(code,name){
   if(!confirm('Изтрий версия '+name+' (code '+code+')?\\n\\nТаблетите няма да я виждат повече.')) return;
   await api('releases/'+code,{method:'DELETE'});
   load();
+}
+
+async function loadUnits(){
+  const u=await api('units');
+  document.querySelector('#xb_rel tbody').innerHTML=(u.releases||[]).map(x=>
+    '<tr><td><b>v'+x.version+'</b></td><td>'+fmtSize(x.size)+'</td><td>'+fmtTs(x.published_at)+'</td><td>'+(x.notes||'—')+'</td><td class="actions">'+
+    '<button class="danger" onclick="deleteUnitRelease('+x.version+')">Изтрий</button></td></tr>'
+  ).join('')||'<tr><td colspan="5" class="empty">Няма публикувани версии — машината ще казва, че има последната.</td></tr>';
+  document.querySelector('#xb_logs tbody').innerHTML=(u.logs||[]).map(x=>
+    '<tr><td><b>'+x.id+'</b></td><td>'+fmtTs(x.ts)+'</td><td><code>'+x.unit+'</code></td><td>v'+x.version+'</td><td>'+fmtSize(x.size)+'</td><td class="actions">'+
+    '<button class="secondary" onclick="openUnitLog('+x.id+')">Отвори</button>'+
+    '<button class="danger" onclick="deleteUnitLog('+x.id+')">Изтрий</button></td></tr>'
+  ).join('')||'<tr><td colspan="6" class="empty">Още няма изпратени логове.</td></tr>';
+}
+async function publishUnit(){
+  const el=document.getElementById('xb_msg');
+  const v=+document.getElementById('xb_ver').value;
+  if(!v){el.innerHTML='<div class="msg err">Въведи версията (числото от VERSION).</div>';return;}
+  el.innerHTML='<div class="msg">Изтеглям пакета и проверявам…</div>';
+  try{
+    const r=await api('units/release',{method:'POST',body:JSON.stringify({app:'xbody',version:v,
+      url:document.getElementById('xb_url').value,notes:document.getElementById('xb_notes').value})});
+    el.innerHTML='<div class="msg">✓ Версия <b>v'+r.version+'</b> е публикувана · '+fmtSize(r.size)+'. Машината я взима при „Обнови от интернет“.</div>';
+    loadUnits();
+  }catch(e){el.innerHTML='<div class="msg err">'+e.message+'</div>';}
+}
+async function deleteUnitRelease(v){
+  if(!confirm('Изтрий версия v'+v+' на XBody мода?')) return;
+  await api('units/release/xbody/'+v,{method:'DELETE'});
+  loadUnits();
+}
+function openUnitLog(id){window.open('/admin/api/units/log/'+id,'_blank')}
+async function deleteUnitLog(id){
+  if(!confirm('Изтрий лог №'+id+'?')) return;
+  await api('units/log/'+id,{method:'DELETE'});
+  loadUnits();
 }
 
 async function createLicense(){

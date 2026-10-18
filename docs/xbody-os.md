@@ -54,6 +54,9 @@ lines ending CRLF (`'S'` + hex + CRC-16/MODBUS).
 ## Network
 `/etc/network/interfaces`: `eth0` dhcp (auto), `wlan0` dhcp (auto, essid `xbodynetwork`, wpa_supplicant),
 `usb0` static 192.168.7.2/24 (USB gadget), `bnep0` (BT PAN). sshd + avahi run at boot.
+**Mod v21 closes it** (owner: only our protocol on the network): `/etc/init.d/xems-fw` (rc5 S00) drops everything but
+lo, usb0 (phone cable), DHCP and our server while `xems-net` runs; sshd, rpcbind, mountnfs, avahi, ofono, neard lose
+their rc5 links. Details: docs/xbody-xems-panel.md "Internet only on request".
 
 ## USB update hook (vendor)
 `/etc/init.d/xbody-updater` (S30): if `/dev/sda1` (else `/dev/sda`) exists, mount on `/tmp/pen`; if

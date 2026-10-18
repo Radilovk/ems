@@ -25,6 +25,8 @@ sh scripts/xbody/test.sh                               # must print ALL OK befor
   (`opt/xems/bin/xems-usb-update`) is the second in-app way. Both in docs/xbody-xems-panel.md; tests 8–9.
 - SD-image route needs the raw card image (`fetch-base.py --id <drive id of .img/.img.gz/.zip>`); the
   current Drive file is a 7z **file dump** (symlinks flattened) — analysis only, never a base to write.
+- `build.py` also writes `xbody/dist/xbody-net.tar` (the internet update, `xems-net`): commit it with the mod; the owner
+  publishes it in the admin page (tab XBody). The unit's network is locked to our protocol (`xems-fw`, mod v21).
 - Outputs in `build/` are gitignored; hand them over with SendUserFile. Exception: the Android stick app — the latest
   one is committed as `xbody/dist/xems-fleshka.apk` (build-android.sh copies it there; commit it with the mod).
 - The zip = `PROCHETI.txt` + `PODGOTVI-FLESHKA.cmd|.command` + `tools/podgotvi.ps1` + `fleshka/` (stick contents).

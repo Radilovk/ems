@@ -245,6 +245,11 @@ XBody's own Wi-Fi screen (`WifiView`) is hidden with its "online" mode, and its 
 - Tests: `test.sh` 12 (stand-in wpa_cli: sorted / deduped scan, open / WPA / unsupported, wrong password, join + address,
   saved once, forget, no radio); also run under the card's busybox ash + its `wpa_passphrase` in qemu (caught: busybox
   `od` has no `-A` → `hexdump`). Not yet on the unit: which Wi-Fi chip it has and whether its driver scans once up.
+- **Mod v23 fix (owner: "the log does not send, says try again"):** v21/v22 shipped `xems-net` without its exec bit
+  (0644), so the panel could not start it — every "От интернет" / "Изпрати лог" ended "Не стана". The panel now runs
+  `xems-net` / `xems-wifi` through `/bin/sh` (exit 127 says the program is missing), the file is 0755 again, and
+  `test.sh` 1 fails on any overlay program without its exec bit (in git and in the payload). Units on v21–22 need v23
+  from the USB stick or the phone app once: their internet update runs the same broken file.
 
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in

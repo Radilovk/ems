@@ -272,6 +272,15 @@ dark (= the sketch's setup ran), then back to "Включи XEMS моста" —
   enumerated and no `/dev/ttyACM*` appeared. **Bridge v5 (mod v25):** `build-bridge.sh` patches the core's
   `TUD_CDC_DESCRIPTOR` (IAD + interface) to protocol 1 (AT commands; nothing ever sends AT; modern hosts bind either).
   Again RESET twice: the v4 bridge has no port to take a DFU command.
+- **Bridge v6 (mod v26; owner: "the XIAO looks for EMS devices, bodytech and XEMS are on, it does not see them"):**
+  with active scanning a suit's name (and often its service) comes in the scan response a few ms after the
+  advertisement; v1–v5 printed each address at most once a second — always the first, nameless packet — so a suit that
+  names itself only in the scan response never reached `suitKind`. v6 merges name + service per address and sends the
+  ADV line again as soon as either is learnt. `Bluefruit.begin` is checked: `ERR ble-start` / `ERR ble-scan` → the
+  panel says "Bluetooth на моста не тръгна". `PONG <ver> <reports heard> [ble-off]`; the pick header shows
+  "Bluetooth наоколо: N" (every device heard in 10 s, suit or not) and `/tmp/xems-bridge.state` lists each one
+  (`adv <mac> <rssi> <svc> <name>`) for "Изпрати лог" — the names tell why a suit is not recognised. The bridge
+  updates itself from v5 (DFU over the port it now has).
 
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in

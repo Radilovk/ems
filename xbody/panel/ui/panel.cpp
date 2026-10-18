@@ -790,8 +790,12 @@ void PanelWidget::paintCableInfo(QPainter &p) {
 void PanelWidget::paintPick(QPainter &p) {
     int dots = (app_->now() / 400) % 4;
     QString n = app_->note();
-    paintHeader(p, U("ИЗБЕРИ КОСТЮМ"), n.isEmpty() ? U("Търся наблизо") + QString(dots, QLatin1Char('.')) : n,
-                !n.isEmpty() && app_->noteWarn(), !n.isEmpty() && !app_->noteWarn());
+    // While looking: how many Bluetooth devices the bridge hears at all — 0 means the radio, many means the suit's name.
+    QString look = app_->bleOff() ? U("Bluetooth на моста не работи — извади XIAO и го включи пак")
+                                  : U("Търся наблизо") + QString(dots, QLatin1Char('.')) + U("   ·   Bluetooth наоколо: ") +
+                                        QString::number(app_->nearby());
+    paintHeader(p, U("ИЗБЕРИ КОСТЮМ"), n.isEmpty() ? look : n,
+                (!n.isEmpty() && app_->noteWarn()) || (n.isEmpty() && app_->bleOff()), !n.isEmpty() && !app_->noteWarn());
     QRect cb(653, 0, 147, 56);   // XBody's own cable settings
     if (pressed_ == U("cable")) p.fillRect(cb.adjusted(1, 0, 0, 0), PRESS);
     p.setPen(INK);
@@ -1912,7 +1916,7 @@ void PanelWidget::mouseReleaseEvent(QMouseEvent *e) {
 QString PanelWidget::signature(QString *clock) const {
     unsigned now = app_->now();
     App::View v = app_->view();
-    QString g = QString::number(v) + U("|") + app_->note() + QString::number(app_->noteWarn()) + U("|") + pressed_ +
+    QString g = QString::number(v) + U("|") + QString::number(app_->nearby()) + QString::number(app_->bleOff()) + U("|") + app_->note() + QString::number(app_->noteWarn()) + U("|") + pressed_ +
                 QString::number(sheet_) + QString::number(confirm_) + QString::number(confirmKind_) + U("|") + QString::number(sel_) +
                 QString::number(slideZone_) + U("/") + QString::number(slideValue_) + U("|") +
                 U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())

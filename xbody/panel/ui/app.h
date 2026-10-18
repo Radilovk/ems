@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QPoint>
 #include <QString>
+#include <map>
 #include <vector>
 
 class PanelWidget;
@@ -76,6 +77,11 @@ public:
     // What the unit sees of the bridge while it is not answering: a XIAO on USB, the port, bytes heard.
     struct BridgeDiag { bool usb; QString port; long rx; };
     const BridgeDiag &bridgeDiag() const { return diag_; }
+    // Every Bluetooth device the bridge hears (suit or not) in the last 10 s, and the bridge's own report count (-1:
+    // an older bridge) — "Bluetooth наоколо: N" while looking for suits; the list goes to /tmp/xems-bridge.state.
+    int nearby() const;
+    long bridgeHeard() const { return bridgeHeard_; }
+    bool bleOff() const { return bleOff_; }
 
     // ---- XBody's own cable output (xems-xbproxy): suit standard + double impulse ----
     struct CableLive {
@@ -185,6 +191,10 @@ private:
     std::vector<WifiNet> wifiNets_, wifiScan_;
     void pollWifi(unsigned t);
     BridgeDiag diag_;
+    struct Heard { unsigned ms; int rssi; std::string svc, name; };
+    std::map<std::string, Heard> heard_;
+    long bridgeHeard_;
+    bool bleOff_;
     unsigned diagMs_;
     void readDiag();
     void wifiSay(const QString &l);

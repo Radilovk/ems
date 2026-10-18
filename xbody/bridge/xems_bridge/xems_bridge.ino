@@ -18,7 +18,7 @@
 // (the suit's "outputs off", set by the host after LINK) and is disconnected.
 #include <bluefruit.h>
 
-#define BRIDGE_VER "5"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
+#define BRIDGE_VER "6"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
 #define MAX_LINKS 4
 #define HOST_TIMEOUT_MS 2500
 #define SEEN_MAX 32
@@ -41,8 +41,14 @@ static void hostLine(const char *s) { hostWrite((const uint8_t *)s, strlen(s)); 
 
 static Link links[MAX_LINKS];
 
-struct Seen { ble_gap_addr_t addr; uint32_t lastMs; bool used; };
+// A device's name and service often come in different packets (the advertisement, then the scan response a few ms
+// later): they are merged per address, and the ADV line goes out again as soon as either is learnt (v5 printed the
+// first packet of each second only — the nameless one — so suits that name themselves in the scan response never
+// showed up on the unit).
+struct Seen { ble_gap_addr_t addr; uint32_t lastMs; bool used; char name[24]; int prof; };
 static Seen seen[SEEN_MAX];
+static volatile uint32_t advCount = 0;   // reports heard (the unit shows it while it looks for suits)
+static bool bleOk = false;
 
 // Callbacks run in the Bluefruit task: they queue lines, loop() writes them to USB.
 static SemaphoreHandle_t outMx;
@@ -115,7 +121,8 @@ static void scanCb(ble_gap_evt_adv_report_t *r) {
            : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid((uint16_t)0xFFF0)) ? P_FFF0
            : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid(NUS_SVC)) ? P_NUS
            : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid(WI_SVC)) || !strncmp(name, "WIEMS", 5) ? P_WIEMS : P_NONE;
-  // Remember the address (with its type) for CONN; report each device at most once a second.
+  advCount++;
+  // Remember the address (with its type) for CONN; merge what each packet tells.
   int slot = -1, oldest = 0;
   for (int i = 0; i < SEEN_MAX; i++) {
     if (seen[i].used && !memcmp(seen[i].addr.addr, r->peer_addr.addr, 6)) { slot = i; break; }
@@ -123,12 +130,19 @@ static void scanCb(ble_gap_evt_adv_report_t *r) {
     else if (seen[i].lastMs < seen[oldest].lastMs) oldest = i;
   }
   if (slot < 0) slot = oldest;
+  Seen &s = seen[slot];
   uint32_t now = millis();
-  bool fresh = !(seen[slot].used && !memcmp(seen[slot].addr.addr, r->peer_addr.addr, 6) && now - seen[slot].lastMs < 1000);
+  bool same = s.used && !memcmp(s.addr.addr, r->peer_addr.addr, 6);
+  if (!same) { memset(&s, 0, sizeof s); s.prof = P_NONE; }
+  bool learnt = false;
+  if (name[0] && strncmp(s.name, name, sizeof s.name - 1)) { strncpy(s.name, name, sizeof s.name - 1); s.name[sizeof s.name - 1] = 0; learnt = true; }
+  if (prof != P_NONE && s.prof != prof) { s.prof = prof; learnt = true; }
+  bool fresh = !same || now - s.lastMs >= 1000 || learnt;
+  s.addr = r->peer_addr; s.used = true;
   if (fresh) {
-    seen[slot].addr = r->peer_addr; seen[slot].lastMs = now; seen[slot].used = true;
+    s.lastMs = now;
     macStr(r->peer_addr.addr, mac);
-    snprintf(line, sizeof line, "ADV %s %d %s %s", mac, r->rssi, profName(prof), name[0] ? name : "-");
+    snprintf(line, sizeof line, "ADV %s %d %s %s", mac, r->rssi, profName(s.prof), s.name[0] ? s.name : "-");
     out(line);
   }
   Bluefruit.Scanner.resume();
@@ -199,7 +213,12 @@ static void command(char *s) {
   uint8_t mac[6], buf[64];
   if (!cmd) return;
   lastHostMs = millis(); hostSeen = true;
-  if (!strcmp(cmd, "PING")) { hostLine("PONG " BRIDGE_VER); return; }
+  if (!strcmp(cmd, "PING")) {
+    char pong[40];
+    snprintf(pong, sizeof pong, "PONG " BRIDGE_VER " %lu%s", (unsigned long)advCount, bleOk ? "" : " ble-off");
+    hostLine(pong);
+    return;
+  }
   if (!strcmp(cmd, "DFU")) {   // firmware update from the unit: outputs off first, then the UF2 bootloader
     failSafe();
     hostLine("DFUOK");
@@ -209,7 +228,7 @@ static void command(char *s) {
     return;
   }
   if (!strcmp(cmd, "SCAN")) {
-    if (a && a[0] == '1') { Bluefruit.Scanner.start(0); hostLine("SCANNING 1"); }
+    if (a && a[0] == '1') hostLine(bleOk && Bluefruit.Scanner.start(0) ? "SCANNING 1" : "ERR ble-scan");
     else { Bluefruit.Scanner.stop(); hostLine("SCANNING 0"); }
     return;
   }
@@ -245,7 +264,7 @@ void setup() {
   digitalWrite(LED_RED, HIGH); digitalWrite(LED_GREEN, HIGH); digitalWrite(LED_BLUE, HIGH);   // active low: off
   Serial.begin(115200);
   Bluefruit.configCentralBandwidth(BANDWIDTH_MAX);
-  Bluefruit.begin(0, MAX_LINKS);
+  bleOk = Bluefruit.begin(0, MAX_LINKS);   // false: the SoftDevice refused the config (RAM) — said in every HELLO
   Bluefruit.setName("XEMS-Bridge");
   Bluefruit.setTxPower(8);
   Bluefruit.autoConnLed(false);
@@ -281,6 +300,7 @@ void loop() {
   if (!hostSeen && now - helloMs > 1000) {   // until the host speaks, say who we are once a second (DTR or not)
     helloMs = now;
     char h[48]; snprintf(h, sizeof h, "HELLO XEMS-BRIDGE " BRIDGE_VER " %d", MAX_LINKS); hostLine(h);
+    if (!bleOk) hostLine("ERR ble-start");
   }
   if (hostSeen && now - lastHostMs > HOST_TIMEOUT_MS) { failSafe(); hostSeen = false; }
   int linked = 0;

@@ -444,6 +444,12 @@ static void bridgeLines() {
     if (bridgecmd::write("AA:BB:CC:DD:EE:FF", xems::battery()) != "W AA:BB:CC:DD:EE:FF 5304055C\n") fails++;
     eqInt("hello version", 2, bridgeVersion(parseBridgeLine("HELLO XEMS-BRIDGE 2 4")));
     eqInt("pong version", 1, bridgeVersion(parseBridgeLine("PONG 1")));
+    e = parseBridgeLine("PONG 6 1234");
+    eqInt("pong v6 version", 6, bridgeVersion(e));
+    eqInt("pong v6 heard", 1234, e.rssi);
+    e = parseBridgeLine("PONG 6 0 ble-off");
+    eqInt("pong v6 radio off", 1, (int)(e.name == "ble-off"));
+    eqInt("pong old: no count", -1, parseBridgeLine("PONG 5").rssi);
     eqInt("no version", 0, bridgeVersion(parseBridgeLine("SCANNING 1")));
     eqInt("dfuok", BridgeEvent::DFUOK, parseBridgeLine("DFUOK").type);
 }

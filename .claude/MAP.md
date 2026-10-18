@@ -828,7 +828,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (402L)
+`docs/xbody-xems-panel.md` (411L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -843,13 +843,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L182 ## Internet only on request + the network lock (mod v21, owner)
   - L225 ## Wi-Fi page (mod v22, owner: "no Wi-Fi setting, nowhere to look for a signal")
   - L254 ## First XIAO on the unit (owner, mod v24 / bridge v4)
-  - L276 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L300 ## Panel
-  - L334 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
-  - L356 ## Bridge line protocol (USB CDC, 115200)
-  - L367 ## Files
-  - L379 ## Build / test
-  - L395 ## First test on the unit (when the XIAO arrives)
+  - L285 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L309 ## Panel
+  - L343 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
+  - L365 ## Bridge line protocol (USB CDC, 115200)
+  - L376 ## Files
+  - L388 ## Build / test
+  - L404 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

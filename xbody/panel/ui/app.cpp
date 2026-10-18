@@ -73,6 +73,8 @@ App::App()
     }
     diag_.usb = false;
     diag_.rx = 0;
+    bridgeHeard_ = -1;
+    bleOff_ = false;
     diagMs_ = 0;
     timer_.start(20, this);
 }
@@ -305,6 +307,10 @@ void App::pollNet(unsigned t) {
 // The bridge as the unit sees it (only while it does not answer): a Seeed / XIAO device on the USB bus, the port the
 // panel holds, bytes heard on it. On the card and in /tmp/xems-bridge.state for the log.
 void App::readDiag() {
+    for (std::map<std::string, Heard>::iterator it = heard_.begin(); it != heard_.end();) {
+        if (age(now(), it->second.ms) > 10000) heard_.erase(it++);
+        else ++it;
+    }
     QString sys = envPath("XEMS_USB_SYS", "/sys/bus/usb/devices");
     diag_.usb = false;
     QStringList devs = QDir(sys).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -320,6 +326,20 @@ void App::readDiag() {
     if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
         f.write(QString(U("usb=%1\nport=%2\nrx=%3\nhello=%4\nver=%5\n")).arg(diag_.usb).arg(diag_.port).arg(diag_.rx)
                     .arg(helloMs_ != 0).arg(bridgeVer_).toLatin1());
+    if (f.isOpen()) {   // what the radio hears: the names tell why a suit is not recognised
+        f.write(QString(U("heard_by_bridge=%1\nble_off=%2\n")).arg(bridgeHeard_).arg(bleOff_).toLatin1());
+        for (std::map<std::string, Heard>::const_iterator it = heard_.begin(); it != heard_.end(); ++it)
+            f.write(("adv " + it->first + " " + QString::number(it->second.rssi).toStdString() + " " +
+                     (it->second.svc.empty() ? std::string("-") : it->second.svc) + " " +
+                     (it->second.name.empty() ? std::string("-") : it->second.name) + "\n").c_str());
+    }
+}
+
+int App::nearby() const {
+    int n = 0;
+    for (std::map<std::string, Heard>::const_iterator it = heard_.begin(); it != heard_.end(); ++it)
+        if (age(now(), it->second.ms) <= 10000) n++;
+    return n;
 }
 
 void App::wifiStart(int job, const QString &ssid, const QString &pass) {
@@ -602,6 +622,7 @@ void App::line(const std::string &l, unsigned t) {
     case BridgeEvent::PONG: {
         if (!helloMs_) scanning_ = false;   // a fresh bridge: say SCAN again
         helloMs_ = t;
+        if (e.type == BridgeEvent::PONG) { bridgeHeard_ = e.rssi; bleOff_ = e.name == "ble-off"; }
         int v = bridgeVersion(e);
         if (v > 0) {
             if (dfuSent_ && v >= bundledVer_) setNote(U("✓ Мостът е обновен"), false);
@@ -614,6 +635,10 @@ void App::line(const std::string &l, unsigned t) {
         setNote(U("Обновявам моста — след миг е готов"), false);
         break;
     case BridgeEvent::ERR:
+        if (e.text.find("ble-") != std::string::npos) {   // v6: the board's radio did not start / scan
+            bleOff_ = true;
+            setNote(U("Bluetooth на моста не тръгна — извади XIAO и го включи пак"), true);
+        }
         if (dfuSent_ && e.text.find("DFU") != std::string::npos) {   // v1 firmware: no DFU command yet
             setNote(U("Мостът е стар — натисни 2 пъти RESET на XIAO, машината ще го обнови"), true);
             dfuSent_ = false;
@@ -621,6 +646,11 @@ void App::line(const std::string &l, unsigned t) {
         }
         break;
     case BridgeEvent::ADV: {
+        Heard &h = heard_[e.mac];
+        h.ms = t;
+        h.rssi = e.rssi;
+        if (e.svc != "-") h.svc = e.svc;
+        if (!e.name.empty()) h.name = e.name;
         int k = suitKind(e.svc, e.name);
         if (k < 0) break;
         size_t i = 0;
@@ -736,7 +766,7 @@ void App::timerEvent(QTimerEvent *ev) {
         }
     }
     if (age(t, cableReadMs_) >= 500) { cableReadMs_ = t; readCableState(); }
-    if (!bridgeOk() && age(t, diagMs_) >= 2000) { diagMs_ = t; readDiag(); }
+    if (age(t, diagMs_) >= 2000) { diagMs_ = t; readDiag(); }
     if (net_) pollNet(t);
     if (wifiProc_) pollWifi(t);
     // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----

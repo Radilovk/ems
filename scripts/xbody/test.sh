@@ -7,6 +7,7 @@
 #   8 vendor Software Update archive   9 panel USB update helper
 #   10 xems-net: update / log over HTTPS (a local stand-in server)   11 xems-fw: the network lock's rule order
 #   12 xems-wifi: scan / join / wrong password / forget against a stand-in wpa_cli
+#   13 the phone app's SD-card update (Ext3 + CardUpdate on image files, the real payload; e2fsck; undo)
 set -eu
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 T=$(mktemp -d)
@@ -393,4 +394,49 @@ printf 'Home Net\n' | wifi forget | grep -qx OK && [ ! -s "$Y/nets" ] || no "for
 printf 'Home Net\nshort\n' | wifi connect | tail -n 1 | grep -qx "ERR auth" || no "a 5-character password was not refused"
 rm -rf "$Y/sys/wlan0"; wifi scan | tail -n 1 | grep -qx "ERR no-wifi" || no "no radio not ERR no-wifi"
 ok "scan sorted / deduped / open+WPA+unsupported, wrong password, join + address + saved once, forget, no radio"
+echo "13. the app's SD-card update: the real payload onto ext3 card images (1 KB / 4 KB blocks, htree), undo"
+if ! command -v javac > /dev/null || ! command -v e2fsck > /dev/null; then echo "  skip: no javac / e2fsprogs"; echo "ALL OK"; exit 0; fi
+J=$T/jcard; mkdir -p "$J"
+javac -nowarn -d "$J" "$REPO"/scripts/xbody/android/src/bg/xems/fleshka/BlockDev.java \
+	"$REPO"/scripts/xbody/android/src/bg/xems/fleshka/FileDev.java "$REPO"/scripts/xbody/android/src/bg/xems/fleshka/UndoDev.java \
+	"$REPO"/scripts/xbody/android/src/bg/xems/fleshka/Ext3.java "$REPO"/scripts/xbody/android/src/bg/xems/fleshka/CardUpdate.java \
+	"$REPO"/scripts/xbody/android/test/CardUpdateMain.java 2> /dev/null || no "card update classes do not compile"
+card() { java -cp "$J" CardUpdateMain "$@" 2> /dev/null; }
+mbr() {   # one Linux partition from sector 2048, 60 MB (what the unit's card has, in small)
+	python3 -c "import struct,sys; f=open(sys.argv[1],'r+b'); f.seek(0x1BE); f.write(bytes([0,0,0,0,0x83,0,0,0])+struct.pack('<II',2048,122880)); f.seek(0x1FE); f.write(b'\x55\xaa')" "$1"
+}
+CR=$T/cardroot; mkdir -p "$CR/opt/xbody" "$CR/etc/init.d" "$CR/etc/rc5.d" "$CR/tmp"
+echo vendor > "$CR/opt/xbody/xbody"
+for s in sshd rpcbind mountnfs.sh avahi-daemon ofono neard xbody-start; do printf '#!/bin/sh\n' > "$CR/etc/init.d/$s"; done
+for l in S09sshd:sshd S12rpcbind:rpcbind S15mountnfs.sh:mountnfs.sh S21avahi-daemon:avahi-daemon S22ofono:ofono \
+	S64neard:neard S40xbody-start:xbody-start; do ln -s "../init.d/${l#*:}" "$CR/etc/rc5.d/${l%%:*}"; done
+i=0; while [ $i -lt 400 ]; do echo $i > "$CR/etc/init.d/vendor-$i"; i=$((i + 1)); done   # big enough for an htree
+STK=$T/real/usb; V=$(cat "$STK/xems/VERSION")
+for geo in 1024:128 4096:256; do
+	C=$T/card-${geo%%:*}.img
+	truncate -s 64M "$C"
+	mke2fs -q -t ext3 -b "${geo%%:*}" -I "${geo##*:}" -O dir_index -E offset=1048576 -d "$CR" "$C" 60M 2> /dev/null
+	mbr "$C"
+	e2fsck -fyD "$C?offset=1048576" > /dev/null 2>&1
+	P="$C?offset=1048576"
+	debugfs -R "stat /etc/init.d" "$P" 2> /dev/null | grep -q 'Flags: 0x1000' || no "$geo: test card has no htree dir"
+	cp "$C" "$C.orig"
+	card apply "$C" "$STK" "$C.undo" | grep -q "^OK $V " || no "$geo: apply"
+	e2fsck -fn "$P" > /dev/null 2>&1 || no "$geo: e2fsck after the update"
+	debugfs -R "cat /opt/xems/bin/xems-panel" "$P" 2> /dev/null | cmp -s - "$REPO/xbody/overlay/opt/xems/bin/xems-panel" || no "$geo: panel binary"
+	debugfs -R "stat /opt/xems/bin/xems-net" "$P" 2> /dev/null | grep -q 'Mode:  0755' || no "$geo: exec bit"
+	debugfs -R "stat /etc/rc5.d/S00xems-fw" "$P" 2> /dev/null | grep -q 'Fast link dest: "../init.d/xems-fw"' || no "$geo: rc link"
+	debugfs -R "stat /etc/rc5.d/S09sshd" "$P" 2>&1 | grep -q 'not found' || no "$geo: remove.list"
+	debugfs -R "cat /etc/init.d/vendor-399" "$P" 2> /dev/null | grep -qx 399 || no "$geo: vendor file in the htree dir lost"
+	card apply "$C" "$STK" "$C.undo2" | grep -q "^OK $V " && e2fsck -fn "$P" > /dev/null 2>&1 || no "$geo: second apply"
+	card undo "$C" "$C.undo2" > /dev/null && card undo "$C" "$C.undo" > /dev/null && cmp -s "$C" "$C.orig" || no "$geo: undo not byte-identical"
+done
+C=$T/card-1024.img
+cp "$C" "$T/dirty.img"; debugfs -w -R "feature needs_recovery" "$T/dirty.img?offset=1048576" > /dev/null 2>&1
+cp "$T/dirty.img" "$T/dirty.before"
+card apply "$T/dirty.img" "$STK" "$T/dirty.undo" | grep -q OK && no "a card with a journal to recover was written"
+cmp -s "$T/dirty.img" "$T/dirty.before" || no "a refused card was changed"
+truncate -s 8M "$T/fat.img"
+if mkfs.vfat "$T/fat.img" > /dev/null 2>&1; then card apply "$T/fat.img" "$STK" "$T/fat.undo" | grep -q OK && no "a non-XBody card was written"; fi
+ok "both geometries: e2fsck clean, files / modes / symlinks / removals right, htree kept readable, re-apply, undo byte-identical, dirty + foreign refused"
 echo "ALL OK"

@@ -281,6 +281,22 @@ the stick holds a backup; a XIAO in UF2 mode picked instead gets the bridge firm
 through SAF (the screen asks for FAT32 ≤ 32 GB). Source `scripts/xbody/android/` (one Activity, no XML layouts,
 dx-safe); javac → dx → baksmali → apktool b → uber-apk-signer. Not run on a device yet.
 
+**The unit's own SD card, straight from the phone (owner: "a direct updater — the XBody card in a USB reader on the
+phone").** Section "SD картата на XBody": Shut down → card out → USB card reader on OTG → **Обнови SD картата до версия N**
+→ card back in. No root: `UsbDisk` speaks USB Mass Storage bulk-only + SCSI (INQUIRY, TEST UNIT READY with retries,
+READ CAPACITY(10), READ(10) / WRITE(10) ≤ 64 KB per command, 16 KB bulk pieces, SYNCHRONIZE CACHE; reset + clear-halt on
+a confused reader), `claimInterface(force)` takes the reader from the phone's driver; the USB permission is asked once.
+`CardUpdate` finds the MBR partition whose ext filesystem has `/opt/xbody`, reads the app's own payload / remove.list
+and does what `build.py --img` does with debugfs; then a fresh read checks every file, mode, symlink and removal and the
+VERSION. `Ext3` is a small ext2/3 writer (block maps up to double indirect, 1–4 KB blocks, 128/256-byte inodes,
+htree directories read linearly after an add — the index flag is cleared); it refuses extents / 64bit / flex_bg /
+checksums and a journal that needs recovery ("картата не е изключена правилно"). The hooks run at the next boot as for
+any install (VERSION changed). **Undo:** `UndoDev` keeps every sector before it changes in
+`files/card-undo-<card size>.bin`, flushed to the phone before the card write → "Върни картата както беше" puts it back
+byte for byte (also after a pulled reader). Tests: `test.sh` 13 (the real payload onto mke2fs images, 1 KB and 4 KB
+blocks with an htree dir: e2fsck clean, re-apply, undo byte-identical, dirty / non-XBody card refused) — caught a
+4 KB-block bug (block 0 is the superblock's: "no block" must never be freed). Not run on a phone + reader yet.
+
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's
 800×600 (4:3; `/etc/pointercal`, XBody's pictures are all 800-wide):

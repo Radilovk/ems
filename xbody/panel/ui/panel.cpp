@@ -108,7 +108,7 @@ static void signalBars(QPainter &p, const QRect &r, int rssi, const QColor &on, 
 
 PanelWidget::PanelWidget(App *app)
     : QWidget(0, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), app_(app), pressMs_(0), repeatMs_(0),
-      sheet_(false), confirm_(false), confirmKind_(0), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
+      sheet_(false), confirm_(false), confirmKind_(0), netWasBusy_(false), sheetAge60_(false), sheetWiring_(Suit::WIRE_XEMS), info_(false), cableInfo_(false), showCable_(false), cableTab_(0), dy_(0),
       bubbleUntilMs_(0), toastUntilMs_(0), sel_(0), selKind_(-1), k_(1), ox_(0), oy_(0), figsSex_(-1), touchedMs_(0),
       slideZone_(-1), slideStart_(0), slideValue_(-1), sliding_(false) {
     loadLook();
@@ -307,7 +307,7 @@ void PanelWidget::paintCable(QPainter &p) {
     QString sub;
     bool warn = false, ok = false;
     const App::PhoneLink &ph = app_->phoneLink();
-    if (toastOn) { sub = toast_; ok = true; }
+    if (toastOn) { warn = !toast_.startsWith(U("✓")); ok = !warn; sub = toast_; }
     else if (!ph.pending.isEmpty()) { sub = U("Версия ") + ph.pending + U(" е изтеглена — изключи и включи XBody"); ok = true; }
     else if (ph.phone && ph.state == U("downloading")) sub = U("Телефонът е свързан — изтеглям версия ") + ph.phoneVer + U("…");
     else if (ph.phone && ph.state.startsWith(U("error"))) { sub = U("Телефонът е свързан, но изтеглянето не стана — опитвам пак"); warn = true; }
@@ -474,9 +474,8 @@ void PanelWidget::paintCableSettings(QPainter &p) {
     p.drawText(QRect(424, 310, 352, 60), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
                U("В паузата, от втория цикъл. Винаги под честотата на импулса, до 1,5 × силата му. СТОП го спира веднага."));
 
-    // ---- update XEMS from a USB stick, here, while the machine runs (no reboot dance) ----
-    // Only when nothing is training: a machine update mid-session would cut the output.
-    if (!live.training) {
+    // ---- update XEMS (internet / USB stick) and send the log: one button, the choices behind it ----
+    {
         QRect u(24, 352, 364, 42);
         bool pr = pressed_ == U("usb-update");
         p.setPen(QPen(pr ? RED : GREY, 2));
@@ -484,7 +483,7 @@ void PanelWidget::paintCableSettings(QPainter &p) {
         p.drawRoundedRect(QRectF(u).adjusted(1, 1, -1, -1), 10, 10);
         p.setPen(pr ? RED : INK);
         p.setFont(uiFont(16, true));
-        p.drawText(u, Qt::AlignCenter, U("⟲  Обнови XEMS от USB"));
+        p.drawText(u, Qt::AlignCenter, app_->netBusy() ? U("⟲  Обновяване и лог …") : U("⟲  Обнови XEMS  ·  Прати лог"));
         hit(u, U("usb-update"));
     }
 
@@ -1421,16 +1420,14 @@ void PanelWidget::toast(const QString &text) {
 void PanelWidget::paintConfirm(QPainter &p) {
     p.fillRect(QRect(0, 0, 800, 600), QColor(255, 255, 255, 120));
     hits_.clear();
+    if (confirmKind_ == 2) { paintService(p); return; }
     p.fillRect(QRect(0, 150, 800, 232), DIALOG);
-    bool usb = confirmKind_ == 1;
     p.setPen(WHITE);
     p.setFont(uiFont(32));
-    p.drawText(QRect(0, 170, 800, 50), Qt::AlignCenter,
-               usb ? U("Да обновя ли XEMS от USB?") : U("Прекъсни връзката с костюма?"));
+    p.drawText(QRect(0, 170, 800, 50), Qt::AlignCenter, U("Прекъсни връзката с костюма?"));
     p.setFont(uiFont(17));
     p.drawText(QRect(40, 222, 720, 50), Qt::AlignCenter | Qt::TextWordWrap,
-               usb ? U("Инсталирам от поставената флашка. Накрая изключи и включи XBody, за да влезе в сила.")
-                   : U("Изходите се изключват. Ще можеш да избереш друг костюм."));
+               U("Изходите се изключват. Ще можеш да избереш друг костюм."));
     for (int i = 0; i < 2; i++) {
         QRect r = i ? QRect(420, 294, 190, 56) : QRect(190, 294, 190, 56);
         QString id = i ? U("confirm-yes") : U("confirm-no");
@@ -1439,9 +1436,51 @@ void PanelWidget::paintConfirm(QPainter &p) {
         p.drawRoundedRect(QRectF(r).adjusted(1, 1, -1, -1), 8, 8);
         p.setPen(WHITE);
         p.setFont(uiFont(18));
-        p.drawText(r, Qt::AlignCenter, i ? (usb ? U("ОБНОВИ") : U("ПРЕКЪСНИ")) : U("ОТКАЖИ"));
+        p.drawText(r, Qt::AlignCenter, i ? U("ПРЕКЪСНИ") : U("ОТКАЖИ"));
         hit(r, id);
     }
+}
+
+// The update / log sheet, in XBody's dialog band: three one-tap choices side by side, what happened under them.
+// Nothing here runs on its own — each tile is the one request. Updates wait while XBody's cable is training.
+void PanelWidget::paintService(QPainter &p) {
+    p.fillRect(QRect(0, 110, 800, 380), DIALOG);
+    p.setPen(WHITE);
+    p.setFont(uiFont(30));
+    p.drawText(QRect(0, 122, 800, 48), Qt::AlignCenter, U("Обновяване и лог"));
+    bool busy = app_->netBusy(), training = app_->cableLive().training;
+    static const char *const ID[3] = {"svc-net", "svc-usb", "svc-log"};
+    static const char *const TITLE[3] = {"От интернет", "От USB флашка", "Изпрати лог"};
+    static const char *const SUB[3] = {"новата версия от сървъра", "от поставената флашка", "последните 2 минути"};
+    for (int i = 0; i < 3; i++) {
+        QRect r(40 + i * 248, 186, 224, 128);
+        QString id = U(ID[i]);
+        bool on = !busy && (i == 2 || !training);
+        bool run = busy && app_->netJob() == (i == 2 ? App::NET_LOG : App::NET_UPDATE) && i != 1;
+        p.setOpacity(on || run ? 1.0 : 0.4);
+        p.setPen(QPen(WHITE, 2));
+        p.setBrush(pressed_ == id || run ? QColor(255, 255, 255, 60) : QColor(Qt::transparent));
+        p.drawRoundedRect(QRectF(r).adjusted(1, 1, -1, -1), 10, 10);
+        p.setPen(WHITE);
+        p.setFont(uiFont(21, true));
+        p.drawText(QRect(r.left(), r.top() + 26, r.width(), 36), Qt::AlignCenter, U(TITLE[i]));
+        p.setFont(uiFont(15));
+        p.drawText(QRect(r.left() + 8, r.top() + 66, r.width() - 16, 40), Qt::AlignCenter | Qt::TextWordWrap,
+                   i < 2 && training && !busy ? U("след тренировката") : U(SUB[i]));
+        if (on) hit(r, id);
+    }
+    p.setOpacity(1.0);
+    QString line = usbLine_.isEmpty() ? app_->netLine() : usbLine_;
+    if (busy && line.endsWith(U("…"))) line = line.left(line.length() - 1) + QString(1 + (app_->now() / 400) % 3, QLatin1Char('.'));
+    p.setFont(uiFont(18, true));
+    p.drawText(QRect(30, 326, 740, 52), Qt::AlignCenter | Qt::TextWordWrap, line);
+    QRect c(305, 392, 190, 56);
+    p.setPen(QPen(WHITE, 2));
+    p.setBrush(pressed_ == U("svc-close") ? QColor(255, 255, 255, 60) : QColor(Qt::transparent));
+    p.drawRoundedRect(QRectF(c).adjusted(1, 1, -1, -1), 8, 8);
+    p.setFont(uiFont(18));
+    p.drawText(c, Qt::AlignCenter, U("ЗАТВОРИ"));
+    hit(c, U("svc-close"));
 }
 
 static void stepField(Program &q, const QString &f, int d, bool age60) {
@@ -1578,12 +1617,15 @@ void PanelWidget::act(const QString &id, bool repeat) {
     if (id == QLatin1String("info")) { info_ = true; return; }
     if (id == QLatin1String("info-close")) { info_ = cableInfo_ = false; return; }
     if (id == QLatin1String("suit") && s && s->state() == Suit::IDLE) { confirm_ = true; confirmKind_ = 0; return; }
-    if (id == QLatin1String("usb-update")) { confirm_ = true; confirmKind_ = 1; return; }
+    if (id == QLatin1String("usb-update")) { confirm_ = true; confirmKind_ = 2; netWasBusy_ = false; return; }
+    if (id == QLatin1String("svc-close")) { confirm_ = false; netWasBusy_ = app_->netBusy(); return; }
+    if (id == QLatin1String("svc-net")) { usbLine_.clear(); app_->netStart(App::NET_UPDATE); return; }
+    if (id == QLatin1String("svc-log")) { usbLine_.clear(); app_->netStart(App::NET_LOG); return; }
+    if (id == QLatin1String("svc-usb")) { usbLine_ = app_->updateFromUsb(); return; }   // mount the stick, install
     if (id == QLatin1String("confirm-no")) { confirm_ = false; return; }
     if (id == QLatin1String("confirm-yes")) {
         confirm_ = false;
-        if (confirmKind_ == 1) toast(app_->updateFromUsb());   // mount the stick, install, report
-        else app_->forget();
+        app_->forget();
         return;
     }
 }
@@ -1671,6 +1713,9 @@ QString PanelWidget::signature(QString *clock) const {
                 QString::number(slideZone_) + U("/") + QString::number(slideValue_) + U("|") +
                 U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())
                     .arg((int)(bubbleUntilMs_ - now) > 0).arg((int)(toastUntilMs_ - now) > 0);
+    if (confirm_ && confirmKind_ == 2)
+        g += U("|n") + app_->netLine() + usbLine_ + QString::number(app_->netBusy() ? (now / 400) % 4 : 9) +
+             QString::number(app_->cableLive().training);
     *clock = QString();
     if (v == App::NO_BRIDGE) g += app_->uf2State() + QString::number(app_->bridgeUpdating());
     {
@@ -1715,6 +1760,8 @@ void PanelWidget::timerEvent(QTimerEvent *) {
     unsigned t = app_->now();
     if (sel_ && pressed_.isEmpty() && !sheet_ && !confirm_ && t - touchedMs_ > (unsigned)SEL_IDLE_MS) sel_ = 0;   // 5 s idle
     if (isStepper(pressed_) && t - pressMs_ > 450 && t - repeatMs_ > 90) { repeatMs_ = t; act(pressed_, true); }
+    // A request that ended after its sheet was closed: its result as a toast.
+    if (netWasBusy_ && !app_->netBusy()) { netWasBusy_ = false; if (!confirm_) toast(app_->netLine()); }
     if (!isVisible()) { sig_.clear(); return; }
     QString clock, g = signature(&clock);
     if (g != sig_) update();

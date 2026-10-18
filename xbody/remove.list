@@ -1,2 +1,9 @@
 # Card paths the mod deletes (one per line, files only, leading / optional).
 # The USB installer backs them up on the stick first.
+# Network lock (mod v21, owner): only our own protocol talks over the network — these services no longer start.
+etc/rc5.d/S09sshd
+etc/rc5.d/S12rpcbind
+etc/rc5.d/S15mountnfs.sh
+etc/rc5.d/S21avahi-daemon
+etc/rc5.d/S22ofono
+etc/rc5.d/S64neard

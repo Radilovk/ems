@@ -59,6 +59,7 @@ private:
     void paintWiringInfo(QPainter &p);
     void paintBubble(QPainter &p);
     void paintConfirm(QPainter &p);
+    void paintService(QPainter &p);   // "Обнови · лог": update from the internet / USB, send the log
     void pill(QPainter &p, const QRect &r, const QString &value, const QString &field, bool enabled = true);
     void caption(QPainter &p, int x, int y, const QString &text);
     void toast(const QString &text);
@@ -72,7 +73,9 @@ private:
     unsigned pressMs_, repeatMs_;
     QBasicTimer timer_;
     bool sheet_, confirm_;
-    int confirmKind_;              // 0 = disconnect the suit, 1 = install an update from USB
+    int confirmKind_;              // 0 = disconnect the suit, 2 = the update / log sheet
+    QString usbLine_;              // the sheet's last USB result (empty once the internet is asked)
+    bool netWasBusy_;              // a request ended while the sheet was closed → its result as a toast
     Program sheetProg_;
     bool sheetAge60_;
     int sheetWiring_;

@@ -1,0 +1,54 @@
+#!/bin/sh
+# Network lock (owner, mod v21): over Wi-Fi / Ethernet / Bluetooth the unit talks to nothing but our own protocol.
+# rc5 S00 (before networking S01). Everything in and out is dropped except:
+#   lo     XBody's own pieces talk over localhost (xbody_control ↔ emsc-tcpseriald :1235, our cable proxy) —
+#          these rules go in FIRST, the DROP policies last: a half-applied lock never cuts the stimulator link
+#   usb0   the phone on its USB cable ("XEMS флашка", xems-link)
+#   DHCP   the address on eth0 / wlan0 (the internet line for xems-net)
+#   XEMSNET  empty; /opt/xems/bin/xems-net opens DNS + HTTPS to our server here only while a request the
+#          trainer asked for runs, and empties it after. Nothing asks on its own.
+# IPv6 off on every interface but lo. The services that would answer or call out (sshd, avahi, rpcbind, ofono,
+# neard, NFS mounts) lose their rc5 links (xbody/remove.list) and are stopped by hook 60-net-lock.
+#   stop : everything open again (service only).  Env (tests): XEMS_IPT (iptables), XEMS_PROC (/proc).
+PATH=$PATH:/usr/sbin:/usr/bin:/sbin:/bin   # iptables, nslookup, curl, openssl live in */sbin, /usr/bin
+IPT=${XEMS_IPT:-iptables}
+PROC=${XEMS_PROC:-/proc}
+case "$1" in
+start)
+	[ -n "$XEMS_IPT" ] || for m in ip_tables iptable_filter nf_conntrack_ipv4 xt_state xt_tcpudp ipt_REJECT; do
+		modprobe $m > /dev/null 2>&1
+	done
+	$IPT -F > /dev/null 2>&1
+	$IPT -X > /dev/null 2>&1
+	if ! $IPT -A INPUT -i lo -j ACCEPT || ! $IPT -A OUTPUT -o lo -j ACCEPT; then
+		# No working iptables: leave the network as it is rather than risk localhost.
+		$IPT -F > /dev/null 2>&1
+		echo "xems-fw: iptables not usable, network left open" >&2
+		exit 1
+	fi
+	$IPT -A INPUT -i usb0 -j ACCEPT
+	$IPT -A OUTPUT -o usb0 -j ACCEPT
+	$IPT -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+	$IPT -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+	$IPT -A INPUT -p udp --sport 67 --dport 68 -j ACCEPT
+	$IPT -A OUTPUT -p udp --sport 68 --dport 67 -j ACCEPT
+	$IPT -N XEMSNET
+	$IPT -A OUTPUT -j XEMSNET
+	$IPT -P FORWARD DROP
+	$IPT -P INPUT DROP
+	$IPT -P OUTPUT DROP
+	for f in "$PROC"/sys/net/ipv6/conf/*/disable_ipv6; do
+		[ -f "$f" ] || continue
+		case "$f" in */conf/lo/*) continue ;; esac
+		echo 1 > "$f" 2> /dev/null
+	done
+	;;
+stop)
+	$IPT -P INPUT ACCEPT
+	$IPT -P OUTPUT ACCEPT
+	$IPT -P FORWARD ACCEPT
+	$IPT -F
+	$IPT -X
+	;;
+esac
+exit 0

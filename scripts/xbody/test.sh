@@ -4,6 +4,8 @@
 #   3 xems-firstboot runs hooks once per version   4 SD image patched by debugfs (synthetic MBR+ext3)
 #   5 stick tool (PC side) prepares / arms undo on a stick   6 xems-uf2 programs only a XIAO UF2 drive (fake mount)
 #   7 phone link: the app's server (Java, host) → xems-link → the pending install
+#   8 vendor Software Update archive   9 panel USB update helper
+#   10 xems-net: update / log over HTTPS (a local stand-in server)   11 xems-fw: the network lock's rule order
 set -eu
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 T=$(mktemp -d)
@@ -270,4 +272,64 @@ ls "$T/hstick/xems"/backup-*.tar.gz > /dev/null || no "apply left no backup"
 # a stick that is not an XEMS stick is refused
 mkdir -p "$T/notstick"; XEMS_USB_DIR="$T/notstick" dash "$H" apply 2>/dev/null | grep -q "ERR not-an-xems-stick" || no "did not refuse a non-XEMS stick"
 ok "check reports the version, apply installs + backs up + refuses a foreign stick"
+echo "10. xems-net: the internet only on request (update into pending, the last 2 minutes of the log)"
+N=$REPO/xbody/overlay/opt/xems/bin/xems-net
+W=$T/net; mkdir -p "$W/opt/pending" "$W/bin"; echo 20 > "$W/opt/VERSION"
+(cd "$W" && openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 2 -subj /CN=localhost \
+	-addext subjectAltName=DNS:localhost > /dev/null 2>&1) || no "test certificate"
+printf '#!/bin/sh\necho "$*" >> %s/ipt.log\n' "$W" > "$W/bin/ipt"; chmod 755 "$W/bin/ipt"
+printf 'Iface\tDestination\tGateway\nwlan0\t00000000\t0101A8C0\n' > "$W/route"
+printf 'Iface\tDestination\tGateway\nusb0\t0007A8C0\t00000000\n' > "$W/noroute"
+python3 "$REPO/scripts/xbody/build.py" --out "$T/real" > /dev/null   # $T/real/xbody-net-vN.tar
+NV=$(cat "$T/real/usb/xems/VERSION")
+PORT=$((20000 + $$ % 20000))
+up() { i=0; while ! curl -s -k --noproxy '*' -o /dev/null "https://127.0.0.1:$PORT/x" && [ $i -lt 50 ]; do sleep 0.1; i=$((i + 1)); done; }
+python3 "$REPO/scripts/xbody/test-net-server.py" "$W" "$T/real/xbody-net-v$NV.tar" $PORT "$NV" & SRV=$!
+up
+net() { env NO_PROXY=localhost no_proxy=localhost HTTPS_PROXY= https_proxy= XEMS_OPT="$W/opt" \
+	XEMS_NET_URL="https://localhost:$PORT" XEMS_NET_CA="${CAF:-$W/cert.pem}" XEMS_IPT="$W/bin/ipt" XEMS_NET_ROUTE="${NR:-$W/route}" \
+	XEMS_NET_IP=127.0.0.1 XEMS_NET_VLOG="$W/vlog.txt" dash "$N" "$@"; }
+OUT=$(net update) || { kill $SRV; no "update rc: $OUT"; }
+echo "$OUT" | tail -n 1 | grep -qx "OK $NV" || { kill $SRV; no "update said: $OUT"; }
+[ -x "$W/opt/pending/updater.sh" ] && [ "$(cat "$W/opt/pending/xems/VERSION")" = "$NV" ] || { kill $SRV; no "not in pending"; }
+(cd "$W/opt/pending/xems" && md5sum -c payload.md5 > /dev/null) || { kill $SRV; no "pending md5"; }
+[ "$(cat "$W/opt/net-updated")" = "$NV" ] || { kill $SRV; no "net-updated marker"; }
+grep -q -- '-F XEMSNET' "$W/ipt.log" && grep -q -- "-d 127.0.0.1 --dport $PORT" "$W/ipt.log" || { kill $SRV; no "lock not opened/closed"; }
+[ "$(tail -n 1 "$W/ipt.log")" = "-F XEMSNET" ] || { kill $SRV; no "lock left open"; }
+echo "$NV" > "$W/opt/VERSION"
+net update | tail -n 1 | grep -qx "CURRENT $NV" || { kill $SRV; no "current version not recognised"; }
+echo 20 > "$W/opt/VERSION"; rm -rf "$W/opt/pending"/*
+NR=$W/noroute net update | tail -n 1 | grep -qx "ERR no-net" || { kill $SRV; no "no line not ERR no-net"; }
+openssl req -x509 -newkey rsa:2048 -nodes -keyout "$W/k2" -out "$W/other.pem" -days 2 -subj /CN=x > /dev/null 2>&1
+CAF=$W/other.pem net update 2>/dev/null | tail -n 1 | grep -qx "ERR tls" || { kill $SRV; no "foreign certificate not ERR tls"; }
+[ ! -e "$W/opt/pending/updater.sh" ] || { kill $SRV; no "a refused update reached pending"; }
+old=$(date -d '-10 min' '+%Y-%m-%d %H:%M:%S'); new=$(date -d '-30 sec' '+%Y-%m-%d %H:%M:%S')
+printf '%s.1 Info: OLDLINE\n%s.2 Info: NEWLINE\n  NEWMORE\n' "$old" "$new" > "$W/vlog.txt"
+echo "XEMSLOG" > "$W/opt/xems.log"; echo "STALE" > "$W/opt/panel.log"; touch -d '-1 hour' "$W/opt/panel.log"
+net log | tail -n 1 | grep -qx "OK 42" || { kill $SRV; no "log not sent"; }
+grep -q NEWLINE "$W/posted.txt" && grep -q NEWMORE "$W/posted.txt" && grep -q XEMSLOG "$W/posted.txt" || { kill $SRV; no "log misses the last 2 minutes"; }
+grep -q OLDLINE "$W/posted.txt" && { kill $SRV; no "log has lines older than 2 minutes"; }
+grep -q STALE "$W/posted.txt" && { kill $SRV; no "log has a file untouched for an hour"; }
+kill $SRV; wait $SRV 2>/dev/null || true
+python3 "$REPO/scripts/xbody/test-net-server.py" "$W" "$T/real/xbody-net-v$NV.tar" $PORT "$NV" badsha & SRV=$!
+up
+net update | tail -n 1 | grep -qx "ERR check" || { kill $SRV; no "bad sha256 not refused"; }
+[ ! -e "$W/opt/pending/updater.sh" ] || { kill $SRV; no "a bad download reached pending"; }
+kill $SRV; wait $SRV 2>/dev/null || true
+grep -q "GET /v1/unit/update?app=xbody&have=20&unit=" "$W/requests.log" || no "request shape"
+ok "update → pending + marker, current, no line, foreign cert, bad sha, log of the last 2 min; lock closed after"
+
+echo "11. xems-fw: localhost first, DROP last; no iptables → nothing closed"
+FW=$REPO/xbody/overlay/etc/init.d/xems-fw
+: > "$W/ipt.log"; mkdir -p "$W/proc/sys/net/ipv6/conf/lo" "$W/proc/sys/net/ipv6/conf/wlan0"
+echo 0 > "$W/proc/sys/net/ipv6/conf/lo/disable_ipv6"; echo 0 > "$W/proc/sys/net/ipv6/conf/wlan0/disable_ipv6"
+XEMS_IPT="$W/bin/ipt" XEMS_PROC="$W/proc" dash "$FW" start || no "fw start rc"
+lo=$(grep -n -- '-A INPUT -i lo -j ACCEPT' "$W/ipt.log" | cut -d: -f1); drop=$(grep -n -- '-P OUTPUT DROP' "$W/ipt.log" | cut -d: -f1)
+[ -n "$lo" ] && [ -n "$drop" ] && [ "$lo" -lt "$drop" ] || no "localhost not opened before the DROP policy"
+grep -q -- '-A OUTPUT -o usb0 -j ACCEPT' "$W/ipt.log" && grep -q -- '-A OUTPUT -j XEMSNET' "$W/ipt.log" || no "usb0 / XEMSNET missing"
+[ "$(cat "$W/proc/sys/net/ipv6/conf/wlan0/disable_ipv6")" = 1 ] && [ "$(cat "$W/proc/sys/net/ipv6/conf/lo/disable_ipv6")" = 0 ] || no "ipv6"
+printf '#!/bin/sh\necho "$*" >> %s/ipt2.log\nexit 1\n' "$W" > "$W/bin/bad"; chmod 755 "$W/bin/bad"
+XEMS_IPT="$W/bin/bad" XEMS_PROC="$W/proc" dash "$FW" start 2> /dev/null && no "fw with a broken iptables said ok"
+grep -q -- '-P' "$W/ipt2.log" && no "a broken iptables still got DROP policies"
+ok "lo + usb0 + DHCP + XEMSNET before DROP, IPv6 off but lo, broken iptables leaves the network as it was"
 echo "ALL OK"

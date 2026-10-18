@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sys/time.h>
+#include <time.h>
 
 static QString U(const char *s) { return QString::fromUtf8(s); }
 
@@ -148,10 +149,12 @@ void App::drop(int i, const QString &why) {
     if (!why.isEmpty()) setNote(why, true);
 }
 
+// Monotonic: the wall clock can jump (xems-net sets it from the server when it is years off, the RTC after a dead
+// battery) — every link timeout, ping and phase clock here counts on this one.
 unsigned App::now() const {
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    return (unsigned)(tv.tv_sec * 1000ULL + tv.tv_usec / 1000) - t0_;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (unsigned)(ts.tv_sec * 1000ULL + ts.tv_nsec / 1000000) - t0_;
 }
 
 App::View App::view() const {
@@ -619,6 +622,16 @@ void App::line(const std::string &l, unsigned t) {
     lastRxMs_ = t;
     switch (e.type) {
     case BridgeEvent::HELLO:
+        // HELLO comes only from a board that has just started (it stops once the host speaks): a bridge that restarted
+        // under us (reset, brown-out) has no links and no scan — every session waits for its suit, the scan is asked
+        // again, an attempt in progress is gone.
+        if (helloMs_) {
+            for (int i = 0; i < (int)ses_.size(); i++)
+                lostLink(i, U("Мостът се рестартира — тренировката е на пауза"));
+            linkingMac_.clear();
+        }
+        scanning_ = false;
+        // fall through
     case BridgeEvent::PONG: {
         if (!helloMs_) scanning_ = false;   // a fresh bridge: say SCAN again
         helloMs_ = t;

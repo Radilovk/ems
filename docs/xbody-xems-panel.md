@@ -281,6 +281,26 @@ dark (= the sketch's setup ran), then back to "Включи XEMS моста" —
   "Bluetooth наоколо: N" (every device heard in 10 s, suit or not) and `/tmp/xems-bridge.state` lists each one
   (`adv <mac> <rssi> <svc> <name>`) for "Изпрати лог" — the names tell why a suit is not recognised. The bridge
   updates itself from v5 (DFU over the port it now has).
+- **Walk-through review (owner: "play through the whole XIAO / suit / BT + cable logic, fix what you find"), mod v27,
+  bridge v7:**
+  - The SoftDevice stops scanning for every connection attempt and the library never restarts it: after the first
+    suit linked there was no scan — no second suit, no reconnection of a dropped one. v7 keeps the host's wish
+    (`scanWanted`) and `loop()` restarts the scan when no attempt is running (`scanStopped`: the library still thinks
+    it scans after a cancelled attempt).
+  - The core connects without a timeout: a suit switched off mid-attempt left the radio "connecting" for good (every
+    later CONN refused, no scan). v7: one attempt at a time, cancelled after 9 s (`FAIL <mac> timeout`), cancelled at
+    once by the panel's DISC (its own 12 s limit); a report in flight no longer resumes a stopped scan.
+  - Host silence (2.5 s) now also cancels an attempt and quiets the radio after the fail-safe.
+  - Panel: a HELLO while a bridge was already talking = the board restarted under us → every session waits for its suit
+    (lost link, reconnect when seen), the scan is asked again.
+  - Panel and cable proxy clocks are **monotonic** (`CLOCK_MONOTONIC`): xems-net may set the wall clock; a jump froze the
+    pings (the bridge's fail-safe stops the suits) or shifted the cable shaper's impulse / pause.
+  - "От USB" (installs while the panel waits for it) is greyed while a wireless suit is linked — the wait would trip
+    the bridge's fail-safe. Internet updates only download; the install waits for no suit by itself.
+  - `xems-fw` started again (each new version, machine running) opened the policies before flushing: flushing under
+    DROP cut localhost — XBody's own stimulator link — for that moment, mid cable training too. test.sh 11 checks it.
+  - Checked, fine: busybox tar unlinks before writing (no ETXTBSY on the running panel / proxy during an update);
+    a lost link pauses only its session, a pulled bridge ends all; DFU only with no session.
 
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in

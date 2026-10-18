@@ -18,7 +18,7 @@
 // (the suit's "outputs off", set by the host after LINK) and is disconnected.
 #include <bluefruit.h>
 
-#define BRIDGE_VER "6"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
+#define BRIDGE_VER "7"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
 #define MAX_LINKS 4
 #define HOST_TIMEOUT_MS 2500
 #define SEEN_MAX 32
@@ -49,6 +49,17 @@ struct Seen { ble_gap_addr_t addr; uint32_t lastMs; bool used; char name[24]; in
 static Seen seen[SEEN_MAX];
 static volatile uint32_t advCount = 0;   // reports heard (the unit shows it while it looks for suits)
 static bool bleOk = false;
+// The host's wish to scan, kept by the bridge: the SoftDevice stops scanning for every connection attempt and the
+// library never starts it again (v1–v6: no second suit, no reconnection after the first link). loop() restarts it.
+static bool scanWanted = false;
+// One connection attempt at a time, given up after CONNECT_MS (the core connects without a timeout: a suit switched
+// off mid-attempt left the radio "connecting" for good).
+#define CONNECT_MS 9000
+static volatile bool connecting = false;   // cleared by connectCb (the BLE task) too
+static uint8_t connMac[6];
+static uint32_t connSinceMs = 0;
+static uint32_t scanTryMs = 0;
+static bool scanStopped = false;   // a connection attempt stopped the radio's scan; the library may still think it runs
 
 // Callbacks run in the Bluefruit task: they queue lines, loop() writes them to USB.
 static SemaphoreHandle_t outMx;
@@ -145,10 +156,11 @@ static void scanCb(ble_gap_evt_adv_report_t *r) {
     snprintf(line, sizeof line, "ADV %s %d %s %s", mac, r->rssi, profName(s.prof), s.name[0] ? s.name : "-");
     out(line);
   }
-  Bluefruit.Scanner.resume();
+  if (scanWanted && !connecting) Bluefruit.Scanner.resume();   // a report in flight after SCAN 0 must not restart it
 }
 
 static void connectCb(uint16_t conn) {
+  connecting = false;
   Link *l = freeLink();
   BLEConnection *c = Bluefruit.Connection(conn);
   char mac[18], line[64];
@@ -228,22 +240,38 @@ static void command(char *s) {
     return;
   }
   if (!strcmp(cmd, "SCAN")) {
-    if (a && a[0] == '1') hostLine(bleOk && Bluefruit.Scanner.start(0) ? "SCANNING 1" : "ERR ble-scan");
-    else { Bluefruit.Scanner.stop(); hostLine("SCANNING 0"); }
+    if (a && a[0] == '1') {
+      scanWanted = true;
+      // Busy connecting: loop() starts it right after; otherwise now (a refusal with the radio up is retried there too).
+      if (!bleOk) hostLine("ERR ble-start");
+      else { if (!connecting && !Bluefruit.Scanner.isRunning()) Bluefruit.Scanner.start(0); hostLine("SCANNING 1"); }
+    }
+    else { scanWanted = false; Bluefruit.Scanner.stop(); hostLine("SCANNING 0"); }
     return;
   }
   if (!a || !parseMac(a, mac)) { snprintf(line, sizeof line, "ERR bad-mac %s", cmd); hostLine(line); return; }
   if (!strcmp(cmd, "CONN")) {
     if (byMac(mac)) { snprintf(line, sizeof line, "ERR already-linked %s", a); hostLine(line); return; }
+    if (connecting) { snprintf(line, sizeof line, "FAIL %s busy", a); hostLine(line); return; }
     for (int i = 0; i < SEEN_MAX; i++)
       if (seen[i].used && !memcmp(seen[i].addr.addr, mac, 6)) {
-        if (!Bluefruit.Central.connect(&seen[i].addr)) { snprintf(line, sizeof line, "FAIL %s connect", a); hostLine(line); }
+        if (Bluefruit.Central.connect(&seen[i].addr)) {
+          connecting = true;
+          scanStopped = true;
+          memcpy(connMac, mac, 6);
+          connSinceMs = millis();
+        } else { snprintf(line, sizeof line, "FAIL %s connect", a); hostLine(line); }
         return;
       }
     snprintf(line, sizeof line, "FAIL %s not-seen", a); hostLine(line);
     return;
   }
   Link *l = byMac(mac);
+  if (!l && !strcmp(cmd, "DISC") && connecting && !memcmp(connMac, mac, 6)) {   // the host gave up waiting
+    sd_ble_gap_connect_cancel();
+    connecting = false;
+    return;
+  }
   if (!l) { snprintf(line, sizeof line, "WERR %s no-link", a); hostLine(line); return; }
   if (!strcmp(cmd, "DISC")) { Bluefruit.disconnect(l->conn); return; }
   int n = b ? hexBytes(b, buf, sizeof buf) : -1;
@@ -302,7 +330,27 @@ void loop() {
     char h[48]; snprintf(h, sizeof h, "HELLO XEMS-BRIDGE " BRIDGE_VER " %d", MAX_LINKS); hostLine(h);
     if (!bleOk) hostLine("ERR ble-start");
   }
-  if (hostSeen && now - lastHostMs > HOST_TIMEOUT_MS) { failSafe(); hostSeen = false; }
+  if (hostSeen && now - lastHostMs > HOST_TIMEOUT_MS) {   // the unit is gone: outputs off, links down, radio quiet
+    failSafe();
+    hostSeen = false;
+    scanWanted = false;
+    if (connecting) { sd_ble_gap_connect_cancel(); connecting = false; }
+    Bluefruit.Scanner.stop();
+  }
+  if (connecting && now - connSinceMs > CONNECT_MS) {
+    sd_ble_gap_connect_cancel();
+    connecting = false;
+    char m[18], f[40];
+    uint8_t le[6];
+    memcpy(le, connMac, 6);
+    macStr(le, m);
+    snprintf(f, sizeof f, "FAIL %s timeout", m);
+    hostLine(f);
+  }
+  if (scanWanted && bleOk && !connecting && now - scanTryMs > 300) {
+    scanTryMs = now;
+    if ((scanStopped || !Bluefruit.Scanner.isRunning()) && Bluefruit.Scanner.start(0)) scanStopped = false;
+  }
   int linked = 0;
   for (int i = 0; i < MAX_LINKS; i++) if (links[i].conn != BLE_CONN_HANDLE_INVALID) linked++;
   digitalWrite(LED_GREEN, linked ? LOW : HIGH);

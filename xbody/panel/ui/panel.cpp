@@ -1468,9 +1468,12 @@ void PanelWidget::paintService(QPainter &p) {
     for (int i = 0; i < 4; i++) {
         QRect r(40 + i * 183, 186, 170, 128);
         QString id = U(ID[i]), sub = U(SUB[i]);
-        bool on = !busy && (i >= 2 || !training);
+        // USB installs on the spot and holds the panel for seconds: never with a wireless suit linked (the bridge would
+        // take the silence for a dead unit and stop it). The internet only downloads; its install waits by itself.
+        bool suits = app_->sessions() > 0;
+        bool on = !busy && (i >= 2 || !training) && !(i == 1 && suits);
         bool run = busy && i != 1 && i != 3 && app_->netJob() == (i == 2 ? App::NET_LOG : App::NET_UPDATE);
-        if (i < 2 && training && !busy) sub = U("след тренировката");
+        if ((i < 2 && training && !busy) || (i == 1 && suits && !busy)) sub = U("след тренировката");
         if (i == 3) sub = app_->wifiSsid().isEmpty() ? U("търси мрежа, свържи") : U("свързан: ") + app_->wifiSsid();
         p.setOpacity(on || run ? 1.0 : 0.4);
         p.setPen(QPen(WHITE, 2));

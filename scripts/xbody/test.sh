@@ -334,11 +334,13 @@ echo 0 > "$W/proc/sys/net/ipv6/conf/lo/disable_ipv6"; echo 0 > "$W/proc/sys/net/
 XEMS_IPT="$W/bin/ipt" XEMS_PROC="$W/proc" dash "$FW" start || no "fw start rc"
 lo=$(grep -n -- '-A INPUT -i lo -j ACCEPT' "$W/ipt.log" | cut -d: -f1); drop=$(grep -n -- '-P OUTPUT DROP' "$W/ipt.log" | cut -d: -f1)
 [ -n "$lo" ] && [ -n "$drop" ] && [ "$lo" -lt "$drop" ] || no "localhost not opened before the DROP policy"
+fl=$(grep -n -- '^-F$' "$W/ipt.log" | head -n 1 | cut -d: -f1); acc=$(grep -n -- '-P OUTPUT ACCEPT' "$W/ipt.log" | head -n 1 | cut -d: -f1)
+[ -n "$fl" ] && [ -n "$acc" ] && [ "$acc" -lt "$fl" ] || no "rules flushed while the DROP policy may still stand (a second start cuts localhost)"
 grep -q -- '-A OUTPUT -o usb0 -j ACCEPT' "$W/ipt.log" && grep -q -- '-A OUTPUT -j XEMSNET' "$W/ipt.log" || no "usb0 / XEMSNET missing"
 [ "$(cat "$W/proc/sys/net/ipv6/conf/wlan0/disable_ipv6")" = 1 ] && [ "$(cat "$W/proc/sys/net/ipv6/conf/lo/disable_ipv6")" = 0 ] || no "ipv6"
 printf '#!/bin/sh\necho "$*" >> %s/ipt2.log\nexit 1\n' "$W" > "$W/bin/bad"; chmod 755 "$W/bin/bad"
 XEMS_IPT="$W/bin/bad" XEMS_PROC="$W/proc" dash "$FW" start 2> /dev/null && no "fw with a broken iptables said ok"
-grep -q -- '-P' "$W/ipt2.log" && no "a broken iptables still got DROP policies"
+grep -q -- '-P .* DROP' "$W/ipt2.log" && no "a broken iptables still got DROP policies"
 ok "lo + usb0 + DHCP + XEMSNET before DROP, IPv6 off but lo, broken iptables leaves the network as it was"
 echo "12. xems-wifi: scan, join (password on stdin), wrong password, forget — a stand-in wpa_cli"
 X=$REPO/xbody/overlay/opt/xems/bin/xems-wifi

@@ -40,8 +40,9 @@ static QString confPath() {
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
       lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
-      noteWarn_(false), noteUntilMs_(0),
       net_(0), netJob_(NET_NONE), netOk_(false), netSinceMs_(0),
+      wifiProc_(0), wifiJob_(WIFI_NONE), wifiOk_(false), wifiNoRadio_(false), wifiSinceMs_(0),
+      noteWarn_(false), noteUntilMs_(0),
       panel_(0), tab_(0), strengthMem_(0), busy_(false) {
     t0_ = now();
     load();
@@ -82,6 +83,7 @@ App::~App() {
     }
     delete port_;
     if (net_) { net_->kill(); net_->waitForFinished(1000); delete net_; }
+    if (wifiProc_) { wifiProc_->kill(); wifiProc_->waitForFinished(1000); delete wifiProc_; }
 }
 
 const std::string &App::suitName() const {
@@ -292,6 +294,79 @@ void App::pollNet(unsigned t) {
     if (!netOk_ && netLine_.endsWith(U("…"))) netLine_ = U("Не стана — пробвай пак");
     delete net_;
     net_ = 0;
+}
+
+void App::wifiStart(int job, const QString &ssid, const QString &pass) {
+    if (wifiProc_ || job == WIFI_NONE) return;
+    const char *bin = std::getenv("XEMS_WIFI");
+    wifiProc_ = new QProcess();
+    static const char *const CMD[] = {"", "scan", "connect", "forget"};
+    wifiProc_->start(QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-wifi"), QStringList() << U(CMD[job]));
+    if (job != WIFI_SCAN) {   // the name and the password go on stdin, never on the command line
+        wifiProc_->write((ssid + U("\n") + pass + U("\n")).toUtf8());
+        wifiProc_->closeWriteChannel();
+    }
+    wifiJob_ = job;
+    wifiOk_ = false;
+    wifiOut_.clear();
+    wifiScan_.clear();
+    wifiTarget_ = ssid;
+    wifiSinceMs_ = now();
+    wifiLine_ = job == WIFI_SCAN ? U("Търся мрежи…") : job == WIFI_CONNECT ? U("Свързвам се с ") + ssid + U("…")
+                                                                          : U("Забравям мрежата…");
+}
+
+void App::wifiSay(const QString &l) {
+    QString a = l.section(QLatin1Char(' '), 1, 1);
+    if (l.startsWith(U("CUR "))) {
+        QString st = a, ip = l.section(QLatin1Char(' '), 2, 2);
+        bool on = st == U("COMPLETED");
+        wifiSsid_ = on ? l.section(QLatin1Char(' '), 3) : QString();
+        wifiIp_ = on && ip != U("-") ? ip : QString();
+    } else if (l.startsWith(U("NET "))) {
+        WifiNet n;
+        n.dbm = a.toInt();
+        n.sec = l.section(QLatin1Char(' '), 2, 2).toInt();
+        n.ssid = l.section(QLatin1Char(' '), 3);
+        if (!n.ssid.isEmpty()) wifiScan_.push_back(n);
+    } else if (l == U(". address")) wifiLine_ = U("Взимам адрес от рутера…");
+    else if (l.startsWith(U("OK"))) {
+        wifiOk_ = true;
+        wifiNoRadio_ = false;
+        if (wifiJob_ == WIFI_SCAN) {
+            wifiNets_ = wifiScan_;
+            wifiLine_ = wifiNets_.empty() ? U("Не намирам мрежи наблизо") : QString();
+        } else if (wifiJob_ == WIFI_CONNECT) {
+            wifiSsid_ = wifiTarget_;
+            wifiIp_ = a;
+            wifiLine_ = U("✓ Свързан с ") + wifiTarget_;
+        } else {
+            if (wifiSsid_ == wifiTarget_) { wifiSsid_.clear(); wifiIp_.clear(); }
+            wifiLine_ = U("✓ Мрежата е забравена");
+        }
+    }
+    else if (l == U("ERR no-wifi")) { wifiNoRadio_ = true; wifiLine_ = U("Wi‑Fi модулът на машината не отговаря"); }
+    else if (l == U("ERR auth")) wifiLine_ = U("Грешна парола — опитай пак");
+    else if (l == U("ERR timeout")) wifiLine_ = U("Мрежата не отговори — опитай пак по-близо до рутера");
+    else if (l == U("ERR address")) wifiLine_ = U("Свързан, но рутерът не даде адрес");
+    else if (l.startsWith(U("ERR "))) wifiLine_ = U("Не стана — опитай пак");
+}
+
+void App::pollWifi(unsigned t) {
+    wifiOut_ += QString::fromUtf8(wifiProc_->readAllStandardOutput());
+    int nl;
+    while ((nl = wifiOut_.indexOf(QLatin1Char('\n'))) >= 0) {
+        wifiSay(wifiOut_.left(nl).trimmed());
+        wifiOut_.remove(0, nl + 1);
+    }
+    bool over = age(t, wifiSinceMs_) > 90 * 1000;
+    if (wifiProc_->state() != QProcess::NotRunning && !over) return;
+    if (over) { wifiProc_->kill(); wifiProc_->waitForFinished(1000); }
+    if (!wifiOut_.trimmed().isEmpty()) wifiSay(wifiOut_.trimmed());
+    wifiOut_.clear();
+    if (!wifiOk_ && wifiLine_.endsWith(U("…"))) wifiLine_ = U("Не стана — опитай пак");
+    delete wifiProc_;
+    wifiProc_ = 0;
 }
 
 QString App::note() const { return now() < noteUntilMs_ ? note_ : QString(); }
@@ -636,6 +711,7 @@ void App::timerEvent(QTimerEvent *ev) {
     }
     if (age(t, cableReadMs_) >= 500) { cableReadMs_ = t; readCableState(); }
     if (net_) pollNet(t);
+    if (wifiProc_) pollWifi(t);
     // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----
     bool update = bridgeOk() && bridgeVer_ > 0 && bundledVer_ > bridgeVer_;
     if (update && !dfuSent_ && ses_.empty() && linkingMac_.empty()) {

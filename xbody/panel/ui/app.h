@@ -113,6 +113,19 @@ public:
     int netJob() const { return netJob_; }
     QString netLine() const { return netLine_; }   // its progress, then its result — in Bulgarian
     bool netOk() const { return netOk_; }
+    // Wi-Fi (/opt/xems/bin/xems-wifi, the panel's Wi-Fi page): a scan when the page opens or on "Търси", a join
+    // when a network is tapped. Nothing in the background.
+    struct WifiNet { QString ssid; int dbm, sec; };   // sec: 0 open, 1 WPA/WPA2, 2 not supported (EAP / WEP)
+    enum WifiJob { WIFI_NONE, WIFI_SCAN, WIFI_CONNECT, WIFI_FORGET };
+    void wifiStart(int job, const QString &ssid = QString(), const QString &pass = QString());
+    bool wifiBusy() const { return wifiProc_ != 0; }
+    int wifiJob() const { return wifiJob_; }
+    const std::vector<WifiNet> &wifiNets() const { return wifiNets_; }
+    QString wifiSsid() const { return wifiSsid_; }   // the network it is on ("" none)
+    QString wifiIp() const { return wifiIp_; }
+    QString wifiLine() const { return wifiLine_; }   // progress / result, in Bulgarian
+    bool wifiOk() const { return wifiOk_; }
+    bool wifiNoRadio() const { return wifiNoRadio_; }
 
 protected:
     void timerEvent(QTimerEvent *e);
@@ -161,6 +174,14 @@ private:
     unsigned netSinceMs_;
     void pollNet(unsigned t);
     void netSay(const QString &l);
+    QProcess *wifiProc_;
+    int wifiJob_;
+    QString wifiOut_, wifiLine_, wifiSsid_, wifiIp_, wifiTarget_;
+    bool wifiOk_, wifiNoRadio_;
+    unsigned wifiSinceMs_;
+    std::vector<WifiNet> wifiNets_, wifiScan_;
+    void pollWifi(unsigned t);
+    void wifiSay(const QString &l);
     QString note_;
     bool noteWarn_;
     unsigned noteUntilMs_;

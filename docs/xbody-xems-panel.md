@@ -222,6 +222,30 @@ connection to native systems / servers over the network stops, only our protocol
   and closed), 11 (rule order, IPv6, a broken iptables leaves the network as it was); `server/test/units.test.js`.
 - Not yet on the unit: the iptables rules on its 2.6.35 kernel (modules are on the card), the real Cloudflare chain.
 
+## Wi-Fi page (mod v22, owner: "no Wi-Fi setting, nowhere to look for a signal")
+XBody's own Wi-Fi screen (`WifiView`) is hidden with its "online" mode, and its log shows why it never worked: every
+`SCAN` request to wpa_supplicant failed (696 times on the owner's card) — the radio was never brought up.
+- **Where:** "Обнови · Лог · Wi‑Fi" → the sheet's fourth tile **Wi‑Fi** (shows the network it is on). Opening the page is
+  the request for a scan; "Търси отново" in the header repeats it. Nothing scans in the background.
+- **Page** (`PanelWidget::paintWifi`, landscape): left — the networks, strongest first, one row per name (signal bars,
+  padlock for WPA, "✓ свързан" in green, "не се поддържа" greyed for EAP / WEP), 7 per page + "Още мрежи"; right — what
+  is happening now, "Забрави тази мрежа", a note that the network is remembered and the internet is used only on request,
+  "Готово". ← in the header goes back to the sheet.
+- **Password** (`paintKeyboard`): own on-screen keyboard (the unit has none): digits, Latin letters, one-shot capitals ⇧,
+  "?123" signs, space, "Изтрий", "Покажи" / "Скрий"; "Свържи" lights at 8–63 characters. A wrong password comes back on
+  the keyboard line in red.
+- **`/opt/xems/bin/xems-wifi scan|connect|forget`** (busybox ash, wpa_cli of wpa_supplicant 2.2, wext): `rfkill unblock`,
+  `ifconfig wlan0 up`, starts wpa_supplicant if its socket is missing; the name and the password go on **stdin**; the
+  name is set as hex (any characters), the password as the 64-hex PSK from `wpa_passphrase`; `select_network`, wait for
+  COMPLETED (TEMP-DISABLED = wrong password → `ERR auth`), `enable_network all` (the other saved ones stay fallbacks),
+  `save_config` (`update_config=1` → it reconnects by itself at boot), DHCP with busybox udhcpc. `xems-fw` also runs
+  `rfkill unblock wifi` at S00, before networking brings wlan0 up.
+- The lock (`xems-fw`) is unchanged: DHCP and wpa_supplicant's own frames pass; the internet is still used only by
+  `xems-net` on request. `xems-net log` now carries `wpa_cli status` too.
+- Tests: `test.sh` 12 (stand-in wpa_cli: sorted / deduped scan, open / WPA / unsupported, wrong password, join + address,
+  saved once, forget, no radio); also run under the card's busybox ash + its `wpa_passphrase` in qemu (caught: busybox
+  `od` has no `-A` → `hexdump`). Not yet on the unit: which Wi-Fi chip it has and whether its driver scans once up.
+
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
 `assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a

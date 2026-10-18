@@ -132,6 +132,8 @@ log() {
 			echo "== $f (changed in the last 2 min, its end)"
 			tail -n 80 "$f" | tail -c 16000
 		done
+		echo "== wifi"
+		wpa_cli -i wlan0 status 2> /dev/null | grep -E '^(wpa_state|ssid|ip_address|freq)='
 		echo "== dmesg"
 		dmesg 2> /dev/null | tail -n 30
 	} > "$F" 2> /dev/null

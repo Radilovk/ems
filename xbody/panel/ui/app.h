@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QPoint>
 #include <QString>
+#include <map>
 #include <vector>
 
 class PanelWidget;
@@ -69,10 +70,20 @@ public:
     bool sessionLinked(int i) const { return i >= 0 && i < (int)ses_.size() && ses_[i].linkOk; }
     bool female() const;                          // the body figures of the session on the screen
     void setFemale(bool f);                       // at once, also mid-training
+    bool dark() const { return dark_; }           // the panel's theme (owner, mod v29: light = XBody's, and a dark one)
+    void setDark(bool d);                         // saved at once
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
     // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
     bool bridgeUpdating() const { return dfuSent_; }
     QString uf2State() const;                     // flashing | done | error … (fresh only), else empty
+    // What the unit sees of the bridge while it is not answering: a XIAO on USB, the port, bytes heard.
+    struct BridgeDiag { bool usb; QString port; long rx; };
+    const BridgeDiag &bridgeDiag() const { return diag_; }
+    // Every Bluetooth device the bridge hears (suit or not) in the last 10 s, and the bridge's own report count (-1:
+    // an older bridge) — "Bluetooth наоколо: N" while looking for suits; the list goes to /tmp/xems-bridge.state.
+    int nearby() const;
+    long bridgeHeard() const { return bridgeHeard_; }
+    bool bleOff() const { return bleOff_; }
 
     // ---- XBody's own cable output (xems-xbproxy): suit standard + double impulse ----
     struct CableLive {
@@ -156,7 +167,7 @@ private:
     Program prog_;
     bool age60_;
     int wiring_, wiWiring_;
-    bool female_;
+    bool female_, dark_;
     // The zones (screen order) and strength as last set, per suit kind (owner: they stay as set, also over restarts).
     int keptZones_[3][Suit::MAX_CH], keptStrength_[3];
     unsigned keptSavedMs_;
@@ -181,6 +192,13 @@ private:
     unsigned wifiSinceMs_;
     std::vector<WifiNet> wifiNets_, wifiScan_;
     void pollWifi(unsigned t);
+    BridgeDiag diag_;
+    struct Heard { unsigned ms; int rssi; std::string svc, name; };
+    std::map<std::string, Heard> heard_;
+    long bridgeHeard_;
+    bool bleOff_;
+    unsigned diagMs_;
+    void readDiag();
     void wifiSay(const QString &l);
     QString note_;
     bool noteWarn_;

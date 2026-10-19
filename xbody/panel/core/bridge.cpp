@@ -8,7 +8,14 @@ BridgeEvent parseBridgeLine(const std::string &line) {
     std::string w;
     in >> w;
     if (w == "HELLO") { e.type = BridgeEvent::HELLO; std::getline(in, e.text); }
-    else if (w == "PONG") { e.type = BridgeEvent::PONG; in >> e.text; }
+    else if (w == "PONG") {   // "PONG <ver> [<reports heard> [ble-off]]" (v6: the scan count, the radio state)
+        e.type = BridgeEvent::PONG;
+        in >> e.text;
+        std::string n, off;
+        if (in >> n) e.rssi = std::atoi(n.c_str());
+        else e.rssi = -1;
+        if (in >> off) e.name = off;
+    }
     else if (w == "SCANNING") { e.type = BridgeEvent::SCANNING; in >> e.text; }
     else if (w == "ADV") {
         std::string rssi;

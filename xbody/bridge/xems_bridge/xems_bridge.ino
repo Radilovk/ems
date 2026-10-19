@@ -1,5 +1,6 @@
 // XEMS BLE bridge — Seeed XIAO nRF52840 (Seeeduino:nrf52 core, Bluefruit). The XBody unit's kernel (2.6.35)
-// has no Bluetooth LE, so this board is its BLE radio: USB CDC serial (/dev/ttyACM0) ⇄ BLE central.
+// has no Bluetooth LE, so this board is its BLE radio: USB CDC serial (/dev/ttyACM0) ⇄ BLE central. v5: the CDC
+// interface says protocol 1 (build-bridge.sh patches the core) — the unit's old cdc-acm ignores protocol 0.
 // It knows no suit protocol — the unit builds every frame (xbody/panel/core). Line protocol: docs/xbody-bridge.md.
 //
 // Host → bridge                          Bridge → host
@@ -17,17 +18,48 @@
 // (the suit's "outputs off", set by the host after LINK) and is disconnected.
 #include <bluefruit.h>
 
-#define BRIDGE_VER "3"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
+#define BRIDGE_VER "8"   // keep = /opt/xems/bridge/VERSION (build-bridge.sh writes it)
 #define MAX_LINKS 4
 #define HOST_TIMEOUT_MS 2500
 #define SEEN_MAX 32
 
 #include "links.h"
 
+// To the host straight through TinyUSB: the core's Serial drops every byte while the host has not raised DTR
+// (Adafruit_USBD_CDC::write checks tud_cdc_connected), and the XBody unit's 2.6.35 cdc-acm is not to be trusted with
+// that — v3 on the unit flashed fine and then said nothing. Without DTR the FIFO is overwritable: never blocks.
+static void hostWrite(const uint8_t *b, int n) {
+  uint32_t t0 = millis();
+  while (n > 0 && millis() - t0 < 200) {
+    uint32_t k = tud_cdc_n_write(0, b, n);
+    b += k; n -= k;
+    tud_cdc_n_write_flush(0);
+    if (n) yield();
+  }
+}
+static void hostLine(const char *s) { hostWrite((const uint8_t *)s, strlen(s)); hostWrite((const uint8_t *)"\r\n", 2); }
+
 static Link links[MAX_LINKS];
 
-struct Seen { ble_gap_addr_t addr; uint32_t lastMs; bool used; };
+// A device's name and service often come in different packets (the advertisement, then the scan response a few ms
+// later): they are merged per address, and the ADV line goes out again as soon as either is learnt (v5 printed the
+// first packet of each second only — the nameless one — so suits that name themselves in the scan response never
+// showed up on the unit).
+struct Seen { ble_gap_addr_t addr; uint32_t lastMs; bool used; char name[24]; int prof; };
 static Seen seen[SEEN_MAX];
+static volatile uint32_t advCount = 0;   // reports heard (the unit shows it while it looks for suits)
+static bool bleOk = false;
+// The host's wish to scan, kept by the bridge: the SoftDevice stops scanning for every connection attempt and the
+// library never starts it again (v1–v6: no second suit, no reconnection after the first link). loop() restarts it.
+static bool scanWanted = false;
+// One connection attempt at a time, given up after CONNECT_MS (the core connects without a timeout: a suit switched
+// off mid-attempt left the radio "connecting" for good).
+#define CONNECT_MS 9000
+static volatile bool connecting = false;   // cleared by connectCb (the BLE task) too
+static uint8_t connMac[6];
+static uint32_t connSinceMs = 0;
+static uint32_t scanTryMs = 0;
+static bool scanStopped = false;   // a connection attempt stopped the radio's scan; the library may still think it runs
 
 // Callbacks run in the Bluefruit task: they queue lines, loop() writes them to USB.
 static SemaphoreHandle_t outMx;
@@ -45,7 +77,7 @@ static void flushOut() {
   xSemaphoreTake(outMx, portMAX_DELAY);
   n = outLen; memcpy(tmp, outBuf, n); outLen = 0;
   xSemaphoreGive(outMx);
-  if (n) Serial.write((const uint8_t *)tmp, n);
+  if (n) hostWrite((const uint8_t *)tmp, n);
 }
 
 static void macStr(const uint8_t *m, char *o) {  // BLE addr bytes are little endian
@@ -100,7 +132,8 @@ static void scanCb(ble_gap_evt_adv_report_t *r) {
            : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid((uint16_t)0xFFF0)) ? P_FFF0
            : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid(NUS_SVC)) ? P_NUS
            : Bluefruit.Scanner.checkReportForUuid(r, BLEUuid(WI_SVC)) || !strncmp(name, "WIEMS", 5) ? P_WIEMS : P_NONE;
-  // Remember the address (with its type) for CONN; report each device at most once a second.
+  advCount++;
+  // Remember the address (with its type) for CONN; merge what each packet tells.
   int slot = -1, oldest = 0;
   for (int i = 0; i < SEEN_MAX; i++) {
     if (seen[i].used && !memcmp(seen[i].addr.addr, r->peer_addr.addr, 6)) { slot = i; break; }
@@ -108,18 +141,26 @@ static void scanCb(ble_gap_evt_adv_report_t *r) {
     else if (seen[i].lastMs < seen[oldest].lastMs) oldest = i;
   }
   if (slot < 0) slot = oldest;
+  Seen &s = seen[slot];
   uint32_t now = millis();
-  bool fresh = !(seen[slot].used && !memcmp(seen[slot].addr.addr, r->peer_addr.addr, 6) && now - seen[slot].lastMs < 1000);
+  bool same = s.used && !memcmp(s.addr.addr, r->peer_addr.addr, 6);
+  if (!same) { memset(&s, 0, sizeof s); s.prof = P_NONE; }
+  bool learnt = false;
+  if (name[0] && strncmp(s.name, name, sizeof s.name - 1)) { strncpy(s.name, name, sizeof s.name - 1); s.name[sizeof s.name - 1] = 0; learnt = true; }
+  if (prof != P_NONE && s.prof != prof) { s.prof = prof; learnt = true; }
+  bool fresh = !same || now - s.lastMs >= 1000 || learnt;
+  s.addr = r->peer_addr; s.used = true;
   if (fresh) {
-    seen[slot].addr = r->peer_addr; seen[slot].lastMs = now; seen[slot].used = true;
+    s.lastMs = now;
     macStr(r->peer_addr.addr, mac);
-    snprintf(line, sizeof line, "ADV %s %d %s %s", mac, r->rssi, profName(prof), name[0] ? name : "-");
+    snprintf(line, sizeof line, "ADV %s %d %s %s", mac, r->rssi, profName(s.prof), s.name[0] ? s.name : "-");
     out(line);
   }
-  Bluefruit.Scanner.resume();
+  if (scanWanted && !connecting) Bluefruit.Scanner.resume();   // a report in flight after SCAN 0 must not restart it
 }
 
 static void connectCb(uint16_t conn) {
+  connecting = false;
   Link *l = freeLink();
   BLEConnection *c = Bluefruit.Connection(conn);
   char mac[18], line[64];
@@ -184,44 +225,65 @@ static void command(char *s) {
   uint8_t mac[6], buf[64];
   if (!cmd) return;
   lastHostMs = millis(); hostSeen = true;
-  if (!strcmp(cmd, "PING")) { Serial.println("PONG " BRIDGE_VER); return; }
+  if (!strcmp(cmd, "PING")) {
+    char pong[40];
+    snprintf(pong, sizeof pong, "PONG " BRIDGE_VER " %lu%s", (unsigned long)advCount, bleOk ? "" : " ble-off");
+    hostLine(pong);
+    return;
+  }
   if (!strcmp(cmd, "DFU")) {   // firmware update from the unit: outputs off first, then the UF2 bootloader
     failSafe();
-    Serial.println("DFUOK");
-    Serial.flush();
+    hostLine("DFUOK");
+    tud_cdc_n_write_flush(0);
     delay(300);
     enterUf2Dfu();
     return;
   }
   if (!strcmp(cmd, "SCAN")) {
-    if (a && a[0] == '1') { Bluefruit.Scanner.start(0); Serial.println("SCANNING 1"); }
-    else { Bluefruit.Scanner.stop(); Serial.println("SCANNING 0"); }
+    if (a && a[0] == '1') {
+      scanWanted = true;
+      // Busy connecting: loop() starts it right after; otherwise now (a refusal with the radio up is retried there too).
+      if (!bleOk) hostLine("ERR ble-start");
+      else { if (!connecting && !Bluefruit.Scanner.isRunning()) Bluefruit.Scanner.start(0); hostLine("SCANNING 1"); }
+    }
+    else { scanWanted = false; Bluefruit.Scanner.stop(); hostLine("SCANNING 0"); }
     return;
   }
-  if (!a || !parseMac(a, mac)) { snprintf(line, sizeof line, "ERR bad-mac %s", cmd); Serial.println(line); return; }
+  if (!a || !parseMac(a, mac)) { snprintf(line, sizeof line, "ERR bad-mac %s", cmd); hostLine(line); return; }
   if (!strcmp(cmd, "CONN")) {
-    if (byMac(mac)) { snprintf(line, sizeof line, "ERR already-linked %s", a); Serial.println(line); return; }
+    if (byMac(mac)) { snprintf(line, sizeof line, "ERR already-linked %s", a); hostLine(line); return; }
+    if (connecting) { snprintf(line, sizeof line, "FAIL %s busy", a); hostLine(line); return; }
     for (int i = 0; i < SEEN_MAX; i++)
       if (seen[i].used && !memcmp(seen[i].addr.addr, mac, 6)) {
-        if (!Bluefruit.Central.connect(&seen[i].addr)) { snprintf(line, sizeof line, "FAIL %s connect", a); Serial.println(line); }
+        if (Bluefruit.Central.connect(&seen[i].addr)) {
+          connecting = true;
+          scanStopped = true;
+          memcpy(connMac, mac, 6);
+          connSinceMs = millis();
+        } else { snprintf(line, sizeof line, "FAIL %s connect", a); hostLine(line); }
         return;
       }
-    snprintf(line, sizeof line, "FAIL %s not-seen", a); Serial.println(line);
+    snprintf(line, sizeof line, "FAIL %s not-seen", a); hostLine(line);
     return;
   }
   Link *l = byMac(mac);
-  if (!l) { snprintf(line, sizeof line, "WERR %s no-link", a); Serial.println(line); return; }
+  if (!l && !strcmp(cmd, "DISC") && connecting && !memcmp(connMac, mac, 6)) {   // the host gave up waiting
+    sd_ble_gap_connect_cancel();
+    connecting = false;
+    return;
+  }
+  if (!l) { snprintf(line, sizeof line, "WERR %s no-link", a); hostLine(line); return; }
   if (!strcmp(cmd, "DISC")) { Bluefruit.disconnect(l->conn); return; }
   int n = b ? hexBytes(b, buf, sizeof buf) : -1;
-  if (n <= 0) { snprintf(line, sizeof line, "WERR %s bad-hex", a); Serial.println(line); return; }
-  if (!strcmp(cmd, "SAFE")) { memcpy(l->safe, buf, n); l->safeLen = n; snprintf(line, sizeof line, "SAFEOK %s", a); Serial.println(line); return; }
+  if (n <= 0) { snprintf(line, sizeof line, "WERR %s bad-hex", a); hostLine(line); return; }
+  if (!strcmp(cmd, "SAFE")) { memcpy(l->safe, buf, n); l->safeLen = n; snprintf(line, sizeof line, "SAFEOK %s", a); hostLine(line); return; }
   if (!strcmp(cmd, "W")) {
     snprintf(line, sizeof line, writeTo(l, buf, n) ? "WOK %s" : "WERR %s write", a);
     flushOut();          // a notification that came before the ACK goes out first
-    Serial.println(line);
+    hostLine(line);
     return;
   }
-  snprintf(line, sizeof line, "ERR unknown %s", cmd); Serial.println(line);
+  snprintf(line, sizeof line, "ERR unknown %s", cmd); hostLine(line);
 }
 
 void setup() {
@@ -230,7 +292,7 @@ void setup() {
   digitalWrite(LED_RED, HIGH); digitalWrite(LED_GREEN, HIGH); digitalWrite(LED_BLUE, HIGH);   // active low: off
   Serial.begin(115200);
   Bluefruit.configCentralBandwidth(BANDWIDTH_MAX);
-  Bluefruit.begin(0, MAX_LINKS);
+  bleOk = Bluefruit.begin(0, MAX_LINKS);   // false: the SoftDevice refused the config (RAM) — said in every HELLO
   Bluefruit.setName("XEMS-Bridge");
   Bluefruit.setTxPower(8);
   Bluefruit.autoConnLed(false);
@@ -263,11 +325,32 @@ void loop() {
   }
   flushOut();
   uint32_t now = millis();
-  if (!hostSeen && Serial && now - helloMs > 1000) {   // until the host speaks, say who we are once a second
+  if (!hostSeen && now - helloMs > 1000) {   // until the host speaks, say who we are once a second (DTR or not)
     helloMs = now;
-    char h[48]; snprintf(h, sizeof h, "HELLO XEMS-BRIDGE " BRIDGE_VER " %d", MAX_LINKS); Serial.println(h);
+    char h[48]; snprintf(h, sizeof h, "HELLO XEMS-BRIDGE " BRIDGE_VER " %d", MAX_LINKS); hostLine(h);
+    if (!bleOk) hostLine("ERR ble-start");
   }
-  if (hostSeen && now - lastHostMs > HOST_TIMEOUT_MS) { failSafe(); hostSeen = false; }
+  if (hostSeen && now - lastHostMs > HOST_TIMEOUT_MS) {   // the unit is gone: outputs off, links down, radio quiet
+    failSafe();
+    hostSeen = false;
+    scanWanted = false;
+    if (connecting) { sd_ble_gap_connect_cancel(); connecting = false; }
+    Bluefruit.Scanner.stop();
+  }
+  if (connecting && now - connSinceMs > CONNECT_MS) {
+    sd_ble_gap_connect_cancel();
+    connecting = false;
+    char m[18], f[40];
+    uint8_t le[6];
+    memcpy(le, connMac, 6);
+    macStr(le, m);
+    snprintf(f, sizeof f, "FAIL %s timeout", m);
+    hostLine(f);
+  }
+  if (scanWanted && bleOk && !connecting && now - scanTryMs > 300) {
+    scanTryMs = now;
+    if ((scanStopped || !Bluefruit.Scanner.isRunning()) && Bluefruit.Scanner.start(0)) scanStopped = false;
+  }
   int linked = 0;
   for (int i = 0; i < MAX_LINKS; i++) if (links[i].conn != BLE_CONN_HANDLE_INVALID) linked++;
   digitalWrite(LED_GREEN, linked ? LOW : HIGH);

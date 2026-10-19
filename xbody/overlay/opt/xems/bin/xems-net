@@ -132,6 +132,12 @@ log() {
 			echo "== $f (changed in the last 2 min, its end)"
 			tail -n 80 "$f" | tail -c 16000
 		done
+		echo "== usb (the XIAO bridge: Seeed 2886)"
+		for d in /sys/bus/usb/devices/*; do
+			[ -f "$d/idVendor" ] && echo "${d##*/} $(cat "$d/idVendor"):$(cat "$d/idProduct" 2> /dev/null) $(cat "$d/product" 2> /dev/null)"
+		done
+		ls -l /dev/ttyACM* 2> /dev/null
+		dmesg 2> /dev/null | grep -iE 'usb|acm|cdc' | tail -n 20
 		echo "== wifi"
 		wpa_cli -i wlan0 status 2> /dev/null | grep -E '^(wpa_state|ssid|ip_address|freq)='
 		echo "== dmesg"

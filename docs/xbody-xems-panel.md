@@ -245,6 +245,81 @@ XBody's own Wi-Fi screen (`WifiView`) is hidden with its "online" mode, and its 
 - Tests: `test.sh` 12 (stand-in wpa_cli: sorted / deduped scan, open / WPA / unsupported, wrong password, join + address,
   saved once, forget, no radio); also run under the card's busybox ash + its `wpa_passphrase` in qemu (caught: busybox
   `od` has no `-A` → `hexdump`). Not yet on the unit: which Wi-Fi chip it has and whether its driver scans once up.
+- **Mod v23 fix (owner: "the log does not send, says try again"):** v21/v22 shipped `xems-net` without its exec bit
+  (0644), so the panel could not start it — every "От интернет" / "Изпрати лог" ended "Не стана". The panel now runs
+  `xems-net` / `xems-wifi` through `/bin/sh` (exit 127 says the program is missing), the file is 0755 again, and
+  `test.sh` 1 fails on any overlay program without its exec bit (in git and in the payload). Units on v21–22 need v23
+  from the USB stick or the phone app once: their internet update runs the same broken file.
+
+## First XIAO on the unit (owner, mod v24 / bridge v4)
+Owner's run with v3: double RESET → the unit flashed it ("Програмирам моста" → "Мостът се рестартира…"), the LEDs went
+dark (= the sketch's setup ran), then back to "Включи XEMS моста" — the panel never heard a line.
+- Most likely cause: the core's `Serial` (Adafruit_USBD_CDC::write) **drops every byte while the host has not raised
+  DTR**; HELLO / PONG never left the board if the unit's 2.6.35 cdc-acm did not raise it. **Bridge v4** writes through
+  TinyUSB directly (`hostWrite` → `tud_cdc_n_write` + flush, FIFO overwritable without DTR, ≤ 200 ms per write) and
+  says HELLO each second until the host speaks, DTR or not. The panel also raises DTR + RTS itself (`TIOCMBIS`) and logs
+  `bridge port … open` to `panel.log`.
+- `build-bridge.sh` raises the core's `CFG_GATT_MAX_CLIENT_CHARS` 40 → 48 (4 links × 11 client characteristics = 44;
+  the 4th link lost its WiEMS / battery characteristics).
+- **Diagnosis on the card:** while no bridge answers, the "Включи XEMS моста" card has a grey line
+  "Виждам: XIAO по USB ✓|няма · ttyACM0 ✓|няма порт · отговор N байта|без отговор" (`App::readDiag`, every 2 s from
+  `/sys/bus/usb/devices` idVendor 2886 / product XIAO; also `/tmp/xems-bridge.state`). "Изпрати лог" now carries the
+  USB device list, `/dev/ttyACM*` and the USB lines of dmesg.
+- A v3 bridge that never answered cannot take the DFU command: RESET twice once more and the unit flashes v4.
+- **The real cause (owner's photo with v4: "Виждам: XIAO по USB ✓ · няма порт · без отговор"):** the unit's kernel
+  cdc-acm (`acm_ids` read out of `/boot/zImage-2.6.35.3…`: only class 2 / subclass 2 / **protocol 1–6**, plus a list
+  of Nokia / vendor IDs) never binds an ACM interface with protocol 0 — TinyUSB's `CDC_COMM_PROTOCOL_NONE`. So the XIAO
+  enumerated and no `/dev/ttyACM*` appeared. **Bridge v5 (mod v25):** `build-bridge.sh` patches the core's
+  `TUD_CDC_DESCRIPTOR` (IAD + interface) to protocol 1 (AT commands; nothing ever sends AT; modern hosts bind either).
+  Again RESET twice: the v4 bridge has no port to take a DFU command.
+- **Bridge v6 (mod v26; owner: "the XIAO looks for EMS devices, bodytech and XEMS are on, it does not see them"):**
+  with active scanning a suit's name (and often its service) comes in the scan response a few ms after the
+  advertisement; v1–v5 printed each address at most once a second — always the first, nameless packet — so a suit that
+  names itself only in the scan response never reached `suitKind`. v6 merges name + service per address and sends the
+  ADV line again as soon as either is learnt. `Bluefruit.begin` is checked: `ERR ble-start` / `ERR ble-scan` → the
+  panel says "Bluetooth на моста не тръгна". `PONG <ver> <reports heard> [ble-off]`; the pick header shows
+  "Bluetooth наоколо: N" (every device heard in 10 s, suit or not) and `/tmp/xems-bridge.state` lists each one
+  (`adv <mac> <rssi> <svc> <name>`) for "Изпрати лог" — the names tell why a suit is not recognised. The bridge
+  updates itself from v5 (DFU over the port it now has).
+- **Walk-through review (owner: "play through the whole XIAO / suit / BT + cable logic, fix what you find"), mod v27,
+  bridge v7:**
+  - The SoftDevice stops scanning for every connection attempt and the library never restarts it: after the first
+    suit linked there was no scan — no second suit, no reconnection of a dropped one. v7 keeps the host's wish
+    (`scanWanted`) and `loop()` restarts the scan when no attempt is running (`scanStopped`: the library still thinks
+    it scans after a cancelled attempt).
+  - The core connects without a timeout: a suit switched off mid-attempt left the radio "connecting" for good (every
+    later CONN refused, no scan). v7: one attempt at a time, cancelled after 9 s (`FAIL <mac> timeout`), cancelled at
+    once by the panel's DISC (its own 12 s limit); a report in flight no longer resumes a stopped scan.
+  - Host silence (2.5 s) now also cancels an attempt and quiets the radio after the fail-safe.
+  - Panel: a HELLO while a bridge was already talking = the board restarted under us → every session waits for its suit
+    (lost link, reconnect when seen), the scan is asked again.
+  - Panel and cable proxy clocks are **monotonic** (`CLOCK_MONOTONIC`): xems-net may set the wall clock; a jump froze the
+    pings (the bridge's fail-safe stops the suits) or shifted the cable shaper's impulse / pause.
+  - "От USB" (installs while the panel waits for it) is greyed while a wireless suit is linked — the wait would trip
+    the bridge's fail-safe. Internet updates only download; the install waits for no suit by itself.
+  - `xems-fw` started again (each new version, machine running) opened the policies before flushing: flushing under
+    DROP cut localhost — XBody's own stimulator link — for that moment, mid cable training too. test.sh 11 checks it.
+  - Checked, fine: busybox tar unlinks before writing (no ETXTBSY on the running panel / proxy during an update);
+    a lost link pauses only its session, a pulled bridge ends all; DFU only with no session.
+- **Bridge v8 (mod v28; owner's screen with v7: "Bluetooth на моста не работи"):** `Bluefruit.begin()` failed — the
+  core's linker script leaves the SoftDevice 24 KB of RAM (app RAM from 0x20006000), too little for 4 central links at
+  MTU 247 (`configCentralBandwidth(BANDWIDTH_MAX)`). `build-bridge.sh` moves the app's RAM to 0x20010000 (64 KB for the
+  SoftDevice; the sketch uses ~27 KB of the other 192). v7's `ERR ble-start` is what told us; the panel updates a
+  v7 bridge to v8 by itself (DFU over the port).
+
+## Dark theme, the WiEMS app's figures (mod v29, owner)
+- **Light | dark**, saved (`look/dark` in panel.conf): the moon / sun button on the suit list (bottom right), in the
+  session sheet's footer and next to "Обнови · Лог · Wi‑Fi" on "Кабел и импулс". Colours are theme tokens set by
+  `theme()` in `ui/panel.cpp` (SURF, PAGE, INK, LINE, SEL, …, the WiEMS tablet app's dark palette); WHITE stays for
+  text on coloured fills. Dark: a near-black grain instead of XBody's MainWindowBg, its logo's letters light, the timer
+  and MASTER humps painted in slate. The XEMS tab and the session tabs stay light (they sit on XBody's own screen).
+  Light is pixel-identical to v28 except the theme button and the figures.
+- **Figures = the WiEMS app's (1.15 / 1.17)**, both computed at load in `ui/bodyfig.cpp`: light = the tone stretched
+  slate … pale grey with a slate rim; dark = graphite with a cool rim light, working zones saturated (`shadeDark`), a
+  weak impulse deeper red (not pink), a soft red halo (`glow()`, two box-blur passes). A selected zone is tinted only
+  when not every zone is selected (as in the app). An impulse reads from 45 % opacity (was 28).
+- **Кабел и импулс:** the XBody | XEMS suit tiles show the name only (owner: the people pictures said nothing); the
+  "Сменя се от следващата тренировка" note moved up (it overlapped the update button).
 
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
@@ -253,6 +328,30 @@ folder is refused) → "Инсталирай версия N": copies, reads the 
 the stick holds a backup; a XIAO in UF2 mode picked instead gets the bridge firmware. FAT32 can't be checked
 through SAF (the screen asks for FAT32 ≤ 32 GB). Source `scripts/xbody/android/` (one Activity, no XML layouts,
 dx-safe); javac → dx → baksmali → apktool b → uber-apk-signer. Not run on a device yet.
+
+**The unit's own SD card, straight from the phone (owner: "a direct updater — the XBody card in a USB reader on the
+phone").** Section "SD картата на XBody": Shut down → card out → USB card reader on OTG → **Обнови SD картата до версия N**
+→ card back in. No root: `UsbDisk` speaks USB Mass Storage bulk-only + SCSI (INQUIRY, TEST UNIT READY with retries,
+READ CAPACITY(10), READ(10) / WRITE(10) ≤ 64 KB per command, 16 KB bulk pieces, SYNCHRONIZE CACHE; reset + clear-halt on
+a confused reader), `claimInterface(force)` takes the reader from the phone's driver; the USB permission is asked once.
+`CardUpdate` finds the MBR partition whose ext filesystem has `/opt/xbody`, reads the app's own payload / remove.list
+and does what `build.py --img` does with debugfs; then a fresh read checks every file, mode, symlink and removal and the
+VERSION. `Ext3` is a small ext2/3 writer (block maps up to double indirect, 1–4 KB blocks, 128/256-byte inodes,
+htree directories read linearly after an add — the index flag is cleared); it refuses extents / 64bit / flex_bg /
+checksums and a journal that needs recovery ("картата не е изключена правилно"). The hooks run at the next boot as for
+any install (VERSION changed). **Undo:** `UndoDev` keeps every sector before it changes in
+`files/card-undo-<card size>.bin`, flushed to the phone before the card write → "Върни картата както беше" puts it back
+byte for byte (also after a pulled reader). Tests: `test.sh` 13 (the real payload onto mke2fs images, 1 KB and 4 KB
+blocks with an htree dir: e2fsck clean, re-apply, undo byte-identical, dirty / non-XBody card refused) — caught a
+4 KB-block bug (block 0 is the superblock's: "no block" must never be freed). Not run on a phone + reader yet.
+**The owner's card is ext4** (first real run: "непозната файлова система (incompat 242)" = filetype + extents +
+flex_bg; Yocto 1.7's ext4 with uninit_bg). `Ext3` now also does that ext4: extent trees read at any depth and freed,
+new files / directories written as extents (one contiguous run when the card has it — `findRun` — else runs, ≤ 4 in
+the inode or one leaf block), dir blocks appended to the last extent, group-descriptor crc16 kept (`descCsum`),
+BLOCK_UNINIT / INODE_UNINIT groups never used, itable_unused moved past a new inode, HUGE_FILE flag / i_blocks_hi
+cleared. Refused: 64bit, metadata_csum, bigalloc, inline data. test.sh 13 covers ext3 1/4 KB, ext4 1/4 KB made with
+the card's exact feature set (incompat 0x242, ro 0x7b) and an ext4 whose free space is only 8-block holes (extent
+leaf block); the refused-card check is unchanged: nothing is written before every check passes.
 
 ## Panel
 The screen is a copy of **XBody's own manual-training screen** (owner: same look, not a new design), on the unit's

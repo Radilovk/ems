@@ -3,6 +3,7 @@
 #include "../core/bridge.h"
 #include "../core/safe.h"
 #include <QDateTime>
+#include <QDir>
 #include <map>
 #include <QFile>
 #include <QFileInfo>
@@ -13,6 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sys/time.h>
+#include <time.h>
 
 static QString U(const char *s) { return QString::fromUtf8(s); }
 
@@ -39,7 +41,7 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
+      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), dark_(false), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       net_(0), netJob_(NET_NONE), netOk_(false), netSinceMs_(0),
       wifiProc_(0), wifiJob_(WIFI_NONE), wifiOk_(false), wifiNoRadio_(false), wifiSinceMs_(0),
       noteWarn_(false), noteUntilMs_(0),
@@ -70,6 +72,11 @@ App::App()
         netLine_ = U("Версия ") + got + U(" не се инсталира — пробвай пак");
         QFile::remove(done);
     }
+    diag_.usb = false;
+    diag_.rx = 0;
+    bridgeHeard_ = -1;
+    bleOff_ = false;
+    diagMs_ = 0;
     timer_.start(20, this);
 }
 
@@ -96,6 +103,11 @@ bool App::female() const { return cur_ >= 0 && cur_ < (int)ses_.size() ? ses_[cu
 void App::setFemale(bool f) {
     female_ = f;
     if (cur_ >= 0 && cur_ < (int)ses_.size()) ses_[cur_].female = f;
+    save();
+}
+
+void App::setDark(bool d) {
+    dark_ = d;
     save();
 }
 
@@ -142,10 +154,12 @@ void App::drop(int i, const QString &why) {
     if (!why.isEmpty()) setNote(why, true);
 }
 
+// Monotonic: the wall clock can jump (xems-net sets it from the server when it is years off, the RTC after a dead
+// battery) — every link timeout, ping and phase clock here counts on this one.
 unsigned App::now() const {
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    return (unsigned)(tv.tv_sec * 1000ULL + tv.tv_usec / 1000) - t0_;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (unsigned)(ts.tv_sec * 1000ULL + ts.tv_nsec / 1000000) - t0_;
 }
 
 App::View App::view() const {
@@ -250,8 +264,9 @@ void App::netStart(int job) {
     if (net_ || (job != NET_UPDATE && job != NET_LOG)) return;
     const char *bin = std::getenv("XEMS_NET");
     net_ = new QProcess();
-    net_->start(QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-net"),
-                QStringList() << (job == NET_UPDATE ? U("update") : U("log")));
+    // Through /bin/sh: a script that lost its exec bit (mod v21 shipped xems-net 0644) still runs.
+    net_->start(U("/bin/sh"), QStringList() << QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-net")
+                                            << (job == NET_UPDATE ? U("update") : U("log")));
     netJob_ = job;
     netOk_ = false;
     netOut_.clear();
@@ -291,9 +306,48 @@ void App::pollNet(unsigned t) {
     if (!netOut_.trimmed().isEmpty()) netSay(netOut_.trimmed());
     netOut_.clear();
     // Ended without its final line (killed, missing): the last step it said is no answer.
-    if (!netOk_ && netLine_.endsWith(U("…"))) netLine_ = U("Не стана — пробвай пак");
+    if (!netOk_ && netLine_.endsWith(U("…")))
+        netLine_ = net_->exitCode() == 127 ? U("Не стана — липсва програмата xems-net") : U("Не стана — пробвай пак");
     delete net_;
     net_ = 0;
+}
+
+// The bridge as the unit sees it (only while it does not answer): a Seeed / XIAO device on the USB bus, the port the
+// panel holds, bytes heard on it. On the card and in /tmp/xems-bridge.state for the log.
+void App::readDiag() {
+    for (std::map<std::string, Heard>::iterator it = heard_.begin(); it != heard_.end();) {
+        if (age(now(), it->second.ms) > 10000) heard_.erase(it++);
+        else ++it;
+    }
+    QString sys = envPath("XEMS_USB_SYS", "/sys/bus/usb/devices");
+    diag_.usb = false;
+    QStringList devs = QDir(sys).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (int i = 0; i < devs.size() && !diag_.usb; i++) {
+        QString d = sys + U("/") + devs[i];
+        QString vid = QString::fromLatin1(slurp(d + U("/idVendor")).c_str()).trimmed();
+        QString prod = QString::fromLatin1(slurp(d + U("/product")).c_str());
+        diag_.usb = vid == U("2886") || prod.contains(U("XIAO"), Qt::CaseInsensitive) || prod.contains(U("nRF52"), Qt::CaseInsensitive);
+    }
+    diag_.port = port_ && port_->ok() ? QString::fromStdString(port_->name()) : QString();
+    diag_.rx = port_ && port_->ok() ? port_->rxBytes() : 0;
+    QFile f(envPath("XEMS_BRIDGE_STATE", "/tmp/xems-bridge.state"));
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        f.write(QString(U("usb=%1\nport=%2\nrx=%3\nhello=%4\nver=%5\n")).arg(diag_.usb).arg(diag_.port).arg(diag_.rx)
+                    .arg(helloMs_ != 0).arg(bridgeVer_).toLatin1());
+    if (f.isOpen()) {   // what the radio hears: the names tell why a suit is not recognised
+        f.write(QString(U("heard_by_bridge=%1\nble_off=%2\n")).arg(bridgeHeard_).arg(bleOff_).toLatin1());
+        for (std::map<std::string, Heard>::const_iterator it = heard_.begin(); it != heard_.end(); ++it)
+            f.write(("adv " + it->first + " " + QString::number(it->second.rssi).toStdString() + " " +
+                     (it->second.svc.empty() ? std::string("-") : it->second.svc) + " " +
+                     (it->second.name.empty() ? std::string("-") : it->second.name) + "\n").c_str());
+    }
+}
+
+int App::nearby() const {
+    int n = 0;
+    for (std::map<std::string, Heard>::const_iterator it = heard_.begin(); it != heard_.end(); ++it)
+        if (age(now(), it->second.ms) <= 10000) n++;
+    return n;
 }
 
 void App::wifiStart(int job, const QString &ssid, const QString &pass) {
@@ -301,7 +355,7 @@ void App::wifiStart(int job, const QString &ssid, const QString &pass) {
     const char *bin = std::getenv("XEMS_WIFI");
     wifiProc_ = new QProcess();
     static const char *const CMD[] = {"", "scan", "connect", "forget"};
-    wifiProc_->start(QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-wifi"), QStringList() << U(CMD[job]));
+    wifiProc_->start(U("/bin/sh"), QStringList() << QString::fromLocal8Bit(bin ? bin : "/opt/xems/bin/xems-wifi") << U(CMD[job]));
     if (job != WIFI_SCAN) {   // the name and the password go on stdin, never on the command line
         wifiProc_->write((ssid + U("\n") + pass + U("\n")).toUtf8());
         wifiProc_->closeWriteChannel();
@@ -397,6 +451,7 @@ void App::load() {
     prog_.cont = st.value("program/cont", false).toBool();
     age60_ = st.value("program/age60", false).toBool();
     female_ = st.value("client/female", true).toBool();
+    dark_ = st.value("look/dark", false).toBool();
     wiring_ = st.value("suit/wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
     wiWiring_ = st.value("suit/wiems_wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
     for (int k = 0; k < 3; k++) {
@@ -426,6 +481,7 @@ void App::save() {
     st.setValue("program/cont", prog_.cont);
     st.setValue("program/age60", age60_);
     st.setValue("client/female", female_);
+    st.setValue("look/dark", dark_);
     st.setValue("suit/wiring", wiring_);
     st.setValue("suit/wiems_wiring", wiWiring_);
     for (int k = 0; k < 3; k++) {
@@ -573,9 +629,20 @@ void App::line(const std::string &l, unsigned t) {
     lastRxMs_ = t;
     switch (e.type) {
     case BridgeEvent::HELLO:
+        // HELLO comes only from a board that has just started (it stops once the host speaks): a bridge that restarted
+        // under us (reset, brown-out) has no links and no scan — every session waits for its suit, the scan is asked
+        // again, an attempt in progress is gone.
+        if (helloMs_) {
+            for (int i = 0; i < (int)ses_.size(); i++)
+                lostLink(i, U("Мостът се рестартира — тренировката е на пауза"));
+            linkingMac_.clear();
+        }
+        scanning_ = false;
+        // fall through
     case BridgeEvent::PONG: {
         if (!helloMs_) scanning_ = false;   // a fresh bridge: say SCAN again
         helloMs_ = t;
+        if (e.type == BridgeEvent::PONG) { bridgeHeard_ = e.rssi; bleOff_ = e.name == "ble-off"; }
         int v = bridgeVersion(e);
         if (v > 0) {
             if (dfuSent_ && v >= bundledVer_) setNote(U("✓ Мостът е обновен"), false);
@@ -588,6 +655,10 @@ void App::line(const std::string &l, unsigned t) {
         setNote(U("Обновявам моста — след миг е готов"), false);
         break;
     case BridgeEvent::ERR:
+        if (e.text.find("ble-") != std::string::npos) {   // v6: the board's radio did not start / scan
+            bleOff_ = true;
+            setNote(U("Bluetooth на моста не тръгна — извади XIAO и го включи пак"), true);
+        }
         if (dfuSent_ && e.text.find("DFU") != std::string::npos) {   // v1 firmware: no DFU command yet
             setNote(U("Мостът е стар — натисни 2 пъти RESET на XIAO, машината ще го обнови"), true);
             dfuSent_ = false;
@@ -595,6 +666,11 @@ void App::line(const std::string &l, unsigned t) {
         }
         break;
     case BridgeEvent::ADV: {
+        Heard &h = heard_[e.mac];
+        h.ms = t;
+        h.rssi = e.rssi;
+        if (e.svc != "-") h.svc = e.svc;
+        if (!e.name.empty()) h.name = e.name;
         int k = suitKind(e.svc, e.name);
         if (k < 0) break;
         size_t i = 0;
@@ -710,6 +786,7 @@ void App::timerEvent(QTimerEvent *ev) {
         }
     }
     if (age(t, cableReadMs_) >= 500) { cableReadMs_ = t; readCableState(); }
+    if (age(t, diagMs_) >= 2000) { diagMs_ = t; readDiag(); }
     if (net_) pollNet(t);
     if (wifiProc_) pollWifi(t);
     // ---- an older bridge firmware: update it before any suit links (outputs are off, nothing runs) ----

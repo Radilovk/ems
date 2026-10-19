@@ -10,9 +10,10 @@
 ## and hurries the throw).
 ## Everything else is his face for the game: he laughs when the player eats, gets cross at a mighty smash, staggers
 ## back when a mighty hit sends the food back into him, announces the MEGA burger, sulks at an eaten apple. His words
-## are a bubble over his head and his own voice from his mouth, in the room (ChefVoice: one speaker for every line —
-## "Special delivery!", "Bwa ha ha ha!", "No! No! Nooo!"; made by gen/make_chef_voice.py). One man, one mouth: a new
-## reaction cuts what he was saying, a throw's taunt waits until he has finished.
+## are a bubble over his head and his own voice from his mouth, in the room (ChefVoice: one real voice actor for every
+## word, laugh, grunt and cry — "Ha ha ha! Clean-up on aisle four!", "Oh my god!", a grunt with each throw; cut by
+## gen/make_chef_voice.py). One man, one mouth: a new reaction cuts what he was saying, a call-out or a throw's grunt
+## waits until he has finished.
 ##
 ## Alive in the face too (Face): the Character Creator face shapes the converter keeps — he blinks, laughs with his
 ## eyes when the player eats, frowns at a mighty smash, winces when food hits him, looks sad at a defeat, grunts as he
@@ -46,8 +47,8 @@ const REACT := {
 }
 const GESTURE_LEN := 1.9                    # s of Strong Gesture before a big one is thrown
 const MOUTH := Vector3(0, 1.68, 0.12)       # where his voice comes from (his own space)
-const TAUNT := 0.3                          # share of throws he calls out ("Special delivery!", "Eat this!")
-const CHUCKLE := 0.4                        # share of eaten portions he only laughs at (else a line with a laugh)
+const TAUNT := 0.15                         # share of throws he calls out ("Come on, do something!")
+const CHUCKLE := 0.25                       # share of eaten portions he only laughs at (else a mocking line)
 ## Bulgarian words for what has no voice clip (a rules card's title is said as it is)
 const LINES := {
 	"laugh": ["Ха-ха! Още едно?", "Мммм, вкусно ли беше?", "Яж, яж!", "Браво, още калории!", "Това ще остане по корема!",
@@ -244,8 +245,10 @@ func chest_world() -> Vector3:
 
 ## He lets go: the portion leaves his hand (the game throws the real one from hand_world()).
 func release() -> void:
-	if _release_at >= 0.0 and face:
+	if (_held != null or _on_counter != null) and face:   # (a real throw: the portion in his hand or still on the counter)
 		face.grunt()
+		if not speaking():
+			say("throw")                               # (his effort as the food leaves his hand)
 	_release_at = -1.0
 	_pre_t = -1.0
 	_reach_t = -1.0
@@ -263,8 +266,12 @@ func say(what: String, extra := "") -> void:
 	var sec := 0.0
 	if extra == "" and ChefVoice.LINES.has(what):
 		var line: Array = _pick(what)
-		_bubble.text = String(line[1])
 		sec = _speak(String(line[0]))
+		if String(line[1]) == "":                     # a grunt, a cry: his face moves, no bubble
+			if face:
+				face.talk(sec * 0.8)
+			return
+		_bubble.text = String(line[1])
 	else:
 		var lines: Array = LINES.get(what, [what])
 		_bubble.text = (lines[randi() % lines.size()] if extra == "" else extra)

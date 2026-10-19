@@ -1309,6 +1309,8 @@ func _hit_food(e: Elem, limb: String) -> void:
 			food_fx.drop(at, e.food, wdir * 1.4 + Vector3(0, 0.6, 0))
 			sfx.play("weak", at, 0.0)
 			sfx.play("splat", at, -9.0, 1.1)
+			if chef and randf() < 0.3 and not chef.speaking():
+				chef.say("weak")                          # ("That is what we call some weak sauce!")
 		Power.Tier.MEDIUM:                                # it bursts along the punch
 			food_fx.burst(at, e.food, wdir, 1)
 			sfx.play("punch", at, -2.0, randf_range(0.95, 1.05))

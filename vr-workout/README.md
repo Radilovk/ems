@@ -46,14 +46,15 @@ weak hit only knocks it down, it tumbles and bounces. Eaten food splats across y
 suit's punishment in the belly. **The chef** (`chef.gd`) laughs when you eat ("Ха-ха! Още едно?"), gets cross at a
 mighty smash, staggers when hit, sulks at an apple, announces the MEGA burger, is impressed by four mighty hits in a
 row — his words in a bubble over his head **and in his own voice**, from his mouth in the room (3D, through the effects'
-hall): one speaker for every line, so he never sounds like two people (`ChefVoice`, `assets/sfx/chef/`, made by
-`gen/make_chef_voice.py` from the Kokoro-82M voice `am_michael`, a touch lower and warmer, one loudness; each line checked
-by Whisper). He opens a level ("Who's hungry?", "Let's cook!"), calls out about every third throw ("Special delivery!",
-"Now, eat this!", "Open wide!", "Order up!"), laughs when you eat ("Ho ho ho!", "Bwa ha ha ha!", "Ha ha! Want more?",
-"Yummy!"), cries "No! No! Nooo!", "Oh my god!", "How dare you!" at a mighty smash, "Ouch!", "Ugh! My apron!" when it comes
-back at him, sighs at an apple, announces the MEGA burger and the cake, "Oh no! My masterpiece!" when the big one is
-smashed. One man, one mouth: a reaction cuts what he was saying, a call-out waits until he has finished; never the same
-line twice in a row. The summary leads with the balance (kcal and kg), smashed, eaten, sent back,
+hall). One real voice actor for all of it (VoiceBosch, CC-BY-SA 4.0; `ChefVoice`, `assets/sfx/chef/`, cut by
+`gen/make_chef_voice.py` from his OpenGameArt packs): his mocking showman BANTER MAN for the words and the laugh, the
+same man's short cries, effort grunts, pain grunts and groans. A grunt with every throw; "Ha ha ha! Clean-up on aisle
+four!", "And I call that move: the Feeding Tube!", "How embarrassing!" when you eat; "Ladies and gentlemen, are you not
+entertained?" after three; "Oh my god!", "Oh damn!", "Holy crap, what a beating!", "No way!" at a mighty smash; "That
+is what we call some weak sauce! Boooo!" now and then at a weak one; pain grunts, "God damn, I felt that one!" when it
+comes back at him; "BONUS ROUND!" / "FINAL ROUND!" before the MEGA burger / the cake; cries and "Uh-oh…" when it is
+smashed. One man, one mouth: a reaction cuts what he was saying, a call-out or a grunt waits until he has finished;
+never the same line twice in a row. The summary leads with the balance (kcal and kg), smashed, eaten, sent back,
 mighty hits, the hardest punch in km/h.
 
 ## Power of a hit — every scenario (`scripts/game/power.gd`)

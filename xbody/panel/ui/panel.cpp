@@ -16,7 +16,7 @@
 #include <cstdlib>
 
 // XBody's palette (sampled from its own training screen and pictures). The theme's colours are set by theme()
-// (owner, mod v23: light = XBody's, and a dark one — the WiEMS tablet app's, v1.15): SURF = a button / card, PAGE = the
+// (owner, mod v29: light = XBody's, and a dark one — the WiEMS tablet app's, v1.15): SURF = a button / card, PAGE = the
 // screen, SEL / ON_INK = a chosen chip and its text (light: INK / white); WHITE stays white for text and marks on
 // coloured fills.
 static const QColor WHITE(0xFF, 0xFF, 0xFF), RED(0xE2, 0x1A, 0x22), GREEN(0x00, 0xB3, 0x8B), YELLOW(0xFF, 0xC0, 0x00),
@@ -576,7 +576,15 @@ void PanelWidget::paintCableSettings(QPainter &p) {
     p.drawText(QRect(204, 426, 556, 30), Qt::AlignLeft | Qt::AlignVCenter, t1);
     p.setPen(SOFT);
     p.setFont(uiFont(15));
-    p.drawText(QRect(204, 460, 556, 60), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, t2);
+    p.drawText(QRect(204, 460, 556, 48), Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, t2);
+    if (!flashing && !restarting) {   // what the unit sees — a photo of this line tells why a bridge stays silent
+        const App::BridgeDiag &d = app_->bridgeDiag();
+        QString l = U("Виждам: ") + (d.usb ? U("XIAO по USB ✓") : U("няма XIAO по USB")) + U("  ·  ") +
+                    (d.port.isEmpty() ? U("няма порт") : d.port.mid(d.port.lastIndexOf(QLatin1Char('/')) + 1) + U(" ✓")) +
+                    U("  ·  ") + (d.rx ? U("отговор ") + QString::number(d.rx) + U(" байта") : U("без отговор"));
+        p.setFont(uiFont(13));
+        p.drawText(QRect(204, 508, 556, 20), Qt::AlignLeft | Qt::AlignVCenter, l);
+    }
 }
 
 // A program's tile: a red line icon for the procedure (Health Icons, CC0 — xbody/panel/art) on white, like XBody's
@@ -835,8 +843,12 @@ void PanelWidget::paintCableInfo(QPainter &p) {
 void PanelWidget::paintPick(QPainter &p) {
     int dots = (app_->now() / 400) % 4;
     QString n = app_->note();
-    paintHeader(p, U("ИЗБЕРИ КОСТЮМ"), n.isEmpty() ? U("Търся наблизо") + QString(dots, QLatin1Char('.')) : n,
-                !n.isEmpty() && app_->noteWarn(), !n.isEmpty() && !app_->noteWarn());
+    // While looking: how many Bluetooth devices the bridge hears at all — 0 means the radio, many means the suit's name.
+    QString look = app_->bleOff() ? U("Bluetooth на моста не работи — извади XIAO и го включи пак")
+                                  : U("Търся наблизо") + QString(dots, QLatin1Char('.')) + U("   ·   Bluetooth наоколо: ") +
+                                        QString::number(app_->nearby());
+    paintHeader(p, U("ИЗБЕРИ КОСТЮМ"), n.isEmpty() ? look : n,
+                (!n.isEmpty() && app_->noteWarn()) || (n.isEmpty() && app_->bleOff()), !n.isEmpty() && !app_->noteWarn());
     QRect cb(653, 0, 147, 56);   // XBody's own cable settings
     if (pressed_ == U("cable")) p.fillRect(cb.adjusted(1, 0, 0, 0), PRESS);
     p.setPen(INK);
@@ -1185,7 +1197,7 @@ void PanelWidget::caption(QPainter &p, int x, int y, const QString &text) {
     p.drawText(QRect(x, y, 360, 20), Qt::AlignLeft | Qt::AlignVCenter, text);
 }
 
-// Light ↔ dark (owner, mod v23): a moon to go dark, a sun to go light, drawn (no font glyphs), the word beside it.
+// Light ↔ dark (owner, mod v29): a moon to go dark, a sun to go light, drawn (no font glyphs), the word beside it.
 void PanelWidget::themeButton(QPainter &p, const QRect &r) {
     bool down = pressed_ == U("theme");
     p.setPen(QPen(LINE, 2));
@@ -1544,9 +1556,12 @@ void PanelWidget::paintService(QPainter &p) {
     for (int i = 0; i < 4; i++) {
         QRect r(40 + i * 183, 186, 170, 128);
         QString id = U(ID[i]), sub = U(SUB[i]);
-        bool on = !busy && (i >= 2 || !training);
+        // USB installs on the spot and holds the panel for seconds: never with a wireless suit linked (the bridge would
+        // take the silence for a dead unit and stop it). The internet only downloads; its install waits by itself.
+        bool suits = app_->sessions() > 0;
+        bool on = !busy && (i >= 2 || !training) && !(i == 1 && suits);
         bool run = busy && i != 1 && i != 3 && app_->netJob() == (i == 2 ? App::NET_LOG : App::NET_UPDATE);
-        if (i < 2 && training && !busy) sub = U("след тренировката");
+        if ((i < 2 && training && !busy) || (i == 1 && suits && !busy)) sub = U("след тренировката");
         if (i == 3) sub = app_->wifiSsid().isEmpty() ? U("търси мрежа, свържи") : U("свързан: ") + app_->wifiSsid();
         p.setOpacity(on || run ? 1.0 : 0.4);
         p.setPen(QPen(WHITE, 2));
@@ -1996,7 +2011,8 @@ void PanelWidget::mouseReleaseEvent(QMouseEvent *e) {
 QString PanelWidget::signature(QString *clock) const {
     unsigned now = app_->now();
     App::View v = app_->view();
-    QString g = QString::number(v) + QString::number(app_->dark()) + U("|") + app_->note() + QString::number(app_->noteWarn()) + U("|") + pressed_ +
+    QString g = QString::number(v) + QString::number(app_->dark()) + U("|") + QString::number(app_->nearby()) +
+                QString::number(app_->bleOff()) + U("|") + app_->note() + QString::number(app_->noteWarn()) + U("|") + pressed_ +
                 QString::number(sheet_) + QString::number(confirm_) + QString::number(confirmKind_) + U("|") + QString::number(sel_) +
                 QString::number(slideZone_) + U("/") + QString::number(slideValue_) + U("|") +
                 U("|%1 %2 %3 %4 %5").arg(info_).arg(sheetWiring_).arg(app_->wiring())
@@ -2009,7 +2025,10 @@ QString PanelWidget::signature(QString *clock) const {
         g += U("|n") + app_->netLine() + usbLine_ + QString::number(app_->netBusy() ? (now / 400) % 4 : 9) +
              QString::number(app_->cableLive().training);
     *clock = QString();
-    if (v == App::NO_BRIDGE) g += app_->uf2State() + QString::number(app_->bridgeUpdating());
+    if (v == App::NO_BRIDGE) {
+        const App::BridgeDiag &d = app_->bridgeDiag();
+        g += app_->uf2State() + QString::number(app_->bridgeUpdating()) + U("|d%1%2 %3").arg(d.usb).arg(d.port).arg(d.rx);
+    }
     {
         const xbcable::Config &c = app_->cable();
         const App::CableLive &l = app_->cableLive();

@@ -22,12 +22,14 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
+// Monotonic: the shaper's impulse / pause clock must not jump with the wall clock (xems-net may set it).
 static unsigned nowMs() {
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    return (unsigned)(tv.tv_sec * 1000ULL + tv.tv_usec / 1000);
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (unsigned)(ts.tv_sec * 1000ULL + ts.tv_nsec / 1000000);
 }
 
 static int envInt(const char *k, int d) { const char *v = std::getenv(k); return v ? std::atoi(v) : d; }

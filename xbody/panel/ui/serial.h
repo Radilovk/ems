@@ -12,6 +12,7 @@ public:
     virtual bool readLine(std::string &line) = 0;   // one complete line, false if none
     virtual void poll(unsigned now) = 0;
     virtual std::string name() const = 0;
+    virtual long rxBytes() const { return 0; }   // bytes heard since the port opened (the "plug the XIAO" diagnosis)
 };
 
 class SerialPort : public BridgePort {
@@ -24,9 +25,11 @@ public:
     bool readLine(std::string &line);
     void poll(unsigned now);
     std::string name() const { return path_; }
+    long rxBytes() const { return rx_; }
 private:
     void close();
     int fd_;
+    long rx_;
     std::string path_, buf_;
 };
 

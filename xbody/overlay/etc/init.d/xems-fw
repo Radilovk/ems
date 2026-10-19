@@ -20,6 +20,10 @@ start)
 	done
 	# The Wi-Fi radio on before networking (S01) brings wlan0 up: XBody's scans failed with it blocked / down.
 	[ -n "$XEMS_IPT" ] || rfkill unblock wifi > /dev/null 2>&1
+	# Started again (each new mod version, from a running machine): open first, then flush — flushing under the DROP
+	# policies would cut localhost (XBody's own link to the stimulator) for the moment the rules are missing.
+	$IPT -P INPUT ACCEPT > /dev/null 2>&1
+	$IPT -P OUTPUT ACCEPT > /dev/null 2>&1
 	$IPT -F > /dev/null 2>&1
 	$IPT -X > /dev/null 2>&1
 	if ! $IPT -A INPUT -i lo -j ACCEPT || ! $IPT -A OUTPUT -o lo -j ACCEPT; then

@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="bg.xems.fleshka"
     android:versionCode="@VERSION@" android:versionName="@VERSION@">
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="29" />
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
     <application android:label="XEMS флашка" android:icon="@drawable/ic_launcher" android:allowBackup="false">
         <activity android:name=".MainActivity" android:label="XEMS флашка" android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden">

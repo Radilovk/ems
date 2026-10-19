@@ -164,11 +164,18 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-no-vendor-network.py` (53L, build:L191[BETA_MUSIC]) — Fail the build if a request path to the vendor's server is still open (apply-no-vendor-network.py).
 - `scripts/verify-vendor-access.py` (62L, build:L189) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L158[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
-- `scripts/xbody/android/src/bg/xems/fleshka/MainActivity.java` (474L) — XEMS за XBody — prepares the USB stick for the XBody unit from an Android phone or tablet (OTG), the same job PODGOTVI-…
+- `scripts/xbody/android/src/bg/xems/fleshka/BlockDev.java` (14L) — A disk as bytes: the SD card behind a USB reader (UsbDisk), an image file (FileDev), or either under an undo log.
+- `scripts/xbody/android/src/bg/xems/fleshka/CardUpdate.java` (163L) — The XBody unit's own SD card, updated from the phone: find its root partition (the ext one with /opt/xbody), put the mo…
+- `scripts/xbody/android/src/bg/xems/fleshka/Ext3.java` (812L) — Just enough ext2/3/4 to put the XEMS mod onto the XBody unit's own SD card from a phone — what build.py --img does with…
+- `scripts/xbody/android/src/bg/xems/fleshka/FileDev.java` (32L) — An image file as a disk (host tests; the card's image kept on the phone).
+- `scripts/xbody/android/src/bg/xems/fleshka/MainActivity.java` (662L) — XEMS за XBody — prepares the USB stick for the XBody unit from an Android phone or tablet (OTG), the same job PODGOTVI-…
 - `scripts/xbody/android/src/bg/xems/fleshka/PhoneServer.java` (115L) — The phone's side of the direct USB link: with USB tethering on, the XBody unit (opt/xems/bin/xems-link) asks http://<ph…
+- `scripts/xbody/android/src/bg/xems/fleshka/UndoDev.java` (115L) — Writes through to a disk, but first keeps every 512-byte sector it is about to change, as it was, in a file on the phon…
+- `scripts/xbody/android/src/bg/xems/fleshka/UsbDisk.java` (227L) — An SD card in a USB card reader on the phone's OTG port, as raw sectors — no root: the app talks USB Mass Storage (Bulk…
+- `scripts/xbody/android/test/CardUpdateMain.java` (38L) — Host test of the app's SD-card update (scripts/xbody/test.sh 13) on image files: apply IMG STICKDIR UNDOLOG the stick's…
 - `scripts/xbody/android/test/PhoneServerMain.java` (29L) — Host test of the phone's link server (scripts/xbody/test.sh 7): serves a stick folder like the app's assets.
 - `scripts/xbody/build-android.sh` (56L) — "XEMS за XBody" Android app: prepares the USB stick from a phone / tablet (OTG) — the PC tools' job
-- `scripts/xbody/build-bridge.sh` (29L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
+- `scripts/xbody/build-bridge.sh` (43L) — XIAO nRF52840 BLE bridge firmware → xbody/bridge/xems-bridge.uf2 (double-tap RESET on the XIAO, drop the file on
 - `scripts/xbody/build-panel.sh` (23L) — xems-panel for the XBody unit → xbody/overlay/opt/xems/bin/xems-panel (committed, like the APK).
 - `scripts/xbody/build.py` (448L) — Build the XBody mod (xbody/overlay + xbody/remove.list) into files for the unit.
 - `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
@@ -183,7 +190,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/test-cable.py` (96L) — xems-xbproxy end to end on the host: a fake serial daemon (upstream), the proxy, a fake xbody_control. python3 scripts/…
 - `scripts/xbody/test-net-server.py` (42L) — Stand-in for the license server's /v1/unit/* (scripts/xbody/test.sh 10): HTTPS on 127.0.0.1:<port>. test-net-server.py …
 - `scripts/xbody/test-panel.sh` (16L) — XEMS panel core on the host (protocol bytes, safety table, impulse / pause clock, bridge lines, cable shaper)
-- `scripts/xbody/test.sh` (391L) — XBody mod pipeline tests, no device needed:
+- `scripts/xbody/test.sh` (465L) — XBody mod pipeline tests, no device needed:
 - `scripts/xbody/updater.sh` (106L) — XEMS mod installer for the XBody unit (i.MX53, Yocto 1.7, busybox 1.22 ash).
 - `scripts/xbody/xcc.sh` (25L) — Cross g++ for the XBody unit: ARMv7 NEON softfp like the vendor binaries, glibc ≤ 2.19 symbols (card has 2.20),
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
@@ -821,7 +828,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (373L)
+`docs/xbody-xems-panel.md` (458L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -835,14 +842,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L154 ## Update from USB while the machine runs (mod v15) — admin interface, no reboot dance
   - L182 ## Internet only on request + the network lock (mod v21, owner)
   - L225 ## Wi-Fi page (mod v22, owner: "no Wi-Fi setting, nowhere to look for a signal")
-  - L249 ## Dark theme, the WiEMS app's figures (mod v23, owner)
-  - L263 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L271 ## Panel
-  - L305 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
-  - L327 ## Bridge line protocol (USB CDC, 115200)
-  - L338 ## Files
-  - L350 ## Build / test
-  - L366 ## First test on the unit (when the XIAO arrives)
+  - L254 ## First XIAO on the unit (owner, mod v24 / bridge v4)
+  - L310 ## Dark theme, the WiEMS app's figures (mod v29, owner)
+  - L324 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L356 ## Panel
+  - L390 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
+  - L412 ## Bridge line protocol (USB CDC, 115200)
+  - L423 ## Files
+  - L435 ## Build / test
+  - L451 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

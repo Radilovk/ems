@@ -1,11 +1,17 @@
 package bg.xems.fleshka;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,10 +23,12 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
@@ -31,6 +39,8 @@ import java.security.MessageDigest;
  * trainer picks the stick's root (Storage Access Framework); the app copies, checks the payload's md5 and says so.
  * A XIAO in UF2 mode picked instead gets the bridge firmware. A stick that holds a backup of an earlier install can
  * be armed to undo it. Backups on the stick are never touched. No lambdas / anonymous classes (dx).
+ * The unit's own SD card in a USB card reader: updated in place to this version (every changed sector kept on the phone
+ * first, so "Върни картата както беше" puts it back) — UsbDisk + Ext3 + CardUpdate.
  */
 public class MainActivity extends Activity {
     static final int PICK = 1;
@@ -43,6 +53,12 @@ public class MainActivity extends Activity {
     Uri tree;
     String version = "?";
     final Handler ui = new Handler(Looper.getMainLooper());
+    static final String ACTION_USB = "bg.xems.fleshka.USB";
+    Button sdUpdate, sdUndo;
+    TextView sdStatus;
+    ProgressBar sdBar;
+    int pendingSd;
+    UsbReceiver usbReceiver;
 
     @Override
     protected void onCreate(Bundle b) {
@@ -110,6 +126,32 @@ public class MainActivity extends Activity {
         col.addView(space(18));
         col.addView(text("Нова платка XIAO? Включи я с OTG, натисни RESET два пъти бързо и я избери тук — "
                 + "приложението я програмира. Или я включи в машината: тя я програмира сама.", 14, SOFT, false));
+        col.addView(space(30));
+
+        // ---- C: the unit's own SD card, in a USB card reader on the phone ----
+        col.addView(text("SD картата на XBody", 19, INK, true));
+        col.addView(space(6));
+        col.addView(step("1", "Изключи XBody с Shut down и извади SD картата от него."));
+        col.addView(step("2", "Сложи картата в USB четец за карти и го включи с OTG кабел към телефона."));
+        col.addView(step("3", "Натисни „Обнови SD картата“, после върни картата в XBody и го включи."));
+        col.addView(space(14));
+        sdUpdate = button("Обнови SD картата до версия " + version, GREEN, true);
+        sdUpdate.setOnClickListener(new Click(5));
+        col.addView(sdUpdate);
+        col.addView(space(10));
+        sdBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        sdBar.setMax(100);
+        sdBar.setVisibility(View.GONE);
+        col.addView(sdBar);
+        sdStatus = text("Всеки променен сектор се пази в телефона — картата може да се върне както е била.", 15, SOFT, false);
+        col.addView(sdStatus);
+        col.addView(space(10));
+        sdUndo = button("Върни картата както беше", RED, false);
+        sdUndo.setOnClickListener(new Click(8));
+        col.addView(sdUndo);
+        sdButtons();
+        usbReceiver = new UsbReceiver();
+        registerReceiver(usbReceiver, new IntentFilter(ACTION_USB));
         setContentView(sv);
         server = new PhoneServer(version, new AssetFiles(), new Unit(), PhoneServer.PORT);
         new Thread(server).start();
@@ -118,6 +160,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         if (server != null) server.close();
+        if (usbReceiver != null) unregisterReceiver(usbReceiver);
         super.onDestroy();
     }
 
@@ -232,6 +275,7 @@ public class MainActivity extends Activity {
                 }
                 return;
             }
+            if (what >= 5) { sdAsk(what); return; }
             if (what == 0) {
                 Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                 i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -248,6 +292,140 @@ public class MainActivity extends Activity {
         pick.setEnabled(!b);
         install.setEnabled(!b);
         undo.setEnabled(!b);
+        if (sdUpdate != null) {
+            sdUpdate.setEnabled(!b);
+            sdUndo.setEnabled(!b);
+        }
+    }
+
+    // ---------------------------------------------------------------- the unit's SD card (USB card reader)
+
+
+    File undoFile(long size) { return new File(getFilesDir(), "card-undo-" + size + ".bin"); }
+
+    boolean anyUndo() {
+        File[] fs = getFilesDir().listFiles();
+        if (fs != null) for (File f : fs) if (f.getName().startsWith("card-undo-") && f.length() > 14) return true;
+        return false;
+    }
+
+    void sdButtons() {
+        sdUndo.setVisibility(anyUndo() ? View.VISIBLE : View.GONE);
+    }
+
+    void sdSay(String s, int color) {
+        sdStatus.setText(s);
+        sdStatus.setTextColor(color);
+    }
+
+    /** A tap on an SD action: the reader, its permission (asked once), then the work off the UI thread. */
+    void sdAsk(int what) {
+        UsbManager m = (UsbManager) getSystemService(Context.USB_SERVICE);
+        UsbDevice dev = UsbDisk.find(m);
+        if (dev == null) {
+            sdSay("Не виждам четец за карти. Включи го с OTG кабел (картата да е вътре).", RED);
+            return;
+        }
+        if (!m.hasPermission(dev)) {
+            pendingSd = what;
+            m.requestPermission(dev, PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB).setPackage(getPackageName()), 0));
+            sdSay("Разреши достъпа до четеца в прозореца на телефона.", INK);
+            return;
+        }
+        sdStart(what);
+    }
+
+    void sdStart(int what) {
+        busy(true);
+        sdBar.setProgress(0);
+        sdBar.setVisibility(View.VISIBLE);
+        sdSay("Свързвам се с картата…", INK);
+        new Thread(new Work(what)).start();
+    }
+
+    final class UsbReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context c, Intent i) {
+            if (!ACTION_USB.equals(i.getAction()) || pendingSd == 0) return;
+            int what = pendingSd;
+            pendingSd = 0;
+            if (i.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) sdStart(what);
+            else sdSay("Без разрешение не мога да стигна до картата.", RED);
+        }
+    }
+
+    final class SdProgress implements CardUpdate.Progress {
+        long lastMs;
+
+        @Override
+        public void step(String what, int pct) {
+            long t = System.currentTimeMillis();
+            if (t - lastMs < 250 && pct < 100) return;
+            lastMs = t;
+            ui.post(new SdLine(what, pct));
+        }
+    }
+
+    final class SdLine implements Runnable {
+        final String what;
+        final int pct;
+
+        SdLine(String w, int p) { what = w; pct = p; }
+
+        @Override
+        public void run() {
+            sdBar.setProgress(pct);
+            sdSay(what, INK);
+        }
+    }
+
+    final class SdDone implements Runnable {
+        final String msg;
+        final int color;
+
+        SdDone(String m, int c) { msg = m; color = c; }
+
+        @Override
+        public void run() {
+            busy(false);
+            sdBar.setVisibility(View.GONE);
+            sdSay(msg, color);
+            sdButtons();
+        }
+    }
+
+    String doSd(int what) throws Exception {
+        UsbManager m = (UsbManager) getSystemService(Context.USB_SERVICE);
+        UsbDevice dev = UsbDisk.find(m);
+        if (dev == null) throw new Exception("четецът е изваден");
+        UsbDisk disk = UsbDisk.open(m, dev);
+        SdProgress p = new SdProgress();
+        try {
+            if (what == 8) {   // put the card back as it was before the last update
+                File u = undoFile(disk.size());
+                if (!u.exists()) throw new Exception("за тази карта няма запазено връщане");
+                p.step("Връщам картата…", 30);
+                int n = UndoDev.undo(disk, u);
+                if (!u.delete()) u.deleteOnExit();
+                return "✓ Картата е върната както беше (" + n + " сектора). Сложи я в XBody.";
+            }
+            byte[] payload = readAsset("fleshka/xems/payload.tar.gz");
+            String rm = new String(readAsset("fleshka/xems/remove.list"), "UTF-8");
+            Ext3 fs = CardUpdate.xbodyRoot(disk);
+            String have = CardUpdate.cardVersion(fs);
+            if (version.equals(have)) return "✓ Картата вече е с версия " + version + ". Сложи я обратно в XBody.";
+            UndoDev u = new UndoDev(disk, undoFile(disk.size()));
+            String v;
+            try {
+                v = CardUpdate.apply(u, payload, rm, version, p);
+            } finally {
+                u.close();
+            }
+            return "✓ Картата е с версия " + v + (have.length() > 0 ? " (беше " + have + ")" : "")
+                    + ". Извади четеца, сложи картата в XBody и го включи.";
+        } finally {
+            disk.close();
+        }
     }
 
     @Override
@@ -295,6 +473,16 @@ public class MainActivity extends Activity {
         public void run() {
             String msg;
             int color = GREEN;
+            if (what >= 5) {
+                try {
+                    msg = doSd(what);
+                } catch (Exception e) {
+                    msg = "Не стана: " + e.getMessage() + ".";
+                    color = RED;
+                }
+                ui.post(new SdDone(msg, color));
+                return;
+            }
             try {
                 if (what == 1) msg = doInstall();
                 else if (what == 2) msg = doUndo();

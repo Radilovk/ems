@@ -64,6 +64,7 @@ private:
     void paintKeyboard(QPainter &p);  // its password keyboard
     void pill(QPainter &p, const QRect &r, const QString &value, const QString &field, bool enabled = true);
     void caption(QPainter &p, int x, int y, const QString &text);
+    void themeButton(QPainter &p, const QRect &r);   // light ↔ dark (id "theme")
     void toast(const QString &text);
     void outlined(QPainter &p, const QRect &r, const QString &id, const QString &text, int px, bool on);
     void filled(QPainter &p, const QRect &r, const QString &id, const QString &pixmap, const QColor &bg,

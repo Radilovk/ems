@@ -39,7 +39,7 @@ static QString confPath() {
 
 App::App()
     : port_(0), fake_(std::getenv("XEMS_FAKE_BRIDGE") != 0), t0_(0), helloMs_(0), lastPingMs_(0), lastOpenMs_(0),
-      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
+      lastRxMs_(0), cur_(-1), linkingSinceMs_(0), scanning_(false), age60_(false), wiring_(Suit::WIRE_XEMS), wiWiring_(Suit::WIRE_XEMS), female_(true), dark_(false), keptSavedMs_(0), bridgeVer_(0), bundledVer_(0), dfuSent_(false), cableReadMs_(0),
       net_(0), netJob_(NET_NONE), netOk_(false), netSinceMs_(0),
       wifiProc_(0), wifiJob_(WIFI_NONE), wifiOk_(false), wifiNoRadio_(false), wifiSinceMs_(0),
       noteWarn_(false), noteUntilMs_(0),
@@ -96,6 +96,11 @@ bool App::female() const { return cur_ >= 0 && cur_ < (int)ses_.size() ? ses_[cu
 void App::setFemale(bool f) {
     female_ = f;
     if (cur_ >= 0 && cur_ < (int)ses_.size()) ses_[cur_].female = f;
+    save();
+}
+
+void App::setDark(bool d) {
+    dark_ = d;
     save();
 }
 
@@ -397,6 +402,7 @@ void App::load() {
     prog_.cont = st.value("program/cont", false).toBool();
     age60_ = st.value("program/age60", false).toBool();
     female_ = st.value("client/female", true).toBool();
+    dark_ = st.value("look/dark", false).toBool();
     wiring_ = st.value("suit/wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
     wiWiring_ = st.value("suit/wiems_wiring", 0).toInt() == Suit::WIRE_XBODY ? Suit::WIRE_XBODY : Suit::WIRE_XEMS;
     for (int k = 0; k < 3; k++) {
@@ -426,6 +432,7 @@ void App::save() {
     st.setValue("program/cont", prog_.cont);
     st.setValue("program/age60", age60_);
     st.setValue("client/female", female_);
+    st.setValue("look/dark", dark_);
     st.setValue("suit/wiring", wiring_);
     st.setValue("suit/wiems_wiring", wiWiring_);
     for (int k = 0; k < 3; k++) {

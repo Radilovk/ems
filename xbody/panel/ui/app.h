@@ -69,6 +69,8 @@ public:
     bool sessionLinked(int i) const { return i >= 0 && i < (int)ses_.size() && ses_[i].linkOk; }
     bool female() const;                          // the body figures of the session on the screen
     void setFemale(bool f);                       // at once, also mid-training
+    bool dark() const { return dark_; }           // the panel's theme (owner, mod v23: light = XBody's, and a dark one)
+    void setDark(bool d);                         // saved at once
     bool bridgeOk() const { return port_ && port_->ok() && helloMs_ != 0; }
     // Bridge firmware: an older one is updated by itself (DFU → UF2 drive → /opt/xems/bin/xems-uf2 copies it).
     bool bridgeUpdating() const { return dfuSent_; }
@@ -156,7 +158,7 @@ private:
     Program prog_;
     bool age60_;
     int wiring_, wiWiring_;
-    bool female_;
+    bool female_, dark_;
     // The zones (screen order) and strength as last set, per suit kind (owner: they stay as set, also over restarts).
     int keptZones_[3][Suit::MAX_CH], keptStrength_[3];
     unsigned keptSavedMs_;

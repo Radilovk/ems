@@ -246,6 +246,20 @@ XBody's own Wi-Fi screen (`WifiView`) is hidden with its "online" mode, and its 
   saved once, forget, no radio); also run under the card's busybox ash + its `wpa_passphrase` in qemu (caught: busybox
   `od` has no `-A` → `hexdump`). Not yet on the unit: which Wi-Fi chip it has and whether its driver scans once up.
 
+## Dark theme, the WiEMS app's figures (mod v23, owner)
+- **Light | dark**, saved (`look/dark` in panel.conf): the moon / sun button on the suit list (bottom right), in the
+  session sheet's footer and next to "Обнови · Лог · Wi‑Fi" on "Кабел и импулс". Colours are theme tokens set by
+  `theme()` in `ui/panel.cpp` (SURF, PAGE, INK, LINE, SEL, …, the WiEMS tablet app's dark palette); WHITE stays for
+  text on coloured fills. Dark: a near-black grain instead of XBody's MainWindowBg, its logo's letters light, the timer
+  and MASTER humps painted in slate. The XEMS tab and the session tabs stay light (they sit on XBody's own screen).
+  Light is pixel-identical to v22 except the theme button and the figures.
+- **Figures = the WiEMS app's (1.15 / 1.17)**, both computed at load in `ui/bodyfig.cpp`: light = the tone stretched
+  slate … pale grey with a slate rim; dark = graphite with a cool rim light, working zones saturated (`shadeDark`), a
+  weak impulse deeper red (not pink), a soft red halo (`glow()`, two box-blur passes). A selected zone is tinted only
+  when not every zone is selected (as in the app). An impulse reads from 45 % opacity (was 28).
+- **Кабел и импулс:** the XBody | XEMS suit tiles show the name only (owner: the people pictures said nothing); the
+  "Сменя се от следващата тренировка" note moved up (it overlapped the update button).
+
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
 `assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a

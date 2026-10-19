@@ -20,7 +20,7 @@ mkdir -p "$OUT/assets/xbody" && cp "$REPO"/wiems/app/xbody-art/*.png "$OUT/asset
 python3 -c "
 import sys,glob,os
 from PIL import Image
-for f in glob.glob('$REPO/branding/body/*.webp'):
+for f in glob.glob('$REPO/wiems/app/body/*.webp'):
     Image.open(f).save(os.path.join('$OUT/assets/body', os.path.basename(f)), 'PNG')
 "
 java -Djava.awt.headless=true -Dassets="$OUT/assets" -cp "$OUT:$JAR" bg.xems.wiems.AppTest "$SHOTS"

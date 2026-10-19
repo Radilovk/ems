@@ -1,98 +1,12 @@
 #include "bodyfig.h"
-#include <cmath>
-
-// The figure's tone (as the WiEMS tablet app's BodyFig): light = deep slate in the hollows → pale cool grey on the
-// lights; dark = graphite, the lights a muted slate, a cool rim light in place of the light look's slate rim.
-static const QRgb DARK = 0x3F4552, LIGHT = 0xEEF0F4, G_DARK = 0x1B1F25, G_LIGHT = 0x7A828E, G_RIM = 0xA9B1BC;
-
-static QRgb mixRgb(QRgb x, QRgb y, float t) {
-    int r = (int)(qRed(x) + (qRed(y) - qRed(x)) * t), g = (int)(qGreen(x) + (qGreen(y) - qGreen(x)) * t),
-        b = (int)(qBlue(x) + (qBlue(y) - qBlue(x)) * t);
-    return qRgb(r, g, b);
-}
-
-static bool opaque(QRgb p) { return qAlpha(p) > 128; }
-
-// 1 / 2 = the distance of a body pixel from the silhouette's edge, 0 = further in.
-static int edge(const QRgb *px, int w, int h, int x, int y) {
-    for (int r = 1; r <= 2; r++)
-        for (int dy = -r; dy <= r; dy++)
-            for (int dx = -r; dx <= r; dx++) {
-                int xx = x + dx, yy = y + dy;
-                if (xx < 0 || yy < 0 || xx >= w || yy >= h || !opaque(px[yy * w + xx])) return r;
-            }
-    return 0;
-}
-
-static QRgb premul(QRgb c, int a) {
-    return qRgba(qRed(c) * a / 255, qGreen(c) * a / 255, qBlue(c) * a / 255, a);
-}
-
-// The figures are near flat (a 16-step range even after gen-panel-body's lift): their 1..99.5 % luminance is spread
-// out, a third of it by the histogram so the muscles' relief opens up, after a 3×3 blur (the steps would show as
-// grain). Both looks come from the same tone; it is also the zones' shade, so the red follows the same volume.
-static void lighten(const QImage &src, QImage &light, QImage &dark, std::vector<unsigned char> &tone) {
-    QImage a = src.convertToFormat(QImage::Format_ARGB32);
-    int w = a.width(), h = a.height(), n = w * h;
-    const QRgb *px = (const QRgb *)a.constBits();
-    std::vector<int> lum(n);
-    for (int i = 0; i < n; i++) lum[i] = (qRed(px[i]) + qGreen(px[i]) + qBlue(px[i])) / 3;
-    std::vector<float> l(n, 0.f);
-    int hist[256] = {0}, body = 0;
-    for (int y = 0; y < h; y++)
-        for (int x = 0; x < w; x++) {
-            int i = y * w + x;
-            if (!opaque(px[i])) continue;
-            int sum = 0, k = 0;
-            for (int dy = -1; dy <= 1; dy++)
-                for (int dx = -1; dx <= 1; dx++) {
-                    int xx = x + dx, yy = y + dy;
-                    if (xx < 0 || yy < 0 || xx >= w || yy >= h || !opaque(px[yy * w + xx])) continue;
-                    sum += lum[yy * w + xx];
-                    k++;
-                }
-            l[i] = (float)sum / k;
-            hist[qMin(255, (int)l[i])]++;
-            body++;
-        }
-    float cdf[256];
-    int acc = 0, lo = -1, hi = 255;
-    for (int v = 0; v < 256; v++) {
-        acc += hist[v];
-        cdf[v] = body ? (float)acc / body : 0.f;
-        if (lo < 0 && cdf[v] >= 0.01f) lo = v;
-        if (hi == 255 && cdf[v] >= 0.995f) hi = v;
-    }
-    if (lo < 0 || hi <= lo) { lo = 0; hi = 255; }
-    tone.assign(n, 0);
-    light = QImage(w, h, QImage::Format_ARGB32_Premultiplied);
-    dark = QImage(w, h, QImage::Format_ARGB32_Premultiplied);
-    light.fill(0);
-    dark.fill(0);
-    QRgb *lp = (QRgb *)light.bits(), *dp = (QRgb *)dark.bits();
-    for (int y = 0; y < h; y++)
-        for (int x = 0; x < w; x++) {
-            int i = y * w + x, al = qAlpha(px[i]);
-            if (!opaque(px[i])) continue;
-            float lin = (l[i] - lo) / (hi - lo);
-            lin = lin < 0 ? 0 : lin > 1 ? 1 : lin;
-            float t = (float)std::pow(0.35f * cdf[qMin(255, (int)l[i])] + 0.65f * lin, 0.85f);
-            tone[i] = (unsigned char)(t * 255);
-            int e = edge(px, w, h, x, y);              // the rim: 1 px → 55 % slate, 2 px → 25 % (light)
-            QRgb g = mixRgb(G_DARK, G_LIGHT, t);       // dark: the rim lit instead of shaded
-            if (e > 0) g = mixRgb(g, G_RIM, e == 1 ? 0.55f : 0.22f);
-            dp[i] = premul(g, al);
-            if (e > 0) t *= e == 1 ? 0.45f : 0.75f;
-            lp[i] = premul(mixRgb(DARK, LIGHT, t), al);
-        }
-}
 
 bool BodyFig::load(const QString &dir, const QString &key) {
     QImage a(dir + QLatin1Char('/') + key + QLatin1String("-art.png"));
+    QImage d(dir + QLatin1Char('/') + key + QLatin1String("-dark.png"));
     QImage m(dir + QLatin1Char('/') + key + QLatin1String("-idx.png"));
     if (a.isNull() || m.isNull() || a.size() != m.size()) return false;
-    std::vector<unsigned char> tone;
-    lighten(a, art_, artDark_, tone);
+    art_ = a.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    artDark_ = d.size() == a.size() ? d.convertToFormat(QImage::Format_ARGB32_Premultiplied) : art_;
     m = m.convertToFormat(QImage::Format_RGB32);
     int w = m.width(), h = m.height();
     map_.assign(w * h, 0);
@@ -109,7 +23,7 @@ bool BodyFig::load(const QString &dir, const QString &key) {
             map_[i] = (unsigned char)r;
             idx_.push_back(i);
             region_.push_back((unsigned char)(r - 1));
-            shade_.push_back(tone[i] ? tone[i] : (unsigned char)qGreen(p));
+            shade_.push_back((unsigned char)qGreen(p));   // the art's own tone (scripts/figure_looks.py)
             cov_.push_back((unsigned char)qBlue(p));
         }
     }

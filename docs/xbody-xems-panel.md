@@ -321,6 +321,11 @@ dark (= the sketch's setup ran), then back to "Включи XEMS моста" —
 - **Кабел и импулс:** the XBody | XEMS suit tiles show the name only (owner: the people pictures said nothing); the
   "Сменя се от следващата тренировка" note moved up (it overlapped the update button).
 
+- **Mod v30 — smooth figures** (owner: "jagged at the edges, smeared inside"): the figures are made at full size from
+  the report's art (566×1394) by `scripts/figure_looks.py` (tone, soft rim, dark look), one premultiplied Lanczos
+  downscale at the end → `opt/xems/body/<key>-art.png` (light) / `-dark.png` / `-idx.png` (G = the art's tone).
+  The panel only loads them (no run-time stretch, blur or hard-mask rim any more: those made the steps and the smear).
+
 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
 `xems-fleshka-vN.apk` ("XEMS флашка", bg.xems.fleshka, versionCode = mod version) carries the stick of that mod in
 `assets/fleshka`. OTG stick → "Избери флашката" (Storage Access Framework, the stick's root; phone storage or a

@@ -1,8 +1,8 @@
 // The XEMS body figures on the panel (owner: the XEMS figures, female by default, every zone as red as its impulse):
 // art + zone map from /opt/xems/body (scripts/xbody/gen-panel-body.py), recoloured like the tablet's live board —
 // the shade keeps the muscle's volume. Regions are the XEMS channels (0 Гърди … 9 Задно бедро).
-// Two looks, the same as the WiEMS tablet app (v1.15 / v1.17): light = the figure's range stretched to slate … pale
-// grey with a slate rim; dark = graphite with a cool rim light, the working zones saturated with a soft halo.
+// Two looks, the same as the WiEMS tablet app: light (-art.png) and dark (-dark.png, graphite with a cool rim light),
+// made at full size by scripts/figure_looks.py; here the dark look's zones are saturated with a soft halo.
 #pragma once
 #include <QImage>
 #include <QString>

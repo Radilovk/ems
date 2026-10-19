@@ -118,6 +118,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/design_config_schema.py` (116L) — Safe bounds and validation for branding/design-config.yaml.
 - `scripts/exercise-line-width.py` (208L) — Even line weight for the exercise figures. Some frames of the source drawings (mostly the middle one) are traced with m…
 - `scripts/exercise-paths.py` (166L) — SVG path data → absolute M / L / C / Z only, so the app draws it with android.graphics.Path and no SVG library.
+- `scripts/figure_looks.py` (85L) — The XEMS body figures in two looks, made from the report's full-size art (branding/report/session-report.html, 566×1394…
 - `scripts/fit-sim/SafeSim.java` (90L) — Offline checks of SafeLimits: the absolute limits of every mode (docs/xems-safety-limits.md).
 - `scripts/fit-sim/SearchSim.java` (30L) — Offline check of the client search: Cyrillic ↔ Latin phonetic matches (XemsSearch.matches).
 - `scripts/fit-sim/run.sh` (15L) — Offline test of ai/SafeLimits (the absolute limits of every mode) and the
@@ -128,6 +129,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/gen-exercises.py` (97L) — branding/exercises/{programs,exercises}.json → ai/AutoTemplateData.java (the template data as plain Java, so the logic …
 - `scripts/gen-program-art.py` (152L) — Program pictures for the tablet (ai/ProgramArt): branding/programs/src/*.webp (full resolution, transparent) → branding…
 - `scripts/gen-scale-figures.py` (209L) — The scale page's body figures, from the owner's colour-coded anatomical art (branding/body/scale/src/<sex>.png: front a…
+- `scripts/gen-wiems-figures.py` (22L) — The WiEMS app's body figures: the XEMS figures in both looks (scripts/figure_looks.py) at 500 px — the app draws them 3…
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
@@ -181,7 +183,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/xbody/emu-panel.sh` (43L) — Run the ARM xems-panel in qemu on the card's own Qt (fake /dev/fb0 → PNG), fake bridge, scripted taps.
 - `scripts/xbody/fetch-base.py` (93L) — Download the XBody base from Google Drive into build/xbody-base/ (gitignored).
 - `scripts/xbody/gen-panel-art.py` (25L) — The XBody panel's program icons: Health Icons outline SVGs (CC0, xbody/panel/art/*.svg) painted XBody red (#E21A22), 96…
-- `scripts/xbody/gen-panel-body.py` (30L) — The XBody panel's body figures: the tablet's XEMS figures (branding/body: art + zone map, scripts/gen-body-figures.py) …
+- `scripts/xbody/gen-panel-body.py` (24L) — The XBody panel's body figures: the XEMS figures in both looks (scripts/figure_looks.py — made from the report's full-s…
 - `scripts/xbody/manifest.py` (55L) — Write xbody/base-manifest.tsv from build/xbody-base/rootfs (see fetch-base.py).
 - `scripts/xbody/qt-headers.sh` (33L) — Qt 4.8.6 headers matching the card's Qt Embedded (build key "arm linux g++-4 full-config", ARMv7 NEON softfp,
 - `scripts/xbody/relink.py` (54L) — Restore the shared-library symlinks the 7z dump flattened to 0-byte files.
@@ -828,7 +830,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Hardware channel ↔ XBody body part
   - L78 ## How it was read
 
-`docs/xbody-xems-panel.md` (458L)
+`docs/xbody-xems-panel.md` (463L)
   - L1 # XEMS panel on the XBody unit (mod v13)
   - L11 ## Status
   - L19 ## Use (owner) — everything in `PROCHETI.txt` of the zip
@@ -844,13 +846,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L225 ## Wi-Fi page (mod v22, owner: "no Wi-Fi setting, nowhere to look for a signal")
   - L254 ## First XIAO on the unit (owner, mod v24 / bridge v4)
   - L310 ## Dark theme, the WiEMS app's figures (mod v29, owner)
-  - L324 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
-  - L356 ## Panel
-  - L390 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
-  - L412 ## Bridge line protocol (USB CDC, 115200)
-  - L423 ## Files
-  - L435 ## Build / test
-  - L451 ## First test on the unit (when the XIAO arrives)
+  - L329 ## Android: preparing the stick from a phone (`scripts/xbody/build-android.sh`)
+  - L361 ## Panel
+  - L395 ## Mod v16 — the WiEMS tablet app's behaviour on the panel; XEMS figures on XBody's own screen (owner)
+  - L417 ## Bridge line protocol (USB CDC, 115200)
+  - L428 ## Files
+  - L440 ## Build / test
+  - L456 ## First test on the unit (when the XIAO arrives)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -1234,8 +1236,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-wiems-app.md` (270L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.17)
+`docs/xems-wiems-app.md` (277L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L41 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1252,8 +1254,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L184 ### Channel map per suit + hidden service mode (parallel 1.7)
   - L209 ### Figures with relief, a slider that needs its fader (parallel 1.8)
   - L220 ## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
-  - L260 ## Build / test
-  - L267 ## Not verified yet
+  - L260 ## v1.18 — smooth figures (owner: "jagged at the edges, smeared inside")
+  - L267 ## Build / test
+  - L274 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

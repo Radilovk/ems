@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.17)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -256,6 +256,13 @@ order — once the service mode has checked both suits, port the two maps (the `
   and checks the measured one on its own; shots `8a`–`8e` (dark list / programs / bodytech training / sheet, XEMS).
 - The measured map is also in the XEMS tablet (1.1.457-ai) and the XBody panel (mod v20) — `docs/xems-wiems.md`
   "Channel map — measured". Not yet tried: XEMS / bodytech suits with this app on the Lenovo.
+
+## v1.18 — smooth figures (owner: "jagged at the edges, smeared inside")
+- The figures come from `wiems/app/body/<key>-art.webp` (light) / `-dark.webp` / `-idx.webp`, made by
+  `scripts/gen-wiems-figures.py` (via `scripts/figure_looks.py`, shared with the XBody panel) from the report's
+  full-size art at 500 px (372 design px × 1.33 on the Lenovo): every step at full size, one premultiplied Lanczos
+  downscale, lossless WebP. `BodyFig` only loads them — the run-time stretch / 3×3 blur / hard-mask rim of 1.15–1.17 on
+  the 640-px lossy copies made the stair steps and the smear.
 
 ## Build / test
 ```

@@ -6,10 +6,11 @@ import android.graphics.BitmapFactory;
 import java.io.InputStream;
 
 /**
- * One XEMS body figure (the tablet's anatomical art, branding/body: female / male, front / back) with its zone map:
- * art = the grey figure, idx = R channel + 1 (1..10 the XEMS suit channels), G shade, B coverage
- * (scripts/gen-body-figures.py). The zones are recoloured like the tablet's live board (ai/AutoViews.BodyHeat): the
- * shade keeps the muscle's volume, the colour is XBody's red, as strong as the zone's impulse now.
+ * One XEMS body figure (the report's anatomical art: female / male, front / back) with its zone map, made at full
+ * size by scripts/gen-wiems-figures.py (v1.18, owner: the old ones had stepped edges and a smeared inside): art = the
+ * light look, artDark = graphite with a cool rim light, idx = R channel + 1 (1..10 the XEMS suit channels), G the art's
+ * tone, B coverage. The zones are recoloured like the tablet's live board (ai/AutoViews.BodyHeat): the tone keeps the
+ * muscle's volume, the colour is XBody's red, as strong as the zone's impulse now.
  */
 final class BodyFig {
     /** idx R − 1 (XEMS order: Гърди, Корем, Предно бедро, Прасец, Ръце, Трапец, Гръб, Кръст, Седалище, Задно бедро) → screen zone. */
@@ -19,13 +20,15 @@ final class BodyFig {
     int w, h;
     private int[] idx, px, gpx;
     private float[] gr, gg, gb, ga, tr, tg, tb, ta;
-    private byte[] zone, shade, cov, map, tone;
+    private byte[] zone, shade, cov, map;
     private String painted = "";
 
     static BodyFig load(Host host, String key) {
         BodyFig f = new BodyFig();
         try {
-            f.art = lighten(decode(host, "body/" + key + "-art.webp", false), f);
+            f.art = decode(host, "body/" + key + "-art.webp", true);
+            f.artDark = decode(host, "body/" + key + "-dark.webp", true);
+            if (f.artDark == null) f.artDark = f.art;
             Bitmap ix = decode(host, "body/" + key + "-idx.webp", false);
             if (f.art == null || ix == null) return null;
             f.w = ix.getWidth();
@@ -47,7 +50,7 @@ final class BodyFig {
                 f.map[i] = (byte) (z + 1);
                 f.idx[j] = i;
                 f.zone[j] = (byte) z;
-                f.shade[j] = f.tone != null && f.tone.length == all.length && f.tone[i] != 0 ? f.tone[i] : (byte) ((all[i] >> 8) & 0xFF);
+                f.shade[j] = (byte) ((all[i] >> 8) & 0xFF);   // the art's own tone (scripts/figure_looks.py)
                 f.cov[j] = (byte) (all[i] & 0xFF);
                 j++;
             }
@@ -59,106 +62,6 @@ final class BodyFig {
             android.util.Log.e("xems-wiems", "figure " + key + ": " + t);
             return null;
         }
-    }
-
-    /** The figure's tone: deep slate in the hollows → pale cool grey on the lights (the screen's slate family). */
-    static final int DARK = 0xFF3F4552, LIGHT = 0xFFEEF0F4;
-
-    /**
-     * The dark theme's tone (owner, v1.16: the silver figure was the loudest thing on the dark screen): graphite, the
-     * hollows near the background, the lights a muted slate — the body sits back like the screen's surfaces, and a
-     * cool rim light keeps its silhouette off the near-black.
-     */
-    static final int G_DARK = 0xFF1B1F25, G_LIGHT = 0xFF7A828E, G_RIM = 0xFFA9B1BC;
-
-    /**
-     * The tablet's figures are near black and nearly flat: half the body sits in 52..68 of 255. A plain lift
-     * (v1.2: 85 + 0.65·v) kept that 16-step range, so on XBody's light screen the body read as one grey blot
-     * (owner). Now the figure's own range is spread out — its 1..99.5 % luminance stretched to slate … pale grey,
-     * a third of it by its histogram so the muscles' relief opens up — after a 3×3 blur (the webp's steps would
-     * show as grain), and its silhouette gets a soft slate rim so a light body still stands off the light background.
-     * The tone is kept: the working zones' red follows the same volume ({@link #paint}).
-     */
-    private static Bitmap lighten(Bitmap a, BodyFig f) {
-        if (a == null) return null;
-        int w = a.getWidth(), h = a.getHeight(), n = w * h;
-        int[] px = new int[n];
-        a.getPixels(px, 0, w, 0, 0, w, h);
-        a.recycle();
-        int[] lum = new int[n];
-        for (int i = 0; i < n; i++) lum[i] = (((px[i] >> 16) & 0xFF) + ((px[i] >> 8) & 0xFF) + (px[i] & 0xFF)) / 3;
-        float[] l = new float[n];
-        int[] hist = new int[256];
-        int body = 0;
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++) {
-                int i = y * w + x;
-                if (!opaque(px[i])) continue;
-                int sum = 0, k = 0;
-                for (int dy = -1; dy <= 1; dy++)
-                    for (int dx = -1; dx <= 1; dx++) {
-                        int xx = x + dx, yy = y + dy;
-                        if (xx < 0 || yy < 0 || xx >= w || yy >= h || !opaque(px[yy * w + xx])) continue;
-                        sum += lum[yy * w + xx];
-                        k++;
-                    }
-                l[i] = (float) sum / k;
-                hist[Math.min(255, (int) l[i])]++;
-                body++;
-            }
-        float[] cdf = new float[256];
-        int acc = 0, lo = -1, hi = 255;
-        for (int v = 0; v < 256; v++) {
-            acc += hist[v];
-            cdf[v] = body == 0 ? 0 : (float) acc / body;
-            if (lo < 0 && cdf[v] >= 0.01f) lo = v;
-            if (hi == 255 && cdf[v] >= 0.995f) hi = v;
-        }
-        if (lo < 0 || hi <= lo) { lo = 0; hi = 255; }
-        f.tone = new byte[n];
-        int[] dk = new int[n];
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++) {
-                int i = y * w + x;
-                if (!opaque(px[i])) continue;
-                float lin = Math.max(0f, Math.min(1f, (l[i] - lo) / (hi - lo)));
-                float t = (float) Math.pow(0.35f * cdf[Math.min(255, (int) l[i])] + 0.65f * lin, 0.85);
-                f.tone[i] = (byte) (t * 255);
-                int edge = edge(px, w, h, x, y);         // the rim: 1 px → 55 % slate, 2 px → 25 %
-                int g = mix(G_DARK, G_LIGHT, t);         // dark: graphite, the rim lit instead of shaded
-                if (edge > 0) g = mix(g, G_RIM, edge == 1 ? 0.55f : 0.22f);
-                dk[i] = (px[i] & 0xFF000000) | (g & 0xFFFFFF);
-                if (edge > 0) t *= edge == 1 ? 0.45f : 0.75f;
-                px[i] = (px[i] & 0xFF000000) | (mix(DARK, LIGHT, t) & 0xFFFFFF);
-            }
-        for (int i = 0; i < n; i++) if (!opaque(px[i])) dk[i] = px[i] & 0xFF000000;
-        f.artDark = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        f.artDark.setPixels(dk, 0, w, 0, 0, w, h);
-        Bitmap out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        out.setPixels(px, 0, w, 0, 0, w, h);
-        return out;
-    }
-
-    private static boolean opaque(int argb) {
-        return (argb >>> 24) > 128;
-    }
-
-    /** 1 / 2 = the distance of a body pixel from the silhouette's edge, 0 = further in. */
-    private static int edge(int[] px, int w, int h, int x, int y) {
-        for (int r = 1; r <= 2; r++)
-            for (int dy = -r; dy <= r; dy++)
-                for (int dx = -r; dx <= r; dx++) {
-                    int xx = x + dx, yy = y + dy;
-                    if (xx < 0 || yy < 0 || xx >= w || yy >= h || !opaque(px[yy * w + xx])) return r;
-                }
-        return 0;
-    }
-
-    private static int mix(int x, int y, float t) {
-        int r = (int) (((x >> 16) & 0xFF) + (((y >> 16) & 0xFF) - ((x >> 16) & 0xFF)) * t);
-        int g = (int) (((x >> 8) & 0xFF) + (((y >> 8) & 0xFF) - ((x >> 8) & 0xFF)) * t);
-        int b = (int) ((x & 0xFF) + ((y & 0xFF) - (x & 0xFF)) * t);
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
     private static Bitmap decode(Host host, String asset, boolean premultiplied) throws java.io.IOException {

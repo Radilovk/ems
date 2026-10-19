@@ -63,7 +63,7 @@ func _music_bus() -> String:
 
 
 ## Every sound effect goes through a hall: a short, wide reverb gives the hits a space around them.
-func _sfx_bus() -> String:
+func sfx_bus() -> String:
 	if AudioServer.get_bus_index("Sfx") < 0:
 		AudioServer.add_bus()
 		var i := AudioServer.bus_count - 1
@@ -148,7 +148,7 @@ func set_volumes(music_level_db: float, sfx_level_db: float) -> void:
 	music_db = music_level_db
 	if music:
 		music.volume_db = music_db
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(_sfx_bus()), sfx_level_db)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(sfx_bus()), sfx_level_db)
 
 
 ## Quieter and muffled while paused (db < 0), back to the full mix with 0.
@@ -179,7 +179,7 @@ func play(name: String, at = null, db := 0.0, pitch := 1.0) -> void:
 		q.pitch_scale = pitch
 		q.unit_size = 4.0
 		q.max_distance = 40.0
-		q.bus = _sfx_bus()
+		q.bus = sfx_bus()
 		add_child(q)
 		q.global_position = at
 		q.play()
@@ -189,7 +189,7 @@ func play(name: String, at = null, db := 0.0, pitch := 1.0) -> void:
 		q2.stream = S[name]
 		q2.volume_db = db
 		q2.pitch_scale = pitch
-		q2.bus = _sfx_bus()
+		q2.bus = sfx_bus()
 		add_child(q2)
 		q2.play()
 		p = q2
@@ -204,7 +204,7 @@ func attach(node: Node3D, name: String, db := 0.0, loop := false) -> AudioStream
 	q.unit_size = 3.0
 	q.max_distance = 40.0
 	q.doppler_tracking = AudioStreamPlayer3D.DOPPLER_TRACKING_IDLE_STEP     # things flying past bend in pitch
-	q.bus = _sfx_bus()
+	q.bus = sfx_bus()
 	node.add_child(q)
 	if not muted:
 		q.play()

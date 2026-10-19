@@ -25,3 +25,4 @@
 | `chef/croissant.glb`, `chef/cake.glb` | Poly Haven "Croissant", "Strawberry Chocolate Cake" — https://polyhaven.com/a/croissant · https://polyhaven.com/a/strawberry_chocolate_cake (decimated to 5k) | CC0 |
 | `chef/apple.glb` | Poly Haven "Food Apple 01" — https://polyhaven.com/a/food_apple_01 | CC0 |
 | `sfx/splat, chomp, boom, weak, laugh.ogg` | synthesised by `gen/make_sounds.py --only=food` | the project's own |
+| `sfx/chef/*.ogg` (the chef's voice) | VoiceBosch (SoundBiter SFX library) — cut from his OpenGameArt packs BANTER MAN, EL DUDE, MR. HAPPY, EFFORT / DAMAGE / DEATH SOUNDS (Male): https://opengameart.org/users/voicebosch, by `gen/make_chef_voice.py` | CC-BY-SA 4.0 (the cut clips too) |

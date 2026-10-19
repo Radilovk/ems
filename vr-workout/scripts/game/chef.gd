@@ -10,7 +10,10 @@
 ## and hurries the throw).
 ## Everything else is his face for the game: he laughs when the player eats, gets cross at a mighty smash, staggers
 ## back when a mighty hit sends the food back into him, announces the MEGA burger, sulks at an eaten apple. His words
-## are a bubble over his head.
+## are a bubble over his head and his own voice from his mouth, in the room (ChefVoice: one real voice actor for every
+## word, laugh, grunt and cry — "Ha ha ha! Clean-up on aisle four!", "Oh my god!", a grunt with each throw; cut by
+## gen/make_chef_voice.py). One man, one mouth: a new reaction cuts what he was saying, a call-out or a throw's grunt
+## waits until he has finished.
 ##
 ## Alive in the face too (Face): the Character Creator face shapes the converter keeps — he blinks, laughs with his
 ## eyes when the player eats, frowns at a mighty smash, winces when food hits him, looks sad at a defeat, grunts as he
@@ -43,6 +46,10 @@ const REACT := {
 	"boss_down": ["defeat", "sad", 5.0], "lost": ["defeat", "sad", 4.0], "won": ["gesture", "smug", 2.2],
 }
 const GESTURE_LEN := 1.9                    # s of Strong Gesture before a big one is thrown
+const MOUTH := Vector3(0, 1.68, 0.12)       # where his voice comes from (his own space)
+const TAUNT := 0.15                         # share of throws he calls out ("Come on, do something!")
+const CHUCKLE := 0.25                       # share of eaten portions he only laughs at (else a mocking line)
+## Bulgarian words for what has no voice clip (a rules card's title is said as it is)
 const LINES := {
 	"laugh": ["Ха-ха! Още едно?", "Мммм, вкусно ли беше?", "Яж, яж!", "Браво, още калории!", "Това ще остане по корема!",
 		"Сготвено с любов!"],
@@ -82,6 +89,9 @@ var _acting := ""                           # a whole-body reaction playing now 
 var _pre_t := -1.0                          # s left of the show before a big one is thrown (< 0: none)
 var _pre_id := ""
 var face: Face
+var sfx: Sfx                                # set by the game: the voice follows its mute and effects volume
+var _voice: AudioStreamPlayer3D
+var _last_line := {}                        # event → the clip said last time (never the same twice in a row)
 
 
 func _ready() -> void:
@@ -123,6 +133,12 @@ func _ready() -> void:
 	_bubble.position = Vector3(0, 2.25, 0)
 	_bubble.visible = false
 	add_child(_bubble)
+	_voice = AudioStreamPlayer3D.new()
+	_voice.position = MOUTH
+	_voice.unit_size = 5.0                          # full voice at his usual 4.5–6.5 m, quieter further away
+	_voice.max_distance = 45.0
+	_voice.attenuation_filter_cutoff_hz = 9000.0
+	_rig.add_child(_voice)
 
 
 ## The textures go back on from the files beside the scene (the converter keeps them out of the scene file).
@@ -194,7 +210,7 @@ func _wind(id: String, in_sec: float) -> void:
 	else:
 		_take(id, size)
 		_start_throw(left)
-	if not Defs.boss(id) and randf() < 0.12:
+	if not Defs.boss(id) and randf() < TAUNT and not speaking():
 		say("taunt")
 
 
@@ -229,8 +245,10 @@ func chest_world() -> Vector3:
 
 ## He lets go: the portion leaves his hand (the game throws the real one from hand_world()).
 func release() -> void:
-	if _release_at >= 0.0 and face:
+	if (_held != null or _on_counter != null) and face:   # (a real throw: the portion in his hand or still on the counter)
 		face.grunt()
+		if not speaking():
+			say("throw")                               # (his effort as the food leaves his hand)
 	_release_at = -1.0
 	_pre_t = -1.0
 	_reach_t = -1.0
@@ -242,27 +260,68 @@ func release() -> void:
 		_held = null
 
 
+## He says something for an event (ChefVoice.LINES: his voice + the same words in the bubble), or `extra` / a key
+## without a clip as text only.
 func say(what: String, extra := "") -> void:
-	var lines: Array = LINES.get(what, [what])
-	_bubble.text = (lines[randi() % lines.size()] if extra == "" else extra)
+	var sec := 0.0
+	if extra == "" and ChefVoice.LINES.has(what):
+		var line: Array = _pick(what)
+		sec = _speak(String(line[0]))
+		if String(line[1]) == "":                     # a grunt, a cry: his face moves, no bubble
+			if face:
+				face.talk(sec * 0.8)
+			return
+		_bubble.text = String(line[1])
+	else:
+		var lines: Array = LINES.get(what, [what])
+		_bubble.text = (lines[randi() % lines.size()] if extra == "" else extra)
 	_bubble.visible = true
-	_bubble_t = 1.8
+	_bubble_t = maxf(1.8, sec + 0.5)
 	if face:
-		face.talk(clampf(_bubble.text.length() * 0.065, 0.5, 1.7))
+		face.talk(sec - 0.1 if sec > 0.0 else clampf(_bubble.text.length() * 0.065, 0.5, 1.7))
 	_bubble.scale = Vector3.ONE * 0.3
 	var tw := _bubble.create_tween()
 	tw.tween_property(_bubble, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+## Is he talking now (his voice still playing)?
+func speaking() -> bool:
+	return _voice != null and _voice.playing
+
+
+## One of the event's lines, never the one he said last time for it.
+func _pick(what: String) -> Array:
+	var lines: Array = ChefVoice.LINES[what]
+	var i := randi() % lines.size()
+	if lines.size() > 1 and String(lines[i][0]) == String(_last_line.get(what, "")):
+		i = (i + 1 + randi() % (lines.size() - 1)) % lines.size()
+	_last_line[what] = String(lines[i][0])
+	return lines[i]
+
+
+## His voice from his mouth (3D, through the effects' hall), cutting whatever he was saying. → its length in s.
+func _speak(clip: String) -> float:
+	var st := ChefVoice.stream(clip)
+	if st == null or _voice == null:
+		return 0.0
+	_voice.stop()
+	_voice.stream = st
+	_voice.bus = sfx.sfx_bus() if sfx else &"Master"
+	_voice.pitch_scale = randf_range(0.98, 1.02)      # (the same man; only a breath of difference between takes)
+	if sfx == null or not sfx.muted:
+		_voice.play()
+	return st.get_length()
 
 
 ## What the player did, seen on him (REACT): his face, his body, his words. laugh (the player ate) · gloat (ate
 ## again and again) · angry (a mighty smash) · splat (hit by a portion sent back) · wow (a run of mighty hits) · apple
 ## (the player ate an apple) · apple_hit (smashed it) · boss_down (the big one smashed) · lost / won (a level's end).
 ## A whole-body motion plays only between throws: a throw that is due takes over.
-func react(what: String, sfx: Sfx = null) -> void:
+func react(what: String, _sfx: Sfx = null) -> void:
 	var r: Array = REACT.get(what, ["", "neutral", 1.0])
 	_react = what
 	_react_t = 0.0
-	say(what)
+	say("chuckle" if what == "laugh" and randf() < CHUCKLE else what)
 	face.mood(String(r[1]), float(r[2]))
 	if _acting == "defeat" and (what == "lost" or what == "won"):
 		return                                         # (the big one smashed just before the level's end: stays down)
@@ -271,8 +330,6 @@ func react(what: String, sfx: Sfx = null) -> void:
 		if a == "shove" and randf() < 0.5:
 			a = "shove2"                               # (its mirror: pushed to the other side)
 		_play(a)
-	if sfx and (what == "laugh" or what == "gloat"):
-		sfx.play("laugh", chest_world() + Vector3(0, 0.4, 0), -2.0, randf_range(0.95, 1.08))
 	if what == "splat":
 		_add_stain()
 

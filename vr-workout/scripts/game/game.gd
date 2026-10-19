@@ -1131,6 +1131,7 @@ func _ensure_chef() -> void:
 		return
 	if chef == null:
 		chef = Chef.new()
+		chef.sfx = sfx
 		add_child(chef)
 	chef.position = Vector3(0, 0, -_chef_dist())
 	kcal.visible = st in [St.COUNTDOWN, St.PLAY, St.SUMMARY] or paused
@@ -1308,6 +1309,8 @@ func _hit_food(e: Elem, limb: String) -> void:
 			food_fx.drop(at, e.food, wdir * 1.4 + Vector3(0, 0.6, 0))
 			sfx.play("weak", at, 0.0)
 			sfx.play("splat", at, -9.0, 1.1)
+			if chef and randf() < 0.3 and not chef.speaking():
+				chef.say("weak")                          # ("That is what we call some weak sauce!")
 		Power.Tier.MEDIUM:                                # it bursts along the punch
 			food_fx.burst(at, e.food, wdir, 1)
 			sfx.play("punch", at, -2.0, randf_range(0.95, 1.05))
@@ -1525,6 +1528,8 @@ func _start_level() -> void:
 		_legs_warned = true
 		stage._show_toast("Краката работят с клек и стъпки.\nЗа ритници: закрепи дръжките на глезените.")
 	_say("Ниво %d" % (level + 1), 1.5)
+	if chef:
+		chef.say("start")
 
 
 func _end_level() -> void:

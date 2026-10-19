@@ -1131,6 +1131,7 @@ func _ensure_chef() -> void:
 		return
 	if chef == null:
 		chef = Chef.new()
+		chef.sfx = sfx
 		add_child(chef)
 	chef.position = Vector3(0, 0, -_chef_dist())
 	kcal.visible = st in [St.COUNTDOWN, St.PLAY, St.SUMMARY] or paused
@@ -1525,6 +1526,8 @@ func _start_level() -> void:
 		_legs_warned = true
 		stage._show_toast("Краката работят с клек и стъпки.\nЗа ритници: закрепи дръжките на глезените.")
 	_say("Ниво %d" % (level + 1), 1.5)
+	if chef:
+		chef.say("start")
 
 
 func _end_level() -> void:

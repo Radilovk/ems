@@ -785,10 +785,10 @@ function renderBody(){
   const use=[];
   if(!U.fresh)use.push(["var(--amber)",tr("Измерването е по-старо от 60 дни — тренировките вече не го ползват. <b>Премерете клиента.</b>","The weigh-in is older than 60 days — trainings no longer use it. <b>Weigh the client again.</b>")]);
   else{
-    if(U.readyScore!=null)use.push([U.ready<0.99?"var(--amber)":"var(--go)",U.ready<0.99?tr(`Днес: готовност <b>${U.readyScore}</b> — силата е с <b>${Math.round((1-U.ready)*100)} % по-ниска</b>`,`Today: readiness <b>${U.readyScore}</b> — strength <b>${Math.round((1-U.ready)*100)} % lower</b>`)+(U.readySeg>=0?tr(" (подуване в "+SEG[U.readySeg]+")"," (swelling in the "+SEG[U.readySeg]+")"):""):tr(`Днес: готовност <b>${U.readyScore}</b> — пълна сила`,`Today: readiness <b>${U.readyScore}</b> — full strength`)]);
+    if(U.readyScore!=null)use.push([U.ready<0.99?"var(--amber)":"var(--go)",U.ready<0.99?tr(`Днес: готовност <b>${U.readyScore}</b> — <b>+${U.ready<0.8?2:1} s пауза</b>, без втори импулс`,`Today: readiness <b>${U.readyScore}</b> — <b>+${U.ready<0.8?2:1} s pause</b>, no second impulse`)+(U.readySeg>=0?tr(" (подуване в "+SEG[U.readySeg]+")"," (swelling in the "+SEG[U.readySeg]+")"):""):tr(`Днес: готовност <b>${U.readyScore}</b> — обичайни паузи`,`Today: readiness <b>${U.readyScore}</b> — usual pauses`)]);
     else use.push(["var(--hint)",tr("Готовност за деня — при мерене до 12 ч преди тренировката","Readiness for the day — with a weigh-in up to 12 h before the training")]);
-    if(U.focus&&FOC[U.focus])use.push(["var(--stim)",tr(`Най-слаба зона — <b>${FOC[U.focus]}</b>: +5 % на тези канали`,`Weakest zone — <b>${FOC[U.focus]}</b>: +5 % on those channels`)]);
-    if(U.muscleLow)use.push(["var(--amber)",tr("Малко мускулна маса — таванът на силата е с 10 % по-нисък","Low muscle mass — the strength ceiling is 10 % lower")]);
+    if(U.focus&&FOC[U.focus])use.push(["var(--stim)",tr(`Най-слаба зона — <b>${FOC[U.focus]}</b> (силата по каналите остава по усещане)`,`Weakest zone — <b>${FOC[U.focus]}</b> (channel strength stays by feel)`)]);
+    if(U.muscleLow)use.push(["var(--amber)",tr("Малко мускулна маса — <b>+1 s пауза</b>, Мускули на 70 Hz","Low muscle mass — <b>+1 s pause</b>, Muscle at 70 Hz")]);
     if(U.chFat)use.push(["var(--stim)",tr("Мазнини по канали → колко ток стига до мускула, натоварване и kcal","Fat per channel → how much current reaches the muscle, load and kcal")]);
   }
   h+=`<div class="use"><span class="eyebrow">${tr("В тренировката","In the training")}</span>${use.map(u=>`<div style="--c:${u[0]}"><span>${u[1]}</span></div>`).join("")}</div>`;

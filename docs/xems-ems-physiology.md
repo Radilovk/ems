@@ -158,7 +158,7 @@ reach very high values in the unaccustomed [E:R3]. Guidelines: ≥ 4 days betwee
 Auto / AI (`AutoPlanner`, `AiPlanner`) use these rest rules; the manual mode no longer adapts (1.1.323: `NextPlan.recommend` loads the last settings unchanged). Before: < 48 h → −30 % and shorter; 2–4 days → −15 %; next appointment within 4 days → −5 %
 (docs/xems-plan.md). Report `persona()`: the first 4 sessions ×0.85…1.
 Measured recovery (scale, docs/xems-scale.md "EMS use"): swelling raises Z100/Z20 against the client's own
-baseline → ×0.85 from +1.2 %, ×0.7 from +2.5 %; drier legs (Z20 +5 %) → ×0.85. [D] The stronger of the
+baseline → ×0.85 from +1.2 %, ×0.7 from +2.5 %; drier legs (Z20 +5 %) → ×0.85. [D] Since 1.1.458-ai (owner: strength is by feel) the factor no longer cuts strength — it becomes +1 s (×0.85) / +2 s (×0.7) pause in tetanic work and no second impulse. The stronger of the
 time rule and the measurement wins (Auto too since 1.1.311-ai). Since 1.1.311-ai: baseline from the same time of day
 (±3 h, else thresholds ×1.5); weight ≥ 2 % under the week's median → ×0.85 (water lost, any scale); on a
 one-frequency scale drier legs alone do not cut.

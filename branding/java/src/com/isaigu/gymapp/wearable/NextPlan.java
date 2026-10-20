@@ -284,6 +284,16 @@ public final class NextPlan {
         return v < lo ? lo : v > hi ? hi : v;
     }
 
+    /** {finished trainings, start of the last one in ms (0 = none)} — for the impulse advice (dialog/ParamAdvice). */
+    public static long[] trainings(Context c, long userId) {
+        List<JSONObject> h = history(c, userId);
+        long last = 0;
+        for (int i = 0; i < h.size(); i++) {
+            last = Math.max(last, h.get(i).optLong("start"));
+        }
+        return new long[] {h.size(), last};
+    }
+
     /** The client's recorded trainings (summaries), oldest first. */
     static List<JSONObject> history(Context c, long userId) {
         List<JSONObject> out = new ArrayList<JSONObject>();

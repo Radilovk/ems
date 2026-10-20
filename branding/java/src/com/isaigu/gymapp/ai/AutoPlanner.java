@@ -93,32 +93,33 @@ public final class AutoPlanner {
             phiMax -= 0.1;
             plan.note("60+ г.: −10 % сила, по-дълги паузи", "60+: −10 % strength, longer pauses");
         }
-        // little muscle → a gentler ceiling: measured on the scale when there is a measurement (an athletic low
-        // BMI is not fragile), else the BMI < 18.5 proxy
-        if (in.measured ? in.muscleLow : in.bmi() > 0 && in.bmi() < 18.5) {
+        // little muscle without a weigh-in: the BMI < 18.5 proxy. The scale never moves the strength (owner,
+        // 1.1.458: strength is what the person feels) — its little muscle and readiness lengthen the pause below.
+        if (!in.measured && in.bmi() > 0 && in.bmi() < 18.5) {
             phiMax -= 0.1;
-            if (in.measured) {
-                plan.note("Кантарът: малко мускули — −10 % сила", "Scale: little muscle — −10 % strength");
-            }
         }
-        // recovery: the time rule (< 72 h since the last active) and the scale this morning measure the same thing —
-        // the stronger of the two applies, never both (1.1.311-ai; NextPlan.recommend does the same)
         boolean recent = p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 72;
-        boolean scaleCut = p.isActive() && in.readiness < 0.99;
-        if (scaleCut && (!recent || in.readiness < 0.8)) {
-            // the scale this morning: swelling / less water against the client's own baseline (wearable/scale)
-            phiMax *= in.readiness;
-            int pct = (int) Math.round((1 - in.readiness) * 100);
-            plan.note("Кантарът: не е възстановен — −" + pct + " %", "Scale: not recovered — −" + pct + " %");
-        } else if (recent) {
+        if (recent) {
             phiMax *= 0.8;
             plan.note("Под 72 ч от последната активна: −20 %", "Under 72 h since the last active: −20 %");
+        }
+        // the scale: rest in the pause, not less current — swelling / less water this morning (+1 / +2 s),
+        // little muscle (+1 s)
+        int scaleOff = 0;
+        if (p.isActive() && in.readiness < 0.99) {
+            scaleOff = in.readiness < 0.8 ? 2 : 1;
+            plan.note("Кантарът: не е възстановен — +" + scaleOff + " s пауза",
+                    "Scale: not recovered — +" + scaleOff + " s pause");
+        }
+        if (in.measured && in.muscleLow) {
+            scaleOff += 1;
+            plan.note("Кантарът: малко мускули — +1 s пауза", "Scale: little muscle — +1 s pause");
         }
         if (in.solo()) {
             phiMax = Math.min(phiMax, 0.9);
         }
         // The client's focus zones and state (AiPersonal): ceiling, pauses, onset, zones.
-        AiPersonal.Effect pe = AiPersonal.of(AiPersonal.withScaleFocus(in.focus, in.scaleFocus), in.cond, in.today);
+        AiPersonal.Effect pe = AiPersonal.of(in.focus, in.cond, in.today);
         phiMax *= pe.phi;
         plan.phiMax = Math.max(0.4, Math.min(1.0, phiMax));
 
@@ -170,7 +171,7 @@ public final class AutoPlanner {
                         s.offS += 2;
                         s.rampUpMs += 200;
                     }
-                    s.offS += pe.offS;
+                    s.offS += pe.offS + scaleOff;
                     s.rampUpMs += pe.rampUpMs;
                 }
             }

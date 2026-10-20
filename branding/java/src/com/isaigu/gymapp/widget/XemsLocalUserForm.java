@@ -631,7 +631,12 @@ public final class XemsLocalUserForm {
             }
             u.gender = sex;
             u.height = height[0];
-            u.weight = weight[0];
+            // the weight typed now replaces the last weigh-in (the newest of the two wins, docs/xems-scale.md);
+            // an untouched wheel keeps the card's weight as it was (the scale's 72.4 is not a typed 72)
+            boolean typed = editing == null || editing.weight <= 0 || weight[0] != Math.round(editing.weight);
+            if (typed) {
+                u.weight = weight[0];
+            }
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.YEAR, -age[0]);
             u.birtyday = cal.getTime();
@@ -647,6 +652,10 @@ public final class XemsLocalUserForm {
             }
             u.remark = summary();
             XemsLocalStore.saveUser((BaseActivity) a, u, editing != null);
+            if (typed) {
+                a.getSharedPreferences("xems_scale", Context.MODE_PRIVATE).edit()
+                        .putLong("wm" + u.id, System.currentTimeMillis()).apply();
+            }
             StringBuilder cs = new StringBuilder();
             for (String c : CONTRA) {
                 if (contra.contains(c)) {

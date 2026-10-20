@@ -85,6 +85,7 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/dialog/RampSetting*.class' \
      -o -path '*/dialog/ParamDialogUi*.class' \
      -o -path '*/dialog/PauseSetting*.class' \
+     -o -path '*/dialog/ParamAdvice*.class' \
      -o -path '*/widget/MusicVisualizerView*.class' \
      -o -path '*/widget/MusicImpulseMeterView*.class' \
      -o -path '*/widget/XemsUi*.class' -o -path '*/widget/XemsGuard*.class' \
@@ -143,6 +144,7 @@ MUSIC_PREFIXES = (
     "RampSetting",
     "ParamDialogUi",
     "PauseSetting",
+    "ParamAdvice",
 )
 WIDGET_PREFIXES = (
     "MusicVisualizerView",

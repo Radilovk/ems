@@ -315,6 +315,11 @@ public final class XemsClientSync {
         if (w > 0 && (u.weight <= 0 || newer) && Math.round(u.weight) != w) {
             u.weight = w;
             changed = true;
+            if (!created) {
+                // typed by the client after the last weigh-in: it is the weight now (ScaleStore.freshWeight)
+                c.getSharedPreferences("xems_scale", Context.MODE_PRIVATE).edit()
+                        .putLong("wm" + u.id, savedAt > 0 ? savedAt : System.currentTimeMillis()).apply();
+            }
         }
         if (created) {
             XemsLocalStore.saveUserQuiet(u, false);        // gives the id

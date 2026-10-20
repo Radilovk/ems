@@ -100,11 +100,12 @@ A fresh measurement (≤ 60 days; readiness ≤ 12 h) reaches the engines throug
 | skeletal muscle kg | `AiEnergy.muscleScale` → `evokedVo2`; `AutoEngine.vo2Ref` | O₂ / kcal of the evoked contractions (was 31 / 38 % of weight) |
 | muscle per channel (`ScaleInsight.channelMuscle`, mean 1) | `AiEnergy.evokedVo2`, `AutoEngine.zoneMass / metaDemand` | each channel's muscle mass: whole-body load, oxygen share, kcal |
 | lean mass kg | `AiEnergy.restingVo2(…, lean)` (Katch–McArdle) | resting burn from muscle, not weight — kcal, intensity, HR-free load |
-| readiness (×1 / 0.85 / 0.7) | `AutoPlanner` phiMax, `AiPlanner` phiMax (active) | today's strength ceiling (the stronger of rest-days and scale) |
-| muscle low (FFMI) | `AutoPlanner` (replaces BMI < 18.5) | −10 % ceiling; an athletic low BMI is no longer cut |
+| readiness (×1 / 0.85 / 0.7) | `AutoPlanner`, `AiPlanner` (active), ⚙ advice | **+1 / +2 s pause** in tetanic work, no 2nd impulse (1.1.458: never the strength) |
+| muscle low (FFMI) | `AutoPlanner`, ⚙ advice | +1 s pause, advised Мускули 70 Hz (1.1.458; the BMI < 18.5 −10 % proxy only without a weigh-in) |
 | obese by FMI | `AutoPlanner.goalSlimBmi` (replaces BMI ≥ 30) | the fat-loss HR corridor's upper edge −5 % only for real fat, not muscle |
-| weakest zone < 90 % | `AiPersonal.withScaleFocus` in `AutoPlanner` / `AiPlanner` | one more focus zone (AiPersonal effect, +5 % on its channels in the plan) |
-| water low | inside readiness (legs' Z20) | ×0.85 + "drink" |
+| weakest zone < 90 % | report / card only | shown; no longer +5 % on its channels (1.1.458: channel strength is by feel) |
+| water low | inside readiness (legs' Z20) | +1 s pause + "drink" |
+| fat % (vs sex) | ⚙ advice (`ai/PulseAdvice`) | depth: ≥ 25 % men / 33 % women → 400 µs (Масаж 200), ≤ 12 / 20 % → 300 µs |
 
 Not changed on purpose: **HR max / HR zones / HrGuard** stay on the passport age (cardiovascular, not body
 composition); **VO₂max** stays on fitness + age; the **strength actually sent** is never raised automatically from the
@@ -141,7 +142,20 @@ for a phone, light/dark, figure + norm bars + change + recommendations), through
 - **Readiness needs two baselines** (`ScaleInsight.BASE_MIN = 2`, audit F12): one earlier weigh-in is one contact, its
   noise sits under the 1.2 % threshold.
 
-### Weight: the scale wins over the card (1.1.315-ai, owner)
+### Weight: the newest entry wins — typed or weighed (1.1.458-ai, owner)
+The last weight entered — typed in the client form / booking app, or measured on the scale — replaces the earlier
+one. A typed weight stamps `xems_scale` `wm<id>` (`XemsLocalUserForm` only when the wheel was moved — an untouched
+72 does not overwrite the scale's 72.4; `XemsClientSync` with the profile's save time). `ScaleStore.freshWeight`
+returns NaN when that stamp is newer than the last weigh-in, so `AiProfile` (Auto, Smart Session, kcal) uses the
+card's typed weight; the scale page pre-sends the newer of the two. Body composition always uses the measured weight.
+
+### Strength is never derived from the body (1.1.458-ai, owner)
+Profile, tissue analysis and scale suggest **impulses** — frequency, depth, impulse / pause, double impulse — per
+mode (⚙ "Препоръка", `docs/xems-program-fit.md`), never the main strength, a channel's strength or the spread over
+channels: those follow what the person feels now. Auto / Smart Session: the scale's readiness and low muscle now
+lengthen the pause instead of cutting the ceiling; the weakest zone no longer adds +5 % to its channels.
+
+### Weight: the scale wins over the card (1.1.315-ai, owner; superseded by "newest entry wins" above)
 The weight the client types in the profile is a guess. Every weigh-in writes its weight into the client card
 (`ScaleScreen.cardWeight` → `XemsLocalStore.saveUserQuiet`, by reflection — widget is compiled apart), and
 `XemsClientSync` drops the profile's weight when the last weigh-in is newer than the profile. The weight sent to the

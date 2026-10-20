@@ -11,7 +11,7 @@ wearable/ProgramFit (compile-wearable-java.sh) does the work; this wires it into
 - OperationUtil.lambda$settingAllUser$0 (⚙ Master): ProgramLive.stash(wrapper, originalProgram) before the
   rows are refreshed — the vendor had already replaced the program, so a new length never moved the end.
 - EditUserProgramDataDialog.onStart: the "Персонализация" switch on top and the XEMS look
-  (ProgramFit.attachSwitch → dialog/ParamDialogUi).
+  (ProgramFit.attachSwitch → dialog/ParamDialogUi), then the impulse advice per mode (dialog/ParamAdvice).
 - TrainItem.xemsRefresh(): public onTrainItemChange() (the row redraws after a recalibration).
 Runs after apply-live-settings.py and apply-ramp-setting.py.
 """
@@ -127,7 +127,9 @@ def patch_switch() -> None:
         sys.exit("apply-program-fit: onStart invoke-super not found")
     k += len(sup)
     hook = (f"\n    {MARK}\n    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->inputramp:"
-            f"Landroid/widget/TextView;\n\n    invoke-static {{v0}}, {PF}->attachSwitch(Landroid/view/View;)V\n")
+            f"Landroid/widget/TextView;\n\n    invoke-static {{v0}}, {PF}->attachSwitch(Landroid/view/View;)V\n"
+            f"\n    invoke-static {{p0}}, Lcom/isaigu/gymapp/dialog/ParamAdvice;->attach("
+            f"Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V\n")
     DIALOG.write_text(text[:k] + hook + text[k:], encoding="utf-8")
     print("EditUserProgramDataDialog: personalisation switch")
 

@@ -828,8 +828,11 @@ public final class ScaleSim {
         sm.put(ScaleProtocol.LEFT_LEG, 7.5);
         eq("weak leg → focus legs", ScaleInsight.weakFocus(w, true, 175).equals("legs") ? 1 : 0, 1, 0);
         ok("trunk asks for focus only under 85 %", ScaleInsight.TRUNK_WEAK == 85);
-        java.util.Set<String> f = com.isaigu.gymapp.ai.AiPersonal.withScaleFocus(new java.util.HashSet<String>(), "legs");
-        ok("scale focus joins the client's", f.contains("legs"));
+        // the scale's fat moves the depth of the advised impulse, never its strength (owner, 1.1.458)
+        com.isaigu.gymapp.ai.PulseAdvice.Input pi = new com.isaigu.gymapp.ai.PulseAdvice.Input();
+        int pw0 = com.isaigu.gymapp.ai.PulseAdvice.of(pi, 1).pw;
+        pi.fatPct = 30;
+        ok("fat 30 % (man) → a deeper advised impulse", com.isaigu.gymapp.ai.PulseAdvice.of(pi, 1).pw > pw0);
     }
 
     // ---------------------------------------------------------------- Senssun / MovingLife (openScale SenssunHandler)

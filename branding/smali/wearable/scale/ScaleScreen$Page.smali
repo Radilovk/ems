@@ -265,7 +265,7 @@
 .end method
 
 .method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;)V
-    .registers 11
+    .registers 13
 
     .prologue
     const/4 v7, -0x1
@@ -387,7 +387,7 @@
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    if-eq v0, v6, :cond_d4
+    if-eq v0, v6, :cond_e4
 
     move v0, v1
 
@@ -450,32 +450,48 @@
     :cond_8d
     const-wide/high16 v6, 0x4034000000000000L    # 20.0
 
-    cmpl-double v0, v4, v6
+    cmpl-double v3, v4, v6
 
-    if-ltz v0, :cond_9e
+    if-ltz v3, :cond_ae
 
     const-wide v6, 0x406f400000000000L    # 250.0
 
-    cmpg-double v0, v4, v6
+    cmpg-double v3, v4, v6
 
-    if-gtz v0, :cond_9e
+    if-gtz v3, :cond_ae
+
+    iget-wide v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->userId:J
+
+    invoke-static {p1, v6, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->typedAt(Landroid/content/Context;J)J
+
+    move-result-wide v6
+
+    const-string v3, "t"
+
+    invoke-virtual {v0, v3}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
+
+    move-result-wide v8
+
+    cmp-long v0, v6, v8
+
+    if-gtz v0, :cond_ae
 
     .line 171
     iput-wide v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->lastKg:D
 
     .line 173
-    :cond_9e
+    :cond_ae
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->heightCm:I
 
-    if-lez v0, :cond_d6
+    if-lez v0, :cond_e7
 
-    :goto_a2
+    :goto_b2
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->heightFromProfile:Z
 
     .line 174
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->heightCm:I
 
-    if-gtz v0, :cond_c7
+    if-gtz v0, :cond_d7
 
     .line 175
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -509,42 +525,42 @@
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->heightCm:I
 
     .line 177
-    :cond_c7
+    :cond_d7
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->heightCm:I
 
-    if-gtz v0, :cond_d3
+    if-gtz v0, :cond_e3
 
     .line 178
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->male:Z
 
-    if-eqz v0, :cond_d8
+    if-eqz v0, :cond_e9
 
     const/16 v0, 0xb2
 
-    :goto_d1
+    :goto_e1
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->heightCm:I
 
     .line 180
-    :cond_d3
+    :cond_e3
     return-void
 
-    :cond_d4
+    :cond_e4
     move v0, v2
 
     .line 157
-    goto :goto_61
+    goto/16 :goto_61
 
-    :cond_d6
+    :cond_e7
     move v1, v2
 
     .line 173
-    goto :goto_a2
+    goto :goto_b2
 
     .line 178
-    :cond_d8
+    :cond_e9
     const/16 v0, 0xa5
 
-    goto :goto_d1
+    goto :goto_e1
 .end method
 
 .method static detach(Landroid/view/View;)V

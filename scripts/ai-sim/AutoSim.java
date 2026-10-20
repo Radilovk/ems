@@ -7,6 +7,7 @@ import com.isaigu.gymapp.ai.AutoLimits;
 import com.isaigu.gymapp.ai.AutoModel;
 import com.isaigu.gymapp.ai.AutoPlanner;
 import com.isaigu.gymapp.ai.AutoTemplates;
+import com.isaigu.gymapp.ai.PulseAdvice;
 import com.isaigu.gymapp.ai.SafeLimits;
 
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ public final class AutoSim {
         bySex();
         classifiers();
         todayStates();
+        scaleNeverStrength();
+        pulseAdvice();
         blocks();
         zones();
         passiveTexts();
@@ -649,6 +652,86 @@ public final class AutoSim {
         meno.add("menopause");
         check(!com.isaigu.gymapp.ai.AiPersonal.periodApplies(AiModel.Sex.FEMALE, 50, meno), "no period after menopause");
         check(!com.isaigu.gymapp.ai.AiPersonal.periodApplies(AiModel.Sex.FEMALE, 62, null), "no period at 62");
+    }
+
+    /** Owner, 1.1.458: the scale moves the pause, never the strength (readiness, little muscle, weak zone). */
+    static void scaleNeverStrength() {
+        AutoModel.Input base = scaleInput();
+        AutoModel.Plan p0 = AutoPlanner.build(base, 70);
+        AutoModel.Input in = scaleInput();
+        in.measured = true;
+        in.readiness = 0.7;
+        in.muscleLow = true;
+        in.scaleFocus = "legs";
+        AutoModel.Plan p = AutoPlanner.build(in, 70);
+        check(p != null && Math.abs(p.phiMax - p0.phiMax) < 1e-9, "scale: strength ceiling unchanged");
+        boolean longer = false;
+        for (int i = 0; p != null && i < p.zones.length; i++) {
+            check(p.zones[i] == p0.zones[i], "scale: zone " + i + " unchanged");
+        }
+        for (int i = 0; p != null && i < p.phases.size() && i < p0.phases.size(); i++) {
+            for (int j = 0; j < p.phases.get(i).steps.size() && j < p0.phases.get(i).steps.size(); j++) {
+                longer |= p.phases.get(i).steps.get(j).offS > p0.phases.get(i).steps.get(j).offS;
+            }
+        }
+        check(longer, "scale: a longer pause instead");
+    }
+
+    static AutoModel.Input scaleInput() {
+        AutoModel.Input in = new AutoModel.Input();
+        in.sex = AiModel.Sex.FEMALE;
+        in.age = 35;
+        in.heightCm = 168;
+        in.weightKg = 64;
+        in.sessions = 10;
+        in.goal = AutoModel.Goal.TONE;
+        in.kind = AutoModel.Kind.ACTIVE;
+        in.programId = AutoCatalog.GENERAL;
+        return in;
+    }
+
+    /** The manual mode's impulse advice: inside the limits, Мускули without a 2nd impulse, the scale lengthens rest. */
+    static void pulseAdvice() {
+        AiModel.Fitness[] fits = {null, AiModel.Fitness.LOW, AiModel.Fitness.MID, AiModel.Fitness.HIGH};
+        AiModel.Goal[] goals = {null, AiModel.Goal.TONE, AiModel.Goal.FAT, AiModel.Goal.MASSAGE, AiModel.Goal.DRAIN,
+                AiModel.Goal.CELLULITE};
+        int[] ages = {-1, 25, 45, 62, 75};
+        double[] fats = {Double.NaN, 10, 22, 38};
+        double[] ready = {1.0, 0.85, 0.7};
+        int n = 0;
+        for (AiModel.Fitness f : fits) for (AiModel.Goal g : goals) for (int age : ages) for (double fat : fats)
+            for (double r : ready) for (int sx = 0; sx < 2; sx++) {
+                PulseAdvice.Input in = new PulseAdvice.Input();
+                in.fitness = f;
+                in.goal = g;
+                in.age = age;
+                in.fatPct = fat;
+                in.readiness = r;
+                in.female = sx == 1;
+                in.sessions = 10;
+                PulseAdvice.Rec[] rs = PulseAdvice.all(in);
+                for (PulseAdvice.Rec a : rs) {
+                    int[] v = {a.hz, a.pw, a.on, a.off, a.ap ? 1 : 0, a.phz, 100, 300};
+                    int[] s = SafeLimits.apply(v, age, null, null);
+                    String tag = "advice m" + a.mode + " " + f + " " + g + " " + age + " " + fat + " " + r;
+                    check(s[0] == v[0] && s[1] == v[1] && s[2] == v[2] && s[3] == v[3] && s[4] == v[4], tag + " in limits");
+                    check(a.mode != PulseAdvice.MUSCLE || !a.ap, tag + ": Мускули no 2nd impulse");
+                    check(age < 60 || a.hz <= SafeLimits.HZ_MAX_60, tag + ": 60+ ≤ 85 Hz");
+                    n++;
+                }
+                PulseAdvice.Input calm = new PulseAdvice.Input();
+                calm.fitness = f;
+                calm.goal = g;
+                calm.age = age;
+                calm.fatPct = fat;
+                calm.female = in.female;
+                calm.sessions = 10;
+                PulseAdvice.Rec a = PulseAdvice.of(in, PulseAdvice.MAIN);
+                PulseAdvice.Rec b = PulseAdvice.of(calm, PulseAdvice.MAIN);
+                check(r >= 0.99 || a.off > b.off, "advice: not recovered → longer pause");
+                check(a.hz == b.hz && a.pw == b.pw, "advice: readiness moves only the pause");
+            }
+        System.out.println("PulseAdvice: " + n + " recommendations in the limits");
     }
 
     /** As AutoSession.stationPhases: the active program's phases with exercises run as sets. */

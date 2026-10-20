@@ -17,6 +17,8 @@
 # instance fields
 .field public ap:Z
 
+.field public best:Z
+
 .field public hz:I
 
 .field public final mode:I
@@ -57,27 +59,27 @@
     .registers 3
 
     .prologue
-    .line 64
+    .line 181
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 61
+    .line 178
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Rec;->whyBg:Ljava/util/List;
 
-    .line 62
+    .line 179
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Rec;->whyEn:Ljava/util/List;
 
-    .line 65
+    .line 182
     iput p1, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Rec;->mode:I
 
-    .line 66
+    .line 183
     return-void
 .end method
 
@@ -87,12 +89,12 @@
     .registers 5
 
     .prologue
-    .line 75
+    .line 192
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 76
+    .line 193
     iget v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Rec;->hz:I
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
@@ -139,12 +141,12 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 77
+    .line 194
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Rec;->ap:Z
 
     if-eqz v0, :cond_4b
 
-    .line 78
+    .line 195
     if-eqz p1, :cond_50
 
     const-string v0, " \u00b7 2-\u0440\u0438 "
@@ -164,7 +166,7 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 80
+    .line 197
     :cond_4b
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -172,7 +174,7 @@
 
     return-object v0
 
-    .line 78
+    .line 195
     :cond_50
     const-string v0, " \u00b7 2nd "
 
@@ -183,16 +185,16 @@
     .registers 4
 
     .prologue
-    .line 69
+    .line 186
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Rec;->whyBg:Ljava/util/List;
 
     invoke-interface {v0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 70
+    .line 187
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Rec;->whyEn:Ljava/util/List;
 
     invoke-interface {v0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 71
+    .line 188
     return-void
 .end method

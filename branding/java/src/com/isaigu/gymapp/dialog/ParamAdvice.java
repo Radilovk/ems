@@ -24,7 +24,8 @@ import java.lang.reflect.Method;
 /**
  * "Препоръка" in the row's ⚙, on top of every mode tab (Основен · Мускули · Кардио · Масаж): the impulse the
  * client's profile and the scale suggest for that mode (ai/PulseAdvice — frequency, depth, impulse : pause, double
- * impulse) and one tap to put it into the mode. Strength, the channels and their spread are never touched: they are
+ * impulse) and one tap to put it into the mode. Computed when the ⚙ opens from the profile, the scale and the whole
+ * training log (when and what the last one was, how it went, how regular) — "★ Днес" marks today's mode. Strength, the channels and their spread are never touched: they are
  * what the person feels now (owner, 1.1.458). Nothing changes by itself (1.1.323). Only for one client — ⚙ Master
  * sets the base for everyone and gets none. ⓘ unfolds why.
  * Hook: EditUserProgramDataDialog.onStart (scripts/apply-program-fit.py), after ParamDialogUi has laid out the tabs.
@@ -54,14 +55,20 @@ public final class ParamAdvice {
                 return;
             }
             AiProfile p = AiProfile.of(u);
-            long[] t = com.isaigu.gymapp.wearable.NextPlan.trainings(c, u.id);
-            double hours = t[1] > 0 ? (System.currentTimeMillis() - t[1]) / 3600000.0 : -1;
-            PulseAdvice.Rec[] recs = PulseAdvice.all(from(p, (int) t[0], hours));
+            PulseAdvice.Input in = from(p, 0, -1);
+            java.util.List<org.json.JSONObject> log = com.isaigu.gymapp.wearable.NextPlan.log(c, u.id);
+            for (int i = 0; i < log.size(); i++) {
+                org.json.JSONObject o = log.get(i);
+                in.log.add(new PulseAdvice.Past(o.optLong("start"), o.optInt("activeS"), o.optInt("planS"),
+                        o.optInt("modes"), !"program".equals(o.optString("type", "program")), o.optInt("hrAvg")));
+            }
+            PulseAdvice.Rec[] recs = PulseAdvice.all(in);
+            String context = PulseAdvice.context(in, XemsLang.isBg());
             XemsUi.init(c);
             for (int k = 0; k < PulseAdvice.MODES; k++) {
                 ViewGroup col = column(root, k);
                 if (col != null && RampSetting.bean((TrainProgram) tp, k) != null) {
-                    col.addView(strip(c, dialog, recs[k]), Math.min(1, col.getChildCount()), XemsUi.matchWrap(c, 0));
+                    col.addView(strip(c, dialog, recs[k], context), Math.min(1, col.getChildCount()), XemsUi.matchWrap(c, 0));
                 }
             }
         } catch (Throwable t) {
@@ -83,7 +90,7 @@ public final class ParamAdvice {
     }
 
     /** "✦ Препоръка  85 Hz · 350 µs · 4 : 4 s   ⓘ   [Приложи]", the reasons folded under it. */
-    private static View strip(Context c, EditUserProgramDataDialog dialog, PulseAdvice.Rec r) {
+    private static View strip(Context c, EditUserProgramDataDialog dialog, PulseAdvice.Rec r, String context) {
         boolean bg = XemsLang.isBg();
         LinearLayout box = XemsUi.vertical(c);
         box.setTag(TAG + r.mode);
@@ -95,12 +102,13 @@ public final class ParamAdvice {
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout texts = XemsUi.vertical(c);
-        texts.addView(XemsUi.text(c, XemsLang.tr("✦ Препоръка по профила", "✦ Suggested by the profile"), 13,
-                XemsUi.MUTED, false));
+        texts.addView(XemsUi.text(c, r.best ? XemsLang.tr("★ Днес най-подходящ · препоръка", "★ Best for today · suggested")
+                : XemsLang.tr("✦ Препоръка по профила и тренировките", "✦ Suggested by the profile and the log"), 13,
+                r.best ? XemsUi.GO_TEXT : XemsUi.MUTED, r.best));
         texts.addView(XemsUi.text(c, r.line(bg), 17, XemsUi.TEXT, true));
         row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView why = XemsUi.text(c, reasons(r, bg), 13, XemsUi.MUTED, false);
+        TextView why = XemsUi.text(c, reasons(r, bg, context), 13, XemsUi.MUTED, false);
         why.setVisibility(View.GONE);
         why.setPadding(0, XemsUi.dp(c, 6), XemsUi.dp(c, 8), 0);
         TextView info = XemsUi.iconButton(c, "i", XemsUi.SURFACE, XemsUi.MUTED, 48);
@@ -124,8 +132,11 @@ public final class ParamAdvice {
         return box;
     }
 
-    private static String reasons(PulseAdvice.Rec r, boolean bg) {
+    private static String reasons(PulseAdvice.Rec r, boolean bg, String context) {
         StringBuilder b = new StringBuilder();
+        if (context.length() > 0) {
+            b.append(context).append('\n');
+        }
         java.util.List<String> xs = bg ? r.whyBg : r.whyEn;
         for (int i = 0; i < xs.size(); i++) {
             b.append("• ").append(xs.get(i)).append('\n');

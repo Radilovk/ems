@@ -31,9 +31,22 @@
 
 .field public hoursSinceLast:D
 
+.field public final log:Ljava/util/List;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/List",
+            "<",
+            "Lcom/isaigu/gymapp/ai/PulseAdvice$Past;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 .field public measured:Z
 
 .field public muscleLow:Z
+
+.field public nowMs:J
 
 .field public readiness:D
 
@@ -53,30 +66,37 @@
 
     const-wide/high16 v0, -0x4010000000000000L    # -1.0
 
-    .line 25
+    .line 31
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 28
+    .line 34
     iput v2, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->age:I
 
-    .line 29
+    .line 35
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->weightKg:D
 
-    .line 34
+    .line 40
     iput v2, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->sessions:I
 
-    .line 36
+    .line 42
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->hoursSinceLast:D
 
-    .line 38
+    .line 44
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->fatPct:D
 
-    .line 42
+    .line 48
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->readiness:D
+
+    .line 52
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->log:Ljava/util/List;
 
     return-void
 .end method
@@ -87,7 +107,7 @@
     .registers 7
 
     .prologue
-    .line 47
+    .line 57
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/PulseAdvice$Input;->weightKg:D
 
     const-wide/16 v2, 0x0

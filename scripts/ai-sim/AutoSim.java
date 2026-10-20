@@ -732,6 +732,81 @@ public final class AutoSim {
                 check(a.hz == b.hz && a.pw == b.pw, "advice: readiness moves only the pause");
             }
         System.out.println("PulseAdvice: " + n + " recommendations in the limits");
+        pulseAdviceLog();
+    }
+
+    /** The advice follows the training log: recovery, a cut / hard last one, a return, regular progress, today's mode. */
+    static void pulseAdviceLog() {
+        long now = 1_800_000_000_000L, h = 3600000L;
+        PulseAdvice.Input reg = logInput(now);
+        for (int i = 0; i < 8; i++) {
+            reg.log.add(new PulseAdvice.Past(now - (4 + i * 3) * 24 * h, 1500, 1500, 1 << PulseAdvice.MUSCLE, false, 120));
+        }
+        PulseAdvice.Rec base = PulseAdvice.of(logInput(now, 10), PulseAdvice.MAIN);
+        PulseAdvice.Rec prog = PulseAdvice.of(reg, PulseAdvice.MAIN);
+        check(prog.on > base.on || prog.off < base.off, "advice: regular + fine → one step on");
+        check(PulseAdvice.of(reg, PulseAdvice.MUSCLE).hz > PulseAdvice.of(logInput(now, 10), PulseAdvice.MUSCLE).hz,
+                "advice: regular tone → firmer Мускули");
+        check(PulseAdvice.best(reg) == PulseAdvice.MUSCLE, "advice: tone → Мускули today");
+
+        PulseAdvice.Input y = logInput(now);
+        copyLog(reg, y);
+        y.log.add(new PulseAdvice.Past(now - 12 * h, 1500, 1500, 1 << PulseAdvice.MUSCLE, false, 120));
+        PulseAdvice.Rec ym = PulseAdvice.of(y, PulseAdvice.MAIN);
+        check(ym.off >= base.off + 2 && !ym.ap && ym.hz < base.hz, "advice: < 24 h → +2 s, no 2nd, lower Hz");
+        check(PulseAdvice.best(y) == PulseAdvice.MASSAGE, "advice: < 24 h after strength → Масаж today");
+        check(PulseAdvice.context(y, true).contains("преди 12 ч"), "advice: context says when");
+
+        PulseAdvice.Input cut = logInput(now);
+        copyLog(reg, cut);
+        cut.log.add(new PulseAdvice.Past(now - 80 * h, 900, 1500, 1 << PulseAdvice.MAIN, false, 0));
+        check(PulseAdvice.of(cut, PulseAdvice.MAIN).off > base.off, "advice: last cut short → more rest");
+
+        PulseAdvice.Input back = logInput(now);
+        for (int i = 0; i < 8; i++) {
+            back.log.add(new PulseAdvice.Past(now - (30 + i * 3) * 24 * h, 1500, 1500, 1, false, 0));
+        }
+        PulseAdvice.Rec bm = PulseAdvice.of(back, PulseAdvice.MAIN);
+        check(bm.off > base.off && !bm.ap, "advice: back after a break → more rest, no 2nd");
+
+        PulseAdvice.Input first = logInput(now, 0);
+        check(PulseAdvice.of(first, PulseAdvice.MAIN).off >= base.off + 2, "advice: empty log = first training");
+        PulseAdvice.Input fat = logInput(now);
+        fat.goal = AiModel.Goal.FAT;
+        copyLog(reg, fat);
+        fat.log.add(new PulseAdvice.Past(now - 40 * h, 1500, 1500, 1 << PulseAdvice.MUSCLE, false, 0));
+        check(PulseAdvice.best(fat) == PulseAdvice.CARDIO, "advice: fat loss after a strength day → Кардио");
+        PulseAdvice.Input[] all = {reg, y, cut, back, first, fat};
+        for (PulseAdvice.Input in : all) {
+            for (int age : new int[] {25, 65}) {
+                in.age = age;
+                for (PulseAdvice.Rec a : PulseAdvice.all(in)) {
+                    int[] v = {a.hz, a.pw, a.on, a.off, a.ap ? 1 : 0, a.phz, 100, 300};
+                    int[] w = SafeLimits.apply(v, age, null, null);
+                    check(java.util.Arrays.equals(java.util.Arrays.copyOf(v, 5), java.util.Arrays.copyOf(w, 5)),
+                            "advice with a log m" + a.mode + " age " + age + ": in limits");
+                }
+            }
+        }
+    }
+
+    static PulseAdvice.Input logInput(long now) {
+        PulseAdvice.Input in = new PulseAdvice.Input();
+        in.nowMs = now;
+        in.age = 35;
+        in.fitness = AiModel.Fitness.MID;
+        in.goal = AiModel.Goal.TONE;
+        return in;
+    }
+
+    static PulseAdvice.Input logInput(long now, int sessions) {
+        PulseAdvice.Input in = logInput(now);
+        in.sessions = sessions;
+        return in;
+    }
+
+    static void copyLog(PulseAdvice.Input from, PulseAdvice.Input to) {
+        to.log.addAll(from.log);
     }
 
     /** As AutoSession.stationPhases: the active program's phases with exercises run as sets. */

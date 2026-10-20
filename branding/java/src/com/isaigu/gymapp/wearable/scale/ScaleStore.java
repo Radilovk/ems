@@ -53,14 +53,22 @@ public final class ScaleStore {
         return f > 2 && f < 70 ? f : Double.NaN;
     }
 
-    /** Weight of a fresh measurement; NaN when there is none. */
+    /**
+     * Weight of a fresh measurement; NaN when there is none or when a weight typed in the card (client form /
+     * booking app) is newer — the last entry wins, typed or weighed (owner, 1.1.458).
+     */
     public static double freshWeight(Context c, long userId) {
         JSONObject m = c != null ? latest(c, userId) : null;
-        if (m == null || System.currentTimeMillis() - m.optLong("t") > FRESH_MS) {
+        if (m == null || System.currentTimeMillis() - m.optLong("t") > FRESH_MS || typedAt(c, userId) > m.optLong("t")) {
             return Double.NaN;
         }
         double w = m.optDouble("w", Double.NaN);
         return w >= 20 && w <= 250 ? w : Double.NaN;
+    }
+
+    /** When the weight was last typed in the card (XemsLocalUserForm, XemsClientSync); 0 = never. */
+    public static long typedAt(Context c, long userId) {
+        return c != null ? prefs(c).getLong("wm" + userId, 0) : 0;
     }
 
     /** Readiness of today's measurement (at most 12 h old) against the client's baseline; null without one. */

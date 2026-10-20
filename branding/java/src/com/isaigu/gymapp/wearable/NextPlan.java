@@ -284,6 +284,11 @@ public final class NextPlan {
         return v < lo ? lo : v > hi ? hi : v;
     }
 
+    /** The client's finished trainings (summaries, oldest first) — for the impulse advice (dialog/ParamAdvice). */
+    public static List<JSONObject> log(Context c, long userId) {
+        return history(c, userId);
+    }
+
     /** The client's recorded trainings (summaries), oldest first. */
     static List<JSONObject> history(Context c, long userId) {
         List<JSONObject> out = new ArrayList<JSONObject>();

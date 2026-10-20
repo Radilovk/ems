@@ -19,7 +19,7 @@
 
 .field public static final HEADER:Ljava/lang/String; = "xems_param_header"
 
-.field private static final MAIN_CARD:Ljava/lang/String; = "xems_param_main"
+.field static final MAIN_CARD:Ljava/lang/String; = "xems_param_main"
 
 .field private static final TABS:Ljava/lang/String; = "xems_param_tabs"
 

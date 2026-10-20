@@ -164,10 +164,10 @@ public final class ScaleScreen {
                     lastKg = p.weightKg;
                 }
             }
-            // the scale's own last weight (any age) before the client's own guess in the card
+            // the scale's own last weight (any age) before the card's — unless the card's was typed after it
             JSONObject last = ScaleStore.latest(a, userId);
             double w = last != null ? last.optDouble("w", Double.NaN) : Double.NaN;
-            if (w >= 20 && w <= 250) {
+            if (w >= 20 && w <= 250 && ScaleStore.typedAt(a, userId) <= last.optLong("t")) {
                 lastKg = w;
             }
             heightFromProfile = heightCm > 0;

@@ -214,13 +214,18 @@ public final class AiPlanner {
         }
 
         // The client's state: a lower ceiling, longer pauses in tetanic work (AiPersonal).
-        plan.personal = AiPersonal.of(AiPersonal.withScaleFocus(in.focus, in.scaleFocus), in.cond, in.today);
-        // the scale this morning: swelling / less water against the client's own baseline (wearable/scale)
+        plan.personal = AiPersonal.of(in.focus, in.cond, in.today);
+        // the scale this morning (swelling / less water against the client's own baseline): a longer pause in
+        // tetanic work, never less strength (owner, 1.1.458: strength is what the person feels)
         if (!passive && in.readiness < 0.99) {
-            plan.phiMax *= in.readiness;
+            int add = in.readiness < 0.8 ? 2 : 1;
             for (Phase ph : plan.phases) {
-                ph.phiStart = Math.min(ph.phiStart, plan.phiMax);
-                ph.phiEnd = Math.min(ph.phiEnd, plan.phiMax);
+                if (ph.a.isTetanic() && ph.a.offS > 0) {
+                    ph.a.offS += add;
+                }
+                if (ph.b != null && ph.b.isTetanic() && ph.b.offS > 0) {
+                    ph.b.offS += add;
+                }
             }
         }
         if (plan.personal.phi < 1.0) {

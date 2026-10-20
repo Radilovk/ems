@@ -24,7 +24,7 @@ import com.isaigu.gymapp.widget.XemsUi;
 public final class ParamDialogUi {
     private static final String DONE = "xems_param_ui";
     public static final String HEADER = "xems_param_header";
-    private static final String MAIN_CARD = "xems_param_main";
+    static final String MAIN_CARD = "xems_param_main";
     private static final String[] FIELDS = {"worklength", "frequency", "paulseContinue", "paulseStop",
             "inputramp", "outputramp"};
 

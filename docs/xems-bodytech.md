@@ -264,6 +264,44 @@ command; the next rise stalled on the busy link (`STALL_MS`), so the late tail a
   this suit (`SoftRamp.rampMs` → 0, also the 0.3 s safety rise and Smart / Auto's) — hard, exact switches and a free link.
 Tests: `BtTranslatorTest` «switch: …», «lost: …». Not verified on a suit yet.
 
+## The switch as EMSFIT starts the suit (owner, 1.1.461)
+Owner after 1.1.460: still a dead pause, no impulse felt — **at the return to impulse 1**. So it is the Hz going UP on a
+running channel: the period register goes from the 2nd impulse's long period (8 Hz = 125 000 µs) to the main one's short
+one (85 Hz = 11 764 µs). Most likely the channel's period counter is already past the new value, does not meet it and
+runs on until it wraps (20-bit register: up to ≈ 1 s, or longer) — no pulse meanwhile. Going down (main → 2nd) never
+has it, nor does a plain pause (no Hz write), nor the slots' slide (period a little longer). 1.1.452–1.1.460 wrote the
+new Hz on the running channel and only then SEL off → on, which did not cure it.
+Now (`BtTranslator.reconcile`, `restart`): a switch that changes the Hz of a channel on the suit goes
+1. lowered strengths (live) → 2. **SEL all off** → 3. the new Hz / width (all outputs off; a running slide ends here)
+→ 4. **SEL on** (the vendor's own start) → 5. the rising strengths (live, probe 0.6).
+No period is ever written to a running channel at a switch. The off gap holds only the Hz frames: 8 channels + SEL ≈
+9 frames ≈ 0.3 s at 31 ms per ACK. With hold + slots the places are not laid again after the restart (as before).
+**Diag:** every switch is logged to `wearable-ble.log` — `suit bodytech switch <mac> 2→1 N frames T ms` (`BtBridge.Timed`).
+Not verified on a suit yet.
+
+## From the hardware photos (owner, 1.1.462)
+Main board «BodyTech 8Z_M V4»: a 256-ball BGA with 1.2 V core and an SPI flash beside it (almost surely an FPGA — the
+1 MHz clock and 20-bit period registers), 8 separate boost converters (15 µH «150», one high voltage per channel — strength
+is most likely a voltage, a capacitor charged while the channel is off), one Li-ion cell, an ST BlueNRG-2 module with a
+PCB antenna (frames `36 … C9` look like UART packets it forwards). Output board: 8 bridges (B360 diodes, MOSFETs), the
+harness to the suit's connector. Changes:
+- **«Костюмът сам отмерва импулса (тест)»** (`BtSettings.cycle`, default off): the plain impulse / pause runs in the
+  suit's own T1–T4 cycle — T1 = rise, T2 = impulse − rise − fall, T3 = fall, T4 = pause (`BtTranslator.cycleT`). The
+  rise / fall come from SoftRamp (`SoftRamp.suitCycle` → `BtBridge.cycle`), the tablet then ramps nothing. A new cycle
+  is RESET + the program (~3 s) — loaded in the pause (`progT`); every impulse start restarts the cycle (SEL off → on)
+  so the suit and the tablet's clock agree; the pause sends nothing; + / − send strengths only. Not with the double
+  impulse, its setup or Smart / Auto (`SoftRamp.cycleOk`) — then back to the plain 100 s burst (one more load). A test /
+  «Модулация» puts the plain program back. The first session after a connect loads the cycle at its first impulse.
+- **Soft start:** the first impulse after a start or a stand (≥ 5 s without a phase) rises ≥ 1.5 s, also with the ramp
+  off (`SoftRamp.SOFT_START_MS`, `Slot.afterGap`) — the channel's capacitor was charged while it was off.
+- **Keep-alive SYNC 3 s every 1 s** (was 6 s / 4.5 s): a lost link stops the output within ~3 s (2 s would trip on a
+  busy main thread).
+- **Settings simpler:** visible — waveform, strength, «Плавно нарастване и спад», «Костюмът сам отмерва импулса»;
+  under «Разширени ▾» — «Разделени импулси», «Каналите остават включени», «Сервизен режим». Outside service mode a
+  channel's own waveform is not applied (`BtSettings.waveFor`) nor shown, and a channel's own Hz reads ≤ 150
+  (`chHz`, `HZ_TRAINING_MAX`; «Модулация» keeps its kHz).
+Not verified on a suit yet (above all: that T1/T3 ramp and T4 pause work as EMSFIT uses them).
+
 ## All ten XEMS channels (owner, 1.1.388)
 The settings map **bodytech channel → XEMS channel**, and every one of the row's ten channels may be picked —
 Гърди and Прасец too (1.1.379–1.1.387 hid them and, on every load, moved a channel left on them to a leg, so e.g. the

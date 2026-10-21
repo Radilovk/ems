@@ -78,6 +78,8 @@ public final class BtSettingsSection {
         final Activity a;
         final XemsUi.Shell sh;
         final boolean[] open = new boolean[BtSettings.CHANNELS + 1];
+        /** "Разширени ▾" unfolded (slots, channels kept on, service mode — 1.1.462). */
+        boolean adv;
         final BtTest test;
 
         Sheet(Activity a) {
@@ -141,19 +143,34 @@ public final class BtSettingsSection {
             extra.addView(wave, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             extra.addView(gain, XemsUi.weight(1f, 12, a));
             sh.body.addView(extra, XemsUi.matchWrap(a, 16));
-            sh.body.addView(XemsUi.toggleRow(a, "Разделени импулси",
-                    "Вкл: каналите бият по ред, всеки на свое място в периода — утечката към съседите е слаба и равна "
-                            + "към двата електрода. Изкл: бият заедно — утечката отива силно към един електрод. "
-                            + "Всички канали тогава са на една честота.",
-                    BtSettings.slots(), new Slots()), XemsUi.matchWrap(a, 16));
-            sh.body.addView(XemsUi.toggleRow(a, "Каналите остават включени",
-                    "Вкл: каналите се включват веднъж при старт, а в паузата само мълчат — импулсът започва меко, "
-                            + "без удар в началото. Изкл: всеки импулс включва каналите наново (както преди).",
-                    BtSettings.hold(), new Hold()), XemsUi.matchWrap(a, 16));
             sh.body.addView(XemsUi.toggleRow(a, "Плавно нарастване и спад",
                     "Вкл: всеки импулс се усилва и отслабва постепенно. Изкл: без рампа — импулсите се сменят веднага, "
                             + "точно навреме, и връзката остава свободна за двойния импулс.",
                     BtSettings.ramp(), new Ramp()), XemsUi.matchWrap(a, 16));
+            sh.body.addView(XemsUi.toggleRow(a, "Костюмът сам отмерва импулса (тест)",
+                    "Вкл: импулс, пауза и плавното нарастване се изпълняват от самия костюм — точни до милисекунда и при "
+                            + "слаба връзка; таблетът само пуска всеки импулс и праща силата. Само при обикновена пауза — "
+                            + "с двоен импулс, Умна сесия или Авто таблетът отмерва както досега. Смяна на времената = "
+                            + "~3 s зареждане в паузата.",
+                    BtSettings.cycle(), new Cycle()), XemsUi.matchWrap(a, 16));
+            TextView more = XemsUi.chip(a, adv ? "Разширени ▴" : "Разширени ▾", adv, XemsUi.ACCENT);
+            more.setOnClickListener(new Adv(this));
+            LinearLayout.LayoutParams mp = XemsUi.matchWrap(a, 16);
+            mp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            sh.body.addView(more, mp);
+            if (!adv) return;
+            sh.body.addView(XemsUi.toggleRow(a, "Разделени импулси",
+                    "Вкл: каналите бият по ред, всеки на свое място в периода — утечката към съседите е слаба и равна "
+                            + "към двата електрода, а пиковият ток от батерията е по-малък. Изкл: бият заедно.",
+                    BtSettings.slots(), new Slots()), XemsUi.matchWrap(a, 12));
+            sh.body.addView(XemsUi.toggleRow(a, "Каналите остават включени",
+                    "Вкл: каналите се включват веднъж при старт, а в паузата само мълчат — без удар в началото на "
+                            + "импулса. Изкл: всеки импулс включва каналите наново.",
+                    BtSettings.hold(), new Hold()), XemsUi.matchWrap(a, 12));
+            sh.body.addView(XemsUi.toggleRow(a, "Сервизен режим",
+                    "Вкл: в „Пълни параметри“ всеки канал има своя форма на импулса и честота над 150 Hz. Изкл: една обща "
+                            + "форма и честоти за тренировка (до 150 Hz).",
+                    BtSettings.service(), new Service()), XemsUi.matchWrap(a, 12));
         }
 
         /**
@@ -369,6 +386,34 @@ public final class BtSettingsSection {
         @Override
         public void onToggle(boolean on) {
             BtSettings.setHold(on);
+        }
+    }
+
+    static final class Cycle implements XemsUi.OnToggle {
+        @Override
+        public void onToggle(boolean on) {
+            BtSettings.setCycle(on);
+        }
+    }
+
+    static final class Service implements XemsUi.OnToggle {
+        @Override
+        public void onToggle(boolean on) {
+            BtSettings.setService(on);
+        }
+    }
+
+    static final class Adv implements View.OnClickListener {
+        final Sheet sheet;
+
+        Adv(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public void onClick(View v) {
+            sheet.adv = !sheet.adv;
+            sheet.render();
         }
     }
 

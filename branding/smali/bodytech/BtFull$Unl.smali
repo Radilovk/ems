@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 241
+    .line 245
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 242
+    .line 246
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Unl;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
-    .line 243
+    .line 247
     return-void
 .end method
 
@@ -42,9 +42,9 @@
     .registers 2
 
     .prologue
-    .line 247
+    .line 251
     invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setUnlimited(Z)V
 
-    .line 248
+    .line 252
     return-void
 .end method

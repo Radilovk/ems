@@ -151,9 +151,16 @@ public class BtSettingsTest {
         BtSettings.setChWidth(2, 900);
         eq("width capped 511", 511, BtSettings.chWidth(2));
         BtSettings.setChHz(2, true, 4000);
-        eq("2nd Hz capped 1000", 1000, BtSettings.chHz(2, true));
+        eq("2nd Hz: training reads ≤ 150", 150, BtSettings.chHz(2, true));
+        BtSettings.setService(true);
+        eq("2nd Hz capped 1000 (service)", 1000, BtSettings.chHz(2, true));
         BtSettings.setChHz(2, false, 3000);
-        eq("main Hz capped 1000", 1000, BtSettings.chHz(2, false));
+        eq("main Hz capped 1000 (service)", 1000, BtSettings.chHz(2, false));
+        BtSettings.setChWave(2, false, 2);
+        eq("own waveform in service mode", 2, BtSettings.waveFor(2, false));
+        BtSettings.setService(false);
+        eq("main Hz: training reads ≤ 150", 150, BtSettings.chHz(2, false));
+        eq("own waveform ignored outside service mode", BtSettings.wave(), BtSettings.waveFor(2, false));
         BtSettings.reset();
         eq("reset: channel gain", 100, BtSettings.chGain(2));
         eq("reset: width auto", 0, BtSettings.chWidth(2));

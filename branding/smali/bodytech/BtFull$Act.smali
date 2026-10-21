@@ -34,16 +34,16 @@
     .registers 3
 
     .prologue
-    .line 225
+    .line 229
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 226
+    .line 230
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Act;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
-    .line 227
+    .line 231
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Act;->what:I
 
-    .line 228
+    .line 232
     return-void
 .end method
 
@@ -53,7 +53,7 @@
     .registers 3
 
     .prologue
-    .line 232
+    .line 236
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Act;->what:I
 
     if-nez v0, :cond_11
@@ -64,16 +64,16 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->copyToAll(I)V
 
-    .line 234
+    .line 238
     :goto_b
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Act;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtFull;->render()V
 
-    .line 235
+    .line 239
     return-void
 
-    .line 233
+    .line 237
     :cond_11
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Act;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 

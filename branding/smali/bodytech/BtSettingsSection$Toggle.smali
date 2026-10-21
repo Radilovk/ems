@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 245
+    .line 262
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 246
+    .line 263
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Toggle;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 247
+    .line 264
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Toggle;->ch:I
 
-    .line 248
+    .line 265
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 6
 
     .prologue
-    .line 252
+    .line 269
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Toggle;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     iget-object v1, v0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->open:[Z
@@ -69,15 +69,15 @@
     :goto_11
     aput-boolean v0, v1, v2
 
-    .line 253
+    .line 270
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Toggle;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 254
+    .line 271
     return-void
 
-    .line 252
+    .line 269
     :cond_19
     const/4 v0, 0x0
 

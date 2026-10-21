@@ -24,22 +24,32 @@
     return-void
 .end method
 
+.method public static active()Z
+    .registers 1
+
+    .prologue
+    .line 32
+    sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
+
+    return v0
+.end method
+
 .method public static clear()V
     .registers 1
 
     .prologue
     const/4 v0, 0x0
 
-    .line 31
+    .line 36
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
 
-    .line 32
+    .line 37
     sput v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampUpMs:I
 
-    .line 33
+    .line 38
     sput v0, Lcom/isaigu/gymapp/ai/AiRamp;->rampDownMs:I
 
-    .line 34
+    .line 39
     return-void
 .end method
 
@@ -51,7 +61,7 @@
 
     const/4 v3, 0x0
 
-    .line 55
+    .line 60
     invoke-static {v2, p0}, Ljava/lang/Math;->min(II)I
 
     move-result v0
@@ -60,7 +70,7 @@
 
     move-result v1
 
-    .line 56
+    .line 61
     invoke-static {v2, p1}, Ljava/lang/Math;->min(II)I
 
     move-result v0
@@ -69,12 +79,12 @@
 
     move-result v0
 
-    .line 57
+    .line 62
     if-lez p2, :cond_30
 
     mul-int/lit16 v2, p2, 0x3e8
 
-    .line 58
+    .line 63
     :goto_17
     if-lez v2, :cond_27
 
@@ -82,19 +92,19 @@
 
     if-le v4, v2, :cond_27
 
-    .line 59
+    .line 64
     invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
 
     move-result v1
 
-    .line 60
+    .line 65
     sub-int v0, v2, v1
 
     invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
-    .line 62
+    .line 67
     :cond_27
     const/4 v2, 0x2
 
@@ -111,7 +121,7 @@
     :cond_30
     move v2, v3
 
-    .line 57
+    .line 62
     goto :goto_17
 .end method
 
@@ -123,12 +133,12 @@
 
     const/4 v1, 0x2
 
-    .line 41
+    .line 46
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiRamp;->aiActive:Z
 
     if-eqz v0, :cond_1c
 
-    .line 42
+    .line 47
     new-array v0, v1, [I
 
     const/4 v1, 0x0
@@ -151,22 +161,22 @@
 
     aput v2, v0, v1
 
-    .line 47
+    .line 52
     :goto_1b
     return-object v0
 
-    .line 44
+    .line 49
     :cond_1c
     if-nez p0, :cond_24
 
-    .line 45
+    .line 50
     new-array v0, v1, [I
 
     fill-array-data v0, :array_30
 
     goto :goto_1b
 
-    .line 47
+    .line 52
     :cond_24
     iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
 
@@ -180,7 +190,7 @@
 
     goto :goto_1b
 
-    .line 45
+    .line 50
     nop
 
     :array_30

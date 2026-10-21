@@ -29,7 +29,7 @@ import java.util.Map;
  * the one before. The row's own CommandSender waits for the last of them, so its pacing, SoftRamp, safety limits
  * and reconnect work unchanged. Hooks: scripts/apply-bodytech.py.
  * <p>
- * Keep-alive: SYNC 6 s every 4.5 s (the suit's watchdog) from the moment the link is up (1.1.410: no longer from the
+ * Keep-alive: SYNC 3 s every 1 s (the suit's watchdog, 1.1.462) from the moment the link is up (1.1.410: no longer from the
  * first command — EMSFIT keeps it beating all the time); an output nobody renewed in time is switched off
  * ({@link BtTranslator#heartbeat}). Battery answers become the percent the row expects.
  * <p>
@@ -42,7 +42,13 @@ public final class BtBridge {
     static final String TAG = "xems-bt";
     static final String SVC = "0000fe50-0000-1000-8000-00805f9b34fb";
     static final String CHR = "0000fe51-0000-1000-8000-00805f9b34fb";
-    static final long SYNC_EVERY_MS = 4500L;
+    /**
+     * Keep-alive (1.1.462): SYNC 3 s every 1 s — a lost link stops the suit's output within ~3 s (was 6 s every 4.5 s;
+     * 2 s would leave too little room for a busy main thread: a missed SYNC would stop a running training).
+     * SYNC goes first in the queue (urgent), so at most one frame in flight delays it.
+     */
+    static final long SYNC_EVERY_MS = 1000L;
+    static final int SYNC_S = 3;
     static final long TICK_MS = 500L;
     /** After a connect the vendor first sets up its notify: the keep-alive starts this much later. */
     static final long LINK_BEAT_MS = 1500L;
@@ -77,6 +83,22 @@ public final class BtBridge {
         WiBridge.phase(d, p);
         if (d == null || !isBodytech(d)) return;
         dev(d).enqPhase = p;
+    }
+
+    /**
+     * train.model.SoftRamp at every phase start of a bodytech row (1.1.462): the row's rise / fall and whether the suit
+     * may run the plain impulse / pause itself ({@link BtSettings#cycle}).
+     */
+    public static void cycle(String mac, int upMs, int downMs, boolean ok) {
+        try {
+            Dev v;
+            synchronized (BtBridge.class) {
+                v = mac != null ? DEVS.get(mac) : null;
+            }
+            if (v != null) v.tr.cycle(upMs, downMs, ok);
+        } catch (Throwable t) {
+            Log.e(TAG, "cycle: " + t);
+        }
     }
 
     /** Queued XEMS commands (their pdu, by identity) → the phase they were queued in. */
@@ -154,6 +176,12 @@ public final class BtBridge {
             List<byte[]> frames = v.tr.command(cmd, pdu, SystemClock.elapsedRealtime());
             boolean load = !prog && v.tr.programmed();
             v.soft = cmd == BtTranslator.CMD_RUN && !load;   // its strength frames may be overtaken by the next phase
+            int ph = v.tr.phaseNow();
+            if (cmd == BtTranslator.CMD_RUN && !load && ph != v.loggedPhase && cb != null) {
+                // diag (1.1.461): every switch between the impulses — how many frames and how long until the last ACK
+                cb = new Timed(cb, v.d.getMac(), v.loggedPhase, ph, frames.size(), SystemClock.elapsedRealtime());
+                v.loggedPhase = ph;
+            }
             long[] slide = v.tr.takeSlide();
             int slow = slide != null ? (int) slide[2] : 0;
             if (slide != null && !load && slow > 0 && slow <= frames.size()) {
@@ -513,6 +541,8 @@ public final class BtBridge {
         /** A program is being written: frames of it written / in all (BtLoad's percent). */
         boolean loading;
         int loadDone, loadTotal;
+        /** The phase of the last switch logged ({@link Timed}). */
+        int loggedPhase = BtTranslator.MAIN;
         /** The command being added is a training command ({@link BtBridge#write}): its strength frames are droppable. */
         boolean soft;
         /** The phase the row queues its commands in now ({@link BtBridge#phase}); MAIN until the first one. */
@@ -683,6 +713,43 @@ public final class BtBridge {
         }
     }
 
+    /** A switch between the impulses, answered: its frames and time to the last ACK go to wearable-ble.log. */
+    static final class Timed extends BleWriteCallback {
+        final BleWriteCallback cb;
+        final String mac;
+        final int from, to, frames;
+        final long at;
+
+        Timed(BleWriteCallback cb, String mac, int from, int to, int frames, long at) {
+            this.cb = cb;
+            this.mac = mac;
+            this.from = from;
+            this.to = to;
+            this.frames = frames;
+            this.at = at;
+        }
+
+        @Override
+        public void onWriteSuccess(int current, int total, byte[] justWrite) {
+            try {
+                WearableBleDiagLog.log("suit", "bodytech switch " + mac + " " + name(from) + "→" + name(to) + " "
+                        + frames + " frames " + (SystemClock.elapsedRealtime() - at) + " ms");
+            } catch (Throwable t) {
+                Log.w(TAG, "timed: " + t);
+            }
+            cb.onWriteSuccess(current, total, justWrite);
+        }
+
+        @Override
+        public void onWriteFailure(BleException e) {
+            cb.onWriteFailure(e);
+        }
+
+        static String name(int p) {
+            return p == BtTranslator.MAIN ? "1" : (p == BtTranslator.SECOND ? "2" : "пауза");
+        }
+    }
+
     /** Pulse slots: answered when the slide's slow frames are ACKed — from then on the slide's time runs. */
     static final class SlideAnchor extends BleWriteCallback {
         final Dev v;
@@ -759,7 +826,7 @@ public final class BtBridge {
                 any = true;
                 List<byte[]> urgent = new ArrayList<byte[]>(v.tr.heartbeat(now));
                 if (now - v.lastSync >= SYNC_EVERY_MS) {
-                    urgent.add(BtProto.sync(6));
+                    urgent.add(BtProto.sync(SYNC_S));
                     v.lastSync = now;
                 }
                 if (!urgent.isEmpty()) v.add(urgent, null, null, true);

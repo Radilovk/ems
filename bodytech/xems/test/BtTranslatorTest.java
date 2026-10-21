@@ -68,6 +68,14 @@ public class BtTranslatorTest {
         return -1;
     }
 
+    /** The last SEL (global register 3) frame. */
+    static byte[] lastSel(List<byte[]> f) {
+        for (int i = f.size() - 1; i >= 0; i--) {
+            if (f.get(i)[1] == 0 && f.get(i)[2] == 3) return f.get(i);
+        }
+        return new byte[8];
+    }
+
     public static void main(String[] a) {
         BtSettings.reset();
         BtSettings.setHold(false);
@@ -274,6 +282,7 @@ public class BtTranslatorTest {
         // --- unlimited (default): the owner's per-channel values rule as they are, up to the suit's own range
         tr = new BtTranslator();
         tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
+        BtSettings.setService(true);                // own waveforms and Hz above 150 (1.1.462)
         BtSettings.setChHz(1, false, 1000);
         BtSettings.setChWidth(1, false, 511);
         BtSettings.setChHz(2, true, 300);
@@ -317,10 +326,12 @@ public class BtTranslatorTest {
         BtSettings.setSlider(3, BtSettings.NO_SLIDER);
         tr.phase(BtTranslator.MAIN);
         f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
-        eq("main: C1 yes C2 no C3 none", hex(BtProto.enable(0xFF & ~0x02 & ~0x04)), hex(f.get(f.size() - 1)));
+        eq("main: C1 yes C2 no C3 none", hex(BtProto.enable(0xFF & ~0x02 & ~0x04)), hex(lastSel(f)));
         tr.phase(BtTranslator.SECOND);
         f = pair(tr, setting(40), run(600, 8, 350, 4, 4, 1), t);
-        eq("second: C1 no C2 yes C3 none", hex(BtProto.enable(0xFF & ~0x01 & ~0x04)), hex(f.get(f.size() - 1)));
+        eq("second: C1 no C2 yes C3 none", hex(BtProto.enable(0xFF & ~0x01 & ~0x04)), hex(lastSel(f)));
+        eq("second: no new Hz before the SEL all off", true, indexOf(f, BtProto.allOff()) >= 0
+                && indexOf(f, BtProto.allOff()) < indexOf(f, BtProto.hz(2, 8)));
         BtSettings.reset();
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
@@ -545,10 +556,10 @@ public class BtTranslatorTest {
         eq("hold: next impulse only strengths", true, f.size() == 8 && has(f, BtProto.intensity(1, 5)));
         tr.phase(BtTranslator.SECOND);
         f = pair(tr, setting(30), run(600, 8, 350, 4, 4, 1), t);
-        // enable(0) is the all-off frame: the restart takes the channels out before their new Hz, puts them back after
+        // 1.1.461 (EMSFIT order): SEL all off first, the new Hz while everything is off, SEL on after
         eq("hold: 2nd impulse restarts the channels on the new Hz", true,
-                indexOf(f, BtProto.enable(0)) > indexOf(f, BtProto.hz(1, 8)) && indexOf(f, BtProto.hz(1, 8)) >= 0
-                && indexOf(f, BtProto.enable(0xFF)) == indexOf(f, BtProto.enable(0)) + 1);
+                indexOf(f, BtProto.enable(0)) == 0 && indexOf(f, BtProto.hz(1, 8)) > 0
+                && indexOf(f, BtProto.enable(0xFF)) > indexOf(f, BtProto.hz(1, 8)));
         eq("hold: unrenewed output still switched off", true, has(tr.heartbeat(t + 60000), BtProto.allOff()));
         tr.phase(BtTranslator.MAIN);
         f = pair(tr, setting(30), run(600, 85, 350, 4, 4, 1), t + 61000);
@@ -567,13 +578,21 @@ public class BtTranslatorTest {
         tr.phase(BtTranslator.SECOND);
         f = pair(tr, setting(30), run(600, 8, 350, 4, 4, 1), t);
         int off = indexOf(f, BtProto.enable(0)), hz8 = indexOf(f, BtProto.hz(1, 8)), onAt = indexOf(f, BtProto.enable(0xFF));
-        eq("double: new Hz first, then SEL off", true, hz8 >= 0 && off > hz8);
-        eq("double: SEL on right after the SEL off (no silent command)", off + 1, onAt);
+        eq("double: SEL off, then the new Hz", true, off >= 0 && hz8 > off);
+        eq("double: lowered strengths before the SEL off (gap = Hz frames only)", true,
+                indexOf(f, BtProto.intensity(1, 0)) < 0 || indexOf(f, BtProto.intensity(1, 0)) < off);
+        eq("double: SEL on after every Hz frame", true, onAt > hz8 && onAt > indexOf(f, BtProto.hz(8, 8)));
         tr.phase(BtTranslator.MAIN);
         f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
         off = indexOf(f, BtProto.enable(0)); int hz85 = indexOf(f, BtProto.hz(1, 85));
-        eq("double back: 85 Hz, then SEL off → on back to back", true, hz85 >= 0 && off > hz85
-                && indexOf(f, BtProto.enable(0xFF)) == off + 1);
+        onAt = indexOf(f, BtProto.enable(0xFF));
+        eq("double back: SEL off, 85 Hz while off, SEL on", true, off == 0 && hz85 > off && onAt > indexOf(f, BtProto.hz(8, 85)));
+        int up = -1;
+        for (int i = 0; i < f.size(); i++) {
+            int r = ((f.get(i)[1] & 0xFF) << 8) | (f.get(i)[2] & 0xFF);
+            if ((r & 0xF) == BtProto.R_INTENSITY && (r >> 4) >= 1) up = i;
+        }
+        eq("double back: the rising strengths after the start (short gap)", true, up > onAt);
         // the same Hz in the next impulse (no change of Hz): no restart
         f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
         eq("double: same Hz again, no restart", true, indexOf(f, BtProto.enable(0)) < 0 && !has(f, BtProto.enable(0xFF)));
@@ -609,6 +628,55 @@ public class BtTranslatorTest {
         f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
         eq("hold + slots: next impulse keeps the places", true, !has(f, BtProto.allOff())
                 && indexOf(f, BtProto.enable(0xFF)) < 0 && tr.takeSlide() == null);
+        BtSettings.reset();
+        BtSettings.setHold(false);
+        BtSettings.setSlots(false);
+
+        // --- 1.1.462: the suit runs the plain impulse / pause itself (T1..T4), the tablet restarts it at every impulse
+        BtSettings.reset();
+        BtSettings.setSlots(false);
+        BtSettings.setCycle(true);
+        tr = new BtTranslator();
+        tr.command(0xF2, new byte[1], t);
+        tr.command(0xF1, new byte[1], t);
+        tr.cycle(500, 500, true);
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("cycle: first impulse loads the cycle (RESET)", true, has(f, BtProto.reset()));
+        eq("cycle: T1 = rise", true, has(f, BtProto.t(1, 1, 500)));
+        eq("cycle: T2 = impulse − rise − fall", true, has(f, BtProto.t(1, 2, 3000)));
+        eq("cycle: T3 = fall", true, has(f, BtProto.t(1, 3, 500)));
+        eq("cycle: T4 = pause", true, has(f, BtProto.t(1, 4, 4000)));
+        eq("cycle: then SEL on", true, indexOf(f, BtProto.enable(0xFF)) > indexOf(f, BtProto.t(8, 4, 4000)));
+        eq("cycle: held as", "[500, 3000, 500, 4000]", java.util.Arrays.toString(tr.cycleNow()));
+        tr.phase(BtTranslator.PAUSE);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 0), t);
+        eq("cycle: the pause is the suit's — nothing sent", 0, f.size());
+        eq("cycle: still on in the pause", true, tr.isOn());
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("cycle: next impulse restarts the cycle (SEL off → on), no RESET", true,
+                indexOf(f, BtProto.allOff()) == 0 && indexOf(f, BtProto.enable(0xFF)) > 0 && !has(f, BtProto.reset()));
+        f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
+        eq("cycle: + within the impulse = strengths only", true, f.size() == 8 && has(f, BtProto.intensity(1, 50)));
+        tr.phase(BtTranslator.PAUSE);
+        tr.command(3, run(600, 85, 350, 5, 4, 0), t);
+        f = tr.command(3, run(600, 85, 350, 5, 6, 0), t);
+        eq("cycle: new times → loaded in the pause", true, has(f, BtProto.reset()) && has(f, BtProto.t(1, 4, 6000)));
+        tr.cycle(500, 500, false);                  // double impulse switched on
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 5, 6, 1), t);
+        eq("cycle: not allowed → the plain burst again", true, has(f, BtProto.reset()) && has(f, BtProto.t(1, 2, 100000)));
+        tr.phase(BtTranslator.PAUSE);
+        f = tr.command(3, run(600, 85, 350, 5, 6, 0), t);
+        eq("cycle off: the tablet's pause again", true, f.size() > 0);
+        BtSettings.setCycle(false);
+        tr = new BtTranslator();
+        f = new java.util.ArrayList<byte[]>(tr.command(0xF1, new byte[1], t));
+        tr.cycle(500, 500, true);
+        tr.phase(BtTranslator.MAIN);
+        f.addAll(pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t));
+        eq("cycle setting off: plain burst as before", true, has(f, BtProto.t(1, 2, 100000)) && !has(f, BtProto.t(1, 4, 4000)));
         BtSettings.reset();
         BtSettings.setHold(false);
         BtSettings.setSlots(false);

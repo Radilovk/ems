@@ -264,6 +264,21 @@ command; the next rise stalled on the busy link (`STALL_MS`), so the late tail a
   this suit (`SoftRamp.rampMs` → 0, also the 0.3 s safety rise and Smart / Auto's) — hard, exact switches and a free link.
 Tests: `BtTranslatorTest` «switch: …», «lost: …». Not verified on a suit yet.
 
+## The switch as EMSFIT starts the suit (owner, 1.1.461)
+Owner after 1.1.460: still a dead pause, no impulse felt — **at the return to impulse 1**. So it is the Hz going UP on a
+running channel: the period register goes from the 2nd impulse's long period (8 Hz = 125 000 µs) to the main one's short
+one (85 Hz = 11 764 µs). Most likely the channel's period counter is already past the new value, does not meet it and
+runs on until it wraps (20-bit register: up to ≈ 1 s, or longer) — no pulse meanwhile. Going down (main → 2nd) never
+has it, nor does a plain pause (no Hz write), nor the slots' slide (period a little longer). 1.1.452–1.1.460 wrote the
+new Hz on the running channel and only then SEL off → on, which did not cure it.
+Now (`BtTranslator.reconcile`, `restart`): a switch that changes the Hz of a channel on the suit goes
+1. lowered strengths (live) → 2. **SEL all off** → 3. the new Hz / width (all outputs off; a running slide ends here)
+→ 4. **SEL on** (the vendor's own start) → 5. the rising strengths (live, probe 0.6).
+No period is ever written to a running channel at a switch. The off gap holds only the Hz frames: 8 channels + SEL ≈
+9 frames ≈ 0.3 s at 31 ms per ACK. With hold + slots the places are not laid again after the restart (as before).
+**Diag:** every switch is logged to `wearable-ble.log` — `suit bodytech switch <mac> 2→1 N frames T ms` (`BtBridge.Timed`).
+Not verified on a suit yet.
+
 ## All ten XEMS channels (owner, 1.1.388)
 The settings map **bodytech channel → XEMS channel**, and every one of the row's ten channels may be picked —
 Гърди and Прасец too (1.1.379–1.1.387 hid them and, on every load, moved a channel left on them to a leg, so e.g. the

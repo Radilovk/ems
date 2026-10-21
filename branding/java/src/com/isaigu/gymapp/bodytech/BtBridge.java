@@ -154,6 +154,12 @@ public final class BtBridge {
             List<byte[]> frames = v.tr.command(cmd, pdu, SystemClock.elapsedRealtime());
             boolean load = !prog && v.tr.programmed();
             v.soft = cmd == BtTranslator.CMD_RUN && !load;   // its strength frames may be overtaken by the next phase
+            int ph = v.tr.phaseNow();
+            if (cmd == BtTranslator.CMD_RUN && !load && ph != v.loggedPhase && cb != null) {
+                // diag (1.1.461): every switch between the impulses — how many frames and how long until the last ACK
+                cb = new Timed(cb, v.d.getMac(), v.loggedPhase, ph, frames.size(), SystemClock.elapsedRealtime());
+                v.loggedPhase = ph;
+            }
             long[] slide = v.tr.takeSlide();
             int slow = slide != null ? (int) slide[2] : 0;
             if (slide != null && !load && slow > 0 && slow <= frames.size()) {
@@ -513,6 +519,8 @@ public final class BtBridge {
         /** A program is being written: frames of it written / in all (BtLoad's percent). */
         boolean loading;
         int loadDone, loadTotal;
+        /** The phase of the last switch logged ({@link Timed}). */
+        int loggedPhase = BtTranslator.MAIN;
         /** The command being added is a training command ({@link BtBridge#write}): its strength frames are droppable. */
         boolean soft;
         /** The phase the row queues its commands in now ({@link BtBridge#phase}); MAIN until the first one. */
@@ -680,6 +688,43 @@ public final class BtBridge {
             v.writeFails++;
             WearableBleDiagLog.log("suit", "bodytech write failed " + v.d.getMac() + ": " + e);
             v.fail(e);
+        }
+    }
+
+    /** A switch between the impulses, answered: its frames and time to the last ACK go to wearable-ble.log. */
+    static final class Timed extends BleWriteCallback {
+        final BleWriteCallback cb;
+        final String mac;
+        final int from, to, frames;
+        final long at;
+
+        Timed(BleWriteCallback cb, String mac, int from, int to, int frames, long at) {
+            this.cb = cb;
+            this.mac = mac;
+            this.from = from;
+            this.to = to;
+            this.frames = frames;
+            this.at = at;
+        }
+
+        @Override
+        public void onWriteSuccess(int current, int total, byte[] justWrite) {
+            try {
+                WearableBleDiagLog.log("suit", "bodytech switch " + mac + " " + name(from) + "→" + name(to) + " "
+                        + frames + " frames " + (SystemClock.elapsedRealtime() - at) + " ms");
+            } catch (Throwable t) {
+                Log.w(TAG, "timed: " + t);
+            }
+            cb.onWriteSuccess(current, total, justWrite);
+        }
+
+        @Override
+        public void onWriteFailure(BleException e) {
+            cb.onWriteFailure(e);
+        }
+
+        static String name(int p) {
+            return p == BtTranslator.MAIN ? "1" : (p == BtTranslator.SECOND ? "2" : "пауза");
         }
     }
 

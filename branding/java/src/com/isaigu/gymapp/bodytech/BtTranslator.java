@@ -568,32 +568,36 @@ public final class BtTranslator {
         }
         // slots: a real training, two channels or more, one Hz for all of them (the lowest any channel is held to)
         boolean slots = testCh == 0 && BtSettings.slots() && n >= 2 && common >= SLOT_MIN_HZ;
-        if (!slots) stopSlide(out);
-        // a channel that is on and gets another Hz (the second impulse and back) is restarted (owner, 1.1.452: the
-        // double impulse's first impulse came late): its new registers first, then SEL off → on back to back, so it
-        // starts on them at once. 1.1.452 took it out of the mask BEFORE its writes — silent for the whole command
-        // (~0.5–1.5 s with the ACK pacing), the owner's random holes with two impulses; now ≈ one frame (1.1.453).
+        // a channel that is on and gets another Hz (the 2nd impulse and back) — the switch is done as EMSFIT starts the
+        // suit (owner, 1.1.461): SEL all off FIRST, the new registers while every output is off, then SEL on. The dead
+        // pause at the return to impulse 1 (owner): the period went from the 2nd impulse's long one (100–200 ms) to the
+        // main one's short one (12 ms) on a running channel; a period counter already past the new period does not
+        // meet it and runs on until it wraps — no pulse meanwhile. 1.1.452–1.1.460 wrote the new Hz while the channel
+        // ran and only then SEL off → on, which did not cure it. Now no period is ever written to a running channel at
+        // a switch; the old impulse stops on the switch's first frame and the new one starts on its SEL.
         int restart = 0;
-        if (hold) {
-            for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
-                if ((devMask & (1 << (ch - 1))) == 0) continue;
-                // the Hz it will get now: a working channel its own (or the slots' common), a silent one only in slots
-                if (want[ch] > 0) {
-                    if (devHz[ch] != (slots ? common : effHz(ch, hz))) restart |= 1 << (ch - 1);
-                } else if (slots && devHz[ch] != common) {
-                    restart |= 1 << (ch - 1);
-                }
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if ((devMask & (1 << (ch - 1))) == 0) continue;
+            if (want[ch] > 0) {
+                if (devHz[ch] != (slots ? common : effHz(ch, hz))) restart |= 1 << (ch - 1);
+            } else if (hold && mapped(ch) && slots && devHz[ch] != common) {
+                restart |= 1 << (ch - 1);
             }
         }
-        // every strength that goes DOWN first (1.1.460): at the switch to the other impulse the one that ends stops on
-        // time on every channel, before the Hz / width frames of the one that begins (≈ 30–90 ms per frame); before, the
-        // channels went one by one and the last ones still ran the old impulse for the whole command
+        // every strength that goes DOWN first, live (1.1.460): the impulse that ends is weaker at once, and the off
+        // gap of a switch below holds only the Hz / width frames (≈ 0.3 s)
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
             if (want[ch] < devInt[ch]) {
                 out.add(BtProto.intensity(ch, want[ch]));
                 devInt[ch] = want[ch];
             }
         }
+        if (restart != 0) {
+            out.add(BtProto.allOff());
+            devMask = 0;
+            stopSlide(out);                                  // a slide still running ends while everything is off
+        }
+        if (!slots) stopSlide(out);
         int mask = 0;
         boolean hzNew = false;
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
@@ -640,17 +644,13 @@ public final class BtTranslator {
                 }
                 mask |= 1 << (ch - 1);
             }
-            if (t != devInt[ch]) {
+            if (t != devInt[ch] && !(restart != 0 && t > devInt[ch] && devInt[ch] >= 0)) {
                 out.add(BtProto.intensity(ch, t));
                 devInt[ch] = t;
             }
         }
-        if (restart != 0) {
-            out.add(BtProto.enable(devMask & ~restart));        // the SEL below puts them back: one frame apart
-            devMask &= ~restart;
-        }
         if (mask != 0) used = true;
-        if (slots && (mask != devMask || (hzNew && !hold))) {
+        if (slots && !(restart != 0 && hold) && (mask != devMask || (hzNew && !hold))) {
             // every impulse start (pause = SEL off), a channel added / dropped or a new Hz: the places are laid again;
             // channels kept on are laid at their start only (a new Hz — 2nd impulse and back — keeps them on, the
             // places may then meet: a knock-free start goes first, owner 1.1.450)
@@ -662,6 +662,16 @@ public final class BtTranslator {
         } else if (mask != devMask) {
             out.add(BtProto.enable(mask));
             devMask = mask;
+        }
+        if (restart != 0) {
+            // the strengths that rise go after the start (live strength writes are safe, probe 0.6): the gap holds only
+            // the Hz / width frames, ≈ 0.3 s; a channel starts at the lower of its two strengths and is up a few frames later
+            for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+                if (want[ch] != devInt[ch]) {
+                    out.add(BtProto.intensity(ch, want[ch]));
+                    devInt[ch] = want[ch];
+                }
+            }
         }
     }
 

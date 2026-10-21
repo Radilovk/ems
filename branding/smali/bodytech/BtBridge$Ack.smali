@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 621
+    .line 668
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleWriteCallback;-><init>()V
 
-    .line 622
+    .line 669
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 623
+    .line 670
     return-void
 .end method
 
@@ -39,10 +39,10 @@
     .registers 5
 
     .prologue
-    .line 632
+    .line 679
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBeep;->lost()V
 
-    .line 633
+    .line 680
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
     iget v1, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->writeFails:I
@@ -51,7 +51,7 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->writeFails:I
 
-    .line 634
+    .line 681
     const-string v0, "suit"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -92,12 +92,12 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 635
+    .line 682
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->fail(Lcom/clj/fastble/exception/BleException;)V
 
-    .line 636
+    .line 683
     return-void
 .end method
 
@@ -105,11 +105,11 @@
     .registers 5
 
     .prologue
-    .line 627
+    .line 674
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Ack;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->acked()V
 
-    .line 628
+    .line 675
     return-void
 .end method

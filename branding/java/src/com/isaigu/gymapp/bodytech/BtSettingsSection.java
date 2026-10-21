@@ -150,6 +150,10 @@ public final class BtSettingsSection {
                     "Вкл: каналите се включват веднъж при старт, а в паузата само мълчат — импулсът започва меко, "
                             + "без удар в началото. Изкл: всеки импулс включва каналите наново (както преди).",
                     BtSettings.hold(), new Hold()), XemsUi.matchWrap(a, 16));
+            sh.body.addView(XemsUi.toggleRow(a, "Плавно нарастване и спад",
+                    "Вкл: всеки импулс се усилва и отслабва постепенно. Изкл: без рампа — импулсите се сменят веднага, "
+                            + "точно навреме, и връзката остава свободна за двойния импулс.",
+                    BtSettings.ramp(), new Ramp()), XemsUi.matchWrap(a, 16));
         }
 
         /**
@@ -365,6 +369,13 @@ public final class BtSettingsSection {
         @Override
         public void onToggle(boolean on) {
             BtSettings.setHold(on);
+        }
+    }
+
+    static final class Ramp implements XemsUi.OnToggle {
+        @Override
+        public void onToggle(boolean on) {
+            BtSettings.setRamp(on);
         }
     }
 

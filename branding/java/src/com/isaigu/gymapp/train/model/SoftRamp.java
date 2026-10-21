@@ -119,7 +119,7 @@ public final class SoftRamp {
             long now = System.currentTimeMillis();
             if (st.fresh) {
                 st.fresh = false;
-                int[] ms = fit(AiRamp.rampMs(b), st.lenMs);
+                int[] ms = fit(rampMs(item, b), st.lenMs);
                 if (ms[0] > 0 && b.strenth > 1 && st.upAllowed) {
                     startRamp(st, true, ms[0], now);
                 }
@@ -174,7 +174,7 @@ public final class SoftRamp {
                     st.fresh = false;
                     ProgramDataBean c = copy(b);
                     c.pulseContinue = b.pulsePause;                 // the program's ramp fitted into the pause
-                    int[] ms = fit(AiRamp.rampMs(c), st.lenMs);
+                    int[] ms = fit(rampMs(item, c), st.lenMs);
                     if (ms[0] > 0 && p[1] > 1) {
                         startRamp(st, true, ms[0], now);
                     }
@@ -270,6 +270,22 @@ public final class SoftRamp {
             sec = on ? b.pulseContinue : b.pulsePause;
         }
         return Math.max(0, sec) * 1000L;
+    }
+
+    /**
+     * The program's (or Smart / Auto's) rise / fall — none on a bodytech suit whose ramp the owner switched off
+     * (Settings → Костюм bodytech, 1.1.460): there each step costs a strength frame per channel and keeps the link
+     * full, and the double impulse's switches then come late.
+     */
+    static int[] rampMs(TrainItem item, ProgramDataBean b) {
+        try {
+            if (!com.isaigu.gymapp.bodytech.BtSettings.ramp() && com.isaigu.gymapp.wearable.SafeGuard.free2(item)) {
+                return new int[] {0, 0};
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("SoftRamp.rampMs", t);
+        }
+        return AiRamp.rampMs(b);
     }
 
     /** Each ramp ≤ 3 s; together ≤ the phase (a short phase loses the fall first). */

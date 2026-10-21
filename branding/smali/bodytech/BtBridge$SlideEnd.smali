@@ -28,16 +28,16 @@
     .registers 4
 
     .prologue
-    .line 665
+    .line 712
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 666
+    .line 713
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$SlideEnd;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 667
+    .line 714
     iput-wide p2, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$SlideEnd;->gen:J
 
-    .line 668
+    .line 715
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 6
 
     .prologue
-    .line 673
+    .line 720
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$SlideEnd;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
@@ -59,7 +59,7 @@
 
     move-result-object v0
 
-    .line 674
+    .line 721
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
 
     move-result v1
@@ -78,16 +78,16 @@
     :try_end_18
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_18} :catch_19
 
-    .line 678
+    .line 725
     :cond_18
     :goto_18
     return-void
 
-    .line 675
+    .line 722
     :catch_19
     move-exception v0
 
-    .line 676
+    .line 723
     const-string v1, "xems-bt"
 
     new-instance v2, Ljava/lang/StringBuilder;

@@ -247,6 +247,23 @@ one 100 s burst and times every phase on the tablet; Hz, width, waveform and str
 live (probe 0.6: a write does not restart the channel). The program is written only at connect, stop and a new link
 (`BtLoad`, ~3 s) — nothing else needs it.
 
+## Double impulse on time: the link, not the suit (owner, 1.1.460)
+Owner: with impulse + pause all fine; with two impulses one runs into the other's time or starts late.
+**Root cause — the link's throughput.** One 8-byte frame per write ACK (≈ 31 ms HIGH priority, ≈ 90 ms BALANCED), one
+register per frame. A plain pause is cheap (strengths 0 or SEL off), but the switch to the other impulse writes, per
+channel, Hz (+ width / waveform) and strength, then the restart SEL: ≈ 18–26 frames = 0.6–2.3 s. The tablet ramp
+(SoftRamp) sends a step whenever the link is free — 8 strength frames each — so the link is always full and the
+switch first waited for the ramp step on the link, then the channels changed one after another over the whole
+command; the next rise stalled on the busy link (`STALL_MS`), so the late tail ate into the next phase. Fixes:
+- **The switch never waits for a ramp step:** `BtBridge.tag` sees a command of the other phase queued →
+  `Dev.preempt()` drops the strength frames of the training command still queued (marked by `write`, `Item.dropCh`),
+  answers that command at once and `BtTranslator.lost(ch)` makes the switch rewrite those strengths. Never during a
+  program load; Hz / SEL / slide frames are never dropped.
+- **The impulse that ends stops first:** `reconcile` writes every lowered strength before any Hz / width frame.
+- **«Плавно нарастване и спад»** (Settings → Костюм bodytech, `BtSettings.ramp`, default on): off = no tablet ramp on
+  this suit (`SoftRamp.rampMs` → 0, also the 0.3 s safety rise and Smart / Auto's) — hard, exact switches and a free link.
+Tests: `BtTranslatorTest` «switch: …», «lost: …». Not verified on a suit yet.
+
 ## All ten XEMS channels (owner, 1.1.388)
 The settings map **bodytech channel → XEMS channel**, and every one of the row's ten channels may be picked —
 Гърди and Прасец too (1.1.379–1.1.387 hid them and, on every load, moved a channel left on them to a leg, so e.g. the

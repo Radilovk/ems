@@ -100,6 +100,13 @@ public final class BtSettings {
      * stop from the row still switches everything off. Off: as before 1.1.450.
      */
     static boolean hold = true;
+    /**
+     * The tablet's soft rise / fall (train.model.SoftRamp) on a bodytech suit (owner, 1.1.460). Every ramp step is one
+     * strength frame per channel (8 frames ≈ 0.25–0.7 s on the one-frame-per-ACK link), so a ramp keeps the link full
+     * the whole time. Off = no ramp at all on this suit (also not the 0.3 s safety rise, nor Smart / Auto's): the
+     * impulses switch hard and the link is free for the switches of the double impulse.
+     */
+    static boolean ramp = true;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
 
@@ -147,6 +154,7 @@ public final class BtSettings {
         unlimited = p.getBoolean("unlimited", true);
         slots = p.getBoolean("slots2", true);
         hold = p.getBoolean("hold", true);
+        ramp = p.getBoolean("ramp", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -321,6 +329,7 @@ public final class BtSettings {
         e.putBoolean("unlimited", unlimited);
         e.putBoolean("slots2", slots);
         e.putBoolean("hold", hold);
+        e.putBoolean("ramp", ramp);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -346,6 +355,7 @@ public final class BtSettings {
         unlimited = true;
         slots = true;
         hold = true;
+        ramp = true;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -468,6 +478,13 @@ public final class BtSettings {
 
     public static synchronized void setHold(boolean on) {
         hold = on;
+        save();
+    }
+
+    public static synchronized boolean ramp() { return ramp; }
+
+    public static synchronized void setRamp(boolean on) {
+        ramp = on;
         save();
     }
 

@@ -87,10 +87,14 @@ public final class BtBridge {
         try {
             WiBridge.tag(d, pdu);
             if (d == null || pdu == null || !isBodytech(d)) return;
-            int p = dev(d).enqPhase;
+            Dev v = dev(d);
+            int p = v.enqPhase;
             synchronized (TAGS) {
                 TAGS.put(pdu, Integer.valueOf(p));
             }
+            // the other impulse is queued: the strength frames of the command still on the link (a ramp step, ≈ 8
+            // frames) are not waited for — it is answered at once and the switch goes next (1.1.460)
+            if (p != v.tr.phaseNow()) v.preempt();
         } catch (Throwable t) {
             Log.e(TAG, "tag: " + t);
         }
@@ -146,8 +150,10 @@ public final class BtBridge {
             v.begin();
             boolean was = v.tr.armed();
             boolean prog = v.tr.programmed();
-            List<byte[]> frames = v.tr.command(data[2] & 0xFF, pdu, SystemClock.elapsedRealtime());
+            int cmd = data[2] & 0xFF;
+            List<byte[]> frames = v.tr.command(cmd, pdu, SystemClock.elapsedRealtime());
             boolean load = !prog && v.tr.programmed();
+            v.soft = cmd == BtTranslator.CMD_RUN && !load;   // its strength frames may be overtaken by the next phase
             long[] slide = v.tr.takeSlide();
             int slow = slide != null ? (int) slide[2] : 0;
             if (slide != null && !load && slow > 0 && slow <= frames.size()) {
@@ -161,6 +167,7 @@ public final class BtBridge {
                 v.add(frames, cb, data, false, load);
                 if (slide != null) v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
             }
+            v.soft = false;
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
             else if (was && !now) BtBeep.pause();
@@ -475,6 +482,8 @@ public final class BtBridge {
         final byte[] orig;
         /** The end of a program load (no frame): BtLoad's waiting start may go. */
         final boolean endLoad;
+        /** A strength frame of a training command: the next phase may drop it (its channel, 0 = may not). */
+        int dropCh;
 
         Item(byte[] frame, BleWriteCallback cb, byte[] orig) {
             this(frame, cb, orig, false);
@@ -504,6 +513,8 @@ public final class BtBridge {
         /** A program is being written: frames of it written / in all (BtLoad's percent). */
         boolean loading;
         int loadDone, loadTotal;
+        /** The command being added is a training command ({@link BtBridge#write}): its strength frames are droppable. */
+        boolean soft;
         /** The phase the row queues its commands in now ({@link BtBridge#phase}); MAIN until the first one. */
         volatile int enqPhase = BtTranslator.MAIN;
 
@@ -557,9 +568,37 @@ public final class BtBridge {
             } else if (urgent) {
                 for (int i = n - 1; i >= 0; i--) q.addFirst(new Item(frames.get(i), null, null));
             } else {
-                for (int i = 0; i < n; i++) q.addLast(new Item(frames.get(i), i == n - 1 ? cb : null, orig));
+                for (int i = 0; i < n; i++) {
+                    Item it = new Item(frames.get(i), i == n - 1 ? cb : null, orig);
+                    if (soft) it.dropCh = strengthCh(it.frame);
+                    q.addLast(it);
+                }
             }
             pump();
+        }
+
+        /**
+         * The row queued the other impulse (1.1.460): the strength frames still waiting here (a ramp step of the phase
+         * that ends — the tablet ramp keeps the link full, ≈ 8 frames per step) are dropped, their command answered
+         * now, so the switch is written next instead of after them. The translator forgets those strengths: the
+         * switch writes every channel's strength anew. Never during a program load; other frames (Hz, SEL) stay.
+         */
+        synchronized void preempt() {
+            if (loading || q.isEmpty()) return;
+            ArrayDeque<Item> keep = new ArrayDeque<Item>();
+            int n = 0;
+            Item it;
+            while ((it = q.pollFirst()) != null) {
+                if (it.frame != null && it.dropCh > 0) {
+                    tr.lost(it.dropCh);
+                    n++;
+                    if (it.cb != null) keep.addLast(new Item(null, it.cb, it.orig));
+                } else {
+                    keep.addLast(it);
+                }
+            }
+            q.addAll(keep);
+            if (n > 0) pump();
         }
 
         /** Next item: a frame → written (one in flight); a bare callback → answered. */
@@ -612,6 +651,14 @@ public final class BtBridge {
             if (it != null) done(it);
             pump();
         }
+    }
+
+    /** The channel (1..8) of a strength frame (36 | ch<<4 | 2 | value | C9), else 0. */
+    static int strengthCh(byte[] f) {
+        if (f == null || f.length != 8 || (f[0] & 0xFF) != BtProto.BEGIN) return 0;
+        int r = ((f[1] & 0xFF) << 8) | (f[2] & 0xFF);
+        int ch = r >> 4;
+        return (r & 0xF) == BtProto.R_INTENSITY && ch >= 1 && ch <= BtSettings.CHANNELS ? ch : 0;
     }
 
     /** ACK of one frame. */

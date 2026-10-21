@@ -108,6 +108,19 @@ public final class BtTranslator {
         phase = p;
     }
 
+    /** The phase of the command being written now (the one in flight on the link). */
+    public synchronized int phaseNow() {
+        return phase;
+    }
+
+    /**
+     * The bridge dropped a queued strength frame of this channel (a ramp step overtaken by the next phase, 1.1.460):
+     * what the suit holds is unknown, so the next command writes the channel's strength whatever it is.
+     */
+    public synchronized void lost(int ch) {
+        if (ch >= 1 && ch <= BtSettings.CHANNELS) devInt[ch] = -1;
+    }
+
     /** The run gate is open (started, not paused / stopped). */
     public synchronized boolean armed() {
         return armed;
@@ -570,6 +583,15 @@ public final class BtTranslator {
                 } else if (slots && devHz[ch] != common) {
                     restart |= 1 << (ch - 1);
                 }
+            }
+        }
+        // every strength that goes DOWN first (1.1.460): at the switch to the other impulse the one that ends stops on
+        // time on every channel, before the Hz / width frames of the one that begins (≈ 30–90 ms per frame); before, the
+        // channels went one by one and the last ones still ran the old impulse for the whole command
+        for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+            if (want[ch] < devInt[ch]) {
+                out.add(BtProto.intensity(ch, want[ch]));
+                devInt[ch] = want[ch];
             }
         }
         int mask = 0;

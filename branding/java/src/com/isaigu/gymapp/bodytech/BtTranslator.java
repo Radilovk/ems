@@ -114,6 +114,17 @@ public final class BtTranslator {
     private boolean cycleOk;
     private int cycUp, cycDown;
     private int lastRun = PAUSE;
+    /**
+     * The 2nd impulse as the owner made it on EMSFIT (1.1.463): a script pressed the vendor app's pause N times a second
+     * — SEL off / on, the Hz never changed — and it worked perfectly. Here: in the 2nd impulse every channel stays on the
+     * MAIN impulse's Hz (the carrier) at the 2nd impulse's strength, and the bridge opens the channels for one short
+     * burst (SEL on → its ACK → SEL off, ≈ 2–3 carrier pulses) gateHz times a second ({@link #gateOn} / {@link #gateOff}).
+     * No period register is written at either switch. Up to {@link #GATE_MAX_HZ} (2 frames per burst on the link);
+     * above it the 2nd impulse's own Hz as before.
+     */
+    public static final int GATE_MAX_HZ = 12;
+    private boolean gating, gateFresh;
+    private int gateHz, gateMask, gateGen, mainHz = DEF_HZ;
 
     /** Hook: CommandSender.sendDuration (MAIN) / sendActivePause (SECOND) / sendPause (PAUSE) begins. */
     public synchronized void phase(int p) {
@@ -125,6 +136,30 @@ public final class BtTranslator {
         cycUp = Math.max(0, Math.min(3000, upMs));
         cycDown = Math.max(0, Math.min(3000, downMs));
         cycleOk = ok;
+    }
+
+    /** The 2nd impulse is being gated now: {gen, Hz}; null = not gating. */
+    public synchronized int[] gate() {
+        return gating && on && armed ? new int[] {gateGen, gateHz} : null;
+    }
+
+    /** One burst of the gated 2nd impulse begins: the channels on (empty when gen is stale). */
+    public synchronized List<byte[]> gateOn(int gen) {
+        List<byte[]> out = new ArrayList<byte[]>();
+        if (!gating || gen != gateGen || !on || !armed || gateMask == 0) return out;
+        out.add(BtProto.enable(gateMask));
+        devMask = gateMask;
+        used = true;
+        return out;
+    }
+
+    /** The burst ends: the channels off (empty when the 2nd impulse is over — the main one keeps its SEL). */
+    public synchronized List<byte[]> gateOff(int gen) {
+        List<byte[]> out = new ArrayList<byte[]>();
+        if (!gating || gen != gateGen || devMask == 0) return out;
+        out.add(BtProto.allOff());
+        devMask = 0;
+        return out;
     }
 
     /** The cycle the suit holds: {T1, T2, T3, T4} ms. */
@@ -238,6 +273,10 @@ public final class BtTranslator {
             int us = at(pdu, 4) * 50;
             boolean flag = at(pdu, 10) == 1;
             boolean run = flag && h > 0;
+            if (!(run && phase == SECOND && BtSettings.gate() && h <= GATE_MAX_HZ && armed) && gating) {
+                gating = false;                             // a pause, the main impulse, a stop: the gate is over
+                gateGen++;
+            }
             int onS = at(pdu, 5), offS = at(pdu, 6);
             boolean cyc = BtSettings.cycle() && cycleOk && testCh == 0 && onS > 0 && offS > 0 && phase != SECOND;
             int[] wantT = cyc ? cycleT(onS, offS) : PLAIN_T;
@@ -284,8 +323,22 @@ public final class BtTranslator {
                 hz = h;
                 widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
                 zero(out);
+            } else if (phase == SECOND && BtSettings.gate() && h <= GATE_MAX_HZ && testCh == 0) {
+                // the 2nd impulse gated on the main impulse's Hz (as the owner's EMSFIT pause script)
+                gateFresh = !gating || gateHz != h;
+                if (gateFresh) gateGen++;
+                gating = true;
+                gateHz = h;
+                hz = mainHz;
+                widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
+                deadlineMs = nowMs + keepMs(pdu, workLen);
+                on = true;
+                reconcile(out);
             } else {
+                if (gating) gateGen++;
+                gating = false;
                 hz = h;
+                if (phase == MAIN) mainHz = h;
                 widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
                 // the longer of impulse / pause: the second impulse's setup (DoubleImpulse) sends it in the ON phase too,
                 // and the pause's length then cut it off mid-phase (1.1.386); the keep-alive only needs an upper bound
@@ -580,7 +633,7 @@ public final class BtTranslator {
 
     /** Hz of a channel in the current impulse: the owner's (as it is when unlimited, else only below the program's). */
     private int effHz(int ch, int program) {
-        int own = BtSettings.chHz(ch, phase == SECOND);
+        int own = BtSettings.chHz(ch, phase == SECOND && !gating);   // gated 2nd impulse: the main carrier
         if (own <= 0) return program;
         if (BtSettings.unlimited()) return clampHz(own);
         return own < program ? own : program;
@@ -725,6 +778,23 @@ public final class BtTranslator {
                 out.add(BtProto.intensity(ch, t));
                 devInt[ch] = t;
             }
+        }
+        if (gating) {
+            // the gated 2nd impulse: the bridge's bursts own the SEL; the switch into it leaves every channel off
+            gateMask = mask;
+            stopSlide(out);
+            if (gateFresh && devMask != 0) {
+                out.add(BtProto.allOff());
+                devMask = 0;
+            }
+            gateFresh = false;
+            for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) {
+                if (want[ch] != devInt[ch]) {
+                    out.add(BtProto.intensity(ch, want[ch]));
+                    devInt[ch] = want[ch];
+                }
+            }
+            return;
         }
         if (mask != 0) used = true;
         if (slots && !(restart != 0 && hold) && (mask != devMask || (hzNew && !hold))) {

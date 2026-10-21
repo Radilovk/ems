@@ -29,7 +29,7 @@ import java.util.Map;
  * the one before. The row's own CommandSender waits for the last of them, so its pacing, SoftRamp, safety limits
  * and reconnect work unchanged. Hooks: scripts/apply-bodytech.py.
  * <p>
- * Keep-alive: SYNC 6 s every 4.5 s (the suit's watchdog) from the moment the link is up (1.1.410: no longer from the
+ * Keep-alive: SYNC 3 s every 1 s (the suit's watchdog, 1.1.462) from the moment the link is up (1.1.410: no longer from the
  * first command — EMSFIT keeps it beating all the time); an output nobody renewed in time is switched off
  * ({@link BtTranslator#heartbeat}). Battery answers become the percent the row expects.
  * <p>
@@ -42,7 +42,13 @@ public final class BtBridge {
     static final String TAG = "xems-bt";
     static final String SVC = "0000fe50-0000-1000-8000-00805f9b34fb";
     static final String CHR = "0000fe51-0000-1000-8000-00805f9b34fb";
-    static final long SYNC_EVERY_MS = 4500L;
+    /**
+     * Keep-alive (1.1.462): SYNC 3 s every 1 s — a lost link stops the suit's output within ~3 s (was 6 s every 4.5 s;
+     * 2 s would leave too little room for a busy main thread: a missed SYNC would stop a running training).
+     * SYNC goes first in the queue (urgent), so at most one frame in flight delays it.
+     */
+    static final long SYNC_EVERY_MS = 1000L;
+    static final int SYNC_S = 3;
     static final long TICK_MS = 500L;
     /** After a connect the vendor first sets up its notify: the keep-alive starts this much later. */
     static final long LINK_BEAT_MS = 1500L;
@@ -77,6 +83,22 @@ public final class BtBridge {
         WiBridge.phase(d, p);
         if (d == null || !isBodytech(d)) return;
         dev(d).enqPhase = p;
+    }
+
+    /**
+     * train.model.SoftRamp at every phase start of a bodytech row (1.1.462): the row's rise / fall and whether the suit
+     * may run the plain impulse / pause itself ({@link BtSettings#cycle}).
+     */
+    public static void cycle(String mac, int upMs, int downMs, boolean ok) {
+        try {
+            Dev v;
+            synchronized (BtBridge.class) {
+                v = mac != null ? DEVS.get(mac) : null;
+            }
+            if (v != null) v.tr.cycle(upMs, downMs, ok);
+        } catch (Throwable t) {
+            Log.e(TAG, "cycle: " + t);
+        }
     }
 
     /** Queued XEMS commands (their pdu, by identity) → the phase they were queued in. */
@@ -804,7 +826,7 @@ public final class BtBridge {
                 any = true;
                 List<byte[]> urgent = new ArrayList<byte[]>(v.tr.heartbeat(now));
                 if (now - v.lastSync >= SYNC_EVERY_MS) {
-                    urgent.add(BtProto.sync(6));
+                    urgent.add(BtProto.sync(SYNC_S));
                     v.lastSync = now;
                 }
                 if (!urgent.isEmpty()) v.add(urgent, null, null, true);

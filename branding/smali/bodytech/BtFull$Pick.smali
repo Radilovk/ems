@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 208
+    .line 212
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 209
+    .line 213
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Pick;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
-    .line 210
+    .line 214
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Pick;->ch:I
 
-    .line 211
+    .line 215
     return-void
 .end method
 
@@ -47,18 +47,18 @@
     .registers 4
 
     .prologue
-    .line 215
+    .line 219
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Pick;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Pick;->ch:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bodytech/BtFull;->sel:I
 
-    .line 216
+    .line 220
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Pick;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtFull;->render()V
 
-    .line 217
+    .line 221
     return-void
 .end method

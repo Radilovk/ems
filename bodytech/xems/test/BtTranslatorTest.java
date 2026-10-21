@@ -282,6 +282,7 @@ public class BtTranslatorTest {
         // --- unlimited (default): the owner's per-channel values rule as they are, up to the suit's own range
         tr = new BtTranslator();
         tr.command(0xF1, new byte[1], 0);           // start: the run gate opens
+        BtSettings.setService(true);                // own waveforms and Hz above 150 (1.1.462)
         BtSettings.setChHz(1, false, 1000);
         BtSettings.setChWidth(1, false, 511);
         BtSettings.setChHz(2, true, 300);
@@ -627,6 +628,55 @@ public class BtTranslatorTest {
         f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
         eq("hold + slots: next impulse keeps the places", true, !has(f, BtProto.allOff())
                 && indexOf(f, BtProto.enable(0xFF)) < 0 && tr.takeSlide() == null);
+        BtSettings.reset();
+        BtSettings.setHold(false);
+        BtSettings.setSlots(false);
+
+        // --- 1.1.462: the suit runs the plain impulse / pause itself (T1..T4), the tablet restarts it at every impulse
+        BtSettings.reset();
+        BtSettings.setSlots(false);
+        BtSettings.setCycle(true);
+        tr = new BtTranslator();
+        tr.command(0xF2, new byte[1], t);
+        tr.command(0xF1, new byte[1], t);
+        tr.cycle(500, 500, true);
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("cycle: first impulse loads the cycle (RESET)", true, has(f, BtProto.reset()));
+        eq("cycle: T1 = rise", true, has(f, BtProto.t(1, 1, 500)));
+        eq("cycle: T2 = impulse − rise − fall", true, has(f, BtProto.t(1, 2, 3000)));
+        eq("cycle: T3 = fall", true, has(f, BtProto.t(1, 3, 500)));
+        eq("cycle: T4 = pause", true, has(f, BtProto.t(1, 4, 4000)));
+        eq("cycle: then SEL on", true, indexOf(f, BtProto.enable(0xFF)) > indexOf(f, BtProto.t(8, 4, 4000)));
+        eq("cycle: held as", "[500, 3000, 500, 4000]", java.util.Arrays.toString(tr.cycleNow()));
+        tr.phase(BtTranslator.PAUSE);
+        f = tr.command(3, run(600, 85, 350, 4, 4, 0), t);
+        eq("cycle: the pause is the suit's — nothing sent", 0, f.size());
+        eq("cycle: still on in the pause", true, tr.isOn());
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("cycle: next impulse restarts the cycle (SEL off → on), no RESET", true,
+                indexOf(f, BtProto.allOff()) == 0 && indexOf(f, BtProto.enable(0xFF)) > 0 && !has(f, BtProto.reset()));
+        f = pair(tr, setting(50), run(600, 85, 350, 4, 4, 1), t);
+        eq("cycle: + within the impulse = strengths only", true, f.size() == 8 && has(f, BtProto.intensity(1, 50)));
+        tr.phase(BtTranslator.PAUSE);
+        tr.command(3, run(600, 85, 350, 5, 4, 0), t);
+        f = tr.command(3, run(600, 85, 350, 5, 6, 0), t);
+        eq("cycle: new times → loaded in the pause", true, has(f, BtProto.reset()) && has(f, BtProto.t(1, 4, 6000)));
+        tr.cycle(500, 500, false);                  // double impulse switched on
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 5, 6, 1), t);
+        eq("cycle: not allowed → the plain burst again", true, has(f, BtProto.reset()) && has(f, BtProto.t(1, 2, 100000)));
+        tr.phase(BtTranslator.PAUSE);
+        f = tr.command(3, run(600, 85, 350, 5, 6, 0), t);
+        eq("cycle off: the tablet's pause again", true, f.size() > 0);
+        BtSettings.setCycle(false);
+        tr = new BtTranslator();
+        f = new java.util.ArrayList<byte[]>(tr.command(0xF1, new byte[1], t));
+        tr.cycle(500, 500, true);
+        tr.phase(BtTranslator.MAIN);
+        f.addAll(pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t));
+        eq("cycle setting off: plain burst as before", true, has(f, BtProto.t(1, 2, 100000)) && !has(f, BtProto.t(1, 4, 4000)));
         BtSettings.reset();
         BtSettings.setHold(false);
         BtSettings.setSlots(false);

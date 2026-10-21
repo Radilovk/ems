@@ -102,10 +102,45 @@ public final class BtTranslator {
      */
     private int slideMask, slideGen, slideFrames;
     private long slidePending = -1;
+    /**
+     * The suit's own cycle (BtSettings#cycle, 1.1.462): T1 rise, T2 work, T3 fall, T4 pause (ms) the suit holds; the
+     * plain program is one 100 s burst. T registers take effect only after RESET + the program (probe 0.4 / 0.5), so a
+     * new cycle is a program load (~3 s), done in the pause. cycleOk / cycUp / cycDown come from the tablet's ramp
+     * (train.model.SoftRamp → BtBridge.cycle): false with the double impulse or Smart / Auto. lastRun = the phase of the
+     * last run command: an ON command after a pause starts the impulse (the suit's cycle is restarted on it).
+     */
+    static final int[] PLAIN_T = {0, CYCLE_ON_MS, 0, 0};
+    private int[] progT = PLAIN_T.clone();
+    private boolean cycleOk;
+    private int cycUp, cycDown;
+    private int lastRun = PAUSE;
 
     /** Hook: CommandSender.sendDuration (MAIN) / sendActivePause (SECOND) / sendPause (PAUSE) begins. */
     public synchronized void phase(int p) {
         phase = p;
+    }
+
+    /** The tablet's ramp of this row and whether the suit may run the cycle itself (SoftRamp, every phase start). */
+    public synchronized void cycle(int upMs, int downMs, boolean ok) {
+        cycUp = Math.max(0, Math.min(3000, upMs));
+        cycDown = Math.max(0, Math.min(3000, downMs));
+        cycleOk = ok;
+    }
+
+    /** The cycle the suit holds: {T1, T2, T3, T4} ms. */
+    public synchronized int[] cycleNow() {
+        return progT.clone();
+    }
+
+    /** T1..T4 for an impulse of onS and a pause of offS seconds with this row's ramp (each ≤ 3 s, together ≤ the ON). */
+    int[] cycleT(int onS, int offS) {
+        int on = onS * 1000, up = cycUp, down = cycDown;
+        if (up + down > on) {
+            up = Math.min(up, on);
+            down = Math.max(0, on - up);
+        }
+        int work = Math.max(10, on - up - down);           // T2 = 0 would read as 1 s (BtProto.t)
+        return new int[] {up, work, down, offS * 1000};
     }
 
     /** The phase of the command being written now (the one in flight on the link). */
@@ -159,6 +194,7 @@ public final class BtTranslator {
     public synchronized List<byte[]> reset() {
         List<byte[]> out = new ArrayList<byte[]>();
         armed = false;
+        lastRun = PAUSE;
         legsOwn = false;                    // a new session: the legs are equal again until a hand moves one
         for (int i = 0; i < 10; i++) legK[i] = 1f;
         seen[0] = seen[1] = seen[2] = null;
@@ -201,6 +237,42 @@ public final class BtTranslator {
             int h = at(pdu, 3);
             int us = at(pdu, 4) * 50;
             boolean flag = at(pdu, 10) == 1;
+            boolean run = flag && h > 0;
+            int onS = at(pdu, 5), offS = at(pdu, 6);
+            boolean cyc = BtSettings.cycle() && cycleOk && testCh == 0 && onS > 0 && offS > 0 && phase != SECOND;
+            int[] wantT = cyc ? cycleT(onS, offS) : PLAIN_T;
+            if (armed && !java.util.Arrays.equals(wantT, progT) && (cyc || !java.util.Arrays.equals(progT, PLAIN_T))) {
+                // another cycle (or back to the plain burst): RESET + the program, outputs off; the next ON starts it
+                off(out);
+                progT = wantT;
+                programmed = false;
+                prepare(out);
+                lastRun = PAUSE;
+            }
+            if (cyc && armed && !run) {
+                // the suit pauses by itself (T4): nothing to send, the output stays renewed
+                lastRun = PAUSE;
+                if (on) deadlineMs = nowMs + keepMs(pdu, workLen);
+                else off(out);
+                return out;
+            }
+            if (cyc && armed && run) {
+                hz = h;
+                widthUs = us < MIN_US ? MIN_US : (us > MAX_US ? MAX_US : us);
+                deadlineMs = nowMs + keepMs(pdu, workLen);
+                if (lastRun != MAIN) {
+                    // the impulse begins: the suit's cycle starts again from its rise (SEL off → registers → SEL on),
+                    // so the suit and the tablet's clock agree at every impulse
+                    stopSlide(out);
+                    if (devMask != 0) out.add(BtProto.allOff());
+                    devMask = 0;
+                }
+                lastRun = MAIN;
+                on = true;
+                reconcile(out);
+                return out;
+            }
+            lastRun = run ? phase : PAUSE;
             if ((!flag || h <= 0) && armed && on && devMask != 0 && testCh == 0 && BtSettings.hold()) {
                 // pause: the channels stay on, only silent — no new start (and no knock) at the next impulse
                 quiet(out);
@@ -359,6 +431,11 @@ public final class BtTranslator {
             if (testCh != 0) off(out);
             return out;
         }
+        if (!java.util.Arrays.equals(progT, PLAIN_T)) {
+            // the suit holds a training cycle (BtSettings#cycle): a test / «Модулация» runs on the plain program
+            progT = PLAIN_T.clone();
+            programmed = false;
+        }
         prepare(out);
         int bits = 0;
         for (int ch = 1; ch <= BtSettings.CHANNELS; ch++) if (ch < pcts.length && pcts[ch] > 0) bits |= 1 << (ch - 1);
@@ -435,10 +512,10 @@ public final class BtTranslator {
             out.add(BtProto.intensity(ch, 0));
             out.add(BtProto.width(ch, DEF_US));
             out.add(BtProto.tPeriod(ch, 0));
-            out.add(BtProto.t(ch, 1, 0));
-            out.add(BtProto.t(ch, 2, CYCLE_ON_MS));
-            out.add(BtProto.t(ch, 3, 0));
-            out.add(BtProto.t(ch, 4, 0));
+            out.add(BtProto.t(ch, 1, progT[0]));
+            out.add(BtProto.t(ch, 2, progT[1]));
+            out.add(BtProto.t(ch, 3, progT[2]));
+            out.add(BtProto.t(ch, 4, progT[3]));
             out.add(BtProto.t1IntStep(ch, 1));
             out.add(BtProto.t1WidthStep(ch, 0));
             out.add(BtProto.t3IntStep(ch, 1));
@@ -448,8 +525,8 @@ public final class BtTranslator {
             devInt[ch] = 0;
             devHz[ch] = DEF_HZ;
             devUs[ch] = DEF_US;
-            devOn[ch] = CYCLE_ON_MS;
-            devOff[ch] = 0;
+            devOn[ch] = progT[1];
+            devOff[ch] = progT[3];
             devStep[ch] = 1;
         }
         out.add(BtProto.allOff());
@@ -627,8 +704,8 @@ public final class BtTranslator {
                     devUs[ch] = u;
                 }
                 boolean tc = testCh != 0 && testOnMs > 0;
-                int onMs = tc ? testOnMs : CYCLE_ON_MS;
-                int offMs = tc ? testOffMs : 0;
+                int onMs = tc ? testOnMs : (testCh != 0 ? CYCLE_ON_MS : progT[1]);
+                int offMs = tc ? testOffMs : (testCh != 0 ? 0 : progT[3]);
                 if (devOn[ch] != onMs) {
                     out.add(BtProto.t(ch, 2, onMs));
                     devOn[ch] = onMs;

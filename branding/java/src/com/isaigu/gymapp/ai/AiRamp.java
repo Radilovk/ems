@@ -27,6 +27,11 @@ public final class AiRamp {
         rampDownMs = Math.max(0, downMs);
     }
 
+    /** Smart Session / Auto set the ramp now (their times change from phase to phase). */
+    public static boolean active() {
+        return aiActive;
+    }
+
     public static void clear() {
         aiActive = false;
         rampUpMs = 0;

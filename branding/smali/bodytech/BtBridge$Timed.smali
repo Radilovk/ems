@@ -33,28 +33,28 @@
     .registers 8
 
     .prologue
-    .line 701
+    .line 723
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleWriteCallback;-><init>()V
 
-    .line 702
+    .line 724
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->cb:Lcom/clj/fastble/callback/BleWriteCallback;
 
-    .line 703
+    .line 725
     iput-object p2, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->mac:Ljava/lang/String;
 
-    .line 704
+    .line 726
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->from:I
 
-    .line 705
+    .line 727
     iput p4, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->to:I
 
-    .line 706
+    .line 728
     iput p5, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->frames:I
 
-    .line 707
+    .line 729
     iput-wide p6, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->at:J
 
-    .line 708
+    .line 730
     return-void
 .end method
 
@@ -62,7 +62,7 @@
     .registers 2
 
     .prologue
-    .line 727
+    .line 749
     const/4 v0, 0x1
 
     if-ne p0, v0, :cond_6
@@ -93,12 +93,12 @@
     .registers 3
 
     .prologue
-    .line 723
+    .line 745
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->cb:Lcom/clj/fastble/callback/BleWriteCallback;
 
     invoke-virtual {v0, p1}, Lcom/clj/fastble/callback/BleWriteCallback;->onWriteFailure(Lcom/clj/fastble/exception/BleException;)V
 
-    .line 724
+    .line 746
     return-void
 .end method
 
@@ -106,7 +106,7 @@
     .registers 10
 
     .prologue
-    .line 713
+    .line 735
     :try_start_0
     const-string v0, "suit"
 
@@ -176,7 +176,7 @@
 
     move-result-object v1
 
-    .line 714
+    .line 736
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v2
@@ -199,25 +199,25 @@
 
     move-result-object v1
 
-    .line 713
+    .line 735
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
     :try_end_5d
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5d} :catch_63
 
-    .line 718
+    .line 740
     :goto_5d
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Timed;->cb:Lcom/clj/fastble/callback/BleWriteCallback;
 
     invoke-virtual {v0, p1, p2, p3}, Lcom/clj/fastble/callback/BleWriteCallback;->onWriteSuccess(II[B)V
 
-    .line 719
+    .line 741
     return-void
 
-    .line 715
+    .line 737
     :catch_63
     move-exception v0
 
-    .line 716
+    .line 738
     const-string v1, "xems-bt"
 
     new-instance v2, Ljava/lang/StringBuilder;

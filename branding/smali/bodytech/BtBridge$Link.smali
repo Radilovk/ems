@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 342
+    .line 364
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 343
+    .line 365
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$Link;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 344
+    .line 366
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 5
 
     .prologue
-    .line 349
+    .line 371
     :try_start_0
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
 
@@ -64,16 +64,16 @@
     :try_end_13
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_13} :catch_14
 
-    .line 353
+    .line 375
     :cond_13
     :goto_13
     return-void
 
-    .line 350
+    .line 372
     :catch_14
     move-exception v0
 
-    .line 351
+    .line 373
     const-string v1, "xems-bt"
 
     new-instance v2, Ljava/lang/StringBuilder;

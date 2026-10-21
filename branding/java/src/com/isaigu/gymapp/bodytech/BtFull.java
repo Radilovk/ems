@@ -20,6 +20,8 @@ import com.isaigu.gymapp.widget.XemsUi;
  */
 final class BtFull {
     static final int[] HZ_PRESETS = {0, 1, 10, 30, 50, 85, 150, 300, 600, 1000};
+    /** Outside service mode (1.1.462): training Hz only. */
+    static final int[] HZ_PRESETS_TRAINING = {0, 1, 5, 10, 30, 50, 85, 100, 150};
     static final int[] US_PRESETS = {0, 100, 200, 360, 450, 511};
     static final int[] GAIN_PRESETS = {0, 50, 100, 150, 200, 300};
 
@@ -32,7 +34,7 @@ final class BtFull {
         XemsUi.init(a);
         BtSettings.load(a);
         sel = BtSettings.channelAt(0);
-        sh = XemsUi.shell(a, "Пълни параметри · bodytech", "Всеки канал — свои Hz, ширина, форма и сила", 980);
+        sh = XemsUi.shell(a, "Пълни параметри · bodytech", "Всеки канал — свои Hz, ширина и сила", 980);
         render();
         TextView done = XemsUi.button(a, "Готово", XemsUi.PRIMARY);
         done.setOnClickListener(new Close(sh));
@@ -48,7 +50,7 @@ final class BtFull {
     void render() {
         sh.body.removeAllViews();
         sh.body.addView(XemsUi.toggleRow(a, "Без ограничения",
-                "Вкл: стойностите на канала важат в тренировката точно както са зададени (Hz до 1000, ширина до 511 µs). "
+                "Вкл: стойностите на канала важат в тренировката точно както са зададени (Hz до 150 — в сервизен режим до 1000; ширина до 511 µs). "
                         + "Изкл: могат само да намалят стойността от програмата.",
                 BtSettings.unlimited(), new Unl(this)));
 
@@ -103,9 +105,11 @@ final class BtFull {
         LinearLayout box = XemsUi.vertical(a);
         box.addView(XemsUi.text(a, title, 15, XemsUi.GO_TEXT, true));
         int h = BtSettings.chHz(sel, second);
-        box.addView(field("Честота", h == 0 ? "Авто" : h + " Hz", Adj.HZ, second, HZ_PRESETS, h), XemsUi.matchWrap(a, 8));
+        box.addView(field("Честота", h == 0 ? "Авто" : h + " Hz", Adj.HZ, second,
+                BtSettings.service() ? HZ_PRESETS : HZ_PRESETS_TRAINING, h), XemsUi.matchWrap(a, 8));
         int u = BtSettings.chWidth(sel, second);
         box.addView(field("Ширина", u == 0 ? "Авто" : u + " µs", Adj.US, second, US_PRESETS, u), XemsUi.matchWrap(a, 8));
+        if (!BtSettings.service()) return box;              // a channel's own waveform: service mode only (1.1.462)
         LinearLayout wv = XemsUi.vertical(a);
         wv.addView(XemsUi.label(a, "Форма"));
         LinearLayout[] holder = new LinearLayout[1];
@@ -144,7 +148,7 @@ final class BtFull {
         int step = h < 20 ? 1 : (h < 100 ? 5 : (h < 300 ? 10 : 50));
         int n = h + dir * step;
         if (dir < 0 && n < 1) return 0;
-        return Math.min(BtSettings.HZ_MAIN_MAX, n);
+        return Math.min(BtSettings.service() ? BtSettings.HZ_MAIN_MAX : BtSettings.HZ_TRAINING_MAX, n);
     }
 
     /** Width µs: 0 = Авто, then 50..511 in tens. */

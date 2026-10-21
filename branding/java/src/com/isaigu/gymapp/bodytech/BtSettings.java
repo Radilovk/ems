@@ -107,6 +107,15 @@ public final class BtSettings {
      * impulses switch hard and the link is free for the switches of the double impulse.
      */
     static boolean ramp = true;
+    /**
+     * The suit runs the plain impulse / pause itself (owner, 1.1.462, test): rise / work / fall / pause in its own
+     * T1–T4 cycle (the FPGA keeps the times to the µs, also on a weak link), the tablet only restarts it at every impulse
+     * and sends strengths. Not with the double impulse or Smart / Auto (their times change every phase). Off = as before.
+     */
+    static boolean cycle = false;
+    /** Service mode (owner, 1.1.462): per-channel waveform and Hz above {@link #HZ_TRAINING_MAX} — hidden, not applied. */
+    static boolean service = false;
+    public static final int HZ_TRAINING_MAX = 150;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
 
@@ -155,6 +164,8 @@ public final class BtSettings {
         slots = p.getBoolean("slots2", true);
         hold = p.getBoolean("hold", true);
         ramp = p.getBoolean("ramp", true);
+        cycle = p.getBoolean("cycle", false);
+        service = p.getBoolean("service", false);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -330,6 +341,8 @@ public final class BtSettings {
         e.putBoolean("slots2", slots);
         e.putBoolean("hold", hold);
         e.putBoolean("ramp", ramp);
+        e.putBoolean("cycle", cycle);
+        e.putBoolean("service", service);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -356,6 +369,8 @@ public final class BtSettings {
         slots = true;
         hold = true;
         ramp = true;
+        cycle = false;
+        service = false;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -395,7 +410,7 @@ public final class BtSettings {
 
     /** The waveform in force for the channel and impulse: its own, else the global one (−1 = the suit's own). */
     public static synchronized int waveFor(int ch, boolean second) {
-        int w = chWave(ch, second);
+        int w = service ? chWave(ch, second) : -1;          // a channel's own waveform only in service mode (1.1.462)
         return w >= 0 ? w : wave;
     }
 
@@ -405,7 +420,8 @@ public final class BtSettings {
 
     /** Hz this channel is held to in the main (second = false) or 2nd impulse (never above the program's); 0 = the program's. */
     public static synchronized int chHz(int ch, boolean second) {
-        return valid(ch) ? (second ? chHzSecond[ch] : chHzMain[ch]) : 0;
+        int h = valid(ch) ? (second ? chHzSecond[ch] : chHzMain[ch]) : 0;
+        return !service && h > HZ_TRAINING_MAX ? HZ_TRAINING_MAX : h;   // above 150 Hz only in service mode (1.1.462)
     }
 
     /** The channel shown at position pos (0..7) of the sheet. */
@@ -482,6 +498,20 @@ public final class BtSettings {
     }
 
     public static synchronized boolean ramp() { return ramp; }
+
+    public static synchronized boolean cycle() { return cycle; }
+
+    public static synchronized void setCycle(boolean on) {
+        cycle = on;
+        save();
+    }
+
+    public static synchronized boolean service() { return service; }
+
+    public static synchronized void setService(boolean on) {
+        service = on;
+        save();
+    }
 
     public static synchronized void setRamp(boolean on) {
         ramp = on;

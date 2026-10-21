@@ -40,19 +40,19 @@
     .registers 4
 
     .prologue
-    .line 164
+    .line 168
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 165
+    .line 169
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
-    .line 166
+    .line 170
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->kind:I
 
-    .line 167
+    .line 171
     iput-boolean p3, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->second:Z
 
-    .line 168
+    .line 172
     return-void
 .end method
 
@@ -62,12 +62,12 @@
     .registers 5
 
     .prologue
-    .line 172
+    .line 176
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
     iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtFull;->sel:I
 
-    .line 173
+    .line 177
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->kind:I
 
     if-nez v1, :cond_18
@@ -82,16 +82,16 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChGain(II)V
 
-    .line 176
+    .line 180
     :goto_12
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtFull;->render()V
 
-    .line 177
+    .line 181
     return-void
 
-    .line 174
+    .line 178
     :cond_18
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->kind:I
 
@@ -115,7 +115,7 @@
 
     goto :goto_12
 
-    .line 175
+    .line 179
     :cond_2d
     iget-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Adj;->second:Z
 

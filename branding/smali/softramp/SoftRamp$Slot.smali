@@ -15,6 +15,8 @@
 
 
 # instance fields
+.field afterGap:Z
+
 .field beganAt:J
 
 .field busySince:J
@@ -55,10 +57,10 @@
     .registers 2
 
     .prologue
-    .line 52
+    .line 54
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 68
+    .line 72
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->lastSent:I

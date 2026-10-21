@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 185
+    .line 189
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 186
+    .line 190
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
-    .line 187
+    .line 191
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->kind:I
 
-    .line 188
+    .line 192
     iput-boolean p3, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->second:Z
 
-    .line 189
+    .line 193
     iput p4, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->value:I
 
-    .line 190
+    .line 194
     return-void
 .end method
 
@@ -57,15 +57,15 @@
     .registers 5
 
     .prologue
-    .line 194
+    .line 198
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 195
+    .line 199
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
     iget v0, v0, Lcom/isaigu/gymapp/bodytech/BtFull;->sel:I
 
-    .line 196
+    .line 200
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->kind:I
 
     if-nez v1, :cond_16
@@ -74,16 +74,16 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChGain(II)V
 
-    .line 200
+    .line 204
     :goto_10
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->f:Lcom/isaigu/gymapp/bodytech/BtFull;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtFull;->render()V
 
-    .line 201
+    .line 205
     return-void
 
-    .line 197
+    .line 201
     :cond_16
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->kind:I
 
@@ -99,7 +99,7 @@
 
     goto :goto_10
 
-    .line 198
+    .line 202
     :cond_23
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->kind:I
 
@@ -115,7 +115,7 @@
 
     goto :goto_10
 
-    .line 199
+    .line 203
     :cond_30
     iget-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/BtFull$Preset;->second:Z
 

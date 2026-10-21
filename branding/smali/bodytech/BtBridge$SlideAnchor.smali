@@ -27,19 +27,19 @@
     .registers 6
 
     .prologue
-    .line 736
+    .line 758
     invoke-direct {p0}, Lcom/clj/fastble/callback/BleWriteCallback;-><init>()V
 
-    .line 737
+    .line 759
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$SlideAnchor;->v:Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 738
+    .line 760
     iput-wide p2, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$SlideAnchor;->gen:J
 
-    .line 739
+    .line 761
     iput-wide p4, p0, Lcom/isaigu/gymapp/bodytech/BtBridge$SlideAnchor;->ms:J
 
-    .line 740
+    .line 762
     return-void
 .end method
 
@@ -49,7 +49,7 @@
     .registers 2
 
     .prologue
-    .line 749
+    .line 771
     return-void
 .end method
 
@@ -57,7 +57,7 @@
     .registers 10
 
     .prologue
-    .line 744
+    .line 766
     # getter for: Lcom/isaigu/gymapp/bodytech/BtBridge;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->access$100()Landroid/os/Handler;
 
@@ -75,6 +75,6 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 745
+    .line 767
     return-void
 .end method

@@ -40,19 +40,19 @@
     .registers 4
 
     .prologue
-    .line 259
+    .line 263
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 260
+    .line 264
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
-    .line 261
+    .line 265
     iput p2, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
-    .line 262
+    .line 266
     iput p3, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
-    .line 263
+    .line 267
     return-void
 .end method
 
@@ -64,12 +64,12 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 267
+    .line 271
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
     if-nez v1, :cond_19
 
-    .line 268
+    .line 272
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
@@ -84,22 +84,22 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setChGain(II)V
 
-    .line 275
+    .line 279
     :goto_13
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->sheet:Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Sheet;->render()V
 
-    .line 276
+    .line 280
     return-void
 
-    .line 269
+    .line 273
     :cond_19
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
     if-ne v1, v0, :cond_2d
 
-    .line 270
+    .line 274
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
@@ -116,7 +116,7 @@
 
     goto :goto_13
 
-    .line 272
+    .line 276
     :cond_2d
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->what:I
 
@@ -124,7 +124,7 @@
 
     if-ne v1, v2, :cond_42
 
-    .line 273
+    .line 277
     :goto_32
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Param;->ch:I
 
@@ -142,7 +142,7 @@
 
     goto :goto_13
 
-    .line 272
+    .line 276
     :cond_42
     const/4 v0, 0x0
 

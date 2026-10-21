@@ -577,6 +577,24 @@ public class BtTranslatorTest {
         // the same Hz in the next impulse (no change of Hz): no restart
         f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
         eq("double: same Hz again, no restart", true, indexOf(f, BtProto.enable(0)) < 0 && !has(f, BtProto.enable(0xFF)));
+        // 1.1.460: at the switch every lowered strength goes before any Hz — the impulse that ends stops on time
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(10), run(600, 8, 350, 4, 4, 1), t);
+        int lastDown = -1, firstHz = -1;
+        for (int i = 0; i < f.size(); i++) {
+            int r = ((f.get(i)[1] & 0xFF) << 8) | (f.get(i)[2] & 0xFF);
+            if ((r & 0xF) == BtProto.R_INTENSITY && (r >> 4) >= 1) lastDown = i;
+            if ((r & 0xF) == BtProto.R_LENGTH_CLOCK && (r >> 4) >= 1 && firstHz < 0) firstHz = i;
+        }
+        eq("switch: lowered strengths before the new Hz", true, firstHz > 0 && lastDown >= 0 && lastDown < firstHz);
+        // a strength frame the bridge dropped (ramp step overtaken by the next phase) is written again
+        f = pair(tr, setting(10), run(600, 8, 350, 4, 4, 1), t);
+        eq("switch: same values again, nothing to write", 0, f.size());
+        tr.lost(3);
+        f = pair(tr, setting(10), run(600, 8, 350, 4, 4, 1), t);
+        eq("lost: only that channel's strength again", 1, f.size());
+        eq("lost: it is channel 3's strength", 3 << 4 | BtProto.R_INTENSITY, ((f.get(0)[1] & 0xFF) << 8) | (f.get(0)[2] & 0xFF));
+        eq("phaseNow: the phase of the command written", BtTranslator.SECOND, tr.phaseNow());
         // with slots: laid once at the start, not again at the next impulse
         BtSettings.setSlots(true);
         tr = new BtTranslator();

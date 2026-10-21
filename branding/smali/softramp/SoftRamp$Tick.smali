@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 421
+    .line 429
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 422
+    .line 430
     iput-object p1, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Tick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 423
+    .line 431
     iput p2, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Tick;->g:I
 
-    .line 424
+    .line 432
     return-void
 .end method
 
@@ -53,7 +53,7 @@
 
     const/4 v10, 0x0
 
-    .line 429
+    .line 437
     :try_start_4
     move-object/from16 v0, p0
 
@@ -69,12 +69,12 @@
 
     if-nez v2, :cond_13
 
-    .line 490
+    .line 498
     :cond_12
     :goto_12
     return-void
 
-    .line 432
+    .line 440
     :cond_13
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->slots:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$000()Ljava/util/WeakHashMap;
@@ -95,25 +95,25 @@
 
     move-object v8, v0
 
-    .line 433
+    .line 441
     iget-boolean v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->ramping:Z
 
     if-eqz v2, :cond_12
 
-    .line 436
+    .line 444
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 437
+    .line 445
     iget-wide v4, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->lastTick:J
 
     sub-long v4, v2, v4
 
-    .line 438
+    .line 446
     iput-wide v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->lastTick:J
 
-    .line 439
+    .line 447
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/isaigu/gymapp/train/model/SoftRamp$Tick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -124,20 +124,20 @@
 
     move-result v12
 
-    .line 440
+    .line 448
     if-nez v12, :cond_85
 
-    .line 441
+    .line 449
     const-wide/16 v4, 0x0
 
     iput-wide v4, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->busySince:J
 
-    .line 442
+    .line 450
     const/4 v4, 0x0
 
     iput-boolean v4, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->stalled:Z
 
-    .line 453
+    .line 461
     :cond_44
     :goto_44
     iget-wide v4, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->rampAt:J
@@ -154,13 +154,13 @@
 
     move v11, v9
 
-    .line 454
+    .line 462
     :goto_50
     invoke-static {v8, v2, v3}, Lcom/isaigu/gymapp/train/model/SoftRamp;->frac(Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;J)D
 
     move-result-wide v14
 
-    .line 455
+    .line 463
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/train/model/SoftRamp$Tick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -173,34 +173,34 @@
 
     move-result-object v3
 
-    .line 456
+    .line 464
     const/4 v4, 0x0
 
-    .line 458
+    .line 466
     iget-boolean v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->on:Z
 
     if-eqz v2, :cond_b5
 
-    .line 459
+    .line 467
     iget v2, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     move-object v6, v4
 
-    .line 468
+    .line 476
     :goto_68
     invoke-static {v2, v14, v15}, Lcom/isaigu/gymapp/train/model/SoftRamp;->level(ID)I
 
     move-result v7
 
-    .line 469
+    .line 477
     iget v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->lastSent:I
 
     if-eq v7, v2, :cond_e2
 
-    .line 470
+    .line 478
     if-eqz v12, :cond_c9
 
-    .line 471
+    .line 479
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$100()Landroid/os/Handler;
 
@@ -216,18 +216,18 @@
 
     goto :goto_12
 
-    .line 487
+    .line 495
     :catch_7e
     move-exception v2
 
-    .line 488
+    .line 496
     const-string v3, "SoftRamp.tick"
 
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_12
 
-    .line 443
+    .line 451
     :cond_85
     :try_start_85
     iget-wide v6, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->busySince:J
@@ -236,23 +236,23 @@
 
     if-nez v6, :cond_8e
 
-    .line 444
+    .line 452
     iput-wide v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->busySince:J
 
     goto :goto_44
 
-    .line 445
+    .line 453
     :cond_8e
     iget-boolean v6, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->rising:Z
 
     if-eqz v6, :cond_44
 
-    .line 446
+    .line 454
     iget-boolean v6, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->stalled:Z
 
     if-eqz v6, :cond_9c
 
-    .line 447
+    .line 455
     iget-wide v6, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->rampAt:J
 
     add-long/2addr v4, v6
@@ -261,7 +261,7 @@
 
     goto :goto_44
 
-    .line 448
+    .line 456
     :cond_9c
     iget-wide v4, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->busySince:J
 
@@ -273,12 +273,12 @@
 
     if-lez v4, :cond_44
 
-    .line 449
+    .line 457
     const/4 v4, 0x1
 
     iput-boolean v4, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->stalled:Z
 
-    .line 450
+    .line 458
     iget-wide v4, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->rampAt:J
 
     iget-wide v6, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->busySince:J
@@ -294,10 +294,10 @@
     :cond_b3
     move v11, v10
 
-    .line 453
+    .line 461
     goto :goto_50
 
-    .line 461
+    .line 469
     :cond_b5
     move-object/from16 v0, p0
 
@@ -307,17 +307,17 @@
 
     move-result-object v4
 
-    .line 462
+    .line 470
     if-nez v4, :cond_c4
 
-    .line 463
+    .line 471
     const/4 v2, 0x0
 
     iput-boolean v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->ramping:Z
 
     goto/16 :goto_12
 
-    .line 466
+    .line 474
     :cond_c4
     const/4 v2, 0x1
 
@@ -327,13 +327,13 @@
 
     goto :goto_68
 
-    .line 474
+    .line 482
     :cond_c9
     iget-boolean v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->on:Z
 
     if-eqz v2, :cond_f0
 
-    .line 475
+    .line 483
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/train/model/SoftRamp$Tick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -352,20 +352,20 @@
 
     invoke-static {v2, v3, v4, v5, v7}, Lcom/isaigu/gymapp/train/model/SoftRamp;->sendMain(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZII)V
 
-    .line 479
+    .line 487
     :goto_e0
     iput v7, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->lastSent:I
 
-    .line 481
+    .line 489
     :cond_e2
     if-eqz v11, :cond_10b
 
-    .line 482
+    .line 490
     const/4 v2, 0x0
 
     iput-boolean v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->ramping:Z
 
-    .line 483
+    .line 491
     iget-boolean v2, v8, Lcom/isaigu/gymapp/train/model/SoftRamp$Slot;->rising:Z
 
     if-nez v2, :cond_109
@@ -377,7 +377,7 @@
 
     goto/16 :goto_12
 
-    .line 477
+    .line 485
     :cond_f0
     move-object/from16 v0, p0
 
@@ -408,10 +408,10 @@
     :cond_109
     move v2, v10
 
-    .line 483
+    .line 491
     goto :goto_ec
 
-    .line 486
+    .line 494
     :cond_10b
     # getter for: Lcom/isaigu/gymapp/train/model/SoftRamp;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/train/model/SoftRamp;->access$100()Landroid/os/Handler;

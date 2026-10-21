@@ -279,6 +279,20 @@ No period is ever written to a running channel at a switch. The off gap holds on
 **Diag:** every switch is logged to `wearable-ble.log` — `suit bodytech switch <mac> 2→1 N frames T ms` (`BtBridge.Timed`).
 Not verified on a suit yet.
 
+## The 2nd impulse gated on the main Hz (owner, 1.1.463 — his EMSFIT pause script)
+Owner: on EMSFIT he made the 2nd impulse with a script that pressed the app's pause N times a second, and it worked
+perfectly. EMSFIT's pause / resume is only SEL off / on — the Hz register never changes. So (Settings → Костюм bodytech →
+Разширени → «Втори импулс чрез прекъсване», `BtSettings.gate`, on by default), for a 2nd impulse of ≤ 12 Hz
+(`BtTranslator.GATE_MAX_HZ`):
+- the switch into it: lowered strengths, SEL all off — every channel stays on the MAIN impulse's Hz (`mainHz`, a channel's
+  own 2nd-impulse Hz is not used), the 2nd impulse's strengths written while off;
+- `BtBridge.Gate` runs on its own clock (start + k · 1000 / Hz ms): each tick one burst — SEL on (`gateOn`), at its ACK
+  SEL off (`GateOff` → `gateOff`) ≈ one ACK (25–35 ms ≈ 2–3 pulses at 85 Hz); a burst still on the link skips a tick;
+- back to the main impulse: SEL on, no Hz frame; a burst end that comes late is void (`gateGen`);
+- the tablet does not ramp the gated 2nd impulse (SoftRamp: the strength frames would delay the bursts).
+Above 12 Hz (2 frames per burst would not fit the link) or with the switch off: the register 2nd impulse of 1.1.461.
+Tests: `BtTranslatorTest` «gate: …». Not verified on a suit yet.
+
 ## From the hardware photos (owner, 1.1.462)
 Main board «BodyTech 8Z_M V4»: a 256-ball BGA with 1.2 V core and an SPI flash beside it (almost surely an FPGA — the
 1 MHz clock and 20-bit period registers), 8 separate boost converters (15 µH «150», one high voltage per channel — strength

@@ -115,6 +115,11 @@ public final class BtSettings {
     static boolean cycle = false;
     /** Service mode (owner, 1.1.462): per-channel waveform and Hz above {@link #HZ_TRAINING_MAX} — hidden, not applied. */
     static boolean service = false;
+    /**
+     * The 2nd impulse gated on the main Hz (owner, 1.1.463 — his EMSFIT pause script): bursts of the main impulse N
+     * times a second, the Hz register never changes. Off = the 2nd impulse's own Hz written to the channels (1.1.461).
+     */
+    static boolean gate = true;
     public static final int HZ_TRAINING_MAX = 150;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
@@ -166,6 +171,7 @@ public final class BtSettings {
         ramp = p.getBoolean("ramp", true);
         cycle = p.getBoolean("cycle", false);
         service = p.getBoolean("service", false);
+        gate = p.getBoolean("gate", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -343,6 +349,7 @@ public final class BtSettings {
         e.putBoolean("ramp", ramp);
         e.putBoolean("cycle", cycle);
         e.putBoolean("service", service);
+        e.putBoolean("gate", gate);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -371,6 +378,7 @@ public final class BtSettings {
         ramp = true;
         cycle = false;
         service = false;
+        gate = true;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -507,6 +515,13 @@ public final class BtSettings {
     }
 
     public static synchronized boolean service() { return service; }
+
+    public static synchronized boolean gate() { return gate; }
+
+    public static synchronized void setGate(boolean on) {
+        gate = on;
+        save();
+    }
 
     public static synchronized void setService(boolean on) {
         service = on;

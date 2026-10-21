@@ -167,6 +167,11 @@ public final class BtSettingsSection {
                     "Вкл: каналите се включват веднъж при старт, а в паузата само мълчат — без удар в началото на "
                             + "импулса. Изкл: всеки импулс включва каналите наново.",
                     BtSettings.hold(), new Hold()), XemsUi.matchWrap(a, 12));
+            sh.body.addView(XemsUi.toggleRow(a, "Втори импулс чрез прекъсване",
+                    "Вкл: вторият импулс е кратко пускане на основния импулс N пъти в секунда (като пауза / продължи на "
+                            + "EMSFIT) — честотата на каналите не се сменя, смяната е точна. До 12 Hz. Изкл: каналите "
+                            + "минават на честотата на втория импулс.",
+                    BtSettings.gate(), new Gate()), XemsUi.matchWrap(a, 12));
             sh.body.addView(XemsUi.toggleRow(a, "Сервизен режим",
                     "Вкл: в „Пълни параметри“ всеки канал има своя форма на импулса и честота над 150 Hz. Изкл: една обща "
                             + "форма и честоти за тренировка (до 150 Hz).",
@@ -393,6 +398,13 @@ public final class BtSettingsSection {
         @Override
         public void onToggle(boolean on) {
             BtSettings.setCycle(on);
+        }
+    }
+
+    static final class Gate implements XemsUi.OnToggle {
+        @Override
+        public void onToggle(boolean on) {
+            BtSettings.setGate(on);
         }
     }
 

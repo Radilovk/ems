@@ -196,6 +196,8 @@ public final class BtBridge {
                 if (slide != null) v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
             }
             v.soft = false;
+            int[] g = v.tr.gate();
+            if (g != null) v.gate(g[0], g[1]);
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
             else if (was && !now) BtBeep.pause();
@@ -541,6 +543,18 @@ public final class BtBridge {
         /** A program is being written: frames of it written / in all (BtLoad's percent). */
         boolean loading;
         int loadDone, loadTotal;
+        /** The gated 2nd impulse's runner (generation it serves; 0 = none) and a burst still on the link. */
+        int gateGen;
+        boolean gateBusy;
+
+        /** The translator gates the 2nd impulse (gen, hz): the burst clock runs (one runner per generation). */
+        synchronized void gate(int gen, int hz) {
+            if (gen == gateGen) return;
+            gateGen = gen;
+            gateBusy = false;
+            main.post(new Gate(this, gen, 1000L / Math.max(1, hz)));
+        }
+
         /** The phase of the last switch logged ({@link Timed}). */
         int loggedPhase = BtTranslator.MAIN;
         /** The command being added is a training command ({@link BtBridge#write}): its strength frames are droppable. */
@@ -710,6 +724,72 @@ public final class BtBridge {
             v.writeFails++;
             WearableBleDiagLog.log("suit", "bodytech write failed " + v.d.getMac() + ": " + e);
             v.fail(e);
+        }
+    }
+
+    /**
+     * The gated 2nd impulse (1.1.463): every period one burst — SEL on, and at its ACK SEL off (≈ one ACK of carrier
+     * pulses). On its own clock (start + k·period, no drift); a burst still on the link skips a tick, never queues up.
+     */
+    static final class Gate implements Runnable {
+        final Dev v;
+        final int gen;
+        final long period;
+        final long start = SystemClock.uptimeMillis();
+        long k;
+
+        Gate(Dev v, int gen, long period) {
+            this.v = v;
+            this.gen = gen;
+            this.period = period;
+        }
+
+        @Override
+        public void run() {
+            try {
+                int[] g = v.tr.gate();
+                if (g == null || g[0] != gen) return;
+                synchronized (v) {
+                    if (v.gateGen != gen) return;
+                    if (!v.gateBusy) {
+                        List<byte[]> on = v.tr.gateOn(gen);
+                        if (!on.isEmpty()) {
+                            v.gateBusy = true;
+                            v.add(on, new GateOff(v, gen), null, false);
+                        }
+                    }
+                }
+                k++;
+                main.postAtTime(this, start + k * period);
+            } catch (Throwable t) {
+                Log.e(TAG, "gate: " + t);
+            }
+        }
+    }
+
+    /** The burst's SEL on is ACKed: SEL off goes next. */
+    static final class GateOff extends BleWriteCallback {
+        final Dev v;
+        final int gen;
+
+        GateOff(Dev v, int gen) {
+            this.v = v;
+            this.gen = gen;
+        }
+
+        @Override
+        public void onWriteSuccess(int current, int total, byte[] justWrite) {
+            synchronized (v) {
+                v.add(v.tr.gateOff(gen), null, null, false);
+                v.gateBusy = false;
+            }
+        }
+
+        @Override
+        public void onWriteFailure(BleException e) {
+            synchronized (v) {
+                v.gateBusy = false;
+            }
         }
     }
 

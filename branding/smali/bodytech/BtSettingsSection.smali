@@ -12,6 +12,7 @@
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Ramp;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Adv;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Service;,
+        Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Gate;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Cycle;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Hold;,
         Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Slots;,

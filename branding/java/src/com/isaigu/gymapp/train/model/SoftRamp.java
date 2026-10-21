@@ -289,8 +289,16 @@ public final class SoftRamp {
                 if (cycleOk(item, b)) {
                     return new int[] {0, 0};                        // the suit's own T1 / T3 rise and fall (1.1.462)
                 }
-                int[] ms = com.isaigu.gymapp.bodytech.BtSettings.ramp() ? AiRamp.rampMs(b) : new int[] {0, 0};
                 Slot st = slots.get(item);
+                if (st != null && !st.on && com.isaigu.gymapp.bodytech.BtSettings.gate()) {
+                    int[] p = second(item, b);
+                    if (p != null && p[0] <= com.isaigu.gymapp.bodytech.BtTranslator.GATE_MAX_HZ) {
+                        // the gated 2nd impulse (1.1.463): bursts at a steady strength — a ramp's strength frames
+                        // would hold the link and the bursts would come unevenly
+                        return new int[] {0, 0};
+                    }
+                }
+                int[] ms = com.isaigu.gymapp.bodytech.BtSettings.ramp() ? AiRamp.rampMs(b) : new int[] {0, 0};
                 if (st != null && st.on && st.afterGap && ms[0] < SOFT_START_MS) {
                     // soft start (1.1.462): each channel's high voltage is a capacitor charged while it was off — the
                     // first impulse after a start / a stand rises at least 1.5 s, also with the ramp off

@@ -78,6 +78,7 @@ public class BtTranslatorTest {
 
     public static void main(String[] a) {
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
         long t = 1000;
@@ -182,6 +183,7 @@ public class BtTranslatorTest {
         eq("main: C2 never left 85 Hz: no Hz frame", false, has(f, BtProto.hz(2, 85)));
         eq("main: C7 (was at 8 Hz, now silent) keeps no Hz frame", false, has(f, BtProto.hz(7, 85)));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
@@ -196,6 +198,7 @@ public class BtTranslatorTest {
         eq("ceiling 99", true, has(f, BtProto.intensity(1, 99)));
         eq("never above 99", false, has(f, BtProto.intensity(1, 100)));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
@@ -207,6 +210,7 @@ public class BtTranslatorTest {
         f = tr.command(3, run(600, 85, 360, 4, 4, 1), t);
         eq("no slider: C3 not in SEL", hex(BtProto.enable(0xFF & ~0x04)), hex(f.get(f.size() - 1)));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
@@ -276,6 +280,7 @@ public class BtTranslatorTest {
         eq("C4 second Hz 5", true, has(f, BtProto.hz(4, 5)));
         eq("C6 second Hz = program's 8", true, has(f, BtProto.hz(6, 8)));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
@@ -315,6 +320,7 @@ public class BtTranslatorTest {
         BtSettings.clearChannel(7);
         eq("cleared: C7 Hz auto", 0, BtSettings.chHz(7, false));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
@@ -333,6 +339,7 @@ public class BtTranslatorTest {
         eq("second: no new Hz before the SEL all off", true, indexOf(f, BtProto.allOff()) >= 0
                 && indexOf(f, BtProto.allOff()) < indexOf(f, BtProto.hz(2, 8)));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
@@ -402,6 +409,7 @@ public class BtTranslatorTest {
         f = tr.testOff();
         eq("release: waveform back to the owner's", true, has(f, BtProto.waveform(2, 2)));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
         tr.testOn(2, 5, 85, 360, 1, 2000);
@@ -425,6 +433,7 @@ public class BtTranslatorTest {
 
         // the legs (1.1.377): C5 left thigh, C7 right thigh — here on sliders 2 / 9 (any XEMS channel works alike)
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlider(5, 2);
         BtSettings.setSlider(7, 9);
@@ -464,11 +473,13 @@ public class BtTranslatorTest {
         eq("stop: equal again", 60, lg2.legValue(r6, 9));
         BtSettings.loaded = false;
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
         // --- pulse slots: one SEL from all-off, then channels 2..n slower by d_k for SLIDE_MS (k/n of the period)
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         eq("slots on by default", true, BtSettings.slots());
         BtSettings.setSlots(true);
@@ -531,11 +542,13 @@ public class BtTranslatorTest {
         f = tr.command(3, run(600, 85, 350, 4, 4, 1), t);
         eq("slots off: only SEL", hexAll(java.util.Arrays.asList(BtProto.enable(0xFF))), hexAll(f));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
         // --- channels kept on (1.1.450): one SEL per start, a pause is strength 0, the next impulse no new SEL
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         eq("hold on by default", true, BtSettings.hold());
         BtSettings.setSlots(false);
         tr = new BtTranslator();
@@ -629,11 +642,13 @@ public class BtTranslatorTest {
         eq("hold + slots: next impulse keeps the places", true, !has(f, BtProto.allOff())
                 && indexOf(f, BtProto.enable(0xFF)) < 0 && tr.takeSlide() == null);
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 
         // --- 1.1.462: the suit runs the plain impulse / pause itself (T1..T4), the tablet restarts it at every impulse
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
         BtSettings.setSlots(false);
         BtSettings.setCycle(true);
         tr = new BtTranslator();
@@ -678,6 +693,49 @@ public class BtTranslatorTest {
         f.addAll(pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t));
         eq("cycle setting off: plain burst as before", true, has(f, BtProto.t(1, 2, 100000)) && !has(f, BtProto.t(1, 4, 4000)));
         BtSettings.reset();
+        BtSettings.setGate(false);              // the register 2nd impulse (1.1.461); gating: below
+        BtSettings.setHold(false);
+        BtSettings.setSlots(false);
+
+        // --- 1.1.463: the 2nd impulse gated on the main Hz (the owner's EMSFIT pause script)
+        BtSettings.reset();
+        BtSettings.setSlots(false);
+        eq("gate on by default", true, BtSettings.gate());
+        tr = new BtTranslator();
+        tr.command(0xF2, new byte[1], t);
+        tr.command(0xF1, new byte[1], t);
+        tr.phase(BtTranslator.MAIN);
+        pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(20), run(600, 8, 350, 4, 4, 1), t);
+        eq("gate: no Hz frame at the switch", false, has(f, BtProto.hz(1, 8)) || has(f, BtProto.hz(1, 85)));
+        eq("gate: channels off, 2nd strengths set", true, has(f, BtProto.allOff()) && has(f, BtProto.intensity(1, 20)));
+        int[] g = tr.gate();
+        eq("gate: runs at the 2nd impulse's Hz", 8, g == null ? -1 : g[1]);
+        f = tr.gateOn(g[0]);
+        eq("gate: burst = SEL on", hex(BtProto.enable(0xFF)), f.size() == 1 ? hex(f.get(0)) : "");
+        f = tr.gateOff(g[0]);
+        eq("gate: then SEL off", hex(BtProto.allOff()), f.size() == 1 ? hex(f.get(0)) : "");
+        f = pair(tr, setting(25), run(600, 8, 350, 4, 4, 1), t);
+        eq("gate: + in the 2nd impulse = strengths only, same gate", true,
+                !has(f, BtProto.allOff()) && has(f, BtProto.intensity(1, 25)) && tr.gate()[0] == g[0]);
+        tr.gateOn(g[0]);                            // a burst is on when the main impulse comes
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("gate: back to main, no Hz frame", false, has(f, BtProto.hz(1, 85)));
+        eq("gate: over in the main impulse", true, tr.gate() == null);
+        eq("gate: a late burst end does not switch the main off", 0, tr.gateOff(g[0]).size());
+        tr.gateOff(g[0]);
+        tr.phase(BtTranslator.SECOND);
+        pair(tr, setting(20), run(600, 8, 350, 4, 4, 1), t);
+        tr.phase(BtTranslator.MAIN);
+        f = pair(tr, setting(40), run(600, 85, 350, 4, 4, 1), t);
+        eq("gate: main after a closed burst = SEL on", true, has(f, BtProto.enable(0xFF)) && has(f, BtProto.intensity(1, 40)));
+        tr.phase(BtTranslator.SECOND);
+        f = pair(tr, setting(20), run(600, 30, 350, 4, 4, 1), t);
+        eq("gate: above 12 Hz → the register 2nd impulse", true, tr.gate() == null && has(f, BtProto.hz(1, 30)));
+        BtSettings.reset();
+        BtSettings.setGate(false);
         BtSettings.setHold(false);
         BtSettings.setSlots(false);
 

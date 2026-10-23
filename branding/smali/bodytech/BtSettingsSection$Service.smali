@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 411
+    .line 364
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 2
 
     .prologue
-    .line 414
+    .line 367
     invoke-static {p1}, Lcom/isaigu/gymapp/bodytech/BtSettings;->setService(Z)V
 
-    .line 415
+    .line 368
     return-void
 .end method

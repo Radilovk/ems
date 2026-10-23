@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 456
+    .line 409
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 457
+    .line 410
     iput-object p1, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Done;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 458
+    .line 411
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 463
+    .line 416
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/BtSettingsSection$Done;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -52,11 +52,11 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 466
+    .line 419
     :goto_7
     return-void
 
-    .line 464
+    .line 417
     :catch_8
     move-exception v0
 

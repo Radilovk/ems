@@ -85,22 +85,6 @@ public final class BtBridge {
         dev(d).enqPhase = p;
     }
 
-    /**
-     * train.model.SoftRamp at every phase start of a bodytech row (1.1.462): the row's rise / fall and whether the suit
-     * may run the plain impulse / pause itself ({@link BtSettings#cycle}).
-     */
-    public static void cycle(String mac, int upMs, int downMs, boolean ok) {
-        try {
-            Dev v;
-            synchronized (BtBridge.class) {
-                v = mac != null ? DEVS.get(mac) : null;
-            }
-            if (v != null) v.tr.cycle(upMs, downMs, ok);
-        } catch (Throwable t) {
-            Log.e(TAG, "cycle: " + t);
-        }
-    }
-
     /** Queued XEMS commands (their pdu, by identity) → the phase they were queued in. */
     private static final Map<byte[], Integer> TAGS = new java.util.WeakHashMap<byte[], Integer>();
 
@@ -182,22 +166,8 @@ public final class BtBridge {
                 cb = new Timed(cb, v.d.getMac(), v.loggedPhase, ph, frames.size(), SystemClock.elapsedRealtime());
                 v.loggedPhase = ph;
             }
-            long[] slide = v.tr.takeSlide();
-            int slow = slide != null ? (int) slide[2] : 0;
-            if (slide != null && !load && slow > 0 && slow <= frames.size()) {
-                // the slide's clock starts at the ACK of its FIRST slow frame (1.1.455): every slow channel is then
-                // slow for the same time, the frames back going in the same order (BtTranslator.slideEnd)
-                int first = frames.size() - slow + 1;
-                v.add(new ArrayList<byte[]>(frames.subList(0, first)), null, null, false);
-                v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
-                v.add(new ArrayList<byte[]>(frames.subList(first, frames.size())), cb, data, false);
-            } else {
-                v.add(frames, cb, data, false, load);
-                if (slide != null) v.add(new ArrayList<byte[]>(), new SlideAnchor(v, slide[1], slide[0]), null, false);
-            }
+            v.add(frames, cb, data, false, load);
             v.soft = false;
-            int[] g = v.tr.gate();
-            if (g != null) v.gate(g[0], g[1]);
             boolean now = v.tr.armed();
             if (!was && now) BtBeep.start();
             else if (was && !now) BtBeep.pause();
@@ -543,18 +513,6 @@ public final class BtBridge {
         /** A program is being written: frames of it written / in all (BtLoad's percent). */
         boolean loading;
         int loadDone, loadTotal;
-        /** The gated 2nd impulse's runner (generation it serves; 0 = none) and a burst still on the link. */
-        int gateGen;
-        boolean gateBusy;
-
-        /** The translator gates the 2nd impulse (gen, hz): the burst clock runs (one runner per generation). */
-        synchronized void gate(int gen, int hz) {
-            if (gen == gateGen) return;
-            gateGen = gen;
-            gateBusy = false;
-            main.post(new Gate(this, gen, 1000L / Math.max(1, hz)));
-        }
-
         /** The phase of the last switch logged ({@link Timed}). */
         int loggedPhase = BtTranslator.MAIN;
         /** The command being added is a training command ({@link BtBridge#write}): its strength frames are droppable. */
@@ -727,72 +685,6 @@ public final class BtBridge {
         }
     }
 
-    /**
-     * The gated 2nd impulse (1.1.463): every period one burst — SEL on, and at its ACK SEL off (≈ one ACK of carrier
-     * pulses). On its own clock (start + k·period, no drift); a burst still on the link skips a tick, never queues up.
-     */
-    static final class Gate implements Runnable {
-        final Dev v;
-        final int gen;
-        final long period;
-        final long start = SystemClock.uptimeMillis();
-        long k;
-
-        Gate(Dev v, int gen, long period) {
-            this.v = v;
-            this.gen = gen;
-            this.period = period;
-        }
-
-        @Override
-        public void run() {
-            try {
-                int[] g = v.tr.gate();
-                if (g == null || g[0] != gen) return;
-                synchronized (v) {
-                    if (v.gateGen != gen) return;
-                    if (!v.gateBusy) {
-                        List<byte[]> on = v.tr.gateOn(gen);
-                        if (!on.isEmpty()) {
-                            v.gateBusy = true;
-                            v.add(on, new GateOff(v, gen), null, false);
-                        }
-                    }
-                }
-                k++;
-                main.postAtTime(this, start + k * period);
-            } catch (Throwable t) {
-                Log.e(TAG, "gate: " + t);
-            }
-        }
-    }
-
-    /** The burst's SEL on is ACKed: SEL off goes next. */
-    static final class GateOff extends BleWriteCallback {
-        final Dev v;
-        final int gen;
-
-        GateOff(Dev v, int gen) {
-            this.v = v;
-            this.gen = gen;
-        }
-
-        @Override
-        public void onWriteSuccess(int current, int total, byte[] justWrite) {
-            synchronized (v) {
-                v.add(v.tr.gateOff(gen), null, null, false);
-                v.gateBusy = false;
-            }
-        }
-
-        @Override
-        public void onWriteFailure(BleException e) {
-            synchronized (v) {
-                v.gateBusy = false;
-            }
-        }
-    }
-
     /** A switch between the impulses, answered: its frames and time to the last ACK go to wearable-ble.log. */
     static final class Timed extends BleWriteCallback {
         final BleWriteCallback cb;
@@ -827,48 +719,6 @@ public final class BtBridge {
 
         static String name(int p) {
             return p == BtTranslator.MAIN ? "1" : (p == BtTranslator.SECOND ? "2" : "пауза");
-        }
-    }
-
-    /** Pulse slots: answered when the slide's slow frames are ACKed — from then on the slide's time runs. */
-    static final class SlideAnchor extends BleWriteCallback {
-        final Dev v;
-        final long gen, ms;
-
-        SlideAnchor(Dev v, long gen, long ms) {
-            this.v = v;
-            this.gen = gen;
-            this.ms = ms;
-        }
-
-        @Override
-        public void onWriteSuccess(int current, int total, byte[] justWrite) {
-            main.postDelayed(new SlideEnd(v, gen), ms);
-        }
-
-        @Override
-        public void onWriteFailure(BleException e) {
-        }
-    }
-
-    /** The slide's time is up: its slow channels go back on the plain period, ahead of anything queued. */
-    static final class SlideEnd implements Runnable {
-        final Dev v;
-        final long gen;
-
-        SlideEnd(Dev v, long gen) {
-            this.v = v;
-            this.gen = gen;
-        }
-
-        @Override
-        public void run() {
-            try {
-                List<byte[]> f = v.tr.slideEnd(gen);
-                if (!f.isEmpty()) v.add(f, null, null, true);
-            } catch (Throwable t) {
-                Log.e(TAG, "slide: " + t);
-            }
         }
     }
 

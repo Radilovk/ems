@@ -86,40 +86,14 @@ public final class BtSettings {
     /** true = the owner's per-channel values rule as they are (Hz up to 1000, width up to 511 µs); false = they can only lower the program's. */
     static boolean unlimited = true;
     /**
-     * Pulse slots (owner, 1.1.380; on by default since 1.1.382): the working channels share one Hz and each gets its own
-     * place in the period, so no two channels pulse at the same moment. Owner, on a person: pulsing together, a strong
-     * channel leaks hard into ONE electrode of its neighbour (the one of opposite polarity at that moment) and jumps to
-     * far electrodes; in slots the leak is weak and even on both — preferred.
-     */
-    static boolean slots = true;
-    /**
-     * Channels stay on (owner, 1.1.450): a knock at the start of every impulse (pause or 2nd impulse alike) that EMSFIT
-     * does not have. EMSFIT turns the channels on once and the suit runs its own cycle; XEMS switched them off at
-     * every pause and on again at every impulse (and on a ramp, as channels rose from 0). On: the working channels are
-     * switched on once per start and the pause is strength 0 (probe 0.4: strength 0 with SEL on is silent); pause /
-     * stop from the row still switches everything off. Off: as before 1.1.450.
-     */
-    static boolean hold = true;
-    /**
      * The tablet's soft rise / fall (train.model.SoftRamp) on a bodytech suit (owner, 1.1.460). Every ramp step is one
      * strength frame per channel (8 frames ≈ 0.25–0.7 s on the one-frame-per-ACK link), so a ramp keeps the link full
      * the whole time. Off = no ramp at all on this suit (also not the 0.3 s safety rise, nor Smart / Auto's): the
      * impulses switch hard and the link is free for the switches of the double impulse.
      */
     static boolean ramp = true;
-    /**
-     * The suit runs the plain impulse / pause itself (owner, 1.1.462, test): rise / work / fall / pause in its own
-     * T1–T4 cycle (the FPGA keeps the times to the µs, also on a weak link), the tablet only restarts it at every impulse
-     * and sends strengths. Not with the double impulse or Smart / Auto (their times change every phase). Off = as before.
-     */
-    static boolean cycle = false;
     /** Service mode (owner, 1.1.462): per-channel waveform and Hz above {@link #HZ_TRAINING_MAX} — hidden, not applied. */
     static boolean service = false;
-    /**
-     * The 2nd impulse gated on the main Hz (owner, 1.1.463 — his EMSFIT pause script): bursts of the main impulse N
-     * times a second, the Hz register never changes. Off = the 2nd impulse's own Hz written to the channels (1.1.461).
-     */
-    static boolean gate = true;
     public static final int HZ_TRAINING_MAX = 150;
     static final int[] chHzMain = new int[CHANNELS + 1];
     static final int[] chHzSecond = new int[CHANNELS + 1];
@@ -166,12 +140,8 @@ public final class BtSettings {
             save();
         }
         unlimited = p.getBoolean("unlimited", true);
-        slots = p.getBoolean("slots2", true);
-        hold = p.getBoolean("hold", true);
         ramp = p.getBoolean("ramp", true);
-        cycle = p.getBoolean("cycle", false);
         service = p.getBoolean("service", false);
-        gate = p.getBoolean("gate", true);
         loadOrder(p.getString("order", ""));
         wave = clampWave(p.getInt("wave", WAVE_SUIT));
         gain = clampGain(p.getInt("gain", 100));
@@ -344,12 +314,8 @@ public final class BtSettings {
         for (int i = 0; i < CHANNELS; i++) o.append(order[i]);
         e.putString("order", o.toString());
         e.putBoolean("unlimited", unlimited);
-        e.putBoolean("slots2", slots);
-        e.putBoolean("hold", hold);
         e.putBoolean("ramp", ramp);
-        e.putBoolean("cycle", cycle);
         e.putBoolean("service", service);
-        e.putBoolean("gate", gate);
         e.putInt("wave", wave);
         e.putInt("gain", gain);
         e.apply();
@@ -373,12 +339,8 @@ public final class BtSettings {
         legL = 5;
         legR = 7;
         unlimited = true;
-        slots = true;
-        hold = true;
         ramp = true;
-        cycle = false;
         service = false;
-        gate = true;
         wave = WAVE_SUIT;
         gain = 100;
         save();
@@ -423,8 +385,6 @@ public final class BtSettings {
     }
 
     public static synchronized boolean unlimited() { return unlimited; }
-
-    public static synchronized boolean slots() { return slots; }
 
     /** Hz this channel is held to in the main (second = false) or 2nd impulse (never above the program's); 0 = the program's. */
     public static synchronized int chHz(int ch, boolean second) {
@@ -498,30 +458,9 @@ public final class BtSettings {
         save();
     }
 
-    public static synchronized boolean hold() { return hold; }
-
-    public static synchronized void setHold(boolean on) {
-        hold = on;
-        save();
-    }
-
     public static synchronized boolean ramp() { return ramp; }
 
-    public static synchronized boolean cycle() { return cycle; }
-
-    public static synchronized void setCycle(boolean on) {
-        cycle = on;
-        save();
-    }
-
     public static synchronized boolean service() { return service; }
-
-    public static synchronized boolean gate() { return gate; }
-
-    public static synchronized void setGate(boolean on) {
-        gate = on;
-        save();
-    }
 
     public static synchronized void setService(boolean on) {
         service = on;
@@ -533,10 +472,6 @@ public final class BtSettings {
         save();
     }
 
-    public static synchronized void setSlots(boolean on) {
-        slots = on;
-        save();
-    }
 
     public static synchronized void setUnlimited(boolean u) {
         unlimited = u;

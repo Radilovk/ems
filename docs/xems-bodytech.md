@@ -48,7 +48,7 @@ bodytech is remembered (`xems_bodytech_suits`).
 The suit's own cycle is programmed as one continuous burst (T1 = T3 = T4 = 0, T2 = 100 s): the tablet runs
 impulse / pause / ramp itself (SoftRamp), as it does for the XEMS suit; every phase is a SEL / strength change.
 
-**Channels stay on (owner, 1.1.450; Settings → Костюм bodytech → «Каналите остават включени», on by default).**
+**Channels stay on (owner, 1.1.450 — removed 1.1.464, see «The plain way wins»).**
 Owner: a hard knock for a fraction of a second at the start of every impulse — after a pause and at the switch to
 the 2nd impulse alike, also while a ramp rises — then the strength settles; EMSFIT does not have it, and slots off
 only eased it. The tablet's values were already smooth (ramp from 1, strengths written before SEL), so the suspect
@@ -199,7 +199,24 @@ in. ▶ again keeps waiting; stop (`BtBridge.reset`) calls the wait off; so do a
 `BtBridge.loadPercent(device)`: the program batch is marked when queued (`BtTranslator.programmed()` turned true) and
 ends with a marker item; frames ACKed / in all = the percent. XEMS suits never wait.
 
-## Pulse slots (1.1.380; on by default since 1.1.382, Settings → Костюм bodytech → «Разделени импулси»)
+## The plain way wins — the variants removed (owner, 1.1.464)
+Owner, after trying every switch on a person: the best on bodytech is **all of them off** — «Плавно нарастване и спад»
+on, «Разделени импулси», «Каналите остават включени», «Втори импулс чрез прекъсване», «Костюмът сам отмерва импулса»
+off. So those four are gone (code, settings, tests); what is left is exactly that setting:
+- a pause = SEL all off, an impulse = SEL on — every channel together, started by one SEL, as EMSFIT starts the suit;
+- the tablet ramps (SoftRamp) with the 1.5 s soft start (1.1.462) — the channel's capacitor charged while it was off;
+- the double impulse's switch (1.1.461): lowered strengths, SEL all off, the new Hz while off, SEL on, rising strengths;
+- the plain program: one 100 s burst (T1 = T3 = T4 = 0), written only at connect / stop / a new link.
+Why the plain way is best (our reading): the hardware has a boost converter, a capacitor and a bridge **per channel**
+(1.1.462 photos) and an FPGA clock — it is built to run channels started together on registers written while off. Every
+variant changed something on RUNNING channels or leaned on the link's timing: the slots' slide wrote periods live and
+its places depended on ACK times (25–90 ms, never reported back); channels kept on ran into the 100 s burst's end and
+kept the outputs live at 0; the gated 2nd impulse put 2 frames per burst on the same link; the suit's own cycle needed a
+program load (~3 s) for every change. The suit gives no feedback, so none of that could be corrected — the simple
+start / stop the vendor uses is the only thing whose timing the suit itself keeps.
+Old switches in the tablet's prefs (`slots2`, `hold`, `gate`, `cycle`) are ignored.
+
+## Pulse slots (1.1.380–1.1.463, removed 1.1.464)
 The suit has no galvanic isolation. Owner, on a person:
 - channels pulsing **together** (switch off; as before 1.1.380): a strong channel leaks hard into ONE electrode of its
   neighbour — the one of opposite polarity at that moment — and jumps to far electrodes, the other electrode gets none;
@@ -279,7 +296,7 @@ No period is ever written to a running channel at a switch. The off gap holds on
 **Diag:** every switch is logged to `wearable-ble.log` — `suit bodytech switch <mac> 2→1 N frames T ms` (`BtBridge.Timed`).
 Not verified on a suit yet.
 
-## The 2nd impulse gated on the main Hz (owner, 1.1.463 — his EMSFIT pause script)
+## The 2nd impulse gated on the main Hz (owner, 1.1.463 — removed 1.1.464)
 Owner: on EMSFIT he made the 2nd impulse with a script that pressed the app's pause N times a second, and it worked
 perfectly. EMSFIT's pause / resume is only SEL off / on — the Hz register never changes. So (Settings → Костюм bodytech →
 Разширени → «Втори импулс чрез прекъсване», `BtSettings.gate`, on by default), for a 2nd impulse of ≤ 12 Hz
@@ -299,7 +316,7 @@ Main board «BodyTech 8Z_M V4»: a 256-ball BGA with 1.2 V core and an SPI flash
 is most likely a voltage, a capacitor charged while the channel is off), one Li-ion cell, an ST BlueNRG-2 module with a
 PCB antenna (frames `36 … C9` look like UART packets it forwards). Output board: 8 bridges (B360 diodes, MOSFETs), the
 harness to the suit's connector. Changes:
-- **«Костюмът сам отмерва импулса (тест)»** (`BtSettings.cycle`, default off): the plain impulse / pause runs in the
+- **«Костюмът сам отмерва импулса (тест)»** (removed 1.1.464; was `BtSettings.cycle`, default off): the plain impulse / pause runs in the
   suit's own T1–T4 cycle — T1 = rise, T2 = impulse − rise − fall, T3 = fall, T4 = pause (`BtTranslator.cycleT`). The
   rise / fall come from SoftRamp (`SoftRamp.suitCycle` → `BtBridge.cycle`), the tablet then ramps nothing. A new cycle
   is RESET + the program (~3 s) — loaded in the pause (`progT`); every impulse start restarts the cycle (SEL off → on)
@@ -310,8 +327,8 @@ harness to the suit's connector. Changes:
   off (`SoftRamp.SOFT_START_MS`, `Slot.afterGap`) — the channel's capacitor was charged while it was off.
 - **Keep-alive SYNC 3 s every 1 s** (was 6 s / 4.5 s): a lost link stops the output within ~3 s (2 s would trip on a
   busy main thread).
-- **Settings simpler:** visible — waveform, strength, «Плавно нарастване и спад», «Костюмът сам отмерва импулса»;
-  under «Разширени ▾» — «Разделени импулси», «Каналите остават включени», «Сервизен режим». Outside service mode a
+- **Settings simpler:** visible — waveform, strength, «Плавно нарастване и спад»; under «Разширени ▾» — «Сервизен
+  режим» (1.1.464: the other switches removed). Outside service mode a
   channel's own waveform is not applied (`BtSettings.waveFor`) nor shown, and a channel's own Hz reads ≤ 150
   (`chHz`, `HZ_TRAINING_MAX`; «Модулация» keeps its kHz).
 Not verified on a suit yet (above all: that T1/T3 ramp and T4 pause work as EMSFIT uses them).

@@ -100,7 +100,6 @@ public final class SoftRamp {
             }
             com.isaigu.gymapp.wearable.SafeGuard.enforce(item);   // the absolute limits before every phase
             begin(item, item.data.inStart);
-            suitCycle(item);
         } catch (Throwable t) {
             XemsGuard.report("SoftRamp.phase", t);
         }
@@ -286,18 +285,7 @@ public final class SoftRamp {
     static int[] rampMs(TrainItem item, ProgramDataBean b) {
         try {
             if (com.isaigu.gymapp.wearable.SafeGuard.free2(item)) {
-                if (cycleOk(item, b)) {
-                    return new int[] {0, 0};                        // the suit's own T1 / T3 rise and fall (1.1.462)
-                }
                 Slot st = slots.get(item);
-                if (st != null && !st.on && com.isaigu.gymapp.bodytech.BtSettings.gate()) {
-                    int[] p = second(item, b);
-                    if (p != null && p[0] <= com.isaigu.gymapp.bodytech.BtTranslator.GATE_MAX_HZ) {
-                        // the gated 2nd impulse (1.1.463): bursts at a steady strength — a ramp's strength frames
-                        // would hold the link and the bursts would come unevenly
-                        return new int[] {0, 0};
-                    }
-                }
                 int[] ms = com.isaigu.gymapp.bodytech.BtSettings.ramp() ? AiRamp.rampMs(b) : new int[] {0, 0};
                 if (st != null && st.on && st.afterGap && ms[0] < SOFT_START_MS) {
                     // soft start (1.1.462): each channel's high voltage is a capacitor charged while it was off — the
@@ -310,27 +298,6 @@ public final class SoftRamp {
             XemsGuard.report("SoftRamp.rampMs", t);
         }
         return AiRamp.rampMs(b);
-    }
-
-    /** Bodytech: the suit may run this row's plain impulse / pause itself (no 2nd impulse, no Smart / Auto). */
-    static boolean cycleOk(TrainItem item, ProgramDataBean b) {
-        return com.isaigu.gymapp.bodytech.BtSettings.cycle() && second(item, b) == null && !AiRamp.active()
-                && !com.isaigu.gymapp.wearable.DoubleImpulse.holding(item);
-    }
-
-    /** Phase start of a bodytech row: its rise / fall and whether the suit runs the cycle go to the bridge. */
-    static void suitCycle(TrainItem item) {
-        try {
-            if (!com.isaigu.gymapp.wearable.SafeGuard.free2(item)) {
-                return;
-            }
-            ProgramDataBean b = item.getTrainProgram().matchProgram();
-            boolean ok = cycleOk(item, b);
-            int[] ms = com.isaigu.gymapp.bodytech.BtSettings.ramp() ? AiRamp.rampMs(b) : new int[] {0, 0};
-            com.isaigu.gymapp.bodytech.BtBridge.cycle(item.data.macAddress, ms[0], ms[1], ok);
-        } catch (Throwable t) {
-            XemsGuard.report("SoftRamp.suitCycle", t);
-        }
     }
 
     /** Each ramp ≤ 3 s; together ≤ the phase (a short phase loses the fall first). */

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 883
+    .line 733
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -40,25 +40,25 @@
 
     const/4 v2, 0x0
 
-    .line 886
+    .line 736
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v6
 
-    .line 887
+    .line 737
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 888
+    .line 738
     const-class v4, Lcom/isaigu/gymapp/bodytech/BtBridge;
 
     monitor-enter v4
 
-    .line 889
+    .line 739
     :try_start_f
     # getter for: Lcom/isaigu/gymapp/bodytech/BtBridge;->DEVS:Ljava/util/Map;
-    invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->access$200()Ljava/util/Map;
+    invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->access$100()Ljava/util/Map;
 
     move-result-object v0
 
@@ -87,7 +87,7 @@
 
     goto :goto_1b
 
-    .line 890
+    .line 740
     :catchall_2b
     move-exception v0
 
@@ -103,7 +103,7 @@
     :try_end_2f
     .catchall {:try_start_2e .. :try_end_2f} :catchall_2b
 
-    .line 892
+    .line 742
     invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v5
@@ -123,7 +123,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;
 
-    .line 895
+    .line 745
     :try_start_40
     invoke-static {}, Lcom/clj/fastble/BleManager;->getInstance()Lcom/clj/fastble/BleManager;
 
@@ -137,25 +137,25 @@
 
     move-result v4
 
-    .line 899
+    .line 749
     :goto_4a
     if-nez v4, :cond_5c
 
-    .line 900
+    .line 750
     monitor-enter v0
 
-    .line 901
+    .line 751
     const/4 v4, 0x0
 
     :try_start_4e
     iput-boolean v4, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->started:Z
 
-    .line 902
+    .line 752
     const/4 v4, 0x0
 
     invoke-virtual {v0, v4}, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->fail(Lcom/clj/fastble/exception/BleException;)V
 
-    .line 903
+    .line 753
     monitor-exit v0
 
     goto :goto_34
@@ -169,16 +169,16 @@
 
     throw v1
 
-    .line 896
+    .line 746
     :catch_59
     move-exception v4
 
     move v4, v2
 
-    .line 897
+    .line 747
     goto :goto_4a
 
-    .line 907
+    .line 757
     :cond_5c
     new-instance v1, Ljava/util/ArrayList;
 
@@ -190,7 +190,7 @@
 
     invoke-direct {v1, v4}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
 
-    .line 908
+    .line 758
     iget-wide v8, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->lastSync:J
 
     sub-long v8, v6, v8
@@ -201,7 +201,7 @@
 
     if-ltz v4, :cond_7b
 
-    .line 909
+    .line 759
     const/4 v4, 0x3
 
     invoke-static {v4}, Lcom/isaigu/gymapp/bodytech/BtProto;->sync(I)[B
@@ -210,10 +210,10 @@
 
     invoke-interface {v1, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 910
+    .line 760
     iput-wide v6, v0, Lcom/isaigu/gymapp/bodytech/BtBridge$Dev;->lastSync:J
 
-    .line 912
+    .line 762
     :cond_7b
     invoke-interface {v1}, Ljava/util/List;->isEmpty()Z
 
@@ -226,21 +226,21 @@
     :cond_84
     move v1, v3
 
-    .line 913
+    .line 763
     goto :goto_34
 
-    .line 914
+    .line 764
     :cond_86
     const-class v2, Lcom/isaigu/gymapp/bodytech/BtBridge;
 
     monitor-enter v2
 
-    .line 915
+    .line 765
     if-eqz v1, :cond_96
 
     :try_start_8b
     # getter for: Lcom/isaigu/gymapp/bodytech/BtBridge;->main:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->access$000()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtBridge;->access$200()Landroid/os/Handler;
 
     move-result-object v0
 
@@ -248,14 +248,14 @@
 
     invoke-virtual {v0, p0, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 917
+    .line 767
     :goto_94
     monitor-exit v2
 
-    .line 918
+    .line 768
     return-void
 
-    .line 916
+    .line 766
     :cond_96
     const/4 v0, 0x0
 
@@ -264,7 +264,7 @@
 
     goto :goto_94
 
-    .line 917
+    .line 767
     :catchall_9b
     move-exception v0
 

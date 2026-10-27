@@ -24,6 +24,16 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
 - App send queue: one command per **100 ms**, write timeout **3 s**, retried on error. App timers: 1 s and 100 ms.
 - Replies: `OK`, `ERROR`, or `+TAG:value\r`. Unsolicited reports arrive on the same notify.
 
+## Seen on the real unit (owner's log, 2026-10-27, 1.1.464-ai)
+- Sets are confirmed as `+TAG:OK` (`+CSTR:OK`, `+QPOWP:OK`, `+QPOWS:OK`), not a bare `OK`. Queries answer
+  `+TAG:value` then `OK`. (1.1.464 waited 800 ms on every set → modulation at ~1 update/s; fixed in 1.1.465.)
+- `+CBC:0,3.73` = cell voltage 3.73 V (first field unknown — maybe charging); % is estimated 3.30–4.15 V.
+- `+CMODE:0` (no channel field), `+CDCLK:HHMMSS`. Reply time 26–89 ms (avg 52). No `+CHEART` / `+CLOAD` in 90 s.
+- OTA server: `POST api.cqdomas.com/app/device/checkFirmware` `{deviceId:34, versionCode:1, tenantId:1}`
+  (JSON; answers AES-128-ECB, key `F5hiGGSJEKahnQn2`, base64 in `{"secret":…}`) → firmware v100 (2024-06-03),
+  `http://119.13.88.237:9000/resources/1/20240603041557852302AA05584E28BBCE179B6E002BC2.bin` — host unreachable
+  (from the cloud and the owner's phone) on 2026-10-27.
+
 ## Commands (all the app ever sends to H-024B)
 | Command | Meaning |
 |---|---|

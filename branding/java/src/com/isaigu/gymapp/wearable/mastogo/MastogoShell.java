@@ -44,6 +44,8 @@ public final class MastogoShell {
     public static final int EMS_FIRST = 12, FEMALE_FIRST = 21;
     static final long GAP_MS = 100;
     static final long REPLY_MS = 800;
+    /** A query answered by its +TAG line waits this long for the unit's trailing OK. */
+    static final long GRACE_MS = 200;
     static final long POLL_MS = 20000;
     /** The envelope never climbs more than this per update (falls are free). */
     public static final int MAX_RISE = 3;
@@ -58,7 +60,10 @@ public final class MastogoShell {
     /** Time left as the unit last said, and when it said it. */
     public int secLeft = -1;
     long secAt;
+    /** Battery %, estimated from the cell voltage the unit reports ({@code +CBC:0,3.73} = 3.73 V); -1 unknown. */
     public int battery = -1;
+    /** The cell voltage, V (0 = not reported). */
+    public double batteryV;
     /** 1 = pads on skin, 0 = contact lost (+CLOAD:0 / ERROR 102), -1 = not known yet. */
     public int contact = -1;
     /** Last +QPOWD reason: 0 idle, 1 continuous output, 2 low battery, 3 long press; -1 none. */
@@ -273,6 +278,7 @@ public final class MastogoShell {
         recvCount++;
         ev.onLine(this, false, line);
         boolean end = false;
+        boolean answered = false;
         String up = line.toUpperCase();
         if (up.equals("OK")) {
             end = true;
@@ -283,9 +289,19 @@ public final class MastogoShell {
             end = true;
         } else if (line.startsWith("+")) {
             int i = line.indexOf(':');
-            String tag = i > 0 ? line.substring(1, i).trim() : line.substring(1).trim();
+            String tag = (i > 0 ? line.substring(1, i) : line.substring(1)).trim().toUpperCase();
             String val = i > 0 ? line.substring(i + 1).trim() : "";
-            apply(tag.toUpperCase(), val);
+            String uv = val.toUpperCase();
+            if (uv.equals("OK") || uv.startsWith("ERROR")) {
+                // the unit confirms a set as "+CSTR:OK" (seen on the H-024B, 2026-10-27)
+                if (uv.startsWith("ERROR") && val.indexOf("102") >= 0) {
+                    lostContact();
+                }
+                end = true;
+            } else {
+                apply(tag, val);
+                answered = true;
+            }
         } else if (line.equals("102")) {
             lostContact();
         }
@@ -295,9 +311,10 @@ public final class MastogoShell {
                 c.reply.append(" | ");
             }
             c.reply.append(line);
-            // a set is answered by OK / ERROR; a query by its +TAG line (an OK may follow — it is then stray)
-            if (end || (line.startsWith("+") && c.text.endsWith("?") && answers(c.text, line))) {
+            if (end) {
                 finish(c, false);
+            } else if (answered && c.text.endsWith("?") && answers(c.text, line)) {
+                io.later(new Grace(this, c), GRACE_MS);   // its OK normally follows within ms
             }
         }
         ev.onChanged(this);
@@ -353,9 +370,12 @@ public final class MastogoShell {
                 secAt = now;
             }
         } else if (tag.equals("CBC")) {
-            int n = lastInt(v);
-            if (n >= 0) {
-                battery = n;
+            double volts = volts(v);
+            if (volts > 0) {
+                batteryV = volts;
+                battery = (int) Math.round(Math.max(0, Math.min(100, (volts - 3.3) / (4.15 - 3.3) * 100)));
+            } else if (lastInt(v) >= 0) {
+                battery = lastInt(v);
             }
         } else if (tag.equals("CLOAD")) {
             if (lastInt(v) == 0) {
@@ -414,6 +434,26 @@ public final class MastogoShell {
             return Integer.parseInt(v.substring(start, end));
         } catch (NumberFormatException e) {
             return -1;
+        }
+    }
+
+    /** The last "d.dd" in a value ("0,3.73" → 3.73); 0 if there is none. */
+    static double volts(String v) {
+        int dot = v.lastIndexOf('.');
+        if (dot <= 0) {
+            return 0;
+        }
+        int a = dot, b = dot + 1;
+        while (a > 0 && Character.isDigit(v.charAt(a - 1))) {
+            a--;
+        }
+        while (b < v.length() && Character.isDigit(v.charAt(b))) {
+            b++;
+        }
+        try {
+            return Double.parseDouble(v.substring(a, b));
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 
@@ -693,7 +733,8 @@ public final class MastogoShell {
         StringBuilder b = new StringBuilder();
         b.append("MASTOGO H-024B · XEMS\n");
         b.append("mode ").append(mode).append(" · level ").append(level).append(" · running ").append(running)
-                .append(" · left ").append(secondsLeft()).append(" s · battery ").append(battery)
+                .append(" · left ").append(secondsLeft()).append(" s · battery ").append(battery).append("% ")
+                .append(batteryV).append(" V")
                 .append(" · contact ").append(contact).append(" · off ").append(offReason).append('\n');
         b.append("sent ").append(sentCount).append(" · received ").append(recvCount);
         if (rttCount > 0) {
@@ -747,6 +788,21 @@ public final class MastogoShell {
             if (sh.inFlight != null && sh.token == token) {
                 sh.finish(sh.inFlight, true);
             }
+        }
+    }
+
+    static final class Grace implements Runnable {
+        final MastogoShell sh;
+        final Cmd c;
+
+        Grace(MastogoShell sh, Cmd c) {
+            this.sh = sh;
+            this.c = c;
+        }
+
+        @Override
+        public void run() {
+            sh.finish(c, false);
         }
     }
 

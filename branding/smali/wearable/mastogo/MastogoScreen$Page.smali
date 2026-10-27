@@ -2277,7 +2277,7 @@
 
     invoke-direct {v2, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;)V
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
     .line 602
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;

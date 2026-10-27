@@ -173,7 +173,7 @@ hidden command the sweep must find).
   at all); **Сила on 14 Пеперуда (3 / 15.6 Hz, 190 µs), 40 ms, 24 = "most like a hit, but must be stronger"**.
   DOMAS caps this unit at 25 (`getDeviceMaxLevel`: class `MAST` → 25). 1.1.475: the Сила way idles at the panel's
   pause strength (`hitBase`) and returns there — the unit glides every change, so from a higher base the hit
-  reaches its top sooner.
+  reaches its top sooner. 1.1.476: УДАР fires on the touch (ACTION_DOWN), not on lifting the finger.
 - **Наклон (1.1.473, panel, a test — owner):** a switch under the phase box; the tablet's accelerometer (low-passed
   gravity → the screen's angle) drives the impulse strength: 0° = the pause strength, 30° = the strength on the right
   (never above it). Zero = the position when switched on and at ▶. Off on every open, unregistered on close; rises

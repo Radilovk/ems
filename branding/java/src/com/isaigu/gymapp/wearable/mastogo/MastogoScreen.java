@@ -598,7 +598,7 @@ public final class MastogoScreen {
             row.setGravity(Gravity.CENTER_VERTICAL);
             TextView hit = XemsUi.button(a, tr("УДАР", "HIT"), XemsUi.DANGER_BTN);
             hit.setTextSize(24);
-            hit.setOnClickListener(new HitPress(this));
+            hit.setOnTouchListener(new HitPress(this));     // on the touch itself, not on lifting the finger
             row.addView(hit, new LinearLayout.LayoutParams(dp(170), dp(84)));
             LinearLayout right = XemsUi.vertical(a);
             LinearLayout[] h = new LinearLayout[1];
@@ -2066,7 +2066,8 @@ public final class MastogoScreen {
         }
     }
 
-    static final class HitPress implements View.OnClickListener {
+    /** УДАР fires the moment the finger lands (owner: "it starts on lifting the finger — that delays it"). */
+    static final class HitPress implements View.OnTouchListener {
         final Page p;
 
         HitPress(Page p) {
@@ -2074,8 +2075,19 @@ public final class MastogoScreen {
         }
 
         @Override
-        public void onClick(View v) {
-            p.hitPress();
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            int act = e.getActionMasked();
+            if (act == android.view.MotionEvent.ACTION_DOWN) {
+                v.setPressed(true);
+                v.setScaleX(0.96f);
+                v.setScaleY(0.96f);
+                p.hitPress();
+            } else if (act == android.view.MotionEvent.ACTION_UP || act == android.view.MotionEvent.ACTION_CANCEL) {
+                v.setPressed(false);
+                v.setScaleX(1f);
+                v.setScaleY(1f);
+            }
+            return true;
         }
     }
 

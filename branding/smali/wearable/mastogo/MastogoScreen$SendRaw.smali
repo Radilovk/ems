@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1647
+    .line 1902
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1648
+    .line 1903
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$SendRaw;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 1649
+    .line 1904
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$SendRaw;->e:Landroid/widget/EditText;
 
-    .line 1650
+    .line 1905
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 4
 
     .prologue
-    .line 1654
+    .line 1909
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$SendRaw;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$SendRaw;->e:Landroid/widget/EditText;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sendRaw(Landroid/widget/EditText;)V
 
-    .line 1655
+    .line 1910
     return-void
 .end method

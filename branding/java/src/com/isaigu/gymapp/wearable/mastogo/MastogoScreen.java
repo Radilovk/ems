@@ -167,6 +167,14 @@ public final class MastogoScreen {
         TextView hint;
         TextView go;
         int goStyle = -1;
+        // live panel ("Пулт"): the XBody-style manual screen
+        MastogoShell.Mod live;
+        /** The running modulation is the panel's (not the "Импулс" tab's). */
+        boolean liveRun;
+        final XemsUi.Stepper[] liveSt = new XemsUi.Stepper[6];
+        PhaseView phase;
+        TextView phaseText;
+        TextView liveInfo;
         // modules tab
         final TextView[] tiles = new TextView[MastogoShell.MODES];
         // modulation tab
@@ -189,6 +197,18 @@ public final class MastogoScreen {
             mode = prefs.getInt("mode", 0);
             minutes = prefs.getInt("minutes", 20);
             mod = MastogoShell.Mod.decode(prefs.getString("mod", new MastogoShell.Mod().encode()));
+            live = MastogoShell.Mod.decode(prefs.getString("live", ""));
+            if (!prefs.contains("live")) {
+                live.lo = 0;
+                live.hi = 8;
+            }
+            live.shape = MastogoShell.Mod.WORK;
+            live.rotate = new int[0];
+            if (live.carrier < 0) {
+                live.carrier = 18;                  // DOMAS "Continuous", 77 Hz — a steady carrier
+            }
+            live.stepMs = 100;
+            live.safe();
             modOn = prefs.getBoolean("mod_on", false);
         }
 
@@ -241,7 +261,8 @@ public final class MastogoScreen {
 
             LinearLayout row = XemsUi.horizontal(a);
             LinearLayout left = XemsUi.vertical(a);
-            String[] tabs = {tr("Модули", "Modules"), tr("Импулс", "Impulse"), tr("Изследване", "Explore")};
+            String[] tabs = {tr("Пулт", "Panel"), tr("Модули", "Modules"), tr("Импулс", "Impulse"),
+                tr("Изследване", "Explore")};
             tabHolder = XemsUi.vertical(a);
             tabHolder.addView(XemsUi.segmented(a, tabs, tab, new Tab(this)));
             left.addView(tabHolder);
@@ -310,7 +331,8 @@ public final class MastogoScreen {
             tab = i;
             prefs.edit().putInt("tab", i).apply();
             tabHolder.removeAllViews();
-            String[] tabs = {tr("Модули", "Modules"), tr("Импулс", "Impulse"), tr("Изследване", "Explore")};
+            String[] tabs = {tr("Пулт", "Panel"), tr("Модули", "Modules"), tr("Импулс", "Impulse"),
+                tr("Изследване", "Explore")};
             tabHolder.addView(XemsUi.segmented(a, tabs, tab, new Tab(this)));
             fillTab();
             render();
@@ -329,14 +351,173 @@ public final class MastogoScreen {
             hitList = null;
             consoleView = null;
             feedback = null;
-            if (tab == 1) {
-                fillMod();
+            java.util.Arrays.fill(liveSt, null);
+            phase = null;
+            phaseText = null;
+            liveInfo = null;
+            if (tab == 0) {
+                fillPult();
             } else if (tab == 2) {
+                fillMod();
+            } else if (tab == 3) {
                 fillExplore();
             } else {
                 fillProgram();
             }
             XemsUi.enter(tabBody);
+        }
+
+        // ------------------------------------------------------------------ tab: live panel
+
+        static final int F_L_HZ = 30, F_L_ON = 31, F_L_OFF = 32, F_L_UP = 33, F_L_DOWN = 34, F_L_LO = 35;
+        /** The modules by their (first) frequency, low to high: the panel's frequency − / + walks this list. */
+        static final int[] BY_HZ = byHz();
+
+        static int[] byHz() {
+            Integer[] ids = new Integer[MastogoShell.MODES];
+            for (int i = 0; i < ids.length; i++) {
+                ids[i] = i;
+            }
+            java.util.Arrays.sort(ids, new ByHz());
+            int[] out = new int[ids.length];
+            for (int i = 0; i < ids.length; i++) {
+                out[i] = ids[i];
+            }
+            return out;
+        }
+
+        static double firstHz(int id) {
+            String h = MastogoModes.hz(id);
+            int e = 0;
+            while (e < h.length() && (Character.isDigit(h.charAt(e)) || h.charAt(e) == '.')) {
+                e++;
+            }
+            try {
+                return Double.parseDouble(h.substring(0, e));
+            } catch (Throwable t) {
+                return 0;
+            }
+        }
+
+        MastogoShell.Mod active() {
+            return liveRun ? live : mod;
+        }
+
+        /**
+         * Owner, 2026-10-27: "like we change the parameters on XEMS, XBody — change them in real time". The XBody
+         * manual-training layout: big parameter tiles changed live (− / +, hold repeats), the phase box under them
+         * (impulse green, pause grey, seconds counting), strength and time on the right card, ▶ / ■ below.
+         */
+        void fillPult() {
+            LinearLayout r1 = XemsUi.horizontal(a);
+            pultTile(r1, tr("ЧЕСТОТА", "FREQUENCY"), F_L_HZ);
+            pultTile(r1, tr("ИМПУЛС", "IMPULSE"), F_L_ON);
+            pultTile(r1, tr("ПАУЗА", "PAUSE"), F_L_OFF);
+            tabBody.addView(r1);
+            LinearLayout r2 = XemsUi.horizontal(a);
+            pultTile(r2, tr("НАРАСТВАНЕ", "RISE"), F_L_UP);
+            pultTile(r2, tr("СПАДАНЕ", "FALL"), F_L_DOWN);
+            pultTile(r2, tr("СИЛА В ПАУЗАТА", "PAUSE STRENGTH"), F_L_LO);
+            tabBody.addView(r2, XemsUi.matchWrap(a, 10));
+
+            LinearLayout box = XemsUi.card(a);
+            box.setPadding(dp(16), dp(10), dp(16), dp(12));
+            phaseText = XemsUi.text(a, "", 22, XemsUi.TEXT, true);
+            box.addView(phaseText);
+            phase = new PhaseView(a, this);
+            LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(34));
+            pl.topMargin = dp(8);
+            box.addView(phase, pl);
+            tabBody.addView(box, XemsUi.matchWrap(a, 12));
+            liveInfo = XemsUi.text(a, "", 12.5f, XemsUi.HINT, false);
+            tabBody.addView(liveInfo, XemsUi.matchWrap(a, 8));
+            renderPult();
+        }
+
+        void pultTile(LinearLayout row, String label, int f) {
+            LinearLayout col = XemsUi.card(a);
+            col.setPadding(dp(10), dp(8), dp(10), dp(10));
+            col.addView(XemsUi.label(a, label));
+            XemsUi.Stepper st = XemsUi.stepper(a, "", "", 28, new ModStep(this, f));
+            col.addView(st.view, XemsUi.matchWrap(a, 6));
+            liveSt[f - F_L_HZ] = st;
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            if (row.getChildCount() > 0) {
+                lp.leftMargin = dp(10);
+            }
+            row.addView(col, lp);
+        }
+
+        void renderPult() {
+            if (liveSt[0] == null) {
+                return;
+            }
+            boolean bg = XemsLang.isBg();
+            int c = live.carrier;
+            liveSt[0].set(MastogoModes.hz(c), (MastogoModes.steady(c) ? "≈ " : "") + MastogoModes.name(c, bg)
+                    + " · " + MastogoModes.width(c));
+            liveSt[1].set(secs(live.onMs), tr("секунди", "seconds"));
+            liveSt[2].set(secs(live.offMs), live.offMs == 0 ? tr("без пауза", "no pause") : tr("секунди", "seconds"));
+            liveSt[3].set(secs(live.upMs), tr("секунди", "seconds"));
+            liveSt[4].set(secs(live.downMs), tr("секунди", "seconds"));
+            liveSt[5].set(String.valueOf(live.lo), tr("от ", "of ") + live.hi + tr(" в импулса", " in the impulse"));
+            MastogoShell sh = sh();
+            boolean on = sh != null && sh.running && liveRun && sh.mod() != null;
+            if (on) {
+                int[] ph = MastogoShell.phaseOf(live, sh.modElapsed());
+                int left = Math.max(0, ph[2] - ph[1]);
+                String name = ph[0] == MastogoShell.IMPULSE ? tr("ИМПУЛС ", "IMPULSE ")
+                        : ph[0] == MastogoShell.PAUSE ? tr("ПАУЗА ", "PAUSE ")
+                        : ph[0] == MastogoShell.RISE ? tr("НАРАСТВАНЕ ", "RISE ") : tr("СПАДАНЕ ", "FALL ");
+                phaseText.setText(name + String.format(java.util.Locale.US, "%.1f", left / 1000f)
+                        + tr(" с", " s"));
+                phaseText.setTextColor(ph[0] == MastogoShell.PAUSE ? XemsUi.MUTED : XemsUi.GO_TEXT);
+            } else {
+                phaseText.setText(tr("Импулс ", "Impulse ") + secs(live.onMs) + tr(" с · пауза ", " s · pause ")
+                        + secs(live.offMs) + tr(" с", " s"));
+                phaseText.setTextColor(XemsUi.TEXT);
+            }
+            phase.invalidate();
+            liveInfo.setText((MastogoModes.steady(c)
+                    ? tr("≈ Постоянен носител — цикълът е изцяло твой. ", "≈ Steady carrier — the cycle is all yours. ")
+                    : tr("Този носител има свои пакети и паузи — те вървят върху твоя цикъл. ",
+                            "This carrier has its own bursts and pauses — they ride on your cycle. "))
+                    + tr("Всичко важи веднага; честотата се сменя в следващата пауза. Силата в импулса е вдясно.",
+                    "Everything applies at once; the frequency changes in the next pause. Impulse strength is on "
+                            + "the right."));
+        }
+
+        void pultStep(int f, int dir) {
+            switch (f) {
+                case F_L_HZ: {
+                    int at = 0;
+                    for (int i = 0; i < BY_HZ.length; i++) {
+                        if (BY_HZ[i] == live.carrier) {
+                            at = i;
+                        }
+                    }
+                    live.carrier = BY_HZ[Math.max(0, Math.min(BY_HZ.length - 1, at + dir))];
+                    mode = live.carrier;
+                    prefs.edit().putInt("mode", mode).apply();
+                    break;
+                }
+                case F_L_ON: live.onMs = tenths(live.onMs, dir); break;
+                case F_L_OFF: live.offMs = tenths(live.offMs, dir); break;
+                case F_L_UP: live.upMs = tenths(live.upMs, dir); break;
+                case F_L_DOWN: live.downMs = tenths(live.downMs, dir); break;
+                default: live.lo = Math.max(0, Math.min(live.hi, live.lo + dir)); break;
+            }
+            live.safe();
+            liveChanged();
+            renderPult();
+        }
+
+        void liveChanged() {
+            prefs.edit().putString("live", live.encode()).apply();
+            MastogoShell sh = sh();
+            if (sh != null && sh.running && liveRun) {
+                sh.modulate(live.copy());
+            }
         }
 
         // ------------------------------------------------------------------ tab: program
@@ -743,6 +924,10 @@ public final class MastogoScreen {
         }
 
         void modStep(int f, int dir) {
+            if (f >= F_L_HZ) {
+                pultStep(f, dir);
+                return;
+            }
             switch (f) {
                 case F_LO: mod.lo = Math.max(0, Math.min(mod.hi, mod.lo + dir)); break;
                 case F_HI: mod.hi = Math.max(mod.lo, Math.min(MastogoShell.MAX_LEVEL, mod.hi + dir)); break;
@@ -791,7 +976,7 @@ public final class MastogoScreen {
         void modChanged() {
             prefs.edit().putString("mod", mod.encode()).apply();
             MastogoShell sh = sh();
-            if (sh != null && modOn && sh.running) {
+            if (sh != null && modOn && sh.running && !liveRun) {
                 sh.modulate(mod.copy());
             }
             if (env != null) {
@@ -983,9 +1168,13 @@ public final class MastogoScreen {
                 contact.setText("");
             }
             int lv = sh != null ? Math.max(0, sh.level) : 0;
-            level.set(String.valueOf(lv), sh != null && sh.mod() != null
-                    ? tr("сила · импулс ", "strength · impulse ") + mod.lo + "–" + mod.hi
-                    : tr("сила от 25", "strength of 25"));
+            if (tab == 0 && (sh == null || !sh.running)) {
+                level.set(String.valueOf(live.hi), tr("сила в импулса · от 25", "impulse strength · of 25"));
+            } else {
+                level.set(String.valueOf(lv), sh != null && sh.mod() != null
+                        ? tr("сила · импулс ", "strength · impulse ") + active().lo + "–" + active().hi
+                        : tr("сила от 25", "strength of 25"));
+            }
             level.view.setAlpha(sh != null ? 1f : 0.4f);
             int left = sh != null ? sh.secondsLeft() : -1;
             if (sh != null && sh.running && left >= 0) {
@@ -1032,7 +1221,9 @@ public final class MastogoScreen {
             } else if (sh.probing) {
                 h = tr("Търся команди — изходът е спрян.", "Searching commands — output paused.");
             } else if (running) {
-                h = modOn ? tr("Импулс: ", "Impulse: ") + shapeName(mod.shape) + (mod.rotate.length > 1
+                h = liveRun ? tr("Пулт: ", "Panel: ") + MastogoModes.hz(live.carrier) + " · " + secs(live.onMs)
+                        + " / " + secs(live.offMs) + tr(" с — пипай на живо", " s — change it live")
+                        : modOn ? tr("Импулс: ", "Impulse: ") + shapeName(mod.shape) + (mod.rotate.length > 1
                         ? tr(" · модули ", " · modules ") + rotateText() : "") : tr("Работи.", "Running.");
             } else {
                 h = tr("Готово. Силата тръгва от 1.", "Ready. Strength starts at 1.");
@@ -1041,6 +1232,7 @@ public final class MastogoScreen {
             if (env != null) {
                 env.invalidate();
             }
+            renderPult();
             renderExplore();
         }
 
@@ -1054,7 +1246,15 @@ public final class MastogoScreen {
             hintText = null;
             if (sh.running) {
                 sh.stop();
+            } else if (tab == 0) {                         // the panel: its own work / pause on its carrier
+                liveRun = true;
+                if (sh.mode != live.carrier) {
+                    sh.setMode(live.carrier);
+                }
+                sh.start(minutes * 60);
+                sh.modulate(live.copy());
             } else {
+                liveRun = false;
                 int first = !modOn ? mode : mod.shape == MastogoShell.Mod.STEPS ? mod.steps.get(0).mode
                         : mod.rotate.length > 1 ? mod.rotate[0] : mode;
                 if (sh.mode != first) {
@@ -1074,14 +1274,19 @@ public final class MastogoScreen {
                 return;
             }
             hintText = null;
-            if (sh.mod() != null) {                         // shift the whole envelope
+            if (liveRun && sh.mod() != null || tab == 0 && !sh.running) {   // the panel: impulse strength
+                live.hi = Math.max(live.lo, Math.min(MastogoShell.MAX_LEVEL, live.hi + dir));
+                live.safe();
+                liveChanged();
+                renderPult();
+            } else if (sh.mod() != null) {                  // shift the whole envelope
                 if (dir > 0 && mod.hi < MastogoShell.MAX_LEVEL || dir < 0 && mod.lo > 0) {
                     mod.lo += dir;
                     mod.hi += dir;
                 }
                 mod.safe();
                 modChanged();
-                if (tab == 1) {
+                if (tab == 2) {
                     refreshFields(tabBody);
                 }
             } else {
@@ -1097,6 +1302,8 @@ public final class MastogoScreen {
 
         void pickMode(int id) {
             mode = id;
+            live.carrier = id;
+            prefs.edit().putString("live", live.encode()).apply();
             prefs.edit().putInt("mode", id).apply();
             MastogoShell sh = sh();
             if (sh != null) {
@@ -1129,6 +1336,7 @@ public final class MastogoScreen {
 
         void modToggle(boolean on) {
             modOn = on;
+            liveRun = false;
             prefs.edit().putBoolean("mod_on", on).apply();
             MastogoShell sh = sh();
             if (sh != null) {
@@ -1203,7 +1411,7 @@ public final class MastogoScreen {
             if (sh != null && (sh.running || env != null)) {
                 render();
             }
-            main.postDelayed(new Tick(this), 500);
+            main.postDelayed(new Tick(this), tab == 0 && sh != null && sh.running ? 200 : 500);
         }
 
         // ------------------------------------------------------------------ link
@@ -1450,6 +1658,53 @@ public final class MastogoScreen {
         @Override
         public void onClick(View v) {
             p.pickMinutes(m);
+        }
+    }
+
+    /** The panel's phase bar: one cycle — rise, impulse (green), fall, pause (grey) — and where it is now. */
+    static final class PhaseView extends View {
+        final Page p;
+        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final android.graphics.RectF r = new android.graphics.RectF();
+
+        PhaseView(Context c, Page p) {
+            super(c);
+            this.p = p;
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            MastogoShell.Mod m = p.live;
+            float w = getWidth(), h = getHeight(), rad = h / 4f;
+            float total = Math.max(1, m.upMs + m.onMs + m.downMs + m.offMs);
+            float x = 0;
+            int[] lens = {m.upMs, m.onMs, m.downMs, m.offMs};
+            int[] cols = {XemsUi.alpha(XemsUi.GO_TEXT, 0x80), XemsUi.GO_TEXT, XemsUi.alpha(XemsUi.GO_TEXT, 0x80),
+                XemsUi.alpha(XemsUi.MUTED, 0x55)};
+            for (int i = 0; i < 4; i++) {
+                float seg = w * lens[i] / total;
+                if (seg <= 0) {
+                    continue;
+                }
+                paint.setColor(cols[i]);
+                r.set(x, h * 0.2f, x + seg - (i < 3 ? 2 : 0), h * 0.8f);
+                c.drawRoundRect(r, rad, rad, paint);
+                x += seg;
+            }
+            MastogoShell sh = p.sh();
+            if (sh != null && sh.running && p.liveRun && sh.mod() != null) {
+                float at = w * (sh.modElapsed() % (long) total) / total;
+                paint.setColor(XemsUi.TEXT);
+                r.set(at - XemsUi.dp(getContext(), 2), 0, at + XemsUi.dp(getContext(), 2), h);
+                c.drawRoundRect(r, rad, rad, paint);
+            }
+        }
+    }
+
+    static final class ByHz implements java.util.Comparator<Integer> {
+        @Override
+        public int compare(Integer x, Integer y) {
+            return Double.compare(Page.firstHz(x), Page.firstHz(y));
         }
     }
 

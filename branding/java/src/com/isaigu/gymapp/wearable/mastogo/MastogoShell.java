@@ -569,6 +569,8 @@ public final class MastogoShell {
         public int[] rotate = new int[0];
         /** Cycles on one module before the next. */
         public int every = 1;
+        /** WORK: the carrier (module) to run; changed live, it comes in at the next pause. -1 = leave it. */
+        public int carrier = -1;
         /** STEPS: the owner's own cycle, step after step, then from the start (owner, 2026-10-27). */
         public final List<Step> steps = new ArrayList<Step>();
 
@@ -586,6 +588,7 @@ public final class MastogoShell {
             m.offMs = offMs;
             m.rotate = rotate.clone();
             m.every = every;
+            m.carrier = carrier;
             for (Step st : steps) {
                 m.steps.add(st.copy());
             }
@@ -655,6 +658,10 @@ public final class MastogoShell {
                 }
                 return st.mode;
             }
+            if (shape == WORK && rotate.length < 2 && carrier >= 0) {
+                boolean pause = t % periodMs >= upMs + onMs + downMs;
+                return pause || offMs < Step.SWITCH_MS ? carrier : -1;
+            }
             return moduleAt(segmentAt(t));
         }
 
@@ -696,7 +703,7 @@ public final class MastogoShell {
                 q.append(st.encode());
             }
             return shape + "," + lo + "," + hi + "," + periodMs + "," + duty + "," + stepMs + "," + upMs + ","
-                    + onMs + "," + downMs + "," + offMs + "," + every + "," + r + "," + q;
+                    + onMs + "," + downMs + "," + offMs + "," + every + "," + r + "," + q + "," + carrier;
         }
 
         public static Mod decode(String s) {
@@ -727,6 +734,9 @@ public final class MastogoShell {
                     for (String one : p[12].split(";")) {
                         m.steps.add(Step.decode(one));
                     }
+                }
+                if (p.length > 13) {
+                    m.carrier = Math.max(-1, Math.min(MODES - 1, Integer.parseInt(p[13])));
                 }
             } catch (Throwable ignored) {
                 m = new Mod();
@@ -792,6 +802,41 @@ public final class MastogoShell {
             st.safe();
             return st;
         }
+    }
+
+    public static final int RISE = 0, IMPULSE = 1, FALL = 2, PAUSE = 3;
+
+    /**
+     * Where a WORK or STEPS envelope is at {@code t}: {phase ({@link #RISE}…{@link #PAUSE}), ms into it, its length};
+     * null for the other shapes (the live panel's phase box).
+     */
+    public static int[] phaseOf(Mod m, long t) {
+        int up, on, down, off, c;
+        if (m.shape == Mod.STEPS) {
+            int[] at = m.stepAt(t);
+            Step st = m.steps.get(at[0]);
+            up = st.upMs;
+            on = st.onMs;
+            down = st.downMs;
+            off = st.offMs;
+            c = at[1];
+        } else if (m.shape == Mod.WORK) {
+            up = m.upMs;
+            on = m.onMs;
+            down = m.downMs;
+            off = m.offMs;
+            c = (int) (t % m.periodMs);
+        } else {
+            return null;
+        }
+        if (c < up) {
+            return new int[] {RISE, c, up};
+        } else if (c < up + on) {
+            return new int[] {IMPULSE, c - up, on};
+        } else if (c < up + on + down) {
+            return new int[] {FALL, c - up - on, down};
+        }
+        return new int[] {PAUSE, c - up - on - down, off};
     }
 
     /** Rise / work / fall / pause at {@code c} ms into one cycle → 0…1. */

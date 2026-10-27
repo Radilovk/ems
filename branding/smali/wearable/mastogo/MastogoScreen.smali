@@ -25,6 +25,8 @@
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepPick;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepAdd;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;,
+        Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ByHz;,
+        Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMinutes;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMode;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Step;,

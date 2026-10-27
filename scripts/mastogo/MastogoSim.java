@@ -213,6 +213,38 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(pausedWrites == 0, "steps: no strength while paused (" + pausedWrites + ")");
         sh.modulate(null);
 
+        // live panel: the carrier changed while it runs comes in at the next pause
+        MastogoShell.Mod live = new MastogoShell.Mod();
+        live.shape = MastogoShell.Mod.WORK;
+        live.lo = 0;
+        live.hi = 8;
+        live.upMs = 0;
+        live.onMs = 1000;
+        live.downMs = 0;
+        live.offMs = 1000;
+        live.stepMs = 100;
+        live.carrier = 18;
+        live.safe();
+        sh.modulate(null);
+        runFor(300);
+        sh.setMode(18);
+        sh.start(600);
+        runFor(500);
+        modes.clear();
+        sh.modulate(live);
+        runFor(300);
+        MastogoShell.Mod live2 = live.copy();
+        live2.carrier = 24;
+        sh.modulate(live2);
+        runFor(400);
+        check(modes.isEmpty() && MastogoShell.phaseOf(live2, sh.modElapsed())[0] == MastogoShell.IMPULSE,
+                "live carrier: not during the impulse " + modes);
+        runFor(800);
+        check(modes.toString().equals("[24]") && MastogoShell.phaseOf(live2, sh.modElapsed())[0] == MastogoShell.PAUSE,
+                "live carrier: in the pause " + modes);
+        check(MastogoShell.Mod.decode(live2.encode()).carrier == 24, "carrier saved");
+        sh.modulate(null);
+
         // contact lost → strength 0, modulation off
         feed("+CLOAD:0");
         runFor(1000);

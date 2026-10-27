@@ -41,15 +41,15 @@
     .registers 2
 
     .prologue
-    .line 740
+    .line 750
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 744
+    .line 754
     const/16 v0, 0x12
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
-    .line 745
+    .line 755
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->lo:I
@@ -58,7 +58,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->hi:I
 
-    .line 746
+    .line 756
     const/16 v0, 0x1f4
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->upMs:I
@@ -75,7 +75,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->offMs:I
 
-    .line 747
+    .line 757
     const/4 v0, 0x3
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->reps:I
@@ -87,19 +87,19 @@
     .registers 4
 
     .prologue
-    .line 782
+    .line 792
     new-instance v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;-><init>()V
 
-    .line 783
+    .line 793
     const-string v1, ":"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v1
 
-    .line 784
+    .line 794
     const/4 v2, 0x0
 
     aget-object v2, v1, v2
@@ -110,7 +110,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
-    .line 785
+    .line 795
     const/4 v2, 0x1
 
     aget-object v2, v1, v2
@@ -121,7 +121,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->lo:I
 
-    .line 786
+    .line 796
     const/4 v2, 0x2
 
     aget-object v2, v1, v2
@@ -132,7 +132,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->hi:I
 
-    .line 787
+    .line 797
     const/4 v2, 0x3
 
     aget-object v2, v1, v2
@@ -143,7 +143,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->upMs:I
 
-    .line 788
+    .line 798
     const/4 v2, 0x4
 
     aget-object v2, v1, v2
@@ -154,7 +154,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->onMs:I
 
-    .line 789
+    .line 799
     const/4 v2, 0x5
 
     aget-object v2, v1, v2
@@ -165,7 +165,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->downMs:I
 
-    .line 790
+    .line 800
     const/4 v2, 0x6
 
     aget-object v2, v1, v2
@@ -176,7 +176,7 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->offMs:I
 
-    .line 791
+    .line 801
     const/4 v2, 0x7
 
     aget-object v1, v1, v2
@@ -187,10 +187,10 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->reps:I
 
-    .line 792
+    .line 802
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->safe()V
 
-    .line 793
+    .line 803
     return-object v0
 .end method
 
@@ -200,52 +200,52 @@
     .registers 3
 
     .prologue
-    .line 750
+    .line 760
     new-instance v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;-><init>()V
 
-    .line 751
+    .line 761
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
-    .line 752
+    .line 762
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->lo:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->lo:I
 
-    .line 753
+    .line 763
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->hi:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->hi:I
 
-    .line 754
+    .line 764
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->upMs:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->upMs:I
 
-    .line 755
+    .line 765
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->onMs:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->onMs:I
 
-    .line 756
+    .line 766
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->downMs:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->downMs:I
 
-    .line 757
+    .line 767
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->offMs:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->offMs:I
 
-    .line 758
+    .line 768
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->reps:I
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->reps:I
 
-    .line 759
+    .line 769
     return-object v0
 .end method
 
@@ -253,7 +253,7 @@
     .registers 4
 
     .prologue
-    .line 774
+    .line 784
     const/16 v0, 0xc8
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->upMs:I
@@ -281,7 +281,7 @@
     .registers 3
 
     .prologue
-    .line 778
+    .line 788
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -395,7 +395,7 @@
 
     const/4 v2, 0x0
 
-    .line 763
+    .line 773
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
     invoke-static {v3, v0}, Ljava/lang/Math;->min(II)I
@@ -408,7 +408,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
-    .line 764
+    .line 774
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->lo:I
 
     invoke-static {v3, v0}, Ljava/lang/Math;->min(II)I
@@ -421,7 +421,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->lo:I
 
-    .line 765
+    .line 775
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->lo:I
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->hi:I
@@ -436,7 +436,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->hi:I
 
-    .line 766
+    .line 776
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->upMs:I
 
     invoke-static {v4, v0}, Ljava/lang/Math;->min(II)I
@@ -449,7 +449,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->upMs:I
 
-    .line 767
+    .line 777
     const/16 v0, 0xc8
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->onMs:I
@@ -464,7 +464,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->onMs:I
 
-    .line 768
+    .line 778
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->downMs:I
 
     invoke-static {v4, v0}, Ljava/lang/Math;->min(II)I
@@ -477,7 +477,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->downMs:I
 
-    .line 769
+    .line 779
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->offMs:I
 
     invoke-static {v5, v0}, Ljava/lang/Math;->min(II)I
@@ -490,7 +490,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->offMs:I
 
-    .line 770
+    .line 780
     const/4 v0, 0x1
 
     const/16 v1, 0x63
@@ -507,6 +507,6 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->reps:I
 
-    .line 771
+    .line 781
     return-void
 .end method

@@ -36,6 +36,8 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
     boolean uRun;
     final List<Integer> levels = new ArrayList<Integer>();
     final List<String> sent = new ArrayList<String>();
+    final List<Integer> modes = new ArrayList<Integer>();
+    int pausedWrites;
     int fails;
 
     public static void main(String[] a) {
@@ -113,6 +115,49 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
                 + " writes / 6 s)");
         check(maxRise <= MastogoShell.MAX_RISE, "rises limited to " + maxRise + " level(s) per update");
         check(levels.size() >= 25, "refresh holds ~5 writes/s (" + levels.size() + " in 6 s)");
+
+        // work / pause with the module changing in every pause (the frequency change)
+        MastogoShell.Mod w = new MastogoShell.Mod();
+        w.shape = MastogoShell.Mod.WORK;
+        w.lo = 0;
+        w.hi = 10;
+        w.upMs = 1000;
+        w.onMs = 2000;
+        w.downMs = 500;
+        w.offMs = 1500;
+        w.rotate = new int[] {3, 14};
+        w.stepMs = 100;
+        w.safe();
+        check(MastogoShell.Mod.decode(w.encode()).encode().equals(w.encode()), "work / pause survives save → load");
+        sh.modulate(null);
+        runFor(500);
+        int sent0 = sent.size();
+        int first = sh.mode;
+        levels.clear();
+        modes.clear();
+        pausedWrites = 0;
+        sh.modulate(w);
+        runFor(11000);
+        int top = 0;
+        for (int v : levels) {
+            top = Math.max(top, v);
+        }
+        // a pause's 0 comes from the module change itself (the unit zeroes the strength), not from a write
+        check(top == 10 && java.util.Collections.min(levels) <= 1, "work reaches 10, falls to the pause " + levels);
+        // the first cycle runs on module 3 (switched to at once if the unit had another), then 14, 3 in the pauses
+        check(modes.toString().equals(first == 3 ? "[14, 3]" : "[3, 14, 3]"), "module changes in each pause: "
+                + modes);
+        boolean order = true;
+        for (int i = sent0; i < sent.size(); i++) {
+            if (sent.get(i).startsWith("AT+CMODE=") && (i + 1 >= sent.size()
+                    || !sent.get(i + 1).equals("AT+QPOWS"))) {
+                order = false;
+            }
+        }
+        check(order, "every module change is followed at once by run");
+        check(pausedWrites == 0, "no strength sent while the unit is paused (" + pausedWrites + ")");
+        check(sh.running && sh.mod() != null && sh.switches == modes.size(), "keeps running (" + sh.switches + " changes)");
+        sh.modulate(null);
 
         // contact lost → strength 0, modulation off
         feed("+CLOAD:0");
@@ -240,11 +285,15 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
             reply("+CFRQ:0,80", "OK");
         } else if (cmd.startsWith("AT+CMODE=0,")) {
             uMode = Integer.parseInt(cmd.substring(11));
+            modes.add(uMode);
             uLevel = 0;
             uRun = false;
             reply("+CMODE:OK");
         } else if (cmd.startsWith("AT+CSTR=0,")) {
             uLevel = Integer.parseInt(cmd.substring(10));
+            if (!uRun && uLevel > 0) {
+                pausedWrites++;
+            }
             levels.add(uLevel);
             reply("+CSTR:OK");
         } else if (cmd.equals("AT+QPOWS")) {

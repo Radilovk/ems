@@ -169,6 +169,8 @@
     .end annotation
 .end field
 
+.field public switches:I
+
 .field public final tags:Ljava/util/Map;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -238,28 +240,28 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rx:Ljava/lang/StringBuilder;
 
-    .line 666
+    .line 776
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
-    .line 668
+    .line 778
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->silent:Ljava/util/List;
 
-    .line 670
+    .line 780
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->refused:Ljava/util/List;
 
-    .line 672
+    .line 782
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -291,17 +293,17 @@
     .end annotation
 
     .prologue
-    .line 747
+    .line 857
     invoke-interface {p0, p1}, Ljava/util/List;->contains(Ljava/lang/Object;)Z
 
     move-result v0
 
     if-nez v0, :cond_9
 
-    .line 748
+    .line 858
     invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 750
+    .line 860
     :cond_9
     return-void
 .end method
@@ -312,12 +314,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 373
+    .line 397
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->nameOf(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 374
+    .line 398
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -352,12 +354,12 @@
 
     if-nez v2, :cond_29
 
-    .line 378
+    .line 402
     :cond_28
     :goto_28
     return v0
 
-    .line 377
+    .line 401
     :cond_29
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
@@ -365,7 +367,7 @@
 
     add-int/lit8 v1, v1, 0x1
 
-    .line 378
+    .line 402
     invoke-virtual {p1}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -417,12 +419,12 @@
 
     const/4 v1, 0x0
 
-    .line 676
+    .line 786
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 677
+    .line 787
     const/16 v0, 0x18
 
     new-array v2, v0, [Ljava/lang/String;
@@ -561,7 +563,7 @@
 
     aput-object v4, v2, v0
 
-    .line 680
+    .line 790
     array-length v4, v2
 
     move v0, v1
@@ -571,15 +573,15 @@
 
     aget-object v5, v2, v0
 
-    .line 681
+    .line 791
     invoke-interface {v3, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 680
+    .line 790
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_93
 
-    .line 683
+    .line 793
     :cond_9d
     const/16 v0, 0xc
 
@@ -647,7 +649,7 @@
 
     aput-object v4, v2, v0
 
-    .line 685
+    .line 795
     array-length v4, v2
 
     move v0, v1
@@ -657,7 +659,7 @@
 
     aget-object v5, v2, v0
 
-    .line 686
+    .line 796
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -684,7 +686,7 @@
 
     invoke-static {v3, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->add(Ljava/util/List;Ljava/lang/String;)V
 
-    .line 687
+    .line 797
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -711,12 +713,12 @@
 
     invoke-static {v3, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->add(Ljava/util/List;Ljava/lang/String;)V
 
-    .line 685
+    .line 795
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_de
 
-    .line 689
+    .line 799
     :cond_11d
     const/16 v0, 0x55
 
@@ -1222,7 +1224,7 @@
 
     aput-object v2, v4, v0
 
-    .line 696
+    .line 806
     const/4 v0, 0x7
 
     new-array v5, v0, [Ljava/lang/String;
@@ -1259,7 +1261,7 @@
 
     aput-object v2, v5, v0
 
-    .line 697
+    .line 807
     array-length v6, v5
 
     move v2, v1
@@ -1269,7 +1271,7 @@
 
     aget-object v7, v5, v2
 
-    .line 698
+    .line 808
     array-length v8, v4
 
     move v0, v1
@@ -1279,7 +1281,7 @@
 
     aget-object v9, v4, v0
 
-    .line 699
+    .line 809
     new-instance v10, Ljava/lang/StringBuilder;
 
     invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
@@ -1310,12 +1312,12 @@
 
     invoke-static {v3, v9}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->add(Ljava/util/List;Ljava/lang/String;)V
 
-    .line 698
+    .line 808
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_33b
 
-    .line 697
+    .line 807
     :cond_362
     add-int/lit8 v0, v2, 0x1
 
@@ -1323,7 +1325,7 @@
 
     goto :goto_335
 
-    .line 702
+    .line 812
     :cond_366
     return-object v3
 .end method
@@ -1340,14 +1342,14 @@
 
     const/4 v1, 0x0
 
-    .line 510
+    .line 534
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
     move v0, v1
 
-    .line 511
+    .line 535
     :goto_a
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -1355,7 +1357,7 @@
 
     if-ge v0, v3, :cond_24
 
-    .line 512
+    .line 536
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v3
@@ -1366,20 +1368,20 @@
 
     if-eqz v3, :cond_21
 
-    .line 513
+    .line 537
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v3
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 511
+    .line 535
     :cond_21
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_a
 
-    .line 516
+    .line 540
     :cond_24
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
@@ -1387,16 +1389,16 @@
 
     if-ge v0, v6, :cond_2f
 
-    .line 517
+    .line 541
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lastInt(Ljava/lang/String;)I
 
     move-result v0
 
-    .line 520
+    .line 544
     :goto_2e
     return v0
 
-    .line 519
+    .line 543
     :cond_2f
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
@@ -1408,7 +1410,7 @@
 
     move-result-object v0
 
-    .line 520
+    .line 544
     invoke-virtual {v0, v1, v4}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v1
@@ -1431,7 +1433,7 @@
 
     add-int/2addr v1, v2
 
-    .line 521
+    .line 545
     invoke-virtual {v0, v5, v6}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v0
@@ -1442,7 +1444,7 @@
 
     add-int/2addr v0, v1
 
-    .line 520
+    .line 544
     goto :goto_2e
 .end method
 
@@ -1450,18 +1452,14 @@
     .registers 14
 
     .prologue
-    const-wide/high16 v8, 0x4000000000000000L    # 2.0
-
-    const-wide/high16 v6, 0x3fe0000000000000L    # 0.5
-
-    .line 581
+    .line 673
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
     sub-int v2, v0, v1
 
-    .line 582
+    .line 674
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->periodMs:I
 
     int-to-long v0, v0
@@ -1476,15 +1474,19 @@
 
     div-double/2addr v0, v4
 
-    .line 584
+    .line 676
     iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->shape:I
 
-    packed-switch v3, :pswitch_data_80
+    packed-switch v3, :pswitch_data_ce
 
-    .line 604
-    const-wide v4, 0x401921fb54442d18L    # 6.283185307179586
+    .line 709
+    const-wide/high16 v4, 0x3fe0000000000000L    # 0.5
 
-    mul-double/2addr v0, v4
+    const-wide/high16 v6, 0x3fe0000000000000L    # 0.5
+
+    const-wide v8, 0x401921fb54442d18L    # 6.283185307179586
+
+    mul-double/2addr v0, v8
 
     invoke-static {v0, v1}, Ljava/lang/Math;->cos(D)D
 
@@ -1492,9 +1494,9 @@
 
     mul-double/2addr v0, v6
 
-    sub-double v0, v6, v0
+    sub-double v0, v4, v0
 
-    .line 607
+    .line 712
     :goto_26
     :pswitch_26
     iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
@@ -1513,8 +1515,113 @@
 
     return v0
 
-    .line 586
+    .line 678
     :pswitch_31
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->periodMs:I
+
+    int-to-long v0, v0
+
+    rem-long v0, p1, v0
+
+    .line 679
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->upMs:I
+
+    int-to-long v4, v3
+
+    cmp-long v3, v0, v4
+
+    if-gez v3, :cond_43
+
+    .line 680
+    long-to-double v0, v0
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->upMs:I
+
+    int-to-double v4, v3
+
+    div-double/2addr v0, v4
+
+    goto :goto_26
+
+    .line 681
+    :cond_43
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->upMs:I
+
+    iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->onMs:I
+
+    add-int/2addr v3, v4
+
+    int-to-long v4, v3
+
+    cmp-long v3, v0, v4
+
+    if-gez v3, :cond_50
+
+    .line 682
+    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+
+    goto :goto_26
+
+    .line 683
+    :cond_50
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->upMs:I
+
+    iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->onMs:I
+
+    add-int/2addr v3, v4
+
+    iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->downMs:I
+
+    add-int/2addr v3, v4
+
+    int-to-long v4, v3
+
+    cmp-long v3, v0, v4
+
+    if-gez v3, :cond_74
+
+    .line 684
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->upMs:I
+
+    int-to-long v6, v3
+
+    sub-long/2addr v0, v6
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->onMs:I
+
+    int-to-long v6, v3
+
+    sub-long/2addr v0, v6
+
+    long-to-double v0, v0
+
+    const/4 v3, 0x1
+
+    iget v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->downMs:I
+
+    invoke-static {v3, v6}, Ljava/lang/Math;->max(II)I
+
+    move-result v3
+
+    int-to-double v6, v3
+
+    div-double/2addr v0, v6
+
+    sub-double v0, v4, v0
+
+    goto :goto_26
+
+    .line 686
+    :cond_74
+    const-wide/16 v0, 0x0
+
+    .line 688
+    goto :goto_26
+
+    .line 691
+    :pswitch_77
     const-wide/high16 v4, 0x4059000000000000L    # 100.0
 
     mul-double/2addr v0, v4
@@ -1525,36 +1632,44 @@
 
     cmpg-double v0, v0, v4
 
-    if-gez v0, :cond_3e
+    if-gez v0, :cond_84
 
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     goto :goto_26
 
-    :cond_3e
+    :cond_84
     const-wide/16 v0, 0x0
 
     goto :goto_26
 
-    .line 592
-    :pswitch_41
-    cmpg-double v3, v0, v6
+    .line 697
+    :pswitch_87
+    const-wide/high16 v4, 0x3fe0000000000000L    # 0.5
 
-    if-gez v3, :cond_47
+    cmpg-double v3, v0, v4
 
-    mul-double/2addr v0, v8
+    if-gez v3, :cond_91
 
-    goto :goto_26
+    const-wide/high16 v4, 0x4000000000000000L    # 2.0
 
-    :cond_47
-    mul-double/2addr v0, v8
-
-    sub-double v0, v8, v0
+    mul-double/2addr v0, v4
 
     goto :goto_26
 
-    .line 595
-    :pswitch_4b
+    :cond_91
+    const-wide/high16 v4, 0x4000000000000000L    # 2.0
+
+    const-wide/high16 v6, 0x4000000000000000L    # 2.0
+
+    mul-double/2addr v0, v6
+
+    sub-double v0, v4, v0
+
+    goto :goto_26
+
+    .line 700
+    :pswitch_99
     const/4 v0, 0x1
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->periodMs:I
@@ -1569,7 +1684,7 @@
 
     div-long v0, p1, v0
 
-    .line 596
+    .line 701
     const-wide/16 v4, 0x1
 
     add-long/2addr v0, v4
@@ -1578,26 +1693,26 @@
 
     mul-long/2addr v0, v4
 
-    .line 597
+    .line 702
     const/16 v3, 0x1f
 
     ushr-long v4, v0, v3
 
     xor-long/2addr v0, v4
 
-    .line 598
+    .line 703
     const-wide v4, -0x40a7b892e31b1a47L    # -0.0014818730883930777
 
     mul-long/2addr v0, v4
 
-    .line 599
+    .line 704
     const/16 v3, 0x1d
 
     ushr-long v4, v0, v3
 
     xor-long/2addr v0, v4
 
-    .line 600
+    .line 705
     const/16 v3, 0xb
 
     ushr-long/2addr v0, v3
@@ -1612,18 +1727,17 @@
 
     div-double/2addr v0, v4
 
-    .line 601
-    goto :goto_26
+    .line 706
+    goto/16 :goto_26
 
-    .line 584
-    nop
-
-    :pswitch_data_80
+    .line 676
+    :pswitch_data_ce
     .packed-switch 0x1
-        :pswitch_31
+        :pswitch_77
         :pswitch_26
-        :pswitch_41
-        :pswitch_4b
+        :pswitch_87
+        :pswitch_99
+        :pswitch_31
     .end packed-switch
 .end method
 
@@ -1631,7 +1745,7 @@
     .registers 5
 
     .prologue
-    .line 257
+    .line 281
     div-int/lit16 v0, p0, 0xe10
 
     div-int/lit8 v1, p0, 0x3c
@@ -1640,7 +1754,7 @@
 
     rem-int/lit8 v2, p0, 0x3c
 
-    .line 258
+    .line 282
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -1682,21 +1796,21 @@
     .prologue
     const/4 v0, -0x1
 
-    .line 467
+    .line 491
     if-nez p0, :cond_4
 
-    .line 484
+    .line 508
     :cond_3
     :goto_3
     return v0
 
-    .line 470
+    .line 494
     :cond_4
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v2
 
-    .line 471
+    .line 495
     :goto_8
     if-lez v2, :cond_19
 
@@ -1712,7 +1826,7 @@
 
     if-nez v1, :cond_19
 
-    .line 472
+    .line 496
     add-int/lit8 v2, v2, -0x1
 
     goto :goto_8
@@ -1720,7 +1834,7 @@
     :cond_19
     move v1, v2
 
-    .line 475
+    .line 499
     :goto_1a
     if-lez v1, :cond_2b
 
@@ -1736,16 +1850,16 @@
 
     if-eqz v3, :cond_2b
 
-    .line 476
+    .line 500
     add-int/lit8 v1, v1, -0x1
 
     goto :goto_1a
 
-    .line 478
+    .line 502
     :cond_2b
     if-eq v1, v2, :cond_3
 
-    .line 482
+    .line 506
     :try_start_2d
     invoke-virtual {p0, v1, v2}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
@@ -1759,7 +1873,7 @@
 
     goto :goto_3
 
-    .line 483
+    .line 507
     :catch_36
     move-exception v1
 
@@ -1770,28 +1884,28 @@
     .registers 5
 
     .prologue
-    .line 360
+    .line 384
     const/16 v0, 0x2b
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(I)I
 
     move-result v1
 
-    .line 361
+    .line 385
     if-gez v1, :cond_b
 
-    .line 362
+    .line 386
     const-string v0, ""
 
-    .line 368
+    .line 392
     :goto_a
     return-object v0
 
-    .line 364
+    .line 388
     :cond_b
     add-int/lit8 v0, v1, 0x1
 
-    .line 365
+    .line 389
     :goto_d
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -1815,12 +1929,12 @@
 
     if-eq v2, v3, :cond_26
 
-    .line 366
+    .line 390
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_d
 
-    .line 368
+    .line 392
     :cond_26
     add-int/lit8 v1, v1, 0x1
 
@@ -1839,7 +1953,7 @@
     .registers 3
 
     .prologue
-    .line 262
+    .line 286
     const/16 v0, 0xa
 
     if-ge p0, v0, :cond_18
@@ -1879,7 +1993,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 738
+    .line 848
     const-string v1, " \\| "
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -1895,7 +2009,7 @@
 
     aget-object v4, v2, v1
 
-    .line 739
+    .line 849
     invoke-virtual {v4}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v5
@@ -1912,7 +2026,7 @@
 
     if-eqz v5, :cond_27
 
-    .line 740
+    .line 850
     const-string v1, "104"
 
     invoke-virtual {v4, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -1923,11 +2037,11 @@
 
     const/4 v0, 0x1
 
-    .line 743
+    .line 853
     :cond_26
     return v0
 
-    .line 738
+    .line 848
     :cond_27
     add-int/lit8 v1, v1, 0x1
 
@@ -1940,27 +2054,27 @@
     .prologue
     const-wide/16 v2, 0x0
 
-    .line 490
+    .line 514
     const/16 v0, 0x2e
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->lastIndexOf(I)I
 
     move-result v1
 
-    .line 491
+    .line 515
     if-gtz v1, :cond_c
 
     move-wide v0, v2
 
-    .line 504
+    .line 528
     :goto_b
     return-wide v0
 
-    .line 494
+    .line 518
     :cond_c
     add-int/lit8 v0, v1, 0x1
 
-    .line 495
+    .line 519
     :goto_e
     if-lez v1, :cond_1f
 
@@ -1976,12 +2090,12 @@
 
     if-eqz v4, :cond_1f
 
-    .line 496
+    .line 520
     add-int/lit8 v1, v1, -0x1
 
     goto :goto_e
 
-    .line 498
+    .line 522
     :cond_1f
     :goto_1f
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -2000,12 +2114,12 @@
 
     if-eqz v4, :cond_32
 
-    .line 499
+    .line 523
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1f
 
-    .line 502
+    .line 526
     :cond_32
     :try_start_32
     invoke-virtual {p0, v1, v0}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -2020,13 +2134,13 @@
 
     goto :goto_b
 
-    .line 503
+    .line 527
     :catch_3b
     move-exception v0
 
     move-wide v0, v2
 
-    .line 504
+    .line 528
     goto :goto_b
 .end method
 
@@ -2053,22 +2167,22 @@
 
     const/4 v2, 0x0
 
-    .line 711
+    .line 821
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 712
+    .line 822
     const-string v0, "AT+CSTR=0,0"
 
     invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 713
+    .line 823
     const-string v0, "AT+XZQJ=0,1"
 
     invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 714
+    .line 824
     const/16 v0, 0x3f
 
     new-array v5, v0, [Ljava/lang/String;
@@ -2441,7 +2555,7 @@
 
     aput-object v1, v5, v0
 
-    .line 719
+    .line 829
     const/4 v0, 0x5
 
     new-array v6, v0, [Ljava/lang/String;
@@ -2466,7 +2580,7 @@
 
     aput-object v0, v6, v9
 
-    .line 720
+    .line 830
     array-length v7, v6
 
     move v3, v2
@@ -2476,7 +2590,7 @@
 
     aget-object v8, v6, v3
 
-    .line 721
+    .line 831
     array-length v9, v5
 
     move v1, v2
@@ -2486,7 +2600,7 @@
 
     aget-object v0, v5, v1
 
-    .line 722
+    .line 832
     new-instance v10, Ljava/lang/StringBuilder;
 
     invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
@@ -2503,7 +2617,7 @@
 
     move-result-object v10
 
-    .line 723
+    .line 833
     const-string v11, "CSTR"
 
     invoke-virtual {v10, v11}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2512,7 +2626,7 @@
 
     if-eqz v11, :cond_1c5
 
-    .line 721
+    .line 831
     :goto_1c1
     add-int/lit8 v0, v1, 0x1
 
@@ -2520,7 +2634,7 @@
 
     goto :goto_1a4
 
-    .line 726
+    .line 836
     :cond_1c5
     const-string v11, "FR"
 
@@ -2549,7 +2663,7 @@
     :cond_1dd
     const-string v0, "50"
 
-    .line 728
+    .line 838
     :goto_1df
     new-instance v11, Ljava/lang/StringBuilder;
 
@@ -2583,7 +2697,7 @@
 
     goto :goto_1c1
 
-    .line 727
+    .line 837
     :cond_200
     const-string v11, "PW"
 
@@ -2619,7 +2733,7 @@
 
     goto :goto_1df
 
-    .line 720
+    .line 830
     :cond_21e
     add-int/lit8 v0, v3, 0x1
 
@@ -2627,18 +2741,18 @@
 
     goto/16 :goto_19e
 
-    .line 731
+    .line 841
     :cond_223
     const-string v0, "AT+WSDT=10"
 
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->add(Ljava/util/List;Ljava/lang/String;)V
 
-    .line 732
+    .line 842
     const-string v0, "AT+WSDT=0,10"
 
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->add(Ljava/util/List;Ljava/lang/String;)V
 
-    .line 733
+    .line 843
     return-object v4
 .end method
 
@@ -2656,19 +2770,19 @@
 
     const/4 v3, 0x0
 
-    .line 402
+    .line 426
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->tags:Ljava/util/Map;
 
     invoke-interface {v0, p1, p2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 403
+    .line 427
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->now()J
 
     move-result-wide v0
 
-    .line 404
+    .line 428
     const-string v2, "CSTR"
 
     invoke-virtual {p1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2677,12 +2791,12 @@
 
     if-eqz v2, :cond_28
 
-    .line 405
+    .line 429
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lastInt(Ljava/lang/String;)I
 
     move-result v0
 
-    .line 406
+    .line 430
     if-ltz v0, :cond_27
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queuedLevel()Z
@@ -2691,15 +2805,15 @@
 
     if-nez v1, :cond_27
 
-    .line 407
+    .line 431
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
 
-    .line 449
+    .line 473
     :cond_27
     :goto_27
     return-void
 
-    .line 409
+    .line 433
     :cond_28
     const-string v2, "CMODE"
 
@@ -2709,20 +2823,20 @@
 
     if-eqz v2, :cond_39
 
-    .line 410
+    .line 434
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lastInt(Ljava/lang/String;)I
 
     move-result v0
 
-    .line 411
+    .line 435
     if-ltz v0, :cond_27
 
-    .line 412
+    .line 436
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
 
     goto :goto_27
 
-    .line 414
+    .line 438
     :cond_39
     const-string v2, "CDCLK"
 
@@ -2732,23 +2846,23 @@
 
     if-eqz v2, :cond_4c
 
-    .line 415
+    .line 439
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->clock(Ljava/lang/String;)I
 
     move-result v2
 
-    .line 416
+    .line 440
     if-ltz v2, :cond_27
 
-    .line 417
+    .line 441
     iput v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secLeft:I
 
-    .line 418
+    .line 442
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secAt:J
 
     goto :goto_27
 
-    .line 420
+    .line 444
     :cond_4c
     const-string v2, "CBC"
 
@@ -2758,20 +2872,20 @@
 
     if-eqz v2, :cond_88
 
-    .line 421
+    .line 445
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->volts(Ljava/lang/String;)D
 
     move-result-wide v0
 
-    .line 422
+    .line 446
     cmpl-double v2, v0, v4
 
     if-lez v2, :cond_7b
 
-    .line 423
+    .line 447
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->batteryV:D
 
-    .line 424
+    .line 448
     const-wide v2, 0x400a666666666666L    # 3.3
 
     sub-double/2addr v0, v2
@@ -2800,7 +2914,7 @@
 
     goto :goto_27
 
-    .line 425
+    .line 449
     :cond_7b
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lastInt(Ljava/lang/String;)I
 
@@ -2808,7 +2922,7 @@
 
     if-ltz v0, :cond_27
 
-    .line 426
+    .line 450
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lastInt(Ljava/lang/String;)I
 
     move-result v0
@@ -2817,7 +2931,7 @@
 
     goto :goto_27
 
-    .line 428
+    .line 452
     :cond_88
     const-string v2, "CLOAD"
 
@@ -2827,19 +2941,19 @@
 
     if-eqz v2, :cond_9e
 
-    .line 429
+    .line 453
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lastInt(Ljava/lang/String;)I
 
     move-result v0
 
     if-nez v0, :cond_9a
 
-    .line 430
+    .line 454
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lostContact()V
 
     goto :goto_27
 
-    .line 432
+    .line 456
     :cond_9a
     const/4 v0, 0x1
 
@@ -2847,7 +2961,7 @@
 
     goto :goto_27
 
-    .line 434
+    .line 458
     :cond_9e
     const-string v2, "CLKEND"
 
@@ -2857,21 +2971,21 @@
 
     if-eqz v2, :cond_b0
 
-    .line 435
+    .line 459
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    .line 436
+    .line 460
     iput-object v8, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 437
+    .line 461
     iput v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secLeft:I
 
-    .line 438
+    .line 462
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secAt:J
 
     goto/16 :goto_27
 
-    .line 439
+    .line 463
     :cond_b0
     const-string v2, "QPOWD"
 
@@ -2881,22 +2995,22 @@
 
     if-eqz v2, :cond_c4
 
-    .line 440
+    .line 464
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lastInt(Ljava/lang/String;)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->offReason:I
 
-    .line 441
+    .line 465
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    .line 442
+    .line 466
     iput-object v8, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     goto/16 :goto_27
 
-    .line 443
+    .line 467
     :cond_c4
     const-string v2, "CHEART"
 
@@ -2906,7 +3020,7 @@
 
     if-eqz v2, :cond_27
 
-    .line 444
+    .line 468
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->heartAt:J
 
     const-wide/16 v4, 0x0
@@ -2915,14 +3029,14 @@
 
     if-lez v2, :cond_da
 
-    .line 445
+    .line 469
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->heartAt:J
 
     sub-long v2, v0, v2
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->heartMs:J
 
-    .line 447
+    .line 471
     :cond_da
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->heartAt:J
 
@@ -2933,27 +3047,27 @@
     .registers 2
 
     .prologue
-    .line 220
+    .line 244
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->closed:Z
 
-    .line 221
+    .line 245
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 222
+    .line 246
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
-    .line 223
+    .line 247
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 224
+    .line 248
     return-void
 .end method
 
@@ -2963,20 +3077,20 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 840
+    .line 950
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
     if-nez v0, :cond_6
 
-    .line 849
+    .line 959
     :goto_5
     return-void
 
-    .line 843
+    .line 953
     :cond_6
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
-    .line 844
+    .line 954
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -2989,7 +3103,7 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 845
+    .line 955
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -3002,13 +3116,13 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 846
+    .line 956
     iput v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
 
-    .line 847
+    .line 957
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pump()V
 
-    .line 848
+    .line 958
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeDone:I
@@ -3026,29 +3140,29 @@
     .registers 7
 
     .prologue
-    .line 382
+    .line 406
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
     if-eq p1, v0, :cond_5
 
-    .line 399
+    .line 423
     :goto_4
     return-void
 
-    .line 385
+    .line 409
     :cond_5
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 386
+    .line 410
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->token:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->token:I
 
-    .line 387
+    .line 411
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->now()J
@@ -3059,24 +3173,24 @@
 
     sub-long/2addr v0, v2
 
-    .line 388
+    .line 412
     if-nez p2, :cond_34
 
-    .line 389
+    .line 413
     iget v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttCount:I
 
     add-int/lit8 v2, v2, 0x1
 
     iput v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttCount:I
 
-    .line 390
+    .line 414
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttSum:J
 
     add-long/2addr v2, v0
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttSum:J
 
-    .line 391
+    .line 415
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttMin:J
 
     invoke-static {v2, v3, v0, v1}, Ljava/lang/Math;->min(JJ)J
@@ -3085,7 +3199,7 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttMin:J
 
-    .line 392
+    .line 416
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttMax:J
 
     invoke-static {v2, v3, v0, v1}, Ljava/lang/Math;->max(JJ)J
@@ -3094,7 +3208,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttMax:J
 
-    .line 394
+    .line 418
     :cond_34
     iget v0, p1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->kind:I
 
@@ -3102,10 +3216,10 @@
 
     if-ne v0, v1, :cond_3c
 
-    .line 395
+    .line 419
     invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeAnswered(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;Z)V
 
-    .line 397
+    .line 421
     :cond_3c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
@@ -3119,7 +3233,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->nextAt:J
 
-    .line 398
+    .line 422
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pump()V
 
     goto :goto_4
@@ -3286,18 +3400,18 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 452
+    .line 476
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->contact:I
 
-    .line 453
+    .line 477
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
 
-    .line 454
+    .line 478
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 455
+    .line 479
     return-void
 .end method
 
@@ -3305,7 +3419,7 @@
     .registers 2
 
     .prologue
-    .line 615
+    .line 720
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     return-object v0
@@ -3315,7 +3429,7 @@
     .registers 5
 
     .prologue
-    .line 638
+    .line 743
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     if-nez v0, :cond_7
@@ -3343,10 +3457,10 @@
     .registers 8
 
     .prologue
-    .line 642
+    .line 747
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 643
+    .line 748
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->closed:Z
 
     if-nez v0, :cond_c
@@ -3357,22 +3471,22 @@
 
     if-eq p1, v0, :cond_d
 
-    .line 657
+    .line 767
     :cond_c
     :goto_c
     return-void
 
-    .line 646
+    .line 751
     :cond_d
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    if-eqz v0, :cond_36
+    if-eqz v0, :cond_47
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->contact:I
 
-    if-eqz v0, :cond_36
+    if-eqz v0, :cond_47
 
-    .line 647
+    .line 752
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->now()J
@@ -3383,11 +3497,32 @@
 
     sub-long/2addr v2, v4
 
+    .line 753
+    invoke-virtual {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->segmentAt(J)J
+
+    move-result-wide v4
+
+    invoke-virtual {v1, v4, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->moduleAt(J)I
+
+    move-result v0
+
+    .line 754
+    if-ltz v0, :cond_2f
+
+    iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
+
+    if-eq v0, v4, :cond_2f
+
+    .line 755
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->switchMode(I)V
+
+    .line 757
+    :cond_2f
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->envelope(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;J)I
 
     move-result v0
 
-    .line 648
+    .line 758
     const/4 v2, 0x0
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
@@ -3396,25 +3531,25 @@
 
     move-result v2
 
-    .line 649
+    .line 759
     add-int/lit8 v3, v2, 0x3
 
-    if-le v0, v3, :cond_2f
+    if-le v0, v3, :cond_40
 
-    .line 650
+    .line 760
     add-int/lit8 v0, v2, 0x3
 
-    .line 652
-    :cond_2f
+    .line 762
+    :cond_40
     iget v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
 
-    if-eq v0, v2, :cond_36
+    if-eq v0, v2, :cond_47
 
-    .line 653
+    .line 763
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setLevel(I)V
 
-    .line 656
-    :cond_36
+    .line 766
+    :cond_47
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$ModTick;
@@ -3434,42 +3569,42 @@
     .registers 8
 
     .prologue
-    .line 620
+    .line 725
     if-nez p1, :cond_b
 
-    .line 621
+    .line 726
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 622
+    .line 727
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     invoke-interface {v0, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onChanged(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;)V
 
-    .line 634
+    .line 739
     :goto_a
     return-void
 
-    .line 625
+    .line 730
     :cond_b
     invoke-virtual {p1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 626
+    .line 731
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     if-nez v0, :cond_37
 
     const/4 v0, 0x1
 
-    .line 627
+    .line 732
     :goto_13
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 628
+    .line 733
     if-eqz v0, :cond_1f
 
-    .line 629
+    .line 734
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->now()J
@@ -3478,7 +3613,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modStart:J
 
-    .line 631
+    .line 736
     :cond_1f
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modToken:I
 
@@ -3486,7 +3621,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modToken:I
 
-    .line 632
+    .line 737
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$ModTick;
@@ -3497,14 +3632,14 @@
 
     invoke-interface {v1, v2, v4, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->later(Ljava/lang/Runnable;J)V
 
-    .line 633
+    .line 738
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     invoke-interface {v0, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onChanged(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;)V
 
     goto :goto_a
 
-    .line 626
+    .line 731
     :cond_37
     const/4 v0, 0x0
 
@@ -3517,18 +3652,18 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 295
+    .line 319
     if-eqz p1, :cond_7
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->closed:Z
 
     if-eqz v0, :cond_8
 
-    .line 312
+    .line 336
     :cond_7
     return-void
 
-    .line 298
+    .line 322
     :cond_8
     array-length v2, p1
 
@@ -3539,12 +3674,12 @@
 
     aget-byte v3, p1, v0
 
-    .line 299
+    .line 323
     and-int/lit16 v3, v3, 0xff
 
     int-to-char v3, v3
 
-    .line 300
+    .line 324
     const/16 v4, 0xd
 
     if-eq v3, v4, :cond_19
@@ -3553,7 +3688,7 @@
 
     if-ne v3, v4, :cond_3c
 
-    .line 301
+    .line 325
     :cond_19
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rx:Ljava/lang/StringBuilder;
 
@@ -3563,7 +3698,7 @@
 
     if-lez v3, :cond_39
 
-    .line 302
+    .line 326
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rx:Ljava/lang/StringBuilder;
 
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
@@ -3574,29 +3709,29 @@
 
     move-result-object v3
 
-    .line 303
+    .line 327
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rx:Ljava/lang/StringBuilder;
 
     invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->setLength(I)V
 
-    .line 304
+    .line 328
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v4
 
     if-lez v4, :cond_39
 
-    .line 305
+    .line 329
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->onLineIn(Ljava/lang/String;)V
 
-    .line 298
+    .line 322
     :cond_39
     :goto_39
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_a
 
-    .line 308
+    .line 332
     :cond_3c
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rx:Ljava/lang/StringBuilder;
 
@@ -3608,7 +3743,7 @@
 
     if-ge v4, v5, :cond_39
 
-    .line 309
+    .line 333
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rx:Ljava/lang/StringBuilder;
 
     invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
@@ -3624,24 +3759,24 @@
 
     const/4 v2, 0x1
 
-    .line 315
+    .line 339
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->recvCount:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->recvCount:I
 
-    .line 316
+    .line 340
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     invoke-interface {v0, p0, v1, p1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onLine(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;ZLjava/lang/String;)V
 
-    .line 319
+    .line 343
     invoke-virtual {p1}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 320
+    .line 344
     const-string v3, "ERROR"
 
     invoke-virtual {v0, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -3650,7 +3785,7 @@
 
     if-eqz v3, :cond_58
 
-    .line 322
+    .line 346
     const-string v0, "102"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -3659,17 +3794,17 @@
 
     if-ltz v0, :cond_24
 
-    .line 323
+    .line 347
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lostContact()V
 
     :cond_24
     move v0, v1
 
-    .line 341
+    .line 365
     :goto_25
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 344
+    .line 368
     if-eqz v3, :cond_52
 
     const-string v4, "+"
@@ -3688,7 +3823,7 @@
 
     if-eqz v4, :cond_52
 
-    .line 345
+    .line 369
     :cond_39
     iget-object v4, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->reply:Ljava/lang/StringBuilder;
 
@@ -3698,36 +3833,36 @@
 
     if-lez v4, :cond_48
 
-    .line 346
+    .line 370
     iget-object v4, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->reply:Ljava/lang/StringBuilder;
 
     const-string v5, " | "
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 348
+    .line 372
     :cond_48
     iget-object v4, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->reply:Ljava/lang/StringBuilder;
 
     invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 349
+    .line 373
     if-eqz v2, :cond_b3
 
-    .line 350
+    .line 374
     invoke-virtual {p0, v3, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->finish(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;Z)V
 
-    .line 355
+    .line 379
     :cond_52
     :goto_52
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     invoke-interface {v0, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onChanged(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;)V
 
-    .line 356
+    .line 380
     return-void
 
-    .line 326
+    .line 350
     :cond_58
     const-string v3, "OK"
 
@@ -3739,10 +3874,10 @@
 
     move v0, v1
 
-    .line 327
+    .line 351
     goto :goto_25
 
-    .line 328
+    .line 352
     :cond_62
     const-string v0, "+"
 
@@ -3752,14 +3887,14 @@
 
     if-eqz v0, :cond_a4
 
-    .line 329
+    .line 353
     const/16 v0, 0x3a
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->indexOf(I)I
 
     move-result v3
 
-    .line 330
+    .line 354
     if-lez v3, :cond_96
 
     invoke-virtual {p1, v2, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -3775,7 +3910,7 @@
 
     move-result-object v4
 
-    .line 331
+    .line 355
     if-lez v3, :cond_9b
 
     add-int/lit8 v0, v3, 0x1
@@ -3788,7 +3923,7 @@
 
     move-result-object v0
 
-    .line 332
+    .line 356
     :goto_8a
     const-string v3, "OK"
 
@@ -3805,10 +3940,10 @@
     :goto_94
     move v2, v3
 
-    .line 338
+    .line 362
     goto :goto_25
 
-    .line 330
+    .line 354
     :cond_96
     invoke-virtual {p1, v2}, Ljava/lang/String;->substring(I)Ljava/lang/String;
 
@@ -3816,13 +3951,13 @@
 
     goto :goto_76
 
-    .line 331
+    .line 355
     :cond_9b
     const-string v0, ""
 
     goto :goto_8a
 
-    .line 335
+    .line 359
     :cond_9e
     invoke-virtual {p0, v4, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->apply(Ljava/lang/String;Ljava/lang/String;)V
 
@@ -3830,10 +3965,10 @@
 
     move v3, v1
 
-    .line 336
+    .line 360
     goto :goto_94
 
-    .line 338
+    .line 362
     :cond_a4
     const-string v0, "102"
 
@@ -3843,7 +3978,7 @@
 
     if-eqz v0, :cond_af
 
-    .line 339
+    .line 363
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->lostContact()V
 
     :cond_af
@@ -3853,7 +3988,7 @@
 
     goto/16 :goto_25
 
-    .line 351
+    .line 375
     :cond_b3
     if-eqz v0, :cond_52
 
@@ -3867,7 +4002,7 @@
 
     if-eqz v0, :cond_52
 
-    .line 352
+    .line 376
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Grace;
@@ -3885,7 +4020,7 @@
     .registers 5
 
     .prologue
-    .line 266
+    .line 290
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -3896,10 +4031,10 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 267
+    .line 291
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pump()V
 
-    .line 268
+    .line 292
     return-void
 .end method
 
@@ -3907,12 +4042,12 @@
     .registers 2
 
     .prologue
-    .line 754
+    .line 864
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->sweep(Z)V
 
-    .line 755
+    .line 865
     return-void
 .end method
 
@@ -3928,17 +4063,17 @@
 
     const/4 v3, 0x0
 
-    .line 801
+    .line 911
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
     if-nez v0, :cond_9
 
-    .line 837
+    .line 947
     :cond_8
     :goto_8
     return-void
 
-    .line 804
+    .line 914
     :cond_9
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeDone:I
 
@@ -3946,22 +4081,22 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeDone:I
 
-    .line 805
+    .line 915
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->reply:Ljava/lang/StringBuilder;
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 806
+    .line 916
     const/4 v1, 0x0
 
-    .line 807
+    .line 917
     iget-boolean v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeWrite:Z
 
     if-eqz v4, :cond_80
 
-    .line 808
+    .line 918
     if-nez p2, :cond_50
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->unknownName(Ljava/lang/String;)Z
@@ -3970,7 +4105,7 @@
 
     if-eqz v4, :cond_50
 
-    .line 809
+    .line 919
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->refused:Ljava/util/List;
 
     iget-object v4, p1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->text:Ljava/lang/String;
@@ -3979,7 +4114,7 @@
 
     move-object v0, v1
 
-    .line 826
+    .line 936
     :goto_2a
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
@@ -3989,7 +4124,7 @@
 
     invoke-interface {v1, p0, v4, v5, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onProbe(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;II[Ljava/lang/String;)V
 
-    .line 828
+    .line 938
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -4009,23 +4144,23 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 829
+    .line 939
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->kind:I
 
     if-ne v0, v7, :cond_39
 
     move v0, v2
 
-    .line 834
+    .line 944
     :goto_4a
     if-nez v0, :cond_8
 
-    .line 835
+    .line 945
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->endProbe()V
 
     goto :goto_8
 
-    .line 812
+    .line 922
     :cond_50
     new-array v1, v7, [Ljava/lang/String;
 
@@ -4042,12 +4177,12 @@
     :goto_5c
     aput-object v0, v1, v2
 
-    .line 813
+    .line 923
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 814
+    .line 924
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -4058,7 +4193,7 @@
 
     invoke-interface {v0, v3, v4}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 815
+    .line 925
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -4073,13 +4208,13 @@
 
     goto :goto_2a
 
-    .line 812
+    .line 922
     :cond_7d
     const-string v0, "(\u2014)"
 
     goto :goto_5c
 
-    .line 817
+    .line 927
     :cond_80
     if-eqz p2, :cond_91
 
@@ -4089,7 +4224,7 @@
 
     if-nez v4, :cond_91
 
-    .line 818
+    .line 928
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->silent:Ljava/util/List;
 
     iget-object v4, p1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->text:Ljava/lang/String;
@@ -4100,7 +4235,7 @@
 
     goto :goto_2a
 
-    .line 819
+    .line 929
     :cond_91
     invoke-virtual {v0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
 
@@ -4114,7 +4249,7 @@
 
     if-eqz v4, :cond_be
 
-    .line 820
+    .line 930
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->refused:Ljava/util/List;
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -4147,7 +4282,7 @@
 
     goto/16 :goto_2a
 
-    .line 822
+    .line 932
     :cond_be
     new-array v1, v7, [Ljava/lang/String;
 
@@ -4164,12 +4299,12 @@
     :goto_ca
     aput-object v0, v1, v2
 
-    .line 823
+    .line 933
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 824
+    .line 934
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -4184,7 +4319,7 @@
 
     goto/16 :goto_2a
 
-    .line 822
+    .line 932
     :cond_e0
     const-string v0, "(\u2014)"
 
@@ -4200,17 +4335,17 @@
     .registers 6
 
     .prologue
-    .line 788
+    .line 898
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->suspended:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 789
+    .line 899
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 790
+    .line 900
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -4231,33 +4366,33 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 791
+    .line 901
     iget v3, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->kind:I
 
     const/4 v4, 0x2
 
     if-eq v3, v4, :cond_10
 
-    .line 792
+    .line 902
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_10
 
-    .line 795
+    .line 905
     :cond_25
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 796
+    .line 906
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z
 
-    .line 797
+    .line 907
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->endProbe()V
 
-    .line 798
+    .line 908
     return-void
 .end method
 
@@ -4265,7 +4400,7 @@
     .registers 2
 
     .prologue
-    .line 253
+    .line 277
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->suspended:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -4289,12 +4424,12 @@
     .registers 2
 
     .prologue
-    .line 759
+    .line 869
     const/4 v0, 0x1
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->sweep(Z)V
 
-    .line 760
+    .line 870
     return-void
 .end method
 
@@ -4304,7 +4439,7 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 273
+    .line 297
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->closed:Z
 
     if-nez v0, :cond_11
@@ -4321,12 +4456,12 @@
 
     if-eqz v0, :cond_12
 
-    .line 291
+    .line 315
     :cond_11
     :goto_11
     return-void
 
-    .line 276
+    .line 300
     :cond_12
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
@@ -4334,22 +4469,22 @@
 
     move-result-wide v2
 
-    .line 277
+    .line 301
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->nextAt:J
 
     cmp-long v0, v2, v0
 
     if-gez v0, :cond_33
 
-    .line 278
+    .line 302
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pumpPosted:Z
 
     if-nez v0, :cond_11
 
-    .line 279
+    .line 303
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pumpPosted:Z
 
-    .line 280
+    .line 304
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Pump;
@@ -4364,7 +4499,7 @@
 
     goto :goto_11
 
-    .line 284
+    .line 308
     :cond_33
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
@@ -4376,27 +4511,27 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 285
+    .line 309
     iput-wide v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->sentAt:J
 
-    .line 286
+    .line 310
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 287
+    .line 311
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->sentCount:I
 
     add-int/lit8 v1, v1, 0x1
 
     iput v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->sentCount:I
 
-    .line 288
+    .line 312
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->text:Ljava/lang/String;
 
     invoke-interface {v1, p0, v4, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onLine(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;ZLjava/lang/String;)V
 
-    .line 289
+    .line 313
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -4425,7 +4560,7 @@
 
     invoke-interface {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->send([B)V
 
-    .line 290
+    .line 314
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     new-instance v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Timeout;
@@ -4463,7 +4598,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 458
+    .line 482
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -4483,12 +4618,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 459
+    .line 483
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->kind:I
 
     if-ne v0, v1, :cond_7
 
-    .line 463
+    .line 487
     :goto_17
     return v1
 
@@ -4520,7 +4655,7 @@
     .registers 3
 
     .prologue
-    .line 203
+    .line 227
     if-eqz p1, :cond_13
 
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -4533,14 +4668,14 @@
 
     if-lez v0, :cond_13
 
-    .line 204
+    .line 228
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->plain(Ljava/lang/String;)V
 
-    .line 206
+    .line 230
     :cond_13
     return-void
 .end method
@@ -4551,17 +4686,17 @@
     .prologue
     const/16 v8, 0xa
 
-    .line 853
+    .line 963
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 854
+    .line 964
     const-string v0, "MASTOGO H-024B \u00b7 XEMS\n"
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 855
+    .line 965
     const-string v0, "mode "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4600,7 +4735,7 @@
 
     const-string v1, " \u00b7 left "
 
-    .line 856
+    .line 966
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -4633,7 +4768,7 @@
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->batteryV:D
 
-    .line 857
+    .line 967
     invoke-virtual {v0, v4, v5}, Ljava/lang/StringBuilder;->append(D)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -4646,7 +4781,7 @@
 
     const-string v1, " \u00b7 contact "
 
-    .line 858
+    .line 968
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -4671,7 +4806,7 @@
 
     invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 859
+    .line 969
     const-string v0, "sent "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4694,12 +4829,12 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 860
+    .line 970
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttCount:I
 
     if-lez v0, :cond_bf
 
-    .line 861
+    .line 971
     const-string v0, " \u00b7 reply "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4738,7 +4873,7 @@
 
     div-long/2addr v4, v6
 
-    .line 862
+    .line 972
     invoke-virtual {v0, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -4747,7 +4882,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 864
+    .line 974
     :cond_bf
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->heartMs:J
 
@@ -4757,7 +4892,7 @@
 
     if-lez v0, :cond_d8
 
-    .line 865
+    .line 975
     const-string v0, " \u00b7 heartbeat "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4774,13 +4909,13 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 867
+    .line 977
     :cond_d8
     const-string v0, "\n\nfeedback:\n"
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 868
+    .line 978
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->tags:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->entrySet()Ljava/util/Set;
@@ -4804,7 +4939,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 869
+    .line 979
     const-string v1, "  +"
 
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4841,7 +4976,7 @@
 
     goto :goto_e7
 
-    .line 871
+    .line 981
     :cond_117
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeWrite:Z
 
@@ -4876,7 +5011,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 872
+    .line 982
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -4896,7 +5031,7 @@
 
     check-cast v0, [Ljava/lang/String;
 
-    .line 873
+    .line 983
     const-string v3, "  "
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4929,19 +5064,19 @@
 
     goto :goto_13e
 
-    .line 871
+    .line 981
     :cond_168
     const-string v0, "\nexploration "
 
     goto :goto_11d
 
-    .line 875
+    .line 985
     :cond_16b
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeWrite:Z
 
     if-eqz v0, :cond_1a4
 
-    .line 876
+    .line 986
     const-string v0, "unknown (ERROR:104): "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4960,7 +5095,7 @@
 
     invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 880
+    .line 990
     :cond_182
     :goto_182
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->silent:Ljava/util/List;
@@ -4971,7 +5106,7 @@
 
     if-nez v0, :cond_19f
 
-    .line 881
+    .line 991
     const-string v0, "silent: "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -4992,7 +5127,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 883
+    .line 993
     :cond_19f
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -5000,7 +5135,7 @@
 
     return-object v0
 
-    .line 877
+    .line 987
     :cond_1a4
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->refused:Ljava/util/List;
 
@@ -5010,7 +5145,7 @@
 
     if-nez v0, :cond_182
 
-    .line 878
+    .line 988
     const-string v0, "refused: "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -5032,30 +5167,30 @@
     .registers 7
 
     .prologue
-    .line 210
+    .line 234
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secLeft:I
 
     if-gez v0, :cond_6
 
-    .line 211
+    .line 235
     const/4 v0, -0x1
 
-    .line 216
+    .line 240
     :goto_5
     return v0
 
-    .line 213
+    .line 237
     :cond_6
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
     if-nez v0, :cond_d
 
-    .line 214
+    .line 238
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secLeft:I
 
     goto :goto_5
 
-    .line 216
+    .line 240
     :cond_d
     const/4 v0, 0x0
 
@@ -5272,17 +5407,17 @@
 
     const/4 v3, 0x0
 
-    .line 232
+    .line 256
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
     if-eqz v0, :cond_3f
 
-    .line 233
+    .line 257
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->suspended:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 234
+    .line 258
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
     if-eqz v0, :cond_1f
@@ -5293,7 +5428,7 @@
 
     if-ne v0, v4, :cond_1f
 
-    .line 235
+    .line 259
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->suspended:Ljava/util/List;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -5302,7 +5437,7 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 237
+    .line 261
     :cond_1f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
@@ -5324,12 +5459,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 238
+    .line 262
     iget v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->kind:I
 
     if-ne v2, v4, :cond_25
 
-    .line 239
+    .line 263
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->suspended:Ljava/util/List;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->text:Ljava/lang/String;
@@ -5338,31 +5473,31 @@
 
     goto :goto_25
 
-    .line 242
+    .line 266
     :cond_3d
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
-    .line 244
+    .line 268
     :cond_3f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 245
+    .line 269
     iput-object v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
 
-    .line 246
+    .line 270
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    .line 247
+    .line 271
     iput-object v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 248
+    .line 272
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     invoke-interface {v0, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onChanged(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;)V
 
-    .line 249
+    .line 273
     return-void
 .end method
 
@@ -5370,7 +5505,7 @@
     .registers 5
 
     .prologue
-    .line 195
+    .line 219
     const/4 v0, 0x1
 
     const/16 v1, 0xe10
@@ -5383,7 +5518,7 @@
 
     move-result v0
 
-    .line 196
+    .line 220
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -5408,10 +5543,10 @@
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->plain(Ljava/lang/String;)V
 
-    .line 197
+    .line 221
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secLeft:I
 
-    .line 198
+    .line 222
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->now()J
@@ -5420,7 +5555,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secAt:J
 
-    .line 199
+    .line 223
     return-void
 .end method
 
@@ -5517,70 +5652,70 @@
 
     const/4 v5, 0x0
 
-    .line 763
+    .line 873
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
     if-eqz v0, :cond_8
 
-    .line 785
+    .line 895
     :goto_7
     return-void
 
-    .line 766
+    .line 876
     :cond_8
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeWrite:Z
 
-    .line 767
+    .line 877
     iput-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 768
+    .line 878
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 769
+    .line 879
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->silent:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 770
+    .line 880
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->refused:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 771
+    .line 881
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->suspended:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 772
+    .line 882
     if-eqz p1, :cond_69
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->writeCandidates()Ljava/util/List;
 
     move-result-object v0
 
-    .line 773
+    .line 883
     :goto_26
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
-    .line 774
+    .line 884
     iput v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeDone:I
 
-    .line 775
+    .line 885
     invoke-interface {v0}, Ljava/util/List;->size()I
 
     move-result v1
 
     iput v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeTotal:I
 
-    .line 776
+    .line 886
     iput-boolean v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    .line 777
+    .line 887
     iput v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
 
-    .line 778
+    .line 888
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -5591,7 +5726,7 @@
 
     invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 779
+    .line 889
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -5604,7 +5739,7 @@
 
     invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 780
+    .line 890
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -5622,7 +5757,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 781
+    .line 891
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
 
     new-instance v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -5635,7 +5770,7 @@
 
     goto :goto_51
 
-    .line 772
+    .line 882
     :cond_69
     invoke-static {}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->candidates()Ljava/util/List;
 
@@ -5643,11 +5778,11 @@
 
     goto :goto_26
 
-    .line 783
+    .line 893
     :cond_6e
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pump()V
 
-    .line 784
+    .line 894
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->ev:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeTotal:I
@@ -5655,4 +5790,108 @@
     invoke-interface {v0, p0, v5, v1, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Events;->onProbe(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;II[Ljava/lang/String;)V
 
     goto :goto_7
+.end method
+
+.method switchMode(I)V
+    .registers 6
+
+    .prologue
+    .line 198
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secondsLeft()I
+
+    move-result v2
+
+    .line 199
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
+
+    invoke-interface {v0}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    add-int/lit8 v0, v0, -0x1
+
+    move v1, v0
+
+    :goto_d
+    if-ltz v1, :cond_25
+
+    .line 200
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
+
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;->kind:I
+
+    const/4 v3, 0x1
+
+    if-ne v0, v3, :cond_21
+
+    .line 201
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->queue:Ljava/util/List;
+
+    invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
+
+    .line 199
+    :cond_21
+    add-int/lit8 v0, v1, -0x1
+
+    move v1, v0
+
+    goto :goto_d
+
+    .line 204
+    :cond_25
+    iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
+
+    .line 205
+    const/4 v0, 0x0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
+
+    .line 206
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "AT+CMODE=0,"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->plain(Ljava/lang/String;)V
+
+    .line 207
+    const-string v0, "AT+QPOWS"
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->plain(Ljava/lang/String;)V
+
+    .line 208
+    if-lez v2, :cond_4a
+
+    .line 209
+    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setTimer(I)V
+
+    .line 211
+    :cond_4a
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->switches:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->switches:I
+
+    .line 212
+    return-void
 .end method

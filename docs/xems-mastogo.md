@@ -101,11 +101,19 @@ Code (compile:wearable): `wearable/mastogo/` — `MastogoShell` (pure Java: queu
 exploration, text report), `MastogoLink` (GATT FFF0: write FFF5, notify FFF4, reconnect), `MastogoScan` (name
 `MASTOGO H-`), `MastogoScreen` (the page). Offline test: `bash scripts/mastogo/run.sh` (a simulated unit, incl. a
 hidden command the sweep must find).
-- **Програма:** group (TENS / EMS / Женски) → the program, minutes 10–60. ▶ = vendor sequence, strength from 1.
-  A program change pauses the unit (it zeroes the strength itself).
-- **Модулация:** the strength drawn over time — Вълна (cosine), Импулси (duty %), Нарастване (saw), Триъгълник,
-  Случайно; from–to level, cycle 0.2–120 s, refresh 100–2000 ms. Rises ≤ 3 levels per update, falls free; stops on
-  contact loss / timer end / power-off. While it runs, − / + shift the whole envelope. Drawn live with a dot.
+- **Модули (1.1.468):** the 25 programs as universal modules 1–25 under TENS / EMS / Смесени — no body-part names
+  (owner, 2026-10-27: "not for parts of the body — universal"). The frequency of each is the owner's note (prefs
+  `hz_<id>`, measured or felt; the unit can't report it — both sweeps proved it), shown on the tiles, the clock and
+  the rotation. Minutes 10–60. ▶ = vendor sequence, strength from 1. A program change pauses the unit (it zeroes
+  the strength itself).
+- **Импулс:** the strength drawn over time — **Работа / Пауза** (default: the owner's rise / work / fall / pause
+  seconds, pause strength and work strength), Вълна (cosine), Импулси (duty %), Нарастване (saw), Триъгълник,
+  Случайно; refresh 100–2000 ms. Rises ≤ 3 levels per update, falls free; stops on contact loss / timer end /
+  power-off. While it runs, − / + shift the whole envelope. Drawn live with a dot.
+- **Смяна на честотата:** 2+ modules picked in order (+ cycles per module) → `Mod.rotate`; the shell changes the
+  module at the start of each pause (other shapes: at the cycle start) with `AT+CMODE=0,id` → `AT+QPOWS` →
+  `AT+CDCLK=<left>`, drops any queued strength first; the strength climbs back from 0. ▶ starts on the first one.
+  Untested on the unit: whether it runs on after `CMODE` + `QPOWS` without a gap (the offline test assumes so).
 - **Изследване:** ~630 read-only queries (`?`, and `=?` on the known names) — strength 0 and `AT+QPOWP` first and
   after every command that answers; two taps (the second confirms the pads are off the body). Lists what answered,
   the full feedback (`+TAG` values, reply ms, heartbeat), a console (last 200 lines) with a free command line, and

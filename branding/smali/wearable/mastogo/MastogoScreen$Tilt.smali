@@ -34,18 +34,18 @@
     .registers 3
 
     .prologue
-    .line 2141
+    .line 2166
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2139
+    .line 2164
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->first:Z
 
-    .line 2142
+    .line 2167
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 2143
+    .line 2168
     return-void
 .end method
 
@@ -55,7 +55,7 @@
     .registers 3
 
     .prologue
-    .line 2161
+    .line 2186
     return-void
 .end method
 
@@ -67,18 +67,18 @@
 
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
-    .line 2147
+    .line 2172
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->first:Z
 
     if-eqz v0, :cond_4f
 
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 2148
+    .line 2173
     :goto_9
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->first:Z
 
-    .line 2149
+    .line 2174
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gx:F
 
     iget-object v2, p1, Landroid/hardware/SensorEvent;->values:[F
@@ -95,7 +95,7 @@
 
     iput v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gx:F
 
-    .line 2150
+    .line 2175
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gy:F
 
     iget-object v2, p1, Landroid/hardware/SensorEvent;->values:[F
@@ -114,7 +114,7 @@
 
     iput v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gy:F
 
-    .line 2151
+    .line 2176
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gz:F
 
     iget-object v2, p1, Landroid/hardware/SensorEvent;->values:[F
@@ -133,7 +133,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gz:F
 
-    .line 2152
+    .line 2177
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gx:F
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->gx:F
@@ -162,22 +162,22 @@
 
     move-result-wide v0
 
-    .line 2153
+    .line 2178
     cmpg-double v2, v0, v8
 
     if-gez v2, :cond_53
 
-    .line 2157
+    .line 2182
     :goto_4e
     return-void
 
-    .line 2147
+    .line 2172
     :cond_4f
     const v0, 0x3e19999a    # 0.15f
 
     goto :goto_9
 
-    .line 2156
+    .line 2181
     :cond_53
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 

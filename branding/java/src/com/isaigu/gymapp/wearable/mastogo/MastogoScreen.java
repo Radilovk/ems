@@ -192,6 +192,12 @@ public final class MastogoScreen {
         // a hit (VR idea): the way and its length, kept
         /** Each feeling's length, ms (the squeeze has none: it lasts while held). */
         final int[] fxMs = new int[FX.length];
+        /**
+         * The background between feelings: 0 = nothing between them (owner, 2026-10-27: tying it to the panel's
+         * pause strength in 1.1.475 left the output running at 13 "and it does not stop"). Only raised on purpose.
+         */
+        int fxBase;
+        XemsUi.Stepper fxBaseSt;
         TextView hitInfo;
         // modules tab
         final TextView[] tiles = new TextView[MastogoShell.MODES];
@@ -219,6 +225,7 @@ public final class MastogoScreen {
             for (int i = 0; i < FX.length; i++) {
                 fxMs[i] = prefs.getInt("fx_ms_" + i, FX_MS[i]);
             }
+            fxBase = 0;                                     // never carried over: every open starts silent
             live = MastogoShell.Mod.decode(prefs.getString("live", ""));
             if (!prefs.contains("live")) {
                 live.lo = 0;
@@ -549,6 +556,17 @@ public final class MastogoScreen {
         }
 
         void pultStep(int f, int dir) {
+            if (f == F_L_FXBASE) {
+                fxBase = Math.max(0, Math.min(Math.max(0, live.hi - 1), fxBase + dir));
+                fxBaseSt.set(String.valueOf(fxBase), fxBase == 0 ? tr("нищо между усещанията", "nothing in between")
+                        : tr("фон между усещанията", "background in between"));
+                MastogoShell hs = sh();
+                if (hs != null) {
+                    hs.setHitBase(fxBase);
+                }
+                renderHit();
+                return;
+            }
             if (f >= F_L_FX) {
                 int i = f - F_L_FX;
                 int v = fxMs[i];
@@ -581,11 +599,7 @@ public final class MastogoScreen {
                 case F_L_DOWN: live.downMs = tenths(live.downMs, dir); break;
                 default: live.lo = Math.max(0, Math.min(live.hi, live.lo + dir)); break;
             }
-            MastogoShell hs = sh();
-            if (hs != null && hs.hitArmed >= 0) {
-                hs.setHitBase(live.lo);
-                renderHit();
-            }
+
             live.safe();
             liveChanged();
             renderPult();
@@ -602,6 +616,7 @@ public final class MastogoScreen {
         static final int[] FX_CARRIER = {13, 18, 11, 24};
         static final int[] FX_MS = {40, 10, -1, 40};
         static final int F_L_FX = 40;
+        static final int F_L_FXBASE = 50;
         final XemsUi.Stepper[] fxSt = new XemsUi.Stepper[FX.length];
 
         static String fxName(int i) {
@@ -647,6 +662,15 @@ public final class MastogoScreen {
                 row.addView(col, lp);
             }
             card.addView(row);
+            LinearLayout br = XemsUi.horizontal(a);
+            br.setGravity(Gravity.CENTER_VERTICAL);
+            br.addView(XemsUi.label(a, tr("ФОН", "BACKGROUND")), new LinearLayout.LayoutParams(dp(90),
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            fxBaseSt = XemsUi.stepper(a, "", "", 18, new ModStep(this, F_L_FXBASE));
+            fxBaseSt.set(String.valueOf(fxBase), fxBase == 0 ? tr("нищо между усещанията", "nothing in between")
+                    : tr("фон между усещанията", "background in between"));
+            br.addView(fxBaseSt.view, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            card.addView(br, XemsUi.matchWrap(a, 10));
             hitInfo = XemsUi.text(a, "", 12.5f, XemsUi.HINT, false);
             card.addView(hitInfo, XemsUi.matchWrap(a, 8));
             tabBody.addView(card, XemsUi.matchWrap(a, 12));
@@ -658,11 +682,12 @@ public final class MastogoScreen {
                 return;
             }
             MastogoShell sh = sh();
-            hitInfo.setText(tr("Сила = вдясно (", "Strength = on the right (") + live.hi + tr("), основа = силата в "
-                    + "паузата (", "), base = the pause strength (") + live.lo + tr(") — по-висока основа, по-силно "
-                    + "усещане. Смяна на вида = смяна на програмата: първият му път ~0.5 с, после веднага. ",
-                    ") — a higher base, a stronger feel. Another kind = another program: its first time ~0.5 s, then "
-                    + "at once. ") + (sh != null && sh.hitArmed >= 0 ? tr("Готово · събития: ", "Ready · events: ")
+            hitInfo.setText(tr("Сила = вдясно (", "Strength = on the right (") + live.hi + tr("). Между усещанията "
+                    + "изходът е на ФОН (0 = тишина; по-висок фон прави усещането по-силно, но се усеща постоянно). "
+                    + "Смяна на вида = смяна на програмата: първият му път ~0.5 с. ■ спира всичко. ",
+                    "). Between feelings the output sits at BACKGROUND (0 = silence; a higher one makes the feel "
+                    + "stronger but is felt all the time). Another kind = another program: its first time ~0.5 s. "
+                    + "■ stops everything. ") + (sh != null && sh.hitArmed >= 0 ? tr("Готово · събития: ", "Ready · events: ")
                     + sh.hitCount + tr(" · апаратчето се държи будно.", " · the unit is kept awake.") : ""));
         }
 
@@ -674,7 +699,7 @@ public final class MastogoScreen {
             int carrier = FX_CARRIER[i];
             if (sh.hitArmed != MastogoShell.HIT_LEVEL || sh.mode != carrier) {
                 liveRun = false;
-                sh.armHit(MastogoShell.HIT_LEVEL, carrier, live.hi, live.lo, minutes * 60);
+                sh.armHit(MastogoShell.HIT_LEVEL, carrier, live.hi, fxBase, minutes * 60);
             }
             if (FX_MS[i] < 0) {
                 sh.press(true);

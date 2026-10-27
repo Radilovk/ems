@@ -15,8 +15,14 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
   are off).
 - So frequency, width, polarity, bursts and the strength steps are all firmware timing — the hardware could do far
   more than the 25 programs. Only own firmware reaches it.
-- **P1** — 4 pads next to U1: almost certainly the programming / debug port (SWD or UART). Route to the firmware:
-  read it out (if not protected) to get every command and the program tables; or flash our own.
+- Crystal X1 = 32.000 MHz. Back side: Li-Po 402030 3.7 V 180 mAh (0.67 Wh, made 2025-07-10; `+CBC` 3.73 V ≈ half),
+  charger U4 by the battery pads and USB-C, output cap **4.7 µF 160 V** (open-circuit output well above 100 V
+  possible), two `OUT` pads → the two electrode snaps (one channel). Unpopulated: U2 (2×12 SOP), X2, a 4-hole row
+  under U2 — another MCU option of the same board.
+- **Ports:** P1 (front, 4 holes beside U1, R8 / R9 in series = likely the chip's UART) and P2 (back, 4 holes).
+  SYD8811 notes (CSDN, SYDTEK): programmed with J-Link + SYDTEK Studio (SWD); UART download on GPIO15 / GPIO16; a
+  hardware "encryption" (read protection) option exists — whether the vendor set it is unknown. Next: find GND / VCC
+  on P1 and P2 with a meter, then try SWD read-out (J-Link / ST-Link clone) or the UART.
 
 ## Transport
 - Service `FFF0`: write `FFF5`, notify `FFF4`. `FF00`/`FF01` = OTA. `180A/2A26` = firmware revision.

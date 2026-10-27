@@ -35,6 +35,14 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
   `+TAG:value` then `OK`. (1.1.464 waited 800 ms on every set → modulation at ~1 update/s; fixed in 1.1.465.)
 - `+CBC:0,3.73` = cell voltage 3.73 V (first field unknown — maybe charging); % is estimated 3.30–4.15 V.
 - `+CMODE:0` (no channel field), `+CDCLK:HHMMSS`. Reply time 26–89 ms (avg 52). No `+CHEART` / `+CLOAD` in 90 s.
+- **Exploration on the unit (2026-10-27, 306 of 628 tried):** no hidden command. Known names answer `?`
+  (`+CSTR:0`, `+QPOWS:1`, `+CLOAD:0`…) and `=?` with just `+TAG:OK` (no ranges). An unknown `?` query gets **no
+  answer at all**; anything else unknown → `ERROR:104` (`+CLOAD ERROR:104`); `+CSTR ERROR:102` = strength refused,
+  no load. Unsolicited: `+CHEART:0,0` every ~31 s, `+CLOAD:1,1` / `+CLOAD:1,0` around a link, `+QPOWD:0`.
+  `AT+WSDT?` / `AT+CHANNEL?` silent — not on this unit.
+- **The unit switches itself off after a few minutes without output** (`+QPOWD:0`, reason 0 = idle): the paused
+  exploration stopped there twice. Since 1.1.466 the sweep keeps its place, waits ≤ 350 ms per query (≈ 4.5 min in
+  all), never counts a heartbeat / contact / power-off line as an answer, and goes on when the unit is back on.
 - OTA server: `POST api.cqdomas.com/app/device/checkFirmware` `{deviceId:34, versionCode:1, tenantId:1}`
   (JSON; answers AES-128-ECB, key `F5hiGGSJEKahnQn2`, base64 in `{"secret":…}`) → firmware v100 (2024-06-03),
   `http://119.13.88.237:9000/resources/1/20240603041557852302AA05584E28BBCE179B6E002BC2.bin` — host unreachable

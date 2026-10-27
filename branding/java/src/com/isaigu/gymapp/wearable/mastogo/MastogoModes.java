@@ -33,6 +33,22 @@ public final class MastogoModes {
      */
     static final boolean[] STEADY = new boolean[COUNT];
 
+    /**
+     * Starts sharp: full strength from the first pulse, no ramp or swell of its own anywhere in DOMAS's picture
+     * (every bar ≥ 85 % of the tallest) — owner, 2026-10-27: "work only with the ones that start sharply, the ramps
+     * must be ours". The live panel offers only these.
+     */
+    static final int[] SHARP = {19, 12, 13, 0, 3, 9, 7, 11, 18, 24};
+
+    public static boolean sharp(int id) {
+        for (int x : SHARP) {
+            if (x == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static {
         STEADY[18] = true;
         STEADY[19] = true;

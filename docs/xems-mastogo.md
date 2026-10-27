@@ -148,6 +148,20 @@ hidden command the sweep must find).
   strength = the impulse strength. Phase box: ИМПУЛС / ПАУЗА / … seconds left (green / grey) and the cycle bar with
   a cursor (200 ms refresh). Runs as `Mod.WORK` + `Mod.carrier` (saved as `live`): a new carrier comes in at the
   start of the next pause (at once when the pause is < 0.5 s); picking a module in "Модули" sets it too.
+- **1.1.472 — the owner's test of 1.1.471: "it still follows its own cycle, rises / falls slowly, not my times".**
+  Fixes: (1) the panel offers only programs that **start sharp** (`MastogoModes.SHARP`, from DOMAS's pictures: every
+  bar ≥ 85 % of the tallest — 1 Акупунктура, 4 Потупване, 8 Месене, 10 Разтягане, 12 Шиацу, 13 Тригерна точка,
+  14 Пеперуда, 19 Непрекъснат, 20 Тонус, 25 Женски 1; ◆ on the tiles); (2) **gated pause** (`Mod.gate`): a pause
+  with strength 0 is `AT+QPOWP`, the impulse `AT+QPOWS`, the next impulse's strength preset in the pause → sharp
+  start / stop on our clock instead of the unit gliding its strength (`setLevel` now merges only into the last
+  queued command, so a preset never jumps ahead of the `QPOWP`); used by the panel, Работа / Пауза and Свой цикъл;
+  (3) **simulated frequency** (`Mod.beatTenths`, 0.5–4 Hz): inside the impulse the output is let through for
+  200 ms per beat on DOMAS "Toning" (1.6 Hz) — one pulse per beat (assumes a pulse comes right at `QPOWS`; not
+  verified on the unit). The link carries ~10 commands / s, hence ≤ 4 beats / s.
+  (4) **▶ starts sharp at a preset strength** (owner: "with a preset strength it must start sharply"):
+  `start(seconds, at)` = `CSTR=at` → `QPOWS` → `CSTR=at` (again, in case the unit ignores it while paused), no
+  crawl from 1. Manual mode: − / + before ▶ set that strength (`start_level`); the panel / gated shapes start at
+  their first level (the impulse strength when there is no rise).
 - **Модули (1.1.470):** the 26 programs in DOMAS's groups and names (Масаж 1–8, TENS 9–16, EMS 17–24, Женски
   25–26 — technique names, no body parts; owner, 2026-10-27: "universal"). Each tile: DOMAS's picture of the impulse
   (`mode_wave_NN.png`, stored as bars in `MastogoModes.WAVE`, drawn in the theme colour), name, frequency; ≈ marks a

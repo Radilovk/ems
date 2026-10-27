@@ -24,6 +24,8 @@
 
 .field static final NAME_EN:[Ljava/lang/String;
 
+.field static final SHARP:[I
+
 .field static final STEADY:[Z
 
 .field public static final TENS:I = 0x1
@@ -38,11 +40,11 @@
     .registers 8
 
     .prologue
-    const/16 v7, 0x18
+    const/16 v7, 0x13
 
-    const/16 v6, 0x13
+    const/16 v6, 0x12
 
-    const/16 v5, 0x12
+    const/16 v5, 0xa
 
     const/4 v4, 0x7
 
@@ -109,11 +111,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "\u0420\u0430\u0437\u0442\u0440\u0438\u0432\u0430\u043d\u0435"
 
-    const-string v2, "\u0420\u0430\u0437\u0442\u0440\u0438\u0432\u0430\u043d\u0435"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     const/16 v1, 0xb
 
@@ -159,11 +159,11 @@
 
     const-string v1, "\u041d\u0435\u043f\u0440\u0435\u043a\u044a\u0441\u043d\u0430\u0442"
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const-string v1, "\u0422\u043e\u043d\u0443\u0441"
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v7
 
     const/16 v1, 0x14
 
@@ -189,9 +189,11 @@
 
     aput-object v2, v0, v1
 
-    const-string v1, "\u0416\u0435\u043d\u0441\u043a\u0438 1"
+    const/16 v1, 0x18
 
-    aput-object v1, v0, v7
+    const-string v2, "\u0416\u0435\u043d\u0441\u043a\u0438 1"
+
+    aput-object v2, v0, v1
 
     const/16 v1, 0x19
 
@@ -262,11 +264,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "Rubbing"
 
-    const-string v2, "Rubbing"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     const/16 v1, 0xb
 
@@ -312,11 +312,11 @@
 
     const-string v1, "Continuous"
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const-string v1, "Toning"
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v7
 
     const/16 v1, 0x14
 
@@ -342,9 +342,11 @@
 
     aput-object v2, v0, v1
 
-    const-string v1, "Female 1"
+    const/16 v1, 0x18
 
-    aput-object v1, v0, v7
+    const-string v2, "Female 1"
+
+    aput-object v2, v0, v1
 
     const/16 v1, 0x19
 
@@ -361,27 +363,36 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->STEADY:[Z
 
-    .line 37
-    sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->STEADY:[Z
+    .line 41
+    new-array v0, v5, [I
 
-    aput-boolean v3, v0, v5
+    fill-array-data v0, :array_426
 
-    .line 38
+    sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->SHARP:[I
+
+    .line 53
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->STEADY:[Z
 
     aput-boolean v3, v0, v6
 
-    .line 39
+    .line 54
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->STEADY:[Z
 
     aput-boolean v3, v0, v7
 
-    .line 40
+    .line 55
+    sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->STEADY:[Z
+
+    const/16 v1, 0x18
+
+    aput-boolean v3, v0, v1
+
+    .line 56
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->STEADY:[Z
 
     aput-boolean v3, v0, v4
 
-    .line 47
+    .line 63
     const/16 v0, 0x1a
 
     new-array v0, v0, [Ljava/lang/String;
@@ -442,11 +453,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "3fj4fk6ek7el9dladlcdmddmfcmgcmicnjcnlcnmbnobnpbnrbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYbo"
 
-    const-string v2, "3fj4fk6ek7el9dladlcdmddmfcmgcmicnjcnlcnmbnobnpbnrbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYbo"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     const/16 v1, 0xb
 
@@ -492,11 +501,11 @@
 
     const-string v1, "0bo1bo3bo4bo6bo7bo9boabocbodbofbogboibojbolbomboobopborbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYboZbo/bo"
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const-string v1, "0bm4do9bmddoibmmdorbmvdoAbmEdoJbmNdoSbmWdo/bm"
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v7
 
     const/16 v1, 0x14
 
@@ -522,9 +531,11 @@
 
     aput-object v2, v0, v1
 
-    const-string v1, "0bo1bo3bo4bo6bo7bo9boabocbodbofbogboibojbolbomboobopborbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYboZbo/bo"
+    const/16 v1, 0x18
 
-    aput-object v1, v0, v7
+    const-string v2, "0bo1bo3bo4bo6bo7bo9boabocbodbofbogboibojbolbomboobopborbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYboZbo/bo"
+
+    aput-object v2, v0, v1
 
     const/16 v1, 0x19
 
@@ -534,7 +545,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->WAVE:[Ljava/lang/String;
 
-    .line 75
+    .line 91
     const/16 v0, 0x1a
 
     new-array v0, v0, [Ljava/lang/String;
@@ -595,11 +606,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "47 Hz"
 
-    const-string v2, "47 Hz"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     const/16 v1, 0xb
 
@@ -645,11 +654,11 @@
 
     const-string v1, "77 Hz"
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const-string v1, "1.6 Hz"
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v7
 
     const/16 v1, 0x14
 
@@ -675,9 +684,11 @@
 
     aput-object v2, v0, v1
 
-    const-string v1, "200 Hz"
+    const/16 v1, 0x18
 
-    aput-object v1, v0, v7
+    const-string v2, "200 Hz"
+
+    aput-object v2, v0, v1
 
     const/16 v1, 0x19
 
@@ -687,7 +698,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->HZ:[Ljava/lang/String;
 
-    .line 80
+    .line 96
     const/16 v0, 0x1a
 
     new-array v0, v0, [Ljava/lang/String;
@@ -748,11 +759,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "190 \u00b5s"
 
-    const-string v2, "190 \u00b5s"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     const/16 v1, 0xb
 
@@ -798,11 +807,11 @@
 
     const-string v1, "100 \u00b5s"
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const-string v1, "190 \u00b5s"
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v7
 
     const/16 v1, 0x14
 
@@ -828,9 +837,11 @@
 
     aput-object v2, v0, v1
 
-    const-string v1, "100 \u00b5s"
+    const/16 v1, 0x18
 
-    aput-object v1, v0, v7
+    const-string v2, "100 \u00b5s"
+
+    aput-object v2, v0, v1
 
     const/16 v1, 0x19
 
@@ -840,7 +851,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->WIDTH:[Ljava/lang/String;
 
-    .line 85
+    .line 101
     const/16 v0, 0x1a
 
     new-array v0, v0, [Ljava/lang/String;
@@ -901,11 +912,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "\u041d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u0449\u043e \u0442\u0440\u0435\u043f\u0435\u0440\u0435\u043d\u0435, \u043f\u043e\u0441\u043b\u0435 \u0437\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0430 \u0432\u0438\u0431\u0440\u0430\u0446\u0438\u044f."
 
-    const-string v2, "\u041d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u0449\u043e \u0442\u0440\u0435\u043f\u0435\u0440\u0435\u043d\u0435, \u043f\u043e\u0441\u043b\u0435 \u0437\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0430 \u0432\u0438\u0431\u0440\u0430\u0446\u0438\u044f."
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     const/16 v1, 0xb
 
@@ -951,11 +960,11 @@
 
     const-string v1, "\u041b\u0435\u043a\u043e \u043f\u043e\u0432\u044a\u0440\u0445\u043d\u043e\u0441\u0442\u043d\u043e \u043f\u044a\u043b\u0437\u0435\u043d\u0435 \u043a\u0430\u0442\u043e \u043c\u0435\u0441\u0435\u043d\u0435 \u0441 \u043f\u0440\u044a\u0441\u0442\u0438."
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const-string v1, "\u0420\u0438\u0442\u043c\u0438\u0447\u043d\u0438 \u043f\u043e\u0447\u0443\u043a\u0432\u0430\u043d\u0438\u044f, \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430."
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v7
 
     const/16 v1, 0x14
 
@@ -981,9 +990,11 @@
 
     aput-object v2, v0, v1
 
-    const-string v1, "\u041f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u043e \u0433\u044a\u0441\u0442\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435, \u0432\u0438\u0441\u043e\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430."
+    const/16 v1, 0x18
 
-    aput-object v1, v0, v7
+    const-string v2, "\u041f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u043e \u0433\u044a\u0441\u0442\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435, \u0432\u0438\u0441\u043e\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430."
+
+    aput-object v2, v0, v1
 
     const/16 v1, 0x19
 
@@ -993,7 +1004,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->BG:[Ljava/lang/String;
 
-    .line 113
+    .line 129
     const/16 v0, 0x1a
 
     new-array v0, v0, [Ljava/lang/String;
@@ -1054,11 +1065,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "Rising tremor, then sustained vibration."
 
-    const-string v2, "Rising tremor, then sustained vibration."
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     const/16 v1, 0xb
 
@@ -1104,11 +1113,11 @@
 
     const-string v1, "Light surface crawling like finger kneading."
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v6
 
     const-string v1, "Rhythmic clicking taps with twitching."
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v7
 
     const/16 v1, 0x14
 
@@ -1134,9 +1143,11 @@
 
     aput-object v2, v0, v1
 
-    const-string v1, "Continuous dense tingling, high frequency."
+    const/16 v1, 0x18
 
-    aput-object v1, v0, v7
+    const-string v2, "Continuous dense tingling, high frequency."
+
+    aput-object v2, v0, v1
 
     const/16 v1, 0x19
 
@@ -1147,6 +1158,21 @@
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->EN:[Ljava/lang/String;
 
     return-void
+
+    .line 41
+    :array_426
+    .array-data 4
+        0x13
+        0xc
+        0xd
+        0x0
+        0x3
+        0x9
+        0x7
+        0xb
+        0x12
+        0x18
+    .end array-data
 .end method
 
 .method private constructor <init>()V
@@ -1163,7 +1189,7 @@
     .registers 3
 
     .prologue
-    .line 170
+    .line 186
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->valid(I)Z
 
     move-result v0
@@ -1196,7 +1222,7 @@
     .registers 2
 
     .prologue
-    .line 146
+    .line 162
     const/16 v0, 0x8
 
     if-ge p0, v0, :cond_6
@@ -1234,7 +1260,7 @@
     .registers 2
 
     .prologue
-    .line 162
+    .line 178
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->valid(I)Z
 
     move-result v0
@@ -1258,7 +1284,7 @@
     .registers 3
 
     .prologue
-    .line 150
+    .line 166
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->valid(I)Z
 
     move-result v0
@@ -1287,11 +1313,46 @@
     goto :goto_c
 .end method
 
+.method public static sharp(I)Z
+    .registers 6
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 44
+    sget-object v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->SHARP:[I
+
+    array-length v3, v2
+
+    move v1, v0
+
+    :goto_5
+    if-ge v1, v3, :cond_c
+
+    aget v4, v2, v1
+
+    .line 45
+    if-ne v4, p0, :cond_d
+
+    .line 46
+    const/4 v0, 0x1
+
+    .line 49
+    :cond_c
+    return v0
+
+    .line 44
+    :cond_d
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_5
+.end method
+
 .method public static steady(I)Z
     .registers 2
 
     .prologue
-    .line 154
+    .line 170
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->valid(I)Z
 
     move-result v0
@@ -1319,7 +1380,7 @@
     .registers 2
 
     .prologue
-    .line 142
+    .line 158
     if-ltz p0, :cond_8
 
     const/16 v0, 0x1a
@@ -1341,7 +1402,7 @@
     .registers 2
 
     .prologue
-    .line 158
+    .line 174
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->valid(I)Z
 
     move-result v0
@@ -1365,7 +1426,7 @@
     .registers 2
 
     .prologue
-    .line 166
+    .line 182
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->valid(I)Z
 
     move-result v0

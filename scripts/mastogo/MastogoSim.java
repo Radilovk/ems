@@ -245,6 +245,81 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(MastogoShell.Mod.decode(live2.encode()).carrier == 24, "carrier saved");
         sh.modulate(null);
 
+        // gated: the pause switches the output off, the impulse starts sharp at its preset strength
+        MastogoShell.Mod g = new MastogoShell.Mod();
+        g.shape = MastogoShell.Mod.WORK;
+        g.gate = true;
+        g.lo = 0;
+        g.hi = 10;
+        g.upMs = 0;
+        g.onMs = 1000;
+        g.downMs = 0;
+        g.offMs = 1000;
+        g.stepMs = 100;
+        g.carrier = 18;
+        g.safe();
+        check(MastogoShell.Mod.decode(g.encode()).gate, "gate saved");
+        sh.modulate(null);
+        runFor(300);
+        sh.setMode(18);
+        sh.start(600);
+        runFor(500);
+        sh.modulate(g);
+        boolean[] runAt = new boolean[40];
+        int[] lvAt = new int[40];
+        for (int k = 0; k < 40; k++) {
+            runFor(100);
+            runAt[k] = uRun;
+            lvAt[k] = uLevel;
+        }
+        // phase: k*100+100 ms since start; impulse 0–1000, pause 1000–2000, …; allow ~250 ms for the commands
+        boolean ok = true;
+        for (int k = 0; k < 40; k++) {
+            long t = (k + 1) * 100L % 2000;
+            if (t >= 400 && t <= 900 && (!runAt[k] || lvAt[k] != 10)) {
+                ok = false;
+            }
+            if (t >= 1300 && t <= 1900 && runAt[k]) {
+                ok = false;
+            }
+        }
+        check(ok, "gated: output on at 10 in the impulse, off in the pause");
+        check(sh.level == 10 || sh.outOff, "gated: next impulse's strength held ready in the pause");
+        sh.modulate(null);
+        runFor(300);
+        check(uRun && !sh.outOff, "modulation off → output back on");
+
+        // simulated frequency: beats of a 1.6 Hz carrier let through 2× a second inside the impulse
+        MastogoShell.Mod b = g.copy();
+        b.beatTenths = 20;
+        b.onMs = 2000;
+        b.offMs = 1000;
+        b.carrier = 19;
+        b.safe();
+        sh.setMode(19);
+        sh.start(600);
+        runFor(500);
+        int from = sent.size();
+        sh.modulate(b);
+        runFor(3000);
+        int starts = 0;
+        for (String c : sent.subList(from, sent.size())) {
+            if (c.equals("AT+QPOWS")) {
+                starts++;
+            }
+        }
+        check(starts == 4, "beats: 2 Hz → 4 starts in a 2 s impulse (" + starts + ")");
+        sh.modulate(null);
+
+        // ▶ at a preset strength: no crawl from 1
+        sh.modulate(null);
+        sh.stop();
+        runFor(500);
+        levels.clear();
+        sh.start(600, 12);
+        runFor(400);
+        check(uRun && uLevel == 12 && !levels.contains(1), "start sharp at a preset 12 " + levels);
+
         // contact lost → strength 0, modulation off
         feed("+CLOAD:0");
         runFor(1000);

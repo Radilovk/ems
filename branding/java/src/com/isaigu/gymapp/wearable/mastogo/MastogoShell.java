@@ -138,9 +138,32 @@ public final class MastogoShell {
         }
     }
 
+    /**
+     * ▶ straight at a preset strength (owner, 2026-10-27: "with a preset strength it must start sharply"): the
+     * strength first, then run, then the same strength again in case the unit ignored it while paused — at worst
+     * one step ~0.1 s after the start, never a crawl from 1.
+     */
+    public void start(int seconds, int at) {
+        if (at <= 1) {
+            start(seconds);
+            return;
+        }
+        at = Math.min(MAX_LEVEL, at);
+        offReason = -1;
+        outOff = false;
+        plain("AT+CSTR=0," + at);
+        plain("AT+QPOWS");
+        plain("AT+CSTR=0," + at);
+        level = at;
+        setTimer(seconds);
+        running = true;
+        ev.onChanged(this);
+    }
+
     /** ▶ — the vendor's sequence: run, strength 1, run, timer. Strength always starts at 1. */
     public void start(int seconds) {
         offReason = -1;
+        outOff = false;
         plain("AT+QPOWS");
         level = 1;
         plain("AT+CSTR=0,1");
@@ -153,23 +176,26 @@ public final class MastogoShell {
     /** ■ — pause the output (the modulation stops too). */
     public void stop() {
         mod = null;
+        outOff = false;
         queue.add(new Cmd("AT+QPOWP", K_PAUSE));
         running = false;
         pump();
         ev.onChanged(this);
     }
 
-    /** Strength 0–25; a change not yet sent is replaced, never queued twice. */
+    /**
+     * Strength 0–25; a change not yet sent is replaced, never queued twice. Only the last queued command is replaced:
+     * a strength waiting before a pause / run must keep its place (a gated pause presets the next impulse's strength
+     * after its {@code AT+QPOWP} — merged into an earlier one it would spike the impulse's end).
+     */
     public void setLevel(int n) {
         n = Math.max(0, Math.min(MAX_LEVEL, n));
         level = n;
         String t = "AT+CSTR=0," + n;
-        for (Cmd c : queue) {
-            if (c.kind == K_LEVEL) {
-                c.text = t;
-                ev.onChanged(this);
-                return;
-            }
+        if (!queue.isEmpty() && queue.get(queue.size() - 1).kind == K_LEVEL) {
+            queue.get(queue.size() - 1).text = t;
+            ev.onChanged(this);
+            return;
         }
         queue.add(new Cmd(t, K_LEVEL));
         pump();
@@ -194,6 +220,11 @@ public final class MastogoShell {
      * a program change, so run again at once and keep the time left; the modulation climbs back from 0.
      */
     void switchMode(int id) {
+        switchMode(id, true);
+    }
+
+    /** {@code run}: start the output again after the change (false = a gated pause: it stays off). */
+    void switchMode(int id, boolean run) {
         int left = secondsLeft();
         for (int i = queue.size() - 1; i >= 0; i--) {
             if (queue.get(i).kind == K_LEVEL) {
@@ -203,7 +234,10 @@ public final class MastogoShell {
         mode = id;
         level = 0;
         plain("AT+CMODE=0," + id);
-        plain("AT+QPOWS");
+        if (run) {
+            plain("AT+QPOWS");
+        }
+        outOff = !run;
         if (left > 0) {
             setTimer(left);
         }
@@ -571,6 +605,18 @@ public final class MastogoShell {
         public int every = 1;
         /** WORK: the carrier (module) to run; changed live, it comes in at the next pause. -1 = leave it. */
         public int carrier = -1;
+        /**
+         * The pause switches the output off ({@code AT+QPOWP}) and the impulse on ({@code AT+QPOWS}) when the pause
+         * strength is 0: a sharp start and stop instead of the unit gliding its strength (owner, 2026-10-27: "the ramps
+         * must be ours"). The next impulse's strength is preset during the pause.
+         */
+        public boolean gate;
+        /**
+         * Beats a second ×10 (0 = off): a simulated low frequency — inside the impulse the output is let through
+         * for {@link #BEAT_GATE_MS} once per beat, so one pulse of a slow carrier (DOMAS "Toning", 1.6 Hz) passes.
+         */
+        public int beatTenths;
+        public static final int BEAT_GATE_MS = 200;
         /** STEPS: the owner's own cycle, step after step, then from the start (owner, 2026-10-27). */
         public final List<Step> steps = new ArrayList<Step>();
 
@@ -589,6 +635,8 @@ public final class MastogoShell {
             m.rotate = rotate.clone();
             m.every = every;
             m.carrier = carrier;
+            m.gate = gate;
+            m.beatTenths = beatTenths;
             for (Step st : steps) {
                 m.steps.add(st.copy());
             }
@@ -606,6 +654,7 @@ public final class MastogoShell {
             onMs = Math.max(500, Math.min(60000, onMs));
             offMs = Math.max(0, Math.min(60000, offMs));
             every = Math.max(1, Math.min(20, every));
+            beatTenths = Math.max(0, Math.min(40, beatTenths));
             if (shape == WORK) {
                 periodMs = Math.max(200, upMs + onMs + downMs + offMs);
             }
@@ -703,7 +752,8 @@ public final class MastogoShell {
                 q.append(st.encode());
             }
             return shape + "," + lo + "," + hi + "," + periodMs + "," + duty + "," + stepMs + "," + upMs + ","
-                    + onMs + "," + downMs + "," + offMs + "," + every + "," + r + "," + q + "," + carrier;
+                    + onMs + "," + downMs + "," + offMs + "," + every + "," + r + "," + q + "," + carrier + ","
+                    + (gate ? 1 : 0) + "," + beatTenths;
         }
 
         public static Mod decode(String s) {
@@ -737,6 +787,10 @@ public final class MastogoShell {
                 }
                 if (p.length > 13) {
                     m.carrier = Math.max(-1, Math.min(MODES - 1, Integer.parseInt(p[13])));
+                }
+                if (p.length > 15) {
+                    m.gate = Integer.parseInt(p[14]) == 1;
+                    m.beatTenths = Integer.parseInt(p[15]);
                 }
             } catch (Throwable ignored) {
                 m = new Mod();
@@ -902,6 +956,10 @@ public final class MastogoShell {
     public void modulate(Mod m) {
         if (m == null) {
             mod = null;
+            if (outOff && running) {
+                plain("AT+QPOWS");          // a gated pause must not outlive its modulation
+            }
+            outOff = false;
             ev.onChanged(this);
             return;
         }
@@ -921,6 +979,42 @@ public final class MastogoShell {
         return mod == null ? -1 : io.now() - modStart;
     }
 
+    /** The output is switched off by a gated pause (the session still runs). */
+    public boolean outOff;
+
+    static Step stepOf(Mod m, long t) {
+        return m.shape == Mod.STEPS ? m.steps.get(m.stepAt(t)[0]) : null;
+    }
+
+    static int pauseLevel(Mod m, long t) {
+        Step st = stepOf(m, t);
+        return st != null ? st.lo : m.lo;
+    }
+
+    static int riseOf(Mod m, long t) {
+        Step st = stepOf(m, t);
+        return st != null ? st.upMs : m.upMs;
+    }
+
+    static int impulseOf(Mod m, long t) {
+        Step st = stepOf(m, t);
+        return st != null ? st.onMs : m.onMs;
+    }
+
+    /** The strength to hold ready in a gated pause: the next impulse's full one, or its rise's first step. */
+    static int presetLevel(Mod m, long t) {
+        long next = t + 1;
+        int[] ph = phaseOf(m, t);
+        if (ph != null) {
+            next = t + (ph[2] - ph[1]) + 1;           // the first ms after this pause
+        }
+        Step st = stepOf(m, next);
+        int up = st != null ? st.upMs : m.upMs;
+        int lo = st != null ? st.lo : m.lo;
+        int hi = st != null ? st.hi : m.hi;
+        return up == 0 ? hi : Math.max(1, Math.min(hi, lo + 1));
+    }
+
     void modTick(int t) {
         Mod m = mod;
         if (closed || m == null || t != modToken) {
@@ -928,14 +1022,39 @@ public final class MastogoShell {
         }
         if (running && contact != 0) {
             long el = io.now() - modStart;
+            int target = envelope(m, el);
+            boolean on = true;
+            int[] ph = m.gate ? phaseOf(m, el) : null;
+            if (ph != null) {
+                if (ph[0] == PAUSE) {
+                    if (pauseLevel(m, el) == 0) {
+                        on = false;
+                        target = presetLevel(m, el);    // the next impulse starts here, sharp
+                    }
+                } else if (m.beatTenths > 0) {
+                    long beat = 10000L / m.beatTenths;
+                    long into = ph[0] == RISE ? ph[1] : ph[0] == IMPULSE ? ph[1] + riseOf(m, el)
+                            : ph[1] + riseOf(m, el) + impulseOf(m, el);
+                    on = into % beat < Math.min(Mod.BEAT_GATE_MS, beat / 2);
+                }
+            }
             int want = m.moduleFor(el);
             if (want >= 0 && want != mode) {
-                switchMode(want);
+                switchMode(want, on);
             }
-            int target = envelope(m, el);
-            int cur = Math.max(0, level);
-            if (target > cur + MAX_RISE) {
-                target = cur + MAX_RISE;
+            if (on && outOff) {
+                plain("AT+QPOWS");
+                outOff = false;
+            } else if (!on && !outOff) {
+                queue.add(new Cmd("AT+QPOWP", K_PAUSE));
+                outOff = true;
+                pump();
+            }
+            if (on) {
+                int cur = Math.max(0, level);
+                if (target > cur + MAX_RISE) {
+                    target = cur + MAX_RISE;
+                }
             }
             if (target != level) {
                 setLevel(target);

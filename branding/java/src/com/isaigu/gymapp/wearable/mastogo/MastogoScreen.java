@@ -11,6 +11,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
@@ -171,10 +175,20 @@ public final class MastogoScreen {
         MastogoShell.Mod live;
         /** The running modulation is the panel's (not the "Импулс" tab's). */
         boolean liveRun;
+        /** The strength ▶ starts at (set with − / + before it), manual mode. */
+        int startLevel;
         final XemsUi.Stepper[] liveSt = new XemsUi.Stepper[6];
         PhaseView phase;
         TextView phaseText;
         TextView liveInfo;
+        // tilt: the tablet's tilt drives the impulse strength (owner, 2026-10-27, a test) — off on every open
+        boolean tiltOn;
+        Tilt tilt;
+        /** Tilt angle at the zero (−1 = take the next reading), the latest angle, degrees. */
+        float tiltZero = -1, tiltDeg;
+        /** The impulse strength the tilt gives now (−1 = none yet). */
+        int tiltHi = -1;
+        static final float TILT_FULL = 30f;
         // modules tab
         final TextView[] tiles = new TextView[MastogoShell.MODES];
         // modulation tab
@@ -197,6 +211,7 @@ public final class MastogoScreen {
             mode = prefs.getInt("mode", 0);
             minutes = prefs.getInt("minutes", 20);
             mod = MastogoShell.Mod.decode(prefs.getString("mod", new MastogoShell.Mod().encode()));
+            startLevel = prefs.getInt("start_level", 1);
             live = MastogoShell.Mod.decode(prefs.getString("live", ""));
             if (!prefs.contains("live")) {
                 live.lo = 0;
@@ -204,6 +219,10 @@ public final class MastogoScreen {
             }
             live.shape = MastogoShell.Mod.WORK;
             live.rotate = new int[0];
+            live.gate = true;
+            if (!MastogoModes.sharp(live.carrier)) {
+                live.carrier = 18;
+            }
             if (live.carrier < 0) {
                 live.carrier = 18;                  // DOMAS "Continuous", 77 Hz — a steady carrier
             }
@@ -222,7 +241,8 @@ public final class MastogoScreen {
 
         /** Two lines: name, then frequency (≈ = a steady carrier). */
         String chipName(int id) {
-            return modeName(id) + "\n" + (MastogoModes.steady(id) ? "≈ " : "") + MastogoModes.hz(id);
+            return modeName(id) + "\n" + (MastogoModes.steady(id) ? "≈ " : MastogoModes.sharp(id) ? "◆ " : "")
+                    + MastogoModes.hz(id);
         }
 
         /** A module chip with DOMAS's picture of its impulse above the text. */
@@ -370,20 +390,33 @@ public final class MastogoScreen {
         // ------------------------------------------------------------------ tab: live panel
 
         static final int F_L_HZ = 30, F_L_ON = 31, F_L_OFF = 32, F_L_UP = 33, F_L_DOWN = 34, F_L_LO = 35;
-        /** The modules by their (first) frequency, low to high: the panel's frequency − / + walks this list. */
-        static final int[] BY_HZ = byHz();
+        /** Simulated beats a second ×10 (one pulse of DOMAS "Toning" let through per beat). */
+        static final int[] BEATS = {5, 10, 15, 20, 25, 30, 40};
+        static final int BEAT_CARRIER = 19;
+        /**
+         * The panel's frequency − / + list, low to high: the simulated beats (code = −tenths), then the sharp carriers
+         * by their (first) frequency (code = module id).
+         */
+        static final int[] FREQS = freqs();
 
-        static int[] byHz() {
-            Integer[] ids = new Integer[MastogoShell.MODES];
+        static int[] freqs() {
+            Integer[] ids = new Integer[MastogoModes.SHARP.length];
             for (int i = 0; i < ids.length; i++) {
-                ids[i] = i;
+                ids[i] = MastogoModes.SHARP[i];
             }
             java.util.Arrays.sort(ids, new ByHz());
-            int[] out = new int[ids.length];
+            int[] out = new int[BEATS.length + ids.length];
+            for (int i = 0; i < BEATS.length; i++) {
+                out[i] = -BEATS[i];
+            }
             for (int i = 0; i < ids.length; i++) {
-                out[i] = ids[i];
+                out[BEATS.length + i] = ids[i];
             }
             return out;
+        }
+
+        int freqCode() {
+            return live.beatTenths > 0 ? -live.beatTenths : live.carrier;
         }
 
         static double firstHz(int id) {
@@ -429,6 +462,11 @@ public final class MastogoScreen {
             pl.topMargin = dp(8);
             box.addView(phase, pl);
             tabBody.addView(box, XemsUi.matchWrap(a, 12));
+            tabBody.addView(XemsUi.toggleRow(a, tr("Наклон управлява силата", "Tilt drives the strength"),
+                    tr("Наклони таблета: 0° = силата в паузата, 30° = силата вдясно (никога повече). Нулата е "
+                            + "положението при включване и при ▶.", "Tilt the tablet: 0° = the pause strength, 30° = "
+                            + "the strength on the right (never more). Zero = the position when switched on and at ▶."),
+                    tiltOn, new TiltToggle(this)), XemsUi.matchWrap(a, 8));
             liveInfo = XemsUi.text(a, "", 12.5f, XemsUi.HINT, false);
             tabBody.addView(liveInfo, XemsUi.matchWrap(a, 8));
             renderPult();
@@ -454,8 +492,13 @@ public final class MastogoScreen {
             }
             boolean bg = XemsLang.isBg();
             int c = live.carrier;
-            liveSt[0].set(MastogoModes.hz(c), (MastogoModes.steady(c) ? "≈ " : "") + MastogoModes.name(c, bg)
-                    + " · " + MastogoModes.width(c));
+            if (live.beatTenths > 0) {
+                liveSt[0].set(String.format(java.util.Locale.US, "%.1f Hz", live.beatTenths / 10f),
+                        tr("удари: по един импулс от ", "beats: one pulse of ") + MastogoModes.name(c, bg));
+            } else {
+                liveSt[0].set(MastogoModes.hz(c), (MastogoModes.steady(c) ? "≈ " : "◆ ") + MastogoModes.name(c, bg)
+                        + " · " + MastogoModes.width(c));
+            }
             liveSt[1].set(secs(live.onMs), tr("секунди", "seconds"));
             liveSt[2].set(secs(live.offMs), live.offMs == 0 ? tr("без пауза", "no pause") : tr("секунди", "seconds"));
             liveSt[3].set(secs(live.upMs), tr("секунди", "seconds"));
@@ -478,25 +521,36 @@ public final class MastogoScreen {
                 phaseText.setTextColor(XemsUi.TEXT);
             }
             phase.invalidate();
-            liveInfo.setText((MastogoModes.steady(c)
+            liveInfo.setText((tiltOn ? tr("Наклон ", "Tilt ") + Math.round(Math.abs(tiltDeg - Math.max(0, tiltZero)))
+                    + tr("° → сила ", "° → strength ") + Math.max(live.lo, tiltHi) + tr(" от ", " of ") + live.hi
+                    + ". " : "") + (live.beatTenths > 0
+                    ? tr("Симулирана честота: в импулса изходът се пуска за 0.2 с на всеки удар — минава по един "
+                    + "импулс на „Тонус“. До 4 удара в секунда (толкова команди поема връзката). ",
+                    "Simulated frequency: inside the impulse the output is let through for 0.2 s per beat — one "
+                    + "pulse of \"Toning\" passes. Up to 4 beats a second (what the link carries). ")
+                    : MastogoModes.steady(c)
                     ? tr("≈ Постоянен носител — цикълът е изцяло твой. ", "≈ Steady carrier — the cycle is all yours. ")
-                    : tr("Този носител има свои пакети и паузи — те вървят върху твоя цикъл. ",
-                            "This carrier has its own bursts and pauses — they ride on your cycle. "))
-                    + tr("Всичко важи веднага; честотата се сменя в следващата пауза. Силата в импулса е вдясно.",
-                    "Everything applies at once; the frequency changes in the next pause. Impulse strength is on "
-                            + "the right."));
+                    : tr("◆ Тръгва рязко, но има свои пакети — те вървят в импулса. ",
+                            "◆ Starts sharp but has its own bursts — they run inside the impulse. "))
+                    + tr("Паузата спира изхода, импулсът тръгва рязко на силата вдясно (или по твоето нарастване). "
+                    + "Всичко важи веднага; носителят се сменя в следващата пауза.",
+                    "The pause stops the output, the impulse starts sharp at the strength on the right (or by your "
+                    + "rise). Everything applies at once; the carrier changes in the next pause."));
         }
 
         void pultStep(int f, int dir) {
             switch (f) {
                 case F_L_HZ: {
                     int at = 0;
-                    for (int i = 0; i < BY_HZ.length; i++) {
-                        if (BY_HZ[i] == live.carrier) {
+                    int code = freqCode();
+                    for (int i = 0; i < FREQS.length; i++) {
+                        if (FREQS[i] == code) {
                             at = i;
                         }
                     }
-                    live.carrier = BY_HZ[Math.max(0, Math.min(BY_HZ.length - 1, at + dir))];
+                    code = FREQS[Math.max(0, Math.min(FREQS.length - 1, at + dir))];
+                    live.beatTenths = code < 0 ? -code : 0;
+                    live.carrier = code < 0 ? BEAT_CARRIER : code;
                     mode = live.carrier;
                     prefs.edit().putInt("mode", mode).apply();
                     break;
@@ -512,11 +566,74 @@ public final class MastogoScreen {
             renderPult();
         }
 
+        /** The panel's modulation as it should run: the impulse strength from the tilt while that is on. */
+        MastogoShell.Mod liveMod() {
+            MastogoShell.Mod m = live.copy();
+            if (tiltOn) {
+                m.hi = Math.max(m.lo, Math.min(live.hi, tiltHi < 0 ? m.lo : tiltHi));
+            }
+            return m;
+        }
+
+        void tiltToggle(boolean on) {
+            tiltOn = on;
+            tiltZero = -1;
+            tiltHi = -1;
+            SensorManager sm = (SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
+            if (on) {
+                Sensor acc = sm != null ? sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) : null;
+                if (acc == null) {
+                    tiltOn = false;
+                    hintText = tr("Таблетът няма сензор за наклон.", "The tablet has no tilt sensor.");
+                    fillTab();
+                    render();
+                    return;
+                }
+                tilt = new Tilt(this);
+                sm.registerListener(tilt, acc, SensorManager.SENSOR_DELAY_GAME, main);
+            } else {
+                tiltOff();
+            }
+            liveChanged();
+            render();
+        }
+
+        void tiltOff() {
+            if (tilt != null) {
+                SensorManager sm = (SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
+                if (sm != null) {
+                    sm.unregisterListener(tilt);
+                }
+                tilt = null;
+            }
+        }
+
+        /** The screen's angle to the horizontal, from the (smoothed) gravity. */
+        void onTilt(float deg) {
+            if (closed || !tiltOn) {
+                return;
+            }
+            tiltDeg = deg;
+            if (tiltZero < 0) {
+                tiltZero = deg;
+            }
+            float f = Math.min(1f, Math.abs(deg - tiltZero) / TILT_FULL);
+            int hi = live.lo + Math.round((live.hi - live.lo) * f);
+            if (hi != tiltHi) {
+                tiltHi = hi;
+                MastogoShell sh = sh();
+                if (sh != null && sh.running && liveRun) {
+                    sh.modulate(liveMod());
+                }
+                renderPult();
+            }
+        }
+
         void liveChanged() {
             prefs.edit().putString("live", live.encode()).apply();
             MastogoShell sh = sh();
             if (sh != null && sh.running && liveRun) {
-                sh.modulate(live.copy());
+                sh.modulate(liveMod());
             }
         }
 
@@ -591,10 +708,10 @@ public final class MastogoScreen {
             tabBody.addView(r, XemsUi.matchWrap(a, 14));
             TextView note = XemsUi.text(a, tr("Честотата и ширината са вградени в модула (данни от приложението "
                     + "DOMAS на производителя). Картинката е импулсът на програмата: висока черта = силно, гъсто = "
-                    + "висока честота, празно = пауза. „а–б“ се плъзга, „а / б“ се редува; ≈ = постоянен носител.",
+                    + "висока честота, празно = пауза. „а–б“ се плъзга, „а / б“ се редува; ≈ = постоянен носител, ◆ = тръгва рязко (само ≈ и ◆ са в „Пулт“).",
                     "Frequency and width are built into the module (from the maker's DOMAS app). The picture is the "
                     + "program's impulse: tall = strong, dense = high frequency, gap = pause. \"a–b\" sweeps, "
-                    + "\"a / b\" alternates; ≈ = steady carrier."), 12.5f, XemsUi.HINT, false);
+                    + "\"a / b\" alternates; ≈ = steady carrier, ◆ = starts sharp (only ≈ and ◆ are in \"Panel\")."), 12.5f, XemsUi.HINT, false);
             tabBody.addView(note, XemsUi.matchWrap(a, 10));
         }
 
@@ -1170,6 +1287,8 @@ public final class MastogoScreen {
             int lv = sh != null ? Math.max(0, sh.level) : 0;
             if (tab == 0 && (sh == null || !sh.running)) {
                 level.set(String.valueOf(live.hi), tr("сила в импулса · от 25", "impulse strength · of 25"));
+            } else if (sh != null && !sh.running && !modOn) {
+                level.set(String.valueOf(startLevel), tr("тръгва рязко на тази сила", "starts sharply at this level"));
             } else {
                 level.set(String.valueOf(lv), sh != null && sh.mod() != null
                         ? tr("сила · импулс ", "strength · impulse ") + active().lo + "–" + active().hi
@@ -1226,7 +1345,8 @@ public final class MastogoScreen {
                         : modOn ? tr("Импулс: ", "Impulse: ") + shapeName(mod.shape) + (mod.rotate.length > 1
                         ? tr(" · модули ", " · modules ") + rotateText() : "") : tr("Работи.", "Running.");
             } else {
-                h = tr("Готово. Силата тръгва от 1.", "Ready. Strength starts at 1.");
+                h = tr("Готово. − / + задават силата, ▶ тръгва рязко на нея.",
+                        "Ready. − / + set the strength, ▶ starts sharply at it.");
             }
             hint.setText(h);
             if (env != null) {
@@ -1251,8 +1371,13 @@ public final class MastogoScreen {
                 if (sh.mode != live.carrier) {
                     sh.setMode(live.carrier);
                 }
-                sh.start(minutes * 60);
-                sh.modulate(live.copy());
+                // sharp at the preset strength (no rise set) — or the rise's first level; beats start paused
+                if (tiltOn) {
+                    tiltZero = -1;                          // ▶ sets the zero where the tablet is now
+                }
+                MastogoShell.Mod lm = liveMod();
+                sh.start(minutes * 60, live.beatTenths > 0 ? 1 : Math.max(1, MastogoShell.envelope(lm, 0)));
+                sh.modulate(lm);
             } else {
                 liveRun = false;
                 int first = !modOn ? mode : mod.shape == MastogoShell.Mod.STEPS ? mod.steps.get(0).mode
@@ -1260,9 +1385,12 @@ public final class MastogoScreen {
                 if (sh.mode != first) {
                     sh.setMode(first);
                 }
-                sh.start(minutes * 60);
                 if (modOn) {
+                    mod.gate = mod.shape == MastogoShell.Mod.STEPS || mod.shape == MastogoShell.Mod.WORK;
+                    sh.start(minutes * 60, mod.gate ? Math.max(1, MastogoShell.envelope(mod, 0)) : 1);
                     sh.modulate(mod.copy());
+                } else {
+                    sh.start(minutes * 60, startLevel);       // the strength set before ▶, sharp
                 }
             }
             render();
@@ -1290,8 +1418,9 @@ public final class MastogoScreen {
                     refreshFields(tabBody);
                 }
             } else {
-                if (!sh.running && dir > 0) {
-                    hintText = tr("Първо ▶ Пусни.", "Press ▶ Start first.");
+                if (!sh.running) {                         // preset: ▶ starts sharply right there
+                    startLevel = Math.max(1, Math.min(MastogoShell.MAX_LEVEL, startLevel + dir));
+                    prefs.edit().putInt("start_level", startLevel).apply();
                     render();
                     return;
                 }
@@ -1302,8 +1431,11 @@ public final class MastogoScreen {
 
         void pickMode(int id) {
             mode = id;
-            live.carrier = id;
-            prefs.edit().putString("live", live.encode()).apply();
+            if (MastogoModes.sharp(id)) {               // the panel takes only sharp carriers
+                live.carrier = id;
+                live.beatTenths = 0;
+                prefs.edit().putString("live", live.encode()).apply();
+            }
             prefs.edit().putInt("mode", id).apply();
             MastogoShell sh = sh();
             if (sh != null) {
@@ -1479,6 +1611,7 @@ public final class MastogoScreen {
             closed = true;
             current = null;
             main.removeCallbacksAndMessages(null);
+            tiltOff();
             if (scan != null) {
                 scan.stop();
             }
@@ -1820,6 +1953,48 @@ public final class MastogoScreen {
         @Override
         public void onClick(View v) {
             p.pickShape(shape);
+        }
+    }
+
+    static final class TiltToggle implements XemsUi.OnToggle {
+        final Page p;
+
+        TiltToggle(Page p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onToggle(boolean on) {
+            p.tiltToggle(on);
+        }
+    }
+
+    /** Accelerometer → the screen's tilt, low-passed (gravity), on the main thread. */
+    static final class Tilt implements SensorEventListener {
+        final Page p;
+        float gx, gy, gz;
+        boolean first = true;
+
+        Tilt(Page p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent e) {
+            float k = first ? 1f : 0.15f;
+            first = false;
+            gx += k * (e.values[0] - gx);
+            gy += k * (e.values[1] - gy);
+            gz += k * (e.values[2] - gz);
+            double n = Math.sqrt(gx * gx + gy * gy + gz * gz);
+            if (n < 1) {
+                return;
+            }
+            p.onTilt((float) Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, gz / n)))));
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor s, int accuracy) {
         }
     }
 

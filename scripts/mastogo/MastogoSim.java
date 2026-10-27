@@ -161,6 +161,42 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(!uRun && uLevel == 0, "after exploration: unit paused, strength 0");
         System.out.println("  hits: " + sh.hits.size());
         System.out.println(sh.report().split("\n\nfeedback")[0]);
+
+        // write exploration: unknown "=" → ERROR:104 at once, a known name answers anything else
+        uRun = true;
+        uLevel = 9;
+        long t0 = clock;
+        int sent0 = sent.size();
+        sh.probe(true);
+        for (int t = 0; t < 5 * 60 && (sh.probing || sh.probeSuspended()); t++) {
+            if (t == 30) {
+                feed("+QPOWD:0");
+                sh.setStopped();
+                check(sh.probeSuspended() && sh.probeWrites, "write sweep kept across a power-off");
+            }
+            if (t == 40) {
+                sh.hello();
+            }
+            runFor(1000);
+        }
+        java.util.Set<String> got = new java.util.HashSet<String>();
+        for (String[] h : sh.hits) {
+            got.add(h[0]);
+        }
+        check(!sh.probing && sh.probeDone == sh.probeTotal, "write sweep finished " + sh.probeDone + "/"
+                + sh.probeTotal + " in " + ((clock - t0) / 1000) + " s simulated");
+        check(got.contains("AT+SPW=0,200") && got.contains("AT+GWAV=0,1") && got.size() == 2,
+                "write-only SPW (OK) and GWAV (ERROR:103) found, nothing else: " + got);
+        check(writesBlocked.isEmpty(), "never sent power-off / reset / OTA writes " + writesBlocked);
+        boolean bad = false;
+        for (String c : sent.subList(sent0, sent.size())) {
+            if (c.matches("AT\\+(CSTR|CMODE|CDCLK|QPOWS)[A-Z]*=0,[1-9].*")) {
+                bad = true;
+            }
+        }
+        check(!bad, "never wrote a strength / program / timer / start");
+        check(!uRun && uLevel == 0, "after the write sweep: unit paused, strength 0");
+        System.out.println(sh.report().split("\n\nfeedback")[1].split("\n\n", 2)[1]);
         System.out.println(fails == 0 ? "ALL PASS" : fails + " FAILED");
         if (fails > 0) {
             System.exit(1);
@@ -212,6 +248,13 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
             reply("+WSDT:10", "OK");
         } else if (cmd.equals("AT+CFRQ?")) {
             reply("+CFRQ:0,80", "OK");
+        } else if (cmd.startsWith("AT+SPW=")) {
+            reply("+SPW:OK");                // hidden, write-only
+        } else if (cmd.startsWith("AT+GWAV=")) {
+            reply("+GWAV ERROR:103");        // hidden, write-only, value out of range
+        } else if (cmd.contains("=0,") && (cmd.startsWith("AT+QPOWD") || cmd.contains("RST")
+                || cmd.contains("OTA") || cmd.contains("CAL"))) {
+            writesBlocked.add(cmd);
         } else if (cmd.startsWith("AT+CMODE=0,")) {
             uMode = Integer.parseInt(cmd.substring(11));
             uLevel = 0;
@@ -241,6 +284,8 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
             reply("ERROR:104");
         }
     }
+
+    final List<String> writesBlocked = new ArrayList<String>();
 
     @Override
     public void later(Runnable r, long delayMs) {

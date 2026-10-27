@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 823
+    .line 897
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 824
+    .line 898
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Pump;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
-    .line 825
+    .line 899
     return-void
 .end method
 
@@ -42,18 +42,18 @@
     .registers 3
 
     .prologue
-    .line 829
+    .line 903
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Pump;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     const/4 v1, 0x0
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pumpPosted:Z
 
-    .line 830
+    .line 904
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Pump;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pump()V
 
-    .line 831
+    .line 905
     return-void
 .end method

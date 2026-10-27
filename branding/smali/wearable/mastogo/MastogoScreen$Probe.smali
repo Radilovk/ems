@@ -20,33 +20,40 @@
 # instance fields
 .field final p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
+.field final writes:Z
+
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;Z)V
+    .registers 3
 
     .prologue
-    .line 1149
+    .line 1180
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1150
+    .line 1181
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Probe;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 1151
+    .line 1182
+    iput-boolean p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Probe;->writes:Z
+
+    .line 1183
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
     .prologue
-    .line 1155
+    .line 1187
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Probe;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probe()V
+    iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Probe;->writes:Z
 
-    .line 1156
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probe(Z)V
+
+    .line 1188
     return-void
 .end method

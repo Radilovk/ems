@@ -43,6 +43,10 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
 - **The unit switches itself off after a few minutes without output** (`+QPOWD:0`, reason 0 = idle): the paused
   exploration stopped there twice. Since 1.1.466 the sweep keeps its place, waits ≤ 350 ms per query (≈ 4.5 min in
   all), never counts a heartbeat / contact / power-off line as an answer, and goes on when the unit is back on.
+- **Full read sweep (628/628, incl. a power-off mid-way):** only 7 names answer — `CSTR CMODE CDCLK QPOWP QPOWS CBC
+  CLOAD`; nothing for frequency / width / wave / voltage / current / settings / version under any prefix. `=?` gives
+  just `OK`, no ranges. Unsolicited: `+CHEART:0,0` (~31–80 s), `+CLOAD`, `+QPOWD:0` (idle off).
+  Still open: write-only names (`WSDT` is silent to `?`, yet a sibling app writes it) → the write sweep below.
 - OTA server: `POST api.cqdomas.com/app/device/checkFirmware` `{deviceId:34, versionCode:1, tenantId:1}`
   (JSON; answers AES-128-ECB, key `F5hiGGSJEKahnQn2`, base64 in `{"secret":…}`) → firmware v100 (2024-06-03),
   `http://119.13.88.237:9000/resources/1/20240603041557852302AA05584E28BBCE179B6E002BC2.bin` — host unreachable
@@ -110,4 +114,9 @@ hidden command the sweep must find).
   after every command that answers; two taps (the second confirms the pads are off the body). Lists what answered,
   the full feedback (`+TAG` values, reply ms, heartbeat), a console (last 200 lines) with a free command line, and
   "Копирай отчета" (clipboard) for analysis.
+- **Изследване на запис (1.1.467):** ~560 writes `AT+<name>=0,<v>` (v = 50 for a frequency, 200 for a width, 1
+  otherwise) over the same names. Unknown → `ERROR:104` at once, so anything else (`+X:OK`, another error, silence)
+  marks a real name; after each such hit `AT+QPOWP` + `AT+CSTR=0,0`. Never sent: names starting with
+  `CSTR CMODE CDCLK QPOWS QPOWP QPOWD CBC CLOAD CHEART CLKEND` (the firmware matches by prefix) and any name
+  containing `RST OTA CAL`. Same two taps (pads off). All 104 ⇒ frequency / width can't change without new firmware.
 - Not done: no device test yet; one unit at a time (the vendor links several); no folding to a pill.

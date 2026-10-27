@@ -158,6 +158,8 @@ public final class MastogoScreen {
         boolean modOn;
         String hintText;
         boolean probeArmed;
+        /** The armed (or last started) sweep writes "=0,v" instead of asking "?". */
+        boolean armWrites;
         final List<String> console = new ArrayList<String>();
 
         LinearLayout tabHolder;
@@ -177,6 +179,7 @@ public final class MastogoScreen {
         EnvelopeView env;
         // exploration tab
         TextView probeBtn;
+        TextView writeBtn;
         TextView probeText;
         LinearLayout hitList;
         TextView consoleView;
@@ -479,8 +482,13 @@ public final class MastogoScreen {
             LinearLayout top = XemsUi.horizontal(a);
             top.setGravity(Gravity.CENTER_VERTICAL);
             probeBtn = XemsUi.button(a, "", XemsUi.SECONDARY);
-            probeBtn.setOnClickListener(new Probe(this));
+            probeBtn.setOnClickListener(new Probe(this, false));
             top.addView(probeBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
+            writeBtn = XemsUi.button(a, tr("Изследване на запис", "Write exploration"), XemsUi.SECONDARY);
+            writeBtn.setOnClickListener(new Probe(this, true));
+            LinearLayout.LayoutParams wl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
+            wl.leftMargin = dp(8);
+            top.addView(writeBtn, wl);
             TextView copy = XemsUi.button(a, tr("Копирай отчета", "Copy the report"), XemsUi.GHOST);
             copy.setOnClickListener(new Copy(this));
             LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
@@ -540,20 +548,27 @@ public final class MastogoScreen {
                         + link.shell.probeDone + " / " + link.shell.probeTotal);
             } else if (probing) {
                 probeBtn.setText(tr("■ Спри търсенето", "■ Stop the search"));
-                probeText.setText(tr("Пробвам ", "Trying ") + sh.probeDone + " / " + sh.probeTotal
-                        + tr(" команди · ", " commands · ") + sh.hits.size() + tr(" отговорили", " answered"));
+                probeText.setText((sh.probeWrites ? tr("Записвам ", "Writing ") : tr("Пробвам ", "Trying "))
+                        + sh.probeDone + " / " + sh.probeTotal + tr(" команди · ", " commands · ")
+                        + sh.hits.size() + (sh.probeWrites ? tr(" познати", " known") : tr(" отговорили", " answered")));
             } else if (probeArmed) {
                 probeBtn.setText(tr("✓ Електродите са свалени · започни", "✓ Pads are off · start"));
-                probeText.setText(tr("Свали електродите от тялото: някоя непозната команда може да пусне ток.",
-                        "Take the pads off the body: an unknown command might start the output."));
+                probeText.setText(armWrites
+                        ? tr("Свали електродите от тялото: пращам стойности (напр. AT+CFRQ=0,50) към непознати имена.",
+                                "Take the pads off the body: values go to unknown names (e.g. AT+CFRQ=0,50).")
+                        : tr("Свали електродите от тялото: някоя непозната команда може да пусне ток.",
+                                "Take the pads off the body: an unknown command might start the output."));
             } else {
                 probeBtn.setText(tr("Търси скрити команди", "Search hidden commands"));
-                probeText.setText(sh != null && sh.probeTotal > 0
-                        ? tr("Последно: ", "Last: ") + sh.probeDone + " / " + sh.probeTotal + " · "
-                        + sh.hits.size() + tr(" отговорили", " answered")
-                        : tr("~600 въпроса само за четене (?, =?), около 2 минути. Силата е 0 през цялото време.",
-                                "~600 read-only queries (?, =?), about 2 minutes. Strength stays 0 throughout."));
+                probeText.setText(sh != null && sh.probeTotal > 0 ? lastSweep(sh)
+                        : tr("Въпроси (?) ~600, около 4 мин · Запис (=0,50) ~560, около 1–2 мин: всичко "
+                                + "освен ERROR:104 е команда. Силата е 0 през цялото време.",
+                                "Queries (?) ~600, about 4 min · Writes (=0,50) ~560, about 1–2 min: anything "
+                                + "but ERROR:104 is a command. Strength stays 0 throughout."));
             }
+            boolean idle = !probing && !probeArmed && (link == null || !link.shell.probeSuspended());
+            writeBtn.setVisibility(idle ? View.VISIBLE : View.GONE);
+            writeBtn.setAlpha(sh == null ? 0.4f : 1f);
             probeBtn.setAlpha(sh == null && (link == null || !link.shell.probeSuspended()) ? 0.4f : 1f);
             hitList.removeAllViews();
             if (sh != null) {
@@ -586,6 +601,20 @@ public final class MastogoScreen {
                 }
                 feedback.setText(b.length() > 0 ? b.toString() : "—");
             }
+        }
+
+        String lastSweep(MastogoShell sh) {
+            String head = (sh.probeWrites ? tr("Последен запис: ", "Last write sweep: ") : tr("Последно: ", "Last: "))
+                    + sh.probeDone + " / " + sh.probeTotal + " · ";
+            if (!sh.probeWrites) {
+                return head + sh.hits.size() + tr(" отговорили", " answered");
+            }
+            if (sh.hits.isEmpty() && sh.silent.isEmpty() && sh.probeDone == sh.probeTotal) {
+                return head + tr("всички върнаха ERROR:104 — няма скрита команда за запис.",
+                        "all said ERROR:104 — no hidden write command.");
+            }
+            return head + sh.hits.size() + tr(" познати", " known") + " · " + sh.silent.size()
+                    + tr(" без отговор (съмнителни)", " silent (suspicious)");
         }
 
         void renderConsole() {
@@ -784,7 +813,7 @@ public final class MastogoScreen {
             render();
         }
 
-        void probe() {
+        void probe(boolean writes) {
             if (link != null && link.shell.probeSuspended()) {      // waiting for the unit: just forget the rest
                 link.shell.probeStop();
                 render();
@@ -798,11 +827,12 @@ public final class MastogoScreen {
                 sh.probeStop();
             } else if (!probeArmed) {
                 probeArmed = true;
+                armWrites = writes;
                 main.postDelayed(new Disarm(this), 6000);
             } else {
                 probeArmed = false;
                 modOn = false;
-                sh.probe();
+                sh.probe(armWrites);
             }
             render();
         }
@@ -1145,14 +1175,16 @@ public final class MastogoScreen {
 
     static final class Probe implements View.OnClickListener {
         final Page p;
+        final boolean writes;
 
-        Probe(Page p) {
+        Probe(Page p, boolean writes) {
             this.p = p;
+            this.writes = writes;
         }
 
         @Override
         public void onClick(View v) {
-            p.probe();
+            p.probe(writes);
         }
     }
 

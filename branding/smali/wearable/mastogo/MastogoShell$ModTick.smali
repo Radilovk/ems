@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 892
+    .line 966
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 893
+    .line 967
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$ModTick;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
-    .line 894
+    .line 968
     iput p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$ModTick;->token:I
 
-    .line 895
+    .line 969
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 3
 
     .prologue
-    .line 899
+    .line 973
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$ModTick;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$ModTick;->token:I
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modTick(I)V
 
-    .line 900
+    .line 974
     return-void
 .end method

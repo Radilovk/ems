@@ -656,6 +656,8 @@ public final class MastogoShell {
     // ================================================================== exploration
 
     public boolean probing;
+    /** The sweep in progress (or the last one) wrote "=0,v" instead of asking "?". */
+    public boolean probeWrites;
     public int probeDone, probeTotal;
     /** {command, answer} of every command that did not say ERROR. */
     public final List<String[]> hits = new ArrayList<String[]>();
@@ -665,6 +667,15 @@ public final class MastogoShell {
     public final List<String> refused = new ArrayList<String>();
     /** What an exploration still had to send when the link dropped. */
     final List<String> suspended = new ArrayList<String>();
+
+    /** Parameter names to try, each behind the prefixes C, Q, W, S, G, R and none. */
+    static final String[] STEMS = {"FRQ", "FREQ", "FRE", "HZ", "PW", "PWM", "PWD", "WID", "WIDTH", "WAV", "WAVE",
+        "PLS", "PULSE", "AMP", "VOL", "CUR", "CURR", "VOLT", "IMP", "RES", "TMP", "TEMP", "RAMP", "RISE", "FALL", "ON",
+        "OFF", "ONT", "OFFT", "DUTY", "TIM", "TIME", "SDT", "SET", "CFG", "PARA", "PAR", "PRM", "LEV", "LEVL",
+        "MAX", "MIN", "BAT", "VER", "SN", "ID", "DBG", "DEBUG", "TEST", "CAL", "ADC", "DAC", "BST", "BOOST", "HV",
+        "GEAR", "PRG", "PROG", "MOD", "MODE", "CH", "CHN", "STR", "POW", "POWP", "POWS", "POWD", "LOAD", "HEART",
+        "DCLK", "CLK", "BC", "SLP", "SLEEP", "LED", "KEY", "BEEP", "MOT", "VIB", "OTA", "RST", "STA", "STAT",
+        "STATE", "ERR"};
 
     /** The candidates: what the vendor app sends (with "=?" for its ranges), then the usual AT names. */
     public static List<String> candidates() {
@@ -681,16 +692,10 @@ public final class MastogoShell {
             add(out, "AT+" + k + "?");
             add(out, "AT+" + k + "=?");
         }
-        String[] stems = {"FRQ", "FREQ", "FRE", "HZ", "PW", "PWM", "PWD", "WID", "WIDTH", "WAV", "WAVE", "PLS",
-            "PULSE", "AMP", "VOL", "CUR", "CURR", "VOLT", "IMP", "RES", "TMP", "TEMP", "RAMP", "RISE", "FALL", "ON",
-            "OFF", "ONT", "OFFT", "DUTY", "TIM", "TIME", "SDT", "SET", "CFG", "PARA", "PAR", "PRM", "LEV", "LEVL",
-            "MAX", "MIN", "BAT", "VER", "SN", "ID", "DBG", "DEBUG", "TEST", "CAL", "ADC", "DAC", "BST", "BOOST", "HV",
-            "GEAR", "PRG", "PROG", "MOD", "MODE", "CH", "CHN", "STR", "POW", "POWP", "POWS", "POWD", "LOAD", "HEART",
-            "DCLK", "CLK", "BC", "SLP", "SLEEP", "LED", "KEY", "BEEP", "MOT", "VIB", "OTA", "RST", "STA", "STAT",
-            "STATE", "ERR"};
+
         String[] pre = {"C", "Q", "W", "S", "G", "R", ""};
         for (String p : pre) {
-            for (String s : stems) {
+            for (String s : STEMS) {
                 add(out, "AT+" + p + s + "?");
             }
         }
@@ -703,17 +708,72 @@ public final class MastogoShell {
         }
     }
 
-    /** Sweep the candidates: strength 0 and output paused first, paused again after every command that answered. */
+    /**
+     * Names a write sweep never sends: the ones that start, set or switch off the output, and the firmware matches by
+     * prefix ("AT+QPOWS?" started the output), so anything beginning with them too; and reset / OTA / calibration.
+     */
+    static final String[] NO_WRITE = {"CSTR", "CMODE", "CDCLK", "QPOWS", "QPOWP", "QPOWD", "CBC", "CLOAD", "CHEART",
+        "CLKEND"};
+    static final String[] NO_WRITE_STEM = {"RST", "OTA", "CAL"};
+
+    /**
+     * The write sweep: "AT+&lt;name&gt;=0,&lt;v&gt;" for every name the read sweep tried. The unit answers an unknown
+     * write with ERROR:104 at once (seen 2026-10-27) — so anything else (+X:OK, another error, silence) is a name it
+     * knows. Values: 50 for a frequency, 200 for a width, 1 otherwise.
+     */
+    public static List<String> writeCandidates() {
+        List<String> out = new ArrayList<String>();
+        add(out, "AT+WSDT=0,10");
+        add(out, "AT+CHANNEL=0,1");
+        String[] pre = {"C", "Q", "W", "S", "G", "R", ""};
+        for (String p : pre) {
+            for (String s : STEMS) {
+                String name = p + s;
+                if (blocked(name)) {
+                    continue;
+                }
+                String v = s.startsWith("FR") || s.equals("HZ") ? "50"
+                        : s.startsWith("PW") || s.startsWith("WID") ? "200" : "1";
+                add(out, "AT+" + name + "=0," + v);
+            }
+        }
+        return out;
+    }
+
+    static boolean blocked(String name) {
+        for (String k : NO_WRITE) {
+            if (name.startsWith(k)) {
+                return true;
+            }
+        }
+        for (String k : NO_WRITE_STEM) {
+            if (name.contains(k)) {           // "RSTA" might reach RST on a prefix-matching firmware
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Read sweep ("?", "=?"). */
     public void probe() {
+        probe(false);
+    }
+
+    /**
+     * Sweep the candidates ({@code writes}: the write sweep): strength 0 and output paused first, paused (and
+     * strength 0 for writes) again after every command that answered.
+     */
+    public void probe(boolean writes) {
         if (probing) {
             return;
         }
+        probeWrites = writes;
         mod = null;
         hits.clear();
         silent.clear();
         refused.clear();
         suspended.clear();
-        List<String> c = candidates();
+        List<String> c = writes ? writeCandidates() : candidates();
         probing = true;
         probeDone = 0;
         probeTotal = c.size();
@@ -748,13 +808,20 @@ public final class MastogoShell {
         probeDone++;
         String r = c.reply.toString();
         String[] hit = null;
+        boolean unknown = probeWrites ? r.indexOf("104") >= 0 && r.toUpperCase().contains("ERROR")
+                : r.toUpperCase().contains("ERROR");
         if (timedOut && r.length() == 0) {
             silent.add(c.text);
-        } else if (r.toUpperCase().contains("ERROR")) {
+        } else if (unknown) {
             refused.add(c.text + " " + r);
         } else {
+            // a write the unit took (+X:OK) or knew but refused (another error) — either way the name exists
             hit = new String[] {c.text, r.length() > 0 ? r : "(—)"};
             hits.add(hit);
+            if (probeWrites) {
+                queue.add(0, new Cmd("AT+CSTR=0,0", K_LEVEL));
+                level = 0;
+            }
             queue.add(0, new Cmd("AT+QPOWP", K_PAUSE));   // whatever it did, nothing runs
         }
         ev.onProbe(this, probeDone, probeTotal, hit);
@@ -802,15 +869,22 @@ public final class MastogoShell {
         for (Map.Entry<String, String> e : tags.entrySet()) {
             b.append("  +").append(e.getKey()).append(": ").append(e.getValue()).append('\n');
         }
-        b.append("\nexploration ").append(probeDone).append('/').append(probeTotal).append(", answered:\n");
+        b.append(probeWrites ? "\nwrite exploration " : "\nexploration ").append(probeDone).append('/')
+                .append(probeTotal).append(probeWrites ? ", not ERROR:104:\n" : ", answered:\n");
         for (String[] h : hits) {
             b.append("  ").append(h[0]).append(" → ").append(h[1]).append('\n');
         }
-        if (!refused.isEmpty()) {
+        if (probeWrites) {
+            b.append("ERROR:104 (unknown): ").append(refused.size()).append('\n');
+        } else if (!refused.isEmpty()) {
             b.append("refused: ").append(refused).append('\n');
         }
         if (!silent.isEmpty()) {
-            b.append("silent: ").append(silent.size()).append(" (no answer)\n");
+            b.append("silent: ").append(silent.size()).append(" (no answer)");
+            if (probeWrites) {
+                b.append(' ').append(silent);   // a write normally gets 104 at once: each of these is suspicious
+            }
+            b.append('\n');
         }
         return b.toString();
     }

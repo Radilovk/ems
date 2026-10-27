@@ -42,9 +42,8 @@ public final class MastogoShell {
     }
 
     public static final int MAX_LEVEL = 25;
-    public static final int MODES = 25;
-    /** Vendor: TENS 0–11, EMS 12–20, FEMALE 21–24. */
-    public static final int EMS_FIRST = 12, FEMALE_FIRST = 21;
+    /** Programs 0–25: DOMAS ("Hawk TENS 1S") sends all 26; PNrelief listed only 25. See {@link MastogoModes}. */
+    public static final int MODES = MastogoModes.COUNT;
     static final long GAP_MS = 100;
     static final long REPLY_MS = 800;
     /** Exploration: an unknown "?" query gets no answer at all (seen 2026-10-27), known ones answer in < 100 ms. */

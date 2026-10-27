@@ -37,55 +37,55 @@
 
     const/4 v1, 0x1
 
-    .line 1148
+    .line 1149
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
-
-    .line 1141
-    new-instance v0, Landroid/graphics/Paint;
-
-    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->line:Landroid/graphics/Paint;
 
     .line 1142
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->grid:Landroid/graphics/Paint;
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->line:Landroid/graphics/Paint;
 
     .line 1143
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->dot:Landroid/graphics/Paint;
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->grid:Landroid/graphics/Paint;
 
     .line 1144
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->label:Landroid/graphics/Paint;
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->dot:Landroid/graphics/Paint;
 
     .line 1145
+    new-instance v0, Landroid/graphics/Paint;
+
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->label:Landroid/graphics/Paint;
+
+    .line 1146
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->path:Landroid/graphics/Path;
 
-    .line 1149
+    .line 1150
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 1150
+    .line 1151
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->line:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 1151
+    .line 1152
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->line:Landroid/graphics/Paint;
 
     const/high16 v1, 0x40200000    # 2.5f
@@ -98,14 +98,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1152
+    .line 1153
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->line:Landroid/graphics/Paint;
 
     const v1, -0x587406
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1153
+    .line 1154
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->grid:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -118,7 +118,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1154
+    .line 1155
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->grid:Landroid/graphics/Paint;
 
     invoke-static {p1, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -129,21 +129,21 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 1155
+    .line 1156
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->dot:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1156
+    .line 1157
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->label:Landroid/graphics/Paint;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 1157
+    .line 1158
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->label:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41300000    # 11.0f
@@ -154,7 +154,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 1158
+    .line 1159
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     const/high16 v1, 0x41400000    # 12.0f
@@ -177,7 +177,7 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1159
+    .line 1160
     return-void
 .end method
 
@@ -187,12 +187,12 @@
     .registers 16
 
     .prologue
-    .line 1163
+    .line 1164
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     iget-object v7, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 1164
+    .line 1165
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -205,7 +205,7 @@
 
     int-to-float v1, v0
 
-    .line 1165
+    .line 1166
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->getWidth()I
 
     move-result v0
@@ -218,7 +218,7 @@
 
     sub-float v8, v0, v2
 
-    .line 1166
+    .line 1167
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->getHeight()I
 
     move-result v0
@@ -231,7 +231,7 @@
 
     sub-float v9, v0, v2
 
-    .line 1167
+    .line 1168
     const/4 v0, 0x0
 
     cmpg-float v0, v8, v0
@@ -244,12 +244,12 @@
 
     if-gtz v0, :cond_2e
 
-    .line 1198
+    .line 1199
     :cond_2d
     :goto_2d
     return-void
 
-    .line 1170
+    .line 1171
     :cond_2e
     const/4 v0, 0x0
 
@@ -260,7 +260,7 @@
 
     if-gt v6, v0, :cond_49
 
-    .line 1171
+    .line 1172
     add-float v0, v1, v9
 
     int-to-float v2, v6
@@ -273,7 +273,7 @@
 
     sub-float v2, v0, v2
 
-    .line 1172
+    .line 1173
     add-float v3, v1, v8
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->grid:Landroid/graphics/Paint;
@@ -284,14 +284,14 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 1170
+    .line 1171
     add-int/lit8 v0, v6, 0x1
 
     move v6, v0
 
     goto :goto_30
 
-    .line 1174
+    .line 1175
     :cond_49
     const-wide/16 v2, 0x2
 
@@ -301,12 +301,12 @@
 
     mul-long/2addr v4, v2
 
-    .line 1175
+    .line 1176
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 1176
+    .line 1177
     const/high16 v0, 0x42700000    # 60.0f
 
     const/high16 v2, 0x40400000    # 3.0f
@@ -319,13 +319,13 @@
 
     float-to-int v2, v0
 
-    .line 1177
+    .line 1178
     const/4 v0, 0x0
 
     :goto_60
     if-gt v0, v2, :cond_87
 
-    .line 1178
+    .line 1179
     int-to-long v10, v0
 
     mul-long/2addr v10, v4
@@ -334,7 +334,7 @@
 
     div-long/2addr v10, v12
 
-    .line 1179
+    .line 1180
     int-to-float v3, v0
 
     mul-float/2addr v3, v8
@@ -345,7 +345,7 @@
 
     add-float/2addr v3, v1
 
-    .line 1180
+    .line 1181
     add-float v6, v1, v9
 
     invoke-static {v7, v10, v11}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->envelope(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;J)I
@@ -362,21 +362,21 @@
 
     sub-float/2addr v6, v10
 
-    .line 1181
+    .line 1182
     if-nez v0, :cond_81
 
-    .line 1182
+    .line 1183
     iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->path:Landroid/graphics/Path;
 
     invoke-virtual {v10, v3, v6}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 1177
+    .line 1178
     :goto_7e
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_60
 
-    .line 1184
+    .line 1185
     :cond_81
     iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->path:Landroid/graphics/Path;
 
@@ -384,7 +384,7 @@
 
     goto :goto_7e
 
-    .line 1187
+    .line 1188
     :cond_87
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->path:Landroid/graphics/Path;
 
@@ -392,7 +392,7 @@
 
     invoke-virtual {p1, v0, v2}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 1188
+    .line 1189
     const-string v0, "25"
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->label:Landroid/graphics/Paint;
@@ -407,7 +407,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 1189
+    .line 1190
     const-string v0, "0"
 
     add-float v2, v1, v9
@@ -416,14 +416,14 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 1190
+    .line 1191
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1191
+    .line 1192
     if-eqz v0, :cond_e2
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -434,7 +434,7 @@
 
     move-result-wide v2
 
-    .line 1192
+    .line 1193
     :goto_b5
     const-wide/16 v6, 0x0
 
@@ -442,10 +442,10 @@
 
     if-ltz v6, :cond_2d
 
-    .line 1193
+    .line 1194
     rem-long/2addr v2, v4
 
-    .line 1194
+    .line 1195
     long-to-float v2, v2
 
     mul-float/2addr v2, v8
@@ -456,7 +456,7 @@
 
     add-float/2addr v2, v1
 
-    .line 1195
+    .line 1196
     add-float/2addr v1, v9
 
     const/4 v3, 0x0
@@ -477,7 +477,7 @@
 
     sub-float v0, v1, v0
 
-    .line 1196
+    .line 1197
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -496,7 +496,7 @@
 
     goto/16 :goto_2d
 
-    .line 1191
+    .line 1192
     :cond_e2
     const-wide/16 v2, -0x1
 

@@ -111,7 +111,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (220L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (268L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (269L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (84L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -132,7 +132,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/gen-wiems-figures.py` (22L) — The WiEMS app's body figures: the XEMS figures in both looks (scripts/figure_looks.py) at 500 px — the app draws them 3…
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/mastogo/MastogoSim.java` (350L) — Offline test of the MASTOGO module: the real MastogoShell talks to a simulated H-024B that answers the way the vendor a…
-- `scripts/mastogo/run.sh` (10L) — Offline test of the MASTOGO H-024B module: the real MastogoShell against a simulated unit (no unit, no tablet).
+- `scripts/mastogo/run.sh` (11L) — Offline test of the MASTOGO H-024B module: the real MastogoShell against a simulated unit (no unit, no tablet).
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
 - `scripts/part-sim/AllMarked.java` (36L) — Owner's scenario (1.1.449): a training starts, every muscle is marked (1st tap), Интензитет 1 goes up with the double i…
@@ -374,9 +374,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 **wearable/mastogo/** (`branding/java/src/com/isaigu/gymapp/wearable/mastogo/`)
 - `MastogoLink.java` (371L, compile:music-sync*,wearable) — One MASTOGO H-024B over BLE for as long as its page is open: service FFF0, notify on FFF4, write on FFF5 (the vendor ap…
+- `MastogoModes.java` (109L, compile:music-sync*,wearable) — The 26 firmware programs of the MASTOGO H- unit as the vendor's own DOMAS app (com.roblink.domas 3.1.1, device "Hawk TE…
 - `MastogoScan.java` (124L, compile:music-sync*,wearable) — Finds MASTOGO H- units (the vendor app's name prefix) while the page is open; results on the main thread.
-- `MastogoScreen.java` (1471L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
-- `MastogoShell.java` (1081L, compile:music-sync*,wearable) — The conversation with one MASTOGO H-024B (DOMAS "Candy TENS 3S", board ZX-571C, SYD8811) — pure Java, no Android: the B…
+- `MastogoScreen.java` (1472L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
+- `MastogoShell.java` (1080L, compile:music-sync*,wearable) — The conversation with one MASTOGO H-024B (DOMAS "Candy TENS 3S", board ZX-571C, SYD8811) — pure Java, no Android: the B…
 
 **wearable/scale/** (`branding/java/src/com/isaigu/gymapp/wearable/scale/`)
 - `RestHrStore.java` (84L, compile:music-sync*,wearable) — The client's resting heart rate as it was measured on this tablet (prefs "xems_heart", key r&lt;userId&gt; = JSON array…
@@ -1056,7 +1057,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L183 ## Какво остава за сървъра
   - L190 ## Проверки (без Android)
 
-`docs/xems-mastogo.md` (129L)
+`docs/xems-mastogo.md` (163L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
   - L7 ## Hardware (owner's photos, 2026-10-27)
   - L27 ## Transport
@@ -1064,8 +1065,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L51 ## Commands (all the app ever sends to H-024B)
   - L70 ## Feedback
   - L84 ## Programs (firmware-fixed; app only sends the id)
-  - L89 ## Limits — what is NOT in the protocol
-  - L98 ## In XEMS (1.1.464-ai) — menu → "Mastogo", unlocked tablet only (owner, 2026-10-27: "both 1 and 2")
+  - L124 ## Limits — what is NOT in the protocol
+  - L133 ## In XEMS (1.1.464-ai) — menu → "Mastogo", unlocked tablet only (owner, 2026-10-27: "both 1 and 2")
 
 `docs/xems-modulation.md` (109L)
   - L1 # «Модулация» on a bodytech suit (1.1.375 phases; 1.1.372 name; was "Австралийски ток", 1.1.362)

@@ -36,9 +36,10 @@ import java.util.List;
 
 /**
  * The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want
- * the maximum from the hardware: parameters, refresh, feedback"). Landscape: on the left three tabs — "Програма"
- * (the unit's 25 programs and the minutes), "Модулация" (the strength drawn over time from here: wave, impulses, ramp,
- * triangle, random — the only live parameter the protocol has, {@link MastogoShell#modulate}) and "Изследване"
+ * the maximum from the hardware: parameters, refresh, feedback"). Landscape: on the left three tabs — "Модули"
+ * (the unit's 26 programs with their Hz / width, {@link MastogoModes}, and the minutes), "Импулс" (the strength drawn
+ * over time from here: work / pause, wave, impulses, ramp, triangle, random, and modules taken in turn —
+ * {@link MastogoShell#modulate}) and "Изследване"
  * (a sweep of read-only queries for commands the vendor app never sends, the full feedback, a console and a copyable
  * report); on the right the unit — strength big, time left, battery, contact; one primary button ▶ / ■.
  * The unit is found and linked by itself. ✕ stops the output. Only on an unlocked (admin) tablet.
@@ -84,19 +85,25 @@ public final class MastogoScreen {
     }
 
     /**
-     * The 25 firmware programs as universal modules, numbered 1–25 (owner, 2026-10-27: "not for parts of the body —
-     * universal"). The vendor's body-part names are gone; only the kind stays (TENS 0–11, EMS 12–20, other 21–24).
+     * The 26 firmware programs as universal modules 1–26 (owner, 2026-10-27: "not for parts of the body —
+     * universal"), grouped by what they do; frequency, width and feel from the vendor's DOMAS app
+     * ({@link MastogoModes}).
      */
     static String modeName(int id) {
         return id < 0 ? "—" : tr("Модул ", "Module ") + (id + 1);
     }
 
     static int groupOf(int id) {
-        return id < MastogoShell.EMS_FIRST ? 0 : id < MastogoShell.FEMALE_FIRST ? 1 : 2;
+        return MastogoModes.kind(id);
     }
 
     static String groupName(int g) {
-        return g == 0 ? "TENS" : g == 1 ? "EMS" : tr("Смесени", "Mixed");
+        switch (g) {
+            case MastogoModes.MASSAGE: return tr("Масаж", "Massage");
+            case MastogoModes.MUSCLE: return tr("Мускули", "Muscles");
+            case MastogoModes.RECOVERY: return tr("Възстановяване", "Recovery");
+            default: return tr("Облекчаване", "Relief");
+        }
     }
 
     static String shapeName(int s) {
@@ -188,18 +195,12 @@ public final class MastogoScreen {
             return XemsUi.dp(a, v);
         }
 
-        /** The owner's note of a module's frequency, Hz (measured or felt); 0 = not known. */
-        int hz(int id) {
-            return prefs.getInt("hz_" + id, 0);
-        }
-
         String moduleText(int id) {
-            return modeName(id) + (id >= 0 && hz(id) > 0 ? " · " + hz(id) + " Hz" : "");
+            return id < 0 ? "—" : modeName(id) + " · " + MastogoModes.hz(id);
         }
 
         String chipName(int id) {
-            int f = hz(id);
-            return (id + 1) + (f > 0 ? " · " + f + " Hz" : "");
+            return (id + 1) + " · " + MastogoModes.hz(id);
         }
 
         MastogoShell sh() {
@@ -325,36 +326,54 @@ public final class MastogoScreen {
         // ------------------------------------------------------------------ tab: program
 
         void fillProgram() {
-            for (int g = 0; g < 3; g++) {
-                int first = g == 0 ? 0 : g == 1 ? MastogoShell.EMS_FIRST : MastogoShell.FEMALE_FIRST;
-                int last = g == 0 ? MastogoShell.EMS_FIRST : g == 1 ? MastogoShell.FEMALE_FIRST : MastogoShell.MODES;
+            for (int g = 0; g < MastogoModes.KINDS; g++) {
                 tabBody.addView(XemsUi.label(a, groupName(g)), XemsUi.matchWrap(a, g == 0 ? 0 : 10));
                 LinearLayout grid = XemsUi.vertical(a);
                 LinearLayout line = null;
-                for (int id = first; id < last; id++) {
-                    if ((id - first) % 6 == 0) {
+                int n = 0;
+                for (int id = 0; id < MastogoShell.MODES; id++) {
+                    if (MastogoModes.kind(id) != g) {
+                        continue;
+                    }
+                    if (n % 5 == 0) {
                         line = XemsUi.horizontal(a);
                         grid.addView(line, XemsUi.matchWrap(a, 6));
                     }
+                    n++;
                     TextView chip = XemsUi.chip(a, chipName(id), id == mode, XemsUi.GO_TEXT);
+                    chip.setTextSize(13);
+                    chip.setSingleLine(true);
                     chip.setOnClickListener(new PickMode(this, id));
                     tiles[id] = chip;
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(46), 1f);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(44), 1f);
                     lp.rightMargin = dp(6);
                     line.addView(chip, lp);
                 }
-                int rest = (last - first) % 6;
-                for (int i = 0; rest > 0 && i < 6 - rest; i++) {
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(46), 1f);
+                for (int i = 0; n % 5 > 0 && i < 5 - n % 5; i++) {
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(44), 1f);
                     lp.rightMargin = dp(6);
                     line.addView(new View(a), lp);
                 }
                 tabBody.addView(grid, XemsUi.matchWrap(a, 4));
             }
 
+            // the chosen module: what it is, big and first
+            LinearLayout card = XemsUi.card(a);
+            card.setPadding(dp(16), dp(12), dp(16), dp(12));
+            LinearLayout top = XemsUi.horizontal(a);
+            top.setGravity(Gravity.BOTTOM);
+            top.addView(XemsUi.text(a, MastogoModes.hz(mode), 24, XemsUi.TEXT, true));
+            TextView w = XemsUi.text(a, "   " + MastogoModes.width(mode) + " · " + modeName(mode) + " · "
+                    + groupName(groupOf(mode)), 13, XemsUi.MUTED, false);
+            w.setPadding(0, 0, 0, dp(4));
+            top.addView(w);
+            card.addView(top);
+            card.addView(XemsUi.text(a, MastogoModes.feel(mode, XemsLang.isBg()), 13.5f, XemsUi.TEXT, false),
+                    XemsUi.matchWrap(a, 4));
+            tabBody.addView(card, XemsUi.matchWrap(a, 12));
+
             LinearLayout r = XemsUi.horizontal(a);
             r.setGravity(Gravity.BOTTOM);
-            addField(r, modeName(mode) + tr(" · честота", " · frequency"), F_HZ, false);
             LinearLayout col = XemsUi.vertical(a);
             col.addView(XemsUi.label(a, tr("Време", "Time")));
             LinearLayout[] m = new LinearLayout[1];
@@ -364,16 +383,14 @@ public final class MastogoScreen {
                 chip.setOnClickListener(new PickMinutes(this, min));
                 XemsUi.addChip(a, m[0], chip);
             }
-            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.4f);
-            cl.leftMargin = dp(14);
-            r.addView(col, cl);
+            r.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             tabBody.addView(r, XemsUi.matchWrap(a, 14));
-            TextView note = XemsUi.text(a, tr("Честотата е вградена в модула — апаратчето не я казва и не я сменя "
-                    + "(проверено: 628 въпроса и 318 записа). Запиши я тук, измерена или по усещане: стои на "
-                    + "плочката и в „Импулс“, където модулите се сменят в паузите.",
-                    "The frequency is built into the module — the unit neither reports nor changes it (checked: 628 "
-                    + "queries, 318 writes). Note it here, measured or felt: it shows on the tile and in \"Impulse\", "
-                    + "where modules change in the pauses."), 12.5f, XemsUi.HINT, false);
+            TextView note = XemsUi.text(a, tr("Честотата и ширината са вградени в модула (данни от приложението "
+                    + "DOMAS на производителя). Често се менят вътре в програмата: „а–б“ се плъзга, „а / б“ се редува. "
+                    + "В „Импулс“ модулите се сменят в паузите.",
+                    "Frequency and width are built into the module (from the maker's DOMAS app). They often change "
+                    + "inside the program: \"a–b\" sweeps, \"a / b\" alternates. In \"Impulse\" modules change "
+                    + "in the pauses."), 12.5f, XemsUi.HINT, false);
             tabBody.addView(note, XemsUi.matchWrap(a, 10));
         }
 
@@ -458,10 +475,7 @@ public final class MastogoScreen {
                 if (b.length() > 0) {
                     b.append(" → ");
                 }
-                b.append(id + 1);
-                if (hz(id) > 0) {
-                    b.append(" (").append(hz(id)).append(" Hz)");
-                }
+                b.append(id + 1).append(" (").append(MastogoModes.hz(id)).append(')');
             }
             return b.append(" → …").toString();
         }
@@ -514,7 +528,7 @@ public final class MastogoScreen {
         }
 
         static final int F_LO = 0, F_HI = 1, F_PERIOD = 2, F_DUTY = 3, F_STEP = 4, F_UP = 5, F_ON = 6, F_DOWN = 7,
-                F_OFF = 8, F_EVERY = 9, F_HZ = 10;
+                F_OFF = 8, F_EVERY = 9;
 
         static String secs(int ms) {
             return ms % 1000 == 0 ? String.valueOf(ms / 1000)
@@ -532,7 +546,6 @@ public final class MastogoScreen {
                 case F_DOWN: return secs(mod.downMs);
                 case F_OFF: return secs(mod.offMs);
                 case F_EVERY: return String.valueOf(mod.every);
-                case F_HZ: return hz(mode) > 0 ? String.valueOf(hz(mode)) : "?";
                 default: return String.valueOf(mod.stepMs);
             }
         }
@@ -548,7 +561,6 @@ public final class MastogoScreen {
                 case F_OFF: return tr("секунди", "seconds");
                 case F_DUTY: return tr("% от цикъла", "% of the cycle");
                 case F_EVERY: return tr("цикъла", "cycles");
-                case F_HZ: return "Hz";
                 default: return tr("ms (≥ 100)", "ms (≥ 100)");
             }
         }
@@ -574,17 +586,6 @@ public final class MastogoScreen {
                 case F_DOWN: mod.downMs = msStep(mod.downMs, dir); break;
                 case F_OFF: mod.offMs = msStep(mod.offMs, dir); break;
                 case F_EVERY: mod.every += dir; break;
-                case F_HZ: {
-                    int v = hz(mode);
-                    int step = v < 10 || v == 10 && dir < 0 ? 1 : v < 50 || v == 50 && dir < 0 ? 5 : 10;
-                    v = Math.max(0, Math.min(250, v + dir * step));
-                    prefs.edit().putInt("hz_" + mode, v).apply();
-                    if (tiles[mode] != null) {
-                        tiles[mode].setText(chipName(mode));
-                    }
-                    refreshFields(tabBody);
-                    return;
-                }
                 default: mod.stepMs += dir * 50; break;
             }
             mod.safe();
@@ -1103,10 +1104,10 @@ public final class MastogoScreen {
         void info() {
             XemsUi.Shell i = XemsUi.shell(a, tr("Какво може апаратчето", "What the unit can do"), null, 720);
             String text = tr(
-                    "• Импулсът (честота, ширина, форма) е вграден във всяка от 25-те програми — протоколът не го "
+                    "• Импулсът (честота, ширина, форма) е вграден във всяка от 26-те програми — протоколът не го "
                     + "променя. Платката е ZX-571C с чип SYD8811.\n"
-                    + "• 25 модула, номерирани 1–25 (TENS, EMS, смесени) — без части на тялото. Честотата на всеки "
-                    + "записваш ти в „Модули“.\n"
+                    + "• 26 модула, номерирани 1–26, по действие (облекчаване, масаж, мускули, възстановяване) — без "
+                    + "части на тялото. Честотата и ширината са от приложението DOMAS на производителя.\n"
                     + "• „Импулс“ рисува силата (0–25) във времето, до ≈ 10 пъти в секунда, покачване най-много с 3 "
                     + "нива наведнъж. „Работа / Пауза“: твоите времена за нарастване, работа, спадане и пауза.\n"
                     + "• Смяна на честотата: модулите подред, всеки поема в началото на паузата (апаратчето сменя "
@@ -1116,10 +1117,10 @@ public final class MastogoScreen {
                     + "„Изследване на запис“ праща ~320 команди със стойност: непозната отговаря ERROR:104, "
                     + "всичко друго значи, че командата съществува.\n"
                     + "„Копирай отчета“ дава целия резултат за анализ.",
-                    "• The impulse (frequency, width, shape) is built into each of the 25 programs — the protocol "
+                    "• The impulse (frequency, width, shape) is built into each of the 26 programs — the protocol "
                     + "does not change it. Board ZX-571C, SYD8811 chip.\n"
-                    + "• 25 modules numbered 1–25 (TENS, EMS, mixed) — no body parts. You note each one's "
-                    + "frequency in \"Modules\".\n"
+                    + "• 26 modules numbered 1–26 by what they do (relief, massage, muscles, recovery) — no body "
+                    + "parts. Frequency and width come from the maker's DOMAS app.\n"
                     + "• \"Impulse\" draws the strength (0–25) over time, up to ≈ 10 times a second, rising at most "
                     + "3 levels at once. \"Work / Pause\": your rise, work, fall and pause times.\n"
                     + "• Frequency change: the modules in turn, each taking over at the start of a pause (the unit "

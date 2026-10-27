@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1405
+    .line 1406
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1406
+    .line 1407
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 1407
+    .line 1408
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 1412
+    .line 1413
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
@@ -50,15 +50,15 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 1416
+    .line 1417
     :goto_5
     return-void
 
-    .line 1413
+    .line 1414
     :catch_6
     move-exception v0
 
-    .line 1414
+    .line 1415
     const-string v1, "MastogoScreen.tick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

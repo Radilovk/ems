@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 906
+    .line 1016
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 907
+    .line 1017
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Timeout;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
-    .line 908
+    .line 1018
     iput p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Timeout;->token:I
 
-    .line 909
+    .line 1019
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 4
 
     .prologue
-    .line 913
+    .line 1023
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Timeout;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->inFlight:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;
@@ -62,7 +62,7 @@
 
     if-ne v0, v1, :cond_18
 
-    .line 914
+    .line 1024
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Timeout;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Timeout;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
@@ -73,7 +73,7 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->finish(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Cmd;Z)V
 
-    .line 916
+    .line 1026
     :cond_18
     return-void
 .end method

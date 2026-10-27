@@ -20,8 +20,8 @@
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModStep;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModToggle;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickShape;,
+        Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickRotate;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMinutes;,
-        Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickGroup;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMode;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Step;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Go;,
@@ -96,53 +96,40 @@
     .registers 3
 
     .prologue
-    .line 114
-    if-nez p0, :cond_b
+    .line 99
+    if-nez p0, :cond_5
 
-    const-string v0, "\u041e\u0431\u043b\u0435\u043a\u0447\u0430\u0432\u0430\u043d\u0435 \u00b7 TENS"
+    const-string v0, "TENS"
 
-    const-string v1, "Relief \u00b7 TENS"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    :goto_a
+    :goto_4
     return-object v0
 
-    .line 115
-    :cond_b
+    :cond_5
     const/4 v0, 0x1
 
-    if-ne p0, v0, :cond_17
+    if-ne p0, v0, :cond_b
 
-    const-string v0, "\u041c\u0443\u0441\u043a\u0443\u043b\u0438 \u00b7 EMS"
+    const-string v0, "EMS"
 
-    const-string v1, "Muscles \u00b7 EMS"
+    goto :goto_4
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    :cond_b
+    const-string v0, "\u0421\u043c\u0435\u0441\u0435\u043d\u0438"
 
-    move-result-object v0
-
-    goto :goto_a
-
-    :cond_17
-    const-string v0, "\u0416\u0435\u043d\u0441\u043a\u0438"
-
-    const-string v1, "Female"
+    const-string v1, "Mixed"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    goto :goto_a
+    goto :goto_4
 .end method
 
 .method static groupOf(I)I
     .registers 2
 
     .prologue
-    .line 110
+    .line 95
     const/16 v0, 0xc
 
     if-ge p0, v0, :cond_6
@@ -171,7 +158,7 @@
     .registers 4
 
     .prologue
-    .line 139
+    .line 124
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -220,370 +207,37 @@
 .end method
 
 .method static modeName(I)Ljava/lang/String;
-    .registers 11
+    .registers 4
 
     .prologue
-    const/4 v9, 0x4
-
-    const/4 v8, 0x3
-
-    const/4 v7, 0x2
-
-    const/4 v6, 0x1
-
-    const/4 v5, 0x0
-
-    .line 88
-    const/16 v0, 0xc
-
-    new-array v0, v0, [Ljava/lang/String;
-
-    const-string v1, "\u041e\u0441\u043d\u043e\u0432\u043d\u0430"
-
-    const-string v2, "Standard"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    aput-object v1, v0, v5
-
-    const-string v1, "\u0412\u0440\u0430\u0442"
-
-    const-string v2, "Neck"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    aput-object v1, v0, v6
-
-    const-string v1, "\u0422\u0440\u0430\u043f\u0435\u0446"
-
-    const-string v2, "Trapezius"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    aput-object v1, v0, v7
-
-    const-string v1, "\u0420\u0430\u043c\u043e"
-
-    const-string v2, "Shoulder"
-
-    .line 89
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    aput-object v1, v0, v8
-
-    const-string v1, "\u041b\u043e\u043f\u0430\u0442\u043a\u0438"
-
-    const-string v2, "Shoulder blades"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    aput-object v1, v0, v9
-
-    const/4 v1, 0x5
-
-    const-string v2, "\u041b\u0430\u043a\u044a\u0442"
-
-    const-string v3, "Elbow"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v0, v1
-
-    const/4 v1, 0x6
-
-    const-string v2, "\u041a\u0438\u0442\u043a\u0430"
-
-    const-string v3, "Hand / wrist"
-
-    .line 90
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v0, v1
-
-    const/4 v1, 0x7
-
-    const-string v2, "\u041a\u0440\u044a\u0441\u0442"
-
-    const-string v3, "Lower back"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v0, v1
-
-    const/16 v1, 0x8
-
-    const-string v2, "\u041a\u0440\u0430\u043a\u0430"
-
-    const-string v3, "Legs"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v0, v1
-
-    const/16 v1, 0x9
-
-    const-string v2, "\u041a\u043e\u043b\u044f\u043d\u043e"
-
-    const-string v3, "Knee"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v0, v1
-
-    const/16 v1, 0xa
-
-    const-string v2, "\u041f\u0440\u0430\u0441\u0435\u0446"
-
-    const-string v3, "Calf"
-
     .line 91
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    if-gez p0, :cond_5
 
-    move-result-object v2
-
-    aput-object v2, v0, v1
-
-    const/16 v1, 0xb
-
-    const-string v2, "\u0421\u0442\u044a\u043f\u0430\u043b\u043e"
-
-    const-string v3, "Foot"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v0, v1
-
-    .line 92
-    const/16 v1, 0x9
-
-    new-array v1, v1, [Ljava/lang/String;
-
-    const-string v2, "\u041e\u0441\u043d\u043e\u0432\u043d\u0430"
-
-    const-string v3, "Standard"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v1, v5
-
-    const-string v2, "\u0412\u0440\u0430\u0442"
-
-    const-string v3, "Neck"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v1, v6
-
-    const-string v2, "\u0422\u0440\u0430\u043f\u0435\u0446"
-
-    const-string v3, "Trapezius"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v1, v7
-
-    const-string v2, "\u0422\u0440\u0438\u0446\u0435\u043f\u0441"
-
-    const-string v3, "Triceps"
-
-    .line 93
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v1, v8
-
-    const-string v2, "\u041b\u043e\u043f\u0430\u0442\u043a\u0438"
-
-    const-string v3, "Shoulder blades"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    aput-object v2, v1, v9
-
-    const/4 v2, 0x5
-
-    const-string v3, "\u0411\u0438\u0446\u0435\u043f\u0441"
-
-    const-string v4, "Biceps"
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v1, v2
-
-    const/4 v2, 0x6
-
-    const-string v3, "\u041a\u0440\u044a\u0441\u0442"
-
-    const-string v4, "Lower back"
-
-    .line 94
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v1, v2
-
-    const/4 v2, 0x7
-
-    const-string v3, "\u041a\u0440\u0430\u043a\u0430"
-
-    const-string v4, "Legs"
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v1, v2
-
-    const/16 v2, 0x8
-
-    const-string v3, "\u041f\u0440\u0430\u0441\u0435\u0446"
-
-    const-string v4, "Calf"
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v1, v2
-
-    .line 95
-    new-array v2, v9, [Ljava/lang/String;
-
-    const-string v3, "\u041e\u0441\u043d\u043e\u0432\u043d\u0430"
-
-    const-string v4, "Standard"
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v5
-
-    const-string v3, "\u041a\u043e\u0440\u0435\u043c"
-
-    const-string v4, "Belly"
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v6
-
-    const-string v3, "\u0413\u0440\u044a\u0431 1"
-
-    const-string v4, "Back 1"
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v7
-
-    const-string v3, "\u0413\u0440\u044a\u0431 2"
-
-    const-string v4, "Back 2"
-
-    .line 96
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v8
-
-    .line 97
-    if-gez p0, :cond_11e
-
-    .line 98
     const-string v0, "\u2014"
 
-    .line 106
-    :goto_11d
+    :goto_4
     return-object v0
 
-    .line 100
-    :cond_11e
-    const/16 v3, 0xc
-
-    if-ge p0, v3, :cond_125
-
-    .line 101
-    aget-object v0, v0, p0
-
-    goto :goto_11d
-
-    .line 103
-    :cond_125
-    const/16 v0, 0x15
-
-    if-ge p0, v0, :cond_12e
-
-    .line 104
-    add-int/lit8 v0, p0, -0xc
-
-    aget-object v0, v1, v0
-
-    goto :goto_11d
-
-    .line 106
-    :cond_12e
-    add-int/lit8 v0, p0, -0x15
-
-    array-length v1, v2
-
-    if-ge v0, v1, :cond_138
-
-    add-int/lit8 v0, p0, -0x15
-
-    aget-object v0, v2, v0
-
-    goto :goto_11d
-
-    :cond_138
+    :cond_5
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v1, "#"
+    const-string v1, "\u041c\u043e\u0434\u0443\u043b "
+
+    const-string v2, "Module "
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    add-int/lit8 v1, p0, 0x1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -591,17 +245,17 @@
 
     move-result-object v0
 
-    goto :goto_11d
+    goto :goto_4
 .end method
 
 .method static offName(I)Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 129
+    .line 114
     packed-switch p0, :pswitch_data_30
 
-    .line 134
+    .line 119
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435"
 
     const-string v1, "switched off"
@@ -613,7 +267,7 @@
     :goto_b
     return-object v0
 
-    .line 130
+    .line 115
     :pswitch_c
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0434\u044a\u043b\u0433\u043e \u0431\u0435\u0437 \u0442\u043e\u043a"
 
@@ -625,7 +279,7 @@
 
     goto :goto_b
 
-    .line 131
+    .line 116
     :pswitch_15
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0442\u0432\u044a\u0440\u0434\u0435 \u0434\u044a\u043b\u0433\u043e \u0440\u0430\u0431\u043e\u0442\u0438"
 
@@ -637,7 +291,7 @@
 
     goto :goto_b
 
-    .line 132
+    .line 117
     :pswitch_1e
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0441\u043b\u0430\u0431\u0430 \u0431\u0430\u0442\u0435\u0440\u0438\u044f"
 
@@ -649,7 +303,7 @@
 
     goto :goto_b
 
-    .line 133
+    .line 118
     :pswitch_27
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d \u043e\u0442 \u0431\u0443\u0442\u043e\u043d\u0430"
 
@@ -661,7 +315,7 @@
 
     goto :goto_b
 
-    .line 129
+    .line 114
     :pswitch_data_30
     .packed-switch 0x0
         :pswitch_c
@@ -772,10 +426,10 @@
     .registers 3
 
     .prologue
-    .line 119
-    packed-switch p0, :pswitch_data_30
+    .line 103
+    packed-switch p0, :pswitch_data_3a
 
-    .line 124
+    .line 109
     const-string v0, "\u0412\u044a\u043b\u043d\u0430"
 
     const-string v1, "Wave"
@@ -787,8 +441,20 @@
     :goto_b
     return-object v0
 
-    .line 120
+    .line 104
     :pswitch_c
+    const-string v0, "\u0420\u0430\u0431\u043e\u0442\u0430 / \u041f\u0430\u0443\u0437\u0430"
+
+    const-string v1, "Work / Pause"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_b
+
+    .line 105
+    :pswitch_15
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441\u0438"
 
     const-string v1, "Impulses"
@@ -799,8 +465,8 @@
 
     goto :goto_b
 
-    .line 121
-    :pswitch_15
+    .line 106
+    :pswitch_1e
     const-string v0, "\u041d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u043d\u0435"
 
     const-string v1, "Ramp"
@@ -811,8 +477,8 @@
 
     goto :goto_b
 
-    .line 122
-    :pswitch_1e
+    .line 107
+    :pswitch_27
     const-string v0, "\u0422\u0440\u0438\u044a\u0433\u044a\u043b\u043d\u0438\u043a"
 
     const-string v1, "Triangle"
@@ -823,8 +489,8 @@
 
     goto :goto_b
 
-    .line 123
-    :pswitch_27
+    .line 108
+    :pswitch_30
     const-string v0, "\u0421\u043b\u0443\u0447\u0430\u0439\u043d\u043e"
 
     const-string v1, "Random"
@@ -835,13 +501,16 @@
 
     goto :goto_b
 
-    .line 119
-    :pswitch_data_30
+    .line 103
+    nop
+
+    :pswitch_data_3a
     .packed-switch 0x1
-        :pswitch_c
         :pswitch_15
         :pswitch_1e
         :pswitch_27
+        :pswitch_30
+        :pswitch_c
     .end packed-switch
 .end method
 

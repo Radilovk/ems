@@ -190,6 +190,30 @@ public final class MastogoShell {
         ev.onChanged(this);
     }
 
+    /**
+     * Another module while running (the modulation's frequency change): the unit pauses and zeroes the strength on
+     * a program change, so run again at once and keep the time left; the modulation climbs back from 0.
+     */
+    void switchMode(int id) {
+        int left = secondsLeft();
+        for (int i = queue.size() - 1; i >= 0; i--) {
+            if (queue.get(i).kind == K_LEVEL) {
+                queue.remove(i);                // a strength sent before the change would be zeroed by it
+            }
+        }
+        mode = id;
+        level = 0;
+        plain("AT+CMODE=0," + id);
+        plain("AT+QPOWS");
+        if (left > 0) {
+            setTimer(left);
+        }
+        switches++;
+    }
+
+    /** Module changes made by the modulation (shown, and checked by the offline test). */
+    public int switches;
+
     /** The unit's own countdown, 1 s – 60 min. */
     public void setTimer(int seconds) {
         seconds = Math.max(1, Math.min(3600, seconds));
@@ -523,10 +547,14 @@ public final class MastogoShell {
 
     // ================================================================== modulation
 
-    /** The strength drawn over time between {@link #lo} and {@link #hi}. */
+    /**
+     * The strength drawn over time between {@link #lo} and {@link #hi}. {@link #WORK} is the EMS impulse the owner
+     * times himself (owner, 2026-10-27): rise, work, fall, pause. {@link #rotate} changes the module (= the frequency,
+     * built into each program) at the start of every pause — the only moment a program change costs nothing.
+     */
     public static final class Mod {
-        public static final int WAVE = 0, PULSE = 1, RAMP = 2, TRIANGLE = 3, RANDOM = 4;
-        public int shape = WAVE;
+        public static final int WAVE = 0, PULSE = 1, RAMP = 2, TRIANGLE = 3, RANDOM = 4, WORK = 5;
+        public int shape = WORK;
         public int lo = 2, hi = 8;
         /** One cycle, ms. */
         public int periodMs = 4000;
@@ -534,6 +562,12 @@ public final class MastogoShell {
         public int duty = 50;
         /** How often the strength is refreshed, ms (≥ 100: the unit's pace). */
         public int stepMs = 200;
+        /** WORK: rise, work, fall, pause, ms. */
+        public int upMs = 1000, onMs = 4000, downMs = 500, offMs = 4000;
+        /** Modules taken in turn (program ids); fewer than 2 = the module stays. */
+        public int[] rotate = new int[0];
+        /** Cycles on one module before the next. */
+        public int every = 1;
 
         public Mod copy() {
             Mod m = new Mod();
@@ -543,6 +577,12 @@ public final class MastogoShell {
             m.periodMs = periodMs;
             m.duty = duty;
             m.stepMs = stepMs;
+            m.upMs = upMs;
+            m.onMs = onMs;
+            m.downMs = downMs;
+            m.offMs = offMs;
+            m.rotate = rotate.clone();
+            m.every = every;
             return m;
         }
 
@@ -552,10 +592,48 @@ public final class MastogoShell {
             periodMs = Math.max(200, Math.min(120000, periodMs));
             duty = Math.max(5, Math.min(95, duty));
             stepMs = Math.max(100, Math.min(2000, stepMs));
+            upMs = Math.max(0, Math.min(10000, upMs));
+            downMs = Math.max(0, Math.min(10000, downMs));
+            onMs = Math.max(500, Math.min(60000, onMs));
+            offMs = Math.max(0, Math.min(60000, offMs));
+            every = Math.max(1, Math.min(20, every));
+            if (shape == WORK) {
+                periodMs = Math.max(200, upMs + onMs + downMs + offMs);
+            }
+        }
+
+        /** ms into a cycle where the module changes: the start of the pause (WORK), the cycle's start otherwise. */
+        public int switchAt() {
+            return shape == WORK ? upMs + onMs + downMs : 0;
+        }
+
+        /** The module for cycle-segment {@code seg} (0 = from the start to the first switch); -1 = no rotation. */
+        public int moduleAt(long seg) {
+            if (rotate.length < 2) {
+                return -1;
+            }
+            return rotate[(int) ((seg / every) % rotate.length)];
+        }
+
+        /** The segment at {@code t} ms: it moves on at every {@link #switchAt}. */
+        public long segmentAt(long t) {
+            int sw = switchAt();
+            if (sw <= 0) {
+                return t / periodMs;
+            }
+            return t < sw ? 0 : 1 + (t - sw) / periodMs;
         }
 
         public String encode() {
-            return shape + "," + lo + "," + hi + "," + periodMs + "," + duty + "," + stepMs;
+            StringBuilder r = new StringBuilder();
+            for (int id : rotate) {
+                if (r.length() > 0) {
+                    r.append(';');
+                }
+                r.append(id);
+            }
+            return shape + "," + lo + "," + hi + "," + periodMs + "," + duty + "," + stepMs + "," + upMs + ","
+                    + onMs + "," + downMs + "," + offMs + "," + every + "," + r;
         }
 
         public static Mod decode(String s) {
@@ -568,6 +646,20 @@ public final class MastogoShell {
                 m.periodMs = Integer.parseInt(p[3]);
                 m.duty = Integer.parseInt(p[4]);
                 m.stepMs = Integer.parseInt(p[5]);
+                if (p.length > 10) {
+                    m.upMs = Integer.parseInt(p[6]);
+                    m.onMs = Integer.parseInt(p[7]);
+                    m.downMs = Integer.parseInt(p[8]);
+                    m.offMs = Integer.parseInt(p[9]);
+                    m.every = Integer.parseInt(p[10]);
+                }
+                if (p.length > 11 && p[11].length() > 0) {
+                    String[] ids = p[11].split(";");
+                    m.rotate = new int[ids.length];
+                    for (int i = 0; i < ids.length; i++) {
+                        m.rotate[i] = Math.max(0, Math.min(MODES - 1, Integer.parseInt(ids[i])));
+                    }
+                }
             } catch (Throwable ignored) {
                 m = new Mod();
             }
@@ -582,6 +674,19 @@ public final class MastogoShell {
         double ph = (t % m.periodMs) / (double) m.periodMs;
         double f;
         switch (m.shape) {
+            case Mod.WORK: {
+                long c = t % m.periodMs;
+                if (c < m.upMs) {
+                    f = c / (double) m.upMs;
+                } else if (c < m.upMs + m.onMs) {
+                    f = 1;
+                } else if (c < m.upMs + m.onMs + m.downMs) {
+                    f = 1 - (c - m.upMs - m.onMs) / (double) Math.max(1, m.downMs);
+                } else {
+                    f = 0;
+                }
+                break;
+            }
             case Mod.PULSE:
                 f = ph * 100 < m.duty ? 1 : 0;
                 break;
@@ -644,7 +749,12 @@ public final class MastogoShell {
             return;
         }
         if (running && contact != 0) {
-            int target = envelope(m, io.now() - modStart);
+            long el = io.now() - modStart;
+            int want = m.moduleAt(m.segmentAt(el));
+            if (want >= 0 && want != mode) {
+                switchMode(want);
+            }
+            int target = envelope(m, el);
             int cur = Math.max(0, level);
             if (target > cur + MAX_RISE) {
                 target = cur + MAX_RISE;

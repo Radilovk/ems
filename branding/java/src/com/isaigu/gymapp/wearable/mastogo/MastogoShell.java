@@ -552,7 +552,9 @@ public final class MastogoShell {
      * built into each program) at the start of every pause — the only moment a program change costs nothing.
      */
     public static final class Mod {
-        public static final int WAVE = 0, PULSE = 1, RAMP = 2, TRIANGLE = 3, RANDOM = 4, WORK = 5;
+        public static final int WAVE = 0, PULSE = 1, RAMP = 2, TRIANGLE = 3, RANDOM = 4, WORK = 5, STEPS = 6;
+        /** Most steps a cycle holds. */
+        public static final int MAX_STEPS = 12;
         public int shape = WORK;
         public int lo = 2, hi = 8;
         /** One cycle, ms. */
@@ -567,6 +569,8 @@ public final class MastogoShell {
         public int[] rotate = new int[0];
         /** Cycles on one module before the next. */
         public int every = 1;
+        /** STEPS: the owner's own cycle, step after step, then from the start (owner, 2026-10-27). */
+        public final List<Step> steps = new ArrayList<Step>();
 
         public Mod copy() {
             Mod m = new Mod();
@@ -582,6 +586,9 @@ public final class MastogoShell {
             m.offMs = offMs;
             m.rotate = rotate.clone();
             m.every = every;
+            for (Step st : steps) {
+                m.steps.add(st.copy());
+            }
             return m;
         }
 
@@ -599,6 +606,56 @@ public final class MastogoShell {
             if (shape == WORK) {
                 periodMs = Math.max(200, upMs + onMs + downMs + offMs);
             }
+            while (steps.size() > MAX_STEPS) {
+                steps.remove(steps.size() - 1);
+            }
+            if (steps.isEmpty()) {
+                steps.add(new Step());
+            }
+            int n = steps.size();
+            long total = 0;
+            for (int i = 0; i < n; i++) {
+                Step st = steps.get(i);
+                st.safe();
+                // the next step's carrier comes in during this pause: the unit needs ~0.3–0.5 s for it
+                if (steps.get((i + 1) % n).mode != st.mode && st.offMs < Step.SWITCH_MS) {
+                    st.offMs = Step.SWITCH_MS;
+                }
+                total += (long) st.cycleMs() * st.reps;
+            }
+            if (shape == STEPS) {
+                periodMs = (int) Math.max(200, Math.min(Integer.MAX_VALUE, total));
+            }
+        }
+
+        /** STEPS: {step index, ms into its cycle, repetition} at {@code t}. */
+        int[] stepAt(long t) {
+            long c = t % Math.max(1, periodMs);
+            for (int i = 0; i < steps.size(); i++) {
+                Step st = steps.get(i);
+                long len = (long) st.cycleMs() * st.reps;
+                if (c < len) {
+                    return new int[] {i, (int) (c % st.cycleMs()), (int) (c / st.cycleMs())};
+                }
+                c -= len;
+            }
+            return new int[] {steps.size() - 1, 0, 0};
+        }
+
+        /**
+         * The module that should run at {@code t}, -1 = leave it. STEPS: the step's carrier, and in the pause of its
+         * last repetition already the next step's. Otherwise the rotation ({@link #rotate}).
+         */
+        public int moduleFor(long t) {
+            if (shape == STEPS) {
+                int[] at = stepAt(t);
+                Step st = steps.get(at[0]);
+                if (at[2] == st.reps - 1 && at[1] >= st.upMs + st.onMs + st.downMs) {
+                    return steps.get((at[0] + 1) % steps.size()).mode;
+                }
+                return st.mode;
+            }
+            return moduleAt(segmentAt(t));
         }
 
         /** ms into a cycle where the module changes: the start of the pause (WORK), the cycle's start otherwise. */
@@ -631,8 +688,15 @@ public final class MastogoShell {
                 }
                 r.append(id);
             }
+            StringBuilder q = new StringBuilder();
+            for (Step st : steps) {
+                if (q.length() > 0) {
+                    q.append(';');
+                }
+                q.append(st.encode());
+            }
             return shape + "," + lo + "," + hi + "," + periodMs + "," + duty + "," + stepMs + "," + upMs + ","
-                    + onMs + "," + downMs + "," + offMs + "," + every + "," + r;
+                    + onMs + "," + downMs + "," + offMs + "," + every + "," + r + "," + q;
         }
 
         public static Mod decode(String s) {
@@ -659,6 +723,11 @@ public final class MastogoShell {
                         m.rotate[i] = Math.max(0, Math.min(MODES - 1, Integer.parseInt(ids[i])));
                     }
                 }
+                if (p.length > 12 && p[12].length() > 0) {
+                    for (String one : p[12].split(";")) {
+                        m.steps.add(Step.decode(one));
+                    }
+                }
             } catch (Throwable ignored) {
                 m = new Mod();
             }
@@ -667,25 +736,90 @@ public final class MastogoShell {
         }
     }
 
+    /** One step of the owner's cycle: a carrier (module), the strength in work and pause, the times, how often. */
+    public static final class Step {
+        /** The shortest pause before another carrier: CMODE + run take ~0.3–0.5 s. */
+        public static final int SWITCH_MS = 500;
+        /** Steady carrier (DOMAS "Continuous", 77 Hz) by default. */
+        public int mode = 18;
+        public int lo = 0, hi = 8;
+        public int upMs = 500, onMs = 3000, downMs = 300, offMs = 2000;
+        public int reps = 3;
+
+        public Step copy() {
+            Step s = new Step();
+            s.mode = mode;
+            s.lo = lo;
+            s.hi = hi;
+            s.upMs = upMs;
+            s.onMs = onMs;
+            s.downMs = downMs;
+            s.offMs = offMs;
+            s.reps = reps;
+            return s;
+        }
+
+        public void safe() {
+            mode = Math.max(0, Math.min(MODES - 1, mode));
+            lo = Math.max(0, Math.min(MAX_LEVEL, lo));
+            hi = Math.max(lo, Math.min(MAX_LEVEL, hi));
+            upMs = Math.max(0, Math.min(10000, upMs));
+            onMs = Math.max(200, Math.min(60000, onMs));
+            downMs = Math.max(0, Math.min(10000, downMs));
+            offMs = Math.max(0, Math.min(60000, offMs));
+            reps = Math.max(1, Math.min(99, reps));
+        }
+
+        public int cycleMs() {
+            return Math.max(200, upMs + onMs + downMs + offMs);
+        }
+
+        String encode() {
+            return mode + ":" + lo + ":" + hi + ":" + upMs + ":" + onMs + ":" + downMs + ":" + offMs + ":" + reps;
+        }
+
+        static Step decode(String s) {
+            Step st = new Step();
+            String[] p = s.split(":");
+            st.mode = Integer.parseInt(p[0]);
+            st.lo = Integer.parseInt(p[1]);
+            st.hi = Integer.parseInt(p[2]);
+            st.upMs = Integer.parseInt(p[3]);
+            st.onMs = Integer.parseInt(p[4]);
+            st.downMs = Integer.parseInt(p[5]);
+            st.offMs = Integer.parseInt(p[6]);
+            st.reps = Integer.parseInt(p[7]);
+            st.safe();
+            return st;
+        }
+    }
+
+    /** Rise / work / fall / pause at {@code c} ms into one cycle → 0…1. */
+    static double trapezoid(long c, int up, int on, int down) {
+        if (c < up) {
+            return c / (double) up;
+        } else if (c < up + on) {
+            return 1;
+        } else if (c < up + on + down) {
+            return 1 - (c - up - on) / (double) Math.max(1, down);
+        }
+        return 0;
+    }
+
     /** The envelope at {@code t} ms from its start — also drawn on the page. */
     public static int envelope(Mod m, long t) {
         int span = m.hi - m.lo;
         double ph = (t % m.periodMs) / (double) m.periodMs;
         double f;
         switch (m.shape) {
-            case Mod.WORK: {
-                long c = t % m.periodMs;
-                if (c < m.upMs) {
-                    f = c / (double) m.upMs;
-                } else if (c < m.upMs + m.onMs) {
-                    f = 1;
-                } else if (c < m.upMs + m.onMs + m.downMs) {
-                    f = 1 - (c - m.upMs - m.onMs) / (double) Math.max(1, m.downMs);
-                } else {
-                    f = 0;
-                }
-                break;
+            case Mod.STEPS: {
+                int[] at = m.stepAt(t);
+                Step st = m.steps.get(at[0]);
+                return st.lo + (int) Math.round((st.hi - st.lo) * trapezoid(at[1], st.upMs, st.onMs, st.downMs));
             }
+            case Mod.WORK:
+                f = trapezoid(t % m.periodMs, m.upMs, m.onMs, m.downMs);
+                break;
             case Mod.PULSE:
                 f = ph * 100 < m.duty ? 1 : 0;
                 break;
@@ -749,7 +883,7 @@ public final class MastogoShell {
         }
         if (running && contact != 0) {
             long el = io.now() - modStart;
-            int want = m.moduleAt(m.segmentAt(el));
+            int want = m.moduleFor(el);
             if (want >= 0 && want != mode) {
                 switchMode(want);
             }

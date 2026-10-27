@@ -141,10 +141,18 @@ Code (compile:wearable): `wearable/mastogo/` — `MastogoShell` (pure Java: queu
 exploration, text report), `MastogoLink` (GATT FFF0: write FFF5, notify FFF4, reconnect), `MastogoScan` (name
 `MASTOGO H-`), `MastogoScreen` (the page). Offline test: `bash scripts/mastogo/run.sh` (a simulated unit, incl. a
 hidden command the sweep must find).
-- **Модули (1.1.469):** the 26 programs as universal modules 1–26 grouped by kind (Облекчаване / Масаж / Мускули /
-  Възстановяване) — no body-part names (owner, 2026-10-27: "universal"). Each tile shows its frequency; the chosen
-  one shows frequency, width and feel (`MastogoModes`, the maker's table above). Minutes 10–60. ▶ = vendor
-  sequence, strength from 1. A program change pauses the unit (it zeroes the strength itself).
+- **Модули (1.1.470):** the 26 programs in DOMAS's groups and names (Масаж 1–8, TENS 9–16, EMS 17–24, Женски
+  25–26 — technique names, no body parts; owner, 2026-10-27: "universal"). Each tile: DOMAS's picture of the impulse
+  (`mode_wave_NN.png`, stored as bars in `MastogoModes.WAVE`, drawn in the theme colour), name, frequency; ≈ marks a
+  **steady carrier** (one frequency, even strength, no own pauses — from the pictures: 19 Continuous 77 Hz,
+  25 Female 1 200 Hz, 20 Toning 1.6 Hz, near-steady 8 Kneading 45 Hz pairs). The chosen one: Hz big, width, picture,
+  feel. Minutes 10–60. ▶ = vendor sequence, strength from 1. A program change pauses the unit and zeroes the strength.
+- **Свой цикъл (1.1.470, `Mod.STEPS`):** the owner's own cycle, no built-in one (owner, 2026-10-27: "no set
+  cycles — we set them, as long as the impulse lasts"). Up to 12 steps, in order, then again; each = carrier
+  (module), rise / impulse / fall / pause (0.1 s steps up to 2 s), impulse and pause strength, repeats. The next
+  step's carrier comes in at the start of the last pause (`moduleFor`); a pause before a carrier change is ≥ 0.5 s
+  (`Step.SWITCH_MS`). On a carrier without ≈ the program's own bursts / pauses ride on top. Rise ≤ 3 levels per
+  refresh (100 ms → 0 to 15 in 0.5 s), so a very short strong impulse is softened.
 - **Импулс:** the strength drawn over time — **Работа / Пауза** (default: the owner's rise / work / fall / pause
   seconds, pause strength and work strength), Вълна (cosine), Импулси (duty %), Нарастване (saw), Триъгълник,
   Случайно; refresh 100–2000 ms. Rises ≤ 3 levels per update, falls free; stops on contact loss / timer end /

@@ -160,6 +160,59 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(sh.running && sh.mod() != null && sh.switches == modes.size(), "keeps running (" + sh.switches + " changes)");
         sh.modulate(null);
 
+        // the owner's own cycle: steps with their own carrier, strength and times
+        MastogoShell.Mod own = new MastogoShell.Mod();
+        own.shape = MastogoShell.Mod.STEPS;
+        own.stepMs = 100;
+        own.steps.clear();
+        MastogoShell.Step s1 = new MastogoShell.Step();
+        s1.mode = 18;
+        s1.lo = 0;
+        s1.hi = 10;
+        s1.upMs = 0;
+        s1.onMs = 1000;
+        s1.downMs = 0;
+        s1.offMs = 600;
+        s1.reps = 2;
+        MastogoShell.Step s2 = new MastogoShell.Step();
+        s2.mode = 24;
+        s2.lo = 2;
+        s2.hi = 6;
+        s2.upMs = 200;
+        s2.onMs = 800;
+        s2.downMs = 0;
+        s2.offMs = 100;                      // too short for a carrier change → 500
+        s2.reps = 1;
+        own.steps.add(s1);
+        own.steps.add(s2);
+        own.safe();
+        check(s2.offMs == 500 && own.periodMs == 2 * 1600 + 1500, "steps: pause before a carrier change ≥ 0.5 s, cycle "
+                + own.periodMs + " ms");
+        check(MastogoShell.Mod.decode(own.encode()).encode().equals(own.encode()), "steps survive save → load");
+        check(own.moduleFor(0) == 18 && own.moduleFor(1700) == 18 && own.moduleFor(2700) == 24 && own.moduleFor(3300) == 24
+                && own.moduleFor(4200) == 18, "carrier: step 1, next one in the last pause, back at the end");
+        check(MastogoShell.envelope(own, 500) == 10 && MastogoShell.envelope(own, 1200) == 0
+                && MastogoShell.envelope(own, 3600) == 6 && MastogoShell.envelope(own, 4300) == 2,
+                "strength: 10 in work, 0 in pause; step 2: 6 in work, 2 in pause");
+        sh.modulate(null);
+        runFor(300);
+        sh.setMode(18);
+        sh.start(600);
+        runFor(500);
+        modes.clear();
+        levels.clear();
+        pausedWrites = 0;
+        sh.modulate(own);
+        runFor(2 * 4700 + 300);
+        check(modes.toString().equals("[24, 18, 24, 18]"), "steps change carrier in the pauses: " + modes);
+        int hiSeen = 0;
+        for (int v : levels) {
+            hiSeen = Math.max(hiSeen, v);
+        }
+        check(hiSeen == 10 && levels.contains(6), "steps reach their own strengths " + levels);
+        check(pausedWrites == 0, "steps: no strength while paused (" + pausedWrites + ")");
+        sh.modulate(null);
+
         // contact lost → strength 0, modulation off
         feed("+CLOAD:0");
         runFor(1000);

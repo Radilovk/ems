@@ -11,14 +11,66 @@ public final class MastogoModes {
 
     public static final int COUNT = 26;
 
-    /** Kinds (vendor modeType): relief, massage, muscle, recovery. */
-    public static final int RELIEF = 0, MASSAGE = 1, MUSCLE = 2, RECOVERY = 3;
-    public static final int KINDS = 4;
+    /** The groups DOMAS shows (ids 0–7, 8–15, 16–23, 24–25). */
+    public static final int MASSAGE = 0, TENS = 1, EMS = 2, FEMALE = 3;
+    public static final int GROUPS = 4;
 
-    static final int[] KIND = {
-        MASSAGE, MUSCLE, MASSAGE, RELIEF, RECOVERY, MUSCLE, MASSAGE, RELIEF, RELIEF, MASSAGE,
-        MUSCLE, MUSCLE, MASSAGE, MASSAGE, RELIEF, MUSCLE, MASSAGE, RELIEF, RELIEF, RELIEF,
-        MASSAGE, RECOVERY, MASSAGE, MUSCLE, RELIEF, RELIEF};
+    /** DOMAS names (the massage technique, never a body part; the two female ones are numbered). */
+    static final String[] NAME_BG = {
+        "Акупунктура", "Вендузи", "Гуа ша", "Потупване", "Почукване", "Туина", "Тай-чи", "Месене",
+        "Удари", "Разтягане", "Разтриване", "Шиацу", "Тригерна точка", "Пеперуда", "Ломи-ломи", "Шведски",
+        "Тайландски", "Рефлексология", "Непрекъснат", "Тонус", "Растеж", "Възстановяване", "Комбинация", "NMES",
+        "Женски 1", "Женски 2"};
+    static final String[] NAME_EN = {
+        "Acupuncture", "Cupping", "Gua sha", "Tapping", "Knocking", "Tuina", "Tai-chi", "Kneading",
+        "Striking", "Stretching", "Rubbing", "Shiatsu", "Trigger point", "Butterfly", "Lomi-lomi", "Swedish",
+        "Thai", "Reflexology", "Continuous", "Toning", "Growth", "Recovery", "Combination", "NMES",
+        "Female 1", "Female 2"};
+
+    /**
+     * A steady carrier: one frequency, even strength, no pauses of its own (DOMAS's picture of the program) — only
+     * these give a cycle that is entirely ours. 7 (pairs at 45 Hz) is near-steady.
+     */
+    static final boolean[] STEADY = new boolean[COUNT];
+
+    static {
+        STEADY[18] = true;
+        STEADY[19] = true;
+        STEADY[24] = true;
+        STEADY[7] = true;
+    }
+
+    /**
+     * DOMAS's picture of each program (mode_wave_NN.png), as bars: 3 chars each — x of 64, top and bottom of 36
+     * (base-64 digits). Drawn by {@link MastogoScreen}; tall = strong, dense = high frequency, gaps = pauses.
+     */
+    static final String[] WAVE = {
+        "0bo7bodbojbopbouboyboDboHboKboNboQboTboVboWboYboZbo/bo",
+        "0gi2ej3ek5dl6dm8cm9cnbcncboebofbohbongipejqeksdltdmvcmwcnycnzboBboCboEboKgiLejNekOdlQdmRcmTcnUcnWboXboZbo+bo",
+        "0ek1ek2dl4cm5cn6cn8bo9bobbocbodbofbogboibojbokbomboncnocnqcmrdltekyekzekBdlCcmDcnFcnGboHboJboKboMboNboOboQboRboTboUboVcnXcnYcmZdl/ek",
+        "0bo1bo3bo4bo6bo7bo9boabocbodbofbogbomboobopborbosboubovboxboyboAboBboDboEboKboMboNboPboQboSboTboVboWboYboZbo/bo",
+        "0fk1dm3cn4co6bo7bo9boabocbodbofcngdmielmfkodmpcnrcosboubovboxboyboAboBcnDdmEelJfkKdmMcnNcoPboQboSboTboVboWboYcnZdm/el",
+        "0ek1dm3cn4bo6bo7boaekbdmdcnebogbohbokekldmncnoboqborboAekBdmDcnEboGboHboKekLdmNcnOboQboRboUekVdmXcnYbo+bo/bo",
+        "0fl1cn2bo4bo5bo7cn8dmbelddmecnfcnhboibojbolbombonboocoqcnrdnsdmuelxflzcnAboBboDboEcnFdmJelKdmMcnNcnOboPboRboSboTboVboWcoXcnZdn+dm/el",
+        "0bo1bo3bo7bo9boabofbogboibomboobopboubovboxboBboDboEboJboKboMboQboSboTboYboZbo/bo",
+        "2dm4bm5do7bm8doabmbdodbmedogbmhdojbmkdombmndopbmqdoBdmCbmEdoFbmHdoIbmKdoLbmNdoObmQdoRbmTdoUbmWdoXbmZdo",
+        "0bo1bo3bo4bo6bo7bo9boabocbodbofboobopborbosboubovboxboyboAboBboDboEboMboNboPboQboSboTboVboWboYboZbo/bo",
+        "3fj4fk6ek7el9dladlcdmddmfcmgcmicnjcnlcnmbnobnpbnrbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYbo",
+        "1bo3bo4bo6bo7bo9boabocbodbofbogboibojbolbomboobopborbosboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYboZbo",
+        "0bm4do9bmddoibmmboobopborbosboubovboxboyboAboBboDboEboJdoNbmSdoWbm/do",
+        "0bo1bo3bo4bo6bo7bo9boabocbodbofbogboibojbolbomboobopborbosbozboAboCboDboFboGboIboJboLboMboOboPboRboSboUboVboXboYbo+bo/bo",
+        "2el4dm5bo7bo8boaboeelgdmhbojbokbomboseltdmvbowboybozboEelFdmHboIboKboLboRelTdmUboWboXboZbo",
+        "1gl3em4cn6bo7bo9boabocbodbofcngdmigllflmcnobopborcosemyglAemBcnDboEboGboHboJboKboMcnNdmPglSflTcnVboWboYcoZem",
+        "3en5bo6bo8bo9dncdnebofbohboienmbonbopboqbosbozenBboCboEboFdnIdnKboLboNboOenSboTboVboWboYbo",
+        "4bo6bo7bo9boabocbodemfbogboibojdlnbopboqbosbotbovbowemybozboBboCdlIboKboLboNboOboQboRemTboUboWboXdl",
+        "0bo1bo3bo4bo6bo7bo9boabocbodbofbogboibojbolbomboobopborbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYboZbo/bo",
+        "0bm4do9bmddoibmmdorbmvdoAbmEdoJbmNdoSbmWdo/bm",
+        "9fjbekcdledmfcmhcnibokbolbonbooboqborbotboubowboxbozboAboCboDboFboGboIboJboLboMboOboPboRbo",
+        "0ek1dm2cn4bo5bo7bo8boabobbocboebofbohcoicnjdlmelndmpcnqborbotboubowboxboyboAboBboDcoEcnFdlHekJdmKcnMboNboOboQboRboTboUboVboXboYco+cn/dl",
+        "2bo5bo8bobbodboebogbohbojboofjqclrbntboyfjAclBbnDboHfkJdmKcnMbnNboPboQboSboTboVcnWcmYdlZek",
+        "1fk2el4dm5dm7cn8cnacobbodboebogbohbojcokcnmcnndmpdmqelsfkAfkBelDdmEdmGcnHcnJcoKboMboNboPboQboScoTcnVcnWdmYdmZel/fk",
+        "0bo1bo3bo4bo6bo7bo9boabocbodbofbogboibojbolbomboobopborbosboubovboxboyboAboBboDboEboGboHboJboKboMboNboPboQboSboTboVboWboYboZbo/bo",
+        "0gj2ek3dl5cm6cn8bn9bobbocboebofbohboibokbolboncnocnqdmrdltelufjxgjyekAdlBcmDcnEbnGboHboJboKboMboNboPboQboSboTcnVcnWdmYdlZel/fj"};
 
     static final String[] HZ = {
         "3–23 Hz", "27 Hz", "23–37 Hz", "6.7 Hz", "45 Hz", "30 Hz", "23 / 45 Hz", "45 Hz", "10 Hz", "50 Hz",
@@ -90,8 +142,20 @@ public final class MastogoModes {
         return id >= 0 && id < COUNT;
     }
 
-    public static int kind(int id) {
-        return valid(id) ? KIND[id] : RELIEF;
+    public static int group(int id) {
+        return id < 8 ? MASSAGE : id < 16 ? TENS : id < 24 ? EMS : FEMALE;
+    }
+
+    public static String name(int id, boolean bg) {
+        return valid(id) ? (bg ? NAME_BG[id] : NAME_EN[id]) : "—";
+    }
+
+    public static boolean steady(int id) {
+        return valid(id) && STEADY[id];
+    }
+
+    public static String wave(int id) {
+        return valid(id) ? WAVE[id] : "";
     }
 
     public static String hz(int id) {

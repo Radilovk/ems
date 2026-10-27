@@ -44,6 +44,8 @@ public final class MastogoShell {
     public static final int EMS_FIRST = 12, FEMALE_FIRST = 21;
     static final long GAP_MS = 100;
     static final long REPLY_MS = 800;
+    /** Exploration: an unknown "?" query gets no answer at all (seen 2026-10-27), known ones answer in < 100 ms. */
+    static final long PROBE_REPLY_MS = 350;
     /** A query answered by its +TAG line waits this long for the unit's trailing OK. */
     static final long GRACE_MS = 200;
     static final long POLL_MS = 20000;
@@ -119,6 +121,18 @@ public final class MastogoShell {
         if (!polling) {
             polling = true;
             io.later(new Poll(this), POLL_MS);
+        }
+        if (!suspended.isEmpty()) {
+            probing = true;
+            level = 0;
+            queue.add(new Cmd("AT+CSTR=0,0", K_LEVEL));
+            queue.add(new Cmd("AT+QPOWP", K_PAUSE));
+            for (String t : suspended) {
+                queue.add(new Cmd(t, K_PROBE));
+            }
+            suspended.clear();
+            pump();
+            ev.onProbe(this, probeDone, probeTotal, null);
         }
     }
 
@@ -206,14 +220,34 @@ public final class MastogoShell {
         queue.clear();
     }
 
-    /** The link dropped: nothing runs any more as far as we know. */
+    /**
+     * The link dropped: nothing runs any more as far as we know. An exploration in progress is kept: the unit switches
+     * itself off after a few minutes without output ({@code +QPOWD:0}, seen 2026-10-27), and once it is on and linked
+     * again {@link #hello} goes on from the command it stopped at.
+     */
     public void setStopped() {
+        if (probing) {
+            suspended.clear();
+            if (inFlight != null && inFlight.kind == K_PROBE) {
+                suspended.add(inFlight.text);
+            }
+            for (Cmd c : queue) {
+                if (c.kind == K_PROBE) {
+                    suspended.add(c.text);
+                }
+            }
+            probing = false;
+        }
         queue.clear();
         inFlight = null;
         running = false;
         mod = null;
-        probing = false;
         ev.onChanged(this);
+    }
+
+    /** True while an exploration waits for the unit to come back. */
+    public boolean probeSuspended() {
+        return !suspended.isEmpty();
     }
 
     public static String hhmmss(int s) {
@@ -250,7 +284,7 @@ public final class MastogoShell {
         sentCount++;
         ev.onLine(this, true, c.text);
         io.send((c.text + "\r\n").getBytes());
-        io.later(new Timeout(this, ++token), REPLY_MS);
+        io.later(new Timeout(this, ++token), c.kind == K_PROBE ? PROBE_REPLY_MS : REPLY_MS);
     }
 
     /** Bytes from the notify characteristic: lines end in CR and/or LF. */
@@ -280,24 +314,20 @@ public final class MastogoShell {
         boolean end = false;
         boolean answered = false;
         String up = line.toUpperCase();
-        if (up.equals("OK")) {
-            end = true;
-        } else if (up.startsWith("ERROR")) {
+        if (up.contains("ERROR")) {
+            // "ERROR:104", "+CLOAD ERROR:104", "+CSTR ERROR:102" (102 = no load: pads off)
             if (line.indexOf("102") >= 0) {
                 lostContact();
             }
+            end = true;
+        } else if (up.equals("OK")) {
             end = true;
         } else if (line.startsWith("+")) {
             int i = line.indexOf(':');
             String tag = (i > 0 ? line.substring(1, i) : line.substring(1)).trim().toUpperCase();
             String val = i > 0 ? line.substring(i + 1).trim() : "";
-            String uv = val.toUpperCase();
-            if (uv.equals("OK") || uv.startsWith("ERROR")) {
-                // the unit confirms a set as "+CSTR:OK" (seen on the H-024B, 2026-10-27)
-                if (uv.startsWith("ERROR") && val.indexOf("102") >= 0) {
-                    lostContact();
-                }
-                end = true;
+            if (val.equalsIgnoreCase("OK")) {
+                end = true;                 // a set is confirmed as "+CSTR:OK"
             } else {
                 apply(tag, val);
                 answered = true;
@@ -306,28 +336,43 @@ public final class MastogoShell {
             lostContact();
         }
         Cmd c = inFlight;
-        if (c != null) {
+        // a "+TAG…" line about another command is the unit talking by itself (+CHEART every ~31 s, +CLOAD,
+        // +QPOWD) — never the answer to what is in flight
+        if (c != null && (!line.startsWith("+") || answers(c.text, line))) {
             if (c.reply.length() > 0) {
                 c.reply.append(" | ");
             }
             c.reply.append(line);
             if (end) {
                 finish(c, false);
-            } else if (answered && c.text.endsWith("?") && answers(c.text, line)) {
+            } else if (answered && c.text.endsWith("?")) {
                 io.later(new Grace(this, c), GRACE_MS);   // its OK normally follows within ms
             }
         }
         ev.onChanged(this);
     }
 
-    /** "AT+CSTR?" is answered by "+CSTR:…". */
-    static boolean answers(String cmd, String line) {
+    /** The name a command is about: "AT+CSTR=0,5" / "AT+CSTR?" / "AT+CSTR=?" → "CSTR". */
+    static String nameOf(String cmd) {
         int p = cmd.indexOf('+');
         if (p < 0) {
+            return "";
+        }
+        int e = p + 1;
+        while (e < cmd.length() && cmd.charAt(e) != '=' && cmd.charAt(e) != '?') {
+            e++;
+        }
+        return cmd.substring(p + 1, e).toUpperCase();
+    }
+
+    /** "AT+CSTR?" / "AT+CSTR=0,5" are answered by "+CSTR:…" / "+CSTR ERROR:…", nothing else. */
+    static boolean answers(String cmd, String line) {
+        String name = nameOf(cmd);
+        if (name.length() == 0 || !line.toUpperCase().startsWith("+" + name)) {
             return false;
         }
-        String name = cmd.substring(p + 1).replace("=?", "").replace("?", "");
-        return line.startsWith("+" + name);
+        int after = name.length() + 1;
+        return line.length() == after || line.charAt(after) == ':' || line.charAt(after) == ' ';
     }
 
     void finish(Cmd c, boolean timedOut) {
@@ -614,8 +659,12 @@ public final class MastogoShell {
     public int probeDone, probeTotal;
     /** {command, answer} of every command that did not say ERROR. */
     public final List<String[]> hits = new ArrayList<String[]>();
-    /** Commands that stayed silent (no OK / ERROR within {@link #REPLY_MS}). */
+    /** Commands that stayed silent (no answer within {@link #PROBE_REPLY_MS}). */
     public final List<String> silent = new ArrayList<String>();
+    /** Commands the unit refused (ERROR:104 and the like). */
+    public final List<String> refused = new ArrayList<String>();
+    /** What an exploration still had to send when the link dropped. */
+    final List<String> suspended = new ArrayList<String>();
 
     /** The candidates: what the vendor app sends (with "=?" for its ranges), then the usual AT names. */
     public static List<String> candidates() {
@@ -662,6 +711,8 @@ public final class MastogoShell {
         mod = null;
         hits.clear();
         silent.clear();
+        refused.clear();
+        suspended.clear();
         List<String> c = candidates();
         probing = true;
         probeDone = 0;
@@ -678,6 +729,7 @@ public final class MastogoShell {
     }
 
     public void probeStop() {
+        suspended.clear();
         List<Cmd> keep = new ArrayList<Cmd>();
         for (Cmd c : queue) {
             if (c.kind != K_PROBE) {
@@ -698,7 +750,9 @@ public final class MastogoShell {
         String[] hit = null;
         if (timedOut && r.length() == 0) {
             silent.add(c.text);
-        } else if (!r.toUpperCase().startsWith("ERROR")) {
+        } else if (r.toUpperCase().contains("ERROR")) {
+            refused.add(c.text + " " + r);
+        } else {
             hit = new String[] {c.text, r.length() > 0 ? r : "(—)"};
             hits.add(hit);
             queue.add(0, new Cmd("AT+QPOWP", K_PAUSE));   // whatever it did, nothing runs
@@ -752,8 +806,11 @@ public final class MastogoShell {
         for (String[] h : hits) {
             b.append("  ").append(h[0]).append(" → ").append(h[1]).append('\n');
         }
+        if (!refused.isEmpty()) {
+            b.append("refused: ").append(refused).append('\n');
+        }
         if (!silent.isEmpty()) {
-            b.append("silent: ").append(silent).append('\n');
+            b.append("silent: ").append(silent.size()).append(" (no answer)\n");
         }
         return b.toString();
     }

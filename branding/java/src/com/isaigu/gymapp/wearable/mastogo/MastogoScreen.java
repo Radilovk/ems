@@ -534,7 +534,11 @@ public final class MastogoScreen {
             }
             MastogoShell sh = sh();
             boolean probing = sh != null && sh.probing;
-            if (probing) {
+            if (link != null && link.shell.probeSuspended()) {
+                probeBtn.setText(tr("■ Спри търсенето", "■ Stop the search"));
+                probeText.setText(tr("Чакам апаратчето да се включи — ", "Waiting for the unit — ")
+                        + link.shell.probeDone + " / " + link.shell.probeTotal);
+            } else if (probing) {
                 probeBtn.setText(tr("■ Спри търсенето", "■ Stop the search"));
                 probeText.setText(tr("Пробвам ", "Trying ") + sh.probeDone + " / " + sh.probeTotal
                         + tr(" команди · ", " commands · ") + sh.hits.size() + tr(" отговорили", " answered"));
@@ -550,7 +554,7 @@ public final class MastogoScreen {
                         : tr("~600 въпроса само за четене (?, =?), около 2 минути. Силата е 0 през цялото време.",
                                 "~600 read-only queries (?, =?), about 2 minutes. Strength stays 0 throughout."));
             }
-            probeBtn.setAlpha(sh == null ? 0.4f : 1f);
+            probeBtn.setAlpha(sh == null && (link == null || !link.shell.probeSuspended()) ? 0.4f : 1f);
             hitList.removeAllViews();
             if (sh != null) {
                 for (String[] hit : sh.hits) {
@@ -663,6 +667,9 @@ public final class MastogoScreen {
             String h;
             if (hintText != null) {
                 h = hintText;
+            } else if (link != null && link.shell.probeSuspended()) {
+                h = tr("Апаратчето се изключи само (дълго без ток). Включи го — изследването продължава оттам.",
+                        "The unit switched itself off (idle). Switch it on — the search goes on from there.");
             } else if (link == null) {
                 h = tr("Включи апаратчето (задръж бутона му) — свързва се само.",
                         "Switch the unit on (hold its button) — it links by itself.");
@@ -778,11 +785,16 @@ public final class MastogoScreen {
         }
 
         void probe() {
+            if (link != null && link.shell.probeSuspended()) {      // waiting for the unit: just forget the rest
+                link.shell.probeStop();
+                render();
+                return;
+            }
             MastogoShell sh = sh();
             if (sh == null) {
                 return;
             }
-            if (sh.probing) {
+            if (sh.probing || sh.probeSuspended()) {
                 sh.probeStop();
             } else if (!probeArmed) {
                 probeArmed = true;

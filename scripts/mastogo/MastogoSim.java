@@ -127,7 +127,21 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         uRun = true;
         uLevel = 7;
         sh.probe();
-        runFor(5 * 60 * 1000);
+        for (int t = 0; t < 10 * 60; t++) {
+            if (t % 31 == 30) {
+                feed("+CHEART:0,0");         // the unit's own heartbeat, mid-command
+            }
+            if (t == 120) {
+                feed("+QPOWD:0");            // switches itself off (idle) → link lost → on again 20 s later
+                sh.setStopped();
+                check(sh.probeSuspended() && !sh.probing, "power-off mid-exploration: kept to resume ("
+                        + sh.probeDone + " done)");
+            }
+            if (t == 140) {
+                sh.hello();
+            }
+            runFor(1000);
+        }
         boolean found = false;
         for (String[] h : sh.hits) {
             if (h[0].equals("AT+CFRQ?")) {
@@ -137,6 +151,13 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(!sh.probing && sh.probeDone == sh.probeTotal, "exploration finished " + sh.probeDone + "/"
                 + sh.probeTotal + " in " + (clock / 1000) + " s simulated");
         check(found, "hidden AT+CFRQ? found");
+        boolean fake = false;
+        for (String[] h : sh.hits) {
+            if (h[1].contains("CHEART") || h[1].contains("QPOWD") || h[1].contains("ERROR")) {
+                fake = true;
+            }
+        }
+        check(!fake, "heartbeats / power-off / errors are never counted as answers");
         check(!uRun && uLevel == 0, "after exploration: unit paused, strength 0");
         System.out.println("  hits: " + sh.hits.size());
         System.out.println(sh.report().split("\n\nfeedback")[0]);
@@ -211,9 +232,13 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         } else if (cmd.startsWith("AT+QPOWS")) {
             // prefix match in a careless firmware: the probe's "AT+QPOWS?" starts the output
             uRun = true;
-            reply("OK");
+            reply("+QPOWS:1", "OK");
+        } else if (cmd.equals("AT+CLOAD=?")) {
+            reply("+CLOAD ERROR:104");
+        } else if (cmd.endsWith("?")) {
+            // the real unit: an unknown query gets no answer at all
         } else {
-            reply("ERROR");
+            reply("ERROR:104");
         }
     }
 

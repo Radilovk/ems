@@ -320,6 +320,28 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         runFor(400);
         check(uRun && uLevel == 12 && !levels.contains(1), "start sharp at a preset 12 " + levels);
 
+        // a hit: armed with the output paused and the strength preset, then run … pause straight past the queue
+        sh.stop();
+        runFor(400);
+        sh.armHit(MastogoShell.HIT_GATE, 18, 14, 600);
+        runFor(1500);
+        check(!uRun && uLevel == 14 && sh.hitArmed == MastogoShell.HIT_GATE, "hit armed: paused, strength 14 ready");
+        sh.hit(120);
+        runFor(60);
+        boolean during = uRun && uLevel == 14;
+        runFor(200);
+        check(during && !uRun, "hit: on at 14 at once, off after ~120 ms");
+        sh.armHit(MastogoShell.HIT_LEVEL, 18, 9, 600);
+        runFor(1500);
+        check(uRun && uLevel == 0, "level way: running at 0");
+        sh.hit(120);
+        runFor(60);
+        during = uLevel == 9;
+        runFor(200);
+        check(during && uLevel == 0, "level way: 9 then 0");
+        sh.stop();
+        runFor(300);
+
         // contact lost → strength 0, modulation off
         feed("+CLOAD:0");
         runFor(1000);

@@ -141,6 +141,13 @@ Code (compile:wearable): `wearable/mastogo/` — `MastogoShell` (pure Java: queu
 exploration, text report), `MastogoLink` (GATT FFF0: write FFF5, notify FFF4, reconnect), `MastogoScan` (name
 `MASTOGO H-`), `MastogoScreen` (the page). Offline test: `bash scripts/mastogo/run.sh` (a simulated unit, incl. a
 hidden command the sweep must find).
+- **Пулт (1.1.471, first tab):** the XBody manual-training screen for this unit (owner, 2026-10-27: "change the
+  parameters in real time, like on XEMS / XBody — as close a screen as possible"). Six big tiles, − / + (hold
+  repeats), all live while it runs: ЧЕСТОТА (walks the 26 carriers sorted by Hz; the unit text names it, ≈ = steady,
+  width), ИМПУЛС, ПАУЗА, НАРАСТВАНЕ, СПАДАНЕ (0.1 s steps up to 2 s), СИЛА В ПАУЗАТА (depth). The right card's
+  strength = the impulse strength. Phase box: ИМПУЛС / ПАУЗА / … seconds left (green / grey) and the cycle bar with
+  a cursor (200 ms refresh). Runs as `Mod.WORK` + `Mod.carrier` (saved as `live`): a new carrier comes in at the
+  start of the next pause (at once when the pause is < 0.5 s); picking a module in "Модули" sets it too.
 - **Модули (1.1.470):** the 26 programs in DOMAS's groups and names (Масаж 1–8, TENS 9–16, EMS 17–24, Женски
   25–26 — technique names, no body parts; owner, 2026-10-27: "universal"). Each tile: DOMAS's picture of the impulse
   (`mode_wave_NN.png`, stored as bars in `MastogoModes.WAVE`, drawn in the theme colour), name, frequency; ≈ marks a

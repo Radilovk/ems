@@ -110,4 +110,11 @@ hidden command the sweep must find).
   after every command that answers; two taps (the second confirms the pads are off the body). Lists what answered,
   the full feedback (`+TAG` values, reply ms, heartbeat), a console (last 200 lines) with a free command line, and
   "Копирай отчета" (clipboard) for analysis.
+  Result on the unit (2026-10-27, 628/628): only CSTR, CMODE, CDCLK, QPOWP, QPOWS, CBC, CLOAD answer a query;
+  `=?` gives no ranges; nothing for frequency / width / wave / voltage / version.
+- **Изследване на запис (1.1.467-ai):** ~320 set-only writes, one per name with a harmless value in the vendor's
+  `=0,v` form (`AT+CFRQ=0,50`, `AT+CPW=0,200`, others 0; prefixes C W S Q and none; RST / OTA / POWD-like names left
+  out), controls `AT+CSTR=0,0` (known) and `AT+XZQJ=0,1` (cannot exist). Rule: a bare `ERROR:104` = unknown name;
+  anything else (`+X:OK`, a tagged error like `+X ERROR:103`, silence) = the name exists → listed. Pause + strength
+  0 after every such hit. Same two-tap arming and resume after the unit's idle power-off as the query sweep.
 - Not done: no device test yet; one unit at a time (the vendor links several); no folding to a pill.

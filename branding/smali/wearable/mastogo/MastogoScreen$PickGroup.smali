@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1077
+    .line 1115
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1078
+    .line 1116
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickGroup;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 1079
+    .line 1117
     iput p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickGroup;->g:I
 
-    .line 1080
+    .line 1118
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 4
 
     .prologue
-    .line 1084
+    .line 1122
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickGroup;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickGroup;->g:I
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pickGroup(I)V
 
-    .line 1085
+    .line 1123
     return-void
 .end method

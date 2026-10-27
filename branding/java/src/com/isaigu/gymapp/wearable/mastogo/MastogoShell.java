@@ -15,7 +15,10 @@ import java.util.Map;
  * <li>modulation — an envelope of the strength drawn from here (wave, impulses, ramp, …), refreshed every
  * {@link Mod#stepMs} ms, rises limited to {@link #MAX_RISE} levels per update;</li>
  * <li>exploration — a sweep of read-only queries ({@code ?} / {@code =?}) for commands the vendor app never sends,
- * with the strength at 0 and the output paused before and after every answer.</li>
+ * with the strength at 0 and the output paused before and after every answer;</li>
+ * <li>write exploration — the same for set-only commands ({@code AT+CFRQ=0,50}): the unit answers a name it does
+ * not know with a bare {@code ERROR:104} at once, so anything else (OK, a tagged error, silence) is a name it
+ * knows.</li>
  * </ul>
  */
 public final class MastogoShell {
@@ -656,6 +659,8 @@ public final class MastogoShell {
     // ================================================================== exploration
 
     public boolean probing;
+    /** The sweep running (or last run) sends values ({@link #writeCandidates}), not queries. */
+    public boolean probeWrite;
     public int probeDone, probeTotal;
     /** {command, answer} of every command that did not say ERROR. */
     public final List<String[]> hits = new ArrayList<String[]>();
@@ -697,6 +702,47 @@ public final class MastogoShell {
         return out;
     }
 
+    /**
+     * Set-only candidates: one write per name with a harmless value (frequency 50 Hz, width 200 µs, everything else
+     * 0), in the vendor's "channel,value" form. First two controls: a known name and one that cannot exist. Names that
+     * could reset, erase, update or switch the unit off are left out.
+     */
+    public static List<String> writeCandidates() {
+        List<String> out = new ArrayList<String>();
+        out.add("AT+CSTR=0,0");
+        out.add("AT+XZQJ=0,1");
+        String[] stems = {"FRQ", "FREQ", "FRE", "FQ", "HZ", "PW", "PWM", "PWD", "PWID", "WID", "WIDTH", "PLS", "PULSE",
+            "WAV", "WAVE", "SHAPE", "AMP", "VOL", "CUR", "CURR", "VOLT", "IMP", "RAMP", "RISE", "FALL", "ONT", "OFFT",
+            "DUTY", "SDT", "SET", "CFG", "PARA", "PAR", "PRM", "LEV", "LEVL", "MAX", "MIN", "GEAR", "PRG", "PROG", "MOD",
+            "CH", "CHN", "CHANNEL", "STR", "DCLK", "TIM", "TIME", "BST", "BOOST", "HV", "DAC", "TEST", "DBG", "LED",
+            "BEEP", "KEY", "SLP", "USR", "USER", "DIY", "CUST"};
+        String[] pre = {"C", "W", "S", "Q", ""};
+        for (String p : pre) {
+            for (String st : stems) {
+                String name = p + st;
+                if (name.equals("CSTR")) {
+                    continue;
+                }
+                String v = st.startsWith("FR") || st.equals("FQ") || st.equals("HZ") ? "50"
+                        : st.startsWith("PW") || st.startsWith("WID") || st.startsWith("PL") ? "200" : "0";
+                add(out, "AT+" + name + "=0," + v);
+            }
+        }
+        add(out, "AT+WSDT=10");
+        add(out, "AT+WSDT=0,10");
+        return out;
+    }
+
+    /** A write refused as unknown: the bare "ERROR:104" (a known name answers with its tag, "+CLOAD ERROR:104"). */
+    static boolean unknownName(String reply) {
+        for (String part : reply.split(" \\| ")) {
+            if (part.trim().toUpperCase().startsWith("ERROR")) {
+                return part.indexOf("104") >= 0;
+            }
+        }
+        return false;
+    }
+
     static void add(List<String> out, String s) {
         if (!out.contains(s)) {
             out.add(s);
@@ -705,15 +751,25 @@ public final class MastogoShell {
 
     /** Sweep the candidates: strength 0 and output paused first, paused again after every command that answered. */
     public void probe() {
+        sweep(false);
+    }
+
+    /** Sweep the set-only candidates (pads off: a name that exists may act on the value). */
+    public void probeWrites() {
+        sweep(true);
+    }
+
+    void sweep(boolean write) {
         if (probing) {
             return;
         }
+        probeWrite = write;
         mod = null;
         hits.clear();
         silent.clear();
         refused.clear();
         suspended.clear();
-        List<String> c = candidates();
+        List<String> c = write ? writeCandidates() : candidates();
         probing = true;
         probeDone = 0;
         probeTotal = c.size();
@@ -748,7 +804,17 @@ public final class MastogoShell {
         probeDone++;
         String r = c.reply.toString();
         String[] hit = null;
-        if (timedOut && r.length() == 0) {
+        if (probeWrite) {
+            if (!timedOut && unknownName(r)) {
+                refused.add(c.text);
+            } else {
+                // an unknown name says ERROR:104 at once, so even silence means the name exists
+                hit = new String[] {c.text, r.length() > 0 ? r : "(—)"};
+                hits.add(hit);
+                queue.add(0, new Cmd("AT+CSTR=0,0", K_LEVEL));
+                queue.add(0, new Cmd("AT+QPOWP", K_PAUSE));
+            }
+        } else if (timedOut && r.length() == 0) {
             silent.add(c.text);
         } else if (r.toUpperCase().contains("ERROR")) {
             refused.add(c.text + " " + r);
@@ -802,11 +868,13 @@ public final class MastogoShell {
         for (Map.Entry<String, String> e : tags.entrySet()) {
             b.append("  +").append(e.getKey()).append(": ").append(e.getValue()).append('\n');
         }
-        b.append("\nexploration ").append(probeDone).append('/').append(probeTotal).append(", answered:\n");
+        b.append(probeWrite ? "\nwrite exploration " : "\nexploration ").append(probeDone).append('/').append(probeTotal).append(", answered:\n");
         for (String[] h : hits) {
             b.append("  ").append(h[0]).append(" → ").append(h[1]).append('\n');
         }
-        if (!refused.isEmpty()) {
+        if (probeWrite) {
+            b.append("unknown (ERROR:104): ").append(refused.size()).append('\n');
+        } else if (!refused.isEmpty()) {
             b.append("refused: ").append(refused).append('\n');
         }
         if (!silent.isEmpty()) {

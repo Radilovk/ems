@@ -161,6 +161,32 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(!uRun && uLevel == 0, "after exploration: unit paused, strength 0");
         System.out.println("  hits: " + sh.hits.size());
         System.out.println(sh.report().split("\n\nfeedback")[0]);
+
+        // write exploration: unknown name → bare ERROR:104; a known one answers with its tag or not at all
+        uRun = true;
+        uLevel = 9;
+        long t0 = clock;
+        sh.probeWrites();
+        for (int t = 0; t < 5 * 60 && (sh.probing || sh.probeSuspended()); t++) {
+            runFor(1000);
+        }
+        java.util.Set<String> got = new java.util.HashSet<String>();
+        for (String[] h : sh.hits) {
+            got.add(h[0]);
+        }
+        check(!sh.probing && sh.probeDone == sh.probeTotal && sh.probeTotal > 200,
+                "write exploration finished " + sh.probeDone + "/" + sh.probeTotal + " in "
+                + ((clock - t0) / 1000) + " s simulated");
+        check(got.contains("AT+CSTR=0,0") && !got.contains("AT+XZQJ=0,1"), "controls: known name hit, made-up refused");
+        check(got.contains("AT+CFRQ=0,50") && got.contains("AT+WPW=0,200") && got.contains("AT+SHZ=0,50"),
+                "set-only CFRQ (OK), WPW (tagged error), SHZ (silent) found");
+        check(got.contains("AT+WSDT=10"), "WSDT write found");
+        check(sh.hits.size() == 8 && got.contains("AT+CDCLK=0,0"), "known CDCLK / WSDT answer too, nothing else (" + sh.hits.size() + " hits)");
+        check(!uRun && uLevel == 0, "after write exploration: unit paused, strength 0");
+        System.out.println(sh.report().split("\n\nfeedback")[0].split("\n\n")[0]);
+        for (String[] h : sh.hits) {
+            System.out.println("    " + h[0] + " → " + h[1]);
+        }
         System.out.println(fails == 0 ? "ALL PASS" : fails + " FAILED");
         if (fails > 0) {
             System.exit(1);
@@ -233,6 +259,14 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
             // prefix match in a careless firmware: the probe's "AT+QPOWS?" starts the output
             uRun = true;
             reply("+QPOWS:1", "OK");
+        } else if (cmd.startsWith("AT+CFRQ=")) {
+            reply("+CFRQ:OK");
+        } else if (cmd.startsWith("AT+WPW=")) {
+            reply("+WPW ERROR:103");
+        } else if (cmd.startsWith("AT+SHZ=")) {
+            // a set-only name that confirms nothing
+        } else if (cmd.startsWith("AT+WSDT=")) {
+            reply("+WSDT:OK");
         } else if (cmd.equals("AT+CLOAD=?")) {
             reply("+CLOAD ERROR:104");
         } else if (cmd.endsWith("?")) {

@@ -43,6 +43,11 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
 - **The unit switches itself off after a few minutes without output** (`+QPOWD:0`, reason 0 = idle): the paused
   exploration stopped there twice. Since 1.1.466 the sweep keeps its place, waits ≤ 350 ms per query (≈ 4.5 min in
   all), never counts a heartbeat / contact / power-off line as an answer, and goes on when the unit is back on.
+- **Full query sweep (628/628) and a write sweep (318/318), owner's runs 2026-10-27:** every set of an unknown
+  name (frequency, width, wave, ramp, duty, current, voltage, boost, config, debug… with C / Q / W / S / G / R / no
+  prefix, and `WSDT`, `CHANNEL`) → `ERROR:104`. Only the known `CSTR` (`ERROR:102`, no load) and `CDCLK` (`OK`)
+  were accepted. **Conclusion: the firmware has no command for frequency, pulse width or shape** — they are fixed in
+  the 25 programs; only own firmware could change them.
 - OTA server: `POST api.cqdomas.com/app/device/checkFirmware` `{deviceId:34, versionCode:1, tenantId:1}`
   (JSON; answers AES-128-ECB, key `F5hiGGSJEKahnQn2`, base64 in `{"secret":…}`) → firmware v100 (2024-06-03),
   `http://119.13.88.237:9000/resources/1/20240603041557852302AA05584E28BBCE179B6E002BC2.bin` — host unreachable

@@ -1,4 +1,5 @@
 import com.isaigu.gymapp.wearable.mastogo.MastogoShell;
+import com.isaigu.gymapp.wearable.mastogo.MastogoStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,6 +206,41 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(!fake, "heartbeats / power-off / errors are never counted as answers");
         check(!uRun && uLevel == 0, "after exploration: unit paused, strength 0");
         System.out.println("  hits: " + sh.hits.size());
+
+        // combinations and notes (MastogoStore)
+        MastogoStore.Preset p = new MastogoStore.Preset();
+        p.mode = 13;
+        p.minutes = 15;
+        p.modOn = true;
+        p.mod.shape = MastogoShell.Mod.PULSE;
+        p.mod.lo = 0;
+        p.mod.hi = 9;
+        p.mod.periodMs = 20000;
+        p.name = MastogoStore.autoName("Врат", "Импулси", p);
+        check(p.name.equals("Врат · Импулси 0–9 · 15'"), "derived name: " + p.name);
+        java.util.List<MastogoStore.Preset> list = new java.util.ArrayList<MastogoStore.Preset>();
+        list.add(p);
+        MastogoStore.Preset q = new MastogoStore.Preset();
+        q.mode = 2;
+        q.name = MastogoStore.unique(list, "Врат · Импулси 0–9 · 15'");
+        list.add(q);
+        java.util.List<MastogoStore.Preset> back = MastogoStore.presets(MastogoStore.presetsText(list));
+        check(back.size() == 2 && back.get(0).mode == 13 && back.get(0).minutes == 15 && back.get(0).modOn
+                && back.get(0).mod.shape == MastogoShell.Mod.PULSE && back.get(0).mod.hi == 9
+                && back.get(0).mod.periodMs == 20000 && back.get(1).name.endsWith(" 2") && !back.get(1).modOn,
+                "combinations survive save / read, a second name gets \" 2\"");
+        check(MastogoStore.presets("bad line\n|x|y").isEmpty(), "broken lines are skipped");
+        int n = MastogoStore.toggle(0, MastogoStore.SOFT);
+        n = MastogoStore.toggle(n, MastogoStore.SHARP);
+        n = MastogoStore.toggle(n, MastogoStore.FAV);
+        n = MastogoStore.toggle(n, MastogoStore.SLOW);
+        check(n == (MastogoStore.SHARP | MastogoStore.FAV | MastogoStore.SLOW), "sharp replaces soft, ♥ and slow kept");
+        int[] notes = new int[MastogoShell.MODES];
+        notes[4] = n;
+        int[] nb = MastogoStore.notes(MastogoStore.notesText(notes));
+        check(nb[4] == n && nb[3] == 0 && MastogoStore.matches(nb[4], MastogoStore.FAV)
+                && !MastogoStore.matches(nb[3], MastogoStore.FAV) && MastogoStore.matches(nb[3], 0),
+                "notes survive save / read, filter by note");
         System.out.println(sh.report().split("\n\nfeedback")[0]);
 
         // write exploration: unknown name → bare ERROR:104; a known one answers with its tag or not at all

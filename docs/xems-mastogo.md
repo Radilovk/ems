@@ -14,7 +14,7 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
   Small resistors `510` / `015` in the output path = current sensing (how `+CLOAD` / `ERROR 102` know the pads
   are off).
 - So frequency, width, polarity, bursts and the strength steps are all firmware timing — the hardware could do far
-  more than the 25 programs. Only own firmware reaches it.
+  more than the 26 programs. Only own firmware reaches it.
 - Crystal X1 = 32.000 MHz. Back side: Li-Po 402030 3.7 V 180 mAh (0.67 Wh, made 2025-07-10; `+CBC` 3.73 V ≈ half),
   charger U4 by the battery pads and USB-C, output cap **4.7 µF 160 V** (open-circuit output well above 100 V
   possible), two `OUT` pads → the two electrode snaps (one channel). Unpopulated: U2 (2×12 SOP), X2, a 4-hole row
@@ -47,7 +47,7 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
   name (frequency, width, wave, ramp, duty, current, voltage, boost, config, debug… with C / Q / W / S / G / R / no
   prefix, and `WSDT`, `CHANNEL`) → `ERROR:104`. Only the known `CSTR` (`ERROR:102`, no load) and `CDCLK` (`OK`)
   were accepted. **Conclusion: the firmware has no command for frequency, pulse width or shape** — they are fixed in
-  the 25 programs; only own firmware could change them.
+  the 26 programs; only own firmware could change them.
 - OTA server: `POST api.cqdomas.com/app/device/checkFirmware` `{deviceId:34, versionCode:1, tenantId:1}`
   (JSON; answers AES-128-ECB, key `F5hiGGSJEKahnQn2`, base64 in `{"secret":…}`) → firmware v100 (2024-06-03),
   `http://119.13.88.237:9000/resources/1/20240603041557852302AA05584E28BBCE179B6E002BC2.bin` — host unreachable

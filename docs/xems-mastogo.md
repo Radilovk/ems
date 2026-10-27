@@ -14,7 +14,7 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
   Small resistors `510` / `015` in the output path = current sensing (how `+CLOAD` / `ERROR 102` know the pads
   are off).
 - So frequency, width, polarity, bursts and the strength steps are all firmware timing — the hardware could do far
-  more than the 25 programs. Only own firmware reaches it.
+  more than the 26 programs. Only own firmware reaches it.
 - Crystal X1 = 32.000 MHz. Back side: Li-Po 402030 3.7 V 180 mAh (0.67 Wh, made 2025-07-10; `+CBC` 3.73 V ≈ half),
   charger U4 by the battery pads and USB-C, output cap **4.7 µF 160 V** (open-circuit output well above 100 V
   possible), two `OUT` pads → the two electrode snaps (one channel). Unpopulated: U2 (2×12 SOP), X2, a 4-hole row
@@ -47,7 +47,7 @@ Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling uni
   name (frequency, width, wave, ramp, duty, current, voltage, boost, config, debug… with C / Q / W / S / G / R / no
   prefix, and `WSDT`, `CHANNEL`) → `ERROR:104`. Only the known `CSTR` (`ERROR:102`, no load) and `CDCLK` (`OK`)
   were accepted. **Conclusion: the firmware has no command for frequency, pulse width or shape** — they are fixed in
-  the 25 programs; only own firmware could change them.
+  the 26 programs; only own firmware could change them.
 - OTA server: `POST api.cqdomas.com/app/device/checkFirmware` `{deviceId:34, versionCode:1, tenantId:1}`
   (JSON; answers AES-128-ECB, key `F5hiGGSJEKahnQn2`, base64 in `{"secret":…}`) → firmware v100 (2024-06-03),
   `http://119.13.88.237:9000/resources/1/20240603041557852302AA05584E28BBCE179B6E002BC2.bin` — host unreachable
@@ -87,9 +87,44 @@ On connect it queries `CMODE? CSTR? CDCLK? QPOWP? CBC?`.
 | `+WSDT:` | auto-off time |
 
 ## Programs (firmware-fixed; app only sends the id)
-TENS 0–11 (Standard, Neck, Trapezius, Shoulder, Shoulder blades, Elbow, Hand/Wrist, Lower back, Legs, Knee, Calf, Foot),
-EMS 12–20 (Standard, Neck, Trapezius, Triceps, Shoulder blades, Biceps, Lower back, Legs, Calf),
-FEMALE 21–24 (Standard, Belly 1, Back 1, Back 2). App default 20 min.
+**The maker's table (DOMAS 3.1.1 `com.roblink.domas`, device "Hawk TENS 1S" = BLE `MASTOGO H-`, class `MAST`,
+module `rl_023h_6e1`; `DeviceHelper.getModeListJson` via blutter, 2026-10-27).** DOMAS sends `AT+CMODE=0,<id>`
+with id 0–25 — **26 programs**, not the 25 PNrelief listed. Each entry also has body areas and a feel text (in
+`MastogoModes`). "a–b" = sweeps, "a / b" = alternates; most programs change over time.
+
+| id | kind | frequency | width µs |
+|---|---|---|---|
+| 0 | Massage | 3–23 Hz | 224 |
+| 1 | Muscle training | 27 Hz | 240 |
+| 2 | Massage | 23–37 Hz | 240 |
+| 3 | Pain relief | 6.7 Hz | 224 |
+| 4 | Recovery | 45 Hz | 200 |
+| 5 | Muscle training | 30 Hz | 224 |
+| 6 | Massage | 23 / 45 Hz | 200 |
+| 7 | Pain relief | 45 Hz | 190 |
+| 8 | Pain relief | 10 Hz | 190 |
+| 9 | Massage | 50 Hz (20 ms) | 190 |
+| 10 | Muscle training | 47 Hz | 190 |
+| 11 | Muscle training | 47 Hz | 190 |
+| 12 | Massage | 1.9 / 50 Hz | 190 |
+| 13 | Massage | 3 / 15.6 Hz | 190 |
+| 14 | Pain relief | 47 Hz | 190 |
+| 15 | Endurance | 37 Hz | 256 |
+| 16 | Massage | 21.7 / 23–36 Hz | 224 |
+| 17 | Dual pain relief | 1.35–200 Hz | 240/256/256/240 |
+| 18 | Pain relief | 77 Hz | 100 |
+| 19 | Pain relief | 1.6 Hz | 190 |
+| 20 | Massage | 25–36 Hz | 224 |
+| 21 | Recovery | 40 Hz | 200 |
+| 22 | Massage | 3.1–47 Hz | 236/232/190 |
+| 23 | Muscle training | 30 Hz | 310 |
+| 24 | Pain relief | 200 Hz | 100 |
+| 25 | Pain relief | 49 Hz | 200 |
+
+PNrelief (older app) named them TENS 0–11 / EMS 12–20 / FEMALE 21–24 by body part; DOMAS's AI prompt groups
+023H as MASSAGE 0–7 / TENS 8–15 / EMS 16–23 / FEMALE 24–25. Neither matches the per-id kinds above — XEMS uses the
+table. Other DOMAS-only commands (`TREND STAGE PCT LTIME QPOWE CHEAT CREDLEDSTR`) belong to the 189A / 203A / 142A
+devices, not this one.
 
 ## Limits — what is NOT in the protocol
 No frequency, pulse width, waveform, ramp or on/off-time command exists anywhere in the app (all 8 modules, debug page
@@ -106,11 +141,18 @@ Code (compile:wearable): `wearable/mastogo/` — `MastogoShell` (pure Java: queu
 exploration, text report), `MastogoLink` (GATT FFF0: write FFF5, notify FFF4, reconnect), `MastogoScan` (name
 `MASTOGO H-`), `MastogoScreen` (the page). Offline test: `bash scripts/mastogo/run.sh` (a simulated unit, incl. a
 hidden command the sweep must find).
-- **Модули (1.1.468):** the 25 programs as universal modules 1–25 under TENS / EMS / Смесени — no body-part names
-  (owner, 2026-10-27: "not for parts of the body — universal"). The frequency of each is the owner's note (prefs
-  `hz_<id>`, measured or felt; the unit can't report it — both sweeps proved it), shown on the tiles, the clock and
-  the rotation. Minutes 10–60. ▶ = vendor sequence, strength from 1. A program change pauses the unit (it zeroes
-  the strength itself).
+- **Модули (1.1.470):** the 26 programs in DOMAS's groups and names (Масаж 1–8, TENS 9–16, EMS 17–24, Женски
+  25–26 — technique names, no body parts; owner, 2026-10-27: "universal"). Each tile: DOMAS's picture of the impulse
+  (`mode_wave_NN.png`, stored as bars in `MastogoModes.WAVE`, drawn in the theme colour), name, frequency; ≈ marks a
+  **steady carrier** (one frequency, even strength, no own pauses — from the pictures: 19 Continuous 77 Hz,
+  25 Female 1 200 Hz, 20 Toning 1.6 Hz, near-steady 8 Kneading 45 Hz pairs). The chosen one: Hz big, width, picture,
+  feel. Minutes 10–60. ▶ = vendor sequence, strength from 1. A program change pauses the unit and zeroes the strength.
+- **Свой цикъл (1.1.470, `Mod.STEPS`):** the owner's own cycle, no built-in one (owner, 2026-10-27: "no set
+  cycles — we set them, as long as the impulse lasts"). Up to 12 steps, in order, then again; each = carrier
+  (module), rise / impulse / fall / pause (0.1 s steps up to 2 s), impulse and pause strength, repeats. The next
+  step's carrier comes in at the start of the last pause (`moduleFor`); a pause before a carrier change is ≥ 0.5 s
+  (`Step.SWITCH_MS`). On a carrier without ≈ the program's own bursts / pauses ride on top. Rise ≤ 3 levels per
+  refresh (100 ms → 0 to 15 in 0.5 s), so a very short strong impulse is softened.
 - **Импулс:** the strength drawn over time — **Работа / Пауза** (default: the owner's rise / work / fall / pause
   seconds, pause strength and work strength), Вълна (cosine), Импулси (duty %), Нарастване (saw), Триъгълник,
   Случайно; refresh 100–2000 ms. Rises ≤ 3 levels per update, falls free; stops on contact loss / timer end /

@@ -36,9 +36,10 @@ import java.util.List;
 
 /**
  * The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want
- * the maximum from the hardware: parameters, refresh, feedback"). Landscape: on the left three tabs — "Програма"
- * (the unit's 25 programs and the minutes), "Модулация" (the strength drawn over time from here: wave, impulses, ramp,
- * triangle, random — the only live parameter the protocol has, {@link MastogoShell#modulate}) and "Изследване"
+ * the maximum from the hardware: parameters, refresh, feedback"). Landscape: on the left three tabs — "Модули"
+ * (the unit's 26 programs with their Hz / width, {@link MastogoModes}, and the minutes), "Импулс" (the strength drawn
+ * over time from here: work / pause, wave, impulses, ramp, triangle, random, and modules taken in turn —
+ * {@link MastogoShell#modulate}) and "Изследване"
  * (a sweep of read-only queries for commands the vendor app never sends, the full feedback, a console and a copyable
  * report); on the right the unit — strength big, time left, battery, contact; one primary button ▶ / ■.
  * The unit is found and linked by itself. ✕ stops the output. Only on an unlocked (admin) tablet.
@@ -84,23 +85,30 @@ public final class MastogoScreen {
     }
 
     /**
-     * The 25 firmware programs as universal modules, numbered 1–25 (owner, 2026-10-27: "not for parts of the body —
-     * universal"). The vendor's body-part names are gone; only the kind stays (TENS 0–11, EMS 12–20, other 21–24).
+     * The 26 firmware programs as universal modules (owner, 2026-10-27: "not for parts of the body — universal"), in
+     * DOMAS's groups and names (massage techniques), with frequency, width, feel and DOMAS's picture of the impulse
+     * ({@link MastogoModes}).
      */
     static String modeName(int id) {
-        return id < 0 ? "—" : tr("Модул ", "Module ") + (id + 1);
+        return id < 0 ? "—" : (id + 1) + " " + MastogoModes.name(id, XemsLang.isBg());
     }
 
     static int groupOf(int id) {
-        return id < MastogoShell.EMS_FIRST ? 0 : id < MastogoShell.FEMALE_FIRST ? 1 : 2;
+        return MastogoModes.group(id);
     }
 
     static String groupName(int g) {
-        return g == 0 ? "TENS" : g == 1 ? "EMS" : tr("Смесени", "Mixed");
+        switch (g) {
+            case MastogoModes.MASSAGE: return tr("Масаж", "Massage");
+            case MastogoModes.TENS: return "TENS";
+            case MastogoModes.EMS: return "EMS";
+            default: return tr("Женски", "Female");
+        }
     }
 
     static String shapeName(int s) {
         switch (s) {
+            case MastogoShell.Mod.STEPS: return tr("Свой цикъл", "Own cycle");
             case MastogoShell.Mod.WORK: return tr("Работа / Пауза", "Work / Pause");
             case MastogoShell.Mod.PULSE: return tr("Импулси", "Impulses");
             case MastogoShell.Mod.RAMP: return tr("Нарастване", "Ramp");
@@ -188,18 +196,26 @@ public final class MastogoScreen {
             return XemsUi.dp(a, v);
         }
 
-        /** The owner's note of a module's frequency, Hz (measured or felt); 0 = not known. */
-        int hz(int id) {
-            return prefs.getInt("hz_" + id, 0);
-        }
-
         String moduleText(int id) {
-            return modeName(id) + (id >= 0 && hz(id) > 0 ? " · " + hz(id) + " Hz" : "");
+            return id < 0 ? "—" : modeName(id) + " · " + MastogoModes.hz(id);
         }
 
+        /** Two lines: name, then frequency (≈ = a steady carrier). */
         String chipName(int id) {
-            int f = hz(id);
-            return (id + 1) + (f > 0 ? " · " + f + " Hz" : "");
+            return modeName(id) + "\n" + (MastogoModes.steady(id) ? "≈ " : "") + MastogoModes.hz(id);
+        }
+
+        /** A module chip with DOMAS's picture of its impulse above the text. */
+        TextView moduleChip(int id, boolean on, int tint) {
+            TextView chip = XemsUi.chip(a, chipName(id), on, tint);
+            chip.setTextSize(12.5f);
+            chip.setMaxLines(2);
+            chip.setPadding(dp(8), dp(6), dp(8), dp(6));
+            WaveDrawable w = new WaveDrawable(id, on ? tint : XemsUi.MUTED);
+            w.setBounds(0, 0, dp(84), dp(18));
+            chip.setCompoundDrawables(null, w, null, null);
+            chip.setCompoundDrawablePadding(dp(4));
+            return chip;
         }
 
         MastogoShell sh() {
@@ -305,6 +321,7 @@ public final class MastogoScreen {
             env = null;
             rotRow = null;
             rotSum = null;
+            stepRow = null;
             java.util.Arrays.fill(tiles, null);
             probeBtn = null;
             writeBtn = null;
@@ -325,36 +342,61 @@ public final class MastogoScreen {
         // ------------------------------------------------------------------ tab: program
 
         void fillProgram() {
-            for (int g = 0; g < 3; g++) {
-                int first = g == 0 ? 0 : g == 1 ? MastogoShell.EMS_FIRST : MastogoShell.FEMALE_FIRST;
-                int last = g == 0 ? MastogoShell.EMS_FIRST : g == 1 ? MastogoShell.FEMALE_FIRST : MastogoShell.MODES;
+            for (int g = 0; g < MastogoModes.GROUPS; g++) {
                 tabBody.addView(XemsUi.label(a, groupName(g)), XemsUi.matchWrap(a, g == 0 ? 0 : 10));
                 LinearLayout grid = XemsUi.vertical(a);
                 LinearLayout line = null;
-                for (int id = first; id < last; id++) {
-                    if ((id - first) % 6 == 0) {
+                int n = 0;
+                for (int id = 0; id < MastogoShell.MODES; id++) {
+                    if (MastogoModes.group(id) != g) {
+                        continue;
+                    }
+                    if (n % 4 == 0) {
                         line = XemsUi.horizontal(a);
                         grid.addView(line, XemsUi.matchWrap(a, 6));
                     }
-                    TextView chip = XemsUi.chip(a, chipName(id), id == mode, XemsUi.GO_TEXT);
+                    n++;
+                    TextView chip = moduleChip(id, id == mode, XemsUi.GO_TEXT);
                     chip.setOnClickListener(new PickMode(this, id));
                     tiles[id] = chip;
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(46), 1f);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(82), 1f);
                     lp.rightMargin = dp(6);
                     line.addView(chip, lp);
                 }
-                int rest = (last - first) % 6;
-                for (int i = 0; rest > 0 && i < 6 - rest; i++) {
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(46), 1f);
+                for (int i = 0; n % 4 > 0 && i < 4 - n % 4; i++) {
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(82), 1f);
                     lp.rightMargin = dp(6);
                     line.addView(new View(a), lp);
                 }
                 tabBody.addView(grid, XemsUi.matchWrap(a, 4));
             }
 
+            // the chosen module: what it is, big and first
+            LinearLayout card = XemsUi.card(a);
+            card.setPadding(dp(16), dp(12), dp(16), dp(12));
+            LinearLayout top = XemsUi.horizontal(a);
+            top.setGravity(Gravity.BOTTOM);
+            top.addView(XemsUi.text(a, MastogoModes.hz(mode), 24, XemsUi.TEXT, true));
+            TextView w = XemsUi.text(a, "   " + MastogoModes.width(mode) + " · " + modeName(mode) + " · "
+                    + groupName(groupOf(mode)), 13, XemsUi.MUTED, false);
+            w.setPadding(0, 0, 0, dp(4));
+            top.addView(w);
+            card.addView(top);
+            View pic = new View(a);
+            pic.setBackgroundDrawable(new WaveDrawable(mode, XemsUi.GO_TEXT));
+            card.addView(pic, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46)));
+            if (MastogoModes.steady(mode)) {
+                card.addView(XemsUi.text(a, tr("≈ Постоянен носител: една честота, равна сила, без свои паузи — "
+                        + "цикълът в „Импулс“ е изцяло твой.", "≈ Steady carrier: one frequency, even strength, no "
+                        + "pauses of its own — the cycle in \"Impulse\" is entirely yours."), 12.5f, XemsUi.GO_TEXT,
+                        false), XemsUi.matchWrap(a, 4));
+            }
+            card.addView(XemsUi.text(a, MastogoModes.feel(mode, XemsLang.isBg()), 13.5f, XemsUi.TEXT, false),
+                    XemsUi.matchWrap(a, 4));
+            tabBody.addView(card, XemsUi.matchWrap(a, 12));
+
             LinearLayout r = XemsUi.horizontal(a);
             r.setGravity(Gravity.BOTTOM);
-            addField(r, modeName(mode) + tr(" · честота", " · frequency"), F_HZ, false);
             LinearLayout col = XemsUi.vertical(a);
             col.addView(XemsUi.label(a, tr("Време", "Time")));
             LinearLayout[] m = new LinearLayout[1];
@@ -364,16 +406,14 @@ public final class MastogoScreen {
                 chip.setOnClickListener(new PickMinutes(this, min));
                 XemsUi.addChip(a, m[0], chip);
             }
-            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.4f);
-            cl.leftMargin = dp(14);
-            r.addView(col, cl);
+            r.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             tabBody.addView(r, XemsUi.matchWrap(a, 14));
-            TextView note = XemsUi.text(a, tr("Честотата е вградена в модула — апаратчето не я казва и не я сменя "
-                    + "(проверено: 628 въпроса и 318 записа). Запиши я тук, измерена или по усещане: стои на "
-                    + "плочката и в „Импулс“, където модулите се сменят в паузите.",
-                    "The frequency is built into the module — the unit neither reports nor changes it (checked: 628 "
-                    + "queries, 318 writes). Note it here, measured or felt: it shows on the tile and in \"Impulse\", "
-                    + "where modules change in the pauses."), 12.5f, XemsUi.HINT, false);
+            TextView note = XemsUi.text(a, tr("Честотата и ширината са вградени в модула (данни от приложението "
+                    + "DOMAS на производителя). Картинката е импулсът на програмата: висока черта = силно, гъсто = "
+                    + "висока честота, празно = пауза. „а–б“ се плъзга, „а / б“ се редува; ≈ = постоянен носител.",
+                    "Frequency and width are built into the module (from the maker's DOMAS app). The picture is the "
+                    + "program's impulse: tall = strong, dense = high frequency, gap = pause. \"a–b\" sweeps, "
+                    + "\"a / b\" alternates; ≈ = steady carrier."), 12.5f, XemsUi.HINT, false);
             tabBody.addView(note, XemsUi.matchWrap(a, 10));
         }
 
@@ -385,8 +425,8 @@ public final class MastogoScreen {
                             "The strength follows the shape below while the unit runs"), modOn, new ModToggle(this)));
             LinearLayout[] h = new LinearLayout[1];
             tabBody.addView(XemsUi.chipRow(a, h), XemsUi.matchWrap(a, 8));
-            int[] order = {MastogoShell.Mod.WORK, MastogoShell.Mod.WAVE, MastogoShell.Mod.PULSE,
-                MastogoShell.Mod.RAMP, MastogoShell.Mod.TRIANGLE, MastogoShell.Mod.RANDOM};
+            int[] order = {MastogoShell.Mod.STEPS, MastogoShell.Mod.WORK, MastogoShell.Mod.WAVE,
+                MastogoShell.Mod.PULSE, MastogoShell.Mod.RAMP, MastogoShell.Mod.TRIANGLE, MastogoShell.Mod.RANDOM};
             for (int sh : order) {
                 TextView chip = XemsUi.chip(a, shapeName(sh), sh == mod.shape, TINT);
                 chip.setOnClickListener(new PickShape(this, sh));
@@ -396,6 +436,10 @@ public final class MastogoScreen {
             LinearLayout.LayoutParams el = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(110));
             el.topMargin = dp(10);
             tabBody.addView(env, el);
+            if (mod.shape == MastogoShell.Mod.STEPS) {
+                fillSteps();
+                return;
+            }
 
             boolean work = mod.shape == MastogoShell.Mod.WORK;
             LinearLayout r1 = XemsUi.horizontal(a);
@@ -435,6 +479,129 @@ public final class MastogoScreen {
             tabBody.addView(r3, XemsUi.matchWrap(a, 6));
         }
 
+        // ------------------------------------------------------------------ own cycle (steps)
+
+        int stepSel;
+        LinearLayout stepRow;
+        LinearLayout carrierRow;
+        LinearLayout stepFields;
+        TextView stepSum;
+
+        MastogoShell.Step step() {
+            stepSel = Math.max(0, Math.min(mod.steps.size() - 1, stepSel));
+            return mod.steps.get(stepSel);
+        }
+
+        /** Owner, 2026-10-27: "no set cycles — we set them, as long as the impulse lasts". */
+        void fillSteps() {
+            LinearLayout head = XemsUi.horizontal(a);
+            head.setGravity(Gravity.CENTER_VERTICAL);
+            head.addView(XemsUi.label(a, tr("Стъпки — вървят подред, после отначало", "Steps — in order, then again")),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView add = XemsUi.button(a, tr("+ Стъпка", "+ Step"), XemsUi.SECONDARY);
+            add.setOnClickListener(new StepAdd(this, true));
+            head.addView(add, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(40)));
+            TextView del = XemsUi.button(a, tr("Махни", "Remove"), XemsUi.GHOST);
+            del.setOnClickListener(new StepAdd(this, false));
+            LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(40));
+            dl.leftMargin = dp(6);
+            head.addView(del, dl);
+            tabBody.addView(head, XemsUi.matchWrap(a, 12));
+            LinearLayout[] sr = new LinearLayout[1];
+            tabBody.addView(XemsUi.chipRow(a, sr), XemsUi.matchWrap(a, 6));
+            stepRow = sr[0];
+
+            tabBody.addView(XemsUi.label(a, tr("Носител (честотата) на избраната стъпка — ≈ първо",
+                    "Carrier (the frequency) of the chosen step — ≈ first")), XemsUi.matchWrap(a, 12));
+            LinearLayout[] cr = new LinearLayout[1];
+            tabBody.addView(XemsUi.chipRow(a, cr), XemsUi.matchWrap(a, 4));
+            carrierRow = cr[0];
+            stepFields = XemsUi.vertical(a);
+            tabBody.addView(stepFields, XemsUi.matchWrap(a, 8));
+            stepSum = XemsUi.text(a, "", 12.5f, XemsUi.HINT, false);
+            tabBody.addView(stepSum, XemsUi.matchWrap(a, 8));
+            renderSteps();
+        }
+
+        void renderSteps() {
+            if (stepRow == null) {
+                return;
+            }
+            MastogoShell.Step cur = step();
+            stepRow.removeAllViews();
+            for (int i = 0; i < mod.steps.size(); i++) {
+                MastogoShell.Step st = mod.steps.get(i);
+                TextView chip = XemsUi.chip(a, (i + 1) + " · " + MastogoModes.name(st.mode, XemsLang.isBg()) + " "
+                        + MastogoModes.hz(st.mode) + "\n" + secs(st.onMs) + tr(" с / ", " s / ") + secs(st.offMs)
+                        + tr(" с · сила ", " s · level ") + st.hi + " × " + st.reps, i == stepSel, TINT);
+                chip.setTextSize(12.5f);
+                chip.setOnClickListener(new StepPick(this, i));
+                XemsUi.addChip(a, stepRow, chip);
+            }
+            carrierRow.removeAllViews();
+            for (int pass = 0; pass < 2; pass++) {
+                for (int id = 0; id < MastogoShell.MODES; id++) {
+                    if (MastogoModes.steady(id) != (pass == 0)) {
+                        continue;
+                    }
+                    TextView chip = moduleChip(id, id == cur.mode, TINT);
+                    chip.setOnClickListener(new StepCarrier(this, id));
+                    XemsUi.addChip(a, carrierRow, chip);
+                }
+            }
+            stepFields.removeAllViews();
+            LinearLayout r1 = XemsUi.horizontal(a);
+            addField(r1, tr("Нарастване", "Rise"), F_S_UP, false);
+            addField(r1, tr("Импулс", "Impulse"), F_S_ON, true);
+            addField(r1, tr("Спадане", "Fall"), F_S_DOWN, true);
+            addField(r1, tr("Пауза", "Pause"), F_S_OFF, true);
+            stepFields.addView(r1);
+            LinearLayout r2 = XemsUi.horizontal(a);
+            addField(r2, tr("Сила в импулса", "Impulse strength"), F_S_HI, false);
+            addField(r2, tr("Сила в паузата", "Pause strength"), F_S_LO, true);
+            addField(r2, tr("Повторения", "Repeats"), F_S_REPS, true);
+            addField(r2, tr("Опресняване", "Refresh"), F_STEP, true);
+            stepFields.addView(r2, XemsUi.matchWrap(a, 8));
+            stepSum.setText(stepSummary());
+        }
+
+        String stepSummary() {
+            int total = mod.periodMs;
+            return tr("Целият цикъл: ", "Whole cycle: ") + secs(total) + tr(" с. Смяна на носител става в паузата "
+                    + "преди следващата стъпка (поне 0.5 с). Носител без ≈ добавя своите пакети и паузи върху твоя "
+                    + "цикъл. Силата се качва най-много с 3 нива на опресняване.", " s. A carrier changes in the "
+                    + "pause before the next step (at least 0.5 s). A carrier without ≈ adds its own bursts and "
+                    + "pauses on top of your cycle. Strength rises at most 3 levels per refresh.");
+        }
+
+        void stepAdd(boolean add) {
+            if (add) {
+                if (mod.steps.size() >= MastogoShell.Mod.MAX_STEPS) {
+                    return;
+                }
+                mod.steps.add(stepSel + 1, step().copy());
+                stepSel++;
+            } else if (mod.steps.size() > 1) {
+                mod.steps.remove(stepSel);
+                stepSel = Math.max(0, stepSel - 1);
+            }
+            mod.safe();
+            modChanged();
+            renderSteps();
+        }
+
+        void stepPick(int i) {
+            stepSel = i;
+            renderSteps();
+        }
+
+        void stepCarrier(int id) {
+            step().mode = id;
+            mod.safe();
+            modChanged();
+            renderSteps();
+        }
+
         /** The rotation chips, rebuilt in place (the strip keeps its scroll position). */
         void fillRotate() {
             rotRow.removeAllViews();
@@ -458,10 +625,7 @@ public final class MastogoScreen {
                 if (b.length() > 0) {
                     b.append(" → ");
                 }
-                b.append(id + 1);
-                if (hz(id) > 0) {
-                    b.append(" (").append(hz(id)).append(" Hz)");
-                }
+                b.append(id + 1).append(" (").append(MastogoModes.hz(id)).append(')');
             }
             return b.append(" → …").toString();
         }
@@ -514,7 +678,8 @@ public final class MastogoScreen {
         }
 
         static final int F_LO = 0, F_HI = 1, F_PERIOD = 2, F_DUTY = 3, F_STEP = 4, F_UP = 5, F_ON = 6, F_DOWN = 7,
-                F_OFF = 8, F_EVERY = 9, F_HZ = 10;
+                F_OFF = 8, F_EVERY = 9, F_S_LO = 10, F_S_HI = 11, F_S_UP = 12, F_S_ON = 13, F_S_DOWN = 14,
+                F_S_OFF = 15, F_S_REPS = 16;
 
         static String secs(int ms) {
             return ms % 1000 == 0 ? String.valueOf(ms / 1000)
@@ -532,7 +697,13 @@ public final class MastogoScreen {
                 case F_DOWN: return secs(mod.downMs);
                 case F_OFF: return secs(mod.offMs);
                 case F_EVERY: return String.valueOf(mod.every);
-                case F_HZ: return hz(mode) > 0 ? String.valueOf(hz(mode)) : "?";
+                case F_S_LO: return String.valueOf(step().lo);
+                case F_S_HI: return String.valueOf(step().hi);
+                case F_S_UP: return secs(step().upMs);
+                case F_S_ON: return secs(step().onMs);
+                case F_S_DOWN: return secs(step().downMs);
+                case F_S_OFF: return secs(step().offMs);
+                case F_S_REPS: return String.valueOf(step().reps);
                 default: return String.valueOf(mod.stepMs);
             }
         }
@@ -540,7 +711,14 @@ public final class MastogoScreen {
         String fieldUnit(int f) {
             switch (f) {
                 case F_LO:
-                case F_HI: return tr("сила", "level");
+                case F_HI:
+                case F_S_LO:
+                case F_S_HI: return tr("сила", "level");
+                case F_S_UP:
+                case F_S_ON:
+                case F_S_DOWN:
+                case F_S_OFF: return tr("секунди", "seconds");
+                case F_S_REPS: return tr("пъти", "times");
                 case F_PERIOD:
                 case F_UP:
                 case F_ON:
@@ -548,9 +726,14 @@ public final class MastogoScreen {
                 case F_OFF: return tr("секунди", "seconds");
                 case F_DUTY: return tr("% от цикъла", "% of the cycle");
                 case F_EVERY: return tr("цикъла", "cycles");
-                case F_HZ: return "Hz";
                 default: return tr("ms (≥ 100)", "ms (≥ 100)");
             }
+        }
+
+        /** Step times: 0.1 s up to 2 s, 0.5 s up to 10 s, whole seconds above. */
+        static int tenths(int ms, int dir) {
+            int step = ms < 2000 || ms == 2000 && dir < 0 ? 100 : ms < 10000 || ms == 10000 && dir < 0 ? 500 : 1000;
+            return ms + dir * step;
         }
 
         /** Seconds fields: 0.5 s steps up to 10 s, whole seconds above. */
@@ -574,22 +757,21 @@ public final class MastogoScreen {
                 case F_DOWN: mod.downMs = msStep(mod.downMs, dir); break;
                 case F_OFF: mod.offMs = msStep(mod.offMs, dir); break;
                 case F_EVERY: mod.every += dir; break;
-                case F_HZ: {
-                    int v = hz(mode);
-                    int step = v < 10 || v == 10 && dir < 0 ? 1 : v < 50 || v == 50 && dir < 0 ? 5 : 10;
-                    v = Math.max(0, Math.min(250, v + dir * step));
-                    prefs.edit().putInt("hz_" + mode, v).apply();
-                    if (tiles[mode] != null) {
-                        tiles[mode].setText(chipName(mode));
-                    }
-                    refreshFields(tabBody);
-                    return;
-                }
+                case F_S_LO: step().lo = Math.max(0, Math.min(step().hi, step().lo + dir)); break;
+                case F_S_HI: step().hi = Math.max(step().lo, Math.min(MastogoShell.MAX_LEVEL, step().hi + dir)); break;
+                case F_S_UP: step().upMs = tenths(step().upMs, dir); break;
+                case F_S_ON: step().onMs = tenths(step().onMs, dir); break;
+                case F_S_DOWN: step().downMs = tenths(step().downMs, dir); break;
+                case F_S_OFF: step().offMs = tenths(step().offMs, dir); break;
+                case F_S_REPS: step().reps += dir; break;
                 default: mod.stepMs += dir * 50; break;
             }
             mod.safe();
             modChanged();
             refreshFields(tabBody);
+            if (f >= F_S_LO && stepRow != null) {
+                renderSteps();
+            }
         }
 
         void refreshFields(ViewGroup g) {
@@ -873,7 +1055,8 @@ public final class MastogoScreen {
             if (sh.running) {
                 sh.stop();
             } else {
-                int first = modOn && mod.rotate.length > 1 ? mod.rotate[0] : mode;
+                int first = !modOn ? mode : mod.shape == MastogoShell.Mod.STEPS ? mod.steps.get(0).mode
+                        : mod.rotate.length > 1 ? mod.rotate[0] : mode;
                 if (sh.mode != first) {
                     sh.setMode(first);
                 }
@@ -939,6 +1122,7 @@ public final class MastogoScreen {
 
         void pickShape(int shape) {
             mod.shape = shape;
+            mod.safe();
             modChanged();
             fillTab();
         }
@@ -1103,10 +1287,10 @@ public final class MastogoScreen {
         void info() {
             XemsUi.Shell i = XemsUi.shell(a, tr("Какво може апаратчето", "What the unit can do"), null, 720);
             String text = tr(
-                    "• Импулсът (честота, ширина, форма) е вграден във всяка от 25-те програми — протоколът не го "
+                    "• Импулсът (честота, ширина, форма) е вграден във всяка от 26-те програми — протоколът не го "
                     + "променя. Платката е ZX-571C с чип SYD8811.\n"
-                    + "• 25 модула, номерирани 1–25 (TENS, EMS, смесени) — без части на тялото. Честотата на всеки "
-                    + "записваш ти в „Модули“.\n"
+                    + "• 26 модула, номерирани 1–26, по действие (облекчаване, масаж, мускули, възстановяване) — без "
+                    + "части на тялото. Честотата и ширината са от приложението DOMAS на производителя.\n"
                     + "• „Импулс“ рисува силата (0–25) във времето, до ≈ 10 пъти в секунда, покачване най-много с 3 "
                     + "нива наведнъж. „Работа / Пауза“: твоите времена за нарастване, работа, спадане и пауза.\n"
                     + "• Смяна на честотата: модулите подред, всеки поема в началото на паузата (апаратчето сменя "
@@ -1116,10 +1300,10 @@ public final class MastogoScreen {
                     + "„Изследване на запис“ праща ~320 команди със стойност: непозната отговаря ERROR:104, "
                     + "всичко друго значи, че командата съществува.\n"
                     + "„Копирай отчета“ дава целия резултат за анализ.",
-                    "• The impulse (frequency, width, shape) is built into each of the 25 programs — the protocol "
+                    "• The impulse (frequency, width, shape) is built into each of the 26 programs — the protocol "
                     + "does not change it. Board ZX-571C, SYD8811 chip.\n"
-                    + "• 25 modules numbered 1–25 (TENS, EMS, mixed) — no body parts. You note each one's "
-                    + "frequency in \"Modules\".\n"
+                    + "• 26 modules numbered 1–26 by what they do (relief, massage, muscles, recovery) — no body "
+                    + "parts. Frequency and width come from the maker's DOMAS app.\n"
                     + "• \"Impulse\" draws the strength (0–25) over time, up to ≈ 10 times a second, rising at most "
                     + "3 levels at once. \"Work / Pause\": your rise, work, fall and pause times.\n"
                     + "• Frequency change: the modules in turn, each taking over at the start of a pause (the unit "
@@ -1171,7 +1355,7 @@ public final class MastogoScreen {
                 float y = pad + h - h * i / 5f;
                 c.drawLine(pad, y, pad + w, y, grid);
             }
-            long span = 2L * m.periodMs;
+            long span = m.shape == MastogoShell.Mod.STEPS ? m.periodMs : 2L * m.periodMs;
             path.reset();
             int n = (int) Math.max(60, w / 3);
             for (int i = 0; i <= n; i++) {
@@ -1266,6 +1450,91 @@ public final class MastogoScreen {
         @Override
         public void onClick(View v) {
             p.pickMinutes(m);
+        }
+    }
+
+    /** DOMAS's picture of a program's impulse, drawn from {@link MastogoModes#wave} in the theme's colour. */
+    static final class WaveDrawable extends android.graphics.drawable.Drawable {
+        static final String DIGITS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+        final String bars;
+        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        WaveDrawable(int id, int color) {
+            bars = MastogoModes.wave(id);
+            paint.setColor(color);
+        }
+
+        @Override
+        public void draw(Canvas c) {
+            android.graphics.Rect b = getBounds();
+            float w = b.width(), h = b.height();
+            paint.setStrokeWidth(Math.max(1f, w / 160f));
+            for (int i = 0; i + 2 < bars.length(); i += 3) {
+                float x = b.left + (DIGITS.indexOf(bars.charAt(i)) + 0.5f) * w / 64f;
+                float top = b.top + DIGITS.indexOf(bars.charAt(i + 1)) * h / 36f;
+                float bot = b.top + (DIGITS.indexOf(bars.charAt(i + 2)) + 1) * h / 36f;
+                c.drawLine(x, top, x, bot, paint);
+            }
+        }
+
+        @Override
+        public void setAlpha(int alpha) {
+            paint.setAlpha(alpha);
+        }
+
+        @Override
+        public void setColorFilter(android.graphics.ColorFilter cf) {
+            paint.setColorFilter(cf);
+        }
+
+        @Override
+        public int getOpacity() {
+            return android.graphics.PixelFormat.TRANSLUCENT;
+        }
+    }
+
+    static final class StepAdd implements View.OnClickListener {
+        final Page p;
+        final boolean add;
+
+        StepAdd(Page p, boolean add) {
+            this.p = p;
+            this.add = add;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.stepAdd(add);
+        }
+    }
+
+    static final class StepPick implements View.OnClickListener {
+        final Page p;
+        final int i;
+
+        StepPick(Page p, int i) {
+            this.p = p;
+            this.i = i;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.stepPick(i);
+        }
+    }
+
+    static final class StepCarrier implements View.OnClickListener {
+        final Page p;
+        final int id;
+
+        StepCarrier(Page p, int id) {
+            this.p = p;
+            this.id = id;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.stepCarrier(id);
         }
     }
 

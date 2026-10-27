@@ -141,6 +141,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensScreen.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensLibrary.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/bluetens/BluetensMini.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/mastogo/MastogoModes.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/mastogo/MastogoShell.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/mastogo/MastogoScan.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/mastogo/MastogoLink.java"

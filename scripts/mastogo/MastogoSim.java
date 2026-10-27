@@ -339,6 +339,14 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         during = uLevel == 9;
         runFor(200);
         check(during && uLevel == 0, "level way: 9 then 0");
+        sh.armHit(MastogoShell.HIT_LEVEL, 13, 25, 13, 600);
+        runFor(1500);
+        check(uRun && uLevel == 13, "level way from a base: idles at 13");
+        sh.hit(40);
+        runFor(30);
+        during = uLevel == 25;
+        runFor(200);
+        check(during && uLevel == 13, "level way from a base: 25 then back to 13");
         sh.stop();
         runFor(300);
 

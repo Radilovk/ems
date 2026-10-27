@@ -174,10 +174,21 @@ public final class MastogoShell {
     /** The way the unit is armed for, -1 = not armed. */
     public int hitArmed = -1;
     public int hitLevel;
+    /**
+     * LEVEL way: the strength the output idles at and returns to after a hit (the panel's pause strength). The unit
+     * glides every strength change, so a hit from a higher base reaches its top sooner and feels stronger (owner,
+     * 2026-10-27: the strength way on "Butterfly" at 40 ms feels most like a hit, "but it must be stronger").
+     */
+    public int hitBase;
     public int hitCount;
 
     /** Gets the unit ready for hits (through the queue): the carrier, the timer, run / pause, the strength. */
     public void armHit(int way, int carrier, int lvl, int seconds) {
+        armHit(way, carrier, lvl, 0, seconds);
+    }
+
+    public void armHit(int way, int carrier, int lvl, int base, int seconds) {
+        base = Math.max(0, Math.min(lvl - 1, base));
         mod = null;
         lvl = Math.max(1, Math.min(MAX_LEVEL, lvl));
         if (mode != carrier) {
@@ -185,8 +196,10 @@ public final class MastogoShell {
             mode = carrier;
         }
         plain("AT+QPOWS");
-        queue.add(new Cmd("AT+CSTR=0,0", K_LEVEL));
-        level = 0;
+        int idle = way == HIT_LEVEL ? base : 0;
+        queue.add(new Cmd("AT+CSTR=0," + idle, K_LEVEL));
+        level = idle;
+        hitBase = idle;
         outOff = false;
         if (way != HIT_LEVEL) {
             queue.add(new Cmd("AT+QPOWP", K_PAUSE));
@@ -202,6 +215,14 @@ public final class MastogoShell {
         hitLevel = lvl;
         pump();
         ev.onChanged(this);
+    }
+
+    /** LEVEL way: a new idle strength, set at once. */
+    public void setHitBase(int base) {
+        if (hitArmed == HIT_LEVEL) {
+            hitBase = Math.max(0, Math.min(hitLevel - 1, base));
+            setLevel(hitBase);
+        }
     }
 
     /** A new strength for the next hits (preset while paused, or kept for the LEVEL way). */
@@ -227,7 +248,7 @@ public final class MastogoShell {
         hitCount++;
         if (hitArmed == HIT_LEVEL) {
             direct("AT+CSTR=0," + hitLevel);
-            io.later(new Direct(this, "AT+CSTR=0,0"), Math.max(30, ms));
+            io.later(new Direct(this, "AT+CSTR=0," + hitBase), Math.max(30, ms));
         } else {
             direct("AT+QPOWS");
             direct("AT+CSTR=0," + hitLevel);       // in case a strength set while paused is not kept

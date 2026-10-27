@@ -169,6 +169,11 @@ hidden command the sweep must find).
   preset; hit = `QPOWS` + `CSTR` … `QPOWP`), **Сила** (armed running at 0; hit = `CSTR=n` … `CSTR=0`), **Единичен**
   (Изход on "Toning" for 150 ms = one 190 µs pulse). Length 30–500 ms. The first hit arms (~0.5 s). Next: the
   Quest 3 bridge (`vr-bridge/`) sending game hits to `hit()`.
+  Owner's test (1.1.474): Изход and Единичен do nothing felt (the unit soft-starts `QPOWS`; Единичен gave no pulse
+  at all); **Сила on 14 Пеперуда (3 / 15.6 Hz, 190 µs), 40 ms, 24 = "most like a hit, but must be stronger"**.
+  DOMAS caps this unit at 25 (`getDeviceMaxLevel`: class `MAST` → 25). 1.1.475: the Сила way idles at the panel's
+  pause strength (`hitBase`) and returns there — the unit glides every change, so from a higher base the hit
+  reaches its top sooner.
 - **Наклон (1.1.473, panel, a test — owner):** a switch under the phase box; the tablet's accelerometer (low-passed
   gravity → the screen's angle) drives the impulse strength: 0° = the pause strength, 30° = the strength on the right
   (never above it). Zero = the position when switched on and at ▶. Off on every open, unregistered on close; rises

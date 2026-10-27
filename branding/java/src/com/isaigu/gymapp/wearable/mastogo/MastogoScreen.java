@@ -575,6 +575,11 @@ public final class MastogoScreen {
                 case F_L_DOWN: live.downMs = tenths(live.downMs, dir); break;
                 default: live.lo = Math.max(0, Math.min(live.hi, live.lo + dir)); break;
             }
+            MastogoShell hs = sh();
+            if (hs != null && hs.hitArmed >= 0) {
+                hs.setHitBase(live.lo);
+                renderHit();
+            }
             live.safe();
             liveChanged();
             renderPult();
@@ -628,8 +633,10 @@ public final class MastogoScreen {
                     ? tr("Изход: изходът е на пауза със силата готова; ударът го пуска и спира. ",
                     "Output: the output waits paused with the strength ready; the hit runs and stops it. ")
                     : hitWay == MastogoShell.HIT_LEVEL
-                    ? tr("Сила: изходът върви на 0; ударът скача на силата и обратно на 0. ",
-                    "Strength: the output runs at 0; the hit jumps to the strength and back to 0. ")
+                    ? tr("Сила: изходът върви на силата в паузата (" + live.lo + "); ударът скача на силата вдясно и се "
+                    + "връща — по-висока основа = по-силен удар. ", "Strength: the output runs at the pause strength ("
+                    + live.lo + "); the hit jumps to the strength on the right and back — a higher base = a "
+                    + "stronger hit. ")
                     : tr("Единичен: един импулс на „Тонус“ (190 µs) на силата вдясно. ",
                     "Single: one pulse of \"Toning\" (190 µs) at the strength on the right. ");
             hitInfo.setText(way + tr("Сила = вдясно (", "Strength = on the right (") + live.hi + tr("), носител ",
@@ -650,7 +657,7 @@ public final class MastogoScreen {
             int carrier = hitWay == MastogoShell.HIT_SINGLE ? HIT_SINGLE_CARRIER : live.carrier;
             if (sh.hitArmed != hitWay || sh.mode != carrier) {
                 liveRun = false;
-                sh.armHit(hitWay, carrier, live.hi, minutes * 60);
+                sh.armHit(hitWay, carrier, live.hi, live.lo, minutes * 60);
             }
             sh.hit(hitMs);
             renderHit();

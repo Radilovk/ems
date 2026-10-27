@@ -32,7 +32,7 @@
     .registers 1
 
     .prologue
-    .line 1940
+    .line 1947
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 7
 
     .prologue
-    .line 1943
+    .line 1950
     invoke-virtual {p1}, Ljava/lang/Integer;->intValue()I
 
     move-result v0
@@ -72,7 +72,7 @@
     .registers 4
 
     .prologue
-    .line 1940
+    .line 1947
     check-cast p1, Ljava/lang/Integer;
 
     check-cast p2, Ljava/lang/Integer;

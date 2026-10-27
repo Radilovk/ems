@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 302
+    .line 326
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 303
+    .line 327
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$PressLater;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
-    .line 304
+    .line 328
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 308
+    .line 332
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$PressLater;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->pressing:Z
@@ -55,14 +55,14 @@
 
     if-nez v0, :cond_12
 
-    .line 309
+    .line 333
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$PressLater;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->press(Z)V
 
-    .line 311
+    .line 335
     :cond_12
     return-void
 .end method

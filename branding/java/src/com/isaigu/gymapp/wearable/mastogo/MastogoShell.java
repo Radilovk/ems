@@ -252,7 +252,9 @@ public final class MastogoShell {
         hitAt = io.now();
         if (hitArmed == HIT_LEVEL) {
             direct("AT+CSTR=0," + hitLevel);
-            io.later(new Direct(this, "AT+CSTR=0," + hitBase), Math.max(10, ms));
+            int seq = ++eventSeq;
+            io.later(new Back(this, seq), Math.max(10, ms));
+            io.later(new Back(this, seq), Math.max(10, ms) + 250);      // again: a lost write never leaves it on
         } else {
             direct("AT+QPOWS");
             direct("AT+CSTR=0," + hitLevel);       // in case a strength set while paused is not kept
@@ -277,6 +279,7 @@ public final class MastogoShell {
         }
         if (down) {
             pressing = true;
+            eventSeq++;                                  // a pending return of an earlier hit must not end this
             if (inFlight != null || !queue.isEmpty()) {
                 io.later(new PressLater(this), 100);
                 return;
@@ -291,9 +294,30 @@ public final class MastogoShell {
                 pressSent = false;
                 hitAt = io.now();
                 direct("AT+CSTR=0," + hitBase);
+                io.later(new Back(this, ++eventSeq), 250);   // again: a lost write never leaves it on
             }
         }
         ev.onChanged(this);
+    }
+
+    /** Counts events; a return to the base only goes out if no newer event started since. */
+    int eventSeq;
+
+    static final class Back implements Runnable {
+        final MastogoShell sh;
+        final int seq;
+
+        Back(MastogoShell sh, int seq) {
+            this.sh = sh;
+            this.seq = seq;
+        }
+
+        @Override
+        public void run() {
+            if (sh.eventSeq == seq && sh.hitArmed >= 0) {
+                sh.direct("AT+CSTR=0," + sh.hitBase);
+            }
+        }
     }
 
     static final class PressLater implements Runnable {

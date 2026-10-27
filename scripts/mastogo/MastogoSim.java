@@ -356,6 +356,14 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         sh.press(false);
         runFor(80);
         check(during && held && uLevel == 13, "squeeze: 25 held for as long as pressed, then 13");
+        // a feeling with no background: back to 0 and silent after it (1.1.477 left it running at the panel's 13)
+        sh.armHit(MastogoShell.HIT_LEVEL, 13, 24, 0, 600);
+        runFor(1500);
+        sh.hit(40);
+        runFor(30);
+        during = uLevel == 24;
+        runFor(600);
+        check(during && uLevel == 0 && sh.level == 0, "feeling at base 0: 24 for 40 ms, then 0 and silent");
         // keep-alive: armed at base 0 and untouched → a level-1 blip within ~80 s, and the timer kept up
         sh.armHit(MastogoShell.HIT_LEVEL, 18, 10, 0, 300);
         runFor(1500);

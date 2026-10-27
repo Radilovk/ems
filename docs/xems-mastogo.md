@@ -185,6 +185,11 @@ hidden command the sweep must find).
   1.1.478 (owner: "even in the test mode it switched off … I don't want auto stop"): the same keep-alive whenever
   the unit runs, not only for hits — no strength above 0 for 60 s → the blip; the unit's timer is renewed to 60 min
   below 10 min left, so nothing ends a session but ■ (the minutes chips only set the first countdown).
+- **1.1.479 — bug (owner: "the feelings start impulses that don't stop!")**: 1.1.475 made the hit's base the
+  panel's pause strength (13 there), so a feeling left the output running at 13. Now the background is its own
+  ФОН stepper in the feelings card, **0 on every open** (0 = silence between feelings). The return to the base is
+  written twice (+250 ms, cancelled by a newer event — `Back`/`eventSeq`) so one lost BLE write never leaves the hit
+  strength on.
 - **Наклон (1.1.473, panel, a test — owner):** a switch under the phase box; the tablet's accelerometer (low-passed
   gravity → the screen's angle) drives the impulse strength: 0° = the pause strength, 30° = the strength on the right
   (never above it). Zero = the position when switched on and at ▶. Off on every open, unregistered on close; rises

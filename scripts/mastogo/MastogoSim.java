@@ -65,7 +65,8 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
 
         sh.hello();
         runFor(3000);
-        check(sh.mode == 3 && sh.level == 0 && sh.battery == 80, "hello reads mode / level / battery");
+        check(sh.mode == 3 && sh.level == 0 && Math.abs(sh.batteryV - 3.73) < 0.001 && sh.battery == 51,
+                "hello reads mode / level / battery 3.73 V = " + sh.battery + " %");
         check(sh.tags.containsKey("WSDT"), "auto-off time read");
 
         sh.setMode(14);
@@ -111,7 +112,7 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         check(min <= 5 && max >= 11 && max <= 12, "wave swings " + min + "–" + max + " (" + levels.size()
                 + " writes / 6 s)");
         check(maxRise <= MastogoShell.MAX_RISE, "rises limited to " + maxRise + " level(s) per update");
-        check(levels.size() >= 15, "refresh holds ~5 writes/s");
+        check(levels.size() >= 25, "refresh holds ~5 writes/s (" + levels.size() + " in 6 s)");
 
         // contact lost → strength 0, modulation off
         feed("+CLOAD:0");
@@ -177,36 +178,36 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         String cmd = new String(data).trim();
         sent.add(cmd);
         if (cmd.equals("AT+CMODE?")) {
-            reply("+CMODE:0,3");
+            reply("+CMODE:3", "OK");
         } else if (cmd.equals("AT+CSTR?")) {
-            reply("+CSTR:0,0");
+            reply("+CSTR:0", "OK");
         } else if (cmd.equals("AT+CDCLK?")) {
-            reply("+CDCLK:002000");
+            reply("+CDCLK:002000", "OK");
         } else if (cmd.equals("AT+QPOWP?")) {
-            reply("+QPOWP:0");
+            reply("+QPOWP:0", "OK");
         } else if (cmd.equals("AT+CBC?")) {
-            reply("+CBC:80");
+            reply("+CBC:0,3.73", "OK");
         } else if (cmd.equals("AT+WSDT?")) {
-            reply("+WSDT:10");
+            reply("+WSDT:10", "OK");
         } else if (cmd.equals("AT+CFRQ?")) {
             reply("+CFRQ:0,80", "OK");
         } else if (cmd.startsWith("AT+CMODE=0,")) {
             uMode = Integer.parseInt(cmd.substring(11));
             uLevel = 0;
             uRun = false;
-            reply("OK");
+            reply("+CMODE:OK");
         } else if (cmd.startsWith("AT+CSTR=0,")) {
             uLevel = Integer.parseInt(cmd.substring(10));
             levels.add(uLevel);
-            reply("OK");
+            reply("+CSTR:OK");
         } else if (cmd.equals("AT+QPOWS")) {
             uRun = true;
-            reply("OK");
+            reply("+QPOWS:OK");
         } else if (cmd.equals("AT+QPOWP")) {
             uRun = false;
-            reply("OK");
+            reply("+QPOWP:OK");
         } else if (cmd.startsWith("AT+CDCLK=")) {
-            reply("OK");
+            reply("+CDCLK:OK");
         } else if (cmd.startsWith("AT+QPOWS")) {
             // prefix match in a careless firmware: the probe's "AT+QPOWS?" starts the output
             uRun = true;

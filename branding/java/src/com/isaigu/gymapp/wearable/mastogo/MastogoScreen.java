@@ -616,8 +616,8 @@ public final class MastogoScreen {
                     XemsUi.setBadge(linkBadge, tr("свързвам…", "linking…"), XemsUi.MUTED);
                 }
             }
-            battery.setText(sh != null && sh.battery >= 0 ? tr("Батерия ", "Battery ") + sh.battery
-                    + (sh.battery <= 100 ? " %" : "") : "");
+            battery.setText(sh != null && sh.battery >= 0 ? tr("Батерия ", "Battery ") + sh.battery + " %"
+                    + (sh.batteryV > 0 ? String.format(java.util.Locale.US, " · %.2f V", sh.batteryV) : "") : "");
             if (sh != null && sh.contact == 0) {
                 contact.setText(tr("⚠ електродите не допират", "⚠ pads not touching"));
                 contact.setTextColor(XemsUi.AMBER);

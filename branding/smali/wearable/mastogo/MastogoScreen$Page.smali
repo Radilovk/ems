@@ -3066,9 +3066,11 @@
 .end method
 
 .method render()V
-    .registers 10
+    .registers 13
 
     .prologue
+    const/4 v4, 0x1
+
     const/high16 v2, 0x3f800000    # 1.0f
 
     const v3, 0x3ecccccd    # 0.4f
@@ -3078,14 +3080,14 @@
     .line 602
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
-    if-eqz v0, :cond_b
+    if-eqz v0, :cond_c
 
     .line 683
-    :goto_a
+    :goto_b
     return-void
 
     .line 605
-    :cond_b
+    :cond_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v5
@@ -3093,148 +3095,50 @@
     .line 606
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
-    if-nez v0, :cond_1b7
+    if-nez v0, :cond_1ce
 
     .line 607
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->unitName:Landroid/widget/TextView;
 
-    const-string v4, "MASTOGO H-024B"
+    const-string v6, "MASTOGO H-024B"
 
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 608
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
-    const-string v4, "\u0442\u044a\u0440\u0441\u044f\u2026"
+    const-string v6, "\u0442\u044a\u0440\u0441\u044f\u2026"
 
-    const-string v6, "searching\u2026"
+    const-string v7, "searching\u2026"
 
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
-
-    invoke-static {v0, v4, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
-
-    .line 619
-    :goto_29
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->battery:Landroid/widget/TextView;
-
-    if-eqz v5, :cond_205
-
-    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->battery:I
-
-    if-ltz v0, :cond_205
-
-    .line 620
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "\u0411\u0430\u0442\u0435\u0440\u0438\u044f "
-
-    const-string v7, "Battery "
-
-    .line 619
     invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
 
-    invoke-virtual {v0, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
-    move-result-object v0
-
-    iget v6, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->battery:I
-
-    invoke-virtual {v0, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    .line 620
-    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->battery:I
-
-    const/16 v7, 0x64
-
-    if-gt v0, v7, :cond_201
-
-    const-string v0, " %"
-
-    :goto_50
-    invoke-virtual {v6, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
+    invoke-static {v0, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
 
     .line 619
-    :goto_58
-    invoke-virtual {v4, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    :goto_2a
+    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->battery:Landroid/widget/TextView;
 
-    .line 621
-    if-eqz v5, :cond_209
+    if-eqz v5, :cond_21c
 
-    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->contact:I
+    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->battery:I
 
-    if-nez v0, :cond_209
+    if-ltz v0, :cond_21c
 
-    .line 622
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
-
-    const-string v4, "\u26a0 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u043d\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
-
-    const-string v6, "\u26a0 pads not touching"
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 623
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
-
-    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
-
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setTextColor(I)V
-
-    .line 630
-    :goto_75
-    if-eqz v5, :cond_22e
-
-    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
-
-    invoke-static {v1, v0}, Ljava/lang/Math;->max(II)I
-
-    move-result v0
-
-    .line 631
-    :goto_7d
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
-
-    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-
-    move-result-object v6
-
-    if-eqz v5, :cond_231
-
-    invoke-virtual {v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_231
-
-    .line 632
+    .line 620
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v7, "\u0441\u0438\u043b\u0430 \u00b7 \u043c\u043e\u0434\u0443\u043b\u0430\u0446\u0438\u044f "
+    const-string v7, "\u0411\u0430\u0442\u0435\u0440\u0438\u044f "
 
-    const-string v8, "strength \u00b7 modulation "
+    const-string v8, "Battery "
 
+    .line 619
     invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v7
@@ -3243,25 +3147,147 @@
 
     move-result-object v0
 
-    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
-
-    iget v7, v7, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
+    iget v7, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->battery:I
 
     invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    const-string v7, "\u2013"
+    const-string v7, " %"
 
     invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
+    move-result-object v7
+
+    .line 620
+    iget-wide v8, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->batteryV:D
+
+    const-wide/16 v10, 0x0
+
+    cmpl-double v0, v8, v10
+
+    if-lez v0, :cond_218
+
+    sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
+
+    const-string v8, " \u00b7 %.2f V"
+
+    new-array v9, v4, [Ljava/lang/Object;
+
+    iget-wide v10, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->batteryV:D
+
+    invoke-static {v10, v11}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+
+    move-result-object v10
+
+    aput-object v10, v9, v1
+
+    invoke-static {v0, v8, v9}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
     move-result-object v0
 
-    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+    :goto_69
+    invoke-virtual {v7, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    iget v7, v7, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+    move-result-object v0
 
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 619
+    :goto_71
+    invoke-virtual {v6, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 621
+    if-eqz v5, :cond_220
+
+    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->contact:I
+
+    if-nez v0, :cond_220
+
+    .line 622
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
+
+    const-string v6, "\u26a0 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u043d\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
+
+    const-string v7, "\u26a0 pads not touching"
+
+    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 623
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
+
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setTextColor(I)V
+
+    .line 630
+    :goto_8e
+    if-eqz v5, :cond_245
+
+    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
+
+    invoke-static {v1, v0}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    .line 631
+    :goto_96
+    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v7
+
+    if-eqz v5, :cond_248
+
+    invoke-virtual {v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_248
+
+    .line 632
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v8, "\u0441\u0438\u043b\u0430 \u00b7 \u043c\u043e\u0434\u0443\u043b\u0430\u0446\u0438\u044f "
+
+    const-string v9, "strength \u00b7 modulation "
+
+    invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    iget v8, v8, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v8, "\u2013"
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    iget v8, v8, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -3270,130 +3296,65 @@
     move-result-object v0
 
     .line 631
-    :goto_b6
-    invoke-virtual {v4, v6, v0}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+    :goto_cf
+    invoke-virtual {v6, v7, v0}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 634
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    iget-object v4, v0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
+    iget-object v6, v0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
 
-    if-eqz v5, :cond_23b
+    if-eqz v5, :cond_252
 
     move v0, v2
 
-    :goto_c0
-    invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setAlpha(F)V
+    :goto_d9
+    invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
     .line 635
-    if-eqz v5, :cond_23e
+    if-eqz v5, :cond_255
 
     invoke-virtual {v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secondsLeft()I
 
     move-result v0
 
     .line 636
-    :goto_c9
-    if-eqz v5, :cond_241
+    :goto_e2
+    if-eqz v5, :cond_258
 
-    iget-boolean v4, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
+    iget-boolean v6, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    if-eqz v4, :cond_241
+    if-eqz v6, :cond_258
 
-    if-ltz v0, :cond_241
+    if-ltz v0, :cond_258
 
     .line 637
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
+    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->mmss(I)Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-virtual {v4, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v6, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 638
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clockLabel:Landroid/widget/TextView;
 
-    new-instance v4, Ljava/lang/StringBuilder;
+    new-instance v6, Ljava/lang/StringBuilder;
 
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v6, "\u043e\u0441\u0442\u0430\u0432\u0430\u0442 \u00b7 "
+    const-string v7, "\u043e\u0441\u0442\u0430\u0432\u0430\u0442 \u00b7 "
 
-    const-string v7, "left \u00b7 "
+    const-string v8, "left \u00b7 "
 
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v6
+    move-result-object v7
 
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    iget v6, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
-
-    invoke-static {v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->modeName(I)Ljava/lang/String;
+    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v6
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 643
-    :goto_fe
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    .line 644
-    if-eqz v5, :cond_150
-
-    .line 645
-    const-string v0, "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u043d\u0430 \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e: "
-
-    const-string v6, "Unit\'s program: "
-
-    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
-
-    if-ltz v0, :cond_26e
-
-    .line 646
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v7, "#"
-
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    iget v7, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
-
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    const-string v7, " "
-
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
 
     iget v7, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
 
@@ -3401,7 +3362,72 @@
 
     move-result-object v7
 
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v6
+
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 643
+    :goto_117
+    new-instance v6, Ljava/lang/StringBuilder;
+
+    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 644
+    if-eqz v5, :cond_169
+
+    .line 645
+    const-string v0, "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u043d\u0430 \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e: "
+
+    const-string v7, "Unit\'s program: "
+
+    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v6, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
+
+    if-ltz v0, :cond_285
+
+    .line 646
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v8, "#"
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget v8, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v8, " "
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget v8, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
+
+    invoke-static {v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->modeName(I)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v0, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -3410,61 +3436,57 @@
     move-result-object v0
 
     .line 645
-    :goto_13a
-    invoke-virtual {v6, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    :goto_153
+    invoke-virtual {v7, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     .line 647
     iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->offReason:I
 
-    if-ltz v0, :cond_150
+    if-ltz v0, :cond_169
 
     .line 648
     const-string v0, " \u00b7 "
 
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v6, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    iget v6, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->offReason:I
+    iget v7, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->offReason:I
 
-    invoke-static {v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->offName(I)Ljava/lang/String;
+    invoke-static {v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->offName(I)Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 651
+    :cond_169
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->facts:Landroid/widget/TextView;
+
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v6
 
-    invoke-virtual {v0, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 651
-    :cond_150
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->facts:Landroid/widget/TextView;
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 653
-    if-eqz v5, :cond_272
+    if-eqz v5, :cond_289
 
     iget-boolean v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    if-eqz v0, :cond_272
-
-    const/4 v0, 0x1
-
-    move v4, v0
+    if-eqz v0, :cond_289
 
     .line 654
-    :goto_161
-    if-eqz v4, :cond_164
+    :goto_178
+    if-eqz v4, :cond_17b
 
     const/4 v1, 0x4
 
     .line 655
-    :cond_164
+    :cond_17b
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->goStyle:I
 
-    if-eq v1, v0, :cond_184
+    if-eq v1, v0, :cond_19b
 
     .line 656
     iput v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->goStyle:I
@@ -3497,10 +3519,10 @@
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
     .line 661
-    :cond_184
+    :cond_19b
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
-    if-eqz v4, :cond_275
+    if-eqz v4, :cond_28c
 
     const-string v0, "\u25a0 \u0421\u043f\u0440\u0438"
 
@@ -3510,31 +3532,31 @@
 
     move-result-object v0
 
-    :goto_190
+    :goto_1a7
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 662
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
-    if-eqz v5, :cond_27f
+    if-eqz v5, :cond_296
 
     iget-boolean v1, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
-    if-nez v1, :cond_27f
+    if-nez v1, :cond_296
 
-    :goto_19b
+    :goto_1b2
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setAlpha(F)V
 
     .line 664
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    if-eqz v0, :cond_282
+    if-eqz v0, :cond_299
 
     .line 665
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
     .line 678
-    :goto_1a4
+    :goto_1bb
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hint:Landroid/widget/TextView;
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
@@ -3542,7 +3564,7 @@
     .line 679
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
-    if-eqz v0, :cond_1b2
+    if-eqz v0, :cond_1c9
 
     .line 680
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
@@ -3550,232 +3572,232 @@
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->invalidate()V
 
     .line 682
-    :cond_1b2
+    :cond_1c9
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderExplore()V
 
-    goto/16 :goto_a
+    goto/16 :goto_b
 
     .line 610
-    :cond_1b7
+    :cond_1ce
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->unitName:Landroid/widget/TextView;
 
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
+    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
-    iget-object v4, v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->name:Ljava/lang/String;
+    iget-object v6, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->name:Ljava/lang/String;
 
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 611
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->state:I
 
-    const/4 v4, 0x2
+    const/4 v6, 0x2
 
-    if-ne v0, v4, :cond_1d8
+    if-ne v0, v6, :cond_1ef
 
     .line 612
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
-    const-string v4, "\u2713 \u0441\u0432\u044a\u0440\u0437\u0430\u043d"
+    const-string v6, "\u2713 \u0441\u0432\u044a\u0440\u0437\u0430\u043d"
 
-    const-string v6, "\u2713 linked"
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
-
-    invoke-static {v0, v4, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
-
-    goto/16 :goto_29
-
-    .line 613
-    :cond_1d8
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
-
-    iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->state:I
-
-    const/4 v4, 0x3
-
-    if-ne v0, v4, :cond_1f0
-
-    .line 614
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
-
-    const-string v4, "\u2298 \u0432\u0440\u044a\u0437\u043a\u0430\u0442\u0430 \u043f\u0430\u0434\u043d\u0430"
-
-    const-string v6, "\u2298 link lost"
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
-
-    invoke-static {v0, v4, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
-
-    goto/16 :goto_29
-
-    .line 616
-    :cond_1f0
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
-
-    const-string v4, "\u0441\u0432\u044a\u0440\u0437\u0432\u0430\u043c\u2026"
-
-    const-string v6, "linking\u2026"
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
-
-    invoke-static {v0, v4, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
-
-    goto/16 :goto_29
-
-    .line 620
-    :cond_201
-    const-string v0, ""
-
-    goto/16 :goto_50
-
-    :cond_205
-    const-string v0, ""
-
-    goto/16 :goto_58
-
-    .line 624
-    :cond_209
-    if-eqz v5, :cond_225
-
-    iget-boolean v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
-
-    if-eqz v0, :cond_225
-
-    .line 625
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
-
-    const-string v4, "\u2713 \u0434\u043e\u043f\u0438\u0440"
-
-    const-string v6, "\u2713 contact"
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 626
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
-
-    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
-
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setTextColor(I)V
-
-    goto/16 :goto_75
-
-    .line 628
-    :cond_225
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
-
-    const-string v4, ""
-
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    goto/16 :goto_75
-
-    :cond_22e
-    move v0, v1
-
-    .line 630
-    goto/16 :goto_7d
-
-    .line 633
-    :cond_231
-    const-string v0, "\u0441\u0438\u043b\u0430 \u043e\u0442 25"
-
-    const-string v7, "strength of 25"
-
-    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    goto/16 :goto_b6
-
-    :cond_23b
-    move v0, v3
-
-    .line 634
-    goto/16 :goto_c0
-
-    .line 635
-    :cond_23e
-    const/4 v0, -0x1
-
-    goto/16 :goto_c9
-
-    .line 640
-    :cond_241
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    iget v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    const-string v6, " \u043c\u0438\u043d"
-
-    const-string v7, " min"
+    const-string v7, "\u2713 linked"
 
     invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
 
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    move-result-object v4
+    invoke-static {v0, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
 
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    goto/16 :goto_2a
 
-    move-result-object v4
+    .line 613
+    :cond_1ef
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->state:I
+
+    const/4 v6, 0x3
+
+    if-ne v0, v6, :cond_207
+
+    .line 614
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
+
+    const-string v6, "\u2298 \u0432\u0440\u044a\u0437\u043a\u0430\u0442\u0430 \u043f\u0430\u0434\u043d\u0430"
+
+    const-string v7, "\u2298 link lost"
+
+    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    invoke-static {v0, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
+
+    goto/16 :goto_2a
+
+    .line 616
+    :cond_207
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
+
+    const-string v6, "\u0441\u0432\u044a\u0440\u0437\u0432\u0430\u043c\u2026"
+
+    const-string v7, "linking\u2026"
+
+    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    invoke-static {v0, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
+
+    goto/16 :goto_2a
+
+    .line 620
+    :cond_218
+    const-string v0, ""
+
+    goto/16 :goto_69
+
+    :cond_21c
+    const-string v0, ""
+
+    goto/16 :goto_71
+
+    .line 624
+    :cond_220
+    if-eqz v5, :cond_23c
+
+    iget-boolean v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
+
+    if-eqz v0, :cond_23c
+
+    .line 625
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
+
+    const-string v6, "\u2713 \u0434\u043e\u043f\u0438\u0440"
+
+    const-string v7, "\u2713 contact"
+
+    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 626
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
+
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
+
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setTextColor(I)V
+
+    goto/16 :goto_8e
+
+    .line 628
+    :cond_23c
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
+
+    const-string v6, ""
+
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    goto/16 :goto_8e
+
+    :cond_245
+    move v0, v1
+
+    .line 630
+    goto/16 :goto_96
+
+    .line 633
+    :cond_248
+    const-string v0, "\u0441\u0438\u043b\u0430 \u043e\u0442 25"
+
+    const-string v8, "strength of 25"
+
+    invoke-static {v0, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_cf
+
+    :cond_252
+    move v0, v3
+
+    .line 634
+    goto/16 :goto_d9
+
+    .line 635
+    :cond_255
+    const/4 v0, -0x1
+
+    goto/16 :goto_e2
+
+    .line 640
+    :cond_258
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
+
+    new-instance v6, Ljava/lang/StringBuilder;
+
+    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget v7, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
+
+    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v6
+
+    const-string v7, " \u043c\u0438\u043d"
+
+    const-string v8, " min"
+
+    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v6
+
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 641
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clockLabel:Landroid/widget/TextView;
 
-    iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
+    iget v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->modeName(I)Ljava/lang/String;
+    invoke-static {v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->modeName(I)Ljava/lang/String;
 
-    move-result-object v4
+    move-result-object v6
 
-    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    goto/16 :goto_fe
+    goto/16 :goto_117
 
     .line 646
-    :cond_26e
+    :cond_285
     const-string v0, "\u2014"
 
-    goto/16 :goto_13a
+    goto/16 :goto_153
 
-    :cond_272
+    :cond_289
     move v4, v1
 
     .line 653
-    goto/16 :goto_161
+    goto/16 :goto_178
 
     .line 661
-    :cond_275
+    :cond_28c
     const-string v0, "\u25b6 \u041f\u0443\u0441\u043d\u0438"
 
     const-string v6, "\u25b6 Start"
@@ -3784,19 +3806,19 @@
 
     move-result-object v0
 
-    goto/16 :goto_190
+    goto/16 :goto_1a7
 
-    :cond_27f
+    :cond_296
     move v2, v3
 
     .line 662
-    goto/16 :goto_19b
+    goto/16 :goto_1b2
 
     .line 666
-    :cond_282
+    :cond_299
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
-    if-nez v0, :cond_290
+    if-nez v0, :cond_2a7
 
     .line 667
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e (\u0437\u0430\u0434\u0440\u044a\u0436 \u0431\u0443\u0442\u043e\u043d\u0430 \u043c\u0443) \u2014 \u0441\u0432\u044a\u0440\u0437\u0432\u0430 \u0441\u0435 \u0441\u0430\u043c\u043e."
@@ -3807,11 +3829,11 @@
 
     move-result-object v0
 
-    goto/16 :goto_1a4
+    goto/16 :goto_1bb
 
     .line 669
-    :cond_290
-    if-nez v5, :cond_29c
+    :cond_2a7
+    if-nez v5, :cond_2b3
 
     .line 670
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043c \u0441\u0435\u2026"
@@ -3822,13 +3844,13 @@
 
     move-result-object v0
 
-    goto/16 :goto_1a4
+    goto/16 :goto_1bb
 
     .line 671
-    :cond_29c
+    :cond_2b3
     iget-boolean v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
-    if-eqz v0, :cond_2aa
+    if-eqz v0, :cond_2c1
 
     .line 672
     const-string v0, "\u0422\u044a\u0440\u0441\u044f \u043a\u043e\u043c\u0430\u043d\u0434\u0438 \u2014 \u0438\u0437\u0445\u043e\u0434\u044a\u0442 \u0435 \u0441\u043f\u0440\u044f\u043d."
@@ -3839,16 +3861,16 @@
 
     move-result-object v0
 
-    goto/16 :goto_1a4
+    goto/16 :goto_1bb
 
     .line 673
-    :cond_2aa
-    if-eqz v4, :cond_2dd
+    :cond_2c1
+    if-eqz v4, :cond_2f4
 
     .line 674
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
 
-    if-eqz v0, :cond_2d3
+    if-eqz v0, :cond_2ea
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -3882,9 +3904,9 @@
 
     move-result-object v0
 
-    goto/16 :goto_1a4
+    goto/16 :goto_1bb
 
-    :cond_2d3
+    :cond_2ea
     const-string v0, "\u0420\u0430\u0431\u043e\u0442\u0438."
 
     const-string v1, "Running."
@@ -3893,10 +3915,10 @@
 
     move-result-object v0
 
-    goto/16 :goto_1a4
+    goto/16 :goto_1bb
 
     .line 676
-    :cond_2dd
+    :cond_2f4
     const-string v0, "\u0413\u043e\u0442\u043e\u0432\u043e. \u0421\u0438\u043b\u0430\u0442\u0430 \u0442\u0440\u044a\u0433\u0432\u0430 \u043e\u0442 1."
 
     const-string v1, "Ready. Strength starts at 1."
@@ -3905,7 +3927,7 @@
 
     move-result-object v0
 
-    goto/16 :goto_1a4
+    goto/16 :goto_1bb
 .end method
 
 .method renderConsole()V

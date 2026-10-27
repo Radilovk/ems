@@ -321,20 +321,24 @@ public final class MastogoShell {
      * powered off).
      */
     void keepAlive() {
-        if (hitArmed < 0 || probing || closed) {
+        if (!running && hitArmed < 0 || probing || closed) {
             return;
         }
+        // no auto stop (owner, 2026-10-27: "I don't want it to stop by itself"): ■ is the only end
         int left = secondsLeft();
         if (left >= 0 && left < 600) {
             setTimer(3600);
         }
         long now = io.now();
-        if (hitBase == 0 && !pressing && now - hitAt >= KEEP_ALIVE_MS) {
+        if (!outOff && !pressing && now - Math.max(hitAt, aliveAt) >= KEEP_ALIVE_MS) {
             hitAt = now;
             direct("AT+CSTR=0,1");
-            io.later(new Direct(this, "AT+CSTR=0,0"), 150);
+            io.later(new Direct(this, "AT+CSTR=0," + Math.max(0, level)), 150);
         }
     }
+
+    /** When a strength above 0 last went out (the unit counts no output as idle). */
+    long aliveAt;
 
     void direct(String t) {
         if (closed) {
@@ -408,6 +412,9 @@ public final class MastogoShell {
     public void setLevel(int n) {
         n = Math.max(0, Math.min(MAX_LEVEL, n));
         level = n;
+        if (n > 0) {
+            aliveAt = io.now();
+        }
         String t = "AT+CSTR=0," + n;
         if (!queue.isEmpty() && queue.get(queue.size() - 1).kind == K_LEVEL) {
             queue.get(queue.size() - 1).text = t;

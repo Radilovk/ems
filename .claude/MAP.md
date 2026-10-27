@@ -377,7 +377,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MastogoModes.java` (189L, compile:music-sync*,wearable) — The 26 firmware programs of the MASTOGO H- unit as the vendor's own DOMAS app (com.roblink.domas 3.1.1, device "Hawk TE…
 - `MastogoScan.java` (124L, compile:music-sync*,wearable) — Finds MASTOGO H- units (the vendor app's name prefix) while the page is open; results on the main thread.
 - `MastogoScreen.java` (2333L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
-- `MastogoShell.java` (1599L, compile:music-sync*,wearable) — The conversation with one MASTOGO H-024B (DOMAS "Candy TENS 3S", board ZX-571C, SYD8811) — pure Java, no Android: the B…
+- `MastogoShell.java` (1606L, compile:music-sync*,wearable) — The conversation with one MASTOGO H-024B (DOMAS "Candy TENS 3S", board ZX-571C, SYD8811) — pure Java, no Android: the B…
 - `MastogoStore.java` (141L, compile:music-sync*) — The trainer's own MASTOGO combinations and program notes (owner, 2026-10-27: "combinations and notes") — pure Java, the…
 
 **wearable/scale/** (`branding/java/src/com/isaigu/gymapp/wearable/scale/`)
@@ -1058,7 +1058,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L183 ## Какво остава за сървъра
   - L190 ## Проверки (без Android)
 
-`docs/xems-mastogo.md` (221L)
+`docs/xems-mastogo.md` (224L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
   - L7 ## Hardware (owner's photos, 2026-10-27)
   - L27 ## Transport

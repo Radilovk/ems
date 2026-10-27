@@ -182,6 +182,9 @@ hidden command the sweep must find).
 - **Self power-off while waiting (owner: "a problem!")**: commands do not keep the unit awake, only output.
   `keepAlive` (every poll, 20 s) while armed: the unit's timer renewed to 60 min when < 10 min left, and with base 0
   one level-1 blip for 150 ms after 60 s without an event. A base ≥ 1 never idles.
+  1.1.478 (owner: "even in the test mode it switched off … I don't want auto stop"): the same keep-alive whenever
+  the unit runs, not only for hits — no strength above 0 for 60 s → the blip; the unit's timer is renewed to 60 min
+  below 10 min left, so nothing ends a session but ■ (the minutes chips only set the first countdown).
 - **Наклон (1.1.473, panel, a test — owner):** a switch under the phase box; the tablet's accelerometer (low-passed
   gravity → the screen's angle) drives the impulse strength: 0° = the pause strength, 30° = the strength on the right
   (never above it). Zero = the position when switched on and at ▶. Off on every open, unregistered on close; rises

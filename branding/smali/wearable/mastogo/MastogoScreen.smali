@@ -21,7 +21,6 @@
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModToggle;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$TiltToggle;,
-        Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitWay;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickShape;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickRotate;,

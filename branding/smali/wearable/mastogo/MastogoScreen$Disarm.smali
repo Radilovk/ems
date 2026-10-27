@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2197
+    .line 2210
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2198
+    .line 2211
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Disarm;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 2199
+    .line 2212
     return-void
 .end method
 
@@ -42,26 +42,26 @@
     .registers 3
 
     .prologue
-    .line 2203
+    .line 2216
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Disarm;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeArmed:Z
 
     if-eqz v0, :cond_10
 
-    .line 2204
+    .line 2217
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Disarm;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     const/4 v1, 0x0
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeArmed:Z
 
-    .line 2205
+    .line 2218
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Disarm;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 2207
+    .line 2220
     :cond_10
     return-void
 .end method

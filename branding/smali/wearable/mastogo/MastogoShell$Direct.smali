@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 273
+    .line 352
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 274
+    .line 353
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Direct;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
-    .line 275
+    .line 354
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Direct;->t:Ljava/lang/String;
 
-    .line 276
+    .line 355
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 3
 
     .prologue
-    .line 280
+    .line 359
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Direct;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Direct;->t:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->direct(Ljava/lang/String;)V
 
-    .line 281
+    .line 360
     return-void
 .end method

@@ -213,6 +213,9 @@ public final class MastogoShell {
         running = true;
         hitArmed = way;
         hitLevel = lvl;
+        hitAt = io.now();
+        pressing = false;
+        pressSent = false;
         pump();
         ev.onChanged(this);
     }
@@ -246,15 +249,91 @@ public final class MastogoShell {
             return;
         }
         hitCount++;
+        hitAt = io.now();
         if (hitArmed == HIT_LEVEL) {
             direct("AT+CSTR=0," + hitLevel);
-            io.later(new Direct(this, "AT+CSTR=0," + hitBase), Math.max(30, ms));
+            io.later(new Direct(this, "AT+CSTR=0," + hitBase), Math.max(10, ms));
         } else {
             direct("AT+QPOWS");
             direct("AT+CSTR=0," + hitLevel);       // in case a strength set while paused is not kept
-            io.later(new Direct(this, "AT+QPOWP"), hitArmed == HIT_SINGLE ? SINGLE_MS : Math.max(30, ms));
+            io.later(new Direct(this, "AT+QPOWP"), hitArmed == HIT_SINGLE ? SINGLE_MS : Math.max(10, ms));
         }
         ev.onChanged(this);
+    }
+
+    /** When the last hit / press went out (the keep-alive leaves an active user alone). */
+    long hitAt;
+    /** A held press (squeeze): wanted, and its strength sent. */
+    boolean pressing, pressSent;
+
+    /**
+     * A hit that lasts as long as the finger is down (owner: "squeeze — the length of the event"): down = the hit
+     * strength straight to the link, up = back to the base. Waits while the arming is still queued; a release
+     * before that cancels it.
+     */
+    public void press(boolean down) {
+        if (hitArmed != HIT_LEVEL || closed) {
+            return;
+        }
+        if (down) {
+            pressing = true;
+            if (inFlight != null || !queue.isEmpty()) {
+                io.later(new PressLater(this), 100);
+                return;
+            }
+            pressSent = true;
+            hitCount++;
+            hitAt = io.now();
+            direct("AT+CSTR=0," + hitLevel);
+        } else {
+            pressing = false;
+            if (pressSent) {
+                pressSent = false;
+                hitAt = io.now();
+                direct("AT+CSTR=0," + hitBase);
+            }
+        }
+        ev.onChanged(this);
+    }
+
+    static final class PressLater implements Runnable {
+        final MastogoShell sh;
+
+        PressLater(MastogoShell sh) {
+            this.sh = sh;
+        }
+
+        @Override
+        public void run() {
+            if (sh.pressing && !sh.pressSent) {
+                sh.press(true);
+            }
+        }
+    }
+
+    /** No output for a few minutes and the unit switches itself off (+QPOWD:0, seen 2026-10-27). */
+    static final long KEEP_ALIVE_MS = 60000;
+
+    /**
+     * While armed for hits: the unit's own timer kept far from its end, and — when the output idles at strength 0 —
+     * one barely felt level-1 blip a minute with no hit, so the unit never counts itself idle (owner, 2026-10-27:
+     * "it switches itself off — that is a problem!"). Commands alone do not keep it on (the paused exploration still
+     * powered off).
+     */
+    void keepAlive() {
+        if (hitArmed < 0 || probing || closed) {
+            return;
+        }
+        int left = secondsLeft();
+        if (left >= 0 && left < 600) {
+            setTimer(3600);
+        }
+        long now = io.now();
+        if (hitBase == 0 && !pressing && now - hitAt >= KEEP_ALIVE_MS) {
+            hitAt = now;
+            direct("AT+CSTR=0,1");
+            io.later(new Direct(this, "AT+CSTR=0,0"), 150);
+        }
     }
 
     void direct(String t) {
@@ -1497,6 +1576,7 @@ public final class MastogoShell {
                     sh.plain("AT+CDCLK?");
                 }
             }
+            sh.keepAlive();
             sh.io.later(this, POLL_MS);
         }
     }

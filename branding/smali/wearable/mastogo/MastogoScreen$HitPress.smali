@@ -18,21 +18,26 @@
 
 
 # instance fields
+.field final i:I
+
 .field final p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
+    .registers 3
 
     .prologue
-    .line 2073
+    .line 2099
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2074
+    .line 2100
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 2075
+    .line 2101
+    iput p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->i:I
+
+    .line 2102
     return-void
 .end method
 
@@ -48,52 +53,61 @@
 
     const/4 v2, 0x1
 
-    .line 2079
+    .line 2106
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 2080
-    if-nez v0, :cond_1b
+    .line 2107
+    if-nez v0, :cond_1d
 
-    .line 2081
+    .line 2108
     invoke-virtual {p1, v2}, Landroid/view/View;->setPressed(Z)V
 
-    .line 2082
+    .line 2109
     invoke-virtual {p1, v1}, Landroid/view/View;->setScaleX(F)V
 
-    .line 2083
+    .line 2110
     invoke-virtual {p1, v1}, Landroid/view/View;->setScaleY(F)V
 
-    .line 2084
+    .line 2111
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitPress()V
+    iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->i:I
 
-    .line 2090
-    :cond_1a
-    :goto_1a
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fxDown(I)V
+
+    .line 2118
+    :cond_1c
+    :goto_1c
     return v2
 
-    .line 2085
-    :cond_1b
-    if-eq v0, v2, :cond_20
+    .line 2112
+    :cond_1d
+    if-eq v0, v2, :cond_22
 
     const/4 v1, 0x3
 
-    if-ne v0, v1, :cond_1a
+    if-ne v0, v1, :cond_1c
 
-    .line 2086
-    :cond_20
+    .line 2113
+    :cond_22
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
+
+    iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->i:I
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fxUp(I)V
+
+    .line 2114
     const/4 v0, 0x0
 
     invoke-virtual {p1, v0}, Landroid/view/View;->setPressed(Z)V
 
-    .line 2087
+    .line 2115
     invoke-virtual {p1, v3}, Landroid/view/View;->setScaleX(F)V
 
-    .line 2088
+    .line 2116
     invoke-virtual {p1, v3}, Landroid/view/View;->setScaleY(F)V
 
-    goto :goto_1a
+    goto :goto_1c
 .end method

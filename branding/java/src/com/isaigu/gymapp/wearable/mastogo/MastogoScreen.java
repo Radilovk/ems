@@ -190,8 +190,8 @@ public final class MastogoScreen {
         int tiltHi = -1;
         static final float TILT_FULL = 30f;
         // a hit (VR idea): the way and its length, kept
-        int hitWay;
-        int hitMs;
+        /** Each feeling's length, ms (the squeeze has none: it lasts while held). */
+        final int[] fxMs = new int[FX.length];
         TextView hitInfo;
         // modules tab
         final TextView[] tiles = new TextView[MastogoShell.MODES];
@@ -216,8 +216,9 @@ public final class MastogoScreen {
             minutes = prefs.getInt("minutes", 20);
             mod = MastogoShell.Mod.decode(prefs.getString("mod", new MastogoShell.Mod().encode()));
             startLevel = prefs.getInt("start_level", 1);
-            hitWay = prefs.getInt("hit_way", MastogoShell.HIT_GATE);
-            hitMs = prefs.getInt("hit_ms", 120);
+            for (int i = 0; i < FX.length; i++) {
+                fxMs[i] = prefs.getInt("fx_ms_" + i, FX_MS[i]);
+            }
             live = MastogoShell.Mod.decode(prefs.getString("live", ""));
             if (!prefs.contains("live")) {
                 live.lo = 0;
@@ -382,6 +383,7 @@ public final class MastogoScreen {
             phaseText = null;
             liveInfo = null;
             hitInfo = null;
+            java.util.Arrays.fill(fxSt, null);
             if (tab == 0) {
                 fillPult();
             } else if (tab == 2) {
@@ -547,10 +549,14 @@ public final class MastogoScreen {
         }
 
         void pultStep(int f, int dir) {
-            if (f == F_L_HITMS) {
-                hitMs = Math.max(30, Math.min(500, hitMs + dir * (hitMs < 100 || hitMs == 100 && dir < 0 ? 10 : 50)));
-                prefs.edit().putInt("hit_ms", hitMs).apply();
-                fillTab();
+            if (f >= F_L_FX) {
+                int i = f - F_L_FX;
+                int v = fxMs[i];
+                fxMs[i] = Math.max(10, Math.min(500, v + dir * (v < 100 || v == 100 && dir < 0 ? 10 : 50)));
+                prefs.edit().putInt("fx_ms_" + i, fxMs[i]).apply();
+                if (fxSt[i] != null) {
+                    fxSt[i].set(String.valueOf(fxMs[i]), "ms");
+                }
                 return;
             }
             switch (f) {
@@ -585,38 +591,61 @@ public final class MastogoScreen {
             renderPult();
         }
 
-        static final int F_L_HITMS = 36;
-
         /**
-         * Owner, 2026-10-27: "a sharp hit, as sharp as possible — the idea is VR, a hit in the game". One tap = one
-         * hit at the strength on the right, sent straight past the command queue; three ways to feel and compare.
+         * The owner's palette of feelings for VR (2026-10-27), each its own carrier and length, all by the strength
+         * way (the only one the unit does not soften away): УДАР = Пеперуда 40 ms; КЛИК = 77 Hz 10 ms ("a light
+         * touch or click"); СТИСКАНЕ = Шиацу, as long as the finger is down ("a squeeze in depth, by the length of
+         * the event"); УБОЖДАНЕ = Женски 1, 200 Hz ("sharp, like a stab into the skin").
          */
+        static final int FX_HIT = 0, FX_CLICK = 1, FX_SQUEEZE = 2, FX_STAB = 3;
+        static final int[] FX = {FX_HIT, FX_CLICK, FX_SQUEEZE, FX_STAB};
+        static final int[] FX_CARRIER = {13, 18, 11, 24};
+        static final int[] FX_MS = {40, 10, -1, 40};
+        static final int F_L_FX = 40;
+        final XemsUi.Stepper[] fxSt = new XemsUi.Stepper[FX.length];
+
+        static String fxName(int i) {
+            switch (i) {
+                case FX_CLICK: return tr("КЛИК", "CLICK");
+                case FX_SQUEEZE: return tr("СТИСКАНЕ", "SQUEEZE");
+                case FX_STAB: return tr("УБОЖДАНЕ", "STAB");
+                default: return tr("УДАР", "HIT");
+            }
+        }
+
         void fillHit() {
             LinearLayout card = XemsUi.card(a);
             card.setPadding(dp(14), dp(12), dp(14), dp(12));
             LinearLayout row = XemsUi.horizontal(a);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            TextView hit = XemsUi.button(a, tr("УДАР", "HIT"), XemsUi.DANGER_BTN);
-            hit.setTextSize(24);
-            hit.setOnTouchListener(new HitPress(this));     // on the touch itself, not on lifting the finger
-            row.addView(hit, new LinearLayout.LayoutParams(dp(170), dp(84)));
-            LinearLayout right = XemsUi.vertical(a);
-            LinearLayout[] h = new LinearLayout[1];
-            right.addView(XemsUi.chipRow(a, h));
-            String[] ways = {tr("Изход", "Output"), tr("Сила", "Strength"), tr("Единичен", "Single")};
-            for (int w = 0; w < ways.length; w++) {
-                TextView chip = XemsUi.chip(a, ways[w], w == hitWay, XemsUi.DANGER);
-                chip.setOnClickListener(new HitWay(this, w));
-                XemsUi.addChip(a, h[0], chip);
+            for (int i = 0; i < FX.length; i++) {
+                LinearLayout col = XemsUi.vertical(a);
+                TextView b = XemsUi.button(a, fxName(i), i == FX_HIT ? XemsUi.DANGER_BTN : XemsUi.SECONDARY);
+                b.setTextSize(19);
+                b.setOnTouchListener(new HitPress(this, i));   // on the touch itself, not on lifting the finger
+                col.addView(b, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(76)));
+                TextView sub = XemsUi.text(a, MastogoModes.name(FX_CARRIER[i], XemsLang.isBg()) + " · "
+                        + MastogoModes.hz(FX_CARRIER[i]), 12, XemsUi.MUTED, false);
+                sub.setGravity(Gravity.CENTER);
+                col.addView(sub, XemsUi.matchWrap(a, 4));
+                if (FX_MS[i] < 0) {
+                    TextView hold = XemsUi.text(a, tr("задръж = продължителност", "hold = duration"), 12.5f,
+                            XemsUi.TEXT, true);
+                    hold.setGravity(Gravity.CENTER);
+                    hold.setPadding(0, dp(14), 0, dp(14));
+                    col.addView(hold, XemsUi.matchWrap(a, 4));
+                } else {
+                    XemsUi.Stepper st = XemsUi.stepper(a, "", "", 18, new ModStep(this, F_L_FX + i));
+                    st.set(String.valueOf(fxMs[i]), "ms");
+                    fxSt[i] = st;
+                    col.addView(st.view, XemsUi.matchWrap(a, 4));
+                }
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1f);
+                if (i > 0) {
+                    lp.leftMargin = dp(8);
+                }
+                row.addView(col, lp);
             }
-            XemsUi.Stepper st = XemsUi.stepper(a, "", "", 20, new ModStep(this, F_L_HITMS));
-            st.set(hitWay == MastogoShell.HIT_SINGLE ? String.valueOf(MastogoShell.SINGLE_MS) : String.valueOf(hitMs),
-                    tr("ms — дължина на удара", "ms — hit length"));
-            st.view.setAlpha(hitWay == MastogoShell.HIT_SINGLE ? 0.4f : 1f);
-            right.addView(st.view, XemsUi.matchWrap(a, 6));
-            LinearLayout.LayoutParams rl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            rl.leftMargin = dp(14);
-            row.addView(right, rl);
             card.addView(row);
             hitInfo = XemsUi.text(a, "", 12.5f, XemsUi.HINT, false);
             card.addView(hitInfo, XemsUi.matchWrap(a, 8));
@@ -629,45 +658,38 @@ public final class MastogoScreen {
                 return;
             }
             MastogoShell sh = sh();
-            String way = hitWay == MastogoShell.HIT_GATE
-                    ? tr("Изход: изходът е на пауза със силата готова; ударът го пуска и спира. ",
-                    "Output: the output waits paused with the strength ready; the hit runs and stops it. ")
-                    : hitWay == MastogoShell.HIT_LEVEL
-                    ? tr("Сила: изходът върви на силата в паузата (" + live.lo + "); ударът скача на силата вдясно и се "
-                    + "връща — по-висока основа = по-силен удар. ", "Strength: the output runs at the pause strength ("
-                    + live.lo + "); the hit jumps to the strength on the right and back — a higher base = a "
-                    + "stronger hit. ")
-                    : tr("Единичен: един импулс на „Тонус“ (190 µs) на силата вдясно. ",
-                    "Single: one pulse of \"Toning\" (190 µs) at the strength on the right. ");
-            hitInfo.setText(way + tr("Сила = вдясно (", "Strength = on the right (") + live.hi + tr("), носител ",
-                    "), carrier ") + MastogoModes.name(hitWay == MastogoShell.HIT_SINGLE ? HIT_SINGLE_CARRIER
-                    : live.carrier, XemsLang.isBg()) + ". " + (sh != null && sh.hitArmed >= 0
-                    ? tr("Готов · удари: ", "Ready · hits: ") + sh.hitCount
-                    : tr("Първият удар подготвя апаратчето (~0.5 с). Пробвай трите начина — кой е най-рязък?",
-                    "The first hit gets the unit ready (~0.5 s). Try all three — which is sharpest?")));
+            hitInfo.setText(tr("Сила = вдясно (", "Strength = on the right (") + live.hi + tr("), основа = силата в "
+                    + "паузата (", "), base = the pause strength (") + live.lo + tr(") — по-висока основа, по-силно "
+                    + "усещане. Смяна на вида = смяна на програмата: първият му път ~0.5 с, после веднага. ",
+                    ") — a higher base, a stronger feel. Another kind = another program: its first time ~0.5 s, then "
+                    + "at once. ") + (sh != null && sh.hitArmed >= 0 ? tr("Готово · събития: ", "Ready · events: ")
+                    + sh.hitCount + tr(" · апаратчето се държи будно.", " · the unit is kept awake.") : ""));
         }
 
-        static final int HIT_SINGLE_CARRIER = 19;
-
-        void hitPress() {
+        void fxDown(int i) {
             MastogoShell sh = sh();
             if (sh == null || sh.probing) {
                 return;
             }
-            int carrier = hitWay == MastogoShell.HIT_SINGLE ? HIT_SINGLE_CARRIER : live.carrier;
-            if (sh.hitArmed != hitWay || sh.mode != carrier) {
+            int carrier = FX_CARRIER[i];
+            if (sh.hitArmed != MastogoShell.HIT_LEVEL || sh.mode != carrier) {
                 liveRun = false;
-                sh.armHit(hitWay, carrier, live.hi, live.lo, minutes * 60);
+                sh.armHit(MastogoShell.HIT_LEVEL, carrier, live.hi, live.lo, minutes * 60);
             }
-            sh.hit(hitMs);
+            if (FX_MS[i] < 0) {
+                sh.press(true);
+            } else {
+                sh.hit(fxMs[i]);
+            }
             renderHit();
             render();
         }
 
-        void pickHitWay(int w) {
-            hitWay = w;
-            prefs.edit().putInt("hit_way", w).apply();
-            fillTab();
+        void fxUp(int i) {
+            MastogoShell sh = sh();
+            if (sh != null && FX_MS[i] < 0) {
+                sh.press(false);
+            }
         }
 
         /** The panel's modulation as it should run: the impulse strength from the tilt while that is on. */
@@ -2066,12 +2088,17 @@ public final class MastogoScreen {
         }
     }
 
-    /** УДАР fires the moment the finger lands (owner: "it starts on lifting the finger — that delays it"). */
+    /**
+     * A feeling fires the moment the finger lands (owner: "it starts on lifting the finger — that delays it"); the
+     * squeeze ends when it lifts.
+     */
     static final class HitPress implements View.OnTouchListener {
         final Page p;
+        final int i;
 
-        HitPress(Page p) {
+        HitPress(Page p, int i) {
             this.p = p;
+            this.i = i;
         }
 
         @Override
@@ -2081,28 +2108,14 @@ public final class MastogoScreen {
                 v.setPressed(true);
                 v.setScaleX(0.96f);
                 v.setScaleY(0.96f);
-                p.hitPress();
+                p.fxDown(i);
             } else if (act == android.view.MotionEvent.ACTION_UP || act == android.view.MotionEvent.ACTION_CANCEL) {
+                p.fxUp(i);
                 v.setPressed(false);
                 v.setScaleX(1f);
                 v.setScaleY(1f);
             }
             return true;
-        }
-    }
-
-    static final class HitWay implements View.OnClickListener {
-        final Page p;
-        final int w;
-
-        HitWay(Page p, int w) {
-            this.p = p;
-            this.w = w;
-        }
-
-        @Override
-        public void onClick(View v) {
-            p.pickHitWay(w);
         }
     }
 

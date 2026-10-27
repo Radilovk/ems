@@ -347,6 +347,22 @@ public final class MastogoSim implements MastogoShell.Io, MastogoShell.Events {
         during = uLevel == 25;
         runFor(200);
         check(during && uLevel == 13, "level way from a base: 25 then back to 13");
+        // squeeze: the strength while the finger is down, the base when it lifts
+        sh.press(true);
+        runFor(80);
+        during = uLevel == 25;
+        runFor(700);
+        boolean held = uLevel == 25;
+        sh.press(false);
+        runFor(80);
+        check(during && held && uLevel == 13, "squeeze: 25 held for as long as pressed, then 13");
+        // keep-alive: armed at base 0 and untouched → a level-1 blip within ~80 s, and the timer kept up
+        sh.armHit(MastogoShell.HIT_LEVEL, 18, 10, 0, 300);
+        runFor(1500);
+        levels.clear();
+        runFor(85000);
+        check(levels.contains(1) && sh.secondsLeft() > 600, "keep-alive: a blip at 1 and the timer renewed "
+                + levels + " · " + sh.secondsLeft() + " s");
         sh.stop();
         runFor(300);
 

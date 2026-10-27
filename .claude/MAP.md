@@ -1048,6 +1048,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L183 ## Какво остава за сървъра
   - L190 ## Проверки (без Android)
 
+`docs/xems-mastogo.md` (59L)
+  - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
+  - L7 ## Transport
+  - L13 ## Commands (all the app ever sends to H-024B)
+  - L32 ## Feedback
+  - L46 ## Programs (firmware-fixed; app only sends the id)
+  - L51 ## Limits — what is NOT in the protocol
+
 `docs/xems-modulation.md` (109L)
   - L1 # «Модулация» on a bodytech suit (1.1.375 phases; 1.1.372 name; was "Австралийски ток", 1.1.362)
   - L19 ## What the current is on this suit

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2121
+    .line 2252
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2122
+    .line 2253
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StartScan;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 2123
+    .line 2254
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 2
 
     .prologue
-    .line 2127
+    .line 2258
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StartScan;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->startScan()V
 
-    .line 2128
+    .line 2259
     return-void
 .end method

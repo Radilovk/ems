@@ -162,6 +162,13 @@ hidden command the sweep must find).
   `start(seconds, at)` = `CSTR=at` → `QPOWS` → `CSTR=at` (again, in case the unit ignores it while paused), no
   crawl from 1. Manual mode: − / + before ▶ set that strength (`start_level`); the panel / gated shapes start at
   their first level (the impulse strength when there is no rise).
+- **Удар (1.1.474, panel — owner: "a sharp hit, as sharp as possible; the idea is VR, a hit in the game")**: a red
+  УДАР button, one tap = one hit at the right card's strength, written straight to the link past the command queue
+  (`MastogoShell.hit` → `direct`, no 100 ms gap, no reply wait; the console marks them ⚡). Three ways to compare on
+  the unit — which one the firmware does not soften is not known yet: **Изход** (armed paused with the strength
+  preset; hit = `QPOWS` + `CSTR` … `QPOWP`), **Сила** (armed running at 0; hit = `CSTR=n` … `CSTR=0`), **Единичен**
+  (Изход on "Toning" for 150 ms = one 190 µs pulse). Length 30–500 ms. The first hit arms (~0.5 s). Next: the
+  Quest 3 bridge (`vr-bridge/`) sending game hits to `hit()`.
 - **Наклон (1.1.473, panel, a test — owner):** a switch under the phase box; the tablet's accelerometer (low-passed
   gravity → the screen's angle) drives the impulse strength: 0° = the pause strength, 30° = the strength on the right
   (never above it). Zero = the position when switched on and at ▶. Off on every open, unregistered on close; rises

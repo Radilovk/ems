@@ -189,6 +189,10 @@ public final class MastogoScreen {
         /** The impulse strength the tilt gives now (−1 = none yet). */
         int tiltHi = -1;
         static final float TILT_FULL = 30f;
+        // a hit (VR idea): the way and its length, kept
+        int hitWay;
+        int hitMs;
+        TextView hitInfo;
         // modules tab
         final TextView[] tiles = new TextView[MastogoShell.MODES];
         // modulation tab
@@ -212,6 +216,8 @@ public final class MastogoScreen {
             minutes = prefs.getInt("minutes", 20);
             mod = MastogoShell.Mod.decode(prefs.getString("mod", new MastogoShell.Mod().encode()));
             startLevel = prefs.getInt("start_level", 1);
+            hitWay = prefs.getInt("hit_way", MastogoShell.HIT_GATE);
+            hitMs = prefs.getInt("hit_ms", 120);
             live = MastogoShell.Mod.decode(prefs.getString("live", ""));
             if (!prefs.contains("live")) {
                 live.lo = 0;
@@ -375,6 +381,7 @@ public final class MastogoScreen {
             phase = null;
             phaseText = null;
             liveInfo = null;
+            hitInfo = null;
             if (tab == 0) {
                 fillPult();
             } else if (tab == 2) {
@@ -462,6 +469,7 @@ public final class MastogoScreen {
             pl.topMargin = dp(8);
             box.addView(phase, pl);
             tabBody.addView(box, XemsUi.matchWrap(a, 12));
+            fillHit();
             tabBody.addView(XemsUi.toggleRow(a, tr("Наклон управлява силата", "Tilt drives the strength"),
                     tr("Наклони таблета: 0° = силата в паузата, 30° = силата вдясно (никога повече). Нулата е "
                             + "положението при включване и при ▶.", "Tilt the tablet: 0° = the pause strength, 30° = "
@@ -539,6 +547,12 @@ public final class MastogoScreen {
         }
 
         void pultStep(int f, int dir) {
+            if (f == F_L_HITMS) {
+                hitMs = Math.max(30, Math.min(500, hitMs + dir * (hitMs < 100 || hitMs == 100 && dir < 0 ? 10 : 50)));
+                prefs.edit().putInt("hit_ms", hitMs).apply();
+                fillTab();
+                return;
+            }
             switch (f) {
                 case F_L_HZ: {
                     int at = 0;
@@ -564,6 +578,89 @@ public final class MastogoScreen {
             live.safe();
             liveChanged();
             renderPult();
+        }
+
+        static final int F_L_HITMS = 36;
+
+        /**
+         * Owner, 2026-10-27: "a sharp hit, as sharp as possible — the idea is VR, a hit in the game". One tap = one
+         * hit at the strength on the right, sent straight past the command queue; three ways to feel and compare.
+         */
+        void fillHit() {
+            LinearLayout card = XemsUi.card(a);
+            card.setPadding(dp(14), dp(12), dp(14), dp(12));
+            LinearLayout row = XemsUi.horizontal(a);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            TextView hit = XemsUi.button(a, tr("УДАР", "HIT"), XemsUi.DANGER_BTN);
+            hit.setTextSize(24);
+            hit.setOnClickListener(new HitPress(this));
+            row.addView(hit, new LinearLayout.LayoutParams(dp(170), dp(84)));
+            LinearLayout right = XemsUi.vertical(a);
+            LinearLayout[] h = new LinearLayout[1];
+            right.addView(XemsUi.chipRow(a, h));
+            String[] ways = {tr("Изход", "Output"), tr("Сила", "Strength"), tr("Единичен", "Single")};
+            for (int w = 0; w < ways.length; w++) {
+                TextView chip = XemsUi.chip(a, ways[w], w == hitWay, XemsUi.DANGER);
+                chip.setOnClickListener(new HitWay(this, w));
+                XemsUi.addChip(a, h[0], chip);
+            }
+            XemsUi.Stepper st = XemsUi.stepper(a, "", "", 20, new ModStep(this, F_L_HITMS));
+            st.set(hitWay == MastogoShell.HIT_SINGLE ? String.valueOf(MastogoShell.SINGLE_MS) : String.valueOf(hitMs),
+                    tr("ms — дължина на удара", "ms — hit length"));
+            st.view.setAlpha(hitWay == MastogoShell.HIT_SINGLE ? 0.4f : 1f);
+            right.addView(st.view, XemsUi.matchWrap(a, 6));
+            LinearLayout.LayoutParams rl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            rl.leftMargin = dp(14);
+            row.addView(right, rl);
+            card.addView(row);
+            hitInfo = XemsUi.text(a, "", 12.5f, XemsUi.HINT, false);
+            card.addView(hitInfo, XemsUi.matchWrap(a, 8));
+            tabBody.addView(card, XemsUi.matchWrap(a, 12));
+            renderHit();
+        }
+
+        void renderHit() {
+            if (hitInfo == null) {
+                return;
+            }
+            MastogoShell sh = sh();
+            String way = hitWay == MastogoShell.HIT_GATE
+                    ? tr("Изход: изходът е на пауза със силата готова; ударът го пуска и спира. ",
+                    "Output: the output waits paused with the strength ready; the hit runs and stops it. ")
+                    : hitWay == MastogoShell.HIT_LEVEL
+                    ? tr("Сила: изходът върви на 0; ударът скача на силата и обратно на 0. ",
+                    "Strength: the output runs at 0; the hit jumps to the strength and back to 0. ")
+                    : tr("Единичен: един импулс на „Тонус“ (190 µs) на силата вдясно. ",
+                    "Single: one pulse of \"Toning\" (190 µs) at the strength on the right. ");
+            hitInfo.setText(way + tr("Сила = вдясно (", "Strength = on the right (") + live.hi + tr("), носител ",
+                    "), carrier ") + MastogoModes.name(hitWay == MastogoShell.HIT_SINGLE ? HIT_SINGLE_CARRIER
+                    : live.carrier, XemsLang.isBg()) + ". " + (sh != null && sh.hitArmed >= 0
+                    ? tr("Готов · удари: ", "Ready · hits: ") + sh.hitCount
+                    : tr("Първият удар подготвя апаратчето (~0.5 с). Пробвай трите начина — кой е най-рязък?",
+                    "The first hit gets the unit ready (~0.5 s). Try all three — which is sharpest?")));
+        }
+
+        static final int HIT_SINGLE_CARRIER = 19;
+
+        void hitPress() {
+            MastogoShell sh = sh();
+            if (sh == null || sh.probing) {
+                return;
+            }
+            int carrier = hitWay == MastogoShell.HIT_SINGLE ? HIT_SINGLE_CARRIER : live.carrier;
+            if (sh.hitArmed != hitWay || sh.mode != carrier) {
+                liveRun = false;
+                sh.armHit(hitWay, carrier, live.hi, minutes * 60);
+            }
+            sh.hit(hitMs);
+            renderHit();
+            render();
+        }
+
+        void pickHitWay(int w) {
+            hitWay = w;
+            prefs.edit().putInt("hit_way", w).apply();
+            fillTab();
         }
 
         /** The panel's modulation as it should run: the impulse strength from the tilt while that is on. */
@@ -1339,6 +1436,8 @@ public final class MastogoScreen {
                 h = tr("Свързвам се…", "Linking…");
             } else if (sh.probing) {
                 h = tr("Търся команди — изходът е спрян.", "Searching commands — output paused.");
+            } else if (sh.hitArmed >= 0) {
+                h = tr("Удар готов — тапни УДАР. ■ спира.", "Hit ready — tap HIT. ■ stops.");
             } else if (running) {
                 h = liveRun ? tr("Пулт: ", "Panel: ") + MastogoModes.hz(live.carrier) + " · " + secs(live.onMs)
                         + " / " + secs(live.offMs) + tr(" с — пипай на живо", " s — change it live")
@@ -1402,11 +1501,15 @@ public final class MastogoScreen {
                 return;
             }
             hintText = null;
-            if (liveRun && sh.mod() != null || tab == 0 && !sh.running) {   // the panel: impulse strength
+            if (liveRun && sh.mod() != null || tab == 0 && !sh.running || sh.hitArmed >= 0) {  // panel / hit strength
                 live.hi = Math.max(live.lo, Math.min(MastogoShell.MAX_LEVEL, live.hi + dir));
                 live.safe();
                 liveChanged();
+                if (sh.hitArmed >= 0) {
+                    sh.setHitLevel(live.hi);
+                }
                 renderPult();
+                renderHit();
             } else if (sh.mod() != null) {                  // shift the whole envelope
                 if (dir > 0 && mod.hi < MastogoShell.MAX_LEVEL || dir < 0 && mod.lo > 0) {
                     mod.lo += dir;
@@ -1953,6 +2056,34 @@ public final class MastogoScreen {
         @Override
         public void onClick(View v) {
             p.pickShape(shape);
+        }
+    }
+
+    static final class HitPress implements View.OnClickListener {
+        final Page p;
+
+        HitPress(Page p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.hitPress();
+        }
+    }
+
+    static final class HitWay implements View.OnClickListener {
+        final Page p;
+        final int w;
+
+        HitWay(Page p, int w) {
+            this.p = p;
+            this.w = w;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.pickHitWay(w);
         }
     }
 

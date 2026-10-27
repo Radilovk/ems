@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1344
+    .line 1464
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1345
+    .line 1465
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Poll;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
-    .line 1346
+    .line 1466
     return-void
 .end method
 
@@ -42,18 +42,18 @@
     .registers 5
 
     .prologue
-    .line 1350
+    .line 1470
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Poll;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->closed:Z
 
     if-eqz v0, :cond_7
 
-    .line 1360
+    .line 1480
     :goto_6
     return-void
 
-    .line 1353
+    .line 1473
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Poll;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
@@ -61,28 +61,28 @@
 
     if-nez v0, :cond_21
 
-    .line 1354
+    .line 1474
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Poll;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     const-string v1, "AT+CBC?"
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->plain(Ljava/lang/String;)V
 
-    .line 1355
+    .line 1475
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Poll;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
     if-eqz v0, :cond_21
 
-    .line 1356
+    .line 1476
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Poll;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     const-string v1, "AT+CDCLK?"
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->plain(Ljava/lang/String;)V
 
-    .line 1359
+    .line 1479
     :cond_21
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Poll;->sh:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 

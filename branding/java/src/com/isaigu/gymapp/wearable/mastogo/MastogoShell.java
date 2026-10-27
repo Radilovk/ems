@@ -144,6 +144,7 @@ public final class MastogoShell {
      * one step ~0.1 s after the start, never a crawl from 1.
      */
     public void start(int seconds, int at) {
+        hitArmed = -1;
         if (at <= 1) {
             start(seconds);
             return;
@@ -160,8 +161,123 @@ public final class MastogoShell {
         ev.onChanged(this);
     }
 
+    // ================================================================== a hit (owner, 2026-10-27: "a sharp hit, as
+    // sharp as possible — the idea is VR, a hit in the game")
+
+    /**
+     * Ways to make a hit, to be felt and compared on the unit (which one the firmware does not soften is unknown):
+     * GATE = output paused with the strength preset, hit = run … pause; LEVEL = output running at 0, hit = strength
+     * … 0; SINGLE = GATE on DOMAS "Toning" (1.6 Hz) for 150 ms — exactly one of its pulses.
+     */
+    public static final int HIT_GATE = 0, HIT_LEVEL = 1, HIT_SINGLE = 2;
+    public static final int SINGLE_MS = 150;
+    /** The way the unit is armed for, -1 = not armed. */
+    public int hitArmed = -1;
+    public int hitLevel;
+    public int hitCount;
+
+    /** Gets the unit ready for hits (through the queue): the carrier, the timer, run / pause, the strength. */
+    public void armHit(int way, int carrier, int lvl, int seconds) {
+        mod = null;
+        lvl = Math.max(1, Math.min(MAX_LEVEL, lvl));
+        if (mode != carrier) {
+            plain("AT+CMODE=0," + carrier);        // pauses and zeroes the strength
+            mode = carrier;
+        }
+        plain("AT+QPOWS");
+        queue.add(new Cmd("AT+CSTR=0,0", K_LEVEL));
+        level = 0;
+        outOff = false;
+        if (way != HIT_LEVEL) {
+            queue.add(new Cmd("AT+QPOWP", K_PAUSE));
+            queue.add(new Cmd("AT+CSTR=0," + lvl, K_LEVEL));
+            level = lvl;
+            outOff = true;
+        }
+        if (!running || secondsLeft() <= 0) {
+            setTimer(seconds);
+        }
+        running = true;
+        hitArmed = way;
+        hitLevel = lvl;
+        pump();
+        ev.onChanged(this);
+    }
+
+    /** A new strength for the next hits (preset while paused, or kept for the LEVEL way). */
+    public void setHitLevel(int lvl) {
+        hitLevel = Math.max(1, Math.min(MAX_LEVEL, lvl));
+        if (hitArmed == HIT_GATE || hitArmed == HIT_SINGLE) {
+            setLevel(hitLevel);
+        }
+    }
+
+    /**
+     * One hit of {@code ms}: written straight to the link, past the command queue (no 100 ms gap, no waiting for a
+     * reply) — the only way to get a start and an end ~1 BLE interval apart. Waits while the arming is still queued.
+     */
+    public void hit(int ms) {
+        if (hitArmed < 0 || closed) {
+            return;
+        }
+        if (inFlight != null || !queue.isEmpty()) {
+            io.later(new HitLater(this, ms), 150);
+            return;
+        }
+        hitCount++;
+        if (hitArmed == HIT_LEVEL) {
+            direct("AT+CSTR=0," + hitLevel);
+            io.later(new Direct(this, "AT+CSTR=0,0"), Math.max(30, ms));
+        } else {
+            direct("AT+QPOWS");
+            direct("AT+CSTR=0," + hitLevel);       // in case a strength set while paused is not kept
+            io.later(new Direct(this, "AT+QPOWP"), hitArmed == HIT_SINGLE ? SINGLE_MS : Math.max(30, ms));
+        }
+        ev.onChanged(this);
+    }
+
+    void direct(String t) {
+        if (closed) {
+            return;
+        }
+        sentCount++;
+        ev.onLine(this, true, t + " ⚡");
+        io.send((t + "\r\n").getBytes());
+    }
+
+    static final class Direct implements Runnable {
+        final MastogoShell sh;
+        final String t;
+
+        Direct(MastogoShell sh, String t) {
+            this.sh = sh;
+            this.t = t;
+        }
+
+        @Override
+        public void run() {
+            sh.direct(t);
+        }
+    }
+
+    static final class HitLater implements Runnable {
+        final MastogoShell sh;
+        final int ms;
+
+        HitLater(MastogoShell sh, int ms) {
+            this.sh = sh;
+            this.ms = ms;
+        }
+
+        @Override
+        public void run() {
+            sh.hit(ms);
+        }
+    }
+
     /** ▶ — the vendor's sequence: run, strength 1, run, timer. Strength always starts at 1. */
     public void start(int seconds) {
+        hitArmed = -1;
         offReason = -1;
         outOff = false;
         plain("AT+QPOWS");
@@ -176,6 +292,7 @@ public final class MastogoShell {
     /** ■ — pause the output (the modulation stops too). */
     public void stop() {
         mod = null;
+        hitArmed = -1;
         outOff = false;
         queue.add(new Cmd("AT+QPOWP", K_PAUSE));
         running = false;
@@ -954,6 +1071,9 @@ public final class MastogoShell {
 
     /** Starts (or replaces) the modulation; it only drives the strength while the unit runs and the pads touch. */
     public void modulate(Mod m) {
+        if (m != null) {
+            hitArmed = -1;
+        }
         if (m == null) {
             mod = null;
             if (outOff && running) {

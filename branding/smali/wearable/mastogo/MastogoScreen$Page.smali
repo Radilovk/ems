@@ -38,6 +38,8 @@
 
 .field static final F_L_DOWN:I = 0x22
 
+.field static final F_L_HITMS:I = 0x24
+
 .field static final F_L_HZ:I = 0x1e
 
 .field static final F_L_LO:I = 0x23
@@ -71,6 +73,8 @@
 .field static final F_S_UP:I = 0xc
 
 .field static final F_UP:I = 0x5
+
+.field static final HIT_SINGLE_CARRIER:I = 0x13
 
 .field static final TILT_FULL:F = 30.0f
 
@@ -121,7 +125,13 @@
 
 .field hintText:Ljava/lang/String;
 
+.field hitInfo:Landroid/widget/TextView;
+
 .field hitList:Landroid/widget/LinearLayout;
+
+.field hitMs:I
+
+.field hitWay:I
 
 .field level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -205,7 +215,7 @@
     .registers 1
 
     .prologue
-    .line 394
+    .line 401
     const/4 v0, 0x7
 
     new-array v0, v0, [I
@@ -214,7 +224,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->BEATS:[I
 
-    .line 400
+    .line 407
     invoke-static {}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->freqs()[I
 
     move-result-object v0
@@ -223,7 +233,7 @@
 
     return-void
 
-    .line 394
+    .line 401
     nop
 
     :array_10
@@ -250,7 +260,7 @@
 
     const/4 v3, 0x0
 
-    .line 207
+    .line 211
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 143
@@ -289,17 +299,17 @@
     .line 190
     iput v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltHi:I
 
-    .line 193
+    .line 197
     const/16 v0, 0x1a
 
     new-array v0, v0, [Landroid/widget/TextView;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiles:[Landroid/widget/TextView;
 
-    .line 208
+    .line 212
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
-    .line 209
+    .line 213
     invoke-virtual {p1}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -312,7 +322,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
-    .line 210
+    .line 214
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "tab"
@@ -323,7 +333,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
-    .line 211
+    .line 215
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "mode"
@@ -334,7 +344,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
-    .line 212
+    .line 216
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "minutes"
@@ -347,7 +357,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
 
-    .line 213
+    .line 217
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "mod"
@@ -370,7 +380,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 214
+    .line 218
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "start_level"
@@ -381,7 +391,31 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->startLevel:I
 
-    .line 215
+    .line 219
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
+
+    const-string v1, "hit_way"
+
+    invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    .line 220
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
+
+    const-string v1, "hit_ms"
+
+    const/16 v2, 0x78
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    .line 221
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "live"
@@ -398,7 +432,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 216
+    .line 222
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "live"
@@ -407,41 +441,41 @@
 
     move-result v0
 
-    if-nez v0, :cond_a0
+    if-nez v0, :cond_b6
 
-    .line 217
+    .line 223
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iput v3, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
-    .line 218
+    .line 224
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     const/16 v1, 0x8
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
 
-    .line 220
-    :cond_a0
+    .line 226
+    :cond_b6
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     const/4 v1, 0x5
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->shape:I
 
-    .line 221
+    .line 227
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     new-array v1, v3, [I
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
 
-    .line 222
+    .line 228
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iput-boolean v4, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->gate:Z
 
-    .line 223
+    .line 229
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
@@ -450,40 +484,40 @@
 
     move-result v0
 
-    if-nez v0, :cond_bd
+    if-nez v0, :cond_d3
 
-    .line 224
+    .line 230
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iput v5, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
-    .line 226
-    :cond_bd
+    .line 232
+    :cond_d3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
-    if-gez v0, :cond_c7
+    if-gez v0, :cond_dd
 
-    .line 227
+    .line 233
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iput v5, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
-    .line 229
-    :cond_c7
+    .line 235
+    :cond_dd
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     const/16 v1, 0x64
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->stepMs:I
 
-    .line 230
+    .line 236
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 231
+    .line 237
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     const-string v1, "mod_on"
@@ -494,7 +528,7 @@
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
 
-    .line 232
+    .line 238
     return-void
 .end method
 
@@ -504,12 +538,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 423
+    .line 430
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->hz(I)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 425
+    .line 432
     :goto_5
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
@@ -535,13 +569,13 @@
 
     if-ne v2, v3, :cond_20
 
-    .line 426
+    .line 433
     :cond_1d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_5
 
-    .line 429
+    .line 436
     :cond_20
     const/4 v2, 0x0
 
@@ -556,15 +590,15 @@
 
     move-result-wide v0
 
-    .line 431
+    .line 438
     :goto_29
     return-wide v0
 
-    .line 430
+    .line 437
     :catch_2a
     move-exception v0
 
-    .line 431
+    .line 438
     const-wide/16 v0, 0x0
 
     goto :goto_29
@@ -576,7 +610,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 403
+    .line 410
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->SHARP:[I
 
     array-length v0, v0
@@ -585,13 +619,13 @@
 
     move v0, v1
 
-    .line 404
+    .line 411
     :goto_7
     array-length v3, v2
 
     if-ge v0, v3, :cond_17
 
-    .line 405
+    .line 412
     sget-object v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->SHARP:[I
 
     aget v3, v3, v0
@@ -602,12 +636,12 @@
 
     aput-object v3, v2, v0
 
-    .line 404
+    .line 411
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_7
 
-    .line 407
+    .line 414
     :cond_17
     new-instance v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ByHz;
 
@@ -615,7 +649,7 @@
 
     invoke-static {v2, v0}, Ljava/util/Arrays;->sort([Ljava/lang/Object;Ljava/util/Comparator;)V
 
-    .line 408
+    .line 415
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->BEATS:[I
 
     array-length v0, v0
@@ -628,7 +662,7 @@
 
     move v0, v1
 
-    .line 409
+    .line 416
     :goto_27
     sget-object v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->BEATS:[I
 
@@ -636,7 +670,7 @@
 
     if-ge v0, v4, :cond_36
 
-    .line 410
+    .line 417
     sget-object v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->BEATS:[I
 
     aget v4, v4, v0
@@ -645,19 +679,19 @@
 
     aput v4, v3, v0
 
-    .line 409
+    .line 416
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_27
 
-    .line 412
+    .line 419
     :cond_36
     :goto_36
     array-length v0, v2
 
     if-ge v1, v0, :cond_48
 
-    .line 413
+    .line 420
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->BEATS:[I
 
     array-length v0, v0
@@ -672,12 +706,12 @@
 
     aput v4, v3, v0
 
-    .line 412
+    .line 419
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_36
 
-    .line 415
+    .line 422
     :cond_48
     return-object v3
 .end method
@@ -686,7 +720,7 @@
     .registers 4
 
     .prologue
-    .line 932
+    .line 1029
     const/4 v0, 0x0
 
     :goto_1
@@ -694,22 +728,22 @@
 
     if-ge v0, v1, :cond_c
 
-    .line 933
+    .line 1030
     aget v1, p0, v0
 
     if-ne v1, p1, :cond_9
 
-    .line 937
+    .line 1034
     :goto_8
     return v0
 
-    .line 932
+    .line 1029
     :cond_9
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 937
+    .line 1034
     :cond_c
     const/4 v0, -0x1
 
@@ -722,7 +756,7 @@
     .prologue
     const/16 v0, 0x2710
 
-    .line 1039
+    .line 1136
     if-lt p0, v0, :cond_8
 
     if-ne p0, v0, :cond_d
@@ -732,7 +766,7 @@
     :cond_8
     const/16 v0, 0x1f4
 
-    .line 1040
+    .line 1137
     :goto_a
     mul-int/2addr v0, p1
 
@@ -740,7 +774,7 @@
 
     return v0
 
-    .line 1039
+    .line 1136
     :cond_d
     const/16 v0, 0x3e8
 
@@ -751,7 +785,7 @@
     .registers 7
 
     .prologue
-    .line 983
+    .line 1080
     rem-int/lit16 v0, p0, 0x3e8
 
     if-nez v0, :cond_b
@@ -765,7 +799,7 @@
     :goto_a
     return-object v0
 
-    .line 984
+    .line 1081
     :cond_b
     sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
 
@@ -804,7 +838,7 @@
 
     const/16 v0, 0x7d0
 
-    .line 1033
+    .line 1130
     if-lt p0, v0, :cond_a
 
     if-ne p0, v0, :cond_f
@@ -814,7 +848,7 @@
     :cond_a
     const/16 v0, 0x64
 
-    .line 1034
+    .line 1131
     :goto_c
     mul-int/2addr v0, p1
 
@@ -822,7 +856,7 @@
 
     return v0
 
-    .line 1033
+    .line 1130
     :cond_f
     if-lt p0, v1, :cond_15
 
@@ -847,7 +881,7 @@
     .registers 2
 
     .prologue
-    .line 436
+    .line 443
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveRun:Z
 
     if-eqz v0, :cond_7
@@ -867,14 +901,14 @@
     .registers 11
 
     .prologue
-    .line 965
+    .line 1062
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 966
+    .line 1063
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v1, p2}, Lcom/isaigu/gymapp/widget/XemsUi;->label(Landroid/content/Context;Ljava/lang/String;)Landroid/widget/TextView;
@@ -883,7 +917,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 967
+    .line 1064
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -900,7 +934,7 @@
 
     move-result-object v1
 
-    .line 968
+    .line 1065
     invoke-virtual {p0, p3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fieldValue(I)Ljava/lang/String;
 
     move-result-object v2
@@ -911,7 +945,7 @@
 
     invoke-virtual {v1, v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 969
+    .line 1066
     iget-object v2, v1, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
 
     invoke-static {p3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -920,7 +954,7 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setTag(Ljava/lang/Object;)V
 
-    .line 970
+    .line 1067
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -933,7 +967,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 971
+    .line 1068
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, 0x0
@@ -944,7 +978,7 @@
 
     invoke-direct {v1, v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 972
+    .line 1069
     invoke-virtual {p1}, Landroid/widget/LinearLayout;->getChildCount()I
 
     move-result v2
@@ -953,7 +987,7 @@
 
     if-eqz p4, :cond_59
 
-    .line 973
+    .line 1070
     :cond_51
     const/high16 v2, 0x41200000    # 10.0f
 
@@ -963,11 +997,11 @@
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 975
+    .line 1072
     :cond_59
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 976
+    .line 1073
     return-void
 .end method
 
@@ -975,7 +1009,7 @@
     .registers 4
 
     .prologue
-    .line 244
+    .line 250
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1007,7 +1041,7 @@
 
     move-result-object v0
 
-    .line 245
+    .line 251
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->hz(I)Ljava/lang/String;
 
     move-result-object v1
@@ -1020,7 +1054,7 @@
 
     move-result-object v0
 
-    .line 244
+    .line 250
     return-object v0
 
     :cond_2c
@@ -1044,12 +1078,12 @@
     .registers 5
 
     .prologue
-    .line 1509
+    .line 1612
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1510
+    .line 1613
     new-instance v1, Ljava/lang/StringBuilder;
 
     if-eqz v0, :cond_30
@@ -1061,12 +1095,12 @@
     :goto_c
     invoke-direct {v1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    .line 1511
+    .line 1614
     const-string v0, "\nconsole:\n"
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 1512
+    .line 1615
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->console:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -1086,7 +1120,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 1513
+    .line 1616
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -1097,13 +1131,13 @@
 
     goto :goto_1a
 
-    .line 1510
+    .line 1613
     :cond_30
     const-string v0, "MASTOGO: not linked\n"
 
     goto :goto_c
 
-    .line 1516
+    .line 1619
     :cond_33
     :try_start_33
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -1116,7 +1150,7 @@
 
     check-cast v0, Landroid/content/ClipboardManager;
 
-    .line 1517
+    .line 1620
     const-string v2, "mastogo"
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
@@ -1129,7 +1163,7 @@
 
     invoke-virtual {v0, v1}, Landroid/content/ClipboardManager;->setPrimaryClip(Landroid/content/ClipData;)V
 
-    .line 1518
+    .line 1621
     const-string v0, "\u2713 \u041e\u0442\u0447\u0435\u0442\u044a\u0442 \u0435 \u043a\u043e\u043f\u0438\u0440\u0430\u043d."
 
     const-string v1, "\u2713 Report copied."
@@ -1142,18 +1176,18 @@
     :try_end_54
     .catch Ljava/lang/Throwable; {:try_start_33 .. :try_end_54} :catch_58
 
-    .line 1522
+    .line 1625
     :goto_54
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1523
+    .line 1626
     return-void
 
-    .line 1519
+    .line 1622
     :catch_58
     move-exception v0
 
-    .line 1520
+    .line 1623
     const-string v0, "\u041d\u0435 \u043c\u043e\u0436\u0430\u0445 \u0434\u0430 \u043a\u043e\u043f\u0438\u0440\u0430\u043c."
 
     const-string v1, "Could not copy."
@@ -1173,44 +1207,44 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1611
+    .line 1714
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
-    .line 1612
+    .line 1715
     sput-object v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->current:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 1613
+    .line 1716
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->main:Landroid/os/Handler;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
 
-    .line 1614
+    .line 1717
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltOff()V
 
-    .line 1615
+    .line 1718
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->scan:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;
 
     if-eqz v0, :cond_17
 
-    .line 1616
+    .line 1719
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->scan:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;->stop()V
 
-    .line 1618
+    .line 1721
     :cond_17
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     if-eqz v0, :cond_3b
 
-    .line 1619
+    .line 1722
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->shell:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
-    .line 1620
+    .line 1723
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
     if-nez v1, :cond_27
@@ -1219,14 +1253,14 @@
 
     if-eqz v1, :cond_2d
 
-    .line 1621
+    .line 1724
     :cond_27
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeStop()V
 
-    .line 1622
+    .line 1725
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->stop()V
 
-    .line 1624
+    .line 1727
     :cond_2d
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->main:Landroid/os/Handler;
 
@@ -1240,7 +1274,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 1626
+    .line 1729
     :cond_3b
     return-void
 .end method
@@ -1249,7 +1283,7 @@
     .registers 3
 
     .prologue
-    .line 235
+    .line 241
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -1263,10 +1297,10 @@
     .registers 4
 
     .prologue
-    .line 1010
+    .line 1107
     packed-switch p1, :pswitch_data_42
 
-    .line 1027
+    .line 1124
     :pswitch_3
     const-string v0, "ms (\u2265 100)"
 
@@ -1279,7 +1313,7 @@
     :goto_b
     return-object v0
 
-    .line 1014
+    .line 1111
     :pswitch_c
     const-string v0, "\u0441\u0438\u043b\u0430"
 
@@ -1291,7 +1325,7 @@
 
     goto :goto_b
 
-    .line 1018
+    .line 1115
     :pswitch_15
     const-string v0, "\u0441\u0435\u043a\u0443\u043d\u0434\u0438"
 
@@ -1303,7 +1337,7 @@
 
     goto :goto_b
 
-    .line 1019
+    .line 1116
     :pswitch_1e
     const-string v0, "\u043f\u044a\u0442\u0438"
 
@@ -1315,7 +1349,7 @@
 
     goto :goto_b
 
-    .line 1024
+    .line 1121
     :pswitch_27
     const-string v0, "\u0441\u0435\u043a\u0443\u043d\u0434\u0438"
 
@@ -1327,7 +1361,7 @@
 
     goto :goto_b
 
-    .line 1025
+    .line 1122
     :pswitch_30
     const-string v0, "% \u043e\u0442 \u0446\u0438\u043a\u044a\u043b\u0430"
 
@@ -1339,7 +1373,7 @@
 
     goto :goto_b
 
-    .line 1026
+    .line 1123
     :pswitch_39
     const-string v0, "\u0446\u0438\u043a\u044a\u043b\u0430"
 
@@ -1351,7 +1385,7 @@
 
     goto :goto_b
 
-    .line 1010
+    .line 1107
     :pswitch_data_42
     .packed-switch 0x0
         :pswitch_c
@@ -1378,10 +1412,10 @@
     .registers 3
 
     .prologue
-    .line 988
+    .line 1085
     packed-switch p1, :pswitch_data_ae
 
-    .line 1005
+    .line 1102
     :pswitch_3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1394,7 +1428,7 @@
     :goto_b
     return-object v0
 
-    .line 989
+    .line 1086
     :pswitch_c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1406,7 +1440,7 @@
 
     goto :goto_b
 
-    .line 990
+    .line 1087
     :pswitch_15
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1418,7 +1452,7 @@
 
     goto :goto_b
 
-    .line 991
+    .line 1088
     :pswitch_1e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1430,7 +1464,7 @@
 
     goto :goto_b
 
-    .line 992
+    .line 1089
     :pswitch_27
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1442,7 +1476,7 @@
 
     goto :goto_b
 
-    .line 993
+    .line 1090
     :pswitch_30
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1454,7 +1488,7 @@
 
     goto :goto_b
 
-    .line 994
+    .line 1091
     :pswitch_39
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1466,7 +1500,7 @@
 
     goto :goto_b
 
-    .line 995
+    .line 1092
     :pswitch_42
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1478,7 +1512,7 @@
 
     goto :goto_b
 
-    .line 996
+    .line 1093
     :pswitch_4b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1490,7 +1524,7 @@
 
     goto :goto_b
 
-    .line 997
+    .line 1094
     :pswitch_54
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -1502,7 +1536,7 @@
 
     goto :goto_b
 
-    .line 998
+    .line 1095
     :pswitch_5d
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -1516,7 +1550,7 @@
 
     goto :goto_b
 
-    .line 999
+    .line 1096
     :pswitch_68
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -1530,7 +1564,7 @@
 
     goto :goto_b
 
-    .line 1000
+    .line 1097
     :pswitch_73
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -1544,7 +1578,7 @@
 
     goto :goto_b
 
-    .line 1001
+    .line 1098
     :pswitch_7e
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -1558,7 +1592,7 @@
 
     goto :goto_b
 
-    .line 1002
+    .line 1099
     :pswitch_89
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -1572,7 +1606,7 @@
 
     goto/16 :goto_b
 
-    .line 1003
+    .line 1100
     :pswitch_95
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -1586,7 +1620,7 @@
 
     goto/16 :goto_b
 
-    .line 1004
+    .line 1101
     :pswitch_a1
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -1600,7 +1634,7 @@
 
     goto/16 :goto_b
 
-    .line 988
+    .line 1085
     nop
 
     :pswitch_data_ae
@@ -1639,19 +1673,19 @@
 
     const/high16 v5, 0x41000000    # 8.0f
 
-    .line 1107
+    .line 1204
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 1108
+    .line 1205
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 1109
+    .line 1206
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -1664,7 +1698,7 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeBtn:Landroid/widget/TextView;
 
-    .line 1110
+    .line 1207
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeBtn:Landroid/widget/TextView;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Probe;
@@ -1673,7 +1707,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1111
+    .line 1208
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeBtn:Landroid/widget/TextView;
 
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
@@ -1686,7 +1720,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1112
+    .line 1209
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -1699,7 +1733,7 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->writeBtn:Landroid/widget/TextView;
 
-    .line 1113
+    .line 1210
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->writeBtn:Landroid/widget/TextView;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Probe;
@@ -1710,7 +1744,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1114
+    .line 1211
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -1719,19 +1753,19 @@
 
     invoke-direct {v1, v9, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 1115
+    .line 1212
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v2
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 1116
+    .line 1213
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->writeBtn:Landroid/widget/TextView;
 
     invoke-virtual {v0, v2, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1117
+    .line 1214
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, "\u041a\u043e\u043f\u0438\u0440\u0430\u0439 \u043e\u0442\u0447\u0435\u0442\u0430"
@@ -1748,14 +1782,14 @@
 
     move-result-object v1
 
-    .line 1118
+    .line 1215
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Copy;
 
     invoke-direct {v2, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Copy;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;)V
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1119
+    .line 1216
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -1764,22 +1798,22 @@
 
     invoke-direct {v2, v9, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 1120
+    .line 1217
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v3
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 1121
+    .line 1218
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1122
+    .line 1219
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1123
+    .line 1220
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -1794,7 +1828,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeText:Landroid/widget/TextView;
 
-    .line 1124
+    .line 1221
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeText:Landroid/widget/TextView;
@@ -1809,7 +1843,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1125
+    .line 1222
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -1818,7 +1852,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitList:Landroid/widget/LinearLayout;
 
-    .line 1126
+    .line 1223
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitList:Landroid/widget/LinearLayout;
@@ -1833,7 +1867,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1128
+    .line 1225
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -1860,7 +1894,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1129
+    .line 1226
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -1875,14 +1909,14 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->feedback:Landroid/widget/TextView;
 
-    .line 1130
+    .line 1227
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->feedback:Landroid/widget/TextView;
 
     sget-object v1, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 1131
+    .line 1228
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->feedback:Landroid/widget/TextView;
@@ -1897,7 +1931,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1133
+    .line 1230
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -1924,7 +1958,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1134
+    .line 1231
     new-instance v0, Landroid/widget/ScrollView;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -1933,7 +1967,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleScroll:Landroid/widget/ScrollView;
 
-    .line 1135
+    .line 1232
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleScroll:Landroid/widget/ScrollView;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
@@ -1958,7 +1992,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1136
+    .line 1233
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -1971,14 +2005,14 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
-    .line 1137
+    .line 1234
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
     sget-object v1, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 1138
+    .line 1235
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
     invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -1999,14 +2033,14 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1139
+    .line 1236
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleScroll:Landroid/widget/ScrollView;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->addView(Landroid/view/View;)V
 
-    .line 1140
+    .line 1237
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleScroll:Landroid/widget/ScrollView;
@@ -2017,71 +2051,71 @@
 
     const/high16 v4, 0x43160000    # 150.0f
 
-    .line 1141
+    .line 1238
     invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v4
 
     invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 1140
+    .line 1237
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1142
+    .line 1239
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 1143
+    .line 1240
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 1144
+    .line 1241
     new-instance v1, Landroid/widget/EditText;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-direct {v1, v2}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 1145
+    .line 1242
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 1146
+    .line 1243
     const-string v2, "AT+\u2026"
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
-    .line 1147
+    .line 1244
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 1148
+    .line 1245
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 1149
+    .line 1246
     sget-object v2, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 1150
+    .line 1247
     const v2, 0x81001
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setInputType(I)V
 
-    .line 1152
+    .line 1249
     const/4 v2, 0x4
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setImeOptions(I)V
 
-    .line 1153
+    .line 1250
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -2094,7 +2128,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1154
+    .line 1251
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v3, "\u041f\u0440\u0430\u0442\u0438"
@@ -2111,14 +2145,14 @@
 
     move-result-object v2
 
-    .line 1155
+    .line 1252
     new-instance v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$SendRaw;
 
     invoke-direct {v3, p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$SendRaw;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;Landroid/widget/EditText;)V
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1156
+    .line 1253
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -2127,17 +2161,17 @@
 
     invoke-direct {v1, v9, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 1157
+    .line 1254
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v3
 
     iput v3, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 1158
+    .line 1255
     invoke-virtual {v0, v2, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1159
+    .line 1256
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2150,14 +2184,376 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1160
+    .line 1257
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderExplore()V
 
-    .line 1161
+    .line 1258
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderConsole()V
 
-    .line 1162
+    .line 1259
     return-void
+.end method
+
+.method fillHit()V
+    .registers 16
+
+    .prologue
+    const/high16 v4, 0x3f800000    # 1.0f
+
+    const/4 v14, 0x2
+
+    const/4 v3, 0x1
+
+    const/high16 v13, 0x41600000    # 14.0f
+
+    const/4 v1, 0x0
+
+    .line 590
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->card(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v5
+
+    .line 591
+    invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
+
+    move-result v0
+
+    const/high16 v2, 0x41400000    # 12.0f
+
+    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
+
+    move-result v2
+
+    invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
+
+    move-result v6
+
+    const/high16 v7, 0x41400000    # 12.0f
+
+    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
+
+    move-result v7
+
+    invoke-virtual {v5, v0, v2, v6, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+
+    .line 592
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v6
+
+    .line 593
+    const/16 v0, 0x10
+
+    invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
+
+    .line 594
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    const-string v2, "\u0423\u0414\u0410\u0420"
+
+    const-string v7, "HIT"
+
+    invoke-static {v2, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    const/4 v7, 0x4
+
+    invoke-static {v0, v2, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->button(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    .line 595
+    const/high16 v2, 0x41c00000    # 24.0f
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextSize(F)V
+
+    .line 596
+    new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;
+
+    invoke-direct {v2, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;)V
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 597
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/high16 v7, 0x432a0000    # 170.0f
+
+    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
+
+    move-result v7
+
+    const/high16 v8, 0x42a80000    # 84.0f
+
+    invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
+
+    move-result v8
+
+    invoke-direct {v2, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v6, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 598
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v7
+
+    .line 599
+    new-array v8, v3, [Landroid/widget/LinearLayout;
+
+    .line 600
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    invoke-static {v0, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->chipRow(Landroid/content/Context;[Landroid/widget/LinearLayout;)Landroid/widget/HorizontalScrollView;
+
+    move-result-object v0
+
+    invoke-virtual {v7, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 601
+    const/4 v0, 0x3
+
+    new-array v9, v0, [Ljava/lang/String;
+
+    const-string v0, "\u0418\u0437\u0445\u043e\u0434"
+
+    const-string v2, "Output"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    aput-object v0, v9, v1
+
+    const-string v0, "\u0421\u0438\u043b\u0430"
+
+    const-string v2, "Strength"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    aput-object v0, v9, v3
+
+    const-string v0, "\u0415\u0434\u0438\u043d\u0438\u0447\u0435\u043d"
+
+    const-string v2, "Single"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    aput-object v0, v9, v14
+
+    move v0, v1
+
+    .line 602
+    :goto_92
+    array-length v2, v9
+
+    if-ge v0, v2, :cond_b8
+
+    .line 603
+    iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    aget-object v11, v9, v0
+
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    if-ne v0, v2, :cond_b6
+
+    move v2, v3
+
+    :goto_9e
+    sget v12, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
+
+    invoke-static {v10, v11, v2, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->chip(Landroid/content/Context;Ljava/lang/String;ZI)Landroid/widget/TextView;
+
+    move-result-object v2
+
+    .line 604
+    new-instance v10, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitWay;
+
+    invoke-direct {v10, p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitWay;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
+
+    invoke-virtual {v2, v10}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 605
+    iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    aget-object v11, v8, v1
+
+    invoke-static {v10, v11, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
+
+    .line 602
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_92
+
+    :cond_b6
+    move v2, v1
+
+    .line 603
+    goto :goto_9e
+
+    .line 607
+    :cond_b8
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    const-string v2, ""
+
+    const-string v3, ""
+
+    const/high16 v8, 0x41a00000    # 20.0f
+
+    new-instance v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModStep;
+
+    const/16 v10, 0x24
+
+    invoke-direct {v9, p0, v10}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModStep;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
+
+    invoke-static {v0, v2, v3, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->stepper(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;FLcom/isaigu/gymapp/widget/XemsUi$OnStep;)Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+
+    move-result-object v2
+
+    .line 608
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    if-ne v0, v14, :cond_136
+
+    const/16 v0, 0x96
+
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_d5
+    const-string v3, "ms \u2014 \u0434\u044a\u043b\u0436\u0438\u043d\u0430 \u043d\u0430 \u0443\u0434\u0430\u0440\u0430"
+
+    const-string v8, "ms \u2014 hit length"
+
+    .line 609
+    invoke-static {v3, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 608
+    invoke-virtual {v2, v0, v3}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 610
+    iget-object v3, v2, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
+
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    if-ne v0, v14, :cond_13d
+
+    const v0, 0x3ecccccd    # 0.4f
+
+    :goto_e9
+    invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->setAlpha(F)V
+
+    .line 611
+    iget-object v0, v2, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    const/4 v3, 0x6
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v2
+
+    invoke-virtual {v7, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 612
+    new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v2, -0x2
+
+    invoke-direct {v0, v1, v2, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    .line 613
+    invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
+
+    move-result v2
+
+    iput v2, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    .line 614
+    invoke-virtual {v6, v7, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 615
+    invoke-virtual {v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 616
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    const-string v2, ""
+
+    const/high16 v3, 0x41480000    # 12.5f
+
+    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
+
+    invoke-static {v0, v2, v3, v4, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitInfo:Landroid/widget/TextView;
+
+    .line 617
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitInfo:Landroid/widget/TextView;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    const/16 v2, 0x8
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v1
+
+    invoke-virtual {v5, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 618
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
+
+    const/16 v2, 0xc
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v5, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 619
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderHit()V
+
+    .line 620
+    return-void
+
+    .line 608
+    :cond_136
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_d5
+
+    :cond_13d
+    move v0, v4
+
+    .line 610
+    goto :goto_e9
 .end method
 
 .method fillMod()V
@@ -2174,7 +2570,7 @@
 
     const/4 v2, 0x0
 
-    .line 721
+    .line 818
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2191,7 +2587,7 @@
 
     const-string v6, "The strength follows the shape below while the unit runs"
 
-    .line 722
+    .line 819
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -2202,17 +2598,17 @@
 
     invoke-direct {v7, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModToggle;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;)V
 
-    .line 721
+    .line 818
     invoke-static {v3, v4, v5, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
 
     move-result-object v3
 
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 724
+    .line 821
     new-array v4, v1, [Landroid/widget/LinearLayout;
 
-    .line 725
+    .line 822
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2229,14 +2625,14 @@
 
     invoke-virtual {v0, v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 726
+    .line 823
     const/4 v0, 0x7
 
     new-array v5, v0, [I
 
     fill-array-data v5, :array_1ee
 
-    .line 728
+    .line 825
     array-length v6, v5
 
     move v3, v2
@@ -2246,7 +2642,7 @@
 
     aget v7, v5, v3
 
-    .line 729
+    .line 826
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->shapeName(I)Ljava/lang/String;
@@ -2268,21 +2664,21 @@
 
     move-result-object v0
 
-    .line 730
+    .line 827
     new-instance v8, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickShape;
 
     invoke-direct {v8, p0, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickShape;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
 
     invoke-virtual {v0, v8}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 731
+    .line 828
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     aget-object v8, v4, v2
 
     invoke-static {v7, v8, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    .line 728
+    .line 825
     add-int/lit8 v0, v3, 0x1
 
     move v3, v0
@@ -2292,10 +2688,10 @@
     :cond_6e
     move v0, v2
 
-    .line 729
+    .line 826
     goto :goto_54
 
-    .line 733
+    .line 830
     :cond_70
     new-instance v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
@@ -2305,7 +2701,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
-    .line 734
+    .line 831
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x1
@@ -2318,7 +2714,7 @@
 
     invoke-direct {v0, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 735
+    .line 832
     const/high16 v3, 0x41200000    # 10.0f
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -2327,28 +2723,28 @@
 
     iput v3, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 736
+    .line 833
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
     invoke-virtual {v3, v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 737
+    .line 834
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->shape:I
 
     if-ne v0, v12, :cond_9e
 
-    .line 738
+    .line 835
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillSteps()V
 
-    .line 778
+    .line 875
     :goto_9d
     return-void
 
-    .line 742
+    .line 839
     :cond_9e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -2360,7 +2756,7 @@
 
     move v0, v1
 
-    .line 743
+    .line 840
     :goto_a6
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
@@ -2368,10 +2764,10 @@
 
     move-result-object v4
 
-    .line 744
+    .line 841
     if-eqz v0, :cond_1aa
 
-    .line 745
+    .line 842
     const-string v3, "\u041d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u043d\u0435"
 
     const-string v5, "Rise"
@@ -2384,7 +2780,7 @@
 
     invoke-virtual {p0, v4, v3, v5, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 746
+    .line 843
     const-string v3, "\u0420\u0430\u0431\u043e\u0442\u0430"
 
     const-string v5, "Work"
@@ -2395,7 +2791,7 @@
 
     invoke-virtual {p0, v4, v3, v12, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 747
+    .line 844
     const-string v3, "\u0421\u043f\u0430\u0434\u0430\u043d\u0435"
 
     const-string v5, "Fall"
@@ -2408,7 +2804,7 @@
 
     invoke-virtual {p0, v4, v3, v5, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 748
+    .line 845
     const-string v3, "\u041f\u0430\u0443\u0437\u0430"
 
     const-string v5, "Pause"
@@ -2419,7 +2815,7 @@
 
     invoke-virtual {p0, v4, v3, v13, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 756
+    .line 853
     :cond_dc
     :goto_dc
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
@@ -2434,14 +2830,14 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 757
+    .line 854
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v4
 
-    .line 758
+    .line 855
     if-eqz v0, :cond_1d9
 
     const-string v3, "\u0421\u0438\u043b\u0430 \u0432 \u043f\u0430\u0443\u0437\u0430\u0442\u0430"
@@ -2455,7 +2851,7 @@
     :goto_f9
     invoke-virtual {p0, v4, v3, v2, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 760
+    .line 857
     if-eqz v0, :cond_1e3
 
     const-string v0, "\u0421\u0438\u043b\u0430 \u0432 \u0440\u0430\u0431\u043e\u0442\u0430\u0442\u0430"
@@ -2469,7 +2865,7 @@
     :goto_106
     invoke-virtual {p0, v4, v0, v1, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 761
+    .line 858
     const-string v0, "\u041e\u043f\u0440\u0435\u0441\u043d\u044f\u0432\u0430\u043d\u0435"
 
     const-string v3, "Refresh"
@@ -2480,7 +2876,7 @@
 
     invoke-virtual {p0, v4, v0, v11, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 762
+    .line 859
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2491,7 +2887,7 @@
 
     invoke-virtual {v0, v4, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 765
+    .line 862
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2512,18 +2908,18 @@
 
     const/16 v5, 0xe
 
-    .line 766
+    .line 863
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v4
 
-    .line 765
+    .line 862
     invoke-virtual {v0, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 767
+    .line 864
     new-array v0, v1, [Landroid/widget/LinearLayout;
 
-    .line 768
+    .line 865
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2540,27 +2936,27 @@
 
     invoke-virtual {v1, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 769
+    .line 866
     aget-object v0, v0, v2
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotRow:Landroid/widget/LinearLayout;
 
-    .line 770
+    .line 867
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillRotate()V
 
-    .line 771
+    .line 868
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 772
+    .line 869
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 773
+    .line 870
     const-string v1, "\u0426\u0438\u043a\u043b\u0438 \u043d\u0430 \u043c\u043e\u0434\u0443\u043b"
 
     const-string v3, "Cycles per module"
@@ -2573,7 +2969,7 @@
 
     invoke-virtual {p0, v0, v1, v3, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 774
+    .line 871
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotateText()Ljava/lang/String;
@@ -2590,7 +2986,7 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotSum:Landroid/widget/TextView;
 
-    .line 775
+    .line 872
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotSum:Landroid/widget/TextView;
 
     const/high16 v3, 0x41600000    # 14.0f
@@ -2607,7 +3003,7 @@
 
     invoke-virtual {v1, v3, v4, v2, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 776
+    .line 873
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotSum:Landroid/widget/TextView;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -2620,7 +3016,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 777
+    .line 874
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2636,10 +3032,10 @@
     :cond_1a7
     move v0, v2
 
-    .line 742
+    .line 839
     goto/16 :goto_a6
 
-    .line 750
+    .line 847
     :cond_1aa
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -2660,14 +3056,14 @@
 
     invoke-virtual {p0, v4, v3, v5, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 752
+    .line 849
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v3, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->shape:I
 
     if-ne v3, v1, :cond_dc
 
-    .line 753
+    .line 850
     const-string v3, "\u0418\u043c\u043f\u0443\u043b\u0441"
 
     const-string v5, "Impulse"
@@ -2682,7 +3078,7 @@
 
     goto/16 :goto_dc
 
-    .line 750
+    .line 847
     :cond_1d0
     const-string v3, "\u0426\u0438\u043a\u044a\u043b"
 
@@ -2694,7 +3090,7 @@
 
     goto :goto_1b8
 
-    .line 758
+    .line 855
     :cond_1d9
     const-string v3, "\u0414\u044a\u043b\u0431\u043e\u0447\u0438\u043d\u0430 \u043e\u0442"
 
@@ -2706,7 +3102,7 @@
 
     goto/16 :goto_f9
 
-    .line 760
+    .line 857
     :cond_1e3
     const-string v0, "\u0434\u043e"
 
@@ -2718,7 +3114,7 @@
 
     goto/16 :goto_106
 
-    .line 726
+    .line 823
     nop
 
     :array_1ee
@@ -2747,13 +3143,13 @@
 
     const/4 v1, 0x0
 
-    .line 643
+    .line 740
     move v6, v1
 
     :goto_8
     if-ge v6, v10, :cond_ba
 
-    .line 644
+    .line 741
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2779,34 +3175,34 @@
 
     invoke-virtual {v2, v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 645
+    .line 742
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v7
 
-    .line 646
+    .line 743
     const/4 v0, 0x0
 
     move v5, v1
 
     move v2, v1
 
-    .line 648
+    .line 745
     :goto_2b
     const/16 v4, 0x1a
 
     if-ge v5, v4, :cond_81
 
-    .line 649
+    .line 746
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->group(I)I
 
     move-result v4
 
     if-eq v4, v6, :cond_3c
 
-    .line 648
+    .line 745
     :goto_35
     add-int/lit8 v4, v5, 0x1
 
@@ -2814,26 +3210,26 @@
 
     goto :goto_2b
 
-    .line 644
+    .line 741
     :cond_39
     const/16 v0, 0xa
 
     goto :goto_1b
 
-    .line 652
+    .line 749
     :cond_3c
     rem-int/lit8 v4, v2, 0x4
 
     if-nez v4, :cond_50
 
-    .line 653
+    .line 750
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 654
+    .line 751
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const/4 v8, 0x6
@@ -2844,11 +3240,11 @@
 
     invoke-virtual {v7, v0, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 656
+    .line 753
     :cond_50
     add-int/lit8 v4, v2, 0x1
 
-    .line 657
+    .line 754
     iget v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
     if-ne v5, v2, :cond_7f
@@ -2862,19 +3258,19 @@
 
     move-result-object v2
 
-    .line 658
+    .line 755
     new-instance v8, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMode;
 
     invoke-direct {v8, p0, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMode;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
 
     invoke-virtual {v2, v8}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 659
+    .line 756
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiles:[Landroid/widget/TextView;
 
     aput-object v2, v8, v5
 
-    .line 660
+    .line 757
     new-instance v8, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v9, 0x42a40000    # 82.0f
@@ -2885,14 +3281,14 @@
 
     invoke-direct {v8, v1, v9, v13}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 661
+    .line 758
     invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v9
 
     iput v9, v8, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    .line 662
+    .line 759
     invoke-virtual {v0, v2, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     move v2, v4
@@ -2902,13 +3298,13 @@
     :cond_7f
     move v2, v1
 
-    .line 657
+    .line 754
     goto :goto_57
 
     :cond_81
     move v4, v1
 
-    .line 664
+    .line 761
     :goto_82
     rem-int/lit8 v5, v2, 0x4
 
@@ -2920,7 +3316,7 @@
 
     if-ge v4, v5, :cond_aa
 
-    .line 665
+    .line 762
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v8, 0x42a40000    # 82.0f
@@ -2931,14 +3327,14 @@
 
     invoke-direct {v5, v1, v8, v13}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 666
+    .line 763
     invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v8
 
     iput v8, v5, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    .line 667
+    .line 764
     new-instance v8, Landroid/view/View;
 
     iget-object v9, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -2947,12 +3343,12 @@
 
     invoke-virtual {v0, v8, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 664
+    .line 761
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_82
 
-    .line 669
+    .line 766
     :cond_aa
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
@@ -2964,14 +3360,14 @@
 
     invoke-virtual {v0, v7, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 643
+    .line 740
     add-int/lit8 v0, v6, 0x1
 
     move v6, v0
 
     goto/16 :goto_8
 
-    .line 673
+    .line 770
     :cond_ba
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
@@ -2979,7 +3375,7 @@
 
     move-result-object v0
 
-    .line 674
+    .line 771
     const/high16 v2, 0x41800000    # 16.0f
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -3006,19 +3402,19 @@
 
     invoke-virtual {v0, v2, v4, v5, v6}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 675
+    .line 772
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v2
 
-    .line 676
+    .line 773
     const/16 v4, 0x50
 
     invoke-virtual {v2, v4}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 677
+    .line 774
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     iget v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
@@ -3037,7 +3433,7 @@
 
     invoke-virtual {v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 678
+    .line 775
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -3084,7 +3480,7 @@
 
     iget v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
-    .line 679
+    .line 776
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->groupOf(I)I
 
     move-result v6
@@ -3105,12 +3501,12 @@
 
     sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
-    .line 678
+    .line 775
     invoke-static {v4, v5, v6, v7, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v4
 
-    .line 680
+    .line 777
     const/high16 v5, 0x40800000    # 4.0f
 
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -3119,20 +3515,20 @@
 
     invoke-virtual {v4, v1, v1, v1, v5}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 681
+    .line 778
     invoke-virtual {v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 682
+    .line 779
     invoke-virtual {v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 683
+    .line 780
     new-instance v2, Landroid/view/View;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-direct {v2, v4}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 684
+    .line 781
     new-instance v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;
 
     iget v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
@@ -3143,7 +3539,7 @@
 
     invoke-virtual {v2, v4}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 685
+    .line 782
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, -0x1
@@ -3158,7 +3554,7 @@
 
     invoke-virtual {v0, v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 686
+    .line 783
     iget v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->steady(I)Z
@@ -3167,7 +3563,7 @@
 
     if-eqz v2, :cond_194
 
-    .line 687
+    .line 784
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v4, "\u2248 \u041f\u043e\u0441\u0442\u043e\u044f\u043d\u0435\u043d \u043d\u043e\u0441\u0438\u0442\u0435\u043b: \u0435\u0434\u043d\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430, \u0440\u0430\u0432\u043d\u0430 \u0441\u0438\u043b\u0430, \u0431\u0435\u0437 \u0441\u0432\u043e\u0438 \u043f\u0430\u0443\u0437\u0438 \u2014 \u0446\u0438\u043a\u044a\u043b\u044a\u0442 \u0432 \u201e\u0418\u043c\u043f\u0443\u043b\u0441\u201c \u0435 \u0438\u0437\u0446\u044f\u043b\u043e \u0442\u0432\u043e\u0439."
@@ -3188,15 +3584,15 @@
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
-    .line 690
+    .line 787
     invoke-static {v4, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v4
 
-    .line 687
+    .line 784
     invoke-virtual {v0, v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 692
+    .line 789
     :cond_194
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
@@ -3220,15 +3616,15 @@
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
-    .line 693
+    .line 790
     invoke-static {v4, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v4
 
-    .line 692
+    .line 789
     invoke-virtual {v0, v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 694
+    .line 791
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3241,26 +3637,26 @@
 
     invoke-virtual {v2, v0, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 696
+    .line 793
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v4
 
-    .line 697
+    .line 794
     const/16 v0, 0x50
 
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 698
+    .line 795
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v5
 
-    .line 699
+    .line 796
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, "\u0412\u0440\u0435\u043c\u0435"
@@ -3277,10 +3673,10 @@
 
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 700
+    .line 797
     new-array v6, v3, [Landroid/widget/LinearLayout;
 
-    .line 701
+    .line 798
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->chipRow(Landroid/content/Context;[Landroid/widget/LinearLayout;)Landroid/widget/HorizontalScrollView;
@@ -3295,7 +3691,7 @@
 
     invoke-virtual {v5, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 702
+    .line 799
     sget-object v7, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->MINUTES:[I
 
     array-length v8, v7
@@ -3307,7 +3703,7 @@
 
     aget v9, v7, v2
 
-    .line 703
+    .line 800
     iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -3347,21 +3743,21 @@
 
     move-result-object v0
 
-    .line 704
+    .line 801
     new-instance v10, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMinutes;
 
     invoke-direct {v10, p0, v9}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickMinutes;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
 
     invoke-virtual {v0, v10}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 705
+    .line 802
     iget-object v9, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     aget-object v10, v6, v1
 
     invoke-static {v9, v10, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    .line 702
+    .line 799
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
@@ -3371,10 +3767,10 @@
     :cond_232
     move v0, v1
 
-    .line 703
+    .line 800
     goto :goto_219
 
-    .line 707
+    .line 804
     :cond_234
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -3384,7 +3780,7 @@
 
     invoke-virtual {v4, v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 708
+    .line 805
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3397,7 +3793,7 @@
 
     invoke-virtual {v0, v4, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 709
+    .line 806
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, "\u0427\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0438 \u0448\u0438\u0440\u0438\u043d\u0430\u0442\u0430 \u0441\u0430 \u0432\u0433\u0440\u0430\u0434\u0435\u043d\u0438 \u0432 \u043c\u043e\u0434\u0443\u043b\u0430 (\u0434\u0430\u043d\u043d\u0438 \u043e\u0442 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e DOMAS \u043d\u0430 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f). \u041a\u0430\u0440\u0442\u0438\u043d\u043a\u0430\u0442\u0430 \u0435 \u0438\u043c\u043f\u0443\u043b\u0441\u044a\u0442 \u043d\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430: \u0432\u0438\u0441\u043e\u043a\u0430 \u0447\u0435\u0440\u0442\u0430 = \u0441\u0438\u043b\u043d\u043e, \u0433\u044a\u0441\u0442\u043e = \u0432\u0438\u0441\u043e\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430, \u043f\u0440\u0430\u0437\u043d\u043e = \u043f\u0430\u0443\u0437\u0430. \u201e\u0430\u2013\u0431\u201c \u0441\u0435 \u043f\u043b\u044a\u0437\u0433\u0430, \u201e\u0430 / \u0431\u201c \u0441\u0435 \u0440\u0435\u0434\u0443\u0432\u0430; \u2248 = \u043f\u043e\u0441\u0442\u043e\u044f\u043d\u0435\u043d \u043d\u043e\u0441\u0438\u0442\u0435\u043b, \u25c6 = \u0442\u0440\u044a\u0433\u0432\u0430 \u0440\u044f\u0437\u043a\u043e (\u0441\u0430\u043c\u043e \u2248 \u0438 \u25c6 \u0441\u0430 \u0432 \u201e\u041f\u0443\u043b\u0442\u201c)."
@@ -3416,7 +3812,7 @@
 
     move-result-object v0
 
-    .line 715
+    .line 812
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3429,7 +3825,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 716
+    .line 813
     return-void
 .end method
 
@@ -3441,14 +3837,14 @@
 
     const/high16 v4, 0x41800000    # 16.0f
 
-    .line 445
+    .line 452
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 446
+    .line 453
     const-string v1, "\u0427\u0415\u0421\u0422\u041e\u0422\u0410"
 
     const-string v2, "FREQUENCY"
@@ -3461,7 +3857,7 @@
 
     invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pultTile(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 447
+    .line 454
     const-string v1, "\u0418\u041c\u041f\u0423\u041b\u0421"
 
     const-string v2, "IMPULSE"
@@ -3474,7 +3870,7 @@
 
     invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pultTile(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 448
+    .line 455
     const-string v1, "\u041f\u0410\u0423\u0417\u0410"
 
     const-string v2, "PAUSE"
@@ -3487,19 +3883,19 @@
 
     invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pultTile(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 449
+    .line 456
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 450
+    .line 457
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 451
+    .line 458
     const-string v1, "\u041d\u0410\u0420\u0410\u0421\u0422\u0412\u0410\u041d\u0415"
 
     const-string v2, "RISE"
@@ -3512,7 +3908,7 @@
 
     invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pultTile(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 452
+    .line 459
     const-string v1, "\u0421\u041f\u0410\u0414\u0410\u041d\u0415"
 
     const-string v2, "FALL"
@@ -3525,7 +3921,7 @@
 
     invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pultTile(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 453
+    .line 460
     const-string v1, "\u0421\u0418\u041b\u0410 \u0412 \u041f\u0410\u0423\u0417\u0410\u0422\u0410"
 
     const-string v2, "PAUSE STRENGTH"
@@ -3538,7 +3934,7 @@
 
     invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pultTile(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 454
+    .line 461
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3551,14 +3947,14 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 456
+    .line 463
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->card(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 457
+    .line 464
     invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v1
@@ -3581,7 +3977,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 458
+    .line 465
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -3598,12 +3994,12 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phaseText:Landroid/widget/TextView;
 
-    .line 459
+    .line 466
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phaseText:Landroid/widget/TextView;
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 460
+    .line 467
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3612,7 +4008,7 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phase:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;
 
-    .line 461
+    .line 468
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, -0x1
@@ -3625,7 +4021,7 @@
 
     invoke-direct {v1, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 462
+    .line 469
     const/high16 v2, 0x41000000    # 8.0f
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -3634,12 +4030,12 @@
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 463
+    .line 470
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phase:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;
 
     invoke-virtual {v0, v2, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 464
+    .line 471
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3652,7 +4048,10 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 465
+    .line 472
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillHit()V
+
+    .line 473
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3669,7 +4068,7 @@
 
     const-string v4, "Tilt the tablet: 0\u00b0 = the pause strength, 30\u00b0 = the strength on the right (never more). Zero = the position when switched on and at \u25b6."
 
-    .line 466
+    .line 474
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -3680,22 +4079,22 @@
 
     invoke-direct {v5, p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$TiltToggle;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;)V
 
-    .line 465
+    .line 473
     invoke-static {v1, v2, v3, v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
-    .line 469
+    .line 477
     invoke-static {v2, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v2
 
-    .line 465
+    .line 473
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 470
+    .line 478
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -3712,7 +4111,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveInfo:Landroid/widget/TextView;
 
-    .line 471
+    .line 479
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveInfo:Landroid/widget/TextView;
@@ -3725,10 +4124,10 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 472
+    .line 480
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderPult()V
 
-    .line 473
+    .line 481
     return-void
 .end method
 
@@ -3738,20 +4137,20 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 905
+    .line 1002
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotRow:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
     move v2, v1
 
-    .line 906
+    .line 1003
     :goto_7
     const/16 v0, 0x1a
 
     if-ge v2, v0, :cond_63
 
-    .line 907
+    .line 1004
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
@@ -3760,7 +4159,7 @@
 
     move-result v3
 
-    .line 908
+    .line 1005
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -3817,28 +4216,28 @@
 
     move-result-object v0
 
-    .line 909
+    .line 1006
     new-instance v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickRotate;
 
     invoke-direct {v3, p0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickRotate;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 910
+    .line 1007
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotRow:Landroid/widget/LinearLayout;
 
     invoke-static {v3, v4, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    .line 906
+    .line 1003
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
     goto :goto_7
 
-    .line 908
+    .line 1005
     :cond_5e
     const-string v0, ""
 
@@ -3849,7 +4248,7 @@
 
     goto :goto_44
 
-    .line 912
+    .line 1009
     :cond_63
     return-void
 .end method
@@ -3868,19 +4267,19 @@
 
     const/4 v5, 0x0
 
-    .line 795
+    .line 892
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 796
+    .line 893
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 797
+    .line 894
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, "\u0421\u0442\u044a\u043f\u043a\u0438 \u2014 \u0432\u044a\u0440\u0432\u044f\u0442 \u043f\u043e\u0434\u0440\u0435\u0434, \u043f\u043e\u0441\u043b\u0435 \u043e\u0442\u043d\u0430\u0447\u0430\u043b\u043e"
@@ -3903,7 +4302,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 799
+    .line 896
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, "+ \u0421\u0442\u044a\u043f\u043a\u0430"
@@ -3920,14 +4319,14 @@
 
     move-result-object v1
 
-    .line 800
+    .line 897
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepAdd;
 
     invoke-direct {v2, p0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepAdd;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;Z)V
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 801
+    .line 898
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -3938,7 +4337,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 802
+    .line 899
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, "\u041c\u0430\u0445\u043d\u0438"
@@ -3955,14 +4354,14 @@
 
     move-result-object v1
 
-    .line 803
+    .line 900
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepAdd;
 
     invoke-direct {v2, p0, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepAdd;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;Z)V
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 804
+    .line 901
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -3971,7 +4370,7 @@
 
     invoke-direct {v2, v4, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 805
+    .line 902
     const/high16 v3, 0x40c00000    # 6.0f
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -3980,10 +4379,10 @@
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 806
+    .line 903
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 807
+    .line 904
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -3996,10 +4395,10 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 808
+    .line 905
     new-array v0, v6, [Landroid/widget/LinearLayout;
 
-    .line 809
+    .line 906
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -4018,12 +4417,12 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 810
+    .line 907
     aget-object v0, v0, v5
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepRow:Landroid/widget/LinearLayout;
 
-    .line 812
+    .line 909
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -4044,18 +4443,18 @@
 
     const/16 v3, 0xc
 
-    .line 813
+    .line 910
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v2
 
-    .line 812
+    .line 909
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 814
+    .line 911
     new-array v0, v6, [Landroid/widget/LinearLayout;
 
-    .line 815
+    .line 912
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -4074,12 +4473,12 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 816
+    .line 913
     aget-object v0, v0, v5
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->carrierRow:Landroid/widget/LinearLayout;
 
-    .line 817
+    .line 914
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -4088,7 +4487,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepFields:Landroid/widget/LinearLayout;
 
-    .line 818
+    .line 915
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepFields:Landroid/widget/LinearLayout;
@@ -4101,7 +4500,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 819
+    .line 916
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -4116,7 +4515,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSum:Landroid/widget/TextView;
 
-    .line 820
+    .line 917
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSum:Landroid/widget/TextView;
@@ -4129,10 +4528,10 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 821
+    .line 918
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderSteps()V
 
-    .line 822
+    .line 919
     return-void
 .end method
 
@@ -4142,115 +4541,118 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 362
+    .line 368
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 363
+    .line 369
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
-    .line 364
+    .line 370
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotRow:Landroid/widget/LinearLayout;
 
-    .line 365
+    .line 371
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotSum:Landroid/widget/TextView;
 
-    .line 366
+    .line 372
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepRow:Landroid/widget/LinearLayout;
 
-    .line 367
+    .line 373
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiles:[Landroid/widget/TextView;
 
     invoke-static {v0, v1}, Ljava/util/Arrays;->fill([Ljava/lang/Object;Ljava/lang/Object;)V
 
-    .line 368
+    .line 374
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeBtn:Landroid/widget/TextView;
 
-    .line 369
+    .line 375
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->writeBtn:Landroid/widget/TextView;
 
-    .line 370
+    .line 376
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeText:Landroid/widget/TextView;
 
-    .line 371
+    .line 377
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitList:Landroid/widget/LinearLayout;
 
-    .line 372
+    .line 378
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
-    .line 373
+    .line 379
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->feedback:Landroid/widget/TextView;
 
-    .line 374
+    .line 380
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     invoke-static {v0, v1}, Ljava/util/Arrays;->fill([Ljava/lang/Object;Ljava/lang/Object;)V
 
-    .line 375
+    .line 381
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phase:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;
 
-    .line 376
+    .line 382
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phaseText:Landroid/widget/TextView;
 
-    .line 377
+    .line 383
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveInfo:Landroid/widget/TextView;
 
-    .line 378
+    .line 384
+    iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitInfo:Landroid/widget/TextView;
+
+    .line 385
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
-    if-nez v0, :cond_37
+    if-nez v0, :cond_39
 
-    .line 379
+    .line 386
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillPult()V
 
-    .line 387
-    :goto_31
+    .line 394
+    :goto_33
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->enter(Landroid/view/View;)V
 
-    .line 388
+    .line 395
     return-void
 
-    .line 380
-    :cond_37
+    .line 387
+    :cond_39
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
     const/4 v1, 0x2
 
-    if-ne v0, v1, :cond_40
+    if-ne v0, v1, :cond_42
 
-    .line 381
+    .line 388
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillMod()V
 
-    goto :goto_31
+    goto :goto_33
 
-    .line 382
-    :cond_40
+    .line 389
+    :cond_42
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
     const/4 v1, 0x3
 
-    if-ne v0, v1, :cond_49
+    if-ne v0, v1, :cond_4b
 
-    .line 383
+    .line 390
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillExplore()V
 
-    goto :goto_31
+    goto :goto_33
 
-    .line 385
-    :cond_49
+    .line 392
+    :cond_4b
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillProgram()V
 
-    goto :goto_31
+    goto :goto_33
 .end method
 
 .method freqCode()I
     .registers 2
 
     .prologue
-    .line 419
+    .line 426
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->beatTenths:I
@@ -4286,53 +4688,53 @@
 
     const/4 v1, 0x1
 
-    .line 1362
+    .line 1461
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v3
 
-    .line 1363
+    .line 1462
     if-eqz v3, :cond_f
 
     iget-boolean v0, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
     if-eqz v0, :cond_10
 
-    .line 1397
+    .line 1496
     :cond_f
     :goto_f
     return-void
 
-    .line 1366
+    .line 1465
     :cond_10
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    .line 1367
+    .line 1466
     iget-boolean v0, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
     if-eqz v0, :cond_1e
 
-    .line 1368
+    .line 1467
     invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->stop()V
 
-    .line 1396
+    .line 1495
     :goto_1a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
     goto :goto_f
 
-    .line 1369
+    .line 1468
     :cond_1e
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
     if-nez v0, :cond_5a
 
-    .line 1370
+    .line 1469
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveRun:Z
 
-    .line 1371
+    .line 1470
     iget v0, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -4341,31 +4743,31 @@
 
     if-eq v0, v2, :cond_33
 
-    .line 1372
+    .line 1471
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
     invoke-virtual {v3, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setMode(I)V
 
-    .line 1375
+    .line 1474
     :cond_33
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltOn:Z
 
     if-eqz v0, :cond_3b
 
-    .line 1376
+    .line 1475
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltZero:F
 
-    .line 1378
+    .line 1477
     :cond_3b
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveMod()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     move-result-object v2
 
-    .line 1379
+    .line 1478
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
 
     mul-int/lit8 v4, v0, 0x3c
@@ -4381,12 +4783,12 @@
     :goto_4a
     invoke-virtual {v3, v4, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->start(II)V
 
-    .line 1380
+    .line 1479
     invoke-virtual {v3, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modulate(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;)V
 
     goto :goto_1a
 
-    .line 1379
+    .line 1478
     :cond_51
     invoke-static {v2, v6, v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->envelope(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;J)I
 
@@ -4398,33 +4800,33 @@
 
     goto :goto_4a
 
-    .line 1382
+    .line 1481
     :cond_5a
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveRun:Z
 
-    .line 1383
+    .line 1482
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
 
     if-nez v0, :cond_a1
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
-    .line 1385
+    .line 1484
     :goto_62
     iget v4, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
 
     if-eq v4, v0, :cond_69
 
-    .line 1386
+    .line 1485
     invoke-virtual {v3, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setMode(I)V
 
-    .line 1388
+    .line 1487
     :cond_69
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
 
     if-eqz v0, :cond_c7
 
-    .line 1389
+    .line 1488
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -4447,7 +4849,7 @@
     :goto_7d
     iput-boolean v0, v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->gate:Z
 
-    .line 1390
+    .line 1489
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
 
     mul-int/lit8 v0, v0, 0x3c
@@ -4471,7 +4873,7 @@
     :cond_93
     invoke-virtual {v3, v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->start(II)V
 
-    .line 1391
+    .line 1490
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->copy()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -4482,7 +4884,7 @@
 
     goto/16 :goto_1a
 
-    .line 1383
+    .line 1482
     :cond_a1
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4504,7 +4906,7 @@
 
     goto :goto_62
 
-    .line 1384
+    .line 1483
     :cond_b4
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4530,10 +4932,10 @@
     :cond_c5
     move v0, v2
 
-    .line 1389
+    .line 1488
     goto :goto_7d
 
-    .line 1393
+    .line 1492
     :cond_c7
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
 
@@ -4546,11 +4948,96 @@
     goto/16 :goto_1a
 .end method
 
+.method hitPress()V
+    .registers 6
+
+    .prologue
+    .line 646
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
+
+    move-result-object v1
+
+    .line 647
+    if-eqz v1, :cond_a
+
+    iget-boolean v0, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
+
+    if-eqz v0, :cond_b
+
+    .line 658
+    :cond_a
+    :goto_a
+    return-void
+
+    .line 650
+    :cond_b
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    const/4 v2, 0x2
+
+    if-ne v0, v2, :cond_38
+
+    const/16 v0, 0x13
+
+    .line 651
+    :goto_12
+    iget v2, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hitArmed:I
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    if-ne v2, v3, :cond_1c
+
+    iget v2, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mode:I
+
+    if-eq v2, v0, :cond_2c
+
+    .line 652
+    :cond_1c
+    const/4 v2, 0x0
+
+    iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveRun:Z
+
+    .line 653
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    iget v3, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+
+    iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
+
+    mul-int/lit8 v4, v4, 0x3c
+
+    invoke-virtual {v1, v2, v0, v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->armHit(IIII)V
+
+    .line 655
+    :cond_2c
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hit(I)V
+
+    .line 656
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderHit()V
+
+    .line 657
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
+
+    goto :goto_a
+
+    .line 650
+    :cond_38
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
+
+    goto :goto_12
+.end method
+
 .method info()V
     .registers 8
 
     .prologue
-    .line 1629
+    .line 1732
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, "\u041a\u0430\u043a\u0432\u043e \u043c\u043e\u0436\u0435 \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e"
@@ -4569,7 +5056,7 @@
 
     move-result-object v0
 
-    .line 1630
+    .line 1733
     const-string v1, "\u2022 \u0418\u043c\u043f\u0443\u043b\u0441\u044a\u0442 (\u0447\u0435\u0441\u0442\u043e\u0442\u0430, \u0448\u0438\u0440\u0438\u043d\u0430, \u0444\u043e\u0440\u043c\u0430) \u0435 \u0432\u0433\u0440\u0430\u0434\u0435\u043d \u0432\u044a\u0432 \u0432\u0441\u044f\u043a\u0430 \u043e\u0442 26-\u0442\u0435 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0438 \u2014 \u043f\u0440\u043e\u0442\u043e\u043a\u043e\u043b\u044a\u0442 \u043d\u0435 \u0433\u043e \u043f\u0440\u043e\u043c\u0435\u043d\u044f. \u041f\u043b\u0430\u0442\u043a\u0430\u0442\u0430 \u0435 ZX-571C \u0441 \u0447\u0438\u043f SYD8811.\n\u2022 26 \u043c\u043e\u0434\u0443\u043b\u0430, \u043d\u043e\u043c\u0435\u0440\u0438\u0440\u0430\u043d\u0438 1\u201326, \u043f\u043e \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 (\u043e\u0431\u043b\u0435\u043a\u0447\u0430\u0432\u0430\u043d\u0435, \u043c\u0430\u0441\u0430\u0436, \u043c\u0443\u0441\u043a\u0443\u043b\u0438, \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435) \u2014 \u0431\u0435\u0437 \u0447\u0430\u0441\u0442\u0438 \u043d\u0430 \u0442\u044f\u043b\u043e\u0442\u043e. \u0427\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0438 \u0448\u0438\u0440\u0438\u043d\u0430\u0442\u0430 \u0441\u0430 \u043e\u0442 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e DOMAS \u043d\u0430 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f.\n\u2022 \u201e\u0418\u043c\u043f\u0443\u043b\u0441\u201c \u0440\u0438\u0441\u0443\u0432\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 (0\u201325) \u0432\u044a\u0432 \u0432\u0440\u0435\u043c\u0435\u0442\u043e, \u0434\u043e \u2248 10 \u043f\u044a\u0442\u0438 \u0432 \u0441\u0435\u043a\u0443\u043d\u0434\u0430, \u043f\u043e\u043a\u0430\u0447\u0432\u0430\u043d\u0435 \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e \u0441 3 \u043d\u0438\u0432\u0430 \u043d\u0430\u0432\u0435\u0434\u043d\u044a\u0436. \u201e\u0420\u0430\u0431\u043e\u0442\u0430 / \u041f\u0430\u0443\u0437\u0430\u201c: \u0442\u0432\u043e\u0438\u0442\u0435 \u0432\u0440\u0435\u043c\u0435\u043d\u0430 \u0437\u0430 \u043d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u043d\u0435, \u0440\u0430\u0431\u043e\u0442\u0430, \u0441\u043f\u0430\u0434\u0430\u043d\u0435 \u0438 \u043f\u0430\u0443\u0437\u0430.\n\u2022 \u0421\u043c\u044f\u043d\u0430 \u043d\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430: \u043c\u043e\u0434\u0443\u043b\u0438\u0442\u0435 \u043f\u043e\u0434\u0440\u0435\u0434, \u0432\u0441\u0435\u043a\u0438 \u043f\u043e\u0435\u043c\u0430 \u0432 \u043d\u0430\u0447\u0430\u043b\u043e\u0442\u043e \u043d\u0430 \u043f\u0430\u0443\u0437\u0430\u0442\u0430 (\u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e \u0441\u043c\u0435\u043d\u044f \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u0441\u0430\u043c\u043e \u0431\u0435\u0437 \u0442\u043e\u043a \u0438 \u043d\u0443\u043b\u0438\u0440\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u043f\u0430\u043a \u0441\u0435 \u043a\u0430\u0447\u0432\u0430 \u043e\u0442 0).\n\u2022 \u0410\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e \u043a\u0430\u0437\u0432\u0430: \u0431\u0430\u0442\u0435\u0440\u0438\u044f, \u0434\u043e\u043f\u0438\u0440 \u043d\u0430 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435, \u043e\u0441\u0442\u0430\u0432\u0430\u0449\u043e \u0432\u0440\u0435\u043c\u0435, \u0437\u0430\u0449\u043e \u0441\u0435 \u0435 \u0438\u0437\u043a\u043b\u044e\u0447\u0438\u043b\u043e.\n\u2022 \u201e\u0418\u0437\u0441\u043b\u0435\u0434\u0432\u0430\u043d\u0435\u201c \u043f\u0440\u043e\u0431\u0432\u0430 ~600 \u043a\u043e\u043c\u0430\u043d\u0434\u0438 \u0441\u0430\u043c\u043e \u0437\u0430 \u0447\u0435\u0442\u0435\u043d\u0435 \u0438 \u0437\u0430\u043f\u0438\u0441\u0432\u0430 \u0432\u0441\u0438\u0447\u043a\u043e, \u043a\u043e\u0435\u0442\u043e \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u0438. \u201e\u0418\u0437\u0441\u043b\u0435\u0434\u0432\u0430\u043d\u0435 \u043d\u0430 \u0437\u0430\u043f\u0438\u0441\u201c \u043f\u0440\u0430\u0449\u0430 ~320 \u043a\u043e\u043c\u0430\u043d\u0434\u0438 \u0441\u044a\u0441 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442: \u043d\u0435\u043f\u043e\u0437\u043d\u0430\u0442\u0430 \u043e\u0442\u0433\u043e\u0432\u0430\u0440\u044f ERROR:104, \u0432\u0441\u0438\u0447\u043a\u043e \u0434\u0440\u0443\u0433\u043e \u0437\u043d\u0430\u0447\u0438, \u0447\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u0430\u0442\u0430 \u0441\u044a\u0449\u0435\u0441\u0442\u0432\u0443\u0432\u0430.\n\u201e\u041a\u043e\u043f\u0438\u0440\u0430\u0439 \u043e\u0442\u0447\u0435\u0442\u0430\u201c \u0434\u0430\u0432\u0430 \u0446\u0435\u043b\u0438\u044f \u0440\u0435\u0437\u0443\u043b\u0442\u0430\u0442 \u0437\u0430 \u0430\u043d\u0430\u043b\u0438\u0437."
 
     const-string v2, "\u2022 The impulse (frequency, width, shape) is built into each of the 26 programs \u2014 the protocol does not change it. Board ZX-571C, SYD8811 chip.\n\u2022 26 modules numbered 1\u201326 by what they do (relief, massage, muscles, recovery) \u2014 no body parts. Frequency and width come from the maker\'s DOMAS app.\n\u2022 \"Impulse\" draws the strength (0\u201325) over time, up to \u2248 10 times a second, rising at most 3 levels at once. \"Work / Pause\": your rise, work, fall and pause times.\n\u2022 Frequency change: the modules in turn, each taking over at the start of a pause (the unit changes program only without output and zeroes the strength \u2014 it climbs again from 0).\n\u2022 The unit reports battery, pad contact, time left and why it switched off.\n\u2022 \"Explore\" tries ~600 read-only commands and records everything that answers. \"Write exploration\" sends ~320 commands with a value: an unknown one answers ERROR:104, anything else means the command exists.\n\"Copy the report\" gives the whole result for analysis."
@@ -4578,7 +5065,7 @@
 
     move-result-object v1
 
-    .line 1657
+    .line 1760
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -4595,12 +5082,12 @@
 
     invoke-virtual {v2, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1658
+    .line 1761
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 1659
+    .line 1762
     return-void
 .end method
 
@@ -4608,7 +5095,7 @@
     .registers 4
 
     .prologue
-    .line 633
+    .line 730
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -4629,12 +5116,12 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 634
+    .line 731
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 635
+    .line 732
     if-eqz v0, :cond_2a
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -4645,14 +5132,14 @@
 
     if-eqz v1, :cond_2a
 
-    .line 636
+    .line 733
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveMod()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modulate(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;)V
 
-    .line 638
+    .line 735
     :cond_2a
     return-void
 .end method
@@ -4661,19 +5148,19 @@
     .registers 5
 
     .prologue
-    .line 571
+    .line 668
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->copy()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     move-result-object v1
 
-    .line 572
+    .line 669
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltOn:Z
 
     if-eqz v0, :cond_20
 
-    .line 573
+    .line 670
     iget v2, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -4697,11 +5184,11 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
 
-    .line 575
+    .line 672
     :cond_20
     return-object v1
 
-    .line 573
+    .line 670
     :cond_21
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltHi:I
 
@@ -4712,7 +5199,7 @@
     .registers 4
 
     .prologue
-    .line 1094
+    .line 1191
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -4733,12 +5220,12 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1095
+    .line 1192
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1096
+    .line 1193
     if-eqz v0, :cond_30
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
@@ -4753,7 +5240,7 @@
 
     if-nez v1, :cond_30
 
-    .line 1097
+    .line 1194
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->copy()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -4762,18 +5249,18 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modulate(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;)V
 
-    .line 1099
+    .line 1196
     :cond_30
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
     if-eqz v0, :cond_39
 
-    .line 1100
+    .line 1197
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->invalidate()V
 
-    .line 1102
+    .line 1199
     :cond_39
     return-void
 .end method
@@ -4786,24 +5273,24 @@
 
     const/4 v3, 0x0
 
-    .line 1044
+    .line 1141
     const/16 v0, 0x1e
 
     if-lt p1, v0, :cond_b
 
-    .line 1045
+    .line 1142
     invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->pultStep(II)V
 
-    .line 1077
+    .line 1174
     :cond_a
     :goto_a
     return-void
 
-    .line 1048
+    .line 1145
     :cond_b
     packed-switch p1, :pswitch_data_154
 
-    .line 1069
+    .line 1166
     :pswitch_e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4815,21 +5302,21 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->stepMs:I
 
-    .line 1071
+    .line 1168
     :goto_17
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 1072
+    .line 1169
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modChanged()V
 
-    .line 1073
+    .line 1170
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->refreshFields(Landroid/view/ViewGroup;)V
 
-    .line 1074
+    .line 1171
     const/16 v0, 0xa
 
     if-lt p1, v0, :cond_a
@@ -4838,12 +5325,12 @@
 
     if-eqz v0, :cond_a
 
-    .line 1075
+    .line 1172
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderSteps()V
 
     goto :goto_a
 
-    .line 1049
+    .line 1146
     :pswitch_30
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4869,7 +5356,7 @@
 
     goto :goto_17
 
-    .line 1050
+    .line 1147
     :pswitch_46
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4895,7 +5382,7 @@
 
     goto :goto_17
 
-    .line 1052
+    .line 1149
     :pswitch_5c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4907,7 +5394,7 @@
 
     const/16 v0, 0x64
 
-    .line 1053
+    .line 1150
     :goto_66
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4921,7 +5408,7 @@
 
     goto :goto_17
 
-    .line 1052
+    .line 1149
     :cond_6f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4940,7 +5427,7 @@
 
     goto :goto_66
 
-    .line 1056
+    .line 1153
     :pswitch_7d
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4954,7 +5441,7 @@
 
     goto :goto_17
 
-    .line 1057
+    .line 1154
     :pswitch_87
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4970,7 +5457,7 @@
 
     goto :goto_17
 
-    .line 1058
+    .line 1155
     :pswitch_94
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -4986,7 +5473,7 @@
 
     goto/16 :goto_17
 
-    .line 1059
+    .line 1156
     :pswitch_a2
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -5002,7 +5489,7 @@
 
     goto/16 :goto_17
 
-    .line 1060
+    .line 1157
     :pswitch_b0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -5018,7 +5505,7 @@
 
     goto/16 :goto_17
 
-    .line 1061
+    .line 1158
     :pswitch_be
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -5030,7 +5517,7 @@
 
     goto/16 :goto_17
 
-    .line 1062
+    .line 1159
     :pswitch_c7
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -5062,7 +5549,7 @@
 
     goto/16 :goto_17
 
-    .line 1063
+    .line 1160
     :pswitch_e4
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -5094,7 +5581,7 @@
 
     goto/16 :goto_17
 
-    .line 1064
+    .line 1161
     :pswitch_101
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -5114,7 +5601,7 @@
 
     goto/16 :goto_17
 
-    .line 1065
+    .line 1162
     :pswitch_113
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -5134,7 +5621,7 @@
 
     goto/16 :goto_17
 
-    .line 1066
+    .line 1163
     :pswitch_125
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -5154,7 +5641,7 @@
 
     goto/16 :goto_17
 
-    .line 1067
+    .line 1164
     :pswitch_137
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -5174,7 +5661,7 @@
 
     goto/16 :goto_17
 
-    .line 1068
+    .line 1165
     :pswitch_149
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
@@ -5188,7 +5675,7 @@
 
     goto/16 :goto_17
 
-    .line 1048
+    .line 1145
     :pswitch_data_154
     .packed-switch 0x0
         :pswitch_30
@@ -5215,15 +5702,15 @@
     .registers 4
 
     .prologue
-    .line 1470
+    .line 1573
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
 
-    .line 1471
+    .line 1574
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveRun:Z
 
-    .line 1472
+    .line 1575
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -5238,15 +5725,15 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1473
+    .line 1576
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v1
 
-    .line 1474
+    .line 1577
     if-eqz v1, :cond_29
 
-    .line 1475
+    .line 1578
     if-eqz p1, :cond_2d
 
     iget-boolean v0, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -5262,14 +5749,14 @@
     :goto_26
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modulate(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;)V
 
-    .line 1477
+    .line 1580
     :cond_29
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1478
+    .line 1581
     return-void
 
-    .line 1475
+    .line 1578
     :cond_2d
     const/4 v0, 0x0
 
@@ -5288,7 +5775,7 @@
 
     const/4 v5, 0x0
 
-    .line 250
+    .line 256
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->chipName(I)Ljava/lang/String;
@@ -5299,17 +5786,17 @@
 
     move-result-object v0
 
-    .line 251
+    .line 257
     const/high16 v1, 0x41480000    # 12.5f
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 252
+    .line 258
     const/4 v1, 0x2
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setMaxLines(I)V
 
-    .line 253
+    .line 259
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v1
@@ -5328,7 +5815,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 254
+    .line 260
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;
 
     if-eqz p2, :cond_4f
@@ -5336,7 +5823,7 @@
     :goto_30
     invoke-direct {v1, p1, p3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;-><init>(II)V
 
-    .line 255
+    .line 261
     const/high16 v2, 0x42a80000    # 84.0f
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -5351,10 +5838,10 @@
 
     invoke-virtual {v1, v6, v6, v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->setBounds(IIII)V
 
-    .line 256
+    .line 262
     invoke-virtual {v0, v5, v1, v5, v5}, Landroid/widget/TextView;->setCompoundDrawables(Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;)V
 
-    .line 257
+    .line 263
     const/high16 v1, 0x40800000    # 4.0f
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -5363,10 +5850,10 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setCompoundDrawablePadding(I)V
 
-    .line 258
+    .line 264
     return-object v0
 
-    .line 254
+    .line 260
     :cond_4f
     sget p3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
@@ -5377,7 +5864,7 @@
     .registers 4
 
     .prologue
-    .line 239
+    .line 245
     if-gez p1, :cond_5
 
     const-string v0, "\u2014"
@@ -5423,7 +5910,7 @@
     .registers 4
 
     .prologue
-    .line 1583
+    .line 1686
     iget v0, p1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->contact:I
 
     if-nez v0, :cond_12
@@ -5432,7 +5919,7 @@
 
     if-eqz v0, :cond_12
 
-    .line 1584
+    .line 1687
     const-string v0, "\u26a0 \u0415\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u043d\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442 \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u0435 0. \u041f\u0440\u0438\u0442\u0438\u0441\u043d\u0438 \u0433\u0438 \u0438 \u0443\u0432\u0435\u043b\u0438\u0447\u0438 \u043e\u0442\u043d\u043e\u0432\u043e."
 
     const-string v1, "\u26a0 Pads not touching \u2014 strength is 0. Press them on and raise again."
@@ -5443,7 +5930,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    .line 1587
+    .line 1690
     :cond_12
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
@@ -5459,10 +5946,10 @@
 
     if-eqz v0, :cond_23
 
-    .line 1588
+    .line 1691
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1590
+    .line 1693
     :cond_23
     return-void
 .end method
@@ -5473,7 +5960,7 @@
     .prologue
     const/4 v8, 0x0
 
-    .line 1594
+    .line 1697
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->io:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Io;->now()J
@@ -5484,7 +5971,7 @@
 
     rem-long/2addr v0, v2
 
-    .line 1595
+    .line 1698
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->console:Ljava/util/List;
 
     sget-object v3, Ljava/util/Locale;->US:Ljava/util/Locale;
@@ -5526,7 +6013,7 @@
 
     invoke-interface {v2, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 1596
+    .line 1699
     :goto_32
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->console:Ljava/util/List;
 
@@ -5538,29 +6025,29 @@
 
     if-le v0, v1, :cond_45
 
-    .line 1597
+    .line 1700
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->console:Ljava/util/List;
 
     invoke-interface {v0, v8}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
     goto :goto_32
 
-    .line 1595
+    .line 1698
     :cond_42
     const-string v0, "\u2190"
 
     goto :goto_26
 
-    .line 1599
+    .line 1702
     :cond_45
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_4c
 
-    .line 1600
+    .line 1703
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderConsole()V
 
-    .line 1602
+    .line 1705
     :cond_4c
     return-void
 .end method
@@ -5569,7 +6056,7 @@
     .registers 5
 
     .prologue
-    .line 1575
+    .line 1678
     const/4 v0, 0x2
 
     if-ne p2, v0, :cond_18
@@ -5584,7 +6071,7 @@
 
     if-eqz v0, :cond_18
 
-    .line 1576
+    .line 1679
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->shell:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -5595,11 +6082,11 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modulate(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;)V
 
-    .line 1578
+    .line 1681
     :cond_18
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1579
+    .line 1682
     return-void
 .end method
 
@@ -5607,13 +6094,13 @@
     .registers 5
 
     .prologue
-    .line 1606
+    .line 1709
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderExplore()V
 
-    .line 1607
+    .line 1710
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1608
+    .line 1711
     return-void
 .end method
 
@@ -5621,7 +6108,7 @@
     .registers 6
 
     .prologue
-    .line 613
+    .line 710
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
     if-nez v0, :cond_8
@@ -5630,16 +6117,16 @@
 
     if-nez v0, :cond_9
 
-    .line 630
+    .line 727
     :cond_8
     :goto_8
     return-void
 
-    .line 616
+    .line 713
     :cond_9
     iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltDeg:F
 
-    .line 617
+    .line 714
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltZero:F
 
     const/4 v1, 0x0
@@ -5648,10 +6135,10 @@
 
     if-gez v0, :cond_14
 
-    .line 618
+    .line 715
     iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltZero:F
 
-    .line 620
+    .line 717
     :cond_14
     const/high16 v0, 0x3f800000    # 1.0f
 
@@ -5671,7 +6158,7 @@
 
     move-result v0
 
-    .line 621
+    .line 718
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
@@ -5696,20 +6183,20 @@
 
     add-int/2addr v0, v1
 
-    .line 622
+    .line 719
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltHi:I
 
     if-eq v0, v1, :cond_8
 
-    .line 623
+    .line 720
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltHi:I
 
-    .line 624
+    .line 721
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 625
+    .line 722
     if-eqz v0, :cond_54
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -5720,14 +6207,14 @@
 
     if-eqz v1, :cond_54
 
-    .line 626
+    .line 723
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveMod()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modulate(Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;)V
 
-    .line 628
+    .line 725
     :cond_54
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderPult()V
 
@@ -5738,7 +6225,7 @@
     .registers 9
 
     .prologue
-    .line 1564
+    .line 1667
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
     if-nez v0, :cond_8
@@ -5747,18 +6234,18 @@
 
     if-eqz v0, :cond_9
 
-    .line 1571
+    .line 1674
     :cond_8
     :goto_8
     return-void
 
-    .line 1567
+    .line 1670
     :cond_9
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->scan:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;->stop()V
 
-    .line 1568
+    .line 1671
     new-instance v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -5775,25 +6262,54 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
-    .line 1569
+    .line 1672
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->connect()V
 
-    .line 1570
+    .line 1673
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
     goto :goto_8
+.end method
+
+.method pickHitWay(I)V
+    .registers 4
+
+    .prologue
+    .line 661
+    iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    .line 662
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "hit_way"
+
+    invoke-interface {v0, v1, p1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 663
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
+
+    .line 664
+    return-void
 .end method
 
 .method pickMinutes(I)V
     .registers 4
 
     .prologue
-    .line 1452
+    .line 1555
     iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->minutes:I
 
-    .line 1453
+    .line 1556
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -5808,31 +6324,31 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1454
+    .line 1557
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1455
+    .line 1558
     if-eqz v0, :cond_20
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
     if-eqz v1, :cond_20
 
-    .line 1456
+    .line 1559
     mul-int/lit8 v1, p1, 0x3c
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setTimer(I)V
 
-    .line 1458
+    .line 1561
     :cond_20
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
 
-    .line 1459
+    .line 1562
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1460
+    .line 1563
     return-void
 .end method
 
@@ -5840,29 +6356,29 @@
     .registers 5
 
     .prologue
-    .line 1433
+    .line 1536
     iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
-    .line 1434
+    .line 1537
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->sharp(I)Z
 
     move-result v0
 
     if-eqz v0, :cond_26
 
-    .line 1435
+    .line 1538
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iput p1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
-    .line 1436
+    .line 1539
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     const/4 v1, 0x0
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->beatTenths:I
 
-    .line 1437
+    .line 1540
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -5883,7 +6399,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1439
+    .line 1542
     :cond_26
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
@@ -5899,21 +6415,21 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1440
+    .line 1543
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1441
+    .line 1544
     if-eqz v0, :cond_4c
 
-    .line 1442
+    .line 1545
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    .line 1443
+    .line 1546
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setMode(I)V
 
-    .line 1444
+    .line 1547
     if-eqz v1, :cond_53
 
     const-string v0, "\u041d\u043e\u0432\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u2014 \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e \u0441\u043f\u0438\u0440\u0430 \u0438 \u043d\u0443\u043b\u0438\u0440\u0430 \u0441\u0438\u043b\u0430\u0442\u0430. \u25b6 \u0437\u0430 \u0441\u0442\u0430\u0440\u0442."
@@ -5924,21 +6440,21 @@
 
     move-result-object v0
 
-    .line 1445
+    .line 1548
     :goto_4a
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    .line 1447
+    .line 1550
     :cond_4c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
 
-    .line 1448
+    .line 1551
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1449
+    .line 1552
     return-void
 
-    .line 1445
+    .line 1548
     :cond_53
     const/4 v0, 0x0
 
@@ -5951,7 +6467,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 941
+    .line 1038
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
@@ -5960,10 +6476,10 @@
 
     move-result v4
 
-    .line 943
+    .line 1040
     if-ltz v4, :cond_4c
 
-    .line 944
+    .line 1041
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
@@ -5978,7 +6494,7 @@
 
     move v2, v1
 
-    .line 945
+    .line 1042
     :goto_16
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -5988,10 +6504,10 @@
 
     if-ge v2, v1, :cond_2e
 
-    .line 946
+    .line 1043
     if-eq v2, v4, :cond_2a
 
-    .line 947
+    .line 1044
     add-int/lit8 v1, v0, 0x1
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -6004,7 +6520,7 @@
 
     move v0, v1
 
-    .line 945
+    .line 1042
     :cond_2a
     add-int/lit8 v1, v2, 0x1
 
@@ -6015,29 +6531,29 @@
     :cond_2e
     move-object v0, v3
 
-    .line 955
+    .line 1052
     :goto_2f
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iput-object v0, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
 
-    .line 956
+    .line 1053
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 957
+    .line 1054
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modChanged()V
 
-    .line 958
+    .line 1055
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotRow:Landroid/widget/LinearLayout;
 
     if-eqz v0, :cond_4b
 
-    .line 959
+    .line 1056
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillRotate()V
 
-    .line 960
+    .line 1057
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotSum:Landroid/widget/TextView;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->rotateText()Ljava/lang/String;
@@ -6046,11 +6562,11 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 962
+    .line 1059
     :cond_4b
     return-void
 
-    .line 951
+    .line 1048
     :cond_4c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -6062,7 +6578,7 @@
 
     new-array v0, v0, [I
 
-    .line 952
+    .line 1049
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
@@ -6075,7 +6591,7 @@
 
     invoke-static {v2, v1, v0, v1, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 953
+    .line 1050
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
@@ -6091,23 +6607,23 @@
     .registers 3
 
     .prologue
-    .line 1463
+    .line 1566
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iput p1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->shape:I
 
-    .line 1464
+    .line 1567
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 1465
+    .line 1568
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modChanged()V
 
-    .line 1466
+    .line 1569
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
 
-    .line 1467
+    .line 1570
     return-void
 .end method
 
@@ -6117,7 +6633,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 1481
+    .line 1584
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     if-eqz v0, :cond_1a
@@ -6132,31 +6648,31 @@
 
     if-eqz v0, :cond_1a
 
-    .line 1482
+    .line 1585
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->shell:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeStop()V
 
-    .line 1483
+    .line 1586
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1506
+    .line 1609
     :cond_19
     :goto_19
     return-void
 
-    .line 1486
+    .line 1589
     :cond_1a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1487
+    .line 1590
     if-eqz v0, :cond_19
 
-    .line 1490
+    .line 1593
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
     if-nez v1, :cond_2a
@@ -6167,31 +6683,31 @@
 
     if-eqz v1, :cond_31
 
-    .line 1491
+    .line 1594
     :cond_2a
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeStop()V
 
-    .line 1505
+    .line 1608
     :goto_2d
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
     goto :goto_19
 
-    .line 1492
+    .line 1595
     :cond_31
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeArmed:Z
 
     if-nez v1, :cond_47
 
-    .line 1493
+    .line 1596
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeArmed:Z
 
-    .line 1494
+    .line 1597
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->armWrite:Z
 
-    .line 1495
+    .line 1598
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Disarm;
@@ -6204,22 +6720,22 @@
 
     goto :goto_2d
 
-    .line 1497
+    .line 1600
     :cond_47
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeArmed:Z
 
-    .line 1498
+    .line 1601
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
 
-    .line 1499
+    .line 1602
     if-eqz p1, :cond_51
 
-    .line 1500
+    .line 1603
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeWrites()V
 
     goto :goto_2d
 
-    .line 1502
+    .line 1605
     :cond_51
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probe()V
 
@@ -6230,12 +6746,85 @@
     .registers 8
 
     .prologue
+    const/16 v4, 0x64
+
     const/4 v1, 0x0
 
-    .line 542
-    packed-switch p1, :pswitch_data_a8
+    .line 550
+    const/16 v0, 0x24
 
-    .line 562
+    if-ne p1, v0, :cond_3d
+
+    .line 551
+    const/16 v1, 0x1e
+
+    const/16 v2, 0x1f4
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    if-lt v0, v4, :cond_17
+
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    if-ne v0, v4, :cond_3a
+
+    if-gez p2, :cond_3a
+
+    :cond_17
+    const/16 v0, 0xa
+
+    :goto_19
+    mul-int/2addr v0, p2
+
+    add-int/2addr v0, v3
+
+    invoke-static {v2, v0}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    invoke-static {v1, v0}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    .line 552
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "hit_ms"
+
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitMs:I
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 553
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
+
+    .line 581
+    :goto_39
+    return-void
+
+    .line 551
+    :cond_3a
+    const/16 v0, 0x32
+
+    goto :goto_19
+
+    .line 556
+    :cond_3d
+    packed-switch p1, :pswitch_data_e4
+
+    .line 576
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -6258,23 +6847,22 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
-    .line 564
-    :goto_19
+    .line 578
+    :goto_55
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 565
+    .line 579
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveChanged()V
 
-    .line 566
+    .line 580
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderPult()V
 
-    .line 567
-    return-void
+    goto :goto_39
 
-    .line 545
-    :pswitch_25
+    .line 559
+    :pswitch_61
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->freqCode()I
 
     move-result v3
@@ -6283,31 +6871,31 @@
 
     move v2, v1
 
-    .line 546
-    :goto_2b
+    .line 560
+    :goto_67
     sget-object v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->FREQS:[I
 
     array-length v4, v4
 
-    if-ge v0, v4, :cond_3a
+    if-ge v0, v4, :cond_76
 
-    .line 547
+    .line 561
     sget-object v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->FREQS:[I
 
     aget v4, v4, v0
 
-    if-ne v4, v3, :cond_37
+    if-ne v4, v3, :cond_73
 
     move v2, v0
 
-    .line 546
-    :cond_37
+    .line 560
+    :cond_73
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_2b
+    goto :goto_67
 
-    .line 551
-    :cond_3a
+    .line 565
+    :cond_76
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->FREQS:[I
 
     sget-object v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->FREQS:[I
@@ -6328,34 +6916,34 @@
 
     aget v0, v0, v2
 
-    .line 552
+    .line 566
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    if-gez v0, :cond_51
+    if-gez v0, :cond_8d
 
     neg-int v1, v0
 
-    :cond_51
+    :cond_8d
     iput v1, v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->beatTenths:I
 
-    .line 553
+    .line 567
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    if-gez v0, :cond_59
+    if-gez v0, :cond_95
 
     const/16 v0, 0x13
 
-    :cond_59
+    :cond_95
     iput v0, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
-    .line 554
+    .line 568
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
 
-    .line 555
+    .line 569
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -6372,10 +6960,10 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    goto :goto_19
+    goto :goto_55
 
-    .line 558
-    :pswitch_73
+    .line 572
+    :pswitch_af
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -6388,10 +6976,10 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->onMs:I
 
-    goto :goto_19
+    goto :goto_55
 
-    .line 559
-    :pswitch_80
+    .line 573
+    :pswitch_bc
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -6404,10 +6992,10 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->offMs:I
 
-    goto :goto_19
+    goto :goto_55
 
-    .line 560
-    :pswitch_8d
+    .line 574
+    :pswitch_c9
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -6420,10 +7008,10 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->upMs:I
 
-    goto :goto_19
+    goto :goto_55
 
-    .line 561
-    :pswitch_9a
+    .line 575
+    :pswitch_d6
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -6436,16 +7024,16 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->downMs:I
 
-    goto/16 :goto_19
+    goto/16 :goto_55
 
-    .line 542
-    :pswitch_data_a8
+    .line 556
+    :pswitch_data_e4
     .packed-switch 0x1e
-        :pswitch_25
-        :pswitch_73
-        :pswitch_80
-        :pswitch_8d
-        :pswitch_9a
+        :pswitch_61
+        :pswitch_af
+        :pswitch_bc
+        :pswitch_c9
+        :pswitch_d6
     .end packed-switch
 .end method
 
@@ -6455,14 +7043,14 @@
     .prologue
     const/high16 v6, 0x41200000    # 10.0f
 
-    .line 476
+    .line 484
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->card(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 477
+    .line 485
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v1
@@ -6483,7 +7071,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 478
+    .line 486
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v1, p2}, Lcom/isaigu/gymapp/widget/XemsUi;->label(Landroid/content/Context;Ljava/lang/String;)Landroid/widget/TextView;
@@ -6492,7 +7080,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 479
+    .line 487
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -6509,7 +7097,7 @@
 
     move-result-object v1
 
-    .line 480
+    .line 488
     iget-object v2, v1, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -6522,14 +7110,14 @@
 
     invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 481
+    .line 489
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     add-int/lit8 v3, p3, -0x1e
 
     aput-object v1, v2, v3
 
-    .line 482
+    .line 490
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, 0x0
@@ -6540,25 +7128,25 @@
 
     invoke-direct {v1, v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 483
+    .line 491
     invoke-virtual {p1}, Landroid/widget/LinearLayout;->getChildCount()I
 
     move-result v2
 
     if-lez v2, :cond_5e
 
-    .line 484
+    .line 492
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
 
     move-result v2
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 486
+    .line 494
     :cond_5e
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 487
+    .line 495
     return-void
 .end method
 
@@ -6568,7 +7156,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 1080
+    .line 1177
     move v2, v3
 
     :goto_2
@@ -6578,12 +7166,12 @@
 
     if-ge v2, v0, :cond_47
 
-    .line 1081
+    .line 1178
     invoke-virtual {p1, v2}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 1082
+    .line 1179
     invoke-virtual {v1}, Landroid/view/View;->getTag()Ljava/lang/Object;
 
     move-result-object v0
@@ -6596,7 +7184,7 @@
 
     if-eqz v0, :cond_3d
 
-    .line 1083
+    .line 1180
     invoke-virtual {v1}, Landroid/view/View;->getTag()Ljava/lang/Object;
 
     move-result-object v0
@@ -6609,10 +7197,10 @@
 
     move-object v0, v1
 
-    .line 1084
+    .line 1181
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 1085
+    .line 1182
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
@@ -6621,7 +7209,7 @@
 
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 1086
+    .line 1183
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
@@ -6634,7 +7222,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1080
+    .line 1177
     :cond_39
     :goto_39
     add-int/lit8 v0, v2, 0x1
@@ -6643,20 +7231,20 @@
 
     goto :goto_2
 
-    .line 1087
+    .line 1184
     :cond_3d
     instance-of v0, v1, Landroid/view/ViewGroup;
 
     if-eqz v0, :cond_39
 
-    .line 1088
+    .line 1185
     check-cast v1, Landroid/view/ViewGroup;
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->refreshFields(Landroid/view/ViewGroup;)V
 
     goto :goto_39
 
-    .line 1091
+    .line 1188
     :cond_47
     return-void
 .end method
@@ -6673,34 +7261,34 @@
 
     const/4 v1, 0x0
 
-    .line 1259
+    .line 1356
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
     if-eqz v0, :cond_c
 
-    .line 1357
+    .line 1456
     :goto_b
     return-void
 
-    .line 1262
+    .line 1359
     :cond_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v6
 
-    .line 1263
+    .line 1360
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     if-nez v0, :cond_1d2
 
-    .line 1264
+    .line 1361
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->unitName:Landroid/widget/TextView;
 
     const-string v4, "MASTOGO H-024B"
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1265
+    .line 1362
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
     const-string v4, "\u0442\u044a\u0440\u0441\u044f\u2026"
@@ -6715,7 +7303,7 @@
 
     invoke-static {v0, v4, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
 
-    .line 1276
+    .line 1373
     :goto_2a
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->battery:Landroid/widget/TextView;
 
@@ -6725,7 +7313,7 @@
 
     if-ltz v0, :cond_220
 
-    .line 1277
+    .line 1374
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -6734,7 +7322,7 @@
 
     const-string v8, "Battery "
 
-    .line 1276
+    .line 1373
     invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v7
@@ -6755,7 +7343,7 @@
 
     move-result-object v7
 
-    .line 1277
+    .line 1374
     iget-wide v8, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->batteryV:D
 
     const-wide/16 v10, 0x0
@@ -6791,18 +7379,18 @@
 
     move-result-object v0
 
-    .line 1276
+    .line 1373
     :goto_71
     invoke-virtual {v4, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1278
+    .line 1375
     if-eqz v6, :cond_224
 
     iget v0, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->contact:I
 
     if-nez v0, :cond_224
 
-    .line 1279
+    .line 1376
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
 
     const-string v4, "\u26a0 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u043d\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
@@ -6815,14 +7403,14 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1280
+    .line 1377
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
 
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 1287
+    .line 1384
     :goto_8e
     if-eqz v6, :cond_249
 
@@ -6832,7 +7420,7 @@
 
     move-result v0
 
-    .line 1288
+    .line 1385
     :goto_96
     iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
@@ -6844,7 +7432,7 @@
 
     if-nez v4, :cond_24c
 
-    .line 1289
+    .line 1386
     :cond_a0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -6866,7 +7454,7 @@
 
     invoke-virtual {v0, v4, v7}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1297
+    .line 1394
     :goto_b5
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -6879,14 +7467,14 @@
     :goto_bc
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
-    .line 1298
+    .line 1395
     if-eqz v6, :cond_2b9
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->secondsLeft()I
 
     move-result v0
 
-    .line 1299
+    .line 1396
     :goto_c5
     if-eqz v6, :cond_2bc
 
@@ -6896,7 +7484,7 @@
 
     if-ltz v0, :cond_2bc
 
-    .line 1300
+    .line 1397
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->mmss(I)Ljava/lang/String;
@@ -6905,7 +7493,7 @@
 
     invoke-virtual {v4, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1301
+    .line 1398
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clockLabel:Landroid/widget/TextView;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -6940,16 +7528,16 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1306
+    .line 1403
     :goto_fa
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 1307
+    .line 1404
     if-eqz v6, :cond_169
 
-    .line 1308
+    .line 1405
     const-string v0, "\u041d\u0430 \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e: "
 
     const-string v7, "On the unit: "
@@ -6966,7 +7554,7 @@
 
     if-ltz v0, :cond_2e9
 
-    .line 1309
+    .line 1406
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -7011,16 +7599,16 @@
 
     move-result-object v0
 
-    .line 1308
+    .line 1405
     :goto_13e
     invoke-virtual {v7, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 1310
+    .line 1407
     iget v0, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->switches:I
 
     if-lez v0, :cond_156
 
-    .line 1311
+    .line 1408
     const-string v0, " \u00b7 \u0441\u043c\u0435\u043d\u0438 "
 
     const-string v7, " \u00b7 changes "
@@ -7037,13 +7625,13 @@
 
     invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 1313
+    .line 1410
     :cond_156
     iget v0, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->offReason:I
 
     if-ltz v0, :cond_169
 
-    .line 1314
+    .line 1411
     const-string v0, " \u00b7 "
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -7058,7 +7646,7 @@
 
     invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 1317
+    .line 1414
     :cond_169
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->facts:Landroid/widget/TextView;
 
@@ -7068,7 +7656,7 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1319
+    .line 1416
     if-eqz v6, :cond_2ed
 
     iget-boolean v0, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -7077,22 +7665,22 @@
 
     move v4, v5
 
-    .line 1320
+    .line 1417
     :goto_179
     if-eqz v4, :cond_17c
 
     const/4 v1, 0x4
 
-    .line 1321
+    .line 1418
     :cond_17c
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->goStyle:I
 
     if-eq v1, v0, :cond_19c
 
-    .line 1322
+    .line 1419
     iput v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->goStyle:I
 
-    .line 1323
+    .line 1420
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v7, ""
@@ -7101,7 +7689,7 @@
 
     move-result-object v0
 
-    .line 1324
+    .line 1421
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
     invoke-virtual {v0}, Landroid/widget/TextView;->getBackground()Landroid/graphics/drawable/Drawable;
@@ -7110,7 +7698,7 @@
 
     invoke-virtual {v1, v7}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1325
+    .line 1422
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
     invoke-virtual {v0}, Landroid/widget/TextView;->getCurrentTextColor()I
@@ -7119,7 +7707,7 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 1327
+    .line 1424
     :cond_19c
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
@@ -7136,7 +7724,7 @@
     :goto_1a8
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1328
+    .line 1425
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
     if-eqz v6, :cond_2fa
@@ -7148,40 +7736,40 @@
     :goto_1b3
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 1330
+    .line 1427
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
     if-eqz v0, :cond_2fd
 
-    .line 1331
+    .line 1428
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    .line 1351
+    .line 1450
     :goto_1bc
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hint:Landroid/widget/TextView;
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1352
+    .line 1451
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
     if-eqz v0, :cond_1ca
 
-    .line 1353
+    .line 1452
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->env:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$EnvelopeView;->invalidate()V
 
-    .line 1355
+    .line 1454
     :cond_1ca
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderPult()V
 
-    .line 1356
+    .line 1455
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderExplore()V
 
     goto/16 :goto_b
 
-    .line 1267
+    .line 1364
     :cond_1d2
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->unitName:Landroid/widget/TextView;
 
@@ -7191,7 +7779,7 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1268
+    .line 1365
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;->state:I
@@ -7200,7 +7788,7 @@
 
     if-ne v0, v4, :cond_1f3
 
-    .line 1269
+    .line 1366
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
     const-string v4, "\u2713 \u0441\u0432\u044a\u0440\u0437\u0430\u043d"
@@ -7217,7 +7805,7 @@
 
     goto/16 :goto_2a
 
-    .line 1270
+    .line 1367
     :cond_1f3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
@@ -7227,7 +7815,7 @@
 
     if-ne v0, v4, :cond_20b
 
-    .line 1271
+    .line 1368
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
     const-string v4, "\u2298 \u0432\u0440\u044a\u0437\u043a\u0430\u0442\u0430 \u043f\u0430\u0434\u043d\u0430"
@@ -7244,7 +7832,7 @@
 
     goto/16 :goto_2a
 
-    .line 1273
+    .line 1370
     :cond_20b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
@@ -7262,7 +7850,7 @@
 
     goto/16 :goto_2a
 
-    .line 1277
+    .line 1374
     :cond_21c
     const-string v0, ""
 
@@ -7273,7 +7861,7 @@
 
     goto/16 :goto_71
 
-    .line 1281
+    .line 1378
     :cond_224
     if-eqz v6, :cond_240
 
@@ -7281,7 +7869,7 @@
 
     if-eqz v0, :cond_240
 
-    .line 1282
+    .line 1379
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
 
     const-string v4, "\u2713 \u0434\u043e\u043f\u0438\u0440"
@@ -7294,7 +7882,7 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1283
+    .line 1380
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
 
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
@@ -7303,7 +7891,7 @@
 
     goto/16 :goto_8e
 
-    .line 1285
+    .line 1382
     :cond_240
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
 
@@ -7316,10 +7904,10 @@
     :cond_249
     move v0, v1
 
-    .line 1287
+    .line 1384
     goto/16 :goto_96
 
-    .line 1290
+    .line 1387
     :cond_24c
     if-eqz v6, :cond_26b
 
@@ -7331,7 +7919,7 @@
 
     if-nez v4, :cond_26b
 
-    .line 1291
+    .line 1388
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->startLevel:I
@@ -7352,7 +7940,7 @@
 
     goto/16 :goto_b5
 
-    .line 1293
+    .line 1390
     :cond_26b
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -7368,7 +7956,7 @@
 
     if-eqz v0, :cond_2ad
 
-    .line 1294
+    .line 1391
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -7415,13 +8003,13 @@
 
     move-result-object v0
 
-    .line 1293
+    .line 1390
     :goto_2a8
     invoke-virtual {v4, v7, v0}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     goto/16 :goto_b5
 
-    .line 1295
+    .line 1392
     :cond_2ad
     const-string v0, "\u0441\u0438\u043b\u0430 \u043e\u0442 25"
 
@@ -7436,16 +8024,16 @@
     :cond_2b6
     move v0, v3
 
-    .line 1297
+    .line 1394
     goto/16 :goto_bc
 
-    .line 1298
+    .line 1395
     :cond_2b9
     const/4 v0, -0x1
 
     goto/16 :goto_c5
 
-    .line 1303
+    .line 1400
     :cond_2bc
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
 
@@ -7477,7 +8065,7 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1304
+    .line 1401
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clockLabel:Landroid/widget/TextView;
 
     iget v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mode:I
@@ -7490,7 +8078,7 @@
 
     goto/16 :goto_fa
 
-    .line 1309
+    .line 1406
     :cond_2e9
     const-string v0, "\u2014"
 
@@ -7499,10 +8087,10 @@
     :cond_2ed
     move v4, v1
 
-    .line 1319
+    .line 1416
     goto/16 :goto_179
 
-    .line 1327
+    .line 1424
     :cond_2f0
     const-string v0, "\u25b6 \u041f\u0443\u0441\u043d\u0438"
 
@@ -7517,10 +8105,10 @@
     :cond_2fa
     move v2, v3
 
-    .line 1328
+    .line 1425
     goto/16 :goto_1b3
 
-    .line 1332
+    .line 1429
     :cond_2fd
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
@@ -7536,7 +8124,7 @@
 
     if-eqz v0, :cond_315
 
-    .line 1333
+    .line 1430
     const-string v0, "\u0410\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e \u0441\u0435 \u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0430\u043c\u043e (\u0434\u044a\u043b\u0433\u043e \u0431\u0435\u0437 \u0442\u043e\u043a). \u0412\u043a\u043b\u044e\u0447\u0438 \u0433\u043e \u2014 \u0438\u0437\u0441\u043b\u0435\u0434\u0432\u0430\u043d\u0435\u0442\u043e \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0430\u0432\u0430 \u043e\u0442\u0442\u0430\u043c."
 
     const-string v1, "The unit switched itself off (idle). Switch it on \u2014 the search goes on from there."
@@ -7547,13 +8135,13 @@
 
     goto/16 :goto_1bc
 
-    .line 1335
+    .line 1432
     :cond_315
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     if-nez v0, :cond_323
 
-    .line 1336
+    .line 1433
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e (\u0437\u0430\u0434\u0440\u044a\u0436 \u0431\u0443\u0442\u043e\u043d\u0430 \u043c\u0443) \u2014 \u0441\u0432\u044a\u0440\u0437\u0432\u0430 \u0441\u0435 \u0441\u0430\u043c\u043e."
 
     const-string v1, "Switch the unit on (hold its button) \u2014 it links by itself."
@@ -7564,11 +8152,11 @@
 
     goto/16 :goto_1bc
 
-    .line 1338
+    .line 1435
     :cond_323
     if-nez v6, :cond_32f
 
-    .line 1339
+    .line 1436
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043c \u0441\u0435\u2026"
 
     const-string v1, "Linking\u2026"
@@ -7579,13 +8167,13 @@
 
     goto/16 :goto_1bc
 
-    .line 1340
+    .line 1437
     :cond_32f
     iget-boolean v0, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
 
     if-eqz v0, :cond_33d
 
-    .line 1341
+    .line 1438
     const-string v0, "\u0422\u044a\u0440\u0441\u044f \u043a\u043e\u043c\u0430\u043d\u0434\u0438 \u2014 \u0438\u0437\u0445\u043e\u0434\u044a\u0442 \u0435 \u0441\u043f\u0440\u044f\u043d."
 
     const-string v1, "Searching commands \u2014 output paused."
@@ -7596,16 +8184,33 @@
 
     goto/16 :goto_1bc
 
-    .line 1342
+    .line 1439
     :cond_33d
-    if-eqz v4, :cond_3f2
+    iget v0, v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hitArmed:I
 
-    .line 1343
+    if-ltz v0, :cond_34b
+
+    .line 1440
+    const-string v0, "\u0423\u0434\u0430\u0440 \u0433\u043e\u0442\u043e\u0432 \u2014 \u0442\u0430\u043f\u043d\u0438 \u0423\u0414\u0410\u0420. \u25a0 \u0441\u043f\u0438\u0440\u0430."
+
+    const-string v1, "Hit ready \u2014 tap HIT. \u25a0 stops."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_1bc
+
+    .line 1441
+    :cond_34b
+    if-eqz v4, :cond_400
+
+    .line 1442
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveRun:Z
 
-    if-eqz v0, :cond_396
+    if-eqz v0, :cond_3a4
 
-    .line 1344
+    .line 1443
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -7614,7 +8219,7 @@
 
     const-string v2, "Panel: "
 
-    .line 1343
+    .line 1442
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -7663,7 +8268,7 @@
 
     iget v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->offMs:I
 
-    .line 1344
+    .line 1443
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->secs(I)Ljava/lang/String;
 
     move-result-object v1
@@ -7690,11 +8295,11 @@
 
     goto/16 :goto_1bc
 
-    .line 1345
-    :cond_396
+    .line 1444
+    :cond_3a4
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modOn:Z
 
-    if-eqz v0, :cond_3e8
+    if-eqz v0, :cond_3f6
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -7730,9 +8335,9 @@
 
     array-length v0, v0
 
-    if-le v0, v5, :cond_3e5
+    if-le v0, v5, :cond_3f3
 
-    .line 1346
+    .line 1445
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -7761,7 +8366,7 @@
 
     move-result-object v0
 
-    :goto_3db
+    :goto_3e9
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -7772,12 +8377,12 @@
 
     goto/16 :goto_1bc
 
-    :cond_3e5
+    :cond_3f3
     const-string v0, ""
 
-    goto :goto_3db
+    goto :goto_3e9
 
-    :cond_3e8
+    :cond_3f6
     const-string v0, "\u0420\u0430\u0431\u043e\u0442\u0438."
 
     const-string v1, "Running."
@@ -7788,8 +8393,8 @@
 
     goto/16 :goto_1bc
 
-    .line 1348
-    :cond_3f2
+    .line 1447
+    :cond_400
     const-string v0, "\u0413\u043e\u0442\u043e\u0432\u043e. \u2212 / + \u0437\u0430\u0434\u0430\u0432\u0430\u0442 \u0441\u0438\u043b\u0430\u0442\u0430, \u25b6 \u0442\u0440\u044a\u0433\u0432\u0430 \u0440\u044f\u0437\u043a\u043e \u043d\u0430 \u043d\u0435\u044f."
 
     const-string v1, "Ready. \u2212 / + set the strength, \u25b6 starts sharply at it."
@@ -7805,22 +8410,22 @@
     .registers 5
 
     .prologue
-    .line 1245
+    .line 1342
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 1254
+    .line 1351
     :goto_4
     return-void
 
-    .line 1248
+    .line 1345
     :cond_5
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 1249
+    .line 1346
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->console:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -7840,7 +8445,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 1250
+    .line 1347
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -7851,7 +8456,7 @@
 
     goto :goto_10
 
-    .line 1252
+    .line 1349
     :cond_26
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleView:Landroid/widget/TextView;
 
@@ -7861,7 +8466,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1253
+    .line 1350
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->consoleScroll:Landroid/widget/ScrollView;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ScrollDown;
@@ -7889,23 +8494,23 @@
 
     const/4 v2, 0x0
 
-    .line 1165
+    .line 1262
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeBtn:Landroid/widget/TextView;
 
     if-nez v0, :cond_c
 
-    .line 1242
+    .line 1339
     :cond_b
     :goto_b
     return-void
 
-    .line 1168
+    .line 1265
     :cond_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v9
 
-    .line 1169
+    .line 1266
     if-eqz v9, :cond_110
 
     iget-boolean v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probing:Z
@@ -7914,7 +8519,7 @@
 
     move v0, v1
 
-    .line 1170
+    .line 1267
     :goto_17
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
@@ -7932,7 +8537,7 @@
 
     move v8, v1
 
-    .line 1171
+    .line 1268
     :goto_26
     if-nez v0, :cond_2a
 
@@ -7947,7 +8552,7 @@
 
     move v7, v3
 
-    .line 1173
+    .line 1270
     :goto_31
     if-eqz v7, :cond_11b
 
@@ -7955,7 +8560,7 @@
 
     move-object v6, v3
 
-    .line 1174
+    .line 1271
     :goto_36
     if-eqz v7, :cond_120
 
@@ -7963,7 +8568,7 @@
 
     move-object v5, v3
 
-    .line 1175
+    .line 1272
     :goto_3b
     if-nez v0, :cond_43
 
@@ -7979,7 +8584,7 @@
     :goto_45
     invoke-virtual {v5, v3}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 1176
+    .line 1273
     if-eqz v7, :cond_128
 
     const-string v3, "\u0422\u044a\u0440\u0441\u0438 \u0441\u043a\u0440\u0438\u0442\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u0438"
@@ -7993,10 +8598,10 @@
     :goto_52
     invoke-virtual {v5, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1178
+    .line 1275
     invoke-virtual {v6, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 1179
+    .line 1276
     if-eqz v7, :cond_132
 
     const-string v3, " \u0437\u0430\u043f\u0438\u0441\u0430"
@@ -8007,11 +8612,11 @@
 
     move-result-object v3
 
-    .line 1180
+    .line 1277
     :goto_62
     if-eqz v8, :cond_13c
 
-    .line 1181
+    .line 1278
     const-string v0, "\u25a0 \u0421\u043f\u0440\u0438 \u0442\u044a\u0440\u0441\u0435\u043d\u0435\u0442\u043e"
 
     const-string v3, "\u25a0 Stop the search"
@@ -8022,7 +8627,7 @@
 
     invoke-virtual {v6, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1182
+    .line 1279
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeText:Landroid/widget/TextView;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -8073,7 +8678,7 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1208
+    .line 1305
     :goto_a3
     if-nez v9, :cond_26e
 
@@ -8081,22 +8686,22 @@
 
     const v0, 0x3ecccccd    # 0.4f
 
-    .line 1209
+    .line 1306
     :goto_aa
     invoke-virtual {v6, v0}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 1210
+    .line 1307
     invoke-virtual {v5, v0}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 1211
+    .line 1308
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitList:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 1212
+    .line 1309
     if-eqz v9, :cond_271
 
-    .line 1213
+    .line 1310
     iget-object v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -8116,14 +8721,14 @@
 
     check-cast v0, [Ljava/lang/String;
 
-    .line 1214
+    .line 1311
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v5}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v5
 
-    .line 1215
+    .line 1312
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     aget-object v7, v0, v2
@@ -8134,12 +8739,12 @@
 
     move-result-object v6
 
-    .line 1216
+    .line 1313
     sget-object v7, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
 
     invoke-virtual {v6, v7}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 1217
+    .line 1314
     new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v8, 0x432a0000    # 170.0f
@@ -8152,7 +8757,7 @@
 
     invoke-virtual {v5, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1218
+    .line 1315
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     aget-object v0, v0, v1
@@ -8163,19 +8768,19 @@
 
     move-result-object v0
 
-    .line 1219
+    .line 1316
     sget-object v6, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 1220
+    .line 1317
     new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v6, v2, v14, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
     invoke-virtual {v5, v0, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1221
+    .line 1318
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitList:Landroid/widget/LinearLayout;
 
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -8193,16 +8798,16 @@
     :cond_110
     move v0, v2
 
-    .line 1169
+    .line 1266
     goto/16 :goto_17
 
     :cond_113
     move v8, v2
 
-    .line 1170
+    .line 1267
     goto/16 :goto_26
 
-    .line 1171
+    .line 1268
     :cond_116
     iget-boolean v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->armWrite:Z
 
@@ -8210,7 +8815,7 @@
 
     goto/16 :goto_31
 
-    .line 1173
+    .line 1270
     :cond_11b
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeBtn:Landroid/widget/TextView;
 
@@ -8218,7 +8823,7 @@
 
     goto/16 :goto_36
 
-    .line 1174
+    .line 1271
     :cond_120
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->writeBtn:Landroid/widget/TextView;
 
@@ -8229,10 +8834,10 @@
     :cond_125
     move v3, v2
 
-    .line 1175
+    .line 1272
     goto/16 :goto_45
 
-    .line 1177
+    .line 1274
     :cond_128
     const-string v3, "\u0418\u0437\u0441\u043b\u0435\u0434\u0432\u0430\u043d\u0435 \u043d\u0430 \u0437\u0430\u043f\u0438\u0441"
 
@@ -8244,7 +8849,7 @@
 
     goto/16 :goto_52
 
-    .line 1179
+    .line 1276
     :cond_132
     const-string v3, " \u043a\u043e\u043c\u0430\u043d\u0434\u0438"
 
@@ -8256,11 +8861,11 @@
 
     goto/16 :goto_62
 
-    .line 1184
+    .line 1281
     :cond_13c
     if-eqz v0, :cond_1a2
 
-    .line 1185
+    .line 1282
     const-string v0, "\u25a0 \u0421\u043f\u0440\u0438 \u0442\u044a\u0440\u0441\u0435\u043d\u0435\u0442\u043e"
 
     const-string v10, "\u25a0 Stop the search"
@@ -8271,7 +8876,7 @@
 
     invoke-virtual {v6, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1186
+    .line 1283
     iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeText:Landroid/widget/TextView;
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -8320,7 +8925,7 @@
 
     iget-object v3, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
-    .line 1187
+    .line 1284
     invoke-interface {v3}, Ljava/util/List;->size()I
 
     move-result v3
@@ -8348,12 +8953,12 @@
 
     move-result-object v0
 
-    .line 1186
+    .line 1283
     invoke-virtual {v10, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto/16 :goto_a3
 
-    .line 1187
+    .line 1284
     :cond_199
     const-string v0, " \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u0438\u043b\u0438"
 
@@ -8365,13 +8970,13 @@
 
     goto :goto_18c
 
-    .line 1188
+    .line 1285
     :cond_1a2
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeArmed:Z
 
     if-eqz v0, :cond_1cb
 
-    .line 1189
+    .line 1286
     const-string v0, "\u2713 \u0415\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u0441\u0430 \u0441\u0432\u0430\u043b\u0435\u043d\u0438 \u00b7 \u0437\u0430\u043f\u043e\u0447\u043d\u0438"
 
     const-string v3, "\u2713 Pads are off \u00b7 start"
@@ -8382,12 +8987,12 @@
 
     invoke-virtual {v6, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1190
+    .line 1287
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeText:Landroid/widget/TextView;
 
     if-eqz v7, :cond_1c2
 
-    .line 1191
+    .line 1288
     const-string v0, "\u0421\u0432\u0430\u043b\u0438 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u043e\u0442 \u0442\u044f\u043b\u043e\u0442\u043e: \u043f\u043e\u0437\u043d\u0430\u0442\u0430 \u043a\u043e\u043c\u0430\u043d\u0434\u0430 \u043c\u043e\u0436\u0435 \u0434\u0430 \u043f\u0440\u0438\u0435\u043c\u0435 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442\u0442\u0430 (50 Hz, 200 \u00b5s)."
 
     const-string v7, "Take the pads off the body: a known command may take the value (50 Hz, 200 \u00b5s)."
@@ -8396,13 +9001,13 @@
 
     move-result-object v0
 
-    .line 1190
+    .line 1287
     :goto_1bd
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto/16 :goto_a3
 
-    .line 1193
+    .line 1290
     :cond_1c2
     const-string v0, "\u0421\u0432\u0430\u043b\u0438 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u043e\u0442 \u0442\u044f\u043b\u043e\u0442\u043e: \u043d\u044f\u043a\u043e\u044f \u043d\u0435\u043f\u043e\u0437\u043d\u0430\u0442\u0430 \u043a\u043e\u043c\u0430\u043d\u0434\u0430 \u043c\u043e\u0436\u0435 \u0434\u0430 \u043f\u0443\u0441\u043d\u0435 \u0442\u043e\u043a."
 
@@ -8414,7 +9019,7 @@
 
     goto :goto_1bd
 
-    .line 1196
+    .line 1293
     :cond_1cb
     if-eqz v7, :cond_24f
 
@@ -8429,19 +9034,19 @@
     :goto_1d5
     invoke-virtual {v6, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1198
+    .line 1295
     if-eqz v9, :cond_26b
 
     iget v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeTotal:I
 
     if-lez v0, :cond_26b
 
-    .line 1201
+    .line 1298
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 1199
+    .line 1296
     iget-boolean v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeWrite:Z
 
     if-eqz v0, :cond_259
@@ -8485,7 +9090,7 @@
 
     iget-object v3, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hits:Ljava/util/List;
 
-    .line 1200
+    .line 1297
     invoke-interface {v3}, Ljava/util/List;->size()I
 
     move-result v3
@@ -8494,7 +9099,7 @@
 
     move-result-object v3
 
-    .line 1201
+    .line 1298
     iget-boolean v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->probeWrite:Z
 
     if-eqz v0, :cond_262
@@ -8522,7 +9127,7 @@
 
     move-result-object v0
 
-    .line 1203
+    .line 1300
     :goto_22f
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->probeText:Landroid/widget/TextView;
 
@@ -8554,7 +9159,7 @@
 
     goto/16 :goto_a3
 
-    .line 1197
+    .line 1294
     :cond_24f
     const-string v0, "\u0422\u044a\u0440\u0441\u0438 \u0441\u043a\u0440\u0438\u0442\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u0438"
 
@@ -8566,7 +9171,7 @@
 
     goto/16 :goto_1d5
 
-    .line 1199
+    .line 1296
     :cond_259
     const-string v0, "\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u043e: "
 
@@ -8578,7 +9183,7 @@
 
     goto :goto_1ef
 
-    .line 1201
+    .line 1298
     :cond_262
     const-string v0, " \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u0438\u043b\u0438"
 
@@ -8590,7 +9195,7 @@
 
     goto :goto_221
 
-    .line 1202
+    .line 1299
     :cond_26b
     const-string v0, ""
 
@@ -8599,24 +9204,24 @@
     :cond_26e
     move v0, v4
 
-    .line 1208
+    .line 1305
     goto/16 :goto_aa
 
-    .line 1224
+    .line 1321
     :cond_271
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->feedback:Landroid/widget/TextView;
 
     if-eqz v0, :cond_b
 
-    .line 1225
+    .line 1322
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 1226
+    .line 1323
     if-eqz v9, :cond_338
 
-    .line 1227
+    .line 1324
     iget-object v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->tags:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->entrySet()Ljava/util/Set;
@@ -8640,7 +9245,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 1228
+    .line 1325
     const/16 v1, 0x2b
 
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
@@ -8679,13 +9284,13 @@
 
     goto :goto_286
 
-    .line 1230
+    .line 1327
     :cond_2b8
     iget v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttCount:I
 
     if-lez v0, :cond_319
 
-    .line 1231
+    .line 1328
     const-string v0, "\n"
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -8718,7 +9323,7 @@
 
     iget-wide v4, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->rttMax:J
 
-    .line 1232
+    .line 1329
     invoke-virtual {v0, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -8749,7 +9354,7 @@
 
     div-long/2addr v4, v6
 
-    .line 1233
+    .line 1330
     invoke-virtual {v0, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -8768,7 +9373,7 @@
 
     const-string v1, " \u2191 "
 
-    .line 1234
+    .line 1331
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -8783,7 +9388,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 1236
+    .line 1333
     :cond_319
     iget-wide v0, v9, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->heartMs:J
 
@@ -8793,7 +9398,7 @@
 
     if-lez v0, :cond_338
 
-    .line 1237
+    .line 1334
     const-string v0, " \u00b7 \u043f\u0443\u043b\u0441 \u043d\u0430 \u0432\u0440\u044a\u0437\u043a\u0430\u0442\u0430 "
 
     const-string v1, " \u00b7 heartbeat "
@@ -8816,7 +9421,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 1240
+    .line 1337
     :cond_338
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->feedback:Landroid/widget/TextView;
 
@@ -8841,6 +9446,214 @@
     goto :goto_344
 .end method
 
+.method renderHit()V
+    .registers 7
+
+    .prologue
+    .line 623
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitInfo:Landroid/widget/TextView;
+
+    if-nez v0, :cond_5
+
+    .line 641
+    :goto_4
+    return-void
+
+    .line 626
+    :cond_5
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
+
+    move-result-object v1
+
+    .line 627
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    if-nez v0, :cond_87
+
+    .line 628
+    const-string v0, "\u0418\u0437\u0445\u043e\u0434: \u0438\u0437\u0445\u043e\u0434\u044a\u0442 \u0435 \u043d\u0430 \u043f\u0430\u0443\u0437\u0430 \u0441\u044a\u0441 \u0441\u0438\u043b\u0430\u0442\u0430 \u0433\u043e\u0442\u043e\u0432\u0430; \u0443\u0434\u0430\u0440\u044a\u0442 \u0433\u043e \u043f\u0443\u0441\u043a\u0430 \u0438 \u0441\u043f\u0438\u0440\u0430. "
+
+    const-string v2, "Output: the output waits paused with the strength ready; the hit runs and stops it. "
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 635
+    :goto_15
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitInfo:Landroid/widget/TextView;
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "\u0421\u0438\u043b\u0430 = \u0432\u0434\u044f\u0441\u043d\u043e ("
+
+    const-string v4, "Strength = on the right ("
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    iget v3, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "), \u043d\u043e\u0441\u0438\u0442\u0435\u043b "
+
+    const-string v4, "), carrier "
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    .line 636
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    const/4 v4, 0x2
+
+    if-ne v0, v4, :cond_9f
+
+    const/16 v0, 0x13
+
+    .line 637
+    :goto_47
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
+
+    move-result v4
+
+    .line 636
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->name(IZ)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, ". "
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    .line 637
+    if-eqz v1, :cond_a4
+
+    iget v0, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hitArmed:I
+
+    if-ltz v0, :cond_a4
+
+    .line 638
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "\u0413\u043e\u0442\u043e\u0432 \u00b7 \u0443\u0434\u0430\u0440\u0438: "
+
+    const-string v5, "Ready \u00b7 hits: "
+
+    invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hitCount:I
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 639
+    :goto_7a
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 635
+    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    goto/16 :goto_4
+
+    .line 630
+    :cond_87
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hitWay:I
+
+    const/4 v2, 0x1
+
+    if-ne v0, v2, :cond_95
+
+    .line 631
+    const-string v0, "\u0421\u0438\u043b\u0430: \u0438\u0437\u0445\u043e\u0434\u044a\u0442 \u0432\u044a\u0440\u0432\u0438 \u043d\u0430 0; \u0443\u0434\u0430\u0440\u044a\u0442 \u0441\u043a\u0430\u0447\u0430 \u043d\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u0438 \u043e\u0431\u0440\u0430\u0442\u043d\u043e \u043d\u0430 0. "
+
+    const-string v2, "Strength: the output runs at 0; the hit jumps to the strength and back to 0. "
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_15
+
+    .line 633
+    :cond_95
+    const-string v0, "\u0415\u0434\u0438\u043d\u0438\u0447\u0435\u043d: \u0435\u0434\u0438\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u043d\u0430 \u201e\u0422\u043e\u043d\u0443\u0441\u201c (190 \u00b5s) \u043d\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u0432\u0434\u044f\u0441\u043d\u043e. "
+
+    const-string v2, "Single: one pulse of \"Toning\" (190 \u00b5s) at the strength on the right. "
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_15
+
+    .line 637
+    :cond_9f
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
+
+    goto :goto_47
+
+    .line 639
+    :cond_a4
+    const-string v0, "\u041f\u044a\u0440\u0432\u0438\u044f\u0442 \u0443\u0434\u0430\u0440 \u043f\u043e\u0434\u0433\u043e\u0442\u0432\u044f \u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e (~0.5 \u0441). \u041f\u0440\u043e\u0431\u0432\u0430\u0439 \u0442\u0440\u0438\u0442\u0435 \u043d\u0430\u0447\u0438\u043d\u0430 \u2014 \u043a\u043e\u0439 \u0435 \u043d\u0430\u0439-\u0440\u044f\u0437\u044a\u043a?"
+
+    const-string v1, "The first hit gets the unit ready (~0.5 s). Try all three \u2014 which is sharpest?"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_7a
+.end method
+
 .method renderPult()V
     .registers 13
 
@@ -8853,36 +9666,36 @@
 
     const/4 v2, 0x0
 
-    .line 490
+    .line 498
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     aget-object v0, v0, v2
 
     if-nez v0, :cond_b
 
-    .line 539
+    .line 547
     :goto_a
     return-void
 
-    .line 493
+    .line 501
     :cond_b
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v3
 
-    .line 494
+    .line 502
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v4, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->carrier:I
 
-    .line 495
+    .line 503
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->beatTenths:I
 
     if-lez v0, :cond_202
 
-    .line 496
+    .line 504
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     aget-object v0, v0, v2
@@ -8921,7 +9734,7 @@
 
     const-string v8, "beats: one pulse of "
 
-    .line 497
+    .line 505
     invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v7
@@ -8942,10 +9755,10 @@
 
     move-result-object v3
 
-    .line 496
+    .line 504
     invoke-virtual {v0, v5, v3}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 502
+    .line 510
     :goto_55
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -8969,7 +9782,7 @@
 
     invoke-virtual {v0, v3, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 503
+    .line 511
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     aget-object v3, v0, v11
@@ -8999,7 +9812,7 @@
     :goto_86
     invoke-virtual {v3, v5, v0}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 504
+    .line 512
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     aget-object v0, v0, v10
@@ -9022,7 +9835,7 @@
 
     invoke-virtual {v0, v3, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 505
+    .line 513
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     const/4 v3, 0x4
@@ -9047,7 +9860,7 @@
 
     invoke-virtual {v0, v3, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 506
+    .line 514
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     const/4 v3, 0x5
@@ -9104,12 +9917,12 @@
 
     invoke-virtual {v0, v3, v5}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 507
+    .line 515
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v3
 
-    .line 508
+    .line 516
     if-eqz v3, :cond_247
 
     iget-boolean v0, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -9128,11 +9941,11 @@
 
     move v0, v1
 
-    .line 509
+    .line 517
     :goto_106
     if-eqz v0, :cond_274
 
-    .line 510
+    .line 518
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modElapsed()J
@@ -9143,7 +9956,7 @@
 
     move-result-object v3
 
-    .line 511
+    .line 519
     aget v0, v3, v11
 
     aget v5, v3, v1
@@ -9154,7 +9967,7 @@
 
     move-result v5
 
-    .line 512
+    .line 520
     aget v0, v3, v2
 
     if-ne v0, v1, :cond_24a
@@ -9167,7 +9980,7 @@
 
     move-result-object v0
 
-    .line 515
+    .line 523
     :goto_127
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phaseText:Landroid/widget/TextView;
 
@@ -9209,7 +10022,7 @@
 
     const-string v5, " s"
 
-    .line 516
+    .line 524
     invoke-static {v1, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -9222,10 +10035,10 @@
 
     move-result-object v0
 
-    .line 515
+    .line 523
     invoke-virtual {v6, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 517
+    .line 525
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phaseText:Landroid/widget/TextView;
 
     aget v0, v3, v2
@@ -9237,13 +10050,13 @@
     :goto_165
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 523
+    .line 531
     :goto_168
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phase:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->invalidate()V
 
-    .line 524
+    .line 532
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveInfo:Landroid/widget/TextView;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -9254,7 +10067,7 @@
 
     if-eqz v0, :cond_2c7
 
-    .line 526
+    .line 534
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -9263,7 +10076,7 @@
 
     const-string v5, "Tilt "
 
-    .line 524
+    .line 532
     invoke-static {v3, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -9300,7 +10113,7 @@
 
     const-string v5, "\u00b0 \u2192 strength "
 
-    .line 525
+    .line 533
     invoke-static {v3, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -9353,7 +10166,7 @@
 
     move-result-object v0
 
-    .line 526
+    .line 534
     :goto_1d7
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -9365,7 +10178,7 @@
 
     if-lez v0, :cond_2cb
 
-    .line 527
+    .line 535
     const-string v0, "\u0421\u0438\u043c\u0443\u043b\u0438\u0440\u0430\u043d\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430: \u0432 \u0438\u043c\u043f\u0443\u043b\u0441\u0430 \u0438\u0437\u0445\u043e\u0434\u044a\u0442 \u0441\u0435 \u043f\u0443\u0441\u043a\u0430 \u0437\u0430 0.2 \u0441 \u043d\u0430 \u0432\u0441\u0435\u043a\u0438 \u0443\u0434\u0430\u0440 \u2014 \u043c\u0438\u043d\u0430\u0432\u0430 \u043f\u043e \u0435\u0434\u0438\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u043d\u0430 \u201e\u0422\u043e\u043d\u0443\u0441\u201c. \u0414\u043e 4 \u0443\u0434\u0430\u0440\u0430 \u0432 \u0441\u0435\u043a\u0443\u043d\u0434\u0430 (\u0442\u043e\u043b\u043a\u043e\u0432\u0430 \u043a\u043e\u043c\u0430\u043d\u0434\u0438 \u043f\u043e\u0435\u043c\u0430 \u0432\u0440\u044a\u0437\u043a\u0430\u0442\u0430). "
 
     const-string v3, "Simulated frequency: inside the impulse the output is let through for 0.2 s per beat \u2014 one pulse of \"Toning\" passes. Up to 4 beats a second (what the link carries). "
@@ -9374,7 +10187,7 @@
 
     move-result-object v0
 
-    .line 533
+    .line 541
     :goto_1e9
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -9384,7 +10197,7 @@
 
     const-string v3, "The pause stops the output, the impulse starts sharp at the strength on the right (or by your rise). Everything applies at once; the carrier changes in the next pause."
 
-    .line 535
+    .line 543
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -9397,12 +10210,12 @@
 
     move-result-object v0
 
-    .line 524
+    .line 532
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto/16 :goto_a
 
-    .line 499
+    .line 507
     :cond_202
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveSt:[Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -9443,7 +10256,7 @@
 
     move-result-object v0
 
-    .line 500
+    .line 508
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->width(I)Ljava/lang/String;
 
     move-result-object v3
@@ -9456,7 +10269,7 @@
 
     move-result-object v0
 
-    .line 499
+    .line 507
     invoke-virtual {v5, v6, v0}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     goto/16 :goto_55
@@ -9466,7 +10279,7 @@
 
     goto :goto_217
 
-    .line 503
+    .line 511
     :cond_23d
     const-string v0, "\u0441\u0435\u043a\u0443\u043d\u0434\u0438"
 
@@ -9481,10 +10294,10 @@
     :cond_247
     move v0, v2
 
-    .line 508
+    .line 516
     goto/16 :goto_106
 
-    .line 513
+    .line 521
     :cond_24a
     aget v0, v3, v2
 
@@ -9500,7 +10313,7 @@
 
     goto/16 :goto_127
 
-    .line 514
+    .line 522
     :cond_258
     aget v0, v3, v2
 
@@ -9527,13 +10340,13 @@
 
     goto/16 :goto_127
 
-    .line 517
+    .line 525
     :cond_270
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     goto/16 :goto_165
 
-    .line 519
+    .line 527
     :cond_274
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phaseText:Landroid/widget/TextView;
 
@@ -9581,7 +10394,7 @@
 
     iget v2, v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->offMs:I
 
-    .line 520
+    .line 528
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->secs(I)Ljava/lang/String;
 
     move-result-object v2
@@ -9606,10 +10419,10 @@
 
     move-result-object v1
 
-    .line 519
+    .line 527
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 521
+    .line 529
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->phaseText:Landroid/widget/TextView;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -9618,13 +10431,13 @@
 
     goto/16 :goto_168
 
-    .line 526
+    .line 534
     :cond_2c7
     const-string v0, ""
 
     goto/16 :goto_1d7
 
-    .line 531
+    .line 539
     :cond_2cb
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->steady(I)Z
 
@@ -9632,7 +10445,7 @@
 
     if-eqz v0, :cond_2db
 
-    .line 532
+    .line 540
     const-string v0, "\u2248 \u041f\u043e\u0441\u0442\u043e\u044f\u043d\u0435\u043d \u043d\u043e\u0441\u0438\u0442\u0435\u043b \u2014 \u0446\u0438\u043a\u044a\u043b\u044a\u0442 \u0435 \u0438\u0437\u0446\u044f\u043b\u043e \u0442\u0432\u043e\u0439. "
 
     const-string v3, "\u2248 Steady carrier \u2014 the cycle is all yours. "
@@ -9643,7 +10456,7 @@
 
     goto/16 :goto_1e9
 
-    .line 533
+    .line 541
     :cond_2db
     const-string v0, "\u25c6 \u0422\u0440\u044a\u0433\u0432\u0430 \u0440\u044f\u0437\u043a\u043e, \u043d\u043e \u0438\u043c\u0430 \u0441\u0432\u043e\u0438 \u043f\u0430\u043a\u0435\u0442\u0438 \u2014 \u0442\u0435 \u0432\u044a\u0440\u0432\u044f\u0442 \u0432 \u0438\u043c\u043f\u0443\u043b\u0441\u0430. "
 
@@ -9666,29 +10479,29 @@
 
     const/4 v3, 0x1
 
-    .line 825
+    .line 922
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepRow:Landroid/widget/LinearLayout;
 
     if-nez v0, :cond_a
 
-    .line 864
+    .line 961
     :goto_9
     return-void
 
-    .line 828
+    .line 925
     :cond_a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
     move-result-object v5
 
-    .line 829
+    .line 926
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepRow:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
     move v1, v2
 
-    .line 830
+    .line 927
     :goto_14
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -9700,7 +10513,7 @@
 
     if-ge v1, v0, :cond_c5
 
-    .line 831
+    .line 928
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->steps:Ljava/util/List;
@@ -9711,7 +10524,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
-    .line 832
+    .line 929
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -9752,7 +10565,7 @@
 
     iget v7, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
-    .line 833
+    .line 930
     invoke-static {v7}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->hz(I)Ljava/lang/String;
 
     move-result-object v7
@@ -9803,7 +10616,7 @@
 
     const-string v8, " s \u00b7 level "
 
-    .line 834
+    .line 931
     invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v7
@@ -9840,32 +10653,32 @@
 
     move v0, v3
 
-    .line 832
+    .line 929
     :goto_a6
     invoke-static {v4, v6, v0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->chip(Landroid/content/Context;Ljava/lang/String;ZI)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 835
+    .line 932
     const/high16 v4, 0x41480000    # 12.5f
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 836
+    .line 933
     new-instance v4, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepPick;
 
     invoke-direct {v4, p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepPick;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 837
+    .line 934
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepRow:Landroid/widget/LinearLayout;
 
     invoke-static {v4, v6, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    .line 830
+    .line 927
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
@@ -9875,10 +10688,10 @@
     :cond_c3
     move v0, v2
 
-    .line 834
+    .line 931
     goto :goto_a6
 
-    .line 839
+    .line 936
     :cond_c5
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->carrierRow:Landroid/widget/LinearLayout;
 
@@ -9886,7 +10699,7 @@
 
     move v4, v2
 
-    .line 840
+    .line 937
     :goto_cb
     const/4 v0, 0x2
 
@@ -9894,13 +10707,13 @@
 
     move v1, v2
 
-    .line 841
+    .line 938
     :goto_cf
     const/16 v0, 0x1a
 
     if-ge v1, v0, :cond_fd
 
-    .line 842
+    .line 939
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->steady(I)Z
 
     move-result v6
@@ -9912,7 +10725,7 @@
     :goto_da
     if-eq v6, v0, :cond_e2
 
-    .line 841
+    .line 938
     :goto_dc
     add-int/lit8 v0, v1, 0x1
 
@@ -9923,10 +10736,10 @@
     :cond_e0
     move v0, v2
 
-    .line 842
+    .line 939
     goto :goto_da
 
-    .line 845
+    .line 942
     :cond_e2
     iget v0, v5, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
@@ -9939,14 +10752,14 @@
 
     move-result-object v0
 
-    .line 846
+    .line 943
     new-instance v6, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepCarrier;
 
     invoke-direct {v6, p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepCarrier;-><init>(Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;I)V
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 847
+    .line 944
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->carrierRow:Landroid/widget/LinearLayout;
@@ -9958,10 +10771,10 @@
     :cond_fb
     move v0, v2
 
-    .line 845
+    .line 942
     goto :goto_e7
 
-    .line 840
+    .line 937
     :cond_fd
     add-int/lit8 v0, v4, 0x1
 
@@ -9969,20 +10782,20 @@
 
     goto :goto_cb
 
-    .line 850
+    .line 947
     :cond_101
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepFields:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 851
+    .line 948
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 852
+    .line 949
     const-string v1, "\u041d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u043d\u0435"
 
     const-string v4, "Rise"
@@ -9995,7 +10808,7 @@
 
     invoke-virtual {p0, v0, v1, v4, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 853
+    .line 950
     const-string v1, "\u0418\u043c\u043f\u0443\u043b\u0441"
 
     const-string v4, "Impulse"
@@ -10008,7 +10821,7 @@
 
     invoke-virtual {p0, v0, v1, v4, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 854
+    .line 951
     const-string v1, "\u0421\u043f\u0430\u0434\u0430\u043d\u0435"
 
     const-string v4, "Fall"
@@ -10021,7 +10834,7 @@
 
     invoke-virtual {p0, v0, v1, v4, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 855
+    .line 952
     const-string v1, "\u041f\u0430\u0443\u0437\u0430"
 
     const-string v4, "Pause"
@@ -10034,19 +10847,19 @@
 
     invoke-virtual {p0, v0, v1, v4, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 856
+    .line 953
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepFields:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 857
+    .line 954
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 858
+    .line 955
     const-string v1, "\u0421\u0438\u043b\u0430 \u0432 \u0438\u043c\u043f\u0443\u043b\u0441\u0430"
 
     const-string v4, "Impulse strength"
@@ -10059,7 +10872,7 @@
 
     invoke-virtual {p0, v0, v1, v4, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 859
+    .line 956
     const-string v1, "\u0421\u0438\u043b\u0430 \u0432 \u043f\u0430\u0443\u0437\u0430\u0442\u0430"
 
     const-string v2, "Pause strength"
@@ -10072,7 +10885,7 @@
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 860
+    .line 957
     const-string v1, "\u041f\u043e\u0432\u0442\u043e\u0440\u0435\u043d\u0438\u044f"
 
     const-string v2, "Repeats"
@@ -10085,7 +10898,7 @@
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 861
+    .line 958
     const-string v1, "\u041e\u043f\u0440\u0435\u0441\u043d\u044f\u0432\u0430\u043d\u0435"
 
     const-string v2, "Refresh"
@@ -10098,7 +10911,7 @@
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->addField(Landroid/widget/LinearLayout;Ljava/lang/String;IZ)V
 
-    .line 862
+    .line 959
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepFields:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -10111,7 +10924,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 863
+    .line 960
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSum:Landroid/widget/TextView;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSummary()Ljava/lang/String;
@@ -10127,7 +10940,7 @@
     .registers 8
 
     .prologue
-    .line 915
+    .line 1012
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
@@ -10138,7 +10951,7 @@
 
     if-ge v0, v1, :cond_11
 
-    .line 916
+    .line 1013
     const-string v0, "\u0418\u0437\u0431\u0435\u0440\u0438 2 \u0438\u043b\u0438 \u043f\u043e\u0432\u0435\u0447\u0435 \u043c\u043e\u0434\u0443\u043b\u0430: \u0432\u0441\u0435\u043a\u0438 \u043f\u043e\u0435\u043c\u0430 \u0441\u043b\u0435\u0434 \u043f\u0430\u0443\u0437\u0430\u0442\u0430 (\u0430\u043f\u0430\u0440\u0430\u0442\u0447\u0435\u0442\u043e \u0441\u043c\u0435\u043d\u044f \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u0441\u0430\u043c\u043e \u0431\u0435\u0437 \u0442\u043e\u043a). \u0415\u0434\u0438\u043d \u0438\u043b\u0438 \u043d\u0438\u0442\u043e \u0435\u0434\u0438\u043d \u2014 \u043c\u043e\u0434\u0443\u043b\u044a\u0442 \u043e\u0442 \u201e\u041c\u043e\u0434\u0443\u043b\u0438\u201c \u043e\u0441\u0442\u0430\u0432\u0430."
 
     const-string v1, "Pick 2 or more modules: each takes over after the pause (the unit changes program only without output). One or none \u2014 the module from \"Modules\" stays."
@@ -10147,17 +10960,17 @@
 
     move-result-object v0
 
-    .line 928
+    .line 1025
     :goto_10
     return-object v0
 
-    .line 921
+    .line 1018
     :cond_11
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 922
+    .line 1019
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->rotate:[I
@@ -10171,19 +10984,19 @@
 
     aget v4, v2, v0
 
-    .line 923
+    .line 1020
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v5
 
     if-lez v5, :cond_2b
 
-    .line 924
+    .line 1021
     const-string v5, " \u2192 "
 
     invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 926
+    .line 1023
     :cond_2b
     add-int/lit8 v5, v4, 0x1
 
@@ -10209,12 +11022,12 @@
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 922
+    .line 1019
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1c
 
-    .line 928
+    .line 1025
     :cond_47
     const-string v0, " \u2192 \u2026"
 
@@ -10233,12 +11046,12 @@
     .registers 6
 
     .prologue
-    .line 1526
+    .line 1629
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v1
 
-    .line 1527
+    .line 1630
     invoke-virtual {p1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
@@ -10255,7 +11068,7 @@
 
     move-result-object v0
 
-    .line 1528
+    .line 1631
     if-eqz v1, :cond_1c
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -10264,12 +11077,12 @@
 
     if-nez v2, :cond_1d
 
-    .line 1536
+    .line 1639
     :cond_1c
     :goto_1c
     return-void
 
-    .line 1531
+    .line 1634
     :cond_1d
     const-string v2, "AT"
 
@@ -10279,7 +11092,7 @@
 
     if-nez v2, :cond_38
 
-    .line 1532
+    .line 1635
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -10298,11 +11111,11 @@
 
     move-result-object v0
 
-    .line 1534
+    .line 1637
     :cond_38
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->raw(Ljava/lang/String;)V
 
-    .line 1535
+    .line 1638
     const-string v0, ""
 
     invoke-virtual {p1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
@@ -10314,10 +11127,10 @@
     .registers 7
 
     .prologue
-    .line 351
+    .line 357
     iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
-    .line 352
+    .line 358
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -10332,12 +11145,12 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 353
+    .line 359
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabHolder:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 354
+    .line 360
     const/4 v0, 0x4
 
     new-array v0, v0, [Ljava/lang/String;
@@ -10384,14 +11197,14 @@
 
     const-string v3, "Explore"
 
-    .line 355
+    .line 361
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
     aput-object v2, v0, v1
 
-    .line 356
+    .line 362
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabHolder:Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -10408,13 +11221,13 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 357
+    .line 363
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
 
-    .line 358
+    .line 364
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 359
+    .line 365
     return-void
 .end method
 
@@ -10422,7 +11235,7 @@
     .registers 3
 
     .prologue
-    .line 262
+    .line 268
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->link:Lcom/isaigu/gymapp/wearable/mastogo/MastogoLink;
 
     if-eqz v0, :cond_10
@@ -10462,12 +11275,12 @@
 
     const/4 v7, 0x0
 
-    .line 268
+    .line 274
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
 
-    .line 269
+    .line 275
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, "Mastogo"
@@ -10488,7 +11301,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 271
+    .line 277
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
@@ -10497,10 +11310,10 @@
 
     move-result-object v0
 
-    .line 272
+    .line 278
     if-eqz v0, :cond_5d
 
-    .line 273
+    .line 279
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-virtual {v1}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
@@ -10511,7 +11324,7 @@
 
     move-result-object v1
 
-    .line 274
+    .line 280
     const/high16 v2, 0x44a00000    # 1280.0f
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -10544,20 +11357,20 @@
 
     invoke-virtual {v0, v2, v1}, Landroid/view/Window;->setLayout(II)V
 
-    .line 275
+    .line 281
     invoke-virtual {v0}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v1
 
-    .line 276
+    .line 282
     const v2, 0x3ee66666    # 0.45f
 
     iput v2, v1, Landroid/view/WindowManager$LayoutParams;->dimAmount:F
 
-    .line 277
+    .line 283
     invoke-virtual {v0, v1}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    .line 279
+    .line 285
     :cond_5d
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -10565,7 +11378,7 @@
 
     invoke-virtual {v0, v7}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 280
+    .line 286
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->info:Landroid/widget/TextView;
@@ -10576,21 +11389,21 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 282
+    .line 288
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 283
+    .line 289
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 284
+    .line 290
     new-array v2, v11, [Ljava/lang/String;
 
     const-string v3, "\u041f\u0443\u043b\u0442"
@@ -10633,14 +11446,14 @@
 
     const-string v5, "Explore"
 
-    .line 285
+    .line 291
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
     aput-object v4, v2, v3
 
-    .line 286
+    .line 292
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -10649,7 +11462,7 @@
 
     iput-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabHolder:Landroid/widget/LinearLayout;
 
-    .line 287
+    .line 293
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabHolder:Landroid/widget/LinearLayout;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -10666,12 +11479,12 @@
 
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 288
+    .line 294
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabHolder:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 289
+    .line 295
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -10680,7 +11493,7 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
-    .line 290
+    .line 296
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -10693,7 +11506,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 291
+    .line 297
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const v3, 0x3faccccd    # 1.35f
@@ -10702,17 +11515,17 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 292
+    .line 298
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->unitCard()Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 293
+    .line 299
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v2, v7, v10, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 294
+    .line 300
     const/high16 v3, 0x41900000    # 18.0f
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -10721,10 +11534,10 @@
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 295
+    .line 301
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 296
+    .line 302
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
@@ -10737,7 +11550,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 298
+    .line 304
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -10752,14 +11565,14 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hint:Landroid/widget/TextView;
 
-    .line 299
+    .line 305
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hint:Landroid/widget/TextView;
 
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 300
+    .line 306
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -10776,7 +11589,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 301
+    .line 307
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -10787,7 +11600,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
-    .line 302
+    .line 308
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go:Landroid/widget/TextView;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Go;
@@ -10796,7 +11609,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 303
+    .line 309
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v1, 0x43820000    # 260.0f
@@ -10811,7 +11624,7 @@
 
     invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 304
+    .line 310
     const/high16 v1, 0x41800000    # 16.0f
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -10820,7 +11633,7 @@
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 305
+    .line 311
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -10829,13 +11642,13 @@
 
     invoke-virtual {v1, v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 307
+    .line 313
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
 
-    .line 308
+    .line 314
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 309
+    .line 315
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
@@ -10846,14 +11659,14 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
 
-    .line 310
+    .line 316
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 311
+    .line 317
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tick;
@@ -10864,7 +11677,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 312
+    .line 318
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StartScan;
@@ -10873,7 +11686,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->ensureConnectPermission(Landroid/app/Activity;Ljava/lang/Runnable;)V
 
-    .line 313
+    .line 319
     return-void
 .end method
 
@@ -10881,17 +11694,17 @@
     .registers 3
 
     .prologue
-    .line 1552
+    .line 1655
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
     if-eqz v0, :cond_5
 
-    .line 1560
+    .line 1663
     :cond_4
     :goto_4
     return-void
 
-    .line 1555
+    .line 1658
     :cond_5
     new-instance v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;
 
@@ -10899,7 +11712,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->scan:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;
 
-    .line 1556
+    .line 1659
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->scan:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScan;->start()Z
@@ -10908,7 +11721,7 @@
 
     if-nez v0, :cond_4
 
-    .line 1557
+    .line 1660
     const-string v0, "Bluetooth \u0435 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d."
 
     const-string v1, "Bluetooth is off."
@@ -10919,7 +11732,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    .line 1558
+    .line 1661
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
     goto :goto_4
@@ -10929,7 +11742,7 @@
     .registers 4
 
     .prologue
-    .line 789
+    .line 886
     const/4 v0, 0x0
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
@@ -10954,7 +11767,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSel:I
 
-    .line 790
+    .line 887
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->steps:Ljava/util/List;
@@ -10971,30 +11784,30 @@
 .end method
 
 .method step(I)V
-    .registers 6
+    .registers 7
 
     .prologue
-    const/16 v3, 0x19
+    const/16 v4, 0x19
 
-    .line 1400
+    .line 1499
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1401
+    .line 1500
     if-nez v0, :cond_9
 
-    .line 1430
+    .line 1533
     :goto_8
     return-void
 
-    .line 1404
+    .line 1503
     :cond_9
     const/4 v1, 0x0
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    .line 1405
+    .line 1504
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveRun:Z
 
     if-eqz v1, :cond_16
@@ -11003,87 +11816,108 @@
 
     move-result-object v1
 
-    if-nez v1, :cond_1e
+    if-nez v1, :cond_22
 
     :cond_16
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
-    if-nez v1, :cond_42
+    if-nez v1, :cond_1e
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    if-nez v1, :cond_42
+    if-eqz v1, :cond_22
 
-    .line 1406
     :cond_1e
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+    iget v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hitArmed:I
 
+    if-ltz v1, :cond_54
+
+    .line 1505
+    :cond_22
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
-
-    iget v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    iget v2, v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+    iget v2, v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
-    add-int/2addr v2, p1
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    invoke-static {v3, v2}, Ljava/lang/Math;->min(II)I
+    iget v3, v3, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+
+    add-int/2addr v3, p1
+
+    invoke-static {v4, v3}, Ljava/lang/Math;->min(II)I
+
+    move-result v3
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
 
     move-result v2
 
-    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
+    iput v2, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
 
-    move-result v1
+    .line 1506
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 1407
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
-
-    .line 1408
+    .line 1507
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveChanged()V
 
-    .line 1409
+    .line 1508
+    iget v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->hitArmed:I
+
+    if-ltz v1, :cond_4a
+
+    .line 1509
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
+
+    iget v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setHitLevel(I)V
+
+    .line 1511
+    :cond_4a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderPult()V
 
-    .line 1429
-    :cond_3e
-    :goto_3e
+    .line 1512
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderHit()V
+
+    .line 1532
+    :cond_50
+    :goto_50
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
     goto :goto_8
 
-    .line 1410
-    :cond_42
+    .line 1513
+    :cond_54
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->mod()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     move-result-object v1
 
-    if-eqz v1, :cond_79
+    if-eqz v1, :cond_8b
 
-    .line 1411
-    if-lez p1, :cond_50
+    .line 1514
+    if-lez p1, :cond_62
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
 
-    if-lt v0, v3, :cond_58
+    if-lt v0, v4, :cond_6a
 
-    :cond_50
-    if-gez p1, :cond_66
+    :cond_62
+    if-gez p1, :cond_78
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
-    if-lez v0, :cond_66
+    if-lez v0, :cond_78
 
-    .line 1412
-    :cond_58
+    .line 1515
+    :cond_6a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
@@ -11092,7 +11926,7 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->lo:I
 
-    .line 1413
+    .line 1516
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
@@ -11101,43 +11935,43 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->hi:I
 
-    .line 1415
-    :cond_66
+    .line 1518
+    :cond_78
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 1416
+    .line 1519
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modChanged()V
 
-    .line 1417
+    .line 1520
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tab:I
 
     const/4 v1, 0x2
 
-    if-ne v0, v1, :cond_3e
+    if-ne v0, v1, :cond_50
 
-    .line 1418
+    .line 1521
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tabBody:Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->refreshFields(Landroid/view/ViewGroup;)V
 
-    goto :goto_3e
+    goto :goto_50
 
-    .line 1421
-    :cond_79
+    .line 1524
+    :cond_8b
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
 
-    if-nez v1, :cond_a1
+    if-nez v1, :cond_b3
 
-    .line 1422
+    .line 1525
     const/4 v0, 0x1
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->startLevel:I
 
     add-int/2addr v1, p1
 
-    invoke-static {v3, v1}, Ljava/lang/Math;->min(II)I
+    invoke-static {v4, v1}, Ljava/lang/Math;->min(II)I
 
     move-result v1
 
@@ -11147,7 +11981,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->startLevel:I
 
-    .line 1423
+    .line 1526
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -11164,13 +11998,13 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1424
+    .line 1527
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
     goto/16 :goto_8
 
-    .line 1427
-    :cond_a1
+    .line 1530
+    :cond_b3
     const/4 v1, 0x0
 
     iget v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->level:I
@@ -11183,17 +12017,17 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->setLevel(I)V
 
-    goto :goto_3e
+    goto :goto_50
 .end method
 
 .method stepAdd(Z)V
     .registers 5
 
     .prologue
-    .line 876
+    .line 973
     if-eqz p1, :cond_34
 
-    .line 877
+    .line 974
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->steps:Ljava/util/List;
@@ -11206,11 +12040,11 @@
 
     if-lt v0, v1, :cond_f
 
-    .line 889
+    .line 986
     :goto_e
     return-void
 
-    .line 880
+    .line 977
     :cond_f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -11230,29 +12064,29 @@
 
     invoke-interface {v0, v1, v2}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 881
+    .line 978
     iget v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSel:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSel:I
 
-    .line 886
+    .line 983
     :cond_28
     :goto_28
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 887
+    .line 984
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modChanged()V
 
-    .line 888
+    .line 985
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderSteps()V
 
     goto :goto_e
 
-    .line 882
+    .line 979
     :cond_34
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
@@ -11266,7 +12100,7 @@
 
     if-le v0, v1, :cond_28
 
-    .line 883
+    .line 980
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->steps:Ljava/util/List;
@@ -11275,7 +12109,7 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 884
+    .line 981
     const/4 v0, 0x0
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSel:I
@@ -11295,25 +12129,25 @@
     .registers 3
 
     .prologue
-    .line 897
+    .line 994
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;
 
     move-result-object v0
 
     iput p1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Step;->mode:I
 
-    .line 898
+    .line 995
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->safe()V
 
-    .line 899
+    .line 996
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->modChanged()V
 
-    .line 900
+    .line 997
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderSteps()V
 
-    .line 901
+    .line 998
     return-void
 .end method
 
@@ -11321,13 +12155,13 @@
     .registers 2
 
     .prologue
-    .line 892
+    .line 989
     iput p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->stepSel:I
 
-    .line 893
+    .line 990
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->renderSteps()V
 
-    .line 894
+    .line 991
     return-void
 .end method
 
@@ -11335,12 +12169,12 @@
     .registers 5
 
     .prologue
-    .line 867
+    .line 964
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->mod:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->periodMs:I
 
-    .line 868
+    .line 965
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -11388,22 +12222,22 @@
     .registers 5
 
     .prologue
-    .line 1539
+    .line 1642
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
     if-eqz v0, :cond_5
 
-    .line 1547
+    .line 1650
     :goto_4
     return-void
 
-    .line 1542
+    .line 1645
     :cond_5
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
 
     move-result-object v0
 
-    .line 1543
+    .line 1646
     if-eqz v0, :cond_16
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -11414,11 +12248,11 @@
 
     if-eqz v1, :cond_16
 
-    .line 1544
+    .line 1647
     :cond_13
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 1546
+    .line 1649
     :cond_16
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->main:Landroid/os/Handler;
 
@@ -11453,12 +12287,12 @@
     .registers 3
 
     .prologue
-    .line 602
+    .line 699
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tilt:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;
 
     if-eqz v0, :cond_18
 
-    .line 603
+    .line 700
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, "sensor"
@@ -11469,21 +12303,21 @@
 
     check-cast v0, Landroid/hardware/SensorManager;
 
-    .line 604
+    .line 701
     if-eqz v0, :cond_15
 
-    .line 605
+    .line 702
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tilt:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;
 
     invoke-virtual {v0, v1}, Landroid/hardware/SensorManager;->unregisterListener(Landroid/hardware/SensorEventListener;)V
 
-    .line 607
+    .line 704
     :cond_15
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tilt:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;
 
-    .line 609
+    .line 706
     :cond_18
     return-void
 .end method
@@ -11494,20 +12328,20 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 579
+    .line 676
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltOn:Z
 
-    .line 580
+    .line 677
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltZero:F
 
-    .line 581
+    .line 678
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltHi:I
 
-    .line 582
+    .line 679
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v1, "sensor"
@@ -11518,26 +12352,26 @@
 
     check-cast v0, Landroid/hardware/SensorManager;
 
-    .line 583
+    .line 680
     if-eqz p1, :cond_49
 
-    .line 584
+    .line 681
     if-eqz v0, :cond_32
 
     invoke-virtual {v0, v4}, Landroid/hardware/SensorManager;->getDefaultSensor(I)Landroid/hardware/Sensor;
 
     move-result-object v1
 
-    .line 585
+    .line 682
     :goto_1c
     if-nez v1, :cond_34
 
-    .line 586
+    .line 683
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltOn:Z
 
-    .line 587
+    .line 684
     const-string v0, "\u0422\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u043d\u044f\u043c\u0430 \u0441\u0435\u043d\u0437\u043e\u0440 \u0437\u0430 \u043d\u0430\u043a\u043b\u043e\u043d."
 
     const-string v1, "The tablet has no tilt sensor."
@@ -11548,23 +12382,23 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->hintText:Ljava/lang/String;
 
-    .line 588
+    .line 685
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fillTab()V
 
-    .line 589
+    .line 686
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
-    .line 599
+    .line 696
     :goto_31
     return-void
 
-    .line 584
+    .line 681
     :cond_32
     const/4 v1, 0x0
 
     goto :goto_1c
 
-    .line 592
+    .line 689
     :cond_34
     new-instance v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;
 
@@ -11572,23 +12406,23 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tilt:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;
 
-    .line 593
+    .line 690
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tilt:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->main:Landroid/os/Handler;
 
     invoke-virtual {v0, v2, v1, v4, v3}, Landroid/hardware/SensorManager;->registerListener(Landroid/hardware/SensorEventListener;Landroid/hardware/Sensor;ILandroid/os/Handler;)Z
 
-    .line 597
+    .line 694
     :goto_42
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->liveChanged()V
 
-    .line 598
+    .line 695
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->render()V
 
     goto :goto_31
 
-    .line 595
+    .line 692
     :cond_49
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->tiltOff()V
 
@@ -11609,14 +12443,14 @@
 
     const/4 v6, 0x0
 
-    .line 316
+    .line 322
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->card(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 317
+    .line 323
     const/high16 v1, 0x41900000    # 18.0f
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->dp(F)I
@@ -11639,19 +12473,19 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 318
+    .line 324
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 319
+    .line 325
     const/16 v2, 0x10
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 320
+    .line 326
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v3, "MASTOGO H-024B"
@@ -11666,7 +12500,7 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->unitName:Landroid/widget/TextView;
 
-    .line 321
+    .line 327
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->unitName:Landroid/widget/TextView;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -11677,7 +12511,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 322
+    .line 328
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v3, ""
@@ -11690,22 +12524,22 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
-    .line 323
+    .line 329
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->linkBadge:Landroid/widget/TextView;
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 324
+    .line 330
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 326
+    .line 332
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 327
+    .line 333
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v3, ""
@@ -11718,7 +12552,7 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->battery:Landroid/widget/TextView;
 
-    .line 328
+    .line 334
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v3, ""
@@ -11731,7 +12565,7 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
 
-    .line 329
+    .line 335
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->battery:Landroid/widget/TextView;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -11742,12 +12576,12 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 330
+    .line 336
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->contact:Landroid/widget/TextView;
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 331
+    .line 337
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const/4 v3, 0x6
@@ -11758,7 +12592,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 333
+    .line 339
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, "0"
@@ -11783,7 +12617,7 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 334
+    .line 340
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->level:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
@@ -11798,19 +12632,19 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 336
+    .line 342
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 337
+    .line 343
     const/16 v2, 0x50
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 338
+    .line 344
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v3, "\u2014"
@@ -11825,7 +12659,7 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
 
-    .line 339
+    .line 345
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v3, ""
@@ -11838,7 +12672,7 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clockLabel:Landroid/widget/TextView;
 
-    .line 340
+    .line 346
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clockLabel:Landroid/widget/TextView;
 
     const/high16 v3, 0x41200000    # 10.0f
@@ -11855,17 +12689,17 @@
 
     invoke-virtual {v2, v3, v6, v6, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 341
+    .line 347
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clock:Landroid/widget/TextView;
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 342
+    .line 348
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->clockLabel:Landroid/widget/TextView;
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 343
+    .line 349
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const/16 v3, 0xc
@@ -11876,7 +12710,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 345
+    .line 351
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -11891,7 +12725,7 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->facts:Landroid/widget/TextView;
 
-    .line 346
+    .line 352
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->facts:Landroid/widget/TextView;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
@@ -11904,6 +12738,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 347
+    .line 353
     return-object v0
 .end method

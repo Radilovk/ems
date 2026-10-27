@@ -212,6 +212,9 @@ public final class XemsNav {
     /** Bluetens pads (wearable/bluetens): a page of its own, apart from the suit (owner, 2026-10-13). */
     static final String K_BLUETENS = "bluetens";
     static final int BLUETENS_TINT = 0xFF34D399;
+    /** MASTOGO H-024B TENS / EMS unit (wearable/mastogo): a page of its own, apart from the suit (owner, 2026-10-27). */
+    static final String K_MASTOGO = "mastogo";
+    static final int MASTOGO_TINT = 0xFFA78BFA;
     private static final String PREFS = "xems_nav";
     private static final int BAR_MAX = 7;
     private static final int[] MOD_ORDER = {M_TIMER, M_MUSIC, M_PULSE, M_AUTO, M_AI, M_VR};
@@ -265,6 +268,7 @@ public final class XemsNav {
         out.add(K_PROGRAMS);
         if (bluetensAllowed()) {
             out.add(K_BLUETENS);
+            out.add(K_MASTOGO);
         }
         for (int m : MOD_ORDER) {
             out.add("mod:" + m);
@@ -382,6 +386,11 @@ public final class XemsNav {
             label = "Bluetens";
             tint = BLUETENS_TINT;
             click = new BluetensClick();
+        } else if (K_MASTOGO.equals(k)) {
+            glyph = XemsIcon.BOLT;
+            label = "Mastogo";
+            tint = MASTOGO_TINT;
+            click = new MastogoClick();
         } else {
             int i = Integer.parseInt(k.substring(5));
             View tab = mainRoot != null ? mainRoot.findViewById(ID_TAB_FIRST + i) : null;
@@ -467,6 +476,8 @@ public final class XemsNav {
                 row = extraRow(c, XemsIcon.DUMBBELL, tr("Програми", "Programs"), 0xFF22E3FF, new WorkoutsClick());
             } else if (K_BLUETENS.equals(k)) {
                 row = extraRow(c, XemsIcon.PADS, "Bluetens", BLUETENS_TINT, new BluetensClick());
+            } else if (K_MASTOGO.equals(k)) {
+                row = extraRow(c, XemsIcon.BOLT, "Mastogo", MASTOGO_TINT, new MastogoClick());
             } else {
                 row = moduleRow(c, Integer.parseInt(k.substring(4)));
             }
@@ -1052,6 +1063,19 @@ public final class XemsNav {
             Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
             if (a != null) {
                 com.isaigu.gymapp.wearable.bluetens.BluetensScreen.open(a);
+            }
+        }
+    }
+
+    static final class MastogoClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (menu != null) {
+                menu.dismiss();
+            }
+            Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
+            if (a != null) {
+                com.isaigu.gymapp.wearable.mastogo.MastogoScreen.open(a);
             }
         }
     }

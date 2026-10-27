@@ -4,6 +4,20 @@ Source: PNrelief 2.1.0 (`com.roblink.pnrelief`, Flutter, Dart 3.5.3) decompiled 
 Module for this unit: `zx_571c_26j4` (BLE name prefix `MASTOGO H-`). Sibling units (same AT family):
 `rl_023h_6e1`, `rl_023i_12h1/12h2`, `rl_084a`, `zx_571`, `zx_571b_12h1/12h2`.
 
+## Hardware (owner's photos, 2026-10-27)
+- Board `ZX-571C-24J2 V1.0 2024/04/16`, round, USB-C charging, one button (SW1), LEDs 1–8.
+- **U1 SYDTEK SYD8811QN48** — BLE SoC (ARM Cortex-M0), crystal X1; it runs the AT shell, the programs and the
+  output timing.
+- Output stage: blue inductor L2 + diode D1 + electrolytic E1 (low-ESR, high-voltage tank) = boost converter;
+  transistors `1AM` (Q1, Q8 — MMBT3904 class), `2L` (Q2, Q3, Q5, Q6 — MMBT5401, high-voltage PNP), `G1` (Q4, Q7 —
+  high-voltage NPN, MMBT5551 class) = an **H-bridge** → rectangular **biphasic** pulses; amplitude = boost voltage.
+  Small resistors `510` / `015` in the output path = current sensing (how `+CLOAD` / `ERROR 102` know the pads
+  are off).
+- So frequency, width, polarity, bursts and the strength steps are all firmware timing — the hardware could do far
+  more than the 25 programs. Only own firmware reaches it.
+- **P1** — 4 pads next to U1: almost certainly the programming / debug port (SWD or UART). Route to the firmware:
+  read it out (if not protected) to get every command and the program tables; or flash our own.
+
 ## Transport
 - Service `FFF0`: write `FFF5`, notify `FFF4`. `FF00`/`FF01` = OTA. `180A/2A26` = firmware revision.
 - ASCII lines, terminator `\r\n` (names `DomasA`/`DomasG` use a different end key; not this unit).
@@ -52,7 +66,24 @@ FEMALE 21–24 (Standard, Belly 1, Back 1, Back 2). App default 20 min.
 No frequency, pulse width, waveform, ramp or on/off-time command exists anywhere in the app (all 8 modules, debug page
 included). Those live inside each firmware program. Controllable from outside: program id, intensity 0–25,
 run/pause, timer, (auto-off, channel on siblings). The `mode_waves/*.png` assets are pictures only.
-Ways to go further: (1) intensity modulation from the host — at most ~10 updates/s through the 100 ms queue;
+Ways to go further (1 and 2 are built, below): (1) intensity modulation from the host — at most ~10 updates/s through the 100 ms queue;
 (2) probe extra AT commands with read-only `?` queries on the real unit; (3) measure each program on a 500 Ω–1 kΩ load
 with an oscilloscope to get its real Hz / width / shape; (4) OTA (`FF00/FF01`, `OTA_*_V30` in `zx_571b_12h2`) —
 custom firmware would give full control but risks bricking the unit.
+
+## In XEMS (1.1.464-ai) — menu → "Mastogo", unlocked tablet only (owner, 2026-10-27: "both 1 and 2")
+Code (compile:wearable): `wearable/mastogo/` — `MastogoShell` (pure Java: queue, one command in flight, 100 ms gap,
+800 ms reply timeout, strength coalescing, every `+TAG` kept, reply-time stats, heartbeat period, modulation,
+exploration, text report), `MastogoLink` (GATT FFF0: write FFF5, notify FFF4, reconnect), `MastogoScan` (name
+`MASTOGO H-`), `MastogoScreen` (the page). Offline test: `bash scripts/mastogo/run.sh` (a simulated unit, incl. a
+hidden command the sweep must find).
+- **Програма:** group (TENS / EMS / Женски) → the program, minutes 10–60. ▶ = vendor sequence, strength from 1.
+  A program change pauses the unit (it zeroes the strength itself).
+- **Модулация:** the strength drawn over time — Вълна (cosine), Импулси (duty %), Нарастване (saw), Триъгълник,
+  Случайно; from–to level, cycle 0.2–120 s, refresh 100–2000 ms. Rises ≤ 3 levels per update, falls free; stops on
+  contact loss / timer end / power-off. While it runs, − / + shift the whole envelope. Drawn live with a dot.
+- **Изследване:** ~630 read-only queries (`?`, and `=?` on the known names) — strength 0 and `AT+QPOWP` first and
+  after every command that answers; two taps (the second confirms the pads are off the body). Lists what answered,
+  the full feedback (`+TAG` values, reply ms, heartbeat), a console (last 200 lines) with a free command line, and
+  "Копирай отчета" (clipboard) for analysis.
+- Not done: no device test yet; one unit at a time (the vendor links several); no folding to a pill.

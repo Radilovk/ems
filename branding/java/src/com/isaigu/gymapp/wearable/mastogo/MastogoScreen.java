@@ -11,6 +11,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
@@ -177,6 +181,14 @@ public final class MastogoScreen {
         PhaseView phase;
         TextView phaseText;
         TextView liveInfo;
+        // tilt: the tablet's tilt drives the impulse strength (owner, 2026-10-27, a test) — off on every open
+        boolean tiltOn;
+        Tilt tilt;
+        /** Tilt angle at the zero (−1 = take the next reading), the latest angle, degrees. */
+        float tiltZero = -1, tiltDeg;
+        /** The impulse strength the tilt gives now (−1 = none yet). */
+        int tiltHi = -1;
+        static final float TILT_FULL = 30f;
         // modules tab
         final TextView[] tiles = new TextView[MastogoShell.MODES];
         // modulation tab
@@ -450,6 +462,11 @@ public final class MastogoScreen {
             pl.topMargin = dp(8);
             box.addView(phase, pl);
             tabBody.addView(box, XemsUi.matchWrap(a, 12));
+            tabBody.addView(XemsUi.toggleRow(a, tr("Наклон управлява силата", "Tilt drives the strength"),
+                    tr("Наклони таблета: 0° = силата в паузата, 30° = силата вдясно (никога повече). Нулата е "
+                            + "положението при включване и при ▶.", "Tilt the tablet: 0° = the pause strength, 30° = "
+                            + "the strength on the right (never more). Zero = the position when switched on and at ▶."),
+                    tiltOn, new TiltToggle(this)), XemsUi.matchWrap(a, 8));
             liveInfo = XemsUi.text(a, "", 12.5f, XemsUi.HINT, false);
             tabBody.addView(liveInfo, XemsUi.matchWrap(a, 8));
             renderPult();
@@ -504,7 +521,9 @@ public final class MastogoScreen {
                 phaseText.setTextColor(XemsUi.TEXT);
             }
             phase.invalidate();
-            liveInfo.setText((live.beatTenths > 0
+            liveInfo.setText((tiltOn ? tr("Наклон ", "Tilt ") + Math.round(Math.abs(tiltDeg - Math.max(0, tiltZero)))
+                    + tr("° → сила ", "° → strength ") + Math.max(live.lo, tiltHi) + tr(" от ", " of ") + live.hi
+                    + ". " : "") + (live.beatTenths > 0
                     ? tr("Симулирана честота: в импулса изходът се пуска за 0.2 с на всеки удар — минава по един "
                     + "импулс на „Тонус“. До 4 удара в секунда (толкова команди поема връзката). ",
                     "Simulated frequency: inside the impulse the output is let through for 0.2 s per beat — one "
@@ -547,11 +566,74 @@ public final class MastogoScreen {
             renderPult();
         }
 
+        /** The panel's modulation as it should run: the impulse strength from the tilt while that is on. */
+        MastogoShell.Mod liveMod() {
+            MastogoShell.Mod m = live.copy();
+            if (tiltOn) {
+                m.hi = Math.max(m.lo, Math.min(live.hi, tiltHi < 0 ? m.lo : tiltHi));
+            }
+            return m;
+        }
+
+        void tiltToggle(boolean on) {
+            tiltOn = on;
+            tiltZero = -1;
+            tiltHi = -1;
+            SensorManager sm = (SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
+            if (on) {
+                Sensor acc = sm != null ? sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) : null;
+                if (acc == null) {
+                    tiltOn = false;
+                    hintText = tr("Таблетът няма сензор за наклон.", "The tablet has no tilt sensor.");
+                    fillTab();
+                    render();
+                    return;
+                }
+                tilt = new Tilt(this);
+                sm.registerListener(tilt, acc, SensorManager.SENSOR_DELAY_GAME, main);
+            } else {
+                tiltOff();
+            }
+            liveChanged();
+            render();
+        }
+
+        void tiltOff() {
+            if (tilt != null) {
+                SensorManager sm = (SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
+                if (sm != null) {
+                    sm.unregisterListener(tilt);
+                }
+                tilt = null;
+            }
+        }
+
+        /** The screen's angle to the horizontal, from the (smoothed) gravity. */
+        void onTilt(float deg) {
+            if (closed || !tiltOn) {
+                return;
+            }
+            tiltDeg = deg;
+            if (tiltZero < 0) {
+                tiltZero = deg;
+            }
+            float f = Math.min(1f, Math.abs(deg - tiltZero) / TILT_FULL);
+            int hi = live.lo + Math.round((live.hi - live.lo) * f);
+            if (hi != tiltHi) {
+                tiltHi = hi;
+                MastogoShell sh = sh();
+                if (sh != null && sh.running && liveRun) {
+                    sh.modulate(liveMod());
+                }
+                renderPult();
+            }
+        }
+
         void liveChanged() {
             prefs.edit().putString("live", live.encode()).apply();
             MastogoShell sh = sh();
             if (sh != null && sh.running && liveRun) {
-                sh.modulate(live.copy());
+                sh.modulate(liveMod());
             }
         }
 
@@ -1290,8 +1372,12 @@ public final class MastogoScreen {
                     sh.setMode(live.carrier);
                 }
                 // sharp at the preset strength (no rise set) — or the rise's first level; beats start paused
-                sh.start(minutes * 60, live.beatTenths > 0 ? 1 : Math.max(1, MastogoShell.envelope(live, 0)));
-                sh.modulate(live.copy());
+                if (tiltOn) {
+                    tiltZero = -1;                          // ▶ sets the zero where the tablet is now
+                }
+                MastogoShell.Mod lm = liveMod();
+                sh.start(minutes * 60, live.beatTenths > 0 ? 1 : Math.max(1, MastogoShell.envelope(lm, 0)));
+                sh.modulate(lm);
             } else {
                 liveRun = false;
                 int first = !modOn ? mode : mod.shape == MastogoShell.Mod.STEPS ? mod.steps.get(0).mode
@@ -1525,6 +1611,7 @@ public final class MastogoScreen {
             closed = true;
             current = null;
             main.removeCallbacksAndMessages(null);
+            tiltOff();
             if (scan != null) {
                 scan.stop();
             }
@@ -1866,6 +1953,48 @@ public final class MastogoScreen {
         @Override
         public void onClick(View v) {
             p.pickShape(shape);
+        }
+    }
+
+    static final class TiltToggle implements XemsUi.OnToggle {
+        final Page p;
+
+        TiltToggle(Page p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onToggle(boolean on) {
+            p.tiltToggle(on);
+        }
+    }
+
+    /** Accelerometer → the screen's tilt, low-passed (gravity), on the main thread. */
+    static final class Tilt implements SensorEventListener {
+        final Page p;
+        float gx, gy, gz;
+        boolean first = true;
+
+        Tilt(Page p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent e) {
+            float k = first ? 1f : 0.15f;
+            first = false;
+            gx += k * (e.values[0] - gx);
+            gy += k * (e.values[1] - gy);
+            gz += k * (e.values[2] - gz);
+            double n = Math.sqrt(gx * gx + gy * gy + gz * gz);
+            if (n < 1) {
+                return;
+            }
+            p.onTilt((float) Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, gz / n)))));
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor s, int accuracy) {
         }
     }
 

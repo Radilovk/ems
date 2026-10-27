@@ -162,6 +162,10 @@ hidden command the sweep must find).
   `start(seconds, at)` = `CSTR=at` → `QPOWS` → `CSTR=at` (again, in case the unit ignores it while paused), no
   crawl from 1. Manual mode: − / + before ▶ set that strength (`start_level`); the panel / gated shapes start at
   their first level (the impulse strength when there is no rise).
+- **Наклон (1.1.473, panel, a test — owner):** a switch under the phase box; the tablet's accelerometer (low-passed
+  gravity → the screen's angle) drives the impulse strength: 0° = the pause strength, 30° = the strength on the right
+  (never above it). Zero = the position when switched on and at ▶. Off on every open, unregistered on close; rises
+  still ≤ 3 levels per 0.1 s (`liveMod`, `Tilt`).
 - **Модули (1.1.470):** the 26 programs in DOMAS's groups and names (Масаж 1–8, TENS 9–16, EMS 17–24, Женски
   25–26 — technique names, no body parts; owner, 2026-10-27: "universal"). Each tile: DOMAS's picture of the impulse
   (`mode_wave_NN.png`, stored as bars in `MastogoModes.WAVE`, drawn in the theme colour), name, frequency; ≈ marks a

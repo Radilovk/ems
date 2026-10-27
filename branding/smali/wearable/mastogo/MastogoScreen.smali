@@ -19,6 +19,8 @@
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Probe;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModStep;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ModToggle;,
+        Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Tilt;,
+        Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$TiltToggle;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickShape;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PickRotate;,
         Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$StepCarrier;,
@@ -52,7 +54,7 @@
     .registers 1
 
     .prologue
-    .line 50
+    .line 54
     const/4 v0, 0x6
 
     new-array v0, v0, [I
@@ -80,7 +82,7 @@
     .registers 1
 
     .prologue
-    .line 52
+    .line 56
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -90,7 +92,7 @@
     .registers 1
 
     .prologue
-    .line 57
+    .line 61
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/SuitStandard;->unlocked()Z
 
     move-result v0
@@ -102,10 +104,10 @@
     .registers 3
 
     .prologue
-    .line 101
+    .line 105
     packed-switch p0, :pswitch_data_1c
 
-    .line 105
+    .line 109
     const-string v0, "\u0416\u0435\u043d\u0441\u043a\u0438"
 
     const-string v1, "Female"
@@ -117,7 +119,7 @@
     :goto_b
     return-object v0
 
-    .line 102
+    .line 106
     :pswitch_c
     const-string v0, "\u041c\u0430\u0441\u0430\u0436"
 
@@ -129,19 +131,19 @@
 
     goto :goto_b
 
-    .line 103
+    .line 107
     :pswitch_15
     const-string v0, "TENS"
 
     goto :goto_b
 
-    .line 104
+    .line 108
     :pswitch_18
     const-string v0, "EMS"
 
     goto :goto_b
 
-    .line 101
+    .line 105
     nop
 
     :pswitch_data_1c
@@ -156,7 +158,7 @@
     .registers 2
 
     .prologue
-    .line 97
+    .line 101
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->group(I)I
 
     move-result v0
@@ -168,7 +170,7 @@
     .registers 4
 
     .prologue
-    .line 132
+    .line 136
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -220,7 +222,7 @@
     .registers 3
 
     .prologue
-    .line 93
+    .line 97
     if-gez p0, :cond_5
 
     const-string v0, "\u2014"
@@ -268,10 +270,10 @@
     .registers 3
 
     .prologue
-    .line 122
+    .line 126
     packed-switch p0, :pswitch_data_30
 
-    .line 127
+    .line 131
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435"
 
     const-string v1, "switched off"
@@ -283,7 +285,7 @@
     :goto_b
     return-object v0
 
-    .line 123
+    .line 127
     :pswitch_c
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0434\u044a\u043b\u0433\u043e \u0431\u0435\u0437 \u0442\u043e\u043a"
 
@@ -295,7 +297,7 @@
 
     goto :goto_b
 
-    .line 124
+    .line 128
     :pswitch_15
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0442\u0432\u044a\u0440\u0434\u0435 \u0434\u044a\u043b\u0433\u043e \u0440\u0430\u0431\u043e\u0442\u0438"
 
@@ -307,7 +309,7 @@
 
     goto :goto_b
 
-    .line 125
+    .line 129
     :pswitch_1e
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0441\u043b\u0430\u0431\u0430 \u0431\u0430\u0442\u0435\u0440\u0438\u044f"
 
@@ -319,7 +321,7 @@
 
     goto :goto_b
 
-    .line 126
+    .line 130
     :pswitch_27
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d \u043e\u0442 \u0431\u0443\u0442\u043e\u043d\u0430"
 
@@ -331,7 +333,7 @@
 
     goto :goto_b
 
-    .line 122
+    .line 126
     :pswitch_data_30
     .packed-switch 0x0
         :pswitch_c
@@ -345,7 +347,7 @@
     .registers 3
 
     .prologue
-    .line 62
+    .line 66
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->allowed()Z
 
@@ -353,22 +355,22 @@
 
     if-nez v0, :cond_7
 
-    .line 81
+    .line 85
     :goto_6
     return-void
 
-    .line 65
+    .line 69
     :cond_7
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->current:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 66
+    .line 70
     if-eqz v0, :cond_2f
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
     if-nez v1, :cond_2f
 
-    .line 67
+    .line 71
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->a:Landroid/app/Activity;
 
     if-ne v1, p0, :cond_28
@@ -379,7 +381,7 @@
 
     if-nez v1, :cond_28
 
-    .line 68
+    .line 72
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
@@ -390,18 +392,18 @@
 
     goto :goto_6
 
-    .line 78
+    .line 82
     :catch_21
     move-exception v0
 
-    .line 79
+    .line 83
     const-string v1, "MastogoScreen.open"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_6
 
-    .line 72
+    .line 76
     :cond_28
     :try_start_28
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -412,7 +414,7 @@
     :try_end_2f
     .catch Ljava/lang/Throwable; {:try_start_28 .. :try_end_2f} :catch_3c
 
-    .line 76
+    .line 80
     :cond_2f
     :goto_2f
     :try_start_2f
@@ -422,7 +424,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->current:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 77
+    .line 81
     sget-object v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->current:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->show()V
@@ -431,7 +433,7 @@
 
     goto :goto_6
 
-    .line 73
+    .line 77
     :catch_3c
     move-exception v0
 
@@ -442,10 +444,10 @@
     .registers 3
 
     .prologue
-    .line 110
+    .line 114
     packed-switch p0, :pswitch_data_42
 
-    .line 117
+    .line 121
     const-string v0, "\u0412\u044a\u043b\u043d\u0430"
 
     const-string v1, "Wave"
@@ -457,7 +459,7 @@
     :goto_b
     return-object v0
 
-    .line 111
+    .line 115
     :pswitch_c
     const-string v0, "\u0421\u0432\u043e\u0439 \u0446\u0438\u043a\u044a\u043b"
 
@@ -469,7 +471,7 @@
 
     goto :goto_b
 
-    .line 112
+    .line 116
     :pswitch_15
     const-string v0, "\u0420\u0430\u0431\u043e\u0442\u0430 / \u041f\u0430\u0443\u0437\u0430"
 
@@ -481,7 +483,7 @@
 
     goto :goto_b
 
-    .line 113
+    .line 117
     :pswitch_1e
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441\u0438"
 
@@ -493,7 +495,7 @@
 
     goto :goto_b
 
-    .line 114
+    .line 118
     :pswitch_27
     const-string v0, "\u041d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u043d\u0435"
 
@@ -505,7 +507,7 @@
 
     goto :goto_b
 
-    .line 115
+    .line 119
     :pswitch_30
     const-string v0, "\u0422\u0440\u0438\u044a\u0433\u044a\u043b\u043d\u0438\u043a"
 
@@ -517,7 +519,7 @@
 
     goto :goto_b
 
-    .line 116
+    .line 120
     :pswitch_39
     const-string v0, "\u0421\u043b\u0443\u0447\u0430\u0439\u043d\u043e"
 
@@ -529,7 +531,7 @@
 
     goto :goto_b
 
-    .line 110
+    .line 114
     :pswitch_data_42
     .packed-switch 0x1
         :pswitch_1e
@@ -545,7 +547,7 @@
     .registers 3
 
     .prologue
-    .line 84
+    .line 88
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0

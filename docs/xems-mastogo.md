@@ -169,6 +169,22 @@ hidden command the sweep must find).
   preset; hit = `QPOWS` + `CSTR` … `QPOWP`), **Сила** (armed running at 0; hit = `CSTR=n` … `CSTR=0`), **Единичен**
   (Изход on "Toning" for 150 ms = one 190 µs pulse). Length 30–500 ms. The first hit arms (~0.5 s). Next: the
   Quest 3 bridge (`vr-bridge/`) sending game hits to `hit()`.
+  Owner's test (1.1.474): Изход and Единичен do nothing felt (the unit soft-starts `QPOWS`; Единичен gave no pulse
+  at all); **Сила on 14 Пеперуда (3 / 15.6 Hz, 190 µs), 40 ms, 24 = "most like a hit, but must be stronger"**.
+  DOMAS caps this unit at 25 (`getDeviceMaxLevel`: class `MAST` → 25). 1.1.475: the Сила way idles at the panel's
+  pause strength (`hitBase`) and returns there — the unit glides every change, so from a higher base the hit
+  reaches its top sooner. 1.1.476: УДАР fires on the touch (ACTION_DOWN), not on lifting the finger.
+- **Палитра за VR (1.1.477, owner):** four touch-down buttons, all the Сила way (Изход / Единичен removed — the
+  unit soft-starts them away): **УДАР** = 14 Пеперуда 40 ms (owner: "the hit"), **КЛИК** = 19 Непрекъснат 77 Hz
+  10 ms ("a light touch or click"), **СТИСКАНЕ** = 12 Шиацу held as long as the finger is down (`press`; "a squeeze
+  in depth by the length of the event"), **УБОЖДАНЕ** = 25 Женски 1 200 Hz ("sharp, like a stab into the skin").
+  Each length 10–500 ms, kept. Another kind = `CMODE` (~0.5 s the first time), the same kind repeats at once.
+- **Self power-off while waiting (owner: "a problem!")**: commands do not keep the unit awake, only output.
+  `keepAlive` (every poll, 20 s) while armed: the unit's timer renewed to 60 min when < 10 min left, and with base 0
+  one level-1 blip for 150 ms after 60 s without an event. A base ≥ 1 never idles.
+  1.1.478 (owner: "even in the test mode it switched off … I don't want auto stop"): the same keep-alive whenever
+  the unit runs, not only for hits — no strength above 0 for 60 s → the blip; the unit's timer is renewed to 60 min
+  below 10 min left, so nothing ends a session but ■ (the minutes chips only set the first countdown).
 - **Наклон (1.1.473, panel, a test — owner):** a switch under the phase box; the tablet's accelerometer (low-passed
   gravity → the screen's angle) drives the impulse strength: 0° = the pause strength, 30° = the strength on the right
   (never above it). Zero = the position when switched on and at ▶. Off on every open, unregistered on close; rises

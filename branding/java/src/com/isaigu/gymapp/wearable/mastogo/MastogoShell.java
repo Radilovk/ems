@@ -174,10 +174,21 @@ public final class MastogoShell {
     /** The way the unit is armed for, -1 = not armed. */
     public int hitArmed = -1;
     public int hitLevel;
+    /**
+     * LEVEL way: the strength the output idles at and returns to after a hit (the panel's pause strength). The unit
+     * glides every strength change, so a hit from a higher base reaches its top sooner and feels stronger (owner,
+     * 2026-10-27: the strength way on "Butterfly" at 40 ms feels most like a hit, "but it must be stronger").
+     */
+    public int hitBase;
     public int hitCount;
 
     /** Gets the unit ready for hits (through the queue): the carrier, the timer, run / pause, the strength. */
     public void armHit(int way, int carrier, int lvl, int seconds) {
+        armHit(way, carrier, lvl, 0, seconds);
+    }
+
+    public void armHit(int way, int carrier, int lvl, int base, int seconds) {
+        base = Math.max(0, Math.min(lvl - 1, base));
         mod = null;
         lvl = Math.max(1, Math.min(MAX_LEVEL, lvl));
         if (mode != carrier) {
@@ -185,8 +196,10 @@ public final class MastogoShell {
             mode = carrier;
         }
         plain("AT+QPOWS");
-        queue.add(new Cmd("AT+CSTR=0,0", K_LEVEL));
-        level = 0;
+        int idle = way == HIT_LEVEL ? base : 0;
+        queue.add(new Cmd("AT+CSTR=0," + idle, K_LEVEL));
+        level = idle;
+        hitBase = idle;
         outOff = false;
         if (way != HIT_LEVEL) {
             queue.add(new Cmd("AT+QPOWP", K_PAUSE));
@@ -200,8 +213,19 @@ public final class MastogoShell {
         running = true;
         hitArmed = way;
         hitLevel = lvl;
+        hitAt = io.now();
+        pressing = false;
+        pressSent = false;
         pump();
         ev.onChanged(this);
+    }
+
+    /** LEVEL way: a new idle strength, set at once. */
+    public void setHitBase(int base) {
+        if (hitArmed == HIT_LEVEL) {
+            hitBase = Math.max(0, Math.min(hitLevel - 1, base));
+            setLevel(hitBase);
+        }
     }
 
     /** A new strength for the next hits (preset while paused, or kept for the LEVEL way). */
@@ -225,16 +249,96 @@ public final class MastogoShell {
             return;
         }
         hitCount++;
+        hitAt = io.now();
         if (hitArmed == HIT_LEVEL) {
             direct("AT+CSTR=0," + hitLevel);
-            io.later(new Direct(this, "AT+CSTR=0,0"), Math.max(30, ms));
+            io.later(new Direct(this, "AT+CSTR=0," + hitBase), Math.max(10, ms));
         } else {
             direct("AT+QPOWS");
             direct("AT+CSTR=0," + hitLevel);       // in case a strength set while paused is not kept
-            io.later(new Direct(this, "AT+QPOWP"), hitArmed == HIT_SINGLE ? SINGLE_MS : Math.max(30, ms));
+            io.later(new Direct(this, "AT+QPOWP"), hitArmed == HIT_SINGLE ? SINGLE_MS : Math.max(10, ms));
         }
         ev.onChanged(this);
     }
+
+    /** When the last hit / press went out (the keep-alive leaves an active user alone). */
+    long hitAt;
+    /** A held press (squeeze): wanted, and its strength sent. */
+    boolean pressing, pressSent;
+
+    /**
+     * A hit that lasts as long as the finger is down (owner: "squeeze — the length of the event"): down = the hit
+     * strength straight to the link, up = back to the base. Waits while the arming is still queued; a release
+     * before that cancels it.
+     */
+    public void press(boolean down) {
+        if (hitArmed != HIT_LEVEL || closed) {
+            return;
+        }
+        if (down) {
+            pressing = true;
+            if (inFlight != null || !queue.isEmpty()) {
+                io.later(new PressLater(this), 100);
+                return;
+            }
+            pressSent = true;
+            hitCount++;
+            hitAt = io.now();
+            direct("AT+CSTR=0," + hitLevel);
+        } else {
+            pressing = false;
+            if (pressSent) {
+                pressSent = false;
+                hitAt = io.now();
+                direct("AT+CSTR=0," + hitBase);
+            }
+        }
+        ev.onChanged(this);
+    }
+
+    static final class PressLater implements Runnable {
+        final MastogoShell sh;
+
+        PressLater(MastogoShell sh) {
+            this.sh = sh;
+        }
+
+        @Override
+        public void run() {
+            if (sh.pressing && !sh.pressSent) {
+                sh.press(true);
+            }
+        }
+    }
+
+    /** No output for a few minutes and the unit switches itself off (+QPOWD:0, seen 2026-10-27). */
+    static final long KEEP_ALIVE_MS = 60000;
+
+    /**
+     * While armed for hits: the unit's own timer kept far from its end, and — when the output idles at strength 0 —
+     * one barely felt level-1 blip a minute with no hit, so the unit never counts itself idle (owner, 2026-10-27:
+     * "it switches itself off — that is a problem!"). Commands alone do not keep it on (the paused exploration still
+     * powered off).
+     */
+    void keepAlive() {
+        if (!running && hitArmed < 0 || probing || closed) {
+            return;
+        }
+        // no auto stop (owner, 2026-10-27: "I don't want it to stop by itself"): ■ is the only end
+        int left = secondsLeft();
+        if (left >= 0 && left < 600) {
+            setTimer(3600);
+        }
+        long now = io.now();
+        if (!outOff && !pressing && now - Math.max(hitAt, aliveAt) >= KEEP_ALIVE_MS) {
+            hitAt = now;
+            direct("AT+CSTR=0,1");
+            io.later(new Direct(this, "AT+CSTR=0," + Math.max(0, level)), 150);
+        }
+    }
+
+    /** When a strength above 0 last went out (the unit counts no output as idle). */
+    long aliveAt;
 
     void direct(String t) {
         if (closed) {
@@ -308,6 +412,9 @@ public final class MastogoShell {
     public void setLevel(int n) {
         n = Math.max(0, Math.min(MAX_LEVEL, n));
         level = n;
+        if (n > 0) {
+            aliveAt = io.now();
+        }
         String t = "AT+CSTR=0," + n;
         if (!queue.isEmpty() && queue.get(queue.size() - 1).kind == K_LEVEL) {
             queue.get(queue.size() - 1).text = t;
@@ -1476,6 +1583,7 @@ public final class MastogoShell {
                     sh.plain("AT+CDCLK?");
                 }
             }
+            sh.keepAlive();
             sh.io.later(this, POLL_MS);
         }
     }

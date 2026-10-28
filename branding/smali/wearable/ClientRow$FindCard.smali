@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 321
+    .line 322
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 322
+    .line 323
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->a:Landroid/app/Activity;
 
-    .line 323
+    .line 324
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 324
+    .line 325
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->button:Landroid/view/View;
 
-    .line 325
+    .line 326
     return-void
 .end method
 
@@ -52,16 +52,16 @@
     .registers 7
 
     .prologue
-    .line 329
+    .line 330
     const/4 v1, 0x0
 
-    .line 331
+    .line 332
     :try_start_1
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->server()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 332
+    .line 333
     :goto_5
     const-string v2, "/"
 
@@ -71,7 +71,7 @@
 
     if-eqz v2, :cond_19
 
-    .line 333
+    .line 334
     const/4 v2, 0x0
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -86,7 +86,7 @@
 
     goto :goto_5
 
-    .line 335
+    .line 336
     :cond_19
     new-instance v2, Ljava/net/URL;
 
@@ -110,48 +110,48 @@
 
     invoke-direct {v2, v0}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 
-    .line 336
+    .line 337
     invoke-virtual {v2}, Ljava/net/URL;->openConnection()Ljava/net/URLConnection;
 
     move-result-object v0
 
     check-cast v0, Ljava/net/HttpURLConnection;
 
-    .line 337
+    .line 338
     const/16 v2, 0x2ee0
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 338
+    .line 339
     const/16 v2, 0x3a98
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 339
+    .line 340
     const-string v2, "POST"
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setRequestMethod(Ljava/lang/String;)V
 
-    .line 340
+    .line 341
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setDoOutput(Z)V
 
-    .line 341
+    .line 342
     const-string v2, "Content-Type"
 
     const-string v3, "application/json; charset=utf-8"
 
     invoke-virtual {v0, v2, v3}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 342
+    .line 343
     const-string v2, "User-Agent"
 
     const-string v3, "XEMS-Android"
 
     invoke-virtual {v0, v2, v3}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 344
+    .line 345
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -176,7 +176,7 @@
 
     const-string v5, ""
 
-    .line 345
+    .line 346
     invoke-interface {v3, v4, v5}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -193,7 +193,7 @@
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 346
+    .line 347
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/ReportBridge;->lookupFields(Lcom/isaigu/gymapp/bean/TrainUser;)Ljava/lang/String;
 
     move-result-object v3
@@ -212,12 +212,12 @@
 
     move-result-object v2
 
-    .line 347
+    .line 348
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v3
 
-    .line 348
+    .line 349
     const-string v4, "UTF-8"
 
     invoke-virtual {v2, v4}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
@@ -226,10 +226,10 @@
 
     invoke-virtual {v3, v2}, Ljava/io/OutputStream;->write([B)V
 
-    .line 349
+    .line 350
     invoke-virtual {v3}, Ljava/io/OutputStream;->close()V
 
-    .line 350
+    .line 351
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v2
@@ -238,22 +238,22 @@
 
     if-ne v2, v3, :cond_c8
 
-    .line 351
+    .line 352
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v0
 
-    .line 352
+    .line 353
     new-instance v2, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v2}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 353
+    .line 354
     const/16 v3, 0x1000
 
     new-array v3, v3, [B
 
-    .line 355
+    .line 356
     :goto_b7
     invoke-virtual {v0, v3}, Ljava/io/InputStream;->read([B)I
 
@@ -261,7 +261,7 @@
 
     if-lez v4, :cond_da
 
-    .line 356
+    .line 357
     const/4 v5, 0x0
 
     invoke-virtual {v2, v3, v5, v4}, Ljava/io/ByteArrayOutputStream;->write([BII)V
@@ -270,11 +270,11 @@
 
     goto :goto_b7
 
-    .line 365
+    .line 366
     :catch_c2
     move-exception v0
 
-    .line 366
+    .line 367
     const-string v2, "ClientRow.findCard"
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -282,7 +282,7 @@
     :cond_c8
     move-object v0, v1
 
-    .line 368
+    .line 369
     :goto_c9
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$FindCard;->a:Landroid/app/Activity;
 
@@ -298,15 +298,15 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 369
+    .line 370
     return-void
 
-    .line 358
+    .line 359
     :cond_da
     :try_start_da
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 359
+    .line 360
     new-instance v3, Lorg/json/JSONObject;
 
     const-string v0, "UTF-8"
@@ -317,7 +317,7 @@
 
     invoke-direct {v3, v0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 360
+    .line 361
     const-string v0, "url"
 
     const-string v2, ""
@@ -326,7 +326,7 @@
 
     move-result-object v0
 
-    .line 361
+    .line 362
     const-string v2, "ok"
 
     invoke-virtual {v3, v2}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;)Z

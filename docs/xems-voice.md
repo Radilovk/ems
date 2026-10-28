@@ -1,5 +1,11 @@
 # XEMS voice — Bulgarian command words on a XIAO nRF52840 Sense (Plus)
 
+> **Archived from the APK (owner, 2026-10-28, 1.1.487-ai): not in the app, kept in the repo.** The tablet side lives
+> in `voice/xems-app/java/…/wearable/voice/` (out of `branding/java/src`, so nothing compiles or ships it), its smali
+> is gone, `scripts/apply-voice-firmware.py` is out of build-apk.sh, the "Глас" menu item is gone from `XemsNav`.
+> To bring it back: move the package back, add the five files to compile-wearable-java.sh, the asset script to
+> build-apk.sh after apply-exercise-assets.py, and the K_VOICE item / VoiceLink.resume to XemsNav (git log 1.1.486).
+
 Owner, 2026-10-27: a small module with a microphone hears the trainer during any training, with any unit (suit,
 Bluetens, MASTOGO, WiEMS, …). It reacts to **"едно, две, три, старт"** (start), **"пауза"**, **"стоп"** (stops at once),
 **"увеличи импулса" / "намали импулса"** (one step up / down). Commands are said a little louder, after a short pause.

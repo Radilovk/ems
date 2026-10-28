@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 407
+    .line 408
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 408
+    .line 409
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Upload;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 409
+    .line 410
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Upload;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 410
+    .line 411
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 6
 
     .prologue
-    .line 415
+    .line 416
     :try_start_0
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
@@ -57,12 +57,12 @@
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/CardPublisher;->force(Landroid/content/Context;Lcom/isaigu/gymapp/bean/TrainUser;)V
 
-    .line 416
+    .line 417
     instance-of v1, p1, Landroid/widget/TextView;
 
     if-eqz v1, :cond_1c
 
-    .line 417
+    .line 418
     move-object v0, p1
 
     check-cast v0, Landroid/widget/TextView;
@@ -79,7 +79,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 419
+    .line 420
     :cond_1c
     const/4 v1, 0x0
 
@@ -87,15 +87,15 @@
     :try_end_20
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_20} :catch_21
 
-    .line 423
+    .line 424
     :goto_20
     return-void
 
-    .line 420
+    .line 421
     :catch_21
     move-exception v1
 
-    .line 421
+    .line 422
     const-string v2, "ClientRow.upload"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

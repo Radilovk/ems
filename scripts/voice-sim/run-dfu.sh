@@ -24,5 +24,5 @@ f = [x for x in int32_to_bytes(DFU_DATA_PACKET)] + [chr(x) for x in bin_[0:512]]
 out.append(HciPacket(f))
 open(w + '/ref.hex', 'w').write('\n'.join(bytes(p.data).hex() for p in out) + '\n')
 PY
-javac -d "$W/cls" "$REPO/branding/java/src/com/isaigu/gymapp/wearable/voice/VoiceDfu.java" "$REPO/scripts/voice-sim/DfuSim.java"
+javac -d "$W/cls" "$REPO/voice/xems-app/java/com/isaigu/gymapp/wearable/voice/VoiceDfu.java" "$REPO/scripts/voice-sim/DfuSim.java"
 java -cp "$W/cls" DfuSim "$W"/zip/*.bin "$W"/zip/*.dat "$W/ref.hex"

@@ -6,6 +6,8 @@ wearable/ClientSort:
 - {New,}UserProgramDeviceConnectDialogFragment$UserAdapter.updateData(List) (the picker): → ClientSort.pick —
   without the clients in a training row (the edited row's own client stays), ordered and filtered.
 - The user search fields (searchuserEdittext): ClientSort.bar → the "⇅" pill and its sheet.
+- Both pickers' UserAdapter.onBindViewHolder, right after the name is written: ClientSort.mark → "⏰ 10:30" on a
+  client due now or soon (calendar, NextClient.soon); ClientSort.view already put those clients on top.
 """
 from __future__ import annotations
 
@@ -53,6 +55,25 @@ def hook_bar(path: Path, cls: str, owner: bool) -> None:
     print(f"{path.name}: ⇅ sort / filter next to the client search")
 
 
+def hook_mark(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    if f"{CS}->mark" in text:
+        return
+    a = text.find(".method public onBindViewHolder(")
+    b = text.find(".end method", a)
+    body = text[a:b]
+    m = re.search(r"    iget-object (v\d+), (v\d+), L[^;]+\$UserHolder;->username:Landroid/widget/TextView;\n\n"
+                  r"    iget-object (v\d+), (v\d+), Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;\n\n"
+                  r"    invoke-virtual \{\1, \3\}, Landroid/widget/TextView;->setText\(Ljava/lang/CharSequence;\)V\n", body)
+    if not m:
+        sys.exit(f"apply-client-sort: {path.name}: onBindViewHolder name setText not found")
+    call = (f"\n    invoke-static {{{m.group(1)}, {m.group(4)}}}, {CS}->mark(Landroid/widget/TextView;"
+            "Lcom/isaigu/gymapp/bean/TrainUser;)V\n")
+    body = body[:m.end()] + call + body[m.end():]
+    path.write_text(text[:a] + body + text[b:], encoding="utf-8")
+    print(f"{path.name}: ⏰ next client on the picker row")
+
+
 def main() -> None:
     if not (G / "wearable" / "ClientSort.smali").is_file():
         print("apply-client-sort: ClientSort not installed (BETA_MUSIC=0) — skipped")
@@ -67,6 +88,7 @@ def main() -> None:
                     f"    invoke-static {{p0, p1}}, {CS}->pick(Ljava/lang/Object;Ljava/util/List;)Ljava/util/List;\n\n"
                     "    move-result-object p1\n\n")
         hook_bar(G / "dialog" / f"{d}.smali", f"Lcom/isaigu/gymapp/dialog/{d};", True)
+        hook_mark(adapter)
 
 
 if __name__ == "__main__":

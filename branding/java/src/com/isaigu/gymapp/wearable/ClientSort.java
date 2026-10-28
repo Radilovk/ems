@@ -174,7 +174,48 @@ public final class ClientSort {
             out.add(u);
         }
         Collections.sort(out, new Order(sort, st));
+        // the clients due now or soon (calendar) first, earliest appointment first — whatever the order chosen
+        soon = NextClient.soon(c, now);
+        if (!soon.isEmpty()) {
+            List<TrainUser> first = new ArrayList<TrainUser>();
+            for (Long id : soon.keySet()) {
+                for (int i = 0; i < out.size(); i++) {
+                    if (out.get(i).id == id) {
+                        first.add(out.remove(i));
+                        break;
+                    }
+                }
+            }
+            out.addAll(0, first);
+        }
         return out;
+    }
+
+    /** Due clients of the last view: id → appointment start. */
+    private static Map<Long, Long> soon = new HashMap<Long, Long>();
+
+    /**
+     * Hook (apply-client-sort.py): a picker row has just written the client's name — a client due now or soon
+     * gets "⏰ 10:30" (or "⏰ сега") after it, in the accent colour, so the next client is seen at a glance.
+     */
+    public static void mark(TextView name, TrainUser u) {
+        try {
+            Long at = u != null ? soon.get(u.id) : null;
+            if (name == null || at == null) {
+                return;
+            }
+            long now = System.currentTimeMillis();
+            String when = at <= now + 60000L ? tr("сега", "now")
+                    : new java.text.SimpleDateFormat("HH:mm", Locale.getDefault()).format(new java.util.Date(at));
+            String tail = "   ⏰ " + when;
+            android.text.SpannableString t = new android.text.SpannableString(name.getText() + tail);
+            int from = t.length() - tail.length();
+            t.setSpan(new android.text.style.ForegroundColorSpan(XemsUi.ACCENT), from, t.length(), 0);
+            t.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), from, t.length(), 0);
+            name.setText(t);
+        } catch (Throwable t) {
+            XemsGuard.report("ClientSort.mark", t);
+        }
     }
 
     /** 1 tone, 2 fat loss, 3 massage, 4 drainage, 5 cellulite (0 = none known). */

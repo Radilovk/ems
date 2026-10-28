@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 164
+    .line 165
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 165
+    .line 166
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 166
+    .line 167
     iput p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->which:I
 
-    .line 167
+    .line 168
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 5
 
     .prologue
-    .line 171
+    .line 172
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 172
+    .line 173
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -59,27 +59,27 @@
 
     move-result-object v0
 
-    .line 173
+    .line 174
     if-nez v0, :cond_e
 
-    .line 185
+    .line 186
     :goto_d
     return-void
 
-    .line 176
+    .line 177
     :cond_e
     iget v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->which:I
 
     if-nez v1, :cond_18
 
-    .line 177
+    .line 178
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/ReportScreen;->open(Landroid/app/Activity;Ljava/lang/Object;)V
 
     goto :goto_d
 
-    .line 178
+    .line 179
     :cond_18
     iget v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->which:I
 
@@ -87,14 +87,14 @@
 
     if-ne v1, v2, :cond_23
 
-    .line 179
+    .line 180
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/ClientRow;->summary(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;)V
 
     goto :goto_d
 
-    .line 180
+    .line 181
     :cond_23
     iget v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->which:I
 
@@ -102,14 +102,14 @@
 
     if-ne v1, v2, :cond_2e
 
-    .line 181
+    .line 182
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen;->open(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;)V
 
     goto :goto_d
 
-    .line 183
+    .line 184
     :cond_2e
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$Act;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 

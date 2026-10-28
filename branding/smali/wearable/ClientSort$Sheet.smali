@@ -33,25 +33,25 @@
     .registers 6
 
     .prologue
-    .line 482
+    .line 523
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 483
+    .line 524
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
-    .line 484
+    .line 525
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 485
+    .line 526
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->et:Landroid/widget/EditText;
 
-    .line 486
+    .line 527
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->owner:Ljava/lang/Object;
 
-    .line 487
+    .line 528
     iput-object p5, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->pill:Landroid/widget/TextView;
 
-    .line 488
+    .line 529
     return-void
 .end method
 
@@ -65,26 +65,26 @@
 
     const/4 v1, 0x0
 
-    .line 516
+    .line 557
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v4
 
-    .line 517
+    .line 558
     const/16 v0, 0x10
 
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 518
+    .line 559
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsUi;->label(Landroid/content/Context;Ljava/lang/String;)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 519
+    .line 560
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
@@ -99,10 +99,10 @@
 
     invoke-virtual {v4, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 520
+    .line 561
     new-array v5, v3, [Landroid/widget/LinearLayout;
 
-    .line 521
+    .line 562
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->chipRow(Landroid/content/Context;[Landroid/widget/LinearLayout;)Landroid/widget/HorizontalScrollView;
@@ -111,13 +111,13 @@
 
     move v0, v1
 
-    .line 522
+    .line 563
     :goto_2d
     array-length v2, p4
 
     if-ge v0, v2, :cond_51
 
-    .line 523
+    .line 564
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
     aget-object v8, p4, v0
@@ -133,21 +133,21 @@
 
     move-result-object v2
 
-    .line 524
+    .line 565
     new-instance v7, Lcom/isaigu/gymapp/wearable/ClientSort$Pick;
 
     invoke-direct {v7, p0, p2, v0}, Lcom/isaigu/gymapp/wearable/ClientSort$Pick;-><init>(Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;Ljava/lang/String;I)V
 
     invoke-virtual {v2, v7}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 525
+    .line 566
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
     aget-object v8, v5, v1
 
     invoke-static {v7, v8, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    .line 522
+    .line 563
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2d
@@ -155,10 +155,10 @@
     :cond_4f
     move v2, v1
 
-    .line 523
+    .line 564
     goto :goto_37
 
-    .line 527
+    .line 568
     :cond_51
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -168,7 +168,7 @@
 
     invoke-virtual {v4, v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 528
+    .line 569
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->groups:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
@@ -181,7 +181,7 @@
 
     invoke-virtual {v0, v4, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 529
+    .line 570
     return-void
 .end method
 
@@ -201,12 +201,12 @@
 
     const/4 v7, 0x0
 
-    .line 495
+    .line 536
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->groups:Landroid/widget/LinearLayout;
 
     if-nez v0, :cond_1a
 
-    .line 496
+    .line 537
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -215,7 +215,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->groups:Landroid/widget/LinearLayout;
 
-    .line 497
+    .line 538
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
@@ -224,18 +224,18 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 499
+    .line 540
     :cond_1a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->groups:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 500
+    .line 541
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 501
+    .line 542
     const-string v1, "\u041f\u043e\u0434\u0440\u0435\u0434\u0438"
 
     const-string v2, "Order"
@@ -258,7 +258,7 @@
 
     const-string v6, "A\u2013Z by name"
 
-    .line 502
+    .line 543
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/ClientSort;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -279,7 +279,7 @@
 
     const-string v6, "Most trainings"
 
-    .line 503
+    .line 544
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/ClientSort;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -296,10 +296,10 @@
 
     aput-object v5, v4, v10
 
-    .line 501
+    .line 542
     invoke-direct {p0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->group(Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/String;)V
 
-    .line 504
+    .line 545
     const-string v1, "\u041f\u043e\u043b"
 
     const-string v2, "Sex"
@@ -322,7 +322,7 @@
 
     const-string v6, "All"
 
-    .line 505
+    .line 546
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/ClientSort;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -349,10 +349,10 @@
 
     aput-object v5, v4, v9
 
-    .line 504
+    .line 545
     invoke-direct {p0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->group(Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/String;)V
 
-    .line 506
+    .line 547
     const-string v1, "\u0410\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442"
 
     const-string v2, "Activity"
@@ -375,7 +375,7 @@
 
     const-string v6, "All"
 
-    .line 507
+    .line 548
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/ClientSort;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -396,7 +396,7 @@
 
     const-string v6, "Not seen 30+ days"
 
-    .line 508
+    .line 549
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/ClientSort;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -413,10 +413,10 @@
 
     aput-object v5, v4, v10
 
-    .line 506
+    .line 547
     invoke-direct {p0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->group(Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/String;)V
 
-    .line 509
+    .line 550
     const-string v1, "\u0426\u0435\u043b"
 
     const-string v2, "Goal"
@@ -441,7 +441,7 @@
 
     const-string v5, "All"
 
-    .line 510
+    .line 551
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/ClientSort;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -466,7 +466,7 @@
 
     sget-object v4, Lcom/isaigu/gymapp/ai/AiModel$Goal;->MASSAGE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    .line 511
+    .line 552
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/ClientRow;->goalName(Lcom/isaigu/gymapp/ai/AiModel$Goal;)Ljava/lang/String;
 
     move-result-object v4
@@ -485,17 +485,17 @@
 
     sget-object v5, Lcom/isaigu/gymapp/ai/AiModel$Goal;->CELLULITE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    .line 512
+    .line 553
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/ClientRow;->goalName(Lcom/isaigu/gymapp/ai/AiModel$Goal;)Ljava/lang/String;
 
     move-result-object v5
 
     aput-object v5, v3, v4
 
-    .line 509
+    .line 550
     invoke-direct {p0, v1, v2, v0, v3}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->group(Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/String;)V
 
-    .line 513
+    .line 554
     return-void
 .end method
 
@@ -503,7 +503,7 @@
     .registers 4
 
     .prologue
-    .line 491
+    .line 532
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->a:Landroid/app/Activity;
 
     const-string v1, "xems_client_view"
@@ -523,10 +523,10 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 532
+    .line 573
     if-nez p1, :cond_36
 
-    .line 533
+    .line 574
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -561,26 +561,26 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 537
+    .line 578
     :goto_26
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->build()V
 
-    .line 538
+    .line 579
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->pill:Landroid/widget/TextView;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/ClientSort;->paint(Landroid/widget/TextView;)V
 
-    .line 539
+    .line 580
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->et:Landroid/widget/EditText;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->owner:Ljava/lang/Object;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/ClientSort;->refresh(Landroid/widget/EditText;Ljava/lang/Object;)V
 
-    .line 540
+    .line 581
     return-void
 
-    .line 535
+    .line 576
     :cond_36
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->prefs()Landroid/content/SharedPreferences;
 

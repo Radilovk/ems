@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 548
+    .line 589
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 549
+    .line 590
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Pick;->sheet:Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;
 
-    .line 550
+    .line 591
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Pick;->key:Ljava/lang/String;
 
-    .line 551
+    .line 592
     iput p3, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Pick;->value:I
 
-    .line 552
+    .line 593
     return-void
 .end method
 
@@ -52,10 +52,10 @@
     .registers 5
 
     .prologue
-    .line 556
+    .line 597
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 557
+    .line 598
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Pick;->sheet:Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientSort$Pick;->key:Ljava/lang/String;
@@ -64,6 +64,6 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/ClientSort$Sheet;->set(Ljava/lang/String;I)V
 
-    .line 558
+    .line 599
     return-void
 .end method

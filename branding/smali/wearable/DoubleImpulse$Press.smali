@@ -41,19 +41,19 @@
     .registers 4
 
     .prologue
-    .line 691
+    .line 720
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 692
+    .line 721
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
 
-    .line 693
+    .line 722
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->holder:Ljava/lang/Object;
 
-    .line 694
+    .line 723
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->face:Lcom/isaigu/gymapp/wearable/DoubleImpulse$Face;
 
-    .line 695
+    .line 724
     return-void
 .end method
 
@@ -63,7 +63,7 @@
     .registers 3
 
     .prologue
-    .line 699
+    .line 728
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->holder:Ljava/lang/Object;
 
@@ -77,12 +77,12 @@
 
     move-result-object v0
 
-    .line 700
+    .line 729
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 701
+    .line 730
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->holder:Ljava/lang/Object;
 
     invoke-virtual {v0, v1}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -93,15 +93,15 @@
     :try_end_18
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_18} :catch_19
 
-    .line 703
+    .line 732
     :goto_18
     return-object v0
 
-    .line 702
+    .line 731
     :catch_19
     move-exception v0
 
-    .line 703
+    .line 732
     const/4 v0, 0x0
 
     goto :goto_18
@@ -117,19 +117,19 @@
 
     const/4 v1, 0x1
 
-    .line 708
+    .line 737
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v2
 
     packed-switch v2, :pswitch_data_104
 
-    .line 761
+    .line 790
     :cond_c
     :goto_c
     return v1
 
-    .line 710
+    .line 739
     :pswitch_d
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -137,23 +137,23 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->down:J
 
-    .line 711
+    .line 740
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->inside:Z
 
-    .line 712
+    .line 741
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->done:Z
 
-    .line 713
+    .line 742
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->item()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v2
 
-    .line 714
+    .line 743
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v3
 
-    .line 715
+    .line 744
     if-eqz v2, :cond_34
 
     if-eqz v3, :cond_34
@@ -179,10 +179,10 @@
     :cond_34
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->holdable:Z
 
-    .line 716
+    .line 745
     invoke-virtual {p1, v1}, Landroid/view/View;->setPressed(Z)V
 
-    .line 717
+    .line 746
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
@@ -203,27 +203,27 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 718
+    .line 747
     invoke-virtual {p1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     if-eqz v0, :cond_5b
 
-    .line 719
+    .line 748
     invoke-virtual {p1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     invoke-interface {v0, v1}, Landroid/view/ViewParent;->requestDisallowInterceptTouchEvent(Z)V
 
-    .line 721
+    .line 750
     :cond_5b
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->holdable:Z
 
     if-eqz v0, :cond_c
 
-    .line 722
+    .line 751
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -231,7 +231,7 @@
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 723
+    .line 752
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -243,7 +243,7 @@
 
     goto :goto_c
 
-    .line 728
+    .line 757
     :pswitch_70
     const/high16 v2, 0x41800000    # 16.0f
 
@@ -259,7 +259,7 @@
 
     mul-float/2addr v2, v3
 
-    .line 729
+    .line 758
     iget-boolean v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->inside:Z
 
     if-eqz v3, :cond_c
@@ -300,7 +300,7 @@
 
     if-gtz v3, :cond_af
 
-    .line 730
+    .line 759
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getY()F
 
     move-result v3
@@ -317,16 +317,16 @@
 
     if-lez v2, :cond_c
 
-    .line 731
+    .line 760
     :cond_af
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->inside:Z
 
-    .line 732
+    .line 761
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->release(Landroid/view/View;)V
 
     goto/16 :goto_c
 
-    .line 737
+    .line 766
     :pswitch_b6
     iget-boolean v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->inside:Z
 
@@ -338,27 +338,27 @@
 
     move v0, v1
 
-    .line 738
+    .line 767
     :cond_bf
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->release(Landroid/view/View;)V
 
-    .line 739
+    .line 768
     if-eqz v0, :cond_c
 
-    .line 740
+    .line 769
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->item()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 741
+    .line 770
     if-eqz v0, :cond_c
 
-    .line 742
+    .line 771
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->click(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;)V
 
     goto/16 :goto_c
 
-    .line 751
+    .line 780
     :pswitch_cf
     iget-boolean v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->inside:Z
 
@@ -384,25 +384,25 @@
 
     move v2, v1
 
-    .line 752
+    .line 781
     :goto_e5
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->inside:Z
 
-    .line 753
+    .line 782
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->release(Landroid/view/View;)V
 
-    .line 754
+    .line 783
     if-eqz v2, :cond_102
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->item()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 755
+    .line 784
     :goto_f0
     if-eqz v0, :cond_c
 
-    .line 756
+    .line 785
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -419,16 +419,16 @@
     :cond_100
     move v2, v0
 
-    .line 751
+    .line 780
     goto :goto_e5
 
-    .line 754
+    .line 783
     :cond_102
     const/4 v0, 0x0
 
     goto :goto_f0
 
-    .line 708
+    .line 737
     :pswitch_data_104
     .packed-switch 0x0
         :pswitch_d
@@ -442,7 +442,7 @@
     .registers 8
 
     .prologue
-    .line 809
+    .line 838
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
@@ -455,12 +455,12 @@
 
     iget v2, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 810
+    .line 839
     const/high16 v0, 0x42800000    # 64.0f
 
     mul-float/2addr v0, v2
 
-    .line 812
+    .line 841
     :try_start_f
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
 
@@ -468,7 +468,7 @@
 
     move-result-object v1
 
-    .line 813
+    .line 842
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
 
     invoke-virtual {v3}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
@@ -493,7 +493,7 @@
 
     move-result v3
 
-    .line 814
+    .line 843
     if-eqz v1, :cond_56
 
     if-eqz v3, :cond_56
@@ -502,7 +502,7 @@
 
     move-result-object v1
 
-    .line 815
+    .line 844
     :goto_35
     if-eqz v1, :cond_55
 
@@ -512,7 +512,7 @@
 
     if-lez v3, :cond_55
 
-    .line 816
+    .line 845
     invoke-virtual {v1}, Landroid/view/View;->getWidth()I
 
     move-result v3
@@ -543,18 +543,18 @@
 
     move-result v0
 
-    .line 820
+    .line 849
     :cond_55
     :goto_55
     return v0
 
-    .line 814
+    .line 843
     :cond_56
     const/4 v1, 0x0
 
     goto :goto_35
 
-    .line 818
+    .line 847
     :catch_58
     move-exception v1
 
@@ -569,10 +569,10 @@
 
     const/high16 v1, 0x3f800000    # 1.0f
 
-    .line 766
+    .line 795
     invoke-virtual {p1, v4}, Landroid/view/View;->setPressed(Z)V
 
-    .line 767
+    .line 796
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
@@ -593,12 +593,12 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 768
+    .line 797
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->done:Z
 
     if-nez v0, :cond_29
 
-    .line 769
+    .line 798
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -606,10 +606,10 @@
 
     invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 770
+    .line 799
     invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->ring(Z)V
 
-    .line 772
+    .line 801
     :cond_29
     return-void
 .end method
@@ -620,7 +620,7 @@
     .prologue
     const/high16 v6, 0x40000000    # 2.0f
 
-    .line 779
+    .line 808
     :try_start_2
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
 
@@ -628,24 +628,24 @@
 
     move-result-object v0
 
-    .line 780
+    .line 809
     if-nez v0, :cond_b
 
-    .line 805
+    .line 834
     :cond_a
     :goto_a
     return-void
 
-    .line 783
+    .line 812
     :cond_b
     if-nez p1, :cond_35
 
-    .line 784
+    .line 813
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     if-eqz v1, :cond_a
 
-    .line 785
+    .line 814
     invoke-virtual {v0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v0
@@ -658,11 +658,11 @@
 
     goto :goto_a
 
-    .line 802
+    .line 831
     :catch_1b
     move-exception v0
 
-    .line 803
+    .line 832
     const-string v1, "index"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -687,14 +687,14 @@
 
     goto :goto_a
 
-    .line 789
+    .line 818
     :cond_35
     :try_start_35
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     if-nez v1, :cond_4c
 
-    .line 790
+    .line 819
     new-instance v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
@@ -713,26 +713,26 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
-    .line 792
+    .line 821
     :cond_4c
     const/4 v1, 0x2
 
     new-array v1, v1, [I
 
-    .line 793
+    .line 822
     const/4 v2, 0x2
 
     new-array v2, v2, [I
 
-    .line 794
+    .line 823
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
 
     invoke-virtual {v3, v1}, Landroid/view/View;->getLocationInWindow([I)V
 
-    .line 795
+    .line 824
     invoke-virtual {v0, v2}, Landroid/view/View;->getLocationInWindow([I)V
 
-    .line 796
+    .line 825
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     const/4 v4, 0x0
@@ -761,7 +761,7 @@
 
     iput v4, v3, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cx:F
 
-    .line 797
+    .line 826
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     const/4 v4, 0x1
@@ -790,7 +790,7 @@
 
     iput v1, v3, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->cy:F
 
-    .line 798
+    .line 827
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->radius()F
@@ -799,7 +799,7 @@
 
     iput v2, v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->r:F
 
-    .line 799
+    .line 828
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     const/4 v2, 0x0
@@ -816,7 +816,7 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->setBounds(IIII)V
 
-    .line 800
+    .line 829
     invoke-virtual {v0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v1
@@ -825,7 +825,7 @@
 
     invoke-virtual {v1, v2}, Landroid/view/ViewOverlay;->remove(Landroid/graphics/drawable/Drawable;)V
 
-    .line 801
+    .line 830
     invoke-virtual {v0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v0
@@ -853,12 +853,12 @@
 
     const/4 v1, 0x0
 
-    .line 824
+    .line 853
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 825
+    .line 854
     iget-boolean v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->inside:Z
 
     if-eqz v4, :cond_9d
@@ -871,19 +871,19 @@
 
     if-eqz v4, :cond_9d
 
-    .line 826
+    .line 855
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->down:J
 
     sub-long v4, v2, v4
 
-    .line 827
+    .line 856
     const-wide/16 v6, 0xb4
 
     cmp-long v6, v4, v6
 
     if-ltz v6, :cond_49
 
-    .line 828
+    .line 857
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     if-eqz v6, :cond_2d
@@ -896,17 +896,17 @@
 
     if-gtz v6, :cond_30
 
-    .line 829
+    .line 858
     :cond_2d
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->ring(Z)V
 
-    .line 831
+    .line 860
     :cond_30
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     iput v8, v6, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->flash:F
 
-    .line 832
+    .line 861
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     const-wide/16 v8, 0xb4
@@ -925,12 +925,12 @@
 
     iput v7, v6, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->progress:F
 
-    .line 833
+    .line 862
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->invalidateSelf()V
 
-    .line 835
+    .line 864
     :cond_49
     const-wide/16 v6, 0x5dc
 
@@ -938,18 +938,18 @@
 
     if-ltz v4, :cond_70
 
-    .line 836
+    .line 865
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->done:Z
 
-    .line 837
+    .line 866
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->down:J
 
-    .line 838
+    .line 867
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->item()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v2
 
-    .line 841
+    .line 870
     if-eqz v2, :cond_78
 
     :try_start_59
@@ -963,26 +963,26 @@
 
     if-eqz v2, :cond_78
 
-    .line 845
+    .line 874
     :goto_61
     if-eqz v0, :cond_95
 
-    .line 846
+    .line 875
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->btn:Landroid/view/View;
 
     invoke-virtual {v0, v1}, Landroid/view/View;->performHapticFeedback(I)Z
 
-    .line 847
+    .line 876
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     if-eqz v0, :cond_70
 
-    .line 848
+    .line 877
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     iput v10, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->flash:F
 
-    .line 857
+    .line 886
     :cond_70
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
@@ -991,21 +991,21 @@
 
     invoke-virtual {v0, p0, v12, v13}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 872
+    .line 901
     :goto_77
     return-void
 
     :cond_78
     move v0, v1
 
-    .line 841
+    .line 870
     goto :goto_61
 
-    .line 842
+    .line 871
     :catch_7a
     move-exception v0
 
-    .line 843
+    .line 872
     const-string v2, "index"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -1032,19 +1032,19 @@
 
     goto :goto_61
 
-    .line 851
+    .line 880
     :cond_95
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->done:Z
 
-    .line 852
+    .line 881
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->holdable:Z
 
-    .line 853
+    .line 882
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->ring(Z)V
 
     goto :goto_77
 
-    .line 860
+    .line 889
     :cond_9d
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
@@ -1058,7 +1058,7 @@
 
     if-lez v0, :cond_d0
 
-    .line 861
+    .line 890
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->down:J
@@ -1079,12 +1079,12 @@
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->flash:F
 
-    .line 862
+    .line 891
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->invalidateSelf()V
 
-    .line 863
+    .line 892
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->flash:F
@@ -1093,7 +1093,7 @@
 
     if-lez v0, :cond_d0
 
-    .line 864
+    .line 893
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -1103,18 +1103,18 @@
 
     goto :goto_77
 
-    .line 868
+    .line 897
     :cond_d0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     if-eqz v0, :cond_d8
 
-    .line 869
+    .line 898
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->big:Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;
 
     iput v8, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$BigRing;->progress:F
 
-    .line 871
+    .line 900
     :cond_d8
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Press;->ring(Z)V
 

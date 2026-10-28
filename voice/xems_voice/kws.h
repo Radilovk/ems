@@ -19,9 +19,9 @@ namespace kws {
 const int SR = 16000, FRAME = 400, HOP = 160, NFFT = 512, NBIN = NFFT / 2 + 1, NMEL = 26, NCEP = 12;
 const int DIM = NCEP + 1;  // 12 cepstra + energy
 const int MAXF = 128;      // a word at 20 ms frames: 2.56 s ("увеличи … импулса", said slowly)
-const int RING = 340;      // 10 ms frames kept: 3.4 s (a long phrase + the pause before and after it)
+const int RING = 300;      // 10 ms frames kept: 3.0 s (a long phrase + the pause before and after it)
 const int RW = NMEL + 1;   // a ring frame: mel bands (power) + energy dB
-const int NACT = 8, MAXT = 5;
+const int NACT = 8, MAXT = 3;  // 3 examples a command (what the tablet records); RAM: v3 with 5 left BLE no room to start
 const int32_t INF = 0x3fffffff;
 
 enum { A_START, A_PAUSE, A_STOP, A_PLUS, A_MINUS, A_ONE, A_TWO, A_THREE };

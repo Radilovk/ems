@@ -39,7 +39,7 @@ public final class VoiceUsb {
     static final String ACTION = "com.isaigu.gymapp.XEMS_VOICE_USB";
     static final String ASSET = "xems/voice/";
     /** The firmware in this APK (= VOICE_VER of voice/xems_voice); a module saying less in HELLO gets the update. */
-    public static final int FW = 3;
+    public static final int FW = 4;
 
     static final Handler main = new Handler(Looper.getMainLooper());
     static Context app;

@@ -247,9 +247,9 @@ public class AppTest {
         eq("vendor frame 2", "00120f0f8f0f0f0f8f0c00", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {18, 15, 15, 15, 15, 15, 15, 15, 12, 0})));
         eq("vendor frame 3", "00110f0e8f8e0e8f0f0b0e", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {17, 15, 14, 15, 14, 14, 15, 15, 11, 14})));
         eq("vendor frame 4", "000c00020f8f8f8d0d000f", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {12, 0, 2, 15, 15, 15, 13, 13, 0, 15})));
-        eq("over the old cap: 31 with its check", "001f1f1f9f9f9f9f9f1f00", hex(Session.wiCurrents(new int[] {31, 31, 31, 31, 31, 31, 31, 31, 31, 0})));
+        eq("over the old cap: 31 with its check", "001f1f1f9f9f9f9f9f1f00", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {31, 31, 31, 31, 31, 31, 31, 31, 31, 0})));
         eq("vendor frame 2 = WiProto's", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {18, 15, 15, 15, 15, 15, 15, 15, 12, 0})),
-                hex(Session.wiCurrents(new int[] {18, 15, 15, 15, 15, 15, 15, 15, 12, 0})));
+                hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {18, 15, 15, 15, 15, 15, 15, 15, 12, 0})));
         eq("equal = no bits", "000e0c0c0c0c0c0c0c090b", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {14, 12, 12, 12, 12, 12, 12, 12, 9, 11})));
 
         // ---- the service mode's channel map: one swap per wrong part; zones / procedures stay on body parts ----
@@ -290,11 +290,11 @@ public class AppTest {
         drain(sm, 1000);
         sm.runNotify(new byte[] {1}, 5100);
         sm.tick(5100);
-        eq("Седалище goes out on channel 4 (50 % → 16)", hex(Session.wiCurrents(new int[] {0, 0, 0, 0, 16, 0, 0, 0, 0, 0})),
+        eq("Седалище goes out on channel 4 (50 % → 16)", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 0, 0, 0, 16, 0, 0, 0, 0, 0})),
                 drain(sm, 5100).get(2));
         sm.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);
         eq("a new map while running: one write, Седалище back on channel 1 (к.2)",
-                "[" + hex(Session.wiCurrents(new int[] {0, 16, 0, 0, 0, 0, 0, 0, 0, 0})) + "]", drain(sm, 6000));
+                "[" + hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 16, 0, 0, 0, 0, 0, 0, 0, 0})) + "]", drain(sm, 6000));
         // the pulse width follows the muscle, not the lead: on the measured XBody map = the vendor's own bytes
         Session ws = new Session();
         ws.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);

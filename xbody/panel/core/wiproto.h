@@ -10,7 +10,7 @@ enum { OP_CURRENTS = 0, OP_PROGRAM = 1, OP_REST = 2, OP_WIDTHS = 3, OP_RUN = 4 }
 enum { N_RUN = 0x04, N_BATTERY = 0x10 };
 enum { CHANNELS = 10, MAX_CURRENT = 100, PHASE_ARM = 2, PHASE_RUN = 0 };
 
-enum { UNIT_MAX = 20 };                  // the unit's top byte = the vendor's 100 % (94 % → 18 in its capture)
+enum { UNIT_MAX = 31 };                  // the unit's top byte = 100 %: the 5-bit top of the checked field (was 20)
 int unit(int pct);                       // 0..100 % → 0..UNIT_MAX
 Bytes currents(const int c[CHANNELS]);   // each 0..UNIT_MAX (the unit's bytes), with the vendor's check bits
 Bytes zero();

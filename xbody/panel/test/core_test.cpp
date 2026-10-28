@@ -198,7 +198,7 @@ static void wiemsGolden() {
     int c[10] = {12, 0, 2, 15, 15, 15, 13, 13, 0, 15};
     eqHex("wi currents (the vendor's own frame, check bits)", "00 0C 00 02 0F 8F 8F 8D 0D 00 0F", wi::currents(c));
     int big[10] = {300, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    eqHex("wi currents cap", "00 14 00 00 80 00 80 00 00 00 00", wi::currents(big));
+    eqHex("wi currents cap (31)", "00 1F 00 00 80 80 80 80 80 00 00", wi::currents(big));
     eqHex("wi start", "04 25", wi::run(true));
     eqHex("wi stop", "04 00", wi::run(false));
     Bytes n;
@@ -238,7 +238,7 @@ static void wiemsSession() {
     eqHex("wi begin zero", "00 00 00 00 00 00 00 00 00 00 00", f[0]);
     eqHex("wi begin prog", "01 29 55 04 04 01 00 7E 05 00 06", f[1]);
     // zones start at 0 (owner): only ch 1 (50 % × 40 % = 20 % → byte 4), the check bits for XOR 4 on ch 5
-    eqHex("wi full at once: the unit rises by itself", "00 00 04 00 00 00 80 00 00 00 00", f[2]);
+    eqHex("wi full at once: the unit rises by itself", "00 00 06 00 00 00 80 80 00 00 00", f[2]);
     fromHex("0401", n);
     s.notify(n, 9000);
     s.tick(9200);   // impulse over → the unit's own pause: nothing written (as the vendor)
@@ -284,7 +284,7 @@ static void wiemsSession() {
     w.tick(2500);
     w.tick(3100);
     f = drain(w, 3100);
-    eqHex("wi arms only → ch 7 (check bit on ch 5)", "00 00 00 00 00 00 80 00 04 00 00", f.empty() ? Bytes() : f.back());
+    eqHex("wi arms only → ch 7 (check bits on ch 5, 6)", "00 00 00 00 00 00 80 80 06 00 00", f.empty() ? Bytes() : f.back());
     // ---- the owner's traces on the Lenovo app, now on the panel: the vendor's pace, a trip, a stop, a silent unit
     Suit v(Suit::WIEMS);
     v.linked(0);
@@ -297,7 +297,7 @@ static void wiemsSession() {
     v.notify(n, 4100);
     v.tick(4100);
     f = drain(v, 4100);
-    eqHex("wi v begin: all at 5 (XOR 0, no bits)", "00 05 05 05 05 05 05 05 05 05 05", f.empty() ? Bytes() : f.back());
+    eqHex("wi v begin: all at 8 (XOR 0, no bits)", "00 08 08 08 08 08 08 08 08 08 08", f.empty() ? Bytes() : f.back());
     v.tick(4200);
     v.setZone(z[3], 30);   // Корем, a finger: waits to settle and for the gap
     v.setZone(z[3], 35);
@@ -305,7 +305,7 @@ static void wiemsSession() {
     eqInt("wi v held (gap 0.8 s)", 0, (int)drain(v, 4300).size());
     f = drain(v, 5000);
     eqInt("wi v one write for three taps", 1, (int)f.size());
-    eqHex("wi v Корем 9 on ch 5, check bits (XOR 12 → ch 4, 5)", "00 05 05 05 05 85 89 05 05 05 05", f.empty() ? Bytes() : f[0]);
+    eqHex("wi v Корем 14 on ch 5, check bits (XOR 6 → ch 5, 6)", "00 08 08 08 08 08 8E 88 08 08 08", f.empty() ? Bytes() : f[0]);
     v.setZone(z[3], 45);
     eqInt("wi v the same value: nothing", 0, (int)drain(v, 6000).size());
     v.notify(n, 6000);

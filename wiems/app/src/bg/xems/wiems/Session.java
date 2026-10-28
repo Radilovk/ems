@@ -66,13 +66,8 @@ final class Session {
     static final int IDLE = 0, RUNNING = 1, PAUSED = 2;
     /** The vendor's pace: one strength write per change, ≥ 0.8 s apart, after the finger has settled (0.3 s). */
     static final int ACK_TIMEOUT_MS = 1500, LEVELS_GAP_MS = 800, LEVELS_SETTLE_MS = 300;
-    /**
-     * The unit's top strength byte = 100 % here. 1.5–1.18 used 20 (WiProto.UNIT_MAX): the highest the owner happened to
-     * set in capture 1, taken for the vendor's top while the "86" stops were blamed on the scale — the stops were the
-     * missing check bits (1.11), the cap stayed and no session could go past ~65 % of the unit. The check is the
-     * values' XOR in 5 bits (bit 7 of ch 3..7), so the value field is 5 bits: 31 is the top a write can carry.
-     */
-    static final int UNIT_MAX = 31;
+    /** The unit's top strength byte (100 %): 31, the 5-bit top of the checked field (1.5–1.18: 20). */
+    static final int UNIT_MAX = WiProto.UNIT_MAX;
     private static final int WI_IDLE = 0, WI_COUNT = 1, WI_RUN = 2;
     private static final int T_PLAIN = 0, T_LEVELS = 1, T_PROG = 2;
 
@@ -797,21 +792,7 @@ final class Session {
 
     /** The byte the unit takes for p % (0..{@link #UNIT_MAX}). */
     static int unitValue(int pct) {
-        return (Math.max(0, Math.min(100, pct)) * UNIT_MAX + 50) / 100;
-    }
-
-    /** {@link WiProto#currents} up to {@link #UNIT_MAX} (WiProto clamps at its 20): the same check bits. */
-    static byte[] wiCurrents(int[] c) {
-        byte[] b = new byte[WiProto.CHANNELS + 1];
-        b[0] = (byte) WiProto.OP_CURRENTS;
-        int x = 0;
-        for (int i = 0; i < WiProto.CHANNELS; i++) {
-            int v = Math.max(0, Math.min(UNIT_MAX, c[i]));
-            x ^= v;
-            b[i + 1] = (byte) v;
-        }
-        for (int k = 0; k < 5; k++) if ((x & (0x10 >> k)) != 0) b[4 + k] |= (byte) 0x80;
-        return b;
+        return WiProto.unit(pct);
     }
 
     /** The strengths now, written only when they changed (the unit keeps them through its own work / rest). */
@@ -833,7 +814,7 @@ final class Session {
         // compared with what was really sent (a queued, dropped write never counts — else a quick A → B → A
         // would leave the unit on B)
         if (java.util.Arrays.equals(c, sent)) return;
-        Item it = new Item(wiCurrents(c), T_LEVELS);
+        Item it = new Item(WiProto.currents(c), T_LEVELS);
         it.levels = c;
         it.zones = ch.clone();
         it.strength = strength;

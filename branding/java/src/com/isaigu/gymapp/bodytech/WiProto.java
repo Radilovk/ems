@@ -12,7 +12,7 @@ public final class WiProto {
     private WiProto() {}
 
     public static final String SVC = "7764d8fe-c6a9-11e4-8731-1681e6b88ec1";
-    /** Live strength of the 10 channels (bits 0..6; bit 7 = a flag of the vendor app, unknown — sent 0). */
+    /** Live strength of the 10 channels (0..{@link #UNIT_MAX}; bit 7 of ch 3..7 = the check, {@link #currents}). */
     public static final String CHR_CURRENTS = "966e06c6-c717-11e4-8731-1681e6b88ec1";
     /** Program: Dur fr w r Ru Rd dec_lo dec_hi phase XOR (log "CCC-Dur,fr,w,r,Ru,Rd,dec"). */
     public static final String CHR_PROGRAM = "776439af-c717-11e4-8731-1681e6b88ec1";
@@ -72,8 +72,11 @@ public final class WiProto {
         return v < lo ? lo : (v > hi ? hi : v);
     }
 
-    /** The unit's top strength byte: the vendor's 100 % (its capture: 94 % → 18, 80 % → 15, 61 % → 12). */
-    public static final int UNIT_MAX = 20;
+    /**
+     * The unit's top strength byte = 100 %. The check is the values' XOR in 5 bits (bit 7 of ch 3..7), so the field
+     * is 5 bits: 31. (Until 1.1.483-ai: 20, the highest value in the owner's capture — every session ran at ~65 %.)
+     */
+    public static final int UNIT_MAX = 31;
 
     /** A strength in % (0..100) → the unit's byte (0..{@link #UNIT_MAX}). */
     public static int unit(int pct) {

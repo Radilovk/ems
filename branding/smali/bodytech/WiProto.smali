@@ -52,7 +52,7 @@
 
 .field public static final SVC:Ljava/lang/String; = "7764d8fe-c6a9-11e4-8731-1681e6b88ec1"
 
-.field public static final UNIT_MAX:I = 0x14
+.field public static final UNIT_MAX:I = 0x1f
 
 .field static final WIDTHS:[I
 
@@ -210,14 +210,14 @@
 
     const/4 v0, -0x1
 
-    .line 128
+    .line 131
     if-eqz p0, :cond_8
 
     array-length v1, p0
 
     if-eq v1, v5, :cond_9
 
-    .line 135
+    .line 138
     :cond_8
     :goto_8
     return v0
@@ -227,30 +227,30 @@
 
     move v1, v3
 
-    .line 130
+    .line 133
     :goto_b
     if-ge v2, v5, :cond_1f
 
-    .line 131
+    .line 134
     aget-byte v3, p0, v2
 
     and-int/lit8 v3, v3, 0x7f
 
     add-int/lit8 v3, v3, -0x30
 
-    .line 132
+    .line 135
     if-ltz v3, :cond_8
 
     const/16 v4, 0x9
 
     if-gt v3, v4, :cond_8
 
-    .line 133
+    .line 136
     mul-int/lit8 v1, v1, 0xa
 
     add-int/2addr v1, v3
 
-    .line 130
+    .line 133
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_b
@@ -258,7 +258,7 @@
     :cond_1f
     move v0, v1
 
-    .line 135
+    .line 138
     goto :goto_8
 .end method
 
@@ -268,7 +268,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 140
+    .line 143
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/WiProto;->clockTenths([B)I
 
     move-result v1
@@ -295,12 +295,12 @@
 
     const/4 v1, 0x0
 
-    .line 91
+    .line 94
     new-array v3, v5, [I
 
     move v2, v1
 
-    .line 92
+    .line 95
     :goto_6
     if-ge v2, v5, :cond_1d
 
@@ -312,7 +312,7 @@
 
     aget v0, p0, v2
 
-    const/16 v4, 0x14
+    const/16 v4, 0x1f
 
     invoke-static {v0, v1, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
 
@@ -337,7 +337,7 @@
 
     move v2, v1
 
-    .line 94
+    .line 97
     :goto_1f
     if-ge v0, v5, :cond_27
 
@@ -352,7 +352,7 @@
     :cond_27
     move v0, v1
 
-    .line 95
+    .line 98
     :goto_28
     const/4 v4, 0x5
 
@@ -379,7 +379,7 @@
 
     goto :goto_28
 
-    .line 96
+    .line 99
     :cond_3c
     invoke-static {v1, v3}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
@@ -392,7 +392,7 @@
     .registers 3
 
     .prologue
-    .line 145
+    .line 148
     if-eqz p0, :cond_10
 
     invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
@@ -473,7 +473,7 @@
 
     const/4 v3, 0x0
 
-    .line 105
+    .line 108
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -512,7 +512,7 @@
 
     aput v2, v0, v1
 
-    .line 106
+    .line 109
     invoke-static {p4, v3, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
 
     move-result v1
@@ -537,14 +537,14 @@
 
     aput v3, v0, v6
 
-    .line 107
+    .line 110
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/bodytech/WiProto;->xor([II)I
 
     move-result v1
 
     aput v1, v0, v6
 
-    .line 108
+    .line 111
     invoke-static {v5, v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -564,7 +564,7 @@
 
     const/4 v3, 0x0
 
-    .line 113
+    .line 116
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -615,14 +615,14 @@
 
     aput v3, v0, v4
 
-    .line 114
+    .line 117
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->xor([II)I
 
     move-result v1
 
     aput v1, v0, v4
 
-    .line 115
+    .line 118
     invoke-static {v5, v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -636,7 +636,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 123
+    .line 126
     const/4 v2, 0x4
 
     const/4 v0, 0x1
@@ -666,7 +666,7 @@
     .registers 3
 
     .prologue
-    .line 80
+    .line 83
     const/4 v0, 0x0
 
     const/16 v1, 0x64
@@ -675,7 +675,7 @@
 
     move-result v0
 
-    mul-int/lit8 v0, v0, 0x14
+    mul-int/lit8 v0, v0, 0x1f
 
     add-int/lit8 v0, v0, 0x32
 
@@ -712,7 +712,7 @@
     .registers 2
 
     .prologue
-    .line 119
+    .line 122
     const/4 v0, 0x3
 
     sget-object v1, Lcom/isaigu/gymapp/bodytech/WiProto;->WIDTHS:[I
@@ -760,7 +760,7 @@
     .registers 1
 
     .prologue
-    .line 100
+    .line 103
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->currents([I)[B

@@ -70,7 +70,7 @@ public class WiTranslatorTest {
         eq("rest 7", "02:0764000000000000a5c6", hex(WiProto.rest(7, 100)));
         eq("widths", "03:7f7f6d497f7f64527f52", hex(WiProto.widths()));
         eq("currents", "00:0c00020f8f8f8d0d000f"  /* the vendor's own frame, check bits included */, hex(WiProto.currents(new int[] {12, 0, 2, 15, 15, 15, 13, 13, 0, 15})));
-        eq("currents cap", "00:14000080008000000000", hex(WiProto.currents(new int[] {300})));
+        eq("currents cap (31 = the 5-bit top)", "00:1f000080808080800000", hex(WiProto.currents(new int[] {300})));
         eq("start", "04:25", hex(WiProto.run(true)));
         eq("stop", "04:00", hex(WiProto.run(false)));
         eq("clock work", "5 true", WiProto.clockTenths(b(0xb0, 0x30, 0x30, 0x30, 0x30, 0x35)) + " "
@@ -91,13 +91,13 @@ public class WiTranslatorTest {
         m.command(1, setting(5, 10, 15, 20, 25, 30, 35, 40, 45, 50), 0);
         // unit, XBody suit as measured (к.1..10): Задно бедро 10, Седалище 9, Кръст 8, Трапец 6, Гръб 7, Корем 2, Гърди 1,
         // Ръце 5, Предно бедро 3, Прасец 4
-        eq("xbody channel order", "00:0a090806870281850304", all(m.command(3, run(85, 4, 4, true), 0)));
+        eq("xbody channel order", "00:100e0c898b0382080506", all(m.command(3, run(85, 4, 4, true), 0)));
         // an XEMS suit on the unit's leads (the owner's table on the measured channels): Корем → к.1, Гръб → к.2,
         // Трапец → к.3, Седалище → к.4, Кръст → к.5, Ръце → к.6, Прасец → к.7, Задно бедро → к.8, Предно бедро → к.9,
         // Гърди → к.10
         m.xemsSuit = true;
         m.command(1, setting(5, 10, 15, 20, 25, 30, 35, 40, 45, 50), 0);
-        eq("xems suit channel order", "00:020706090805040a0301", strip(all(m.command(3, run(85, 4, 4, true), 0))));
+        eq("xems suit channel order", "00:030b090e0c0806100502", strip(all(m.command(3, run(85, 4, 4, true), 0))));
 
         // ---- a training as the stock row says it
         WiTranslator t = new WiTranslator();
@@ -117,20 +117,20 @@ public class WiTranslatorTest {
         // the row ramps during the count-down: remembered only
         eq("ramp in count-down", "", all(t.command(1, setting(12, 0, 24), now + 500)) + all(t.command(3, run(84, 4, 8, true), now + 500)));
         // the unit's first "01": program phase 0, then the strengths
-        eq("count-down over", "01:2954040800007e05000a 00:00000000008082800500", all(t.runNotify(b(1))));
+        eq("count-down over", "01:2954040800007e05000a 00:00000000000084800700", all(t.runNotify(b(1))));
         eq("again 01", "", all(t.runNotify(b(1))));
         // a slider change in the impulse
-        eq("change", "00:00000000008083000500", all(t.command(1, setting(15, 0, 24), now + 1000)) + all(t.command(3, run(84, 4, 8, true), now + 1000)));
+        eq("change", "00:00000000000085000700", all(t.command(1, setting(15, 0, 24), now + 1000)) + all(t.command(3, run(84, 4, 8, true), now + 1000)));
         // pause without second impulse: strengths 0
         eq("pause", "00:00000000000000000000", all(t.command(3, run(84, 4, 8, false), now + 4000)));
         // second impulse in the pause: rest Hz to the unit, its sliders
         t.phase(WiTranslator.SECOND);
         eq("second", "", all(t.command(1, setting(5, 0, 5), now + 4500)));
-        eq("second run", "02:0864000000000000a5c9 00:00000000000001000100", all(t.command(3, run(8, 4, 8, true), now + 4500)));
+        eq("second run", "02:0864000000000000a5c9 00:00000000000002000200", all(t.command(3, run(8, 4, 8, true), now + 4500)));
         // next impulse with a new Hz: zeros, program phase 0, strengths
         t.phase(WiTranslator.MAIN);
         t.command(1, setting(15, 0, 24), now + 12000);
-        eq("new hz", "00:00000000000000000000 01:2959040800007e050007 00:00000000008083000500",
+        eq("new hz", "00:00000000000000000000 01:2959040800007e050007 00:00000000000085000700",
                 all(t.command(3, run(89, 4, 8, true), now + 12000)));
         // nobody renews: strengths 0 after the longer phase + 3 s
         eq("heartbeat early", "", all(t.heartbeat(now + 12000 + 8000)));
@@ -147,7 +147,7 @@ public class WiTranslatorTest {
         u.command(1, setting(7), 0);
         u.command(3, run(85, 4, 4, true), 0);
         eq("no 01 yet", "", all(u.heartbeat(5000)));
-        eq("no 01 → run", "01:2955040400007e050007 00:00000000000001800000", all(u.heartbeat(6001)));
+        eq("no 01 → run", "01:2955040400007e050007 00:00000000000082000000", all(u.heartbeat(6001)));
         // a lost link: the next command stops the unit first
         u.forget();
         eq("after forget", "00:00000000000000000000 04:00", all(u.command(5, new byte[1], 7000)));
@@ -168,7 +168,7 @@ public class WiTranslatorTest {
         eq("percent after", "-1", w.countdownPercent(4600));
         w.command(0xF1, new byte[1], 4700);
         w.command(1, setting(9, 9), 4700);
-        eq("row starts: strengths only", "00:00000000000202000000", all(w.command(3, run(70, 5, 10, true), 4700)));
+        eq("row starts: strengths only", "00:00000000000303000000", all(w.command(3, run(70, 5, 10, true), 4700)));
 
         // ---- the unit runs after its count-down but the row never starts: stopped after 30 s
         WiTranslator z = new WiTranslator();

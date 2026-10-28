@@ -17,7 +17,7 @@ import java.util.Iterator;
 final class Session {
     static final class Program {
         int hz = 85, onS = 4, offS = 4, totalS = 20 * 60, rampMs = 1000, downS;   // ramp: whole s (the unit's Ru)
-        /** Pulse width, µs — XEMS / bodytech only (WiEMS keeps its own widths). */
+        /** Pulse width, µs ({@link Safe#US_MIN}..{@link Safe#US_MAX}) — every kind; WiEMS: {@link #wiWidths}. */
         int us = 350;
         /** Double impulse: a second, low impulse in the pause (Hz ≤ 10 and under the main; % of the main strength). */
         boolean dbl;
@@ -317,7 +317,7 @@ final class Session {
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
             push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_ARM), T_PROG);
             push(rest(cur), T_PROG);
-            push(WiProto.widths(), T_PROG);
+            push(wiWidths(cur.us), T_PROG);
             push(WiProto.zero(), T_PROG);
             push(WiProto.run(true), T_PROG);
             wi = WI_COUNT;
@@ -343,6 +343,36 @@ final class Session {
         rampStartMs = now;
         rampStep = 1;                                   // XEMS / bodytech: the tablet's soft rise
         levels();                                       // WiEMS: the unit rises by itself (Ru) — as the vendor
+    }
+
+    /**
+     * WiEMS pulse width per body part (0x001c, one byte per unit channel): the vendor's widths (capture 1, every
+     * program: 7f 7f 6d 49 7f 7f 64 52 7f 52) read through the measured XBody map — the big muscles at 0x7F, trapezius
+     * 0x49, arms / calf 0x52, chest 0x64, lower back 0x6D. Before 1.19 those bytes went out as they were, per unit
+     * channel: any other map (an XEMS suit, a service-mode swap) put the narrowest widths on the glutes and the
+     * hamstrings, and no program could change them. They stand for {@link #WI_US_REF} µs; the session's width scales
+     * them, never over 0x7F (the vendor's top — the unit's own µs scale is not known yet).
+     */
+    static final int[] WI_PART_WIDTH = {0x49, 0x7F, 0x64, 0x6D, 0x52, 0x7F, 0x7F, 0x7F, 0x7F, 0x52};
+    static final int WI_US_REF = 350, WI_WIDTH_MAX = 0x7F;
+
+    /** The unit's width byte for body part c at us µs. */
+    static int wiWidth(int c, int us) {
+        return Math.max(1, Math.min(WI_WIDTH_MAX, (WI_PART_WIDTH[c] * us + WI_US_REF / 2) / WI_US_REF));
+    }
+
+    /** The widths write: each unit channel the width of the body part on it (a channel nobody uses: the narrowest). */
+    byte[] wiWidths(int us) {
+        byte[] b = new byte[WiProto.CHANNELS + 1];
+        b[0] = (byte) WiProto.OP_WIDTHS;
+        int[] w = new int[WiProto.CHANNELS];
+        java.util.Arrays.fill(w, -1);
+        for (int c = 0; c < unitOf.length; c++) {
+            int u = unitOf[c];
+            if (u >= 0 && u < w.length) w[u] = Math.max(w[u], wiWidth(c, us));   // two parts on one lead: the wider
+        }
+        for (int u = 0; u < w.length; u++) b[u + 1] = (byte) (w[u] >= 0 ? w[u] : wiWidth(0, us));
+        return b;
     }
 
     /** The unit's rest: continuous = the same Hz at full; the double impulse's Hz and %; else 0 % (nothing). */

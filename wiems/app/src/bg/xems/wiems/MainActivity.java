@@ -554,6 +554,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         prog.offS = p.getInt("off", prog.offS);
         prog.totalS = p.getInt("total", prog.totalS);
         prog.rampMs = p.getInt("ramp", prog.rampMs);
+        prog.us = p.getInt("us", prog.us);
         prog.dbl = p.getBoolean("dbl", false);
         prog.dblHz = p.getInt("dbl_hz", prog.dblHz);
         prog.dblPct = p.getInt("dbl_pct", prog.dblPct);
@@ -575,7 +576,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     void save() {
         getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("last", lastMac).putInt("hz", prog.hz)
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
-                .putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
+                .putInt("us", prog.us).putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
                 .putBoolean("age60", age60).putBoolean("female", female).putString("channels", channels.save()).putInt("strength", savedStrength)
                 .putInt("last_kind", lastKind).putBoolean("dark", dark)
                 .putInt("part0", savedZones[0]).putInt("part1", savedZones[1]).putInt("part2", savedZones[2])

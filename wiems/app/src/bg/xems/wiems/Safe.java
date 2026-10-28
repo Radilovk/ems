@@ -10,6 +10,8 @@ final class Safe {
 
     static final int HZ_MAX = 120, HZ_MAX_60 = 85, TETANIC_HZ = 20, ON_MAX_50HZ = 6, ON_MAX_TETANIC = 10,
             RAMP_MIN_MS = 1000, OFF_MAX_SEARCH = 30, STRENGTH_MAX = 100, PAUSE_HZ_MAX = 10, PAUSE_PCT_MAX = 150;
+    /** Pulse width, µs: XBody's range (its Impulse sheet 50–400), in the XEMS suit's 50 µs steps. */
+    static final int US_MIN = 50, US_MAX = 400, US_STEP = 50;
     private static final double TAU = 30.0;
 
     private static double fMax() {
@@ -74,6 +76,11 @@ final class Safe {
         if (p.rampMs > rMax) {
             if (rMax > 0 || p.rampMs > 0) line(why, "Рампа " + p.rampMs / 1000 + " → " + rMax / 1000 + " s: не по-дълга от импулса");
             p.rampMs = rMax;
+        }
+        if (p.us < US_MIN || p.us > US_MAX) {
+            int u = Math.max(US_MIN, Math.min(US_MAX, p.us));
+            line(why, "Ширина " + p.us + " → " + u + " µs");
+            p.us = u;
         }
         if (p.totalS < 60) p.totalS = 60;
         if (p.totalS > 3600) p.totalS = 3600;

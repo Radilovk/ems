@@ -165,7 +165,7 @@ final class XView extends View {
             if (s.startPending()) b.append((now / 400) % 4);
         }
         if (sheet) b.append(sheetProg.hz).append(sheetProg.onS).append(sheetProg.offS).append(sheetProg.totalS).append(sheetAge60)
-                .append(sheetProg.rampMs).append(sheetProg.dbl).append(sheetProg.dblHz).append(sheetProg.dblPct);
+                .append(sheetProg.rampMs).append(sheetProg.dbl).append(sheetProg.dblHz).append(sheetProg.dblPct).append(sheetProg.us);
         return b.toString();
     }
 
@@ -1267,14 +1267,15 @@ final class XView extends View {
         if (plan != null) sheetProc(c, o, plan, a.session().state() != Session.IDLE);
         else {
         caption(c, o + 64, 98, locked ? "ПРОГРАМА · СМЕНЯ СЕ НА ПАУЗА" : "ПРОГРАМА");
-        String[] labels = {"Честота", "Времетраене", "Рампа"};
-        String[] values = {q.hz + " Hz", q.totalS / 60 + " мин", q.rampMs == 0 ? "без" : q.rampMs / 1000 + " s"};
-        String[] fields = {"hz", "total", "ramp"};
-        for (int i = 0; i < 3; i++) {
-            float y = 120 + i * 60;
+        // the pulse width: how deep the impulse reaches (XBody's Impulse sheet); every kind, WiEMS per muscle
+        String[] labels = {"Честота", "Ширина", "Времетраене", "Рампа"};
+        String[] values = {q.hz + " Hz", q.us + " µs", q.totalS / 60 + " мин", q.rampMs == 0 ? "без" : q.rampMs / 1000 + " s"};
+        String[] fields = {"hz", "us", "total", "ramp"};
+        for (int i = 0; i < 4; i++) {
+            float y = 110 + i * 47;
             font(16, false);
-            text(c, labels[i], o + 64, y, o + 222, y + 50, -1, INK);
-            pill(c, o + 222, y, o + 408, y + 50, values[i], locked ? null : fields[i]);
+            text(c, labels[i], o + 64, y, o + 222, y + 42, -1, INK);
+            pill(c, o + 222, y, o + 408, y + 42, values[i], locked ? null : fields[i]);
         }
         font(16, false);
         text(c, "Ритъм", o + 64, 302, o + 364, 326, -1, INK);
@@ -1580,6 +1581,8 @@ final class XView extends View {
             int d = parts[2].equals("+") ? 1 : -1;
             Session.Program q = sheetProg;
             if (parts[1].equals("hz")) q.hz = bound(1, q.hz + d, sheetAge60 ? 85 : 120);
+            else if (parts[1].equals("us")) q.us = bound(Safe.US_MIN / Safe.US_STEP, q.us / Safe.US_STEP + d,
+                    Safe.US_MAX / Safe.US_STEP) * Safe.US_STEP;
             else if (parts[1].equals("total")) q.totalS = bound(1, q.totalS / 60 + d, 60) * 60;
             else if (parts[1].equals("on")) {
                 q.onS = bound(1, q.onS + d, 30);

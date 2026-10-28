@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.19)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -24,7 +24,7 @@ right column goes to the right edge, body / clock / MASTER stay centred; zone bu
 
 Behaviour = the XBody panel with a WiEMS unit: ▶ starts the unit (its ~4 s count-down, "МИГ…") and the clock runs
 when the unit does; phases set strengths (pause = 0); pause / stop = strengths 0 + run stop. Channels in XBody's
-order. Width is not shown (the unit keeps its own widths). The last unit reconnects by itself.
+order. Pulse width: "Настройки на сесията" → Ширина (v1.19). The last unit reconnects by itself.
 Permissions: location (Android ≤ 11 needs it for BLE scans; targetSdk 29 also on Android 12+). Closing the app
 stops the unit.
 
@@ -263,6 +263,20 @@ order — once the service mode has checked both suits, port the two maps (the `
   full-size art at 500 px (372 design px × 1.33 on the Lenovo): every step at full size, one premultiplied Lanczos
   downscale, lossless WebP. `BodyFig` only loads them — the run-time stretch / 3×3 blur / hard-mask rim of 1.15–1.17 on
   the 640-px lossy copies made the stair steps and the smear.
+
+## v1.19 — pulse width for every kind and mode (owner: "no pulse depth in the settings, the WiEMS current is weak")
+- **Cause.** WiEMS got one fixed widths write (0x001c) — the vendor's bytes from capture 1, `7f 7f 6d 49 7f 7f 64 52
+  7f 52`, per **unit channel**. On the measured XBody map they are a per-muscle profile (big muscles 0x7F, Трапец 0x49,
+  Ръце / Прасец 0x52, Гърди 0x64, Кръст 0x6D); on any other map (Костюм XEMS, a service-mode swap) the narrow ones
+  landed on big muscles — Седалище 0x49 (57 %), Задно бедро 0x52 (65 %). No program (Relax) could change it either.
+  XEMS / bodytech took `Program.us` (350, Relax 150) but nothing let the trainer set it.
+- **Now.** "Настройки на сесията" has **Ширина** 50–400 µs (step 50, `Safe.US_*`, saved as `us`); modes: Мускули /
+  Кардио 350, Релакс 150 (XBody's); procedures 350. XEMS (cmd 3) and bodytech (width registers) take it as before.
+  WiEMS: `Session.wiWidths` = per **body part** `WI_PART_WIDTH` (the vendor's profile) × width / 350 µs, capped at
+  0x7F, written to the part's unit channel — 350 µs on the XBody map = the vendor's exact bytes.
+- **Not known yet:** the unit's µs per width step and whether it takes more than 0x7F. With the XBody suit the big
+  muscles were already at 0x7F (the vendor's top), so there a weak feel is not the width — check the strength scale
+  (`WiProto.UNIT_MAX` 20 = the vendor's 100 %) with the vendor app side by side.
 
 ## Build / test
 ```

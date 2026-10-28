@@ -208,7 +208,7 @@ public class AppTest {
         s.setZone(8, 50);                                // Ръце → unit channel 4: 50 % × 40 % = 20 % → byte 4
         s.start(1000);
         eq("waits for the count-down", Session.IDLE, s.state());
-        eq("start ops (Ru 1 s, nothing in the pause)", "[012955040401007e050204, 0205000000000000" + "00a5a0, 037f7f6d497f7f64527f52, 0000000000000000000000, 0425]",
+        eq("start ops (Ru 1 s, nothing in the pause)", "[012955040401007e050204, 0205000000000000" + "00a5a0, 03497f646d527f7f7f7f52, 0000000000000000000000, 0425]",
                 drain(s, 1000));
         s.runNotify(new byte[] {1}, 5100);
         s.tick(5100);
@@ -292,6 +292,23 @@ public class AppTest {
         sm.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);
         eq("a new map while running: one write, Седалище back on channel 1 (к.2)",
                 "[" + hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 10, 0, 0, 0, 0, 0, 0, 0, 0})) + "]", drain(sm, 6000));
+        // the pulse width follows the muscle, not the lead: on the measured XBody map = the vendor's own bytes
+        Session ws = new Session();
+        ws.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);
+        eq("widths 350 µs, XBody suit = the vendor's", "037f7f6d497f7f64527f52", hex(ws.wiWidths(350)));
+        ws.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XEMS]);
+        StringBuilder big = new StringBuilder();         // Седалище (6) / Задно бедро (8) / Корем (5) on their XEMS leads
+        for (int q : new int[] {6, 8, 5}) big.append(ws.wiWidths(350)[1 + Channels.DEFAULT[Dev.WIEMS][Channels.XEMS][q]] & 0xFF).append(' ');
+        eq("XEMS suit: the big muscles keep the full width (before: 73 / 82 on the glutes / hamstrings)", "127 127 127 ", big.toString());
+        ws.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);
+        eq("Relax 150 µs: narrower everywhere", "0336362f1f36362b233623", hex(ws.wiWidths(150)));
+        eq("400 µs: the small muscles wider, nothing over 0x7f", "037f7f7d537f7f725e7f5e", hex(ws.wiWidths(400)));
+        Session.Program wp = new Session.Program();
+        wp.us = 600;
+        Safe.apply(wp, false);
+        eq("width within 50..400 µs", 400, wp.us);
+        eq("modes: Мускули / Кардио 350, Релакс 150 µs", "350 350 150",
+                Procs.mode(Procs.MODE_MUSCLE).us + " " + Procs.mode(Procs.MODE_CARDIO).us + " " + Procs.mode(Procs.MODE_RELAX).us);
         eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
         // the suit's standard: an XEMS suit on the unit's leads — Ръце drives the lead "Корем" (ch 5), the zone keeps its %
         Session w = new Session();

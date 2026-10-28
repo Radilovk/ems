@@ -28,6 +28,7 @@ final class Procs {
     static Session.Program mode(int m) {
         Session.Program p = new Session.Program();
         if (m == MODE_MUSCLE) {                 // XBody: burst 80 Hz, 4 s / 2 s, no amplification, 350 µs, 20 min
+            p.us = 350;
             p.hz = 80;
             p.onS = 4;
             p.offS = 2;
@@ -40,13 +41,14 @@ final class Procs {
             p.totalS = 25 * 60;
             p.rampMs = 0;
             p.cont = true;
+            p.us = 350;
         } else if (m == MODE_RELAX) {           // XBody: burst 100 Hz, 1 s / 1 s, 150 µs, 10 min
             p.hz = 100;
             p.onS = 1;
             p.offS = 1;
             p.totalS = 10 * 60;
             p.rampMs = 0;
-            p.us = 150;                          // XEMS / bodytech take it (WiEMS keeps its own widths)
+            p.us = 150;                          // every kind (WiEMS: its per-muscle widths scaled to it)
         }
         return p;
     }

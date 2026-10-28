@@ -89,12 +89,15 @@ def main():
                                              (enroll_voice, 80, 8, 80, 'room', True),
                                              (enroll_voice, 250, 8, 250, 'busy room', True),
                                              (enroll_voice, 80, 8, 80, 'slow, pausing', True),
+                                             (enroll_voice, 80, 8, 80, 'power-on', True),
                                              (enroll_voice, 600, 0, 4, 'loud noise', False),
                                              ('bg+f2', 0, 0, 4, 'other voice', False)):
         # slow, pausing: a trainer who says "увеличи … импулса" slowly, 250–370 ms between the words
         gap, slow = (250, 35) if tag.startswith('slow') else (0, 0)
         plan, want = scenario(voice, noise, var, gap + 50 if gap else 0, slow)
         plan = ['noise %d' % rn, 'noisevar %d' % var] + examples(gap, slow) + plan
+        if tag == 'power-on':                        # the real mic: ≈ 0.15 s of silence while it settles
+            plan = ['noise 0', 'sil 150'] + plan
         pf = os.path.join(OUT, 'plan.txt')
         open(pf, 'w').write('\n'.join(plan) + '\n')
         lines = subprocess.run([exe, pf], check=True, capture_output=True, text=True).stdout.splitlines()

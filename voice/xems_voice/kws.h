@@ -160,7 +160,8 @@ struct Finder {
   uint32_t t = 0;
   float floorDb = 0;
   int state = 0;  // 0 idle, 1 in a word, 2 running speech (wait for quiet)
-  int quietRun = 0, above = 0;
+  int quietRun = 0, above = 0, loudRun = 0;
+  static const uint32_t SETTLE = 40;  // 10 ms frames ignored after start: the mic settling
   int64_t qEnd = -1000;  // the frame after the last pause of PRE_Q quiet frames (still growing while it lasts)
   uint32_t s0 = 0, lastAct = 0;
   float peak = 0;
@@ -170,17 +171,27 @@ struct Finder {
 
   // true when frame t closed a word: frames [w0, w1) of the ring
   bool frame(const float *bands, float edb) {
+    // the PDM mic's first ~0.1–0.3 s are near silence while it settles: v2–v5 took that as the room's noise,
+    // the real noise then always sat "above" it — no pause, no word, ever, while the level bar stood full
+    // (owner, 2026-10-28: "the bar fills and it says it can't hear me"). Those frames are not looked at.
+    if (t < SETTLE) {
+      t++;
+      return false;
+    }
     float *r = ring[t % RING];
     memcpy(r, bands, sizeof(float) * NMEL);
     r[NMEL] = edb;
     bool out = false;
-    if (t == 0) {
+    if (t == SETTLE) {
       floorDb = edb;
       memcpy(noise, bands, sizeof noise);
     }
     // the noise's history: never a word, never a loud frame between words (own speech made the floor swing and
     // the thresholds jump after a few words); all of running sound, so music switched on cannot lock it out
-    if (state == 2 || (state == 0 && (nh < 20 || edb < floorDb + (ON_DB > spread + 8 ? ON_DB : spread + 8)))) {
+    // a level that stays above the floor for 1 s IS the room now (louder music, a fan): it joins the history, so
+    // the floor can never lock below the room again
+    loudRun = state == 0 && edb >= floorDb + (ON_DB > spread + 8 ? ON_DB : spread + 8) ? loudRun + 1 : 0;
+    if (state == 2 || loudRun > 100 || (state == 0 && (nh < 20 || edb < floorDb + (ON_DB > spread + 8 ? ON_DB : spread + 8)))) {
       hist[hi] = edb;
       hi = (hi + 1) % NH;
       if (nh < NH) nh++;

@@ -44,6 +44,11 @@ the protocol.
    two-word phrase was thrown away as running speech); recording waits 450 ms of quiet before it closes (a breath
    between the two words keeps one example); recognising joins a piece not taken with the next one ≤ 450 ms later
    when the two together match better (`Engine.classify` on both).
+   v6 — **the root cause of "the bar fills, it says it can't hear me"** (v2–v5 on the real chip): the PDM mic gives
+   ~0.1 s of near silence while it settles; the floor was taken from it, the room then always sat above the floor,
+   loud frames never entered the floor's history → no pause, no word, forever. The sim always began with noise, so
+   it never saw it. Now the first 0.4 s are ignored, and a level that stays up 1 s joins the history (the floor can
+   never lock below the room). Test: `power-on` scenario + start-up silences 50–600 ms.
 3. **Features of the word** — the steady noise of every band (learned from quiet frames) taken out ×1.5, a floor
    30 dB under the word's loudest band (a word recorded in quiet and one said over noise then look alike), log,
    12 cepstra minus their mean + energy under the peak, 20 ms frames, int8.

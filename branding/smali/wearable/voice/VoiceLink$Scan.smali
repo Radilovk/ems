@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 407
+    .line 409
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 408
+    .line 410
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Scan;->adapter:Landroid/bluetooth/BluetoothAdapter;
 
-    .line 409
+    .line 411
     return-void
 .end method
 
@@ -42,13 +42,13 @@
     .registers 6
 
     .prologue
-    .line 414
+    .line 416
     :try_start_0
     invoke-static {p1, p3}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->nameOf(Landroid/bluetooth/BluetoothDevice;[B)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 415
+    .line 417
     if-eqz v0, :cond_18
 
     const-string v1, "XEMS Voice"
@@ -59,7 +59,7 @@
 
     if-eqz v0, :cond_18
 
-    .line 416
+    .line 418
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Found;
@@ -70,12 +70,12 @@
     :try_end_18
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_18} :catch_19
 
-    .line 420
+    .line 422
     :cond_18
     :goto_18
     return-void
 
-    .line 418
+    .line 420
     :catch_19
     move-exception v0
 

@@ -263,7 +263,7 @@ public final class VoiceScreen {
                         "Say it clearly, a little louder, then pause"));
                 status.setText(note != null ? note : tr("Слушам…", "Listening…"));
                 status.setTextColor(note != null ? noteColor : XemsUi.MUTED);
-            } else if (!allLearned()) {
+            } else if (!allLearned() && (heard == null || System.currentTimeMillis() - heardMs >= 4000)) {
                 hero.setText(tr("Да научим гласа ти", "Let's learn your voice"));
                 hero.setTextSize(30);
                 hero.setTextColor(XemsUi.TEXT);

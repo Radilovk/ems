@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 436
+    .line 438
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,17 +34,17 @@
     .registers 3
 
     .prologue
-    .line 439
+    .line 441
     sget v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->state:I
 
     const/4 v1, 0x3
 
     if-eq v0, v1, :cond_8
 
-    .line 440
+    .line 442
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->stopScan()V
 
-    .line 442
+    .line 444
     :cond_8
     return-void
 .end method

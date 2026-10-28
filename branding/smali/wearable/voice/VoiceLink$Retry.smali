@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 533
+    .line 535
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 536
+    .line 538
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     if-nez v0, :cond_b
@@ -43,10 +43,10 @@
 
     if-eqz v0, :cond_b
 
-    .line 537
+    .line 539
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->connectKnown()V
 
-    .line 539
+    .line 541
     :cond_b
     return-void
 .end method

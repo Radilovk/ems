@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 426
+    .line 428
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 427
+    .line 429
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Found;->d:Landroid/bluetooth/BluetoothDevice;
 
-    .line 428
+    .line 430
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 2
 
     .prologue
-    .line 432
+    .line 434
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Found;->d:Landroid/bluetooth/BluetoothDevice;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->onFound(Landroid/bluetooth/BluetoothDevice;)V
 
-    .line 433
+    .line 435
     return-void
 .end method

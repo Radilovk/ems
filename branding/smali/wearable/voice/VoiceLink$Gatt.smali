@@ -19,7 +19,7 @@
     .registers 1
 
     .prologue
-    .line 445
+    .line 447
     invoke-direct {p0}, Landroid/bluetooth/BluetoothGattCallback;-><init>()V
 
     return-void
@@ -33,12 +33,12 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 458
+    .line 460
     invoke-virtual {p2}, Landroid/bluetooth/BluetoothGattCharacteristic;->getValue()[B
 
     move-result-object v2
 
-    .line 459
+    .line 461
     sget-object v6, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 
     new-instance v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;
@@ -64,10 +64,10 @@
 
     invoke-virtual {v6, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 460
+    .line 462
     return-void
 
-    .line 459
+    .line 461
     :cond_1c
     const/4 v5, 0x0
 
@@ -78,7 +78,7 @@
     .registers 11
 
     .prologue
-    .line 464
+    .line 466
     sget-object v6, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 
     new-instance v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;
@@ -97,7 +97,7 @@
 
     invoke-virtual {v6, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 465
+    .line 467
     return-void
 .end method
 
@@ -105,7 +105,7 @@
     .registers 11
 
     .prologue
-    .line 448
+    .line 450
     sget-object v6, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 
     new-instance v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;
@@ -124,7 +124,7 @@
 
     invoke-virtual {v6, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 449
+    .line 451
     return-void
 .end method
 
@@ -132,7 +132,7 @@
     .registers 11
 
     .prologue
-    .line 469
+    .line 471
     sget-object v6, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 
     new-instance v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;
@@ -151,7 +151,7 @@
 
     invoke-virtual {v6, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 470
+    .line 472
     return-void
 .end method
 
@@ -159,7 +159,7 @@
     .registers 10
 
     .prologue
-    .line 453
+    .line 455
     sget-object v6, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 
     new-instance v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;
@@ -178,6 +178,6 @@
 
     invoke-virtual {v6, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 454
+    .line 456
     return-void
 .end method

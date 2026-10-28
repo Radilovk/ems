@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 511
+    .line 513
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 1
 
     .prologue
-    .line 514
+    .line 516
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->pump()V
 
-    .line 515
+    .line 517
     return-void
 .end method

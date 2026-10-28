@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 521
+    .line 523
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 522
+    .line 524
     iput p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$OpTimeout;->token:I
 
-    .line 523
+    .line 525
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 527
+    .line 529
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->busy:Z
 
     if-eqz v0, :cond_d
@@ -53,10 +53,10 @@
 
     if-ne v0, v1, :cond_d
 
-    .line 528
+    .line 530
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->onWriteDone()V
 
-    .line 530
+    .line 532
     :cond_d
     return-void
 .end method

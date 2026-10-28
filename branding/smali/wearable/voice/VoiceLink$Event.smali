@@ -44,25 +44,25 @@
     .registers 6
 
     .prologue
-    .line 481
+    .line 483
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 482
+    .line 484
     iput p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->kind:I
 
-    .line 483
+    .line 485
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->g:Landroid/bluetooth/BluetoothGatt;
 
-    .line 484
+    .line 486
     iput p3, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->a:I
 
-    .line 485
+    .line 487
     iput p4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->b:I
 
-    .line 486
+    .line 488
     iput-object p5, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->data:[B
 
-    .line 487
+    .line 489
     return-void
 .end method
 
@@ -72,7 +72,7 @@
     .registers 4
 
     .prologue
-    .line 492
+    .line 494
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->kind:I
 
@@ -80,7 +80,7 @@
 
     if-ne v0, v1, :cond_f
 
-    .line 493
+    .line 495
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->g:Landroid/bluetooth/BluetoothGatt;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->a:I
@@ -89,12 +89,12 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->onConnection(Landroid/bluetooth/BluetoothGatt;II)V
 
-    .line 508
+    .line 510
     :cond_e
     :goto_e
     return-void
 
-    .line 494
+    .line 496
     :cond_f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->g:Landroid/bluetooth/BluetoothGatt;
 
@@ -102,14 +102,14 @@
 
     if-ne v0, v1, :cond_e
 
-    .line 496
+    .line 498
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->kind:I
 
     const/4 v1, 0x2
 
     if-ne v0, v1, :cond_27
 
-    .line 497
+    .line 499
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->g:Landroid/bluetooth/BluetoothGatt;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->onServices(Landroid/bluetooth/BluetoothGatt;)V
@@ -118,18 +118,18 @@
 
     goto :goto_e
 
-    .line 505
+    .line 507
     :catch_20
     move-exception v0
 
-    .line 506
+    .line 508
     const-string v1, "VoiceLink.event"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_e
 
-    .line 498
+    .line 500
     :cond_27
     :try_start_27
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->kind:I
@@ -138,19 +138,19 @@
 
     if-ne v0, v1, :cond_36
 
-    .line 499
+    .line 501
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->data:[B
 
     if-eqz v0, :cond_e
 
-    .line 500
+    .line 502
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Event;->data:[B
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->onBytes([B)V
 
     goto :goto_e
 
-    .line 503
+    .line 505
     :cond_36
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->onWriteDone()V
     :try_end_39

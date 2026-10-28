@@ -628,8 +628,8 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 349
     .line 351
+    .line 353
     :try_start_1
     invoke-virtual {p0}, Landroid/bluetooth/BluetoothDevice;->getName()Ljava/lang/String;
     :try_end_4
@@ -637,7 +637,7 @@
 
     move-result-object v0
 
-    .line 354
+    .line 356
     :goto_5
     if-eqz v0, :cond_11
 
@@ -647,11 +647,11 @@
 
     if-lez v2, :cond_11
 
-    .line 368
+    .line 370
     :goto_d
     return-object v0
 
-    .line 352
+    .line 354
     :catch_e
     move-exception v0
 
@@ -659,7 +659,7 @@
 
     goto :goto_5
 
-    .line 357
+    .line 359
     :cond_11
     const/4 v0, 0x0
 
@@ -674,12 +674,12 @@
 
     if-ge v0, v3, :cond_25
 
-    .line 358
+    .line 360
     aget-byte v0, p1, v2
 
     and-int/lit16 v3, v0, 0xff
 
-    .line 359
+    .line 361
     if-eqz v3, :cond_25
 
     add-int v0, v2, v3
@@ -691,10 +691,10 @@
     :cond_25
     move-object v0, v1
 
-    .line 368
+    .line 370
     goto :goto_d
 
-    .line 362
+    .line 364
     :cond_27
     add-int/lit8 v0, v2, 0x1
 
@@ -702,7 +702,7 @@
 
     and-int/lit16 v0, v0, 0xff
 
-    .line 363
+    .line 365
     const/16 v4, 0x8
 
     if-eq v0, v4, :cond_35
@@ -711,7 +711,7 @@
 
     if-ne v0, v4, :cond_3f
 
-    .line 364
+    .line 366
     :cond_35
     new-instance v0, Ljava/lang/String;
 
@@ -723,7 +723,7 @@
 
     goto :goto_d
 
-    .line 366
+    .line 368
     :cond_3f
     add-int/lit8 v0, v3, 0x1
 
@@ -731,7 +731,7 @@
 
     move v2, v0
 
-    .line 367
+    .line 369
     goto :goto_13
 .end method
 
@@ -1033,7 +1033,7 @@
     :cond_25
     sput v1, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->examples:I
 
-    .line 338
+    .line 340
     :cond_27
     :goto_27
     new-instance v0, Ljava/util/ArrayList;
@@ -1051,7 +1051,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_60
+    if-eqz v0, :cond_6c
 
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -1059,7 +1059,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Listener;
 
-    .line 340
+    .line 342
     :try_start_3e
     invoke-interface {v0, p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Listener;->onVoiceLine(Ljava/lang/String;)V
     :try_end_41
@@ -1067,11 +1067,11 @@
 
     goto :goto_32
 
-    .line 341
+    .line 343
     :catch_42
     move-exception v0
 
-    .line 342
+    .line 344
     const-string v2, "VoiceLink.line"
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -1092,7 +1092,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_27
+    if-eqz v0, :cond_60
 
     .line 336
     const-string v0, " "
@@ -1109,8 +1109,23 @@
 
     goto :goto_27
 
-    .line 345
+    .line 337
     :cond_60
+    const-string v0, "NOCOUNT"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_27
+
+    .line 338
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceRemote;->onNoCount()V
+
+    goto :goto_27
+
+    .line 347
+    :cond_6c
     return-void
 .end method
 
@@ -1349,7 +1364,7 @@
     .registers 2
 
     .prologue
-    .line 373
+    .line 375
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -1361,15 +1376,15 @@
 
     move-result v0
 
-    .line 375
+    .line 377
     :goto_8
     return v0
 
-    .line 374
+    .line 376
     :catch_9
     move-exception v0
 
-    .line 375
+    .line 377
     const/4 v0, -0x1
 
     goto :goto_8
@@ -1403,7 +1418,7 @@
 
     const/4 v1, 0x0
 
-    .line 380
+    .line 382
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->busy:Z
 
     if-nez v0, :cond_1b
@@ -1430,12 +1445,12 @@
 
     if-eqz v0, :cond_1c
 
-    .line 400
+    .line 402
     :cond_1b
     :goto_1b
     return-void
 
-    .line 383
+    .line 385
     :cond_1c
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->out:Ljava/util/List;
 
@@ -1445,7 +1460,7 @@
 
     check-cast v0, [B
 
-    .line 386
+    .line 388
     :try_start_24
     sget-object v2, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->wr:Landroid/bluetooth/BluetoothGattCharacteristic;
 
@@ -1459,7 +1474,7 @@
 
     move v2, v3
 
-    .line 387
+    .line 389
     :goto_2f
     sget-object v4, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->wr:Landroid/bluetooth/BluetoothGattCharacteristic;
 
@@ -1470,12 +1485,12 @@
     :goto_34
     invoke-virtual {v4, v2}, Landroid/bluetooth/BluetoothGattCharacteristic;->setWriteType(I)V
 
-    .line 389
+    .line 391
     sget-object v2, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->wr:Landroid/bluetooth/BluetoothGattCharacteristic;
 
     invoke-virtual {v2, v0}, Landroid/bluetooth/BluetoothGattCharacteristic;->setValue([B)Z
 
-    .line 390
+    .line 392
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     sget-object v2, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->wr:Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -1486,14 +1501,14 @@
 
     move-result v0
 
-    .line 394
+    .line 396
     :goto_44
     if-eqz v0, :cond_78
 
-    .line 395
+    .line 397
     sput-boolean v3, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->busy:Z
 
-    .line 396
+    .line 398
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceLink$OpTimeout;
@@ -1515,20 +1530,20 @@
     :cond_5b
     move v2, v1
 
-    .line 386
+    .line 388
     goto :goto_2f
 
     :cond_5d
     move v2, v3
 
-    .line 388
+    .line 390
     goto :goto_34
 
-    .line 391
+    .line 393
     :catch_5f
     move-exception v0
 
-    .line 392
+    .line 394
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -1553,7 +1568,7 @@
 
     goto :goto_44
 
-    .line 398
+    .line 400
     :cond_78
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->main:Landroid/os/Handler;
 

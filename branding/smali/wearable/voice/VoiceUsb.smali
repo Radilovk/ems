@@ -27,7 +27,7 @@
 
 .field public static final FAILED:I = 0x6
 
-.field public static final FW:I = 0x2
+.field public static final FW:I = 0x3
 
 .field public static final NO_CABLE:I = 0x0
 

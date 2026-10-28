@@ -26,7 +26,7 @@
 #include <InternalFileSystem.h>
 #include "kws.h"
 
-#define VOICE_VER "2"   // = VoiceUsb.FW in XEMS: an older module is offered the update
+#define VOICE_VER "3"   // = VoiceUsb.FW in XEMS: an older module is offered the update
 #define STORE "/xems-voice.bin"
 #define REC_TIMEOUT_MS 8000
 

@@ -40,6 +40,10 @@ the protocol.
    closure of "старт" before its vowel do not cancel the pause), closed by 220 ms of quiet; 160 ms – 1.5 s; peak
    ≥ 18 dB over the floor. Recording an example is lenient (pause 50 ms, 3 / 6 dB softer). A sound that is not a word
    is reported (`SKIP short|long|soft`) and the learning page says what to change.
+   v3 (2026-10-28, the owner stuck at word 7, "увеличи импулса"): a word may last 2.5 s (it was 1.5 s — a slow
+   two-word phrase was thrown away as running speech); recording waits 450 ms of quiet before it closes (a breath
+   between the two words keeps one example); recognising joins a piece not taken with the next one ≤ 450 ms later
+   when the two together match better (`Engine.classify` on both).
 3. **Features of the word** — the steady noise of every band (learned from quiet frames) taken out ×1.5, a floor
    30 dB under the word's loudest band (a word recorded in quiet and one said over noise then look alike), log,
    12 cepstra minus their mean + energy under the peak, 20 ms frames, int8.
@@ -70,6 +74,7 @@ minus, running speech at −8 dB, ten loud single non-commands (хайде, до
 | white noise ≈ 21 dB | 4/7, 0 false (misses, never wrong) |
 | room: noise wandering ± 8 dB every 50 ms (v2) | 7/7, 0 false, 24/24 examples |
 | busy room: louder, ± 8 dB (v2) | 7/7, 0 false |
+| slow trainer, "увеличи … импулса" with 300–420 ms between the words (v3) | 7/7, 0 false, whole phrases kept |
 | another voice (`bg+f2`) | 0/7, 0 false — speaker-dependent by design: each person who gives commands records |
 
 Commands land at d ≈ 300–1000 (noise up to 1370); non-commands at ≥ 1740 with ratio ≥ 0.72 to the next command.

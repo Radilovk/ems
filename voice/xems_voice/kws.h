@@ -18,8 +18,8 @@ namespace kws {
 
 const int SR = 16000, FRAME = 400, HOP = 160, NFFT = 512, NBIN = NFFT / 2 + 1, NMEL = 26, NCEP = 12;
 const int DIM = NCEP + 1;  // 12 cepstra + energy
-const int MAXF = 80;       // a word at 20 ms frames: 1.6 s
-const int RING = 240;      // 10 ms frames kept: 2.4 s
+const int MAXF = 128;      // a word at 20 ms frames: 2.56 s ("увеличи … импулса", said slowly)
+const int RING = 340;      // 10 ms frames kept: 3.4 s (a long phrase + the pause before and after it)
 const int RW = NMEL + 1;   // a ring frame: mel bands (power) + energy dB
 const int NACT = 8, MAXT = 5;
 const int32_t INF = 0x3fffffff;
@@ -148,7 +148,8 @@ class Front {
 // loudness fit. Longer than MAXLEN = running speech, never a command: wait for the next pause.
 struct Finder {
   float ON_DB = 12, QUIET_DB = 6, OFF_DB = 8, LOUD_DB = 18;
-  int PRE_Q = 20, POST_Q = 22, MINLEN = 16, MAXLEN = 150;
+  int PRE_Q = 20, POST_Q = 22, MINLEN = 16, MAXLEN = 250;
+  int REC_POST_Q = 45;  // recording: a two-word phrase with a breath between its words stays one example
   static const int NH = 150;  // idle frames the median is taken over (1.5 s)
   float hist[NH];
   int nh = 0, hi = 0;
@@ -179,7 +180,7 @@ struct Finder {
     }
     // the noise's history: never a word, never a loud frame between words (own speech made the floor swing and
     // the thresholds jump after a few words); all of running sound, so music switched on cannot lock it out
-    if (state == 2 || state == 0 && (nh < 20 || edb < floorDb + (ON_DB > spread + 8 ? ON_DB : spread + 8))) {
+    if (state == 2 || (state == 0 && (nh < 20 || edb < floorDb + (ON_DB > spread + 8 ? ON_DB : spread + 8)))) {
       hist[hi] = edb;
       hi = (hi + 1) % NH;
       if (nh < NH) nh++;
@@ -210,12 +211,13 @@ struct Finder {
       float off = floorDb + offDb;
       if (peak - 35 > off) off = peak - 35;
       if (edb > off) lastAct = t;
-      if (t - s0 > (uint32_t)MAXLEN + POST_Q) {
+      uint32_t post = (uint32_t)(lenient ? REC_POST_Q : POST_Q);
+      if (t - s0 > (uint32_t)MAXLEN + post) {
         state = 2;
         skipLen = (int)(t - s0) * 10;
         skipDb = (int)(peak - floorDb);
         skipped = true;
-      } else if (t - lastAct >= (uint32_t)POST_Q) {
+      } else if (t - lastAct >= post) {
         state = 0;
         above = 0;
         uint32_t e = lastAct + 3;
@@ -265,15 +267,18 @@ struct Finder {
 
   // The word as matched: 20 ms frames (pairs averaged); per band the noise taken out (× 1.5) and a floor 30 dB
   // under the word's loudest band; log, 12 cepstra minus their mean, energy below the peak; int8.
-  void word(Word &w, const Front &fr) const {
-    int len = (int)(w1 - w0), n = (len + 1) / 2;
+  void word(Word &w, const Front &fr) const { span(w, fr, w0, w1, wPeak); }
+
+  // frames [a, b) of the ring, `pk` = their loudest frame (dB)
+  void span(Word &w, const Front &fr, uint32_t a, uint32_t b0, float pk) const {
+    int len = (int)(b0 - a), n = (len + 1) / 2;
     if (n > MAXF) n = MAXF;
     static float f[MAXF][DIM];  // static: the loop task's stack is small
     static float b[MAXF][NMEL];
     float top = 0, mean[DIM] = {0};
     for (int i = 0; i < n; i++) {
-      const float *x = ring[(w0 + 2 * i) % RING];
-      const float *y = 2 * i + 1 < len ? ring[(w0 + 2 * i + 1) % RING] : x;
+      const float *x = ring[(a + 2 * i) % RING];
+      const float *y = 2 * i + 1 < len ? ring[(a + 2 * i + 1) % RING] : x;
       for (int j = 0; j < NMEL; j++) {
         float p = (x[j] + y[j]) / 2 - 1.5f * noise[j];
         b[i][j] = p > 0 ? p : 0;
@@ -293,7 +298,7 @@ struct Finder {
     }
     for (int i = 0; i < n; i++) {
       for (int d = 0; d < NCEP; d++) w.f[i][d] = q((f[i][d] - mean[d]) * 3);
-      w.f[i][NCEP] = q((f[i][NCEP] - wPeak) * 2);
+      w.f[i][NCEP] = q((f[i][NCEP] - pk) * 2);
     }
     w.n = (uint8_t)n;
   }
@@ -459,6 +464,7 @@ class Engine {
     int ms = (int)(finder.w1 - finder.w0) * 10;
     lastMs = nowMs();
     if (recording >= 0) {
+      prevValid = false;
       int a = recording;
       recording = -1;
       if (count[a] == MAXT) {  // full: the oldest goes
@@ -471,23 +477,51 @@ class Engine {
       if (onChange) onChange();
       return;
     }
-    int32_t best = INF, second = INF;
+    int32_t best, second;
+    int bestA = classify(cur, best, second);
+    // a two-word command said with a breath between its words ("увеличи … импулса") comes as two pieces: the piece
+    // before (not taken, ≤ 450 ms earlier) and this one together, if that matches better than this one alone
+    uint32_t a0 = finder.w0;
+    if (prevValid && finder.w0 - prevW1 <= 45 && finder.w1 - prevW0 <= (uint32_t)finder.MAXLEN &&
+        finder.t - prevW0 < (uint32_t)RING) {
+      static Word both;
+      finder.span(both, front, prevW0, finder.w1, prevPeak > finder.wPeak ? prevPeak : finder.wPeak);
+      int32_t b2, s2;
+      int a2 = classify(both, b2, s2);
+      if (a2 >= 0 && b2 < best) {
+        best = b2; second = s2; bestA = a2; a0 = prevW0;
+        ms = (int)(finder.w1 - prevW0) * 10;
+      }
+    }
+    bool ok = bestA >= 0 && best <= threshold(bestA) && (second >= INF || best * 100 <= (int64_t)MARGIN * second);
+    say("HEARD %s d=%ld d2=%ld thr=%ld len=%d %s", bestA >= 0 ? ACT[bestA] : "-", (long)best,
+        (long)(second >= INF ? -1 : second), (long)(bestA >= 0 ? threshold(bestA) : 0), ms, ok ? "ok" : "no");
+    prevValid = !ok;                      // a piece that was taken never joins the next one
+    prevW0 = a0;
+    prevW1 = finder.w1;
+    prevPeak = finder.wPeak;
+    if (!ok || muted) return;
+    act(bestA, best);
+  }
+  bool prevValid = false;
+  uint32_t prevW0 = 0, prevW1 = 0;
+  float prevPeak = 0;
+
+  // the nearest command to `w` (−1 = none recorded), its distance and the next command's
+  int classify(const Word &w, int32_t &best, int32_t &second) {
+    best = second = INF;
     int bestA = -1;
     for (int a = 0; a < NACT; a++) {
       int32_t cb = INF;
       for (int i = 0; i < count[a]; i++) {
         int32_t lim = cb < second ? cb : second;
-        int32_t d = dtw(cur, tpl[a][i], lim);
+        int32_t d = dtw(w, tpl[a][i], lim);
         if (d < cb) cb = d;
       }
       if (cb < best) { second = best; best = cb; bestA = a; }
       else if (cb < second) second = cb;
     }
-    bool ok = bestA >= 0 && best <= threshold(bestA) && (second >= INF || best * 100 <= (int64_t)MARGIN * second);
-    say("HEARD %s d=%ld d2=%ld thr=%ld len=%d %s", bestA >= 0 ? ACT[bestA] : "-", (long)best,
-        (long)(second >= INF ? -1 : second), (long)(bestA >= 0 ? threshold(bestA) : 0), ms, ok ? "ok" : "no");
-    if (!ok || muted) return;
-    act(bestA, best);
+    return bestA;
   }
   void act(int a, int32_t d) {
     uint32_t now = nowMs();

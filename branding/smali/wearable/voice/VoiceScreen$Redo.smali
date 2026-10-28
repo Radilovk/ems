@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 609
+    .line 620
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 610
+    .line 621
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Redo;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
-    .line 611
+    .line 622
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Redo;->w:Ljava/lang/String;
 
-    .line 612
+    .line 623
     return-void
 .end method
 
@@ -47,16 +47,16 @@
     .registers 4
 
     .prologue
-    .line 616
+    .line 627
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 617
+    .line 628
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Redo;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Redo;->w:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->redo(Ljava/lang/String;)V
 
-    .line 618
+    .line 629
     return-void
 .end method
